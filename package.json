@@ -1,0 +1,21 @@
+{
+  "name": "wormhole-foundation",
+  "private": true,
+  "workspaces": [
+    "wormhole-connect",
+    "sdk",
+    "builder"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "compile": "npm run compile --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "wormhole-connect": "npm run workspace @wormhole-foundation/wormhole-connect",
+    "sdk": "npm run workspace @wormhole-foundation/wormhole-connect-sdk",
+    "builder": "npm run workspace wormhole-connect-builder",
+    "prettier": "npm run prettier --workspaces --if-present"
+  },
+  "dependencies": {
+    "tss-react": "^4.7.7"
+  }
+}
