@@ -1,1 +1,1 @@
-# wormhole-widget
+# Wormhole Connect
