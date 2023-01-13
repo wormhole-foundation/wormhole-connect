@@ -24,4 +24,8 @@ export abstract class Context {
     recipientAddress: string,
     payload: any,
   ): any;
+
+  // getSignedVaa
+  // parseVaa?
+  // redeem
 }
