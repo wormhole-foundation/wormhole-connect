@@ -2,8 +2,8 @@ import {
   ChainId,
   CHAIN_ID_ETH,
   CHAIN_ID_SOLANA,
-} from "@certusone/wormhole-sdk";
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+} from '@certusone/wormhole-sdk';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 const LAST_STEP = 3;
 
@@ -64,7 +64,7 @@ const initialState: TransferState = {
   sourceParsedTokenAccounts: undefined,
   originChain: undefined,
   originAsset: undefined,
-  amount: "",
+  amount: '',
   targetChain: CHAIN_ID_ETH,
   targetAddressHex: undefined,
   // targetAsset: undefined,
@@ -84,7 +84,7 @@ const initialState: TransferState = {
 };
 
 export const transferSlice = createSlice({
-  name: "transfer",
+  name: 'transfer',
   initialState,
   reducers: {
     incrementStep: (state: TransferState) => {

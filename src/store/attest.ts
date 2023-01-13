@@ -2,9 +2,9 @@ import {
   ChainId,
   CHAIN_ID_ETH,
   CHAIN_ID_SOLANA,
-} from "@certusone/wormhole-sdk";
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Transaction } from "./transfer";
+} from '@certusone/wormhole-sdk';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { Transaction } from './transfer';
 
 const LAST_STEP = 3;
 
@@ -25,7 +25,7 @@ export interface AttestState {
 const initialState: AttestState = {
   activeStep: 0,
   sourceChain: CHAIN_ID_SOLANA,
-  sourceAsset: "",
+  sourceAsset: '',
   targetChain: CHAIN_ID_ETH,
   attestTx: undefined,
   signedVAAHex: undefined,
@@ -35,7 +35,7 @@ const initialState: AttestState = {
 };
 
 export const attestSlice = createSlice({
-  name: "attest",
+  name: 'attest',
   initialState,
   reducers: {
     incrementStep: (state: AttestState) => {
@@ -50,7 +50,7 @@ export const attestSlice = createSlice({
     setSourceChain: (state: AttestState, action: PayloadAction<ChainId>) => {
       const prevSourceChain = state.sourceChain;
       state.sourceChain = action.payload;
-      state.sourceAsset = "";
+      state.sourceAsset = '';
       if (state.targetChain === action.payload) {
         state.targetChain = prevSourceChain;
       }
@@ -64,7 +64,7 @@ export const attestSlice = createSlice({
       if (state.sourceChain === action.payload) {
         state.sourceChain = prevTargetChain;
         state.activeStep = 0;
-        state.sourceAsset = "";
+        state.sourceAsset = '';
       }
     },
     setAttestTx: (state: AttestState, action: PayloadAction<Transaction>) => {

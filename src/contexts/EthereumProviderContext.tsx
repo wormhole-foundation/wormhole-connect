@@ -1,19 +1,19 @@
 // TODO: refactor to use MultiProvider
-import detectEthereumProvider from "@metamask/detect-provider";
-import WalletConnectProvider from "@walletconnect/web3-provider";
-import { BigNumber, ethers } from "ethers";
+import detectEthereumProvider from '@metamask/detect-provider';
+import WalletConnectProvider from '@walletconnect/web3-provider';
+import { BigNumber, ethers } from 'ethers';
 import React, {
   useCallback,
   useContext,
   useEffect,
   useMemo,
   useState,
-} from "react";
-import metamaskIcon from "../icons/metamask-fox.svg";
-import walletconnectIcon from "../icons/walletconnect.svg";
-import { EVM_RPC_MAP } from "../utils/metaMaskChainParameters";
-const CacheSubprovider = require("web3-provider-engine/subproviders/cache");
-import { Props } from './WalletContext'
+} from 'react';
+import metamaskIcon from '../icons/metamask-fox.svg';
+import walletconnectIcon from '../icons/walletconnect.svg';
+import { EVM_RPC_MAP } from '../utils/metaMaskChainParameters';
+import { Props } from './WalletContext';
+const CacheSubprovider = require('web3-provider-engine/subproviders/cache');
 
 export type Provider = ethers.providers.Web3Provider | undefined;
 export type Signer = ethers.Signer | undefined;
@@ -53,21 +53,19 @@ const EthereumProviderContext = React.createContext<IEthereumProviderContext>({
   connectType: undefined,
 });
 
-export const EthereumProviderProvider = ({
-  children,
-}: Props) => {
+export const EthereumProviderProvider = ({ children }: Props) => {
   const [providerError, setProviderError] = useState<string | null>(null);
   const [provider, setProvider] = useState<Provider>(undefined);
   const [chainId, setChainId] = useState<number | undefined>(undefined);
   const [signer, setSigner] = useState<Signer>(undefined);
   const [signerAddress, setSignerAddress] = useState<string | undefined>(
-    undefined
+    undefined,
   );
   const [availableConnections, setAvailableConnections] = useState<
     Connection[]
   >([]);
   const [connectType, setConnectType] = useState<ConnectType | undefined>(
-    undefined
+    undefined,
   );
   const [ethereumProvider, setEthereumProvider] = useState<any>(undefined);
   const [walletConnectProvider, setWalletConnectProvider] = useState<
@@ -83,7 +81,7 @@ export const EthereumProviderProvider = ({
         if (detectedProvider) {
           connections.push({
             connectType: ConnectType.METAMASK,
-            name: "MetaMask",
+            name: 'MetaMask',
             icon: metamaskIcon,
           });
         }
@@ -92,7 +90,7 @@ export const EthereumProviderProvider = ({
       }
       connections.push({
         connectType: ConnectType.WALLETCONNECT,
-        name: "Wallet Connect",
+        name: 'Wallet Connect',
         icon: walletconnectIcon,
       });
       if (!cancelled) {
@@ -134,10 +132,10 @@ export const EthereumProviderProvider = ({
               const provider = new ethers.providers.Web3Provider(
                 // @ts-ignore
                 detectedProvider,
-                "any"
+                'any',
               );
               provider
-                .send("eth_requestAccounts", [])
+                .send('eth_requestAccounts', [])
                 .then(() => {
                   setProviderError(null);
                   setProvider(provider);
@@ -148,7 +146,7 @@ export const EthereumProviderProvider = ({
                     })
                     .catch(() => {
                       setProviderError(
-                        "An error occurred while getting the network"
+                        'An error occurred while getting the network',
                       );
                     });
                   const signer = provider.getSigner();
@@ -160,20 +158,20 @@ export const EthereumProviderProvider = ({
                     })
                     .catch(() => {
                       setProviderError(
-                        "An error occurred while getting the signer address"
+                        'An error occurred while getting the signer address',
                       );
                     });
                   // TODO: try using ethers directly
                   // @ts-ignore
                   if (detectedProvider && detectedProvider.on) {
                     // @ts-ignore
-                    detectedProvider.on("chainChanged", (chainId) => {
+                    detectedProvider.on('chainChanged', (chainId) => {
                       try {
                         setChainId(BigNumber.from(chainId).toNumber());
                       } catch (e) {}
                     });
                     // @ts-ignore
-                    detectedProvider.on("accountsChanged", (accounts) => {
+                    detectedProvider.on('accountsChanged', (accounts) => {
                       try {
                         const signer = provider.getSigner();
                         setSigner(signer);
@@ -184,7 +182,7 @@ export const EthereumProviderProvider = ({
                           })
                           .catch(() => {
                             setProviderError(
-                              "An error occurred while getting the signer address"
+                              'An error occurred while getting the signer address',
                             );
                           });
                       } catch (e) {}
@@ -193,20 +191,20 @@ export const EthereumProviderProvider = ({
                 })
                 .catch(() => {
                   setProviderError(
-                    "An error occurred while requesting eth accounts"
+                    'An error occurred while requesting eth accounts',
                   );
                 });
             } else {
-              setProviderError("Please install MetaMask");
+              setProviderError('Please install MetaMask');
             }
           })
           .catch(() => {
-            setProviderError("Please install MetaMask");
+            setProviderError('Please install MetaMask');
           });
       } else if (connectType === ConnectType.WALLETCONNECT) {
         const walletConnectProvider = new WalletConnectProvider({
           rpc: EVM_RPC_MAP,
-          storageId: "walletconnect-evm",
+          storageId: 'walletconnect-evm',
         });
         setWalletConnectProvider(walletConnectProvider);
         walletConnectProvider
@@ -215,7 +213,7 @@ export const EthereumProviderProvider = ({
             setProviderError(null);
             const provider = new ethers.providers.Web3Provider(
               walletConnectProvider,
-              "any"
+              'any',
             );
             provider
               .getNetwork()
@@ -223,28 +221,28 @@ export const EthereumProviderProvider = ({
                 setChainId(network.chainId);
               })
               .catch(() => {
-                setProviderError("An error occurred while getting the network");
+                setProviderError('An error occurred while getting the network');
               });
-            walletConnectProvider.on("chainChanged", (chainId: number) => {
+            walletConnectProvider.on('chainChanged', (chainId: number) => {
               setChainId(chainId);
               // HACK: clear the block-cache when switching chains by creating a new CacheSubprovider
               // Otherwise ethers may not resolve transaction receipts/waits
               const index = walletConnectProvider._providers.findIndex(
-                (subprovider: any) => subprovider instanceof CacheSubprovider
+                (subprovider: any) => subprovider instanceof CacheSubprovider,
               );
               if (index >= 0) {
                 const subprovider = walletConnectProvider._providers[index];
                 walletConnectProvider.removeProvider(subprovider);
                 walletConnectProvider.addProvider(
                   new CacheSubprovider(),
-                  index
+                  index,
                 );
                 // also reset the latest block
                 walletConnectProvider._blockTracker._resetCurrentBlock();
               }
             });
             walletConnectProvider.on(
-              "accountsChanged",
+              'accountsChanged',
               (accounts: string[]) => {
                 try {
                   const signer = provider.getSigner();
@@ -256,19 +254,19 @@ export const EthereumProviderProvider = ({
                     })
                     .catch(() => {
                       setProviderError(
-                        "An error occurred while getting the signer address"
+                        'An error occurred while getting the signer address',
                       );
                     });
                 } catch (error) {
                   console.error(error);
                 }
-              }
+              },
             );
             walletConnectProvider.on(
-              "disconnect",
+              'disconnect',
               (code: number, reason: string) => {
                 disconnect();
-              }
+              },
             );
             setProvider(provider);
             const signer = provider.getSigner();
@@ -280,20 +278,20 @@ export const EthereumProviderProvider = ({
               })
               .catch((error) => {
                 setProviderError(
-                  "An error occurred while getting the signer address"
+                  'An error occurred while getting the signer address',
                 );
                 console.error(error);
               });
           })
           .catch((error) => {
-            if (error.message !== "User closed modal") {
-              setProviderError("Error enabling WalletConnect session");
+            if (error.message !== 'User closed modal') {
+              setProviderError('Error enabling WalletConnect session');
               console.error(error);
             }
           });
       }
     },
-    [disconnect]
+    [disconnect],
   );
 
   const contextValue = useMemo(
@@ -318,7 +316,7 @@ export const EthereumProviderProvider = ({
       providerError,
       availableConnections,
       connectType,
-    ]
+    ],
   );
   return (
     <EthereumProviderContext.Provider value={contextValue}>

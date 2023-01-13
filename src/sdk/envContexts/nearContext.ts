@@ -2,26 +2,26 @@ import { WormholeContext } from '../wormhole';
 import { Context } from './contextAbstract';
 import { TokenId, ChainName, ChainId, NATIVE } from '../types';
 import { FunctionCallOptions } from 'near-api-js/lib/account';
-import { getIsWrappedAssetNear, Network as Environment } from '@certusone/wormhole-sdk';
+import {
+  getIsWrappedAssetNear,
+  Network as Environment,
+} from '@certusone/wormhole-sdk';
 import { Account, connect } from 'near-api-js';
 import BN from 'bn.js';
 import { FinalExecutionOutcome } from 'near-api-js/lib/providers';
-import { Wallet } from "@near-wallet-selector/core/lib/wallet";
+import { Wallet } from '@near-wallet-selector/core/lib/wallet';
 import { setupWalletSelector } from '@near-wallet-selector/core';
-import { setupDefaultWallets } from "@near-wallet-selector/default-wallets";
-import { setupMyNearWallet } from "@near-wallet-selector/my-near-wallet";
-import { setupNearWallet } from "@near-wallet-selector/near-wallet";
-import { setupNightly } from "@near-wallet-selector/nightly";
-import { setupSender } from "@near-wallet-selector/sender";
-import { setupMathWallet } from "@near-wallet-selector/math-wallet";
-import { setupMeteorWallet } from "@near-wallet-selector/meteor-wallet";
+import { setupDefaultWallets } from '@near-wallet-selector/default-wallets';
+import { setupMyNearWallet } from '@near-wallet-selector/my-near-wallet';
+import { setupNearWallet } from '@near-wallet-selector/near-wallet';
+import { setupNightly } from '@near-wallet-selector/nightly';
+import { setupSender } from '@near-wallet-selector/sender';
+import { setupMathWallet } from '@near-wallet-selector/math-wallet';
+import { setupMeteorWallet } from '@near-wallet-selector/meteor-wallet';
 
 async function getNearWallet(env: Environment) {
   return await setupWalletSelector({
-    network:
-      env === "MAINNET"
-        ? "mainnet"
-        : "testnet",
+    network: env === 'MAINNET' ? 'mainnet' : 'testnet',
     modules: [
       ...(await setupDefaultWallets()),
       setupNearWallet(),
@@ -38,7 +38,7 @@ async function getNearWallet(env: Environment) {
 export const signAndSendTransactions = async (
   account: Account,
   wallet: Wallet,
-  messages: FunctionCallOptions[]
+  messages: FunctionCallOptions[],
 ): Promise<FinalExecutionOutcome> => {
   // the browser wallet's signAndSendTransactions call navigates away from the page which is incompatible with the current app design
   if (account) {
@@ -47,7 +47,7 @@ export const signAndSendTransactions = async (
       lastReceipt = await account.functionCall(message);
     }
     if (!lastReceipt) {
-      throw new Error("An error occurred while fetching the transaction info");
+      throw new Error('An error occurred while fetching the transaction info');
     }
     return lastReceipt;
   }
@@ -57,19 +57,19 @@ export const signAndSendTransactions = async (
       receiverId: options.contractId,
       actions: [
         {
-          type: "FunctionCall",
+          type: 'FunctionCall',
           params: {
             methodName: options.methodName,
             args: options.args,
-            gas: options.gas?.toString() || "0",
-            deposit: options.attachedDeposit?.toString() || "0",
+            gas: options.gas?.toString() || '0',
+            deposit: options.attachedDeposit?.toString() || '0',
           },
         },
       ],
     })),
   });
   if (!receipts || receipts.length === 0) {
-    throw new Error("An error occurred while fetching the transaction info");
+    throw new Error('An error occurred while fetching the transaction info');
   }
   return receipts[receipts.length - 1];
 };
@@ -117,18 +117,18 @@ export class NearContext<T extends WormholeContext> extends Context {
     let message_fee = await account.viewFunction(coreBridge, 'message_fee', {});
 
     const transferMsg: FunctionCallOptions = {
-        contractId: tokenBridge,
-        methodName: 'send_transfer_near',
-        args: {
-          receiver: recipientAddress,
-          chain: recipientChain,
-          fee: relayerFee,
-          payload: payload,
-          message_fee: message_fee,
-        },
-        attachedDeposit: new BN(amount).add(new BN(message_fee)),
-        gas: new BN('100000000000000'),
-      };
+      contractId: tokenBridge,
+      methodName: 'send_transfer_near',
+      args: {
+        receiver: recipientAddress,
+        chain: recipientChain,
+        fee: relayerFee,
+        payload: payload,
+        message_fee: message_fee,
+      },
+      attachedDeposit: new BN(amount).add(new BN(message_fee)),
+      gas: new BN('100000000000000'),
+    };
     return await account.functionCall(transferMsg);
   }
 

@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo } from 'react';
 import {
   AptosSnapAdapter,
   AptosWalletAdapter,
@@ -15,18 +15,16 @@ import {
   useWallet,
   WalletAdapterNetwork,
   WalletProvider,
-} from "@manahippo/aptos-wallet-adapter";
+} from '@manahippo/aptos-wallet-adapter';
 import { Props } from './WalletContext';
 const { REACT_APP_ENV } = process.env;
 
 export const useAptosContext = useWallet;
 
-export const AptosWalletProvider = ({
-  children,
-}: Props) => {
+export const AptosWalletProvider = ({ children }: Props) => {
   const wallets = useMemo(() => {
     const network =
-      REACT_APP_ENV === "MAINNET"
+      REACT_APP_ENV === 'MAINNET'
         ? WalletAdapterNetwork.Mainnet
         : WalletAdapterNetwork.Testnet;
     return [
@@ -54,7 +52,7 @@ export const AptosWalletProvider = ({
     <WalletProvider
       wallets={wallets}
       onError={(error: Error) => {
-        console.log("wallet errors: ", error);
+        console.log('wallet errors: ', error);
       }}
     >
       {children}

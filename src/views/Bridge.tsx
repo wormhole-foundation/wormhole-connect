@@ -1,7 +1,5 @@
 function Bridge() {
-  return (
-    <div></div>
-  );
+  return <div></div>;
 }
 
 export default Bridge;

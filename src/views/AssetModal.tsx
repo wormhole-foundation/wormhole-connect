@@ -1,7 +1,5 @@
 function AssetModal() {
-  return (
-    <div></div>
-  );
+  return <div></div>;
 }
 
 export default AssetModal;

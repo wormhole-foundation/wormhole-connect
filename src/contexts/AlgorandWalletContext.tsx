@@ -1,12 +1,11 @@
 import React, {
   createContext,
-  ReactNode,
   useCallback,
   useContext,
   useMemo,
   useState,
-} from "react";
-import MyAlgoConnect, { Accounts } from "@randlabs/myalgo-connect";
+} from 'react';
+import MyAlgoConnect, { Accounts } from '@randlabs/myalgo-connect';
 import { Props } from './WalletContext';
 
 interface IAlgorandContext {
@@ -21,9 +20,7 @@ const AlgorandContext = createContext<IAlgorandContext>({
   accounts: [],
 });
 
-export const AlgorandContextProvider = ({
-  children,
-}: Props) => {
+export const AlgorandContextProvider = ({ children }: Props) => {
   const myAlgoConnect = useMemo(() => new MyAlgoConnect(), []);
   const [accounts, setAccounts] = useState<Accounts[]>([]);
   const connect = useCallback(() => {
@@ -49,7 +46,7 @@ export const AlgorandContextProvider = ({
       disconnect,
       accounts,
     }),
-    [connect, disconnect, accounts]
+    [connect, disconnect, accounts],
   );
 
   return (

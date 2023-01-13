@@ -52,8 +52,8 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "sdk-lint": "eslint --fix ./src/sdk",
-    "sdk-prettier": "prettier --write ./src/sdk",
+    "lint": "yarn prettier && eslint --fix ./src",
+    "prettier": "prettier --write ./src",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",

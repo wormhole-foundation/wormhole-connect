@@ -1,10 +1,10 @@
-import React, { useMemo } from "react";
-import { Adapter, WalletAdapterNetwork } from "@solana/wallet-adapter-base";
+import React, { useMemo } from 'react';
+import { Adapter, WalletAdapterNetwork } from '@solana/wallet-adapter-base';
 import {
   ConnectionProvider,
   WalletProvider,
   useWallet,
-} from "@solana/wallet-adapter-react";
+} from '@solana/wallet-adapter-react';
 import {
   PhantomWalletAdapter,
   SolflareWalletAdapter,
@@ -19,20 +19,18 @@ import {
   BackpackWalletAdapter,
   NightlyWalletAdapter,
   BloctoWalletAdapter,
-} from "@solana/wallet-adapter-wallets";
-import { clusterApiUrl } from "@solana/web3.js";
-import { Props } from './WalletContext'
+} from '@solana/wallet-adapter-wallets';
+import { clusterApiUrl } from '@solana/web3.js';
+import { Props } from './WalletContext';
 
 const { REACT_APP_ENV } = process.env;
 export const SOLANA_HOST = process.env.REACT_APP_SOLANA_API_URL
   ? process.env.REACT_APP_SOLANA_API_URL
-  : REACT_APP_ENV === "MAINNET"
-  ? clusterApiUrl("mainnet-beta")
-  : clusterApiUrl("devnet")
+  : REACT_APP_ENV === 'MAINNET'
+  ? clusterApiUrl('mainnet-beta')
+  : clusterApiUrl('devnet');
 
-export const SolanaWalletProvider = ({
-  children,
-}: Props) => {
+export const SolanaWalletProvider = ({ children }: Props) => {
   const wallets = useMemo(() => {
     const wallets: Adapter[] = [
       new PhantomWalletAdapter(),
@@ -49,7 +47,7 @@ export const SolanaWalletProvider = ({
       new ExodusWalletAdapter(),
     ];
     const network =
-      REACT_APP_ENV === "MAINNET"
+      REACT_APP_ENV === 'MAINNET'
         ? WalletAdapterNetwork.Mainnet
         : WalletAdapterNetwork.Devnet;
     if (network) {

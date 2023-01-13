@@ -1,6 +1,6 @@
-import { configureStore } from "@reduxjs/toolkit";
-import attestReducer from "./attest";
-import transferReducer from "./transfer";
+import { configureStore } from '@reduxjs/toolkit';
+import attestReducer from './attest';
+import transferReducer from './transfer';
 
 export const store = configureStore({
   reducer: {

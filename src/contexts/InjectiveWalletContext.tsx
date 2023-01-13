@@ -4,15 +4,15 @@ import React, {
   useContext,
   useMemo,
   useState,
-} from "react";
-import { Wallet, WalletStrategy } from "@injectivelabs/wallet-ts";
-import { ChainId as InjectiveChainId } from "@injectivelabs/ts-types";
-import keplrIcon from "../icons/keplr.svg";
-import { Props } from './WalletContext'
+} from 'react';
+import { Wallet, WalletStrategy } from '@injectivelabs/wallet-ts';
+import { ChainId as InjectiveChainId } from '@injectivelabs/ts-types';
+import keplrIcon from '../icons/keplr.svg';
+import { Props } from './WalletContext';
 const { REACT_APP_ENV } = process.env;
 
 export const getInjectiveNetworkChainId = () => {
-  if (REACT_APP_ENV === "MAINNET") {
+  if (REACT_APP_ENV === 'MAINNET') {
     return InjectiveChainId.Mainnet;
   } else {
     return InjectiveChainId.Testnet;
@@ -44,16 +44,14 @@ export interface InjectiveWalletInfo {
 export const getSupportedWallets = (): InjectiveWalletInfo[] => [
   {
     wallet: Wallet.Keplr,
-    name: "Keplr",
-    isInstalled: typeof (window as any).keplr !== "undefined",
+    name: 'Keplr',
+    isInstalled: typeof (window as any).keplr !== 'undefined',
     icon: keplrIcon,
-    url: "https://chrome.google.com/webstore/detail/keplr/dmkamcknogkgcdfhhbddcghachkejeap",
+    url: 'https://chrome.google.com/webstore/detail/keplr/dmkamcknogkgcdfhhbddcghachkejeap',
   },
 ];
 
-export const InjectiveWalletProvider = ({
-  children,
-}: Props) => {
+export const InjectiveWalletProvider = ({ children }: Props) => {
   const [wallet, setWallet] = useState<WalletStrategy | null>(null);
   const [address, setAddress] = useState<string | null>(null);
 
@@ -72,7 +70,7 @@ export const InjectiveWalletProvider = ({
         wallet.setWallet(walletType);
         const addresses = await wallet.getAddresses();
         if (addresses.length === 0) {
-          throw new Error("There are no addresses linked to this wallet.");
+          throw new Error('There are no addresses linked to this wallet.');
         }
         const address = addresses[0];
         if (!cancelled) {
@@ -117,7 +115,7 @@ export const InjectiveWalletProvider = ({
       wallet,
       address,
     }),
-    [connect, disconnect, wallet, address]
+    [connect, disconnect, wallet, address],
   );
 
   return (

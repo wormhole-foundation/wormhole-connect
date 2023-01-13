@@ -249,8 +249,7 @@ export class WormholeContext extends MultiProvider<Domain> {
     | SolanaContext<WormholeContext>
     | NearContext<WormholeContext>
     | AptosContext<WormholeContext>
-    | AlgorandContext<WormholeContext>
-  {
+    | AlgorandContext<WormholeContext> {
     const chainName = this.resolveDomainName(chain) as ChainName;
     const { context } = this.conf.chains[chainName]!;
     switch (context) {

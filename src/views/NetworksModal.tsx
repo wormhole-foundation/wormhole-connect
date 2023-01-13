@@ -1,7 +1,5 @@
 function NetworksModal() {
-  return (
-    <div></div>
-  );
+  return <div></div>;
 }
 
 export default NetworksModal;

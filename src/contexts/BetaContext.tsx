@@ -1,26 +1,24 @@
-import React, { useContext, useEffect, useState } from "react";
-import { Props } from './WalletContext'
+import React, { useContext, useEffect, useState } from 'react';
+import { Props } from './WalletContext';
 
 const BetaContext = React.createContext<boolean>(false);
 
-export const BetaContextProvider = ({
-  children,
-}: Props) => {
+export const BetaContextProvider = ({ children }: Props) => {
   const [isBetaEnabled, setIsBetaEnabled] = useState(false);
 
   useEffect(() => {
     let userEntered: string[] = [];
     const secretSequence = [
-      "38",
-      "38",
-      "40",
-      "40",
-      "37",
-      "39",
-      "37",
-      "39",
-      "66",
-      "65",
+      '38',
+      '38',
+      '40',
+      '40',
+      '37',
+      '39',
+      '37',
+      '39',
+      '66',
+      '65',
     ];
     const secretListener = (event: KeyboardEvent) => {
       const k = event.keyCode.toString();
@@ -34,9 +32,9 @@ export const BetaContextProvider = ({
         userEntered = [];
       }
     };
-    window.addEventListener("keydown", secretListener);
+    window.addEventListener('keydown', secretListener);
     return () => {
-      window.removeEventListener("keydown", secretListener);
+      window.removeEventListener('keydown', secretListener);
     };
   }, []);
 
