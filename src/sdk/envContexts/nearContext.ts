@@ -20,7 +20,7 @@ import { setupSender } from '@near-wallet-selector/sender';
 import { setupMathWallet } from '@near-wallet-selector/math-wallet';
 import { setupMeteorWallet } from '@near-wallet-selector/meteor-wallet';
 import { arrayify, sha256 } from 'ethers/lib/utils';
-const NEAR_EVENT_PREFIX = "EVENT_JSON:";
+const NEAR_EVENT_PREFIX = 'EVENT_JSON:';
 
 async function getNearWallet(env: Environment) {
   return await setupWalletSelector({
@@ -311,7 +311,7 @@ export class NearContext<T extends WormholeContext> extends Context {
       for (const l of o.outcome.logs) {
         if (l.startsWith(NEAR_EVENT_PREFIX)) {
           const body = JSON.parse(l.slice(NEAR_EVENT_PREFIX.length));
-          if (body.standard === "wormhole" && body.event === "publish") {
+          if (body.standard === 'wormhole' && body.event === 'publish') {
             sequences.push(body.seq.toString());
           }
         }
@@ -321,6 +321,6 @@ export class NearContext<T extends WormholeContext> extends Context {
   }
 
   getEmitterAddress(address: string): string {
-    return uint8ArrayToHex(arrayify(sha256(Buffer.from(address, "utf8"))));
+    return uint8ArrayToHex(arrayify(sha256(Buffer.from(address, 'utf8'))));
   }
 }

@@ -271,12 +271,12 @@ export class AlgorandContext<T extends WormholeContext> extends Context {
 
   parseSequencesFromLog(receipt: Record<string, any>): string[] {
     let sequences: string[] = [];
-    if (receipt["inner-txns"]) {
-      const innerTxns: [] = receipt["inner-txns"];
+    if (receipt['inner-txns']) {
+      const innerTxns: [] = receipt['inner-txns'];
       class iTxn {
-        "local-state-delta": [[Object]];
+        'local-state-delta': [[Object]];
         logs: Buffer[] | undefined;
-        "pool-error": string;
+        'pool-error': string;
         txn: { txn: [Object] } | undefined;
       }
       innerTxns.forEach((txn: iTxn) => {

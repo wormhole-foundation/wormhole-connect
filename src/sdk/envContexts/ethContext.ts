@@ -1,7 +1,10 @@
-import { Implementation__factory, TokenImplementation__factory } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
+import {
+  Implementation__factory,
+  TokenImplementation__factory,
+} from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
 import { createNonce } from '@certusone/wormhole-sdk';
 import { BigNumberish, constants, ethers, PayableOverrides } from 'ethers';
-import { arrayify, zeroPad } from "ethers/lib/utils";
+import { arrayify, zeroPad } from 'ethers/lib/utils';
 import { WormholeContext } from '../wormhole';
 import { Context } from './contextAbstract';
 import { TokenId, ChainName, ChainId, NATIVE } from '../types';
@@ -137,13 +140,19 @@ export class EthContext<T extends WormholeContext> extends Context {
     }
   }
 
-  parseSequenceFromLog(receipt: ethers.ContractReceipt, chain: ChainName | ChainId): string {
+  parseSequenceFromLog(
+    receipt: ethers.ContractReceipt,
+    chain: ChainName | ChainId,
+  ): string {
     const sequences = this.parseSequencesFromLog(receipt, chain);
     if (sequences.length === 0) throw new Error('no sequence found in log');
     return sequences[0];
   }
 
-  parseSequencesFromLog(receipt: ethers.ContractReceipt, chain: ChainName | ChainId): string[] {
+  parseSequencesFromLog(
+    receipt: ethers.ContractReceipt,
+    chain: ChainName | ChainId,
+  ): string[] {
     const bridgeAddress = this.context.mustGetBridge(chain);
     // TODO: dangerous!(?)
     const bridgeLogs = receipt.logs.filter((l: any) => {
@@ -158,6 +167,6 @@ export class EthContext<T extends WormholeContext> extends Context {
   }
 
   getEmitterAddress(address: any): string {
-    return Buffer.from(zeroPad(arrayify(address), 32)).toString("hex");
+    return Buffer.from(zeroPad(arrayify(address), 32)).toString('hex');
   }
 }

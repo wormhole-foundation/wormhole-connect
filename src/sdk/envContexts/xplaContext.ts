@@ -3,9 +3,9 @@ import { Context } from './contextAbstract';
 import { TokenId, ChainName, ChainId, NATIVE } from '../types';
 import { MsgExecuteContract as XplaMsgExecuteContract } from '@xpla/xpla.js';
 import { hexToUint8Array, isNativeDenomXpla } from '@certusone/wormhole-sdk';
-import { TxInfo } from "@xpla/xpla.js";
-import { bech32 } from "bech32";
-import { zeroPad } from "ethers/lib/utils";
+import { TxInfo } from '@xpla/xpla.js';
+import { bech32 } from 'bech32';
+import { zeroPad } from 'ethers/lib/utils';
 
 export class XplaContext<T extends WormholeContext> extends Context {
   readonly context: T;
@@ -164,7 +164,7 @@ export class XplaContext<T extends WormholeContext> extends Context {
     jsonLog.forEach((row: any) => {
       row.events.forEach((event: any) => {
         event.attributes.forEach((attribute: any) => {
-          if (attribute.key === "message.sequence") {
+          if (attribute.key === 'message.sequence') {
             sequences.push(attribute.value.toString());
           }
         });
@@ -175,7 +175,7 @@ export class XplaContext<T extends WormholeContext> extends Context {
 
   getEmitterAddress(address: string): string {
     return Buffer.from(
-      zeroPad(bech32.fromWords(bech32.decode(address).words), 32)
-    ).toString("hex");
+      zeroPad(bech32.fromWords(bech32.decode(address).words), 32),
+    ).toString('hex');
   }
 }
