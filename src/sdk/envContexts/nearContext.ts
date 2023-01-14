@@ -18,6 +18,7 @@ import { setupNightly } from '@near-wallet-selector/nightly';
 import { setupSender } from '@near-wallet-selector/sender';
 import { setupMathWallet } from '@near-wallet-selector/math-wallet';
 import { setupMeteorWallet } from '@near-wallet-selector/meteor-wallet';
+const NEAR_EVENT_PREFIX = "EVENT_JSON:";
 
 async function getNearWallet(env: Environment) {
   return await setupWalletSelector({
@@ -294,5 +295,26 @@ export class NearContext<T extends WormholeContext> extends Context {
         payload,
       );
     }
+  }
+
+  parseSequenceFromLog(receipt: FinalExecutionOutcome): string {
+    const sequences = this.parseSequencesFromLog(receipt);
+    if (sequences.length === 0) throw new Error('no sequence found in log');
+    return sequences[0];
+  }
+
+  parseSequencesFromLog(receipt: FinalExecutionOutcome): string[] {
+    const sequences: string[] = [];
+    for (const o of receipt.receipts_outcome) {
+      for (const l of o.outcome.logs) {
+        if (l.startsWith(NEAR_EVENT_PREFIX)) {
+          const body = JSON.parse(l.slice(NEAR_EVENT_PREFIX.length));
+          if (body.standard === "wormhole" && body.event === "publish") {
+            sequences.push(body.seq.toString());
+          }
+        }
+      }
+    }
+    return sequences;
   }
 }

@@ -1,9 +1,11 @@
-import { WormholeContext } from '../wormhole';
-import { Context } from './contextAbstract';
-import { TokenId, ChainName, ChainId, NATIVE } from '../types';
 import { MsgExecuteContract } from '@terra-money/terra.js';
 import { isNativeDenom } from '@certusone/wormhole-sdk/lib/cjs/terra';
 import { hexToUint8Array } from '@certusone/wormhole-sdk';
+import { TxInfo } from "@terra-money/terra.js";
+
+import { WormholeContext } from '../wormhole';
+import { Context } from './contextAbstract';
+import { TokenId, ChainName, ChainId, NATIVE } from '../types';
 
 export class TerraContext<T extends WormholeContext> extends Context {
   readonly context: T;
@@ -146,5 +148,41 @@ export class TerraContext<T extends WormholeContext> extends Context {
       undefined,
       payload,
     );
+  }
+
+  parseSequenceFromLog(receipt: TxInfo): string {
+    const sequences = this.parseSequencesFromLog(receipt);
+    if (sequences.length === 0) throw new Error('no sequence found in log');
+    return sequences[0];
+    // // Scan for the Sequence attribute in all the outputs of the transaction.
+    // let sequence = '';
+    // const jsonLog = JSON.parse(info.raw_log);
+    // jsonLog.map((row: any) => {
+    //   row.events.map((event: any) => {
+    //     event.attributes.map((attribute: any) => {
+    //       if (attribute.key === "message.sequence") {
+    //         sequence = attribute.value.toString();
+    //       }
+    //     });
+    //   });
+    // });
+    // return sequence;
+  }
+
+  parseSequencesFromLog(receipt: TxInfo): string[] {
+    // Scan for the Sequence attribute in all the outputs of the transaction.
+    // TODO: Make this not horrible.
+    let sequences: string[] = [];
+    const jsonLog = JSON.parse(receipt.raw_log);
+    jsonLog.forEach((row: any) => {
+      row.events.forEach((event: any) => {
+        event.attributes.forEach((attribute: any) => {
+          if (attribute.key === "message.sequence") {
+            sequences.push(attribute.value.toString());
+          }
+        });
+      });
+    });
+    return sequences;
   }
 }

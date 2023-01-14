@@ -26,6 +26,7 @@ import {
   createTransferWrappedInstruction,
   createTransferWrappedWithPayloadInstruction,
 } from '@certusone/wormhole-sdk/lib/cjs/solana/tokenBridge';
+const SOLANA_SEQ_LOG = "Program log: Sequence: ";
 
 export class SolanaContext<T extends WormholeContext> extends Context {
   readonly context: T;
@@ -349,5 +350,18 @@ export class SolanaContext<T extends WormholeContext> extends Context {
         commitment,
       );
     }
+  }
+
+  parseSequenceFromLog(receipt: any): string {
+    const sequences = this.parseSequencesFromLog(receipt);
+    if (sequences.length === 0) throw new Error('no sequence found in log');
+    return sequences[0];
+  }
+
+  parseSequencesFromLog(receipt: any): string[] {
+    // TODO: better parsing, safer
+    return receipt.meta?.logMessages
+      ?.filter((msg: string) => msg.startsWith(SOLANA_SEQ_LOG))
+      .map((msg: string) => msg.replace(SOLANA_SEQ_LOG, ""));
   }
 }

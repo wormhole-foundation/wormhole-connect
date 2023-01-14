@@ -1,4 +1,4 @@
-import { TokenImplementation__factory } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
+import { Implementation__factory, TokenImplementation__factory } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
 import { createNonce } from '@certusone/wormhole-sdk';
 import { BigNumberish, constants, ethers, PayableOverrides } from 'ethers';
 import { WormholeContext } from '../wormhole';
@@ -133,5 +133,25 @@ export class EthContext<T extends WormholeContext> extends Context {
       );
       return await v.wait();
     }
+  }
+
+  parseSequenceFromLog(receipt: ethers.ContractReceipt, chain: ChainName | ChainId): string {
+    const sequences = this.parseSequencesFromLog(receipt, chain);
+    if (sequences.length === 0) throw new Error('no sequence found in log');
+    return sequences[0];
+  }
+
+  parseSequencesFromLog(receipt: ethers.ContractReceipt, chain: ChainName | ChainId): string[] {
+    const bridgeAddress = this.context.mustGetBridge(chain);
+    // TODO: dangerous!(?)
+    const bridgeLogs = receipt.logs.filter((l: any) => {
+      return l.address === bridgeAddress;
+    });
+    return bridgeLogs.map((bridgeLog) => {
+      const {
+        args: { sequence },
+      } = Implementation__factory.createInterface().parseLog(bridgeLog);
+      return sequence.toString();
+    });
   }
 }
