@@ -26,6 +26,7 @@ import {
   createTransferWrappedInstruction,
   createTransferWrappedWithPayloadInstruction,
 } from '@certusone/wormhole-sdk/lib/cjs/solana/tokenBridge';
+import { deriveWormholeEmitterKey } from '@certusone/wormhole-sdk/lib/cjs/solana/wormhole';
 const SOLANA_SEQ_LOG = "Program log: Sequence: ";
 
 export class SolanaContext<T extends WormholeContext> extends Context {
@@ -363,5 +364,9 @@ export class SolanaContext<T extends WormholeContext> extends Context {
     return receipt.meta?.logMessages
       ?.filter((msg: string) => msg.startsWith(SOLANA_SEQ_LOG))
       .map((msg: string) => msg.replace(SOLANA_SEQ_LOG, ""));
+  }
+
+  getEmitterAddress(address: PublicKeyInitData): string {
+    return deriveWormholeEmitterKey(address).toBuffer().toString("hex");
   }
 }

@@ -13,6 +13,7 @@ import {
   safeBigIntToNumber,
   textToUint8Array,
   hexToUint8Array,
+  uint8ArrayToHex,
 } from '@certusone/wormhole-sdk';
 import {
   Algodv2,
@@ -24,6 +25,7 @@ import {
   OnApplicationComplete,
   SuggestedParams,
   Transaction as AlgorandTransaction,
+  decodeAddress,
 } from 'algosdk';
 import AlgodClient from 'algosdk/dist/types/client/v2/algod/algod';
 
@@ -284,5 +286,12 @@ export class AlgorandContext<T extends WormholeContext> extends Context {
       });
     }
     return sequences;
+  }
+
+  getEmitterAddress(address: bigint): string {
+    const appAddr: string = getApplicationAddress(address);
+    const decAppAddr: Uint8Array = decodeAddress(appAddr).publicKey;
+    const aa: string = uint8ArrayToHex(decAppAddr);
+    return aa;
   }
 }

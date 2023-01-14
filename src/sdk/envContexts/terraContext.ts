@@ -2,6 +2,8 @@ import { MsgExecuteContract } from '@terra-money/terra.js';
 import { isNativeDenom } from '@certusone/wormhole-sdk/lib/cjs/terra';
 import { hexToUint8Array } from '@certusone/wormhole-sdk';
 import { TxInfo } from "@terra-money/terra.js";
+import { bech32 } from "bech32";
+import { zeroPad } from "ethers/lib/utils";
 
 import { WormholeContext } from '../wormhole';
 import { Context } from './contextAbstract';
@@ -184,5 +186,11 @@ export class TerraContext<T extends WormholeContext> extends Context {
       });
     });
     return sequences;
+  }
+
+  getEmitterAddress(address: string): string {
+    return Buffer.from(
+      zeroPad(bech32.fromWords(bech32.decode(address).words), 32)
+    ).toString("hex");
   }
 }

@@ -62,7 +62,7 @@ export class AptosContext<T extends WormholeContext> extends Context {
     return sequences[0];
   }
 
-  protected parseSequencesFromLog(receipt: Types.UserTransaction, chain: ChainName | ChainId): string[] {
+  parseSequencesFromLog(receipt: Types.UserTransaction, chain: ChainName | ChainId): string[] {
     const coreBridge = this.context.mustGetCore(chain);
 
     if (receipt.success) {
@@ -79,5 +79,10 @@ export class AptosContext<T extends WormholeContext> extends Context {
     }
   
     return [];
+  }
+
+  getEmitterAddress(address: string) {
+    throw new Error('cannot get emitter address');
+    return '';
   }
 }

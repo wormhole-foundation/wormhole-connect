@@ -2,6 +2,8 @@ import { WormholeContext } from '../wormhole';
 import { Context } from './contextAbstract';
 import { TokenId, ChainName, ChainId, NATIVE } from '../types';
 import { MsgExecuteContract as MsgExecuteContractInjective } from '@injectivelabs/sdk-ts';
+import { bech32 } from "bech32";
+import { zeroPad } from "ethers/lib/utils";
 import {
   hexToUint8Array,
   isNativeDenomInjective,
@@ -161,5 +163,11 @@ export class InjectiveContext<T extends WormholeContext> extends Context {
       });
     });
     return sequences;
+  }
+
+  getEmitterAddress(address: string): string {
+    return Buffer.from(
+      zeroPad(bech32.fromWords(bech32.decode(address).words), 32)
+    ).toString("hex");
   }
 }

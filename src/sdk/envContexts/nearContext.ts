@@ -5,6 +5,7 @@ import { FunctionCallOptions } from 'near-api-js/lib/account';
 import {
   getIsWrappedAssetNear,
   Network as Environment,
+  uint8ArrayToHex,
 } from '@certusone/wormhole-sdk';
 import { Account, connect } from 'near-api-js';
 import BN from 'bn.js';
@@ -18,6 +19,7 @@ import { setupNightly } from '@near-wallet-selector/nightly';
 import { setupSender } from '@near-wallet-selector/sender';
 import { setupMathWallet } from '@near-wallet-selector/math-wallet';
 import { setupMeteorWallet } from '@near-wallet-selector/meteor-wallet';
+import { arrayify, sha256 } from 'ethers/lib/utils';
 const NEAR_EVENT_PREFIX = "EVENT_JSON:";
 
 async function getNearWallet(env: Environment) {
@@ -316,5 +318,9 @@ export class NearContext<T extends WormholeContext> extends Context {
       }
     }
     return sequences;
+  }
+
+  getEmitterAddress(address: string): string {
+    return uint8ArrayToHex(arrayify(sha256(Buffer.from(address, "utf8"))));
   }
 }

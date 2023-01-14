@@ -1,9 +1,11 @@
 import { Implementation__factory, TokenImplementation__factory } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
 import { createNonce } from '@certusone/wormhole-sdk';
 import { BigNumberish, constants, ethers, PayableOverrides } from 'ethers';
+import { arrayify, zeroPad } from "ethers/lib/utils";
 import { WormholeContext } from '../wormhole';
 import { Context } from './contextAbstract';
 import { TokenId, ChainName, ChainId, NATIVE } from '../types';
+
 export class EthContext<T extends WormholeContext> extends Context {
   readonly context: T;
 
@@ -153,5 +155,9 @@ export class EthContext<T extends WormholeContext> extends Context {
       } = Implementation__factory.createInterface().parseLog(bridgeLog);
       return sequence.toString();
     });
+  }
+
+  getEmitterAddress(address: any): string {
+    return Buffer.from(zeroPad(arrayify(address), 32)).toString("hex");
   }
 }

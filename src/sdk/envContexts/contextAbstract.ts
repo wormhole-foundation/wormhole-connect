@@ -27,6 +27,7 @@ export abstract class Context {
 
   protected abstract parseSequenceFromLog(receipt: any, chain?: ChainName | ChainId): string;
   protected abstract parseSequencesFromLog(receipt: any, chain?: ChainName | ChainId): string[];
+  protected abstract getEmitterAddress(address: any): string;
 
   // getSignedVaa
   // parseVaa?
