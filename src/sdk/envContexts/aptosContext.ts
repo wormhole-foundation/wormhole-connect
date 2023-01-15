@@ -89,7 +89,7 @@ export class AptosContext<T extends WormholeContext> extends Context {
     return [];
   }
 
-  getEmitterAddress(address: string) {
+  getEmitterAddress(address: string): string {
     throw new Error('cannot get emitter address');
   }
 }
