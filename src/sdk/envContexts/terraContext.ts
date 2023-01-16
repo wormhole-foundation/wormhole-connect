@@ -152,8 +152,8 @@ export class TerraContext<T extends WormholeContext> extends Context {
     );
   }
 
-  parseSequenceFromLog(receipt: TxInfo): string {
-    const sequences = this.parseSequencesFromLog(receipt);
+  parseSequenceFromLog(receipt: TxInfo, chain: ChainName | ChainId): string {
+    const sequences = this.parseSequencesFromLog(receipt, chain);
     if (sequences.length === 0) throw new Error('no sequence found in log');
     return sequences[0];
     // // Scan for the Sequence attribute in all the outputs of the transaction.
@@ -171,7 +171,7 @@ export class TerraContext<T extends WormholeContext> extends Context {
     // return sequence;
   }
 
-  parseSequencesFromLog(receipt: TxInfo): string[] {
+  parseSequencesFromLog(receipt: TxInfo, chain: ChainName | ChainId): string[] {
     // Scan for the Sequence attribute in all the outputs of the transaction.
     // TODO: Make this not horrible.
     let sequences: string[] = [];

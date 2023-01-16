@@ -144,13 +144,13 @@ export class InjectiveContext<T extends WormholeContext> extends Context {
     );
   }
 
-  protected parseSequenceFromLog(receipt: any): string {
-    const sequences = this.parseSequencesFromLog(receipt);
+  parseSequenceFromLog(receipt: any, chain: ChainName | ChainId): string {
+    const sequences = this.parseSequencesFromLog(receipt, chain);
     if (sequences.length === 0) throw new Error('no sequence found in log');
     return sequences[0];
   }
 
-  protected parseSequencesFromLog(receipt: any): string[] {
+  parseSequencesFromLog(receipt: any, chain: ChainName | ChainId): string[] {
     let sequences: string[] = [];
     const jsonLog = JSON.parse(receipt.rawLog);
     jsonLog.forEach((row: any) => {

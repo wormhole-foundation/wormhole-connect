@@ -204,41 +204,6 @@ export class WormholeContext extends MultiProvider<Domain> {
     return nftBridgeContract;
   }
 
-  /**
-   * Approves amount for bridge transfer. If no amount is specified, the max amount is approved
-   *
-   * @param token The tokenId (chain and address) of the token being sent
-   * @param Amount The amount to approve. If absent, will approve the maximum amount
-   * @throws If unable to get the signer or contracts
-   */
-  async approve(token: TokenId, amount?: BigNumberish, overrides?: any) {
-    const signer = this.getSigner(token.chain);
-    if (!signer) throw new Error(`No signer for ${token.chain}`);
-    const senderAddress = await signer.getAddress();
-    const tokenImplementation = TokenImplementation__factory.connect(
-      token.address,
-      signer,
-    );
-    if (!tokenImplementation)
-      throw new Error(`token contract not available for ${token.address}`);
-
-    const bridgeAddress = this.mustGetBridge(token.chain).address;
-    const approved = await tokenImplementation.allowance(
-      senderAddress,
-      bridgeAddress,
-    );
-    const approveAmount = amount || constants.MaxUint256;
-    // Approve if necessary
-    if (approved.lt(approveAmount)) {
-      const tx = await tokenImplementation.approve(
-        bridgeAddress,
-        approveAmount,
-        overrides,
-      );
-      await tx.wait();
-    }
-  }
-
   getContext(
     chain: ChainName | ChainId,
   ):
@@ -290,6 +255,7 @@ export class WormholeContext extends MultiProvider<Domain> {
    * @param Amount The amount to approve. If absent, will approve the maximum amount
    * @throws If unable to get the signer or contracts
    */
+  // TODO: implement extra arguments for other networks
   async send(
     token: TokenId | 'native',
     amount: string,
@@ -299,9 +265,19 @@ export class WormholeContext extends MultiProvider<Domain> {
     recipientAddress: string,
     relayerFee?: string,
     payload?: any,
-    overrides?: any,
   ) {
     const context = this.getContext(sendingChain);
+    if (payload) {
+      context.sendWithPayload(
+        token,
+        amount,
+        sendingChain,
+        senderAddress,
+        recipientChain,
+        recipientAddress,
+        payload,
+      );
+    }
     context.send(
       token,
       amount,
@@ -311,6 +287,21 @@ export class WormholeContext extends MultiProvider<Domain> {
       recipientAddress,
       relayerFee,
     );
+  }
+
+  parseSequenceFromLog(receipt: any, chain: ChainName | ChainId): string {
+    const context = this.getContext(chain);
+    return context.parseSequenceFromLog(receipt, chain);
+  }
+
+  parseSequencesFromLog(receipt: any, chain: ChainName | ChainId): string[] {
+    const context = this.getContext(chain);
+    return context.parseSequencesFromLog(receipt, chain);
+  }
+
+  getEmitterAddress(address: string, chain: ChainName | ChainId): string {
+    const context = this.getContext(chain);
+    return context.getEmitterAddress(address);
   }
 
   /**

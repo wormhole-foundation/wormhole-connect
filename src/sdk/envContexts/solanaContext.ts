@@ -18,6 +18,7 @@ import {
   PublicKeyInitData,
   SystemProgram,
   Transaction as SolanaTransaction,
+  TransactionResponse,
 } from '@solana/web3.js';
 import {
   createApproveAuthoritySignerInstruction,
@@ -353,17 +354,19 @@ export class SolanaContext<T extends WormholeContext> extends Context {
     }
   }
 
-  parseSequenceFromLog(receipt: any): string {
-    const sequences = this.parseSequencesFromLog(receipt);
+  parseSequenceFromLog(receipt: TransactionResponse, chain: ChainName | ChainId): string {
+    const sequences = this.parseSequencesFromLog(receipt, chain);
     if (sequences.length === 0) throw new Error('no sequence found in log');
     return sequences[0];
   }
 
-  parseSequencesFromLog(receipt: any): string[] {
+  parseSequencesFromLog(receipt: TransactionResponse, chain: ChainName | ChainId): string[] {
     // TODO: better parsing, safer
-    return receipt.meta?.logMessages
+    const sequences = receipt.meta?.logMessages
       ?.filter((msg: string) => msg.startsWith(SOLANA_SEQ_LOG))
       .map((msg: string) => msg.replace(SOLANA_SEQ_LOG, ''));
+    if (!sequences || sequences.length <= 0) throw new Error('no sequence found in log');
+    return sequences;
   }
 
   getEmitterAddress(address: PublicKeyInitData): string {
