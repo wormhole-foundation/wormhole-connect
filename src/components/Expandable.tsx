@@ -1,7 +1,13 @@
 import React from 'react';
+import { makeStyles } from '@mui/styles';
+
+const useStyles = makeStyles(() => ({
+  title: {},
+}));
 
 function Expandable() {
-  return <div></div>;
+  const classes = useStyles();
+  return <div className={classes.title}></div>;
 }
 
 export default Expandable;
