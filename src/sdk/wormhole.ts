@@ -374,10 +374,9 @@ export class WormholeContext extends MultiProvider<Domain> {
     chain: ChainName | ChainId,
     sequence: string,
   ): Promise<Uint8Array> {
-    const chainId = this.resolveDomain(chain);
     //Note, if handed a sequence which doesn't exist or was skipped for consensus this will retry until the timeout.
     const { vaaBytes } = await this.getSignedVAAWithRetry(
-      chainId,
+      chain,
       sequence,
       {
         transport: NodeHttpTransport(), //This should only be needed when running in node.
