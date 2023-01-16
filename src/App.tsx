@@ -1,6 +1,6 @@
 import * as React from 'react';
 import CssBaseline from '@mui/material/CssBaseline';
-import { ThemeProvider, createTheme, useTheme } from '@mui/material/styles';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import { PaletteMode } from '@mui/material';
 import { makeStyles } from '@mui/styles';
@@ -14,57 +14,58 @@ import './App.css';
 
 const ColorModeContext = React.createContext({ toggleColorMode: () => {} });
 
-const getDesignTokens = (mode: PaletteMode) => createTheme({
-  palette: {
-    mode,
-    ...(mode === 'light'
-      ? {
-          // palette values for light mode
-          primary: amber,
-          divider: amber[200],
-          text: {
-            primary: grey[900],
-            secondary: grey[800],
-          },
-        }
-      : {
-          // palette values for dark mode
-          primary: {
-            50: '#e6e6e8',
-            100: '#ceced1',
-            200: '#b5b6ba',
-            300: '#9d9ea4',
-            400: '#84868d',
-            500: '#6c6e76',
-            600: '#535660',
-            700: '#3a3e49',
-            800: '#222632',
-            900: '#0a0e1c',
-            A100: '#ceced1',
-            A200: '#9d9ea4',
-            A400: '#535660',
-            A700: '#0a0e1c',
-          },
-          divider: '#3a3e49',
-          background: {
-            default: '#0A0E1C',
-            paper: '#0A0E1C',
-          },
-          text: {
-            primary: '#fff',
-            secondary: grey[500],
-          },
-        }),
-  },
-});
+const getDesignTokens = (mode: PaletteMode) =>
+  createTheme({
+    palette: {
+      mode,
+      ...(mode === 'light'
+        ? {
+            // palette values for light mode
+            primary: amber,
+            divider: amber[200],
+            text: {
+              primary: grey[900],
+              secondary: grey[800],
+            },
+          }
+        : {
+            // palette values for dark mode
+            primary: {
+              50: '#e6e6e8',
+              100: '#ceced1',
+              200: '#b5b6ba',
+              300: '#9d9ea4',
+              400: '#84868d',
+              500: '#6c6e76',
+              600: '#535660',
+              700: '#3a3e49',
+              800: '#222632',
+              900: '#0a0e1c',
+              A100: '#ceced1',
+              A200: '#9d9ea4',
+              A400: '#535660',
+              A700: '#0a0e1c',
+            },
+            divider: '#3a3e49',
+            background: {
+              default: '#0A0E1C',
+              paper: '#0A0E1C',
+            },
+            text: {
+              primary: '#fff',
+              secondary: grey[500],
+            },
+          }),
+    },
+  });
 
 const useStyles = makeStyles(() => ({
   appContent: {
     margin: 'auto',
-    maxWidth: "900px",
-    width: "100%",
-    display: "flex",
-    justifyContent: 'center'
+    maxWidth: '900px',
+    width: '100%',
+    display: 'flex',
+    justifyContent: 'center',
   },
 }));
 
@@ -104,8 +105,16 @@ function App() {
           }}
         >
           {theme.palette.mode} mode
-          <IconButton sx={{ ml: 1 }} onClick={colorMode.toggleColorMode} color="inherit">
-            {theme.palette.mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
+          <IconButton
+            sx={{ ml: 1 }}
+            onClick={colorMode.toggleColorMode}
+            color="inherit"
+          >
+            {theme.palette.mode === 'dark' ? (
+              <Brightness7Icon />
+            ) : (
+              <Brightness4Icon />
+            )}
           </IconButton>
         </Box>
         <div className={classes.appContent}>my app</div>

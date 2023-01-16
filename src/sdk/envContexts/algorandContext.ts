@@ -263,13 +263,19 @@ export class AlgorandContext<T extends WormholeContext> extends Context {
     );
   }
 
-  parseSequenceFromLog(receipt: Record<string, any>, chain: ChainName | ChainId): string {
+  parseSequenceFromLog(
+    receipt: Record<string, any>,
+    chain: ChainName | ChainId,
+  ): string {
     const sequences = this.parseSequencesFromLog(receipt, chain);
     if (sequences.length === 0) throw new Error('no sequence found in log');
     return sequences[0];
   }
 
-  parseSequencesFromLog(receipt: Record<string, any>, chain: ChainName | ChainId): string[] {
+  parseSequencesFromLog(
+    receipt: Record<string, any>,
+    chain: ChainName | ChainId,
+  ): string[] {
     let sequences: string[] = [];
     if (receipt['inner-txns']) {
       const innerTxns: [] = receipt['inner-txns'];

@@ -3,28 +3,28 @@ import { makeStyles } from '@mui/styles';
 
 const useStyles = makeStyles(() => ({
   holeOuterContainer: {
-    maxWidth: "100%",
-    width: "100%",
-    position: "relative",
+    maxWidth: '100%',
+    width: '100%',
+    position: 'relative',
   },
   holeInnerContainer: {
-    position: "absolute",
+    position: 'absolute',
     zIndex: -1,
-    left: "50%",
-    transform: "translate(-50%, 0)",
-    width: "100%",
-    maxWidth: "100%",
-    overflow: "hidden",
-    display: "flex",
-    justifyContent: "center",
+    left: '50%',
+    transform: 'translate(-50%, 0)',
+    width: '100%',
+    maxWidth: '100%',
+    overflow: 'hidden',
+    display: 'flex',
+    justifyContent: 'center',
   },
   holeImage: {
-    width: "max(1200px, 100vw)",
-    maxWidth: "1600px",
+    width: 'max(1200px, 100vw)',
+    maxWidth: '1600px',
   },
   blurred: {
-    filter: "blur(2px)",
-    opacity: ".9",
+    filter: 'blur(2px)',
+    opacity: '.9',
   },
 }));
 

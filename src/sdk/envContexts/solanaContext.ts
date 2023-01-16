@@ -354,18 +354,25 @@ export class SolanaContext<T extends WormholeContext> extends Context {
     }
   }
 
-  parseSequenceFromLog(receipt: TransactionResponse, chain: ChainName | ChainId): string {
+  parseSequenceFromLog(
+    receipt: TransactionResponse,
+    chain: ChainName | ChainId,
+  ): string {
     const sequences = this.parseSequencesFromLog(receipt, chain);
     if (sequences.length === 0) throw new Error('no sequence found in log');
     return sequences[0];
   }
 
-  parseSequencesFromLog(receipt: TransactionResponse, chain: ChainName | ChainId): string[] {
+  parseSequencesFromLog(
+    receipt: TransactionResponse,
+    chain: ChainName | ChainId,
+  ): string[] {
     // TODO: better parsing, safer
     const sequences = receipt.meta?.logMessages
       ?.filter((msg: string) => msg.startsWith(SOLANA_SEQ_LOG))
       .map((msg: string) => msg.replace(SOLANA_SEQ_LOG, ''));
-    if (!sequences || sequences.length <= 0) throw new Error('no sequence found in log');
+    if (!sequences || sequences.length <= 0)
+      throw new Error('no sequence found in log');
     return sequences;
   }
 

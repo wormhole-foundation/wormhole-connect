@@ -299,13 +299,19 @@ export class NearContext<T extends WormholeContext> extends Context {
     }
   }
 
-  parseSequenceFromLog(receipt: FinalExecutionOutcome, chain: ChainName | ChainId): string {
+  parseSequenceFromLog(
+    receipt: FinalExecutionOutcome,
+    chain: ChainName | ChainId,
+  ): string {
     const sequences = this.parseSequencesFromLog(receipt, chain);
     if (sequences.length === 0) throw new Error('no sequence found in log');
     return sequences[0];
   }
 
-  parseSequencesFromLog(receipt: FinalExecutionOutcome, chain: ChainName | ChainId): string[] {
+  parseSequencesFromLog(
+    receipt: FinalExecutionOutcome,
+    chain: ChainName | ChainId,
+  ): string[] {
     const sequences: string[] = [];
     for (const o of receipt.receipts_outcome) {
       for (const l of o.outcome.logs) {

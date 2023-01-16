@@ -6,9 +6,8 @@ import {
 } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
 import { Network as Environment } from '@certusone/wormhole-sdk';
 import { MultiProvider, Domain } from '@nomad-xyz/multi-provider';
-import { publicrpc } from "@certusone/wormhole-sdk-proto-web";
-import { NodeHttpTransport } from "@improbable-eng/grpc-web-node-http-transport";
-const { GrpcWebImpl, PublicRPCServiceClientImpl } = publicrpc;
+import { publicrpc } from '@certusone/wormhole-sdk-proto-web';
+import { NodeHttpTransport } from '@improbable-eng/grpc-web-node-http-transport';
 
 import MAINNET_CONFIG, {
   MainnetChainName,
@@ -29,6 +28,7 @@ import { SolanaContext } from './envContexts/solanaContext';
 import { NearContext } from './envContexts/nearContext';
 import { AptosContext } from './envContexts/aptosContext';
 import { AlgorandContext } from './envContexts/algorandContext';
+const { GrpcWebImpl, PublicRPCServiceClientImpl } = publicrpc;
 
 /**
  * The WormholeContext manages connections to Wormhole Core, Bridge and NFT Bridge contracts.
@@ -306,7 +306,11 @@ export class WormholeContext extends MultiProvider<Domain> {
     return context.getEmitterAddress(address);
   }
 
-  async getSignedVaaWithReceipt(chain: ChainName | ChainId, receipt: any, extraGrpcOpts = {}) {
+  async getSignedVaaWithReceipt(
+    chain: ChainName | ChainId,
+    receipt: any,
+    extraGrpcOpts = {},
+  ) {
     const chainName = this.resolveDomainName(chain) as ChainName;
     const rpcUrl = this.conf.rpcs[chainName];
     if (!rpcUrl) throw new Error(`Must provide rpc for ${chainName}`);
@@ -325,7 +329,11 @@ export class WormholeContext extends MultiProvider<Domain> {
     });
   }
 
-  async getSignedVaaWithSequence(chain: ChainName | ChainId, sequence: string, extraGrpcOpts = {}) {
+  async getSignedVaaWithSequence(
+    chain: ChainName | ChainId,
+    sequence: string,
+    extraGrpcOpts = {},
+  ) {
     const chainName = this.resolveDomainName(chain) as ChainName;
     const rpcUrl = this.conf.rpcs[chainName];
     if (!rpcUrl) throw new Error(`Must provide rpc for ${chainName}`);
@@ -348,7 +356,7 @@ export class WormholeContext extends MultiProvider<Domain> {
     sequence: string,
     extraGrpcOpts = {},
     retryTimeout = 1000,
-    retryAttempts?: number
+    retryAttempts?: number,
   ) {
     let result;
     let attempts = 0;
@@ -359,7 +367,7 @@ export class WormholeContext extends MultiProvider<Domain> {
         result = await this.getSignedVaaWithSequence(
           emitterChain,
           sequence,
-          extraGrpcOpts
+          extraGrpcOpts,
         );
       } catch (e) {
         if (retryAttempts !== undefined && attempts > retryAttempts) {
@@ -382,7 +390,7 @@ export class WormholeContext extends MultiProvider<Domain> {
         transport: NodeHttpTransport(), //This should only be needed when running in node.
       },
       1000, //retryTimeout
-      1000 //Maximum retry attempts
+      1000, //Maximum retry attempts
     );
 
     return vaaBytes;
