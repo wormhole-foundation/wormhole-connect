@@ -1,12 +1,14 @@
-import { providers, Signer, BigNumberish, constants } from 'ethers';
+import { providers, Signer } from 'ethers';
 import {
   Bridge,
-  TokenImplementation__factory,
   Wormhole,
   NFTBridge,
 } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
 import { Network as Environment } from '@certusone/wormhole-sdk';
 import { MultiProvider, Domain } from '@nomad-xyz/multi-provider';
+import { publicrpc } from "@certusone/wormhole-sdk-proto-web";
+import { NodeHttpTransport } from "@improbable-eng/grpc-web-node-http-transport";
+const { GrpcWebImpl, PublicRPCServiceClientImpl } = publicrpc;
 
 import MAINNET_CONFIG, {
   MainnetChainName,
@@ -302,6 +304,89 @@ export class WormholeContext extends MultiProvider<Domain> {
   getEmitterAddress(address: string, chain: ChainName | ChainId): string {
     const context = this.getContext(chain);
     return context.getEmitterAddress(address);
+  }
+
+  async getSignedVaaWithReceipt(chain: ChainName | ChainId, receipt: any, extraGrpcOpts = {}) {
+    const chainName = this.resolveDomainName(chain) as ChainName;
+    const rpcUrl = this.conf.rpcs[chainName];
+    if (!rpcUrl) throw new Error(`Must provide rpc for ${chainName}`);
+
+    const rpc = new GrpcWebImpl(rpcUrl, extraGrpcOpts);
+    const api = new PublicRPCServiceClientImpl(rpc);
+    const emitterAddress = this.mustGetBridge(chain).address;
+    const sequence = this.parseSequenceFromLog(receipt, chain);
+
+    return await api.GetSignedVAA({
+      messageId: {
+        emitterChain: this.resolveDomain(chain),
+        emitterAddress,
+        sequence,
+      },
+    });
+  }
+
+  async getSignedVaaWithSequence(chain: ChainName | ChainId, sequence: string, extraGrpcOpts = {}) {
+    const chainName = this.resolveDomainName(chain) as ChainName;
+    const rpcUrl = this.conf.rpcs[chainName];
+    if (!rpcUrl) throw new Error(`Must provide rpc for ${chainName}`);
+
+    const rpc = new GrpcWebImpl(rpcUrl, extraGrpcOpts);
+    const api = new PublicRPCServiceClientImpl(rpc);
+    const emitterAddress = this.mustGetBridge(chain).address;
+
+    return await api.GetSignedVAA({
+      messageId: {
+        emitterChain: this.resolveDomain(chain),
+        emitterAddress,
+        sequence,
+      },
+    });
+  }
+
+  async getSignedVAAWithRetry(
+    emitterChain: ChainId | ChainName,
+    sequence: string,
+    extraGrpcOpts = {},
+    retryTimeout = 1000,
+    retryAttempts?: number
+  ) {
+    let result;
+    let attempts = 0;
+    while (!result) {
+      attempts++;
+      await new Promise((resolve) => setTimeout(resolve, retryTimeout));
+      try {
+        result = await this.getSignedVaaWithSequence(
+          emitterChain,
+          sequence,
+          extraGrpcOpts
+        );
+      } catch (e) {
+        if (retryAttempts !== undefined && attempts > retryAttempts) {
+          throw e;
+        }
+      }
+    }
+    return result;
+  }
+
+  async getSignedVAABySequence(
+    chain: ChainName | ChainId,
+    sequence: string,
+  ): Promise<Uint8Array> {
+    const chainId = this.resolveDomain(chain);
+    //Note, if handed a sequence which doesn't exist or was skipped for consensus this will retry until the timeout.
+    const { vaaBytes } = await this.getSignedVAAWithRetry(
+      chainId,
+      sequence,
+      {
+        transport: NodeHttpTransport(), //This should only be needed when running in node.
+      },
+      1000, //retryTimeout
+      1000 //Maximum retry attempts
+    );
+
+    return vaaBytes;
   }
 
   /**
