@@ -21,7 +21,6 @@ const useStyles = makeStyles((theme: Theme) => ({
     flexDirection: 'column',
     alignItems: 'center',
     textAlign: 'center',
-    padding: '12px 16px',
     margin: '12px',
     padding: '16px',
     transition: 'background-color 0.4s',
@@ -38,7 +37,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   networkText: {
     fontSize: '14px',
     marginTop: '16px',
-  }
+  },
 }));
 
 type Props = {
@@ -61,7 +60,11 @@ function NetworksModal(props: Props) {
             .map((chain, i) => {
               return (
                 <div key={i} className={classes.networkTile}>
-                  <img src={chain.icon} alt={chain.displayName} className={classes.networkIcon} />
+                  <img
+                    src={chain.icon}
+                    alt={chain.displayName}
+                    className={classes.networkIcon}
+                  />
                   <div className={classes.networkText}>{chain.displayName}</div>
                 </div>
               );

@@ -81,7 +81,7 @@ function Bridge() {
       </InputContainer>
       <Spacer />
       <Input left={Item1()} />
-      { showModal && <NetworksModal title="Send from" /> }
+      {showModal && <NetworksModal title="Send from" />}
     </div>
   );
 }

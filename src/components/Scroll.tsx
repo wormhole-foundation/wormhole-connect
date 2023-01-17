@@ -3,9 +3,9 @@ import { makeStyles } from '@mui/styles';
 import { Theme } from '@mui/material';
 
 type Props = {
-  height: string,
-  children: JSX.Element,
-}
+  height: string;
+  children: JSX.Element;
+};
 
 const useStyles = makeStyles((theme: Theme) => ({
   anchor: {
@@ -25,7 +25,9 @@ const useStyles = makeStyles((theme: Theme) => ({
     bottom: '0',
     height: '40px',
     zIndex: '5',
-    backgroundImage: `linear-gradient(${theme.palette.primary[800] + '00'} 0%, ${theme.palette.primary[800] + 'ff'} 100%)`,
+    backgroundImage: `linear-gradient(${
+      theme.palette.primary[800] + '00'
+    } 0%, ${theme.palette.primary[800] + 'ff'} 100%)`,
     pointerEvents: 'none',
   },
   fadeOverlayTop: {
@@ -35,7 +37,9 @@ const useStyles = makeStyles((theme: Theme) => ({
     top: '0',
     height: '8px',
     zIndex: '5',
-    backgroundImage: `linear-gradient(${theme.palette.primary[800] + 'ff'} 0%, ${theme.palette.primary[800] + '00'} 100%)`,
+    backgroundImage: `linear-gradient(${
+      theme.palette.primary[800] + 'ff'
+    } 0%, ${theme.palette.primary[800] + '00'} 100%)`,
     pointerEvents: 'none',
   },
   content: {
@@ -47,12 +51,13 @@ function Scroll(props: Props) {
   const classes = useStyles();
   return (
     <div className={classes.anchor}>
-      <div className={classes.scrollContainer} style={{maxHeight: props.height}}>
+      <div
+        className={classes.scrollContainer}
+        style={{ maxHeight: props.height }}
+      >
         <div className={classes.fadeOverlayTop} />
         <div className={classes.fadeOverlay} />
-        <div className={classes.content}>
-          {props.children}
-        </div>
+        <div className={classes.content}>{props.children}</div>
       </div>
     </div>
   );
