@@ -6,6 +6,7 @@ import Modal from '../components/Modal';
 import Spacer from '../components/Spacer';
 import Search from '../components/Search';
 import Scroll from '../components/Scroll';
+import Tooltip from '../components/Tooltip';
 import { Theme } from '@mui/material';
 import ArrowDownIcon from '../icons/arrow-down.svg';
 
@@ -20,6 +21,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   subheader: {
     fontSize: '18px',
     textAlign: 'left',
+    marginRight: '8px',
   },
   tokenRow: {
     position: 'relative',
@@ -79,7 +81,11 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
   invert: {
     transform: 'rotate(180deg)',
-  }
+  },
+  row: {
+    display: 'flex',
+    alignItems: 'center',
+  },
 }));
 
 function TokensModal() {
@@ -96,7 +102,10 @@ function TokensModal() {
       <Spacer height={16} />
       <Search placeholder="Search by name or paste contract address" />
       <Spacer height={16} />
-      <div className={classes.subheader}>Tokens with liquid markets</div>
+      <div className={classes.row}>
+        <div className={classes.subheader}>Tokens with liquid markets</div>
+        <Tooltip text="Some text" />
+      </div>
       <Scroll height="calc(100vh - 300px)">
         <div className={classes.networksContainer}>
           {Object.values(MAINNET_TOKENS).map((token, i) => {
@@ -119,8 +128,15 @@ function TokensModal() {
             );
           })}
           <div className={classes.advanced} onClick={toggleAdvanced}>
-            <div className={classes.subheader}>Advanced</div>
-            <img className={`${classes.arrow} ${showAdvanced && classes.invert}`} src={ArrowDownIcon} alt="down arrow" />
+            <div className={classes.row}>
+              <div className={classes.subheader}>Advanced</div>
+              <Tooltip text="Some text" />
+            </div>
+            <img
+              className={`${classes.arrow} ${showAdvanced && classes.invert}`}
+              src={ArrowDownIcon}
+              alt="down arrow"
+            />
           </div>
           <Collapse in={showAdvanced}>
             <div>Advanced Options</div>
