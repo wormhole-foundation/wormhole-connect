@@ -32,8 +32,8 @@ const useStyles = makeStyles((theme: Theme) => ({
       backgroundColor: theme.palette.primary[700],
     },
     '&:not(:last-child)': {
-      borderBottom: `0.5px solid ${theme.palette.primary[500] + OPACITY[80]}`
-    }
+      borderBottom: `0.5px solid ${theme.palette.primary[500] + OPACITY[80]}`,
+    },
   },
   tokenRowLeft: {
     display: 'flex',
@@ -63,7 +63,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-  }
+  },
 }));
 
 function TokensModal() {
@@ -82,20 +82,22 @@ function TokensModal() {
             return (
               <div className={classes.tokenRow}>
                 <div className={classes.tokenRowLeft}>
-                  <img className={classes.tokenRowIcon} src={token.icon} alt={token.symbol} />
+                  <img
+                    className={classes.tokenRowIcon}
+                    src={token.icon}
+                    alt={token.symbol}
+                  />
                   <div>{token.symbol}</div>
                 </div>
                 <div className={classes.tokenRowRight}>
                   <div className={classes.tokenRowBalanceText}>Balance</div>
                   <div className={classes.tokenRowBalance}>200.4567</div>
                 </div>
-                <div className={classes.tokenRowAddress}>
-                  {token.address}
-                </div>
+                <div className={classes.tokenRowAddress}>{token.address}</div>
               </div>
-            )
+            );
           })}
-            {/* // .filter((c) => !!c.icon)
+          {/* // .filter((c) => !!c.icon)
             // .map((chain, i) => {
             //   return (
             //     <div key={i} className={classes.networkTile}>

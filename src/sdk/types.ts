@@ -46,8 +46,8 @@ export type TokenId = {
 };
 
 export type TokenConfig = {
-  symbol: string,
-  icon: string,
-  address?: string,
-  coinGeckoId: string,
-}
+  symbol: string;
+  icon: string;
+  address?: string;
+  coinGeckoId: string;
+};

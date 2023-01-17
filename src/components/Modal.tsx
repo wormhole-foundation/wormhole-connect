@@ -5,7 +5,7 @@ import { Theme } from '@mui/material';
 
 type StyleProps = {
   width?: number;
-}
+};
 
 const useStyles = makeStyles<Theme, StyleProps>((theme) =>
   createStyles({
@@ -47,7 +47,7 @@ const useStyles = makeStyles<Theme, StyleProps>((theme) =>
       right: '10px',
       cursor: 'pointer',
     },
-  })
+  }),
 );
 
 type Props = {

@@ -21,4 +21,4 @@ export const OPACITY = {
   90: 'E5',
   95: 'F2',
   100: 'FF',
-}
+};

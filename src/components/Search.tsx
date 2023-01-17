@@ -24,7 +24,7 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 type Props = {
   placeholder?: string;
-}
+};
 
 function Search(props: Props) {
   const classes = useStyles();

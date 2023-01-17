@@ -277,7 +277,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
   },
 };
 
-export const MAINNET_TOKENS: { [key: string]: TokenConfig} = {
+export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   MATIC: {
     symbol: 'MATIC',
     icon: PolygonIcon,
@@ -313,8 +313,8 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig} = {
     icon: BnbIcon,
     address: '0x1234...5678',
     coinGeckoId: '',
-  }
-}
+  },
+};
 
 const env: Environment = 'MAINNET';
 const MAINNET_CONFIG: WormholeConfig = {

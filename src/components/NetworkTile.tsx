@@ -45,19 +45,22 @@ function NetworksModal(props: Props) {
   const classes = useStyles();
   return (
     <div className={classes.networkTile}>
-      {props.network ? (<img
-        className={classes.networkIcon}
-        src={props.network.icon}
-        alt={props.network.displayName}
-      />) : (<img
-        className={classes.networkIcon}
-        src={NoNetworkIcon}
-        alt="Select Network"
-      />)
-      }
+      {props.network ? (
+        <img
+          className={classes.networkIcon}
+          src={props.network.icon}
+          alt={props.network.displayName}
+        />
+      ) : (
+        <img
+          className={classes.networkIcon}
+          src={NoNetworkIcon}
+          alt="Select Network"
+        />
+      )}
       <div className={classes.networkHeader}>{props.title}</div>
       <div className={classes.networkName}>
-        { props.network ? props.network.displayName : 'Select network' }
+        {props.network ? props.network.displayName : 'Select network'}
       </div>
     </div>
   );
