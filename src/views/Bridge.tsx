@@ -10,6 +10,7 @@ import ConnectWallet from '../components/ConnectWallet';
 import TokenIcon from '../icons/token.svg';
 import ArrowIcon from '../icons/arrow.svg';
 import { Theme } from '@mui/material';
+import MAINNET_CONFIG from '../sdk/config/MAINNET';
 
 const useStyles = makeStyles((theme: Theme) => ({
   bridgeContent: {
@@ -61,14 +62,14 @@ function Bridge() {
       <Spacer height={40} />
       <div className={classes.networks}>
         <div className={classes.networksTile}>
-          <NetworkTile title="Sending from" />
+          <NetworkTile title="Sending from" network={MAINNET_CONFIG.chains.polygon} />
           <ConnectWallet />
         </div>
         <div className={classes.networksArrow}>
           <img src={ArrowIcon} alt="arrow right" />
         </div>
         <div className={classes.networksTile}>
-          <NetworkTile title="Sending to" />
+          <NetworkTile title="Sending to" network={MAINNET_CONFIG.chains.fantom} />
           <ConnectWallet />
         </div>
       </div>

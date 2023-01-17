@@ -12,7 +12,6 @@ const useStyles = makeStyles((theme: Theme) => ({
     padding: '16px',
     borderRadius: '8px',
     backgroundColor: `${theme.palette.primary[50] + '0f'}`,
-    cursor: 'pointer',
   },
 }));
 

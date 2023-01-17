@@ -2,6 +2,7 @@ import { makeStyles } from '@mui/styles';
 import React from 'react';
 import { Theme } from '@mui/material';
 import NoNetworkIcon from '../icons/no-network.png';
+import { ChainConfig } from '../sdk/types';
 
 const useStyles = makeStyles((theme: Theme) => ({
   networkTile: {
@@ -27,6 +28,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     fontSize: '14px',
     opacity: '60%',
     marginTop: '16px',
+    marginBottom: '8px',
   },
   networkName: {
     fontSize: '16px',
@@ -35,19 +37,27 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 type Props = {
   title: string;
+  network?: ChainConfig;
 };
 
 function NetworksModal(props: Props) {
   const classes = useStyles();
   return (
     <div className={classes.networkTile}>
-      <img
+      {props.network ? (<img
+        className={classes.networkIcon}
+        src={props.network.icon}
+        alt={props.network.displayName}
+      />) : (<img
         className={classes.networkIcon}
         src={NoNetworkIcon}
         alt="Select Network"
-      />
+      />)
+      }
       <div className={classes.networkHeader}>{props.title}</div>
-      <div className={classes.networkName}>Select network</div>
+      <div className={classes.networkName}>
+        { props.network ? props.network.displayName : 'Select network' }
+      </div>
     </div>
   );
 }
