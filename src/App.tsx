@@ -10,6 +10,7 @@ import Brightness7Icon from '@mui/icons-material/Brightness7';
 import amber from '@mui/material/colors/amber';
 import grey from '@mui/material/colors/grey';
 import './App.css';
+import Bridge from './views/Bridge';
 // import BackgroundImage from './components/BackgroundImage';
 
 const ColorModeContext = React.createContext({ toggleColorMode: () => {} });
@@ -58,7 +59,6 @@ const getDesignTokens = (mode: PaletteMode) =>
           }),
     },
   });
-
 const useStyles = makeStyles(() => ({
   appContent: {
     margin: 'auto',
@@ -70,7 +70,7 @@ const useStyles = makeStyles(() => ({
 }));
 
 function App() {
-  const [mode, setMode] = React.useState<PaletteMode>('light');
+  const [mode, setMode] = React.useState<PaletteMode>('dark');
   const colorMode = React.useMemo(
     () => ({
       // The dark mode switch would invoke this method
@@ -91,7 +91,7 @@ function App() {
     <ColorModeContext.Provider value={colorMode}>
       <ThemeProvider theme={theme}>
         <CssBaseline enableColorScheme />
-        {/* <BackgroundImage /> */}
+        {/* light/dark theme switch */}
         <Box
           sx={{
             display: 'flex',
@@ -117,7 +117,11 @@ function App() {
             )}
           </IconButton>
         </Box>
-        <div className={classes.appContent}>my app</div>
+
+        {/* App content */}
+        <div className={classes.appContent}>
+          <Bridge />
+        </div>
       </ThemeProvider>
     </ColorModeContext.Provider>
   );

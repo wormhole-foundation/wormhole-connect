@@ -26,6 +26,8 @@ export type ChainConfig = {
   id: ChainId;
   context: Context;
   contracts: Contracts;
+  icon: string;
+  displayName: string;
 };
 
 export type WormholeConfig = {
