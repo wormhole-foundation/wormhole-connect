@@ -3,12 +3,13 @@ import React from 'react';
 import { Theme } from '@mui/material';
 import NoNetworkIcon from '../icons/no-network.png';
 import { ChainConfig } from '../sdk/types';
+import { OPACITY } from '../utils/style';
 
 const useStyles = makeStyles((theme: Theme) => ({
   networkTile: {
     backgroundImage: `linear-gradient(-30deg, ${
-      theme.palette.primary[800] + '05'
-    } 0%, ${theme.palette.primary[800] + 'ff'} 100%)`,
+      theme.palette.primary[800] + OPACITY[7]
+    } 0%, ${theme.palette.primary[800] + OPACITY[100]} 100%)`,
     borderTopLeftRadius: '8px',
     borderTopRightRadius: '8px',
     padding: '16px',

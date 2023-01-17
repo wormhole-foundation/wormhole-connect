@@ -3,7 +3,7 @@ import {
   Contracts,
   CONTRACTS,
 } from '@certusone/wormhole-sdk';
-import { WormholeConfig, Context, ChainConfig } from '../types';
+import { WormholeConfig, Context, ChainConfig, TokenConfig } from '../types';
 import AcalaIcon from '../../icons/acala.svg';
 import AlgoIcon from '../../icons/algorand.svg';
 import AptosIcon from '../../icons/aptos.svg';
@@ -28,6 +28,8 @@ import SuiIcon from '../../icons/sui.png';
 import TerraIcon from '../../icons/terra.svg';
 import Terra2Icon from '../../icons/terra2.svg';
 import XplaIcon from '../../icons/xpla.svg';
+
+import BnbIcon from '../../icons/bnb.svg';
 
 // https://book.wormhole.com/reference/contracts.html
 export const MAINNET_CHAINS = {
@@ -274,6 +276,45 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'Wormchain',
   },
 };
+
+export const MAINNET_TOKENS: { [key: string]: TokenConfig} = {
+  MATIC: {
+    symbol: 'MATIC',
+    icon: PolygonIcon,
+    address: undefined,
+    coinGeckoId: '',
+  },
+  WMATIC: {
+    symbol: 'WMATIC',
+    icon: PolygonIcon,
+    address: '0x1234...5678',
+    coinGeckoId: '',
+  },
+  SOL: {
+    symbol: 'SOL',
+    icon: SolanaIcon,
+    address: '0x1234...5678',
+    coinGeckoId: '',
+  },
+  WAVAX: {
+    symbol: 'WAVAX',
+    icon: AvaxIcon,
+    address: '0x1234...5678',
+    coinGeckoId: '',
+  },
+  CELO: {
+    symbol: 'CELO',
+    icon: CeloIcon,
+    address: '0x1234...5678',
+    coinGeckoId: '',
+  },
+  BNB: {
+    symbol: 'BNB',
+    icon: BnbIcon,
+    address: '0x1234...5678',
+    coinGeckoId: '',
+  }
+}
 
 const env: Environment = 'MAINNET';
 const MAINNET_CONFIG: WormholeConfig = {

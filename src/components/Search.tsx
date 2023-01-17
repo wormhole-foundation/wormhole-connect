@@ -22,14 +22,18 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
-function Search() {
+type Props = {
+  placeholder?: string;
+}
+
+function Search(props: Props) {
   const classes = useStyles();
   return (
     <div className={classes.searchBorder}>
       <InputContainer>
         <div className={classes.searchContent}>
           <div className={classes.input}>
-            <InputTransparent placeholder="Search networks" />
+            <InputTransparent placeholder={props.placeholder} />
           </div>
           <img src={SearchIcon} alt="search" />
         </div>

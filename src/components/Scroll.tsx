@@ -1,6 +1,7 @@
 import React from 'react';
 import { makeStyles } from '@mui/styles';
 import { Theme } from '@mui/material';
+import { OPACITY } from '../utils/style';
 
 type Props = {
   height: string;
@@ -26,8 +27,8 @@ const useStyles = makeStyles((theme: Theme) => ({
     height: '40px',
     zIndex: '5',
     backgroundImage: `linear-gradient(${
-      theme.palette.primary[800] + '00'
-    } 0%, ${theme.palette.primary[800] + 'ff'} 100%)`,
+      theme.palette.primary[800] + OPACITY[0]
+    } 0%, ${theme.palette.primary[800] + OPACITY[100]} 100%)`,
     pointerEvents: 'none',
   },
   fadeOverlayTop: {
@@ -38,8 +39,8 @@ const useStyles = makeStyles((theme: Theme) => ({
     height: '8px',
     zIndex: '5',
     backgroundImage: `linear-gradient(${
-      theme.palette.primary[800] + 'ff'
-    } 0%, ${theme.palette.primary[800] + '00'} 100%)`,
+      theme.palette.primary[800] + OPACITY[100]
+    } 0%, ${theme.palette.primary[800] + OPACITY[0]} 100%)`,
     pointerEvents: 'none',
   },
   content: {

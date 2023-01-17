@@ -5,12 +5,14 @@ import Input from '../components/Input';
 import InputContainer from '../components/InputContainer';
 import Spacer from '../components/Spacer';
 import NetworksModal from './NetworksModal';
+import TokensModal from './TokensModal';
 import NetworkTile from '../components/NetworkTile';
 import ConnectWallet from '../components/ConnectWallet';
 import TokenIcon from '../icons/token.svg';
 import ArrowIcon from '../icons/arrow.svg';
 import { Theme } from '@mui/material';
 import MAINNET_CONFIG from '../sdk/config/MAINNET';
+import { OPACITY } from '../utils/style';
 
 const useStyles = makeStyles((theme: Theme) => ({
   bridgeContent: {
@@ -42,7 +44,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     width: '48px',
     height: '48px',
     borderRadius: '100%',
-    backgroundColor: `${theme.palette.primary[50] + '0f'}`,
+    backgroundColor: `${theme.palette.primary[50] + OPACITY[7]}`,
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
@@ -52,7 +54,8 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 const Item1 = () => <div>Select token</div>;
 
-const showModal = false;
+const showNetworksModal = false;
+const showTokensModal = true;
 
 function Bridge() {
   const classes = useStyles();
@@ -82,7 +85,8 @@ function Bridge() {
       </InputContainer>
       <Spacer />
       <Input left={Item1()} />
-      {showModal && <NetworksModal title="Send from" />}
+      {showNetworksModal && <NetworksModal title="Send from" />}
+      {showTokensModal && <TokensModal />}
     </div>
   );
 }

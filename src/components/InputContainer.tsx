@@ -1,6 +1,7 @@
 import React from 'react';
 import { makeStyles } from '@mui/styles';
 import { Theme } from '@mui/material';
+import { OPACITY } from '../utils/style';
 
 type Props = {
   children: JSX.Element;
@@ -11,7 +12,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     width: '100%',
     padding: '16px',
     borderRadius: '8px',
-    backgroundColor: `${theme.palette.primary[50] + '0f'}`,
+    backgroundColor: `${theme.palette.primary[50] + OPACITY[10]}`,
   },
 }));
 

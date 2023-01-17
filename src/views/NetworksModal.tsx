@@ -51,7 +51,7 @@ function NetworksModal(props: Props) {
       <Header text={props.title} />
       <div>Select Network</div>
       <Spacer height={16} />
-      <Search />
+      <Search placeholder="Search networks" />
       <Spacer height={16} />
       <Scroll height="calc(100vh - 300px)">
         <div className={classes.networksContainer}>
