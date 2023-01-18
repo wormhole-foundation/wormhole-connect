@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Provider } from 'react-redux';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
@@ -11,6 +12,7 @@ import amber from '@mui/material/colors/amber';
 import grey from '@mui/material/colors/grey';
 import './App.css';
 import Bridge from './views/Bridge';
+import { store } from './store';
 // import BackgroundImage from './components/BackgroundImage';
 
 const ColorModeContext = React.createContext({ toggleColorMode: () => {} });
@@ -88,42 +90,44 @@ function App() {
   const classes = useStyles();
 
   return (
-    <ColorModeContext.Provider value={colorMode}>
-      <ThemeProvider theme={theme}>
-        <CssBaseline enableColorScheme />
-        {/* light/dark theme switch */}
-        <Box
-          sx={{
-            display: 'flex',
-            width: '100%',
-            alignItems: 'center',
-            justifyContent: 'end',
-            bgcolor: 'background.default',
-            color: 'text.primary',
-            borderRadius: 1,
-            p: 3,
-          }}
-        >
-          {theme.palette.mode} mode
-          <IconButton
-            sx={{ ml: 1 }}
-            onClick={colorMode.toggleColorMode}
-            color="inherit"
+    <Provider store={store}>
+      <ColorModeContext.Provider value={colorMode}>
+        <ThemeProvider theme={theme}>
+          <CssBaseline enableColorScheme />
+          {/* light/dark theme switch */}
+          <Box
+            sx={{
+              display: 'flex',
+              width: '100%',
+              alignItems: 'center',
+              justifyContent: 'end',
+              bgcolor: 'background.default',
+              color: 'text.primary',
+              borderRadius: 1,
+              p: 3,
+            }}
           >
-            {theme.palette.mode === 'dark' ? (
-              <Brightness7Icon />
-            ) : (
-              <Brightness4Icon />
-            )}
-          </IconButton>
-        </Box>
+            {theme.palette.mode} mode
+            <IconButton
+              sx={{ ml: 1 }}
+              onClick={colorMode.toggleColorMode}
+              color="inherit"
+            >
+              {theme.palette.mode === 'dark' ? (
+                <Brightness7Icon />
+              ) : (
+                <Brightness4Icon />
+              )}
+            </IconButton>
+          </Box>
 
-        {/* App content */}
-        <div className={classes.appContent}>
-          <Bridge />
-        </div>
-      </ThemeProvider>
-    </ColorModeContext.Provider>
+          {/* App content */}
+          <div className={classes.appContent}>
+            <Bridge />
+          </div>
+        </ThemeProvider>
+      </ColorModeContext.Provider>
+    </Provider>
   );
 }
 

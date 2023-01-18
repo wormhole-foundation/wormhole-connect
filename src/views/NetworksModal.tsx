@@ -8,6 +8,9 @@ import Scroll from '../components/Scroll';
 import { Theme } from '@mui/material';
 
 import MAINNET_CONFIG from '../sdk/config/MAINNET';
+import { ChainName } from '../sdk/types';
+import { useDispatch } from 'react-redux';
+import { setFromNetworksModal, setToNetworksModal } from '../store/router';
 
 const useStyles = makeStyles((theme: Theme) => ({
   networksContainer: {
@@ -42,12 +45,29 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 type Props = {
   title: string;
+  event: string;
 };
 
 function NetworksModal(props: Props) {
   const classes = useStyles();
+  const dispatch = useDispatch();
+  // listen for close event
+  const closeNetworksModal = () => {
+    dispatch(setFromNetworksModal(false));
+    dispatch(setToNetworksModal(false));
+    document.removeEventListener('close', closeNetworksModal);
+  };
+  document.addEventListener('close', closeNetworksModal, { once: true });
+  // dispatch selectNetwork event
+  const emitSelectNetwork = (network: ChainName) => {
+    console.log('emit');
+    const event = new CustomEvent(props.event, { detail: network });
+    document.dispatchEvent(event);
+    closeNetworksModal();
+  };
+
   return (
-    <Modal closable>
+    <Modal closable width="650px">
       <Header text={props.title} />
       <div>Select Network</div>
       <Spacer height={16} />
@@ -59,7 +79,11 @@ function NetworksModal(props: Props) {
             .filter((c) => !!c.icon)
             .map((chain, i) => {
               return (
-                <div key={i} className={classes.networkTile}>
+                <div
+                  key={i}
+                  className={classes.networkTile}
+                  onClick={() => emitSelectNetwork(chain.key)}
+                >
                   <img
                     src={chain.icon}
                     alt={chain.displayName}

@@ -23,6 +23,7 @@ export type Rpcs = {
 };
 
 export type ChainConfig = {
+  key: ChainName;
   id: ChainId;
   context: Context;
   contracts: Contracts;

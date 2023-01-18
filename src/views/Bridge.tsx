@@ -11,8 +11,13 @@ import ConnectWallet from '../components/ConnectWallet';
 import TokenIcon from '../icons/token.svg';
 import ArrowIcon from '../icons/arrow.svg';
 import { Theme } from '@mui/material';
+import { useDispatch, useSelector } from 'react-redux';
+import { setFromNetworksModal, setToNetworksModal } from '../store/router';
+import { setFromNetwork, setToNetwork } from '../store/transfer';
+import { RootState } from '../store';
 import MAINNET_CONFIG from '../sdk/config/MAINNET';
 import { OPACITY } from '../utils/style';
+import { ChainName } from '../sdk/types';
 
 const useStyles = makeStyles((theme: Theme) => ({
   bridgeContent: {
@@ -54,11 +59,50 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 const Item1 = () => <div>Select token</div>;
 
-const showNetworksModal = false;
-const showTokensModal = true;
-
 function Bridge() {
   const classes = useStyles();
+  const dispatch = useDispatch();
+  const showFromNetworksModal = useSelector(
+    (state: RootState) => state.router.showFromNetworksModal,
+  );
+  const showToNetworksModal = useSelector(
+    (state: RootState) => state.router.showToNetworksModal,
+  );
+  const showTokensModal = useSelector(
+    (state: RootState) => state.router.showTokensModal,
+  );
+  const fromNetwork = useSelector(
+    (state: RootState) => state.transfer.fromNetwork,
+  );
+  const toNetwork = useSelector((state: RootState) => state.transfer.toNetwork);
+  const fromNetworkConfig = MAINNET_CONFIG.chains[fromNetwork];
+  const toNetworkConfig = MAINNET_CONFIG.chains[toNetwork];
+  const openFromNetworksModal = () => dispatch(setFromNetworksModal(true));
+  const openToNetworksModal = () => dispatch(setToNetworksModal(true));
+  // const openTokensModal = () => dispatch(setTokensModal(true));
+  const setFromNetworkStore = (network: ChainName) =>
+    dispatch(setFromNetwork(network));
+  const setToNetworkStore = (network: ChainName) =>
+    dispatch(setToNetwork(network));
+  // listen for selectFromNetwork
+  document.addEventListener(
+    'selectFromNetwork',
+    (event: Event) => {
+      const { detail } = event as CustomEvent;
+      setFromNetworkStore(detail);
+    },
+    { once: true },
+  );
+  // listen for selectToNetwork
+  document.addEventListener(
+    'selectToNetwork',
+    (event: Event) => {
+      const { detail } = event as CustomEvent;
+      setToNetworkStore(detail);
+    },
+    { once: true },
+  );
+
   return (
     <div className={classes.bridgeContent}>
       <Header text="Bridge" align="center" />
@@ -67,7 +111,8 @@ function Bridge() {
         <div className={classes.networksTile}>
           <NetworkTile
             title="Sending from"
-            network={MAINNET_CONFIG.chains.polygon}
+            network={fromNetworkConfig}
+            onClick={openFromNetworksModal}
           />
           <ConnectWallet />
         </div>
@@ -77,7 +122,8 @@ function Bridge() {
         <div className={classes.networksTile}>
           <NetworkTile
             title="Sending to"
-            network={MAINNET_CONFIG.chains.fantom}
+            network={toNetworkConfig}
+            onClick={openToNetworksModal}
           />
           <ConnectWallet />
         </div>
@@ -91,7 +137,12 @@ function Bridge() {
       </InputContainer>
       <Spacer />
       <Input left={Item1()} />
-      {showNetworksModal && <NetworksModal title="Send from" />}
+      {showFromNetworksModal && (
+        <NetworksModal title="Send from" event="selectFromNetwork" />
+      )}
+      {showToNetworksModal && (
+        <NetworksModal title="Send to" event="selectToNetwork" />
+      )}
       {showTokensModal && <TokensModal />}
     </div>
   );

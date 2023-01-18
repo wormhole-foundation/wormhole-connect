@@ -39,12 +39,13 @@ const useStyles = makeStyles((theme: Theme) => ({
 type Props = {
   title: string;
   network?: ChainConfig;
+  onClick: React.MouseEventHandler<HTMLDivElement>;
 };
 
-function NetworksModal(props: Props) {
+function NetworksTile(props: Props) {
   const classes = useStyles();
   return (
-    <div className={classes.networkTile}>
+    <div className={classes.networkTile} onClick={props.onClick}>
       {props.network ? (
         <img
           className={classes.networkIcon}
@@ -66,4 +67,4 @@ function NetworksModal(props: Props) {
   );
 }
 
-export default NetworksModal;
+export default NetworksTile;

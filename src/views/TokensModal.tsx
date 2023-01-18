@@ -12,9 +12,11 @@ import ArrowDownIcon from '../icons/arrow-down.svg';
 
 import { MAINNET_TOKENS } from '../sdk/config/MAINNET';
 import { OPACITY } from '../utils/style';
+import { useDispatch } from 'react-redux';
+import { setTokensModal } from '../store/router';
 
 const useStyles = makeStyles((theme: Theme) => ({
-  networksContainer: {
+  tokensContainer: {
     display: 'flex',
     flexDirection: 'column',
   },
@@ -32,6 +34,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     width: '100%',
     padding: '16px 8px',
     transition: `background-color 0.4s`,
+    cursor: 'pointer',
     '&:hover': {
       backgroundColor: theme.palette.primary[700],
     },
@@ -90,15 +93,19 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 function TokensModal() {
   const classes = useStyles();
+  const dispatch = useDispatch();
   const [showAdvanced, setShowAdvanced] = React.useState(false);
-  const toggleAdvanced = () => {
-    setShowAdvanced((prev) => !prev);
+  const toggleAdvanced = () => setShowAdvanced((prev) => !prev);
+  // listen for close event
+  const closeTokensModal = () => {
+    dispatch(setTokensModal(false));
+    document.removeEventListener('click', closeTokensModal);
   };
+  document.addEventListener('close', closeTokensModal, { once: true });
 
   return (
-    <Modal closable width={500}>
+    <Modal closable width="500px">
       <Header text="Select token" />
-      <div>Select Network</div>
       <Spacer height={16} />
       <Search placeholder="Search by name or paste contract address" />
       <Spacer height={16} />
@@ -107,7 +114,7 @@ function TokensModal() {
         <Tooltip text="Some text" />
       </div>
       <Scroll height="calc(100vh - 300px)">
-        <div className={classes.networksContainer}>
+        <div className={classes.tokensContainer}>
           {Object.values(MAINNET_TOKENS).map((token, i) => {
             return (
               <div className={classes.tokenRow}>

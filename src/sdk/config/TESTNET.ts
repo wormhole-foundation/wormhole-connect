@@ -23,6 +23,7 @@ export type ChainContracts = {
 
 const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
   goerli: {
+    key: 'goerli',
     id: 2,
     context: Context.ETH,
     contracts: {
@@ -34,6 +35,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     displayName: 'Goerli (Ethereum Testnet)',
   },
   bsc: {
+    key: 'bsc',
     id: 4,
     context: Context.ETH,
     contracts: {
@@ -45,6 +47,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     displayName: 'BSC (Testnet)',
   },
   fuji: {
+    key: 'fuji',
     id: 6,
     context: Context.ETH,
     contracts: {
@@ -56,6 +59,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     displayName: 'Fuji (Avalanche Testnet)',
   },
   fantom: {
+    key: 'fantom',
     id: 10,
     context: Context.ETH,
     contracts: {

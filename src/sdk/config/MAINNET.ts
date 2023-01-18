@@ -73,6 +73,7 @@ export type ChainContracts = {
 
 const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
   solana: {
+    key: 'solana',
     id: 1,
     context: Context.SOLANA,
     contracts: CONTRACTS.MAINNET.solana,
@@ -80,6 +81,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'Solana',
   },
   ethereum: {
+    key: 'ethereum',
     id: 2,
     context: Context.ETH,
     contracts: CONTRACTS.MAINNET.ethereum,
@@ -87,6 +89,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'Ethereum',
   },
   terra: {
+    key: 'terra',
     id: 3,
     context: Context.TERRA,
     contracts: CONTRACTS.MAINNET.terra,
@@ -94,6 +97,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'Terra',
   },
   bsc: {
+    key: 'bsc',
     id: 4,
     context: Context.ETH,
     contracts: CONTRACTS.MAINNET.bsc,
@@ -101,6 +105,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'BSC',
   },
   polygon: {
+    key: 'polygon',
     id: 5,
     context: Context.ETH,
     contracts: CONTRACTS.MAINNET.polygon,
@@ -108,6 +113,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'Polygon',
   },
   avalanche: {
+    key: 'avalanche',
     id: 6,
     context: Context.ETH,
     contracts: CONTRACTS.MAINNET.avalanche,
@@ -115,6 +121,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'Avalanche',
   },
   oasis: {
+    key: 'oasis',
     id: 7,
     context: Context.ETH,
     contracts: CONTRACTS.MAINNET.oasis,
@@ -122,6 +129,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'Oasis',
   },
   algorand: {
+    key: 'algorand',
     id: 8,
     context: Context.ALGORAND,
     contracts: CONTRACTS.MAINNET.algorand,
@@ -129,6 +137,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'Algorand',
   },
   aurora: {
+    key: 'aurora',
     id: 9,
     context: Context.ETH,
     contracts: CONTRACTS.MAINNET.aurora,
@@ -136,6 +145,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'Aurora',
   },
   fantom: {
+    key: 'fantom',
     id: 10,
     context: Context.ETH,
     contracts: CONTRACTS.MAINNET.fantom,
@@ -143,6 +153,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'Fantom',
   },
   karura: {
+    key: 'karura',
     id: 11,
     context: Context.ETH,
     contracts: CONTRACTS.MAINNET.karura,
@@ -150,6 +161,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'Karura',
   },
   acala: {
+    key: 'acala',
     id: 12,
     context: Context.ETH,
     contracts: CONTRACTS.MAINNET.acala,
@@ -157,6 +169,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'Acala',
   },
   klaytn: {
+    key: 'klaytn',
     id: 13,
     context: Context.ETH,
     contracts: CONTRACTS.MAINNET.klaytn,
@@ -164,6 +177,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'Klaytn',
   },
   celo: {
+    key: 'celo',
     id: 14,
     context: Context.ETH,
     contracts: CONTRACTS.MAINNET.celo,
@@ -171,6 +185,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'Celo',
   },
   near: {
+    key: 'near',
     id: 15,
     context: Context.NEAR,
     contracts: CONTRACTS.MAINNET.near,
@@ -178,6 +193,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'Near',
   },
   injective: {
+    key: 'injective',
     id: 19,
     context: Context.INJECTIVE,
     contracts: CONTRACTS.MAINNET.injective,
@@ -185,6 +201,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'Injective',
   },
   osmosis: {
+    key: 'osmosis',
     id: 20,
     context: Context.ETH,
     contracts: CONTRACTS.MAINNET.osmosis,
@@ -192,6 +209,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'Osmosis',
   },
   aptos: {
+    key: 'aptos',
     id: 22,
     context: Context.APTOS,
     contracts: CONTRACTS.MAINNET.aptos,
@@ -199,6 +217,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'Aptos',
   },
   sui: {
+    key: 'sui',
     id: 21,
     context: Context.OTHER,
     contracts: CONTRACTS.MAINNET.sui,
@@ -206,6 +225,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'SUI',
   },
   moonbeam: {
+    key: 'moonbeam',
     id: 16,
     context: Context.ETH,
     contracts: CONTRACTS.MAINNET.moonbeam,
@@ -213,6 +233,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'Moonbeam',
   },
   neon: {
+    key: 'neon',
     id: 17,
     context: Context.ETH,
     contracts: CONTRACTS.MAINNET.neon,
@@ -220,6 +241,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'Neon',
   },
   terra2: {
+    key: 'terra2',
     id: 18,
     context: Context.TERRA,
     contracts: CONTRACTS.MAINNET.terra2,
@@ -227,6 +249,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'Terra 2',
   },
   arbitrum: {
+    key: 'arbitrum',
     id: 23,
     context: Context.ETH,
     contracts: CONTRACTS.MAINNET.arbitrum,
@@ -234,6 +257,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'Arbitrum',
   },
   optimism: {
+    key: 'optimism',
     id: 24,
     context: Context.ETH,
     contracts: CONTRACTS.MAINNET.optimism,
@@ -241,6 +265,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'Optimism',
   },
   gnosis: {
+    key: 'gnosis',
     id: 25,
     context: Context.ETH,
     contracts: CONTRACTS.MAINNET.gnosis,
@@ -248,6 +273,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'Gnosis',
   },
   pythnet: {
+    key: 'pythnet',
     id: 26,
     context: Context.SOLANA,
     contracts: CONTRACTS.MAINNET.pythnet,
@@ -255,6 +281,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'Pythnet',
   },
   xpla: {
+    key: 'xpla',
     id: 28,
     context: Context.XPLA,
     contracts: CONTRACTS.MAINNET.xpla,
@@ -262,6 +289,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'XPLA',
   },
   btc: {
+    key: 'btc',
     id: 29,
     context: Context.OTHER,
     contracts: CONTRACTS.MAINNET.btc,
@@ -269,6 +297,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'BTC',
   },
   wormchain: {
+    key: 'wormchain',
     id: 3104,
     context: Context.OTHER,
     contracts: CONTRACTS.MAINNET.wormchain,
