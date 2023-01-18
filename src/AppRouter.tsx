@@ -3,7 +3,7 @@ import { makeStyles } from '@mui/styles';
 import { useSelector } from 'react-redux';
 import { RootState } from './store';
 import './App.css';
-import Bridge from './views/Bridge';
+import Bridge from './views/Bridge/Bridge';
 import WalletModal from './views/WalletModal';
 
 const useStyles = makeStyles(() => ({

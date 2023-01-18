@@ -104,7 +104,10 @@ function TokensModal() {
   };
   document.addEventListener('close', closeTokensModal, { once: true });
   // set token
-  const selectToken = (token: string) => dispatch(setToken(token));
+  const selectToken = (token: string) => {
+    dispatch(setToken(token));
+    closeTokensModal();
+  };
 
   return (
     <Modal closable width="500px">

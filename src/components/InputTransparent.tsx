@@ -1,8 +1,11 @@
+import { makeStyles } from 'tss-react/mui';
 import React from 'react';
-import { makeStyles } from '@mui/styles';
-import { Theme } from '@mui/material';
 
-const useStyles = makeStyles((theme: Theme) => ({
+type StyleProps = {
+  align?: 'center' | 'right';
+};
+
+const useStyles = makeStyles<StyleProps>()((theme, { align }) => ({
   input: {
     width: '100%',
     border: 'none',
@@ -14,16 +17,19 @@ const useStyles = makeStyles((theme: Theme) => ({
     webkitBoxShadow: 'none',
     moxBoxShadow: 'none',
     outline: 'none',
+    flexGrow: '1',
+    textAlign: align || 'left',
   },
 }));
 
 type Props = {
   placeholder?: string;
   type?: 'string' | 'number';
+  align?: 'center' | 'right';
 };
 
 function InputTransparent(props: Props) {
-  const classes = useStyles();
+  const { classes } = useStyles({ align: props.align });
   return (
     <input
       className={classes.input}

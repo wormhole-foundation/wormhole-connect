@@ -1,8 +1,6 @@
-// import { makeStyles, createStyles } from '@mui/styles';
 import { makeStyles } from 'tss-react/mui';
 import React from 'react';
 import CloseIcon from '../icons/close.svg';
-// import { Theme } from '@mui/material';
 
 type StyleProps = {
   width: string;
@@ -17,7 +15,7 @@ const useStyles = makeStyles<StyleProps>()((theme, { width }) => ({
     right: '0',
     height: '100vh',
     width: '100vw',
-    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
     zIndex: '500',
   },
   modalContainer: {
