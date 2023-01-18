@@ -4,16 +4,14 @@ import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import { PaletteMode } from '@mui/material';
-import { makeStyles } from '@mui/styles';
 import IconButton from '@mui/material/IconButton';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
 import amber from '@mui/material/colors/amber';
 import grey from '@mui/material/colors/grey';
 import './App.css';
-import Bridge from './views/Bridge';
 import { store } from './store';
-// import BackgroundImage from './components/BackgroundImage';
+import AppRouter from './AppRouter';
 
 const ColorModeContext = React.createContext({ toggleColorMode: () => {} });
 
@@ -61,15 +59,6 @@ const getDesignTokens = (mode: PaletteMode) =>
           }),
     },
   });
-const useStyles = makeStyles(() => ({
-  appContent: {
-    margin: 'auto',
-    maxWidth: '900px',
-    width: '100%',
-    display: 'flex',
-    justifyContent: 'center',
-  },
-}));
 
 function App() {
   const [mode, setMode] = React.useState<PaletteMode>('dark');
@@ -86,8 +75,6 @@ function App() {
   );
   // Update the theme only if the mode changes
   const theme = React.useMemo(() => createTheme(getDesignTokens(mode)), [mode]);
-
-  const classes = useStyles();
 
   return (
     <Provider store={store}>
@@ -122,9 +109,7 @@ function App() {
           </Box>
 
           {/* App content */}
-          <div className={classes.appContent}>
-            <Bridge />
-          </div>
+          <AppRouter />
         </ThemeProvider>
       </ColorModeContext.Provider>
     </Provider>

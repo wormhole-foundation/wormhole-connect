@@ -1,22 +1,22 @@
 import React from 'react';
-import { makeStyles } from '@mui/styles';
+import { makeStyles } from 'tss-react/mui';
 
 type Alignment = 'center' | 'left' | 'right';
 
-const useStyles = makeStyles<{ align: Alignment }>(({ align }) => ({
+type StyleProps = { align: Alignment };
+const useStyles = makeStyles<StyleProps>()((theme, { align }) => ({
   title: {
     fontSize: '32px',
     width: '100%',
-    // TODO: fix issue with props
-    textAlign: 'center',
+    textAlign: align,
   },
 }));
 
 function Header(props: { text: string; align?: Alignment }) {
   const styleProps = {
-    align: props.align || 'left',
+    align: props.align || 'center',
   };
-  const classes = useStyles(styleProps);
+  const { classes } = useStyles(styleProps);
   return <div className={classes.title}>{props.text}</div>;
 }
 

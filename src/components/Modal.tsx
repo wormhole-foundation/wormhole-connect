@@ -18,6 +18,7 @@ const useStyles = makeStyles<StyleProps>()((theme, { width }) => ({
     height: '100vh',
     width: '100vw',
     backgroundColor: 'rgba(0, 0, 0, 0.9)',
+    zIndex: '500',
   },
   modalContainer: {
     position: 'absolute',

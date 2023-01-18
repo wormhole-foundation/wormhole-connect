@@ -1,0 +1,99 @@
+import { makeStyles } from '@mui/styles';
+import React from 'react';
+import Header from '../components/Header';
+import Modal from '../components/Modal';
+import Spacer from '../components/Spacer';
+import { Theme } from '@mui/material';
+import { OPACITY } from '../utils/style';
+import MetamaskIcon from '../icons/metamask-fox.svg';
+import BinanceIcon from '../icons/binance-wallet.svg';
+import CoinbaseIcon from '../icons/coinbase.svg';
+import TrustIcon from '../icons/trust-wallet.svg';
+import PhantomIcon from '../icons/phantom-wallet.svg';
+import WalletConnectIcon from '../icons/walletconnect.svg';
+import { useDispatch } from 'react-redux';
+import { setWalletModal } from '../store/router';
+
+const useStyles = makeStyles((theme: Theme) => ({
+  walletRow: {
+    position: 'relative',
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+    padding: '16px 8px',
+    transition: `background-color 0.4s`,
+    cursor: 'pointer',
+    fontSize: '16px',
+    '&:hover': {
+      backgroundColor: theme.palette.primary[700],
+    },
+    '&:not(:last-child)': {
+      borderBottom: `0.5px solid ${theme.palette.primary[500] + OPACITY[80]}`,
+    },
+  },
+  icon: {
+    width: '32px',
+    height: '32px',
+    marginRight: '16px',
+  },
+}));
+
+type Wallet = {
+  name: string;
+  icon: string;
+};
+const WalletOptions: Wallet[] = [
+  {
+    name: 'Metamask',
+    icon: MetamaskIcon,
+  },
+  {
+    name: 'Binance Wallet',
+    icon: BinanceIcon,
+  },
+  {
+    name: 'Coinbase',
+    icon: CoinbaseIcon,
+  },
+  {
+    name: 'Trust Wallet',
+    icon: TrustIcon,
+  },
+  {
+    name: 'Phantom Wallet',
+    icon: PhantomIcon,
+  },
+  {
+    name: 'Wallet Connect',
+    icon: WalletConnectIcon,
+  },
+];
+
+function NetworksModal() {
+  const classes = useStyles();
+  const dispatch = useDispatch();
+  const displayWalletOptions = (wallets: Wallet[]): JSX.Element[] => {
+    return wallets.map((wallet, i) => (
+      <div className={classes.walletRow} key={i}>
+        <img className={classes.icon} src={wallet.icon} alt={wallet.name} />
+        <div>{wallet.name}</div>
+      </div>
+    ));
+  };
+  const closeWalletModal = () => {
+    dispatch(setWalletModal(false));
+    document.removeEventListener('click', closeWalletModal);
+  };
+  document.addEventListener('close', closeWalletModal, { once: true });
+
+  return (
+    <Modal closable width="450px">
+      <Header text="Connect wallet" align="left" />
+      <Spacer height={32} />
+      <div>{displayWalletOptions(WalletOptions)}</div>
+    </Modal>
+  );
+}
+
+export default NetworksModal;

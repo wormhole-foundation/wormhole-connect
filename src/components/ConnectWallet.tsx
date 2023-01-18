@@ -23,13 +23,13 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 
 type Props = {
-  // title: string
+  onClick: React.MouseEventHandler<HTMLDivElement>;
 };
 
 function NetworksModal(props: Props) {
   const classes = useStyles();
   return (
-    <div className={classes.connectTile}>
+    <div className={classes.connectTile} onClick={props.onClick}>
       <div className={classes.connectText}>Connect wallet</div>
     </div>
   );

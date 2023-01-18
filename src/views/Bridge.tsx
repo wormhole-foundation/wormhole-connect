@@ -12,7 +12,11 @@ import TokenIcon from '../icons/token.svg';
 import ArrowIcon from '../icons/arrow.svg';
 import { Theme } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
-import { setFromNetworksModal, setToNetworksModal } from '../store/router';
+import {
+  setFromNetworksModal,
+  setToNetworksModal,
+  setWalletModal,
+} from '../store/router';
 import { setFromNetwork, setToNetwork } from '../store/transfer';
 import { RootState } from '../store';
 import MAINNET_CONFIG from '../sdk/config/MAINNET';
@@ -79,6 +83,7 @@ function Bridge() {
   const toNetworkConfig = MAINNET_CONFIG.chains[toNetwork];
   const openFromNetworksModal = () => dispatch(setFromNetworksModal(true));
   const openToNetworksModal = () => dispatch(setToNetworksModal(true));
+  const openWalletModal = () => dispatch(setWalletModal(true));
   // const openTokensModal = () => dispatch(setTokensModal(true));
   const setFromNetworkStore = (network: ChainName) =>
     dispatch(setFromNetwork(network));
@@ -114,7 +119,7 @@ function Bridge() {
             network={fromNetworkConfig}
             onClick={openFromNetworksModal}
           />
-          <ConnectWallet />
+          <ConnectWallet onClick={openWalletModal} />
         </div>
         <div className={classes.networksArrow}>
           <img src={ArrowIcon} alt="arrow right" />
@@ -125,7 +130,7 @@ function Bridge() {
             network={toNetworkConfig}
             onClick={openToNetworksModal}
           />
-          <ConnectWallet />
+          <ConnectWallet onClick={openWalletModal} />
         </div>
       </div>
       <Spacer />
