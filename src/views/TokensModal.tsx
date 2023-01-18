@@ -14,6 +14,7 @@ import { MAINNET_TOKENS } from '../sdk/config/MAINNET';
 import { OPACITY } from '../utils/style';
 import { useDispatch } from 'react-redux';
 import { setTokensModal } from '../store/router';
+import { setToken } from '../store/transfer';
 
 const useStyles = makeStyles((theme: Theme) => ({
   tokensContainer: {
@@ -102,6 +103,8 @@ function TokensModal() {
     document.removeEventListener('click', closeTokensModal);
   };
   document.addEventListener('close', closeTokensModal, { once: true });
+  // set token
+  const selectToken = (token: string) => dispatch(setToken(token));
 
   return (
     <Modal closable width="500px">
@@ -117,7 +120,11 @@ function TokensModal() {
         <div className={classes.tokensContainer}>
           {Object.values(MAINNET_TOKENS).map((token, i) => {
             return (
-              <div className={classes.tokenRow}>
+              <div
+                className={classes.tokenRow}
+                key={i}
+                onClick={() => selectToken(token.symbol)}
+              >
                 <div className={classes.tokenRowLeft}>
                   <img
                     className={classes.tokenRowIcon}

@@ -20,9 +20,10 @@ import {
 } from '../store/router';
 import { setFromNetwork, setToNetwork } from '../store/transfer';
 import { RootState } from '../store';
-import MAINNET_CONFIG from '../sdk/config/MAINNET';
+import MAINNET_CONFIG, { MAINNET_TOKENS } from '../sdk/config/MAINNET';
 import { OPACITY } from '../utils/style';
 import { ChainName } from '../sdk/types';
+import ArrowDownIcon from '../icons/arrow-down.svg';
 
 const useStyles = makeStyles((theme: Theme) => ({
   bridgeContent: {
@@ -60,6 +61,16 @@ const useStyles = makeStyles((theme: Theme) => ({
     alignItems: 'center',
     cursor: 'pointer',
   },
+  tokenRow: {
+    display: 'flex',
+    alignItems: 'center',
+    fontSize: '20px',
+  },
+  tokenRowIcon: {
+    width: '32px',
+    height: '32px',
+    marginRight: '12px',
+  },
 }));
 
 const Item1 = () => <div>Select token</div>;
@@ -79,6 +90,8 @@ function Bridge() {
   const fromNetwork = useSelector(
     (state: RootState) => state.transfer.fromNetwork,
   );
+  const token = useSelector((state: RootState) => state.transfer.token);
+  const tokenConfig = token ? MAINNET_TOKENS[token] : undefined;
   const toNetwork = useSelector((state: RootState) => state.transfer.toNetwork);
   const fromNetworkConfig = MAINNET_CONFIG.chains[fromNetwork];
   const toNetworkConfig = MAINNET_CONFIG.chains[toNetwork];
@@ -141,7 +154,19 @@ function Bridge() {
 
       <InputContainer onClick={openTokensModal}>
         <div className={classes.tokenSelect}>
-          Select token
+          {tokenConfig ? (
+            <div className={classes.tokenRow}>
+              <img
+                className={classes.tokenRowIcon}
+                src={tokenConfig!.icon}
+                alt={tokenConfig!.symbol}
+              />
+              <div>{tokenConfig!.symbol}</div>
+              <img src={ArrowDownIcon} alt="arrow down" />
+            </div>
+          ) : (
+            'Select token'
+          )}
           <img src={TokenIcon} alt="select token" />
         </div>
       </InputContainer>
