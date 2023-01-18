@@ -6,6 +6,7 @@ import Networks from './Networks';
 import Token from './Token';
 import GasOptions from './GasOptions';
 import GasSlider from './NativeGasSlider';
+import TransferSummary from './TransferSummary';
 
 const useStyles = makeStyles(() => ({
   bridgeContent: {
@@ -41,6 +42,10 @@ function Bridge() {
       <Spacer />
 
       <GasSlider />
+
+      <Spacer />
+
+      <TransferSummary />
 
       <Spacer height={40} />
     </div>

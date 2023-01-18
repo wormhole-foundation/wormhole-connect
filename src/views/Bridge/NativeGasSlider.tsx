@@ -32,7 +32,6 @@ const useStyles = makeStyles()((theme) => ({
 type SliderProps = {
   color1: string;
   color2: string;
-  icon: string;
 };
 
 const PrettoSlider = styled(Slider)<SliderProps>(({ color1, color2 }) => ({
@@ -53,18 +52,6 @@ const PrettoSlider = styled(Slider)<SliderProps>(({ color1, color2 }) => ({
 }));
 
 interface ThumbProps extends React.HTMLAttributes<unknown> {}
-
-// function Thumb(props: ThumbProps) {
-//   const { children, ...other } = props;
-//   const { classes } = useStyles();
-//   const nativeGasToken = MAINNET_TOKENS.SOL;
-//   return (
-//     <SliderThumb {...other}>
-//       {children}
-//       <img className={classes.sliderIcon} src={nativeGasToken.icon} alt="slider" />
-//     </SliderThumb>
-//   );
-// }
 
 function GasSlider() {
   const { classes } = useStyles();
