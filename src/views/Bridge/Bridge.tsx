@@ -1,10 +1,10 @@
 import React from 'react';
 import { makeStyles } from '@mui/styles';
 import Header from '../../components/Header';
-import Input from '../../components/Input';
 import Spacer from '../../components/Spacer';
-import Token from './Token';
 import Networks from './Networks';
+import Token from './Token';
+import GasOptions from './GasOptions';
 
 const useStyles = makeStyles(() => ({
   bridgeContent: {
@@ -17,8 +17,6 @@ const useStyles = makeStyles(() => ({
     justifyContent: 'center',
   },
 }));
-
-const Item1 = () => <div>Select token</div>;
 
 function Bridge() {
   const classes = useStyles();
@@ -37,7 +35,7 @@ function Bridge() {
 
       <Spacer />
 
-      <Input left={Item1()} />
+      <GasOptions />
     </div>
   );
 }
