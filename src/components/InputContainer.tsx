@@ -4,7 +4,7 @@ import { Theme } from '@mui/material';
 import { OPACITY } from '../utils/style';
 
 type Props = {
-  children: JSX.Element;
+  children: JSX.Element | JSX.Element[];
   onClick?: React.MouseEventHandler<HTMLDivElement>;
 };
 

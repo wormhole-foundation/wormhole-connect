@@ -10,7 +10,7 @@ import { TerraWalletProvider } from './TerraWalletContext';
 import { InjectiveWalletProvider } from './InjectiveWalletContext';
 
 export type Props = {
-  children: JSX.Element;
+  children: JSX.Element | JSX.Element[];
 };
 
 export const WalletProvider = ({ children }: Props) => {

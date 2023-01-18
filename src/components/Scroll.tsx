@@ -5,7 +5,7 @@ import { OPACITY } from '../utils/style';
 
 type Props = {
   height: string;
-  children: JSX.Element;
+  children: JSX.Element | JSX.Element[];
 };
 
 const useStyles = makeStyles((theme: Theme) => ({

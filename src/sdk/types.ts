@@ -51,4 +51,5 @@ export type TokenConfig = {
   icon: string;
   address?: string;
   coinGeckoId: string;
+  color: string;
 };

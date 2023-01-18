@@ -312,36 +312,42 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     icon: PolygonIcon,
     address: undefined,
     coinGeckoId: '',
+    color: '#8247E5',
   },
   WMATIC: {
     symbol: 'WMATIC',
     icon: PolygonIcon,
     address: '0x1234...5678',
     coinGeckoId: '',
+    color: '#8247E5',
   },
   SOL: {
     symbol: 'SOL',
     icon: SolanaIcon,
     address: '0x1234...5678',
     coinGeckoId: '',
+    color: '#28D4B5',
   },
   WAVAX: {
     symbol: 'WAVAX',
     icon: AvaxIcon,
     address: '0x1234...5678',
     coinGeckoId: '',
+    color: '#E84142',
   },
   CELO: {
     symbol: 'CELO',
     icon: CeloIcon,
     address: '0x1234...5678',
     coinGeckoId: '',
+    color: '#35D07E',
   },
   BNB: {
     symbol: 'BNB',
     icon: BnbIcon,
     address: '0x1234...5678',
     coinGeckoId: '',
+    color: '#F3BA30',
   },
 };
 

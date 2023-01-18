@@ -61,19 +61,15 @@ function GasOptions() {
   const active =
     selectedOption && selectedOption === PaymentOption.AUTOMATIC ? 0 : 1;
   // listen for selectOption
-  document.addEventListener(
-    'selectOption',
-    (event: Event) => {
-      const { detail } = event as CustomEvent;
-      // setFromNetworkStore(detail);
-      if (detail === 1) {
-        dispatch(setDestGasPayment(PaymentOption.AUTOMATIC));
-      } else {
-        dispatch(setDestGasPayment(PaymentOption.MANUAL));
-      }
-    },
-    { once: true },
-  );
+  document.addEventListener('selectOption', (event: Event) => {
+    const { detail } = event as CustomEvent;
+    // setFromNetworkStore(detail);
+    if (detail === 1) {
+      dispatch(setDestGasPayment(PaymentOption.AUTOMATIC));
+    } else {
+      dispatch(setDestGasPayment(PaymentOption.MANUAL));
+    }
+  });
 
   return (
     <BridgeCollapse text="Gas payment options - Pay with MATIC">

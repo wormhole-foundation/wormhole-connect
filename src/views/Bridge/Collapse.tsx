@@ -15,6 +15,10 @@ const useStyles = makeStyles()((theme) => ({
     padding: '0 16px 8px 16px',
     cursor: 'pointer',
   },
+  disabled: {
+    opacity: '70%',
+    cursor: 'not-allowed',
+  },
   title: {
     fontSize: '14px',
     fontWeight: 'bold',
@@ -32,14 +36,18 @@ type Props = {
   text: string;
   children: JSX.Element | JSX.Element[];
   close?: boolean;
+  disabled?: boolean;
 };
 
 function BridgeCollapse(props: Props) {
   const { classes } = useStyles();
   const [collapsed, setCollapsed] = React.useState(props.close || false);
-  const toggleCollapsed = () => setCollapsed((prev) => !prev);
+  const toggleCollapsed = () =>
+    !props.disabled && setCollapsed((prev) => !prev);
   return (
-    <div className={classes.container}>
+    <div
+      className={`${classes.container} ${props.disabled && classes.disabled}`}
+    >
       <div className={classes.header} onClick={toggleCollapsed}>
         <div className={classes.title}>{props.text}</div>
         <img

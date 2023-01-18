@@ -5,6 +5,7 @@ import Spacer from '../../components/Spacer';
 import Networks from './Networks';
 import Token from './Token';
 import GasOptions from './GasOptions';
+import GasSlider from './NativeGasSlider';
 
 const useStyles = makeStyles(() => ({
   bridgeContent: {
@@ -36,6 +37,12 @@ function Bridge() {
       <Spacer />
 
       <GasOptions />
+
+      <Spacer />
+
+      <GasSlider />
+
+      <Spacer height={40} />
     </div>
   );
 }
