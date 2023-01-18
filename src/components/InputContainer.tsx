@@ -5,6 +5,7 @@ import { OPACITY } from '../utils/style';
 
 type Props = {
   children: JSX.Element;
+  onClick?: React.MouseEventHandler<HTMLDivElement>;
 };
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -16,9 +17,17 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
-function InputContainer({ children }: Props) {
+function InputContainer(props: Props) {
   const classes = useStyles();
-  return <div className={classes.input}>{children}</div>;
+  return (
+    <div
+      className={classes.input}
+      onClick={props.onClick}
+      style={{ cursor: !!props.onClick ? 'pointer' : 'default' }}
+    >
+      {props.children}
+    </div>
+  );
 }
 
 export default InputContainer;

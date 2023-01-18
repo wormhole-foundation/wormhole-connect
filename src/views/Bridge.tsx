@@ -16,6 +16,7 @@ import {
   setFromNetworksModal,
   setToNetworksModal,
   setWalletModal,
+  setTokensModal,
 } from '../store/router';
 import { setFromNetwork, setToNetwork } from '../store/transfer';
 import { RootState } from '../store';
@@ -84,7 +85,7 @@ function Bridge() {
   const openFromNetworksModal = () => dispatch(setFromNetworksModal(true));
   const openToNetworksModal = () => dispatch(setToNetworksModal(true));
   const openWalletModal = () => dispatch(setWalletModal(true));
-  // const openTokensModal = () => dispatch(setTokensModal(true));
+  const openTokensModal = () => dispatch(setTokensModal(true));
   const setFromNetworkStore = (network: ChainName) =>
     dispatch(setFromNetwork(network));
   const setToNetworkStore = (network: ChainName) =>
@@ -111,7 +112,9 @@ function Bridge() {
   return (
     <div className={classes.bridgeContent}>
       <Header text="Bridge" align="center" />
+
       <Spacer height={40} />
+
       <div className={classes.networks}>
         <div className={classes.networksTile}>
           <NetworkTile
@@ -133,15 +136,21 @@ function Bridge() {
           <ConnectWallet onClick={openWalletModal} />
         </div>
       </div>
+
       <Spacer />
-      <InputContainer>
+
+      <InputContainer onClick={openTokensModal}>
         <div className={classes.tokenSelect}>
           Select token
           <img src={TokenIcon} alt="select token" />
         </div>
       </InputContainer>
+
       <Spacer />
+
       <Input left={Item1()} />
+
+      {/* modals */}
       {showFromNetworksModal && (
         <NetworksModal title="Send from" event="selectFromNetwork" />
       )}
