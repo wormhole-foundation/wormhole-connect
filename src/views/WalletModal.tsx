@@ -5,12 +5,12 @@ import Modal from '../components/Modal';
 import Spacer from '../components/Spacer';
 import { Theme } from '@mui/material';
 import { OPACITY } from '../utils/style';
-import MetamaskIcon from '../icons/metamask-fox.svg';
-import BinanceIcon from '../icons/binance-wallet.svg';
-import CoinbaseIcon from '../icons/coinbase.svg';
-import TrustIcon from '../icons/trust-wallet.svg';
-import PhantomIcon from '../icons/phantom-wallet.svg';
-import WalletConnectIcon from '../icons/walletconnect.svg';
+import MetamaskIcon from '../icons/wallets/metamask-fox.svg';
+import BinanceIcon from '../icons/wallets/binance-wallet.svg';
+import CoinbaseIcon from '../icons/wallets/coinbase.svg';
+import TrustIcon from '../icons/wallets/trust-wallet.svg';
+import PhantomIcon from '../icons/wallets/phantom-wallet.svg';
+import WalletConnectIcon from '../icons/wallets/walletconnect.svg';
 import { useDispatch } from 'react-redux';
 import { setWalletModal } from '../store/router';
 

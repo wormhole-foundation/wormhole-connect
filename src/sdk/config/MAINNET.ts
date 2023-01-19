@@ -4,32 +4,32 @@ import {
   CONTRACTS,
 } from '@certusone/wormhole-sdk';
 import { WormholeConfig, Context, ChainConfig, TokenConfig } from '../types';
-import AcalaIcon from '../../icons/acala.svg';
-import AlgoIcon from '../../icons/algorand.svg';
-import AptosIcon from '../../icons/aptos.svg';
-import ArbitrumIcon from '../../icons/arbitrum.svg';
-import AuroraIcon from '../../icons/aurora.svg';
-import AvaxIcon from '../../icons/avax.svg';
-import BscIcon from '../../icons/bsc.svg';
-import CeloIcon from '../../icons/celo.svg';
-import EthIcon from '../../icons/eth.svg';
-import FantomIcon from '../../icons/fantom.svg';
-import InjectiveIcon from '../../icons/injective.svg';
-import KaruraIcon from '../../icons/karura.svg';
-import KlaytnIcon from '../../icons/klaytn.svg';
-import MoonbeamIcon from '../../icons/moonbeam.svg';
-import NearIcon from '../../icons/near.svg';
-import NeonIcon from '../../icons/neon.svg';
-import OasisIcon from '../../icons/oasis-network-rose-logo.svg';
-import OsmosisIcon from '../../icons/osmosis.svg';
-import PolygonIcon from '../../icons/polygon.svg';
-import SolanaIcon from '../../icons/solana.svg';
-import SuiIcon from '../../icons/sui.png';
-import TerraIcon from '../../icons/terra.svg';
-import Terra2Icon from '../../icons/terra2.svg';
-import XplaIcon from '../../icons/xpla.svg';
+import AcalaIcon from '../../icons/tokens/acala.svg';
+import AlgoIcon from '../../icons/tokens/algorand.svg';
+import AptosIcon from '../../icons/tokens/aptos.svg';
+import ArbitrumIcon from '../../icons/tokens/arbitrum.svg';
+import AuroraIcon from '../../icons/tokens/aurora.svg';
+import AvaxIcon from '../../icons/tokens/avax.svg';
+import BscIcon from '../../icons/tokens/bsc.svg';
+import CeloIcon from '../../icons/tokens/celo.svg';
+import EthIcon from '../../icons/tokens/eth.svg';
+import FantomIcon from '../../icons/tokens/fantom.svg';
+import InjectiveIcon from '../../icons/tokens/injective.svg';
+import KaruraIcon from '../../icons/tokens/karura.svg';
+import KlaytnIcon from '../../icons/tokens/klaytn.svg';
+import MoonbeamIcon from '../../icons/tokens/moonbeam.svg';
+import NearIcon from '../../icons/tokens/near.svg';
+import NeonIcon from '../../icons/tokens/neon.svg';
+import OasisIcon from '../../icons/tokens/oasis-network-rose-logo.svg';
+import OsmosisIcon from '../../icons/tokens/osmosis.svg';
+import PolygonIcon from '../../icons/tokens/polygon.svg';
+import SolanaIcon from '../../icons/tokens/solana.svg';
+import SuiIcon from '../../icons/tokens/sui.png';
+import TerraIcon from '../../icons/tokens/terra.svg';
+import Terra2Icon from '../../icons/tokens/terra2.svg';
+import XplaIcon from '../../icons/tokens/xpla.svg';
 
-import BnbIcon from '../../icons/bnb.svg';
+import BnbIcon from '../../icons/tokens/bnb.svg';
 
 // https://book.wormhole.com/reference/contracts.html
 export const MAINNET_CHAINS = {

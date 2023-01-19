@@ -9,8 +9,8 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import metamaskIcon from '../icons/metamask-fox.svg';
-import walletconnectIcon from '../icons/walletconnect.svg';
+import metamaskIcon from '../icons/wallets/metamask-fox.svg';
+import walletconnectIcon from '../icons/wallets/walletconnect.svg';
 import { EVM_RPC_MAP } from '../utils/metaMaskChainParameters';
 import { Props } from './WalletContext';
 const CacheSubprovider = require('web3-provider-engine/subproviders/cache');
