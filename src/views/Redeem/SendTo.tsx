@@ -8,20 +8,16 @@ import Confirmations from './Confirmations';
 const rows = [
   {
     title: 'Amount',
-    value: '20.45 MATIC',
+    value: '20.1 MATIC',
   },
   {
-    title: 'Relayer fee',
-    value: '1.5 MATIC',
-  },
-  {
-    title: 'Conver to native gas token',
-    value: '≈ 0.3 MATIC --> FTM',
+    title: 'Native gas token',
+    value: '0.5 FTM',
   },
 ];
 
 type Props = {
-  fromNetwork: ChainName;
+  toNetwork: ChainName;
   senderAddress: string;
   amount: string;
   relayerFee: string;
@@ -29,21 +25,18 @@ type Props = {
   showConfirmations: boolean;
 };
 
-function SendFrom(props: Props) {
+function SendTo(props: Props) {
   return (
     <div>
       <InputContainer>
-        <Header
-          network={props.fromNetwork}
-          senderAddress={props.senderAddress}
-        />
+        <Header network={props.toNetwork} senderAddress={props.senderAddress} />
         <RenderRows rows={rows} />
       </InputContainer>
       {props.showConfirmations && (
-        <Confirmations confirmations={18} total={32} />
+        <Confirmations confirmations={7} total={10} />
       )}
     </div>
   );
 }
 
-export default SendFrom;
+export default SendTo;

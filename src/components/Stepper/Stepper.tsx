@@ -19,7 +19,7 @@ export default function Stepper(props: Props) {
   return (
     <Stack sx={{ width: '100%' }}>
       {steps.map((step, index) => (
-        <div>
+        <div key={index}>
           <StepperLabel index={index + 1} activeStep={activeStep}>
             <div>{step.label}</div>
           </StepperLabel>

@@ -1,7 +1,8 @@
 import * as React from 'react';
 import Stepper from '../../components/Stepper/Stepper';
-import { Button } from '@mui/material';
 import SendFrom from './SendFrom';
+import SendTo from './SendTo';
+import CTA from './CTA';
 
 const steps = [
   {
@@ -13,16 +14,26 @@ const steps = [
         amount="20.4 MATIC"
         relayerFee="- 1.2 MATIC"
         nativeGas="≈ 0.3 MATIC --> FTM"
+        showConfirmations={false}
       />
     ),
   },
   {
     label: 'Send to',
-    component: <Button>2</Button>,
+    component: (
+      <SendTo
+        toNetwork="polygon"
+        senderAddress="0x1234...5678"
+        amount="20.4 MATIC"
+        relayerFee="- 1.2 MATIC"
+        nativeGas="≈ 0.3 MATIC --> FTM"
+        showConfirmations={true}
+      />
+    ),
   },
   {
     label: 'Transaction complete',
-    component: <Button>3</Button>,
+    component: <CTA ctaText="Some CTA" />,
   },
 ];
 
