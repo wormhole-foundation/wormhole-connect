@@ -1,3 +1,5 @@
+import { Theme } from '@mui/material';
+
 export const OPACITY = {
   0: '00',
   5: '0C',
@@ -21,4 +23,38 @@ export const OPACITY = {
   90: 'E5',
   95: 'F2',
   100: 'FF',
+};
+
+export const LINK = (theme: Theme) => ({
+  color: theme.palette.text.primary,
+  textDecoration: 'underline',
+  margin: '12px',
+  display: 'flex',
+  alignItems: 'center',
+  gap: '8px',
+});
+
+export const CENTER = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+};
+
+export const ROW = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: '8px',
+};
+
+export const ROW_BETWEEN = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+};
+
+export const COL_CENTER = {
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'center',
+  gap: '8px',
 };

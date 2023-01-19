@@ -29,6 +29,8 @@ export type ChainConfig = {
   contracts: Contracts;
   icon: string;
   displayName: string;
+  explorerUrl: string;
+  explorerName: string;
 };
 
 export type WormholeConfig = {

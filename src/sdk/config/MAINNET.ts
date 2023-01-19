@@ -79,6 +79,8 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     contracts: CONTRACTS.MAINNET.solana,
     icon: SolanaIcon,
     displayName: 'Solana',
+    explorerUrl: '',
+    explorerName: '',
   },
   ethereum: {
     key: 'ethereum',
@@ -87,6 +89,8 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     contracts: CONTRACTS.MAINNET.ethereum,
     icon: EthIcon,
     displayName: 'Ethereum',
+    explorerUrl: '',
+    explorerName: '',
   },
   terra: {
     key: 'terra',
@@ -95,6 +99,8 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     contracts: CONTRACTS.MAINNET.terra,
     icon: TerraIcon,
     displayName: 'Terra',
+    explorerUrl: '',
+    explorerName: '',
   },
   bsc: {
     key: 'bsc',
@@ -103,6 +109,8 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     contracts: CONTRACTS.MAINNET.bsc,
     icon: BscIcon,
     displayName: 'BSC',
+    explorerUrl: '',
+    explorerName: '',
   },
   polygon: {
     key: 'polygon',
@@ -111,6 +119,8 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     contracts: CONTRACTS.MAINNET.polygon,
     icon: PolygonIcon,
     displayName: 'Polygon',
+    explorerUrl: 'https://polygonscan.com/',
+    explorerName: 'PolygonScan',
   },
   avalanche: {
     key: 'avalanche',
@@ -119,6 +129,8 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     contracts: CONTRACTS.MAINNET.avalanche,
     icon: AvaxIcon,
     displayName: 'Avalanche',
+    explorerUrl: '',
+    explorerName: '',
   },
   oasis: {
     key: 'oasis',
@@ -127,6 +139,8 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     contracts: CONTRACTS.MAINNET.oasis,
     icon: OasisIcon,
     displayName: 'Oasis',
+    explorerUrl: '',
+    explorerName: '',
   },
   algorand: {
     key: 'algorand',
@@ -135,6 +149,8 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     contracts: CONTRACTS.MAINNET.algorand,
     icon: AlgoIcon,
     displayName: 'Algorand',
+    explorerUrl: '',
+    explorerName: '',
   },
   aurora: {
     key: 'aurora',
@@ -143,6 +159,8 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     contracts: CONTRACTS.MAINNET.aurora,
     icon: AuroraIcon,
     displayName: 'Aurora',
+    explorerUrl: '',
+    explorerName: '',
   },
   fantom: {
     key: 'fantom',
@@ -151,6 +169,8 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     contracts: CONTRACTS.MAINNET.fantom,
     icon: FantomIcon,
     displayName: 'Fantom',
+    explorerUrl: 'https://ftmscan.com/',
+    explorerName: 'FTMscan',
   },
   karura: {
     key: 'karura',
@@ -159,6 +179,8 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     contracts: CONTRACTS.MAINNET.karura,
     icon: KaruraIcon,
     displayName: 'Karura',
+    explorerUrl: '',
+    explorerName: '',
   },
   acala: {
     key: 'acala',
@@ -167,6 +189,8 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     contracts: CONTRACTS.MAINNET.acala,
     icon: AcalaIcon,
     displayName: 'Acala',
+    explorerUrl: '',
+    explorerName: '',
   },
   klaytn: {
     key: 'klaytn',
@@ -175,6 +199,8 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     contracts: CONTRACTS.MAINNET.klaytn,
     icon: KlaytnIcon,
     displayName: 'Klaytn',
+    explorerUrl: '',
+    explorerName: '',
   },
   celo: {
     key: 'celo',
@@ -183,6 +209,8 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     contracts: CONTRACTS.MAINNET.celo,
     icon: CeloIcon,
     displayName: 'Celo',
+    explorerUrl: '',
+    explorerName: '',
   },
   near: {
     key: 'near',
@@ -191,6 +219,8 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     contracts: CONTRACTS.MAINNET.near,
     icon: NearIcon,
     displayName: 'Near',
+    explorerUrl: '',
+    explorerName: '',
   },
   injective: {
     key: 'injective',
@@ -199,6 +229,8 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     contracts: CONTRACTS.MAINNET.injective,
     icon: InjectiveIcon,
     displayName: 'Injective',
+    explorerUrl: '',
+    explorerName: '',
   },
   osmosis: {
     key: 'osmosis',
@@ -207,6 +239,8 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     contracts: CONTRACTS.MAINNET.osmosis,
     icon: OsmosisIcon,
     displayName: 'Osmosis',
+    explorerUrl: '',
+    explorerName: '',
   },
   aptos: {
     key: 'aptos',
@@ -215,6 +249,8 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     contracts: CONTRACTS.MAINNET.aptos,
     icon: AptosIcon,
     displayName: 'Aptos',
+    explorerUrl: '',
+    explorerName: '',
   },
   sui: {
     key: 'sui',
@@ -223,6 +259,8 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     contracts: CONTRACTS.MAINNET.sui,
     icon: SuiIcon,
     displayName: 'SUI',
+    explorerUrl: '',
+    explorerName: '',
   },
   moonbeam: {
     key: 'moonbeam',
@@ -231,6 +269,8 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     contracts: CONTRACTS.MAINNET.moonbeam,
     icon: MoonbeamIcon,
     displayName: 'Moonbeam',
+    explorerUrl: '',
+    explorerName: '',
   },
   neon: {
     key: 'neon',
@@ -239,6 +279,8 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     contracts: CONTRACTS.MAINNET.neon,
     icon: NeonIcon,
     displayName: 'Neon',
+    explorerUrl: '',
+    explorerName: '',
   },
   terra2: {
     key: 'terra2',
@@ -247,6 +289,8 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     contracts: CONTRACTS.MAINNET.terra2,
     icon: Terra2Icon,
     displayName: 'Terra 2',
+    explorerUrl: '',
+    explorerName: '',
   },
   arbitrum: {
     key: 'arbitrum',
@@ -255,6 +299,8 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     contracts: CONTRACTS.MAINNET.arbitrum,
     icon: ArbitrumIcon,
     displayName: 'Arbitrum',
+    explorerUrl: '',
+    explorerName: '',
   },
   optimism: {
     key: 'optimism',
@@ -263,6 +309,8 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     contracts: CONTRACTS.MAINNET.optimism,
     icon: '',
     displayName: 'Optimism',
+    explorerUrl: '',
+    explorerName: '',
   },
   gnosis: {
     key: 'gnosis',
@@ -271,6 +319,8 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     contracts: CONTRACTS.MAINNET.gnosis,
     icon: '',
     displayName: 'Gnosis',
+    explorerUrl: '',
+    explorerName: '',
   },
   pythnet: {
     key: 'pythnet',
@@ -279,6 +329,8 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     contracts: CONTRACTS.MAINNET.pythnet,
     icon: '',
     displayName: 'Pythnet',
+    explorerUrl: '',
+    explorerName: '',
   },
   xpla: {
     key: 'xpla',
@@ -287,6 +339,8 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     contracts: CONTRACTS.MAINNET.xpla,
     icon: XplaIcon,
     displayName: 'XPLA',
+    explorerUrl: '',
+    explorerName: '',
   },
   btc: {
     key: 'btc',
@@ -295,6 +349,8 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     contracts: CONTRACTS.MAINNET.btc,
     icon: '',
     displayName: 'BTC',
+    explorerUrl: '',
+    explorerName: '',
   },
   wormchain: {
     key: 'wormchain',
@@ -303,6 +359,8 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     contracts: CONTRACTS.MAINNET.wormchain,
     icon: '',
     displayName: 'Wormchain',
+    explorerUrl: '',
+    explorerName: '',
   },
 };
 

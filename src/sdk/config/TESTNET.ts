@@ -33,6 +33,8 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     },
     icon: EthIcon,
     displayName: 'Goerli (Ethereum Testnet)',
+    explorerUrl: '',
+    explorerName: '',
   },
   bsc: {
     key: 'bsc',
@@ -45,6 +47,8 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     },
     icon: BscIcon,
     displayName: 'BSC (Testnet)',
+    explorerUrl: '',
+    explorerName: '',
   },
   fuji: {
     key: 'fuji',
@@ -57,6 +61,8 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     },
     icon: FujiIcon,
     displayName: 'Fuji (Avalanche Testnet)',
+    explorerUrl: '',
+    explorerName: '',
   },
   fantom: {
     key: 'fantom',
@@ -69,6 +75,8 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     },
     icon: FantomIcon,
     displayName: 'Fantom (Testnet)',
+    explorerUrl: '',
+    explorerName: '',
   },
 };
 

@@ -4,8 +4,9 @@ import Header from '../../components/Header';
 import Spacer from '../../components/Spacer';
 import NetworksTag from './Tag';
 import { Theme } from '@mui/material';
-import redirectIcon from '../../icons/redirect.svg';
+import RedirectIcon from '../../icons/redirect.svg';
 import Stepper from './Stepper';
+import { LINK } from '../../utils/style';
 
 const useStyles = makeStyles((theme: Theme) => ({
   milestoneContent: {
@@ -17,13 +18,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  link: {
-    color: theme.palette.text.primary,
-    textDecoration: 'underline',
-    margin: '12px',
-    display: 'flex',
-    alignItems: 'center',
-  },
+  link: LINK(theme),
   redirectIcon: {
     marginLeft: '8px',
   },
@@ -37,11 +32,16 @@ function Redeem() {
       <Header text="Bridge" align="center" />
       <Spacer height={40} />
       <NetworksTag fromNetwork="polygon" toNetwork="fantom" />
-      <a className={classes.link} href="https://wormhole.com/" target="_blank" rel="noreferrer">
+      <a
+        className={classes.link}
+        href="https://wormhole.com/"
+        target="_blank"
+        rel="noreferrer"
+      >
         <div>View on Wormhole Explorer</div>
         <img
           className={classes.redirectIcon}
-          src={redirectIcon}
+          src={RedirectIcon}
           alt="open link"
         />
       </a>
