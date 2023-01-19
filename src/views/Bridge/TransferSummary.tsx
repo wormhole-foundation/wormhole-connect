@@ -103,7 +103,7 @@ function RenderRows(props: { rows: TransferRow[], small?: boolean }) {
   return (
     <div>
       {props.rows.map((row, i) => (
-        <div>
+        <div key={i}>
           <div
             className={classes.row}
             style={{ cursor: row.fees ? 'pointer' : 'default' }}

@@ -3,7 +3,7 @@ import { makeStyles } from '@mui/styles';
 import { useSelector } from 'react-redux';
 import { RootState } from './store';
 import './App.css';
-import Bridge from './views/Bridge/Bridge';
+// import Bridge from './views/Bridge/Bridge';
 import WalletModal from './views/WalletModal';
 import Redeem from './views/Redeem/Redeem';
 
@@ -30,8 +30,9 @@ function AppRouter() {
   return (
     <div className={classes.appContent}>
       {showWalletModal && <WalletModal />}
-      {route === 'bridge' && <Bridge />}
-      {route === 'redeem' && <Redeem />}
+      {/* {route === 'bridge' && <Bridge />}
+      {route === 'redeem' && <Redeem />} */}
+      <Redeem />
     </div>
   );
 }
