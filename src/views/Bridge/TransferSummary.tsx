@@ -6,16 +6,11 @@ import { Collapse } from '@mui/material';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import { PaymentOption } from '../../store/transfer';
+import InfoBox from '../../components/InfoBox';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
     width: '100%',
-  },
-  summaryBox: {
-    width: '100%',
-    padding: '16px',
-    border: `1px solid ${theme.palette.primary[50] + OPACITY[25]}`,
-    backgroundColor: `${theme.palette.primary[50] + OPACITY[5]}`,
   },
   header: {
     width: '100%',
@@ -29,6 +24,7 @@ const useStyles = makeStyles()((theme) => ({
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
+    margin: '4px 0',
   },
   rowTitle: {
     fontSize: '14px',
@@ -44,6 +40,9 @@ const useStyles = makeStyles()((theme) => ({
   fees: {
     marginLeft: '16px',
   },
+  feeText: {
+    fontSize: '14px',
+  }
 }));
 
 type Row = {
@@ -87,17 +86,17 @@ const manualRows: TransferRow[] = [
     fees: [
       {
         title: 'Source chain gas',
-        value: '~0.5 MATIC',
+        value: '~ 0.5 MATIC',
       },
       {
         title: 'Destination chain gas',
-        value: '~0.5 FTM',
+        value: '~ 0.5 FTM',
       },
     ],
   },
 ];
 
-function RenderRows(props: { rows: TransferRow[] }) {
+function RenderRows(props: { rows: TransferRow[], small?: boolean }) {
   const { classes } = useStyles();
   const [collapsed, setCollapsed] = React.useState(true);
   const toggleCollapsed = () => setCollapsed((prev) => !prev);
@@ -120,13 +119,13 @@ function RenderRows(props: { rows: TransferRow[] }) {
                 />
               )}
             </div>
-            <div>{row.value}</div>
+            <div className={`${props.small && classes.feeText}`}>{row.value}</div>
           </div>
           <div>
             {row.fees && (
               <Collapse in={!collapsed}>
                 <div className={classes.fees}>
-                  <RenderRows rows={row.fees} />
+                  <RenderRows rows={row.fees} small />
                 </div>
               </Collapse>
             )}
@@ -148,9 +147,9 @@ function TransferSummary() {
   return (
     <div className={classes.container}>
       <div className={classes.header}>Transfer summary</div>
-      <div className={classes.summaryBox}>
+      <InfoBox>
         <RenderRows rows={rows} />
-      </div>
+      </InfoBox>
     </div>
   );
 }
