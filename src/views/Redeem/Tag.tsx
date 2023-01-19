@@ -33,10 +33,22 @@ function NetworksTag(props: Props) {
     <div>
       <InputContainer>
         <div className={classes.row}>
-          <img className={classes.icon} src={fromNetworkConfig.icon} alt={fromNetworkConfig.displayName} />
+          <img
+            className={classes.icon}
+            src={fromNetworkConfig.icon}
+            alt={fromNetworkConfig.displayName}
+          />
           <div>{fromNetworkConfig.displayName}</div>
-          <img className={classes.arrow} src={ArrowRightIcon} alt="arrow right" />
-          <img className={classes.icon} src={toNetworkConfig.icon} alt={toNetworkConfig.displayName} />
+          <img
+            className={classes.arrow}
+            src={ArrowRightIcon}
+            alt="arrow right"
+          />
+          <img
+            className={classes.icon}
+            src={toNetworkConfig.icon}
+            alt={toNetworkConfig.displayName}
+          />
           <div>{toNetworkConfig.displayName}</div>
         </div>
       </InputContainer>

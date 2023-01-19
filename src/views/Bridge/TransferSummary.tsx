@@ -1,6 +1,5 @@
 import React from 'react';
 import { makeStyles } from 'tss-react/mui';
-import { OPACITY } from '../../utils/style';
 import ArrowDownIcon from '../../icons/arrow-down.svg';
 import { Collapse } from '@mui/material';
 import { useSelector } from 'react-redux';
@@ -42,7 +41,7 @@ const useStyles = makeStyles()((theme) => ({
   },
   feeText: {
     fontSize: '14px',
-  }
+  },
 }));
 
 type Row = {
@@ -96,7 +95,7 @@ const manualRows: TransferRow[] = [
   },
 ];
 
-function RenderRows(props: { rows: TransferRow[], small?: boolean }) {
+function RenderRows(props: { rows: TransferRow[]; small?: boolean }) {
   const { classes } = useStyles();
   const [collapsed, setCollapsed] = React.useState(true);
   const toggleCollapsed = () => setCollapsed((prev) => !prev);
@@ -119,7 +118,9 @@ function RenderRows(props: { rows: TransferRow[], small?: boolean }) {
                 />
               )}
             </div>
-            <div className={`${props.small && classes.feeText}`}>{row.value}</div>
+            <div className={`${props.small && classes.feeText}`}>
+              {row.value}
+            </div>
           </div>
           <div>
             {row.fees && (

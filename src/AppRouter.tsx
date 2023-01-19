@@ -25,7 +25,7 @@ function AppRouter() {
     (state: RootState) => state.router.showWalletModal,
   );
 
-  const route = useSelector((state: RootState) => state.router.route);
+  // const route = useSelector((state: RootState) => state.router.route);
 
   return (
     <div className={classes.appContent}>

@@ -37,9 +37,13 @@ function Redeem() {
       <Header text="Bridge" align="center" />
       <Spacer height={40} />
       <NetworksTag fromNetwork="polygon" toNetwork="fantom" />
-      <a className={classes.link} href="" target="_blank">
+      <a className={classes.link} href="https://wormhole.com/" target="_blank" rel="noreferrer">
         <div>View on Wormhole Explorer</div>
-        <img className={classes.redirectIcon} src={redirectIcon} alt="open link" />
+        <img
+          className={classes.redirectIcon}
+          src={redirectIcon}
+          alt="open link"
+        />
       </a>
       <Stepper />
     </div>

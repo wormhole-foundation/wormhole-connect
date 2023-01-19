@@ -12,17 +12,13 @@ const useStyles = makeStyles()((theme) => ({
 }));
 
 type Props = {
-  children: JSX.Element | JSX.Element[]
-}
+  children: JSX.Element | JSX.Element[];
+};
 
 function InfoBox(props: Props) {
   const { classes } = useStyles();
 
-  return (
-    <div className={classes.summaryBox}>
-      {props.children}
-    </div>
-  );
+  return <div className={classes.summaryBox}>{props.children}</div>;
 }
 
 export default InfoBox;
