@@ -3,7 +3,7 @@ import { makeStyles } from '@mui/styles';
 import NetworksModal from '../NetworksModal';
 import NetworkTile from '../../components/NetworkTile';
 import ConnectWallet from '../../components/ConnectWallet';
-import ArrowIcon from '../../icons/arrow.svg';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { Theme } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -14,7 +14,6 @@ import {
 import { setFromNetwork, setToNetwork } from '../../store/transfer';
 import { RootState } from '../../store';
 import MAINNET_CONFIG from '../../sdk/config/MAINNET';
-import { OPACITY } from '../../utils/style';
 import { ChainName } from '../../sdk/types';
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -27,16 +26,19 @@ const useStyles = makeStyles((theme: Theme) => ({
   networksTile: {
     width: '100%',
     maxWidth: '224px',
+    boxShadow: `${theme.palette.card.elevation}`,
+    borderRadius: '8px',
   },
   networksArrow: {
     width: '48px',
     height: '48px',
     borderRadius: '100%',
-    backgroundColor: `${theme.palette.primary[50] + OPACITY[7]}`,
+    backgroundColor: `${theme.palette.card.background}`,
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
     cursor: 'pointer',
+    path: `${theme.palette.text.primary}`,
   },
 }));
 
@@ -95,7 +97,7 @@ function Networks() {
         <ConnectWallet onClick={openWalletModal} />
       </div>
       <div className={classes.networksArrow}>
-        <img src={ArrowIcon} alt="arrow right" />
+        <ArrowForwardIcon />
       </div>
       <div className={classes.networksTile}>
         <NetworkTile

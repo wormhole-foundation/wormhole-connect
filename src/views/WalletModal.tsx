@@ -4,7 +4,6 @@ import Header from '../components/Header';
 import Modal from '../components/Modal';
 import Spacer from '../components/Spacer';
 import { Theme } from '@mui/material';
-import { OPACITY } from '../utils/style';
 import MetamaskIcon from '../icons/wallets/metamask-fox.svg';
 import BinanceIcon from '../icons/wallets/binance-wallet.svg';
 import CoinbaseIcon from '../icons/wallets/coinbase.svg';
@@ -29,7 +28,7 @@ const useStyles = makeStyles((theme: Theme) => ({
       backgroundColor: theme.palette.primary[700],
     },
     '&:not(:last-child)': {
-      borderBottom: `0.5px solid ${theme.palette.primary[500] + OPACITY[80]}`,
+      borderBottom: `0.5px solid ${theme.palette.divider}`,
     },
   },
   icon: {

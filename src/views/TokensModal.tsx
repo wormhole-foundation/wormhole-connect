@@ -8,10 +8,9 @@ import Search from '../components/Search';
 import Scroll from '../components/Scroll';
 import Tooltip from '../components/Tooltip';
 import { Theme } from '@mui/material';
-import ArrowDownIcon from '../icons/arrow-down.svg';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 
 import { MAINNET_TOKENS } from '../sdk/config/MAINNET';
-import { OPACITY } from '../utils/style';
 import { useDispatch } from 'react-redux';
 import { setTokensModal } from '../store/router';
 import { setToken } from '../store/transfer';
@@ -40,7 +39,7 @@ const useStyles = makeStyles((theme: Theme) => ({
       backgroundColor: theme.palette.primary[700],
     },
     '&:not(:last-child)': {
-      borderBottom: `0.5px solid ${theme.palette.primary[500] + OPACITY[80]}`,
+      borderBottom: `0.5px solid ${theme.palette.divider}`,
     },
   },
   tokenRowLeft: {
@@ -149,10 +148,8 @@ function TokensModal() {
               <div className={classes.subheader}>Advanced</div>
               <Tooltip text="Some text" />
             </div>
-            <img
+            <KeyboardArrowDownIcon
               className={`${classes.arrow} ${showAdvanced && classes.invert}`}
-              src={ArrowDownIcon}
-              alt="down arrow"
             />
           </div>
           <Collapse in={showAdvanced}>

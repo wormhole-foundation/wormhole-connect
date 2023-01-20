@@ -3,7 +3,7 @@ import { makeStyles } from '@mui/styles';
 import { useSelector } from 'react-redux';
 import { RootState } from './store';
 import './App.css';
-// import Bridge from './views/Bridge/Bridge';
+import Bridge from './views/Bridge/Bridge';
 import WalletModal from './views/WalletModal';
 import Redeem from './views/Redeem/Redeem';
 
@@ -25,14 +25,13 @@ function AppRouter() {
     (state: RootState) => state.router.showWalletModal,
   );
 
-  // const route = useSelector((state: RootState) => state.router.route);
+  const route = useSelector((state: RootState) => state.router.route);
 
   return (
     <div className={classes.appContent}>
       {showWalletModal && <WalletModal />}
-      {/* {route === 'bridge' && <Bridge />}
-      {route === 'redeem' && <Redeem />} */}
-      <Redeem />
+      {route === 'bridge' && <Bridge />}
+      {route === 'redeem' && <Redeem />}
     </div>
   );
 }

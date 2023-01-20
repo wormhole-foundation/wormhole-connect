@@ -4,7 +4,7 @@ import Header from '../../components/Header';
 import Spacer from '../../components/Spacer';
 import NetworksTag from './Tag';
 import { Theme } from '@mui/material';
-import RedirectIcon from '../../icons/redirect.svg';
+import LaunchIcon from '@mui/icons-material/Launch';
 import Stepper from './Stepper';
 import { LINK } from '../../utils/style';
 
@@ -39,13 +39,10 @@ function Redeem() {
         rel="noreferrer"
       >
         <div>View on Wormhole Explorer</div>
-        <img
-          className={classes.redirectIcon}
-          src={RedirectIcon}
-          alt="open link"
-        />
+        <LaunchIcon />
       </a>
       <Stepper />
+      <Spacer height={60} />
     </div>
   );
 }

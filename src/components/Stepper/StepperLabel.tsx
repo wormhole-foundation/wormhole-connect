@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Theme } from '@mui/material/styles';
+import { Theme, useTheme } from '@mui/material/styles';
 import Check from '@mui/icons-material/Check';
 import { makeStyles } from '@mui/styles';
 
@@ -11,7 +11,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   icon: {
     width: '32px',
     height: '32px',
-    backgroundColor: theme.palette.primary[700],
+    backgroundColor: theme.palette.card.background,
     borderRadius: '50%',
     border: `1px solid ${theme.palette.primary[500]}`,
     display: 'flex',
@@ -20,24 +20,33 @@ const useStyles = makeStyles((theme: Theme) => ({
     fontSize: '16px',
     marginRight: '32px',
   },
+  filled: {
+    backgroundColor: `${theme.palette.success[400]} !important`,
+  },
   iconActive: {
-    border: '1px solid #01BBAC !important',
+    border: `1px solid ${theme.palette.success[400]} !important`,
   },
 }));
 
 function StepIcon(props: {
   index: number;
   active?: boolean;
+  filled?: boolean;
   completed?: boolean;
 }) {
-  const { active, completed } = props;
+  const { active, completed, filled } = props;
   const classes = useStyles();
+  const theme = useTheme();
 
   if (completed) {
     return (
-      <div className={`${classes.icon} ${classes.iconActive}`}>
+      <div
+        className={`${classes.icon} ${classes.iconActive} ${
+          filled && completed && classes.filled
+        }`}
+      >
         {/* TODO: add action color to theme */}
-        <Check htmlColor="#01BBAC" />
+        <Check htmlColor={filled ? '#fff' : theme.palette.success[500]} />
       </div>
     );
   } else if (active) {
@@ -53,12 +62,13 @@ function StepIcon(props: {
 type Props = {
   index: number;
   activeStep: number;
+  filled?: boolean;
   children: JSX.Element | JSX.Element[];
 };
 
 export default function StepperLabel(props: Props) {
   const classes = useStyles();
-  const { index, activeStep, children } = props;
+  const { index, activeStep, filled, children } = props;
 
   return (
     <div className={classes.label}>
@@ -66,6 +76,7 @@ export default function StepperLabel(props: Props) {
         index={index}
         active={index === activeStep}
         completed={index < activeStep}
+        filled={filled}
       />
       {children}
     </div>

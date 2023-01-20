@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useTheme } from '@mui/material/styles';
 import Stack from '@mui/material/Stack';
 import StepperContent from './StepperContent';
 import StepperLabel from './StepperLabel';
@@ -15,12 +16,17 @@ type Props = {
 
 export default function Stepper(props: Props) {
   const { steps, activeStep } = props;
+  const theme = useTheme();
 
   return (
     <Stack sx={{ width: '100%' }}>
       {steps.map((step, index) => (
         <div key={index}>
-          <StepperLabel index={index + 1} activeStep={activeStep}>
+          <StepperLabel
+            index={index + 1}
+            activeStep={activeStep}
+            filled={theme.palette.mode === 'light'}
+          >
             <div>{step.label}</div>
           </StepperLabel>
           <StepperContent

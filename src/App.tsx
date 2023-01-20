@@ -7,58 +7,12 @@ import { PaletteMode } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
-import amber from '@mui/material/colors/amber';
-import grey from '@mui/material/colors/grey';
 import './App.css';
 import { store } from './store';
 import AppRouter from './AppRouter';
+import { getDesignTokens } from './theme';
 
 const ColorModeContext = React.createContext({ toggleColorMode: () => {} });
-
-const getDesignTokens = (mode: PaletteMode) =>
-  createTheme({
-    palette: {
-      mode,
-      ...(mode === 'light'
-        ? {
-            // palette values for light mode
-            primary: amber,
-            divider: amber[200],
-            text: {
-              primary: grey[900],
-              secondary: grey[800],
-            },
-          }
-        : {
-            // palette values for dark mode
-            primary: {
-              50: '#e6e6e8',
-              100: '#ceced1',
-              200: '#b5b6ba',
-              300: '#9d9ea4',
-              400: '#84868d',
-              500: '#6c6e76',
-              600: '#535660',
-              700: '#3a3e49',
-              800: '#222632',
-              900: '#0a0e1c',
-              A100: '#ceced1',
-              A200: '#9d9ea4',
-              A400: '#535660',
-              A700: '#0a0e1c',
-            },
-            divider: '#3a3e49',
-            background: {
-              default: '#0A0E1C',
-              paper: '#0A0E1C',
-            },
-            text: {
-              primary: '#fff',
-              secondary: grey[500],
-            },
-          }),
-    },
-  });
 
 function App() {
   const [mode, setMode] = React.useState<PaletteMode>('dark');

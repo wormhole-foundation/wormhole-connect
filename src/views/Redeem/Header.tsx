@@ -4,8 +4,8 @@ import CircularProgress from '@mui/material/CircularProgress';
 import MAINNET_CONFIG from '../../sdk/config/MAINNET';
 import { ChainName } from '../../sdk/types';
 import WalletIcon from '../../icons/wallet.svg';
-import RedirectIcon from '../../icons/redirect.svg';
-import { LINK, OPACITY } from '../../utils/style';
+import { LINK } from '../../utils/style';
+import LaunchIcon from '@mui/icons-material/Launch';
 
 const useStyles = makeStyles()((theme) => ({
   header: {
@@ -14,7 +14,7 @@ const useStyles = makeStyles()((theme) => ({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingBottom: '8px',
-    borderBottom: `0.5px solid ${theme.palette.primary[500] + OPACITY[40]}`,
+    borderBottom: `0.5px solid ${theme.palette.divider}`,
     marginBottom: '8px',
   },
   left: {
@@ -59,7 +59,7 @@ function NetworksTag(props: Props) {
           rel="noreferrer"
         >
           <div>View in {networkConfig.explorerName}</div>
-          <img src={RedirectIcon} alt="open link" />
+          <LaunchIcon />
         </a>
       ) : (
         <CircularProgress size={26} />

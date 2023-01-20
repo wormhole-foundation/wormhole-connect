@@ -1,13 +1,12 @@
 import React from 'react';
 import { makeStyles } from 'tss-react/mui';
-import { OPACITY } from '../utils/style';
 
 const useStyles = makeStyles()((theme) => ({
   summaryBox: {
     width: '100%',
     padding: '16px',
-    border: `1px solid ${theme.palette.primary[50] + OPACITY[25]}`,
-    backgroundColor: `${theme.palette.primary[50] + OPACITY[5]}`,
+    border: `1px solid ${theme.palette.divider}`,
+    backgroundColor: `${theme.palette.card.background}`,
   },
 }));
 

@@ -1,14 +1,18 @@
 import React from 'react';
 import { makeStyles } from 'tss-react/mui';
-import { OPACITY } from '../utils/style';
 
 const useStyles = makeStyles()((theme) => ({
+  options: {
+    backgroundColor: `${theme.palette.card.background}`,
+    borderRadius: '8px',
+    boxShadow: `${theme.palette.card.elevation}`,
+  },
   option: {
     position: 'relative',
     width: '100%',
     padding: '16px',
     borderRadius: '8px',
-    backgroundColor: `${theme.palette.primary[50] + OPACITY[5]}`,
+    backgroundColor: `${theme.palette.card.background}`,
     '&:last-child': {
       borderTopLeftRadius: '0',
       borderTopRightRadius: '0',
@@ -18,10 +22,10 @@ const useStyles = makeStyles()((theme) => ({
       borderBottomRightRadius: '0',
     },
     '&:not(:last-child)': {
-      borderBottom: `0.5px solid ${theme.palette.primary[500] + OPACITY[40]}`,
+      borderBottom: `0.5px solid ${theme.palette.divider}`,
     },
     '&:hover': {
-      backgroundColor: `${theme.palette.primary[50] + OPACITY[7]}`,
+      backgroundColor: `${theme.palette.options.hover}`,
     },
   },
   arrow: {
@@ -35,7 +39,7 @@ const useStyles = makeStyles()((theme) => ({
     transform: 'rotate(180deg)',
   },
   active: {
-    backgroundColor: `${theme.palette.primary[50] + OPACITY[10]} !important`,
+    backgroundColor: `${theme.palette.options.select} !important`,
   },
 }));
 
@@ -53,7 +57,7 @@ function Options(props: Props) {
   };
 
   return (
-    <div>
+    <div className={classes.options}>
       {props.children.map((child, i) => {
         return (
           <div

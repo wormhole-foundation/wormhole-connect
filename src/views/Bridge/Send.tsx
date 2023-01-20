@@ -8,7 +8,13 @@ function Send() {
   const send = () => {
     dispatch(setRoute('redeem'));
   };
-  return <Button onClick={send} text="Approve and proceed with transaction" />;
+  return (
+    <Button
+      onClick={send}
+      text="Approve and proceed with transaction"
+      elevated
+    />
+  );
 }
 
 export default Send;

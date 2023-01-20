@@ -45,7 +45,7 @@ function Bridge() {
       <Spacer />
 
       <Send />
-      <Spacer height={40} />
+      <Spacer height={60} />
     </div>
   );
 }

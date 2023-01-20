@@ -3,20 +3,22 @@ import { makeStyles } from 'tss-react/mui';
 import InputContainer from '../../components/InputContainer';
 import MAINNET_CONFIG from '../../sdk/config/MAINNET';
 import { ChainName } from '../../sdk/types';
-import ArrowRightIcon from '../../icons/arrow-right.svg';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 
 const useStyles = makeStyles()((theme) => ({
   row: {
     display: 'flex',
     alignItems: 'center',
+    gap: '16px',
   },
   icon: {
     width: '24px',
     height: '24px',
-    marginRight: '8px',
   },
-  arrow: {
-    padding: '0 16px',
+  network: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
   },
 }));
 
@@ -33,23 +35,23 @@ function NetworksTag(props: Props) {
     <div>
       <InputContainer>
         <div className={classes.row}>
-          <img
-            className={classes.icon}
-            src={fromNetworkConfig.icon}
-            alt={fromNetworkConfig.displayName}
-          />
-          <div>{fromNetworkConfig.displayName}</div>
-          <img
-            className={classes.arrow}
-            src={ArrowRightIcon}
-            alt="arrow right"
-          />
-          <img
-            className={classes.icon}
-            src={toNetworkConfig.icon}
-            alt={toNetworkConfig.displayName}
-          />
-          <div>{toNetworkConfig.displayName}</div>
+          <div className={classes.network}>
+            <img
+              className={classes.icon}
+              src={fromNetworkConfig.icon}
+              alt={fromNetworkConfig.displayName}
+            />
+            <div>{fromNetworkConfig.displayName}</div>
+          </div>
+          <KeyboardArrowRightIcon />
+          <div className={classes.network}>
+            <img
+              className={classes.icon}
+              src={toNetworkConfig.icon}
+              alt={toNetworkConfig.displayName}
+            />
+            <div>{toNetworkConfig.displayName}</div>
+          </div>
         </div>
       </InputContainer>
     </div>
