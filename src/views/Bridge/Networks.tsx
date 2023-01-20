@@ -23,7 +23,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     width: '100%',
     display: 'flex',
     flexDirection: 'column',
-    gap: '24px'
+    gap: '24px',
   },
   networksTile: {
     width: '100%',
@@ -72,12 +72,16 @@ function Networks() {
       <ToNetwork />
 
       {/* modals */}
-      {showFromNetworksModal && (
-        <NetworksModal title="Send from" event="selectFromNetwork" />
-      )}
-      {showToNetworksModal && (
-        <NetworksModal title="Send to" event="selectToNetwork" />
-      )}
+      <NetworksModal
+        open={showFromNetworksModal}
+        title="Send from"
+        event="selectFromNetwork"
+      />
+      <NetworksModal
+        open={showToNetworksModal}
+        title="Send to"
+        event="selectToNetwork"
+      />
     </div>
   );
 }

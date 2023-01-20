@@ -88,7 +88,7 @@ const lightStyled = {
   },
   innerCard: {
     background: '#F0F0F5',
-  }
+  },
 };
 
 const dark = {
@@ -139,11 +139,20 @@ const dark = {
   },
   innerCard: {
     background: '#222633',
-  }
+  },
 };
 
 export const getDesignTokens = (mode: PaletteMode) =>
   createTheme({
+    breakpoints: {
+      values: {
+        xs: 300,
+        sm: 500,
+        md: 650,
+        lg: 900,
+        xl: 1200,
+      },
+    },
     palette: {
       mode,
       ...(mode === 'light' ? lightStyled : dark),

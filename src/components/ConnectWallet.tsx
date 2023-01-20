@@ -3,9 +3,12 @@ import React from 'react';
 import { Theme } from '@mui/material';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
-import { connectReceivingWallet, connectWallet, WalletType } from '../store/wallet';
-import MetamaskIcon from '../icons/wallets/metamask-fox.svg'
-import TrustWalletIcon from '../icons/wallets/trust-wallet.svg'
+import {
+  connectReceivingWallet,
+  connectWallet,
+} from '../store/wallet';
+import MetamaskIcon from '../icons/wallets/metamask-fox.svg';
+// import TrustWalletIcon from '../icons/wallets/trust-wallet.svg';
 import DownIcon from '../icons/components/Down';
 import { useDispatch } from 'react-redux';
 import WalletIcon from '../icons/components/Wallet';
@@ -24,7 +27,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
   down: {
     marginRight: '-8px',
-  }
+  },
 }));
 
 export enum Wallet {
@@ -32,19 +35,19 @@ export enum Wallet {
   RECEIVING = 'receiving',
 }
 
-function getIcon(type: WalletType): string {
-  switch(type) { 
-    case WalletType.METAMASK: { 
-      return MetamaskIcon
-    } 
-    case WalletType.TRUST_WALLET: { 
-      return TrustWalletIcon
-    } 
-    default: { 
-      return ''
-    } 
-  }
-}
+// function getIcon(type: WalletType): string {
+//   switch (type) {
+//     case WalletType.METAMASK: {
+//       return MetamaskIcon;
+//     }
+//     case WalletType.TRUST_WALLET: {
+//       return TrustWalletIcon;
+//     }
+//     default: {
+//       return '';
+//     }
+//   }
+// }
 
 type Props = {
   type: Wallet;
@@ -57,24 +60,21 @@ function NetworksModal(props: Props) {
 
   const connect = () => {
     if (props.type === Wallet.SENDING) {
-      console.log('connect sending wallet')
       dispatch(connectWallet());
-      console.log(wallet)
     } else {
-      console.log('connect receiving wallet')
       dispatch(connectReceivingWallet());
     }
-  }
+  };
 
-  const icon = getIcon(wallet.type);
+  // const icon = getIcon(wallet.type);
 
   return wallet && wallet.address && wallet.connected ? (
     <div className={classes.row}>
       <img className={classes.walletIcon} src={MetamaskIcon} alt="wallet" />
-      { wallet.address }
+      {wallet.address}
       <DownIcon className={classes.down} />
     </div>
-    ): (
+  ) : (
     <div className={classes.row} onClick={() => connect()}>
       <WalletIcon />
       <div>Connect wallet</div>

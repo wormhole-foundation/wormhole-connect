@@ -1,41 +1,12 @@
 import { makeStyles } from 'tss-react/mui';
 import React from 'react';
 import CloseIcon from '../icons/close.svg';
+import { Breakpoint, Dialog } from '@mui/material';
 
-type StyleProps = {
-  width: string;
-};
-
-const useStyles = makeStyles<StyleProps>()((theme, { width }) => ({
-  overlay: {
-    position: 'absolute',
-    top: '0',
-    bottom: '0',
-    left: '0',
-    right: '0',
-    height: '100vh',
-    width: '100vw',
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-    zIndex: '500',
-  },
-  modalContainer: {
-    position: 'absolute',
-    top: '0',
-    bottom: '0',
-    left: '0',
-    right: '0',
-    height: '100vh',
-    width: '100vw',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+const useStyles = makeStyles()((theme) => ({
   modal: {
     width: '100%',
-    maxWidth: width,
-    margin: '20px',
     backgroundColor: theme.palette.card.background,
-    borderRadius: '8px',
     padding: '24px',
     textAlign: 'center',
     position: 'relative',
@@ -49,35 +20,40 @@ const useStyles = makeStyles<StyleProps>()((theme, { width }) => ({
 }));
 
 type Props = {
+  open: boolean;
   children: JSX.Element | JSX.Element[];
-  width: string;
+  width: Breakpoint;
   closable?: boolean;
 };
 
-function Modal({ width, closable, children }: Props) {
-  const { classes } = useStyles({ width });
+function Modal({ open, width, closable, children }: Props) {
+  const { classes } = useStyles();
 
   // dispatch close event
   const event = new Event('close');
   const emitClose = () => document.dispatchEvent(event);
 
   return (
-    <div className={classes.overlay}>
-      <div className={classes.modalContainer}>
-        <div className={classes.modal}>
-          {closable && (
-            // <CloseIcon size="large" onClick={emitClose} />
-            <img
-              src={CloseIcon}
-              className={classes.close}
-              alt="close"
-              onClick={emitClose}
-            />
-          )}
-          {children}
-        </div>
+    <Dialog
+      open={open}
+      onClose={emitClose}
+      sx={{ borderRadius: 8 }}
+      maxWidth={width}
+      fullWidth
+    >
+      <div className={classes.modal}>
+        {closable && (
+          // <CloseIcon size="large" onClick={emitClose} />
+          <img
+            src={CloseIcon}
+            className={classes.close}
+            alt="close"
+            onClick={emitClose}
+          />
+        )}
+        {children}
       </div>
-    </div>
+    </Dialog>
   );
 }
 

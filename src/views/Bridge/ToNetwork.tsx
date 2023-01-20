@@ -8,7 +8,6 @@ import { RootState } from '../../store';
 import MAINNET_CONFIG from '../../sdk/config/MAINNET';
 import InputContainer from '../../components/InputContainer';
 import ConnectWallet, { Wallet } from '../../components/ConnectWallet';
-import InputTransparent from '../../components/InputTransparent';
 import NoNetworkIcon from '../../icons/no-network.png';
 import { setToNetworksModal } from '../../store/router';
 import { joinClass, OPACITY } from '../../utils/style';
@@ -64,7 +63,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
   disabled: {
     color: theme.palette.text.secondary + OPACITY[50] + ' !important',
-  }
+  },
 }));
 
 function Network() {
@@ -74,15 +73,9 @@ function Network() {
   const showToNetworksModal = useSelector(
     (state: RootState) => state.router.showToNetworksModal,
   );
-  const toNetwork = useSelector(
-    (state: RootState) => state.transfer.toNetwork,
-  );
-  const token = useSelector(
-    (state: RootState) => state.transfer.token,
-  );
-  const amount = useSelector(
-    (state: RootState) => state.transfer.amount,
-  );
+  const toNetwork = useSelector((state: RootState) => state.transfer.toNetwork);
+  const token = useSelector((state: RootState) => state.transfer.token);
+  const amount = useSelector((state: RootState) => state.transfer.amount);
   // get networks configs
   const toNetworkConfig = MAINNET_CONFIG.chains[toNetwork];
   // set store values
@@ -102,16 +95,26 @@ function Network() {
             onClick={openToNetworksModal}
           />
           <div className={classes.inputs}>
-            <div className={joinClass([classes.card, !token && classes.disabled])}>
+            <div
+              className={joinClass([classes.card, !token && classes.disabled])}
+            >
               <div className={classes.label}>Token</div>
               {token ? (
                 <div className={classes.tokenSelect}>
-                  <img className={classes.tokenIcon} src={NoNetworkIcon} alt="select token" />
+                  <img
+                    className={classes.tokenIcon}
+                    src={NoNetworkIcon}
+                    alt="select token"
+                  />
                   Select
                 </div>
-              ) : <div>-</div>}
+              ) : (
+                <div>-</div>
+              )}
             </div>
-            <div className={joinClass([classes.card, !token && classes.disabled])}>
+            <div
+              className={joinClass([classes.card, !token && classes.disabled])}
+            >
               <div className={classes.label}>Amount</div>
               <div>{token && amount ? amount : '-'}</div>
             </div>

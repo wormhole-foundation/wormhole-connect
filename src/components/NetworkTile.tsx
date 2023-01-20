@@ -48,9 +48,7 @@ function NetworksTile(props: Props) {
         src={props.network.icon}
         alt={props.network.displayName}
       />
-      <div className={classes.networkName}>
-        {props.network.displayName}
-      </div>
+      <div className={classes.networkName}>{props.network.displayName}</div>
     </div>
   ) : (
     <div className={classes.networkTile} onClick={props.onClick}>
@@ -59,9 +57,7 @@ function NetworksTile(props: Props) {
         src={NoNetworkIcon}
         alt="Select Network"
       />
-      <div className={classes.networkName}>
-        Select network
-      </div>
+      <div className={classes.networkName}>Select network</div>
     </div>
   );
 }

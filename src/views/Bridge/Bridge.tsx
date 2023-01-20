@@ -24,7 +24,7 @@ const useStyles = makeStyles(() => ({
     justifyContent: 'space-between',
     alignItems: 'center',
     width: '100%',
-  }
+  },
 }));
 
 function Bridge() {

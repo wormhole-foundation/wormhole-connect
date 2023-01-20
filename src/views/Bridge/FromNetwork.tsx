@@ -4,9 +4,7 @@ import NetworksModal from '../NetworksModal';
 import NetworkTile from '../../components/NetworkTile';
 import { Theme } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  setFromNetworksModal, setTokensModal,
-} from '../../store/router';
+import { setFromNetworksModal, setTokensModal } from '../../store/router';
 import { RootState } from '../../store';
 import MAINNET_CONFIG from '../../sdk/config/MAINNET';
 import InputContainer from '../../components/InputContainer';
@@ -67,7 +65,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
   pointer: {
     cursor: 'pointer',
-  }
+  },
 }));
 
 function Network() {
@@ -83,9 +81,7 @@ function Network() {
   const fromNetwork = useSelector(
     (state: RootState) => state.transfer.fromNetwork,
   );
-  const token = useSelector(
-    (state: RootState) => state.transfer.token,
-  );
+  const token = useSelector((state: RootState) => state.transfer.token);
   // get networks configs
   const fromNetworkConfig = MAINNET_CONFIG.chains[fromNetwork];
   // set store values
@@ -106,18 +102,23 @@ function Network() {
             onClick={openFromNetworksModal}
           />
           <div className={classes.inputs}>
-            <div className={joinClass([classes.card, classes.pointer])} onClick={openTokensModal}>
+            <div
+              className={joinClass([classes.card, classes.pointer])}
+              onClick={openTokensModal}
+            >
               <div className={classes.label}>Token</div>
               <div className={classes.tokenSelect}>
-                <img className={classes.tokenIcon} src={NoNetworkIcon} alt="select token" />
+                <img
+                  className={classes.tokenIcon}
+                  src={NoNetworkIcon}
+                  alt="select token"
+                />
                 Select
               </div>
             </div>
             <div className={classes.card}>
               <div className={classes.label}>Amount</div>
-              {token ? (
-                <InputTransparent placeholder="0.00" />
-              ) : <div>-</div>}
+              {token ? <InputTransparent placeholder="0.00" /> : <div>-</div>}
             </div>
           </div>
         </div>
@@ -126,9 +127,7 @@ function Network() {
       {showFromNetworksModal && (
         <NetworksModal title="Send from" event="selectFromNetwork" />
       )}
-      {showTokensModal && (
-        <TokensModal />
-      )}
+      {showTokensModal && <TokensModal />}
     </div>
   );
 }

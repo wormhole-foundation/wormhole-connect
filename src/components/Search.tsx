@@ -2,7 +2,6 @@ import React from 'react';
 import { makeStyles } from '@mui/styles';
 import { Theme } from '@mui/material';
 import InputTransparent from './InputTransparent';
-import InputContainer from './InputContainer';
 import SearchIcon from '../icons/components/Search';
 import { OPACITY } from '../utils/style';
 

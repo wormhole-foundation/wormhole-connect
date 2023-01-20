@@ -12,6 +12,8 @@ import PhantomIcon from '../icons/wallets/phantom-wallet.svg';
 import WalletConnectIcon from '../icons/wallets/walletconnect.svg';
 import { useDispatch } from 'react-redux';
 import { setWalletModal } from '../store/router';
+import { useSelector } from 'react-redux';
+import { RootState } from '../store';
 
 const useStyles = makeStyles((theme: Theme) => ({
   walletRow: {
@@ -85,9 +87,12 @@ function NetworksModal() {
     document.removeEventListener('click', closeWalletModal);
   };
   document.addEventListener('close', closeWalletModal, { once: true });
+  const showWalletModal = useSelector(
+    (state: RootState) => state.router.showWalletModal,
+  );
 
   return (
-    <Modal closable width="450px">
+    <Modal open={showWalletModal} closable width="sm">
       <Header text="Connect wallet" align="left" />
       <Spacer height={32} />
       <div>{displayWalletOptions(WalletOptions)}</div>

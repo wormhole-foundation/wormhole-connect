@@ -16,6 +16,8 @@ import { useDispatch } from 'react-redux';
 import { setTokensModal } from '../store/router';
 import { setToken } from '../store/transfer';
 import { joinClass } from '../utils/style';
+import { useSelector } from 'react-redux';
+import { RootState } from '../store';
 
 const useStyles = makeStyles((theme: Theme) => ({
   tokensContainer: {
@@ -110,9 +112,12 @@ function TokensModal() {
     dispatch(setToken(token));
     closeTokensModal();
   };
+  const showTokensModal = useSelector(
+    (state: RootState) => state.router.showTokensModal,
+  );
 
   return (
-    <Modal closable width="500px">
+    <Modal open={showTokensModal} closable width="sm">
       <Header text="Select token" />
       <Spacer height={16} />
       <Search placeholder="Search by name or paste contract address" />
@@ -121,7 +126,10 @@ function TokensModal() {
         <div className={classes.subheader}>Tokens with liquid markets</div>
         <Tooltip text="Some text" />
       </div>
-      <Scroll height="calc(100vh - 300px)" blendColor={theme.palette.card.background}>
+      <Scroll
+        height="calc(100vh - 300px)"
+        blendColor={theme.palette.card.background}
+      >
         <div className={classes.tokensContainer}>
           {Object.values(MAINNET_TOKENS).map((token, i) => {
             return (

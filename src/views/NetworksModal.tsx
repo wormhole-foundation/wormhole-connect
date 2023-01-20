@@ -45,6 +45,7 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 
 type Props = {
+  open: boolean;
   title: string;
   event: string;
 };
@@ -69,13 +70,16 @@ function NetworksModal(props: Props) {
   };
 
   return (
-    <Modal closable width="650px">
+    <Modal open={props.open} closable width="md">
       <Header text={props.title} />
       <div>Select Network</div>
       <Spacer height={16} />
       <Search placeholder="Search networks" />
       <Spacer height={16} />
-      <Scroll height="calc(100vh - 300px)" blendColor={theme.palette.card.background}>
+      <Scroll
+        height="calc(100vh - 300px)"
+        blendColor={theme.palette.card.background}
+      >
         <div className={classes.networksContainer}>
           {Object.values(MAINNET_CONFIG.chains)
             .filter((c) => !!c.icon)
