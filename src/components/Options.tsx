@@ -4,16 +4,16 @@ import { joinClass } from '../utils/style';
 
 const useStyles = makeStyles()((theme) => ({
   options: {
-    backgroundColor: `${theme.palette.card.background}`,
+    backgroundColor: theme.palette.card.background,
     borderRadius: '8px',
-    boxShadow: `${theme.palette.card.elevation}`,
+    boxShadow: theme.palette.card.elevation,
   },
   option: {
     position: 'relative',
     width: '100%',
     padding: '16px',
     borderRadius: '8px',
-    backgroundColor: `${theme.palette.card.background}`,
+    backgroundColor: theme.palette.card.background,
     '&:last-child': {
       borderTopLeftRadius: '0',
       borderTopRightRadius: '0',
@@ -26,7 +26,7 @@ const useStyles = makeStyles()((theme) => ({
       borderBottom: `0.5px solid ${theme.palette.divider}`,
     },
     '&:hover': {
-      backgroundColor: `${theme.palette.options.hover}`,
+      backgroundColor: theme.palette.options.hover,
     },
   },
   arrow: {

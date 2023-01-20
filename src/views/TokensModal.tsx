@@ -1,4 +1,5 @@
 import { makeStyles } from '@mui/styles';
+import { useTheme } from '@mui/material/styles';
 import React from 'react';
 import Collapse from '@mui/material/Collapse';
 import Header from '../components/Header';
@@ -37,7 +38,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     transition: `background-color 0.4s`,
     cursor: 'pointer',
     '&:hover': {
-      backgroundColor: theme.palette.primary[700],
+      backgroundColor: theme.palette.options.select,
     },
     '&:not(:last-child)': {
       borderBottom: `0.5px solid ${theme.palette.divider}`,
@@ -94,6 +95,7 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 function TokensModal() {
   const classes = useStyles();
+  const theme = useTheme();
   const dispatch = useDispatch();
   const [showAdvanced, setShowAdvanced] = React.useState(false);
   const toggleAdvanced = () => setShowAdvanced((prev) => !prev);
@@ -119,7 +121,7 @@ function TokensModal() {
         <div className={classes.subheader}>Tokens with liquid markets</div>
         <Tooltip text="Some text" />
       </div>
-      <Scroll height="calc(100vh - 300px)">
+      <Scroll height="calc(100vh - 300px)" blendColor={theme.palette.card.background}>
         <div className={classes.tokensContainer}>
           {Object.values(MAINNET_TOKENS).map((token, i) => {
             return (

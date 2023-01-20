@@ -19,7 +19,7 @@ const initialState: RouterState = {
 };
 
 export const routerSlice = createSlice({
-  name: 'transfer',
+  name: 'router',
   initialState,
   reducers: {
     setFromNetworksModal: (

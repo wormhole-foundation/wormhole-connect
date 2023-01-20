@@ -1,4 +1,5 @@
 import { makeStyles } from '@mui/styles';
+import { useTheme } from '@mui/material/styles';
 import React from 'react';
 import Header from '../components/Header';
 import Modal from '../components/Modal';
@@ -30,7 +31,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     cursor: 'pointer',
     borderRadius: '8px',
     '&:hover': {
-      backgroundColor: theme.palette.primary[700],
+      backgroundColor: theme.palette.options.select,
     },
   },
   networkIcon: {
@@ -50,6 +51,7 @@ type Props = {
 
 function NetworksModal(props: Props) {
   const classes = useStyles();
+  const theme = useTheme();
   const dispatch = useDispatch();
   // listen for close event
   const closeNetworksModal = () => {
@@ -73,7 +75,7 @@ function NetworksModal(props: Props) {
       <Spacer height={16} />
       <Search placeholder="Search networks" />
       <Spacer height={16} />
-      <Scroll height="calc(100vh - 300px)">
+      <Scroll height="calc(100vh - 300px)" blendColor={theme.palette.card.background}>
         <div className={classes.networksContainer}>
           {Object.values(MAINNET_CONFIG.chains)
             .filter((c) => !!c.icon)

@@ -18,6 +18,9 @@ declare module '@mui/material/styles/createPalette' {
         background: string;
         elevation: string;
       };
+      innerCard?: {
+        background: string;
+      };
     }
     interface Palette {
       button: {
@@ -36,6 +39,9 @@ declare module '@mui/material/styles/createPalette' {
       card: {
         background: string;
         elevation: string;
+      };
+      innerCard: {
+        background: string;
       };
   }
 }

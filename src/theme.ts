@@ -86,6 +86,9 @@ const lightStyled = {
     background: '#ffffff',
     elevation: '10px 10px 30px 15px #CCD2E7',
   },
+  innerCard: {
+    background: '#F0F0F5',
+  }
 };
 
 const dark = {
@@ -134,6 +137,9 @@ const dark = {
     background: '#141826',
     elevation: 'none',
   },
+  innerCard: {
+    background: '#222633',
+  }
 };
 
 export const getDesignTokens = (mode: PaletteMode) =>

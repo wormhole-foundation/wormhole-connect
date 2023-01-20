@@ -6,7 +6,7 @@ const useStyles = makeStyles()((theme) => ({
     width: '100%',
     padding: '16px',
     border: `1px solid ${theme.palette.divider}`,
-    backgroundColor: `${theme.palette.card.background}`,
+    backgroundColor: theme.palette.card.background,
   },
 }));
 

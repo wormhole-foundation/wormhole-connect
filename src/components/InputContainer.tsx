@@ -12,8 +12,8 @@ const useStyles = makeStyles((theme: Theme) => ({
     width: '100%',
     padding: '16px',
     borderRadius: '8px',
-    backgroundColor: `${theme.palette.card.background}`,
-    boxShadow: `${theme.palette.card.elevation}`,
+    backgroundColor: theme.palette.card.background,
+    boxShadow: theme.palette.card.elevation,
   },
 }));
 

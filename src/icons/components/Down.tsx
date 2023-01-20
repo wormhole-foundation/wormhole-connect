@@ -6,9 +6,9 @@ const DownIcon = createSvgIcon(
     d="M7 9L12 14L17 9"
     fill="none"
     stroke="currentColor"
-    stroke-opacity="0.9"
-    stroke-linecap="round"
-    stroke-linejoin="round"
+    strokeOpacity="0.9"
+    strokeLinecap="round"
+    strokeLinejoin="round"
   />,
   'Down',
 );

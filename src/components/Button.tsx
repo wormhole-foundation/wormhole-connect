@@ -4,8 +4,8 @@ import { makeStyles } from 'tss-react/mui';
 const useStyles = makeStyles()((theme) => ({
   button: {
     width: '100%',
-    backgroundColor: `${theme.palette.button.primary}`,
-    color: `${theme.palette.button.primaryText}`,
+    backgroundColor: theme.palette.button.primary,
+    color: theme.palette.button.primaryText,
     borderRadius: '8px',
     border: `1px solid ${theme.palette.divider}`,
     display: 'flex',
@@ -15,7 +15,7 @@ const useStyles = makeStyles()((theme) => ({
     cursor: 'pointer',
   },
   elevated: {
-    boxShadow: `${theme.palette.card.elevation}`,
+    boxShadow: theme.palette.card.elevation,
   },
 }));
 

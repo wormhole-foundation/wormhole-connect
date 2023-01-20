@@ -6,27 +6,27 @@ import { ChainConfig } from '../sdk/types';
 
 const useStyles = makeStyles((theme: Theme) => ({
   networkTile: {
-    backgroundImage: `linear-gradient(-30deg, ${theme.palette.primary[800]} 0%, ${theme.palette.card.background} 100%)`,
-    borderTopLeftRadius: '8px',
-    borderTopRightRadius: '8px',
+    backgroundColor: theme.palette.innerCard.background,
+    borderRadius: '8px',
     padding: '16px',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: '16px',
     width: '100%',
-    height: '224px',
+    maxWidth: '152px',
+    height: '152px',
     cursor: 'pointer',
+    marginRight: '8px',
   },
   networkIcon: {
-    width: '100px',
-    height: '100px',
+    width: '56px',
+    height: '56px',
   },
   networkHeader: {
-    fontSize: '14px',
+    fontSize: '16px',
     opacity: '60%',
-    marginTop: '16px',
-    marginBottom: '8px',
   },
   networkName: {
     fontSize: '16px',
@@ -34,31 +34,33 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 
 type Props = {
-  title: string;
   network?: ChainConfig;
   onClick: React.MouseEventHandler<HTMLDivElement>;
 };
 
 function NetworksTile(props: Props) {
   const classes = useStyles();
-  return (
+  return props.network ? (
     <div className={classes.networkTile} onClick={props.onClick}>
-      {props.network ? (
-        <img
-          className={classes.networkIcon}
-          src={props.network.icon}
-          alt={props.network.displayName}
-        />
-      ) : (
-        <img
-          className={classes.networkIcon}
-          src={NoNetworkIcon}
-          alt="Select Network"
-        />
-      )}
-      <div className={classes.networkHeader}>{props.title}</div>
+      <div className={classes.networkHeader}>Network</div>
+      <img
+        className={classes.networkIcon}
+        src={props.network.icon}
+        alt={props.network.displayName}
+      />
       <div className={classes.networkName}>
-        {props.network ? props.network.displayName : 'Select network'}
+        {props.network.displayName}
+      </div>
+    </div>
+  ) : (
+    <div className={classes.networkTile} onClick={props.onClick}>
+      <img
+        className={classes.networkIcon}
+        src={NoNetworkIcon}
+        alt="Select Network"
+      />
+      <div className={classes.networkName}>
+        Select network
       </div>
     </div>
   );

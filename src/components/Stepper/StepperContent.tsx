@@ -11,7 +11,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     padding: '8px 0 16px 32px',
   },
   lineActive: {
-    borderColor: `${theme.palette.success[400]}`,
+    borderColor: theme.palette.success[400],
   },
   lineNone: {
     border: 'none !important',

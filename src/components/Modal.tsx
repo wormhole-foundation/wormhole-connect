@@ -34,7 +34,7 @@ const useStyles = makeStyles<StyleProps>()((theme, { width }) => ({
     width: '100%',
     maxWidth: width,
     margin: '20px',
-    backgroundColor: theme.palette.primary[800],
+    backgroundColor: theme.palette.card.background,
     borderRadius: '8px',
     padding: '24px',
     textAlign: 'center',
@@ -66,6 +66,7 @@ function Modal({ width, closable, children }: Props) {
       <div className={classes.modalContainer}>
         <div className={classes.modal}>
           {closable && (
+            // <CloseIcon size="large" onClick={emitClose} />
             <img
               src={CloseIcon}
               className={classes.close}
