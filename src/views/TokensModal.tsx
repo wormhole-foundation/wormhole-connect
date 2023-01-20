@@ -14,6 +14,7 @@ import { MAINNET_TOKENS } from '../sdk/config/MAINNET';
 import { useDispatch } from 'react-redux';
 import { setTokensModal } from '../store/router';
 import { setToken } from '../store/transfer';
+import { joinClass } from '../utils/style';
 
 const useStyles = makeStyles((theme: Theme) => ({
   tokensContainer: {
@@ -149,7 +150,7 @@ function TokensModal() {
               <Tooltip text="Some text" />
             </div>
             <KeyboardArrowDownIcon
-              className={`${classes.arrow} ${showAdvanced && classes.invert}`}
+              className={joinClass([classes.arrow, showAdvanced && classes.invert])}
             />
           </div>
           <Collapse in={showAdvanced}>

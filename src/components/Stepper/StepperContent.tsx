@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Theme } from '@mui/material/styles';
 import { makeStyles } from '@mui/styles';
+import { joinClass } from '../../utils/style';
 
 const useStyles = makeStyles((theme: Theme) => ({
   content: {
@@ -10,7 +11,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     padding: '8px 0 16px 32px',
   },
   lineActive: {
-    borderColor: '#01BBAC',
+    borderColor: `${theme.palette.success[400]}`,
   },
   lineNone: {
     border: 'none !important',
@@ -30,11 +31,9 @@ export default function StepperLabel(props: Props) {
 
   return (
     <div
-      className={`${classes.content} ${
-        activeStep > index && classes.lineActive
-      } ${last && classes.lineNone}`}
+      className={joinClass([classes.content, activeStep > index && classes.lineActive, !!last && classes.lineNone])}
     >
-      {index >= activeStep && children}
+      {activeStep >= index && children}
     </div>
   );
 }

@@ -2,6 +2,7 @@ import React from 'react';
 import { makeStyles } from 'tss-react/mui';
 import Collapse from '@mui/material/Collapse';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import { joinClass } from '../../utils/style';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -51,7 +52,7 @@ function BridgeCollapse(props: Props) {
       <div className={classes.header} onClick={toggleCollapsed}>
         <div className={classes.title}>{props.text}</div>
         <KeyboardArrowDownIcon
-          className={`${classes.arrow} ${!collapsed && classes.invert}`}
+          className={joinClass([classes.arrow, !collapsed && classes.invert])}
         />
       </div>
       <Collapse in={!collapsed}>{props.children}</Collapse>

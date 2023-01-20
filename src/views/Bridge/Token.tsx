@@ -10,6 +10,7 @@ import { MAINNET_TOKENS } from '../../sdk/config/MAINNET';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import InputTransparent from '../../components/InputTransparent';
 import TokensModal from '../TokensModal';
+import { joinClass } from '../../utils/style';
 
 const useStyles = makeStyles((theme: Theme) => ({
   row: {
@@ -66,7 +67,7 @@ function Bridge() {
       {tokenConfig ? (
         <div className={classes.col}>
           <InputContainer>
-            <div className={`${classes.row} ${classes.tokenSelect}`}>
+            <div className={joinClass([classes.row, classes.tokenSelect])}>
               <div className={classes.tokenRow} onClick={openTokensModal}>
                 <img
                   className={classes.tokenRowIcon}
@@ -86,7 +87,7 @@ function Bridge() {
         </div>
       ) : (
         <InputContainer onClick={openTokensModal}>
-          <div className={`${classes.row} ${classes.tokenSelect}`}>
+          <div className={joinClass([classes.row, classes.tokenSelect])}>
             Select token
             <img src={TokenIcon} alt="select token" />
           </div>

@@ -1,5 +1,11 @@
 import { Theme } from '@mui/material';
 
+type Class = string | false
+
+export const joinClass = (classes: Class[]): string => {
+  return classes.filter((c) => !!c).join(' ');
+}
+
 export const OPACITY = {
   0: '00',
   5: '0C',

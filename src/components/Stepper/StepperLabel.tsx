@@ -2,11 +2,15 @@ import * as React from 'react';
 import { Theme, useTheme } from '@mui/material/styles';
 import Check from '@mui/icons-material/Check';
 import { makeStyles } from '@mui/styles';
+import { joinClass, OPACITY } from '../../utils/style';
 
 const useStyles = makeStyles((theme: Theme) => ({
   label: {
     display: 'flex',
     alignItems: 'center',
+  },
+  textInactive: {
+    color: `${theme.palette.text.primary}${OPACITY[30]} !important`,
   },
   icon: {
     width: '32px',
@@ -41,9 +45,7 @@ function StepIcon(props: {
   if (completed) {
     return (
       <div
-        className={`${classes.icon} ${classes.iconActive} ${
-          filled && completed && classes.filled
-        }`}
+        className={joinClass([classes.icon, classes.iconActive, !!filled && classes.filled])}
       >
         {/* TODO: add action color to theme */}
         <Check htmlColor={filled ? '#fff' : theme.palette.success[500]} />
@@ -51,7 +53,7 @@ function StepIcon(props: {
     );
   } else if (active) {
     return (
-      <div className={`${classes.icon} ${classes.iconActive}`}>
+      <div className={joinClass([classes.icon, classes.iconActive])}>
         {props.index}
       </div>
     );
@@ -71,7 +73,7 @@ export default function StepperLabel(props: Props) {
   const { index, activeStep, filled, children } = props;
 
   return (
-    <div className={classes.label}>
+    <div className={joinClass([classes.label, index > activeStep && classes.textInactive])}>
       <StepIcon
         index={index}
         active={index === activeStep}

@@ -110,7 +110,7 @@ const dark = {
     default: '#0A0E1C',
   },
   text: {
-    primary: '#fff',
+    primary: '#ffffff',
     secondary: grey[500],
   },
   error: red,
