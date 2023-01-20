@@ -8,7 +8,7 @@ import Search from '../components/Search';
 import Scroll from '../components/Scroll';
 import Tooltip from '../components/Tooltip';
 import { Theme } from '@mui/material';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import Down from '../icons/components/Down';
 
 import { MAINNET_TOKENS } from '../sdk/config/MAINNET';
 import { useDispatch } from 'react-redux';
@@ -149,8 +149,11 @@ function TokensModal() {
               <div className={classes.subheader}>Advanced</div>
               <Tooltip text="Some text" />
             </div>
-            <KeyboardArrowDownIcon
-              className={joinClass([classes.arrow, showAdvanced && classes.invert])}
+            <Down
+              className={joinClass([
+                classes.arrow,
+                showAdvanced && classes.invert,
+              ])}
             />
           </div>
           <Collapse in={showAdvanced}>

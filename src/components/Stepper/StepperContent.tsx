@@ -31,7 +31,11 @@ export default function StepperLabel(props: Props) {
 
   return (
     <div
-      className={joinClass([classes.content, activeStep > index && classes.lineActive, !!last && classes.lineNone])}
+      className={joinClass([
+        classes.content,
+        activeStep > index && classes.lineActive,
+        !!last && classes.lineNone,
+      ])}
     >
       {activeStep >= index && children}
     </div>

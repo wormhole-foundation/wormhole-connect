@@ -62,7 +62,10 @@ function Options(props: Props) {
       {props.children.map((child, i) => {
         return (
           <div
-            className={joinClass([classes.option, props.active === i && classes.active])}
+            className={joinClass([
+              classes.option,
+              props.active === i && classes.active,
+            ])}
             onClick={() => emitSelectOption(i + 1)}
             style={{
               cursor: props.children.length > 0 ? 'pointer' : 'default',

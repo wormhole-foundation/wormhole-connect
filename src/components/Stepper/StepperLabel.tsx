@@ -45,7 +45,11 @@ function StepIcon(props: {
   if (completed) {
     return (
       <div
-        className={joinClass([classes.icon, classes.iconActive, !!filled && classes.filled])}
+        className={joinClass([
+          classes.icon,
+          classes.iconActive,
+          !!filled && classes.filled,
+        ])}
       >
         {/* TODO: add action color to theme */}
         <Check htmlColor={filled ? '#fff' : theme.palette.success[500]} />
@@ -73,7 +77,12 @@ export default function StepperLabel(props: Props) {
   const { index, activeStep, filled, children } = props;
 
   return (
-    <div className={joinClass([classes.label, index > activeStep && classes.textInactive])}>
+    <div
+      className={joinClass([
+        classes.label,
+        index > activeStep && classes.textInactive,
+      ])}
+    >
       <StepIcon
         index={index}
         active={index === activeStep}

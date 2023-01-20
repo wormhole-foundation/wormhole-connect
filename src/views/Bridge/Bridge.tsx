@@ -8,6 +8,7 @@ import GasOptions from './GasOptions';
 import GasSlider from './NativeGasSlider';
 import TransferSummary from './TransferSummary';
 import Send from './Send';
+import WalletIcon from '../../icons/components/Wallet';
 
 const useStyles = makeStyles(() => ({
   bridgeContent: {

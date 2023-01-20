@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setTokensModal } from '../../store/router';
 import { RootState } from '../../store';
 import { MAINNET_TOKENS } from '../../sdk/config/MAINNET';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import Down from '../../icons/components/Down';
 import InputTransparent from '../../components/InputTransparent';
 import TokensModal from '../TokensModal';
 import { joinClass } from '../../utils/style';
@@ -75,7 +75,7 @@ function Bridge() {
                   alt={tokenConfig!.symbol}
                 />
                 <div>{tokenConfig!.symbol}</div>
-                <KeyboardArrowDownIcon />
+                <Down />
               </div>
               <div className={classes.tokenRow}>
                 <InputTransparent placeholder="0.00" align="right" />

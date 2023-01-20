@@ -3,7 +3,7 @@ import { makeStyles } from '@mui/styles';
 import { Theme } from '@mui/material';
 import InputTransparent from './InputTransparent';
 import InputContainer from './InputContainer';
-import SearchIcon from '../icons/search.svg';
+import SearchIcon from '../icons/components/Search';
 
 const useStyles = makeStyles((theme: Theme) => ({
   searchContent: {
@@ -35,7 +35,7 @@ function Search(props: Props) {
           <div className={classes.input}>
             <InputTransparent placeholder={props.placeholder} />
           </div>
-          <img src={SearchIcon} alt="search" />
+          <SearchIcon />
         </div>
       </InputContainer>
     </div>

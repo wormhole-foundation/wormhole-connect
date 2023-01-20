@@ -3,7 +3,7 @@ import { makeStyles } from 'tss-react/mui';
 import CircularProgress from '@mui/material/CircularProgress';
 import MAINNET_CONFIG from '../../sdk/config/MAINNET';
 import { ChainName } from '../../sdk/types';
-import WalletIcon from '../../icons/wallet.svg';
+import WalletIcon from '../../icons/components/Wallet';
 import { LINK } from '../../utils/style';
 import LaunchIcon from '@mui/icons-material/Launch';
 
@@ -49,7 +49,7 @@ function NetworksTag(props: Props) {
           alt={networkConfig.displayName}
         />
         <div>{props.senderAddress}</div>
-        <img src={WalletIcon} alt="wallet icon" />
+        <WalletIcon />
       </div>
       {props.txHash ? (
         <a

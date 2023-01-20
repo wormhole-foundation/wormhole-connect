@@ -1,6 +1,6 @@
 import React from 'react';
 import { makeStyles } from 'tss-react/mui';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import Down from '../icons/components/Down';
 import { Collapse } from '@mui/material';
 import { joinClass } from '../utils/style';
 
@@ -18,6 +18,7 @@ const useStyles = makeStyles()((theme) => ({
   arrow: {
     height: '24px',
     marginLeft: '8px',
+    transition: 'transform 0.4s',
   },
   invert: {
     transform: 'rotate(180deg)',
@@ -57,8 +58,11 @@ export function RenderRows(props: { rows: RowsData; small?: boolean }) {
             <div className={classes.row}>
               <span className={classes.rowTitle}>{row.title}</span>
               {row.rows && (
-                <KeyboardArrowDownIcon
-                  className={joinClass([classes.arrow, !collapsed && classes.invert])}
+                <Down
+                  className={joinClass([
+                    classes.arrow,
+                    !collapsed && classes.invert,
+                  ])}
                 />
               )}
             </div>
