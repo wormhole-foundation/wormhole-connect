@@ -13,13 +13,16 @@ declare module '@mui/material/styles/createPalette' {
       options?: {
         hover: string;
         select: string;
-      }
+      };
       card?: {
         background: string;
+        secondary: string;
         elevation: string;
       };
-      innerCard?: {
+      popover?: {
         background: string;
+        secondary: string;
+        elevation: string;
       };
     }
     interface Palette {
@@ -35,13 +38,16 @@ declare module '@mui/material/styles/createPalette' {
       options: {
         hover: string;
         select: string;
-      }
+      };
       card: {
         background: string;
+        secondary: string;
         elevation: string;
       };
-      innerCard: {
+      popOver: {
         background: string;
+        secondary: string;
+        elevation: string;
       };
   }
 }

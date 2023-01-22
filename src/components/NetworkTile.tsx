@@ -6,7 +6,7 @@ import { ChainConfig } from '../sdk/types';
 
 const useStyles = makeStyles((theme: Theme) => ({
   networkTile: {
-    backgroundColor: theme.palette.innerCard.background,
+    backgroundColor: theme.palette.card.secondary,
     borderRadius: '8px',
     padding: '16px',
     display: 'flex',

@@ -43,7 +43,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
-    backgroundColor: theme.palette.innerCard.background,
+    backgroundColor: theme.palette.card.secondary,
     borderRadius: '8px',
     width: '100%',
     flexGrow: '1',

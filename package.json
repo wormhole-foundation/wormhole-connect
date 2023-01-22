@@ -51,6 +51,7 @@
     "ethers": "^5.7.2",
     "file-loader": "^6.2.0",
     "https-browserify": "^1.0.0",
+    "material-ui-popup-state": "^5.0.4",
     "near-api-js": "^1.1.0",
     "prettier": "^2.8.2",
     "react": "^18.2.0",

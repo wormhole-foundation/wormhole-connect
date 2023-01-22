@@ -1,5 +1,4 @@
 import React from 'react';
-import { makeStyles } from '@mui/styles';
 import Header from '../../components/Header';
 import Spacer from '../../components/Spacer';
 import Networks from './Networks';
@@ -7,9 +6,10 @@ import GasOptions from './GasOptions';
 import GasSlider from './NativeGasSlider';
 import TransferSummary from './TransferSummary';
 import Send from './Send';
-import MenuIcon from '../../icons/components/Menu';
+import { makeStyles } from 'tss-react/mui';
+import Menu from '../../components/Menu';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles()((theme) => ({
   bridgeContent: {
     margin: 'auto',
     maxWidth: '650px',
@@ -28,13 +28,13 @@ const useStyles = makeStyles(() => ({
 }));
 
 function Bridge() {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   return (
     <div className={classes.bridgeContent}>
       <div className={classes.header}>
         <Header text="Bridge" align="left" />
-        <MenuIcon />
+        <Menu />
       </div>
       <Spacer height={40} />
 

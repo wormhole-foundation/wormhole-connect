@@ -85,9 +85,12 @@ const lightStyled = {
   card: {
     background: '#ffffff',
     elevation: '10px 10px 30px 15px #CCD2E7',
+    secondary: '#F0F0F5',
   },
-  innerCard: {
-    background: '#F0F0F5',
+  popover: {
+    background: '#ffffff',
+    elevation: '10px 10px 30px 15px #CCD2E7',
+    secondary: '#F0F0F5',
   },
 };
 
@@ -135,10 +138,13 @@ const dark = {
   },
   card: {
     background: '#141826',
+    secondary: '#222633',
     elevation: 'none',
   },
-  innerCard: {
-    background: '#222633',
+  popover: {
+    background: '#1b2033',
+    secondary: '#222840',
+    elevation: 'none',
   },
 };
 

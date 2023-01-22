@@ -16,7 +16,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     width: '100%',
     padding: '16px',
     borderRadius: '8px',
-    backgroundColor: theme.palette.innerCard.background,
+    backgroundColor: theme.palette.card.secondary,
   },
   input: {
     flexGrow: 1,

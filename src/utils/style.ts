@@ -64,3 +64,10 @@ export const COL_CENTER = {
   justifyContent: 'center',
   gap: '8px',
 };
+
+export const ICON = {
+  width: '40px',
+  height: '40px',
+  ...CENTER,
+  cursor: 'pointer',
+};

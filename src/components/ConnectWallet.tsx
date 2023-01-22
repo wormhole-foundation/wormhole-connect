@@ -3,10 +3,7 @@ import React from 'react';
 import { Theme } from '@mui/material';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
-import {
-  connectReceivingWallet,
-  connectWallet,
-} from '../store/wallet';
+import { connectReceivingWallet, connectWallet } from '../store/wallet';
 import MetamaskIcon from '../icons/wallets/metamask-fox.svg';
 // import TrustWalletIcon from '../icons/wallets/trust-wallet.svg';
 import DownIcon from '../icons/components/Down';
