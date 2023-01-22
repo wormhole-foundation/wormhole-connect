@@ -9,6 +9,7 @@ export interface TransferState {
   fromNetwork: ChainName | undefined;
   toNetwork: ChainName | undefined;
   token: string;
+  amount: number | undefined;
   destGasPayment: PaymentOption;
 }
 
@@ -16,6 +17,7 @@ const initialState: TransferState = {
   fromNetwork: undefined,
   toNetwork: undefined,
   token: '',
+  amount: undefined,
   // TODO: check if automatic is available once networks and token are selected
   destGasPayment: PaymentOption.MANUAL,
 };
@@ -42,6 +44,10 @@ export const transferSlice = createSlice({
       console.log('set to network:', payload);
       state.toNetwork = payload;
     },
+    setAmount: (state: TransferState, { payload }: PayloadAction<number>) => {
+      console.log('set amount:', payload);
+      state.amount = payload;
+    },
     setDestGasPayment: (
       state: TransferState,
       { payload }: PayloadAction<PaymentOption>,
@@ -52,7 +58,12 @@ export const transferSlice = createSlice({
   },
 });
 
-export const { setToken, setFromNetwork, setToNetwork, setDestGasPayment } =
-  transferSlice.actions;
+export const {
+  setToken,
+  setFromNetwork,
+  setToNetwork,
+  setDestGasPayment,
+  setAmount,
+} = transferSlice.actions;
 
 export default transferSlice.reducer;

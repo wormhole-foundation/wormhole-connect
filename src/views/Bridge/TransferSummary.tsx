@@ -3,8 +3,8 @@ import { makeStyles } from 'tss-react/mui';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import { PaymentOption } from '../../store/transfer';
-import InfoBox from '../../components/InfoBox';
 import { RenderRows, RowsData } from '../../components/RenderRows';
+import InputContainer from '../../components/InputContainer';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -73,9 +73,9 @@ function TransferSummary() {
   return (
     <div className={classes.container}>
       <div className={classes.header}>Transfer summary</div>
-      <InfoBox>
+      <InputContainer border>
         <RenderRows rows={rows} />
-      </InfoBox>
+      </InputContainer>
     </div>
   );
 }

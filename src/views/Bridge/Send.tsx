@@ -12,6 +12,7 @@ function Send() {
     <Button
       onClick={send}
       text="Approve and proceed with transaction"
+      action
       elevated
     />
   );

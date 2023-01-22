@@ -1,5 +1,6 @@
 import React from 'react';
 import { makeStyles } from 'tss-react/mui';
+import { joinClass } from '../utils/style';
 
 const useStyles = makeStyles()((theme) => ({
   button: {
@@ -17,10 +18,16 @@ const useStyles = makeStyles()((theme) => ({
   elevated: {
     boxShadow: theme.palette.card.elevation,
   },
+  action: {
+    backgroundColor: theme.palette.button.action,
+    color: theme.palette.button.actionText,
+    border: 'none',
+  },
 }));
 
 type Props = {
   text?: string;
+  action?: boolean;
   elevated?: boolean;
   onClick?: React.MouseEventHandler<HTMLDivElement>;
 };
@@ -29,7 +36,11 @@ function Button(props: Props) {
   const { classes } = useStyles();
   return (
     <div
-      className={`${classes.button} ${props.elevated && classes.elevated}`}
+      className={joinClass([
+        classes.button,
+        !!props.elevated && classes.elevated,
+        !!props.action && classes.action,
+      ])}
       onClick={props.onClick}
     >
       {props.text}

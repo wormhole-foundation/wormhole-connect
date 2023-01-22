@@ -6,13 +6,14 @@ import { Theme } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import { setFromNetworksModal, setTokensModal } from '../../store/router';
 import { RootState } from '../../store';
-import MAINNET_CONFIG from '../../sdk/config/MAINNET';
+import MAINNET_CONFIG, { MAINNET_TOKENS } from '../../sdk/config/MAINNET';
 import InputContainer from '../../components/InputContainer';
 import InputTransparent from '../../components/InputTransparent';
 import ConnectWallet, { Wallet } from '../../components/ConnectWallet';
 import TokensModal from '../TokensModal';
 import NoNetworkIcon from '../../icons/no-network.png';
 import { joinClass } from '../../utils/style';
+import { setAmount } from '../../store/transfer';
 
 const useStyles = makeStyles((theme: Theme) => ({
   header: {
@@ -82,11 +83,16 @@ function Network() {
     (state: RootState) => state.transfer.fromNetwork,
   );
   const token = useSelector((state: RootState) => state.transfer.token);
+  const tokenConfig = token && MAINNET_TOKENS[token];
   // get networks configs
   const fromNetworkConfig = MAINNET_CONFIG.chains[fromNetwork];
   // set store values
   const openFromNetworksModal = () => dispatch(setFromNetworksModal(true));
   const openTokensModal = () => dispatch(setTokensModal(true));
+  function handleAmountChange(event) {
+    console.log(event.target.value);
+    dispatch(setAmount(event.target.value));
+  }
 
   return (
     <div className={classes.container}>
@@ -107,26 +113,46 @@ function Network() {
               onClick={openTokensModal}
             >
               <div className={classes.label}>Token</div>
-              <div className={classes.tokenSelect}>
-                <img
-                  className={classes.tokenIcon}
-                  src={NoNetworkIcon}
-                  alt="select token"
-                />
-                Select
-              </div>
+              {tokenConfig ? (
+                <div className={classes.tokenSelect}>
+                  <img
+                    className={classes.tokenIcon}
+                    src={tokenConfig.icon}
+                    alt="token icon"
+                  />
+                  {tokenConfig.symbol}
+                </div>
+              ) : (
+                <div className={classes.tokenSelect}>
+                  <img
+                    className={classes.tokenIcon}
+                    src={NoNetworkIcon}
+                    alt="select token"
+                  />
+                  Select
+                </div>
+              )}
             </div>
             <div className={classes.card}>
               <div className={classes.label}>Amount</div>
-              {token ? <InputTransparent placeholder="0.00" /> : <div>-</div>}
+              {token ? (
+                <InputTransparent
+                  placeholder="0.00"
+                  onChange={handleAmountChange}
+                />
+              ) : (
+                <div>-</div>
+              )}
             </div>
           </div>
         </div>
       </InputContainer>
       {/* modals */}
-      {showFromNetworksModal && (
-        <NetworksModal title="Send from" event="selectFromNetwork" />
-      )}
+      <NetworksModal
+        open={showFromNetworksModal}
+        title="Send from"
+        event="selectFromNetwork"
+      />
       {showTokensModal && <TokensModal />}
     </div>
   );

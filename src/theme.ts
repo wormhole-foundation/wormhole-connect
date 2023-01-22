@@ -128,7 +128,7 @@ const dark = {
     primaryText: '#fff',
     disabled: '#6c6e76',
     disabledText: '#9d9ea4',
-    action: '#222632',
+    action: '#2b867d',
     actionText: '#fff',
     hover: '#ffffff' + OPACITY[7],
   },

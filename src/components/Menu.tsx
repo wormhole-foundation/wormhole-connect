@@ -9,14 +9,8 @@ const useStyles = makeStyles()((theme) => ({
   menuIcon: {
     ...ICON,
     borderRadius: '8px',
-    backgroundColor:
-      theme.palette.mode === 'light'
-        ? theme.palette.button.action
-        : 'transparent',
-    color:
-      theme.palette.mode === 'light'
-        ? theme.palette.button.actionText
-        : 'inherit',
+    backgroundColor: theme.palette.button.action,
+    color: theme.palette.button.actionText,
   },
   menu: {
     backgroundColor: theme.palette.popover.background,

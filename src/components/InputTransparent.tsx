@@ -26,6 +26,11 @@ type Props = {
   placeholder?: string;
   type?: 'string' | 'number';
   align?: 'center' | 'right';
+  onChange?: (
+    e?:
+      | React.ChangeEvent<HTMLInputElement>
+      | React.ChangeEvent<HTMLTextAreaElement>,
+  ) => void;
 };
 
 function InputTransparent(props: Props) {
@@ -35,6 +40,7 @@ function InputTransparent(props: Props) {
       className={classes.input}
       placeholder={props.placeholder}
       type={props.type}
+      onChange={props.onChange}
     />
   );
 }
