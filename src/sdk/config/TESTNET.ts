@@ -132,7 +132,7 @@ const env: Environment = 'TESTNET';
 const TESTNET_CONFIG: WormholeConfig = {
   env,
   rpcs: {
-    goerli: 'https://goerli-light.eth.linkpool.io/',
+    goerli: process.env.REACT_APP_GOERLI_RPC,
     bsc: 'https://data-seed-prebsc-2-s3.binance.org:8545',
     fuji: 'https://api.avax-test.network/ext/bc/C/rpc',
     fantom: 'https://rpc.testnet.fantom.network',

@@ -37,6 +37,7 @@ module.exports = function override(config, env) {
         stream: "stream-browserify",
         buffer: "buffer",
         url: "url",
+        os: "os-browserify/browser",
       },
     },
     experiments: {

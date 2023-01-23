@@ -1,9 +1,9 @@
 import { makeStyles } from '@mui/styles';
 import React from 'react';
-import { Theme } from '@mui/material';
+import { Theme, useTheme } from '@mui/material/styles';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
-import { connectReceivingWallet, connectWallet } from '../store/wallet';
+import { connectReceivingWallet, connectWallet, openWalletModal } from '../store/wallet';
 import MetamaskIcon from '../icons/wallets/metamask-fox.svg';
 // import TrustWalletIcon from '../icons/wallets/trust-wallet.svg';
 import DownIcon from '../icons/components/Down';
@@ -70,11 +70,13 @@ type Props = {
 
 function NetworksModal(props: Props) {
   const classes = useStyles();
+  const theme = useTheme();
   const dispatch = useDispatch();
   const wallet = useSelector((state: RootState) => state.wallet[props.type]);
 
   const connect = () => {
     if (props.type === Wallet.SENDING) {
+      openWalletModal(theme);
       dispatch(connectWallet());
     } else {
       dispatch(connectReceivingWallet());

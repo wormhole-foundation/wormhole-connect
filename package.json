@@ -40,6 +40,7 @@
     "@types/react-redux": "^7.1.25",
     "@typescript-eslint/eslint-plugin": "^5.48.1",
     "@typescript-eslint/parser": "^5.48.1",
+    "@walletconnect/web3-provider": "^1.8.0",
     "@xpla/wallet-provider": "^0.3.9",
     "@xpla/xpla.js": "^0.2.3",
     "bech32": "^2.0.0",
@@ -53,6 +54,7 @@
     "https-browserify": "^1.0.0",
     "material-ui-popup-state": "^5.0.4",
     "near-api-js": "^1.1.0",
+    "os-browserify": "^0.3.0",
     "prettier": "^2.8.2",
     "react": "^18.2.0",
     "react-app-rewired": "^2.2.1",
@@ -64,7 +66,8 @@
     "tss-react": "^4.5.2",
     "typescript": "^4.9.4",
     "url": "^0.11.0",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "web3modal": "^1.9.11"
   },
   "scripts": {
     "lint": "yarn prettier && eslint --fix ./src",

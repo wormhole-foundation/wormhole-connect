@@ -6,9 +6,9 @@ import { sendTransfer } from '../../store/transfer';
 
 function Send() {
   const dispatch = useDispatch();
-  const send = () => {
-    dispatch(sendTransfer());
-    dispatch(setRoute('redeem'));
+  const send = async () => {
+    await dispatch(sendTransfer());
+    // dispatch(setRoute('redeem'));
   };
   return (
     <Button
