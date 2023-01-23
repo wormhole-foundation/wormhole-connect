@@ -3,7 +3,7 @@ import { makeStyles } from 'tss-react/mui';
 import InputContainer from '../../components/InputContainer';
 import MAINNET_CONFIG from '../../sdk/config/MAINNET';
 import { ChainName } from '../../sdk/types';
-import Down from '../../icons/components/Down';
+import ArrowRight from '../../icons/components/ArrowRight';
 
 const useStyles = makeStyles()((theme) => ({
   row: {
@@ -43,7 +43,7 @@ function NetworksTag(props: Props) {
             />
             <div>{fromNetworkConfig.displayName}</div>
           </div>
-          <Down />
+          <ArrowRight />
           <div className={classes.network}>
             <img
               className={classes.icon}

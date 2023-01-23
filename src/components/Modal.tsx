@@ -1,6 +1,6 @@
 import { makeStyles } from 'tss-react/mui';
 import React from 'react';
-import CloseIcon from '../icons/close.svg';
+import CloseIcon from '../icons/components/Close';
 import { Breakpoint, Dialog } from '@mui/material';
 
 const useStyles = makeStyles()((theme) => ({
@@ -43,11 +43,9 @@ function Modal({ open, width, closable, children }: Props) {
     >
       <div className={classes.modal}>
         {closable && (
-          // <CloseIcon size="large" onClick={emitClose} />
-          <img
-            src={CloseIcon}
+          <CloseIcon
+            sx={{ fontSize: 32 }}
             className={classes.close}
-            alt="close"
             onClick={emitClose}
           />
         )}

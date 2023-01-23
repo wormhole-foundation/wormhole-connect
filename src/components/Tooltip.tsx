@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { makeStyles } from '@mui/styles';
 import Tooltip from '@mui/material/Tooltip';
-import InfoIcon from '../icons/info.svg';
+import InfoIcon from '../icons/components/Info';
 
 type Position =
   | 'top-start'
@@ -33,7 +33,7 @@ export default function BasicTooltip(props: Props) {
   const classes = useStyles();
   return (
     <Tooltip title={props.text} arrow placement={position}>
-      <img className={classes.icon} src={InfoIcon} alt="info" />
+      <InfoIcon className={classes.icon} />
     </Tooltip>
   );
 }
