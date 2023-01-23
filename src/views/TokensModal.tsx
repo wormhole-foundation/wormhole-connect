@@ -151,7 +151,9 @@ function TokensModal() {
                   <div className={classes.tokenRowBalanceText}>Balance</div>
                   <div className={classes.tokenRowBalance}>200.4567</div>
                 </div>
-                <div className={classes.tokenRowAddress}>{displayEvmAddress(token.address)}</div>
+                <div className={classes.tokenRowAddress}>
+                  {displayEvmAddress(token.address)}
+                </div>
               </div>
             );
           })}

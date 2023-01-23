@@ -81,24 +81,22 @@ function NetworksModal(props: Props) {
         blendColor={theme.palette.card.background}
       >
         <div className={classes.networksContainer}>
-          {CHAINS_ARR
-            .filter((c) => !!c.icon)
-            .map((chain, i) => {
-              return (
-                <div
-                  key={i}
-                  className={classes.networkTile}
-                  onClick={() => emitSelectNetwork(chain.key)}
-                >
-                  <img
-                    src={chain.icon}
-                    alt={chain.displayName}
-                    className={classes.networkIcon}
-                  />
-                  <div className={classes.networkText}>{chain.displayName}</div>
-                </div>
-              );
-            })}
+          {CHAINS_ARR.filter((c) => !!c.icon).map((chain, i) => {
+            return (
+              <div
+                key={i}
+                className={classes.networkTile}
+                onClick={() => emitSelectNetwork(chain.key)}
+              >
+                <img
+                  src={chain.icon}
+                  alt={chain.displayName}
+                  className={classes.networkIcon}
+                />
+                <div className={classes.networkText}>{chain.displayName}</div>
+              </div>
+            );
+          })}
         </div>
       </Scroll>
     </Modal>

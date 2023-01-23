@@ -66,12 +66,10 @@ export const transferSlice = createSlice({
       console.log('set destination gas payment option:', payload);
       state.destGasPayment = payload;
     },
-    sendTransfer: (
-      state: TransferState,
-    ) => {
+    sendTransfer: (state: TransferState) => {
       console.log('preparing send');
       console.log('context:', context);
-    }
+    },
   },
 });
 

@@ -89,38 +89,43 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
   ETH: {
     symbol: 'ETH',
     icon: EthIcon,
-    address: '0x000000000000000000000000B4FBF271143F4FBf7B91A5ded31805e42b2208d6',
+    address:
+      '0x000000000000000000000000B4FBF271143F4FBf7B91A5ded31805e42b2208d6',
     coinGeckoId: 'ethereum',
     color: '#62688F',
   },
   BNB: {
     symbol: 'BNB',
     icon: BscIcon,
-    address: '0x000000000000000000000000ae13d989daC2f0dEbFf460aC112a837C89BAa7cd',
+    address:
+      '0x000000000000000000000000ae13d989daC2f0dEbFf460aC112a837C89BAa7cd',
     coinGeckoId: 'bnb',
     color: '#F3BA30',
   },
   USDC: {
     symbol: 'USDC',
     icon: USDCIcon,
-    address: '0x0000000000000000000000005425890298aed601595a70AB815c96711a31Bc65',
+    address:
+      '0x0000000000000000000000005425890298aed601595a70AB815c96711a31Bc65',
     coinGeckoId: 'usd-coin',
     color: '#2774CA',
   },
   AVAX: {
     symbol: 'AVAX',
     icon: FujiIcon,
-    address: '0x000000000000000000000000d00ae08403B9bbb9124bB305C09058E32C39A48c',
+    address:
+      '0x000000000000000000000000d00ae08403B9bbb9124bB305C09058E32C39A48c',
     coinGeckoId: 'avalanche',
     color: '#E84141',
   },
   FTM: {
     symbol: 'FTM',
     icon: FantomIcon,
-    address: '0x000000000000000000000000f1277d1Ed8AD466beddF92ef448A132661956621',
+    address:
+      '0x000000000000000000000000f1277d1Ed8AD466beddF92ef448A132661956621',
     coinGeckoId: 'fantom',
-    color: '#12B4EC'
-  }
+    color: '#12B4EC',
+  },
 };
 
 const env: Environment = 'TESTNET';
