@@ -1,7 +1,7 @@
 import React from 'react';
 import { makeStyles } from 'tss-react/mui';
 import CircularProgress from '@mui/material/CircularProgress';
-import MAINNET_CONFIG from '../../sdk/config/MAINNET';
+import { CHAINS } from '../../store/transfer';
 import { ChainName } from '../../sdk/types';
 import WalletIcon from '../../icons/components/Wallet';
 import { LINK } from '../../utils/style';
@@ -39,7 +39,7 @@ type Props = {
 
 function NetworksTag(props: Props) {
   const { classes } = useStyles();
-  const networkConfig = MAINNET_CONFIG.chains[props.network]!;
+  const networkConfig = CHAINS[props.network]!;
   return (
     <div className={classes.header}>
       <div className={classes.left}>

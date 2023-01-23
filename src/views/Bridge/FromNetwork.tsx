@@ -6,7 +6,7 @@ import { Theme } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import { setFromNetworksModal, setTokensModal } from '../../store/router';
 import { RootState } from '../../store';
-import MAINNET_CONFIG, { MAINNET_TOKENS } from '../../sdk/config/MAINNET';
+import { CHAINS, TOKENS } from '../../store/transfer';
 import InputContainer from '../../components/InputContainer';
 import InputTransparent from '../../components/InputTransparent';
 import ConnectWallet, { Wallet } from '../../components/ConnectWallet';
@@ -83,9 +83,9 @@ function Network() {
     (state: RootState) => state.transfer.fromNetwork,
   );
   const token = useSelector((state: RootState) => state.transfer.token);
-  const tokenConfig = token && MAINNET_TOKENS[token];
+  const tokenConfig = token && TOKENS[token];
   // get networks configs
-  const fromNetworkConfig = MAINNET_CONFIG.chains[fromNetwork];
+  const fromNetworkConfig = CHAINS[fromNetwork];
   // set store values
   const openFromNetworksModal = () => dispatch(setFromNetworksModal(true));
   const openTokensModal = () => dispatch(setTokensModal(true));

@@ -1,10 +1,11 @@
 import { Network as Environment, Contracts } from '@certusone/wormhole-sdk';
-import { WormholeConfig, Context, ChainConfig } from '../types';
+import { WormholeConfig, Context, ChainConfig, TokenConfig } from '../types';
 
-import EthIcon from '../icons/eth.svg';
-import BscIcon from '../icons/bsc.svg';
-import FujiIcon from '../icons/avax.svg';
-import FantomIcon from '../icons/fantom.svg';
+import EthIcon from '../../icons/tokens/eth.svg';
+import BscIcon from '../../icons/tokens/bsc.svg';
+import FujiIcon from '../../icons/tokens/avax.svg';
+import FantomIcon from '../../icons/tokens/fantom.svg';
+import USDCIcon from '../../icons/tokens/usdc.svg';
 
 // https://book.wormhole.com/reference/contracts.html
 export const TESTNET_CHAINS = {
@@ -32,9 +33,10 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
       nft_bridge: '0xD8E4C2DbDd2e2bd8F1336EA691dBFF6952B1a6eB',
     },
     icon: EthIcon,
-    displayName: 'Goerli (Ethereum Testnet)',
-    explorerUrl: '',
-    explorerName: '',
+    displayName: 'Goerli',
+    explorerUrl: 'https://goerli.etherscan.io/',
+    explorerName: 'Etherscan',
+    gasToken: 'ETH',
   },
   bsc: {
     key: 'bsc',
@@ -46,9 +48,10 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
       nft_bridge: '0xcD16E5613EF35599dc82B24Cb45B5A93D779f1EE',
     },
     icon: BscIcon,
-    displayName: 'BSC (Testnet)',
-    explorerUrl: '',
-    explorerName: '',
+    displayName: 'BSC',
+    explorerUrl: 'https://testnet.bscscan.com/',
+    explorerName: 'BscScan',
+    gasToken: 'BNB',
   },
   fuji: {
     key: 'fuji',
@@ -60,9 +63,10 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
       nft_bridge: '0xD601BAf2EEE3C028344471684F6b27E789D9075D',
     },
     icon: FujiIcon,
-    displayName: 'Fuji (Avalanche Testnet)',
-    explorerUrl: '',
-    explorerName: '',
+    displayName: 'Fuji',
+    explorerUrl: 'https://testnet.snowtrace.io/',
+    explorerName: 'Snowtrace',
+    gasToken: 'AVAX',
   },
   fantom: {
     key: 'fantom',
@@ -74,10 +78,49 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
       nft_bridge: '0x63eD9318628D26BdCB15df58B53BB27231D1B227',
     },
     icon: FantomIcon,
-    displayName: 'Fantom (Testnet)',
-    explorerUrl: '',
-    explorerName: '',
+    displayName: 'Fantom',
+    explorerUrl: 'https://testnet.ftmscan.com/',
+    explorerName: 'FtmScan',
+    gasToken: 'FTM',
   },
+};
+
+export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
+  ETH: {
+    symbol: 'ETH',
+    icon: EthIcon,
+    address: '0x000000000000000000000000B4FBF271143F4FBf7B91A5ded31805e42b2208d6',
+    coinGeckoId: 'ethereum',
+    color: '#62688F',
+  },
+  BNB: {
+    symbol: 'BNB',
+    icon: BscIcon,
+    address: '0x000000000000000000000000ae13d989daC2f0dEbFf460aC112a837C89BAa7cd',
+    coinGeckoId: 'bnb',
+    color: '#F3BA30',
+  },
+  USDC: {
+    symbol: 'USDC',
+    icon: USDCIcon,
+    address: '0x0000000000000000000000005425890298aed601595a70AB815c96711a31Bc65',
+    coinGeckoId: 'usd-coin',
+    color: '#2774CA',
+  },
+  AVAX: {
+    symbol: 'AVAX',
+    icon: FujiIcon,
+    address: '0x000000000000000000000000d00ae08403B9bbb9124bB305C09058E32C39A48c',
+    coinGeckoId: 'avalanche',
+    color: '#E84141',
+  },
+  FTM: {
+    symbol: 'FTM',
+    icon: FantomIcon,
+    address: '0x000000000000000000000000f1277d1Ed8AD466beddF92ef448A132661956621',
+    coinGeckoId: 'fantom',
+    color: '#12B4EC'
+  }
 };
 
 const env: Environment = 'TESTNET';

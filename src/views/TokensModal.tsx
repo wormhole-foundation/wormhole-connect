@@ -11,11 +11,12 @@ import Tooltip from '../components/Tooltip';
 import { Theme } from '@mui/material';
 import Down from '../icons/components/Down';
 
-import { MAINNET_TOKENS } from '../sdk/config/MAINNET';
+import { TOKENS_ARR } from '../store/transfer';
 import { useDispatch } from 'react-redux';
 import { setTokensModal } from '../store/router';
 import { setToken } from '../store/transfer';
 import { joinClass } from '../utils/style';
+import { displayEvmAddress } from '../utils';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
 
@@ -131,7 +132,7 @@ function TokensModal() {
         blendColor={theme.palette.card.background}
       >
         <div className={classes.tokensContainer}>
-          {Object.values(MAINNET_TOKENS).map((token, i) => {
+          {TOKENS_ARR.map((token, i) => {
             return (
               <div
                 className={classes.tokenRow}
@@ -150,7 +151,7 @@ function TokensModal() {
                   <div className={classes.tokenRowBalanceText}>Balance</div>
                   <div className={classes.tokenRowBalance}>200.4567</div>
                 </div>
-                <div className={classes.tokenRowAddress}>{token.address}</div>
+                <div className={classes.tokenRowAddress}>{displayEvmAddress(token.address)}</div>
               </div>
             );
           })}

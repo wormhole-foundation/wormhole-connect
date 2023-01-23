@@ -2,10 +2,12 @@ import React from 'react';
 import { useDispatch } from 'react-redux';
 import Button from '../../components/Button';
 import { setRoute } from '../../store/router';
+import { sendTransfer } from '../../store/transfer';
 
 function Send() {
   const dispatch = useDispatch();
   const send = () => {
+    dispatch(sendTransfer());
     dispatch(setRoute('redeem'));
   };
   return (

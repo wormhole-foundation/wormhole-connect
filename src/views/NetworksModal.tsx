@@ -8,7 +8,7 @@ import Search from '../components/Search';
 import Scroll from '../components/Scroll';
 import { Theme } from '@mui/material';
 
-import MAINNET_CONFIG from '../sdk/config/MAINNET';
+import { CHAINS_ARR } from '../store/transfer';
 import { ChainName } from '../sdk/types';
 import { useDispatch } from 'react-redux';
 import { setFromNetworksModal, setToNetworksModal } from '../store/router';
@@ -81,7 +81,7 @@ function NetworksModal(props: Props) {
         blendColor={theme.palette.card.background}
       >
         <div className={classes.networksContainer}>
-          {Object.values(MAINNET_CONFIG.chains)
+          {CHAINS_ARR
             .filter((c) => !!c.icon)
             .map((chain, i) => {
               return (

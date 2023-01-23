@@ -81,6 +81,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'Solana',
     explorerUrl: '',
     explorerName: '',
+    gasToken: '', // TODO:
   },
   ethereum: {
     key: 'ethereum',
@@ -91,6 +92,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'Ethereum',
     explorerUrl: '',
     explorerName: '',
+    gasToken: '',
   },
   terra: {
     key: 'terra',
@@ -101,6 +103,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'Terra',
     explorerUrl: '',
     explorerName: '',
+    gasToken: '',
   },
   bsc: {
     key: 'bsc',
@@ -111,6 +114,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'BSC',
     explorerUrl: '',
     explorerName: '',
+    gasToken: '',
   },
   polygon: {
     key: 'polygon',
@@ -121,6 +125,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'Polygon',
     explorerUrl: 'https://polygonscan.com/',
     explorerName: 'PolygonScan',
+    gasToken: '',
   },
   avalanche: {
     key: 'avalanche',
@@ -131,6 +136,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'Avalanche',
     explorerUrl: '',
     explorerName: '',
+    gasToken: '',
   },
   oasis: {
     key: 'oasis',
@@ -141,6 +147,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'Oasis',
     explorerUrl: '',
     explorerName: '',
+    gasToken: '',
   },
   algorand: {
     key: 'algorand',
@@ -151,6 +158,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'Algorand',
     explorerUrl: '',
     explorerName: '',
+    gasToken: '',
   },
   aurora: {
     key: 'aurora',
@@ -161,6 +169,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'Aurora',
     explorerUrl: '',
     explorerName: '',
+    gasToken: '',
   },
   fantom: {
     key: 'fantom',
@@ -171,6 +180,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'Fantom',
     explorerUrl: 'https://ftmscan.com/',
     explorerName: 'FTMscan',
+    gasToken: '',
   },
   karura: {
     key: 'karura',
@@ -181,6 +191,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'Karura',
     explorerUrl: '',
     explorerName: '',
+    gasToken: '',
   },
   acala: {
     key: 'acala',
@@ -191,6 +202,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'Acala',
     explorerUrl: '',
     explorerName: '',
+    gasToken: '',
   },
   klaytn: {
     key: 'klaytn',
@@ -201,6 +213,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'Klaytn',
     explorerUrl: '',
     explorerName: '',
+    gasToken: '',
   },
   celo: {
     key: 'celo',
@@ -211,6 +224,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'Celo',
     explorerUrl: '',
     explorerName: '',
+    gasToken: '',
   },
   near: {
     key: 'near',
@@ -221,6 +235,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'Near',
     explorerUrl: '',
     explorerName: '',
+    gasToken: '',
   },
   injective: {
     key: 'injective',
@@ -231,6 +246,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'Injective',
     explorerUrl: '',
     explorerName: '',
+    gasToken: '',
   },
   osmosis: {
     key: 'osmosis',
@@ -241,6 +257,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'Osmosis',
     explorerUrl: '',
     explorerName: '',
+    gasToken: '',
   },
   aptos: {
     key: 'aptos',
@@ -251,6 +268,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'Aptos',
     explorerUrl: '',
     explorerName: '',
+    gasToken: '',
   },
   sui: {
     key: 'sui',
@@ -261,6 +279,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'SUI',
     explorerUrl: '',
     explorerName: '',
+    gasToken: '',
   },
   moonbeam: {
     key: 'moonbeam',
@@ -271,6 +290,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'Moonbeam',
     explorerUrl: '',
     explorerName: '',
+    gasToken: '',
   },
   neon: {
     key: 'neon',
@@ -281,6 +301,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'Neon',
     explorerUrl: '',
     explorerName: '',
+    gasToken: '',
   },
   terra2: {
     key: 'terra2',
@@ -291,6 +312,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'Terra 2',
     explorerUrl: '',
     explorerName: '',
+    gasToken: '',
   },
   arbitrum: {
     key: 'arbitrum',
@@ -301,6 +323,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'Arbitrum',
     explorerUrl: '',
     explorerName: '',
+    gasToken: '',
   },
   optimism: {
     key: 'optimism',
@@ -311,6 +334,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'Optimism',
     explorerUrl: '',
     explorerName: '',
+    gasToken: '',
   },
   gnosis: {
     key: 'gnosis',
@@ -321,6 +345,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'Gnosis',
     explorerUrl: '',
     explorerName: '',
+    gasToken: '',
   },
   pythnet: {
     key: 'pythnet',
@@ -331,6 +356,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'Pythnet',
     explorerUrl: '',
     explorerName: '',
+    gasToken: '',
   },
   xpla: {
     key: 'xpla',
@@ -341,6 +367,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'XPLA',
     explorerUrl: '',
     explorerName: '',
+    gasToken: '',
   },
   btc: {
     key: 'btc',
@@ -351,6 +378,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'BTC',
     explorerUrl: '',
     explorerName: '',
+    gasToken: '',
   },
   wormchain: {
     key: 'wormchain',
@@ -361,6 +389,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     displayName: 'Wormchain',
     explorerUrl: '',
     explorerName: '',
+    gasToken: '',
   },
 };
 

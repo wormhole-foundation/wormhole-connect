@@ -1,11 +1,13 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import Slider, { SliderThumb } from '@mui/material/Slider';
 import { styled } from '@mui/material/styles';
 import BridgeCollapse from './Collapse';
 import InputContainer from '../../components/InputContainer';
-import { MAINNET_TOKENS } from '../../sdk/config/MAINNET';
+import { CHAINS, TOKENS } from '../../store/transfer';
 import { TokenConfig } from '../../sdk/types';
+import { RootState } from '../../store';
 
 const useStyles = makeStyles()((theme) => ({
   amounts: {
@@ -55,10 +57,11 @@ interface ThumbProps extends React.HTMLAttributes<unknown> {}
 
 function GasSlider() {
   const { classes } = useStyles();
-  // TODO: get actual tokens
-  // const sendingToken = MAINNET_TOKENS[tokenName] || undefined;
-  const sendingToken: TokenConfig | undefined = MAINNET_TOKENS.MATIC;
-  const nativeGasToken = MAINNET_TOKENS.SOL;
+  const tokenName = useSelector((state: RootState) => state.transfer.token);
+  const destName = useSelector((state: RootState) => state.transfer.toNetwork);
+  const destConfig = CHAINS[destName];
+  const sendingToken = TOKENS[tokenName];
+  const nativeGasToken = TOKENS[destConfig?.gasToken];
 
   function Thumb(props: ThumbProps) {
     const { children, ...other } = props;
@@ -78,8 +81,8 @@ function GasSlider() {
   return (
     <BridgeCollapse
       text="Native gas delivery"
-      disabled={!sendingToken}
-      close={!sendingToken}
+      disabled={!sendingToken || !nativeGasToken}
+      close={!sendingToken || !nativeGasToken}
     >
       <InputContainer>
         <div>
@@ -87,7 +90,7 @@ function GasSlider() {
           to convert some of the MATIC you’re bridging to FTM?
         </div>
         <div>You will receive:</div>
-        {sendingToken !== undefined ? (
+        {sendingToken !== undefined && nativeGasToken !== undefined ? (
           <div>
             <PrettoSlider
               slots={{ thumb: Thumb }}

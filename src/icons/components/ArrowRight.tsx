@@ -6,9 +6,9 @@ const ArrowRightIcon = createSvgIcon(
     d="M4 12H20M20 12L13 5M20 12L13 19"
     fill="none"
     stroke="currentColor"
-    stroke-width="2"
-    stroke-linecap="round"
-    stroke-linejoin="round"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
   />,
   'ArrowRight',
 );

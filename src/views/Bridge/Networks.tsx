@@ -1,20 +1,11 @@
 import React from 'react';
-import { makeStyles } from '@mui/styles';
-import NetworksModal from '../NetworksModal';
-// import NetworkTile from '../../components/NetworkTile';
-// import ConnectWallet, { Wallet } from '../../components/ConnectWallet';
-// import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import { Theme } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
-// import {
-//   setFromNetworksModal,
-//   setToNetworksModal,
-//   setWalletModal,
-// } from '../../store/router';
-import { setFromNetwork, setToNetwork } from '../../store/transfer';
+import { makeStyles } from '@mui/styles';
+import { Theme } from '@mui/material';
 import { RootState } from '../../store';
-// import MAINNET_CONFIG from '../../sdk/config/MAINNET';
+import { setFromNetwork, setToNetwork } from '../../store/transfer';
 import { ChainName } from '../../sdk/types';
+import NetworksModal from '../NetworksModal';
 import FromNetwork from './FromNetwork';
 import ToNetwork from './ToNetwork';
 

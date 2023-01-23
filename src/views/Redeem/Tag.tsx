@@ -1,7 +1,7 @@
 import React from 'react';
 import { makeStyles } from 'tss-react/mui';
 import InputContainer from '../../components/InputContainer';
-import MAINNET_CONFIG from '../../sdk/config/MAINNET';
+import { CHAINS } from '../../store/transfer';
 import { ChainName } from '../../sdk/types';
 import ArrowRight from '../../icons/components/ArrowRight';
 
@@ -29,8 +29,8 @@ type Props = {
 
 function NetworksTag(props: Props) {
   const { classes } = useStyles();
-  const fromNetworkConfig = MAINNET_CONFIG.chains[props.fromNetwork]!;
-  const toNetworkConfig = MAINNET_CONFIG.chains[props.toNetwork]!;
+  const fromNetworkConfig = CHAINS[props.fromNetwork]!;
+  const toNetworkConfig = CHAINS[props.toNetwork]!;
   return (
     <div>
       <InputContainer>
