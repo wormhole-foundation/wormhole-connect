@@ -2,7 +2,7 @@ import React from 'react';
 import Button from '../../components/Button';
 import { sendTransfer } from '../../utils/sdk';
 
-function Send() {
+function Send(props: { valid: boolean }) {
   async function send() {
     await sendTransfer();
     console.log('sent');
@@ -13,7 +13,8 @@ function Send() {
     <Button
       onClick={send}
       text="Approve and proceed with transaction"
-      action
+      action={props.valid}
+      disabled={!props.valid}
       elevated
     />
   );

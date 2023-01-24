@@ -28,6 +28,12 @@ const useStyles = makeStyles((theme: Theme) => ({
     gap: '8px',
     cursor: 'pointer',
   },
+  action: {
+    borderRadius: '16px',
+    padding: '2px 12px',
+    backgroundColor: theme.palette.button.action,
+    color: theme.palette.button.actionText,
+  },
   walletIcon: {
     width: '24px',
     height: '24px',
@@ -81,29 +87,34 @@ function NetworksModal(props: Props) {
   const theme = useTheme();
   const dispatch = useDispatch();
   const wallet = useSelector((state: RootState) => state.wallet[props.type]);
-  const sourceChain = useSelector((state: RootState) => state.transfer.fromNetwork);
+  const sourceChain = useSelector(
+    (state: RootState) => state.transfer.fromNetwork,
+  );
   const sourceConfig = CHAINS[sourceChain];
 
   const connect = async () => {
-    const walletConnection = await openWalletModal(theme, props.type === Wallet.RECEIVING);
+    const walletConnection = await openWalletModal(
+      theme,
+      props.type === Wallet.RECEIVING,
+    );
     if (props.type === Wallet.SENDING) {
       // add listeners
       const { connection } = walletConnection;
       connection.on('accountsChanged', async () => {
         if (connection.isMetaMask) {
           window.location.reload();
-          return
+          return;
         }
-      })
+      });
       connection.on('chainChanged', async (chainId: number) => {
-        console.log('network change', chainId)
+        console.log('network change', chainId);
         // get name of network and set in store
         // TODO: is this how we want to handle a network change?
-        const id = BigNumber.from(chainId).toNumber()
+        const id = BigNumber.from(chainId).toNumber();
         if (sourceConfig && id !== sourceConfig.chainId) {
           dispatch(setFromNetwork(sourceConfig.key));
         }
-      })
+      });
 
       dispatch(connectWallet(walletConnection.address));
     } else {
@@ -148,7 +159,10 @@ function NetworksModal(props: Props) {
       )}
     </PopupState>
   ) : (
-    <div className={classes.row} onClick={() => connect()}>
+    <div
+      className={`${classes.row} ${classes.action}`}
+      onClick={() => connect()}
+    >
       <WalletIcon />
       <div>Connect wallet</div>
     </div>

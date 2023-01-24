@@ -53,7 +53,7 @@ const options = [
   },
 ];
 
-function GasOptions() {
+function GasOptions(props: { disabled: boolean }) {
   const { classes } = useStyles();
   const dispatch = useDispatch();
   const selectedOption = useSelector(
@@ -73,7 +73,12 @@ function GasOptions() {
   });
 
   return (
-    <BridgeCollapse text="Gas payment options - Pay with MATIC">
+    <BridgeCollapse
+      text="Gas payment options - Pay with MATIC"
+      banner={!props.disabled}
+      disabled={props.disabled}
+      close={props.disabled}
+    >
       <Options active={active}>
         {options.map((option, i) => {
           return (

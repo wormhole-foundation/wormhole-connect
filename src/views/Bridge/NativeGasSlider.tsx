@@ -55,13 +55,14 @@ const PrettoSlider = styled(Slider)<SliderProps>(({ color1, color2 }) => ({
 
 interface ThumbProps extends React.HTMLAttributes<unknown> {}
 
-function GasSlider() {
+function GasSlider(props: { disabled: boolean }) {
   const { classes } = useStyles();
   const tokenName = useSelector((state: RootState) => state.transfer.token);
   const destName = useSelector((state: RootState) => state.transfer.toNetwork);
   const destConfig = CHAINS[destName];
   const sendingToken = TOKENS[tokenName];
   const nativeGasToken = TOKENS[destConfig?.gasToken];
+  // const disabled = !sendingToken || !nativeGasToken
 
   function Thumb(props: ThumbProps) {
     const { children, ...other } = props;
@@ -81,10 +82,16 @@ function GasSlider() {
   return (
     <BridgeCollapse
       text="Native gas delivery"
-      disabled={!sendingToken || !nativeGasToken}
-      close={!sendingToken || !nativeGasToken}
+      disabled={props.disabled}
+      close={props.disabled}
     >
-      <InputContainer>
+      <InputContainer
+        styles={{
+          borderTopRightRadius: '0px',
+          borderTopLeftRadius: '0px',
+          boxShadow: 'none',
+        }}
+      >
         <div>
           Your wallet has no native gas (FTM) balance on Fantom. Would you like
           to convert some of the MATIC you’re bridging to FTM?

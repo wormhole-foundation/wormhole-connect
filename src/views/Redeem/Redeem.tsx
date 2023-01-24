@@ -29,7 +29,9 @@ const useStyles = makeStyles((theme: Theme) => ({
 function Redeem() {
   const classes = useStyles();
   // TODO: parse from VAA
-  const fromNetwork = useSelector((state: RootState) => state.transfer.fromNetwork);
+  const fromNetwork = useSelector(
+    (state: RootState) => state.transfer.fromNetwork,
+  );
   const toNetwork = useSelector((state: RootState) => state.transfer.toNetwork);
 
   return (

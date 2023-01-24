@@ -36,11 +36,14 @@ type Props = {
 function Confirmations(props: Props) {
   const { classes } = useStyles();
   const { confirmations, total } = props;
-  const div = confirmations / total
   const percentage = Math.floor((confirmations / total) * 100);
   return (
     <div className={classes.confirmations}>
-      <BorderLinearProgress variant="determinate" value={percentage} color="secondary" />
+      <BorderLinearProgress
+        variant="determinate"
+        value={percentage}
+        color="secondary"
+      />
       <div className={classes.confirmationsText}>
         {confirmations} / {total} Confirmations
       </div>

@@ -8,12 +8,7 @@ import { Route, setRoute } from '../store/router';
 import { useDispatch } from 'react-redux';
 
 const useStyles = makeStyles()((theme) => ({
-  menuIcon: {
-    ...ICON,
-    borderRadius: '8px',
-    backgroundColor: theme.palette.button.action,
-    color: theme.palette.button.actionText,
-  },
+  menuIcon: ICON,
   menu: {
     backgroundColor: theme.palette.popover.background,
     display: 'flex',
@@ -38,7 +33,7 @@ export default function Menu() {
 
   const navigate = (name: Route) => {
     dispatch(setRoute(name));
-  }
+  };
 
   return (
     <PopupState variant="popover" popupId="demo-popup-popover">
@@ -60,9 +55,24 @@ export default function Menu() {
             }}
           >
             <div className={classes.menu}>
-              <div className={classes.menuItem} onClick={() => navigate('bridge')}>Bridge</div>
-              <div className={classes.menuItem} onClick={() => navigate('redeem')}>Redeem</div>
-              <div className={classes.menuItem} onClick={() => navigate('terms')}>Terms of Use</div>
+              <div
+                className={classes.menuItem}
+                onClick={() => navigate('bridge')}
+              >
+                Bridge
+              </div>
+              <div
+                className={classes.menuItem}
+                onClick={() => navigate('redeem')}
+              >
+                Redeem
+              </div>
+              <div
+                className={classes.menuItem}
+                onClick={() => navigate('redeem')}
+              >
+                Terms of Use
+              </div>
             </div>
           </Popover>
         </div>

@@ -6,7 +6,6 @@ const useStyles = makeStyles()((theme) => ({
   options: {
     backgroundColor: theme.palette.card.background,
     borderRadius: '8px',
-    boxShadow: theme.palette.card.elevation,
   },
   option: {
     position: 'relative',
@@ -19,8 +18,7 @@ const useStyles = makeStyles()((theme) => ({
       borderTopRightRadius: '0',
     },
     '&:first-of-type': {
-      borderBottomLeftRadius: '0',
-      borderBottomRightRadius: '0',
+      borderRadius: '0',
     },
     '&:not(:last-child)': {
       borderBottom: `0.5px solid ${theme.palette.divider}`,

@@ -33,10 +33,7 @@ function SendFrom(props: Props) {
   return (
     <div>
       <InputContainer>
-        <Header
-          network={props.network}
-          address={props.address}
-        />
+        <Header network={props.network} address={props.address} />
         <RenderRows rows={rows} />
       </InputContainer>
       {props.showConfirmations && (

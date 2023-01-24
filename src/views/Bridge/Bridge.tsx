@@ -8,6 +8,8 @@ import TransferSummary from './TransferSummary';
 import Send from './Send';
 import { makeStyles } from 'tss-react/mui';
 import Menu from '../../components/Menu';
+import { RootState } from '../../store';
+import { useSelector } from 'react-redux';
 
 const useStyles = makeStyles()((theme) => ({
   bridgeContent: {
@@ -29,6 +31,19 @@ const useStyles = makeStyles()((theme) => ({
 
 function Bridge() {
   const { classes } = useStyles();
+  const { fromNetwork, toNetwork, amount, token } = useSelector(
+    (state: RootState) => state.transfer,
+  );
+  const { sending, receiving } = useSelector(
+    (state: RootState) => state.wallet,
+  );
+  const valid =
+    fromNetwork &&
+    toNetwork &&
+    amount &&
+    token &&
+    sending.address &&
+    receiving.address;
 
   return (
     <div className={classes.bridgeContent}>
@@ -41,16 +56,16 @@ function Bridge() {
       <Networks />
       <Spacer />
 
-      <GasOptions />
+      <GasOptions disabled={!valid} />
       <Spacer />
 
-      <GasSlider />
+      <GasSlider disabled={!valid} />
       <Spacer />
 
-      <TransferSummary />
+      {valid && <TransferSummary />}
       <Spacer />
 
-      <Send />
+      <Send valid={valid} />
       <Spacer height={60} />
     </div>
   );

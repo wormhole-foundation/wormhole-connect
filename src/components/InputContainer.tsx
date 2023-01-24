@@ -21,6 +21,7 @@ type Props = {
   bg?: string;
   border?: boolean;
   children: JSX.Element | JSX.Element[];
+  styles?: React.CSSProperties;
   onClick?: React.MouseEventHandler<HTMLDivElement>;
 };
 
@@ -30,7 +31,10 @@ function InputContainer(props: Props) {
     <div
       className={joinClass([classes.input, !!props.border && classes.border])}
       onClick={props.onClick}
-      style={{ cursor: !!props.onClick ? 'pointer' : 'default' }}
+      style={{
+        ...props.styles,
+        cursor: !!props.onClick ? 'pointer' : 'default',
+      }}
     >
       {props.children}
     </div>

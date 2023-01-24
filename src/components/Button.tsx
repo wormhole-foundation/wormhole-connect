@@ -15,6 +15,12 @@ const useStyles = makeStyles()((theme) => ({
     padding: '12px 64px',
     cursor: 'pointer',
   },
+  disabled: {
+    cursor: 'not-allowed',
+    clickEvents: 'none',
+    backgroundColor: theme.palette.button.disabled + ' !important',
+    color: theme.palette.button.disabledText + ' !important',
+  },
   elevated: {
     boxShadow: theme.palette.card.elevation,
   },
@@ -29,6 +35,7 @@ type Props = {
   text?: string;
   action?: boolean;
   elevated?: boolean;
+  disabled?: boolean;
   onClick?: React.MouseEventHandler<HTMLDivElement>;
 };
 
@@ -40,6 +47,7 @@ function Button(props: Props) {
         classes.button,
         !!props.elevated && classes.elevated,
         !!props.action && classes.action,
+        !!props.disabled && classes.disabled,
       ])}
       onClick={props.onClick}
     >

@@ -11,8 +11,8 @@ let connection: any;
 export type Connection = {
   connection: any;
   address: string;
-  signer: providers.JsonRpcSigner
-}
+  signer: providers.JsonRpcSigner;
+};
 
 const mainnetRpcs = {}; // TODO:
 const testnetRpcs = {
@@ -22,7 +22,10 @@ const testnetRpcs = {
   4002: TESTNET_CONFIG.rpcs.fantom,
 };
 
-export async function openWalletModal(theme: any, isReceiving?: boolean): Promise<Connection> {
+export async function openWalletModal(
+  theme: any,
+  isReceiving?: boolean,
+): Promise<Connection> {
   console.log('getting wallet connection');
 
   const providerOptions = {
@@ -50,7 +53,7 @@ export async function openWalletModal(theme: any, isReceiving?: boolean): Promis
     },
   });
 
-  let walletConnection
+  let walletConnection;
   try {
     walletConnection = await web3Modal.connect();
   } catch (err: unknown) {
@@ -62,17 +65,17 @@ export async function openWalletModal(theme: any, isReceiving?: boolean): Promis
   const provider = new providers.Web3Provider(walletConnection, 'any');
   const signer = provider.getSigner();
   const address = await signer.getAddress();
-  
+
   console.log('address', address);
   console.log('connection', walletConnection);
   console.log('signer', signer);
 
   if (!isReceiving) {
     connection = walletConnection;
-    console.log(connection)
+    console.log(connection);
     registerSigner(signer);
   }
-  return { connection: walletConnection, address, signer }
+  return { connection: walletConnection, address, signer };
 
   // // listen to events
   // connection.on('accountsChanged', async () => {
@@ -150,7 +153,10 @@ export const walletSlice = createSlice({
       console.log('connect sending wallet');
       state.sending.address = payload;
     },
-    connectReceivingWallet: (state: WalletState, { payload }: { payload: string }) => {
+    connectReceivingWallet: (
+      state: WalletState,
+      { payload }: { payload: string },
+    ) => {
       console.log('connect receiving wallet');
       state.receiving.address = payload;
     },

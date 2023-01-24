@@ -7,7 +7,13 @@ import { ChainName } from '../../sdk/types';
 import { RootState } from '../../store';
 import { useSelector } from 'react-redux';
 
-const getSteps = (fromNetwork: ChainName, toNetwork: ChainName, fromAddr: string, toAddr: string, amount: string) => [
+const getSteps = (
+  fromNetwork: ChainName,
+  toNetwork: ChainName,
+  fromAddr: string,
+  toAddr: string,
+  amount: string,
+) => [
   {
     label: 'Send from',
     component: (
@@ -42,9 +48,19 @@ const getSteps = (fromNetwork: ChainName, toNetwork: ChainName, fromAddr: string
 
 export default function MilestoneStepper() {
   const [activeStep] = React.useState(1);
-  const { fromNetwork, toNetwork, amount } = useSelector((state: RootState) => state.transfer);
-  const { sending, receiving } = useSelector((state: RootState) => state.wallet);
-  const steps = getSteps(fromNetwork, toNetwork, sending.address, receiving.address, `${amount}`);
+  const { fromNetwork, toNetwork, amount } = useSelector(
+    (state: RootState) => state.transfer,
+  );
+  const { sending, receiving } = useSelector(
+    (state: RootState) => state.wallet,
+  );
+  const steps = getSteps(
+    fromNetwork,
+    toNetwork,
+    sending.address,
+    receiving.address,
+    `${amount}`,
+  );
 
   return <Stepper steps={steps} activeStep={activeStep} />;
 }
