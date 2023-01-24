@@ -6,6 +6,7 @@ import { ChainName } from '../../sdk/types';
 import WalletIcon from '../../icons/components/Wallet';
 import { LINK } from '../../utils/style';
 import LaunchIcon from '@mui/icons-material/Launch';
+import { displayEvmAddress } from '../../utils';
 
 const useStyles = makeStyles()((theme) => ({
   header: {
@@ -33,11 +34,11 @@ const useStyles = makeStyles()((theme) => ({
 
 type Props = {
   network: ChainName;
-  senderAddress: string;
+  address: string;
   txHash?: string;
 };
 
-function NetworksTag(props: Props) {
+function Header(props: Props) {
   const { classes } = useStyles();
   const networkConfig = CHAINS[props.network]!;
   return (
@@ -48,7 +49,7 @@ function NetworksTag(props: Props) {
           src={networkConfig.icon}
           alt={networkConfig.displayName}
         />
-        <div>{props.senderAddress}</div>
+        <div>{displayEvmAddress(props.address)}</div>
         <WalletIcon />
       </div>
       {props.txHash ? (
@@ -68,4 +69,4 @@ function NetworksTag(props: Props) {
   );
 }
 
-export default NetworksTag;
+export default Header;

@@ -1,11 +1,26 @@
 import React from 'react';
+import { styled } from '@mui/material/styles';
 import { makeStyles } from 'tss-react/mui';
-import { LinearProgress } from '@mui/material';
-import { COL_CENTER } from '../../utils/style';
+import { LinearProgress, linearProgressClasses } from '@mui/material';
+
+const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
+  // height: 10,
+  borderRadius: 5,
+  [`&.${linearProgressClasses.colorPrimary}`]: {
+    backgroundColor: theme.palette.card.secondary,
+  },
+  [`& .${linearProgressClasses.bar}`]: {
+    borderRadius: 5,
+    backgroundColor: theme.palette.success[300],
+  },
+}));
 
 const useStyles = makeStyles()((theme) => ({
   confirmations: {
-    ...COL_CENTER,
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    gap: '8px',
     marginTop: '16px',
   },
   confirmationsText: {
@@ -21,10 +36,11 @@ type Props = {
 function Confirmations(props: Props) {
   const { classes } = useStyles();
   const { confirmations, total } = props;
-  const percentage = Math.floor(confirmations / total);
+  const div = confirmations / total
+  const percentage = Math.floor((confirmations / total) * 100);
   return (
     <div className={classes.confirmations}>
-      <LinearProgress variant="determinate" value={percentage} />
+      <BorderLinearProgress variant="determinate" value={percentage} color="secondary" />
       <div className={classes.confirmationsText}>
         {confirmations} / {total} Confirmations
       </div>

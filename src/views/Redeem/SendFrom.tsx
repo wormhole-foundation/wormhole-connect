@@ -21,8 +21,8 @@ const rows = [
 ];
 
 type Props = {
-  fromNetwork: ChainName;
-  senderAddress: string;
+  network: ChainName;
+  address: string;
   amount: string;
   relayerFee: string;
   nativeGas: string;
@@ -34,8 +34,8 @@ function SendFrom(props: Props) {
     <div>
       <InputContainer>
         <Header
-          network={props.fromNetwork}
-          senderAddress={props.senderAddress}
+          network={props.network}
+          address={props.address}
         />
         <RenderRows rows={rows} />
       </InputContainer>

@@ -4,6 +4,8 @@ import PopupState, { bindTrigger, bindPopover } from 'material-ui-popup-state';
 import { ICON } from '../utils/style';
 import { makeStyles } from 'tss-react/mui';
 import MenuIcon from '../icons/components/Menu';
+import { Route, setRoute } from '../store/router';
+import { useDispatch } from 'react-redux';
 
 const useStyles = makeStyles()((theme) => ({
   menuIcon: {
@@ -32,6 +34,11 @@ const useStyles = makeStyles()((theme) => ({
 
 export default function Menu() {
   const { classes } = useStyles();
+  const dispatch = useDispatch();
+
+  const navigate = (name: Route) => {
+    dispatch(setRoute(name));
+  }
 
   return (
     <PopupState variant="popover" popupId="demo-popup-popover">
@@ -53,9 +60,9 @@ export default function Menu() {
             }}
           >
             <div className={classes.menu}>
-              <div className={classes.menuItem}>Bridge</div>
-              <div className={classes.menuItem}>Redeem</div>
-              <div className={classes.menuItem}>Terms of Use</div>
+              <div className={classes.menuItem} onClick={() => navigate('bridge')}>Bridge</div>
+              <div className={classes.menuItem} onClick={() => navigate('redeem')}>Redeem</div>
+              <div className={classes.menuItem} onClick={() => navigate('terms')}>Terms of Use</div>
             </div>
           </Popover>
         </div>

@@ -7,6 +7,8 @@ import { Theme } from '@mui/material';
 import LaunchIcon from '@mui/icons-material/Launch';
 import Stepper from './Stepper';
 import { LINK } from '../../utils/style';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store';
 
 const useStyles = makeStyles((theme: Theme) => ({
   milestoneContent: {
@@ -26,12 +28,15 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 function Redeem() {
   const classes = useStyles();
+  // TODO: parse from VAA
+  const fromNetwork = useSelector((state: RootState) => state.transfer.fromNetwork);
+  const toNetwork = useSelector((state: RootState) => state.transfer.toNetwork);
 
   return (
     <div className={classes.milestoneContent}>
       <Header text="Bridge" align="center" />
       <Spacer height={40} />
-      <NetworksTag fromNetwork="polygon" toNetwork="fantom" />
+      <NetworksTag fromNetwork={fromNetwork} toNetwork={toNetwork} />
       <a
         className={classes.link}
         href="https://wormhole.com/"
