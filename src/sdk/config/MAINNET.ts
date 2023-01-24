@@ -82,6 +82,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     explorerUrl: 'https://explorer.solana.com/',
     explorerName: 'Solana Explorer',
     gasToken: 'SOL', // TODO:
+    chainId: 0,
   },
   ethereum: {
     key: 'ethereum',
@@ -93,6 +94,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     explorerUrl: 'https://etherscan.io/',
     explorerName: 'Etherscan',
     gasToken: 'ETH',
+    chainId: 1,
   },
   terra: {
     key: 'terra',
@@ -104,6 +106,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     explorerUrl: 'https://atomscan.com/terra',
     explorerName: 'ATOMScan',
     gasToken: 'ATOM',
+    chainId: 0,
   },
   bsc: {
     key: 'bsc',
@@ -115,6 +118,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     explorerUrl: 'https://bscscan.com/',
     explorerName: 'BscScan',
     gasToken: 'BNB',
+    chainId: 56,
   },
   polygon: {
     key: 'polygon',
@@ -126,6 +130,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     explorerUrl: 'https://polygonscan.com/',
     explorerName: 'PolygonScan',
     gasToken: 'MATIC',
+    chainId: 137,
   },
   avalanche: {
     key: 'avalanche',
@@ -137,6 +142,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     explorerUrl: 'https://snowtrace.io/',
     explorerName: 'Snowtrace',
     gasToken: 'WAVAX',
+    chainId: 43114,
   },
   oasis: {
     key: 'oasis',
@@ -148,6 +154,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     explorerUrl: 'https://www.oasisscan.com/',
     explorerName: 'Oasis Scan',
     gasToken: 'ROSE',
+    chainId: 26863,
   },
   algorand: {
     key: 'algorand',
@@ -159,6 +166,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     explorerUrl: 'https://algoexplorer.io/',
     explorerName: 'AlgoExplorer',
     gasToken: 'ALGO',
+    chainId: 0,
   },
   aurora: {
     key: 'aurora',
@@ -170,6 +178,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     explorerUrl: 'https://explorer.mainnet.aurora.dev/',
     explorerName: 'Aurora Explorer',
     gasToken: 'NEAR',
+    chainId: 1313161554,
   },
   fantom: {
     key: 'fantom',
@@ -181,6 +190,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     explorerUrl: 'https://ftmscan.com/',
     explorerName: 'FTMscan',
     gasToken: 'FTM',
+    chainId: 250,
   },
   karura: {
     key: 'karura',
@@ -192,6 +202,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     explorerUrl: 'https://karura.subscan.io/',
     explorerName: 'Karura Explorer',
     gasToken: 'KAR',
+    chainId: 686,
   },
   acala: {
     key: 'acala',
@@ -203,6 +214,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     explorerUrl: 'https://acala.subscan.io/',
     explorerName: 'Acala Explorer',
     gasToken: 'ACA',
+    chainId: 787,
   },
   klaytn: {
     key: 'klaytn',
@@ -214,6 +226,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     explorerUrl: 'https://scope.klaytn.com/',
     explorerName: 'KlaytnScope',
     gasToken: 'KLAY',
+    chainId: 8217,
   },
   celo: {
     key: 'celo',
@@ -225,6 +238,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     explorerUrl: 'https://explorer.celo.org/mainnet/',
     explorerName: 'Celo Explorer',
     gasToken: 'CELO',
+    chainId: 42220,
   },
   near: {
     key: 'near',
@@ -236,6 +250,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     explorerUrl: 'https://explorer.near.org/',
     explorerName: 'Near Explorer',
     gasToken: 'NEAR',
+    chainId: 0,
   },
   injective: {
     key: 'injective',
@@ -247,6 +262,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     explorerUrl: 'https://explorer.injective.network/',
     explorerName: 'Injective Explorer',
     gasToken: 'INJ',
+    chainId: 0,
   },
   osmosis: {
     key: 'osmosis',
@@ -258,6 +274,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     explorerUrl: 'https://www.mintscan.io/osmosis',
     explorerName: 'MintScan',
     gasToken: 'OSMO',
+    chainId: 0,
   },
   aptos: {
     key: 'aptos',
@@ -269,6 +286,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     explorerUrl: 'https://explorer.aptoslabs.com/',
     explorerName: 'Aptos Explorer',
     gasToken: 'APT',
+    chainId: 0,
   },
   sui: {
     key: 'sui',
@@ -280,6 +298,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     explorerUrl: 'https://explorer.sui.io/',
     explorerName: 'SUI Explorer',
     gasToken: 'SUI',
+    chainId: 0,
   },
   moonbeam: {
     key: 'moonbeam',
@@ -291,6 +310,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     explorerUrl: 'https://moonscan.io/',
     explorerName: 'Moonscan',
     gasToken: 'GLMR',
+    chainId: 1284,
   },
   neon: {
     key: 'neon',
@@ -302,6 +322,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     explorerUrl: 'https://neonscan.org/',
     explorerName: 'NeonScan',
     gasToken: 'NEON',
+    chainId: 245022934,
   },
   terra2: {
     key: 'terra2',
@@ -313,6 +334,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     explorerUrl: 'https://atomscan.com/terra2',
     explorerName: 'ATOMScan',
     gasToken: 'ATOM',
+    chainId: 0,
   },
   arbitrum: {
     key: 'arbitrum',
@@ -324,6 +346,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     explorerUrl: 'https://arbiscan.io/',
     explorerName: 'ArbiScan',
     gasToken: 'ETH',
+    chainId: 42161,
   },
   optimism: {
     key: 'optimism',
@@ -335,6 +358,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     explorerUrl: 'https://optimistic.etherscan.io/',
     explorerName: 'Optimism Eplorer',
     gasToken: 'ETH',
+    chainId: 10,
   },
   gnosis: {
     key: 'gnosis',
@@ -346,6 +370,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     explorerUrl: 'https://gnosisscan.io/',
     explorerName: 'GnosisScan',
     gasToken: 'xDAI',
+    chainId: 100,
   },
   pythnet: {
     key: 'pythnet',
@@ -357,6 +382,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     explorerUrl: '',
     explorerName: '',
     gasToken: '',
+    chainId: 0,
   },
   xpla: {
     key: 'xpla',
@@ -368,6 +394,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     explorerUrl: 'https://explorer.xpla.io/',
     explorerName: 'XPLA Explorer',
     gasToken: 'XPLA',
+    chainId: 0,
   },
   btc: {
     key: 'btc',
@@ -379,6 +406,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     explorerUrl: 'https://blockchair.com/bitcoin',
     explorerName: 'Blockchair',
     gasToken: 'BTC',
+    chainId: 0,
   },
   wormchain: {
     key: 'wormchain',
@@ -390,6 +418,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     explorerUrl: '',
     explorerName: '',
     gasToken: '',
+    chainId: 0,
   },
 };
 

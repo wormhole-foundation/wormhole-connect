@@ -32,6 +32,7 @@ export type ChainConfig = {
   explorerUrl: string;
   explorerName: string;
   gasToken: string;
+  chainId: number;
 };
 
 export type WormholeConfig = {

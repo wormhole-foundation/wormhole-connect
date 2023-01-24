@@ -1,14 +1,18 @@
 import { createSlice } from '@reduxjs/toolkit';
 import TESTNET_CONFIG from 'sdk/config/TESTNET';
-import Web3 from 'web3';
 import Web3Modal from 'web3modal';
 import { providers } from 'ethers';
 import WalletConnectProvider from '@walletconnect/web3-provider';
 import { registerSigner } from 'utils/sdk';
 const { REACT_APP_ENV, REACT_APP_INFURA_KEY } = process.env;
 
-let connection: any; // instance of web3Modal connection
-let web3: any; // instance of ethers web3Provider
+let connection: any;
+
+export type Connection = {
+  connection: any;
+  address: string;
+  signer: providers.JsonRpcSigner
+}
 
 const mainnetRpcs = {}; // TODO:
 const testnetRpcs = {
@@ -18,8 +22,8 @@ const testnetRpcs = {
   4002: TESTNET_CONFIG.rpcs.fantom,
 };
 
-export async function openWalletModal(theme: any) {
-  console.log('connecting wallet');
+export async function openWalletModal(theme: any, isReceiving?: boolean): Promise<Connection> {
+  console.log('getting wallet connection');
 
   const providerOptions = {
     walletconnect: {
@@ -46,32 +50,36 @@ export async function openWalletModal(theme: any) {
     },
   });
 
+  let walletConnection
   try {
-    connection = await web3Modal.connect();
+    walletConnection = await web3Modal.connect();
   } catch (err: unknown) {
-    // NOTE: just swallow this error, don't need to
-    // alert sentry if the modal was closed by the user
-    if ((err as any).message === 'Modal closed by user') {
-      return;
+    if ((err as any).message !== 'Modal closed by user') {
+      throw err;
     }
-    throw err;
   }
-  web3 = new Web3(connection);
-  const provider = new providers.Web3Provider(connection, 'any');
+  if (!walletConnection) throw new Error('failed to establish connection');
+  const provider = new providers.Web3Provider(walletConnection, 'any');
   const signer = provider.getSigner();
-
-  console.log('connection', connection);
+  const address = await signer.getAddress();
+  
+  console.log('address', address);
+  console.log('connection', walletConnection);
   console.log('signer', signer);
-  console.log('web3', web3);
-  registerSigner(signer);
 
-  // listen to events
+  if (!isReceiving) {
+    connection = walletConnection;
+    console.log(connection)
+    registerSigner(signer);
+  }
+  return { connection: walletConnection, address, signer }
+
+  // // listen to events
   // connection.on('accountsChanged', async () => {
   //   if (connection.isMetaMask) {
-  //     location.reload()
+  //     window.location.reload();
   //     return
   //   }
-  //   await dispatch('checkAllowed')
   // })
   // connection.on('chainChanged', async (chainId: number) => {
   //   console.log('network change', chainId)
@@ -114,12 +122,10 @@ export enum WalletType {
 
 export interface WalletState {
   sending: {
-    connected: boolean;
     type: WalletType;
     address: string;
   };
   receiving: {
-    connected: boolean;
     type: WalletType;
     address: string;
   };
@@ -127,12 +133,10 @@ export interface WalletState {
 
 const initialState: WalletState = {
   sending: {
-    connected: false,
     type: WalletType.NONE,
     address: '',
   },
   receiving: {
-    connected: false,
     type: WalletType.NONE,
     address: '',
   },
@@ -142,16 +146,13 @@ export const walletSlice = createSlice({
   name: 'wallet',
   initialState,
   reducers: {
-    connectWallet: (state: WalletState) => {
+    connectWallet: (state: WalletState, { payload }: { payload: string }) => {
       console.log('connect sending wallet');
-      // TODO: open wallet modal
-      state.sending.connected = true;
-      state.sending.address = '0x1234...5678';
+      state.sending.address = payload;
     },
-    connectReceivingWallet: (state: WalletState) => {
+    connectReceivingWallet: (state: WalletState, { payload }: { payload: string }) => {
       console.log('connect receiving wallet');
-      state.receiving.connected = true;
-      state.receiving.address = '0x8765...4321';
+      state.receiving.address = payload;
     },
   },
 });

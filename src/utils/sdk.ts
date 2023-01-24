@@ -13,7 +13,7 @@ export const TOKENS_ARR = Object.values(TOKENS) as TokenConfig[];
 const context = new WormholeContext(env);
 
 export const registerSigner = (signer: any) => {
-  console.log('registering signer', context);
+  console.log('registering signer', signer);
   context.registerSigner('goerli', signer);
 };
 

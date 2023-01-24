@@ -37,6 +37,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     explorerUrl: 'https://goerli.etherscan.io/',
     explorerName: 'Etherscan',
     gasToken: 'ETH',
+    chainId: 5,
   },
   bsc: {
     key: 'bsc',
@@ -52,6 +53,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     explorerUrl: 'https://testnet.bscscan.com/',
     explorerName: 'BscScan',
     gasToken: 'BNB',
+    chainId: 97,
   },
   fuji: {
     key: 'fuji',
@@ -67,6 +69,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     explorerUrl: 'https://testnet.snowtrace.io/',
     explorerName: 'Snowtrace',
     gasToken: 'AVAX',
+    chainId: 43113,
   },
   fantom: {
     key: 'fantom',
@@ -82,6 +85,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     explorerUrl: 'https://testnet.ftmscan.com/',
     explorerName: 'FtmScan',
     gasToken: 'FTM',
+    chainId: 4002,
   },
 };
 
