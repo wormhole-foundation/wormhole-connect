@@ -59,7 +59,7 @@ const { GrpcWebImpl, PublicRPCServiceClientImpl } = publicrpc;
  * )
  */
 export class WormholeContext extends MultiProvider<Domain> {
-  protected _contracts: Map<ChainName, WHContracts>;
+  protected _contracts: Map<ChainName, WHContracts<this>>;
   readonly conf: WormholeConfig;
 
   constructor(env: Environment, conf?: WormholeConfig) {
@@ -90,8 +90,7 @@ export class WormholeContext extends MultiProvider<Domain> {
         this.registerRpcProvider(network, this.conf.rpcs[n]!);
       }
       // set contracts
-      // @ts-ignore
-      const contracts = new WHContracts(env, n, this.conf.chains[n].contracts);
+      const contracts = new WHContracts(env, this, n);
       this._contracts.set(n, contracts);
     }
   }
@@ -150,7 +149,7 @@ export class WormholeContext extends MultiProvider<Domain> {
    * @param nameOrDomain A domain name or number.
    * @returns a {@link CoreContracts} object (or undefined)
    */
-  getContracts(chain: ChainName | ChainId): WHContracts | undefined {
+  getContracts(chain: ChainName | ChainId): WHContracts<this> | undefined {
     const domain = this.resolveDomainName(chain) as ChainName;
     return this._contracts.get(domain);
   }
@@ -162,7 +161,7 @@ export class WormholeContext extends MultiProvider<Domain> {
    * @returns a {@link CoreContracts} object
    * @throws if no {@link CoreContracts} object exists on that domain.
    */
-  mustGetContracts(chain: ChainName | ChainId): WHContracts {
+  mustGetContracts(chain: ChainName | ChainId): WHContracts<this> {
     const contracts = this.getContracts(chain);
     if (!contracts) {
       throw new Error(`Missing contracts for domain: ${chain}`);

@@ -72,11 +72,12 @@ export class EthContext<T extends WormholeContext> extends Context {
       // sending native ETH
       const v = await bridge.wrapAndTransferETH(
         recipientChainId,
-        recipientAddress,
+        '0x' + this.getEmitterAddress(recipientAddress),
         relayerFee,
         createNonce(),
         {
-          ...(overrides || {}),
+          // ...(overrides || {}),
+          gasLimit: 250000,
           value: amountBN,
         },
       );
@@ -87,10 +88,11 @@ export class EthContext<T extends WormholeContext> extends Context {
         token.address,
         amountBN,
         recipientChainId,
-        recipientAddress,
+        '0x' + this.getEmitterAddress(recipientAddress),
         relayerFee,
         createNonce(),
-        overrides,
+        // overrides,
+        { gasLimit: 250000 },
       );
       return await v.wait();
     }

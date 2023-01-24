@@ -1,6 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { ethers } from 'ethers';
-import { WormholeContext, ChainName, ChainConfig, TokenConfig } from 'sdk';
+import { ChainName, ChainConfig, TokenConfig } from 'sdk';
 import MAINNET_CONFIG, { MAINNET_TOKENS } from 'sdk/config/MAINNET';
 import TESTNET_CONFIG, { TESTNET_TOKENS } from 'sdk/config/TESTNET';
 
@@ -10,8 +9,6 @@ export const CHAINS = CONFIG.chains;
 export const CHAINS_ARR = Object.values(CHAINS) as ChainConfig[];
 export const TOKENS = env === 'TESTNET' ? TESTNET_TOKENS : MAINNET_TOKENS;
 export const TOKENS_ARR = Object.values(TOKENS) as TokenConfig[];
-
-const context = new WormholeContext(env);
 
 export enum PaymentOption {
   MANUAL = 1,
@@ -67,19 +64,6 @@ export const transferSlice = createSlice({
       console.log('set destination gas payment option:', payload);
       state.destGasPayment = payload;
     },
-    sendTransfer: (state: TransferState) => {
-      console.log('preparing send');
-      console.log('context:', context);
-      const parsed = ethers.utils.parseUnits("0.1", 18)
-      context.send(
-        "native",
-        parsed.toString(),
-        "goerli",
-        "0x7D414a4223A5145d60Ce4c587d23f2b1a4Db50e4",
-        "fuji",
-        "0x7D414a4223A5145d60Ce4c587d23f2b1a4Db50e4",
-      )
-    },
   },
 });
 
@@ -89,7 +73,6 @@ export const {
   setToNetwork,
   setDestGasPayment,
   setAmount,
-  sendTransfer,
 } = transferSlice.actions;
 
 export default transferSlice.reducer;

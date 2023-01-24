@@ -4,10 +4,11 @@ import Web3 from 'web3';
 import Web3Modal from 'web3modal';
 import { providers } from 'ethers';
 import WalletConnectProvider from '@walletconnect/web3-provider';
+import { registerSigner } from 'utils/sdk';
 const { REACT_APP_ENV, REACT_APP_INFURA_KEY } = process.env;
 
-let connection: any // instance of web3Modal connection
-let web3: any // instance of ethers web3Provider
+let connection: any; // instance of web3Modal connection
+let web3: any; // instance of ethers web3Provider
 
 const mainnetRpcs = {}; // TODO:
 const testnetRpcs = {
@@ -18,7 +19,7 @@ const testnetRpcs = {
 };
 
 export async function openWalletModal(theme: any) {
-  console.log('connecting wallet')
+  console.log('connecting wallet');
 
   const providerOptions = {
     walletconnect: {
@@ -31,7 +32,7 @@ export async function openWalletModal(theme: any) {
       //   description: 'Supported: LedgerLive',
       // },
     },
-  }
+  };
 
   const web3Modal = new Web3Modal({
     providerOptions, // required
@@ -43,25 +44,26 @@ export async function openWalletModal(theme: any) {
       border: 'none',
       hover: theme.palette.options.hover,
     },
-  })
+  });
 
   try {
-    connection = await web3Modal.connect()
+    connection = await web3Modal.connect();
   } catch (err: unknown) {
     // NOTE: just swallow this error, don't need to
     // alert sentry if the modal was closed by the user
     if ((err as any).message === 'Modal closed by user') {
-      return
+      return;
     }
-    throw err
+    throw err;
   }
-  web3 = new Web3(connection)
-  const provider = new providers.Web3Provider(connection, 'any')
-  const signer = provider.getSigner()
+  web3 = new Web3(connection);
+  const provider = new providers.Web3Provider(connection, 'any');
+  const signer = provider.getSigner();
 
-  console.log('connection', connection)
-  console.log('signer', signer)
-  console.log('web3', web3)
+  console.log('connection', connection);
+  console.log('signer', signer);
+  console.log('web3', web3);
+  registerSigner(signer);
 
   // listen to events
   // connection.on('accountsChanged', async () => {
@@ -108,7 +110,7 @@ export enum WalletType {
   NONE = 0,
   METAMASK,
   TRUST_WALLET,
-};
+}
 
 export interface WalletState {
   sending: {
@@ -121,7 +123,7 @@ export interface WalletState {
     type: WalletType;
     address: string;
   };
-};
+}
 
 const initialState: WalletState = {
   sending: {

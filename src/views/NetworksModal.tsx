@@ -1,19 +1,18 @@
-import { makeStyles } from '@mui/styles';
-import { useTheme } from '@mui/material/styles';
 import React from 'react';
+import { useTheme } from '@mui/material/styles';
+import { makeStyles } from 'tss-react/mui';
 import Header from '../components/Header';
 import Modal from '../components/Modal';
 import Spacer from '../components/Spacer';
 import Search from '../components/Search';
 import Scroll from '../components/Scroll';
-import { Theme } from '@mui/material';
 
 import { CHAINS_ARR } from '../store/transfer';
 import { ChainName } from '../sdk/types';
 import { useDispatch } from 'react-redux';
 import { setFromNetworksModal, setToNetworksModal } from '../store/router';
 
-const useStyles = makeStyles((theme: Theme) => ({
+const useStyles = makeStyles()((theme) => ({
   networksContainer: {
     display: 'flex',
     flexDirection: 'row',
@@ -51,7 +50,7 @@ type Props = {
 };
 
 function NetworksModal(props: Props) {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const theme = useTheme();
   const dispatch = useDispatch();
   // listen for close event
@@ -70,7 +69,11 @@ function NetworksModal(props: Props) {
   };
 
   return (
-    <Modal open={props.open} closable width="md">
+    <Modal
+      open={props.open}
+      closable
+      width={CHAINS_ARR.length > 6 ? 'md' : 'sm'}
+    >
       <Header text={props.title} />
       <div>Select Network</div>
       <Spacer height={16} />

@@ -9,25 +9,27 @@ import {
   Bridge,
   NFTBridge,
 } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
-import { MultiProvider, Domain } from '@nomad-xyz/multi-provider';
+import { WormholeContext } from './wormhole';
 import { NoProviderError } from './errors';
 import { ChainName, ChainId } from './types';
 
-export class WHContracts extends MultiProvider<Domain> {
+export class WHContracts<T extends WormholeContext> {
   protected env: Environment;
   protected chain: ChainName | ChainId;
   protected conf: Contracts;
+  readonly context: T;
 
-  constructor(env: Environment, chain: ChainName | ChainId, conf: Contracts) {
-    super();
+  constructor(env: Environment, context: T, chain: ChainName | ChainId) {
     this.env = env;
     this.chain = chain;
-    this.conf = conf;
+    this.context = context;
+    const n = this.context.resolveDomainName(chain) as ChainName;
+    this.conf = context.conf.chains[n]!.contracts;
   }
 
   get connection(): ethers.Signer | ethers.providers.Provider {
-    const chain = this.resolveDomainName(this.chain);
-    const connection = this.mustGetConnection(chain);
+    const chain = this.context.resolveDomainName(this.chain);
+    const connection = this.context.mustGetConnection(chain);
     return connection;
   }
 
