@@ -28,7 +28,7 @@ const initialState: TransferState = {
   token: '',
   amount: undefined,
   // TODO: check if automatic is available once networks and token are selected
-  destGasPayment: PaymentOption.MANUAL,
+  destGasPayment: PaymentOption.AUTOMATIC,
 };
 
 export const transferSlice = createSlice({

@@ -5,18 +5,32 @@ import { RootState } from '../../store';
 import { PaymentOption } from '../../store/transfer';
 import { RenderRows, RowsData } from '../../components/RenderRows';
 import InputContainer from '../../components/InputContainer';
+import { joinClass, OPACITY } from '../../utils/style';
+import { Collapse } from '@mui/material';
+import BridgeCollapse from './Collapse';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
     width: '100%',
+    borderRadius: '8px',
+    boxShadow: theme.palette.card.elevation,
   },
   header: {
     width: '100%',
     display: 'flex',
     alignItems: 'center',
-    padding: '0 16px 8px 16px',
-    fontSize: '14px',
+    padding: '16px',
+    backgroundColor: theme.palette.card.background + OPACITY[80],
+    borderRadius: '8px',
     fontWeight: 'bold',
+  },
+  open: {
+    borderBottomLeftRadius: '0 !important',
+    borderBottomRightRadius: '0 !important',
+  },
+  disabled: {
+    opacity: '70%',
+    cursor: 'not-allowed !important',
   },
 }));
 
@@ -62,7 +76,7 @@ const manualRows: RowsData = [
   },
 ];
 
-function TransferSummary() {
+function Preview(props: { collapsed: boolean }) {
   const { classes } = useStyles();
   const selectedOption = useSelector(
     (state: RootState) => state.transfer.destGasPayment,
@@ -71,13 +85,17 @@ function TransferSummary() {
     selectedOption === PaymentOption.AUTOMATIC ? automaticRows : manualRows;
 
   return (
-    <div className={classes.container}>
-      <div className={classes.header}>Transfer summary</div>
-      <InputContainer border>
+    <BridgeCollapse
+      text="Preview"
+      disabled={props.collapsed}
+      controlled
+      value={props.collapsed}
+    >
+      <InputContainer border styles={{ boxShadow: 'none' }}>
         <RenderRows rows={rows} />
       </InputContainer>
-    </div>
+    </BridgeCollapse>
   );
 }
 
-export default TransferSummary;
+export default Preview;

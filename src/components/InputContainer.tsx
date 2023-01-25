@@ -13,7 +13,7 @@ const useStyles = makeStyles<StyleProps>()((theme, { bg }) => ({
   },
   border: {
     borderRadius: '0px !important',
-    border: `0.5px solid ${theme.palette.divider}`,
+    border: `1px solid ${theme.palette.divider}`,
   },
 }));
 

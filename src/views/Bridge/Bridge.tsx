@@ -4,12 +4,14 @@ import Spacer from '../../components/Spacer';
 import Networks from './Networks';
 import GasOptions from './GasOptions';
 import GasSlider from './NativeGasSlider';
-import TransferSummary from './TransferSummary';
+import Preview from './Preview';
 import Send from './Send';
 import { makeStyles } from 'tss-react/mui';
 import Menu from '../../components/Menu';
 import { RootState } from '../../store';
 import { useSelector } from 'react-redux';
+import { PaymentOption } from '../../store/transfer';
+import { Collapse } from '@mui/material';
 
 const useStyles = makeStyles()((theme) => ({
   bridgeContent: {
@@ -31,7 +33,7 @@ const useStyles = makeStyles()((theme) => ({
 
 function Bridge() {
   const { classes } = useStyles();
-  const { fromNetwork, toNetwork, amount, token } = useSelector(
+  const { fromNetwork, toNetwork, amount, token, destGasPayment } = useSelector(
     (state: RootState) => state.transfer,
   );
   const { sending, receiving } = useSelector(
@@ -59,10 +61,12 @@ function Bridge() {
       <GasOptions disabled={!valid} />
       <Spacer />
 
-      <GasSlider disabled={!valid} />
-      <Spacer />
+      <Collapse in={destGasPayment === PaymentOption.AUTOMATIC}>
+        <GasSlider disabled={!valid} />
+        <Spacer />
+      </Collapse>
 
-      {valid && <TransferSummary />}
+      <Preview collapsed={!valid} />
       <Spacer />
 
       <Send valid={valid} />

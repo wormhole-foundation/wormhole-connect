@@ -19,20 +19,7 @@ const useStyles = makeStyles()((theme) => ({
     cursor: 'pointer',
     backgroundColor: theme.palette.card.background + OPACITY[80],
     borderRadius: '8px',
-  },
-  banner: {
-    borderBottomRightRadius: '8px',
-    borderBottomLeftRadius: '8px',
-    backgroundColor: theme.palette.info[200],
-    padding: '8px 16px',
-  },
-  open: {
-    borderBottomLeftRadius: '0 !important',
-    borderBottomRightRadius: '0 !important',
-  },
-  disabled: {
-    opacity: '70%',
-    cursor: 'not-allowed !important',
+    transition: 'border-radius 0.4s',
   },
   title: {
     fontSize: '14px',
@@ -46,6 +33,24 @@ const useStyles = makeStyles()((theme) => ({
     height: '32px',
     transition: 'transform 0.4s',
   },
+  controlled: {
+    cursor: 'default !important',
+  },
+  banner: {
+    borderBottomRightRadius: '8px',
+    borderBottomLeftRadius: '8px',
+    backgroundColor: theme.palette.info[200],
+    padding: '8px 16px',
+    transition: 'border-radius 0.4s',
+  },
+  open: {
+    borderBottomLeftRadius: '0 !important',
+    borderBottomRightRadius: '0 !important',
+  },
+  disabled: {
+    opacity: '70%',
+    cursor: 'not-allowed !important',
+  },
 }));
 
 type Props = {
@@ -54,6 +59,8 @@ type Props = {
   close?: boolean;
   disabled?: boolean;
   banner?: boolean;
+  controlled?: boolean; // control the open/closed state
+  value?: boolean; // open/closed value
 };
 
 function BridgeCollapse(props: Props) {
@@ -61,29 +68,36 @@ function BridgeCollapse(props: Props) {
   const [collapsed, setCollapsed] = React.useState(props.close || false);
   const toggleCollapsed = () =>
     !props.disabled && setCollapsed((prev) => !prev);
+  const collapsedState = props.controlled ? props.value : collapsed;
   return (
     <div className={classes.container}>
       <div
         className={joinClass([
           classes.header,
-          (!!props.banner || !collapsed) && classes.open,
+          (!!props.banner || !collapsedState) && classes.open,
           !!props.disabled && classes.disabled,
+          !!props.controlled && classes.controlled,
         ])}
         onClick={toggleCollapsed}
       >
         <div className={classes.title}>{props.text}</div>
-        <Down
-          className={joinClass([classes.arrow, !collapsed && classes.invert])}
-        />
+        {!props.controlled && (
+          <Down
+            className={joinClass([classes.arrow, !collapsed && classes.invert])}
+          />
+        )}
       </div>
       {props.banner && (
         <div
-          className={joinClass([classes.banner, !collapsed && classes.open])}
+          className={joinClass([
+            classes.banner,
+            !collapsedState && classes.open,
+          ])}
         >
           This feature provided by xLabs
         </div>
       )}
-      <Collapse in={!collapsed}>{props.children}</Collapse>
+      <Collapse in={!collapsedState}>{props.children}</Collapse>
     </div>
   );
 }
