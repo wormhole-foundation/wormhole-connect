@@ -3,7 +3,7 @@ import {
   TokenImplementation__factory,
 } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
 import { createNonce } from '@certusone/wormhole-sdk';
-import { BigNumberish, constants, ethers, PayableOverrides } from 'ethers';
+import { BigNumber, BigNumberish, constants, ethers, PayableOverrides } from 'ethers';
 import { arrayify, zeroPad } from 'ethers/lib/utils';
 import { WormholeContext } from '../wormhole';
 import { Context } from './contextAbstract';
@@ -76,7 +76,7 @@ export class EthContext<T extends WormholeContext> extends Context {
         relayerFee,
         createNonce(),
         {
-          // ...(overrides || {}),
+          // ...(overrides || {}), // TODO: fix overrides/gas limit here
           gasLimit: 250000,
           value: amountBN,
         },
@@ -84,6 +84,8 @@ export class EthContext<T extends WormholeContext> extends Context {
       return await v.wait();
     } else {
       // sending ERC-20
+      //approve and send
+      await this.approve(token, amountBN);
       const v = await bridge.transferTokens(
         token.address,
         amountBN,
@@ -97,6 +99,7 @@ export class EthContext<T extends WormholeContext> extends Context {
       return await v.wait();
     }
   }
+
   async sendWithPayload(
     token: TokenId | typeof NATIVE,
     amount: string,
@@ -139,6 +142,48 @@ export class EthContext<T extends WormholeContext> extends Context {
         overrides,
       );
       return await v.wait();
+    }
+  }
+
+  async sendWithRelay(
+    token: TokenId | typeof NATIVE,
+    amount: string,
+    sendingChain: ChainName | ChainId,
+    senderAddress: string,
+    recipientChain: ChainName | ChainId,
+    recipientAddress: string,
+    overrides?: PayableOverrides & { from?: string | Promise<string> },
+  ): Promise<ethers.ContractReceipt> {
+    const isAddress = ethers.utils.isAddress(recipientAddress);
+    if (!isAddress)
+      throw new Error(`invalid recipient address: ${recipientAddress}`);
+    const recipientChainId = this.context.resolveDomain(recipientChain);
+    const relayer = this.context.mustGetTBRelayer(sendingChain);
+    const amountBN = ethers.BigNumber.from(amount);
+    const unwrapWeth = await relayer.unwrapWeth();
+
+    if (token === NATIVE && unwrapWeth) {
+      // sending native ETH
+      const tx = await relayer.wrapAndTransferEthWithRelay(
+        amountBN, // convert to native gas token amount
+        recipientChain,
+        recipientAddress,
+        BigNumber.from(0), // batch id?
+        overrides,
+      )
+      return await tx.wait();
+    } else {
+      // sending ERC-20
+      const tx = await relayer.transferTokensWithRelay(
+        (token as TokenId).address,
+        amountBN,
+        BigNumber.from('0'),
+        recipientChainId,
+        recipientAddress,
+        BigNumber.from(0), // batch id?
+        overrides,
+      )
+      return await tx.wait();
     }
   }
 

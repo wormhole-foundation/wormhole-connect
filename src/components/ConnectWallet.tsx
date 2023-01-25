@@ -28,12 +28,6 @@ const useStyles = makeStyles((theme: Theme) => ({
     gap: '8px',
     cursor: 'pointer',
   },
-  action: {
-    borderRadius: '16px',
-    padding: '2px 12px',
-    backgroundColor: theme.palette.button.action,
-    color: theme.palette.button.actionText,
-  },
   walletIcon: {
     width: '24px',
     height: '24px',
@@ -160,7 +154,7 @@ function NetworksModal(props: Props) {
     </PopupState>
   ) : (
     <div
-      className={`${classes.row} ${classes.action}`}
+      className={classes.row}
       onClick={() => connect()}
     >
       <WalletIcon />

@@ -28,6 +28,7 @@ import { SolanaContext } from './envContexts/solanaContext';
 import { NearContext } from './envContexts/nearContext';
 import { AptosContext } from './envContexts/aptosContext';
 import { AlgorandContext } from './envContexts/algorandContext';
+import { TokenBridgeRelayer } from './abis/TokenBridgeRelayer';
 const { GrpcWebImpl, PublicRPCServiceClientImpl } = publicrpc;
 
 /**
@@ -203,6 +204,18 @@ export class WormholeContext extends MultiProvider<Domain> {
     if (!nftBridgeContract)
       throw new Error(`NFT bridge contract not found for ${chain}`);
     return nftBridgeContract;
+  }
+
+  getTBRelayer(chain: ChainName | ChainId): TokenBridgeRelayer | undefined {
+    const contracts = this.mustGetContracts(chain);
+    return contracts.tokenBridgeRelayer;
+  }
+
+  mustGetTBRelayer(chain: ChainName | ChainId): TokenBridgeRelayer {
+    const relayerContract = this.getTBRelayer(chain);
+    if (!relayerContract)
+      throw new Error(`Token Bridge Relayer contract not found for ${chain}`);
+    return relayerContract;
   }
 
   getContext(
