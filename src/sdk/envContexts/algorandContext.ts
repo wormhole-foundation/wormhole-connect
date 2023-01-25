@@ -1,5 +1,6 @@
 import { WormholeContext } from '../wormhole';
 import { Context } from './contextAbstract';
+import { BigNumber } from 'ethers';
 import { TokenId, ChainName, ChainId, NATIVE } from '../types';
 import {
   assetOptinCheck,
@@ -12,6 +13,7 @@ import {
   safeBigIntToNumber,
   textToUint8Array,
   hexToUint8Array,
+  uint8ArrayToHex,
 } from '@certusone/wormhole-sdk';
 import {
   Algodv2,
@@ -23,6 +25,7 @@ import {
   OnApplicationComplete,
   SuggestedParams,
   Transaction as AlgorandTransaction,
+  decodeAddress,
 } from 'algosdk';
 import AlgodClient from 'algosdk/dist/types/client/v2/algod/algod';
 
@@ -258,5 +261,43 @@ export class AlgorandContext<T extends WormholeContext> extends Context {
       undefined,
       payload,
     );
+  }
+
+  parseSequenceFromLog(
+    receipt: Record<string, any>,
+    chain: ChainName | ChainId,
+  ): string {
+    const sequences = this.parseSequencesFromLog(receipt, chain);
+    if (sequences.length === 0) throw new Error('no sequence found in log');
+    return sequences[0];
+  }
+
+  parseSequencesFromLog(
+    receipt: Record<string, any>,
+    chain: ChainName | ChainId,
+  ): string[] {
+    let sequences: string[] = [];
+    if (receipt['inner-txns']) {
+      const innerTxns: [] = receipt['inner-txns'];
+      class iTxn {
+        'local-state-delta': [[Object]];
+        logs: Buffer[] | undefined;
+        'pool-error': string;
+        txn: { txn: [Object] } | undefined;
+      }
+      innerTxns.forEach((txn: iTxn) => {
+        if (txn.logs) {
+          sequences.push(BigNumber.from(txn.logs[0].slice(0, 8)).toString());
+        }
+      });
+    }
+    return sequences;
+  }
+
+  getEmitterAddress(address: bigint): string {
+    const appAddr: string = getApplicationAddress(address);
+    const decAppAddr: Uint8Array = decodeAddress(appAddr).publicKey;
+    const aa: string = uint8ArrayToHex(decAppAddr);
+    return aa;
   }
 }

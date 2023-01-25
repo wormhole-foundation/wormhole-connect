@@ -1,11 +1,15 @@
-import { configureStore } from "@reduxjs/toolkit";
-import attestReducer from "./attest";
-import transferReducer from "./transfer";
+import { configureStore } from '@reduxjs/toolkit';
+import attestReducer from './attest';
+import transferReducer from './transfer';
+import routerReducer from './router';
+import walletReducer from './wallet';
 
 export const store = configureStore({
   reducer: {
     attest: attestReducer,
     transfer: transferReducer,
+    router: routerReducer,
+    wallet: walletReducer,
   },
 });
 

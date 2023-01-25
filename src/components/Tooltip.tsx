@@ -1,7 +1,39 @@
-function Tooltip() {
+import * as React from 'react';
+import { makeStyles } from '@mui/styles';
+import Tooltip from '@mui/material/Tooltip';
+import InfoIcon from '../icons/components/Info';
+
+type Position =
+  | 'top-start'
+  | 'top'
+  | 'top-end'
+  | 'left-start'
+  | 'left'
+  | 'left-end'
+  | 'right-start'
+  | 'right'
+  | 'right-end'
+  | 'bottom-start'
+  | 'bottom'
+  | 'bottom-end';
+
+const useStyles = makeStyles(() => ({
+  icon: {
+    cursor: 'pointer',
+  },
+}));
+
+type Props = {
+  text: string;
+  position?: Position;
+};
+
+export default function BasicTooltip(props: Props) {
+  const position = props.position || 'top';
+  const classes = useStyles();
   return (
-    <div></div>
+    <Tooltip title={props.text} arrow placement={position}>
+      <InfoIcon className={classes.icon} />
+    </Tooltip>
   );
 }
-
-export default Tooltip;

@@ -2,32 +2,35 @@ import { ethers } from 'ethers';
 import {
   ethers_contracts,
   Network as Environment,
-  Contracts,
 } from '@certusone/wormhole-sdk';
 import {
   Wormhole,
   Bridge,
   NFTBridge,
 } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
-import { MultiProvider, Domain } from '@nomad-xyz/multi-provider';
+import { WormholeContext } from './wormhole';
 import { NoProviderError } from './errors';
-import { ChainName, ChainId } from './types';
+import { ChainName, ChainId, Contracts } from './types';
+import { TokenBridgeRelayer } from './abis/TokenBridgeRelayer';
+import { TokenBridgeRelayer__factory } from './abis/TokenBridgeRelayer__factory';
 
-export class WHContracts extends MultiProvider<Domain> {
+export class WHContracts<T extends WormholeContext> {
   protected env: Environment;
   protected chain: ChainName | ChainId;
   protected conf: Contracts;
+  readonly context: T;
 
-  constructor(env: Environment, chain: ChainName | ChainId, conf: Contracts) {
-    super();
+  constructor(env: Environment, context: T, chain: ChainName | ChainId) {
     this.env = env;
     this.chain = chain;
-    this.conf = conf;
+    this.context = context;
+    const n = this.context.resolveDomainName(chain) as ChainName;
+    this.conf = context.conf.chains[n]!.contracts;
   }
 
   get connection(): ethers.Signer | ethers.providers.Provider {
-    const chain = this.resolveDomainName(this.chain);
-    const connection = this.mustGetConnection(chain);
+    const chain = this.context.resolveDomainName(this.chain);
+    const connection = this.context.mustGetConnection(chain);
     return connection;
   }
 
@@ -39,7 +42,7 @@ export class WHContracts extends MultiProvider<Domain> {
   get core(): Wormhole | undefined {
     if (!this.connection) throw new Error(NoProviderError(this.chain));
     const address = this.conf.core;
-    if (!address) return;
+    if (!address) return undefined;
     return ethers_contracts.Wormhole__factory.connect(address, this.connection);
   }
 
@@ -64,7 +67,7 @@ export class WHContracts extends MultiProvider<Domain> {
   get bridge(): Bridge | undefined {
     if (!this.connection) throw new Error(NoProviderError(this.chain));
     const address = this.conf.token_bridge;
-    if (!address) return;
+    if (!address) return undefined;
     return ethers_contracts.Bridge__factory.connect(address, this.connection);
   }
 
@@ -89,7 +92,7 @@ export class WHContracts extends MultiProvider<Domain> {
   get nftBridge(): NFTBridge | undefined {
     if (!this.connection) throw new Error(NoProviderError(this.chain));
     const address = this.conf.token_bridge;
-    if (!address) return;
+    if (!address) return undefined;
     return ethers_contracts.NFTBridge__factory.connect(
       address,
       this.connection,
@@ -107,6 +110,37 @@ export class WHContracts extends MultiProvider<Domain> {
     if (!address)
       throw new Error(`NFT Bridge contract for domain ${this.chain} not found`);
     return ethers_contracts.NFTBridge__factory.connect(
+      address,
+      this.connection,
+    );
+  }
+
+  /**
+   * Returns wormhole Token Bridge Relayer contract for the chain
+   *
+   * @returns An interface for the Token Bridge Relayer contract, undefined if not found
+   */
+  get tokenBridgeRelayer(): TokenBridgeRelayer | undefined {
+    if (!this.connection) throw new Error(NoProviderError(this.chain));
+    const address = this.conf.token_bridge;
+    if (!address) return undefined;
+    return TokenBridgeRelayer__factory.connect(
+      address,
+      this.connection,
+    );
+  }
+
+  /**
+   * Returns wormhole Token Bridge Relayer contract for the chain
+   *
+   * @returns An interface for the Token Bridge Relayer contract, errors if not found
+   */
+  mustGetTokenBridgeRelayer(): TokenBridgeRelayer {
+    if (!this.connection) throw new Error(NoProviderError(this.chain));
+    const address = this.conf.token_bridge;
+    if (!address)
+      throw new Error(`Token Bridge contract for domain ${this.chain} not found`);
+    return TokenBridgeRelayer__factory.connect(
       address,
       this.connection,
     );

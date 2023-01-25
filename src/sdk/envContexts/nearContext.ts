@@ -2,9 +2,80 @@ import { WormholeContext } from '../wormhole';
 import { Context } from './contextAbstract';
 import { TokenId, ChainName, ChainId, NATIVE } from '../types';
 import { FunctionCallOptions } from 'near-api-js/lib/account';
-import { getIsWrappedAssetNear } from '@certusone/wormhole-sdk';
+import {
+  getIsWrappedAssetNear,
+  Network as Environment,
+  uint8ArrayToHex,
+} from '@certusone/wormhole-sdk';
 import { Account, connect } from 'near-api-js';
 import BN from 'bn.js';
+import { FinalExecutionOutcome } from 'near-api-js/lib/providers';
+import { Wallet } from '@near-wallet-selector/core/lib/wallet';
+import { setupWalletSelector } from '@near-wallet-selector/core';
+import { setupDefaultWallets } from '@near-wallet-selector/default-wallets';
+import { setupMyNearWallet } from '@near-wallet-selector/my-near-wallet';
+import { setupNearWallet } from '@near-wallet-selector/near-wallet';
+import { setupNightly } from '@near-wallet-selector/nightly';
+import { setupSender } from '@near-wallet-selector/sender';
+import { setupMathWallet } from '@near-wallet-selector/math-wallet';
+import { setupMeteorWallet } from '@near-wallet-selector/meteor-wallet';
+import { arrayify, sha256 } from 'ethers/lib/utils';
+const NEAR_EVENT_PREFIX = 'EVENT_JSON:';
+
+async function getNearWallet(env: Environment) {
+  return await setupWalletSelector({
+    network: env === 'MAINNET' ? 'mainnet' : 'testnet',
+    modules: [
+      ...(await setupDefaultWallets()),
+      setupNearWallet(),
+      setupMyNearWallet(),
+      setupSender(),
+      setupMathWallet(),
+      setupNightly(),
+      setupMeteorWallet(),
+    ],
+    debug: true,
+  });
+}
+
+export const signAndSendTransactions = async (
+  account: Account,
+  wallet: Wallet,
+  messages: FunctionCallOptions[],
+): Promise<FinalExecutionOutcome> => {
+  // the browser wallet's signAndSendTransactions call navigates away from the page which is incompatible with the current app design
+  if (account) {
+    let lastReceipt: FinalExecutionOutcome | null = null;
+    for (const message of messages) {
+      lastReceipt = await account.functionCall(message);
+    }
+    if (!lastReceipt) {
+      throw new Error('An error occurred while fetching the transaction info');
+    }
+    return lastReceipt;
+  }
+  const receipts = await wallet.signAndSendTransactions({
+    transactions: messages.map((options) => ({
+      signerId: wallet.id,
+      receiverId: options.contractId,
+      actions: [
+        {
+          type: 'FunctionCall',
+          params: {
+            methodName: options.methodName,
+            args: options.args,
+            gas: options.gas?.toString() || '0',
+            deposit: options.attachedDeposit?.toString() || '0',
+          },
+        },
+      ],
+    })),
+  });
+  if (!receipts || receipts.length === 0) {
+    throw new Error('An error occurred while fetching the transaction info');
+  }
+  return receipts[receipts.length - 1];
+};
 
 export class NearContext<T extends WormholeContext> extends Context {
   readonly context: T;
@@ -30,38 +101,42 @@ export class NearContext<T extends WormholeContext> extends Context {
     return provider;
   }
 
+  async getWallet() {
+    const walletSelector = await getNearWallet(this.context.conf.env);
+    return await walletSelector.wallet();
+  }
+
   private async transferNativeNear(
-    client: Account,
+    account: Account,
     sendingChain: ChainName | ChainId,
     amount: string,
     recipientChain: ChainId | ChainName,
     recipientAddress: string,
     relayerFee: string = '0',
     payload?: Uint8Array,
-  ): Promise<FunctionCallOptions[]> {
+  ): Promise<FinalExecutionOutcome> {
     const coreBridge = this.context.mustGetCore(sendingChain).address;
     const tokenBridge = this.context.mustGetBridge(sendingChain).address;
-    let message_fee = await client.viewFunction(coreBridge, 'message_fee', {});
+    let message_fee = await account.viewFunction(coreBridge, 'message_fee', {});
 
-    return [
-      {
-        contractId: tokenBridge,
-        methodName: 'send_transfer_near',
-        args: {
-          receiver: recipientAddress,
-          chain: recipientChain,
-          fee: relayerFee,
-          payload: payload,
-          message_fee: message_fee,
-        },
-        attachedDeposit: new BN(amount).add(new BN(message_fee)),
-        gas: new BN('100000000000000'),
+    const transferMsg: FunctionCallOptions = {
+      contractId: tokenBridge,
+      methodName: 'send_transfer_near',
+      args: {
+        receiver: recipientAddress,
+        chain: recipientChain,
+        fee: relayerFee,
+        payload: payload,
+        message_fee: message_fee,
       },
-    ];
+      attachedDeposit: new BN(amount).add(new BN(message_fee)),
+      gas: new BN('100000000000000'),
+    };
+    return await account.functionCall(transferMsg);
   }
 
   private async transferFromNear(
-    client: Account,
+    account: Account,
     sendingChain: ChainName | ChainId,
     tokenAddress: string,
     amount: string,
@@ -69,34 +144,33 @@ export class NearContext<T extends WormholeContext> extends Context {
     recipientAddress: string,
     relayerFee: string = '0',
     payload?: Uint8Array,
-  ): Promise<FunctionCallOptions[]> {
+  ): Promise<FinalExecutionOutcome> {
     const coreBridge = this.context.mustGetBridge(sendingChain).address;
     const tokenBridge = this.context.mustGetBridge(sendingChain).address;
     let isWrapped = getIsWrappedAssetNear(tokenBridge, tokenAddress);
 
-    let message_fee = await client.viewFunction(coreBridge, 'message_fee', {});
+    let message_fee = await account.viewFunction(coreBridge, 'message_fee', {});
 
     if (isWrapped) {
-      return [
-        {
-          contractId: tokenBridge,
-          methodName: 'send_transfer_wormhole_token',
-          args: {
-            token: tokenAddress,
-            amount,
-            receiver: recipientAddress,
-            chain: recipientChain,
-            fee: relayerFee,
-            payload: payload,
-            message_fee: message_fee,
-          },
-          attachedDeposit: new BN(message_fee + 1),
-          gas: new BN('100000000000000'),
+      const transferMsg: FunctionCallOptions = {
+        contractId: tokenBridge,
+        methodName: 'send_transfer_wormhole_token',
+        args: {
+          token: tokenAddress,
+          amount,
+          receiver: recipientAddress,
+          chain: recipientChain,
+          fee: relayerFee,
+          payload: payload,
+          message_fee: message_fee,
         },
-      ];
+        attachedDeposit: new BN(message_fee + 1),
+        gas: new BN('100000000000000'),
+      };
+      return await account.functionCall(transferMsg);
     } else {
-      const msgs = [];
-      let bal = await client.viewFunction(tokenAddress, 'storage_balance_of', {
+      const msgs: FunctionCallOptions[] = [];
+      let bal = await account.viewFunction(tokenAddress, 'storage_balance_of', {
         account_id: tokenBridge,
       });
       if (bal === null) {
@@ -112,8 +186,8 @@ export class NearContext<T extends WormholeContext> extends Context {
       }
 
       if (message_fee > 0) {
-        let bank = await client.viewFunction(tokenBridge, 'bank_balance', {
-          acct: client.accountId,
+        let bank = await account.viewFunction(tokenBridge, 'bank_balance', {
+          acct: account.accountId,
         });
 
         if (!bank[0]) {
@@ -154,7 +228,8 @@ export class NearContext<T extends WormholeContext> extends Context {
         attachedDeposit: new BN(1),
         gas: new BN('100000000000000'),
       });
-      return msgs;
+      const wallet = await this.getWallet();
+      return await signAndSendTransactions(account, wallet, msgs);
     }
   }
 
@@ -166,7 +241,7 @@ export class NearContext<T extends WormholeContext> extends Context {
     recipientChain: ChainName | ChainId,
     recipientAddress: string,
     relayerFee: string = '0',
-  ): Promise<FunctionCallOptions[]> {
+  ): Promise<FinalExecutionOutcome> {
     const provider = await this.getProvider(sendingChain, senderAddress);
     if (token === NATIVE) {
       return await this.transferNativeNear(
@@ -198,7 +273,7 @@ export class NearContext<T extends WormholeContext> extends Context {
     recipientChain: ChainName | ChainId,
     recipientAddress: string,
     payload: Uint8Array | Buffer,
-  ): Promise<FunctionCallOptions[]> {
+  ): Promise<FinalExecutionOutcome> {
     const provider = await this.getProvider(sendingChain, senderAddress);
     if (token === NATIVE) {
       return await this.transferNativeNear(
@@ -222,5 +297,36 @@ export class NearContext<T extends WormholeContext> extends Context {
         payload,
       );
     }
+  }
+
+  parseSequenceFromLog(
+    receipt: FinalExecutionOutcome,
+    chain: ChainName | ChainId,
+  ): string {
+    const sequences = this.parseSequencesFromLog(receipt, chain);
+    if (sequences.length === 0) throw new Error('no sequence found in log');
+    return sequences[0];
+  }
+
+  parseSequencesFromLog(
+    receipt: FinalExecutionOutcome,
+    chain: ChainName | ChainId,
+  ): string[] {
+    const sequences: string[] = [];
+    for (const o of receipt.receipts_outcome) {
+      for (const l of o.outcome.logs) {
+        if (l.startsWith(NEAR_EVENT_PREFIX)) {
+          const body = JSON.parse(l.slice(NEAR_EVENT_PREFIX.length));
+          if (body.standard === 'wormhole' && body.event === 'publish') {
+            sequences.push(body.seq.toString());
+          }
+        }
+      }
+    }
+    return sequences;
+  }
+
+  getEmitterAddress(address: string): string {
+    return uint8ArrayToHex(arrayify(sha256(Buffer.from(address, 'utf8'))));
   }
 }

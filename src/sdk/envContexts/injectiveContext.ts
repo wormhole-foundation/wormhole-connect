@@ -2,6 +2,8 @@ import { WormholeContext } from '../wormhole';
 import { Context } from './contextAbstract';
 import { TokenId, ChainName, ChainId, NATIVE } from '../types';
 import { MsgExecuteContract as MsgExecuteContractInjective } from '@injectivelabs/sdk-ts';
+import { bech32 } from 'bech32';
+import { zeroPad } from 'ethers/lib/utils';
 import {
   hexToUint8Array,
   isNativeDenomInjective,
@@ -140,5 +142,32 @@ export class InjectiveContext<T extends WormholeContext> extends Context {
       undefined,
       payload,
     );
+  }
+
+  parseSequenceFromLog(receipt: any, chain: ChainName | ChainId): string {
+    const sequences = this.parseSequencesFromLog(receipt, chain);
+    if (sequences.length === 0) throw new Error('no sequence found in log');
+    return sequences[0];
+  }
+
+  parseSequencesFromLog(receipt: any, chain: ChainName | ChainId): string[] {
+    let sequences: string[] = [];
+    const jsonLog = JSON.parse(receipt.rawLog);
+    jsonLog.forEach((row: any) => {
+      row.events.forEach((event: any) => {
+        event.attributes.forEach((attribute: any) => {
+          if (attribute.key === 'message.sequence') {
+            sequences.push(attribute.value.toString());
+          }
+        });
+      });
+    });
+    return sequences;
+  }
+
+  getEmitterAddress(address: string): string {
+    return Buffer.from(
+      zeroPad(bech32.fromWords(bech32.decode(address).words), 32),
+    ).toString('hex');
   }
 }

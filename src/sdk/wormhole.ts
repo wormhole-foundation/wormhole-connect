@@ -1,12 +1,13 @@
-import { providers, Signer, BigNumberish, constants } from 'ethers';
+import { providers, Signer } from 'ethers';
 import {
   Bridge,
-  TokenImplementation__factory,
   Wormhole,
   NFTBridge,
 } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
 import { Network as Environment } from '@certusone/wormhole-sdk';
 import { MultiProvider, Domain } from '@nomad-xyz/multi-provider';
+import { publicrpc } from '@certusone/wormhole-sdk-proto-web';
+import { NodeHttpTransport } from '@improbable-eng/grpc-web-node-http-transport';
 
 import MAINNET_CONFIG, {
   MainnetChainName,
@@ -27,6 +28,7 @@ import { SolanaContext } from './envContexts/solanaContext';
 import { NearContext } from './envContexts/nearContext';
 import { AptosContext } from './envContexts/aptosContext';
 import { AlgorandContext } from './envContexts/algorandContext';
+const { GrpcWebImpl, PublicRPCServiceClientImpl } = publicrpc;
 
 /**
  * The WormholeContext manages connections to Wormhole Core, Bridge and NFT Bridge contracts.
@@ -57,7 +59,7 @@ import { AlgorandContext } from './envContexts/algorandContext';
  * )
  */
 export class WormholeContext extends MultiProvider<Domain> {
-  protected _contracts: Map<ChainName, WHContracts>;
+  protected _contracts: Map<ChainName, WHContracts<this>>;
   readonly conf: WormholeConfig;
 
   constructor(env: Environment, conf?: WormholeConfig) {
@@ -88,8 +90,7 @@ export class WormholeContext extends MultiProvider<Domain> {
         this.registerRpcProvider(network, this.conf.rpcs[n]!);
       }
       // set contracts
-      // @ts-ignore
-      const contracts = new WHContracts(env, n, this.conf.chains[n].contracts);
+      const contracts = new WHContracts(env, this, n);
       this._contracts.set(n, contracts);
     }
   }
@@ -148,7 +149,7 @@ export class WormholeContext extends MultiProvider<Domain> {
    * @param nameOrDomain A domain name or number.
    * @returns a {@link CoreContracts} object (or undefined)
    */
-  getContracts(chain: ChainName | ChainId): WHContracts | undefined {
+  getContracts(chain: ChainName | ChainId): WHContracts<this> | undefined {
     const domain = this.resolveDomainName(chain) as ChainName;
     return this._contracts.get(domain);
   }
@@ -160,7 +161,7 @@ export class WormholeContext extends MultiProvider<Domain> {
    * @returns a {@link CoreContracts} object
    * @throws if no {@link CoreContracts} object exists on that domain.
    */
-  mustGetContracts(chain: ChainName | ChainId): WHContracts {
+  mustGetContracts(chain: ChainName | ChainId): WHContracts<this> {
     const contracts = this.getContracts(chain);
     if (!contracts) {
       throw new Error(`Missing contracts for domain: ${chain}`);
@@ -204,41 +205,6 @@ export class WormholeContext extends MultiProvider<Domain> {
     return nftBridgeContract;
   }
 
-  /**
-   * Approves amount for bridge transfer. If no amount is specified, the max amount is approved
-   *
-   * @param token The tokenId (chain and address) of the token being sent
-   * @param Amount The amount to approve. If absent, will approve the maximum amount
-   * @throws If unable to get the signer or contracts
-   */
-  async approve(token: TokenId, amount?: BigNumberish, overrides?: any) {
-    const signer = this.getSigner(token.chain);
-    if (!signer) throw new Error(`No signer for ${token.chain}`);
-    const senderAddress = await signer.getAddress();
-    const tokenImplementation = TokenImplementation__factory.connect(
-      token.address,
-      signer,
-    );
-    if (!tokenImplementation)
-      throw new Error(`token contract not available for ${token.address}`);
-
-    const bridgeAddress = this.mustGetBridge(token.chain).address;
-    const approved = await tokenImplementation.allowance(
-      senderAddress,
-      bridgeAddress,
-    );
-    const approveAmount = amount || constants.MaxUint256;
-    // Approve if necessary
-    if (approved.lt(approveAmount)) {
-      const tx = await tokenImplementation.approve(
-        bridgeAddress,
-        approveAmount,
-        overrides,
-      );
-      await tx.wait();
-    }
-  }
-
   getContext(
     chain: ChainName | ChainId,
   ):
@@ -249,8 +215,7 @@ export class WormholeContext extends MultiProvider<Domain> {
     | SolanaContext<WormholeContext>
     | NearContext<WormholeContext>
     | AptosContext<WormholeContext>
-    | AlgorandContext<WormholeContext>
-  {
+    | AlgorandContext<WormholeContext> {
     const chainName = this.resolveDomainName(chain) as ChainName;
     const { context } = this.conf.chains[chainName]!;
     switch (context) {
@@ -291,6 +256,7 @@ export class WormholeContext extends MultiProvider<Domain> {
    * @param Amount The amount to approve. If absent, will approve the maximum amount
    * @throws If unable to get the signer or contracts
    */
+  // TODO: implement extra arguments for other networks
   async send(
     token: TokenId | 'native',
     amount: string,
@@ -300,9 +266,19 @@ export class WormholeContext extends MultiProvider<Domain> {
     recipientAddress: string,
     relayerFee?: string,
     payload?: any,
-    overrides?: any,
   ) {
     const context = this.getContext(sendingChain);
+    if (payload) {
+      context.sendWithPayload(
+        token,
+        amount,
+        sendingChain,
+        senderAddress,
+        recipientChain,
+        recipientAddress,
+        payload,
+      );
+    }
     context.send(
       token,
       amount,
@@ -312,6 +288,111 @@ export class WormholeContext extends MultiProvider<Domain> {
       recipientAddress,
       relayerFee,
     );
+  }
+
+  parseSequenceFromLog(receipt: any, chain: ChainName | ChainId): string {
+    const context = this.getContext(chain);
+    return context.parseSequenceFromLog(receipt, chain);
+  }
+
+  parseSequencesFromLog(receipt: any, chain: ChainName | ChainId): string[] {
+    const context = this.getContext(chain);
+    return context.parseSequencesFromLog(receipt, chain);
+  }
+
+  getEmitterAddress(address: string, chain: ChainName | ChainId): string {
+    const context = this.getContext(chain);
+    return context.getEmitterAddress(address);
+  }
+
+  async getSignedVaaWithReceipt(
+    chain: ChainName | ChainId,
+    receipt: any,
+    extraGrpcOpts = {},
+  ) {
+    const chainName = this.resolveDomainName(chain) as ChainName;
+    const rpcUrl = this.conf.rpcs[chainName];
+    if (!rpcUrl) throw new Error(`Must provide rpc for ${chainName}`);
+
+    const rpc = new GrpcWebImpl(rpcUrl, extraGrpcOpts);
+    const api = new PublicRPCServiceClientImpl(rpc);
+    const emitterAddress = this.mustGetBridge(chain).address;
+    const sequence = this.parseSequenceFromLog(receipt, chain);
+
+    return await api.GetSignedVAA({
+      messageId: {
+        emitterChain: this.resolveDomain(chain),
+        emitterAddress,
+        sequence,
+      },
+    });
+  }
+
+  async getSignedVaaWithSequence(
+    chain: ChainName | ChainId,
+    sequence: string,
+    extraGrpcOpts = {},
+  ) {
+    const chainName = this.resolveDomainName(chain) as ChainName;
+    const rpcUrl = this.conf.rpcs[chainName];
+    if (!rpcUrl) throw new Error(`Must provide rpc for ${chainName}`);
+
+    const rpc = new GrpcWebImpl(rpcUrl, extraGrpcOpts);
+    const api = new PublicRPCServiceClientImpl(rpc);
+    const emitterAddress = this.mustGetBridge(chain).address;
+
+    return await api.GetSignedVAA({
+      messageId: {
+        emitterChain: this.resolveDomain(chain),
+        emitterAddress,
+        sequence,
+      },
+    });
+  }
+
+  async getSignedVAAWithRetry(
+    emitterChain: ChainId | ChainName,
+    sequence: string,
+    extraGrpcOpts = {},
+    retryTimeout = 1000,
+    retryAttempts?: number,
+  ) {
+    let result;
+    let attempts = 0;
+    while (!result) {
+      attempts++;
+      await new Promise((resolve) => setTimeout(resolve, retryTimeout));
+      try {
+        result = await this.getSignedVaaWithSequence(
+          emitterChain,
+          sequence,
+          extraGrpcOpts,
+        );
+      } catch (e) {
+        if (retryAttempts !== undefined && attempts > retryAttempts) {
+          throw e;
+        }
+      }
+    }
+    return result;
+  }
+
+  async getSignedVAABySequence(
+    chain: ChainName | ChainId,
+    sequence: string,
+  ): Promise<Uint8Array> {
+    //Note, if handed a sequence which doesn't exist or was skipped for consensus this will retry until the timeout.
+    const { vaaBytes } = await this.getSignedVAAWithRetry(
+      chain,
+      sequence,
+      {
+        transport: NodeHttpTransport(), //This should only be needed when running in node.
+      },
+      1000, //retryTimeout
+      1000, //Maximum retry attempts
+    );
+
+    return vaaBytes;
   }
 
   /**

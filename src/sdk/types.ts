@@ -1,4 +1,4 @@
-import { Network as Environment, Contracts } from '@certusone/wormhole-sdk';
+import { Network as Environment } from '@certusone/wormhole-sdk';
 import { MainnetChainName, MainnetChainId } from './config/MAINNET';
 import { TestnetChainName, TestnetChainId } from './config/TESTNET';
 
@@ -22,10 +22,24 @@ export type Rpcs = {
   [chain in ChainName]?: string;
 };
 
+export type Contracts = {
+  core?: string;
+  token_bridge?: string;
+  nft_bridge?: string;
+  relayer?: string;
+};
+
 export type ChainConfig = {
+  key: ChainName;
   id: ChainId;
   context: Context;
   contracts: Contracts;
+  icon: string;
+  displayName: string;
+  explorerUrl: string;
+  explorerName: string;
+  gasToken: string;
+  chainId: number;
 };
 
 export type WormholeConfig = {
@@ -41,4 +55,12 @@ export type Address = string;
 export type TokenId = {
   chain: ChainName;
   address: string;
+};
+
+export type TokenConfig = {
+  symbol: string;
+  icon: string;
+  address?: string;
+  coinGeckoId: string;
+  color: string;
 };
