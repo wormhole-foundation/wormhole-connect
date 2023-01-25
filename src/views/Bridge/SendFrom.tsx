@@ -81,7 +81,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     flexGrow: 'unset',
     flexShrink: '2',
     backgroundColor: 'transparent',
-  }
+  },
 }));
 
 // TODO: make SentTo and SendFrom 1 component
@@ -110,7 +110,7 @@ function SendFrom() {
     dispatch(setAmount(event.target.value));
   }
   // amount input focus
-  const amtId = 'sendAmt'
+  const amtId = 'sendAmt';
   function focusAmt() {
     const input = document.getElementById(amtId);
     if (!input) return;
@@ -158,7 +158,10 @@ function SendFrom() {
               )}
             </div>
             <div className={classes.amtRow}>
-              <div className={joinClass([classes.card, token && classes.input])} onClick={focusAmt}>
+              <div
+                className={joinClass([classes.card, token && classes.input])}
+                onClick={focusAmt}
+              >
                 <div className={classes.label}>Amount</div>
                 {token ? (
                   <InputTransparent
@@ -170,9 +173,12 @@ function SendFrom() {
                   <div>-</div>
                 )}
               </div>
-              <div className={joinClass([classes.card, classes.balance])} onClick={focusAmt}>
+              <div
+                className={joinClass([classes.card, classes.balance])}
+                onClick={focusAmt}
+              >
                 <div className={classes.label}>Balance</div>
-                <div>{(token && balance) && balance ? balance : '-'}</div>
+                <div>{token && balance && balance ? balance : '-'}</div>
               </div>
             </div>
           </div>

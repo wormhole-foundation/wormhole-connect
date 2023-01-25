@@ -124,10 +124,7 @@ export class WHContracts<T extends WormholeContext> {
     if (!this.connection) throw new Error(NoProviderError(this.chain));
     const address = this.conf.token_bridge;
     if (!address) return undefined;
-    return TokenBridgeRelayer__factory.connect(
-      address,
-      this.connection,
-    );
+    return TokenBridgeRelayer__factory.connect(address, this.connection);
   }
 
   /**
@@ -139,10 +136,9 @@ export class WHContracts<T extends WormholeContext> {
     if (!this.connection) throw new Error(NoProviderError(this.chain));
     const address = this.conf.token_bridge;
     if (!address)
-      throw new Error(`Token Bridge contract for domain ${this.chain} not found`);
-    return TokenBridgeRelayer__factory.connect(
-      address,
-      this.connection,
-    );
+      throw new Error(
+        `Token Bridge contract for domain ${this.chain} not found`,
+      );
+    return TokenBridgeRelayer__factory.connect(address, this.connection);
   }
 }

@@ -95,7 +95,7 @@ function SendTo() {
   const tokenConfig = TOKENS[token];
   // set store values
   const openToNetworksModal = () => dispatch(setToNetworksModal(true));
-  const balance = '12.34'
+  const balance = '12.34';
 
   return (
     <div className={classes.container}>
@@ -136,13 +136,24 @@ function SendTo() {
               )}
             </div>
             <div className={classes.amtRow}>
-              <div className={joinClass([classes.card, !token && classes.disabled])}>
+              <div
+                className={joinClass([
+                  classes.card,
+                  !token && classes.disabled,
+                ])}
+              >
                 <div className={classes.label}>Amount</div>
                 <div>{token && amount ? amount : '-'}</div>
               </div>
-              <div className={joinClass([classes.card, (!token || !balance) && classes.disabled, classes.balance])}>
+              <div
+                className={joinClass([
+                  classes.card,
+                  (!token || !balance) && classes.disabled,
+                  classes.balance,
+                ])}
+              >
                 <div className={classes.label}>Balance</div>
-                <div>{(token && balance) && balance ? balance : '-'}</div>
+                <div>{token && balance && balance ? balance : '-'}</div>
               </div>
             </div>
             {/* <div

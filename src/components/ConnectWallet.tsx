@@ -161,10 +161,7 @@ function NetworksModal(props: Props) {
       )}
     </PopupState>
   ) : (
-    <div
-      className={classes.row}
-      onClick={() => connect()}
-    >
+    <div className={classes.row} onClick={() => connect()}>
       <WalletIcon />
       <div>Connect wallet</div>
       <div className={classes.actionIndicator}>

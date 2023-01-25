@@ -71,7 +71,7 @@ function ActionIndicator() {
         <div className={joinClass([classes.baseCircle, classes.outer])} />
       </div>
     </div>
-  )
+  );
 }
 
 export default ActionIndicator;

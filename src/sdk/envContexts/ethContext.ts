@@ -3,7 +3,13 @@ import {
   TokenImplementation__factory,
 } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
 import { createNonce } from '@certusone/wormhole-sdk';
-import { BigNumber, BigNumberish, constants, ethers, PayableOverrides } from 'ethers';
+import {
+  BigNumber,
+  BigNumberish,
+  constants,
+  ethers,
+  PayableOverrides,
+} from 'ethers';
 import { arrayify, zeroPad } from 'ethers/lib/utils';
 import { WormholeContext } from '../wormhole';
 import { Context } from './contextAbstract';
@@ -170,7 +176,7 @@ export class EthContext<T extends WormholeContext> extends Context {
         recipientAddress,
         BigNumber.from(0), // batch id?
         overrides,
-      )
+      );
       return await tx.wait();
     } else {
       // sending ERC-20
@@ -182,7 +188,7 @@ export class EthContext<T extends WormholeContext> extends Context {
         recipientAddress,
         BigNumber.from(0), // batch id?
         overrides,
-      )
+      );
       return await tx.wait();
     }
   }
