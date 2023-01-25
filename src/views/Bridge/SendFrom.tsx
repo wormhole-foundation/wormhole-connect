@@ -70,8 +70,21 @@ const useStyles = makeStyles((theme: Theme) => ({
   pointer: {
     cursor: 'pointer',
   },
+  amtRow: {
+    display: 'flex',
+    flexDirection: 'row',
+    width: '100%',
+    gap: '8px',
+  },
+  balance: {
+    maxWidth: '150px',
+    flexGrow: 'unset',
+    flexShrink: '2',
+    backgroundColor: 'transparent',
+  }
 }));
 
+// TODO: make SentTo and SendFrom 1 component
 function SendFrom() {
   const classes = useStyles();
   const dispatch = useDispatch();
@@ -103,6 +116,7 @@ function SendFrom() {
     if (!input) return;
     input.focus();
   }
+  const balance = '12.34';
 
   return (
     <div className={classes.container}>
@@ -143,17 +157,23 @@ function SendFrom() {
                 </div>
               )}
             </div>
-            <div className={joinClass([classes.card, token && classes.input])} onClick={focusAmt}>
-              <div className={classes.label}>Amount</div>
-              {token ? (
-                <InputTransparent
-                  placeholder="0.00"
-                  id={amtId}
-                  onChange={handleAmountChange}
-                />
-              ) : (
-                <div>-</div>
-              )}
+            <div className={classes.amtRow}>
+              <div className={joinClass([classes.card, token && classes.input])} onClick={focusAmt}>
+                <div className={classes.label}>Amount</div>
+                {token ? (
+                  <InputTransparent
+                    placeholder="0.00"
+                    id={amtId}
+                    onChange={handleAmountChange}
+                  />
+                ) : (
+                  <div>-</div>
+                )}
+              </div>
+              <div className={joinClass([classes.card, classes.balance])} onClick={focusAmt}>
+                <div className={classes.label}>Balance</div>
+                <div>{(token && balance) && balance ? balance : '-'}</div>
+              </div>
             </div>
           </div>
         </div>
