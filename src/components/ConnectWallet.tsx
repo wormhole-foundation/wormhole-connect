@@ -19,6 +19,7 @@ import { displayEvmAddress } from '../utils';
 import { CHAINS } from '../utils/sdk';
 import { BigNumber } from 'ethers';
 import { setFromNetwork } from '../store/transfer';
+import ActionIndicator from './Action';
 
 const useStyles = makeStyles((theme: Theme) => ({
   row: {
@@ -31,6 +32,13 @@ const useStyles = makeStyles((theme: Theme) => ({
   walletIcon: {
     width: '24px',
     height: '24px',
+  },
+  actionIndicator: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '14px',
+    marginLeft: '4px',
   },
   down: {
     marginRight: '-8px',
@@ -159,6 +167,9 @@ function NetworksModal(props: Props) {
     >
       <WalletIcon />
       <div>Connect wallet</div>
+      <div className={classes.actionIndicator}>
+        <ActionIndicator />
+      </div>
     </div>
   );
 }
