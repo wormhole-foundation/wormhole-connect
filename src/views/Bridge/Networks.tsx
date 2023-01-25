@@ -6,8 +6,8 @@ import { RootState } from '../../store';
 import { setFromNetwork, setToNetwork } from '../../store/transfer';
 import { ChainName } from '../../sdk/types';
 import NetworksModal from '../NetworksModal';
-import FromNetwork from './FromNetwork';
-import ToNetwork from './ToNetwork';
+import SendFrom from './SendFrom';
+import SendTo from './SendTo';
 
 const useStyles = makeStyles((theme: Theme) => ({
   networks: {
@@ -59,8 +59,8 @@ function Networks() {
 
   return (
     <div className={classes.networks}>
-      <FromNetwork />
-      <ToNetwork />
+      <SendFrom />
+      <SendTo />
 
       {/* modals */}
       <NetworksModal

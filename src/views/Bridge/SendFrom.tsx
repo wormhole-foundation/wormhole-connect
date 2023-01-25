@@ -4,13 +4,16 @@ import NetworksModal from '../NetworksModal';
 import NetworkTile from '../../components/NetworkTile';
 import { Theme } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
+import { setFromNetworksModal, setTokensModal } from '../../store/router';
 import { RootState } from '../../store';
 import { CHAINS, TOKENS } from '../../store/transfer';
 import InputContainer from '../../components/InputContainer';
+import InputTransparent from '../../components/InputTransparent';
 import ConnectWallet, { Wallet } from '../../components/ConnectWallet';
+import TokensModal from '../TokensModal';
 import NoNetworkIcon from '../../icons/no-network.png';
-import { setToNetworksModal } from '../../store/router';
-import { joinClass, OPACITY } from '../../utils/style';
+import { joinClass } from '../../utils/style';
+import { setAmount } from '../../store/transfer';
 
 const useStyles = makeStyles((theme: Theme) => ({
   header: {
@@ -37,16 +40,18 @@ const useStyles = makeStyles((theme: Theme) => ({
     height: '100%',
     width: '100%',
   },
+  input: {
+    cursor: 'text',
+  },
   card: {
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
     backgroundColor: theme.palette.card.secondary,
+    borderRadius: '8px',
     width: '100%',
     flexGrow: '1',
     padding: '12px',
-    borderRadius: '0px !important',
-    border: `0.5px solid ${theme.palette.divider + OPACITY[40]}`,
   },
   label: {
     fontSize: '14px',
@@ -62,43 +67,60 @@ const useStyles = makeStyles((theme: Theme) => ({
     alignItems: 'center',
     gap: '8px',
   },
-  disabled: {
-    color: theme.palette.text.secondary + OPACITY[50] + ' !important',
+  pointer: {
+    cursor: 'pointer',
   },
 }));
 
-function Network() {
+function SendFrom() {
   const classes = useStyles();
   const dispatch = useDispatch();
   // store values
-  const showToNetworksModal = useSelector(
-    (state: RootState) => state.router.showToNetworksModal,
+  const showFromNetworksModal = useSelector(
+    (state: RootState) => state.router.showFromNetworksModal,
   );
-  const toNetwork = useSelector((state: RootState) => state.transfer.toNetwork);
+  const showTokensModal = useSelector(
+    (state: RootState) => state.router.showTokensModal,
+  );
+  const fromNetwork = useSelector(
+    (state: RootState) => state.transfer.fromNetwork,
+  );
   const token = useSelector((state: RootState) => state.transfer.token);
-  const amount = useSelector((state: RootState) => state.transfer.amount);
+  const tokenConfig = token && TOKENS[token];
   // get networks configs
-  const toNetworkConfig = CHAINS[toNetwork];
-  const tokenConfig = TOKENS[token];
+  const fromNetworkConfig = CHAINS[fromNetwork];
   // set store values
-  const openToNetworksModal = () => dispatch(setToNetworksModal(true));
+  const openFromNetworksModal = () => dispatch(setFromNetworksModal(true));
+  const openTokensModal = () => dispatch(setTokensModal(true));
+  function handleAmountChange(event) {
+    console.log(event.target.value);
+    dispatch(setAmount(event.target.value));
+  }
+  // amount input focus
+  const amtId = 'sendAmt'
+  function focusAmt() {
+    const input = document.getElementById(amtId);
+    if (!input) return;
+    input.focus();
+  }
 
   return (
     <div className={classes.container}>
       <div className={classes.header}>
-        <div className={classes.headerTitle}>Sending to</div>
-        <ConnectWallet type={Wallet.RECEIVING} />
+        <div className={classes.headerTitle}>Sending from</div>
+        <ConnectWallet type={Wallet.SENDING} />
       </div>
 
       <InputContainer>
         <div className={classes.content}>
           <NetworkTile
-            network={toNetworkConfig}
-            onClick={openToNetworksModal}
+            network={fromNetworkConfig}
+            onClick={openFromNetworksModal}
           />
           <div className={classes.inputs}>
             <div
-              className={joinClass([classes.card, !token && classes.disabled])}
+              className={joinClass([classes.card, classes.pointer])}
+              onClick={openTokensModal}
             >
               <div className={classes.label}>Token</div>
               {tokenConfig ? (
@@ -117,28 +139,34 @@ function Network() {
                     src={NoNetworkIcon}
                     alt="select token"
                   />
-                  <div>-</div>
+                  Select
                 </div>
               )}
             </div>
-            <div
-              className={joinClass([classes.card, !token && classes.disabled])}
-            >
+            <div className={joinClass([classes.card, token && classes.input])} onClick={focusAmt}>
               <div className={classes.label}>Amount</div>
-              <div>{token && amount ? amount : '-'}</div>
+              {token ? (
+                <InputTransparent
+                  placeholder="0.00"
+                  id={amtId}
+                  onChange={handleAmountChange}
+                />
+              ) : (
+                <div>-</div>
+              )}
             </div>
           </div>
         </div>
       </InputContainer>
-
-      {/* modal */}
+      {/* modals */}
       <NetworksModal
-        open={showToNetworksModal}
-        title="Send to"
-        event="selectToNetwork"
+        open={showFromNetworksModal}
+        title="Send from"
+        event="selectFromNetwork"
       />
+      {showTokensModal && <TokensModal />}
     </div>
   );
 }
 
-export default Network;
+export default SendFrom;

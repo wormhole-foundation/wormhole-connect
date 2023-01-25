@@ -1,38 +1,10 @@
 import React from 'react';
-import { makeStyles } from 'tss-react/mui';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import { PaymentOption } from '../../store/transfer';
 import { RenderRows, RowsData } from '../../components/RenderRows';
 import InputContainer from '../../components/InputContainer';
-import { joinClass, OPACITY } from '../../utils/style';
-import { Collapse } from '@mui/material';
 import BridgeCollapse from './Collapse';
-
-const useStyles = makeStyles()((theme) => ({
-  container: {
-    width: '100%',
-    borderRadius: '8px',
-    boxShadow: theme.palette.card.elevation,
-  },
-  header: {
-    width: '100%',
-    display: 'flex',
-    alignItems: 'center',
-    padding: '16px',
-    backgroundColor: theme.palette.card.background + OPACITY[80],
-    borderRadius: '8px',
-    fontWeight: 'bold',
-  },
-  open: {
-    borderBottomLeftRadius: '0 !important',
-    borderBottomRightRadius: '0 !important',
-  },
-  disabled: {
-    opacity: '70%',
-    cursor: 'not-allowed !important',
-  },
-}));
 
 const automaticRows: RowsData = [
   {
@@ -77,7 +49,6 @@ const manualRows: RowsData = [
 ];
 
 function Preview(props: { collapsed: boolean }) {
-  const { classes } = useStyles();
   const selectedOption = useSelector(
     (state: RootState) => state.transfer.destGasPayment,
   );

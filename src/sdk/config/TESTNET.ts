@@ -1,18 +1,28 @@
-import { Network as Environment, Contracts } from '@certusone/wormhole-sdk';
-import { WormholeConfig, Context, ChainConfig, TokenConfig } from '../types';
+import { Network as Environment, CONTRACTS } from '@certusone/wormhole-sdk';
+import {
+  WormholeConfig,
+  Context,
+  ChainConfig,
+  TokenConfig,
+  Contracts,
+} from '../types';
 
 import EthIcon from '../../icons/tokens/eth.svg';
 import BscIcon from '../../icons/tokens/bsc.svg';
 import FujiIcon from '../../icons/tokens/avax.svg';
 import FantomIcon from '../../icons/tokens/fantom.svg';
+import MaticIcon from '../../icons/tokens/polygon.svg';
 import USDCIcon from '../../icons/tokens/usdc.svg';
+import CeloIcon from '../../icons/tokens/celo.svg';
 
 // https://book.wormhole.com/reference/contracts.html
 export const TESTNET_CHAINS = {
   goerli: 2,
   bsc: 4,
+  polygon: 5,
   fuji: 6,
   fantom: 10,
+  celo: 14,
 } as const;
 
 export type TestnetChainName = keyof typeof TESTNET_CHAINS;
@@ -28,9 +38,8 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     id: 2,
     context: Context.ETH,
     contracts: {
-      core: '0x706abc4E45D419950511e474C7B9Ed348A4a716c',
-      token_bridge: '0xbd17f38aaa5c26f4eb724a315bb222fa9091b3b0',
-      nft_bridge: '0xD8E4C2DbDd2e2bd8F1336EA691dBFF6952B1a6eB',
+      ...CONTRACTS.TESTNET.ethereum,
+      relayer: '0x631C7bc094895b35E15EA23CDe5b2BdC74Ed18bf',
     },
     icon: EthIcon,
     displayName: 'Goerli',
@@ -44,9 +53,8 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     id: 4,
     context: Context.ETH,
     contracts: {
-      core: '0x68605AD7b15c732a30b1BbC62BE8F2A509D74b4D',
-      token_bridge: '0xbc587768a949eec05a9ee62fd0dcc4bae39e2b64',
-      nft_bridge: '0xcD16E5613EF35599dc82B24Cb45B5A93D779f1EE',
+      ...CONTRACTS.TESTNET.bsc,
+      relayer: '0x3a03c903690ed20b5e087647617dd5d582375fab',
     },
     icon: BscIcon,
     displayName: 'BSC',
@@ -55,14 +63,28 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     gasToken: 'BNB',
     chainId: 97,
   },
+  polygon: {
+    key: 'polygon',
+    id: 5,
+    context: Context.ETH,
+    contracts: {
+      ...CONTRACTS.TESTNET.polygon,
+      relayer: '0x64A09E0cd839456d64c9Ab8F8AFe7C2B24b65b76',
+    },
+    icon: MaticIcon,
+    displayName: 'Polygon',
+    explorerUrl: 'https://polygonscan.com/',
+    explorerName: 'Polygonscan',
+    gasToken: 'MATIC',
+    chainId: 0,
+  },
   fuji: {
     key: 'fuji',
     id: 6,
     context: Context.ETH,
     contracts: {
-      core: '0x7bbcE28e64B3F8b84d876Ab298393c38ad7aac4C',
-      token_bridge: '0x834a314ae95e494cdc0b8841c0fd408f7d3cbe9c',
-      nft_bridge: '0xD601BAf2EEE3C028344471684F6b27E789D9075D',
+      ...CONTRACTS.TESTNET.avalanche,
+      relayer: '0x99a0b432b9a2bd2be70788825e3232c6f0a17f11',
     },
     icon: FujiIcon,
     displayName: 'Fuji',
@@ -76,9 +98,8 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     id: 10,
     context: Context.ETH,
     contracts: {
-      core: '0x1BB3B4119b7BA9dfad76B0545fb3F531383c3bB7',
-      token_bridge: '0x032c4a77e35674fe5b8a687e9bf27bd4c2a1b81f',
-      nft_bridge: '0x63eD9318628D26BdCB15df58B53BB27231D1B227',
+      ...CONTRACTS.TESTNET.fantom,
+      relayer: '0x4cb9c625e657d9ccb91fa2270f420d005e2715d2',
     },
     icon: FantomIcon,
     displayName: 'Fantom',
@@ -86,6 +107,21 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     explorerName: 'FtmScan',
     gasToken: 'FTM',
     chainId: 4002,
+  },
+  celo: {
+    key: 'celo',
+    id: 14,
+    context: Context.ETH,
+    contracts: {
+      ...CONTRACTS.TESTNET.celo,
+      relayer: '0xe0cdc52c477028bc293a21ef172a9a8b763d2113',
+    },
+    icon: CeloIcon,
+    displayName: 'Celo',
+    explorerUrl: 'https://explorer.celo.org/mainnet/',
+    explorerName: 'Celo Explorer',
+    gasToken: 'CELO',
+    chainId: 42220,
   },
 };
 
@@ -129,6 +165,22 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
       '0x000000000000000000000000f1277d1Ed8AD466beddF92ef448A132661956621',
     coinGeckoId: 'fantom',
     color: '#12B4EC',
+  },
+  MATIC: {
+    symbol: 'MATIC',
+    icon: MaticIcon,
+    address:
+      '0x0000000000000000000000009c3C9283D3e44854697Cd22D3Faa240Cfb032889',
+    coinGeckoId: 'polygon',
+    color: '#8247E5',
+  },
+  CELO: {
+    symbol: 'CELO',
+    icon: CeloIcon,
+    address:
+      '0x000000000000000000000000F194afDf50B03e69Bd7D057c1Aa9e10c9954E4C9',
+    coinGeckoId: 'celo',
+    color: '#35D07E',
   },
 };
 

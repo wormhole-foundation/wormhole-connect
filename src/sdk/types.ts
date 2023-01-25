@@ -1,4 +1,4 @@
-import { Network as Environment, Contracts } from '@certusone/wormhole-sdk';
+import { Network as Environment } from '@certusone/wormhole-sdk';
 import { MainnetChainName, MainnetChainId } from './config/MAINNET';
 import { TestnetChainName, TestnetChainId } from './config/TESTNET';
 
@@ -20,6 +20,13 @@ export enum Context {
 
 export type Rpcs = {
   [chain in ChainName]?: string;
+};
+
+export type Contracts = {
+  core?: string;
+  token_bridge?: string;
+  nft_bridge?: string;
+  relayer?: string;
 };
 
 export type ChainConfig = {
