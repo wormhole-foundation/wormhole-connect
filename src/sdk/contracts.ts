@@ -11,6 +11,8 @@ import {
 import { WormholeContext } from './wormhole';
 import { NoProviderError } from './errors';
 import { ChainName, ChainId, Contracts } from './types';
+import { TokenBridgeRelayer } from './abis/TokenBridgeRelayer';
+import { TokenBridgeRelayer__factory } from './abis/TokenBridgeRelayer__factory';
 
 export class WHContracts<T extends WormholeContext> {
   protected env: Environment;
@@ -118,11 +120,11 @@ export class WHContracts<T extends WormholeContext> {
    *
    * @returns An interface for the Token Bridge Relayer contract, undefined if not found
    */
-  get tokenBridgeRelayer(): Bridge | undefined {
+  get tokenBridgeRelayer(): TokenBridgeRelayer | undefined {
     if (!this.connection) throw new Error(NoProviderError(this.chain));
     const address = this.conf.token_bridge;
     if (!address) return undefined;
-    return ethers_contracts.Bridge__factory.connect(
+    return TokenBridgeRelayer__factory.connect(
       address,
       this.connection,
     );
@@ -133,12 +135,12 @@ export class WHContracts<T extends WormholeContext> {
    *
    * @returns An interface for the Token Bridge Relayer contract, errors if not found
    */
-  mustGetTokenBridgeRelayer(): Bridge {
+  mustGetTokenBridgeRelayer(): TokenBridgeRelayer {
     if (!this.connection) throw new Error(NoProviderError(this.chain));
     const address = this.conf.token_bridge;
     if (!address)
       throw new Error(`Token Bridge contract for domain ${this.chain} not found`);
-    return ethers_contracts.Bridge__factory.connect(
+    return TokenBridgeRelayer__factory.connect(
       address,
       this.connection,
     );
