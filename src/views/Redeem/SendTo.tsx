@@ -28,19 +28,18 @@ type Props = {
 
 function SendTo(props: Props) {
   const vaa: ParsedVaa = useSelector((state: RootState) => state.redeem.vaa);
+  if (!vaa) return <div></div>;
   const toNetwork = context.resolveDomainName(vaa.toChain);
   return (
-    vaa && (
-      <div>
-        <InputContainer>
-          <Header network={toNetwork} address={vaa.toAddress} />
-          <RenderRows rows={rows} />
-        </InputContainer>
-        {props.showConfirmations && (
-          <Confirmations confirmations={vaa.guardianSignatures} />
-        )}
-      </div>
-    )
+    <div>
+      <InputContainer>
+        <Header network={toNetwork} address={vaa.toAddress} />
+        <RenderRows rows={rows} />
+      </InputContainer>
+      {props.showConfirmations && (
+        <Confirmations confirmations={vaa.guardianSignatures} />
+      )}
+    </div>
   );
 }
 

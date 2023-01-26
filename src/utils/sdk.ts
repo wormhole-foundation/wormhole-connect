@@ -4,14 +4,16 @@ import { WormholeContext, ChainConfig, TokenConfig } from 'sdk';
 import MAINNET_CONFIG, { MAINNET_TOKENS } from 'sdk/config/MAINNET';
 import TESTNET_CONFIG, { TESTNET_TOKENS } from 'sdk/config/TESTNET';
 
-let env: Environment = 'MAINNET'; // TODO: get from env
-export const CONFIG = env === 'MAINNET' ? MAINNET_CONFIG : TESTNET_CONFIG;
+const { REACT_APP_ENV } = process.env;
+export const isProduction = REACT_APP_ENV === 'MAINNET';
+export const CONFIG = isProduction ? MAINNET_CONFIG : TESTNET_CONFIG;
 export const CHAINS = CONFIG.chains;
 export const CHAINS_ARR = Object.values(CHAINS) as ChainConfig[];
-export const TOKENS = env === 'MAINNET' ? MAINNET_TOKENS : TESTNET_TOKENS;
+export const TOKENS = isProduction ? MAINNET_TOKENS : TESTNET_TOKENS;
 export const TOKENS_ARR = Object.values(TOKENS) as TokenConfig[];
+export const REQUIRED_CONFIRMATIONS = isProduction ? 13 : 1;
 
-export const context = new WormholeContext(env);
+export const context = new WormholeContext(REACT_APP_ENV! as Environment);
 
 export const registerSigner = (signer: any) => {
   console.log('registering signer', signer);

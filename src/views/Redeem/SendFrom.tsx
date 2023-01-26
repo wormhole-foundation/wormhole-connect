@@ -5,7 +5,7 @@ import { RenderRows } from '../../components/RenderRows';
 import Confirmations from './Confirmations';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
-import { context } from '../../utils/sdk';
+import { context, REQUIRED_CONFIRMATIONS } from '../../utils/sdk';
 import { ParsedVaa } from '../../utils/vaa';
 
 const rows = [
@@ -32,19 +32,27 @@ type Props = {
 
 function SendFrom(props: Props) {
   const vaa: ParsedVaa = useSelector((state: RootState) => state.redeem.vaa);
-  const fromNetwork = context.resolveDomainName(vaa.emitterChain);
+  if (!vaa) return <div></div>;
+  const fromNetwork = context.resolveDomainName(vaa?.emitterChain);
   return (
-    vaa && (
-      <div>
-        <InputContainer>
-          <Header network={fromNetwork} address={vaa.fromAddress!} />
-          <RenderRows rows={rows} />
-        </InputContainer>
-        {props.showConfirmations && (
+    <div>
+      <InputContainer>
+        <Header
+          network={fromNetwork}
+          address={vaa.fromAddress!}
+          txHash={
+            vaa.guardianSignatures >= REQUIRED_CONFIRMATIONS
+              ? `${vaa.txHash}`
+              : undefined
+          }
+        />
+        <RenderRows rows={rows} />
+      </InputContainer>
+      {props.showConfirmations &&
+        vaa.guardianSignatures < REQUIRED_CONFIRMATIONS && (
           <Confirmations confirmations={vaa.guardianSignatures} />
         )}
-      </div>
-    )
+    </div>
   );
 }
 
