@@ -30,13 +30,13 @@ const useStyles = makeStyles()((theme) => ({
 
 type Props = {
   confirmations: number;
-  total: number;
 };
 
 function Confirmations(props: Props) {
   const { classes } = useStyles();
-  const { confirmations, total } = props;
-  const percentage = Math.floor((confirmations / total) * 100);
+  const REQUIRED = 13;
+  const { confirmations } = props;
+  const percentage = Math.floor((confirmations / REQUIRED) * 100);
   return (
     <div className={classes.confirmations}>
       <BorderLinearProgress
@@ -45,7 +45,7 @@ function Confirmations(props: Props) {
         color="secondary"
       />
       <div className={classes.confirmationsText}>
-        {confirmations} / {total} Confirmations
+        {confirmations} / {REQUIRED} Confirmations
       </div>
     </div>
   );

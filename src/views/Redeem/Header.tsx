@@ -1,7 +1,7 @@
 import React from 'react';
 import { makeStyles } from 'tss-react/mui';
 import CircularProgress from '@mui/material/CircularProgress';
-import { CHAINS } from '../../store/transfer';
+import { CHAINS } from '../../utils/sdk';
 import { ChainName } from '../../sdk/types';
 import WalletIcon from '../../icons/components/Wallet';
 import { LINK } from '../../utils/style';

@@ -7,7 +7,7 @@ import Spacer from '../components/Spacer';
 import Search from '../components/Search';
 import Scroll from '../components/Scroll';
 
-import { CHAINS_ARR } from '../store/transfer';
+import { CHAINS_ARR } from '../utils/sdk';
 import { ChainName } from '../sdk/types';
 import { useDispatch } from 'react-redux';
 import { setFromNetworksModal, setToNetworksModal } from '../store/router';

@@ -6,7 +6,7 @@ import { Theme } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import { setFromNetworksModal, setTokensModal } from '../../store/router';
 import { RootState } from '../../store';
-import { CHAINS, TOKENS } from '../../store/transfer';
+import { CHAINS, TOKENS } from '../../utils/sdk';
 import InputContainer from '../../components/InputContainer';
 import InputTransparent from '../../components/InputTransparent';
 import ConnectWallet, { Wallet } from '../../components/ConnectWallet';
