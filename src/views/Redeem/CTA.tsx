@@ -18,7 +18,7 @@ function CTA(props: Props) {
         </div>
       </InputContainer>
       <Spacer />
-      <Button text={props.ctaText} onClick={props.cta} elevated />
+      <Button text={props.ctaText} onClick={props.cta} action elevated />
     </div>
   );
 }

@@ -23,35 +23,23 @@ const rows = [
   },
 ];
 
-type Props = {
-  amount: string;
-  relayerFee: string;
-  nativeGas: string;
-  showConfirmations: boolean;
-};
-
-function SendFrom(props: Props) {
+function SendFrom() {
   const vaa: ParsedVaa = useSelector((state: RootState) => state.redeem.vaa);
   if (!vaa) return <div></div>;
   const fromNetwork = context.resolveDomainName(vaa?.emitterChain);
+  const pending = vaa.guardianSignatures < REQUIRED_CONFIRMATIONS;
+
   return (
     <div>
       <InputContainer>
         <Header
           network={fromNetwork}
           address={vaa.fromAddress!}
-          txHash={
-            vaa.guardianSignatures >= REQUIRED_CONFIRMATIONS
-              ? `${vaa.txHash}`
-              : undefined
-          }
+          txHash={!pending ? vaa.txHash : undefined}
         />
         <RenderRows rows={rows} />
       </InputContainer>
-      {props.showConfirmations &&
-        vaa.guardianSignatures < REQUIRED_CONFIRMATIONS && (
-          <Confirmations confirmations={vaa.guardianSignatures} />
-        )}
+      {pending && <Confirmations confirmations={vaa.guardianSignatures} />}
     </div>
   );
 }

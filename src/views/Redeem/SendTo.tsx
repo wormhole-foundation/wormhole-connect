@@ -5,7 +5,7 @@ import { RenderRows } from '../../components/RenderRows';
 import Confirmations from './Confirmations';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
-import { context } from '../../utils/sdk';
+import { context, REQUIRED_CONFIRMATIONS } from '../../utils/sdk';
 import { ParsedVaa } from '../../utils/vaa';
 
 const rows = [
@@ -19,26 +19,23 @@ const rows = [
   },
 ];
 
-type Props = {
-  amount: string;
-  relayerFee: string;
-  nativeGas: string;
-  showConfirmations: boolean;
-};
-
-function SendTo(props: Props) {
+function SendTo() {
   const vaa: ParsedVaa = useSelector((state: RootState) => state.redeem.vaa);
   if (!vaa) return <div></div>;
   const toNetwork = context.resolveDomainName(vaa.toChain);
+  const pending = vaa.guardianSignatures < REQUIRED_CONFIRMATIONS;
+
   return (
     <div>
       <InputContainer>
-        <Header network={toNetwork} address={vaa.toAddress} />
+        <Header
+          network={toNetwork}
+          address={vaa.toAddress}
+          txHash={!pending ? vaa.txHash : undefined}
+        />
         <RenderRows rows={rows} />
       </InputContainer>
-      {props.showConfirmations && (
-        <Confirmations confirmations={vaa.guardianSignatures} />
-      )}
+      {pending && <Confirmations confirmations={vaa.guardianSignatures} />}
     </div>
   );
 }

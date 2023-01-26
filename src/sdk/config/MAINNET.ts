@@ -429,6 +429,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     address: undefined,
     coinGeckoId: 'polygon',
     color: '#8247E5',
+    decimals: 18,
   },
   WMATIC: {
     symbol: 'WMATIC',
@@ -436,6 +437,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     address: '0x1234...5678',
     coinGeckoId: 'polygon',
     color: '#8247E5',
+    decimals: 18,
   },
   SOL: {
     symbol: 'SOL',
@@ -443,6 +445,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     address: '0x1234...5678',
     coinGeckoId: 'solana',
     color: '#28D4B5',
+    decimals: 18,
   },
   WAVAX: {
     symbol: 'WAVAX',
@@ -450,6 +453,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     address: '0x1234...5678',
     coinGeckoId: 'wrapped-avax',
     color: '#E84142',
+    decimals: 18,
   },
   CELO: {
     symbol: 'CELO',
@@ -457,6 +461,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     address: '0x1234...5678',
     coinGeckoId: 'celo',
     color: '#35D07E',
+    decimals: 18,
   },
   BNB: {
     symbol: 'BNB',
@@ -464,6 +469,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     address: '0x1234...5678',
     coinGeckoId: 'bnb',
     color: '#F3BA30',
+    decimals: 18,
   },
 };
 
