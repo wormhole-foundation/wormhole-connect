@@ -153,6 +153,7 @@ export class EthContext<T extends WormholeContext> extends Context {
 
   async sendWithRelay(
     token: TokenId | typeof NATIVE,
+    toNativeToken: string,
     amount: string,
     sendingChain: ChainName | ChainId,
     senderAddress: string,
@@ -166,16 +167,20 @@ export class EthContext<T extends WormholeContext> extends Context {
     const recipientChainId = this.context.resolveDomain(recipientChain);
     const relayer = this.context.mustGetTBRelayer(sendingChain);
     const amountBN = ethers.BigNumber.from(amount);
+    const nativeTokenBN = ethers.BigNumber.from(toNativeToken);
     const unwrapWeth = await relayer.unwrapWeth();
 
     if (token === NATIVE && unwrapWeth) {
       // sending native ETH
       const tx = await relayer.wrapAndTransferEthWithRelay(
-        amountBN, // convert to native gas token amount
+        nativeTokenBN,
         recipientChain,
         recipientAddress,
         BigNumber.from(0), // batch id?
-        overrides,
+        {
+          ...(overrides || {}),
+          value: amountBN,
+        },
       );
       return await tx.wait();
     } else {
@@ -183,7 +188,7 @@ export class EthContext<T extends WormholeContext> extends Context {
       const tx = await relayer.transferTokensWithRelay(
         (token as TokenId).address,
         amountBN,
-        BigNumber.from('0'),
+        nativeTokenBN,
         recipientChainId,
         recipientAddress,
         BigNumber.from(0), // batch id?
