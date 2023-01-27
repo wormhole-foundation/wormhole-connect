@@ -329,16 +329,18 @@ export class WormholeContext extends MultiProvider<Domain> {
     relayerFee?: string,
   ) {
     // only supported on EVM
-    const context = this.getContext(sendingChain) as EthContext<WormholeContext>;
+    const context = this.getContext(
+      sendingChain,
+    ) as EthContext<WormholeContext>;
     return context.sendWithRelay(
-        token,
-        amount,
-        toNativeToken,
-        sendingChain,
-        senderAddress,
-        recipientChain,
-        recipientAddress,
-    )
+      token,
+      amount,
+      toNativeToken,
+      sendingChain,
+      senderAddress,
+      recipientChain,
+      recipientAddress,
+    );
   }
 
   parseSequenceFromLog(receipt: any, chain: ChainName | ChainId): string {

@@ -1,6 +1,13 @@
 import { Network as Environment } from '@certusone/wormhole-sdk';
 import { ethers } from 'ethers';
-import { WormholeContext, ChainConfig, TokenConfig, TokenId, ChainId, ChainName } from 'sdk';
+import {
+  WormholeContext,
+  ChainConfig,
+  TokenConfig,
+  TokenId,
+  ChainId,
+  ChainName,
+} from 'sdk';
 import MAINNET_CONFIG, { MAINNET_TOKENS } from 'sdk/config/MAINNET';
 import TESTNET_CONFIG, { TESTNET_TOKENS } from 'sdk/config/TESTNET';
 import { PaymentOption } from 'store/transfer';
@@ -34,7 +41,7 @@ export const sendTransfer = async (
   console.log('preparing send');
   console.log('context:', context);
   const parsedAmt = ethers.utils.parseUnits(amount, 18); // TODO: use token decimals
-  const parsedNativeAmt = ethers.utils.parseUnits(toNativeToken || '0', 18)
+  const parsedNativeAmt = ethers.utils.parseUnits(toNativeToken || '0', 18);
   if (paymentOption === PaymentOption.MANUAL) {
     const receipt = await context.send(
       token,
@@ -55,7 +62,7 @@ export const sendTransfer = async (
       toNetwork,
       toAddress,
       parsedNativeAmt.toString(),
-    )
-    return receipt
+    );
+    return receipt;
   }
 };

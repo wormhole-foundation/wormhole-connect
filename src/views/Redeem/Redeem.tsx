@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { fetchVaa, ParsedVaa } from '../../utils/vaa';
-import Header from '../../components/Header';
+import PageHeader from '../../components/PageHeader';
 import Spacer from '../../components/Spacer';
 import NetworksTag from './Tag';
 import Stepper from './Stepper';
@@ -19,7 +19,7 @@ class Redeem extends React.Component<
 
   async getVaa() {
     const vaa = await fetchVaa(
-      '0x5d3bdbaa3286508fc32c10e1bd588ae2611e01f90d15d119fb4ef5dd964177b4',
+      'ca551687216bfd60ef2652531913b94ccdf032dbd71de5852e764e88b3dff361',
     );
     this.props.setVaa(vaa);
     this.setState({ vaa });
@@ -53,7 +53,8 @@ class Redeem extends React.Component<
             alignItems: 'center',
           }}
         >
-          <Header text="Bridge" align="center" />
+          <PageHeader title="Bridge" back />
+
           <Spacer height={40} />
           <NetworksTag />
           <Stepper cta="Some CTA" />

@@ -11,7 +11,7 @@ export interface RouterState {
 }
 
 const initialState: RouterState = {
-  route: 'redeem',
+  route: 'bridge',
   showFromNetworksModal: false,
   showToNetworksModal: false,
   showTokensModal: false,
