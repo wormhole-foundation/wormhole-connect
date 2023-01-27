@@ -1,7 +1,7 @@
 import React from 'react';
 import { makeStyles } from 'tss-react/mui';
 import CircularProgress from '@mui/material/CircularProgress';
-import { CHAINS } from '../../store/transfer';
+import { CHAINS } from '../../utils/sdk';
 import { ChainName } from '../../sdk/types';
 import WalletIcon from '../../icons/components/Wallet';
 import { LINK } from '../../utils/style';
@@ -29,7 +29,10 @@ const useStyles = makeStyles()((theme) => ({
     height: '32px',
     width: '32px',
   },
-  link: LINK(theme),
+  link: {
+    ...LINK(theme),
+    transform: 'translateX(10px)',
+  },
 }));
 
 type Props = {
@@ -41,6 +44,7 @@ type Props = {
 function Header(props: Props) {
   const { classes } = useStyles();
   const networkConfig = CHAINS[props.network]!;
+  const explorerLink = `${networkConfig.explorerUrl}tx/${props.txHash}`;
   return (
     <div className={classes.header}>
       <div className={classes.left}>
@@ -55,7 +59,7 @@ function Header(props: Props) {
       {props.txHash ? (
         <a
           className={classes.link}
-          href="https://wormhole.com/"
+          href={explorerLink}
           target="_blank"
           rel="noreferrer"
         >

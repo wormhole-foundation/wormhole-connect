@@ -76,45 +76,6 @@ export async function openWalletModal(
     registerSigner(signer);
   }
   return { connection: walletConnection, address, signer };
-
-  // // listen to events
-  // connection.on('accountsChanged', async () => {
-  //   if (connection.isMetaMask) {
-  //     window.location.reload();
-  //     return
-  //   }
-  // })
-  // connection.on('chainChanged', async (chainId: number) => {
-  //   console.log('network change', chainId)
-  //   // get name of network and set in store
-  //   const id = BigNumber.from(chainId).toNumber()
-  //   const network = getNetworkByChainID(id)
-  //   if (network) {
-  //     // network supported, setting wallet network
-  //     await dispatch('setWalletNetwork', network.name)
-  //   } else {
-  //     // network not supported, clearing network
-  //     await dispatch('setWalletNetwork', '')
-  //   }
-  // })
-
-  // // get and set address
-  // const address = await signer.getAddress()
-  // dispatch('setWalletAddress', address)
-
-  // // set network, if supported
-  // const { chainId } = connection
-  // const chainIdNum = BigNumber.from(chainId).toNumber()
-  // const network = getNetworkByChainID(chainIdNum)
-  // if (network) {
-  //   dispatch('setWalletNetwork', network.name)
-  //   dispatch('setOriginNetwork', network.name)
-  // } else {
-  //   console.log('network not supported')
-  // }
-
-  // await dispatch('checkAllowed')
-  // commit(types.SET_WALLET_CONNECTION, true)
 }
 
 export enum WalletType {

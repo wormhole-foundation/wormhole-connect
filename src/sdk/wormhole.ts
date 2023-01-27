@@ -6,8 +6,6 @@ import {
 } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
 import { Network as Environment } from '@certusone/wormhole-sdk';
 import { MultiProvider, Domain } from '@nomad-xyz/multi-provider';
-import { publicrpc } from '@certusone/wormhole-sdk-proto-web';
-import { NodeHttpTransport } from '@improbable-eng/grpc-web-node-http-transport';
 
 import MAINNET_CONFIG, {
   MainnetChainName,
@@ -28,7 +26,7 @@ import { SolanaContext } from './envContexts/solanaContext';
 import { NearContext } from './envContexts/nearContext';
 import { AptosContext } from './envContexts/aptosContext';
 import { AlgorandContext } from './envContexts/algorandContext';
-const { GrpcWebImpl, PublicRPCServiceClientImpl } = publicrpc;
+import { TokenBridgeRelayer } from './abis/TokenBridgeRelayer';
 
 /**
  * The WormholeContext manages connections to Wormhole Core, Bridge and NFT Bridge contracts.
@@ -205,6 +203,18 @@ export class WormholeContext extends MultiProvider<Domain> {
     return nftBridgeContract;
   }
 
+  getTBRelayer(chain: ChainName | ChainId): TokenBridgeRelayer | undefined {
+    const contracts = this.mustGetContracts(chain);
+    return contracts.tokenBridgeRelayer;
+  }
+
+  mustGetTBRelayer(chain: ChainName | ChainId): TokenBridgeRelayer {
+    const relayerContract = this.getTBRelayer(chain);
+    if (!relayerContract)
+      throw new Error(`Token Bridge Relayer contract not found for ${chain}`);
+    return relayerContract;
+  }
+
   getContext(
     chain: ChainName | ChainId,
   ):
@@ -252,9 +262,15 @@ export class WormholeContext extends MultiProvider<Domain> {
   /**
    * Sends transaction to the bridge
    *
-   * @param tokenId The tokenId (chain and address) of the token being sent. Pass in 'native' to send native token
-   * @param Amount The amount to approve. If absent, will approve the maximum amount
-   * @throws If unable to get the signer or contracts
+   * @param token The tokenId (chain and address) of the token being sent. Pass in 'native' to send native token
+   * @param amount The amount to bridge
+   * @param sendingChain The chain name or chain id of the source chain
+   * @param senderAddress The address executing the transaction
+   * @param recipientChain The chain name or chain id of the destination chain
+   * @param recipientAddress The address which will receive funds on the destination chain
+   * @param relayerFee
+   * @param payload Extra bytes that can be passed along with the transfer
+   * @throws If unable to get the signer or contracts, or if there is a problem executing the transaction
    */
   // TODO: implement extra arguments for other networks
   async send(
@@ -290,6 +306,43 @@ export class WormholeContext extends MultiProvider<Domain> {
     );
   }
 
+  /**
+   * Sends transaction to the bridge using the relayer
+   *
+   * @param token The tokenId (chain and address) of the token being sent. Pass in 'native' to send native token
+   * @param amount The amount to bridge
+   * @param sendingChain The chain name or chain id of the source chain
+   * @param senderAddress The address executing the transaction
+   * @param recipientChain The chain name or chain id of the destination chain
+   * @param recipientAddress The address which will receive funds on the destination chain
+   * @param toNativeToken The amount of bridged funds that will be converted to the native gas token on the destination chain
+   * @throws If unable to get the signer or contracts, or if there is a problem executing the transaction
+   */
+  async sendWithRelay(
+    token: TokenId | 'native',
+    amount: string,
+    sendingChain: ChainName | ChainId,
+    senderAddress: string,
+    recipientChain: ChainName | ChainId,
+    recipientAddress: string,
+    toNativeToken: string,
+    relayerFee?: string,
+  ) {
+    // only supported on EVM
+    const context = this.getContext(
+      sendingChain,
+    ) as EthContext<WormholeContext>;
+    return context.sendWithRelay(
+      token,
+      amount,
+      toNativeToken,
+      sendingChain,
+      senderAddress,
+      recipientChain,
+      recipientAddress,
+    );
+  }
+
   parseSequenceFromLog(receipt: any, chain: ChainName | ChainId): string {
     const context = this.getContext(chain);
     return context.parseSequenceFromLog(receipt, chain);
@@ -305,103 +358,11 @@ export class WormholeContext extends MultiProvider<Domain> {
     return context.getEmitterAddress(address);
   }
 
-  async getSignedVaaWithReceipt(
-    chain: ChainName | ChainId,
-    receipt: any,
-    extraGrpcOpts = {},
-  ) {
-    const chainName = this.resolveDomainName(chain) as ChainName;
-    const rpcUrl = this.conf.rpcs[chainName];
-    if (!rpcUrl) throw new Error(`Must provide rpc for ${chainName}`);
-
-    const rpc = new GrpcWebImpl(rpcUrl, extraGrpcOpts);
-    const api = new PublicRPCServiceClientImpl(rpc);
-    const emitterAddress = this.mustGetBridge(chain).address;
-    const sequence = this.parseSequenceFromLog(receipt, chain);
-
-    return await api.GetSignedVAA({
-      messageId: {
-        emitterChain: this.resolveDomain(chain),
-        emitterAddress,
-        sequence,
-      },
-    });
-  }
-
-  async getSignedVaaWithSequence(
-    chain: ChainName | ChainId,
-    sequence: string,
-    extraGrpcOpts = {},
-  ) {
-    const chainName = this.resolveDomainName(chain) as ChainName;
-    const rpcUrl = this.conf.rpcs[chainName];
-    if (!rpcUrl) throw new Error(`Must provide rpc for ${chainName}`);
-
-    const rpc = new GrpcWebImpl(rpcUrl, extraGrpcOpts);
-    const api = new PublicRPCServiceClientImpl(rpc);
-    const emitterAddress = this.mustGetBridge(chain).address;
-
-    return await api.GetSignedVAA({
-      messageId: {
-        emitterChain: this.resolveDomain(chain),
-        emitterAddress,
-        sequence,
-      },
-    });
-  }
-
-  async getSignedVAAWithRetry(
-    emitterChain: ChainId | ChainName,
-    sequence: string,
-    extraGrpcOpts = {},
-    retryTimeout = 1000,
-    retryAttempts?: number,
-  ) {
-    let result;
-    let attempts = 0;
-    while (!result) {
-      attempts++;
-      await new Promise((resolve) => setTimeout(resolve, retryTimeout));
-      try {
-        result = await this.getSignedVaaWithSequence(
-          emitterChain,
-          sequence,
-          extraGrpcOpts,
-        );
-      } catch (e) {
-        if (retryAttempts !== undefined && attempts > retryAttempts) {
-          throw e;
-        }
-      }
-    }
-    return result;
-  }
-
-  async getSignedVAABySequence(
-    chain: ChainName | ChainId,
-    sequence: string,
-  ): Promise<Uint8Array> {
-    //Note, if handed a sequence which doesn't exist or was skipped for consensus this will retry until the timeout.
-    const { vaaBytes } = await this.getSignedVAAWithRetry(
-      chain,
-      sequence,
-      {
-        transport: NodeHttpTransport(), //This should only be needed when running in node.
-      },
-      1000, //retryTimeout
-      1000, //Maximum retry attempts
-    );
-
-    return vaaBytes;
-  }
-
   /**
-   * Fetch a config from the Nomad config static site.
+   * Get the default config for Mainnet or Testnet
    *
-   * @param environment the environment name to attempt to fetch
-   * @returns A NomadConfig
-   * @throws If the site is down, the config is not on the site, or the config
-   *         is not of a valid format
+   * @param environment 'MAINNET' or 'TESTNET'
+   * @returns A Wormhole Config
    */
   static async getConfig(env: Environment): Promise<WormholeConfig> {
     return env === 'MAINNET' ? MAINNET_CONFIG : TESTNET_CONFIG;

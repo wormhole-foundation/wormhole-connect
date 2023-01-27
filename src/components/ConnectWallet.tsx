@@ -19,6 +19,7 @@ import { displayEvmAddress } from '../utils';
 import { CHAINS } from '../utils/sdk';
 import { BigNumber } from 'ethers';
 import { setFromNetwork } from '../store/transfer';
+import ActionIndicator from './Action';
 
 const useStyles = makeStyles((theme: Theme) => ({
   row: {
@@ -28,15 +29,16 @@ const useStyles = makeStyles((theme: Theme) => ({
     gap: '8px',
     cursor: 'pointer',
   },
-  action: {
-    borderRadius: '16px',
-    padding: '2px 12px',
-    backgroundColor: theme.palette.button.action,
-    color: theme.palette.button.actionText,
-  },
   walletIcon: {
     width: '24px',
     height: '24px',
+  },
+  actionIndicator: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '14px',
+    marginLeft: '4px',
   },
   down: {
     marginRight: '-8px',
@@ -159,12 +161,12 @@ function NetworksModal(props: Props) {
       )}
     </PopupState>
   ) : (
-    <div
-      className={`${classes.row} ${classes.action}`}
-      onClick={() => connect()}
-    >
+    <div className={classes.row} onClick={() => connect()}>
       <WalletIcon />
       <div>Connect wallet</div>
+      <div className={classes.actionIndicator}>
+        <ActionIndicator />
+      </div>
     </div>
   );
 }

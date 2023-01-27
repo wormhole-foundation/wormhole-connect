@@ -5,7 +5,7 @@ import NetworkTile from '../../components/NetworkTile';
 import { Theme } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../store';
-import { CHAINS, TOKENS } from '../../store/transfer';
+import { CHAINS, TOKENS } from '../../utils/sdk';
 import InputContainer from '../../components/InputContainer';
 import ConnectWallet, { Wallet } from '../../components/ConnectWallet';
 import NoNetworkIcon from '../../icons/no-network.png';
@@ -65,6 +65,19 @@ const useStyles = makeStyles((theme: Theme) => ({
   disabled: {
     color: theme.palette.text.secondary + OPACITY[50] + ' !important',
   },
+  amtRow: {
+    display: 'flex',
+    flexDirection: 'row',
+    width: '100%',
+    gap: '8px',
+  },
+  balance: {
+    maxWidth: '150px',
+    flexGrow: 'unset',
+    flexShrink: '2',
+    backgroundColor: 'transparent',
+    border: 'none',
+  },
 }));
 
 function SendTo() {
@@ -82,6 +95,7 @@ function SendTo() {
   const tokenConfig = TOKENS[token];
   // set store values
   const openToNetworksModal = () => dispatch(setToNetworksModal(true));
+  const balance = '12.34';
 
   return (
     <div className={classes.container}>
@@ -121,12 +135,33 @@ function SendTo() {
                 </div>
               )}
             </div>
-            <div
+            <div className={classes.amtRow}>
+              <div
+                className={joinClass([
+                  classes.card,
+                  !token && classes.disabled,
+                ])}
+              >
+                <div className={classes.label}>Amount</div>
+                <div>{token && amount ? amount : '-'}</div>
+              </div>
+              <div
+                className={joinClass([
+                  classes.card,
+                  (!token || !balance) && classes.disabled,
+                  classes.balance,
+                ])}
+              >
+                <div className={classes.label}>Balance</div>
+                <div>{token && balance && balance ? balance : '-'}</div>
+              </div>
+            </div>
+            {/* <div
               className={joinClass([classes.card, !token && classes.disabled])}
             >
               <div className={classes.label}>Amount</div>
               <div>{token && amount ? amount : '-'}</div>
-            </div>
+            </div> */}
           </div>
         </div>
       </InputContainer>

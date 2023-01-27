@@ -1,57 +1,74 @@
 import React from 'react';
-import { makeStyles } from '@mui/styles';
-import Header from '../../components/Header';
+import { connect } from 'react-redux';
+import { fetchVaa, ParsedVaa } from '../../utils/vaa';
+import PageHeader from '../../components/PageHeader';
 import Spacer from '../../components/Spacer';
 import NetworksTag from './Tag';
-import { Theme } from '@mui/material';
-import LaunchIcon from '@mui/icons-material/Launch';
 import Stepper from './Stepper';
-import { LINK } from '../../utils/style';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../store';
+import { setVaa } from '../../store/redeem';
+import { REQUIRED_CONFIRMATIONS } from '../../utils/sdk';
 
-const useStyles = makeStyles((theme: Theme) => ({
-  milestoneContent: {
-    margin: 'auto',
-    maxWidth: '700px',
-    width: '100%',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  link: LINK(theme),
-  redirectIcon: {
-    marginLeft: '8px',
-  },
-}));
+class Redeem extends React.Component<
+  { setVaa: any },
+  { vaa: ParsedVaa | undefined }
+> {
+  constructor(props) {
+    super(props);
+    this.state = { vaa: undefined };
+  }
 
-function Redeem() {
-  const classes = useStyles();
-  // TODO: parse from VAA
-  const fromNetwork = useSelector(
-    (state: RootState) => state.transfer.fromNetwork,
-  );
-  const toNetwork = useSelector((state: RootState) => state.transfer.toNetwork);
+  async getVaa() {
+    const vaa = await fetchVaa(
+      'ca551687216bfd60ef2652531913b94ccdf032dbd71de5852e764e88b3dff361',
+    );
+    this.props.setVaa(vaa);
+    this.setState({ vaa });
+  }
 
-  return (
-    <div className={classes.milestoneContent}>
-      <Header text="Bridge" align="center" />
-      <Spacer height={40} />
-      <NetworksTag fromNetwork={fromNetwork} toNetwork={toNetwork} />
-      <a
-        className={classes.link}
-        href="https://wormhole.com/"
-        target="_blank"
-        rel="noreferrer"
-      >
-        <div>View on Wormhole Explorer</div>
-        <LaunchIcon />
-      </a>
-      <Stepper />
-      <Spacer height={60} />
-    </div>
-  );
+  componentDidMount() {
+    console.log('mount');
+    this.getVaa();
+    const interval = setInterval(() => {
+      if (
+        this.state.vaa &&
+        this.state.vaa.guardianSignatures < REQUIRED_CONFIRMATIONS
+      ) {
+        this.getVaa();
+      } else {
+        clearInterval(interval);
+      }
+    }, 30000);
+  }
+
+  render() {
+    if (!this.state.vaa) return <div></div>;
+    return (
+      this.state.vaa && (
+        <div
+          style={{
+            width: '100%',
+            maxWidth: '700px',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
+        >
+          <PageHeader title="Bridge" back />
+
+          <Spacer height={40} />
+          <NetworksTag />
+          <Stepper cta="Some CTA" />
+          <Spacer height={60} />
+        </div>
+      )
+    );
+  }
 }
 
-export default Redeem;
+const mapDispatchToProps = (dispatch) => {
+  return {
+    setVaa: (vaa: ParsedVaa) => dispatch(setVaa(vaa)),
+  };
+};
+
+export default connect(null, mapDispatchToProps)(Redeem);

@@ -63,4 +63,5 @@ export type TokenConfig = {
   address?: string;
   coinGeckoId: string;
   color: string;
+  decimals: number;
 };

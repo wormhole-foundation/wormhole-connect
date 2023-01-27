@@ -1,9 +1,12 @@
 import React from 'react';
 import InputContainer from '../../components/InputContainer';
-import { ChainName } from '../../sdk/types';
 import Header from './Header';
 import { RenderRows } from '../../components/RenderRows';
 import Confirmations from './Confirmations';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store';
+import { context, REQUIRED_CONFIRMATIONS } from '../../utils/sdk';
+import { ParsedVaa } from '../../utils/vaa';
 
 const rows = [
   {
@@ -20,25 +23,23 @@ const rows = [
   },
 ];
 
-type Props = {
-  network: ChainName;
-  address: string;
-  amount: string;
-  relayerFee: string;
-  nativeGas: string;
-  showConfirmations: boolean;
-};
+function SendFrom() {
+  const vaa: ParsedVaa = useSelector((state: RootState) => state.redeem.vaa);
+  if (!vaa) return <div></div>;
+  const fromNetwork = context.resolveDomainName(vaa?.emitterChain);
+  const pending = vaa.guardianSignatures < REQUIRED_CONFIRMATIONS;
 
-function SendFrom(props: Props) {
   return (
     <div>
       <InputContainer>
-        <Header network={props.network} address={props.address} />
+        <Header
+          network={fromNetwork}
+          address={vaa.fromAddress!}
+          txHash={!pending ? vaa.txHash : undefined}
+        />
         <RenderRows rows={rows} />
       </InputContainer>
-      {props.showConfirmations && (
-        <Confirmations confirmations={18} total={32} />
-      )}
+      {pending && <Confirmations confirmations={vaa.guardianSignatures} />}
     </div>
   );
 }

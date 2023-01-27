@@ -13,20 +13,20 @@ import type {
   PopulatedTransaction,
   Signer,
   utils,
-} from "ethers";
+} from 'ethers';
 import type {
   FunctionFragment,
   Result,
   EventFragment,
-} from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
+} from '@ethersproject/abi';
+import type { Listener, Provider } from '@ethersproject/providers';
 import type {
   TypedEventFilter,
   TypedEvent,
   TypedListener,
   OnEvent,
   PromiseOrValue,
-} from "./common";
+} from './common';
 
 export declare namespace TokenBridgeRelayerStructs {
   export type TransferWithRelayStruct = {
@@ -40,7 +40,7 @@ export declare namespace TokenBridgeRelayerStructs {
     number,
     BigNumber,
     BigNumber,
-    string
+    string,
   ] & {
     payloadId: number;
     targetRelayerFee: BigNumber;
@@ -51,404 +51,404 @@ export declare namespace TokenBridgeRelayerStructs {
 
 export interface TokenBridgeRelayerInterface extends utils.Interface {
   functions: {
-    "WETH()": FunctionFragment;
-    "calculateMaxSwapAmountIn(address)": FunctionFragment;
-    "calculateNativeSwapAmountOut(address,uint256)": FunctionFragment;
-    "calculateRelayerFee(uint16,address,uint8)": FunctionFragment;
-    "cancelOwnershipTransferRequest(uint16)": FunctionFragment;
-    "chainId()": FunctionFragment;
-    "completeTransferWithRelay(bytes)": FunctionFragment;
-    "confirmOwnershipTransferRequest()": FunctionFragment;
-    "decodeTransferWithRelay(bytes)": FunctionFragment;
-    "denormalizeAmount(uint256,uint8)": FunctionFragment;
-    "deregisterToken(uint16,address)": FunctionFragment;
-    "encodeTransferWithRelay((uint8,uint256,uint256,bytes32))": FunctionFragment;
-    "fetchLocalAddressFromTransferMessage(bytes)": FunctionFragment;
-    "getAcceptedTokensList()": FunctionFragment;
-    "getRegisteredContract(uint16)": FunctionFragment;
-    "isAcceptedToken(address)": FunctionFragment;
-    "maxNativeSwapAmount(address)": FunctionFragment;
-    "nativeSwapRate(address)": FunctionFragment;
-    "normalizeAmount(uint256,uint8)": FunctionFragment;
-    "owner()": FunctionFragment;
-    "pendingOwner()": FunctionFragment;
-    "registerContract(uint16,bytes32)": FunctionFragment;
-    "registerToken(uint16,address)": FunctionFragment;
-    "relayerFee(uint16)": FunctionFragment;
-    "relayerFeePrecision()": FunctionFragment;
-    "submitOwnershipTransferRequest(uint16,address)": FunctionFragment;
-    "swapRate(address)": FunctionFragment;
-    "swapRatePrecision()": FunctionFragment;
-    "tokenBridge()": FunctionFragment;
-    "transferTokensWithRelay(address,uint256,uint256,uint16,bytes32,uint32)": FunctionFragment;
-    "unwrapWeth()": FunctionFragment;
-    "updateMaxNativeSwapAmount(uint16,address,uint256)": FunctionFragment;
-    "updateRelayerFee(uint16,uint256)": FunctionFragment;
-    "updateRelayerFeePrecision(uint16,uint256)": FunctionFragment;
-    "updateSwapRate(uint16,address,uint256)": FunctionFragment;
-    "updateSwapRatePrecision(uint16,uint256)": FunctionFragment;
-    "updateUnwrapWethFlag(uint16,bool)": FunctionFragment;
-    "wormhole()": FunctionFragment;
-    "wrapAndTransferEthWithRelay(uint256,uint16,bytes32,uint32)": FunctionFragment;
+    'WETH()': FunctionFragment;
+    'calculateMaxSwapAmountIn(address)': FunctionFragment;
+    'calculateNativeSwapAmountOut(address,uint256)': FunctionFragment;
+    'calculateRelayerFee(uint16,address,uint8)': FunctionFragment;
+    'cancelOwnershipTransferRequest(uint16)': FunctionFragment;
+    'chainId()': FunctionFragment;
+    'completeTransferWithRelay(bytes)': FunctionFragment;
+    'confirmOwnershipTransferRequest()': FunctionFragment;
+    'decodeTransferWithRelay(bytes)': FunctionFragment;
+    'denormalizeAmount(uint256,uint8)': FunctionFragment;
+    'deregisterToken(uint16,address)': FunctionFragment;
+    'encodeTransferWithRelay((uint8,uint256,uint256,bytes32))': FunctionFragment;
+    'fetchLocalAddressFromTransferMessage(bytes)': FunctionFragment;
+    'getAcceptedTokensList()': FunctionFragment;
+    'getRegisteredContract(uint16)': FunctionFragment;
+    'isAcceptedToken(address)': FunctionFragment;
+    'maxNativeSwapAmount(address)': FunctionFragment;
+    'nativeSwapRate(address)': FunctionFragment;
+    'normalizeAmount(uint256,uint8)': FunctionFragment;
+    'owner()': FunctionFragment;
+    'pendingOwner()': FunctionFragment;
+    'registerContract(uint16,bytes32)': FunctionFragment;
+    'registerToken(uint16,address)': FunctionFragment;
+    'relayerFee(uint16)': FunctionFragment;
+    'relayerFeePrecision()': FunctionFragment;
+    'submitOwnershipTransferRequest(uint16,address)': FunctionFragment;
+    'swapRate(address)': FunctionFragment;
+    'swapRatePrecision()': FunctionFragment;
+    'tokenBridge()': FunctionFragment;
+    'transferTokensWithRelay(address,uint256,uint256,uint16,bytes32,uint32)': FunctionFragment;
+    'unwrapWeth()': FunctionFragment;
+    'updateMaxNativeSwapAmount(uint16,address,uint256)': FunctionFragment;
+    'updateRelayerFee(uint16,uint256)': FunctionFragment;
+    'updateRelayerFeePrecision(uint16,uint256)': FunctionFragment;
+    'updateSwapRate(uint16,address,uint256)': FunctionFragment;
+    'updateSwapRatePrecision(uint16,uint256)': FunctionFragment;
+    'updateUnwrapWethFlag(uint16,bool)': FunctionFragment;
+    'wormhole()': FunctionFragment;
+    'wrapAndTransferEthWithRelay(uint256,uint16,bytes32,uint32)': FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
-      | "WETH"
-      | "calculateMaxSwapAmountIn"
-      | "calculateNativeSwapAmountOut"
-      | "calculateRelayerFee"
-      | "cancelOwnershipTransferRequest"
-      | "chainId"
-      | "completeTransferWithRelay"
-      | "confirmOwnershipTransferRequest"
-      | "decodeTransferWithRelay"
-      | "denormalizeAmount"
-      | "deregisterToken"
-      | "encodeTransferWithRelay"
-      | "fetchLocalAddressFromTransferMessage"
-      | "getAcceptedTokensList"
-      | "getRegisteredContract"
-      | "isAcceptedToken"
-      | "maxNativeSwapAmount"
-      | "nativeSwapRate"
-      | "normalizeAmount"
-      | "owner"
-      | "pendingOwner"
-      | "registerContract"
-      | "registerToken"
-      | "relayerFee"
-      | "relayerFeePrecision"
-      | "submitOwnershipTransferRequest"
-      | "swapRate"
-      | "swapRatePrecision"
-      | "tokenBridge"
-      | "transferTokensWithRelay"
-      | "unwrapWeth"
-      | "updateMaxNativeSwapAmount"
-      | "updateRelayerFee"
-      | "updateRelayerFeePrecision"
-      | "updateSwapRate"
-      | "updateSwapRatePrecision"
-      | "updateUnwrapWethFlag"
-      | "wormhole"
-      | "wrapAndTransferEthWithRelay"
+      | 'WETH'
+      | 'calculateMaxSwapAmountIn'
+      | 'calculateNativeSwapAmountOut'
+      | 'calculateRelayerFee'
+      | 'cancelOwnershipTransferRequest'
+      | 'chainId'
+      | 'completeTransferWithRelay'
+      | 'confirmOwnershipTransferRequest'
+      | 'decodeTransferWithRelay'
+      | 'denormalizeAmount'
+      | 'deregisterToken'
+      | 'encodeTransferWithRelay'
+      | 'fetchLocalAddressFromTransferMessage'
+      | 'getAcceptedTokensList'
+      | 'getRegisteredContract'
+      | 'isAcceptedToken'
+      | 'maxNativeSwapAmount'
+      | 'nativeSwapRate'
+      | 'normalizeAmount'
+      | 'owner'
+      | 'pendingOwner'
+      | 'registerContract'
+      | 'registerToken'
+      | 'relayerFee'
+      | 'relayerFeePrecision'
+      | 'submitOwnershipTransferRequest'
+      | 'swapRate'
+      | 'swapRatePrecision'
+      | 'tokenBridge'
+      | 'transferTokensWithRelay'
+      | 'unwrapWeth'
+      | 'updateMaxNativeSwapAmount'
+      | 'updateRelayerFee'
+      | 'updateRelayerFeePrecision'
+      | 'updateSwapRate'
+      | 'updateSwapRatePrecision'
+      | 'updateUnwrapWethFlag'
+      | 'wormhole'
+      | 'wrapAndTransferEthWithRelay',
   ): FunctionFragment;
 
-  encodeFunctionData(functionFragment: "WETH", values?: undefined): string;
+  encodeFunctionData(functionFragment: 'WETH', values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "calculateMaxSwapAmountIn",
-    values: [PromiseOrValue<string>]
+    functionFragment: 'calculateMaxSwapAmountIn',
+    values: [PromiseOrValue<string>],
   ): string;
   encodeFunctionData(
-    functionFragment: "calculateNativeSwapAmountOut",
-    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
+    functionFragment: 'calculateNativeSwapAmountOut',
+    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>],
   ): string;
   encodeFunctionData(
-    functionFragment: "calculateRelayerFee",
+    functionFragment: 'calculateRelayerFee',
     values: [
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>
-    ]
+      PromiseOrValue<BigNumberish>,
+    ],
   ): string;
   encodeFunctionData(
-    functionFragment: "cancelOwnershipTransferRequest",
-    values: [PromiseOrValue<BigNumberish>]
+    functionFragment: 'cancelOwnershipTransferRequest',
+    values: [PromiseOrValue<BigNumberish>],
   ): string;
-  encodeFunctionData(functionFragment: "chainId", values?: undefined): string;
+  encodeFunctionData(functionFragment: 'chainId', values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "completeTransferWithRelay",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "confirmOwnershipTransferRequest",
-    values?: undefined
+    functionFragment: 'completeTransferWithRelay',
+    values: [PromiseOrValue<BytesLike>],
   ): string;
   encodeFunctionData(
-    functionFragment: "decodeTransferWithRelay",
-    values: [PromiseOrValue<BytesLike>]
+    functionFragment: 'confirmOwnershipTransferRequest',
+    values?: undefined,
   ): string;
   encodeFunctionData(
-    functionFragment: "denormalizeAmount",
-    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
+    functionFragment: 'decodeTransferWithRelay',
+    values: [PromiseOrValue<BytesLike>],
   ): string;
   encodeFunctionData(
-    functionFragment: "deregisterToken",
-    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>]
+    functionFragment: 'denormalizeAmount',
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>],
   ): string;
   encodeFunctionData(
-    functionFragment: "encodeTransferWithRelay",
-    values: [TokenBridgeRelayerStructs.TransferWithRelayStruct]
+    functionFragment: 'deregisterToken',
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>],
   ): string;
   encodeFunctionData(
-    functionFragment: "fetchLocalAddressFromTransferMessage",
-    values: [PromiseOrValue<BytesLike>]
+    functionFragment: 'encodeTransferWithRelay',
+    values: [TokenBridgeRelayerStructs.TransferWithRelayStruct],
   ): string;
   encodeFunctionData(
-    functionFragment: "getAcceptedTokensList",
-    values?: undefined
+    functionFragment: 'fetchLocalAddressFromTransferMessage',
+    values: [PromiseOrValue<BytesLike>],
   ): string;
   encodeFunctionData(
-    functionFragment: "getRegisteredContract",
-    values: [PromiseOrValue<BigNumberish>]
+    functionFragment: 'getAcceptedTokensList',
+    values?: undefined,
   ): string;
   encodeFunctionData(
-    functionFragment: "isAcceptedToken",
-    values: [PromiseOrValue<string>]
+    functionFragment: 'getRegisteredContract',
+    values: [PromiseOrValue<BigNumberish>],
   ): string;
   encodeFunctionData(
-    functionFragment: "maxNativeSwapAmount",
-    values: [PromiseOrValue<string>]
+    functionFragment: 'isAcceptedToken',
+    values: [PromiseOrValue<string>],
   ): string;
   encodeFunctionData(
-    functionFragment: "nativeSwapRate",
-    values: [PromiseOrValue<string>]
+    functionFragment: 'maxNativeSwapAmount',
+    values: [PromiseOrValue<string>],
   ): string;
   encodeFunctionData(
-    functionFragment: "normalizeAmount",
-    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "pendingOwner",
-    values?: undefined
+    functionFragment: 'nativeSwapRate',
+    values: [PromiseOrValue<string>],
   ): string;
   encodeFunctionData(
-    functionFragment: "registerContract",
-    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BytesLike>]
+    functionFragment: 'normalizeAmount',
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>],
+  ): string;
+  encodeFunctionData(functionFragment: 'owner', values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: 'pendingOwner',
+    values?: undefined,
   ): string;
   encodeFunctionData(
-    functionFragment: "registerToken",
-    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>]
+    functionFragment: 'registerContract',
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BytesLike>],
   ): string;
   encodeFunctionData(
-    functionFragment: "relayerFee",
-    values: [PromiseOrValue<BigNumberish>]
+    functionFragment: 'registerToken',
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>],
   ): string;
   encodeFunctionData(
-    functionFragment: "relayerFeePrecision",
-    values?: undefined
+    functionFragment: 'relayerFee',
+    values: [PromiseOrValue<BigNumberish>],
   ): string;
   encodeFunctionData(
-    functionFragment: "submitOwnershipTransferRequest",
-    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>]
+    functionFragment: 'relayerFeePrecision',
+    values?: undefined,
   ): string;
   encodeFunctionData(
-    functionFragment: "swapRate",
-    values: [PromiseOrValue<string>]
+    functionFragment: 'submitOwnershipTransferRequest',
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>],
   ): string;
   encodeFunctionData(
-    functionFragment: "swapRatePrecision",
-    values?: undefined
+    functionFragment: 'swapRate',
+    values: [PromiseOrValue<string>],
   ): string;
   encodeFunctionData(
-    functionFragment: "tokenBridge",
-    values?: undefined
+    functionFragment: 'swapRatePrecision',
+    values?: undefined,
   ): string;
   encodeFunctionData(
-    functionFragment: "transferTokensWithRelay",
+    functionFragment: 'tokenBridge',
+    values?: undefined,
+  ): string;
+  encodeFunctionData(
+    functionFragment: 'transferTokensWithRelay',
     values: [
       PromiseOrValue<string>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BytesLike>,
-      PromiseOrValue<BigNumberish>
-    ]
+      PromiseOrValue<BigNumberish>,
+    ],
   ): string;
   encodeFunctionData(
-    functionFragment: "unwrapWeth",
-    values?: undefined
+    functionFragment: 'unwrapWeth',
+    values?: undefined,
   ): string;
   encodeFunctionData(
-    functionFragment: "updateMaxNativeSwapAmount",
+    functionFragment: 'updateMaxNativeSwapAmount',
     values: [
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>
-    ]
+      PromiseOrValue<BigNumberish>,
+    ],
   ): string;
   encodeFunctionData(
-    functionFragment: "updateRelayerFee",
-    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
+    functionFragment: 'updateRelayerFee',
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>],
   ): string;
   encodeFunctionData(
-    functionFragment: "updateRelayerFeePrecision",
-    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
+    functionFragment: 'updateRelayerFeePrecision',
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>],
   ): string;
   encodeFunctionData(
-    functionFragment: "updateSwapRate",
+    functionFragment: 'updateSwapRate',
     values: [
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>
-    ]
+      PromiseOrValue<BigNumberish>,
+    ],
   ): string;
   encodeFunctionData(
-    functionFragment: "updateSwapRatePrecision",
-    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
+    functionFragment: 'updateSwapRatePrecision',
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>],
   ): string;
   encodeFunctionData(
-    functionFragment: "updateUnwrapWethFlag",
-    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<boolean>]
+    functionFragment: 'updateUnwrapWethFlag',
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<boolean>],
   ): string;
-  encodeFunctionData(functionFragment: "wormhole", values?: undefined): string;
+  encodeFunctionData(functionFragment: 'wormhole', values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "wrapAndTransferEthWithRelay",
+    functionFragment: 'wrapAndTransferEthWithRelay',
     values: [
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BytesLike>,
-      PromiseOrValue<BigNumberish>
-    ]
+      PromiseOrValue<BigNumberish>,
+    ],
   ): string;
 
-  decodeFunctionResult(functionFragment: "WETH", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'WETH', data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "calculateMaxSwapAmountIn",
-    data: BytesLike
+    functionFragment: 'calculateMaxSwapAmountIn',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "calculateNativeSwapAmountOut",
-    data: BytesLike
+    functionFragment: 'calculateNativeSwapAmountOut',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "calculateRelayerFee",
-    data: BytesLike
+    functionFragment: 'calculateRelayerFee',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "cancelOwnershipTransferRequest",
-    data: BytesLike
+    functionFragment: 'cancelOwnershipTransferRequest',
+    data: BytesLike,
   ): Result;
-  decodeFunctionResult(functionFragment: "chainId", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'chainId', data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "completeTransferWithRelay",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "confirmOwnershipTransferRequest",
-    data: BytesLike
+    functionFragment: 'completeTransferWithRelay',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "decodeTransferWithRelay",
-    data: BytesLike
+    functionFragment: 'confirmOwnershipTransferRequest',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "denormalizeAmount",
-    data: BytesLike
+    functionFragment: 'decodeTransferWithRelay',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "deregisterToken",
-    data: BytesLike
+    functionFragment: 'denormalizeAmount',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "encodeTransferWithRelay",
-    data: BytesLike
+    functionFragment: 'deregisterToken',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "fetchLocalAddressFromTransferMessage",
-    data: BytesLike
+    functionFragment: 'encodeTransferWithRelay',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getAcceptedTokensList",
-    data: BytesLike
+    functionFragment: 'fetchLocalAddressFromTransferMessage',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getRegisteredContract",
-    data: BytesLike
+    functionFragment: 'getAcceptedTokensList',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "isAcceptedToken",
-    data: BytesLike
+    functionFragment: 'getRegisteredContract',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "maxNativeSwapAmount",
-    data: BytesLike
+    functionFragment: 'isAcceptedToken',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "nativeSwapRate",
-    data: BytesLike
+    functionFragment: 'maxNativeSwapAmount',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "normalizeAmount",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "pendingOwner",
-    data: BytesLike
+    functionFragment: 'nativeSwapRate',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "registerContract",
-    data: BytesLike
+    functionFragment: 'normalizeAmount',
+    data: BytesLike,
+  ): Result;
+  decodeFunctionResult(functionFragment: 'owner', data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: 'pendingOwner',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "registerToken",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "relayerFee", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "relayerFeePrecision",
-    data: BytesLike
+    functionFragment: 'registerContract',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "submitOwnershipTransferRequest",
-    data: BytesLike
+    functionFragment: 'registerToken',
+    data: BytesLike,
   ): Result;
-  decodeFunctionResult(functionFragment: "swapRate", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'relayerFee', data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "swapRatePrecision",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "tokenBridge",
-    data: BytesLike
+    functionFragment: 'relayerFeePrecision',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "transferTokensWithRelay",
-    data: BytesLike
+    functionFragment: 'submitOwnershipTransferRequest',
+    data: BytesLike,
   ): Result;
-  decodeFunctionResult(functionFragment: "unwrapWeth", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'swapRate', data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "updateMaxNativeSwapAmount",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "updateRelayerFee",
-    data: BytesLike
+    functionFragment: 'swapRatePrecision',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "updateRelayerFeePrecision",
-    data: BytesLike
+    functionFragment: 'tokenBridge',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "updateSwapRate",
-    data: BytesLike
+    functionFragment: 'transferTokensWithRelay',
+    data: BytesLike,
+  ): Result;
+  decodeFunctionResult(functionFragment: 'unwrapWeth', data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: 'updateMaxNativeSwapAmount',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "updateSwapRatePrecision",
-    data: BytesLike
+    functionFragment: 'updateRelayerFee',
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: "updateUnwrapWethFlag",
-    data: BytesLike
+    functionFragment: 'updateRelayerFeePrecision',
+    data: BytesLike,
   ): Result;
-  decodeFunctionResult(functionFragment: "wormhole", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "wrapAndTransferEthWithRelay",
-    data: BytesLike
+    functionFragment: 'updateSwapRate',
+    data: BytesLike,
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: 'updateSwapRatePrecision',
+    data: BytesLike,
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: 'updateUnwrapWethFlag',
+    data: BytesLike,
+  ): Result;
+  decodeFunctionResult(functionFragment: 'wormhole', data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: 'wrapAndTransferEthWithRelay',
+    data: BytesLike,
   ): Result;
 
   events: {
-    "OwnershipTransfered(address,address)": EventFragment;
-    "SwapRateUpdated(address,uint256)": EventFragment;
-    "TransferRedeemed(uint16,bytes32,uint64)": EventFragment;
+    'OwnershipTransfered(address,address)': EventFragment;
+    'SwapRateUpdated(address,uint256)': EventFragment;
+    'TransferRedeemed(uint16,bytes32,uint64)': EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "OwnershipTransfered"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "SwapRateUpdated"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "TransferRedeemed"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'OwnershipTransfered'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'SwapRateUpdated'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'TransferRedeemed'): EventFragment;
 }
 
 export interface OwnershipTransferedEventObject {
@@ -497,15 +497,15 @@ export interface TokenBridgeRelayer extends BaseContract {
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TEvent>>;
 
   listeners<TEvent extends TypedEvent>(
-    eventFilter?: TypedEventFilter<TEvent>
+    eventFilter?: TypedEventFilter<TEvent>,
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
   removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
+    eventFilter: TypedEventFilter<TEvent>,
   ): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
@@ -518,41 +518,41 @@ export interface TokenBridgeRelayer extends BaseContract {
 
     calculateMaxSwapAmountIn(
       token: PromiseOrValue<string>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<[BigNumber] & { maxAllowed: BigNumber }>;
 
     calculateNativeSwapAmountOut(
       token: PromiseOrValue<string>,
       toNativeAmount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<[BigNumber] & { nativeAmount: BigNumber }>;
 
     calculateRelayerFee(
       targetChainId: PromiseOrValue<BigNumberish>,
       token: PromiseOrValue<string>,
       decimals: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<[BigNumber] & { feeInTokenDenomination: BigNumber }>;
 
     cancelOwnershipTransferRequest(
       chainId_: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<ContractTransaction>;
 
     chainId(overrides?: CallOverrides): Promise<[number]>;
 
     completeTransferWithRelay(
       encodedTransferMessage: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> },
     ): Promise<ContractTransaction>;
 
     confirmOwnershipTransferRequest(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<ContractTransaction>;
 
     decodeTransferWithRelay(
       encoded: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<
       [TokenBridgeRelayerStructs.TransferWithRelayStructOutput] & {
         transfer: TokenBridgeRelayerStructs.TransferWithRelayStructOutput;
@@ -562,51 +562,51 @@ export interface TokenBridgeRelayer extends BaseContract {
     denormalizeAmount(
       amount: PromiseOrValue<BigNumberish>,
       decimals: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<[BigNumber]>;
 
     deregisterToken(
       chainId_: PromiseOrValue<BigNumberish>,
       token: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<ContractTransaction>;
 
     encodeTransferWithRelay(
       transfer: TokenBridgeRelayerStructs.TransferWithRelayStruct,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<[string] & { encoded: string }>;
 
     fetchLocalAddressFromTransferMessage(
       payload: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<[string] & { localAddress: string }>;
 
     getAcceptedTokensList(overrides?: CallOverrides): Promise<[string[]]>;
 
     getRegisteredContract(
       emitterChainId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<[string]>;
 
     isAcceptedToken(
       token: PromiseOrValue<string>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<[boolean]>;
 
     maxNativeSwapAmount(
       token: PromiseOrValue<string>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<[BigNumber]>;
 
     nativeSwapRate(
       token: PromiseOrValue<string>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<[BigNumber]>;
 
     normalizeAmount(
       amount: PromiseOrValue<BigNumberish>,
       decimals: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<[BigNumber]>;
 
     owner(overrides?: CallOverrides): Promise<[string]>;
@@ -616,18 +616,18 @@ export interface TokenBridgeRelayer extends BaseContract {
     registerContract(
       chainId_: PromiseOrValue<BigNumberish>,
       contractAddress: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<ContractTransaction>;
 
     registerToken(
       chainId_: PromiseOrValue<BigNumberish>,
       token: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<ContractTransaction>;
 
     relayerFee(
       chainId_: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<[BigNumber]>;
 
     relayerFeePrecision(overrides?: CallOverrides): Promise<[BigNumber]>;
@@ -635,12 +635,12 @@ export interface TokenBridgeRelayer extends BaseContract {
     submitOwnershipTransferRequest(
       chainId_: PromiseOrValue<BigNumberish>,
       newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<ContractTransaction>;
 
     swapRate(
       token: PromiseOrValue<string>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<[BigNumber]>;
 
     swapRatePrecision(overrides?: CallOverrides): Promise<[BigNumber]>;
@@ -654,7 +654,7 @@ export interface TokenBridgeRelayer extends BaseContract {
       targetChain: PromiseOrValue<BigNumberish>,
       targetRecipient: PromiseOrValue<BytesLike>,
       batchId: PromiseOrValue<BigNumberish>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> },
     ): Promise<ContractTransaction>;
 
     unwrapWeth(overrides?: CallOverrides): Promise<[boolean]>;
@@ -663,38 +663,38 @@ export interface TokenBridgeRelayer extends BaseContract {
       chainId_: PromiseOrValue<BigNumberish>,
       token: PromiseOrValue<string>,
       maxAmount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<ContractTransaction>;
 
     updateRelayerFee(
       chainId_: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<ContractTransaction>;
 
     updateRelayerFeePrecision(
       chainId_: PromiseOrValue<BigNumberish>,
       relayerFeePrecision_: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<ContractTransaction>;
 
     updateSwapRate(
       chainId_: PromiseOrValue<BigNumberish>,
       token: PromiseOrValue<string>,
       swapRate: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<ContractTransaction>;
 
     updateSwapRatePrecision(
       chainId_: PromiseOrValue<BigNumberish>,
       swapRatePrecision_: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<ContractTransaction>;
 
     updateUnwrapWethFlag(
       chainId_: PromiseOrValue<BigNumberish>,
       unwrapWeth_: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<ContractTransaction>;
 
     wormhole(overrides?: CallOverrides): Promise<[string]>;
@@ -704,7 +704,7 @@ export interface TokenBridgeRelayer extends BaseContract {
       targetChain: PromiseOrValue<BigNumberish>,
       targetRecipient: PromiseOrValue<BytesLike>,
       batchId: PromiseOrValue<BigNumberish>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> },
     ): Promise<ContractTransaction>;
   };
 
@@ -712,91 +712,91 @@ export interface TokenBridgeRelayer extends BaseContract {
 
   calculateMaxSwapAmountIn(
     token: PromiseOrValue<string>,
-    overrides?: CallOverrides
+    overrides?: CallOverrides,
   ): Promise<BigNumber>;
 
   calculateNativeSwapAmountOut(
     token: PromiseOrValue<string>,
     toNativeAmount: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
+    overrides?: CallOverrides,
   ): Promise<BigNumber>;
 
   calculateRelayerFee(
     targetChainId: PromiseOrValue<BigNumberish>,
     token: PromiseOrValue<string>,
     decimals: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
+    overrides?: CallOverrides,
   ): Promise<BigNumber>;
 
   cancelOwnershipTransferRequest(
     chainId_: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
   ): Promise<ContractTransaction>;
 
   chainId(overrides?: CallOverrides): Promise<number>;
 
   completeTransferWithRelay(
     encodedTransferMessage: PromiseOrValue<BytesLike>,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> },
   ): Promise<ContractTransaction>;
 
   confirmOwnershipTransferRequest(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
   ): Promise<ContractTransaction>;
 
   decodeTransferWithRelay(
     encoded: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
+    overrides?: CallOverrides,
   ): Promise<TokenBridgeRelayerStructs.TransferWithRelayStructOutput>;
 
   denormalizeAmount(
     amount: PromiseOrValue<BigNumberish>,
     decimals: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
+    overrides?: CallOverrides,
   ): Promise<BigNumber>;
 
   deregisterToken(
     chainId_: PromiseOrValue<BigNumberish>,
     token: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
   ): Promise<ContractTransaction>;
 
   encodeTransferWithRelay(
     transfer: TokenBridgeRelayerStructs.TransferWithRelayStruct,
-    overrides?: CallOverrides
+    overrides?: CallOverrides,
   ): Promise<string>;
 
   fetchLocalAddressFromTransferMessage(
     payload: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
+    overrides?: CallOverrides,
   ): Promise<string>;
 
   getAcceptedTokensList(overrides?: CallOverrides): Promise<string[]>;
 
   getRegisteredContract(
     emitterChainId: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
+    overrides?: CallOverrides,
   ): Promise<string>;
 
   isAcceptedToken(
     token: PromiseOrValue<string>,
-    overrides?: CallOverrides
+    overrides?: CallOverrides,
   ): Promise<boolean>;
 
   maxNativeSwapAmount(
     token: PromiseOrValue<string>,
-    overrides?: CallOverrides
+    overrides?: CallOverrides,
   ): Promise<BigNumber>;
 
   nativeSwapRate(
     token: PromiseOrValue<string>,
-    overrides?: CallOverrides
+    overrides?: CallOverrides,
   ): Promise<BigNumber>;
 
   normalizeAmount(
     amount: PromiseOrValue<BigNumberish>,
     decimals: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
+    overrides?: CallOverrides,
   ): Promise<BigNumber>;
 
   owner(overrides?: CallOverrides): Promise<string>;
@@ -806,18 +806,18 @@ export interface TokenBridgeRelayer extends BaseContract {
   registerContract(
     chainId_: PromiseOrValue<BigNumberish>,
     contractAddress: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
   ): Promise<ContractTransaction>;
 
   registerToken(
     chainId_: PromiseOrValue<BigNumberish>,
     token: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
   ): Promise<ContractTransaction>;
 
   relayerFee(
     chainId_: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
+    overrides?: CallOverrides,
   ): Promise<BigNumber>;
 
   relayerFeePrecision(overrides?: CallOverrides): Promise<BigNumber>;
@@ -825,12 +825,12 @@ export interface TokenBridgeRelayer extends BaseContract {
   submitOwnershipTransferRequest(
     chainId_: PromiseOrValue<BigNumberish>,
     newOwner: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
   ): Promise<ContractTransaction>;
 
   swapRate(
     token: PromiseOrValue<string>,
-    overrides?: CallOverrides
+    overrides?: CallOverrides,
   ): Promise<BigNumber>;
 
   swapRatePrecision(overrides?: CallOverrides): Promise<BigNumber>;
@@ -844,7 +844,7 @@ export interface TokenBridgeRelayer extends BaseContract {
     targetChain: PromiseOrValue<BigNumberish>,
     targetRecipient: PromiseOrValue<BytesLike>,
     batchId: PromiseOrValue<BigNumberish>,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> },
   ): Promise<ContractTransaction>;
 
   unwrapWeth(overrides?: CallOverrides): Promise<boolean>;
@@ -853,38 +853,38 @@ export interface TokenBridgeRelayer extends BaseContract {
     chainId_: PromiseOrValue<BigNumberish>,
     token: PromiseOrValue<string>,
     maxAmount: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
   ): Promise<ContractTransaction>;
 
   updateRelayerFee(
     chainId_: PromiseOrValue<BigNumberish>,
     amount: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
   ): Promise<ContractTransaction>;
 
   updateRelayerFeePrecision(
     chainId_: PromiseOrValue<BigNumberish>,
     relayerFeePrecision_: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
   ): Promise<ContractTransaction>;
 
   updateSwapRate(
     chainId_: PromiseOrValue<BigNumberish>,
     token: PromiseOrValue<string>,
     swapRate: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
   ): Promise<ContractTransaction>;
 
   updateSwapRatePrecision(
     chainId_: PromiseOrValue<BigNumberish>,
     swapRatePrecision_: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
   ): Promise<ContractTransaction>;
 
   updateUnwrapWethFlag(
     chainId_: PromiseOrValue<BigNumberish>,
     unwrapWeth_: PromiseOrValue<boolean>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
   ): Promise<ContractTransaction>;
 
   wormhole(overrides?: CallOverrides): Promise<string>;
@@ -894,7 +894,7 @@ export interface TokenBridgeRelayer extends BaseContract {
     targetChain: PromiseOrValue<BigNumberish>,
     targetRecipient: PromiseOrValue<BytesLike>,
     batchId: PromiseOrValue<BigNumberish>,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> },
   ): Promise<ContractTransaction>;
 
   callStatic: {
@@ -902,89 +902,89 @@ export interface TokenBridgeRelayer extends BaseContract {
 
     calculateMaxSwapAmountIn(
       token: PromiseOrValue<string>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     calculateNativeSwapAmountOut(
       token: PromiseOrValue<string>,
       toNativeAmount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     calculateRelayerFee(
       targetChainId: PromiseOrValue<BigNumberish>,
       token: PromiseOrValue<string>,
       decimals: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     cancelOwnershipTransferRequest(
       chainId_: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
 
     chainId(overrides?: CallOverrides): Promise<number>;
 
     completeTransferWithRelay(
       encodedTransferMessage: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
 
     confirmOwnershipTransferRequest(overrides?: CallOverrides): Promise<void>;
 
     decodeTransferWithRelay(
       encoded: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<TokenBridgeRelayerStructs.TransferWithRelayStructOutput>;
 
     denormalizeAmount(
       amount: PromiseOrValue<BigNumberish>,
       decimals: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     deregisterToken(
       chainId_: PromiseOrValue<BigNumberish>,
       token: PromiseOrValue<string>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
 
     encodeTransferWithRelay(
       transfer: TokenBridgeRelayerStructs.TransferWithRelayStruct,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<string>;
 
     fetchLocalAddressFromTransferMessage(
       payload: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<string>;
 
     getAcceptedTokensList(overrides?: CallOverrides): Promise<string[]>;
 
     getRegisteredContract(
       emitterChainId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<string>;
 
     isAcceptedToken(
       token: PromiseOrValue<string>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<boolean>;
 
     maxNativeSwapAmount(
       token: PromiseOrValue<string>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     nativeSwapRate(
       token: PromiseOrValue<string>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     normalizeAmount(
       amount: PromiseOrValue<BigNumberish>,
       decimals: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<string>;
@@ -994,18 +994,18 @@ export interface TokenBridgeRelayer extends BaseContract {
     registerContract(
       chainId_: PromiseOrValue<BigNumberish>,
       contractAddress: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
 
     registerToken(
       chainId_: PromiseOrValue<BigNumberish>,
       token: PromiseOrValue<string>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
 
     relayerFee(
       chainId_: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     relayerFeePrecision(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1013,12 +1013,12 @@ export interface TokenBridgeRelayer extends BaseContract {
     submitOwnershipTransferRequest(
       chainId_: PromiseOrValue<BigNumberish>,
       newOwner: PromiseOrValue<string>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
 
     swapRate(
       token: PromiseOrValue<string>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     swapRatePrecision(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1032,7 +1032,7 @@ export interface TokenBridgeRelayer extends BaseContract {
       targetChain: PromiseOrValue<BigNumberish>,
       targetRecipient: PromiseOrValue<BytesLike>,
       batchId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     unwrapWeth(overrides?: CallOverrides): Promise<boolean>;
@@ -1041,38 +1041,38 @@ export interface TokenBridgeRelayer extends BaseContract {
       chainId_: PromiseOrValue<BigNumberish>,
       token: PromiseOrValue<string>,
       maxAmount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
 
     updateRelayerFee(
       chainId_: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
 
     updateRelayerFeePrecision(
       chainId_: PromiseOrValue<BigNumberish>,
       relayerFeePrecision_: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
 
     updateSwapRate(
       chainId_: PromiseOrValue<BigNumberish>,
       token: PromiseOrValue<string>,
       swapRate: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
 
     updateSwapRatePrecision(
       chainId_: PromiseOrValue<BigNumberish>,
       swapRatePrecision_: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
 
     updateUnwrapWethFlag(
       chainId_: PromiseOrValue<BigNumberish>,
       unwrapWeth_: PromiseOrValue<boolean>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
 
     wormhole(overrides?: CallOverrides): Promise<string>;
@@ -1082,38 +1082,38 @@ export interface TokenBridgeRelayer extends BaseContract {
       targetChain: PromiseOrValue<BigNumberish>,
       targetRecipient: PromiseOrValue<BytesLike>,
       batchId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
   };
 
   filters: {
-    "OwnershipTransfered(address,address)"(
+    'OwnershipTransfered(address,address)'(
       oldOwner?: PromiseOrValue<string> | null,
-      newOwner?: PromiseOrValue<string> | null
+      newOwner?: PromiseOrValue<string> | null,
     ): OwnershipTransferedEventFilter;
     OwnershipTransfered(
       oldOwner?: PromiseOrValue<string> | null,
-      newOwner?: PromiseOrValue<string> | null
+      newOwner?: PromiseOrValue<string> | null,
     ): OwnershipTransferedEventFilter;
 
-    "SwapRateUpdated(address,uint256)"(
+    'SwapRateUpdated(address,uint256)'(
       token?: PromiseOrValue<string> | null,
-      swapRate?: PromiseOrValue<BigNumberish> | null
+      swapRate?: PromiseOrValue<BigNumberish> | null,
     ): SwapRateUpdatedEventFilter;
     SwapRateUpdated(
       token?: PromiseOrValue<string> | null,
-      swapRate?: PromiseOrValue<BigNumberish> | null
+      swapRate?: PromiseOrValue<BigNumberish> | null,
     ): SwapRateUpdatedEventFilter;
 
-    "TransferRedeemed(uint16,bytes32,uint64)"(
+    'TransferRedeemed(uint16,bytes32,uint64)'(
       emitterChainId?: PromiseOrValue<BigNumberish> | null,
       emitterAddress?: PromiseOrValue<BytesLike> | null,
-      sequence?: PromiseOrValue<BigNumberish> | null
+      sequence?: PromiseOrValue<BigNumberish> | null,
     ): TransferRedeemedEventFilter;
     TransferRedeemed(
       emitterChainId?: PromiseOrValue<BigNumberish> | null,
       emitterAddress?: PromiseOrValue<BytesLike> | null,
-      sequence?: PromiseOrValue<BigNumberish> | null
+      sequence?: PromiseOrValue<BigNumberish> | null,
     ): TransferRedeemedEventFilter;
   };
 
@@ -1122,91 +1122,91 @@ export interface TokenBridgeRelayer extends BaseContract {
 
     calculateMaxSwapAmountIn(
       token: PromiseOrValue<string>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     calculateNativeSwapAmountOut(
       token: PromiseOrValue<string>,
       toNativeAmount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     calculateRelayerFee(
       targetChainId: PromiseOrValue<BigNumberish>,
       token: PromiseOrValue<string>,
       decimals: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     cancelOwnershipTransferRequest(
       chainId_: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<BigNumber>;
 
     chainId(overrides?: CallOverrides): Promise<BigNumber>;
 
     completeTransferWithRelay(
       encodedTransferMessage: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> },
     ): Promise<BigNumber>;
 
     confirmOwnershipTransferRequest(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<BigNumber>;
 
     decodeTransferWithRelay(
       encoded: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     denormalizeAmount(
       amount: PromiseOrValue<BigNumberish>,
       decimals: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     deregisterToken(
       chainId_: PromiseOrValue<BigNumberish>,
       token: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<BigNumber>;
 
     encodeTransferWithRelay(
       transfer: TokenBridgeRelayerStructs.TransferWithRelayStruct,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     fetchLocalAddressFromTransferMessage(
       payload: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     getAcceptedTokensList(overrides?: CallOverrides): Promise<BigNumber>;
 
     getRegisteredContract(
       emitterChainId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     isAcceptedToken(
       token: PromiseOrValue<string>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     maxNativeSwapAmount(
       token: PromiseOrValue<string>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     nativeSwapRate(
       token: PromiseOrValue<string>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     normalizeAmount(
       amount: PromiseOrValue<BigNumberish>,
       decimals: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1216,18 +1216,18 @@ export interface TokenBridgeRelayer extends BaseContract {
     registerContract(
       chainId_: PromiseOrValue<BigNumberish>,
       contractAddress: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<BigNumber>;
 
     registerToken(
       chainId_: PromiseOrValue<BigNumberish>,
       token: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<BigNumber>;
 
     relayerFee(
       chainId_: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     relayerFeePrecision(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1235,12 +1235,12 @@ export interface TokenBridgeRelayer extends BaseContract {
     submitOwnershipTransferRequest(
       chainId_: PromiseOrValue<BigNumberish>,
       newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<BigNumber>;
 
     swapRate(
       token: PromiseOrValue<string>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     swapRatePrecision(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1254,7 +1254,7 @@ export interface TokenBridgeRelayer extends BaseContract {
       targetChain: PromiseOrValue<BigNumberish>,
       targetRecipient: PromiseOrValue<BytesLike>,
       batchId: PromiseOrValue<BigNumberish>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> },
     ): Promise<BigNumber>;
 
     unwrapWeth(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1263,38 +1263,38 @@ export interface TokenBridgeRelayer extends BaseContract {
       chainId_: PromiseOrValue<BigNumberish>,
       token: PromiseOrValue<string>,
       maxAmount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<BigNumber>;
 
     updateRelayerFee(
       chainId_: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<BigNumber>;
 
     updateRelayerFeePrecision(
       chainId_: PromiseOrValue<BigNumberish>,
       relayerFeePrecision_: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<BigNumber>;
 
     updateSwapRate(
       chainId_: PromiseOrValue<BigNumberish>,
       token: PromiseOrValue<string>,
       swapRate: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<BigNumber>;
 
     updateSwapRatePrecision(
       chainId_: PromiseOrValue<BigNumberish>,
       swapRatePrecision_: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<BigNumber>;
 
     updateUnwrapWethFlag(
       chainId_: PromiseOrValue<BigNumberish>,
       unwrapWeth_: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<BigNumber>;
 
     wormhole(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1304,7 +1304,7 @@ export interface TokenBridgeRelayer extends BaseContract {
       targetChain: PromiseOrValue<BigNumberish>,
       targetRecipient: PromiseOrValue<BytesLike>,
       batchId: PromiseOrValue<BigNumberish>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> },
     ): Promise<BigNumber>;
   };
 
@@ -1313,93 +1313,93 @@ export interface TokenBridgeRelayer extends BaseContract {
 
     calculateMaxSwapAmountIn(
       token: PromiseOrValue<string>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     calculateNativeSwapAmountOut(
       token: PromiseOrValue<string>,
       toNativeAmount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     calculateRelayerFee(
       targetChainId: PromiseOrValue<BigNumberish>,
       token: PromiseOrValue<string>,
       decimals: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     cancelOwnershipTransferRequest(
       chainId_: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<PopulatedTransaction>;
 
     chainId(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     completeTransferWithRelay(
       encodedTransferMessage: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> },
     ): Promise<PopulatedTransaction>;
 
     confirmOwnershipTransferRequest(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<PopulatedTransaction>;
 
     decodeTransferWithRelay(
       encoded: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     denormalizeAmount(
       amount: PromiseOrValue<BigNumberish>,
       decimals: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     deregisterToken(
       chainId_: PromiseOrValue<BigNumberish>,
       token: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<PopulatedTransaction>;
 
     encodeTransferWithRelay(
       transfer: TokenBridgeRelayerStructs.TransferWithRelayStruct,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     fetchLocalAddressFromTransferMessage(
       payload: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     getAcceptedTokensList(
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     getRegisteredContract(
       emitterChainId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     isAcceptedToken(
       token: PromiseOrValue<string>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     maxNativeSwapAmount(
       token: PromiseOrValue<string>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     nativeSwapRate(
       token: PromiseOrValue<string>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     normalizeAmount(
       amount: PromiseOrValue<BigNumberish>,
       decimals: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -1409,33 +1409,33 @@ export interface TokenBridgeRelayer extends BaseContract {
     registerContract(
       chainId_: PromiseOrValue<BigNumberish>,
       contractAddress: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<PopulatedTransaction>;
 
     registerToken(
       chainId_: PromiseOrValue<BigNumberish>,
       token: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<PopulatedTransaction>;
 
     relayerFee(
       chainId_: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     relayerFeePrecision(
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     submitOwnershipTransferRequest(
       chainId_: PromiseOrValue<BigNumberish>,
       newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<PopulatedTransaction>;
 
     swapRate(
       token: PromiseOrValue<string>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     swapRatePrecision(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -1449,7 +1449,7 @@ export interface TokenBridgeRelayer extends BaseContract {
       targetChain: PromiseOrValue<BigNumberish>,
       targetRecipient: PromiseOrValue<BytesLike>,
       batchId: PromiseOrValue<BigNumberish>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> },
     ): Promise<PopulatedTransaction>;
 
     unwrapWeth(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -1458,38 +1458,38 @@ export interface TokenBridgeRelayer extends BaseContract {
       chainId_: PromiseOrValue<BigNumberish>,
       token: PromiseOrValue<string>,
       maxAmount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<PopulatedTransaction>;
 
     updateRelayerFee(
       chainId_: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<PopulatedTransaction>;
 
     updateRelayerFeePrecision(
       chainId_: PromiseOrValue<BigNumberish>,
       relayerFeePrecision_: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<PopulatedTransaction>;
 
     updateSwapRate(
       chainId_: PromiseOrValue<BigNumberish>,
       token: PromiseOrValue<string>,
       swapRate: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<PopulatedTransaction>;
 
     updateSwapRatePrecision(
       chainId_: PromiseOrValue<BigNumberish>,
       swapRatePrecision_: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<PopulatedTransaction>;
 
     updateUnwrapWethFlag(
       chainId_: PromiseOrValue<BigNumberish>,
       unwrapWeth_: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<PopulatedTransaction>;
 
     wormhole(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -1499,7 +1499,7 @@ export interface TokenBridgeRelayer extends BaseContract {
       targetChain: PromiseOrValue<BigNumberish>,
       targetRecipient: PromiseOrValue<BytesLike>,
       batchId: PromiseOrValue<BigNumberish>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> },
     ): Promise<PopulatedTransaction>;
   };
 }

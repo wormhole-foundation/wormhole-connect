@@ -3,19 +3,19 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 export type Route = 'bridge' | 'redeem';
 
 export interface RouterState {
+  route: Route;
   showFromNetworksModal: boolean;
   showToNetworksModal: boolean;
   showTokensModal: boolean;
   showWalletModal: boolean;
-  route: Route;
 }
 
 const initialState: RouterState = {
+  route: 'bridge',
   showFromNetworksModal: false,
   showToNetworksModal: false,
   showTokensModal: false,
   showWalletModal: false,
-  route: 'bridge',
 };
 
 export const routerSlice = createSlice({

@@ -2,6 +2,7 @@ import React from 'react';
 import { styled } from '@mui/material/styles';
 import { makeStyles } from 'tss-react/mui';
 import { LinearProgress, linearProgressClasses } from '@mui/material';
+import { REQUIRED_CONFIRMATIONS } from '../../utils/sdk';
 
 const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
   // height: 10,
@@ -30,13 +31,12 @@ const useStyles = makeStyles()((theme) => ({
 
 type Props = {
   confirmations: number;
-  total: number;
 };
 
 function Confirmations(props: Props) {
   const { classes } = useStyles();
-  const { confirmations, total } = props;
-  const percentage = Math.floor((confirmations / total) * 100);
+  const { confirmations } = props;
+  const percentage = Math.floor((confirmations / REQUIRED_CONFIRMATIONS) * 100);
   return (
     <div className={classes.confirmations}>
       <BorderLinearProgress
@@ -45,7 +45,7 @@ function Confirmations(props: Props) {
         color="secondary"
       />
       <div className={classes.confirmationsText}>
-        {confirmations} / {total} Confirmations
+        {confirmations} / {REQUIRED_CONFIRMATIONS} Confirmations
       </div>
     </div>
   );
