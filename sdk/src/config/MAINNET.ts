@@ -3,33 +3,7 @@ import {
   Contracts,
   CONTRACTS,
 } from '@certusone/wormhole-sdk';
-import { WormholeConfig, Context, ChainConfig, TokenConfig } from '../types';
-import AcalaIcon from '../../icons/tokens/acala.svg';
-import AlgoIcon from '../../icons/tokens/algorand.svg';
-import AptosIcon from '../../icons/tokens/aptos.svg';
-import ArbitrumIcon from '../../icons/tokens/arbitrum.svg';
-import AuroraIcon from '../../icons/tokens/aurora.svg';
-import AvaxIcon from '../../icons/tokens/avax.svg';
-import BscIcon from '../../icons/tokens/bsc.svg';
-import CeloIcon from '../../icons/tokens/celo.svg';
-import EthIcon from '../../icons/tokens/eth.svg';
-import FantomIcon from '../../icons/tokens/fantom.svg';
-import InjectiveIcon from '../../icons/tokens/injective.svg';
-import KaruraIcon from '../../icons/tokens/karura.svg';
-import KlaytnIcon from '../../icons/tokens/klaytn.svg';
-import MoonbeamIcon from '../../icons/tokens/moonbeam.svg';
-import NearIcon from '../../icons/tokens/near.svg';
-import NeonIcon from '../../icons/tokens/neon.svg';
-import OasisIcon from '../../icons/tokens/oasis-network-rose-logo.svg';
-import OsmosisIcon from '../../icons/tokens/osmosis.svg';
-import PolygonIcon from '../../icons/tokens/polygon.svg';
-import SolanaIcon from '../../icons/tokens/solana.svg';
-import SuiIcon from '../../icons/tokens/sui.png';
-import TerraIcon from '../../icons/tokens/terra.svg';
-import Terra2Icon from '../../icons/tokens/terra2.svg';
-import XplaIcon from '../../icons/tokens/xpla.svg';
-
-import BnbIcon from '../../icons/tokens/bnb.svg';
+import { WormholeConfig, Context, ChainConfig } from '../types';
 
 // https://book.wormhole.com/reference/contracts.html
 export const MAINNET_CHAINS = {
@@ -77,7 +51,6 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     id: 1,
     context: Context.SOLANA,
     contracts: CONTRACTS.MAINNET.solana,
-    icon: SolanaIcon,
     displayName: 'Solana',
     explorerUrl: 'https://explorer.solana.com/',
     explorerName: 'Solana Explorer',
@@ -89,7 +62,6 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     id: 2,
     context: Context.ETH,
     contracts: CONTRACTS.MAINNET.ethereum,
-    icon: EthIcon,
     displayName: 'Ethereum',
     explorerUrl: 'https://etherscan.io/',
     explorerName: 'Etherscan',
@@ -101,7 +73,6 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     id: 3,
     context: Context.TERRA,
     contracts: CONTRACTS.MAINNET.terra,
-    icon: TerraIcon,
     displayName: 'Terra',
     explorerUrl: 'https://atomscan.com/terra',
     explorerName: 'ATOMScan',
@@ -113,7 +84,6 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     id: 4,
     context: Context.ETH,
     contracts: CONTRACTS.MAINNET.bsc,
-    icon: BscIcon,
     displayName: 'BSC',
     explorerUrl: 'https://bscscan.com/',
     explorerName: 'BscScan',
@@ -125,7 +95,6 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     id: 5,
     context: Context.ETH,
     contracts: CONTRACTS.MAINNET.polygon,
-    icon: PolygonIcon,
     displayName: 'Polygon',
     explorerUrl: 'https://polygonscan.com/',
     explorerName: 'PolygonScan',
@@ -137,7 +106,6 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     id: 6,
     context: Context.ETH,
     contracts: CONTRACTS.MAINNET.avalanche,
-    icon: AvaxIcon,
     displayName: 'Avalanche',
     explorerUrl: 'https://snowtrace.io/',
     explorerName: 'Snowtrace',
@@ -149,7 +117,6 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     id: 7,
     context: Context.ETH,
     contracts: CONTRACTS.MAINNET.oasis,
-    icon: OasisIcon,
     displayName: 'Oasis',
     explorerUrl: 'https://www.oasisscan.com/',
     explorerName: 'Oasis Scan',
@@ -161,7 +128,6 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     id: 8,
     context: Context.ALGORAND,
     contracts: CONTRACTS.MAINNET.algorand,
-    icon: AlgoIcon,
     displayName: 'Algorand',
     explorerUrl: 'https://algoexplorer.io/',
     explorerName: 'AlgoExplorer',
@@ -173,7 +139,6 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     id: 9,
     context: Context.ETH,
     contracts: CONTRACTS.MAINNET.aurora,
-    icon: AuroraIcon,
     displayName: 'Aurora',
     explorerUrl: 'https://explorer.mainnet.aurora.dev/',
     explorerName: 'Aurora Explorer',
@@ -185,7 +150,6 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     id: 10,
     context: Context.ETH,
     contracts: CONTRACTS.MAINNET.fantom,
-    icon: FantomIcon,
     displayName: 'Fantom',
     explorerUrl: 'https://ftmscan.com/',
     explorerName: 'FTMscan',
@@ -197,7 +161,6 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     id: 11,
     context: Context.ETH,
     contracts: CONTRACTS.MAINNET.karura,
-    icon: KaruraIcon,
     displayName: 'Karura',
     explorerUrl: 'https://karura.subscan.io/',
     explorerName: 'Karura Explorer',
@@ -209,7 +172,6 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     id: 12,
     context: Context.ETH,
     contracts: CONTRACTS.MAINNET.acala,
-    icon: AcalaIcon,
     displayName: 'Acala',
     explorerUrl: 'https://acala.subscan.io/',
     explorerName: 'Acala Explorer',
@@ -221,7 +183,6 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     id: 13,
     context: Context.ETH,
     contracts: CONTRACTS.MAINNET.klaytn,
-    icon: KlaytnIcon,
     displayName: 'Klaytn',
     explorerUrl: 'https://scope.klaytn.com/',
     explorerName: 'KlaytnScope',
@@ -233,7 +194,6 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     id: 14,
     context: Context.ETH,
     contracts: CONTRACTS.MAINNET.celo,
-    icon: CeloIcon,
     displayName: 'Celo',
     explorerUrl: 'https://explorer.celo.org/mainnet/',
     explorerName: 'Celo Explorer',
@@ -245,7 +205,6 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     id: 15,
     context: Context.NEAR,
     contracts: CONTRACTS.MAINNET.near,
-    icon: NearIcon,
     displayName: 'Near',
     explorerUrl: 'https://explorer.near.org/',
     explorerName: 'Near Explorer',
@@ -257,7 +216,6 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     id: 19,
     context: Context.INJECTIVE,
     contracts: CONTRACTS.MAINNET.injective,
-    icon: InjectiveIcon,
     displayName: 'Injective',
     explorerUrl: 'https://explorer.injective.network/',
     explorerName: 'Injective Explorer',
@@ -269,7 +227,6 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     id: 20,
     context: Context.ETH,
     contracts: CONTRACTS.MAINNET.osmosis,
-    icon: OsmosisIcon,
     displayName: 'Osmosis',
     explorerUrl: 'https://www.mintscan.io/osmosis',
     explorerName: 'MintScan',
@@ -281,7 +238,6 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     id: 22,
     context: Context.APTOS,
     contracts: CONTRACTS.MAINNET.aptos,
-    icon: AptosIcon,
     displayName: 'Aptos',
     explorerUrl: 'https://explorer.aptoslabs.com/',
     explorerName: 'Aptos Explorer',
@@ -293,7 +249,6 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     id: 21,
     context: Context.OTHER,
     contracts: CONTRACTS.MAINNET.sui,
-    icon: SuiIcon,
     displayName: 'SUI',
     explorerUrl: 'https://explorer.sui.io/',
     explorerName: 'SUI Explorer',
@@ -305,7 +260,6 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     id: 16,
     context: Context.ETH,
     contracts: CONTRACTS.MAINNET.moonbeam,
-    icon: MoonbeamIcon,
     displayName: 'Moonbeam',
     explorerUrl: 'https://moonscan.io/',
     explorerName: 'Moonscan',
@@ -317,7 +271,6 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     id: 17,
     context: Context.ETH,
     contracts: CONTRACTS.MAINNET.neon,
-    icon: NeonIcon,
     displayName: 'Neon',
     explorerUrl: 'https://neonscan.org/',
     explorerName: 'NeonScan',
@@ -329,7 +282,6 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     id: 18,
     context: Context.TERRA,
     contracts: CONTRACTS.MAINNET.terra2,
-    icon: Terra2Icon,
     displayName: 'Terra 2',
     explorerUrl: 'https://atomscan.com/terra2',
     explorerName: 'ATOMScan',
@@ -341,7 +293,6 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     id: 23,
     context: Context.ETH,
     contracts: CONTRACTS.MAINNET.arbitrum,
-    icon: ArbitrumIcon,
     displayName: 'Arbitrum',
     explorerUrl: 'https://arbiscan.io/',
     explorerName: 'ArbiScan',
@@ -353,7 +304,6 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     id: 24,
     context: Context.ETH,
     contracts: CONTRACTS.MAINNET.optimism,
-    icon: '',
     displayName: 'Optimism',
     explorerUrl: 'https://optimistic.etherscan.io/',
     explorerName: 'Optimism Eplorer',
@@ -365,7 +315,6 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     id: 25,
     context: Context.ETH,
     contracts: CONTRACTS.MAINNET.gnosis,
-    icon: '',
     displayName: 'Gnosis',
     explorerUrl: 'https://gnosisscan.io/',
     explorerName: 'GnosisScan',
@@ -377,7 +326,6 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     id: 26,
     context: Context.SOLANA,
     contracts: CONTRACTS.MAINNET.pythnet,
-    icon: '',
     displayName: 'Pythnet',
     explorerUrl: '',
     explorerName: '',
@@ -389,7 +337,6 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     id: 28,
     context: Context.XPLA,
     contracts: CONTRACTS.MAINNET.xpla,
-    icon: XplaIcon,
     displayName: 'XPLA',
     explorerUrl: 'https://explorer.xpla.io/',
     explorerName: 'XPLA Explorer',
@@ -401,7 +348,6 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     id: 29,
     context: Context.OTHER,
     contracts: CONTRACTS.MAINNET.btc,
-    icon: '',
     displayName: 'Bitcoin',
     explorerUrl: 'https://blockchair.com/bitcoin',
     explorerName: 'Blockchair',
@@ -413,63 +359,11 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     id: 3104,
     context: Context.OTHER,
     contracts: CONTRACTS.MAINNET.wormchain,
-    icon: '',
     displayName: 'Wormchain',
     explorerUrl: '',
     explorerName: '',
     gasToken: '',
     chainId: 0,
-  },
-};
-
-export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
-  MATIC: {
-    symbol: 'MATIC',
-    icon: PolygonIcon,
-    address: undefined,
-    coinGeckoId: 'polygon',
-    color: '#8247E5',
-    decimals: 18,
-  },
-  WMATIC: {
-    symbol: 'WMATIC',
-    icon: PolygonIcon,
-    address: '0x1234...5678',
-    coinGeckoId: 'polygon',
-    color: '#8247E5',
-    decimals: 18,
-  },
-  SOL: {
-    symbol: 'SOL',
-    icon: SolanaIcon,
-    address: '0x1234...5678',
-    coinGeckoId: 'solana',
-    color: '#28D4B5',
-    decimals: 18,
-  },
-  WAVAX: {
-    symbol: 'WAVAX',
-    icon: AvaxIcon,
-    address: '0x1234...5678',
-    coinGeckoId: 'wrapped-avax',
-    color: '#E84142',
-    decimals: 18,
-  },
-  CELO: {
-    symbol: 'CELO',
-    icon: CeloIcon,
-    address: '0x1234...5678',
-    coinGeckoId: 'celo',
-    color: '#35D07E',
-    decimals: 18,
-  },
-  BNB: {
-    symbol: 'BNB',
-    icon: BnbIcon,
-    address: '0x1234...5678',
-    coinGeckoId: 'bnb',
-    color: '#F3BA30',
-    decimals: 18,
   },
 };
 

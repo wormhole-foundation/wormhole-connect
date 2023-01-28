@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import TESTNET_CONFIG from 'sdk/config/TESTNET';
+import { CONFIG } from '@sdk';
 import Web3Modal from 'web3modal';
 import { providers } from 'ethers';
 import WalletConnectProvider from '@walletconnect/web3-provider';
@@ -16,10 +16,10 @@ export type Connection = {
 
 const mainnetRpcs = {}; // TODO:
 const testnetRpcs = {
-  5: TESTNET_CONFIG.rpcs.goerli,
-  97: TESTNET_CONFIG.rpcs.bsc,
-  43113: TESTNET_CONFIG.rpcs.fuji,
-  4002: TESTNET_CONFIG.rpcs.fantom,
+  5: CONFIG.TESTNET.rpcs.goerli,
+  97: CONFIG.TESTNET.rpcs.bsc,
+  43113: CONFIG.TESTNET.rpcs.fuji,
+  4002: CONFIG.TESTNET.rpcs.fantom,
 };
 
 export async function openWalletModal(

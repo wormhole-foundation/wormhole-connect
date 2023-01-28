@@ -1,9 +1,8 @@
 import { WormholeContext } from '../wormhole';
 import { Context } from './contextAbstract';
 import { TokenId, ChainName, ChainId, NATIVE } from '../types';
-import { MsgExecuteContract as XplaMsgExecuteContract } from '@xpla/xpla.js';
+import { MsgExecuteContract as XplaMsgExecuteContract, TxInfo } from '@xpla/xpla.js';
 import { hexToUint8Array, isNativeDenomXpla } from '@certusone/wormhole-sdk';
-import { TxInfo } from '@xpla/xpla.js';
 import { bech32 } from 'bech32';
 import { zeroPad } from 'ethers/lib/utils';
 

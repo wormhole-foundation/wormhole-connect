@@ -34,7 +34,6 @@ export type ChainConfig = {
   id: ChainId;
   context: Context;
   contracts: Contracts;
-  icon: string;
   displayName: string;
   explorerUrl: string;
   explorerName: string;
@@ -55,13 +54,4 @@ export type Address = string;
 export type TokenId = {
   chain: ChainName;
   address: string;
-};
-
-export type TokenConfig = {
-  symbol: string;
-  icon: string;
-  address?: string;
-  coinGeckoId: string;
-  color: string;
-  decimals: number;
 };
