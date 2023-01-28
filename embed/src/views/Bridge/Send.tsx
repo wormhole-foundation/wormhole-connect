@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import Button from '../../components/Button';
-import { sendTransfer } from '../../utils/sdk';
+import { sendTransfer, TOKENS } from '../../utils/sdk';
 import { RootState } from '../../store';
 
 function Send(props: { valid: boolean }) {
@@ -14,12 +14,17 @@ function Send(props: { valid: boolean }) {
   async function send() {
     // TODO: better validation
     if (!amount) throw new Error('invalid input, specify an amount');
+    if (!token) throw new Error('invalid input, specify an asset');
+    const tokenConfig = TOKENS[token];
+    if (!tokenConfig) throw new Error('invalid token')
+    const sendToken = tokenConfig.tokenId
+
     await sendTransfer(
-      token,
+      sendToken,
       `${amount}`,
-      fromNetwork,
+      fromNetwork!,
       sending.address,
-      toNetwork,
+      toNetwork!,
       receiving.address,
       destGasPayment,
       '0',

@@ -116,6 +116,13 @@ function TokensModal() {
   const showTokensModal = useSelector(
     (state: RootState) => state.router.showTokensModal,
   );
+  const fromNetwork = useSelector(
+    (state: RootState) => state.transfer.fromNetwork,
+  );
+  const filteredTokens = TOKENS_ARR.filter((t) => {
+    if (!fromNetwork) return true;
+    return t.tokenId !== 'native' || (t.tokenId === 'native' && t.nativeNetwork === fromNetwork);
+  })
 
   return (
     <Modal open={showTokensModal} closable width="sm">
@@ -132,7 +139,7 @@ function TokensModal() {
         blendColor={theme.palette.card.background}
       >
         <div className={classes.tokensContainer}>
-          {TOKENS_ARR.map((token, i) => {
+          {filteredTokens.map((token, i) => {
             return (
               <div
                 className={classes.tokenRow}
@@ -152,7 +159,7 @@ function TokensModal() {
                   <div className={classes.tokenRowBalance}>200.4567</div>
                 </div>
                 <div className={classes.tokenRowAddress}>
-                  {displayEvmAddress(token.address)}
+                  {token.tokenId === 'native' ? 'Native' : displayEvmAddress(token.tokenId.address)}
                 </div>
               </div>
             );

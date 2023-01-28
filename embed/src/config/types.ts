@@ -1,9 +1,10 @@
-import { ChainConfig, ChainName } from '@sdk';
+import { ChainConfig, ChainName, TokenId } from '@sdk';
 
 export type TokenConfig = {
   symbol: string;
+  nativeNetwork: ChainName,
   icon: string;
-  address?: string;
+  tokenId: TokenId | 'native';
   coinGeckoId: string;
   color: string;
   decimals: number;
