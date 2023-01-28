@@ -8,14 +8,17 @@ import {
   ChainId,
   ChainName,
 } from 'sdk';
-import MAINNET_CONFIG, { MAINNET_TOKENS } from 'sdk/config/MAINNET';
-import TESTNET_CONFIG, { TESTNET_TOKENS } from 'sdk/config/TESTNET';
+import MAINNET_CONFIG from 'sdk/config/MAINNET';
+import TESTNET_CONFIG from 'sdk/config/TESTNET';
+import { MAINNET_NETWORKS, MAINNET_TOKENS } from '../config/mainnet';
+import { TESTNET_NETWORKS, TESTNET_TOKENS } from '../config/testnet';
+
 import { PaymentOption } from 'store/transfer';
 
 const { REACT_APP_ENV } = process.env;
 export const isProduction = REACT_APP_ENV === 'MAINNET';
 export const CONFIG = isProduction ? MAINNET_CONFIG : TESTNET_CONFIG;
-export const CHAINS = CONFIG.chains;
+export const CHAINS = isProduction ? MAINNET_NETWORKS : TESTNET_NETWORKS;
 export const CHAINS_ARR = Object.values(CHAINS) as ChainConfig[];
 export const TOKENS = isProduction ? MAINNET_TOKENS : TESTNET_TOKENS;
 export const TOKENS_ARR = Object.values(TOKENS) as TokenConfig[];

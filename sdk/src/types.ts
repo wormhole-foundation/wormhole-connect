@@ -34,7 +34,6 @@ export type ChainConfig = {
   id: ChainId;
   context: Context;
   contracts: Contracts;
-  icon: string;
   displayName: string;
   explorerUrl: string;
   explorerName: string;
