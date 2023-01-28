@@ -4,7 +4,6 @@ import {
 } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
 import { createNonce } from '@certusone/wormhole-sdk';
 import {
-  BigNumber,
   BigNumberish,
   constants,
   ethers,
@@ -153,8 +152,8 @@ export class EthContext<T extends WormholeContext> extends Context {
 
   async sendWithRelay(
     token: TokenId | typeof NATIVE,
-    toNativeToken: string,
     amount: string,
+    toNativeToken: string,
     sendingChain: ChainName | ChainId,
     senderAddress: string,
     recipientChain: ChainName | ChainId,
@@ -165,33 +164,39 @@ export class EthContext<T extends WormholeContext> extends Context {
     if (!isAddress)
       throw new Error(`invalid recipient address: ${recipientAddress}`);
     const recipientChainId = this.context.resolveDomain(recipientChain);
-    const relayer = this.context.mustGetTBRelayer(sendingChain);
     const amountBN = ethers.BigNumber.from(amount);
+    const relayer = this.context.mustGetTBRelayer(sendingChain);
     const nativeTokenBN = ethers.BigNumber.from(toNativeToken);
     const unwrapWeth = await relayer.unwrapWeth();
+    console.log('unwrap', unwrapWeth);
 
     if (token === NATIVE && unwrapWeth) {
       // sending native ETH
-      const tx = await relayer.wrapAndTransferEthWithRelay(
+      const v = await relayer.wrapAndTransferEthWithRelay(
         nativeTokenBN,
-        recipientChain,
+        recipientChainId,
         recipientAddress,
-        BigNumber.from(0), // batch id?
+        0, // opt out of batching
         {
-          ...(overrides || {}),
+          // ...(overrides || {}), // TODO: fix overrides/gas limit here
+          gasLimit: 250000,
           value: amountBN,
         },
       );
-      return await tx.wait();
+      return await v.wait();
     } else {
+      const tokenAddr = (token as TokenId).address;
+      if (!tokenAddr) throw new Error('no token address found');
       // sending ERC-20
+      //approve and send
+      await this.approve(token as TokenId, amountBN);
       const tx = await relayer.transferTokensWithRelay(
-        (token as TokenId).address,
+        tokenAddr,
         amountBN,
         nativeTokenBN,
         recipientChainId,
         recipientAddress,
-        BigNumber.from(0), // batch id?
+        0, // opt out of batching
         overrides,
       );
       return await tx.wait();

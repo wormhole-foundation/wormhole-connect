@@ -13,6 +13,7 @@ import { TESTNET_NETWORKS, TESTNET_TOKENS } from '../config/testnet';
 
 import { PaymentOption } from 'store/transfer';
 import { TokenConfig } from 'config/types';
+import { getTokenDecimals } from 'utils';
 
 const { REACT_APP_ENV } = process.env;
 export const isProduction = REACT_APP_ENV === 'MAINNET';
@@ -41,9 +42,10 @@ export const sendTransfer = async (
   toNativeToken?: string,
 ) => {
   console.log('preparing send');
-  console.log('context:', context);
-  const parsedAmt = ethers.utils.parseUnits(amount, 18); // TODO: use token decimals
-  const parsedNativeAmt = ethers.utils.parseUnits(toNativeToken || '0', 18);
+  const decimals = getTokenDecimals(token);
+  const parsedAmt = ethers.utils.parseUnits(amount, decimals);
+  // const parsedNativeAmt = ethers.utils.parseUnits(toNativeToken || '0', decimals);
+  const parsedNativeAmt = ethers.utils.parseUnits('0.001', decimals);
   if (paymentOption === PaymentOption.MANUAL) {
     const receipt = await context.send(
       token,
