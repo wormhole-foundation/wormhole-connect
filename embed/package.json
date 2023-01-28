@@ -1,8 +1,9 @@
 {
-  "name": "widget",
+  "name": "embed",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "sdk": "link:../sdk",
     "@certusone/wormhole-sdk": "^0.9.8",
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
