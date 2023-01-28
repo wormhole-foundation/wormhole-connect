@@ -1,37 +1,39 @@
 import { CONFIG } from '@sdk';
 import { NetworksConfig, TokenConfig } from './types';
 
-import EthIcon from '../../icons/tokens/eth.svg';
-import BscIcon from '../../icons/tokens/bsc.svg';
-import FujiIcon from '../../icons/tokens/avax.svg';
-import FantomIcon from '../../icons/tokens/fantom.svg';
-import MaticIcon from '../../icons/tokens/polygon.svg';
-import USDCIcon from '../../icons/tokens/usdc.svg';
-import CeloIcon from '../../icons/tokens/celo.svg';
+import EthIcon from '../icons/tokens/eth.svg';
+import BscIcon from '../icons/tokens/bsc.svg';
+import FujiIcon from '../icons/tokens/avax.svg';
+import FantomIcon from '../icons/tokens/fantom.svg';
+import MaticIcon from '../icons/tokens/polygon.svg';
+import USDCIcon from '../icons/tokens/usdc.svg';
+import CeloIcon from '../icons/tokens/celo.svg';
+
+const { chains } = CONFIG.TESTNET;
 
 export const TESTNET_NETWORKS: NetworksConfig = {
   goerli: {
-    ...CONFIG.TESTNET.goerli,
+    ...chains.goerli!,
     icon: EthIcon,
   },
   bsc: {
-    ...CONFIG.TESTNET.bsc,
+    ...chains.bsc!,
     icon: BscIcon,
   },
   polygon: {
-    ...CONFIG.TESTNET.polygon,
+    ...chains.polygon!,
     icon: MaticIcon,
   },
   fuji: {
-    ...CONFIG.TESTNET.fuji,
+    ...chains.fuji!,
     icon: FujiIcon,
   },
   fantom: {
-    ...CONFIG.TESTNET.fantom,
+    ...chains.fantom!,
     icon: FantomIcon,
   },
   celo: {
-    ...CONFIG.TESTNET.celo,
+    ...chains.celo!,
     icon: CeloIcon,
   },
 };

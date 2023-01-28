@@ -1,5 +1,5 @@
-import TESTNET_CONFIG from 'config/TESTNET';
-import MAINNET_CONFIG from 'config/MAINNET';
+import TESTNET_CONFIG from './config/TESTNET';
+import MAINNET_CONFIG from './config/MAINNET';
 
 export * from './types';
 export * from './config/MAINNET';

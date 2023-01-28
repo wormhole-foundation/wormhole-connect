@@ -32,116 +32,116 @@ const { chains } = CONFIG.MAINNET;
 
 export const MAINNET_NETWORKS: NetworksConfig = {
   solana: {
-    ...chains.solana,
+    ...chains.solana!,
     icon: SolanaIcon,
   },
   ethereum: {
-    ...chains.ethereum,
+    ...chains.ethereum!,
     icon: EthIcon,
   },
   terra: {
-    ...chains.terra,
+    ...chains.terra!,
     icon: TerraIcon,
   },
   bsc: {
-    ...chains.bsc,
+    ...chains.bsc!,
     icon: BscIcon,
   },
   polygon: {
-    ...chains.polygon,
+    ...chains.polygon!,
     icon: PolygonIcon,
   },
   avalanche: {
-    ...chains.avalanche,
+    ...chains.avalanche!,
     icon: AvaxIcon,
   },
   oasis: {
-    ...chains.oasis,
+    ...chains.oasis!,
     icon: OasisIcon,
   },
   algorand: {
-    ...chains.algorand,
+    ...chains.algorand!,
     icon: AlgoIcon,
   },
   aurora: {
-    ...chains.aurora,
+    ...chains.aurora!,
     icon: AuroraIcon,
   },
   fantom: {
-    ...chains.fantom,
+    ...chains.fantom!,
     icon: FantomIcon,
   },
   karura: {
-    ...chains.karura,
+    ...chains.karura!,
     icon: KaruraIcon,
   },
   acala: {
-    ...chains.acala,
+    ...chains.acala!,
     icon: AcalaIcon,
   },
   klaytn: {
-    ...chains.klaytn,
+    ...chains.klaytn!,
     icon: KlaytnIcon,
   },
   celo: {
-    ...chains.celo,
+    ...chains.celo!,
     icon: CeloIcon,
   },
   near: {
-    ...chains.near,
+    ...chains.near!,
     icon: NearIcon,
   },
   injective: {
-    ...chains.injective,
+    ...chains.injective!,
     icon: InjectiveIcon,
   },
   osmosis: {
-    ...chains.osmosis,
+    ...chains.osmosis!,
     icon: OsmosisIcon,
   },
   aptos: {
-    ...chains.aptos,
+    ...chains.aptos!,
     icon: AptosIcon,
   },
   sui: {
-    ...chains.sui,
+    ...chains.sui!,
     icon: SuiIcon,
   },
   moonbeam: {
-    ...chains.moonbeam,
+    ...chains.moonbeam!,
     icon: MoonbeamIcon,
   },
   neon: {
-    ...chains.neon,
+    ...chains.neon!,
     icon: NeonIcon,
   },
   terra2: {
-    ...chains.terra2,
+    ...chains.terra2!,
     icon: Terra2Icon,
   },
   arbitrum: {
-    ...chains.arbitrum,
+    ...chains.arbitrum!,
     icon: ArbitrumIcon,
   },
   optimism: {
-    ...chains.optimism,
+    ...chains.optimism!,
     icon: '',
   },
   gnosis: {
-    ...chains.gnosis,
+    ...chains.gnosis!,
   },
   pythnet: {
-    ...chains.pythnet,
+    ...chains.pythnet!,
   },
   xpla: {
-    ...chains.xpla,
+    ...chains.xpla!,
     icon: XplaIcon,
   },
   btc: {
-    ...chains.btc,
+    ...chains.btc!,
   },
   wormchain: {
-    ...chains.wormchain,
+    ...chains.wormchain!,
   },
 };
 

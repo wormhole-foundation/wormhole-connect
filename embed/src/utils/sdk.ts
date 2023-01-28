@@ -3,7 +3,6 @@ import { ethers } from 'ethers';
 import {
   WormholeContext,
   ChainConfig,
-  TokenConfig,
   TokenId,
   ChainId,
   ChainName,
@@ -13,6 +12,7 @@ import { MAINNET_NETWORKS, MAINNET_TOKENS } from '../config/mainnet';
 import { TESTNET_NETWORKS, TESTNET_TOKENS } from '../config/testnet';
 
 import { PaymentOption } from 'store/transfer';
+import { TokenConfig } from 'config/types';
 
 const { REACT_APP_ENV } = process.env;
 export const isProduction = REACT_APP_ENV === 'MAINNET';
