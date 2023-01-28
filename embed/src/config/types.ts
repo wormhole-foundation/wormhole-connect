@@ -1,4 +1,4 @@
-import { ChainConfig, ChainName } from 'sdk';
+import { ChainConfig, ChainName } from '@sdk';
 
 export type TokenConfig = {
   symbol: string;

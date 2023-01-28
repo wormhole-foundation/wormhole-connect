@@ -3,17 +3,8 @@ import {
   WormholeConfig,
   Context,
   ChainConfig,
-  TokenConfig,
   Contracts,
 } from '../types';
-
-import EthIcon from '../../icons/tokens/eth.svg';
-import BscIcon from '../../icons/tokens/bsc.svg';
-import FujiIcon from '../../icons/tokens/avax.svg';
-import FantomIcon from '../../icons/tokens/fantom.svg';
-import MaticIcon from '../../icons/tokens/polygon.svg';
-import USDCIcon from '../../icons/tokens/usdc.svg';
-import CeloIcon from '../../icons/tokens/celo.svg';
 
 // https://book.wormhole.com/reference/contracts.html
 export const TESTNET_CHAINS = {
@@ -41,7 +32,6 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
       ...CONTRACTS.TESTNET.ethereum,
       relayer: '0x631C7bc094895b35E15EA23CDe5b2BdC74Ed18bf',
     },
-    icon: EthIcon,
     displayName: 'Goerli',
     explorerUrl: 'https://goerli.etherscan.io/',
     explorerName: 'Etherscan',
@@ -56,7 +46,6 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
       ...CONTRACTS.TESTNET.bsc,
       relayer: '0x3a03c903690ed20b5e087647617dd5d582375fab',
     },
-    icon: BscIcon,
     displayName: 'BSC',
     explorerUrl: 'https://testnet.bscscan.com/',
     explorerName: 'BscScan',
@@ -71,7 +60,6 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
       ...CONTRACTS.TESTNET.polygon,
       relayer: '0x64A09E0cd839456d64c9Ab8F8AFe7C2B24b65b76',
     },
-    icon: MaticIcon,
     displayName: 'Polygon',
     explorerUrl: 'https://polygonscan.com/',
     explorerName: 'Polygonscan',
@@ -86,7 +74,6 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
       ...CONTRACTS.TESTNET.avalanche,
       relayer: '0x99a0b432b9a2bd2be70788825e3232c6f0a17f11',
     },
-    icon: FujiIcon,
     displayName: 'Fuji',
     explorerUrl: 'https://testnet.snowtrace.io/',
     explorerName: 'Snowtrace',
@@ -101,7 +88,6 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
       ...CONTRACTS.TESTNET.fantom,
       relayer: '0x4cb9c625e657d9ccb91fa2270f420d005e2715d2',
     },
-    icon: FantomIcon,
     displayName: 'Fantom',
     explorerUrl: 'https://testnet.ftmscan.com/',
     explorerName: 'FtmScan',
@@ -116,78 +102,11 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
       ...CONTRACTS.TESTNET.celo,
       relayer: '0xe0cdc52c477028bc293a21ef172a9a8b763d2113',
     },
-    icon: CeloIcon,
     displayName: 'Celo',
     explorerUrl: 'https://explorer.celo.org/mainnet/',
     explorerName: 'Celo Explorer',
     gasToken: 'CELO',
     chainId: 42220,
-  },
-};
-
-export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
-  ETH: {
-    symbol: 'ETH',
-    icon: EthIcon,
-    address:
-      '0x000000000000000000000000B4FBF271143F4FBf7B91A5ded31805e42b2208d6',
-    coinGeckoId: 'ethereum',
-    color: '#62688F',
-    decimals: 18,
-  },
-  BNB: {
-    symbol: 'BNB',
-    icon: BscIcon,
-    address:
-      '0x000000000000000000000000ae13d989daC2f0dEbFf460aC112a837C89BAa7cd',
-    coinGeckoId: 'bnb',
-    color: '#F3BA30',
-    decimals: 18,
-  },
-  USDC: {
-    symbol: 'USDC',
-    icon: USDCIcon,
-    address:
-      '0x0000000000000000000000005425890298aed601595a70AB815c96711a31Bc65',
-    coinGeckoId: 'usd-coin',
-    color: '#2774CA',
-    decimals: 6,
-  },
-  AVAX: {
-    symbol: 'AVAX',
-    icon: FujiIcon,
-    address:
-      '0x000000000000000000000000d00ae08403B9bbb9124bB305C09058E32C39A48c',
-    coinGeckoId: 'avalanche',
-    color: '#E84141',
-    decimals: 18,
-  },
-  FTM: {
-    symbol: 'FTM',
-    icon: FantomIcon,
-    address:
-      '0x000000000000000000000000f1277d1Ed8AD466beddF92ef448A132661956621',
-    coinGeckoId: 'fantom',
-    color: '#12B4EC',
-    decimals: 18,
-  },
-  MATIC: {
-    symbol: 'MATIC',
-    icon: MaticIcon,
-    address:
-      '0x0000000000000000000000009c3C9283D3e44854697Cd22D3Faa240Cfb032889',
-    coinGeckoId: 'polygon',
-    color: '#8247E5',
-    decimals: 18,
-  },
-  CELO: {
-    symbol: 'CELO',
-    icon: CeloIcon,
-    address:
-      '0x000000000000000000000000F194afDf50B03e69Bd7D057c1Aa9e10c9954E4C9',
-    coinGeckoId: 'celo',
-    color: '#35D07E',
-    decimals: 18,
   },
 };
 

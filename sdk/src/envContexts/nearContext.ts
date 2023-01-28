@@ -1,81 +1,16 @@
-import { WormholeContext } from '../wormhole';
-import { Context } from './contextAbstract';
-import { TokenId, ChainName, ChainId, NATIVE } from '../types';
 import { FunctionCallOptions } from 'near-api-js/lib/account';
 import {
   getIsWrappedAssetNear,
-  Network as Environment,
   uint8ArrayToHex,
 } from '@certusone/wormhole-sdk';
 import { Account, connect } from 'near-api-js';
 import BN from 'bn.js';
 import { FinalExecutionOutcome } from 'near-api-js/lib/providers';
-import { Wallet } from '@near-wallet-selector/core/lib/wallet';
-import { setupWalletSelector } from '@near-wallet-selector/core';
-import { setupDefaultWallets } from '@near-wallet-selector/default-wallets';
-import { setupMyNearWallet } from '@near-wallet-selector/my-near-wallet';
-import { setupNearWallet } from '@near-wallet-selector/near-wallet';
-import { setupNightly } from '@near-wallet-selector/nightly';
-import { setupSender } from '@near-wallet-selector/sender';
-import { setupMathWallet } from '@near-wallet-selector/math-wallet';
-import { setupMeteorWallet } from '@near-wallet-selector/meteor-wallet';
 import { arrayify, sha256 } from 'ethers/lib/utils';
+import { WormholeContext } from '../wormhole';
+import { Context } from './contextAbstract';
+import { TokenId, ChainName, ChainId, NATIVE } from '../types';
 const NEAR_EVENT_PREFIX = 'EVENT_JSON:';
-
-async function getNearWallet(env: Environment) {
-  return await setupWalletSelector({
-    network: env === 'MAINNET' ? 'mainnet' : 'testnet',
-    modules: [
-      ...(await setupDefaultWallets()),
-      setupNearWallet(),
-      setupMyNearWallet(),
-      setupSender(),
-      setupMathWallet(),
-      setupNightly(),
-      setupMeteorWallet(),
-    ],
-    debug: true,
-  });
-}
-
-export const signAndSendTransactions = async (
-  account: Account,
-  wallet: Wallet,
-  messages: FunctionCallOptions[],
-): Promise<FinalExecutionOutcome> => {
-  // the browser wallet's signAndSendTransactions call navigates away from the page which is incompatible with the current app design
-  if (account) {
-    let lastReceipt: FinalExecutionOutcome | null = null;
-    for (const message of messages) {
-      lastReceipt = await account.functionCall(message);
-    }
-    if (!lastReceipt) {
-      throw new Error('An error occurred while fetching the transaction info');
-    }
-    return lastReceipt;
-  }
-  const receipts = await wallet.signAndSendTransactions({
-    transactions: messages.map((options) => ({
-      signerId: wallet.id,
-      receiverId: options.contractId,
-      actions: [
-        {
-          type: 'FunctionCall',
-          params: {
-            methodName: options.methodName,
-            args: options.args,
-            gas: options.gas?.toString() || '0',
-            deposit: options.attachedDeposit?.toString() || '0',
-          },
-        },
-      ],
-    })),
-  });
-  if (!receipts || receipts.length === 0) {
-    throw new Error('An error occurred while fetching the transaction info');
-  }
-  return receipts[receipts.length - 1];
-};
 
 export class NearContext<T extends WormholeContext> extends Context {
   readonly context: T;
@@ -101,11 +36,6 @@ export class NearContext<T extends WormholeContext> extends Context {
     return provider;
   }
 
-  async getWallet() {
-    const walletSelector = await getNearWallet(this.context.conf.env);
-    return await walletSelector.wallet();
-  }
-
   private async transferNativeNear(
     account: Account,
     sendingChain: ChainName | ChainId,
@@ -114,7 +44,7 @@ export class NearContext<T extends WormholeContext> extends Context {
     recipientAddress: string,
     relayerFee: string = '0',
     payload?: Uint8Array,
-  ): Promise<FinalExecutionOutcome> {
+  ): Promise<FunctionCallOptions[]> {
     const coreBridge = this.context.mustGetCore(sendingChain).address;
     const tokenBridge = this.context.mustGetBridge(sendingChain).address;
     let message_fee = await account.viewFunction(coreBridge, 'message_fee', {});
@@ -132,7 +62,7 @@ export class NearContext<T extends WormholeContext> extends Context {
       attachedDeposit: new BN(amount).add(new BN(message_fee)),
       gas: new BN('100000000000000'),
     };
-    return await account.functionCall(transferMsg);
+    return [transferMsg];
   }
 
   private async transferFromNear(
@@ -144,7 +74,7 @@ export class NearContext<T extends WormholeContext> extends Context {
     recipientAddress: string,
     relayerFee: string = '0',
     payload?: Uint8Array,
-  ): Promise<FinalExecutionOutcome> {
+  ): Promise<FunctionCallOptions[]> {
     const coreBridge = this.context.mustGetBridge(sendingChain).address;
     const tokenBridge = this.context.mustGetBridge(sendingChain).address;
     let isWrapped = getIsWrappedAssetNear(tokenBridge, tokenAddress);
@@ -167,7 +97,8 @@ export class NearContext<T extends WormholeContext> extends Context {
         attachedDeposit: new BN(message_fee + 1),
         gas: new BN('100000000000000'),
       };
-      return await account.functionCall(transferMsg);
+      return [transferMsg];
+      // return await account.functionCall(transferMsg);
     } else {
       const msgs: FunctionCallOptions[] = [];
       let bal = await account.viewFunction(tokenAddress, 'storage_balance_of', {
@@ -228,8 +159,7 @@ export class NearContext<T extends WormholeContext> extends Context {
         attachedDeposit: new BN(1),
         gas: new BN('100000000000000'),
       });
-      const wallet = await this.getWallet();
-      return await signAndSendTransactions(account, wallet, msgs);
+      return msgs;
     }
   }
 
@@ -241,7 +171,7 @@ export class NearContext<T extends WormholeContext> extends Context {
     recipientChain: ChainName | ChainId,
     recipientAddress: string,
     relayerFee: string = '0',
-  ): Promise<FinalExecutionOutcome> {
+  ): Promise<FunctionCallOptions[]> {
     const provider = await this.getProvider(sendingChain, senderAddress);
     if (token === NATIVE) {
       return await this.transferNativeNear(
@@ -273,7 +203,7 @@ export class NearContext<T extends WormholeContext> extends Context {
     recipientChain: ChainName | ChainId,
     recipientAddress: string,
     payload: Uint8Array | Buffer,
-  ): Promise<FinalExecutionOutcome> {
+  ): Promise<FunctionCallOptions[]> {
     const provider = await this.getProvider(sendingChain, senderAddress);
     if (token === NATIVE) {
       return await this.transferNativeNear(

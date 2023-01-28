@@ -55,12 +55,3 @@ export type TokenId = {
   chain: ChainName;
   address: string;
 };
-
-export type TokenConfig = {
-  symbol: string;
-  icon: string;
-  address?: string;
-  coinGeckoId: string;
-  color: string;
-  decimals: number;
-};

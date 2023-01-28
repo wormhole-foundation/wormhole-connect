@@ -1,4 +1,4 @@
-import { MAINNET } from 'sdk';
+import { CONFIG } from '@sdk';
 import { NetworksConfig, TokenConfig } from './types';
 
 import AcalaIcon from '../icons/tokens/acala.svg';
@@ -28,118 +28,120 @@ import XplaIcon from '../icons/tokens/xpla.svg';
 
 import BnbIcon from '../icons/tokens/bnb.svg';
 
+const { chains } = CONFIG.MAINNET;
+
 export const MAINNET_NETWORKS: NetworksConfig = {
   solana: {
-    ...MAINNET.solana,
+    ...chains.solana,
     icon: SolanaIcon,
   },
   ethereum: {
-    ...MAINNET.ethereum,
+    ...chains.ethereum,
     icon: EthIcon,
   },
   terra: {
-    ...MAINNET.terra,
+    ...chains.terra,
     icon: TerraIcon,
   },
   bsc: {
-    ...MAINNET.bsc,
+    ...chains.bsc,
     icon: BscIcon,
   },
   polygon: {
-    ...MAINNET.polygon,
+    ...chains.polygon,
     icon: PolygonIcon,
   },
   avalanche: {
-    ...MAINNET.avalanche,
+    ...chains.avalanche,
     icon: AvaxIcon,
   },
   oasis: {
-    ...MAINNET.oasis,
+    ...chains.oasis,
     icon: OasisIcon,
   },
   algorand: {
-    ...MAINNET.algorand,
+    ...chains.algorand,
     icon: AlgoIcon,
   },
   aurora: {
-    ...MAINNET.aurora,
+    ...chains.aurora,
     icon: AuroraIcon,
   },
   fantom: {
-    ...MAINNET.fantom,
+    ...chains.fantom,
     icon: FantomIcon,
   },
   karura: {
-    ...MAINNET.karura,
+    ...chains.karura,
     icon: KaruraIcon,
   },
   acala: {
-    ...MAINNET.acala,
+    ...chains.acala,
     icon: AcalaIcon,
   },
   klaytn: {
-    ...MAINNET.klaytn,
+    ...chains.klaytn,
     icon: KlaytnIcon,
   },
   celo: {
-    ...MAINNET.celo,
+    ...chains.celo,
     icon: CeloIcon,
   },
   near: {
-    ...MAINNET.near,
+    ...chains.near,
     icon: NearIcon,
   },
   injective: {
-    ...MAINNET.injective,
+    ...chains.injective,
     icon: InjectiveIcon,
   },
   osmosis: {
-    ...MAINNET.osmosis,
+    ...chains.osmosis,
     icon: OsmosisIcon,
   },
   aptos: {
-    ...MAINNET.aptos,
+    ...chains.aptos,
     icon: AptosIcon,
   },
   sui: {
-    ...MAINNET.sui,
+    ...chains.sui,
     icon: SuiIcon,
   },
   moonbeam: {
-    ...MAINNET.moonbeam,
+    ...chains.moonbeam,
     icon: MoonbeamIcon,
   },
   neon: {
-    ...MAINNET.neon,
+    ...chains.neon,
     icon: NeonIcon,
   },
   terra2: {
-    ...MAINNET.terra2,
+    ...chains.terra2,
     icon: Terra2Icon,
   },
   arbitrum: {
-    ...MAINNET.arbitrum,
+    ...chains.arbitrum,
     icon: ArbitrumIcon,
   },
   optimism: {
-    ...MAINNET.optimism,
+    ...chains.optimism,
     icon: '',
   },
   gnosis: {
-    ...MAINNET.gnosis,
+    ...chains.gnosis,
   },
   pythnet: {
-    ...MAINNET.pythnet,
+    ...chains.pythnet,
   },
   xpla: {
-    ...MAINNET.xpla,
+    ...chains.xpla,
     icon: XplaIcon,
   },
   btc: {
-    ...MAINNET.btc,
+    ...chains.btc,
   },
   wormchain: {
-    ...MAINNET.wormchain,
+    ...chains.wormchain,
   },
 };
 

@@ -5,7 +5,9 @@
     "tests",
     "coverage"
   ],
-  "include": ["src/**/*.ts"],
+  "include": [
+    "src/**/*.ts"
+  ],
   "compilerOptions": {
     "composite": true,
     "declaration": true,
@@ -28,5 +30,5 @@
     "target": "es2021",
     "strict": true,
     "baseUrl": "./src"
-  },
+  }
 }

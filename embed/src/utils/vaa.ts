@@ -1,5 +1,5 @@
 import { parseTokenTransferVaa } from '@certusone/wormhole-sdk';
-import { ChainId } from 'sdk';
+import { ChainId } from '@sdk';
 import axios from 'axios';
 
 import { utils } from 'ethers';

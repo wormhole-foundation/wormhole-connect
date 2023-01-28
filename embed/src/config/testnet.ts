@@ -1,4 +1,4 @@
-import { TESTNET } from 'sdk';
+import { CONFIG } from '@sdk';
 import { NetworksConfig, TokenConfig } from './types';
 
 import EthIcon from '../../icons/tokens/eth.svg';
@@ -11,27 +11,27 @@ import CeloIcon from '../../icons/tokens/celo.svg';
 
 export const TESTNET_NETWORKS: NetworksConfig = {
   goerli: {
-    ...TESTNET.goerli,
+    ...CONFIG.TESTNET.goerli,
     icon: EthIcon,
   },
   bsc: {
-    ...TESTNET.bsc,
+    ...CONFIG.TESTNET.bsc,
     icon: BscIcon,
   },
   polygon: {
-    ...TESTNET.polygon,
+    ...CONFIG.TESTNET.polygon,
     icon: MaticIcon,
   },
   fuji: {
-    ...TESTNET.fuji,
+    ...CONFIG.TESTNET.fuji,
     icon: FujiIcon,
   },
   fantom: {
-    ...TESTNET.fantom,
+    ...CONFIG.TESTNET.fantom,
     icon: FantomIcon,
   },
   celo: {
-    ...TESTNET.celo,
+    ...CONFIG.TESTNET.celo,
     icon: CeloIcon,
   },
 };

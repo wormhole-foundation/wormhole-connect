@@ -1,7 +1,6 @@
-import { MsgExecuteContract } from '@terra-money/terra.js';
+import { MsgExecuteContract, TxInfo } from '@terra-money/terra.js';
 import { isNativeDenom } from '@certusone/wormhole-sdk/lib/cjs/terra';
 import { hexToUint8Array } from '@certusone/wormhole-sdk';
-import { TxInfo } from '@terra-money/terra.js';
 import { bech32 } from 'bech32';
 import { zeroPad } from 'ethers/lib/utils';
 
