@@ -25,6 +25,13 @@ export const registerSigner = (signer: any) => {
   context.registerSigner('goerli', signer);
 };
 
+// TODO: get tx details by transaction receipt
+// const provider = context.mustGetProvider(nameOrDomain);
+// const receipt = await provider.getTransactionReceipt(transactionHash);
+// if (!receipt) {
+//   throw new Error(`No receipt for ${transactionHash} on ${nameOrDomain}`);
+// }
+
 // export const getRelayerFee = async (
 //   sourceChain: ChainName | ChainId,
 //   destChain: ChainName | ChainId,

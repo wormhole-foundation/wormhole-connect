@@ -2,10 +2,10 @@ import React from 'react';
 import InputContainer from '../../components/InputContainer';
 import Header from './Header';
 import { RenderRows } from '../../components/RenderRows';
-import Confirmations from './Confirmations';
+// import Confirmations from './Confirmations';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
-import { context, REQUIRED_CONFIRMATIONS } from '../../utils/sdk';
+import { context } from '../../utils/sdk';
 import { ParsedVaa } from '../../utils/vaa';
 
 const rows = [
@@ -23,7 +23,7 @@ function SendTo() {
   const vaa: ParsedVaa = useSelector((state: RootState) => state.redeem.vaa);
   if (!vaa) return <div></div>;
   const toNetwork = context.resolveDomainName(vaa.toChain);
-  const pending = vaa.guardianSignatures < REQUIRED_CONFIRMATIONS;
+  // const pending = vaa.guardianSignatures < REQUIRED_CONFIRMATIONS;
 
   return (
     <div>
@@ -35,7 +35,7 @@ function SendTo() {
         />
         <RenderRows rows={rows} />
       </InputContainer>
-      {pending && <Confirmations confirmations={vaa.guardianSignatures} />}
+      {/* {pending && <Confirmations confirmations={vaa.guardianSignatures} />} */}
     </div>
   );
 }
