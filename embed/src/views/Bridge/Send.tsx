@@ -16,8 +16,8 @@ function Send(props: { valid: boolean }) {
     if (!amount) throw new Error('invalid input, specify an amount');
     if (!token) throw new Error('invalid input, specify an asset');
     const tokenConfig = TOKENS[token];
-    if (!tokenConfig) throw new Error('invalid token')
-    const sendToken = tokenConfig.tokenId
+    if (!tokenConfig) throw new Error('invalid token');
+    const sendToken = tokenConfig.tokenId;
 
     await sendTransfer(
       sendToken,

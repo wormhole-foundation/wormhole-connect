@@ -121,8 +121,11 @@ function TokensModal() {
   );
   const filteredTokens = TOKENS_ARR.filter((t) => {
     if (!fromNetwork) return true;
-    return t.tokenId !== 'native' || (t.tokenId === 'native' && t.nativeNetwork === fromNetwork);
-  })
+    return (
+      t.tokenId !== 'native' ||
+      (t.tokenId === 'native' && t.nativeNetwork === fromNetwork)
+    );
+  });
 
   return (
     <Modal open={showTokensModal} closable width="sm">
@@ -159,7 +162,9 @@ function TokensModal() {
                   <div className={classes.tokenRowBalance}>200.4567</div>
                 </div>
                 <div className={classes.tokenRowAddress}>
-                  {token.tokenId === 'native' ? 'Native' : displayEvmAddress(token.tokenId.address)}
+                  {token.tokenId === 'native'
+                    ? 'Native'
+                    : displayEvmAddress(token.tokenId.address)}
                 </div>
               </div>
             );

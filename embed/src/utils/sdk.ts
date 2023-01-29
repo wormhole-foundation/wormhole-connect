@@ -1,12 +1,6 @@
 import { Network as Environment } from '@certusone/wormhole-sdk';
 import { utils } from 'ethers';
-import {
-  WormholeContext,
-  ChainConfig,
-  TokenId,
-  ChainId,
-  ChainName,
-} from 'sdk';
+import { WormholeContext, ChainConfig, TokenId, ChainId, ChainName } from 'sdk';
 import { CONFIG as CONF } from 'sdk';
 import { MAINNET_NETWORKS, MAINNET_TOKENS } from '../config/mainnet';
 import { TESTNET_NETWORKS, TESTNET_TOKENS } from '../config/testnet';
@@ -31,6 +25,22 @@ export const registerSigner = (signer: any) => {
   context.registerSigner('goerli', signer);
 };
 
+// export const getRelayerFee = async (
+//   sourceChain: ChainName | ChainId,
+//   destChain: ChainName | ChainId,
+//   token: string,
+// ) => {
+//   const destChainId = context.resolveDomain(destChain);
+//   const tokenConfig = TOKENS[token];
+//   if (!tokenConfig) throw new Error('could not get token config');
+//   const relayer = context.mustGetTBRelayer(sourceChain);
+//   return await relayer.calculateRelayerFee(
+//     destChainId,
+//     tokenConfig.tokenId.address,
+//     tokenConfig.decimals,
+//   )
+// }
+
 export const sendTransfer = async (
   token: TokenId | 'native',
   amount: string,
@@ -47,7 +57,7 @@ export const sendTransfer = async (
   // const parsedNativeAmt = utils.parseUnits(toNativeToken || '0', decimals);
   const parsedNativeAmt = utils.parseUnits('0.001', decimals);
   if (paymentOption === PaymentOption.MANUAL) {
-    console.log('send with manual')
+    console.log('send with manual');
     const receipt = await context.send(
       token,
       parsedAmt.toString(),
@@ -59,7 +69,7 @@ export const sendTransfer = async (
     );
     return receipt;
   } else {
-    console.log('send with relay')
+    console.log('send with relay');
     const receipt = await context.sendWithRelay(
       token,
       parsedAmt.toString(),

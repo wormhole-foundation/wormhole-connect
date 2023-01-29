@@ -71,10 +71,10 @@
     "prettier": "prettier --write ./src",
     "start": "env-cmd -f .env.testnet react-app-rewired start",
     "start:prod": "env-cmd -f .env.mainnet react-app-rewired start",
-    "build": "env-cmd -f .env.testnet react-scripts build",
-    "build:prod": "env-cmd -f .env.mainnet react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "build": "env-cmd -f .env.testnet react-app-rewired build --max_old_space_size=4096 build",
+    "build:prod": "env-cmd -f .env.mainnet react-app-rewired build --max_old_space_size=4096 build",
+    "test": "react-app-rewired test",
+    "eject": "react-app-rewired eject"
   },
   "eslintConfig": {
     "extends": [

@@ -1,10 +1,5 @@
 import { Network as Environment, CONTRACTS } from '@certusone/wormhole-sdk';
-import {
-  WormholeConfig,
-  Context,
-  ChainConfig,
-  Contracts,
-} from '../types';
+import { WormholeConfig, Context, ChainConfig, Contracts } from '../types';
 
 // https://book.wormhole.com/reference/contracts.html
 export const TESTNET_CHAINS = {

@@ -7,4 +7,4 @@ export * from './wormhole';
 export const CONFIG = {
   MAINNET: MAINNET_CONFIG,
   TESTNET: TESTNET_CONFIG,
-}
+};
