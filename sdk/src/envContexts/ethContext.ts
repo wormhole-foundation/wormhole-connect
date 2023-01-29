@@ -151,7 +151,7 @@ export class EthContext<T extends WormholeContext> extends Context {
   }
 
   async sendWithRelay(
-    token: TokenId | typeof NATIVE,
+    token: TokenId | 'native',
     amount: string,
     toNativeToken: string,
     sendingChain: ChainName | ChainId,
@@ -167,15 +167,16 @@ export class EthContext<T extends WormholeContext> extends Context {
     const amountBN = ethers.BigNumber.from(amount);
     const relayer = this.context.mustGetTBRelayer(sendingChain);
     const nativeTokenBN = ethers.BigNumber.from(toNativeToken);
-    const unwrapWeth = await relayer.unwrapWeth();
-    console.log('unwrap', unwrapWeth);
-
-    if (token === NATIVE && unwrapWeth) {
+    const formattedRecipient = this.getEmitterAddress(recipientAddress)
+    // const unwrapWeth = await relayer.unwrapWeth(); // TODO: check unwrapWeth flag
+  
+    if (token === 'native') {
+      console.log('wrap and send with relay')
       // sending native ETH
       const v = await relayer.wrapAndTransferEthWithRelay(
         nativeTokenBN,
         recipientChainId,
-        recipientAddress,
+        `0x${formattedRecipient}`,
         0, // opt out of batching
         {
           // ...(overrides || {}), // TODO: fix overrides/gas limit here
@@ -187,6 +188,7 @@ export class EthContext<T extends WormholeContext> extends Context {
     } else {
       const tokenAddr = (token as TokenId).address;
       if (!tokenAddr) throw new Error('no token address found');
+      console.log('send with relay')
       // sending ERC-20
       //approve and send
       await this.approve(token as TokenId, amountBN);
@@ -195,7 +197,7 @@ export class EthContext<T extends WormholeContext> extends Context {
         amountBN,
         nativeTokenBN,
         recipientChainId,
-        recipientAddress,
+        formattedRecipient,
         0, // opt out of batching
         overrides,
       );

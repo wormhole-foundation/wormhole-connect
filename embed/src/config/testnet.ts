@@ -16,13 +16,13 @@ export const TESTNET_NETWORKS: NetworksConfig = {
     ...chains.goerli!,
     icon: EthIcon,
   },
+  mumbai: {
+    ...chains.mumbai!,
+    icon: MaticIcon,
+  },
   bsc: {
     ...chains.bsc!,
     icon: BscIcon,
-  },
-  polygon: {
-    ...chains.polygon!,
-    icon: MaticIcon,
   },
   fuji: {
     ...chains.fuji!,
@@ -32,8 +32,8 @@ export const TESTNET_NETWORKS: NetworksConfig = {
     ...chains.fantom!,
     icon: FantomIcon,
   },
-  celo: {
-    ...chains.celo!,
+  alfajores: {
+    ...chains.alfajores!,
     icon: CeloIcon,
   },
 };
