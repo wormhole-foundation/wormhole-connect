@@ -8,9 +8,10 @@ import Search from '../components/Search';
 import Scroll from '../components/Scroll';
 
 import { CHAINS_ARR } from '../utils/sdk';
-import { ChainName } from '../sdk/types';
+import { ChainName } from 'sdk';
 import { useDispatch } from 'react-redux';
 import { setFromNetworksModal, setToNetworksModal } from '../store/router';
+import { setFromNetwork, setToNetwork } from '../store/transfer';
 
 const useStyles = makeStyles()((theme) => ({
   networksContainer: {
@@ -43,8 +44,14 @@ const useStyles = makeStyles()((theme) => ({
   },
 }));
 
+export enum ModalType {
+  FROM = 1,
+  TO = 2,
+}
+
 type Props = {
   open: boolean;
+  type: ModalType;
   title: string;
   event: string;
 };
@@ -53,19 +60,16 @@ function NetworksModal(props: Props) {
   const { classes } = useStyles();
   const theme = useTheme();
   const dispatch = useDispatch();
-  // listen for close event
-  const closeNetworksModal = () => {
-    dispatch(setFromNetworksModal(false));
-    dispatch(setToNetworksModal(false));
-    document.removeEventListener('close', closeNetworksModal);
-  };
-  document.addEventListener('close', closeNetworksModal, { once: true });
+
   // dispatch selectNetwork event
-  const emitSelectNetwork = (network: ChainName) => {
-    console.log('emit');
-    const event = new CustomEvent(props.event, { detail: network });
-    document.dispatchEvent(event);
-    closeNetworksModal();
+  const selectNetwork = (network: ChainName) => {
+    if (props.type === ModalType.FROM) {
+      dispatch(setFromNetwork(network));
+      dispatch(setFromNetworksModal(false));
+    } else {
+      dispatch(setToNetwork(network));
+      dispatch(setToNetworksModal(false));
+    }
   };
 
   return (
@@ -89,7 +93,7 @@ function NetworksModal(props: Props) {
               <div
                 key={i}
                 className={classes.networkTile}
-                onClick={() => emitSelectNetwork(chain.key)}
+                onClick={() => selectNetwork(chain.key)}
               >
                 <img
                   src={chain.icon}

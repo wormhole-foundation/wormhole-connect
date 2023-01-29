@@ -1175,7 +1175,7 @@
     "@types/long" "^4.0.2"
     "@types/node" "^18.0.3"
 
-"@certusone/wormhole-sdk@^0.9.8":
+"@certusone/wormhole-sdk@^0.9.9":
   version "0.9.9"
   resolved "https://registry.yarnpkg.com/@certusone/wormhole-sdk/-/wormhole-sdk-0.9.9.tgz#c2ea40b386bcc58b59b06dc591a869f697c433ad"
   integrity sha512-seausUXqUIvUN19u4ef0VgMXNvyftQHrq5+A8AHHbsk14oBGRbvQ5JqeI+vgtKUMggK8jCaa/ICR1TnD7MW67Q==
@@ -2111,14 +2111,6 @@
   dependencies:
     browser-headers "^0.4.1"
 
-"@injectivelabs/chain-api@1.8.2-no-tse":
-  version "1.8.2-no-tse"
-  resolved "https://registry.yarnpkg.com/@injectivelabs/chain-api/-/chain-api-1.8.2-no-tse.tgz#94e561b5655ce313d25381c20c27dec5f05d23b1"
-  integrity sha512-ccFdkApkyKqAqhv6J8bUg9UFdtZelMEJyjk7RflxfxK3te8kKvIC4wA65sDKSVO1dZkrZFeKjunnIuW+dydNdA==
-  dependencies:
-    "@improbable-eng/grpc-web" "^0.13.0"
-    google-protobuf "^3.13.0"
-
 "@injectivelabs/chain-api@1.8.3":
   version "1.8.3"
   resolved "https://registry.yarnpkg.com/@injectivelabs/chain-api/-/chain-api-1.8.3.tgz#9ff948712018347c54453426e6eaa0c8e1edb2f2"
@@ -2149,7 +2141,7 @@
     web3 "^1.7.2"
     web3-utils "^1.7.2"
 
-"@injectivelabs/exceptions@^1.0.25", "@injectivelabs/exceptions@^1.0.32", "@injectivelabs/exceptions@^1.0.50":
+"@injectivelabs/exceptions@^1.0.32", "@injectivelabs/exceptions@^1.0.50":
   version "1.0.50"
   resolved "https://registry.yarnpkg.com/@injectivelabs/exceptions/-/exceptions-1.0.50.tgz#c97da32d0d202660e7d261ffabd3ba8d9dee1475"
   integrity sha512-F3ZPDlBX9iy7oQOGyB6jJA8i6o/+e6t3HoOJJ1eUjQljGbiewmcvj8VPujRZCxlGqEn3UFG73/K+/oBZQtJP7w==
@@ -2160,14 +2152,6 @@
     link-module-alias "^1.2.0"
     shx "^0.3.2"
 
-"@injectivelabs/indexer-api@1.0.31":
-  version "1.0.31"
-  resolved "https://registry.yarnpkg.com/@injectivelabs/indexer-api/-/indexer-api-1.0.31.tgz#391f22edc674f22238a7d0b27a3351853921445c"
-  integrity sha512-OtUiAsj41fIOfLQFQTAUBG/vJj5eKwzPNcUjCLBoiYZmGSwaWXVe9aTqtlbIP0Z+vmKreI1v6cwacNaxZnACVw==
-  dependencies:
-    "@improbable-eng/grpc-web" "^0.14.0"
-    google-protobuf "^3.14.0"
-
 "@injectivelabs/indexer-api@1.0.32-rc":
   version "1.0.32-rc"
   resolved "https://registry.yarnpkg.com/@injectivelabs/indexer-api/-/indexer-api-1.0.32-rc.tgz#67acbf0f456967a817fccda7579f3c458e810c4f"
@@ -2176,7 +2160,7 @@
     "@improbable-eng/grpc-web" "^0.14.0"
     google-protobuf "^3.14.0"
 
-"@injectivelabs/networks@^1.0.37", "@injectivelabs/networks@^1.0.52", "@injectivelabs/networks@^1.0.81":
+"@injectivelabs/networks@^1.0.52", "@injectivelabs/networks@^1.0.81":
   version "1.0.81"
   resolved "https://registry.yarnpkg.com/@injectivelabs/networks/-/networks-1.0.81.tgz#4d5baf71735bbab7a831bbc7170fdf0127335bd2"
   integrity sha512-886LgHuUVNfuqIRRFsrLg9AXvccEpmVJ7Z65ziAqeLk2MEPppHaZqSLvvUgaIyV943NZHw6246PfK7ehCf+BPg==
@@ -2194,46 +2178,6 @@
   dependencies:
     "@improbable-eng/grpc-web" "^0.14.0"
     google-protobuf "^3.14.0"
-
-"@injectivelabs/sdk-ts@1.0.211":
-  version "1.0.211"
-  resolved "https://registry.yarnpkg.com/@injectivelabs/sdk-ts/-/sdk-ts-1.0.211.tgz#b37568d6a8a522d123c15bf1516361490b0bf691"
-  integrity sha512-3gSniUGTC4qkBj23sAfvpUkP65hgLj3a07HF7xHQZRRuy17REuRXh1FZUjKbVn3ygWYMN46xy6eMVs/nw6ImtQ==
-  dependencies:
-    "@apollo/client" "^3.5.8"
-    "@cosmjs/amino" "^0.29.0"
-    "@cosmjs/proto-signing" "^0.29.0"
-    "@cosmjs/tendermint-rpc" "^0.29.0"
-    "@ethersproject/bytes" "^5.7.0"
-    "@improbable-eng/grpc-web" "^0.15.0"
-    "@improbable-eng/grpc-web-node-http-transport" "^0.15.0"
-    "@improbable-eng/grpc-web-react-native-transport" "^0.15.0"
-    "@injectivelabs/chain-api" "1.8.2-no-tse"
-    "@injectivelabs/exceptions" "^1.0.25"
-    "@injectivelabs/indexer-api" "1.0.31"
-    "@injectivelabs/networks" "^1.0.37"
-    "@injectivelabs/token-metadata" "^1.0.51"
-    "@injectivelabs/ts-types" "^1.0.14"
-    "@injectivelabs/utils" "^1.0.31"
-    "@metamask/eth-sig-util" "^4.0.1"
-    "@types/google-protobuf" "^3.15.5"
-    axios "^0.27.2"
-    bech32 "^2.0.0"
-    bip39 "^3.0.4"
-    eth-crypto "^2.3.0"
-    ethereumjs-abi "^0.6.8"
-    ethereumjs-util "^7.1.4"
-    ethers "^5.6.4"
-    ethjs-util "^0.1.6"
-    google-protobuf "^3.21.0"
-    graphql "^16.3.0"
-    http-status-codes "^2.2.0"
-    jscrypto "^1.0.3"
-    keccak256 "^1.0.6"
-    link-module-alias "^1.2.0"
-    secp256k1 "^4.0.3"
-    shx "^0.3.2"
-    snakecase-keys "^5.4.1"
 
 "@injectivelabs/sdk-ts@1.0.289":
   version "1.0.289"
@@ -2318,7 +2262,7 @@
     shx "^0.3.2"
     snakecase-keys "^5.4.1"
 
-"@injectivelabs/token-metadata@^1.0.119", "@injectivelabs/token-metadata@^1.0.51", "@injectivelabs/token-metadata@^1.0.77":
+"@injectivelabs/token-metadata@^1.0.119", "@injectivelabs/token-metadata@^1.0.77":
   version "1.0.119"
   resolved "https://registry.yarnpkg.com/@injectivelabs/token-metadata/-/token-metadata-1.0.119.tgz#8011154fde7d2d4908f431d00c1b23b4170d49d3"
   integrity sha512-6Oiy5in3U/kr6m2g1RW+CU4+lQciJ7HyXjoVZw9HYogn/ARgP6/LjUb5fAeyyxmtQLeENAPbABPjoPYx1P0tpw==
@@ -2333,7 +2277,7 @@
     lodash.values "^4.3.0"
     shx "^0.3.2"
 
-"@injectivelabs/ts-types@^1.0.14", "@injectivelabs/ts-types@^1.0.18", "@injectivelabs/ts-types@^1.0.28":
+"@injectivelabs/ts-types@^1.0.18", "@injectivelabs/ts-types@^1.0.28":
   version "1.0.28"
   resolved "https://registry.yarnpkg.com/@injectivelabs/ts-types/-/ts-types-1.0.28.tgz#67b99a47d85b716afda4fef6de98ab94e3281e9e"
   integrity sha512-QnUi6gP/H3Yn51onKl6dVjuokXdkygpj0cpfiyvOfuMXdJ1ScF2uOTwMxmQpjuDScBqZYEIOdkgskuBmoMpTSA==
@@ -2355,7 +2299,7 @@
     snakecase-keys "^5.1.2"
     store2 "^2.12.0"
 
-"@injectivelabs/utils@^1.0.31", "@injectivelabs/utils@^1.0.45", "@injectivelabs/utils@^1.0.69":
+"@injectivelabs/utils@^1.0.45", "@injectivelabs/utils@^1.0.69":
   version "1.0.69"
   resolved "https://registry.yarnpkg.com/@injectivelabs/utils/-/utils-1.0.69.tgz#ca5f89bcf57e6605e6b0f46051dba41ea1b75f05"
   integrity sha512-4v5iyC2CBhuo0uzvBgWgCHWsYr78L1RTGAvbnH0FyfYF22n7vSQgA1cm53NS5TRMJ4tqsqtxZLHDrT7udBPjwg==
@@ -3562,25 +3506,6 @@
     "@noble/hashes" "~1.1.1"
     "@scure/base" "~1.1.0"
 
-"@sdk@file:../sdk":
-  version "0.1.0"
-  dependencies:
-    "@certusone/wormhole-sdk" "^0.9.8"
-    "@injectivelabs/sdk-ts" "1.0.211"
-    "@nomad-xyz/multi-provider" "^1.1.0"
-    "@solana/spl-token" "^0.3.7"
-    "@solana/web3.js" "^1.73.0"
-    "@terra-money/terra.js" "^3.1.7"
-    "@typescript-eslint/eslint-plugin" "^5.48.1"
-    "@typescript-eslint/parser" "^5.48.1"
-    "@xpla/xpla.js" "^0.2.3"
-    algosdk "^1.15.0"
-    aptos "^1.6.0"
-    bech32 "^2.0.0"
-    bn.js "^5.2.1"
-    eslint-config-prettier "^8.6.0"
-    near-api-js "^1.1.0"
-
 "@sinclair/typebox@^0.24.1":
   version "0.24.51"
   resolved "https://registry.yarnpkg.com/@sinclair/typebox/-/typebox-0.24.51.tgz#645f33fe4e02defe26f2f5c0410e1c094eac7f5f"
@@ -3656,7 +3581,7 @@
   dependencies:
     buffer "~6.0.3"
 
-"@solana/spl-token@^0.3.5", "@solana/spl-token@^0.3.7":
+"@solana/spl-token@^0.3.5":
   version "0.3.7"
   resolved "https://registry.yarnpkg.com/@solana/spl-token/-/spl-token-0.3.7.tgz#6f027f9ad8e841f792c32e50920d9d2e714fc8da"
   integrity sha512-bKGxWTtIw6VDdCBngjtsGlKGLSmiu/8ghSt/IOYJV24BsymRbgq7r12GToeetpxmPaZYLddKwAz7+EwprLfkfg==
@@ -4453,7 +4378,7 @@
     utf-8-validate "^5.0.5"
     ws "^7.5.5"
 
-"@terra-money/terra.js@^3.1.3", "@terra-money/terra.js@^3.1.7":
+"@terra-money/terra.js@^3.1.3":
   version "3.1.7"
   resolved "https://registry.yarnpkg.com/@terra-money/terra.js/-/terra.js-3.1.7.tgz#76fcb655ca106ff683beb05d6ce305f5d05de7d4"
   integrity sha512-z7NwVI1gh0846pgQJaPHya6SRKLd/dHWR5UwWG6T2Pf24I2EjCo8YY5Fay30pCvHTYA2NBFgnWfXEZ/31TfB1Q==
@@ -5944,7 +5869,7 @@
     "@xpla/xpla.js" "^0.2.0"
     rxjs "^7.0.0"
 
-"@xpla/xpla.js@^0.2.0", "@xpla/xpla.js@^0.2.1", "@xpla/xpla.js@^0.2.3":
+"@xpla/xpla.js@^0.2.0", "@xpla/xpla.js@^0.2.1":
   version "0.2.3"
   resolved "https://registry.yarnpkg.com/@xpla/xpla.js/-/xpla.js-0.2.3.tgz#c614d98e599fe03f9edc425f50f66481983e8dac"
   integrity sha512-Tfk7hCGWXtwr08reY3Pi6dmzIqFbzri9jcyzJdfNmdo4cN0PMwpRJuZZcPmtxiIUnNef3AN1E/6nJUD5MKniuA==
@@ -6220,7 +6145,7 @@ anymatch@^3.0.3, anymatch@~3.1.2:
     normalize-path "^3.0.0"
     picomatch "^2.0.4"
 
-aptos@^1.3.14, aptos@^1.3.16, aptos@^1.6.0:
+aptos@^1.3.14, aptos@^1.3.16:
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/aptos/-/aptos-1.6.0.tgz#177fad94667503df0b911a5ea7b8e542b612be8b"
   integrity sha512-5khjDwrDeNMDBFRcZAmETW20D+V2AqTdsgqkh6bvvl70BtRXdkitN0saM05gf1rK3atnO9PyUKO8iRaBDG5qtA==

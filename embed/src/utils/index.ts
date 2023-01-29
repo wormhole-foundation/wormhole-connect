@@ -1,5 +1,5 @@
 import { TokenConfig } from "config/types";
-import { TokenId } from '@sdk';
+import { TokenId } from 'sdk';
 import { TOKENS_ARR } from "./sdk";
 
 export function convertAddress(address: string): string {

@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@sdk": "file:../sdk",
+    "@certusone/wormhole-sdk": "^0.9.9",
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
     "@injectivelabs/wallet-ts": "^1.0.355",

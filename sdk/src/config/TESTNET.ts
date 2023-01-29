@@ -10,10 +10,10 @@ import {
 export const TESTNET_CHAINS = {
   goerli: 2,
   bsc: 4,
-  polygon: 5,
+  mumbai: 5,
   fuji: 6,
   fantom: 10,
-  celo: 14,
+  alfajores: 14,
 } as const;
 
 export type TestnetChainName = keyof typeof TESTNET_CHAINS;
@@ -38,6 +38,20 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     gasToken: 'ETH',
     chainId: 5,
   },
+  mumbai: {
+    key: 'mumbai',
+    id: 5,
+    context: Context.ETH,
+    contracts: {
+      ...CONTRACTS.TESTNET.polygon,
+      relayer: '0x64A09E0cd839456d64c9Ab8F8AFe7C2B24b65b76',
+    },
+    displayName: 'Mumbai',
+    explorerUrl: 'https://mumbai.polygonscan.com/',
+    explorerName: 'Polygonscan',
+    gasToken: 'MATIC',
+    chainId: 0,
+  },
   bsc: {
     key: 'bsc',
     id: 4,
@@ -51,20 +65,6 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     explorerName: 'BscScan',
     gasToken: 'BNB',
     chainId: 97,
-  },
-  polygon: {
-    key: 'polygon',
-    id: 5,
-    context: Context.ETH,
-    contracts: {
-      ...CONTRACTS.TESTNET.polygon,
-      relayer: '0x64A09E0cd839456d64c9Ab8F8AFe7C2B24b65b76',
-    },
-    displayName: 'Polygon',
-    explorerUrl: 'https://polygonscan.com/',
-    explorerName: 'Polygonscan',
-    gasToken: 'MATIC',
-    chainId: 0,
   },
   fuji: {
     key: 'fuji',
@@ -94,7 +94,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     gasToken: 'FTM',
     chainId: 4002,
   },
-  celo: {
+  alfajores: {
     key: 'celo',
     id: 14,
     context: Context.ETH,
@@ -102,8 +102,8 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
       ...CONTRACTS.TESTNET.celo,
       relayer: '0xe0cdc52c477028bc293a21ef172a9a8b763d2113',
     },
-    displayName: 'Celo',
-    explorerUrl: 'https://explorer.celo.org/mainnet/',
+    displayName: 'Alfajores',
+    explorerUrl: 'https://explorer.celo.org/alfajores',
     explorerName: 'Celo Explorer',
     gasToken: 'CELO',
     chainId: 42220,
@@ -115,9 +115,11 @@ const TESTNET_CONFIG: WormholeConfig = {
   env,
   rpcs: {
     goerli: process.env.REACT_APP_GOERLI_RPC,
+    mumbai: 'https://polygon-mumbai.blockpi.network/v1/rpc/public',
     bsc: 'https://data-seed-prebsc-2-s3.binance.org:8545',
     fuji: 'https://api.avax-test.network/ext/bc/C/rpc',
     fantom: 'https://rpc.testnet.fantom.network',
+    alfajores: 'https://alfajores-forno.celo-testnet.org',
   },
   chains: TESTNET,
 };

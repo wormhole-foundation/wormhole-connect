@@ -1,4 +1,4 @@
-import { CONFIG } from '@sdk';
+import { CONFIG } from 'sdk';
 import { NetworksConfig, TokenConfig } from './types';
 
 import AcalaIcon from '../icons/tokens/acala.svg';

@@ -1,11 +1,9 @@
 import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { makeStyles } from '@mui/styles';
 import { Theme } from '@mui/material';
 import { RootState } from '../../store';
-import { setFromNetwork, setToNetwork } from '../../store/transfer';
-import { ChainName } from '../../sdk/types';
-import NetworksModal from '../NetworksModal';
+import NetworksModal, { ModalType } from '../NetworksModal';
 import SendFrom from './SendFrom';
 import SendTo from './SendTo';
 
@@ -26,35 +24,12 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 function Networks() {
   const classes = useStyles();
-  const dispatch = useDispatch();
   // store values
   const showFromNetworksModal = useSelector(
     (state: RootState) => state.router.showFromNetworksModal,
   );
   const showToNetworksModal = useSelector(
     (state: RootState) => state.router.showToNetworksModal,
-  );
-  const setFromNetworkStore = (network: ChainName) =>
-    dispatch(setFromNetwork(network));
-  const setToNetworkStore = (network: ChainName) =>
-    dispatch(setToNetwork(network));
-  // listen for selectFromNetwork
-  document.addEventListener(
-    'selectFromNetwork',
-    (event: Event) => {
-      const { detail } = event as CustomEvent;
-      setFromNetworkStore(detail);
-    },
-    { once: true },
-  );
-  // listen for selectToNetwork
-  document.addEventListener(
-    'selectToNetwork',
-    (event: Event) => {
-      const { detail } = event as CustomEvent;
-      setToNetworkStore(detail);
-    },
-    { once: true },
   );
 
   return (
@@ -65,11 +40,13 @@ function Networks() {
       {/* modals */}
       <NetworksModal
         open={showFromNetworksModal}
+        type={ModalType.FROM}
         title="Send from"
         event="selectFromNetwork"
       />
       <NetworksModal
         open={showToNetworksModal}
+        type={ModalType.TO}
         title="Send to"
         event="selectToNetwork"
       />
