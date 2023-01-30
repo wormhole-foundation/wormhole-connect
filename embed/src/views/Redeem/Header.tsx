@@ -2,7 +2,7 @@ import React from 'react';
 import { makeStyles } from 'tss-react/mui';
 import CircularProgress from '@mui/material/CircularProgress';
 import { CHAINS } from '../../sdk/config';
-import { ChainName } from '../../sdk/types';
+import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import WalletIcon from '../../icons/components/Wallet';
 import { LINK } from '../../utils/style';
 import LaunchIcon from '@mui/icons-material/Launch';

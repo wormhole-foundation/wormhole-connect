@@ -6,7 +6,7 @@ import { styled } from '@mui/material/styles';
 import BridgeCollapse from './Collapse';
 import InputContainer from '../../components/InputContainer';
 import { CHAINS, TOKENS } from '../../sdk/config';
-import { TokenConfig } from '../../sdk/types';
+import { TokenConfig } from '../../config/types';
 import { RootState } from '../../store';
 import TokenIcon from '../../icons/components/TokenIcons';
 
@@ -98,7 +98,10 @@ function GasSlider(props: { disabled: boolean }) {
                 0.0045 {nativeGasToken.symbol}
               </div>
               <div className={classes.amountDisplay}>
-                <TokenIcon name={(sendingToken as TokenConfig)!.icon} height={16} />
+                <TokenIcon
+                  name={(sendingToken as TokenConfig)!.icon}
+                  height={16}
+                />
                 0.0045 {(sendingToken as TokenConfig)!.symbol}
               </div>
             </div>
