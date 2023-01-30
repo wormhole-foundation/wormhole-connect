@@ -1,8 +1,8 @@
 import { makeStyles } from '@mui/styles';
 import React from 'react';
 import { Theme } from '@mui/material';
-import NoNetworkIcon from '../icons/no-network.png';
 import { ChainConfig } from '../sdk/types';
+import TokenIcon from '../icons/components/TokenIcons';
 
 const useStyles = makeStyles((theme: Theme) => ({
   networkTile: {
@@ -43,20 +43,12 @@ function NetworksTile(props: Props) {
   return props.network ? (
     <div className={classes.networkTile} onClick={props.onClick}>
       <div className={classes.networkHeader}>Network</div>
-      <img
-        className={classes.networkIcon}
-        src={props.network.icon}
-        alt={props.network.displayName}
-      />
+      <TokenIcon name={props.network.icon} height={56} />
       <div className={classes.networkName}>{props.network.displayName}</div>
     </div>
   ) : (
     <div className={classes.networkTile} onClick={props.onClick}>
-      <img
-        className={classes.networkIcon}
-        src={NoNetworkIcon}
-        alt="Select Network"
-      />
+      <TokenIcon name="no network" height={56} />
       <div className={classes.networkName}>Select network</div>
     </div>
   );

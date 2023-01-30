@@ -1,5 +1,5 @@
 import { TokenConfig } from 'config/types';
-import { TokenId } from 'sdk';
+import { TokenId } from '@wormhole-foundation/wormhole-connect-sdk';
 import { TOKENS_ARR } from '../sdk/config';
 
 export function convertAddress(address: string): string {

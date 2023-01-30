@@ -10,9 +10,9 @@ import InputContainer from '../../components/InputContainer';
 import InputTransparent from '../../components/InputTransparent';
 import ConnectWallet, { Wallet } from '../../components/ConnectWallet';
 import TokensModal from '../TokensModal';
-import NoNetworkIcon from '../../icons/no-network.png';
 import { joinClass } from '../../utils/style';
 import { setAmount } from '../../store/transfer';
+import TokenIcon from '../../icons/components/TokenIcons';
 
 const useStyles = makeStyles((theme: Theme) => ({
   header: {
@@ -135,20 +135,12 @@ function SendFrom() {
               <div className={classes.label}>Token</div>
               {tokenConfig ? (
                 <div className={classes.tokenSelect}>
-                  <img
-                    className={classes.tokenIcon}
-                    src={tokenConfig.icon}
-                    alt="token icon"
-                  />
+                  <TokenIcon name={tokenConfig.icon} height={24} />
                   {tokenConfig.symbol}
                 </div>
               ) : (
                 <div className={classes.tokenSelect}>
-                  <img
-                    className={classes.tokenIcon}
-                    src={NoNetworkIcon}
-                    alt="select token"
-                  />
+                  <TokenIcon name="no token" height={24} />
                   Select
                 </div>
               )}

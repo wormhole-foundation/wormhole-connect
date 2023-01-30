@@ -8,10 +8,11 @@ import Search from '../components/Search';
 import Scroll from '../components/Scroll';
 
 import { CHAINS_ARR } from '../sdk/config';
-import { ChainName } from 'sdk';
+import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { useDispatch } from 'react-redux';
 import { setFromNetworksModal, setToNetworksModal } from '../store/router';
 import { setFromNetwork, setToNetwork } from '../store/transfer';
+import TokenIcon from '../icons/components/TokenIcons';
 
 const useStyles = makeStyles()((theme) => ({
   networksContainer: {
@@ -61,6 +62,15 @@ function NetworksModal(props: Props) {
   const theme = useTheme();
   const dispatch = useDispatch();
 
+  // listen for close event
+  const closeTokensModal = () => {
+    // dispatch(setTokensModal(false));
+    dispatch(setFromNetworksModal(false));
+    dispatch(setToNetworksModal(false));
+    document.removeEventListener('click', closeTokensModal);
+  };
+  document.addEventListener('close', closeTokensModal, { once: true });
+
   // dispatch selectNetwork event
   const selectNetwork = (network: ChainName) => {
     if (props.type === ModalType.FROM) {
@@ -95,11 +105,7 @@ function NetworksModal(props: Props) {
                 className={classes.networkTile}
                 onClick={() => selectNetwork(chain.key)}
               >
-                <img
-                  src={chain.icon}
-                  alt={chain.displayName}
-                  className={classes.networkIcon}
-                />
+                <TokenIcon name={chain.icon} height={48} />
                 <div className={classes.networkText}>{chain.displayName}</div>
               </div>
             );

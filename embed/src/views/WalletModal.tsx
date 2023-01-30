@@ -4,16 +4,17 @@ import Header from '../components/Header';
 import Modal from '../components/Modal';
 import Spacer from '../components/Spacer';
 import { Theme } from '@mui/material';
-import MetamaskIcon from '../icons/wallets/metamask-fox.svg';
-import BinanceIcon from '../icons/wallets/binance-wallet.svg';
-import CoinbaseIcon from '../icons/wallets/coinbase.svg';
-import TrustIcon from '../icons/wallets/trust-wallet.svg';
-import PhantomIcon from '../icons/wallets/phantom-wallet.svg';
-import WalletConnectIcon from '../icons/wallets/walletconnect.svg';
 import { useDispatch } from 'react-redux';
 import { setWalletModal } from '../store/router';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
+
+const MetamaskIcon = '/assets/wallets/metamask-fox.svg';
+const BinanceIcon = '/assets/wallets/binance-wallet.svg';
+const CoinbaseIcon = '/assets/wallets/coinbase.svg';
+const TrustIcon = '/assets/wallets/trust-wallet.svg';
+const PhantomIcon = '/assets/wallets/phantom-wallet.svg';
+const WalletConnectIcon = '/assets/wallets/walletconnect.svg';
 
 const useStyles = makeStyles((theme: Theme) => ({
   walletRow: {

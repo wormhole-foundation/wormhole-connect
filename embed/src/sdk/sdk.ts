@@ -1,6 +1,11 @@
 import { Network as Environment } from '@certusone/wormhole-sdk';
 import { utils } from 'ethers';
-import { WormholeContext, TokenId, ChainId, ChainName } from 'sdk';
+import {
+  WormholeContext,
+  TokenId,
+  ChainId,
+  ChainName,
+} from '@wormhole-foundation/wormhole-connect-sdk';
 
 import { PaymentOption } from '../store/transfer';
 import { getTokenDecimals } from '../utils';

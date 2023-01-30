@@ -1,5 +1,5 @@
 {
-  "name": "embed",
+  "name": "@wormhole-foundation/wormhole-connect",
   "version": "0.1.0-beta.0",
   "private": true,
   "main": "dist/index.tsx",

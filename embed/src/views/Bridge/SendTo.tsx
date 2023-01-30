@@ -7,9 +7,9 @@ import { RootState } from '../../store';
 import { CHAINS, TOKENS } from '../../sdk/config';
 import InputContainer from '../../components/InputContainer';
 import ConnectWallet, { Wallet } from '../../components/ConnectWallet';
-import NoNetworkIcon from '../../icons/no-network.png';
 import { setToNetworksModal } from '../../store/router';
 import { joinClass, OPACITY } from '../../utils/style';
+import TokenIcon from '../../icons/components/TokenIcons';
 
 const useStyles = makeStyles((theme: Theme) => ({
   header: {
@@ -113,20 +113,12 @@ function SendTo() {
               <div className={classes.label}>Token</div>
               {tokenConfig ? (
                 <div className={classes.tokenSelect}>
-                  <img
-                    className={classes.tokenIcon}
-                    src={tokenConfig.icon}
-                    alt="token icon"
-                  />
+                  <TokenIcon name={tokenConfig.icon} height={24} />
                   {tokenConfig.symbol}
                 </div>
               ) : (
                 <div className={classes.tokenSelect}>
-                  <img
-                    className={classes.tokenIcon}
-                    src={NoNetworkIcon}
-                    alt="select token"
-                  />
+                  <TokenIcon name="no token" height={24} />
                   <div>-</div>
                 </div>
               )}

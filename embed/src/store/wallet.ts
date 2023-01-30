@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { CONFIG } from 'sdk';
+import { CONFIG } from '@wormhole-foundation/wormhole-connect-sdk';
 import Web3Modal from 'web3modal';
 import { providers } from 'ethers';
 import WalletConnectProvider from '@walletconnect/web3-provider';

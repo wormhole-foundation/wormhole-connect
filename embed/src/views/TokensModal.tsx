@@ -19,6 +19,7 @@ import { joinClass } from '../utils/style';
 import { displayEvmAddress } from '../utils';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
+import TokenIcon from '../icons/components/TokenIcons';
 
 const useStyles = makeStyles((theme: Theme) => ({
   tokensContainer: {
@@ -51,6 +52,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     display: 'flex',
     alignItems: 'center',
     fontSize: '14px',
+    gap: '8px',
   },
   tokenRowIcon: {
     width: '32px',
@@ -150,11 +152,7 @@ function TokensModal() {
                 onClick={() => selectToken(token.symbol)}
               >
                 <div className={classes.tokenRowLeft}>
-                  <img
-                    className={classes.tokenRowIcon}
-                    src={token.icon}
-                    alt={token.symbol}
-                  />
+                  <TokenIcon name={token.icon} height={32} />
                   <div>{token.symbol}</div>
                 </div>
                 <div className={classes.tokenRowRight}>
