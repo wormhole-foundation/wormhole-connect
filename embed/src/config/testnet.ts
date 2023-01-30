@@ -1,40 +1,32 @@
 import { CONFIG } from '@wormhole-foundation/wormhole-connect-sdk';
 import { NetworksConfig, TokenConfig } from './types';
 
-import EthIcon from '../icons/tokens/eth.svg';
-import BscIcon from '../icons/tokens/bsc.svg';
-import FujiIcon from '../icons/tokens/avax.svg';
-import FantomIcon from '../icons/tokens/fantom.svg';
-import MaticIcon from '../icons/tokens/polygon.svg';
-import USDCIcon from '../icons/tokens/usdc.svg';
-import CeloIcon from '../icons/tokens/celo.svg';
-
 const { chains } = CONFIG.TESTNET;
 
 export const TESTNET_NETWORKS: NetworksConfig = {
   goerli: {
     ...chains.goerli!,
-    icon: EthIcon,
+    icon: 'eth',
   },
   mumbai: {
     ...chains.mumbai!,
-    icon: MaticIcon,
+    icon: 'polygon',
   },
   bsc: {
     ...chains.bsc!,
-    icon: BscIcon,
+    icon: 'bsc',
   },
   fuji: {
     ...chains.fuji!,
-    icon: FujiIcon,
+    icon: 'avax',
   },
   fantom: {
     ...chains.fantom!,
-    icon: FantomIcon,
+    icon: 'fantom',
   },
   alfajores: {
     ...chains.alfajores!,
-    icon: CeloIcon,
+    icon: 'celo',
   },
 };
 
@@ -42,7 +34,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
   ETH: {
     symbol: 'ETH',
     nativeNetwork: 'goerli',
-    icon: EthIcon,
+    icon: 'eth',
     tokenId: 'native',
     coinGeckoId: 'ethereum',
     color: '#62688F',
@@ -51,7 +43,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
   WETH: {
     symbol: 'WETH',
     nativeNetwork: 'goerli',
-    icon: EthIcon,
+    icon: 'eth',
     tokenId: {
       chain: 'goerli',
       address:
@@ -64,7 +56,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
   USDC: {
     symbol: 'USDC',
     nativeNetwork: 'goerli',
-    icon: USDCIcon,
+    icon: 'usdc',
     tokenId: {
       chain: 'goerli',
       address:
@@ -76,8 +68,8 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
   },
   MATIC: {
     symbol: 'MATIC',
-    nativeNetwork: 'polygon',
-    icon: MaticIcon,
+    nativeNetwork: 'mumbai',
+    icon: 'polygon',
     tokenId: 'native',
     coinGeckoId: 'polygon',
     color: '#8247E5',
@@ -85,10 +77,10 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
   },
   WMATIC: {
     symbol: 'WMATIC',
-    nativeNetwork: 'polygon',
-    icon: MaticIcon,
+    nativeNetwork: 'mumbai',
+    icon: 'polygon',
     tokenId: {
-      chain: 'polygon',
+      chain: 'mumbai',
       address:
         '0000000000000000000000009c3C9283D3e44854697Cd22D3Faa240Cfb032889',
     },
@@ -99,7 +91,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
   BNB: {
     symbol: 'BNB',
     nativeNetwork: 'bsc',
-    icon: BscIcon,
+    icon: 'bsc',
     tokenId: 'native',
     coinGeckoId: 'bnb',
     color: '#F3BA30',
@@ -108,7 +100,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
   WBNB: {
     symbol: 'WBNB',
     nativeNetwork: 'bsc',
-    icon: BscIcon,
+    icon: 'bnb',
     tokenId: {
       chain: 'bsc',
       address:
@@ -121,7 +113,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
   AVAX: {
     symbol: 'AVAX',
     nativeNetwork: 'fuji',
-    icon: FujiIcon,
+    icon: 'avax',
     tokenId: 'native',
     coinGeckoId: 'fuji',
     color: '#E84141',
@@ -130,7 +122,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
   WAVAX: {
     symbol: 'WAVAX',
     nativeNetwork: 'fuji',
-    icon: FujiIcon,
+    icon: 'avax',
     tokenId: {
       chain: 'fuji',
       address:
@@ -143,7 +135,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
   FTM: {
     symbol: 'FTM',
     nativeNetwork: 'fantom',
-    icon: FantomIcon,
+    icon: 'fantom',
     tokenId: 'native',
     coinGeckoId: 'fantom',
     color: '#12B4EC',
@@ -152,7 +144,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
   WFTM: {
     symbol: 'WFTM',
     nativeNetwork: 'fantom',
-    icon: FantomIcon,
+    icon: 'fantom',
     tokenId: {
       chain: 'fantom',
       address:
@@ -164,10 +156,10 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
   },
   CELO: {
     symbol: 'CELO',
-    nativeNetwork: 'celo',
-    icon: CeloIcon,
+    nativeNetwork: 'alfajores',
+    icon: 'celo',
     tokenId: {
-      chain: 'celo',
+      chain: 'alfajores',
       address:
         '000000000000000000000000F194afDf50B03e69Bd7D057c1Aa9e10c9954E4C9',
     },

@@ -7,6 +7,7 @@ import WalletIcon from '../../icons/components/Wallet';
 import { LINK } from '../../utils/style';
 import LaunchIcon from '@mui/icons-material/Launch';
 import { displayEvmAddress } from '../../utils';
+import TokenIcon from '../../icons/components/TokenIcons';
 
 const useStyles = makeStyles()((theme) => ({
   header: {
@@ -48,11 +49,7 @@ function Header(props: Props) {
   return (
     <div className={classes.header}>
       <div className={classes.left}>
-        <img
-          className={classes.networkIcon}
-          src={networkConfig.icon}
-          alt={networkConfig.displayName}
-        />
+        <TokenIcon name={networkConfig.icon} height={32} />
         <div>{displayEvmAddress(props.address)}</div>
         <WalletIcon />
       </div>

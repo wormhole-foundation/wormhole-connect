@@ -8,6 +8,7 @@ import { CHAINS } from '../../sdk/config';
 import InputContainer from '../../components/InputContainer';
 import ArrowRight from '../../icons/components/ArrowRight';
 import LaunchIcon from '@mui/icons-material/Launch';
+import TokenIcon from '../../icons/components/TokenIcons';
 const { REACT_APP_WORMHOLE_EXPLORER } = process.env;
 
 const useStyles = makeStyles()((theme) => ({
@@ -46,20 +47,12 @@ function NetworksTag() {
       <InputContainer>
         <div className={classes.row}>
           <div className={classes.network}>
-            <img
-              className={classes.icon}
-              src={fromNetworkConfig.icon}
-              alt={fromNetworkConfig.displayName}
-            />
+            <TokenIcon name={fromNetworkConfig.icon!} height={24} />
             <div>{fromNetworkConfig.displayName}</div>
           </div>
           <ArrowRight />
           <div className={classes.network}>
-            <img
-              className={classes.icon}
-              src={toNetworkConfig.icon}
-              alt={toNetworkConfig.displayName}
-            />
+            <TokenIcon name={toNetworkConfig.icon!} height={24} />
             <div>{toNetworkConfig.displayName}</div>
           </div>
         </div>
