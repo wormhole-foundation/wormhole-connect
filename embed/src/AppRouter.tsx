@@ -10,6 +10,7 @@ import Redeem from './views/Redeem/Redeem';
 const useStyles = makeStyles(() => ({
   appContent: {
     margin: 'auto',
+    marginTop: '60px',
     maxWidth: '900px',
     width: '100%',
     display: 'flex',

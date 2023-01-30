@@ -133,7 +133,7 @@ function ConnectWallet(props: Props) {
           <div className={classes.row} {...bindTrigger(popupState)}>
             <img
               className={classes.walletIcon}
-              src={MetamaskIcon}
+              src={require(MetamaskIcon).default}
               alt="wallet"
             />
             {displayEvmAddress(wallet.address)}
