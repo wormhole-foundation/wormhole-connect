@@ -8,7 +8,7 @@ import {
   connectWallet,
   openWalletModal,
 } from '../store/wallet';
-import MetamaskIcon from '../icons/wallets/metamask-fox.svg';
+// import MetamaskIcon from '../icons/wallets/metamask-fox.svg';
 // import TrustWalletIcon from '../icons/wallets/trust-wallet.svg';
 import DownIcon from '../icons/components/Down';
 import PopupState, { bindTrigger, bindPopover } from 'material-ui-popup-state';
@@ -20,6 +20,7 @@ import { CHAINS } from '../sdk/config';
 import { BigNumber } from 'ethers';
 import { setFromNetwork } from '../store/transfer';
 import ActionIndicator from './Action';
+const MetamaskIcon = '/assets/wallets/metamask-fox.svg';
 
 const useStyles = makeStyles((theme: Theme) => ({
   row: {
@@ -133,7 +134,7 @@ function ConnectWallet(props: Props) {
           <div className={classes.row} {...bindTrigger(popupState)}>
             <img
               className={classes.walletIcon}
-              src={require(MetamaskIcon).default}
+              src={MetamaskIcon}
               alt="wallet"
             />
             {displayEvmAddress(wallet.address)}
