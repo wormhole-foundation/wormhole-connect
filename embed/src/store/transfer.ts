@@ -57,11 +57,8 @@ export const transferSlice = createSlice({
       console.log('set destination gas payment option:', payload);
       state.destGasPayment = payload;
     },
-    setTxHash: (
-      state: TransferState,
-      { payload }: PayloadAction<string>,
-    ) => {
-      console.log('set destination gas payment option:', payload);
+    setTxHash: (state: TransferState, { payload }: PayloadAction<string>) => {
+      console.log('set tx hash:', payload);
       state.txHash = payload;
     },
   },

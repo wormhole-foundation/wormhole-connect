@@ -5,7 +5,7 @@ import Slider, { SliderThumb } from '@mui/material/Slider';
 import { styled } from '@mui/material/styles';
 import BridgeCollapse from './Collapse';
 import InputContainer from '../../components/InputContainer';
-import { CHAINS, TOKENS } from '../../utils/sdk';
+import { CHAINS, TOKENS } from '../../sdk/config';
 import { TokenConfig } from '../../sdk/types';
 import { RootState } from '../../store';
 

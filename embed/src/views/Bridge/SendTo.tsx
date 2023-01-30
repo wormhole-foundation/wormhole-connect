@@ -4,7 +4,7 @@ import NetworkTile from '../../components/NetworkTile';
 import { Theme } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../store';
-import { CHAINS, TOKENS } from '../../utils/sdk';
+import { CHAINS, TOKENS } from '../../sdk/config';
 import InputContainer from '../../components/InputContainer';
 import ConnectWallet, { Wallet } from '../../components/ConnectWallet';
 import NoNetworkIcon from '../../icons/no-network.png';

@@ -1,6 +1,6 @@
 import { TokenConfig } from 'config/types';
 import { TokenId } from 'sdk';
-import { TOKENS_ARR } from './sdk';
+import { TOKENS_ARR } from '../sdk/config';
 
 export function convertAddress(address: string): string {
   if (address.length === 22) return address;

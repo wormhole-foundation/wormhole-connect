@@ -11,11 +11,12 @@ import './App.css';
 import { store } from './store';
 import AppRouter from './AppRouter';
 import { getDesignTokens } from './theme';
+import { THEME } from './sdk/config';
 
 const ColorModeContext = React.createContext({ toggleColorMode: () => {} });
 
 function App() {
-  const [mode, setMode] = React.useState<PaletteMode>('light');
+  const [mode, setMode] = React.useState<PaletteMode>(THEME);
   const colorMode = React.useMemo(
     () => ({
       // The dark mode switch would invoke this method

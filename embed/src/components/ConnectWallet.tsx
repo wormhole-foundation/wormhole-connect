@@ -16,7 +16,7 @@ import Popover from '@mui/material/Popover';
 import { useDispatch } from 'react-redux';
 import WalletIcon from '../icons/components/Wallet';
 import { displayEvmAddress } from '../utils';
-import { CHAINS } from '../utils/sdk';
+import { CHAINS } from '../sdk/config';
 import { BigNumber } from 'ethers';
 import { setFromNetwork } from '../store/transfer';
 import ActionIndicator from './Action';
@@ -84,7 +84,7 @@ type Props = {
   type: Wallet;
 };
 
-function NetworksModal(props: Props) {
+function ConnectWallet(props: Props) {
   const classes = useStyles();
   const theme = useTheme();
   const dispatch = useDispatch();
@@ -92,7 +92,7 @@ function NetworksModal(props: Props) {
   const sourceChain = useSelector(
     (state: RootState) => state.transfer.fromNetwork,
   );
-  const sourceConfig = CHAINS[sourceChain];
+  const sourceConfig = CHAINS[sourceChain!];
 
   const connect = async () => {
     const walletConnection = await openWalletModal(
@@ -171,4 +171,4 @@ function NetworksModal(props: Props) {
   );
 }
 
-export default NetworksModal;
+export default ConnectWallet;

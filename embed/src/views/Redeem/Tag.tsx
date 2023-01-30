@@ -4,7 +4,7 @@ import { makeStyles } from 'tss-react/mui';
 import { RootState } from '../../store';
 import { ParsedVaa } from '../../utils/vaa';
 import { LINK } from '../../utils/style';
-import { CHAINS } from '../../utils/sdk';
+import { CHAINS } from '../../sdk/config';
 import InputContainer from '../../components/InputContainer';
 import ArrowRight from '../../icons/components/ArrowRight';
 import LaunchIcon from '@mui/icons-material/Launch';
@@ -31,11 +31,15 @@ const useStyles = makeStyles()((theme) => ({
 function NetworksTag() {
   const { classes } = useStyles();
   const vaa: ParsedVaa = useSelector((state: RootState) => state.redeem.vaa);
-  const { fromNetwork, toNetwork } = useSelector((state: RootState) => state.transfer);
+  const { fromNetwork, toNetwork } = useSelector(
+    (state: RootState) => state.transfer,
+  );
   if (!fromNetwork || !toNetwork) return <div></div>;
   const fromNetworkConfig = CHAINS[fromNetwork]!;
   const toNetworkConfig = CHAINS[toNetwork]!;
-  const link = vaa && `${REACT_APP_WORMHOLE_EXPLORER}?emitterChain=${vaa.emitterChain}&emitterAddress=${vaa.emitterAddress}&sequence=${vaa.sequence}`;
+  const link =
+    vaa &&
+    `${REACT_APP_WORMHOLE_EXPLORER}?emitterChain=${vaa.emitterChain}&emitterAddress=${vaa.emitterAddress}&sequence=${vaa.sequence}`;
 
   return (
     <div>
@@ -60,10 +64,17 @@ function NetworksTag() {
           </div>
         </div>
       </InputContainer>
-      {vaa && <a className={classes.link} href={link} target="_blank" rel="noreferrer">
-        <div>View on Wormhole Explorer</div>
-        <LaunchIcon />
-      </a>}
+      {vaa && (
+        <a
+          className={classes.link}
+          href={link}
+          target="_blank"
+          rel="noreferrer"
+        >
+          <div>View on Wormhole Explorer</div>
+          <LaunchIcon />
+        </a>
+      )}
     </div>
   );
 }

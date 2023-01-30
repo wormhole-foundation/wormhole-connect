@@ -8,17 +8,18 @@ import Stepper from './Stepper';
 import { setVaa } from '../../store/redeem';
 import { RootState } from '../../store';
 import { ChainName } from 'sdk';
+import { Alert, AlertTitle } from '@mui/material';
 
 class Redeem extends React.Component<
   {
-    setVaa: any,
-    txHash: string,
-    fromNetwork: ChainName,
-    toNetwork: ChainName,
-    amount: number,
-    senderAddr: string,
-    receivingAddr: string,
-    token: string,
+    setVaa: any;
+    txHash: string;
+    fromNetwork: ChainName;
+    toNetwork: ChainName;
+    amount: number;
+    senderAddr: string;
+    receivingAddr: string;
+    token: string;
   },
   { vaa: ParsedVaa | undefined }
 > {
@@ -34,7 +35,6 @@ class Redeem extends React.Component<
   }
 
   componentDidMount() {
-    // console.log('1111', this.state, this.props)
     this.getVaa();
     const interval = setInterval(() => {
       if (!this.state.vaa) {
@@ -47,8 +47,25 @@ class Redeem extends React.Component<
 
   render() {
     // TODO: write validate function
-    const { txHash, fromNetwork, toNetwork, amount, senderAddr, receivingAddr, token } = this.props;
-    if (!txHash || !fromNetwork || !toNetwork || !amount || !senderAddr || !receivingAddr || !token) return <div></div>;
+    const {
+      txHash,
+      fromNetwork,
+      toNetwork,
+      amount,
+      senderAddr,
+      receivingAddr,
+      token,
+    } = this.props;
+    if (
+      !txHash ||
+      !fromNetwork ||
+      !toNetwork ||
+      !amount ||
+      !senderAddr ||
+      !receivingAddr ||
+      !token
+    )
+      return <div></div>;
     return (
       <div
         style={{
@@ -61,6 +78,11 @@ class Redeem extends React.Component<
       >
         <PageHeader title="Bridge" back />
 
+        <Alert severity="warning" sx={{ width: '100%', marginTop: '32px' }}>
+          <AlertTitle>Warning</AlertTitle>
+          Do not leave page before completing your transfer
+        </Alert>
+
         <Spacer height={40} />
         <NetworksTag />
         <Stepper cta="Some CTA" />
@@ -71,9 +93,19 @@ class Redeem extends React.Component<
 }
 
 function mapStateToProps(state: RootState) {
-  const { fromNetwork, toNetwork, amount, token, destGasPayment, txHash } = state.transfer;
+  const { fromNetwork, toNetwork, amount, token, destGasPayment, txHash } =
+    state.transfer;
   const { sending, receiving } = state.wallet;
-  return { txHash, fromNetwork, toNetwork, amount, token, destGasPayment, senderAddr: sending.address, receivingAddr: receiving.address }
+  return {
+    txHash,
+    fromNetwork,
+    toNetwork,
+    amount,
+    token,
+    destGasPayment,
+    senderAddr: sending.address,
+    receivingAddr: receiving.address,
+  };
 }
 
 const mapDispatchToProps = (dispatch) => {

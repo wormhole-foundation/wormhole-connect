@@ -24,8 +24,12 @@ const rows = [
 
 function SendFrom() {
   const vaa: ParsedVaa = useSelector((state: RootState) => state.redeem.vaa);
-  const fromNetwork = useSelector((state: RootState) => state.transfer.fromNetwork);
-  const fromAddr = useSelector((state: RootState) => state.wallet.sending.address);
+  const fromNetwork = useSelector(
+    (state: RootState) => state.transfer.fromNetwork,
+  );
+  const fromAddr = useSelector(
+    (state: RootState) => state.wallet.sending.address,
+  );
 
   return (
     <div>

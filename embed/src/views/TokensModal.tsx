@@ -11,7 +11,7 @@ import Tooltip from '../components/Tooltip';
 import { Theme } from '@mui/material';
 import Down from '../icons/components/Down';
 
-import { TOKENS_ARR } from '../utils/sdk';
+import { TOKENS_ARR } from '../sdk/config';
 import { useDispatch } from 'react-redux';
 import { setTokensModal } from '../store/router';
 import { setToken } from '../store/transfer';

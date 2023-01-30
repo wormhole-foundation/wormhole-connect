@@ -1,22 +1,11 @@
 import { Network as Environment } from '@certusone/wormhole-sdk';
 import { utils } from 'ethers';
-import { WormholeContext, ChainConfig, TokenId, ChainId, ChainName } from 'sdk';
-import { CONFIG as CONF } from 'sdk';
-import { MAINNET_NETWORKS, MAINNET_TOKENS } from '../config/mainnet';
-import { TESTNET_NETWORKS, TESTNET_TOKENS } from '../config/testnet';
+import { WormholeContext, TokenId, ChainId, ChainName } from 'sdk';
 
 import { PaymentOption } from 'store/transfer';
-import { TokenConfig } from 'config/types';
 import { getTokenDecimals } from 'utils';
 
 const { REACT_APP_ENV } = process.env;
-export const isProduction = REACT_APP_ENV === 'MAINNET';
-export const CONFIG = isProduction ? CONF.MAINNET : CONF.TESTNET;
-export const CHAINS = isProduction ? MAINNET_NETWORKS : TESTNET_NETWORKS;
-export const CHAINS_ARR = Object.values(CHAINS) as ChainConfig[];
-export const TOKENS = isProduction ? MAINNET_TOKENS : TESTNET_TOKENS;
-export const TOKENS_ARR = Object.values(TOKENS) as TokenConfig[];
-export const REQUIRED_CONFIRMATIONS = isProduction ? 13 : 1;
 
 export const context = new WormholeContext(REACT_APP_ENV! as Environment);
 
