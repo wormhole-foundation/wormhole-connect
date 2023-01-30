@@ -27,4 +27,4 @@ export const TOKENS_ARR = config.tokens
     )
   : (Object.values(TOKENS) as TokenConfig[]);
 export const REQUIRED_CONFIRMATIONS = isProduction ? 13 : 1;
-export const THEME = config.theme;
+export const THEME = config.theme || 'light';

@@ -3,7 +3,7 @@ import { CONFIG } from 'sdk';
 import Web3Modal from 'web3modal';
 import { providers } from 'ethers';
 import WalletConnectProvider from '@walletconnect/web3-provider';
-import { registerSigner } from 'sdk/sdk';
+import { registerSigner } from '../sdk/sdk';
 const { REACT_APP_ENV, REACT_APP_INFURA_KEY } = process.env;
 
 let connection: any;

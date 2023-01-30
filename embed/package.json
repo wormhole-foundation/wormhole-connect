@@ -1,7 +1,11 @@
 {
   "name": "embed",
-  "version": "0.1.0",
+  "version": "0.1.0-beta.0",
   "private": true,
+  "main": "dist/index.tsx",
+  "publishConfig": {
+    "access": "restricted"
+  },
   "dependencies": {
     "@certusone/wormhole-sdk": "^0.9.9",
     "@emotion/react": "^11.10.5",
@@ -73,6 +77,7 @@
     "start:prod": "env-cmd -f .env.mainnet react-app-rewired start",
     "build": "env-cmd -f .env.testnet react-app-rewired build --max_old_space_size=4096 build",
     "build:prod": "env-cmd -f .env.mainnet react-app-rewired build --max_old_space_size=4096 build",
+    "build:widget": "parcel build src/index.tsx -d docs",
     "test": "react-app-rewired test",
     "eject": "react-app-rewired eject"
   },
@@ -93,5 +98,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "parcel-bundler": "^1.12.5"
   }
 }

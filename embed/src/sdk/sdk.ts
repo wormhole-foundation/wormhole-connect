@@ -2,8 +2,8 @@ import { Network as Environment } from '@certusone/wormhole-sdk';
 import { utils } from 'ethers';
 import { WormholeContext, TokenId, ChainId, ChainName } from 'sdk';
 
-import { PaymentOption } from 'store/transfer';
-import { getTokenDecimals } from 'utils';
+import { PaymentOption } from '../store/transfer';
+import { getTokenDecimals } from '../utils';
 
 const { REACT_APP_ENV } = process.env;
 
