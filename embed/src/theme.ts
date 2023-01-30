@@ -4,7 +4,7 @@ import green from '@mui/material/colors/green';
 import orange from '@mui/material/colors/orange';
 import red from '@mui/material/colors/red';
 import { PaletteMode } from '@mui/material';
-import { OPACITY } from 'utils/style';
+import { OPACITY } from './utils/style';
 
 // const light: PaletteOptions = {
 //   primary: {

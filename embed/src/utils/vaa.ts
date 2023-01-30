@@ -1,10 +1,11 @@
 import { parseTokenTransferVaa } from '@certusone/wormhole-sdk';
-import { ChainId } from 'sdk';
+import { ChainId } from '@wormhole-foundation/wormhole-connect-sdk';
 import axios from 'axios';
 
 import { utils } from 'ethers';
 
 export type ParsedVaa = {
+  bytes: string;
   amount: string;
   emitterAddress: string;
   emitterChain: ChainId;
@@ -29,11 +30,13 @@ export async function fetchVaa(txId: string): Promise<ParsedVaa | undefined> {
   return axios
     .get(url)
     .then(function (response: any) {
+      if (!response.data.data) return;
       const data = response.data.data[0];
       const vaa = utils.base64.decode(data.vaa);
       const parsed = parseTokenTransferVaa(vaa);
       console.log(parsed);
       const vaaData: ParsedVaa = {
+        bytes: utils.hexlify(vaa),
         amount: parsed.amount.toString(),
         emitterAddress: utils.hexlify(parsed.emitterAddress),
         emitterChain: parsed.emitterChain as ChainId,

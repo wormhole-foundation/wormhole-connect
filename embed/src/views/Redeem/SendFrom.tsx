@@ -2,10 +2,9 @@ import React from 'react';
 import InputContainer from '../../components/InputContainer';
 import Header from './Header';
 import { RenderRows } from '../../components/RenderRows';
-import Confirmations from './Confirmations';
+// import Confirmations from './Confirmations';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
-import { context, REQUIRED_CONFIRMATIONS } from '../../utils/sdk';
 import { ParsedVaa } from '../../utils/vaa';
 
 const rows = [
@@ -25,21 +24,24 @@ const rows = [
 
 function SendFrom() {
   const vaa: ParsedVaa = useSelector((state: RootState) => state.redeem.vaa);
-  if (!vaa) return <div></div>;
-  const fromNetwork = context.resolveDomainName(vaa?.emitterChain);
-  const pending = vaa.guardianSignatures < REQUIRED_CONFIRMATIONS;
+  const fromNetwork = useSelector(
+    (state: RootState) => state.transfer.fromNetwork,
+  );
+  const fromAddr = useSelector(
+    (state: RootState) => state.wallet.sending.address,
+  );
 
   return (
     <div>
       <InputContainer>
         <Header
           network={fromNetwork}
-          address={vaa.fromAddress!}
-          txHash={!pending ? vaa.txHash : undefined}
+          address={fromAddr!}
+          txHash={vaa?.txHash}
         />
         <RenderRows rows={rows} />
       </InputContainer>
-      {pending && <Confirmations confirmations={vaa.guardianSignatures} />}
+      {/* {pending && <Confirmations confirmations={vaa.guardianSignatures} />} */}
     </div>
   );
 }

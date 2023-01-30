@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { ChainName } from 'sdk';
+import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 
 export enum PaymentOption {
   MANUAL = 1,
@@ -11,6 +11,7 @@ export interface TransferState {
   token: string;
   amount: number | undefined;
   destGasPayment: PaymentOption;
+  txHash: string;
 }
 
 const initialState: TransferState = {
@@ -20,6 +21,7 @@ const initialState: TransferState = {
   amount: undefined,
   // TODO: check if automatic is available once networks and token are selected
   destGasPayment: PaymentOption.AUTOMATIC,
+  txHash: '',
 };
 
 export const transferSlice = createSlice({
@@ -55,6 +57,10 @@ export const transferSlice = createSlice({
       console.log('set destination gas payment option:', payload);
       state.destGasPayment = payload;
     },
+    setTxHash: (state: TransferState, { payload }: PayloadAction<string>) => {
+      console.log('set tx hash:', payload);
+      state.txHash = payload;
+    },
   },
 });
 
@@ -64,6 +70,7 @@ export const {
   setToNetwork,
   setDestGasPayment,
   setAmount,
+  setTxHash,
 } = transferSlice.actions;
 
 export default transferSlice.reducer;

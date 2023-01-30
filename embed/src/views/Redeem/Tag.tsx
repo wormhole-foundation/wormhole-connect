@@ -4,11 +4,11 @@ import { makeStyles } from 'tss-react/mui';
 import { RootState } from '../../store';
 import { ParsedVaa } from '../../utils/vaa';
 import { LINK } from '../../utils/style';
-import { CHAINS, context } from '../../utils/sdk';
-import { ChainName } from '../../sdk/types';
+import { CHAINS } from '../../sdk/config';
 import InputContainer from '../../components/InputContainer';
 import ArrowRight from '../../icons/components/ArrowRight';
 import LaunchIcon from '@mui/icons-material/Launch';
+import TokenIcon from '../../icons/components/TokenIcons';
 const { REACT_APP_WORMHOLE_EXPLORER } = process.env;
 
 const useStyles = makeStyles()((theme) => ({
@@ -32,40 +32,42 @@ const useStyles = makeStyles()((theme) => ({
 function NetworksTag() {
   const { classes } = useStyles();
   const vaa: ParsedVaa = useSelector((state: RootState) => state.redeem.vaa);
-  if (!vaa) return <div></div>;
-  const fromNetwork = context.resolveDomainName(vaa.emitterChain) as ChainName;
-  const toNetwork = context.resolveDomainName(vaa.toChain) as ChainName;
+  const { fromNetwork, toNetwork } = useSelector(
+    (state: RootState) => state.transfer,
+  );
+  if (!fromNetwork || !toNetwork) return <div></div>;
   const fromNetworkConfig = CHAINS[fromNetwork]!;
   const toNetworkConfig = CHAINS[toNetwork]!;
-  const link = `${REACT_APP_WORMHOLE_EXPLORER}?emitterChain=${vaa.emitterChain}&emitterAddress=${vaa.emitterAddress}&sequence=${vaa.sequence}`;
+  const link =
+    vaa &&
+    `${REACT_APP_WORMHOLE_EXPLORER}?emitterChain=${vaa.emitterChain}&emitterAddress=${vaa.emitterAddress}&sequence=${vaa.sequence}`;
 
   return (
     <div>
       <InputContainer>
         <div className={classes.row}>
           <div className={classes.network}>
-            <img
-              className={classes.icon}
-              src={fromNetworkConfig.icon}
-              alt={fromNetworkConfig.displayName}
-            />
+            <TokenIcon name={fromNetworkConfig.icon!} height={24} />
             <div>{fromNetworkConfig.displayName}</div>
           </div>
           <ArrowRight />
           <div className={classes.network}>
-            <img
-              className={classes.icon}
-              src={toNetworkConfig.icon}
-              alt={toNetworkConfig.displayName}
-            />
+            <TokenIcon name={toNetworkConfig.icon!} height={24} />
             <div>{toNetworkConfig.displayName}</div>
           </div>
         </div>
       </InputContainer>
-      <a className={classes.link} href={link} target="_blank" rel="noreferrer">
-        <div>View on Wormhole Explorer</div>
-        <LaunchIcon />
-      </a>
+      {vaa && (
+        <a
+          className={classes.link}
+          href={link}
+          target="_blank"
+          rel="noreferrer"
+        >
+          <div>View on Wormhole Explorer</div>
+          <LaunchIcon />
+        </a>
+      )}
     </div>
   );
 }

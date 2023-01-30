@@ -1,10 +1,15 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import Button from '../../components/Button';
-import { sendTransfer, TOKENS } from '../../utils/sdk';
+import { TOKENS } from '../../sdk/config';
+import { sendTransfer } from '../../sdk/sdk';
 import { RootState } from '../../store';
+import { useDispatch } from 'react-redux';
+import { setTxHash } from '../../store/transfer';
+import { setRoute } from '../../store/router';
 
 function Send(props: { valid: boolean }) {
+  const dispatch = useDispatch();
   const { fromNetwork, toNetwork, token, amount, destGasPayment } = useSelector(
     (state: RootState) => state.transfer,
   );
@@ -16,10 +21,10 @@ function Send(props: { valid: boolean }) {
     if (!amount) throw new Error('invalid input, specify an amount');
     if (!token) throw new Error('invalid input, specify an asset');
     const tokenConfig = TOKENS[token];
-    if (!tokenConfig) throw new Error('invalid token')
-    const sendToken = tokenConfig.tokenId
+    if (!tokenConfig) throw new Error('invalid token');
+    const sendToken = tokenConfig.tokenId;
 
-    await sendTransfer(
+    const receipt = await sendTransfer(
       sendToken,
       `${amount}`,
       fromNetwork!,
@@ -29,7 +34,9 @@ function Send(props: { valid: boolean }) {
       destGasPayment,
       '0',
     );
-    console.log('sent');
+    console.log('sent', receipt);
+    dispatch(setTxHash(receipt.transactionHash));
+    dispatch(setRoute('redeem'));
   }
   return (
     <Button

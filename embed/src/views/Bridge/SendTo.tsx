@@ -1,16 +1,15 @@
 import React from 'react';
 import { makeStyles } from '@mui/styles';
-import NetworksModal from '../NetworksModal';
 import NetworkTile from '../../components/NetworkTile';
 import { Theme } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../store';
-import { CHAINS, TOKENS } from '../../utils/sdk';
+import { CHAINS, TOKENS } from '../../sdk/config';
 import InputContainer from '../../components/InputContainer';
 import ConnectWallet, { Wallet } from '../../components/ConnectWallet';
-import NoNetworkIcon from '../../icons/no-network.png';
 import { setToNetworksModal } from '../../store/router';
 import { joinClass, OPACITY } from '../../utils/style';
+import TokenIcon from '../../icons/components/TokenIcons';
 
 const useStyles = makeStyles((theme: Theme) => ({
   header: {
@@ -84,14 +83,11 @@ function SendTo() {
   const classes = useStyles();
   const dispatch = useDispatch();
   // store values
-  const showToNetworksModal = useSelector(
-    (state: RootState) => state.router.showToNetworksModal,
-  );
   const toNetwork = useSelector((state: RootState) => state.transfer.toNetwork);
   const token = useSelector((state: RootState) => state.transfer.token);
   const amount = useSelector((state: RootState) => state.transfer.amount);
   // get networks configs
-  const toNetworkConfig = CHAINS[toNetwork];
+  const toNetworkConfig = toNetwork ? CHAINS[toNetwork] : undefined;
   const tokenConfig = TOKENS[token];
   // set store values
   const openToNetworksModal = () => dispatch(setToNetworksModal(true));
@@ -117,20 +113,12 @@ function SendTo() {
               <div className={classes.label}>Token</div>
               {tokenConfig ? (
                 <div className={classes.tokenSelect}>
-                  <img
-                    className={classes.tokenIcon}
-                    src={tokenConfig.icon}
-                    alt="token icon"
-                  />
+                  <TokenIcon name={tokenConfig.icon} height={24} />
                   {tokenConfig.symbol}
                 </div>
               ) : (
                 <div className={classes.tokenSelect}>
-                  <img
-                    className={classes.tokenIcon}
-                    src={NoNetworkIcon}
-                    alt="select token"
-                  />
+                  <TokenIcon name="no token" height={24} />
                   <div>-</div>
                 </div>
               )}
@@ -165,13 +153,6 @@ function SendTo() {
           </div>
         </div>
       </InputContainer>
-
-      {/* modal */}
-      <NetworksModal
-        open={showToNetworksModal}
-        title="Send to"
-        event="selectToNetwork"
-      />
     </div>
   );
 }

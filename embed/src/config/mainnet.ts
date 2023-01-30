@@ -1,131 +1,104 @@
-import { CONFIG } from 'sdk';
+import { CONFIG } from '@wormhole-foundation/wormhole-connect-sdk';
 import { NetworksConfig, TokenConfig } from './types';
-
-import AcalaIcon from '../icons/tokens/acala.svg';
-import AlgoIcon from '../icons/tokens/algorand.svg';
-import AptosIcon from '../icons/tokens/aptos.svg';
-import ArbitrumIcon from '../icons/tokens/arbitrum.svg';
-import AuroraIcon from '../icons/tokens/aurora.svg';
-import AvaxIcon from '../icons/tokens/avax.svg';
-import BscIcon from '../icons/tokens/bsc.svg';
-import CeloIcon from '../icons/tokens/celo.svg';
-import EthIcon from '../icons/tokens/eth.svg';
-import FantomIcon from '../icons/tokens/fantom.svg';
-import InjectiveIcon from '../icons/tokens/injective.svg';
-import KaruraIcon from '../icons/tokens/karura.svg';
-import KlaytnIcon from '../icons/tokens/klaytn.svg';
-import MoonbeamIcon from '../icons/tokens/moonbeam.svg';
-import NearIcon from '../icons/tokens/near.svg';
-import NeonIcon from '../icons/tokens/neon.svg';
-import OasisIcon from '../icons/tokens/oasis-network-rose-logo.svg';
-import OsmosisIcon from '../icons/tokens/osmosis.svg';
-import PolygonIcon from '../icons/tokens/polygon.svg';
-import SolanaIcon from '../icons/tokens/solana.svg';
-import SuiIcon from '../icons/tokens/sui.png';
-import TerraIcon from '../icons/tokens/terra.svg';
-import Terra2Icon from '../icons/tokens/terra2.svg';
-import XplaIcon from '../icons/tokens/xpla.svg';
-
-import BnbIcon from '../icons/tokens/bnb.svg';
 
 const { chains } = CONFIG.MAINNET;
 
 export const MAINNET_NETWORKS: NetworksConfig = {
   solana: {
     ...chains.solana!,
-    icon: SolanaIcon,
+    icon: 'solana',
   },
   ethereum: {
     ...chains.ethereum!,
-    icon: EthIcon,
+    icon: 'eth',
   },
   terra: {
     ...chains.terra!,
-    icon: TerraIcon,
+    icon: 'terra',
   },
   bsc: {
     ...chains.bsc!,
-    icon: BscIcon,
+    icon: 'bsc',
   },
   polygon: {
     ...chains.polygon!,
-    icon: PolygonIcon,
+    icon: 'polygon',
   },
   avalanche: {
     ...chains.avalanche!,
-    icon: AvaxIcon,
+    icon: 'avax',
   },
   oasis: {
     ...chains.oasis!,
-    icon: OasisIcon,
+    icon: 'oasis',
   },
   algorand: {
     ...chains.algorand!,
-    icon: AlgoIcon,
+    icon: 'algorand',
   },
   aurora: {
     ...chains.aurora!,
-    icon: AuroraIcon,
+    icon: 'aurora',
   },
   fantom: {
     ...chains.fantom!,
-    icon: FantomIcon,
+    icon: 'fantom',
   },
   karura: {
     ...chains.karura!,
-    icon: KaruraIcon,
+    icon: 'karura',
   },
   acala: {
     ...chains.acala!,
-    icon: AcalaIcon,
+    icon: 'acala',
   },
   klaytn: {
     ...chains.klaytn!,
-    icon: KlaytnIcon,
+    icon: 'kalytn',
   },
   celo: {
     ...chains.celo!,
-    icon: CeloIcon,
+    icon: 'celo',
   },
   near: {
     ...chains.near!,
-    icon: NearIcon,
+    icon: 'near',
   },
   injective: {
     ...chains.injective!,
-    icon: InjectiveIcon,
+    icon: 'injective',
   },
   osmosis: {
     ...chains.osmosis!,
-    icon: OsmosisIcon,
+    icon: 'osmosis',
   },
   aptos: {
     ...chains.aptos!,
-    icon: AptosIcon,
+    icon: 'aptos',
   },
   sui: {
     ...chains.sui!,
-    icon: SuiIcon,
+    icon: 'sui',
   },
   moonbeam: {
     ...chains.moonbeam!,
-    icon: MoonbeamIcon,
+    icon: 'moonbeam',
   },
   neon: {
     ...chains.neon!,
-    icon: NeonIcon,
+    icon: 'neon',
   },
   terra2: {
     ...chains.terra2!,
-    icon: Terra2Icon,
+    icon: 'terra2',
   },
   arbitrum: {
     ...chains.arbitrum!,
-    icon: ArbitrumIcon,
+    icon: 'arbitrum',
   },
   optimism: {
     ...chains.optimism!,
-    icon: '',
+    icon: 'optimism',
   },
   gnosis: {
     ...chains.gnosis!,
@@ -135,7 +108,7 @@ export const MAINNET_NETWORKS: NetworksConfig = {
   },
   xpla: {
     ...chains.xpla!,
-    icon: XplaIcon,
+    icon: 'xpla',
   },
   btc: {
     ...chains.btc!,
@@ -149,7 +122,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   MATIC: {
     symbol: 'MATIC',
     nativeNetwork: 'polygon',
-    icon: PolygonIcon,
+    icon: 'polygon',
     tokenId: 'native',
     coinGeckoId: 'polygon',
     color: '#8247E5',
@@ -158,7 +131,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   WMATIC: {
     symbol: 'WMATIC',
     nativeNetwork: 'polygon',
-    icon: PolygonIcon,
+    icon: 'polygon',
     tokenId: {
       chain: 'polygon',
       address: '0x1234...5678',
@@ -170,7 +143,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   SOL: {
     symbol: 'SOL',
     nativeNetwork: 'solana',
-    icon: SolanaIcon,
+    icon: 'solana',
     tokenId: 'native',
     coinGeckoId: 'solana',
     color: '#28D4B5',
@@ -179,7 +152,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   WAVAX: {
     symbol: 'WAVAX',
     nativeNetwork: 'avalanche',
-    icon: AvaxIcon,
+    icon: 'avax',
     tokenId: {
       chain: 'avalanche',
       address: '0x1234...5678',
@@ -191,7 +164,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   CELO: {
     symbol: 'CELO',
     nativeNetwork: 'celo',
-    icon: CeloIcon,
+    icon: 'celo',
     tokenId: {
       chain: 'celo',
       address: '0x1234...5678',
@@ -203,7 +176,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   BNB: {
     symbol: 'BNB',
     nativeNetwork: 'bsc',
-    icon: BnbIcon,
+    icon: 'bnb',
     tokenId: 'native',
     coinGeckoId: 'bnb',
     color: '#F3BA30',

@@ -1,19 +1,18 @@
 import React from 'react';
 import { makeStyles } from '@mui/styles';
-import NetworksModal from '../NetworksModal';
 import NetworkTile from '../../components/NetworkTile';
 import { Theme } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import { setFromNetworksModal, setTokensModal } from '../../store/router';
 import { RootState } from '../../store';
-import { CHAINS, TOKENS } from '../../utils/sdk';
+import { CHAINS, TOKENS } from '../../sdk/config';
 import InputContainer from '../../components/InputContainer';
 import InputTransparent from '../../components/InputTransparent';
 import ConnectWallet, { Wallet } from '../../components/ConnectWallet';
 import TokensModal from '../TokensModal';
-import NoNetworkIcon from '../../icons/no-network.png';
 import { joinClass } from '../../utils/style';
 import { setAmount } from '../../store/transfer';
+import TokenIcon from '../../icons/components/TokenIcons';
 
 const useStyles = makeStyles((theme: Theme) => ({
   header: {
@@ -89,9 +88,6 @@ function SendFrom() {
   const classes = useStyles();
   const dispatch = useDispatch();
   // store values
-  const showFromNetworksModal = useSelector(
-    (state: RootState) => state.router.showFromNetworksModal,
-  );
   const showTokensModal = useSelector(
     (state: RootState) => state.router.showTokensModal,
   );
@@ -101,7 +97,7 @@ function SendFrom() {
   const token = useSelector((state: RootState) => state.transfer.token);
   const tokenConfig = token && TOKENS[token];
   // get networks configs
-  const fromNetworkConfig = CHAINS[fromNetwork];
+  const fromNetworkConfig = fromNetwork ? CHAINS[fromNetwork] : undefined;
   // set store values
   const openFromNetworksModal = () => dispatch(setFromNetworksModal(true));
   const openTokensModal = () => dispatch(setTokensModal(true));
@@ -139,20 +135,12 @@ function SendFrom() {
               <div className={classes.label}>Token</div>
               {tokenConfig ? (
                 <div className={classes.tokenSelect}>
-                  <img
-                    className={classes.tokenIcon}
-                    src={tokenConfig.icon}
-                    alt="token icon"
-                  />
+                  <TokenIcon name={tokenConfig.icon} height={24} />
                   {tokenConfig.symbol}
                 </div>
               ) : (
                 <div className={classes.tokenSelect}>
-                  <img
-                    className={classes.tokenIcon}
-                    src={NoNetworkIcon}
-                    alt="select token"
-                  />
+                  <TokenIcon name="no token" height={24} />
                   Select
                 </div>
               )}
@@ -185,11 +173,6 @@ function SendFrom() {
         </div>
       </InputContainer>
       {/* modals */}
-      <NetworksModal
-        open={showFromNetworksModal}
-        title="Send from"
-        event="selectFromNetwork"
-      />
       {showTokensModal && <TokensModal />}
     </div>
   );

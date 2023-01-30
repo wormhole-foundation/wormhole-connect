@@ -1,6 +1,6 @@
-import { TokenConfig } from "config/types";
-import { TokenId } from 'sdk';
-import { TOKENS_ARR } from "./sdk";
+import { TokenConfig } from 'config/types';
+import { TokenId } from '@wormhole-foundation/wormhole-connect-sdk';
+import { TOKENS_ARR } from '../sdk/config';
 
 export function convertAddress(address: string): string {
   if (address.length === 22) return address;
@@ -21,7 +21,7 @@ export function getTokenById(tokenId: TokenId): TokenConfig | void {
     if (t.tokenId !== 'native') {
       if (tokenId.address === t.tokenId.address) return t;
     }
-  })
+  });
 }
 
 export function getTokenDecimals(tokenId: TokenId | 'native'): number {

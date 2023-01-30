@@ -5,9 +5,10 @@ import Slider, { SliderThumb } from '@mui/material/Slider';
 import { styled } from '@mui/material/styles';
 import BridgeCollapse from './Collapse';
 import InputContainer from '../../components/InputContainer';
-import { CHAINS, TOKENS } from '../../utils/sdk';
-import { TokenConfig } from '../../sdk/types';
+import { CHAINS, TOKENS } from '../../sdk/config';
+import { TokenConfig } from '../../config/types';
 import { RootState } from '../../store';
+import TokenIcon from '../../icons/components/TokenIcons';
 
 const useStyles = makeStyles()((theme) => ({
   amounts: {
@@ -18,16 +19,6 @@ const useStyles = makeStyles()((theme) => ({
   amountDisplay: {
     display: 'flex',
     alignItems: 'center',
-  },
-  amountIcon: {
-    width: '16px',
-    height: '16px',
-    marginRight: '8px',
-  },
-  sliderIcon: {
-    width: '100%',
-    height: '100%',
-    padding: '6px',
   },
 }));
 
@@ -59,22 +50,17 @@ function GasSlider(props: { disabled: boolean }) {
   const { classes } = useStyles();
   const tokenName = useSelector((state: RootState) => state.transfer.token);
   const destName = useSelector((state: RootState) => state.transfer.toNetwork);
-  const destConfig = CHAINS[destName];
+  const destConfig = CHAINS[destName!];
   const sendingToken = TOKENS[tokenName];
-  const nativeGasToken = TOKENS[destConfig?.gasToken];
+  const nativeGasToken = TOKENS[destConfig?.gasToken!];
   // const disabled = !sendingToken || !nativeGasToken
 
   function Thumb(props: ThumbProps) {
     const { children, ...other } = props;
-    const { classes } = useStyles();
     return (
       <SliderThumb {...other}>
         {children}
-        <img
-          className={classes.sliderIcon}
-          src={nativeGasToken.icon}
-          alt="slider"
-        />
+        <TokenIcon name={nativeGasToken.icon} height={16} />
       </SliderThumb>
     );
   }
@@ -108,18 +94,13 @@ function GasSlider(props: { disabled: boolean }) {
             />
             <div className={classes.amounts}>
               <div className={classes.amountDisplay}>
-                <img
-                  className={classes.amountIcon}
-                  src={nativeGasToken.icon}
-                  alt={nativeGasToken.symbol}
-                />
+                <TokenIcon name={nativeGasToken.icon} height={16} />
                 0.0045 {nativeGasToken.symbol}
               </div>
               <div className={classes.amountDisplay}>
-                <img
-                  className={classes.amountIcon}
-                  src={(sendingToken as TokenConfig)!.icon}
-                  alt={(sendingToken as TokenConfig)!.symbol}
+                <TokenIcon
+                  name={(sendingToken as TokenConfig)!.icon}
+                  height={16}
                 />
                 0.0045 {(sendingToken as TokenConfig)!.symbol}
               </div>

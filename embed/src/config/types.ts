@@ -1,8 +1,12 @@
-import { ChainConfig, ChainName, TokenId } from 'sdk';
+import {
+  ChainConfig,
+  ChainName,
+  TokenId,
+} from '@wormhole-foundation/wormhole-connect-sdk';
 
 export type TokenConfig = {
   symbol: string;
-  nativeNetwork: ChainName,
+  nativeNetwork: ChainName;
   icon: string;
   tokenId: TokenId | 'native';
   coinGeckoId: string;
@@ -12,7 +16,7 @@ export type TokenConfig = {
 
 export interface NetworkConfig extends ChainConfig {
   icon?: string;
-};
+}
 
 export type NetworksConfig = {
   [chain in ChainName]?: NetworkConfig;

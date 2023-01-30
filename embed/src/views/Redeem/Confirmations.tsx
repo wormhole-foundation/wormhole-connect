@@ -5,7 +5,6 @@ import { LinearProgress, linearProgressClasses } from '@mui/material';
 import { REQUIRED_CONFIRMATIONS } from '../../utils/sdk';
 
 const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
-  // height: 10,
   borderRadius: 5,
   [`&.${linearProgressClasses.colorPrimary}`]: {
     backgroundColor: theme.palette.card.secondary,

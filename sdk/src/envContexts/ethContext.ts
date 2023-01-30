@@ -6,7 +6,9 @@ import { createNonce } from '@certusone/wormhole-sdk';
 import {
   BigNumberish,
   constants,
+  ContractReceipt,
   ethers,
+  Overrides,
   PayableOverrides,
 } from 'ethers';
 import { arrayify, zeroPad } from 'ethers/lib/utils';
@@ -28,7 +30,12 @@ export class EthContext<T extends WormholeContext> extends Context {
    * @param Amount The amount to approve. If absent, will approve the maximum amount
    * @throws If unable to get the signer or contracts
    */
-  async approve(token: TokenId, amount?: BigNumberish, overrides?: any) {
+  async approve(
+    contractAddress: string,
+    token: TokenId,
+    amount?: BigNumberish,
+    overrides?: any,
+  ) {
     const signer = this.context.getSigner(token.chain);
     if (!signer) throw new Error(`No signer for ${token.chain}`);
     const senderAddress = await signer.getAddress();
@@ -39,16 +46,15 @@ export class EthContext<T extends WormholeContext> extends Context {
     if (!tokenImplementation)
       throw new Error(`token contract not available for ${token.address}`);
 
-    const bridgeAddress = this.context.mustGetBridge(token.chain).address;
     const approved = await tokenImplementation.allowance(
       senderAddress,
-      bridgeAddress,
+      contractAddress,
     );
     const approveAmount = amount || constants.MaxUint256;
     // Approve if necessary
     if (approved.lt(approveAmount)) {
       const tx = await tokenImplementation.approve(
-        bridgeAddress,
+        contractAddress,
         approveAmount,
         overrides,
       );
@@ -90,7 +96,7 @@ export class EthContext<T extends WormholeContext> extends Context {
     } else {
       // sending ERC-20
       //approve and send
-      await this.approve(token, amountBN);
+      await this.approve(bridge.address, token, amountBN);
       const v = await bridge.transferTokens(
         token.address,
         amountBN,
@@ -137,6 +143,7 @@ export class EthContext<T extends WormholeContext> extends Context {
       return await v.wait();
     } else {
       // sending ERC-20
+      await this.approve(bridge.address, token, amountBN);
       const v = await bridge.transferTokensWithPayload(
         token.address,
         amountBN,
@@ -167,11 +174,11 @@ export class EthContext<T extends WormholeContext> extends Context {
     const amountBN = ethers.BigNumber.from(amount);
     const relayer = this.context.mustGetTBRelayer(sendingChain);
     const nativeTokenBN = ethers.BigNumber.from(toNativeToken);
-    const formattedRecipient = this.getEmitterAddress(recipientAddress)
+    const formattedRecipient = this.getEmitterAddress(recipientAddress);
     // const unwrapWeth = await relayer.unwrapWeth(); // TODO: check unwrapWeth flag
-  
+
     if (token === 'native') {
-      console.log('wrap and send with relay')
+      console.log('wrap and send with relay');
       // sending native ETH
       const v = await relayer.wrapAndTransferEthWithRelay(
         nativeTokenBN,
@@ -188,10 +195,10 @@ export class EthContext<T extends WormholeContext> extends Context {
     } else {
       const tokenAddr = (token as TokenId).address;
       if (!tokenAddr) throw new Error('no token address found');
-      console.log('send with relay')
+      console.log('send with relay');
       // sending ERC-20
       //approve and send
-      await this.approve(token as TokenId, amountBN);
+      await this.approve(relayer.address, token as TokenId, amountBN);
       const tx = await relayer.transferTokensWithRelay(
         tokenAddr,
         amountBN,
@@ -203,6 +210,22 @@ export class EthContext<T extends WormholeContext> extends Context {
       );
       return await tx.wait();
     }
+  }
+
+  async redeem(
+    destChain: ChainName | ChainId,
+    signedVAA: Uint8Array,
+    overrides: Overrides & { from?: string | Promise<string> } = {},
+  ): Promise<ContractReceipt> {
+    // TODO: could get destination chain by parsing VAA
+    const bridge = this.context.mustGetBridge(destChain);
+    const v = await bridge.completeTransfer(signedVAA, overrides);
+    const receipt = await v.wait();
+    return receipt;
+    // TODO: unwrap native assets
+    // const v = await bridge.completeTransferAndUnwrapETH(signedVAA, overrides);
+    // const receipt = await v.wait();
+    // return receipt;
   }
 
   parseSequenceFromLog(

@@ -1,7 +1,11 @@
 {
-  "name": "embed",
-  "version": "0.1.0",
+  "name": "@wormhole-foundation/wormhole-connect",
+  "version": "0.1.0-beta.0",
   "private": true,
+  "main": "dist/index.tsx",
+  "publishConfig": {
+    "access": "restricted"
+  },
   "dependencies": {
     "@certusone/wormhole-sdk": "^0.9.9",
     "@emotion/react": "^11.10.5",
@@ -71,10 +75,11 @@
     "prettier": "prettier --write ./src",
     "start": "env-cmd -f .env.testnet react-app-rewired start",
     "start:prod": "env-cmd -f .env.mainnet react-app-rewired start",
-    "build": "env-cmd -f .env.testnet react-scripts build",
-    "build:prod": "env-cmd -f .env.mainnet react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "build": "env-cmd -f .env.testnet react-app-rewired build --max_old_space_size=4096 build",
+    "build:prod": "env-cmd -f .env.mainnet react-app-rewired build --max_old_space_size=4096 build",
+    "build:widget": "parcel build src/index.tsx -d docs",
+    "test": "react-app-rewired test",
+    "eject": "react-app-rewired eject"
   },
   "eslintConfig": {
     "extends": [
@@ -93,5 +98,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "parcel-bundler": "^1.12.5"
   }
 }

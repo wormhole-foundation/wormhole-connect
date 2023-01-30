@@ -1,25 +1,23 @@
-import { makeStyles } from '@mui/styles';
 import React from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import { Theme, useTheme } from '@mui/material/styles';
-import { useSelector } from 'react-redux';
+import { makeStyles } from '@mui/styles';
+import { BigNumber } from 'ethers';
 import { RootState } from '../store';
 import {
   connectReceivingWallet,
   connectWallet,
   openWalletModal,
 } from '../store/wallet';
-import MetamaskIcon from '../icons/wallets/metamask-fox.svg';
-// import TrustWalletIcon from '../icons/wallets/trust-wallet.svg';
 import DownIcon from '../icons/components/Down';
-import PopupState, { bindTrigger, bindPopover } from 'material-ui-popup-state';
-import Popover from '@mui/material/Popover';
-import { useDispatch } from 'react-redux';
 import WalletIcon from '../icons/components/Wallet';
 import { displayEvmAddress } from '../utils';
-import { CHAINS } from '../utils/sdk';
-import { BigNumber } from 'ethers';
+import { CHAINS } from '../sdk/config';
 import { setFromNetwork } from '../store/transfer';
 import ActionIndicator from './Action';
+import WalletIcons from '../icons/components/WalletIcons';
+import PopupState, { bindTrigger, bindPopover } from 'material-ui-popup-state';
+import Popover from '@mui/material/Popover';
 
 const useStyles = makeStyles((theme: Theme) => ({
   row: {
@@ -84,7 +82,7 @@ type Props = {
   type: Wallet;
 };
 
-function NetworksModal(props: Props) {
+function ConnectWallet(props: Props) {
   const classes = useStyles();
   const theme = useTheme();
   const dispatch = useDispatch();
@@ -92,7 +90,7 @@ function NetworksModal(props: Props) {
   const sourceChain = useSelector(
     (state: RootState) => state.transfer.fromNetwork,
   );
-  const sourceConfig = CHAINS[sourceChain];
+  const sourceConfig = CHAINS[sourceChain!];
 
   const connect = async () => {
     const walletConnection = await openWalletModal(
@@ -131,11 +129,7 @@ function NetworksModal(props: Props) {
       {(popupState) => (
         <div>
           <div className={classes.row} {...bindTrigger(popupState)}>
-            <img
-              className={classes.walletIcon}
-              src={MetamaskIcon}
-              alt="wallet"
-            />
+            <WalletIcons name="metamask" height={24} />
             {displayEvmAddress(wallet.address)}
             <DownIcon className={classes.down} />
           </div>
@@ -171,4 +165,4 @@ function NetworksModal(props: Props) {
   );
 }
 
-export default NetworksModal;
+export default ConnectWallet;

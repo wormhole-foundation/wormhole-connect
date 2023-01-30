@@ -11,7 +11,7 @@ import Tooltip from '../components/Tooltip';
 import { Theme } from '@mui/material';
 import Down from '../icons/components/Down';
 
-import { TOKENS_ARR } from '../utils/sdk';
+import { TOKENS_ARR } from '../sdk/config';
 import { useDispatch } from 'react-redux';
 import { setTokensModal } from '../store/router';
 import { setToken } from '../store/transfer';
@@ -19,6 +19,7 @@ import { joinClass } from '../utils/style';
 import { displayEvmAddress } from '../utils';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
+import TokenIcon from '../icons/components/TokenIcons';
 
 const useStyles = makeStyles((theme: Theme) => ({
   tokensContainer: {
@@ -51,6 +52,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     display: 'flex',
     alignItems: 'center',
     fontSize: '14px',
+    gap: '8px',
   },
   tokenRowIcon: {
     width: '32px',
@@ -121,8 +123,11 @@ function TokensModal() {
   );
   const filteredTokens = TOKENS_ARR.filter((t) => {
     if (!fromNetwork) return true;
-    return t.tokenId !== 'native' || (t.tokenId === 'native' && t.nativeNetwork === fromNetwork);
-  })
+    return (
+      t.tokenId !== 'native' ||
+      (t.tokenId === 'native' && t.nativeNetwork === fromNetwork)
+    );
+  });
 
   return (
     <Modal open={showTokensModal} closable width="sm">
@@ -147,11 +152,7 @@ function TokensModal() {
                 onClick={() => selectToken(token.symbol)}
               >
                 <div className={classes.tokenRowLeft}>
-                  <img
-                    className={classes.tokenRowIcon}
-                    src={token.icon}
-                    alt={token.symbol}
-                  />
+                  <TokenIcon name={token.icon} height={32} />
                   <div>{token.symbol}</div>
                 </div>
                 <div className={classes.tokenRowRight}>
@@ -159,7 +160,9 @@ function TokensModal() {
                   <div className={classes.tokenRowBalance}>200.4567</div>
                 </div>
                 <div className={classes.tokenRowAddress}>
-                  {token.tokenId === 'native' ? 'Native' : displayEvmAddress(token.tokenId.address)}
+                  {token.tokenId === 'native'
+                    ? 'Native'
+                    : displayEvmAddress(token.tokenId.address)}
                 </div>
               </div>
             );
