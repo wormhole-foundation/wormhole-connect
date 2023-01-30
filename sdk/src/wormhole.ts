@@ -1,4 +1,4 @@
-import { providers, Signer } from 'ethers';
+import { ContractReceipt, providers, Signer } from 'ethers';
 import {
   Bridge,
   Wormhole,
@@ -282,10 +282,10 @@ export class WormholeContext extends MultiProvider<Domain> {
     recipientAddress: string,
     relayerFee?: string,
     payload?: any,
-  ) {
+  ): Promise<ContractReceipt> {
     const context = this.getContext(sendingChain);
     if (payload) {
-      context.sendWithPayload(
+      return context.sendWithPayload(
         token,
         amount,
         sendingChain,
@@ -295,7 +295,7 @@ export class WormholeContext extends MultiProvider<Domain> {
         payload,
       );
     }
-    context.send(
+    return context.send(
       token,
       amount,
       sendingChain,
@@ -327,7 +327,7 @@ export class WormholeContext extends MultiProvider<Domain> {
     recipientAddress: string,
     toNativeToken: string,
     relayerFee?: string,
-  ) {
+  ): Promise<ContractReceipt> {
     // only supported on EVM
     const context = this.getContext(
       sendingChain,

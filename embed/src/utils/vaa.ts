@@ -5,6 +5,7 @@ import axios from 'axios';
 import { utils } from 'ethers';
 
 export type ParsedVaa = {
+  bytes: Uint8Array;
   amount: string;
   emitterAddress: string;
   emitterChain: ChainId;
@@ -29,11 +30,13 @@ export async function fetchVaa(txId: string): Promise<ParsedVaa | undefined> {
   return axios
     .get(url)
     .then(function (response: any) {
+      if (!response.data) return;
       const data = response.data.data[0];
       const vaa = utils.base64.decode(data.vaa);
       const parsed = parseTokenTransferVaa(vaa);
       console.log(parsed);
       const vaaData: ParsedVaa = {
+        bytes: vaa,
         amount: parsed.amount.toString(),
         emitterAddress: utils.hexlify(parsed.emitterAddress),
         emitterChain: parsed.emitterChain as ChainId,

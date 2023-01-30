@@ -1,6 +1,5 @@
 import React from 'react';
 import { makeStyles } from '@mui/styles';
-import NetworksModal from '../NetworksModal';
 import NetworkTile from '../../components/NetworkTile';
 import { Theme } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
@@ -84,14 +83,11 @@ function SendTo() {
   const classes = useStyles();
   const dispatch = useDispatch();
   // store values
-  const showToNetworksModal = useSelector(
-    (state: RootState) => state.router.showToNetworksModal,
-  );
   const toNetwork = useSelector((state: RootState) => state.transfer.toNetwork);
   const token = useSelector((state: RootState) => state.transfer.token);
   const amount = useSelector((state: RootState) => state.transfer.amount);
   // get networks configs
-  const toNetworkConfig = CHAINS[toNetwork];
+  const toNetworkConfig = toNetwork ? CHAINS[toNetwork] : undefined;
   const tokenConfig = TOKENS[token];
   // set store values
   const openToNetworksModal = () => dispatch(setToNetworksModal(true));
@@ -165,13 +161,6 @@ function SendTo() {
           </div>
         </div>
       </InputContainer>
-
-      {/* modal */}
-      <NetworksModal
-        open={showToNetworksModal}
-        title="Send to"
-        event="selectToNetwork"
-      />
     </div>
   );
 }

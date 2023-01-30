@@ -3,7 +3,14 @@ import {
   TokenImplementation__factory,
 } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
 import { createNonce } from '@certusone/wormhole-sdk';
-import { BigNumberish, constants, ethers, PayableOverrides } from 'ethers';
+import {
+  BigNumberish,
+  constants,
+  ContractReceipt,
+  ethers,
+  Overrides,
+  PayableOverrides,
+} from 'ethers';
 import { arrayify, zeroPad } from 'ethers/lib/utils';
 import { WormholeContext } from '../wormhole';
 import { Context } from './contextAbstract';
@@ -203,6 +210,22 @@ export class EthContext<T extends WormholeContext> extends Context {
       );
       return await tx.wait();
     }
+  }
+
+  async redeem(
+    destChain: ChainName | ChainId,
+    signedVAA: Uint8Array,
+    overrides: Overrides & { from?: string | Promise<string> } = {},
+  ): Promise<ContractReceipt> {
+    // TODO: could get destination chain by parsing VAA
+    const bridge = this.context.mustGetBridge(destChain);
+    const v = await bridge.completeTransfer(signedVAA, overrides);
+    const receipt = await v.wait();
+    return receipt;
+    // TODO: unwrap native assets
+    // const v = await bridge.completeTransferAndUnwrapETH(signedVAA, overrides);
+    // const receipt = await v.wait();
+    // return receipt;
   }
 
   parseSequenceFromLog(

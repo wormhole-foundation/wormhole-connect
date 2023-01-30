@@ -3,11 +3,12 @@ import { useSelector } from 'react-redux';
 import Button from '../../components/Button';
 import { sendTransfer, TOKENS } from '../../utils/sdk';
 import { RootState } from '../../store';
-// import { useDispatch } from 'react-redux';
-// import { setTxHash } from '../../store/transfer';
+import { useDispatch } from 'react-redux';
+import { setTxHash } from '../../store/transfer';
+import { setRoute } from '../../store/router';
 
 function Send(props: { valid: boolean }) {
-  // const dispatch = useDispatch();
+  const dispatch = useDispatch();
   const { fromNetwork, toNetwork, token, amount, destGasPayment } = useSelector(
     (state: RootState) => state.transfer,
   );
@@ -33,8 +34,8 @@ function Send(props: { valid: boolean }) {
       '0',
     );
     console.log('sent', receipt);
-    // const tx = receipt.
-    // dispatch(setTxHash(''))
+    dispatch(setTxHash(receipt.transactionHash));
+    dispatch(setRoute('redeem'));
   }
   return (
     <Button
