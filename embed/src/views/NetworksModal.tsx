@@ -8,7 +8,7 @@ import Search from '../components/Search';
 import Scroll from '../components/Scroll';
 
 import { CHAINS_ARR } from '../sdk/config';
-import { ChainName } from 'sdk';
+import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { useDispatch } from 'react-redux';
 import { setFromNetworksModal, setToNetworksModal } from '../store/router';
 import { setFromNetwork, setToNetwork } from '../store/transfer';

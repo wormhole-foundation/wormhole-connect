@@ -1,4 +1,4 @@
-import { ChainConfig, ChainName, TokenId } from 'sdk';
+import { ChainConfig, ChainName, TokenId } from '@wormhole-foundation/wormhole-connect-sdk';
 
 export type TokenConfig = {
   symbol: string;

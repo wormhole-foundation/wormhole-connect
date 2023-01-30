@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { ChainName } from 'sdk';
+import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 
 export enum PaymentOption {
   MANUAL = 1,

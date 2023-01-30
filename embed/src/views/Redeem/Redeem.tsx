@@ -7,7 +7,7 @@ import NetworksTag from './Tag';
 import Stepper from './Stepper';
 import { setVaa } from '../../store/redeem';
 import { RootState } from '../../store';
-import { ChainName } from 'sdk';
+import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { Alert, AlertTitle } from '@mui/material';
 
 class Redeem extends React.Component<

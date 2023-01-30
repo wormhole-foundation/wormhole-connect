@@ -1,0 +1,18 @@
+{
+  "name": "wormhole-foundation",
+  "private": true,
+  "workspaces": [
+    "embed",
+    "sdk"
+  ],
+  "scripts": {
+    "build": "yarn build:accumulator-cli && yarn workspaces foreach -Apvt run bootstrap",
+    "build:accumulator-cli": "cd scripts && ./build-acli.sh",
+    "compile": "yarn workspaces foreach -Apvt run compile",
+    "lint": "yarn workspaces foreach -Apv run lint",
+    "embed": "yarn workspace @wormhole-foundation/wormhole-connect",
+    "sdk": "yarn workspace @wormhole-foundation/wormhole-connect-sdk",
+    "prettier": "yarn workspaces foreach -Apvt run prettier"
+  },
+  "packageManager": "yarn@3.2.0"
+}

@@ -1,4 +1,4 @@
-import { CONFIG } from 'sdk';
+import { CONFIG } from '@wormhole-foundation/wormhole-connect-sdk';
 import { NetworksConfig, TokenConfig } from './types';
 
 import EthIcon from '../icons/tokens/eth.svg';
