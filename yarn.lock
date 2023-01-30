@@ -4474,6 +4474,7 @@
     defer-to-connect "^2.0.1"
 
 "@terra-money/legacy.proto@npm:@terra-money/terra.proto@^0.1.7", "@terra-money/terra.proto@^0.1.7":
+  name "@terra-money/legacy.proto"
   version "0.1.7"
   resolved "https://registry.yarnpkg.com/@terra-money/terra.proto/-/terra.proto-0.1.7.tgz#59c18f30da10d43200bab3ba8feb5b17e43a365f"
   integrity sha512-NXD7f6pQCulvo6+mv6MAPzhOkUzRjgYVuHZE/apih+lVnPG5hDBU0rRYnOGGofwvKT5/jQoOENnFn/gioWWnyQ==
