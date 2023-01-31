@@ -1,4 +1,18 @@
 import React from 'react';
+import { makeStyles } from 'tss-react/mui';
+import { CENTER } from '../../utils/style';
+
+const useStyles = makeStyles<{size: number}>()((theme, { size } ) => ({
+  container: {
+    height: size,
+    width: size,
+    ...CENTER
+  },
+  icon: {
+    maxHeight: '100%',
+    maxWidth: '100%',
+  }
+}));
 
 type Props = {
   name: string;
@@ -9,12 +23,13 @@ type Props = {
 // TODO: fill in svgs for mainnet networks/tokens
 function TokenIcon(props: Props) {
   const size = props.height || 32;
+  const { classes } = useStyles({ size });
   switch (props.name) {
     case 'acala': {
       return (
-        <div style={{ height: `${size}px`, width: `${size}px` }}>
+        <div className={classes.container}>
           <svg
-            style={{ maxHeight: '100%', maxWidth: '100%' }}
+            className={classes.icon}
             fill="none"
             viewBox="0 0 490 490"
             xmlns="http://www.w3.org/2000/svg"
@@ -45,9 +60,9 @@ function TokenIcon(props: Props) {
     }
     case 'algorand': {
       return (
-        <div style={{ height: `${size}px`, width: `${size}px` }}>
+        <div className={classes.container}>
           <svg
-            style={{ maxHeight: '100%', maxWidth: '100%' }}
+            className={classes.icon}
             fill="none"
             viewBox="0 0 490 490"
             xmlns="http://www.w3.org/2000/svg"
@@ -78,7 +93,7 @@ function TokenIcon(props: Props) {
     }
     case 'aptos': {
       return (
-        <div style={{ height: `${size}px`, width: `${size}px` }}>
+        <div className={classes.container}>
           <svg
             width="100%"
             height="100%"
@@ -99,9 +114,9 @@ function TokenIcon(props: Props) {
     }
     case 'arbitrum': {
       return (
-        <div style={{ height: `${size}px`, width: `${size}px` }}>
+        <div className={classes.container}>
           <svg
-            style={{ maxHeight: '100%', maxWidth: '100%' }}
+            className={classes.icon}
             fill="none"
             viewBox="0 0 490 490"
             xmlns="http://www.w3.org/2000/svg"
@@ -132,9 +147,9 @@ function TokenIcon(props: Props) {
     }
     case 'aurora': {
       return (
-        <div style={{ height: `${size}px`, width: `${size}px` }}>
+        <div className={classes.container}>
           <svg
-            style={{ maxHeight: '100%', maxWidth: '100%' }}
+            className={classes.icon}
             fill="none"
             viewBox="0 0 490 490"
             xmlns="http://www.w3.org/2000/svg"
@@ -165,9 +180,9 @@ function TokenIcon(props: Props) {
     }
     case 'avax': {
       return (
-        <div style={{ height: `${size}px`, width: `${size}px` }}>
+        <div className={classes.container}>
           <svg
-            style={{ maxHeight: '100%', maxWidth: '100%' }}
+            className={classes.icon}
             xmlns="http://www.w3.org/2000/svg"
             enableBackground="new 0 0 254 254"
             viewBox="0 0 254 254"
@@ -190,9 +205,9 @@ function TokenIcon(props: Props) {
     }
     case 'bnb': {
       return (
-        <div style={{ height: `${size}px`, width: `${size}px` }}>
+        <div className={classes.container}>
           <svg
-            style={{ maxHeight: '100%', maxWidth: '100%' }}
+            className={classes.icon}
             fill="none"
             viewBox="0 0 490 490"
             xmlns="http://www.w3.org/2000/svg"
@@ -223,9 +238,9 @@ function TokenIcon(props: Props) {
     }
     case 'bsc': {
       return (
-        <div style={{ height: `${size}px`, width: `${size}px` }}>
+        <div className={classes.container}>
           <svg
-            style={{ maxHeight: '100%', maxWidth: '100%' }}
+            className={classes.icon}
             xmlns="http://www.w3.org/2000/svg"
             width="40"
             height="40"
@@ -253,9 +268,9 @@ function TokenIcon(props: Props) {
     }
     case 'celo': {
       return (
-        <div style={{ height: `${size}px`, width: `${size}px` }}>
+        <div className={classes.container}>
           <svg
-            style={{ maxHeight: '100%', maxWidth: '100%' }}
+            className={classes.icon}
             version="1.1"
             id="Celo_Rings"
             xmlns="http://www.w3.org/2000/svg"
@@ -291,9 +306,9 @@ function TokenIcon(props: Props) {
     }
     case 'eth': {
       return (
-        <div style={{ height: `${size}px`, width: `${size}px` }}>
+        <div className={classes.container}>
           <svg
-            style={{ maxHeight: '100%', maxWidth: '100%' }}
+            className={classes.icon}
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 1920 1920"
           >
@@ -314,9 +329,9 @@ function TokenIcon(props: Props) {
     }
     case 'fantom': {
       return (
-        <div style={{ height: `${size}px`, width: `${size}px` }}>
+        <div className={classes.container}>
           <svg
-            style={{ maxHeight: '100%', maxWidth: '100%' }}
+            className={classes.icon}
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 32 32"
           >
@@ -354,9 +369,9 @@ function TokenIcon(props: Props) {
     }
     case 'injective': {
       return (
-        <div style={{ height: `${size}px`, width: `${size}px` }}>
+        <div className={classes.container}>
           <svg
-            style={{ maxHeight: '100%', maxWidth: '100%' }}
+            className={classes.icon}
             fill="none"
             viewBox="0 0 490 490"
             xmlns="http://www.w3.org/2000/svg"
@@ -387,9 +402,9 @@ function TokenIcon(props: Props) {
     }
     case 'karura': {
       return (
-        <div style={{ height: `${size}px`, width: `${size}px` }}>
+        <div className={classes.container}>
           <svg
-            style={{ maxHeight: '100%', maxWidth: '100%' }}
+            className={classes.icon}
             fill="none"
             viewBox="0 0 490 490"
             xmlns="http://www.w3.org/2000/svg"
@@ -420,9 +435,9 @@ function TokenIcon(props: Props) {
     }
     case 'klaytn': {
       return (
-        <div style={{ height: `${size}px`, width: `${size}px` }}>
+        <div className={classes.container}>
           <svg
-            style={{ maxHeight: '100%', maxWidth: '100%' }}
+            className={classes.icon}
             fill="none"
             viewBox="0 0 490 490"
             xmlns="http://www.w3.org/2000/svg"
@@ -453,9 +468,9 @@ function TokenIcon(props: Props) {
     }
     case 'moonbeam': {
       return (
-        <div style={{ height: `${size}px`, width: `${size}px` }}>
+        <div className={classes.container}>
           <svg
-            style={{ maxHeight: '100%', maxWidth: '100%' }}
+            className={classes.icon}
             fill="none"
             viewBox="0 0 490 490"
             xmlns="http://www.w3.org/2000/svg"
@@ -486,9 +501,9 @@ function TokenIcon(props: Props) {
     }
     case 'near': {
       return (
-        <div style={{ height: `${size}px`, width: `${size}px` }}>
+        <div className={classes.container}>
           <svg
-            style={{ maxHeight: '100%', maxWidth: '100%' }}
+            className={classes.icon}
             fill="none"
             viewBox="0 0 490 490"
             xmlns="http://www.w3.org/2000/svg"
@@ -519,9 +534,9 @@ function TokenIcon(props: Props) {
     }
     case 'neon': {
       return (
-        <div style={{ height: `${size}px`, width: `${size}px` }}>
+        <div className={classes.container}>
           <svg
-            style={{ maxHeight: '100%', maxWidth: '100%' }}
+            className={classes.icon}
             fill="none"
             viewBox="0 0 490 490"
             xmlns="http://www.w3.org/2000/svg"
@@ -552,9 +567,9 @@ function TokenIcon(props: Props) {
     }
     case 'oasis': {
       return (
-        <div style={{ height: `${size}px`, width: `${size}px` }}>
+        <div className={classes.container}>
           <svg
-            style={{ maxHeight: '100%', maxWidth: '100%' }}
+            className={classes.icon}
             fill="none"
             viewBox="0 0 490 490"
             xmlns="http://www.w3.org/2000/svg"
@@ -585,9 +600,9 @@ function TokenIcon(props: Props) {
     }
     case 'osmosis': {
       return (
-        <div style={{ height: `${size}px`, width: `${size}px` }}>
+        <div className={classes.container}>
           <svg
-            style={{ maxHeight: '100%', maxWidth: '100%' }}
+            className={classes.icon}
             fill="none"
             viewBox="0 0 490 490"
             xmlns="http://www.w3.org/2000/svg"
@@ -618,9 +633,9 @@ function TokenIcon(props: Props) {
     }
     case 'polygon': {
       return (
-        <div style={{ height: `${size}px`, width: `${size}px` }}>
+        <div className={classes.container}>
           <svg
-            style={{ maxHeight: '100%', maxWidth: '100%' }}
+            className={classes.icon}
             xmlns="http://www.w3.org/2000/svg"
             enableBackground="new 0 0 38.4 33.5"
             viewBox="0 0 38.4 33.5"
@@ -635,9 +650,9 @@ function TokenIcon(props: Props) {
     }
     case 'solana': {
       return (
-        <div style={{ height: `${size}px`, width: `${size}px` }}>
+        <div className={classes.container}>
           <svg
-            style={{ maxHeight: '100%', maxWidth: '100%' }}
+            className={classes.icon}
             fill="none"
             viewBox="0 0 490 490"
             xmlns="http://www.w3.org/2000/svg"
@@ -668,9 +683,9 @@ function TokenIcon(props: Props) {
     }
     case 'sui': {
       return (
-        <div style={{ height: `${size}px`, width: `${size}px` }}>
+        <div className={classes.container}>
           <svg
-            style={{ maxHeight: '100%', maxWidth: '100%' }}
+            className={classes.icon}
             fill="none"
             viewBox="0 0 490 490"
             xmlns="http://www.w3.org/2000/svg"
@@ -701,9 +716,9 @@ function TokenIcon(props: Props) {
     }
     case 'terra': {
       return (
-        <div style={{ height: `${size}px`, width: `${size}px` }}>
+        <div className={classes.container}>
           <svg
-            style={{ maxHeight: '100%', maxWidth: '100%' }}
+            className={classes.icon}
             fill="none"
             viewBox="0 0 490 490"
             xmlns="http://www.w3.org/2000/svg"
@@ -734,9 +749,9 @@ function TokenIcon(props: Props) {
     }
     case 'terra2': {
       return (
-        <div style={{ height: `${size}px`, width: `${size}px` }}>
+        <div className={classes.container}>
           <svg
-            style={{ maxHeight: '100%', maxWidth: '100%' }}
+            className={classes.icon}
             fill="none"
             viewBox="0 0 490 490"
             xmlns="http://www.w3.org/2000/svg"
@@ -767,9 +782,9 @@ function TokenIcon(props: Props) {
     }
     case 'usdc': {
       return (
-        <div style={{ height: `${size}px`, width: `${size}px` }}>
+        <div className={classes.container}>
           <svg
-            style={{ maxHeight: '100%', maxWidth: '100%' }}
+            className={classes.icon}
             xmlns="http://www.w3.org/2000/svg"
             data-name="86977684-12db-4850-8f30-233a7c267d11"
             viewBox="0 0 2000 2000"
@@ -792,9 +807,9 @@ function TokenIcon(props: Props) {
     }
     case 'xpla': {
       return (
-        <div style={{ height: `${size}px`, width: `${size}px` }}>
+        <div className={classes.container}>
           <svg
-            style={{ maxHeight: '100%', maxWidth: '100%' }}
+            className={classes.icon}
             fill="none"
             viewBox="0 0 490 490"
             xmlns="http://www.w3.org/2000/svg"
@@ -825,9 +840,9 @@ function TokenIcon(props: Props) {
     }
     default: {
       return (
-        <div style={{ height: `${size}px`, width: `${size}px` }}>
+        <div className={classes.container}>
           <svg
-            style={{ maxHeight: '100%', maxWidth: '100%' }}
+            className={classes.icon}
             viewBox="0 0 56 56"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"

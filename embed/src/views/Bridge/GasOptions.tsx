@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import Options from '../../components/Options';
@@ -6,6 +6,7 @@ import BridgeCollapse from './Collapse';
 import { PaymentOption, setDestGasPayment } from '../../store/transfer';
 import { RootState } from '../../store';
 import { CHAINS } from '../../sdk/config';
+import { NetworkConfig } from '../../config/types';
 
 const useStyles = makeStyles()((theme) => ({
   option: {
@@ -49,7 +50,7 @@ type OptionConfig = {
   estimate: string,
   active: PaymentOption,
 }
-const getOptions = (token: string, gasToken: string): OptionConfig[] => ([
+const getOptions = (dest: NetworkConfig, token: string): OptionConfig[] => ([
   {
     title: `Pay with ${token}`,
     subtitle: '(one transaction)',
@@ -58,10 +59,10 @@ const getOptions = (token: string, gasToken: string): OptionConfig[] => ([
     active: PaymentOption.AUTOMATIC,
   },
   {
-    title: `Pay with ${token} and ${gasToken}`,
+    title: `Pay with ${token} and ${dest.gasToken}`,
     subtitle: '(two transactions)',
-    description: `Claim with ${gasToken} on Fantom`,
-    estimate: `0.05 ${token} & 0.5 ${gasToken}`,
+    description: `Claim with ${dest.gasToken} on ${dest.displayName}`,
+    estimate: `0.05 ${token} & 0.5 ${dest.gasToken}`,
     active: PaymentOption.MANUAL,
   },
 ]);
@@ -92,7 +93,7 @@ function GasOptions(props: { disabled: boolean }) {
     const destConfig = destination && CHAINS[destination];
     if (token && destConfig) {
       const description = selectedOption === PaymentOption.AUTOMATIC ? `Pay with ${token}` : `Pay with ${token} & ${destConfig!.nativeToken}`
-      setState({ options: getOptions(token, destConfig!.nativeToken), description });
+      setState({ options: getOptions(destConfig, token), description });
     }
   }, [token, selectedOption, destination]);
 

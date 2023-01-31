@@ -11,6 +11,12 @@ import { RootState } from '../../store';
 import TokenIcon from '../../icons/components/TokenIcons';
 
 const useStyles = makeStyles()((theme) => ({
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '8px',
+    width: '100%',
+  },
   amounts: {
     display: 'flex',
     justifyContent: 'space-between',
@@ -19,6 +25,7 @@ const useStyles = makeStyles()((theme) => ({
   amountDisplay: {
     display: 'flex',
     alignItems: 'center',
+    gap: '8px',
   },
 }));
 
@@ -67,42 +74,46 @@ function GasSlider(props: { disabled: boolean }) {
 
   return (
     <BridgeCollapse
-      title="Native gas delivery"
+      title="Extra native gas"
+      banner={!props.disabled}
       disabled={props.disabled}
       close={props.disabled}
     >
       <InputContainer
         styles={{
+          width: '100%',
           borderTopRightRadius: '0px',
           borderTopLeftRadius: '0px',
           boxShadow: 'none',
         }}
       >
-        <div>
-          Your wallet has no native gas (FTM) balance on Fantom. Would you like
-          to convert some of the MATIC you’re bridging to FTM?
-        </div>
-        <div>You will receive:</div>
-        {sendingToken !== undefined && nativeGasToken !== undefined ? (
-          <div>
-            <PrettoSlider
-              slots={{ thumb: Thumb }}
-              aria-label="Native gas conversion amount"
-              defaultValue={0.5}
-              color1={nativeGasToken.color}
-              color2={sendingToken.color}
-            />
-            <div className={classes.amounts}>
-              <div className={classes.amountDisplay}>
-                <TokenIcon name={nativeGasToken.icon} height={16} />
-                0.0045 {nativeGasToken.symbol}
-              </div>
-              <div className={classes.amountDisplay}>
-                <TokenIcon
-                  name={(sendingToken as TokenConfig)!.icon}
-                  height={16}
-                />
-                0.0045 {(sendingToken as TokenConfig)!.symbol}
+        {sendingToken !== undefined && nativeGasToken !== undefined && destConfig !== undefined ? (
+          <div className={classes.container}>
+            <div>
+              Your wallet has no native gas ({nativeGasToken.symbol}) balance on {destConfig?.displayName}. Would you like
+              to convert some of the {sendingToken.symbol} you’re bridging to {nativeGasToken.symbol}?
+            </div>
+            <div>You will receive:</div>
+            <div>
+              <PrettoSlider
+                slots={{ thumb: Thumb }}
+                aria-label="Native gas conversion amount"
+                defaultValue={0.5}
+                color1={nativeGasToken.color}
+                color2={sendingToken.color}
+              />
+              <div className={classes.amounts}>
+                <div className={classes.amountDisplay}>
+                  <TokenIcon name={nativeGasToken.icon} height={16} />
+                  0.0045 {nativeGasToken.symbol}
+                </div>
+                <div className={classes.amountDisplay}>
+                  <TokenIcon
+                    name={(sendingToken as TokenConfig)!.icon}
+                    height={16}
+                  />
+                  0.0045 {(sendingToken as TokenConfig)!.symbol}
+                </div>
               </div>
             </div>
           </div>
