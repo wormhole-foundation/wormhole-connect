@@ -17,7 +17,7 @@ const rows = [
     value: '1.5 MATIC',
   },
   {
-    title: 'Conver to native gas token',
+    title: 'Convert to native gas token',
     value: '≈ 0.3 MATIC --> FTM',
   },
 ];
