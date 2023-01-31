@@ -25,6 +25,10 @@ const useStyles = makeStyles()((theme) => ({
     fontSize: '14px',
     fontWeight: 'bold',
   },
+  description: {
+    fontSize: '14px',
+    opacity: '80%',
+  },
   invert: {
     transform: 'rotate(180deg)',
   },
@@ -54,7 +58,8 @@ const useStyles = makeStyles()((theme) => ({
 }));
 
 type Props = {
-  text: string;
+  title: string;
+  description?: string;
   children: JSX.Element | JSX.Element[];
   close?: boolean;
   disabled?: boolean;
@@ -80,7 +85,10 @@ function BridgeCollapse(props: Props) {
         ])}
         onClick={toggleCollapsed}
       >
-        <div className={classes.title}>{props.text}</div>
+        <div>
+          <div className={classes.title}>{props.title}</div>
+          {props.description && <div className={classes.description}>{props.description}</div>}
+        </div>
         {!props.controlled && (
           <Down
             className={joinClass([classes.arrow, !collapsed && classes.invert])}

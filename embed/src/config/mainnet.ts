@@ -7,114 +7,143 @@ export const MAINNET_NETWORKS: NetworksConfig = {
   solana: {
     ...chains.solana!,
     icon: 'solana',
+    nativeToken: '', // TODO: fill in tokens for Mainnet
   },
   ethereum: {
     ...chains.ethereum!,
     icon: 'eth',
+    nativeToken: '',
   },
   terra: {
     ...chains.terra!,
     icon: 'terra',
+    nativeToken: '',
   },
   bsc: {
     ...chains.bsc!,
     icon: 'bsc',
+    nativeToken: '',
   },
   polygon: {
     ...chains.polygon!,
     icon: 'polygon',
+    nativeToken: '',
   },
   avalanche: {
     ...chains.avalanche!,
     icon: 'avax',
+    nativeToken: '',
   },
   oasis: {
     ...chains.oasis!,
     icon: 'oasis',
+    nativeToken: '',
   },
   algorand: {
     ...chains.algorand!,
     icon: 'algorand',
+    nativeToken: '',
   },
   aurora: {
     ...chains.aurora!,
     icon: 'aurora',
+    nativeToken: '',
   },
   fantom: {
     ...chains.fantom!,
     icon: 'fantom',
+    nativeToken: '',
   },
   karura: {
     ...chains.karura!,
     icon: 'karura',
+    nativeToken: '',
   },
   acala: {
     ...chains.acala!,
     icon: 'acala',
+    nativeToken: '',
   },
   klaytn: {
     ...chains.klaytn!,
     icon: 'kalytn',
+    nativeToken: '',
   },
   celo: {
     ...chains.celo!,
     icon: 'celo',
+    nativeToken: '',
   },
   near: {
     ...chains.near!,
     icon: 'near',
+    nativeToken: '',
   },
   injective: {
     ...chains.injective!,
     icon: 'injective',
+    nativeToken: '',
   },
   osmosis: {
     ...chains.osmosis!,
     icon: 'osmosis',
+    nativeToken: '',
   },
   aptos: {
     ...chains.aptos!,
     icon: 'aptos',
+    nativeToken: '',
   },
   sui: {
     ...chains.sui!,
     icon: 'sui',
+    nativeToken: '',
   },
   moonbeam: {
     ...chains.moonbeam!,
     icon: 'moonbeam',
+    nativeToken: '',
   },
   neon: {
     ...chains.neon!,
     icon: 'neon',
+    nativeToken: '',
   },
   terra2: {
     ...chains.terra2!,
     icon: 'terra2',
+    nativeToken: '',
   },
   arbitrum: {
     ...chains.arbitrum!,
     icon: 'arbitrum',
+    nativeToken: '',
   },
   optimism: {
     ...chains.optimism!,
     icon: 'optimism',
+    nativeToken: '',
   },
   gnosis: {
     ...chains.gnosis!,
+    nativeToken: '',
   },
   pythnet: {
     ...chains.pythnet!,
+    nativeToken: '',
   },
   xpla: {
     ...chains.xpla!,
     icon: 'xpla',
+    nativeToken: '',
   },
   btc: {
     ...chains.btc!,
+    nativeToken: '',
   },
   wormchain: {
     ...chains.wormchain!,
+    nativeToken: '',
   },
 };
 

@@ -57,7 +57,7 @@ function Preview(props: { collapsed: boolean }) {
 
   return (
     <BridgeCollapse
-      text="Preview"
+      title="Preview"
       disabled={props.collapsed}
       controlled
       value={props.collapsed}

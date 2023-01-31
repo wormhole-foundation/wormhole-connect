@@ -7,26 +7,32 @@ export const TESTNET_NETWORKS: NetworksConfig = {
   goerli: {
     ...chains.goerli!,
     icon: 'eth',
+    nativeToken: 'ETH',
   },
   mumbai: {
     ...chains.mumbai!,
     icon: 'polygon',
+    nativeToken: 'MATIC',
   },
   bsc: {
     ...chains.bsc!,
     icon: 'bsc',
+    nativeToken: 'BNB',
   },
   fuji: {
     ...chains.fuji!,
     icon: 'avax',
+    nativeToken: 'AVAX',
   },
   fantom: {
     ...chains.fantom!,
     icon: 'fantom',
+    nativeToken: 'FTM',
   },
   alfajores: {
     ...chains.alfajores!,
     icon: 'celo',
+    nativeToken: 'CELO',
   },
 };
 
