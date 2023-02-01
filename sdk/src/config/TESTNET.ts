@@ -90,7 +90,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     chainId: 4002,
   },
   alfajores: {
-    key: 'celo',
+    key: 'alfajores',
     id: 14,
     context: Context.ETH,
     contracts: {
