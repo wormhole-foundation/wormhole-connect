@@ -8,7 +8,7 @@ export type TokenConfig = {
   symbol: string;
   nativeNetwork: ChainName;
   icon: string;
-  tokenId: TokenId | 'native';
+  tokenId?: TokenId; // if no token id, it is the native token
   coinGeckoId: string;
   color: string;
   decimals: number;

@@ -29,6 +29,7 @@ class Redeem extends React.Component<
   }
 
   async getVaa() {
+    if (!this.props.txHash) return
     const vaa = await fetchVaa(this.props.txHash.slice(2));
     this.props.setVaa(vaa);
     this.setState({ vaa });
@@ -47,23 +48,14 @@ class Redeem extends React.Component<
 
   render() {
     // TODO: write validate function
-    const {
-      txHash,
-      fromNetwork,
-      toNetwork,
-      amount,
-      senderAddr,
-      receivingAddr,
-      token,
-    } = this.props;
     if (
-      !txHash ||
-      !fromNetwork ||
-      !toNetwork ||
-      !amount ||
-      !senderAddr ||
-      !receivingAddr ||
-      !token
+      !this.props.txHash ||
+      !this.props.fromNetwork ||
+      !this.props.toNetwork ||
+      !this.props.amount ||
+      !this.props.senderAddr ||
+      !this.props.receivingAddr ||
+      !this.props.token
     )
       return <div></div>;
     return (

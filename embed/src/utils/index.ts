@@ -18,9 +18,8 @@ export function displayEvmAddress(address: string): string {
 
 export function getTokenById(tokenId: TokenId): TokenConfig | void {
   TOKENS_ARR.forEach((t) => {
-    if (t.tokenId !== 'native') {
-      if (tokenId.address === t.tokenId.address) return t;
-    }
+    if (!t.tokenId) return
+    if (tokenId.address === t.tokenId!.address) return t;
   });
 }
 

@@ -49,7 +49,7 @@ export async function openWalletModal(
       main: theme.palette.text.primary,
       secondary: theme.palette.text.secondary,
       border: 'none',
-      hover: theme.palette.options.hover,
+      hover: theme.palette.popover.secondary,
     },
   });
 

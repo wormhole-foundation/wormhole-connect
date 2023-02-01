@@ -25,7 +25,7 @@ function Send(props: { valid: boolean }) {
     const sendToken = tokenConfig.tokenId;
 
     const receipt = await sendTransfer(
-      sendToken,
+      sendToken || 'native',
       `${amount}`,
       fromNetwork!,
       sending.address,

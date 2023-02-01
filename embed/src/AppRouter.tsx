@@ -10,12 +10,12 @@ import Redeem from './views/Redeem/Redeem';
 const useStyles = makeStyles(() => ({
   appContent: {
     textAlign: 'left',
-    margin: 'auto',
-    marginTop: '60px',
+    margin: '40px auto',
     maxWidth: '900px',
     width: '100%',
     display: 'flex',
     justifyContent: 'center',
+    padding: '16px'
   },
 }));
 
