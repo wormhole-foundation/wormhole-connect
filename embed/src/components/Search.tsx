@@ -30,6 +30,11 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 type Props = {
   placeholder?: string;
+  onChange: (
+    e?:
+      | React.ChangeEvent<HTMLInputElement>
+      | React.ChangeEvent<HTMLTextAreaElement>,
+  ) => void;
 };
 
 function Search(props: Props) {
@@ -39,7 +44,10 @@ function Search(props: Props) {
       <div className={classes.container}>
         <div className={classes.searchContent}>
           <div className={classes.input}>
-            <InputTransparent placeholder={props.placeholder} />
+            <InputTransparent
+              placeholder={props.placeholder}
+              onChange={props.onChange}
+            />
           </div>
           <SearchIcon />
         </div>

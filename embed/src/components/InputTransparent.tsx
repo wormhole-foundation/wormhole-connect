@@ -27,7 +27,7 @@ type Props = {
   type?: 'string' | 'number';
   align?: 'center' | 'right';
   id?: string;
-  onChange?: (
+  onChange: (
     e?:
       | React.ChangeEvent<HTMLInputElement>
       | React.ChangeEvent<HTMLTextAreaElement>,

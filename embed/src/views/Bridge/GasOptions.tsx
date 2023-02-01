@@ -39,18 +39,18 @@ const useStyles = makeStyles()((theme) => ({
   column: {
     display: 'flex',
     flexDirection: 'column',
-    justifyContent:'space-between',
-  }
+    justifyContent: 'space-between',
+  },
 }));
 
 type OptionConfig = {
-  title: string,
-  subtitle: string,
-  description: string,
-  estimate: string,
-  active: PaymentOption,
-}
-const getOptions = (dest: NetworkConfig, token: string): OptionConfig[] => ([
+  title: string;
+  subtitle: string;
+  description: string;
+  estimate: string;
+  active: PaymentOption;
+};
+const getOptions = (dest: NetworkConfig, token: string): OptionConfig[] => [
   {
     title: `Pay with ${token}`,
     subtitle: '(one transaction)',
@@ -65,7 +65,7 @@ const getOptions = (dest: NetworkConfig, token: string): OptionConfig[] => ([
     estimate: `0.05 ${token} & 0.5 ${dest.gasToken}`,
     active: PaymentOption.MANUAL,
   },
-]);
+];
 
 function GasOptions(props: { disabled: boolean }) {
   const { classes } = useStyles();
@@ -74,10 +74,15 @@ function GasOptions(props: { disabled: boolean }) {
     description: '',
     options: [] as OptionConfig[],
   });
-  const selectedOption = useSelector((state: RootState) => state.transfer.destGasPayment,);
-  const token = useSelector((state: RootState) => state.transfer.token,);
-  const destination = useSelector((state: RootState) => state.transfer.toNetwork,);
-  const active = selectedOption && selectedOption === PaymentOption.AUTOMATIC ? 0 : 1;
+  const selectedOption = useSelector(
+    (state: RootState) => state.transfer.destGasPayment,
+  );
+  const token = useSelector((state: RootState) => state.transfer.token);
+  const destination = useSelector(
+    (state: RootState) => state.transfer.toNetwork,
+  );
+  const active =
+    selectedOption && selectedOption === PaymentOption.AUTOMATIC ? 0 : 1;
 
   // listen for selectOption
   document.addEventListener('selectOption', (event: Event) => {
@@ -92,7 +97,10 @@ function GasOptions(props: { disabled: boolean }) {
   useEffect(() => {
     const destConfig = destination && CHAINS[destination];
     if (token && destConfig) {
-      const description = selectedOption === PaymentOption.AUTOMATIC ? `Pay with ${token}` : `Pay with ${token} & ${destConfig!.nativeToken}`
+      const description =
+        selectedOption === PaymentOption.AUTOMATIC
+          ? `Pay with ${token}`
+          : `Pay with ${token} & ${destConfig!.nativeToken}`;
       setState({ options: getOptions(destConfig, token), description });
     }
   }, [token, selectedOption, destination]);

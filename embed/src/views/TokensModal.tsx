@@ -1,6 +1,6 @@
 import { makeStyles } from '@mui/styles';
 import { useTheme } from '@mui/material/styles';
-import React from 'react';
+import React, { ChangeEvent } from 'react';
 import Collapse from '@mui/material/Collapse';
 import Header from '../components/Header';
 import Modal from '../components/Modal';
@@ -15,7 +15,7 @@ import { TOKENS_ARR } from '../sdk/config';
 import { useDispatch } from 'react-redux';
 import { setTokensModal } from '../store/router';
 import { setToken } from '../store/transfer';
-import { joinClass } from '../utils/style';
+import { CENTER, joinClass } from '../utils/style';
 import { displayEvmAddress } from '../utils';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
@@ -25,6 +25,10 @@ const useStyles = makeStyles((theme: Theme) => ({
   tokensContainer: {
     display: 'flex',
     flexDirection: 'column',
+  },
+  noResults: {
+    ...CENTER,
+    minHeight: '72px',
   },
   subheader: {
     fontSize: '18px',
@@ -83,7 +87,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginTop: '16px',
+    margin: '16px 0',
     cursor: 'pointer',
   },
   arrow: {
@@ -96,25 +100,17 @@ const useStyles = makeStyles((theme: Theme) => ({
     display: 'flex',
     alignItems: 'center',
   },
+  advancedContent: {
+    marginBottom: '16px',
+  },
 }));
 
 function TokensModal() {
   const classes = useStyles();
   const theme = useTheme();
   const dispatch = useDispatch();
-  const [showAdvanced, setShowAdvanced] = React.useState(false);
-  const toggleAdvanced = () => setShowAdvanced((prev) => !prev);
-  // listen for close event
-  const closeTokensModal = () => {
-    dispatch(setTokensModal(false));
-    document.removeEventListener('click', closeTokensModal);
-  };
-  document.addEventListener('close', closeTokensModal, { once: true });
-  // set token
-  const selectToken = (token: string) => {
-    dispatch(setToken(token));
-    closeTokensModal();
-  };
+
+  // store values
   const showTokensModal = useSelector(
     (state: RootState) => state.router.showTokensModal,
   );
@@ -123,14 +119,53 @@ function TokensModal() {
   );
   const filteredTokens = TOKENS_ARR.filter((t) => {
     if (!fromNetwork) return true;
-    return !!t.tokenId || (t.tokenId && t.nativeNetwork === fromNetwork)
+    return !!t.tokenId || (t.tokenId && t.nativeNetwork === fromNetwork);
   });
+
+  // state
+  const [showAdvanced, setShowAdvanced] = React.useState(false);
+  const toggleAdvanced = () => setShowAdvanced((prev) => !prev);
+  const [tokens, setTokens] = React.useState(filteredTokens);
+
+  // set tokens
+  const searchTokens = (
+    e:
+      | ChangeEvent<HTMLInputElement>
+      | ChangeEvent<HTMLTextAreaElement>
+      | undefined,
+  ) => {
+    if (!e) return;
+    console.log('search tokens:', e.target.value);
+    const lowercase = e.target.value.toLowerCase();
+    const filtered = filteredTokens.filter((c) => {
+      const symbol = c.symbol.toLowerCase();
+      return (
+        symbol.indexOf(lowercase) === 0 ||
+        (c.tokenId && c.tokenId.address.indexOf(lowercase) === 0)
+      );
+    });
+    setTokens(filtered);
+  };
+  // listen for close event
+  const closeTokensModal = () => {
+    dispatch(setTokensModal(false));
+    document.removeEventListener('click', closeTokensModal);
+  };
+  document.addEventListener('close', closeTokensModal, { once: true });
+  // select token
+  const selectToken = (token: string) => {
+    dispatch(setToken(token));
+    closeTokensModal();
+  };
 
   return (
     <Modal open={showTokensModal} closable width="sm">
       <Header text="Select token" />
       <Spacer height={16} />
-      <Search placeholder="Search by name or paste contract address" />
+      <Search
+        placeholder="Search by name or paste contract address"
+        onChange={searchTokens}
+      />
       <Spacer height={16} />
       <div className={classes.row}>
         <div className={classes.subheader}>Tokens with liquid markets</div>
@@ -141,29 +176,35 @@ function TokensModal() {
         blendColor={theme.palette.card.background}
       >
         <div className={classes.tokensContainer}>
-          {filteredTokens.map((token, i) => {
-            return (
-              <div
-                className={classes.tokenRow}
-                key={i}
-                onClick={() => selectToken(token.symbol)}
-              >
-                <div className={classes.tokenRowLeft}>
-                  <TokenIcon name={token.icon} height={32} />
-                  <div>{token.symbol}</div>
-                </div>
-                <div className={classes.tokenRowRight}>
-                  <div className={classes.tokenRowBalanceText}>Balance</div>
-                  <div className={classes.tokenRowBalance}>200.4567</div>
-                </div>
-                <div className={classes.tokenRowAddress}>
-                  {token.tokenId
-                    ? displayEvmAddress(token.tokenId.address)
-                    : 'Native'}
-                </div>
-              </div>
-            );
-          })}
+          {tokens.length > 0 ? (
+            <div>
+              {tokens.map((token, i) => {
+                return (
+                  <div
+                    className={classes.tokenRow}
+                    key={i}
+                    onClick={() => selectToken(token.symbol)}
+                  >
+                    <div className={classes.tokenRowLeft}>
+                      <TokenIcon name={token.icon} height={32} />
+                      <div>{token.symbol}</div>
+                    </div>
+                    <div className={classes.tokenRowRight}>
+                      <div className={classes.tokenRowBalanceText}>Balance</div>
+                      <div className={classes.tokenRowBalance}>200.4567</div>
+                    </div>
+                    <div className={classes.tokenRowAddress}>
+                      {token.tokenId
+                        ? displayEvmAddress(token.tokenId.address)
+                        : 'Native'}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className={classes.noResults}>No results</div>
+          )}
           <div className={classes.advanced} onClick={toggleAdvanced}>
             <div className={classes.row}>
               <div className={classes.subheader}>Advanced</div>
@@ -177,7 +218,7 @@ function TokensModal() {
             />
           </div>
           <Collapse in={showAdvanced}>
-            <div>Advanced Options</div>
+            <div className={classes.advancedContent}>Advanced Options</div>
           </Collapse>
         </div>
       </Scroll>

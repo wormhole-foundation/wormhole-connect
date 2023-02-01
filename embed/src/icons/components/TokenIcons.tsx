@@ -2,16 +2,16 @@ import React from 'react';
 import { makeStyles } from 'tss-react/mui';
 import { CENTER } from '../../utils/style';
 
-const useStyles = makeStyles<{size: number}>()((theme, { size } ) => ({
+const useStyles = makeStyles<{ size: number }>()((theme, { size }) => ({
   container: {
     height: size,
     width: size,
-    ...CENTER
+    ...CENTER,
   },
   icon: {
     maxHeight: '100%',
     maxWidth: '100%',
-  }
+  },
 }));
 
 type Props = {

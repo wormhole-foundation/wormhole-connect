@@ -87,11 +87,14 @@ function GasSlider(props: { disabled: boolean }) {
           boxShadow: 'none',
         }}
       >
-        {sendingToken !== undefined && nativeGasToken !== undefined && destConfig !== undefined ? (
+        {sendingToken !== undefined &&
+        nativeGasToken !== undefined &&
+        destConfig !== undefined ? (
           <div className={classes.container}>
             <div>
-              Your wallet has no native gas ({nativeGasToken.symbol}) balance on {destConfig?.displayName}. Would you like
-              to convert some of the {sendingToken.symbol} you’re bridging to {nativeGasToken.symbol}?
+              Your wallet has no native gas ({nativeGasToken.symbol}) balance on{' '}
+              {destConfig?.displayName}. Would you like to convert some of the{' '}
+              {sendingToken.symbol} you’re bridging to {nativeGasToken.symbol}?
             </div>
             <div>You will receive:</div>
             <div>

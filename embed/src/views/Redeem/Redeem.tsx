@@ -29,7 +29,7 @@ class Redeem extends React.Component<
   }
 
   async getVaa() {
-    if (!this.props.txHash) return
+    if (!this.props.txHash) return;
     const vaa = await fetchVaa(this.props.txHash.slice(2));
     this.props.setVaa(vaa);
     this.setState({ vaa });

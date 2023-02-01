@@ -87,7 +87,9 @@ function BridgeCollapse(props: Props) {
       >
         <div>
           <div className={classes.title}>{props.title}</div>
-          {props.description && <div className={classes.description}>{props.description}</div>}
+          {props.description && (
+            <div className={classes.description}>{props.description}</div>
+          )}
         </div>
         {!props.controlled && (
           <Down

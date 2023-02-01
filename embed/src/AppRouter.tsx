@@ -15,7 +15,7 @@ const useStyles = makeStyles(() => ({
     width: '100%',
     display: 'flex',
     justifyContent: 'center',
-    padding: '16px'
+    padding: '16px',
   },
 }));
 
