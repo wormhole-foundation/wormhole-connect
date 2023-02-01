@@ -1,8 +1,6 @@
 # Wormhole Connect
 
-Integration does not get easier than this. We are developing an easy seamless experience that will help to bring all the functionality of the Wormhole Token Bridge right into your application. You will be able to customize what chains/tokens you support as well as customize the appearance.
-
-Bear in mind that this is still under development, but we appreciate any feedback or suggestions you can offer.
+Integration does not get easier than this. Wormhole Connect is an easy seamless experience that will help to bring all the functionality of the Wormhole Token Bridge right into your application.
 
 ## Integration instructions
 
