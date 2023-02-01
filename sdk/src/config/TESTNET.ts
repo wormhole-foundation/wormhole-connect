@@ -113,7 +113,7 @@ const TESTNET_CONFIG: WormholeConfig = {
     mumbai: 'https://polygon-mumbai.blockpi.network/v1/rpc/public',
     bsc: 'https://data-seed-prebsc-2-s3.binance.org:8545',
     fuji: 'https://api.avax-test.network/ext/bc/C/rpc',
-    fantom: 'https://rpc.testnet.fantom.network',
+    fantom: 'https://endpoints.omniatech.io/v1/fantom/testnet/public',
     alfajores: 'https://alfajores-forno.celo-testnet.org',
   },
   chains: TESTNET,
