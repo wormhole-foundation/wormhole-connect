@@ -3,7 +3,8 @@
   "private": true,
   "workspaces": [
     "embed",
-    "sdk"
+    "sdk",
+    "sample-app"
   ],
   "scripts": {
     "build": "yarn build:accumulator-cli && yarn workspaces foreach -Apvt run bootstrap",
@@ -12,6 +13,7 @@
     "lint": "yarn workspaces foreach -Apv run lint",
     "embed": "yarn workspace @wormhole-foundation/wormhole-connect",
     "sdk": "yarn workspace @wormhole-foundation/wormhole-connect-sdk",
+    "sample-app": "yarn workspace sample-app",
     "prettier": "yarn workspaces foreach -Apvt run prettier"
   },
   "packageManager": "yarn@3.2.0"
