@@ -353,9 +353,9 @@ export class WormholeContext extends MultiProvider<Domain> {
     return context.parseSequencesFromLog(receipt, chain);
   }
 
-  getEmitterAddress(address: string, chain: ChainName | ChainId): string {
+  formatAddress(address: string, chain: ChainName | ChainId): string {
     const context = this.getContext(chain);
-    return context.getEmitterAddress(address);
+    return context.formatAddress(address);
   }
 
   /**

@@ -256,7 +256,7 @@ export class NearContext<T extends WormholeContext> extends Context {
     return sequences;
   }
 
-  getEmitterAddress(address: string): string {
+  formatAddress(address: string): string {
     return uint8ArrayToHex(arrayify(sha256(Buffer.from(address, 'utf8'))));
   }
 }

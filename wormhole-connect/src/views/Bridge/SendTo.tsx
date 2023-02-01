@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@mui/styles';
 import NetworkTile from '../../components/NetworkTile';
 import { Theme } from '@mui/material';
@@ -10,6 +10,9 @@ import ConnectWallet, { Wallet } from '../../components/ConnectWallet';
 import { setToNetworksModal } from '../../store/router';
 import { joinClass, OPACITY } from '../../utils/style';
 import TokenIcon from '../../icons/components/TokenIcons';
+import { BigNumber } from 'ethers';
+import { getBalance } from '../../sdk/sdk';
+import { toDecimals } from '../../utils/balance';
 
 const useStyles = makeStyles((theme: Theme) => ({
   header: {
@@ -82,16 +85,32 @@ const useStyles = makeStyles((theme: Theme) => ({
 function SendTo() {
   const classes = useStyles();
   const dispatch = useDispatch();
+  const [balance, setBalance] = useState(undefined as string | undefined);
   // store values
   const toNetwork = useSelector((state: RootState) => state.transfer.toNetwork);
   const token = useSelector((state: RootState) => state.transfer.token);
   const amount = useSelector((state: RootState) => state.transfer.amount);
+  const walletAddr = useSelector(
+    (state: RootState) => state.wallet.receiving.address,
+  );
   // get networks configs
   const toNetworkConfig = toNetwork ? CHAINS[toNetwork] : undefined;
   const tokenConfig = TOKENS[token];
   // set store values
   const openToNetworksModal = () => dispatch(setToNetworksModal(true));
-  const balance = '12.34';
+
+  // balance
+  useEffect(() => {
+    if (!toNetwork || !tokenConfig || !walletAddr) return;
+    if (tokenConfig.tokenId) {
+      getBalance(walletAddr, tokenConfig.tokenId, toNetwork).then(
+        (res: BigNumber) => {
+          const b = toDecimals(res, tokenConfig.decimals, 6);
+          setBalance(b);
+        },
+      );
+    }
+  }, [tokenConfig, toNetwork, walletAddr]);
 
   return (
     <div className={classes.container}>

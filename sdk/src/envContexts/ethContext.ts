@@ -23,6 +23,14 @@ export class EthContext<T extends WormholeContext> extends Context {
     super();
     this.context = context;
   }
+
+  async getForeignAsset(tokenId: TokenId, chain: ChainName | ChainId) {
+    const tokenBridge = this.context.mustGetBridge(tokenId.chain);
+    const chainId = this.context.resolveDomain(chain);
+    const tokenAddr = this.formatAddress(tokenId.address);
+    return await tokenBridge.wrappedAsset(chainId, tokenAddr);
+  }
+
   /**
    * Approves amount for bridge transfer. If no amount is specified, the max amount is approved
    *
@@ -83,7 +91,7 @@ export class EthContext<T extends WormholeContext> extends Context {
       // sending native ETH
       const v = await bridge.wrapAndTransferETH(
         recipientChainId,
-        '0x' + this.getEmitterAddress(recipientAddress),
+        '0x' + this.formatAddress(recipientAddress),
         relayerFee,
         createNonce(),
         {
@@ -101,7 +109,7 @@ export class EthContext<T extends WormholeContext> extends Context {
         token.address,
         amountBN,
         recipientChainId,
-        '0x' + this.getEmitterAddress(recipientAddress),
+        '0x' + this.formatAddress(recipientAddress),
         relayerFee,
         createNonce(),
         // overrides,
@@ -174,7 +182,7 @@ export class EthContext<T extends WormholeContext> extends Context {
     const amountBN = ethers.BigNumber.from(amount);
     const relayer = this.context.mustGetTBRelayer(sendingChain);
     const nativeTokenBN = ethers.BigNumber.from(toNativeToken);
-    const formattedRecipient = this.getEmitterAddress(recipientAddress);
+    const formattedRecipient = this.formatAddress(recipientAddress);
     // const unwrapWeth = await relayer.unwrapWeth(); // TODO: check unwrapWeth flag
 
     if (token === 'native') {
@@ -254,7 +262,8 @@ export class EthContext<T extends WormholeContext> extends Context {
     });
   }
 
-  getEmitterAddress(address: any): string {
-    return Buffer.from(zeroPad(arrayify(address), 32)).toString('hex');
+  formatAddress(address: any): string {
+    const addr = address.startsWith('0x') ? address.slice(2) : address;
+    return Buffer.from(zeroPad(arrayify(addr), 32)).toString('hex');
   }
 }

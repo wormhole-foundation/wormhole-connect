@@ -165,7 +165,7 @@ export class InjectiveContext<T extends WormholeContext> extends Context {
     return sequences;
   }
 
-  getEmitterAddress(address: string): string {
+  formatAddress(address: string): string {
     return Buffer.from(
       zeroPad(bech32.fromWords(bech32.decode(address).words), 32),
     ).toString('hex');

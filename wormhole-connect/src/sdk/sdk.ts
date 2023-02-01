@@ -9,6 +9,7 @@ import {
 
 import { PaymentOption } from '../store/transfer';
 import { getTokenDecimals } from '../utils';
+import { getBalance as getBalanceUtil } from 'utils/balance';
 
 const { REACT_APP_ENV } = process.env;
 
@@ -17,6 +18,26 @@ export const context = new WormholeContext(REACT_APP_ENV! as Environment);
 export const registerSigner = (signer: any) => {
   console.log('registering signer', signer);
   context.registerSigner('goerli', signer);
+};
+
+export const getForeignAsset = async (
+  tokenId: TokenId,
+  chain: ChainName | ChainId,
+) => {
+  const chainName = context.resolveDomainName(chain);
+  if (tokenId.chain === chainName) return tokenId.address;
+  const ethContext: any = context.getContext(tokenId.chain);
+  return await ethContext.getForeignAsset(tokenId, chain);
+};
+
+export const getBalance = async (
+  walletAddr: string,
+  tokenId: TokenId,
+  chain: ChainName | ChainId,
+) => {
+  const address = await getForeignAsset(tokenId, chain);
+  const provider = context.mustGetProvider(tokenId.chain);
+  return await getBalanceUtil(walletAddr, address, provider);
 };
 
 // export const getTxDetails(chain: ChainName | ChainId, txHash: string) {

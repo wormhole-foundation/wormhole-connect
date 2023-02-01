@@ -51,8 +51,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     icon: 'eth',
     tokenId: {
       chain: 'goerli',
-      address:
-        '000000000000000000000000B4FBF271143F4FBf7B91A5ded31805e42b2208d6',
+      address: '0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6',
     },
     coinGeckoId: 'ethereum',
     color: '#62688F',
@@ -64,8 +63,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     icon: 'usdc',
     tokenId: {
       chain: 'goerli',
-      address:
-        '0000000000000000000000005425890298aed601595a70AB815c96711a31Bc65',
+      address: '0x5425890298aed601595a70AB815c96711a31Bc65',
     },
     coinGeckoId: 'usd-coin',
     color: '#2774CA',
@@ -85,8 +83,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     icon: 'polygon',
     tokenId: {
       chain: 'mumbai',
-      address:
-        '0000000000000000000000009c3C9283D3e44854697Cd22D3Faa240Cfb032889',
+      address: '0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889',
     },
     coinGeckoId: 'polygon',
     color: '#8247E5',
@@ -106,8 +103,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     icon: 'bnb',
     tokenId: {
       chain: 'bsc',
-      address:
-        '000000000000000000000000ae13d989daC2f0dEbFf460aC112a837C89BAa7cd',
+      address: '0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd',
     },
     coinGeckoId: 'bnb',
     color: '#F3BA30',
@@ -127,8 +123,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     icon: 'avax',
     tokenId: {
       chain: 'fuji',
-      address:
-        '000000000000000000000000d00ae08403B9bbb9124bB305C09058E32C39A48c',
+      address: '0xd00ae08403B9bbb9124bB305C09058E32C39A48c',
     },
     coinGeckoId: 'avalanche',
     color: '#E84141',
@@ -148,8 +143,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     icon: 'fantom',
     tokenId: {
       chain: 'fantom',
-      address:
-        '000000000000000000000000f1277d1Ed8AD466beddF92ef448A132661956621',
+      address: '0xf1277d1Ed8AD466beddF92ef448A132661956621',
     },
     coinGeckoId: 'fantom',
     color: '#12B4EC',
@@ -161,8 +155,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     icon: 'celo',
     tokenId: {
       chain: 'alfajores',
-      address:
-        '000000000000000000000000F194afDf50B03e69Bd7D057c1Aa9e10c9954E4C9',
+      address: '0xF194afDf50B03e69Bd7D057c1Aa9e10c9954E4C9',
     },
     coinGeckoId: 'celo',
     color: '#35D07E',

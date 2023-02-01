@@ -33,9 +33,8 @@ export abstract class Context {
     receipt: any,
     chain: ChainName | ChainId,
   ): string[];
-  protected abstract getEmitterAddress(address: any): string;
+  protected abstract formatAddress(address: any): string;
 
-  // getSignedVaa
-  // parseVaa?
+  // getForeignAsset
   // redeem
 }

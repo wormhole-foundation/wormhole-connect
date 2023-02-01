@@ -294,7 +294,7 @@ export class AlgorandContext<T extends WormholeContext> extends Context {
     return sequences;
   }
 
-  getEmitterAddress(address: bigint): string {
+  formatAddress(address: bigint): string {
     const appAddr: string = getApplicationAddress(address);
     const decAppAddr: Uint8Array = decodeAddress(appAddr).publicKey;
     const aa: string = uint8ArrayToHex(decAppAddr);

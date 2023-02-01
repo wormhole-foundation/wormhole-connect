@@ -376,7 +376,7 @@ export class SolanaContext<T extends WormholeContext> extends Context {
     return sequences;
   }
 
-  getEmitterAddress(address: PublicKeyInitData): string {
+  formatAddress(address: PublicKeyInitData): string {
     return deriveWormholeEmitterKey(address).toBuffer().toString('hex');
   }
 }

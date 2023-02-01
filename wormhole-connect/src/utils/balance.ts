@@ -1,3 +1,6 @@
+import { ethers_contracts } from '@certusone/wormhole-sdk';
+import { BigNumber, ethers, utils } from 'ethers';
+
 // TODO: get balances
 // https://chainstack.com/the-ultimate-guide-to-getting-multiple-token-balances-on-ethereum/
 // require('isomorphic-fetch');
@@ -46,3 +49,42 @@
 //   console.log(tokenBalances);
 // };
 // main();
+
+export const getBalance = async (
+  address: string,
+  tokenAddr: string,
+  provider: ethers.providers.Provider,
+) => {
+  const token = ethers_contracts.TokenImplementation__factory.connect(
+    tokenAddr,
+    provider,
+  );
+  const balance = token.balanceOf(address);
+  return balance;
+};
+
+/**
+ * Makes a BigNumber have # of decimals
+ */
+export function toDecimals(
+  amnt: BigNumber,
+  tokenDecimals: number,
+  numDecimals?: number,
+): string {
+  const decimal = utils.formatUnits(amnt, tokenDecimals);
+  return toFixedDecimals(decimal, numDecimals || 18);
+}
+
+export function toFixedDecimals(number: string, numDecimals: number) {
+  if (number === '0.0') {
+    return '0';
+  }
+
+  const index = number.indexOf('.');
+  if (index === -1) {
+    return number;
+  }
+
+  const end = index + (numDecimals || 18) + 1;
+  return number.slice(0, end);
+}

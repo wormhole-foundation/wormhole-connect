@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@mui/styles';
 import NetworkTile from '../../components/NetworkTile';
 import { Theme } from '@mui/material';
@@ -11,8 +11,11 @@ import InputTransparent from '../../components/InputTransparent';
 import ConnectWallet, { Wallet } from '../../components/ConnectWallet';
 import TokensModal from '../TokensModal';
 import { joinClass } from '../../utils/style';
+import { toDecimals } from '../../utils/balance';
 import { setAmount } from '../../store/transfer';
 import TokenIcon from '../../icons/components/TokenIcons';
+import { getBalance } from '../../sdk/sdk';
+import { BigNumber } from 'ethers';
 
 const useStyles = makeStyles((theme: Theme) => ({
   header: {
@@ -87,6 +90,8 @@ const useStyles = makeStyles((theme: Theme) => ({
 function SendFrom() {
   const classes = useStyles();
   const dispatch = useDispatch();
+  const [balance, setBalance] = useState(undefined as string | undefined);
+
   // store values
   const showTokensModal = useSelector(
     (state: RootState) => state.router.showTokensModal,
@@ -94,10 +99,13 @@ function SendFrom() {
   const fromNetwork = useSelector(
     (state: RootState) => state.transfer.fromNetwork,
   );
+  const walletAddr = useSelector(
+    (state: RootState) => state.wallet.sending.address,
+  );
   const token = useSelector((state: RootState) => state.transfer.token);
   const tokenConfig = token && TOKENS[token];
-  // get networks configs
   const fromNetworkConfig = fromNetwork ? CHAINS[fromNetwork] : undefined;
+
   // set store values
   const openFromNetworksModal = () => dispatch(setFromNetworksModal(true));
   const openTokensModal = () => dispatch(setTokensModal(true));
@@ -105,6 +113,7 @@ function SendFrom() {
     console.log(event.target.value);
     dispatch(setAmount(event.target.value));
   }
+
   // amount input focus
   const amtId = 'sendAmt';
   function focusAmt() {
@@ -112,7 +121,19 @@ function SendFrom() {
     if (!input) return;
     input.focus();
   }
-  const balance = '12.34';
+
+  // balance
+  useEffect(() => {
+    if (!fromNetwork || !tokenConfig || !walletAddr) return;
+    if (tokenConfig.tokenId) {
+      getBalance(walletAddr, tokenConfig.tokenId, fromNetwork).then(
+        (res: BigNumber) => {
+          const b = toDecimals(res, tokenConfig.decimals, 6);
+          setBalance(b);
+        },
+      );
+    }
+  }, [tokenConfig, fromNetwork, walletAddr]);
 
   return (
     <div className={classes.container}>

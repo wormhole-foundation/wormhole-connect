@@ -119,7 +119,7 @@ function TokensModal() {
   );
   const filteredTokens = TOKENS_ARR.filter((t) => {
     if (!fromNetwork) return true;
-    return !!t.tokenId || (t.tokenId && t.nativeNetwork === fromNetwork);
+    return !!t.tokenId || (!t.tokenId && t.nativeNetwork === fromNetwork);
   });
 
   // state
