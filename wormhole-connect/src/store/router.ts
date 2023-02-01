@@ -26,32 +26,27 @@ export const routerSlice = createSlice({
       state: RouterState,
       { payload }: PayloadAction<boolean>,
     ) => {
-      console.log('show from networks modal:', payload);
       state.showFromNetworksModal = payload;
     },
     setToNetworksModal: (
       state: RouterState,
       { payload }: PayloadAction<boolean>,
     ) => {
-      console.log('show from networks modal:', payload);
       state.showToNetworksModal = payload;
     },
     setTokensModal: (
       state: RouterState,
       { payload }: PayloadAction<boolean>,
     ) => {
-      console.log('show tokens modal:', payload);
       state.showTokensModal = payload;
     },
     setWalletModal: (
       state: RouterState,
       { payload }: PayloadAction<boolean>,
     ) => {
-      console.log('show tokens modal:', payload);
       state.showWalletModal = payload;
     },
     setRoute: (state: RouterState, { payload }: PayloadAction<Route>) => {
-      console.log('show route:', payload);
       state.route = payload;
     },
   },
