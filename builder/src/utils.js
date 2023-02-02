@@ -24,9 +24,9 @@ function fallbackCopyTextToClipboard(text) {
   }
 }
 
-export function copyTextToClipboard(text) {
+export async function copyTextToClipboard(text) {
   if (navigator.clipboard) {
-    navigator.clipboard.writeText(text).then(
+    return await navigator.clipboard.writeText(text).then(
       function () {
         console.log('Async: Copying to clipboard was successful!')
         return true

@@ -6,7 +6,20 @@ import WalletConnectProvider from '@walletconnect/web3-provider';
 import { registerSigner } from '../sdk/sdk';
 const { REACT_APP_ENV, REACT_APP_INFURA_KEY } = process.env;
 
-let connection: any;
+export enum Wallet {
+  SENDING = 'sending',
+  RECEIVING = 'receiving',
+}
+
+let sendingWallet = {
+  connection: undefined as any,
+  modal: undefined as any,
+}
+
+let receivingWallet = {
+  connection: undefined as any,
+  modal: undefined as any,
+}
 
 export type Connection = {
   connection: any;
@@ -53,29 +66,51 @@ export async function openWalletModal(
     },
   });
 
-  let walletConnection;
+  let connection;
   try {
-    walletConnection = await web3Modal.connect();
+    connection = await web3Modal.connect();
   } catch (err: unknown) {
     if ((err as any).message !== 'Modal closed by user') {
       throw err;
     }
   }
-  if (!walletConnection) throw new Error('failed to establish connection');
-  const provider = new providers.Web3Provider(walletConnection, 'any');
+  if (!connection) throw new Error('failed to establish connection');
+  const provider = new providers.Web3Provider(connection, 'any');
   const signer = provider.getSigner();
   const address = await signer.getAddress();
 
   console.log('address', address);
-  console.log('connection', walletConnection);
+  console.log('connection', connection);
   console.log('signer', signer);
 
   if (!isReceiving) {
-    connection = walletConnection;
-    console.log(connection);
+    sendingWallet.connection = connection;
+    sendingWallet.modal = web3Modal;
+  } else {
+    receivingWallet.modal = connection;
+    sendingWallet.modal = web3Modal;
+  }
+  return { connection, address, signer };
+}
+
+export const registerWalletSigner = (wallet: Wallet) => {
+  if (wallet === Wallet.SENDING) {
+    const provider = new providers.Web3Provider(sendingWallet.connection, 'any');
+    const signer = provider.getSigner();
+    registerSigner(signer);
+  } else {
+    const provider = new providers.Web3Provider(receivingWallet.connection, 'any');
+    const signer = provider.getSigner();
     registerSigner(signer);
   }
-  return { connection: walletConnection, address, signer };
+}
+
+export const disconnect = async (type: string) => {
+  if (type === Wallet.SENDING) {
+    await sendingWallet.modal.clearCachedProvider();
+  } else {
+    await receivingWallet.modal.clearCachedProvider();
+  }
 }
 
 export enum WalletType {
@@ -121,9 +156,17 @@ export const walletSlice = createSlice({
       console.log('connect receiving wallet');
       state.receiving.address = payload;
     },
+    disconnectSending: (state: WalletState) => {
+      state.sending.address = '';
+      state.sending.type = WalletType.NONE;
+    },
+    disconnectReceiving: (state: WalletState) => {
+      state.sending.address = '';
+      state.sending.type = WalletType.NONE;
+    }
   },
 });
 
-export const { connectWallet, connectReceivingWallet } = walletSlice.actions;
+export const { connectWallet, connectReceivingWallet, disconnectSending, disconnectReceiving } = walletSlice.actions;
 
 export default walletSlice.reducer;

@@ -263,7 +263,6 @@ export class EthContext<T extends WormholeContext> extends Context {
   }
 
   formatAddress(address: any): string {
-    const addr = address.startsWith('0x') ? address.slice(2) : address;
-    return Buffer.from(zeroPad(arrayify(addr), 32)).toString('hex');
+    return Buffer.from(zeroPad(arrayify(address), 32)).toString('hex');
   }
 }

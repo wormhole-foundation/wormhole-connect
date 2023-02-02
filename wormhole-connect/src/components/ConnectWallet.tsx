@@ -2,18 +2,19 @@ import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Theme, useTheme } from '@mui/material/styles';
 import { makeStyles } from '@mui/styles';
-import { BigNumber } from 'ethers';
 import { RootState } from '../store';
 import {
   connectReceivingWallet,
   connectWallet,
+  disconnectReceiving,
+  disconnectSending,
   openWalletModal,
+  disconnect,
+  Wallet,
 } from '../store/wallet';
 import DownIcon from '../icons/components/Down';
 import WalletIcon from '../icons/components/Wallet';
-import { displayEvmAddress } from '../utils';
-import { CHAINS } from '../sdk/config';
-import { setFromNetwork } from '../store/transfer';
+import { copyTextToClipboard, displayEvmAddress } from '../utils';
 import ActionIndicator from './Action';
 import WalletIcons from '../icons/components/WalletIcons';
 import PopupState, { bindTrigger, bindPopover } from 'material-ui-popup-state';
@@ -59,11 +60,6 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
-export enum Wallet {
-  SENDING = 'sending',
-  RECEIVING = 'receiving',
-}
-
 // function getIcon(type: WalletType): string {
 //   switch (type) {
 //     case WalletType.METAMASK: {
@@ -87,12 +83,9 @@ function ConnectWallet(props: Props) {
   const theme = useTheme();
   const dispatch = useDispatch();
   const wallet = useSelector((state: RootState) => state.wallet[props.type]);
-  const sourceChain = useSelector(
-    (state: RootState) => state.transfer.fromNetwork,
-  );
-  const sourceConfig = CHAINS[sourceChain!];
 
-  const connect = async () => {
+  const connect = async (popupState?: any) => {
+    if (popupState) popupState.close();
     const walletConnection = await openWalletModal(
       theme,
       props.type === Wallet.RECEIVING,
@@ -100,19 +93,14 @@ function ConnectWallet(props: Props) {
     if (props.type === Wallet.SENDING) {
       // add listeners
       const { connection } = walletConnection;
-      connection.on('accountsChanged', async () => {
-        if (connection.isMetaMask) {
-          window.location.reload();
-          return;
-        }
-      });
-      connection.on('chainChanged', async (chainId: number) => {
-        console.log('network change', chainId);
-        // get name of network and set in store
-        // TODO: is this how we want to handle a network change?
-        const id = BigNumber.from(chainId).toNumber();
-        if (sourceConfig && id !== sourceConfig.chainId) {
-          dispatch(setFromNetwork(sourceConfig.key));
+      connection.on('accountsChanged', async (accounts: string[]) => {
+        if (accounts.length === 0) {
+          await (disconnect(props.type));
+          if (props.type === Wallet.SENDING) {
+            dispatch(disconnectSending());
+          } else {
+            dispatch(disconnectReceiving());
+          }
         }
       });
 
@@ -121,6 +109,20 @@ function ConnectWallet(props: Props) {
       dispatch(connectReceivingWallet(walletConnection.address));
     }
   };
+
+  const copy = async (popupState: any) => {
+    await copyTextToClipboard(wallet.address);
+    popupState.close();
+  }
+
+  const disconnectWallet = async () => {
+    await disconnect(props.type);
+    if (props.type === Wallet.SENDING) {
+      dispatch(disconnectSending());
+    } else {
+      dispatch(disconnectReceiving());
+    }
+  }
 
   // const icon = getIcon(wallet.type);
 
@@ -146,9 +148,9 @@ function ConnectWallet(props: Props) {
             }}
           >
             <div className={classes.dropdown}>
-              <div className={classes.dropdownItem}>Copy address</div>
-              <div className={classes.dropdownItem}>Change wallet</div>
-              <div className={classes.dropdownItem}>Disconnect</div>
+              <div className={classes.dropdownItem} onClick={() => copy(popupState)}>Copy address</div>
+              <div className={classes.dropdownItem} onClick={() => connect(popupState)}>Change wallet</div>
+              <div className={classes.dropdownItem} onClick={disconnectWallet}>Disconnect</div>
             </div>
           </Popover>
         </div>

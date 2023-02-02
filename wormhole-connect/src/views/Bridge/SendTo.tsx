@@ -1,18 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { makeStyles } from '@mui/styles';
-import NetworkTile from '../../components/NetworkTile';
-import { Theme } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../../store';
-import { CHAINS, TOKENS } from '../../sdk/config';
-import InputContainer from '../../components/InputContainer';
-import ConnectWallet, { Wallet } from '../../components/ConnectWallet';
-import { setToNetworksModal } from '../../store/router';
-import { joinClass, OPACITY } from '../../utils/style';
-import TokenIcon from '../../icons/components/TokenIcons';
 import { BigNumber } from 'ethers';
+import { makeStyles } from '@mui/styles';
+import { Theme } from '@mui/material';
+import { RootState } from '../../store';
+import { setToNetworksModal } from '../../store/router';
+import { Wallet } from '../../store/wallet';
+import { CHAINS, TOKENS } from '../../sdk/config';
 import { getBalance } from '../../sdk/sdk';
+import { joinClass, OPACITY } from '../../utils/style';
 import { toDecimals } from '../../utils/balance';
+import InputContainer from '../../components/InputContainer';
+import ConnectWallet from '../../components/ConnectWallet';
+import NetworkTile from '../../components/NetworkTile';
+import TokenIcon from '../../icons/components/TokenIcons';
 
 const useStyles = makeStyles((theme: Theme) => ({
   header: {

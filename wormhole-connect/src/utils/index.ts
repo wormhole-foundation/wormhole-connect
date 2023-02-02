@@ -29,3 +29,45 @@ export function getTokenDecimals(tokenId: TokenId | 'native'): number {
   if (!tokenConfig) throw new Error('token config not found');
   return tokenConfig.decimals;
 }
+
+function fallbackCopyTextToClipboard(text: string) {
+  const textArea = document.createElement('textarea')
+  textArea.value = text
+
+  // Avoid scrolling to bottom
+  textArea.style.top = '0'
+  textArea.style.left = '0'
+  textArea.style.position = 'fixed'
+
+  document.body.appendChild(textArea)
+  textArea.focus()
+  textArea.select()
+
+  try {
+    const successful = document.execCommand('copy')
+    const msg = successful ? 'successful' : 'unsuccessful'
+    console.log('Fallback: Copying text command was ' + msg)
+    document.body.removeChild(textArea)
+    return true
+  } catch (err) {
+    console.error('Fallback: Oops, unable to copy', err)
+    document.body.removeChild(textArea)
+    return false
+  }
+}
+
+export function copyTextToClipboard(text: string) {
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(
+      function () {
+        console.log('Async: Copying to clipboard was successful!')
+        return true
+      },
+      function (err) {
+        console.error('Async: Could not copy text: ', err)
+        return fallbackCopyTextToClipboard(text)
+      }
+    )
+  }
+  return fallbackCopyTextToClipboard(text)
+}

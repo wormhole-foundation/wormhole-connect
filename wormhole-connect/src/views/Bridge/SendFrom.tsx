@@ -1,21 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import { makeStyles } from '@mui/styles';
-import NetworkTile from '../../components/NetworkTile';
-import { Theme } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
-import { setFromNetworksModal, setTokensModal } from '../../store/router';
+import { makeStyles } from '@mui/styles';
+import { BigNumber } from 'ethers';
+import { Theme } from '@mui/material';
 import { RootState } from '../../store';
-import { CHAINS, TOKENS } from '../../sdk/config';
-import InputContainer from '../../components/InputContainer';
-import InputTransparent from '../../components/InputTransparent';
-import ConnectWallet, { Wallet } from '../../components/ConnectWallet';
-import TokensModal from '../TokensModal';
+import { setFromNetworksModal, setTokensModal } from '../../store/router';
+import { Wallet } from '../../store/wallet';
+import { setAmount } from '../../store/transfer';
 import { joinClass } from '../../utils/style';
 import { toDecimals } from '../../utils/balance';
-import { setAmount } from '../../store/transfer';
-import TokenIcon from '../../icons/components/TokenIcons';
+import { CHAINS, TOKENS } from '../../sdk/config';
 import { getBalance } from '../../sdk/sdk';
-import { BigNumber } from 'ethers';
+import NetworkTile from '../../components/NetworkTile';
+import InputContainer from '../../components/InputContainer';
+import InputTransparent from '../../components/InputTransparent';
+import ConnectWallet from '../../components/ConnectWallet';
+import TokensModal from '../TokensModal';
+import TokenIcon from '../../icons/components/TokenIcons';
 
 const useStyles = makeStyles((theme: Theme) => ({
   header: {

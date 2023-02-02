@@ -7,6 +7,7 @@ import { RootState } from '../../store';
 import { useDispatch } from 'react-redux';
 import { setTxHash } from '../../store/transfer';
 import { setRoute } from '../../store/router';
+import { registerWalletSigner, Wallet } from '../../store/wallet';
 
 function Send(props: { valid: boolean }) {
   const dispatch = useDispatch();
@@ -17,6 +18,7 @@ function Send(props: { valid: boolean }) {
     (state: RootState) => state.wallet,
   );
   async function send() {
+    await registerWalletSigner(Wallet.SENDING);
     // TODO: better validation
     if (!amount) throw new Error('invalid input, specify an amount');
     if (!token) throw new Error('invalid input, specify an asset');
