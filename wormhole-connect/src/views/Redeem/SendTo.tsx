@@ -1,7 +1,10 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
+import { useTheme } from '@mui/material/styles';
 import { RootState } from '../../store';
 import { PaymentOption } from '../../store/transfer';
+import { registerWalletSigner, Wallet } from '../../store/wallet';
 import { ParsedVaa } from '../../utils/vaa';
 import { claimTransfer } from '../../sdk/sdk';
 import Header from './Header';
@@ -10,6 +13,7 @@ import Button from '../../components/Button';
 import Spacer from '../../components/Spacer';
 import { RenderRows } from '../../components/RenderRows';
 import InputContainer from '../../components/InputContainer';
+import { handleConnect } from '../../components/ConnectWallet';
 
 const rows = [
   {
@@ -23,6 +27,8 @@ const rows = [
 ];
 
 function SendTo() {
+  const dispatch = useDispatch();
+  const theme = useTheme();
   const vaa: ParsedVaa = useSelector((state: RootState) => state.redeem.vaa);
   const toNetwork = useSelector((state: RootState) => state.transfer.toNetwork);
   const destGasPayment = useSelector(
@@ -32,18 +38,28 @@ function SendTo() {
     (state: RootState) => state.wallet.receiving.address,
   );
   // const pending = vaa.guardianSignatures < REQUIRED_CONFIRMATIONS;
-  const claim = () => claimTransfer(toNetwork!, Buffer.from(vaa.bytes));
+  const claim = async () => {
+    await registerWalletSigner(Wallet.RECEIVING);
+    claimTransfer(toNetwork!, Buffer.from(vaa.bytes));
+  }
+  const connect = async () => {
+    handleConnect(dispatch, theme, Wallet.RECEIVING);
+  }
 
   return (
     <div>
       <InputContainer>
-        <Header network={toNetwork} address={toAddr!} txHash={vaa?.txHash} />
+        <Header network={toNetwork!} address={toAddr!} txHash={vaa?.txHash} />
         <RenderRows rows={rows} />
       </InputContainer>
       {destGasPayment === PaymentOption.MANUAL && (
         <>
           <Spacer height={8} />
-          <Button text="Claim" onClick={claim} action />
+          {toAddr ? (
+            <Button text="Claim" onClick={claim} action />
+          ) : (
+            <Button text="Connect wallet" onClick={connect} action />
+          )}
         </>
       )}
       {/* {pending && <Confirmations confirmations={vaa.guardianSignatures} />} */}

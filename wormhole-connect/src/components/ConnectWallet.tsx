@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Dispatch } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Theme, useTheme } from '@mui/material/styles';
 import { makeStyles } from '@mui/styles';
@@ -6,11 +6,11 @@ import { RootState } from '../store';
 import {
   connectReceivingWallet,
   connectWallet,
-  disconnectReceiving,
-  disconnectSending,
+  clearWallet,
   openWalletModal,
   disconnect,
   Wallet,
+  setCurrentAddress,
 } from '../store/wallet';
 import DownIcon from '../icons/components/Down';
 import WalletIcon from '../icons/components/Wallet';
@@ -19,6 +19,7 @@ import ActionIndicator from './Action';
 import WalletIcons from '../icons/components/WalletIcons';
 import PopupState, { bindTrigger, bindPopover } from 'material-ui-popup-state';
 import Popover from '@mui/material/Popover';
+import { AnyAction } from '@reduxjs/toolkit';
 
 const useStyles = makeStyles((theme: Theme) => ({
   row: {
@@ -77,6 +78,32 @@ const useStyles = makeStyles((theme: Theme) => ({
 type Props = {
   type: Wallet;
 };
+export const handleConnect = async (dispatch: Dispatch<AnyAction>, theme: Theme, type: Wallet) => {
+  const walletConnection = await openWalletModal(
+    theme,
+    type === Wallet.RECEIVING,
+  );
+  if (type === Wallet.SENDING) {
+    // add listeners
+    const { connection } = walletConnection;
+    connection.on('accountsChanged', async (accounts: string[]) => {
+      if (accounts.length === 0) {
+        await (disconnect(type));
+        clearWallet(type);
+      } else {
+        const payload = {
+          type,
+          address: accounts[0],
+        }
+        dispatch(setCurrentAddress(payload));
+      }
+    });
+
+    dispatch(connectWallet(walletConnection.address));
+  } else {
+    dispatch(connectReceivingWallet(walletConnection.address));
+  }
+};
 
 function ConnectWallet(props: Props) {
   const classes = useStyles();
@@ -86,28 +113,7 @@ function ConnectWallet(props: Props) {
 
   const connect = async (popupState?: any) => {
     if (popupState) popupState.close();
-    const walletConnection = await openWalletModal(
-      theme,
-      props.type === Wallet.RECEIVING,
-    );
-    if (props.type === Wallet.SENDING) {
-      // add listeners
-      const { connection } = walletConnection;
-      connection.on('accountsChanged', async (accounts: string[]) => {
-        if (accounts.length === 0) {
-          await (disconnect(props.type));
-          if (props.type === Wallet.SENDING) {
-            dispatch(disconnectSending());
-          } else {
-            dispatch(disconnectReceiving());
-          }
-        }
-      });
-
-      dispatch(connectWallet(walletConnection.address));
-    } else {
-      dispatch(connectReceivingWallet(walletConnection.address));
-    }
+    await handleConnect(dispatch, theme, props.type);
   };
 
   const copy = async (popupState: any) => {
@@ -117,11 +123,7 @@ function ConnectWallet(props: Props) {
 
   const disconnectWallet = async () => {
     await disconnect(props.type);
-    if (props.type === Wallet.SENDING) {
-      dispatch(disconnectSending());
-    } else {
-      dispatch(disconnectReceiving());
-    }
+    dispatch(clearWallet(Wallet.SENDING));
   }
 
   // const icon = getIcon(wallet.type);

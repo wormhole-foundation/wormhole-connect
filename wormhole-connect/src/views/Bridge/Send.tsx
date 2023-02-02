@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import Button from '../../components/Button';
 import { TOKENS } from '../../sdk/config';
@@ -8,6 +8,7 @@ import { useDispatch } from 'react-redux';
 import { setTxHash } from '../../store/transfer';
 import { setRoute } from '../../store/router';
 import { registerWalletSigner, Wallet } from '../../store/wallet';
+import { displayEvmAddress } from '../../utils';
 
 function Send(props: { valid: boolean }) {
   const dispatch = useDispatch();
@@ -17,6 +18,8 @@ function Send(props: { valid: boolean }) {
   const { sending, receiving } = useSelector(
     (state: RootState) => state.wallet,
   );
+  const [isConnected, setIsConnected] = useState(sending.currentAddress.toLowerCase() === sending.address.toLowerCase());
+
   async function send() {
     await registerWalletSigner(Wallet.SENDING);
     // TODO: better validation
@@ -40,12 +43,24 @@ function Send(props: { valid: boolean }) {
     dispatch(setTxHash(receipt.transactionHash));
     dispatch(setRoute('redeem'));
   }
-  return (
+
+  useEffect(() => {
+    setIsConnected(sending.currentAddress.toLowerCase() === sending.address.toLowerCase());
+  }, [sending])
+
+  return props.valid && isConnected ? (
+      <Button
+        onClick={send}
+        text="Approve and proceed with transaction"
+        action={props.valid}
+        disabled={!props.valid}
+        elevated
+      />
+    ) : (
     <Button
       onClick={send}
-      text="Approve and proceed with transaction"
-      action={props.valid}
-      disabled={!props.valid}
+      text={`Connect to ${displayEvmAddress(sending.address)}`}
+      disabled
       elevated
     />
   );

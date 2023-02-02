@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { CONFIG } from '@wormhole-foundation/wormhole-connect-sdk';
+import { CONFIG, ChainId } from '@wormhole-foundation/wormhole-connect-sdk';
 import Web3Modal from 'web3modal';
 import { providers } from 'ethers';
 import WalletConnectProvider from '@walletconnect/web3-provider';
@@ -105,11 +105,33 @@ export const registerWalletSigner = (wallet: Wallet) => {
   }
 }
 
+export const switchNetwork = (chainId: ChainId, type: Wallet) => {
+  const stringId = chainId.toString(16);
+  const hexChainId = '0x' + stringId;
+
+  const connection = type === Wallet.SENDING ? sendingWallet.connection : receivingWallet.connection;
+  if (!connection) throw new Error('must connect wallet');
+
+  // if wallet is already on correct chain, return
+  if (connection.chainId == stringId) return
+
+  // switch chains
+  try {
+    // TODO: show switch network prompt for non-metamask wallets
+    connection.request({
+      method: 'wallet_switchEthereumChain',
+      params: [{ chainId: hexChainId }],
+    })
+  } catch(e) {
+    console.error(e)
+  }
+}
+
 export const disconnect = async (type: string) => {
   if (type === Wallet.SENDING) {
-    await sendingWallet.modal.clearCachedProvider();
+    await sendingWallet.connection.clearCachedProvider();
   } else {
-    await receivingWallet.modal.clearCachedProvider();
+    await receivingWallet.connection.clearCachedProvider();
   }
 }
 
@@ -123,10 +145,12 @@ export interface WalletState {
   sending: {
     type: WalletType;
     address: string;
+    currentAddress: string;
   };
   receiving: {
     type: WalletType;
     address: string;
+    currentAddress: string;
   };
 }
 
@@ -134,10 +158,12 @@ const initialState: WalletState = {
   sending: {
     type: WalletType.NONE,
     address: '',
+    currentAddress: '',
   },
   receiving: {
     type: WalletType.NONE,
     address: '',
+    currentAddress: '',
   },
 };
 
@@ -156,17 +182,20 @@ export const walletSlice = createSlice({
       console.log('connect receiving wallet');
       state.receiving.address = payload;
     },
-    disconnectSending: (state: WalletState) => {
-      state.sending.address = '';
-      state.sending.type = WalletType.NONE;
+    clearWallet: (state: WalletState, { payload }: { payload: Wallet }) => {
+      const reset = {
+        address: '',
+        type: WalletType.NONE,
+        currentAddress: '',
+      }
+      state[payload] = reset;
     },
-    disconnectReceiving: (state: WalletState) => {
-      state.sending.address = '';
-      state.sending.type = WalletType.NONE;
-    }
+    setCurrentAddress: (state: WalletState, { payload }: { payload: { type: Wallet, address: string } }) => {
+      state[payload.type].currentAddress = payload.address;
+    },
   },
 });
 
-export const { connectWallet, connectReceivingWallet, disconnectSending, disconnectReceiving } = walletSlice.actions;
+export const { connectWallet, connectReceivingWallet, clearWallet, setCurrentAddress } = walletSlice.actions;
 
 export default walletSlice.reducer;
