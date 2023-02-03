@@ -27,7 +27,7 @@ export class EthContext<T extends WormholeContext> extends Context {
   async getForeignAsset(tokenId: TokenId, chain: ChainName | ChainId) {
     const tokenBridge = this.context.mustGetBridge(tokenId.chain);
     const chainId = this.context.resolveDomain(chain);
-    const tokenAddr = this.formatAddress(tokenId.address);
+    const tokenAddr = '0x' + this.formatAddress(tokenId.address);
     return await tokenBridge.wrappedAsset(chainId, tokenAddr);
   }
 

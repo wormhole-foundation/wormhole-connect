@@ -44,6 +44,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     coinGeckoId: 'ethereum',
     color: '#62688F',
     decimals: 18,
+    wrappedAsset: 'WETH',
   },
   WETH: {
     symbol: 'WETH',
@@ -76,6 +77,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     coinGeckoId: 'polygon',
     color: '#8247E5',
     decimals: 18,
+    wrappedAsset: 'WMATIC',
   },
   WMATIC: {
     symbol: 'WMATIC',
@@ -96,6 +98,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     coinGeckoId: 'bnb',
     color: '#F3BA30',
     decimals: 18,
+    wrappedAsset: 'WBNB',
   },
   WBNB: {
     symbol: 'WBNB',
@@ -116,6 +119,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     coinGeckoId: 'fuji',
     color: '#E84141',
     decimals: 18,
+    wrappedAsset: 'WAVAX',
   },
   WAVAX: {
     symbol: 'WAVAX',
@@ -136,6 +140,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     coinGeckoId: 'fantom',
     color: '#12B4EC',
     decimals: 18,
+    wrappedAsset: 'WFTM',
   },
   WFTM: {
     symbol: 'WFTM',

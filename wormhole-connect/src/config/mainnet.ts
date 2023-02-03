@@ -155,6 +155,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     coinGeckoId: 'polygon',
     color: '#8247E5',
     decimals: 18,
+    wrappedAsset: 'WMATIC',
   },
   WMATIC: {
     symbol: 'WMATIC',

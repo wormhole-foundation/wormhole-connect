@@ -53,6 +53,7 @@ function SendTo() {
       setInProgress(false);
     } catch(e) {
       setInProgress(false);
+      console.error(e)
     }
   }
   const connect = async () => {

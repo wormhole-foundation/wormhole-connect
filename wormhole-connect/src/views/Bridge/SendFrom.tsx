@@ -10,7 +10,7 @@ import { setAmount } from '../../store/transfer';
 import { joinClass } from '../../utils/style';
 import { toDecimals } from '../../utils/balance';
 import { CHAINS, TOKENS } from '../../sdk/config';
-import { getBalance } from '../../sdk/sdk';
+import { getBalance, getNativeBalance } from '../../sdk/sdk';
 import NetworkTile from '../../components/NetworkTile';
 import InputContainer from '../../components/InputContainer';
 import InputTransparent from '../../components/InputTransparent';
@@ -133,6 +133,11 @@ function SendFrom() {
           setBalance(b);
         },
       );
+    } else {
+      getNativeBalance(walletAddr, fromNetwork).then((res: BigNumber) => {
+        const b = toDecimals(res, tokenConfig.decimals, 6);
+        setBalance(b);
+      })
     }
   }, [tokenConfig, fromNetwork, walletAddr]);
 

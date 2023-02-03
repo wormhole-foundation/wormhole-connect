@@ -1,5 +1,4 @@
-import { ethers_contracts } from '@certusone/wormhole-sdk';
-import { BigNumber, ethers, utils } from 'ethers';
+import { BigNumber, utils } from 'ethers';
 
 // TODO: get balances
 // https://chainstack.com/the-ultimate-guide-to-getting-multiple-token-balances-on-ethereum/
@@ -49,19 +48,6 @@ import { BigNumber, ethers, utils } from 'ethers';
 //   console.log(tokenBalances);
 // };
 // main();
-
-export const getBalance = async (
-  address: string,
-  tokenAddr: string,
-  provider: ethers.providers.Provider,
-) => {
-  const token = ethers_contracts.TokenImplementation__factory.connect(
-    tokenAddr,
-    provider,
-  );
-  const balance = token.balanceOf(address);
-  return balance;
-};
 
 /**
  * Makes a BigNumber have # of decimals

@@ -1,5 +1,5 @@
-import { Network as Environment } from '@certusone/wormhole-sdk';
-import { utils } from 'ethers';
+import { ethers_contracts, Network as Environment } from '@certusone/wormhole-sdk';
+import { BigNumber, constants, utils } from 'ethers';
 import {
   WormholeContext,
   TokenId,
@@ -9,7 +9,6 @@ import {
 
 import { PaymentOption } from '../store/transfer';
 import { getTokenDecimals } from '../utils';
-import { getBalance as getBalanceUtil } from 'utils/balance';
 
 const { REACT_APP_ENV } = process.env;
 
@@ -23,10 +22,11 @@ export const registerSigner = (signer: any) => {
 export const getForeignAsset = async (
   tokenId: TokenId,
   chain: ChainName | ChainId,
-) => {
+): Promise<string> => {
   const chainName = context.resolveDomainName(chain);
-  if (tokenId.chain === chainName) return tokenId.address;
   const ethContext: any = context.getContext(tokenId.chain);
+  if (tokenId.chain === chainName) return tokenId.address;
+  console.log('get foreign asset');
   return await ethContext.getForeignAsset(tokenId, chain);
 };
 
@@ -34,11 +34,25 @@ export const getBalance = async (
   walletAddr: string,
   tokenId: TokenId,
   chain: ChainName | ChainId,
-) => {
+): Promise<BigNumber> => {
   const address = await getForeignAsset(tokenId, chain);
+  if (address === constants.AddressZero) return BigNumber.from(0);
   const provider = context.mustGetProvider(tokenId.chain);
-  return await getBalanceUtil(walletAddr, address, provider);
+  const token = ethers_contracts.TokenImplementation__factory.connect(
+    address,
+    provider,
+  );
+  const balance = await token.balanceOf(walletAddr);
+  return balance;
 };
+
+export const getNativeBalance = async (
+  walletAddr: string,
+  chain: ChainName | ChainId,
+): Promise<BigNumber> => {
+  const provider = context.mustGetProvider(chain);
+  return await provider.getBalance(walletAddr);
+}
 
 // export const getTxDetails(chain: ChainName | ChainId, txHash: string) {
 //   // TODO: get tx details by transaction receipt

@@ -110,6 +110,16 @@ function SendTo() {
           setBalance(b);
         },
       );
+    } else if (tokenConfig.wrappedAsset) {
+      const wrappedConfig = TOKENS[tokenConfig.wrappedAsset];
+      if (wrappedConfig && wrappedConfig.tokenId) {
+        getBalance(walletAddr, wrappedConfig.tokenId, toNetwork).then(
+          (res: BigNumber) => {
+            const b = toDecimals(res, tokenConfig.decimals, 6);
+            setBalance(b);
+          },
+        );
+      }
     }
   }, [tokenConfig, toNetwork, walletAddr]);
 

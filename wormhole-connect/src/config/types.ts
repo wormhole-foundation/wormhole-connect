@@ -12,6 +12,7 @@ export type TokenConfig = {
   coinGeckoId: string;
   color: string;
   decimals: number;
+  wrappedAsset?: string;
 };
 
 export interface NetworkConfig extends ChainConfig {
