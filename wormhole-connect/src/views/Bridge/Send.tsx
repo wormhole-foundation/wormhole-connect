@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { TOKENS } from '../../sdk/config';
+import { CHAINS, TOKENS } from '../../sdk/config';
 import { sendTransfer } from '../../sdk/sdk';
 import { RootState } from '../../store';
 import { useDispatch } from 'react-redux';
 import { setTxHash } from '../../store/transfer';
 import { setRoute } from '../../store/router';
-import { registerWalletSigner, Wallet } from '../../utils/wallet';
+import { registerWalletSigner, switchNetwork, Wallet } from '../../utils/wallet';
 import { displayEvmAddress } from '../../utils';
 import Button from '../../components/Button';
 import CircularProgress from '@mui/material/CircularProgress';
+import { ChainId } from '@wormhole-foundation/wormhole-connect-sdk';
 
 function Send(props: { valid: boolean }) {
   const dispatch = useDispatch();
@@ -25,7 +26,9 @@ function Send(props: { valid: boolean }) {
   async function send() {
     setInProgress(true);
     try {
-      await registerWalletSigner(Wallet.SENDING);
+      registerWalletSigner(fromNetwork!, Wallet.SENDING);
+      const { chainId } = CHAINS[fromNetwork!]!;
+      await switchNetwork(chainId as ChainId, Wallet.SENDING);
       // TODO: better validation
       if (!amount) throw new Error('invalid input, specify an amount');
       if (!token) throw new Error('invalid input, specify an asset');

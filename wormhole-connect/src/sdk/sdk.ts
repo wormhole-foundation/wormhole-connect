@@ -14,9 +14,9 @@ const { REACT_APP_ENV } = process.env;
 
 export const context = new WormholeContext(REACT_APP_ENV! as Environment);
 
-export const registerSigner = (signer: any) => {
-  console.log('registering signer', signer);
-  context.registerSigner('goerli', signer);
+export const registerSigner = (chain: ChainName | ChainId, signer: any) => {
+  console.log(`registering signer for ${chain}:`, signer);
+  context.registerSigner(chain, signer);
 };
 
 export const getForeignAsset = async (
@@ -141,5 +141,5 @@ export const claimTransfer = async (
   vaa: Uint8Array,
 ) => {
   const EthContext: any = context.getContext(destChain);
-  return EthContext.redeem(destChain, vaa);
+  return EthContext.redeem(destChain, vaa, { gasLimit: 250000 });
 };

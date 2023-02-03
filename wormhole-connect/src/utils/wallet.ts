@@ -1,8 +1,9 @@
-import { CONFIG, ChainId } from '@wormhole-foundation/wormhole-connect-sdk';
+import { CONFIG, ChainId, ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import Web3Modal from 'web3modal';
 import { providers } from 'ethers';
 import WalletConnectProvider from '@walletconnect/web3-provider';
 import { registerSigner } from '../sdk/sdk';
+import { getNetworkByChainId } from 'utils';
 const { REACT_APP_ENV, REACT_APP_INFURA_KEY } = process.env;
 
 export enum Wallet {
@@ -82,29 +83,29 @@ export const openWalletModal = async (
   console.log('connection', connection);
   console.log('signer', signer);
 
-  if (!isReceiving) {
-    sendingWallet.connection = connection;
-    sendingWallet.modal = web3Modal;
+  if (isReceiving) {
+    receivingWallet.connection = connection;
+    receivingWallet.modal = web3Modal;
   } else {
-    receivingWallet.modal = connection;
+    sendingWallet.modal = connection;
     sendingWallet.modal = web3Modal;
   }
   return { connection, address, signer };
 }
 
-export const registerWalletSigner = (wallet: Wallet) => {
+export const registerWalletSigner = (chain: ChainName | ChainId, wallet: Wallet) => {
   if (wallet === Wallet.SENDING) {
     const provider = new providers.Web3Provider(sendingWallet.connection, 'any');
     const signer = provider.getSigner();
-    registerSigner(signer);
+    registerSigner(chain, signer);
   } else {
     const provider = new providers.Web3Provider(receivingWallet.connection, 'any');
     const signer = provider.getSigner();
-    registerSigner(signer);
+    registerSigner(chain, signer);
   }
 }
 
-export const switchNetwork = (chainId: ChainId, type: Wallet) => {
+export const switchNetwork = async (chainId: ChainId, type: Wallet) => {
   const stringId = chainId.toString(16);
   const hexChainId = '0x' + stringId;
 
@@ -115,15 +116,26 @@ export const switchNetwork = (chainId: ChainId, type: Wallet) => {
   if (connection.chainId == stringId) return
 
   // switch chains
-  try {
-    // TODO: show switch network prompt for non-metamask wallets
-    connection.request({
-      method: 'wallet_switchEthereumChain',
-      params: [{ chainId: hexChainId }],
-    })
-  } catch(e) {
+  // TODO: show switch network prompt for non-metamask wallets
+  connection.request({
+    method: 'wallet_switchEthereumChain',
+    params: [{ chainId: hexChainId }],
+  }).catch(async (e: any) => {
+    const network = getNetworkByChainId(chainId);
+    if (!network) return;
+    const env = REACT_APP_ENV! as 'MAINNET' | 'TESTNET';
+    await connection.request({
+      method: 'wallet_addEthereumChain',
+      params: [
+        {
+          chainId: hexChainId,
+          chainName: network.key,
+          rpcUrls: [CONFIG[env].rpcs[network.key]],
+        },
+      ],
+    });
     console.error(e)
-  }
+  });
 }
 
 export const disconnect = async (type: string) => {

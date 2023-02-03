@@ -98,10 +98,10 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
       relayer: '0xe0cdc52c477028bc293a21ef172a9a8b763d2113',
     },
     displayName: 'Alfajores',
-    explorerUrl: 'https://explorer.celo.org/alfajores',
+    explorerUrl: 'https://explorer.celo.org/alfajores/',
     explorerName: 'Celo Explorer',
     gasToken: 'CELO',
-    chainId: 42220,
+    chainId: 44787,
   },
 };
 

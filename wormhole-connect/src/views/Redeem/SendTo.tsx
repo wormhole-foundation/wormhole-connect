@@ -4,7 +4,7 @@ import { useDispatch } from 'react-redux';
 import { useTheme } from '@mui/material/styles';
 import { RootState } from '../../store';
 import { PaymentOption } from '../../store/transfer';
-import { registerWalletSigner, Wallet } from '../../utils/wallet';
+import { openWalletModal, registerWalletSigner, switchNetwork, Wallet } from '../../utils/wallet';
 import { ParsedVaa } from '../../utils/vaa';
 import { claimTransfer } from '../../sdk/sdk';
 import Header from './Header';
@@ -16,6 +16,8 @@ import InputContainer from '../../components/InputContainer';
 import { handleConnect } from '../../components/ConnectWallet';
 import CircularProgress from '@mui/material/CircularProgress';
 import { displayEvmAddress } from '../../utils';
+import { CHAINS } from '../../sdk/config';
+import { ChainId } from '@wormhole-foundation/wormhole-connect-sdk';
 
 const rows = [
   {
@@ -47,8 +49,12 @@ function SendTo() {
   // const pending = vaa.guardianSignatures < REQUIRED_CONFIRMATIONS;
   const claim = async () => {
     setInProgress(true);
+    const { chainId } = CHAINS[toNetwork!]!;
     try {
-      registerWalletSigner(Wallet.RECEIVING);
+      // TODO: remove this line
+      await openWalletModal(theme, true);
+      registerWalletSigner(toNetwork!, Wallet.RECEIVING);
+      await switchNetwork(chainId as ChainId, Wallet.RECEIVING);
       claimTransfer(toNetwork!, Buffer.from(vaa.bytes));
       setInProgress(false);
     } catch(e) {
