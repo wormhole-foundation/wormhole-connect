@@ -41,6 +41,11 @@ type Props = {
 
 function Button(props: Props) {
   const { classes } = useStyles();
+  const click = (e) => {
+    if (props.onClick && !props.disabled) {
+      props.onClick(e);
+    }
+  }
   return (
     <div
       className={joinClass([
@@ -49,7 +54,7 @@ function Button(props: Props) {
         !!props.action && classes.action,
         !!props.disabled && classes.disabled,
       ])}
-      onClick={props.onClick}
+      onClick={click}
     >
       {props.children}
     </div>

@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
 import { useTheme } from '@mui/material/styles';
 import { RootState } from '../../store';
 import { PaymentOption } from '../../store/transfer';
-import { registerWalletSigner, Wallet } from '../../store/wallet';
+import { registerWalletSigner, Wallet } from '../../utils/wallet';
 import { ParsedVaa } from '../../utils/vaa';
 import { claimTransfer } from '../../sdk/sdk';
 import Header from './Header';
@@ -14,6 +14,8 @@ import Spacer from '../../components/Spacer';
 import { RenderRows } from '../../components/RenderRows';
 import InputContainer from '../../components/InputContainer';
 import { handleConnect } from '../../components/ConnectWallet';
+import CircularProgress from '@mui/material/CircularProgress';
+import { displayEvmAddress } from '../../utils';
 
 const rows = [
   {
@@ -37,14 +39,29 @@ function SendTo() {
   const toAddr = useSelector(
     (state: RootState) => state.wallet.receiving.address,
   );
+  const receiving = useSelector(
+    (state: RootState) => state.wallet.receiving,
+  )
+  const [inProgress, setInProgress] = useState(false);
+  const [isConnected, setIsConnected] = useState(receiving.currentAddress.toLowerCase() === receiving.address.toLowerCase());
   // const pending = vaa.guardianSignatures < REQUIRED_CONFIRMATIONS;
   const claim = async () => {
-    await registerWalletSigner(Wallet.RECEIVING);
-    claimTransfer(toNetwork!, Buffer.from(vaa.bytes));
+    setInProgress(true);
+    try {
+      registerWalletSigner(Wallet.RECEIVING);
+      claimTransfer(toNetwork!, Buffer.from(vaa.bytes));
+      setInProgress(false);
+    } catch(e) {
+      setInProgress(false);
+    }
   }
   const connect = async () => {
     handleConnect(dispatch, theme, Wallet.RECEIVING);
   }
+
+  useEffect(() => {
+    setIsConnected(receiving.currentAddress.toLowerCase() === receiving.address.toLowerCase());
+  }, [receiving])
 
   return (
     <div>
@@ -55,10 +72,14 @@ function SendTo() {
       {destGasPayment === PaymentOption.MANUAL && (
         <>
           <Spacer height={8} />
-          {toAddr ? (
-            <Button text="Claim" onClick={claim} action />
+          {toAddr ? isConnected ? (
+            <Button onClick={claim} action disabled={inProgress}>
+              {inProgress ? <CircularProgress size={18} /> : 'Claim'}
+            </Button>
           ) : (
-            <Button text="Connect wallet" onClick={connect} action />
+            <Button disabled elevated>Connect to {displayEvmAddress(receiving.address)}</Button>
+          ) : (
+            <Button onClick={connect} action>Connect wallet</Button>
           )}
         </>
       )}

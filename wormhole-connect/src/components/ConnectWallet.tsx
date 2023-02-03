@@ -7,11 +7,13 @@ import {
   connectReceivingWallet,
   connectWallet,
   clearWallet,
+  setCurrentAddress,
+} from '../store/wallet';
+import {
   openWalletModal,
   disconnect,
   Wallet,
-  setCurrentAddress,
-} from '../store/wallet';
+} from '../utils/wallet';
 import DownIcon from '../icons/components/Down';
 import WalletIcon from '../icons/components/Wallet';
 import { copyTextToClipboard, displayEvmAddress } from '../utils';

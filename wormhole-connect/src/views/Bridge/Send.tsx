@@ -6,20 +6,20 @@ import { RootState } from '../../store';
 import { useDispatch } from 'react-redux';
 import { setTxHash } from '../../store/transfer';
 import { setRoute } from '../../store/router';
-import { registerWalletSigner, Wallet } from '../../store/wallet';
+import { registerWalletSigner, Wallet } from '../../utils/wallet';
 import { displayEvmAddress } from '../../utils';
 import Button from '../../components/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 
 function Send(props: { valid: boolean }) {
   const dispatch = useDispatch();
-  const [inProgress, setInProgress] = useState(false);
   const { fromNetwork, toNetwork, token, amount, destGasPayment } = useSelector(
     (state: RootState) => state.transfer,
   );
   const { sending, receiving } = useSelector(
     (state: RootState) => state.wallet,
   );
+  const [inProgress, setInProgress] = useState(false);
   const [isConnected, setIsConnected] = useState(sending.currentAddress.toLowerCase() === sending.address.toLowerCase());
 
   async function send() {
@@ -59,7 +59,6 @@ function Send(props: { valid: boolean }) {
 
   return props.valid && !isConnected ? (
       <Button
-        onClick={send}
         disabled
         elevated
       >

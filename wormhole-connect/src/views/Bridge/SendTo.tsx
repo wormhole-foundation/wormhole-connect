@@ -5,7 +5,7 @@ import { makeStyles } from '@mui/styles';
 import { Theme } from '@mui/material';
 import { RootState } from '../../store';
 import { setToNetworksModal } from '../../store/router';
-import { Wallet } from '../../store/wallet';
+import { Wallet } from '../../utils/wallet';
 import { CHAINS, TOKENS } from '../../sdk/config';
 import { getBalance } from '../../sdk/sdk';
 import { joinClass, OPACITY } from '../../utils/style';

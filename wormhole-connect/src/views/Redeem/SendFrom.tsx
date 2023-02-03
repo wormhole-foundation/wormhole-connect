@@ -35,7 +35,7 @@ function SendFrom() {
     <div>
       <InputContainer>
         <Header
-          network={fromNetwork}
+          network={fromNetwork!}
           address={fromAddr!}
           txHash={vaa?.txHash}
         />
