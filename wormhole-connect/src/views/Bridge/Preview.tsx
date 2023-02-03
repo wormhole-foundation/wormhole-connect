@@ -5,19 +5,20 @@ import { PaymentOption } from '../../store/transfer';
 import { RenderRows, RowsData } from '../../components/RenderRows';
 import InputContainer from '../../components/InputContainer';
 import BridgeCollapse from './Collapse';
-import { CHAINS } from '../../sdk/config';
+import { CHAINS, TOKENS } from '../../sdk/config';
 
 const getRows = (
   token: string,
   gasToken: string,
   payment: PaymentOption,
+  receivingToken?: string,
 ): RowsData => {
   // TODO: get amount
   if (payment === PaymentOption.AUTOMATIC) {
     return [
       {
         title: 'Amount',
-        value: `20.35 ${token}`,
+        value: `20.35 ${receivingToken || token}`,
       },
       {
         title: 'Native token on destination',
@@ -46,7 +47,7 @@ const getRows = (
   return [
     {
       title: 'Amount',
-      value: `20.45 ${token}`,
+      value: `20.45 ${receivingToken || token}`,
     },
     {
       title: 'Total fee estimates',
@@ -72,8 +73,9 @@ function Preview(props: { collapsed: boolean }) {
   );
   useEffect(() => {
     const destConfig = toNetwork && CHAINS[toNetwork];
-    if (token && destConfig) {
-      const rows = getRows(token, destConfig!.nativeToken, destGasPayment);
+    const tokenConfig = token && TOKENS[token];
+    if (tokenConfig && destConfig) {
+      const rows = getRows(token, destConfig!.nativeToken, destGasPayment, tokenConfig.wrappedAsset);
       setState({ rows });
     }
   }, [token, toNetwork, destGasPayment]);

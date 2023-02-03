@@ -144,7 +144,7 @@ function SendTo() {
               {tokenConfig ? (
                 <div className={classes.tokenSelect}>
                   <TokenIcon name={tokenConfig.icon} height={24} />
-                  {tokenConfig.symbol}
+                  {tokenConfig.wrappedAsset || tokenConfig.symbol}
                 </div>
               ) : (
                 <div className={classes.tokenSelect}>
