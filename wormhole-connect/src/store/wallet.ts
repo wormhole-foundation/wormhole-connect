@@ -129,9 +129,9 @@ export const switchNetwork = (chainId: ChainId, type: Wallet) => {
 
 export const disconnect = async (type: string) => {
   if (type === Wallet.SENDING) {
-    await sendingWallet.connection.clearCachedProvider();
+    await sendingWallet.modal.clearCachedProvider();
   } else {
-    await receivingWallet.connection.clearCachedProvider();
+    await receivingWallet.modal.clearCachedProvider();
   }
 }
 

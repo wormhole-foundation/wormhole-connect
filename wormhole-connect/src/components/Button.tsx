@@ -32,10 +32,10 @@ const useStyles = makeStyles()((theme) => ({
 }));
 
 type Props = {
-  text?: string;
   action?: boolean;
   elevated?: boolean;
   disabled?: boolean;
+  children: React.ReactNode;
   onClick?: React.MouseEventHandler<HTMLDivElement>;
 };
 
@@ -51,7 +51,7 @@ function Button(props: Props) {
       ])}
       onClick={props.onClick}
     >
-      {props.text}
+      {props.children}
     </div>
   );
 }

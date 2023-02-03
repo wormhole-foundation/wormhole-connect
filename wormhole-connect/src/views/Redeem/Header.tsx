@@ -1,13 +1,13 @@
 import React from 'react';
 import { makeStyles } from 'tss-react/mui';
-import CircularProgress from '@mui/material/CircularProgress';
-import { CHAINS } from '../../sdk/config';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
-import WalletIcon from '../../icons/components/Wallet';
-import { LINK } from '../../utils/style';
-import LaunchIcon from '@mui/icons-material/Launch';
+import { CHAINS } from '../../sdk/config';
 import { displayEvmAddress } from '../../utils';
+import { LINK } from '../../utils/style';
+import WalletIcon from '../../icons/components/Wallet';
 import TokenIcon from '../../icons/components/TokenIcons';
+import CircularProgress from '@mui/material/CircularProgress';
+import LaunchIcon from '@mui/icons-material/Launch';
 
 const useStyles = makeStyles()((theme) => ({
   header: {
@@ -49,7 +49,7 @@ function Header(props: Props) {
   return (
     <div className={classes.header}>
       <div className={classes.left}>
-        <TokenIcon name={networkConfig.icon} height={32} />
+        <TokenIcon name={networkConfig.icon!} height={32} />
         <div>{displayEvmAddress(props.address)}</div>
         <WalletIcon />
       </div>
