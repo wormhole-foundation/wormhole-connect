@@ -141,5 +141,5 @@ export const claimTransfer = async (
   vaa: Uint8Array,
 ) => {
   const EthContext: any = context.getContext(destChain);
-  return EthContext.redeem(destChain, vaa, { gasLimit: 250000 });
+  return await EthContext.redeem(destChain, vaa, { gasLimit: 250000 });
 };

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
+import { utils } from 'ethers';
 import { useTheme } from '@mui/material/styles';
 import { RootState } from '../../store';
 import { PaymentOption } from '../../store/transfer';
@@ -55,7 +56,7 @@ function SendTo() {
       await openWalletModal(theme, true);
       registerWalletSigner(toNetwork!, Wallet.RECEIVING);
       await switchNetwork(chainId as ChainId, Wallet.RECEIVING);
-      claimTransfer(toNetwork!, Buffer.from(vaa.bytes));
+      await claimTransfer(toNetwork!, utils.arrayify(vaa.bytes));
       setInProgress(false);
     } catch(e) {
       setInProgress(false);
