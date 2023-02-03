@@ -1,5 +1,5 @@
 import { ethers_contracts, Network as Environment } from '@certusone/wormhole-sdk';
-import { BigNumber, constants, utils } from 'ethers';
+import { BigNumber, constants, utils, ContractReceipt } from 'ethers';
 import {
   WormholeContext,
   TokenId,
@@ -139,7 +139,7 @@ export const sendTransfer = async (
 export const claimTransfer = async (
   destChain: ChainName | ChainId,
   vaa: Uint8Array,
-) => {
+): Promise<ContractReceipt> => {
   const EthContext: any = context.getContext(destChain);
   return await EthContext.redeem(destChain, vaa, { gasLimit: 250000 });
 };

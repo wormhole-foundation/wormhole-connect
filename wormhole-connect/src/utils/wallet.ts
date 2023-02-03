@@ -4,6 +4,7 @@ import { providers } from 'ethers';
 import WalletConnectProvider from '@walletconnect/web3-provider';
 import { registerSigner } from '../sdk/sdk';
 import { getNetworkByChainId } from 'utils';
+import { TOKENS } from 'sdk/config';
 const { REACT_APP_ENV, REACT_APP_INFURA_KEY } = process.env;
 
 export enum Wallet {
@@ -87,7 +88,7 @@ export const openWalletModal = async (
     receivingWallet.connection = connection;
     receivingWallet.modal = web3Modal;
   } else {
-    sendingWallet.modal = connection;
+    sendingWallet.connection = connection;
     sendingWallet.modal = web3Modal;
   }
   return { connection, address, signer };
@@ -105,7 +106,7 @@ export const registerWalletSigner = (chain: ChainName | ChainId, wallet: Wallet)
   }
 }
 
-export const switchNetwork = async (chainId: ChainId, type: Wallet) => {
+export const switchNetwork = async (chainId: number, type: Wallet) => {
   const stringId = chainId.toString(16);
   const hexChainId = '0x' + stringId;
 
@@ -120,20 +121,29 @@ export const switchNetwork = async (chainId: ChainId, type: Wallet) => {
   connection.request({
     method: 'wallet_switchEthereumChain',
     params: [{ chainId: hexChainId }],
-  }).catch(async (e: any) => {
+  }).then((res: any) => console.log(res)).catch(async (e: any) => {
     const network = getNetworkByChainId(chainId);
     if (!network) return;
+    const token = TOKENS[network.gasToken];
+    const nativeCurrency = token && {
+      name: token.symbol,
+      symbol: token.symbol,
+      decimals: token.decimals,
+    }
     const env = REACT_APP_ENV! as 'MAINNET' | 'TESTNET';
+    const rpc = CONFIG[env].rpcs[network.key];
     await connection.request({
       method: 'wallet_addEthereumChain',
       params: [
         {
           chainId: hexChainId,
           chainName: network.key,
-          rpcUrls: [CONFIG[env].rpcs[network.key]],
+          rpcUrls: [rpc],
+          nativeCurrency,
         },
       ],
     });
+    console.log(4444)
     console.error(e)
   });
 }

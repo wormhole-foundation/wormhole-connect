@@ -10,7 +10,6 @@ import { registerWalletSigner, switchNetwork, Wallet } from '../../utils/wallet'
 import { displayEvmAddress } from '../../utils';
 import Button from '../../components/Button';
 import CircularProgress from '@mui/material/CircularProgress';
-import { ChainId } from '@wormhole-foundation/wormhole-connect-sdk';
 
 function Send(props: { valid: boolean }) {
   const dispatch = useDispatch();
@@ -28,7 +27,7 @@ function Send(props: { valid: boolean }) {
     try {
       registerWalletSigner(fromNetwork!, Wallet.SENDING);
       const { chainId } = CHAINS[fromNetwork!]!;
-      await switchNetwork(chainId as ChainId, Wallet.SENDING);
+      await switchNetwork(chainId, Wallet.SENDING);
       // TODO: better validation
       if (!amount) throw new Error('invalid input, specify an amount');
       if (!token) throw new Error('invalid input, specify an asset');

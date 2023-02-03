@@ -12,6 +12,7 @@ export interface TransferState {
   amount: number | undefined;
   destGasPayment: PaymentOption;
   txHash: string;
+  redeemTx: string;
 }
 
 const initialState: TransferState = {
@@ -22,6 +23,7 @@ const initialState: TransferState = {
   // TODO: check if automatic is available once networks and token are selected
   destGasPayment: PaymentOption.AUTOMATIC,
   txHash: '',
+  redeemTx: '',
 };
 
 export const transferSlice = createSlice({
@@ -61,6 +63,10 @@ export const transferSlice = createSlice({
       console.log('set tx hash:', payload);
       state.txHash = payload;
     },
+    setRedeemTx: (state: TransferState, { payload }) => {
+      console.log('set redeem tx:', payload);
+      state.redeemTx = payload;
+    }
   },
 });
 
@@ -71,6 +77,7 @@ export const {
   setDestGasPayment,
   setAmount,
   setTxHash,
+  setRedeemTx,
 } = transferSlice.actions;
 
 export default transferSlice.reducer;

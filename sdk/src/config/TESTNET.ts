@@ -45,7 +45,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     explorerUrl: 'https://mumbai.polygonscan.com/',
     explorerName: 'Polygonscan',
     gasToken: 'MATIC',
-    chainId: 0,
+    chainId: 80001,
   },
   bsc: {
     key: 'bsc',

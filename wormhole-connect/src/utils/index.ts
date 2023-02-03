@@ -17,16 +17,11 @@ export function displayEvmAddress(address: string): string {
 }
 
 export function getNetworkByChainId(chainId: number): ChainConfig | void {
-  CHAINS_ARR.forEach((c) => {
-    if (chainId === c.chainId) return c;
-  })
+  return CHAINS_ARR.filter((c) => chainId === c.chainId)[0]
 }
 
 export function getTokenById(tokenId: TokenId): TokenConfig | void {
-  TOKENS_ARR.forEach((t) => {
-    if (!t.tokenId) return;
-    if (tokenId.address === t.tokenId!.address) return t;
-  });
+  return TOKENS_ARR.filter((t) => t.tokenId && tokenId.address === t.tokenId!.address)[0];
 }
 
 export function getTokenDecimals(tokenId: TokenId | 'native'): number {

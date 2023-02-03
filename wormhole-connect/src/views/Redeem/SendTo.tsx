@@ -4,7 +4,7 @@ import { useDispatch } from 'react-redux';
 import { utils } from 'ethers';
 import { useTheme } from '@mui/material/styles';
 import { RootState } from '../../store';
-import { PaymentOption } from '../../store/transfer';
+import { PaymentOption, setRedeemTx } from '../../store/transfer';
 import { openWalletModal, registerWalletSigner, switchNetwork, Wallet } from '../../utils/wallet';
 import { ParsedVaa } from '../../utils/vaa';
 import { claimTransfer } from '../../sdk/sdk';
@@ -18,7 +18,6 @@ import { handleConnect } from '../../components/ConnectWallet';
 import CircularProgress from '@mui/material/CircularProgress';
 import { displayEvmAddress } from '../../utils';
 import { CHAINS } from '../../sdk/config';
-import { ChainId } from '@wormhole-foundation/wormhole-connect-sdk';
 
 const rows = [
   {
@@ -45,6 +44,9 @@ function SendTo() {
   const receiving = useSelector(
     (state: RootState) => state.wallet.receiving,
   )
+  const redeemTx = useSelector(
+    (state: RootState) => state.transfer.redeemTx,
+  )
   const [inProgress, setInProgress] = useState(false);
   const [isConnected, setIsConnected] = useState(receiving.currentAddress.toLowerCase() === receiving.address.toLowerCase());
   // const pending = vaa.guardianSignatures < REQUIRED_CONFIRMATIONS;
@@ -55,8 +57,9 @@ function SendTo() {
       // TODO: remove this line
       await openWalletModal(theme, true);
       registerWalletSigner(toNetwork!, Wallet.RECEIVING);
-      await switchNetwork(chainId as ChainId, Wallet.RECEIVING);
-      await claimTransfer(toNetwork!, utils.arrayify(vaa.bytes));
+      await switchNetwork(chainId, Wallet.RECEIVING);
+      const receipt = await claimTransfer(toNetwork!, utils.arrayify(vaa.bytes));
+      dispatch(setRedeemTx(receipt.transactionHash));
       setInProgress(false);
     } catch(e) {
       setInProgress(false);
@@ -74,7 +77,7 @@ function SendTo() {
   return (
     <div>
       <InputContainer>
-        <Header network={toNetwork!} address={toAddr!} txHash={vaa?.txHash} />
+        <Header network={toNetwork!} address={toAddr!} txHash={redeemTx} />
         <RenderRows rows={rows} />
       </InputContainer>
       {destGasPayment === PaymentOption.MANUAL && (
