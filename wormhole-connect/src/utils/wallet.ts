@@ -118,7 +118,7 @@ export const switchNetwork = async (chainId: number, type: Wallet) => {
 
   // switch chains
   // TODO: show switch network prompt for non-metamask wallets
-  connection.request({
+  await connection.request({
     method: 'wallet_switchEthereumChain',
     params: [{ chainId: hexChainId }],
   }).then((res: any) => console.log(res)).catch(async (e: any) => {
@@ -143,7 +143,6 @@ export const switchNetwork = async (chainId: number, type: Wallet) => {
         },
       ],
     });
-    console.log(4444)
     console.error(e)
   });
 }

@@ -1,4 +1,5 @@
 import { BigNumber, utils } from 'ethers';
+import { TOKENS } from 'sdk/config';
 
 // TODO: get balances
 // https://chainstack.com/the-ultimate-guide-to-getting-multiple-token-balances-on-ethereum/
@@ -73,4 +74,27 @@ export function toFixedDecimals(number: string, numDecimals: number) {
 
   const end = index + (numDecimals || 18) + 1;
   return number.slice(0, end);
+}
+
+export async function getUsdVal(token: string) {
+  const tokenConfig = TOKENS[token];
+  if (!tokenConfig) throw new Error(`invalid token: ${token}`);
+  const { coinGeckoId } = tokenConfig;
+  const res = await fetch(
+    `https://api.coingecko.com/api/v3/simple/price?ids=${coinGeckoId}&vs_currencies=usd`
+  );
+  const data = (await res.json());
+  if (data[coinGeckoId]) {
+    const { usd } = data[coinGeckoId]
+    return usd
+  }
+}
+
+export async function getConversion(
+  token1: string,
+  token2: string
+) {
+  const token1Val = await getUsdVal(token1);
+  const token2Val = await getUsdVal(token2);
+  return token1Val / token2Val
 }

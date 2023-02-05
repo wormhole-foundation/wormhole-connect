@@ -26,7 +26,6 @@ export const getForeignAsset = async (
   const chainName = context.resolveDomainName(chain);
   const ethContext: any = context.getContext(tokenId.chain);
   if (tokenId.chain === chainName) return tokenId.address;
-  console.log('get foreign asset');
   return await ethContext.getForeignAsset(tokenId, chain);
 };
 
