@@ -13,7 +13,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 
 function Send(props: { valid: boolean }) {
   const dispatch = useDispatch();
-  const { fromNetwork, toNetwork, token, amount, destGasPayment } = useSelector(
+  const { fromNetwork, toNetwork, token, amount, destGasPayment, toNativeToken } = useSelector(
     (state: RootState) => state.transfer,
   );
   const { sending, receiving } = useSelector(
@@ -43,7 +43,7 @@ function Send(props: { valid: boolean }) {
         toNetwork!,
         receiving.address,
         destGasPayment,
-        '0',
+        `${toNativeToken}`,
       );
       console.log('sent', receipt);
       dispatch(setTxHash(receipt.transactionHash));

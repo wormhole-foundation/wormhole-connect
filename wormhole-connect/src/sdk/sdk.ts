@@ -37,7 +37,7 @@ export const getBalance = async (
 ): Promise<BigNumber> => {
   const address = await getForeignAsset(tokenId, chain);
   if (address === constants.AddressZero) return BigNumber.from(0);
-  const provider = context.mustGetProvider(tokenId.chain);
+  const provider = context.mustGetProvider(chain);
   const token = ethers_contracts.TokenImplementation__factory.connect(
     address,
     provider,
@@ -108,7 +108,6 @@ export const sendTransfer = async (
   const decimals = getTokenDecimals(token);
   const parsedAmt = utils.parseUnits(amount, decimals);
   // const parsedNativeAmt = utils.parseUnits(toNativeToken || '0', decimals);
-  const parsedNativeAmt = utils.parseUnits('0.001', decimals);
   if (paymentOption === PaymentOption.MANUAL) {
     console.log('send with manual');
     const receipt = await context.send(
@@ -123,6 +122,7 @@ export const sendTransfer = async (
     return receipt;
   } else {
     console.log('send with relay');
+    const parsedNativeAmt = toNativeToken ? utils.parseUnits(toNativeToken, decimals).toString() : '0';
     const receipt = await context.sendWithRelay(
       token,
       parsedAmt.toString(),
@@ -130,11 +130,16 @@ export const sendTransfer = async (
       fromAddress,
       toNetwork,
       toAddress,
-      parsedNativeAmt.toString(),
+      parsedNativeAmt,
     );
     return receipt;
   }
 };
+
+export const calculateMaxSwapAmount = async (destChain: ChainName | ChainId, token: TokenId) => {
+  const EthContext: any = context.getContext(destChain);
+  return await EthContext.calculateMaxSwapAmount(destChain, token);
+}
 
 export const claimTransfer = async (
   destChain: ChainName | ChainId,

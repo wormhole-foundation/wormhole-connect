@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import Slider, { SliderThumb } from '@mui/material/Slider';
@@ -6,9 +6,13 @@ import { styled } from '@mui/material/styles';
 import BridgeCollapse from './Collapse';
 import InputContainer from '../../components/InputContainer';
 import { CHAINS, TOKENS } from '../../sdk/config';
+import { calculateMaxSwapAmount } from '../../sdk/sdk';
 import { TokenConfig } from '../../config/types';
 import { RootState } from '../../store';
 import TokenIcon from '../../icons/components/TokenIcons';
+import { BigNumber } from 'ethers';
+import { toDecimals } from '../../utils/balance';
+import { setMaxSwapAmt } from '../../store/transfer';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -55,12 +59,27 @@ interface ThumbProps extends React.HTMLAttributes<unknown> {}
 
 function GasSlider(props: { disabled: boolean }) {
   const { classes } = useStyles();
-  const tokenName = useSelector((state: RootState) => state.transfer.token);
-  const destName = useSelector((state: RootState) => state.transfer.toNetwork);
-  const destConfig = CHAINS[destName!];
-  const sendingToken = TOKENS[tokenName];
+  const { token, toNetwork } = useSelector((state: RootState) => state.transfer);
+  const destConfig = CHAINS[toNetwork!];
+  const sendingToken = TOKENS[token];
   const nativeGasToken = TOKENS[destConfig?.gasToken!];
-  // const disabled = !sendingToken || !nativeGasToken
+
+  useEffect(() => {
+    if (!toNetwork || !sendingToken) return;
+    if (sendingToken.tokenId) {
+      calculateMaxSwapAmount(toNetwork, sendingToken.tokenId).then((res: BigNumber) => {
+        const amt = toDecimals(res, sendingToken.decimals, 6);
+        setMaxSwapAmt(Number.parseFloat(amt));
+      });
+    } else {
+      if (!sendingToken.wrappedAsset) throw new Error('could not get wrapped asset for native token')
+      const wrappedAsset = TOKENS[sendingToken.wrappedAsset];
+      calculateMaxSwapAmount(toNetwork, wrappedAsset.tokenId!).then((res: BigNumber) => {
+        const amt = toDecimals(res, sendingToken.decimals, 6);
+        setMaxSwapAmt(Number.parseFloat(amt));
+      });
+    }
+  }, [sendingToken, toNetwork])
 
   function Thumb(props: ThumbProps) {
     const { children, ...other } = props;

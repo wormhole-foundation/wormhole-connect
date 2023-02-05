@@ -10,7 +10,9 @@ export interface TransferState {
   toNetwork: ChainName | undefined;
   token: string;
   amount: number | undefined;
+  toNativeToken: number | undefined;
   destGasPayment: PaymentOption;
+  maxSwapAmt: number | undefined;
   txHash: string;
   redeemTx: string;
 }
@@ -20,8 +22,10 @@ const initialState: TransferState = {
   toNetwork: undefined,
   token: '',
   amount: undefined,
+  toNativeToken: undefined,
   // TODO: check if automatic is available once networks and token are selected
   destGasPayment: PaymentOption.AUTOMATIC,
+  maxSwapAmt: undefined,
   txHash: '',
   redeemTx: '',
 };
@@ -52,12 +56,23 @@ export const transferSlice = createSlice({
       console.log('set amount:', payload);
       state.amount = payload;
     },
+    setToNativeToken: (state: TransferState, { payload }: PayloadAction<number>) => {
+      console.log('set toNativeToken amount:', payload);
+      state.toNativeToken = payload;
+    },
     setDestGasPayment: (
       state: TransferState,
       { payload }: PayloadAction<PaymentOption>,
     ) => {
       console.log('set destination gas payment option:', payload);
       state.destGasPayment = payload;
+    },
+    setMaxSwapAmt: (
+      state: TransferState,
+      {payload}: PayloadAction<number>,
+    ) => {
+      console.log('set max swap amount:', payload);
+      state.maxSwapAmt = payload;
     },
     setTxHash: (state: TransferState, { payload }: PayloadAction<string>) => {
       console.log('set tx hash:', payload);
@@ -76,6 +91,8 @@ export const {
   setToNetwork,
   setDestGasPayment,
   setAmount,
+  setToNativeToken,
+  setMaxSwapAmt,
   setTxHash,
   setRedeemTx,
 } = transferSlice.actions;
