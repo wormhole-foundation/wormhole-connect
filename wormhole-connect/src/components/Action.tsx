@@ -1,7 +1,7 @@
 import React from 'react';
 import { makeStyles } from 'tss-react/mui';
-import { joinClass } from '../utils/style';
 import { keyframes } from '@mui/system';
+import { joinClass } from '../utils/style';
 
 const middle = keyframes`
   0% {

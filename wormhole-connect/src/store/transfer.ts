@@ -5,6 +5,8 @@ export enum PaymentOption {
   MANUAL = 1,
   AUTOMATIC = 2,
 }
+export type Balances = { [key: string]: string };
+
 export interface TransferState {
   fromNetwork: ChainName | undefined;
   toNetwork: ChainName | undefined;
@@ -14,6 +16,7 @@ export interface TransferState {
   maxSwapAmt: number | undefined;
   toNativeToken: number;
   receiveNativeAmt: number | undefined;
+  balances: Balances;
   txHash: string;
   redeemTx: string;
 }
@@ -28,6 +31,7 @@ const initialState: TransferState = {
   maxSwapAmt: undefined,
   toNativeToken: 0,
   receiveNativeAmt: undefined,
+  balances: {},
   txHash: '',
   redeemTx: '',
 };
@@ -86,6 +90,12 @@ export const transferSlice = createSlice({
       console.log('set receive native token amount:', payload);
       state.receiveNativeAmt = payload;
     },
+    setBalance: (
+      state: TransferState,
+      { payload }: PayloadAction<Balances>,
+    ) => {
+      state.balances = { ...state.balances, ...payload };
+    },
     setTxHash: (state: TransferState, { payload }: PayloadAction<string>) => {
       console.log('set tx hash:', payload);
       state.txHash = payload;
@@ -106,6 +116,7 @@ export const {
   setToNativeToken,
   setMaxSwapAmt,
   setReceiveNativeAmt,
+  setBalance,
   setTxHash,
   setRedeemTx,
 } = transferSlice.actions;

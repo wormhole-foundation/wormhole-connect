@@ -1,7 +1,9 @@
 import React, { Dispatch } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { AnyAction } from '@reduxjs/toolkit';
 import { Theme, useTheme } from '@mui/material/styles';
-import { makeStyles } from '@mui/styles';
+import { makeStyles } from 'tss-react/mui';
+import { keyframes } from '@mui/system';
 import { RootState } from '../store';
 import {
   connectReceivingWallet,
@@ -10,33 +12,48 @@ import {
   setCurrentAddress,
 } from '../store/wallet';
 import { openWalletModal, disconnect, Wallet } from '../utils/wallet';
+import { copyTextToClipboard, displayEvmAddress } from '../utils';
+
 import DownIcon from '../icons/components/Down';
 import WalletIcon from '../icons/components/Wallet';
-import { copyTextToClipboard, displayEvmAddress } from '../utils';
-import ActionIndicator from './Action';
 import WalletIcons from '../icons/components/WalletIcons';
 import PopupState, { bindTrigger, bindPopover } from 'material-ui-popup-state';
 import Popover from '@mui/material/Popover';
-import { AnyAction } from '@reduxjs/toolkit';
+import { joinClass, OPACITY } from '../utils/style';
 
-const useStyles = makeStyles((theme: Theme) => ({
-  row: {
+const pulse = keyframes`
+  0% {
+    transform: scale(0.98);
+  } 70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 15px #ffffff${OPACITY[0]};
+  } 100% {
+    transform: scale(0.98);
+    box-shadow: 0 0 0 0 #ffffff${OPACITY[0]};
+  }
+`;
+
+const useStyles = makeStyles()((theme) => ({
+  connectWallet: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'end',
     gap: '8px',
+    padding: '8px 16px',
+    borderRadius: '20px',
+    backgroundColor: theme.palette.card.background,
     cursor: 'pointer',
+  },
+  animated: {
+    boxShadow: `0 0 0 0 #ffffff${OPACITY[70]}`,
+    animation: `${pulse} 1.5s ease-out infinite`,
+    '&:hover': {
+      animation: 'none',
+    },
   },
   walletIcon: {
     width: '24px',
     height: '24px',
-  },
-  actionIndicator: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '14px',
-    marginLeft: '4px',
   },
   down: {
     marginRight: '-8px',
@@ -108,7 +125,7 @@ export const handleConnect = async (
 };
 
 function ConnectWallet(props: Props) {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const theme = useTheme();
   const dispatch = useDispatch();
   const wallet = useSelector((state: RootState) => state.wallet[props.type]);
@@ -134,7 +151,7 @@ function ConnectWallet(props: Props) {
     <PopupState variant="popover" popupId="demo-popup-popover">
       {(popupState) => (
         <div>
-          <div className={classes.row} {...bindTrigger(popupState)}>
+          <div className={classes.connectWallet} {...bindTrigger(popupState)}>
             <WalletIcons name="metamask" height={24} />
             {displayEvmAddress(wallet.address)}
             <DownIcon className={classes.down} />
@@ -173,12 +190,12 @@ function ConnectWallet(props: Props) {
       )}
     </PopupState>
   ) : (
-    <div className={classes.row} onClick={() => connect()}>
+    <div
+      className={joinClass([classes.connectWallet, classes.animated])}
+      onClick={() => connect()}
+    >
       <WalletIcon />
       <div>Connect wallet</div>
-      <div className={classes.actionIndicator}>
-        <ActionIndicator />
-      </div>
     </div>
   );
 }
