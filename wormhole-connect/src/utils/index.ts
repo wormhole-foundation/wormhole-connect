@@ -1,6 +1,6 @@
 import { TokenConfig } from 'config/types';
 import { TokenId, ChainConfig } from '@wormhole-foundation/wormhole-connect-sdk';
-import { CHAINS_ARR, TOKENS_ARR } from '../sdk/config';
+import { CHAINS_ARR, TOKENS, TOKENS_ARR } from '../sdk/config';
 
 export function convertAddress(address: string): string {
   if (address.length === 22) return address;
@@ -18,6 +18,16 @@ export function displayEvmAddress(address: string): string {
 
 export function getNetworkByChainId(chainId: number): ChainConfig | void {
   return CHAINS_ARR.filter((c) => chainId === c.chainId)[0]
+}
+
+export function getWrappedTokenId(token: TokenConfig): TokenId {
+  let tokenId = token.tokenId
+  if (!tokenId) {
+    const wrapped = TOKENS[token.wrappedAsset!];
+    tokenId = wrapped.tokenId;
+  }
+  if (!tokenId) throw new Error('token id not found');
+  return tokenId;
 }
 
 export function getTokenById(tokenId: TokenId): TokenConfig | void {

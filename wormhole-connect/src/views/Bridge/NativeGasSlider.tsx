@@ -6,14 +6,15 @@ import { styled } from '@mui/material/styles';
 import BridgeCollapse from './Collapse';
 import InputContainer from '../../components/InputContainer';
 import { CHAINS, TOKENS } from '../../sdk/config';
-import { calculateMaxSwapAmount } from '../../sdk/sdk';
+import { calculateMaxSwapAmount, calculateNativeTokenAmt } from '../../sdk/sdk';
 import { TokenConfig } from '../../config/types';
 import { RootState } from '../../store';
 import TokenIcon from '../../icons/components/TokenIcons';
-import { BigNumber } from 'ethers';
+import { BigNumber, utils } from 'ethers';
 import { getConversion, toDecimals, toFixedDecimals } from '../../utils/balance';
-import { setMaxSwapAmt, setToNativeToken } from '../../store/transfer';
+import { setMaxSwapAmt, setReceiveNativeAmt, setToNativeToken } from '../../store/transfer';
 import { useDispatch } from 'react-redux';
+import { getWrappedTokenId } from '../../utils';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -71,7 +72,7 @@ interface ThumbProps extends React.HTMLAttributes<unknown> {}
 function GasSlider(props: { disabled: boolean }) {
   const { classes } = useStyles();
   const dispatch = useDispatch();
-  const { token, toNetwork, amount, maxSwapAmt } = useSelector((state: RootState) => state.transfer);
+  const { token, toNetwork, amount, maxSwapAmt, toNativeToken } = useSelector((state: RootState) => state.transfer);
   const destConfig = CHAINS[toNetwork!];
   const sendingToken = TOKENS[token];
   const nativeGasToken = TOKENS[destConfig?.gasToken!];
@@ -142,8 +143,16 @@ function GasSlider(props: { disabled: boolean }) {
   // update toNativeToken when user releases slider
   // TODO: query contract to get final numbers
   const setNativeAmt = (e: any) => {
-    setTimeout(() => {
+    setTimeout(async () => {
+      console.log('swap amount', state.swapAmt)
       dispatch(setToNativeToken(state.swapAmt));
+      const tokenId = getWrappedTokenId(sendingToken);
+      const formattedAmt = utils.parseUnits(`${state.swapAmt}`, sendingToken.decimals);
+      const nativeGasAmt = await calculateNativeTokenAmt(toNetwork!, tokenId, formattedAmt);
+      console.log(nativeGasAmt)
+      const formattedNativeAmt = Number.parseFloat(toDecimals(nativeGasAmt.toString(), nativeGasToken.decimals, 6));
+      dispatch(setReceiveNativeAmt(formattedNativeAmt));
+      setState({ ...state, nativeGas: formattedNativeAmt })
     }, 500)
   }
 
@@ -180,6 +189,7 @@ function GasSlider(props: { disabled: boolean }) {
                 color1={nativeGasToken.color}
                 color2={sendingToken.color}
                 step={0.000001}
+                min={0}
                 max={state.max}
                 valueLabelFormat={() => label(state.nativeGas, nativeGasToken.symbol, state.token!, token)}
                 valueLabelDisplay="auto"
@@ -196,7 +206,7 @@ function GasSlider(props: { disabled: boolean }) {
                     name={(sendingToken as TokenConfig)!.icon}
                     height={16}
                   />
-                  {state.token} {(sendingToken as TokenConfig)!.symbol}
+                  {state.token || amount} {(sendingToken as TokenConfig)!.symbol}
                 </div>
               </div>
             </div>

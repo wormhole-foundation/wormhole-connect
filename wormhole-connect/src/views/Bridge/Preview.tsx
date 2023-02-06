@@ -7,6 +7,7 @@ import InputContainer from '../../components/InputContainer';
 import BridgeCollapse from './Collapse';
 import { CHAINS, TOKENS } from '../../sdk/config';
 import { TokenConfig } from '../../config/types';
+import { toFixedDecimals } from '../../utils/balance';
 
 const getRows = (
   token: TokenConfig,
@@ -14,6 +15,7 @@ const getRows = (
   payment: PaymentOption,
   amount: number,
   nativeTokenAmt: number,
+  receiveNativeAmt: number,
 ): RowsData => {
   const receivingToken = token.wrappedAsset || token.symbol;
   
@@ -22,27 +24,27 @@ const getRows = (
     return [
       {
         title: 'Amount',
-        value: `${amount - 0.01} ${receivingToken}`,
+        value: `${toFixedDecimals(`${amount - nativeTokenAmt}`, 6)} ${receivingToken}`,
       },
       {
         title: 'Native token on destination',
-        value: `${nativeTokenAmt} ${gasToken}`,
+        value: `${receiveNativeAmt} ${gasToken}`,
       },
       {
         title: 'Total fee estimate',
-        value: `0.5 ${token.symbol}`,
+        value: `TODO ${token.symbol}`,
         rows: [
           {
             title: 'Relayer fee',
-            value: `0.3 ${token.symbol}`,
+            value: `TODO ${token.symbol}`,
           },
           {
             title: 'Source chain gas estimate',
-            value: `~ 0.3 ${token.symbol}`,
+            value: `~ TODO ${token.symbol}`,
           },
           {
             title: 'Destination chain gas estimate',
-            value: `~ 0.3 ${token.symbol}`,
+            value: `~ TODO ${token.symbol}`,
           },
         ],
       },
@@ -55,15 +57,15 @@ const getRows = (
     },
     {
       title: 'Total fee estimates',
-      value: `0.5 ${token.symbol} & 0.5 ${gasToken}`,
+      value: `TODO ${token.symbol} & TODO ${gasToken}`,
       rows: [
         {
           title: 'Source chain gas estimate',
-          value: `~ 0.5 ${token.symbol}`,
+          value: `~ TODO ${token.symbol}`,
         },
         {
           title: 'Destination chain gas estimate',
-          value: `~ 0.5 ${gasToken}`,
+          value: `~ TODO ${gasToken}`,
         },
       ],
     },
@@ -72,18 +74,18 @@ const getRows = (
 
 function Preview(props: { collapsed: boolean }) {
   const [state, setState] = React.useState({ rows: [] as RowsData });
-  const { token, toNetwork, destGasPayment, amount, toNativeToken } = useSelector(
+  const { token, toNetwork, destGasPayment, amount, toNativeToken, receiveNativeAmt } = useSelector(
     (state: RootState) => state.transfer,
   );
   useEffect(() => {
     const destConfig = toNetwork && CHAINS[toNetwork];
     const tokenConfig = token && TOKENS[token];
-    if (!tokenConfig || !destConfig || !amount || !toNativeToken) return
+    if (!tokenConfig || !destConfig || !amount) return
     if (tokenConfig && destConfig) {
-      const rows = getRows(tokenConfig, destConfig!.nativeToken, destGasPayment, amount, toNativeToken);
+      const rows = getRows(tokenConfig, destConfig!.nativeToken, destGasPayment, amount, toNativeToken, receiveNativeAmt || 0);
       setState({ rows });
     }
-  }, [token, toNetwork, destGasPayment]);
+  }, [token, toNetwork, destGasPayment, amount, toNativeToken, receiveNativeAmt]);
 
   return (
     <BridgeCollapse

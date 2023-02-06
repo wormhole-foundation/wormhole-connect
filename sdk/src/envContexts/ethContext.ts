@@ -246,6 +246,16 @@ export class EthContext<T extends WormholeContext> extends Context {
     return await relayer.calculateMaxSwapAmountIn(token);
   }
 
+  async calculateNativeTokenAmt(
+    destChain: ChainName | ChainId,
+    tokenId: TokenId,
+    amount: BigNumberish,
+  ): Promise<BigNumber> {
+    const relayer = this.context.mustGetTBRelayer(destChain);
+    const token = await this.getForeignAsset(tokenId, destChain);
+    return await relayer.calculateNativeSwapAmountOut(token, amount);
+  }
+
   parseSequenceFromLog(
     receipt: ethers.ContractReceipt,
     chain: ChainName | ChainId,

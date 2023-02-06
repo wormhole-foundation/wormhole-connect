@@ -106,7 +106,6 @@ export const sendTransfer = async (
   console.log('preparing send');
   const decimals = getTokenDecimals(token);
   const parsedAmt = utils.parseUnits(amount, decimals);
-  // const parsedNativeAmt = utils.parseUnits(toNativeToken || '0', decimals);
   if (paymentOption === PaymentOption.MANUAL) {
     console.log('send with manual');
     const receipt = await context.send(
@@ -138,6 +137,11 @@ export const sendTransfer = async (
 export const calculateMaxSwapAmount = async (destChain: ChainName | ChainId, token: TokenId) => {
   const EthContext: any = context.getContext(destChain);
   return await EthContext.calculateMaxSwapAmount(destChain, token);
+}
+
+export const calculateNativeTokenAmt = async (destChain: ChainName | ChainId, token: TokenId, amount: BigNumber) => {
+  const EthContext: any = context.getContext(destChain);
+  return await EthContext.calculateNativeTokenAmt(destChain, token, amount);
 }
 
 export const claimTransfer = async (
