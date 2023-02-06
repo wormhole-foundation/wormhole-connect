@@ -12,7 +12,6 @@ import PoweredByIcon from '../icons/components/PoweredBy';
 const useStyles = makeStyles()((theme) => ({
   menuIcon: ICON,
   menu: {
-    backgroundColor: theme.palette.popover.background,
     display: 'flex',
     flexDirection: 'column',
     gap: '8px',

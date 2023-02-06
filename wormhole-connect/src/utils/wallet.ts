@@ -63,7 +63,7 @@ export const openWalletModal = async (
     providerOptions, // required
     cacheProvider: false,
     theme: {
-      background: theme.palette.card.background,
+      background: theme.palette.modal.background,
       main: theme.palette.text.primary,
       secondary: theme.palette.text.secondary,
       border: 'none',

@@ -12,7 +12,6 @@ const useStyles = makeStyles<{ width: number }>()((theme, { width }) => ({
     width: '100%',
     maxWidth: `${width}px`,
     margin: '40px auto',
-    backgroundColor: theme.palette.card.background,
     padding: '24px',
     textAlign: 'center',
     position: 'relative',
@@ -23,6 +22,9 @@ const useStyles = makeStyles<{ width: number }>()((theme, { width }) => ({
     right: '24px',
     cursor: 'pointer',
   },
+  background: {
+    background: theme.palette.modal.background
+  }
 }));
 
 type Props = {

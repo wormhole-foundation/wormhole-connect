@@ -32,4 +32,4 @@ export const TOKENS_ARR =
     : (Object.values(TOKENS) as TokenConfig[]);
 export const REQUIRED_CONFIRMATIONS = isProduction ? 13 : 1;
 // export const THEME = 'light';
-export const THEME = config && config.theme ? config.theme : 'light';
+export const THEME = config && config.theme ? config.theme : 'dark';

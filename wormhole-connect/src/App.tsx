@@ -2,16 +2,17 @@ import * as React from 'react';
 import { Provider } from 'react-redux';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-// import Box from '@mui/material/Box';
+import Box from '@mui/material/Box';
 import { PaletteMode } from '@mui/material';
-// import IconButton from '@mui/material/IconButton';
-// import Brightness4Icon from '@mui/icons-material/Brightness4';
-// import Brightness7Icon from '@mui/icons-material/Brightness7';
+import IconButton from '@mui/material/IconButton';
+import Brightness4Icon from '@mui/icons-material/Brightness4';
+import Brightness7Icon from '@mui/icons-material/Brightness7';
 import './App.css';
 import { store } from './store';
 import AppRouter from './AppRouter';
 import { getDesignTokens } from './theme';
 import { THEME } from './sdk/config';
+import BackgroundImage from './components/BackgroundImage';
 
 const ColorModeContext = React.createContext({ toggleColorMode: () => {} });
 
@@ -35,9 +36,10 @@ function App() {
     <Provider store={store}>
       <ColorModeContext.Provider value={colorMode}>
         <ThemeProvider theme={theme}>
+          {mode === 'dark' && <BackgroundImage />}
           <CssBaseline enableColorScheme />
           {/* light/dark theme switch */}
-          {/* <Box
+          <Box
             sx={{
               display: 'flex',
               width: '100%',
@@ -61,7 +63,7 @@ function App() {
                 <Brightness4Icon />
               )}
             </IconButton>
-          </Box> */}
+          </Box>
 
           {/* App content */}
           <AppRouter />

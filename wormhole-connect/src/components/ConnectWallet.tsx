@@ -21,15 +21,15 @@ import PopupState, { bindTrigger, bindPopover } from 'material-ui-popup-state';
 import Popover from '@mui/material/Popover';
 import { joinClass, OPACITY } from '../utils/style';
 
-const pulse = keyframes`
+const pulse = (theme: any) => keyframes`
   0% {
     transform: scale(0.98);
   } 70% {
     transform: scale(1);
-    box-shadow: 0 0 0 15px #ffffff${OPACITY[0]};
+    box-shadow: 0 0 0 15px ${theme.palette.card.background}${OPACITY[0]};
   } 100% {
     transform: scale(0.98);
-    box-shadow: 0 0 0 0 #ffffff${OPACITY[0]};
+    box-shadow: 0 0 0 0 ${theme.palette.card.background}${OPACITY[0]};
   }
 `;
 
@@ -45,8 +45,8 @@ const useStyles = makeStyles()((theme) => ({
     cursor: 'pointer',
   },
   animated: {
-    boxShadow: `0 0 0 0 #ffffff${OPACITY[70]}`,
-    animation: `${pulse} 1.5s ease-out infinite`,
+    boxShadow: `0 0 0 0 ${theme.palette.card.background}${OPACITY[70]}`,
+    animation: `${pulse(theme)} 1.5s ease-out infinite`,
     '&:hover': {
       animation: 'none',
     },

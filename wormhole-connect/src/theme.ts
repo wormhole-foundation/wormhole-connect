@@ -164,29 +164,88 @@ const lightStyled = {
     elevation: '10px 10px 30px 15px #CCD2E7',
     secondary: '#F0F0F5',
   },
+  modal: {
+    background: '#ffffff',
+  }
 };
 
+// const dark = {
+//   primary: {
+//     50: '#e6e6e8',
+//     100: '#ceced1',
+//     200: '#b5b6ba',
+//     300: '#9d9ea4',
+//     400: '#84868d',
+//     500: '#6c6e76',
+//     600: '#535660',
+//     700: '#3a3e49',
+//     800: '#222632',
+//     900: '#0a0e1c',
+//     A100: '#ceced1',
+//     A200: '#9d9ea4',
+//     A400: '#535660',
+//     A700: '#0a0e1c',
+//   },
+//   secondary: grey,
+//   divider: '#6c6e76',
+//   background: {
+//     default: '#0A0E1C',
+//   },
+//   text: {
+//     primary: '#ffffff',
+//     secondary: grey[500],
+//   },
+//   error: red,
+//   info: {
+//     50: '#294958',
+//     100: '#2f5464',
+//     200: '#355e71',
+//     300: '#3b697e',
+//     400: '#4e788a',
+//     500: '#628797',
+//     600: '#7596a4',
+//     700: '#89a5b1',
+//     800: '#222632',
+//     900: '#9db4be',
+//     A100: '#3b697e',
+//     A200: '#3b697e',
+//     A400: '#3b697e',
+//     A700: '#3b697e',
+//   },
+//   success: green,
+//   warning: orange,
+//   button: {
+//     primary: '#222632',
+//     primaryText: '#fff',
+//     disabled: '#6c6e76',
+//     disabledText: '#9d9ea4',
+//     action: '#2b867d',
+//     actionText: '#fff',
+//     hover: '#ffffff' + OPACITY[7],
+//   },
+//   options: {
+//     hover: '#ffffff' + OPACITY[7],
+//     select: '#ffffff' + OPACITY[10],
+//   },
+//   card: {
+//     background: '#141826',
+//     secondary: '#222633',
+//     elevation: 'none',
+//   },
+//   popover: {
+//     background: '#1b2033',
+//     secondary: '#222840',
+//     elevation: 'none',
+//   },
+// };
+
+// wormhole styled theme
 const dark = {
-  primary: {
-    50: '#e6e6e8',
-    100: '#ceced1',
-    200: '#b5b6ba',
-    300: '#9d9ea4',
-    400: '#84868d',
-    500: '#6c6e76',
-    600: '#535660',
-    700: '#3a3e49',
-    800: '#222632',
-    900: '#0a0e1c',
-    A100: '#ceced1',
-    A200: '#9d9ea4',
-    A400: '#535660',
-    A700: '#0a0e1c',
-  },
+  primary: grey,
   secondary: grey,
-  divider: '#6c6e76',
+  divider: '#ffffff' + OPACITY[20],
   background: {
-    default: '#0A0E1C',
+    default: 'transparent',
   },
   text: {
     primary: '#ffffff',
@@ -225,8 +284,8 @@ const dark = {
     select: '#ffffff' + OPACITY[10],
   },
   card: {
-    background: '#141826',
-    secondary: '#222633',
+    background: '#ffffff' + OPACITY[5],
+    secondary: '#ffffff' + OPACITY[5],
     elevation: 'none',
   },
   popover: {
@@ -234,10 +293,25 @@ const dark = {
     secondary: '#222840',
     elevation: 'none',
   },
+  modal: {
+    background: '#0F1024'
+  }
 };
 
 export const getDesignTokens = (mode: PaletteMode) =>
   createTheme({
+    components: {
+      // Name of the component
+      MuiPaper: {
+        styleOverrides: {
+          // Name of the slot
+          root: {
+            // Some CSS
+            background: (mode === 'light' ? lightStyled.modal.background : dark.modal.background) + ' !important',
+          },
+        },
+      },
+    },
     breakpoints: {
       values: {
         xs: 300,
