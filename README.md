@@ -20,6 +20,8 @@ Initially this serves as a way to test integrating wormhole-connect. In the futu
 
 ```bash
 cd ./sdk
+yarn install
+yarn build
 yarn link
 cd ../wormhole-connect
 yarn link @wormhole-foundation/wormhole-connect-sdk
@@ -31,11 +33,14 @@ Run `yarn` at the root of the repo
 
 3) Start
 
+Start wormhole-connect UI and view in browser at localhost:3000
 ```bash
 # in /wormhole-connect
 yarn start # testnet
-yarn start-prod # mainnet
+```
 
+Start builder UI and view in browser at localhost:3000
+```bash
 # in /builder
 yarn start
 ```
