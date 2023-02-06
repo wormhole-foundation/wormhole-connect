@@ -96,7 +96,6 @@ function NetworksModal(props: Props) {
       | undefined,
   ) => {
     if (!e) return;
-    console.log('search chains:', e.target.value);
     const lowercase = e.target.value.toLowerCase();
     const filtered = CHAINS_ARR.filter((c) => {
       return c.key.indexOf(lowercase) === 0;
@@ -105,11 +104,7 @@ function NetworksModal(props: Props) {
   };
 
   return (
-    <Modal
-      open={props.open}
-      closable
-      width={CHAINS_ARR.length > 6 ? 650 : 475}
-    >
+    <Modal open={props.open} closable width={CHAINS_ARR.length > 6 ? 650 : 475}>
       <Header text={props.title} />
       <div>Select Network</div>
       <Spacer height={16} />

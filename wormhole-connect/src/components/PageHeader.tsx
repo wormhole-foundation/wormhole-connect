@@ -1,10 +1,10 @@
 import React from 'react';
-import Header from './Header';
-import { makeStyles } from 'tss-react/mui';
-import Menu from './Menu';
-import DownIcon from '../icons/components/Down';
 import { useDispatch } from 'react-redux';
+import { makeStyles } from 'tss-react/mui';
 import { setRoute } from '../store/router';
+import Header from './Header';
+import MenuFull from './MenuFull';
+import DownIcon from '../icons/components/Down';
 
 const useStyles = makeStyles()((theme) => ({
   header: {
@@ -43,7 +43,7 @@ function PageHeader(props: { title: string; back?: boolean }) {
         )}
         <Header text={props.title} align="left" />
       </div>
-      <Menu />
+      <MenuFull />
     </div>
   );
 }

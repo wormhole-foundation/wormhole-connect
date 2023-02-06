@@ -137,7 +137,6 @@ function TokensModal() {
       | undefined,
   ) => {
     if (!e) return;
-    console.log('search tokens:', e.target.value);
     const lowercase = e.target.value.toLowerCase();
     const filtered = filteredTokens.filter((c) => {
       const symbol = c.symbol.toLowerCase();

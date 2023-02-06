@@ -6,7 +6,11 @@ import { styled } from '@mui/material/styles';
 import BridgeCollapse from './Collapse';
 import InputContainer from '../../components/InputContainer';
 import { CHAINS, TOKENS } from '../../sdk/config';
-import { calculateMaxSwapAmount, calculateNativeTokenAmt, getNativeBalance } from '../../sdk/sdk';
+import {
+  calculateMaxSwapAmount,
+  calculateNativeTokenAmt,
+  getNativeBalance,
+} from '../../sdk/sdk';
 import { TokenConfig } from '../../config/types';
 import { RootState } from '../../store';
 import TokenIcon from '../../icons/components/TokenIcons';
@@ -83,9 +87,7 @@ function GasSlider(props: { disabled: boolean }) {
   const { token, toNetwork, amount, maxSwapAmt } = useSelector(
     (state: RootState) => state.transfer,
   );
-  const { receiving } = useSelector(
-    (state: RootState) => state.wallet,
-  )
+  const { receiving } = useSelector((state: RootState) => state.wallet);
   const destConfig = CHAINS[toNetwork!];
   const sendingToken = TOKENS[token];
   const nativeGasToken = TOKENS[destConfig?.gasToken!];
@@ -112,8 +114,8 @@ function GasSlider(props: { disabled: boolean }) {
     getNativeBalance(receiving.address, toNetwork).then((res: any) => {
       const b = toDecimals(res, 18, 6);
       setState({ ...state, destNativeBalance: Number.parseFloat(b) });
-    })
-  }, [toNetwork, receiving.address])
+    });
+  }, [toNetwork, receiving.address]);
 
   useEffect(() => {
     if (!toNetwork || !sendingToken) return;
@@ -212,13 +214,16 @@ function GasSlider(props: { disabled: boolean }) {
           <div className={classes.container}>
             {state.destNativeBalance && state.destNativeBalance < state.max ? (
               <div>
-                Your wallet has little or no native gas ({nativeGasToken.symbol}) balance on{' '}
-                {destConfig?.displayName}. Would you like to convert some of the{' '}
-                {sendingToken.symbol} you’re bridging to {nativeGasToken.symbol}?
+                Your wallet has little or no native gas ({nativeGasToken.symbol}
+                ) balance on {destConfig?.displayName}. Would you like to
+                convert some of the {sendingToken.symbol} you’re bridging to{' '}
+                {nativeGasToken.symbol}?
               </div>
             ) : (
               <div>
-                Would you like to convert some of the {sendingToken.symbol} you’re bridging to native gas ({nativeGasToken.symbol}) on {destConfig?.displayName}?
+                Would you like to convert some of the {sendingToken.symbol}{' '}
+                you’re bridging to native gas ({nativeGasToken.symbol}) on{' '}
+                {destConfig?.displayName}?
               </div>
             )}
             <div>You will receive:</div>

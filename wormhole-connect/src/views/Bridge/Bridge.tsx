@@ -1,4 +1,9 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
+import { makeStyles } from 'tss-react/mui';
+import { RootState } from '../../store';
+import { PaymentOption } from '../../store/transfer';
+
 import Header from '../../components/Header';
 import Spacer from '../../components/Spacer';
 import Networks from './Networks';
@@ -6,11 +11,7 @@ import GasOptions from './GasOptions';
 import GasSlider from './NativeGasSlider';
 import Preview from './Preview';
 import Send from './Send';
-import { makeStyles } from 'tss-react/mui';
-import Menu from '../../components/Menu';
-import { RootState } from '../../store';
-import { useSelector } from 'react-redux';
-import { PaymentOption } from '../../store/transfer';
+import MenuFull from '../../components/MenuFull';
 import { Collapse } from '@mui/material';
 
 const useStyles = makeStyles()((theme) => ({
@@ -51,7 +52,7 @@ function Bridge() {
     <div className={classes.bridgeContent}>
       <div className={classes.header}>
         <Header text="Bridge" align="left" />
-        <Menu />
+        <MenuFull />
       </div>
       <Spacer height={40} />
 
@@ -69,7 +70,7 @@ function Bridge() {
       <Preview collapsed={!valid} />
       <Spacer />
 
-      <Send valid={valid} />
+      <Send valid={!!valid} />
       <Spacer height={60} />
     </div>
   );

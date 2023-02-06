@@ -5,10 +5,9 @@ import { Dialog } from '@mui/material';
 // import useMediaQuery from '@mui/material/useMediaQuery';
 import CloseIcon from '../icons/components/Close';
 
-
 // type StyleProps = { align: Alignment };
 // const useStyles = makeStyles<StyleProps>()((theme, { align }) => ({
-const useStyles = makeStyles<{ width: number}>()((theme, { width }) => ({
+const useStyles = makeStyles<{ width: number }>()((theme, { width }) => ({
   modal: {
     width: '100%',
     maxWidth: `${width}px`,
@@ -48,9 +47,9 @@ function Modal({ open, width, closable, children }: Props) {
       open={open}
       onClose={emitClose}
       sx={{ borderRadius: 8 }}
-      maxWidth={width}
       fullWidth
       fullScreen
+      // maxWidth={width}
       // fullScreen={fullScreen}
     >
       <div className={classes.modal}>
