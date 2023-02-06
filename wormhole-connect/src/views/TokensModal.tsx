@@ -1,25 +1,25 @@
+import React, { ChangeEvent } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@mui/styles';
 import { useTheme } from '@mui/material/styles';
-import React, { ChangeEvent } from 'react';
-import Collapse from '@mui/material/Collapse';
+import { Theme } from '@mui/material';
+import { RootState } from '../store';
+import { TOKENS_ARR } from '../sdk/config';
+import { setTokensModal } from '../store/router';
+import { setToken } from '../store/transfer';
+import { displayEvmAddress } from '../utils';
+import { CENTER, joinClass } from '../utils/style';
+
 import Header from '../components/Header';
 import Modal from '../components/Modal';
 import Spacer from '../components/Spacer';
 import Search from '../components/Search';
 import Scroll from '../components/Scroll';
 import Tooltip from '../components/Tooltip';
-import { Theme } from '@mui/material';
 import Down from '../icons/components/Down';
-
-import { TOKENS_ARR } from '../sdk/config';
-import { useDispatch } from 'react-redux';
-import { setTokensModal } from '../store/router';
-import { setToken } from '../store/transfer';
-import { CENTER, joinClass } from '../utils/style';
-import { displayEvmAddress } from '../utils';
-import { useSelector } from 'react-redux';
-import { RootState } from '../store';
+import Collapse from '@mui/material/Collapse';
 import TokenIcon from '../icons/components/TokenIcons';
+import CircularProgress from '@mui/material/CircularProgress';
 
 const useStyles = makeStyles((theme: Theme) => ({
   tokensContainer: {
@@ -66,7 +66,8 @@ const useStyles = makeStyles((theme: Theme) => ({
   tokenRowRight: {
     display: 'flex',
     flexDirection: 'column',
-    alignItems: 'center',
+    alignItems: 'right',
+    textAlign: 'right',
   },
   tokenRowBalanceText: {
     opacity: '60%',
@@ -109,6 +110,7 @@ function TokensModal() {
   const classes = useStyles();
   const theme = useTheme();
   const dispatch = useDispatch();
+  const balance = undefined; // TODO: populate balances
 
   // store values
   const showTokensModal = useSelector(
@@ -135,7 +137,6 @@ function TokensModal() {
       | undefined,
   ) => {
     if (!e) return;
-    console.log('search tokens:', e.target.value);
     const lowercase = e.target.value.toLowerCase();
     const filtered = filteredTokens.filter((c) => {
       const symbol = c.symbol.toLowerCase();
@@ -159,7 +160,7 @@ function TokensModal() {
   };
 
   return (
-    <Modal open={showTokensModal} closable width="sm">
+    <Modal open={showTokensModal} closable width={500}>
       <Header text="Select token" />
       <Spacer height={16} />
       <Search
@@ -191,7 +192,15 @@ function TokensModal() {
                     </div>
                     <div className={classes.tokenRowRight}>
                       <div className={classes.tokenRowBalanceText}>Balance</div>
-                      <div className={classes.tokenRowBalance}>200.4567</div>
+                      <div className={classes.tokenRowBalance}>
+                        {balance ? (
+                          <div>TODO</div>
+                        ) : fromNetwork ? (
+                          <CircularProgress size={14} />
+                        ) : (
+                          <div>—</div>
+                        )}
+                      </div>
                     </div>
                     <div className={classes.tokenRowAddress}>
                       {token.tokenId

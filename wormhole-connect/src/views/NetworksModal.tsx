@@ -1,6 +1,8 @@
 import React, { ChangeEvent } from 'react';
+import { useSelector } from 'react-redux';
 import { useTheme } from '@mui/material/styles';
 import { makeStyles } from 'tss-react/mui';
+import { RootState } from '../store';
 import Header from '../components/Header';
 import Modal from '../components/Modal';
 import Spacer from '../components/Spacer';
@@ -13,13 +15,14 @@ import { useDispatch } from 'react-redux';
 import { setFromNetworksModal, setToNetworksModal } from '../store/router';
 import { setFromNetwork, setToNetwork } from '../store/transfer';
 import TokenIcon from '../icons/components/TokenIcons';
-import { CENTER } from '../utils/style';
+import { CENTER, joinClass } from '../utils/style';
 
 const useStyles = makeStyles()((theme) => ({
   networksContainer: {
     display: 'flex',
     flexDirection: 'row',
     flexWrap: 'wrap',
+    justifyContent: 'space-between',
   },
   noResults: {
     ...CENTER,
@@ -31,7 +34,7 @@ const useStyles = makeStyles()((theme) => ({
     flexDirection: 'column',
     alignItems: 'center',
     textAlign: 'center',
-    margin: '12px',
+    margin: '12px 4px',
     padding: '16px',
     transition: 'background-color 0.4s',
     cursor: 'pointer',
@@ -47,6 +50,11 @@ const useStyles = makeStyles()((theme) => ({
   networkText: {
     fontSize: '14px',
     marginTop: '16px',
+  },
+  disabled: {
+    opacity: '60%',
+    cursor: 'not-allowed',
+    clickEvent: 'none',
   },
 }));
 
@@ -67,6 +75,9 @@ function NetworksModal(props: Props) {
   const theme = useTheme();
   const dispatch = useDispatch();
   const [chains, setChains] = React.useState(CHAINS_ARR);
+  const { fromNetwork, toNetwork } = useSelector(
+    (state: RootState) => state.transfer,
+  );
 
   // listen for close event
   const closeTokensModal = () => {
@@ -76,6 +87,16 @@ function NetworksModal(props: Props) {
     document.removeEventListener('click', closeTokensModal);
   };
   document.addEventListener('close', closeTokensModal, { once: true });
+
+  const isDisabled = (chain: ChainName) => {
+    if (props.type === ModalType.FROM) {
+      if (!toNetwork) return false;
+      return toNetwork === chain;
+    } else {
+      if (!fromNetwork) return false;
+      return fromNetwork === chain;
+    }
+  };
 
   // dispatch selectNetwork event
   const selectNetwork = (network: ChainName) => {
@@ -95,7 +116,6 @@ function NetworksModal(props: Props) {
       | undefined,
   ) => {
     if (!e) return;
-    console.log('search chains:', e.target.value);
     const lowercase = e.target.value.toLowerCase();
     const filtered = CHAINS_ARR.filter((c) => {
       return c.key.indexOf(lowercase) === 0;
@@ -104,11 +124,7 @@ function NetworksModal(props: Props) {
   };
 
   return (
-    <Modal
-      open={props.open}
-      closable
-      width={CHAINS_ARR.length > 6 ? 'md' : 'sm'}
-    >
+    <Modal open={props.open} closable width={CHAINS_ARR.length > 6 ? 650 : 475}>
       <Header text={props.title} />
       <div>Select Network</div>
       <Spacer height={16} />
@@ -121,11 +137,18 @@ function NetworksModal(props: Props) {
         {chains.length > 0 ? (
           <div className={classes.networksContainer}>
             {chains.map((chain: any, i) => {
+              const disabled = isDisabled(chain.key);
               return (
                 <div
                   key={i}
-                  className={classes.networkTile}
-                  onClick={() => selectNetwork(chain.key)}
+                  className={joinClass([
+                    classes.networkTile,
+                    !!disabled && classes.disabled,
+                  ])}
+                  onClick={() => {
+                    if (disabled) return;
+                    selectNetwork(chain.key);
+                  }}
                 >
                   <TokenIcon name={chain.icon} height={48} />
                   <div className={classes.networkText}>{chain.displayName}</div>

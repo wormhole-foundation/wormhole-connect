@@ -6,7 +6,11 @@ import { styled } from '@mui/material/styles';
 import BridgeCollapse from './Collapse';
 import InputContainer from '../../components/InputContainer';
 import { CHAINS, TOKENS } from '../../sdk/config';
-import { calculateMaxSwapAmount, calculateNativeTokenAmt } from '../../sdk/sdk';
+import {
+  calculateMaxSwapAmount,
+  calculateNativeTokenAmt,
+  getNativeBalance,
+} from '../../sdk/sdk';
 import { TokenConfig } from '../../config/types';
 import { RootState } from '../../store';
 import TokenIcon from '../../icons/components/TokenIcons';
@@ -83,6 +87,7 @@ function GasSlider(props: { disabled: boolean }) {
   const { token, toNetwork, amount, maxSwapAmt } = useSelector(
     (state: RootState) => state.transfer,
   );
+  const { receiving } = useSelector((state: RootState) => state.wallet);
   const destConfig = CHAINS[toNetwork!];
   const sendingToken = TOKENS[token];
   const nativeGasToken = TOKENS[destConfig?.gasToken!];
@@ -93,6 +98,7 @@ function GasSlider(props: { disabled: boolean }) {
     token: amount,
     swapAmt: 0,
     conversionRate: undefined as number | undefined,
+    destNativeBalance: undefined as number | undefined,
   });
 
   // set the actual max swap amount (checks if max swap amount is greater than the sending amount)
@@ -102,6 +108,14 @@ function GasSlider(props: { disabled: boolean }) {
       amount && maxSwapAmt && maxSwapAmt > amount ? amount : maxSwapAmt;
     setState({ ...state, max: actualMaxSwap });
   }, [maxSwapAmt, amount]);
+
+  useEffect(() => {
+    if (!toNetwork) return;
+    getNativeBalance(receiving.address, toNetwork).then((res: any) => {
+      const b = toDecimals(res, 18, 6);
+      setState({ ...state, destNativeBalance: Number.parseFloat(b) });
+    });
+  }, [toNetwork, receiving.address]);
 
   useEffect(() => {
     if (!toNetwork || !sendingToken) return;
@@ -198,11 +212,20 @@ function GasSlider(props: { disabled: boolean }) {
         nativeGasToken !== undefined &&
         destConfig !== undefined ? (
           <div className={classes.container}>
-            <div>
-              Your wallet has no native gas ({nativeGasToken.symbol}) balance on{' '}
-              {destConfig?.displayName}. Would you like to convert some of the{' '}
-              {sendingToken.symbol} you’re bridging to {nativeGasToken.symbol}?
-            </div>
+            {state.destNativeBalance && state.destNativeBalance < state.max ? (
+              <div>
+                Your wallet has little or no native gas ({nativeGasToken.symbol}
+                ) balance on {destConfig?.displayName}. Would you like to
+                convert some of the {sendingToken.symbol} you’re bridging to{' '}
+                {nativeGasToken.symbol}?
+              </div>
+            ) : (
+              <div>
+                Would you like to convert some of the {sendingToken.symbol}{' '}
+                you’re bridging to native gas ({nativeGasToken.symbol}) on{' '}
+                {destConfig?.displayName}?
+              </div>
+            )}
             <div>You will receive:</div>
             <div>
               <PrettoSlider

@@ -112,7 +112,8 @@ function BridgeCollapse(props: Props) {
           <a
             href="https://github.com/XLabs"
             target="_blank"
-            className={classes.link} rel="noreferrer"
+            className={classes.link}
+            rel="noreferrer"
           >
             xLabs
           </a>
