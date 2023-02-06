@@ -5,7 +5,12 @@ import { utils } from 'ethers';
 import { useTheme } from '@mui/material/styles';
 import { RootState } from '../../store';
 import { PaymentOption, setRedeemTx } from '../../store/transfer';
-import { openWalletModal, registerWalletSigner, switchNetwork, Wallet } from '../../utils/wallet';
+import {
+  openWalletModal,
+  registerWalletSigner,
+  switchNetwork,
+  Wallet,
+} from '../../utils/wallet';
 import { ParsedVaa } from '../../utils/vaa';
 import { claimTransfer } from '../../sdk/sdk';
 import Header from './Header';
@@ -41,14 +46,12 @@ function SendTo() {
   const toAddr = useSelector(
     (state: RootState) => state.wallet.receiving.address,
   );
-  const receiving = useSelector(
-    (state: RootState) => state.wallet.receiving,
-  )
-  const redeemTx = useSelector(
-    (state: RootState) => state.transfer.redeemTx,
-  )
+  const receiving = useSelector((state: RootState) => state.wallet.receiving);
+  const redeemTx = useSelector((state: RootState) => state.transfer.redeemTx);
   const [inProgress, setInProgress] = useState(false);
-  const [isConnected, setIsConnected] = useState(receiving.currentAddress.toLowerCase() === receiving.address.toLowerCase());
+  const [isConnected, setIsConnected] = useState(
+    receiving.currentAddress.toLowerCase() === receiving.address.toLowerCase(),
+  );
   // const pending = vaa.guardianSignatures < REQUIRED_CONFIRMATIONS;
   const claim = async () => {
     setInProgress(true);
@@ -58,21 +61,27 @@ function SendTo() {
       await openWalletModal(theme, true);
       registerWalletSigner(toNetwork!, Wallet.RECEIVING);
       await switchNetwork(chainId, Wallet.RECEIVING);
-      const receipt = await claimTransfer(toNetwork!, utils.arrayify(vaa.bytes));
+      const receipt = await claimTransfer(
+        toNetwork!,
+        utils.arrayify(vaa.bytes),
+      );
       dispatch(setRedeemTx(receipt.transactionHash));
       setInProgress(false);
-    } catch(e) {
+    } catch (e) {
       setInProgress(false);
-      console.error(e)
+      console.error(e);
     }
-  }
+  };
   const connect = async () => {
     handleConnect(dispatch, theme, Wallet.RECEIVING);
-  }
+  };
 
   useEffect(() => {
-    setIsConnected(receiving.currentAddress.toLowerCase() === receiving.address.toLowerCase());
-  }, [receiving])
+    setIsConnected(
+      receiving.currentAddress.toLowerCase() ===
+        receiving.address.toLowerCase(),
+    );
+  }, [receiving]);
 
   return (
     <div>
@@ -83,14 +92,20 @@ function SendTo() {
       {destGasPayment === PaymentOption.MANUAL && (
         <>
           <Spacer height={8} />
-          {toAddr ? isConnected ? (
-            <Button onClick={claim} action disabled={inProgress}>
-              {inProgress ? <CircularProgress size={18} /> : 'Claim'}
+          {toAddr ? (
+            isConnected ? (
+              <Button onClick={claim} action disabled={inProgress}>
+                {inProgress ? <CircularProgress size={18} /> : 'Claim'}
+              </Button>
+            ) : (
+              <Button disabled elevated>
+                Connect to {displayEvmAddress(receiving.address)}
+              </Button>
+            )
+          ) : (
+            <Button onClick={connect} action>
+              Connect wallet
             </Button>
-          ) : (
-            <Button disabled elevated>Connect to {displayEvmAddress(receiving.address)}</Button>
-          ) : (
-            <Button onClick={connect} action>Connect wallet</Button>
           )}
         </>
       )}

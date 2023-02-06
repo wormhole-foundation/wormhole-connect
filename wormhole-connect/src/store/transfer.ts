@@ -58,7 +58,10 @@ export const transferSlice = createSlice({
       console.log('set amount:', payload);
       state.amount = payload;
     },
-    setToNativeToken: (state: TransferState, { payload }: PayloadAction<number>) => {
+    setToNativeToken: (
+      state: TransferState,
+      { payload }: PayloadAction<number>,
+    ) => {
       console.log('set toNativeToken amount:', payload);
       state.toNativeToken = payload;
     },
@@ -71,14 +74,14 @@ export const transferSlice = createSlice({
     },
     setMaxSwapAmt: (
       state: TransferState,
-      {payload}: PayloadAction<number>,
+      { payload }: PayloadAction<number>,
     ) => {
       console.log('set max swap amount:', payload);
       state.maxSwapAmt = payload;
     },
     setReceiveNativeAmt: (
       state: TransferState,
-      {payload}: PayloadAction<number>,
+      { payload }: PayloadAction<number>,
     ) => {
       console.log('set receive native token amount:', payload);
       state.receiveNativeAmt = payload;
@@ -90,7 +93,7 @@ export const transferSlice = createSlice({
     setRedeemTx: (state: TransferState, { payload }) => {
       console.log('set redeem tx:', payload);
       state.redeemTx = payload;
-    }
+    },
   },
 });
 

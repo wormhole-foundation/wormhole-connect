@@ -11,8 +11,16 @@ import { TokenConfig } from '../../config/types';
 import { RootState } from '../../store';
 import TokenIcon from '../../icons/components/TokenIcons';
 import { BigNumber, utils } from 'ethers';
-import { getConversion, toDecimals, toFixedDecimals } from '../../utils/balance';
-import { setMaxSwapAmt, setReceiveNativeAmt, setToNativeToken } from '../../store/transfer';
+import {
+  getConversion,
+  toDecimals,
+  toFixedDecimals,
+} from '../../utils/balance';
+import {
+  setMaxSwapAmt,
+  setReceiveNativeAmt,
+  setToNativeToken,
+} from '../../store/transfer';
 import { useDispatch } from 'react-redux';
 import { getWrappedTokenId } from '../../utils';
 
@@ -42,7 +50,7 @@ function label(amt1: number, token1: string, amt2: number, token2: string) {
       <br />
       {toFixedDecimals(`${amt2}`, 2)} {token2}
     </div>
-  )
+  );
 }
 
 type SliderProps = {
@@ -72,12 +80,14 @@ interface ThumbProps extends React.HTMLAttributes<unknown> {}
 function GasSlider(props: { disabled: boolean }) {
   const { classes } = useStyles();
   const dispatch = useDispatch();
-  const { token, toNetwork, amount, maxSwapAmt, toNativeToken } = useSelector((state: RootState) => state.transfer);
+  const { token, toNetwork, amount, maxSwapAmt } = useSelector(
+    (state: RootState) => state.transfer,
+  );
   const destConfig = CHAINS[toNetwork!];
   const sendingToken = TOKENS[token];
   const nativeGasToken = TOKENS[destConfig?.gasToken!];
 
-  const [ state, setState ] = useState({
+  const [state, setState] = useState({
     max: 0,
     nativeGas: 0,
     token: amount,
@@ -87,8 +97,9 @@ function GasSlider(props: { disabled: boolean }) {
 
   // set the actual max swap amount (checks if max swap amount is greater than the sending amount)
   useEffect(() => {
-    if (!amount || !maxSwapAmt) return
-    const actualMaxSwap = (amount && maxSwapAmt) && maxSwapAmt > amount ? amount : maxSwapAmt;
+    if (!amount || !maxSwapAmt) return;
+    const actualMaxSwap =
+      amount && maxSwapAmt && maxSwapAmt > amount ? amount : maxSwapAmt;
     setState({ ...state, max: actualMaxSwap });
   }, [maxSwapAmt, amount]);
 
@@ -96,25 +107,30 @@ function GasSlider(props: { disabled: boolean }) {
     if (!toNetwork || !sendingToken) return;
     // calculate max swap amount to native gas token
     if (sendingToken.tokenId) {
-      calculateMaxSwapAmount(toNetwork, sendingToken.tokenId).then((res: BigNumber) => {
-        const amt = toDecimals(res, sendingToken.decimals, 6);
-        dispatch(setMaxSwapAmt(Number.parseFloat(amt)));
-      });
+      calculateMaxSwapAmount(toNetwork, sendingToken.tokenId).then(
+        (res: BigNumber) => {
+          const amt = toDecimals(res, sendingToken.decimals, 6);
+          dispatch(setMaxSwapAmt(Number.parseFloat(amt)));
+        },
+      );
     } else {
-      if (!sendingToken.wrappedAsset) throw new Error('could not get wrapped asset for native token')
+      if (!sendingToken.wrappedAsset)
+        throw new Error('could not get wrapped asset for native token');
       const wrappedAsset = TOKENS[sendingToken.wrappedAsset];
-      calculateMaxSwapAmount(toNetwork, wrappedAsset.tokenId!).then((res: BigNumber) => {
-        const amt = toDecimals(res, sendingToken.decimals, 6);
-        dispatch(setMaxSwapAmt(Number.parseFloat(amt)));
-      });
+      calculateMaxSwapAmount(toNetwork, wrappedAsset.tokenId!).then(
+        (res: BigNumber) => {
+          const amt = toDecimals(res, sendingToken.decimals, 6);
+          dispatch(setMaxSwapAmt(Number.parseFloat(amt)));
+        },
+      );
     }
     // get conversion rate of token
     const { gasToken } = CHAINS[toNetwork]!;
     getConversion(token, gasToken).then((res: number) => {
-      console.log('conversion rate', res)
-      setState({ ...state, conversionRate: res })
+      console.log('conversion rate', res);
+      setState({ ...state, conversionRate: res });
     });
-  }, [sendingToken, toNetwork])
+  }, [sendingToken, toNetwork]);
 
   function Thumb(props: ThumbProps) {
     const { children, ...other } = props;
@@ -136,25 +152,32 @@ function GasSlider(props: { disabled: boolean }) {
       nativeGas: Number.parseFloat(newGasAmount),
       token: Number.parseFloat(newTokenAmount),
       swapAmt: e.target.value,
-    }
+    };
     setState({ ...state, ...conversion });
-  }
+  };
 
-  // update toNativeToken when user releases slider
-  // TODO: query contract to get final numbers
   const setNativeAmt = (e: any) => {
     setTimeout(async () => {
-      console.log('swap amount', state.swapAmt)
+      console.log('swap amount', state.swapAmt);
       dispatch(setToNativeToken(state.swapAmt));
       const tokenId = getWrappedTokenId(sendingToken);
-      const formattedAmt = utils.parseUnits(`${state.swapAmt}`, sendingToken.decimals);
-      const nativeGasAmt = await calculateNativeTokenAmt(toNetwork!, tokenId, formattedAmt);
-      console.log(nativeGasAmt)
-      const formattedNativeAmt = Number.parseFloat(toDecimals(nativeGasAmt.toString(), nativeGasToken.decimals, 6));
+      const formattedAmt = utils.parseUnits(
+        `${state.swapAmt}`,
+        sendingToken.decimals,
+      );
+      const nativeGasAmt = await calculateNativeTokenAmt(
+        toNetwork!,
+        tokenId,
+        formattedAmt,
+      );
+      console.log(nativeGasAmt);
+      const formattedNativeAmt = Number.parseFloat(
+        toDecimals(nativeGasAmt.toString(), nativeGasToken.decimals, 6),
+      );
       dispatch(setReceiveNativeAmt(formattedNativeAmt));
-      setState({ ...state, nativeGas: formattedNativeAmt })
-    }, 500)
-  }
+      setState({ ...state, nativeGas: formattedNativeAmt });
+    }, 500);
+  };
 
   return (
     <BridgeCollapse
@@ -191,7 +214,14 @@ function GasSlider(props: { disabled: boolean }) {
                 step={0.000001}
                 min={0}
                 max={state.max}
-                valueLabelFormat={() => label(state.nativeGas, nativeGasToken.symbol, state.token!, token)}
+                valueLabelFormat={() =>
+                  label(
+                    state.nativeGas,
+                    nativeGasToken.symbol,
+                    state.token!,
+                    token,
+                  )
+                }
                 valueLabelDisplay="auto"
                 onChange={handleChange}
                 onMouseUp={setNativeAmt}
@@ -206,7 +236,8 @@ function GasSlider(props: { disabled: boolean }) {
                     name={(sendingToken as TokenConfig)!.icon}
                     height={16}
                   />
-                  {state.token || amount} {(sendingToken as TokenConfig)!.symbol}
+                  {state.token || amount}{' '}
+                  {(sendingToken as TokenConfig)!.symbol}
                 </div>
               </div>
             </div>

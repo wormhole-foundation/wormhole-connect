@@ -1,4 +1,7 @@
-import { ethers_contracts, Network as Environment } from '@certusone/wormhole-sdk';
+import {
+  ethers_contracts,
+  Network as Environment,
+} from '@certusone/wormhole-sdk';
 import { BigNumber, constants, utils, ContractReceipt } from 'ethers';
 import {
   WormholeContext,
@@ -51,7 +54,7 @@ export const getNativeBalance = async (
 ): Promise<BigNumber> => {
   const provider = context.mustGetProvider(chain);
   return await provider.getBalance(walletAddr);
-}
+};
 
 // export const getTxDetails(chain: ChainName | ChainId, txHash: string) {
 //   // TODO: get tx details by transaction receipt
@@ -120,7 +123,9 @@ export const sendTransfer = async (
     return receipt;
   } else {
     console.log('send with relay');
-    const parsedNativeAmt = toNativeToken ? utils.parseUnits(toNativeToken, decimals).toString() : '0';
+    const parsedNativeAmt = toNativeToken
+      ? utils.parseUnits(toNativeToken, decimals).toString()
+      : '0';
     const receipt = await context.sendWithRelay(
       token,
       parsedAmt.toString(),
@@ -134,15 +139,22 @@ export const sendTransfer = async (
   }
 };
 
-export const calculateMaxSwapAmount = async (destChain: ChainName | ChainId, token: TokenId) => {
+export const calculateMaxSwapAmount = async (
+  destChain: ChainName | ChainId,
+  token: TokenId,
+) => {
   const EthContext: any = context.getContext(destChain);
   return await EthContext.calculateMaxSwapAmount(destChain, token);
-}
+};
 
-export const calculateNativeTokenAmt = async (destChain: ChainName | ChainId, token: TokenId, amount: BigNumber) => {
+export const calculateNativeTokenAmt = async (
+  destChain: ChainName | ChainId,
+  token: TokenId,
+  amount: BigNumber,
+) => {
   const EthContext: any = context.getContext(destChain);
   return await EthContext.calculateNativeTokenAmt(destChain, token, amount);
-}
+};
 
 export const claimTransfer = async (
   destChain: ChainName | ChainId,

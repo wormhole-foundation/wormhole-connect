@@ -18,13 +18,16 @@ const getRows = (
   receiveNativeAmt: number,
 ): RowsData => {
   const receivingToken = token.wrappedAsset || token.symbol;
-  
+
   // TODO: calculate automatic receive amount
   if (payment === PaymentOption.AUTOMATIC) {
     return [
       {
         title: 'Amount',
-        value: `${toFixedDecimals(`${amount - nativeTokenAmt}`, 6)} ${receivingToken}`,
+        value: `${toFixedDecimals(
+          `${amount - nativeTokenAmt}`,
+          6,
+        )} ${receivingToken}`,
       },
       {
         title: 'Native token on destination',
@@ -74,18 +77,37 @@ const getRows = (
 
 function Preview(props: { collapsed: boolean }) {
   const [state, setState] = React.useState({ rows: [] as RowsData });
-  const { token, toNetwork, destGasPayment, amount, toNativeToken, receiveNativeAmt } = useSelector(
-    (state: RootState) => state.transfer,
-  );
+  const {
+    token,
+    toNetwork,
+    destGasPayment,
+    amount,
+    toNativeToken,
+    receiveNativeAmt,
+  } = useSelector((state: RootState) => state.transfer);
   useEffect(() => {
     const destConfig = toNetwork && CHAINS[toNetwork];
     const tokenConfig = token && TOKENS[token];
-    if (!tokenConfig || !destConfig || !amount) return
+    if (!tokenConfig || !destConfig || !amount) return;
     if (tokenConfig && destConfig) {
-      const rows = getRows(tokenConfig, destConfig!.nativeToken, destGasPayment, amount, toNativeToken, receiveNativeAmt || 0);
+      const rows = getRows(
+        tokenConfig,
+        destConfig!.nativeToken,
+        destGasPayment,
+        amount,
+        toNativeToken,
+        receiveNativeAmt || 0,
+      );
       setState({ rows });
     }
-  }, [token, toNetwork, destGasPayment, amount, toNativeToken, receiveNativeAmt]);
+  }, [
+    token,
+    toNetwork,
+    destGasPayment,
+    amount,
+    toNativeToken,
+    receiveNativeAmt,
+  ]);
 
   return (
     <BridgeCollapse

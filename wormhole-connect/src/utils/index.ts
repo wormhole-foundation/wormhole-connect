@@ -1,5 +1,8 @@
 import { TokenConfig } from 'config/types';
-import { TokenId, ChainConfig } from '@wormhole-foundation/wormhole-connect-sdk';
+import {
+  TokenId,
+  ChainConfig,
+} from '@wormhole-foundation/wormhole-connect-sdk';
 import { CHAINS_ARR, TOKENS, TOKENS_ARR } from '../sdk/config';
 
 export function convertAddress(address: string): string {
@@ -17,11 +20,11 @@ export function displayEvmAddress(address: string): string {
 }
 
 export function getNetworkByChainId(chainId: number): ChainConfig | void {
-  return CHAINS_ARR.filter((c) => chainId === c.chainId)[0]
+  return CHAINS_ARR.filter((c) => chainId === c.chainId)[0];
 }
 
 export function getWrappedTokenId(token: TokenConfig): TokenId {
-  let tokenId = token.tokenId
+  let tokenId = token.tokenId;
   if (!tokenId) {
     const wrapped = TOKENS[token.wrappedAsset!];
     tokenId = wrapped.tokenId;
@@ -31,7 +34,9 @@ export function getWrappedTokenId(token: TokenConfig): TokenId {
 }
 
 export function getTokenById(tokenId: TokenId): TokenConfig | void {
-  return TOKENS_ARR.filter((t) => t.tokenId && tokenId.address === t.tokenId!.address)[0];
+  return TOKENS_ARR.filter(
+    (t) => t.tokenId && tokenId.address === t.tokenId!.address,
+  )[0];
 }
 
 export function getTokenDecimals(tokenId: TokenId | 'native'): number {
@@ -42,28 +47,28 @@ export function getTokenDecimals(tokenId: TokenId | 'native'): number {
 }
 
 function fallbackCopyTextToClipboard(text: string) {
-  const textArea = document.createElement('textarea')
-  textArea.value = text
+  const textArea = document.createElement('textarea');
+  textArea.value = text;
 
   // Avoid scrolling to bottom
-  textArea.style.top = '0'
-  textArea.style.left = '0'
-  textArea.style.position = 'fixed'
+  textArea.style.top = '0';
+  textArea.style.left = '0';
+  textArea.style.position = 'fixed';
 
-  document.body.appendChild(textArea)
-  textArea.focus()
-  textArea.select()
+  document.body.appendChild(textArea);
+  textArea.focus();
+  textArea.select();
 
   try {
-    const successful = document.execCommand('copy')
-    const msg = successful ? 'successful' : 'unsuccessful'
-    console.log('Fallback: Copying text command was ' + msg)
-    document.body.removeChild(textArea)
-    return true
+    const successful = document.execCommand('copy');
+    const msg = successful ? 'successful' : 'unsuccessful';
+    console.log('Fallback: Copying text command was ' + msg);
+    document.body.removeChild(textArea);
+    return true;
   } catch (err) {
-    console.error('Fallback: Oops, unable to copy', err)
-    document.body.removeChild(textArea)
-    return false
+    console.error('Fallback: Oops, unable to copy', err);
+    document.body.removeChild(textArea);
+    return false;
   }
 }
 
@@ -71,14 +76,14 @@ export function copyTextToClipboard(text: string) {
   if (navigator.clipboard) {
     navigator.clipboard.writeText(text).then(
       function () {
-        console.log('Async: Copying to clipboard was successful!')
-        return true
+        console.log('Async: Copying to clipboard was successful!');
+        return true;
       },
       function (err) {
-        console.error('Async: Could not copy text: ', err)
-        return fallbackCopyTextToClipboard(text)
-      }
-    )
+        console.error('Async: Could not copy text: ', err);
+        return fallbackCopyTextToClipboard(text);
+      },
+    );
   }
-  return fallbackCopyTextToClipboard(text)
+  return fallbackCopyTextToClipboard(text);
 }

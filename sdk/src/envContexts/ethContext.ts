@@ -29,7 +29,10 @@ export class EthContext<T extends WormholeContext> extends Context {
     const tokenBridge = this.context.mustGetBridge(chain);
     const chainId = this.context.resolveDomain(tokenId.chain);
     const tokenAddr = '0x' + this.formatAddress(tokenId.address);
-    return await tokenBridge.wrappedAsset(chainId, ethers.utils.arrayify(tokenAddr));
+    return await tokenBridge.wrappedAsset(
+      chainId,
+      ethers.utils.arrayify(tokenAddr),
+    );
   }
 
   /**

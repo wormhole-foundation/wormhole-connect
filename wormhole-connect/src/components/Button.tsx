@@ -45,7 +45,7 @@ function Button(props: Props) {
     if (props.onClick && !props.disabled) {
       props.onClick(e);
     }
-  }
+  };
   return (
     <div
       className={joinClass([

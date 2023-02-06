@@ -81,20 +81,17 @@ export async function getUsdVal(token: string) {
   if (!tokenConfig) throw new Error(`invalid token: ${token}`);
   const { coinGeckoId } = tokenConfig;
   const res = await fetch(
-    `https://api.coingecko.com/api/v3/simple/price?ids=${coinGeckoId}&vs_currencies=usd`
+    `https://api.coingecko.com/api/v3/simple/price?ids=${coinGeckoId}&vs_currencies=usd`,
   );
-  const data = (await res.json());
+  const data = await res.json();
   if (data[coinGeckoId]) {
-    const { usd } = data[coinGeckoId]
-    return usd
+    const { usd } = data[coinGeckoId];
+    return usd;
   }
 }
 
-export async function getConversion(
-  token1: string,
-  token2: string
-) {
+export async function getConversion(token1: string, token2: string) {
   const token1Val = await getUsdVal(token1);
   const token2Val = await getUsdVal(token2);
-  return token1Val / token2Val
+  return token1Val / token2Val;
 }
