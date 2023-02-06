@@ -9,11 +9,7 @@ import {
   clearWallet,
   setCurrentAddress,
 } from '../store/wallet';
-import {
-  openWalletModal,
-  disconnect,
-  Wallet,
-} from '../utils/wallet';
+import { openWalletModal, disconnect, Wallet } from '../utils/wallet';
 import DownIcon from '../icons/components/Down';
 import WalletIcon from '../icons/components/Wallet';
 import { copyTextToClipboard, displayEvmAddress } from '../utils';
@@ -80,7 +76,11 @@ const useStyles = makeStyles((theme: Theme) => ({
 type Props = {
   type: Wallet;
 };
-export const handleConnect = async (dispatch: Dispatch<AnyAction>, theme: Theme, type: Wallet) => {
+export const handleConnect = async (
+  dispatch: Dispatch<AnyAction>,
+  theme: Theme,
+  type: Wallet,
+) => {
   const walletConnection = await openWalletModal(
     theme,
     type === Wallet.RECEIVING,
@@ -90,13 +90,13 @@ export const handleConnect = async (dispatch: Dispatch<AnyAction>, theme: Theme,
     const { connection } = walletConnection;
     connection.on('accountsChanged', async (accounts: string[]) => {
       if (accounts.length === 0) {
-        await (disconnect(type));
+        await disconnect(type);
         clearWallet(type);
       } else {
         const payload = {
           type,
           address: accounts[0],
-        }
+        };
         dispatch(setCurrentAddress(payload));
       }
     });
@@ -121,12 +121,12 @@ function ConnectWallet(props: Props) {
   const copy = async (popupState: any) => {
     await copyTextToClipboard(wallet.address);
     popupState.close();
-  }
+  };
 
   const disconnectWallet = async () => {
     await disconnect(props.type);
     dispatch(clearWallet(Wallet.SENDING));
-  }
+  };
 
   // const icon = getIcon(wallet.type);
 
@@ -152,9 +152,21 @@ function ConnectWallet(props: Props) {
             }}
           >
             <div className={classes.dropdown}>
-              <div className={classes.dropdownItem} onClick={() => copy(popupState)}>Copy address</div>
-              <div className={classes.dropdownItem} onClick={() => connect(popupState)}>Change wallet</div>
-              <div className={classes.dropdownItem} onClick={disconnectWallet}>Disconnect</div>
+              <div
+                className={classes.dropdownItem}
+                onClick={() => copy(popupState)}
+              >
+                Copy address
+              </div>
+              <div
+                className={classes.dropdownItem}
+                onClick={() => connect(popupState)}
+              >
+                Change wallet
+              </div>
+              <div className={classes.dropdownItem} onClick={disconnectWallet}>
+                Disconnect
+              </div>
             </div>
           </Popover>
         </div>

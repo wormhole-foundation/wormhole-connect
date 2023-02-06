@@ -27,6 +27,9 @@ type Props = {
   type?: 'string' | 'number';
   align?: 'center' | 'right';
   id?: string;
+  min?: number;
+  max?: number;
+  step?: number;
   onChange: (
     e?:
       | React.ChangeEvent<HTMLInputElement>
@@ -42,6 +45,9 @@ function InputTransparent(props: Props) {
       className={classes.input}
       placeholder={props.placeholder}
       type={props.type}
+      min={props.min}
+      max={props.max}
+      step={props.step}
       onChange={props.onChange}
     />
   );

@@ -1,4 +1,8 @@
-import { CONFIG, ChainId, ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+import {
+  CONFIG,
+  ChainId,
+  ChainName,
+} from '@wormhole-foundation/wormhole-connect-sdk';
 import Web3Modal from 'web3modal';
 import { providers } from 'ethers';
 import WalletConnectProvider from '@walletconnect/web3-provider';
@@ -15,12 +19,12 @@ export enum Wallet {
 let sendingWallet = {
   connection: undefined as any,
   modal: undefined as any,
-}
+};
 
 let receivingWallet = {
   connection: undefined as any,
   modal: undefined as any,
-}
+};
 
 export type Connection = {
   connection: any;
@@ -92,61 +96,75 @@ export const openWalletModal = async (
     sendingWallet.modal = web3Modal;
   }
   return { connection, address, signer };
-}
+};
 
-export const registerWalletSigner = (chain: ChainName | ChainId, wallet: Wallet) => {
+export const registerWalletSigner = (
+  chain: ChainName | ChainId,
+  wallet: Wallet,
+) => {
   if (wallet === Wallet.SENDING) {
-    const provider = new providers.Web3Provider(sendingWallet.connection, 'any');
+    const provider = new providers.Web3Provider(
+      sendingWallet.connection,
+      'any',
+    );
     const signer = provider.getSigner();
     registerSigner(chain, signer);
   } else {
-    const provider = new providers.Web3Provider(receivingWallet.connection, 'any');
+    const provider = new providers.Web3Provider(
+      receivingWallet.connection,
+      'any',
+    );
     const signer = provider.getSigner();
     registerSigner(chain, signer);
   }
-}
+};
 
 export const switchNetwork = async (chainId: number, type: Wallet) => {
   const stringId = chainId.toString(16);
   const hexChainId = '0x' + stringId;
 
-  const connection = type === Wallet.SENDING ? sendingWallet.connection : receivingWallet.connection;
+  const connection =
+    type === Wallet.SENDING
+      ? sendingWallet.connection
+      : receivingWallet.connection;
   if (!connection) throw new Error('must connect wallet');
 
   // if wallet is already on correct chain, return
-  if (connection.chainId == stringId) return
+  if (connection.chainId == stringId) return;
 
   // switch chains
   // TODO: show switch network prompt for non-metamask wallets
-  connection.request({
-    method: 'wallet_switchEthereumChain',
-    params: [{ chainId: hexChainId }],
-  }).then((res: any) => console.log(res)).catch(async (e: any) => {
-    const network = getNetworkByChainId(chainId);
-    if (!network) return;
-    const token = TOKENS[network.gasToken];
-    const nativeCurrency = token && {
-      name: token.symbol,
-      symbol: token.symbol,
-      decimals: token.decimals,
-    }
-    const env = REACT_APP_ENV! as 'MAINNET' | 'TESTNET';
-    const rpc = CONFIG[env].rpcs[network.key];
-    await connection.request({
-      method: 'wallet_addEthereumChain',
-      params: [
-        {
-          chainId: hexChainId,
-          chainName: network.key,
-          rpcUrls: [rpc],
-          nativeCurrency,
-        },
-      ],
+  await connection
+    .request({
+      method: 'wallet_switchEthereumChain',
+      params: [{ chainId: hexChainId }],
+    })
+    .then((res: any) => console.log(res))
+    .catch(async (e: any) => {
+      const network = getNetworkByChainId(chainId);
+      if (!network) return;
+      const token = TOKENS[network.gasToken];
+      const nativeCurrency = token && {
+        name: token.symbol,
+        symbol: token.symbol,
+        decimals: token.decimals,
+      };
+      const env = REACT_APP_ENV! as 'MAINNET' | 'TESTNET';
+      const rpc = CONFIG[env].rpcs[network.key];
+      await connection.request({
+        method: 'wallet_addEthereumChain',
+        params: [
+          {
+            chainId: hexChainId,
+            chainName: network.key,
+            rpcUrls: [rpc],
+            nativeCurrency,
+          },
+        ],
+      });
+      console.error(e);
     });
-    console.log(4444)
-    console.error(e)
-  });
-}
+};
 
 export const disconnect = async (type: string) => {
   if (type === Wallet.SENDING) {
@@ -154,4 +172,4 @@ export const disconnect = async (type: string) => {
   } else {
     await receivingWallet.modal.clearCachedProvider();
   }
-}
+};

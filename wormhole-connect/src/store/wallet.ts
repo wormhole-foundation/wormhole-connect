@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { Wallet } from '../utils/wallet'
+import { Wallet } from '../utils/wallet';
 
 export enum WalletType {
   NONE = 0,
@@ -55,15 +55,23 @@ export const walletSlice = createSlice({
         address: '',
         type: WalletType.NONE,
         currentAddress: '',
-      }
+      };
       state[payload] = reset;
     },
-    setCurrentAddress: (state: WalletState, { payload }: { payload: { type: Wallet, address: string } }) => {
+    setCurrentAddress: (
+      state: WalletState,
+      { payload }: { payload: { type: Wallet; address: string } },
+    ) => {
       state[payload.type].currentAddress = payload.address;
     },
   },
 });
 
-export const { connectWallet, connectReceivingWallet, clearWallet, setCurrentAddress } = walletSlice.actions;
+export const {
+  connectWallet,
+  connectReceivingWallet,
+  clearWallet,
+  setCurrentAddress,
+} = walletSlice.actions;
 
 export default walletSlice.reducer;

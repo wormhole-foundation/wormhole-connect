@@ -11,6 +11,9 @@ export interface TransferState {
   token: string;
   amount: number | undefined;
   destGasPayment: PaymentOption;
+  maxSwapAmt: number | undefined;
+  toNativeToken: number;
+  receiveNativeAmt: number | undefined;
   txHash: string;
   redeemTx: string;
 }
@@ -22,6 +25,9 @@ const initialState: TransferState = {
   amount: undefined,
   // TODO: check if automatic is available once networks and token are selected
   destGasPayment: PaymentOption.AUTOMATIC,
+  maxSwapAmt: undefined,
+  toNativeToken: 0,
+  receiveNativeAmt: undefined,
   txHash: '',
   redeemTx: '',
 };
@@ -52,12 +58,33 @@ export const transferSlice = createSlice({
       console.log('set amount:', payload);
       state.amount = payload;
     },
+    setToNativeToken: (
+      state: TransferState,
+      { payload }: PayloadAction<number>,
+    ) => {
+      console.log('set toNativeToken amount:', payload);
+      state.toNativeToken = payload;
+    },
     setDestGasPayment: (
       state: TransferState,
       { payload }: PayloadAction<PaymentOption>,
     ) => {
       console.log('set destination gas payment option:', payload);
       state.destGasPayment = payload;
+    },
+    setMaxSwapAmt: (
+      state: TransferState,
+      { payload }: PayloadAction<number>,
+    ) => {
+      console.log('set max swap amount:', payload);
+      state.maxSwapAmt = payload;
+    },
+    setReceiveNativeAmt: (
+      state: TransferState,
+      { payload }: PayloadAction<number>,
+    ) => {
+      console.log('set receive native token amount:', payload);
+      state.receiveNativeAmt = payload;
     },
     setTxHash: (state: TransferState, { payload }: PayloadAction<string>) => {
       console.log('set tx hash:', payload);
@@ -66,7 +93,7 @@ export const transferSlice = createSlice({
     setRedeemTx: (state: TransferState, { payload }) => {
       console.log('set redeem tx:', payload);
       state.redeemTx = payload;
-    }
+    },
   },
 });
 
@@ -76,6 +103,9 @@ export const {
   setToNetwork,
   setDestGasPayment,
   setAmount,
+  setToNativeToken,
+  setMaxSwapAmt,
+  setReceiveNativeAmt,
   setTxHash,
   setRedeemTx,
 } = transferSlice.actions;

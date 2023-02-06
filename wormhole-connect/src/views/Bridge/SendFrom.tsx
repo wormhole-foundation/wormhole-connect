@@ -137,7 +137,7 @@ function SendFrom() {
       getNativeBalance(walletAddr, fromNetwork).then((res: BigNumber) => {
         const b = toDecimals(res, tokenConfig.decimals, 6);
         setBalance(b);
-      })
+      });
     }
   }, [tokenConfig, fromNetwork, walletAddr]);
 
@@ -182,6 +182,9 @@ function SendFrom() {
                   <InputTransparent
                     placeholder="0.00"
                     id={amtId}
+                    type="number"
+                    min={0}
+                    step={0.1}
                     onChange={handleAmountChange}
                   />
                 ) : (

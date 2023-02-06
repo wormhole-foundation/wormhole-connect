@@ -2,7 +2,7 @@ import React from 'react';
 import { makeStyles } from 'tss-react/mui';
 import Collapse from '@mui/material/Collapse';
 import Down from '../../icons/components/Down';
-import { joinClass, OPACITY } from '../../utils/style';
+import { joinClass, LINK, OPACITY } from '../../utils/style';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -55,6 +55,10 @@ const useStyles = makeStyles()((theme) => ({
     opacity: '70%',
     cursor: 'not-allowed !important',
   },
+  link: {
+    ...LINK,
+    color: theme.palette.text.primary,
+  },
 }));
 
 type Props = {
@@ -104,7 +108,14 @@ function BridgeCollapse(props: Props) {
             !collapsedState && classes.open,
           ])}
         >
-          This feature provided by xLabs
+          This feature provided by{' '}
+          <a
+            href="https://github.com/XLabs"
+            target="_blank"
+            className={classes.link} rel="noreferrer"
+          >
+            xLabs
+          </a>
         </div>
       )}
       <Collapse in={!collapsedState}>{props.children}</Collapse>

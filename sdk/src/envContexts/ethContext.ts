@@ -4,6 +4,7 @@ import {
 } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
 import { createNonce } from '@certusone/wormhole-sdk';
 import {
+  BigNumber,
   BigNumberish,
   constants,
   ContractReceipt,
@@ -25,10 +26,13 @@ export class EthContext<T extends WormholeContext> extends Context {
   }
 
   async getForeignAsset(tokenId: TokenId, chain: ChainName | ChainId) {
-    const tokenBridge = this.context.mustGetBridge(tokenId.chain);
-    const chainId = this.context.resolveDomain(chain);
+    const tokenBridge = this.context.mustGetBridge(chain);
+    const chainId = this.context.resolveDomain(tokenId.chain);
     const tokenAddr = '0x' + this.formatAddress(tokenId.address);
-    return await tokenBridge.wrappedAsset(chainId, tokenAddr);
+    return await tokenBridge.wrappedAsset(
+      chainId,
+      ethers.utils.arrayify(tokenAddr),
+    );
   }
 
   /**
@@ -234,6 +238,25 @@ export class EthContext<T extends WormholeContext> extends Context {
     // const v = await bridge.completeTransferAndUnwrapETH(signedVAA, overrides);
     // const receipt = await v.wait();
     // return receipt;
+  }
+
+  async calculateMaxSwapAmount(
+    destChain: ChainName | ChainId,
+    tokenId: TokenId,
+  ): Promise<BigNumber> {
+    const relayer = this.context.mustGetTBRelayer(destChain);
+    const token = await this.getForeignAsset(tokenId, destChain);
+    return await relayer.calculateMaxSwapAmountIn(token);
+  }
+
+  async calculateNativeTokenAmt(
+    destChain: ChainName | ChainId,
+    tokenId: TokenId,
+    amount: BigNumberish,
+  ): Promise<BigNumber> {
+    const relayer = this.context.mustGetTBRelayer(destChain);
+    const token = await this.getForeignAsset(tokenId, destChain);
+    return await relayer.calculateNativeSwapAmountOut(token, amount);
   }
 
   parseSequenceFromLog(
