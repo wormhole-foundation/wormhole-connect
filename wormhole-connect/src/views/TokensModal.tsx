@@ -124,14 +124,14 @@ function TokensModal() {
   );
   const walletAddr = useSelector(
     (state: RootState) => state.wallet.sending.address,
-  )
+  );
   const filteredTokens = TOKENS_ARR.filter((t) => {
     if (!fromNetwork) return true;
     return !!t.tokenId || (!t.tokenId && t.nativeNetwork === fromNetwork);
   });
   const tokenBalances = useSelector(
-    (state: RootState) => state.transfer.balances
-  )
+    (state: RootState) => state.transfer.balances,
+  );
 
   // state
   const [showAdvanced, setShowAdvanced] = React.useState(false);
@@ -180,17 +180,17 @@ function TokensModal() {
       tokens.forEach(async (t) => {
         if (t.tokenId) {
           const b = await getBalance(walletAddr, t.tokenId, chain);
-          const balance = {[t.symbol]: toDecimals(b, t.decimals, 6)};
+          const balance = { [t.symbol]: toDecimals(b, t.decimals, 6) };
           dispatch(setBalance(balance));
         } else {
           const b = await getNativeBalance(walletAddr, chain);
-          const balance = {[t.symbol]: toDecimals(b, t.decimals, 6)};
+          const balance = { [t.symbol]: toDecimals(b, t.decimals, 6) };
           dispatch(setBalance(balance));
         }
       });
-    }
+    };
     getBalances(filteredTokens, walletAddr, fromNetwork);
-  }, [])
+  }, []);
 
   return (
     <Modal open={showTokensModal} closable width={500}>

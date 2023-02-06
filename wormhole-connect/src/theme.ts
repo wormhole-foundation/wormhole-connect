@@ -53,47 +53,47 @@ export type PaletteColor = {
   A200: string;
   A400: string;
   A700: string;
-}
+};
 
 export type ExtendedTheme = {
-  primary: PaletteColor,
-  secondary: PaletteColor,
-  divider: string,
+  primary: PaletteColor;
+  secondary: PaletteColor;
+  divider: string;
   background: {
-    default: string
-  },
+    default: string;
+  };
   text: {
-    primary: string,
-    secondary: string,
-  },
-  error: PaletteColor,
-  info: PaletteColor,
-  success: PaletteColor,
-  warning: PaletteColor,
+    primary: string;
+    secondary: string;
+  };
+  error: PaletteColor;
+  info: PaletteColor;
+  success: PaletteColor;
+  warning: PaletteColor;
   button: {
-    primary: string,
-    primaryText: string,
-    disabled: string,
-    disabledText: string,
-    action: string,
-    actionText: string,
-    hover: string,
-  },
+    primary: string;
+    primaryText: string;
+    disabled: string;
+    disabledText: string;
+    action: string;
+    actionText: string;
+    hover: string;
+  };
   options: {
-    hover: string,
-    select: string,
-  },
+    hover: string;
+    select: string;
+  };
   card: {
-    background: string,
-    elevation: string,
-    secondary: string,
-  },
+    background: string;
+    elevation: string;
+    secondary: string;
+  };
   popover: {
-    background: string,
-    elevation: string,
-    secondary: string,
-  },
-}
+    background: string;
+    elevation: string;
+    secondary: string;
+  };
+};
 
 const lightStyled = {
   primary: {

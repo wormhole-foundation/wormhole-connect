@@ -33,7 +33,7 @@ const pulse = keyframes`
   }
 `;
 
-  const useStyles = makeStyles()((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   connectWallet: {
     display: 'flex',
     alignItems: 'center',
@@ -190,7 +190,10 @@ function ConnectWallet(props: Props) {
       )}
     </PopupState>
   ) : (
-    <div className={joinClass([classes.connectWallet, classes.animated])} onClick={() => connect()}>
+    <div
+      className={joinClass([classes.connectWallet, classes.animated])}
+      onClick={() => connect()}
+    >
       <WalletIcon />
       <div>Connect wallet</div>
     </div>

@@ -90,7 +90,10 @@ export const transferSlice = createSlice({
       console.log('set receive native token amount:', payload);
       state.receiveNativeAmt = payload;
     },
-    setBalance: (state: TransferState, { payload }: PayloadAction<Balances>) => {
+    setBalance: (
+      state: TransferState,
+      { payload }: PayloadAction<Balances>,
+    ) => {
       state.balances = { ...state.balances, ...payload };
     },
     setTxHash: (state: TransferState, { payload }: PayloadAction<string>) => {
