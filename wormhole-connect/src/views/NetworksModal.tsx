@@ -20,6 +20,7 @@ const useStyles = makeStyles()((theme) => ({
     display: 'flex',
     flexDirection: 'row',
     flexWrap: 'wrap',
+    justifyContent: 'space-between',
   },
   noResults: {
     ...CENTER,
@@ -31,7 +32,7 @@ const useStyles = makeStyles()((theme) => ({
     flexDirection: 'column',
     alignItems: 'center',
     textAlign: 'center',
-    margin: '12px',
+    margin: '12px 4px',
     padding: '16px',
     transition: 'background-color 0.4s',
     cursor: 'pointer',
@@ -107,7 +108,7 @@ function NetworksModal(props: Props) {
     <Modal
       open={props.open}
       closable
-      width={CHAINS_ARR.length > 6 ? 'md' : 'sm'}
+      width={CHAINS_ARR.length > 6 ? 650 : 475}
     >
       <Header text={props.title} />
       <div>Select Network</div>

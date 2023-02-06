@@ -93,7 +93,7 @@ function NetworksModal() {
   );
 
   return (
-    <Modal open={showWalletModal} closable width="sm">
+    <Modal open={showWalletModal} closable width={500}>
       <Header text="Connect wallet" align="left" />
       <Spacer height={32} />
       <div>{displayWalletOptions(WalletOptions)}</div>
