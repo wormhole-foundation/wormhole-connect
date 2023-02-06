@@ -1,4 +1,4 @@
-import React, { ChangeEvent } from 'react';
+import React, { ChangeEvent, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@mui/styles';
 import { useTheme } from '@mui/material/styles';
@@ -6,9 +6,11 @@ import { Theme } from '@mui/material';
 import { RootState } from '../store';
 import { TOKENS_ARR } from '../sdk/config';
 import { setTokensModal } from '../store/router';
-import { setToken } from '../store/transfer';
+import { setToken, setBalance } from '../store/transfer';
 import { displayEvmAddress } from '../utils';
+import { toDecimals } from '../utils/balance';
 import { CENTER, joinClass } from '../utils/style';
+import { getBalance, getNativeBalance } from '../sdk/sdk';
 
 import Header from '../components/Header';
 import Modal from '../components/Modal';
@@ -20,6 +22,8 @@ import Down from '../icons/components/Down';
 import Collapse from '@mui/material/Collapse';
 import TokenIcon from '../icons/components/TokenIcons';
 import CircularProgress from '@mui/material/CircularProgress';
+import { TokenConfig } from '../config/types';
+import { ChainId, ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 
 const useStyles = makeStyles((theme: Theme) => ({
   tokensContainer: {
@@ -110,7 +114,6 @@ function TokensModal() {
   const classes = useStyles();
   const theme = useTheme();
   const dispatch = useDispatch();
-  const balance = undefined; // TODO: populate balances
 
   // store values
   const showTokensModal = useSelector(
@@ -119,10 +122,16 @@ function TokensModal() {
   const fromNetwork = useSelector(
     (state: RootState) => state.transfer.fromNetwork,
   );
+  const walletAddr = useSelector(
+    (state: RootState) => state.wallet.sending.address,
+  )
   const filteredTokens = TOKENS_ARR.filter((t) => {
     if (!fromNetwork) return true;
     return !!t.tokenId || (!t.tokenId && t.nativeNetwork === fromNetwork);
   });
+  const tokenBalances = useSelector(
+    (state: RootState) => state.transfer.balances
+  )
 
   // state
   const [showAdvanced, setShowAdvanced] = React.useState(false);
@@ -159,6 +168,30 @@ function TokensModal() {
     closeTokensModal();
   };
 
+  // fetch token balances and set in store
+  // TODO: fix USDC balance
+  useEffect(() => {
+    if (!walletAddr || !fromNetwork) return;
+    const getBalances = async (
+      tokens: TokenConfig[],
+      walletAddr: string,
+      chain: ChainName | ChainId,
+    ) => {
+      tokens.forEach(async (t) => {
+        if (t.tokenId) {
+          const b = await getBalance(walletAddr, t.tokenId, chain);
+          const balance = {[t.symbol]: toDecimals(b, t.decimals, 6)};
+          dispatch(setBalance(balance));
+        } else {
+          const b = await getNativeBalance(walletAddr, chain);
+          const balance = {[t.symbol]: toDecimals(b, t.decimals, 6)};
+          dispatch(setBalance(balance));
+        }
+      });
+    }
+    getBalances(filteredTokens, walletAddr, fromNetwork);
+  }, [])
+
   return (
     <Modal open={showTokensModal} closable width={500}>
       <Header text="Select token" />
@@ -193,8 +226,8 @@ function TokensModal() {
                     <div className={classes.tokenRowRight}>
                       <div className={classes.tokenRowBalanceText}>Balance</div>
                       <div className={classes.tokenRowBalance}>
-                        {balance ? (
-                          <div>TODO</div>
+                        {tokenBalances[token.symbol] ? (
+                          <div>{tokenBalances[token.symbol]}</div>
                         ) : fromNetwork ? (
                           <CircularProgress size={14} />
                         ) : (
