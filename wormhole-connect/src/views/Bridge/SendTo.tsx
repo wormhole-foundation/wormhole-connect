@@ -19,6 +19,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   header: {
     display: 'flex',
     justifyContent: 'space-between',
+    alignItems: 'center',
     padding: '8px 16px',
   },
   headerTitle: {
