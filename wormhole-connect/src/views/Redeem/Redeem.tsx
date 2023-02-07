@@ -1,14 +1,14 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { fetchVaa, ParsedVaa } from '../../utils/vaa';
+import { setVaa } from '../../store/redeem';
+import { RootState } from '../../store';
 import PageHeader from '../../components/PageHeader';
 import Spacer from '../../components/Spacer';
 import NetworksTag from './Tag';
 import Stepper from './Stepper';
-import { setVaa } from '../../store/redeem';
-import { RootState } from '../../store';
-import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
-import { Alert, AlertTitle } from '@mui/material';
+import TxSearch from './TxSearch';
 
 class Redeem extends React.Component<
   {
@@ -57,7 +57,7 @@ class Redeem extends React.Component<
       !this.props.receivingAddr ||
       !this.props.token
     )
-      return <div></div>;
+      return <TxSearch />;
     return (
       <div
         style={{
@@ -69,11 +69,6 @@ class Redeem extends React.Component<
         }}
       >
         <PageHeader title="Bridge" back />
-
-        <Alert severity="warning" sx={{ width: '100%', marginTop: '32px' }}>
-          <AlertTitle>Warning</AlertTitle>
-          Do not leave page before completing your transfer
-        </Alert>
 
         <Spacer height={40} />
         <NetworksTag />

@@ -101,7 +101,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   invert: {
     transform: 'rotate(180deg)',
   },
-  row: {
+  sectionHeader: {
     display: 'flex',
     alignItems: 'center',
   },
@@ -190,6 +190,7 @@ function TokensModal() {
       });
     };
     getBalances(filteredTokens, walletAddr, fromNetwork);
+    // eslint-disable-next-line
   }, []);
 
   return (
@@ -201,7 +202,7 @@ function TokensModal() {
         onChange={searchTokens}
       />
       <Spacer height={16} />
-      <div className={classes.row}>
+      <div className={classes.sectionHeader}>
         <div className={classes.subheader}>Tokens with liquid markets</div>
         <Tooltip text="Some text" />
       </div>
@@ -248,7 +249,7 @@ function TokensModal() {
             <div className={classes.noResults}>No results</div>
           )}
           <div className={classes.advanced} onClick={toggleAdvanced}>
-            <div className={classes.row}>
+            <div className={classes.sectionHeader}>
               <div className={classes.subheader}>Advanced</div>
               <Tooltip text="Some text" />
             </div>

@@ -56,29 +56,13 @@ export const getNativeBalance = async (
   return await provider.getBalance(walletAddr);
 };
 
-// export const getTxDetails(chain: ChainName | ChainId, txHash: string) {
-//   // TODO: get tx details by transaction receipt
-//   const provider = context.mustGetProvider(nameOrDomain);
-//   const receipt = await provider.getTransactionReceipt(transactionHash);
-//   if (!receipt) {
-//     throw new Error(`No receipt for ${transactionHash} on ${nameOrDomain}`);
-//   }
-//   const messages: any[] = [];
-//     const bridge = core.Bridge__factory.createInterface();
-
-//     for (const log of receipt.logs) {
-//       try {
-//         const parsed = bridge.parseLog(log);
-//         if (parsed.name === '') {
-//           console.log(parsed.args)
-//           messages.push(parsed.args);
-//         }
-//       } catch (e: unknown) {
-//         throw e;
-//       }
-//     }
-//     return messages;
-// }
+export const parseMessageFromTx = async (
+  tx: string,
+  chain: ChainName | ChainId,
+) => {
+  const EthContext: any = context.getContext(chain);
+  return await EthContext.parseMessageFromTx(tx, chain);
+};
 
 // export const getRelayerFee = async (
 //   sourceChain: ChainName | ChainId,

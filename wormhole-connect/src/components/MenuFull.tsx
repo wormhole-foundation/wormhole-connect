@@ -58,7 +58,7 @@ export default function Menu() {
             Bridge
           </div>
           <div className={classes.menuItem} onClick={() => navigate('redeem')}>
-            Claim balance
+            Resume transfer
           </div>
           <div
             className={classes.menuItem}

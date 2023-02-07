@@ -28,7 +28,7 @@ const useStyles = makeStyles()((theme) => ({
     zIndex: '-1',
     backgroundImage: 'url(/background-image.svg)',
     backgroundSize: 'cover',
-  }
+  },
 }));
 
 function App() {
