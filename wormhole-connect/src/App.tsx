@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Provider } from 'react-redux';
+import { makeStyles } from 'tss-react/mui';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
@@ -12,11 +13,26 @@ import { store } from './store';
 import AppRouter from './AppRouter';
 import { getDesignTokens } from './theme';
 import { THEME } from './sdk/config';
-import BackgroundImage from './components/BackgroundImage';
 
 const ColorModeContext = React.createContext({ toggleColorMode: () => {} });
 
+const useStyles = makeStyles()((theme) => ({
+  background: {
+    position: 'fixed',
+    top: '0',
+    bottom: '0',
+    left: '0',
+    right: '0',
+    height: '100vh',
+    width: '100vw',
+    zIndex: '-1',
+    backgroundImage: 'url(/background-image.svg)',
+    backgroundSize: 'cover',
+  }
+}));
+
 function App() {
+  const { classes } = useStyles();
   const [mode, setMode] = React.useState<PaletteMode>(THEME);
   const colorMode = React.useMemo(
     () => ({
@@ -36,7 +52,7 @@ function App() {
     <Provider store={store}>
       <ColorModeContext.Provider value={colorMode}>
         <ThemeProvider theme={theme}>
-          {mode === 'dark' && <BackgroundImage />}
+          {mode === 'dark' && <div className={classes.background} />}
           <CssBaseline enableColorScheme />
           {/* light/dark theme switch */}
           <Box
