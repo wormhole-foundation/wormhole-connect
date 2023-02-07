@@ -290,7 +290,7 @@ const dark = {
   },
   popover: {
     background: '#1b2033',
-    secondary: '#222840',
+    secondary: '#ffffff' + OPACITY[5],
     elevation: 'none',
   },
   modal: {

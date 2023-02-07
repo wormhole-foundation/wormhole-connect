@@ -2,7 +2,7 @@ import React from 'react';
 import { makeStyles } from 'tss-react/mui';
 import Collapse from '@mui/material/Collapse';
 import Down from '../../icons/components/Down';
-import { joinClass, LINK, OPACITY } from '../../utils/style';
+import { joinClass, LINK } from '../../utils/style';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -17,7 +17,8 @@ const useStyles = makeStyles()((theme) => ({
     alignItems: 'center',
     padding: '16px',
     cursor: 'pointer',
-    backgroundColor: theme.palette.card.background + OPACITY[80],
+    backgroundColor: theme.palette.card.background,
+    backgroundOpacity: '80%',
     borderRadius: '8px',
     transition: 'border-radius 0.4s',
   },

@@ -6,11 +6,7 @@ import { styled } from '@mui/material/styles';
 import BridgeCollapse from './Collapse';
 import InputContainer from '../../components/InputContainer';
 import { CHAINS, TOKENS } from '../../sdk/config';
-import {
-  calculateMaxSwapAmount,
-  calculateNativeTokenAmt,
-  getNativeBalance,
-} from '../../sdk/sdk';
+import { calculateMaxSwapAmount, calculateNativeTokenAmt, getNativeBalance } from '../../sdk/sdk';
 import { TokenConfig } from '../../config/types';
 import { RootState } from '../../store';
 import TokenIcon from '../../icons/components/TokenIcons';
@@ -87,7 +83,7 @@ function GasSlider(props: { disabled: boolean }) {
   const { token, toNetwork, amount, maxSwapAmt } = useSelector(
     (state: RootState) => state.transfer,
   );
-  const { receiving } = useSelector((state: RootState) => state.wallet);
+  const receivingAddr = useSelector((state: RootState) => state.wallet.receiving.address);
   const destConfig = CHAINS[toNetwork!];
   const sendingToken = TOKENS[token];
   const nativeGasToken = TOKENS[destConfig?.gasToken!];
@@ -109,13 +105,14 @@ function GasSlider(props: { disabled: boolean }) {
     setState({ ...state, max: actualMaxSwap });
   }, [maxSwapAmt, amount]);
 
-  useEffect(() => {
-    if (!toNetwork) return;
-    getNativeBalance(receiving.address, toNetwork).then((res: any) => {
-      const b = toDecimals(res, 18, 6);
-      setState({ ...state, destNativeBalance: Number.parseFloat(b) });
-    });
-  }, [toNetwork, receiving.address]);
+  // TODO: fix getNativeBalance
+  // useEffect(() => {
+  //   if (!toNetwork || !receivingAddr) return;
+  //   getNativeBalance(receivingAddr, toNetwork).then((res: any) => {
+  //     const b = toDecimals(res, 18, 6);
+  //     setState({ ...state, destNativeBalance: Number.parseFloat(b) });
+  //   });
+  // }, [toNetwork, receivingAddr]);
 
   useEffect(() => {
     if (!toNetwork || !sendingToken) return;
@@ -241,7 +238,7 @@ function GasSlider(props: { disabled: boolean }) {
                   label(
                     state.nativeGas,
                     nativeGasToken.symbol,
-                    state.token!,
+                    (state.token || amount)!,
                     token,
                   )
                 }

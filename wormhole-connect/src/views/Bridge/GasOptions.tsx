@@ -55,14 +55,14 @@ const getOptions = (dest: NetworkConfig, token: string): OptionConfig[] => [
     title: `Pay with ${token}`,
     subtitle: '(one transaction)',
     description: 'Gas fees will be paid automatically',
-    estimate: `0.75 ${token}`,
+    estimate: `TODO ${token}`,
     active: PaymentOption.AUTOMATIC,
   },
   {
     title: `Pay with ${token} and ${dest.gasToken}`,
     subtitle: '(two transactions)',
     description: `Claim with ${dest.gasToken} on ${dest.displayName}`,
-    estimate: `0.05 ${token} & 0.5 ${dest.gasToken}`,
+    estimate: `TODO ${token} & TODO ${dest.gasToken}`,
     active: PaymentOption.MANUAL,
   },
 ];
