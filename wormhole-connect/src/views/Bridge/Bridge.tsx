@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { RootState } from '../../store';
-import { PaymentOption } from '../../store/transfer';
+import { PaymentOption, setBalance } from '../../store/transfer';
 
 import Header from '../../components/Header';
 import Spacer from '../../components/Spacer';
@@ -13,6 +13,11 @@ import Preview from './Preview';
 import Send from './Send';
 import MenuFull from '../../components/MenuFull';
 import { Collapse } from '@mui/material';
+import { BigNumber } from 'ethers';
+import { toDecimals } from '../../utils/balance';
+import { useDispatch } from 'react-redux';
+import { getNativeBalance } from '../../sdk/sdk';
+import { CHAINS } from '../../sdk/config';
 
 const useStyles = makeStyles()((theme) => ({
   bridgeContent: {
@@ -34,12 +39,24 @@ const useStyles = makeStyles()((theme) => ({
 
 function Bridge() {
   const { classes } = useStyles();
+  const dispatch = useDispatch();
   const { fromNetwork, toNetwork, amount, token, destGasPayment } = useSelector(
     (state: RootState) => state.transfer,
   );
   const { sending, receiving } = useSelector(
     (state: RootState) => state.wallet,
   );
+
+  useEffect(() => {
+    if (!toNetwork || !receiving.address) return;
+    const networkConfig = CHAINS[toNetwork]!;
+    getNativeBalance(receiving.address, toNetwork).then((res: BigNumber) => {
+      const b = toDecimals(res, 18, 6);
+      const balance = { [networkConfig.gasToken]: b };
+      dispatch(setBalance(balance));
+    });
+  }, [toNetwork, receiving.address]);
+
   const valid =
     fromNetwork &&
     toNetwork &&

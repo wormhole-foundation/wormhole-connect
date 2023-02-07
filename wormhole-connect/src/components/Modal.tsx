@@ -23,8 +23,8 @@ const useStyles = makeStyles<{ width: number }>()((theme, { width }) => ({
     cursor: 'pointer',
   },
   background: {
-    background: theme.palette.modal.background
-  }
+    background: theme.palette.modal.background,
+  },
 }));
 
 type Props = {

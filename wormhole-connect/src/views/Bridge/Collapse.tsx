@@ -44,7 +44,7 @@ const useStyles = makeStyles()((theme) => ({
   banner: {
     borderBottomRightRadius: '8px',
     borderBottomLeftRadius: '8px',
-    backgroundColor: theme.palette.info[200],
+    backgroundColor: theme.palette.info[500],
     padding: '8px 16px',
     transition: 'border-radius 0.4s',
   },

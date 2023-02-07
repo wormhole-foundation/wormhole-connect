@@ -123,26 +123,25 @@ const lightStyled = {
   },
   error: red,
   info: {
-    // #7EB1EF
-    50: '#BED8F6',
-    100: '#B1D0F5',
-    200: '#A4C8F3',
-    300: '#97C0F2',
-    400: '#8AB8F0',
-    500: '#7EB1EF',
-    600: '#719FD7',
-    700: '#648DBF',
-    800: '#587BA7',
-    900: '#4B6A8F',
-    A100: '#7EB1EF',
-    A200: '#7EB1EF',
-    A400: '#7EB1EF',
-    A700: '#7EB1EF',
+    50: '#d1e3f9',
+    100: '#c8def7',
+    200: '#bfd8f6',
+    300: '#b6d3f5',
+    400: '#adcdf4',
+    500: '#A4C8F3',
+    600: '#93b4da',
+    700: '#83a0c2',
+    800: '#728caa',
+    900: '#627891',
+    A100: '#A4C8F3',
+    A200: '#A4C8F3',
+    A400: '#A4C8F3',
+    A700: '#A4C8F3',
   },
   success: green,
   warning: orange,
   button: {
-    primary: '#F0F0F5',
+    primary: '#ffffff',
     primaryText: grey[900],
     disabled: '#c8cad1',
     disabledText: grey[800],
@@ -166,7 +165,7 @@ const lightStyled = {
   },
   modal: {
     background: '#ffffff',
-  }
+  },
 };
 
 // const dark = {
@@ -253,30 +252,46 @@ const dark = {
   },
   error: red,
   info: {
-    50: '#294958',
-    100: '#2f5464',
-    200: '#355e71',
-    300: '#3b697e',
-    400: '#4e788a',
-    500: '#628797',
-    600: '#7596a4',
-    700: '#89a5b1',
-    800: '#222632',
-    900: '#9db4be',
-    A100: '#3b697e',
-    A200: '#3b697e',
-    A400: '#3b697e',
-    A700: '#3b697e',
+    50: '#97a5b7',
+    100: '#8293a9',
+    200: '#6e819a',
+    300: '#596f8c',
+    400: '#445d7e',
+    500: '#304C70',
+    600: '#2b4464',
+    700: '#263c59',
+    800: '#21354e',
+    900: '#1c2d43',
+    A100: '#304C70',
+    A200: '#304C70',
+    A400: '#304C70',
+    A700: '#304C70',
   },
-  success: green,
+  // success: green,
+  success: {
+    50: '#66d6cd',
+    100: '#4dcfc4',
+    200: '#33c8bc',
+    300: '#1ac1b4',
+    400: '#01BBAC',
+    500: '#00a89a',
+    600: '#009589',
+    700: '#008278',
+    800: '#007067',
+    900: '#005d56',
+    A100: '#00a89a',
+    A200: '#00a89a',
+    A400: '#00a89a',
+    A700: '#00a89a',
+  },
   warning: orange,
   button: {
-    primary: '#222632',
-    primaryText: '#fff',
-    disabled: '#6c6e76',
-    disabledText: '#9d9ea4',
-    action: '#2b867d',
-    actionText: '#fff',
+    primary: '#ffffff' + OPACITY[20],
+    primaryText: '#ffffff',
+    disabled: '#ffffff' + OPACITY[10],
+    disabledText: '#ffffff' + OPACITY[40],
+    action: '#ffffff' + OPACITY[20],
+    actionText: '#ffffff',
     hover: '#ffffff' + OPACITY[7],
   },
   options: {
@@ -294,8 +309,8 @@ const dark = {
     elevation: 'none',
   },
   modal: {
-    background: '#0F1024'
-  }
+    background: '#0F1024',
+  },
 };
 
 export const getDesignTokens = (mode: PaletteMode) =>
@@ -307,7 +322,10 @@ export const getDesignTokens = (mode: PaletteMode) =>
           // Name of the slot
           root: {
             // Some CSS
-            background: (mode === 'light' ? lightStyled.modal.background : dark.modal.background) + ' !important',
+            background:
+              (mode === 'light'
+                ? lightStyled.modal.background
+                : dark.modal.background) + ' !important',
           },
         },
       },

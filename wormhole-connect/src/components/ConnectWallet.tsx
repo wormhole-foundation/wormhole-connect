@@ -19,17 +19,17 @@ import WalletIcon from '../icons/components/Wallet';
 import WalletIcons from '../icons/components/WalletIcons';
 import PopupState, { bindTrigger, bindPopover } from 'material-ui-popup-state';
 import Popover from '@mui/material/Popover';
-import { joinClass, OPACITY } from '../utils/style';
+import { changeOpacity, joinClass, OPACITY } from '../utils/style';
 
 const pulse = (theme: any) => keyframes`
   0% {
     transform: scale(0.98);
   } 70% {
     transform: scale(1);
-    box-shadow: 0 0 0 15px ${theme.palette.card.background}${OPACITY[0]};
+    box-shadow: 0 0 0 15px ${changeOpacity(theme.palette.button.primary, 0)};
   } 100% {
     transform: scale(0.98);
-    box-shadow: 0 0 0 0 ${theme.palette.card.background}${OPACITY[0]};
+    box-shadow: 0 0 0 0 ${changeOpacity(theme.palette.button.primary, 0)};
   }
 `;
 
@@ -41,15 +41,12 @@ const useStyles = makeStyles()((theme) => ({
     gap: '8px',
     padding: '8px 16px',
     borderRadius: '20px',
-    backgroundColor: theme.palette.card.background,
+    backgroundColor: theme.palette.button.primary,
     cursor: 'pointer',
   },
   animated: {
-    boxShadow: `0 0 0 0 ${theme.palette.card.background}${OPACITY[70]}`,
+    boxShadow: `0 0 0 0 ${theme.palette.button.primary}`,
     animation: `${pulse(theme)} 1.5s ease-out infinite`,
-    '&:hover': {
-      animation: 'none',
-    },
   },
   walletIcon: {
     width: '24px',

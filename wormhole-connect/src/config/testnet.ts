@@ -94,7 +94,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
   BNB: {
     symbol: 'BNB',
     nativeNetwork: 'bsc',
-    icon: 'bsc',
+    icon: 'bnb',
     coinGeckoId: 'bnb',
     color: '#F3BA30',
     decimals: 18,
