@@ -232,6 +232,9 @@ export class WormholeContext extends MultiProvider<Domain> {
       case Context.ETH: {
         return new EthContext(this);
       }
+      case Context.SOLANA: {
+        return new SolanaContext(this);
+      }
       case Context.TERRA: {
         return new TerraContext(this);
       }
@@ -240,9 +243,6 @@ export class WormholeContext extends MultiProvider<Domain> {
       }
       case Context.XPLA: {
         return new XplaContext(this);
-      }
-      case Context.SOLANA: {
-        return new SolanaContext(this);
       }
       case Context.ALGORAND: {
         return new AlgorandContext(this);
@@ -343,20 +343,10 @@ export class WormholeContext extends MultiProvider<Domain> {
     );
   }
 
-  parseSequenceFromLog(receipt: any, chain: ChainName | ChainId): string {
-    const context = this.getContext(chain);
-    return context.parseSequenceFromLog(receipt, chain);
-  }
-
-  parseSequencesFromLog(receipt: any, chain: ChainName | ChainId): string[] {
-    const context = this.getContext(chain);
-    return context.parseSequencesFromLog(receipt, chain);
-  }
-
-  formatAddress(address: string, chain: ChainName | ChainId): string {
-    const context = this.getContext(chain);
-    return context.formatAddress(address);
-  }
+  // formatAddress(address: any, chain: ChainName | ChainId): string {
+  //   const context = this.getContext(chain);
+  //   return context.formatAddress(address);
+  // }
 
   /**
    * Get the default config for Mainnet or Testnet

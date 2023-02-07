@@ -15,7 +15,14 @@ import {
 import { arrayify, zeroPad } from 'ethers/lib/utils';
 import { WormholeContext } from '../wormhole';
 import { Context } from './contextAbstract';
-import { TokenId, ChainName, ChainId, NATIVE } from '../types';
+import {
+  TokenId,
+  ChainName,
+  ChainId,
+  NATIVE,
+  ParsedRelayerMessage,
+  ParsedMessage,
+} from '../types';
 
 export class EthContext<T extends WormholeContext> extends Context {
   readonly context: T;
@@ -259,33 +266,71 @@ export class EthContext<T extends WormholeContext> extends Context {
     return await relayer.calculateNativeSwapAmountOut(token, amount);
   }
 
-  parseSequenceFromLog(
-    receipt: ethers.ContractReceipt,
-    chain: ChainName | ChainId,
-  ): string {
-    const sequences = this.parseSequencesFromLog(receipt, chain);
-    if (sequences.length === 0) throw new Error('no sequence found in log');
-    return sequences[0];
-  }
-
-  parseSequencesFromLog(
-    receipt: ethers.ContractReceipt,
-    chain: ChainName | ChainId,
-  ): string[] {
-    const bridgeAddress = this.context.mustGetBridge(chain);
-    // TODO: dangerous!(?)
+  async parseMessageFromTx(tx: string, chain: ChainName | ChainId) {
+    const provider = this.context.mustGetProvider(chain);
+    const receipt = await provider.getTransactionReceipt(tx);
+    console.log(receipt);
+    if (!receipt) throw new Error(`No receipt for ${tx} on ${chain}`);
+    // const core = context.mustGetCore(chain);
+    const contracts = this.context.mustGetContracts(chain);
+    if (!contracts.core || !contracts.bridge)
+      throw new Error('contracts not found');
     const bridgeLogs = receipt.logs.filter((l: any) => {
-      return l.address === bridgeAddress;
+      return l.address === contracts.core!.address;
     });
-    return bridgeLogs.map((bridgeLog) => {
-      const {
-        args: { sequence },
-      } = Implementation__factory.createInterface().parseLog(bridgeLog);
-      return sequence.toString();
+    const parsedLogs = bridgeLogs.map(async (bridgeLog) => {
+      const parsed =
+        Implementation__factory.createInterface().parseLog(bridgeLog);
+      if (!contracts.tokenBridgeRelayer)
+        throw new Error('relayer contract not found');
+
+      if (parsed.args.payload.startsWith('0x01')) {
+        const parsedTransfer = await contracts.bridge!.parseTransfer(
+          parsed.args.payload,
+        ); // for bridge messages
+        const parsedMessage: ParsedMessage = {
+          sender: receipt.from,
+          amount: parsedTransfer.amount,
+          payloadID: parsedTransfer.payloadID,
+          to: parsedTransfer.to,
+          toChain: parsedTransfer.toChain as ChainId,
+          tokenAddress: parsedTransfer.tokenAddress,
+          tokenChain: parsedTransfer.tokenChain as ChainId,
+        };
+        return parsedMessage;
+      }
+      const parsedTransfer = await contracts.bridge!.parseTransferWithPayload(
+        parsed.args.payload,
+      );
+      const parsedPayload =
+        await contracts.tokenBridgeRelayer!.decodeTransferWithRelay(
+          parsedTransfer.payload,
+        );
+      const parsedMessage: ParsedRelayerMessage = {
+        sender: receipt.from,
+        amount: parsedTransfer.amount,
+        payloadID: parsedTransfer.payloadID,
+        to: this.parseAddress(parsedTransfer.to),
+        toChain: parsedTransfer.toChain as ChainId,
+        tokenAddress: this.parseAddress(parsedTransfer.tokenAddress),
+        tokenChain: parsedTransfer.tokenChain as ChainId,
+        payload: parsedTransfer.payload,
+        relayerPayloadId: parsedPayload.payloadId,
+        recipient: this.parseAddress(parsedPayload.targetRecipient),
+        relayerFee: parsedPayload.targetRelayerFee,
+        toNativeTokenAmount: parsedPayload.toNativeTokenAmount,
+      };
+      return parsedMessage;
     });
+    return parsedLogs;
   }
 
-  formatAddress(address: any): string {
+  formatAddress(address: string): string {
     return Buffer.from(zeroPad(arrayify(address), 32)).toString('hex');
+  }
+
+  parseAddress(address: string): string {
+    if (address.length === 42) return address;
+    return '0x' + address.slice(26);
   }
 }

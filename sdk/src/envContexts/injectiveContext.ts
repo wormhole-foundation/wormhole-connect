@@ -144,27 +144,6 @@ export class InjectiveContext<T extends WormholeContext> extends Context {
     );
   }
 
-  parseSequenceFromLog(receipt: any, chain: ChainName | ChainId): string {
-    const sequences = this.parseSequencesFromLog(receipt, chain);
-    if (sequences.length === 0) throw new Error('no sequence found in log');
-    return sequences[0];
-  }
-
-  parseSequencesFromLog(receipt: any, chain: ChainName | ChainId): string[] {
-    let sequences: string[] = [];
-    const jsonLog = JSON.parse(receipt.rawLog);
-    jsonLog.forEach((row: any) => {
-      row.events.forEach((event: any) => {
-        event.attributes.forEach((attribute: any) => {
-          if (attribute.key === 'message.sequence') {
-            sequences.push(attribute.value.toString());
-          }
-        });
-      });
-    });
-    return sequences;
-  }
-
   formatAddress(address: string): string {
     return Buffer.from(
       zeroPad(bech32.fromWords(bech32.decode(address).words), 32),

@@ -5,12 +5,10 @@ import {
 } from '@certusone/wormhole-sdk';
 import { Account, connect } from 'near-api-js';
 import BN from 'bn.js';
-import { FinalExecutionOutcome } from 'near-api-js/lib/providers';
 import { arrayify, sha256 } from 'ethers/lib/utils';
 import { WormholeContext } from '../wormhole';
 import { Context } from './contextAbstract';
 import { TokenId, ChainName, ChainId, NATIVE } from '../types';
-const NEAR_EVENT_PREFIX = 'EVENT_JSON:';
 
 export class NearContext<T extends WormholeContext> extends Context {
   readonly context: T;
@@ -227,33 +225,6 @@ export class NearContext<T extends WormholeContext> extends Context {
         payload,
       );
     }
-  }
-
-  parseSequenceFromLog(
-    receipt: FinalExecutionOutcome,
-    chain: ChainName | ChainId,
-  ): string {
-    const sequences = this.parseSequencesFromLog(receipt, chain);
-    if (sequences.length === 0) throw new Error('no sequence found in log');
-    return sequences[0];
-  }
-
-  parseSequencesFromLog(
-    receipt: FinalExecutionOutcome,
-    chain: ChainName | ChainId,
-  ): string[] {
-    const sequences: string[] = [];
-    for (const o of receipt.receipts_outcome) {
-      for (const l of o.outcome.logs) {
-        if (l.startsWith(NEAR_EVENT_PREFIX)) {
-          const body = JSON.parse(l.slice(NEAR_EVENT_PREFIX.length));
-          if (body.standard === 'wormhole' && body.event === 'publish') {
-            sequences.push(body.seq.toString());
-          }
-        }
-      }
-    }
-    return sequences;
   }
 
   formatAddress(address: string): string {

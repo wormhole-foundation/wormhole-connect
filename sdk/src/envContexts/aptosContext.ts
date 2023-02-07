@@ -56,39 +56,6 @@ export class AptosContext<T extends WormholeContext> extends Context {
     throw new Error('Transfer with payload are not yet supported in the sdk');
   }
 
-  parseSequenceFromLog(
-    receipt: Types.UserTransaction,
-    chain: ChainName | ChainId,
-  ): string {
-    const sequences = this.parseSequencesFromLog(receipt, chain);
-    if (sequences.length === 0) throw new Error('no sequence found in log');
-    return sequences[0];
-  }
-
-  parseSequencesFromLog(
-    receipt: Types.UserTransaction,
-    chain: ChainName | ChainId,
-  ): string[] {
-    const coreBridge = this.context.mustGetCore(chain);
-
-    if (receipt.success) {
-      const sequences: string[] = [];
-      receipt.events
-        .filter(
-          (e) => e.type === `${coreBridge.address}::state::WormholeMessage`,
-        )
-        .forEach((e: any) => {
-          const { sequence } = e?.data;
-          if (sequence) {
-            sequences.push(sequence);
-          }
-        });
-      return sequences;
-    }
-
-    return [];
-  }
-
   formatAddress(address: string): string {
     throw new Error('cannot get emitter address');
   }

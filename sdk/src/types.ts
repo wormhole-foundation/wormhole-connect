@@ -1,4 +1,5 @@
 import { Network as Environment } from '@certusone/wormhole-sdk';
+import { BigNumber } from 'ethers';
 import { MainnetChainName, MainnetChainId } from './config/MAINNET';
 import { TestnetChainName, TestnetChainId } from './config/TESTNET';
 
@@ -55,3 +56,23 @@ export type TokenId = {
   chain: ChainName;
   address: string;
 };
+
+export interface ParsedMessage {
+  sender: string;
+  amount: BigNumber;
+  payloadID: number;
+  to: string;
+  toChain: ChainId;
+  tokenAddress: string;
+  tokenChain: ChainId;
+  payload?: string;
+}
+
+export interface ParsedRelayerMessage extends ParsedMessage {
+  relayerPayloadId: number;
+  recipient: string;
+  relayerFee: BigNumber;
+  toNativeTokenAmount: BigNumber;
+}
+
+export type AnyMessage = ParsedMessage | ParsedRelayerMessage;

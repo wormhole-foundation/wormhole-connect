@@ -25,16 +25,9 @@ export abstract class Context {
     payload: any,
   ): any;
 
-  protected abstract parseSequenceFromLog(
-    receipt: any,
-    chain: ChainName | ChainId,
-  ): string;
-  protected abstract parseSequencesFromLog(
-    receipt: any,
-    chain: ChainName | ChainId,
-  ): string[];
   protected abstract formatAddress(address: any): string;
 
+  // parseMessageFromTx
   // getForeignAsset
   // redeem
 }
