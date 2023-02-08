@@ -87,7 +87,7 @@ export const parseMessageFromTx = async (
   const token = await getToken({
     address: parsed.tokenAddress,
     chain: parsed.tokenChain,
-  })
+  });
   const base = {
     sendTx: parsed.sendTx,
     sender: parsed.sender,
@@ -100,7 +100,7 @@ export const parseMessageFromTx = async (
     tokenDecimals: token.decimals,
     tokenAddress: parsed.tokenAddress,
     tokenChain: parsed.tokenChain,
-  }
+  };
   if (parsed.payloadID === PaymentOption.MANUAL) {
     return base;
   }
@@ -110,7 +110,7 @@ export const parseMessageFromTx = async (
     to: parsed.to,
     relayerFee: parsed.relayerFee.toString(),
     toNativeTokenAmount: parsed.toNativeTokenAmount.toString(),
-  }
+  };
 };
 
 // export const getRelayerFee = async (
@@ -197,12 +197,13 @@ export const claimTransfer = async (
   return await EthContext.redeem(destChain, vaa, { gasLimit: 250000 });
 };
 
-export const getToken = async (
-  tokenId: TokenId,
-) => {
+export const getToken = async (tokenId: TokenId) => {
   const provider = context.mustGetProvider(tokenId.chain);
-  const tokenContract = ethers_contracts.TokenImplementation__factory.connect(tokenId.address, provider);
+  const tokenContract = ethers_contracts.TokenImplementation__factory.connect(
+    tokenId.address,
+    provider,
+  );
   const symbol = await tokenContract.symbol();
   const decimals = await tokenContract.decimals();
-  return { symbol, decimals }
-}
+  return { symbol, decimals };
+};

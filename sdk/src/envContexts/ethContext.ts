@@ -297,10 +297,14 @@ export class EthContext<T extends WormholeContext> extends Context {
           amount: parsedTransfer.amount,
           payloadID: parsedTransfer.payloadID,
           recipient: parsedTransfer.to,
-          toChain: this.context.resolveDomainName(parsedTransfer.toChain) as ChainName,
+          toChain: this.context.resolveDomainName(
+            parsedTransfer.toChain,
+          ) as ChainName,
           fromChain,
           tokenAddress: parsedTransfer.tokenAddress,
-          tokenChain: this.context.resolveDomainName(parsedTransfer.tokenChain) as ChainName,
+          tokenChain: this.context.resolveDomainName(
+            parsedTransfer.tokenChain,
+          ) as ChainName,
         };
         return parsedMessage;
       }
@@ -317,10 +321,14 @@ export class EthContext<T extends WormholeContext> extends Context {
         amount: parsedTransfer.amount,
         payloadID: parsedTransfer.payloadID,
         to: this.parseAddress(parsedTransfer.to),
-        toChain: this.context.resolveDomainName(parsedTransfer.toChain) as ChainName,
+        toChain: this.context.resolveDomainName(
+          parsedTransfer.toChain,
+        ) as ChainName,
         fromChain,
         tokenAddress: this.parseAddress(parsedTransfer.tokenAddress),
-        tokenChain: this.context.resolveDomainName(parsedTransfer.tokenChain) as ChainName,
+        tokenChain: this.context.resolveDomainName(
+          parsedTransfer.tokenChain,
+        ) as ChainName,
         payload: parsedTransfer.payload,
         relayerPayloadId: parsedPayload.payloadId,
         recipient: this.parseAddress(parsedPayload.targetRecipient),

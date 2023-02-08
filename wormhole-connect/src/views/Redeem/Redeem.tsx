@@ -7,7 +7,6 @@ import PageHeader from '../../components/PageHeader';
 import Spacer from '../../components/Spacer';
 import NetworksTag from './Tag';
 import Stepper from './Stepper';
-import TxSearch from './TxSearch';
 
 class Redeem extends React.Component<
   {

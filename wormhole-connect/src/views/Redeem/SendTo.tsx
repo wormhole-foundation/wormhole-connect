@@ -24,22 +24,27 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { displayEvmAddress } from '../../utils';
 import { CHAINS } from '../../sdk/config';
 
-const getRows = (
-  txData: any,
-): RowsData => {
+const getRows = (txData: any): RowsData => {
   const decimals = txData.tokenDecimals > 8 ? 8 : txData.tokenDecimals;
-  const receiveAmt = BigNumber.from(txData.amount).sub(BigNumber.from(txData.relayerFee));
+  const receiveAmt = BigNumber.from(txData.amount).sub(
+    BigNumber.from(txData.relayerFee),
+  );
   const formattedAmt = utils.formatUnits(receiveAmt, decimals);
-  const formattedToNative = utils.formatUnits(txData.toNativeTokenAmount, decimals);
+  const formattedToNative = utils.formatUnits(
+    txData.toNativeTokenAmount,
+    decimals,
+  );
   const { gasToken } = CHAINS[txData.toChain]!;
-  return [{
-    title: 'Amount',
-    value: `${formattedAmt} ${txData.tokenSymbol}`,
-  },
-  {
-    title: 'Native gas token',
-    value: `${formattedToNative} ${gasToken}`,
-  }]
+  return [
+    {
+      title: 'Amount',
+      value: `${formattedAmt} ${txData.tokenSymbol}`,
+    },
+    {
+      title: 'Native gas token',
+      value: `${formattedToNative} ${gasToken}`,
+    },
+  ];
 };
 
 function SendTo() {
@@ -98,7 +103,11 @@ function SendTo() {
   return (
     <div>
       <InputContainer>
-        <Header network={txData.toChain} address={txData.recipient} txHash={redeemTx} />
+        <Header
+          network={txData.toChain}
+          address={txData.recipient}
+          txHash={redeemTx}
+        />
         <RenderRows rows={rows} />
       </InputContainer>
       {txData.payloadID === PaymentOption.MANUAL && (

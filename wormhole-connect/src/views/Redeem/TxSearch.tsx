@@ -53,7 +53,10 @@ function TxSearch() {
 
   async function search() {
     if (!state.tx || !state.chain) return;
-    const message = await parseMessageFromTx(state.tx, state.chain as ChainName);
+    const message = await parseMessageFromTx(
+      state.tx,
+      state.chain as ChainName,
+    );
     dispatch(setTxDetails(message));
     dispatch(setRoute('redeem'));
   }

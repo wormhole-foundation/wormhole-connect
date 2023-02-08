@@ -57,7 +57,10 @@ function Send(props: { valid: boolean }) {
         `${toNativeToken}`,
       );
       console.log('sent', receipt);
-      const message = await parseMessageFromTx(receipt.transactionHash, fromNetwork!);
+      const message = await parseMessageFromTx(
+        receipt.transactionHash,
+        fromNetwork!,
+      );
       dispatch(setTxHash(receipt.transactionHash));
       dispatch(setTxDetails(message));
       dispatch(setRoute('redeem'));

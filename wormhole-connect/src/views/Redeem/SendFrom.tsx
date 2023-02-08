@@ -10,26 +10,29 @@ import { RenderRows, RowsData } from '../../components/RenderRows';
 import { CHAINS } from '../../sdk/config';
 // import Confirmations from './Confirmations';
 
-const getRows = (
-  txData: any,
-): RowsData => {
+const getRows = (txData: any): RowsData => {
   const decimals = txData.tokenDecimals > 8 ? 8 : txData.tokenDecimals;
   const formattedAmt = utils.formatUnits(txData.amount, decimals);
   const formattedFee = utils.formatUnits(txData.relayerFee, decimals);
-  const formattedToNative = utils.formatUnits(txData.toNativeTokenAmount, decimals);
+  const formattedToNative = utils.formatUnits(
+    txData.toNativeTokenAmount,
+    decimals,
+  );
   const { gasToken } = CHAINS[txData.toChain]!;
-  return [{
-    title: 'Amount',
-    value: `${formattedAmt} ${txData.tokenSymbol}`,
-  },
-  {
-    title: 'Relayer fee',
-    value: `${formattedFee} ${txData.tokenSymbol}`,
-  },
-  {
-    title: 'Convert to native gas token',
-    value: `≈ ${formattedToNative} ${txData.tokenSymbol} --> ${gasToken}`,
-  }]
+  return [
+    {
+      title: 'Amount',
+      value: `${formattedAmt} ${txData.tokenSymbol}`,
+    },
+    {
+      title: 'Relayer fee',
+      value: `${formattedFee} ${txData.tokenSymbol}`,
+    },
+    {
+      title: 'Convert to native gas token',
+      value: `≈ ${formattedToNative} ${txData.tokenSymbol} --> ${gasToken}`,
+    },
+  ];
 };
 
 function SendFrom() {
