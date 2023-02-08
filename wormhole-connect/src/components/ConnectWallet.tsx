@@ -3,7 +3,6 @@ import { useSelector, useDispatch } from 'react-redux';
 import { AnyAction } from '@reduxjs/toolkit';
 import { Theme, useTheme } from '@mui/material/styles';
 import { makeStyles } from 'tss-react/mui';
-import { keyframes } from '@mui/system';
 import { RootState } from '../store';
 import {
   connectReceivingWallet,
@@ -19,19 +18,6 @@ import WalletIcon from '../icons/components/Wallet';
 import WalletIcons from '../icons/components/WalletIcons';
 import PopupState, { bindTrigger, bindPopover } from 'material-ui-popup-state';
 import Popover from '@mui/material/Popover';
-import { changeOpacity, joinClass, OPACITY } from '../utils/style';
-
-const pulse = (theme: any) => keyframes`
-  0% {
-    transform: scale(0.98);
-  } 70% {
-    transform: scale(1);
-    box-shadow: 0 0 0 15px ${changeOpacity(theme.palette.button.primary, 0)};
-  } 100% {
-    transform: scale(0.98);
-    box-shadow: 0 0 0 0 ${changeOpacity(theme.palette.button.primary, 0)};
-  }
-`;
 
 const useStyles = makeStyles()((theme) => ({
   connectWallet: {
@@ -43,10 +29,6 @@ const useStyles = makeStyles()((theme) => ({
     borderRadius: '20px',
     backgroundColor: theme.palette.button.primary,
     cursor: 'pointer',
-  },
-  animated: {
-    boxShadow: `0 0 0 0 ${theme.palette.button.primary}`,
-    animation: `${pulse(theme)} 1.5s ease-out infinite`,
   },
   walletIcon: {
     width: '24px',
@@ -187,10 +169,7 @@ function ConnectWallet(props: Props) {
       )}
     </PopupState>
   ) : (
-    <div
-      className={joinClass([classes.connectWallet, classes.animated])}
-      onClick={() => connect()}
-    >
+    <div className={classes.connectWallet} onClick={() => connect()}>
       <WalletIcon />
       <div>Connect wallet</div>
     </div>
