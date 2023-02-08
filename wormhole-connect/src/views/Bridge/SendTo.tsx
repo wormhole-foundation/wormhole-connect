@@ -45,12 +45,9 @@ const useStyles = makeStyles((theme: Theme) => ({
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
-    backgroundColor: theme.palette.card.secondary,
     width: '100%',
     flexGrow: '1',
     padding: '12px',
-    borderRadius: '0px !important',
-    border: `0.5px solid ${theme.palette.divider + OPACITY[40]}`,
   },
   label: {
     fontSize: '14px',
