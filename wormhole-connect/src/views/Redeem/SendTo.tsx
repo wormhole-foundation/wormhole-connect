@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
-import { utils } from 'ethers';
+import { BigNumber, utils } from 'ethers';
 import { useTheme } from '@mui/material/styles';
 import { RootState } from '../../store';
 import { PaymentOption, setRedeemTx } from '../../store/transfer';
@@ -17,23 +17,32 @@ import Header from './Header';
 // import Confirmations from './Confirmations';
 import Button from '../../components/Button';
 import Spacer from '../../components/Spacer';
-import { RenderRows } from '../../components/RenderRows';
+import { RenderRows, RowsData } from '../../components/RenderRows';
 import InputContainer from '../../components/InputContainer';
 import { handleConnect } from '../../components/ConnectWallet';
 import CircularProgress from '@mui/material/CircularProgress';
 import { displayEvmAddress } from '../../utils';
 import { CHAINS } from '../../sdk/config';
 
-const rows = [
-  {
+const getRows = (
+  txData: any,
+): RowsData => {
+  // TODO: decimals
+  // const decimals = txData.tokenDecimals;
+  const decimals = 8;
+  const receiveAmt = BigNumber.from(txData.amount).sub(BigNumber.from(txData.relayerFee));
+  const formattedAmt = utils.formatUnits(receiveAmt, decimals);
+  const formattedToNative = utils.formatUnits(txData.toNativeTokenAmount, decimals);
+  const { gasToken } = CHAINS[txData.toChain]!;
+  return [{
     title: 'Amount',
-    value: '20.1 MATIC',
+    value: `${formattedAmt} ${txData.tokenSymbol}`,
   },
   {
     title: 'Native gas token',
-    value: '0.5 FTM',
-  },
-];
+    value: `${formattedToNative} ${gasToken}`,
+  }]
+};
 
 function SendTo() {
   const dispatch = useDispatch();
@@ -49,6 +58,14 @@ function SendTo() {
   const [isConnected, setIsConnected] = useState(
     receiving.currentAddress.toLowerCase() === receiving.address.toLowerCase(),
   );
+  const [rows, setRows] = React.useState([] as RowsData);
+
+  useEffect(() => {
+    if (!txData) return;
+    const rows = getRows(txData);
+    setRows(rows);
+  }, []);
+
   // const pending = vaa.guardianSignatures < REQUIRED_CONFIRMATIONS;
   const claim = async () => {
     setInProgress(true);

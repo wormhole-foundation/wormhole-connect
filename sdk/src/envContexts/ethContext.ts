@@ -75,7 +75,7 @@ export class EthContext<T extends WormholeContext> extends Context {
       const tx = await tokenImplementation.approve(
         contractAddress,
         approveAmount,
-        overrides,
+        // overrides,
       );
       await tx.wait();
     }

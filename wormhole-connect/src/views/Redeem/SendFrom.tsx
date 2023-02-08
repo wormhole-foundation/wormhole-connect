@@ -1,30 +1,50 @@
-import React from 'react';
-import InputContainer from '../../components/InputContainer';
-import Header from './Header';
-import { RenderRows } from '../../components/RenderRows';
-// import Confirmations from './Confirmations';
+import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
+import { utils } from 'ethers';
 import { RootState } from '../../store';
 import { ParsedVaa } from '../../utils/vaa';
 
-const rows = [
-  {
+import InputContainer from '../../components/InputContainer';
+import Header from './Header';
+import { RenderRows, RowsData } from '../../components/RenderRows';
+import { CHAINS } from '../../sdk/config';
+// import Confirmations from './Confirmations';
+
+const getRows = (
+  txData: any,
+): RowsData => {
+  // TODO: decimals
+  // const decimals = txData.tokenDecimals;
+  const decimals = 8;
+  const formattedAmt = utils.formatUnits(txData.amount, decimals);
+  const formattedFee = utils.formatUnits(txData.relayerFee, decimals);
+  const formattedToNative = utils.formatUnits(txData.toNativeTokenAmount, decimals);
+  const { gasToken } = CHAINS[txData.toChain]!;
+  return [{
     title: 'Amount',
-    value: '20.45 MATIC',
+    value: `${formattedAmt} ${txData.tokenSymbol}`,
   },
   {
     title: 'Relayer fee',
-    value: '1.5 MATIC',
+    value: `${formattedFee} ${txData.tokenSymbol}`,
   },
   {
     title: 'Convert to native gas token',
-    value: '≈ 0.3 MATIC --> FTM',
-  },
-];
+    value: `≈ ${formattedToNative} ${txData.tokenSymbol} --> ${gasToken}`,
+  }]
+};
 
 function SendFrom() {
   const vaa: ParsedVaa = useSelector((state: RootState) => state.redeem.vaa);
   const txData = useSelector((state: RootState) => state.redeem.txData)!;
+
+  const [rows, setRows] = React.useState([] as RowsData);
+
+  useEffect(() => {
+    if (!txData) return;
+    const rows = getRows(txData);
+    setRows(rows);
+  }, []);
 
   return (
     <div>

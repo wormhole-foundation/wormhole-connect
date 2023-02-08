@@ -27,6 +27,8 @@ export interface ParsedMessage {
   fromChain: ChainName;
   tokenAddress: string;
   tokenChain: ChainName;
+  tokenSymbol: string;
+  tokenDecimals: number;
   payload?: string;
 }
 
@@ -82,21 +84,11 @@ export const parseMessageFromTx = async (
 ) => {
   const EthContext: any = context.getContext(chain);
   const parsed = (await EthContext.parseMessageFromTx(tx, chain))[0];
-  console.log(parsed)
-  if (parsed.payloadID === PaymentOption.MANUAL) {
-    return {
-      sendTx: parsed.sendTx,
-      sender: parsed.sender,
-      amount: parsed.amount.toString(),
-      payloadID: parsed.payloadID,
-      recipient: parsed.recipient,
-      toChain: parsed.toChain,
-      fromChain: parsed.fromChain,
-      tokenAddress: parsed.tokenAddress,
-      tokenChain: parsed.tokenChain,
-    }
-  }
-  return {
+  const token = await getToken({
+    address: parsed.tokenAddress,
+    chain: parsed.tokenChain,
+  })
+  const base = {
     sendTx: parsed.sendTx,
     sender: parsed.sender,
     amount: parsed.amount.toString(),
@@ -104,8 +96,16 @@ export const parseMessageFromTx = async (
     recipient: parsed.recipient,
     toChain: parsed.toChain,
     fromChain: parsed.fromChain,
+    tokenSymbol: token.symbol,
+    tokenDecimals: token.decimals,
     tokenAddress: parsed.tokenAddress,
     tokenChain: parsed.tokenChain,
+  }
+  if (parsed.payloadID === PaymentOption.MANUAL) {
+    return base;
+  }
+  return {
+    ...base,
     relayerPayloadId: parsed.relayerPayloadId,
     to: parsed.to,
     relayerFee: parsed.relayerFee.toString(),
@@ -196,3 +196,13 @@ export const claimTransfer = async (
   const EthContext: any = context.getContext(destChain);
   return await EthContext.redeem(destChain, vaa, { gasLimit: 250000 });
 };
+
+export const getToken = async (
+  tokenId: TokenId,
+) => {
+  const provider = context.mustGetProvider(tokenId.chain);
+  const tokenContract = ethers_contracts.TokenImplementation__factory.connect(tokenId.address, provider);
+  const symbol = await tokenContract.symbol();
+  const decimals = await tokenContract.decimals();
+  return { symbol, decimals }
+}
