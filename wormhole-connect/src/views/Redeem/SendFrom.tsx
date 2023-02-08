@@ -24,19 +24,14 @@ const rows = [
 
 function SendFrom() {
   const vaa: ParsedVaa = useSelector((state: RootState) => state.redeem.vaa);
-  const fromNetwork = useSelector(
-    (state: RootState) => state.transfer.fromNetwork,
-  );
-  const fromAddr = useSelector(
-    (state: RootState) => state.wallet.sending.address,
-  );
+  const txData = useSelector((state: RootState) => state.redeem.txData)!;
 
   return (
     <div>
       <InputContainer>
         <Header
-          network={fromNetwork!}
-          address={fromAddr!}
+          network={txData.fromChain}
+          address={txData.sender}
           txHash={vaa?.txHash}
         />
         <RenderRows rows={rows} />

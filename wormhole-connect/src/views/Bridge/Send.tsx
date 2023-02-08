@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { CHAINS, TOKENS } from '../../sdk/config';
-import { sendTransfer } from '../../sdk/sdk';
+import { parseMessageFromTx, sendTransfer } from '../../sdk/sdk';
 import { RootState } from '../../store';
-import { useDispatch } from 'react-redux';
 import { setTxHash } from '../../store/transfer';
 import { setRoute } from '../../store/router';
+import { setTxDetails } from '../../store/redeem';
 import {
   registerWalletSigner,
   switchNetwork,
@@ -57,7 +57,9 @@ function Send(props: { valid: boolean }) {
         `${toNativeToken}`,
       );
       console.log('sent', receipt);
+      const message = await parseMessageFromTx(receipt.transactionHash, fromNetwork!);
       dispatch(setTxHash(receipt.transactionHash));
+      dispatch(setTxDetails(message));
       dispatch(setRoute('redeem'));
       setInProgress(false);
     } catch (e) {

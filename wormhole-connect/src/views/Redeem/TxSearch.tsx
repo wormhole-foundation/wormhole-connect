@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
 import { makeStyles } from 'tss-react/mui';
+import { useDispatch } from 'react-redux';
+import { Select, MenuItem } from '@mui/material';
+import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { CHAINS_ARR } from '../../sdk/config';
 import { parseMessageFromTx } from '../../sdk/sdk';
+import { setTxDetails } from '../../store/redeem';
+import { setRoute } from '../../store/router';
 import PageHeader from '../../components/PageHeader';
-import { Select, MenuItem } from '@mui/material';
 import Search from '../../components/Search';
 import Button from '../../components/Button';
 import Spacer from '../../components/Spacer';
-import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -30,6 +33,7 @@ const useStyles = makeStyles()((theme) => ({
 
 function TxSearch() {
   const { classes } = useStyles();
+  const dispatch = useDispatch();
   const [state, setState] = useState({
     chain: '',
     tx: '',
@@ -47,9 +51,11 @@ function TxSearch() {
     }
   }
 
-  function search() {
+  async function search() {
     if (!state.tx || !state.chain) return;
-    parseMessageFromTx(state.tx, state.chain as ChainName);
+    const message = await parseMessageFromTx(state.tx, state.chain as ChainName);
+    dispatch(setTxDetails(message));
+    dispatch(setRoute('redeem'));
   }
 
   return (

@@ -39,10 +39,7 @@ function SendTo() {
   const dispatch = useDispatch();
   const theme = useTheme();
   const vaa: ParsedVaa = useSelector((state: RootState) => state.redeem.vaa);
-  const toNetwork = useSelector((state: RootState) => state.transfer.toNetwork);
-  const destGasPayment = useSelector(
-    (state: RootState) => state.transfer.destGasPayment,
-  );
+  const txData = useSelector((state: RootState) => state.redeem.txData)!;
   const toAddr = useSelector(
     (state: RootState) => state.wallet.receiving.address,
   );
@@ -55,14 +52,14 @@ function SendTo() {
   // const pending = vaa.guardianSignatures < REQUIRED_CONFIRMATIONS;
   const claim = async () => {
     setInProgress(true);
-    const { chainId } = CHAINS[toNetwork!]!;
+    const { chainId } = CHAINS[txData.toChain]!;
     try {
       // TODO: remove this line
       await openWalletModal(theme, true);
-      registerWalletSigner(toNetwork!, Wallet.RECEIVING);
+      registerWalletSigner(txData.toChain, Wallet.RECEIVING);
       await switchNetwork(chainId, Wallet.RECEIVING);
       const receipt = await claimTransfer(
-        toNetwork!,
+        txData.toChain,
         utils.arrayify(vaa.bytes),
       );
       dispatch(setRedeemTx(receipt.transactionHash));
@@ -86,10 +83,10 @@ function SendTo() {
   return (
     <div>
       <InputContainer>
-        <Header network={toNetwork!} address={toAddr!} txHash={redeemTx} />
+        <Header network={txData.toChain} address={txData.recipient} txHash={redeemTx} />
         <RenderRows rows={rows} />
       </InputContainer>
-      {destGasPayment === PaymentOption.MANUAL && (
+      {txData.payloadID === PaymentOption.MANUAL && (
         <>
           <Spacer height={8} />
           {toAddr ? (

@@ -58,19 +58,21 @@ export type TokenId = {
 };
 
 export interface ParsedMessage {
+  sendTx: string;
   sender: string;
   amount: BigNumber;
   payloadID: number;
-  to: string;
-  toChain: ChainId;
+  recipient: string;
+  toChain: ChainName;
+  fromChain: ChainName;
   tokenAddress: string;
-  tokenChain: ChainId;
+  tokenChain: ChainName;
   payload?: string;
 }
 
 export interface ParsedRelayerMessage extends ParsedMessage {
   relayerPayloadId: number;
-  recipient: string;
+  to: string;
   relayerFee: BigNumber;
   toNativeTokenAmount: BigNumber;
 }

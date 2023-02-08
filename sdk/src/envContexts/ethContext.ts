@@ -284,18 +284,21 @@ export class EthContext<T extends WormholeContext> extends Context {
       if (!contracts.tokenBridgeRelayer)
         throw new Error('relayer contract not found');
 
+      const fromChain = this.context.resolveDomainName(chain) as ChainName;
       if (parsed.args.payload.startsWith('0x01')) {
         const parsedTransfer = await contracts.bridge!.parseTransfer(
           parsed.args.payload,
         ); // for bridge messages
         const parsedMessage: ParsedMessage = {
+          sendTx: tx,
           sender: receipt.from,
           amount: parsedTransfer.amount,
           payloadID: parsedTransfer.payloadID,
-          to: parsedTransfer.to,
-          toChain: parsedTransfer.toChain as ChainId,
+          recipient: parsedTransfer.to,
+          toChain: this.context.resolveDomainName(parsedTransfer.toChain) as ChainName,
+          fromChain,
           tokenAddress: parsedTransfer.tokenAddress,
-          tokenChain: parsedTransfer.tokenChain as ChainId,
+          tokenChain: this.context.resolveDomainName(parsedTransfer.tokenChain) as ChainName,
         };
         return parsedMessage;
       }
@@ -307,13 +310,15 @@ export class EthContext<T extends WormholeContext> extends Context {
           parsedTransfer.payload,
         );
       const parsedMessage: ParsedRelayerMessage = {
+        sendTx: tx,
         sender: receipt.from,
         amount: parsedTransfer.amount,
         payloadID: parsedTransfer.payloadID,
         to: this.parseAddress(parsedTransfer.to),
-        toChain: parsedTransfer.toChain as ChainId,
+        toChain: this.context.resolveDomainName(parsedTransfer.toChain) as ChainName,
+        fromChain,
         tokenAddress: this.parseAddress(parsedTransfer.tokenAddress),
-        tokenChain: parsedTransfer.tokenChain as ChainId,
+        tokenChain: this.context.resolveDomainName(parsedTransfer.tokenChain) as ChainName,
         payload: parsedTransfer.payload,
         relayerPayloadId: parsedPayload.payloadId,
         recipient: this.parseAddress(parsedPayload.targetRecipient),
@@ -322,7 +327,7 @@ export class EthContext<T extends WormholeContext> extends Context {
       };
       return parsedMessage;
     });
-    return parsedLogs;
+    return await Promise.all(parsedLogs);
   }
 
   formatAddress(address: string): string {

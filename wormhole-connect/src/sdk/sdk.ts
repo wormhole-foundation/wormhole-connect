@@ -17,6 +17,26 @@ const { REACT_APP_ENV } = process.env;
 
 export const context = new WormholeContext(REACT_APP_ENV! as Environment);
 
+export interface ParsedMessage {
+  sendTx: string;
+  sender: string;
+  amount: string;
+  payloadID: number;
+  recipient: string;
+  toChain: ChainName;
+  fromChain: ChainName;
+  tokenAddress: string;
+  tokenChain: ChainName;
+  payload?: string;
+}
+
+export interface ParsedRelayerMessage extends ParsedMessage {
+  relayerPayloadId: number;
+  to: string;
+  relayerFee: string;
+  toNativeTokenAmount: string;
+}
+
 export const registerSigner = (chain: ChainName | ChainId, signer: any) => {
   console.log(`registering signer for ${chain}:`, signer);
   context.registerSigner(chain, signer);
@@ -61,7 +81,36 @@ export const parseMessageFromTx = async (
   chain: ChainName | ChainId,
 ) => {
   const EthContext: any = context.getContext(chain);
-  return await EthContext.parseMessageFromTx(tx, chain);
+  const parsed = (await EthContext.parseMessageFromTx(tx, chain))[0];
+  console.log(parsed)
+  if (parsed.payloadID === PaymentOption.MANUAL) {
+    return {
+      sendTx: parsed.sendTx,
+      sender: parsed.sender,
+      amount: parsed.amount.toString(),
+      payloadID: parsed.payloadID,
+      recipient: parsed.recipient,
+      toChain: parsed.toChain,
+      fromChain: parsed.fromChain,
+      tokenAddress: parsed.tokenAddress,
+      tokenChain: parsed.tokenChain,
+    }
+  }
+  return {
+    sendTx: parsed.sendTx,
+    sender: parsed.sender,
+    amount: parsed.amount.toString(),
+    payloadID: parsed.payloadID,
+    recipient: parsed.recipient,
+    toChain: parsed.toChain,
+    fromChain: parsed.fromChain,
+    tokenAddress: parsed.tokenAddress,
+    tokenChain: parsed.tokenChain,
+    relayerPayloadId: parsed.relayerPayloadId,
+    to: parsed.to,
+    relayerFee: parsed.relayerFee.toString(),
+    toNativeTokenAmount: parsed.toNativeTokenAmount.toString(),
+  }
 };
 
 // export const getRelayerFee = async (
