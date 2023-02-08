@@ -32,12 +32,10 @@ const useStyles = makeStyles()((theme) => ({
 function NetworksTag() {
   const { classes } = useStyles();
   const vaa: ParsedVaa = useSelector((state: RootState) => state.redeem.vaa);
-  const { fromNetwork, toNetwork } = useSelector(
-    (state: RootState) => state.transfer,
-  );
-  if (!fromNetwork || !toNetwork) return <div></div>;
-  const fromNetworkConfig = CHAINS[fromNetwork]!;
-  const toNetworkConfig = CHAINS[toNetwork]!;
+  const txData = useSelector((state: RootState) => state.redeem.txData)!;
+  const fromNetworkConfig = CHAINS[txData.fromChain]!;
+  const toNetworkConfig = CHAINS[txData.toChain]!;
+  // TODO: can I use tx details for this?
   const link =
     vaa &&
     `${REACT_APP_WORMHOLE_EXPLORER}?emitterChain=${vaa.emitterChain}&emitterAddress=${vaa.emitterAddress}&sequence=${vaa.sequence}`;

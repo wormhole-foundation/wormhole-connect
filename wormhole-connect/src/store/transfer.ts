@@ -3,7 +3,7 @@ import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 
 export enum PaymentOption {
   MANUAL = 1,
-  AUTOMATIC = 2,
+  AUTOMATIC = 3,
 }
 export type Balances = { [key: string]: string };
 

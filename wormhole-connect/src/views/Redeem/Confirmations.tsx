@@ -2,7 +2,7 @@ import React from 'react';
 import { styled } from '@mui/material/styles';
 import { makeStyles } from 'tss-react/mui';
 import { LinearProgress, linearProgressClasses } from '@mui/material';
-import { REQUIRED_CONFIRMATIONS } from '../../utils/sdk';
+// import { REQUIRED_CONFIRMATIONS } from '../../utils/sdk';
 
 const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
   borderRadius: 5,

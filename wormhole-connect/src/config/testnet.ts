@@ -60,10 +60,10 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
   },
   USDC: {
     symbol: 'USDC',
-    nativeNetwork: 'goerli',
+    nativeNetwork: 'fuji',
     icon: 'usdc',
     tokenId: {
-      chain: 'goerli',
+      chain: 'fuji',
       address: '0x5425890298aed601595a70AB815c96711a31Bc65',
     },
     coinGeckoId: 'usd-coin',

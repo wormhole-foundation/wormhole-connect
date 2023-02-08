@@ -17,6 +17,28 @@ const { REACT_APP_ENV } = process.env;
 
 export const context = new WormholeContext(REACT_APP_ENV! as Environment);
 
+export interface ParsedMessage {
+  sendTx: string;
+  sender: string;
+  amount: string;
+  payloadID: number;
+  recipient: string;
+  toChain: ChainName;
+  fromChain: ChainName;
+  tokenAddress: string;
+  tokenChain: ChainName;
+  tokenSymbol: string;
+  tokenDecimals: number;
+  payload?: string;
+}
+
+export interface ParsedRelayerMessage extends ParsedMessage {
+  relayerPayloadId: number;
+  to: string;
+  relayerFee: string;
+  toNativeTokenAmount: string;
+}
+
 export const registerSigner = (chain: ChainName | ChainId, signer: any) => {
   console.log(`registering signer for ${chain}:`, signer);
   context.registerSigner(chain, signer);
@@ -56,29 +78,40 @@ export const getNativeBalance = async (
   return await provider.getBalance(walletAddr);
 };
 
-// export const getTxDetails(chain: ChainName | ChainId, txHash: string) {
-//   // TODO: get tx details by transaction receipt
-//   const provider = context.mustGetProvider(nameOrDomain);
-//   const receipt = await provider.getTransactionReceipt(transactionHash);
-//   if (!receipt) {
-//     throw new Error(`No receipt for ${transactionHash} on ${nameOrDomain}`);
-//   }
-//   const messages: any[] = [];
-//     const bridge = core.Bridge__factory.createInterface();
-
-//     for (const log of receipt.logs) {
-//       try {
-//         const parsed = bridge.parseLog(log);
-//         if (parsed.name === '') {
-//           console.log(parsed.args)
-//           messages.push(parsed.args);
-//         }
-//       } catch (e: unknown) {
-//         throw e;
-//       }
-//     }
-//     return messages;
-// }
+export const parseMessageFromTx = async (
+  tx: string,
+  chain: ChainName | ChainId,
+) => {
+  const EthContext: any = context.getContext(chain);
+  const parsed = (await EthContext.parseMessageFromTx(tx, chain))[0];
+  const token = await getToken({
+    address: parsed.tokenAddress,
+    chain: parsed.tokenChain,
+  });
+  const base = {
+    sendTx: parsed.sendTx,
+    sender: parsed.sender,
+    amount: parsed.amount.toString(),
+    payloadID: parsed.payloadID,
+    recipient: parsed.recipient,
+    toChain: parsed.toChain,
+    fromChain: parsed.fromChain,
+    tokenSymbol: token.symbol,
+    tokenDecimals: token.decimals,
+    tokenAddress: parsed.tokenAddress,
+    tokenChain: parsed.tokenChain,
+  };
+  if (parsed.payloadID === PaymentOption.MANUAL) {
+    return base;
+  }
+  return {
+    ...base,
+    relayerPayloadId: parsed.relayerPayloadId,
+    to: parsed.to,
+    relayerFee: parsed.relayerFee.toString(),
+    toNativeTokenAmount: parsed.toNativeTokenAmount.toString(),
+  };
+};
 
 // export const getRelayerFee = async (
 //   sourceChain: ChainName | ChainId,
@@ -162,4 +195,15 @@ export const claimTransfer = async (
 ): Promise<ContractReceipt> => {
   const EthContext: any = context.getContext(destChain);
   return await EthContext.redeem(destChain, vaa, { gasLimit: 250000 });
+};
+
+export const getToken = async (tokenId: TokenId) => {
+  const provider = context.mustGetProvider(tokenId.chain);
+  const tokenContract = ethers_contracts.TokenImplementation__factory.connect(
+    tokenId.address,
+    provider,
+  );
+  const symbol = await tokenContract.symbol();
+  const decimals = await tokenContract.decimals();
+  return { symbol, decimals };
 };

@@ -1,25 +1,17 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { fetchVaa, ParsedVaa } from '../../utils/vaa';
+import { setVaa } from '../../store/redeem';
+import { RootState } from '../../store';
 import PageHeader from '../../components/PageHeader';
 import Spacer from '../../components/Spacer';
 import NetworksTag from './Tag';
 import Stepper from './Stepper';
-import { setVaa } from '../../store/redeem';
-import { RootState } from '../../store';
-import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
-import { Alert, AlertTitle } from '@mui/material';
 
 class Redeem extends React.Component<
   {
     setVaa: any;
-    txHash: string;
-    fromNetwork: ChainName;
-    toNetwork: ChainName;
-    amount: number;
-    senderAddr: string;
-    receivingAddr: string;
-    token: string;
+    txData: any;
   },
   { vaa: ParsedVaa | undefined }
 > {
@@ -29,8 +21,8 @@ class Redeem extends React.Component<
   }
 
   async getVaa() {
-    if (!this.props.txHash) return;
-    const vaa = await fetchVaa(this.props.txHash.slice(2));
+    if (!this.props.txData.sendTx) return;
+    const vaa = await fetchVaa(this.props.txData.sendTx.slice(2));
     this.props.setVaa(vaa);
     this.setState({ vaa });
   }
@@ -47,17 +39,6 @@ class Redeem extends React.Component<
   }
 
   render() {
-    // TODO: write validate function
-    if (
-      !this.props.txHash ||
-      !this.props.fromNetwork ||
-      !this.props.toNetwork ||
-      !this.props.amount ||
-      !this.props.senderAddr ||
-      !this.props.receivingAddr ||
-      !this.props.token
-    )
-      return <div></div>;
     return (
       <div
         style={{
@@ -70,11 +51,6 @@ class Redeem extends React.Component<
       >
         <PageHeader title="Bridge" back />
 
-        <Alert severity="warning" sx={{ width: '100%', marginTop: '32px' }}>
-          <AlertTitle>Warning</AlertTitle>
-          Do not leave page before completing your transfer
-        </Alert>
-
         <Spacer height={40} />
         <NetworksTag />
         <Stepper cta="Some CTA" />
@@ -85,19 +61,9 @@ class Redeem extends React.Component<
 }
 
 function mapStateToProps(state: RootState) {
-  const { fromNetwork, toNetwork, amount, token, destGasPayment, txHash } =
-    state.transfer;
-  const { sending, receiving } = state.wallet;
-  return {
-    txHash,
-    fromNetwork,
-    toNetwork,
-    amount,
-    token,
-    destGasPayment,
-    senderAddr: sending.address,
-    receivingAddr: receiving.address,
-  };
+  const txData = state.redeem.txData!;
+
+  return { txData };
 }
 
 const mapDispatchToProps = (dispatch) => {
