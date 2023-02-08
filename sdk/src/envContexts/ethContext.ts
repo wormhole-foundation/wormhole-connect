@@ -193,7 +193,7 @@ export class EthContext<T extends WormholeContext> extends Context {
     const amountBN = ethers.BigNumber.from(amount);
     const relayer = this.context.mustGetTBRelayer(sendingChain);
     const nativeTokenBN = ethers.BigNumber.from(toNativeToken);
-    const formattedRecipient = this.formatAddress(recipientAddress);
+    const formattedRecipient = `0x${this.formatAddress(recipientAddress)}`;
     // const unwrapWeth = await relayer.unwrapWeth(); // TODO: check unwrapWeth flag
 
     if (token === 'native') {
@@ -202,7 +202,7 @@ export class EthContext<T extends WormholeContext> extends Context {
       const v = await relayer.wrapAndTransferEthWithRelay(
         nativeTokenBN,
         recipientChainId,
-        `0x${formattedRecipient}`,
+        formattedRecipient,
         0, // opt out of batching
         {
           // ...(overrides || {}), // TODO: fix overrides/gas limit here
@@ -225,7 +225,9 @@ export class EthContext<T extends WormholeContext> extends Context {
         recipientChainId,
         formattedRecipient,
         0, // opt out of batching
-        overrides,
+        {
+          gasLimit: 250000,
+        },
       );
       return await tx.wait();
     }

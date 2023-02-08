@@ -13,9 +13,7 @@ import { CHAINS } from '../../sdk/config';
 const getRows = (
   txData: any,
 ): RowsData => {
-  // TODO: decimals
-  // const decimals = txData.tokenDecimals;
-  const decimals = 8;
+  const decimals = txData.tokenDecimals > 8 ? 8 : txData.tokenDecimals;
   const formattedAmt = utils.formatUnits(txData.amount, decimals);
   const formattedFee = utils.formatUnits(txData.relayerFee, decimals);
   const formattedToNative = utils.formatUnits(txData.toNativeTokenAmount, decimals);
