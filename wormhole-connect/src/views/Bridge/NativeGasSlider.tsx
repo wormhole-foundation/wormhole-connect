@@ -46,9 +46,9 @@ const useStyles = makeStyles()((theme) => ({
 function label(amt1: number, token1: string, amt2: number, token2: string) {
   return (
     <div>
-      {toFixedDecimals(`${amt1}`, 2)} {token1}
+      {toFixedDecimals(`${amt1}`, 4)} {token1}
       <br />
-      {toFixedDecimals(`${amt2}`, 2)} {token2}
+      {toFixedDecimals(`${amt2}`, 4)} {token2}
     </div>
   );
 }

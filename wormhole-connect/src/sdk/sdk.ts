@@ -49,9 +49,7 @@ export const getForeignAsset = async (
   tokenId: TokenId,
   chain: ChainName | ChainId,
 ): Promise<string> => {
-  const chainName = context.resolveDomainName(chain);
   const ethContext: any = context.getContext(tokenId.chain);
-  if (tokenId.chain === chainName) return tokenId.address;
   return await ethContext.getForeignAsset(tokenId, chain);
 };
 
