@@ -113,6 +113,11 @@ export const transferSlice = createSlice({
     ) => {
       state.balances = { ...state.balances, ...payload };
     },
+    clearTransfer: (
+      state: TransferState,
+    ) => {
+      state = initialState;
+    }
   },
 });
 
@@ -127,6 +132,7 @@ export const {
   setReceiveNativeAmt,
   setRelayerFee,
   setBalance,
+  clearTransfer,
 } = transferSlice.actions;
 
 export default transferSlice.reducer;
