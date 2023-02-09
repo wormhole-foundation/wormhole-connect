@@ -13,11 +13,15 @@ export enum MessageType {
 export interface RedeemState {
   vaa: ParsedVaa | undefined;
   txData: ParsedMessage | ParsedRelayerMessage | undefined;
+  sendTx: string;
+  redeemTx: string;
 }
 
 const initialState: RedeemState = {
   vaa: undefined,
   txData: undefined,
+  sendTx: '',
+  redeemTx: '',
 };
 
 export const redeemSlice = createSlice({
@@ -32,9 +36,17 @@ export const redeemSlice = createSlice({
       console.log('set Tx details', payload);
       state.txData = payload;
     },
+    setSendTx: (state: RedeemState, { payload }: PayloadAction<string>) => {
+      console.log('set tx hash:', payload);
+      state.sendTx = payload;
+    },
+    setRedeemTx: (state: RedeemState, { payload }) => {
+      console.log('set redeem tx:', payload);
+      state.redeemTx = payload;
+    },
   },
 });
 
-export const { setVaa, setTxDetails } = redeemSlice.actions;
+export const { setVaa, setTxDetails, setSendTx, setRedeemTx } = redeemSlice.actions;
 
 export default redeemSlice.reducer;

@@ -3,9 +3,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import { CHAINS, TOKENS } from '../../sdk/config';
 import { parseMessageFromTx, sendTransfer } from '../../sdk/sdk';
 import { RootState } from '../../store';
-import { setTxHash } from '../../store/transfer';
 import { setRoute } from '../../store/router';
-import { setTxDetails } from '../../store/redeem';
+import { setTxDetails, setSendTx } from '../../store/redeem';
 import {
   registerWalletSigner,
   switchNetwork,
@@ -61,7 +60,7 @@ function Send(props: { valid: boolean }) {
         receipt.transactionHash,
         fromNetwork!,
       );
-      dispatch(setTxHash(receipt.transactionHash));
+      dispatch(setSendTx(receipt.transactionHash));
       dispatch(setTxDetails(message));
       dispatch(setRoute('redeem'));
       setInProgress(false);

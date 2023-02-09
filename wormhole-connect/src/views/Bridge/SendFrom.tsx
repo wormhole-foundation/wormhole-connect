@@ -7,10 +7,11 @@ import { RootState } from '../../store';
 import { setFromNetworksModal, setTokensModal } from '../../store/router';
 import { Wallet } from '../../utils/wallet';
 import { setAmount } from '../../store/transfer';
+import { setBalance as setStoreBalance } from '../../store/transfer';
 import { joinClass } from '../../utils/style';
-import { toDecimals } from '../../utils/balance';
 import { CHAINS, TOKENS } from '../../sdk/config';
 import { getBalance, getNativeBalance } from '../../sdk/sdk';
+
 import NetworkTile from '../../components/NetworkTile';
 import InputContainer from '../../components/InputContainer';
 import InputTransparent from '../../components/InputTransparent';
@@ -130,14 +131,12 @@ function SendFrom() {
     if (tokenConfig.tokenId) {
       getBalance(walletAddr, tokenConfig.tokenId, fromNetwork).then(
         (res: BigNumber) => {
-          const b = toDecimals(res, tokenConfig.decimals, 6);
-          setBalance(b);
+          dispatch(setStoreBalance({ token: tokenConfig, balance: res }))
         },
       );
     } else {
       getNativeBalance(walletAddr, fromNetwork).then((res: BigNumber) => {
-        const b = toDecimals(res, tokenConfig.decimals, 6);
-        setBalance(b);
+        dispatch(setStoreBalance({ token: tokenConfig, balance: res }));
       });
     }
   }, [tokenConfig, fromNetwork, walletAddr]);

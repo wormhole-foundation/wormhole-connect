@@ -5,11 +5,11 @@ import { makeStyles } from '@mui/styles';
 import { Theme } from '@mui/material';
 import { RootState } from '../../store';
 import { setToNetworksModal } from '../../store/router';
+import { setBalance as setStoreBalance } from '../../store/transfer';
 import { Wallet } from '../../utils/wallet';
 import { CHAINS, TOKENS } from '../../sdk/config';
 import { getBalance } from '../../sdk/sdk';
 import { joinClass, OPACITY } from '../../utils/style';
-import { toDecimals } from '../../utils/balance';
 import InputContainer from '../../components/InputContainer';
 import ConnectWallet from '../../components/ConnectWallet';
 import NetworkTile from '../../components/NetworkTile';
@@ -103,18 +103,16 @@ function SendTo() {
     if (!toNetwork || !tokenConfig || !walletAddr) return;
     if (tokenConfig.tokenId) {
       getBalance(walletAddr, tokenConfig.tokenId, toNetwork).then(
-        (res: BigNumber) => {
-          const b = toDecimals(res, tokenConfig.decimals, 6);
-          setBalance(b);
+        (res: BigNumber | null) => {
+          dispatch(setStoreBalance({ token: tokenConfig, balance: res }))
         },
       );
     } else if (tokenConfig.wrappedAsset) {
       const wrappedConfig = TOKENS[tokenConfig.wrappedAsset];
       if (wrappedConfig && wrappedConfig.tokenId) {
         getBalance(walletAddr, wrappedConfig.tokenId, toNetwork).then(
-          (res: BigNumber) => {
-            const b = toDecimals(res, tokenConfig.decimals, 6);
-            setBalance(b);
+          (res: BigNumber | null) => {
+            dispatch(setStoreBalance({ token: tokenConfig, balance: res }));
           },
         );
       }

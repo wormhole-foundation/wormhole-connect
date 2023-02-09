@@ -17,7 +17,7 @@ import { BigNumber } from 'ethers';
 import { toDecimals } from '../../utils/balance';
 import { useDispatch } from 'react-redux';
 import { getNativeBalance } from '../../sdk/sdk';
-import { CHAINS } from '../../sdk/config';
+import { CHAINS, TOKENS } from '../../sdk/config';
 
 const useStyles = makeStyles()((theme) => ({
   bridgeContent: {
@@ -51,9 +51,9 @@ function Bridge() {
     if (!toNetwork || !receiving.address) return;
     const networkConfig = CHAINS[toNetwork]!;
     getNativeBalance(receiving.address, toNetwork).then((res: BigNumber) => {
-      const b = toDecimals(res, 18, 6);
-      const balance = { [networkConfig.gasToken]: b };
-      dispatch(setBalance(balance));
+      const tokenConfig = TOKENS[networkConfig.gasToken];
+      if (!tokenConfig) throw new Error('Could not get native gas token config');
+      dispatch(setBalance({ token: tokenConfig, balance: res }));
     });
   }, [toNetwork, receiving.address]);
 

@@ -8,7 +8,6 @@ import { TOKENS_ARR } from '../sdk/config';
 import { setTokensModal } from '../store/router';
 import { setToken, setBalance } from '../store/transfer';
 import { displayEvmAddress } from '../utils';
-import { toDecimals } from '../utils/balance';
 import { CENTER, joinClass } from '../utils/style';
 import { getBalance, getNativeBalance } from '../sdk/sdk';
 
@@ -169,7 +168,6 @@ function TokensModal() {
   };
 
   // fetch token balances and set in store
-  // TODO: fix USDC balance
   useEffect(() => {
     if (!walletAddr || !fromNetwork) return;
     const getBalances = async (
@@ -179,19 +177,23 @@ function TokensModal() {
     ) => {
       tokens.forEach(async (t) => {
         if (t.tokenId) {
-          const b = await getBalance(walletAddr, t.tokenId, chain);
-          const balance = { [t.symbol]: toDecimals(b, t.decimals, 6) };
-          dispatch(setBalance(balance));
+          const balance = await getBalance(walletAddr, t.tokenId, chain);
+          dispatch(setBalance({ token: t, balance }));
         } else {
-          const b = await getNativeBalance(walletAddr, chain);
-          const balance = { [t.symbol]: toDecimals(b, t.decimals, 6) };
-          dispatch(setBalance(balance));
+          const balance = await getNativeBalance(walletAddr, chain);
+          dispatch(setBalance({ token: t, balance }));
         }
       });
     };
     getBalances(filteredTokens, walletAddr, fromNetwork);
     // eslint-disable-next-line
   }, []);
+
+  // TODO: filter out tokens that don't exist
+  // useEffect(() => {
+  //   const filtered = tokens.filter((t) => tokenBalances[t.symbol] !== null);
+  //   setTokens(filtered);
+  // }, [tokenBalances])
 
   return (
     <Modal open={showTokensModal} closable width={500}>
@@ -229,7 +231,7 @@ function TokensModal() {
                       <div className={classes.tokenRowBalance}>
                         {tokenBalances[token.symbol] ? (
                           <div>{tokenBalances[token.symbol]}</div>
-                        ) : fromNetwork ? (
+                        ) : fromNetwork && walletAddr ? (
                           <CircularProgress size={14} />
                         ) : (
                           <div>—</div>

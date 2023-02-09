@@ -11,7 +11,8 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 
 import { PaymentOption } from '../store/transfer';
-import { getTokenDecimals } from '../utils';
+import { getTokenDecimals, getWrappedTokenId } from '../utils';
+import { TOKENS } from './config';
 
 const { REACT_APP_ENV } = process.env;
 
@@ -113,21 +114,21 @@ export const parseMessageFromTx = async (
   };
 };
 
-// export const getRelayerFee = async (
-//   sourceChain: ChainName | ChainId,
-//   destChain: ChainName | ChainId,
-//   token: string,
-// ) => {
-//   const destChainId = context.resolveDomain(destChain);
-//   const tokenConfig = TOKENS[token];
-//   if (!tokenConfig) throw new Error('could not get token config');
-//   const relayer = context.mustGetTBRelayer(sourceChain);
-//   return await relayer.calculateRelayerFee(
-//     destChainId,
-//     tokenConfig.tokenId.address,
-//     tokenConfig.decimals,
-//   )
-// }
+export const getRelayerFee = async (
+  sourceChain: ChainName | ChainId,
+  destChain: ChainName | ChainId,
+  token: string,
+) => {
+  const EthContext: any = context.getContext(destChain);
+  const tokenConfig = TOKENS[token];
+  if (!tokenConfig) throw new Error('could not get token config');
+  const tokenId = tokenConfig.tokenId || getWrappedTokenId(tokenConfig);
+  return await EthContext.getRelayerFee(
+    sourceChain,
+    destChain,
+    tokenId,
+  )
+}
 
 export const sendTransfer = async (
   token: TokenId | 'native',

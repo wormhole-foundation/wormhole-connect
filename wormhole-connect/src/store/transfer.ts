@@ -1,11 +1,15 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+import { TokenConfig } from 'config/types';
+import { BigNumber } from 'ethers';
+import { toDecimals } from 'utils/balance';
 
 export enum PaymentOption {
   MANUAL = 1,
   AUTOMATIC = 3,
 }
 export type Balances = { [key: string]: string };
+export type BalancePayload = { token: TokenConfig, balance: BigNumber };
 
 export interface TransferState {
   fromNetwork: ChainName | undefined;
@@ -16,9 +20,8 @@ export interface TransferState {
   maxSwapAmt: number | undefined;
   toNativeToken: number;
   receiveNativeAmt: number | undefined;
+  relayerFee: number | undefined;
   balances: Balances;
-  txHash: string;
-  redeemTx: string;
 }
 
 const initialState: TransferState = {
@@ -31,9 +34,8 @@ const initialState: TransferState = {
   maxSwapAmt: undefined,
   toNativeToken: 0,
   receiveNativeAmt: undefined,
+  relayerFee: undefined,
   balances: {},
-  txHash: '',
-  redeemTx: '',
 };
 
 export const transferSlice = createSlice({
@@ -90,19 +92,23 @@ export const transferSlice = createSlice({
       console.log('set receive native token amount:', payload);
       state.receiveNativeAmt = payload;
     },
+    setRelayerFee: (
+      state: TransferState,
+      { payload }: PayloadAction<number>,
+    ) => {
+      console.log('set relayer fee', payload);
+      state.relayerFee = payload;
+    },
     setBalance: (
       state: TransferState,
-      { payload }: PayloadAction<Balances>,
+      { payload }: PayloadAction<BalancePayload>,
     ) => {
-      state.balances = { ...state.balances, ...payload };
-    },
-    setTxHash: (state: TransferState, { payload }: PayloadAction<string>) => {
-      console.log('set tx hash:', payload);
-      state.txHash = payload;
-    },
-    setRedeemTx: (state: TransferState, { payload }) => {
-      console.log('set redeem tx:', payload);
-      state.redeemTx = payload;
+      const { token, balance } = payload;
+      const formattedBalance = toDecimals(balance, token.decimals, 6);
+      state.balances = {
+        ...state.balances,
+        [token.symbol]: formattedBalance,
+      };
     },
   },
 });
@@ -116,9 +122,8 @@ export const {
   setToNativeToken,
   setMaxSwapAmt,
   setReceiveNativeAmt,
+  setRelayerFee,
   setBalance,
-  setTxHash,
-  setRedeemTx,
 } = transferSlice.actions;
 
 export default transferSlice.reducer;
