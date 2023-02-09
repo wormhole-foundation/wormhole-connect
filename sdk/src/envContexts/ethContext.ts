@@ -54,16 +54,18 @@ export class EthContext<T extends WormholeContext> extends Context {
    * @throws If unable to get the signer or contracts
    */
   async approve(
+    chain: ChainName | ChainId,
     contractAddress: string,
     token: TokenId,
     amount?: BigNumberish,
     overrides?: any,
   ) {
-    const signer = this.context.getSigner(token.chain);
-    if (!signer) throw new Error(`No signer for ${token.chain}`);
+    const signer = this.context.getSigner(chain);
+    if (!signer) throw new Error(`No signer for ${chain}`);
     const senderAddress = await signer.getAddress();
+    const tokenAddress = await this.getForeignAsset(token, chain);
     const tokenImplementation = TokenImplementation__factory.connect(
-      token.address,
+      tokenAddress,
       signer,
     );
     if (!tokenImplementation)
@@ -119,7 +121,7 @@ export class EthContext<T extends WormholeContext> extends Context {
     } else {
       // sending ERC-20
       //approve and send
-      await this.approve(bridge.address, token, amountBN);
+      await this.approve(sendingChain, bridge.address, token, amountBN);
       const v = await bridge.transferTokens(
         token.address,
         amountBN,
@@ -166,7 +168,7 @@ export class EthContext<T extends WormholeContext> extends Context {
       return await v.wait();
     } else {
       // sending ERC-20
-      await this.approve(bridge.address, token, amountBN);
+      await this.approve(sendingChain, bridge.address, token, amountBN);
       const v = await bridge.transferTokensWithPayload(
         token.address,
         amountBN,
@@ -221,7 +223,7 @@ export class EthContext<T extends WormholeContext> extends Context {
       console.log('send with relay');
       // sending ERC-20
       //approve and send
-      await this.approve(relayer.address, token as TokenId, amountBN);
+      await this.approve(sendingChain, relayer.address, token as TokenId, amountBN);
       const tx = await relayer.transferTokensWithRelay(
         tokenAddr,
         amountBN,
