@@ -56,20 +56,19 @@ export class EthContext<T extends WormholeContext> extends Context {
   async approve(
     chain: ChainName | ChainId,
     contractAddress: string,
-    token: TokenId,
+    token: string,
     amount?: BigNumberish,
     overrides?: any,
   ) {
     const signer = this.context.getSigner(chain);
     if (!signer) throw new Error(`No signer for ${chain}`);
     const senderAddress = await signer.getAddress();
-    const tokenAddress = await this.getForeignAsset(token, chain);
     const tokenImplementation = TokenImplementation__factory.connect(
-      tokenAddress,
+      token,
       signer,
     );
     if (!tokenImplementation)
-      throw new Error(`token contract not available for ${token.address}`);
+      throw new Error(`token contract not available for ${token}`);
 
     const approved = await tokenImplementation.allowance(
       senderAddress,
@@ -121,9 +120,10 @@ export class EthContext<T extends WormholeContext> extends Context {
     } else {
       // sending ERC-20
       //approve and send
-      await this.approve(sendingChain, bridge.address, token, amountBN);
+      const tokenAddr = await this.getForeignAsset(token, sendingChain);
+      await this.approve(sendingChain, bridge.address, tokenAddr, amountBN);
       const v = await bridge.transferTokens(
-        token.address,
+        tokenAddr,
         amountBN,
         recipientChainId,
         '0x' + this.formatAddress(recipientAddress),
@@ -168,9 +168,10 @@ export class EthContext<T extends WormholeContext> extends Context {
       return await v.wait();
     } else {
       // sending ERC-20
-      await this.approve(sendingChain, bridge.address, token, amountBN);
+      const tokenAddr = await this.getForeignAsset(token, sendingChain);
+      await this.approve(sendingChain, bridge.address, tokenAddr, amountBN);
       const v = await bridge.transferTokensWithPayload(
-        token.address,
+        tokenAddr,
         amountBN,
         recipientChainId,
         recipientAddress,
@@ -202,7 +203,7 @@ export class EthContext<T extends WormholeContext> extends Context {
     const formattedRecipient = `0x${this.formatAddress(recipientAddress)}`;
     // const unwrapWeth = await relayer.unwrapWeth(); // TODO: check unwrapWeth flag
 
-    if (token === 'native') {
+    if (token === NATIVE) {
       console.log('wrap and send with relay');
       // sending native ETH
       const v = await relayer.wrapAndTransferEthWithRelay(
@@ -218,12 +219,11 @@ export class EthContext<T extends WormholeContext> extends Context {
       );
       return await v.wait();
     } else {
-      const tokenAddr = (token as TokenId).address;
-      if (!tokenAddr) throw new Error('no token address found');
       console.log('send with relay');
       // sending ERC-20
       //approve and send
-      await this.approve(sendingChain, relayer.address, token as TokenId, amountBN);
+      const tokenAddr = await this.getForeignAsset(token, sendingChain);
+      await this.approve(sendingChain, relayer.address, tokenAddr, amountBN);
       const tx = await relayer.transferTokensWithRelay(
         tokenAddr,
         amountBN,
