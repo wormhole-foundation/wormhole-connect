@@ -5,7 +5,7 @@ import { makeStyles } from '@mui/styles';
 import { Theme } from '@mui/material';
 import { RootState } from '../../store';
 import { setToNetworksModal } from '../../store/router';
-import { setBalance as setStoreBalance } from '../../store/transfer';
+import { formatBalance } from '../../store/transfer';
 import { Wallet } from '../../utils/wallet';
 import { CHAINS, TOKENS } from '../../sdk/config';
 import { getBalance } from '../../sdk/sdk';
@@ -104,7 +104,8 @@ function SendTo() {
     if (tokenConfig.tokenId) {
       getBalance(walletAddr, tokenConfig.tokenId, toNetwork).then(
         (res: BigNumber | null) => {
-          dispatch(setStoreBalance({ token: tokenConfig, balance: res }))
+          const balance = formatBalance(tokenConfig, res);
+          setBalance(balance[tokenConfig.symbol]);
         },
       );
     } else if (tokenConfig.wrappedAsset) {
@@ -112,7 +113,8 @@ function SendTo() {
       if (wrappedConfig && wrappedConfig.tokenId) {
         getBalance(walletAddr, wrappedConfig.tokenId, toNetwork).then(
           (res: BigNumber | null) => {
-            dispatch(setStoreBalance({ token: tokenConfig, balance: res }));
+            const balance = formatBalance(tokenConfig, res);
+            setBalance(balance[tokenConfig.symbol]);
           },
         );
       }

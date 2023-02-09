@@ -59,9 +59,9 @@ export const getBalance = async (
   walletAddr: string,
   tokenId: TokenId,
   chain: ChainName | ChainId,
-): Promise<BigNumber> => {
+): Promise<BigNumber | null> => {
   const address = await getForeignAsset(tokenId, chain);
-  if (address === constants.AddressZero) return BigNumber.from(0);
+  if (address === constants.AddressZero) return null;
   const provider = context.mustGetProvider(chain);
   const token = ethers_contracts.TokenImplementation__factory.connect(
     address,

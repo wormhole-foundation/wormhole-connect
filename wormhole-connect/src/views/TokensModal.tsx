@@ -6,7 +6,7 @@ import { Theme } from '@mui/material';
 import { RootState } from '../store';
 import { TOKENS_ARR } from '../sdk/config';
 import { setTokensModal } from '../store/router';
-import { setToken, setBalance } from '../store/transfer';
+import { setToken, setBalance, formatBalance } from '../store/transfer';
 import { displayEvmAddress } from '../utils';
 import { CENTER, joinClass } from '../utils/style';
 import { getBalance, getNativeBalance } from '../sdk/sdk';
@@ -36,7 +36,6 @@ const useStyles = makeStyles((theme: Theme) => ({
   subheader: {
     fontSize: '18px',
     textAlign: 'left',
-    marginRight: '8px',
   },
   tokenRow: {
     position: 'relative',
@@ -178,10 +177,10 @@ function TokensModal() {
       tokens.forEach(async (t) => {
         if (t.tokenId) {
           const balance = await getBalance(walletAddr, t.tokenId, chain);
-          dispatch(setBalance({ token: t, balance }));
+          dispatch(setBalance(formatBalance(t, balance)));
         } else {
           const balance = await getNativeBalance(walletAddr, chain);
-          dispatch(setBalance({ token: t, balance }));
+          dispatch(setBalance(formatBalance(t, balance)));
         }
       });
     };
@@ -190,10 +189,10 @@ function TokensModal() {
   }, []);
 
   // TODO: filter out tokens that don't exist
-  // useEffect(() => {
-  //   const filtered = tokens.filter((t) => tokenBalances[t.symbol] !== null);
-  //   setTokens(filtered);
-  // }, [tokenBalances])
+  useEffect(() => {
+    const filtered = tokens.filter((t) => tokenBalances[t.symbol] !== null);
+    setTokens(filtered);
+  }, [tokenBalances])
 
   return (
     <Modal open={showTokensModal} closable width={500}>

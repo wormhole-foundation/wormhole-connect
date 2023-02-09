@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { RootState } from '../../store';
-import { PaymentOption, setBalance } from '../../store/transfer';
+import { PaymentOption, setBalance, formatBalance } from '../../store/transfer';
 
 import Header from '../../components/Header';
 import Spacer from '../../components/Spacer';
@@ -53,7 +53,7 @@ function Bridge() {
     getNativeBalance(receiving.address, toNetwork).then((res: BigNumber) => {
       const tokenConfig = TOKENS[networkConfig.gasToken];
       if (!tokenConfig) throw new Error('Could not get native gas token config');
-      dispatch(setBalance({ token: tokenConfig, balance: res }));
+      dispatch(setBalance(formatBalance(tokenConfig, res)));
     });
   }, [toNetwork, receiving.address]);
 

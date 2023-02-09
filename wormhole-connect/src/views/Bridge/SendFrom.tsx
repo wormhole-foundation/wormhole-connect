@@ -7,7 +7,7 @@ import { RootState } from '../../store';
 import { setFromNetworksModal, setTokensModal } from '../../store/router';
 import { Wallet } from '../../utils/wallet';
 import { setAmount } from '../../store/transfer';
-import { setBalance as setStoreBalance } from '../../store/transfer';
+import { setBalance as setStoreBalance, formatBalance } from '../../store/transfer';
 import { joinClass } from '../../utils/style';
 import { CHAINS, TOKENS } from '../../sdk/config';
 import { getBalance, getNativeBalance } from '../../sdk/sdk';
@@ -130,13 +130,17 @@ function SendFrom() {
     if (!fromNetwork || !tokenConfig || !walletAddr) return;
     if (tokenConfig.tokenId) {
       getBalance(walletAddr, tokenConfig.tokenId, fromNetwork).then(
-        (res: BigNumber) => {
-          dispatch(setStoreBalance({ token: tokenConfig, balance: res }))
+        (res: BigNumber | null) => {
+          const balance = formatBalance(tokenConfig, res);
+          setBalance(balance[tokenConfig.symbol]);
+          dispatch(setStoreBalance(balance));
         },
       );
     } else {
       getNativeBalance(walletAddr, fromNetwork).then((res: BigNumber) => {
-        dispatch(setStoreBalance({ token: tokenConfig, balance: res }));
+        const balance = formatBalance(tokenConfig, res);
+        setBalance(balance[tokenConfig.symbol]);
+        dispatch(setStoreBalance(balance));
       });
     }
   }, [tokenConfig, fromNetwork, walletAddr]);
