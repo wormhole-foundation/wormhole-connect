@@ -80,13 +80,13 @@ function NetworksModal(props: Props) {
   );
 
   // listen for close event
-  const closeTokensModal = () => {
-    // dispatch(setTokensModal(false));
+  const closeNetworksModal = () => {
+    setTimeout(() => setChains(CHAINS_ARR), 500);
     dispatch(setFromNetworksModal(false));
     dispatch(setToNetworksModal(false));
-    document.removeEventListener('click', closeTokensModal);
+    document.removeEventListener('click', closeNetworksModal);
   };
-  document.addEventListener('close', closeTokensModal, { once: true });
+  document.addEventListener('close', closeNetworksModal, { once: true });
 
   const isDisabled = (chain: ChainName) => {
     if (props.type === ModalType.FROM) {

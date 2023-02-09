@@ -151,7 +151,7 @@ function TokensModal() {
       const symbol = c.symbol.toLowerCase();
       return (
         symbol.indexOf(lowercase) === 0 ||
-        (c.tokenId && c.tokenId.address.indexOf(lowercase) === 0)
+        (c.tokenId && c.tokenId.address.toLowerCase().indexOf(lowercase) === 0)
       );
     });
     setTokens(filtered);
