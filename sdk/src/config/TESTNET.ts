@@ -25,7 +25,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     context: Context.ETH,
     contracts: {
       ...CONTRACTS.TESTNET.ethereum,
-      relayer: '0x631C7bc094895b35E15EA23CDe5b2BdC74Ed18bf',
+      relayer: '0xe32b14c48e4b7c6825b855f231786fe5ba9ce014',
     },
     displayName: 'Goerli',
     explorerUrl: 'https://goerli.etherscan.io/',
@@ -39,7 +39,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     context: Context.ETH,
     contracts: {
       ...CONTRACTS.TESTNET.polygon,
-      relayer: '0x64A09E0cd839456d64c9Ab8F8AFe7C2B24b65b76',
+      relayer: '0x953a2342496b15d69dec25c8e62274995e82d243',
     },
     displayName: 'Mumbai',
     explorerUrl: 'https://mumbai.polygonscan.com/',
@@ -53,7 +53,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     context: Context.ETH,
     contracts: {
       ...CONTRACTS.TESTNET.bsc,
-      relayer: '0x3a03c903690ed20b5e087647617dd5d582375fab',
+      relayer: '0x49a401f7fa594bc618a7a39b316b78e329620103',
     },
     displayName: 'BSC',
     explorerUrl: 'https://testnet.bscscan.com/',
@@ -67,7 +67,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     context: Context.ETH,
     contracts: {
       ...CONTRACTS.TESTNET.avalanche,
-      relayer: '0x99a0b432b9a2bd2be70788825e3232c6f0a17f11',
+      relayer: '0x8369839932222c1ca3bc7d16f970c56f61993a44',
     },
     displayName: 'Fuji',
     explorerUrl: 'https://testnet.snowtrace.io/',
@@ -81,7 +81,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     context: Context.ETH,
     contracts: {
       ...CONTRACTS.TESTNET.fantom,
-      relayer: '0x4cb9c625e657d9ccb91fa2270f420d005e2715d2',
+      relayer: '0x5122298f68341a088c5370d7678e13912e4ed378',
     },
     displayName: 'Fantom',
     explorerUrl: 'https://testnet.ftmscan.com/',
@@ -95,7 +95,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     context: Context.ETH,
     contracts: {
       ...CONTRACTS.TESTNET.celo,
-      relayer: '0xe0cdc52c477028bc293a21ef172a9a8b763d2113',
+      relayer: '0x5c9da01cbf5088ee660b9701dc526c6e5df1c239',
     },
     displayName: 'Alfajores',
     explorerUrl: 'https://explorer.celo.org/alfajores/',
