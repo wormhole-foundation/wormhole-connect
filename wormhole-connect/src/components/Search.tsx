@@ -26,6 +26,9 @@ const useStyles = makeStyles((theme: Theme) => ({
     border: `1px solid ${theme.palette.divider}${OPACITY[50]}`,
     borderRadius: '8px',
   },
+  clickable: {
+    cursor: 'pointer',
+  },
 }));
 
 type Props = {
@@ -52,7 +55,7 @@ function Search(props: Props) {
               onEnter={props.onSearch}
             />
           </div>
-          <div onClick={props.onSearch}>
+          <div onClick={props.onSearch} className={ props.onSearch && classes.clickable}>
             <SearchIcon />
           </div>
         </div>
