@@ -45,7 +45,7 @@ function InputTransparent(props: Props) {
     if (e.key === 'Enter' && props.onEnter) {
       props.onEnter(e);
     }
-  }
+  };
 
   return (
     <input

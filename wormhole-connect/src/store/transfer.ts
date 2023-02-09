@@ -1,11 +1,23 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+import { TokenConfig } from 'config/types';
+import { BigNumber } from 'ethers';
+import { toDecimals } from 'utils/balance';
 
 export enum PaymentOption {
   MANUAL = 1,
   AUTOMATIC = 3,
 }
-export type Balances = { [key: string]: string };
+export type Balances = { [key: string]: string | null };
+
+export const formatBalance = (
+  token: TokenConfig,
+  balance: BigNumber | null,
+) => {
+  const formattedBalance =
+    balance !== null ? toDecimals(balance, token.decimals, 6) : null;
+  return { [token.symbol]: formattedBalance };
+};
 
 export interface TransferState {
   fromNetwork: ChainName | undefined;
@@ -16,9 +28,8 @@ export interface TransferState {
   maxSwapAmt: number | undefined;
   toNativeToken: number;
   receiveNativeAmt: number | undefined;
+  relayerFee: number | undefined;
   balances: Balances;
-  txHash: string;
-  redeemTx: string;
 }
 
 const initialState: TransferState = {
@@ -31,9 +42,8 @@ const initialState: TransferState = {
   maxSwapAmt: undefined,
   toNativeToken: 0,
   receiveNativeAmt: undefined,
+  relayerFee: undefined,
   balances: {},
-  txHash: '',
-  redeemTx: '',
 };
 
 export const transferSlice = createSlice({
@@ -90,20 +100,24 @@ export const transferSlice = createSlice({
       console.log('set receive native token amount:', payload);
       state.receiveNativeAmt = payload;
     },
+    setRelayerFee: (
+      state: TransferState,
+      { payload }: PayloadAction<number>,
+    ) => {
+      console.log('set relayer fee', payload);
+      state.relayerFee = payload;
+    },
     setBalance: (
       state: TransferState,
       { payload }: PayloadAction<Balances>,
     ) => {
       state.balances = { ...state.balances, ...payload };
     },
-    setTxHash: (state: TransferState, { payload }: PayloadAction<string>) => {
-      console.log('set tx hash:', payload);
-      state.txHash = payload;
-    },
-    setRedeemTx: (state: TransferState, { payload }) => {
-      console.log('set redeem tx:', payload);
-      state.redeemTx = payload;
-    },
+    clearTransfer: (
+      state: TransferState,
+    ) => {
+      state = initialState;
+    }
   },
 });
 
@@ -116,9 +130,9 @@ export const {
   setToNativeToken,
   setMaxSwapAmt,
   setReceiveNativeAmt,
+  setRelayerFee,
   setBalance,
-  setTxHash,
-  setRedeemTx,
+  clearTransfer,
 } = transferSlice.actions;
 
 export default transferSlice.reducer;

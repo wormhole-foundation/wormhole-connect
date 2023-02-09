@@ -1,13 +1,15 @@
 import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
-import { PaymentOption } from '../../store/transfer';
+import { PaymentOption, setRelayerFee } from '../../store/transfer';
 import { RenderRows, RowsData } from '../../components/RenderRows';
 import InputContainer from '../../components/InputContainer';
 import BridgeCollapse from './Collapse';
 import { CHAINS, TOKENS } from '../../sdk/config';
 import { TokenConfig } from '../../config/types';
-import { toFixedDecimals } from '../../utils/balance';
+import { toDecimals, toFixedDecimals } from '../../utils/balance';
+import { getRelayerFee } from '../../sdk/sdk';
+import { useDispatch } from 'react-redux';
 
 const getRows = (
   token: TokenConfig,
@@ -16,6 +18,7 @@ const getRows = (
   amount: number,
   nativeTokenAmt: number,
   receiveNativeAmt: number,
+  relayerFee: number,
 ): RowsData => {
   const receivingToken = token.wrappedAsset || token.symbol;
 
@@ -39,7 +42,7 @@ const getRows = (
         rows: [
           {
             title: 'Relayer fee',
-            value: `TODO ${token.symbol}`,
+            value: `${relayerFee} ${token.symbol}`,
           },
           {
             title: 'Source chain gas estimate',
@@ -76,20 +79,28 @@ const getRows = (
 };
 
 function Preview(props: { collapsed: boolean }) {
+  const dispatch = useDispatch();
   const [state, setState] = React.useState({ rows: [] as RowsData });
   const {
     token,
+    fromNetwork,
     toNetwork,
     destGasPayment,
     amount,
     toNativeToken,
     receiveNativeAmt,
   } = useSelector((state: RootState) => state.transfer);
+
   useEffect(() => {
     const destConfig = toNetwork && CHAINS[toNetwork];
     const tokenConfig = token && TOKENS[token];
-    if (!tokenConfig || !destConfig || !amount) return;
-    if (tokenConfig && destConfig) {
+    if (!fromNetwork || !tokenConfig || !destConfig || !amount) return;
+
+    getRelayerFee(fromNetwork, toNetwork, token).then((fee) => {
+      const formattedFee = Number.parseFloat(
+        toDecimals(fee, tokenConfig.decimals, 6),
+      );
+      dispatch(setRelayerFee(formattedFee));
       const rows = getRows(
         tokenConfig,
         destConfig!.nativeToken,
@@ -97,11 +108,13 @@ function Preview(props: { collapsed: boolean }) {
         amount,
         toNativeToken,
         receiveNativeAmt || 0,
+        formattedFee,
       );
       setState({ rows });
-    }
+    });
   }, [
     token,
+    fromNetwork,
     toNetwork,
     destGasPayment,
     amount,

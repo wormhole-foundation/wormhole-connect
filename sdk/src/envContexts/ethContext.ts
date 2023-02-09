@@ -33,8 +33,12 @@ export class EthContext<T extends WormholeContext> extends Context {
   }
 
   async getForeignAsset(tokenId: TokenId, chain: ChainName | ChainId) {
-    const tokenBridge = this.context.mustGetBridge(chain);
+    const toChainId = this.context.resolveDomain(chain);
     const chainId = this.context.resolveDomain(tokenId.chain);
+    // if the token is already native, return the token address
+    if (toChainId === chainId) return tokenId.address;
+    // else fetch the representation
+    const tokenBridge = this.context.mustGetBridge(chain);
     const tokenAddr = '0x' + this.formatAddress(tokenId.address);
     return await tokenBridge.wrappedAsset(
       chainId,
@@ -338,6 +342,26 @@ export class EthContext<T extends WormholeContext> extends Context {
       return parsedMessage;
     });
     return await Promise.all(parsedLogs);
+  }
+
+  async getRelayerFee(
+    sourceChain: ChainName | ChainId,
+    destChain: ChainName | ChainId,
+    tokenId: TokenId,
+  ): Promise<BigNumber> {
+    const relayer = this.context.mustGetTBRelayer(sourceChain);
+    // get asset address
+    const address = await this.getForeignAsset(tokenId, sourceChain);
+    // get token decimals
+    const provider = this.context.mustGetProvider(sourceChain);
+    const tokenContract = TokenImplementation__factory.connect(
+      address,
+      provider,
+    );
+    const decimals = await tokenContract.decimals();
+    // get relayer fee as token amt
+    const destChainId = this.context.resolveDomain(destChain);
+    return await relayer.calculateRelayerFee(destChainId, address, decimals);
   }
 
   formatAddress(address: string): string {

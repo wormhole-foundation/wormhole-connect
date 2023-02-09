@@ -3,9 +3,9 @@ import { useSelector, useDispatch } from 'react-redux';
 import { CHAINS, TOKENS } from '../../sdk/config';
 import { parseMessageFromTx, sendTransfer } from '../../sdk/sdk';
 import { RootState } from '../../store';
-import { setTxHash } from '../../store/transfer';
 import { setRoute } from '../../store/router';
-import { setTxDetails } from '../../store/redeem';
+import { setTxDetails, setSendTx } from '../../store/redeem';
+// import { clearTransfer } from '../../store/transfer';
 import {
   registerWalletSigner,
   switchNetwork,
@@ -61,8 +61,10 @@ function Send(props: { valid: boolean }) {
         receipt.transactionHash,
         fromNetwork!,
       );
-      dispatch(setTxHash(receipt.transactionHash));
+      dispatch(setSendTx(receipt.transactionHash));
       dispatch(setTxDetails(message));
+      // TODO: clear inputs
+      // dispatch(clearTransfer);
       dispatch(setRoute('redeem'));
       setInProgress(false);
     } catch (e) {
@@ -89,7 +91,7 @@ function Send(props: { valid: boolean }) {
       elevated
     >
       {inProgress ? (
-        <CircularProgress size={18} />
+        <CircularProgress size={20} />
       ) : (
         'Approve and proceed with transaction'
       )}

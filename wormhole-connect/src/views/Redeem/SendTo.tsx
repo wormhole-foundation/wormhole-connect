@@ -4,7 +4,8 @@ import { useDispatch } from 'react-redux';
 import { BigNumber, utils } from 'ethers';
 import { useTheme } from '@mui/material/styles';
 import { RootState } from '../../store';
-import { PaymentOption, setRedeemTx } from '../../store/transfer';
+import { PaymentOption } from '../../store/transfer';
+import { setRedeemTx } from '../../store/redeem';
 import {
   openWalletModal,
   registerWalletSigner,
@@ -13,6 +14,9 @@ import {
 } from '../../utils/wallet';
 import { ParsedVaa } from '../../utils/vaa';
 import { claimTransfer } from '../../sdk/sdk';
+import { displayEvmAddress } from '../../utils';
+import { CHAINS } from '../../sdk/config';
+
 import Header from './Header';
 // import Confirmations from './Confirmations';
 import Button from '../../components/Button';
@@ -21,8 +25,6 @@ import { RenderRows, RowsData } from '../../components/RenderRows';
 import InputContainer from '../../components/InputContainer';
 import { handleConnect } from '../../components/ConnectWallet';
 import CircularProgress from '@mui/material/CircularProgress';
-import { displayEvmAddress } from '../../utils';
-import { CHAINS } from '../../sdk/config';
 
 const getRows = (txData: any): RowsData => {
   const decimals = txData.tokenDecimals > 8 ? 8 : txData.tokenDecimals;
