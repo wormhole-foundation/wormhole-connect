@@ -192,7 +192,7 @@ function TokensModal() {
   useEffect(() => {
     const filtered = tokens.filter((t) => tokenBalances[t.symbol] !== null);
     setTokens(filtered);
-  }, [tokenBalances])
+  }, [tokenBalances]);
 
   return (
     <Modal open={showTokensModal} closable width={500}>

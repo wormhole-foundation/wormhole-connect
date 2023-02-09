@@ -47,6 +47,7 @@ export const redeemSlice = createSlice({
   },
 });
 
-export const { setVaa, setTxDetails, setSendTx, setRedeemTx } = redeemSlice.actions;
+export const { setVaa, setTxDetails, setSendTx, setRedeemTx } =
+  redeemSlice.actions;
 
 export default redeemSlice.reducer;

@@ -14,7 +14,6 @@ import Send from './Send';
 import MenuFull from '../../components/MenuFull';
 import { Collapse } from '@mui/material';
 import { BigNumber } from 'ethers';
-import { toDecimals } from '../../utils/balance';
 import { useDispatch } from 'react-redux';
 import { getNativeBalance } from '../../sdk/sdk';
 import { CHAINS, TOKENS } from '../../sdk/config';
@@ -52,7 +51,8 @@ function Bridge() {
     const networkConfig = CHAINS[toNetwork]!;
     getNativeBalance(receiving.address, toNetwork).then((res: BigNumber) => {
       const tokenConfig = TOKENS[networkConfig.gasToken];
-      if (!tokenConfig) throw new Error('Could not get native gas token config');
+      if (!tokenConfig)
+        throw new Error('Could not get native gas token config');
       dispatch(setBalance(formatBalance(tokenConfig, res)));
     });
   }, [toNetwork, receiving.address]);

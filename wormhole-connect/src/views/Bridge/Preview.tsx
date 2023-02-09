@@ -18,6 +18,7 @@ const getRows = (
   amount: number,
   nativeTokenAmt: number,
   receiveNativeAmt: number,
+  relayerFee: number,
 ): RowsData => {
   const receivingToken = token.wrappedAsset || token.symbol;
 
@@ -41,7 +42,7 @@ const getRows = (
         rows: [
           {
             title: 'Relayer fee',
-            value: `TODO ${token.symbol}`,
+            value: `${relayerFee} ${token.symbol}`,
           },
           {
             title: 'Source chain gas estimate',
@@ -96,20 +97,21 @@ function Preview(props: { collapsed: boolean }) {
     if (!fromNetwork || !tokenConfig || !destConfig || !amount) return;
 
     getRelayerFee(fromNetwork, toNetwork, token).then((fee) => {
-      console.log('RELAYER FEE', fee);
-      const decimals = tokenConfig.decimals > 8 ? 8 : tokenConfig.decimals;
-      const formattedFee = toDecimals(fee, decimals, 6);
-      dispatch(setRelayerFee(Number.parseFloat(formattedFee)));
-    })
-    const rows = getRows(
-      tokenConfig,
-      destConfig!.nativeToken,
-      destGasPayment,
-      amount,
-      toNativeToken,
-      receiveNativeAmt || 0,
-    );
-    setState({ rows });
+      const formattedFee = Number.parseFloat(
+        toDecimals(fee, tokenConfig.decimals, 6),
+      );
+      dispatch(setRelayerFee(formattedFee));
+      const rows = getRows(
+        tokenConfig,
+        destConfig!.nativeToken,
+        destGasPayment,
+        amount,
+        toNativeToken,
+        receiveNativeAmt || 0,
+        formattedFee,
+      );
+      setState({ rows });
+    });
   }, [
     token,
     fromNetwork,

@@ -7,7 +7,10 @@ import { RootState } from '../../store';
 import { setFromNetworksModal, setTokensModal } from '../../store/router';
 import { Wallet } from '../../utils/wallet';
 import { setAmount } from '../../store/transfer';
-import { setBalance as setStoreBalance, formatBalance } from '../../store/transfer';
+import {
+  setBalance as setStoreBalance,
+  formatBalance,
+} from '../../store/transfer';
 import { joinClass } from '../../utils/style';
 import { CHAINS, TOKENS } from '../../sdk/config';
 import { getBalance, getNativeBalance } from '../../sdk/sdk';

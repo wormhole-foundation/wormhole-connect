@@ -10,10 +10,14 @@ export enum PaymentOption {
 }
 export type Balances = { [key: string]: string | null };
 
-export const formatBalance = (token: TokenConfig, balance: BigNumber | null) => {
-  const formattedBalance = balance !== null ? toDecimals(balance, token.decimals, 6) : null;
+export const formatBalance = (
+  token: TokenConfig,
+  balance: BigNumber | null,
+) => {
+  const formattedBalance =
+    balance !== null ? toDecimals(balance, token.decimals, 6) : null;
   return { [token.symbol]: formattedBalance };
-}
+};
 
 export interface TransferState {
   fromNetwork: ChainName | undefined;
@@ -107,7 +111,7 @@ export const transferSlice = createSlice({
       state: TransferState,
       { payload }: PayloadAction<Balances>,
     ) => {
-      state.balances = { ...state.balances, ...payload};
+      state.balances = { ...state.balances, ...payload };
     },
   },
 });

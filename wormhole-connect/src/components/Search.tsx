@@ -55,7 +55,10 @@ function Search(props: Props) {
               onEnter={props.onSearch}
             />
           </div>
-          <div onClick={props.onSearch} className={ props.onSearch && classes.clickable}>
+          <div
+            onClick={props.onSearch}
+            className={props.onSearch && classes.clickable}
+          >
             <SearchIcon />
           </div>
         </div>

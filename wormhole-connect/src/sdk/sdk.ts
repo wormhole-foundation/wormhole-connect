@@ -121,12 +121,8 @@ export const getRelayerFee = async (
   const tokenConfig = TOKENS[token];
   if (!tokenConfig) throw new Error('could not get token config');
   const tokenId = tokenConfig.tokenId || getWrappedTokenId(tokenConfig);
-  return await EthContext.getRelayerFee(
-    sourceChain,
-    destChain,
-    tokenId,
-  )
-}
+  return await EthContext.getRelayerFee(sourceChain, destChain, tokenId);
+};
 
 export const sendTransfer = async (
   token: TokenId | 'native',

@@ -344,7 +344,7 @@ export class EthContext<T extends WormholeContext> extends Context {
     return await Promise.all(parsedLogs);
   }
 
-  async getRelayerFee (
+  async getRelayerFee(
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
     tokenId: TokenId,
@@ -361,11 +361,7 @@ export class EthContext<T extends WormholeContext> extends Context {
     const decimals = await tokenContract.decimals();
     // get relayer fee as token amt
     const destChainId = this.context.resolveDomain(destChain);
-    return await relayer.calculateRelayerFee(
-      destChainId,
-      address,
-      decimals,
-    )
+    return await relayer.calculateRelayerFee(destChainId, address, decimals);
   }
 
   formatAddress(address: string): string {
