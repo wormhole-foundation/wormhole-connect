@@ -35,10 +35,12 @@ type Props = {
       | React.ChangeEvent<HTMLInputElement>
       | React.ChangeEvent<HTMLTextAreaElement>,
   ) => void;
+  onSearch?: React.MouseEventHandler<HTMLDivElement>;
 };
 
 function Search(props: Props) {
   const classes = useStyles();
+
   return (
     <div className={classes.searchBorder}>
       <div className={classes.container}>
@@ -47,9 +49,12 @@ function Search(props: Props) {
             <InputTransparent
               placeholder={props.placeholder}
               onChange={props.onChange}
+              onEnter={props.onSearch}
             />
           </div>
-          <SearchIcon />
+          <div onClick={props.onSearch}>
+            <SearchIcon />
+          </div>
         </div>
       </div>
     </div>

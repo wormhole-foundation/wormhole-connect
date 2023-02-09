@@ -35,10 +35,18 @@ type Props = {
       | React.ChangeEvent<HTMLInputElement>
       | React.ChangeEvent<HTMLTextAreaElement>,
   ) => void;
+  onEnter?: React.MouseEventHandler<HTMLDivElement>;
 };
 
 function InputTransparent(props: Props) {
   const { classes } = useStyles({ align: props.align });
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && props.onEnter) {
+      props.onEnter(e);
+    }
+  }
+
   return (
     <input
       id={props.id}
@@ -49,6 +57,7 @@ function InputTransparent(props: Props) {
       max={props.max}
       step={props.step}
       onChange={props.onChange}
+      onKeyDown={handleKeyDown}
     />
   );
 }

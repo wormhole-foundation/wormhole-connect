@@ -95,6 +95,7 @@ function TxSearch() {
           <Search
             placeholder="Source chain transaction hash"
             onChange={setTx}
+            onSearch={search}
           />
         </div>
       </div>
