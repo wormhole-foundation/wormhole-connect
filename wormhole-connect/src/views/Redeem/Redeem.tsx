@@ -1,10 +1,9 @@
 import React from 'react';
 import { connect } from 'react-redux';
-// import { fetchVaa, ParsedVaa, getSignedVAAHash } from '../../utils/vaa';
-import { ParsedVaa } from '../../utils/vaa';
+import { fetchVaa, ParsedVaa, getSignedVAAHash } from '../../utils/vaa';
 import { setVaa } from '../../store/redeem';
 import { RootState } from '../../store';
-// import { getTransferComplete } from '../../sdk/sdk';
+import { getTransferComplete } from '../../sdk/sdk';
 import PageHeader from '../../components/PageHeader';
 import Spacer from '../../components/Spacer';
 import NetworksTag from './Tag';
@@ -29,35 +28,27 @@ class Redeem extends React.Component<
   }
 
   async update() {
-    console.log('start')
-    setTimeout(() => {
-      console.log('update')
-      this.setState({ ...this.state, isComplete: true });
-    }, 10000)
+    if (!this.state.isComplete) {
+      if (!this.state.vaa) {
+        await this.getVaa();
+      }
+      await this.getTransferComplete();
+    }
   }
 
-  // async update() {
-  //   if (!this.state.isComplete) {
-  //     if (!this.state.vaa) {
-  //       await this.getVaa();
-  //     }
-  //     await this.getTransferComplete();
-  //   }
-  // }
+  async getVaa() {
+    if (!this.props.txData.sendTx) return;
+    const vaa = await fetchVaa(this.props.txData.sendTx);
+    this.props.setVaa(vaa);
+    this.setState({ ...this.state, vaa });
+  }
 
-  // async getVaa() {
-  //   if (!this.props.txData.sendTx) return;
-  //   const vaa = await fetchVaa(this.props.txData.sendTx.slice(2));
-  //   this.props.setVaa(vaa);
-  //   this.setState({ ...this.state, vaa });
-  // }
-
-  // async getTransferComplete() {
-  //   if (!this.state.vaa || !this.props.txData) return;
-  //   const hash = getSignedVAAHash(this.state.vaa.hash);
-  //   const isComplete = await getTransferComplete(this.props.txData.toChain, hash);
-  //   this.setState({ ...this.state, isComplete });
-  // }
+  async getTransferComplete() {
+    if (!this.state.vaa || !this.props.txData) return;
+    const hash = getSignedVAAHash(this.state.vaa.hash);
+    const isComplete = await getTransferComplete(this.props.txData.toChain, hash);
+    this.setState({ ...this.state, isComplete });
+  }
 
   componentDidMount() {
     console.log('mount')

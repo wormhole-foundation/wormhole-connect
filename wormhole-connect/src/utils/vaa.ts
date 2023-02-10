@@ -44,8 +44,7 @@ export async function fetchVaa(txId: string): Promise<ParsedVaa | undefined> {
         emitterAddress: utils.hexlify(parsed.emitterAddress),
         emitterChain: parsed.emitterChain as ChainId,
         fee: parsed.fee ? parsed.fee.toString() : null,
-        // fromAddress: parsed.fromAddress ? utils.hexlify(parsed.fromAddress) : undefined,
-        fromAddress: utils.hexlify(parsed.to), // TODO: figure out why fromAddress is sometimes undefined
+        fromAddress: parsed.fromAddress ? utils.hexlify(parsed.fromAddress) : undefined,
         guardianSignatures: parsed.guardianSignatures.length,
         sequence: parsed.sequence.toString(),
         timestamp: parsed.timestamp,

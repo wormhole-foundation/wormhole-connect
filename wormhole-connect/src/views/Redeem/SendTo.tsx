@@ -28,6 +28,22 @@ import CircularProgress from '@mui/material/CircularProgress';
 
 const getRows = (txData: any): RowsData => {
   const decimals = txData.tokenDecimals > 8 ? 8 : txData.tokenDecimals;
+  const type = txData.payloadID;
+  const { gasToken } = CHAINS[txData.toChain]!;
+
+  // manual transfers
+  if (type === PaymentOption.MANUAL) {
+    const formattedAmt = utils.formatUnits(txData.amount, decimals);
+    return [{
+      title: 'Amount',
+      value: `${formattedAmt} ${txData.tokenSymbol}`,
+    }, {
+      title: 'Gas estimate',
+      value: `TODO ${gasToken}`,
+    }]
+  }
+
+  // automatic transfers
   const receiveAmt = BigNumber.from(txData.amount).sub(
     BigNumber.from(txData.relayerFee),
   );
@@ -36,7 +52,6 @@ const getRows = (txData: any): RowsData => {
     txData.toNativeTokenAmount,
     decimals,
   );
-  const { gasToken } = CHAINS[txData.toChain]!;
   return [
     {
       title: 'Amount',

@@ -205,5 +205,5 @@ export const getToken = async (tokenId: TokenId) => {
 
 export const getTransferComplete = async (destChain: ChainName | ChainId, signedVaaHash: string): Promise<boolean> => {
   const EthContext: any = context.getContext(destChain);
-  return await EthContext.getTransferComplete(destChain, signedVaaHash);
+  return await EthContext.isTransferCompleted(destChain, signedVaaHash);
 }

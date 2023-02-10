@@ -123,7 +123,7 @@ export class EthContext<T extends WormholeContext> extends Context {
       const tokenAddr = await this.getForeignAsset(token, sendingChain);
       await this.approve(sendingChain, bridge.address, tokenAddr, amountBN);
       const v = await bridge.transferTokens(
-        tokenAddr,
+        this.parseAddress(tokenAddr),
         amountBN,
         recipientChainId,
         '0x' + this.formatAddress(recipientAddress),
@@ -171,7 +171,7 @@ export class EthContext<T extends WormholeContext> extends Context {
       const tokenAddr = await this.getForeignAsset(token, sendingChain);
       await this.approve(sendingChain, bridge.address, tokenAddr, amountBN);
       const v = await bridge.transferTokensWithPayload(
-        tokenAddr,
+        this.parseAddress(tokenAddr),
         amountBN,
         recipientChainId,
         recipientAddress,
@@ -225,7 +225,7 @@ export class EthContext<T extends WormholeContext> extends Context {
       const tokenAddr = await this.getForeignAsset(token, sendingChain);
       await this.approve(sendingChain, relayer.address, tokenAddr, amountBN);
       const tx = await relayer.transferTokensWithRelay(
-        tokenAddr,
+        this.parseAddress(tokenAddr),
         amountBN,
         nativeTokenBN,
         recipientChainId,
@@ -307,7 +307,7 @@ export class EthContext<T extends WormholeContext> extends Context {
             parsedTransfer.toChain,
           ) as ChainName,
           fromChain,
-          tokenAddress: parsedTransfer.tokenAddress,
+          tokenAddress: this.parseAddress(parsedTransfer.tokenAddress),
           tokenChain: this.context.resolveDomainName(
             parsedTransfer.tokenChain,
           ) as ChainName,
