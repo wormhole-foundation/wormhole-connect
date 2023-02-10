@@ -3,9 +3,11 @@ import { ChainId } from '@wormhole-foundation/wormhole-connect-sdk';
 import axios from 'axios';
 
 import { utils } from 'ethers';
+import { keccak256 } from 'ethers/lib/utils';
 
 export type ParsedVaa = {
   bytes: string;
+  hash: string;
   amount: string;
   emitterAddress: string;
   emitterChain: ChainId;
@@ -37,6 +39,7 @@ export async function fetchVaa(txId: string): Promise<ParsedVaa | undefined> {
       console.log(parsed);
       const vaaData: ParsedVaa = {
         bytes: utils.hexlify(vaa),
+        hash: utils.hexlify(parsed.hash),
         amount: parsed.amount.toString(),
         emitterAddress: utils.hexlify(parsed.emitterAddress),
         emitterChain: parsed.emitterChain as ChainId,
@@ -57,4 +60,8 @@ export async function fetchVaa(txId: string): Promise<ParsedVaa | undefined> {
     .catch(function (error) {
       throw error;
     });
+}
+
+export function getSignedVAAHash(signedVaaHash: string): string {
+  return `0x${keccak256(signedVaaHash)}`;
 }

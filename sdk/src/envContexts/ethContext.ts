@@ -366,6 +366,14 @@ export class EthContext<T extends WormholeContext> extends Context {
     return await relayer.calculateRelayerFee(destChainId, address, decimals);
   }
 
+  async isTransferCompleted(
+    destChain: ChainName | ChainId,
+    signedVaaHash: string,
+  ): Promise<boolean> {
+    const tokenBridge = this.context.mustGetBridge(destChain);
+    return await tokenBridge.isTransferCompleted(signedVaaHash);
+  }
+
   formatAddress(address: string): string {
     return Buffer.from(zeroPad(arrayify(address), 32)).toString('hex');
   }

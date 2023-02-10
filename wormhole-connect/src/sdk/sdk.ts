@@ -202,3 +202,8 @@ export const getToken = async (tokenId: TokenId) => {
   const decimals = await tokenContract.decimals();
   return { symbol, decimals };
 };
+
+export const getTransferComplete = async (destChain: ChainName | ChainId, signedVaaHash: string): Promise<boolean> => {
+  const EthContext: any = context.getContext(destChain);
+  return await EthContext.getTransferComplete(destChain, signedVaaHash);
+}
