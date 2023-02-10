@@ -1,7 +1,7 @@
 import { TokenId, ChainName, ChainId } from '../types';
 
 // template for different environment contexts
-export abstract class Context {
+export abstract class BridgeAbstract {
   /**
    * These operations have to be implemented in subclasses.
    */
@@ -30,4 +30,8 @@ export abstract class Context {
   // parseMessageFromTx
   // getForeignAsset
   // redeem
+}
+
+export abstract class RelayerAbstract extends BridgeAbstract {
+  // calculateNativeTokenAmt
 }

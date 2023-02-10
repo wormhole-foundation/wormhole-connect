@@ -1,6 +1,6 @@
 import { createNonce, hexToUint8Array } from '@certusone/wormhole-sdk';
 import { WormholeContext } from '../wormhole';
-import { Context } from './contextAbstract';
+import { BridgeAbstract } from './abstracts';
 import { TokenId, ChainName, ChainId, NATIVE } from '../types';
 import {
   ACCOUNT_SIZE,
@@ -28,7 +28,7 @@ import {
 } from '@certusone/wormhole-sdk/lib/cjs/solana/tokenBridge';
 import { deriveWormholeEmitterKey } from '@certusone/wormhole-sdk/lib/cjs/solana/wormhole';
 
-export class SolanaContext<T extends WormholeContext> extends Context {
+export class SolanaContext<T extends WormholeContext> extends BridgeAbstract {
   readonly context: T;
 
   constructor(context: T) {

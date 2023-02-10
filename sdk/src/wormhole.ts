@@ -15,18 +15,13 @@ import TESTNET_CONFIG, {
   TestnetChainName,
   TESTNET_CHAINS,
 } from './config/TESTNET';
-import { WormholeConfig, ChainName, ChainId, Context } from './types';
+import { WormholeConfig, ChainName, ChainId, Context, AnyContext } from './types';
 import { WHContracts } from './contracts';
 import { TokenId } from './types';
-import { EthContext } from './envContexts/ethContext';
-import { TerraContext } from './envContexts/terraContext';
-import { InjectiveContext } from './envContexts/injectiveContext';
-import { XplaContext } from './envContexts/xplaContext';
-import { SolanaContext } from './envContexts/solanaContext';
-import { NearContext } from './envContexts/nearContext';
-import { AptosContext } from './envContexts/aptosContext';
-import { AlgorandContext } from './envContexts/algorandContext';
+import { EthContext } from './contexts/ethContext';
+import { SolanaContext } from './contexts/solanaContext';
 import { TokenBridgeRelayer } from './abis/TokenBridgeRelayer';
+import { Transaction } from '@solana/web3.js';
 
 /**
  * The WormholeContext manages connections to Wormhole Core, Bridge and NFT Bridge contracts.
@@ -217,15 +212,7 @@ export class WormholeContext extends MultiProvider<Domain> {
 
   getContext(
     chain: ChainName | ChainId,
-  ):
-    | EthContext<WormholeContext>
-    | TerraContext<WormholeContext>
-    | InjectiveContext<WormholeContext>
-    | XplaContext<WormholeContext>
-    | SolanaContext<WormholeContext>
-    | NearContext<WormholeContext>
-    | AptosContext<WormholeContext>
-    | AlgorandContext<WormholeContext> {
+  ): AnyContext {
     const chainName = this.resolveDomainName(chain) as ChainName;
     const { context } = this.conf.chains[chainName]!;
     switch (context) {
@@ -234,24 +221,6 @@ export class WormholeContext extends MultiProvider<Domain> {
       }
       case Context.SOLANA: {
         return new SolanaContext(this);
-      }
-      case Context.TERRA: {
-        return new TerraContext(this);
-      }
-      case Context.INJECTIVE: {
-        return new InjectiveContext(this);
-      }
-      case Context.XPLA: {
-        return new XplaContext(this);
-      }
-      case Context.ALGORAND: {
-        return new AlgorandContext(this);
-      }
-      case Context.NEAR: {
-        return new NearContext(this);
-      }
-      case Context.APTOS: {
-        return new AptosContext(this);
       }
       default: {
         throw new Error('Not able to retrieve context');
@@ -282,7 +251,7 @@ export class WormholeContext extends MultiProvider<Domain> {
     recipientAddress: string,
     relayerFee?: string,
     payload?: any,
-  ): Promise<ContractReceipt> {
+  ): Promise<ContractReceipt | Transaction> {
     const context = this.getContext(sendingChain);
     if (payload) {
       return context.sendWithPayload(
@@ -343,9 +312,14 @@ export class WormholeContext extends MultiProvider<Domain> {
     );
   }
 
-  // formatAddress(address: any, chain: ChainName | ChainId): string {
+  formatAddress(address: any, chain: ChainName | ChainId): string {
+    const context = this.getContext(chain);
+    return context.formatAddress(address);
+  }
+
+  // parseAddress(address: any, chain: ChainName | ChainId): string {
   //   const context = this.getContext(chain);
-  //   return context.formatAddress(address);
+  //   return context.parseAddress(address);
   // }
 
   /**

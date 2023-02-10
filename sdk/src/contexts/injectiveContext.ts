@@ -1,5 +1,5 @@
 import { WormholeContext } from '../wormhole';
-import { Context } from './contextAbstract';
+import { BridgeAbstract } from './abstracts';
 import { TokenId, ChainName, ChainId, NATIVE } from '../types';
 import { MsgExecuteContract as MsgExecuteContractInjective } from '@injectivelabs/sdk-ts';
 import { bech32 } from 'bech32';
@@ -9,7 +9,7 @@ import {
   isNativeDenomInjective,
 } from '@certusone/wormhole-sdk';
 
-export class InjectiveContext<T extends WormholeContext> extends Context {
+export class InjectiveContext<T extends WormholeContext> extends BridgeAbstract {
   readonly context: T;
 
   constructor(context: T) {

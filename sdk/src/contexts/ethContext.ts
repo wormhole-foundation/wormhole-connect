@@ -14,7 +14,7 @@ import {
 } from 'ethers';
 import { arrayify, zeroPad } from 'ethers/lib/utils';
 import { WormholeContext } from '../wormhole';
-import { Context } from './contextAbstract';
+import { RelayerAbstract } from './abstracts';
 import {
   TokenId,
   ChainName,
@@ -24,7 +24,7 @@ import {
   ParsedMessage,
 } from '../types';
 
-export class EthContext<T extends WormholeContext> extends Context {
+export class EthContext<T extends WormholeContext> extends RelayerAbstract {
   readonly context: T;
 
   constructor(context: T) {
@@ -274,7 +274,7 @@ export class EthContext<T extends WormholeContext> extends Context {
     return await relayer.calculateNativeSwapAmountOut(token, amount);
   }
 
-  async parseMessageFromTx(tx: string, chain: ChainName | ChainId) {
+  async parseMessageFromTx(tx: string, chain: ChainName | ChainId): Promise<ParsedMessage[] | ParsedRelayerMessage[]> {
     const provider = this.context.mustGetProvider(chain);
     const receipt = await provider.getTransactionReceipt(tx);
     console.log(receipt);
