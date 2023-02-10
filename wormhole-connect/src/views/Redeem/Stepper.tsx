@@ -29,8 +29,8 @@ type Props = {
 
 export default function MilestoneStepper(props: Props) {
   const vaa: ParsedVaa = useSelector((state: RootState) => state.redeem.vaa);
-  const redeemTx = useSelector((state: RootState) => state.transfer.redeemTx);
-  const activeStep = redeemTx ? 4 : vaa ? 2 : 1;
+  const transferComplete = useSelector((state: RootState) => state.redeem.transferComplete);
+  const activeStep = transferComplete ? 4 : vaa ? 2 : 1;
 
   const steps = getSteps(props.cta);
 

@@ -28,6 +28,22 @@ import CircularProgress from '@mui/material/CircularProgress';
 
 const getRows = (txData: any): RowsData => {
   const decimals = txData.tokenDecimals > 8 ? 8 : txData.tokenDecimals;
+  const type = txData.payloadID;
+  const { gasToken } = CHAINS[txData.toChain]!;
+
+  // manual transfers
+  if (type === PaymentOption.MANUAL) {
+    const formattedAmt = utils.formatUnits(txData.amount, decimals);
+    return [{
+      title: 'Amount',
+      value: `${formattedAmt} ${txData.tokenSymbol}`,
+    }, {
+      title: 'Gas estimate',
+      value: `TODO ${gasToken}`,
+    }]
+  }
+
+  // automatic transfers
   const receiveAmt = BigNumber.from(txData.amount).sub(
     BigNumber.from(txData.relayerFee),
   );
@@ -36,7 +52,6 @@ const getRows = (txData: any): RowsData => {
     txData.toNativeTokenAmount,
     decimals,
   );
-  const { gasToken } = CHAINS[txData.toChain]!;
   return [
     {
       title: 'Amount',
@@ -58,7 +73,8 @@ function SendTo() {
     (state: RootState) => state.wallet.receiving.address,
   );
   const receiving = useSelector((state: RootState) => state.wallet.receiving);
-  const redeemTx = useSelector((state: RootState) => state.transfer.redeemTx);
+  const redeemTx = useSelector((state: RootState) => state.redeem.redeemTx);
+  const transferComplete = useSelector((state: RootState) => state.redeem.transferComplete);
   const [inProgress, setInProgress] = useState(false);
   const [isConnected, setIsConnected] = useState(
     receiving.currentAddress.toLowerCase() === receiving.address.toLowerCase(),
@@ -108,6 +124,7 @@ function SendTo() {
         <Header
           network={txData.toChain}
           address={txData.recipient}
+          loading={!transferComplete && txData.payloadID === PaymentOption.MANUAL && !redeemTx}
           txHash={redeemTx}
         />
         <RenderRows rows={rows} />

@@ -1,8 +1,9 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { fetchVaa, ParsedVaa } from '../../utils/vaa';
-import { setVaa } from '../../store/redeem';
+import { fetchVaa, ParsedVaa, getSignedVAAHash } from '../../utils/vaa';
+import { setTransferComplete, setVaa } from '../../store/redeem';
 import { RootState } from '../../store';
+import { getTransferComplete } from '../../sdk/sdk';
 import PageHeader from '../../components/PageHeader';
 import Spacer from '../../components/Spacer';
 import NetworksTag from './Tag';
@@ -11,27 +12,49 @@ import Stepper from './Stepper';
 class Redeem extends React.Component<
   {
     setVaa: any;
+    setTransferComplete: any;
     txData: any;
+    transferComplete: boolean;
   },
-  { vaa: ParsedVaa | undefined }
+  {
+    vaa: ParsedVaa | undefined;
+  }
 > {
   constructor(props) {
     super(props);
-    this.state = { vaa: undefined };
+    this.state = {
+      vaa: undefined,
+    };
+  }
+
+  async update() {
+    if (!this.props.transferComplete) {
+      if (!this.state.vaa) {
+        await this.getVaa();
+      }
+      await this.getTransferComplete();
+    }
   }
 
   async getVaa() {
     if (!this.props.txData.sendTx) return;
-    const vaa = await fetchVaa(this.props.txData.sendTx.slice(2));
+    const vaa = await fetchVaa(this.props.txData.sendTx);
     this.props.setVaa(vaa);
-    this.setState({ vaa });
+    this.setState({ ...this.state, vaa });
+  }
+
+  async getTransferComplete() {
+    if (!this.state.vaa || !this.props.txData) return;
+    const hash = getSignedVAAHash(this.state.vaa.hash);
+    const isComplete = await getTransferComplete(this.props.txData.toChain, hash);
+    if (isComplete) this.props.setTransferComplete();
   }
 
   componentDidMount() {
-    this.getVaa();
-    const interval = setInterval(() => {
-      if (!this.state.vaa) {
-        this.getVaa();
+    this.update();
+    const interval = setInterval(async () => {
+      if (!this.props.transferComplete) {
+        this.update();
       } else {
         clearInterval(interval);
       }
@@ -62,13 +85,15 @@ class Redeem extends React.Component<
 
 function mapStateToProps(state: RootState) {
   const txData = state.redeem.txData!;
+  const transferComplete = state.redeem.transferComplete;
 
-  return { txData };
+  return { txData, transferComplete };
 }
 
 const mapDispatchToProps = (dispatch) => {
   return {
     setVaa: (vaa: ParsedVaa) => dispatch(setVaa(vaa)),
+    setTransferComplete: () => dispatch(setTransferComplete(true)),
   };
 };
 

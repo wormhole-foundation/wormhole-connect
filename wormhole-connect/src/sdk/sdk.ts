@@ -99,6 +99,7 @@ export const parseMessageFromTx = async (
     tokenDecimals: token.decimals,
     tokenAddress: parsed.tokenAddress,
     tokenChain: parsed.tokenChain,
+    sequence: parsed.sequence.toString(),
   };
   if (parsed.payloadID === PaymentOption.MANUAL) {
     return base;
@@ -202,3 +203,8 @@ export const getToken = async (tokenId: TokenId) => {
   const decimals = await tokenContract.decimals();
   return { symbol, decimals };
 };
+
+export const getTransferComplete = async (destChain: ChainName | ChainId, signedVaaHash: string): Promise<boolean> => {
+  const EthContext: any = context.getContext(destChain);
+  return await EthContext.isTransferCompleted(destChain, signedVaaHash);
+}

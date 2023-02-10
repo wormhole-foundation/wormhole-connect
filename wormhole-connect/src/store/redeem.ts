@@ -15,6 +15,7 @@ export interface RedeemState {
   txData: ParsedMessage | ParsedRelayerMessage | undefined;
   sendTx: string;
   redeemTx: string;
+  transferComplete: boolean;
 }
 
 const initialState: RedeemState = {
@@ -22,6 +23,7 @@ const initialState: RedeemState = {
   txData: undefined,
   sendTx: '',
   redeemTx: '',
+  transferComplete: false,
 };
 
 export const redeemSlice = createSlice({
@@ -44,10 +46,14 @@ export const redeemSlice = createSlice({
       console.log('set redeem tx:', payload);
       state.redeemTx = payload;
     },
+    setTransferComplete: (state: RedeemState, { payload }: PayloadAction<boolean>) => {
+      console.log('set transfer complete', payload);
+      state.transferComplete = payload;
+    }
   },
 });
 
-export const { setVaa, setTxDetails, setSendTx, setRedeemTx } =
+export const { setVaa, setTxDetails, setSendTx, setRedeemTx, setTransferComplete } =
   redeemSlice.actions;
 
 export default redeemSlice.reducer;
