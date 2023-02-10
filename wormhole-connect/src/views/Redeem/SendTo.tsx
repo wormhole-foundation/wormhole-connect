@@ -73,7 +73,8 @@ function SendTo() {
     (state: RootState) => state.wallet.receiving.address,
   );
   const receiving = useSelector((state: RootState) => state.wallet.receiving);
-  const redeemTx = useSelector((state: RootState) => state.transfer.redeemTx);
+  const redeemTx = useSelector((state: RootState) => state.redeem.redeemTx);
+  const transferComplete = useSelector((state: RootState) => state.redeem.transferComplete);
   const [inProgress, setInProgress] = useState(false);
   const [isConnected, setIsConnected] = useState(
     receiving.currentAddress.toLowerCase() === receiving.address.toLowerCase(),
@@ -123,6 +124,7 @@ function SendTo() {
         <Header
           network={txData.toChain}
           address={txData.recipient}
+          loading={!transferComplete && txData.payloadID === PaymentOption.MANUAL && !redeemTx}
           txHash={redeemTx}
         />
         <RenderRows rows={rows} />

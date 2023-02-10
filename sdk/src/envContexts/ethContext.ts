@@ -311,6 +311,7 @@ export class EthContext<T extends WormholeContext> extends Context {
           tokenChain: this.context.resolveDomainName(
             parsedTransfer.tokenChain,
           ) as ChainName,
+          sequence: parsed.args.sequence,
         };
         return parsedMessage;
       }
@@ -335,6 +336,7 @@ export class EthContext<T extends WormholeContext> extends Context {
         tokenChain: this.context.resolveDomainName(
           parsedTransfer.tokenChain,
         ) as ChainName,
+        sequence: parsed.args.sequence,
         payload: parsedTransfer.payload,
         relayerPayloadId: parsedPayload.payloadId,
         recipient: this.parseAddress(parsedPayload.targetRecipient),

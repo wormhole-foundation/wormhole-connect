@@ -67,6 +67,7 @@ export interface ParsedMessage {
   fromChain: ChainName;
   tokenAddress: string;
   tokenChain: ChainName;
+  sequence: BigNumber;
   payload?: string;
 }
 

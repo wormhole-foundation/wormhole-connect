@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { fetchVaa, ParsedVaa, getSignedVAAHash } from '../../utils/vaa';
-import { setVaa } from '../../store/redeem';
+import { setTransferComplete, setVaa } from '../../store/redeem';
 import { RootState } from '../../store';
 import { getTransferComplete } from '../../sdk/sdk';
 import PageHeader from '../../components/PageHeader';
@@ -12,23 +12,23 @@ import Stepper from './Stepper';
 class Redeem extends React.Component<
   {
     setVaa: any;
+    setTransferComplete: any;
     txData: any;
+    transferComplete: boolean;
   },
   {
     vaa: ParsedVaa | undefined;
-    isComplete: boolean;
   }
 > {
   constructor(props) {
     super(props);
     this.state = {
       vaa: undefined,
-      isComplete: false,
     };
   }
 
   async update() {
-    if (!this.state.isComplete) {
+    if (!this.props.transferComplete) {
       if (!this.state.vaa) {
         await this.getVaa();
       }
@@ -47,14 +47,13 @@ class Redeem extends React.Component<
     if (!this.state.vaa || !this.props.txData) return;
     const hash = getSignedVAAHash(this.state.vaa.hash);
     const isComplete = await getTransferComplete(this.props.txData.toChain, hash);
-    this.setState({ ...this.state, isComplete });
+    if (isComplete) this.props.setTransferComplete();
   }
 
   componentDidMount() {
-    console.log('mount')
     this.update();
     const interval = setInterval(async () => {
-      if (!this.state.isComplete) {
+      if (!this.props.transferComplete) {
         this.update();
       } else {
         clearInterval(interval);
@@ -77,7 +76,7 @@ class Redeem extends React.Component<
 
         <Spacer height={40} />
         <NetworksTag />
-        <Stepper cta="Some CTA" isComplete={this.state.isComplete} />
+        <Stepper cta="Some CTA" />
         <Spacer height={60} />
       </div>
     );
@@ -86,13 +85,15 @@ class Redeem extends React.Component<
 
 function mapStateToProps(state: RootState) {
   const txData = state.redeem.txData!;
+  const transferComplete = state.redeem.transferComplete;
 
-  return { txData };
+  return { txData, transferComplete };
 }
 
 const mapDispatchToProps = (dispatch) => {
   return {
     setVaa: (vaa: ParsedVaa) => dispatch(setVaa(vaa)),
+    setTransferComplete: () => dispatch(setTransferComplete(true)),
   };
 };
 

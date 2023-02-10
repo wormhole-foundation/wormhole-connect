@@ -40,6 +40,7 @@ type Props = {
   network: ChainName;
   address: string;
   txHash?: string;
+  loading?: boolean;
 };
 
 function Header(props: Props) {
@@ -53,18 +54,20 @@ function Header(props: Props) {
         <div>{displayEvmAddress(props.address)}</div>
         <WalletIcon />
       </div>
-      {props.txHash ? (
-        <a
-          className={classes.link}
-          href={explorerLink}
-          target="_blank"
-          rel="noreferrer"
-        >
-          <div>View in {networkConfig.explorerName}</div>
-          <LaunchIcon />
-        </a>
-      ) : (
+      {props.loading ? (
         <CircularProgress size={26} />
+      ) : (
+        props.txHash && (
+          <a
+            className={classes.link}
+            href={explorerLink}
+            target="_blank"
+            rel="noreferrer"
+          >
+            <div>View in {networkConfig.explorerName}</div>
+            <LaunchIcon />
+          </a>
+        )
       )}
     </div>
   );

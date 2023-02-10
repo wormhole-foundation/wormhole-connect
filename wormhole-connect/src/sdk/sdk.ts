@@ -99,6 +99,7 @@ export const parseMessageFromTx = async (
     tokenDecimals: token.decimals,
     tokenAddress: parsed.tokenAddress,
     tokenChain: parsed.tokenChain,
+    sequence: parsed.sequence.toString(),
   };
   if (parsed.payloadID === PaymentOption.MANUAL) {
     return base;

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { utils } from 'ethers';
 import { RootState } from '../../store';
@@ -54,8 +54,9 @@ const getRows = (txData: any): RowsData => {
 function SendFrom() {
   const vaa: ParsedVaa = useSelector((state: RootState) => state.redeem.vaa);
   const txData = useSelector((state: RootState) => state.redeem.txData)!;
+  const transferComplete = useSelector((state: RootState) => state.redeem.transferComplete);
 
-  const [rows, setRows] = React.useState([] as RowsData);
+  const [rows, setRows] = useState([] as RowsData);
 
   useEffect(() => {
     if (!txData) return;
@@ -69,6 +70,7 @@ function SendFrom() {
         <Header
           network={txData.fromChain}
           address={txData.sender}
+          loading={transferComplete ? false : !vaa}
           txHash={vaa?.txHash}
         />
         <RenderRows rows={rows} />

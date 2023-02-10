@@ -62,5 +62,5 @@ export async function fetchVaa(txId: string): Promise<ParsedVaa | undefined> {
 }
 
 export function getSignedVAAHash(signedVaaHash: string): string {
-  return `0x${keccak256(signedVaaHash)}`;
+  return keccak256(signedVaaHash);
 }
