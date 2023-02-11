@@ -34,6 +34,11 @@ export const TESTNET_NETWORKS: NetworksConfig = {
     icon: 'celo',
     nativeToken: 'CELO',
   },
+  solana: {
+    ...chains.solana!,
+    icon: 'solana',
+    nativeToken: 'SOL',
+  }
 };
 
 export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
@@ -166,4 +171,20 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#35D07E',
     decimals: 18,
   },
+  SOL: {
+    symbol: 'SOL',
+    nativeNetwork: 'solana',
+    icon: 'solana',
+    coinGeckoId: 'solana',
+    color: 'purple',
+    decimals: 9,
+  },
+  WSOL: {
+    symbol: 'WSOL',
+    nativeNetwork: 'solana',
+    icon: 'solana',
+    coinGeckoId: 'solana',
+    color: 'purple',
+    decimals: 9,
+  }
 };
