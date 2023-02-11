@@ -59,7 +59,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
     token: string,
     amount?: BigNumberish,
     overrides?: any,
-  ) {
+  ): Promise<ethers.ContractReceipt | void> {
     const signer = this.context.getSigner(chain);
     if (!signer) throw new Error(`No signer for ${chain}`);
     const senderAddress = await signer.getAddress();

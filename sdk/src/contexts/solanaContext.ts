@@ -1,7 +1,7 @@
 import { createNonce, hexToUint8Array } from '@certusone/wormhole-sdk';
 import { WormholeContext } from '../wormhole';
 import { BridgeAbstract } from './abstracts';
-import { TokenId, ChainName, ChainId, NATIVE } from '../types';
+import { TokenId, ChainName, ChainId, NATIVE, ParsedMessage } from '../types';
 import {
   ACCOUNT_SIZE,
   createCloseAccountInstruction,
@@ -27,6 +27,7 @@ import {
   createTransferWrappedWithPayloadInstruction,
 } from '@certusone/wormhole-sdk/lib/cjs/solana/tokenBridge';
 import { deriveWormholeEmitterKey } from '@certusone/wormhole-sdk/lib/cjs/solana/wormhole';
+import { BigNumber, BigNumberish } from 'ethers';
 
 export class SolanaContext<T extends WormholeContext> extends BridgeAbstract {
   readonly context: T;
@@ -354,5 +355,51 @@ export class SolanaContext<T extends WormholeContext> extends BridgeAbstract {
 
   formatAddress(address: PublicKeyInitData): string {
     return deriveWormholeEmitterKey(address).toBuffer().toString('hex');
+  }
+
+  // TODO:
+  parseAddress(address: string): string {
+    console.log('not implemented');
+    return address;
+  }
+
+  // TODO:
+  async getForeignAsset(tokenId: TokenId, chain: ChainName | ChainId) {
+    console.log('not implemented', tokenId, chain);
+    return '';
+  }
+
+  // TODO:
+  async parseMessageFromTx(tx: string, chain: ChainName | ChainId): Promise<ParsedMessage[]> {
+    console.log('not implemented', tx, chain);
+    const parsedMessage: ParsedMessage = {
+      sendTx: '',
+      sender: '',
+      amount: BigNumber.from(0),
+      payloadID: 1,
+      recipient: '',
+      toChain: 'solana',
+      fromChain: 'solana',
+      tokenAddress: '',
+      tokenChain: 'solana',
+      sequence: BigNumber.from(0),
+    };
+    return [parsedMessage];
+  }
+
+  // TODO:
+  async approve(
+    chain: ChainName | ChainId,
+    contractAddress: string,
+    token: string,
+    amount?: BigNumberish,
+    overrides?: any,
+  ): Promise<SolanaTransaction | void> {
+    console.log('not implemented', chain, contractAddress, token, amount, overrides);
+  }
+
+  // TODO:
+  async redeem(destChain: ChainName | ChainId, signedVAA: Uint8Array, overrides: any): Promise<any> {
+    console.log('not implemented', destChain, signedVAA);
   }
 }
