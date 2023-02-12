@@ -370,7 +370,10 @@ export class SolanaContext<T extends WormholeContext> extends BridgeAbstract {
   }
 
   // TODO:
-  async parseMessageFromTx(tx: string, chain: ChainName | ChainId): Promise<ParsedMessage[]> {
+  async parseMessageFromTx(
+    tx: string,
+    chain: ChainName | ChainId,
+  ): Promise<ParsedMessage[]> {
     console.log('not implemented', tx, chain);
     const parsedMessage: ParsedMessage = {
       sendTx: '',
@@ -395,11 +398,22 @@ export class SolanaContext<T extends WormholeContext> extends BridgeAbstract {
     amount?: BigNumberish,
     overrides?: any,
   ): Promise<SolanaTransaction | void> {
-    console.log('not implemented', chain, contractAddress, token, amount, overrides);
+    console.log(
+      'not implemented',
+      chain,
+      contractAddress,
+      token,
+      amount,
+      overrides,
+    );
   }
 
   // TODO:
-  async redeem(destChain: ChainName | ChainId, signedVAA: Uint8Array, overrides: any): Promise<any> {
+  async redeem(
+    destChain: ChainName | ChainId,
+    signedVAA: Uint8Array,
+    overrides: any,
+  ): Promise<any> {
     console.log('not implemented', destChain, signedVAA);
   }
 }

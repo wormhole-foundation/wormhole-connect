@@ -123,13 +123,24 @@ const env: Environment = 'TESTNET';
 const TESTNET_CONFIG: WormholeConfig = {
   env,
   rpcs: {
-    goerli: process.env.REACT_APP_GOERLI_RPC || 'https://rpc.ankr.com/eth_goerli',
-    mumbai: process.env.REACT_APP_MUMBAI_RPC || 'https://polygon-mumbai.blockpi.network/v1/rpc/public',
-    bsc: process.env.REACT_APP_BSC_RPC || 'https://data-seed-prebsc-2-s3.binance.org:8545',
-    fuji: process.env.REACT_APP_FUJI_RPC || 'https://api.avax-test.network/ext/bc/C/rpc',
-    fantom: process.env.REACT_APP_FANTOM_RPC || 'https://rpc.ankr.com/fantom_testnet',
-    alfajores: process.env.REACT_APP_ALFAJORES_RPC || 'https://alfajores-forno.celo-testnet.org',
-    solana: process.env.REACT_APP_SOLANA_RPC || 'https://api.testnet.solana.com',
+    goerli:
+      process.env.REACT_APP_GOERLI_RPC || 'https://rpc.ankr.com/eth_goerli',
+    mumbai:
+      process.env.REACT_APP_MUMBAI_RPC ||
+      'https://polygon-mumbai.blockpi.network/v1/rpc/public',
+    bsc:
+      process.env.REACT_APP_BSC_RPC ||
+      'https://data-seed-prebsc-2-s3.binance.org:8545',
+    fuji:
+      process.env.REACT_APP_FUJI_RPC ||
+      'https://api.avax-test.network/ext/bc/C/rpc',
+    fantom:
+      process.env.REACT_APP_FANTOM_RPC || 'https://rpc.ankr.com/fantom_testnet',
+    alfajores:
+      process.env.REACT_APP_ALFAJORES_RPC ||
+      'https://alfajores-forno.celo-testnet.org',
+    solana:
+      process.env.REACT_APP_SOLANA_RPC || 'https://api.testnet.solana.com',
   },
   chains: TESTNET,
 };

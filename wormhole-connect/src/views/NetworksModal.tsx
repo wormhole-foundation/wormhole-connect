@@ -19,9 +19,8 @@ import { CENTER, joinClass } from '../utils/style';
 
 const useStyles = makeStyles()((theme) => ({
   networksContainer: {
-    display: 'flex',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill, 150px)',
     justifyContent: 'space-between',
   },
   noResults: {

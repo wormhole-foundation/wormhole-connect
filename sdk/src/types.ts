@@ -60,10 +60,9 @@ export type TokenId = {
   address: string;
 };
 
-export type AnyContext = (
+export type AnyContext =
   | EthContext<WormholeContext>
-  | SolanaContext<WormholeContext>
-)
+  | SolanaContext<WormholeContext>;
 
 export interface ParsedMessage {
   sendTx: string;

@@ -15,7 +15,13 @@ import TESTNET_CONFIG, {
   TestnetChainName,
   TESTNET_CHAINS,
 } from './config/TESTNET';
-import { WormholeConfig, ChainName, ChainId, Context, AnyContext } from './types';
+import {
+  WormholeConfig,
+  ChainName,
+  ChainId,
+  Context,
+  AnyContext,
+} from './types';
 import { WHContracts } from './contracts';
 import { TokenId } from './types';
 import { EthContext } from './contexts/ethContext';
@@ -210,9 +216,7 @@ export class WormholeContext extends MultiProvider<Domain> {
     return relayerContract;
   }
 
-  getContext(
-    chain: ChainName | ChainId,
-  ): AnyContext {
+  getContext(chain: ChainName | ChainId): AnyContext {
     const chainName = this.resolveDomainName(chain) as ChainName;
     const { context } = this.conf.chains[chainName]!;
     switch (context) {

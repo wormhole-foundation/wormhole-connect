@@ -274,7 +274,10 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
     return await relayer.calculateNativeSwapAmountOut(token, amount);
   }
 
-  async parseMessageFromTx(tx: string, chain: ChainName | ChainId): Promise<ParsedMessage[] | ParsedRelayerMessage[]> {
+  async parseMessageFromTx(
+    tx: string,
+    chain: ChainName | ChainId,
+  ): Promise<ParsedMessage[] | ParsedRelayerMessage[]> {
     const provider = this.context.mustGetProvider(chain);
     const receipt = await provider.getTransactionReceipt(tx);
     console.log(receipt);

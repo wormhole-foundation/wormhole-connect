@@ -30,8 +30,14 @@ export abstract class BridgeAbstract {
   protected abstract formatAddress(address: string): string;
   protected abstract parseAddress(address: string): string;
 
-  protected abstract getForeignAsset(tokenId: TokenId, chain: ChainName | ChainId): Promise<string>;
-  protected abstract parseMessageFromTx(tx: string, chain: ChainName | ChainId): Promise<ParsedMessage[] | ParsedRelayerMessage[]>;
+  protected abstract getForeignAsset(
+    tokenId: TokenId,
+    chain: ChainName | ChainId,
+  ): Promise<string>;
+  protected abstract parseMessageFromTx(
+    tx: string,
+    chain: ChainName | ChainId,
+  ): Promise<ParsedMessage[] | ParsedRelayerMessage[]>;
 
   protected abstract approve(
     chain: ChainName | ChainId,
@@ -44,7 +50,7 @@ export abstract class BridgeAbstract {
     destChain: ChainName | ChainId,
     signedVAA: Uint8Array,
     overrides: any,
-  ): Promise<any>
+  ): Promise<any>;
 }
 
 export abstract class RelayerAbstract extends BridgeAbstract {
