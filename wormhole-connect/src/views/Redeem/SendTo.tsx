@@ -10,7 +10,7 @@ import {
   // openWalletModal,
   registerWalletSigner,
   switchNetwork,
-  Wallet,
+  TransferWallet,
 } from '../../utils/wallet';
 import { ParsedVaa } from '../../utils/vaa';
 import { claimTransfer } from '../../sdk/sdk';
@@ -100,8 +100,8 @@ function SendTo() {
     try {
       // TODO: remove this line
       // await openWalletModal(theme, true);
-      registerWalletSigner(txData.toChain, Wallet.RECEIVING);
-      await switchNetwork(chainId, Wallet.RECEIVING);
+      registerWalletSigner(txData.toChain, TransferWallet.RECEIVING);
+      await switchNetwork(chainId, TransferWallet.RECEIVING);
       const receipt = await claimTransfer(
         txData.toChain,
         utils.arrayify(vaa.bytes),
@@ -114,8 +114,7 @@ function SendTo() {
     }
   };
   const connect = async () => {
-    dispatch(setWalletModal(true));
-    // handleConnect(dispatch, theme, Wallet.RECEIVING);
+    dispatch(setWalletModal(TransferWallet.RECEIVING));
   };
 
   useEffect(() => {

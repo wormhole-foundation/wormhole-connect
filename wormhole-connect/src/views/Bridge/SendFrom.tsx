@@ -5,7 +5,7 @@ import { BigNumber } from 'ethers';
 import { Theme } from '@mui/material';
 import { RootState } from '../../store';
 import { setFromNetworksModal, setTokensModal } from '../../store/router';
-import { Wallet } from '../../utils/wallet';
+import { TransferWallet } from '../../utils/wallet';
 import { setAmount } from '../../store/transfer';
 import {
   setBalance as setStoreBalance,
@@ -152,7 +152,7 @@ function SendFrom() {
     <div className={classes.container}>
       <div className={classes.header}>
         <div className={classes.headerTitle}>Sending from</div>
-        <ConnectWallet type={Wallet.SENDING} />
+        <ConnectWallet type={TransferWallet.SENDING} />
       </div>
 
       <InputContainer>

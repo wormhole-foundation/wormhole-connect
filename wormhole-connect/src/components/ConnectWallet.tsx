@@ -1,16 +1,8 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-// import { AnyAction } from '@reduxjs/toolkit';
-// import { Theme, useTheme } from '@mui/material/styles';
 import { makeStyles } from 'tss-react/mui';
 import { RootState } from '../store';
-// import {
-//   connectReceivingWallet,
-//   connectWallet,
-//   clearWallet,
-//   setCurrentAddress,
-// } from '../store/wallet';
-import { Wallet } from '../utils/wallet';
+import { disconnect, TransferWallet } from '../utils/wallet';
 import { copyTextToClipboard, displayEvmAddress } from '../utils';
 
 import DownIcon from '../icons/components/Down';
@@ -19,6 +11,7 @@ import WalletIcons from '../icons/components/WalletIcons';
 import PopupState, { bindTrigger, bindPopover } from 'material-ui-popup-state';
 import Popover from '@mui/material/Popover';
 import { setWalletModal } from '../store/router';
+import { clearWallet } from '../store/wallet';
 
 const useStyles = makeStyles()((theme) => ({
   connectWallet: {
@@ -71,49 +64,16 @@ const useStyles = makeStyles()((theme) => ({
 // }
 
 type Props = {
-  type: Wallet;
+  type: TransferWallet;
 };
-// export const handleConnect = async (
-//   dispatch: Dispatch<AnyAction>,
-//   theme: Theme,
-//   type: Wallet,
-// ) => {
-//   const walletConnection = await openWalletModal(
-//     theme,
-//     type === Wallet.RECEIVING,
-//   );
-//   if (type === Wallet.SENDING) {
-//     // add listeners
-//     const { connection } = walletConnection;
-//     connection.on('accountsChanged', async (accounts: string[]) => {
-//       if (accounts.length === 0) {
-//         await disconnect(type);
-//         clearWallet(type);
-//       } else {
-//         const payload = {
-//           type,
-//           address: accounts[0],
-//         };
-//         dispatch(setCurrentAddress(payload));
-//       }
-//     });
-
-//     dispatch(connectWallet(walletConnection.address));
-//   } else {
-//     dispatch(connectReceivingWallet(walletConnection.address));
-//   }
-// };
-
 function ConnectWallet(props: Props) {
   const { classes } = useStyles();
-  // const theme = useTheme();
   const dispatch = useDispatch();
   const wallet = useSelector((state: RootState) => state.wallet[props.type]);
 
   const connect = async (popupState?: any) => {
     if (popupState) popupState.close();
-    dispatch(setWalletModal(true));
-    // await handleConnect(dispatch, theme, props.type);
+    dispatch(setWalletModal(props.type));
   };
 
   const copy = async (popupState: any) => {
@@ -122,9 +82,8 @@ function ConnectWallet(props: Props) {
   };
 
   const disconnectWallet = async () => {
-    console.log('TODO: disconnect')
-    // await disconnect(props.type);
-    // dispatch(clearWallet(Wallet.SENDING));
+    await disconnect(props.type);
+    dispatch(clearWallet(props.type));
   };
 
   // const icon = getIcon(wallet.type);

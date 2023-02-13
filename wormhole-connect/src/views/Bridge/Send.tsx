@@ -9,7 +9,7 @@ import { setTxDetails, setSendTx } from '../../store/redeem';
 import {
   registerWalletSigner,
   switchNetwork,
-  Wallet,
+  TransferWallet,
 } from '../../utils/wallet';
 import { displayEvmAddress } from '../../utils';
 import Button from '../../components/Button';
@@ -36,9 +36,9 @@ function Send(props: { valid: boolean }) {
   async function send() {
     setInProgress(true);
     try {
-      registerWalletSigner(fromNetwork!, Wallet.SENDING);
+      registerWalletSigner(fromNetwork!, TransferWallet.SENDING);
       const { chainId } = CHAINS[fromNetwork!]!;
-      await switchNetwork(chainId, Wallet.SENDING);
+      await switchNetwork(chainId, TransferWallet.SENDING);
       // TODO: better validation
       if (!amount) throw new Error('invalid input, specify an amount');
       if (!token) throw new Error('invalid input, specify an asset');

@@ -6,7 +6,7 @@ import { Theme } from '@mui/material';
 import { RootState } from '../../store';
 import { setToNetworksModal } from '../../store/router';
 import { formatBalance } from '../../store/transfer';
-import { Wallet } from '../../utils/wallet';
+import { TransferWallet } from '../../utils/wallet';
 import { CHAINS, TOKENS } from '../../sdk/config';
 import { getBalance } from '../../sdk/sdk';
 import { joinClass, OPACITY } from '../../utils/style';
@@ -125,7 +125,7 @@ function SendTo() {
     <div className={classes.container}>
       <div className={classes.header}>
         <div className={classes.headerTitle}>Sending to</div>
-        <ConnectWallet type={Wallet.RECEIVING} />
+        <ConnectWallet type={TransferWallet.RECEIVING} />
       </div>
 
       <InputContainer>

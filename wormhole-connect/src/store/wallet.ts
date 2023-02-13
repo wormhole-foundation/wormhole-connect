@@ -1,10 +1,12 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { Wallet } from '../utils/wallet';
+import { TransferWallet } from '../utils/wallet';
 
 export enum WalletType {
   NONE = 0,
   METAMASK,
-  TRUST_WALLET,
+  WALLET_CONNECT,
+  PHANTOM,
+  SOLFLARE,
 }
 
 export interface WalletState {
@@ -38,7 +40,7 @@ export const walletSlice = createSlice({
   initialState,
   reducers: {
     connectWallet: (state: WalletState, { payload }: { payload: string }) => {
-      console.log('connect sending wallet');
+      console.log('connect sending wallet', payload);
       state.sending.address = payload;
       state.sending.currentAddress = payload;
     },
@@ -46,11 +48,11 @@ export const walletSlice = createSlice({
       state: WalletState,
       { payload }: { payload: string },
     ) => {
-      console.log('connect receiving wallet');
+      console.log('connect receiving wallet', payload);
       state.receiving.address = payload;
       state.receiving.currentAddress = payload;
     },
-    clearWallet: (state: WalletState, { payload }: { payload: Wallet }) => {
+    clearWallet: (state: WalletState, { payload }: { payload: TransferWallet }) => {
       const reset = {
         address: '',
         type: WalletType.NONE,
@@ -60,7 +62,7 @@ export const walletSlice = createSlice({
     },
     setCurrentAddress: (
       state: WalletState,
-      { payload }: { payload: { type: Wallet; address: string } },
+      { payload }: { payload: { type: TransferWallet; address: string } },
     ) => {
       state[payload.type].currentAddress = payload.address;
     },

@@ -1,5 +1,5 @@
-import { makeStyles } from '@mui/styles';
 import React, { useEffect, useState } from 'react';
+import { makeStyles } from '@mui/styles';
 import Header from '../components/Header';
 import Modal from '../components/Modal';
 import Spacer from '../components/Spacer';
@@ -8,9 +8,12 @@ import { useDispatch } from 'react-redux';
 import { setWalletModal } from '../store/router';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
-import { ChainConfig, ChainName, Context } from '@wormhole-foundation/wormhole-connect-sdk';
+import { ChainConfig, Context } from '@wormhole-foundation/wormhole-connect-sdk';
 import { CHAINS } from '../sdk/config';
 import WalletIcon from '../icons/components/WalletIcons';
+import { setWalletConnection, TransferWallet, wallets } from '../utils/wallet';
+import { connectReceivingWallet, connectWallet } from '../store/wallet';
+import { Wallet } from "@xlabs-libs/wallet-aggregator-core";
 
 const useStyles = makeStyles((theme: Theme) => ({
   walletRow: {
@@ -33,26 +36,31 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
-type Wallet = {
+type WalletData = {
   name: string;
   icon: string;
+  wallet: Wallet;
 };
 const WALLETS = {
   metamask: {
     name: 'Metamask',
     icon: 'metamask',
+    wallet: wallets.evm.metamask,
   },
   walletConnect: {
     name: 'Wallet Connect',
     icon: 'walletConnect',
+    wallet: wallets.evm.walletConnect,
   },
   phantom: {
     name: 'Phantom',
     icon: 'phantom',
+    wallet: wallets.solana.phantom,
   },
   solflare: {
     name: 'Solflare',
     icon: 'solflare',
+    wallet: wallets.solana.solflare,
   }
 }
 const getWalletOptions = (chain: ChainConfig) => {
@@ -63,10 +71,13 @@ const getWalletOptions = (chain: ChainConfig) => {
   }
 }
 
-function NetworksModal() {
+function WalletsModal() {
   const classes = useStyles();
   const dispatch = useDispatch();
   const fromNetwork = useSelector((state: RootState) => state.transfer.fromNetwork);
+  const showWalletModal = useSelector(
+    (state: RootState) => state.router.showWalletModal,
+  );
   const [walletOptions, setWalletOptions] = useState(Object.values(WALLETS));
 
   useEffect(() => {
@@ -76,9 +87,23 @@ function NetworksModal() {
     if (options) setWalletOptions(options);
   }, []);
 
-  const displayWalletOptions = (wallets: Wallet[]): JSX.Element[] => {
+  const connect = async (wallet: Wallet) => {
+    await wallet.connect();
+    setWalletConnection(showWalletModal, wallet);
+    const address = wallet.getAddress();
+    if (address) {
+      if (showWalletModal === TransferWallet.SENDING) {
+        dispatch(connectWallet(address));
+      } else {
+        dispatch(connectReceivingWallet(address));
+      }
+      dispatch(setWalletModal(false))
+    }
+  }
+
+  const displayWalletOptions = (wallets: WalletData[]): JSX.Element[] => {
     return wallets.map((wallet, i) => (
-      <div className={classes.walletRow} key={i}>
+      <div className={classes.walletRow} key={i} onClick={() => connect(wallet.wallet)}>
         <WalletIcon name={wallet.icon} height={32} />
         <div>{wallet.name}</div>
       </div>
@@ -89,12 +114,9 @@ function NetworksModal() {
     document.removeEventListener('click', closeWalletModal);
   };
   document.addEventListener('close', closeWalletModal, { once: true });
-  const showWalletModal = useSelector(
-    (state: RootState) => state.router.showWalletModal,
-  );
 
   return (
-    <Modal open={showWalletModal} closable width={500}>
+    <Modal open={!!showWalletModal} closable width={500}>
       <Header text="Connect wallet" align="left" />
       <Spacer height={32} />
       <div>{displayWalletOptions(walletOptions)}</div>
@@ -102,4 +124,4 @@ function NetworksModal() {
   );
 }
 
-export default NetworksModal;
+export default WalletsModal;
