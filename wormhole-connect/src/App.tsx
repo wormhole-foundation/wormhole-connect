@@ -1,6 +1,18 @@
 import * as React from 'react';
 import { Provider } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
+import { CHAINS } from "@xlabs-libs/wallet-aggregator-core";
+import { WalletContextProvider } from '@xlabs-libs/wallet-aggregator-react';
+import {
+  EVMWeb3Wallet,
+  EVMWalletConnectWallet,
+} from "@xlabs-libs/wallet-aggregator-evm";
+import {
+  PhantomWalletAdapter,
+  SolflareWalletAdapter,
+} from "@solana/wallet-adapter-wallets";
+import { clusterApiUrl, Connection } from "@solana/web3.js";
+import { SolanaWallet } from "@xlabs-libs/wallet-aggregator-solana";
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 // import Box from '@mui/material/Box';
@@ -15,6 +27,19 @@ import { getDesignTokens } from './theme';
 import { THEME_MODE } from './sdk/config';
 
 const ColorModeContext = React.createContext({ toggleColorMode: () => {} });
+const cluster = 'testnet';
+const url = clusterApiUrl('testnet');
+const connection = new Connection(url);
+
+const martian = new SolanaWallet(
+    new PhantomWalletAdapter(),
+    connection
+);
+
+const solanaWallets: SolanaWallet[] = [
+  new PhantomWalletAdapter(),
+  new SolflareWalletAdapter()
+].map(adapter => new SolanaWallet(adapter, connection))
 
 const useStyles = makeStyles()((theme) => ({
   background: {
@@ -47,6 +72,16 @@ function App() {
   );
   // Update the theme only if the mode changes
   const theme = React.useMemo(() => createTheme(getDesignTokens(mode)), [mode]);
+
+  const wallets = {
+    [CHAINS['ethereum']]: [new EVMWeb3Wallet(), new EVMWalletConnectWallet()],
+    [CHAINS['polygon']]: [new EVMWeb3Wallet(), new EVMWalletConnectWallet()],
+    [CHAINS['bsc']]: [new EVMWeb3Wallet(), new EVMWalletConnectWallet()],
+    [CHAINS['avalanche']]: [new EVMWeb3Wallet(), new EVMWalletConnectWallet()],
+    [CHAINS['fantom']]: [new EVMWeb3Wallet(), new EVMWalletConnectWallet()],
+    [CHAINS['celo']]: [new EVMWeb3Wallet(), new EVMWalletConnectWallet()],
+    [CHAINS['solana']]: solanaWallets,
+  }
 
   return (
     <Provider store={store}>
@@ -82,7 +117,9 @@ function App() {
           </Box> */}
 
           {/* App content */}
-          <AppRouter />
+          <WalletContextProvider wallets={wallets}>
+            <AppRouter />
+          </WalletContextProvider>
         </ThemeProvider>
       </ColorModeContext.Provider>
     </Provider>

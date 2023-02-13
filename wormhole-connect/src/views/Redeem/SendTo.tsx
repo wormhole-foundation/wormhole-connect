@@ -7,7 +7,7 @@ import { RootState } from '../../store';
 import { PaymentOption } from '../../store/transfer';
 import { setRedeemTx } from '../../store/redeem';
 import {
-  openWalletModal,
+  // openWalletModal,
   registerWalletSigner,
   switchNetwork,
   Wallet,
@@ -23,8 +23,9 @@ import Button from '../../components/Button';
 import Spacer from '../../components/Spacer';
 import { RenderRows, RowsData } from '../../components/RenderRows';
 import InputContainer from '../../components/InputContainer';
-import { handleConnect } from '../../components/ConnectWallet';
+// import { handleConnect } from '../../components/ConnectWallet';
 import CircularProgress from '@mui/material/CircularProgress';
+import { setWalletModal } from '../../store/router';
 
 const getRows = (txData: any): RowsData => {
   const decimals = txData.tokenDecimals > 8 ? 8 : txData.tokenDecimals;
@@ -98,7 +99,7 @@ function SendTo() {
     const { chainId } = CHAINS[txData.toChain]!;
     try {
       // TODO: remove this line
-      await openWalletModal(theme, true);
+      // await openWalletModal(theme, true);
       registerWalletSigner(txData.toChain, Wallet.RECEIVING);
       await switchNetwork(chainId, Wallet.RECEIVING);
       const receipt = await claimTransfer(
@@ -113,7 +114,8 @@ function SendTo() {
     }
   };
   const connect = async () => {
-    handleConnect(dispatch, theme, Wallet.RECEIVING);
+    dispatch(setWalletModal(true));
+    // handleConnect(dispatch, theme, Wallet.RECEIVING);
   };
 
   useEffect(() => {

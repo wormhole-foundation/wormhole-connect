@@ -1,5 +1,5 @@
 import { makeStyles } from '@mui/styles';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Header from '../components/Header';
 import Modal from '../components/Modal';
 import Spacer from '../components/Spacer';
@@ -8,13 +8,9 @@ import { useDispatch } from 'react-redux';
 import { setWalletModal } from '../store/router';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
-
-const MetamaskIcon = '/assets/wallets/metamask-fox.svg';
-const BinanceIcon = '/assets/wallets/binance-wallet.svg';
-const CoinbaseIcon = '/assets/wallets/coinbase.svg';
-const TrustIcon = '/assets/wallets/trust-wallet.svg';
-const PhantomIcon = '/assets/wallets/phantom-wallet.svg';
-const WalletConnectIcon = '/assets/wallets/walletconnect.svg';
+import { ChainConfig, ChainName, Context } from '@wormhole-foundation/wormhole-connect-sdk';
+import { CHAINS } from '../sdk/config';
+import WalletIcon from '../icons/components/WalletIcons';
 
 const useStyles = makeStyles((theme: Theme) => ({
   walletRow: {
@@ -23,21 +19,17 @@ const useStyles = makeStyles((theme: Theme) => ({
     flexDirection: 'row',
     alignItems: 'center',
     width: '100%',
+    gap: '16px',
     padding: '16px 8px',
     transition: `background-color 0.4s`,
     cursor: 'pointer',
     fontSize: '16px',
     '&:hover': {
-      backgroundColor: theme.palette.primary[700],
+      backgroundColor: theme.palette.options.select,
     },
     '&:not(:last-child)': {
       borderBottom: `0.5px solid ${theme.palette.divider}`,
     },
-  },
-  icon: {
-    width: '32px',
-    height: '32px',
-    marginRight: '16px',
   },
 }));
 
@@ -45,40 +37,49 @@ type Wallet = {
   name: string;
   icon: string;
 };
-const WalletOptions: Wallet[] = [
-  {
+const WALLETS = {
+  metamask: {
     name: 'Metamask',
-    icon: MetamaskIcon,
+    icon: 'metamask',
   },
-  {
-    name: 'Binance Wallet',
-    icon: BinanceIcon,
-  },
-  {
-    name: 'Coinbase',
-    icon: CoinbaseIcon,
-  },
-  {
-    name: 'Trust Wallet',
-    icon: TrustIcon,
-  },
-  {
-    name: 'Phantom Wallet',
-    icon: PhantomIcon,
-  },
-  {
+  walletConnect: {
     name: 'Wallet Connect',
-    icon: WalletConnectIcon,
+    icon: 'walletConnect',
   },
-];
+  phantom: {
+    name: 'Phantom',
+    icon: 'phantom',
+  },
+  solflare: {
+    name: 'Solflare',
+    icon: 'solflare',
+  }
+}
+const getWalletOptions = (chain: ChainConfig) => {
+  if (chain.context === Context.ETH) {
+    return [WALLETS.metamask, WALLETS.walletConnect];
+  } else if (chain.context === Context.SOLANA) {
+    return [WALLETS.phantom, WALLETS.solflare];
+  }
+}
 
 function NetworksModal() {
   const classes = useStyles();
   const dispatch = useDispatch();
+  const fromNetwork = useSelector((state: RootState) => state.transfer.fromNetwork);
+  const [walletOptions, setWalletOptions] = useState(Object.values(WALLETS));
+
+  useEffect(() => {
+    const config = CHAINS[fromNetwork!];
+    if (!config) return;
+    const options = getWalletOptions(config);
+    if (options) setWalletOptions(options);
+  }, []);
+
   const displayWalletOptions = (wallets: Wallet[]): JSX.Element[] => {
     return wallets.map((wallet, i) => (
       <div className={classes.walletRow} key={i}>
-        <img className={classes.icon} src={wallet.icon} alt={wallet.name} />
+        <WalletIcon name={wallet.icon} height={32} />
         <div>{wallet.name}</div>
       </div>
     ));
@@ -96,7 +97,7 @@ function NetworksModal() {
     <Modal open={showWalletModal} closable width={500}>
       <Header text="Connect wallet" align="left" />
       <Spacer height={32} />
-      <div>{displayWalletOptions(WalletOptions)}</div>
+      <div>{displayWalletOptions(walletOptions)}</div>
     </Modal>
   );
 }
