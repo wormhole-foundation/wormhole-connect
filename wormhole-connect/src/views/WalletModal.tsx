@@ -12,7 +12,7 @@ import { ChainConfig, Context } from '@wormhole-foundation/wormhole-connect-sdk'
 import { CHAINS } from '../sdk/config';
 import WalletIcon from '../icons/components/WalletIcons';
 import { setWalletConnection, TransferWallet, wallets } from '../utils/wallet';
-import { connectReceivingWallet, connectWallet } from '../store/wallet';
+import { connectReceivingWallet, connectWallet, WalletType } from '../store/wallet';
 import { Wallet } from "@xlabs-libs/wallet-aggregator-core";
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -38,29 +38,29 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 type WalletData = {
   name: string;
-  icon: string;
   wallet: Wallet;
+  type: WalletType;
 };
 const WALLETS = {
   metamask: {
     name: 'Metamask',
-    icon: 'metamask',
     wallet: wallets.evm.metamask,
+    type: WalletType.METAMASK,
   },
   walletConnect: {
     name: 'Wallet Connect',
-    icon: 'walletConnect',
     wallet: wallets.evm.walletConnect,
+    type: WalletType.WALLET_CONNECT,
   },
   phantom: {
     name: 'Phantom',
-    icon: 'phantom',
     wallet: wallets.solana.phantom,
+    type: WalletType.PHANTOM,
   },
   solflare: {
     name: 'Solflare',
-    icon: 'solflare',
     wallet: wallets.solana.solflare,
+    type: WalletType.SOLFLARE,
   }
 }
 const getWalletOptions = (chain: ChainConfig) => {
@@ -87,15 +87,17 @@ function WalletsModal() {
     if (options) setWalletOptions(options);
   }, []);
 
-  const connect = async (wallet: Wallet) => {
+  const connect = async (walletInfo: WalletData) => {
+    const { wallet } = walletInfo;
     await wallet.connect();
     setWalletConnection(showWalletModal, wallet);
     const address = wallet.getAddress();
     if (address) {
+      const payload = { address, type: walletInfo.type };
       if (showWalletModal === TransferWallet.SENDING) {
-        dispatch(connectWallet(address));
+        dispatch(connectWallet(payload));
       } else {
-        dispatch(connectReceivingWallet(address));
+        dispatch(connectReceivingWallet(payload));
       }
       dispatch(setWalletModal(false))
     }
@@ -103,8 +105,8 @@ function WalletsModal() {
 
   const displayWalletOptions = (wallets: WalletData[]): JSX.Element[] => {
     return wallets.map((wallet, i) => (
-      <div className={classes.walletRow} key={i} onClick={() => connect(wallet.wallet)}>
-        <WalletIcon name={wallet.icon} height={32} />
+      <div className={classes.walletRow} key={i} onClick={() => connect(wallet)}>
+        <WalletIcon type={wallet.type} height={32} />
         <div>{wallet.name}</div>
       </div>
     ));

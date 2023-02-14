@@ -1,15 +1,16 @@
 import React from 'react';
+import { WalletType } from '../../store/wallet';
 
 type Props = {
-  name: string;
+  type: WalletType;
   height?: number;
 };
 
 // TODO: images weren't rendering on build, find better solution?
 function WalletIcon(props: Props) {
   const size = props.height || 32;
-  switch (props.name) {
-    case 'metamask': {
+  switch (props.type) {
+    case WalletType.METAMASK: {
       return (
         <div style={{ height: `${size}px`, width: `${size}px` }}>
           <svg
@@ -110,7 +111,7 @@ function WalletIcon(props: Props) {
         </div>
       );
     }
-    case 'walletConnect': {
+    case WalletType.WALLET_CONNECT: {
       return (
         <div style={{ height: `${size}px`, width: `${size}px` }}>
           <svg
@@ -138,7 +139,7 @@ function WalletIcon(props: Props) {
         </div>
       );
     }
-    case 'phantom': {
+    case WalletType.PHANTOM: {
       return (
         <div style={{  height: `${size}px`, width: `${size}px` }}>
           <svg viewBox="0 0 173 173" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -158,7 +159,7 @@ function WalletIcon(props: Props) {
         </div>
       )
     }
-    case 'solflare': {
+    case WalletType.SOLFLARE: {
       return (
         <div style={{  height: `${size}px`, width: `${size}px` }}>
           <svg viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">

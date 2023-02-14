@@ -93,7 +93,7 @@ function ConnectWallet(props: Props) {
       {(popupState) => (
         <div>
           <div className={classes.connectWallet} {...bindTrigger(popupState)}>
-            <WalletIcons name="metamask" height={24} />
+            <WalletIcons type={wallet.type} height={24} />
             {displayEvmAddress(wallet.address)}
             <DownIcon className={classes.down} />
           </div>

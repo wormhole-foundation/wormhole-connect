@@ -35,22 +35,29 @@ const initialState: WalletState = {
   },
 };
 
+export type ConnectPayload = {
+  address: string;
+  type: WalletType;
+}
+
 export const walletSlice = createSlice({
   name: 'wallet',
   initialState,
   reducers: {
-    connectWallet: (state: WalletState, { payload }: { payload: string }) => {
+    connectWallet: (state: WalletState, { payload }: { payload: ConnectPayload }) => {
       console.log('connect sending wallet', payload);
-      state.sending.address = payload;
-      state.sending.currentAddress = payload;
+      state.sending.type = payload.type;
+      state.sending.address = payload.address;
+      state.sending.currentAddress = payload.address;
     },
     connectReceivingWallet: (
       state: WalletState,
-      { payload }: { payload: string },
+      { payload }: { payload: ConnectPayload },
     ) => {
       console.log('connect receiving wallet', payload);
-      state.receiving.address = payload;
-      state.receiving.currentAddress = payload;
+      state.receiving.type = payload.type;
+      state.receiving.address = payload.address;
+      state.receiving.currentAddress = payload.address;
     },
     clearWallet: (state: WalletState, { payload }: { payload: TransferWallet }) => {
       const reset = {
