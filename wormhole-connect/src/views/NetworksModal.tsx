@@ -16,6 +16,7 @@ import { setFromNetworksModal, setToNetworksModal } from '../store/router';
 import { setFromNetwork, setToNetwork } from '../store/transfer';
 import TokenIcon from '../icons/components/TokenIcons';
 import { CENTER, joinClass } from '../utils/style';
+import { walletAcceptedNetworks } from '../utils/wallet';
 
 const useStyles = makeStyles()((theme) => ({
   networksContainer: {
@@ -51,7 +52,7 @@ const useStyles = makeStyles()((theme) => ({
     marginTop: '16px',
   },
   disabled: {
-    opacity: '60%',
+    opacity: '40%',
     cursor: 'not-allowed',
     clickEvent: 'none',
   },
@@ -77,6 +78,7 @@ function NetworksModal(props: Props) {
   const { fromNetwork, toNetwork } = useSelector(
     (state: RootState) => state.transfer,
   );
+  const {sending, receiving} = useSelector((state: RootState) => state.wallet)
 
   // listen for close event
   const closeNetworksModal = () => {
@@ -89,9 +91,15 @@ function NetworksModal(props: Props) {
 
   const isDisabled = (chain: ChainName) => {
     if (props.type === ModalType.FROM) {
+      if (!walletAcceptedNetworks[sending.type].includes(chain)) {
+        return true;
+      }
       if (!toNetwork) return false;
       return toNetwork === chain;
     } else {
+      if (!walletAcceptedNetworks[receiving.type].includes(chain)) {
+        return true;
+      }
       if (!fromNetwork) return false;
       return fromNetwork === chain;
     }

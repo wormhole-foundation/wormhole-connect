@@ -1,6 +1,7 @@
 import {
   ChainId,
   ChainName,
+  Context,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { Wallet } from "@xlabs-libs/wallet-aggregator-core"
 import {
@@ -15,6 +16,8 @@ import { clusterApiUrl, Connection as SolanaConnection } from "@solana/web3.js";
 import { SolanaWallet } from "@xlabs-libs/wallet-aggregator-solana";
 import { providers } from 'ethers';
 import { registerSigner } from '../sdk/sdk';
+import { WalletType } from 'store/wallet';
+import { CHAINS_ARR } from 'sdk/config';
 
 export enum TransferWallet {
   SENDING = 'sending',
@@ -44,6 +47,16 @@ export const wallets = {
     phantom: new SolanaWallet(new PhantomWalletAdapter(), connection),
     solflare: new SolanaWallet(new SolflareWalletAdapter(), connection),
   }
+}
+
+const EVM_CHAINS = CHAINS_ARR.filter(c => c.context === Context.ETH).map(c => c.key);
+const SOL_CHAINS = CHAINS_ARR.filter(c => c.context === Context.SOLANA).map(c => c.key)
+export const walletAcceptedNetworks: Record<WalletType, ChainName[]> = {
+  [WalletType.NONE]: CHAINS_ARR.map(c => c.key),
+  [WalletType.METAMASK]: EVM_CHAINS,
+  [WalletType.WALLET_CONNECT]: EVM_CHAINS,
+  [WalletType.PHANTOM]: SOL_CHAINS,
+  [WalletType.SOLFLARE]: SOL_CHAINS,
 }
 
 export const setWalletConnection = (type: TransferWallet, wallet: Wallet) => {
