@@ -280,6 +280,13 @@ export const getDesignTokens = (mode: PaletteMode) =>
           },
         },
       },
+      MuiCollapse: {
+        styleOverrides: {
+          root: {
+            width: '100%',
+          }
+        }
+      }
     },
     breakpoints: {
       values: {
