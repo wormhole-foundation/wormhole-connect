@@ -1,3 +1,4 @@
+import { createTheme } from '@mui/material/styles';
 import grey from '@mui/material/colors/grey';
 import green from '@mui/material/colors/green';
 import orange from '@mui/material/colors/orange';
@@ -5,38 +6,8 @@ import red from '@mui/material/colors/red';
 import lightblue from '@mui/material/colors/lightBlue';
 import { OPACITY } from './utils/style';
 import { CUSTOM_THEME } from 'sdk/config';
+import { PaletteMode } from '@mui/material';
 
-// const light: PaletteOptions = {
-//   primary: {
-//     50: '#161718',
-//     100: '#2d2e30',
-//     200: '#444548',
-//     300: '#5b5c60',
-//     400: '#727479',
-//     500: '#898b91',
-//     600: '#a0a2a9',
-//     700: '#b7b9c1',
-//     800: '#ced0d9',
-//     900: '#E5E8F2',
-//     A100: '#ceced1',
-//     A200: '#9d9ea4',
-//     A400: '#535660',
-//     A700: '#0a0e1c',
-//   },
-//   secondary: grey,
-//   divider: '#727479',
-//   background: {
-//     default: '#E5E8F2',
-//   },
-//   text: {
-//     primary: grey[900],
-//     secondary: grey[800],
-//   },
-//   error: red,
-//   info: lightBlue,
-//   success: green,
-//   warning: orange,
-// }
 
 export type PaletteColor = {
   50: string;
@@ -304,7 +275,7 @@ export const getDesignTokens = (mode: PaletteMode) =>
                 mode === 'light'
                   ? light.modal.background
                   : dark.modal.background
-                ),
+                )
               ) + ' !important'
           },
         },
@@ -321,6 +292,6 @@ export const getDesignTokens = (mode: PaletteMode) =>
     },
     palette: {
       mode,
-      ...(CUSTOM_THEME ? CUSTOM_THEME : mode === 'light' ? lightStyled : dark),
+      ...(CUSTOM_THEME ? CUSTOM_THEME : mode === 'light' ? light : dark),
     },
   });

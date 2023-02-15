@@ -1,10 +1,8 @@
-import { createTheme } from '@mui/material/styles';
 import grey from '@mui/material/colors/grey';
 import green from '@mui/material/colors/green';
 import orange from '@mui/material/colors/orange';
 import red from '@mui/material/colors/red';
 import lightblue from '@mui/material/colors/lightBlue';
-import { PaletteMode } from '@mui/material';
 
 export const OPACITY = {
   0: '00',
