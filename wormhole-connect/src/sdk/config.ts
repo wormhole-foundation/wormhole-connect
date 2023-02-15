@@ -31,5 +31,5 @@ export const TOKENS_ARR =
       )
     : (Object.values(TOKENS) as TokenConfig[]);
 
-export const THEME_MODE = config && config.mode ? config.mode : 'light';
+export const THEME_MODE = config && config.mode ? config.mode : 'dark';
 export const CUSTOM_THEME = config && config.customTheme;
