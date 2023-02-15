@@ -4,155 +4,65 @@ import { NetworksConfig, TokenConfig } from './types';
 const { chains } = CONFIG.MAINNET;
 
 export const MAINNET_NETWORKS: NetworksConfig = {
-  solana: {
-    ...chains.solana!,
-    icon: 'solana',
-    nativeToken: '', // TODO: fill in tokens for Mainnet
-  },
   ethereum: {
     ...chains.ethereum!,
     icon: 'eth',
-    nativeToken: '',
-  },
-  terra: {
-    ...chains.terra!,
-    icon: 'terra',
-    nativeToken: '',
+    nativeToken: 'ETH',
   },
   bsc: {
     ...chains.bsc!,
     icon: 'bsc',
-    nativeToken: '',
+    nativeToken: 'BNB',
   },
   polygon: {
     ...chains.polygon!,
     icon: 'polygon',
-    nativeToken: '',
+    nativeToken: 'MATIC',
   },
   avalanche: {
     ...chains.avalanche!,
     icon: 'avax',
-    nativeToken: '',
-  },
-  oasis: {
-    ...chains.oasis!,
-    icon: 'oasis',
-    nativeToken: '',
-  },
-  algorand: {
-    ...chains.algorand!,
-    icon: 'algorand',
-    nativeToken: '',
-  },
-  aurora: {
-    ...chains.aurora!,
-    icon: 'aurora',
-    nativeToken: '',
+    nativeToken: 'AVAX',
   },
   fantom: {
     ...chains.fantom!,
     icon: 'fantom',
-    nativeToken: '',
-  },
-  karura: {
-    ...chains.karura!,
-    icon: 'karura',
-    nativeToken: '',
-  },
-  acala: {
-    ...chains.acala!,
-    icon: 'acala',
-    nativeToken: '',
-  },
-  klaytn: {
-    ...chains.klaytn!,
-    icon: 'kalytn',
-    nativeToken: '',
+    nativeToken: 'FTM',
   },
   celo: {
     ...chains.celo!,
     icon: 'celo',
-    nativeToken: '',
-  },
-  near: {
-    ...chains.near!,
-    icon: 'near',
-    nativeToken: '',
-  },
-  injective: {
-    ...chains.injective!,
-    icon: 'injective',
-    nativeToken: '',
-  },
-  osmosis: {
-    ...chains.osmosis!,
-    icon: 'osmosis',
-    nativeToken: '',
-  },
-  aptos: {
-    ...chains.aptos!,
-    icon: 'aptos',
-    nativeToken: '',
-  },
-  sui: {
-    ...chains.sui!,
-    icon: 'sui',
-    nativeToken: '',
-  },
-  moonbeam: {
-    ...chains.moonbeam!,
-    icon: 'moonbeam',
-    nativeToken: '',
-  },
-  neon: {
-    ...chains.neon!,
-    icon: 'neon',
-    nativeToken: '',
-  },
-  terra2: {
-    ...chains.terra2!,
-    icon: 'terra2',
-    nativeToken: '',
-  },
-  arbitrum: {
-    ...chains.arbitrum!,
-    icon: 'arbitrum',
-    nativeToken: '',
-  },
-  optimism: {
-    ...chains.optimism!,
-    icon: 'optimism',
-    nativeToken: '',
-  },
-  gnosis: {
-    ...chains.gnosis!,
-    nativeToken: '',
-  },
-  pythnet: {
-    ...chains.pythnet!,
-    nativeToken: '',
-  },
-  xpla: {
-    ...chains.xpla!,
-    icon: 'xpla',
-    nativeToken: '',
-  },
-  btc: {
-    ...chains.btc!,
-    nativeToken: '',
-  },
-  wormchain: {
-    ...chains.wormchain!,
-    nativeToken: '',
+    nativeToken: 'CELO',
   },
 };
 
 export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
+  ETH: {
+    symbol: 'ETH',
+    nativeNetwork: 'ethereum',
+    icon: 'eth',
+    coinGeckoId: 'ethereum',
+    color: '#62688F',
+    decimals: 18,
+    wrappedAsset: 'WETH',
+  },
+  WETH: {
+    symbol: 'WETH',
+    nativeNetwork: 'ethereum',
+    icon: 'eth',
+    tokenId: {
+      chain: 'ethereum',
+      address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+    },
+    coinGeckoId: 'ethereum',
+    color: '#62688F',
+    decimals: 18,
+  },
   MATIC: {
     symbol: 'MATIC',
     nativeNetwork: 'polygon',
     icon: 'polygon',
-    coinGeckoId: 'polygon',
+    coinGeckoId: 'matic-network',
     color: '#8247E5',
     decimals: 18,
     wrappedAsset: 'WMATIC',
@@ -163,19 +73,41 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     icon: 'polygon',
     tokenId: {
       chain: 'polygon',
-      address: '0x1234...5678',
+      address: '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270',
     },
-    coinGeckoId: 'polygon',
+    coinGeckoId: 'matic-network',
     color: '#8247E5',
     decimals: 18,
   },
-  SOL: {
-    symbol: 'SOL',
-    nativeNetwork: 'solana',
-    icon: 'solana',
-    coinGeckoId: 'solana',
-    color: '#28D4B5',
+  BNB: {
+    symbol: 'BNB',
+    nativeNetwork: 'bsc',
+    icon: 'bnb',
+    coinGeckoId: 'binancecoin',
+    color: '#F3BA30',
     decimals: 18,
+    wrappedAsset: 'WBNB',
+  },
+  WBNB: {
+    symbol: 'WBNB',
+    nativeNetwork: 'bsc',
+    icon: 'bnb',
+    tokenId: {
+      chain: 'bsc',
+      address: '0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c',
+    },
+    coinGeckoId: 'binancecoin',
+    color: '#F3BA30',
+    decimals: 18,
+  },
+  AVAX: {
+    symbol: 'AVAX',
+    nativeNetwork: 'avalanche',
+    icon: 'avax',
+    coinGeckoId: 'avalanche-2',
+    color: '#E84141',
+    decimals: 18,
+    wrappedAsset: 'WAVAX',
   },
   WAVAX: {
     symbol: 'WAVAX',
@@ -183,10 +115,31 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     icon: 'avax',
     tokenId: {
       chain: 'avalanche',
-      address: '0x1234...5678',
+      address: '0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7',
     },
-    coinGeckoId: 'wrapped-avax',
-    color: '#E84142',
+    coinGeckoId: 'avalanche-2',
+    color: '#E84141',
+    decimals: 18,
+  },
+  FTM: {
+    symbol: 'FTM',
+    nativeNetwork: 'fantom',
+    icon: 'fantom',
+    coinGeckoId: 'fantom',
+    color: '#12B4EC',
+    decimals: 18,
+    wrappedAsset: 'WFTM',
+  },
+  WFTM: {
+    symbol: 'WFTM',
+    nativeNetwork: 'fantom',
+    icon: 'fantom',
+    tokenId: {
+      chain: 'fantom',
+      address: '0x21be370d5312f44cb42ce377bc9b8a0cef1a4c83',
+    },
+    coinGeckoId: 'fantom',
+    color: '#12B4EC',
     decimals: 18,
   },
   CELO: {
@@ -195,18 +148,10 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     icon: 'celo',
     tokenId: {
       chain: 'celo',
-      address: '0x1234...5678',
+      address: '0x471ece3750da237f93b8e339c536989b8978a438',
     },
     coinGeckoId: 'celo',
     color: '#35D07E',
-    decimals: 18,
-  },
-  BNB: {
-    symbol: 'BNB',
-    nativeNetwork: 'bsc',
-    icon: 'bnb',
-    coinGeckoId: 'bnb',
-    color: '#F3BA30',
     decimals: 18,
   },
 };
