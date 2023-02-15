@@ -19,13 +19,16 @@ const getRows = (txData: any): RowsData => {
   // manual transfers
   if (type === PaymentOption.MANUAL) {
     const sendingGasToken = CHAINS[txData.fromChain];
-    return [{
-      title: 'Amount',
-      value: `${formattedAmt} ${txData.tokenSymbol}`,
-    }, {
-      title: 'Gas fee',
-      value: `TODO ${sendingGasToken.symbol}`
-    }];
+    return [
+      {
+        title: 'Amount',
+        value: `${formattedAmt} ${txData.tokenSymbol}`,
+      },
+      {
+        title: 'Gas fee',
+        value: `TODO ${sendingGasToken.symbol}`,
+      },
+    ];
   }
 
   // automatic transfers
@@ -54,7 +57,9 @@ const getRows = (txData: any): RowsData => {
 function SendFrom() {
   const vaa: ParsedVaa = useSelector((state: RootState) => state.redeem.vaa);
   const txData = useSelector((state: RootState) => state.redeem.txData)!;
-  const transferComplete = useSelector((state: RootState) => state.redeem.transferComplete);
+  const transferComplete = useSelector(
+    (state: RootState) => state.redeem.transferComplete,
+  );
 
   const [rows, setRows] = useState([] as RowsData);
 

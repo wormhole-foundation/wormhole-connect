@@ -34,13 +34,16 @@ const getRows = (txData: any): RowsData => {
   // manual transfers
   if (type === PaymentOption.MANUAL) {
     const formattedAmt = utils.formatUnits(txData.amount, decimals);
-    return [{
-      title: 'Amount',
-      value: `${formattedAmt} ${txData.tokenSymbol}`,
-    }, {
-      title: 'Gas estimate',
-      value: `TODO ${gasToken}`,
-    }]
+    return [
+      {
+        title: 'Amount',
+        value: `${formattedAmt} ${txData.tokenSymbol}`,
+      },
+      {
+        title: 'Gas estimate',
+        value: `TODO ${gasToken}`,
+      },
+    ];
   }
 
   // automatic transfers
@@ -74,7 +77,9 @@ function SendTo() {
   );
   const receiving = useSelector((state: RootState) => state.wallet.receiving);
   const redeemTx = useSelector((state: RootState) => state.redeem.redeemTx);
-  const transferComplete = useSelector((state: RootState) => state.redeem.transferComplete);
+  const transferComplete = useSelector(
+    (state: RootState) => state.redeem.transferComplete,
+  );
   const [inProgress, setInProgress] = useState(false);
   const [isConnected, setIsConnected] = useState(
     receiving.currentAddress.toLowerCase() === receiving.address.toLowerCase(),
@@ -124,7 +129,11 @@ function SendTo() {
         <Header
           network={txData.toChain}
           address={txData.recipient}
-          loading={!transferComplete && txData.payloadID === PaymentOption.MANUAL && !redeemTx}
+          loading={
+            !transferComplete &&
+            txData.payloadID === PaymentOption.MANUAL &&
+            !redeemTx
+          }
           txHash={redeemTx}
         />
         <RenderRows rows={rows} />

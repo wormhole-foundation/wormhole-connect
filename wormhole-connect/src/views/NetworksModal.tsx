@@ -132,7 +132,7 @@ function NetworksModal(props: Props) {
       <Spacer height={16} />
       <Scroll
         height="calc(100vh - 300px)"
-        blendColor={theme.palette.card.background}
+        blendColor={theme.palette.modal.background}
       >
         {chains.length > 0 ? (
           <div className={classes.networksContainer}>

@@ -113,11 +113,9 @@ export const transferSlice = createSlice({
     ) => {
       state.balances = { ...state.balances, ...payload };
     },
-    clearTransfer: (
-      state: TransferState,
-    ) => {
+    clearTransfer: (state: TransferState) => {
       state = initialState;
-    }
+    },
   },
 });
 

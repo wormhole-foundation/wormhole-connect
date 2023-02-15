@@ -209,7 +209,7 @@ function TokensModal() {
       </div>
       <Scroll
         height="calc(100vh - 300px)"
-        blendColor={theme.palette.card.background}
+        blendColor={theme.palette.modal.background}
       >
         <div className={classes.tokensContainer}>
           {tokens.length > 0 ? (

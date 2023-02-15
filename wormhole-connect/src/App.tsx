@@ -3,16 +3,16 @@ import { Provider } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import Box from '@mui/material/Box';
+// import Box from '@mui/material/Box';
 import { PaletteMode } from '@mui/material';
-import IconButton from '@mui/material/IconButton';
-import Brightness4Icon from '@mui/icons-material/Brightness4';
-import Brightness7Icon from '@mui/icons-material/Brightness7';
+// import IconButton from '@mui/material/IconButton';
+// import Brightness4Icon from '@mui/icons-material/Brightness4';
+// import Brightness7Icon from '@mui/icons-material/Brightness7';
 import './App.css';
 import { store } from './store';
 import AppRouter from './AppRouter';
 import { getDesignTokens } from './theme';
-import { THEME } from './sdk/config';
+import { THEME_MODE } from './sdk/config';
 
 const ColorModeContext = React.createContext({ toggleColorMode: () => {} });
 
@@ -33,7 +33,7 @@ const useStyles = makeStyles()((theme) => ({
 
 function App() {
   const { classes } = useStyles();
-  const [mode, setMode] = React.useState<PaletteMode>(THEME);
+  const [mode, setMode] = React.useState<PaletteMode>(THEME_MODE);
   const colorMode = React.useMemo(
     () => ({
       // The dark mode switch would invoke this method
@@ -55,7 +55,7 @@ function App() {
           {mode === 'dark' && <div className={classes.background} />}
           <CssBaseline enableColorScheme />
           {/* light/dark theme switch */}
-          <Box
+          {/* <Box
             sx={{
               display: 'flex',
               width: '100%',
@@ -79,7 +79,7 @@ function App() {
                 <Brightness4Icon />
               )}
             </IconButton>
-          </Box>
+          </Box> */}
 
           {/* App content */}
           <AppRouter />
