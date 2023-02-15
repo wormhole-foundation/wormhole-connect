@@ -2,7 +2,7 @@ import {
   ethers_contracts,
   Network as Environment,
 } from '@certusone/wormhole-sdk';
-import { BigNumber, constants, utils, ContractReceipt } from 'ethers';
+import { BigNumber, utils, ContractReceipt } from 'ethers';
 import {
   WormholeContext,
   TokenId,
@@ -16,7 +16,7 @@ import { TOKENS } from './config';
 
 const { REACT_APP_ENV } = process.env;
 
-export const context = new WormholeContext(REACT_APP_ENV! as Environment);
+export const wh = new WormholeContext(REACT_APP_ENV! as Environment);
 
 export interface ParsedMessage {
   sendTx: string;
@@ -42,14 +42,14 @@ export interface ParsedRelayerMessage extends ParsedMessage {
 
 export const registerSigner = (chain: ChainName | ChainId, signer: any) => {
   console.log(`registering signer for ${chain}:`, signer);
-  context.registerSigner(chain, signer);
+  wh.registerSigner(chain, signer);
 };
 
 export const getForeignAsset = async (
   tokenId: TokenId,
   chain: ChainName | ChainId,
 ): Promise<string> => {
-  const ethContext: any = context.getContext(tokenId.chain);
+  const ethContext: any = wh.getContext(tokenId.chain);
   return await ethContext.getForeignAsset(tokenId, chain);
 };
 
@@ -58,30 +58,21 @@ export const getBalance = async (
   tokenId: TokenId,
   chain: ChainName | ChainId,
 ): Promise<BigNumber | null> => {
-  const address = await getForeignAsset(tokenId, chain);
-  if (address === constants.AddressZero) return null;
-  const provider = context.mustGetProvider(chain);
-  const token = ethers_contracts.TokenImplementation__factory.connect(
-    address,
-    provider,
-  );
-  const balance = await token.balanceOf(walletAddr);
-  return balance;
+  return await wh.getTokenBalance(walletAddr, tokenId, chain);
 };
 
 export const getNativeBalance = async (
   walletAddr: string,
   chain: ChainName | ChainId,
 ): Promise<BigNumber> => {
-  const provider = context.mustGetProvider(chain);
-  return await provider.getBalance(walletAddr);
+  return await wh.getNativeBalance(walletAddr, chain);
 };
 
 export const parseMessageFromTx = async (
   tx: string,
   chain: ChainName | ChainId,
 ) => {
-  const EthContext: any = context.getContext(chain);
+  const EthContext: any = wh.getContext(chain);
   const parsed = (await EthContext.parseMessageFromTx(tx, chain))[0];
   const token = await getToken({
     address: parsed.tokenAddress,
@@ -118,7 +109,7 @@ export const getRelayerFee = async (
   destChain: ChainName | ChainId,
   token: string,
 ) => {
-  const EthContext: any = context.getContext(destChain);
+  const EthContext: any = wh.getContext(destChain);
   const tokenConfig = TOKENS[token];
   if (!tokenConfig) throw new Error('could not get token config');
   const tokenId = tokenConfig.tokenId || getWrappedTokenId(tokenConfig);
@@ -140,7 +131,7 @@ export const sendTransfer = async (
   const parsedAmt = utils.parseUnits(amount, decimals);
   if (paymentOption === PaymentOption.MANUAL) {
     console.log('send with manual');
-    const receipt = await context.send(
+    const receipt = await wh.send(
       token,
       parsedAmt.toString(),
       fromNetwork,
@@ -155,7 +146,7 @@ export const sendTransfer = async (
     const parsedNativeAmt = toNativeToken
       ? utils.parseUnits(toNativeToken, decimals).toString()
       : '0';
-    const receipt = await context.sendWithRelay(
+    const receipt = await wh.sendWithRelay(
       token,
       parsedAmt.toString(),
       fromNetwork,
@@ -172,7 +163,7 @@ export const calculateMaxSwapAmount = async (
   destChain: ChainName | ChainId,
   token: TokenId,
 ) => {
-  const EthContext: any = context.getContext(destChain);
+  const EthContext: any = wh.getContext(destChain);
   return await EthContext.calculateMaxSwapAmount(destChain, token);
 };
 
@@ -181,7 +172,7 @@ export const calculateNativeTokenAmt = async (
   token: TokenId,
   amount: BigNumber,
 ) => {
-  const EthContext: any = context.getContext(destChain);
+  const EthContext: any = wh.getContext(destChain);
   return await EthContext.calculateNativeTokenAmt(destChain, token, amount);
 };
 
@@ -189,12 +180,12 @@ export const claimTransfer = async (
   destChain: ChainName | ChainId,
   vaa: Uint8Array,
 ): Promise<ContractReceipt> => {
-  const EthContext: any = context.getContext(destChain);
-  return await EthContext.redeem(destChain, vaa, { gasLimit: 250000 });
+  // const EthContext: any = wh.getContext(destChain);
+  return await wh.redeem(destChain, vaa, { gasLimit: 250000 });
 };
 
 export const getToken = async (tokenId: TokenId) => {
-  const provider = context.mustGetProvider(tokenId.chain);
+  const provider = wh.mustGetProvider(tokenId.chain);
   const tokenContract = ethers_contracts.TokenImplementation__factory.connect(
     tokenId.address,
     provider,
@@ -204,10 +195,7 @@ export const getToken = async (tokenId: TokenId) => {
   return { symbol, decimals };
 };
 
-export const getTransferComplete = async (
-  destChain: ChainName | ChainId,
-  signedVaaHash: string,
-): Promise<boolean> => {
-  const EthContext: any = context.getContext(destChain);
+export const getTransferComplete = async (destChain: ChainName | ChainId, signedVaaHash: string): Promise<boolean> => {
+  const EthContext: any = wh.getContext(destChain);
   return await EthContext.isTransferCompleted(destChain, signedVaaHash);
 };

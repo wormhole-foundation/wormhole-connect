@@ -1,8 +1,6 @@
 import * as React from 'react';
 import { Provider } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
-import { WalletContextProvider } from '@xlabs-libs/wallet-aggregator-react';
-import { wallets } from './utils/wallet';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 // import Box from '@mui/material/Box';
@@ -84,9 +82,7 @@ function App() {
           </Box> */}
 
           {/* App content */}
-          <WalletContextProvider wallets={wallets}>
-            <AppRouter />
-          </WalletContextProvider>
+          <AppRouter />
         </ThemeProvider>
       </ColorModeContext.Provider>
     </Provider>

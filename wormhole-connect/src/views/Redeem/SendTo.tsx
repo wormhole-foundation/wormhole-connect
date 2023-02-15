@@ -26,6 +26,7 @@ import InputContainer from '../../components/InputContainer';
 // import { handleConnect } from '../../components/ConnectWallet';
 import CircularProgress from '@mui/material/CircularProgress';
 import { setWalletModal } from '../../store/router';
+import { Context } from '@wormhole-foundation/wormhole-connect-sdk';
 
 const getRows = (txData: any): RowsData => {
   const decimals = txData.tokenDecimals > 8 ? 8 : txData.tokenDecimals;
@@ -96,12 +97,15 @@ function SendTo() {
   // const pending = vaa.guardianSignatures < REQUIRED_CONFIRMATIONS;
   const claim = async () => {
     setInProgress(true);
-    const { chainId } = CHAINS[txData.toChain]!;
+    const networkConfig = CHAINS[txData.toChain]!;
+    if (!networkConfig) throw new Error('invalid destination chain');
     try {
       // TODO: remove this line
       // await openWalletModal(theme, true);
-      registerWalletSigner(txData.toChain, TransferWallet.RECEIVING);
-      await switchNetwork(chainId, TransferWallet.RECEIVING);
+      if (networkConfig?.context === Context.ETH) {
+        registerWalletSigner(txData.toChain, TransferWallet.RECEIVING);
+        await switchNetwork(networkConfig.chainId, TransferWallet.RECEIVING);
+      }
       const receipt = await claimTransfer(
         txData.toChain,
         utils.arrayify(vaa.bytes),

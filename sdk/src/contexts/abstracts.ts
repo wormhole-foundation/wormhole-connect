@@ -39,6 +39,16 @@ export abstract class BridgeAbstract {
     chain: ChainName | ChainId,
   ): Promise<ParsedMessage[] | ParsedRelayerMessage[]>;
 
+  protected abstract getNativeBalance(
+    walletAddress: string,
+    chain: ChainName | ChainId,
+  ): Promise<BigNumber>;
+  protected abstract getTokenBalance(
+    walletAddress: string,
+    tokenId: TokenId,
+    chain: ChainName | ChainId,
+  ): Promise<BigNumber | null>;
+
   protected abstract approve(
     chain: ChainName | ChainId,
     contractAddress: string,

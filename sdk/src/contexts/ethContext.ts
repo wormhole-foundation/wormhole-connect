@@ -46,6 +46,27 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
     );
   }
 
+  async getNativeBalance(
+    walletAddr: string,
+    chain: ChainName | ChainId,
+  ): Promise<BigNumber> {
+    const provider = this.context.mustGetProvider(chain);
+    return await provider.getBalance(walletAddr);
+  }
+
+  async getTokenBalance(
+    walletAddr: string,
+    tokenId: TokenId,
+    chain: ChainName | ChainId,
+  ): Promise<BigNumber | null> {
+    const address = await this.getForeignAsset(tokenId, chain);
+    if (address === constants.AddressZero) return null;
+    const provider = this.context.mustGetProvider(chain);
+    const token = TokenImplementation__factory.connect(address, provider);
+    const balance = await token.balanceOf(walletAddr);
+    return balance;
+  }
+
   /**
    * Approves amount for bridge transfer. If no amount is specified, the max amount is approved
    *

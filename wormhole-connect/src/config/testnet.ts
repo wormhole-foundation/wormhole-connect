@@ -178,10 +178,15 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     coinGeckoId: 'solana',
     color: 'purple',
     decimals: 9,
+    wrappedAsset: 'WSOL',
   },
   WSOL: {
     symbol: 'WSOL',
     nativeNetwork: 'solana',
+    tokenId: {
+      chain: 'solana',
+      address: 'So11111111111111111111111111111111111111112',
+    },
     icon: 'solana',
     coinGeckoId: 'solana',
     color: 'purple',

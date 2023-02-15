@@ -1,4 +1,8 @@
-import { createNonce, hexToUint8Array } from '@certusone/wormhole-sdk';
+import {
+  createNonce,
+  getForeignAssetSolana,
+  hexToUint8Array,
+} from '@certusone/wormhole-sdk';
 import { WormholeContext } from '../wormhole';
 import { BridgeAbstract } from './abstracts';
 import { TokenId, ChainName, ChainId, NATIVE, ParsedMessage } from '../types';
@@ -11,6 +15,7 @@ import {
   TOKEN_PROGRAM_ID,
 } from '@solana/spl-token';
 import {
+  clusterApiUrl,
   Commitment,
   Connection,
   Keypair,
@@ -18,6 +23,7 @@ import {
   PublicKeyInitData,
   SystemProgram,
   Transaction as SolanaTransaction,
+  // AccountInfo,
 } from '@solana/web3.js';
 import {
   createApproveAuthoritySignerInstruction,
@@ -27,14 +33,57 @@ import {
   createTransferWrappedWithPayloadInstruction,
 } from '@certusone/wormhole-sdk/lib/cjs/solana/tokenBridge';
 import { deriveWormholeEmitterKey } from '@certusone/wormhole-sdk/lib/cjs/solana/wormhole';
-import { BigNumber, BigNumberish } from 'ethers';
+import { BigNumber, BigNumberish, constants } from 'ethers';
 
 export class SolanaContext<T extends WormholeContext> extends BridgeAbstract {
   readonly context: T;
+  connection: Connection | undefined;
 
   constructor(context: T) {
     super();
     this.context = context;
+    const tag = context.environment === 'MAINNET' ? 'mainnet-beta' : 'testnet';
+    this.connection = new Connection(clusterApiUrl(tag));
+  }
+
+  async setConnection(connection: Connection) {
+    this.connection = connection;
+  }
+
+  async getNativeBalance(
+    walletAddress: string,
+    chain: ChainName | ChainId,
+  ): Promise<BigNumber> {
+    if (!this.connection) throw new Error('no connection');
+    const balance = await this.connection.getBalance(
+      new PublicKey(walletAddress),
+    );
+    console.log('native balance:', balance);
+    return BigNumber.from(balance);
+  }
+
+  async getTokenBalance(
+    walletAddress: string,
+    tokenId: TokenId,
+    chain: ChainName | ChainId,
+  ): Promise<BigNumber | null> {
+    if (!this.connection) throw new Error('no connection');
+    let address;
+    try {
+      address = await this.getForeignAsset(tokenId, chain);
+    } catch (e) {
+      return null;
+    }
+    if (!address || address === constants.AddressZero) return null;
+    const splToken = await this.connection.getTokenAccountsByOwner(
+      new PublicKey(walletAddress),
+      { mint: new PublicKey(address) },
+    );
+    const balance = await this.connection.getTokenAccountBalance(
+      splToken.value[0].pubkey,
+    );
+    console.log('token balance:', balance);
+    return BigNumber.from(balance);
   }
 
   private async transferNativeSol(
@@ -365,8 +414,17 @@ export class SolanaContext<T extends WormholeContext> extends BridgeAbstract {
 
   // TODO:
   async getForeignAsset(tokenId: TokenId, chain: ChainName | ChainId) {
-    console.log('not implemented', tokenId, chain);
-    return '';
+    if (!this.connection) throw new Error('no connection');
+    const tokenBridge = this.context.mustGetBridge(chain);
+    const chainId = this.context.resolveDomain(tokenId.chain) as ChainId;
+    const addr = await getForeignAssetSolana(
+      this.connection,
+      tokenBridge.address,
+      chainId,
+      Buffer.from(tokenId.address, 'hex'),
+    );
+    if (!addr) throw new Error('token not found');
+    return addr;
   }
 
   // TODO:

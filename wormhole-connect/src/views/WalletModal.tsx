@@ -74,18 +74,25 @@ const getWalletOptions = (chain: ChainConfig) => {
 function WalletsModal() {
   const classes = useStyles();
   const dispatch = useDispatch();
-  const fromNetwork = useSelector((state: RootState) => state.transfer.fromNetwork);
+  const { fromNetwork, toNetwork } = useSelector((state: RootState) => state.transfer);
   const showWalletModal = useSelector(
     (state: RootState) => state.router.showWalletModal,
   );
   const [walletOptions, setWalletOptions] = useState(Object.values(WALLETS));
 
   useEffect(() => {
-    const config = CHAINS[fromNetwork!];
-    if (!config) return;
-    const options = getWalletOptions(config);
-    if (options) setWalletOptions(options);
-  }, []);
+    if (showWalletModal === TransferWallet.SENDING) {
+      const config = CHAINS[fromNetwork!];
+      if (!config) return;
+      const options = getWalletOptions(config);
+      if (options) setWalletOptions(options);
+    } else {
+      const config = CHAINS[toNetwork!];
+      if (!config) return;
+      const options = getWalletOptions(config);
+      if (options) setWalletOptions(options);
+    }
+  }, [fromNetwork, toNetwork]);
 
   const connect = async (walletInfo: WalletData) => {
     const { wallet } = walletInfo;

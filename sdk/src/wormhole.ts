@@ -1,4 +1,4 @@
-import { ContractReceipt, providers, Signer } from 'ethers';
+import { ContractReceipt, providers, Signer, BigNumber } from 'ethers';
 import {
   Bridge,
   Wormhole,
@@ -232,6 +232,23 @@ export class WormholeContext extends MultiProvider<Domain> {
     }
   }
 
+  async getNativeBalance(
+    walletAddress: string,
+    chain: ChainName | ChainId,
+  ): Promise<BigNumber> {
+    const context = this.getContext(chain);
+    return await context.getNativeBalance(walletAddress, chain);
+  }
+
+  async getTokenBalance(
+    walletAddress: string,
+    tokenId: TokenId,
+    chain: ChainName | ChainId,
+  ): Promise<BigNumber | null> {
+    const context = this.getContext(chain);
+    return await context.getTokenBalance(walletAddress, tokenId, chain);
+  }
+
   /**
    * Sends transaction to the bridge
    *
@@ -316,15 +333,24 @@ export class WormholeContext extends MultiProvider<Domain> {
     );
   }
 
+  async redeem(
+    destChain: ChainName | ChainId,
+    signedVAA: Uint8Array,
+    overrides: any,
+  ): Promise<any> {
+    const context = this.getContext(destChain);
+    return await context.redeem(destChain, signedVAA, overrides);
+  }
+
   formatAddress(address: any, chain: ChainName | ChainId): string {
     const context = this.getContext(chain);
     return context.formatAddress(address);
   }
 
-  // parseAddress(address: any, chain: ChainName | ChainId): string {
-  //   const context = this.getContext(chain);
-  //   return context.parseAddress(address);
-  // }
+  parseAddress(address: any, chain: ChainName | ChainId): string {
+    const context = this.getContext(chain);
+    return context.parseAddress(address);
+  }
 
   /**
    * Get the default config for Mainnet or Testnet
