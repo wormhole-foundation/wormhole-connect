@@ -46,7 +46,10 @@ class Redeem extends React.Component<
   async getTransferComplete() {
     if (!this.state.vaa || !this.props.txData) return;
     const hash = getSignedVAAHash(this.state.vaa.hash);
-    const isComplete = await getTransferComplete(this.props.txData.toChain, hash);
+    const isComplete = await getTransferComplete(
+      this.props.txData.toChain,
+      hash,
+    );
     if (isComplete) this.props.setTransferComplete();
   }
 

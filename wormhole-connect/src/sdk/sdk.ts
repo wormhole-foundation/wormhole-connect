@@ -204,7 +204,10 @@ export const getToken = async (tokenId: TokenId) => {
   return { symbol, decimals };
 };
 
-export const getTransferComplete = async (destChain: ChainName | ChainId, signedVaaHash: string): Promise<boolean> => {
+export const getTransferComplete = async (
+  destChain: ChainName | ChainId,
+  signedVaaHash: string,
+): Promise<boolean> => {
   const EthContext: any = context.getContext(destChain);
   return await EthContext.isTransferCompleted(destChain, signedVaaHash);
-}
+};

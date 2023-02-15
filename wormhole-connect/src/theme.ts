@@ -6,6 +6,7 @@ import red from '@mui/material/colors/red';
 import lightblue from '@mui/material/colors/lightBlue';
 import { PaletteMode } from '@mui/material';
 import { OPACITY } from './utils/style';
+import { CUSTOM_THEME } from 'sdk/config';
 
 // const light: PaletteOptions = {
 //   primary: {
@@ -94,6 +95,9 @@ export type ExtendedTheme = {
     elevation: string;
     secondary: string;
   };
+  modal: {
+    background: string;
+  };
 };
 
 const lightStyled = {
@@ -168,81 +172,6 @@ const lightStyled = {
     background: '#ffffff',
   },
 };
-
-// wormhole styled theme
-// const dark = {
-//   primary: grey,
-//   secondary: grey,
-//   divider: '#ffffff' + OPACITY[20],
-//   background: {
-//     default: 'transparent',
-//   },
-//   text: {
-//     primary: '#ffffff',
-//     secondary: grey[500],
-//   },
-//   error: red,
-//   info: {
-//     50: '#97a5b7',
-//     100: '#8293a9',
-//     200: '#6e819a',
-//     300: '#596f8c',
-//     400: '#445d7e',
-//     500: '#304C70',
-//     600: '#2b4464',
-//     700: '#263c59',
-//     800: '#21354e',
-//     900: '#1c2d43',
-//     A100: '#304C70',
-//     A200: '#304C70',
-//     A400: '#304C70',
-//     A700: '#304C70',
-//   },
-//   // success: green,
-//   success: {
-//     50: '#66d6cd',
-//     100: '#4dcfc4',
-//     200: '#33c8bc',
-//     300: '#1ac1b4',
-//     400: '#01BBAC',
-//     500: '#00a89a',
-//     600: '#009589',
-//     700: '#008278',
-//     800: '#007067',
-//     900: '#005d56',
-//     A100: '#00a89a',
-//     A200: '#00a89a',
-//     A400: '#00a89a',
-//     A700: '#00a89a',
-//   },
-//   warning: orange,
-//   button: {
-//     primary: '#ffffff' + OPACITY[20],
-//     primaryText: '#ffffff',
-//     disabled: '#ffffff' + OPACITY[10],
-//     disabledText: '#ffffff' + OPACITY[40],
-//     action: '#ffffff' + OPACITY[20],
-//     actionText: '#ffffff',
-//     hover: '#ffffff' + OPACITY[7],
-//   },
-//   options: {
-//     hover: '#ffffff' + OPACITY[7],
-//     select: '#ffffff' + OPACITY[10],
-//   },
-//   card: {
-//     background: '#ffffff' + OPACITY[5],
-//     secondary: '#ffffff' + OPACITY[5],
-//     elevation: 'none',
-//   },
-//   popover: {
-//     background: '#1b2033',
-//     secondary: '#ffffff' + OPACITY[5],
-//     elevation: 'none',
-//   },
-//   modal: {
-//     background: '#0F1024',
-//   },
-// };
 
 // generic dark theme
 const dark = {
@@ -391,6 +320,6 @@ export const getDesignTokens = (mode: PaletteMode) =>
     },
     palette: {
       mode,
-      ...(mode === 'light' ? lightStyled : dark),
+      ...(CUSTOM_THEME ? CUSTOM_THEME : mode === 'light' ? lightStyled : dark),
     },
   });
