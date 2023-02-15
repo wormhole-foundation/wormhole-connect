@@ -1,10 +1,8 @@
-import { createTheme } from '@mui/material/styles';
 import grey from '@mui/material/colors/grey';
 import green from '@mui/material/colors/green';
 import orange from '@mui/material/colors/orange';
 import red from '@mui/material/colors/red';
 import lightblue from '@mui/material/colors/lightBlue';
-import { PaletteMode } from '@mui/material';
 import { OPACITY } from './utils/style';
 import { CUSTOM_THEME } from 'sdk/config';
 
@@ -100,7 +98,7 @@ export type ExtendedTheme = {
   };
 };
 
-const lightStyled = {
+export const light = {
   primary: {
     50: '#161718',
     100: '#2d2e30',
@@ -174,7 +172,7 @@ const lightStyled = {
 };
 
 // generic dark theme
-const dark = {
+export const dark = {
   primary: grey,
   secondary: grey,
   divider: '#ffffff' + OPACITY[20],
@@ -302,9 +300,12 @@ export const getDesignTokens = (mode: PaletteMode) =>
           root: {
             // Some CSS
             background:
-              (mode === 'light'
-                ? lightStyled.modal.background
-                : dark.modal.background) + ' !important',
+              (CUSTOM_THEME ? CUSTOM_THEME.modal.background : (
+                mode === 'light'
+                  ? light.modal.background
+                  : dark.modal.background
+                ),
+              ) + ' !important'
           },
         },
       },

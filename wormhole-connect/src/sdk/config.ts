@@ -14,23 +14,22 @@ console.log('CONFIG', config);
 const { REACT_APP_ENV } = process.env;
 export const isProduction = REACT_APP_ENV === 'MAINNET';
 export const CONFIG = isProduction ? CONF.MAINNET : CONF.TESTNET;
+
 export const CHAINS = isProduction ? MAINNET_NETWORKS : TESTNET_NETWORKS;
-// export const CHAINS_ARR = Object.values(CHAINS) as ChainConfig[];
 export const CHAINS_ARR =
   config && config.networks
     ? (Object.values(CHAINS) as ChainConfig[]).filter(
-        (c) => config.networks.indexOf(c.key) >= 0,
+        (c) => config.networks.includes(c.key),
       )
     : (Object.values(CHAINS) as ChainConfig[]);
+
 export const TOKENS = isProduction ? MAINNET_TOKENS : TESTNET_TOKENS;
-// export const TOKENS_ARR = Object.values(TOKENS) as TokenConfig[];
 export const TOKENS_ARR =
   config && config.tokens
     ? (Object.values(TOKENS) as TokenConfig[]).filter(
-        (c) => config.tokens.indexOf(c.symbol) >= 0,
+        (c) => config.tokens.includes(c.symbol),
       )
     : (Object.values(TOKENS) as TokenConfig[]);
-export const REQUIRED_CONFIRMATIONS = isProduction ? 13 : 1;
-// export const THEME = 'light';
+
 export const THEME_MODE = config && config.mode ? config.mode : 'light';
 export const CUSTOM_THEME = config && config.customTheme;
