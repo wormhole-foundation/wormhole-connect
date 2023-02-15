@@ -78,7 +78,9 @@ function NetworksModal(props: Props) {
   const { fromNetwork, toNetwork } = useSelector(
     (state: RootState) => state.transfer,
   );
-  const {sending, receiving} = useSelector((state: RootState) => state.wallet)
+  const { sending, receiving } = useSelector(
+    (state: RootState) => state.wallet,
+  );
 
   // listen for close event
   const closeNetworksModal = () => {

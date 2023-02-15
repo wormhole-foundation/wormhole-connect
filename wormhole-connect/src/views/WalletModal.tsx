@@ -8,12 +8,19 @@ import { useDispatch } from 'react-redux';
 import { setWalletModal } from '../store/router';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
-import { ChainConfig, Context } from '@wormhole-foundation/wormhole-connect-sdk';
+import {
+  ChainConfig,
+  Context,
+} from '@wormhole-foundation/wormhole-connect-sdk';
 import { CHAINS } from '../sdk/config';
 import WalletIcon from '../icons/components/WalletIcons';
 import { setWalletConnection, TransferWallet, wallets } from '../utils/wallet';
-import { connectReceivingWallet, connectWallet, WalletType } from '../store/wallet';
-import { Wallet } from "@xlabs-libs/wallet-aggregator-core";
+import {
+  connectReceivingWallet,
+  connectWallet,
+  WalletType,
+} from '../store/wallet';
+import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
 
 const useStyles = makeStyles((theme: Theme) => ({
   walletRow: {
@@ -61,20 +68,22 @@ const WALLETS = {
     name: 'Solflare',
     wallet: wallets.solana.solflare,
     type: WalletType.SOLFLARE,
-  }
-}
+  },
+};
 const getWalletOptions = (chain: ChainConfig) => {
   if (chain.context === Context.ETH) {
     return [WALLETS.metamask, WALLETS.walletConnect];
   } else if (chain.context === Context.SOLANA) {
     return [WALLETS.phantom, WALLETS.solflare];
   }
-}
+};
 
 function WalletsModal() {
   const classes = useStyles();
   const dispatch = useDispatch();
-  const { fromNetwork, toNetwork } = useSelector((state: RootState) => state.transfer);
+  const { fromNetwork, toNetwork } = useSelector(
+    (state: RootState) => state.transfer,
+  );
   const showWalletModal = useSelector(
     (state: RootState) => state.router.showWalletModal,
   );
@@ -106,13 +115,17 @@ function WalletsModal() {
       } else {
         dispatch(connectReceivingWallet(payload));
       }
-      dispatch(setWalletModal(false))
+      dispatch(setWalletModal(false));
     }
-  }
+  };
 
   const displayWalletOptions = (wallets: WalletData[]): JSX.Element[] => {
     return wallets.map((wallet, i) => (
-      <div className={classes.walletRow} key={i} onClick={() => connect(wallet)}>
+      <div
+        className={classes.walletRow}
+        key={i}
+        onClick={() => connect(wallet)}
+      >
         <WalletIcon type={wallet.type} height={32} />
         <div>{wallet.name}</div>
       </div>

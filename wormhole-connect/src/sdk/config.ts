@@ -18,16 +18,16 @@ export const CONFIG = isProduction ? CONF.MAINNET : CONF.TESTNET;
 export const CHAINS = isProduction ? MAINNET_NETWORKS : TESTNET_NETWORKS;
 export const CHAINS_ARR =
   config && config.networks
-    ? (Object.values(CHAINS) as ChainConfig[]).filter(
-        (c) => config.networks.includes(c.key),
+    ? (Object.values(CHAINS) as ChainConfig[]).filter((c) =>
+        config.networks.includes(c.key),
       )
     : (Object.values(CHAINS) as ChainConfig[]);
 
 export const TOKENS = isProduction ? MAINNET_TOKENS : TESTNET_TOKENS;
 export const TOKENS_ARR =
   config && config.tokens
-    ? (Object.values(TOKENS) as TokenConfig[]).filter(
-        (c) => config.tokens.includes(c.symbol),
+    ? (Object.values(TOKENS) as TokenConfig[]).filter((c) =>
+        config.tokens.includes(c.symbol),
       )
     : (Object.values(TOKENS) as TokenConfig[]);
 
