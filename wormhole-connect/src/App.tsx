@@ -52,7 +52,7 @@ function App() {
     <Provider store={store}>
       <ColorModeContext.Provider value={colorMode}>
         <ThemeProvider theme={theme}>
-          {mode === 'dark' && <div className={classes.background} />}
+          {/* {mode === 'dark' && <div className={classes.background} />} */}
           <CssBaseline enableColorScheme />
           {/* light/dark theme switch */}
           <Box
