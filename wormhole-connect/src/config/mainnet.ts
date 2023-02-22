@@ -8,32 +8,44 @@ export const MAINNET_NETWORKS: NetworksConfig = {
     ...chains.ethereum!,
     icon: 'eth',
     nativeToken: 'ETH',
+    automaticRelayer: true,
   },
   bsc: {
     ...chains.bsc!,
     icon: 'bsc',
     nativeToken: 'BNB',
+    automaticRelayer: true,
   },
   polygon: {
     ...chains.polygon!,
     icon: 'polygon',
     nativeToken: 'MATIC',
+    automaticRelayer: true,
   },
   avalanche: {
     ...chains.avalanche!,
     icon: 'avax',
     nativeToken: 'AVAX',
+    automaticRelayer: true,
   },
   fantom: {
     ...chains.fantom!,
     icon: 'fantom',
     nativeToken: 'FTM',
+    automaticRelayer: true,
   },
   celo: {
     ...chains.celo!,
     icon: 'celo',
     nativeToken: 'CELO',
+    automaticRelayer: true,
   },
+  solana: {
+    ...chains.solana!,
+    icon: 'solana',
+    nativeToken: 'SOL',
+    automaticRelayer: false,
+  }
 };
 
 export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
@@ -153,5 +165,26 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     coinGeckoId: 'celo',
     color: '#35D07E',
     decimals: 18,
+  },
+  SOL: {
+    symbol: 'SOL',
+    nativeNetwork: 'solana',
+    icon: 'solana',
+    coinGeckoId: 'solana',
+    color: '#8457EF',
+    decimals: 9,
+    wrappedAsset: 'WSOL',
+  },
+  WSOL: {
+    symbol: 'WSOL',
+    nativeNetwork: 'solana',
+    tokenId: {
+      chain: 'solana',
+      address: 'So11111111111111111111111111111111111111112',
+    },
+    icon: 'solana',
+    coinGeckoId: 'solana',
+    color: '#8457EF',
+    decimals: 9,
   },
 };

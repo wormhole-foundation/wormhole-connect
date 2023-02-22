@@ -62,6 +62,7 @@ function Send(props: { valid: boolean }) {
       );
       console.log('sent', receipt);
       // TODO: get transaction receipt for Solana transfers
+      // .transaction.signatures[0] ??
       const message = await parseMessageFromTx(
         receipt.transactionHash,
         fromNetwork!,

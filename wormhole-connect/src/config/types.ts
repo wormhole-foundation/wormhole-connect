@@ -18,6 +18,7 @@ export type TokenConfig = {
 export interface NetworkConfig extends ChainConfig {
   icon?: string;
   nativeToken: string;
+  automaticRelayer?: boolean;
 }
 
 export type NetworksConfig = {

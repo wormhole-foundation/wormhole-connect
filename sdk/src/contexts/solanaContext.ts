@@ -3,7 +3,6 @@ import {
   getForeignAssetSolana,
   hexToUint8Array,
 } from '@certusone/wormhole-sdk';
-import { WormholeContext } from '../wormhole';
 import { BridgeAbstract } from './abstracts';
 import { TokenId, ChainName, ChainId, NATIVE, ParsedMessage } from '../types';
 import {
@@ -34,16 +33,20 @@ import {
 } from '@certusone/wormhole-sdk/lib/cjs/solana/tokenBridge';
 import { deriveWormholeEmitterKey } from '@certusone/wormhole-sdk/lib/cjs/solana/wormhole';
 import { BigNumber, BigNumberish, constants } from 'ethers';
+import { SolContracts } from 'contracts/solContracts';
+import { ChainsManager } from 'chainsManager';
 
-export class SolanaContext<T extends WormholeContext> extends BridgeAbstract {
+export class SolanaContext<T extends ChainsManager> extends BridgeAbstract {
+  protected contracts: SolContracts<T>;
   readonly context: T;
   connection: Connection | undefined;
 
   constructor(context: T) {
     super();
     this.context = context;
-    const tag = context.environment === 'MAINNET' ? 'mainnet-beta' : 'testnet';
+    const tag = context.environment === 'MAINNET' ? 'mainnet-beta' : 'devnet';
     this.connection = new Connection(clusterApiUrl(tag));
+    this.contracts = new SolContracts(context);
   }
 
   async setConnection(connection: Connection) {
@@ -314,16 +317,19 @@ export class SolanaContext<T extends WormholeContext> extends BridgeAbstract {
     const rpc = this.context.conf.rpcs[networkName];
     if (!rpc) throw new Error(`No connection available for ${networkName}`);
     const connection = new Connection(rpc, 'confirmed');
-    const coreAddress = this.context.mustGetCore(sendingChain).address;
-    const tokenBridgeAddress = this.context.mustGetBridge(sendingChain).address;
+    const contracts = this.contracts.mustGetContracts(sendingChain);
+    if (!contracts.core || !contracts.token_bridge)
+      throw new Error('contracts not found');
+    // const coreAddress = this.context.mustGetCore(sendingChain).address;
+    // const tokenBridgeAddress = this.context.mustGetBridge(sendingChain).address;
     const amountBN = BigInt(amount);
     const relayerFeeBN = relayerFee ? BigInt(relayerFee) : undefined;
 
     if (token === NATIVE) {
       return await this.transferNativeSol(
         connection,
-        coreAddress,
-        tokenBridgeAddress,
+        contracts.core,
+        contracts.token_bridge,
         senderAddress,
         amountBN,
         recipientChain,
@@ -335,8 +341,8 @@ export class SolanaContext<T extends WormholeContext> extends BridgeAbstract {
     } else {
       return await this.transferFromSolana(
         connection,
-        coreAddress,
-        tokenBridgeAddress,
+        contracts.core,
+        contracts.token_bridge,
         sendingChain,
         senderAddress,
         amountBN,
@@ -365,15 +371,18 @@ export class SolanaContext<T extends WormholeContext> extends BridgeAbstract {
     const rpc = this.context.conf.rpcs[networkName];
     if (!rpc) throw new Error(`No connection available for ${networkName}`);
     const connection = new Connection(rpc, 'confirmed');
-    const coreAddress = this.context.mustGetCore(sendingChain).address;
-    const tokenBridgeAddress = this.context.mustGetBridge(sendingChain).address;
+    // const coreAddress = this.context.mustGetCore(sendingChain).address;
+    // const tokenBridgeAddress = this.context.mustGetBridge(sendingChain).address;
+    const contracts = this.contracts.mustGetContracts(sendingChain);
+    if (!contracts.core || !contracts.token_bridge)
+      throw new Error('contracts not found');
     const amountBN = BigInt(amount);
 
     if (token === NATIVE) {
       return await this.transferNativeSol(
         connection,
-        coreAddress,
-        tokenBridgeAddress,
+        contracts.core,
+        contracts.token_bridge,
         senderAddress,
         amountBN,
         recipientChain,
@@ -385,8 +394,8 @@ export class SolanaContext<T extends WormholeContext> extends BridgeAbstract {
     } else {
       return await this.transferFromSolana(
         connection,
-        coreAddress,
-        tokenBridgeAddress,
+        contracts.core,
+        contracts.token_bridge,
         sendingChain,
         senderAddress,
         amountBN,
@@ -415,11 +424,13 @@ export class SolanaContext<T extends WormholeContext> extends BridgeAbstract {
   // TODO:
   async getForeignAsset(tokenId: TokenId, chain: ChainName | ChainId) {
     if (!this.connection) throw new Error('no connection');
-    const tokenBridge = this.context.mustGetBridge(chain);
+    // const tokenBridge = this.context.mustGetBridge(chain);
+    const contracts = this.contracts.mustGetContracts(chain);
+    if (!contracts.token_bridge) throw new Error('contracts not found');
     const chainId = this.context.resolveDomain(tokenId.chain) as ChainId;
     const addr = await getForeignAssetSolana(
       this.connection,
-      tokenBridge.address,
+      contracts.token_bridge,
       chainId,
       Buffer.from(tokenId.address, 'hex'),
     );
@@ -433,8 +444,26 @@ export class SolanaContext<T extends WormholeContext> extends BridgeAbstract {
     chain: ChainName | ChainId,
   ): Promise<ParsedMessage[]> {
     console.log('not implemented', tx, chain);
+    if (!this.connection) throw new Error('no connection');
+    const response = await this.connection.getTransaction(tx);
+    if (!response?.meta?.innerInstructions)
+      throw new Error('not a valid bridge transfer');
+    console.log(response?.meta?.innerInstructions[0].instructions);
+    const instructions =
+      response?.meta?.innerInstructions[0].instructions.filter((i) => {
+        return i.programIdIndex === 9;
+      });
+    console.log('I', instructions);
+
+    // const sequence = info.meta?.logMessages
+    //   ?.filter((msg) => msg.startsWith(SOLANA_SEQ_LOG))?.[0]
+    //   ?.replace(SOLANA_SEQ_LOG, "");
+    // if (!sequence) {
+    //   throw new Error("sequence not found");
+    // }
+    // return sequence.toString();
     const parsedMessage: ParsedMessage = {
-      sendTx: '',
+      sendTx: tx,
       sender: '',
       amount: BigNumber.from(0),
       payloadID: 1,
@@ -473,5 +502,13 @@ export class SolanaContext<T extends WormholeContext> extends BridgeAbstract {
     overrides: any,
   ): Promise<any> {
     console.log('not implemented', destChain, signedVAA);
+  }
+
+  protected async isTransferCompleted(
+    destChain: ChainName | ChainId,
+    signedVaaHash: string,
+  ): Promise<boolean> {
+    console.log('not implemented');
+    return true;
   }
 }

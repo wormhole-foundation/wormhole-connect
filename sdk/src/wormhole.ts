@@ -1,33 +1,14 @@
-import { ContractReceipt, providers, Signer, BigNumber } from 'ethers';
-import {
-  Bridge,
-  Wormhole,
-  NFTBridge,
-} from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
+import { ContractReceipt, BigNumber } from 'ethers';
 import { Network as Environment } from '@certusone/wormhole-sdk';
-import { MultiProvider, Domain } from '@nomad-xyz/multi-provider';
+import { MultiProvider } from '@nomad-xyz/multi-provider';
 
-import MAINNET_CONFIG, {
-  MainnetChainName,
-  MAINNET_CHAINS,
-} from './config/MAINNET';
-import TESTNET_CONFIG, {
-  TestnetChainName,
-  TESTNET_CHAINS,
-} from './config/TESTNET';
-import {
-  WormholeConfig,
-  ChainName,
-  ChainId,
-  Context,
-  AnyContext,
-} from './types';
-import { WHContracts } from './contracts';
+import MAINNET_CONFIG from './config/MAINNET';
+import TESTNET_CONFIG from './config/TESTNET';
+import { WormholeConfig, ChainName, ChainId } from './types';
 import { TokenId } from './types';
 import { EthContext } from './contexts/ethContext';
-import { SolanaContext } from './contexts/solanaContext';
-import { TokenBridgeRelayer } from './abis/TokenBridgeRelayer';
 import { Transaction } from '@solana/web3.js';
+import { ChainsManager } from 'chainsManager';
 
 /**
  * The WormholeContext manages connections to Wormhole Core, Bridge and NFT Bridge contracts.
@@ -57,179 +38,21 @@ import { Transaction } from '@solana/web3.js';
  *   '0x789..., // recipient address on destination chain
  * )
  */
-export class WormholeContext extends MultiProvider<Domain> {
-  protected _contracts: Map<ChainName, WHContracts<this>>;
+export class WormholeContext extends ChainsManager {
   readonly conf: WormholeConfig;
 
   constructor(env: Environment, conf?: WormholeConfig) {
-    super();
+    super(env, conf);
 
     if (conf) {
       this.conf = conf;
     } else {
       this.conf = env === 'MAINNET' ? MAINNET_CONFIG : TESTNET_CONFIG;
     }
-
-    this._contracts = new Map();
-
-    for (const network of Object.keys(this.conf.rpcs)) {
-      const n =
-        env === 'MAINNET'
-          ? (network as MainnetChainName)
-          : (network as TestnetChainName);
-      const chains = env === 'MAINNET' ? MAINNET_CHAINS : TESTNET_CHAINS;
-      // register domain
-      this.registerDomain({
-        // @ts-ignore
-        domain: chains[n],
-        name: network,
-      });
-      // register RPC provider
-      if (this.conf.rpcs[n]) {
-        this.registerRpcProvider(network, this.conf.rpcs[n]!);
-      }
-      // set contracts
-      const contracts = new WHContracts(env, this, n);
-      this._contracts.set(n, contracts);
-    }
   }
 
   get environment(): string {
     return this.conf.env;
-  }
-
-  /**
-   * Register an ethers Provider for a specified domain.
-   *
-   * @param nameOrDomain A domain name or number.
-   * @param provider An ethers Provider to be used by requests to that domain.
-   */
-  registerProvider(
-    nameOrDomain: string | number,
-    provider: providers.Provider,
-  ): void {
-    const domain = this.resolveDomain(nameOrDomain);
-    super.registerProvider(domain, provider);
-  }
-
-  /**
-   * Register an ethers Signer for a specified domain.
-   *
-   * @param nameOrDomain A domain name or number.
-   * @param signer An ethers Signer to be used by requests to that domain.
-   */
-  registerSigner(nameOrDomain: string | number, signer: Signer): void {
-    const domain = this.resolveDomain(nameOrDomain);
-    super.registerSigner(domain, signer);
-  }
-
-  /**
-   * Remove the registered ethers Signer from a domain. This function will
-   * attempt to preserve any Provider that was previously connected to this
-   * domain.
-   *
-   * @param nameOrDomain A domain name or number.
-   */
-  unregisterSigner(nameOrDomain: string | number): void {
-    const domain = this.resolveDomain(nameOrDomain);
-    super.unregisterSigner(domain);
-  }
-
-  /**
-   * Clear all signers from all registered domains.
-   */
-  clearSigners(): void {
-    super.clearSigners();
-  }
-
-  /**
-   * Get the contracts for a given domain (or undefined)
-   *
-   * @param nameOrDomain A domain name or number.
-   * @returns a {@link CoreContracts} object (or undefined)
-   */
-  getContracts(chain: ChainName | ChainId): WHContracts<this> | undefined {
-    const domain = this.resolveDomainName(chain) as ChainName;
-    return this._contracts.get(domain);
-  }
-
-  /**
-   * Get the {@link CoreContracts} for a given domain (or throw an error)
-   *
-   * @param nameOrDomain A domain name or number.
-   * @returns a {@link CoreContracts} object
-   * @throws if no {@link CoreContracts} object exists on that domain.
-   */
-  mustGetContracts(chain: ChainName | ChainId): WHContracts<this> {
-    const contracts = this.getContracts(chain);
-    if (!contracts) {
-      throw new Error(`Missing contracts for domain: ${chain}`);
-    }
-    return contracts;
-  }
-
-  getCore(chain: ChainName | ChainId): Wormhole | undefined {
-    const contracts = this.mustGetContracts(chain);
-    return contracts.core;
-  }
-
-  mustGetCore(chain: ChainName | ChainId): Wormhole {
-    const coreContract = this.getCore(chain);
-    if (!coreContract)
-      throw new Error(`Wormhole core contract not found for ${chain}`);
-    return coreContract;
-  }
-
-  getBridge(chain: ChainName | ChainId): Bridge | undefined {
-    const contracts = this.mustGetContracts(chain);
-    return contracts.bridge;
-  }
-
-  mustGetBridge(chain: ChainName | ChainId): Bridge {
-    const bridgeContract = this.getBridge(chain);
-    if (!bridgeContract)
-      throw new Error(`Token bridge contract not found for ${chain}`);
-    return bridgeContract;
-  }
-
-  getNftBridge(chain: ChainName | ChainId): NFTBridge | undefined {
-    const contracts = this.mustGetContracts(chain);
-    return contracts.nftBridge;
-  }
-
-  mustGetNftBridge(chain: ChainName | ChainId): NFTBridge {
-    const nftBridgeContract = this.getNftBridge(chain);
-    if (!nftBridgeContract)
-      throw new Error(`NFT bridge contract not found for ${chain}`);
-    return nftBridgeContract;
-  }
-
-  getTBRelayer(chain: ChainName | ChainId): TokenBridgeRelayer | undefined {
-    const contracts = this.mustGetContracts(chain);
-    return contracts.tokenBridgeRelayer;
-  }
-
-  mustGetTBRelayer(chain: ChainName | ChainId): TokenBridgeRelayer {
-    const relayerContract = this.getTBRelayer(chain);
-    if (!relayerContract)
-      throw new Error(`Token Bridge Relayer contract not found for ${chain}`);
-    return relayerContract;
-  }
-
-  getContext(chain: ChainName | ChainId): AnyContext {
-    const chainName = this.resolveDomainName(chain) as ChainName;
-    const { context } = this.conf.chains[chainName]!;
-    switch (context) {
-      case Context.ETH: {
-        return new EthContext(this);
-      }
-      case Context.SOLANA: {
-        return new SolanaContext(this);
-      }
-      default: {
-        throw new Error('Not able to retrieve context');
-      }
-    }
   }
 
   async getNativeBalance(

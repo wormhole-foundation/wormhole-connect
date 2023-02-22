@@ -22,7 +22,6 @@ const getRows = (
 ): RowsData => {
   const receivingToken = token.wrappedAsset || token.symbol;
 
-  // TODO: calculate automatic receive amount
   if (payment === PaymentOption.AUTOMATIC) {
     return [
       {

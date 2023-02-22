@@ -1,9 +1,11 @@
 import { BigNumber, BigNumberish } from 'ethers';
-import { ParsedMessage, ParsedRelayerMessage } from '../types';
+import { AnyContracts, ParsedMessage, ParsedRelayerMessage } from '../types';
 import { TokenId, ChainName, ChainId } from '../types';
 
 // template for different environment contexts
 export abstract class BridgeAbstract {
+  protected abstract contracts: AnyContracts;
+
   /**
    * These operations have to be implemented in subclasses.
    */
@@ -61,6 +63,10 @@ export abstract class BridgeAbstract {
     signedVAA: Uint8Array,
     overrides: any,
   ): Promise<any>;
+  protected abstract isTransferCompleted(
+    destChain: ChainName | ChainId,
+    signedVaaHash: string,
+  ): Promise<boolean>;
 }
 
 export abstract class RelayerAbstract extends BridgeAbstract {

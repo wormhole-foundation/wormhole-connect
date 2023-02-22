@@ -8,36 +8,43 @@ export const TESTNET_NETWORKS: NetworksConfig = {
     ...chains.goerli!,
     icon: 'eth',
     nativeToken: 'ETH',
+    automaticRelayer: true,
   },
   mumbai: {
     ...chains.mumbai!,
     icon: 'polygon',
     nativeToken: 'MATIC',
+    automaticRelayer: true,
   },
   bsc: {
     ...chains.bsc!,
     icon: 'bsc',
     nativeToken: 'BNB',
+    automaticRelayer: true,
   },
   fuji: {
     ...chains.fuji!,
     icon: 'avax',
     nativeToken: 'AVAX',
+    automaticRelayer: true,
   },
   fantom: {
     ...chains.fantom!,
     icon: 'fantom',
     nativeToken: 'FTM',
+    automaticRelayer: true,
   },
   alfajores: {
     ...chains.alfajores!,
     icon: 'celo',
     nativeToken: 'CELO',
+    automaticRelayer: true,
   },
   solana: {
     ...chains.solana!,
     icon: 'solana',
     nativeToken: 'SOL',
+    automaticRelayer: false,
   },
 };
 
@@ -176,7 +183,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     nativeNetwork: 'solana',
     icon: 'solana',
     coinGeckoId: 'solana',
-    color: 'purple',
+    color: '#8457EF',
     decimals: 9,
     wrappedAsset: 'WSOL',
   },
@@ -189,7 +196,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     },
     icon: 'solana',
     coinGeckoId: 'solana',
-    color: 'purple',
+    color: '#8457EF',
     decimals: 9,
   },
 };
