@@ -13,6 +13,7 @@ import {
   PayableOverrides,
 } from 'ethers';
 import { arrayify, zeroPad } from 'ethers/lib/utils';
+
 import { RelayerAbstract } from './abstracts';
 import {
   TokenId,
@@ -22,8 +23,8 @@ import {
   ParsedRelayerMessage,
   ParsedMessage,
 } from '../types';
-import { ChainsManager } from 'chainsManager';
-import { EthContracts } from 'contracts/ethContracts';
+import { ChainsManager } from '../chainsManager';
+import { EthContracts } from '../contracts/ethContracts';
 
 export class EthContext<T extends ChainsManager> extends RelayerAbstract {
   protected contracts: EthContracts<T>;

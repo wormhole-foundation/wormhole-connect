@@ -1,4 +1,4 @@
-import { ChainsManager } from 'chainsManager';
+import { ChainsManager } from '../chainsManager';
 import { ChainName, ChainId } from '../types';
 
 export abstract class ContractsAbstract<T extends ChainsManager> {

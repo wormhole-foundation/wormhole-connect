@@ -1,4 +1,3 @@
-import { providers, Signer } from 'ethers';
 import { Network as Environment } from '@certusone/wormhole-sdk';
 import { MultiProvider, Domain } from '@nomad-xyz/multi-provider';
 
@@ -51,50 +50,6 @@ export class ChainsManager extends MultiProvider<Domain> {
 
   get environment(): string {
     return this.conf.env;
-  }
-
-  /**
-   * Register an ethers Provider for a specified domain.
-   *
-   * @param nameOrDomain A domain name or number.
-   * @param provider An ethers Provider to be used by requests to that domain.
-   */
-  registerProvider(
-    nameOrDomain: string | number,
-    provider: providers.Provider,
-  ): void {
-    const domain = this.resolveDomain(nameOrDomain);
-    super.registerProvider(domain, provider);
-  }
-
-  /**
-   * Register an ethers Signer for a specified domain.
-   *
-   * @param nameOrDomain A domain name or number.
-   * @param signer An ethers Signer to be used by requests to that domain.
-   */
-  registerSigner(nameOrDomain: string | number, signer: Signer): void {
-    const domain = this.resolveDomain(nameOrDomain);
-    super.registerSigner(domain, signer);
-  }
-
-  /**
-   * Remove the registered ethers Signer from a domain. This function will
-   * attempt to preserve any Provider that was previously connected to this
-   * domain.
-   *
-   * @param nameOrDomain A domain name or number.
-   */
-  unregisterSigner(nameOrDomain: string | number): void {
-    const domain = this.resolveDomain(nameOrDomain);
-    super.unregisterSigner(domain);
-  }
-
-  /**
-   * Clear all signers from all registered domains.
-   */
-  clearSigners(): void {
-    super.clearSigners();
   }
 
   getContext(chain: ChainName | ChainId): AnyContext {

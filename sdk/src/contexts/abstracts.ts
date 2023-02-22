@@ -1,6 +1,12 @@
 import { BigNumber, BigNumberish } from 'ethers';
-import { AnyContracts, ParsedMessage, ParsedRelayerMessage } from '../types';
-import { TokenId, ChainName, ChainId } from '../types';
+import {
+  AnyContracts,
+  ParsedMessage,
+  ParsedRelayerMessage,
+  TokenId,
+  ChainName,
+  ChainId,
+} from '../types';
 
 // template for different environment contexts
 export abstract class BridgeAbstract {

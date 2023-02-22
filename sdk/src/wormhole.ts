@@ -1,14 +1,14 @@
 import { ContractReceipt, BigNumber } from 'ethers';
 import { Network as Environment } from '@certusone/wormhole-sdk';
 import { MultiProvider } from '@nomad-xyz/multi-provider';
+import { Transaction } from '@solana/web3.js';
 
 import MAINNET_CONFIG from './config/MAINNET';
 import TESTNET_CONFIG from './config/TESTNET';
 import { WormholeConfig, ChainName, ChainId } from './types';
 import { TokenId } from './types';
 import { EthContext } from './contexts/ethContext';
-import { Transaction } from '@solana/web3.js';
-import { ChainsManager } from 'chainsManager';
+import { ChainsManager } from './chainsManager';
 
 /**
  * The WormholeContext manages connections to Wormhole Core, Bridge and NFT Bridge contracts.

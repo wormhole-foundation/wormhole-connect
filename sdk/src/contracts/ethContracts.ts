@@ -4,12 +4,13 @@ import {
   Bridge,
   NFTBridge,
 } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
+
 import { ChainName, ChainId, Contracts, Context } from '../types';
 import { TokenBridgeRelayer } from '../abis/TokenBridgeRelayer';
 import { TokenBridgeRelayer__factory } from '../abis/TokenBridgeRelayer__factory';
 import { ContractsAbstract } from './abstracts';
-import { ChainsManager } from 'chainsManager';
-import { filterByContext } from 'utils';
+import { ChainsManager } from '../chainsManager';
+import { filterByContext } from '../utils';
 
 export class EthContracts<
   T extends ChainsManager,

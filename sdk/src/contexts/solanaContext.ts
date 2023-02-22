@@ -33,8 +33,9 @@ import {
 } from '@certusone/wormhole-sdk/lib/cjs/solana/tokenBridge';
 import { deriveWormholeEmitterKey } from '@certusone/wormhole-sdk/lib/cjs/solana/wormhole';
 import { BigNumber, BigNumberish, constants } from 'ethers';
-import { SolContracts } from 'contracts/solContracts';
-import { ChainsManager } from 'chainsManager';
+
+import { SolContracts } from '../contracts/solContracts';
+import { ChainsManager } from '../chainsManager';
 
 export class SolanaContext<T extends ChainsManager> extends BridgeAbstract {
   protected contracts: SolContracts<T>;

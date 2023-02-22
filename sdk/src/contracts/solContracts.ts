@@ -1,15 +1,15 @@
-import { ChainName, ChainId, Contracts, Context } from '../types';
-import { TokenBridgeRelayer } from '../abis/TokenBridgeRelayer';
-import { ContractsAbstract } from './abstracts';
 import { Connection, clusterApiUrl } from '@solana/web3.js';
 import { Program } from '@project-serum/anchor';
-
-// import IDL from "../../anchor-idl/token_bridge.json";
 import { TokenBridge } from '@certusone/wormhole-sdk/lib/cjs/solana/types/tokenBridge';
 import { NftBridge } from '@certusone/wormhole-sdk/lib/cjs/solana/types/nftBridge';
 import { Wormhole } from '@certusone/wormhole-sdk/lib/cjs/solana/types/wormhole';
-import { ChainsManager } from 'chainsManager';
-import { filterByContext } from 'utils';
+
+import { ChainName, ChainId, Contracts, Context } from '../types';
+import { TokenBridgeRelayer } from '../abis/TokenBridgeRelayer';
+import { ContractsAbstract } from './abstracts';
+import { ChainsManager } from '../chainsManager';
+import { filterByContext } from '../utils';
+// import IDL from "../../anchor-idl/token_bridge.json";
 // import { coder } from '@certusone/wormhole-sdk/lib/cjs/solana/tokenBridge';
 
 export class SolContracts<
