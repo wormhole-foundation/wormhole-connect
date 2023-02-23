@@ -3,6 +3,8 @@ import { makeStyles } from 'tss-react/mui';
 import Collapse from '@mui/material/Collapse';
 import Down from '../../icons/components/Down';
 import { joinClass, LINK } from '../../utils/style';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -78,7 +80,12 @@ function BridgeCollapse(props: Props) {
   const [collapsed, setCollapsed] = React.useState(props.close || false);
   const toggleCollapsed = () =>
     !props.disabled && setCollapsed((prev) => !prev);
-  const collapsedState = props.controlled ? props.value : collapsed;
+  const relayAvail = useSelector(
+    (state: RootState) => state.transfer.automaticRelayAvail,
+  );
+  const controlled = !relayAvail || props.controlled;
+  const collapsedState = controlled ? props.value : collapsed;
+
   return (
     <div className={classes.container}>
       <div

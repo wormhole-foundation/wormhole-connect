@@ -77,9 +77,8 @@ function GasOptions(props: { disabled: boolean }) {
   const selectedOption = useSelector(
     (state: RootState) => state.transfer.destGasPayment,
   );
-  const token = useSelector((state: RootState) => state.transfer.token);
-  const destination = useSelector(
-    (state: RootState) => state.transfer.toNetwork,
+  const { token, toNetwork } = useSelector(
+    (state: RootState) => state.transfer,
   );
   const active =
     selectedOption && selectedOption === PaymentOption.AUTOMATIC ? 0 : 1;
@@ -95,7 +94,7 @@ function GasOptions(props: { disabled: boolean }) {
   });
 
   useEffect(() => {
-    const destConfig = destination && CHAINS[destination];
+    const destConfig = toNetwork && CHAINS[toNetwork];
     if (token && destConfig) {
       const description =
         selectedOption === PaymentOption.AUTOMATIC
@@ -103,7 +102,7 @@ function GasOptions(props: { disabled: boolean }) {
           : `Pay with ${token} & ${destConfig!.nativeToken}`;
       setState({ options: getOptions(destConfig, token), description });
     }
-  }, [token, selectedOption, destination]);
+  }, [token, selectedOption, toNetwork]);
 
   return (
     <BridgeCollapse

@@ -2,7 +2,13 @@ import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { RootState } from '../../store';
-import { PaymentOption, setBalance, formatBalance } from '../../store/transfer';
+import {
+  PaymentOption,
+  setBalance,
+  formatBalance,
+  setAutomaticRelayAvail,
+  setDestGasPayment,
+} from '../../store/transfer';
 
 import Header from '../../components/Header';
 import Spacer from '../../components/Spacer';
@@ -18,7 +24,7 @@ import { useDispatch } from 'react-redux';
 import { getNativeBalance } from '../../sdk/sdk';
 import { CHAINS, TOKENS } from '../../sdk/config';
 
-const useStyles = makeStyles()((theme) => ({
+const useStyles = makeStyles()(() => ({
   bridgeContent: {
     margin: 'auto',
     maxWidth: '650px',
@@ -39,9 +45,14 @@ const useStyles = makeStyles()((theme) => ({
 function Bridge() {
   const { classes } = useStyles();
   const dispatch = useDispatch();
-  const { fromNetwork, toNetwork, amount, token, destGasPayment } = useSelector(
-    (state: RootState) => state.transfer,
-  );
+  const {
+    fromNetwork,
+    toNetwork,
+    amount,
+    token,
+    destGasPayment,
+    automaticRelayAvail,
+  } = useSelector((state: RootState) => state.transfer);
   const { sending, receiving } = useSelector(
     (state: RootState) => state.wallet,
   );
@@ -56,6 +67,19 @@ function Bridge() {
       dispatch(setBalance(formatBalance(tokenConfig, res)));
     });
   }, [toNetwork, receiving.address]);
+
+  useEffect(() => {
+    if (!fromNetwork || !toNetwork) return;
+    const fromConfig = CHAINS[fromNetwork]!;
+    const toConfig = CHAINS[toNetwork]!;
+    if (fromConfig.automaticRelayer && toConfig.automaticRelayer) {
+      dispatch(setAutomaticRelayAvail(true));
+      dispatch(setDestGasPayment(PaymentOption.AUTOMATIC));
+    } else {
+      dispatch(setAutomaticRelayAvail(false));
+      dispatch(setDestGasPayment(PaymentOption.MANUAL));
+    }
+  }, [fromNetwork, toNetwork]);
 
   const valid =
     fromNetwork &&
@@ -76,13 +100,16 @@ function Bridge() {
       <Networks />
       <Spacer />
 
-      <GasOptions disabled={!valid} />
-      <Spacer />
-
-      <Collapse in={destGasPayment === PaymentOption.AUTOMATIC}>
-        <GasSlider disabled={!valid} />
-        <Spacer />
-      </Collapse>
+      {automaticRelayAvail && (
+        <>
+          <GasOptions disabled={!valid} />
+          <Spacer />
+          <Collapse in={destGasPayment === PaymentOption.AUTOMATIC}>
+            <GasSlider disabled={!valid} />
+            <Spacer />
+          </Collapse>
+        </>
+      )}
 
       <Preview collapsed={!valid} />
       <Spacer />

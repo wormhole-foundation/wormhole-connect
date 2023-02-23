@@ -11,50 +11,55 @@ import { toDecimals, toFixedDecimals } from '../../utils/balance';
 import { getRelayerFee } from '../../sdk/sdk';
 import { useDispatch } from 'react-redux';
 
-const getRows = (
+const getAutomaticRows = (
   token: TokenConfig,
   gasToken: string,
-  payment: PaymentOption,
   amount: number,
   nativeTokenAmt: number,
   receiveNativeAmt: number,
   relayerFee: number,
 ): RowsData => {
   const receivingToken = token.wrappedAsset || token.symbol;
+  return [
+    {
+      title: 'Amount',
+      value: `${toFixedDecimals(
+        `${amount - nativeTokenAmt}`,
+        6,
+      )} ${receivingToken}`,
+    },
+    {
+      title: 'Native token on destination',
+      value: `${receiveNativeAmt} ${gasToken}`,
+    },
+    {
+      title: 'Total fee estimate',
+      value: `TODO ${token.symbol}`,
+      rows: [
+        {
+          title: 'Relayer fee',
+          value: `${relayerFee} ${token.symbol}`,
+        },
+        {
+          title: 'Source chain gas estimate',
+          value: `~ TODO ${token.symbol}`,
+        },
+        {
+          title: 'Destination chain gas estimate',
+          value: `~ TODO ${token.symbol}`,
+        },
+      ],
+    },
+  ];
+};
 
-  if (payment === PaymentOption.AUTOMATIC) {
-    return [
-      {
-        title: 'Amount',
-        value: `${toFixedDecimals(
-          `${amount - nativeTokenAmt}`,
-          6,
-        )} ${receivingToken}`,
-      },
-      {
-        title: 'Native token on destination',
-        value: `${receiveNativeAmt} ${gasToken}`,
-      },
-      {
-        title: 'Total fee estimate',
-        value: `TODO ${token.symbol}`,
-        rows: [
-          {
-            title: 'Relayer fee',
-            value: `${relayerFee} ${token.symbol}`,
-          },
-          {
-            title: 'Source chain gas estimate',
-            value: `~ TODO ${token.symbol}`,
-          },
-          {
-            title: 'Destination chain gas estimate',
-            value: `~ TODO ${token.symbol}`,
-          },
-        ],
-      },
-    ];
-  }
+const getManualRows = (
+  token: TokenConfig,
+  gasToken: string,
+  amount: number,
+): RowsData => {
+  const receivingToken = token.wrappedAsset || token.symbol;
+
   return [
     {
       title: 'Amount',
@@ -95,22 +100,26 @@ function Preview(props: { collapsed: boolean }) {
     const tokenConfig = token && TOKENS[token];
     if (!fromNetwork || !tokenConfig || !destConfig || !amount) return;
 
-    getRelayerFee(fromNetwork, toNetwork, token).then((fee) => {
-      const formattedFee = Number.parseFloat(
-        toDecimals(fee, tokenConfig.decimals, 6),
-      );
-      dispatch(setRelayerFee(formattedFee));
-      const rows = getRows(
-        tokenConfig,
-        destConfig!.nativeToken,
-        destGasPayment,
-        amount,
-        toNativeToken,
-        receiveNativeAmt || 0,
-        formattedFee,
-      );
+    if (destGasPayment === PaymentOption.MANUAL) {
+      const rows = getManualRows(tokenConfig, destConfig!.nativeToken, amount);
       setState({ rows });
-    });
+    } else {
+      getRelayerFee(fromNetwork, toNetwork, token).then((fee) => {
+        const formattedFee = Number.parseFloat(
+          toDecimals(fee, tokenConfig.decimals, 6),
+        );
+        dispatch(setRelayerFee(formattedFee));
+        const rows = getAutomaticRows(
+          tokenConfig,
+          destConfig!.nativeToken,
+          amount,
+          toNativeToken,
+          receiveNativeAmt || 0,
+          formattedFee,
+        );
+        setState({ rows });
+      });
+    }
   }, [
     token,
     fromNetwork,

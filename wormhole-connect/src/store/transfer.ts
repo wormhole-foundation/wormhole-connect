@@ -39,7 +39,6 @@ const initialState: TransferState = {
   automaticRelayAvail: false,
   token: '',
   amount: undefined,
-  // TODO: check if automatic is available once networks and token are selected
   destGasPayment: PaymentOption.MANUAL,
   maxSwapAmt: undefined,
   toNativeToken: 0,

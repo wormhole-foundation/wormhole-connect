@@ -45,7 +45,7 @@ export const MAINNET_NETWORKS: NetworksConfig = {
     icon: 'solana',
     nativeToken: 'SOL',
     automaticRelayer: false,
-  }
+  },
 };
 
 export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {

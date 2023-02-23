@@ -28,7 +28,7 @@ export function displayAddress(chain: ChainName, address: string): string {
       address.slice(address.length - 4, address.length)
     );
   } else {
-    return displayEvmAddress(address)
+    return displayEvmAddress(address);
   }
 }
 

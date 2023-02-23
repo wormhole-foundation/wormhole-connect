@@ -239,7 +239,10 @@ function TokensModal() {
                     </div>
                     <div className={classes.tokenRowAddress}>
                       {token.tokenId
-                        ? displayAddress(token.tokenId.chain, token.tokenId.address)
+                        ? displayAddress(
+                            token.tokenId.chain,
+                            token.tokenId.address,
+                          )
                         : 'Native'}
                     </div>
                   </div>
