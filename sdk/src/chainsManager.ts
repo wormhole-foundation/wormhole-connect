@@ -9,6 +9,7 @@ import {
   ChainId,
   Context,
   AnyContext,
+  Contracts,
 } from './types';
 import { EthContext } from './contexts/ethContext';
 import { SolanaContext } from './contexts/solanaContext';
@@ -50,6 +51,17 @@ export class ChainsManager extends MultiProvider<Domain> {
 
   get environment(): string {
     return this.conf.env;
+  }
+
+  getContracts(chain: ChainName | ChainId): Contracts | undefined {
+    const chainName = this.resolveDomainName(chain) as ChainName;
+    return this.conf.chains[chainName]?.contracts;
+  }
+
+  mustGetContracts(chain: ChainName | ChainId): Contracts {
+    const contracts = this.getContracts(chain);
+    if (!contracts) throw new Error(`no contracts found for ${chain}`);
+    return contracts;
   }
 
   getContext(chain: ChainName | ChainId): AnyContext {

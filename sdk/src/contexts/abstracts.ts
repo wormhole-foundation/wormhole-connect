@@ -35,8 +35,8 @@ export abstract class BridgeAbstract {
     payload: any,
   ): Promise<any>;
 
-  protected abstract formatAddress(address: string): string;
-  protected abstract parseAddress(address: string): string;
+  protected abstract formatAddress(address: string): any;
+  protected abstract parseAddress(address: any): string;
 
   protected abstract getForeignAsset(
     tokenId: TokenId,

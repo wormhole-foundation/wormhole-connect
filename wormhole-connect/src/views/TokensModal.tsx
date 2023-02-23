@@ -7,7 +7,7 @@ import { RootState } from '../store';
 import { TOKENS_ARR } from '../sdk/config';
 import { setTokensModal } from '../store/router';
 import { setToken, setBalance, formatBalance } from '../store/transfer';
-import { displayEvmAddress } from '../utils';
+import { displayAddress } from '../utils';
 import { CENTER, joinClass } from '../utils/style';
 import { getBalance, getNativeBalance } from '../sdk/sdk';
 
@@ -239,7 +239,7 @@ function TokensModal() {
                     </div>
                     <div className={classes.tokenRowAddress}>
                       {token.tokenId
-                        ? displayEvmAddress(token.tokenId.address)
+                        ? displayAddress(token.tokenId.chain, token.tokenId.address)
                         : 'Native'}
                     </div>
                   </div>

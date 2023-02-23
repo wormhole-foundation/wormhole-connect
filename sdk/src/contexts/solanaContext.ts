@@ -31,8 +31,8 @@ import {
   createTransferWrappedInstruction,
   createTransferWrappedWithPayloadInstruction,
 } from '@certusone/wormhole-sdk/lib/cjs/solana/tokenBridge';
-import { deriveWormholeEmitterKey } from '@certusone/wormhole-sdk/lib/cjs/solana/wormhole';
 import { BigNumber, BigNumberish, constants } from 'ethers';
+import { arrayify, zeroPad, hexlify } from 'ethers/lib/utils';
 
 import { SolContracts } from '../contracts/solContracts';
 import { ChainsManager } from '../chainsManager';
@@ -83,11 +83,12 @@ export class SolanaContext<T extends ChainsManager> extends BridgeAbstract {
       new PublicKey(walletAddress),
       { mint: new PublicKey(address) },
     );
+    if (!splToken.value[0]) return null;
     const balance = await this.connection.getTokenAccountBalance(
       splToken.value[0].pubkey,
     );
     console.log('token balance:', balance);
-    return BigNumber.from(balance);
+    return BigNumber.from(balance.value.amount);
   }
 
   private async transferNativeSol(
@@ -413,7 +414,7 @@ export class SolanaContext<T extends ChainsManager> extends BridgeAbstract {
   }
 
   formatAddress(address: PublicKeyInitData): string {
-    return deriveWormholeEmitterKey(address).toBuffer().toString('hex');
+    return hexlify(zeroPad(new PublicKey(address).toBytes(), 32));
   }
 
   // TODO:
@@ -422,18 +423,19 @@ export class SolanaContext<T extends ChainsManager> extends BridgeAbstract {
     return address;
   }
 
-  // TODO:
   async getForeignAsset(tokenId: TokenId, chain: ChainName | ChainId) {
     if (!this.connection) throw new Error('no connection');
     // const tokenBridge = this.context.mustGetBridge(chain);
-    const contracts = this.contracts.mustGetContracts(chain);
+    const contracts = this.context.mustGetContracts(chain);
     if (!contracts.token_bridge) throw new Error('contracts not found');
     const chainId = this.context.resolveDomain(tokenId.chain) as ChainId;
+    const tokenContext = this.context.getContext(tokenId.chain);
+    const formattedAddr = tokenContext.formatAddress(tokenId.address);
     const addr = await getForeignAssetSolana(
       this.connection,
       contracts.token_bridge,
       chainId,
-      Buffer.from(tokenId.address, 'hex'),
+      arrayify(formattedAddr),
     );
     if (!addr) throw new Error('token not found');
     return addr;

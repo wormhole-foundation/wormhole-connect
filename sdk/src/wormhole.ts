@@ -51,8 +51,9 @@ export class WormholeContext extends ChainsManager {
     }
   }
 
-  get environment(): string {
-    return this.conf.env;
+  async getForeignAsset(tokenId: TokenId, chain: ChainName | ChainId) {
+    const context = this.getContext(chain);
+    return await context.getForeignAsset(tokenId, chain);
   }
 
   async getNativeBalance(
@@ -165,7 +166,7 @@ export class WormholeContext extends ChainsManager {
     return await context.redeem(destChain, signedVAA, overrides);
   }
 
-  formatAddress(address: any, chain: ChainName | ChainId): string {
+  formatAddress(address: string, chain: ChainName | ChainId): any {
     const context = this.getContext(chain);
     return context.formatAddress(address);
   }

@@ -49,8 +49,7 @@ export const getForeignAsset = async (
   tokenId: TokenId,
   chain: ChainName | ChainId,
 ): Promise<string> => {
-  const ethContext: any = wh.getContext(tokenId.chain);
-  return await ethContext.getForeignAsset(tokenId, chain);
+  return await wh.getForeignAsset(tokenId, chain);
 };
 
 export const getBalance = async (

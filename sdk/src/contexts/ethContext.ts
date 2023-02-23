@@ -12,7 +12,7 @@ import {
   Overrides,
   PayableOverrides,
 } from 'ethers';
-import { arrayify, zeroPad } from 'ethers/lib/utils';
+import { utils } from 'ethers';
 
 import { RelayerAbstract } from './abstracts';
 import {
@@ -43,10 +43,11 @@ export class EthContext<T extends ChainsManager> extends RelayerAbstract {
     if (toChainId === chainId) return tokenId.address;
     // else fetch the representation
     const tokenBridge = this.contracts.mustGetBridge(chain);
-    const tokenAddr = '0x' + this.formatAddress(tokenId.address);
+    const sourceContext = this.context.getContext(tokenId.chain);
+    const tokenAddr = sourceContext.formatAddress(tokenId.address);
     return await tokenBridge.wrappedAsset(
       chainId,
-      ethers.utils.arrayify(tokenAddr),
+      utils.arrayify(tokenAddr),
     );
   }
 
@@ -132,7 +133,7 @@ export class EthContext<T extends ChainsManager> extends RelayerAbstract {
       // sending native ETH
       const v = await bridge.wrapAndTransferETH(
         recipientChainId,
-        '0x' + this.formatAddress(recipientAddress),
+        this.formatAddress(recipientAddress),
         relayerFee,
         createNonce(),
         {
@@ -151,7 +152,7 @@ export class EthContext<T extends ChainsManager> extends RelayerAbstract {
         this.parseAddress(tokenAddr),
         amountBN,
         recipientChainId,
-        '0x' + this.formatAddress(recipientAddress),
+        this.formatAddress(recipientAddress),
         relayerFee,
         createNonce(),
         // overrides,
@@ -225,7 +226,7 @@ export class EthContext<T extends ChainsManager> extends RelayerAbstract {
     const amountBN = ethers.BigNumber.from(amount);
     const relayer = this.contracts.mustGetTokenBridgeRelayer(sendingChain);
     const nativeTokenBN = ethers.BigNumber.from(toNativeToken);
-    const formattedRecipient = `0x${this.formatAddress(recipientAddress)}`;
+    const formattedRecipient = this.formatAddress(recipientAddress);
     // const unwrapWeth = await relayer.unwrapWeth(); // TODO: check unwrapWeth flag
 
     if (token === NATIVE) {
@@ -317,8 +318,6 @@ export class EthContext<T extends ChainsManager> extends RelayerAbstract {
     const parsedLogs = bridgeLogs.map(async (bridgeLog) => {
       const parsed =
         Implementation__factory.createInterface().parseLog(bridgeLog);
-      // if (!contracts.relayer)
-      // throw new Error('relayer contract not found');
 
       const fromChain = this.context.resolveDomainName(chain) as ChainName;
       if (parsed.args.payload.startsWith('0x01')) {
@@ -403,12 +402,11 @@ export class EthContext<T extends ChainsManager> extends RelayerAbstract {
     return await tokenBridge.isTransferCompleted(signedVaaHash);
   }
 
-  formatAddress(address: string): string {
-    return Buffer.from(zeroPad(arrayify(address), 32)).toString('hex');
+  formatAddress(address: string): ethers.utils.BytesLike {
+    return Buffer.from(utils.zeroPad(address, 32));
   }
 
-  parseAddress(address: string): string {
-    if (address.length === 42) return address;
-    return '0x' + address.slice(26);
+  parseAddress(address: ethers.utils.BytesLike): string {
+    return utils.hexlify(utils.stripZeros(address));
   }
 }
