@@ -122,9 +122,7 @@ export class EthContext<T extends ChainsManager> extends RelayerAbstract {
     relayerFee: ethers.BigNumberish = 0,
     overrides?: PayableOverrides & { from?: string | Promise<string> },
   ): Promise<ethers.ContractReceipt> {
-    const isAddress = ethers.utils.isAddress(recipientAddress);
-    if (!isAddress)
-      throw new Error(`invalid recipient address: ${recipientAddress}`);
+    const destContext = this.context.getContext(recipientChain);
     const recipientChainId = this.context.resolveDomain(recipientChain);
     const amountBN = ethers.BigNumber.from(amount);
     const bridge = this.contracts.mustGetBridge(sendingChain);
@@ -133,7 +131,7 @@ export class EthContext<T extends ChainsManager> extends RelayerAbstract {
       // sending native ETH
       const v = await bridge.wrapAndTransferETH(
         recipientChainId,
-        this.formatAddress(recipientAddress),
+        destContext.formatAddress(recipientAddress),
         relayerFee,
         createNonce(),
         {
@@ -149,10 +147,10 @@ export class EthContext<T extends ChainsManager> extends RelayerAbstract {
       const tokenAddr = await this.getForeignAsset(token, sendingChain);
       await this.approve(sendingChain, bridge.address, tokenAddr, amountBN);
       const v = await bridge.transferTokens(
-        this.parseAddress(tokenAddr),
+        destContext.parseAddress(tokenAddr),
         amountBN,
         recipientChainId,
-        this.formatAddress(recipientAddress),
+        destContext.formatAddress(recipientAddress),
         relayerFee,
         createNonce(),
         // overrides,
@@ -172,9 +170,7 @@ export class EthContext<T extends ChainsManager> extends RelayerAbstract {
     payload: Uint8Array,
     overrides?: PayableOverrides & { from?: string | Promise<string> },
   ): Promise<ethers.ContractReceipt> {
-    const isAddress = ethers.utils.isAddress(recipientAddress);
-    if (!isAddress)
-      throw new Error(`invalid recipient address: ${recipientAddress}`);
+    const destContext = this.context.getContext(recipientChain);
     const recipientChainId = this.context.resolveDomain(recipientChain);
     const bridge = this.contracts.mustGetBridge(sendingChain);
     const amountBN = ethers.BigNumber.from(amount);
@@ -183,7 +179,7 @@ export class EthContext<T extends ChainsManager> extends RelayerAbstract {
       // sending native ETH
       const v = await bridge.wrapAndTransferETHWithPayload(
         recipientChainId,
-        recipientAddress,
+        destContext.formatAddress(recipientAddress),
         createNonce(),
         payload,
         {
@@ -197,10 +193,10 @@ export class EthContext<T extends ChainsManager> extends RelayerAbstract {
       const tokenAddr = await this.getForeignAsset(token, sendingChain);
       await this.approve(sendingChain, bridge.address, tokenAddr, amountBN);
       const v = await bridge.transferTokensWithPayload(
-        this.parseAddress(tokenAddr),
+        destContext.parseAddress(tokenAddr),
         amountBN,
         recipientChainId,
-        recipientAddress,
+        destContext.formatAddress(recipientAddress),
         createNonce(),
         payload,
         overrides,
