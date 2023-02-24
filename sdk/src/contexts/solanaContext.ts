@@ -1,8 +1,10 @@
 import {
   createNonce,
   getForeignAssetSolana,
-  hexToUint8Array,
 } from '@certusone/wormhole-sdk';
+import { createReadOnlyTokenBridgeProgramInterface } from '@certusone/wormhole-sdk/lib/cjs/solana/tokenBridge/program';
+import { getTransferWrappedAccounts } from '@certusone/wormhole-sdk/lib/cjs/solana/tokenBridge/instructions/transferWrapped';
+import { getTransferNativeAccounts } from '@certusone/wormhole-sdk/lib/cjs/solana/tokenBridge/instructions/transferNative';
 import { BridgeAbstract } from './abstracts';
 import { TokenId, ChainName, ChainId, NATIVE, ParsedMessage } from '../types';
 import {
@@ -21,21 +23,106 @@ import {
   PublicKey,
   PublicKeyInitData,
   SystemProgram,
-  Transaction as SolanaTransaction,
-  // AccountInfo,
+  Transaction,
+  TransactionInstruction,
 } from '@solana/web3.js';
+import { Program } from "@project-serum/anchor";
 import {
   createApproveAuthoritySignerInstruction,
-  createTransferNativeInstruction,
-  createTransferNativeWithPayloadInstruction,
-  createTransferWrappedInstruction,
-  createTransferWrappedWithPayloadInstruction,
 } from '@certusone/wormhole-sdk/lib/cjs/solana/tokenBridge';
 import { BigNumber, BigNumberish, constants } from 'ethers';
-import { arrayify, zeroPad, hexlify } from 'ethers/lib/utils';
+import {
+  arrayify,
+  zeroPad,
+  hexlify,
+  stripZeros,
+} from 'ethers/lib/utils';
 
 import { SolContracts } from '../contracts/solContracts';
 import { ChainsManager } from '../chainsManager';
+import { TokenBridge } from '@certusone/wormhole-sdk/lib/cjs/solana/types/tokenBridge';
+
+export function createTransferNativeInstruction(
+  tokenBridgeProgram: Program<TokenBridge>,
+  wormholeProgramId: PublicKeyInitData,
+  payer: PublicKeyInitData,
+  message: PublicKeyInitData,
+  from: PublicKeyInitData,
+  mint: PublicKeyInitData,
+  nonce: number,
+  amount: bigint,
+  fee: bigint,
+  targetAddress: Buffer | Uint8Array,
+  targetChain: number
+): TransactionInstruction {
+  const methods = tokenBridgeProgram.methods.transferNative(
+    nonce,
+    amount as any,
+    fee as any,
+    Buffer.from(targetAddress) as any,
+    targetChain
+  );
+  // @ts-ignore
+  return methods._ixFn(...methods._args, {
+    accounts: getTransferNativeAccounts(
+      tokenBridgeProgram.programId,
+      wormholeProgramId,
+      payer,
+      message,
+      from,
+      mint
+    ) as any,
+    signers: undefined,
+    remainingAccounts: undefined,
+    preInstructions: undefined,
+    postInstructions: undefined,
+  });
+}
+
+export function createTransferWrappedInstruction(
+  tokenBridgeProgramId: PublicKeyInitData,
+  wormholeProgramId: PublicKeyInitData,
+  payer: PublicKeyInitData,
+  message: PublicKeyInitData,
+  from: PublicKeyInitData,
+  fromOwner: PublicKeyInitData,
+  tokenChain: number,
+  tokenAddress: Buffer | Uint8Array,
+  nonce: number,
+  amount: bigint,
+  fee: bigint,
+  targetAddress: Buffer | Uint8Array,
+  targetChain: number
+): TransactionInstruction {
+  const methods = createReadOnlyTokenBridgeProgramInterface(
+    tokenBridgeProgramId,
+    new Connection(clusterApiUrl('devnet'))
+  ).methods.transferWrapped(
+    nonce,
+    amount as any,
+    fee as any,
+    Buffer.from(targetAddress) as any,
+    targetChain
+  );
+
+  // @ts-ignore
+  return methods._ixFn(...methods._args, {
+    accounts: getTransferWrappedAccounts(
+      tokenBridgeProgramId,
+      wormholeProgramId,
+      payer,
+      message,
+      from,
+      fromOwner,
+      tokenChain,
+      tokenAddress
+    ) as any,
+    signers: undefined,
+    remainingAccounts: undefined,
+    preInstructions: undefined,
+    postInstructions: undefined,
+  });
+}
 
 export class SolanaContext<T extends ChainsManager> extends BridgeAbstract {
   protected contracts: SolContracts<T>;
@@ -87,14 +174,19 @@ export class SolanaContext<T extends ChainsManager> extends BridgeAbstract {
     const balance = await this.connection.getTokenAccountBalance(
       splToken.value[0].pubkey,
     );
-    console.log('token balance:', balance);
+
+    // // get token decimals and format amount
+    // let mint = await this.connection.getParsedAccountInfo(
+    //   new PublicKey(address),
+    // );
+    // if (!mint) throw new Error('could not fetch token details');
+    // const { decimals } = (mint as any).value.data.parsed.info;
+    // console.log(balance.value.amount, decimals)
+    // return parseUnits(balance.value.amount, decimals);
     return BigNumber.from(balance.value.amount);
   }
 
   private async transferNativeSol(
-    connection: Connection,
-    coreAddress: string,
-    tokenBridgeAddress: string,
     senderAddress: PublicKeyInitData,
     amount: bigint,
     recipientChain: ChainId | ChainName,
@@ -102,9 +194,10 @@ export class SolanaContext<T extends ChainsManager> extends BridgeAbstract {
     relayerFee?: bigint,
     payload?: Uint8Array | Buffer,
     commitment?: Commitment,
-  ): Promise<SolanaTransaction> {
+  ): Promise<Transaction> {
+    if (!this.connection) throw new Error('no connection');
     const rentBalance = await getMinimumBalanceForRentExemptAccount(
-      connection,
+      this.connection,
       commitment,
     );
     const payerPublicKey = new PublicKey(senderAddress);
@@ -132,9 +225,10 @@ export class SolanaContext<T extends ChainsManager> extends BridgeAbstract {
       payerPublicKey,
     );
 
+    const tokenBridge = this.contracts.mustGetBridge();
     //Normal approve & transfer instructions, except that the wSOL is sent from the ancillary account.
     const approvalIx = createApproveAuthoritySignerInstruction(
-      tokenBridgeAddress,
+      tokenBridge.programId,
       ancillaryKeypair.publicKey,
       payerPublicKey,
       amount,
@@ -142,33 +236,20 @@ export class SolanaContext<T extends ChainsManager> extends BridgeAbstract {
 
     const message = Keypair.generate();
     const nonce = createNonce().readUInt32LE(0);
-    const tokenBridgeTransferIx = payload
-      ? createTransferNativeWithPayloadInstruction(
-          tokenBridgeAddress,
-          coreAddress,
-          senderAddress,
-          message.publicKey,
-          ancillaryKeypair.publicKey,
-          NATIVE_MINT,
-          nonce,
-          amount,
-          Buffer.from(recipientAddress),
-          this.context.resolveDomain(recipientChain),
-          payload,
-        )
-      : createTransferNativeInstruction(
-          tokenBridgeAddress,
-          coreAddress,
-          senderAddress,
-          message.publicKey,
-          ancillaryKeypair.publicKey,
-          NATIVE_MINT,
-          nonce,
-          amount,
-          relayerFee || BigInt(0),
-          Buffer.from(recipientAddress),
-          this.context.resolveDomain(recipientChain),
-        );
+    const core = this.contracts.mustGetCore();
+    const tokenBridgeTransferIx = createTransferNativeInstruction(
+      tokenBridge,
+      core.programId,
+      senderAddress,
+      message.publicKey,
+      ancillaryKeypair.publicKey,
+      NATIVE_MINT,
+      nonce,
+      amount,
+      relayerFee || BigInt(0),
+      Buffer.from(recipientAddress),
+      this.context.toChainId(recipientChain),
+    );
 
     //Close the ancillary account for cleanup. Payer address receives any remaining funds
     const closeAccountIx = createCloseAccountInstruction(
@@ -177,8 +258,8 @@ export class SolanaContext<T extends ChainsManager> extends BridgeAbstract {
       payerPublicKey, //authority
     );
 
-    const { blockhash } = await connection.getLatestBlockhash(commitment);
-    const transaction = new SolanaTransaction();
+    const { blockhash } = await this.connection.getLatestBlockhash(commitment);
+    const transaction = new Transaction();
     transaction.recentBlockhash = blockhash;
     transaction.feePayer = payerPublicKey;
     transaction.add(
@@ -193,115 +274,66 @@ export class SolanaContext<T extends ChainsManager> extends BridgeAbstract {
     return transaction;
   }
 
-  private async transferFromSolana(
-    connection: Connection,
-    coreAddress: string,
-    tokenBridgeAddress: string,
-    sendingChain: ChainName | ChainId,
-    senderAddress: string,
-    amount: bigint,
-    recipientChain: ChainId | ChainName,
-    recipientAddress: Uint8Array | Buffer,
-    fromAddress: PublicKeyInitData, // token account pubkey, owned by fromOwner address
-    mintAddress: PublicKeyInitData, // token address
-    fromOwnerAddress?: PublicKeyInitData,
-    relayerFee?: bigint,
-    payload?: Uint8Array | Buffer,
-    commitment?: Commitment,
-  ): Promise<SolanaTransaction> {
-    const sendingChainId = this.context.resolveDomain(sendingChain) as ChainId;
-    const recipientChainId = this.context.resolveDomain(
-      recipientChain,
-    ) as ChainId;
-    if (fromOwnerAddress === undefined) {
-      fromOwnerAddress = senderAddress;
-    }
-    const nonce = createNonce().readUInt32LE(0);
-    const approvalIx = createApproveAuthoritySignerInstruction(
-      tokenBridgeAddress,
-      fromAddress,
-      fromOwnerAddress,
-      amount,
-    );
-    const message = Keypair.generate();
-    const isSolanaNative =
-      sendingChainId === this.context.resolveDomain('solana');
-    if (!isSolanaNative && !senderAddress) {
-      return Promise.reject(
-        'originAddress is required when specifying originChain',
-      );
-    }
-    const tokenBridgeTransferIx = isSolanaNative
-      ? // native transfers
-        payload
-        ? createTransferNativeWithPayloadInstruction(
-            tokenBridgeAddress,
-            coreAddress,
-            senderAddress,
-            message.publicKey,
-            fromAddress,
-            mintAddress,
-            nonce,
-            amount,
-            recipientAddress,
-            recipientChainId,
-            payload,
-          )
-        : createTransferNativeInstruction(
-            tokenBridgeAddress,
-            coreAddress,
-            senderAddress,
-            message.publicKey,
-            fromAddress,
-            mintAddress,
-            nonce,
-            amount,
-            relayerFee || BigInt(0),
-            recipientAddress,
-            recipientChainId,
-          )
-      : // non-native transfers
-      payload
-      ? createTransferWrappedWithPayloadInstruction(
-          tokenBridgeAddress,
-          coreAddress,
-          senderAddress,
-          message.publicKey,
-          fromAddress,
-          fromOwnerAddress,
-          sendingChainId,
-          hexToUint8Array(senderAddress),
-          nonce,
-          amount,
-          recipientAddress,
-          recipientChainId,
-          payload,
-        )
-      : createTransferWrappedInstruction(
-          tokenBridgeAddress,
-          coreAddress,
-          senderAddress,
-          message.publicKey,
-          fromAddress,
-          fromOwnerAddress,
-          sendingChainId,
-          hexToUint8Array(senderAddress),
-          nonce,
-          amount,
-          relayerFee || BigInt(0),
-          recipientAddress,
-          recipientChainId,
-        );
-    const transaction = new SolanaTransaction().add(
-      approvalIx,
-      tokenBridgeTransferIx,
-    );
-    const { blockhash } = await connection.getLatestBlockhash(commitment);
-    transaction.recentBlockhash = blockhash;
-    transaction.feePayer = new PublicKey(senderAddress);
-    transaction.partialSign(message);
-    return transaction;
-  }
+  // private async transferFromSolana(
+  //   connection: Connection,
+  //   coreAddress: string,
+  //   tokenBridgeAddress: string,
+  //   sendingChain: ChainName | ChainId,
+  //   senderAddress: string,
+  //   amount: bigint,
+  //   recipientChain: ChainId | ChainName,
+  //   recipientAddress: Uint8Array | Buffer,
+  //   fromAddress: PublicKeyInitData, // token account pubkey, owned by fromOwner address
+  //   mintAddress: Uint8Array, // token address
+  //   fromOwnerAddress?: PublicKeyInitData,
+  //   relayerFee?: bigint,
+  //   payload?: Uint8Array | Buffer,
+  //   commitment?: Commitment,
+  // ): Promise<Transaction> {
+  //   const sendingChainId = this.context.toChainId(sendingChain);
+  //   const recipientChainId = this.context.toChainId(recipientChain);
+  //   if (fromOwnerAddress === undefined) {
+  //     fromOwnerAddress = senderAddress;
+  //   }
+  //   const nonce = createNonce().readUInt32LE(0);
+  //   const approvalIx = createApproveAuthoritySignerInstruction(
+  //     tokenBridgeAddress,
+  //     fromAddress,
+  //     fromOwnerAddress,
+  //     amount,
+  //   );
+  //   const message = Keypair.generate();
+  //   const isSolanaNative = sendingChainId === this.context.toChainId('solana');
+  //   if (!isSolanaNative && !senderAddress) {
+  //     return Promise.reject(
+  //       'originAddress is required when specifying originChain',
+  //     );
+  //   }
+  //   const tokenBridgeTransferIx = createTransferWrappedInstruction(
+  //     tokenBridgeAddress,
+  //     coreAddress,
+  //     senderAddress,
+  //     message.publicKey,
+  //     fromAddress,
+  //     fromOwnerAddress,
+  //     recipientChainId,
+  //     mintAddress,
+  //     nonce,
+  //     amount,
+  //     relayerFee || BigInt(0),
+  //     recipientAddress,
+  //     recipientChainId,
+  //   );
+  //   const transaction = new Transaction().add(
+  //     approvalIx,
+  //     tokenBridgeTransferIx,
+  //   );
+  //   const { blockhash } = await connection.getLatestBlockhash(commitment);
+  //   transaction.recentBlockhash = blockhash;
+  //   transaction.feePayer = new PublicKey(senderAddress);
+  //   transaction.partialSign(message);
+  //   return transaction;
+  // }
 
   async send(
     token: TokenId | typeof NATIVE,
@@ -312,48 +344,43 @@ export class SolanaContext<T extends ChainsManager> extends BridgeAbstract {
     recipientAddress: string,
     relayerFee?: string,
     commitment?: Commitment,
-  ): Promise<SolanaTransaction> {
-    const networkName = this.context.resolveDomainName(
-      sendingChain,
-    ) as ChainName;
-    const rpc = this.context.conf.rpcs[networkName];
-    if (!rpc) throw new Error(`No connection available for ${networkName}`);
-    const connection = new Connection(rpc, 'confirmed');
-    const contracts = this.contracts.mustGetContracts(sendingChain);
-    if (!contracts.core || !contracts.token_bridge)
-      throw new Error('contracts not found');
-    // const coreAddress = this.context.mustGetCore(sendingChain).address;
-    // const tokenBridgeAddress = this.context.mustGetBridge(sendingChain).address;
-    const amountBN = BigInt(amount);
+  ): Promise<Transaction> {
+    const destContext = this.context.getContext(recipientChain);
+    const formattedRecipient = arrayify(
+      destContext.formatAddress(recipientAddress),
+    );
     const relayerFeeBN = relayerFee ? BigInt(relayerFee) : undefined;
+    const amountBN = BigNumber.from(amount).toBigInt();
 
     if (token === NATIVE) {
       return await this.transferNativeSol(
-        connection,
-        contracts.core,
-        contracts.token_bridge,
         senderAddress,
         amountBN,
         recipientChain,
-        hexToUint8Array(recipientAddress),
+        formattedRecipient,
         relayerFeeBN,
         undefined,
-        commitment,
+        'finalized',
       );
     } else {
-      return await this.transferFromSolana(
-        connection,
-        contracts.core,
-        contracts.token_bridge,
-        sendingChain,
-        senderAddress,
-        amountBN,
-        recipientChain,
-        hexToUint8Array(recipientAddress),
-        senderAddress,
-        token.address,
-        relayerFeeBN,
-      );
+      throw new Error('TODO:')
+      // const formattedTokenAddr = arrayify(destContext.formatAddress(token.address));
+      // return await this.transferFromSolana(
+      //   connection,
+      //   contracts.core,
+      //   contracts.token_bridge,
+      //   sendingChain,
+      //   senderAddress,
+      //   amountBN,
+      //   recipientChain,
+      //   formattedRecipient,
+      //   senderAddress,
+      //   formattedTokenAddr,
+      //   undefined,
+      //   relayerFeeBN,
+      //   undefined,
+      //   'finalized',
+      // );
     }
   }
 
@@ -366,50 +393,42 @@ export class SolanaContext<T extends ChainsManager> extends BridgeAbstract {
     recipientAddress: string,
     payload: Uint8Array | Buffer,
     commitment?: Commitment,
-  ): Promise<SolanaTransaction> {
-    const networkName = this.context.resolveDomainName(
-      sendingChain,
-    ) as ChainName;
-    const rpc = this.context.conf.rpcs[networkName];
-    if (!rpc) throw new Error(`No connection available for ${networkName}`);
-    const connection = new Connection(rpc, 'confirmed');
-    // const coreAddress = this.context.mustGetCore(sendingChain).address;
-    // const tokenBridgeAddress = this.context.mustGetBridge(sendingChain).address;
-    const contracts = this.contracts.mustGetContracts(sendingChain);
-    if (!contracts.core || !contracts.token_bridge)
-      throw new Error('contracts not found');
+  ): Promise<Transaction> {
     const amountBN = BigInt(amount);
+    const destContext = this.context.getContext(recipientChain);
+    const formattedRecipient = arrayify(
+      destContext.formatAddress(recipientAddress),
+    );
 
     if (token === NATIVE) {
       return await this.transferNativeSol(
-        connection,
-        contracts.core,
-        contracts.token_bridge,
         senderAddress,
         amountBN,
         recipientChain,
-        hexToUint8Array(recipientAddress),
+        formattedRecipient,
         undefined,
         payload,
-        commitment,
+        'finalized',
       );
     } else {
-      return await this.transferFromSolana(
-        connection,
-        contracts.core,
-        contracts.token_bridge,
-        sendingChain,
-        senderAddress,
-        amountBN,
-        recipientChain,
-        hexToUint8Array(recipientAddress),
-        senderAddress,
-        token.address,
-        undefined,
-        undefined,
-        payload,
-        commitment,
-      );
+      throw new Error('TODO:')
+      // const formattedTokenAddr = arrayify(destContext.formatAddress(token.address));
+      // return await this.transferFromSolana(
+      //   connection,
+      //   contracts.core,
+      //   contracts.token_bridge,
+      //   sendingChain,
+      //   senderAddress,
+      //   amountBN,
+      //   recipientChain,
+      //   formattedRecipient,
+      //   senderAddress,
+      //   formattedTokenAddr,
+      //   undefined,
+      //   undefined,
+      //   payload,
+      //   'finalized',
+      // );
     }
   }
 
@@ -417,10 +436,8 @@ export class SolanaContext<T extends ChainsManager> extends BridgeAbstract {
     return hexlify(zeroPad(new PublicKey(address).toBytes(), 32));
   }
 
-  // TODO:
   parseAddress(address: string): string {
-    console.log('not implemented');
-    return address;
+    return hexlify(stripZeros(address));
   }
 
   async getForeignAsset(tokenId: TokenId, chain: ChainName | ChainId) {
@@ -428,7 +445,7 @@ export class SolanaContext<T extends ChainsManager> extends BridgeAbstract {
     // const tokenBridge = this.context.mustGetBridge(chain);
     const contracts = this.context.mustGetContracts(chain);
     if (!contracts.token_bridge) throw new Error('contracts not found');
-    const chainId = this.context.resolveDomain(tokenId.chain) as ChainId;
+    const chainId = this.context.toChainId(tokenId.chain);
     const tokenContext = this.context.getContext(tokenId.chain);
     const formattedAddr = tokenContext.formatAddress(tokenId.address);
     const addr = await getForeignAssetSolana(
@@ -487,7 +504,7 @@ export class SolanaContext<T extends ChainsManager> extends BridgeAbstract {
     token: string,
     amount?: BigNumberish,
     overrides?: any,
-  ): Promise<SolanaTransaction | void> {
+  ): Promise<Transaction | void> {
     console.log(
       'not implemented',
       chain,

@@ -29,13 +29,13 @@ export class EthContracts<
   }
 
   getContracts(chain: ChainName | ChainId): Contracts | undefined {
-    const chainName = this.context.resolveDomainName(chain);
-    return this._contracts.get(chainName as ChainName);
+    const chainName = this.context.toChainName(chain);
+    return this._contracts.get(chainName);
   }
 
   mustGetContracts(chain: ChainName | ChainId): Contracts {
-    const chainName = this.context.resolveDomainName(chain);
-    const contracts = this._contracts.get(chainName as ChainName);
+    const chainName = this.context.toChainName(chain);
+    const contracts = this._contracts.get(chainName);
     if (!contracts) throw new Error(`no EVM contracts found for ${chain}`);
     return contracts;
   }

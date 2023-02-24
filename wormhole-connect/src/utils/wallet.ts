@@ -14,6 +14,7 @@ import {
 } from '@solana/wallet-adapter-wallets';
 import { clusterApiUrl, Connection as SolanaConnection } from '@solana/web3.js';
 import { SolanaWallet } from '@xlabs-libs/wallet-aggregator-solana';
+import { Transaction, ConfirmOptions } from '@solana/web3.js';
 import { registerSigner } from '../sdk/sdk';
 import { WalletType } from 'store/wallet';
 import { CHAINS_ARR } from 'sdk/config';
@@ -29,7 +30,7 @@ let walletConnection = {
   receiving: undefined as Wallet | undefined,
 };
 
-const url = clusterApiUrl('testnet');
+const url = clusterApiUrl('devnet');
 const connection = new SolanaConnection(url);
 
 export const wallets = {
@@ -85,4 +86,18 @@ export const disconnect = async (type: TransferWallet) => {
   const w = walletConnection[type]! as any;
   if (!w) throw new Error('not connected');
   await w.disconnect();
+};
+
+export const signSolanaTransaction = async (
+  transaction: Transaction,
+  options?: ConfirmOptions,
+) => {
+  const wallet = walletConnection.sending;
+  if (!wallet || !wallet.signAndSendTransaction) {
+    throw new Error('wallet.signAndSendTransaction is undefined');
+  }
+
+  const tx = await wallet?.signAndSendTransaction(transaction);
+  console.log(tx);
+  return tx;
 };

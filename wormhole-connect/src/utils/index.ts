@@ -52,8 +52,13 @@ export function getTokenById(tokenId: TokenId): TokenConfig | void {
   )[0];
 }
 
-export function getTokenDecimals(tokenId: TokenId | 'native'): number {
-  if (tokenId === 'native') return 18;
+export function getTokenDecimals(
+  chain: ChainName,
+  tokenId: TokenId | 'native',
+): number {
+  if (tokenId === 'native') {
+    return chain === 'solana' ? 9 : 18;
+  }
   const tokenConfig = getTokenById(tokenId);
   if (!tokenConfig) throw new Error('token config not found');
   return tokenConfig.decimals;

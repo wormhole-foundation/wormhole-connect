@@ -53,8 +53,16 @@ export class ChainsManager extends MultiProvider<Domain> {
     return this.conf.env;
   }
 
+  toChainId(nameOrId: string | number) {
+    return super.resolveDomain(nameOrId) as ChainId;
+  }
+
+  toChainName(nameOrId: string | number) {
+    return super.resolveDomainName(nameOrId) as ChainName;
+  }
+
   getContracts(chain: ChainName | ChainId): Contracts | undefined {
-    const chainName = this.resolveDomainName(chain) as ChainName;
+    const chainName = this.toChainName(chain);
     return this.conf.chains[chainName]?.contracts;
   }
 
@@ -65,7 +73,7 @@ export class ChainsManager extends MultiProvider<Domain> {
   }
 
   getContext(chain: ChainName | ChainId): AnyContext {
-    const chainName = this.resolveDomainName(chain) as ChainName;
+    const chainName = this.toChainName(chain);
     const { context } = this.conf.chains[chainName]!;
     switch (context) {
       case Context.ETH: {

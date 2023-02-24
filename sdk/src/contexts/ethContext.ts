@@ -37,18 +37,15 @@ export class EthContext<T extends ChainsManager> extends RelayerAbstract {
   }
 
   async getForeignAsset(tokenId: TokenId, chain: ChainName | ChainId) {
-    const toChainId = this.context.resolveDomain(chain);
-    const chainId = this.context.resolveDomain(tokenId.chain);
+    const toChainId = this.context.toChainId(chain);
+    const chainId = this.context.toChainId(tokenId.chain);
     // if the token is already native, return the token address
     if (toChainId === chainId) return tokenId.address;
     // else fetch the representation
     const tokenBridge = this.contracts.mustGetBridge(chain);
     const sourceContext = this.context.getContext(tokenId.chain);
     const tokenAddr = sourceContext.formatAddress(tokenId.address);
-    return await tokenBridge.wrappedAsset(
-      chainId,
-      utils.arrayify(tokenAddr),
-    );
+    return await tokenBridge.wrappedAsset(chainId, utils.arrayify(tokenAddr));
   }
 
   async getNativeBalance(
@@ -123,7 +120,7 @@ export class EthContext<T extends ChainsManager> extends RelayerAbstract {
     overrides?: PayableOverrides & { from?: string | Promise<string> },
   ): Promise<ethers.ContractReceipt> {
     const destContext = this.context.getContext(recipientChain);
-    const recipientChainId = this.context.resolveDomain(recipientChain);
+    const recipientChainId = this.context.toChainId(recipientChain);
     const amountBN = ethers.BigNumber.from(amount);
     const bridge = this.contracts.mustGetBridge(sendingChain);
 
@@ -171,7 +168,7 @@ export class EthContext<T extends ChainsManager> extends RelayerAbstract {
     overrides?: PayableOverrides & { from?: string | Promise<string> },
   ): Promise<ethers.ContractReceipt> {
     const destContext = this.context.getContext(recipientChain);
-    const recipientChainId = this.context.resolveDomain(recipientChain);
+    const recipientChainId = this.context.toChainId(recipientChain);
     const bridge = this.contracts.mustGetBridge(sendingChain);
     const amountBN = ethers.BigNumber.from(amount);
 
@@ -218,7 +215,7 @@ export class EthContext<T extends ChainsManager> extends RelayerAbstract {
     const isAddress = ethers.utils.isAddress(recipientAddress);
     if (!isAddress)
       throw new Error(`invalid recipient address: ${recipientAddress}`);
-    const recipientChainId = this.context.resolveDomain(recipientChain);
+    const recipientChainId = this.context.toChainId(recipientChain);
     const amountBN = ethers.BigNumber.from(amount);
     const relayer = this.contracts.mustGetTokenBridgeRelayer(sendingChain);
     const nativeTokenBN = ethers.BigNumber.from(toNativeToken);
@@ -315,7 +312,7 @@ export class EthContext<T extends ChainsManager> extends RelayerAbstract {
       const parsed =
         Implementation__factory.createInterface().parseLog(bridgeLog);
 
-      const fromChain = this.context.resolveDomainName(chain) as ChainName;
+      const fromChain = this.context.toChainName(chain);
       if (parsed.args.payload.startsWith('0x01')) {
         const parsedTransfer = await bridge.parseTransfer(parsed.args.payload); // for bridge messages
         const parsedMessage: ParsedMessage = {
@@ -324,14 +321,10 @@ export class EthContext<T extends ChainsManager> extends RelayerAbstract {
           amount: parsedTransfer.amount,
           payloadID: parsedTransfer.payloadID,
           recipient: parsedTransfer.to,
-          toChain: this.context.resolveDomainName(
-            parsedTransfer.toChain,
-          ) as ChainName,
+          toChain: this.context.toChainName(parsedTransfer.toChain),
           fromChain,
           tokenAddress: this.parseAddress(parsedTransfer.tokenAddress),
-          tokenChain: this.context.resolveDomainName(
-            parsedTransfer.tokenChain,
-          ) as ChainName,
+          tokenChain: this.context.toChainName(parsedTransfer.tokenChain),
           sequence: parsed.args.sequence,
         };
         return parsedMessage;
@@ -350,14 +343,10 @@ export class EthContext<T extends ChainsManager> extends RelayerAbstract {
         amount: parsedTransfer.amount,
         payloadID: parsedTransfer.payloadID,
         to: this.parseAddress(parsedTransfer.to),
-        toChain: this.context.resolveDomainName(
-          parsedTransfer.toChain,
-        ) as ChainName,
+        toChain: this.context.toChainName(parsedTransfer.toChain),
         fromChain,
         tokenAddress: this.parseAddress(parsedTransfer.tokenAddress),
-        tokenChain: this.context.resolveDomainName(
-          parsedTransfer.tokenChain,
-        ) as ChainName,
+        tokenChain: this.context.toChainName(parsedTransfer.tokenChain),
         sequence: parsed.args.sequence,
         payload: parsedTransfer.payload,
         relayerPayloadId: parsedPayload.payloadId,
@@ -386,7 +375,7 @@ export class EthContext<T extends ChainsManager> extends RelayerAbstract {
     );
     const decimals = await tokenContract.decimals();
     // get relayer fee as token amt
-    const destChainId = this.context.resolveDomain(destChain);
+    const destChainId = this.context.toChainId(destChain);
     return await relayer.calculateRelayerFee(destChainId, address, decimals);
   }
 

@@ -9,10 +9,12 @@ import {
   ChainId,
   ChainName,
 } from '@wormhole-foundation/wormhole-connect-sdk';
+import { Transaction } from '@solana/web3.js';
 
 import { PaymentOption } from '../store/transfer';
 import { getTokenDecimals, getWrappedTokenId } from '../utils';
 import { TOKENS } from './config';
+import { signSolanaTransaction } from 'utils/wallet';
 
 const { REACT_APP_ENV } = process.env;
 
@@ -126,7 +128,8 @@ export const sendTransfer = async (
   toNativeToken?: string,
 ) => {
   console.log('preparing send');
-  const decimals = getTokenDecimals(token);
+  const fromChainName = wh.toChainName(fromNetwork);
+  const decimals = getTokenDecimals(fromChainName, token);
   const parsedAmt = utils.parseUnits(amount, decimals);
   if (paymentOption === PaymentOption.MANUAL) {
     console.log('send with manual');
@@ -139,6 +142,7 @@ export const sendTransfer = async (
       toAddress,
       undefined,
     );
+    await signSolanaTransaction(receipt as Transaction);
     return receipt;
   } else {
     console.log('send with relay');

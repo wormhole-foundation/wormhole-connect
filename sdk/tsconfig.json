@@ -5,7 +5,7 @@
     "tests",
     "coverage"
   ],
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "src/**/*.json"],
   "compilerOptions": {
     "composite": true,
     "declaration": true,
