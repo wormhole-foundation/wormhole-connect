@@ -44,9 +44,9 @@ function TxSearch() {
   }
 
   function setTx(e: any) {
-    if (e.target.value.startsWith('0x') && e.target.value.length === 66) {
-      setState({ ...state, tx: e.target.value });
-    }
+    // if (e.target.value.startsWith('0x') && e.target.value.length === 66) {
+    setState({ ...state, tx: e.target.value });
+    // }
   }
 
   async function search() {

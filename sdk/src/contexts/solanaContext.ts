@@ -1,7 +1,4 @@
-import {
-  createNonce,
-  getForeignAssetSolana,
-} from '@certusone/wormhole-sdk';
+import { createNonce, getForeignAssetSolana } from '@certusone/wormhole-sdk';
 import { createReadOnlyTokenBridgeProgramInterface } from '@certusone/wormhole-sdk/lib/cjs/solana/tokenBridge/program';
 import { getTransferWrappedAccounts } from '@certusone/wormhole-sdk/lib/cjs/solana/tokenBridge/instructions/transferWrapped';
 import { getTransferNativeAccounts } from '@certusone/wormhole-sdk/lib/cjs/solana/tokenBridge/instructions/transferNative';
@@ -26,20 +23,13 @@ import {
   Transaction,
   TransactionInstruction,
 } from '@solana/web3.js';
-import { Program } from "@project-serum/anchor";
-import {
-  createApproveAuthoritySignerInstruction,
-} from '@certusone/wormhole-sdk/lib/cjs/solana/tokenBridge';
+import { Program } from '@project-serum/anchor';
+import { createApproveAuthoritySignerInstruction } from '@certusone/wormhole-sdk/lib/cjs/solana/tokenBridge';
 import { BigNumber, BigNumberish, constants } from 'ethers';
-import {
-  arrayify,
-  zeroPad,
-  hexlify,
-  stripZeros,
-} from 'ethers/lib/utils';
+import { arrayify, zeroPad, hexlify, stripZeros } from 'ethers/lib/utils';
 
 import { SolContracts } from '../contracts/solContracts';
-import { ChainsManager } from '../chainsManager';
+import { WormholeContext } from '../wormhole';
 import { TokenBridge } from '@certusone/wormhole-sdk/lib/cjs/solana/types/tokenBridge';
 
 export function createTransferNativeInstruction(
@@ -53,14 +43,14 @@ export function createTransferNativeInstruction(
   amount: bigint,
   fee: bigint,
   targetAddress: Buffer | Uint8Array,
-  targetChain: number
+  targetChain: number,
 ): TransactionInstruction {
   const methods = tokenBridgeProgram.methods.transferNative(
     nonce,
     amount as any,
     fee as any,
     Buffer.from(targetAddress) as any,
-    targetChain
+    targetChain,
   );
   // @ts-ignore
   return methods._ixFn(...methods._args, {
@@ -70,7 +60,7 @@ export function createTransferNativeInstruction(
       payer,
       message,
       from,
-      mint
+      mint,
     ) as any,
     signers: undefined,
     remainingAccounts: undefined,
@@ -92,17 +82,17 @@ export function createTransferWrappedInstruction(
   amount: bigint,
   fee: bigint,
   targetAddress: Buffer | Uint8Array,
-  targetChain: number
+  targetChain: number,
 ): TransactionInstruction {
   const methods = createReadOnlyTokenBridgeProgramInterface(
     tokenBridgeProgramId,
-    new Connection(clusterApiUrl('devnet'))
+    new Connection(clusterApiUrl('devnet')),
   ).methods.transferWrapped(
     nonce,
     amount as any,
     fee as any,
     Buffer.from(targetAddress) as any,
-    targetChain
+    targetChain,
   );
 
   // @ts-ignore
@@ -115,7 +105,7 @@ export function createTransferWrappedInstruction(
       from,
       fromOwner,
       tokenChain,
-      tokenAddress
+      tokenAddress,
     ) as any,
     signers: undefined,
     remainingAccounts: undefined,
@@ -124,7 +114,7 @@ export function createTransferWrappedInstruction(
   });
 }
 
-export class SolanaContext<T extends ChainsManager> extends BridgeAbstract {
+export class SolanaContext<T extends WormholeContext> extends BridgeAbstract {
   protected contracts: SolContracts<T>;
   readonly context: T;
   connection: Connection | undefined;
@@ -363,7 +353,7 @@ export class SolanaContext<T extends ChainsManager> extends BridgeAbstract {
         'finalized',
       );
     } else {
-      throw new Error('TODO:')
+      throw new Error('TODO:');
       // const formattedTokenAddr = arrayify(destContext.formatAddress(token.address));
       // return await this.transferFromSolana(
       //   connection,
@@ -411,7 +401,7 @@ export class SolanaContext<T extends ChainsManager> extends BridgeAbstract {
         'finalized',
       );
     } else {
-      throw new Error('TODO:')
+      throw new Error('TODO:');
       // const formattedTokenAddr = arrayify(destContext.formatAddress(token.address));
       // return await this.transferFromSolana(
       //   connection,

@@ -23,10 +23,10 @@ import {
   ParsedRelayerMessage,
   ParsedMessage,
 } from '../types';
-import { ChainsManager } from '../chainsManager';
+import { WormholeContext } from '../wormhole';
 import { EthContracts } from '../contracts/ethContracts';
 
-export class EthContext<T extends ChainsManager> extends RelayerAbstract {
+export class EthContext<T extends WormholeContext> extends RelayerAbstract {
   protected contracts: EthContracts<T>;
   readonly context: T;
 

@@ -1,5 +1,5 @@
 import { Network as Environment } from '@certusone/wormhole-sdk';
-import { ChainsManager } from 'chainsManager';
+import { WormholeContext } from 'wormhole';
 import { EthContext } from 'contexts/ethContext';
 import { SolanaContext } from 'contexts/solanaContext';
 import { EthContracts } from 'contracts/ethContracts';
@@ -63,12 +63,12 @@ export type TokenId = {
 };
 
 export type AnyContext =
-  | EthContext<ChainsManager>
-  | SolanaContext<ChainsManager>;
+  | EthContext<WormholeContext>
+  | SolanaContext<WormholeContext>;
 
 export type AnyContracts =
-  | EthContracts<ChainsManager>
-  | SolContracts<ChainsManager>;
+  | EthContracts<WormholeContext>
+  | SolContracts<WormholeContext>;
 
 export interface ParsedMessage {
   sendTx: string;

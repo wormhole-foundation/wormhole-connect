@@ -9,11 +9,11 @@ import { ChainName, ChainId, Contracts, Context } from '../types';
 import { TokenBridgeRelayer } from '../abis/TokenBridgeRelayer';
 import { TokenBridgeRelayer__factory } from '../abis/TokenBridgeRelayer__factory';
 import { ContractsAbstract } from './abstracts';
-import { ChainsManager } from '../chainsManager';
+import { WormholeContext } from '../wormhole';
 import { filterByContext } from '../utils';
 
 export class EthContracts<
-  T extends ChainsManager,
+  T extends WormholeContext,
 > extends ContractsAbstract<T> {
   protected _contracts: Map<ChainName, any>;
   readonly context: T;
