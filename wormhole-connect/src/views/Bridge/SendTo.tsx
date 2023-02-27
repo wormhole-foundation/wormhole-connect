@@ -86,9 +86,7 @@ function SendTo() {
   const dispatch = useDispatch();
   const [balance, setBalance] = useState(undefined as string | undefined);
   // store values
-  const toNetwork = useSelector((state: RootState) => state.transfer.toNetwork);
-  const token = useSelector((state: RootState) => state.transfer.token);
-  const amount = useSelector((state: RootState) => state.transfer.amount);
+  const { fromNetwork, toNetwork, token, amount } = useSelector((state: RootState) => state.transfer);
   const walletAddr = useSelector(
     (state: RootState) => state.wallet.receiving.address,
   );
@@ -104,7 +102,7 @@ function SendTo() {
     if (tokenConfig.tokenId) {
       getBalance(walletAddr, tokenConfig.tokenId, toNetwork).then(
         (res: BigNumber | null) => {
-          const balance = formatBalance(tokenConfig, res);
+          const balance = formatBalance(fromNetwork, tokenConfig, res);
           setBalance(balance[tokenConfig.symbol]);
         },
       );
@@ -113,13 +111,13 @@ function SendTo() {
       if (wrappedConfig && wrappedConfig.tokenId) {
         getBalance(walletAddr, wrappedConfig.tokenId, toNetwork).then(
           (res: BigNumber | null) => {
-            const balance = formatBalance(tokenConfig, res);
+            const balance = formatBalance(fromNetwork, tokenConfig, res);
             setBalance(balance[tokenConfig.symbol]);
           },
         );
       }
     }
-  }, [tokenConfig, toNetwork, walletAddr]);
+  }, [tokenConfig, fromNetwork, toNetwork, walletAddr]);
 
   return (
     <div className={classes.container}>

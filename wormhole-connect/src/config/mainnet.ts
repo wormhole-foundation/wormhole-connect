@@ -55,7 +55,8 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     icon: 'eth',
     coinGeckoId: 'ethereum',
     color: '#62688F',
-    decimals: 18,
+    decimals: 9,
+    solDecimals: 8,
     wrappedAsset: 'WETH',
   },
   WETH: {
@@ -69,6 +70,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     coinGeckoId: 'ethereum',
     color: '#62688F',
     decimals: 18,
+    solDecimals: 8,
   },
   MATIC: {
     symbol: 'MATIC',
@@ -77,6 +79,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     coinGeckoId: 'matic-network',
     color: '#8247E5',
     decimals: 18,
+    solDecimals: 8,
     wrappedAsset: 'WMATIC',
   },
   WMATIC: {
@@ -90,6 +93,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     coinGeckoId: 'matic-network',
     color: '#8247E5',
     decimals: 18,
+    solDecimals: 8,
   },
   BNB: {
     symbol: 'BNB',
@@ -98,6 +102,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     coinGeckoId: 'binancecoin',
     color: '#F3BA30',
     decimals: 18,
+    solDecimals: 8,
     wrappedAsset: 'WBNB',
   },
   WBNB: {
@@ -111,6 +116,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     coinGeckoId: 'binancecoin',
     color: '#F3BA30',
     decimals: 18,
+    solDecimals: 8,
   },
   AVAX: {
     symbol: 'AVAX',
@@ -119,6 +125,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     coinGeckoId: 'avalanche-2',
     color: '#E84141',
     decimals: 18,
+    solDecimals: 8,
     wrappedAsset: 'WAVAX',
   },
   WAVAX: {
@@ -132,6 +139,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     coinGeckoId: 'avalanche-2',
     color: '#E84141',
     decimals: 18,
+    solDecimals: 8,
   },
   FTM: {
     symbol: 'FTM',
@@ -140,6 +148,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     coinGeckoId: 'fantom',
     color: '#12B4EC',
     decimals: 18,
+    solDecimals: 8,
     wrappedAsset: 'WFTM',
   },
   WFTM: {
@@ -153,6 +162,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     coinGeckoId: 'fantom',
     color: '#12B4EC',
     decimals: 18,
+    solDecimals: 8,
   },
   CELO: {
     symbol: 'CELO',
@@ -165,6 +175,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     coinGeckoId: 'celo',
     color: '#35D07E',
     decimals: 18,
+    solDecimals: 8,
   },
   SOL: {
     symbol: 'SOL',
@@ -173,6 +184,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     coinGeckoId: 'solana',
     color: '#8457EF',
     decimals: 9,
+    solDecimals: 9,
     wrappedAsset: 'WSOL',
   },
   WSOL: {
@@ -186,5 +198,6 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     coinGeckoId: 'solana',
     color: '#8457EF',
     decimals: 9,
+    solDecimals: 9,
   },
 };

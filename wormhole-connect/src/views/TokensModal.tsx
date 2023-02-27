@@ -177,10 +177,10 @@ function TokensModal() {
       tokens.forEach(async (t) => {
         if (t.tokenId) {
           const balance = await getBalance(walletAddr, t.tokenId, chain);
-          dispatch(setBalance(formatBalance(t, balance)));
+          dispatch(setBalance(formatBalance(fromNetwork, t, balance)));
         } else {
           const balance = await getNativeBalance(walletAddr, chain);
-          dispatch(setBalance(formatBalance(t, balance)));
+          dispatch(setBalance(formatBalance(fromNetwork, t, balance)));
         }
       });
     };

@@ -61,7 +61,7 @@ export function getTokenDecimals(
   }
   const tokenConfig = getTokenById(tokenId);
   if (!tokenConfig) throw new Error('token config not found');
-  return tokenConfig.decimals;
+  return chain === 'solana' ? tokenConfig.solDecimals : tokenConfig.decimals;
 }
 
 function fallbackCopyTextToClipboard(text: string) {

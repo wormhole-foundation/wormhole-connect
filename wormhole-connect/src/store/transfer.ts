@@ -11,11 +11,13 @@ export enum PaymentOption {
 export type Balances = { [key: string]: string | null };
 
 export const formatBalance = (
+  chain: ChainName,
   token: TokenConfig,
   balance: BigNumber | null,
 ) => {
+  const decimals = chain === 'solana' ? token.solDecimals : token.decimals;
   const formattedBalance =
-    balance !== null ? toDecimals(balance, token.decimals, 6) : null;
+    balance !== null ? toDecimals(balance, decimals, 6) : null;
   return { [token.symbol]: formattedBalance };
 };
 

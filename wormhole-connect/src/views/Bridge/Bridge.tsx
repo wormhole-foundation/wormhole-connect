@@ -58,15 +58,15 @@ function Bridge() {
   );
 
   useEffect(() => {
-    if (!toNetwork || !receiving.address) return;
+    if (!fromNetwork || !toNetwork || !receiving.address) return;
     const networkConfig = CHAINS[toNetwork]!;
     getNativeBalance(receiving.address, toNetwork).then((res: BigNumber) => {
       const tokenConfig = TOKENS[networkConfig.gasToken];
       if (!tokenConfig)
         throw new Error('Could not get native gas token config');
-      dispatch(setBalance(formatBalance(tokenConfig, res)));
+      dispatch(setBalance(formatBalance(fromNetwork, tokenConfig, res)));
     });
-  }, [toNetwork, receiving.address]);
+  }, [fromNetwork, toNetwork, receiving.address]);
 
   useEffect(() => {
     if (!fromNetwork || !toNetwork) return;

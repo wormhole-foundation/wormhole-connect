@@ -92,3 +92,8 @@ export interface ParsedRelayerMessage extends ParsedMessage {
 }
 
 export type AnyMessage = ParsedMessage | ParsedRelayerMessage;
+
+export type TokenDetails = {
+  symbol: string;
+  decimals: number;
+}

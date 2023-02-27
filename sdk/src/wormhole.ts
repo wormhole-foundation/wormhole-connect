@@ -12,6 +12,7 @@ import {
   Context,
   AnyContext,
   Contracts,
+  TokenDetails,
 } from './types';
 import { EthContext } from './contexts/ethContext';
 import { SolanaContext } from './contexts/solanaContext';
@@ -122,6 +123,12 @@ export class WormholeContext extends MultiProvider<Domain> {
   async getForeignAsset(tokenId: TokenId, chain: ChainName | ChainId) {
     const context = this.getContext(chain);
     return await context.getForeignAsset(tokenId, chain);
+  }
+
+  async fetchTokenDetails(tokenId: TokenId, chain: ChainName | ChainId): Promise<TokenDetails> {
+    const context = this.getContext(chain);
+    const repr = await context.getForeignAsset(tokenId, chain);
+    return await context.fetchTokenDetails(repr, chain);
   }
 
   async getNativeBalance(

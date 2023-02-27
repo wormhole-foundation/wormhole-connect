@@ -1,5 +1,4 @@
 import {
-  ethers_contracts,
   Network as Environment,
 } from '@certusone/wormhole-sdk';
 import { BigNumber, utils, ContractReceipt } from 'ethers';
@@ -75,10 +74,11 @@ export const parseMessageFromTx = async (
 ) => {
   const EthContext: any = wh.getContext(chain);
   const parsed = (await EthContext.parseMessageFromTx(tx, chain))[0];
-  const token = await getToken({
+  const token = await fetchTokenDetails({
     address: parsed.tokenAddress,
     chain: parsed.tokenChain,
-  });
+  }, parsed.fromChain);
+
   const base = {
     sendTx: parsed.sendTx,
     sender: parsed.sender,
@@ -187,15 +187,8 @@ export const claimTransfer = async (
   return await wh.redeem(destChain, vaa, { gasLimit: 250000 });
 };
 
-export const getToken = async (tokenId: TokenId) => {
-  const provider = wh.mustGetProvider(tokenId.chain);
-  const tokenContract = ethers_contracts.TokenImplementation__factory.connect(
-    tokenId.address,
-    provider,
-  );
-  const symbol = await tokenContract.symbol();
-  const decimals = await tokenContract.decimals();
-  return { symbol, decimals };
+export const fetchTokenDetails = async (tokenId: TokenId, chain: ChainName | ChainId) => {
+  return await wh.fetchTokenDetails(tokenId, chain);
 };
 
 export const getTransferComplete = async (

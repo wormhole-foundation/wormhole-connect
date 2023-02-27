@@ -22,6 +22,7 @@ import {
   NATIVE,
   ParsedRelayerMessage,
   ParsedMessage,
+  TokenDetails,
 } from '../types';
 import { WormholeContext } from '../wormhole';
 import { EthContracts } from '../contracts/ethContracts';
@@ -47,6 +48,17 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
     const tokenAddr = sourceContext.formatAddress(tokenId.address);
     return await tokenBridge.wrappedAsset(chainId, utils.arrayify(tokenAddr));
   }
+
+  async fetchTokenDetails(tokenAddr: string, chain: ChainName | ChainId): Promise<TokenDetails> {
+    const provider = this.context.mustGetProvider(chain);
+    const tokenContract = TokenImplementation__factory.connect(
+      tokenAddr,
+      provider,
+    );
+    const symbol = await tokenContract.symbol();
+    const decimals = await tokenContract.decimals();
+    return { symbol, decimals };
+  };
 
   async getNativeBalance(
     walletAddr: string,

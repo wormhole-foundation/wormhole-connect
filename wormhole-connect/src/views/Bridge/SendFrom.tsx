@@ -134,14 +134,14 @@ function SendFrom() {
     if (tokenConfig.tokenId) {
       getBalance(walletAddr, tokenConfig.tokenId, fromNetwork).then(
         (res: BigNumber | null) => {
-          const balance = formatBalance(tokenConfig, res);
+          const balance = formatBalance(fromNetwork, tokenConfig, res);
           setBalance(balance[tokenConfig.symbol]);
           dispatch(setStoreBalance(balance));
         },
       );
     } else {
       getNativeBalance(walletAddr, fromNetwork).then((res: BigNumber) => {
-        const balance = formatBalance(tokenConfig, res);
+        const balance = formatBalance(fromNetwork, tokenConfig, res);
         setBalance(balance[tokenConfig.symbol]);
         dispatch(setStoreBalance(balance));
       });
