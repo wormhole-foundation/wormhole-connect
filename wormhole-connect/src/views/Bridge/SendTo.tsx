@@ -86,7 +86,9 @@ function SendTo() {
   const dispatch = useDispatch();
   const [balance, setBalance] = useState(undefined as string | undefined);
   // store values
-  const { fromNetwork, toNetwork, token, amount } = useSelector((state: RootState) => state.transfer);
+  const { fromNetwork, toNetwork, token, amount } = useSelector(
+    (state: RootState) => state.transfer,
+  );
   const walletAddr = useSelector(
     (state: RootState) => state.wallet.receiving.address,
   );

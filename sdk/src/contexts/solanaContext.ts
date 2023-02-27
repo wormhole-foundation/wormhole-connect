@@ -1,8 +1,15 @@
 import { createNonce, getForeignAssetSolana } from '@certusone/wormhole-sdk';
-import { getTransferWrappedAccounts } from '@certusone/wormhole-sdk/lib/cjs/solana/tokenBridge/instructions/transferWrapped';
-import { getTransferNativeAccounts } from '@certusone/wormhole-sdk/lib/cjs/solana/tokenBridge/instructions/transferNative';
-import { BridgeAbstract } from './abstracts';
-import { TokenId, ChainName, ChainId, NATIVE, ParsedMessage, TokenDetails } from '../types';
+import {
+  getTransferWrappedAccounts,
+  getTransferNativeAccounts,
+  createApproveAuthoritySignerInstruction,
+} from '@certusone/wormhole-sdk/lib/cjs/solana/tokenBridge';
+import { TokenBridge } from '@certusone/wormhole-sdk/lib/cjs/solana/types/tokenBridge';
+import {
+  getPostedMessage,
+  deriveWormholeEmitterKey,
+} from '@certusone/wormhole-sdk/lib/cjs/solana/wormhole';
+import { parseTokenTransferPayload } from '@certusone/wormhole-sdk/lib/cjs/vaa';
 import {
   ACCOUNT_SIZE,
   createCloseAccountInstruction,
@@ -23,13 +30,22 @@ import {
   TransactionInstruction,
 } from '@solana/web3.js';
 import { Program } from '@project-serum/anchor';
-import { createApproveAuthoritySignerInstruction } from '@certusone/wormhole-sdk/lib/cjs/solana/tokenBridge';
 import { BigNumber, BigNumberish, constants } from 'ethers';
-import { arrayify, zeroPad, hexlify, stripZeros } from 'ethers/lib/utils';
+import { arrayify, zeroPad, hexlify } from 'ethers/lib/utils';
+import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
 
+import { BridgeAbstract } from './abstracts';
+import {
+  TokenId,
+  ChainName,
+  ChainId,
+  NATIVE,
+  ParsedMessage,
+} from '../types';
 import { SolContracts } from '../contracts/solContracts';
 import { WormholeContext } from '../wormhole';
-import { TokenBridge } from '@certusone/wormhole-sdk/lib/cjs/solana/types/tokenBridge';
+
+const SOLANA_SEQ_LOG = "Program log: Sequence: ";
 
 export function createTransferNativeInstruction(
   tokenBridgeProgram: Program<TokenBridge>,
@@ -114,6 +130,7 @@ export class SolanaContext<T extends WormholeContext> extends BridgeAbstract {
   protected contracts: SolContracts<T>;
   readonly context: T;
   connection: Connection | undefined;
+  wallet: Wallet | undefined;
 
   constructor(context: T) {
     super();
@@ -127,14 +144,17 @@ export class SolanaContext<T extends WormholeContext> extends BridgeAbstract {
     this.connection = connection;
   }
 
-  async fetchTokenDetails(tokenAddr: string, chain?: ChainName | ChainId): Promise<TokenDetails> {
+  async fetchTokenDecimals(
+    tokenAddr: string,
+    chain?: ChainName | ChainId,
+  ): Promise<number> {
     if (!this.connection) throw new Error('no connection');
     let mint = await this.connection.getParsedAccountInfo(
       new PublicKey(tokenAddr),
     );
     if (!mint) throw new Error('could not fetch token details');
-    const details = (mint as any).value.data.parsed.info;
-    return details;
+    const { decimals } = (mint as any).value.data.parsed.info;
+    return decimals;
   }
 
   async getNativeBalance(
@@ -346,14 +366,20 @@ export class SolanaContext<T extends WormholeContext> extends BridgeAbstract {
         'finalized',
       );
     } else {
-      const destTokenAddr = await destContext.getForeignAsset(token, recipientChain);
-      const formattedTokenAddr = arrayify(destContext.formatAddress(destTokenAddr));
+      const destTokenAddr = await destContext.getForeignAsset(
+        token,
+        recipientChain,
+      );
+      const formattedTokenAddr = arrayify(
+        destContext.formatAddress(destTokenAddr),
+      );
       const solTokenAddr = await this.getForeignAsset(token, 'solana');
       const splToken = await this.connection.getTokenAccountsByOwner(
         new PublicKey(senderAddress),
         { mint: new PublicKey(solTokenAddr) },
       );
-      if (!splToken || !splToken.value[0]) throw new Error('account does not have any token balance');
+      if (!splToken || !splToken.value[0])
+        throw new Error('account does not have any token balance');
 
       return await this.transferFromSolana(
         senderAddress,
@@ -399,14 +425,17 @@ export class SolanaContext<T extends WormholeContext> extends BridgeAbstract {
         'finalized',
       );
     } else {
-      const formattedTokenAddr = arrayify(destContext.formatAddress(token.address));
+      const formattedTokenAddr = arrayify(
+        destContext.formatAddress(token.address),
+      );
       const solTokenAddr = await this.getForeignAsset(token, 'solana');
-      console.log('solana token addr', solTokenAddr)
+      console.log('solana token addr', solTokenAddr);
       const splToken = await this.connection.getTokenAccountsByOwner(
         new PublicKey(senderAddress),
         { mint: new PublicKey(solTokenAddr) },
       );
-      if (!splToken || !splToken.value[0]) throw new Error('account does not have any token balance');
+      if (!splToken || !splToken.value[0])
+        throw new Error('account does not have any token balance');
 
       return await this.transferFromSolana(
         senderAddress,
@@ -425,19 +454,25 @@ export class SolanaContext<T extends WormholeContext> extends BridgeAbstract {
   }
 
   formatAddress(address: PublicKeyInitData): string {
-    return hexlify(zeroPad(new PublicKey(address).toBytes(), 32));
+    const addr = typeof address === 'string' && address.startsWith('0x') ? arrayify(address) : address;
+    return hexlify(zeroPad(new PublicKey(addr).toBytes(), 32));
   }
 
   parseAddress(address: string): string {
-    return hexlify(stripZeros(address));
+    const addr = typeof address === 'string' && address.startsWith('0x') ? arrayify(address) : address;
+    return new PublicKey(addr).toString();
   }
 
   async getForeignAsset(tokenId: TokenId, chain: ChainName | ChainId) {
     if (!this.connection) throw new Error('no connection');
-    // const tokenBridge = this.context.mustGetBridge(chain);
+
+    const chainId = this.context.toChainId(tokenId.chain);
+    const toChainId = this.context.toChainId(chain);
+    if (toChainId === chainId) return tokenId.address;
+
     const contracts = this.context.mustGetContracts(chain);
     if (!contracts.token_bridge) throw new Error('contracts not found');
-    const chainId = this.context.toChainId(tokenId.chain);
+
     const tokenContext = this.context.getContext(tokenId.chain);
     const formattedAddr = tokenContext.formatAddress(tokenId.address);
     const addr = await getForeignAssetSolana(
@@ -450,41 +485,59 @@ export class SolanaContext<T extends WormholeContext> extends BridgeAbstract {
     return addr;
   }
 
-  // TODO:
   async parseMessageFromTx(
     tx: string,
     chain: ChainName | ChainId,
   ): Promise<ParsedMessage[]> {
-    console.log('not implemented', tx, chain);
     if (!this.connection) throw new Error('no connection');
+    const contracts = this.contracts.mustGetContracts('solana');
+    if (!contracts.core || !contracts.token_bridge) throw new Error('contracts not found');
     const response = await this.connection.getTransaction(tx);
-    if (!response?.meta?.innerInstructions)
-      throw new Error('not a valid bridge transfer');
-    console.log(response?.meta?.innerInstructions[0].instructions);
-    const instructions =
-      response?.meta?.innerInstructions[0].instructions.filter((i) => {
-        return i.programIdIndex === 9;
-      });
-    console.log('I', instructions);
+    const parsedResponse = await this.connection.getParsedTransaction(tx);
+    if (!response || !response.meta?.innerInstructions![0].instructions)
+      throw new Error('transaction not found');
+    const instructions = response.meta?.innerInstructions![0].instructions;
+    const accounts = response.transaction.message.accountKeys;
+    // find the instruction where the programId equals the Wormhole ProgramId and the emitter equals the Token Bridge
+    const bridgeInstructions = instructions.filter((i) => {
+      const programId = accounts[i.programIdIndex].toString();
+      const emitterId = accounts[i.accounts[2]];
+      const wormholeCore = contracts.core;
+      const tokenBridge = deriveWormholeEmitterKey(contracts.token_bridge!);
+      return programId === wormholeCore && emitterId.equals(tokenBridge);
+    });
+    const { message } = await getPostedMessage(
+      this.connection,
+      accounts[bridgeInstructions[0].accounts[1]],
+    );
 
-    // const sequence = info.meta?.logMessages
-    //   ?.filter((msg) => msg.startsWith(SOLANA_SEQ_LOG))?.[0]
-    //   ?.replace(SOLANA_SEQ_LOG, "");
-    // if (!sequence) {
-    //   throw new Error("sequence not found");
-    // }
-    // return sequence.toString();
+    // parse message payload
+    const parsed = parseTokenTransferPayload(message.payload);
+    console.log(parsed);
+
+    // get sequence
+    const sequence = response.meta?.logMessages
+      ?.filter((msg) => msg.startsWith(SOLANA_SEQ_LOG))?.[0]
+      ?.replace(SOLANA_SEQ_LOG, "");
+    if (!sequence) {
+      throw new Error("sequence not found");
+    }
+
+    // format response
+    const tokenContext = this.context.getContext(parsed.tokenChain as ChainId);
+    const destContext = this.context.getContext(parsed.toChain as ChainId);
+
     const parsedMessage: ParsedMessage = {
       sendTx: tx,
-      sender: '',
-      amount: BigNumber.from(0),
-      payloadID: 1,
-      recipient: '',
-      toChain: 'solana',
-      fromChain: 'solana',
-      tokenAddress: '',
-      tokenChain: 'solana',
-      sequence: BigNumber.from(0),
+      sender: (parsedResponse as any).transaction.message.instructions[0].parsed.info.source,
+      amount: BigNumber.from(parsed.amount),
+      payloadID: parsed.payloadType,
+      recipient: destContext.parseAddress(hexlify(parsed.to)),
+      toChain: this.context.toChainName(parsed.toChain),
+      fromChain: this.context.toChainName(chain),
+      tokenAddress: tokenContext.parseAddress(hexlify(parsed.tokenAddress)),
+      tokenChain: this.context.toChainName(parsed.tokenChain),
+      sequence: BigNumber.from(sequence),
     };
     return [parsedMessage];
   }
@@ -522,5 +575,9 @@ export class SolanaContext<T extends WormholeContext> extends BridgeAbstract {
   ): Promise<boolean> {
     console.log('not implemented');
     return true;
+  }
+
+  getTxIdFromReceipt(receipt: Transaction) {
+    return receipt.signatures[0].publicKey.toString();
   }
 }

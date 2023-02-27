@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { CHAINS, TOKENS } from '../../sdk/config';
-import { parseMessageFromTx, sendTransfer } from '../../sdk/sdk';
+import {
+  getTxIdFromReceipt,
+  parseMessageFromTx,
+  sendTransfer,
+} from '../../sdk/sdk';
 import { RootState } from '../../store';
 import { setRoute } from '../../store/router';
 import { setTxDetails, setSendTx } from '../../store/redeem';
@@ -61,13 +65,9 @@ function Send(props: { valid: boolean }) {
         `${toNativeToken}`,
       );
       console.log('sent', receipt);
-      // TODO: get transaction receipt for Solana transfers
-      // .transaction.signatures[0] ??
-      const message = await parseMessageFromTx(
-        receipt.transactionHash,
-        fromNetwork!,
-      );
-      dispatch(setSendTx(receipt.transactionHash));
+      const txId = getTxIdFromReceipt(fromNetwork!, receipt);
+      const message = await parseMessageFromTx(txId, fromNetwork!);
+      dispatch(setSendTx(txId));
       dispatch(setTxDetails(message));
       // TODO: clear inputs
       // dispatch(clearTransfer);

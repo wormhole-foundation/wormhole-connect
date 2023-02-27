@@ -105,10 +105,11 @@ function Preview(props: { collapsed: boolean }) {
       setState({ rows });
     } else {
       getRelayerFee(fromNetwork, toNetwork, token).then((fee) => {
-        const decimals = fromNetwork === 'solana' ? tokenConfig.decimals : tokenConfig.solDecimals;
-        const formattedFee = Number.parseFloat(
-          toDecimals(fee, decimals, 6),
-        );
+        const decimals =
+          fromNetwork === 'solana'
+            ? tokenConfig.decimals
+            : tokenConfig.solDecimals;
+        const formattedFee = Number.parseFloat(toDecimals(fee, decimals, 6));
         dispatch(setRelayerFee(formattedFee));
         const rows = getAutomaticRows(
           tokenConfig,

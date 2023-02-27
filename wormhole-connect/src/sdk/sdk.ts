@@ -1,6 +1,4 @@
-import {
-  Network as Environment,
-} from '@certusone/wormhole-sdk';
+import { Network as Environment } from '@certusone/wormhole-sdk';
 import { BigNumber, utils, ContractReceipt } from 'ethers';
 import {
   WormholeContext,
@@ -11,7 +9,7 @@ import {
 import { Transaction } from '@solana/web3.js';
 
 import { PaymentOption } from '../store/transfer';
-import { getTokenDecimals, getWrappedTokenId } from '../utils';
+import { getTokenById, getTokenDecimals, getWrappedTokenId } from '../utils';
 import { TOKENS } from './config';
 import { signSolanaTransaction } from 'utils/wallet';
 
@@ -72,12 +70,18 @@ export const parseMessageFromTx = async (
   tx: string,
   chain: ChainName | ChainId,
 ) => {
-  const EthContext: any = wh.getContext(chain);
-  const parsed = (await EthContext.parseMessageFromTx(tx, chain))[0];
-  const token = await fetchTokenDetails({
+  const context: any = wh.getContext(chain);
+  const parsed = (await context.parseMessageFromTx(tx, chain))[0];
+
+  const tokenId = {
     address: parsed.tokenAddress,
     chain: parsed.tokenChain,
-  }, parsed.fromChain);
+  };
+  const decimals = await fetchTokenDecimals(
+    tokenId,
+    parsed.fromChain,
+  );
+  const token = getTokenById(tokenId);
 
   const base = {
     sendTx: parsed.sendTx,
@@ -87,8 +91,8 @@ export const parseMessageFromTx = async (
     recipient: parsed.recipient,
     toChain: parsed.toChain,
     fromChain: parsed.fromChain,
-    tokenSymbol: token.symbol,
-    tokenDecimals: token.decimals,
+    tokenSymbol: token?.symbol,
+    tokenDecimals: decimals,
     tokenAddress: parsed.tokenAddress,
     tokenChain: parsed.tokenChain,
     sequence: parsed.sequence.toString(),
@@ -133,7 +137,7 @@ export const sendTransfer = async (
   const parsedAmt = utils.parseUnits(amount, decimals);
   if (paymentOption === PaymentOption.MANUAL) {
     console.log('send with manual');
-    const receipt = await wh.send(
+    const tx = await wh.send(
       token,
       parsedAmt.toString(),
       fromNetwork,
@@ -142,14 +146,16 @@ export const sendTransfer = async (
       toAddress,
       undefined,
     );
-    await signSolanaTransaction(receipt as Transaction);
-    return receipt;
+    if (fromChainName !== 'solana') {
+      return tx;
+    }
+    return await signSolanaTransaction(tx as Transaction);
   } else {
     console.log('send with relay');
     const parsedNativeAmt = toNativeToken
       ? utils.parseUnits(toNativeToken, decimals).toString()
       : '0';
-    const receipt = await wh.sendWithRelay(
+    const tx = await wh.sendWithRelay(
       token,
       parsedAmt.toString(),
       fromNetwork,
@@ -158,7 +164,8 @@ export const sendTransfer = async (
       toAddress,
       parsedNativeAmt,
     );
-    return receipt;
+    // relay not supported on Solana, so we can just return the ethers receipt
+    return tx;
   }
 };
 
@@ -187,8 +194,11 @@ export const claimTransfer = async (
   return await wh.redeem(destChain, vaa, { gasLimit: 250000 });
 };
 
-export const fetchTokenDetails = async (tokenId: TokenId, chain: ChainName | ChainId) => {
-  return await wh.fetchTokenDetails(tokenId, chain);
+export const fetchTokenDecimals = async (
+  tokenId: TokenId,
+  chain: ChainName | ChainId,
+) => {
+  return await wh.fetchTokenDecimals(tokenId, chain);
 };
 
 export const getTransferComplete = async (
@@ -197,4 +207,11 @@ export const getTransferComplete = async (
 ): Promise<boolean> => {
   const EthContext: any = wh.getContext(destChain);
   return await EthContext.isTransferCompleted(destChain, signedVaaHash);
+};
+
+export const getTxIdFromReceipt = (
+  sourceChain: ChainName | ChainId,
+  receipt: any,
+): string => {
+  return wh.getTxIdFromReceipt(sourceChain, receipt);
 };

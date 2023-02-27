@@ -12,7 +12,6 @@ import {
   Context,
   AnyContext,
   Contracts,
-  TokenDetails,
 } from './types';
 import { EthContext } from './contexts/ethContext';
 import { SolanaContext } from './contexts/solanaContext';
@@ -125,10 +124,13 @@ export class WormholeContext extends MultiProvider<Domain> {
     return await context.getForeignAsset(tokenId, chain);
   }
 
-  async fetchTokenDetails(tokenId: TokenId, chain: ChainName | ChainId): Promise<TokenDetails> {
+  async fetchTokenDecimals(
+    tokenId: TokenId,
+    chain: ChainName | ChainId,
+  ): Promise<number> {
     const context = this.getContext(chain);
     const repr = await context.getForeignAsset(tokenId, chain);
-    return await context.fetchTokenDetails(repr, chain);
+    return await context.fetchTokenDecimals(repr, chain);
   }
 
   async getNativeBalance(
@@ -259,5 +261,10 @@ export class WormholeContext extends MultiProvider<Domain> {
    */
   static async getConfig(env: Environment): Promise<WormholeConfig> {
     return env === 'MAINNET' ? MAINNET_CONFIG : TESTNET_CONFIG;
+  }
+
+  getTxIdFromReceipt(chain: ChainName | ChainId, receipt: any): string {
+    const context = this.getContext(chain);
+    return context.getTxIdFromReceipt(receipt);
   }
 }

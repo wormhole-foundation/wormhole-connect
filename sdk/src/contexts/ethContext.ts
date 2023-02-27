@@ -22,7 +22,6 @@ import {
   NATIVE,
   ParsedRelayerMessage,
   ParsedMessage,
-  TokenDetails,
 } from '../types';
 import { WormholeContext } from '../wormhole';
 import { EthContracts } from '../contracts/ethContracts';
@@ -49,16 +48,18 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
     return await tokenBridge.wrappedAsset(chainId, utils.arrayify(tokenAddr));
   }
 
-  async fetchTokenDetails(tokenAddr: string, chain: ChainName | ChainId): Promise<TokenDetails> {
+  async fetchTokenDecimals(
+    tokenAddr: string,
+    chain: ChainName | ChainId,
+  ): Promise<number> {
     const provider = this.context.mustGetProvider(chain);
     const tokenContract = TokenImplementation__factory.connect(
       tokenAddr,
       provider,
     );
-    const symbol = await tokenContract.symbol();
     const decimals = await tokenContract.decimals();
-    return { symbol, decimals };
-  };
+    return decimals;
+  }
 
   async getNativeBalance(
     walletAddr: string,
@@ -327,6 +328,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
       const fromChain = this.context.toChainName(chain);
       if (parsed.args.payload.startsWith('0x01')) {
         const parsedTransfer = await bridge.parseTransfer(parsed.args.payload); // for bridge messages
+        const tokenContext = this.context.getContext(parsedTransfer.tokenChain as ChainId);
         const parsedMessage: ParsedMessage = {
           sendTx: tx,
           sender: receipt.from,
@@ -335,7 +337,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
           recipient: parsedTransfer.to,
           toChain: this.context.toChainName(parsedTransfer.toChain),
           fromChain,
-          tokenAddress: this.parseAddress(parsedTransfer.tokenAddress),
+          tokenAddress: tokenContext.parseAddress(parsedTransfer.tokenAddress),
           tokenChain: this.context.toChainName(parsedTransfer.tokenChain),
           sequence: parsed.args.sequence,
         };
@@ -405,5 +407,9 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
 
   parseAddress(address: ethers.utils.BytesLike): string {
     return utils.hexlify(utils.stripZeros(address));
+  }
+
+  getTxIdFromReceipt(receipt: ethers.ContractReceipt) {
+    return receipt.transactionHash;
   }
 }

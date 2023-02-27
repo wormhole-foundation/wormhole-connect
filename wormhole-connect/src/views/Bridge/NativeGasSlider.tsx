@@ -199,7 +199,7 @@ function GasSlider(props: { disabled: boolean }) {
         destConfig !== undefined ? (
           <div className={classes.container}>
             {balances[destConfig.gasToken] &&
-            Number.parseFloat(balances[destConfig.gasToken]) < state.max ? (
+            Number.parseFloat(balances[destConfig.gasToken]!) < state.max ? (
               <div>
                 Your wallet has little or no native gas ({nativeGasToken.symbol}
                 ) balance on {destConfig?.displayName}. Would you like to

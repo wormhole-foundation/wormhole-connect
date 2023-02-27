@@ -18,7 +18,7 @@ const getRows = (txData: any): RowsData => {
 
   // manual transfers
   if (type === PaymentOption.MANUAL) {
-    const sendingGasToken = CHAINS[txData.fromChain];
+    const { gasToken } = CHAINS[txData.fromChain];
     return [
       {
         title: 'Amount',
@@ -26,7 +26,7 @@ const getRows = (txData: any): RowsData => {
       },
       {
         title: 'Gas fee',
-        value: `TODO ${sendingGasToken.symbol}`,
+        value: `TODO ${gasToken}`,
       },
     ];
   }
