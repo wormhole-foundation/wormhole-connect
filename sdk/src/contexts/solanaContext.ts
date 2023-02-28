@@ -494,6 +494,7 @@ export class SolanaContext<T extends WormholeContext> extends BridgeAbstract {
     if (!contracts.core || !contracts.token_bridge) throw new Error('contracts not found');
     const response = await this.connection.getTransaction(tx);
     const parsedResponse = await this.connection.getParsedTransaction(tx);
+    console.log('parsed', parsedResponse);
     if (!response || !response.meta?.innerInstructions![0].instructions)
       throw new Error('transaction not found');
     const instructions = response.meta?.innerInstructions![0].instructions;
@@ -527,9 +528,11 @@ export class SolanaContext<T extends WormholeContext> extends BridgeAbstract {
     const tokenContext = this.context.getContext(parsed.tokenChain as ChainId);
     const destContext = this.context.getContext(parsed.toChain as ChainId);
 
+    const parsedInstructions = (parsedResponse as any).transaction.message.instructions
+
     const parsedMessage: ParsedMessage = {
       sendTx: tx,
-      sender: (parsedResponse as any).transaction.message.instructions[0].parsed.info.source,
+      sender: parsedInstructions.length === 2 ? parsedInstructions[0].parsed.info.owner : parsedInstructions[0].parsed.info.source,
       amount: BigNumber.from(parsed.amount),
       payloadID: parsed.payloadType,
       recipient: destContext.parseAddress(hexlify(parsed.to)),

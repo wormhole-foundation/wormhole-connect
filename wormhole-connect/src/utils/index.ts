@@ -56,7 +56,7 @@ export function getWrappedTokenId(token: TokenConfig): TokenId {
 
 export function getTokenById(tokenId: TokenId): TokenConfig | void {
   return TOKENS_ARR.filter(
-    (t) => t.tokenId && tokenId.address === t.tokenId!.address,
+    (t) => t.tokenId && tokenId.address.toLowerCase() === t.tokenId!.address.toLowerCase(),
   )[0];
 }
 

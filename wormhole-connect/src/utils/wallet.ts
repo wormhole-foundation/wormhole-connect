@@ -98,6 +98,5 @@ export const signSolanaTransaction = async (
   }
 
   const tx = await wallet?.signAndSendTransaction(transaction);
-  console.log(tx);
-  return tx;
+  return { transactionHash: tx.id };
 };
