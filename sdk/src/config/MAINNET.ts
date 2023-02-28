@@ -107,16 +107,13 @@ const env: Environment = 'MAINNET';
 const MAINNET_CONFIG: WormholeConfig = {
   env,
   rpcs: {
-    ethereum: process.env.REACT_APP_ETHEREUM_RPC || 'https://rpc.ankr.com/eth',
-    solana:
-      process.env.REACT_APP_SOLANA_RPC || 'https://api.mainnet-beta.solana.com',
-    polygon:
-      process.env.REACT_APP_POLYGON_RPC || 'https://rpc.ankr.com/polygon',
-    bsc: process.env.REACT_APP_BSC_RPC || 'https://bscrpc.com',
-    avalanche:
-      process.env.REACT_APP_AVALANCHE_RPC || 'https://rpc.ankr.com/avalanche',
-    fantom: process.env.REACT_APP_FANTOM_RPC || 'https://rpc.ankr.com/fantom',
-    celo: process.env.REACT_APP_CELO_RPC || 'https://rpc.ankr.com/celo',
+    ethereum: 'https://rpc.ankr.com/eth',
+    solana: 'https://api.mainnet-beta.solana.com',
+    polygon: 'https://rpc.ankr.com/polygon',
+    bsc: 'https://bscrpc.com',
+    avalanche: 'https://rpc.ankr.com/avalanche',
+    fantom: 'https://rpc.ankr.com/fantom',
+    celo: 'https://rpc.ankr.com/celo',
   },
   chains: MAINNET,
 };

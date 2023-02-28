@@ -281,7 +281,7 @@ export class WormholeContext extends MultiProvider<Domain> {
    * @param environment 'MAINNET' or 'TESTNET'
    * @returns A Wormhole Config
    */
-  static async getConfig(env: Environment): Promise<WormholeConfig> {
+  static getConfig(env: Environment): WormholeConfig {
     return env === 'MAINNET' ? MAINNET_CONFIG : TESTNET_CONFIG;
   }
 }

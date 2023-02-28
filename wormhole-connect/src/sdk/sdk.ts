@@ -15,7 +15,29 @@ import { signSolanaTransaction } from 'utils/wallet';
 
 const { REACT_APP_ENV } = process.env;
 
-export const wh = new WormholeContext(REACT_APP_ENV! as Environment);
+
+const conf = WormholeContext.getConfig(REACT_APP_ENV! as Environment);
+const mainnetRpcs = {
+  ethereum: process.env.REACT_APP_ETHEREUM_RPC || conf.rpcs.ethereum,
+  solana: process.env.REACT_APP_SOLANA_RPC || conf.rpcs.solana,
+  polygon: process.env.REACT_APP_POLYGON_RPC || conf.rpcs.polygon,
+  bsc: process.env.REACT_APP_BSC_RPC || conf.rpcs.bsc,
+  avalanche: process.env.REACT_APP_AVALANCHE_RPC || conf.rpcs.avalanche,
+  fantom: process.env.REACT_APP_FANTOM_RPC || conf.rpcs.fantom,
+  celo: process.env.REACT_APP_CELO_RPC || conf.rpcs.celo,
+}
+const testnetRpcs = {
+  goerli: process.env.REACT_APP_GOERLI_RPC || conf.rpcs.goerli,
+  mumbai: process.env.REACT_APP_MUMBAI_RPC || conf.rpcs.mumbai,
+  bsc: process.env.REACT_APP_BSC_TESTNET_RPC || conf.rpcs.bsc,
+  fuji: process.env.REACT_APP_FUJI_RPC || conf.rpcs.fuji,
+  fantom: process.env.REACT_APP_FANTOM_TESTNET_RPC || conf.rpcs.fantom,
+  alfajores: process.env.REACT_APP_ALFAJORES_RPC || conf.rpcs.alfajores,
+  solana: process.env.REACT_APP_SOLANA_DEVNET_RPC || conf.rpcs.solana,
+}
+conf.rpcs = REACT_APP_ENV === 'MAINNET' ? mainnetRpcs : testnetRpcs
+
+export const wh = new WormholeContext(REACT_APP_ENV! as Environment, conf);
 
 export interface ParsedMessage {
   sendTx: string;
