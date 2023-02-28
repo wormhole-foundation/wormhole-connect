@@ -1,27 +1,28 @@
 import React, { ChangeEvent } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { useTheme } from '@mui/material/styles';
 import { makeStyles } from 'tss-react/mui';
+import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { RootState } from '../store';
+import { CHAINS_ARR } from '../sdk/config';
+import { setFromNetworksModal, setToNetworksModal } from '../store/router';
+import { setFromNetwork, setToNetwork } from '../store/transfer';
+import TokenIcon from '../icons/components/TokenIcons';
+import { CENTER, joinClass } from '../utils/style';
+import { TransferWallet, walletAcceptedNetworks } from '../utils/wallet';
+import { disconnect } from '../utils/wallet';
+
 import Header from '../components/Header';
 import Modal from '../components/Modal';
 import Spacer from '../components/Spacer';
 import Search from '../components/Search';
 import Scroll from '../components/Scroll';
-
-import { CHAINS_ARR } from '../sdk/config';
-import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
-import { useDispatch } from 'react-redux';
-import { setFromNetworksModal, setToNetworksModal } from '../store/router';
-import { setFromNetwork, setToNetwork } from '../store/transfer';
-import TokenIcon from '../icons/components/TokenIcons';
-import { CENTER, joinClass } from '../utils/style';
+import { clearWallet } from '../store/wallet';
 
 const useStyles = makeStyles()((theme) => ({
   networksContainer: {
-    display: 'flex',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill, 150px)',
     justifyContent: 'space-between',
   },
   noResults: {
@@ -52,7 +53,7 @@ const useStyles = makeStyles()((theme) => ({
     marginTop: '16px',
   },
   disabled: {
-    opacity: '60%',
+    opacity: '40%',
     cursor: 'not-allowed',
     clickEvent: 'none',
   },
@@ -74,36 +75,47 @@ function NetworksModal(props: Props) {
   const { classes } = useStyles();
   const theme = useTheme();
   const dispatch = useDispatch();
-  const [chains, setChains] = React.useState(CHAINS_ARR);
+
   const { fromNetwork, toNetwork } = useSelector(
     (state: RootState) => state.transfer,
   );
+  const { sending, receiving } = useSelector(
+    (state: RootState) => state.wallet,
+  );
+  const filteredChains = CHAINS_ARR.filter((c) => {
+    if (props.type === ModalType.FROM) {
+      return c.key !== toNetwork;
+    }
+    return c.key !== fromNetwork;
+  });
+  const [chains, setChains] = React.useState(filteredChains);
 
   // listen for close event
   const closeNetworksModal = () => {
-    setTimeout(() => setChains(CHAINS_ARR), 500);
+    setTimeout(() => setChains(filteredChains), 500);
     dispatch(setFromNetworksModal(false));
     dispatch(setToNetworksModal(false));
-    document.removeEventListener('click', closeNetworksModal);
   };
-  document.addEventListener('close', closeNetworksModal, { once: true });
 
   const isDisabled = (chain: ChainName) => {
-    if (props.type === ModalType.FROM) {
-      if (!toNetwork) return false;
-      return toNetwork === chain;
-    } else {
-      if (!fromNetwork) return false;
-      return fromNetwork === chain;
-    }
+    const type = props.type === ModalType.FROM ? sending.type : receiving.type;
+    return !walletAcceptedNetworks[type].includes(chain);
   };
 
   // dispatch selectNetwork event
-  const selectNetwork = (network: ChainName) => {
+  const selectNetwork = async (network: ChainName) => {
     if (props.type === ModalType.FROM) {
+      if (isDisabled(network)) {
+        await disconnect(TransferWallet.SENDING);
+        dispatch(clearWallet(TransferWallet.SENDING));
+      }
       dispatch(setFromNetwork(network));
       dispatch(setFromNetworksModal(false));
     } else {
+      if (isDisabled(network)) {
+        await disconnect(TransferWallet.RECEIVING);
+        dispatch(clearWallet(TransferWallet.RECEIVING));
+      }
       dispatch(setToNetwork(network));
       dispatch(setToNetworksModal(false));
     }
@@ -117,14 +129,19 @@ function NetworksModal(props: Props) {
   ) => {
     if (!e) return;
     const lowercase = e.target.value.toLowerCase();
-    const filtered = CHAINS_ARR.filter((c) => {
+    const filtered = filteredChains.filter((c) => {
       return c.key.indexOf(lowercase) === 0;
     });
     setChains(filtered);
   };
 
   return (
-    <Modal open={props.open} closable width={CHAINS_ARR.length > 6 ? 650 : 475}>
+    <Modal
+      open={props.open}
+      closable
+      width={CHAINS_ARR.length > 6 ? 650 : 475}
+      onClose={closeNetworksModal}
+    >
       <Header text={props.title} />
       <div>Select Network</div>
       <Spacer height={16} />
@@ -145,10 +162,7 @@ function NetworksModal(props: Props) {
                     classes.networkTile,
                     !!disabled && classes.disabled,
                   ])}
-                  onClick={() => {
-                    if (disabled) return;
-                    selectNetwork(chain.key);
-                  }}
+                  onClick={() => selectNetwork(chain.key)}
                 >
                   <TokenIcon name={chain.icon} height={48} />
                   <div className={classes.networkText}>{chain.displayName}</div>

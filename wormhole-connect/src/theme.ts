@@ -7,7 +7,6 @@ import { OPACITY } from './utils/style';
 import { CUSTOM_THEME } from 'sdk/config';
 import { PaletteMode } from '@mui/material';
 
-
 export type PaletteColor = {
   50: string;
   100: string;
@@ -270,12 +269,11 @@ export const getDesignTokens = (mode: PaletteMode) =>
           root: {
             // Some CSS
             background:
-              (CUSTOM_THEME ? CUSTOM_THEME.modal.background : (
-                mode === 'light'
-                  ? light.modal.background
-                  : dark.modal.background
-                )
-              ) + ' !important'
+              (CUSTOM_THEME
+                ? CUSTOM_THEME.modal.background
+                : mode === 'light'
+                ? light.modal.background
+                : dark.modal.background) + ' !important',
           },
         },
       },
@@ -283,9 +281,9 @@ export const getDesignTokens = (mode: PaletteMode) =>
         styleOverrides: {
           root: {
             width: '100%',
-          }
-        }
-      }
+          },
+        },
+      },
     },
     breakpoints: {
       values: {

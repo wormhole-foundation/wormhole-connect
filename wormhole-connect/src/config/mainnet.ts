@@ -8,97 +8,45 @@ export const MAINNET_NETWORKS: NetworksConfig = {
     ...chains.ethereum!,
     icon: 'eth',
     nativeToken: 'ETH',
+    automaticRelayer: true,
   },
   bsc: {
     ...chains.bsc!,
     icon: 'bsc',
     nativeToken: 'BNB',
+    automaticRelayer: true,
   },
   polygon: {
     ...chains.polygon!,
     icon: 'polygon',
     nativeToken: 'MATIC',
+    automaticRelayer: true,
   },
   avalanche: {
     ...chains.avalanche!,
     icon: 'avax',
     nativeToken: 'AVAX',
+    automaticRelayer: true,
   },
   fantom: {
     ...chains.fantom!,
     icon: 'fantom',
     nativeToken: 'FTM',
+    automaticRelayer: true,
   },
   celo: {
     ...chains.celo!,
     icon: 'celo',
     nativeToken: 'CELO',
+    automaticRelayer: true,
+  },
+  solana: {
+    ...chains.solana!,
+    icon: 'solana',
+    nativeToken: 'SOL',
+    automaticRelayer: false,
   },
 };
-
-// export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
-//   MATIC: {
-//     symbol: 'MATIC',
-//     nativeNetwork: 'polygon',
-//     icon: 'polygon',
-//     coinGeckoId: 'polygon',
-//     color: '#8247E5',
-//     decimals: 18,
-//     wrappedAsset: 'WMATIC',
-//   },
-//   WMATIC: {
-//     symbol: 'WMATIC',
-//     nativeNetwork: 'polygon',
-//     icon: 'polygon',
-//     tokenId: {
-//       chain: 'polygon',
-//       address: '0x1234...5678',
-//     },
-//     coinGeckoId: 'polygon',
-//     color: '#8247E5',
-//     decimals: 18,
-//   },
-//   SOL: {
-//     symbol: 'SOL',
-//     nativeNetwork: 'solana',
-//     icon: 'solana',
-//     coinGeckoId: 'solana',
-//     color: '#28D4B5',
-//     decimals: 18,
-//   },
-//   WAVAX: {
-//     symbol: 'WAVAX',
-//     nativeNetwork: 'avalanche',
-//     icon: 'avax',
-//     tokenId: {
-//       chain: 'avalanche',
-//       address: '0x1234...5678',
-//     },
-//     coinGeckoId: 'wrapped-avax',
-//     color: '#E84142',
-//     decimals: 18,
-//   },
-//   CELO: {
-//     symbol: 'CELO',
-//     nativeNetwork: 'celo',
-//     icon: 'celo',
-//     tokenId: {
-//       chain: 'celo',
-//       address: '0x1234...5678',
-//     },
-//     coinGeckoId: 'celo',
-//     color: '#35D07E',
-//     decimals: 18,
-//   },
-//   BNB: {
-//     symbol: 'BNB',
-//     nativeNetwork: 'bsc',
-//     icon: 'bnb',
-//     coinGeckoId: 'bnb',
-//     color: '#F3BA30',
-//     decimals: 18,
-//   },
-// };
 
 export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   ETH: {
@@ -107,7 +55,8 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     icon: 'eth',
     coinGeckoId: 'ethereum',
     color: '#62688F',
-    decimals: 18,
+    decimals: 9,
+    solDecimals: 8,
     wrappedAsset: 'WETH',
   },
   WETH: {
@@ -121,6 +70,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     coinGeckoId: 'ethereum',
     color: '#62688F',
     decimals: 18,
+    solDecimals: 8,
   },
   MATIC: {
     symbol: 'MATIC',
@@ -129,6 +79,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     coinGeckoId: 'matic-network',
     color: '#8247E5',
     decimals: 18,
+    solDecimals: 8,
     wrappedAsset: 'WMATIC',
   },
   WMATIC: {
@@ -142,6 +93,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     coinGeckoId: 'matic-network',
     color: '#8247E5',
     decimals: 18,
+    solDecimals: 8,
   },
   BNB: {
     symbol: 'BNB',
@@ -150,6 +102,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     coinGeckoId: 'binancecoin',
     color: '#F3BA30',
     decimals: 18,
+    solDecimals: 8,
     wrappedAsset: 'WBNB',
   },
   WBNB: {
@@ -163,6 +116,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     coinGeckoId: 'binancecoin',
     color: '#F3BA30',
     decimals: 18,
+    solDecimals: 8,
   },
   AVAX: {
     symbol: 'AVAX',
@@ -171,6 +125,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     coinGeckoId: 'avalanche-2',
     color: '#E84141',
     decimals: 18,
+    solDecimals: 8,
     wrappedAsset: 'WAVAX',
   },
   WAVAX: {
@@ -184,6 +139,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     coinGeckoId: 'avalanche-2',
     color: '#E84141',
     decimals: 18,
+    solDecimals: 8,
   },
   FTM: {
     symbol: 'FTM',
@@ -192,6 +148,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     coinGeckoId: 'fantom',
     color: '#12B4EC',
     decimals: 18,
+    solDecimals: 8,
     wrappedAsset: 'WFTM',
   },
   WFTM: {
@@ -205,6 +162,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     coinGeckoId: 'fantom',
     color: '#12B4EC',
     decimals: 18,
+    solDecimals: 8,
   },
   CELO: {
     symbol: 'CELO',
@@ -217,5 +175,29 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     coinGeckoId: 'celo',
     color: '#35D07E',
     decimals: 18,
+    solDecimals: 8,
+  },
+  SOL: {
+    symbol: 'SOL',
+    nativeNetwork: 'solana',
+    icon: 'solana',
+    coinGeckoId: 'solana',
+    color: '#8457EF',
+    decimals: 9,
+    solDecimals: 9,
+    wrappedAsset: 'WSOL',
+  },
+  WSOL: {
+    symbol: 'WSOL',
+    nativeNetwork: 'solana',
+    tokenId: {
+      chain: 'solana',
+      address: 'So11111111111111111111111111111111111111112',
+    },
+    icon: 'solana',
+    coinGeckoId: 'solana',
+    color: '#8457EF',
+    decimals: 9,
+    solDecimals: 9,
   },
 };

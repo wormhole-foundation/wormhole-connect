@@ -7,7 +7,7 @@ import { RootState } from '../store';
 import { TOKENS_ARR } from '../sdk/config';
 import { setTokensModal } from '../store/router';
 import { setToken, setBalance, formatBalance } from '../store/transfer';
-import { displayEvmAddress } from '../utils';
+import { displayAddress } from '../utils';
 import { CENTER, joinClass } from '../utils/style';
 import { getBalance, getNativeBalance } from '../sdk/sdk';
 
@@ -157,9 +157,8 @@ function TokensModal() {
   // listen for close event
   const closeTokensModal = () => {
     dispatch(setTokensModal(false));
-    document.removeEventListener('click', closeTokensModal);
   };
-  document.addEventListener('close', closeTokensModal, { once: true });
+
   // select token
   const selectToken = (token: string) => {
     dispatch(setToken(token));
@@ -177,10 +176,10 @@ function TokensModal() {
       tokens.forEach(async (t) => {
         if (t.tokenId) {
           const balance = await getBalance(walletAddr, t.tokenId, chain);
-          dispatch(setBalance(formatBalance(t, balance)));
+          dispatch(setBalance(formatBalance(fromNetwork, t, balance)));
         } else {
           const balance = await getNativeBalance(walletAddr, chain);
-          dispatch(setBalance(formatBalance(t, balance)));
+          dispatch(setBalance(formatBalance(fromNetwork, t, balance)));
         }
       });
     };
@@ -195,7 +194,12 @@ function TokensModal() {
   }, [tokenBalances]);
 
   return (
-    <Modal open={showTokensModal} closable width={500}>
+    <Modal
+      open={showTokensModal}
+      closable
+      width={500}
+      onClose={closeTokensModal}
+    >
       <Header text="Select token" />
       <Spacer height={16} />
       <Search
@@ -239,7 +243,10 @@ function TokensModal() {
                     </div>
                     <div className={classes.tokenRowAddress}>
                       {token.tokenId
-                        ? displayEvmAddress(token.tokenId.address)
+                        ? displayAddress(
+                            token.tokenId.chain,
+                            token.tokenId.address,
+                          )
                         : 'Native'}
                     </div>
                   </div>

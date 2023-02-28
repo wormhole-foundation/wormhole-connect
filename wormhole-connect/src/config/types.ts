@@ -12,12 +12,14 @@ export type TokenConfig = {
   coinGeckoId: string;
   color: string;
   decimals: number;
+  solDecimals: number;
   wrappedAsset?: string;
 };
 
 export interface NetworkConfig extends ChainConfig {
   icon?: string;
   nativeToken: string;
+  automaticRelayer?: boolean;
 }
 
 export type NetworksConfig = {

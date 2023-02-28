@@ -3,6 +3,7 @@ import { WormholeConfig, Context, ChainConfig, Contracts } from '../types';
 
 // https://book.wormhole.com/reference/contracts.html
 export const TESTNET_CHAINS = {
+  solana: 1,
   goerli: 2,
   bsc: 4,
   mumbai: 5,
@@ -32,6 +33,19 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     explorerName: 'Etherscan',
     gasToken: 'ETH',
     chainId: 5,
+  },
+  solana: {
+    key: 'solana',
+    id: 1,
+    context: Context.SOLANA,
+    contracts: {
+      ...CONTRACTS.TESTNET.solana,
+    },
+    displayName: 'Solana',
+    explorerUrl: 'https://explorer.solana.com/?cluster=devnet/',
+    explorerName: 'Solana Explorer',
+    gasToken: 'SOL',
+    chainId: 0,
   },
   mumbai: {
     key: 'mumbai',
@@ -109,12 +123,13 @@ const env: Environment = 'TESTNET';
 const TESTNET_CONFIG: WormholeConfig = {
   env,
   rpcs: {
-    goerli: process.env.REACT_APP_GOERLI_RPC,
+    goerli: 'https://rpc.ankr.com/eth_goerli',
     mumbai: 'https://polygon-mumbai.blockpi.network/v1/rpc/public',
     bsc: 'https://data-seed-prebsc-2-s3.binance.org:8545',
     fuji: 'https://api.avax-test.network/ext/bc/C/rpc',
     fantom: 'https://rpc.ankr.com/fantom_testnet',
     alfajores: 'https://alfajores-forno.celo-testnet.org',
+    solana: 'https://api.testnet.solana.com',
   },
   chains: TESTNET,
 };

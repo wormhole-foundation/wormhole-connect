@@ -1,10 +1,12 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { Wallet } from '../utils/wallet';
+import { TransferWallet } from '../utils/wallet';
 
 export enum WalletType {
   NONE = 0,
   METAMASK,
-  TRUST_WALLET,
+  WALLET_CONNECT,
+  PHANTOM,
+  SOLFLARE,
 }
 
 export interface WalletState {
@@ -33,24 +35,37 @@ const initialState: WalletState = {
   },
 };
 
+export type ConnectPayload = {
+  address: string;
+  type: WalletType;
+};
+
 export const walletSlice = createSlice({
   name: 'wallet',
   initialState,
   reducers: {
-    connectWallet: (state: WalletState, { payload }: { payload: string }) => {
-      console.log('connect sending wallet');
-      state.sending.address = payload;
-      state.sending.currentAddress = payload;
+    connectWallet: (
+      state: WalletState,
+      { payload }: { payload: ConnectPayload },
+    ) => {
+      console.log('connect sending wallet', payload);
+      state.sending.type = payload.type;
+      state.sending.address = payload.address;
+      state.sending.currentAddress = payload.address;
     },
     connectReceivingWallet: (
       state: WalletState,
-      { payload }: { payload: string },
+      { payload }: { payload: ConnectPayload },
     ) => {
-      console.log('connect receiving wallet');
-      state.receiving.address = payload;
-      state.receiving.currentAddress = payload;
+      console.log('connect receiving wallet', payload);
+      state.receiving.type = payload.type;
+      state.receiving.address = payload.address;
+      state.receiving.currentAddress = payload.address;
     },
-    clearWallet: (state: WalletState, { payload }: { payload: Wallet }) => {
+    clearWallet: (
+      state: WalletState,
+      { payload }: { payload: TransferWallet },
+    ) => {
       const reset = {
         address: '',
         type: WalletType.NONE,
@@ -60,7 +75,7 @@ export const walletSlice = createSlice({
     },
     setCurrentAddress: (
       state: WalletState,
-      { payload }: { payload: { type: Wallet; address: string } },
+      { payload }: { payload: { type: TransferWallet; address: string } },
     ) => {
       state[payload.type].currentAddress = payload.address;
     },

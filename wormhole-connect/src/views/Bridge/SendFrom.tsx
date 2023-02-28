@@ -5,7 +5,7 @@ import { BigNumber } from 'ethers';
 import { Theme } from '@mui/material';
 import { RootState } from '../../store';
 import { setFromNetworksModal, setTokensModal } from '../../store/router';
-import { Wallet } from '../../utils/wallet';
+import { TransferWallet } from '../../utils/wallet';
 import { setAmount } from '../../store/transfer';
 import {
   setBalance as setStoreBalance,
@@ -134,14 +134,14 @@ function SendFrom() {
     if (tokenConfig.tokenId) {
       getBalance(walletAddr, tokenConfig.tokenId, fromNetwork).then(
         (res: BigNumber | null) => {
-          const balance = formatBalance(tokenConfig, res);
+          const balance = formatBalance(fromNetwork, tokenConfig, res);
           setBalance(balance[tokenConfig.symbol]);
           dispatch(setStoreBalance(balance));
         },
       );
     } else {
       getNativeBalance(walletAddr, fromNetwork).then((res: BigNumber) => {
-        const balance = formatBalance(tokenConfig, res);
+        const balance = formatBalance(fromNetwork, tokenConfig, res);
         setBalance(balance[tokenConfig.symbol]);
         dispatch(setStoreBalance(balance));
       });
@@ -152,7 +152,7 @@ function SendFrom() {
     <div className={classes.container}>
       <div className={classes.header}>
         <div className={classes.headerTitle}>Sending from</div>
-        <ConnectWallet type={Wallet.SENDING} />
+        <ConnectWallet type={TransferWallet.SENDING} />
       </div>
 
       <InputContainer>

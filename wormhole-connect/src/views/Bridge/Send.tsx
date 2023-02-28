@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { CHAINS, TOKENS } from '../../sdk/config';
-import { parseMessageFromTx, sendTransfer } from '../../sdk/sdk';
+import {
+  parseMessageFromTx,
+  sendTransfer,
+} from '../../sdk/sdk';
 import { RootState } from '../../store';
 import { setRoute } from '../../store/router';
 import { setTxDetails, setSendTx } from '../../store/redeem';
@@ -9,11 +12,12 @@ import { setTxDetails, setSendTx } from '../../store/redeem';
 import {
   registerWalletSigner,
   switchNetwork,
-  Wallet,
+  TransferWallet,
 } from '../../utils/wallet';
-import { displayEvmAddress } from '../../utils';
+import { displayWalletAddress } from '../../utils';
 import Button from '../../components/Button';
 import CircularProgress from '@mui/material/CircularProgress';
+import { Context } from '@wormhole-foundation/wormhole-connect-sdk';
 
 function Send(props: { valid: boolean }) {
   const dispatch = useDispatch();
@@ -36,9 +40,12 @@ function Send(props: { valid: boolean }) {
   async function send() {
     setInProgress(true);
     try {
-      registerWalletSigner(fromNetwork!, Wallet.SENDING);
-      const { chainId } = CHAINS[fromNetwork!]!;
-      await switchNetwork(chainId, Wallet.SENDING);
+      const fromConfig = CHAINS[fromNetwork!];
+      if (fromConfig?.context === Context.ETH) {
+        registerWalletSigner(fromNetwork!, TransferWallet.SENDING);
+        const { chainId } = CHAINS[fromNetwork!]!;
+        await switchNetwork(chainId, TransferWallet.SENDING);
+      }
       // TODO: better validation
       if (!amount) throw new Error('invalid input, specify an amount');
       if (!token) throw new Error('invalid input, specify an asset');
@@ -46,7 +53,7 @@ function Send(props: { valid: boolean }) {
       if (!tokenConfig) throw new Error('invalid token');
       const sendToken = tokenConfig.tokenId;
 
-      const receipt = await sendTransfer(
+      const receipt: any = await sendTransfer(
         sendToken || 'native',
         `${amount}`,
         fromNetwork!,
@@ -57,11 +64,10 @@ function Send(props: { valid: boolean }) {
         `${toNativeToken}`,
       );
       console.log('sent', receipt);
-      const message = await parseMessageFromTx(
-        receipt.transactionHash,
-        fromNetwork!,
-      );
-      dispatch(setSendTx(receipt.transactionHash));
+      const txId = receipt.transactionHash;
+      console.log(txId);
+      const message = await parseMessageFromTx(txId, fromNetwork!);
+      dispatch(setSendTx(txId));
       dispatch(setTxDetails(message));
       // TODO: clear inputs
       // dispatch(clearTransfer);
@@ -81,7 +87,7 @@ function Send(props: { valid: boolean }) {
 
   return props.valid && !isConnected ? (
     <Button disabled elevated>
-      Connect to {displayEvmAddress(sending.address)}
+      Connect to {displayWalletAddress(sending.type, sending.address)}
     </Button>
   ) : (
     <Button

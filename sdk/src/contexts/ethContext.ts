@@ -2,7 +2,7 @@ import {
   Implementation__factory,
   TokenImplementation__factory,
 } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
-import { createNonce } from '@certusone/wormhole-sdk';
+import { createNonce, keccak256 } from '@certusone/wormhole-sdk';
 import {
   BigNumber,
   BigNumberish,
@@ -12,9 +12,9 @@ import {
   Overrides,
   PayableOverrides,
 } from 'ethers';
-import { arrayify, zeroPad } from 'ethers/lib/utils';
-import { WormholeContext } from '../wormhole';
-import { Context } from './contextAbstract';
+import { utils } from 'ethers';
+
+import { RelayerAbstract } from './abstracts';
 import {
   TokenId,
   ChainName,
@@ -23,27 +23,64 @@ import {
   ParsedRelayerMessage,
   ParsedMessage,
 } from '../types';
+import { WormholeContext } from '../wormhole';
+import { EthContracts } from '../contracts/ethContracts';
+import { hexlify } from 'ethers/lib/utils';
 
-export class EthContext<T extends WormholeContext> extends Context {
+export class EthContext<T extends WormholeContext> extends RelayerAbstract {
+  protected contracts: EthContracts<T>;
   readonly context: T;
 
   constructor(context: T) {
     super();
     this.context = context;
+    this.contracts = new EthContracts(context);
   }
 
   async getForeignAsset(tokenId: TokenId, chain: ChainName | ChainId) {
-    const toChainId = this.context.resolveDomain(chain);
-    const chainId = this.context.resolveDomain(tokenId.chain);
+    const toChainId = this.context.toChainId(chain);
+    const chainId = this.context.toChainId(tokenId.chain);
     // if the token is already native, return the token address
     if (toChainId === chainId) return tokenId.address;
     // else fetch the representation
-    const tokenBridge = this.context.mustGetBridge(chain);
-    const tokenAddr = '0x' + this.formatAddress(tokenId.address);
-    return await tokenBridge.wrappedAsset(
-      chainId,
-      ethers.utils.arrayify(tokenAddr),
+    const tokenBridge = this.contracts.mustGetBridge(chain);
+    const sourceContext = this.context.getContext(tokenId.chain);
+    const tokenAddr = sourceContext.formatAddress(tokenId.address);
+    return await tokenBridge.wrappedAsset(chainId, utils.arrayify(tokenAddr));
+  }
+
+  async fetchTokenDecimals(
+    tokenAddr: string,
+    chain: ChainName | ChainId,
+  ): Promise<number> {
+    const provider = this.context.mustGetProvider(chain);
+    const tokenContract = TokenImplementation__factory.connect(
+      tokenAddr,
+      provider,
     );
+    const decimals = await tokenContract.decimals();
+    return decimals;
+  }
+
+  async getNativeBalance(
+    walletAddr: string,
+    chain: ChainName | ChainId,
+  ): Promise<BigNumber> {
+    const provider = this.context.mustGetProvider(chain);
+    return await provider.getBalance(walletAddr);
+  }
+
+  async getTokenBalance(
+    walletAddr: string,
+    tokenId: TokenId,
+    chain: ChainName | ChainId,
+  ): Promise<BigNumber | null> {
+    const address = await this.getForeignAsset(tokenId, chain);
+    if (address === constants.AddressZero) return null;
+    const provider = this.context.mustGetProvider(chain);
+    const token = TokenImplementation__factory.connect(address, provider);
+    const balance = await token.balanceOf(walletAddr);
+    return balance;
   }
 
   /**
@@ -59,7 +96,7 @@ export class EthContext<T extends WormholeContext> extends Context {
     token: string,
     amount?: BigNumberish,
     overrides?: any,
-  ) {
+  ): Promise<ethers.ContractReceipt | void> {
     const signer = this.context.getSigner(chain);
     if (!signer) throw new Error(`No signer for ${chain}`);
     const senderAddress = await signer.getAddress();
@@ -96,18 +133,16 @@ export class EthContext<T extends WormholeContext> extends Context {
     relayerFee: ethers.BigNumberish = 0,
     overrides?: PayableOverrides & { from?: string | Promise<string> },
   ): Promise<ethers.ContractReceipt> {
-    const isAddress = ethers.utils.isAddress(recipientAddress);
-    if (!isAddress)
-      throw new Error(`invalid recipient address: ${recipientAddress}`);
-    const recipientChainId = this.context.resolveDomain(recipientChain);
+    const destContext = this.context.getContext(recipientChain);
+    const recipientChainId = this.context.toChainId(recipientChain);
     const amountBN = ethers.BigNumber.from(amount);
-    const bridge = this.context.mustGetBridge(sendingChain);
+    const bridge = this.contracts.mustGetBridge(sendingChain);
 
     if (token === NATIVE) {
       // sending native ETH
       const v = await bridge.wrapAndTransferETH(
         recipientChainId,
-        '0x' + this.formatAddress(recipientAddress),
+        destContext.formatAddress(recipientAddress),
         relayerFee,
         createNonce(),
         {
@@ -123,10 +158,10 @@ export class EthContext<T extends WormholeContext> extends Context {
       const tokenAddr = await this.getForeignAsset(token, sendingChain);
       await this.approve(sendingChain, bridge.address, tokenAddr, amountBN);
       const v = await bridge.transferTokens(
-        this.parseAddress(tokenAddr),
+        destContext.parseAddress(tokenAddr),
         amountBN,
         recipientChainId,
-        '0x' + this.formatAddress(recipientAddress),
+        destContext.formatAddress(recipientAddress),
         relayerFee,
         createNonce(),
         // overrides,
@@ -146,18 +181,16 @@ export class EthContext<T extends WormholeContext> extends Context {
     payload: Uint8Array,
     overrides?: PayableOverrides & { from?: string | Promise<string> },
   ): Promise<ethers.ContractReceipt> {
-    const isAddress = ethers.utils.isAddress(recipientAddress);
-    if (!isAddress)
-      throw new Error(`invalid recipient address: ${recipientAddress}`);
-    const recipientChainId = this.context.resolveDomain(recipientChain);
-    const bridge = this.context.mustGetBridge(sendingChain);
+    const destContext = this.context.getContext(recipientChain);
+    const recipientChainId = this.context.toChainId(recipientChain);
+    const bridge = this.contracts.mustGetBridge(sendingChain);
     const amountBN = ethers.BigNumber.from(amount);
 
     if (token === NATIVE) {
       // sending native ETH
       const v = await bridge.wrapAndTransferETHWithPayload(
         recipientChainId,
-        recipientAddress,
+        destContext.formatAddress(recipientAddress),
         createNonce(),
         payload,
         {
@@ -171,10 +204,10 @@ export class EthContext<T extends WormholeContext> extends Context {
       const tokenAddr = await this.getForeignAsset(token, sendingChain);
       await this.approve(sendingChain, bridge.address, tokenAddr, amountBN);
       const v = await bridge.transferTokensWithPayload(
-        this.parseAddress(tokenAddr),
+        destContext.parseAddress(tokenAddr),
         amountBN,
         recipientChainId,
-        recipientAddress,
+        destContext.formatAddress(recipientAddress),
         createNonce(),
         payload,
         overrides,
@@ -196,11 +229,11 @@ export class EthContext<T extends WormholeContext> extends Context {
     const isAddress = ethers.utils.isAddress(recipientAddress);
     if (!isAddress)
       throw new Error(`invalid recipient address: ${recipientAddress}`);
-    const recipientChainId = this.context.resolveDomain(recipientChain);
+    const recipientChainId = this.context.toChainId(recipientChain);
     const amountBN = ethers.BigNumber.from(amount);
-    const relayer = this.context.mustGetTBRelayer(sendingChain);
+    const relayer = this.contracts.mustGetTokenBridgeRelayer(sendingChain);
     const nativeTokenBN = ethers.BigNumber.from(toNativeToken);
-    const formattedRecipient = `0x${this.formatAddress(recipientAddress)}`;
+    const formattedRecipient = this.formatAddress(recipientAddress);
     // const unwrapWeth = await relayer.unwrapWeth(); // TODO: check unwrapWeth flag
 
     if (token === NATIVE) {
@@ -245,7 +278,7 @@ export class EthContext<T extends WormholeContext> extends Context {
     overrides: Overrides & { from?: string | Promise<string> } = {},
   ): Promise<ContractReceipt> {
     // TODO: could get destination chain by parsing VAA
-    const bridge = this.context.mustGetBridge(destChain);
+    const bridge = this.contracts.mustGetBridge(destChain);
     const v = await bridge.completeTransfer(signedVAA, overrides);
     const receipt = await v.wait();
     return receipt;
@@ -259,7 +292,7 @@ export class EthContext<T extends WormholeContext> extends Context {
     destChain: ChainName | ChainId,
     tokenId: TokenId,
   ): Promise<BigNumber> {
-    const relayer = this.context.mustGetTBRelayer(destChain);
+    const relayer = this.contracts.mustGetTokenBridgeRelayer(destChain);
     const token = await this.getForeignAsset(tokenId, destChain);
     return await relayer.calculateMaxSwapAmountIn(token);
   }
@@ -269,74 +302,71 @@ export class EthContext<T extends WormholeContext> extends Context {
     tokenId: TokenId,
     amount: BigNumberish,
   ): Promise<BigNumber> {
-    const relayer = this.context.mustGetTBRelayer(destChain);
+    const relayer = this.contracts.mustGetTokenBridgeRelayer(destChain);
     const token = await this.getForeignAsset(tokenId, destChain);
     return await relayer.calculateNativeSwapAmountOut(token, amount);
   }
 
-  async parseMessageFromTx(tx: string, chain: ChainName | ChainId) {
+  async parseMessageFromTx(
+    tx: string,
+    chain: ChainName | ChainId,
+  ): Promise<ParsedMessage[] | ParsedRelayerMessage[]> {
     const provider = this.context.mustGetProvider(chain);
     const receipt = await provider.getTransactionReceipt(tx);
-    console.log(receipt);
+
     if (!receipt) throw new Error(`No receipt for ${tx} on ${chain}`);
-    // const core = context.mustGetCore(chain);
-    const contracts = this.context.mustGetContracts(chain);
-    if (!contracts.core || !contracts.bridge)
-      throw new Error('contracts not found');
+
+    const core = this.contracts.mustGetCore(chain);
+    const bridge = this.contracts.mustGetBridge(chain);
+    const relayer = this.contracts.getTokenBridgeRelayer(chain);
     const bridgeLogs = receipt.logs.filter((l: any) => {
-      return l.address === contracts.core!.address;
+      return l.address === core.address;
     });
     const parsedLogs = bridgeLogs.map(async (bridgeLog) => {
       const parsed =
         Implementation__factory.createInterface().parseLog(bridgeLog);
-      if (!contracts.tokenBridgeRelayer)
-        throw new Error('relayer contract not found');
 
-      const fromChain = this.context.resolveDomainName(chain) as ChainName;
+      const fromChain = this.context.toChainName(chain);
       if (parsed.args.payload.startsWith('0x01')) {
-        const parsedTransfer = await contracts.bridge!.parseTransfer(
-          parsed.args.payload,
-        ); // for bridge messages
+        const parsedTransfer = await bridge.parseTransfer(parsed.args.payload); // for bridge messages
+        const tokenContext = this.context.getContext(
+          parsedTransfer.tokenChain as ChainId,
+        );
         const parsedMessage: ParsedMessage = {
           sendTx: tx,
           sender: receipt.from,
           amount: parsedTransfer.amount,
           payloadID: parsedTransfer.payloadID,
           recipient: parsedTransfer.to,
-          toChain: this.context.resolveDomainName(
-            parsedTransfer.toChain,
-          ) as ChainName,
+          toChain: this.context.toChainName(parsedTransfer.toChain),
           fromChain,
-          tokenAddress: this.parseAddress(parsedTransfer.tokenAddress),
-          tokenChain: this.context.resolveDomainName(
-            parsedTransfer.tokenChain,
-          ) as ChainName,
+          tokenAddress: tokenContext.parseAddress(parsedTransfer.tokenAddress),
+          tokenChain: this.context.toChainName(parsedTransfer.tokenChain),
           sequence: parsed.args.sequence,
+          emitterAddress: hexlify(this.formatAddress(bridge.address)),
         };
         return parsedMessage;
       }
-      const parsedTransfer = await contracts.bridge!.parseTransferWithPayload(
+      if (!relayer)
+        throw new Error('no relayer contract to decode message payload');
+      const parsedTransfer = await bridge.parseTransferWithPayload(
         parsed.args.payload,
       );
-      const parsedPayload =
-        await contracts.tokenBridgeRelayer!.decodeTransferWithRelay(
-          parsedTransfer.payload,
-        );
+      const parsedPayload = await relayer.decodeTransferWithRelay(
+        parsedTransfer.payload,
+      );
       const parsedMessage: ParsedRelayerMessage = {
         sendTx: tx,
         sender: receipt.from,
         amount: parsedTransfer.amount,
         payloadID: parsedTransfer.payloadID,
         to: this.parseAddress(parsedTransfer.to),
-        toChain: this.context.resolveDomainName(
-          parsedTransfer.toChain,
-        ) as ChainName,
+        toChain: this.context.toChainName(parsedTransfer.toChain),
         fromChain,
         tokenAddress: this.parseAddress(parsedTransfer.tokenAddress),
-        tokenChain: this.context.resolveDomainName(
-          parsedTransfer.tokenChain,
-        ) as ChainName,
+        tokenChain: this.context.toChainName(parsedTransfer.tokenChain),
         sequence: parsed.args.sequence,
+        emitterAddress: hexlify(this.formatAddress(bridge.address)),
         payload: parsedTransfer.payload,
         relayerPayloadId: parsedPayload.payloadId,
         recipient: this.parseAddress(parsedPayload.targetRecipient),
@@ -353,7 +383,7 @@ export class EthContext<T extends WormholeContext> extends Context {
     destChain: ChainName | ChainId,
     tokenId: TokenId,
   ): Promise<BigNumber> {
-    const relayer = this.context.mustGetTBRelayer(sourceChain);
+    const relayer = this.contracts.mustGetTokenBridgeRelayer(sourceChain);
     // get asset address
     const address = await this.getForeignAsset(tokenId, sourceChain);
     // get token decimals
@@ -364,24 +394,28 @@ export class EthContext<T extends WormholeContext> extends Context {
     );
     const decimals = await tokenContract.decimals();
     // get relayer fee as token amt
-    const destChainId = this.context.resolveDomain(destChain);
+    const destChainId = this.context.toChainId(destChain);
     return await relayer.calculateRelayerFee(destChainId, address, decimals);
   }
 
   async isTransferCompleted(
     destChain: ChainName | ChainId,
-    signedVaaHash: string,
+    signedVaa: string,
   ): Promise<boolean> {
-    const tokenBridge = this.context.mustGetBridge(destChain);
-    return await tokenBridge.isTransferCompleted(signedVaaHash);
+    const tokenBridge = this.contracts.mustGetBridge(destChain);
+    const hash = keccak256(signedVaa);
+    return await tokenBridge.isTransferCompleted(hash);
   }
 
-  formatAddress(address: string): string {
-    return Buffer.from(zeroPad(arrayify(address), 32)).toString('hex');
+  formatAddress(address: string): ethers.utils.BytesLike {
+    return Buffer.from(utils.zeroPad(address, 32));
   }
 
-  parseAddress(address: string): string {
-    if (address.length === 42) return address;
-    return '0x' + address.slice(26);
+  parseAddress(address: ethers.utils.BytesLike): string {
+    return utils.hexlify(utils.stripZeros(address));
+  }
+
+  getTxIdFromReceipt(receipt: ethers.ContractReceipt) {
+    return receipt.transactionHash;
   }
 }

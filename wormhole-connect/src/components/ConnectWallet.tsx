@@ -1,23 +1,17 @@
-import React, { Dispatch } from 'react';
+import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { AnyAction } from '@reduxjs/toolkit';
-import { Theme, useTheme } from '@mui/material/styles';
 import { makeStyles } from 'tss-react/mui';
 import { RootState } from '../store';
-import {
-  connectReceivingWallet,
-  connectWallet,
-  clearWallet,
-  setCurrentAddress,
-} from '../store/wallet';
-import { openWalletModal, disconnect, Wallet } from '../utils/wallet';
-import { copyTextToClipboard, displayEvmAddress } from '../utils';
+import { disconnect, TransferWallet } from '../utils/wallet';
+import { copyTextToClipboard, displayWalletAddress } from '../utils';
 
 import DownIcon from '../icons/components/Down';
 import WalletIcon from '../icons/components/Wallet';
 import WalletIcons from '../icons/components/WalletIcons';
 import PopupState, { bindTrigger, bindPopover } from 'material-ui-popup-state';
 import Popover from '@mui/material/Popover';
+import { setWalletModal } from '../store/router';
+import { clearWallet } from '../store/wallet';
 
 const useStyles = makeStyles()((theme) => ({
   connectWallet: {
@@ -55,63 +49,17 @@ const useStyles = makeStyles()((theme) => ({
   },
 }));
 
-// function getIcon(type: WalletType): string {
-//   switch (type) {
-//     case WalletType.METAMASK: {
-//       return MetamaskIcon;
-//     }
-//     case WalletType.TRUST_WALLET: {
-//       return TrustWalletIcon;
-//     }
-//     default: {
-//       return '';
-//     }
-//   }
-// }
-
 type Props = {
-  type: Wallet;
+  type: TransferWallet;
 };
-export const handleConnect = async (
-  dispatch: Dispatch<AnyAction>,
-  theme: Theme,
-  type: Wallet,
-) => {
-  const walletConnection = await openWalletModal(
-    theme,
-    type === Wallet.RECEIVING,
-  );
-  if (type === Wallet.SENDING) {
-    // add listeners
-    const { connection } = walletConnection;
-    connection.on('accountsChanged', async (accounts: string[]) => {
-      if (accounts.length === 0) {
-        await disconnect(type);
-        clearWallet(type);
-      } else {
-        const payload = {
-          type,
-          address: accounts[0],
-        };
-        dispatch(setCurrentAddress(payload));
-      }
-    });
-
-    dispatch(connectWallet(walletConnection.address));
-  } else {
-    dispatch(connectReceivingWallet(walletConnection.address));
-  }
-};
-
 function ConnectWallet(props: Props) {
   const { classes } = useStyles();
-  const theme = useTheme();
   const dispatch = useDispatch();
   const wallet = useSelector((state: RootState) => state.wallet[props.type]);
 
   const connect = async (popupState?: any) => {
     if (popupState) popupState.close();
-    await handleConnect(dispatch, theme, props.type);
+    dispatch(setWalletModal(props.type));
   };
 
   const copy = async (popupState: any) => {
@@ -121,18 +69,16 @@ function ConnectWallet(props: Props) {
 
   const disconnectWallet = async () => {
     await disconnect(props.type);
-    dispatch(clearWallet(Wallet.SENDING));
+    dispatch(clearWallet(props.type));
   };
-
-  // const icon = getIcon(wallet.type);
 
   return wallet && wallet.address ? (
     <PopupState variant="popover" popupId="demo-popup-popover">
       {(popupState) => (
         <div>
           <div className={classes.connectWallet} {...bindTrigger(popupState)}>
-            <WalletIcons name="metamask" height={24} />
-            {displayEvmAddress(wallet.address)}
+            <WalletIcons type={wallet.type} height={24} />
+            {displayWalletAddress(wallet.type, wallet.address)}
             <DownIcon className={classes.down} />
           </div>
           <Popover

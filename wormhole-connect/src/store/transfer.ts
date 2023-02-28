@@ -11,17 +11,20 @@ export enum PaymentOption {
 export type Balances = { [key: string]: string | null };
 
 export const formatBalance = (
+  chain: ChainName,
   token: TokenConfig,
   balance: BigNumber | null,
 ) => {
+  const decimals = chain === 'solana' ? token.solDecimals : token.decimals;
   const formattedBalance =
-    balance !== null ? toDecimals(balance, token.decimals, 6) : null;
+    balance !== null ? toDecimals(balance, decimals, 6) : null;
   return { [token.symbol]: formattedBalance };
 };
 
 export interface TransferState {
   fromNetwork: ChainName | undefined;
   toNetwork: ChainName | undefined;
+  automaticRelayAvail: boolean;
   token: string;
   amount: number | undefined;
   destGasPayment: PaymentOption;
@@ -35,10 +38,10 @@ export interface TransferState {
 const initialState: TransferState = {
   fromNetwork: undefined,
   toNetwork: undefined,
+  automaticRelayAvail: false,
   token: '',
   amount: undefined,
-  // TODO: check if automatic is available once networks and token are selected
-  destGasPayment: PaymentOption.AUTOMATIC,
+  destGasPayment: PaymentOption.MANUAL,
   maxSwapAmt: undefined,
   toNativeToken: 0,
   receiveNativeAmt: undefined,
@@ -113,6 +116,13 @@ export const transferSlice = createSlice({
     ) => {
       state.balances = { ...state.balances, ...payload };
     },
+    setAutomaticRelayAvail: (
+      state: TransferState,
+      { payload }: PayloadAction<boolean>,
+    ) => {
+      state.automaticRelayAvail = payload;
+      if (payload) state.destGasPayment = PaymentOption.AUTOMATIC;
+    },
     clearTransfer: (state: TransferState) => {
       state = initialState;
     },
@@ -130,6 +140,7 @@ export const {
   setReceiveNativeAmt,
   setRelayerFee,
   setBalance,
+  setAutomaticRelayAvail,
   clearTransfer,
 } = transferSlice.actions;
 
