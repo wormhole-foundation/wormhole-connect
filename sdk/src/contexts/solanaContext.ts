@@ -517,6 +517,12 @@ export class SolanaContext<T extends WormholeContext> extends BridgeAbstract {
       accounts[bridgeInstructions[0].accounts[1]],
     );
 
+    const parsedInstr = parsedResponse?.meta?.innerInstructions![0].instructions;
+    const gasFee = !parsedInstr ? 0 : parsedInstr.reduce((acc, c: any) => {
+      if (!c.parsed || !c.parsed.info || !c.parsed.info.lamports) return acc;
+      return acc + c.parsed.info.lamports;
+    }, 0);
+
     // parse message payload
     const parsed = parseTokenTransferPayload(message.payload);
     console.log(parsed);
@@ -533,15 +539,9 @@ export class SolanaContext<T extends WormholeContext> extends BridgeAbstract {
     const tokenContext = this.context.getContext(parsed.tokenChain as ChainId);
     const destContext = this.context.getContext(parsed.toChain as ChainId);
 
-    const parsedInstructions = (parsedResponse as any).transaction.message
-      .instructions;
-
     const parsedMessage: ParsedMessage = {
       sendTx: tx,
-      sender:
-        parsedInstructions.length === 2
-          ? parsedInstructions[0].parsed.info.owner
-          : parsedInstructions[0].parsed.info.source,
+      sender: accounts[0].toString(),
       amount: BigNumber.from(parsed.amount),
       payloadID: parsed.payloadType,
       recipient: destContext.parseAddress(hexlify(parsed.to)),
@@ -550,6 +550,7 @@ export class SolanaContext<T extends WormholeContext> extends BridgeAbstract {
       tokenAddress: tokenContext.parseAddress(hexlify(parsed.tokenAddress)),
       tokenChain: this.context.toChainName(parsed.tokenChain),
       sequence: BigNumber.from(sequence),
+      gasFee: BigNumber.from(gasFee),
     };
     return [parsedMessage];
   }

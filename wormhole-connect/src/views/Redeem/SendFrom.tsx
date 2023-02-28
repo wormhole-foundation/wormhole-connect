@@ -7,13 +7,17 @@ import { ParsedVaa } from '../../utils/vaa';
 import InputContainer from '../../components/InputContainer';
 import Header from './Header';
 import { RenderRows, RowsData } from '../../components/RenderRows';
-import { CHAINS } from '../../sdk/config';
+import { CHAINS, TOKENS } from '../../sdk/config';
 import { PaymentOption } from '../../store/transfer';
+import { toDecimals } from '../../utils/balance';
 // import Confirmations from './Confirmations';
 
 const getRows = (txData: any): RowsData => {
   const decimals = txData.tokenDecimals > 8 ? 8 : txData.tokenDecimals;
-  const formattedAmt = utils.formatUnits(txData.amount, decimals);
+  const formattedAmt = toDecimals(txData.amount, decimals, 6);
+  const { gasToken: sourceGasTokenSymbol } = CHAINS[txData.fromChain];
+  const sourceGasToken = TOKENS[sourceGasTokenSymbol]
+  const formattedGas = txData.gasFee ? toDecimals(txData.gasFee, sourceGasToken.decimals, 6) : undefined;
   const type = txData.payloadID;
 
   // manual transfers
@@ -26,7 +30,7 @@ const getRows = (txData: any): RowsData => {
       },
       {
         title: 'Gas fee',
-        value: `TODO ${gasToken}`,
+        value: formattedGas ? `${formattedGas} ${gasToken}` : 'TODO',
       },
     ];
   }

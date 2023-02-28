@@ -30,6 +30,7 @@ export interface ParsedMessage {
   tokenSymbol: string;
   tokenDecimals: number;
   payload?: string;
+  gasFee?: string;
 }
 
 export interface ParsedRelayerMessage extends ParsedMessage {
@@ -96,6 +97,7 @@ export const parseMessageFromTx = async (
     tokenAddress: parsed.tokenAddress,
     tokenChain: parsed.tokenChain,
     sequence: parsed.sequence.toString(),
+    gasFee: parsed.gasFee ? parsed.gasFee.toString() : undefined,
   };
   if (parsed.payloadID === PaymentOption.MANUAL) {
     return base;
