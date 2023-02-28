@@ -15,7 +15,6 @@ import { signSolanaTransaction } from 'utils/wallet';
 
 const { REACT_APP_ENV } = process.env;
 
-
 const conf = WormholeContext.getConfig(REACT_APP_ENV! as Environment);
 const mainnetRpcs = {
   ethereum: process.env.REACT_APP_ETHEREUM_RPC || conf.rpcs.ethereum,
@@ -25,7 +24,7 @@ const mainnetRpcs = {
   avalanche: process.env.REACT_APP_AVALANCHE_RPC || conf.rpcs.avalanche,
   fantom: process.env.REACT_APP_FANTOM_RPC || conf.rpcs.fantom,
   celo: process.env.REACT_APP_CELO_RPC || conf.rpcs.celo,
-}
+};
 const testnetRpcs = {
   goerli: process.env.REACT_APP_GOERLI_RPC || conf.rpcs.goerli,
   mumbai: process.env.REACT_APP_MUMBAI_RPC || conf.rpcs.mumbai,
@@ -34,8 +33,8 @@ const testnetRpcs = {
   fantom: process.env.REACT_APP_FANTOM_TESTNET_RPC || conf.rpcs.fantom,
   alfajores: process.env.REACT_APP_ALFAJORES_RPC || conf.rpcs.alfajores,
   solana: process.env.REACT_APP_SOLANA_DEVNET_RPC || conf.rpcs.solana,
-}
-conf.rpcs = REACT_APP_ENV === 'MAINNET' ? mainnetRpcs : testnetRpcs
+};
+conf.rpcs = REACT_APP_ENV === 'MAINNET' ? mainnetRpcs : testnetRpcs;
 
 export const wh = new WormholeContext(REACT_APP_ENV! as Environment, conf);
 

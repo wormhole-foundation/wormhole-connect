@@ -1,4 +1,4 @@
-import { ParsedVaa, parseVaa, SignedVaa } from "./wormhole";
+import { ParsedVaa, parseVaa, SignedVaa } from './wormhole';
 
 export interface Governance {
   module: string;
@@ -18,7 +18,7 @@ export function parseGovernanceVaa(vaa: SignedVaa): ParsedGovernanceVaa {
 }
 
 export function parseGovernancePayload(payload: Buffer): Governance {
-  const module = payload.subarray(0, 32).toString().replace(/\0/g, "");
+  const module = payload.subarray(0, 32).toString().replace(/\0/g, '');
   const action = payload.readUInt8(32);
   const chain = payload.readUInt16BE(33);
   const orderPayload = payload.subarray(35);

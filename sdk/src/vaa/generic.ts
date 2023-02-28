@@ -1,7 +1,7 @@
-import { Parser } from "binary-parser";
-import { BigNumber, ethers } from "ethers";
-import { solidityKeccak256 } from "ethers/lib/utils";
-import * as elliptic from "elliptic";
+import { Parser } from 'binary-parser';
+import { BigNumber, ethers } from 'ethers';
+import { solidityKeccak256 } from 'ethers/lib/utils';
+import * as elliptic from 'elliptic';
 
 export interface Signature {
   guardianSetIndex: number;
@@ -32,10 +32,10 @@ class P<T> {
   parse(buffer: Buffer): T | null {
     try {
       let result = this.parser.parse(buffer);
-      delete result["end"];
+      delete result['end'];
       return result;
     } catch (e: any) {
-      if (e.message?.includes("Assertion error")) {
+      if (e.message?.includes('Assertion error')) {
         return null;
       } else {
         throw e;
@@ -53,7 +53,7 @@ class P<T> {
 }
 
 export interface Other {
-  type: "Other";
+  type: 'Other';
   hex: string;
   ascii?: string;
 }
@@ -62,10 +62,10 @@ export interface Other {
 export type Payload =
   | GuardianSetUpgrade
   | CoreContractUpgrade
-  | PortalContractUpgrade<"TokenBridge">
-  | PortalContractUpgrade<"NFTBridge">
-  | PortalRegisterChain<"TokenBridge">
-  | PortalRegisterChain<"NFTBridge">
+  | PortalContractUpgrade<'TokenBridge'>
+  | PortalContractUpgrade<'NFTBridge'>
+  | PortalRegisterChain<'TokenBridge'>
+  | PortalRegisterChain<'NFTBridge'>
   | TokenBridgeTransfer
   | TokenBridgeTransferWithPayload
   | TokenBridgeAttestMeta
@@ -73,17 +73,17 @@ export type Payload =
 
 export type ContractUpgrade =
   | CoreContractUpgrade
-  | PortalContractUpgrade<"TokenBridge">
-  | PortalContractUpgrade<"NFTBridge">;
+  | PortalContractUpgrade<'TokenBridge'>
+  | PortalContractUpgrade<'NFTBridge'>;
 
 export function parse(buffer: Buffer): VAA<Payload | Other> {
   const vaa = parseEnvelope(buffer);
   const parser = guardianSetUpgradeParser
     .or(coreContractUpgradeParser)
-    .or(portalContractUpgradeParser("TokenBridge"))
-    .or(portalContractUpgradeParser("NFTBridge"))
-    .or(portalRegisterChainParser("TokenBridge"))
-    .or(portalRegisterChainParser("NFTBridge"))
+    .or(portalContractUpgradeParser('TokenBridge'))
+    .or(portalContractUpgradeParser('NFTBridge'))
+    .or(portalRegisterChainParser('TokenBridge'))
+    .or(portalRegisterChainParser('NFTBridge'))
     .or(tokenBridgeTransferParser())
     .or(tokenBridgeTransferWithPayloadParser())
     .or(tokenBridgeAttestMetaParser())
@@ -91,13 +91,13 @@ export function parse(buffer: Buffer): VAA<Payload | Other> {
   let payload: Payload | Other | null = parser.parse(vaa.payload);
   if (payload === null) {
     payload = {
-      type: "Other",
-      hex: Buffer.from(vaa.payload).toString("hex"),
-      ascii: Buffer.from(vaa.payload).toString("utf8"),
+      type: 'Other',
+      hex: Buffer.from(vaa.payload).toString('hex'),
+      ascii: Buffer.from(vaa.payload).toString('utf8'),
     };
   } else {
     // @ts-ignore
-    delete payload["tokenURILength"];
+    delete payload['tokenURILength'];
   }
   var myVAA = { ...vaa, payload };
 
@@ -105,9 +105,9 @@ export function parse(buffer: Buffer): VAA<Payload | Other> {
 }
 
 export function assertKnownPayload(
-  vaa: VAA<Payload | Other>
+  vaa: VAA<Payload | Other>,
 ): asserts vaa is VAA<Payload> {
-  if (vaa.payload.type === "Other") {
+  if (vaa.payload.type === 'Other') {
     throw Error(`Couldn't parse VAA payload: ${vaa.payload.hex}`);
   }
 }
@@ -116,123 +116,123 @@ export function assertKnownPayload(
 // If you want to parse the payload as well, use 'parse'.
 export function parseEnvelope(buffer: Buffer): VAA<Buffer> {
   var vaa = vaaParser.parse(buffer);
-  delete vaa["end"];
-  delete vaa["signatureCount"];
+  delete vaa['end'];
+  delete vaa['signatureCount'];
   vaa.payload = Buffer.from(vaa.payload);
   return vaa;
 }
 
 // Parse a signature
 const signatureParser = new Parser()
-  .endianess("big")
-  .uint8("guardianSetIndex")
-  .array("signature", {
-    type: "uint8",
+  .endianess('big')
+  .uint8('guardianSetIndex')
+  .array('signature', {
+    type: 'uint8',
     lengthInBytes: 65,
-    formatter: (arr) => Buffer.from(arr).toString("hex"),
+    formatter: (arr) => Buffer.from(arr).toString('hex'),
   });
 
 function serialiseSignature(sig: Signature): string {
-  const body = [encode("uint8", sig.guardianSetIndex), sig.signature];
-  return body.join("");
+  const body = [encode('uint8', sig.guardianSetIndex), sig.signature];
+  return body.join('');
 }
 
 // Parse a vaa envelope. The payload is returned as a byte array.
 const vaaParser = new Parser()
-  .endianess("big")
-  .uint8("version")
-  .uint32("guardianSetIndex")
-  .uint8("signatureCount")
-  .array("signatures", {
+  .endianess('big')
+  .uint8('version')
+  .uint32('guardianSetIndex')
+  .uint8('signatureCount')
+  .array('signatures', {
     type: signatureParser,
-    length: "signatureCount",
+    length: 'signatureCount',
   })
-  .uint32("timestamp")
-  .uint32("nonce")
-  .uint16("emitterChain")
-  .array("emitterAddress", {
-    type: "uint8",
+  .uint32('timestamp')
+  .uint32('nonce')
+  .uint16('emitterChain')
+  .array('emitterAddress', {
+    type: 'uint8',
     lengthInBytes: 32,
-    formatter: (arr) => "0x" + Buffer.from(arr).toString("hex"),
+    formatter: (arr) => '0x' + Buffer.from(arr).toString('hex'),
   })
-  .uint64("sequence")
-  .uint8("consistencyLevel")
-  .array("payload", {
-    type: "uint8",
-    readUntil: "eof",
+  .uint64('sequence')
+  .uint8('consistencyLevel')
+  .array('payload', {
+    type: 'uint8',
+    readUntil: 'eof',
   })
-  .string("end", {
+  .string('end', {
     greedy: true,
-    assert: (str) => str === "",
+    assert: (str) => str === '',
   });
 
 export function serialiseVAA(vaa: VAA<Payload>) {
   const body = [
-    encode("uint8", vaa.version),
-    encode("uint32", vaa.guardianSetIndex),
-    encode("uint8", vaa.signatures.length),
+    encode('uint8', vaa.version),
+    encode('uint32', vaa.guardianSetIndex),
+    encode('uint8', vaa.signatures.length),
     ...vaa.signatures.map((sig) => serialiseSignature(sig)),
     vaaBody(vaa),
   ];
-  return body.join("");
+  return body.join('');
 }
 
 export function vaaDigest(vaa: VAA<Payload | Other>) {
   return solidityKeccak256(
-    ["bytes"],
-    [solidityKeccak256(["bytes"], ["0x" + vaaBody(vaa)])]
+    ['bytes'],
+    [solidityKeccak256(['bytes'], ['0x' + vaaBody(vaa)])],
   );
 }
 
 function vaaBody(vaa: VAA<Payload | Other>) {
   let payload_str: string;
-  if (vaa.payload.type === "Other") {
+  if (vaa.payload.type === 'Other') {
     payload_str = vaa.payload.hex;
   } else {
     let payload = vaa.payload;
     switch (payload.module) {
-      case "Core":
+      case 'Core':
         switch (payload.type) {
-          case "GuardianSetUpgrade":
+          case 'GuardianSetUpgrade':
             payload_str = serialiseGuardianSetUpgrade(payload);
             break;
-          case "ContractUpgrade":
+          case 'ContractUpgrade':
             payload_str = serialiseCoreContractUpgrade(payload);
             break;
           default:
             return impossible(payload);
         }
         break;
-      case "NFTBridge":
+      case 'NFTBridge':
         switch (payload.type) {
-          case "ContractUpgrade":
+          case 'ContractUpgrade':
             payload_str = serialisePortalContractUpgrade(payload);
             break;
-          case "RegisterChain":
+          case 'RegisterChain':
             payload_str = serialisePortalRegisterChain(payload);
             break;
-          case "Transfer":
+          case 'Transfer':
             payload_str = serialiseNFTBridgeTransfer(payload);
             break;
           default:
             return impossible(payload);
         }
         break;
-      case "TokenBridge":
+      case 'TokenBridge':
         switch (payload.type) {
-          case "ContractUpgrade":
+          case 'ContractUpgrade':
             payload_str = serialisePortalContractUpgrade(payload);
             break;
-          case "RegisterChain":
+          case 'RegisterChain':
             payload_str = serialisePortalRegisterChain(payload);
             break;
-          case "Transfer":
+          case 'Transfer':
             payload_str = serialiseTokenBridgeTransfer(payload);
             break;
-          case "TransferWithPayload":
+          case 'TransferWithPayload':
             payload_str = serialiseTokenBridgeTransferWithPayload(payload);
             break;
-          case "AttestMeta":
+          case 'AttestMeta':
             payload_str = serialiseTokenBridgeAttestMeta(payload);
             break;
           default:
@@ -244,31 +244,31 @@ function vaaBody(vaa: VAA<Payload | Other>) {
     }
   }
   const body = [
-    encode("uint32", vaa.timestamp),
-    encode("uint32", vaa.nonce),
-    encode("uint16", vaa.emitterChain),
-    encode("bytes32", hex(vaa.emitterAddress)),
-    encode("uint64", vaa.sequence),
-    encode("uint8", vaa.consistencyLevel),
+    encode('uint32', vaa.timestamp),
+    encode('uint32', vaa.nonce),
+    encode('uint16', vaa.emitterChain),
+    encode('bytes32', hex(vaa.emitterAddress)),
+    encode('uint64', vaa.sequence),
+    encode('uint8', vaa.consistencyLevel),
     payload_str,
   ];
-  return body.join("");
+  return body.join('');
 }
 
 export function sign(signers: string[], vaa: VAA<Payload>): Signature[] {
   const hash = vaaDigest(vaa);
-  const ec = new elliptic.ec("secp256k1");
+  const ec = new elliptic.ec('secp256k1');
 
   return signers.map((signer, i) => {
     const key = ec.keyFromPrivate(signer);
-    const signature = key.sign(Buffer.from(hash.substr(2), "hex"), {
+    const signature = key.sign(Buffer.from(hash.substr(2), 'hex'), {
       canonical: true,
     });
     const packed = [
-      signature.r.toString("hex").padStart(64, "0"),
-      signature.s.toString("hex").padStart(64, "0"),
-      encode("uint8", signature.recoveryParam),
-    ].join("");
+      signature.r.toString('hex').padStart(64, '0'),
+      signature.s.toString('hex').padStart(64, '0'),
+      encode('uint8', signature.recoveryParam),
+    ].join('');
     return {
       guardianSetIndex: i,
       signature: packed,
@@ -278,18 +278,18 @@ export function sign(signers: string[], vaa: VAA<Payload>): Signature[] {
 
 // Parse an address of given length, and render it as hex
 const addressParser = (length: number) =>
-  new Parser().endianess("big").array("address", {
-    type: "uint8",
+  new Parser().endianess('big').array('address', {
+    type: 'uint8',
     lengthInBytes: length,
-    formatter: (arr) => Buffer.from(arr).toString("hex"),
+    formatter: (arr) => Buffer.from(arr).toString('hex'),
   });
 
 ////////////////////////////////////////////////////////////////////////////////
 // Guardian set upgrade
 
 export interface GuardianSetUpgrade {
-  module: "Core";
-  type: "GuardianSetUpgrade";
+  module: 'Core';
+  type: 'GuardianSetUpgrade';
   chain: number;
   newGuardianSetIndex: number;
   newGuardianSetLength: number;
@@ -299,50 +299,50 @@ export interface GuardianSetUpgrade {
 // Parse a guardian set upgrade payload
 const guardianSetUpgradeParser: P<GuardianSetUpgrade> = new P(
   new Parser()
-    .endianess("big")
-    .string("module", {
+    .endianess('big')
+    .string('module', {
       length: 32,
-      encoding: "hex",
-      assert: Buffer.from("Core").toString("hex").padStart(64, "0"),
-      formatter: (_str) => "Core",
+      encoding: 'hex',
+      assert: Buffer.from('Core').toString('hex').padStart(64, '0'),
+      formatter: (_str) => 'Core',
     })
-    .uint8("type", {
+    .uint8('type', {
       assert: 2,
-      formatter: (_action) => "GuardianSetUpgrade",
+      formatter: (_action) => 'GuardianSetUpgrade',
     })
-    .uint16("chain")
-    .uint32("newGuardianSetIndex")
-    .uint8("newGuardianSetLength")
-    .array("newGuardianSet", {
+    .uint16('chain')
+    .uint32('newGuardianSetIndex')
+    .uint8('newGuardianSetLength')
+    .array('newGuardianSet', {
       type: addressParser(20),
-      length: "newGuardianSetLength",
+      length: 'newGuardianSetLength',
       formatter: (arr: [{ address: string }]) =>
         arr.map((addr) => addr.address),
     })
-    .string("end", {
+    .string('end', {
       greedy: true,
-      assert: (str) => str === "",
-    })
+      assert: (str) => str === '',
+    }),
 );
 
 function serialiseGuardianSetUpgrade(payload: GuardianSetUpgrade): string {
   const body = [
-    encode("bytes32", encodeString(payload.module)),
-    encode("uint8", 2),
-    encode("uint16", payload.chain),
-    encode("uint32", payload.newGuardianSetIndex),
-    encode("uint8", payload.newGuardianSet.length),
+    encode('bytes32', encodeString(payload.module)),
+    encode('uint8', 2),
+    encode('uint16', payload.chain),
+    encode('uint32', payload.newGuardianSetIndex),
+    encode('uint8', payload.newGuardianSet.length),
     ...payload.newGuardianSet,
   ];
-  return body.join("");
+  return body.join('');
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Contract upgrades
 
 export interface CoreContractUpgrade {
-  module: "Core";
-  type: "ContractUpgrade";
+  module: 'Core';
+  type: 'ContractUpgrade';
   chain: number;
   address: string;
 }
@@ -350,145 +350,145 @@ export interface CoreContractUpgrade {
 // Parse a core contract upgrade payload
 const coreContractUpgradeParser: P<CoreContractUpgrade> = new P(
   new Parser()
-    .endianess("big")
-    .string("module", {
+    .endianess('big')
+    .string('module', {
       length: 32,
-      encoding: "hex",
-      assert: Buffer.from("Core").toString("hex").padStart(64, "0"),
-      formatter: (_str) => "Core",
+      encoding: 'hex',
+      assert: Buffer.from('Core').toString('hex').padStart(64, '0'),
+      formatter: (_str) => 'Core',
     })
-    .uint8("type", {
+    .uint8('type', {
       assert: 1,
-      formatter: (_action) => "ContractUpgrade",
+      formatter: (_action) => 'ContractUpgrade',
     })
-    .uint16("chain")
-    .array("address", {
-      type: "uint8",
+    .uint16('chain')
+    .array('address', {
+      type: 'uint8',
       lengthInBytes: 32,
-      formatter: (arr) => "0x" + Buffer.from(arr).toString("hex"),
+      formatter: (arr) => '0x' + Buffer.from(arr).toString('hex'),
     })
-    .string("end", {
+    .string('end', {
       greedy: true,
-      assert: (str) => str === "",
-    })
+      assert: (str) => str === '',
+    }),
 );
 
 function serialiseCoreContractUpgrade(payload: CoreContractUpgrade): string {
   const body = [
-    encode("bytes32", encodeString(payload.module)),
-    encode("uint8", 1),
-    encode("uint16", payload.chain),
-    encode("bytes32", payload.address),
+    encode('bytes32', encodeString(payload.module)),
+    encode('uint8', 1),
+    encode('uint16', payload.chain),
+    encode('bytes32', payload.address),
   ];
-  return body.join("");
+  return body.join('');
 }
 
 export interface PortalContractUpgrade<
-  Module extends "NFTBridge" | "TokenBridge"
+  Module extends 'NFTBridge' | 'TokenBridge',
 > {
   module: Module;
-  type: "ContractUpgrade";
+  type: 'ContractUpgrade';
   chain: number;
   address: string;
 }
 
 // Parse a portal contract upgrade payload
 function portalContractUpgradeParser<
-  Module extends "NFTBridge" | "TokenBridge"
+  Module extends 'NFTBridge' | 'TokenBridge',
 >(module: Module): P<PortalContractUpgrade<Module>> {
   return new P(
     new Parser()
-      .endianess("big")
-      .string("module", {
+      .endianess('big')
+      .string('module', {
         length: 32,
-        encoding: "hex",
-        assert: Buffer.from(module).toString("hex").padStart(64, "0"),
+        encoding: 'hex',
+        assert: Buffer.from(module).toString('hex').padStart(64, '0'),
         formatter: (_str: string) => module,
       })
-      .uint8("type", {
+      .uint8('type', {
         assert: 2,
-        formatter: (_action: number) => "ContractUpgrade",
+        formatter: (_action: number) => 'ContractUpgrade',
       })
-      .uint16("chain")
-      .array("address", {
-        type: "uint8",
+      .uint16('chain')
+      .array('address', {
+        type: 'uint8',
         lengthInBytes: 32,
-        formatter: (arr) => "0x" + Buffer.from(arr).toString("hex"),
+        formatter: (arr) => '0x' + Buffer.from(arr).toString('hex'),
       })
-      .string("end", {
+      .string('end', {
         greedy: true,
-        assert: (str) => str === "",
-      })
+        assert: (str) => str === '',
+      }),
   );
 }
 
 function serialisePortalContractUpgrade<
-  Module extends "NFTBridge" | "TokenBridge"
+  Module extends 'NFTBridge' | 'TokenBridge',
 >(payload: PortalContractUpgrade<Module>): string {
   const body = [
-    encode("bytes32", encodeString(payload.module)),
-    encode("uint8", 2),
-    encode("uint16", payload.chain),
-    encode("bytes32", payload.address),
+    encode('bytes32', encodeString(payload.module)),
+    encode('uint8', 2),
+    encode('uint16', payload.chain),
+    encode('bytes32', payload.address),
   ];
-  return body.join("");
+  return body.join('');
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Registrations
 
 export interface PortalRegisterChain<
-  Module extends "NFTBridge" | "TokenBridge"
+  Module extends 'NFTBridge' | 'TokenBridge',
 > {
   module: Module;
-  type: "RegisterChain";
+  type: 'RegisterChain';
   chain: number;
   emitterChain: number;
   emitterAddress: string;
 }
 
 // Parse a portal chain registration payload
-function portalRegisterChainParser<Module extends "NFTBridge" | "TokenBridge">(
-  module: Module
+function portalRegisterChainParser<Module extends 'NFTBridge' | 'TokenBridge'>(
+  module: Module,
 ): P<PortalRegisterChain<Module>> {
   return new P(
     new Parser()
-      .endianess("big")
-      .string("module", {
+      .endianess('big')
+      .string('module', {
         length: 32,
-        encoding: "hex",
-        assert: Buffer.from(module).toString("hex").padStart(64, "0"),
+        encoding: 'hex',
+        assert: Buffer.from(module).toString('hex').padStart(64, '0'),
         formatter: (_str) => module,
       })
-      .uint8("type", {
+      .uint8('type', {
         assert: 1,
-        formatter: (_action) => "RegisterChain",
+        formatter: (_action) => 'RegisterChain',
       })
-      .uint16("chain")
-      .uint16("emitterChain")
-      .array("emitterAddress", {
-        type: "uint8",
+      .uint16('chain')
+      .uint16('emitterChain')
+      .array('emitterAddress', {
+        type: 'uint8',
         lengthInBytes: 32,
-        formatter: (arr) => "0x" + Buffer.from(arr).toString("hex"),
+        formatter: (arr) => '0x' + Buffer.from(arr).toString('hex'),
       })
-      .string("end", {
+      .string('end', {
         greedy: true,
-        assert: (str) => str === "",
-      })
+        assert: (str) => str === '',
+      }),
   );
 }
 
 function serialisePortalRegisterChain<
-  Module extends "NFTBridge" | "TokenBridge"
+  Module extends 'NFTBridge' | 'TokenBridge',
 >(payload: PortalRegisterChain<Module>): string {
   const body = [
-    encode("bytes32", encodeString(payload.module)),
-    encode("uint8", 1),
-    encode("uint16", payload.chain),
-    encode("uint16", payload.emitterChain),
-    encode("bytes32", payload.emitterAddress),
+    encode('bytes32', encodeString(payload.module)),
+    encode('uint8', 1),
+    encode('uint16', payload.chain),
+    encode('uint16', payload.emitterChain),
+    encode('bytes32', payload.emitterAddress),
   ];
-  return body.join("");
+  return body.join('');
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -496,8 +496,8 @@ function serialisePortalRegisterChain<
 
 // payload 1
 export interface TokenBridgeTransfer {
-  module: "TokenBridge";
-  type: "Transfer";
+  module: 'TokenBridge';
+  type: 'Transfer';
   amount: bigint;
   tokenAddress: string;
   tokenChain: number;
@@ -509,61 +509,61 @@ export interface TokenBridgeTransfer {
 function tokenBridgeTransferParser(): P<TokenBridgeTransfer> {
   return new P(
     new Parser()
-      .endianess("big")
-      .string("module", {
+      .endianess('big')
+      .string('module', {
         length: (_) => 0,
-        formatter: (_) => "TokenBridge",
+        formatter: (_) => 'TokenBridge',
       })
-      .uint8("type", {
+      .uint8('type', {
         assert: 1,
-        formatter: (_action) => "Transfer",
+        formatter: (_action) => 'Transfer',
       })
-      .array("amount", {
-        type: "uint8",
+      .array('amount', {
+        type: 'uint8',
         lengthInBytes: 32,
         formatter: (bytes) => BigNumber.from(bytes).toBigInt(),
       })
-      .array("tokenAddress", {
-        type: "uint8",
+      .array('tokenAddress', {
+        type: 'uint8',
         lengthInBytes: 32,
-        formatter: (arr) => "0x" + Buffer.from(arr).toString("hex"),
+        formatter: (arr) => '0x' + Buffer.from(arr).toString('hex'),
       })
-      .uint16("tokenChain")
-      .array("toAddress", {
-        type: "uint8",
+      .uint16('tokenChain')
+      .array('toAddress', {
+        type: 'uint8',
         lengthInBytes: 32,
-        formatter: (arr) => "0x" + Buffer.from(arr).toString("hex"),
+        formatter: (arr) => '0x' + Buffer.from(arr).toString('hex'),
       })
-      .uint16("chain")
-      .array("fee", {
-        type: "uint8",
+      .uint16('chain')
+      .array('fee', {
+        type: 'uint8',
         lengthInBytes: 32,
         formatter: (bytes) => BigNumber.from(bytes).toBigInt(),
       })
-      .string("end", {
+      .string('end', {
         greedy: true,
-        assert: (str) => str === "",
-      })
+        assert: (str) => str === '',
+      }),
   );
 }
 
 function serialiseTokenBridgeTransfer(payload: TokenBridgeTransfer): string {
   const body = [
-    encode("uint8", 1),
-    encode("uint256", payload.amount),
-    encode("bytes32", hex(payload.tokenAddress)),
-    encode("uint16", payload.tokenChain),
-    encode("bytes32", hex(payload.toAddress)),
-    encode("uint16", payload.chain),
-    encode("uint256", payload.fee),
+    encode('uint8', 1),
+    encode('uint256', payload.amount),
+    encode('bytes32', hex(payload.tokenAddress)),
+    encode('uint16', payload.tokenChain),
+    encode('bytes32', hex(payload.toAddress)),
+    encode('uint16', payload.chain),
+    encode('uint256', payload.fee),
   ];
-  return body.join("");
+  return body.join('');
 }
 
 // payload 2
 export interface TokenBridgeAttestMeta {
-  module: "TokenBridge";
-  type: "AttestMeta";
+  module: 'TokenBridge';
+  type: 'AttestMeta';
   chain: 0;
   tokenAddress: string;
   tokenChain: number;
@@ -575,69 +575,69 @@ export interface TokenBridgeAttestMeta {
 function tokenBridgeAttestMetaParser(): P<TokenBridgeAttestMeta> {
   return new P(
     new Parser()
-      .endianess("big")
-      .string("module", {
+      .endianess('big')
+      .string('module', {
         length: (_) => 0,
-        formatter: (_) => "TokenBridge",
+        formatter: (_) => 'TokenBridge',
       })
-      .string("chain", {
+      .string('chain', {
         length: (_) => 0,
         formatter: (_) => 0,
       })
-      .uint8("type", {
+      .uint8('type', {
         assert: 2,
-        formatter: (_action) => "AttestMeta",
+        formatter: (_action) => 'AttestMeta',
       })
-      .array("tokenAddress", {
-        type: "uint8",
+      .array('tokenAddress', {
+        type: 'uint8',
         lengthInBytes: 32,
-        formatter: (arr) => "0x" + Buffer.from(arr).toString("hex"),
+        formatter: (arr) => '0x' + Buffer.from(arr).toString('hex'),
       })
-      .uint16("tokenChain")
-      .uint8("decimals")
-      .array("symbol", {
-        type: "uint8",
-        lengthInBytes: 32,
-        formatter: (arr: Uint8Array) =>
-          Buffer.from(arr).toString(
-            "utf8",
-            arr.findIndex((val) => val != 0)
-          ),
-      })
-      .array("name", {
-        type: "uint8",
+      .uint16('tokenChain')
+      .uint8('decimals')
+      .array('symbol', {
+        type: 'uint8',
         lengthInBytes: 32,
         formatter: (arr: Uint8Array) =>
           Buffer.from(arr).toString(
-            "utf8",
-            arr.findIndex((val) => val != 0)
+            'utf8',
+            arr.findIndex((val) => val != 0),
           ),
       })
-      .string("end", {
+      .array('name', {
+        type: 'uint8',
+        lengthInBytes: 32,
+        formatter: (arr: Uint8Array) =>
+          Buffer.from(arr).toString(
+            'utf8',
+            arr.findIndex((val) => val != 0),
+          ),
+      })
+      .string('end', {
         greedy: true,
-        assert: (str) => str === "",
-      })
+        assert: (str) => str === '',
+      }),
   );
 }
 
 function serialiseTokenBridgeAttestMeta(
-  payload: TokenBridgeAttestMeta
+  payload: TokenBridgeAttestMeta,
 ): string {
   const body = [
-    encode("uint8", 2),
-    encode("bytes32", hex(payload.tokenAddress)),
-    encode("uint16", payload.tokenChain),
-    encode("uint8", payload.decimals),
-    encode("bytes32", encodeString(payload.symbol)),
-    encode("bytes32", encodeString(payload.name)),
+    encode('uint8', 2),
+    encode('bytes32', hex(payload.tokenAddress)),
+    encode('uint16', payload.tokenChain),
+    encode('uint8', payload.decimals),
+    encode('bytes32', encodeString(payload.symbol)),
+    encode('bytes32', encodeString(payload.name)),
   ];
-  return body.join("");
+  return body.join('');
 }
 
 // payload 3
 export interface TokenBridgeTransferWithPayload {
-  module: "TokenBridge";
-  type: "TransferWithPayload";
+  module: 'TokenBridge';
+  type: 'TransferWithPayload';
   amount: bigint;
   tokenAddress: string;
   tokenChain: number;
@@ -650,68 +650,68 @@ export interface TokenBridgeTransferWithPayload {
 function tokenBridgeTransferWithPayloadParser(): P<TokenBridgeTransferWithPayload> {
   return new P(
     new Parser()
-      .endianess("big")
-      .string("module", {
+      .endianess('big')
+      .string('module', {
         length: (_) => 0,
-        formatter: (_) => "TokenBridge",
+        formatter: (_) => 'TokenBridge',
       })
-      .uint8("type", {
+      .uint8('type', {
         assert: 3,
-        formatter: (_action) => "TransferWithPayload",
+        formatter: (_action) => 'TransferWithPayload',
       })
-      .array("amount", {
-        type: "uint8",
+      .array('amount', {
+        type: 'uint8',
         lengthInBytes: 32,
         formatter: (bytes) => BigNumber.from(bytes).toBigInt(),
       })
-      .array("tokenAddress", {
-        type: "uint8",
+      .array('tokenAddress', {
+        type: 'uint8',
         lengthInBytes: 32,
-        formatter: (arr) => "0x" + Buffer.from(arr).toString("hex"),
+        formatter: (arr) => '0x' + Buffer.from(arr).toString('hex'),
       })
-      .uint16("tokenChain")
-      .array("toAddress", {
-        type: "uint8",
+      .uint16('tokenChain')
+      .array('toAddress', {
+        type: 'uint8',
         lengthInBytes: 32,
-        formatter: (arr) => "0x" + Buffer.from(arr).toString("hex"),
+        formatter: (arr) => '0x' + Buffer.from(arr).toString('hex'),
       })
-      .uint16("chain")
-      .array("fromAddress", {
-        type: "uint8",
+      .uint16('chain')
+      .array('fromAddress', {
+        type: 'uint8',
         lengthInBytes: 32,
-        formatter: (arr) => "0x" + Buffer.from(arr).toString("hex"),
+        formatter: (arr) => '0x' + Buffer.from(arr).toString('hex'),
       })
-      .array("payload", {
-        type: "uint8",
+      .array('payload', {
+        type: 'uint8',
         greedy: true,
-        readUntil: "eof",
-        formatter: (arr) => "0x" + Buffer.from(arr).toString("hex"),
-      })
+        readUntil: 'eof',
+        formatter: (arr) => '0x' + Buffer.from(arr).toString('hex'),
+      }),
   );
 }
 
 function serialiseTokenBridgeTransferWithPayload(
-  payload: TokenBridgeTransferWithPayload
+  payload: TokenBridgeTransferWithPayload,
 ): string {
   const body = [
-    encode("uint8", 3),
-    encode("uint256", payload.amount),
-    encode("bytes32", hex(payload.tokenAddress)),
-    encode("uint16", payload.tokenChain),
-    encode("bytes32", hex(payload.toAddress)),
-    encode("uint16", payload.chain),
-    encode("bytes32", hex(payload.fromAddress)),
+    encode('uint8', 3),
+    encode('uint256', payload.amount),
+    encode('bytes32', hex(payload.tokenAddress)),
+    encode('uint16', payload.tokenChain),
+    encode('bytes32', hex(payload.toAddress)),
+    encode('uint16', payload.chain),
+    encode('bytes32', hex(payload.fromAddress)),
     payload.payload.substring(2),
   ];
-  return body.join("");
+  return body.join('');
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // NFT bridge
 
 export interface NFTBridgeTransfer {
-  module: "NFTBridge";
-  type: "Transfer";
+  module: 'NFTBridge';
+  type: 'Transfer';
   tokenAddress: string;
   tokenChain: number;
   tokenSymbol: string;
@@ -725,80 +725,80 @@ export interface NFTBridgeTransfer {
 function nftBridgeTransferParser(): P<NFTBridgeTransfer> {
   return new P(
     new Parser()
-      .endianess("big")
-      .string("module", {
+      .endianess('big')
+      .string('module', {
         length: (_) => 0,
-        formatter: (_) => "NFTBridge",
+        formatter: (_) => 'NFTBridge',
       })
-      .uint8("type", {
+      .uint8('type', {
         assert: 1,
-        formatter: (_action) => "Transfer",
+        formatter: (_action) => 'Transfer',
       })
-      .array("tokenAddress", {
-        type: "uint8",
+      .array('tokenAddress', {
+        type: 'uint8',
         lengthInBytes: 32,
-        formatter: (arr) => "0x" + Buffer.from(arr).toString("hex"),
+        formatter: (arr) => '0x' + Buffer.from(arr).toString('hex'),
       })
-      .uint16("tokenChain")
-      .array("tokenSymbol", {
-        type: "uint8",
-        lengthInBytes: 32,
-        formatter: (arr: Uint8Array) =>
-          Buffer.from(arr).toString(
-            "utf8",
-            arr.findIndex((val) => val != 0)
-          ),
-      })
-      .array("tokenName", {
-        type: "uint8",
+      .uint16('tokenChain')
+      .array('tokenSymbol', {
+        type: 'uint8',
         lengthInBytes: 32,
         formatter: (arr: Uint8Array) =>
           Buffer.from(arr).toString(
-            "utf8",
-            arr.findIndex((val) => val != 0)
+            'utf8',
+            arr.findIndex((val) => val != 0),
           ),
       })
-      .array("tokenId", {
-        type: "uint8",
+      .array('tokenName', {
+        type: 'uint8',
+        lengthInBytes: 32,
+        formatter: (arr: Uint8Array) =>
+          Buffer.from(arr).toString(
+            'utf8',
+            arr.findIndex((val) => val != 0),
+          ),
+      })
+      .array('tokenId', {
+        type: 'uint8',
         lengthInBytes: 32,
         formatter: (bytes) => BigNumber.from(bytes).toBigInt(),
       })
-      .uint8("tokenURILength")
-      .array("tokenURI", {
-        type: "uint8",
+      .uint8('tokenURILength')
+      .array('tokenURI', {
+        type: 'uint8',
         lengthInBytes: function () {
           // @ts-ignore
           return this.tokenURILength;
         },
-        formatter: (arr: Uint8Array) => Buffer.from(arr).toString("utf8"),
+        formatter: (arr: Uint8Array) => Buffer.from(arr).toString('utf8'),
       })
-      .array("toAddress", {
-        type: "uint8",
+      .array('toAddress', {
+        type: 'uint8',
         lengthInBytes: 32,
-        formatter: (arr) => "0x" + Buffer.from(arr).toString("hex"),
+        formatter: (arr) => '0x' + Buffer.from(arr).toString('hex'),
       })
-      .uint16("chain")
-      .string("end", {
+      .uint16('chain')
+      .string('end', {
         greedy: true,
-        assert: (str) => str === "",
-      })
+        assert: (str) => str === '',
+      }),
   );
 }
 
 function serialiseNFTBridgeTransfer(payload: NFTBridgeTransfer): string {
   const body = [
-    encode("uint8", 1),
-    encode("bytes32", hex(payload.tokenAddress)),
-    encode("uint16", payload.tokenChain),
-    encode("bytes32", encodeString(payload.tokenSymbol)),
-    encode("bytes32", encodeString(payload.tokenName)),
-    encode("uint256", payload.tokenId),
-    encode("uint8", payload.tokenURI.length),
-    Buffer.from(payload.tokenURI, "utf8").toString("hex"),
-    encode("bytes32", hex(payload.toAddress)),
-    encode("uint16", payload.chain),
+    encode('uint8', 1),
+    encode('bytes32', hex(payload.tokenAddress)),
+    encode('uint16', payload.tokenChain),
+    encode('bytes32', encodeString(payload.tokenSymbol)),
+    encode('bytes32', encodeString(payload.tokenName)),
+    encode('uint256', payload.tokenId),
+    encode('uint8', payload.tokenURI.length),
+    Buffer.from(payload.tokenURI, 'utf8').toString('hex'),
+    encode('bytes32', hex(payload.toAddress)),
+    encode('uint16', payload.chain),
   ];
-  return body.join("");
+  return body.join('');
 }
 
 // This function should be called after pattern matching on all possible options
@@ -815,32 +815,32 @@ export function impossible(a: never): any {
 // Encoder utils
 
 export type Encoding =
-  | "uint8"
-  | "uint16"
-  | "uint32"
-  | "uint64"
-  | "uint128"
-  | "uint256"
-  | "bytes32"
-  | "address";
+  | 'uint8'
+  | 'uint16'
+  | 'uint32'
+  | 'uint64'
+  | 'uint128'
+  | 'uint256'
+  | 'bytes32'
+  | 'address';
 
 export function typeWidth(type: Encoding): number {
   switch (type) {
-    case "uint8":
+    case 'uint8':
       return 1;
-    case "uint16":
+    case 'uint16':
       return 2;
-    case "uint32":
+    case 'uint32':
       return 4;
-    case "uint64":
+    case 'uint64':
       return 8;
-    case "uint128":
+    case 'uint128':
       return 16;
-    case "uint256":
+    case 'uint256':
       return 32;
-    case "bytes32":
+    case 'bytes32':
       return 32;
-    case "address":
+    case 'address':
       return 20;
   }
 }
@@ -860,13 +860,13 @@ export function encode(type: Encoding, val: any): string {
 // Encode a string as binary left-padded to 32 bytes, represented as a hex
 // string (64 chars long)
 export function encodeString(str: string): Buffer {
-  return Buffer.from(Buffer.from(str).toString("hex").padStart(64, "0"), "hex");
+  return Buffer.from(Buffer.from(str).toString('hex').padStart(64, '0'), 'hex');
 }
 
 // Turn hex string with potentially missing 0x prefix into Buffer
 function hex(x: string): Buffer {
   return Buffer.from(
     ethers.utils.hexlify(x, { allowMissingPrefix: true }).substring(2),
-    "hex"
+    'hex',
   );
 }

@@ -1,6 +1,6 @@
-import { keccak256 } from "@certusone/wormhole-sdk";
+import { keccak256 } from '@certusone/wormhole-sdk';
 
-export { isBytes } from "ethers/lib/utils";
+export { isBytes } from 'ethers/lib/utils';
 
 export interface GuardianSignature {
   index: number;

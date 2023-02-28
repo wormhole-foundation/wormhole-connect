@@ -1,12 +1,12 @@
-import { BN } from "@project-serum/anchor";
-import { ParsedGovernanceVaa, parseGovernanceVaa } from "./governance";
+import { BN } from '@project-serum/anchor';
+import { ParsedGovernanceVaa, parseGovernanceVaa } from './governance';
 import {
   parseTokenBridgeRegisterChainGovernancePayload,
   parseTokenBridgeUpgradeContractGovernancePayload,
   TokenBridgeRegisterChain,
   TokenBridgeUpgradeContract,
-} from "./tokenBridge";
-import { ParsedVaa, parseVaa, SignedVaa } from "./wormhole";
+} from './tokenBridge';
+import { ParsedVaa, parseVaa, SignedVaa } from './wormhole';
 
 export enum NftBridgePayload {
   Transfer = 1,
@@ -32,12 +32,12 @@ export interface NftTransfer {
 export function parseNftTransferPayload(payload: Buffer): NftTransfer {
   const payloadType = payload.readUInt8(0);
   if (payloadType != NftBridgePayload.Transfer) {
-    throw new Error("not nft bridge transfer VAA");
+    throw new Error('not nft bridge transfer VAA');
   }
   const tokenAddress = payload.subarray(1, 33);
   const tokenChain = payload.readUInt16BE(33);
-  const symbol = payload.subarray(35, 67).toString().replace(/\0/g, "");
-  const name = payload.subarray(67, 99).toString().replace(/\0/g, "");
+  const symbol = payload.subarray(35, 67).toString().replace(/\0/g, '');
+  const name = payload.subarray(67, 99).toString().replace(/\0/g, '');
   const tokenId = BigInt(new BN(payload.subarray(99, 131)).toString());
   const uriLen = payload.readUInt8(131);
   const uri = payload.subarray(132, 132 + uriLen).toString();
@@ -73,17 +73,17 @@ export interface ParsedNftBridgeRegisterChainVaa
     NftRegisterChain {}
 
 export function parseNftBridgeRegisterChainGovernancePayload(
-  payload: Buffer
+  payload: Buffer,
 ): NftRegisterChain {
   return parseTokenBridgeRegisterChainGovernancePayload(payload);
 }
 
 export function parseNftBridgeRegisterChainVaa(
-  vaa: SignedVaa
+  vaa: SignedVaa,
 ): ParsedNftBridgeRegisterChainVaa {
   const parsed = parseGovernanceVaa(vaa);
   if (parsed.action != NftBridgeGovernanceAction.RegisterChain) {
-    throw new Error("parsed.action != NftBridgeGovernanceAction.RegisterChain");
+    throw new Error('parsed.action != NftBridgeGovernanceAction.RegisterChain');
   }
   return {
     ...parsed,
@@ -94,7 +94,7 @@ export function parseNftBridgeRegisterChainVaa(
 export interface NftBridgeUpgradeContract extends TokenBridgeUpgradeContract {}
 
 export function parseNftBridgeUpgradeContractGovernancePayload(
-  payload: Buffer
+  payload: Buffer,
 ): NftBridgeUpgradeContract {
   return parseTokenBridgeUpgradeContractGovernancePayload(payload);
 }
@@ -104,12 +104,12 @@ export interface ParsedNftBridgeUpgradeContractVaa
     NftBridgeUpgradeContract {}
 
 export function parseNftBridgeUpgradeContractVaa(
-  vaa: SignedVaa
+  vaa: SignedVaa,
 ): ParsedNftBridgeUpgradeContractVaa {
   const parsed = parseGovernanceVaa(vaa);
   if (parsed.action != NftBridgeGovernanceAction.UpgradeContract) {
     throw new Error(
-      "parsed.action != NftBridgeGovernanceAction.UpgradeContract"
+      'parsed.action != NftBridgeGovernanceAction.UpgradeContract',
     );
   }
   return {

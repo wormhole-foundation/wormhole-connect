@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { CHAINS, TOKENS } from '../../sdk/config';
 import {
-  getTxIdFromReceipt,
   parseMessageFromTx,
   sendTransfer,
 } from '../../sdk/sdk';

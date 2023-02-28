@@ -103,7 +103,7 @@ function WalletsModal(props: Props) {
     if (!config) return Object.values(WALLETS);
     return getWalletOptions(config);
   }
-  
+
   useEffect(() => {
     const options = getAvailableWallets();
     if (options) setWalletOptions(options);

@@ -1,4 +1,8 @@
-import { createNonce, getForeignAssetSolana, redeemOnSolana } from '@certusone/wormhole-sdk';
+import {
+  createNonce,
+  getForeignAssetSolana,
+  redeemOnSolana,
+} from '@certusone/wormhole-sdk';
 import {
   getTransferWrappedAccounts,
   getTransferNativeAccounts,
@@ -518,11 +522,15 @@ export class SolanaContext<T extends WormholeContext> extends BridgeAbstract {
       accounts[bridgeInstructions[0].accounts[1]],
     );
 
-    const parsedInstr = parsedResponse?.meta?.innerInstructions![0].instructions;
-    const gasFee = !parsedInstr ? 0 : parsedInstr.reduce((acc, c: any) => {
-      if (!c.parsed || !c.parsed.info || !c.parsed.info.lamports) return acc;
-      return acc + c.parsed.info.lamports;
-    }, 0);
+    const parsedInstr =
+      parsedResponse?.meta?.innerInstructions![0].instructions;
+    const gasFee = !parsedInstr
+      ? 0
+      : parsedInstr.reduce((acc, c: any) => {
+          if (!c.parsed || !c.parsed.info || !c.parsed.info.lamports)
+            return acc;
+          return acc + c.parsed.info.lamports;
+        }, 0);
 
     // parse message payload
     const parsed = parseTokenTransferPayload(message.payload);
@@ -551,7 +559,8 @@ export class SolanaContext<T extends WormholeContext> extends BridgeAbstract {
       tokenAddress: tokenContext.parseAddress(hexlify(parsed.tokenAddress)),
       tokenChain: this.context.toChainName(parsed.tokenChain),
       sequence: BigNumber.from(sequence),
-      emitterAddress: '3b26409f8aaded3f5ddca184695aa6a0fa829b0c85caf84856324896d214ca98',
+      emitterAddress:
+        '3b26409f8aaded3f5ddca184695aa6a0fa829b0c85caf84856324896d214ca98',
       gasFee: BigNumber.from(gasFee),
     };
     return [parsedMessage];
@@ -593,7 +602,7 @@ export class SolanaContext<T extends WormholeContext> extends BridgeAbstract {
       contracts.token_bridge,
       parsed.to,
       signedVAA,
-    )
+    );
   }
 
   async isTransferCompleted(
