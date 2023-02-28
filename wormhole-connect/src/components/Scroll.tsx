@@ -11,7 +11,8 @@ const useStyles = makeStyles<{ blendColor: string }>()(
     scrollContainer: {
       width: '100%',
       height: 'calc(100% - 48px)',
-      overflowX: 'scroll',
+      overflowY: 'scroll',
+      overflowX: 'hidden',
       padding: 0,
     },
     fadeOverlay: {
