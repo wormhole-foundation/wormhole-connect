@@ -328,7 +328,9 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
       const fromChain = this.context.toChainName(chain);
       if (parsed.args.payload.startsWith('0x01')) {
         const parsedTransfer = await bridge.parseTransfer(parsed.args.payload); // for bridge messages
-        const tokenContext = this.context.getContext(parsedTransfer.tokenChain as ChainId);
+        const tokenContext = this.context.getContext(
+          parsedTransfer.tokenChain as ChainId,
+        );
         const parsedMessage: ParsedMessage = {
           sendTx: tx,
           sender: receipt.from,

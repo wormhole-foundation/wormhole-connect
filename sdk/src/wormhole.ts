@@ -163,7 +163,6 @@ export class WormholeContext extends MultiProvider<Domain> {
    * @param payload Extra bytes that can be passed along with the transfer
    * @throws If unable to get the signer or contracts, or if there is a problem executing the transaction
    */
-  // TODO: implement extra arguments for other networks
   async send(
     token: TokenId | 'native',
     amount: string,
@@ -243,6 +242,14 @@ export class WormholeContext extends MultiProvider<Domain> {
     return await context.redeem(destChain, signedVAA, overrides);
   }
 
+  async isTransferCompleted(
+    destChain: ChainName | ChainId,
+    signedVaaHash: string,
+  ): Promise<boolean> {
+    const context = this.getContext(destChain);
+    return await context.isTransferCompleted(destChain, signedVaaHash);
+  }
+
   formatAddress(address: string, chain: ChainName | ChainId): any {
     const context = this.getContext(chain);
     return context.formatAddress(address);
@@ -253,6 +260,11 @@ export class WormholeContext extends MultiProvider<Domain> {
     return context.parseAddress(address);
   }
 
+  getTxIdFromReceipt(chain: ChainName | ChainId, receipt: any): string {
+    const context = this.getContext(chain);
+    return context.getTxIdFromReceipt(receipt);
+  }
+
   /**
    * Get the default config for Mainnet or Testnet
    *
@@ -261,10 +273,5 @@ export class WormholeContext extends MultiProvider<Domain> {
    */
   static async getConfig(env: Environment): Promise<WormholeConfig> {
     return env === 'MAINNET' ? MAINNET_CONFIG : TESTNET_CONFIG;
-  }
-
-  getTxIdFromReceipt(chain: ChainName | ChainId, receipt: any): string {
-    const context = this.getContext(chain);
-    return context.getTxIdFromReceipt(receipt);
   }
 }

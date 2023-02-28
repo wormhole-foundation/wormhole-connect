@@ -8,8 +8,12 @@ import { TokenBridge } from '@certusone/wormhole-sdk/lib/cjs/solana/types/tokenB
 import {
   getPostedMessage,
   deriveWormholeEmitterKey,
+  getClaim,
 } from '@certusone/wormhole-sdk/lib/cjs/solana/wormhole';
-import { parseTokenTransferPayload } from '@certusone/wormhole-sdk/lib/cjs/vaa';
+import {
+  parseTokenTransferPayload,
+  parseVaa,
+} from '../vaa';
 import {
   ACCOUNT_SIZE,
   createCloseAccountInstruction,
@@ -35,17 +39,11 @@ import { arrayify, zeroPad, hexlify } from 'ethers/lib/utils';
 import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
 
 import { BridgeAbstract } from './abstracts';
-import {
-  TokenId,
-  ChainName,
-  ChainId,
-  NATIVE,
-  ParsedMessage,
-} from '../types';
+import { TokenId, ChainName, ChainId, NATIVE, ParsedMessage } from '../types';
 import { SolContracts } from '../contracts/solContracts';
 import { WormholeContext } from '../wormhole';
 
-const SOLANA_SEQ_LOG = "Program log: Sequence: ";
+const SOLANA_SEQ_LOG = 'Program log: Sequence: ';
 
 export function createTransferNativeInstruction(
   tokenBridgeProgram: Program<TokenBridge>,
@@ -454,12 +452,18 @@ export class SolanaContext<T extends WormholeContext> extends BridgeAbstract {
   }
 
   formatAddress(address: PublicKeyInitData): string {
-    const addr = typeof address === 'string' && address.startsWith('0x') ? arrayify(address) : address;
+    const addr =
+      typeof address === 'string' && address.startsWith('0x')
+        ? arrayify(address)
+        : address;
     return hexlify(zeroPad(new PublicKey(addr).toBytes(), 32));
   }
 
   parseAddress(address: string): string {
-    const addr = typeof address === 'string' && address.startsWith('0x') ? arrayify(address) : address;
+    const addr =
+      typeof address === 'string' && address.startsWith('0x')
+        ? arrayify(address)
+        : address;
     return new PublicKey(addr).toString();
   }
 
@@ -491,7 +495,8 @@ export class SolanaContext<T extends WormholeContext> extends BridgeAbstract {
   ): Promise<ParsedMessage[]> {
     if (!this.connection) throw new Error('no connection');
     const contracts = this.contracts.mustGetContracts('solana');
-    if (!contracts.core || !contracts.token_bridge) throw new Error('contracts not found');
+    if (!contracts.core || !contracts.token_bridge)
+      throw new Error('contracts not found');
     const response = await this.connection.getTransaction(tx);
     const parsedResponse = await this.connection.getParsedTransaction(tx);
     console.log('parsed', parsedResponse);
@@ -519,20 +524,24 @@ export class SolanaContext<T extends WormholeContext> extends BridgeAbstract {
     // get sequence
     const sequence = response.meta?.logMessages
       ?.filter((msg) => msg.startsWith(SOLANA_SEQ_LOG))?.[0]
-      ?.replace(SOLANA_SEQ_LOG, "");
+      ?.replace(SOLANA_SEQ_LOG, '');
     if (!sequence) {
-      throw new Error("sequence not found");
+      throw new Error('sequence not found');
     }
 
     // format response
     const tokenContext = this.context.getContext(parsed.tokenChain as ChainId);
     const destContext = this.context.getContext(parsed.toChain as ChainId);
 
-    const parsedInstructions = (parsedResponse as any).transaction.message.instructions
+    const parsedInstructions = (parsedResponse as any).transaction.message
+      .instructions;
 
     const parsedMessage: ParsedMessage = {
       sendTx: tx,
-      sender: parsedInstructions.length === 2 ? parsedInstructions[0].parsed.info.owner : parsedInstructions[0].parsed.info.source,
+      sender:
+        parsedInstructions.length === 2
+          ? parsedInstructions[0].parsed.info.owner
+          : parsedInstructions[0].parsed.info.source,
       amount: BigNumber.from(parsed.amount),
       payloadID: parsed.payloadType,
       recipient: destContext.parseAddress(hexlify(parsed.to)),
@@ -572,12 +581,21 @@ export class SolanaContext<T extends WormholeContext> extends BridgeAbstract {
     console.log('not implemented', destChain, signedVAA);
   }
 
-  protected async isTransferCompleted(
+  async isTransferCompleted(
     destChain: ChainName | ChainId,
     signedVaaHash: string,
   ): Promise<boolean> {
-    console.log('not implemented');
-    return true;
+    if (!this.connection) throw new Error('no connection');
+    const parsed = parseVaa(arrayify(signedVaaHash));
+    const tokenBridge = this.contracts.mustGetBridge(destChain);
+    return getClaim(
+      this.connection,
+      tokenBridge.programId,
+      parsed.emitterAddress,
+      parsed.emitterChain,
+      parsed.sequence,
+      'finalized',
+    ).catch((e) => false);
   }
 
   getTxIdFromReceipt(receipt: Transaction) {
