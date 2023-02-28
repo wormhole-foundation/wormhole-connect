@@ -130,7 +130,7 @@ function NetworksModal(props: Props) {
     if (!e) return;
     const lowercase = e.target.value.toLowerCase();
     const filtered = filteredChains.filter((c) => {
-      return c.key.indexOf(lowercase) === 0;
+      return c.key.includes(lowercase);
     });
     setChains(filtered);
   };

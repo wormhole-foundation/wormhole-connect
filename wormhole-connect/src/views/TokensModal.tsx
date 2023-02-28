@@ -148,8 +148,8 @@ function TokensModal() {
     const filtered = filteredTokens.filter((c) => {
       const symbol = c.symbol.toLowerCase();
       return (
-        symbol.indexOf(lowercase) === 0 ||
-        (c.tokenId && c.tokenId.address.toLowerCase().indexOf(lowercase) === 0)
+        symbol.includes(lowercase) ||
+        (c.tokenId && c.tokenId.address.toLowerCase().includes(lowercase))
       );
     });
     setTokens(filtered);
