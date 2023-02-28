@@ -2,7 +2,7 @@ import React from 'react';
 import { makeStyles } from 'tss-react/mui';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { CHAINS } from '../../sdk/config';
-import { displayEvmAddress } from '../../utils';
+import { displayAddress } from '../../utils';
 import { LINK } from '../../utils/style';
 import WalletIcon from '../../icons/components/Wallet';
 import TokenIcon from '../../icons/components/TokenIcons';
@@ -51,7 +51,7 @@ function Header(props: Props) {
     <div className={classes.header}>
       <div className={classes.left}>
         <TokenIcon name={networkConfig.icon!} height={32} />
-        <div>{displayEvmAddress(props.address)}</div>
+        <div>{displayAddress(props.network, props.address)}</div>
         <WalletIcon />
       </div>
       {props.loading ? (

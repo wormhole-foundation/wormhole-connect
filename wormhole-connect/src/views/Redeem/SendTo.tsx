@@ -7,14 +7,13 @@ import { RootState } from '../../store';
 import { PaymentOption } from '../../store/transfer';
 import { setRedeemTx } from '../../store/redeem';
 import {
-  // openWalletModal,
   registerWalletSigner,
   switchNetwork,
   TransferWallet,
 } from '../../utils/wallet';
 import { ParsedVaa } from '../../utils/vaa';
 import { claimTransfer } from '../../sdk/sdk';
-import { displayEvmAddress } from '../../utils';
+import { displayAddress } from '../../utils';
 import { CHAINS } from '../../sdk/config';
 
 import Header from './Header';
@@ -23,7 +22,6 @@ import Button from '../../components/Button';
 import Spacer from '../../components/Spacer';
 import { RenderRows, RowsData } from '../../components/RenderRows';
 import InputContainer from '../../components/InputContainer';
-// import { handleConnect } from '../../components/ConnectWallet';
 import CircularProgress from '@mui/material/CircularProgress';
 import { setWalletModal } from '../../store/router';
 import { Context } from '@wormhole-foundation/wormhole-connect-sdk';
@@ -100,8 +98,6 @@ function SendTo() {
     const networkConfig = CHAINS[txData.toChain]!;
     if (!networkConfig) throw new Error('invalid destination chain');
     try {
-      // TODO: remove this line
-      // await openWalletModal(theme, true);
       if (networkConfig?.context === Context.ETH) {
         registerWalletSigner(txData.toChain, TransferWallet.RECEIVING);
         await switchNetwork(networkConfig.chainId, TransferWallet.RECEIVING);
@@ -153,7 +149,7 @@ function SendTo() {
               </Button>
             ) : (
               <Button disabled elevated>
-                Connect to {displayEvmAddress(receiving.address)}
+                Connect to {displayAddress(txData.toChain, txData.recipient)}
               </Button>
             )
           ) : (

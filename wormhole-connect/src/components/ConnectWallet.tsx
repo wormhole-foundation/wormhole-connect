@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { RootState } from '../store';
 import { disconnect, TransferWallet } from '../utils/wallet';
-import { copyTextToClipboard, displayEvmAddress } from '../utils';
+import { copyTextToClipboard, displayWalletAddress } from '../utils';
 
 import DownIcon from '../icons/components/Down';
 import WalletIcon from '../icons/components/Wallet';
@@ -47,21 +47,7 @@ const useStyles = makeStyles()((theme) => ({
       backgroundColor: theme.palette.popover.secondary,
     },
   },
-}));
-
-// function getIcon(type: WalletType): string {
-//   switch (type) {
-//     case WalletType.METAMASK: {
-//       return MetamaskIcon;
-//     }
-//     case WalletType.TRUST_WALLET: {
-//       return TrustWalletIcon;
-//     }
-//     default: {
-//       return '';
-//     }
-//   }
-// }
+}))
 
 type Props = {
   type: TransferWallet;
@@ -86,15 +72,13 @@ function ConnectWallet(props: Props) {
     dispatch(clearWallet(props.type));
   };
 
-  // const icon = getIcon(wallet.type);
-
   return wallet && wallet.address ? (
     <PopupState variant="popover" popupId="demo-popup-popover">
       {(popupState) => (
         <div>
           <div className={classes.connectWallet} {...bindTrigger(popupState)}>
             <WalletIcons type={wallet.type} height={24} />
-            {displayEvmAddress(wallet.address)}
+            {displayWalletAddress(wallet.type, wallet.address)}
             <DownIcon className={classes.down} />
           </div>
           <Popover

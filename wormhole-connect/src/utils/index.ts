@@ -5,6 +5,7 @@ import {
   ChainName,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { CHAINS_ARR, TOKENS, TOKENS_ARR } from '../sdk/config';
+import { WalletType } from 'store/wallet';
 
 export function convertAddress(address: string): string {
   if (address.length === 22) return address;
@@ -30,6 +31,13 @@ export function displayAddress(chain: ChainName, address: string): string {
   } else {
     return displayEvmAddress(address);
   }
+}
+
+export function displayWalletAddress(walletType: WalletType, address: string): string {
+  if (walletType === WalletType.METAMASK || walletType === WalletType.WALLET_CONNECT) {
+    return displayEvmAddress(address);
+  }
+  return displayAddress('solana', address);
 }
 
 export function getNetworkByChainId(chainId: number): ChainConfig | void {

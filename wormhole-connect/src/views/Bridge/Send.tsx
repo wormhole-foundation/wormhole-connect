@@ -15,7 +15,7 @@ import {
   switchNetwork,
   TransferWallet,
 } from '../../utils/wallet';
-import { displayEvmAddress } from '../../utils';
+import { displayWalletAddress } from '../../utils';
 import Button from '../../components/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 import { Context } from '@wormhole-foundation/wormhole-connect-sdk';
@@ -87,7 +87,7 @@ function Send(props: { valid: boolean }) {
 
   return props.valid && !isConnected ? (
     <Button disabled elevated>
-      Connect to {displayEvmAddress(sending.address)}
+      Connect to {displayWalletAddress(sending.type, sending.address)}
     </Button>
   ) : (
     <Button
