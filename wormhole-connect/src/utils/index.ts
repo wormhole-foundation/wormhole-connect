@@ -33,8 +33,14 @@ export function displayAddress(chain: ChainName, address: string): string {
   }
 }
 
-export function displayWalletAddress(walletType: WalletType, address: string): string {
-  if (walletType === WalletType.METAMASK || walletType === WalletType.WALLET_CONNECT) {
+export function displayWalletAddress(
+  walletType: WalletType,
+  address: string,
+): string {
+  if (
+    walletType === WalletType.METAMASK ||
+    walletType === WalletType.WALLET_CONNECT
+  ) {
     return displayEvmAddress(address);
   }
   return displayAddress('solana', address);
@@ -56,7 +62,9 @@ export function getWrappedTokenId(token: TokenConfig): TokenId {
 
 export function getTokenById(tokenId: TokenId): TokenConfig | void {
   return TOKENS_ARR.filter(
-    (t) => t.tokenId && tokenId.address.toLowerCase() === t.tokenId!.address.toLowerCase(),
+    (t) =>
+      t.tokenId &&
+      tokenId.address.toLowerCase() === t.tokenId!.address.toLowerCase(),
   )[0];
 }
 
@@ -112,4 +120,9 @@ export function copyTextToClipboard(text: string) {
     );
   }
   return fallbackCopyTextToClipboard(text);
+}
+
+export function isValidTxId(tx: string) {
+  if (tx.startsWith('0x') && tx.length === 66) return true;
+  return tx.length > 70 && tx.length < 100;
 }

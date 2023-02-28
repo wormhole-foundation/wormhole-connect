@@ -47,7 +47,7 @@ const useStyles = makeStyles()((theme) => ({
       backgroundColor: theme.palette.popover.secondary,
     },
   },
-}))
+}));
 
 type Props = {
   type: TransferWallet;

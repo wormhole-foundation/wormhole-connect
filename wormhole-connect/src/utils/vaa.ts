@@ -3,7 +3,8 @@ import { ChainId } from '@wormhole-foundation/wormhole-connect-sdk';
 import axios from 'axios';
 
 import { utils } from 'ethers';
-import { keccak256 } from 'ethers/lib/utils';
+import { CHAINS } from 'sdk/config';
+import { ParsedMessage } from 'sdk/sdk';
 
 export type ParsedVaa = {
   bytes: string;
@@ -25,15 +26,20 @@ export type ParsedVaa = {
 
 const { REACT_APP_WORMHOLE_API } = process.env;
 
-export async function fetchVaa(txId: string): Promise<ParsedVaa | undefined> {
-  const id = txId.startsWith('0x') ? txId.slice(2) : txId;
-  const url = `${REACT_APP_WORMHOLE_API}api/v1/vaas/?txHash=${id}`;
+export async function fetchVaa(
+  txData: ParsedMessage,
+): Promise<ParsedVaa | undefined> {
+  const emitterChain = CHAINS[txData.fromChain];
+  if (!emitterChain || !emitterChain.id) {
+    throw new Error('invalid emitter chain');
+  }
+  const url = `${REACT_APP_WORMHOLE_API}api/v1/vaas/${emitterChain.id}/${txData.emitterAddress}/${txData.sequence}`;
 
   return axios
     .get(url)
     .then(function (response: any) {
       if (!response.data.data) return;
-      const data = response.data.data[0];
+      const data = response.data.data;
       const vaa = utils.base64.decode(data.vaa);
       const parsed = parseTokenTransferVaa(vaa);
       console.log(parsed);
@@ -61,8 +67,4 @@ export async function fetchVaa(txId: string): Promise<ParsedVaa | undefined> {
     .catch(function (error) {
       throw error;
     });
-}
-
-export function getSignedVAAHash(signedVaaHash: string): string {
-  return keccak256(signedVaaHash);
 }

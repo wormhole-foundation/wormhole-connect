@@ -1,4 +1,4 @@
-import { createNonce, getForeignAssetSolana } from '@certusone/wormhole-sdk';
+import { createNonce, getForeignAssetSolana, redeemOnSolana } from '@certusone/wormhole-sdk';
 import {
   getTransferWrappedAccounts,
   getTransferNativeAccounts,
@@ -12,6 +12,7 @@ import {
 } from '@certusone/wormhole-sdk/lib/cjs/solana/wormhole';
 import {
   parseTokenTransferPayload,
+  parseTokenTransferVaa,
   parseVaa,
 } from '../vaa';
 import {
@@ -550,6 +551,7 @@ export class SolanaContext<T extends WormholeContext> extends BridgeAbstract {
       tokenAddress: tokenContext.parseAddress(hexlify(parsed.tokenAddress)),
       tokenChain: this.context.toChainName(parsed.tokenChain),
       sequence: BigNumber.from(sequence),
+      emitterAddress: '3b26409f8aaded3f5ddca184695aa6a0fa829b0c85caf84856324896d214ca98',
       gasFee: BigNumber.from(gasFee),
     };
     return [parsedMessage];
@@ -573,21 +575,33 @@ export class SolanaContext<T extends WormholeContext> extends BridgeAbstract {
     );
   }
 
-  // TODO:
   async redeem(
     destChain: ChainName | ChainId,
     signedVAA: Uint8Array,
     overrides: any,
   ): Promise<any> {
-    console.log('not implemented', destChain, signedVAA);
+    if (!this.connection) throw new Error('no connection');
+    const contracts = this.contracts.mustGetContracts('solana');
+    if (!contracts.core || !contracts.token_bridge) {
+      throw new Error('contracts not found for solana');
+    }
+
+    const parsed = parseTokenTransferVaa(signedVAA);
+    return await redeemOnSolana(
+      this.connection,
+      contracts.core,
+      contracts.token_bridge,
+      parsed.to,
+      signedVAA,
+    )
   }
 
   async isTransferCompleted(
     destChain: ChainName | ChainId,
-    signedVaaHash: string,
+    signedVaa: string,
   ): Promise<boolean> {
     if (!this.connection) throw new Error('no connection');
-    const parsed = parseVaa(arrayify(signedVaaHash));
+    const parsed = parseVaa(arrayify(signedVaa));
     const tokenBridge = this.contracts.mustGetBridge(destChain);
     return getClaim(
       this.connection,

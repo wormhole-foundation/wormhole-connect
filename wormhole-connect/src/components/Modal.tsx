@@ -31,23 +31,20 @@ type Props = {
   open: boolean;
   children: JSX.Element | JSX.Element[];
   width: number;
+  onClose: () => any;
   closable?: boolean;
 };
 
-function Modal({ open, width, closable, children }: Props) {
+function Modal({ open, width, closable, children, onClose }: Props) {
   const { classes } = useStyles({ width });
   // TODO: have user pass in full-screen param?
   // const theme = useTheme();
   // const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
 
-  // dispatch close event
-  const event = new Event('close');
-  const emitClose = () => document.dispatchEvent(event);
-
   return (
     <Dialog
       open={open}
-      onClose={emitClose}
+      onClose={onClose}
       sx={{ borderRadius: 8 }}
       fullWidth
       fullScreen
@@ -59,7 +56,7 @@ function Modal({ open, width, closable, children }: Props) {
           <CloseIcon
             sx={{ fontSize: 32 }}
             className={classes.close}
-            onClick={emitClose}
+            onClick={onClose}
           />
         )}
         {children}

@@ -16,8 +16,10 @@ const getRows = (txData: any): RowsData => {
   const decimals = txData.tokenDecimals > 8 ? 8 : txData.tokenDecimals;
   const formattedAmt = toDecimals(txData.amount, decimals, 6);
   const { gasToken: sourceGasTokenSymbol } = CHAINS[txData.fromChain];
-  const sourceGasToken = TOKENS[sourceGasTokenSymbol]
-  const formattedGas = txData.gasFee ? toDecimals(txData.gasFee, sourceGasToken.decimals, 6) : undefined;
+  const sourceGasToken = TOKENS[sourceGasTokenSymbol];
+  const formattedGas = txData.gasFee
+    ? toDecimals(txData.gasFee, sourceGasToken.decimals, 6)
+    : undefined;
   const type = txData.payloadID;
 
   // manual transfers
@@ -80,7 +82,7 @@ function SendFrom() {
           network={txData.fromChain}
           address={txData.sender}
           loading={transferComplete ? false : !vaa}
-          txHash={vaa?.txHash}
+          txHash={txData.sendTx}
         />
         <RenderRows rows={rows} />
       </InputContainer>

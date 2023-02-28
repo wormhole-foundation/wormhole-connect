@@ -2,7 +2,7 @@ import {
   Implementation__factory,
   TokenImplementation__factory,
 } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
-import { createNonce } from '@certusone/wormhole-sdk';
+import { createNonce, keccak256 } from '@certusone/wormhole-sdk';
 import {
   BigNumber,
   BigNumberish,
@@ -25,6 +25,7 @@ import {
 } from '../types';
 import { WormholeContext } from '../wormhole';
 import { EthContracts } from '../contracts/ethContracts';
+import { hexlify } from 'ethers/lib/utils';
 
 export class EthContext<T extends WormholeContext> extends RelayerAbstract {
   protected contracts: EthContracts<T>;
@@ -312,7 +313,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
   ): Promise<ParsedMessage[] | ParsedRelayerMessage[]> {
     const provider = this.context.mustGetProvider(chain);
     const receipt = await provider.getTransactionReceipt(tx);
-    console.log(receipt);
+
     if (!receipt) throw new Error(`No receipt for ${tx} on ${chain}`);
 
     const core = this.contracts.mustGetCore(chain);
@@ -342,6 +343,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
           tokenAddress: tokenContext.parseAddress(parsedTransfer.tokenAddress),
           tokenChain: this.context.toChainName(parsedTransfer.tokenChain),
           sequence: parsed.args.sequence,
+          emitterAddress: hexlify(this.formatAddress(bridge.address)),
         };
         return parsedMessage;
       }
@@ -364,6 +366,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
         tokenAddress: this.parseAddress(parsedTransfer.tokenAddress),
         tokenChain: this.context.toChainName(parsedTransfer.tokenChain),
         sequence: parsed.args.sequence,
+        emitterAddress: hexlify(this.formatAddress(bridge.address)),
         payload: parsedTransfer.payload,
         relayerPayloadId: parsedPayload.payloadId,
         recipient: this.parseAddress(parsedPayload.targetRecipient),
@@ -397,10 +400,11 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
 
   async isTransferCompleted(
     destChain: ChainName | ChainId,
-    signedVaaHash: string,
+    signedVaa: string,
   ): Promise<boolean> {
     const tokenBridge = this.contracts.mustGetBridge(destChain);
-    return await tokenBridge.isTransferCompleted(signedVaaHash);
+    const hash = keccak256(signedVaa);
+    return await tokenBridge.isTransferCompleted(hash);
   }
 
   formatAddress(address: string): ethers.utils.BytesLike {

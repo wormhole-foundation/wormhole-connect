@@ -42,7 +42,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
       ...CONTRACTS.TESTNET.solana,
     },
     displayName: 'Solana',
-    explorerUrl: 'https://explorer.solana.com/?cluster=testnet/',
+    explorerUrl: 'https://explorer.solana.com/?cluster=devnet/',
     explorerName: 'Solana Explorer',
     gasToken: 'SOL',
     chainId: 0,

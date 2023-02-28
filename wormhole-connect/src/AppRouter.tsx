@@ -31,7 +31,7 @@ function AppRouter() {
 
   return (
     <div className={classes.appContent}>
-      {showWalletModal && <WalletModal />}
+      {showWalletModal && <WalletModal type={showWalletModal} />}
       {route === 'bridge' && <Bridge />}
       {route === 'redeem' && <Redeem />}
     </div>

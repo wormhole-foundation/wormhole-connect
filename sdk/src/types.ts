@@ -81,6 +81,7 @@ export interface ParsedMessage {
   tokenAddress: string;
   tokenChain: ChainName;
   sequence: BigNumber;
+  emitterAddress: string;
   payload?: string;
   gasFee?: BigNumber;
 }

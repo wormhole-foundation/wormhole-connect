@@ -29,6 +29,8 @@ export interface ParsedMessage {
   tokenChain: ChainName;
   tokenSymbol: string;
   tokenDecimals: number;
+  emitterAddress: string;
+  sequence: string;
   payload?: string;
   gasFee?: string;
 }
@@ -71,17 +73,13 @@ export const parseMessageFromTx = async (
   tx: string,
   chain: ChainName | ChainId,
 ) => {
-  const context: any = wh.getContext(chain);
-  const parsed = (await context.parseMessageFromTx(tx, chain))[0];
+  const parsed: any = (await wh.parseMessageFromTx(tx, chain))[0];
 
   const tokenId = {
     address: parsed.tokenAddress,
     chain: parsed.tokenChain,
   };
-  const decimals = await fetchTokenDecimals(
-    tokenId,
-    parsed.fromChain,
-  );
+  const decimals = await fetchTokenDecimals(tokenId, parsed.fromChain);
   const token = getTokenById(tokenId);
 
   const base = {
@@ -97,6 +95,7 @@ export const parseMessageFromTx = async (
     tokenAddress: parsed.tokenAddress,
     tokenChain: parsed.tokenChain,
     sequence: parsed.sequence.toString(),
+    emitterAddress: parsed.emitterAddress,
     gasFee: parsed.gasFee ? parsed.gasFee.toString() : undefined,
   };
   if (parsed.payloadID === PaymentOption.MANUAL) {

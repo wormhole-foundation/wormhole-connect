@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { fetchVaa, ParsedVaa, getSignedVAAHash } from '../../utils/vaa';
+import { fetchVaa, ParsedVaa } from '../../utils/vaa';
 import { setTransferComplete, setVaa } from '../../store/redeem';
 import { RootState } from '../../store';
 import { getTransferComplete } from '../../sdk/sdk';
@@ -38,17 +38,18 @@ class Redeem extends React.Component<
 
   async getVaa() {
     if (!this.props.txData.sendTx) return;
-    const vaa = await fetchVaa(this.props.txData.sendTx);
-    this.props.setVaa(vaa);
-    this.setState({ ...this.state, vaa });
+    const vaa = await fetchVaa(this.props.txData);
+    if (vaa) {
+      this.props.setVaa(vaa);
+      this.setState({ ...this.state, vaa });
+    }
   }
 
   async getTransferComplete() {
     if (!this.state.vaa || !this.props.txData) return;
-    const hash = getSignedVAAHash(this.state.vaa.hash);
     const isComplete = await getTransferComplete(
       this.props.txData.toChain,
-      hash,
+      this.state.vaa.bytes,
     );
     if (isComplete) this.props.setTransferComplete();
   }

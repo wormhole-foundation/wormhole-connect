@@ -2,10 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
 import { BigNumber, utils } from 'ethers';
-import { useTheme } from '@mui/material/styles';
+import CircularProgress from '@mui/material/CircularProgress';
+import { Context } from '@wormhole-foundation/wormhole-connect-sdk';
 import { RootState } from '../../store';
 import { PaymentOption } from '../../store/transfer';
-import { setRedeemTx } from '../../store/redeem';
+import { setRedeemTx, setTransferComplete } from '../../store/redeem';
 import {
   registerWalletSigner,
   switchNetwork,
@@ -22,9 +23,7 @@ import Button from '../../components/Button';
 import Spacer from '../../components/Spacer';
 import { RenderRows, RowsData } from '../../components/RenderRows';
 import InputContainer from '../../components/InputContainer';
-import CircularProgress from '@mui/material/CircularProgress';
-import { setWalletModal } from '../../store/router';
-import { Context } from '@wormhole-foundation/wormhole-connect-sdk';
+import WalletsModal from '../WalletModal';
 
 const getRows = (txData: any): RowsData => {
   const decimals = txData.tokenDecimals > 8 ? 8 : txData.tokenDecimals;
@@ -69,7 +68,6 @@ const getRows = (txData: any): RowsData => {
 
 function SendTo() {
   const dispatch = useDispatch();
-  const theme = useTheme();
   const vaa: ParsedVaa = useSelector((state: RootState) => state.redeem.vaa);
   const txData = useSelector((state: RootState) => state.redeem.txData)!;
   const toAddr = useSelector(
@@ -84,7 +82,8 @@ function SendTo() {
   const [isConnected, setIsConnected] = useState(
     receiving.currentAddress.toLowerCase() === receiving.address.toLowerCase(),
   );
-  const [rows, setRows] = React.useState([] as RowsData);
+  const [rows, setRows] = useState([] as RowsData);
+  const [openWalletModal, setWalletModal] = useState(false);
 
   useEffect(() => {
     if (!txData) return;
@@ -107,6 +106,7 @@ function SendTo() {
         utils.arrayify(vaa.bytes),
       );
       dispatch(setRedeemTx(receipt.transactionHash));
+      dispatch(setTransferComplete(true));
       setInProgress(false);
     } catch (e) {
       setInProgress(false);
@@ -114,7 +114,7 @@ function SendTo() {
     }
   };
   const connect = async () => {
-    dispatch(setWalletModal(TransferWallet.RECEIVING));
+    setWalletModal(true);
   };
 
   useEffect(() => {
@@ -139,7 +139,7 @@ function SendTo() {
         />
         <RenderRows rows={rows} />
       </InputContainer>
-      {txData.payloadID === PaymentOption.MANUAL && (
+      {txData.payloadID === PaymentOption.MANUAL && !transferComplete && (
         <>
           <Spacer height={8} />
           {toAddr ? (
@@ -158,6 +158,13 @@ function SendTo() {
             </Button>
           )}
         </>
+      )}
+      {openWalletModal && (
+        <WalletsModal
+          type={TransferWallet.RECEIVING}
+          chain={txData.toChain}
+          onClose={() => setWalletModal(false)}
+        />
       )}
       {/* {pending && <Confirmations confirmations={vaa.guardianSignatures} />} */}
     </div>

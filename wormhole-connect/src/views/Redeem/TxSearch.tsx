@@ -11,6 +11,7 @@ import PageHeader from '../../components/PageHeader';
 import Search from '../../components/Search';
 import Button from '../../components/Button';
 import Spacer from '../../components/Spacer';
+import { isValidTxId } from '../../utils';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -44,9 +45,9 @@ function TxSearch() {
   }
 
   function setTx(e: any) {
-    // if (e.target.value.startsWith('0x') && e.target.value.length === 66) {
-    setState({ ...state, tx: e.target.value });
-    // }
+    if (isValidTxId(e.target.value)) {
+      setState({ ...state, tx: e.target.value });
+    }
   }
 
   async function search() {

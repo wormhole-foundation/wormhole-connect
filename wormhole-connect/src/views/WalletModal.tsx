@@ -10,17 +10,18 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../store';
 import {
   ChainConfig,
+  ChainName,
   Context,
 } from '@wormhole-foundation/wormhole-connect-sdk';
+import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
 import { CHAINS } from '../sdk/config';
-import WalletIcon from '../icons/components/WalletIcons';
 import { setWalletConnection, TransferWallet, wallets } from '../utils/wallet';
 import {
   connectReceivingWallet,
   connectWallet,
   WalletType,
 } from '../store/wallet';
-import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
+import WalletIcon from '../icons/components/WalletIcons';
 
 const useStyles = makeStyles((theme: Theme) => ({
   walletRow: {
@@ -78,44 +79,50 @@ const getWalletOptions = (chain: ChainConfig) => {
   }
 };
 
-function WalletsModal() {
+type Props = {
+  type: TransferWallet;
+  chain?: ChainName;
+  onClose?: () => any;
+};
+
+function WalletsModal(props: Props) {
   const classes = useStyles();
   const dispatch = useDispatch();
   const { fromNetwork, toNetwork } = useSelector(
     (state: RootState) => state.transfer,
   );
-  const showWalletModal = useSelector(
-    (state: RootState) => state.router.showWalletModal,
-  );
-  const [walletOptions, setWalletOptions] = useState(Object.values(WALLETS));
+  const [walletOptions, setWalletOptions] = useState(getAvailableWallets());
 
+  function getAvailableWallets() {
+    const chain =
+      props.chain || props.type === TransferWallet.SENDING
+        ? fromNetwork
+        : toNetwork;
+
+    const config = CHAINS[chain!];
+    if (!config) return Object.values(WALLETS);
+    return getWalletOptions(config);
+  }
+  
   useEffect(() => {
-    if (showWalletModal === TransferWallet.SENDING) {
-      const config = CHAINS[fromNetwork!];
-      if (!config) return;
-      const options = getWalletOptions(config);
-      if (options) setWalletOptions(options);
-    } else {
-      const config = CHAINS[toNetwork!];
-      if (!config) return;
-      const options = getWalletOptions(config);
-      if (options) setWalletOptions(options);
-    }
-  }, [fromNetwork, toNetwork]);
+    const options = getAvailableWallets();
+    if (options) setWalletOptions(options);
+  }, [fromNetwork, toNetwork, props.chain]);
 
   const connect = async (walletInfo: WalletData) => {
     const { wallet } = walletInfo;
     await wallet.connect();
-    setWalletConnection(showWalletModal, wallet);
+    setWalletConnection(props.type, wallet);
     const address = wallet.getAddress();
     if (address) {
       const payload = { address, type: walletInfo.type };
-      if (showWalletModal === TransferWallet.SENDING) {
+      if (props.type === TransferWallet.SENDING) {
         dispatch(connectWallet(payload));
       } else {
         dispatch(connectReceivingWallet(payload));
       }
       dispatch(setWalletModal(false));
+      if (props.onClose) props.onClose();
     }
   };
 
@@ -132,13 +139,15 @@ function WalletsModal() {
     ));
   };
   const closeWalletModal = () => {
-    dispatch(setWalletModal(false));
-    document.removeEventListener('click', closeWalletModal);
+    if (props.onClose) {
+      props.onClose();
+    } else {
+      dispatch(setWalletModal(false));
+    }
   };
-  document.addEventListener('close', closeWalletModal, { once: true });
 
   return (
-    <Modal open={!!showWalletModal} closable width={500}>
+    <Modal open={!!props.type} closable width={500} onClose={closeWalletModal}>
       <Header text="Connect wallet" align="left" />
       <Spacer height={32} />
       <div>{displayWalletOptions(walletOptions)}</div>

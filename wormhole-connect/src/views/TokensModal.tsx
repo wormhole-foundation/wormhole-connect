@@ -157,9 +157,8 @@ function TokensModal() {
   // listen for close event
   const closeTokensModal = () => {
     dispatch(setTokensModal(false));
-    document.removeEventListener('click', closeTokensModal);
   };
-  document.addEventListener('close', closeTokensModal, { once: true });
+
   // select token
   const selectToken = (token: string) => {
     dispatch(setToken(token));
@@ -195,7 +194,12 @@ function TokensModal() {
   }, [tokenBalances]);
 
   return (
-    <Modal open={showTokensModal} closable width={500}>
+    <Modal
+      open={showTokensModal}
+      closable
+      width={500}
+      onClose={closeTokensModal}
+    >
       <Header text="Select token" />
       <Spacer height={16} />
       <Search

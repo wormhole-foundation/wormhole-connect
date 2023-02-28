@@ -12,6 +12,8 @@ import {
   Context,
   AnyContext,
   Contracts,
+  ParsedRelayerMessage,
+  ParsedMessage,
 } from './types';
 import { EthContext } from './contexts/ethContext';
 import { SolanaContext } from './contexts/solanaContext';
@@ -244,10 +246,10 @@ export class WormholeContext extends MultiProvider<Domain> {
 
   async isTransferCompleted(
     destChain: ChainName | ChainId,
-    signedVaaHash: string,
+    signedVaa: string,
   ): Promise<boolean> {
     const context = this.getContext(destChain);
-    return await context.isTransferCompleted(destChain, signedVaaHash);
+    return await context.isTransferCompleted(destChain, signedVaa);
   }
 
   formatAddress(address: string, chain: ChainName | ChainId): any {
@@ -263,6 +265,14 @@ export class WormholeContext extends MultiProvider<Domain> {
   getTxIdFromReceipt(chain: ChainName | ChainId, receipt: any): string {
     const context = this.getContext(chain);
     return context.getTxIdFromReceipt(receipt);
+  }
+
+  async parseMessageFromTx(
+    tx: string,
+    chain: ChainName | ChainId,
+  ): Promise<ParsedMessage[] | ParsedRelayerMessage[]> {
+    const context = this.getContext(chain);
+    return await context.parseMessageFromTx(tx, chain);
   }
 
   /**

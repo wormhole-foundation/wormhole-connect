@@ -19,7 +19,6 @@ import Search from '../components/Search';
 import Scroll from '../components/Scroll';
 import { clearWallet } from '../store/wallet';
 
-
 const useStyles = makeStyles()((theme) => ({
   networksContainer: {
     display: 'grid',
@@ -83,12 +82,12 @@ function NetworksModal(props: Props) {
   const { sending, receiving } = useSelector(
     (state: RootState) => state.wallet,
   );
-  const filteredChains = CHAINS_ARR.filter(c => {
+  const filteredChains = CHAINS_ARR.filter((c) => {
     if (props.type === ModalType.FROM) {
       return c.key !== toNetwork;
     }
     return c.key !== fromNetwork;
-  })
+  });
   const [chains, setChains] = React.useState(filteredChains);
 
   // listen for close event
@@ -96,9 +95,7 @@ function NetworksModal(props: Props) {
     setTimeout(() => setChains(filteredChains), 500);
     dispatch(setFromNetworksModal(false));
     dispatch(setToNetworksModal(false));
-    document.removeEventListener('click', closeNetworksModal);
   };
-  document.addEventListener('close', closeNetworksModal, { once: true });
 
   const isDisabled = (chain: ChainName) => {
     const type = props.type === ModalType.FROM ? sending.type : receiving.type;
@@ -139,7 +136,12 @@ function NetworksModal(props: Props) {
   };
 
   return (
-    <Modal open={props.open} closable width={CHAINS_ARR.length > 6 ? 650 : 475}>
+    <Modal
+      open={props.open}
+      closable
+      width={CHAINS_ARR.length > 6 ? 650 : 475}
+      onClose={closeNetworksModal}
+    >
       <Header text={props.title} />
       <div>Select Network</div>
       <Spacer height={16} />
