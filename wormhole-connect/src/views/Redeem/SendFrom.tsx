@@ -55,7 +55,7 @@ const getRows = (txData: any): RowsData => {
     },
     {
       title: 'Convert to native gas token',
-      value: `≈ ${formattedToNative} ${txData.tokenSymbol} \u27F6 ${gasToken}`,
+      value: `≈ ${formattedToNative} ${txData.tokenSymbol} \u2192 ${gasToken}`,
     },
   ];
 };
