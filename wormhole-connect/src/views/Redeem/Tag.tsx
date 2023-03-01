@@ -35,10 +35,13 @@ function NetworksTag() {
   const txData = useSelector((state: RootState) => state.redeem.txData)!;
   const fromNetworkConfig = CHAINS[txData.fromChain]!;
   const toNetworkConfig = CHAINS[txData.toChain]!;
-  // TODO: can I use tx details for this?
+
+  const emitterAddress = txData.emitterAddress.startsWith('0x')
+    ? txData.emitterAddress.slice(2)
+    : txData.emitterAddress;
   const link =
-    vaa &&
-    `${REACT_APP_WORMHOLE_EXPLORER}?emitterChain=${vaa.emitterChain}&emitterAddress=${vaa.emitterAddress}&sequence=${vaa.sequence}`;
+    txData &&
+    `${REACT_APP_WORMHOLE_EXPLORER}?emitterChain=${fromNetworkConfig.id}&emitterAddress=${emitterAddress}&sequence=${txData.sequence}`;
 
   return (
     <div>
@@ -55,7 +58,7 @@ function NetworksTag() {
           </div>
         </div>
       </InputContainer>
-      {vaa && (
+      {txData && (
         <a
           className={classes.link}
           href={link}
