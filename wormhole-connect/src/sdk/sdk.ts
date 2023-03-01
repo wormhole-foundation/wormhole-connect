@@ -2,6 +2,7 @@ import { Network as Environment } from '@certusone/wormhole-sdk';
 import { BigNumber, utils, ContractReceipt } from 'ethers';
 import {
   WormholeContext,
+  WormholeConfig,
   TokenId,
   ChainId,
   ChainName,
@@ -15,7 +16,10 @@ import { signSolanaTransaction } from 'utils/wallet';
 
 const { REACT_APP_ENV } = process.env;
 
-const conf = WormholeContext.getConfig(REACT_APP_ENV! as Environment);
+// @ts-ignore
+const conf: WormholeConfig = WormholeContext.getConfig(
+  REACT_APP_ENV! as Environment,
+);
 const mainnetRpcs = {
   ethereum: process.env.REACT_APP_ETHEREUM_RPC || conf.rpcs.ethereum,
   solana: process.env.REACT_APP_SOLANA_RPC || conf.rpcs.solana,
@@ -104,19 +108,11 @@ export const parseMessageFromTx = async (
   const token = getTokenById(tokenId);
 
   const base = {
-    sendTx: parsed.sendTx,
-    sender: parsed.sender,
+    ...parsed,
     amount: parsed.amount.toString(),
-    payloadID: parsed.payloadID,
-    recipient: parsed.recipient,
-    toChain: parsed.toChain,
-    fromChain: parsed.fromChain,
     tokenSymbol: token?.symbol,
     tokenDecimals: decimals,
-    tokenAddress: parsed.tokenAddress,
-    tokenChain: parsed.tokenChain,
     sequence: parsed.sequence.toString(),
-    emitterAddress: parsed.emitterAddress,
     gasFee: parsed.gasFee ? parsed.gasFee.toString() : undefined,
   };
   if (parsed.payloadID === PaymentOption.MANUAL) {
@@ -124,8 +120,6 @@ export const parseMessageFromTx = async (
   }
   return {
     ...base,
-    relayerPayloadId: parsed.relayerPayloadId,
-    to: parsed.to,
     relayerFee: parsed.relayerFee.toString(),
     toNativeTokenAmount: parsed.toNativeTokenAmount.toString(),
   };
@@ -236,4 +230,19 @@ export const getTxIdFromReceipt = (
   receipt: any,
 ): string => {
   return wh.getTxIdFromReceipt(sourceChain, receipt);
+};
+
+export const getCurrentBlock = async (
+  chain: ChainName | ChainId,
+): Promise<number> => {
+  const chainName = wh.resolveDomainName(chain);
+  const context: any = wh.getContext(chain);
+  if (chainName === 'solana') {
+    const connection = context.connection;
+    if (!connection) throw new Error('no connection');
+    return await connection.getBlockHeight();
+  } else {
+    const provider = wh.mustGetProvider(chain);
+    return await provider.getBlockNumber();
+  }
 };

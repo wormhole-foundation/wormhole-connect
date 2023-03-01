@@ -562,6 +562,7 @@ export class SolanaContext<T extends WormholeContext> extends BridgeAbstract {
       emitterAddress:
         '3b26409f8aaded3f5ddca184695aa6a0fa829b0c85caf84856324896d214ca98',
       gasFee: BigNumber.from(gasFee),
+      block: response.slot,
     };
     return [parsedMessage];
   }

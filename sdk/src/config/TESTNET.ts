@@ -33,6 +33,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     explorerName: 'Etherscan',
     gasToken: 'ETH',
     chainId: 5,
+    finalityThreshold: 15,
   },
   solana: {
     key: 'solana',
@@ -46,6 +47,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     explorerName: 'Solana Explorer',
     gasToken: 'SOL',
     chainId: 0,
+    finalityThreshold: 32,
   },
   mumbai: {
     key: 'mumbai',
@@ -60,6 +62,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     explorerName: 'Polygonscan',
     gasToken: 'MATIC',
     chainId: 80001,
+    finalityThreshold: 64,
   },
   bsc: {
     key: 'bsc',
@@ -74,6 +77,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     explorerName: 'BscScan',
     gasToken: 'BNB',
     chainId: 97,
+    finalityThreshold: 15,
   },
   fuji: {
     key: 'fuji',
@@ -88,6 +92,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     explorerName: 'Snowtrace',
     gasToken: 'AVAX',
     chainId: 43113,
+    finalityThreshold: 15,
   },
   fantom: {
     key: 'fantom',
@@ -102,6 +107,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     explorerName: 'FtmScan',
     gasToken: 'FTM',
     chainId: 4002,
+    finalityThreshold: 1,
   },
   alfajores: {
     key: 'alfajores',
@@ -116,6 +122,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     explorerName: 'Celo Explorer',
     gasToken: 'CELO',
     chainId: 44787,
+    finalityThreshold: 1,
   },
 };
 

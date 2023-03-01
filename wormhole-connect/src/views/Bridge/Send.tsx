@@ -63,13 +63,18 @@ function Send(props: { valid: boolean }) {
       console.log('sent', receipt);
       const txId = receipt.transactionHash;
       console.log(txId);
-      const message = await parseMessageFromTx(txId, fromNetwork!);
-      dispatch(setSendTx(txId));
-      dispatch(setTxDetails(message));
-      // TODO: clear inputs
-      // dispatch(clearTransfer);
-      dispatch(setRoute('redeem'));
-      setInProgress(false);
+      let message;
+      const toRedeem = setInterval(async () => {
+        if (message) {
+          clearInterval(toRedeem);
+          dispatch(setSendTx(txId));
+          dispatch(setTxDetails(message));
+          dispatch(setRoute('redeem'));
+          setInProgress(false);
+        } else {
+          message = await parseMessageFromTx(txId, fromNetwork!);
+        }
+      }, 1000);
     } catch (e) {
       setInProgress(false);
       console.error(e);

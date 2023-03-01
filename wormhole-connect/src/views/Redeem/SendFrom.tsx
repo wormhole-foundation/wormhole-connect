@@ -3,14 +3,14 @@ import { useSelector } from 'react-redux';
 import { utils } from 'ethers';
 import { RootState } from '../../store';
 import { ParsedVaa } from '../../utils/vaa';
+import { CHAINS, TOKENS } from '../../sdk/config';
+import { PaymentOption } from '../../store/transfer';
+import { toDecimals } from '../../utils/balance';
 
 import InputContainer from '../../components/InputContainer';
 import Header from './Header';
 import { RenderRows, RowsData } from '../../components/RenderRows';
-import { CHAINS, TOKENS } from '../../sdk/config';
-import { PaymentOption } from '../../store/transfer';
-import { toDecimals } from '../../utils/balance';
-// import Confirmations from './Confirmations';
+import Confirmations from './Confirmations';
 
 const getRows = (txData: any): RowsData => {
   const decimals = txData.tokenDecimals > 8 ? 8 : txData.tokenDecimals;
@@ -86,7 +86,9 @@ function SendFrom() {
         />
         <RenderRows rows={rows} />
       </InputContainer>
-      {/* {pending && <Confirmations confirmations={vaa.guardianSignatures} />} */}
+      {!vaa && (
+        <Confirmations chain={txData.fromChain} blockHeight={txData.block} />
+      )}
     </div>
   );
 }

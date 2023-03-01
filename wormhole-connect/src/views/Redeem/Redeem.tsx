@@ -37,7 +37,7 @@ class Redeem extends React.Component<
   }
 
   async getVaa() {
-    if (!this.props.txData.sendTx) return;
+    if (!this.props.txData.sendTx || !!this.state.vaa) return;
     const vaa = await fetchVaa(this.props.txData);
     if (vaa) {
       this.props.setVaa(vaa);
