@@ -11,6 +11,7 @@ import Bridge from './views/Bridge/Bridge';
 import WalletModal from './views/WalletModal';
 import Redeem from './views/Redeem/Redeem';
 import TxSearch from './views/TxSearch';
+import { clearWallets } from './store/wallet';
 
 const useStyles = makeStyles(() => ({
   appContent: {
@@ -45,14 +46,19 @@ function AppRouter() {
   const prevRoute = usePrevious(route);
 
   useEffect(() => {
-    console.log(route, prevRoute)
     const redeemRoute = 'redeem';
     const bridgeRoute = 'bridge';
+    // reset redeem state on leave
     if (prevRoute === redeemRoute && route !== redeemRoute) {
       dispatch(clearRedeem());
     }
+    // reset transfer state on leave
     if (prevRoute === bridgeRoute && route !== bridgeRoute) {
       dispatch(clearTransfer());
+    }
+    // reset wallets when starting a new bridge transfer
+    if (prevRoute !== bridgeRoute && route === bridgeRoute) {
+      dispatch(clearWallets());
     }
   }, [route]);
 

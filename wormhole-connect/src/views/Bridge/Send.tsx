@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { CHAINS, TOKENS } from '../../sdk/config';
-import {
-  parseMessageFromTx,
-  sendTransfer,
-} from '../../sdk/sdk';
+import { parseMessageFromTx, sendTransfer } from '../../sdk/sdk';
 import { RootState } from '../../store';
 import { setRoute } from '../../store/router';
 import { setTxDetails, setSendTx } from '../../store/redeem';

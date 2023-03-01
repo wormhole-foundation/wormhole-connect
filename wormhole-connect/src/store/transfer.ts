@@ -127,7 +127,7 @@ export const transferSlice = createSlice({
       Object.keys(state).forEach((key) => {
         // @ts-ignore
         state[key] = initialState[key];
-      })
+      });
     },
   },
 });
