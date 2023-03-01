@@ -53,6 +53,12 @@ export const redeemSlice = createSlice({
       console.log('set transfer complete', payload);
       state.transferComplete = payload;
     },
+    clearRedeem: (state: RedeemState) => {
+      Object.keys(state).forEach((key) => {
+        // @ts-ignore
+        state[key] = initialState[key];
+      });
+    },
   },
 });
 
@@ -62,6 +68,7 @@ export const {
   setSendTx,
   setRedeemTx,
   setTransferComplete,
+  clearRedeem,
 } = redeemSlice.actions;
 
 export default redeemSlice.reducer;

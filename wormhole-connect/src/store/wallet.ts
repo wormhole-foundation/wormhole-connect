@@ -79,6 +79,12 @@ export const walletSlice = createSlice({
     ) => {
       state[payload.type].currentAddress = payload.address;
     },
+    clearWallets: (state: WalletState) => {
+      Object.keys(state).forEach((key) => {
+        // @ts-ignore
+        state[key] = initialState[key];
+      });
+    },
   },
 });
 
@@ -87,6 +93,7 @@ export const {
   connectReceivingWallet,
   clearWallet,
   setCurrentAddress,
+  clearWallets,
 } = walletSlice.actions;
 
 export default walletSlice.reducer;

@@ -46,7 +46,13 @@ type Props = {
 function Header(props: Props) {
   const { classes } = useStyles();
   const networkConfig = CHAINS[props.network]!;
-  const explorerLink = `${networkConfig.explorerUrl}tx/${props.txHash}`;
+  let explorerLink = `${networkConfig.explorerUrl}tx/${props.txHash}`;
+  if (
+    networkConfig.key === 'solana' &&
+    process.env.REACT_APP_ENV === 'TESTNET'
+  ) {
+    explorerLink += '?cluster=devnet';
+  }
   return (
     <div className={classes.header}>
       <div className={classes.left}>

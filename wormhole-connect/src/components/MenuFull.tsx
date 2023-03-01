@@ -50,7 +50,7 @@ export default function Menu() {
           <div className={classes.menuItem} onClick={() => navigate('bridge')}>
             Bridge
           </div>
-          <div className={classes.menuItem} onClick={() => navigate('redeem')}>
+          <div className={classes.menuItem} onClick={() => navigate('search')}>
             Resume transfer
           </div>
           <div
