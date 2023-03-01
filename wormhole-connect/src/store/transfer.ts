@@ -124,7 +124,10 @@ export const transferSlice = createSlice({
       if (payload) state.destGasPayment = PaymentOption.AUTOMATIC;
     },
     clearTransfer: (state: TransferState) => {
-      state = initialState;
+      Object.keys(state).forEach((key) => {
+        // @ts-ignore
+        state[key] = initialState[key];
+      })
     },
   },
 });
