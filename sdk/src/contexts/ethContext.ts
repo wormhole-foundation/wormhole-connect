@@ -344,6 +344,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
           tokenChain: this.context.toChainName(parsedTransfer.tokenChain),
           sequence: parsed.args.sequence,
           emitterAddress: hexlify(this.formatAddress(bridge.address)),
+          block: receipt.blockNumber,
         };
         return parsedMessage;
       }
@@ -367,6 +368,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
         tokenChain: this.context.toChainName(parsedTransfer.tokenChain),
         sequence: parsed.args.sequence,
         emitterAddress: hexlify(this.formatAddress(bridge.address)),
+        block: receipt.blockNumber,
         payload: parsedTransfer.payload,
         relayerPayloadId: parsedPayload.payloadId,
         recipient: this.parseAddress(parsedPayload.targetRecipient),

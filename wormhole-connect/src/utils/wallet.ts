@@ -16,13 +16,20 @@ import { clusterApiUrl, Connection as SolanaConnection } from '@solana/web3.js';
 import { SolanaWallet } from '@xlabs-libs/wallet-aggregator-solana';
 import { Transaction, ConfirmOptions } from '@solana/web3.js';
 import { registerSigner } from '../sdk/sdk';
-import { WalletType } from 'store/wallet';
 import { CHAINS_ARR } from 'sdk/config';
 import { getNetworkByChainId } from 'utils';
 
 export enum TransferWallet {
   SENDING = 'sending',
   RECEIVING = 'receiving',
+}
+
+export enum WalletType {
+  NONE = 0,
+  METAMASK,
+  WALLET_CONNECT,
+  PHANTOM,
+  SOLFLARE,
 }
 
 let walletConnection = {
@@ -84,7 +91,7 @@ export const switchNetwork = async (chainId: number, type: TransferWallet) => {
 
 export const disconnect = async (type: TransferWallet) => {
   const w = walletConnection[type]! as any;
-  if (!w) throw new Error('not connected');
+  if (!w) return;
   await w.disconnect();
 };
 

@@ -45,6 +45,7 @@ export type ChainConfig = {
   explorerName: string;
   gasToken: string;
   chainId: number;
+  finalityThreshold: number;
 };
 
 export type WormholeConfig = {
@@ -82,6 +83,7 @@ export interface ParsedMessage {
   tokenChain: ChainName;
   sequence: BigNumber;
   emitterAddress: string;
+  block: number;
   payload?: string;
   gasFee?: BigNumber;
 }

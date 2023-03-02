@@ -34,6 +34,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     explorerName: 'Etherscan',
     gasToken: 'ETH',
     chainId: 1,
+    finalityThreshold: 15,
   },
   solana: {
     key: 'solana',
@@ -45,6 +46,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     explorerName: 'Solana Explorer',
     gasToken: 'SOL',
     chainId: 0,
+    finalityThreshold: 32,
   },
   polygon: {
     key: 'polygon',
@@ -56,6 +58,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     explorerName: 'PolygonScan',
     gasToken: 'MATIC',
     chainId: 137,
+    finalityThreshold: 512,
   },
   bsc: {
     key: 'bsc',
@@ -67,6 +70,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     explorerName: 'BscScan',
     gasToken: 'BNB',
     chainId: 56,
+    finalityThreshold: 15,
   },
   avalanche: {
     key: 'avalanche',
@@ -78,6 +82,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     explorerName: 'Snowtrace',
     gasToken: 'WAVAX',
     chainId: 43114,
+    finalityThreshold: 15,
   },
   fantom: {
     key: 'fantom',
@@ -89,6 +94,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     explorerName: 'FTMscan',
     gasToken: 'FTM',
     chainId: 250,
+    finalityThreshold: 1,
   },
   celo: {
     key: 'celo',
@@ -100,6 +106,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     explorerName: 'Celo Explorer',
     gasToken: 'CELO',
     chainId: 42220,
+    finalityThreshold: 1,
   },
 };
 

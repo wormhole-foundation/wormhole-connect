@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { styled } from '@mui/material/styles';
 import { makeStyles } from 'tss-react/mui';
 import { LinearProgress, linearProgressClasses } from '@mui/material';
-// import { REQUIRED_CONFIRMATIONS } from '../../utils/sdk';
+import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+import { CHAINS } from '../../sdk/config';
+import { getCurrentBlock } from '../../sdk/sdk';
 
 const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
   borderRadius: 5,
@@ -29,13 +31,39 @@ const useStyles = makeStyles()((theme) => ({
 }));
 
 type Props = {
-  confirmations: number;
+  chain: ChainName;
+  blockHeight: number;
 };
 
 function Confirmations(props: Props) {
   const { classes } = useStyles();
-  const { confirmations } = props;
-  const percentage = Math.floor((confirmations / REQUIRED_CONFIRMATIONS) * 100);
+  const chainConfig = CHAINS[props.chain]!;
+  const requiredHeight = props.blockHeight + chainConfig.finalityThreshold;
+  const [currentBlock, setCurrentBlock] = useState(0);
+
+  const updateCurrentBlock = async () => {
+    const height = await getCurrentBlock(props.chain);
+    setCurrentBlock(height);
+  };
+
+  useEffect(() => {
+    updateCurrentBlock();
+    const interval = setInterval(async () => {
+      if (currentBlock < requiredHeight) {
+        updateCurrentBlock();
+      } else {
+        clearInterval(interval);
+      }
+    }, 1000);
+  }, []);
+
+  const blockDiff =
+    currentBlock > requiredHeight ? 0 : requiredHeight - currentBlock;
+  const confirmations = chainConfig.finalityThreshold - blockDiff;
+  const percentage = Math.floor(
+    (confirmations / chainConfig.finalityThreshold) * 100,
+  );
+
   return (
     <div className={classes.confirmations}>
       <BorderLinearProgress
@@ -44,7 +72,13 @@ function Confirmations(props: Props) {
         color="secondary"
       />
       <div className={classes.confirmationsText}>
-        {confirmations} / {REQUIRED_CONFIRMATIONS} Confirmations
+        {percentage < 100 ? (
+          <>
+            {confirmations} / {chainConfig.finalityThreshold} Confirmations
+          </>
+        ) : (
+          'Waiting for Wormhole Network consensus . . .'
+        )}
       </div>
     </div>
   );

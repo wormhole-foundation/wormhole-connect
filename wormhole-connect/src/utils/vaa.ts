@@ -33,7 +33,10 @@ export async function fetchVaa(
   if (!emitterChain || !emitterChain.id) {
     throw new Error('invalid emitter chain');
   }
-  const url = `${REACT_APP_WORMHOLE_API}api/v1/vaas/${emitterChain.id}/${txData.emitterAddress}/${txData.sequence}`;
+  const emitterAddress = txData.emitterAddress.startsWith('0x')
+    ? txData.emitterAddress.slice(2)
+    : txData.emitterAddress;
+  const url = `${REACT_APP_WORMHOLE_API}api/v1/vaas/${emitterChain.id}/${emitterAddress}/${txData.sequence}`;
 
   return axios
     .get(url)
@@ -65,6 +68,10 @@ export async function fetchVaa(
       return vaaData;
     })
     .catch(function (error) {
-      throw error;
+      if (error.code === 'ERR_BAD_REQUEST') {
+        return undefined;
+      } else {
+        throw error;
+      }
     });
 }
