@@ -2,6 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { TokenConfig } from 'config/types';
 import { BigNumber } from 'ethers';
+import { TransferValidations, validateAll } from 'transferValidation';
 import { toDecimals } from 'utils/balance';
 
 export enum PaymentOption {
@@ -22,6 +23,7 @@ export const formatBalance = (
 };
 
 export interface TransferState {
+  validations: TransferValidations;
   fromNetwork: ChainName | undefined;
   toNetwork: ChainName | undefined;
   automaticRelayAvail: boolean;
@@ -36,6 +38,14 @@ export interface TransferState {
 }
 
 const initialState: TransferState = {
+  validations: {
+    fromNetwork: undefined,
+    toNetwork: undefined,
+    token: undefined,
+    amount: undefined,
+    destGasPayment: undefined,
+    toNativeToken: undefined,
+  },
   fromNetwork: undefined,
   toNetwork: undefined,
   automaticRelayAvail: false,
@@ -53,6 +63,9 @@ export const transferSlice = createSlice({
   name: 'transfer',
   initialState,
   reducers: {
+    validate: (state: TransferState) => {
+      state.validations = validateAll(state);
+    },
     setToken: (state: TransferState, { payload }: PayloadAction<string>) => {
       console.log('set token:', payload);
       state.token = payload;
@@ -133,6 +146,7 @@ export const transferSlice = createSlice({
 });
 
 export const {
+  validate,
   setToken,
   setFromNetwork,
   setToNetwork,

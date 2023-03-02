@@ -5,12 +5,13 @@ import { parseMessageFromTx, sendTransfer } from '../../sdk/sdk';
 import { RootState } from '../../store';
 import { setRoute } from '../../store/router';
 import { setTxDetails, setSendTx } from '../../store/redeem';
-// import { clearTransfer } from '../../store/transfer';
+import { validate } from '../../store/transfer';
 import {
   registerWalletSigner,
   switchNetwork,
   TransferWallet,
 } from '../../utils/wallet';
+import { isTransferValid } from '../../transferValidation';
 import { displayWalletAddress } from '../../utils';
 import Button from '../../components/Button';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -19,6 +20,7 @@ import { Context } from '@wormhole-foundation/wormhole-connect-sdk';
 function Send(props: { valid: boolean }) {
   const dispatch = useDispatch();
   const {
+    validations,
     fromNetwork,
     toNetwork,
     token,
@@ -35,6 +37,9 @@ function Send(props: { valid: boolean }) {
   );
 
   async function send() {
+    dispatch(validate());
+    console.log('VALID', validations, isTransferValid(validations));
+    if (!isTransferValid(validations)) return;
     setInProgress(true);
     try {
       const fromConfig = CHAINS[fromNetwork!];
@@ -43,11 +48,8 @@ function Send(props: { valid: boolean }) {
         const { chainId } = CHAINS[fromNetwork!]!;
         await switchNetwork(chainId, TransferWallet.SENDING);
       }
-      // TODO: better validation
-      if (!amount) throw new Error('invalid input, specify an amount');
-      if (!token) throw new Error('invalid input, specify an asset');
-      const tokenConfig = TOKENS[token];
-      if (!tokenConfig) throw new Error('invalid token');
+
+      const tokenConfig = TOKENS[token]!;
       const sendToken = tokenConfig.tokenId;
 
       const receipt: any = await sendTransfer(
@@ -95,7 +97,7 @@ function Send(props: { valid: boolean }) {
     <Button
       onClick={send}
       action={props.valid}
-      disabled={!props.valid || inProgress}
+      // disabled={!props.valid || inProgress}
       elevated
     >
       {inProgress ? (

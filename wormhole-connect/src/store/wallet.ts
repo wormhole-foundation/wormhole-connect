@@ -1,17 +1,15 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { disconnect, TransferWallet, WalletType } from '../utils/wallet';
 
+export type WalletData = {
+  type: WalletType;
+  address: string;
+  currentAddress: string;
+}
+
 export interface WalletState {
-  sending: {
-    type: WalletType;
-    address: string;
-    currentAddress: string;
-  };
-  receiving: {
-    type: WalletType;
-    address: string;
-    currentAddress: string;
-  };
+  sending: WalletData;
+  receiving: WalletData;
 }
 
 const initialState: WalletState = {
