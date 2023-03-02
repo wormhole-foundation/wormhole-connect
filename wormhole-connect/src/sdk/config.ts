@@ -1,5 +1,9 @@
 import { Network as Environment } from '@certusone/wormhole-sdk';
-import { WormholeContext, ChainConfig, CONFIG as CONF } from '@wormhole-foundation/wormhole-connect-sdk';
+import {
+  WormholeContext,
+  ChainConfig,
+  CONFIG as CONF,
+} from '@wormhole-foundation/wormhole-connect-sdk';
 import { MAINNET_NETWORKS, MAINNET_TOKENS } from '../config/mainnet';
 import { TESTNET_NETWORKS, TESTNET_TOKENS } from '../config/testnet';
 import { TokenConfig } from 'config/types';
@@ -15,9 +19,7 @@ const { REACT_APP_ENV } = process.env;
 export const isProduction = REACT_APP_ENV === 'MAINNET';
 export const CONFIG = isProduction ? CONF.MAINNET : CONF.TESTNET;
 
-const conf = WormholeContext.getConfig(
-  REACT_APP_ENV! as Environment,
-);
+const conf = WormholeContext.getConfig(REACT_APP_ENV! as Environment);
 const mainnetRpcs = {
   ethereum: process.env.REACT_APP_ETHEREUM_RPC || conf.rpcs.ethereum,
   solana: process.env.REACT_APP_SOLANA_RPC || conf.rpcs.solana,

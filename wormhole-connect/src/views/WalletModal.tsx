@@ -15,11 +15,13 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
 import { CHAINS } from '../sdk/config';
-import { setWalletConnection, TransferWallet, wallets, WalletType } from '../utils/wallet';
 import {
-  connectReceivingWallet,
-  connectWallet,
-} from '../store/wallet';
+  setWalletConnection,
+  TransferWallet,
+  wallets,
+  WalletType,
+} from '../utils/wallet';
+import { connectReceivingWallet, connectWallet } from '../store/wallet';
 import WalletIcon from '../icons/components/WalletIcons';
 
 const useStyles = makeStyles((theme: Theme) => ({
