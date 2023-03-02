@@ -15,11 +15,10 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
 import { CHAINS } from '../sdk/config';
-import { setWalletConnection, TransferWallet, wallets } from '../utils/wallet';
+import { setWalletConnection, TransferWallet, wallets, WalletType } from '../utils/wallet';
 import {
   connectReceivingWallet,
   connectWallet,
-  WalletType,
 } from '../store/wallet';
 import WalletIcon from '../icons/components/WalletIcons';
 

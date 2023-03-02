@@ -106,14 +106,12 @@ function NetworksModal(props: Props) {
   const selectNetwork = async (network: ChainName) => {
     if (props.type === ModalType.FROM) {
       if (isDisabled(network)) {
-        await disconnect(TransferWallet.SENDING);
         dispatch(clearWallet(TransferWallet.SENDING));
       }
       dispatch(setFromNetwork(network));
       dispatch(setFromNetworksModal(false));
     } else {
       if (isDisabled(network)) {
-        await disconnect(TransferWallet.RECEIVING);
         dispatch(clearWallet(TransferWallet.RECEIVING));
       }
       dispatch(setToNetwork(network));

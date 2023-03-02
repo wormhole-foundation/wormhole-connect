@@ -68,7 +68,6 @@ function ConnectWallet(props: Props) {
   };
 
   const disconnectWallet = async () => {
-    await disconnect(props.type);
     dispatch(clearWallet(props.type));
   };
 

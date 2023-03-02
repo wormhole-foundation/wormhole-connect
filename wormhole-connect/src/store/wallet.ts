@@ -1,13 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { TransferWallet } from '../utils/wallet';
-
-export enum WalletType {
-  NONE = 0,
-  METAMASK,
-  WALLET_CONNECT,
-  PHANTOM,
-  SOLFLARE,
-}
+import { disconnect, TransferWallet, WalletType } from '../utils/wallet';
 
 export interface WalletState {
   sending: {
@@ -71,6 +63,7 @@ export const walletSlice = createSlice({
         type: WalletType.NONE,
         currentAddress: '',
       };
+      disconnect(payload);
       state[payload] = reset;
     },
     setCurrentAddress: (
@@ -80,6 +73,8 @@ export const walletSlice = createSlice({
       state[payload.type].currentAddress = payload.address;
     },
     clearWallets: (state: WalletState) => {
+      disconnect(TransferWallet.SENDING);
+      disconnect(TransferWallet.RECEIVING);
       Object.keys(state).forEach((key) => {
         // @ts-ignore
         state[key] = initialState[key];

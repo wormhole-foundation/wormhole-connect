@@ -1,5 +1,5 @@
 import React from 'react';
-import { WalletType } from '../../store/wallet';
+import { WalletType } from '../../utils/wallet';
 
 type Props = {
   type: WalletType;

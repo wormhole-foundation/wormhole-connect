@@ -2,7 +2,6 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { RootState } from '../../store';
-import { ParsedVaa } from '../../utils/vaa';
 import { LINK } from '../../utils/style';
 import { CHAINS } from '../../sdk/config';
 import InputContainer from '../../components/InputContainer';
@@ -31,7 +30,6 @@ const useStyles = makeStyles()((theme) => ({
 
 function NetworksTag() {
   const { classes } = useStyles();
-  const vaa: ParsedVaa = useSelector((state: RootState) => state.redeem.vaa);
   const txData = useSelector((state: RootState) => state.redeem.txData)!;
   const fromNetworkConfig = CHAINS[txData.fromChain]!;
   const toNetworkConfig = CHAINS[txData.toChain]!;
