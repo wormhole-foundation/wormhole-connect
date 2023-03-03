@@ -19,9 +19,10 @@ import CircularProgress from '@mui/material/CircularProgress';
 
 function Send(props: { valid: boolean }) {
   const dispatch = useDispatch();
-  const { sending, receiving } = useSelector(
+  const wallets = useSelector(
     (state: RootState) => state.wallet,
   );
+  const { sending, receiving } = wallets;
   const transfer = useSelector((state: RootState) => state.transfer);
   const {
     fromNetwork,
@@ -37,7 +38,7 @@ function Send(props: { valid: boolean }) {
   );
 
   async function send() {
-    setValidations(transfer);
+    setValidations(transfer, wallets);
     const valid = isTransferValid(validations);
     if (!valid) return;
     setInProgress(true);

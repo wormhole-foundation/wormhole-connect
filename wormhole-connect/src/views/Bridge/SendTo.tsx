@@ -10,12 +10,26 @@ import { TransferWallet } from '../../utils/wallet';
 import { CHAINS, TOKENS } from '../../sdk/config';
 import { getBalance } from '../../sdk/sdk';
 import { joinClass, OPACITY } from '../../utils/style';
+import { validations } from '../../utils/transferValidation';
+
 import InputContainer from '../../components/InputContainer';
 import ConnectWallet from '../../components/ConnectWallet';
 import NetworkTile from '../../components/NetworkTile';
 import TokenIcon from '../../icons/components/TokenIcons';
+import ValidationError from '../../components/ValidationError';
 
 const useStyles = makeStyles((theme: Theme) => ({
+  outerContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '8px',
+  },
+  container: {
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '8px',
+  },
   header: {
     display: 'flex',
     justifyContent: 'space-between',
@@ -25,9 +39,6 @@ const useStyles = makeStyles((theme: Theme) => ({
   headerTitle: {
     fontSize: '16px',
     fontWeight: 'bold',
-  },
-  container: {
-    width: '100%',
   },
   content: {
     display: 'flex',
@@ -100,7 +111,7 @@ function SendTo() {
 
   // balance
   useEffect(() => {
-    if (!toNetwork || !tokenConfig || !walletAddr) return;
+    if (!fromNetwork || !toNetwork || !tokenConfig || !walletAddr) return;
     if (tokenConfig.tokenId) {
       getBalance(walletAddr, tokenConfig.tokenId, toNetwork).then(
         (res: BigNumber | null) => {
@@ -128,57 +139,57 @@ function SendTo() {
         <ConnectWallet type={TransferWallet.RECEIVING} />
       </div>
 
+      <ValidationError validations={[validations.receivingWallet]} />
+
       <InputContainer>
-        <div className={classes.content}>
-          <NetworkTile
-            network={toNetworkConfig}
-            onClick={openToNetworksModal}
-          />
-          <div className={classes.inputs}>
-            <div
-              className={joinClass([classes.card, !token && classes.disabled])}
-            >
-              <div className={classes.label}>Token</div>
-              {tokenConfig ? (
-                <div className={classes.tokenSelect}>
-                  <TokenIcon name={tokenConfig.icon} height={24} />
-                  {tokenConfig.wrappedAsset || tokenConfig.symbol}
-                </div>
-              ) : (
-                <div className={classes.tokenSelect}>
-                  <TokenIcon name="no token" height={24} />
-                  <div>-</div>
-                </div>
-              )}
-            </div>
-            <div className={classes.amtRow}>
+        <div className={classes.outerContainer}>
+          <div className={classes.content}>
+            <NetworkTile
+              network={toNetworkConfig}
+              onClick={openToNetworksModal}
+            />
+            <div className={classes.inputs}>
               <div
-                className={joinClass([
-                  classes.card,
-                  !token && classes.disabled,
-                ])}
+                className={joinClass([classes.card, !token && classes.disabled])}
               >
-                <div className={classes.label}>Amount</div>
-                <div>{token && amount ? amount : '-'}</div>
+                <div className={classes.label}>Token</div>
+                {tokenConfig ? (
+                  <div className={classes.tokenSelect}>
+                    <TokenIcon name={tokenConfig.icon} height={24} />
+                    {tokenConfig.wrappedAsset || tokenConfig.symbol}
+                  </div>
+                ) : (
+                  <div className={classes.tokenSelect}>
+                    <TokenIcon name="no token" height={24} />
+                    <div>-</div>
+                  </div>
+                )}
               </div>
-              <div
-                className={joinClass([
-                  classes.card,
-                  (!token || !balance) && classes.disabled,
-                  classes.balance,
-                ])}
-              >
-                <div className={classes.label}>Balance</div>
-                <div>{token && balance && balance ? balance : '-'}</div>
+              <div className={classes.amtRow}>
+                <div
+                  className={joinClass([
+                    classes.card,
+                    !token && classes.disabled,
+                  ])}
+                >
+                  <div className={classes.label}>Amount</div>
+                  <div>{token && amount ? amount : '-'}</div>
+                </div>
+                <div
+                  className={joinClass([
+                    classes.card,
+                    (!token || !balance) && classes.disabled,
+                    classes.balance,
+                  ])}
+                >
+                  <div className={classes.label}>Balance</div>
+                  <div>{token && balance && balance ? balance : '-'}</div>
+                </div>
               </div>
             </div>
-            {/* <div
-              className={joinClass([classes.card, !token && classes.disabled])}
-            >
-              <div className={classes.label}>Amount</div>
-              <div>{token && amount ? amount : '-'}</div>
-            </div> */}
           </div>
+
+          <ValidationError validations={[validations.toNetwork]} />
         </div>
       </InputContainer>
     </div>

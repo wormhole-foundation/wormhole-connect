@@ -1,13 +1,15 @@
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { PaymentOption, TransferState } from 'store/transfer';
-import { WalletData } from 'store/wallet';
-import { WalletType, walletAcceptedNetworks } from 'utils/wallet';
+import { WalletData, WalletState } from 'store/wallet';
+import { walletAcceptedNetworks } from 'utils/wallet';
 import { CHAINS, TOKENS } from '../sdk/config';
 
 export type Error = string;
 export type Validation = [boolean, Error];
 
 export type TransferValidations = {
+  sendingWallet: Validation | undefined,
+  receivingWallet: Validation | undefined,
   fromNetwork: Validation | undefined,
   toNetwork: Validation | undefined,
   token: Validation | undefined,
@@ -17,6 +19,8 @@ export type TransferValidations = {
 }
 
 export let validations: TransferValidations = {
+  sendingWallet: undefined,
+  receivingWallet: undefined,
   fromNetwork: undefined,
   toNetwork: undefined,
   token: undefined,
@@ -73,9 +77,8 @@ export const validateAmount = (amount: number | undefined, balance: string | nul
 }
 
 export const validateWallet = (wallet: WalletData, chain: ChainName | undefined): Validation => {
-  if (wallet.type === WalletType.NONE) return [false, 'Connect wallet'];
-  if (!wallet.address || !wallet.currentAddress) return [false, 'Connect wallet'];
-  // if (wallet.currentAddress !== wallet.address) return [false, 'Switch to connected wallet'];
+  if (!wallet.address) return [false, 'Wallet not connected'];
+  if (wallet.currentAddress && wallet.currentAddress !== wallet.address) return [false, 'Switch to connected wallet'];
   const acceptedNetworks = walletAcceptedNetworks[wallet.type];
   if (chain && !acceptedNetworks.includes(chain)) return [false, `Connected wallet is not supported for ${chain}`];
   return [true, ''];
@@ -92,7 +95,7 @@ export const validateToNativeAmt = (amount: number, max: number | undefined): Va
   return [true, ''];
 }
 
-export const validateAll = (data: TransferState) => {
+export const validateAll = (transferData: TransferState, walletData: WalletState) => {
   const {
     fromNetwork,
     toNetwork,
@@ -104,10 +107,13 @@ export const validateAll = (data: TransferState) => {
     toNativeToken,
     relayerFee,
     balances
-  } = data;
+  } = transferData;
+  const { sending, receiving } = walletData;
   const isAutomatic = destGasPayment === PaymentOption.AUTOMATIC;
   const minAmt = isAutomatic ? toNativeToken + relayerFee! : 0;
   const baseValidations = {
+    sendingWallet: validateWallet(sending, fromNetwork),
+    receivingWallet: validateWallet(receiving, toNetwork),
     fromNetwork: validateFromNetwork(fromNetwork),
     toNetwork: validateToNetwork(toNetwork, fromNetwork),
     token: validateToken(token, fromNetwork),
@@ -123,8 +129,8 @@ export const validateAll = (data: TransferState) => {
   }
 }
 
-export const setValidations = (data: TransferState): void => {
-  const v = validateAll(data);
+export const setValidations = (transferData: TransferState, walletData: WalletState): void => {
+  const v = validateAll(transferData, walletData);
   validations = v;
 }
 

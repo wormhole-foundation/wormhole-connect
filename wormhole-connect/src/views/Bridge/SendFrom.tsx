@@ -14,6 +14,7 @@ import {
 import { joinClass } from '../../utils/style';
 import { CHAINS, TOKENS } from '../../sdk/config';
 import { getBalance, getNativeBalance } from '../../sdk/sdk';
+import { validations } from '../../utils/transferValidation';
 
 import NetworkTile from '../../components/NetworkTile';
 import InputContainer from '../../components/InputContainer';
@@ -21,20 +22,29 @@ import InputTransparent from '../../components/InputTransparent';
 import ConnectWallet from '../../components/ConnectWallet';
 import TokensModal from '../TokensModal';
 import TokenIcon from '../../icons/components/TokenIcons';
+import ValidationError from '../../components/ValidationError';
 
 const useStyles = makeStyles((theme: Theme) => ({
+  outerContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '8px',
+  },
+  container: {
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '8px',
+  },
   header: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: '8px 16px',
+    padding: '0 16px',
   },
   headerTitle: {
     fontSize: '16px',
     fontWeight: 'bold',
-  },
-  container: {
-    width: '100%',
   },
   content: {
     display: 'flex',
@@ -92,7 +102,6 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
-// TODO: make SentTo and SendFrom 1 component
 function SendFrom() {
   const classes = useStyles();
   const dispatch = useDispatch();
@@ -155,60 +164,66 @@ function SendFrom() {
         <ConnectWallet type={TransferWallet.SENDING} />
       </div>
 
+      <ValidationError validations={[validations.sendingWallet]} />
+
       <InputContainer>
-        <div className={classes.content}>
-          <NetworkTile
-            network={fromNetworkConfig}
-            onClick={openFromNetworksModal}
-          />
-          <div className={classes.inputs}>
-            <div
-              className={joinClass([classes.card, classes.pointer])}
-              onClick={openTokensModal}
-            >
-              <div className={classes.label}>Token</div>
-              {tokenConfig ? (
-                <div className={classes.tokenSelect}>
-                  <TokenIcon name={tokenConfig.icon} height={24} />
-                  {tokenConfig.symbol}
-                </div>
-              ) : (
-                <div className={classes.tokenSelect}>
-                  <TokenIcon name="no token" height={24} />
-                  Select
-                </div>
-              )}
-            </div>
-            <div className={classes.amtRow}>
+        <div className={classes.outerContainer}>
+          <div className={classes.content}>
+            <NetworkTile
+              network={fromNetworkConfig}
+              onClick={openFromNetworksModal}
+            />
+            <div className={classes.inputs}>
               <div
-                className={joinClass([classes.card, token && classes.input])}
-                onClick={focusAmt}
+                className={joinClass([classes.card, classes.pointer])}
+                onClick={openTokensModal}
               >
-                <div className={classes.label}>Amount</div>
-                {token ? (
-                  <InputTransparent
-                    placeholder="0.00"
-                    id={amtId}
-                    type="number"
-                    min={0}
-                    step={0.1}
-                    onChange={handleAmountChange}
-                  />
+                <div className={classes.label}>Token</div>
+                {tokenConfig ? (
+                  <div className={classes.tokenSelect}>
+                    <TokenIcon name={tokenConfig.icon} height={24} />
+                    {tokenConfig.symbol}
+                  </div>
                 ) : (
-                  <div>-</div>
+                  <div className={classes.tokenSelect}>
+                    <TokenIcon name="no token" height={24} />
+                    Select
+                  </div>
                 )}
               </div>
-              <div
-                className={joinClass([classes.card, classes.balance])}
-                onClick={focusAmt}
-              >
-                <div className={classes.label}>Balance</div>
-                <div>{token && balance && balance ? balance : '-'}</div>
+              <div className={classes.amtRow}>
+                <div
+                  className={joinClass([classes.card, token && classes.input])}
+                  onClick={focusAmt}
+                >
+                  <div className={classes.label}>Amount</div>
+                  {token ? (
+                    <InputTransparent
+                      placeholder="0.00"
+                      id={amtId}
+                      type="number"
+                      min={0}
+                      step={0.1}
+                      onChange={handleAmountChange}
+                    />
+                  ) : (
+                    <div>-</div>
+                  )}
+                </div>
+                <div
+                  className={joinClass([classes.card, classes.balance])}
+                  onClick={focusAmt}
+                >
+                  <div className={classes.label}>Balance</div>
+                  <div>{token && balance && balance ? balance : '-'}</div>
+                </div>
               </div>
             </div>
           </div>
+          <ValidationError validations={[validations.fromNetwork, validations.token, validations.amount]} />
         </div>
       </InputContainer>
+
       {/* modals */}
       {showTokensModal && <TokensModal />}
     </div>
