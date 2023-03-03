@@ -1,9 +1,8 @@
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
-import { BigNumber } from 'ethers';
 import { PaymentOption, TransferState } from 'store/transfer';
 import { WalletData } from 'store/wallet';
 import { WalletType, walletAcceptedNetworks } from 'utils/wallet';
-import { CHAINS, TOKENS } from './sdk/config';
+import { CHAINS, TOKENS } from '../sdk/config';
 
 export type Error = string;
 export type Validation = [boolean, Error];
@@ -15,6 +14,15 @@ export type TransferValidations = {
   amount: Validation | undefined,
   destGasPayment: Validation | undefined,
   toNativeToken: Validation | undefined,
+}
+
+export let validations: TransferValidations = {
+  fromNetwork: undefined,
+  toNetwork: undefined,
+  token: undefined,
+  amount: undefined,
+  destGasPayment: undefined,
+  toNativeToken: undefined,
 }
 
 export const required = (val: number | string | undefined): Validation => {
@@ -57,9 +65,10 @@ export const validateToken = (token: string, chain: ChainName | undefined): Vali
 export const validateAmount = (amount: number | undefined, balance: string | null, minAmt: number | undefined): Validation => {
   if (!amount) return [false, 'Enter an amount'];
   if (amount <= 0) return [false, 'Amount must be greater than 0'];
-  const amountBN = BigNumber.from(amount)
-  if (balance && BigNumber.from(balance).lt(amountBN)) return [false, 'Amount cannot exceed balance'];
-  if (minAmt && amountBN.lt(BigNumber.from(minAmt))) return [false, `Minimum amount is ${minAmt}`];
+  console.log('TODO: validate min/max amount', amount, balance, minAmt)
+  // const amountBN = BigNumber.from(amount)
+  // if (balance && BigNumber.from(balance).lt(amountBN)) return [false, 'Amount cannot exceed balance'];
+  // if (minAmt && amountBN.lt(BigNumber.from(minAmt))) return [false, `Minimum amount is ${minAmt}`];
   return [true, ''];
 }
 
@@ -79,8 +88,7 @@ export const validateGasPaymentOption = (destGasPayment: PaymentOption, relayAva
 
 export const validateToNativeAmt = (amount: number, max: number | undefined): Validation => {
   if (amount < 0) return [false, 'Amount must be equal to or greater than zero'];
-  const amountBN = BigNumber.from(amount);
-  if (amountBN.gt(BigNumber.from(max))) return [false, 'Amount exceeds maximum amount'];
+  if (max && amount > max) return [false, 'Amount exceeds maximum amount'];
   return [true, ''];
 }
 
@@ -115,9 +123,14 @@ export const validateAll = (data: TransferState) => {
   }
 }
 
+export const setValidations = (data: TransferState): void => {
+  const v = validateAll(data);
+  validations = v;
+}
+
 export const isTransferValid = (validations: TransferValidations) => {
-  Object.values(validations).forEach((validation) => {
+  for (const validation of Object.values(validations)) {
     if (!!validation && validation[0] === false) return false;
-  });
+  };
   return true;
 }

@@ -1,45 +1,45 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { Context } from '@wormhole-foundation/wormhole-connect-sdk';
 import { CHAINS, TOKENS } from '../../sdk/config';
 import { parseMessageFromTx, sendTransfer } from '../../sdk/sdk';
 import { RootState } from '../../store';
 import { setRoute } from '../../store/router';
 import { setTxDetails, setSendTx } from '../../store/redeem';
-import { validate } from '../../store/transfer';
+import { validations, setValidations } from '../../utils/transferValidation';
 import {
   registerWalletSigner,
   switchNetwork,
   TransferWallet,
 } from '../../utils/wallet';
-import { isTransferValid } from '../../transferValidation';
+import { isTransferValid } from '../../utils/transferValidation';
 import { displayWalletAddress } from '../../utils';
 import Button from '../../components/Button';
 import CircularProgress from '@mui/material/CircularProgress';
-import { Context } from '@wormhole-foundation/wormhole-connect-sdk';
 
 function Send(props: { valid: boolean }) {
   const dispatch = useDispatch();
+  const { sending, receiving } = useSelector(
+    (state: RootState) => state.wallet,
+  );
+  const transfer = useSelector((state: RootState) => state.transfer);
   const {
-    validations,
     fromNetwork,
     toNetwork,
     token,
     amount,
     destGasPayment,
     toNativeToken,
-  } = useSelector((state: RootState) => state.transfer);
-  const { sending, receiving } = useSelector(
-    (state: RootState) => state.wallet,
-  );
+  } = transfer;
   const [inProgress, setInProgress] = useState(false);
   const [isConnected, setIsConnected] = useState(
     sending.currentAddress.toLowerCase() === sending.address.toLowerCase(),
   );
 
   async function send() {
-    dispatch(validate());
-    console.log('VALID', validations, isTransferValid(validations));
-    if (!isTransferValid(validations)) return;
+    setValidations(transfer);
+    const valid = isTransferValid(validations);
+    if (!valid) return;
     setInProgress(true);
     try {
       const fromConfig = CHAINS[fromNetwork!];
@@ -97,7 +97,7 @@ function Send(props: { valid: boolean }) {
     <Button
       onClick={send}
       action={props.valid}
-      // disabled={!props.valid || inProgress}
+      disabled={inProgress}
       elevated
     >
       {inProgress ? (
