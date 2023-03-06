@@ -1,5 +1,6 @@
 import { makeStyles } from 'tss-react/mui';
-import React from 'react';
+import React, { useEffect } from 'react';
+import { debounce } from '../utils';
 
 type StyleProps = {
   align?: 'center' | 'right';
@@ -36,6 +37,11 @@ type Props = {
       | React.ChangeEvent<HTMLTextAreaElement>,
   ) => void;
   onEnter?: React.MouseEventHandler<HTMLDivElement>;
+  onPause?: (
+    e?:
+      | React.ChangeEvent<HTMLInputElement>
+      | React.ChangeEvent<HTMLTextAreaElement>,
+  ) => void;
 };
 
 function InputTransparent(props: Props) {
@@ -46,6 +52,16 @@ function InputTransparent(props: Props) {
       props.onEnter(e);
     }
   };
+
+  useEffect(() => {
+    if (props.onPause && props.id) {
+      const input = document.getElementById(props.id);
+      if (!input) return;
+      input.addEventListener('keyup', debounce( () => {
+        props.onPause!();
+      }, 1000))
+    }
+  }, [])
 
   return (
     <input

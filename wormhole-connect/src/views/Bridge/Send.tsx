@@ -3,10 +3,9 @@ import { useSelector, useDispatch } from 'react-redux';
 import { Context } from '@wormhole-foundation/wormhole-connect-sdk';
 import { CHAINS, TOKENS } from '../../sdk/config';
 import { parseMessageFromTx, sendTransfer } from '../../sdk/sdk';
-import { RootState } from '../../store';
+import { RootState, store } from '../../store';
 import { setRoute } from '../../store/router';
 import { setTxDetails, setSendTx } from '../../store/redeem';
-import { validations, setValidations } from '../../utils/transferValidation';
 import {
   registerWalletSigner,
   switchNetwork,
@@ -14,8 +13,10 @@ import {
 } from '../../utils/wallet';
 import { isTransferValid } from '../../utils/transferValidation';
 import { displayWalletAddress } from '../../utils';
+
 import Button from '../../components/Button';
 import CircularProgress from '@mui/material/CircularProgress';
+import { touchValidations, validateTransfer } from '../../store/transfer';
 
 function Send(props: { valid: boolean }) {
   const dispatch = useDispatch();
@@ -25,6 +26,7 @@ function Send(props: { valid: boolean }) {
   const { sending, receiving } = wallets;
   const transfer = useSelector((state: RootState) => state.transfer);
   const {
+    validations,
     fromNetwork,
     toNetwork,
     token,
@@ -38,7 +40,9 @@ function Send(props: { valid: boolean }) {
   );
 
   async function send() {
-    setValidations(transfer, wallets);
+    dispatch(touchValidations());
+    const state = store.getState();
+    dispatch(validateTransfer(state.wallet));
     const valid = isTransferValid(validations);
     if (!valid) return;
     setInProgress(true);

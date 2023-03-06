@@ -126,3 +126,11 @@ export function isValidTxId(tx: string) {
   if (tx.startsWith('0x') && tx.length === 66) return true;
   return tx.length > 70 && tx.length < 100;
 }
+
+export function debounce(callback: any, wait: number) {
+  let timeout: any;
+  return (...args: any) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(function (this: any) { callback.apply(this, args); }, wait);
+  };
+}

@@ -1,8 +1,10 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
-import { TokenConfig } from 'config/types';
 import { BigNumber } from 'ethers';
-import { toDecimals } from 'utils/balance';
+import { TokenConfig } from 'config/types';
+import { toDecimals } from '../utils/balance';
+import { TransferValidations, validateAll } from '../utils/transferValidation';
+import { WalletState } from './wallet';
 
 export enum PaymentOption {
   MANUAL = 1,
@@ -22,6 +24,8 @@ export const formatBalance = (
 };
 
 export interface TransferState {
+  validate: boolean;
+  validations: TransferValidations;
   fromNetwork: ChainName | undefined;
   toNetwork: ChainName | undefined;
   automaticRelayAvail: boolean;
@@ -36,6 +40,17 @@ export interface TransferState {
 }
 
 const initialState: TransferState = {
+  validate: false,
+  validations: {
+    fromNetwork: '',
+    toNetwork: '',
+    token: '',
+    amount: '',
+    destGasPayment: '',
+    toNativeToken: '',
+    sendingWallet: '',
+    receivingWallet: '',
+  },
   fromNetwork: undefined,
   toNetwork: undefined,
   automaticRelayAvail: false,
@@ -53,6 +68,16 @@ export const transferSlice = createSlice({
   name: 'transfer',
   initialState,
   reducers: {
+    touchValidations: (state: TransferState) => {
+      state.validate = true;
+    },
+    validateTransfer: (state: TransferState, { payload }: PayloadAction<WalletState>) => {
+      const validations = validateAll(state, payload);
+      Object.keys(validations).forEach((key) => {
+        // @ts-ignore
+        state.validations[key] = validations[key];
+      });
+    },
     setToken: (state: TransferState, { payload }: PayloadAction<string>) => {
       console.log('set token:', payload);
       state.token = payload;
@@ -133,6 +158,8 @@ export const transferSlice = createSlice({
 });
 
 export const {
+  touchValidations,
+  validateTransfer,
   setToken,
   setFromNetwork,
   setToNetwork,

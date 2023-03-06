@@ -23,6 +23,7 @@ import { BigNumber } from 'ethers';
 import { useDispatch } from 'react-redux';
 import { getNativeBalance } from '../../sdk/sdk';
 import { CHAINS, TOKENS } from '../../sdk/config';
+import { validate } from '../../utils/transferValidation';
 
 const useStyles = makeStyles()(() => ({
   bridgeContent: {
@@ -80,6 +81,10 @@ function Bridge() {
       dispatch(setDestGasPayment(PaymentOption.MANUAL));
     }
   }, [fromNetwork, toNetwork]);
+
+  useEffect(() => {
+    validate(dispatch);
+  }, [sending, receiving, fromNetwork, toNetwork, token, destGasPayment, automaticRelayAvail]);
 
   const valid =
     fromNetwork &&

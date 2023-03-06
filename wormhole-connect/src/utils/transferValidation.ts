@@ -1,98 +1,96 @@
+import { AnyAction } from '@reduxjs/toolkit';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
-import { PaymentOption, TransferState } from 'store/transfer';
+import { Dispatch } from 'react';
+import { store } from 'store';
+import { PaymentOption, TransferState, validateTransfer } from 'store/transfer';
 import { WalletData, WalletState } from 'store/wallet';
 import { walletAcceptedNetworks } from 'utils/wallet';
 import { CHAINS, TOKENS } from '../sdk/config';
 
 export type Error = string;
-export type Validation = [boolean, Error];
+export type ValidationErr = string;
 
 export type TransferValidations = {
-  sendingWallet: Validation | undefined,
-  receivingWallet: Validation | undefined,
-  fromNetwork: Validation | undefined,
-  toNetwork: Validation | undefined,
-  token: Validation | undefined,
-  amount: Validation | undefined,
-  destGasPayment: Validation | undefined,
-  toNativeToken: Validation | undefined,
+  sendingWallet: ValidationErr;
+  receivingWallet: ValidationErr;
+  fromNetwork: ValidationErr;
+  toNetwork: ValidationErr;
+  token: ValidationErr;
+  amount: ValidationErr;
+  destGasPayment: ValidationErr;
+  toNativeToken: ValidationErr;
 }
 
-export let validations: TransferValidations = {
-  sendingWallet: undefined,
-  receivingWallet: undefined,
-  fromNetwork: undefined,
-  toNetwork: undefined,
-  token: undefined,
-  amount: undefined,
-  destGasPayment: undefined,
-  toNativeToken: undefined,
-}
-
-export const required = (val: number | string | undefined): Validation => {
-  if (!val) return [false, 'Required'];
+export const required = (val: number | string | undefined): ValidationErr => {
+  if (!val) return 'Required';
   if (typeof val === 'number') {
-    if (val <= 0) return [false, 'Amount must be greater than zero'];
-    return [true, ''];
+    if (val <= 0) return 'Amount must be greater than zero';
+    return '';
   }
-  if (val.length === 0) return [false, 'Required'];
-  return [true, ''];
+  if (val.length === 0) return 'Required';
+  return '';
 }
 
-export const validateFromNetwork = (chain: ChainName | undefined): Validation => {
-  if (!chain) return [false, 'Select a source chain'];
+export const validateFromNetwork = (chain: ChainName | undefined): ValidationErr => {
+  if (!chain) return 'Select a source chain';
   const chainConfig = CHAINS[chain];
-  if (!chainConfig) return [false, 'Select a source chain'];
-  return [true, ''];
+  if (!chainConfig) return 'Select a source chain';
+  return '';
 }
 
-export const validateToNetwork = (chain: ChainName | undefined, fromChain: ChainName | undefined): Validation => {
-  if (!chain) return [false, 'Select a destination chain'];
+export const validateToNetwork = (chain: ChainName | undefined, fromChain: ChainName | undefined): ValidationErr => {
+  if (!chain) return 'Select a destination chain';
   const chainConfig = CHAINS[chain];
-  if (!chainConfig) return [false, 'Select a destination chain'];
-  if (fromChain && chain === fromChain) return [false, 'Source chain and destination chain cannot be the same'];
-  return [true, ''];
+  if (!chainConfig) return 'Select a destination chain';
+  if (fromChain && chain === fromChain) return 'Source chain and destination chain cannot be the same';
+  return '';
 }
 
-export const validateToken = (token: string, chain: ChainName | undefined): Validation => {
-  if (!token) return [false, 'Select a token'];
+export const validateToken = (token: string, chain: ChainName | undefined): ValidationErr => {
+  if (!token) return 'Select a token';
   const tokenConfig = TOKENS[token];
-  if (!tokenConfig) return [false, 'Select a token'];
+  if (!tokenConfig) return 'Select a token';
   if (chain) {
     const chainConfig = CHAINS[chain];
-    if (!chainConfig || !!tokenConfig.tokenId) return [true, ''];
-    if (!tokenConfig.tokenId && tokenConfig.nativeNetwork !== chain) return [false, `${token} not available on ${chain}, select a different token`];
+    if (!chainConfig || !!tokenConfig.tokenId) return '';
+    if (!tokenConfig.tokenId && tokenConfig.nativeNetwork !== chain) return `${token} not available on ${chain}, select a different token`;
   }
-  return [true, ''];
+  return '';
 }
 
-export const validateAmount = (amount: number | undefined, balance: string | null, minAmt: number | undefined): Validation => {
-  if (!amount) return [false, 'Enter an amount'];
-  if (amount <= 0) return [false, 'Amount must be greater than 0'];
+export const validateAmount = (amount: number | undefined, balance: string | null, minAmt: number | undefined): ValidationErr => {
+  if (!amount) return 'Enter an amount';
+  if (amount <= 0) return 'Amount must be greater than 0';
   console.log('TODO: validate min/max amount', amount, balance, minAmt)
   // const amountBN = BigNumber.from(amount)
-  // if (balance && BigNumber.from(balance).lt(amountBN)) return [false, 'Amount cannot exceed balance'];
-  // if (minAmt && amountBN.lt(BigNumber.from(minAmt))) return [false, `Minimum amount is ${minAmt}`];
-  return [true, ''];
+  // if (balance && BigNumber.from(balance).lt(amountBN)) return 'Amount cannot exceed balance'];
+  // if (minAmt && amountBN.lt(BigNumber.from(minAmt))) return `Minimum amount is ${minAmt}`];
+  return '';
 }
 
-export const validateWallet = (wallet: WalletData, chain: ChainName | undefined): Validation => {
-  if (!wallet.address) return [false, 'Wallet not connected'];
-  if (wallet.currentAddress && wallet.currentAddress !== wallet.address) return [false, 'Switch to connected wallet'];
+export const validateWallet = (wallet: WalletData, chain: ChainName | undefined): ValidationErr => {
+  if (!wallet.address) return 'Wallet not connected';
+  if (wallet.currentAddress && wallet.currentAddress !== wallet.address) return 'Switch to connected wallet';
   const acceptedNetworks = walletAcceptedNetworks[wallet.type];
-  if (chain && !acceptedNetworks.includes(chain)) return [false, `Connected wallet is not supported for ${chain}`];
-  return [true, ''];
+  if (chain && !acceptedNetworks.includes(chain)) return `Connected wallet is not supported for ${chain}`;
+  return '';
 }
 
-export const validateGasPaymentOption = (destGasPayment: PaymentOption, relayAvailable: boolean): Validation => {
-  if (destGasPayment === PaymentOption.AUTOMATIC && !relayAvailable) return [false, 'Single transaction gas payment not available for this transaction'];
-  return [true, ''];
+export const validateGasPaymentOption = (destGasPayment: PaymentOption, relayAvailable: boolean): ValidationErr => {
+  if (destGasPayment === PaymentOption.AUTOMATIC && !relayAvailable) return 'Single transaction gas payment not available for this transaction';
+  return '';
 }
 
-export const validateToNativeAmt = (amount: number, max: number | undefined): Validation => {
-  if (amount < 0) return [false, 'Amount must be equal to or greater than zero'];
-  if (max && amount > max) return [false, 'Amount exceeds maximum amount'];
-  return [true, ''];
+export const validateToNativeAmt = (amount: number, max: number | undefined): ValidationErr => {
+  if (amount < 0) return 'Amount must be equal to or greater than zero';
+  if (max && amount > max) return 'Amount exceeds maximum amount';
+  return '';
+}
+
+export const validateDestGasPayment = (payment: PaymentOption, relayAvailable: boolean) => {
+  if (payment === PaymentOption.MANUAL) return '';
+  if (!relayAvailable) return 'Single transaction payment not available for this transfer';
+  return '';
 }
 
 export const validateAll = (transferData: TransferState, walletData: WalletState) => {
@@ -118,7 +116,7 @@ export const validateAll = (transferData: TransferState, walletData: WalletState
     toNetwork: validateToNetwork(toNetwork, fromNetwork),
     token: validateToken(token, fromNetwork),
     amount: validateAmount(amount, balances[token], minAmt),
-    destGasPayment: [destGasPayment === PaymentOption.MANUAL, ''] as Validation,
+    destGasPayment: validateDestGasPayment(destGasPayment, automaticRelayAvail),
     toNativeToken: undefined,
   }
   if (!isAutomatic) return baseValidations;
@@ -129,14 +127,15 @@ export const validateAll = (transferData: TransferState, walletData: WalletState
   }
 }
 
-export const setValidations = (transferData: TransferState, walletData: WalletState): void => {
-  const v = validateAll(transferData, walletData);
-  validations = v;
-}
-
 export const isTransferValid = (validations: TransferValidations) => {
-  for (const validation of Object.values(validations)) {
-    if (!!validation && validation[0] === false) return false;
+  for (const validationErr of Object.values(validations)) {
+    console.log(validationErr)
+    if (!!validationErr) return false;
   };
   return true;
+}
+
+export const validate = (dispatch: Dispatch<AnyAction>) => {
+  const state = store.getState();
+  dispatch(validateTransfer(state.wallet));
 }

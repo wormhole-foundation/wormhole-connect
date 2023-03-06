@@ -14,7 +14,6 @@ import {
 import { joinClass } from '../../utils/style';
 import { CHAINS, TOKENS } from '../../sdk/config';
 import { getBalance, getNativeBalance } from '../../sdk/sdk';
-import { validations } from '../../utils/transferValidation';
 
 import NetworkTile from '../../components/NetworkTile';
 import InputContainer from '../../components/InputContainer';
@@ -23,6 +22,7 @@ import ConnectWallet from '../../components/ConnectWallet';
 import TokensModal from '../TokensModal';
 import TokenIcon from '../../icons/components/TokenIcons';
 import ValidationError from '../../components/ValidationError';
+import { validate } from '../../utils/transferValidation';
 
 const useStyles = makeStyles((theme: Theme) => ({
   outerContainer: {
@@ -117,7 +117,7 @@ function SendFrom() {
   const walletAddr = useSelector(
     (state: RootState) => state.wallet.sending.address,
   );
-  const token = useSelector((state: RootState) => state.transfer.token);
+  const { validations, token } = useSelector((state: RootState) => state.transfer);
   const tokenConfig = token && TOKENS[token];
   const fromNetworkConfig = fromNetwork ? CHAINS[fromNetwork] : undefined;
 
@@ -125,8 +125,11 @@ function SendFrom() {
   const openFromNetworksModal = () => dispatch(setFromNetworksModal(true));
   const openTokensModal = () => dispatch(setTokensModal(true));
   function handleAmountChange(event) {
-    console.log(event.target.value);
     dispatch(setAmount(event.target.value));
+  }
+  function validateAmount() {
+    console.log('validate amount')
+    validate(dispatch);
   }
 
   // amount input focus
@@ -205,6 +208,7 @@ function SendFrom() {
                       min={0}
                       step={0.1}
                       onChange={handleAmountChange}
+                      onPause={validateAmount}
                     />
                   ) : (
                     <div>-</div>

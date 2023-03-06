@@ -10,7 +10,6 @@ import { TransferWallet } from '../../utils/wallet';
 import { CHAINS, TOKENS } from '../../sdk/config';
 import { getBalance } from '../../sdk/sdk';
 import { joinClass, OPACITY } from '../../utils/style';
-import { validations } from '../../utils/transferValidation';
 
 import InputContainer from '../../components/InputContainer';
 import ConnectWallet from '../../components/ConnectWallet';
@@ -97,7 +96,7 @@ function SendTo() {
   const dispatch = useDispatch();
   const [balance, setBalance] = useState(undefined as string | undefined);
   // store values
-  const { fromNetwork, toNetwork, token, amount } = useSelector(
+  const { validations, fromNetwork, toNetwork, token, amount } = useSelector(
     (state: RootState) => state.transfer,
   );
   const walletAddr = useSelector(
