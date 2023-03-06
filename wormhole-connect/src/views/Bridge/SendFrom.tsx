@@ -118,7 +118,11 @@ function SendFrom() {
   const walletAddr = useSelector(
     (state: RootState) => state.wallet.sending.address,
   );
-  const { validate: showErrors, validations, token } = useSelector((state: RootState) => state.transfer);
+  const {
+    validate: showErrors,
+    validations,
+    token,
+  } = useSelector((state: RootState) => state.transfer);
   const tokenConfig = token && TOKENS[token];
   const fromNetworkConfig = fromNetwork ? CHAINS[fromNetwork] : undefined;
 
@@ -129,7 +133,7 @@ function SendFrom() {
     dispatch(setAmount(event.target.value));
   }
   function validateAmount() {
-    console.log('validate amount')
+    console.log('validate amount');
     validate(dispatch);
   }
 
@@ -180,7 +184,11 @@ function SendFrom() {
             />
             <div className={classes.inputs}>
               <div
-                className={joinClass([classes.card, classes.pointer, !!(showErrors && validations.token) && classes.error])}
+                className={joinClass([
+                  classes.card,
+                  classes.pointer,
+                  !!(showErrors && validations.token) && classes.error,
+                ])}
                 onClick={openTokensModal}
               >
                 <div className={classes.label}>Token</div>
@@ -198,7 +206,11 @@ function SendFrom() {
               </div>
               <div className={classes.amtRow}>
                 <div
-                  className={joinClass([classes.card, token && classes.input, !!(showErrors && validations.amount) && classes.error])}
+                  className={joinClass([
+                    classes.card,
+                    token && classes.input,
+                    !!(showErrors && validations.amount) && classes.error,
+                  ])}
                   onClick={focusAmt}
                 >
                   <div className={classes.label}>Amount</div>
@@ -226,7 +238,13 @@ function SendFrom() {
               </div>
             </div>
           </div>
-          <ValidationError validations={[validations.fromNetwork, validations.token, validations.amount]} />
+          <ValidationError
+            validations={[
+              validations.fromNetwork,
+              validations.token,
+              validations.amount,
+            ]}
+          />
         </div>
       </InputContainer>
 

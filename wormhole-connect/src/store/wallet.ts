@@ -5,7 +5,7 @@ export type WalletData = {
   type: WalletType;
   address: string;
   currentAddress: string;
-}
+};
 
 export interface WalletState {
   sending: WalletData;

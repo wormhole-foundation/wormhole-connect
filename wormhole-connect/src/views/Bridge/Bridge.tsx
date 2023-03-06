@@ -53,6 +53,8 @@ function Bridge() {
     token,
     destGasPayment,
     automaticRelayAvail,
+    toNativeToken,
+    relayerFee,
   } = useSelector((state: RootState) => state.transfer);
   const { sending, receiving } = useSelector(
     (state: RootState) => state.wallet,
@@ -84,7 +86,17 @@ function Bridge() {
 
   useEffect(() => {
     validate(dispatch);
-  }, [sending, receiving, fromNetwork, toNetwork, token, destGasPayment, automaticRelayAvail]);
+  }, [
+    sending,
+    receiving,
+    fromNetwork,
+    toNetwork,
+    token,
+    destGasPayment,
+    automaticRelayAvail,
+    toNativeToken,
+    relayerFee,
+  ]);
 
   const valid =
     fromNetwork &&

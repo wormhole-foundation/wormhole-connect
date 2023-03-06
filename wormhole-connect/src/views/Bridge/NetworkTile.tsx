@@ -44,13 +44,25 @@ type Props = {
 function NetworksTile(props: Props) {
   const classes = useStyles();
   return props.network ? (
-    <div className={joinClass([classes.networkTile, !!props.error && classes.error])} onClick={props.onClick}>
+    <div
+      className={joinClass([
+        classes.networkTile,
+        !!props.error && classes.error,
+      ])}
+      onClick={props.onClick}
+    >
       <div className={classes.networkHeader}>Network</div>
       <TokenIcon name={props.network.icon} height={56} />
       <div className={classes.networkName}>{props.network.displayName}</div>
     </div>
   ) : (
-    <div className={joinClass([classes.networkTile, !!props.error && classes.error])} onClick={props.onClick}>
+    <div
+      className={joinClass([
+        classes.networkTile,
+        !!props.error && classes.error,
+      ])}
+      onClick={props.onClick}
+    >
       <TokenIcon name="no network" height={56} />
       <div className={classes.networkName}>Select network</div>
     </div>

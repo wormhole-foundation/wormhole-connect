@@ -20,7 +20,7 @@ const useStyles = makeStyles()((theme) => ({
   },
   warning: {
     backgroundColor: theme.palette.warning[500] + OPACITY[25],
-  }
+  },
 }));
 
 type Props = {

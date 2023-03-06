@@ -71,7 +71,10 @@ export const transferSlice = createSlice({
     touchValidations: (state: TransferState) => {
       state.validate = true;
     },
-    validateTransfer: (state: TransferState, { payload }: PayloadAction<WalletState>) => {
+    validateTransfer: (
+      state: TransferState,
+      { payload }: PayloadAction<WalletState>,
+    ) => {
       const validations = validateAll(state, payload);
       Object.keys(validations).forEach((key) => {
         // @ts-ignore

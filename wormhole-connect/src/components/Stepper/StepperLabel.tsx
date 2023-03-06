@@ -51,7 +51,6 @@ function StepIcon(props: {
           !!filled && classes.filled,
         ])}
       >
-        {/* TODO: add action color to theme */}
         <Check htmlColor={filled ? '#fff' : theme.palette.success[500]} />
       </div>
     );

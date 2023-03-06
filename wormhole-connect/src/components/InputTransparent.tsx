@@ -57,11 +57,14 @@ function InputTransparent(props: Props) {
     if (props.onPause && props.id) {
       const input = document.getElementById(props.id);
       if (!input) return;
-      input.addEventListener('keyup', debounce( () => {
-        props.onPause!();
-      }, 1000))
+      input.addEventListener(
+        'keyup',
+        debounce(() => {
+          props.onPause!();
+        }, 1000),
+      );
     }
-  }, [])
+  }, []);
 
   return (
     <input

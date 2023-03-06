@@ -20,9 +20,7 @@ import { touchValidations, validateTransfer } from '../../store/transfer';
 
 function Send(props: { valid: boolean }) {
   const dispatch = useDispatch();
-  const wallets = useSelector(
-    (state: RootState) => state.wallet,
-  );
+  const wallets = useSelector((state: RootState) => state.wallet);
   const { sending, receiving } = wallets;
   const transfer = useSelector((state: RootState) => state.transfer);
   const {
@@ -99,12 +97,7 @@ function Send(props: { valid: boolean }) {
       Connect to {displayWalletAddress(sending.type, sending.address)}
     </Button>
   ) : (
-    <Button
-      onClick={send}
-      action={props.valid}
-      disabled={inProgress}
-      elevated
-    >
+    <Button onClick={send} action={props.valid} disabled={inProgress} elevated>
       {inProgress ? (
         <CircularProgress size={20} />
       ) : (

@@ -131,6 +131,8 @@ export function debounce(callback: any, wait: number) {
   let timeout: any;
   return (...args: any) => {
     clearTimeout(timeout);
-    timeout = setTimeout(function (this: any) { callback.apply(this, args); }, wait);
+    timeout = setTimeout(function (this: any) {
+      callback.apply(this, args);
+    }, wait);
   };
 }

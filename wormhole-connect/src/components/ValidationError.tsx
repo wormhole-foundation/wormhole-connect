@@ -5,16 +5,20 @@ import { ValidationErr } from '../utils/transferValidation';
 import AlertBanner from './AlertBanner';
 
 type Props = {
-  validations: (ValidationErr)[]
+  validations: ValidationErr[];
 };
 
 function ValidationError(props: Props) {
   const showErrors = useSelector((state: RootState) => state.transfer.validate);
-  const validationErrors = props.validations.filter(v => !!v) as string[];
+  const validationErrors = props.validations.filter((v) => !!v) as string[];
   const showError = validationErrors.length > 0;
 
   return (
-    <AlertBanner show={showErrors && showError} text={validationErrors[0]} error />
+    <AlertBanner
+      show={showErrors && showError}
+      text={validationErrors[0]}
+      error
+    />
   );
 }
 
