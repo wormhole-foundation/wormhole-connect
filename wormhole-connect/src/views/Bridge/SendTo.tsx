@@ -13,7 +13,7 @@ import { joinClass, OPACITY } from '../../utils/style';
 
 import InputContainer from '../../components/InputContainer';
 import ConnectWallet from '../../components/ConnectWallet';
-import NetworkTile from '../../components/NetworkTile';
+import NetworkTile from './NetworkTile';
 import TokenIcon from '../../icons/components/TokenIcons';
 import ValidationError from '../../components/ValidationError';
 
@@ -33,7 +33,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: '8px 16px',
+    padding: '0px 16px',
   },
   headerTitle: {
     fontSize: '16px',
@@ -42,7 +42,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   content: {
     display: 'flex',
     width: '100%',
-    height: '152px',
+    height: '158px',
   },
   inputs: {
     display: 'flex',
@@ -96,7 +96,7 @@ function SendTo() {
   const dispatch = useDispatch();
   const [balance, setBalance] = useState(undefined as string | undefined);
   // store values
-  const { validations, fromNetwork, toNetwork, token, amount } = useSelector(
+  const { validate: showErrors, validations, fromNetwork, toNetwork, token, amount } = useSelector(
     (state: RootState) => state.transfer,
   );
   const walletAddr = useSelector(
@@ -145,6 +145,7 @@ function SendTo() {
           <div className={classes.content}>
             <NetworkTile
               network={toNetworkConfig}
+              error={!!(showErrors && validations.toNetwork)}
               onClick={openToNetworksModal}
             />
             <div className={classes.inputs}>
