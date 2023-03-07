@@ -13,7 +13,7 @@ import {
   TransferWallet,
 } from '../../utils/wallet';
 import { ParsedVaa } from '../../utils/vaa';
-import { claimTransfer } from '../../sdk/sdk';
+import { claimTransfer, parseAddress } from '../../sdk/sdk';
 import { displayAddress } from '../../utils';
 import { CHAINS } from '../../sdk/config';
 
@@ -78,10 +78,22 @@ function SendTo() {
   const transferComplete = useSelector(
     (state: RootState) => state.redeem.transferComplete,
   );
+
+  const connect = () => {
+    setWalletModal(true);
+  };
+  const checkConnection = () => {
+    if (!txData) return;
+    const addr = receiving.address.toLowerCase();
+    const curAddr = receiving.currentAddress.toLowerCase();
+    const formattedRecipient = parseAddress(txData.toChain, txData.recipient);
+    const reqAddr = formattedRecipient.toLowerCase();
+    // console.log(addr, curAddr, reqAddr)
+    return addr === curAddr && addr === reqAddr;
+  }
+
   const [inProgress, setInProgress] = useState(false);
-  const [isConnected, setIsConnected] = useState(
-    receiving.currentAddress.toLowerCase() === receiving.address.toLowerCase(),
-  );
+  const [isConnected, setIsConnected] = useState(checkConnection());
   const [rows, setRows] = useState([] as RowsData);
   const [openWalletModal, setWalletModal] = useState(false);
 
@@ -113,15 +125,9 @@ function SendTo() {
       console.error(e);
     }
   };
-  const connect = async () => {
-    setWalletModal(true);
-  };
 
   useEffect(() => {
-    setIsConnected(
-      receiving.currentAddress.toLowerCase() ===
-        receiving.address.toLowerCase(),
-    );
+    setIsConnected(checkConnection());
   }, [receiving]);
 
   return (
@@ -145,10 +151,10 @@ function SendTo() {
           {toAddr ? (
             isConnected ? (
               <Button onClick={claim} action disabled={inProgress}>
-                {inProgress ? <CircularProgress size={18} /> : 'Claim'}
+                {inProgress ? <CircularProgress size={22} /> : 'Claim'}
               </Button>
             ) : (
-              <Button disabled elevated>
+              <Button onClick={connect} elevated>
                 Connect to {displayAddress(txData.toChain, txData.recipient)}
               </Button>
             )

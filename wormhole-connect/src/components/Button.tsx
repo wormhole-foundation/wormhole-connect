@@ -14,6 +14,7 @@ const useStyles = makeStyles()((theme) => ({
     alignItems: 'center',
     padding: '12px 64px',
     cursor: 'pointer',
+    textAlign: 'center',
   },
   disabled: {
     cursor: 'not-allowed',

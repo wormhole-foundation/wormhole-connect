@@ -70,7 +70,7 @@ function Header(props: Props) {
             target="_blank"
             rel="noreferrer"
           >
-            <div>View in {networkConfig.explorerName}</div>
+            <div>{networkConfig.explorerName}</div>
             <LaunchIcon />
           </a>
         )
