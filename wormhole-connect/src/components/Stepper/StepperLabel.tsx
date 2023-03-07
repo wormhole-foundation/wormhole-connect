@@ -23,6 +23,9 @@ const useStyles = makeStyles((theme: Theme) => ({
     alignItems: 'center',
     fontSize: '16px',
     marginRight: '32px',
+    [theme.breakpoints.down('sm')]: {
+      margin: '0 8px 0 16px',
+    },
   },
   filled: {
     backgroundColor: `${theme.palette.success[400]} !important`,

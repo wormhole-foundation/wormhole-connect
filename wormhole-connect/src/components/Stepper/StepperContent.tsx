@@ -9,6 +9,11 @@ const useStyles = makeStyles((theme: Theme) => ({
     minHeight: '40px',
     borderLeft: `1px solid ${theme.palette.primary[700]}`,
     padding: '8px 0 16px 32px',
+    [theme.breakpoints.down('sm')]: {
+      marginLeft: '0',
+      borderLeft: 'none',
+      paddingLeft: '0',
+    },
   },
   lineActive: {
     borderColor: theme.palette.success[400],

@@ -42,6 +42,16 @@ export interface ParsedRelayerMessage extends ParsedMessage {
   toNativeTokenAmount: string;
 }
 
+export const formatAddress = (chain: ChainName | ChainId, address: string) => {
+  const context = wh.getContext(chain);
+  return context.formatAddress(address);
+}
+
+export const parseAddress = (chain: ChainName | ChainId, address: string) => {
+  const context = wh.getContext(chain);
+  return context.parseAddress(address);
+}
+
 export const registerSigner = (chain: ChainName | ChainId, signer: any) => {
   console.log(`registering signer for ${chain}:`, signer);
   wh.registerSigner(chain, signer);

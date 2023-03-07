@@ -22,10 +22,19 @@ const useStyles = makeStyles()((theme) => ({
     fontSize: '14px',
     opacity: '0.6',
   },
+  chain: {
+    width: '175px',
+    [theme.breakpoints.down('sm')]: {
+      width: '100%',
+    },
+  },
   inputs: {
     display: 'flex',
     flexDirection: 'row',
     gap: '16px',
+    [theme.breakpoints.down('sm')]: {
+      flexDirection: 'column',
+    },
   },
   search: {
     flexGrow: 1,
@@ -72,24 +81,26 @@ function TxSearch() {
       <Spacer height={40} />
 
       <div className={classes.inputs}>
-        <Select
-          sx={{ width: 175 }}
-          value={state.chain}
-          displayEmpty
-          placeholder="Select network"
-          onChange={(e) => setChain(e)}
-        >
-          <MenuItem disabled value="" key={0}>
-            Select network
-          </MenuItem>
-          {CHAINS_ARR.map((chain, i) => {
-            return (
-              <MenuItem value={chain.key} key={i + 1}>
-                {chain.displayName}
-              </MenuItem>
-            );
-          })}
-        </Select>
+        <div className={classes.chain}>
+          <Select
+            sx={{ width: '100%', height: '100%', minHeight: '64.5px' }}
+            value={state.chain}
+            displayEmpty
+            placeholder="Select network"
+            onChange={(e) => setChain(e)}
+          >
+            <MenuItem disabled value="" key={0}>
+              Select network
+            </MenuItem>
+            {CHAINS_ARR.map((chain, i) => {
+              return (
+                <MenuItem value={chain.key} key={i + 1}>
+                  {chain.displayName}
+                </MenuItem>
+              );
+            })}
+          </Select>
+        </div>
         <div className={classes.search}>
           <Search
             placeholder="Source chain transaction hash"

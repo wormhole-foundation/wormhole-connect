@@ -99,7 +99,7 @@ function Send(props: { valid: boolean }) {
   ) : (
     <Button onClick={send} action={props.valid} disabled={inProgress} elevated>
       {inProgress ? (
-        <CircularProgress size={20} />
+        <CircularProgress size={22} />
       ) : (
         'Approve and proceed with transaction'
       )}
