@@ -1,40 +1,48 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { Context } from '@wormhole-foundation/wormhole-connect-sdk';
 import { CHAINS, TOKENS } from '../../sdk/config';
 import { parseMessageFromTx, sendTransfer } from '../../sdk/sdk';
-import { RootState } from '../../store';
+import { RootState, store } from '../../store';
 import { setRoute } from '../../store/router';
 import { setTxDetails, setSendTx } from '../../store/redeem';
-// import { clearTransfer } from '../../store/transfer';
 import {
   registerWalletSigner,
   switchNetwork,
   TransferWallet,
 } from '../../utils/wallet';
+import { isTransferValid } from '../../utils/transferValidation';
 import { displayWalletAddress } from '../../utils';
+
 import Button from '../../components/Button';
 import CircularProgress from '@mui/material/CircularProgress';
-import { Context } from '@wormhole-foundation/wormhole-connect-sdk';
+import { touchValidations, validateTransfer } from '../../store/transfer';
 
 function Send(props: { valid: boolean }) {
   const dispatch = useDispatch();
+  const wallets = useSelector((state: RootState) => state.wallet);
+  const { sending, receiving } = wallets;
+  const transfer = useSelector((state: RootState) => state.transfer);
   const {
+    validations,
     fromNetwork,
     toNetwork,
     token,
     amount,
     destGasPayment,
     toNativeToken,
-  } = useSelector((state: RootState) => state.transfer);
-  const { sending, receiving } = useSelector(
-    (state: RootState) => state.wallet,
-  );
+  } = transfer;
   const [inProgress, setInProgress] = useState(false);
   const [isConnected, setIsConnected] = useState(
     sending.currentAddress.toLowerCase() === sending.address.toLowerCase(),
   );
 
   async function send() {
+    dispatch(touchValidations());
+    const state = store.getState();
+    dispatch(validateTransfer(state.wallet));
+    const valid = isTransferValid(validations);
+    if (!valid) return;
     setInProgress(true);
     try {
       const fromConfig = CHAINS[fromNetwork!];
@@ -43,11 +51,8 @@ function Send(props: { valid: boolean }) {
         const { chainId } = CHAINS[fromNetwork!]!;
         await switchNetwork(chainId, TransferWallet.SENDING);
       }
-      // TODO: better validation
-      if (!amount) throw new Error('invalid input, specify an amount');
-      if (!token) throw new Error('invalid input, specify an asset');
-      const tokenConfig = TOKENS[token];
-      if (!tokenConfig) throw new Error('invalid token');
+
+      const tokenConfig = TOKENS[token]!;
       const sendToken = tokenConfig.tokenId;
 
       const receipt: any = await sendTransfer(
@@ -92,12 +97,7 @@ function Send(props: { valid: boolean }) {
       Connect to {displayWalletAddress(sending.type, sending.address)}
     </Button>
   ) : (
-    <Button
-      onClick={send}
-      action={props.valid}
-      disabled={!props.valid || inProgress}
-      elevated
-    >
+    <Button onClick={send} action={props.valid} disabled={inProgress} elevated>
       {inProgress ? (
         <CircularProgress size={20} />
       ) : (

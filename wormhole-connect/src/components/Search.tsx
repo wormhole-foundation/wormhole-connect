@@ -3,7 +3,7 @@ import { makeStyles } from '@mui/styles';
 import { Theme } from '@mui/material';
 import InputTransparent from './InputTransparent';
 import SearchIcon from '../icons/components/Search';
-import { OPACITY } from '../utils/style';
+import { changeOpacity } from '../utils/style';
 
 const useStyles = makeStyles((theme: Theme) => ({
   searchContent: {
@@ -23,7 +23,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
   // TODO: make border into prop on InputContainer
   searchBorder: {
-    border: `1px solid ${theme.palette.divider}${OPACITY[50]}`,
+    border: `1px solid ${changeOpacity(theme.palette.divider, 50)}`,
     borderRadius: '8px',
   },
   clickable: {

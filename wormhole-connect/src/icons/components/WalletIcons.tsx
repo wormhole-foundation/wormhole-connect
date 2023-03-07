@@ -20,7 +20,6 @@ type Props = {
   height?: number;
 };
 
-// TODO: images weren't rendering on build, find better solution?
 function WalletIcon(props: Props) {
   const size = props.height || 32;
   const { classes } = useStyles({ size });

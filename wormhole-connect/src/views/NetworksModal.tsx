@@ -10,7 +10,6 @@ import { setFromNetwork, setToNetwork } from '../store/transfer';
 import TokenIcon from '../icons/components/TokenIcons';
 import { CENTER, joinClass } from '../utils/style';
 import { TransferWallet, walletAcceptedNetworks } from '../utils/wallet';
-import { disconnect } from '../utils/wallet';
 
 import Header from '../components/Header';
 import Modal from '../components/Modal';

@@ -277,7 +277,6 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
     signedVAA: Uint8Array,
     overrides: Overrides & { from?: string | Promise<string> } = {},
   ): Promise<ContractReceipt> {
-    // TODO: could get destination chain by parsing VAA
     const bridge = this.contracts.mustGetBridge(destChain);
     const v = await bridge.completeTransfer(signedVAA, overrides);
     const receipt = await v.wait();
