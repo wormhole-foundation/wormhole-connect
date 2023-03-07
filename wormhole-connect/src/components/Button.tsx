@@ -8,7 +8,6 @@ const useStyles = makeStyles()((theme) => ({
     backgroundColor: theme.palette.button.primary,
     color: theme.palette.button.primaryText,
     borderRadius: '8px',
-    border: `1px solid ${theme.palette.divider}`,
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
@@ -28,7 +27,6 @@ const useStyles = makeStyles()((theme) => ({
   action: {
     backgroundColor: theme.palette.button.action,
     color: theme.palette.button.actionText,
-    border: 'none',
   },
 }));
 

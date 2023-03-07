@@ -1,15 +1,16 @@
 import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
+import { useTheme } from '@mui/material/styles';
+import { useDispatch } from 'react-redux';
 import { RootState } from '../../store';
 import { PaymentOption, setRelayerFee } from '../../store/transfer';
-import { RenderRows, RowsData } from '../../components/RenderRows';
-import InputContainer from '../../components/InputContainer';
-import BridgeCollapse from './Collapse';
 import { CHAINS, TOKENS } from '../../sdk/config';
 import { TokenConfig } from '../../config/types';
 import { toDecimals, toFixedDecimals } from '../../utils/balance';
 import { getRelayerFee } from '../../sdk/sdk';
-import { useDispatch } from 'react-redux';
+import { RenderRows, RowsData } from '../../components/RenderRows';
+import InputContainer from '../../components/InputContainer';
+import BridgeCollapse from './Collapse';
 
 const getAutomaticRows = (
   token: TokenConfig,
@@ -84,6 +85,7 @@ const getManualRows = (
 
 function Preview(props: { collapsed: boolean }) {
   const dispatch = useDispatch();
+  const theme = useTheme();
   const [state, setState] = React.useState({ rows: [] as RowsData });
   const {
     token,
@@ -139,7 +141,7 @@ function Preview(props: { collapsed: boolean }) {
       controlled
       value={props.collapsed}
     >
-      <InputContainer border styles={{ boxShadow: 'none' }}>
+      <InputContainer styles={{ boxShadow: 'none', borderTopLeftRadius: '0', borderTopRightRadius: '0' }} bg={theme.palette.options.select}>
         <RenderRows rows={state.rows} />
       </InputContainer>
     </BridgeCollapse>

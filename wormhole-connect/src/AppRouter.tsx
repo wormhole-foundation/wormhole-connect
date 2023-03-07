@@ -36,7 +36,7 @@ function usePrevious(value) {
 
 // since this will be embedded, we'll have to use pseudo routes instead of relying on the url
 function AppRouter() {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const dispatch = useDispatch();
 
   const showWalletModal = useSelector(

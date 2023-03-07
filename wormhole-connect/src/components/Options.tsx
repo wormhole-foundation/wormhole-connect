@@ -5,20 +5,18 @@ import { joinClass } from '../utils/style';
 const useStyles = makeStyles()((theme) => ({
   options: {
     backgroundColor: theme.palette.card.background,
-    borderRadius: '8px',
+    borderBottomLeftRadius: '8px',
+    borderBottomRightRadius: '8px',
   },
   option: {
     position: 'relative',
     width: '100%',
     padding: '16px',
-    borderRadius: '8px',
+    borderRadius: '0',
     backgroundColor: theme.palette.card.background,
     '&:last-child': {
-      borderTopLeftRadius: '0',
-      borderTopRightRadius: '0',
-    },
-    '&:first-of-type': {
-      borderRadius: '0',
+      borderBottomLeftRadius: '8px',
+      borderBottomRightRadius: '8px',
     },
     '&:not(:last-child)': {
       borderBottom: `0.5px solid ${theme.palette.divider}`,

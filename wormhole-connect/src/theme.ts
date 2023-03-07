@@ -240,9 +240,9 @@ const dark: ExtendedTheme = {
   },
   warning: orange,
   button: {
-    primary: '#ffffff' + OPACITY[20],
+    primary: '#ffffff' + OPACITY[10],
     primaryText: '#ffffff',
-    disabled: '#ffffff' + OPACITY[10],
+    disabled: '#ffffff' + OPACITY[7],
     disabledText: '#ffffff' + OPACITY[40],
     action: '#ffffff' + OPACITY[20],
     actionText: '#ffffff',
