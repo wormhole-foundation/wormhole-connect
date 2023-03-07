@@ -139,7 +139,7 @@ function SendTo() {
   return (
     <div className={classes.container}>
       <div className={classes.header}>
-        <div className={classes.headerTitle}>Sending to</div>
+        <div className={classes.headerTitle}>To</div>
         <ConnectWallet type={TransferWallet.RECEIVING} />
       </div>
 

@@ -168,7 +168,7 @@ function SendFrom() {
   return (
     <div className={classes.container}>
       <div className={classes.header}>
-        <div className={classes.headerTitle}>Sending from</div>
+        <div className={classes.headerTitle}>From</div>
         <ConnectWallet type={TransferWallet.SENDING} />
       </div>
 

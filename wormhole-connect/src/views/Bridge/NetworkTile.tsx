@@ -20,6 +20,10 @@ const useStyles = makeStyles((theme: Theme) => ({
     height: '158px',
     cursor: 'pointer',
     marginRight: '8px',
+    textAlign: 'center',
+    [theme.breakpoints.down('sm')]: {
+      width: 'auto',
+    },
   },
   networkIcon: {
     width: '56px',
