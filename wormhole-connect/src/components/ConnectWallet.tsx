@@ -2,7 +2,7 @@ import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { RootState } from '../store';
-import { disconnect, TransferWallet } from '../utils/wallet';
+import { TransferWallet } from '../utils/wallet';
 import { copyTextToClipboard, displayWalletAddress } from '../utils';
 
 import DownIcon from '../icons/components/Down';
