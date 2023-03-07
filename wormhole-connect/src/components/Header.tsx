@@ -6,9 +6,10 @@ type Alignment = 'center' | 'left' | 'right';
 type StyleProps = { align: Alignment };
 const useStyles = makeStyles<StyleProps>()((theme, { align }) => ({
   title: {
-    fontSize: '32px',
+    fontSize: '42px',
     width: '100%',
     textAlign: align,
+    fontFamily: theme.palette.font.header,
   },
 }));
 

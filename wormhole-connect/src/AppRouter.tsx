@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { makeStyles } from '@mui/styles';
+import { makeStyles } from 'tss-react/mui';
 import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
 import { RootState } from './store';
@@ -13,7 +13,7 @@ import Redeem from './views/Redeem/Redeem';
 import TxSearch from './views/TxSearch';
 import { clearWallets } from './store/wallet';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles()((theme) => ({
   appContent: {
     textAlign: 'left',
     margin: '40px auto',
@@ -22,6 +22,7 @@ const useStyles = makeStyles(() => ({
     display: 'flex',
     justifyContent: 'center',
     padding: '16px',
+    fontFamily: theme.palette.font.primary,
   },
 }));
 
