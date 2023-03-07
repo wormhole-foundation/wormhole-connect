@@ -68,12 +68,12 @@ export const validateAmount = (
   if (amount <= 0) return 'Amount must be greater than 0';
   if (!balance) return '';
   const b = Number.parseFloat(balance);
-  if (amount > b)
-    return 'Amount cannot exceed balance';
+  if (amount > b) return 'Amount cannot exceed balance';
   if (paymentOption === PaymentOption.MANUAL) return '';
   if (!minAmt) return '';
   if (amount < minAmt) return `Minimum amount is ${minAmt}`;
-  if (amount + minAmt > b) return 'Amount plus estimated fees exceeds the wallet balance';
+  if (amount + minAmt > b)
+    return 'Amount plus estimated fees exceeds the wallet balance';
   return '';
 };
 
