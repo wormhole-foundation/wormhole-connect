@@ -191,7 +191,7 @@ function SendFrom() {
                 ])}
                 onClick={openTokensModal}
               >
-                <div className={classes.label}>Token</div>
+                <div className={classes.label}>Asset</div>
                 {tokenConfig ? (
                   <div className={classes.tokenSelect}>
                     <TokenIcon name={tokenConfig.icon} height={24} />
