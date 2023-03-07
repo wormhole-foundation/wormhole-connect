@@ -65,9 +65,13 @@ export type ExtendedTheme = {
   modal: {
     background: string;
   };
+  font: {
+    primary: string;
+    header: string;
+  }
 };
 
-export const light = {
+export const light: ExtendedTheme = {
   primary: {
     50: '#161718',
     100: '#2d2e30',
@@ -138,6 +142,10 @@ export const light = {
   modal: {
     background: '#ffffff',
   },
+  font: {
+    primary: '"Inter", sans-serif',
+    header: '"IBM Plex Mono", monospace',
+  },
 };
 
 // // generic dark theme
@@ -185,7 +193,7 @@ export const light = {
 // };
 
 // wormhole styled theme
-const dark = {
+const dark: ExtendedTheme = {
   primary: grey,
   secondary: grey,
   divider: '#ffffff' + OPACITY[20],
@@ -232,9 +240,9 @@ const dark = {
   },
   warning: orange,
   button: {
-    primary: '#ffffff' + OPACITY[20],
+    primary: '#ffffff' + OPACITY[10],
     primaryText: '#ffffff',
-    disabled: '#ffffff' + OPACITY[10],
+    disabled: '#ffffff' + OPACITY[7],
     disabledText: '#ffffff' + OPACITY[40],
     action: '#ffffff' + OPACITY[20],
     actionText: '#ffffff',
@@ -256,6 +264,10 @@ const dark = {
   },
   modal: {
     background: '#0F1024',
+  },
+  font: {
+    primary: '"Inter", sans-serif',
+    header: '"IBM Plex Mono", monospace',
   },
 };
 

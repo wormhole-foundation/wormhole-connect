@@ -34,6 +34,7 @@ const useStyles = makeStyles()(() => ({
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: '16px',
   },
   header: {
     display: 'flex',
@@ -115,21 +116,17 @@ function Bridge() {
       <Spacer height={40} />
 
       <Networks />
-      <Spacer />
 
       {automaticRelayAvail && (
         <>
           <GasOptions disabled={!valid} />
-          <Spacer />
           <Collapse in={destGasPayment === PaymentOption.AUTOMATIC}>
             <GasSlider disabled={!valid} />
-            <Spacer />
           </Collapse>
         </>
       )}
 
       <Preview collapsed={!valid} />
-      <Spacer />
 
       <Send valid={!!valid} />
       <Spacer height={60} />
