@@ -63,9 +63,9 @@ const getRows = (txData: any): RowsData => {
 function SendFrom() {
   const vaa: ParsedVaa = useSelector((state: RootState) => state.redeem.vaa);
   const txData = useSelector((state: RootState) => state.redeem.txData)!;
-  const transferComplete = useSelector(
-    (state: RootState) => state.redeem.transferComplete,
-  );
+  // const transferComplete = useSelector(
+  //   (state: RootState) => state.redeem.transferComplete,
+  // );
 
   const [rows, setRows] = useState([] as RowsData);
 
@@ -81,7 +81,7 @@ function SendFrom() {
         <Header
           network={txData.fromChain}
           address={txData.sender}
-          loading={transferComplete ? false : !vaa}
+          // loading={transferComplete ? false : !vaa}
           txHash={txData.sendTx}
         />
         <RenderRows rows={rows} />
