@@ -91,9 +91,9 @@ function SendTo() {
     setRows(rows);
   }, []);
 
-  // const pending = vaa.guardianSignatures < REQUIRED_CONFIRMATIONS;
   const claim = async () => {
     setInProgress(true);
+    if (!receiving || !isConnected) throw new Error('Connect to receiving wallet');
     const networkConfig = CHAINS[txData.toChain]!;
     if (!networkConfig) throw new Error('invalid destination chain');
     try {
