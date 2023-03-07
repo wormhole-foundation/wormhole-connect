@@ -21,16 +21,6 @@ export type TransferValidations = {
   toNativeToken: ValidationErr;
 };
 
-export const required = (val: number | string | undefined): ValidationErr => {
-  if (!val) return 'Required';
-  if (typeof val === 'number') {
-    if (val <= 0) return 'Amount must be greater than zero';
-    return '';
-  }
-  if (val.length === 0) return 'Required';
-  return '';
-};
-
 export const validateFromNetwork = (
   chain: ChainName | undefined,
 ): ValidationErr => {
@@ -76,13 +66,14 @@ export const validateAmount = (
 ): ValidationErr => {
   if (!amount) return 'Enter an amount';
   if (amount <= 0) return 'Amount must be greater than 0';
-  if (balance && amount > Number.parseFloat(balance))
+  if (!balance) return '';
+  const b = Number.parseFloat(balance);
+  if (amount > b)
     return 'Amount cannot exceed balance';
   if (paymentOption === PaymentOption.MANUAL) return '';
-  console.log('TODO: validate min amount', amount, minAmt);
-  // const amountBN = BigNumber.from(amount)
-  // if (balance && BigNumber.from(balance).lt(amountBN)) return 'Amount cannot exceed balance'];
-  // if (minAmt && amountBN.lt(BigNumber.from(minAmt))) return `Minimum amount is ${minAmt}`];
+  if (!minAmt) return '';
+  if (amount < minAmt) return `Minimum amount is ${minAmt}`;
+  if (amount + minAmt > b) return 'Amount plus estimated fees exceeds the wallet balance';
   return '';
 };
 
@@ -145,7 +136,7 @@ export const validateAll = (
   } = transferData;
   const { sending, receiving } = walletData;
   const isAutomatic = destGasPayment === PaymentOption.AUTOMATIC;
-  const minAmt = isAutomatic ? toNativeToken + relayerFee! : 0;
+  const minAmt = isAutomatic ? toNativeToken + (relayerFee || 0) : 0;
   const baseValidations = {
     sendingWallet: validateWallet(sending, fromNetwork),
     receivingWallet: validateWallet(receiving, toNetwork),
@@ -154,11 +145,12 @@ export const validateAll = (
     token: validateToken(token, fromNetwork),
     amount: validateAmount(amount, balances[token], destGasPayment, minAmt),
     destGasPayment: validateDestGasPayment(destGasPayment, automaticRelayAvail),
-    toNativeToken: undefined,
+    toNativeToken: '',
   };
   if (!isAutomatic) return baseValidations;
   return {
     ...baseValidations,
+    amount: validateAmount(amount, balances[token], destGasPayment, minAmt),
     destGasPayment: validateGasPaymentOption(
       destGasPayment,
       automaticRelayAvail,
