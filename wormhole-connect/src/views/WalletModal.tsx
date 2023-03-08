@@ -92,7 +92,9 @@ function WalletsModal(props: Props) {
   const { fromNetwork, toNetwork } = useSelector(
     (state: RootState) => state.transfer,
   );
-  const [walletOptions, setWalletOptions] = useState(getAvailableWallets());
+  const [walletOptions, setWalletOptions] = useState(
+    getAvailableWallets() || [],
+  );
 
   function getAvailableWallets() {
     const chain =
@@ -149,8 +151,8 @@ function WalletsModal(props: Props) {
 
   return (
     <Modal open={!!props.type} closable width={500} onClose={closeWalletModal}>
-      <Header text="Connect wallet" align="left" />
-      <Spacer height={32} />
+      <Header text="Connect wallet" size={28} />
+      <Spacer height={16} />
       <div>{displayWalletOptions(walletOptions)}</div>
     </Modal>
   );

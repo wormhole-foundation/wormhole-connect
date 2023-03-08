@@ -8,6 +8,13 @@ import CloseIcon from '../icons/components/Close';
 // type StyleProps = { align: Alignment };
 // const useStyles = makeStyles<StyleProps>()((theme, { align }) => ({
 const useStyles = makeStyles<{ width: number }>()((theme, { width }) => ({
+  container: {
+    position: 'relative',
+    width: '100%',
+    margin: '0 auto',
+    display: 'flex',
+    justifyContent: 'center',
+  },
   modal: {
     width: '100%',
     maxWidth: `${width}px`,
@@ -15,12 +22,21 @@ const useStyles = makeStyles<{ width: number }>()((theme, { width }) => ({
     padding: '24px',
     textAlign: 'center',
     position: 'relative',
+    [theme.breakpoints.down('sm')]: {
+      margin: '20px auto',
+    },
   },
   close: {
     position: 'absolute',
     top: '28px',
-    right: '24px',
+    right: '28px',
     cursor: 'pointer',
+    opacity: '70%',
+    zIndex: '10',
+    [theme.breakpoints.down('sm')]: {
+      top: '12px',
+      right: '20px',
+    },
   },
   background: {
     background: theme.palette.modal.background,
@@ -51,7 +67,7 @@ function Modal({ open, width, closable, children, onClose }: Props) {
       // maxWidth={width}
       // fullScreen={fullScreen}
     >
-      <div className={classes.modal}>
+      <div className={classes.container}>
         {closable && (
           <CloseIcon
             sx={{ fontSize: 32 }}
@@ -59,7 +75,7 @@ function Modal({ open, width, closable, children, onClose }: Props) {
             onClick={onClose}
           />
         )}
-        {children}
+        <div className={classes.modal}>{children}</div>
       </div>
     </Dialog>
   );

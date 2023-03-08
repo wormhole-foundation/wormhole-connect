@@ -68,7 +68,7 @@ export type ExtendedTheme = {
   font: {
     primary: string;
     header: string;
-  }
+  };
 };
 
 export const light: ExtendedTheme = {
@@ -289,12 +289,9 @@ const dark: ExtendedTheme = {
 export const getDesignTokens = (mode: PaletteMode) =>
   createTheme({
     components: {
-      // Name of the component
       MuiPaper: {
         styleOverrides: {
-          // Name of the slot
           root: {
-            // Some CSS
             background:
               (CUSTOM_THEME
                 ? CUSTOM_THEME.modal.background

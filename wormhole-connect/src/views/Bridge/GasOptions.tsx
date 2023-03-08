@@ -50,14 +50,18 @@ type OptionConfig = {
   estimate: string;
   active: PaymentOption;
 };
-const getOptions = (dest: NetworkConfig, token: string, relayAvail: boolean): OptionConfig[] => {
+const getOptions = (
+  dest: NetworkConfig,
+  token: string,
+  relayAvail: boolean,
+): OptionConfig[] => {
   const manual = {
     title: `Pay with ${token} and ${dest.gasToken}`,
     subtitle: '(two transactions)',
     description: `Claim with ${dest.gasToken} on ${dest.displayName}`,
     estimate: `TODO ${token} & TODO ${dest.gasToken}`,
     active: PaymentOption.MANUAL,
-  }
+  };
   if (!relayAvail) return [manual];
   const automatic = {
     title: `Pay with ${token}`,
@@ -65,7 +69,7 @@ const getOptions = (dest: NetworkConfig, token: string, relayAvail: boolean): Op
     description: 'Gas fees will be paid automatically',
     estimate: `TODO ${token}`,
     active: PaymentOption.AUTOMATIC,
-  }
+  };
   return [automatic, manual];
 };
 
@@ -102,7 +106,10 @@ function GasOptions(props: { disabled: boolean }) {
         selectedOption === PaymentOption.AUTOMATIC
           ? `Pay with ${token}`
           : `Pay with ${token} & ${destConfig!.nativeToken}`;
-      setState({ options: getOptions(destConfig, token, automaticRelayAvail), description });
+      setState({
+        options: getOptions(destConfig, token, automaticRelayAvail),
+        description,
+      });
     }
   }, [token, selectedOption, toNetwork]);
 

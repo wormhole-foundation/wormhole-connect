@@ -4,7 +4,7 @@ import { makeStyles } from '@mui/styles';
 import { useTheme } from '@mui/material/styles';
 import { Theme } from '@mui/material';
 import { RootState } from '../store';
-import { TOKENS_ARR } from '../sdk/config';
+import { CHAINS, TOKENS_ARR } from '../sdk/config';
 import { setTokensModal } from '../store/router';
 import { setToken, setBalance, formatBalance } from '../store/transfer';
 import { displayAddress } from '../utils';
@@ -17,8 +17,8 @@ import Spacer from '../components/Spacer';
 import Search from '../components/Search';
 import Scroll from '../components/Scroll';
 import Tooltip from '../components/Tooltip';
-import Down from '../icons/components/Down';
-import Collapse from '@mui/material/Collapse';
+// import Down from '../icons/components/Down';
+// import Collapse from '@mui/material/Collapse';
 import TokenIcon from '../icons/components/TokenIcons';
 import CircularProgress from '@mui/material/CircularProgress';
 import { TokenConfig } from '../config/types';
@@ -34,8 +34,10 @@ const useStyles = makeStyles((theme: Theme) => ({
     minHeight: '72px',
   },
   subheader: {
+    margin: '0 8px',
     fontSize: '18px',
     textAlign: 'left',
+    fontFamily: theme.palette.font.header,
   },
   tokenRow: {
     position: 'relative',
@@ -59,6 +61,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     alignItems: 'center',
     fontSize: '14px',
     gap: '8px',
+    textAlign: 'left',
   },
   tokenRowIcon: {
     width: '32px',
@@ -78,13 +81,18 @@ const useStyles = makeStyles((theme: Theme) => ({
   tokenRowBalance: {
     fontSize: '14px',
   },
-  tokenRowAddress: {
+  tokenRowAddressContainer: {
     width: '100%',
     position: 'absolute',
     fontSize: '14px',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  tokenRowAddress: {
+    width: '100px',
+    textAlign: 'left',
+    opacity: '60%',
   },
   advanced: {
     display: 'flex',
@@ -105,6 +113,24 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
   advancedContent: {
     marginBottom: '16px',
+  },
+  nativeNetwork: {
+    opacity: '60%',
+  },
+  register: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    marginTop: '16px',
+  },
+  registerText: {
+    opacity: '60%',
+    fontSize: '16px',
+  },
+  registerLink: {
+    color: theme.palette.success[500],
+    textDecoration: 'underline',
+    fontSize: '14px',
   },
 }));
 
@@ -165,6 +191,12 @@ function TokensModal() {
     closeTokensModal();
   };
 
+  const displayNativeNetwork = (token: TokenConfig): string => {
+    const chainConfig = CHAINS[token.nativeNetwork];
+    if (!chainConfig) return '';
+    return chainConfig.displayName;
+  };
+
   // fetch token balances and set in store
   useEffect(() => {
     if (!walletAddr || !fromNetwork) return;
@@ -200,7 +232,7 @@ function TokensModal() {
       width={500}
       onClose={closeTokensModal}
     >
-      <Header text="Select token" />
+      <Header text="Select asset" size={28} />
       <Spacer height={16} />
       <Search
         placeholder="Search by name or paste contract address"
@@ -209,10 +241,10 @@ function TokensModal() {
       <Spacer height={16} />
       <div className={classes.sectionHeader}>
         <div className={classes.subheader}>Tokens with liquid markets</div>
-        <Tooltip text="Some text" />
+        <Tooltip text="Please perform your own due diligence, but to our knowledge these tokens have liquid markets available (i.e. you should be able to trade and utilize your tokens) on your destination chain." />
       </div>
       <Scroll
-        height="calc(100vh - 300px)"
+        height="calc(100vh - 375px)"
         blendColor={theme.palette.modal.background}
       >
         <div className={classes.tokensContainer}>
@@ -227,7 +259,12 @@ function TokensModal() {
                   >
                     <div className={classes.tokenRowLeft}>
                       <TokenIcon name={token.icon} height={32} />
-                      <div>{token.symbol}</div>
+                      <div>
+                        <div>{token.symbol}</div>
+                        <div className={classes.nativeNetwork}>
+                          {displayNativeNetwork(token)}
+                        </div>
+                      </div>
                     </div>
                     <div className={classes.tokenRowRight}>
                       <div className={classes.tokenRowBalanceText}>Balance</div>
@@ -241,13 +278,15 @@ function TokensModal() {
                         )}
                       </div>
                     </div>
-                    <div className={classes.tokenRowAddress}>
-                      {token.tokenId
-                        ? displayAddress(
-                            token.tokenId.chain,
-                            token.tokenId.address,
-                          )
-                        : 'Native'}
+                    <div className={classes.tokenRowAddressContainer}>
+                      <div className={classes.tokenRowAddress}>
+                        {token.tokenId
+                          ? displayAddress(
+                              token.tokenId.chain,
+                              token.tokenId.address,
+                            )
+                          : 'Native'}
+                      </div>
                     </div>
                   </div>
                 );
@@ -256,23 +295,31 @@ function TokensModal() {
           ) : (
             <div className={classes.noResults}>No results</div>
           )}
-          <div className={classes.advanced} onClick={toggleAdvanced}>
+
+          {/* <div className={classes.advanced} onClick={toggleAdvanced}>
             <div className={classes.sectionHeader}>
-              <div className={classes.subheader}>Advanced</div>
-              <Tooltip text="Some text" />
+              <div className={classes.subheader}>Tokens without established liquid markets</div>
+              <Tooltip text="Once you transfer these assets to the destination chain you may not be able to trade or use them. If for any reason you cannot and want to transfer the assets back to the source chain, you'll be responsible for any gas fees necessary to complete the transaction." />
+              </div>
+              <Down
+                className={joinClass([
+                  classes.arrow,
+                  showAdvanced && classes.invert,
+                ])}
+              />
             </div>
-            <Down
-              className={joinClass([
-                classes.arrow,
-                showAdvanced && classes.invert,
-              ])}
-            />
-          </div>
-          <Collapse in={showAdvanced}>
+            <Collapse in={showAdvanced}>
             <div className={classes.advancedContent}>Advanced Options</div>
-          </Collapse>
+          </Collapse> */}
         </div>
       </Scroll>
+
+      <div className={classes.register}>
+        <div className={classes.registerText}>Don't see your token?</div>
+        <a href="#" className={classes.registerLink}>
+          Register token
+        </a>
+      </div>
     </Modal>
   );
 }
