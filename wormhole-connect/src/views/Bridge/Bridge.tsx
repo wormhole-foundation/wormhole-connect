@@ -23,7 +23,7 @@ import { BigNumber } from 'ethers';
 import { useDispatch } from 'react-redux';
 import { getNativeBalance } from '../../sdk/sdk';
 import { CHAINS, TOKENS } from '../../sdk/config';
-import { validate } from '../../utils/transferValidation';
+import { isTransferValid, validate } from '../../utils/transferValidation';
 
 const useStyles = makeStyles()(() => ({
   bridgeContent: {
@@ -48,9 +48,9 @@ function Bridge() {
   const { classes } = useStyles();
   const dispatch = useDispatch();
   const {
+    validations,
     fromNetwork,
     toNetwork,
-    amount,
     token,
     destGasPayment,
     automaticRelayAvail,
@@ -99,13 +99,7 @@ function Bridge() {
     relayerFee,
   ]);
 
-  const valid =
-    fromNetwork &&
-    toNetwork &&
-    amount &&
-    token &&
-    sending.address &&
-    receiving.address;
+  const valid = isTransferValid(validations);
 
   return (
     <div className={classes.bridgeContent}>
@@ -117,13 +111,12 @@ function Bridge() {
 
       <Networks />
 
+      <GasOptions disabled={!valid} />
+
       {automaticRelayAvail && (
-        <>
-          <GasOptions disabled={!valid} />
-          <Collapse in={destGasPayment === PaymentOption.AUTOMATIC}>
-            <GasSlider disabled={!valid} />
-          </Collapse>
-        </>
+        <Collapse in={destGasPayment === PaymentOption.AUTOMATIC}>
+          <GasSlider disabled={!valid} />
+        </Collapse>
       )}
 
       <Preview collapsed={!valid} />

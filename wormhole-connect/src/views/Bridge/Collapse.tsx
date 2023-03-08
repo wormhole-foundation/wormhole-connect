@@ -84,7 +84,7 @@ function BridgeCollapse(props: Props) {
     (state: RootState) => state.transfer.automaticRelayAvail,
   );
   const controlled = !relayAvail || props.controlled;
-  const collapsedState = controlled ? props.value : collapsed;
+  const collapsedState = props.disabled ? true : controlled ? props.value : collapsed;
 
   return (
     <div className={classes.container}>
@@ -109,7 +109,7 @@ function BridgeCollapse(props: Props) {
           />
         )}
       </div>
-      {props.banner && (
+      {(props.banner && relayAvail) && (
         <div
           className={joinClass([
             classes.banner,
