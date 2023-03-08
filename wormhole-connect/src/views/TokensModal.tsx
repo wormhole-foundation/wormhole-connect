@@ -34,8 +34,10 @@ const useStyles = makeStyles((theme: Theme) => ({
     minHeight: '72px',
   },
   subheader: {
+    margin: '0 8px',
     fontSize: '18px',
     textAlign: 'left',
+    fontFamily: theme.palette.font.header,
   },
   tokenRow: {
     position: 'relative',
@@ -78,13 +80,17 @@ const useStyles = makeStyles((theme: Theme) => ({
   tokenRowBalance: {
     fontSize: '14px',
   },
-  tokenRowAddress: {
+  tokenRowAddressContainer: {
     width: '100%',
     position: 'absolute',
     fontSize: '14px',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  tokenRowAddress: {
+    width: '100px',
+    textAlign: 'left',
   },
   advanced: {
     display: 'flex',
@@ -200,7 +206,7 @@ function TokensModal() {
       width={500}
       onClose={closeTokensModal}
     >
-      <Header text="Select token" />
+      <Header text="Select asset" />
       <Spacer height={16} />
       <Search
         placeholder="Search by name or paste contract address"
@@ -241,13 +247,15 @@ function TokensModal() {
                         )}
                       </div>
                     </div>
-                    <div className={classes.tokenRowAddress}>
-                      {token.tokenId
-                        ? displayAddress(
-                            token.tokenId.chain,
-                            token.tokenId.address,
-                          )
-                        : 'Native'}
+                    <div className={classes.tokenRowAddressContainer}>
+                      <div className={classes.tokenRowAddress}>
+                        {token.tokenId
+                          ? displayAddress(
+                              token.tokenId.chain,
+                              token.tokenId.address,
+                            )
+                          : 'Native'}
+                      </div>
                     </div>
                   </div>
                 );
@@ -256,9 +264,9 @@ function TokensModal() {
           ) : (
             <div className={classes.noResults}>No results</div>
           )}
-          <div className={classes.advanced} onClick={toggleAdvanced}>
+          {/* <div className={classes.advanced} onClick={toggleAdvanced}>
             <div className={classes.sectionHeader}>
-              <div className={classes.subheader}>Advanced</div>
+              <div className={classes.subheader}>Tokens without established liquid markets</div>
               <Tooltip text="Some text" />
             </div>
             <Down
@@ -270,7 +278,7 @@ function TokensModal() {
           </div>
           <Collapse in={showAdvanced}>
             <div className={classes.advancedContent}>Advanced Options</div>
-          </Collapse>
+          </Collapse> */}
         </div>
       </Scroll>
     </Modal>
