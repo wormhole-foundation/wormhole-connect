@@ -26,7 +26,7 @@ import { CHAINS, TOKENS } from '../../sdk/config';
 import { isTransferValid, validate } from '../../utils/transferValidation';
 import AlertBanner from '../../components/AlertBanner';
 
-const useStyles = makeStyles()(() => ({
+const useStyles = makeStyles()((theme) => ({
   bridgeContent: {
     margin: 'auto',
     maxWidth: '650px',
@@ -42,6 +42,10 @@ const useStyles = makeStyles()(() => ({
     justifyContent: 'space-between',
     alignItems: 'center',
     width: '100%',
+    marginBottom: '40px',
+    [theme.breakpoints.down('sm')]: {
+      marginBottom: '20px',
+    },
   },
 }));
 
@@ -108,7 +112,6 @@ function Bridge() {
         <Header text="Bridge" align="left" />
         <MenuFull />
       </div>
-      <Spacer height={40} />
 
       <Networks />
 

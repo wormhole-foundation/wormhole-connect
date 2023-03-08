@@ -23,6 +23,9 @@ const useStyles = makeStyles()((theme) => ({
     justifyContent: 'center',
     padding: '16px',
     fontFamily: theme.palette.font.primary,
+    [theme.breakpoints.down('sm')]: {
+      margin: '0 auto',
+    },
   },
 }));
 

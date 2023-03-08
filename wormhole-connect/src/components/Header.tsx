@@ -3,19 +3,26 @@ import { makeStyles } from 'tss-react/mui';
 
 type Alignment = 'center' | 'left' | 'right';
 
-type StyleProps = { align: Alignment };
-const useStyles = makeStyles<StyleProps>()((theme, { align }) => ({
+type StyleProps = { align: Alignment, fontSize: number };
+const useStyles = makeStyles<StyleProps>()((theme, { align, fontSize }) => ({
   title: {
-    fontSize: '42px',
+    fontSize: `${fontSize}px`,
     width: '100%',
     textAlign: align,
     fontFamily: theme.palette.font.header,
   },
 }));
 
-function Header(props: { text: string; align?: Alignment }) {
+type Props = {
+  text: string;
+  align?: Alignment;
+  size?: number;
+}
+
+function Header(props: Props) {
   const styleProps = {
     align: props.align || 'center',
+    fontSize: props.size || 42,
   };
   const { classes } = useStyles(styleProps);
   return <div className={classes.title}>{props.text}</div>;

@@ -11,7 +11,7 @@ const useStyles = makeStyles<{ width: number }>()((theme, { width }) => ({
   container: {
     position: 'relative',
     width: '100%',
-    margin: 'auto',
+    margin: '0 auto',
     display: 'flex',
     justifyContent: 'center',
   },
@@ -22,6 +22,9 @@ const useStyles = makeStyles<{ width: number }>()((theme, { width }) => ({
     padding: '24px',
     textAlign: 'center',
     position: 'relative',
+    [theme.breakpoints.down('sm')]: {
+      margin: '20px auto',
+    },
   },
   close: {
     position: 'absolute',
@@ -29,6 +32,11 @@ const useStyles = makeStyles<{ width: number }>()((theme, { width }) => ({
     right: '28px',
     cursor: 'pointer',
     opacity: '70%',
+    zIndex: '10',
+    [theme.breakpoints.down('sm')]: {
+      top: '12px',
+      right: '20px',
+    },
   },
   background: {
     background: theme.palette.modal.background,
