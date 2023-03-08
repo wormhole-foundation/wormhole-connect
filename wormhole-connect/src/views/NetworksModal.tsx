@@ -56,6 +56,9 @@ const useStyles = makeStyles()((theme) => ({
     cursor: 'not-allowed',
     clickEvent: 'none',
   },
+  subtitle: {
+    opacity: '60%',
+  }
 }));
 
 export enum ModalType {
@@ -140,7 +143,7 @@ function NetworksModal(props: Props) {
       onClose={closeNetworksModal}
     >
       <Header text={props.title} />
-      <div>Select Network</div>
+      <div className={classes.subtitle}>Select Network</div>
       <Spacer height={16} />
       <Search placeholder="Search networks" onChange={searchChains} />
       <Spacer height={16} />

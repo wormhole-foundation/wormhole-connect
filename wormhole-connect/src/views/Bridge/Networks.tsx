@@ -41,13 +41,13 @@ function Networks() {
       <NetworksModal
         open={showFromNetworksModal}
         type={ModalType.FROM}
-        title="Send from"
+        title="Sending from"
         event="selectFromNetwork"
       />
       <NetworksModal
         open={showToNetworksModal}
         type={ModalType.TO}
-        title="Send to"
+        title="Sending to"
         event="selectToNetwork"
       />
     </div>
