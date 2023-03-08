@@ -75,9 +75,7 @@ function Modal({ open, width, closable, children, onClose }: Props) {
             onClick={onClose}
           />
         )}
-        <div className={classes.modal}>
-          {children}
-        </div>
+        <div className={classes.modal}>{children}</div>
       </div>
     </Dialog>
   );

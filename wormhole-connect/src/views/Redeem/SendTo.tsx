@@ -90,7 +90,7 @@ function SendTo() {
     const reqAddr = formattedRecipient.toLowerCase();
     // console.log(addr, curAddr, reqAddr)
     return addr === curAddr && addr === reqAddr;
-  }
+  };
 
   const [inProgress, setInProgress] = useState(false);
   const [isConnected, setIsConnected] = useState(checkConnection());
@@ -105,7 +105,8 @@ function SendTo() {
 
   const claim = async () => {
     setInProgress(true);
-    if (!receiving || !isConnected) throw new Error('Connect to receiving wallet');
+    if (!receiving || !isConnected)
+      throw new Error('Connect to receiving wallet');
     const networkConfig = CHAINS[txData.toChain]!;
     if (!networkConfig) throw new Error('invalid destination chain');
     try {

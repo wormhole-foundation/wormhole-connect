@@ -141,7 +141,14 @@ function Preview(props: { collapsed: boolean }) {
       controlled
       value={props.collapsed}
     >
-      <InputContainer styles={{ boxShadow: 'none', borderTopLeftRadius: '0', borderTopRightRadius: '0' }} bg={theme.palette.options.select}>
+      <InputContainer
+        styles={{
+          boxShadow: 'none',
+          borderTopLeftRadius: '0',
+          borderTopRightRadius: '0',
+        }}
+        bg={theme.palette.options.select}
+      >
         <RenderRows rows={state.rows} />
       </InputContainer>
     </BridgeCollapse>

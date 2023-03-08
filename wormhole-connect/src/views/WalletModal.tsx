@@ -92,7 +92,9 @@ function WalletsModal(props: Props) {
   const { fromNetwork, toNetwork } = useSelector(
     (state: RootState) => state.transfer,
   );
-  const [walletOptions, setWalletOptions] = useState(getAvailableWallets() || []);
+  const [walletOptions, setWalletOptions] = useState(
+    getAvailableWallets() || [],
+  );
 
   function getAvailableWallets() {
     const chain =

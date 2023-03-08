@@ -58,7 +58,7 @@ const useStyles = makeStyles()((theme) => ({
   },
   subtitle: {
     opacity: '60%',
-  }
+  },
 }));
 
 export enum ModalType {

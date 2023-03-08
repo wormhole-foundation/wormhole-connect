@@ -195,7 +195,7 @@ function TokensModal() {
     const chainConfig = CHAINS[token.nativeNetwork];
     if (!chainConfig) return '';
     return chainConfig.displayName;
-  }
+  };
 
   // fetch token balances and set in store
   useEffect(() => {
@@ -261,7 +261,9 @@ function TokensModal() {
                       <TokenIcon name={token.icon} height={32} />
                       <div>
                         <div>{token.symbol}</div>
-                        <div className={classes.nativeNetwork}>{displayNativeNetwork(token)}</div>
+                        <div className={classes.nativeNetwork}>
+                          {displayNativeNetwork(token)}
+                        </div>
                       </div>
                     </div>
                     <div className={classes.tokenRowRight}>
@@ -314,7 +316,9 @@ function TokensModal() {
 
       <div className={classes.register}>
         <div className={classes.registerText}>Don't see your token?</div>
-        <a href="#" className={classes.registerLink}>Register token</a>
+        <a href="#" className={classes.registerLink}>
+          Register token
+        </a>
       </div>
     </Modal>
   );

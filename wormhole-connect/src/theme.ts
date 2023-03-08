@@ -68,7 +68,7 @@ export type ExtendedTheme = {
   font: {
     primary: string;
     header: string;
-  }
+  };
 };
 
 export const light: ExtendedTheme = {

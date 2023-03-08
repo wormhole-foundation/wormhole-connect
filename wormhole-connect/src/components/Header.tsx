@@ -3,7 +3,7 @@ import { makeStyles } from 'tss-react/mui';
 
 type Alignment = 'center' | 'left' | 'right';
 
-type StyleProps = { align: Alignment, fontSize: number };
+type StyleProps = { align: Alignment; fontSize: number };
 const useStyles = makeStyles<StyleProps>()((theme, { align, fontSize }) => ({
   title: {
     fontSize: `${fontSize}px`,
@@ -17,7 +17,7 @@ type Props = {
   text: string;
   align?: Alignment;
   size?: number;
-}
+};
 
 function Header(props: Props) {
   const styleProps = {

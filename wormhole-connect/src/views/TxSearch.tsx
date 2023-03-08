@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { makeStyles } from 'tss-react/mui';
 import { useDispatch } from 'react-redux';
 import { Select, MenuItem } from '@mui/material';
