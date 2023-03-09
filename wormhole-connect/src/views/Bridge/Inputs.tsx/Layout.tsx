@@ -51,9 +51,7 @@ const useStyles = makeStyles()((theme) => ({
     gap: '8px',
   },
   balance: {
-    maxWidth: '150px',
-    flexGrow: 'unset',
-    flexShrink: '2',
+    width: '120px',
     backgroundColor: 'transparent',
   },
 }));
@@ -98,9 +96,11 @@ function Inputs(props: Props) {
                 {props.amountInput}
 
                 {/* balance */}
-                <Input label="Balance">
-                  <div>{props.balance || '-'}</div>
-                </Input>
+                <div className={classes.balance}>
+                  <Input label="Balance">
+                    <div>{props.balance || '-'}</div>
+                  </Input>
+                </div>
               </div>
             </div>
           </div>

@@ -15,8 +15,6 @@ import { validate } from '../../../utils/transferValidation';
 
 import NetworkTile from '../NetworkTile';
 import InputTransparent from '../../../components/InputTransparent';
-import ConnectWallet from '../../../components/ConnectWallet';
-import ValidationError from '../ValidationError';
 import Inputs from './Layout';
 import Input from './Input';
 import Select from './Select';
