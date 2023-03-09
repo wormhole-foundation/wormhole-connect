@@ -8,7 +8,7 @@ import { CHAINS, TOKENS_ARR } from '../sdk/config';
 import { setTokensModal } from '../store/router';
 import { setToken, setBalance, formatBalance } from '../store/transfer';
 import { displayAddress } from '../utils';
-import { CENTER, joinClass } from '../utils/style';
+import { CENTER } from '../utils/style';
 import { getBalance, getNativeBalance } from '../sdk/sdk';
 
 import Header from '../components/Header';
@@ -158,8 +158,8 @@ function TokensModal() {
   );
 
   // state
-  const [showAdvanced, setShowAdvanced] = React.useState(false);
-  const toggleAdvanced = () => setShowAdvanced((prev) => !prev);
+  // const [showAdvanced, setShowAdvanced] = React.useState(false);
+  // const toggleAdvanced = () => setShowAdvanced((prev) => !prev);
   const [tokens, setTokens] = React.useState(filteredTokens);
 
   // set tokens
@@ -250,47 +250,45 @@ function TokensModal() {
         <div className={classes.tokensContainer}>
           {tokens.length > 0 ? (
             <div>
-              {tokens.map((token, i) => {
-                return (
-                  <div
-                    className={classes.tokenRow}
-                    key={i}
-                    onClick={() => selectToken(token.symbol)}
-                  >
-                    <div className={classes.tokenRowLeft}>
-                      <TokenIcon name={token.icon} height={32} />
-                      <div>
-                        <div>{token.symbol}</div>
-                        <div className={classes.nativeNetwork}>
-                          {displayNativeNetwork(token)}
-                        </div>
-                      </div>
-                    </div>
-                    <div className={classes.tokenRowRight}>
-                      <div className={classes.tokenRowBalanceText}>Balance</div>
-                      <div className={classes.tokenRowBalance}>
-                        {tokenBalances[token.symbol] ? (
-                          <div>{tokenBalances[token.symbol]}</div>
-                        ) : fromNetwork && walletAddr ? (
-                          <CircularProgress size={14} />
-                        ) : (
-                          <div>—</div>
-                        )}
-                      </div>
-                    </div>
-                    <div className={classes.tokenRowAddressContainer}>
-                      <div className={classes.tokenRowAddress}>
-                        {token.tokenId
-                          ? displayAddress(
-                              token.tokenId.chain,
-                              token.tokenId.address,
-                            )
-                          : 'Native'}
+              {tokens.map((token, i) => (
+                <div
+                  className={classes.tokenRow}
+                  key={i}
+                  onClick={() => selectToken(token.symbol)}
+                >
+                  <div className={classes.tokenRowLeft}>
+                    <TokenIcon name={token.icon} height={32} />
+                    <div>
+                      <div>{token.symbol}</div>
+                      <div className={classes.nativeNetwork}>
+                        {displayNativeNetwork(token)}
                       </div>
                     </div>
                   </div>
-                );
-              })}
+                  <div className={classes.tokenRowRight}>
+                    <div className={classes.tokenRowBalanceText}>Balance</div>
+                    <div className={classes.tokenRowBalance}>
+                      {tokenBalances[token.symbol] ? (
+                        <div>{tokenBalances[token.symbol]}</div>
+                      ) : fromNetwork && walletAddr ? (
+                        <CircularProgress size={14} />
+                      ) : (
+                        <div>—</div>
+                      )}
+                    </div>
+                  </div>
+                  <div className={classes.tokenRowAddressContainer}>
+                    <div className={classes.tokenRowAddress}>
+                      {token.tokenId
+                        ? displayAddress(
+                            token.tokenId.chain,
+                            token.tokenId.address,
+                          )
+                        : 'Native'}
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           ) : (
             <div className={classes.noResults}>No results</div>

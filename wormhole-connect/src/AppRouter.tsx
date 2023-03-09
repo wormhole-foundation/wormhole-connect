@@ -12,6 +12,8 @@ import WalletModal from './views/WalletModal';
 import Redeem from './views/Redeem/Redeem';
 import TxSearch from './views/TxSearch';
 import { clearWallets } from './store/wallet';
+import Terms from './views/Terms';
+import FAQ from './views/FAQ';
 
 const useStyles = makeStyles()((theme) => ({
   appContent: {
@@ -72,6 +74,8 @@ function AppRouter() {
       {route === 'bridge' && <Bridge />}
       {route === 'redeem' && <Redeem />}
       {route === 'search' && <TxSearch />}
+      {route === 'terms' && <Terms />}
+      {route === 'faq' && <FAQ />}
     </div>
   );
 }

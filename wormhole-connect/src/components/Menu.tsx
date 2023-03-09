@@ -65,11 +65,14 @@ export default function Menu() {
                 className={classes.menuItem}
                 onClick={() => navigate('redeem')}
               >
-                Redeem
+                Resume transfer
+              </div>
+              <div className={classes.menuItem} onClick={() => navigate('faq')}>
+                FAQ
               </div>
               <div
                 className={classes.menuItem}
-                onClick={() => navigate('redeem')}
+                onClick={() => navigate('terms')}
               >
                 Terms of Use
               </div>

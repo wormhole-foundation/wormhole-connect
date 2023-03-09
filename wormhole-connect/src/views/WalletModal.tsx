@@ -1,19 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@mui/styles';
-import Header from '../components/Header';
-import Modal from '../components/Modal';
-import Spacer from '../components/Spacer';
+import { useDispatch, useSelector } from 'react-redux';
 import { Theme } from '@mui/material';
-import { useDispatch } from 'react-redux';
-import { setWalletModal } from '../store/router';
-import { useSelector } from 'react-redux';
-import { RootState } from '../store';
+import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
 import {
   ChainConfig,
   ChainName,
   Context,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
+import { RootState } from '../store';
+import { setWalletModal } from '../store/router';
 import { CHAINS } from '../sdk/config';
 import {
   setWalletConnection,
@@ -22,6 +18,10 @@ import {
   WalletType,
 } from '../utils/wallet';
 import { connectReceivingWallet, connectWallet } from '../store/wallet';
+
+import Header from '../components/Header';
+import Modal from '../components/Modal';
+import Spacer from '../components/Spacer';
 import WalletIcon from '../icons/components/WalletIcons';
 
 const useStyles = makeStyles((theme: Theme) => ({
