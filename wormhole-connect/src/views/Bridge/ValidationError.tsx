@@ -6,6 +6,7 @@ import AlertBanner from '../../components/AlertBanner';
 
 type Props = {
   validations: ValidationErr[];
+  margin?: string;
 };
 
 function ValidationError(props: Props) {
@@ -18,6 +19,7 @@ function ValidationError(props: Props) {
       show={showErrors && showError}
       text={validationErrors[0]}
       error
+      margin={props.margin}
     />
   );
 }

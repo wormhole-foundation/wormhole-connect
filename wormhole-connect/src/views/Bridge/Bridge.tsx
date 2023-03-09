@@ -23,11 +23,11 @@ import Send from './Send';
 import { Collapse } from '@mui/material';
 import AlertBanner from '../../components/AlertBanner';
 import PageHeader from '../../components/PageHeader';
-import SendFrom from './SendFrom';
-import SendTo from './SendTo';
 import FromNetworksModal from './Modals/FromNetworksModal';
 import ToNetworksModal from './Modals/ToNetworksModal';
 import TokensModal from './Modals/TokensModal';
+import FromInputs from './Inputs.tsx/From';
+import ToInputs from './Inputs.tsx/To';
 
 const useStyles = makeStyles()((theme) => ({
   bridgeContent: {
@@ -109,8 +109,8 @@ function Bridge() {
     <div className={classes.bridgeContent}>
       <PageHeader title="Bridge" />
 
-      <SendFrom />
-      <SendTo />
+      <FromInputs />
+      <ToInputs />
 
       <GasOptions disabled={!valid} />
 

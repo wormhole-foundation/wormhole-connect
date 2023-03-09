@@ -149,10 +149,11 @@ function TokensModal() {
   const walletAddr = useSelector(
     (state: RootState) => state.wallet.sending.address,
   );
-  const filteredTokens = TOKENS_ARR.filter((t) => {
-    if (!fromNetwork) return true;
-    return !!t.tokenId || (!t.tokenId && t.nativeNetwork === fromNetwork);
-  });
+  const filteredTokens = () =>
+    TOKENS_ARR.filter((t) => {
+      if (!fromNetwork) return true;
+      return !!t.tokenId || (!t.tokenId && t.nativeNetwork === fromNetwork);
+    });
   const tokenBalances = useSelector(
     (state: RootState) => state.transfer.balances,
   );
@@ -160,7 +161,7 @@ function TokensModal() {
   // state
   // const [showAdvanced, setShowAdvanced] = React.useState(false);
   // const toggleAdvanced = () => setShowAdvanced((prev) => !prev);
-  const [tokens, setTokens] = React.useState(filteredTokens);
+  const [tokens, setTokens] = React.useState(filteredTokens());
 
   // set tokens
   const searchTokens = (
@@ -171,7 +172,7 @@ function TokensModal() {
   ) => {
     if (!e) return;
     const lowercase = e.target.value.toLowerCase();
-    const filtered = filteredTokens.filter((c) => {
+    const filtered = filteredTokens().filter((c) => {
       const symbol = c.symbol.toLowerCase();
       return (
         symbol.includes(lowercase) ||
@@ -215,9 +216,15 @@ function TokensModal() {
         }
       });
     };
-    getBalances(filteredTokens, walletAddr, fromNetwork);
+    getBalances(filteredTokens(), walletAddr, fromNetwork);
     // eslint-disable-next-line
-  }, []);
+  }, [walletAddr, fromNetwork]);
+
+  useEffect(() => {
+    if (fromNetwork) {
+      setTokens(filteredTokens());
+    }
+  }, [fromNetwork]);
 
   // TODO: filter out tokens that don't exist
   useEffect(() => {

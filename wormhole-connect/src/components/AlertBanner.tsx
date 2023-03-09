@@ -28,6 +28,7 @@ type Props = {
   text: string;
   warning?: boolean;
   error?: boolean;
+  margin?: string;
 };
 
 function AlertBanner(props: Props) {
@@ -41,6 +42,7 @@ function AlertBanner(props: Props) {
           !!props.warning && classes.warning,
           !!props.error && classes.error,
         ])}
+        style={{ margin: props.margin || 0 }}
       >
         <AlertIcon />
         {props.text}
