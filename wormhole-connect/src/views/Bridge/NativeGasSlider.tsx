@@ -9,7 +9,7 @@ import { CHAINS, TOKENS } from '../../sdk/config';
 import { calculateMaxSwapAmount, calculateNativeTokenAmt } from '../../sdk/sdk';
 import { TokenConfig } from '../../config/types';
 import { RootState } from '../../store';
-import TokenIcon from '../../icons/components/TokenIcons';
+import TokenIcon from '../../icons/TokenIcons';
 import { BigNumber, utils } from 'ethers';
 import {
   getConversion,

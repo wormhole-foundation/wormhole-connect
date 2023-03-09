@@ -1,21 +1,18 @@
-import React, { ChangeEvent } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import React, { ChangeEvent, useState } from 'react';
 import { useTheme } from '@mui/material/styles';
 import { makeStyles } from 'tss-react/mui';
-import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
-import { RootState } from '../store';
+import {
+  ChainConfig,
+  ChainName,
+} from '@wormhole-foundation/wormhole-connect-sdk';
 import { CHAINS_ARR } from '../sdk/config';
-import { setFromNetworksModal, setToNetworksModal } from '../store/router';
-import { setFromNetwork, setToNetwork } from '../store/transfer';
-import { clearWallet } from '../store/wallet';
 import { CENTER, joinClass } from '../utils/style';
-import { TransferWallet, walletAcceptedNetworks } from '../utils/wallet';
 
-import Header from '../components/Header';
-import Modal from '../components/Modal';
-import Spacer from '../components/Spacer';
-import Search from '../components/Search';
-import Scroll from '../components/Scroll';
+import Header from './Header';
+import Modal from './Modal';
+import Spacer from './Spacer';
+import Search from './Search';
+import Scroll from './Scroll';
 import TokenIcon from '../icons/TokenIcons';
 
 const useStyles = makeStyles()((theme) => ({
@@ -67,53 +64,20 @@ export enum ModalType {
 }
 
 type Props = {
-  open: boolean;
-  type: ModalType;
   title: string;
-  event: string;
+  open: boolean;
+  chains?: ChainConfig[];
+  isDisabled?: (chain: ChainName) => boolean;
+  onClose: () => any;
+  onSelect: (chain: ChainName) => any;
 };
 
 function NetworksModal(props: Props) {
   const { classes } = useStyles();
   const theme = useTheme();
-  const dispatch = useDispatch();
 
-  const { fromNetwork, toNetwork } = useSelector(
-    (state: RootState) => state.transfer,
-  );
-  const { sending, receiving } = useSelector(
-    (state: RootState) => state.wallet,
-  );
-  const [chains, setChains] = React.useState(CHAINS_ARR);
-
-  // listen for close event
-  const closeNetworksModal = () => {
-    setTimeout(() => setChains(CHAINS_ARR), 500);
-    dispatch(setFromNetworksModal(false));
-    dispatch(setToNetworksModal(false));
-  };
-
-  const isDisabled = (chain: ChainName) => {
-    const type = props.type === ModalType.FROM ? sending.type : receiving.type;
-    return !walletAcceptedNetworks[type].includes(chain);
-  };
-
-  // dispatch selectNetwork event
-  const selectNetwork = async (network: ChainName) => {
-    if (props.type === ModalType.FROM) {
-      if (isDisabled(network)) {
-        dispatch(clearWallet(TransferWallet.SENDING));
-      }
-      dispatch(setFromNetwork(network));
-      dispatch(setFromNetworksModal(false));
-    } else {
-      if (isDisabled(network)) {
-        dispatch(clearWallet(TransferWallet.RECEIVING));
-      }
-      dispatch(setToNetwork(network));
-      dispatch(setToNetworksModal(false));
-    }
-  };
+  const chains = props.chains || CHAINS_ARR;
+  const [search, setSearch] = useState('' as string | undefined);
 
   const searchChains = (
     e:
@@ -121,19 +85,12 @@ function NetworksModal(props: Props) {
       | ChangeEvent<HTMLTextAreaElement>
       | undefined,
   ) => {
-    if (!e) return;
-    const lowercase = e.target.value.toLowerCase();
-    const filtered = CHAINS_ARR.filter((c) => {
-      return c.key.includes(lowercase);
-    });
-    setChains(filtered);
+    setSearch(e?.target.value.toLowerCase());
   };
 
   const showChain = (chain: ChainName) => {
-    if (props.type === ModalType.FROM) {
-      return chain !== toNetwork;
-    }
-    return chain !== fromNetwork;
+    if (!search) return true;
+    return chain.includes(search);
   };
 
   return (
@@ -141,7 +98,7 @@ function NetworksModal(props: Props) {
       open={props.open}
       closable
       width={CHAINS_ARR.length > 6 ? 650 : 475}
-      onClose={closeNetworksModal}
+      onClose={props.onClose}
     >
       <Header text={props.title} size={28} />
       <div className={classes.subtitle}>Select Network</div>
@@ -155,7 +112,9 @@ function NetworksModal(props: Props) {
         {chains.length > 0 ? (
           <div className={classes.networksContainer}>
             {chains.map((chain: any, i) => {
-              const disabled = isDisabled(chain.key);
+              const disabled = !!props.isDisabled
+                ? props.isDisabled(chain.key)
+                : false;
               return (
                 showChain(chain.key) && (
                   <div
@@ -164,7 +123,7 @@ function NetworksModal(props: Props) {
                       classes.networkTile,
                       !!disabled && classes.disabled,
                     ])}
-                    onClick={() => selectNetwork(chain.key)}
+                    onClick={() => props.onSelect(chain.key)}
                   >
                     <TokenIcon name={chain.icon} height={48} />
                     <div className={classes.networkText}>

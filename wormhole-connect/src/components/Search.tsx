@@ -2,7 +2,7 @@ import React from 'react';
 import { makeStyles } from '@mui/styles';
 import { Theme } from '@mui/material';
 import InputTransparent from './InputTransparent';
-import SearchIcon from '../icons/components/Search';
+import SearchIcon from '../icons/Search';
 import { changeOpacity } from '../utils/style';
 
 const useStyles = makeStyles((theme: Theme) => ({

@@ -3,25 +3,25 @@ import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@mui/styles';
 import { useTheme } from '@mui/material/styles';
 import { Theme } from '@mui/material';
-import { RootState } from '../store';
-import { CHAINS, TOKENS_ARR } from '../sdk/config';
-import { setTokensModal } from '../store/router';
-import { setToken, setBalance, formatBalance } from '../store/transfer';
-import { displayAddress } from '../utils';
-import { CENTER } from '../utils/style';
-import { getBalance, getNativeBalance } from '../sdk/sdk';
+import { RootState } from '../../../store';
+import { CHAINS, TOKENS_ARR } from '../../../sdk/config';
+import { setTokensModal } from '../../../store/router';
+import { setToken, setBalance, formatBalance } from '../../../store/transfer';
+import { displayAddress } from '../../../utils';
+import { CENTER } from '../../../utils/style';
+import { getBalance, getNativeBalance } from '../../../sdk/sdk';
 
-import Header from '../components/Header';
-import Modal from '../components/Modal';
-import Spacer from '../components/Spacer';
-import Search from '../components/Search';
-import Scroll from '../components/Scroll';
-import Tooltip from '../components/Tooltip';
-// import Down from '../icons/components/Down';
+import Header from '../../../components/Header';
+import Modal from '../../../components/Modal';
+import Spacer from '../../../components/Spacer';
+import Search from '../../../components/Search';
+import Scroll from '../../../components/Scroll';
+import Tooltip from '../../../components/Tooltip';
+// import Down from '../icons/Down';
 // import Collapse from '@mui/material/Collapse';
-import TokenIcon from '../icons/components/TokenIcons';
+import TokenIcon from '../../../icons/TokenIcons';
 import CircularProgress from '@mui/material/CircularProgress';
-import { TokenConfig } from '../config/types';
+import { TokenConfig } from '../../../config/types';
 import { ChainId, ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -149,10 +149,11 @@ function TokensModal() {
   const walletAddr = useSelector(
     (state: RootState) => state.wallet.sending.address,
   );
-  const filteredTokens = TOKENS_ARR.filter((t) => {
-    if (!fromNetwork) return true;
-    return !!t.tokenId || (!t.tokenId && t.nativeNetwork === fromNetwork);
-  });
+  const filteredTokens = () =>
+    TOKENS_ARR.filter((t) => {
+      if (!fromNetwork) return true;
+      return !!t.tokenId || (!t.tokenId && t.nativeNetwork === fromNetwork);
+    });
   const tokenBalances = useSelector(
     (state: RootState) => state.transfer.balances,
   );
@@ -160,7 +161,7 @@ function TokensModal() {
   // state
   // const [showAdvanced, setShowAdvanced] = React.useState(false);
   // const toggleAdvanced = () => setShowAdvanced((prev) => !prev);
-  const [tokens, setTokens] = React.useState(filteredTokens);
+  const [tokens, setTokens] = React.useState(filteredTokens());
 
   // set tokens
   const searchTokens = (
@@ -171,7 +172,7 @@ function TokensModal() {
   ) => {
     if (!e) return;
     const lowercase = e.target.value.toLowerCase();
-    const filtered = filteredTokens.filter((c) => {
+    const filtered = filteredTokens().filter((c) => {
       const symbol = c.symbol.toLowerCase();
       return (
         symbol.includes(lowercase) ||
@@ -215,9 +216,15 @@ function TokensModal() {
         }
       });
     };
-    getBalances(filteredTokens, walletAddr, fromNetwork);
+    getBalances(filteredTokens(), walletAddr, fromNetwork);
     // eslint-disable-next-line
-  }, []);
+  }, [walletAddr, fromNetwork]);
+
+  useEffect(() => {
+    if (fromNetwork) {
+      setTokens(filteredTokens());
+    }
+  }, [fromNetwork]);
 
   // TODO: filter out tokens that don't exist
   useEffect(() => {

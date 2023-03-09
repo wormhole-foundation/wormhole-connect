@@ -1,11 +1,12 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { RootState } from '../store';
-import { ValidationErr } from '../utils/transferValidation';
-import AlertBanner from './AlertBanner';
+import { RootState } from '../../store';
+import { ValidationErr } from '../../utils/transferValidation';
+import AlertBanner from '../../components/AlertBanner';
 
 type Props = {
   validations: ValidationErr[];
+  margin?: string;
 };
 
 function ValidationError(props: Props) {
@@ -18,6 +19,7 @@ function ValidationError(props: Props) {
       show={showErrors && showError}
       text={validationErrors[0]}
       error
+      margin={props.margin}
     />
   );
 }
