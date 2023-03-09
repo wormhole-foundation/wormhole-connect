@@ -55,13 +55,13 @@ export default function Menu() {
           </div>
           <div
             className={classes.menuItem}
-            // onClick={() => navigate('redeem')}
+            onClick={() => navigate('faq')}
           >
             FAQs
           </div>
           <div
             className={classes.menuItem}
-            // onClick={() => navigate('redeem')}
+            onClick={() => navigate('terms')}
           >
             Terms of Use
           </div>

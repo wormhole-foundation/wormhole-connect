@@ -78,7 +78,6 @@ class Redeem extends React.Component<
       >
         <PageHeader title="Bridge" back />
 
-        <Spacer height={40} />
         <NetworksTag />
         <Spacer />
         <Stepper cta="Some CTA" />

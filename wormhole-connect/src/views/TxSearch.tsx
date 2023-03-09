@@ -17,11 +17,6 @@ const useStyles = makeStyles()((theme) => ({
   container: {
     maxWidth: '650px',
   },
-  description: {
-    marginTop: '12px',
-    fontSize: '14px',
-    opacity: '0.6',
-  },
   chain: {
     width: '175px',
     [theme.breakpoints.down('sm')]: {
@@ -71,14 +66,11 @@ function TxSearch() {
 
   return (
     <div className={classes.container}>
-      <PageHeader title="Resume transfer" back />
-      <div className={classes.description}>
-        Bridging can require a manual redemption process on the designation
-        chain. If you did not complete the redemption during your initial
-        transaction, you may do so here.
-      </div>
-
-      <Spacer height={40} />
+      <PageHeader
+        title="Resume transfer"
+        description='Bridging can require a manual redemption process on the designation chain. If you did not complete the redemption during your initial transaction, you may do so here.'
+        back
+      />
 
       <div className={classes.inputs}>
         <div className={classes.chain}>

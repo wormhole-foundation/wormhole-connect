@@ -7,7 +7,7 @@ import { RootState } from '../store';
 import { CHAINS_ARR } from '../sdk/config';
 import { setFromNetworksModal, setToNetworksModal } from '../store/router';
 import { setFromNetwork, setToNetwork } from '../store/transfer';
-import TokenIcon from '../icons/components/TokenIcons';
+import { clearWallet } from '../store/wallet';
 import { CENTER, joinClass } from '../utils/style';
 import { TransferWallet, walletAcceptedNetworks } from '../utils/wallet';
 
@@ -16,7 +16,7 @@ import Modal from '../components/Modal';
 import Spacer from '../components/Spacer';
 import Search from '../components/Search';
 import Scroll from '../components/Scroll';
-import { clearWallet } from '../store/wallet';
+import TokenIcon from '../icons/components/TokenIcons';
 
 const useStyles = makeStyles()((theme) => ({
   networksContainer: {

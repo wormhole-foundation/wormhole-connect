@@ -25,6 +25,7 @@ import { getNativeBalance } from '../../sdk/sdk';
 import { CHAINS, TOKENS } from '../../sdk/config';
 import { isTransferValid, validate } from '../../utils/transferValidation';
 import AlertBanner from '../../components/AlertBanner';
+import PageHeader from '../../components/PageHeader';
 
 const useStyles = makeStyles()((theme) => ({
   bridgeContent: {
@@ -42,10 +43,6 @@ const useStyles = makeStyles()((theme) => ({
     justifyContent: 'space-between',
     alignItems: 'center',
     width: '100%',
-    marginBottom: '40px',
-    [theme.breakpoints.down('sm')]: {
-      marginBottom: '20px',
-    },
   },
 }));
 
@@ -108,10 +105,7 @@ function Bridge() {
 
   return (
     <div className={classes.bridgeContent}>
-      <div className={classes.header}>
-        <Header text="Bridge" align="left" />
-        <MenuFull />
-      </div>
+      <PageHeader title='Bridge' />
 
       <Networks />
 
