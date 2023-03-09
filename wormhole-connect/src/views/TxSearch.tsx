@@ -68,7 +68,7 @@ function TxSearch() {
     <div className={classes.container}>
       <PageHeader
         title="Resume transfer"
-        description='Bridging can require a manual redemption process on the designation chain. If you did not complete the redemption during your initial transaction, you may do so here.'
+        description="Bridging can require a manual redemption process on the designation chain. If you did not complete the redemption during your initial transaction, you may do so here."
         back
       />
 

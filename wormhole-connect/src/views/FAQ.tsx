@@ -17,25 +17,31 @@ const useStyles = makeStyles()((theme) => ({
     flexDirection: 'column',
     gap: '16px',
     width: '100%',
-  }
+  },
 }));
 
-const FAQs = [{
-  title: "Some FAQ",
-  content: <>Some content</>,
-}, {
-  title: "Some FAQ",
-  content: <>Some content</>,
-}, {
-  title: "Some FAQ",
-  content: <>Some content</>,
-}, {
-  title: "Some FAQ",
-  content: <>Some content</>,
-}, {
-  title: "Some FAQ",
-  content: <>Some content</>,
-}]
+const FAQs = [
+  {
+    title: 'Some FAQ',
+    content: <>Some content</>,
+  },
+  {
+    title: 'Some FAQ',
+    content: <>Some content</>,
+  },
+  {
+    title: 'Some FAQ',
+    content: <>Some content</>,
+  },
+  {
+    title: 'Some FAQ',
+    content: <>Some content</>,
+  },
+  {
+    title: 'Some FAQ',
+    content: <>Some content</>,
+  },
+];
 
 function FAQ() {
   const { classes } = useStyles();
@@ -47,11 +53,15 @@ function FAQ() {
     } else {
       setSelected(key);
     }
-  }
+  };
 
   return (
     <div className={classes.container}>
-      <PageHeader title="FAQ" description='This page collects and answers the most commonly asked questions.' back />
+      <PageHeader
+        title="FAQ"
+        description="This page collects and answers the most commonly asked questions."
+        back
+      />
 
       <div className={classes.faqs}>
         {FAQs.map((faq, i) => {
@@ -62,8 +72,10 @@ function FAQ() {
               title={faq.title}
               open={!!selected && selected === id}
               onToggle={() => toggle(id)}
-            >{faq.content}</Dropdown>
-          )
+            >
+              {faq.content}
+            </Dropdown>
+          );
         })}
       </div>
     </div>

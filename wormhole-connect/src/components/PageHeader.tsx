@@ -36,14 +36,14 @@ const useStyles = makeStyles()((theme) => ({
     fontWeight: '300',
     fontSize: '14px',
     opacity: '0.6',
-  }
+  },
 }));
 
 type Props = {
   title: string;
   description?: string;
   back?: boolean;
-}
+};
 
 function PageHeader(props: Props) {
   const { classes } = useStyles();

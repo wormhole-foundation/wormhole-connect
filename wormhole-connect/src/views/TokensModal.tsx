@@ -8,7 +8,7 @@ import { CHAINS, TOKENS_ARR } from '../sdk/config';
 import { setTokensModal } from '../store/router';
 import { setToken, setBalance, formatBalance } from '../store/transfer';
 import { displayAddress } from '../utils';
-import { CENTER, joinClass } from '../utils/style';
+import { CENTER } from '../utils/style';
 import { getBalance, getNativeBalance } from '../sdk/sdk';
 
 import Header from '../components/Header';
@@ -158,8 +158,8 @@ function TokensModal() {
   );
 
   // state
-  const [showAdvanced, setShowAdvanced] = React.useState(false);
-  const toggleAdvanced = () => setShowAdvanced((prev) => !prev);
+  // const [showAdvanced, setShowAdvanced] = React.useState(false);
+  // const toggleAdvanced = () => setShowAdvanced((prev) => !prev);
   const [tokens, setTokens] = React.useState(filteredTokens);
 
   // set tokens

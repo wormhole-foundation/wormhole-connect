@@ -1,6 +1,8 @@
 import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
+import { BigNumber } from 'ethers';
+import { useDispatch } from 'react-redux';
 import { RootState } from '../../store';
 import {
   PaymentOption,
@@ -9,21 +11,17 @@ import {
   setAutomaticRelayAvail,
   setDestGasPayment,
 } from '../../store/transfer';
+import { getNativeBalance } from '../../sdk/sdk';
+import { CHAINS, TOKENS } from '../../sdk/config';
+import { isTransferValid, validate } from '../../utils/transferValidation';
 
-import Header from '../../components/Header';
 import Spacer from '../../components/Spacer';
 import Networks from './Networks';
 import GasOptions from './GasOptions';
 import GasSlider from './NativeGasSlider';
 import Preview from './Preview';
 import Send from './Send';
-import MenuFull from '../../components/MenuFull';
 import { Collapse } from '@mui/material';
-import { BigNumber } from 'ethers';
-import { useDispatch } from 'react-redux';
-import { getNativeBalance } from '../../sdk/sdk';
-import { CHAINS, TOKENS } from '../../sdk/config';
-import { isTransferValid, validate } from '../../utils/transferValidation';
 import AlertBanner from '../../components/AlertBanner';
 import PageHeader from '../../components/PageHeader';
 
@@ -105,7 +103,7 @@ function Bridge() {
 
   return (
     <div className={classes.bridgeContent}>
-      <PageHeader title='Bridge' />
+      <PageHeader title="Bridge" />
 
       <Networks />
 

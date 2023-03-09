@@ -67,10 +67,7 @@ function Dropdown(props: Props) {
   return (
     <div className={classes.container}>
       <div
-        className={joinClass([
-          classes.header,
-          !!props.open && classes.open,
-        ])}
+        className={joinClass([classes.header, !!props.open && classes.open])}
         onClick={click}
       >
         <div>
@@ -81,9 +78,7 @@ function Dropdown(props: Props) {
         />
       </div>
       <Collapse in={props.open}>
-        <div className={classes.content}>
-          {props.children}
-        </div>
+        <div className={classes.content}>{props.children}</div>
       </Collapse>
     </div>
   );

@@ -67,10 +67,7 @@ export default function Menu() {
               >
                 Resume transfer
               </div>
-              <div
-                className={classes.menuItem}
-                onClick={() => navigate('faq')}
-              >
+              <div className={classes.menuItem} onClick={() => navigate('faq')}>
                 FAQ
               </div>
               <div
