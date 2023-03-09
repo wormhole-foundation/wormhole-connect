@@ -5,9 +5,9 @@ import { RootState } from '../store';
 import { TransferWallet } from '../utils/wallet';
 import { copyTextToClipboard, displayWalletAddress } from '../utils';
 
-import DownIcon from '../icons/components/Down';
-import WalletIcon from '../icons/components/Wallet';
-import WalletIcons from '../icons/components/WalletIcons';
+import DownIcon from '../icons/Down';
+import WalletIcon from '../icons/Wallet';
+import WalletIcons from '../icons/WalletIcons';
 import PopupState, { bindTrigger, bindPopover } from 'material-ui-popup-state';
 import Popover from '@mui/material/Popover';
 import { setWalletModal } from '../store/router';

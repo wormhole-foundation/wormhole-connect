@@ -4,8 +4,8 @@ import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { CHAINS } from '../../sdk/config';
 import { displayAddress } from '../../utils';
 import { LINK } from '../../utils/style';
-import WalletIcon from '../../icons/components/Wallet';
-import TokenIcon from '../../icons/components/TokenIcons';
+import WalletIcon from '../../icons/Wallet';
+import TokenIcon from '../../icons/TokenIcons';
 import CircularProgress from '@mui/material/CircularProgress';
 import LaunchIcon from '@mui/icons-material/Launch';
 

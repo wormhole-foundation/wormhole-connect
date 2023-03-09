@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { makeStyles } from '@mui/styles';
 import Tooltip from '@mui/material/Tooltip';
-import InfoIcon from '../icons/components/Info';
+import InfoIcon from '../icons/Info';
 import { CENTER } from '../utils/style';
 
 type Position =

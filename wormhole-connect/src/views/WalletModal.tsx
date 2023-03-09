@@ -22,7 +22,7 @@ import { connectReceivingWallet, connectWallet } from '../store/wallet';
 import Header from '../components/Header';
 import Modal from '../components/Modal';
 import Spacer from '../components/Spacer';
-import WalletIcon from '../icons/components/WalletIcons';
+import WalletIcon from '../icons/WalletIcons';
 
 const useStyles = makeStyles((theme: Theme) => ({
   walletRow: {

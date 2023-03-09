@@ -5,9 +5,9 @@ import { RootState } from '../../store';
 import { LINK } from '../../utils/style';
 import { CHAINS } from '../../sdk/config';
 import InputContainer from '../../components/InputContainer';
-import ArrowRight from '../../icons/components/ArrowRight';
+import ArrowRight from '../../icons/ArrowRight';
 import LaunchIcon from '@mui/icons-material/Launch';
-import TokenIcon from '../../icons/components/TokenIcons';
+import TokenIcon from '../../icons/TokenIcons';
 const { REACT_APP_WORMHOLE_EXPLORER } = process.env;
 
 const useStyles = makeStyles()((theme) => ({

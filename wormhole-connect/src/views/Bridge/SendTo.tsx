@@ -14,14 +14,13 @@ import { joinClass, OPACITY } from '../../utils/style';
 import InputContainer from '../../components/InputContainer';
 import ConnectWallet from '../../components/ConnectWallet';
 import NetworkTile from './NetworkTile';
-import TokenIcon from '../../icons/components/TokenIcons';
-import ValidationError from '../../components/ValidationError';
+import TokenIcon from '../../icons/TokenIcons';
+import ValidationError from './ValidationError';
 
 const useStyles = makeStyles((theme: Theme) => ({
   outerContainer: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '8px',
   },
   container: {
     width: '100%',
@@ -197,7 +196,9 @@ function SendTo() {
             </div>
           </div>
 
-          <ValidationError validations={[validations.toNetwork]} />
+          <div style={{ marginTop: '8px' }}>
+            <ValidationError validations={[validations.toNetwork]} />
+          </div>
         </div>
       </InputContainer>
     </div>

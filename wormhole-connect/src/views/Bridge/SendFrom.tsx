@@ -19,16 +19,15 @@ import NetworkTile from './NetworkTile';
 import InputContainer from '../../components/InputContainer';
 import InputTransparent from '../../components/InputTransparent';
 import ConnectWallet from '../../components/ConnectWallet';
-import TokensModal from '../TokensModal';
-import TokenIcon from '../../icons/components/TokenIcons';
-import ValidationError from '../../components/ValidationError';
+import TokensModal from './Modals/TokensModal';
+import TokenIcon from '../../icons/TokenIcons';
+import ValidationError from './ValidationError';
 import { validate } from '../../utils/transferValidation';
 
 const useStyles = makeStyles((theme: Theme) => ({
   outerContainer: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '8px',
   },
   container: {
     width: '100%',
@@ -238,18 +237,17 @@ function SendFrom() {
               </div>
             </div>
           </div>
-          <ValidationError
-            validations={[
-              validations.fromNetwork,
-              validations.token,
-              validations.amount,
-            ]}
-          />
+          <div style={{ marginTop: '8px' }}>
+            <ValidationError
+              validations={[
+                validations.fromNetwork,
+                validations.token,
+                validations.amount,
+              ]}
+            />
+          </div>
         </div>
       </InputContainer>
-
-      {/* modals */}
-      {showTokensModal && <TokensModal />}
     </div>
   );
 }

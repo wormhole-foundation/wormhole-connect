@@ -1,7 +1,7 @@
 import React from 'react';
 import { makeStyles } from 'tss-react/mui';
-import { WalletType } from '../../utils/wallet';
-import { CENTER } from '../../utils/style';
+import { WalletType } from '../utils/wallet';
+import { CENTER } from '../utils/style';
 
 const useStyles = makeStyles<{ size: number }>()((theme, { size }) => ({
   container: {

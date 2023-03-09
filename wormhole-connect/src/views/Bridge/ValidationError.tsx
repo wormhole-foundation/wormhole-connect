@@ -1,8 +1,8 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { RootState } from '../store';
-import { ValidationErr } from '../utils/transferValidation';
-import AlertBanner from './AlertBanner';
+import { RootState } from '../../store';
+import { ValidationErr } from '../../utils/transferValidation';
+import AlertBanner from '../../components/AlertBanner';
 
 type Props = {
   validations: ValidationErr[];

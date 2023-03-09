@@ -2,7 +2,7 @@ import { makeStyles } from '@mui/styles';
 import React from 'react';
 import { Theme } from '@mui/material';
 import { ChainConfig } from '@wormhole-foundation/wormhole-connect-sdk';
-import TokenIcon from '../../icons/components/TokenIcons';
+import TokenIcon from '../../icons/TokenIcons';
 import { ERROR_BORDER, joinClass } from '../../utils/style';
 
 const useStyles = makeStyles((theme: Theme) => ({

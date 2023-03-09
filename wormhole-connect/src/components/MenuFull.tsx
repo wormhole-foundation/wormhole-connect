@@ -4,10 +4,10 @@ import { makeStyles } from 'tss-react/mui';
 import { useTheme } from '@mui/material/styles';
 import { ICON } from '../utils/style';
 import { Route, setRoute } from '../store/router';
-import MenuIcon from '../icons/components/Menu';
+import MenuIcon from '../icons/Menu';
 import Modal from './Modal';
 import Spacer from './Spacer';
-import PoweredByIcon from '../icons/components/PoweredBy';
+import PoweredByIcon from '../icons/PoweredBy';
 
 const useStyles = makeStyles()((theme) => ({
   menuIcon: ICON,
