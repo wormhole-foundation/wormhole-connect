@@ -7,14 +7,12 @@
     "builder"
   ],
   "scripts": {
-    "build": "yarn build:accumulator-cli && yarn workspaces foreach -Apvt run bootstrap",
-    "build:accumulator-cli": "cd scripts && ./build-acli.sh",
-    "compile": "yarn workspaces foreach -Apvt run compile",
-    "lint": "yarn workspaces foreach -Apv run lint",
-    "wormhole-connect": "yarn workspace @wormhole-foundation/wormhole-connect",
-    "sdk": "yarn workspace @wormhole-foundation/wormhole-connect-sdk",
-    "builder": "yarn workspace wormhole-connect-builder",
-    "prettier": "yarn workspaces foreach -Apvt run prettier"
-  },
-  "packageManager": "yarn@3.2.0"
+    "build": "npm run build --workspaces --if-present",
+    "compile": "npm run compile --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "wormhole-connect": "npm run workspace @wormhole-foundation/wormhole-connect",
+    "sdk": "npm run workspace @wormhole-foundation/wormhole-connect-sdk",
+    "builder": "npm run workspace wormhole-connect-builder",
+    "prettier": "npm run prettier --workspaces --if-present"
+  }
 }

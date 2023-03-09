@@ -55,7 +55,7 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "lint": "yarn prettier && eslint --fix ./src",
+    "lint": "npm run prettier && eslint --fix ./src",
     "prettier": "prettier --write ./src",
     "start": "env-cmd -f .env.testnet react-app-rewired start",
     "start:prod": "env-cmd -f .env.mainnet react-app-rewired start",

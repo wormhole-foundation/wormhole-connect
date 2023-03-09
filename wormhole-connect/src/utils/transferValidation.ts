@@ -161,7 +161,6 @@ export const validateAll = (
 
 export const isTransferValid = (validations: TransferValidations) => {
   for (const validationErr of Object.values(validations)) {
-    console.log(validationErr);
     if (!!validationErr) return false;
   }
   return true;
