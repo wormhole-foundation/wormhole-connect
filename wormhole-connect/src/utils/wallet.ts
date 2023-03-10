@@ -5,8 +5,8 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
 import {
-  EVMWeb3Wallet,
-  EVMWalletConnectWallet,
+  MetamaskWallet,
+  WalletConnectWallet,
 } from '@xlabs-libs/wallet-aggregator-evm';
 import {
   PhantomWalletAdapter,
@@ -42,8 +42,8 @@ const connection = new SolanaConnection(url);
 
 export const wallets = {
   evm: {
-    metamask: new EVMWeb3Wallet(),
-    walletConnect: new EVMWalletConnectWallet(),
+    metamask: new MetamaskWallet(),
+    walletConnect: new WalletConnectWallet(),
   },
   solana: {
     phantom: new SolanaWallet(new PhantomWalletAdapter(), connection),

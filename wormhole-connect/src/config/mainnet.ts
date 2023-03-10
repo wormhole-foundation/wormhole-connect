@@ -1,48 +1,48 @@
 import { CONFIG } from '@wormhole-foundation/wormhole-connect-sdk';
-import { NetworksConfig, TokenConfig } from './types';
+import { NetworksConfig, TokenConfig, Icon } from './types';
 
 const { chains } = CONFIG.MAINNET;
 
 export const MAINNET_NETWORKS: NetworksConfig = {
   ethereum: {
     ...chains.ethereum!,
-    icon: 'eth',
+    icon: Icon.ETH,
     nativeToken: 'ETH',
     automaticRelayer: true,
   },
   bsc: {
     ...chains.bsc!,
-    icon: 'bsc',
+    icon: Icon.BSC,
     nativeToken: 'BNB',
     automaticRelayer: true,
   },
   polygon: {
     ...chains.polygon!,
-    icon: 'polygon',
+    icon: Icon.POLYGON,
     nativeToken: 'MATIC',
     automaticRelayer: true,
   },
   avalanche: {
     ...chains.avalanche!,
-    icon: 'avax',
+    icon: Icon.AVAX,
     nativeToken: 'AVAX',
     automaticRelayer: true,
   },
   fantom: {
     ...chains.fantom!,
-    icon: 'fantom',
+    icon: Icon.FANTOM,
     nativeToken: 'FTM',
     automaticRelayer: true,
   },
   celo: {
     ...chains.celo!,
-    icon: 'celo',
+    icon: Icon.CELO,
     nativeToken: 'CELO',
     automaticRelayer: true,
   },
   solana: {
     ...chains.solana!,
-    icon: 'solana',
+    icon: Icon.SOLANA,
     nativeToken: 'SOL',
     automaticRelayer: false,
   },
@@ -52,7 +52,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   ETH: {
     symbol: 'ETH',
     nativeNetwork: 'ethereum',
-    icon: 'eth',
+    icon: Icon.ETH,
     coinGeckoId: 'ethereum',
     color: '#62688F',
     decimals: 9,
@@ -62,7 +62,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   WETH: {
     symbol: 'WETH',
     nativeNetwork: 'ethereum',
-    icon: 'eth',
+    icon: Icon.ETH,
     tokenId: {
       chain: 'ethereum',
       address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
@@ -75,7 +75,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   MATIC: {
     symbol: 'MATIC',
     nativeNetwork: 'polygon',
-    icon: 'polygon',
+    icon: Icon.POLYGON,
     coinGeckoId: 'matic-network',
     color: '#8247E5',
     decimals: 18,
@@ -85,7 +85,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   WMATIC: {
     symbol: 'WMATIC',
     nativeNetwork: 'polygon',
-    icon: 'polygon',
+    icon: Icon.POLYGON,
     tokenId: {
       chain: 'polygon',
       address: '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270',
@@ -98,7 +98,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   BNB: {
     symbol: 'BNB',
     nativeNetwork: 'bsc',
-    icon: 'bnb',
+    icon: Icon.BNB,
     coinGeckoId: 'binancecoin',
     color: '#F3BA30',
     decimals: 18,
@@ -108,7 +108,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   WBNB: {
     symbol: 'WBNB',
     nativeNetwork: 'bsc',
-    icon: 'bnb',
+    icon: Icon.BNB,
     tokenId: {
       chain: 'bsc',
       address: '0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c',
@@ -121,7 +121,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   AVAX: {
     symbol: 'AVAX',
     nativeNetwork: 'avalanche',
-    icon: 'avax',
+    icon: Icon.AVAX,
     coinGeckoId: 'avalanche-2',
     color: '#E84141',
     decimals: 18,
@@ -131,7 +131,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   WAVAX: {
     symbol: 'WAVAX',
     nativeNetwork: 'avalanche',
-    icon: 'avax',
+    icon: Icon.AVAX,
     tokenId: {
       chain: 'avalanche',
       address: '0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7',
@@ -144,7 +144,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   FTM: {
     symbol: 'FTM',
     nativeNetwork: 'fantom',
-    icon: 'fantom',
+    icon: Icon.FANTOM,
     coinGeckoId: 'fantom',
     color: '#12B4EC',
     decimals: 18,
@@ -154,7 +154,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   WFTM: {
     symbol: 'WFTM',
     nativeNetwork: 'fantom',
-    icon: 'fantom',
+    icon: Icon.FANTOM,
     tokenId: {
       chain: 'fantom',
       address: '0x21be370d5312f44cb42ce377bc9b8a0cef1a4c83',
@@ -167,7 +167,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   CELO: {
     symbol: 'CELO',
     nativeNetwork: 'celo',
-    icon: 'celo',
+    icon: Icon.CELO,
     tokenId: {
       chain: 'celo',
       address: '0x471ece3750da237f93b8e339c536989b8978a438',
@@ -180,7 +180,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   SOL: {
     symbol: 'SOL',
     nativeNetwork: 'solana',
-    icon: 'solana',
+    icon: Icon.SOLANA,
     coinGeckoId: 'solana',
     color: '#8457EF',
     decimals: 9,
@@ -194,7 +194,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
       chain: 'solana',
       address: 'So11111111111111111111111111111111111111112',
     },
-    icon: 'solana',
+    icon: Icon.SOLANA,
     coinGeckoId: 'solana',
     color: '#8457EF',
     decimals: 9,

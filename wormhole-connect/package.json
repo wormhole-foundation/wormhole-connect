@@ -7,6 +7,7 @@
     "access": "restricted"
   },
   "dependencies": {
+    "@babel/preset-env": "^7.20.2",
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
     "@mui/icons-material": "^5.11.0",
@@ -15,9 +16,6 @@
     "@nomad-xyz/multi-provider": "^1.1.0",
     "@reduxjs/toolkit": "^1.9.1",
     "@solana/wallet-adapter-wallets": "^0.19.11",
-    "@testing-library/jest-dom": "^5.16.5",
-    "@testing-library/react": "^13.4.0",
-    "@testing-library/user-event": "^13.5.0",
     "@types/jest": "^27.5.2",
     "@types/node": "^16.18.11",
     "@types/react": "^18.0.26",
@@ -30,6 +28,7 @@
     "@xlabs-libs/wallet-aggregator-react": "^0.0.1-alpha.6",
     "@xlabs-libs/wallet-aggregator-solana": "^0.0.1-alpha.6",
     "axios": "^1.2.4",
+    "babel-jest": "^29.5.0",
     "bn.js": "^5.2.1",
     "buffer": "^6.0.3",
     "crypto-browserify": "^3.12.0",
@@ -41,6 +40,7 @@
     "https-browserify": "^1.0.0",
     "material-ui-popup-state": "^5.0.4",
     "os-browserify": "^0.3.0",
+    "postcss": "^8.4.21",
     "prettier": "^2.8.2",
     "react": "^18.2.0",
     "react-app-rewired": "^2.2.1",
@@ -49,6 +49,7 @@
     "react-scripts": "5.0.1",
     "stream-browserify": "^3.0.0",
     "stream-http": "^3.2.0",
+    "ts-jest": "^29.0.5",
     "tss-react": "^4.5.2",
     "typescript": "^4.9.4",
     "url": "^0.11.0",
@@ -62,7 +63,7 @@
     "build": "env-cmd -f .env.testnet react-app-rewired build --max_old_space_size=4096 build",
     "build:prod": "env-cmd -f .env.mainnet react-app-rewired build --max_old_space_size=4096 build",
     "build:widget": "parcel build src/index.tsx -d docs",
-    "test": "react-app-rewired test",
+    "test": "jest ./tests/*.test.ts --detectOpenHandles",
     "eject": "react-app-rewired eject"
   },
   "eslintConfig": {
@@ -84,6 +85,7 @@
     ]
   },
   "devDependencies": {
+    "jest": "^29.5.0",
     "parcel-bundler": "^1.12.5"
   }
 }
