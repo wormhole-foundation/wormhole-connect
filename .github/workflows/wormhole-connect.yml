@@ -1,0 +1,25 @@
+name: Run tests
+
+on: [push, pull_request]
+
+jobs: 
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Lint
+        run: |
+          cd ./wormhole-connect
+          npm run lint
+
+    steps:
+      - uses: actions/checkout@v2
+
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Test
+        run: |
+          cd ./wormhole-connect
+          npm run test

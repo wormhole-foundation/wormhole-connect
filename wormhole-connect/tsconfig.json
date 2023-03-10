@@ -6,7 +6,8 @@
     "coverage"
   ],
   "include": [
-    "src/**/*.ts"
+    "src/**/*.ts",
+    "tests/*.test.ts"
   ],
   "compilerOptions": {
     "composite": true,
