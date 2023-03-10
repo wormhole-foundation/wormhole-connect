@@ -10,6 +10,7 @@ import {
   formatBalance,
   setAutomaticRelayAvail,
   setDestGasPayment,
+  setToken,
 } from '../../store/transfer';
 import { getNativeBalance } from '../../sdk/sdk';
 import { CHAINS, TOKENS } from '../../sdk/config';
@@ -65,6 +66,16 @@ function Bridge() {
     (state: RootState) => state.wallet,
   );
 
+  // clear token if not supported on the selected network
+  useEffect(() => {
+    if (!fromNetwork || !token) return;
+    const tokenConfig = TOKENS[token];
+    if (!tokenConfig.tokenId && tokenConfig.nativeNetwork !== fromNetwork) {
+      dispatch(setToken(''));
+    }
+  }, [fromNetwork, token]);
+
+  // check destination native balance
   useEffect(() => {
     if (!fromNetwork || !toNetwork || !receiving.address) return;
     const networkConfig = CHAINS[toNetwork]!;
@@ -76,6 +87,7 @@ function Bridge() {
     });
   }, [fromNetwork, toNetwork, receiving.address]);
 
+  // check if automatic relay option is available
   useEffect(() => {
     if (!fromNetwork || !toNetwork) return;
     const fromConfig = CHAINS[fromNetwork]!;
@@ -89,6 +101,7 @@ function Bridge() {
     }
   }, [fromNetwork, toNetwork]);
 
+  // validate transfer inputs
   useEffect(() => {
     validate(dispatch);
   }, [
@@ -102,7 +115,6 @@ function Bridge() {
     toNativeToken,
     relayerFee,
   ]);
-
   const valid = isTransferValid(validations);
 
   return (

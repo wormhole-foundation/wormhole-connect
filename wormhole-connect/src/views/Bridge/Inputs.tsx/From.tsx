@@ -55,7 +55,9 @@ function FromInputs() {
 
   // balance
   useEffect(() => {
-    if (!fromNetwork || !tokenConfig || !walletAddr) return;
+    if (!fromNetwork || !tokenConfig || !walletAddr) {
+      return setBalance(undefined);
+    }
     if (tokenConfig.tokenId) {
       getBalance(walletAddr, tokenConfig.tokenId, fromNetwork).then(
         (res: BigNumber | null) => {

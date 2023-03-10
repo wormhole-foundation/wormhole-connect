@@ -275,7 +275,7 @@ function TokensModal() {
                   <div className={classes.tokenRowRight}>
                     <div className={classes.tokenRowBalanceText}>Balance</div>
                     <div className={classes.tokenRowBalance}>
-                      {tokenBalances[token.symbol] ? (
+                      {tokenBalances[token.symbol] && walletAddr ? (
                         <div>{tokenBalances[token.symbol]}</div>
                       ) : fromNetwork && walletAddr ? (
                         <CircularProgress size={14} />
