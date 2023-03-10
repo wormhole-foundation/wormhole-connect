@@ -336,7 +336,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
           sender: receipt.from,
           amount: parsedTransfer.amount,
           payloadID: parsedTransfer.payloadID,
-          recipient: parsedTransfer.to,
+          recipient: this.parseAddress(parsedTransfer.to),
           toChain: this.context.toChainName(parsedTransfer.toChain),
           fromChain,
           tokenAddress: tokenContext.parseAddress(parsedTransfer.tokenAddress),
@@ -413,7 +413,8 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
   }
 
   parseAddress(address: ethers.utils.BytesLike): string {
-    return utils.hexlify(utils.stripZeros(address));
+    const parsed = utils.hexlify(utils.stripZeros(address));
+    return utils.getAddress(parsed);
   }
 
   getTxIdFromReceipt(receipt: ethers.ContractReceipt) {
