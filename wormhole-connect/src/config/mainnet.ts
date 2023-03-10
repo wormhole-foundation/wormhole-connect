@@ -149,7 +149,6 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#12B4EC',
     decimals: 18,
     solDecimals: 8,
-    wrappedAsset: 'WFTM',
   },
   WFTM: {
     symbol: 'WFTM',
