@@ -8,15 +8,13 @@ jobs:
 
     steps:
       - name: Lint
-        run: |
-          cd ./wormhole-connect
-          npm run lint
+        working-directory: ./wormhole-connect
+        run: npm run lint
 
   test:
     runs-on: ubuntu-latest
 
     steps:
       - name: Test
-        run: |
-          cd ./wormhole-connect
-          npm run test
+        working-directory: ./wormhole-connect
+        run: npm run test
