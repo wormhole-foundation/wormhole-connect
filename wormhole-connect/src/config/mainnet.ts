@@ -126,7 +126,6 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#E84141',
     decimals: 18,
     solDecimals: 8,
-    wrappedAsset: 'WAVAX',
   },
   WAVAX: {
     symbol: 'WAVAX',
