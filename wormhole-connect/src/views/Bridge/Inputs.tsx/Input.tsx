@@ -9,7 +9,6 @@ const useStyles = makeStyles()((theme) => ({
     justifyContent: 'space-between',
     borderRadius: '8px',
     width: '100%',
-    flexGrow: '1',
     padding: '12px',
   },
   editable: {
@@ -23,6 +22,9 @@ const useStyles = makeStyles()((theme) => ({
     fontSize: '14px',
     color: theme.palette.text.secondary,
     marginBottom: '4px',
+  },
+  content: {
+    overflow: 'hidden',
   },
   error: ERROR_BORDER(theme),
 }));
@@ -47,7 +49,7 @@ function Input(props: Props) {
   return (
     <div className={joinClass(inputClasses)} onClick={props.onClick}>
       <div className={classes.label}>{props.label}</div>
-      {props.children}
+      <div className={classes.content}>{props.children}</div>
     </div>
   );
 }

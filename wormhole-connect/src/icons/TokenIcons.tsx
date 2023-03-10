@@ -306,7 +306,7 @@ const noIcon = (
 );
 
 type Props = {
-  name: string;
+  name: Icon;
   height?: number;
 };
 

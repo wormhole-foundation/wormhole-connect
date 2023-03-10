@@ -1,9 +1,9 @@
 import { makeStyles } from '@mui/styles';
 import React from 'react';
 import { Theme } from '@mui/material';
-import { ChainConfig } from '@wormhole-foundation/wormhole-connect-sdk';
 import TokenIcon from '../../icons/TokenIcons';
 import { ERROR_BORDER, joinClass } from '../../utils/style';
+import { NetworkConfig } from '../../config/types';
 
 const useStyles = makeStyles((theme: Theme) => ({
   networkTile: {
@@ -13,17 +13,16 @@ const useStyles = makeStyles((theme: Theme) => ({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: '16px',
+    justifyContent: 'space-between',
     width: '100%',
-    maxWidth: '158px',
-    height: '158px',
+    height: '100%',
     cursor: 'pointer',
     marginRight: '8px',
     textAlign: 'center',
-    [theme.breakpoints.down('sm')]: {
-      width: 'auto',
-    },
+  },
+  networkNone: {
+    justifyContent: 'center',
+    gap: '16px',
   },
   networkIcon: {
     width: '56px',
@@ -40,7 +39,7 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 
 type Props = {
-  network?: ChainConfig;
+  network?: NetworkConfig;
   onClick: React.MouseEventHandler<HTMLDivElement>;
   error?: boolean;
 };
@@ -63,6 +62,7 @@ function NetworksTile(props: Props) {
     <div
       className={joinClass([
         classes.networkTile,
+        classes.networkNone,
         !!props.error && classes.error,
       ])}
       onClick={props.onClick}

@@ -29,29 +29,44 @@ const useStyles = makeStyles()((theme) => ({
     fontWeight: 'bold',
   },
   content: {
-    display: 'flex',
+    display: 'grid',
+    gridTemplateColumns: '158px 1fr',
+    gridTemplateRows: '1fr',
+    gridTemplateAreas: `"network inputs"`,
     width: '100%',
-    height: '158px',
+    maxWidth: '100%',
+    [theme.breakpoints.down('sm')]: {
+      gridTemplateColumns: '120px 1fr',
+    },
+  },
+  network: {
+    gridArea: 'network',
   },
   inputs: {
+    gridArea: 'inputs',
     display: 'flex',
     flexDirection: 'column',
     gap: '8px',
-    height: '100%',
     width: '100%',
+    marginLeft: '8px',
   },
   tokenIcon: {
     width: '24px',
     height: '24px',
   },
   amtRow: {
-    display: 'flex',
-    flexDirection: 'row',
-    width: '100%',
-    gap: '8px',
+    display: 'grid',
+    gridTemplateColumns: '1fr 120px',
+    gridTemplateRows: '1fr',
+    gridTemplateAreas: `"amount balance"`,
+    maxWidth: '100%',
+  },
+  amount: {
+    gridArea: 'amount',
+    overflow: 'hidden',
   },
   balance: {
-    width: '120px',
+    gridArea: 'balance',
     backgroundColor: 'transparent',
   },
 }));
@@ -85,7 +100,7 @@ function Inputs(props: Props) {
         <div className={classes.outerContainer}>
           <div className={classes.content}>
             {/* network tile */}
-            {props.networkTile}
+            <div className={classes.network}>{props.networkTile}</div>
 
             <div className={classes.inputs}>
               {/* token select */}
@@ -93,7 +108,7 @@ function Inputs(props: Props) {
 
               <div className={classes.amtRow}>
                 {/* amount input */}
-                {props.amountInput}
+                <div className={classes.amount}>{props.amountInput}</div>
 
                 {/* balance */}
                 <div className={classes.balance}>
