@@ -65,6 +65,18 @@ function ToInputs() {
       onClick={openToNetworksModal}
     />
   );
+  const selectedNetwork = toNetworkConfig
+    ? { icon: toNetworkConfig.icon, text: toNetworkConfig.displayName }
+    : undefined;
+  const networkTileSmall = (
+    <Select
+      label="Network"
+      selected={selectedNetwork}
+      error={!!(showErrors && validations.toNetwork)}
+      onClick={openToNetworksModal}
+      editable
+    />
+  );
   const selectedToken = tokenConfig
     ? { icon: tokenConfig.icon, text: tokenConfig.symbol }
     : undefined;
@@ -82,6 +94,7 @@ function ToInputs() {
       walletValidations={[validations.receivingWallet]}
       inputValidations={[validations.toNetwork]}
       networkTile={networkTile}
+      networkTileSmall={networkTileSmall}
       tokenInput={tokenInput}
       amountInput={amountInput}
       balance={balance}

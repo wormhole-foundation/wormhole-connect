@@ -36,11 +36,15 @@ const useStyles = makeStyles()((theme) => ({
     width: '100%',
     maxWidth: '100%',
     [theme.breakpoints.down('sm')]: {
-      gridTemplateColumns: '120px 1fr',
+      gridTemplateColumns: '1fr !important',
+      gridTemplateAreas: `"inputs" !important`,
     },
   },
   network: {
     gridArea: 'network',
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
+    },
   },
   inputs: {
     gridArea: 'inputs',
@@ -48,7 +52,18 @@ const useStyles = makeStyles()((theme) => ({
     flexDirection: 'column',
     gap: '8px',
     width: '100%',
-    marginLeft: '8px',
+    paddingLeft: '8px',
+  },
+  networkRow: {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: '8px',
+  },
+  networkSmall: {
+    display: 'none',
+    [theme.breakpoints.down('sm')]: {
+      display: 'block',
+    },
   },
   tokenIcon: {
     width: '24px',
@@ -77,6 +92,7 @@ type Props = {
   walletValidations: string[];
   inputValidations: string[];
   networkTile: any;
+  networkTileSmall: any;
   tokenInput: any;
   amountInput: any;
   balance: string | undefined;
@@ -103,8 +119,13 @@ function Inputs(props: Props) {
             <div className={classes.network}>{props.networkTile}</div>
 
             <div className={classes.inputs}>
-              {/* token select */}
-              {props.tokenInput}
+              {/* network/token select */}
+              <div className={classes.networkRow}>
+                <div className={classes.networkSmall}>
+                  {props.networkTileSmall}
+                </div>
+                {props.tokenInput}
+              </div>
 
               <div className={classes.amtRow}>
                 {/* amount input */}

@@ -82,6 +82,18 @@ function FromInputs() {
       onClick={openFromNetworksModal}
     />
   );
+  const selectedNetwork = fromNetworkConfig
+    ? { icon: fromNetworkConfig.icon, text: fromNetworkConfig.displayName }
+    : undefined;
+  const networkTileSmall = (
+    <Select
+      label="Network"
+      selected={selectedNetwork}
+      error={!!(showErrors && validations.fromNetwork)}
+      onClick={openFromNetworksModal}
+      editable
+    />
+  );
   const selectedToken = tokenConfig
     ? { icon: tokenConfig.icon, text: tokenConfig.symbol }
     : undefined;
@@ -128,6 +140,7 @@ function FromInputs() {
         validations.amount,
       ]}
       networkTile={networkTile}
+      networkTileSmall={networkTileSmall}
       tokenInput={tokenInput}
       amountInput={amountInput}
       balance={balance}

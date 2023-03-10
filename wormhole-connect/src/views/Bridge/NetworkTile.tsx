@@ -67,7 +67,7 @@ function NetworksTile(props: Props) {
       ])}
       onClick={props.onClick}
     >
-      <TokenIcon name="no network" height={56} />
+      <TokenIcon height={56} />
       <div className={classes.networkName}>Select network</div>
     </div>
   );

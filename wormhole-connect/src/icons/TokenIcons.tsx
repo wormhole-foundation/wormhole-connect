@@ -306,7 +306,7 @@ const noIcon = (
 );
 
 type Props = {
-  name: Icon;
+  name?: Icon;
   height?: number;
 };
 
@@ -314,8 +314,12 @@ function TokenIcon(props: Props) {
   const size = props.height || 32;
   const { classes } = useStyles({ size });
 
-  const token = getIcon(props.name);
-  return <div className={classes.container}>{token || noIcon}</div>;
+  if (props.name) {
+    const token = getIcon(props.name);
+    return <div className={classes.container}>{token}</div>;
+  } else {
+    return <div className={classes.container}>{noIcon}</div>;
+  }
 }
 
 export default TokenIcon;
