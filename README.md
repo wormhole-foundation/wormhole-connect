@@ -20,29 +20,29 @@ Initially this serves as a way to test integrating wormhole-connect. In the futu
 
 ```bash
 cd ./sdk
-yarn install
-yarn build
-yarn link
+npm i
+npm run build
+npm link
 cd ../wormhole-connect
-yarn link @wormhole-foundation/wormhole-connect-sdk
+npm link @wormhole-foundation/wormhole-connect-sdk
 ```
 
 2) Install
 
-Run `yarn` at the root of the repo
+Run `npm i` at the root of the repo
 
 3) Start
 
 Start wormhole-connect UI and view in browser at localhost:3000
 ```bash
 # in /wormhole-connect
-yarn start # testnet
+npm run start # testnet
 ```
 
 Start builder UI and view in browser at localhost:3000
 ```bash
 # in /builder
-yarn start
+npm run start
 ```
 
 ## Disclaimer

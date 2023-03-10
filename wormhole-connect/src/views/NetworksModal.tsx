@@ -1,27 +1,27 @@
 import React, { ChangeEvent } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { useTheme } from '@mui/material/styles';
 import { makeStyles } from 'tss-react/mui';
+import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { RootState } from '../store';
+import { CHAINS_ARR } from '../sdk/config';
+import { setFromNetworksModal, setToNetworksModal } from '../store/router';
+import { setFromNetwork, setToNetwork } from '../store/transfer';
+import { clearWallet } from '../store/wallet';
+import { CENTER, joinClass } from '../utils/style';
+import { TransferWallet, walletAcceptedNetworks } from '../utils/wallet';
+
 import Header from '../components/Header';
 import Modal from '../components/Modal';
 import Spacer from '../components/Spacer';
 import Search from '../components/Search';
 import Scroll from '../components/Scroll';
-
-import { CHAINS_ARR } from '../sdk/config';
-import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
-import { useDispatch } from 'react-redux';
-import { setFromNetworksModal, setToNetworksModal } from '../store/router';
-import { setFromNetwork, setToNetwork } from '../store/transfer';
-import TokenIcon from '../icons/components/TokenIcons';
-import { CENTER, joinClass } from '../utils/style';
+import TokenIcon from '../icons/TokenIcons';
 
 const useStyles = makeStyles()((theme) => ({
   networksContainer: {
-    display: 'flex',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill, 150px)',
     justifyContent: 'space-between',
   },
   noResults: {
@@ -52,9 +52,12 @@ const useStyles = makeStyles()((theme) => ({
     marginTop: '16px',
   },
   disabled: {
-    opacity: '60%',
+    opacity: '40%',
     cursor: 'not-allowed',
     clickEvent: 'none',
+  },
+  subtitle: {
+    opacity: '60%',
   },
 }));
 
@@ -74,36 +77,39 @@ function NetworksModal(props: Props) {
   const { classes } = useStyles();
   const theme = useTheme();
   const dispatch = useDispatch();
-  const [chains, setChains] = React.useState(CHAINS_ARR);
+
   const { fromNetwork, toNetwork } = useSelector(
     (state: RootState) => state.transfer,
   );
+  const { sending, receiving } = useSelector(
+    (state: RootState) => state.wallet,
+  );
+  const [chains, setChains] = React.useState(CHAINS_ARR);
 
   // listen for close event
   const closeNetworksModal = () => {
     setTimeout(() => setChains(CHAINS_ARR), 500);
     dispatch(setFromNetworksModal(false));
     dispatch(setToNetworksModal(false));
-    document.removeEventListener('click', closeNetworksModal);
   };
-  document.addEventListener('close', closeNetworksModal, { once: true });
 
   const isDisabled = (chain: ChainName) => {
-    if (props.type === ModalType.FROM) {
-      if (!toNetwork) return false;
-      return toNetwork === chain;
-    } else {
-      if (!fromNetwork) return false;
-      return fromNetwork === chain;
-    }
+    const type = props.type === ModalType.FROM ? sending.type : receiving.type;
+    return !walletAcceptedNetworks[type].includes(chain);
   };
 
   // dispatch selectNetwork event
-  const selectNetwork = (network: ChainName) => {
+  const selectNetwork = async (network: ChainName) => {
     if (props.type === ModalType.FROM) {
+      if (isDisabled(network)) {
+        dispatch(clearWallet(TransferWallet.SENDING));
+      }
       dispatch(setFromNetwork(network));
       dispatch(setFromNetworksModal(false));
     } else {
+      if (isDisabled(network)) {
+        dispatch(clearWallet(TransferWallet.RECEIVING));
+      }
       dispatch(setToNetwork(network));
       dispatch(setToNetworksModal(false));
     }
@@ -118,41 +124,54 @@ function NetworksModal(props: Props) {
     if (!e) return;
     const lowercase = e.target.value.toLowerCase();
     const filtered = CHAINS_ARR.filter((c) => {
-      return c.key.indexOf(lowercase) === 0;
+      return c.key.includes(lowercase);
     });
     setChains(filtered);
   };
 
+  const showChain = (chain: ChainName) => {
+    if (props.type === ModalType.FROM) {
+      return chain !== toNetwork;
+    }
+    return chain !== fromNetwork;
+  };
+
   return (
-    <Modal open={props.open} closable width={CHAINS_ARR.length > 6 ? 650 : 475}>
-      <Header text={props.title} />
-      <div>Select Network</div>
+    <Modal
+      open={props.open}
+      closable
+      width={CHAINS_ARR.length > 6 ? 650 : 475}
+      onClose={closeNetworksModal}
+    >
+      <Header text={props.title} size={28} />
+      <div className={classes.subtitle}>Select Network</div>
       <Spacer height={16} />
       <Search placeholder="Search networks" onChange={searchChains} />
       <Spacer height={16} />
       <Scroll
         height="calc(100vh - 300px)"
-        blendColor={theme.palette.card.background}
+        blendColor={theme.palette.modal.background}
       >
         {chains.length > 0 ? (
           <div className={classes.networksContainer}>
             {chains.map((chain: any, i) => {
               const disabled = isDisabled(chain.key);
               return (
-                <div
-                  key={i}
-                  className={joinClass([
-                    classes.networkTile,
-                    !!disabled && classes.disabled,
-                  ])}
-                  onClick={() => {
-                    if (disabled) return;
-                    selectNetwork(chain.key);
-                  }}
-                >
-                  <TokenIcon name={chain.icon} height={48} />
-                  <div className={classes.networkText}>{chain.displayName}</div>
-                </div>
+                showChain(chain.key) && (
+                  <div
+                    key={i}
+                    className={joinClass([
+                      classes.networkTile,
+                      !!disabled && classes.disabled,
+                    ])}
+                    onClick={() => selectNetwork(chain.key)}
+                  >
+                    <TokenIcon name={chain.icon} height={48} />
+                    <div className={classes.networkText}>
+                      {chain.displayName}
+                    </div>
+                  </div>
+                )
               );
             })}
           </div>

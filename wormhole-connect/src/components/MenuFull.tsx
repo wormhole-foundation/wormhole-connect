@@ -4,10 +4,10 @@ import { makeStyles } from 'tss-react/mui';
 import { useTheme } from '@mui/material/styles';
 import { ICON } from '../utils/style';
 import { Route, setRoute } from '../store/router';
-import MenuIcon from '../icons/components/Menu';
+import MenuIcon from '../icons/Menu';
 import Modal from './Modal';
 import Spacer from './Spacer';
-import PoweredByIcon from '../icons/components/PoweredBy';
+import PoweredByIcon from '../icons/PoweredBy';
 
 const useStyles = makeStyles()((theme) => ({
   menuIcon: ICON,
@@ -33,16 +33,9 @@ export default function Menu() {
   const dispatch = useDispatch();
   const [open, setOpen] = useState(false);
 
-  // TODO: refactor so I can pass in close function instead of listening
-  // listen for close event
-  const closeMenu = () => {
-    setOpen(false);
-  };
-  document.addEventListener('close', closeMenu);
-
   const navigate = (name: Route) => {
     dispatch(setRoute(name));
-    closeMenu();
+    setOpen(false);
   };
 
   return (
@@ -50,26 +43,20 @@ export default function Menu() {
       <div className={classes.menuIcon} onClick={() => setOpen(true)}>
         <MenuIcon />
       </div>
-      <Modal open={open} closable width={650}>
+      <Modal open={open} closable width={650} onClose={() => setOpen(false)}>
         <div className={classes.menu}>
           <PoweredByIcon color={theme.palette.text.primary} />
           <Spacer height={8} />
           <div className={classes.menuItem} onClick={() => navigate('bridge')}>
             Bridge
           </div>
-          <div className={classes.menuItem} onClick={() => navigate('redeem')}>
+          <div className={classes.menuItem} onClick={() => navigate('search')}>
             Resume transfer
           </div>
-          <div
-            className={classes.menuItem}
-            // onClick={() => navigate('redeem')}
-          >
+          <div className={classes.menuItem} onClick={() => navigate('faq')}>
             FAQs
           </div>
-          <div
-            className={classes.menuItem}
-            // onClick={() => navigate('redeem')}
-          >
+          <div className={classes.menuItem} onClick={() => navigate('terms')}>
             Terms of Use
           </div>
         </div>

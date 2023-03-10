@@ -1,23 +1,15 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { Wallet } from '../utils/wallet';
+import { disconnect, TransferWallet, WalletType } from '../utils/wallet';
 
-export enum WalletType {
-  NONE = 0,
-  METAMASK,
-  TRUST_WALLET,
-}
+export type WalletData = {
+  type: WalletType;
+  address: string;
+  currentAddress: string;
+};
 
 export interface WalletState {
-  sending: {
-    type: WalletType;
-    address: string;
-    currentAddress: string;
-  };
-  receiving: {
-    type: WalletType;
-    address: string;
-    currentAddress: string;
-  };
+  sending: WalletData;
+  receiving: WalletData;
 }
 
 const initialState: WalletState = {
@@ -33,36 +25,58 @@ const initialState: WalletState = {
   },
 };
 
+export type ConnectPayload = {
+  address: string;
+  type: WalletType;
+};
+
 export const walletSlice = createSlice({
   name: 'wallet',
   initialState,
   reducers: {
-    connectWallet: (state: WalletState, { payload }: { payload: string }) => {
-      console.log('connect sending wallet');
-      state.sending.address = payload;
-      state.sending.currentAddress = payload;
+    connectWallet: (
+      state: WalletState,
+      { payload }: { payload: ConnectPayload },
+    ) => {
+      console.log('connect sending wallet', payload);
+      state.sending.type = payload.type;
+      state.sending.address = payload.address;
+      state.sending.currentAddress = payload.address;
     },
     connectReceivingWallet: (
       state: WalletState,
-      { payload }: { payload: string },
+      { payload }: { payload: ConnectPayload },
     ) => {
-      console.log('connect receiving wallet');
-      state.receiving.address = payload;
-      state.receiving.currentAddress = payload;
+      console.log('connect receiving wallet', payload);
+      state.receiving.type = payload.type;
+      state.receiving.address = payload.address;
+      state.receiving.currentAddress = payload.address;
     },
-    clearWallet: (state: WalletState, { payload }: { payload: Wallet }) => {
+    clearWallet: (
+      state: WalletState,
+      { payload }: { payload: TransferWallet },
+    ) => {
       const reset = {
         address: '',
         type: WalletType.NONE,
         currentAddress: '',
       };
+      disconnect(payload);
       state[payload] = reset;
     },
     setCurrentAddress: (
       state: WalletState,
-      { payload }: { payload: { type: Wallet; address: string } },
+      { payload }: { payload: { type: TransferWallet; address: string } },
     ) => {
       state[payload.type].currentAddress = payload.address;
+    },
+    clearWallets: (state: WalletState) => {
+      disconnect(TransferWallet.SENDING);
+      disconnect(TransferWallet.RECEIVING);
+      Object.keys(state).forEach((key) => {
+        // @ts-ignore
+        state[key] = initialState[key];
+      });
     },
   },
 });
@@ -72,6 +86,7 @@ export const {
   connectReceivingWallet,
   clearWallet,
   setCurrentAddress,
+  clearWallets,
 } = walletSlice.actions;
 
 export default walletSlice.reducer;

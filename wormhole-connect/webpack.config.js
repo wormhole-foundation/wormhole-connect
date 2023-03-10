@@ -45,6 +45,7 @@ module.exports = {
     // stream: require.resolve("stream-browserify"),
     // url: require.resolve("url"),
   },
+  presets: ['@babel/preset-env'],
   output: {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'dist'),

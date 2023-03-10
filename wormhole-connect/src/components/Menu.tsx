@@ -3,7 +3,7 @@ import Popover from '@mui/material/Popover';
 import PopupState, { bindTrigger, bindPopover } from 'material-ui-popup-state';
 import { ICON } from '../utils/style';
 import { makeStyles } from 'tss-react/mui';
-import MenuIcon from '../icons/components/Menu';
+import MenuIcon from '../icons/Menu';
 import { Route, setRoute } from '../store/router';
 import { useDispatch } from 'react-redux';
 
@@ -65,11 +65,14 @@ export default function Menu() {
                 className={classes.menuItem}
                 onClick={() => navigate('redeem')}
               >
-                Redeem
+                Resume transfer
+              </div>
+              <div className={classes.menuItem} onClick={() => navigate('faq')}>
+                FAQ
               </div>
               <div
                 className={classes.menuItem}
-                onClick={() => navigate('redeem')}
+                onClick={() => navigate('terms')}
               >
                 Terms of Use
               </div>

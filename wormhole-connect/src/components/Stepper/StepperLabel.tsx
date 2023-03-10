@@ -23,6 +23,9 @@ const useStyles = makeStyles((theme: Theme) => ({
     alignItems: 'center',
     fontSize: '16px',
     marginRight: '32px',
+    [theme.breakpoints.down('sm')]: {
+      margin: '0 8px 0 16px',
+    },
   },
   filled: {
     backgroundColor: `${theme.palette.success[400]} !important`,
@@ -51,7 +54,6 @@ function StepIcon(props: {
           !!filled && classes.filled,
         ])}
       >
-        {/* TODO: add action color to theme */}
         <Check htmlColor={filled ? '#fff' : theme.palette.success[500]} />
       </div>
     );

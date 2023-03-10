@@ -1,0 +1,4 @@
+{
+  "networks": ["goerli", "mumbai", "bsc", "fuji", "fantom", "alfajores"],
+  "tokens": ["ETH", "WETH", "USDC", "MATIC", "WMATIC", "BNB", "WBNB", "AVAX", "WAVAX", "FTM", "WFTM", "CELO"]
+}

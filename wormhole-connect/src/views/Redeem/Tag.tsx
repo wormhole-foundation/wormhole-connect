@@ -2,13 +2,12 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { RootState } from '../../store';
-import { ParsedVaa } from '../../utils/vaa';
 import { LINK } from '../../utils/style';
 import { CHAINS } from '../../sdk/config';
 import InputContainer from '../../components/InputContainer';
-import ArrowRight from '../../icons/components/ArrowRight';
+import ArrowRight from '../../icons/ArrowRight';
 import LaunchIcon from '@mui/icons-material/Launch';
-import TokenIcon from '../../icons/components/TokenIcons';
+import TokenIcon from '../../icons/TokenIcons';
 const { REACT_APP_WORMHOLE_EXPLORER } = process.env;
 
 const useStyles = makeStyles()((theme) => ({
@@ -31,14 +30,16 @@ const useStyles = makeStyles()((theme) => ({
 
 function NetworksTag() {
   const { classes } = useStyles();
-  const vaa: ParsedVaa = useSelector((state: RootState) => state.redeem.vaa);
   const txData = useSelector((state: RootState) => state.redeem.txData)!;
   const fromNetworkConfig = CHAINS[txData.fromChain]!;
   const toNetworkConfig = CHAINS[txData.toChain]!;
-  // TODO: can I use tx details for this?
+
+  const emitterAddress = txData.emitterAddress.startsWith('0x')
+    ? txData.emitterAddress.slice(2)
+    : txData.emitterAddress;
   const link =
-    vaa &&
-    `${REACT_APP_WORMHOLE_EXPLORER}?emitterChain=${vaa.emitterChain}&emitterAddress=${vaa.emitterAddress}&sequence=${vaa.sequence}`;
+    txData &&
+    `${REACT_APP_WORMHOLE_EXPLORER}?emitterChain=${fromNetworkConfig.id}&emitterAddress=${emitterAddress}&sequence=${txData.sequence}`;
 
   return (
     <div>
@@ -55,7 +56,7 @@ function NetworksTag() {
           </div>
         </div>
       </InputContainer>
-      {vaa && (
+      {txData && (
         <a
           className={classes.link}
           href={link}

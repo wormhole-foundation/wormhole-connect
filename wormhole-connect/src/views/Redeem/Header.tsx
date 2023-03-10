@@ -2,10 +2,10 @@ import React from 'react';
 import { makeStyles } from 'tss-react/mui';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { CHAINS } from '../../sdk/config';
-import { displayEvmAddress } from '../../utils';
+import { displayAddress } from '../../utils';
 import { LINK } from '../../utils/style';
-import WalletIcon from '../../icons/components/Wallet';
-import TokenIcon from '../../icons/components/TokenIcons';
+import WalletIcon from '../../icons/Wallet';
+import TokenIcon from '../../icons/TokenIcons';
 import CircularProgress from '@mui/material/CircularProgress';
 import LaunchIcon from '@mui/icons-material/Launch';
 
@@ -46,12 +46,18 @@ type Props = {
 function Header(props: Props) {
   const { classes } = useStyles();
   const networkConfig = CHAINS[props.network]!;
-  const explorerLink = `${networkConfig.explorerUrl}tx/${props.txHash}`;
+  let explorerLink = `${networkConfig.explorerUrl}tx/${props.txHash}`;
+  if (
+    networkConfig.key === 'solana' &&
+    process.env.REACT_APP_ENV === 'TESTNET'
+  ) {
+    explorerLink += '?cluster=devnet';
+  }
   return (
     <div className={classes.header}>
       <div className={classes.left}>
         <TokenIcon name={networkConfig.icon!} height={32} />
-        <div>{displayEvmAddress(props.address)}</div>
+        <div>{displayAddress(props.network, props.address)}</div>
         <WalletIcon />
       </div>
       {props.loading ? (
@@ -64,7 +70,7 @@ function Header(props: Props) {
             target="_blank"
             rel="noreferrer"
           >
-            <div>View in {networkConfig.explorerName}</div>
+            <div>{networkConfig.explorerName}</div>
             <LaunchIcon />
           </a>
         )

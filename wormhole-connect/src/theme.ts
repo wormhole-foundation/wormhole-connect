@@ -3,40 +3,9 @@ import grey from '@mui/material/colors/grey';
 import green from '@mui/material/colors/green';
 import orange from '@mui/material/colors/orange';
 import red from '@mui/material/colors/red';
-import { PaletteMode } from '@mui/material';
 import { OPACITY } from './utils/style';
-
-// const light: PaletteOptions = {
-//   primary: {
-//     50: '#161718',
-//     100: '#2d2e30',
-//     200: '#444548',
-//     300: '#5b5c60',
-//     400: '#727479',
-//     500: '#898b91',
-//     600: '#a0a2a9',
-//     700: '#b7b9c1',
-//     800: '#ced0d9',
-//     900: '#E5E8F2',
-//     A100: '#ceced1',
-//     A200: '#9d9ea4',
-//     A400: '#535660',
-//     A700: '#0a0e1c',
-//   },
-//   secondary: grey,
-//   divider: '#727479',
-//   background: {
-//     default: '#E5E8F2',
-//   },
-//   text: {
-//     primary: grey[900],
-//     secondary: grey[800],
-//   },
-//   error: red,
-//   info: lightBlue,
-//   success: green,
-//   warning: orange,
-// }
+import { CUSTOM_THEME } from 'sdk/config';
+import { PaletteMode } from '@mui/material';
 
 export type PaletteColor = {
   50: string;
@@ -93,9 +62,16 @@ export type ExtendedTheme = {
     elevation: string;
     secondary: string;
   };
+  modal: {
+    background: string;
+  };
+  font: {
+    primary: string;
+    header: string;
+  };
 };
 
-const lightStyled = {
+export const light: ExtendedTheme = {
   primary: {
     50: '#161718',
     100: '#2d2e30',
@@ -166,80 +142,58 @@ const lightStyled = {
   modal: {
     background: '#ffffff',
   },
+  font: {
+    primary: '"Inter", sans-serif',
+    header: '"IBM Plex Mono", monospace',
+  },
 };
 
-// const dark = {
-//   primary: {
-//     50: '#e6e6e8',
-//     100: '#ceced1',
-//     200: '#b5b6ba',
-//     300: '#9d9ea4',
-//     400: '#84868d',
-//     500: '#6c6e76',
-//     600: '#535660',
-//     700: '#3a3e49',
-//     800: '#222632',
-//     900: '#0a0e1c',
-//     A100: '#ceced1',
-//     A200: '#9d9ea4',
-//     A400: '#535660',
-//     A700: '#0a0e1c',
-//   },
+// // generic dark theme
+// export const dark = {
+//   primary: grey,
 //   secondary: grey,
-//   divider: '#6c6e76',
+//   divider: '#ffffff' + OPACITY[20],
 //   background: {
-//     default: '#0A0E1C',
+//     default: '#232323',
 //   },
 //   text: {
 //     primary: '#ffffff',
 //     secondary: grey[500],
 //   },
 //   error: red,
-//   info: {
-//     50: '#294958',
-//     100: '#2f5464',
-//     200: '#355e71',
-//     300: '#3b697e',
-//     400: '#4e788a',
-//     500: '#628797',
-//     600: '#7596a4',
-//     700: '#89a5b1',
-//     800: '#222632',
-//     900: '#9db4be',
-//     A100: '#3b697e',
-//     A200: '#3b697e',
-//     A400: '#3b697e',
-//     A700: '#3b697e',
-//   },
+//   info: lightblue,
 //   success: green,
 //   warning: orange,
 //   button: {
-//     primary: '#222632',
-//     primaryText: '#fff',
-//     disabled: '#6c6e76',
-//     disabledText: '#9d9ea4',
-//     action: '#2b867d',
-//     actionText: '#fff',
+//     primary: '#ffffff' + OPACITY[20],
+//     primaryText: '#ffffff',
+//     disabled: '#ffffff' + OPACITY[10],
+//     disabledText: '#ffffff' + OPACITY[40],
+//     action: orange[300],
+//     actionText: '#000000',
 //     hover: '#ffffff' + OPACITY[7],
 //   },
 //   options: {
-//     hover: '#ffffff' + OPACITY[7],
-//     select: '#ffffff' + OPACITY[10],
+//     hover: '#474747',
+//     select: '#5b5b5b',
 //   },
 //   card: {
-//     background: '#141826',
-//     secondary: '#222633',
+//     background: '#333333',
+//     secondary: '#474747',
 //     elevation: 'none',
 //   },
 //   popover: {
 //     background: '#1b2033',
-//     secondary: '#222840',
+//     secondary: '#ffffff' + OPACITY[5],
 //     elevation: 'none',
+//   },
+//   modal: {
+//     background: '#474747',
 //   },
 // };
 
 // wormhole styled theme
-const dark = {
+const dark: ExtendedTheme = {
   primary: grey,
   secondary: grey,
   divider: '#ffffff' + OPACITY[20],
@@ -284,11 +238,26 @@ const dark = {
     A400: '#00a89a',
     A700: '#00a89a',
   },
-  warning: orange,
+  warning: {
+    50: '#ffe3a4',
+    100: '#ffdd91',
+    200: '#ffd77f',
+    300: '#ffd26d',
+    400: '#ffcc5b',
+    500: '#FFC749',
+    600: '#e5b341',
+    700: '#cc9f3a',
+    800: '#b28b33',
+    900: '#99772b',
+    A100: '#FFC749',
+    A200: '#FFC749',
+    A400: '#FFC749',
+    A700: '#FFC749',
+  },
   button: {
-    primary: '#ffffff' + OPACITY[20],
+    primary: '#ffffff' + OPACITY[10],
     primaryText: '#ffffff',
-    disabled: '#ffffff' + OPACITY[10],
+    disabled: '#ffffff' + OPACITY[7],
     disabledText: '#ffffff' + OPACITY[40],
     action: '#ffffff' + OPACITY[20],
     actionText: '#ffffff',
@@ -311,21 +280,31 @@ const dark = {
   modal: {
     background: '#0F1024',
   },
+  font: {
+    primary: '"Inter", sans-serif',
+    header: '"IBM Plex Mono", monospace',
+  },
 };
 
 export const getDesignTokens = (mode: PaletteMode) =>
   createTheme({
     components: {
-      // Name of the component
       MuiPaper: {
         styleOverrides: {
-          // Name of the slot
           root: {
-            // Some CSS
             background:
-              (mode === 'light'
-                ? lightStyled.modal.background
+              (CUSTOM_THEME
+                ? CUSTOM_THEME.modal.background
+                : mode === 'light'
+                ? light.modal.background
                 : dark.modal.background) + ' !important',
+          },
+        },
+      },
+      MuiCollapse: {
+        styleOverrides: {
+          root: {
+            width: '100%',
           },
         },
       },
@@ -341,6 +320,6 @@ export const getDesignTokens = (mode: PaletteMode) =>
     },
     palette: {
       mode,
-      ...(mode === 'light' ? lightStyled : dark),
+      ...(CUSTOM_THEME ? CUSTOM_THEME : mode === 'light' ? light : dark),
     },
   });

@@ -3,6 +3,7 @@ import { WormholeConfig, Context, ChainConfig, Contracts } from '../types';
 
 // https://book.wormhole.com/reference/contracts.html
 export const TESTNET_CHAINS = {
+  solana: 1,
   goerli: 2,
   bsc: 4,
   mumbai: 5,
@@ -32,6 +33,21 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     explorerName: 'Etherscan',
     gasToken: 'ETH',
     chainId: 5,
+    finalityThreshold: 15,
+  },
+  solana: {
+    key: 'solana',
+    id: 1,
+    context: Context.SOLANA,
+    contracts: {
+      ...CONTRACTS.TESTNET.solana,
+    },
+    displayName: 'Solana',
+    explorerUrl: 'https://explorer.solana.com/',
+    explorerName: 'Solana Explorer',
+    gasToken: 'SOL',
+    chainId: 0,
+    finalityThreshold: 32,
   },
   mumbai: {
     key: 'mumbai',
@@ -46,6 +62,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     explorerName: 'Polygonscan',
     gasToken: 'MATIC',
     chainId: 80001,
+    finalityThreshold: 64,
   },
   bsc: {
     key: 'bsc',
@@ -60,6 +77,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     explorerName: 'BscScan',
     gasToken: 'BNB',
     chainId: 97,
+    finalityThreshold: 15,
   },
   fuji: {
     key: 'fuji',
@@ -74,6 +92,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     explorerName: 'Snowtrace',
     gasToken: 'AVAX',
     chainId: 43113,
+    finalityThreshold: 15,
   },
   fantom: {
     key: 'fantom',
@@ -88,6 +107,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     explorerName: 'FtmScan',
     gasToken: 'FTM',
     chainId: 4002,
+    finalityThreshold: 1,
   },
   alfajores: {
     key: 'alfajores',
@@ -102,6 +122,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     explorerName: 'Celo Explorer',
     gasToken: 'CELO',
     chainId: 44787,
+    finalityThreshold: 1,
   },
 };
 
@@ -109,12 +130,13 @@ const env: Environment = 'TESTNET';
 const TESTNET_CONFIG: WormholeConfig = {
   env,
   rpcs: {
-    goerli: process.env.REACT_APP_GOERLI_RPC,
+    goerli: 'https://rpc.ankr.com/eth_goerli',
     mumbai: 'https://polygon-mumbai.blockpi.network/v1/rpc/public',
     bsc: 'https://data-seed-prebsc-2-s3.binance.org:8545',
     fuji: 'https://api.avax-test.network/ext/bc/C/rpc',
     fantom: 'https://rpc.ankr.com/fantom_testnet',
     alfajores: 'https://alfajores-forno.celo-testnet.org',
+    solana: 'https://api.testnet.solana.com',
   },
   chains: TESTNET,
 };

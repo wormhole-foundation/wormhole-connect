@@ -1,13 +1,14 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { TransferWallet } from '../utils/wallet';
 
-export type Route = 'bridge' | 'redeem';
+export type Route = 'bridge' | 'redeem' | 'search' | 'terms' | 'faq';
 
 export interface RouterState {
   route: Route;
   showFromNetworksModal: boolean;
   showToNetworksModal: boolean;
   showTokensModal: boolean;
-  showWalletModal: boolean;
+  showWalletModal: TransferWallet | false;
 }
 
 const initialState: RouterState = {
@@ -42,7 +43,7 @@ export const routerSlice = createSlice({
     },
     setWalletModal: (
       state: RouterState,
-      { payload }: PayloadAction<boolean>,
+      { payload }: PayloadAction<TransferWallet | false>,
     ) => {
       state.showWalletModal = payload;
     },

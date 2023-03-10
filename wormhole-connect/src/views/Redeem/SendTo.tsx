@@ -2,19 +2,19 @@ import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
 import { BigNumber, utils } from 'ethers';
-import { useTheme } from '@mui/material/styles';
+import CircularProgress from '@mui/material/CircularProgress';
+import { Context } from '@wormhole-foundation/wormhole-connect-sdk';
 import { RootState } from '../../store';
 import { PaymentOption } from '../../store/transfer';
-import { setRedeemTx } from '../../store/redeem';
+import { setRedeemTx, setTransferComplete } from '../../store/redeem';
 import {
-  openWalletModal,
   registerWalletSigner,
   switchNetwork,
-  Wallet,
+  TransferWallet,
 } from '../../utils/wallet';
 import { ParsedVaa } from '../../utils/vaa';
-import { claimTransfer } from '../../sdk/sdk';
-import { displayEvmAddress } from '../../utils';
+import { claimTransfer, parseAddress } from '../../sdk/sdk';
+import { displayAddress } from '../../utils';
 import { CHAINS } from '../../sdk/config';
 
 import Header from './Header';
@@ -23,8 +23,7 @@ import Button from '../../components/Button';
 import Spacer from '../../components/Spacer';
 import { RenderRows, RowsData } from '../../components/RenderRows';
 import InputContainer from '../../components/InputContainer';
-import { handleConnect } from '../../components/ConnectWallet';
-import CircularProgress from '@mui/material/CircularProgress';
+import WalletsModal from '../WalletModal';
 
 const getRows = (txData: any): RowsData => {
   const decimals = txData.tokenDecimals > 8 ? 8 : txData.tokenDecimals;
@@ -34,13 +33,16 @@ const getRows = (txData: any): RowsData => {
   // manual transfers
   if (type === PaymentOption.MANUAL) {
     const formattedAmt = utils.formatUnits(txData.amount, decimals);
-    return [{
-      title: 'Amount',
-      value: `${formattedAmt} ${txData.tokenSymbol}`,
-    }, {
-      title: 'Gas estimate',
-      value: `TODO ${gasToken}`,
-    }]
+    return [
+      {
+        title: 'Amount',
+        value: `${formattedAmt} ${txData.tokenSymbol}`,
+      },
+      {
+        title: 'Gas estimate',
+        value: `TODO ${gasToken}`,
+      },
+    ];
   }
 
   // automatic transfers
@@ -66,7 +68,6 @@ const getRows = (txData: any): RowsData => {
 
 function SendTo() {
   const dispatch = useDispatch();
-  const theme = useTheme();
   const vaa: ParsedVaa = useSelector((state: RootState) => state.redeem.vaa);
   const txData = useSelector((state: RootState) => state.redeem.txData)!;
   const toAddr = useSelector(
@@ -74,12 +75,27 @@ function SendTo() {
   );
   const receiving = useSelector((state: RootState) => state.wallet.receiving);
   const redeemTx = useSelector((state: RootState) => state.redeem.redeemTx);
-  const transferComplete = useSelector((state: RootState) => state.redeem.transferComplete);
-  const [inProgress, setInProgress] = useState(false);
-  const [isConnected, setIsConnected] = useState(
-    receiving.currentAddress.toLowerCase() === receiving.address.toLowerCase(),
+  const transferComplete = useSelector(
+    (state: RootState) => state.redeem.transferComplete,
   );
-  const [rows, setRows] = React.useState([] as RowsData);
+
+  const connect = () => {
+    setWalletModal(true);
+  };
+  const checkConnection = () => {
+    if (!txData) return;
+    const addr = receiving.address.toLowerCase();
+    const curAddr = receiving.currentAddress.toLowerCase();
+    const formattedRecipient = parseAddress(txData.toChain, txData.recipient);
+    const reqAddr = formattedRecipient.toLowerCase();
+    // console.log(addr, curAddr, reqAddr)
+    return addr === curAddr && addr === reqAddr;
+  };
+
+  const [inProgress, setInProgress] = useState(false);
+  const [isConnected, setIsConnected] = useState(checkConnection());
+  const [rows, setRows] = useState([] as RowsData);
+  const [openWalletModal, setWalletModal] = useState(false);
 
   useEffect(() => {
     if (!txData) return;
@@ -87,35 +103,32 @@ function SendTo() {
     setRows(rows);
   }, []);
 
-  // const pending = vaa.guardianSignatures < REQUIRED_CONFIRMATIONS;
   const claim = async () => {
     setInProgress(true);
-    const { chainId } = CHAINS[txData.toChain]!;
+    if (!receiving || !isConnected)
+      throw new Error('Connect to receiving wallet');
+    const networkConfig = CHAINS[txData.toChain]!;
+    if (!networkConfig) throw new Error('invalid destination chain');
     try {
-      // TODO: remove this line
-      await openWalletModal(theme, true);
-      registerWalletSigner(txData.toChain, Wallet.RECEIVING);
-      await switchNetwork(chainId, Wallet.RECEIVING);
+      if (networkConfig?.context === Context.ETH) {
+        registerWalletSigner(txData.toChain, TransferWallet.RECEIVING);
+        await switchNetwork(networkConfig.chainId, TransferWallet.RECEIVING);
+      }
       const receipt = await claimTransfer(
         txData.toChain,
         utils.arrayify(vaa.bytes),
       );
       dispatch(setRedeemTx(receipt.transactionHash));
+      dispatch(setTransferComplete(true));
       setInProgress(false);
     } catch (e) {
       setInProgress(false);
       console.error(e);
     }
   };
-  const connect = async () => {
-    handleConnect(dispatch, theme, Wallet.RECEIVING);
-  };
 
   useEffect(() => {
-    setIsConnected(
-      receiving.currentAddress.toLowerCase() ===
-        receiving.address.toLowerCase(),
-    );
+    setIsConnected(checkConnection());
   }, [receiving]);
 
   return (
@@ -124,22 +137,26 @@ function SendTo() {
         <Header
           network={txData.toChain}
           address={txData.recipient}
-          loading={!transferComplete && txData.payloadID === PaymentOption.MANUAL && !redeemTx}
+          loading={
+            !transferComplete &&
+            txData.payloadID === PaymentOption.MANUAL &&
+            !redeemTx
+          }
           txHash={redeemTx}
         />
         <RenderRows rows={rows} />
       </InputContainer>
-      {txData.payloadID === PaymentOption.MANUAL && (
+      {txData.payloadID === PaymentOption.MANUAL && !transferComplete && (
         <>
           <Spacer height={8} />
           {toAddr ? (
             isConnected ? (
               <Button onClick={claim} action disabled={inProgress}>
-                {inProgress ? <CircularProgress size={18} /> : 'Claim'}
+                {inProgress ? <CircularProgress size={22} /> : 'Claim'}
               </Button>
             ) : (
-              <Button disabled elevated>
-                Connect to {displayEvmAddress(receiving.address)}
+              <Button onClick={connect} elevated>
+                Connect to {displayAddress(txData.toChain, txData.recipient)}
               </Button>
             )
           ) : (
@@ -148,6 +165,13 @@ function SendTo() {
             </Button>
           )}
         </>
+      )}
+      {openWalletModal && (
+        <WalletsModal
+          type={TransferWallet.RECEIVING}
+          chain={txData.toChain}
+          onClose={() => setWalletModal(false)}
+        />
       )}
       {/* {pending && <Confirmations confirmations={vaa.guardianSignatures} />} */}
     </div>

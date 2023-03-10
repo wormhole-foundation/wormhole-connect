@@ -1,8 +1,10 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
-import { TokenConfig } from 'config/types';
 import { BigNumber } from 'ethers';
-import { toDecimals } from 'utils/balance';
+import { TokenConfig } from 'config/types';
+import { toDecimals } from '../utils/balance';
+import { TransferValidations, validateAll } from '../utils/transferValidation';
+import { WalletState } from './wallet';
 
 export enum PaymentOption {
   MANUAL = 1,
@@ -11,17 +13,22 @@ export enum PaymentOption {
 export type Balances = { [key: string]: string | null };
 
 export const formatBalance = (
+  chain: ChainName,
   token: TokenConfig,
   balance: BigNumber | null,
 ) => {
+  const decimals = chain === 'solana' ? token.solDecimals : token.decimals;
   const formattedBalance =
-    balance !== null ? toDecimals(balance, token.decimals, 6) : null;
+    balance !== null ? toDecimals(balance, decimals, 6) : null;
   return { [token.symbol]: formattedBalance };
 };
 
 export interface TransferState {
+  validate: boolean;
+  validations: TransferValidations;
   fromNetwork: ChainName | undefined;
   toNetwork: ChainName | undefined;
+  automaticRelayAvail: boolean;
   token: string;
   amount: number | undefined;
   destGasPayment: PaymentOption;
@@ -33,12 +40,23 @@ export interface TransferState {
 }
 
 const initialState: TransferState = {
+  validate: false,
+  validations: {
+    fromNetwork: '',
+    toNetwork: '',
+    token: '',
+    amount: '',
+    destGasPayment: '',
+    toNativeToken: '',
+    sendingWallet: '',
+    receivingWallet: '',
+  },
   fromNetwork: undefined,
   toNetwork: undefined,
+  automaticRelayAvail: false,
   token: '',
   amount: undefined,
-  // TODO: check if automatic is available once networks and token are selected
-  destGasPayment: PaymentOption.AUTOMATIC,
+  destGasPayment: PaymentOption.MANUAL,
   maxSwapAmt: undefined,
   toNativeToken: 0,
   receiveNativeAmt: undefined,
@@ -50,6 +68,19 @@ export const transferSlice = createSlice({
   name: 'transfer',
   initialState,
   reducers: {
+    touchValidations: (state: TransferState) => {
+      state.validate = true;
+    },
+    validateTransfer: (
+      state: TransferState,
+      { payload }: PayloadAction<WalletState>,
+    ) => {
+      const validations = validateAll(state, payload);
+      Object.keys(validations).forEach((key) => {
+        // @ts-ignore
+        state.validations[key] = validations[key];
+      });
+    },
     setToken: (state: TransferState, { payload }: PayloadAction<string>) => {
       console.log('set token:', payload);
       state.token = payload;
@@ -113,15 +144,25 @@ export const transferSlice = createSlice({
     ) => {
       state.balances = { ...state.balances, ...payload };
     },
-    clearTransfer: (
+    setAutomaticRelayAvail: (
       state: TransferState,
+      { payload }: PayloadAction<boolean>,
     ) => {
-      state = initialState;
-    }
+      state.automaticRelayAvail = payload;
+      if (payload) state.destGasPayment = PaymentOption.AUTOMATIC;
+    },
+    clearTransfer: (state: TransferState) => {
+      Object.keys(state).forEach((key) => {
+        // @ts-ignore
+        state[key] = initialState[key];
+      });
+    },
   },
 });
 
 export const {
+  touchValidations,
+  validateTransfer,
   setToken,
   setFromNetwork,
   setToNetwork,
@@ -132,6 +173,7 @@ export const {
   setReceiveNativeAmt,
   setRelayerFee,
   setBalance,
+  setAutomaticRelayAvail,
   clearTransfer,
 } = transferSlice.actions;
 

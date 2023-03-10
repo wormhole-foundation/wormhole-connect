@@ -72,6 +72,10 @@ export const ICON = {
   cursor: 'pointer',
 };
 
+export const ERROR_BORDER = (theme: any) => ({
+  border: `1px solid ${theme.palette.error[800] + OPACITY[50]}`,
+});
+
 export const changeOpacity = (
   color: string,
   opacity: keyof typeof OPACITY,

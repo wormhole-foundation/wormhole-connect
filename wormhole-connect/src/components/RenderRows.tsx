@@ -1,6 +1,6 @@
 import React from 'react';
 import { makeStyles } from 'tss-react/mui';
-import Down from '../icons/components/Down';
+import Down from '../icons/Down';
 import { Collapse } from '@mui/material';
 import { joinClass } from '../utils/style';
 

@@ -8,12 +8,12 @@ const useStyles = makeStyles()((theme) => ({
     backgroundColor: theme.palette.button.primary,
     color: theme.palette.button.primaryText,
     borderRadius: '8px',
-    border: `1px solid ${theme.palette.divider}`,
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
     padding: '12px 64px',
     cursor: 'pointer',
+    textAlign: 'center',
   },
   disabled: {
     cursor: 'not-allowed',
@@ -27,7 +27,6 @@ const useStyles = makeStyles()((theme) => ({
   action: {
     backgroundColor: theme.palette.button.action,
     color: theme.palette.button.actionText,
-    border: 'none',
   },
 }));
 

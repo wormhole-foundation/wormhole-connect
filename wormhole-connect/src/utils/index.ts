@@ -2,8 +2,10 @@ import { TokenConfig } from 'config/types';
 import {
   TokenId,
   ChainConfig,
+  ChainName,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { CHAINS_ARR, TOKENS, TOKENS_ARR } from '../sdk/config';
+import { WalletType } from './wallet';
 
 export function convertAddress(address: string): string {
   if (address.length === 22) return address;
@@ -17,6 +19,31 @@ export function displayEvmAddress(address: string): string {
     '...' +
     evmAddress.slice(evmAddress.length - 4, evmAddress.length)
   );
+}
+
+export function displayAddress(chain: ChainName, address: string): string {
+  if (chain === 'solana') {
+    return (
+      address.slice(0, 4) +
+      '...' +
+      address.slice(address.length - 4, address.length)
+    );
+  } else {
+    return displayEvmAddress(address);
+  }
+}
+
+export function displayWalletAddress(
+  walletType: WalletType,
+  address: string,
+): string {
+  if (
+    walletType === WalletType.METAMASK ||
+    walletType === WalletType.WALLET_CONNECT
+  ) {
+    return displayEvmAddress(address);
+  }
+  return displayAddress('solana', address);
 }
 
 export function getNetworkByChainId(chainId: number): ChainConfig | void {
@@ -35,15 +62,22 @@ export function getWrappedTokenId(token: TokenConfig): TokenId {
 
 export function getTokenById(tokenId: TokenId): TokenConfig | void {
   return TOKENS_ARR.filter(
-    (t) => t.tokenId && tokenId.address === t.tokenId!.address,
+    (t) =>
+      t.tokenId &&
+      tokenId.address.toLowerCase() === t.tokenId!.address.toLowerCase(),
   )[0];
 }
 
-export function getTokenDecimals(tokenId: TokenId | 'native'): number {
-  if (tokenId === 'native') return 18;
+export function getTokenDecimals(
+  chain: ChainName,
+  tokenId: TokenId | 'native',
+): number {
+  if (tokenId === 'native') {
+    return chain === 'solana' ? 9 : 18;
+  }
   const tokenConfig = getTokenById(tokenId);
   if (!tokenConfig) throw new Error('token config not found');
-  return tokenConfig.decimals;
+  return chain === 'solana' ? tokenConfig.solDecimals : tokenConfig.decimals;
 }
 
 function fallbackCopyTextToClipboard(text: string) {
@@ -86,4 +120,19 @@ export function copyTextToClipboard(text: string) {
     );
   }
   return fallbackCopyTextToClipboard(text);
+}
+
+export function isValidTxId(tx: string) {
+  if (tx.startsWith('0x') && tx.length === 66) return true;
+  return tx.length > 70 && tx.length < 100;
+}
+
+export function debounce(callback: any, wait: number) {
+  let timeout: any;
+  return (...args: any) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(function (this: any) {
+      callback.apply(this, args);
+    }, wait);
+  };
 }

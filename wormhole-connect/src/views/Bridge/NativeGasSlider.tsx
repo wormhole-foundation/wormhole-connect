@@ -9,7 +9,7 @@ import { CHAINS, TOKENS } from '../../sdk/config';
 import { calculateMaxSwapAmount, calculateNativeTokenAmt } from '../../sdk/sdk';
 import { TokenConfig } from '../../config/types';
 import { RootState } from '../../store';
-import TokenIcon from '../../icons/components/TokenIcons';
+import TokenIcon from '../../icons/TokenIcons';
 import { BigNumber, utils } from 'ethers';
 import {
   getConversion,
@@ -199,7 +199,7 @@ function GasSlider(props: { disabled: boolean }) {
         destConfig !== undefined ? (
           <div className={classes.container}>
             {balances[destConfig.gasToken] &&
-            Number.parseFloat(balances[destConfig.gasToken]) < state.max ? (
+            Number.parseFloat(balances[destConfig.gasToken]!) < state.max ? (
               <div>
                 Your wallet has little or no native gas ({nativeGasToken.symbol}
                 ) balance on {destConfig?.displayName}. Would you like to

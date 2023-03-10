@@ -1,20 +1,28 @@
+import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@mui/styles';
-import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Theme } from '@mui/material';
+import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
+import {
+  ChainConfig,
+  ChainName,
+  Context,
+} from '@wormhole-foundation/wormhole-connect-sdk';
+import { RootState } from '../store';
+import { setWalletModal } from '../store/router';
+import { CHAINS } from '../sdk/config';
+import {
+  setWalletConnection,
+  TransferWallet,
+  wallets,
+  WalletType,
+} from '../utils/wallet';
+import { connectReceivingWallet, connectWallet } from '../store/wallet';
+
 import Header from '../components/Header';
 import Modal from '../components/Modal';
 import Spacer from '../components/Spacer';
-import { Theme } from '@mui/material';
-import { useDispatch } from 'react-redux';
-import { setWalletModal } from '../store/router';
-import { useSelector } from 'react-redux';
-import { RootState } from '../store';
-
-const MetamaskIcon = '/assets/wallets/metamask-fox.svg';
-const BinanceIcon = '/assets/wallets/binance-wallet.svg';
-const CoinbaseIcon = '/assets/wallets/coinbase.svg';
-const TrustIcon = '/assets/wallets/trust-wallet.svg';
-const PhantomIcon = '/assets/wallets/phantom-wallet.svg';
-const WalletConnectIcon = '/assets/wallets/walletconnect.svg';
+import WalletIcon from '../icons/WalletIcons';
 
 const useStyles = makeStyles((theme: Theme) => ({
   walletRow: {
@@ -23,82 +31,131 @@ const useStyles = makeStyles((theme: Theme) => ({
     flexDirection: 'row',
     alignItems: 'center',
     width: '100%',
+    gap: '16px',
     padding: '16px 8px',
     transition: `background-color 0.4s`,
     cursor: 'pointer',
     fontSize: '16px',
     '&:hover': {
-      backgroundColor: theme.palette.primary[700],
+      backgroundColor: theme.palette.options.select,
     },
     '&:not(:last-child)': {
       borderBottom: `0.5px solid ${theme.palette.divider}`,
     },
   },
-  icon: {
-    width: '32px',
-    height: '32px',
-    marginRight: '16px',
-  },
 }));
 
-type Wallet = {
+type WalletData = {
   name: string;
-  icon: string;
+  wallet: Wallet;
+  type: WalletType;
 };
-const WalletOptions: Wallet[] = [
-  {
+const WALLETS = {
+  metamask: {
     name: 'Metamask',
-    icon: MetamaskIcon,
+    wallet: wallets.evm.metamask,
+    type: WalletType.METAMASK,
   },
-  {
-    name: 'Binance Wallet',
-    icon: BinanceIcon,
-  },
-  {
-    name: 'Coinbase',
-    icon: CoinbaseIcon,
-  },
-  {
-    name: 'Trust Wallet',
-    icon: TrustIcon,
-  },
-  {
-    name: 'Phantom Wallet',
-    icon: PhantomIcon,
-  },
-  {
+  walletConnect: {
     name: 'Wallet Connect',
-    icon: WalletConnectIcon,
+    wallet: wallets.evm.walletConnect,
+    type: WalletType.WALLET_CONNECT,
   },
-];
+  phantom: {
+    name: 'Phantom',
+    wallet: wallets.solana.phantom,
+    type: WalletType.PHANTOM,
+  },
+  solflare: {
+    name: 'Solflare',
+    wallet: wallets.solana.solflare,
+    type: WalletType.SOLFLARE,
+  },
+};
+const getWalletOptions = (chain: ChainConfig) => {
+  if (chain.context === Context.ETH) {
+    return [WALLETS.metamask, WALLETS.walletConnect];
+  } else if (chain.context === Context.SOLANA) {
+    return [WALLETS.phantom, WALLETS.solflare];
+  }
+};
 
-function NetworksModal() {
+type Props = {
+  type: TransferWallet;
+  chain?: ChainName;
+  onClose?: () => any;
+};
+
+function WalletsModal(props: Props) {
   const classes = useStyles();
   const dispatch = useDispatch();
-  const displayWalletOptions = (wallets: Wallet[]): JSX.Element[] => {
+  const { fromNetwork, toNetwork } = useSelector(
+    (state: RootState) => state.transfer,
+  );
+  const [walletOptions, setWalletOptions] = useState(
+    getAvailableWallets() || [],
+  );
+
+  function getAvailableWallets() {
+    const chain =
+      props.chain || props.type === TransferWallet.SENDING
+        ? fromNetwork
+        : toNetwork;
+
+    const config = CHAINS[chain!];
+    if (!config) return Object.values(WALLETS);
+    return getWalletOptions(config);
+  }
+
+  useEffect(() => {
+    const options = getAvailableWallets();
+    if (options) setWalletOptions(options);
+  }, [fromNetwork, toNetwork, props.chain]);
+
+  const connect = async (walletInfo: WalletData) => {
+    const { wallet } = walletInfo;
+    await wallet.connect();
+    setWalletConnection(props.type, wallet);
+    const address = wallet.getAddress();
+    if (address) {
+      const payload = { address, type: walletInfo.type };
+      if (props.type === TransferWallet.SENDING) {
+        dispatch(connectWallet(payload));
+      } else {
+        dispatch(connectReceivingWallet(payload));
+      }
+      dispatch(setWalletModal(false));
+      if (props.onClose) props.onClose();
+    }
+  };
+
+  const displayWalletOptions = (wallets: WalletData[]): JSX.Element[] => {
     return wallets.map((wallet, i) => (
-      <div className={classes.walletRow} key={i}>
-        <img className={classes.icon} src={wallet.icon} alt={wallet.name} />
+      <div
+        className={classes.walletRow}
+        key={i}
+        onClick={() => connect(wallet)}
+      >
+        <WalletIcon type={wallet.type} height={32} />
         <div>{wallet.name}</div>
       </div>
     ));
   };
   const closeWalletModal = () => {
-    dispatch(setWalletModal(false));
-    document.removeEventListener('click', closeWalletModal);
+    if (props.onClose) {
+      props.onClose();
+    } else {
+      dispatch(setWalletModal(false));
+    }
   };
-  document.addEventListener('close', closeWalletModal, { once: true });
-  const showWalletModal = useSelector(
-    (state: RootState) => state.router.showWalletModal,
-  );
 
   return (
-    <Modal open={showWalletModal} closable width={500}>
-      <Header text="Connect wallet" align="left" />
-      <Spacer height={32} />
-      <div>{displayWalletOptions(WalletOptions)}</div>
+    <Modal open={!!props.type} closable width={500} onClose={closeWalletModal}>
+      <Header text="Connect wallet" size={28} />
+      <Spacer height={16} />
+      <div>{displayWalletOptions(walletOptions)}</div>
     </Modal>
   );
 }
 
-export default NetworksModal;
+export default WalletsModal;

@@ -50,22 +50,28 @@ type OptionConfig = {
   estimate: string;
   active: PaymentOption;
 };
-const getOptions = (dest: NetworkConfig, token: string): OptionConfig[] => [
-  {
-    title: `Pay with ${token}`,
-    subtitle: '(one transaction)',
-    description: 'Gas fees will be paid automatically',
-    estimate: `TODO ${token}`,
-    active: PaymentOption.AUTOMATIC,
-  },
-  {
+const getOptions = (
+  dest: NetworkConfig,
+  token: string,
+  relayAvail: boolean,
+): OptionConfig[] => {
+  const manual = {
     title: `Pay with ${token} and ${dest.gasToken}`,
     subtitle: '(two transactions)',
     description: `Claim with ${dest.gasToken} on ${dest.displayName}`,
     estimate: `TODO ${token} & TODO ${dest.gasToken}`,
     active: PaymentOption.MANUAL,
-  },
-];
+  };
+  if (!relayAvail) return [manual];
+  const automatic = {
+    title: `Pay with ${token}`,
+    subtitle: '(one transaction)',
+    description: 'Gas fees will be paid automatically',
+    estimate: `TODO ${token}`,
+    active: PaymentOption.AUTOMATIC,
+  };
+  return [automatic, manual];
+};
 
 function GasOptions(props: { disabled: boolean }) {
   const { classes } = useStyles();
@@ -77,9 +83,8 @@ function GasOptions(props: { disabled: boolean }) {
   const selectedOption = useSelector(
     (state: RootState) => state.transfer.destGasPayment,
   );
-  const token = useSelector((state: RootState) => state.transfer.token);
-  const destination = useSelector(
-    (state: RootState) => state.transfer.toNetwork,
+  const { token, toNetwork, automaticRelayAvail } = useSelector(
+    (state: RootState) => state.transfer,
   );
   const active =
     selectedOption && selectedOption === PaymentOption.AUTOMATIC ? 0 : 1;
@@ -95,15 +100,18 @@ function GasOptions(props: { disabled: boolean }) {
   });
 
   useEffect(() => {
-    const destConfig = destination && CHAINS[destination];
+    const destConfig = toNetwork && CHAINS[toNetwork];
     if (token && destConfig) {
       const description =
         selectedOption === PaymentOption.AUTOMATIC
           ? `Pay with ${token}`
           : `Pay with ${token} & ${destConfig!.nativeToken}`;
-      setState({ options: getOptions(destConfig, token), description });
+      setState({
+        options: getOptions(destConfig, token, automaticRelayAvail),
+        description,
+      });
     }
-  }, [token, selectedOption, destination]);
+  }, [token, selectedOption, toNetwork]);
 
   return (
     <BridgeCollapse

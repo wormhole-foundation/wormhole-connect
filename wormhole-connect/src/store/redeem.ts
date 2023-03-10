@@ -46,14 +46,29 @@ export const redeemSlice = createSlice({
       console.log('set redeem tx:', payload);
       state.redeemTx = payload;
     },
-    setTransferComplete: (state: RedeemState, { payload }: PayloadAction<boolean>) => {
+    setTransferComplete: (
+      state: RedeemState,
+      { payload }: PayloadAction<boolean>,
+    ) => {
       console.log('set transfer complete', payload);
       state.transferComplete = payload;
-    }
+    },
+    clearRedeem: (state: RedeemState) => {
+      Object.keys(state).forEach((key) => {
+        // @ts-ignore
+        state[key] = initialState[key];
+      });
+    },
   },
 });
 
-export const { setVaa, setTxDetails, setSendTx, setRedeemTx, setTransferComplete } =
-  redeemSlice.actions;
+export const {
+  setVaa,
+  setTxDetails,
+  setSendTx,
+  setRedeemTx,
+  setTransferComplete,
+  clearRedeem,
+} = redeemSlice.actions;
 
 export default redeemSlice.reducer;

@@ -3,7 +3,8 @@ import { ChainId } from '@wormhole-foundation/wormhole-connect-sdk';
 import axios from 'axios';
 
 import { utils } from 'ethers';
-import { keccak256 } from 'ethers/lib/utils';
+import { CHAINS } from 'sdk/config';
+import { ParsedMessage } from 'sdk/sdk';
 
 export type ParsedVaa = {
   bytes: string;
@@ -25,15 +26,23 @@ export type ParsedVaa = {
 
 const { REACT_APP_WORMHOLE_API } = process.env;
 
-export async function fetchVaa(txId: string): Promise<ParsedVaa | undefined> {
-  const id = txId.startsWith('0x') ? txId.slice(2) : txId;
-  const url = `${REACT_APP_WORMHOLE_API}api/v1/vaas/?txHash=${id}`;
+export async function fetchVaa(
+  txData: ParsedMessage,
+): Promise<ParsedVaa | undefined> {
+  const emitterChain = CHAINS[txData.fromChain];
+  if (!emitterChain || !emitterChain.id) {
+    throw new Error('invalid emitter chain');
+  }
+  const emitterAddress = txData.emitterAddress.startsWith('0x')
+    ? txData.emitterAddress.slice(2)
+    : txData.emitterAddress;
+  const url = `${REACT_APP_WORMHOLE_API}api/v1/vaas/${emitterChain.id}/${emitterAddress}/${txData.sequence}`;
 
   return axios
     .get(url)
     .then(function (response: any) {
       if (!response.data.data) return;
-      const data = response.data.data[0];
+      const data = response.data.data;
       const vaa = utils.base64.decode(data.vaa);
       const parsed = parseTokenTransferVaa(vaa);
       console.log(parsed);
@@ -44,7 +53,9 @@ export async function fetchVaa(txId: string): Promise<ParsedVaa | undefined> {
         emitterAddress: utils.hexlify(parsed.emitterAddress),
         emitterChain: parsed.emitterChain as ChainId,
         fee: parsed.fee ? parsed.fee.toString() : null,
-        fromAddress: parsed.fromAddress ? utils.hexlify(parsed.fromAddress) : undefined,
+        fromAddress: parsed.fromAddress
+          ? utils.hexlify(parsed.fromAddress)
+          : undefined,
         guardianSignatures: parsed.guardianSignatures.length,
         sequence: parsed.sequence.toString(),
         timestamp: parsed.timestamp,
@@ -57,10 +68,10 @@ export async function fetchVaa(txId: string): Promise<ParsedVaa | undefined> {
       return vaaData;
     })
     .catch(function (error) {
-      throw error;
+      if (error.code === 'ERR_BAD_REQUEST') {
+        return undefined;
+      } else {
+        throw error;
+      }
     });
-}
-
-export function getSignedVAAHash(signedVaaHash: string): string {
-  return keccak256(signedVaaHash);
 }

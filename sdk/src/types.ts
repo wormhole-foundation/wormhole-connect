@@ -1,4 +1,9 @@
 import { Network as Environment } from '@certusone/wormhole-sdk';
+import { WormholeContext } from 'wormhole';
+import { EthContext } from 'contexts/ethContext';
+import { SolanaContext } from 'contexts/solanaContext';
+import { EthContracts } from 'contracts/ethContracts';
+import { SolContracts } from 'contracts/solContracts';
 import { BigNumber } from 'ethers';
 import { MainnetChainName, MainnetChainId } from './config/MAINNET';
 import { TestnetChainName, TestnetChainId } from './config/TESTNET';
@@ -40,6 +45,7 @@ export type ChainConfig = {
   explorerName: string;
   gasToken: string;
   chainId: number;
+  finalityThreshold: number;
 };
 
 export type WormholeConfig = {
@@ -57,6 +63,14 @@ export type TokenId = {
   address: string;
 };
 
+export type AnyContext =
+  | EthContext<WormholeContext>
+  | SolanaContext<WormholeContext>;
+
+export type AnyContracts =
+  | EthContracts<WormholeContext>
+  | SolContracts<WormholeContext>;
+
 export interface ParsedMessage {
   sendTx: string;
   sender: string;
@@ -68,7 +82,10 @@ export interface ParsedMessage {
   tokenAddress: string;
   tokenChain: ChainName;
   sequence: BigNumber;
+  emitterAddress: string;
+  block: number;
   payload?: string;
+  gasFee?: BigNumber;
 }
 
 export interface ParsedRelayerMessage extends ParsedMessage {
@@ -79,3 +96,8 @@ export interface ParsedRelayerMessage extends ParsedMessage {
 }
 
 export type AnyMessage = ParsedMessage | ParsedRelayerMessage;
+
+export type TokenDetails = {
+  symbol: string;
+  decimals: number;
+};

@@ -1,32 +1,23 @@
-import { ContractReceipt, providers, Signer } from 'ethers';
-import {
-  Bridge,
-  Wormhole,
-  NFTBridge,
-} from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
 import { Network as Environment } from '@certusone/wormhole-sdk';
 import { MultiProvider, Domain } from '@nomad-xyz/multi-provider';
+import { ContractReceipt, BigNumber } from 'ethers';
+import { Transaction } from '@solana/web3.js';
 
-import MAINNET_CONFIG, {
-  MainnetChainName,
-  MAINNET_CHAINS,
-} from './config/MAINNET';
-import TESTNET_CONFIG, {
-  TestnetChainName,
-  TESTNET_CHAINS,
-} from './config/TESTNET';
-import { WormholeConfig, ChainName, ChainId, Context } from './types';
-import { WHContracts } from './contracts';
+import MAINNET_CONFIG, { MAINNET_CHAINS } from './config/MAINNET';
+import TESTNET_CONFIG, { TESTNET_CHAINS } from './config/TESTNET';
+import {
+  WormholeConfig,
+  ChainName,
+  ChainId,
+  Context,
+  AnyContext,
+  Contracts,
+  ParsedRelayerMessage,
+  ParsedMessage,
+} from './types';
+import { EthContext } from './contexts/ethContext';
+import { SolanaContext } from './contexts/solanaContext';
 import { TokenId } from './types';
-import { EthContext } from './envContexts/ethContext';
-import { TerraContext } from './envContexts/terraContext';
-import { InjectiveContext } from './envContexts/injectiveContext';
-import { XplaContext } from './envContexts/xplaContext';
-import { SolanaContext } from './envContexts/solanaContext';
-import { NearContext } from './envContexts/nearContext';
-import { AptosContext } from './envContexts/aptosContext';
-import { AlgorandContext } from './envContexts/algorandContext';
-import { TokenBridgeRelayer } from './abis/TokenBridgeRelayer';
 
 /**
  * The WormholeContext manages connections to Wormhole Core, Bridge and NFT Bridge contracts.
@@ -57,7 +48,7 @@ import { TokenBridgeRelayer } from './abis/TokenBridgeRelayer';
  * )
  */
 export class WormholeContext extends MultiProvider<Domain> {
-  protected _contracts: Map<ChainName, WHContracts<this>>;
+  protected _contexts: Map<Context, AnyContext>;
   readonly conf: WormholeConfig;
 
   constructor(env: Environment, conf?: WormholeConfig) {
@@ -69,27 +60,25 @@ export class WormholeContext extends MultiProvider<Domain> {
       this.conf = env === 'MAINNET' ? MAINNET_CONFIG : TESTNET_CONFIG;
     }
 
-    this._contracts = new Map();
+    this._contexts = new Map();
+    this._contexts.set(Context.ETH, new EthContext(this));
+    this._contexts.set(Context.SOLANA, new SolanaContext(this));
 
     for (const network of Object.keys(this.conf.rpcs)) {
-      const n =
-        env === 'MAINNET'
-          ? (network as MainnetChainName)
-          : (network as TestnetChainName);
+      const n = network as ChainName;
       const chains = env === 'MAINNET' ? MAINNET_CHAINS : TESTNET_CHAINS;
+      const chainConfig = (chains as any)[n];
+      if (!chainConfig) throw new Error('invalid network name');
       // register domain
       this.registerDomain({
         // @ts-ignore
-        domain: chains[n],
+        domain: chainConfig,
         name: network,
       });
       // register RPC provider
       if (this.conf.rpcs[n]) {
         this.registerRpcProvider(network, this.conf.rpcs[n]!);
       }
-      // set contracts
-      const contracts = new WHContracts(env, this, n);
-      this._contracts.set(n, contracts);
     }
   }
 
@@ -97,136 +86,27 @@ export class WormholeContext extends MultiProvider<Domain> {
     return this.conf.env;
   }
 
-  /**
-   * Register an ethers Provider for a specified domain.
-   *
-   * @param nameOrDomain A domain name or number.
-   * @param provider An ethers Provider to be used by requests to that domain.
-   */
-  registerProvider(
-    nameOrDomain: string | number,
-    provider: providers.Provider,
-  ): void {
-    const domain = this.resolveDomain(nameOrDomain);
-    super.registerProvider(domain, provider);
+  toChainId(nameOrId: string | number) {
+    return super.resolveDomain(nameOrId) as ChainId;
   }
 
-  /**
-   * Register an ethers Signer for a specified domain.
-   *
-   * @param nameOrDomain A domain name or number.
-   * @param signer An ethers Signer to be used by requests to that domain.
-   */
-  registerSigner(nameOrDomain: string | number, signer: Signer): void {
-    const domain = this.resolveDomain(nameOrDomain);
-    super.registerSigner(domain, signer);
+  toChainName(nameOrId: string | number) {
+    return super.resolveDomainName(nameOrId) as ChainName;
   }
 
-  /**
-   * Remove the registered ethers Signer from a domain. This function will
-   * attempt to preserve any Provider that was previously connected to this
-   * domain.
-   *
-   * @param nameOrDomain A domain name or number.
-   */
-  unregisterSigner(nameOrDomain: string | number): void {
-    const domain = this.resolveDomain(nameOrDomain);
-    super.unregisterSigner(domain);
+  getContracts(chain: ChainName | ChainId): Contracts | undefined {
+    const chainName = this.toChainName(chain);
+    return this.conf.chains[chainName]?.contracts;
   }
 
-  /**
-   * Clear all signers from all registered domains.
-   */
-  clearSigners(): void {
-    super.clearSigners();
-  }
-
-  /**
-   * Get the contracts for a given domain (or undefined)
-   *
-   * @param nameOrDomain A domain name or number.
-   * @returns a {@link CoreContracts} object (or undefined)
-   */
-  getContracts(chain: ChainName | ChainId): WHContracts<this> | undefined {
-    const domain = this.resolveDomainName(chain) as ChainName;
-    return this._contracts.get(domain);
-  }
-
-  /**
-   * Get the {@link CoreContracts} for a given domain (or throw an error)
-   *
-   * @param nameOrDomain A domain name or number.
-   * @returns a {@link CoreContracts} object
-   * @throws if no {@link CoreContracts} object exists on that domain.
-   */
-  mustGetContracts(chain: ChainName | ChainId): WHContracts<this> {
+  mustGetContracts(chain: ChainName | ChainId): Contracts {
     const contracts = this.getContracts(chain);
-    if (!contracts) {
-      throw new Error(`Missing contracts for domain: ${chain}`);
-    }
+    if (!contracts) throw new Error(`no contracts found for ${chain}`);
     return contracts;
   }
 
-  getCore(chain: ChainName | ChainId): Wormhole | undefined {
-    const contracts = this.mustGetContracts(chain);
-    return contracts.core;
-  }
-
-  mustGetCore(chain: ChainName | ChainId): Wormhole {
-    const coreContract = this.getCore(chain);
-    if (!coreContract)
-      throw new Error(`Wormhole core contract not found for ${chain}`);
-    return coreContract;
-  }
-
-  getBridge(chain: ChainName | ChainId): Bridge | undefined {
-    const contracts = this.mustGetContracts(chain);
-    return contracts.bridge;
-  }
-
-  mustGetBridge(chain: ChainName | ChainId): Bridge {
-    const bridgeContract = this.getBridge(chain);
-    if (!bridgeContract)
-      throw new Error(`Token bridge contract not found for ${chain}`);
-    return bridgeContract;
-  }
-
-  getNftBridge(chain: ChainName | ChainId): NFTBridge | undefined {
-    const contracts = this.mustGetContracts(chain);
-    return contracts.nftBridge;
-  }
-
-  mustGetNftBridge(chain: ChainName | ChainId): NFTBridge {
-    const nftBridgeContract = this.getNftBridge(chain);
-    if (!nftBridgeContract)
-      throw new Error(`NFT bridge contract not found for ${chain}`);
-    return nftBridgeContract;
-  }
-
-  getTBRelayer(chain: ChainName | ChainId): TokenBridgeRelayer | undefined {
-    const contracts = this.mustGetContracts(chain);
-    return contracts.tokenBridgeRelayer;
-  }
-
-  mustGetTBRelayer(chain: ChainName | ChainId): TokenBridgeRelayer {
-    const relayerContract = this.getTBRelayer(chain);
-    if (!relayerContract)
-      throw new Error(`Token Bridge Relayer contract not found for ${chain}`);
-    return relayerContract;
-  }
-
-  getContext(
-    chain: ChainName | ChainId,
-  ):
-    | EthContext<WormholeContext>
-    | TerraContext<WormholeContext>
-    | InjectiveContext<WormholeContext>
-    | XplaContext<WormholeContext>
-    | SolanaContext<WormholeContext>
-    | NearContext<WormholeContext>
-    | AptosContext<WormholeContext>
-    | AlgorandContext<WormholeContext> {
-    const chainName = this.resolveDomainName(chain) as ChainName;
+  getContext(chain: ChainName | ChainId): AnyContext {
+    const chainName = this.toChainName(chain);
     const { context } = this.conf.chains[chainName]!;
     switch (context) {
       case Context.ETH: {
@@ -235,28 +115,41 @@ export class WormholeContext extends MultiProvider<Domain> {
       case Context.SOLANA: {
         return new SolanaContext(this);
       }
-      case Context.TERRA: {
-        return new TerraContext(this);
-      }
-      case Context.INJECTIVE: {
-        return new InjectiveContext(this);
-      }
-      case Context.XPLA: {
-        return new XplaContext(this);
-      }
-      case Context.ALGORAND: {
-        return new AlgorandContext(this);
-      }
-      case Context.NEAR: {
-        return new NearContext(this);
-      }
-      case Context.APTOS: {
-        return new AptosContext(this);
-      }
       default: {
         throw new Error('Not able to retrieve context');
       }
     }
+  }
+
+  async getForeignAsset(tokenId: TokenId, chain: ChainName | ChainId) {
+    const context = this.getContext(chain);
+    return await context.getForeignAsset(tokenId, chain);
+  }
+
+  async fetchTokenDecimals(
+    tokenId: TokenId,
+    chain: ChainName | ChainId,
+  ): Promise<number> {
+    const context = this.getContext(chain);
+    const repr = await context.getForeignAsset(tokenId, chain);
+    return await context.fetchTokenDecimals(repr, chain);
+  }
+
+  async getNativeBalance(
+    walletAddress: string,
+    chain: ChainName | ChainId,
+  ): Promise<BigNumber> {
+    const context = this.getContext(chain);
+    return await context.getNativeBalance(walletAddress, chain);
+  }
+
+  async getTokenBalance(
+    walletAddress: string,
+    tokenId: TokenId,
+    chain: ChainName | ChainId,
+  ): Promise<BigNumber | null> {
+    const context = this.getContext(chain);
+    return await context.getTokenBalance(walletAddress, tokenId, chain);
   }
 
   /**
@@ -272,7 +165,6 @@ export class WormholeContext extends MultiProvider<Domain> {
    * @param payload Extra bytes that can be passed along with the transfer
    * @throws If unable to get the signer or contracts, or if there is a problem executing the transaction
    */
-  // TODO: implement extra arguments for other networks
   async send(
     token: TokenId | 'native',
     amount: string,
@@ -282,7 +174,7 @@ export class WormholeContext extends MultiProvider<Domain> {
     recipientAddress: string,
     relayerFee?: string,
     payload?: any,
-  ): Promise<ContractReceipt> {
+  ): Promise<ContractReceipt | Transaction> {
     const context = this.getContext(sendingChain);
     if (payload) {
       return context.sendWithPayload(
@@ -343,10 +235,45 @@ export class WormholeContext extends MultiProvider<Domain> {
     );
   }
 
-  // formatAddress(address: any, chain: ChainName | ChainId): string {
-  //   const context = this.getContext(chain);
-  //   return context.formatAddress(address);
-  // }
+  async redeem(
+    destChain: ChainName | ChainId,
+    signedVAA: Uint8Array,
+    overrides: any,
+  ): Promise<any> {
+    const context = this.getContext(destChain);
+    return await context.redeem(destChain, signedVAA, overrides);
+  }
+
+  async isTransferCompleted(
+    destChain: ChainName | ChainId,
+    signedVaa: string,
+  ): Promise<boolean> {
+    const context = this.getContext(destChain);
+    return await context.isTransferCompleted(destChain, signedVaa);
+  }
+
+  formatAddress(address: string, chain: ChainName | ChainId): any {
+    const context = this.getContext(chain);
+    return context.formatAddress(address);
+  }
+
+  parseAddress(address: any, chain: ChainName | ChainId): string {
+    const context = this.getContext(chain);
+    return context.parseAddress(address);
+  }
+
+  getTxIdFromReceipt(chain: ChainName | ChainId, receipt: any): string {
+    const context = this.getContext(chain);
+    return context.getTxIdFromReceipt(receipt);
+  }
+
+  async parseMessageFromTx(
+    tx: string,
+    chain: ChainName | ChainId,
+  ): Promise<ParsedMessage[] | ParsedRelayerMessage[]> {
+    const context = this.getContext(chain);
+    return await context.parseMessageFromTx(tx, chain);
+  }
 
   /**
    * Get the default config for Mainnet or Testnet
@@ -354,7 +281,7 @@ export class WormholeContext extends MultiProvider<Domain> {
    * @param environment 'MAINNET' or 'TESTNET'
    * @returns A Wormhole Config
    */
-  static async getConfig(env: Environment): Promise<WormholeConfig> {
+  static getConfig(env: Environment): WormholeConfig {
     return env === 'MAINNET' ? MAINNET_CONFIG : TESTNET_CONFIG;
   }
 }

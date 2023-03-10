@@ -1,22 +1,34 @@
 import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
+import { BigNumber } from 'ethers';
+import { useDispatch } from 'react-redux';
 import { RootState } from '../../store';
-import { PaymentOption, setBalance, formatBalance } from '../../store/transfer';
+import {
+  PaymentOption,
+  setBalance,
+  formatBalance,
+  setAutomaticRelayAvail,
+  setDestGasPayment,
+  setToken,
+} from '../../store/transfer';
+import { getNativeBalance } from '../../sdk/sdk';
+import { CHAINS, TOKENS } from '../../sdk/config';
+import { isTransferValid, validate } from '../../utils/transferValidation';
 
-import Header from '../../components/Header';
 import Spacer from '../../components/Spacer';
-import Networks from './Networks';
 import GasOptions from './GasOptions';
 import GasSlider from './NativeGasSlider';
 import Preview from './Preview';
 import Send from './Send';
-import MenuFull from '../../components/MenuFull';
 import { Collapse } from '@mui/material';
-import { BigNumber } from 'ethers';
-import { useDispatch } from 'react-redux';
-import { getNativeBalance } from '../../sdk/sdk';
-import { CHAINS, TOKENS } from '../../sdk/config';
+import AlertBanner from '../../components/AlertBanner';
+import PageHeader from '../../components/PageHeader';
+import FromNetworksModal from './Modals/FromNetworksModal';
+import ToNetworksModal from './Modals/ToNetworksModal';
+import TokensModal from './Modals/TokensModal';
+import FromInputs from './Inputs.tsx/From';
+import ToInputs from './Inputs.tsx/To';
 
 const useStyles = makeStyles()((theme) => ({
   bridgeContent: {
@@ -27,6 +39,7 @@ const useStyles = makeStyles()((theme) => ({
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: '16px',
   },
   header: {
     display: 'flex',
@@ -39,56 +52,101 @@ const useStyles = makeStyles()((theme) => ({
 function Bridge() {
   const { classes } = useStyles();
   const dispatch = useDispatch();
-  const { fromNetwork, toNetwork, amount, token, destGasPayment } = useSelector(
-    (state: RootState) => state.transfer,
-  );
+  const {
+    validations,
+    fromNetwork,
+    toNetwork,
+    token,
+    destGasPayment,
+    automaticRelayAvail,
+    toNativeToken,
+    relayerFee,
+  } = useSelector((state: RootState) => state.transfer);
   const { sending, receiving } = useSelector(
     (state: RootState) => state.wallet,
   );
 
+  // clear token if not supported on the selected network
   useEffect(() => {
-    if (!toNetwork || !receiving.address) return;
+    if (!fromNetwork || !token) return;
+    const tokenConfig = TOKENS[token];
+    if (!tokenConfig.tokenId && tokenConfig.nativeNetwork !== fromNetwork) {
+      dispatch(setToken(''));
+    }
+  }, [fromNetwork, token]);
+
+  // check destination native balance
+  useEffect(() => {
+    if (!fromNetwork || !toNetwork || !receiving.address) return;
     const networkConfig = CHAINS[toNetwork]!;
     getNativeBalance(receiving.address, toNetwork).then((res: BigNumber) => {
       const tokenConfig = TOKENS[networkConfig.gasToken];
       if (!tokenConfig)
         throw new Error('Could not get native gas token config');
-      dispatch(setBalance(formatBalance(tokenConfig, res)));
+      dispatch(setBalance(formatBalance(fromNetwork, tokenConfig, res)));
     });
-  }, [toNetwork, receiving.address]);
+  }, [fromNetwork, toNetwork, receiving.address]);
 
-  const valid =
-    fromNetwork &&
-    toNetwork &&
-    amount &&
-    token &&
-    sending.address &&
-    receiving.address;
+  // check if automatic relay option is available
+  useEffect(() => {
+    if (!fromNetwork || !toNetwork) return;
+    const fromConfig = CHAINS[fromNetwork]!;
+    const toConfig = CHAINS[toNetwork]!;
+    if (fromConfig.automaticRelayer && toConfig.automaticRelayer) {
+      dispatch(setAutomaticRelayAvail(true));
+      dispatch(setDestGasPayment(PaymentOption.AUTOMATIC));
+    } else {
+      dispatch(setAutomaticRelayAvail(false));
+      dispatch(setDestGasPayment(PaymentOption.MANUAL));
+    }
+  }, [fromNetwork, toNetwork]);
+
+  // validate transfer inputs
+  useEffect(() => {
+    validate(dispatch);
+  }, [
+    sending,
+    receiving,
+    fromNetwork,
+    toNetwork,
+    token,
+    destGasPayment,
+    automaticRelayAvail,
+    toNativeToken,
+    relayerFee,
+  ]);
+  const valid = isTransferValid(validations);
 
   return (
     <div className={classes.bridgeContent}>
-      <div className={classes.header}>
-        <Header text="Bridge" align="left" />
-        <MenuFull />
-      </div>
-      <Spacer height={40} />
+      <PageHeader title="Bridge" />
 
-      <Networks />
-      <Spacer />
+      <FromInputs />
+      <ToInputs />
 
       <GasOptions disabled={!valid} />
-      <Spacer />
 
-      <Collapse in={destGasPayment === PaymentOption.AUTOMATIC}>
-        <GasSlider disabled={!valid} />
-        <Spacer />
-      </Collapse>
+      {automaticRelayAvail && (
+        <Collapse in={destGasPayment === PaymentOption.AUTOMATIC}>
+          <GasSlider disabled={!valid} />
+        </Collapse>
+      )}
 
       <Preview collapsed={!valid} />
-      <Spacer />
+
+      <AlertBanner
+        show={!!valid && destGasPayment === PaymentOption.MANUAL}
+        text="This transfer will require two transactions - one on the source chain and one on the destination chain."
+        warning
+      />
 
       <Send valid={!!valid} />
       <Spacer height={60} />
+
+      {/* modals */}
+      <FromNetworksModal />
+      <ToNetworksModal />
+      <TokensModal />
     </div>
   );
 }
