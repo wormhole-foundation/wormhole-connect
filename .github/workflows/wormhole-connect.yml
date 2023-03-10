@@ -12,9 +12,6 @@ jobs:
           cd ./wormhole-connect
           npm run lint
 
-    steps:
-      - uses: actions/checkout@v2
-
   test:
     runs-on: ubuntu-latest
 
