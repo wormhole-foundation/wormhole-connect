@@ -3,10 +3,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../../store';
 import { setToNetworksModal } from '../../../store/router';
 import { TransferWallet } from '../../../utils/wallet';
-import { CHAINS, TOKENS } from '../../../sdk/config';
+import { TOKENS } from '../../../sdk/config';
 
-import NetworkTile from '../NetworkTile';
-import Inputs from './Layout';
+import Inputs from './Inputs';
 import Input from './Input';
 import Select from './Select';
 import { getBalance } from '../../../sdk/sdk';
@@ -17,25 +16,18 @@ function ToInputs() {
   const dispatch = useDispatch();
   const [balance, setBalance] = useState(undefined as string | undefined);
 
-  const {
-    validate: showErrors,
-    validations,
-    fromNetwork,
-    toNetwork,
-    token,
-    amount,
-  } = useSelector((state: RootState) => state.transfer);
+  const { validations, fromNetwork, toNetwork, token, amount } = useSelector(
+    (state: RootState) => state.transfer,
+  );
   const walletAddr = useSelector(
     (state: RootState) => state.wallet.receiving.address,
   );
 
-  // get networks configs
-  const toNetworkConfig = toNetwork ? CHAINS[toNetwork] : undefined;
   const tokenConfig = TOKENS[token];
 
   const openToNetworksModal = () => dispatch(setToNetworksModal(true));
 
-  // balance
+  // get balance on destination chain
   useEffect(() => {
     if (!fromNetwork || !toNetwork || !tokenConfig || !walletAddr) return;
     if (tokenConfig.tokenId) {
@@ -58,29 +50,13 @@ function ToInputs() {
     }
   }, [tokenConfig, fromNetwork, toNetwork, walletAddr]);
 
-  const networkTile = (
-    <NetworkTile
-      network={toNetworkConfig}
-      error={!!(showErrors && validations.toNetwork)}
-      onClick={openToNetworksModal}
-    />
-  );
-  const selectedNetwork = toNetworkConfig
-    ? { icon: toNetworkConfig.icon, text: toNetworkConfig.displayName }
-    : undefined;
-  const networkTileSmall = (
-    <Select
-      label="Network"
-      selected={selectedNetwork}
-      error={!!(showErrors && validations.toNetwork)}
-      onClick={openToNetworksModal}
-      editable
-    />
-  );
+  // token display jsx
   const selectedToken = tokenConfig
     ? { icon: tokenConfig.icon, text: tokenConfig.symbol }
     : undefined;
   const tokenInput = <Select label="Asset" selected={selectedToken} />;
+
+  // amount display jsx
   const amountInput = (
     <Input label="Amount">
       <div>{token && amount ? amount : '-'}</div>
@@ -93,8 +69,9 @@ function ToInputs() {
       wallet={TransferWallet.RECEIVING}
       walletValidations={[validations.receivingWallet]}
       inputValidations={[validations.toNetwork]}
-      networkTile={networkTile}
-      networkTileSmall={networkTileSmall}
+      network={toNetwork}
+      networkValidation={validations.toNetwork}
+      onNetworkClick={openToNetworksModal}
       tokenInput={tokenInput}
       amountInput={amountInput}
       balance={balance}

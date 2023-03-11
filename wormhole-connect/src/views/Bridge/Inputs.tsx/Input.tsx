@@ -15,9 +15,6 @@ const useStyles = makeStyles()((theme) => ({
     backgroundColor: theme.palette.card.secondary,
     cursor: 'pointer',
   },
-  inputText: {
-    cursor: 'text',
-  },
   label: {
     fontSize: '14px',
     color: theme.palette.text.secondary,

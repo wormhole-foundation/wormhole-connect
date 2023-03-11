@@ -1,11 +1,18 @@
+import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import React from 'react';
+import { useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import ConnectWallet from '../../../components/ConnectWallet';
 
 import InputContainer from '../../../components/InputContainer';
+import { CHAINS } from '../../../sdk/config';
+import { RootState } from '../../../store';
+import { ValidationErr } from '../../../utils/transferValidation';
 import { TransferWallet } from '../../../utils/wallet';
+import NetworkTile from '../NetworkTile';
 import ValidationError from '../ValidationError';
 import Input from './Input';
+import Select from './Select';
 
 const useStyles = makeStyles()((theme) => ({
   outerContainer: {
@@ -53,6 +60,9 @@ const useStyles = makeStyles()((theme) => ({
     gap: '8px',
     width: '100%',
     paddingLeft: '8px',
+    [theme.breakpoints.down('sm')]: {
+      paddingLeft: '0',
+    },
   },
   networkRow: {
     display: 'flex',
@@ -63,11 +73,14 @@ const useStyles = makeStyles()((theme) => ({
     display: 'none',
     [theme.breakpoints.down('sm')]: {
       display: 'block',
+      width: '40%',
     },
   },
-  tokenIcon: {
-    width: '24px',
-    height: '24px',
+  token: {
+    width: '100%',
+    [theme.breakpoints.down('sm')]: {
+      width: '60%',
+    },
   },
   amtRow: {
     display: 'grid',
@@ -91,8 +104,9 @@ type Props = {
   wallet: TransferWallet;
   walletValidations: string[];
   inputValidations: string[];
-  networkTile: any;
-  networkTileSmall: any;
+  network: ChainName | undefined;
+  networkValidation: ValidationErr;
+  onNetworkClick: any;
   tokenInput: any;
   amountInput: any;
   balance: string | undefined;
@@ -100,6 +114,15 @@ type Props = {
 
 function Inputs(props: Props) {
   const { classes } = useStyles();
+
+  const { validate: showErrors } = useSelector(
+    (state: RootState) => state.transfer,
+  );
+
+  const networkConfig = props.network && CHAINS[props.network];
+  const selectedNetwork = networkConfig
+    ? { icon: networkConfig.icon, text: networkConfig.displayName }
+    : undefined;
 
   return (
     <div className={classes.container}>
@@ -116,15 +139,28 @@ function Inputs(props: Props) {
         <div className={classes.outerContainer}>
           <div className={classes.content}>
             {/* network tile */}
-            <div className={classes.network}>{props.networkTile}</div>
+            <div className={classes.network}>
+              <NetworkTile
+                network={networkConfig}
+                error={!!(showErrors && props.networkValidation)}
+                onClick={props.onNetworkClick}
+              />
+            </div>
 
             <div className={classes.inputs}>
-              {/* network/token select */}
               <div className={classes.networkRow}>
+                {/* network select (mobile) */}
                 <div className={classes.networkSmall}>
-                  {props.networkTileSmall}
+                  <Select
+                    label="Network"
+                    selected={selectedNetwork}
+                    error={!!(showErrors && props.networkValidation)}
+                    onClick={props.onNetworkClick}
+                    editable
+                  />
                 </div>
-                {props.tokenInput}
+                {/* token select */}
+                <div className={classes.token}>{props.tokenInput}</div>
               </div>
 
               <div className={classes.amtRow}>

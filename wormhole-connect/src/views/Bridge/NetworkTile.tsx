@@ -44,7 +44,7 @@ type Props = {
   error?: boolean;
 };
 
-function NetworksTile(props: Props) {
+function NetworkTile(props: Props) {
   const classes = useStyles();
   return props.network ? (
     <div
@@ -73,4 +73,4 @@ function NetworksTile(props: Props) {
   );
 }
 
-export default NetworksTile;
+export default NetworkTile;
