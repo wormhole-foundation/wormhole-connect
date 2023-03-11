@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@mui/styles';
 import { useDispatch, useSelector } from 'react-redux';
 import { Theme } from '@mui/material';
-import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
+import { Wallet, WalletState } from '@xlabs-libs/wallet-aggregator-core';
 import {
   ChainConfig,
   ChainName,
@@ -43,33 +43,46 @@ const useStyles = makeStyles((theme: Theme) => ({
       borderBottom: `0.5px solid ${theme.palette.divider}`,
     },
   },
+  notInstalled: {
+    opacity: '60%',
+  },
 }));
+
+const getReady = (wallet: Wallet) => {
+  const ready = wallet.getWalletState();
+  return ready === WalletState.Loadable || ready === WalletState.Installed;
+};
 
 type WalletData = {
   name: string;
   wallet: Wallet;
   type: WalletType;
+  isReady: boolean;
 };
 const WALLETS = {
   metamask: {
     name: 'Metamask',
     wallet: wallets.evm.metamask,
     type: WalletType.METAMASK,
+    isReady: getReady(wallets.evm.metamask),
   },
   walletConnect: {
     name: 'Wallet Connect',
     wallet: wallets.evm.walletConnect,
     type: WalletType.WALLET_CONNECT,
+    isReady: getReady(wallets.evm.walletConnect),
   },
   phantom: {
     name: 'Phantom',
     wallet: wallets.solana.phantom,
     type: WalletType.PHANTOM,
+    isReady: getReady(wallets.solana.phantom),
   },
   solflare: {
     name: 'Solflare',
     wallet: wallets.solana.solflare,
     type: WalletType.SOLFLARE,
+    isReady: getReady(wallets.solana.solflare),
   },
 };
 const getWalletOptions = (chain: ChainConfig) => {
@@ -130,16 +143,21 @@ function WalletsModal(props: Props) {
   };
 
   const displayWalletOptions = (wallets: WalletData[]): JSX.Element[] => {
-    return wallets.map((wallet, i) => (
-      <div
-        className={classes.walletRow}
-        key={i}
-        onClick={() => connect(wallet)}
-      >
-        <WalletIcon type={wallet.type} height={32} />
-        <div>{wallet.name}</div>
-      </div>
-    ));
+    const sorted = wallets.sort((w) => (w.isReady ? -1 : 1));
+    return sorted.map((wallet, i) => {
+      const ready = wallet.isReady;
+      const select = ready
+        ? () => connect(wallet)
+        : () => window.open(wallet.wallet.getUrl());
+      return (
+        <div className={classes.walletRow} key={i} onClick={select}>
+          <WalletIcon type={wallet.type} height={32} />
+          <div className={`${!ready && classes.notInstalled}`}>
+            {!ready && 'Install'} {wallet.name}
+          </div>
+        </div>
+      );
+    });
   };
   const closeWalletModal = () => {
     if (props.onClose) {
