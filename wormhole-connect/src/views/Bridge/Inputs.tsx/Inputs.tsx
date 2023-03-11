@@ -2,8 +2,10 @@ import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
-import ConnectWallet from '../../../components/ConnectWallet';
+import { useTheme } from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
+import ConnectWallet from '../../../components/ConnectWallet';
 import InputContainer from '../../../components/InputContainer';
 import { CHAINS } from '../../../sdk/config';
 import { RootState } from '../../../store';
@@ -49,9 +51,6 @@ const useStyles = makeStyles()((theme) => ({
   },
   network: {
     gridArea: 'network',
-    [theme.breakpoints.down('sm')]: {
-      display: 'none',
-    },
   },
   inputs: {
     gridArea: 'inputs',
@@ -70,11 +69,8 @@ const useStyles = makeStyles()((theme) => ({
     gap: '8px',
   },
   networkSmall: {
-    display: 'none',
-    [theme.breakpoints.down('sm')]: {
-      display: 'block',
-      width: '40%',
-    },
+    display: 'block',
+    width: '40%',
   },
   token: {
     width: '100%',
@@ -124,6 +120,9 @@ function Inputs(props: Props) {
     ? { icon: networkConfig.icon, text: networkConfig.displayName }
     : undefined;
 
+  const theme = useTheme();
+  const mobile = useMediaQuery(theme.breakpoints.down('sm'));
+
   return (
     <div className={classes.container}>
       <div className={classes.header}>
@@ -139,26 +138,30 @@ function Inputs(props: Props) {
         <div className={classes.outerContainer}>
           <div className={classes.content}>
             {/* network tile */}
-            <div className={classes.network}>
-              <NetworkTile
-                network={networkConfig}
-                error={!!(showErrors && props.networkValidation)}
-                onClick={props.onNetworkClick}
-              />
-            </div>
+            {!mobile && (
+              <div className={classes.network}>
+                <NetworkTile
+                  network={networkConfig}
+                  error={!!(showErrors && props.networkValidation)}
+                  onClick={props.onNetworkClick}
+                />
+              </div>
+            )}
 
             <div className={classes.inputs}>
               <div className={classes.networkRow}>
                 {/* network select (mobile) */}
-                <div className={classes.networkSmall}>
-                  <Select
-                    label="Network"
-                    selected={selectedNetwork}
-                    error={!!(showErrors && props.networkValidation)}
-                    onClick={props.onNetworkClick}
-                    editable
-                  />
-                </div>
+                {mobile && (
+                  <div className={classes.networkSmall}>
+                    <Select
+                      label="Network"
+                      selected={selectedNetwork}
+                      error={!!(showErrors && props.networkValidation)}
+                      onClick={props.onNetworkClick}
+                      editable
+                    />
+                  </div>
+                )}
                 {/* token select */}
                 <div className={classes.token}>{props.tokenInput}</div>
               </div>

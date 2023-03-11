@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { makeStyles } from 'tss-react/mui';
 import { CENTER } from '../utils/style';
 import { Icon } from '../config/types';
@@ -314,12 +314,17 @@ function TokenIcon(props: Props) {
   const size = props.height || 32;
   const { classes } = useStyles({ size });
 
-  if (props.name) {
-    const token = getIcon(props.name);
-    return <div className={classes.container}>{token}</div>;
-  } else {
-    return <div className={classes.container}>{noIcon}</div>;
-  }
+  const [icon, setIcon] = useState(noIcon);
+
+  useEffect(() => {
+    if (props.name) {
+      setIcon(getIcon(props.name!)!);
+    } else {
+      setIcon(noIcon);
+    }
+  }, [props.name]);
+
+  return <div className={classes.container}>{icon}</div>;
 }
 
 export default TokenIcon;
