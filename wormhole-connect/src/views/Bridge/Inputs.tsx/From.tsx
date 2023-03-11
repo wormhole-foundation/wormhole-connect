@@ -9,13 +9,12 @@ import {
   setBalance as setStoreBalance,
   formatBalance,
 } from '../../../store/transfer';
-import { CHAINS, TOKENS } from '../../../sdk/config';
+import { TOKENS } from '../../../sdk/config';
 import { getBalance, getNativeBalance } from '../../../sdk/sdk';
 import { validate } from '../../../utils/transferValidation';
 
-import NetworkTile from '../NetworkTile';
 import InputTransparent from '../../../components/InputTransparent';
-import Inputs from './Layout';
+import Inputs from './Inputs';
 import Input from './Input';
 import Select from './Select';
 
@@ -23,19 +22,16 @@ function FromInputs() {
   const dispatch = useDispatch();
   const [balance, setBalance] = useState(undefined as string | undefined);
 
-  const fromNetwork = useSelector(
-    (state: RootState) => state.transfer.fromNetwork,
-  );
   const walletAddr = useSelector(
     (state: RootState) => state.wallet.sending.address,
   );
   const {
     validate: showErrors,
     validations,
+    fromNetwork,
     token,
   } = useSelector((state: RootState) => state.transfer);
   const tokenConfig = token && TOKENS[token];
-  const fromNetworkConfig = fromNetwork ? CHAINS[fromNetwork] : undefined;
 
   // set store values
   const openFromNetworksModal = () => dispatch(setFromNetworksModal(true));
@@ -75,13 +71,7 @@ function FromInputs() {
     }
   }, [tokenConfig, fromNetwork, walletAddr]);
 
-  const networkTile = (
-    <NetworkTile
-      network={fromNetworkConfig}
-      error={!!(showErrors && validations.fromNetwork)}
-      onClick={openFromNetworksModal}
-    />
-  );
+  // token input jsx
   const selectedToken = tokenConfig
     ? { icon: tokenConfig.icon, text: tokenConfig.symbol }
     : undefined;
@@ -94,6 +84,8 @@ function FromInputs() {
       editable
     />
   );
+
+  // amount input jsx
   const amountInput = (
     <Input
       label="Amount"
@@ -127,7 +119,9 @@ function FromInputs() {
         validations.token,
         validations.amount,
       ]}
-      networkTile={networkTile}
+      network={fromNetwork}
+      networkValidation={validations.fromNetwork}
+      onNetworkClick={openFromNetworksModal}
       tokenInput={tokenInput}
       amountInput={amountInput}
       balance={balance}
