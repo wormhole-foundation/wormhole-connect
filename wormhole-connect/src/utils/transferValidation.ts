@@ -2,10 +2,11 @@ import { AnyAction } from '@reduxjs/toolkit';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { Dispatch } from 'react';
 import { store } from 'store';
-import { PaymentOption, TransferState, validateTransfer } from 'store/transfer';
+import { TransferState, validateTransfer } from 'store/transfer';
 import { WalletData, WalletState } from 'store/wallet';
 import { walletAcceptedNetworks } from 'utils/wallet';
 import { CHAINS, TOKENS } from '../sdk/config';
+import { PaymentOption } from 'sdk/sdk';
 
 export type Error = string;
 export type ValidationErr = string;

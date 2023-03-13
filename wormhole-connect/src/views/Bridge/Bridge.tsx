@@ -5,14 +5,13 @@ import { BigNumber } from 'ethers';
 import { useDispatch } from 'react-redux';
 import { RootState } from '../../store';
 import {
-  PaymentOption,
   setBalance,
   formatBalance,
   setAutomaticRelayAvail,
   setDestGasPayment,
   setToken,
 } from '../../store/transfer';
-import { getNativeBalance } from '../../sdk/sdk';
+import { getNativeBalance, PaymentOption } from '../../sdk/sdk';
 import { CHAINS, TOKENS } from '../../sdk/config';
 import { isTransferValid, validate } from '../../utils/transferValidation';
 

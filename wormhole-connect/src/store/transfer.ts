@@ -5,11 +5,8 @@ import { TokenConfig } from 'config/types';
 import { toDecimals } from '../utils/balance';
 import { TransferValidations, validateAll } from '../utils/transferValidation';
 import { WalletState } from './wallet';
+import { PaymentOption } from '../sdk/sdk';
 
-export enum PaymentOption {
-  MANUAL = 1,
-  AUTOMATIC = 3,
-}
 export type Balances = { [key: string]: string | null };
 
 export const formatBalance = (

@@ -8,10 +8,14 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { Transaction } from '@solana/web3.js';
 
-import { PaymentOption } from '../store/transfer';
 import { getTokenById, getTokenDecimals, getWrappedTokenId } from '../utils';
 import { TOKENS, WH_CONFIG } from './config';
 import { signSolanaTransaction } from 'utils/wallet';
+
+export enum PaymentOption {
+  MANUAL = 1,
+  AUTOMATIC = 3,
+}
 
 const { REACT_APP_ENV } = process.env;
 
@@ -204,10 +208,9 @@ export const fetchTokenDecimals = async (
 
 export const getTransferComplete = async (
   destChain: ChainName | ChainId,
-  signedVaaHash: string,
+  signedVaa: string,
 ): Promise<boolean> => {
-  const EthContext: any = wh.getContext(destChain);
-  return await EthContext.isTransferCompleted(destChain, signedVaaHash);
+  return await wh.isTransferCompleted(destChain, signedVaa);
 };
 
 export const getTxIdFromReceipt = (
