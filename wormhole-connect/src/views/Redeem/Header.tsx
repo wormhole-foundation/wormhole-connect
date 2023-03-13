@@ -41,6 +41,7 @@ type Props = {
   address: string;
   txHash?: string;
   loading?: boolean;
+  error?: string;
 };
 
 function Header(props: Props) {
@@ -62,6 +63,8 @@ function Header(props: Props) {
       </div>
       {props.loading ? (
         <CircularProgress size={26} />
+      ) : props.error ? (
+        <div>{props.error}</div>
       ) : (
         props.txHash && (
           <a

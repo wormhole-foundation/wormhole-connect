@@ -18,6 +18,7 @@ import { displayAddress } from '../../utils';
 import { CHAINS } from '../../sdk/config';
 
 import Header from './Header';
+import AlertBanner from '../../components/AlertBanner';
 // import Confirmations from './Confirmations';
 import Button from '../../components/Button';
 import Spacer from '../../components/Spacer';
@@ -78,6 +79,7 @@ function SendTo() {
   const transferComplete = useSelector(
     (state: RootState) => state.redeem.transferComplete,
   );
+  const [claimError, setClaimError] = useState('');
 
   const connect = () => {
     setWalletModal(true);
@@ -105,10 +107,16 @@ function SendTo() {
 
   const claim = async () => {
     setInProgress(true);
-    if (!receiving || !isConnected)
+    setClaimError('');
+    if (!receiving || !isConnected) {
+      setClaimError('Connect to receiving wallet');
       throw new Error('Connect to receiving wallet');
+    }
     const networkConfig = CHAINS[txData.toChain]!;
-    if (!networkConfig) throw new Error('invalid destination chain');
+    if (!networkConfig) {
+      setClaimError('Your claim has failed, please try again');
+      throw new Error('invalid destination chain');
+    }
     try {
       if (networkConfig?.context === Context.ETH) {
         registerWalletSigner(txData.toChain, TransferWallet.RECEIVING);
@@ -121,8 +129,10 @@ function SendTo() {
       dispatch(setRedeemTx(receipt.transactionHash));
       dispatch(setTransferComplete(true));
       setInProgress(false);
+      setClaimError('');
     } catch (e) {
       setInProgress(false);
+      setClaimError('Your claim has failed, please try again');
       console.error(e);
     }
   };
@@ -137,18 +147,21 @@ function SendTo() {
         <Header
           network={txData.toChain}
           address={txData.recipient}
-          loading={
-            !transferComplete &&
-            txData.payloadID === PaymentOption.MANUAL &&
-            !redeemTx
-          }
+          loading={inProgress}
           txHash={redeemTx}
+          error={claimError ? 'Error please retry . . .' : ''}
         />
         <RenderRows rows={rows} />
       </InputContainer>
       {txData.payloadID === PaymentOption.MANUAL && !transferComplete && (
         <>
           <Spacer height={8} />
+          <AlertBanner
+            show={!!claimError}
+            text={claimError}
+            error
+            margin="0 0 8px 0"
+          />
           {toAddr ? (
             isConnected ? (
               <Button onClick={claim} action disabled={inProgress}>

@@ -3,6 +3,7 @@ import {
   ChainName,
   Context,
 } from '@wormhole-foundation/wormhole-connect-sdk';
+import { postVaaSolanaWithRetry } from '@certusone/wormhole-sdk';
 import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
 import {
   MetamaskWallet,
@@ -14,7 +15,7 @@ import {
 } from '@solana/wallet-adapter-wallets';
 import { clusterApiUrl, Connection as SolanaConnection } from '@solana/web3.js';
 import { SolanaWallet } from '@xlabs-libs/wallet-aggregator-solana';
-import { Transaction, ConfirmOptions } from '@solana/web3.js';
+import { Transaction, ConfirmOptions, PublicKey } from '@solana/web3.js';
 import { registerSigner } from '../sdk/sdk';
 import { CHAINS_ARR } from 'sdk/config';
 import { getNetworkByChainId } from 'utils';
@@ -106,4 +107,25 @@ export const signSolanaTransaction = async (
 
   const tx = await wallet?.signAndSendTransaction(transaction);
   return { transactionHash: tx.id };
+};
+
+export const postVaa = async (
+  connection: any,
+  coreContract: string,
+  signedVAA: Buffer,
+) => {
+  const wallet = walletConnection.receiving;
+  if (!wallet) throw new Error('not connected');
+  const walletAddress = wallet?.getAddress();
+  if (!walletAddress) throw new Error('could not get wallet address');
+  const MAX_VAA_UPLOAD_RETRIES_SOLANA = 5;
+
+  await postVaaSolanaWithRetry(
+    connection,
+    wallet.signTransaction, //Solana Wallet Signer
+    coreContract,
+    new PublicKey(walletAddress),
+    signedVAA,
+    MAX_VAA_UPLOAD_RETRIES_SOLANA,
+  );
 };

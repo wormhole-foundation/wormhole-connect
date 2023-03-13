@@ -10,7 +10,7 @@ import { Transaction } from '@solana/web3.js';
 
 import { getTokenById, getTokenDecimals, getWrappedTokenId } from '../utils';
 import { TOKENS, WH_CONFIG } from './config';
-import { signSolanaTransaction } from 'utils/wallet';
+import { postVaa, signSolanaTransaction } from 'utils/wallet';
 
 export enum PaymentOption {
   MANUAL = 1,
@@ -195,7 +195,18 @@ export const claimTransfer = async (
   destChain: ChainName | ChainId,
   vaa: Uint8Array,
 ): Promise<ContractReceipt> => {
-  // const EthContext: any = wh.getContext(destChain);
+  // post vaa (solana)
+  const destDomain = wh.resolveDomain(destChain);
+  if (destDomain === 1) {
+    console.log('solana post vaa');
+    const destContext = wh.getContext(destChain);
+    const connection = destContext.connection;
+    if (!connection) throw new Error('no connection');
+    const contracts = wh.mustGetContracts(destChain);
+    if (!contracts.core) throw new Error('contract not found');
+    await postVaa(connection, contracts.core, Buffer.from(vaa));
+  }
+
   return await wh.redeem(destChain, vaa, { gasLimit: 250000 });
 };
 
