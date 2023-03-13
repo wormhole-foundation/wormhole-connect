@@ -133,12 +133,6 @@ function Bridge() {
 
       <Preview collapsed={!valid} />
 
-      <AlertBanner
-        show={!!valid && destGasPayment === PaymentOption.MANUAL}
-        text="This transfer will require two transactions - one on the source chain and one on the destination chain."
-        warning
-      />
-
       <Send valid={!!valid} />
       <Spacer height={60} />
 
