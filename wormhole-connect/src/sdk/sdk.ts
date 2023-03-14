@@ -174,6 +174,53 @@ export const sendTransfer = async (
   }
 };
 
+export const estimateGasFee = async (
+  token: TokenId | 'native',
+  amount: string,
+  fromNetwork: ChainName | ChainId,
+  fromAddress: string,
+  toNetwork: ChainName | ChainId,
+  toAddress: string,
+  paymentOption: PaymentOption,
+  toNativeToken?: string,
+): Promise<BigNumber> => {
+  console.log('estimating fees');
+  const fromChainName = wh.toChainName(fromNetwork);
+  const decimals = getTokenDecimals(fromChainName, token);
+  const parsedAmt = utils.parseUnits(amount, decimals);
+  const context = wh.getContext(fromNetwork);
+  const provider = wh.mustGetProvider(fromNetwork);
+  const gasPrice = await provider.getGasPrice();
+  if (paymentOption === PaymentOption.MANUAL) {
+    const tx = await context.prepareSend(
+      token,
+      parsedAmt.toString(),
+      fromNetwork,
+      fromAddress,
+      toNetwork,
+      toAddress,
+      undefined,
+    );
+    const est = await provider.estimateGas(tx);
+    return est.mul(gasPrice);
+  } else {
+    const parsedNativeAmt = toNativeToken
+      ? utils.parseUnits(toNativeToken, decimals).toString()
+      : '0';
+    const tx = await context.prepareSendWithRelay(
+      token,
+      parsedAmt.toString(),
+      parsedNativeAmt,
+      fromNetwork,
+      fromAddress,
+      toNetwork,
+      toAddress,
+    );
+    const est = await provider.estimateGas(tx);
+    return est.mul(gasPrice);
+  }
+};
+
 export const calculateMaxSwapAmount = async (
   destChain: ChainName | ChainId,
   token: TokenId,
@@ -196,6 +243,7 @@ export const claimTransfer = async (
   vaa: Uint8Array,
 ): Promise<ContractReceipt> => {
   // post vaa (solana)
+  // TODO: move to context
   const destDomain = wh.resolveDomain(destChain);
   if (destDomain === 1) {
     const destContext = wh.getContext(destChain);

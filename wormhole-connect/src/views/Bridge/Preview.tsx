@@ -20,6 +20,7 @@ const getAutomaticRows = (
   nativeTokenAmt: number,
   receiveNativeAmt: number,
   relayerFee: number,
+  sendingGasEst: string,
 ): RowsData => {
   const receivingToken = token.wrappedAsset || token.symbol;
   return [
@@ -36,7 +37,7 @@ const getAutomaticRows = (
     },
     {
       title: 'Total fee estimate',
-      value: `TODO ${token.symbol}`,
+      value: `${Number.parseFloat(sendingGasEst) + relayerFee} ${token.symbol}`,
       rows: [
         {
           title: 'Relayer fee',
@@ -44,11 +45,7 @@ const getAutomaticRows = (
         },
         {
           title: 'Source chain gas estimate',
-          value: `~ TODO ${token.symbol}`,
-        },
-        {
-          title: 'Destination chain gas estimate',
-          value: `~ TODO ${token.symbol}`,
+          value: `~ ${sendingGasEst} ${token.symbol}`,
         },
       ],
     },
@@ -59,6 +56,7 @@ const getManualRows = (
   token: TokenConfig,
   gasToken: string,
   amount: number,
+  sendingGasEst: string,
 ): RowsData => {
   const receivingToken = token.wrappedAsset || token.symbol;
 
@@ -69,11 +67,11 @@ const getManualRows = (
     },
     {
       title: 'Total fee estimates',
-      value: `TODO ${token.symbol} & TODO ${gasToken}`,
+      value: `${sendingGasEst} ${token.symbol} & TODO ${gasToken}`,
       rows: [
         {
           title: 'Source chain gas estimate',
-          value: `~ TODO ${token.symbol}`,
+          value: `~ ${sendingGasEst} ${token.symbol}`,
         },
         {
           title: 'Destination chain gas estimate',
@@ -96,6 +94,7 @@ function Preview(props: { collapsed: boolean }) {
     amount,
     toNativeToken,
     receiveNativeAmt,
+    sendingGasEst,
   } = useSelector((state: RootState) => state.transfer);
 
   useEffect(() => {
@@ -104,7 +103,12 @@ function Preview(props: { collapsed: boolean }) {
     if (!fromNetwork || !tokenConfig || !destConfig || !amount) return;
 
     if (destGasPayment === PaymentOption.MANUAL) {
-      const rows = getManualRows(tokenConfig, destConfig!.nativeToken, amount);
+      const rows = getManualRows(
+        tokenConfig,
+        destConfig!.nativeToken,
+        amount,
+        sendingGasEst,
+      );
       setState({ rows });
     } else {
       getRelayerFee(fromNetwork, toNetwork, token).then((fee) => {
@@ -121,6 +125,7 @@ function Preview(props: { collapsed: boolean }) {
           toNativeToken,
           receiveNativeAmt || 0,
           formattedFee,
+          sendingGasEst,
         );
         setState({ rows });
       });

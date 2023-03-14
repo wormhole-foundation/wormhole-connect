@@ -124,6 +124,74 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
     }
   }
 
+  async prepareSend(
+    token: TokenId | typeof NATIVE,
+    amount: string,
+    sendingChain: ChainName | ChainId,
+    senderAddress: string,
+    recipientChain: ChainName | ChainId,
+    recipientAddress: string,
+    relayerFee: ethers.BigNumberish = 0,
+    overrides?: PayableOverrides & { from?: string | Promise<string> },
+  ): Promise<ethers.PopulatedTransaction> {
+    const destContext = this.context.getContext(recipientChain);
+    const recipientChainId = this.context.toChainId(recipientChain);
+    const amountBN = ethers.BigNumber.from(amount);
+    const bridge = this.contracts.mustGetBridge(sendingChain);
+
+    if (token === NATIVE) {
+      // sending native ETH
+      await bridge.callStatic.wrapAndTransferETH(
+        recipientChainId,
+        destContext.formatAddress(recipientAddress),
+        relayerFee,
+        createNonce(),
+        {
+          // ...(overrides || {}), // TODO: fix overrides/gas limit here
+          gasLimit: 150000,
+          value: amountBN,
+        },
+      );
+      return bridge.populateTransaction.wrapAndTransferETH(
+        recipientChainId,
+        destContext.formatAddress(recipientAddress),
+        relayerFee,
+        createNonce(),
+        {
+          // ...(overrides || {}), // TODO: fix overrides/gas limit here
+          gasLimit: 150000,
+          value: amountBN,
+        },
+      );
+    } else {
+      // sending ERC-20
+      //approve and send
+      const tokenAddr = await this.getForeignAsset(token, sendingChain);
+      // await this.approve(sendingChain, bridge.address, tokenAddr, amountBN);
+      // simulate transaction
+      await bridge.callStatic.transferTokens(
+        destContext.parseAddress(tokenAddr),
+        amountBN,
+        recipientChainId,
+        destContext.formatAddress(recipientAddress),
+        relayerFee,
+        createNonce(),
+        // overrides,
+        { gasLimit: 150000 },
+      );
+      return bridge.populateTransaction.transferTokens(
+        destContext.parseAddress(tokenAddr),
+        amountBN,
+        recipientChainId,
+        destContext.formatAddress(recipientAddress),
+        relayerFee,
+        createNonce(),
+        // overrides,
+        { gasLimit: 150000 },
+      );
+    }
+  }
+
   async send(
     token: TokenId | typeof NATIVE,
     amount: string,
@@ -134,42 +202,20 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
     relayerFee: ethers.BigNumberish = 0,
     overrides?: PayableOverrides & { from?: string | Promise<string> },
   ): Promise<ethers.ContractReceipt> {
-    const destContext = this.context.getContext(recipientChain);
-    const recipientChainId = this.context.toChainId(recipientChain);
-    const amountBN = ethers.BigNumber.from(amount);
-    const bridge = this.contracts.mustGetBridge(sendingChain);
-
-    if (token === NATIVE) {
-      // sending native ETH
-      const v = await bridge.wrapAndTransferETH(
-        recipientChainId,
-        destContext.formatAddress(recipientAddress),
-        relayerFee,
-        createNonce(),
-        {
-          // ...(overrides || {}), // TODO: fix overrides/gas limit here
-          gasLimit: 250000,
-          value: amountBN,
-        },
-      );
-      return await v.wait();
-    } else {
-      // sending ERC-20
-      //approve and send
-      const tokenAddr = await this.getForeignAsset(token, sendingChain);
-      await this.approve(sendingChain, bridge.address, tokenAddr, amountBN);
-      const v = await bridge.transferTokens(
-        destContext.parseAddress(tokenAddr),
-        amountBN,
-        recipientChainId,
-        destContext.formatAddress(recipientAddress),
-        relayerFee,
-        createNonce(),
-        // overrides,
-        { gasLimit: 250000 },
-      );
-      return await v.wait();
-    }
+    const signer = this.context.getSigner(sendingChain);
+    if (!signer) throw new Error(`No signer for ${sendingChain}`);
+    const tx = await this.prepareSend(
+      token,
+      amount,
+      sendingChain,
+      senderAddress,
+      recipientChain,
+      recipientAddress,
+      relayerFee,
+      overrides,
+    );
+    const v = await signer.sendTransaction(tx);
+    return await v.wait();
   }
 
   async sendWithPayload(
@@ -217,7 +263,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
     }
   }
 
-  async sendWithRelay(
+  async prepareSendWithRelay(
     token: TokenId | 'native',
     amount: string,
     toNativeToken: string,
@@ -226,7 +272,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
     recipientChain: ChainName | ChainId,
     recipientAddress: string,
     overrides?: PayableOverrides & { from?: string | Promise<string> },
-  ): Promise<ethers.ContractReceipt> {
+  ): Promise<ethers.PopulatedTransaction> {
     const isAddress = ethers.utils.isAddress(recipientAddress);
     if (!isAddress)
       throw new Error(`invalid recipient address: ${recipientAddress}`);
@@ -240,25 +286,23 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
     if (token === NATIVE) {
       console.log('wrap and send with relay');
       // sending native ETH
-      const v = await relayer.wrapAndTransferEthWithRelay(
+      return relayer.populateTransaction.wrapAndTransferEthWithRelay(
         nativeTokenBN,
         recipientChainId,
         formattedRecipient,
         0, // opt out of batching
         {
           // ...(overrides || {}), // TODO: fix overrides/gas limit here
-          gasLimit: 250000,
+          gasLimit: 150000,
           value: amountBN,
         },
       );
-      return await v.wait();
     } else {
       console.log('send with relay');
       // sending ERC-20
       //approve and send
       const tokenAddr = await this.getForeignAsset(token, sendingChain);
-      await this.approve(sendingChain, relayer.address, tokenAddr, amountBN);
-      const tx = await relayer.transferTokensWithRelay(
+      return relayer.populateTransaction.transferTokensWithRelay(
         this.parseAddress(tokenAddr),
         amountBN,
         nativeTokenBN,
@@ -266,11 +310,36 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
         formattedRecipient,
         0, // opt out of batching
         {
-          gasLimit: 250000,
+          gasLimit: 150000,
         },
       );
-      return await tx.wait();
     }
+  }
+
+  async sendWithRelay(
+    token: TokenId | 'native',
+    amount: string,
+    toNativeToken: string,
+    sendingChain: ChainName | ChainId,
+    senderAddress: string,
+    recipientChain: ChainName | ChainId,
+    recipientAddress: string,
+    overrides?: PayableOverrides & { from?: string | Promise<string> },
+  ): Promise<ethers.ContractReceipt> {
+    const signer = this.context.getSigner(sendingChain);
+    if (!signer) throw new Error(`No signer for ${sendingChain}`);
+    const tx = await this.prepareSendWithRelay(
+      token,
+      amount,
+      toNativeToken,
+      sendingChain,
+      senderAddress,
+      recipientChain,
+      recipientAddress,
+      overrides,
+    );
+    const v = await signer.sendTransaction(tx);
+    return await v.wait();
   }
 
   async redeem(

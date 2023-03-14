@@ -55,12 +55,14 @@ const getOptions = (
   dest: NetworkConfig,
   token: string,
   relayAvail: boolean,
+  sendingGasEst: string,
+  relayerFee: number | undefined,
 ): OptionConfig[] => {
   const manual = {
     title: `Pay with ${token} and ${dest.gasToken}`,
     subtitle: '(two transactions)',
     description: `Claim with ${dest.gasToken} on ${dest.displayName}`,
-    estimate: `TODO ${token} & TODO ${dest.gasToken}`,
+    estimate: `${sendingGasEst} ${token} & TODO ${dest.gasToken}`,
     active: PaymentOption.MANUAL,
   };
   if (!relayAvail) return [manual];
@@ -68,7 +70,7 @@ const getOptions = (
     title: `Pay with ${token}`,
     subtitle: '(one transaction)',
     description: 'Gas fees will be paid automatically',
-    estimate: `TODO ${token}`,
+    estimate: `${Number.parseFloat(sendingGasEst) + relayerFee!} ${token}`,
     active: PaymentOption.AUTOMATIC,
   };
   return [automatic, manual];
@@ -84,9 +86,8 @@ function GasOptions(props: { disabled: boolean }) {
   const selectedOption = useSelector(
     (state: RootState) => state.transfer.destGasPayment,
   );
-  const { token, toNetwork, automaticRelayAvail } = useSelector(
-    (state: RootState) => state.transfer,
-  );
+  const { token, toNetwork, automaticRelayAvail, sendingGasEst, relayerFee } =
+    useSelector((state: RootState) => state.transfer);
   const active =
     selectedOption && selectedOption === PaymentOption.AUTOMATIC ? 0 : 1;
 
@@ -108,7 +109,13 @@ function GasOptions(props: { disabled: boolean }) {
           ? `Pay with ${token}`
           : `Pay with ${token} & ${destConfig!.nativeToken}`;
       setState({
-        options: getOptions(destConfig, token, automaticRelayAvail),
+        options: getOptions(
+          destConfig,
+          token,
+          automaticRelayAvail,
+          sendingGasEst,
+          relayerFee,
+        ),
         description,
       });
     }

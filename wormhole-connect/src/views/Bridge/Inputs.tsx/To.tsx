@@ -58,7 +58,7 @@ function ToInputs() {
   // amount display jsx
   const amountInput = (
     <Input label="Amount">
-      <InputTransparent placeholder="-" disabled value={amount} />
+      <InputTransparent placeholder="-" disabled value={amount || ''} />
     </Input>
   );
 

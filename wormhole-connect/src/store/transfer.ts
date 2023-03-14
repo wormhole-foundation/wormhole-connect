@@ -34,6 +34,7 @@ export interface TransferState {
   receiveNativeAmt: number | undefined;
   relayerFee: number | undefined;
   balances: Balances;
+  sendingGasEst: string;
 }
 
 const initialState: TransferState = {
@@ -59,6 +60,7 @@ const initialState: TransferState = {
   receiveNativeAmt: undefined,
   relayerFee: undefined,
   balances: {},
+  sendingGasEst: '',
 };
 
 export const transferSlice = createSlice({
@@ -148,6 +150,12 @@ export const transferSlice = createSlice({
       state.automaticRelayAvail = payload;
       if (payload) state.destGasPayment = PaymentOption.AUTOMATIC;
     },
+    setSendingGasEst: (
+      state: TransferState,
+      { payload }: PayloadAction<string>,
+    ) => {
+      state.sendingGasEst = payload;
+    },
     clearTransfer: (state: TransferState) => {
       Object.keys(state).forEach((key) => {
         // @ts-ignore
@@ -171,6 +179,7 @@ export const {
   setRelayerFee,
   setBalance,
   setAutomaticRelayAvail,
+  setSendingGasEst,
   clearTransfer,
 } = transferSlice.actions;
 

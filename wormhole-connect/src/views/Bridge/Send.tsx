@@ -2,7 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Context } from '@wormhole-foundation/wormhole-connect-sdk';
 import { CHAINS, TOKENS } from '../../sdk/config';
-import { parseMessageFromTx, PaymentOption, sendTransfer } from '../../sdk/sdk';
+import {
+  estimateGasFee,
+  parseMessageFromTx,
+  PaymentOption,
+  sendTransfer,
+} from '../../sdk/sdk';
 import { RootState, store } from '../../store';
 import { setRoute } from '../../store/router';
 import { setTxDetails, setSendTx } from '../../store/redeem';
@@ -16,8 +21,14 @@ import { displayWalletAddress } from '../../utils';
 
 import Button from '../../components/Button';
 import CircularProgress from '@mui/material/CircularProgress';
-import { touchValidations, validateTransfer } from '../../store/transfer';
+import {
+  touchValidations,
+  validateTransfer,
+  setSendingGasEst,
+} from '../../store/transfer';
 import AlertBanner from '../../components/AlertBanner';
+import { utils } from 'ethers';
+import { toFixedDecimals } from '../../utils/balance';
 
 function Send(props: { valid: boolean }) {
   const dispatch = useDispatch();
@@ -32,6 +43,7 @@ function Send(props: { valid: boolean }) {
     amount,
     destGasPayment,
     toNativeToken,
+    relayerFee,
   } = transfer;
   const [inProgress, setInProgress] = useState(false);
   const [isConnected, setIsConnected] = useState(
@@ -90,6 +102,48 @@ function Send(props: { valid: boolean }) {
       console.error(e);
     }
   }
+
+  const setSendingGas = async () => {
+    const fromConfig = CHAINS[fromNetwork!];
+    if (fromConfig?.context === Context.ETH) {
+      registerWalletSigner(fromNetwork!, TransferWallet.SENDING);
+    }
+
+    const tokenConfig = TOKENS[token]!;
+    if (!tokenConfig) return;
+    const sendToken = tokenConfig.tokenId;
+
+    const gasFee: any = await estimateGasFee(
+      sendToken || 'native',
+      `${amount}`,
+      fromNetwork!,
+      sending.address,
+      toNetwork!,
+      receiving.address,
+      destGasPayment,
+      `${toNativeToken}`,
+    );
+    console.log('gasFee', gasFee.toString());
+    console.log(utils.formatEther(gasFee));
+    const formatted = toFixedDecimals(utils.formatEther(gasFee), 6);
+    dispatch(setSendingGasEst(formatted));
+  };
+
+  useEffect(() => {
+    const valid = isTransferValid(validations);
+    if (!valid) return;
+
+    setSendingGas();
+  }, [
+    sending,
+    receiving,
+    fromNetwork,
+    toNetwork,
+    token,
+    destGasPayment,
+    toNativeToken,
+    relayerFee,
+  ]);
 
   useEffect(() => {
     setIsConnected(
