@@ -31,7 +31,7 @@ type Props = {
   min?: number;
   max?: number;
   step?: number;
-  onChange: (
+  onChange?: (
     e?:
       | React.ChangeEvent<HTMLInputElement>
       | React.ChangeEvent<HTMLTextAreaElement>,
@@ -42,6 +42,8 @@ type Props = {
       | React.ChangeEvent<HTMLInputElement>
       | React.ChangeEvent<HTMLTextAreaElement>,
   ) => void;
+  disabled?: boolean;
+  value?: string | number;
 };
 
 function InputTransparent(props: Props) {
@@ -77,6 +79,8 @@ function InputTransparent(props: Props) {
       step={props.step}
       onChange={props.onChange}
       onKeyDown={handleKeyDown}
+      readOnly={props.disabled}
+      value={props.value}
     />
   );
 }
