@@ -47,9 +47,9 @@ export const validateToken = (
   token: string,
   chain: ChainName | undefined,
 ): ValidationErr => {
-  if (!token) return 'Select a token';
+  if (!token) return 'Select an asset';
   const tokenConfig = TOKENS[token];
-  if (!tokenConfig) return 'Select a token';
+  if (!tokenConfig) return 'Select an asset';
   if (chain) {
     const chainConfig = CHAINS[chain];
     if (!chainConfig || !!tokenConfig.tokenId) return '';
