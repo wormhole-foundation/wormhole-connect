@@ -22,9 +22,7 @@ function FromInputs() {
   const dispatch = useDispatch();
   const [balance, setBalance] = useState(undefined as string | undefined);
 
-  const walletAddr = useSelector(
-    (state: RootState) => state.wallet.sending.address,
-  );
+  const wallet = useSelector((state: RootState) => state.wallet.sending);
   const {
     validate: showErrors,
     validations,
@@ -51,11 +49,11 @@ function FromInputs() {
 
   // balance
   useEffect(() => {
-    if (!fromNetwork || !tokenConfig || !walletAddr) {
+    if (!fromNetwork || !tokenConfig || !wallet.address) {
       return setBalance(undefined);
     }
     if (tokenConfig.tokenId) {
-      getBalance(walletAddr, tokenConfig.tokenId, fromNetwork).then(
+      getBalance(wallet.address, tokenConfig.tokenId, fromNetwork).then(
         (res: BigNumber | null) => {
           const balance = formatBalance(fromNetwork, tokenConfig, res);
           setBalance(balance[tokenConfig.symbol]);
@@ -63,13 +61,13 @@ function FromInputs() {
         },
       );
     } else {
-      getNativeBalance(walletAddr, fromNetwork).then((res: BigNumber) => {
+      getNativeBalance(wallet.address, fromNetwork).then((res: BigNumber) => {
         const balance = formatBalance(fromNetwork, tokenConfig, res);
         setBalance(balance[tokenConfig.symbol]);
         dispatch(setStoreBalance(balance));
       });
     }
-  }, [tokenConfig, fromNetwork, walletAddr]);
+  }, [tokenConfig, fromNetwork, wallet.address]);
 
   // token input jsx
   const selectedToken = tokenConfig
@@ -114,6 +112,7 @@ function FromInputs() {
       title="From"
       wallet={TransferWallet.SENDING}
       walletValidations={[validations.sendingWallet]}
+      walletError={wallet.error}
       inputValidations={[
         validations.fromNetwork,
         validations.token,

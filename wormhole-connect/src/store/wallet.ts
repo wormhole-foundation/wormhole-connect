@@ -1,10 +1,11 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { disconnect, TransferWallet, WalletType } from '../utils/wallet';
 
 export type WalletData = {
   type: WalletType;
   address: string;
   currentAddress: string;
+  error: string;
 };
 
 export interface WalletState {
@@ -12,17 +13,16 @@ export interface WalletState {
   receiving: WalletData;
 }
 
+const NO_WALLET: WalletData = {
+  address: '',
+  type: WalletType.NONE,
+  currentAddress: '',
+  error: '',
+};
+
 const initialState: WalletState = {
-  sending: {
-    type: WalletType.NONE,
-    address: '',
-    currentAddress: '',
-  },
-  receiving: {
-    type: WalletType.NONE,
-    address: '',
-    currentAddress: '',
-  },
+  sending: NO_WALLET,
+  receiving: NO_WALLET,
 };
 
 export type ConnectPayload = {
@@ -36,39 +36,44 @@ export const walletSlice = createSlice({
   reducers: {
     connectWallet: (
       state: WalletState,
-      { payload }: { payload: ConnectPayload },
+      { payload }: PayloadAction<ConnectPayload>,
     ) => {
       console.log('connect sending wallet', payload);
       state.sending.type = payload.type;
       state.sending.address = payload.address;
       state.sending.currentAddress = payload.address;
+      state.sending.error = '';
     },
     connectReceivingWallet: (
       state: WalletState,
-      { payload }: { payload: ConnectPayload },
+      { payload }: PayloadAction<ConnectPayload>,
     ) => {
       console.log('connect receiving wallet', payload);
       state.receiving.type = payload.type;
       state.receiving.address = payload.address;
       state.receiving.currentAddress = payload.address;
+      state.receiving.error = '';
     },
     clearWallet: (
       state: WalletState,
-      { payload }: { payload: TransferWallet },
+      { payload }: PayloadAction<TransferWallet>,
     ) => {
-      const reset = {
-        address: '',
-        type: WalletType.NONE,
-        currentAddress: '',
-      };
       disconnect(payload);
-      state[payload] = reset;
+      state[payload] = NO_WALLET;
+    },
+    setWalletError: (
+      state: WalletState,
+      { payload }: PayloadAction<{ type: TransferWallet; error: string }>,
+    ) => {
+      const { type, error } = payload;
+      state[type].error = error;
     },
     setCurrentAddress: (
       state: WalletState,
-      { payload }: { payload: { type: TransferWallet; address: string } },
+      { payload }: PayloadAction<{ type: TransferWallet; address: string }>,
     ) => {
-      state[payload.type].currentAddress = payload.address;
+      const { type, address } = payload;
+      state[type].currentAddress = address;
     },
     clearWallets: (state: WalletState) => {
       disconnect(TransferWallet.SENDING);
@@ -86,6 +91,7 @@ export const {
   connectReceivingWallet,
   clearWallet,
   setCurrentAddress,
+  setWalletError,
   clearWallets,
 } = walletSlice.actions;
 

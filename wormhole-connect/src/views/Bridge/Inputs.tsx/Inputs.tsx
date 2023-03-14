@@ -15,6 +15,7 @@ import NetworkTile from '../NetworkTile';
 import ValidationError from '../ValidationError';
 import Input from './Input';
 import Select from './Select';
+import AlertBanner from '../../../components/AlertBanner';
 
 const useStyles = makeStyles()((theme) => ({
   outerContainer: {
@@ -26,6 +27,9 @@ const useStyles = makeStyles()((theme) => ({
     display: 'flex',
     flexDirection: 'column',
     gap: '8px',
+  },
+  errorContainer: {
+    width: '100%',
   },
   header: {
     display: 'flex',
@@ -98,6 +102,7 @@ const useStyles = makeStyles()((theme) => ({
 type Props = {
   title: string;
   wallet: TransferWallet;
+  walletError: string;
   walletValidations: string[];
   inputValidations: string[];
   network: ChainName | undefined;
@@ -125,14 +130,28 @@ function Inputs(props: Props) {
 
   return (
     <div className={classes.container}>
-      <div className={classes.header}>
-        <div className={classes.headerTitle}>{props.title}</div>
-        {/* connect wallet button */}
-        <ConnectWallet type={props.wallet} />
-      </div>
+      <div className={classes.errorContainer}>
+        <div className={classes.header}>
+          <div className={classes.headerTitle}>{props.title}</div>
+          {/* connect wallet button */}
+          <ConnectWallet type={props.wallet} />
+        </div>
 
-      {/* wallet validation error banner */}
-      <ValidationError validations={props.walletValidations} />
+        {/* wallet validation error banner */}
+        {props.walletError ? (
+          <AlertBanner
+            show={!!props.walletError}
+            text={props.walletError}
+            error
+            margin="8px 0 0 0"
+          />
+        ) : (
+          <ValidationError
+            validations={props.walletValidations}
+            margin="8px 0 0 0"
+          />
+        )}
+      </div>
 
       <InputContainer>
         <div className={classes.outerContainer}>
