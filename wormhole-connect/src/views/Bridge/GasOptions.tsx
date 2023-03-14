@@ -57,12 +57,16 @@ const getOptions = (
   relayAvail: boolean,
   sendingGasEst: string,
   relayerFee: number | undefined,
+  destGasEst?: string,
 ): OptionConfig[] => {
   const manual = {
     title: `Pay with ${token} and ${dest.gasToken}`,
     subtitle: '(two transactions)',
     description: `Claim with ${dest.gasToken} on ${dest.displayName}`,
-    estimate: `${sendingGasEst} ${token} & TODO ${dest.gasToken}`,
+    estimate:
+      sendingGasEst && destGasEst
+        ? `${sendingGasEst} ${token} & ${destGasEst} ${dest.gasToken}`
+        : 'Not available',
     active: PaymentOption.MANUAL,
   };
   if (!relayAvail) return [manual];
@@ -70,7 +74,10 @@ const getOptions = (
     title: `Pay with ${token}`,
     subtitle: '(one transaction)',
     description: 'Gas fees will be paid automatically',
-    estimate: `${Number.parseFloat(sendingGasEst) + relayerFee!} ${token}`,
+    estimate:
+      sendingGasEst && relayerFee
+        ? `${Number.parseFloat(sendingGasEst) + relayerFee!} ${token}`
+        : 'Not available',
     active: PaymentOption.AUTOMATIC,
   };
   return [automatic, manual];
@@ -119,7 +126,7 @@ function GasOptions(props: { disabled: boolean }) {
         description,
       });
     }
-  }, [token, selectedOption, toNetwork]);
+  }, [token, selectedOption, toNetwork, sendingGasEst, relayerFee]);
 
   return (
     <BridgeCollapse

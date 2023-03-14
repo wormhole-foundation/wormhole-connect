@@ -23,6 +23,7 @@ const getAutomaticRows = (
   sendingGasEst: string,
 ): RowsData => {
   const receivingToken = token.wrappedAsset || token.symbol;
+  const totalFees = Number.parseFloat(sendingGasEst) + relayerFee;
   return [
     {
       title: 'Amount',
@@ -36,16 +37,18 @@ const getAutomaticRows = (
       value: `${receiveNativeAmt} ${gasToken}`,
     },
     {
-      title: 'Total fee estimate',
-      value: `${Number.parseFloat(sendingGasEst) + relayerFee} ${token.symbol}`,
+      title: 'Total fee estimates',
+      value: totalFees ? `${totalFees} ${token.symbol}` : '',
       rows: [
         {
           title: 'Relayer fee',
-          value: `${relayerFee} ${token.symbol}`,
+          value: relayerFee ? `${relayerFee} ${token.symbol}` : 'Not available',
         },
         {
           title: 'Source chain gas estimate',
-          value: `~ ${sendingGasEst} ${token.symbol}`,
+          value: sendingGasEst
+            ? `~ ${sendingGasEst} ${token.symbol}`
+            : 'Not available',
         },
       ],
     },
@@ -57,6 +60,7 @@ const getManualRows = (
   gasToken: string,
   amount: number,
   sendingGasEst: string,
+  destGasEst?: string,
 ): RowsData => {
   const receivingToken = token.wrappedAsset || token.symbol;
 
@@ -67,15 +71,20 @@ const getManualRows = (
     },
     {
       title: 'Total fee estimates',
-      value: `${sendingGasEst} ${token.symbol} & TODO ${gasToken}`,
+      value:
+        sendingGasEst && destGasEst
+          ? `${sendingGasEst} ${token.symbol} & ${destGasEst} ${gasToken}`
+          : '',
       rows: [
         {
           title: 'Source chain gas estimate',
-          value: `~ ${sendingGasEst} ${token.symbol}`,
+          value: sendingGasEst
+            ? `~ ${sendingGasEst} ${token.symbol}`
+            : 'Not available',
         },
         {
           title: 'Destination chain gas estimate',
-          value: `~ TODO ${gasToken}`,
+          value: destGasEst ? `~ ${destGasEst} ${gasToken}` : 'Not available',
         },
       ],
     },
@@ -138,6 +147,7 @@ function Preview(props: { collapsed: boolean }) {
     amount,
     toNativeToken,
     receiveNativeAmt,
+    sendingGasEst,
   ]);
 
   return (
