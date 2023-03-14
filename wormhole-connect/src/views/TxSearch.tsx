@@ -55,7 +55,6 @@ function TxSearch() {
   }
 
   async function search() {
-    console.log(state.tx, state.chain);
     if (!state.tx || !state.chain) {
       return setError('Enter the source chain and transaction ID');
     }
