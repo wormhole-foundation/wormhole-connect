@@ -15,7 +15,7 @@ import {
 } from '@solana/wallet-adapter-wallets';
 import { clusterApiUrl, Connection as SolanaConnection } from '@solana/web3.js';
 import { SolanaWallet } from '@xlabs-libs/wallet-aggregator-solana';
-import { Transaction, ConfirmOptions, PublicKey } from '@solana/web3.js';
+import { Transaction, ConfirmOptions } from '@solana/web3.js';
 import { registerSigner } from '../sdk/sdk';
 import { CHAINS_ARR } from 'sdk/config';
 import { getNetworkByChainId } from 'utils';
@@ -116,16 +116,15 @@ export const postVaa = async (
 ) => {
   const wallet = walletConnection.receiving;
   if (!wallet) throw new Error('not connected');
-  const walletAddress = wallet?.getAddress();
-  if (!walletAddress) throw new Error('could not get wallet address');
+  const pk = (wallet as any).adapter.publicKey;
   const MAX_VAA_UPLOAD_RETRIES_SOLANA = 5;
 
   await postVaaSolanaWithRetry(
     connection,
-    wallet.signTransaction, //Solana Wallet Signer
+    wallet.signTransaction.bind(wallet), // Solana Wallet Signer
     coreContract,
-    new PublicKey(walletAddress),
-    signedVAA,
+    pk.toString(),
+    Buffer.from(signedVAA),
     MAX_VAA_UPLOAD_RETRIES_SOLANA,
   );
 };

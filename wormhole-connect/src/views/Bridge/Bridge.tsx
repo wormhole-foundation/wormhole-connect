@@ -21,7 +21,6 @@ import GasSlider from './NativeGasSlider';
 import Preview from './Preview';
 import Send from './Send';
 import { Collapse } from '@mui/material';
-import AlertBanner from '../../components/AlertBanner';
 import PageHeader from '../../components/PageHeader';
 import FromNetworksModal from './Modals/FromNetworksModal';
 import ToNetworksModal from './Modals/ToNetworksModal';
