@@ -24,6 +24,7 @@ const useStyles = makeStyles<{ width: number }>()((theme, { width }) => ({
     position: 'relative',
     [theme.breakpoints.down('sm')]: {
       margin: '20px auto',
+      padding: '24px 12px',
     },
   },
   close: {

@@ -2,7 +2,7 @@ import React, { ChangeEvent, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@mui/styles';
 import { useTheme } from '@mui/material/styles';
-import { Theme } from '@mui/material';
+import { Theme, useMediaQuery } from '@mui/material';
 import { RootState } from '../../../store';
 import { CHAINS, TOKENS_ARR } from '../../../sdk/config';
 import { setTokensModal } from '../../../store/router';
@@ -138,6 +138,7 @@ function TokensModal() {
   const classes = useStyles();
   const theme = useTheme();
   const dispatch = useDispatch();
+  const mobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   // store values
   const showTokensModal = useSelector(
@@ -242,7 +243,11 @@ function TokensModal() {
       <Header text="Select asset" size={28} />
       <Spacer height={16} />
       <Search
-        placeholder="Search by name or paste contract address"
+        placeholder={
+          mobile
+            ? 'Token symbol or address'
+            : 'Search by name or contract address'
+        }
         onChange={searchTokens}
       />
       <Spacer height={16} />
