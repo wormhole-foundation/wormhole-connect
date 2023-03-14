@@ -198,7 +198,6 @@ export const claimTransfer = async (
   // post vaa (solana)
   const destDomain = wh.resolveDomain(destChain);
   if (destDomain === 1) {
-    console.log('solana post vaa');
     const destContext = wh.getContext(destChain);
     const connection = destContext.connection;
     if (!connection) throw new Error('no connection');

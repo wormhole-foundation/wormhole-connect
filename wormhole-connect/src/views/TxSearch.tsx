@@ -12,6 +12,7 @@ import Search from '../components/Search';
 import Button from '../components/Button';
 import Spacer from '../components/Spacer';
 import { isValidTxId } from '../utils';
+import AlertBanner from '../components/AlertBanner';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -43,25 +44,36 @@ function TxSearch() {
     chain: '',
     tx: '',
   });
+  const [error, setError] = useState('');
 
   function setChain(e: any) {
     setState({ ...state, chain: e.target.value });
   }
 
   function setTx(e: any) {
-    if (isValidTxId(e.target.value)) {
-      setState({ ...state, tx: e.target.value });
-    }
+    setState({ ...state, tx: e.target.value });
   }
 
   async function search() {
-    if (!state.tx || !state.chain) return;
-    const message = await parseMessageFromTx(
-      state.tx,
-      state.chain as ChainName,
-    );
-    dispatch(setTxDetails(message));
-    dispatch(setRoute('redeem'));
+    if (!state.tx || !state.chain) {
+      return setError('Enter the source chain and transaction ID');
+    }
+    if (!isValidTxId(state.tx)) {
+      return setError('Invalid transaction ID');
+    }
+    try {
+      const message = await parseMessageFromTx(
+        state.tx,
+        state.chain as ChainName,
+      );
+      setError('');
+      dispatch(setTxDetails(message));
+      dispatch(setRoute('redeem'));
+    } catch (e) {
+      setError(
+        'Bridge transfer not found, check that you have the correct chain and transaction ID',
+      );
+    }
   }
 
   return (
@@ -103,6 +115,8 @@ function TxSearch() {
       </div>
 
       <Spacer />
+
+      <AlertBanner show={!!error} text={error} error margin="0 0 16px 0" />
 
       <Button disabled={!state.chain || !state.tx} elevated onClick={search}>
         Search
