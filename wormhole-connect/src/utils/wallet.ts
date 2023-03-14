@@ -3,6 +3,7 @@ import {
   ChainName,
   Context,
 } from '@wormhole-foundation/wormhole-connect-sdk';
+import { postVaaSolanaWithRetry } from '@certusone/wormhole-sdk';
 import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
 import {
   MetamaskWallet,
@@ -106,4 +107,24 @@ export const signSolanaTransaction = async (
 
   const tx = await wallet?.signAndSendTransaction(transaction);
   return { transactionHash: tx.id };
+};
+
+export const postVaa = async (
+  connection: any,
+  coreContract: string,
+  signedVAA: Buffer,
+) => {
+  const wallet = walletConnection.receiving;
+  if (!wallet) throw new Error('not connected');
+  const pk = (wallet as any).adapter.publicKey;
+  const MAX_VAA_UPLOAD_RETRIES_SOLANA = 5;
+
+  await postVaaSolanaWithRetry(
+    connection,
+    wallet.signTransaction.bind(wallet), // Solana Wallet Signer
+    coreContract,
+    pk.toString(),
+    Buffer.from(signedVAA),
+    MAX_VAA_UPLOAD_RETRIES_SOLANA,
+  );
 };

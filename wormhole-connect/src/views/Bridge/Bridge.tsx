@@ -5,14 +5,13 @@ import { BigNumber } from 'ethers';
 import { useDispatch } from 'react-redux';
 import { RootState } from '../../store';
 import {
-  PaymentOption,
   setBalance,
   formatBalance,
   setAutomaticRelayAvail,
   setDestGasPayment,
   setToken,
 } from '../../store/transfer';
-import { getNativeBalance } from '../../sdk/sdk';
+import { getNativeBalance, PaymentOption } from '../../sdk/sdk';
 import { CHAINS, TOKENS } from '../../sdk/config';
 import { isTransferValid, validate } from '../../utils/transferValidation';
 
@@ -22,7 +21,6 @@ import GasSlider from './NativeGasSlider';
 import Preview from './Preview';
 import Send from './Send';
 import { Collapse } from '@mui/material';
-import AlertBanner from '../../components/AlertBanner';
 import PageHeader from '../../components/PageHeader';
 import FromNetworksModal from './Modals/FromNetworksModal';
 import ToNetworksModal from './Modals/ToNetworksModal';
@@ -133,12 +131,6 @@ function Bridge() {
       )}
 
       <Preview collapsed={!valid} />
-
-      <AlertBanner
-        show={!!valid && destGasPayment === PaymentOption.MANUAL}
-        text="This transfer will require two transactions - one on the source chain and one on the destination chain."
-        warning
-      />
 
       <Send valid={!!valid} />
       <Spacer height={60} />

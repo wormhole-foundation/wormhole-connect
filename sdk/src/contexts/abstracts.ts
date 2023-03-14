@@ -71,7 +71,7 @@ export abstract class BridgeAbstract {
   ): Promise<any>;
   protected abstract isTransferCompleted(
     destChain: ChainName | ChainId,
-    signedVaaHash: string,
+    signedVaa: string,
   ): Promise<boolean>;
 }
 
@@ -100,8 +100,4 @@ export abstract class RelayerAbstract extends BridgeAbstract {
     destChain: ChainName | ChainId,
     tokenId: TokenId,
   ): Promise<BigNumber>;
-  protected abstract isTransferCompleted(
-    destChain: ChainName | ChainId,
-    signedVaaHash: string,
-  ): Promise<boolean>;
 }

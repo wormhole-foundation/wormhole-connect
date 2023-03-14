@@ -3,9 +3,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import Options from '../../components/Options';
 import BridgeCollapse from './Collapse';
-import { PaymentOption, setDestGasPayment } from '../../store/transfer';
+import { setDestGasPayment } from '../../store/transfer';
 import { RootState } from '../../store';
 import { CHAINS } from '../../sdk/config';
+import { PaymentOption } from '../../sdk/sdk';
 import { NetworkConfig } from '../../config/types';
 
 const useStyles = makeStyles()((theme) => ({

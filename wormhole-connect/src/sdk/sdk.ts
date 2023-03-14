@@ -8,10 +8,14 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { Transaction } from '@solana/web3.js';
 
-import { PaymentOption } from '../store/transfer';
 import { getTokenById, getTokenDecimals, getWrappedTokenId } from '../utils';
 import { TOKENS, WH_CONFIG } from './config';
-import { signSolanaTransaction } from 'utils/wallet';
+import { postVaa, signSolanaTransaction } from 'utils/wallet';
+
+export enum PaymentOption {
+  MANUAL = 1,
+  AUTOMATIC = 3,
+}
 
 const { REACT_APP_ENV } = process.env;
 
@@ -191,7 +195,18 @@ export const claimTransfer = async (
   destChain: ChainName | ChainId,
   vaa: Uint8Array,
 ): Promise<ContractReceipt> => {
-  // const EthContext: any = wh.getContext(destChain);
+  // post vaa (solana)
+  const destDomain = wh.resolveDomain(destChain);
+  if (destDomain === 1) {
+    console.log('solana post vaa');
+    const destContext = wh.getContext(destChain);
+    const connection = destContext.connection;
+    if (!connection) throw new Error('no connection');
+    const contracts = wh.mustGetContracts(destChain);
+    if (!contracts.core) throw new Error('contract not found');
+    await postVaa(connection, contracts.core, Buffer.from(vaa));
+  }
+
   return await wh.redeem(destChain, vaa, { gasLimit: 250000 });
 };
 
@@ -204,10 +219,9 @@ export const fetchTokenDecimals = async (
 
 export const getTransferComplete = async (
   destChain: ChainName | ChainId,
-  signedVaaHash: string,
+  signedVaa: string,
 ): Promise<boolean> => {
-  const EthContext: any = wh.getContext(destChain);
-  return await EthContext.isTransferCompleted(destChain, signedVaaHash);
+  return await wh.isTransferCompleted(destChain, signedVaa);
 };
 
 export const getTxIdFromReceipt = (

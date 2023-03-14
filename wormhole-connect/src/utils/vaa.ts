@@ -45,7 +45,7 @@ export async function fetchVaa(
       const data = response.data.data;
       const vaa = utils.base64.decode(data.vaa);
       const parsed = parseTokenTransferVaa(vaa);
-      console.log(parsed);
+
       const vaaData: ParsedVaa = {
         bytes: utils.hexlify(vaa),
         hash: utils.hexlify(parsed.hash),

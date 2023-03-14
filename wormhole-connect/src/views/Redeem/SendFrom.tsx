@@ -4,7 +4,7 @@ import { utils } from 'ethers';
 import { RootState } from '../../store';
 import { ParsedVaa } from '../../utils/vaa';
 import { CHAINS, TOKENS } from '../../sdk/config';
-import { PaymentOption } from '../../store/transfer';
+import { PaymentOption } from '../../sdk/sdk';
 import { toDecimals } from '../../utils/balance';
 
 import InputContainer from '../../components/InputContainer';
