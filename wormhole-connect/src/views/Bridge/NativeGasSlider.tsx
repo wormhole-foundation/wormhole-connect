@@ -87,10 +87,16 @@ function GasSlider(props: { disabled: boolean }) {
   const sendingToken = TOKENS[token];
   const nativeGasToken = TOKENS[destConfig?.gasToken!];
 
+  function formatAmount(): number {
+    if (!amount) return 0;
+    const formatted = toFixedDecimals(`${amount}`, 6);
+    return Number.parseFloat(formatted);
+  }
+
   const [state, setState] = useState({
     max: 0,
     nativeGas: 0,
-    token: amount,
+    token: formatAmount(),
     swapAmt: 0,
     conversionRate: undefined as number | undefined,
   });
@@ -100,7 +106,12 @@ function GasSlider(props: { disabled: boolean }) {
     if (!amount || !maxSwapAmt) return;
     const actualMaxSwap =
       amount && maxSwapAmt && maxSwapAmt > amount ? amount : maxSwapAmt;
-    setState({ ...state, max: actualMaxSwap });
+    const newTokenAmount = toFixedDecimals(`${amount - state.swapAmt}`, 6);
+    setState({
+      ...state,
+      token: Number.parseFloat(newTokenAmount),
+      max: actualMaxSwap,
+    });
   }, [maxSwapAmt, amount]);
 
   useEffect(() => {
@@ -228,7 +239,7 @@ function GasSlider(props: { disabled: boolean }) {
                   label(
                     state.nativeGas,
                     nativeGasToken.symbol,
-                    (state.token || amount)!,
+                    state.token,
                     token,
                   )
                 }
@@ -246,8 +257,7 @@ function GasSlider(props: { disabled: boolean }) {
                     name={(sendingToken as TokenConfig)!.icon}
                     height={16}
                   />
-                  {state.token || amount}{' '}
-                  {(sendingToken as TokenConfig)!.symbol}
+                  {state.token} {(sendingToken as TokenConfig)!.symbol}
                 </div>
               </div>
             </div>

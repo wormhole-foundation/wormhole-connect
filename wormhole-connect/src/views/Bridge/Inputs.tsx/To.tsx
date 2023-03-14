@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { BigNumber } from 'ethers';
 import { RootState } from '../../../store';
 import { setToNetworksModal } from '../../../store/router';
 import { TransferWallet } from '../../../utils/wallet';
 import { TOKENS } from '../../../sdk/config';
+import { getBalance } from '../../../sdk/sdk';
+import { formatBalance } from '../../../store/transfer';
 
 import Inputs from './Inputs';
 import Input from './Input';
 import Select from './Select';
-import { getBalance } from '../../../sdk/sdk';
-import { BigNumber } from 'ethers';
-import { formatBalance } from '../../../store/transfer';
+import InputTransparent from '../../../components/InputTransparent';
 
 function ToInputs() {
   const dispatch = useDispatch();
@@ -59,7 +60,7 @@ function ToInputs() {
   // amount display jsx
   const amountInput = (
     <Input label="Amount">
-      <div>{token && amount ? amount : '-'}</div>
+      <InputTransparent placeholder="-" disabled value={amount} />
     </Input>
   );
 
