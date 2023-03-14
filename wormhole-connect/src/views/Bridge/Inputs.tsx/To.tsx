@@ -20,9 +20,7 @@ function ToInputs() {
   const { validations, fromNetwork, toNetwork, token, amount } = useSelector(
     (state: RootState) => state.transfer,
   );
-  const walletAddr = useSelector(
-    (state: RootState) => state.wallet.receiving.address,
-  );
+  const wallet = useSelector((state: RootState) => state.wallet.receiving);
 
   const tokenConfig = TOKENS[token];
 
@@ -30,9 +28,9 @@ function ToInputs() {
 
   // get balance on destination chain
   useEffect(() => {
-    if (!fromNetwork || !toNetwork || !tokenConfig || !walletAddr) return;
+    if (!fromNetwork || !toNetwork || !tokenConfig || !wallet.address) return;
     if (tokenConfig.tokenId) {
-      getBalance(walletAddr, tokenConfig.tokenId, toNetwork).then(
+      getBalance(wallet.address, tokenConfig.tokenId, toNetwork).then(
         (res: BigNumber | null) => {
           const balance = formatBalance(fromNetwork, tokenConfig, res);
           setBalance(balance[tokenConfig.symbol]);
@@ -41,7 +39,7 @@ function ToInputs() {
     } else if (tokenConfig.wrappedAsset) {
       const wrappedConfig = TOKENS[tokenConfig.wrappedAsset];
       if (wrappedConfig && wrappedConfig.tokenId) {
-        getBalance(walletAddr, wrappedConfig.tokenId, toNetwork).then(
+        getBalance(wallet.address, wrappedConfig.tokenId, toNetwork).then(
           (res: BigNumber | null) => {
             const balance = formatBalance(fromNetwork, tokenConfig, res);
             setBalance(balance[tokenConfig.symbol]);
@@ -49,7 +47,7 @@ function ToInputs() {
         );
       }
     }
-  }, [tokenConfig, fromNetwork, toNetwork, walletAddr]);
+  }, [tokenConfig, fromNetwork, toNetwork, wallet.address]);
 
   // token display jsx
   const selectedToken = tokenConfig
@@ -69,6 +67,7 @@ function ToInputs() {
       title="To"
       wallet={TransferWallet.RECEIVING}
       walletValidations={[validations.receivingWallet]}
+      walletError={wallet.error}
       inputValidations={[validations.toNetwork]}
       network={toNetwork}
       networkValidation={validations.toNetwork}

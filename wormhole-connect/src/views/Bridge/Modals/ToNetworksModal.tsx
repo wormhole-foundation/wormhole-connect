@@ -5,7 +5,7 @@ import { RootState } from '../../../store';
 import { CHAINS_ARR } from '../../../sdk/config';
 import { setToNetworksModal } from '../../../store/router';
 import { setToNetwork } from '../../../store/transfer';
-import { clearWallet } from '../../../store/wallet';
+import { clearWallet, setWalletError } from '../../../store/wallet';
 import { TransferWallet, walletAcceptedNetworks } from '../../../utils/wallet';
 
 import NetworksModal from '../../../components/NetworksModal';
@@ -31,6 +31,11 @@ function ToNetworksModal() {
   const selectNetwork = async (network: ChainName) => {
     if (isDisabled(network)) {
       dispatch(clearWallet(TransferWallet.RECEIVING));
+      const payload = {
+        type: TransferWallet.RECEIVING,
+        error: 'Wallet disconnected, please connect a supported wallet',
+      };
+      dispatch(setWalletError(payload));
     }
     dispatch(setToNetwork(network));
     dispatch(setToNetworksModal(false));
