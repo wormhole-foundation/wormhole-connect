@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Context } from '@wormhole-foundation/wormhole-connect-sdk';
+import { utils } from 'ethers';
+
 import { CHAINS, TOKENS } from '../../sdk/config';
 import {
+  estimateClaimGasFee,
   estimateGasFee,
   parseMessageFromTx,
   PaymentOption,
@@ -11,24 +14,25 @@ import {
 import { RootState, store } from '../../store';
 import { setRoute } from '../../store/router';
 import { setTxDetails, setSendTx } from '../../store/redeem';
+import { displayWalletAddress } from '../../utils';
 import {
   registerWalletSigner,
   switchNetwork,
   TransferWallet,
 } from '../../utils/wallet';
 import { isTransferValid } from '../../utils/transferValidation';
-import { displayWalletAddress } from '../../utils';
-
-import Button from '../../components/Button';
-import CircularProgress from '@mui/material/CircularProgress';
+import { toFixedDecimals } from '../../utils/balance';
 import {
   touchValidations,
   validateTransfer,
-  setSendingGasEst,
+  setManualGasEst,
+  setAutomaticGasEst,
+  setClaimGasEst,
 } from '../../store/transfer';
+
+import Button from '../../components/Button';
+import CircularProgress from '@mui/material/CircularProgress';
 import AlertBanner from '../../components/AlertBanner';
-import { utils } from 'ethers';
-import { toFixedDecimals } from '../../utils/balance';
 
 function Send(props: { valid: boolean }) {
   const dispatch = useDispatch();
@@ -103,7 +107,7 @@ function Send(props: { valid: boolean }) {
     }
   }
 
-  const setSendingGas = async () => {
+  const setSendingGas = async (gasPayment: PaymentOption) => {
     const fromConfig = CHAINS[fromNetwork!];
     if (fromConfig?.context === Context.ETH) {
       registerWalletSigner(fromNetwork!, TransferWallet.SENDING);
@@ -113,27 +117,42 @@ function Send(props: { valid: boolean }) {
     if (!tokenConfig) return;
     const sendToken = tokenConfig.tokenId;
 
-    const gasFee: any = await estimateGasFee(
+    const gasFee = await estimateGasFee(
       sendToken || 'native',
       `${amount}`,
       fromNetwork!,
       sending.address,
       toNetwork!,
       receiving.address,
-      destGasPayment,
+      gasPayment,
       `${toNativeToken}`,
     );
-    console.log('gasFee', gasFee.toString());
-    console.log(utils.formatEther(gasFee));
     const formatted = toFixedDecimals(utils.formatEther(gasFee), 6);
-    dispatch(setSendingGasEst(formatted));
+    if (gasPayment === PaymentOption.MANUAL) {
+      dispatch(setManualGasEst(formatted));
+    } else {
+      dispatch(setAutomaticGasEst(formatted));
+    }
+  };
+
+  const setDestGas = async () => {
+    const toConfig = CHAINS[toNetwork!];
+    if (toConfig?.context === Context.ETH) {
+      registerWalletSigner(toNetwork!, TransferWallet.RECEIVING);
+    }
+    const VAA = new Uint8Array();
+    const gasFee = await estimateClaimGasFee(toNetwork!, VAA);
+    const formatted = toFixedDecimals(utils.formatEther(gasFee), 6);
+    dispatch(setClaimGasEst(formatted));
   };
 
   useEffect(() => {
     const valid = isTransferValid(validations);
     if (!valid) return;
 
-    setSendingGas();
+    setSendingGas(PaymentOption.MANUAL);
+    setSendingGas(PaymentOption.AUTOMATIC);
+    setDestGas();
   }, [
     sending,
     receiving,

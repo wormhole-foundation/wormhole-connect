@@ -34,7 +34,11 @@ export interface TransferState {
   receiveNativeAmt: number | undefined;
   relayerFee: number | undefined;
   balances: Balances;
-  sendingGasEst: string;
+  gasEst: {
+    manual: string;
+    automatic: string;
+    claim: string;
+  };
 }
 
 const initialState: TransferState = {
@@ -60,13 +64,18 @@ const initialState: TransferState = {
   receiveNativeAmt: undefined,
   relayerFee: undefined,
   balances: {},
-  sendingGasEst: '',
+  gasEst: {
+    manual: '',
+    automatic: '',
+    claim: '',
+  },
 };
 
 export const transferSlice = createSlice({
   name: 'transfer',
   initialState,
   reducers: {
+    // validations
     touchValidations: (state: TransferState) => {
       state.validate = true;
     },
@@ -80,6 +89,7 @@ export const transferSlice = createSlice({
         state.validations[key] = validations[key];
       });
     },
+    // user input
     setToken: (state: TransferState, { payload }: PayloadAction<string>) => {
       console.log('set token:', payload);
       state.token = payload;
@@ -116,6 +126,7 @@ export const transferSlice = createSlice({
       console.log('set destination gas payment option:', payload);
       state.destGasPayment = payload;
     },
+    // transfer calculations
     setMaxSwapAmt: (
       state: TransferState,
       { payload }: PayloadAction<number>,
@@ -150,12 +161,26 @@ export const transferSlice = createSlice({
       state.automaticRelayAvail = payload;
       if (payload) state.destGasPayment = PaymentOption.AUTOMATIC;
     },
-    setSendingGasEst: (
+    // gas estimates
+    setManualGasEst: (
       state: TransferState,
       { payload }: PayloadAction<string>,
     ) => {
-      state.sendingGasEst = payload;
+      state.gasEst.manual = payload;
     },
+    setAutomaticGasEst: (
+      state: TransferState,
+      { payload }: PayloadAction<string>,
+    ) => {
+      state.gasEst.automatic = payload;
+    },
+    setClaimGasEst: (
+      state: TransferState,
+      { payload }: PayloadAction<string>,
+    ) => {
+      state.gasEst.claim = payload;
+    },
+    // clear inputs
     clearTransfer: (state: TransferState) => {
       Object.keys(state).forEach((key) => {
         // @ts-ignore
@@ -179,7 +204,9 @@ export const {
   setRelayerFee,
   setBalance,
   setAutomaticRelayAvail,
-  setSendingGasEst,
+  setManualGasEst,
+  setAutomaticGasEst,
+  setClaimGasEst,
   clearTransfer,
 } = transferSlice.actions;
 

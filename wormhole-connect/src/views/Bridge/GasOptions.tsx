@@ -55,17 +55,20 @@ const getOptions = (
   dest: NetworkConfig,
   token: string,
   relayAvail: boolean,
-  sendingGasEst: string,
   relayerFee: number | undefined,
-  destGasEst?: string,
+  gasEst: {
+    manual: string;
+    automatic: string;
+    claim: string;
+  },
 ): OptionConfig[] => {
   const manual = {
     title: `Pay with ${token} and ${dest.gasToken}`,
     subtitle: '(two transactions)',
     description: `Claim with ${dest.gasToken} on ${dest.displayName}`,
     estimate:
-      sendingGasEst && destGasEst
-        ? `${sendingGasEst} ${token} & ${destGasEst} ${dest.gasToken}`
+      gasEst.manual && gasEst.claim
+        ? `${gasEst.manual} ${token} & ${gasEst.claim} ${dest.gasToken}`
         : 'Not available',
     active: PaymentOption.MANUAL,
   };
@@ -75,8 +78,8 @@ const getOptions = (
     subtitle: '(one transaction)',
     description: 'Gas fees will be paid automatically',
     estimate:
-      sendingGasEst && relayerFee
-        ? `${Number.parseFloat(sendingGasEst) + relayerFee!} ${token}`
+      gasEst.automatic && relayerFee
+        ? `${Number.parseFloat(gasEst.automatic) + relayerFee!} ${token}`
         : 'Not available',
     active: PaymentOption.AUTOMATIC,
   };
@@ -93,7 +96,7 @@ function GasOptions(props: { disabled: boolean }) {
   const selectedOption = useSelector(
     (state: RootState) => state.transfer.destGasPayment,
   );
-  const { token, toNetwork, automaticRelayAvail, sendingGasEst, relayerFee } =
+  const { token, toNetwork, automaticRelayAvail, gasEst, relayerFee } =
     useSelector((state: RootState) => state.transfer);
   const active =
     selectedOption && selectedOption === PaymentOption.AUTOMATIC ? 0 : 1;
@@ -120,13 +123,13 @@ function GasOptions(props: { disabled: boolean }) {
           destConfig,
           token,
           automaticRelayAvail,
-          sendingGasEst,
           relayerFee,
+          gasEst,
         ),
         description,
       });
     }
-  }, [token, selectedOption, toNetwork, sendingGasEst, relayerFee]);
+  }, [token, selectedOption, toNetwork, gasEst, relayerFee]);
 
   return (
     <BridgeCollapse

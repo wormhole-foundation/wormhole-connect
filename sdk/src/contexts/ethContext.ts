@@ -11,6 +11,7 @@ import {
   ethers,
   Overrides,
   PayableOverrides,
+  PopulatedTransaction,
 } from 'ethers';
 import { utils } from 'ethers';
 
@@ -148,7 +149,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
         createNonce(),
         {
           // ...(overrides || {}), // TODO: fix overrides/gas limit here
-          gasLimit: 150000,
+          gasLimit: 250000,
           value: amountBN,
         },
       );
@@ -159,7 +160,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
         createNonce(),
         {
           // ...(overrides || {}), // TODO: fix overrides/gas limit here
-          gasLimit: 150000,
+          gasLimit: 250000,
           value: amountBN,
         },
       );
@@ -177,7 +178,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
         relayerFee,
         createNonce(),
         // overrides,
-        { gasLimit: 150000 },
+        { gasLimit: 250000 },
       );
       return bridge.populateTransaction.transferTokens(
         destContext.parseAddress(tokenAddr),
@@ -187,7 +188,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
         relayerFee,
         createNonce(),
         // overrides,
-        { gasLimit: 150000 },
+        { gasLimit: 250000 },
       );
     }
   }
@@ -293,7 +294,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
         0, // opt out of batching
         {
           // ...(overrides || {}), // TODO: fix overrides/gas limit here
-          gasLimit: 150000,
+          gasLimit: 250000,
           value: amountBN,
         },
       );
@@ -310,7 +311,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
         formattedRecipient,
         0, // opt out of batching
         {
-          gasLimit: 150000,
+          gasLimit: 250000,
         },
       );
     }
@@ -342,15 +343,26 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
     return await v.wait();
   }
 
+  async prepareRedeem(
+    destChain: ChainName | ChainId,
+    signedVAA: Uint8Array,
+    overrides: Overrides & { from?: string | Promise<string> } = {},
+  ): Promise<PopulatedTransaction> {
+    const bridge = this.contracts.mustGetBridge(destChain);
+    await bridge.callStatic.completeTransfer(signedVAA, overrides);
+    return bridge.populateTransaction.completeTransfer(signedVAA, overrides);
+  }
+
   async redeem(
     destChain: ChainName | ChainId,
     signedVAA: Uint8Array,
     overrides: Overrides & { from?: string | Promise<string> } = {},
   ): Promise<ContractReceipt> {
-    const bridge = this.contracts.mustGetBridge(destChain);
-    const v = await bridge.completeTransfer(signedVAA, overrides);
-    const receipt = await v.wait();
-    return receipt;
+    const signer = this.context.getSigner(destChain);
+    if (!signer) throw new Error(`No signer for ${destChain}`);
+    const tx = await this.prepareRedeem(destChain, signedVAA, overrides);
+    const v = await signer.sendTransaction(tx);
+    return await v.wait();
     // TODO: unwrap native assets
     // const v = await bridge.completeTransferAndUnwrapETH(signedVAA, overrides);
     // const receipt = await v.wait();

@@ -60,7 +60,7 @@ const getManualRows = (
   gasToken: string,
   amount: number,
   sendingGasEst: string,
-  destGasEst?: string,
+  destGasEst: string,
 ): RowsData => {
   const receivingToken = token.wrappedAsset || token.symbol;
 
@@ -103,7 +103,7 @@ function Preview(props: { collapsed: boolean }) {
     amount,
     toNativeToken,
     receiveNativeAmt,
-    sendingGasEst,
+    gasEst,
   } = useSelector((state: RootState) => state.transfer);
 
   useEffect(() => {
@@ -116,7 +116,8 @@ function Preview(props: { collapsed: boolean }) {
         tokenConfig,
         destConfig!.nativeToken,
         amount,
-        sendingGasEst,
+        gasEst.manual,
+        gasEst.claim,
       );
       setState({ rows });
     } else {
@@ -134,7 +135,7 @@ function Preview(props: { collapsed: boolean }) {
           toNativeToken,
           receiveNativeAmt || 0,
           formattedFee,
-          sendingGasEst,
+          gasEst.automatic,
         );
         setState({ rows });
       });
@@ -147,7 +148,7 @@ function Preview(props: { collapsed: boolean }) {
     amount,
     toNativeToken,
     receiveNativeAmt,
-    sendingGasEst,
+    gasEst,
   ]);
 
   return (

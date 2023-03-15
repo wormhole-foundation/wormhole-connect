@@ -221,6 +221,19 @@ export const estimateGasFee = async (
   }
 };
 
+export const estimateClaimGasFee = async (
+  destChain: ChainName | ChainId,
+  signedVaa: Uint8Array,
+) => {
+  const context = wh.getContext(destChain);
+  const provider = wh.mustGetProvider(destChain);
+  const gasPrice = await provider.getGasPrice();
+
+  const tx = await context.prepareRedeem(destChain, signedVaa);
+  const est = await provider.estimateGas(tx);
+  return est.mul(gasPrice);
+};
+
 export const calculateMaxSwapAmount = async (
   destChain: ChainName | ChainId,
   token: TokenId,
