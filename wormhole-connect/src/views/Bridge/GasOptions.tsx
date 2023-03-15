@@ -46,11 +46,11 @@ const useStyles = makeStyles()((theme) => ({
 }));
 
 type OptionConfig = {
+  key: PaymentOption;
   title: string;
   subtitle: string;
   description: string;
   estimate: string;
-  active: PaymentOption;
 };
 const getOptions = (
   dest: NetworkConfig,
@@ -64,6 +64,7 @@ const getOptions = (
   },
 ): OptionConfig[] => {
   const manual = {
+    key: PaymentOption.MANUAL,
     title: `Pay with ${token} and ${dest.gasToken}`,
     subtitle: '(two transactions)',
     description: `Claim with ${dest.gasToken} on ${dest.displayName}`,
@@ -71,7 +72,6 @@ const getOptions = (
       gasEst.manual && gasEst.claim
         ? `${gasEst.manual} ${token} & ${gasEst.claim} ${dest.gasToken}`
         : 'Not available',
-    active: PaymentOption.MANUAL,
   };
   if (!relayAvail) return [manual];
   const automaticFees = toFixedDecimals(
@@ -79,6 +79,7 @@ const getOptions = (
     6,
   );
   const automatic = {
+    key: PaymentOption.AUTOMATIC,
     title: `Pay with ${token}`,
     subtitle: '(one transaction)',
     description: 'Gas fees will be paid automatically',
@@ -86,7 +87,6 @@ const getOptions = (
       gasEst.automatic && relayerFee
         ? `${automaticFees} ${token}`
         : 'Not available',
-    active: PaymentOption.AUTOMATIC,
   };
   return [automatic, manual];
 };
@@ -103,17 +103,12 @@ function GasOptions(props: { disabled: boolean }) {
   );
   const { token, toNetwork, automaticRelayAvail, gasEst, relayerFee } =
     useSelector((state: RootState) => state.transfer);
-  const active =
-    selectedOption && selectedOption === PaymentOption.AUTOMATIC ? 0 : 1;
+  const active = selectedOption;
 
   // listen for selectOption
   document.addEventListener('selectOption', (event: Event) => {
     const { detail } = event as CustomEvent;
-    if (detail === 1) {
-      dispatch(setDestGasPayment(PaymentOption.AUTOMATIC));
-    } else {
-      dispatch(setDestGasPayment(PaymentOption.MANUAL));
-    }
+    dispatch(setDestGasPayment(detail as PaymentOption));
   });
 
   useEffect(() => {
@@ -146,7 +141,7 @@ function GasOptions(props: { disabled: boolean }) {
     >
       <Options active={active}>
         {state.options.map((option, i) => {
-          return (
+          const jsx = (
             <div className={classes.option} key={i}>
               <div className={classes.column}>
                 <div>
@@ -161,6 +156,10 @@ function GasOptions(props: { disabled: boolean }) {
               </div>
             </div>
           );
+          return {
+            key: option.key,
+            child: jsx,
+          };
         })}
       </Options>
     </BridgeCollapse>

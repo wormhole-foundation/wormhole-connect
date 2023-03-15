@@ -194,9 +194,10 @@ export const estimateGasFee = async (
   const parsedAmt = utils.parseUnits(amount, decimals);
   const context = wh.getContext(fromNetwork);
   const provider = wh.mustGetProvider(fromNetwork);
-  const gasPrice = await provider.getGasPrice();
-  if (paymentOption === PaymentOption.MANUAL) {
-    const tx = await context.prepareSend(
+  if (fromChainName === 'solana') {
+    const connection = context.connection;
+    if (!connection) throw new Error('no connection');
+    const tx = await context.send(
       token,
       parsedAmt.toString(),
       fromNetwork,
@@ -205,23 +206,39 @@ export const estimateGasFee = async (
       toAddress,
       undefined,
     );
-    const est = await provider.estimateGas(tx);
-    return est.mul(gasPrice);
+    const fees = await tx.getEstimatedFee(connection);
+    console.log(fees);
+    return fees;
   } else {
-    const parsedNativeAmt = toNativeToken
-      ? utils.parseUnits(toNativeToken, decimals).toString()
-      : '0';
-    const tx = await context.prepareSendWithRelay(
-      token,
-      parsedAmt.toString(),
-      parsedNativeAmt,
-      fromNetwork,
-      fromAddress,
-      toNetwork,
-      toAddress,
-    );
-    const est = await provider.estimateGas(tx);
-    return est.mul(gasPrice);
+    const gasPrice = await provider.getGasPrice();
+    if (paymentOption === PaymentOption.MANUAL) {
+      const tx = await context.prepareSend(
+        token,
+        parsedAmt.toString(),
+        fromNetwork,
+        fromAddress,
+        toNetwork,
+        toAddress,
+        undefined,
+      );
+      const est = await provider.estimateGas(tx);
+      return est.mul(gasPrice);
+    } else {
+      const parsedNativeAmt = toNativeToken
+        ? utils.parseUnits(toNativeToken, decimals).toString()
+        : '0';
+      const tx = await context.prepareSendWithRelay(
+        token,
+        parsedAmt.toString(),
+        parsedNativeAmt,
+        fromNetwork,
+        fromAddress,
+        toNetwork,
+        toAddress,
+      );
+      const est = await provider.estimateGas(tx);
+      return est.mul(gasPrice);
+    }
   }
 };
 

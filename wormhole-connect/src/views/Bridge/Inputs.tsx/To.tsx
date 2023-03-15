@@ -30,7 +30,7 @@ function ToInputs() {
   useEffect(() => {
     if (!fromNetwork || !toNetwork || !tokenConfig || !wallet.address) {
       return setBalance(undefined);
-    };
+    }
     const { tokenId } = tokenConfig.tokenId
       ? tokenConfig
       : TOKENS[tokenConfig.wrappedAsset!];
