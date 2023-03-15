@@ -34,7 +34,6 @@ function ToInputs() {
     const { tokenId } = tokenConfig.tokenId
       ? tokenConfig
       : TOKENS[tokenConfig.wrappedAsset!];
-    console.log(tokenId);
     getBalance(wallet.address, tokenId!, toNetwork).then(
       (res: BigNumber | null) => {
         const balance = formatBalance(toNetwork, tokenConfig, res);

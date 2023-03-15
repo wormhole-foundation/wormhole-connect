@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Context } from '@wormhole-foundation/wormhole-connect-sdk';
-import { utils } from 'ethers';
+import { utils, BigNumber } from 'ethers';
 
 import { CHAINS, TOKENS } from '../../sdk/config';
 import {
@@ -48,6 +48,7 @@ function Send(props: { valid: boolean }) {
     destGasPayment,
     toNativeToken,
     relayerFee,
+    automaticRelayAvail,
   } = transfer;
   const [inProgress, setInProgress] = useState(false);
   const [isConnected, setIsConnected] = useState(
@@ -122,11 +123,10 @@ function Send(props: { valid: boolean }) {
       gasPayment,
       `${toNativeToken}`,
     );
-    const formatted = toFixedDecimals(utils.formatEther(gasFee), 6);
     if (gasPayment === PaymentOption.MANUAL) {
-      dispatch(setManualGasEst(formatted));
+      dispatch(setManualGasEst(gasFee));
     } else {
-      dispatch(setAutomaticGasEst(formatted));
+      dispatch(setAutomaticGasEst(gasFee));
     }
   };
 
@@ -134,18 +134,20 @@ function Send(props: { valid: boolean }) {
   const setDestGas = async () => {
     if (!toNetwork) return;
     const gasFee = await estimateClaimGasFee(toNetwork!);
-    const formatted = toFixedDecimals(utils.formatEther(gasFee), 6);
-    dispatch(setClaimGasEst(formatted));
+    dispatch(setClaimGasEst(gasFee));
   };
 
   useEffect(() => {
     const valid = isTransferValid(validations);
     if (!valid) return;
 
+    if (automaticRelayAvail) {
+      setSendingGas(PaymentOption.AUTOMATIC);
+    }
     setSendingGas(PaymentOption.MANUAL);
-    setSendingGas(PaymentOption.AUTOMATIC);
     setDestGas();
   }, [
+    validations,
     sending,
     receiving,
     fromNetwork,

@@ -15,6 +15,10 @@ const useStyles = makeStyles()((theme) => ({
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
+    [theme.breakpoints.down('sm')]: {
+      flexDirection: 'column',
+      gap: '16px',
+    },
   },
   title: {
     fontSize: '14px',
@@ -33,6 +37,9 @@ const useStyles = makeStyles()((theme) => ({
     fontSize: '12px',
     opacity: '80%',
     textAlign: 'right',
+    [theme.breakpoints.down('sm')]: {
+      textAlign: 'left',
+    },
   },
   estimate: {
     fontSize: '14px',
@@ -53,6 +60,7 @@ type OptionConfig = {
   estimate: string;
 };
 const getOptions = (
+  source: NetworkConfig,
   dest: NetworkConfig,
   token: string,
   relayAvail: boolean,
@@ -65,12 +73,12 @@ const getOptions = (
 ): OptionConfig[] => {
   const manual = {
     key: PaymentOption.MANUAL,
-    title: `Pay with ${token} and ${dest.gasToken}`,
+    title: `Pay with ${source.gasToken} and ${dest.gasToken}`,
     subtitle: '(two transactions)',
     description: `Claim with ${dest.gasToken} on ${dest.displayName}`,
     estimate:
       gasEst.manual && gasEst.claim
-        ? `${gasEst.manual} ${token} & ${gasEst.claim} ${dest.gasToken}`
+        ? `${gasEst.manual} ${source.gasToken} & ${gasEst.claim} ${dest.gasToken}`
         : 'Not available',
   };
   if (!relayAvail) return [manual];
@@ -80,9 +88,12 @@ const getOptions = (
   );
   const automatic = {
     key: PaymentOption.AUTOMATIC,
-    title: `Pay with ${token}`,
+    title:
+      source.gasToken === token
+        ? `Pay with ${token}`
+        : `Pay with ${source.gasToken} and ${token}`,
     subtitle: '(one transaction)',
-    description: 'Gas fees will be paid automatically',
+    description: `Gas fees on ${dest.displayName} will be paid automatically`,
     estimate:
       gasEst.automatic && relayerFee
         ? `${automaticFees} ${token}`
@@ -101,8 +112,14 @@ function GasOptions(props: { disabled: boolean }) {
   const selectedOption = useSelector(
     (state: RootState) => state.transfer.destGasPayment,
   );
-  const { token, toNetwork, automaticRelayAvail, gasEst, relayerFee } =
-    useSelector((state: RootState) => state.transfer);
+  const {
+    token,
+    fromNetwork,
+    toNetwork,
+    automaticRelayAvail,
+    gasEst,
+    relayerFee,
+  } = useSelector((state: RootState) => state.transfer);
   const active = selectedOption;
 
   // listen for selectOption
@@ -112,24 +129,26 @@ function GasOptions(props: { disabled: boolean }) {
   });
 
   useEffect(() => {
+    const sourceConfig = fromNetwork && CHAINS[fromNetwork];
     const destConfig = toNetwork && CHAINS[toNetwork];
-    if (token && destConfig) {
-      const description =
-        selectedOption === PaymentOption.AUTOMATIC
-          ? `Pay with ${token}`
-          : `Pay with ${token} & ${destConfig!.nativeToken}`;
-      setState({
-        options: getOptions(
-          destConfig,
-          token,
-          automaticRelayAvail,
-          relayerFee,
-          gasEst,
-        ),
-        description,
-      });
-    }
-  }, [token, selectedOption, toNetwork, gasEst, relayerFee]);
+    if (!token || !sourceConfig || !destConfig) return;
+
+    const description =
+      selectedOption === PaymentOption.AUTOMATIC
+        ? `Pay with ${sourceConfig.gasToken} & ${token}`
+        : `Pay with ${sourceConfig.gasToken} & ${destConfig!.nativeToken}`;
+    setState({
+      options: getOptions(
+        sourceConfig,
+        destConfig,
+        token,
+        automaticRelayAvail,
+        relayerFee,
+        gasEst,
+      ),
+      description,
+    });
+  }, [token, selectedOption, fromNetwork, toNetwork, gasEst, relayerFee]);
 
   return (
     <BridgeCollapse
