@@ -12,7 +12,6 @@ import {
   switchNetwork,
   TransferWallet,
 } from '../../utils/wallet';
-import { ParsedVaa } from '../../utils/vaa';
 import { claimTransfer, parseAddress } from '../../sdk/sdk';
 import { displayAddress } from '../../utils';
 import { CHAINS } from '../../sdk/config';

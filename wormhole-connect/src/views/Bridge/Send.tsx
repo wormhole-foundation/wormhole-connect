@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Context } from '@wormhole-foundation/wormhole-connect-sdk';
-import { utils, BigNumber } from 'ethers';
 
 import { CHAINS, TOKENS } from '../../sdk/config';
 import {
@@ -21,7 +20,6 @@ import {
   TransferWallet,
 } from '../../utils/wallet';
 import { isTransferValid } from '../../utils/transferValidation';
-import { toFixedDecimals } from '../../utils/balance';
 import {
   touchValidations,
   validateTransfer,
