@@ -108,11 +108,6 @@ function Send(props: { valid: boolean }) {
   }
 
   const setSendingGas = async (gasPayment: PaymentOption) => {
-    const fromConfig = CHAINS[fromNetwork!];
-    if (fromConfig?.context === Context.ETH) {
-      registerWalletSigner(fromNetwork!, TransferWallet.SENDING);
-    }
-
     const tokenConfig = TOKENS[token]!;
     if (!tokenConfig) return;
     const sendToken = tokenConfig.tokenId;
@@ -135,13 +130,10 @@ function Send(props: { valid: boolean }) {
     }
   };
 
+  // TODO: mock vaa?
   const setDestGas = async () => {
-    const toConfig = CHAINS[toNetwork!];
-    if (toConfig?.context === Context.ETH) {
-      registerWalletSigner(toNetwork!, TransferWallet.RECEIVING);
-    }
-    const VAA = new Uint8Array();
-    const gasFee = await estimateClaimGasFee(toNetwork!, VAA);
+    if (!toNetwork) return;
+    const gasFee = await estimateClaimGasFee(toNetwork!);
     const formatted = toFixedDecimals(utils.formatEther(gasFee), 6);
     dispatch(setClaimGasEst(formatted));
   };

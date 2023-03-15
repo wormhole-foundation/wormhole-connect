@@ -23,7 +23,10 @@ const getAutomaticRows = (
   sendingGasEst: string,
 ): RowsData => {
   const receivingToken = token.wrappedAsset || token.symbol;
-  const totalFees = Number.parseFloat(sendingGasEst) + relayerFee;
+  const totalFees = toFixedDecimals(
+    `${Number.parseFloat(sendingGasEst) + relayerFee}`,
+    6,
+  );
   return [
     {
       title: 'Amount',

@@ -152,9 +152,12 @@ export const sendTransfer = async (
       undefined,
     );
     if (fromChainName !== 'solana') {
+      wh.registerProviders();
       return tx;
     }
-    return await signSolanaTransaction(tx as Transaction);
+    const solTx = await signSolanaTransaction(tx as Transaction);
+    wh.registerProviders();
+    return solTx;
   } else {
     console.log('send with relay');
     const parsedNativeAmt = toNativeToken
@@ -170,6 +173,7 @@ export const sendTransfer = async (
       parsedNativeAmt,
     );
     // relay not supported on Solana, so we can just return the ethers receipt
+    wh.registerProviders();
     return tx;
   }
 };
@@ -221,16 +225,11 @@ export const estimateGasFee = async (
   }
 };
 
-export const estimateClaimGasFee = async (
-  destChain: ChainName | ChainId,
-  signedVaa: Uint8Array,
-) => {
-  const context = wh.getContext(destChain);
+export const estimateClaimGasFee = async (destChain: ChainName | ChainId) => {
   const provider = wh.mustGetProvider(destChain);
   const gasPrice = await provider.getGasPrice();
 
-  const tx = await context.prepareRedeem(destChain, signedVaa);
-  const est = await provider.estimateGas(tx);
+  const est = BigNumber.from('300000');
   return est.mul(gasPrice);
 };
 
@@ -267,7 +266,9 @@ export const claimTransfer = async (
     await postVaa(connection, contracts.core, Buffer.from(vaa));
   }
 
-  return await wh.redeem(destChain, vaa, { gasLimit: 250000 });
+  const receipt = await wh.redeem(destChain, vaa, { gasLimit: 250000 });
+  wh.registerProviders();
+  return receipt;
 };
 
 export const fetchTokenDecimals = async (

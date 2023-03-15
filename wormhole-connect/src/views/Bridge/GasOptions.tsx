@@ -8,6 +8,7 @@ import { RootState } from '../../store';
 import { CHAINS } from '../../sdk/config';
 import { PaymentOption } from '../../sdk/sdk';
 import { NetworkConfig } from '../../config/types';
+import { toFixedDecimals } from '../../utils/balance';
 
 const useStyles = makeStyles()((theme) => ({
   option: {
@@ -73,13 +74,17 @@ const getOptions = (
     active: PaymentOption.MANUAL,
   };
   if (!relayAvail) return [manual];
+  const automaticFees = toFixedDecimals(
+    `${Number.parseFloat(gasEst.automatic) + relayerFee!}`,
+    6,
+  );
   const automatic = {
     title: `Pay with ${token}`,
     subtitle: '(one transaction)',
     description: 'Gas fees will be paid automatically',
     estimate:
       gasEst.automatic && relayerFee
-        ? `${Number.parseFloat(gasEst.automatic) + relayerFee!} ${token}`
+        ? `${automaticFees} ${token}`
         : 'Not available',
     active: PaymentOption.AUTOMATIC,
   };

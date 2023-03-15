@@ -64,9 +64,18 @@ export class WormholeContext extends MultiProvider<Domain> {
     this._contexts.set(Context.ETH, new EthContext(this));
     this._contexts.set(Context.SOLANA, new SolanaContext(this));
 
+    this.registerProviders();
+  }
+
+  get environment(): string {
+    return this.conf.env;
+  }
+
+  registerProviders() {
     for (const network of Object.keys(this.conf.rpcs)) {
       const n = network as ChainName;
-      const chains = env === 'MAINNET' ? MAINNET_CHAINS : TESTNET_CHAINS;
+      const chains =
+        this.conf.env === 'MAINNET' ? MAINNET_CHAINS : TESTNET_CHAINS;
       const chainConfig = (chains as any)[n];
       if (!chainConfig) throw new Error('invalid network name');
       // register domain
@@ -80,10 +89,6 @@ export class WormholeContext extends MultiProvider<Domain> {
         this.registerRpcProvider(network, this.conf.rpcs[n]!);
       }
     }
-  }
-
-  get environment(): string {
-    return this.conf.env;
   }
 
   toChainId(nameOrId: string | number) {

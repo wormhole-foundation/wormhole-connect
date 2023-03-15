@@ -50,7 +50,7 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 const getReady = (wallet: Wallet) => {
   const ready = wallet.getWalletState();
-  return ready === WalletState.Loadable || ready === WalletState.Installed;
+  return ready !== WalletState.Unsupported;
 };
 
 type WalletData = {
