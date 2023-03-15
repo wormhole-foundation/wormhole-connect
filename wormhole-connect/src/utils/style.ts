@@ -80,7 +80,6 @@ export const changeOpacity = (
   color: string,
   opacity: keyof typeof OPACITY,
 ): string => {
-  console.log(color.length);
   if (color.length === 7) return color + OPACITY[opacity];
   if (color.length === 9) return color.slice(0, 7) + OPACITY[opacity];
   return color;

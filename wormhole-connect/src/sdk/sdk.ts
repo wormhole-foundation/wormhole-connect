@@ -11,6 +11,7 @@ import { Transaction } from '@solana/web3.js';
 import { getTokenById, getTokenDecimals, getWrappedTokenId } from '../utils';
 import { TOKENS, WH_CONFIG } from './config';
 import { postVaa, signSolanaTransaction } from 'utils/wallet';
+import { toFixedDecimals } from 'utils/balance';
 
 export enum PaymentOption {
   MANUAL = 1,
@@ -152,9 +153,12 @@ export const sendTransfer = async (
       undefined,
     );
     if (fromChainName !== 'solana') {
+      wh.registerProviders();
       return tx;
     }
-    return await signSolanaTransaction(tx as Transaction);
+    const solTx = await signSolanaTransaction(tx as Transaction);
+    wh.registerProviders();
+    return solTx;
   } else {
     console.log('send with relay');
     const parsedNativeAmt = toNativeToken
@@ -170,8 +174,89 @@ export const sendTransfer = async (
       parsedNativeAmt,
     );
     // relay not supported on Solana, so we can just return the ethers receipt
+    wh.registerProviders();
     return tx;
   }
+};
+
+export const estimateGasFee = async (
+  token: TokenId | 'native',
+  amount: string,
+  fromNetwork: ChainName | ChainId,
+  fromAddress: string,
+  toNetwork: ChainName | ChainId,
+  toAddress: string,
+  paymentOption: PaymentOption,
+  toNativeToken?: string,
+): Promise<string> => {
+  console.log('estimating fees');
+  const fromChainName = wh.toChainName(fromNetwork);
+  const decimals = getTokenDecimals(fromChainName, token);
+  const parsedAmt = utils.parseUnits(amount, decimals);
+  const context = wh.getContext(fromNetwork);
+  const provider = wh.mustGetProvider(fromNetwork);
+  if (fromChainName === 'solana') {
+    // const connection = context.connection;
+    // if (!connection) throw new Error('no connection');
+    // const tx = await context.send(
+    //   token,
+    //   parsedAmt.toString(),
+    //   fromNetwork,
+    //   fromAddress,
+    //   toNetwork,
+    //   toAddress,
+    //   undefined,
+    // );
+    // const fees = await tx.getEstimatedFee(connection);
+    // const parsed = utils.parseUnits(`${fees}`, 9).toString();
+    // return toFixedDecimals(parsed, 6);
+    // right now, there's just a flat cost for bridge transfers from solana
+    return '0.000015';
+  } else {
+    const gasPrice = await provider.getGasPrice();
+    if (paymentOption === PaymentOption.MANUAL) {
+      const tx = await context.prepareSend(
+        token,
+        parsedAmt.toString(),
+        fromNetwork,
+        fromAddress,
+        toNetwork,
+        toAddress,
+        undefined,
+      );
+      const est = await provider.estimateGas(tx);
+      const gasFee = est.mul(gasPrice);
+      return toFixedDecimals(utils.formatEther(gasFee), 6);
+    } else {
+      const parsedNativeAmt = toNativeToken
+        ? utils.parseUnits(toNativeToken, decimals).toString()
+        : '0';
+      const tx = await context.prepareSendWithRelay(
+        token,
+        parsedAmt.toString(),
+        parsedNativeAmt,
+        fromNetwork,
+        fromAddress,
+        toNetwork,
+        toAddress,
+      );
+      const est = await provider.estimateGas(tx);
+      const gasFee = est.mul(gasPrice);
+      return toFixedDecimals(utils.formatEther(gasFee), 6);
+    }
+  }
+};
+
+export const estimateClaimGasFee = async (destChain: ChainName | ChainId) => {
+  const destChainName = wh.toChainName(destChain);
+  if (destChainName === 'solana') return '0.000025';
+
+  const provider = wh.mustGetProvider(destChain);
+  const gasPrice = await provider.getGasPrice();
+
+  const est = BigNumber.from('300000');
+  const gasFee = est.mul(gasPrice);
+  return toFixedDecimals(utils.formatEther(gasFee), 6);
 };
 
 export const calculateMaxSwapAmount = async (
@@ -196,6 +281,7 @@ export const claimTransfer = async (
   vaa: Uint8Array,
 ): Promise<ContractReceipt> => {
   // post vaa (solana)
+  // TODO: move to context
   const destDomain = wh.resolveDomain(destChain);
   if (destDomain === 1) {
     const destContext = wh.getContext(destChain);
@@ -206,7 +292,9 @@ export const claimTransfer = async (
     await postVaa(connection, contracts.core, Buffer.from(vaa));
   }
 
-  return await wh.redeem(destChain, vaa, { gasLimit: 250000 });
+  const receipt = await wh.redeem(destChain, vaa, { gasLimit: 250000 });
+  wh.registerProviders();
+  return receipt;
 };
 
 export const fetchTokenDecimals = async (

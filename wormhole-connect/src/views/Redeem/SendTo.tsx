@@ -69,16 +69,11 @@ const getRows = (txData: any): RowsData => {
 
 function SendTo() {
   const dispatch = useDispatch();
-  const vaa: ParsedVaa = useSelector((state: RootState) => state.redeem.vaa);
+  const { vaa, redeemTx, transferComplete } = useSelector(
+    (state: RootState) => state.redeem,
+  );
   const txData = useSelector((state: RootState) => state.redeem.txData)!;
-  const toAddr = useSelector(
-    (state: RootState) => state.wallet.receiving.address,
-  );
-  const receiving = useSelector((state: RootState) => state.wallet.receiving);
-  const redeemTx = useSelector((state: RootState) => state.redeem.redeemTx);
-  const transferComplete = useSelector(
-    (state: RootState) => state.redeem.transferComplete,
-  );
+  const wallet = useSelector((state: RootState) => state.wallet.receiving);
   const [claimError, setClaimError] = useState('');
 
   const connect = () => {
@@ -86,8 +81,8 @@ function SendTo() {
   };
   const checkConnection = () => {
     if (!txData) return;
-    const addr = receiving.address.toLowerCase();
-    const curAddr = receiving.currentAddress.toLowerCase();
+    const addr = wallet.address.toLowerCase();
+    const curAddr = wallet.currentAddress.toLowerCase();
     const formattedRecipient = parseAddress(txData.toChain, txData.recipient);
     const reqAddr = formattedRecipient.toLowerCase();
     // console.log(addr, curAddr, reqAddr)
@@ -108,7 +103,7 @@ function SendTo() {
   const claim = async () => {
     setInProgress(true);
     setClaimError('');
-    if (!receiving || !isConnected) {
+    if (!wallet || !isConnected) {
       setClaimError('Connect to receiving wallet');
       throw new Error('Connect to receiving wallet');
     }
@@ -139,7 +134,7 @@ function SendTo() {
 
   useEffect(() => {
     setIsConnected(checkConnection());
-  }, [receiving]);
+  }, [wallet]);
 
   return (
     <div>
@@ -147,7 +142,7 @@ function SendTo() {
         <Header
           network={txData.toChain}
           address={txData.recipient}
-          loading={inProgress}
+          loading={inProgress && !transferComplete}
           txHash={redeemTx}
           error={claimError ? 'Error please retry . . .' : ''}
         />
@@ -162,7 +157,7 @@ function SendTo() {
             error
             margin="0 0 8px 0"
           />
-          {toAddr ? (
+          {wallet.address ? (
             isConnected ? (
               <Button onClick={claim} action disabled={inProgress}>
                 {inProgress ? <CircularProgress size={22} /> : 'Claim'}

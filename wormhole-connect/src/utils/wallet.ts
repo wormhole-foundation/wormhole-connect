@@ -81,12 +81,15 @@ export const registerWalletSigner = (
 };
 
 export const switchNetwork = async (chainId: number, type: TransferWallet) => {
-  const w = walletConnection[type]! as any;
+  const w: Wallet = walletConnection[type]! as any;
   if (!w) throw new Error('must connect wallet');
 
   const config = getNetworkByChainId(chainId)!;
+  const currentChain = w.getNetworkInfo().chainId;
+  console.log(currentChain, chainId);
+  if (currentChain === chainId) return;
   if (config.context === Context.ETH) {
-    await w.switchChain(chainId);
+    await (w as any).switchChain(chainId);
   }
 };
 

@@ -28,25 +28,18 @@ function ToInputs() {
 
   // get balance on destination chain
   useEffect(() => {
-    if (!fromNetwork || !toNetwork || !tokenConfig || !wallet.address) return;
-    if (tokenConfig.tokenId) {
-      getBalance(wallet.address, tokenConfig.tokenId, toNetwork).then(
-        (res: BigNumber | null) => {
-          const balance = formatBalance(fromNetwork, tokenConfig, res);
-          setBalance(balance[tokenConfig.symbol]);
-        },
-      );
-    } else if (tokenConfig.wrappedAsset) {
-      const wrappedConfig = TOKENS[tokenConfig.wrappedAsset];
-      if (wrappedConfig && wrappedConfig.tokenId) {
-        getBalance(wallet.address, wrappedConfig.tokenId, toNetwork).then(
-          (res: BigNumber | null) => {
-            const balance = formatBalance(fromNetwork, tokenConfig, res);
-            setBalance(balance[tokenConfig.symbol]);
-          },
-        );
-      }
+    if (!fromNetwork || !toNetwork || !tokenConfig || !wallet.address) {
+      return setBalance(undefined);
     }
+    const { tokenId } = tokenConfig.tokenId
+      ? tokenConfig
+      : TOKENS[tokenConfig.wrappedAsset!];
+    getBalance(wallet.address, tokenId!, toNetwork).then(
+      (res: BigNumber | null) => {
+        const balance = formatBalance(toNetwork, tokenConfig, res);
+        setBalance(balance[tokenConfig.symbol]);
+      },
+    );
   }, [tokenConfig, fromNetwork, toNetwork, wallet.address]);
 
   // token display jsx
@@ -58,7 +51,7 @@ function ToInputs() {
   // amount display jsx
   const amountInput = (
     <Input label="Amount">
-      <InputTransparent placeholder="-" disabled value={amount} />
+      <InputTransparent placeholder="-" disabled value={amount || ''} />
     </Input>
   );
 

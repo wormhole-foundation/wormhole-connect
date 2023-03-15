@@ -20,8 +20,13 @@ const getAutomaticRows = (
   nativeTokenAmt: number,
   receiveNativeAmt: number,
   relayerFee: number,
+  sendingGasEst: string,
 ): RowsData => {
   const receivingToken = token.wrappedAsset || token.symbol;
+  const totalFees = toFixedDecimals(
+    `${Number.parseFloat(sendingGasEst) + relayerFee}`,
+    6,
+  );
   return [
     {
       title: 'Amount',
@@ -35,20 +40,18 @@ const getAutomaticRows = (
       value: `${receiveNativeAmt} ${gasToken}`,
     },
     {
-      title: 'Total fee estimate',
-      value: `TODO ${token.symbol}`,
+      title: 'Total fee estimates',
+      value: !!totalFees ? `${totalFees} ${token.symbol}` : '',
       rows: [
         {
           title: 'Relayer fee',
-          value: `${relayerFee} ${token.symbol}`,
+          value: relayerFee ? `${relayerFee} ${token.symbol}` : 'Not available',
         },
         {
           title: 'Source chain gas estimate',
-          value: `~ TODO ${token.symbol}`,
-        },
-        {
-          title: 'Destination chain gas estimate',
-          value: `~ TODO ${token.symbol}`,
+          value: sendingGasEst
+            ? `~ ${sendingGasEst} ${token.symbol}`
+            : 'Not available',
         },
       ],
     },
@@ -59,6 +62,8 @@ const getManualRows = (
   token: TokenConfig,
   gasToken: string,
   amount: number,
+  sendingGasEst: string,
+  destGasEst: string,
 ): RowsData => {
   const receivingToken = token.wrappedAsset || token.symbol;
 
@@ -69,15 +74,20 @@ const getManualRows = (
     },
     {
       title: 'Total fee estimates',
-      value: `TODO ${token.symbol} & TODO ${gasToken}`,
+      value:
+        sendingGasEst && destGasEst
+          ? `${sendingGasEst} ${token.symbol} & ${destGasEst} ${gasToken}`
+          : '',
       rows: [
         {
           title: 'Source chain gas estimate',
-          value: `~ TODO ${token.symbol}`,
+          value: sendingGasEst
+            ? `~ ${sendingGasEst} ${token.symbol}`
+            : 'Not available',
         },
         {
           title: 'Destination chain gas estimate',
-          value: `~ TODO ${gasToken}`,
+          value: destGasEst ? `~ ${destGasEst} ${gasToken}` : 'Not available',
         },
       ],
     },
@@ -96,6 +106,7 @@ function Preview(props: { collapsed: boolean }) {
     amount,
     toNativeToken,
     receiveNativeAmt,
+    gasEst,
   } = useSelector((state: RootState) => state.transfer);
 
   useEffect(() => {
@@ -104,7 +115,13 @@ function Preview(props: { collapsed: boolean }) {
     if (!fromNetwork || !tokenConfig || !destConfig || !amount) return;
 
     if (destGasPayment === PaymentOption.MANUAL) {
-      const rows = getManualRows(tokenConfig, destConfig!.nativeToken, amount);
+      const rows = getManualRows(
+        tokenConfig,
+        destConfig!.nativeToken,
+        amount,
+        gasEst.manual,
+        gasEst.claim,
+      );
       setState({ rows });
     } else {
       getRelayerFee(fromNetwork, toNetwork, token).then((fee) => {
@@ -121,6 +138,7 @@ function Preview(props: { collapsed: boolean }) {
           toNativeToken,
           receiveNativeAmt || 0,
           formattedFee,
+          gasEst.automatic,
         );
         setState({ rows });
       });
@@ -133,6 +151,7 @@ function Preview(props: { collapsed: boolean }) {
     amount,
     toNativeToken,
     receiveNativeAmt,
+    gasEst,
   ]);
 
   return (

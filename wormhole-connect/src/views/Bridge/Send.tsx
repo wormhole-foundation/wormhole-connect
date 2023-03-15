@@ -1,22 +1,37 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Context } from '@wormhole-foundation/wormhole-connect-sdk';
+import { utils, BigNumber } from 'ethers';
+
 import { CHAINS, TOKENS } from '../../sdk/config';
-import { parseMessageFromTx, PaymentOption, sendTransfer } from '../../sdk/sdk';
+import {
+  estimateClaimGasFee,
+  estimateGasFee,
+  parseMessageFromTx,
+  PaymentOption,
+  sendTransfer,
+} from '../../sdk/sdk';
 import { RootState, store } from '../../store';
 import { setRoute } from '../../store/router';
 import { setTxDetails, setSendTx } from '../../store/redeem';
+import { displayWalletAddress } from '../../utils';
 import {
   registerWalletSigner,
   switchNetwork,
   TransferWallet,
 } from '../../utils/wallet';
 import { isTransferValid } from '../../utils/transferValidation';
-import { displayWalletAddress } from '../../utils';
+import { toFixedDecimals } from '../../utils/balance';
+import {
+  touchValidations,
+  validateTransfer,
+  setManualGasEst,
+  setAutomaticGasEst,
+  setClaimGasEst,
+} from '../../store/transfer';
 
 import Button from '../../components/Button';
 import CircularProgress from '@mui/material/CircularProgress';
-import { touchValidations, validateTransfer } from '../../store/transfer';
 import AlertBanner from '../../components/AlertBanner';
 
 function Send(props: { valid: boolean }) {
@@ -32,6 +47,8 @@ function Send(props: { valid: boolean }) {
     amount,
     destGasPayment,
     toNativeToken,
+    relayerFee,
+    automaticRelayAvail,
   } = transfer;
   const [inProgress, setInProgress] = useState(false);
   const [isConnected, setIsConnected] = useState(
@@ -90,6 +107,56 @@ function Send(props: { valid: boolean }) {
       console.error(e);
     }
   }
+
+  const setSendingGas = async (gasPayment: PaymentOption) => {
+    const tokenConfig = TOKENS[token]!;
+    if (!tokenConfig) return;
+    const sendToken = tokenConfig.tokenId;
+
+    const gasFee = await estimateGasFee(
+      sendToken || 'native',
+      `${amount}`,
+      fromNetwork!,
+      sending.address,
+      toNetwork!,
+      receiving.address,
+      gasPayment,
+      `${toNativeToken}`,
+    );
+    if (gasPayment === PaymentOption.MANUAL) {
+      dispatch(setManualGasEst(gasFee));
+    } else {
+      dispatch(setAutomaticGasEst(gasFee));
+    }
+  };
+
+  // TODO: mock vaa?
+  const setDestGas = async () => {
+    if (!toNetwork) return;
+    const gasFee = await estimateClaimGasFee(toNetwork!);
+    dispatch(setClaimGasEst(gasFee));
+  };
+
+  useEffect(() => {
+    const valid = isTransferValid(validations);
+    if (!valid) return;
+
+    if (automaticRelayAvail) {
+      setSendingGas(PaymentOption.AUTOMATIC);
+    }
+    setSendingGas(PaymentOption.MANUAL);
+    setDestGas();
+  }, [
+    validations,
+    sending,
+    receiving,
+    fromNetwork,
+    toNetwork,
+    token,
+    destGasPayment,
+    toNativeToken,
+    relayerFee,
+  ]);
 
   useEffect(() => {
     setIsConnected(

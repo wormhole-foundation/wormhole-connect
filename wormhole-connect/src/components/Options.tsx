@@ -40,35 +40,39 @@ const useStyles = makeStyles()((theme) => ({
   },
 }));
 
+type Option = {
+  key: any;
+  child: any;
+};
 type Props = {
-  children: JSX.Element[];
+  children: Option[];
   active?: number;
 };
 
 function Options(props: Props) {
   const { classes } = useStyles();
   // dispatch selectOption event
-  const emitSelectOption = (key: number) => {
+  const emitSelectOption = (key: any) => {
     const event = new CustomEvent('selectOption', { detail: key });
     document.dispatchEvent(event);
   };
 
   return (
     <div className={classes.options}>
-      {props.children.map((child, i) => {
+      {props.children.map((option, i) => {
         return (
           <div
             className={joinClass([
               classes.option,
-              props.active === i && classes.active,
+              props.active === option.key && classes.active,
             ])}
-            onClick={() => emitSelectOption(i + 1)}
+            onClick={() => emitSelectOption(option.key)}
             style={{
               cursor: props.children.length > 0 ? 'pointer' : 'default',
             }}
             key={i}
           >
-            {child}
+            {option.child}
           </div>
         );
       })}
