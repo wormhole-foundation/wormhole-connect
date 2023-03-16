@@ -50,14 +50,21 @@ export function getNetworkByChainId(chainId: number): ChainConfig | void {
   return CHAINS_ARR.filter((c) => chainId === c.chainId)[0];
 }
 
-export function getWrappedTokenId(token: TokenConfig): TokenId {
-  let tokenId = token.tokenId;
-  if (!tokenId) {
-    const wrapped = TOKENS[token.wrappedAsset!];
-    tokenId = wrapped.tokenId;
+export function getWrappedToken(token: TokenConfig): TokenConfig {
+  if (!token) throw new Error('token must be defined');
+  if (!token.tokenId && !token.wrappedAsset)
+    throw new Error(`token details misconfigured for ${token.symbol}`);
+  if (!token.tokenId && token.wrappedAsset) {
+    const wrapped = TOKENS[token.wrappedAsset];
+    if (!wrapped) throw new Error('wrapped token not found');
+    return wrapped;
   }
-  if (!tokenId) throw new Error('token id not found');
-  return tokenId;
+  return token;
+}
+
+export function getWrappedTokenId(token: TokenConfig): TokenId {
+  const wrapped = getWrappedToken(token);
+  return wrapped.tokenId!;
 }
 
 export function getTokenById(tokenId: TokenId): TokenConfig | void {

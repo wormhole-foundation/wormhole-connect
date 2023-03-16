@@ -41,7 +41,8 @@ const getAutomaticRows = (
     },
     {
       title: 'Total fee estimates',
-      value: !!totalFees ? `${totalFees} ${token.symbol}` : '',
+      value:
+        totalFees && totalFees !== 'NaN' ? `${totalFees} ${token.symbol}` : '',
       rows: [
         {
           title: 'Relayer fee',

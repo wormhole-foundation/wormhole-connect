@@ -12,6 +12,7 @@ import Inputs from './Inputs';
 import Input from './Input';
 import Select from './Select';
 import InputTransparent from '../../../components/InputTransparent';
+import { getWrappedToken } from '../../../utils';
 
 function ToInputs() {
   const dispatch = useDispatch();
@@ -43,8 +44,9 @@ function ToInputs() {
   }, [tokenConfig, fromNetwork, toNetwork, wallet.address]);
 
   // token display jsx
+  const symbol = tokenConfig && getWrappedToken(tokenConfig).symbol;
   const selectedToken = tokenConfig
-    ? { icon: tokenConfig.icon, text: tokenConfig.symbol }
+    ? { icon: tokenConfig.icon, text: symbol }
     : undefined;
   const tokenInput = <Select label="Asset" selected={selectedToken} />;
 
