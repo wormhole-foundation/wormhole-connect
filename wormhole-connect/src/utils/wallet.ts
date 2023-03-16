@@ -86,7 +86,6 @@ export const switchNetwork = async (chainId: number, type: TransferWallet) => {
 
   const config = getNetworkByChainId(chainId)!;
   const currentChain = w.getNetworkInfo().chainId;
-  console.log(currentChain, chainId);
   if (currentChain === chainId) return;
   if (config.context === Context.ETH) {
     await (w as any).switchChain(chainId);
