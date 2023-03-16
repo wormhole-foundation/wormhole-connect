@@ -303,7 +303,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
         0, // opt out of batching
         {
           // ...(overrides || {}), // TODO: fix overrides/gas limit here
-          gasLimit: 250000,
+          gasLimit: 300000,
           value: amountBN,
         },
       );
@@ -319,7 +319,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
         formattedRecipient,
         0, // opt out of batching
         {
-          gasLimit: 250000,
+          gasLimit: 300000,
         },
       );
     }
