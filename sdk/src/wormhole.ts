@@ -244,9 +244,10 @@ export class WormholeContext extends MultiProvider<Domain> {
     destChain: ChainName | ChainId,
     signedVAA: Uint8Array,
     overrides: any,
+    receivingAddr?: string,
   ): Promise<any> {
     const context = this.getContext(destChain);
-    return await context.redeem(destChain, signedVAA, overrides);
+    return await context.redeem(destChain, signedVAA, overrides, receivingAddr);
   }
 
   async isTransferCompleted(

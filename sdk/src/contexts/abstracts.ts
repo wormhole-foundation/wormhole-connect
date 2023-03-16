@@ -68,6 +68,7 @@ export abstract class BridgeAbstract {
     destChain: ChainName | ChainId,
     signedVAA: Uint8Array,
     overrides: any,
+    receivingAddr?: any,
   ): Promise<any>;
   protected abstract isTransferCompleted(
     destChain: ChainName | ChainId,

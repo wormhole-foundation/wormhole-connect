@@ -119,6 +119,7 @@ function SendTo() {
       const receipt = await claimTransfer(
         txData.toChain,
         utils.arrayify(vaa.bytes),
+        wallet.address,
       );
       dispatch(setRedeemTx(receipt.transactionHash));
       dispatch(setTransferComplete(true));

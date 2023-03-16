@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { makeStyles } from 'tss-react/mui';
 import { joinClass, OPACITY } from '../utils/style';
 import AlertIcon from '../icons/Alert';
 import { Collapse } from '@mui/material';
+import { usePrevious } from '../utils';
 
 const useStyles = makeStyles()((theme) => ({
   base: {
@@ -33,6 +34,17 @@ type Props = {
 
 function AlertBanner(props: Props) {
   const { classes } = useStyles();
+  const [alertText, setAlertText] = useState(props.text);
+  const prevText = usePrevious(props.text);
+  useEffect(() => {
+    if (!!prevText && !props.text) {
+      setTimeout(() => {
+        setAlertText('');
+      }, 500);
+    } else {
+      setAlertText(props.text);
+    }
+  }, [props.text]);
 
   return (
     <Collapse in={props.show}>
@@ -45,7 +57,7 @@ function AlertBanner(props: Props) {
         style={{ margin: props.margin || 0 }}
       >
         <AlertIcon />
-        {props.text}
+        {alertText}
       </div>
     </Collapse>
   );

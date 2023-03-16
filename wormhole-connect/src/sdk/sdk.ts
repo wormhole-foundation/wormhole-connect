@@ -279,6 +279,7 @@ export const calculateNativeTokenAmt = async (
 export const claimTransfer = async (
   destChain: ChainName | ChainId,
   vaa: Uint8Array,
+  receivingAddr: string,
 ): Promise<ContractReceipt> => {
   // post vaa (solana)
   // TODO: move to context
@@ -292,7 +293,12 @@ export const claimTransfer = async (
     await postVaa(connection, contracts.core, Buffer.from(vaa));
   }
 
-  const receipt = await wh.redeem(destChain, vaa, { gasLimit: 250000 });
+  const receipt = await wh.redeem(
+    destChain,
+    vaa,
+    { gasLimit: 250000 },
+    receivingAddr,
+  );
   wh.registerProviders();
   return receipt;
 };

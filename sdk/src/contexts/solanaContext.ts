@@ -14,11 +14,7 @@ import {
   deriveWormholeEmitterKey,
   getClaim,
 } from '@certusone/wormhole-sdk/lib/cjs/solana/wormhole';
-import {
-  parseTokenTransferPayload,
-  parseTokenTransferVaa,
-  parseVaa,
-} from '../vaa';
+import { parseTokenTransferPayload, parseVaa } from '../vaa';
 import {
   ACCOUNT_SIZE,
   createCloseAccountInstruction,
@@ -585,23 +581,28 @@ export class SolanaContext<T extends WormholeContext> extends BridgeAbstract {
     );
   }
 
+  // TODO: can we get receiving address from VAA?
   async redeem(
     destChain: ChainName | ChainId,
     signedVAA: Uint8Array,
     overrides: any,
+    receivingAddr?: PublicKeyInitData,
   ): Promise<any> {
+    if (!receivingAddr)
+      throw new Error(
+        'receiving wallet address required for redeeming on Solana',
+      );
     if (!this.connection) throw new Error('no connection');
     const contracts = this.contracts.mustGetContracts('solana');
     if (!contracts.core || !contracts.token_bridge) {
       throw new Error('contracts not found for solana');
     }
 
-    const parsed = parseTokenTransferVaa(signedVAA);
     return await redeemOnSolana(
       this.connection,
       contracts.core,
       contracts.token_bridge,
-      parsed.to,
+      receivingAddr,
       signedVAA,
     );
   }

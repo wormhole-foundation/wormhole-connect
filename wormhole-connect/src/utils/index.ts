@@ -6,6 +6,7 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { CHAINS_ARR, TOKENS, TOKENS_ARR } from '../sdk/config';
 import { WalletType } from './wallet';
+import { useEffect, useRef } from 'react';
 
 export function convertAddress(address: string): string {
   if (address.length === 22) return address;
@@ -142,4 +143,12 @@ export function debounce(callback: any, wait: number) {
       callback.apply(this, args);
     }, wait);
   };
+}
+
+export function usePrevious(value: any) {
+  const ref = useRef();
+  useEffect(() => {
+    ref.current = value;
+  });
+  return ref.current;
 }

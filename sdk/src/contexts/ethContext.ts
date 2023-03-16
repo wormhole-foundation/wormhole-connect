@@ -170,7 +170,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
       const tokenAddr = await this.getForeignAsset(token, sendingChain);
       // simulate transaction
       await bridge.callStatic.transferTokens(
-        destContext.parseAddress(tokenAddr),
+        this.parseAddress(tokenAddr),
         amountBN,
         recipientChainId,
         destContext.formatAddress(recipientAddress),

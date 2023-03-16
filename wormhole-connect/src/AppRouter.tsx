@@ -14,6 +14,7 @@ import TxSearch from './views/TxSearch';
 import { clearWallets } from './store/wallet';
 import Terms from './views/Terms';
 import FAQ from './views/FAQ';
+import { usePrevious } from './utils';
 
 const useStyles = makeStyles()((theme) => ({
   appContent: {
@@ -30,14 +31,6 @@ const useStyles = makeStyles()((theme) => ({
     },
   },
 }));
-
-function usePrevious(value) {
-  const ref = useRef();
-  useEffect(() => {
-    ref.current = value;
-  });
-  return ref.current;
-}
 
 // since this will be embedded, we'll have to use pseudo routes instead of relying on the url
 function AppRouter() {
