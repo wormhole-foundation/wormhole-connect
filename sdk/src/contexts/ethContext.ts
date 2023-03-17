@@ -170,7 +170,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
       const tokenAddr = await this.getForeignAsset(token, sendingChain);
       // simulate transaction
       await bridge.callStatic.transferTokens(
-        this.parseAddress(tokenAddr),
+        tokenAddr,
         amountBN,
         recipientChainId,
         destContext.formatAddress(recipientAddress),
@@ -180,7 +180,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
         { gasLimit: 250000 },
       );
       return bridge.populateTransaction.transferTokens(
-        destContext.parseAddress(tokenAddr),
+        tokenAddr,
         amountBN,
         recipientChainId,
         destContext.formatAddress(recipientAddress),
@@ -205,6 +205,15 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
     const signer = this.context.getSigner(sendingChain);
     if (!signer) throw new Error(`No signer for ${sendingChain}`);
 
+    // approve for ERC-20 token transfers
+    if (token !== NATIVE) {
+      const amountBN = ethers.BigNumber.from(amount);
+      const bridge = this.contracts.mustGetBridge(sendingChain);
+      const tokenAddr = await this.getForeignAsset(token, sendingChain);
+      console.log(sendingChain, bridge.address, tokenAddr, amountBN);
+      await this.approve(sendingChain, bridge.address, tokenAddr, amountBN);
+    }
+
     // prepare and simulate transfer
     const tx = await this.prepareSend(
       token,
@@ -217,13 +226,6 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
       overrides,
     );
 
-    // approve for ERC-20 token transfers
-    if (token !== NATIVE) {
-      const amountBN = ethers.BigNumber.from(amount);
-      const bridge = this.contracts.mustGetBridge(sendingChain);
-      const tokenAddr = await this.getForeignAsset(token, sendingChain);
-      await this.approve(sendingChain, bridge.address, tokenAddr, amountBN);
-    }
     const v = await signer.sendTransaction(tx);
     return await v.wait();
   }
@@ -286,12 +288,11 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
     const isAddress = ethers.utils.isAddress(recipientAddress);
     if (!isAddress)
       throw new Error(`invalid recipient address: ${recipientAddress}`);
+    const destContext = this.context.getContext(recipientChain);
     const recipientChainId = this.context.toChainId(recipientChain);
     const amountBN = ethers.BigNumber.from(amount);
     const relayer = this.contracts.mustGetTokenBridgeRelayer(sendingChain);
     const nativeTokenBN = ethers.BigNumber.from(toNativeToken);
-    const formattedRecipient = this.formatAddress(recipientAddress);
-    // const unwrapWeth = await relayer.unwrapWeth(); // TODO: check unwrapWeth flag
 
     if (token === NATIVE) {
       console.log('wrap and send with relay');
@@ -299,7 +300,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
       return relayer.populateTransaction.wrapAndTransferEthWithRelay(
         nativeTokenBN,
         recipientChainId,
-        formattedRecipient,
+        destContext.formatAddress(recipientAddress),
         0, // opt out of batching
         {
           // ...(overrides || {}), // TODO: fix overrides/gas limit here
@@ -316,7 +317,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
         amountBN,
         nativeTokenBN,
         recipientChainId,
-        formattedRecipient,
+        destContext.formatAddress(recipientAddress),
         0, // opt out of batching
         {
           gasLimit: 300000,
@@ -338,6 +339,20 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
     const signer = this.context.getSigner(sendingChain);
     if (!signer) throw new Error(`No signer for ${sendingChain}`);
 
+    // approve for ERC-20 token transfers
+    if (token !== NATIVE) {
+      const amountBN = ethers.BigNumber.from(amount);
+      const relayer = this.contracts.mustGetTokenBridgeRelayer(sendingChain);
+      const tokenAddr = await this.getForeignAsset(token, sendingChain);
+      console.log(
+        sendingChain,
+        relayer.address,
+        this.parseAddress(tokenAddr),
+        amountBN,
+      );
+      await this.approve(sendingChain, relayer.address, tokenAddr, amountBN);
+    }
+
     // prepare and simulate transfer
     const tx = await this.prepareSendWithRelay(
       token,
@@ -349,14 +364,6 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
       recipientAddress,
       overrides,
     );
-
-    // approve for ERC-20 token transfers
-    if (token !== NATIVE) {
-      const amountBN = ethers.BigNumber.from(amount);
-      const relayer = this.contracts.mustGetTokenBridgeRelayer(sendingChain);
-      const tokenAddr = await this.getForeignAsset(token, sendingChain);
-      await this.approve(sendingChain, relayer.address, tokenAddr, amountBN);
-    }
 
     const v = await signer.sendTransaction(tx);
     return await v.wait();
