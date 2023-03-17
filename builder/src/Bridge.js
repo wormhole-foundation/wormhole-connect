@@ -17,6 +17,7 @@ class WormholeBridge extends React.Component {
   }
 
   render() {
+    // config.customTheme = theme.custom;
     return (
       // <div id="wormhole-connect" config={JSON.stringify(config)}></div>
       <div id="wormhole-connect"></div>

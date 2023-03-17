@@ -3,8 +3,6 @@ import { copyTextToClipboard } from './utils';
 import WormholeBridge from './Bridge.js';
 import Background from './Background';
 import { makeStyles } from 'tss-react/mui';
-// import config from './wormhole-config.json';
-// import * as theme from './theme';
 
 const useStyles = makeStyles()((theme) => ({
   appContent: {
@@ -37,7 +35,6 @@ function App() {
     <script src="https://wormhole-foundation.github.io/wormhole-connect/main.js"></script>
     <link src="https://wormhole-foundation.github.io/wormhole-connect/main.css"/>
   `
-  // config.customTheme = theme.dark;
   return (
     <div className="App">
       <Background>

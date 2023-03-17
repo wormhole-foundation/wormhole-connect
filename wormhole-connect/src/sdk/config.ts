@@ -40,7 +40,7 @@ const testnetRpcs = {
   solana: process.env.REACT_APP_SOLANA_DEVNET_RPC || conf.rpcs.solana,
 };
 conf.rpcs = REACT_APP_ENV === 'MAINNET' ? mainnetRpcs : testnetRpcs;
-export const WH_CONFIG = config;
+export const WH_CONFIG = conf;
 
 export const CHAINS = isProduction ? MAINNET_NETWORKS : TESTNET_NETWORKS;
 export const CHAINS_ARR =
