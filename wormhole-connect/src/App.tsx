@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Provider } from 'react-redux';
+import { makeStyles } from 'tss-react/mui';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 // import Box from '@mui/material/Box';
@@ -12,11 +13,27 @@ import { store } from './store';
 import AppRouter from './AppRouter';
 import { getDesignTokens } from './theme';
 import { THEME_MODE } from './sdk/config';
-import BackgroundImage from './components/Background/BackgroundImage';
+// import BackgroundImage from './components/Background/BackgroundImage';
 
 const ColorModeContext = React.createContext({ toggleColorMode: () => {} });
 
+const useStyles = makeStyles()((theme) => ({
+  background: {
+    position: 'fixed',
+    top: '0',
+    bottom: '0',
+    left: '0',
+    right: '0',
+    height: '100vh',
+    width: '100vw',
+    zIndex: '-1',
+    backgroundImage: 'url(/background-image.svg)',
+    backgroundSize: 'cover',
+  },
+}));
+
 function App() {
+  const { classes } = useStyles();
   const [mode, setMode] = React.useState<PaletteMode>(THEME_MODE);
   const colorMode = React.useMemo(
     () => ({
@@ -36,6 +53,9 @@ function App() {
     <Provider store={store}>
       <ColorModeContext.Provider value={colorMode}>
         <ThemeProvider theme={theme}>
+          {theme.palette.background.default === 'wormhole' && (
+            <div className={classes.background} />
+          )}
           <CssBaseline enableColorScheme />
           {/* light/dark theme switch */}
           {/* <Box
@@ -64,10 +84,9 @@ function App() {
             </IconButton>
           </Box> */}
 
-          <BackgroundImage>
-            {/* App content */}
-            <AppRouter />
-          </BackgroundImage>
+          {/* <BackgroundImage> */}
+          {/* App content */}
+          <AppRouter />
         </ThemeProvider>
       </ColorModeContext.Provider>
     </Provider>
