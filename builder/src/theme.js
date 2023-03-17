@@ -2,7 +2,7 @@ import grey from '@mui/material/colors/grey';
 import green from '@mui/material/colors/green';
 import orange from '@mui/material/colors/orange';
 import red from '@mui/material/colors/red';
-import lightblue from '@mui/material/colors/lightBlue';
+// import lightblue from '@mui/material/colors/lightBlue';
 
 export const OPACITY = {
   0: '00',
@@ -89,7 +89,6 @@ export const OPACITY = {
 //   };
 // };
 
-// basic light theme
 export const light = {
   primary: {
     50: '#161718',
@@ -161,40 +160,133 @@ export const light = {
   modal: {
     background: '#ffffff',
   },
+  font: {
+    primary: '"Inter", sans-serif',
+    header: '"IBM Plex Mono", monospace',
+  },
 };
 
-// basic dark theme
-export const dark = {
+// // generic dark theme
+// export const dark = {
+//   primary: grey,
+//   secondary: grey,
+//   divider: '#ffffff' + OPACITY[20],
+//   background: {
+//     default: '#232323',
+//   },
+//   text: {
+//     primary: '#ffffff',
+//     secondary: grey[500],
+//   },
+//   error: red,
+//   info: lightblue,
+//   success: green,
+//   warning: orange,
+//   button: {
+//     primary: '#ffffff' + OPACITY[20],
+//     primaryText: '#ffffff',
+//     disabled: '#ffffff' + OPACITY[10],
+//     disabledText: '#ffffff' + OPACITY[40],
+//     action: orange[300],
+//     actionText: '#000000',
+//     hover: '#ffffff' + OPACITY[7],
+//   },
+//   options: {
+//     hover: '#474747',
+//     select: '#5b5b5b',
+//   },
+//   card: {
+//     background: '#333333',
+//     secondary: '#474747',
+//     elevation: 'none',
+//   },
+//   popover: {
+//     background: '#1b2033',
+//     secondary: '#ffffff' + OPACITY[5],
+//     elevation: 'none',
+//   },
+//   modal: {
+//     background: '#474747',
+//   },
+// };
+
+export const custom = {
   primary: grey,
   secondary: grey,
   divider: '#ffffff' + OPACITY[20],
   background: {
-    default: '#232323',
+    default: 'wormhole',
   },
   text: {
     primary: '#ffffff',
     secondary: grey[500],
   },
   error: red,
-  info: lightblue,
-  success: green,
-  warning: orange,
+  info: {
+    50: '#97a5b7',
+    100: '#8293a9',
+    200: '#6e819a',
+    300: '#596f8c',
+    400: '#445d7e',
+    500: '#304C70',
+    600: '#2b4464',
+    700: '#263c59',
+    800: '#21354e',
+    900: '#1c2d43',
+    A100: '#304C70',
+    A200: '#304C70',
+    A400: '#304C70',
+    A700: '#304C70',
+  },
+  // success: green,
+  success: {
+    50: '#66d6cd',
+    100: '#4dcfc4',
+    200: '#33c8bc',
+    300: '#1ac1b4',
+    400: '#01BBAC',
+    500: '#00a89a',
+    600: '#009589',
+    700: '#008278',
+    800: '#007067',
+    900: '#005d56',
+    A100: '#00a89a',
+    A200: '#00a89a',
+    A400: '#00a89a',
+    A700: '#00a89a',
+  },
+  warning: {
+    50: '#ffe3a4',
+    100: '#ffdd91',
+    200: '#ffd77f',
+    300: '#ffd26d',
+    400: '#ffcc5b',
+    500: '#FFC749',
+    600: '#e5b341',
+    700: '#cc9f3a',
+    800: '#b28b33',
+    900: '#99772b',
+    A100: '#FFC749',
+    A200: '#FFC749',
+    A400: '#FFC749',
+    A700: '#FFC749',
+  },
   button: {
-    primary: '#ffffff' + OPACITY[20],
+    primary: '#ffffff' + OPACITY[10],
     primaryText: '#ffffff',
-    disabled: '#ffffff' + OPACITY[10],
+    disabled: '#ffffff' + OPACITY[7],
     disabledText: '#ffffff' + OPACITY[40],
-    action: orange[300],
-    actionText: '#000000',
+    action: '#ffffff' + OPACITY[20],
+    actionText: '#ffffff',
     hover: '#ffffff' + OPACITY[7],
   },
   options: {
-    hover: '#474747',
-    select: '#5b5b5b',
+    hover: '#ffffff' + OPACITY[7],
+    select: '#ffffff' + OPACITY[10],
   },
   card: {
-    background: '#333333',
-    secondary: '#474747',
+    background: '#ffffff' + OPACITY[5],
+    secondary: '#ffffff' + OPACITY[5],
     elevation: 'none',
   },
   popover: {
@@ -203,6 +295,10 @@ export const dark = {
     elevation: 'none',
   },
   modal: {
-    background: '#474747',
+    background: '#0F1024',
+  },
+  font: {
+    primary: '"Inter", sans-serif',
+    header: '"IBM Plex Mono", monospace',
   },
 };

@@ -7,6 +7,7 @@ import {
 import { MAINNET_NETWORKS, MAINNET_TOKENS } from '../config/mainnet';
 import { TESTNET_NETWORKS, TESTNET_TOKENS } from '../config/testnet';
 import { TokenConfig } from 'config/types';
+import { dark, light } from 'theme';
 
 const el = document.getElementById('wormhole-connect');
 if (!el)
@@ -39,7 +40,7 @@ const testnetRpcs = {
   solana: process.env.REACT_APP_SOLANA_DEVNET_RPC || conf.rpcs.solana,
 };
 conf.rpcs = REACT_APP_ENV === 'MAINNET' ? mainnetRpcs : testnetRpcs;
-export const WH_CONFIG = config;
+export const WH_CONFIG = conf;
 
 export const CHAINS = isProduction ? MAINNET_NETWORKS : TESTNET_NETWORKS;
 export const CHAINS_ARR =
@@ -59,3 +60,4 @@ export const TOKENS_ARR =
 
 export const THEME_MODE = config && config.mode ? config.mode : 'dark';
 export const CUSTOM_THEME = config && config.customTheme;
+export const THEME = CUSTOM_THEME || THEME_MODE === 'dark' ? dark : light;

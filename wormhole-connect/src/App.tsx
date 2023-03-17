@@ -13,6 +13,7 @@ import { store } from './store';
 import AppRouter from './AppRouter';
 import { getDesignTokens } from './theme';
 import { THEME_MODE } from './sdk/config';
+// import BackgroundImage from './components/Background/BackgroundImage';
 
 const ColorModeContext = React.createContext({ toggleColorMode: () => {} });
 
@@ -52,7 +53,9 @@ function App() {
     <Provider store={store}>
       <ColorModeContext.Provider value={colorMode}>
         <ThemeProvider theme={theme}>
-          {mode === 'dark' && <div className={classes.background} />}
+          {theme.palette.background.default === 'wormhole' && (
+            <div className={classes.background} />
+          )}
           <CssBaseline enableColorScheme />
           {/* light/dark theme switch */}
           {/* <Box
@@ -81,6 +84,7 @@ function App() {
             </IconButton>
           </Box> */}
 
+          {/* <BackgroundImage> */}
           {/* App content */}
           <AppRouter />
         </ThemeProvider>
