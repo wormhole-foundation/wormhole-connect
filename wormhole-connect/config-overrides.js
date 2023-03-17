@@ -1,4 +1,4 @@
-const { ProvidePlugin } = require("webpack");
+const webpack = require("webpack");
 
 module.exports = function override(config, env) {
   return {
@@ -23,9 +23,12 @@ module.exports = function override(config, env) {
     },
     plugins: [
       ...config.plugins,
-      new ProvidePlugin({
+      new webpack.ProvidePlugin({
         Buffer: ["buffer", "Buffer"],
         process: "process/browser",
+      }),
+      new webpack.optimize.LimitChunkCountPlugin({
+        maxChunks: 1,
       }),
     ],
     resolve: {
@@ -39,6 +42,14 @@ module.exports = function override(config, env) {
         url: "url",
         os: "os-browserify/browser",
       },
+    },
+    optimization: {
+      splitChunks: {
+        cacheGroups: {
+          default: false
+        }
+      },
+      runtimeChunk: false
     },
     experiments: {
       asyncWebAssembly: true,

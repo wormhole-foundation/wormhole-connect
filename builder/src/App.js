@@ -6,16 +6,22 @@ import * as theme from './theme';
 class App extends React.Component {
   componentDidMount() {
     const script = document.createElement("script");
-    script.src = "https://wormhole-foundation.github.io/wormhole-connect/bundle.html";
+    script.src = "https://wormhole-foundation.github.io/wormhole-connect/main.js";
     script.async = true;
 
+    const link = document.createElement("link");
+    link.src = "https://wormhole-foundation.github.io/wormhole-connect/main.css";
+    link.async = true;
+
     document.body.appendChild(script);
+    document.body.appendChild(link);
   }
 
   render() {
     const script = `
       <div id="wormhole-connect"></div>
-      <script src="https://wormhole-foundation.github.io/wormhole-connect/bundle.html"></script>
+      <script src="https://wormhole-foundation.github.io/wormhole-connect/main.js"></script>
+      <link src="https://wormhole-foundation.github.io/wormhole-connect/main.css"/>
     `
     config.customTheme = theme.dark;
     return (

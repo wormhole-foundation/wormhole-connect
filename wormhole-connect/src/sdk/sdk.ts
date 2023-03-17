@@ -153,10 +153,12 @@ export const sendTransfer = async (
       undefined,
     );
     if (fromChainName !== 'solana') {
+      // @ts-ignore
       wh.registerProviders();
       return tx;
     }
     const solTx = await signSolanaTransaction(tx as Transaction);
+    // @ts-ignore
     wh.registerProviders();
     return solTx;
   } else {
@@ -174,6 +176,7 @@ export const sendTransfer = async (
       parsedNativeAmt,
     );
     // relay not supported on Solana, so we can just return the ethers receipt
+    // @ts-ignore
     wh.registerProviders();
     return tx;
   }
@@ -297,8 +300,10 @@ export const claimTransfer = async (
     destChain,
     vaa,
     { gasLimit: 250000 },
+    // @ts-ignore
     receivingAddr,
   );
+  // @ts-ignore
   wh.registerProviders();
   return receipt;
 };

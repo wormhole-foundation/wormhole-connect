@@ -21,7 +21,8 @@ Integration does not get easier than this. Wormhole Connect is an easy seamless 
 
 ```html
 <!-- paste below into index.html body -->
-<script src="https://wormhole-foundation.github.io/wormhole-connect/bundle.html"></script>
+<script src="https://wormhole-foundation.github.io/wormhole-connect/main.js"></script>
+<link src="https://wormhole-foundation.github.io/wormhole-connect/main.css"/>
 ```
 
 3. Embed it in your application
@@ -43,10 +44,15 @@ For React applications, you must add the script tags after the dom has been rend
 class WormholeConnect extends React.Component {
   componentDidMount() {
     const script = document.createElement("script");
-    script.src = "https://wormhole-foundation.github.io/wormhole-connect/bundle.html";
+    script.src = "https://wormhole-foundation.github.io/wormhole-connect/main.js";
     script.async = true;
 
+    const link = document.createElement("link");
+    link.src = "https://wormhole-foundation.github.io/wormhole-connect/main.css";
+    link.async = true;
+
     document.body.appendChild(script);
+    document.body.appendChild(link);
   }
 
   render() {
@@ -65,6 +71,7 @@ import config from './wormhole-config.json';
 import * as theme from './theme';
 
 class App extends React.Component {
+  componentDidMount() {...}
 
   render() {
     config.customTheme = theme.dark;
