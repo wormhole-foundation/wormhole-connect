@@ -14,5 +14,8 @@
     "sdk": "npm run workspace @wormhole-foundation/wormhole-connect-sdk",
     "builder": "npm run workspace wormhole-connect-builder",
     "prettier": "npm run prettier --workspaces --if-present"
+  },
+  "dependencies": {
+    "tss-react": "^4.7.7"
   }
 }
