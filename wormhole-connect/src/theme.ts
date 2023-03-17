@@ -4,7 +4,7 @@ import green from '@mui/material/colors/green';
 import orange from '@mui/material/colors/orange';
 import red from '@mui/material/colors/red';
 import { OPACITY } from './utils/style';
-import { CUSTOM_THEME } from 'sdk/config';
+import { THEME } from 'sdk/config';
 import { PaletteMode } from '@mui/material';
 
 export type PaletteColor = {
@@ -193,12 +193,12 @@ export const light: ExtendedTheme = {
 // };
 
 // wormhole styled theme
-const dark: ExtendedTheme = {
+export const dark: ExtendedTheme = {
   primary: grey,
   secondary: grey,
   divider: '#ffffff' + OPACITY[20],
   background: {
-    default: 'transparent',
+    default: 'wormhole',
   },
   text: {
     primary: '#ffffff',
@@ -292,12 +292,7 @@ export const getDesignTokens = (mode: PaletteMode) =>
       MuiPaper: {
         styleOverrides: {
           root: {
-            background:
-              (CUSTOM_THEME
-                ? CUSTOM_THEME.modal.background
-                : mode === 'light'
-                ? light.modal.background
-                : dark.modal.background) + ' !important',
+            background: THEME.modal.background + ' !important',
           },
         },
       },
@@ -320,6 +315,6 @@ export const getDesignTokens = (mode: PaletteMode) =>
     },
     palette: {
       mode,
-      ...(CUSTOM_THEME ? CUSTOM_THEME : mode === 'light' ? light : dark),
+      ...THEME,
     },
   });

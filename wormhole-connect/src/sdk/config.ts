@@ -7,6 +7,7 @@ import {
 import { MAINNET_NETWORKS, MAINNET_TOKENS } from '../config/mainnet';
 import { TESTNET_NETWORKS, TESTNET_TOKENS } from '../config/testnet';
 import { TokenConfig } from 'config/types';
+import { dark, light } from 'theme';
 
 const el = document.getElementById('wormhole-connect');
 if (!el)
@@ -59,3 +60,4 @@ export const TOKENS_ARR =
 
 export const THEME_MODE = config && config.mode ? config.mode : 'dark';
 export const CUSTOM_THEME = config && config.customTheme;
+export const THEME = CUSTOM_THEME || THEME_MODE === 'dark' ? dark : light;
