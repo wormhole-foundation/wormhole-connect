@@ -1,27 +1,19 @@
-import { Connection, clusterApiUrl, PublicKey } from '@solana/web3.js';
+import { Connection, clusterApiUrl } from '@solana/web3.js';
 import { Program } from '@project-serum/anchor';
 import { TokenBridge } from '@certusone/wormhole-sdk/lib/cjs/solana/types/tokenBridge';
 import { NftBridge } from '@certusone/wormhole-sdk/lib/cjs/solana/types/nftBridge';
 import { Wormhole } from '@certusone/wormhole-sdk/lib/cjs/solana/types/wormhole';
-import { TokenBridgeCoder } from '@certusone/wormhole-sdk/lib/cjs/solana/tokenBridge/coder';
-import { WormholeCoder } from '@certusone/wormhole-sdk/lib/cjs/solana/wormhole/coder';
 
-import { ChainName, ChainId, Contracts, Context } from '../types';
-import { TokenBridgeRelayer } from '../abis/TokenBridgeRelayer';
-import { ContractsAbstract } from './abstracts';
-import { WormholeContext } from '../wormhole';
-import { filterByContext } from '../utils';
-import WormholeIDL from '../anchor-idl/wormhole.json';
-import TokenBridgeIDL from '../anchor-idl/token_bridge.json';
-import { SolanaContext } from 'contexts/solanaContext';
-
-export function tokenBridgeCoder(): TokenBridgeCoder {
-  return new TokenBridgeCoder(TokenBridgeIDL as TokenBridge);
-}
-
-export function wormholeCoder(): WormholeCoder {
-  return new WormholeCoder(WormholeIDL as Wormhole);
-}
+import { ChainName, ChainId, Contracts, Context } from '../../types';
+import { TokenBridgeRelayer } from '../../abis/TokenBridgeRelayer';
+import { ContractsAbstract } from '../abstracts/contracts';
+import { WormholeContext } from '../../wormhole';
+import { filterByContext } from '../../utils';
+import { SolanaContext } from '.';
+import { createReadOnlyWormholeProgramInterface } from './solana/wormhole';
+import { createReadOnlyTokenBridgeProgramInterface } from './solana/tokenBridge';
+import { createReadOnlyNftBridgeProgramInterface } from './solana/nftBridge';
+// import { createReadOnlyToken } from './solana/token_bridge';
 
 export class SolContracts<
   T extends WormholeContext,
@@ -69,11 +61,9 @@ export class SolContracts<
     const contracts = this.context.mustGetContracts('solana');
     if (!contracts.core) return;
 
-    return new Program<Wormhole>(
-      WormholeIDL as Wormhole,
-      new PublicKey(contracts.core),
-      { connection },
-      wormholeCoder(),
+    return createReadOnlyWormholeProgramInterface(
+      contracts.core,
+      this.connection,
     );
   }
 
@@ -103,11 +93,9 @@ export class SolContracts<
     const contracts = this.context.mustGetContracts('solana');
     if (!contracts.token_bridge) return;
 
-    return new Program<TokenBridge>(
-      TokenBridgeIDL as TokenBridge,
-      new PublicKey(contracts.token_bridge),
-      { connection },
-      tokenBridgeCoder(),
+    return createReadOnlyTokenBridgeProgramInterface(
+      contracts.token_bridge,
+      connection,
     );
   }
 
@@ -129,7 +117,19 @@ export class SolContracts<
    * @returns An interface for the NFT bridge contract, undefined if not found
    */
   getNftBridge(chain?: ChainName | ChainId): Program<NftBridge> | undefined {
-    throw new Error('not implemented');
+    const context = this.context.getContext(
+      'solana',
+    ) as SolanaContext<WormholeContext>;
+    const connection = context.connection;
+    if (!connection) throw new Error('no connection');
+
+    const contracts = this.context.mustGetContracts('solana');
+    if (!contracts.nft_bridge) return;
+
+    return createReadOnlyNftBridgeProgramInterface(
+      contracts.nft_bridge,
+      connection,
+    );
   }
 
   /**

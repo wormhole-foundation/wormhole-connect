@@ -5,12 +5,12 @@ import {
   NFTBridge,
 } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
 
-import { ChainName, ChainId, Contracts, Context } from '../types';
-import { TokenBridgeRelayer } from '../abis/TokenBridgeRelayer';
-import { TokenBridgeRelayer__factory } from '../abis/TokenBridgeRelayer__factory';
-import { ContractsAbstract } from './abstracts';
-import { WormholeContext } from '../wormhole';
-import { filterByContext } from '../utils';
+import { ChainName, ChainId, Contracts, Context } from '../../types';
+import { TokenBridgeRelayer } from '../../abis/TokenBridgeRelayer';
+import { TokenBridgeRelayer__factory } from '../../abis/TokenBridgeRelayer__factory';
+import { ContractsAbstract } from '../abstracts/contracts';
+import { WormholeContext } from '../../wormhole';
+import { filterByContext } from '../../utils';
 
 export class EthContracts<
   T extends WormholeContext,

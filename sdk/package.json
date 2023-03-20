@@ -18,6 +18,7 @@
     "aptos": "^1.6.0",
     "bech32": "^2.0.0",
     "bn.js": "^5.2.1",
+    "buffer-layout": "^1.2.2",
     "elliptic": "^6.5.4",
     "eslint-config-prettier": "^8.6.0",
     "near-api-js": "^1.1.0"

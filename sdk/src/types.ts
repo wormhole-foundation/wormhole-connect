@@ -1,9 +1,9 @@
 import { Network as Environment } from '@certusone/wormhole-sdk';
 import { WormholeContext } from 'wormhole';
-import { EthContext } from 'contexts/ethContext';
-import { SolanaContext } from 'contexts/solanaContext';
+import { EthContext } from 'contexts/eth';
+import { SolanaContext } from 'contexts/solana';
 import { EthContracts } from 'contracts/ethContracts';
-import { SolContracts } from 'contracts/solContracts';
+import { SolContracts } from 'contexts/solana/contracts';
 import { BigNumber } from 'ethers';
 import { MainnetChainName, MainnetChainId } from './config/MAINNET';
 import { TestnetChainName, TestnetChainId } from './config/TESTNET';

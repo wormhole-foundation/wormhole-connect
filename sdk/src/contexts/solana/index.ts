@@ -14,7 +14,7 @@ import {
   deriveWormholeEmitterKey,
   getClaim,
 } from '@certusone/wormhole-sdk/lib/cjs/solana/wormhole';
-import { parseTokenTransferPayload, parseVaa } from '../vaa';
+import { parseTokenTransferPayload, parseVaa } from '../../vaa';
 import {
   ACCOUNT_SIZE,
   createCloseAccountInstruction,
@@ -39,10 +39,16 @@ import { BigNumber, BigNumberish, constants } from 'ethers';
 import { arrayify, zeroPad, hexlify } from 'ethers/lib/utils';
 import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
 
-import { BridgeAbstract } from './abstracts';
-import { TokenId, ChainName, ChainId, NATIVE, ParsedMessage } from '../types';
-import { SolContracts } from '../contracts/solContracts';
-import { WormholeContext } from '../wormhole';
+import { BridgeAbstract } from '../abstracts';
+import {
+  TokenId,
+  ChainName,
+  ChainId,
+  NATIVE,
+  ParsedMessage,
+} from '../../types';
+import { SolContracts } from './contracts';
+import { WormholeContext } from '../../wormhole';
 
 const SOLANA_SEQ_LOG = 'Program log: Sequence: ';
 
