@@ -15,7 +15,6 @@ import {
 } from 'ethers';
 import { utils } from 'ethers';
 
-import { RelayerAbstract } from '../abstracts';
 import {
   TokenId,
   ChainName,
@@ -28,6 +27,7 @@ import { WormholeContext } from '../../wormhole';
 import { EthContracts } from './contracts';
 import { hexlify } from 'ethers/lib/utils';
 import { parseVaa } from '../../vaa';
+import { RelayerAbstract } from '../abstracts/relayer';
 
 export class EthContext<T extends WormholeContext> extends RelayerAbstract {
   protected contracts: EthContracts<T>;

@@ -6,10 +6,10 @@ import {
   TokenId,
   ChainName,
   ChainId,
-} from '../types';
+} from '../../types';
 
 // template for different environment contexts
-export abstract class BridgeAbstract {
+export abstract class TokenBridgeAbstract {
   protected abstract contracts: AnyContracts;
 
   /**
@@ -74,31 +74,4 @@ export abstract class BridgeAbstract {
     destChain: ChainName | ChainId,
     signedVaa: string,
   ): Promise<boolean>;
-}
-
-export abstract class RelayerAbstract extends BridgeAbstract {
-  protected abstract sendWithRelay(
-    token: TokenId | 'native',
-    amount: string,
-    toNativeToken: string,
-    sendingChain: ChainName | ChainId,
-    senderAddress: string,
-    recipientChain: ChainName | ChainId,
-    recipientAddress: string,
-    overrides?: any,
-  ): Promise<any>;
-  protected abstract calculateNativeTokenAmt(
-    destChain: ChainName | ChainId,
-    tokenId: TokenId,
-    amount: BigNumberish,
-  ): Promise<BigNumber>;
-  protected abstract calculateMaxSwapAmount(
-    destChain: ChainName | ChainId,
-    tokenId: TokenId,
-  ): Promise<BigNumber>;
-  protected abstract getRelayerFee(
-    sourceChain: ChainName | ChainId,
-    destChain: ChainName | ChainId,
-    tokenId: TokenId,
-  ): Promise<BigNumber>;
 }

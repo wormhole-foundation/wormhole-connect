@@ -26,7 +26,6 @@ import { BigNumber, BigNumberish, constants } from 'ethers';
 import { arrayify, zeroPad, hexlify } from 'ethers/lib/utils';
 import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
 
-import { BridgeAbstract } from '../abstracts';
 import {
   TokenId,
   ChainName,
@@ -46,10 +45,13 @@ import {
   getClaim,
   getPostedMessage,
 } from './solana/wormhole';
+import { TokenBridgeAbstract } from '../abstracts/tokenBridge';
 
 const SOLANA_SEQ_LOG = 'Program log: Sequence: ';
 
-export class SolanaContext<T extends WormholeContext> extends BridgeAbstract {
+export class SolanaContext<
+  T extends WormholeContext,
+> extends TokenBridgeAbstract {
   protected contracts: SolContracts<T>;
   readonly context: T;
   connection: Connection | undefined;

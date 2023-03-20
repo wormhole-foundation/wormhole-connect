@@ -32,6 +32,7 @@ export function createTransferNativeInstruction(
 ): TransactionInstruction {
   const methods = createReadOnlyNftBridgeProgramInterface(
     nftBridgeProgramId,
+    connection,
   ).methods.transferNative(
     nonce,
     Buffer.from(targetAddress) as any,
