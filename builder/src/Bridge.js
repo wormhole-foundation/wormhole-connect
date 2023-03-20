@@ -1,6 +1,6 @@
 import React from 'react';
-// import config from './wormhole-config.json';
-// import * as theme from './theme';
+import config from './wormhole-config.json';
+import * as theme from './theme';
 
 class WormholeBridge extends React.Component {
   componentDidMount() {
@@ -17,10 +17,10 @@ class WormholeBridge extends React.Component {
   }
 
   render() {
-    // config.customTheme = theme.custom;
+    config.customTheme = theme.custom;
     return (
-      // <div id="wormhole-connect" config={JSON.stringify(config)}></div>
-      <div id="wormhole-connect"></div>
+      <div id="wormhole-connect" config={JSON.stringify(config)}></div>
+      // <div id="wormhole-connect"></div>
     );
   }
 }

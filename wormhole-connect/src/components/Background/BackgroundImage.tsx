@@ -112,7 +112,7 @@ type Props = {
 function Background({ children }: Props) {
   const { classes } = useStyles();
 
-  return THEME.background === 'wormhole' ? (
+  return THEME.background.default === 'wormhole' ? (
     <div className="container">
       <div className={classes.bg}>
         {children}

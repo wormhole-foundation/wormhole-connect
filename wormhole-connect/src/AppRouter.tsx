@@ -5,8 +5,9 @@ import { useDispatch } from 'react-redux';
 import { RootState } from './store';
 import { clearRedeem } from './store/redeem';
 import { clearTransfer } from './store/transfer';
-
+import { usePrevious } from './utils';
 import './App.css';
+
 import Bridge from './views/Bridge/Bridge';
 import WalletModal from './views/WalletModal';
 import Redeem from './views/Redeem/Redeem';
@@ -14,7 +15,6 @@ import TxSearch from './views/TxSearch';
 import { clearWallets } from './store/wallet';
 import Terms from './views/Terms';
 import FAQ from './views/FAQ';
-import { usePrevious } from './utils';
 
 const useStyles = makeStyles()((theme) => ({
   appContent: {

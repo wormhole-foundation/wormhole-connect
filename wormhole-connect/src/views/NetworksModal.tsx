@@ -140,7 +140,7 @@ function NetworksModal(props: Props) {
     <Modal
       open={props.open}
       closable
-      width={CHAINS_ARR.length > 6 ? 650 : 475}
+      width={CHAINS_ARR.length > 6 ? 650 : 500}
       onClose={closeNetworksModal}
     >
       <Header text={props.title} size={28} />
