@@ -133,7 +133,6 @@ function Bridge() {
       <Preview collapsed={!valid} />
 
       <Send valid={!!valid} />
-      <Spacer height={60} />
 
       {/* modals */}
       <FromNetworksModal />

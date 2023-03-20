@@ -215,7 +215,7 @@ export const custom = {
   secondary: grey,
   divider: '#ffffff' + OPACITY[20],
   background: {
-    default: 'wormhole',
+    default: 'transparent',
   },
   text: {
     primary: '#ffffff',

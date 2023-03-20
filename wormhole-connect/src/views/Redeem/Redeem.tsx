@@ -81,7 +81,6 @@ class Redeem extends React.Component<
         <NetworksTag />
         <Spacer />
         <Stepper cta="Some CTA" />
-        <Spacer height={60} />
       </div>
     );
   }
