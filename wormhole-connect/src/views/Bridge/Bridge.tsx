@@ -15,7 +15,6 @@ import { getNativeBalance, PaymentOption } from '../../sdk/sdk';
 import { CHAINS, TOKENS } from '../../sdk/config';
 import { isTransferValid, validate } from '../../utils/transferValidation';
 
-import Spacer from '../../components/Spacer';
 import GasOptions from './GasOptions';
 import GasSlider from './NativeGasSlider';
 import Preview from './Preview';

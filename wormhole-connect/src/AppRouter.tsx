@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import { makeStyles } from 'tss-react/mui';
 import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
