@@ -3,17 +3,6 @@ import {
   getForeignAssetSolana,
   redeemOnSolana,
 } from '@certusone/wormhole-sdk';
-import {
-  getTransferWrappedAccounts,
-  getTransferNativeAccounts,
-  createApproveAuthoritySignerInstruction,
-} from '@certusone/wormhole-sdk/lib/cjs/solana/tokenBridge';
-import { TokenBridge } from '@certusone/wormhole-sdk/lib/cjs/solana/types/tokenBridge';
-import {
-  getPostedMessage,
-  deriveWormholeEmitterKey,
-  getClaim,
-} from '@certusone/wormhole-sdk/lib/cjs/solana/wormhole';
 import { parseTokenTransferPayload, parseVaa } from '../../vaa';
 import {
   ACCOUNT_SIZE,
@@ -32,9 +21,7 @@ import {
   PublicKeyInitData,
   SystemProgram,
   Transaction,
-  TransactionInstruction,
 } from '@solana/web3.js';
-import { Program } from '@project-serum/anchor';
 import { BigNumber, BigNumberish, constants } from 'ethers';
 import { arrayify, zeroPad, hexlify } from 'ethers/lib/utils';
 import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
@@ -49,87 +36,18 @@ import {
 } from '../../types';
 import { SolContracts } from './contracts';
 import { WormholeContext } from '../../wormhole';
+import {
+  createTransferNativeInstruction,
+  createTransferWrappedInstruction,
+  createApproveAuthoritySignerInstruction,
+} from './solana/tokenBridge';
+import {
+  deriveWormholeEmitterKey,
+  getClaim,
+  getPostedMessage,
+} from './solana/wormhole';
 
 const SOLANA_SEQ_LOG = 'Program log: Sequence: ';
-
-export function createTransferNativeInstruction(
-  tokenBridgeProgram: Program<TokenBridge>,
-  wormholeProgramId: PublicKeyInitData,
-  payer: PublicKeyInitData,
-  message: PublicKeyInitData,
-  from: PublicKeyInitData,
-  mint: PublicKeyInitData,
-  nonce: number,
-  amount: bigint,
-  fee: bigint,
-  targetAddress: Buffer | Uint8Array,
-  targetChain: number,
-): TransactionInstruction {
-  const methods = tokenBridgeProgram.methods.transferNative(
-    nonce,
-    amount as any,
-    fee as any,
-    Buffer.from(targetAddress) as any,
-    targetChain,
-  );
-  // @ts-ignore
-  return methods._ixFn(...methods._args, {
-    accounts: getTransferNativeAccounts(
-      tokenBridgeProgram.programId,
-      wormholeProgramId,
-      payer,
-      message,
-      from,
-      mint,
-    ) as any,
-    signers: undefined,
-    remainingAccounts: undefined,
-    preInstructions: undefined,
-    postInstructions: undefined,
-  });
-}
-
-export function createTransferWrappedInstruction(
-  tokenBridgeProgram: Program<TokenBridge>,
-  wormholeProgramId: PublicKeyInitData,
-  payer: PublicKeyInitData,
-  message: PublicKeyInitData,
-  from: PublicKeyInitData,
-  fromOwner: PublicKeyInitData,
-  tokenChain: number,
-  tokenAddress: Buffer | Uint8Array,
-  nonce: number,
-  amount: bigint,
-  fee: bigint,
-  targetAddress: Buffer | Uint8Array,
-  targetChain: number,
-): TransactionInstruction {
-  const methods = tokenBridgeProgram.methods.transferWrapped(
-    nonce,
-    amount as any,
-    fee as any,
-    Buffer.from(targetAddress) as any,
-    targetChain,
-  );
-
-  // @ts-ignore
-  return methods._ixFn(...methods._args, {
-    accounts: getTransferWrappedAccounts(
-      tokenBridgeProgram.programId,
-      wormholeProgramId,
-      payer,
-      message,
-      from,
-      fromOwner,
-      tokenChain,
-      tokenAddress,
-    ) as any,
-    signers: undefined,
-    remainingAccounts: undefined,
-    preInstructions: undefined,
-    postInstructions: undefined,
-  });
-}
 
 export class SolanaContext<T extends WormholeContext> extends BridgeAbstract {
   protected contracts: SolContracts<T>;
@@ -250,7 +168,8 @@ export class SolanaContext<T extends WormholeContext> extends BridgeAbstract {
     const message = Keypair.generate();
     const nonce = createNonce().readUInt32LE(0);
     const tokenBridgeTransferIx = createTransferNativeInstruction(
-      tokenBridge,
+      this.connection,
+      tokenBridge.programId,
       core.programId,
       senderAddress,
       message.publicKey,
@@ -317,7 +236,8 @@ export class SolanaContext<T extends WormholeContext> extends BridgeAbstract {
     const message = Keypair.generate();
 
     const tokenBridgeTransferIx = createTransferWrappedInstruction(
-      tokenBridge,
+      this.connection,
+      tokenBridge.programId,
       core.programId,
       senderAddress,
       message.publicKey,

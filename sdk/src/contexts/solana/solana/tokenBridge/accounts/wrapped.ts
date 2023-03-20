@@ -1,14 +1,12 @@
+import { tryNativeToUint8Array } from '@certusone/wormhole-sdk';
 import {
   Connection,
   PublicKey,
   Commitment,
   PublicKeyInitData,
 } from '@solana/web3.js';
-import {
-  ChainId,
-  CHAIN_ID_SOLANA,
-  tryNativeToUint8Array,
-} from '../../../utils';
+import { ChainId } from '../../../../../types';
+import { MAINNET_CHAINS } from '../../../../../config/MAINNET';
 import { deriveAddress, getAccountData } from '../../utils';
 
 export { deriveSplTokenMetadataKey } from '../../utils/splMetadata';
@@ -18,7 +16,7 @@ export function deriveWrappedMintKey(
   tokenChain: number | ChainId,
   tokenAddress: Buffer | Uint8Array | string,
 ): PublicKey {
-  if (tokenChain == CHAIN_ID_SOLANA) {
+  if (tokenChain == MAINNET_CHAINS.solana) {
     throw new Error(
       'tokenChain == CHAIN_ID_SOLANA does not have wrapped mint key',
     );
@@ -34,7 +32,7 @@ export function deriveWrappedMintKey(
         buf.writeUInt16BE(tokenChain as number);
         return buf;
       })(),
-      tokenAddress,
+      tokenAddress as Uint8Array,
     ],
     tokenBridgeProgramId,
   );

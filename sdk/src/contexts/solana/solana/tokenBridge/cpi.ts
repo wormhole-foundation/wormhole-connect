@@ -10,7 +10,7 @@ import {
   ParsedTokenTransferVaa,
   parseTokenTransferVaa,
   SignedVaa,
-} from '../../vaa';
+} from '../../../../vaa';
 import {
   deriveClaimKey,
   derivePostedVaaKey,

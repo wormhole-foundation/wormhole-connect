@@ -1,8 +1,6 @@
 import { PublicKey, PublicKeyInitData } from '@solana/web3.js';
 import {
-  deriveEmitterSequenceKey,
   deriveFeeCollectorKey,
-  deriveWormholeEmitterKey,
   deriveWormholeBridgeDataKey,
   getEmitterKeys,
 } from './accounts';

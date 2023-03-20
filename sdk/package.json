@@ -24,6 +24,7 @@
     "near-api-js": "^1.1.0"
   },
   "devDependencies": {
+    "@types/bs58": "^4.0.1",
     "@types/elliptic": "^6.4.14",
     "@types/jest": "^27.5.2",
     "@types/node": "^16.18.11",
