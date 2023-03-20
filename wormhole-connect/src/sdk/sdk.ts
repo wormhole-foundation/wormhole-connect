@@ -196,7 +196,7 @@ export const estimateGasFee = async (
   const fromChainName = wh.toChainName(fromNetwork);
   const decimals = getTokenDecimals(fromChainName, token);
   const parsedAmt = utils.parseUnits(amount, decimals);
-  const context = wh.getContext(fromNetwork);
+  const context = wh.getContext(fromNetwork) as any;
   const provider = wh.mustGetProvider(fromNetwork);
   if (fromChainName === 'solana') {
     // const connection = context.connection;
@@ -288,7 +288,7 @@ export const claimTransfer = async (
   // TODO: move to context
   const destDomain = wh.resolveDomain(destChain);
   if (destDomain === 1) {
-    const destContext = wh.getContext(destChain);
+    const destContext = wh.getContext(destChain) as any;
     const connection = destContext.connection;
     if (!connection) throw new Error('no connection');
     const contracts = wh.mustGetContracts(destChain);
