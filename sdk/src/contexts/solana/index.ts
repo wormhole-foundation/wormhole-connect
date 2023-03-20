@@ -128,8 +128,11 @@ export class SolanaContext<
     commitment?: Commitment,
   ): Promise<Transaction> {
     if (!this.connection) throw new Error('no connection');
-    const core = this.contracts.mustGetCore();
-    const tokenBridge = this.contracts.mustGetBridge();
+    const contracts = this.contracts.mustGetContracts('solana');
+    if (!contracts.core || !contracts.token_bridge) {
+      throw new Error('contracts not found');
+    }
+
     const rentBalance = await getMinimumBalanceForRentExemptAccount(
       this.connection,
       commitment,
@@ -161,7 +164,7 @@ export class SolanaContext<
 
     //Normal approve & transfer instructions, except that the wSOL is sent from the ancillary account.
     const approvalIx = createApproveAuthoritySignerInstruction(
-      tokenBridge.programId,
+      contracts.token_bridge,
       ancillaryKeypair.publicKey,
       payerPublicKey,
       amount,
@@ -171,8 +174,8 @@ export class SolanaContext<
     const nonce = createNonce().readUInt32LE(0);
     const tokenBridgeTransferIx = createTransferNativeInstruction(
       this.connection,
-      tokenBridge.programId,
-      core.programId,
+      contracts.token_bridge,
+      contracts.core,
       senderAddress,
       message.publicKey,
       ancillaryKeypair.publicKey,
@@ -221,8 +224,10 @@ export class SolanaContext<
     commitment?: Commitment,
   ): Promise<Transaction> {
     if (!this.connection) throw new Error('no connection');
-    const core = this.contracts.mustGetCore();
-    const tokenBridge = this.contracts.mustGetBridge();
+    const contracts = this.contracts.mustGetContracts('solana');
+    if (!contracts.core || !contracts.token_bridge) {
+      throw new Error('contracts not found');
+    }
 
     const recipientChainId = this.context.toChainId(recipientChain);
     if (fromOwnerAddress === undefined) {
@@ -230,7 +235,7 @@ export class SolanaContext<
     }
     const nonce = createNonce().readUInt32LE(0);
     const approvalIx = createApproveAuthoritySignerInstruction(
-      tokenBridge.programId,
+      contracts.token_bridge,
       fromAddress,
       new PublicKey(fromOwnerAddress),
       amount,
@@ -239,8 +244,8 @@ export class SolanaContext<
 
     const tokenBridgeTransferIx = createTransferWrappedInstruction(
       this.connection,
-      tokenBridge.programId,
-      core.programId,
+      contracts.token_bridge,
+      contracts.core,
       senderAddress,
       message.publicKey,
       fromAddress,
