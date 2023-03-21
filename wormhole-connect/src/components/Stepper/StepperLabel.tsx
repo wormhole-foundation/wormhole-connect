@@ -75,7 +75,7 @@ type Props = {
 };
 
 export default function StepperLabel(props: Props) {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const { index, activeStep, filled, children } = props;
 
   return (
