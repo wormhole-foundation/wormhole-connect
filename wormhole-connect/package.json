@@ -62,7 +62,6 @@
     "build": "env-cmd -f .env.testnet react-app-rewired build --max_old_space_size=4096 build",
     "build:prod": "env-cmd -f .env.mainnet react-app-rewired build --max_old_space_size=4096 build",
     "build:widget": "parcel build src/index.tsx -d docs",
-    "bundle": "npx gulp",
     "test": "jest ./tests/*.test.ts --detectOpenHandles",
     "eject": "react-app-rewired eject"
   },
