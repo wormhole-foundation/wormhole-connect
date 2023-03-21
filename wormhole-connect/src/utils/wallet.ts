@@ -7,7 +7,7 @@ import { postVaaSolanaWithRetry } from '@certusone/wormhole-sdk';
 import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
 import {
   MetamaskWallet,
-  WalletConnectWallet,
+  WalletConnectLegacyWallet,
 } from '@xlabs-libs/wallet-aggregator-evm';
 import {
   PhantomWalletAdapter,
@@ -44,7 +44,7 @@ const connection = new SolanaConnection(url);
 export const wallets = {
   evm: {
     metamask: new MetamaskWallet(),
-    walletConnect: new WalletConnectWallet(),
+    walletConnect: new WalletConnectLegacyWallet(),
   },
   solana: {
     phantom: new SolanaWallet(new PhantomWalletAdapter(), connection),
