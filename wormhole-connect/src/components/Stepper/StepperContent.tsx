@@ -1,9 +1,8 @@
 import * as React from 'react';
-import { Theme } from '@mui/material/styles';
-import { makeStyles } from '@mui/styles';
+import { makeStyles } from 'tss-react/mui';
 import { joinClass } from '../../utils/style';
 
-const useStyles = makeStyles((theme: Theme) => ({
+const useStyles = makeStyles()((theme) => ({
   content: {
     marginLeft: '14px',
     minHeight: '40px',
@@ -31,7 +30,7 @@ type Props = {
 };
 
 export default function StepperLabel(props: Props) {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const { index, activeStep, last, children } = props;
 
   return (

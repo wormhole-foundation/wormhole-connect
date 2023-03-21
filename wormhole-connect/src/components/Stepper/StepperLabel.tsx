@@ -1,10 +1,10 @@
 import * as React from 'react';
-import { Theme, useTheme } from '@mui/material/styles';
+import { useTheme } from '@mui/material/styles';
+import { makeStyles } from 'tss-react/mui';
 import Check from '@mui/icons-material/Check';
-import { makeStyles } from '@mui/styles';
 import { joinClass, OPACITY } from '../../utils/style';
 
-const useStyles = makeStyles((theme: Theme) => ({
+const useStyles = makeStyles()((theme) => ({
   label: {
     display: 'flex',
     alignItems: 'center',
@@ -42,7 +42,7 @@ function StepIcon(props: {
   completed?: boolean;
 }) {
   const { active, completed, filled } = props;
-  const classes = useStyles();
+  const { classes } = useStyles();
   const theme = useTheme();
 
   if (completed) {

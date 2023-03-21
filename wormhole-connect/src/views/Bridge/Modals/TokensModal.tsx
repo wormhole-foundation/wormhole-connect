@@ -1,8 +1,8 @@
 import React, { ChangeEvent, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { makeStyles } from '@mui/styles';
 import { useTheme } from '@mui/material/styles';
-import { Theme, useMediaQuery } from '@mui/material';
+import { useMediaQuery } from '@mui/material';
+import { makeStyles } from 'tss-react/mui';
 import { RootState } from '../../../store';
 import { CHAINS, TOKENS_ARR } from '../../../sdk/config';
 import { setTokensModal } from '../../../store/router';
@@ -24,7 +24,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { TokenConfig } from '../../../config/types';
 import { ChainId, ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 
-const useStyles = makeStyles((theme: Theme) => ({
+const useStyles = makeStyles()((theme) => ({
   tokensContainer: {
     display: 'flex',
     flexDirection: 'column',
@@ -135,7 +135,7 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 
 function TokensModal() {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const theme = useTheme();
   const dispatch = useDispatch();
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));

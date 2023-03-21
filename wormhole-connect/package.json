@@ -12,7 +12,6 @@
     "@emotion/styled": "^11.10.5",
     "@mui/icons-material": "^5.11.0",
     "@mui/material": "^5.11.4",
-    "@mui/styles": "^5.11.2",
     "@nomad-xyz/multi-provider": "^1.1.0",
     "@reduxjs/toolkit": "^1.9.1",
     "@solana/wallet-adapter-wallets": "^0.19.11",

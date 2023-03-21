@@ -1,11 +1,10 @@
-import { makeStyles } from '@mui/styles';
 import React from 'react';
-import { Theme } from '@mui/material';
+import { makeStyles } from 'tss-react/mui';
 import TokenIcon from '../../icons/TokenIcons';
 import { ERROR_BORDER, joinClass } from '../../utils/style';
 import { NetworkConfig } from '../../config/types';
 
-const useStyles = makeStyles((theme: Theme) => ({
+const useStyles = makeStyles()((theme) => ({
   networkTile: {
     backgroundColor: theme.palette.card.secondary,
     borderRadius: '8px',
@@ -45,7 +44,7 @@ type Props = {
 };
 
 function NetworkTile(props: Props) {
-  const classes = useStyles();
+  const { classes } = useStyles();
   return props.network ? (
     <div
       className={joinClass([

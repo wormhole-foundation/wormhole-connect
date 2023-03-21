@@ -1,11 +1,10 @@
 import React from 'react';
-import { makeStyles } from '@mui/styles';
-import { Theme } from '@mui/material';
+import { makeStyles } from 'tss-react/mui';
 import InputTransparent from './InputTransparent';
 import SearchIcon from '../icons/Search';
 import { changeOpacity } from '../utils/style';
 
-const useStyles = makeStyles((theme: Theme) => ({
+const useStyles = makeStyles()((theme) => ({
   searchContent: {
     display: 'flex',
     flexDirection: 'row',
@@ -42,7 +41,7 @@ type Props = {
 };
 
 function Search(props: Props) {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   return (
     <div className={classes.searchBorder}>

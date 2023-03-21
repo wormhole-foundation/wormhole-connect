@@ -1,13 +1,12 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { makeStyles } from '@mui/styles';
-import { Theme } from '@mui/material';
+import { makeStyles } from 'tss-react/mui';
 import { RootState } from '../../store';
 import NetworksModal, { ModalType } from '../NetworksModal';
 import SendFrom from './SendFrom';
 import SendTo from './SendTo';
 
-const useStyles = makeStyles((theme: Theme) => ({
+const useStyles = makeStyles()((theme) => ({
   networks: {
     width: '100%',
     display: 'flex',
@@ -23,7 +22,7 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 
 function Networks() {
-  const classes = useStyles();
+  const { classes } = useStyles();
   // store values
   const showFromNetworksModal = useSelector(
     (state: RootState) => state.router.showFromNetworksModal,

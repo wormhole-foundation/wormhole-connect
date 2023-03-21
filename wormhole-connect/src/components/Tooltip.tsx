@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { makeStyles } from '@mui/styles';
+import { makeStyles } from 'tss-react/mui';
 import Tooltip from '@mui/material/Tooltip';
 import InfoIcon from '../icons/Info';
 import { CENTER } from '../utils/style';
@@ -18,7 +18,7 @@ type Position =
   | 'bottom'
   | 'bottom-end';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles()(() => ({
   icon: {
     height: '16px',
     cursor: 'pointer',
@@ -37,7 +37,7 @@ type Props = {
 
 export default function BasicTooltip(props: Props) {
   const position = props.position || 'top';
-  const classes = useStyles();
+  const { classes } = useStyles();
   return (
     <Tooltip title={props.text} arrow placement={position}>
       <div className={classes.clickArea}>

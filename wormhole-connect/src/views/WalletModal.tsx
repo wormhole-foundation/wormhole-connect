@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { makeStyles } from '@mui/styles';
+import { makeStyles } from 'tss-react/mui';
 import { useDispatch, useSelector } from 'react-redux';
-import { Theme } from '@mui/material';
 import { Wallet, WalletState } from '@xlabs-libs/wallet-aggregator-core';
 import {
   ChainConfig,
@@ -24,7 +23,7 @@ import Modal from '../components/Modal';
 import Spacer from '../components/Spacer';
 import WalletIcon from '../icons/WalletIcons';
 
-const useStyles = makeStyles((theme: Theme) => ({
+const useStyles = makeStyles()((theme) => ({
   walletRow: {
     position: 'relative',
     display: 'flex',
@@ -100,7 +99,7 @@ type Props = {
 };
 
 function WalletsModal(props: Props) {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const dispatch = useDispatch();
   const { fromNetwork, toNetwork } = useSelector(
     (state: RootState) => state.transfer,

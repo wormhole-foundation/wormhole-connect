@@ -1,6 +1,5 @@
 import React from 'react';
-import { makeStyles } from '@mui/styles';
-import { Theme } from '@mui/material';
+import { makeStyles } from 'tss-react/mui';
 import InputTransparent from './InputTransparent';
 import InputContainer from './InputContainer';
 
@@ -9,7 +8,7 @@ type Props = {
   right?: JSX.Element;
 };
 
-const useStyles = makeStyles((theme: Theme) => ({
+const useStyles = makeStyles()((theme) => ({
   inputContent: {
     display: 'flex',
     flexDirection: 'row',
@@ -21,7 +20,7 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 
 function Input({ left, right }: Props) {
-  const classes = useStyles();
+  const { classes } = useStyles();
   return (
     <InputContainer>
       <div className={classes.inputContent}>
