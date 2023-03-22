@@ -3,8 +3,8 @@ import { ChainId } from '@wormhole-foundation/wormhole-connect-sdk';
 import axios from 'axios';
 
 import { utils } from 'ethers';
-import { CHAINS } from 'sdk/config';
-import { ParsedMessage } from 'sdk/sdk';
+import { CHAINS } from '../config';
+import { ParsedMessage } from '../sdk';
 
 export type ParsedVaa = {
   bytes: string;

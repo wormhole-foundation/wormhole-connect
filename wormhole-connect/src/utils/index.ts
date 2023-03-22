@@ -1,10 +1,6 @@
-import { TokenConfig } from 'config/types';
-import {
-  TokenId,
-  ChainConfig,
-  ChainName,
-} from '@wormhole-foundation/wormhole-connect-sdk';
-import { CHAINS_ARR, TOKENS, TOKENS_ARR } from '../sdk/config';
+import { NetworkConfig, TokenConfig } from '../config/types';
+import { TokenId, ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+import { CHAINS_ARR, TOKENS, TOKENS_ARR } from '../config';
 import { WalletType } from './wallet';
 import { useEffect, useRef } from 'react';
 
@@ -47,7 +43,7 @@ export function displayWalletAddress(
   return displayAddress('solana', address);
 }
 
-export function getNetworkByChainId(chainId: number): ChainConfig | void {
+export function getNetworkByChainId(chainId: number): NetworkConfig | void {
   return CHAINS_ARR.filter((c) => chainId === c.chainId)[0];
 }
 

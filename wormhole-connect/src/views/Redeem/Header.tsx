@@ -1,7 +1,7 @@
 import React from 'react';
 import { makeStyles } from 'tss-react/mui';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
-import { CHAINS } from '../../sdk/config';
+import { CHAINS } from '../../config';
 import { displayAddress } from '../../utils';
 import { LINK } from '../../utils/style';
 import WalletIcon from '../../icons/Wallet';

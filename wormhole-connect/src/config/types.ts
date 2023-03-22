@@ -17,8 +17,12 @@ export type TokenConfig = {
 };
 
 export interface NetworkConfig extends ChainConfig {
+  displayName: string;
+  explorerUrl: string;
+  explorerName: string;
+  gasToken: string;
+  chainId: number;
   icon: Icon;
-  nativeToken: string;
   automaticRelayer?: boolean;
 }
 
@@ -36,4 +40,5 @@ export enum Icon {
   'POLYGON',
   'SOLANA',
   'USDC',
+  'GLMR',
 }

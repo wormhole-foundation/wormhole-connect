@@ -5,7 +5,7 @@ import { TokenConfig } from 'config/types';
 import { toDecimals } from '../utils/balance';
 import { TransferValidations, validateAll } from '../utils/transferValidation';
 import { WalletState } from './wallet';
-import { PaymentOption } from '../sdk/sdk';
+import { PaymentOption } from '../sdk';
 
 export type Balances = { [key: string]: string | null };
 

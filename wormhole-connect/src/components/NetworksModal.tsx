@@ -5,7 +5,7 @@ import {
   ChainConfig,
   ChainName,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { CHAINS_ARR } from '../sdk/config';
+import { CHAINS_ARR } from '../config';
 import { CENTER, joinClass } from '../utils/style';
 
 import Header from './Header';

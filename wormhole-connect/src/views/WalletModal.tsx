@@ -9,7 +9,7 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { RootState } from '../store';
 import { setWalletModal } from '../store/router';
-import { CHAINS } from '../sdk/config';
+import { CHAINS } from '../config';
 import {
   setWalletConnection,
   TransferWallet,

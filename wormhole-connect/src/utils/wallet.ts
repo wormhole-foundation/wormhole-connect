@@ -16,8 +16,8 @@ import {
 import { clusterApiUrl, Connection as SolanaConnection } from '@solana/web3.js';
 import { SolanaWallet } from '@xlabs-libs/wallet-aggregator-solana';
 import { Transaction, ConfirmOptions } from '@solana/web3.js';
-import { registerSigner } from '../sdk/sdk';
-import { CHAINS_ARR } from 'sdk/config';
+import { registerSigner } from '../sdk';
+import { CHAINS_ARR } from '../config';
 import { getNetworkByChainId } from 'utils';
 
 export enum TransferWallet {

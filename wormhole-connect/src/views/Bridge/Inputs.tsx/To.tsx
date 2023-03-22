@@ -4,8 +4,8 @@ import { BigNumber } from 'ethers';
 import { RootState } from '../../../store';
 import { setToNetworksModal } from '../../../store/router';
 import { TransferWallet } from '../../../utils/wallet';
-import { TOKENS } from '../../../sdk/config';
-import { getBalance } from '../../../sdk/sdk';
+import { TOKENS } from '../../../config';
+import { getBalance } from '../../../sdk';
 import { formatBalance } from '../../../store/transfer';
 
 import Inputs from './Inputs';

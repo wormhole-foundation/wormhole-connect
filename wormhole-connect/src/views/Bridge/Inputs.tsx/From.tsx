@@ -9,8 +9,8 @@ import {
   setBalance as setStoreBalance,
   formatBalance,
 } from '../../../store/transfer';
-import { TOKENS } from '../../../sdk/config';
-import { getBalance, getNativeBalance } from '../../../sdk/sdk';
+import { TOKENS } from '../../../config';
+import { getBalance, getNativeBalance } from '../../../sdk';
 import { validate } from '../../../utils/transferValidation';
 
 import InputTransparent from '../../../components/InputTransparent';

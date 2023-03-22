@@ -11,7 +11,7 @@ import './App.css';
 import { store } from './store';
 import AppRouter from './AppRouter';
 import { getDesignTokens } from './theme';
-import { THEME_MODE } from './sdk/config';
+import { THEME_MODE } from './config';
 import BackgroundImage from './components/Background/BackgroundImage';
 
 const ColorModeContext = React.createContext({ toggleColorMode: () => {} });

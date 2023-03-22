@@ -40,11 +40,6 @@ export type ChainConfig = {
   id: ChainId;
   context: Context;
   contracts: Contracts;
-  displayName: string;
-  explorerUrl: string;
-  explorerName: string;
-  gasToken: string;
-  chainId: number;
   finalityThreshold: number;
 };
 
