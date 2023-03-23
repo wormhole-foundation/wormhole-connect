@@ -58,7 +58,7 @@ function Bridge() {
     automaticRelayAvail,
     toNativeToken,
     relayerFee,
-    isTransactionInProgress
+    isTransactionInProgress,
   } = useSelector((state: RootState) => state.transfer);
   const { sending, receiving } = useSelector(
     (state: RootState) => state.wallet,

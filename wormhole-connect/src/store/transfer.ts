@@ -194,7 +194,7 @@ export const transferSlice = createSlice({
       { payload }: PayloadAction<boolean>,
     ) => {
       state.isTransactionInProgress = payload;
-    }
+    },
   },
 });
 

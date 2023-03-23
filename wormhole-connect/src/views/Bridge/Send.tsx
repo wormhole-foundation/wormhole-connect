@@ -49,7 +49,7 @@ function Send(props: { valid: boolean }) {
     toNativeToken,
     relayerFee,
     automaticRelayAvail,
-    isTransactionInProgress
+    isTransactionInProgress,
   } = transfer;
   const [isConnected, setIsConnected] = useState(
     sending.currentAddress.toLowerCase() === sending.address.toLowerCase(),
