@@ -118,7 +118,7 @@ function Preview(props: { collapsed: boolean }) {
     if (destGasPayment === PaymentOption.MANUAL) {
       const rows = getManualRows(
         tokenConfig,
-        destConfig!.nativeToken,
+        destConfig!.gasToken,
         amount,
         gasEst.manual,
         gasEst.claim,
@@ -134,7 +134,7 @@ function Preview(props: { collapsed: boolean }) {
         dispatch(setRelayerFee(formattedFee));
         const rows = getAutomaticRows(
           tokenConfig,
-          destConfig!.nativeToken,
+          destConfig!.gasToken,
           amount,
           toNativeToken,
           receiveNativeAmt || 0,
