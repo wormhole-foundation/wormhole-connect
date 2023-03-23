@@ -58,6 +58,7 @@ function Bridge() {
     automaticRelayAvail,
     toNativeToken,
     relayerFee,
+    isTransactionInProgress,
   } = useSelector((state: RootState) => state.transfer);
   const { sending, receiving } = useSelector(
     (state: RootState) => state.wallet,
@@ -114,6 +115,8 @@ function Bridge() {
   ]);
   const valid = isTransferValid(validations);
 
+  const disabled = !valid || isTransactionInProgress;
+
   return (
     <div className={classes.bridgeContent}>
       <PageHeader title="Bridge" />
@@ -121,11 +124,11 @@ function Bridge() {
       <FromInputs />
       <ToInputs />
 
-      <GasOptions disabled={!valid} />
+      <GasOptions disabled={disabled} />
 
       {automaticRelayAvail && (
         <Collapse in={destGasPayment === PaymentOption.AUTOMATIC}>
-          <GasSlider disabled={!valid} />
+          <GasSlider disabled={disabled} />
         </Collapse>
       )}
 

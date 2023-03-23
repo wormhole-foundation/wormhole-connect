@@ -26,6 +26,7 @@ import {
   setManualGasEst,
   setAutomaticGasEst,
   setClaimGasEst,
+  setIsTransactionInProgress,
 } from '../../store/transfer';
 
 import Button from '../../components/Button';
@@ -48,8 +49,8 @@ function Send(props: { valid: boolean }) {
     toNativeToken,
     relayerFee,
     automaticRelayAvail,
+    isTransactionInProgress,
   } = transfer;
-  const [inProgress, setInProgress] = useState(false);
   const [isConnected, setIsConnected] = useState(
     sending.currentAddress.toLowerCase() === sending.address.toLowerCase(),
   );
@@ -62,7 +63,7 @@ function Send(props: { valid: boolean }) {
     dispatch(validateTransfer(state.wallet));
     const valid = isTransferValid(validations);
     if (!valid) return;
-    setInProgress(true);
+    dispatch(setIsTransactionInProgress(true));
     try {
       const fromConfig = CHAINS[fromNetwork!];
       if (fromConfig?.context === Context.ETH) {
@@ -91,17 +92,17 @@ function Send(props: { valid: boolean }) {
       const toRedeem = setInterval(async () => {
         if (message) {
           clearInterval(toRedeem);
+          dispatch(setIsTransactionInProgress(false));
           dispatch(setSendTx(txId));
           dispatch(setTxDetails(message));
           dispatch(setRoute('redeem'));
-          setInProgress(false);
           setSendError('');
         } else {
           message = await parseMessageFromTx(txId, fromNetwork!);
         }
       }, 1000);
     } catch (e) {
-      setInProgress(false);
+      dispatch(setIsTransactionInProgress(false));
       setSendError('Error sending transfer, please try again');
       console.error(e);
     }
@@ -188,10 +189,10 @@ function Send(props: { valid: boolean }) {
         <Button
           onClick={send}
           action={props.valid}
-          disabled={inProgress}
+          disabled={isTransactionInProgress}
           elevated
         >
-          {inProgress ? (
+          {isTransactionInProgress ? (
             <CircularProgress size={22} />
           ) : (
             'Approve and proceed with transaction'

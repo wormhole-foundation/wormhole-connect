@@ -39,6 +39,7 @@ export interface TransferState {
     automatic: string;
     claim: string;
   };
+  isTransactionInProgress: boolean;
 }
 
 const initialState: TransferState = {
@@ -69,6 +70,7 @@ const initialState: TransferState = {
     automatic: '',
     claim: '',
   },
+  isTransactionInProgress: false,
 };
 
 export const transferSlice = createSlice({
@@ -187,6 +189,12 @@ export const transferSlice = createSlice({
         state[key] = initialState[key];
       });
     },
+    setIsTransactionInProgress: (
+      state: TransferState,
+      { payload }: PayloadAction<boolean>,
+    ) => {
+      state.isTransactionInProgress = payload;
+    },
   },
 });
 
@@ -208,6 +216,7 @@ export const {
   setAutomaticGasEst,
   setClaimGasEst,
   clearTransfer,
+  setIsTransactionInProgress,
 } = transferSlice.actions;
 
 export default transferSlice.reducer;
