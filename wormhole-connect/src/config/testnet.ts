@@ -66,7 +66,7 @@ export const TESTNET_NETWORKS: NetworksConfig = {
   },
   moonbasealpha: {
     ...chains.moonbasealpha!,
-    displayName: 'Moonbase A.',
+    displayName: 'Moonbase',
     explorerUrl: 'https://moonbase.moonscan.io/',
     explorerName: 'Moonscan',
     gasToken: 'GLMR',
