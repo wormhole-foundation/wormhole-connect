@@ -11,8 +11,8 @@ import {
   setDestGasPayment,
   setToken,
 } from '../../store/transfer';
-import { getNativeBalance, PaymentOption } from '../../sdk/sdk';
-import { CHAINS, TOKENS } from '../../sdk/config';
+import { getNativeBalance, PaymentOption } from '../../sdk';
+import { CHAINS, TOKENS } from '../../config';
 import { isTransferValid, validate } from '../../utils/transferValidation';
 
 import GasOptions from './GasOptions';

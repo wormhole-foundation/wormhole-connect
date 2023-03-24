@@ -1,5 +1,5 @@
 import { BigNumber, utils } from 'ethers';
-import { TOKENS } from 'sdk/config';
+import { TOKENS } from '../config';
 
 // TODO: get balances
 // https://chainstack.com/the-ultimate-guide-to-getting-multiple-token-balances-on-ethereum/

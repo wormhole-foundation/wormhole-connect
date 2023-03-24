@@ -5,8 +5,8 @@ import Options from '../../components/Options';
 import BridgeCollapse from './Collapse';
 import { setDestGasPayment } from '../../store/transfer';
 import { RootState } from '../../store';
-import { CHAINS } from '../../sdk/config';
-import { PaymentOption } from '../../sdk/sdk';
+import { CHAINS } from '../../config';
+import { PaymentOption } from '../../sdk';
 import { NetworkConfig } from '../../config/types';
 import { toFixedDecimals } from '../../utils/balance';
 

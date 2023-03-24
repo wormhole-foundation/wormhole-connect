@@ -4,11 +4,11 @@ import { useTheme } from '@mui/material/styles';
 import { useDispatch } from 'react-redux';
 import { RootState } from '../../store';
 import { setRelayerFee } from '../../store/transfer';
-import { CHAINS, TOKENS } from '../../sdk/config';
-import { PaymentOption } from '../../sdk/sdk';
+import { CHAINS, TOKENS } from '../../config';
+import { PaymentOption } from '../../sdk';
 import { TokenConfig } from '../../config/types';
 import { toDecimals, toFixedDecimals } from '../../utils/balance';
-import { getRelayerFee } from '../../sdk/sdk';
+import { getRelayerFee } from '../../sdk';
 import { RenderRows, RowsData } from '../../components/RenderRows';
 import InputContainer from '../../components/InputContainer';
 import BridgeCollapse from './Collapse';
@@ -118,7 +118,7 @@ function Preview(props: { collapsed: boolean }) {
     if (destGasPayment === PaymentOption.MANUAL) {
       const rows = getManualRows(
         tokenConfig,
-        destConfig!.nativeToken,
+        destConfig!.gasToken,
         amount,
         gasEst.manual,
         gasEst.claim,
@@ -134,7 +134,7 @@ function Preview(props: { collapsed: boolean }) {
         dispatch(setRelayerFee(formattedFee));
         const rows = getAutomaticRows(
           tokenConfig,
-          destConfig!.nativeToken,
+          destConfig!.gasToken,
           amount,
           toNativeToken,
           receiveNativeAmt || 0,

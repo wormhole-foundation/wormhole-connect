@@ -4,7 +4,7 @@ import green from '@mui/material/colors/green';
 import orange from '@mui/material/colors/orange';
 import red from '@mui/material/colors/red';
 import { OPACITY } from './utils/style';
-import { THEME } from 'sdk/config';
+import { THEME } from './config';
 import { PaletteMode } from '@mui/material';
 
 export type PaletteColor = {

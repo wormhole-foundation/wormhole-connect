@@ -4,7 +4,7 @@ import { useTheme } from '@mui/material/styles';
 import { makeStyles } from 'tss-react/mui';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { RootState } from '../store';
-import { CHAINS_ARR } from '../sdk/config';
+import { CHAINS_ARR } from '../config';
 import { setFromNetworksModal, setToNetworksModal } from '../store/router';
 import { setFromNetwork, setToNetwork } from '../store/transfer';
 import { clearWallet } from '../store/wallet';

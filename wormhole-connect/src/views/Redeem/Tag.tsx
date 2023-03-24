@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { RootState } from '../../store';
 import { LINK } from '../../utils/style';
-import { CHAINS } from '../../sdk/config';
+import { CHAINS } from '../../config';
 import InputContainer from '../../components/InputContainer';
 import ArrowRight from '../../icons/ArrowRight';
 import LaunchIcon from '@mui/icons-material/Launch';
@@ -25,7 +25,10 @@ const useStyles = makeStyles()((theme) => ({
     alignItems: 'center',
     gap: '8px',
   },
-  link: LINK(theme),
+  link: {
+    ...LINK(theme),
+    justifyContent: 'center',
+  },
 }));
 
 function NetworksTag() {

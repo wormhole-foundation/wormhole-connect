@@ -1,12 +1,11 @@
 import { Network as Environment } from '@certusone/wormhole-sdk';
 import {
   WormholeContext,
-  ChainConfig,
   CONFIG as CONF,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { MAINNET_NETWORKS, MAINNET_TOKENS } from '../config/mainnet';
-import { TESTNET_NETWORKS, TESTNET_TOKENS } from '../config/testnet';
-import { TokenConfig } from 'config/types';
+import { MAINNET_NETWORKS, MAINNET_TOKENS } from './mainnet';
+import { TESTNET_NETWORKS, TESTNET_TOKENS } from './testnet';
+import { TokenConfig, NetworkConfig } from './types';
 import { dark, light } from 'theme';
 
 const el = document.getElementById('wormhole-connect');
@@ -29,6 +28,7 @@ const mainnetRpcs = {
   avalanche: process.env.REACT_APP_AVALANCHE_RPC || conf.rpcs.avalanche,
   fantom: process.env.REACT_APP_FANTOM_RPC || conf.rpcs.fantom,
   celo: process.env.REACT_APP_CELO_RPC || conf.rpcs.celo,
+  moonbeam: process.env.REACT_APP_MOONBEAM_RPC || conf.rpcs.moonbeam,
 };
 const testnetRpcs = {
   goerli: process.env.REACT_APP_GOERLI_RPC || conf.rpcs.goerli,
@@ -38,6 +38,7 @@ const testnetRpcs = {
   fantom: process.env.REACT_APP_FANTOM_TESTNET_RPC || conf.rpcs.fantom,
   alfajores: process.env.REACT_APP_ALFAJORES_RPC || conf.rpcs.alfajores,
   solana: process.env.REACT_APP_SOLANA_DEVNET_RPC || conf.rpcs.solana,
+  moonbasealpha: process.env.REACT_APP_MOONBASE_RPC || conf.rpcs.moonbasealpha,
 };
 conf.rpcs = REACT_APP_ENV === 'MAINNET' ? mainnetRpcs : testnetRpcs;
 export const WH_CONFIG = conf;
@@ -45,10 +46,10 @@ export const WH_CONFIG = conf;
 export const CHAINS = isProduction ? MAINNET_NETWORKS : TESTNET_NETWORKS;
 export const CHAINS_ARR =
   config && config.networks
-    ? (Object.values(CHAINS) as ChainConfig[]).filter((c) =>
+    ? (Object.values(CHAINS) as NetworkConfig[]).filter((c) =>
         config.networks.includes(c.key),
       )
-    : (Object.values(CHAINS) as ChainConfig[]);
+    : (Object.values(CHAINS) as NetworkConfig[]);
 
 export const TOKENS = isProduction ? MAINNET_TOKENS : TESTNET_TOKENS;
 export const TOKENS_ARR =

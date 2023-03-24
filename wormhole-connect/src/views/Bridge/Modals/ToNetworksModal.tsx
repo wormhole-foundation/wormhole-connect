@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { RootState } from '../../../store';
-import { CHAINS_ARR } from '../../../sdk/config';
+import { CHAINS_ARR } from '../../../config';
 import { setToNetworksModal } from '../../../store/router';
 import { setToNetwork } from '../../../store/transfer';
 import { clearWallet, setWalletError } from '../../../store/wallet';

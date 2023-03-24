@@ -9,7 +9,7 @@ import {
 import { Transaction } from '@solana/web3.js';
 
 import { getTokenById, getTokenDecimals, getWrappedTokenId } from '../utils';
-import { TOKENS, WH_CONFIG } from './config';
+import { TOKENS, WH_CONFIG } from '../config';
 import { postVaa, signSolanaTransaction } from 'utils/wallet';
 import { toFixedDecimals } from 'utils/balance';
 

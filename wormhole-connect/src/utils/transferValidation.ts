@@ -5,8 +5,8 @@ import { store } from 'store';
 import { TransferState, validateTransfer } from 'store/transfer';
 import { WalletData, WalletState } from 'store/wallet';
 import { walletAcceptedNetworks } from 'utils/wallet';
-import { CHAINS, TOKENS } from '../sdk/config';
-import { PaymentOption } from 'sdk/sdk';
+import { CHAINS, TOKENS } from '../config';
+import { PaymentOption } from '../sdk';
 
 export type Error = string;
 export type ValidationErr = string;

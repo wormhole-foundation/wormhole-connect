@@ -4,12 +4,12 @@ import { useTheme } from '@mui/material/styles';
 import { useMediaQuery } from '@mui/material';
 import { makeStyles } from 'tss-react/mui';
 import { RootState } from '../../../store';
-import { CHAINS, TOKENS_ARR } from '../../../sdk/config';
+import { CHAINS, TOKENS_ARR } from '../../../config';
 import { setTokensModal } from '../../../store/router';
 import { setToken, setBalance, formatBalance } from '../../../store/transfer';
 import { displayAddress } from '../../../utils';
 import { CENTER } from '../../../utils/style';
-import { getBalance, getNativeBalance } from '../../../sdk/sdk';
+import { getBalance, getNativeBalance } from '../../../sdk';
 
 import Header from '../../../components/Header';
 import Modal from '../../../components/Modal';

@@ -2,14 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Context } from '@wormhole-foundation/wormhole-connect-sdk';
 
-import { CHAINS, TOKENS } from '../../sdk/config';
+import { CHAINS, TOKENS } from '../../config';
 import {
   estimateClaimGasFee,
   estimateGasFee,
   parseMessageFromTx,
   PaymentOption,
   sendTransfer,
-} from '../../sdk/sdk';
+} from '../../sdk';
 import { RootState, store } from '../../store';
 import { setRoute } from '../../store/router';
 import { setTxDetails, setSendTx } from '../../store/redeem';

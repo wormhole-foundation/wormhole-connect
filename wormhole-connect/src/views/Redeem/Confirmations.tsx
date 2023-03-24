@@ -3,8 +3,8 @@ import { styled } from '@mui/material/styles';
 import { makeStyles } from 'tss-react/mui';
 import { LinearProgress, linearProgressClasses } from '@mui/material';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
-import { CHAINS } from '../../sdk/config';
-import { getCurrentBlock } from '../../sdk/sdk';
+import { CHAINS } from '../../config';
+import { getCurrentBlock } from '../../sdk';
 
 const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
   borderRadius: 5,

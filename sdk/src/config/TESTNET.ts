@@ -10,6 +10,7 @@ export const TESTNET_CHAINS = {
   fuji: 6,
   fantom: 10,
   alfajores: 14,
+  moonbasealpha: 16,
 } as const;
 
 export type TestnetChainName = keyof typeof TESTNET_CHAINS;
@@ -28,11 +29,6 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
       ...CONTRACTS.TESTNET.ethereum,
       relayer: '0xe32b14c48e4b7c6825b855f231786fe5ba9ce014',
     },
-    displayName: 'Goerli',
-    explorerUrl: 'https://goerli.etherscan.io/',
-    explorerName: 'Etherscan',
-    gasToken: 'ETH',
-    chainId: 5,
     finalityThreshold: 15,
   },
   solana: {
@@ -42,11 +38,6 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     contracts: {
       ...CONTRACTS.TESTNET.solana,
     },
-    displayName: 'Solana',
-    explorerUrl: 'https://explorer.solana.com/',
-    explorerName: 'Solana Explorer',
-    gasToken: 'SOL',
-    chainId: 0,
     finalityThreshold: 32,
   },
   mumbai: {
@@ -57,11 +48,6 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
       ...CONTRACTS.TESTNET.polygon,
       relayer: '0x953a2342496b15d69dec25c8e62274995e82d243',
     },
-    displayName: 'Mumbai',
-    explorerUrl: 'https://mumbai.polygonscan.com/',
-    explorerName: 'Polygonscan',
-    gasToken: 'MATIC',
-    chainId: 80001,
     finalityThreshold: 64,
   },
   bsc: {
@@ -72,11 +58,6 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
       ...CONTRACTS.TESTNET.bsc,
       relayer: '0x49a401f7fa594bc618a7a39b316b78e329620103',
     },
-    displayName: 'BSC',
-    explorerUrl: 'https://testnet.bscscan.com/',
-    explorerName: 'BscScan',
-    gasToken: 'BNB',
-    chainId: 97,
     finalityThreshold: 15,
   },
   fuji: {
@@ -87,12 +68,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
       ...CONTRACTS.TESTNET.avalanche,
       relayer: '0x8369839932222c1ca3bc7d16f970c56f61993a44',
     },
-    displayName: 'Fuji',
-    explorerUrl: 'https://testnet.snowtrace.io/',
-    explorerName: 'Snowtrace',
-    gasToken: 'AVAX',
-    chainId: 43113,
-    finalityThreshold: 15,
+    finalityThreshold: 0,
   },
   fantom: {
     key: 'fantom',
@@ -102,11 +78,6 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
       ...CONTRACTS.TESTNET.fantom,
       relayer: '0x5122298f68341a088c5370d7678e13912e4ed378',
     },
-    displayName: 'Fantom',
-    explorerUrl: 'https://testnet.ftmscan.com/',
-    explorerName: 'FtmScan',
-    gasToken: 'FTM',
-    chainId: 4002,
     finalityThreshold: 1,
   },
   alfajores: {
@@ -117,11 +88,16 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
       ...CONTRACTS.TESTNET.celo,
       relayer: '0x5c9da01cbf5088ee660b9701dc526c6e5df1c239',
     },
-    displayName: 'Alfajores',
-    explorerUrl: 'https://explorer.celo.org/alfajores/',
-    explorerName: 'Celo Explorer',
-    gasToken: 'CELO',
-    chainId: 44787,
+    finalityThreshold: 1,
+  },
+  moonbasealpha: {
+    key: 'moonbasealpha',
+    id: 16,
+    context: Context.ETH,
+    contracts: {
+      ...CONTRACTS.TESTNET.moonbeam,
+      relayer: '0xa098368aaadc0fdf3e309cda710d7a5f8bdeecd9',
+    },
     finalityThreshold: 1,
   },
 };
@@ -137,6 +113,7 @@ const TESTNET_CONFIG: WormholeConfig = {
     fantom: 'https://rpc.ankr.com/fantom_testnet',
     alfajores: 'https://alfajores-forno.celo-testnet.org',
     solana: 'https://api.testnet.solana.com',
+    moonbasealpha: 'https://moonbase-alpha.public.blastapi.io',
   },
   chains: TESTNET,
 };

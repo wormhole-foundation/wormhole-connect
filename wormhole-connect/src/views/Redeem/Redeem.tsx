@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { fetchVaa, ParsedVaa } from '../../utils/vaa';
 import { setTransferComplete, setVaa } from '../../store/redeem';
 import { RootState } from '../../store';
-import { getTransferComplete } from '../../sdk/sdk';
+import { getTransferComplete } from '../../sdk';
 import PageHeader from '../../components/PageHeader';
 import Spacer from '../../components/Spacer';
 import NetworksTag from './Tag';

@@ -5,16 +5,15 @@ import { BigNumber, utils } from 'ethers';
 import CircularProgress from '@mui/material/CircularProgress';
 import { Context } from '@wormhole-foundation/wormhole-connect-sdk';
 import { RootState } from '../../store';
-import { PaymentOption } from '../../sdk/sdk';
 import { setRedeemTx, setTransferComplete } from '../../store/redeem';
 import {
   registerWalletSigner,
   switchNetwork,
   TransferWallet,
 } from '../../utils/wallet';
-import { claimTransfer, parseAddress } from '../../sdk/sdk';
+import { claimTransfer, parseAddress, PaymentOption } from '../../sdk';
 import { displayAddress } from '../../utils';
-import { CHAINS } from '../../sdk/config';
+import { CHAINS } from '../../config';
 
 import Header from './Header';
 import AlertBanner from '../../components/AlertBanner';

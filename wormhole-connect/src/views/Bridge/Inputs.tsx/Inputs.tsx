@@ -7,7 +7,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 
 import ConnectWallet from '../../../components/ConnectWallet';
 import InputContainer from '../../../components/InputContainer';
-import { CHAINS } from '../../../sdk/config';
+import { CHAINS } from '../../../config';
 import { RootState } from '../../../store';
 import { ValidationErr } from '../../../utils/transferValidation';
 import { TransferWallet } from '../../../utils/wallet';
