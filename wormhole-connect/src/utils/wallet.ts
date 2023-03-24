@@ -4,10 +4,11 @@ import {
   Context,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { postVaaSolanaWithRetry } from '@certusone/wormhole-sdk';
-import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
+import { NotSupported, Wallet } from '@xlabs-libs/wallet-aggregator-core';
 import {
+  EVMWallet,
   MetamaskWallet,
-  WalletConnectWallet,
+  WalletConnectLegacyWallet,
 } from '@xlabs-libs/wallet-aggregator-evm';
 import {
   PhantomWalletAdapter,
@@ -44,7 +45,7 @@ const connection = new SolanaConnection(url);
 export const wallets = {
   evm: {
     metamask: new MetamaskWallet(),
-    walletConnect: new WalletConnectWallet(),
+    walletConnect: new WalletConnectLegacyWallet(),
   },
   solana: {
     phantom: new SolanaWallet(new PhantomWalletAdapter(), connection),
@@ -88,7 +89,13 @@ export const switchNetwork = async (chainId: number, type: TransferWallet) => {
   const currentChain = w.getNetworkInfo().chainId;
   if (currentChain === chainId) return;
   if (config.context === Context.ETH) {
-    await (w as any).switchChain(chainId);
+    try {
+      // some wallets may not support chain switching
+      await (w as EVMWallet).switchChain(chainId);
+    } catch (e) {
+      if (e instanceof NotSupported) return;
+      throw e;
+    }
   }
 };
 

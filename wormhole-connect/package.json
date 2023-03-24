@@ -23,7 +23,7 @@
     "@typescript-eslint/eslint-plugin": "^5.48.1",
     "@typescript-eslint/parser": "^5.48.1",
     "@xlabs-libs/wallet-aggregator-core": "^0.0.1-alpha.10",
-    "@xlabs-libs/wallet-aggregator-evm": "0.0.1-alpha.15",
+    "@xlabs-libs/wallet-aggregator-evm": "0.0.1-alpha.17",
     "@xlabs-libs/wallet-aggregator-react": "^0.0.1-alpha.10",
     "@xlabs-libs/wallet-aggregator-solana": "^0.0.1-alpha.7",
     "axios": "^1.2.4",
