@@ -110,9 +110,10 @@ function WalletsModal(props: Props) {
 
   function getAvailableWallets() {
     const chain =
-      props.chain || props.type === TransferWallet.SENDING
+      props.chain ||
+      (props.type === TransferWallet.SENDING
         ? fromNetwork
-        : toNetwork;
+        : toNetwork);
 
     const config = CHAINS[chain!];
     if (!config) return Object.values(WALLETS);
