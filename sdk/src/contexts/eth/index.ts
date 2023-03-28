@@ -140,11 +140,23 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
     const amountBN = ethers.BigNumber.from(amount);
     const bridge = this.contracts.mustGetBridge(sendingChain);
 
+    let recipientAccount = recipientAddress;
+    // get token account for solana
+    if (recipientChainId === 1) {
+      const account = await (destContext as any).getAssociatedTokenAccount(
+        token,
+        recipientAddress,
+      );
+      if (!account)
+        throw new Error('associated token account does not exist for solana');
+      recipientAccount = account;
+    }
+
     if (token === NATIVE) {
       // sending native ETH
       await bridge.callStatic.wrapAndTransferETH(
         recipientChainId,
-        destContext.formatAddress(recipientAddress),
+        destContext.formatAddress(recipientAccount),
         relayerFee,
         createNonce(),
         {
@@ -155,7 +167,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
       );
       return bridge.populateTransaction.wrapAndTransferETH(
         recipientChainId,
-        destContext.formatAddress(recipientAddress),
+        destContext.formatAddress(recipientAccount),
         relayerFee,
         createNonce(),
         {
@@ -173,7 +185,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
         tokenAddr,
         amountBN,
         recipientChainId,
-        destContext.formatAddress(recipientAddress),
+        destContext.formatAddress(recipientAccount),
         relayerFee,
         createNonce(),
         // overrides,
@@ -183,7 +195,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
         tokenAddr,
         amountBN,
         recipientChainId,
-        destContext.formatAddress(recipientAddress),
+        destContext.formatAddress(recipientAccount),
         relayerFee,
         createNonce(),
         // overrides,

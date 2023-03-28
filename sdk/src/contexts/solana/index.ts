@@ -6,11 +6,14 @@ import {
 import { parseTokenTransferPayload, parseVaa } from '../../vaa';
 import {
   ACCOUNT_SIZE,
+  ASSOCIATED_TOKEN_PROGRAM_ID,
   createCloseAccountInstruction,
   createInitializeAccountInstruction,
   getMinimumBalanceForRentExemptAccount,
   NATIVE_MINT,
   TOKEN_PROGRAM_ID,
+  getAssociatedTokenAddress,
+  getAccount,
 } from '@solana/spl-token';
 import {
   clusterApiUrl,
@@ -82,6 +85,11 @@ export class SolanaContext<
     return decimals;
   }
 
+  async getTokenAccountOwner(tokenAddr: string): Promise<string> {
+    const token = await getAccount(this.connection!, new PublicKey(tokenAddr));
+    return token.owner.toString();
+  }
+
   async getNativeBalance(
     walletAddress: string,
     chain: ChainName | ChainId,
@@ -116,6 +124,24 @@ export class SolanaContext<
     );
 
     return BigNumber.from(balance.value.amount);
+  }
+
+  async getAssociatedTokenAccount(token: TokenId, publicKey: PublicKey) {
+    let solAddr;
+    try {
+      solAddr = await this.getForeignAsset(token, 'solana');
+    } catch (e) {
+      return null;
+    }
+    const associatedAddress = await getAssociatedTokenAddress(
+      new PublicKey(solAddr),
+      new PublicKey(publicKey),
+      undefined,
+      TOKEN_PROGRAM_ID,
+      ASSOCIATED_TOKEN_PROGRAM_ID,
+    );
+    console.log(associatedAddress);
+    return associatedAddress;
   }
 
   private async transferNativeSol(

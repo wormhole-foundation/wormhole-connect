@@ -105,6 +105,11 @@ export const parseMessageFromTx = async (
     sequence: parsed.sequence.toString(),
     gasFee: parsed.gasFee ? parsed.gasFee.toString() : undefined,
   };
+  // get wallet address of associated token account for Solana
+  if (parsed.toChain === 'solana') {
+    const accountOwner = await getSolTokenAccountOwner(parsed.recipient);
+    base.recipient = accountOwner;
+  }
   if (parsed.payloadID === PaymentOption.MANUAL) {
     return base;
   }
@@ -342,4 +347,9 @@ export const getCurrentBlock = async (
     const provider = wh.mustGetProvider(chain);
     return await provider.getBlockNumber();
   }
+};
+
+export const getSolTokenAccountOwner = async (address: string) => {
+  const context: any = wh.getContext('solana');
+  return await context.getTokenAccountOwner(address);
 };
