@@ -1,9 +1,14 @@
 import {
   createNonce,
   getForeignAssetSolana,
+  redeemAndUnwrapOnSolana,
   redeemOnSolana,
 } from '@certusone/wormhole-sdk';
-import { parseTokenTransferPayload, parseVaa } from '../../vaa';
+import {
+  parseTokenTransferPayload,
+  parseTokenTransferVaa,
+  parseVaa,
+} from '../../vaa';
 import {
   ACCOUNT_SIZE,
   ASSOCIATED_TOKEN_PROGRAM_ID,
@@ -25,9 +30,8 @@ import {
   SystemProgram,
   Transaction,
 } from '@solana/web3.js';
-import { BigNumber, BigNumberish, constants } from 'ethers';
+import { BigNumber, constants } from 'ethers';
 import { arrayify, zeroPad, hexlify } from 'ethers/lib/utils';
-import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
 
 import {
   TokenId,
@@ -58,7 +62,6 @@ export class SolanaContext<
   protected contracts: SolContracts<T>;
   readonly context: T;
   connection: Connection | undefined;
-  wallet: Wallet | undefined;
 
   constructor(context: T) {
     super();
@@ -522,32 +525,13 @@ export class SolanaContext<
     return [parsedMessage];
   }
 
-  // TODO:
-  async approve(
-    chain: ChainName | ChainId,
-    contractAddress: string,
-    token: string,
-    amount?: BigNumberish,
-    overrides?: any,
-  ): Promise<Transaction | void> {
-    console.log(
-      'not implemented',
-      chain,
-      contractAddress,
-      token,
-      amount,
-      overrides,
-    );
-  }
-
-  // TODO: can we get receiving address from VAA?
   async redeem(
     destChain: ChainName | ChainId,
     signedVAA: Uint8Array,
     overrides: any,
-    receivingAddr?: PublicKeyInitData,
+    payerAddr?: PublicKeyInitData,
   ): Promise<any> {
-    if (!receivingAddr)
+    if (!payerAddr)
       throw new Error(
         'receiving wallet address required for redeeming on Solana',
       );
@@ -557,13 +541,25 @@ export class SolanaContext<
       throw new Error('contracts not found for solana');
     }
 
-    return await redeemOnSolana(
-      this.connection,
-      contracts.core,
-      contracts.token_bridge,
-      receivingAddr,
-      signedVAA,
-    );
+    const parsed = parseTokenTransferVaa(signedVAA);
+    const tokenChain = parsed.tokenChain;
+    if (tokenChain === 1) {
+      return await redeemAndUnwrapOnSolana(
+        this.connection,
+        contracts.core,
+        contracts.token_bridge,
+        payerAddr,
+        signedVAA,
+      );
+    } else {
+      return await redeemOnSolana(
+        this.connection,
+        contracts.core,
+        contracts.token_bridge,
+        payerAddr,
+        signedVAA,
+      );
+    }
   }
 
   async isTransferCompleted(

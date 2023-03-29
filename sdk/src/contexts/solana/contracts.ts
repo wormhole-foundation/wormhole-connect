@@ -13,7 +13,6 @@ import { SolanaContext } from '.';
 import { createReadOnlyWormholeProgramInterface } from './solana/wormhole';
 import { createReadOnlyTokenBridgeProgramInterface } from './solana/tokenBridge';
 import { createReadOnlyNftBridgeProgramInterface } from './solana/nftBridge';
-// import { createReadOnlyToken } from './solana/token_bridge';
 
 export class SolContracts<
   T extends WormholeContext,

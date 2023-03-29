@@ -1,4 +1,4 @@
-import { BigNumber, BigNumberish } from 'ethers';
+import { BigNumber } from 'ethers';
 import {
   AnyContracts,
   ParsedMessage,
@@ -57,18 +57,11 @@ export abstract class TokenBridgeAbstract {
     chain: ChainName | ChainId,
   ): Promise<BigNumber | null>;
 
-  protected abstract approve(
-    chain: ChainName | ChainId,
-    contractAddress: string,
-    token: string,
-    amount?: BigNumberish,
-    overrides?: any,
-  ): Promise<any>;
   protected abstract redeem(
     destChain: ChainName | ChainId,
     signedVAA: Uint8Array,
     overrides: any,
-    receivingAddr?: any,
+    payerAddr?: any,
   ): Promise<any>;
   protected abstract isTransferCompleted(
     destChain: ChainName | ChainId,

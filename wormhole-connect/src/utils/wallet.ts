@@ -107,9 +107,10 @@ export const disconnect = async (type: TransferWallet) => {
 
 export const signSolanaTransaction = async (
   transaction: Transaction,
+  type: TransferWallet,
   options?: ConfirmOptions,
 ) => {
-  const wallet = walletConnection.sending;
+  const wallet = walletConnection[type];
   if (!wallet || !wallet.signAndSendTransaction) {
     throw new Error('wallet.signAndSendTransaction is undefined');
   }

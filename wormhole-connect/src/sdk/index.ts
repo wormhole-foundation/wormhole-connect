@@ -1,5 +1,5 @@
 import { Network as Environment } from '@certusone/wormhole-sdk';
-import { BigNumber, utils, ContractReceipt } from 'ethers';
+import { BigNumber, utils } from 'ethers';
 import {
   WormholeContext,
   TokenId,
@@ -10,7 +10,7 @@ import { Transaction } from '@solana/web3.js';
 
 import { getTokenById, getTokenDecimals, getWrappedTokenId } from '../utils';
 import { TOKENS, WH_CONFIG } from '../config';
-import { postVaa, signSolanaTransaction } from 'utils/wallet';
+import { postVaa, signSolanaTransaction, TransferWallet } from 'utils/wallet';
 import { toFixedDecimals } from 'utils/balance';
 
 export enum PaymentOption {
@@ -158,12 +158,13 @@ export const sendTransfer = async (
       undefined,
     );
     if (fromChainName !== 'solana') {
-      // @ts-ignore
       wh.registerProviders();
       return tx;
     }
-    const solTx = await signSolanaTransaction(tx as Transaction);
-    // @ts-ignore
+    const solTx = await signSolanaTransaction(
+      tx as Transaction,
+      TransferWallet.SENDING,
+    );
     wh.registerProviders();
     return solTx;
   } else {
@@ -181,7 +182,6 @@ export const sendTransfer = async (
       parsedNativeAmt,
     );
     // relay not supported on Solana, so we can just return the ethers receipt
-    // @ts-ignore
     wh.registerProviders();
     return tx;
   }
@@ -287,8 +287,8 @@ export const calculateNativeTokenAmt = async (
 export const claimTransfer = async (
   destChain: ChainName | ChainId,
   vaa: Uint8Array,
-  receivingAddr: string,
-): Promise<ContractReceipt> => {
+  payerAddr: string,
+) => {
   // post vaa (solana)
   // TODO: move to context
   const destDomain = wh.resolveDomain(destChain);
@@ -301,16 +301,17 @@ export const claimTransfer = async (
     await postVaa(connection, contracts.core, Buffer.from(vaa));
   }
 
-  const receipt = await wh.redeem(
-    destChain,
-    vaa,
-    { gasLimit: 250000 },
-    // @ts-ignore
-    receivingAddr,
+  const tx = await wh.redeem(destChain, vaa, { gasLimit: 250000 }, payerAddr);
+  if (destChain !== 'solana') {
+    wh.registerProviders();
+    return tx;
+  }
+  const solTx = await signSolanaTransaction(
+    tx as Transaction,
+    TransferWallet.RECEIVING,
   );
-  // @ts-ignore
   wh.registerProviders();
-  return receipt;
+  return solTx;
 };
 
 export const fetchTokenDecimals = async (
