@@ -16,7 +16,7 @@ import {
   wallets,
   WalletType,
 } from '../utils/wallet';
-import { connectReceivingWallet, connectWallet } from '../store/wallet';
+import { clearWallet, connectReceivingWallet, connectWallet } from '../store/wallet';
 
 import Header from '../components/Header';
 import Modal from '../components/Modal';
@@ -128,6 +128,13 @@ function WalletsModal(props: Props) {
     const { wallet } = walletInfo;
     await wallet.connect();
     setWalletConnection(props.type, wallet);
+
+    // clear wallet when the user manually disconnects from outside the app
+    wallet.on('disconnect', () => {
+      wallet.removeAllListeners();
+      dispatch(clearWallet(props.type));
+    });
+
     const address = wallet.getAddress();
     if (address) {
       const payload = { address, type: walletInfo.type };
