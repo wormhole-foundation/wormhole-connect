@@ -36,6 +36,9 @@ const useStyles = makeStyles()((theme) => ({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: '0 16px',
+    [theme.breakpoints.down('sm')]: {
+      padding: '0',
+    },
   },
   headerTitle: {
     fontSize: '16px',
