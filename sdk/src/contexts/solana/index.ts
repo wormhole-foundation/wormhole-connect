@@ -5,11 +5,6 @@ import {
   redeemOnSolana,
 } from '@certusone/wormhole-sdk';
 import {
-  parseTokenTransferPayload,
-  parseTokenTransferVaa,
-  parseVaa,
-} from '../../vaa';
-import {
   ACCOUNT_SIZE,
   ASSOCIATED_TOKEN_PROGRAM_ID,
   createCloseAccountInstruction,
@@ -33,6 +28,12 @@ import {
 import { BigNumber, constants } from 'ethers';
 import { arrayify, zeroPad, hexlify } from 'ethers/lib/utils';
 
+import MAINNET_CONFIG, { MAINNET_CHAINS } from '../../config/MAINNET';
+import {
+  parseTokenTransferPayload,
+  parseTokenTransferVaa,
+  parseVaa,
+} from '../../vaa';
 import {
   TokenId,
   ChainName,
@@ -55,6 +56,7 @@ import {
 import { TokenBridgeAbstract } from '../abstracts/tokenBridge';
 
 const SOLANA_SEQ_LOG = 'Program log: Sequence: ';
+const SOLANA_CHAIN_NAME = MAINNET_CONFIG.chains.solana!.key;
 
 export class SolanaContext<
   T extends WormholeContext,
@@ -129,21 +131,20 @@ export class SolanaContext<
     return BigNumber.from(balance.value.amount);
   }
 
-  async getAssociatedTokenAccount(token: TokenId, publicKey: PublicKey) {
+  async getAssociatedTokenAccount(token: TokenId, account: PublicKeyInitData) {
     let solAddr;
     try {
-      solAddr = await this.getForeignAsset(token, 'solana');
+      solAddr = await this.getForeignAsset(token, SOLANA_CHAIN_NAME);
     } catch (e) {
       return null;
     }
     const associatedAddress = await getAssociatedTokenAddress(
       new PublicKey(solAddr),
-      new PublicKey(publicKey),
+      new PublicKey(account),
       undefined,
       TOKEN_PROGRAM_ID,
       ASSOCIATED_TOKEN_PROGRAM_ID,
     );
-    console.log(associatedAddress);
     return associatedAddress;
   }
 
@@ -157,7 +158,7 @@ export class SolanaContext<
     commitment?: Commitment,
   ): Promise<Transaction> {
     if (!this.connection) throw new Error('no connection');
-    const contracts = this.contracts.mustGetContracts('solana');
+    const contracts = this.contracts.mustGetContracts(SOLANA_CHAIN_NAME);
     if (!contracts.core || !contracts.token_bridge) {
       throw new Error('contracts not found');
     }
@@ -253,7 +254,7 @@ export class SolanaContext<
     commitment?: Commitment,
   ): Promise<Transaction> {
     if (!this.connection) throw new Error('no connection');
-    const contracts = this.contracts.mustGetContracts('solana');
+    const contracts = this.contracts.mustGetContracts(SOLANA_CHAIN_NAME);
     if (!contracts.core || !contracts.token_bridge) {
       throw new Error('contracts not found');
     }
@@ -334,7 +335,7 @@ export class SolanaContext<
       const formattedTokenAddr = arrayify(
         destContext.formatAddress(destTokenAddr),
       );
-      const solTokenAddr = await this.getForeignAsset(token, 'solana');
+      const solTokenAddr = await this.getForeignAsset(token, SOLANA_CHAIN_NAME);
       const splToken = await this.connection.getTokenAccountsByOwner(
         new PublicKey(senderAddress),
         { mint: new PublicKey(solTokenAddr) },
@@ -389,7 +390,7 @@ export class SolanaContext<
       const formattedTokenAddr = arrayify(
         destContext.formatAddress(token.address),
       );
-      const solTokenAddr = await this.getForeignAsset(token, 'solana');
+      const solTokenAddr = await this.getForeignAsset(token, SOLANA_CHAIN_NAME);
       console.log('solana token addr', solTokenAddr);
       const splToken = await this.connection.getTokenAccountsByOwner(
         new PublicKey(senderAddress),
@@ -457,7 +458,7 @@ export class SolanaContext<
     chain: ChainName | ChainId,
   ): Promise<ParsedMessage[]> {
     if (!this.connection) throw new Error('no connection');
-    const contracts = this.contracts.mustGetContracts('solana');
+    const contracts = this.contracts.mustGetContracts(SOLANA_CHAIN_NAME);
     if (!contracts.core || !contracts.token_bridge)
       throw new Error('contracts not found');
     const response = await this.connection.getTransaction(tx);
@@ -536,14 +537,14 @@ export class SolanaContext<
         'receiving wallet address required for redeeming on Solana',
       );
     if (!this.connection) throw new Error('no connection');
-    const contracts = this.contracts.mustGetContracts('solana');
+    const contracts = this.contracts.mustGetContracts(SOLANA_CHAIN_NAME);
     if (!contracts.core || !contracts.token_bridge) {
       throw new Error('contracts not found for solana');
     }
 
     const parsed = parseTokenTransferVaa(signedVAA);
     const tokenChain = parsed.tokenChain;
-    if (tokenChain === 1) {
+    if (tokenChain === MAINNET_CHAINS.solana) {
       return await redeemAndUnwrapOnSolana(
         this.connection,
         contracts.core,

@@ -5,6 +5,7 @@ import {
   TokenId,
   ChainId,
   ChainName,
+  MAINNET_CHAINS,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { Transaction } from '@solana/web3.js';
 
@@ -106,7 +107,7 @@ export const parseMessageFromTx = async (
     gasFee: parsed.gasFee ? parsed.gasFee.toString() : undefined,
   };
   // get wallet address of associated token account for Solana
-  if (parsed.toChain === 'solana') {
+  if (parsed.toChainId === MAINNET_CHAINS.solana) {
     const accountOwner = await getSolTokenAccountOwner(parsed.recipient);
     base.recipient = accountOwner;
   }
@@ -143,8 +144,8 @@ export const sendTransfer = async (
   toNativeToken?: string,
 ) => {
   console.log('preparing send');
-  const fromChainName = wh.toChainName(fromNetwork);
-  const decimals = getTokenDecimals(fromChainName, token);
+  const fromChainId = wh.toChainId(fromNetwork);
+  const decimals = getTokenDecimals(fromChainId, token);
   const parsedAmt = utils.parseUnits(amount, decimals);
   if (paymentOption === PaymentOption.MANUAL) {
     console.log('send with manual');
@@ -157,7 +158,7 @@ export const sendTransfer = async (
       toAddress,
       undefined,
     );
-    if (fromChainName !== 'solana') {
+    if (fromChainId !== MAINNET_CHAINS.solana) {
       wh.registerProviders();
       return tx;
     }
@@ -198,12 +199,12 @@ export const estimateGasFee = async (
   toNativeToken?: string,
 ): Promise<string> => {
   console.log('estimating fees');
-  const fromChainName = wh.toChainName(fromNetwork);
-  const decimals = getTokenDecimals(fromChainName, token);
+  const fromChainId = wh.toChainId(fromNetwork);
+  const decimals = getTokenDecimals(fromChainId, token);
   const parsedAmt = utils.parseUnits(amount, decimals);
   const context = wh.getContext(fromNetwork) as any;
   const provider = wh.mustGetProvider(fromNetwork);
-  if (fromChainName === 'solana') {
+  if (fromChainId === MAINNET_CHAINS.solana) {
     // const connection = context.connection;
     // if (!connection) throw new Error('no connection');
     // const tx = await context.send(
@@ -256,8 +257,8 @@ export const estimateGasFee = async (
 };
 
 export const estimateClaimGasFee = async (destChain: ChainName | ChainId) => {
-  const destChainName = wh.toChainName(destChain);
-  if (destChainName === 'solana') return '0.000025';
+  const destChainId = wh.toChainId(destChain);
+  if (destChainId === MAINNET_CHAINS.solana) return '0.000025';
 
   const provider = wh.mustGetProvider(destChain);
   const gasPrice = await provider.getGasPrice();
@@ -291,8 +292,8 @@ export const claimTransfer = async (
 ) => {
   // post vaa (solana)
   // TODO: move to context
-  const destDomain = wh.resolveDomain(destChain);
-  if (destDomain === 1) {
+  const destChainId = wh.toChainId(destChain);
+  if (destChainId === MAINNET_CHAINS.solana) {
     const destContext = wh.getContext(destChain) as any;
     const connection = destContext.connection;
     if (!connection) throw new Error('no connection');
@@ -302,7 +303,7 @@ export const claimTransfer = async (
   }
 
   const tx = await wh.redeem(destChain, vaa, { gasLimit: 250000 }, payerAddr);
-  if (destChain !== 'solana') {
+  if (destChainId !== MAINNET_CHAINS.solana) {
     wh.registerProviders();
     return tx;
   }
@@ -338,9 +339,9 @@ export const getTxIdFromReceipt = (
 export const getCurrentBlock = async (
   chain: ChainName | ChainId,
 ): Promise<number> => {
-  const chainName = wh.resolveDomainName(chain);
+  const chainId = wh.toChainId(chain);
   const context: any = wh.getContext(chain);
-  if (chainName === 'solana') {
+  if (chainId === MAINNET_CHAINS.solana) {
     const connection = context.connection;
     if (!connection) throw new Error('no connection');
     return await connection.getSlot();
@@ -351,6 +352,6 @@ export const getCurrentBlock = async (
 };
 
 export const getSolTokenAccountOwner = async (address: string) => {
-  const context: any = wh.getContext('solana');
+  const context: any = wh.getContext(MAINNET_CHAINS.solana);
   return await context.getTokenAccountOwner(address);
 };

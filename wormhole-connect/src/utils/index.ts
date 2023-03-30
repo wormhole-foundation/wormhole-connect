@@ -1,5 +1,10 @@
 import { NetworkConfig, TokenConfig } from '../config/types';
-import { TokenId, ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+import {
+  TokenId,
+  ChainName,
+  ChainId,
+  MAINNET_CHAINS,
+} from '@wormhole-foundation/wormhole-connect-sdk';
 import { CHAINS_ARR, TOKENS, TOKENS_ARR } from '../config';
 import { WalletType } from './wallet';
 import { useEffect, useRef } from 'react';
@@ -73,15 +78,17 @@ export function getTokenById(tokenId: TokenId): TokenConfig | void {
 }
 
 export function getTokenDecimals(
-  chain: ChainName,
+  chain: ChainId,
   tokenId: TokenId | 'native',
 ): number {
   if (tokenId === 'native') {
-    return chain === 'solana' ? 9 : 18;
+    return chain === MAINNET_CHAINS.solana ? 9 : 18;
   }
   const tokenConfig = getTokenById(tokenId);
   if (!tokenConfig) throw new Error('token config not found');
-  return chain === 'solana' ? tokenConfig.solDecimals : tokenConfig.decimals;
+  return chain === MAINNET_CHAINS.solana
+    ? tokenConfig.solDecimals
+    : tokenConfig.decimals;
 }
 
 function fallbackCopyTextToClipboard(text: string) {
