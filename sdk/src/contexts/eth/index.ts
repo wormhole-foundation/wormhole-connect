@@ -137,6 +137,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
   ): Promise<ethers.PopulatedTransaction> {
     const destContext = this.context.getContext(recipientChain);
     const recipientChainId = this.context.toChainId(recipientChain);
+    const sendingChainName = this.context.toChainName(sendingChain);
     const amountBN = ethers.BigNumber.from(amount);
     const bridge = this.contracts.mustGetBridge(sendingChain);
 
@@ -147,7 +148,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
       if (token === NATIVE) {
         tokenId = {
           address: await bridge.WETH(),
-          chain: 'ethereum',
+          chain: sendingChainName,
         };
       }
       const account = await (
