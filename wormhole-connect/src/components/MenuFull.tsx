@@ -51,7 +51,7 @@ export default function Menu() {
             Bridge
           </div>
           <div className={classes.menuItem} onClick={() => navigate('search')}>
-            Resume transfer
+            Resume transaction
           </div>
           <div className={classes.menuItem} onClick={() => navigate('faq')}>
             FAQs

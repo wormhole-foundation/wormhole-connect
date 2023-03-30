@@ -71,7 +71,7 @@ function TxSearch() {
       dispatch(setRoute('redeem'));
     } catch (e) {
       setError(
-        'Bridge transfer not found, check that you have the correct chain and transaction ID',
+        'Bridge transaction not found, check that you have the correct chain and transaction ID',
       );
     }
   }
@@ -79,7 +79,7 @@ function TxSearch() {
   return (
     <div className={classes.container}>
       <PageHeader
-        title="Resume transfer"
+        title="Resume transaction"
         description="Bridging can require a manual redemption process on the designation chain. If you did not complete the redemption during your initial transaction, you may do so here."
         back
       />

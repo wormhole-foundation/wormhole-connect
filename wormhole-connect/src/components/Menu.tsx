@@ -65,7 +65,7 @@ export default function Menu() {
                 className={classes.menuItem}
                 onClick={() => navigate('redeem')}
               >
-                Resume transfer
+                Resume transaction
               </div>
               <div className={classes.menuItem} onClick={() => navigate('faq')}>
                 FAQ

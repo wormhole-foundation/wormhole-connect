@@ -16,7 +16,11 @@ import {
   wallets,
   WalletType,
 } from '../utils/wallet';
-import { clearWallet, connectReceivingWallet, connectWallet } from '../store/wallet';
+import {
+  clearWallet,
+  connectReceivingWallet,
+  connectWallet,
+} from '../store/wallet';
 
 import Header from '../components/Header';
 import Modal from '../components/Modal';
@@ -111,9 +115,7 @@ function WalletsModal(props: Props) {
   function getAvailableWallets() {
     const chain =
       props.chain ||
-      (props.type === TransferWallet.SENDING
-        ? fromNetwork
-        : toNetwork);
+      (props.type === TransferWallet.SENDING ? fromNetwork : toNetwork);
 
     const config = CHAINS[chain!];
     if (!config) return Object.values(WALLETS);

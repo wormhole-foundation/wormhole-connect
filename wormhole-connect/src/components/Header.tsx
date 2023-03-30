@@ -10,6 +10,9 @@ const useStyles = makeStyles<StyleProps>()((theme, { align, fontSize }) => ({
     width: '100%',
     textAlign: align,
     fontFamily: theme.palette.font.header,
+    [theme.breakpoints.down('sm')]: {
+      fontSize: '24px',
+    },
   },
 }));
 
