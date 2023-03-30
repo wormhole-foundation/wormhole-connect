@@ -26,7 +26,7 @@ const useStyles = makeStyles()((theme) => ({
 
 type Props = {
   show: boolean;
-  text: string;
+  content: React.ReactNode;
   warning?: boolean;
   error?: boolean;
   margin?: string;
@@ -34,17 +34,18 @@ type Props = {
 
 function AlertBanner(props: Props) {
   const { classes } = useStyles();
-  const [alertText, setAlertText] = useState(props.text);
-  const prevText = usePrevious(props.text);
+  const [alertText, setAlertText] = useState(props.content);
+  const prevText = usePrevious(props.content);
+
   useEffect(() => {
-    if (!!prevText && !props.text) {
+    if (!!prevText && !props.content) {
       setTimeout(() => {
         setAlertText('');
       }, 500);
     } else {
-      setAlertText(props.text);
+      setAlertText(props.content);
     }
-  }, [props.text]);
+  }, [props.content]);
 
   return (
     <Collapse in={props.show}>

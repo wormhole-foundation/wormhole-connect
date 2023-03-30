@@ -17,7 +17,7 @@ function ValidationError(props: Props) {
   return (
     <AlertBanner
       show={showErrors && showError}
-      text={validationErrors[0]}
+      content={validationErrors[0]}
       error
       margin={props.margin}
     />
