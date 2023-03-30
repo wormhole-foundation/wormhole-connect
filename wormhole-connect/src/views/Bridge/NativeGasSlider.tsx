@@ -80,7 +80,7 @@ interface ThumbProps extends React.HTMLAttributes<unknown> {}
 function GasSlider(props: { disabled: boolean }) {
   const { classes } = useStyles();
   const dispatch = useDispatch();
-  const { token, toNetwork, amount, maxSwapAmt, balances } = useSelector(
+  const { token, toNetwork, amount, maxSwapAmt } = useSelector(
     (state: RootState) => state.transfer,
   );
   const destConfig = CHAINS[toNetwork!];
@@ -205,26 +205,13 @@ function GasSlider(props: { disabled: boolean }) {
           boxShadow: 'none',
         }}
       >
-        {sendingToken !== undefined &&
-        nativeGasToken !== undefined &&
-        destConfig !== undefined ? (
+        {sendingToken && nativeGasToken && destConfig ? (
           <div className={classes.container}>
-            {balances[destConfig.gasToken] &&
-            Number.parseFloat(balances[destConfig.gasToken]!) < state.max ? (
-              <div>
-                Your wallet has little or no native gas ({nativeGasToken.symbol}
-                ) balance on {destConfig?.displayName}. Would you like to
-                convert some of the {sendingToken.symbol} you’re bridging to{' '}
-                {nativeGasToken.symbol}?
-              </div>
-            ) : (
-              <div>
-                Would you like to convert some of the {sendingToken.symbol}{' '}
-                you’re bridging to native gas ({nativeGasToken.symbol}) on{' '}
-                {destConfig?.displayName}?
-              </div>
-            )}
-            <div>You will receive:</div>
+            <div>
+              Would you like to receive some native gas token (
+              {nativeGasToken.symbol})?
+            </div>
+
             <div>
               <PrettoSlider
                 slots={{ thumb: Thumb }}
