@@ -26,7 +26,7 @@ const useStyles = makeStyles()((theme) => ({
 
 type Props = {
   show: boolean;
-  content: React.ReactNode;
+  content: React.ReactNode | undefined;
   warning?: boolean;
   error?: boolean;
   margin?: string;
@@ -34,21 +34,21 @@ type Props = {
 
 function AlertBanner(props: Props) {
   const { classes } = useStyles();
-  const [alertText, setAlertText] = useState(props.content);
+  const [alertContent, setAlertContent] = useState(props.content);
   const prevText = usePrevious(props.content);
 
   useEffect(() => {
     if (!!prevText && !props.content) {
       setTimeout(() => {
-        setAlertText('');
+        setAlertContent(undefined);
       }, 500);
     } else {
-      setAlertText(props.content);
+      setAlertContent(props.content);
     }
   }, [props.content]);
 
   return (
-    <Collapse in={props.show}>
+    <Collapse in={props.show && !!props.content}>
       <div
         className={joinClass([
           classes.base,
@@ -58,7 +58,7 @@ function AlertBanner(props: Props) {
         style={{ margin: props.margin || 0 }}
       >
         <AlertIcon />
-        {alertText}
+        {alertContent}
       </div>
     </Collapse>
   );

@@ -206,15 +206,12 @@ function Inputs(props: Props) {
             margin="8px 0 0 0"
           />
 
-          {props.warnings && props.warnings.length > 0 && (
-            <AlertBanner
-              show={props.warnings.length > 0}
-              content={props.warnings[0]}
-              warning
-              margin="8px 0 0 0"
-            />
-          )}
-          
+          <AlertBanner
+            show={!!props.warnings && props.warnings.length > 0}
+            content={props.warnings ? props.warnings[0] : undefined}
+            warning
+            margin="8px 0 0 0"
+          />
         </div>
       </InputContainer>
     </div>

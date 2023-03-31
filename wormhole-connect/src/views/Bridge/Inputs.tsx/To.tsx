@@ -18,7 +18,9 @@ import { Link, Typography } from '@mui/material';
 function ToInputs() {
   const dispatch = useDispatch();
   const [balance, setBalance] = useState(undefined as string | undefined);
-  const [isDestinationTokenDeployed, setIsTargetTokenDeployed] = useState<boolean | undefined>(undefined);
+  const [isDestinationTokenDeployed, setIsTargetTokenDeployed] = useState<
+    boolean | undefined
+  >(undefined);
 
   const { validations, fromNetwork, toNetwork, token, amount } = useSelector(
     (state: RootState) => state.transfer,
@@ -45,7 +47,6 @@ function ToInputs() {
     );
   }, [tokenConfig, fromNetwork, toNetwork, wallet.address]);
 
-
   // check if the destination token contract is deployed
   useEffect(() => {
     const checkWrappedTokenExists = async () => {
@@ -55,7 +56,9 @@ function ToInputs() {
       }
 
       const tokenConfig = TOKENS[token];
-      const config = tokenConfig.tokenId ? tokenConfig.tokenId : getWrappedToken(tokenConfig).tokenId;
+      const config = tokenConfig.tokenId
+        ? tokenConfig.tokenId
+        : getWrappedToken(tokenConfig).tokenId;
 
       if (!config) {
         throw new Error('Could not retrieve target token info');
@@ -92,9 +95,18 @@ function ToInputs() {
   const warnings: React.ReactNode[] = [];
   if (isDestinationTokenDeployed === false) {
     warnings.push(
-      (<Typography>
-        This token is not registered, you must <Link target={'_blank'} variant='inherit' href="https://www.portalbridge.com/ #/register">register</Link> it before you continue. Newly registered tokens will not have liquid markets.
-      </Typography>)
+      <Typography>
+        This token is not registered, you must{' '}
+        <Link
+          target={'_blank'}
+          variant="inherit"
+          href="https://www.portalbridge.com/ #/register"
+        >
+          register
+        </Link>{' '}
+        it before you continue. Newly registered tokens will not have liquid
+        markets.
+      </Typography>,
     );
   }
 
