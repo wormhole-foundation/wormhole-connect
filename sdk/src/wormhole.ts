@@ -15,8 +15,8 @@ import {
   ParsedRelayerMessage,
   ParsedMessage,
 } from './types';
-import { EthContext } from './contexts/ethContext';
-import { SolanaContext } from './contexts/solanaContext';
+import { EthContext } from './contexts/eth';
+import { SolanaContext } from './contexts/solana';
 import { TokenId } from './types';
 
 /**

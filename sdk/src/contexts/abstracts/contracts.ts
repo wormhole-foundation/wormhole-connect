@@ -1,5 +1,5 @@
-import { WormholeContext } from '../wormhole';
-import { ChainName, ChainId } from '../types';
+import { WormholeContext } from '../../wormhole';
+import { ChainName, ChainId } from '../../types';
 
 export abstract class ContractsAbstract<T extends WormholeContext> {
   protected abstract _contracts: Map<ChainName, any>;

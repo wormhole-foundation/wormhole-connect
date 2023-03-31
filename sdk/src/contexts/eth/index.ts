@@ -15,7 +15,6 @@ import {
 } from 'ethers';
 import { utils } from 'ethers';
 
-import { RelayerAbstract } from './abstracts';
 import {
   TokenId,
   ChainName,
@@ -23,11 +22,12 @@ import {
   NATIVE,
   ParsedRelayerMessage,
   ParsedMessage,
-} from '../types';
-import { WormholeContext } from '../wormhole';
-import { EthContracts } from '../contracts/ethContracts';
-import { hexlify } from 'ethers/lib/utils';
-import { parseVaa } from '../vaa';
+} from '../../types';
+import { WormholeContext } from '../../wormhole';
+import { EthContracts } from './contracts';
+import { parseVaa } from '../../vaa';
+import { RelayerAbstract } from '../abstracts/relayer';
+import { SolanaContext } from '../solana';
 
 export class EthContext<T extends WormholeContext> extends RelayerAbstract {
   protected contracts: EthContracts<T>;
@@ -137,14 +137,33 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
   ): Promise<ethers.PopulatedTransaction> {
     const destContext = this.context.getContext(recipientChain);
     const recipientChainId = this.context.toChainId(recipientChain);
+    const sendingChainName = this.context.toChainName(sendingChain);
     const amountBN = ethers.BigNumber.from(amount);
     const bridge = this.contracts.mustGetBridge(sendingChain);
+
+    let recipientAccount = recipientAddress;
+    // get token account for solana
+    if (recipientChainId === 1) {
+      let tokenId = token;
+      if (token === NATIVE) {
+        tokenId = {
+          address: await bridge.WETH(),
+          chain: sendingChainName,
+        };
+      }
+      const account = await (
+        destContext as SolanaContext<WormholeContext>
+      ).getAssociatedTokenAccount(tokenId as TokenId, recipientAddress);
+      if (!account)
+        throw new Error('associated token account does not exist for solana');
+      recipientAccount = account.toString();
+    }
 
     if (token === NATIVE) {
       // sending native ETH
       await bridge.callStatic.wrapAndTransferETH(
         recipientChainId,
-        destContext.formatAddress(recipientAddress),
+        destContext.formatAddress(recipientAccount),
         relayerFee,
         createNonce(),
         {
@@ -155,7 +174,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
       );
       return bridge.populateTransaction.wrapAndTransferETH(
         recipientChainId,
-        destContext.formatAddress(recipientAddress),
+        destContext.formatAddress(recipientAccount),
         relayerFee,
         createNonce(),
         {
@@ -173,7 +192,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
         tokenAddr,
         amountBN,
         recipientChainId,
-        destContext.formatAddress(recipientAddress),
+        destContext.formatAddress(recipientAccount),
         relayerFee,
         createNonce(),
         // overrides,
@@ -183,7 +202,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
         tokenAddr,
         amountBN,
         recipientChainId,
-        destContext.formatAddress(recipientAddress),
+        destContext.formatAddress(recipientAccount),
         relayerFee,
         createNonce(),
         // overrides,
@@ -453,7 +472,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
           tokenAddress: tokenContext.parseAddress(parsedTransfer.tokenAddress),
           tokenChain: this.context.toChainName(parsedTransfer.tokenChain),
           sequence: parsed.args.sequence,
-          emitterAddress: hexlify(this.formatAddress(bridge.address)),
+          emitterAddress: utils.hexlify(this.formatAddress(bridge.address)),
           block: receipt.blockNumber,
         };
         return parsedMessage;
@@ -480,7 +499,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
         tokenAddress: this.parseAddress(parsedTransfer.tokenAddress),
         tokenChain: this.context.toChainName(parsedTransfer.tokenChain),
         sequence: parsed.args.sequence,
-        emitterAddress: hexlify(this.formatAddress(bridge.address)),
+        emitterAddress: utils.hexlify(this.formatAddress(bridge.address)),
         block: receipt.blockNumber,
         payload: parsedTransfer.payload,
         relayerPayloadId: parsedPayload.payloadId,

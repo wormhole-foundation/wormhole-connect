@@ -111,7 +111,7 @@ function SendTo() {
       throw new Error('invalid destination chain');
     }
     try {
-      if (networkConfig?.context === Context.ETH) {
+      if (networkConfig!.context === Context.ETH) {
         registerWalletSigner(txData.toChain, TransferWallet.RECEIVING);
         await switchNetwork(networkConfig.chainId, TransferWallet.RECEIVING);
       }

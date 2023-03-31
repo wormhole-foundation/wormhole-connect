@@ -1,27 +1,19 @@
 import {
   createNonce,
   getForeignAssetSolana,
+  redeemAndUnwrapOnSolana,
   redeemOnSolana,
 } from '@certusone/wormhole-sdk';
 import {
-  getTransferWrappedAccounts,
-  getTransferNativeAccounts,
-  createApproveAuthoritySignerInstruction,
-} from '@certusone/wormhole-sdk/lib/cjs/solana/tokenBridge';
-import { TokenBridge } from '@certusone/wormhole-sdk/lib/cjs/solana/types/tokenBridge';
-import {
-  getPostedMessage,
-  deriveWormholeEmitterKey,
-  getClaim,
-} from '@certusone/wormhole-sdk/lib/cjs/solana/wormhole';
-import { parseTokenTransferPayload, parseVaa } from '../vaa';
-import {
   ACCOUNT_SIZE,
+  ASSOCIATED_TOKEN_PROGRAM_ID,
   createCloseAccountInstruction,
   createInitializeAccountInstruction,
   getMinimumBalanceForRentExemptAccount,
   NATIVE_MINT,
   TOKEN_PROGRAM_ID,
+  getAssociatedTokenAddress,
+  getAccount,
 } from '@solana/spl-token';
 import {
   clusterApiUrl,
@@ -32,104 +24,46 @@ import {
   PublicKeyInitData,
   SystemProgram,
   Transaction,
-  TransactionInstruction,
 } from '@solana/web3.js';
-import { Program } from '@project-serum/anchor';
-import { BigNumber, BigNumberish, constants } from 'ethers';
+import { BigNumber, constants } from 'ethers';
 import { arrayify, zeroPad, hexlify } from 'ethers/lib/utils';
-import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
 
-import { BridgeAbstract } from './abstracts';
-import { TokenId, ChainName, ChainId, NATIVE, ParsedMessage } from '../types';
-import { SolContracts } from '../contracts/solContracts';
-import { WormholeContext } from '../wormhole';
+import MAINNET_CONFIG, { MAINNET_CHAINS } from '../../config/MAINNET';
+import {
+  parseTokenTransferPayload,
+  parseTokenTransferVaa,
+  parseVaa,
+} from '../../vaa';
+import {
+  TokenId,
+  ChainName,
+  ChainId,
+  NATIVE,
+  ParsedMessage,
+} from '../../types';
+import { SolContracts } from './contracts';
+import { WormholeContext } from '../../wormhole';
+import {
+  createTransferNativeInstruction,
+  createTransferWrappedInstruction,
+  createApproveAuthoritySignerInstruction,
+} from './solana/tokenBridge';
+import {
+  deriveWormholeEmitterKey,
+  getClaim,
+  getPostedMessage,
+} from './solana/wormhole';
+import { TokenBridgeAbstract } from '../abstracts/tokenBridge';
 
 const SOLANA_SEQ_LOG = 'Program log: Sequence: ';
+const SOLANA_CHAIN_NAME = MAINNET_CONFIG.chains.solana!.key;
 
-export function createTransferNativeInstruction(
-  tokenBridgeProgram: Program<TokenBridge>,
-  wormholeProgramId: PublicKeyInitData,
-  payer: PublicKeyInitData,
-  message: PublicKeyInitData,
-  from: PublicKeyInitData,
-  mint: PublicKeyInitData,
-  nonce: number,
-  amount: bigint,
-  fee: bigint,
-  targetAddress: Buffer | Uint8Array,
-  targetChain: number,
-): TransactionInstruction {
-  const methods = tokenBridgeProgram.methods.transferNative(
-    nonce,
-    amount as any,
-    fee as any,
-    Buffer.from(targetAddress) as any,
-    targetChain,
-  );
-  // @ts-ignore
-  return methods._ixFn(...methods._args, {
-    accounts: getTransferNativeAccounts(
-      tokenBridgeProgram.programId,
-      wormholeProgramId,
-      payer,
-      message,
-      from,
-      mint,
-    ) as any,
-    signers: undefined,
-    remainingAccounts: undefined,
-    preInstructions: undefined,
-    postInstructions: undefined,
-  });
-}
-
-export function createTransferWrappedInstruction(
-  tokenBridgeProgram: Program<TokenBridge>,
-  wormholeProgramId: PublicKeyInitData,
-  payer: PublicKeyInitData,
-  message: PublicKeyInitData,
-  from: PublicKeyInitData,
-  fromOwner: PublicKeyInitData,
-  tokenChain: number,
-  tokenAddress: Buffer | Uint8Array,
-  nonce: number,
-  amount: bigint,
-  fee: bigint,
-  targetAddress: Buffer | Uint8Array,
-  targetChain: number,
-): TransactionInstruction {
-  const methods = tokenBridgeProgram.methods.transferWrapped(
-    nonce,
-    amount as any,
-    fee as any,
-    Buffer.from(targetAddress) as any,
-    targetChain,
-  );
-
-  // @ts-ignore
-  return methods._ixFn(...methods._args, {
-    accounts: getTransferWrappedAccounts(
-      tokenBridgeProgram.programId,
-      wormholeProgramId,
-      payer,
-      message,
-      from,
-      fromOwner,
-      tokenChain,
-      tokenAddress,
-    ) as any,
-    signers: undefined,
-    remainingAccounts: undefined,
-    preInstructions: undefined,
-    postInstructions: undefined,
-  });
-}
-
-export class SolanaContext<T extends WormholeContext> extends BridgeAbstract {
+export class SolanaContext<
+  T extends WormholeContext,
+> extends TokenBridgeAbstract {
   protected contracts: SolContracts<T>;
   readonly context: T;
   connection: Connection | undefined;
-  wallet: Wallet | undefined;
 
   constructor(context: T) {
     super();
@@ -154,6 +88,11 @@ export class SolanaContext<T extends WormholeContext> extends BridgeAbstract {
     if (!mint) throw new Error('could not fetch token details');
     const { decimals } = (mint as any).value.data.parsed.info;
     return decimals;
+  }
+
+  async getTokenAccountOwner(tokenAddr: string): Promise<string> {
+    const token = await getAccount(this.connection!, new PublicKey(tokenAddr));
+    return token.owner.toString();
   }
 
   async getNativeBalance(
@@ -192,6 +131,23 @@ export class SolanaContext<T extends WormholeContext> extends BridgeAbstract {
     return BigNumber.from(balance.value.amount);
   }
 
+  async getAssociatedTokenAccount(token: TokenId, account: PublicKeyInitData) {
+    let solAddr;
+    try {
+      solAddr = await this.getForeignAsset(token, SOLANA_CHAIN_NAME);
+    } catch (e) {
+      return null;
+    }
+    const associatedAddress = await getAssociatedTokenAddress(
+      new PublicKey(solAddr),
+      new PublicKey(account),
+      undefined,
+      TOKEN_PROGRAM_ID,
+      ASSOCIATED_TOKEN_PROGRAM_ID,
+    );
+    return associatedAddress;
+  }
+
   private async transferNativeSol(
     senderAddress: PublicKeyInitData,
     amount: bigint,
@@ -202,8 +158,11 @@ export class SolanaContext<T extends WormholeContext> extends BridgeAbstract {
     commitment?: Commitment,
   ): Promise<Transaction> {
     if (!this.connection) throw new Error('no connection');
-    const core = this.contracts.mustGetCore();
-    const tokenBridge = this.contracts.mustGetBridge();
+    const contracts = this.contracts.mustGetContracts(SOLANA_CHAIN_NAME);
+    if (!contracts.core || !contracts.token_bridge) {
+      throw new Error('contracts not found');
+    }
+
     const rentBalance = await getMinimumBalanceForRentExemptAccount(
       this.connection,
       commitment,
@@ -235,7 +194,7 @@ export class SolanaContext<T extends WormholeContext> extends BridgeAbstract {
 
     //Normal approve & transfer instructions, except that the wSOL is sent from the ancillary account.
     const approvalIx = createApproveAuthoritySignerInstruction(
-      tokenBridge.programId,
+      contracts.token_bridge,
       ancillaryKeypair.publicKey,
       payerPublicKey,
       amount,
@@ -244,8 +203,9 @@ export class SolanaContext<T extends WormholeContext> extends BridgeAbstract {
     const message = Keypair.generate();
     const nonce = createNonce().readUInt32LE(0);
     const tokenBridgeTransferIx = createTransferNativeInstruction(
-      tokenBridge,
-      core.programId,
+      this.connection,
+      contracts.token_bridge,
+      contracts.core,
       senderAddress,
       message.publicKey,
       ancillaryKeypair.publicKey,
@@ -294,8 +254,10 @@ export class SolanaContext<T extends WormholeContext> extends BridgeAbstract {
     commitment?: Commitment,
   ): Promise<Transaction> {
     if (!this.connection) throw new Error('no connection');
-    const core = this.contracts.mustGetCore();
-    const tokenBridge = this.contracts.mustGetBridge();
+    const contracts = this.contracts.mustGetContracts(SOLANA_CHAIN_NAME);
+    if (!contracts.core || !contracts.token_bridge) {
+      throw new Error('contracts not found');
+    }
 
     const recipientChainId = this.context.toChainId(recipientChain);
     if (fromOwnerAddress === undefined) {
@@ -303,7 +265,7 @@ export class SolanaContext<T extends WormholeContext> extends BridgeAbstract {
     }
     const nonce = createNonce().readUInt32LE(0);
     const approvalIx = createApproveAuthoritySignerInstruction(
-      tokenBridge.programId,
+      contracts.token_bridge,
       fromAddress,
       new PublicKey(fromOwnerAddress),
       amount,
@@ -311,8 +273,9 @@ export class SolanaContext<T extends WormholeContext> extends BridgeAbstract {
     const message = Keypair.generate();
 
     const tokenBridgeTransferIx = createTransferWrappedInstruction(
-      tokenBridge,
-      core.programId,
+      this.connection,
+      contracts.token_bridge,
+      contracts.core,
       senderAddress,
       message.publicKey,
       fromAddress,
@@ -372,7 +335,7 @@ export class SolanaContext<T extends WormholeContext> extends BridgeAbstract {
       const formattedTokenAddr = arrayify(
         destContext.formatAddress(destTokenAddr),
       );
-      const solTokenAddr = await this.getForeignAsset(token, 'solana');
+      const solTokenAddr = await this.getForeignAsset(token, SOLANA_CHAIN_NAME);
       const splToken = await this.connection.getTokenAccountsByOwner(
         new PublicKey(senderAddress),
         { mint: new PublicKey(solTokenAddr) },
@@ -427,7 +390,7 @@ export class SolanaContext<T extends WormholeContext> extends BridgeAbstract {
       const formattedTokenAddr = arrayify(
         destContext.formatAddress(token.address),
       );
-      const solTokenAddr = await this.getForeignAsset(token, 'solana');
+      const solTokenAddr = await this.getForeignAsset(token, SOLANA_CHAIN_NAME);
       console.log('solana token addr', solTokenAddr);
       const splToken = await this.connection.getTokenAccountsByOwner(
         new PublicKey(senderAddress),
@@ -495,7 +458,7 @@ export class SolanaContext<T extends WormholeContext> extends BridgeAbstract {
     chain: ChainName | ChainId,
   ): Promise<ParsedMessage[]> {
     if (!this.connection) throw new Error('no connection');
-    const contracts = this.contracts.mustGetContracts('solana');
+    const contracts = this.contracts.mustGetContracts(SOLANA_CHAIN_NAME);
     if (!contracts.core || !contracts.token_bridge)
       throw new Error('contracts not found');
     const response = await this.connection.getTransaction(tx);
@@ -563,48 +526,41 @@ export class SolanaContext<T extends WormholeContext> extends BridgeAbstract {
     return [parsedMessage];
   }
 
-  // TODO:
-  async approve(
-    chain: ChainName | ChainId,
-    contractAddress: string,
-    token: string,
-    amount?: BigNumberish,
-    overrides?: any,
-  ): Promise<Transaction | void> {
-    console.log(
-      'not implemented',
-      chain,
-      contractAddress,
-      token,
-      amount,
-      overrides,
-    );
-  }
-
-  // TODO: can we get receiving address from VAA?
   async redeem(
     destChain: ChainName | ChainId,
     signedVAA: Uint8Array,
     overrides: any,
-    receivingAddr?: PublicKeyInitData,
+    payerAddr?: PublicKeyInitData,
   ): Promise<any> {
-    if (!receivingAddr)
+    if (!payerAddr)
       throw new Error(
         'receiving wallet address required for redeeming on Solana',
       );
     if (!this.connection) throw new Error('no connection');
-    const contracts = this.contracts.mustGetContracts('solana');
+    const contracts = this.contracts.mustGetContracts(SOLANA_CHAIN_NAME);
     if (!contracts.core || !contracts.token_bridge) {
       throw new Error('contracts not found for solana');
     }
 
-    return await redeemOnSolana(
-      this.connection,
-      contracts.core,
-      contracts.token_bridge,
-      receivingAddr,
-      signedVAA,
-    );
+    const parsed = parseTokenTransferVaa(signedVAA);
+    const tokenChain = parsed.tokenChain;
+    if (tokenChain === MAINNET_CHAINS.solana) {
+      return await redeemAndUnwrapOnSolana(
+        this.connection,
+        contracts.core,
+        contracts.token_bridge,
+        payerAddr,
+        signedVAA,
+      );
+    } else {
+      return await redeemOnSolana(
+        this.connection,
+        contracts.core,
+        contracts.token_bridge,
+        payerAddr,
+        signedVAA,
+      );
+    }
   }
 
   async isTransferCompleted(
