@@ -169,7 +169,7 @@ function Send(props: { valid: boolean }) {
       {!!props.valid && (
         <AlertBanner
           show={!!props.valid && destGasPayment === PaymentOption.MANUAL}
-          text="This transfer will require two transactions - one on the source chain and one on the destination chain."
+          content="This transfer will require two transactions - one on the source chain and one on the destination chain."
           warning
           margin="0 0 16px 0"
         />
@@ -177,7 +177,7 @@ function Send(props: { valid: boolean }) {
 
       <AlertBanner
         show={!!sendError}
-        text={sendError}
+        content={sendError}
         error
         margin="0 0 16px 0"
       />

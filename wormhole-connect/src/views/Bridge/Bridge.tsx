@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
-import { BigNumber } from 'ethers';
+import { BigNumber, constants } from 'ethers';
 import { useDispatch } from 'react-redux';
 import { RootState } from '../../store';
 import {
@@ -11,7 +11,7 @@ import {
   setDestGasPayment,
   setToken,
 } from '../../store/transfer';
-import { getNativeBalance, PaymentOption } from '../../sdk';
+import { getForeignAsset, getNativeBalance, PaymentOption } from '../../sdk';
 import { CHAINS, TOKENS } from '../../config';
 import { isTransferValid, validate } from '../../utils/transferValidation';
 
@@ -26,6 +26,7 @@ import ToNetworksModal from './Modals/ToNetworksModal';
 import TokensModal from './Modals/TokensModal';
 import FromInputs from './Inputs.tsx/From';
 import ToInputs from './Inputs.tsx/To';
+import { getWrappedToken } from '../../utils';
 
 const useStyles = makeStyles()((theme) => ({
   bridgeContent: {
