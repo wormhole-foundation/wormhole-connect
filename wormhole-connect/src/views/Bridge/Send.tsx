@@ -32,6 +32,7 @@ import {
 import Button from '../../components/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 import AlertBanner from '../../components/AlertBanner';
+import { Link, Typography } from '@mui/material';
 
 function Send(props: { valid: boolean }) {
   const dispatch = useDispatch();
@@ -186,18 +187,31 @@ function Send(props: { valid: boolean }) {
           Connect to {displayWalletAddress(sending.type, sending.address)}
         </Button>
       ) : (
-        <Button
-          onClick={send}
-          action={props.valid}
-          disabled={isTransactionInProgress}
-          elevated
-        >
-          {isTransactionInProgress ? (
-            <CircularProgress size={22} />
-          ) : (
-            'Approve and proceed with transaction'
-          )}
-        </Button>
+        <>
+          <div style={{ marginBottom: 5 }}>
+            <Typography variant='caption'>
+              By proceeding, you agree to the{' '}
+              <Link
+                onClick={() => dispatch(setRoute('terms')) }
+                href="#"
+              >
+                Terms of Service
+              </Link>
+            </Typography>
+          </div>
+          <Button
+            onClick={send}
+            action={props.valid}
+            disabled={isTransactionInProgress}
+            elevated
+          >
+            {isTransactionInProgress ? (
+              <CircularProgress size={22} />
+            ) : (
+              'Approve and proceed with transaction'
+            )}
+          </Button>
+        </>
       )}
     </div>
   );

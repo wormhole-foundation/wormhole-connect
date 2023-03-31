@@ -1,6 +1,7 @@
 import React from 'react';
 import { makeStyles } from 'tss-react/mui';
 import PageHeader from '../components/PageHeader';
+import PoweredByIcon from '../icons/PoweredBy';
 
 const useStyles = makeStyles()((theme) => ({
   terms: {
@@ -17,6 +18,13 @@ const useStyles = makeStyles()((theme) => ({
     gap: '8px',
     fontWeight: '300',
   },
+  poweredBy: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '8px',
+    marginTop: '16px',
+  }
 }));
 
 function Terms() {
@@ -28,16 +36,18 @@ function Terms() {
         <div>Disclaimer:</div>
 
         <div>
-          This SDK is an open source software SDK that leverages the Wormhole
-          protocol, a cross chain messaging protocol. The SDK does not process
-          payments. THIS SDK AND THE WORMHOLE PROTOCOL ARE PROVIDED "AS IS", AT
-          YOUR OWN RISK, AND WITHOUT WARRANTIES OF ANY KIND. By using or
-          accessing this SDK or Wormhole, you agree that no developer or entity
-          involved in creating, deploying, maintaining, operating this SDK or
-          Wormhole, or causing or supporting any of the foregoing, will be
-          liable in any manner for any claims or damages whatsoever associated
-          with your use, inability to use, or your interaction with other users
-          of, this SDK or Wormhole, or this SDK or Wormhole themselves,
+          The operator (the "Operator") of this website or mobile application
+          has implemented, deployed, and is operating open source software (the
+          "SDK") that overlays the Wormhole protocol, a cross chain messaging
+          protocol. THIS SDK AND THE WORMHOLE PROTOCOL ARE MADE AVAILABLE "AS
+          IS", AT YOUR OWN RISK, AND WITHOUT WARRANTIES OF ANY KIND. By using or
+          accessing this SDK or the Wormhole protocol, you and the Operator
+          agree that no developer or entity involved in creating, deploying,
+          maintaining, operating this SDK or the Wormhole protocol, or causing
+          or supporting any of the foregoing, will be liable in any manner for
+          any claims or damages whatsoever associated with your use, inability
+          to use, or your interaction with other users of this SDK or the
+          Wormhole protocol, or this SDK or the Wormhole protocol themselves,
           including any direct, indirect, incidental, special, exemplary,
           punitive or consequential damages, or loss of profits,
           cryptocurrencies, tokens, or anything else of value. By using or
@@ -59,11 +69,15 @@ function Terms() {
           parties; (c) you may not have ready access to assets; and (d) you may
           lose some or all of your tokens or other assets. You agree that you
           will have no recourse against anyone else for any losses due to the
-          use of the SDK or Wormhole. For example, these losses may arise from
-          or relate to: (i) incorrect information; (ii) software or network
-          failures; (iii) corrupted cryptocurrency wallet files; (iv)
+          use of the SDK or the Wormhole protocol. For example, these losses may
+          arise from or relate to: (i) incorrect information; (ii) software or
+          network failures; (iii) corrupted cryptocurrency wallet files; (iv)
           unauthorized access; (v) errors, mistakes, or inaccuracies; or (vi)
           third-party activities.
+        </div>
+
+        <div className={classes.poweredBy}>
+          <PoweredByIcon color={'white'} />
         </div>
       </div>
     </div>
