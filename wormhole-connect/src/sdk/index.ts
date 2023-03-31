@@ -107,7 +107,8 @@ export const parseMessageFromTx = async (
     gasFee: parsed.gasFee ? parsed.gasFee.toString() : undefined,
   };
   // get wallet address of associated token account for Solana
-  if (parsed.toChainId === MAINNET_CHAINS.solana) {
+  const toChainId = wh.toChainId(parsed.toChain);
+  if (toChainId === MAINNET_CHAINS.solana) {
     const accountOwner = await getSolTokenAccountOwner(parsed.recipient);
     base.recipient = accountOwner;
   }
