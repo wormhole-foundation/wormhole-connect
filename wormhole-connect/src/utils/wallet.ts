@@ -118,7 +118,7 @@ export const watchAsset = async (asset: AssetInfo, type: TransferWallet) => {
   if (!w || !w.watchAsset) return;
   await w.watchAsset({
     type: 'ERC20',
-    options: asset
+    options: asset,
   });
 };
 

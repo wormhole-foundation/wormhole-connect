@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useMemo } from 'react';
 import InputContainer from '../../components/InputContainer';
 import Button from '../../components/Button';
 import Spacer from '../../components/Spacer';
@@ -9,27 +9,19 @@ import { getWrappedToken } from '../../utils';
 import { makeStyles } from 'tss-react/mui';
 import { Link, Typography } from '@mui/material';
 import TokenIcon from '../../icons/TokenIcons';
-import { ChainName, coalesceChainId, isEVMChain } from '@xlabs-libs/wallet-aggregator-core';
-import { TransferWallet, watchAsset } from '../../utils/wallet';
-import { TestnetChainName } from '@wormhole-foundation/wormhole-connect-sdk/dist/src/config/TESTNET';
-import { MainnetChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+import {
+  ChainName,
+  coalesceChainId,
+  isEVMChain,
+} from '@xlabs-libs/wallet-aggregator-core';
+import { switchNetwork, TransferWallet, watchAsset } from '../../utils/wallet';
 import { getForeignAsset } from '../../sdk';
+import { TESTNET_TO_MAINNET_CHAIN_NAMES } from '@wormhole-foundation/wormhole-connect-sdk';
 
 type Props = {
   ctaText: string;
   cta?: React.MouseEventHandler<HTMLDivElement>;
 };
-
-const TESTNET_CHAIN_NAMES: { [k in TestnetChainName]: MainnetChainName} = {
-  'goerli': 'ethereum',
-  'fuji': 'avalanche',
-  'mumbai': 'polygon',
-  'alfajores': 'celo',
-  'moonbasealpha': 'moonbeam',
-  'solana': 'solana',
-  'bsc': 'bsc',
-  'fantom': 'fantom'
-}
 
 const useStyles = makeStyles()((theme) => ({
   addToken: {
@@ -41,7 +33,7 @@ const useStyles = makeStyles()((theme) => ({
   },
   addTokenLink: {
     textDecoration: 'underline',
-  }
+  },
 }));
 
 function CTA(props: Props) {
@@ -50,23 +42,44 @@ function CTA(props: Props) {
   const txData = useSelector((state: RootState) => state.redeem.txData)!;
 
   const tokenInfo = TOKENS[txData.tokenSymbol];
-  const targetToken = getWrappedToken(tokenInfo);
+  const targetToken = useMemo(() => {
+    try {
+      return getWrappedToken(tokenInfo);
+    } catch (e) {
+      console.error('Failed to retrieve wrapped token', e);
+    }
+  }, [tokenInfo]);
 
-  const chainName = isProduction ? txData.toChain as ChainName : TESTNET_CHAIN_NAMES[txData.toChain];
+  const chainName = isProduction
+    ? (txData.toChain as ChainName)
+    : TESTNET_TO_MAINNET_CHAIN_NAMES[txData.toChain];
   const chainId = coalesceChainId(chainName);
+  const canAddAsset = isEVMChain(chainId) && targetToken && targetToken.tokenId;
 
   const addToWallet = async () => {
-    const targetAddress = await getForeignAsset(targetToken.tokenId!, txData.toChain);
-    watchAsset({
-      address: targetAddress,
-      symbol: targetToken.symbol,
-      decimals: targetToken.decimals,
-      // evm chain id
-      chainId: CHAINS[targetToken.nativeNetwork]?.chainId,
-    }, TransferWallet.RECEIVING)
-  };
+    if (!targetToken) return;
 
-  const canAddAsset = isEVMChain(chainId) && targetToken.tokenId;
+    // when using the automatic relay method the user may still have their wallet
+    // configured to the source chain instead of the destination chain
+    const evmChainId = CHAINS[txData.toChain]?.chainId;
+    if (!evmChainId) return;
+    await switchNetwork(evmChainId, TransferWallet.RECEIVING);
+
+    const targetAddress = await getForeignAsset(
+      targetToken.tokenId!,
+      txData.toChain,
+    );
+    watchAsset(
+      {
+        address: targetAddress,
+        symbol: targetToken.symbol,
+        decimals: targetToken.decimals,
+        // evm chain id
+        chainId: CHAINS[targetToken.nativeNetwork]?.chainId,
+      },
+      TransferWallet.RECEIVING,
+    );
+  };
 
   return (
     <div>
@@ -76,7 +89,7 @@ function CTA(props: Props) {
           Click the button below to begin using your new Wormhole assets.
         </div>
         {canAddAsset ? (
-          <Link onClick={addToWallet} href='#' className={classes.addTokenLink}>
+          <Link onClick={addToWallet} href="#" className={classes.addTokenLink}>
             <Typography className={classes.addToken}>
               Add
               <TokenIcon height={20} name={targetToken.icon} />

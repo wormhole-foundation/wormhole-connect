@@ -1,9 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { ParsedVaa } from 'utils/vaa';
-import {
-  ParsedMessage,
-  ParsedRelayerMessage,
-} from '../sdk';
+import { ParsedMessage, ParsedRelayerMessage } from '../sdk';
 
 export enum MessageType {
   BRIDGE = 1,
