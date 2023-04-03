@@ -88,7 +88,7 @@ export const getNativeBalance = async (
 export const parseMessageFromTx = async (
   tx: string,
   chain: ChainName | ChainId,
-) => {
+): Promise<ParsedMessage | ParsedRelayerMessage | undefined> => {
   const parsed: any = (await wh.parseMessageFromTx(tx, chain))[0];
 
   const tokenId = {
@@ -98,7 +98,7 @@ export const parseMessageFromTx = async (
   const decimals = await fetchTokenDecimals(tokenId, parsed.fromChain);
   const token = getTokenById(tokenId);
 
-  const base = {
+  const base: ParsedMessage = {
     ...parsed,
     amount: parsed.amount.toString(),
     tokenSymbol: token?.symbol,

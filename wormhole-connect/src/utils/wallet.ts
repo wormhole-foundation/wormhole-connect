@@ -34,6 +34,13 @@ export enum WalletType {
   SOLFLARE,
 }
 
+interface AssetInfo {
+  address: string;
+  symbol: string;
+  decimals: number;
+  chainId?: number;
+}
+
 let walletConnection = {
   sending: undefined as Wallet | undefined,
   receiving: undefined as Wallet | undefined,
@@ -103,6 +110,16 @@ export const disconnect = async (type: TransferWallet) => {
   const w = walletConnection[type]! as any;
   if (!w) return;
   await w.disconnect();
+};
+
+export const watchAsset = async (asset: AssetInfo, type: TransferWallet) => {
+  const w = walletConnection[type]! as EVMWallet;
+  // check in case the actual type is not EVMWallet
+  if (!w || !w.watchAsset) return;
+  await w.watchAsset({
+    type: 'ERC20',
+    options: asset
+  });
 };
 
 export const signSolanaTransaction = async (
