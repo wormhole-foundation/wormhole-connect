@@ -61,7 +61,6 @@ function Send(props: { valid: boolean }) {
   const { sending, receiving } = wallets;
   const transfer = useSelector((state: RootState) => state.transfer);
   const {
-    validate: showErrors,
     validations,
     fromNetwork,
     toNetwork,
