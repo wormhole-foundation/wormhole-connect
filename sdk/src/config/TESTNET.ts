@@ -1,6 +1,5 @@
 import { Network as Environment, CONTRACTS } from '@certusone/wormhole-sdk';
 import { WormholeConfig, Context, ChainConfig, Contracts } from '../types';
-import { MainnetChainName } from './MAINNET';
 
 // https://book.wormhole.com/reference/contracts.html
 export const TESTNET_CHAINS = {
@@ -117,19 +116,6 @@ const TESTNET_CONFIG: WormholeConfig = {
     moonbasealpha: 'https://moonbase-alpha.public.blastapi.io',
   },
   chains: TESTNET,
-};
-
-export const TESTNET_TO_MAINNET_CHAIN_NAMES: {
-  [k in TestnetChainName]: MainnetChainName;
-} = {
-  goerli: 'ethereum',
-  fuji: 'avalanche',
-  mumbai: 'polygon',
-  alfajores: 'celo',
-  moonbasealpha: 'moonbeam',
-  solana: 'solana',
-  bsc: 'bsc',
-  fantom: 'fantom',
 };
 
 export default TESTNET_CONFIG;

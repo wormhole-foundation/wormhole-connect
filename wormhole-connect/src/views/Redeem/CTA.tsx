@@ -4,7 +4,12 @@ import Button from '../../components/Button';
 import Spacer from '../../components/Spacer';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
-import { CHAINS, isProduction, TOKENS } from '../../config';
+import {
+  CHAINS,
+  isProduction,
+  TESTNET_TO_MAINNET_CHAIN_NAMES,
+  TOKENS,
+} from '../../config';
 import { getWrappedToken } from '../../utils';
 import { makeStyles } from 'tss-react/mui';
 import { Link, Typography } from '@mui/material';
@@ -16,7 +21,6 @@ import {
 } from '@xlabs-libs/wallet-aggregator-core';
 import { switchNetwork, TransferWallet, watchAsset } from '../../utils/wallet';
 import { getForeignAsset } from '../../sdk';
-import { TESTNET_TO_MAINNET_CHAIN_NAMES } from '@wormhole-foundation/wormhole-connect-sdk';
 
 type Props = {
   ctaText: string;
@@ -91,9 +95,8 @@ function CTA(props: Props) {
         {canAddAsset ? (
           <Link onClick={addToWallet} href="#" className={classes.addTokenLink}>
             <Typography className={classes.addToken}>
-              Add
               <TokenIcon height={20} name={targetToken.icon} />
-              {targetToken.symbol} to your wallet
+              Add {targetToken.symbol} to your wallet
             </Typography>
           </Link>
         ) : (
