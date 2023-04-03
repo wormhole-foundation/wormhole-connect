@@ -1,7 +1,6 @@
 import React from 'react';
 import { makeStyles } from 'tss-react/mui';
 import PageHeader from '../components/PageHeader';
-import PoweredByIcon from '../icons/PoweredBy';
 
 const useStyles = makeStyles()((theme) => ({
   terms: {
@@ -17,13 +16,6 @@ const useStyles = makeStyles()((theme) => ({
     flexDirection: 'column',
     gap: '8px',
     fontWeight: '300',
-  },
-  poweredBy: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: '8px',
-    marginTop: '16px',
   }
 }));
 
@@ -74,10 +66,6 @@ function Terms() {
           network failures; (iii) corrupted cryptocurrency wallet files; (iv)
           unauthorized access; (v) errors, mistakes, or inaccuracies; or (vi)
           third-party activities.
-        </div>
-
-        <div className={classes.poweredBy}>
-          <PoweredByIcon color={'white'} />
         </div>
       </div>
     </div>

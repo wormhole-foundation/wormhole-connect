@@ -33,8 +33,29 @@ import Button from '../../components/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 import AlertBanner from '../../components/AlertBanner';
 import { Link, Typography } from '@mui/material';
+import { makeStyles } from 'tss-react/mui';
+import PoweredByIcon from '../../icons/PoweredBy';
+
+
+const useStyles = makeStyles()((theme) => ({
+  body: {
+    width: '100%'
+  },
+  poweredBy: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '8px',
+    marginTop: '24px',
+  },
+  tosDisclaimer: {
+    marginBottom: 5,
+    marginLeft: 16
+  }
+}));
 
 function Send(props: { valid: boolean }) {
+  const { classes } = useStyles();
   const dispatch = useDispatch();
   const wallets = useSelector((state: RootState) => state.wallet);
   const { sending, receiving } = wallets;
@@ -166,7 +187,7 @@ function Send(props: { valid: boolean }) {
   }, [sending]);
 
   return (
-    <div style={{ width: '100%' }}>
+    <div className={classes.body}>
       {!!props.valid && (
         <AlertBanner
           show={!!props.valid && destGasPayment === PaymentOption.MANUAL}
@@ -188,7 +209,7 @@ function Send(props: { valid: boolean }) {
         </Button>
       ) : (
         <>
-          <div style={{ marginBottom: 5 }}>
+          <div className={classes.tosDisclaimer}>
             <Typography variant='caption'>
               By proceeding, you agree to the{' '}
               <Link
@@ -213,6 +234,10 @@ function Send(props: { valid: boolean }) {
           </Button>
         </>
       )}
+
+      <div className={classes.poweredBy}>
+        <PoweredByIcon color={'white'} />
+      </div>
     </div>
   );
 }
