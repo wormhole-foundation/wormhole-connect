@@ -13,6 +13,7 @@ import { getTokenById, getTokenDecimals, getWrappedTokenId } from '../utils';
 import { TOKENS, WH_CONFIG } from '../config';
 import { postVaa, signSolanaTransaction, TransferWallet } from 'utils/wallet';
 import { toFixedDecimals } from 'utils/balance';
+import { GAS_ESTIMATES } from 'config/testnet';
 
 export enum PaymentOption {
   MANUAL = 1,
@@ -191,69 +192,39 @@ export const sendTransfer = async (
 
 export const estimateGasFee = async (
   token: TokenId | 'native',
-  amount: string,
   fromNetwork: ChainName | ChainId,
-  fromAddress: string,
-  toNetwork: ChainName | ChainId,
-  toAddress: string,
   paymentOption: PaymentOption,
-  toNativeToken?: string,
 ): Promise<string> => {
-  console.log('estimating fees');
   const fromChainId = wh.toChainId(fromNetwork);
-  const decimals = getTokenDecimals(fromChainId, token);
-  const parsedAmt = utils.parseUnits(amount, decimals);
-  const context = wh.getContext(fromNetwork) as any;
-  const provider = wh.mustGetProvider(fromNetwork);
+  const fromChainName = wh.toChainName(fromNetwork);
+  const sendNative = token === 'native';
+  const gasEstimates = GAS_ESTIMATES[fromChainName]!;
+  // Solana gas estimates
   if (fromChainId === MAINNET_CHAINS.solana) {
-    // const connection = context.connection;
-    // if (!connection) throw new Error('no connection');
-    // const tx = await context.send(
-    //   token,
-    //   parsedAmt.toString(),
-    //   fromNetwork,
-    //   fromAddress,
-    //   toNetwork,
-    //   toAddress,
-    //   undefined,
-    // );
-    // const fees = await tx.getEstimatedFee(connection);
-    // const parsed = utils.parseUnits(`${fees}`, 9).toString();
-    // return toFixedDecimals(parsed, 6);
-    // right now, there's just a flat cost for bridge transfers from solana
-    return '0.000015';
+    return toFixedDecimals(utils.formatEther(gasEstimates.sendToken), 6);
+  }
+
+  // EVM gas estimates
+  const provider = wh.mustGetProvider(fromNetwork);
+  const { gasPrice } = await provider.getFeeData();
+  if (!gasPrice)
+    throw new Error('gas price not available, cannot estimate fees');
+  if (paymentOption === PaymentOption.MANUAL) {
+    const gasEst = sendNative
+      ? gasEstimates.sendNative
+      : gasEstimates.sendToken;
+    const gasFees = BigNumber.from(gasEst).mul(gasPrice);
+    return toFixedDecimals(utils.formatEther(gasFees), 6);
   } else {
-    const gasPrice = await provider.getGasPrice();
-    if (paymentOption === PaymentOption.MANUAL) {
-      const tx = await context.prepareSend(
-        token,
-        parsedAmt.toString(),
-        fromNetwork,
-        fromAddress,
-        toNetwork,
-        toAddress,
-        undefined,
+    const gasEst = sendNative
+      ? gasEstimates.sendNativeWithRelay
+      : gasEstimates.sendTokenWithRelay;
+    if (!gasEst)
+      throw new Error(
+        `gas estimate not configured for relay from ${fromChainName}`,
       );
-      const est = await provider.estimateGas(tx);
-      const gasFee = est.mul(gasPrice);
-      return toFixedDecimals(utils.formatEther(gasFee), 6);
-    } else {
-      const parsedNativeAmt = toNativeToken
-        ? utils.parseUnits(toNativeToken, decimals).toString()
-        : '0';
-      const tx = await context.prepareSendWithRelay(
-        token,
-        parsedAmt.toString(),
-        parsedNativeAmt,
-        fromNetwork,
-        fromAddress,
-        toNetwork,
-        toAddress,
-      );
-      const est = await provider.estimateGas(tx);
-      const gasFee = est.mul(gasPrice);
-      return toFixedDecimals(utils.formatEther(gasFee), 6);
-    }
+    const gasFees = BigNumber.from(gasEst).mul(gasPrice);
+    return toFixedDecimals(utils.formatEther(gasFees), 6);
   }
 };
 
