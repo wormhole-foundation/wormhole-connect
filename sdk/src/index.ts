@@ -1,6 +1,12 @@
 import TESTNET_CONFIG from './config/TESTNET';
 import MAINNET_CONFIG from './config/MAINNET';
 
+export type {
+  TestnetChainId,
+  TestnetChainName,
+  ChainContracts as TestnetChainContracts,
+} from './config/TESTNET';
+
 export * from './types';
 export * from './config/MAINNET';
 export * from './wormhole';

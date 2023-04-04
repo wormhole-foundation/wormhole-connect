@@ -36,10 +36,9 @@ import { Link, Typography } from '@mui/material';
 import { makeStyles } from 'tss-react/mui';
 import PoweredByIcon from '../../icons/PoweredBy';
 
-
 const useStyles = makeStyles()((theme) => ({
   body: {
-    width: '100%'
+    width: '100%',
   },
   poweredBy: {
     display: 'flex',
@@ -50,8 +49,8 @@ const useStyles = makeStyles()((theme) => ({
   },
   tosDisclaimer: {
     marginBottom: 5,
-    marginLeft: 16
-  }
+    marginLeft: 16,
+  },
 }));
 
 function Send(props: { valid: boolean }) {
@@ -209,12 +208,9 @@ function Send(props: { valid: boolean }) {
       ) : (
         <>
           <div className={classes.tosDisclaimer}>
-            <Typography variant='caption'>
+            <Typography variant="caption">
               By proceeding, you agree to the{' '}
-              <Link
-                onClick={() => dispatch(setRoute('terms')) }
-                href="#"
-              >
+              <Link onClick={() => dispatch(setRoute('terms'))} href="#">
                 Terms of Service
               </Link>
             </Typography>

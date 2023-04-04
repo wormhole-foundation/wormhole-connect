@@ -16,7 +16,7 @@ const useStyles = makeStyles()((theme) => ({
     flexDirection: 'column',
     gap: '8px',
     fontWeight: '300',
-  }
+  },
 }));
 
 function Terms() {

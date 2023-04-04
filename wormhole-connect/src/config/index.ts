@@ -7,6 +7,10 @@ import { MAINNET_NETWORKS, MAINNET_TOKENS } from './mainnet';
 import { TESTNET_NETWORKS, TESTNET_TOKENS } from './testnet';
 import { TokenConfig, NetworkConfig } from './types';
 import { dark, light } from 'theme';
+import {
+  MainnetChainName,
+  TestnetChainName,
+} from '@wormhole-foundation/wormhole-connect-sdk';
 
 const el = document.getElementById('wormhole-connect');
 if (!el)
@@ -62,3 +66,16 @@ export const TOKENS_ARR =
 export const THEME_MODE = config && config.mode ? config.mode : 'dark';
 export const CUSTOM_THEME = config && config.customTheme;
 export const THEME = CUSTOM_THEME || THEME_MODE === 'dark' ? dark : light;
+
+export const TESTNET_TO_MAINNET_CHAIN_NAMES: {
+  [k in TestnetChainName]: MainnetChainName;
+} = {
+  goerli: 'ethereum',
+  fuji: 'avalanche',
+  mumbai: 'polygon',
+  alfajores: 'celo',
+  moonbasealpha: 'moonbeam',
+  solana: 'solana',
+  bsc: 'bsc',
+  fantom: 'fantom',
+};
