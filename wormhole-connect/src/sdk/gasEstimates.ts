@@ -32,7 +32,7 @@ const estimateGasFee = async (
   const gasEstimates = GAS_ESTIMATES[fromChainName]!;
   // Solana gas estimates
   if (fromChainId === MAINNET_CHAINS.solana) {
-    return toFixedDecimals(utils.formatEther(gasEstimates.sendToken), 6);
+    return toFixedDecimals(utils.formatUnits(gasEstimates.sendToken, 9), 6);
   }
 
   // EVM gas estimates
@@ -85,7 +85,7 @@ const getGasFeeFallback = async (
   const gasEstimates = GAS_ESTIMATES[fromChainName]!;
   // Solana gas estimates
   if (fromChainId === MAINNET_CHAINS.solana) {
-    return toFixedDecimals(utils.formatEther(gasEstimates.sendToken), 6);
+    return toFixedDecimals(utils.formatUnits(gasEstimates.sendToken, 9), 6);
   }
 
   // EVM gas estimates
@@ -148,7 +148,10 @@ export const estimateClaimFees = async (
   destChain: ChainName | ChainId,
 ): Promise<string> => {
   const destChainId = context.toChainId(destChain);
-  if (destChainId === MAINNET_CHAINS.solana) return '0.000025';
+  if (destChainId === MAINNET_CHAINS.solana) {
+    const gasEstimates = GAS_ESTIMATES['solana'];
+    return toFixedDecimals(utils.formatUnits(gasEstimates?.claim!, 9), 6);
+  }
 
   const provider = context.mustGetProvider(destChain);
   const gasPrice = await provider.getGasPrice();

@@ -287,8 +287,8 @@ export const GAS_ESTIMATES: GasEstimates = {
   mumbai: {
     sendNative: 200000,
     sendToken: 150000,
-    sendNativeWithRelay: 0,
-    sendTokenWithRelay: 0,
+    sendNativeWithRelay: 200000,
+    sendTokenWithRelay: 250000,
     claim: 200000,
   },
   bsc: {
@@ -327,8 +327,8 @@ export const GAS_ESTIMATES: GasEstimates = {
     claim: 200000,
   },
   solana: {
-    sendNative: 15,
-    sendToken: 15,
-    claim: 25,
+    sendNative: 15000,
+    sendToken: 15000,
+    claim: 25000,
   },
 };
