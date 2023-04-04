@@ -4,26 +4,27 @@ import {
   coalesceChainId,
   isEVMChain,
 } from '@xlabs-libs/wallet-aggregator-core';
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import {
   CHAINS,
-  isProduction,
   TESTNET_TO_MAINNET_CHAIN_NAMES,
   TOKENS,
+  isProduction,
 } from '../../config';
+import { MAINNET_NETWORKS } from '../../config/mainnet';
 import TokenIcon from '../../icons/TokenIcons';
 import { getForeignAsset } from '../../sdk';
 import { RootState } from '../../store';
-import { getWrappedToken } from '../../utils';
-import {
-  switchNetwork,
-  TransferWallet,
-  WalletType,
-  watchAsset,
-} from '../../utils/wallet';
 import { setWalletModal } from '../../store/router';
+import {
+  copyTextToClipboard,
+  displayAddress,
+  getWrappedToken,
+} from '../../utils';
+import { TransferWallet, switchNetwork, watchAsset } from '../../utils/wallet';
+import { TokenConfig } from '../../config/types';
 
 const useStyles = makeStyles()((theme) => ({
   addToken: {
@@ -38,7 +39,12 @@ const useStyles = makeStyles()((theme) => ({
   },
 }));
 
-function AddToWallet() {
+interface AddTokenProps {
+  token: TokenConfig;
+  address: string;
+}
+
+function AddToEVMWallet({ token, address }: AddTokenProps) {
   const dispatch = useDispatch();
   const { classes } = useStyles();
 
@@ -47,24 +53,7 @@ function AddToWallet() {
     (state: RootState) => state.wallet[TransferWallet.RECEIVING],
   );
 
-  const tokenInfo = TOKENS[txData.tokenSymbol];
-  const targetToken = useMemo(() => {
-    try {
-      return getWrappedToken(tokenInfo);
-    } catch (e) {
-      console.error('Failed to retrieve wrapped token', e);
-    }
-  }, [tokenInfo]);
-
-  const chainName = isProduction
-    ? (txData.toChain as ChainName)
-    : TESTNET_TO_MAINNET_CHAIN_NAMES[txData.toChain];
-  const chainId = coalesceChainId(chainName);
-  const canAddAsset = isEVMChain(chainId) && targetToken && targetToken.tokenId;
-
   const addToWallet = async () => {
-    if (!targetToken) return;
-
     if (!receiverWallet || !receiverWallet.address) {
       dispatch(setWalletModal(TransferWallet.RECEIVING));
       return;
@@ -76,32 +65,90 @@ function AddToWallet() {
     if (!evmChainId) return;
     await switchNetwork(evmChainId, TransferWallet.RECEIVING);
 
-    const targetAddress = await getForeignAsset(
-      targetToken.tokenId!,
-      txData.toChain,
-    );
     await watchAsset(
       {
-        address: targetAddress,
-        symbol: targetToken.symbol,
-        decimals: targetToken.decimals,
+        address: address,
+        symbol: token.symbol,
+        decimals: token.decimals,
         // evm chain id
-        chainId: CHAINS[targetToken.nativeNetwork]?.chainId,
+        chainId: CHAINS[token.nativeNetwork]?.chainId,
       },
       TransferWallet.RECEIVING,
     );
   };
 
-  return canAddAsset ? (
+  return (
     <Link onClick={addToWallet} href="#" className={classes.addTokenLink}>
       <Typography component={'span'} className={classes.addToken}>
-        <TokenIcon height={20} name={targetToken.icon} />
-        Add {targetToken.symbol} to your wallet
+        <TokenIcon height={20} name={token.icon} />
+        Add {token.symbol} to your wallet
       </Typography>
     </Link>
-  ) : (
-    <></>
   );
+}
+
+function AddToSolanaWallet({ token, address }: AddTokenProps) {
+  const { classes } = useStyles();
+
+  const copyTokenAddress = async function () {
+    await copyTextToClipboard(address);
+  };
+
+  return (
+    <Typography component={'span'} className={classes.addToken}>
+      <TokenIcon height={20} name={token.icon} />
+      Copy {token.symbol} token address:
+      <Link
+        onClick={copyTokenAddress}
+        href="#"
+        className={classes.addTokenLink}
+      >
+        {displayAddress('solana', address)}
+      </Link>
+    </Typography>
+  );
+}
+
+function AddToWallet() {
+  const txData = useSelector((state: RootState) => state.redeem.txData)!;
+
+  const [targetToken, setTargetToken] = useState<TokenConfig | undefined>(
+    undefined,
+  );
+  const [targetAddress, setTargetAddress] = useState<string | undefined>(
+    undefined,
+  );
+
+  useEffect(() => {
+    const fetchTokenInfo = async () => {
+      const tokenInfo = TOKENS[txData.tokenSymbol];
+      const wrapped = getWrappedToken(tokenInfo);
+      if (!wrapped.tokenId) return;
+      const address = await getForeignAsset(wrapped.tokenId, txData.toChain);
+
+      setTargetToken(wrapped);
+      setTargetAddress(address);
+    };
+
+    fetchTokenInfo().catch((err) =>
+      console.error('Failed to fetch token info', err),
+    );
+  }, [txData]);
+
+  const chainName = isProduction
+    ? (txData.toChain as ChainName)
+    : TESTNET_TO_MAINNET_CHAIN_NAMES[txData.toChain];
+  const chainId = coalesceChainId(chainName);
+
+  if (!targetToken || !targetAddress) return <></>;
+
+  if (isEVMChain(chainId)) {
+    return <AddToEVMWallet address={targetAddress} token={targetToken} />;
+  } else if (chainId === MAINNET_NETWORKS.solana?.id) {
+    return <AddToSolanaWallet address={targetAddress} token={targetToken} />;
+  }
+
+  return <></>;
 }
 
 export default AddToWallet;
