@@ -1,6 +1,5 @@
 import { Link, Typography } from '@mui/material';
 import {
-  ChainName,
   coalesceChainId,
   isEVMChain,
 } from '@xlabs-libs/wallet-aggregator-core';
@@ -25,6 +24,8 @@ import {
 } from '../../utils';
 import { TransferWallet, switchNetwork, watchAsset } from '../../utils/wallet';
 import { TokenConfig } from '../../config/types';
+import ExplorerLink from './ExplorerLink';
+import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 
 const useStyles = makeStyles()((theme) => ({
   addToken: {
@@ -90,21 +91,16 @@ function AddToEVMWallet({ token, address }: AddTokenProps) {
 function AddToSolanaWallet({ token, address }: AddTokenProps) {
   const { classes } = useStyles();
 
-  const copyTokenAddress = async function () {
-    await copyTextToClipboard(address);
-  };
-
   return (
-    <Typography component={'span'} className={classes.addToken}>
+    <Typography component={'span'} gap={2} className={classes.addToken}>
       <TokenIcon height={20} name={token.icon} />
-      Copy {token.symbol} token address:
-      <Link
-        onClick={copyTokenAddress}
-        href="#"
-        className={classes.addTokenLink}
-      >
-        {displayAddress('solana', address)}
-      </Link>
+      See {token.symbol} token on
+      <ExplorerLink
+        styles={{ marginLeft: 0 }}
+        network={'solana'}
+        type={'address'}
+        address={address}
+      />
     </Typography>
   );
 }

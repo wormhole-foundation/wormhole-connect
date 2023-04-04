@@ -3,11 +3,10 @@ import { makeStyles } from 'tss-react/mui';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { CHAINS } from '../../config';
 import { displayAddress } from '../../utils';
-import { LINK } from '../../utils/style';
 import WalletIcon from '../../icons/Wallet';
 import TokenIcon from '../../icons/TokenIcons';
 import CircularProgress from '@mui/material/CircularProgress';
-import LaunchIcon from '@mui/icons-material/Launch';
+import ExplorerLink from './ExplorerLink';
 
 const useStyles = makeStyles()((theme) => ({
   header: {
@@ -30,10 +29,6 @@ const useStyles = makeStyles()((theme) => ({
     height: '32px',
     width: '32px',
   },
-  link: {
-    ...LINK(theme),
-    transform: 'translateX(10px)',
-  },
 }));
 
 type Props = {
@@ -47,13 +42,6 @@ type Props = {
 function Header(props: Props) {
   const { classes } = useStyles();
   const networkConfig = CHAINS[props.network]!;
-  let explorerLink = `${networkConfig.explorerUrl}tx/${props.txHash}`;
-  if (
-    networkConfig.key === 'solana' &&
-    process.env.REACT_APP_ENV === 'TESTNET'
-  ) {
-    explorerLink += '?cluster=devnet';
-  }
   return (
     <div className={classes.header}>
       <div className={classes.left}>
@@ -67,15 +55,11 @@ function Header(props: Props) {
         <div>{props.error}</div>
       ) : (
         props.txHash && (
-          <a
-            className={classes.link}
-            href={explorerLink}
-            target="_blank"
-            rel="noreferrer"
-          >
-            <div>{networkConfig.explorerName}</div>
-            <LaunchIcon />
-          </a>
+          <ExplorerLink
+            network={props.network}
+            type={'tx'}
+            txHash={props.txHash}
+          />
         )
       )}
     </div>
