@@ -28,14 +28,18 @@ const estimateGasFee = async (
   const decimals = getTokenDecimals(fromChainId, token);
   const parsedAmt = utils.parseUnits(amount, decimals);
   const chainContext = context.getContext(fromNetwork) as any;
-  const provider = context.mustGetProvider(fromNetwork);
   const fromChainName = context.toChainName(fromNetwork);
   const gasEstimates = GAS_ESTIMATES[fromChainName]!;
   // Solana gas estimates
   if (fromChainId === MAINNET_CHAINS.solana) {
     return toFixedDecimals(utils.formatEther(gasEstimates.sendToken), 6);
   }
-  const gasPrice = await provider.getGasPrice();
+
+  // EVM gas estimates
+  const provider = context.mustGetProvider(fromNetwork);
+  const { gasPrice } = await provider.getFeeData();
+  if (!gasPrice)
+    throw new Error('gas price not available, cannot estimate fees');
   if (paymentOption === PaymentOption.MANUAL) {
     const tx = await chainContext.prepareSend(
       token,
@@ -121,7 +125,7 @@ export const estimateSendFees = async (
   toNativeToken?: string,
 ): Promise<string> => {
   try {
-    const gasFee = estimateGasFee(
+    const gasFee = await estimateGasFee(
       context,
       token,
       amount,
@@ -134,7 +138,7 @@ export const estimateSendFees = async (
     );
     return gasFee;
   } catch (_) {
-    return getGasFeeFallback(context, token, fromNetwork, paymentOption);
+    return await getGasFeeFallback(context, token, fromNetwork, paymentOption);
   }
 };
 
