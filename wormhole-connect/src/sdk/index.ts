@@ -12,8 +12,7 @@ import { Transaction } from '@solana/web3.js';
 import { getTokenById, getTokenDecimals, getWrappedTokenId } from '../utils';
 import { TOKENS, WH_CONFIG } from '../config';
 import { postVaa, signSolanaTransaction, TransferWallet } from 'utils/wallet';
-import { toFixedDecimals } from 'utils/balance';
-import { GAS_ESTIMATES } from 'config/testnet';
+import { estimateClaimFees, estimateSendFees } from './gasEstimates';
 
 export enum PaymentOption {
   MANUAL = 1,
@@ -190,56 +189,6 @@ export const sendTransfer = async (
   }
 };
 
-export const estimateGasFee = async (
-  token: TokenId | 'native',
-  fromNetwork: ChainName | ChainId,
-  paymentOption: PaymentOption,
-): Promise<string> => {
-  const fromChainId = wh.toChainId(fromNetwork);
-  const fromChainName = wh.toChainName(fromNetwork);
-  const sendNative = token === 'native';
-  const gasEstimates = GAS_ESTIMATES[fromChainName]!;
-  // Solana gas estimates
-  if (fromChainId === MAINNET_CHAINS.solana) {
-    return toFixedDecimals(utils.formatEther(gasEstimates.sendToken), 6);
-  }
-
-  // EVM gas estimates
-  const provider = wh.mustGetProvider(fromNetwork);
-  const { gasPrice } = await provider.getFeeData();
-  if (!gasPrice)
-    throw new Error('gas price not available, cannot estimate fees');
-  if (paymentOption === PaymentOption.MANUAL) {
-    const gasEst = sendNative
-      ? gasEstimates.sendNative
-      : gasEstimates.sendToken;
-    const gasFees = BigNumber.from(gasEst).mul(gasPrice);
-    return toFixedDecimals(utils.formatEther(gasFees), 6);
-  } else {
-    const gasEst = sendNative
-      ? gasEstimates.sendNativeWithRelay
-      : gasEstimates.sendTokenWithRelay;
-    if (!gasEst)
-      throw new Error(
-        `gas estimate not configured for relay from ${fromChainName}`,
-      );
-    const gasFees = BigNumber.from(gasEst).mul(gasPrice);
-    return toFixedDecimals(utils.formatEther(gasFees), 6);
-  }
-};
-
-export const estimateClaimGasFee = async (destChain: ChainName | ChainId) => {
-  const destChainId = wh.toChainId(destChain);
-  if (destChainId === MAINNET_CHAINS.solana) return '0.000025';
-
-  const provider = wh.mustGetProvider(destChain);
-  const gasPrice = await provider.getGasPrice();
-
-  const est = BigNumber.from('300000');
-  const gasFee = est.mul(gasPrice);
-  return toFixedDecimals(utils.formatEther(gasFee), 6);
-};
-
 export const calculateMaxSwapAmount = async (
   destChain: ChainName | ChainId,
   token: TokenId,
@@ -326,4 +275,33 @@ export const getCurrentBlock = async (
 export const getSolTokenAccountOwner = async (address: string) => {
   const context: any = wh.getContext(MAINNET_CHAINS.solana);
   return await context.getTokenAccountOwner(address);
+};
+
+export const estimateSendGasFee = async (
+  token: TokenId | 'native',
+  amount: string,
+  fromNetwork: ChainName | ChainId,
+  fromAddress: string,
+  toNetwork: ChainName | ChainId,
+  toAddress: string,
+  paymentOption: PaymentOption,
+  toNativeToken?: string,
+): Promise<string> => {
+  return await estimateSendFees(
+    wh,
+    token,
+    amount,
+    fromNetwork,
+    fromAddress,
+    toNetwork,
+    toAddress,
+    paymentOption,
+    toNativeToken,
+  );
+};
+
+export const estimateClaimGasFee = async (
+  destChain: ChainName | ChainId,
+): Promise<string> => {
+  return await estimateClaimFees(wh, destChain);
 };
