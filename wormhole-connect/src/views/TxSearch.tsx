@@ -13,6 +13,7 @@ import Button from '../components/Button';
 import Spacer from '../components/Spacer';
 import { isValidTxId } from '../utils';
 import AlertBanner from '../components/AlertBanner';
+import { setFromNetwork, setToNetwork } from '../store/transfer';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -68,6 +69,8 @@ function TxSearch() {
       );
       setError('');
       dispatch(setTxDetails(message));
+      dispatch(setFromNetwork(message.fromChain));
+      dispatch(setToNetwork(message.toChain));
       dispatch(setRoute('redeem'));
     } catch (e) {
       setError(
