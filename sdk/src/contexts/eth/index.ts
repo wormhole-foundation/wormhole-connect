@@ -170,6 +170,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
           // ...(overrides || {}), // TODO: fix overrides/gas limit here
           gasLimit: 250000,
           value: amountBN,
+          from: senderAddress
         },
       );
       return bridge.populateTransaction.wrapAndTransferETH(
@@ -196,7 +197,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
         relayerFee,
         createNonce(),
         // overrides,
-        { gasLimit: 250000 },
+        { gasLimit: 250000, from: senderAddress },
       );
       return bridge.populateTransaction.transferTokens(
         tokenAddr,
