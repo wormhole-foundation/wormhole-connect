@@ -42,3 +42,14 @@ export enum Icon {
   'USDC',
   'GLMR',
 }
+
+export type GasEstimates = {
+  [chain in ChainName]?: {
+    send?: number;
+    sendNative: number;
+    sendToken: number;
+    claim: number;
+    sendNativeWithRelay?: number;
+    sendTokenWithRelay?: number;
+  };
+};

@@ -12,7 +12,7 @@ import { Transaction } from '@solana/web3.js';
 import { getTokenById, getTokenDecimals, getWrappedTokenId } from '../utils';
 import { TOKENS, WH_CONFIG } from '../config';
 import { postVaa, signSolanaTransaction, TransferWallet } from 'utils/wallet';
-import { toFixedDecimals } from 'utils/balance';
+import { estimateClaimFees, estimateSendFees } from './gasEstimates';
 
 export enum PaymentOption {
   MANUAL = 1,
@@ -189,86 +189,6 @@ export const sendTransfer = async (
   }
 };
 
-export const estimateGasFee = async (
-  token: TokenId | 'native',
-  amount: string,
-  fromNetwork: ChainName | ChainId,
-  fromAddress: string,
-  toNetwork: ChainName | ChainId,
-  toAddress: string,
-  paymentOption: PaymentOption,
-  toNativeToken?: string,
-): Promise<string> => {
-  console.log('estimating fees');
-  const fromChainId = wh.toChainId(fromNetwork);
-  const decimals = getTokenDecimals(fromChainId, token);
-  const parsedAmt = utils.parseUnits(amount, decimals);
-  const context = wh.getContext(fromNetwork) as any;
-  const provider = wh.mustGetProvider(fromNetwork);
-  if (fromChainId === MAINNET_CHAINS.solana) {
-    // const connection = context.connection;
-    // if (!connection) throw new Error('no connection');
-    // const tx = await context.send(
-    //   token,
-    //   parsedAmt.toString(),
-    //   fromNetwork,
-    //   fromAddress,
-    //   toNetwork,
-    //   toAddress,
-    //   undefined,
-    // );
-    // const fees = await tx.getEstimatedFee(connection);
-    // const parsed = utils.parseUnits(`${fees}`, 9).toString();
-    // return toFixedDecimals(parsed, 6);
-    // right now, there's just a flat cost for bridge transfers from solana
-    return '0.000015';
-  } else {
-    const gasPrice = await provider.getGasPrice();
-    if (paymentOption === PaymentOption.MANUAL) {
-      const tx = await context.prepareSend(
-        token,
-        parsedAmt.toString(),
-        fromNetwork,
-        fromAddress,
-        toNetwork,
-        toAddress,
-        undefined,
-      );
-      const est = await provider.estimateGas(tx);
-      const gasFee = est.mul(gasPrice);
-      return toFixedDecimals(utils.formatEther(gasFee), 6);
-    } else {
-      const parsedNativeAmt = toNativeToken
-        ? utils.parseUnits(toNativeToken, decimals).toString()
-        : '0';
-      const tx = await context.prepareSendWithRelay(
-        token,
-        parsedAmt.toString(),
-        parsedNativeAmt,
-        fromNetwork,
-        fromAddress,
-        toNetwork,
-        toAddress,
-      );
-      const est = await provider.estimateGas(tx);
-      const gasFee = est.mul(gasPrice);
-      return toFixedDecimals(utils.formatEther(gasFee), 6);
-    }
-  }
-};
-
-export const estimateClaimGasFee = async (destChain: ChainName | ChainId) => {
-  const destChainId = wh.toChainId(destChain);
-  if (destChainId === MAINNET_CHAINS.solana) return '0.000025';
-
-  const provider = wh.mustGetProvider(destChain);
-  const gasPrice = await provider.getGasPrice();
-
-  const est = BigNumber.from('300000');
-  const gasFee = est.mul(gasPrice);
-  return toFixedDecimals(utils.formatEther(gasFee), 6);
-};
-
 export const calculateMaxSwapAmount = async (
   destChain: ChainName | ChainId,
   token: TokenId,
@@ -355,4 +275,33 @@ export const getCurrentBlock = async (
 export const getSolTokenAccountOwner = async (address: string) => {
   const context: any = wh.getContext(MAINNET_CHAINS.solana);
   return await context.getTokenAccountOwner(address);
+};
+
+export const estimateSendGasFee = async (
+  token: TokenId | 'native',
+  amount: string,
+  fromNetwork: ChainName | ChainId,
+  fromAddress: string,
+  toNetwork: ChainName | ChainId,
+  toAddress: string,
+  paymentOption: PaymentOption,
+  toNativeToken?: string,
+): Promise<string> => {
+  return await estimateSendFees(
+    wh,
+    token,
+    amount,
+    fromNetwork,
+    fromAddress,
+    toNetwork,
+    toAddress,
+    paymentOption,
+    toNativeToken,
+  );
+};
+
+export const estimateClaimGasFee = async (
+  destChain: ChainName | ChainId,
+): Promise<string> => {
+  return await estimateClaimFees(wh, destChain);
 };

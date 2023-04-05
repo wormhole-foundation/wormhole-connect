@@ -5,7 +5,7 @@ import { Context } from '@wormhole-foundation/wormhole-connect-sdk';
 import { CHAINS, TOKENS } from '../../config';
 import {
   estimateClaimGasFee,
-  estimateGasFee,
+  estimateSendGasFee,
   parseMessageFromTx,
   PaymentOption,
   sendTransfer,
@@ -133,7 +133,7 @@ function Send(props: { valid: boolean }) {
     if (!tokenConfig) return;
     const sendToken = tokenConfig.tokenId;
 
-    const gasFee = await estimateGasFee(
+    const gasFee = await estimateSendGasFee(
       sendToken || 'native',
       `${amount}`,
       fromNetwork!,
