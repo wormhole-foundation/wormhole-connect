@@ -52,6 +52,14 @@ const useStyles = makeStyles()((theme) => ({
   },
 }));
 
+const payWith = (token1: string, token2: string): string => {
+  if (!token1 || !token2) return '';
+  if (token1 === token2) {
+    return `Pay with ${token1}`;
+  }
+  return `Pay with ${token1} & ${token2}`;
+};
+
 type OptionConfig = {
   key: PaymentOption;
   title: string;
@@ -73,7 +81,7 @@ const getOptions = (
 ): OptionConfig[] => {
   const manual = {
     key: PaymentOption.MANUAL,
-    title: `Pay with ${source.gasToken} and ${dest.gasToken}`,
+    title: payWith(source.gasToken, dest.gasToken),
     subtitle: '(two transactions)',
     description: `Claim with ${dest.gasToken} on ${dest.displayName}`,
     estimate:
@@ -88,10 +96,7 @@ const getOptions = (
   );
   const automatic = {
     key: PaymentOption.AUTOMATIC,
-    title:
-      source.gasToken === token
-        ? `Pay with ${token}`
-        : `Pay with ${source.gasToken} and ${token}`,
+    title: payWith(source.gasToken, token),
     subtitle: '(one transaction)',
     description: `Gas fees on ${dest.displayName} will be paid automatically`,
     estimate:
@@ -135,8 +140,8 @@ function GasOptions(props: { disabled: boolean }) {
 
     const description =
       selectedOption === PaymentOption.AUTOMATIC
-        ? `Pay with ${sourceConfig.gasToken} & ${token}`
-        : `Pay with ${sourceConfig.gasToken} & ${destConfig!.nativeToken}`;
+        ? payWith(sourceConfig.gasToken, token)
+        : payWith(sourceConfig.gasToken, destConfig!.gasToken);
     setState({
       options: getOptions(
         sourceConfig,
