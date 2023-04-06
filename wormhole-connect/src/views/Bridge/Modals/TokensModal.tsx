@@ -144,6 +144,12 @@ const useStyles = makeStyles()((theme) => ({
     textDecoration: 'underline',
     fontSize: '14px',
   },
+  loading: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '72px',
+  },
 }));
 
 function TokensModal() {
@@ -151,6 +157,7 @@ function TokensModal() {
   const theme = useTheme();
   const dispatch = useDispatch();
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const [loading, setLoading] = useState(false);
   const [tokens, setTokens] = useState<TokenConfig[]>([]);
 
   // store values
@@ -237,7 +244,11 @@ function TokensModal() {
     };
 
     dispatch(clearBalances());
-    getBalances(networkTokens, walletAddr, fromNetwork);
+
+    setLoading(true);
+    getBalances(networkTokens, walletAddr, fromNetwork).finally(() =>
+      setLoading(false),
+    );
     // eslint-disable-next-line
   }, [walletAddr, fromNetwork, networkTokens]);
 
@@ -326,6 +337,10 @@ function TokensModal() {
                   </div>
                 </div>
               ))}
+            </div>
+          ) : loading ? (
+            <div className={classes.loading}>
+              <CircularProgress size={24} />
             </div>
           ) : (
             <div className={classes.noResults}>No results</div>
