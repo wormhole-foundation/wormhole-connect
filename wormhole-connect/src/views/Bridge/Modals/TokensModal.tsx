@@ -1,4 +1,10 @@
-import React, { ChangeEvent, useEffect } from 'react';
+import React, {
+  ChangeEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTheme } from '@mui/material/styles';
 import { useMediaQuery } from '@mui/material';
@@ -6,7 +12,12 @@ import { makeStyles } from 'tss-react/mui';
 import { RootState } from '../../../store';
 import { CHAINS, TOKENS_ARR } from '../../../config';
 import { setTokensModal } from '../../../store/router';
-import { setToken, setBalance, formatBalance } from '../../../store/transfer';
+import {
+  setToken,
+  setBalance,
+  formatBalance,
+  clearBalances,
+} from '../../../store/transfer';
 import { displayAddress } from '../../../utils';
 import { CENTER } from '../../../utils/style';
 import { getBalance, getNativeBalance } from '../../../sdk';
@@ -23,6 +34,7 @@ import TokenIcon from '../../../icons/TokenIcons';
 import CircularProgress from '@mui/material/CircularProgress';
 import { TokenConfig } from '../../../config/types';
 import { ChainId, ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+import { isNullOrUndefined } from 'util';
 
 const useStyles = makeStyles()((theme) => ({
   tokensContainer: {
@@ -139,49 +151,48 @@ function TokensModal() {
   const theme = useTheme();
   const dispatch = useDispatch();
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const [tokens, setTokens] = useState<TokenConfig[]>([]);
 
   // store values
   const showTokensModal = useSelector(
     (state: RootState) => state.router.showTokensModal,
   );
-  const fromNetwork = useSelector(
-    (state: RootState) => state.transfer.fromNetwork,
+  const { fromNetwork, balances: tokenBalances } = useSelector(
+    (state: RootState) => state.transfer,
   );
   const walletAddr = useSelector(
     (state: RootState) => state.wallet.sending.address,
   );
-  const filteredTokens = () =>
-    TOKENS_ARR.filter((t) => {
+
+  const networkTokens = useMemo(() => {
+    return TOKENS_ARR.filter((t) => {
       if (!fromNetwork) return true;
       return !!t.tokenId || (!t.tokenId && t.nativeNetwork === fromNetwork);
     });
-  const tokenBalances = useSelector(
-    (state: RootState) => state.transfer.balances,
+  }, [fromNetwork]);
+
+  // search tokens
+  const searchTokens = useCallback(
+    (
+      e:
+        | ChangeEvent<HTMLInputElement>
+        | ChangeEvent<HTMLTextAreaElement>
+        | undefined,
+    ) => {
+      if (!e) return;
+      const lowercase = e.target.value.toLowerCase();
+      const filtered = networkTokens.filter((c) => {
+        const symbol = c.symbol.toLowerCase();
+        return (
+          symbol.includes(lowercase) ||
+          (c.tokenId && c.tokenId.address.toLowerCase().includes(lowercase))
+        );
+      });
+      setTokens(filtered);
+    },
+    [networkTokens],
   );
 
-  // state
-  // const [showAdvanced, setShowAdvanced] = React.useState(false);
-  // const toggleAdvanced = () => setShowAdvanced((prev) => !prev);
-  const [tokens, setTokens] = React.useState(filteredTokens());
-
-  // set tokens
-  const searchTokens = (
-    e:
-      | ChangeEvent<HTMLInputElement>
-      | ChangeEvent<HTMLTextAreaElement>
-      | undefined,
-  ) => {
-    if (!e) return;
-    const lowercase = e.target.value.toLowerCase();
-    const filtered = filteredTokens().filter((c) => {
-      const symbol = c.symbol.toLowerCase();
-      return (
-        symbol.includes(lowercase) ||
-        (c.tokenId && c.tokenId.address.toLowerCase().includes(lowercase))
-      );
-    });
-    setTokens(filtered);
-  };
   // listen for close event
   const closeTokensModal = () => {
     dispatch(setTokensModal(false));
@@ -207,31 +218,43 @@ function TokensModal() {
       walletAddr: string,
       chain: ChainName | ChainId,
     ) => {
-      tokens.forEach(async (t) => {
-        if (t.tokenId) {
-          const balance = await getBalance(walletAddr, t.tokenId, chain);
-          dispatch(setBalance(formatBalance(fromNetwork, t, balance)));
-        } else {
-          const balance = await getNativeBalance(walletAddr, chain);
-          dispatch(setBalance(formatBalance(fromNetwork, t, balance)));
-        }
-      });
+      const balances = await Promise.all(
+        tokens.map(async (t) => {
+          const balance = t.tokenId
+            ? await getBalance(walletAddr, t.tokenId, chain)
+            : await getNativeBalance(walletAddr, chain);
+
+          return formatBalance(chain, t, balance);
+        }),
+      );
+
+      const balancesObj = balances.reduceRight((acc, tokenBalance) => {
+        return Object.assign(acc, tokenBalance);
+      }, {});
+
+      // fetch all N tokens and trigger a single update action
+      dispatch(setBalance(balancesObj));
     };
-    getBalances(filteredTokens(), walletAddr, fromNetwork);
+    getBalances(networkTokens, walletAddr, fromNetwork);
     // eslint-disable-next-line
-  }, [walletAddr, fromNetwork]);
+  }, [walletAddr, fromNetwork, networkTokens]);
 
   useEffect(() => {
-    if (fromNetwork) {
-      setTokens(filteredTokens());
-    }
-  }, [fromNetwork]);
+    setTokens(networkTokens);
+  }, [networkTokens]);
 
   // TODO: filter out tokens that don't exist
   useEffect(() => {
-    const filtered = tokens.filter((t) => tokenBalances[t.symbol] !== null);
+    // filter only when a wallet is connected
+    const filtered = walletAddr
+      ? networkTokens.filter(
+          (t) =>
+            tokenBalances[t.symbol] !== undefined &&
+            tokenBalances[t.symbol] !== null,
+        )
+      : networkTokens;
     setTokens(filtered);
-  }, [tokenBalances]);
+  }, [tokenBalances, networkTokens, walletAddr]);
 
   return (
     <Modal
