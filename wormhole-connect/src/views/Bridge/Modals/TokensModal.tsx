@@ -218,6 +218,7 @@ function TokensModal() {
       walletAddr: string,
       chain: ChainName | ChainId,
     ) => {
+      // fetch all N tokens and trigger a single update action
       const balances = await Promise.all(
         tokens.map(async (t) => {
           const balance = t.tokenId
@@ -232,9 +233,10 @@ function TokensModal() {
         return Object.assign(acc, tokenBalance);
       }, {});
 
-      // fetch all N tokens and trigger a single update action
       dispatch(setBalance(balancesObj));
     };
+
+    dispatch(clearBalances());
     getBalances(networkTokens, walletAddr, fromNetwork);
     // eslint-disable-next-line
   }, [walletAddr, fromNetwork, networkTokens]);

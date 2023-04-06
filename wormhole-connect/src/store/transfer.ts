@@ -167,6 +167,9 @@ export const transferSlice = createSlice({
     ) => {
       state.balances = { ...state.balances, ...payload };
     },
+    clearBalances: (state: TransferState) => {
+      state.balances = {};
+    },
     setAutomaticRelayAvail: (
       state: TransferState,
       { payload }: PayloadAction<boolean>,
@@ -222,6 +225,7 @@ export const {
   setReceiveNativeAmt,
   setRelayerFee,
   setBalance,
+  clearBalances,
   setAutomaticRelayAvail,
   setManualGasEst,
   setAutomaticGasEst,
