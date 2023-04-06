@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { BigNumber, constants } from 'ethers';
+import { makeStyles } from 'tss-react/mui';
 import { RootState } from '../../../store';
 import { setToNetworksModal } from '../../../store/router';
 import { TransferWallet } from '../../../utils/wallet';
 import { TOKENS } from '../../../config';
 import { getBalance, getForeignAsset } from '../../../sdk';
-import { formatBalance } from '../../../store/transfer';
+import { formatBalance, setForeignAsset } from '../../../store/transfer';
 
 import Inputs from './Inputs';
 import Input from './Input';
@@ -15,16 +16,32 @@ import InputTransparent from '../../../components/InputTransparent';
 import { getWrappedToken } from '../../../utils';
 import { Link, Typography } from '@mui/material';
 
+const useStyles = makeStyles()((theme) => ({
+  link: {
+    textDecoration: 'underline',
+    opacity: '0.8',
+    marginTop: '8px',
+    cursor: 'pointer',
+    '&:hover': {
+      opacity: '1',
+    },
+  },
+}));
+
 function ToInputs() {
   const dispatch = useDispatch();
+  const { classes } = useStyles();
   const [balance, setBalance] = useState(undefined as string | undefined);
-  const [isDestinationTokenDeployed, setIsTargetTokenDeployed] = useState<
-    boolean | undefined
-  >(undefined);
 
-  const { validations, fromNetwork, toNetwork, token, amount } = useSelector(
-    (state: RootState) => state.transfer,
-  );
+  const {
+    validations,
+    fromNetwork,
+    toNetwork,
+    token,
+    amount,
+    foreignAsset,
+    associatedTokenAddress,
+  } = useSelector((state: RootState) => state.transfer);
   const wallet = useSelector((state: RootState) => state.wallet.receiving);
 
   const tokenConfig = TOKENS[token];
@@ -51,7 +68,7 @@ function ToInputs() {
   useEffect(() => {
     const checkWrappedTokenExists = async () => {
       if (!toNetwork || !token) {
-        setIsTargetTokenDeployed(undefined);
+        setForeignAsset('');
         return;
       }
 
@@ -64,16 +81,8 @@ function ToInputs() {
         throw new Error('Could not retrieve target token info');
       }
 
-      let address = constants.AddressZero;
-      try {
-        address = await getForeignAsset(config, toNetwork);
-      } catch (e) {
-        // solana context throws an error
-        if (e.message !== 'token not found') {
-          throw e;
-        }
-      }
-      setIsTargetTokenDeployed(address !== constants.AddressZero);
+      const address = await getForeignAsset(config, toNetwork);
+      setForeignAsset(address);
     };
     checkWrappedTokenExists();
   }, [toNetwork, token]);
@@ -92,23 +101,46 @@ function ToInputs() {
     </Input>
   );
 
-  const warnings: React.ReactNode[] = [];
-  if (isDestinationTokenDeployed === false) {
-    warnings.push(
-      <Typography>
-        This token is not registered, you must{' '}
-        <Link
-          target={'_blank'}
-          variant="inherit"
-          href="https://www.portalbridge.com/ #/register"
-        >
-          register
-        </Link>{' '}
-        it before you continue. Newly registered tokens will not have liquid
-        markets.
-      </Typography>,
-    );
-  }
+  const createAssociatedTokenAccount = (address: string) => {
+    if (!address)
+      throw new Error(
+        'The token must be registered on Solana before an associated token account can be created',
+      );
+    console.log('create account');
+  };
+
+  // destination token warnings
+  const tokenWarning = (
+    <Typography>
+      This token is not registered, you must{' '}
+      <Link
+        target={'_blank'}
+        variant="inherit"
+        href="https://www.portalbridge.com/#/register"
+      >
+        register
+      </Link>{' '}
+      it before you continue. Newly registered tokens will not have liquid
+      markets.
+    </Typography>
+  );
+  const associatedTokenWarning = (
+    <Typography>
+      No associated token account exists for your wallet on Solana. You must
+      create it before proceeding.
+      <div
+        className={classes.link}
+        onClick={() => createAssociatedTokenAccount(foreignAsset)}
+      >
+        Create account
+      </div>
+    </Typography>
+  );
+
+  const warnings: React.ReactNode[] = [
+    !foreignAsset && tokenWarning,
+    !associatedTokenAddress && associatedTokenWarning,
+  ];
 
   return (
     <Inputs

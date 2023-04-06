@@ -12,7 +12,7 @@ import {
   setToken,
   touchValidations,
 } from '../../store/transfer';
-import { getForeignAsset, getNativeBalance, PaymentOption } from '../../sdk';
+import { getNativeBalance, PaymentOption } from '../../sdk';
 import { CHAINS, TOKENS } from '../../config';
 import { isTransferValid, validate } from '../../utils/transferValidation';
 
@@ -133,6 +133,8 @@ function Bridge() {
   const valid = isTransferValid(validations);
 
   const disabled = !valid || isTransactionInProgress;
+  const showGasSlider =
+    automaticRelayAvail && destGasPayment === PaymentOption.AUTOMATIC;
 
   return (
     <div className={classes.bridgeContent}>
@@ -143,11 +145,16 @@ function Bridge() {
 
       <GasOptions disabled={disabled} />
 
-      {automaticRelayAvail && (
-        <Collapse in={destGasPayment === PaymentOption.AUTOMATIC}>
-          <GasSlider disabled={disabled} />
-        </Collapse>
-      )}
+      <Collapse
+        in={showGasSlider}
+        sx={
+          !showGasSlider
+            ? { marginBottom: '-16px', transition: 'margin 0.4s' }
+            : {}
+        }
+      >
+        <GasSlider disabled={disabled} />
+      </Collapse>
 
       <Preview collapsed={!valid} />
 

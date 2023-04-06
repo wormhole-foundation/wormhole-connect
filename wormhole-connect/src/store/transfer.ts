@@ -34,6 +34,8 @@ export interface TransferState {
   receiveNativeAmt: number | undefined;
   relayerFee: number | undefined;
   balances: Balances;
+  foreignAsset: string;
+  associatedTokenAddress: string;
   gasEst: {
     manual: string;
     automatic: string;
@@ -53,6 +55,8 @@ const initialState: TransferState = {
     toNativeToken: '',
     sendingWallet: '',
     receivingWallet: '',
+    foreignAsset: '',
+    associatedTokenAccount: '',
   },
   fromNetwork: undefined,
   toNetwork: undefined,
@@ -65,6 +69,8 @@ const initialState: TransferState = {
   receiveNativeAmt: undefined,
   relayerFee: undefined,
   balances: {},
+  foreignAsset: '',
+  associatedTokenAddress: '',
   gasEst: {
     manual: '',
     automatic: '',
@@ -163,6 +169,18 @@ export const transferSlice = createSlice({
       state.automaticRelayAvail = payload;
       if (payload) state.destGasPayment = PaymentOption.AUTOMATIC;
     },
+    setForeignAsset: (
+      state: TransferState,
+      { payload }: PayloadAction<string>,
+    ) => {
+      state.foreignAsset = payload;
+    },
+    setAssociatedTokenAddress: (
+      state: TransferState,
+      { payload }: PayloadAction<string>,
+    ) => {
+      state.associatedTokenAddress = payload;
+    },
     // gas estimates
     setManualGasEst: (
       state: TransferState,
@@ -212,6 +230,8 @@ export const {
   setRelayerFee,
   setBalance,
   setAutomaticRelayAvail,
+  setForeignAsset,
+  setAssociatedTokenAddress,
   setManualGasEst,
   setAutomaticGasEst,
   setClaimGasEst,

@@ -192,7 +192,7 @@ function GasSlider(props: { disabled: boolean }) {
 
   return (
     <BridgeCollapse
-      title="Extra native gas"
+      title="Native gas"
       banner={!props.disabled}
       disabled={props.disabled}
       close={props.disabled}

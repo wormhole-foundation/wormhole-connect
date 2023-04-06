@@ -41,6 +41,10 @@ export abstract class TokenBridgeAbstract {
   protected abstract getForeignAsset(
     tokenId: TokenId,
     chain: ChainName | ChainId,
+  ): Promise<string | null>;
+  protected abstract mustGetForeignAsset(
+    tokenId: TokenId,
+    chain: ChainName | ChainId,
   ): Promise<string>;
   protected abstract parseMessageFromTx(
     tx: string,
