@@ -6,6 +6,7 @@ import { toDecimals } from '../utils/balance';
 import { TransferValidations, validateAll } from '../utils/transferValidation';
 import { WalletState } from './wallet';
 import { PaymentOption } from '../sdk';
+import { TOKENS } from 'config';
 
 export type Balances = { [key: string]: string | null };
 
@@ -102,6 +103,16 @@ export const transferSlice = createSlice({
     ) => {
       console.log('set from network:', payload);
       state.fromNetwork = payload;
+
+      const { fromNetwork, token } = state;
+
+      if (token) {
+        const tokenConfig = TOKENS[token];
+        // clear token if not supported on the selected network
+        if (!tokenConfig.tokenId && tokenConfig.nativeNetwork !== fromNetwork) {
+          state.token = '';
+        }
+      }
     },
     setToNetwork: (
       state: TransferState,

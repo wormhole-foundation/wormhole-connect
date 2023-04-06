@@ -67,15 +67,6 @@ function Bridge() {
     (state: RootState) => state.wallet,
   );
 
-  // clear token if not supported on the selected network
-  useEffect(() => {
-    if (!fromNetwork || !token) return;
-    const tokenConfig = TOKENS[token];
-    if (!tokenConfig.tokenId && tokenConfig.nativeNetwork !== fromNetwork) {
-      dispatch(setToken(''));
-    }
-  }, [fromNetwork, token]);
-
   // check destination native balance
   useEffect(() => {
     if (!fromNetwork || !toNetwork || !receiving.address) return;
