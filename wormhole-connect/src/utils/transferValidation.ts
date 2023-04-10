@@ -7,7 +7,6 @@ import { WalletData, WalletState } from '../store/wallet';
 import { walletAcceptedNetworks } from './wallet';
 import { CHAINS, TOKENS } from '../config';
 import { PaymentOption } from '../sdk';
-import { constants } from 'ethers';
 
 export type ValidationErr = string;
 
@@ -124,23 +123,8 @@ export const validateDestGasPayment = (
 export const validateDestToken = (
   destTokenAddr: string | undefined,
 ): ValidationErr => {
-  if (!destTokenAddr || destTokenAddr === constants.AddressZero) {
+  if (!destTokenAddr) {
     return 'No wrapped asset exists for this token';
-  }
-  return '';
-};
-
-export const validateSolanaTokenAccount = (
-  destChain: string | undefined,
-  destTokenAddr: string,
-  solanaTokenAccount: string,
-): ValidationErr => {
-  if (destChain !== 'solana') return '';
-  if (!destTokenAddr || destTokenAddr === constants.AddressZero) {
-    return '';
-  }
-  if (destTokenAddr && !solanaTokenAccount) {
-    return 'The associated token account for this asset does not exist on Solana, you must create it first';
   }
   return '';
 };
@@ -161,7 +145,6 @@ export const validateAll = (
     relayerFee,
     balances,
     foreignAsset,
-    associatedTokenAddress,
   } = transferData;
   const { sending, receiving } = walletData;
   const isAutomatic = destGasPayment === PaymentOption.AUTOMATIC;
@@ -176,11 +159,6 @@ export const validateAll = (
     destGasPayment: validateDestGasPayment(destGasPayment, automaticRelayAvail),
     toNativeToken: '',
     foreignAsset: validateDestToken(foreignAsset),
-    associatedTokenAddress: validateSolanaTokenAccount(
-      toNetwork,
-      foreignAsset,
-      associatedTokenAddress,
-    ),
   };
   if (!isAutomatic) return baseValidations;
   return {

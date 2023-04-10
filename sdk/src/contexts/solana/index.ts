@@ -15,6 +15,7 @@ import {
   getAssociatedTokenAddress,
   getAccount,
   createAssociatedTokenAccountInstruction,
+  Account,
 } from '@solana/spl-token';
 import {
   clusterApiUrl,
@@ -138,10 +139,18 @@ export class SolanaContext<
     );
   }
 
-  async getAssociatedTokenAccount(token: TokenId, account: PublicKeyInitData) {
+  async getAssociatedTokenAccount(
+    token: TokenId,
+    account: PublicKeyInitData,
+  ): Promise<Account | null> {
     if (!this.connection) throw new Error('no connection');
     const addr = await this.getAssociatedTokenAddress(token, account);
-    return await getAccount(this.connection, addr);
+    try {
+      const account = await getAccount(this.connection, addr);
+      return account;
+    } catch (_) {
+      return null;
+    }
   }
 
   async createAssociatedTokenAccount(

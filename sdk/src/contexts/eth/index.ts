@@ -170,9 +170,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
       }
       const account = await (
         destContext as SolanaContext<WormholeContext>
-      ).getAssociatedTokenAccount(tokenId as TokenId, recipientAddress);
-      if (!account)
-        throw new Error('associated token account does not exist for solana');
+      ).getAssociatedTokenAddress(tokenId as TokenId, recipientAddress);
       recipientAccount = account.toString();
     }
 

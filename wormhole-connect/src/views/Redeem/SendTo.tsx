@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
-import { useDispatch } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { BigNumber, utils } from 'ethers';
 import CircularProgress from '@mui/material/CircularProgress';
 import { Context } from '@wormhole-foundation/wormhole-connect-sdk';
@@ -11,7 +10,13 @@ import {
   switchNetwork,
   TransferWallet,
 } from '../../utils/wallet';
-import { claimTransfer, parseAddress, PaymentOption } from '../../sdk';
+import {
+  accountExists,
+  claimTransfer,
+  parseAddress,
+  PaymentOption,
+  solanaContext,
+} from '../../sdk';
 import { displayAddress } from '../../utils';
 import { CHAINS } from '../../config';
 
@@ -23,6 +28,7 @@ import Spacer from '../../components/Spacer';
 import { RenderRows, RowsData } from '../../components/RenderRows';
 import InputContainer from '../../components/InputContainer';
 import WalletsModal from '../WalletModal';
+import { WalletData } from '../../store/wallet';
 
 const getRows = (txData: any): RowsData => {
   const decimals = txData.tokenDecimals > 8 ? 8 : txData.tokenDecimals;
@@ -65,6 +71,76 @@ const getRows = (txData: any): RowsData => {
   ];
 };
 
+type Props = {
+  txData: any;
+  vaa: any;
+  wallet: WalletData;
+  setClaimError: any;
+};
+function SendToSolana(props: Props) {
+  const dispatch = useDispatch();
+  const [inProgress, setInProgress] = useState(false);
+  const [associatedTokenAccount, setAssociatedTokenAccount] = useState(false);
+  const txData = useSelector((state: RootState) => state.redeem.txData)!;
+
+  useEffect(() => {
+    const checkAccount = async () => {
+      const hasAccount = await accountExists(txData.recipient);
+      setAssociatedTokenAccount(hasAccount);
+    };
+    checkAccount();
+  }, [txData]);
+
+  const createTokenAccount = async () => {
+    setInProgress(true);
+    const tokenId = {
+      chain: txData.tokenChain,
+      address: txData.tokenAddress,
+    };
+    await solanaContext().createAssociatedTokenAccount(
+      tokenId,
+      props.wallet.address,
+    );
+    setInProgress(false);
+    setAssociatedTokenAccount(true);
+  };
+
+  const claim = async () => {
+    setInProgress(true);
+    props.setClaimError('');
+    const networkConfig = CHAINS[props.txData.toChain]!;
+    if (!networkConfig) {
+      props.setClaimError('Your claim has failed, please try again');
+      throw new Error('invalid destination chain');
+    }
+    try {
+      const receipt = await claimTransfer(
+        props.txData.toChain,
+        utils.arrayify(props.vaa.bytes),
+        props.wallet.address,
+      );
+      dispatch(setRedeemTx(receipt.transactionHash));
+      dispatch(setTransferComplete(true));
+      setInProgress(false);
+      props.setClaimError('');
+    } catch (e) {
+      setInProgress(false);
+      props.setClaimError('Your claim has failed, please try again');
+      console.error(e);
+    }
+  };
+
+  return !!associatedTokenAccount ? (
+    <Button onClick={claim} action disabled={inProgress}>
+      {inProgress ? <CircularProgress size={22} /> : 'Claim'}
+    </Button>
+  ) : (
+    <Button onClick={createTokenAccount} action disabled={inProgress}>
+      Create token account
+    </Button>
+  );
+}
+
 function SendTo() {
   const dispatch = useDispatch();
   const { vaa, redeemTx, transferComplete } = useSelector(
@@ -77,13 +153,13 @@ function SendTo() {
   const connect = () => {
     setWalletModal(true);
   };
+
   const checkConnection = () => {
     if (!txData) return;
     const addr = wallet.address.toLowerCase();
     const curAddr = wallet.currentAddress.toLowerCase();
     const formattedRecipient = parseAddress(txData.toChain, txData.recipient);
     const reqAddr = formattedRecipient.toLowerCase();
-    // console.log(addr, curAddr, reqAddr)
     return addr === curAddr && addr === reqAddr;
   };
 
@@ -152,15 +228,24 @@ function SendTo() {
           <Spacer height={8} />
           <AlertBanner
             show={!!claimError}
-            text={claimError}
+            content={claimError}
             error
             margin="0 0 8px 0"
           />
           {wallet.address ? (
             isConnected ? (
-              <Button onClick={claim} action disabled={inProgress}>
-                {inProgress ? <CircularProgress size={22} /> : 'Claim'}
-              </Button>
+              txData.toChain === 'solana' ? (
+                <SendToSolana
+                  txData={txData}
+                  vaa={vaa}
+                  wallet={wallet}
+                  setClaimError={setClaimError}
+                />
+              ) : (
+                <Button onClick={claim} action disabled={inProgress}>
+                  {inProgress ? <CircularProgress size={22} /> : 'Claim'}
+                </Button>
+              )
             ) : (
               <Button onClick={connect} elevated>
                 Connect to {displayAddress(txData.toChain, txData.recipient)}

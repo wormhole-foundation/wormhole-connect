@@ -1,7 +1,10 @@
 import { Network as Environment } from '@certusone/wormhole-sdk';
 import { BigNumber, utils } from 'ethers';
+import { PublicKey } from '@solana/web3.js';
+import { getAccount } from '@solana/spl-token';
 import {
   WormholeContext,
+  SolanaContext,
   TokenId,
   ChainId,
   ChainName,
@@ -48,6 +51,10 @@ export interface ParsedRelayerMessage extends ParsedMessage {
   toNativeTokenAmount: string;
 }
 
+export const solanaContext = (): SolanaContext<WormholeContext> => {
+  return wh.getContext(MAINNET_CHAINS.solana) as SolanaContext<WormholeContext>;
+};
+
 export const formatAddress = (chain: ChainName | ChainId, address: string) => {
   const context = wh.getContext(chain);
   return context.formatAddress(address);
@@ -66,7 +73,7 @@ export const registerSigner = (chain: ChainName | ChainId, signer: any) => {
 export const getForeignAsset = async (
   tokenId: TokenId,
   chain: ChainName | ChainId,
-): Promise<string> => {
+): Promise<string | null> => {
   return await wh.getForeignAsset(tokenId, chain);
 };
 
@@ -109,7 +116,9 @@ export const parseMessageFromTx = async (
   // get wallet address of associated token account for Solana
   const toChainId = wh.toChainId(parsed.toChain);
   if (toChainId === MAINNET_CHAINS.solana) {
-    const accountOwner = await getSolTokenAccountOwner(parsed.recipient);
+    const accountOwner = await solanaContext().getTokenAccountOwner(
+      parsed.recipient,
+    );
     base.recipient = accountOwner;
   }
   if (parsed.payloadID === PaymentOption.MANUAL) {
@@ -272,11 +281,6 @@ export const getCurrentBlock = async (
   }
 };
 
-export const getSolTokenAccountOwner = async (address: string) => {
-  const context: any = wh.getContext(MAINNET_CHAINS.solana);
-  return await context.getTokenAccountOwner(address);
-};
-
 export const estimateSendGasFee = async (
   token: TokenId | 'native',
   amount: string,
@@ -304,4 +308,14 @@ export const estimateClaimGasFee = async (
   destChain: ChainName | ChainId,
 ): Promise<string> => {
   return await estimateClaimFees(wh, destChain);
+};
+
+export const accountExists = async (addr: string): Promise<boolean> => {
+  const context = solanaContext();
+  try {
+    const account = await getAccount(context.connection!, new PublicKey(addr));
+    return !!account;
+  } catch (e) {
+    return false;
+  }
 };

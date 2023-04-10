@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { BigNumber, constants } from 'ethers';
-import { makeStyles } from 'tss-react/mui';
+import { BigNumber } from 'ethers';
 import { RootState } from '../../../store';
 import { setToNetworksModal } from '../../../store/router';
 import { TransferWallet } from '../../../utils/wallet';
@@ -16,32 +15,14 @@ import InputTransparent from '../../../components/InputTransparent';
 import { getWrappedToken } from '../../../utils';
 import { Link, Typography } from '@mui/material';
 
-const useStyles = makeStyles()((theme) => ({
-  link: {
-    textDecoration: 'underline',
-    opacity: '0.8',
-    marginTop: '8px',
-    cursor: 'pointer',
-    '&:hover': {
-      opacity: '1',
-    },
-  },
-}));
+const { REACT_APP_ATTEST_URL } = process.env;
 
 function ToInputs() {
   const dispatch = useDispatch();
-  const { classes } = useStyles();
   const [balance, setBalance] = useState(undefined as string | undefined);
 
-  const {
-    validations,
-    fromNetwork,
-    toNetwork,
-    token,
-    amount,
-    foreignAsset,
-    associatedTokenAddress,
-  } = useSelector((state: RootState) => state.transfer);
+  const { validations, fromNetwork, toNetwork, token, amount, foreignAsset } =
+    useSelector((state: RootState) => state.transfer);
   const wallet = useSelector((state: RootState) => state.wallet.receiving);
 
   const tokenConfig = TOKENS[token];
@@ -82,7 +63,7 @@ function ToInputs() {
       }
 
       const address = await getForeignAsset(config, toNetwork);
-      setForeignAsset(address);
+      if (address) setForeignAsset(address);
     };
     checkWrappedTokenExists();
   }, [toNetwork, token]);
@@ -113,34 +94,16 @@ function ToInputs() {
   const tokenWarning = (
     <Typography>
       This token is not registered, you must{' '}
-      <Link
-        target={'_blank'}
-        variant="inherit"
-        href="https://www.portalbridge.com/#/register"
-      >
+      <Link target={'_blank'} variant="inherit" href={REACT_APP_ATTEST_URL}>
         register
       </Link>{' '}
       it before you continue. Newly registered tokens will not have liquid
       markets.
     </Typography>
   );
-  const associatedTokenWarning = (
-    <Typography>
-      No associated token account exists for your wallet on Solana. You must
-      create it before proceeding.
-      <div
-        className={classes.link}
-        onClick={() => createAssociatedTokenAccount(foreignAsset)}
-      >
-        Create account
-      </div>
-    </Typography>
-  );
 
-  const warnings: React.ReactNode[] = [
-    !foreignAsset && tokenWarning,
-    !associatedTokenAddress && associatedTokenWarning,
-  ];
+  let warnings: React.ReactNode[] = [];
+  if (toNetwork && token && !foreignAsset) warnings = [tokenWarning];
 
   return (
     <Inputs
