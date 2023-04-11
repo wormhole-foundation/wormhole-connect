@@ -112,17 +112,15 @@ function ToInputs() {
 
   const checkSolanaTokenAccount = async () => {
     if (!foreignAsset) return;
-    try {
-      let tokenId = tokenConfig.tokenId || getWrappedTokenId(tokenConfig);
-      const account = await solanaContext().getAssociatedTokenAccount(
-        tokenId,
-        wallet.address,
-      );
-      if (account) {
-        dispatch(setAssociatedTokenAddress(account.address.toString()));
-        return setWarnings([]);
-      }
-    } catch (e) {
+    let tokenId = tokenConfig.tokenId || getWrappedTokenId(tokenConfig);
+    const account = await solanaContext().getAssociatedTokenAccount(
+      tokenId,
+      wallet.address,
+    );
+    if (account) {
+      dispatch(setAssociatedTokenAddress(account.address.toString()));
+      return setWarnings([]);
+    } else {
       return setWarnings([associatedTokenWarning]);
     }
   };
