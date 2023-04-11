@@ -61,6 +61,8 @@ function Bridge() {
     automaticRelayAvail,
     toNativeToken,
     relayerFee,
+    foreignAsset,
+    associatedTokenAddress,
     isTransactionInProgress,
   } = useSelector((state: RootState) => state.transfer);
   const { sending, receiving } = useSelector(
@@ -115,6 +117,8 @@ function Bridge() {
     automaticRelayAvail,
     toNativeToken,
     relayerFee,
+    foreignAsset,
+    associatedTokenAddress,
   ]);
   // show validations when everything is filled out
   useEffect(() => {

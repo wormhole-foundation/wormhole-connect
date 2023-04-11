@@ -176,7 +176,7 @@ export class SolanaContext<
     const transaction = new Transaction().add(createAccountInst);
     const { blockhash } = await this.connection.getLatestBlockhash();
     transaction.recentBlockhash = blockhash;
-    transaction.feePayer = new PublicKey(payerPublicKey);
+    transaction.feePayer = payerPublicKey;
     return transaction;
   }
 

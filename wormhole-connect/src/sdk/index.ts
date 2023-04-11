@@ -311,13 +311,3 @@ export const estimateClaimGasFee = async (
 ): Promise<string> => {
   return await estimateClaimFees(wh, destChain);
 };
-
-export const accountExists = async (addr: string): Promise<boolean> => {
-  const context = solanaContext();
-  try {
-    const account = await getAccount(context.connection!, new PublicKey(addr));
-    return !!account;
-  } catch (e) {
-    return false;
-  }
-};
