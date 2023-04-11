@@ -175,6 +175,12 @@ export const transferSlice = createSlice({
     ) => {
       state.foreignAsset = payload;
     },
+    setAssociatedTokenAddress: (
+      state: TransferState,
+      { payload }: PayloadAction<string>,
+    ) => {
+      state.associatedTokenAddress = payload;
+    },
     // gas estimates
     setManualGasEst: (
       state: TransferState,
@@ -225,6 +231,7 @@ export const {
   setBalance,
   setAutomaticRelayAvail,
   setForeignAsset,
+  setAssociatedTokenAddress,
   setManualGasEst,
   setAutomaticGasEst,
   setClaimGasEst,

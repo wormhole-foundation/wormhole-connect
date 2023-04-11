@@ -158,7 +158,7 @@ export class SolanaContext<
     account: PublicKeyInitData,
   ): Promise<Transaction | void> {
     if (!this.connection) throw new Error('no connection');
-    const tokenAccount = await this.getAssociatedTokenAddress(token, account);
+    const tokenAccount = await this.getAssociatedTokenAccount(token, account);
     if (tokenAccount) return;
 
     const solAddr = await this.mustGetForeignAsset(token, SOLANA_CHAIN_NAME);

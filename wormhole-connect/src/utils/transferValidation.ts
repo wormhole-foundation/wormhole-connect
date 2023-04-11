@@ -129,6 +129,19 @@ export const validateDestToken = (
   return '';
 };
 
+export const validateSolanaTokenAccount = (
+  destChain: string | undefined,
+  destTokenAddr: string,
+  solanaTokenAccount: string,
+): ValidationErr => {
+  if (destChain !== 'solana') return '';
+  if (!destTokenAddr) return '';
+  if (destTokenAddr && !solanaTokenAccount) {
+    return 'The associated token account for this asset does not exist on Solana, you must create it first';
+  }
+  return '';
+};
+
 export const validateAll = (
   transferData: TransferState,
   walletData: WalletState,
@@ -145,6 +158,7 @@ export const validateAll = (
     relayerFee,
     balances,
     foreignAsset,
+    associatedTokenAddress,
   } = transferData;
   const { sending, receiving } = walletData;
   const isAutomatic = destGasPayment === PaymentOption.AUTOMATIC;
@@ -159,6 +173,11 @@ export const validateAll = (
     destGasPayment: validateDestGasPayment(destGasPayment, automaticRelayAvail),
     toNativeToken: '',
     foreignAsset: validateDestToken(foreignAsset),
+    associatedTokenAddress: validateSolanaTokenAccount(
+      toNetwork,
+      foreignAsset,
+      associatedTokenAddress,
+    ),
   };
   if (!isAutomatic) return baseValidations;
   return {

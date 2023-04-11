@@ -1,28 +1,54 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { BigNumber } from 'ethers';
+import { makeStyles } from 'tss-react/mui';
 import { RootState } from '../../../store';
 import { setToNetworksModal } from '../../../store/router';
-import { TransferWallet } from '../../../utils/wallet';
+import { TransferWallet, signSolanaTransaction } from '../../../utils/wallet';
 import { TOKENS } from '../../../config';
-import { getBalance, getForeignAsset } from '../../../sdk';
-import { formatBalance, setForeignAsset } from '../../../store/transfer';
+import { getBalance, getForeignAsset, solanaContext } from '../../../sdk';
+import {
+  formatBalance,
+  setAssociatedTokenAddress,
+  setForeignAsset,
+} from '../../../store/transfer';
 
 import Inputs from './Inputs';
 import Input from './Input';
 import Select from './Select';
 import InputTransparent from '../../../components/InputTransparent';
-import { getWrappedToken } from '../../../utils';
+import { getWrappedToken, getWrappedTokenId } from '../../../utils';
 import { Link, Typography } from '@mui/material';
 
 const { REACT_APP_ATTEST_URL } = process.env;
 
+const useStyles = makeStyles()((theme) => ({
+  link: {
+    textDecoration: 'underline',
+    opacity: '0.8',
+    marginTop: '8px',
+    cursor: 'pointer',
+    '&:hover': {
+      opacity: '1',
+    },
+  },
+}));
+
 function ToInputs() {
   const dispatch = useDispatch();
+  const { classes } = useStyles();
   const [balance, setBalance] = useState(undefined as string | undefined);
+  const [warnings, setWarnings] = useState([] as any[]);
 
-  const { validations, fromNetwork, toNetwork, token, amount, foreignAsset } =
-    useSelector((state: RootState) => state.transfer);
+  const {
+    validations,
+    fromNetwork,
+    toNetwork,
+    token,
+    amount,
+    foreignAsset,
+    associatedTokenAddress,
+  } = useSelector((state: RootState) => state.transfer);
   const wallet = useSelector((state: RootState) => state.wallet.receiving);
 
   const tokenConfig = TOKENS[token];
@@ -49,21 +75,23 @@ function ToInputs() {
   useEffect(() => {
     const checkWrappedTokenExists = async () => {
       if (!toNetwork || !token) {
-        setForeignAsset('');
+        dispatch(setForeignAsset(''));
         return;
       }
 
       const tokenConfig = TOKENS[token];
-      const config = tokenConfig.tokenId
+      const tokenId = tokenConfig.tokenId
         ? tokenConfig.tokenId
         : getWrappedToken(tokenConfig).tokenId;
 
-      if (!config) {
+      if (!tokenId) {
         throw new Error('Could not retrieve target token info');
       }
 
-      const address = await getForeignAsset(config, toNetwork);
-      if (address) setForeignAsset(address);
+      const address = await getForeignAsset(tokenId, toNetwork);
+      if (address) {
+        dispatch(setForeignAsset(address));
+      }
     };
     checkWrappedTokenExists();
   }, [toNetwork, token]);
@@ -82,12 +110,42 @@ function ToInputs() {
     </Input>
   );
 
-  const createAssociatedTokenAccount = (address: string) => {
-    if (!address)
+  const checkSolanaTokenAccount = async () => {
+    if (foreignAsset && !associatedTokenAddress) {
+      let tokenId = tokenConfig.tokenId || getWrappedTokenId(tokenConfig);
+      try {
+        const account = await solanaContext().getAssociatedTokenAccount(
+          tokenId,
+          wallet.address,
+        );
+        if (account) {
+          dispatch(setAssociatedTokenAddress(account.address.toString()));
+          return setWarnings([]);
+        }
+      } catch (e) {
+        return setWarnings([associatedTokenWarning]);
+      }
+    }
+    if (!associatedTokenAddress) return setWarnings([associatedTokenWarning]);
+  };
+
+  const createAssociatedTokenAccount = async () => {
+    if (!wallet.address || !token)
+      throw new Error(
+        'Must fill in all fields before you can create a token account',
+      );
+    if (!foreignAsset)
       throw new Error(
         'The token must be registered on Solana before an associated token account can be created',
       );
-    console.log('create account');
+    const tokenId = getWrappedTokenId(tokenConfig);
+    const tx = await solanaContext().createAssociatedTokenAccount(
+      tokenId,
+      wallet.address,
+    );
+    if (!tx) return;
+    await signSolanaTransaction(tx, TransferWallet.RECEIVING);
+    await checkSolanaTokenAccount();
   };
 
   // destination token warnings
@@ -101,9 +159,25 @@ function ToInputs() {
       markets.
     </Typography>
   );
+  const associatedTokenWarning = (
+    <div>
+      No associated token account exists for your wallet on Solana. You must
+      create it before proceeding.
+      <div className={classes.link} onClick={createAssociatedTokenAccount}>
+        Create account
+      </div>
+    </div>
+  );
 
-  let warnings: React.ReactNode[] = [];
-  if (toNetwork && token && !foreignAsset) warnings = [tokenWarning];
+  useEffect(() => {
+    if (!toNetwork || !token) return setWarnings([]);
+    if (!foreignAsset) return setWarnings([tokenWarning]);
+    if (toNetwork === 'solana') {
+      checkSolanaTokenAccount();
+    } else {
+      setWarnings([]);
+    }
+  }, [foreignAsset, wallet, associatedTokenAddress]);
 
   return (
     <Inputs
