@@ -1,7 +1,5 @@
 import { Network as Environment } from '@certusone/wormhole-sdk';
 import { BigNumber, utils } from 'ethers';
-import { PublicKey } from '@solana/web3.js';
-import { getAccount } from '@solana/spl-token';
 import {
   WormholeContext,
   SolanaContext,
