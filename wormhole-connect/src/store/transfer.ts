@@ -137,7 +137,7 @@ export const transferSlice = createSlice({
     // transfer calculations
     setMaxSwapAmt: (
       state: TransferState,
-      { payload }: PayloadAction<number>,
+      { payload }: PayloadAction<number | undefined>,
     ) => {
       console.log('set max swap amount:', payload);
       state.maxSwapAmt = payload;

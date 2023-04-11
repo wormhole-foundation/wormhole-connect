@@ -162,17 +162,19 @@ export class SolanaContext<
     if (tokenAccount) return;
 
     const solAddr = await this.mustGetForeignAsset(token, SOLANA_CHAIN_NAME);
+    const associatedAddr = await this.getAssociatedTokenAddress(token, account);
     const payerPublicKey = new PublicKey(account);
     const tokenPublicKey = new PublicKey(solAddr);
+    const associatedPublicKey = new PublicKey(associatedAddr);
 
-    const createAccountInst = await createAssociatedTokenAccountInstruction(
+    const createAccountInst = createAssociatedTokenAccountInstruction(
       payerPublicKey,
-      tokenPublicKey,
+      associatedPublicKey,
       payerPublicKey,
       tokenPublicKey,
     );
     const transaction = new Transaction().add(createAccountInst);
-    const { blockhash } = await this.connection.getRecentBlockhash();
+    const { blockhash } = await this.connection.getLatestBlockhash();
     transaction.recentBlockhash = blockhash;
     transaction.feePayer = new PublicKey(payerPublicKey);
     return transaction;

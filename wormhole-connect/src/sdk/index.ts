@@ -202,8 +202,10 @@ export const calculateMaxSwapAmount = async (
   destChain: ChainName | ChainId,
   token: TokenId,
 ) => {
-  const EthContext: any = wh.getContext(destChain);
-  return await EthContext.calculateMaxSwapAmount(destChain, token);
+  const contracts = wh.getContracts(destChain);
+  if (!contracts?.relayer) return;
+  const context: any = wh.getContext(destChain);
+  return await context.calculateMaxSwapAmount(destChain, token);
 };
 
 export const calculateNativeTokenAmt = async (

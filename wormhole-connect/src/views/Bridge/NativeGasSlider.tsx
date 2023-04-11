@@ -116,10 +116,15 @@ function GasSlider(props: { disabled: boolean }) {
 
   useEffect(() => {
     if (!toNetwork || !sendingToken) return;
+    if (toNetwork === 'solana') return;
     // calculate max swap amount to native gas token
     if (sendingToken.tokenId) {
       calculateMaxSwapAmount(toNetwork, sendingToken.tokenId).then(
         (res: BigNumber) => {
+          if (!res) {
+            dispatch(setMaxSwapAmt(undefined));
+            return;
+          }
           const amt = toDecimals(res, sendingToken.decimals, 6);
           dispatch(setMaxSwapAmt(Number.parseFloat(amt)));
         },
@@ -130,6 +135,10 @@ function GasSlider(props: { disabled: boolean }) {
       const wrappedAsset = TOKENS[sendingToken.wrappedAsset];
       calculateMaxSwapAmount(toNetwork, wrappedAsset.tokenId!).then(
         (res: BigNumber) => {
+          if (!res) {
+            dispatch(setMaxSwapAmt(undefined));
+            return;
+          }
           const amt = toDecimals(res, sendingToken.decimals, 6);
           dispatch(setMaxSwapAmt(Number.parseFloat(amt)));
         },
