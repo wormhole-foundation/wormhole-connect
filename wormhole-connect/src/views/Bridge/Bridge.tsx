@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
-import { BigNumber, constants } from 'ethers';
+import { BigNumber } from 'ethers';
 import { useDispatch } from 'react-redux';
 import { RootState } from '../../store';
 import {
@@ -12,7 +12,7 @@ import {
   setToken,
   touchValidations,
 } from '../../store/transfer';
-import { getForeignAsset, getNativeBalance, PaymentOption } from '../../sdk';
+import { getNativeBalance, PaymentOption } from '../../sdk';
 import { CHAINS, TOKENS } from '../../config';
 import { isTransferValid, validate } from '../../utils/transferValidation';
 
@@ -27,7 +27,6 @@ import ToNetworksModal from './Modals/ToNetworksModal';
 import TokensModal from './Modals/TokensModal';
 import FromInputs from './Inputs.tsx/From';
 import ToInputs from './Inputs.tsx/To';
-import { getWrappedToken } from '../../utils';
 
 const useStyles = makeStyles()((theme) => ({
   bridgeContent: {
@@ -61,6 +60,8 @@ function Bridge() {
     automaticRelayAvail,
     toNativeToken,
     relayerFee,
+    foreignAsset,
+    associatedTokenAddress,
     isTransactionInProgress,
   } = useSelector((state: RootState) => state.transfer);
   const { sending, receiving } = useSelector(
@@ -106,6 +107,8 @@ function Bridge() {
     automaticRelayAvail,
     toNativeToken,
     relayerFee,
+    foreignAsset,
+    associatedTokenAddress,
   ]);
   // show validations when everything is filled out
   useEffect(() => {
@@ -124,6 +127,8 @@ function Bridge() {
   const valid = isTransferValid(validations);
 
   const disabled = !valid || isTransactionInProgress;
+  const showGasSlider =
+    automaticRelayAvail && destGasPayment === PaymentOption.AUTOMATIC;
 
   return (
     <div className={classes.bridgeContent}>
@@ -134,11 +139,16 @@ function Bridge() {
 
       <GasOptions disabled={disabled} />
 
-      {automaticRelayAvail && (
-        <Collapse in={destGasPayment === PaymentOption.AUTOMATIC}>
-          <GasSlider disabled={disabled} />
-        </Collapse>
-      )}
+      <Collapse
+        in={showGasSlider}
+        sx={
+          !showGasSlider
+            ? { marginBottom: '-16px', transition: 'margin 0.4s' }
+            : {}
+        }
+      >
+        <GasSlider disabled={disabled} />
+      </Collapse>
 
       <Preview collapsed={!valid} />
 

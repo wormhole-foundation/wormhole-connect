@@ -35,6 +35,8 @@ export interface TransferState {
   receiveNativeAmt: number | undefined;
   relayerFee: number | undefined;
   balances: Balances;
+  foreignAsset: string;
+  associatedTokenAddress: string;
   gasEst: {
     manual: string;
     automatic: string;
@@ -54,6 +56,8 @@ const initialState: TransferState = {
     toNativeToken: '',
     sendingWallet: '',
     receivingWallet: '',
+    foreignAsset: '',
+    associatedTokenAccount: '',
   },
   fromNetwork: undefined,
   toNetwork: undefined,
@@ -66,6 +70,8 @@ const initialState: TransferState = {
   receiveNativeAmt: undefined,
   relayerFee: undefined,
   balances: {},
+  foreignAsset: '',
+  associatedTokenAddress: '',
   gasEst: {
     manual: '',
     automatic: '',
@@ -142,7 +148,7 @@ export const transferSlice = createSlice({
     // transfer calculations
     setMaxSwapAmt: (
       state: TransferState,
-      { payload }: PayloadAction<number>,
+      { payload }: PayloadAction<number | undefined>,
     ) => {
       console.log('set max swap amount:', payload);
       state.maxSwapAmt = payload;
@@ -176,6 +182,18 @@ export const transferSlice = createSlice({
     ) => {
       state.automaticRelayAvail = payload;
       if (payload) state.destGasPayment = PaymentOption.AUTOMATIC;
+    },
+    setForeignAsset: (
+      state: TransferState,
+      { payload }: PayloadAction<string>,
+    ) => {
+      state.foreignAsset = payload;
+    },
+    setAssociatedTokenAddress: (
+      state: TransferState,
+      { payload }: PayloadAction<string>,
+    ) => {
+      state.associatedTokenAddress = payload;
     },
     // gas estimates
     setManualGasEst: (
@@ -227,6 +245,8 @@ export const {
   setBalance,
   clearBalances,
   setAutomaticRelayAvail,
+  setForeignAsset,
+  setAssociatedTokenAddress,
   setManualGasEst,
   setAutomaticGasEst,
   setClaimGasEst,

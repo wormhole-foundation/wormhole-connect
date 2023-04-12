@@ -126,9 +126,20 @@ export class WormholeContext extends MultiProvider<Domain> {
     }
   }
 
-  async getForeignAsset(tokenId: TokenId, chain: ChainName | ChainId) {
+  async getForeignAsset(
+    tokenId: TokenId,
+    chain: ChainName | ChainId,
+  ): Promise<string | null> {
     const context = this.getContext(chain);
     return await context.getForeignAsset(tokenId, chain);
+  }
+
+  async mustGetForeignAsset(
+    tokenId: TokenId,
+    chain: ChainName | ChainId,
+  ): Promise<string> {
+    const context = this.getContext(chain);
+    return await context.mustGetForeignAsset(tokenId, chain);
   }
 
   async fetchTokenDecimals(
@@ -136,7 +147,7 @@ export class WormholeContext extends MultiProvider<Domain> {
     chain: ChainName | ChainId,
   ): Promise<number> {
     const context = this.getContext(chain);
-    const repr = await context.getForeignAsset(tokenId, chain);
+    const repr = await context.mustGetForeignAsset(tokenId, chain);
     return await context.fetchTokenDecimals(repr, chain);
   }
 

@@ -2,6 +2,7 @@ import { Network as Environment } from '@certusone/wormhole-sdk';
 import { BigNumber, utils } from 'ethers';
 import {
   WormholeContext,
+  SolanaContext,
   TokenId,
   ChainId,
   ChainName,
@@ -48,6 +49,10 @@ export interface ParsedRelayerMessage extends ParsedMessage {
   toNativeTokenAmount: string;
 }
 
+export const solanaContext = (): SolanaContext<WormholeContext> => {
+  return wh.getContext(MAINNET_CHAINS.solana) as SolanaContext<WormholeContext>;
+};
+
 export const formatAddress = (chain: ChainName | ChainId, address: string) => {
   const context = wh.getContext(chain);
   return context.formatAddress(address);
@@ -66,7 +71,7 @@ export const registerSigner = (chain: ChainName | ChainId, signer: any) => {
 export const getForeignAsset = async (
   tokenId: TokenId,
   chain: ChainName | ChainId,
-): Promise<string> => {
+): Promise<string | null> => {
   return await wh.getForeignAsset(tokenId, chain);
 };
 
@@ -109,7 +114,9 @@ export const parseMessageFromTx = async (
   // get wallet address of associated token account for Solana
   const toChainId = wh.toChainId(parsed.toChain);
   if (toChainId === MAINNET_CHAINS.solana) {
-    const accountOwner = await getSolTokenAccountOwner(parsed.recipient);
+    const accountOwner = await solanaContext().getTokenAccountOwner(
+      parsed.recipient,
+    );
     base.recipient = accountOwner;
   }
   if (parsed.payloadID === PaymentOption.MANUAL) {
@@ -193,8 +200,10 @@ export const calculateMaxSwapAmount = async (
   destChain: ChainName | ChainId,
   token: TokenId,
 ) => {
-  const EthContext: any = wh.getContext(destChain);
-  return await EthContext.calculateMaxSwapAmount(destChain, token);
+  const contracts = wh.getContracts(destChain);
+  if (!contracts?.relayer) return;
+  const context: any = wh.getContext(destChain);
+  return await context.calculateMaxSwapAmount(destChain, token);
 };
 
 export const calculateNativeTokenAmt = async (
@@ -270,11 +279,6 @@ export const getCurrentBlock = async (
     const provider = wh.mustGetProvider(chain);
     return await provider.getBlockNumber();
   }
-};
-
-export const getSolTokenAccountOwner = async (address: string) => {
-  const context: any = wh.getContext(MAINNET_CHAINS.solana);
-  return await context.getTokenAccountOwner(address);
 };
 
 export const estimateSendGasFee = async (

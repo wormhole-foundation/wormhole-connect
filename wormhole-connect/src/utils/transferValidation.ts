@@ -2,13 +2,12 @@ import { AnyAction } from '@reduxjs/toolkit';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { Dispatch } from 'react';
 import { store } from 'store';
-import { TransferState, validateTransfer } from 'store/transfer';
-import { WalletData, WalletState } from 'store/wallet';
-import { walletAcceptedNetworks } from 'utils/wallet';
+import { TransferState, validateTransfer } from '../store/transfer';
+import { WalletData, WalletState } from '../store/wallet';
+import { walletAcceptedNetworks } from './wallet';
 import { CHAINS, TOKENS } from '../config';
 import { PaymentOption } from '../sdk';
 
-export type Error = string;
 export type ValidationErr = string;
 
 export type TransferValidations = {
@@ -20,6 +19,8 @@ export type TransferValidations = {
   amount: ValidationErr;
   destGasPayment: ValidationErr;
   toNativeToken: ValidationErr;
+  foreignAsset: ValidationErr;
+  associatedTokenAccount: ValidationErr;
 };
 
 export const validateFromNetwork = (
@@ -112,10 +113,32 @@ export const validateToNativeAmt = (
 export const validateDestGasPayment = (
   payment: PaymentOption,
   relayAvailable: boolean,
-) => {
+): ValidationErr => {
   if (payment === PaymentOption.MANUAL) return '';
   if (!relayAvailable)
     return 'Single transaction payment not available for this transfer';
+  return '';
+};
+
+export const validateDestToken = (
+  destTokenAddr: string | undefined,
+): ValidationErr => {
+  if (!destTokenAddr) {
+    return 'No wrapped asset exists for this token';
+  }
+  return '';
+};
+
+export const validateSolanaTokenAccount = (
+  destChain: string | undefined,
+  destTokenAddr: string,
+  solanaTokenAccount: string,
+): ValidationErr => {
+  if (destChain !== 'solana') return '';
+  if (!destTokenAddr) return '';
+  if (destTokenAddr && !solanaTokenAccount) {
+    return 'The associated token account for this asset does not exist on Solana, you must create it first';
+  }
   return '';
 };
 
@@ -134,6 +157,8 @@ export const validateAll = (
     toNativeToken,
     relayerFee,
     balances,
+    foreignAsset,
+    associatedTokenAddress,
   } = transferData;
   const { sending, receiving } = walletData;
   const isAutomatic = destGasPayment === PaymentOption.AUTOMATIC;
@@ -147,6 +172,12 @@ export const validateAll = (
     amount: validateAmount(amount, balances[token], destGasPayment, minAmt),
     destGasPayment: validateDestGasPayment(destGasPayment, automaticRelayAvail),
     toNativeToken: '',
+    foreignAsset: validateDestToken(foreignAsset),
+    associatedTokenAddress: validateSolanaTokenAccount(
+      toNetwork,
+      foreignAsset,
+      associatedTokenAddress,
+    ),
   };
   if (!isAutomatic) return baseValidations;
   return {

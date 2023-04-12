@@ -14,6 +14,8 @@ import {
   TOKEN_PROGRAM_ID,
   getAssociatedTokenAddress,
   getAccount,
+  createAssociatedTokenAccountInstruction,
+  Account,
 } from '@solana/spl-token';
 import {
   clusterApiUrl,
@@ -25,7 +27,7 @@ import {
   SystemProgram,
   Transaction,
 } from '@solana/web3.js';
-import { BigNumber, constants } from 'ethers';
+import { BigNumber } from 'ethers';
 import { arrayify, zeroPad, hexlify } from 'ethers/lib/utils';
 
 import MAINNET_CONFIG, { MAINNET_CHAINS } from '../../config/MAINNET';
@@ -112,13 +114,8 @@ export class SolanaContext<
     chain: ChainName | ChainId,
   ): Promise<BigNumber | null> {
     if (!this.connection) throw new Error('no connection');
-    let address;
-    try {
-      address = await this.getForeignAsset(tokenId, chain);
-    } catch (e) {
-      return null;
-    }
-    if (!address || address === constants.AddressZero) return null;
+    const address = await this.getForeignAsset(tokenId, chain);
+    if (!address) return null;
     const splToken = await this.connection.getTokenAccountsByOwner(
       new PublicKey(walletAddress),
       { mint: new PublicKey(address) },
@@ -131,21 +128,57 @@ export class SolanaContext<
     return BigNumber.from(balance.value.amount);
   }
 
-  async getAssociatedTokenAccount(token: TokenId, account: PublicKeyInitData) {
-    let solAddr;
-    try {
-      solAddr = await this.getForeignAsset(token, SOLANA_CHAIN_NAME);
-    } catch (e) {
-      return null;
-    }
-    const associatedAddress = await getAssociatedTokenAddress(
+  async getAssociatedTokenAddress(token: TokenId, account: PublicKeyInitData) {
+    const solAddr = await this.mustGetForeignAsset(token, SOLANA_CHAIN_NAME);
+    return await getAssociatedTokenAddress(
       new PublicKey(solAddr),
       new PublicKey(account),
       undefined,
       TOKEN_PROGRAM_ID,
       ASSOCIATED_TOKEN_PROGRAM_ID,
     );
-    return associatedAddress;
+  }
+
+  async getAssociatedTokenAccount(
+    token: TokenId,
+    account: PublicKeyInitData,
+  ): Promise<Account | null> {
+    if (!this.connection) throw new Error('no connection');
+    const addr = await this.getAssociatedTokenAddress(token, account);
+    try {
+      const account = await getAccount(this.connection, addr);
+      return account;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  async createAssociatedTokenAccount(
+    token: TokenId,
+    account: PublicKeyInitData,
+    commitment?: Commitment,
+  ): Promise<Transaction | void> {
+    if (!this.connection) throw new Error('no connection');
+    const tokenAccount = await this.getAssociatedTokenAccount(token, account);
+    if (tokenAccount) return;
+
+    const solAddr = await this.mustGetForeignAsset(token, SOLANA_CHAIN_NAME);
+    const associatedAddr = await this.getAssociatedTokenAddress(token, account);
+    const payerPublicKey = new PublicKey(account);
+    const tokenPublicKey = new PublicKey(solAddr);
+    const associatedPublicKey = new PublicKey(associatedAddr);
+
+    const createAccountInst = createAssociatedTokenAccountInstruction(
+      payerPublicKey,
+      associatedPublicKey,
+      payerPublicKey,
+      tokenPublicKey,
+    );
+    const transaction = new Transaction().add(createAccountInst);
+    const { blockhash } = await this.connection.getLatestBlockhash(commitment);
+    transaction.recentBlockhash = blockhash;
+    transaction.feePayer = payerPublicKey;
+    return transaction;
   }
 
   private async transferNativeSol(
@@ -328,14 +361,17 @@ export class SolanaContext<
         'finalized',
       );
     } else {
-      const destTokenAddr = await destContext.getForeignAsset(
+      const destTokenAddr = await destContext.mustGetForeignAsset(
         token,
         recipientChain,
       );
       const formattedTokenAddr = arrayify(
         destContext.formatAddress(destTokenAddr),
       );
-      const solTokenAddr = await this.getForeignAsset(token, SOLANA_CHAIN_NAME);
+      const solTokenAddr = await this.mustGetForeignAsset(
+        token,
+        SOLANA_CHAIN_NAME,
+      );
       const splToken = await this.connection.getTokenAccountsByOwner(
         new PublicKey(senderAddress),
         { mint: new PublicKey(solTokenAddr) },
@@ -390,7 +426,10 @@ export class SolanaContext<
       const formattedTokenAddr = arrayify(
         destContext.formatAddress(token.address),
       );
-      const solTokenAddr = await this.getForeignAsset(token, SOLANA_CHAIN_NAME);
+      const solTokenAddr = await this.mustGetForeignAsset(
+        token,
+        SOLANA_CHAIN_NAME,
+      );
       console.log('solana token addr', solTokenAddr);
       const splToken = await this.connection.getTokenAccountsByOwner(
         new PublicKey(senderAddress),
@@ -431,7 +470,10 @@ export class SolanaContext<
     return new PublicKey(addr).toString();
   }
 
-  async getForeignAsset(tokenId: TokenId, chain: ChainName | ChainId) {
+  async getForeignAsset(
+    tokenId: TokenId,
+    chain: ChainName | ChainId,
+  ): Promise<string | null> {
     if (!this.connection) throw new Error('no connection');
 
     const chainId = this.context.toChainId(tokenId.chain);
@@ -449,7 +491,16 @@ export class SolanaContext<
       chainId,
       arrayify(formattedAddr),
     );
-    if (!addr) throw new Error('token not found');
+    if (!addr) return null;
+    return addr;
+  }
+
+  async mustGetForeignAsset(
+    tokenId: TokenId,
+    chain: ChainName | ChainId,
+  ): Promise<string> {
+    const addr = await this.getForeignAsset(tokenId, chain);
+    if (!addr) throw new Error('token not registered');
     return addr;
   }
 

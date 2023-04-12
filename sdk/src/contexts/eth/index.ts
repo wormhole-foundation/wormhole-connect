@@ -39,7 +39,10 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
     this.contracts = new EthContracts(context);
   }
 
-  async getForeignAsset(tokenId: TokenId, chain: ChainName | ChainId) {
+  async getForeignAsset(
+    tokenId: TokenId,
+    chain: ChainName | ChainId,
+  ): Promise<string | null> {
     const toChainId = this.context.toChainId(chain);
     const chainId = this.context.toChainId(tokenId.chain);
     // if the token is already native, return the token address
@@ -48,7 +51,21 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
     const tokenBridge = this.contracts.mustGetBridge(chain);
     const sourceContext = this.context.getContext(tokenId.chain);
     const tokenAddr = sourceContext.formatAddress(tokenId.address);
-    return await tokenBridge.wrappedAsset(chainId, utils.arrayify(tokenAddr));
+    const foreignAddr = await tokenBridge.wrappedAsset(
+      chainId,
+      utils.arrayify(tokenAddr),
+    );
+    if (foreignAddr === constants.AddressZero) return null;
+    return foreignAddr;
+  }
+
+  async mustGetForeignAsset(
+    tokenId: TokenId,
+    chain: ChainName | ChainId,
+  ): Promise<string> {
+    const addr = await this.getForeignAsset(tokenId, chain);
+    if (!addr) throw new Error('token not registered');
+    return addr;
   }
 
   async fetchTokenDecimals(
@@ -78,7 +95,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
     chain: ChainName | ChainId,
   ): Promise<BigNumber | null> {
     const address = await this.getForeignAsset(tokenId, chain);
-    if (address === constants.AddressZero) return null;
+    if (!address) return null;
     const provider = this.context.mustGetProvider(chain);
     const token = TokenImplementation__factory.connect(address, provider);
     const balance = await token.balanceOf(walletAddr);
@@ -153,9 +170,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
       }
       const account = await (
         destContext as SolanaContext<WormholeContext>
-      ).getAssociatedTokenAccount(tokenId as TokenId, recipientAddress);
-      if (!account)
-        throw new Error('associated token account does not exist for solana');
+      ).getAssociatedTokenAddress(tokenId as TokenId, recipientAddress);
       recipientAccount = account.toString();
     }
 
@@ -187,7 +202,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
     } else {
       // sending ERC-20
       //approve and send
-      const tokenAddr = await this.getForeignAsset(token, sendingChain);
+      const tokenAddr = await this.mustGetForeignAsset(token, sendingChain);
       // simulate transaction
       await bridge.callStatic.transferTokens(
         tokenAddr,
@@ -229,8 +244,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
     if (token !== NATIVE) {
       const amountBN = ethers.BigNumber.from(amount);
       const bridge = this.contracts.mustGetBridge(sendingChain);
-      const tokenAddr = await this.getForeignAsset(token, sendingChain);
-      console.log(sendingChain, bridge.address, tokenAddr, amountBN);
+      const tokenAddr = await this.mustGetForeignAsset(token, sendingChain);
       await this.approve(sendingChain, bridge.address, tokenAddr, amountBN);
     }
 
@@ -280,7 +294,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
       return await v.wait();
     } else {
       // sending ERC-20
-      const tokenAddr = await this.getForeignAsset(token, sendingChain);
+      const tokenAddr = await this.mustGetForeignAsset(token, sendingChain);
       await this.approve(sendingChain, bridge.address, tokenAddr, amountBN);
       const v = await bridge.transferTokensWithPayload(
         destContext.parseAddress(tokenAddr),
@@ -331,7 +345,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
     } else {
       console.log('send with relay');
       // sending ERC-20
-      const tokenAddr = await this.getForeignAsset(token, sendingChain);
+      const tokenAddr = await this.mustGetForeignAsset(token, sendingChain);
       return relayer.populateTransaction.transferTokensWithRelay(
         this.parseAddress(tokenAddr),
         amountBN,
@@ -363,7 +377,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
     if (token !== NATIVE) {
       const amountBN = ethers.BigNumber.from(amount);
       const relayer = this.contracts.mustGetTokenBridgeRelayer(sendingChain);
-      const tokenAddr = await this.getForeignAsset(token, sendingChain);
+      const tokenAddr = await this.mustGetForeignAsset(token, sendingChain);
       console.log(
         sendingChain,
         relayer.address,
@@ -420,7 +434,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
     tokenId: TokenId,
   ): Promise<BigNumber> {
     const relayer = this.contracts.mustGetTokenBridgeRelayer(destChain);
-    const token = await this.getForeignAsset(tokenId, destChain);
+    const token = await this.mustGetForeignAsset(tokenId, destChain);
     return await relayer.calculateMaxSwapAmountIn(token);
   }
 
@@ -430,7 +444,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
     amount: BigNumberish,
   ): Promise<BigNumber> {
     const relayer = this.contracts.mustGetTokenBridgeRelayer(destChain);
-    const token = await this.getForeignAsset(tokenId, destChain);
+    const token = await this.mustGetForeignAsset(tokenId, destChain);
     return await relayer.calculateNativeSwapAmountOut(token, amount);
   }
 
@@ -520,7 +534,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
   ): Promise<BigNumber> {
     const relayer = this.contracts.mustGetTokenBridgeRelayer(sourceChain);
     // get asset address
-    const address = await this.getForeignAsset(tokenId, sourceChain);
+    const address = await this.mustGetForeignAsset(tokenId, sourceChain);
     // get token decimals
     const provider = this.context.mustGetProvider(sourceChain);
     const tokenContract = TokenImplementation__factory.connect(

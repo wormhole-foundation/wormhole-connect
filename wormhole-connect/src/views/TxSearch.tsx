@@ -119,7 +119,7 @@ function TxSearch() {
 
       <Spacer />
 
-      <AlertBanner show={!!error} text={error} error margin="0 0 16px 0" />
+      <AlertBanner show={!!error} content={error} error margin="0 0 16px 0" />
 
       <Button disabled={!state.chain || !state.tx} elevated onClick={search}>
         Search

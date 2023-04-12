@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
-import { useDispatch } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { BigNumber, utils } from 'ethers';
 import CircularProgress from '@mui/material/CircularProgress';
 import { Context } from '@wormhole-foundation/wormhole-connect-sdk';
@@ -77,13 +76,13 @@ function SendTo() {
   const connect = () => {
     setWalletModal(true);
   };
+
   const checkConnection = () => {
     if (!txData) return;
     const addr = wallet.address.toLowerCase();
     const curAddr = wallet.currentAddress.toLowerCase();
     const formattedRecipient = parseAddress(txData.toChain, txData.recipient);
     const reqAddr = formattedRecipient.toLowerCase();
-    // console.log(addr, curAddr, reqAddr)
     return addr === curAddr && addr === reqAddr;
   };
 
@@ -152,7 +151,7 @@ function SendTo() {
           <Spacer height={8} />
           <AlertBanner
             show={!!claimError}
-            text={claimError}
+            content={claimError}
             error
             margin="0 0 8px 0"
           />
