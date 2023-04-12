@@ -23,10 +23,16 @@ import { Link, Typography } from '@mui/material';
 const { REACT_APP_ATTEST_URL } = process.env;
 
 const useStyles = makeStyles()((theme) => ({
+  associatedTokenWarning: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'start',
+  },
   link: {
     textDecoration: 'underline',
     opacity: '0.8',
-    marginTop: '8px',
+    marginTop: '4px',
+    padding: '4px 0',
     cursor: 'pointer',
     '&:hover': {
       opacity: '1',
@@ -110,18 +116,22 @@ function ToInputs() {
     </Input>
   );
 
-  const checkSolanaTokenAccount = async () => {
-    if (!foreignAsset) return;
+  // the associated token account address is deterministic, so we still
+  // need to check if there is an account created for that address
+  const checkSolanaAssociatedTokenAccount = async (): Promise<boolean> => {
+    if (!foreignAsset) return false;
     let tokenId = tokenConfig.tokenId || getWrappedTokenId(tokenConfig);
     const account = await solanaContext().getAssociatedTokenAccount(
       tokenId,
       wallet.address,
     );
     if (account) {
-      dispatch(setAssociatedTokenAddress(account.address.toString()));
-      return setWarnings([]);
+      dispatch(setAssociatedTokenAddress(account.toString()));
+      setWarnings([]);
+      return true;
     } else {
-      return setWarnings([associatedTokenWarning]);
+      setWarnings([associatedTokenWarning]);
+      return false;
     }
   };
 
@@ -138,10 +148,22 @@ function ToInputs() {
     const tx = await solanaContext().createAssociatedTokenAccount(
       tokenId,
       wallet.address,
+      'finalized',
     );
-    if (!tx) return;
+    // if `tx` is null it means the account already exists
+    if (!tx) return setWarnings([]);
     await signSolanaTransaction(tx, TransferWallet.RECEIVING);
-    await checkSolanaTokenAccount();
+
+    let accountExists = false;
+    let retries = 0;
+    const checkAccount = setInterval(async () => {
+      if (accountExists || retries > 10) {
+        clearInterval(checkAccount);
+      } else {
+        accountExists = await checkSolanaAssociatedTokenAccount();
+        retries += 1;
+      }
+    }, 1000);
   };
 
   // destination token warnings
@@ -156,7 +178,7 @@ function ToInputs() {
     </Typography>
   );
   const associatedTokenWarning = (
-    <div>
+    <div className={classes.associatedTokenWarning}>
       No associated token account exists for your wallet on Solana. You must
       create it before proceeding.
       <div className={classes.link} onClick={createAssociatedTokenAccount}>
@@ -166,10 +188,10 @@ function ToInputs() {
   );
 
   useEffect(() => {
-    if (!toNetwork || !token) return setWarnings([]);
+    if (!toNetwork || !token || !wallet.address) return setWarnings([]);
     if (!foreignAsset) return setWarnings([tokenWarning]);
     if (toNetwork === 'solana') {
-      checkSolanaTokenAccount();
+      checkSolanaAssociatedTokenAccount();
     } else {
       setWarnings([]);
     }

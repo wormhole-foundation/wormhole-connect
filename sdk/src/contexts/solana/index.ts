@@ -156,6 +156,7 @@ export class SolanaContext<
   async createAssociatedTokenAccount(
     token: TokenId,
     account: PublicKeyInitData,
+    commitment?: Commitment,
   ): Promise<Transaction | void> {
     if (!this.connection) throw new Error('no connection');
     const tokenAccount = await this.getAssociatedTokenAccount(token, account);
@@ -174,7 +175,7 @@ export class SolanaContext<
       tokenPublicKey,
     );
     const transaction = new Transaction().add(createAccountInst);
-    const { blockhash } = await this.connection.getLatestBlockhash();
+    const { blockhash } = await this.connection.getLatestBlockhash(commitment);
     transaction.recentBlockhash = blockhash;
     transaction.feePayer = payerPublicKey;
     return transaction;
