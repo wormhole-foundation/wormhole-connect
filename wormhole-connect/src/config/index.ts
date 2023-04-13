@@ -5,8 +5,8 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { MAINNET_NETWORKS, MAINNET_TOKENS } from './mainnet';
 import { TESTNET_NETWORKS, TESTNET_TOKENS } from './testnet';
-import { TokenConfig, NetworkConfig } from './types';
-import { dark, light } from 'theme';
+import { TokenConfig, NetworkConfig, WormholeConnectConfig } from './types';
+import { dark, light } from '../theme';
 import {
   MainnetChainName,
   TestnetChainName,
@@ -16,7 +16,7 @@ const el = document.getElementById('wormhole-connect');
 if (!el)
   throw new Error('must specify an anchor element with id wormhole-connect');
 const configJson = el.getAttribute('config');
-const config = JSON.parse(configJson!);
+const config: WormholeConnectConfig = JSON.parse(configJson!);
 console.log('CONFIG', config);
 
 const { REACT_APP_ENV } = process.env;
@@ -44,22 +44,26 @@ const testnetRpcs = {
   solana: process.env.REACT_APP_SOLANA_DEVNET_RPC || conf.rpcs.solana,
   moonbasealpha: process.env.REACT_APP_MOONBASE_RPC || conf.rpcs.moonbasealpha,
 };
-conf.rpcs = REACT_APP_ENV === 'MAINNET' ? mainnetRpcs : testnetRpcs;
+conf.rpcs = Object.assign(
+  {},
+  REACT_APP_ENV === 'MAINNET' ? mainnetRpcs : testnetRpcs,
+  config.rpcs || {},
+);
 export const WH_CONFIG = conf;
 
 export const CHAINS = isProduction ? MAINNET_NETWORKS : TESTNET_NETWORKS;
 export const CHAINS_ARR =
   config && config.networks
-    ? (Object.values(CHAINS) as NetworkConfig[]).filter((c) =>
-        config.networks.includes(c.key),
+    ? Object.values(CHAINS).filter((c) =>
+        config.networks!.includes(c.key),
       )
     : (Object.values(CHAINS) as NetworkConfig[]);
 
 export const TOKENS = isProduction ? MAINNET_TOKENS : TESTNET_TOKENS;
 export const TOKENS_ARR =
   config && config.tokens
-    ? (Object.values(TOKENS) as TokenConfig[]).filter((c) =>
-        config.tokens.includes(c.symbol),
+    ? Object.values(TOKENS).filter((c) =>
+        config.tokens!.includes(c.symbol),
       )
     : (Object.values(TOKENS) as TokenConfig[]);
 
