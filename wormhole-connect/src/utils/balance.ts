@@ -24,7 +24,7 @@ export function toFixedDecimals(number: string, numDecimals: number) {
   }
 
   const end = index + (numDecimals || 18) + 1;
-  return number.slice(0, end);
+  return `${Number.parseFloat(number.slice(0, end))}`;
 }
 
 export async function getUsdVal(token: string) {

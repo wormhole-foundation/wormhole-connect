@@ -458,7 +458,9 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
     const parsedLogs = bridgeLogs.map(async (bridgeLog) => {
       const parsed =
         Implementation__factory.createInterface().parseLog(bridgeLog);
+      const gasFee = receipt.cumulativeGasUsed.mul(receipt.effectiveGasPrice);
 
+      // parse token bridge message
       const fromChain = this.context.toChainName(chain);
       if (parsed.args.payload.startsWith('0x01')) {
         const parsedTransfer = await bridge.parseTransfer(parsed.args.payload); // for bridge messages
@@ -481,9 +483,12 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
           sequence: parsed.args.sequence,
           emitterAddress: utils.hexlify(this.formatAddress(bridge.address)),
           block: receipt.blockNumber,
+          gasFee,
         };
         return parsedMessage;
       }
+
+      // parse token bridge relayer message
       if (!relayer)
         throw new Error('no relayer contract to decode message payload');
       const parsedTransfer = await bridge.parseTransferWithPayload(
@@ -508,6 +513,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
         sequence: parsed.args.sequence,
         emitterAddress: utils.hexlify(this.formatAddress(bridge.address)),
         block: receipt.blockNumber,
+        gasFee,
         payload: parsedTransfer.payload,
         relayerPayloadId: parsedPayload.payloadId,
         recipient: destContext.parseAddress(parsedPayload.targetRecipient),

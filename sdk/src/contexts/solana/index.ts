@@ -532,13 +532,13 @@ export class SolanaContext<
 
     const parsedInstr =
       parsedResponse?.meta?.innerInstructions![0].instructions;
-    const gasFee = !parsedInstr
-      ? 0
-      : parsedInstr.reduce((acc, c: any) => {
+    const gasFee = parsedInstr
+      ? parsedInstr.reduce((acc, c: any) => {
           if (!c.parsed || !c.parsed.info || !c.parsed.info.lamports)
             return acc;
           return acc + c.parsed.info.lamports;
-        }, 0);
+        }, 0)
+      : 0;
 
     // parse message payload
     const parsed = parseTokenTransferPayload(message.payload);

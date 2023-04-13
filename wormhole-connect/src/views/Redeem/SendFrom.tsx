@@ -17,9 +17,7 @@ const getRows = (txData: any): RowsData => {
   const formattedAmt = toDecimals(txData.amount, decimals, 6);
   const { gasToken: sourceGasTokenSymbol } = CHAINS[txData.fromChain];
   const sourceGasToken = TOKENS[sourceGasTokenSymbol];
-  const formattedGas = txData.gasFee
-    ? toDecimals(txData.gasFee, sourceGasToken.decimals, 6)
-    : undefined;
+  const formattedGas = toDecimals(txData.gasFee, sourceGasToken.decimals, 6);
   const type = txData.payloadID;
 
   // manual transfers
@@ -32,7 +30,7 @@ const getRows = (txData: any): RowsData => {
       },
       {
         title: 'Gas fee',
-        value: formattedGas ? `${formattedGas} ${gasToken}` : 'TODO',
+        value: `${formattedGas} ${gasToken}`,
       },
     ];
   }

@@ -31,9 +31,11 @@ const useStyles = makeStyles()((theme) => ({
   addToken: {
     display: 'flex',
     alignItems: 'center',
-    gap: '8px',
     marginTop: '8px',
     flexDirection: 'row',
+  },
+  addTokenText: {
+    marginLeft: '8px',
   },
   addTokenLink: {
     textDecoration: 'underline',
@@ -92,11 +94,11 @@ function AddToSolanaWallet({ token, address }: AddTokenProps) {
   const { classes } = useStyles();
 
   return (
-    <Typography component={'span'} gap={2} className={classes.addToken}>
+    <Typography component={'span'} className={classes.addToken}>
       <TokenIcon height={20} name={token.icon} />
-      See {token.symbol} token on
+      <span className={classes.addTokenText}>See {token.symbol} token on</span>
       <ExplorerLink
-        styles={{ marginLeft: 0 }}
+        styles={{ marginLeft: -4 }}
         network={'solana'}
         type={'address'}
         address={address}

@@ -2,17 +2,26 @@ import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { BigNumber, utils } from 'ethers';
 import CircularProgress from '@mui/material/CircularProgress';
-import { Context } from '@wormhole-foundation/wormhole-connect-sdk';
+import { ChainName, Context } from '@wormhole-foundation/wormhole-connect-sdk';
 import { RootState } from '../../store';
 import { setRedeemTx, setTransferComplete } from '../../store/redeem';
+import { displayAddress } from '../../utils';
 import {
   registerWalletSigner,
   switchNetwork,
   TransferWallet,
 } from '../../utils/wallet';
-import { claimTransfer, parseAddress, PaymentOption } from '../../sdk';
-import { displayAddress } from '../../utils';
+import { toDecimals } from '../../utils/balance';
+import {
+  wh,
+  claimTransfer,
+  estimateClaimGasFee,
+  parseAddress,
+  PaymentOption,
+} from '../../sdk';
 import { CHAINS } from '../../config';
+import WalletsModal from '../WalletModal';
+import { GAS_ESTIMATES } from '../../config/testnet';
 
 import Header from './Header';
 import AlertBanner from '../../components/AlertBanner';
@@ -21,12 +30,26 @@ import Button from '../../components/Button';
 import Spacer from '../../components/Spacer';
 import { RenderRows, RowsData } from '../../components/RenderRows';
 import InputContainer from '../../components/InputContainer';
-import WalletsModal from '../WalletModal';
 
-const getRows = (txData: any): RowsData => {
+const calculateGas = async (chain: ChainName, receiveTx: string) => {
+  if (chain === 'solana') {
+    return toDecimals(BigNumber.from(GAS_ESTIMATES.solana!.claim), 9, 6);
+  }
+  if (receiveTx) {
+    const provider = wh.mustGetProvider(chain);
+    const receipt = await provider.getTransactionReceipt(receiveTx);
+    return receipt.cumulativeGasUsed.mul(receipt.effectiveGasPrice);
+  }
+  return await estimateClaimGasFee(chain);
+};
+
+const getRows = async (txData: any, receiveTx: string): Promise<RowsData> => {
   const decimals = txData.tokenDecimals > 8 ? 8 : txData.tokenDecimals;
   const type = txData.payloadID;
   const { gasToken } = CHAINS[txData.toChain]!;
+
+  // get gas used (if complete) or gas estimate if not
+  const gas = await calculateGas(txData.toChain, receiveTx);
 
   // manual transfers
   if (type === PaymentOption.MANUAL) {
@@ -37,8 +60,8 @@ const getRows = (txData: any): RowsData => {
         value: `${formattedAmt} ${txData.tokenSymbol}`,
       },
       {
-        title: 'Gas estimate',
-        value: `TODO ${gasToken}`,
+        title: receiveTx ? 'Gas fee' : 'Gas estimate',
+        value: `${gas} ${gasToken}`,
       },
     ];
   }
@@ -93,8 +116,11 @@ function SendTo() {
 
   useEffect(() => {
     if (!txData) return;
-    const rows = getRows(txData);
-    setRows(rows);
+    const populate = async () => {
+      const rows = await getRows(txData, redeemTx);
+      setRows(rows);
+    };
+    populate();
   }, []);
 
   const claim = async () => {

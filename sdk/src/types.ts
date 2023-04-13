@@ -79,8 +79,8 @@ export interface ParsedMessage {
   sequence: BigNumber;
   emitterAddress: string;
   block: number;
+  gasFee: BigNumber;
   payload?: string;
-  gasFee?: BigNumber;
 }
 
 export interface ParsedRelayerMessage extends ParsedMessage {
