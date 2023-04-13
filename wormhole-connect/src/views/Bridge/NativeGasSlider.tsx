@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import Slider, { SliderThumb } from '@mui/material/Slider';
 import { styled } from '@mui/material/styles';
-import BridgeCollapse from './Collapse';
+import BridgeCollapse, { CollapseControlStyle } from './Collapse';
 import InputContainer from '../../components/InputContainer';
 import { CHAINS, TOKENS } from '../../config';
 import { calculateMaxSwapAmount, calculateNativeTokenAmt } from '../../sdk';
@@ -22,7 +22,7 @@ import {
   setToNativeToken,
 } from '../../store/transfer';
 import { useDispatch } from 'react-redux';
-import { getWrappedTokenId } from '../../utils';
+import { debounce, getWrappedTokenId } from '../../utils';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -77,6 +77,20 @@ const PrettoSlider = styled(Slider)<SliderProps>(({ color1, color2 }) => ({
 
 interface ThumbProps extends React.HTMLAttributes<unknown> {}
 
+function formatAmount(amount?: number): number {
+  if (!amount) return 0;
+  const formatted = toFixedDecimals(`${amount}`, 6);
+  return Number.parseFloat(formatted);
+}
+
+const INITIAL_STATE = {
+  max: 0,
+  nativeGas: 0,
+  token: formatAmount(),
+  swapAmt: 0,
+  conversionRate: undefined as number | undefined,
+};
+
 function GasSlider(props: { disabled: boolean }) {
   const { classes } = useStyles();
   const dispatch = useDispatch();
@@ -87,19 +101,7 @@ function GasSlider(props: { disabled: boolean }) {
   const sendingToken = TOKENS[token];
   const nativeGasToken = TOKENS[destConfig?.gasToken!];
 
-  function formatAmount(): number {
-    if (!amount) return 0;
-    const formatted = toFixedDecimals(`${amount}`, 6);
-    return Number.parseFloat(formatted);
-  }
-
-  const [state, setState] = useState({
-    max: 0,
-    nativeGas: 0,
-    token: formatAmount(),
-    swapAmt: 0,
-    conversionRate: undefined as number | undefined,
-  });
+  const [state, setState] = useState(INITIAL_STATE);
 
   // set the actual max swap amount (checks if max swap amount is greater than the sending amount)
   useEffect(() => {
@@ -162,6 +164,19 @@ function GasSlider(props: { disabled: boolean }) {
     );
   }
 
+  const onCollapseChange = (collapsed: boolean) => {
+    // user switched off conversion to native gas, so reset values
+    if (collapsed) {
+      setState({
+        ...state,
+        swapAmt: 0,
+        nativeGas: 0,
+        token: formatAmount(amount),
+      });
+      dispatch(setReceiveNativeAmt(0));
+    }
+  };
+
   // compute amounts on change
   const handleChange = (e: any) => {
     if (!amount || !state.conversionRate) return;
@@ -176,28 +191,26 @@ function GasSlider(props: { disabled: boolean }) {
     setState({ ...state, ...conversion });
   };
 
-  const setNativeAmt = (e: any) => {
-    setTimeout(async () => {
-      console.log('swap amount', state.swapAmt);
-      dispatch(setToNativeToken(state.swapAmt));
-      const tokenId = getWrappedTokenId(sendingToken);
-      const formattedAmt = utils.parseUnits(
-        `${state.swapAmt}`,
-        sendingToken.decimals,
-      );
-      const nativeGasAmt = await calculateNativeTokenAmt(
-        toNetwork!,
-        tokenId,
-        formattedAmt,
-      );
-      console.log(nativeGasAmt);
-      const formattedNativeAmt = Number.parseFloat(
-        toDecimals(nativeGasAmt.toString(), nativeGasToken.decimals, 6),
-      );
-      dispatch(setReceiveNativeAmt(formattedNativeAmt));
-      setState({ ...state, nativeGas: formattedNativeAmt });
-    }, 500);
-  };
+  const setNativeAmt = debounce(async () => {
+    console.log('swap amount', state.swapAmt);
+    dispatch(setToNativeToken(state.swapAmt));
+    const tokenId = getWrappedTokenId(sendingToken);
+    const formattedAmt = utils.parseUnits(
+      `${state.swapAmt}`,
+      sendingToken.decimals,
+    );
+    const nativeGasAmt = await calculateNativeTokenAmt(
+      toNetwork!,
+      tokenId,
+      formattedAmt,
+    );
+    console.log(nativeGasAmt);
+    const formattedNativeAmt = Number.parseFloat(
+      toDecimals(nativeGasAmt.toString(), nativeGasToken.decimals, 6),
+    );
+    dispatch(setReceiveNativeAmt(formattedNativeAmt));
+    setState({ ...state, nativeGas: formattedNativeAmt });
+  }, 250);
 
   return (
     <BridgeCollapse
@@ -205,6 +218,8 @@ function GasSlider(props: { disabled: boolean }) {
       banner={!props.disabled}
       disabled={props.disabled}
       close={props.disabled}
+      controlStyle={CollapseControlStyle.Switch}
+      onCollapseChange={onCollapseChange}
     >
       <InputContainer
         styles={{
@@ -226,6 +241,7 @@ function GasSlider(props: { disabled: boolean }) {
                 slots={{ thumb: Thumb }}
                 aria-label="Native gas conversion amount"
                 defaultValue={0}
+                value={state.swapAmt}
                 color1={nativeGasToken.color}
                 color2={sendingToken.color}
                 step={0.000001}
