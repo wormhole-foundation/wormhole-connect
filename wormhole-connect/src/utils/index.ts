@@ -157,11 +157,9 @@ export function fromNormalizedDecimals(
   amount: BigNumber,
   decimals: number,
 ): BigNumber {
-  const normalizedDecimals = decimals > 8 ? decimals - 8 : decimals;
-  const normalized = Number.parseInt(
-    utils.formatUnits(amount, normalizedDecimals),
-  );
-  return BigNumber.from(normalized);
+  return decimals > 8
+    ? utils.parseUnits(amount.toString(), decimals - 8)
+    : amount;
 }
 
 export function toNormalizedDecimals(

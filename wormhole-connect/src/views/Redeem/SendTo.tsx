@@ -12,7 +12,6 @@ import { setRedeemTx, setTransferComplete } from '../../store/redeem';
 import {
   displayAddress,
   fromNormalizedDecimals,
-  getTokenById,
   toNormalizedDecimals,
 } from '../../utils';
 import {
@@ -115,14 +114,10 @@ const getRows = async (
       nativeGasAmt = toDecimals(event.args[4], nativeGasToken.decimals, 6);
     }
   } else if (!transferComplete) {
-    const denormalizedAmt =
-      txData.tokenDecimals > 8
-        ? utils.parseUnits(txData.toNativeTokenAmount, txData.tokenDecimals - 8)
-        : txData.toNativeTokenAmount;
     const amount = await calculateNativeTokenAmt(
       txData.toChain,
       txData.tokenId,
-      denormalizedAmt,
+      fromNormalizedDecimals(txData.toNativeTokenAmount, txData.tokenDecimals),
     );
     nativeGasAmt = toDecimals(amount.toString(), nativeGasToken.decimals, 6);
   }

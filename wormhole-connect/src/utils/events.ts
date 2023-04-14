@@ -54,8 +54,8 @@ export const fetchSwapEvent = async (
     currentBlock - 2000,
   );
   const match = events.filter((e: any) => {
-    const normalized = fromNormalizedDecimals(e.args[3], decimals);
-    return normalized.eq(amount);
+    const normalized = fromNormalizedDecimals(amount, decimals);
+    return normalized.eq(e.args[3]);
   });
   return match ? match[0] : null;
 };
