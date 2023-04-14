@@ -64,7 +64,6 @@ export const parseAddress = (chain: ChainName | ChainId, address: string) => {
 };
 
 export const registerSigner = (chain: ChainName | ChainId, signer: any) => {
-  console.log(`registering signer for ${chain}:`, signer);
   wh.registerSigner(chain, signer);
 };
 
@@ -151,12 +150,10 @@ export const sendTransfer = async (
   paymentOption: PaymentOption,
   toNativeToken?: string,
 ) => {
-  console.log('preparing send');
   const fromChainId = wh.toChainId(fromNetwork);
   const decimals = getTokenDecimals(fromChainId, token);
   const parsedAmt = utils.parseUnits(amount, decimals);
   if (paymentOption === PaymentOption.MANUAL) {
-    console.log('send with manual');
     const tx = await wh.send(
       token,
       parsedAmt.toString(),
@@ -177,7 +174,6 @@ export const sendTransfer = async (
     wh.registerProviders();
     return solTx;
   } else {
-    console.log('send with relay');
     const parsedNativeAmt = toNativeToken
       ? utils.parseUnits(toNativeToken, decimals).toString()
       : '0';

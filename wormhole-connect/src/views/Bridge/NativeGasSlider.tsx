@@ -149,7 +149,6 @@ function GasSlider(props: { disabled: boolean }) {
     // get conversion rate of token
     const { gasToken } = CHAINS[toNetwork]!;
     getConversion(token, gasToken).then((res: number) => {
-      console.log('conversion rate', res);
       setState({ ...state, conversionRate: res });
     });
   }, [sendingToken, toNetwork]);
@@ -192,7 +191,6 @@ function GasSlider(props: { disabled: boolean }) {
   };
 
   const setNativeAmt = debounce(async () => {
-    console.log('swap amount', state.swapAmt);
     dispatch(setToNativeToken(state.swapAmt));
     const tokenId = getWrappedTokenId(sendingToken);
     const formattedAmt = utils.parseUnits(
@@ -204,7 +202,6 @@ function GasSlider(props: { disabled: boolean }) {
       tokenId,
       formattedAmt,
     );
-    console.log(nativeGasAmt);
     const formattedNativeAmt = Number.parseFloat(
       toDecimals(nativeGasAmt.toString(), nativeGasToken.decimals, 6),
     );
