@@ -20,6 +20,8 @@ export const fetchRedeemedEvent = async (
   const context: any = wh.getContext(
     destChainId,
   ) as EthContext<WormholeContext>;
+  const chainName = wh.toChainName(destChainId) as ChainName;
+  const chainConfig = CHAINS[chainName]!;
   const relayer = context.contracts.mustGetTokenBridgeRelayer(destChainId);
   const eventFilter = relayer.filters.TransferRedeemed(
     emitterChainId,
@@ -27,7 +29,10 @@ export const fetchRedeemedEvent = async (
     sequence,
   );
   const currentBlock = await provider.getBlockNumber();
-  const events = await relayer.queryFilter(eventFilter, currentBlock - 2000);
+  const events = await relayer.queryFilter(
+    eventFilter,
+    currentBlock - chainConfig.maxBlockSearch,
+  );
   return events ? events[0] : null;
 };
 
