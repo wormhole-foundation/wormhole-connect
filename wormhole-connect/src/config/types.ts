@@ -2,7 +2,16 @@ import {
   ChainConfig,
   ChainName,
   TokenId,
+  Rpcs,
 } from '@wormhole-foundation/wormhole-connect-sdk';
+
+export interface WormholeConnectConfig {
+  rpcs?: Rpcs;
+  networks?: ChainName[];
+  tokens?: string[];
+  mode?: 'dark' | 'light';
+  customTheme?: any;
+}
 
 export type TokenConfig = {
   symbol: string;
