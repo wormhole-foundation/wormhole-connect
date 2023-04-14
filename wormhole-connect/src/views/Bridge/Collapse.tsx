@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { makeStyles } from 'tss-react/mui';
 import Collapse from '@mui/material/Collapse';
 import Down from '../../icons/Down';
 import { joinClass, LINK } from '../../utils/style';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
+import Switch from '../../components/Switch';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -64,6 +65,11 @@ const useStyles = makeStyles()((theme) => ({
   },
 }));
 
+export enum CollapseControlStyle {
+  Arrow,
+  Switch,
+}
+
 type Props = {
   title: string;
   description?: string;
@@ -72,23 +78,45 @@ type Props = {
   disabled?: boolean;
   banner?: boolean;
   controlled?: boolean; // control the open/closed state
+  controlStyle?: CollapseControlStyle;
   value?: boolean; // open/closed value
+  onCollapseChange?: (value: boolean) => void;
 };
 
 function BridgeCollapse(props: Props) {
   const { classes } = useStyles();
   const [collapsed, setCollapsed] = React.useState(props.close || false);
-  const toggleCollapsed = () =>
-    !props.disabled && setCollapsed((prev) => !prev);
+
+  const toggleCollapsed = useCallback(() => {
+    if (props.disabled) return;
+    setCollapsed(prev => !prev);
+  }, [collapsed, props.disabled, props.onCollapseChange]);
+
+  const onCollapseChange = useCallback(() => {
+    if (props.onCollapseChange) {
+      props.onCollapseChange(collapsed);
+    }
+  }, [collapsed, props.onCollapseChange]);
+
   const relayAvail = useSelector(
     (state: RootState) => state.transfer.automaticRelayAvail,
   );
   const controlled = !relayAvail || props.controlled;
+  const controlStyle = props.controlStyle || CollapseControlStyle.Arrow;
   const collapsedState = props.disabled
     ? true
     : controlled
     ? props.value
     : collapsed;
+
+  const collapseControl =
+    controlStyle === CollapseControlStyle.Arrow ? (
+      <Down
+        className={joinClass([classes.arrow, !collapsed && classes.invert])}
+      />
+    ) : (
+      <Switch checked={!collapsed} />
+    );
 
   return (
     <div className={classes.container}>
@@ -107,11 +135,7 @@ function BridgeCollapse(props: Props) {
             <div className={classes.description}>{props.description}</div>
           )}
         </div>
-        {!props.controlled && (
-          <Down
-            className={joinClass([classes.arrow, !collapsed && classes.invert])}
-          />
-        )}
+        {!props.controlled && collapseControl}
       </div>
       {props.banner && relayAvail && (
         <div
@@ -131,7 +155,8 @@ function BridgeCollapse(props: Props) {
           </a>
         </div>
       )}
-      <Collapse in={!collapsedState}>{props.children}</Collapse>
+
+      <Collapse onExited={onCollapseChange} in={!collapsedState}>{props.children}</Collapse>
     </div>
   );
 }
