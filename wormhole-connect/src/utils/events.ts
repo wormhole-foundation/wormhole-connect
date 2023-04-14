@@ -8,6 +8,7 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { wh } from '../sdk';
 import { fromNormalizedDecimals } from '.';
+import { CHAINS } from '../config';
 
 export const fetchRedeemedEvent = async (
   destChainId: ChainId | ChainName,
@@ -39,6 +40,8 @@ export const fetchSwapEvent = async (
 ) => {
   const provider = wh.mustGetProvider(destChainId);
   const context: any = wh.getContext(destChainId);
+  const chainName = context.toChainName(destChainId) as ChainName;
+  const chainConfig = CHAINS[chainName]!;
   const relayerContract =
     context.contracts.mustGetTokenBridgeRelayer(destChainId);
   const foreignAsset = await context.getForeignAsset(tokenId, destChainId);
@@ -50,7 +53,7 @@ export const fetchSwapEvent = async (
   const currentBlock = await provider.getBlockNumber();
   const events = await relayerContract.queryFilter(
     eventFilter,
-    currentBlock - 2000,
+    currentBlock - chainConfig.maxBlockSearch,
   );
   const match = events.filter((e: any) => {
     const normalized = fromNormalizedDecimals(amount, decimals);
