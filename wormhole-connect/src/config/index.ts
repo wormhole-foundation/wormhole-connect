@@ -53,17 +53,13 @@ export const WH_CONFIG = conf;
 export const CHAINS = isProduction ? MAINNET_NETWORKS : TESTNET_NETWORKS;
 export const CHAINS_ARR =
   config && config.networks
-    ? Object.values(CHAINS).filter((c) =>
-        config.networks!.includes(c.key),
-      )
+    ? Object.values(CHAINS).filter((c) => config.networks!.includes(c.key))
     : (Object.values(CHAINS) as NetworkConfig[]);
 
 export const TOKENS = isProduction ? MAINNET_TOKENS : TESTNET_TOKENS;
 export const TOKENS_ARR =
   config && config.tokens
-    ? Object.values(TOKENS).filter((c) =>
-        config.tokens!.includes(c.symbol),
-      )
+    ? Object.values(TOKENS).filter((c) => config.tokens!.includes(c.symbol))
     : (Object.values(TOKENS) as TokenConfig[]);
 
 export const THEME_MODE = config && config.mode ? config.mode : 'dark';

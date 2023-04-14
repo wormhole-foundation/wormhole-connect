@@ -1,7 +1,5 @@
-
-
-import { styled } from "@mui/material";
-import MuiSwitch from "@mui/material/Switch";
+import { styled } from '@mui/material';
+import MuiSwitch from '@mui/material/Switch';
 
 // Based on an example from material ui docs
 // https://github.com/mui/material-ui/blob/05127cf65b4250f836897428cd15829669ab8d6c/docs/data/material/components/switches/CustomizedSwitches.tsx#L140

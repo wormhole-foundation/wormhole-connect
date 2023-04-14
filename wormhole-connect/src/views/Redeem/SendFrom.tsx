@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { utils } from 'ethers';
 import { RootState } from '../../store';
 import { ParsedVaa } from '../../utils/vaa';
 import { CHAINS, TOKENS } from '../../config';
@@ -11,20 +10,23 @@ import InputContainer from '../../components/InputContainer';
 import Header from './Header';
 import { RenderRows, RowsData } from '../../components/RenderRows';
 import Confirmations from './Confirmations';
+import { toNormalizedDecimals, MAX_DECIMALS } from '../../utils';
 
 const getRows = (txData: any): RowsData => {
-  const decimals = txData.tokenDecimals > 8 ? 8 : txData.tokenDecimals;
-  const formattedAmt = toDecimals(txData.amount, decimals, 6);
+  const formattedAmt = toNormalizedDecimals(
+    txData.amount,
+    txData.tokenDecimals,
+    MAX_DECIMALS,
+  );
   const { gasToken: sourceGasTokenSymbol } = CHAINS[txData.fromChain];
   const sourceGasToken = TOKENS[sourceGasTokenSymbol];
-  const formattedGas = txData.gasFee
-    ? toDecimals(txData.gasFee, sourceGasToken.decimals, 6)
-    : undefined;
+  const formattedGas =
+    txData.gasFee &&
+    toDecimals(txData.gasFee, sourceGasToken.decimals, MAX_DECIMALS);
   const type = txData.payloadID;
 
   // manual transfers
   if (type === PaymentOption.MANUAL) {
-    const { gasToken } = CHAINS[txData.fromChain];
     return [
       {
         title: 'Amount',
@@ -32,22 +34,31 @@ const getRows = (txData: any): RowsData => {
       },
       {
         title: 'Gas fee',
-        value: formattedGas ? `${formattedGas} ${gasToken}` : 'TODO',
+        value: formattedGas ? `${formattedGas} ${sourceGasTokenSymbol}` : '—',
       },
     ];
   }
 
   // automatic transfers
-  const formattedFee = utils.formatUnits(txData.relayerFee, decimals);
-  const formattedToNative = utils.formatUnits(
+  const formattedFee = toNormalizedDecimals(
+    txData.relayerFee,
+    txData.tokenDecimals,
+    MAX_DECIMALS,
+  );
+  const formattedToNative = toNormalizedDecimals(
     txData.toNativeTokenAmount,
-    decimals,
+    txData.tokenDecimals,
+    MAX_DECIMALS,
   );
   const { gasToken } = CHAINS[txData.toChain]!;
   return [
     {
       title: 'Amount',
       value: `${formattedAmt} ${txData.tokenSymbol}`,
+    },
+    {
+      title: 'Gas fee',
+      value: formattedGas ? `${formattedGas} ${sourceGasTokenSymbol}` : '—',
     },
     {
       title: 'Relayer fee',

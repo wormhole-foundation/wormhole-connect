@@ -89,7 +89,7 @@ function BridgeCollapse(props: Props) {
 
   const toggleCollapsed = useCallback(() => {
     if (props.disabled) return;
-    setCollapsed(prev => !prev);
+    setCollapsed((prev) => !prev);
   }, [collapsed, props.disabled, props.onCollapseChange]);
 
   const onCollapseChange = useCallback(() => {
@@ -156,7 +156,9 @@ function BridgeCollapse(props: Props) {
         </div>
       )}
 
-      <Collapse onExited={onCollapseChange} in={!collapsedState}>{props.children}</Collapse>
+      <Collapse onExited={onCollapseChange} in={!collapsedState}>
+        {props.children}
+      </Collapse>
     </div>
   );
 }

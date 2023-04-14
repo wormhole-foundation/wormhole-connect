@@ -87,7 +87,7 @@ const getOptions = (
     estimate:
       gasEst.manual && gasEst.claim
         ? `${gasEst.manual} ${source.gasToken} & ${gasEst.claim} ${dest.gasToken}`
-        : 'Not available',
+        : '—',
   };
   if (!relayAvail) return [manual];
   const automaticFees = toFixedDecimals(
@@ -100,9 +100,7 @@ const getOptions = (
     subtitle: '(one transaction)',
     description: `Gas fees on ${dest.displayName} will be paid automatically`,
     estimate:
-      gasEst.automatic && relayerFee
-        ? `${automaticFees} ${token}`
-        : 'Not available',
+      gasEst.automatic && relayerFee ? `${automaticFees} ${token}` : '—',
   };
   return [automatic, manual];
 };

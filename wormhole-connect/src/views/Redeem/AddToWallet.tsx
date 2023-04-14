@@ -3,7 +3,7 @@ import {
   coalesceChainId,
   isEVMChain,
 } from '@xlabs-libs/wallet-aggregator-core';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import {
@@ -17,11 +17,7 @@ import TokenIcon from '../../icons/TokenIcons';
 import { getForeignAsset } from '../../sdk';
 import { RootState } from '../../store';
 import { setWalletModal } from '../../store/router';
-import {
-  copyTextToClipboard,
-  displayAddress,
-  getWrappedToken,
-} from '../../utils';
+import { getWrappedToken } from '../../utils';
 import { TransferWallet, switchNetwork, watchAsset } from '../../utils/wallet';
 import { TokenConfig } from '../../config/types';
 import ExplorerLink from './ExplorerLink';
@@ -31,9 +27,11 @@ const useStyles = makeStyles()((theme) => ({
   addToken: {
     display: 'flex',
     alignItems: 'center',
-    gap: '8px',
     marginTop: '8px',
     flexDirection: 'row',
+  },
+  addTokenText: {
+    marginLeft: '8px',
   },
   addTokenLink: {
     textDecoration: 'underline',
@@ -80,7 +78,7 @@ function AddToEVMWallet({ token, address }: AddTokenProps) {
 
   return (
     <Link onClick={addToWallet} href="#" className={classes.addTokenLink}>
-      <Typography component={'span'} className={classes.addToken}>
+      <Typography component={'span'} gap={1} className={classes.addToken}>
         <TokenIcon height={20} name={token.icon} />
         Add {token.symbol} to your wallet
       </Typography>
@@ -92,11 +90,11 @@ function AddToSolanaWallet({ token, address }: AddTokenProps) {
   const { classes } = useStyles();
 
   return (
-    <Typography component={'span'} gap={2} className={classes.addToken}>
+    <Typography component={'span'} className={classes.addToken}>
       <TokenIcon height={20} name={token.icon} />
-      See {token.symbol} token on
+      <span className={classes.addTokenText}>See {token.symbol} token on</span>
       <ExplorerLink
-        styles={{ marginLeft: 0 }}
+        styles={{ marginLeft: -4 }}
         network={'solana'}
         type={'address'}
         address={address}

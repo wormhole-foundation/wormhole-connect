@@ -442,11 +442,13 @@ export interface TokenBridgeRelayerInterface extends utils.Interface {
 
   events: {
     'OwnershipTransfered(address,address)': EventFragment;
+    'SwapExecuted(address,address,address,uint256,uint256)': EventFragment;
     'SwapRateUpdated(address,uint256)': EventFragment;
     'TransferRedeemed(uint16,bytes32,uint64)': EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: 'OwnershipTransfered'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'SwapExecuted'): EventFragment;
   getEvent(nameOrSignatureOrTopic: 'SwapRateUpdated'): EventFragment;
   getEvent(nameOrSignatureOrTopic: 'TransferRedeemed'): EventFragment;
 }
@@ -462,6 +464,20 @@ export type OwnershipTransferedEvent = TypedEvent<
 
 export type OwnershipTransferedEventFilter =
   TypedEventFilter<OwnershipTransferedEvent>;
+
+export interface SwapExecutedEventObject {
+  recipient: string;
+  relayer: string;
+  token: string;
+  tokenAmount: BigNumber;
+  nativeAmount: BigNumber;
+}
+export type SwapExecutedEvent = TypedEvent<
+  [string, string, string, BigNumber, BigNumber],
+  SwapExecutedEventObject
+>;
+
+export type SwapExecutedEventFilter = TypedEventFilter<SwapExecutedEvent>;
 
 export interface SwapRateUpdatedEventObject {
   token: string;
@@ -1095,6 +1111,21 @@ export interface TokenBridgeRelayer extends BaseContract {
       oldOwner?: PromiseOrValue<string> | null,
       newOwner?: PromiseOrValue<string> | null,
     ): OwnershipTransferedEventFilter;
+
+    'SwapExecuted(address,address,address,uint256,uint256)'(
+      recipient?: PromiseOrValue<string> | null,
+      relayer?: PromiseOrValue<string> | null,
+      token?: PromiseOrValue<string> | null,
+      tokenAmount?: null,
+      nativeAmount?: null,
+    ): SwapExecutedEventFilter;
+    SwapExecuted(
+      recipient?: PromiseOrValue<string> | null,
+      relayer?: PromiseOrValue<string> | null,
+      token?: PromiseOrValue<string> | null,
+      tokenAmount?: null,
+      nativeAmount?: null,
+    ): SwapExecutedEventFilter;
 
     'SwapRateUpdated(address,uint256)'(
       token?: PromiseOrValue<string> | null,

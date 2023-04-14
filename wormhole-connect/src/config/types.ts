@@ -32,6 +32,7 @@ export interface NetworkConfig extends ChainConfig {
   gasToken: string;
   chainId: number;
   icon: Icon;
+  maxBlockSearch: number;
   automaticRelayer?: boolean;
 }
 

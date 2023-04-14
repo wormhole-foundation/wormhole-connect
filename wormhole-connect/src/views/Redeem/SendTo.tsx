@@ -2,17 +2,37 @@ import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { BigNumber, utils } from 'ethers';
 import CircularProgress from '@mui/material/CircularProgress';
-import { Context } from '@wormhole-foundation/wormhole-connect-sdk';
+import {
+  ChainName,
+  Context,
+  ChainId,
+} from '@wormhole-foundation/wormhole-connect-sdk';
 import { RootState } from '../../store';
 import { setRedeemTx, setTransferComplete } from '../../store/redeem';
+import {
+  MAX_DECIMALS,
+  displayAddress,
+  fromNormalizedDecimals,
+  toNormalizedDecimals,
+} from '../../utils';
 import {
   registerWalletSigner,
   switchNetwork,
   TransferWallet,
 } from '../../utils/wallet';
-import { claimTransfer, parseAddress, PaymentOption } from '../../sdk';
-import { displayAddress } from '../../utils';
-import { CHAINS } from '../../config';
+import { toDecimals } from '../../utils/balance';
+import {
+  wh,
+  claimTransfer,
+  estimateClaimGasFee,
+  parseAddress,
+  PaymentOption,
+  calculateNativeTokenAmt,
+} from '../../sdk';
+import { CHAINS, TOKENS } from '../../config';
+import WalletsModal from '../WalletModal';
+import { GAS_ESTIMATES } from '../../config/testnet';
+import { fetchRedeemedEvent, fetchSwapEvent } from '../../utils/events';
 
 import Header from './Header';
 import AlertBanner from '../../components/AlertBanner';
@@ -21,36 +41,42 @@ import Button from '../../components/Button';
 import Spacer from '../../components/Spacer';
 import { RenderRows, RowsData } from '../../components/RenderRows';
 import InputContainer from '../../components/InputContainer';
-import WalletsModal from '../WalletModal';
 
-const getRows = (txData: any): RowsData => {
-  const decimals = txData.tokenDecimals > 8 ? 8 : txData.tokenDecimals;
-  const type = txData.payloadID;
+const calculateGas = async (chain: ChainName, receiveTx?: string) => {
+  const { gasToken } = CHAINS[chain]!;
+  const { decimals } = TOKENS[gasToken];
+
+  if (chain === 'solana') {
+    return toDecimals(
+      BigNumber.from(GAS_ESTIMATES.solana!.claim),
+      decimals,
+      MAX_DECIMALS,
+    );
+  }
+  if (receiveTx) {
+    const provider = wh.mustGetProvider(chain);
+    const receipt = await provider.getTransactionReceipt(receiveTx);
+    const { gasUsed, effectiveGasPrice } = receipt;
+    if (!gasUsed || !effectiveGasPrice) return;
+    const gasFee = gasUsed.mul(effectiveGasPrice);
+    return toDecimals(gasFee, decimals, MAX_DECIMALS);
+  }
+  return await estimateClaimGasFee(chain);
+};
+
+const getManualRows = async (
+  txData: any,
+  receiveTx?: string,
+): Promise<RowsData> => {
   const { gasToken } = CHAINS[txData.toChain]!;
 
-  // manual transfers
-  if (type === PaymentOption.MANUAL) {
-    const formattedAmt = utils.formatUnits(txData.amount, decimals);
-    return [
-      {
-        title: 'Amount',
-        value: `${formattedAmt} ${txData.tokenSymbol}`,
-      },
-      {
-        title: 'Gas estimate',
-        value: `TODO ${gasToken}`,
-      },
-    ];
-  }
+  // get gas used (if complete) or gas estimate if not
+  const gas = await calculateGas(txData.toChain, receiveTx);
 
-  // automatic transfers
-  const receiveAmt = BigNumber.from(txData.amount).sub(
-    BigNumber.from(txData.relayerFee),
-  );
-  const formattedAmt = utils.formatUnits(receiveAmt, decimals);
-  const formattedToNative = utils.formatUnits(
-    txData.toNativeTokenAmount,
-    decimals,
+  const formattedAmt = toNormalizedDecimals(
+    txData.amount,
+    txData.tokenDecimals,
+    MAX_DECIMALS,
   );
   return [
     {
@@ -58,10 +84,83 @@ const getRows = (txData: any): RowsData => {
       value: `${formattedAmt} ${txData.tokenSymbol}`,
     },
     {
-      title: 'Native gas token',
-      value: `${formattedToNative} ${gasToken}`,
+      title: receiveTx ? 'Gas fee' : 'Gas estimate',
+      value: gas ? `${gas} ${gasToken}` : '—',
     },
   ];
+};
+
+const getAutomaticRows = async (
+  txData: any,
+  receiveTx?: string,
+  transferComplete?: boolean,
+): Promise<RowsData> => {
+  const { gasToken } = CHAINS[txData.toChain]!;
+  const receiveAmt = BigNumber.from(txData.amount).sub(
+    BigNumber.from(txData.relayerFee),
+  );
+  const formattedAmt = toNormalizedDecimals(
+    receiveAmt,
+    txData.tokenDecimals,
+    MAX_DECIMALS,
+  );
+
+  // calculate the amount of native gas received
+  let nativeGasAmt: string | undefined;
+  const nativeGasToken = TOKENS[gasToken];
+  if (receiveTx) {
+    let event: any;
+    try {
+      event = await fetchSwapEvent(
+        txData.toChain,
+        txData.recipient,
+        txData.tokenId,
+        BigNumber.from(txData.toNativeTokenAmount),
+        txData.tokenDecimals,
+      );
+    } catch (e) {
+      console.error(`could not fetch swap event:\n${e}`);
+    }
+    if (event) {
+      nativeGasAmt = toDecimals(
+        event.args[4],
+        nativeGasToken.decimals,
+        MAX_DECIMALS,
+      );
+    }
+  } else if (!transferComplete) {
+    const amount = await calculateNativeTokenAmt(
+      txData.toChain,
+      txData.tokenId,
+      fromNormalizedDecimals(txData.toNativeTokenAmount, txData.tokenDecimals),
+    );
+    nativeGasAmt = toDecimals(
+      amount.toString(),
+      nativeGasToken.decimals,
+      MAX_DECIMALS,
+    );
+  }
+  return [
+    {
+      title: 'Amount',
+      value: `${formattedAmt} ${txData.tokenSymbol}`,
+    },
+    {
+      title: 'Native gas token',
+      value: nativeGasAmt ? `${nativeGasAmt} ${gasToken}` : '—',
+    },
+  ];
+};
+
+const getRows = async (
+  txData: any,
+  receiveTx?: string,
+  transferComplete?: boolean,
+): Promise<RowsData> => {
+  if (txData.payloadID === PaymentOption.MANUAL) {
+    return await getManualRows(txData, receiveTx);
+  }
+  return await getAutomaticRows(txData, receiveTx, transferComplete);
 };
 
 function SendTo() {
@@ -91,11 +190,45 @@ function SendTo() {
   const [rows, setRows] = useState([] as RowsData);
   const [openWalletModal, setWalletModal] = useState(false);
 
+  // get the redeem tx, for automatic transfers only
+  const getRedeemTx = async () => {
+    if (redeemTx) return redeemTx;
+    if (
+      vaa &&
+      txData.toChain !== 'solana' &&
+      txData.payloadID === PaymentOption.AUTOMATIC
+    ) {
+      const redeemed = await fetchRedeemedEvent(
+        txData.toChain,
+        vaa.emitterChain as ChainId,
+        vaa.emitterAddress,
+        vaa.sequence,
+      );
+      if (redeemed) {
+        dispatch(setRedeemTx(redeemed.transactionHash));
+        return redeemed.transactionHash;
+      }
+    }
+  };
+
   useEffect(() => {
     if (!txData) return;
-    const rows = getRows(txData);
-    setRows(rows);
-  }, []);
+    const populate = async () => {
+      let tx: string | undefined;
+      try {
+        tx = await getRedeemTx();
+      } catch (e) {
+        console.error(`could not fetch redeem event:\n${e}`);
+      }
+      const rows = await getRows(txData, tx, transferComplete);
+      setRows(rows);
+    };
+    populate();
+  }, [transferComplete]);
+
+  useEffect(() => {
+    setIsConnected(checkConnection());
+  }, [wallet]);
 
   const claim = async () => {
     setInProgress(true);
@@ -130,10 +263,6 @@ function SendTo() {
     }
   };
 
-  useEffect(() => {
-    setIsConnected(checkConnection());
-  }, [wallet]);
-
   return (
     <div>
       <InputContainer>
@@ -146,6 +275,8 @@ function SendTo() {
         />
         <RenderRows rows={rows} />
       </InputContainer>
+
+      {/* Claim button for manual transfers */}
       {txData.payloadID === PaymentOption.MANUAL && !transferComplete && (
         <>
           <Spacer height={8} />

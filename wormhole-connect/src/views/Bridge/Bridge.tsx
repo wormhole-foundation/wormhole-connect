@@ -9,7 +9,6 @@ import {
   formatBalance,
   setAutomaticRelayAvail,
   setDestGasPayment,
-  setToken,
   touchValidations,
 } from '../../store/transfer';
 import { getNativeBalance, PaymentOption } from '../../sdk';

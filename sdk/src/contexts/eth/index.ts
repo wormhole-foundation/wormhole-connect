@@ -30,7 +30,7 @@ import { RelayerAbstract } from '../abstracts/relayer';
 import { SolanaContext } from '../solana';
 
 export class EthContext<T extends WormholeContext> extends RelayerAbstract {
-  protected contracts: EthContracts<T>;
+  readonly contracts: EthContracts<T>;
   readonly context: T;
 
   constructor(context: T) {
@@ -446,8 +446,13 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
   ): Promise<ParsedMessage[] | ParsedRelayerMessage[]> {
     const provider = this.context.mustGetProvider(chain);
     const receipt = await provider.getTransactionReceipt(tx);
-
     if (!receipt) throw new Error(`No receipt for ${tx} on ${chain}`);
+
+    let gasFee: BigNumber;
+    const { gasUsed, effectiveGasPrice } = receipt;
+    if (gasUsed && effectiveGasPrice) {
+      gasFee = gasUsed.mul(effectiveGasPrice);
+    }
 
     const core = this.contracts.mustGetCore(chain);
     const bridge = this.contracts.mustGetBridge(chain);
@@ -459,6 +464,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
       const parsed =
         Implementation__factory.createInterface().parseLog(bridgeLog);
 
+      // parse token bridge message
       const fromChain = this.context.toChainName(chain);
       if (parsed.args.payload.startsWith('0x01')) {
         const parsedTransfer = await bridge.parseTransfer(parsed.args.payload); // for bridge messages
@@ -468,6 +474,10 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
         const tokenContext = this.context.getContext(
           parsedTransfer.tokenChain as ChainId,
         );
+        const tokenAddress = tokenContext.parseAddress(
+          parsedTransfer.tokenAddress,
+        );
+        const tokenChain = this.context.toChainName(parsedTransfer.tokenChain);
         const parsedMessage: ParsedMessage = {
           sendTx: tx,
           sender: receipt.from,
@@ -476,14 +486,21 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
           recipient: destContext.parseAddress(parsedTransfer.to),
           toChain: this.context.toChainName(parsedTransfer.toChain),
           fromChain,
-          tokenAddress: tokenContext.parseAddress(parsedTransfer.tokenAddress),
-          tokenChain: this.context.toChainName(parsedTransfer.tokenChain),
+          tokenAddress,
+          tokenChain,
+          tokenId: {
+            chain: tokenChain,
+            address: tokenAddress,
+          },
           sequence: parsed.args.sequence,
           emitterAddress: utils.hexlify(this.formatAddress(bridge.address)),
           block: receipt.blockNumber,
+          gasFee,
         };
         return parsedMessage;
       }
+
+      // parse token bridge relayer message
       if (!relayer)
         throw new Error('no relayer contract to decode message payload');
       const parsedTransfer = await bridge.parseTransferWithPayload(
@@ -495,6 +512,8 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
       const parsedPayload = await relayer.decodeTransferWithRelay(
         parsedTransfer.payload,
       );
+      const tokenAddress = this.parseAddress(parsedTransfer.tokenAddress);
+      const tokenChain = this.context.toChainName(parsedTransfer.tokenChain);
       const parsedMessage: ParsedRelayerMessage = {
         sendTx: tx,
         sender: receipt.from,
@@ -503,11 +522,16 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
         to: destContext.parseAddress(parsedTransfer.to),
         toChain: this.context.toChainName(parsedTransfer.toChain),
         fromChain,
-        tokenAddress: this.parseAddress(parsedTransfer.tokenAddress),
-        tokenChain: this.context.toChainName(parsedTransfer.tokenChain),
+        tokenAddress,
+        tokenChain,
+        tokenId: {
+          chain: tokenChain,
+          address: tokenAddress,
+        },
         sequence: parsed.args.sequence,
         emitterAddress: utils.hexlify(this.formatAddress(bridge.address)),
         block: receipt.blockNumber,
+        gasFee,
         payload: parsedTransfer.payload,
         relayerPayloadId: parsedPayload.payloadId,
         recipient: destContext.parseAddress(parsedPayload.targetRecipient),

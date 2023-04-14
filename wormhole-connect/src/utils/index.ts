@@ -1,4 +1,5 @@
-import { NetworkConfig, TokenConfig } from '../config/types';
+import { useEffect, useRef } from 'react';
+import { BigNumber, utils } from 'ethers';
 import {
   TokenId,
   ChainName,
@@ -6,8 +7,12 @@ import {
   MAINNET_CHAINS,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { CHAINS_ARR, TOKENS, TOKENS_ARR } from '../config';
+import { NetworkConfig, TokenConfig } from '../config/types';
 import { WalletType } from './wallet';
-import { useEffect, useRef } from 'react';
+import { toDecimals } from './balance';
+
+export const MAX_DECIMALS = 6;
+export const NORMALIZED_DECIMALS = 8;
 
 export function convertAddress(address: string): string {
   if (address.length === 22) return address;
@@ -149,4 +154,23 @@ export function usePrevious(value: any) {
     ref.current = value;
   });
   return ref.current;
+}
+
+export function fromNormalizedDecimals(
+  amount: BigNumber,
+  decimals: number,
+): BigNumber {
+  return decimals > NORMALIZED_DECIMALS
+    ? utils.parseUnits(amount.toString(), decimals - NORMALIZED_DECIMALS)
+    : amount;
+}
+
+export function toNormalizedDecimals(
+  amount: BigNumber,
+  decimals: number,
+  numDecimals?: number,
+): string {
+  const normalizedDecimals =
+    decimals > NORMALIZED_DECIMALS ? NORMALIZED_DECIMALS : decimals;
+  return toDecimals(amount, normalizedDecimals, numDecimals);
 }

@@ -13,6 +13,7 @@ export const MAINNET_NETWORKS: NetworksConfig = {
     chainId: 1,
     icon: Icon.ETH,
     automaticRelayer: true,
+    maxBlockSearch: 2000,
   },
   bsc: {
     ...chains.bsc!,
@@ -23,6 +24,7 @@ export const MAINNET_NETWORKS: NetworksConfig = {
     chainId: 56,
     icon: Icon.BSC,
     automaticRelayer: true,
+    maxBlockSearch: 2000,
   },
   polygon: {
     ...chains.polygon!,
@@ -33,6 +35,7 @@ export const MAINNET_NETWORKS: NetworksConfig = {
     chainId: 137,
     icon: Icon.POLYGON,
     automaticRelayer: true,
+    maxBlockSearch: 1000,
   },
   avalanche: {
     ...chains.avalanche!,
@@ -43,6 +46,7 @@ export const MAINNET_NETWORKS: NetworksConfig = {
     chainId: 43114,
     icon: Icon.AVAX,
     automaticRelayer: true,
+    maxBlockSearch: 2000,
   },
   fantom: {
     ...chains.fantom!,
@@ -53,6 +57,7 @@ export const MAINNET_NETWORKS: NetworksConfig = {
     chainId: 250,
     icon: Icon.FANTOM,
     automaticRelayer: true,
+    maxBlockSearch: 2000,
   },
   celo: {
     ...chains.celo!,
@@ -63,6 +68,7 @@ export const MAINNET_NETWORKS: NetworksConfig = {
     chainId: 42220,
     icon: Icon.CELO,
     automaticRelayer: true,
+    maxBlockSearch: 2000,
   },
   moonbeam: {
     ...chains.moonbeam!,
@@ -73,6 +79,7 @@ export const MAINNET_NETWORKS: NetworksConfig = {
     chainId: 1284,
     icon: Icon.GLMR,
     automaticRelayer: true,
+    maxBlockSearch: 2000,
   },
   solana: {
     ...chains.solana!,
@@ -83,6 +90,7 @@ export const MAINNET_NETWORKS: NetworksConfig = {
     chainId: 0,
     icon: Icon.SOLANA,
     automaticRelayer: false,
+    maxBlockSearch: 2000,
   },
 };
 

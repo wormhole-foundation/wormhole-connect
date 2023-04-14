@@ -46,13 +46,11 @@ const getAutomaticRows = (
       rows: [
         {
           title: 'Relayer fee',
-          value: relayerFee ? `${relayerFee} ${token.symbol}` : 'Not available',
+          value: relayerFee ? `${relayerFee} ${token.symbol}` : '—',
         },
         {
           title: 'Source chain gas estimate',
-          value: sendingGasEst
-            ? `~ ${sendingGasEst} ${token.symbol}`
-            : 'Not available',
+          value: sendingGasEst ? `~ ${sendingGasEst} ${token.symbol}` : '—',
         },
       ],
     },
