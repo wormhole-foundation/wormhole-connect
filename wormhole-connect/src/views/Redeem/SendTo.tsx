@@ -2,7 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { BigNumber, utils } from 'ethers';
 import CircularProgress from '@mui/material/CircularProgress';
-import { ChainName, Context } from '@wormhole-foundation/wormhole-connect-sdk';
+import {
+  ChainName,
+  Context,
+  ChainId,
+} from '@wormhole-foundation/wormhole-connect-sdk';
 import { RootState } from '../../store';
 import { setRedeemTx, setTransferComplete } from '../../store/redeem';
 import { displayAddress } from '../../utils';
@@ -22,6 +26,7 @@ import {
 import { CHAINS } from '../../config';
 import WalletsModal from '../WalletModal';
 import { GAS_ESTIMATES } from '../../config/testnet';
+import { fetchRedeemedEvent } from '../../utils/events';
 
 import Header from './Header';
 import AlertBanner from '../../components/AlertBanner';
@@ -31,19 +36,22 @@ import Spacer from '../../components/Spacer';
 import { RenderRows, RowsData } from '../../components/RenderRows';
 import InputContainer from '../../components/InputContainer';
 
-const calculateGas = async (chain: ChainName, receiveTx: string) => {
+const calculateGas = async (chain: ChainName, receiveTx?: string) => {
   if (chain === 'solana') {
     return toDecimals(BigNumber.from(GAS_ESTIMATES.solana!.claim), 9, 6);
   }
   if (receiveTx) {
     const provider = wh.mustGetProvider(chain);
     const receipt = await provider.getTransactionReceipt(receiveTx);
-    return receipt.cumulativeGasUsed.mul(receipt.effectiveGasPrice);
+    const { gasUsed, effectiveGasPrice } = receipt;
+    if (!gasUsed || !effectiveGasPrice) return;
+    const gasFee = gasUsed.mul(effectiveGasPrice);
+    return toDecimals(gasFee, 18, 6);
   }
   return await estimateClaimGasFee(chain);
 };
 
-const getRows = async (txData: any, receiveTx: string): Promise<RowsData> => {
+const getRows = async (txData: any, receiveTx?: string): Promise<RowsData> => {
   const decimals = txData.tokenDecimals > 8 ? 8 : txData.tokenDecimals;
   const type = txData.payloadID;
   const { gasToken } = CHAINS[txData.toChain]!;
@@ -61,7 +69,7 @@ const getRows = async (txData: any, receiveTx: string): Promise<RowsData> => {
       },
       {
         title: receiveTx ? 'Gas fee' : 'Gas estimate',
-        value: `${gas} ${gasToken}`,
+        value: gas ? `${gas} ${gasToken}` : '—',
       },
     ];
   }
@@ -70,11 +78,8 @@ const getRows = async (txData: any, receiveTx: string): Promise<RowsData> => {
   const receiveAmt = BigNumber.from(txData.amount).sub(
     BigNumber.from(txData.relayerFee),
   );
-  const formattedAmt = utils.formatUnits(receiveAmt, decimals);
-  const formattedToNative = utils.formatUnits(
-    txData.toNativeTokenAmount,
-    decimals,
-  );
+  const formattedAmt = toDecimals(receiveAmt, decimals, 6);
+  const formattedToNative = toDecimals(txData.toNativeTokenAmount, decimals, 6);
   return [
     {
       title: 'Amount',
@@ -114,14 +119,40 @@ function SendTo() {
   const [rows, setRows] = useState([] as RowsData);
   const [openWalletModal, setWalletModal] = useState(false);
 
+  // get the redeem tx, for automatic transfers only
+  const getRedeemTx = async () => {
+    if (redeemTx) return redeemTx;
+    if (
+      vaa &&
+      txData.toChain !== 'solana' &&
+      txData.payloadID === PaymentOption.AUTOMATIC
+    ) {
+      const redeemed = await fetchRedeemedEvent(
+        txData.toChain,
+        vaa.emitterChain as ChainId,
+        vaa.emitterAddress,
+        vaa.sequence,
+      );
+      if (redeemed) {
+        dispatch(setRedeemTx(redeemed.transactionHash));
+        return redeemed.transactionHash;
+      }
+    }
+  };
+
   useEffect(() => {
     if (!txData) return;
     const populate = async () => {
-      const rows = await getRows(txData, redeemTx);
+      const tx = await getRedeemTx();
+      const rows = await getRows(txData, tx);
       setRows(rows);
     };
     populate();
-  }, []);
+  }, [transferComplete]);
+
+  useEffect(() => {
+    setIsConnected(checkConnection());
+  }, [wallet]);
 
   const claim = async () => {
     setInProgress(true);
@@ -155,10 +186,6 @@ function SendTo() {
       console.error(e);
     }
   };
-
-  useEffect(() => {
-    setIsConnected(checkConnection());
-  }, [wallet]);
 
   return (
     <div>

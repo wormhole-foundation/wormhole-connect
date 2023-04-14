@@ -56,11 +56,11 @@ class Redeem extends React.Component<
 
   componentDidMount() {
     this.update();
-    const interval = setInterval(async () => {
+    const poll = setInterval(async () => {
       if (!this.props.transferComplete) {
         this.update();
       } else {
-        clearInterval(interval);
+        clearInterval(poll);
       }
     }, 30000);
   }

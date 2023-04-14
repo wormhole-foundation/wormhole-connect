@@ -79,7 +79,7 @@ export interface ParsedMessage {
   sequence: BigNumber;
   emitterAddress: string;
   block: number;
-  gasFee: BigNumber;
+  gasFee?: BigNumber;
   payload?: string;
 }
 

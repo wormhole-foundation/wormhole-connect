@@ -446,8 +446,13 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
   ): Promise<ParsedMessage[] | ParsedRelayerMessage[]> {
     const provider = this.context.mustGetProvider(chain);
     const receipt = await provider.getTransactionReceipt(tx);
-
     if (!receipt) throw new Error(`No receipt for ${tx} on ${chain}`);
+
+    let gasFee: BigNumber;
+    const { gasUsed, effectiveGasPrice } = receipt;
+    if (gasUsed && effectiveGasPrice) {
+      gasFee = gasUsed.mul(effectiveGasPrice);
+    }
 
     const core = this.contracts.mustGetCore(chain);
     const bridge = this.contracts.mustGetBridge(chain);
@@ -458,7 +463,6 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
     const parsedLogs = bridgeLogs.map(async (bridgeLog) => {
       const parsed =
         Implementation__factory.createInterface().parseLog(bridgeLog);
-      const gasFee = receipt.cumulativeGasUsed.mul(receipt.effectiveGasPrice);
 
       // parse token bridge message
       const fromChain = this.context.toChainName(chain);

@@ -73,6 +73,7 @@ function TxSearch() {
       dispatch(setToNetwork(message.toChain));
       dispatch(setRoute('redeem'));
     } catch (e) {
+      console.error(e);
       setError(
         'Bridge transaction not found, check that you have the correct chain and transaction ID',
       );

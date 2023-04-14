@@ -8,6 +8,7 @@ export type {
 } from './config/TESTNET';
 
 export * from './types';
+export * from './vaa';
 export * from './config/MAINNET';
 export * from './wormhole';
 export * from './contexts/solana';

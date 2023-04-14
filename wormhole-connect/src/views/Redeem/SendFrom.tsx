@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { utils } from 'ethers';
 import { RootState } from '../../store';
 import { ParsedVaa } from '../../utils/vaa';
 import { CHAINS, TOKENS } from '../../config';
@@ -17,12 +16,12 @@ const getRows = (txData: any): RowsData => {
   const formattedAmt = toDecimals(txData.amount, decimals, 6);
   const { gasToken: sourceGasTokenSymbol } = CHAINS[txData.fromChain];
   const sourceGasToken = TOKENS[sourceGasTokenSymbol];
-  const formattedGas = toDecimals(txData.gasFee, sourceGasToken.decimals, 6);
+  const formattedGas =
+    txData.gasFee && toDecimals(txData.gasFee, sourceGasToken.decimals, 6);
   const type = txData.payloadID;
 
   // manual transfers
   if (type === PaymentOption.MANUAL) {
-    const { gasToken } = CHAINS[txData.fromChain];
     return [
       {
         title: 'Amount',
@@ -30,22 +29,23 @@ const getRows = (txData: any): RowsData => {
       },
       {
         title: 'Gas fee',
-        value: `${formattedGas} ${gasToken}`,
+        value: formattedGas ? `${formattedGas} ${sourceGasTokenSymbol}` : '—',
       },
     ];
   }
 
   // automatic transfers
-  const formattedFee = utils.formatUnits(txData.relayerFee, decimals);
-  const formattedToNative = utils.formatUnits(
-    txData.toNativeTokenAmount,
-    decimals,
-  );
+  const formattedFee = toDecimals(txData.relayerFee, decimals, 6);
+  const formattedToNative = toDecimals(txData.toNativeTokenAmount, decimals, 6);
   const { gasToken } = CHAINS[txData.toChain]!;
   return [
     {
       title: 'Amount',
       value: `${formattedAmt} ${txData.tokenSymbol}`,
+    },
+    {
+      title: 'Gas fee',
+      value: formattedGas ? `${formattedGas} ${sourceGasTokenSymbol}` : '—',
     },
     {
       title: 'Relayer fee',

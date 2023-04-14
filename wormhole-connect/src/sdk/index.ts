@@ -38,8 +38,8 @@ export interface ParsedMessage {
   tokenDecimals: number;
   emitterAddress: string;
   sequence: string;
-  payload?: string;
   gasFee?: string;
+  payload?: string;
 }
 
 export interface ParsedRelayerMessage extends ParsedMessage {

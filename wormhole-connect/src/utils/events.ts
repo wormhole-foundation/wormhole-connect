@@ -1,26 +1,28 @@
-import { Contract, ethers } from 'ethers';
-import { ChainId } from '@certusone/wormhole-sdk';
+import { Contract } from 'ethers';
+import { ChainId, ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+import { wh } from '../sdk';
 
 const ABI = [
-  'event Redeemed(uint16 indexed emitterChainId, bytes32 indexed emitterAddress, uint64 indexed sequence)',
+  'event TransferRedeemed(uint16 indexed emitterChainId, bytes32 indexed emitterAddress, uint64 indexed sequence)',
 ];
 
-const fetchRedeemedEvent = async (
-  provider: ethers.providers.Provider,
-  contractAddress: string,
+export const fetchRedeemedEvent = async (
+  destChainId: ChainId | ChainName,
   emitterChainId: ChainId,
   emitterAddress: string,
   sequence: string,
 ) => {
-  const contract = new Contract(contractAddress, ABI, provider);
-  const eventFilter = await contract.filters.Redeemed(
+  const provider = wh.mustGetProvider(destChainId);
+  const { relayer } = wh.getContracts(destChainId)!;
+  if (!relayer) throw new Error('no token bridge contract found');
+  const contract = new Contract(relayer, ABI, provider);
+  console.log(emitterChainId, emitterAddress, sequence);
+  const eventFilter = contract.filters.TransferRedeemed(
     emitterChainId,
-    `0x${emitterAddress}`,
+    emitterAddress,
     sequence,
   );
-  const currentBlock = await provider.getBlockNumber();
-  const events = await contract.queryFilter(eventFilter, currentBlock - 100);
+  // const currentBlock = await provider.getBlockNumber();
+  const events = await contract.queryFilter(eventFilter);
   return events ? events[0] : null;
 };
-
-export default fetchRedeemedEvent;
