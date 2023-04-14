@@ -30,7 +30,7 @@ import { RelayerAbstract } from '../abstracts/relayer';
 import { SolanaContext } from '../solana';
 
 export class EthContext<T extends WormholeContext> extends RelayerAbstract {
-  protected contracts: EthContracts<T>;
+  readonly contracts: EthContracts<T>;
   readonly context: T;
 
   constructor(context: T) {
@@ -474,6 +474,10 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
         const tokenContext = this.context.getContext(
           parsedTransfer.tokenChain as ChainId,
         );
+        const tokenAddress = tokenContext.parseAddress(
+          parsedTransfer.tokenAddress,
+        );
+        const tokenChain = this.context.toChainName(parsedTransfer.tokenChain);
         const parsedMessage: ParsedMessage = {
           sendTx: tx,
           sender: receipt.from,
@@ -482,8 +486,12 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
           recipient: destContext.parseAddress(parsedTransfer.to),
           toChain: this.context.toChainName(parsedTransfer.toChain),
           fromChain,
-          tokenAddress: tokenContext.parseAddress(parsedTransfer.tokenAddress),
-          tokenChain: this.context.toChainName(parsedTransfer.tokenChain),
+          tokenAddress,
+          tokenChain,
+          tokenId: {
+            chain: tokenChain,
+            address: tokenAddress,
+          },
           sequence: parsed.args.sequence,
           emitterAddress: utils.hexlify(this.formatAddress(bridge.address)),
           block: receipt.blockNumber,
@@ -504,6 +512,8 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
       const parsedPayload = await relayer.decodeTransferWithRelay(
         parsedTransfer.payload,
       );
+      const tokenAddress = this.parseAddress(parsedTransfer.tokenAddress);
+      const tokenChain = this.context.toChainName(parsedTransfer.tokenChain);
       const parsedMessage: ParsedRelayerMessage = {
         sendTx: tx,
         sender: receipt.from,
@@ -512,8 +522,12 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
         to: destContext.parseAddress(parsedTransfer.to),
         toChain: this.context.toChainName(parsedTransfer.toChain),
         fromChain,
-        tokenAddress: this.parseAddress(parsedTransfer.tokenAddress),
-        tokenChain: this.context.toChainName(parsedTransfer.tokenChain),
+        tokenAddress,
+        tokenChain,
+        tokenId: {
+          chain: tokenChain,
+          address: tokenAddress,
+        },
         sequence: parsed.args.sequence,
         emitterAddress: utils.hexlify(this.formatAddress(bridge.address)),
         block: receipt.blockNumber,

@@ -9,7 +9,12 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { RootState } from '../../store';
 import { setRedeemTx, setTransferComplete } from '../../store/redeem';
-import { displayAddress } from '../../utils';
+import {
+  displayAddress,
+  fromNormalizedDecimals,
+  getTokenById,
+  toNormalizedDecimals,
+} from '../../utils';
 import {
   registerWalletSigner,
   switchNetwork,
@@ -22,11 +27,12 @@ import {
   estimateClaimGasFee,
   parseAddress,
   PaymentOption,
+  calculateNativeTokenAmt,
 } from '../../sdk';
 import { CHAINS } from '../../config';
 import WalletsModal from '../WalletModal';
 import { GAS_ESTIMATES } from '../../config/testnet';
-import { fetchRedeemedEvent } from '../../utils/events';
+import { fetchRedeemedEvent, fetchSwapEvent } from '../../utils/events';
 
 import Header from './Header';
 import AlertBanner from '../../components/AlertBanner';
@@ -51,8 +57,11 @@ const calculateGas = async (chain: ChainName, receiveTx?: string) => {
   return await estimateClaimGasFee(chain);
 };
 
-const getRows = async (txData: any, receiveTx?: string): Promise<RowsData> => {
-  const decimals = txData.tokenDecimals > 8 ? 8 : txData.tokenDecimals;
+const getRows = async (
+  txData: any,
+  receiveTx?: string,
+  transferComplete?: boolean,
+): Promise<RowsData> => {
   const type = txData.payloadID;
   const { gasToken } = CHAINS[txData.toChain]!;
 
@@ -61,7 +70,11 @@ const getRows = async (txData: any, receiveTx?: string): Promise<RowsData> => {
 
   // manual transfers
   if (type === PaymentOption.MANUAL) {
-    const formattedAmt = utils.formatUnits(txData.amount, decimals);
+    const formattedAmt = toNormalizedDecimals(
+      txData.amount,
+      txData.tokenDecimals,
+      6,
+    );
     return [
       {
         title: 'Amount',
@@ -78,8 +91,39 @@ const getRows = async (txData: any, receiveTx?: string): Promise<RowsData> => {
   const receiveAmt = BigNumber.from(txData.amount).sub(
     BigNumber.from(txData.relayerFee),
   );
-  const formattedAmt = toDecimals(receiveAmt, decimals, 6);
-  const formattedToNative = toDecimals(txData.toNativeTokenAmount, decimals, 6);
+  const formattedAmt = toNormalizedDecimals(
+    receiveAmt,
+    txData.tokenDecimals,
+    6,
+  );
+  let nativeGasAmt: string | undefined;
+  if (receiveTx) {
+    let event: any;
+    try {
+      event = await fetchSwapEvent(
+        txData.toChain,
+        txData.recipient,
+        txData.tokenId,
+        BigNumber.from(txData.toNativeTokenAmount),
+        txData.tokenDecimals,
+      );
+    } catch (e) {
+      console.error(`could not fetch swap event:\n${e}`);
+    }
+    if (event) {
+      nativeGasAmt = toDecimals(event.args[4], 18, 6);
+    }
+  } else if (!transferComplete) {
+    const token = getTokenById(txData.tokenId);
+    if (token) {
+      const amount = await calculateNativeTokenAmt(
+        txData.toChain,
+        txData.tokenId,
+        fromNormalizedDecimals(txData.toNativeTokenAmount, token.decimals),
+      );
+      nativeGasAmt = toDecimals(amount.toString(), 18, 6);
+    }
+  }
   return [
     {
       title: 'Amount',
@@ -87,7 +131,7 @@ const getRows = async (txData: any, receiveTx?: string): Promise<RowsData> => {
     },
     {
       title: 'Native gas token',
-      value: `${formattedToNative} ${gasToken}`,
+      value: nativeGasAmt ? `${nativeGasAmt} ${gasToken}` : '—',
     },
   ];
 };
@@ -143,8 +187,14 @@ function SendTo() {
   useEffect(() => {
     if (!txData) return;
     const populate = async () => {
-      const tx = await getRedeemTx();
-      const rows = await getRows(txData, tx);
+      let tx: string | undefined;
+      try {
+        console.log('get redeem tx');
+        tx = await getRedeemTx();
+      } catch (e) {
+        console.error(`could not fetch redeem event:\n${e}`);
+      }
+      const rows = await getRows(txData, tx, transferComplete);
       setRows(rows);
     };
     populate();
@@ -199,6 +249,8 @@ function SendTo() {
         />
         <RenderRows rows={rows} />
       </InputContainer>
+
+      {/* Claim button for manual transfers */}
       {txData.payloadID === PaymentOption.MANUAL && !transferComplete && (
         <>
           <Spacer height={8} />

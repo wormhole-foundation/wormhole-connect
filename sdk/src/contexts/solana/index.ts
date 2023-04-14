@@ -515,8 +515,10 @@ export class SolanaContext<
     const parsedResponse = await this.connection.getParsedTransaction(tx);
     if (!response || !response.meta?.innerInstructions![0].instructions)
       throw new Error('transaction not found');
+
     const instructions = response.meta?.innerInstructions![0].instructions;
     const accounts = response.transaction.message.accountKeys;
+
     // find the instruction where the programId equals the Wormhole ProgramId and the emitter equals the Token Bridge
     const bridgeInstructions = instructions.filter((i) => {
       const programId = accounts[i.programIdIndex].toString();
@@ -555,6 +557,11 @@ export class SolanaContext<
     const tokenContext = this.context.getContext(parsed.tokenChain as ChainId);
     const destContext = this.context.getContext(parsed.toChain as ChainId);
 
+    const tokenAddress = tokenContext.parseAddress(
+      hexlify(parsed.tokenAddress),
+    );
+    const tokenChain = this.context.toChainName(parsed.tokenChain);
+
     const parsedMessage: ParsedMessage = {
       sendTx: tx,
       sender: accounts[0].toString(),
@@ -563,8 +570,12 @@ export class SolanaContext<
       recipient: destContext.parseAddress(hexlify(parsed.to)),
       toChain: this.context.toChainName(parsed.toChain),
       fromChain: this.context.toChainName(chain),
-      tokenAddress: tokenContext.parseAddress(hexlify(parsed.tokenAddress)),
-      tokenChain: this.context.toChainName(parsed.tokenChain),
+      tokenAddress,
+      tokenChain,
+      tokenId: {
+        chain: tokenChain,
+        address: tokenAddress,
+      },
       sequence: BigNumber.from(sequence),
       emitterAddress:
         '3b26409f8aaded3f5ddca184695aa6a0fa829b0c85caf84856324896d214ca98',
