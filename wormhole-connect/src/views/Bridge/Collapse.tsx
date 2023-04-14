@@ -89,13 +89,14 @@ function BridgeCollapse(props: Props) {
 
   const toggleCollapsed = useCallback(() => {
     if (props.disabled) return;
-    const newValue = !collapsed;
-
-    setCollapsed(newValue);
-    if (props.onCollapseChange) {
-      props.onCollapseChange(newValue);
-    }
+    setCollapsed(prev => !prev);
   }, [collapsed, props.disabled, props.onCollapseChange]);
+
+  const onCollapseChange = useCallback(() => {
+    if (props.onCollapseChange) {
+      props.onCollapseChange(collapsed);
+    }
+  }, [collapsed, props.onCollapseChange]);
 
   const relayAvail = useSelector(
     (state: RootState) => state.transfer.automaticRelayAvail,
@@ -154,7 +155,8 @@ function BridgeCollapse(props: Props) {
           </a>
         </div>
       )}
-      <Collapse in={!collapsedState}>{props.children}</Collapse>
+
+      <Collapse onExited={onCollapseChange} in={!collapsedState}>{props.children}</Collapse>
     </div>
   );
 }
