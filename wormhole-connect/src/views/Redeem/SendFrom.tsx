@@ -10,18 +10,19 @@ import InputContainer from '../../components/InputContainer';
 import Header from './Header';
 import { RenderRows, RowsData } from '../../components/RenderRows';
 import Confirmations from './Confirmations';
-import { toNormalizedDecimals } from '../../utils';
+import { toNormalizedDecimals, MAX_DECIMALS } from '../../utils';
 
 const getRows = (txData: any): RowsData => {
   const formattedAmt = toNormalizedDecimals(
     txData.amount,
     txData.tokenDecimals,
-    6,
+    MAX_DECIMALS,
   );
   const { gasToken: sourceGasTokenSymbol } = CHAINS[txData.fromChain];
   const sourceGasToken = TOKENS[sourceGasTokenSymbol];
   const formattedGas =
-    txData.gasFee && toDecimals(txData.gasFee, sourceGasToken.decimals, 6);
+    txData.gasFee &&
+    toDecimals(txData.gasFee, sourceGasToken.decimals, MAX_DECIMALS);
   const type = txData.payloadID;
 
   // manual transfers
@@ -42,12 +43,12 @@ const getRows = (txData: any): RowsData => {
   const formattedFee = toNormalizedDecimals(
     txData.relayerFee,
     txData.tokenDecimals,
-    6,
+    MAX_DECIMALS,
   );
   const formattedToNative = toNormalizedDecimals(
     txData.toNativeTokenAmount,
     txData.tokenDecimals,
-    6,
+    MAX_DECIMALS,
   );
   const { gasToken } = CHAINS[txData.toChain]!;
   return [

@@ -13,6 +13,7 @@ export const TESTNET_NETWORKS: NetworksConfig = {
     chainId: 5,
     icon: Icon.ETH,
     automaticRelayer: true,
+    maxBlockSearch: 2000,
   },
   mumbai: {
     ...chains.mumbai!,
@@ -23,6 +24,7 @@ export const TESTNET_NETWORKS: NetworksConfig = {
     chainId: 80001,
     icon: Icon.POLYGON,
     automaticRelayer: true,
+    maxBlockSearch: 1000,
   },
   bsc: {
     ...chains.bsc!,
@@ -33,6 +35,7 @@ export const TESTNET_NETWORKS: NetworksConfig = {
     chainId: 97,
     icon: Icon.BSC,
     automaticRelayer: true,
+    maxBlockSearch: 2000,
   },
   fuji: {
     ...chains.fuji!,
@@ -43,6 +46,7 @@ export const TESTNET_NETWORKS: NetworksConfig = {
     chainId: 43113,
     icon: Icon.AVAX,
     automaticRelayer: true,
+    maxBlockSearch: 2000,
   },
   fantom: {
     ...chains.fantom!,
@@ -53,6 +57,7 @@ export const TESTNET_NETWORKS: NetworksConfig = {
     chainId: 4002,
     icon: Icon.FANTOM,
     automaticRelayer: true,
+    maxBlockSearch: 2000,
   },
   alfajores: {
     ...chains.alfajores!,
@@ -63,6 +68,7 @@ export const TESTNET_NETWORKS: NetworksConfig = {
     chainId: 44787,
     icon: Icon.CELO,
     automaticRelayer: true,
+    maxBlockSearch: 2000,
   },
   moonbasealpha: {
     ...chains.moonbasealpha!,
@@ -73,6 +79,7 @@ export const TESTNET_NETWORKS: NetworksConfig = {
     chainId: 1287,
     icon: Icon.GLMR,
     automaticRelayer: true,
+    maxBlockSearch: 2000,
   },
   solana: {
     ...chains.solana!,
@@ -83,6 +90,7 @@ export const TESTNET_NETWORKS: NetworksConfig = {
     chainId: 0,
     icon: Icon.SOLANA,
     automaticRelayer: false,
+    maxBlockSearch: 2000,
   },
 };
 

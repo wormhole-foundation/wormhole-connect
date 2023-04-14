@@ -37,7 +37,6 @@ export const fetchSwapEvent = async (
   amount: BigNumber,
   decimals: number,
 ) => {
-  console.log(destChainId, recipient, tokenId);
   const provider = wh.mustGetProvider(destChainId);
   const context: any = wh.getContext(destChainId);
   const relayerContract =

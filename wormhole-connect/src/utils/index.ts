@@ -11,6 +11,9 @@ import { NetworkConfig, TokenConfig } from '../config/types';
 import { WalletType } from './wallet';
 import { toDecimals } from './balance';
 
+export const MAX_DECIMALS = 6;
+export const NORMALIZED_DECIMALS = 8;
+
 export function convertAddress(address: string): string {
   if (address.length === 22) return address;
   return `0x${address.slice(address.length - 40, address.length)}`;
@@ -157,8 +160,8 @@ export function fromNormalizedDecimals(
   amount: BigNumber,
   decimals: number,
 ): BigNumber {
-  return decimals > 8
-    ? utils.parseUnits(amount.toString(), decimals - 8)
+  return decimals > NORMALIZED_DECIMALS
+    ? utils.parseUnits(amount.toString(), decimals - NORMALIZED_DECIMALS)
     : amount;
 }
 
@@ -167,6 +170,7 @@ export function toNormalizedDecimals(
   decimals: number,
   numDecimals?: number,
 ): string {
-  const normalizedDecimals = decimals > 8 ? 8 : decimals;
+  const normalizedDecimals =
+    decimals > NORMALIZED_DECIMALS ? NORMALIZED_DECIMALS : decimals;
   return toDecimals(amount, normalizedDecimals, numDecimals);
 }

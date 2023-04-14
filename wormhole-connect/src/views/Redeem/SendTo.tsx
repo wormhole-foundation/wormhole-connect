@@ -10,6 +10,7 @@ import {
 import { RootState } from '../../store';
 import { setRedeemTx, setTransferComplete } from '../../store/redeem';
 import {
+  MAX_DECIMALS,
   displayAddress,
   fromNormalizedDecimals,
   toNormalizedDecimals,
@@ -42,8 +43,15 @@ import { RenderRows, RowsData } from '../../components/RenderRows';
 import InputContainer from '../../components/InputContainer';
 
 const calculateGas = async (chain: ChainName, receiveTx?: string) => {
+  const { gasToken } = CHAINS[chain]!;
+  const { decimals } = TOKENS[gasToken];
+
   if (chain === 'solana') {
-    return toDecimals(BigNumber.from(GAS_ESTIMATES.solana!.claim), 9, 6);
+    return toDecimals(
+      BigNumber.from(GAS_ESTIMATES.solana!.claim),
+      decimals,
+      MAX_DECIMALS,
+    );
   }
   if (receiveTx) {
     const provider = wh.mustGetProvider(chain);
@@ -51,50 +59,53 @@ const calculateGas = async (chain: ChainName, receiveTx?: string) => {
     const { gasUsed, effectiveGasPrice } = receipt;
     if (!gasUsed || !effectiveGasPrice) return;
     const gasFee = gasUsed.mul(effectiveGasPrice);
-    return toDecimals(gasFee, 18, 6);
+    return toDecimals(gasFee, decimals, MAX_DECIMALS);
   }
   return await estimateClaimGasFee(chain);
 };
 
-const getRows = async (
+const getManualRows = async (
   txData: any,
   receiveTx?: string,
-  transferComplete?: boolean,
 ): Promise<RowsData> => {
-  const type = txData.payloadID;
   const { gasToken } = CHAINS[txData.toChain]!;
 
   // get gas used (if complete) or gas estimate if not
   const gas = await calculateGas(txData.toChain, receiveTx);
 
-  // manual transfers
-  if (type === PaymentOption.MANUAL) {
-    const formattedAmt = toNormalizedDecimals(
-      txData.amount,
-      txData.tokenDecimals,
-      6,
-    );
-    return [
-      {
-        title: 'Amount',
-        value: `${formattedAmt} ${txData.tokenSymbol}`,
-      },
-      {
-        title: receiveTx ? 'Gas fee' : 'Gas estimate',
-        value: gas ? `${gas} ${gasToken}` : '—',
-      },
-    ];
-  }
+  const formattedAmt = toNormalizedDecimals(
+    txData.amount,
+    txData.tokenDecimals,
+    MAX_DECIMALS,
+  );
+  return [
+    {
+      title: 'Amount',
+      value: `${formattedAmt} ${txData.tokenSymbol}`,
+    },
+    {
+      title: receiveTx ? 'Gas fee' : 'Gas estimate',
+      value: gas ? `${gas} ${gasToken}` : '—',
+    },
+  ];
+};
 
-  // automatic transfers
+const getAutomaticRows = async (
+  txData: any,
+  receiveTx?: string,
+  transferComplete?: boolean,
+): Promise<RowsData> => {
+  const { gasToken } = CHAINS[txData.toChain]!;
   const receiveAmt = BigNumber.from(txData.amount).sub(
     BigNumber.from(txData.relayerFee),
   );
   const formattedAmt = toNormalizedDecimals(
     receiveAmt,
     txData.tokenDecimals,
-    6,
+    MAX_DECIMALS,
   );
+
+  // calculate the amount of native gas received
   let nativeGasAmt: string | undefined;
   const nativeGasToken = TOKENS[gasToken];
   if (receiveTx) {
@@ -111,7 +122,11 @@ const getRows = async (
       console.error(`could not fetch swap event:\n${e}`);
     }
     if (event) {
-      nativeGasAmt = toDecimals(event.args[4], nativeGasToken.decimals, 6);
+      nativeGasAmt = toDecimals(
+        event.args[4],
+        nativeGasToken.decimals,
+        MAX_DECIMALS,
+      );
     }
   } else if (!transferComplete) {
     const amount = await calculateNativeTokenAmt(
@@ -119,7 +134,11 @@ const getRows = async (
       txData.tokenId,
       fromNormalizedDecimals(txData.toNativeTokenAmount, txData.tokenDecimals),
     );
-    nativeGasAmt = toDecimals(amount.toString(), nativeGasToken.decimals, 6);
+    nativeGasAmt = toDecimals(
+      amount.toString(),
+      nativeGasToken.decimals,
+      MAX_DECIMALS,
+    );
   }
   return [
     {
@@ -131,6 +150,17 @@ const getRows = async (
       value: nativeGasAmt ? `${nativeGasAmt} ${gasToken}` : '—',
     },
   ];
+};
+
+const getRows = async (
+  txData: any,
+  receiveTx?: string,
+  transferComplete?: boolean,
+): Promise<RowsData> => {
+  if (txData.payloadID === PaymentOption.MANUAL) {
+    return await getManualRows(txData, receiveTx);
+  }
+  return await getAutomaticRows(txData, receiveTx, transferComplete);
 };
 
 function SendTo() {
@@ -186,7 +216,6 @@ function SendTo() {
     const populate = async () => {
       let tx: string | undefined;
       try {
-        console.log('get redeem tx');
         tx = await getRedeemTx();
       } catch (e) {
         console.error(`could not fetch redeem event:\n${e}`);
