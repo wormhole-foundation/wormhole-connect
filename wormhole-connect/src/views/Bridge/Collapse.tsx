@@ -5,7 +5,7 @@ import Down from '../../icons/Down';
 import { joinClass, LINK } from '../../utils/style';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
-import { Switch, ToggleButton } from '@mui/material';
+import Switch from '../../components/Switch';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
