@@ -29,7 +29,7 @@ import {
   PaymentOption,
   calculateNativeTokenAmt,
 } from '../../sdk';
-import { CHAINS } from '../../config';
+import { CHAINS, TOKENS } from '../../config';
 import WalletsModal from '../WalletModal';
 import { GAS_ESTIMATES } from '../../config/testnet';
 import { fetchRedeemedEvent, fetchSwapEvent } from '../../utils/events';
@@ -97,6 +97,7 @@ const getRows = async (
     6,
   );
   let nativeGasAmt: string | undefined;
+  const nativeGasToken = TOKENS[gasToken];
   if (receiveTx) {
     let event: any;
     try {
@@ -111,18 +112,19 @@ const getRows = async (
       console.error(`could not fetch swap event:\n${e}`);
     }
     if (event) {
-      nativeGasAmt = toDecimals(event.args[4], 18, 6);
+      nativeGasAmt = toDecimals(event.args[4], nativeGasToken.decimals, 6);
     }
   } else if (!transferComplete) {
-    const token = getTokenById(txData.tokenId);
-    if (token) {
-      const amount = await calculateNativeTokenAmt(
-        txData.toChain,
-        txData.tokenId,
-        fromNormalizedDecimals(txData.toNativeTokenAmount, token.decimals),
-      );
-      nativeGasAmt = toDecimals(amount.toString(), 18, 6);
-    }
+    const denormalizedAmt =
+      txData.tokenDecimals > 8
+        ? utils.parseUnits(txData.toNativeTokenAmount, txData.tokenDecimals - 8)
+        : txData.toNativeTokenAmount;
+    const amount = await calculateNativeTokenAmt(
+      txData.toChain,
+      txData.tokenId,
+      denormalizedAmt,
+    );
+    nativeGasAmt = toDecimals(amount.toString(), nativeGasToken.decimals, 6);
   }
   return [
     {
