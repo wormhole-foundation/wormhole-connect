@@ -40,7 +40,7 @@ export const fetchSwapEvent = async (
 ) => {
   const provider = wh.mustGetProvider(destChainId);
   const context: any = wh.getContext(destChainId);
-  const chainName = context.toChainName(destChainId) as ChainName;
+  const chainName = wh.toChainName(destChainId) as ChainName;
   const chainConfig = CHAINS[chainName]!;
   const relayerContract =
     context.contracts.mustGetTokenBridgeRelayer(destChainId);
