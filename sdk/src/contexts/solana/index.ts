@@ -430,7 +430,6 @@ export class SolanaContext<
         token,
         SOLANA_CHAIN_NAME,
       );
-      console.log('solana token addr', solTokenAddr);
       const splToken = await this.connection.getTokenAccountsByOwner(
         new PublicKey(senderAddress),
         { mint: new PublicKey(solTokenAddr) },
@@ -514,7 +513,6 @@ export class SolanaContext<
       throw new Error('contracts not found');
     const response = await this.connection.getTransaction(tx);
     const parsedResponse = await this.connection.getParsedTransaction(tx);
-    console.log('parsed', parsedResponse);
     if (!response || !response.meta?.innerInstructions![0].instructions)
       throw new Error('transaction not found');
     const instructions = response.meta?.innerInstructions![0].instructions;
@@ -544,7 +542,6 @@ export class SolanaContext<
 
     // parse message payload
     const parsed = parseTokenTransferPayload(message.payload);
-    console.log(parsed);
 
     // get sequence
     const sequence = response.meta?.logMessages

@@ -106,7 +106,6 @@ function Send(props: { valid: boolean }) {
         `${toNativeToken}`,
       );
       const txId = receipt.transactionHash;
-      console.log('sent', txId, receipt);
 
       let message;
       const toRedeem = setInterval(async () => {

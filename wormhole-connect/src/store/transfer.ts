@@ -100,14 +100,12 @@ export const transferSlice = createSlice({
     },
     // user input
     setToken: (state: TransferState, { payload }: PayloadAction<string>) => {
-      console.log('set token:', payload);
       state.token = payload;
     },
     setFromNetwork: (
       state: TransferState,
       { payload }: PayloadAction<ChainName>,
     ) => {
-      console.log('set from network:', payload);
       state.fromNetwork = payload;
 
       const { fromNetwork, token } = state;
@@ -124,25 +122,21 @@ export const transferSlice = createSlice({
       state: TransferState,
       { payload }: PayloadAction<ChainName>,
     ) => {
-      console.log('set to network:', payload);
       state.toNetwork = payload;
     },
     setAmount: (state: TransferState, { payload }: PayloadAction<number>) => {
-      console.log('set amount:', payload);
       state.amount = payload;
     },
     setToNativeToken: (
       state: TransferState,
       { payload }: PayloadAction<number>,
     ) => {
-      console.log('set toNativeToken amount:', payload);
       state.toNativeToken = payload;
     },
     setDestGasPayment: (
       state: TransferState,
       { payload }: PayloadAction<PaymentOption>,
     ) => {
-      console.log('set destination gas payment option:', payload);
       state.destGasPayment = payload;
     },
     // transfer calculations
@@ -150,21 +144,18 @@ export const transferSlice = createSlice({
       state: TransferState,
       { payload }: PayloadAction<number | undefined>,
     ) => {
-      console.log('set max swap amount:', payload);
       state.maxSwapAmt = payload;
     },
     setReceiveNativeAmt: (
       state: TransferState,
       { payload }: PayloadAction<number>,
     ) => {
-      console.log('set receive native token amount:', payload);
       state.receiveNativeAmt = payload;
     },
     setRelayerFee: (
       state: TransferState,
       { payload }: PayloadAction<number>,
     ) => {
-      console.log('set relayer fee', payload);
       state.relayerFee = payload;
     },
     setBalance: (

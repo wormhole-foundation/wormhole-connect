@@ -17,7 +17,6 @@ if (!el)
   throw new Error('must specify an anchor element with id wormhole-connect');
 const configJson = el.getAttribute('config');
 const config: WormholeConnectConfig | null = JSON.parse(configJson!);
-console.log('CONFIG', config);
 
 const { REACT_APP_ENV } = process.env;
 export const isProduction = REACT_APP_ENV === 'MAINNET';

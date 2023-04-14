@@ -23,7 +23,6 @@ const estimateGasFee = async (
   paymentOption: PaymentOption,
   toNativeToken?: string,
 ): Promise<string> => {
-  console.log('estimating fees');
   const fromChainId = context.toChainId(fromNetwork);
   const decimals = getTokenDecimals(fromChainId, token);
   const parsedAmt = utils.parseUnits(amount, decimals);

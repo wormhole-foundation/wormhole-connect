@@ -28,26 +28,21 @@ export const redeemSlice = createSlice({
   initialState,
   reducers: {
     setVaa: (state: RedeemState, { payload }: PayloadAction<ParsedVaa>) => {
-      console.log('set VAA:', payload);
       state.vaa = payload;
     },
     setTxDetails: (state: RedeemState, { payload }: PayloadAction<any>) => {
-      console.log('set Tx details', payload);
       state.txData = payload;
     },
     setSendTx: (state: RedeemState, { payload }: PayloadAction<string>) => {
-      console.log('set tx hash:', payload);
       state.sendTx = payload;
     },
     setRedeemTx: (state: RedeemState, { payload }) => {
-      console.log('set redeem tx:', payload);
       state.redeemTx = payload;
     },
     setTransferComplete: (
       state: RedeemState,
       { payload }: PayloadAction<boolean>,
     ) => {
-      console.log('set transfer complete', payload);
       state.transferComplete = payload;
     },
     clearRedeem: (state: RedeemState) => {

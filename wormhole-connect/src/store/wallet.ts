@@ -38,7 +38,6 @@ export const walletSlice = createSlice({
       state: WalletState,
       { payload }: PayloadAction<ConnectPayload>,
     ) => {
-      console.log('connect sending wallet', payload);
       state.sending.type = payload.type;
       state.sending.address = payload.address;
       state.sending.currentAddress = payload.address;
@@ -48,7 +47,6 @@ export const walletSlice = createSlice({
       state: WalletState,
       { payload }: PayloadAction<ConnectPayload>,
     ) => {
-      console.log('connect receiving wallet', payload);
       state.receiving.type = payload.type;
       state.receiving.address = payload.address;
       state.receiving.currentAddress = payload.address;

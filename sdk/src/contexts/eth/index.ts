@@ -329,7 +329,6 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
     const nativeTokenBN = ethers.BigNumber.from(toNativeToken);
 
     if (token === NATIVE) {
-      console.log('wrap and send with relay');
       // sending native ETH
       return relayer.populateTransaction.wrapAndTransferEthWithRelay(
         nativeTokenBN,
@@ -343,7 +342,6 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
         },
       );
     } else {
-      console.log('send with relay');
       // sending ERC-20
       const tokenAddr = await this.mustGetForeignAsset(token, sendingChain);
       return relayer.populateTransaction.transferTokensWithRelay(
@@ -378,12 +376,6 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
       const amountBN = ethers.BigNumber.from(amount);
       const relayer = this.contracts.mustGetTokenBridgeRelayer(sendingChain);
       const tokenAddr = await this.mustGetForeignAsset(token, sendingChain);
-      console.log(
-        sendingChain,
-        relayer.address,
-        this.parseAddress(tokenAddr),
-        amountBN,
-      );
       await this.approve(sendingChain, relayer.address, tokenAddr, amountBN);
     }
 
