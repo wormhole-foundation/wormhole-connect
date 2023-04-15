@@ -2,7 +2,7 @@
   "name": "@wormhole-foundation/wormhole-connect",
   "version": "0.0.1-beta.0",
   "private": true,
-  "main": "dist/index.tsx",
+  "main": "build/index.html",
   "publishConfig": {
     "access": "restricted"
   },
