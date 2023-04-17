@@ -6,6 +6,7 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 
 export interface WormholeConnectConfig {
+  env?: 'mainnet' | 'testnet';
   rpcs?: Rpcs;
   networks?: ChainName[];
   tokens?: string[];

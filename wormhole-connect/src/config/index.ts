@@ -20,7 +20,10 @@ const config: WormholeConnectConfig | null = JSON.parse(configJson!);
 
 const { REACT_APP_ENV } = process.env;
 export const isProduction = REACT_APP_ENV === 'MAINNET';
-export const CONFIG = isProduction ? CONF.MAINNET : CONF.TESTNET;
+export const CONFIG =
+  (config && config.env === 'mainnet') || isProduction
+    ? CONF.MAINNET
+    : CONF.TESTNET;
 
 const conf = WormholeContext.getConfig(REACT_APP_ENV! as Environment);
 const mainnetRpcs = {
