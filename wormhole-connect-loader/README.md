@@ -12,7 +12,7 @@ Integration does not get easier than this. Wormhole Connect is an easy seamless 
   "networks": ["goerli", "mumbai"],
   "tokens": ["ETH", "WETH", "MATIC", "WMATIC"],
   "mode": "light"
-  "customTheme": {} // import `Theme`
+  "customTheme": {} // see src/theme.ts
 }
 ```
 
@@ -68,9 +68,8 @@ import { dark, light, Theme } from '@wormhole-foundation/wormhole-connect';
 
 ```html
 <!-- paste below into index.html body -->
-<script src="https://wormhole-foundation.github.io/wormhole-connect/main.js"></script>
-<script src="https://wormhole-foundation.github.io/wormhole-connect/718.06852233.chunk.js"></script>
-<link rel="https://wormhole-foundation.github.io/wormhole-connect/main.ba17183d.css" />
+<script src="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.1-beta.0/dist/main.js"></script>
+<link rel="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.1-beta.0/dist/main.js" />
 ```
 
 3. Embed it in your application
@@ -81,7 +80,7 @@ This is where your widget will appear. Specify an id of `wormhole-connect` and p
 // root element with id
 <div id="wormhole-connect"></div>
 // with customization
-<div id="wormhole-connect" config='{"networks": ["goerli", "mumbai"], "tokens": ["ETH", "WETH", "MATIC", "WMATIC"], "theme": "light"}'></div>
+<div id="wormhole-connect" config='{"networks": ["goerli", "mumbai"], "tokens": ["ETH", "WETH", "MATIC", "WMATIC"], "mode": "light"}'></div>
 // stringify JSON config
 <div id="wormhole-connect" config={JSON.stringify(jsonConfig)} />
 ```
@@ -99,7 +98,7 @@ class WormholeConnect extends React.Component {
     script.async = true;
 
     const link = document.createElement("link");
-    link.href = `https://www.unpkg.com/@wormhole-foundation/wormhole-connect@${version}/dist/main.css`;
+    link.rel = `https://www.unpkg.com/@wormhole-foundation/wormhole-connect@${version}/dist/main.css`;
 
     document.body.appendChild(link);
     document.body.appendChild(script);
