@@ -1,6 +1,11 @@
 import React from 'react';
 
-type Environment = 'MAINNET' | 'TESTNET';
+import grey from '@mui/material/colors/grey';
+import green from '@mui/material/colors/green';
+import orange from '@mui/material/colors/orange';
+import red from '@mui/material/colors/red';
+import lightblue from '@mui/material/colors/lightBlue'
+
 export const MAINNET_CHAINS = {
   solana: 1,
   ethereum: 2,
@@ -33,43 +38,320 @@ export type ChainId = MainnetChainId | TestnetChainId;
 export type Rpcs = {
   [chain in ChainName]?: string;
 };
-export type Contracts = {
-  core?: string;
-  token_bridge?: string;
-  nft_bridge?: string;
-  relayer?: string;
-};
 
-export enum Context {
-  ETH = 'Ethereum',
-  TERRA = 'Terra',
-  INJECTIVE = 'Injective',
-  XPLA = 'XPLA',
-  SOLANA = 'Solana',
-  ALGORAND = 'Algorand',
-  NEAR = 'Near',
-  APTOS = 'Aptos',
-  OTHER = 'OTHER',
+export interface WormholeConnectConfig {
+  env?: 'mainnet' | 'testnet';
+  rpcs?: Rpcs;
+  networks?: ChainName[];
+  tokens?: string[];
+  mode?: 'dark' | 'light';
+  customTheme?: any;
 }
 
-export type ChainConfig = {
-  key: ChainName;
-  id: ChainId;
-  context: Context;
-  contracts: Contracts;
-  finalityThreshold: number;
+export type PaletteColor = {
+  50: string;
+  100: string;
+  200: string;
+  300: string;
+  400: string;
+  500: string;
+  600: string;
+  700: string;
+  800: string;
+  900: string;
+  A100: string;
+  A200: string;
+  A400: string;
+  A700: string;
 };
 
-export type WormholeConfig = {
-  env: Environment;
-  rpcs: Rpcs;
-  chains: {
-    [chain in ChainName]?: ChainConfig;
+export type Theme = {
+  primary: PaletteColor;
+  secondary: PaletteColor;
+  divider: string;
+  background: {
+    default: string;
+  };
+  text: {
+    primary: string;
+    secondary: string;
+  };
+  error: PaletteColor;
+  info: PaletteColor;
+  success: PaletteColor;
+  warning: PaletteColor;
+  button: {
+    primary: string;
+    primaryText: string;
+    disabled: string;
+    disabledText: string;
+    action: string;
+    actionText: string;
+    hover: string;
+  };
+  options: {
+    hover: string;
+    select: string;
+  };
+  card: {
+    background: string;
+    elevation: string;
+    secondary: string;
+  };
+  popover: {
+    background: string;
+    elevation: string;
+    secondary: string;
+  };
+  modal: {
+    background: string;
+  };
+  font: {
+    primary: string;
+    header: string;
   };
 };
 
+export const OPACITY = {
+  0: '00',
+  5: '0C',
+  7: '0F',
+  10: '19',
+  15: '26',
+  20: '33',
+  25: '3F',
+  30: '4C',
+  35: '59',
+  40: '66',
+  45: '72',
+  50: '7F',
+  55: '8C',
+  60: '99',
+  65: 'A5',
+  70: 'B2',
+  75: 'BF',
+  80: 'CC',
+  85: 'D8',
+  90: 'E5',
+  95: 'F2',
+  100: 'FF',
+};
+
+export const light: Theme = {
+  primary: {
+    50: '#161718',
+    100: '#2d2e30',
+    200: '#444548',
+    300: '#5b5c60',
+    400: '#727479',
+    500: '#898b91',
+    600: '#a0a2a9',
+    700: '#b7b9c1',
+    800: '#ced0d9',
+    900: '#E5E8F2',
+    A100: '#ceced1',
+    A200: '#9d9ea4',
+    A400: '#535660',
+    A700: '#0a0e1c',
+  },
+  secondary: grey,
+  divider: '#a0a2a9',
+  background: {
+    default: '#E5E8F2',
+  },
+  text: {
+    primary: grey[900],
+    secondary: grey[800],
+  },
+  error: red,
+  info: {
+    50: '#d1e3f9',
+    100: '#c8def7',
+    200: '#bfd8f6',
+    300: '#b6d3f5',
+    400: '#adcdf4',
+    500: '#A4C8F3',
+    600: '#93b4da',
+    700: '#83a0c2',
+    800: '#728caa',
+    900: '#627891',
+    A100: '#A4C8F3',
+    A200: '#A4C8F3',
+    A400: '#A4C8F3',
+    A700: '#A4C8F3',
+  },
+  success: green,
+  warning: orange,
+  button: {
+    primary: '#ffffff',
+    primaryText: grey[900],
+    disabled: '#c8cad1',
+    disabledText: grey[800],
+    action: '#F3A01E',
+    actionText: '#000000',
+    hover: '#b7b9c1',
+  },
+  options: {
+    hover: '#f9f9fb',
+    select: '#F0F0F5',
+  },
+  card: {
+    background: '#ffffff',
+    elevation: '10px 10px 30px 15px #CCD2E7',
+    secondary: '#F0F0F5',
+  },
+  popover: {
+    background: '#ffffff',
+    elevation: '10px 10px 30px 15px #CCD2E7',
+    secondary: '#F0F0F5',
+  },
+  modal: {
+    background: '#ffffff',
+  },
+  font: {
+    primary: '"Inter", sans-serif',
+    header: '"IBM Plex Mono", monospace',
+  },
+};
+
+export const dark = {
+  primary: grey,
+  secondary: grey,
+  divider: '#ffffff' + OPACITY[20],
+  background: {
+    default: '#232323',
+  },
+  text: {
+    primary: '#ffffff',
+    secondary: grey[500],
+  },
+  error: red,
+  info: lightblue,
+  success: green,
+  warning: orange,
+  button: {
+    primary: '#ffffff' + OPACITY[20],
+    primaryText: '#ffffff',
+    disabled: '#ffffff' + OPACITY[10],
+    disabledText: '#ffffff' + OPACITY[40],
+    action: orange[300],
+    actionText: '#000000',
+    hover: '#ffffff' + OPACITY[7],
+  },
+  options: {
+    hover: '#474747',
+    select: '#5b5b5b',
+  },
+  card: {
+    background: '#333333',
+    secondary: '#474747',
+    elevation: 'none',
+  },
+  popover: {
+    background: '#1b2033',
+    secondary: '#ffffff' + OPACITY[5],
+    elevation: 'none',
+  },
+  modal: {
+    background: '#474747',
+  },
+};
+
+export const defaultTheme: Theme = {
+  primary: grey,
+  secondary: grey,
+  divider: '#ffffff' + OPACITY[20],
+  background: {
+    default: 'wormhole',
+  },
+  text: {
+    primary: '#ffffff',
+    secondary: grey[500],
+  },
+  error: red,
+  info: {
+    50: '#97a5b7',
+    100: '#8293a9',
+    200: '#6e819a',
+    300: '#596f8c',
+    400: '#445d7e',
+    500: '#304C70',
+    600: '#2b4464',
+    700: '#263c59',
+    800: '#21354e',
+    900: '#1c2d43',
+    A100: '#304C70',
+    A200: '#304C70',
+    A400: '#304C70',
+    A700: '#304C70',
+  },
+  // success: green,
+  success: {
+    50: '#66d6cd',
+    100: '#4dcfc4',
+    200: '#33c8bc',
+    300: '#1ac1b4',
+    400: '#01BBAC',
+    500: '#00a89a',
+    600: '#009589',
+    700: '#008278',
+    800: '#007067',
+    900: '#005d56',
+    A100: '#00a89a',
+    A200: '#00a89a',
+    A400: '#00a89a',
+    A700: '#00a89a',
+  },
+  warning: {
+    50: '#ffe3a4',
+    100: '#ffdd91',
+    200: '#ffd77f',
+    300: '#ffd26d',
+    400: '#ffcc5b',
+    500: '#FFC749',
+    600: '#e5b341',
+    700: '#cc9f3a',
+    800: '#b28b33',
+    900: '#99772b',
+    A100: '#FFC749',
+    A200: '#FFC749',
+    A400: '#FFC749',
+    A700: '#FFC749',
+  },
+  button: {
+    primary: '#ffffff' + OPACITY[10],
+    primaryText: '#ffffff',
+    disabled: '#ffffff' + OPACITY[7],
+    disabledText: '#ffffff' + OPACITY[40],
+    action: '#ffffff' + OPACITY[20],
+    actionText: '#ffffff',
+    hover: '#ffffff' + OPACITY[7],
+  },
+  options: {
+    hover: '#ffffff' + OPACITY[7],
+    select: '#ffffff' + OPACITY[10],
+  },
+  card: {
+    background: '#ffffff' + OPACITY[5],
+    secondary: '#ffffff' + OPACITY[5],
+    elevation: 'none',
+  },
+  popover: {
+    background: '#1b2033',
+    secondary: '#ffffff' + OPACITY[5],
+    elevation: 'none',
+  },
+  modal: {
+    background: '#0F1024',
+  },
+  font: {
+    primary: '"Inter", sans-serif',
+    header: '"IBM Plex Mono", monospace',
+  },
+};
+
 class WormholeBridge extends React.Component<
-  { config?: WormholeConfig; }
+  { config?: WormholeConnectConfig; }
 > {
   componentDidMount() {
     const script = document.createElement("script");

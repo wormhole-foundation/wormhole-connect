@@ -1,46 +1,112 @@
-# Getting Started with Create React App
+# Wormhole Connect
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Integration does not get easier than this. Wormhole Connect is an easy seamless experience that will help to bring all the functionality of the Wormhole Token Bridge right into your application.
 
-## Available Scripts
+## Integration instructions
 
-In the project directory, you can run:
+1. (optional) Create a JSON config with customized values:
 
-### `npm start`
+```ts
+{
+  "environment": "testnet",
+  "networks": ["goerli", "mumbai"],
+  "tokens": ["ETH", "WETH", "MATIC", "WMATIC"],
+  "mode": "light"
+  "customTheme": {} // import `Theme`
+}
+```
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+### Accepted values
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+Environment:
+| Mainnet    | Testnet   |
+| ---------- | --------- |
+| mainnet    | testnet   |
 
-### `npm test`
+Chains:
+| Mainnet    | Testnet   |
+| ---------- | --------- |
+| ethereum   | goerli    |
+| polygon    | mumbai    |
+| bsc        | bsc       |
+| avalanche  | fuji      |
+| celo       | avalanche |
+| moonbeam   | moonbase  |
+| solana     | solana    |
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Tokens:
+| Mainnet | Testnet |
+| ------- | ------- |
+| ETH     | ETH     |
+| WETH    | WETH    |
+| USDC    | USDC    |
+| MATIC   | MATIC   |
+| WMATIC  | WMATIC  |
+| BNB     | BNB     |
+| WBNB    | WBNB    |
+| AVAX    | AVAX    |
+| WAVAX   | WAVAX   |
+| FTM     | FTM     |
+| WFTM    | WFTM    |
+| CELO    | CELO    |
+| GLMR    | GLMR    |
+| WGLMR   | WGLMR   |
+| SOL     | WSOL    |
 
-### `npm run build`
+Mode:
+|      |       |
+| ---- | ----- |
+| dark | light |
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Custom theme:
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```js
+import { dark, light, Theme } from '@wormhole-foundation/wormhole-connect';
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+2. Add a script and link tag
 
-### `npm run eject`
+```html
+<!-- paste below into index.html body -->
+<script src="https://wormhole-foundation.github.io/wormhole-connect/main.js"></script>
+<script src="https://wormhole-foundation.github.io/wormhole-connect/718.06852233.chunk.js"></script>
+<link rel="https://wormhole-foundation.github.io/wormhole-connect/main.ba17183d.css" />
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+3. Embed it in your application
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+This is where your widget will appear. Specify an id of `wormhole-connect` and pass it the stringified json config to customize.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+```jsx
+// root element with id
+<div id="wormhole-connect"></div>
+// with customization
+<div id="wormhole-connect" config='{"networks": ["goerli", "mumbai"], "tokens": ["ETH", "WETH", "MATIC", "WMATIC"], "theme": "light"}'></div>
+// stringify JSON config
+<div id="wormhole-connect" config={JSON.stringify(jsonConfig)} />
+```
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+### React Applications
 
-## Learn More
+For React applications, you must add the script tags after the dom has been rendered:
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```ts
+class WormholeConnect extends React.Component {
+  componentDidMount() {
+    const version = '0.0.1-beta.0';
+    const script = document.createElement("script");
+    script.src = `https://www.unpkg.com/@wormhole-foundation/wormhole-connect@${version}/dist/main.js`;
+    script.async = true;
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+    const link = document.createElement("link");
+    link.href = `https://www.unpkg.com/@wormhole-foundation/wormhole-connect@${version}/dist/main.css`;
+
+    document.body.appendChild(link);
+    document.body.appendChild(script);
+  }
+
+  render() {
+    return <div id="wormhole-connect"></div>
+  }
+}
+```
