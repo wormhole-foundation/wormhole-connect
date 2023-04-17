@@ -48,7 +48,7 @@
     ]
   },
   "description": "This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).",
-  "main": "index.tsx",
+  "main": "lib/index.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/wormhole-foundation/wormhole-connect.git"
