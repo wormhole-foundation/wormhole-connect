@@ -2,9 +2,9 @@
 
 Integration does not get easier than this. Wormhole Connect is an easy seamless experience that will help to bring all the functionality of the Wormhole Token Bridge right into your application.
 
-## Integration instructions
+## Integrate with script/link tags
 
-1. (optional) Create a JSON config with customized values:
+### 1. (optional) Create a JSON config with customized values:
 
 ```ts
 {
@@ -16,7 +16,7 @@ Integration does not get easier than this. Wormhole Connect is an easy seamless 
 }
 ```
 
-### Accepted values
+#### Accepted values
 
 Environment:
 | Mainnet    | Testnet   |
@@ -64,15 +64,15 @@ Custom theme:
 import { dark, light, Theme } from '@wormhole-foundation/wormhole-connect';
 ```
 
-2. Add a script and link tag
+### 2. Add a script and link tag
 
 ```html
 <!-- paste below into index.html body -->
 <script src="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.1-beta.0/dist/main.js"></script>
-<link rel="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.1-beta.0/dist/main.js" />
+<link rel="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.1-beta.0/dist/main.css" />
 ```
 
-3. Embed it in your application
+### 3. Embed it in your application
 
 This is where your widget will appear. Specify an id of `wormhole-connect` and pass it the stringified json config to customize.
 
@@ -85,27 +85,112 @@ This is where your widget will appear. Specify an id of `wormhole-connect` and p
 <div id="wormhole-connect" config={JSON.stringify(jsonConfig)} />
 ```
 
-### React Applications
+## Integrate with React
 
-For React applications, you must add the script tags after the dom has been rendered:
+```jsx
+import WormholeBridge from '@wormhole-foundation/wormhole-connect';
+function App() {
+  return (
+    <WormholeBridge />
+  );
+}
+```
 
-```ts
-class WormholeConnect extends React.Component {
-  componentDidMount() {
-    const version = '0.0.1-beta.0';
-    const script = document.createElement("script");
-    script.src = `https://www.unpkg.com/@wormhole-foundation/wormhole-connect@${version}/dist/main.js`;
-    script.async = true;
+Specify networks/tokens (optional)
+```jsx
+import WormholeBridge from '@wormhole-foundation/wormhole-connect';
+const config = {
+  environment: "mainnet",
+  networks: ["ethereum", "polygon", "solana"],
+  tokens: ["ETH", "WETH", "MATIC", "WMATIC"],
+}
 
-    const link = document.createElement("link");
-    link.rel = `https://www.unpkg.com/@wormhole-foundation/wormhole-connect@${version}/dist/main.css`;
+function App() {
+  return (
+    <WormholeBridge config={config} />
+  );
+}
+```
 
-    document.body.appendChild(link);
-    document.body.appendChild(script);
-  }
+Customize theme (optional)
+```jsx
+import WormholeBridge, { light, Theme } from '@wormhole-foundation/wormhole-connect';
+import lightblue from '@mui/material/colors/lightBlue';
 
-  render() {
-    return <div id="wormhole-connect"></div>
-  }
+// alters the `light` theme
+const customized: Theme = light;
+customized.success = lightblue;
+customized.background.default = 'transparent';
+const config = {
+  mode: 'light',
+  customTheme: customized,
+}
+
+function App() {
+  return (
+    <WormholeBridge config={config} />
+  );
+}
+```
+
+Create fully customized theme (optional)
+```jsx
+import WormholeBridge, { Theme, OPACITY } from '@wormhole-foundation/wormhole-connect';
+import lightblue from '@mui/material/colors/lightBlue';
+import grey from '@mui/material/colors/grey';
+import green from '@mui/material/colors/green';
+import orange from '@mui/material/colors/orange';
+
+const customized: Theme = {
+  primary: grey,
+  secondary: grey,
+  divider: '#ffffff' + OPACITY[20],
+  background: {
+    default: '#232323',
+  },
+  text: {
+    primary: '#ffffff',
+    secondary: grey[500],
+  },
+  error: red,
+  info: lightblue,
+  success: green,
+  warning: orange,
+  button: {
+    primary: '#ffffff' + OPACITY[20],
+    primaryText: '#ffffff',
+    disabled: '#ffffff' + OPACITY[10],
+    disabledText: '#ffffff' + OPACITY[40],
+    action: orange[300],
+    actionText: '#000000',
+    hover: '#ffffff' + OPACITY[7],
+  },
+  options: {
+    hover: '#474747',
+    select: '#5b5b5b',
+  },
+  card: {
+    background: '#333333',
+    secondary: '#474747',
+    elevation: 'none',
+  },
+  popover: {
+    background: '#1b2033',
+    secondary: '#ffffff' + OPACITY[5],
+    elevation: 'none',
+  },
+  modal: {
+    background: '#474747',
+  },
+};
+const config = {
+  mode: 'dark',
+  customTheme: customized,
+}
+
+function App() {
+  return (
+    <WormholeBridge config={config} />
+  );
 }
 ```

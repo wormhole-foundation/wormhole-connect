@@ -1,5 +1,5 @@
 {
-  "name": "wormhole-connect",
+  "name": "@wormhole-foundation/wormhole-connect",
   "version": "0.0.1-beta.0",
   "private": true,
   "dependencies": {
