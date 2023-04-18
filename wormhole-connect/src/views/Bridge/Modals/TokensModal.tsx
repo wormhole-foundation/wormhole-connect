@@ -257,8 +257,8 @@ function TokensModal() {
 
   // TODO: filter out tokens that don't exist
   useEffect(() => {
-    // filter only when a wallet is connected
-    const filtered = walletAddr
+    // filter only when a wallet is connected AND a network is selected
+    const filtered = (fromNetwork && walletAddr)
       ? networkTokens.filter(
           (t) =>
             tokenBalances[t.symbol] !== undefined &&
