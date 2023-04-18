@@ -35,7 +35,8 @@ function FromInputs() {
   const openFromNetworksModal = () => dispatch(setFromNetworksModal(true));
   const openTokensModal = () => dispatch(setTokensModal(true));
   function handleAmountChange(event) {
-    dispatch(setAmount(event.target.value));
+    const newAmount = Number.parseFloat(event.target.value);
+    dispatch(setAmount(newAmount));
   }
   const validateAmount = () => validate(dispatch);
 
