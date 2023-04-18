@@ -1,6 +1,6 @@
 {
   "name": "@wormhole-foundation/wormhole-connect",
-  "version": "0.0.1-beta.0",
+  "version": "0.0.1-beta.1",
   "dependencies": {
     "@mui/material": "^5.12.1"
   },
@@ -48,7 +48,7 @@
   "description": "This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
-  "files": [ "lib" ],
+  "files": [ "lib/*.js", "dist/main.js", "dist/main.css" ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/wormhole-foundation/wormhole-connect.git"

@@ -68,8 +68,8 @@ import { dark, light, Theme } from '@wormhole-foundation/wormhole-connect';
 
 ```html
 <!-- paste below into index.html body -->
-<script src="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.1-beta.0/dist/main.js"></script>
-<link rel="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.1-beta.0/dist/main.css" />
+<script src="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.1-beta.1/dist/main.js"></script>
+<link rel="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.1-beta.1/dist/main.css" />
 ```
 
 ### 3. Embed it in your application
