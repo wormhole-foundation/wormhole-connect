@@ -1,8 +1,8 @@
 import React from 'react';
 import { copyTextToClipboard } from './utils';
-import WormholeBridge from './Bridge.js';
 import Background from './Background';
 import { makeStyles } from 'tss-react/mui';
+import WormholeBridge from 'wormhole-connect';
 
 const useStyles = makeStyles()((theme) => ({
   appContent: {
