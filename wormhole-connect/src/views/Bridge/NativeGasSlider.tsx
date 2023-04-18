@@ -6,7 +6,7 @@ import { styled } from '@mui/material/styles';
 import BridgeCollapse, { CollapseControlStyle } from './Collapse';
 import InputContainer from '../../components/InputContainer';
 import { CHAINS, TOKENS } from '../../config';
-import { calculateMaxSwapAmount, calculateNativeTokenAmt } from '../../sdk';
+import { PaymentOption, calculateMaxSwapAmount, calculateNativeTokenAmt } from '../../sdk';
 import { TokenConfig } from '../../config/types';
 import { RootState } from '../../store';
 import TokenIcon from '../../icons/TokenIcons';
@@ -94,7 +94,7 @@ const INITIAL_STATE = {
 function GasSlider(props: { disabled: boolean }) {
   const { classes } = useStyles();
   const dispatch = useDispatch();
-  const { token, toNetwork, amount, maxSwapAmt } = useSelector(
+  const { token, toNetwork, amount, maxSwapAmt, destGasPayment } = useSelector(
     (state: RootState) => state.transfer,
   );
   const destConfig = CHAINS[toNetwork!];
@@ -105,7 +105,7 @@ function GasSlider(props: { disabled: boolean }) {
 
   // set the actual max swap amount (checks if max swap amount is greater than the sending amount)
   useEffect(() => {
-    if (!amount || !maxSwapAmt) return;
+    if (!amount || !maxSwapAmt || destGasPayment === PaymentOption.MANUAL) return;
     const actualMaxSwap =
       amount && maxSwapAmt && maxSwapAmt > amount ? amount : maxSwapAmt;
     const newTokenAmount = toFixedDecimals(`${amount - state.swapAmt}`, 6);
@@ -114,11 +114,10 @@ function GasSlider(props: { disabled: boolean }) {
       token: Number.parseFloat(newTokenAmount),
       max: actualMaxSwap,
     });
-  }, [maxSwapAmt, amount]);
+  }, [maxSwapAmt, amount, destGasPayment]);
 
   useEffect(() => {
-    if (!toNetwork || !sendingToken) return;
-    if (toNetwork === 'solana') return;
+    if (!toNetwork || !sendingToken || destGasPayment === PaymentOption.MANUAL) return;
     // calculate max swap amount to native gas token
     if (sendingToken.tokenId) {
       calculateMaxSwapAmount(toNetwork, sendingToken.tokenId).then(
@@ -151,7 +150,7 @@ function GasSlider(props: { disabled: boolean }) {
     getConversion(token, gasToken).then((res: number) => {
       setState({ ...state, conversionRate: res });
     });
-  }, [sendingToken, toNetwork]);
+  }, [sendingToken, toNetwork, destGasPayment]);
 
   function Thumb(props: ThumbProps) {
     const { children, ...other } = props;
