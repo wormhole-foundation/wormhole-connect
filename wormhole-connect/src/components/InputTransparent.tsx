@@ -46,8 +46,21 @@ type Props = {
   value?: string | number;
 };
 
+const NUMBER_FORMAT_REGEX = /^\d*\.?\d*$/;
+const NUMBER_REPLACE_REGEX = /[^0-9.]/g;
+
 function InputTransparent(props: Props) {
   const { classes } = useStyles({ align: props.align });
+
+  const onChange = (e) => {
+    if (props.type === 'number' && !NUMBER_FORMAT_REGEX.test(e.target.value)) {
+      e.target.value = e.target.value.replace(NUMBER_REPLACE_REGEX, '');
+    }
+
+    if (props.onChange) {
+      props.onChange(e);
+    }
+  };
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && props.onEnter) {
@@ -73,11 +86,10 @@ function InputTransparent(props: Props) {
       id={props.id}
       className={classes.input}
       placeholder={props.placeholder}
-      type={props.type}
       min={props.min}
       max={props.max}
       step={props.step}
-      onChange={props.onChange}
+      onChange={onChange}
       onKeyDown={handleKeyDown}
       readOnly={props.disabled}
       value={props.value}
