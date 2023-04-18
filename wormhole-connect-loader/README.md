@@ -24,15 +24,15 @@ Environment:
 | mainnet    | testnet   |
 
 Chains:
-| Mainnet    | Testnet   |
-| ---------- | --------- |
-| ethereum   | goerli    |
-| polygon    | mumbai    |
-| bsc        | bsc       |
-| avalanche  | fuji      |
-| celo       | avalanche |
-| moonbeam   | moonbase  |
-| solana     | solana    |
+| Mainnet    | Testnet       |
+| ---------- | ------------- |
+| ethereum   | goerli        |
+| polygon    | mumbai        |
+| bsc        | bsc           |
+| avalanche  | fuji          |
+| celo       | avalanche     |
+| moonbeam   | moonbasealpha |
+| solana     | solana        |
 
 Tokens:
 | Mainnet | Testnet |
@@ -68,8 +68,8 @@ import { dark, light, Theme } from '@wormhole-foundation/wormhole-connect';
 
 ```html
 <!-- paste below into index.html body -->
-<script src="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.1-beta.1/dist/main.js"></script>
-<link rel="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.1-beta.1/dist/main.css" />
+<script src="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.1-beta.2/dist/main.js"></script>
+<link rel="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.1-beta.2/dist/main.css" />
 ```
 
 ### 3. Embed it in your application
