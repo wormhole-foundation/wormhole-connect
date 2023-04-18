@@ -67,18 +67,6 @@ function Bridge() {
     (state: RootState) => state.wallet,
   );
 
-  // check destination native balance
-  useEffect(() => {
-    if (!fromNetwork || !toNetwork || !receiving.address) return;
-    const networkConfig = CHAINS[toNetwork]!;
-    getNativeBalance(receiving.address, toNetwork).then((res: BigNumber) => {
-      const tokenConfig = TOKENS[networkConfig.gasToken];
-      if (!tokenConfig)
-        throw new Error('Could not get native gas token config');
-      dispatch(setBalance(formatBalance(fromNetwork, tokenConfig, res)));
-    });
-  }, [fromNetwork, toNetwork, receiving.address]);
-
   // check if automatic relay option is available
   useEffect(() => {
     if (!fromNetwork || !toNetwork) return;
