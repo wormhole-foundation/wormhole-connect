@@ -138,6 +138,12 @@ function WalletsModal(props: Props) {
       dispatch(clearWallet(props.type));
     });
 
+    // when the user has multiple wallets connected and either changes
+    // or disconnects the current wallet, clear the wallet
+    wallet.on('accountsChanged', () => {
+      wallet.disconnect();
+    });
+
     const address = wallet.getAddress();
     if (address) {
       const payload = { address, type: walletInfo.type };
