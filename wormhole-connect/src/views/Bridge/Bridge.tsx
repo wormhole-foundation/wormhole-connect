@@ -146,7 +146,7 @@ function Bridge() {
             : {}
         }
       >
-        <GasSlider disabled={disabled} />
+        {showGasSlider && <GasSlider disabled={disabled} />}
       </Collapse>
 
       <Preview collapsed={!valid} />
