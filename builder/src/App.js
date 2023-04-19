@@ -1,8 +1,8 @@
 import React from 'react';
 import { copyTextToClipboard } from './utils';
-import WormholeBridge from './Bridge.js';
 import Background from './Background';
 import { makeStyles } from 'tss-react/mui';
+import WormholeBridge, { defaultTheme } from '@wormhole-foundation/wormhole-connect';
 
 const useStyles = makeStyles()((theme) => ({
   appContent: {
@@ -32,9 +32,15 @@ function App() {
   const { classes } = useStyles();
   const script = `
     <div id="wormhole-connect"></div>
-    <script src="https://wormhole-foundation.github.io/wormhole-connect/main.js"></script>
-    <link src="https://wormhole-foundation.github.io/wormhole-connect/main.css"/>
+    <script src="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.1-beta.2/dist/main.js"></script>
+    <link src="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.1-beta.2/dist/main.css"/>
   `
+  const customized = defaultTheme;
+  customized.background.default = 'transparent';
+  const config = {
+    mode: 'dark',
+    customTheme: customized
+  }
   return (
     <div className="App">
       <Background>
@@ -47,7 +53,7 @@ function App() {
             Copy script
           </div>
 
-          <WormholeBridge />
+          <WormholeBridge config={config} />
         </div>
       </Background>
     </div>

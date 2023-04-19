@@ -1,4 +1,3 @@
-import { Network as Environment } from '@certusone/wormhole-sdk';
 import {
   WormholeContext,
   CONFIG as CONF,
@@ -19,10 +18,11 @@ const configJson = el.getAttribute('config');
 const config: WormholeConnectConfig | null = JSON.parse(configJson!);
 
 const { REACT_APP_ENV } = process.env;
-export const isProduction = REACT_APP_ENV === 'MAINNET';
+export const isProduction =
+  (config && config.env === 'mainnet') || REACT_APP_ENV === 'MAINNET';
 export const CONFIG = isProduction ? CONF.MAINNET : CONF.TESTNET;
 
-const conf = WormholeContext.getConfig(REACT_APP_ENV! as Environment);
+const conf = WormholeContext.getConfig(CONFIG.env);
 const mainnetRpcs = {
   ethereum: process.env.REACT_APP_ETHEREUM_RPC || conf.rpcs.ethereum,
   solana: process.env.REACT_APP_SOLANA_RPC || conf.rpcs.solana,
@@ -45,7 +45,7 @@ const testnetRpcs = {
 };
 conf.rpcs = Object.assign(
   {},
-  REACT_APP_ENV === 'MAINNET' ? mainnetRpcs : testnetRpcs,
+  isProduction ? mainnetRpcs : testnetRpcs,
   config?.rpcs || {},
 );
 export const WH_CONFIG = conf;
@@ -64,7 +64,11 @@ export const TOKENS_ARR =
 
 export const THEME_MODE = config && config.mode ? config.mode : 'dark';
 export const CUSTOM_THEME = config && config.customTheme;
-export const THEME = CUSTOM_THEME || THEME_MODE === 'dark' ? dark : light;
+export const THEME = CUSTOM_THEME
+  ? CUSTOM_THEME
+  : THEME_MODE === 'dark'
+  ? dark
+  : light;
 
 export const TESTNET_TO_MAINNET_CHAIN_NAMES: {
   [k in TestnetChainName]: MainnetChainName;
