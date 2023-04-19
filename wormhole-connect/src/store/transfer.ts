@@ -43,6 +43,7 @@ export interface TransferState {
     claim: string;
   };
   isTransactionInProgress: boolean;
+  receiverNativeBalance: string | undefined;
 }
 
 const initialState: TransferState = {
@@ -78,6 +79,7 @@ const initialState: TransferState = {
     claim: '',
   },
   isTransactionInProgress: false,
+  receiverNativeBalance: '',
 };
 
 export const transferSlice = createSlice({
@@ -164,6 +166,12 @@ export const transferSlice = createSlice({
     ) => {
       state.balances = { ...state.balances, ...payload };
     },
+    setReceiverNativeBalance: (
+      state: TransferState,
+      { payload }: PayloadAction<string>,
+    ) => {
+      state.receiverNativeBalance = payload;
+    },
     clearBalances: (state: TransferState) => {
       state.balances = {};
     },
@@ -243,6 +251,7 @@ export const {
   setClaimGasEst,
   clearTransfer,
   setIsTransactionInProgress,
+  setReceiverNativeBalance,
 } = transferSlice.actions;
 
 export default transferSlice.reducer;
