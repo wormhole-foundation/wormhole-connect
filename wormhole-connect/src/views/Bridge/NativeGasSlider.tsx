@@ -6,7 +6,11 @@ import { styled } from '@mui/material/styles';
 import BridgeCollapse, { CollapseControlStyle } from './Collapse';
 import InputContainer from '../../components/InputContainer';
 import { CHAINS, TOKENS } from '../../config';
-import { PaymentOption, calculateMaxSwapAmount, calculateNativeTokenAmt } from '../../sdk';
+import {
+  PaymentOption,
+  calculateMaxSwapAmount,
+  calculateNativeTokenAmt,
+} from '../../sdk';
 import { TokenConfig } from '../../config/types';
 import { RootState } from '../../store';
 import TokenIcon from '../../icons/TokenIcons';
@@ -105,7 +109,8 @@ function GasSlider(props: { disabled: boolean }) {
 
   // set the actual max swap amount (checks if max swap amount is greater than the sending amount)
   useEffect(() => {
-    if (!amount || !maxSwapAmt || destGasPayment === PaymentOption.MANUAL) return;
+    if (!amount || !maxSwapAmt || destGasPayment === PaymentOption.MANUAL)
+      return;
     const actualMaxSwap =
       amount && maxSwapAmt && maxSwapAmt > amount ? amount : maxSwapAmt;
     const newTokenAmount = toFixedDecimals(`${amount - state.swapAmt}`, 6);
@@ -117,7 +122,8 @@ function GasSlider(props: { disabled: boolean }) {
   }, [maxSwapAmt, amount, destGasPayment]);
 
   useEffect(() => {
-    if (!toNetwork || !sendingToken || destGasPayment === PaymentOption.MANUAL) return;
+    if (!toNetwork || !sendingToken || destGasPayment === PaymentOption.MANUAL)
+      return;
     // calculate max swap amount to native gas token
     if (sendingToken.tokenId) {
       calculateMaxSwapAmount(toNetwork, sendingToken.tokenId).then(

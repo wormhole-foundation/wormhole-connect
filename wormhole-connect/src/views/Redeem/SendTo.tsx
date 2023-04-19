@@ -133,11 +133,9 @@ const getAutomaticRows = async (
     );
   }
 
-  const receiveAmt = BigNumber.from(txData.amount).sub(
-    BigNumber.from(txData.relayerFee),
-  ).sub(
-    BigNumber.from(txData.toNativeTokenAmount || 0),
-  );
+  const receiveAmt = BigNumber.from(txData.amount)
+    .sub(BigNumber.from(txData.relayerFee))
+    .sub(BigNumber.from(txData.toNativeTokenAmount || 0));
   const formattedAmt = toNormalizedDecimals(
     receiveAmt,
     txData.tokenDecimals,
