@@ -5,8 +5,7 @@ import { BigNumber } from 'ethers';
 import { useDispatch } from 'react-redux';
 import { RootState } from '../../store';
 import {
-  setBalance,
-  formatBalance,
+  setReceiverNativeBalance,
   setAutomaticRelayAvail,
   setDestGasPayment,
   touchValidations,
@@ -26,6 +25,7 @@ import ToNetworksModal from './Modals/ToNetworksModal';
 import TokensModal from './Modals/TokensModal';
 import FromInputs from './Inputs.tsx/From';
 import ToInputs from './Inputs.tsx/To';
+import { toDecimals } from '../../utils/balance';
 
 const useStyles = makeStyles()((theme) => ({
   bridgeContent: {
@@ -75,7 +75,9 @@ function Bridge() {
       const tokenConfig = TOKENS[networkConfig.gasToken];
       if (!tokenConfig)
         throw new Error('Could not get native gas token config');
-      dispatch(setBalance(formatBalance(fromNetwork, tokenConfig, res)));
+      dispatch(
+        setReceiverNativeBalance(toDecimals(res, tokenConfig.decimals, 6)),
+      );
     });
   }, [fromNetwork, toNetwork, receiving.address]);
 
