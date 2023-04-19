@@ -70,6 +70,8 @@ export const THEME = CUSTOM_THEME
   ? dark
   : light;
 
+export const CTA = config && config.cta;
+
 export const TESTNET_TO_MAINNET_CHAIN_NAMES: {
   [k in TestnetChainName]: MainnetChainName;
 } = {

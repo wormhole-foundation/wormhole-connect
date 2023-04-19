@@ -4,6 +4,7 @@ import {
   TokenId,
   Rpcs,
 } from '@wormhole-foundation/wormhole-connect-sdk';
+import { ExtendedTheme } from 'theme';
 
 export interface WormholeConnectConfig {
   env?: 'mainnet' | 'testnet';
@@ -11,7 +12,11 @@ export interface WormholeConnectConfig {
   networks?: ChainName[];
   tokens?: string[];
   mode?: 'dark' | 'light';
-  customTheme?: any;
+  customTheme?: ExtendedTheme;
+  cta?: {
+    text: string;
+    link: string;
+  };
 }
 
 export type TokenConfig = {
