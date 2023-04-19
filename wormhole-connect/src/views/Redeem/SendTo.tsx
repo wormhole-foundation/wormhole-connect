@@ -96,14 +96,6 @@ const getAutomaticRows = async (
   transferComplete?: boolean,
 ): Promise<RowsData> => {
   const { gasToken } = CHAINS[txData.toChain]!;
-  const receiveAmt = BigNumber.from(txData.amount).sub(
-    BigNumber.from(txData.relayerFee),
-  );
-  const formattedAmt = toNormalizedDecimals(
-    receiveAmt,
-    txData.tokenDecimals,
-    MAX_DECIMALS,
-  );
 
   // calculate the amount of native gas received
   let nativeGasAmt: string | undefined;
@@ -140,6 +132,18 @@ const getAutomaticRows = async (
       MAX_DECIMALS,
     );
   }
+
+  const receiveAmt = BigNumber.from(txData.amount).sub(
+    BigNumber.from(txData.relayerFee),
+  ).sub(
+    BigNumber.from(txData.toNativeTokenAmount || 0),
+  );
+  const formattedAmt = toNormalizedDecimals(
+    receiveAmt,
+    txData.tokenDecimals,
+    MAX_DECIMALS,
+  );
+
   return [
     {
       title: 'Amount',
