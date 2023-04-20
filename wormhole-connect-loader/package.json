@@ -48,7 +48,7 @@
   "description": "This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
-  "files": [ "lib/*.js", "dist/main.js", "dist/main.css" ],
+  "files": [ "lib/*.js", "lib/*.d.ts", "dist/main.js", "dist/main.css" ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/wormhole-foundation/wormhole-connect.git"
