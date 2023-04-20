@@ -21,6 +21,7 @@ import {
   toFixedDecimals,
 } from '../../utils/balance';
 import {
+  disableAutomaticTransfer,
   setMaxSwapAmt,
   setReceiveNativeAmt,
   setToNativeToken,
@@ -124,33 +125,26 @@ function GasSlider(props: { disabled: boolean }) {
   useEffect(() => {
     if (!toNetwork || !sendingToken || destGasPayment === PaymentOption.MANUAL)
       return;
+
     // calculate max swap amount to native gas token
-    if (sendingToken.tokenId) {
-      calculateMaxSwapAmount(toNetwork, sendingToken.tokenId).then(
-        (res: BigNumber) => {
-          if (!res) {
-            dispatch(setMaxSwapAmt(undefined));
-            return;
-          }
-          const amt = toDecimals(res, sendingToken.decimals, 6);
-          dispatch(setMaxSwapAmt(Number.parseFloat(amt)));
-        },
-      );
-    } else {
-      if (!sendingToken.wrappedAsset)
-        throw new Error('could not get wrapped asset for native token');
-      const wrappedAsset = TOKENS[sendingToken.wrappedAsset];
-      calculateMaxSwapAmount(toNetwork, wrappedAsset.tokenId!).then(
-        (res: BigNumber) => {
-          if (!res) {
-            dispatch(setMaxSwapAmt(undefined));
-            return;
-          }
-          const amt = toDecimals(res, sendingToken.decimals, 6);
-          dispatch(setMaxSwapAmt(Number.parseFloat(amt)));
-        },
-      );
-    }
+    const tokenId = getWrappedTokenId(sendingToken);
+    calculateMaxSwapAmount(toNetwork, tokenId)
+      .then((res: BigNumber) => {
+        if (!res) {
+          dispatch(setMaxSwapAmt(undefined));
+          return;
+        }
+        const amt = toDecimals(res, sendingToken.decimals, 6);
+        dispatch(setMaxSwapAmt(Number.parseFloat(amt)));
+      })
+      .catch((e) => {
+        if (e.message.includes('swap rate not set')) {
+          dispatch(disableAutomaticTransfer());
+        } else {
+          throw e;
+        }
+      });
+
     // get conversion rate of token
     const { gasToken } = CHAINS[toNetwork]!;
     getConversion(token, gasToken).then((res: number) => {

@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import { useTheme } from '@mui/material/styles';
 import { useDispatch } from 'react-redux';
 import { RootState } from '../../store';
-import { setRelayerFee } from '../../store/transfer';
+import { disableAutomaticTransfer, setRelayerFee } from '../../store/transfer';
 import { CHAINS, TOKENS } from '../../config';
 import { PaymentOption } from '../../sdk';
 import { TokenConfig } from '../../config/types';
@@ -123,24 +123,32 @@ function Preview(props: { collapsed: boolean }) {
       );
       setState({ rows });
     } else {
-      getRelayerFee(fromNetwork, toNetwork, token).then((fee) => {
-        const decimals =
-          fromNetwork === 'solana'
-            ? tokenConfig.solDecimals
-            : tokenConfig.decimals;
-        const formattedFee = Number.parseFloat(toDecimals(fee, decimals, 6));
-        dispatch(setRelayerFee(formattedFee));
-        const rows = getAutomaticRows(
-          tokenConfig,
-          destConfig!.gasToken,
-          amount,
-          toNativeToken,
-          receiveNativeAmt || 0,
-          formattedFee,
-          gasEst.automatic,
-        );
-        setState({ rows });
-      });
+      getRelayerFee(fromNetwork, toNetwork, token)
+        .then((fee) => {
+          const decimals =
+            fromNetwork === 'solana'
+              ? tokenConfig.solDecimals
+              : tokenConfig.decimals;
+          const formattedFee = Number.parseFloat(toDecimals(fee, decimals, 6));
+          dispatch(setRelayerFee(formattedFee));
+          const rows = getAutomaticRows(
+            tokenConfig,
+            destConfig!.gasToken,
+            amount,
+            toNativeToken,
+            receiveNativeAmt || 0,
+            formattedFee,
+            gasEst.automatic,
+          );
+          setState({ rows });
+        })
+        .catch((e) => {
+          if (e.message.includes('swap rate not set')) {
+            dispatch(disableAutomaticTransfer());
+          } else {
+            throw e;
+          }
+        });
     }
   }, [
     token,

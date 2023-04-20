@@ -305,3 +305,11 @@ export const estimateClaimGasFee = async (
 ): Promise<string> => {
   return await estimateClaimFees(wh, destChain);
 };
+
+export const isAcceptedToken = async (tokenId: TokenId): Promise<boolean> => {
+  const context: any = wh.getContext(tokenId.chain);
+  const relayer = context.contracts.getTokenBridgeRelayer(tokenId.chain);
+  if (!relayer) return false;
+  const accepted = await relayer.isAcceptedToken(tokenId.address);
+  return accepted;
+};
