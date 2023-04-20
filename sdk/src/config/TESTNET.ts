@@ -113,7 +113,7 @@ const TESTNET_CONFIG: WormholeConfig = {
     fantom: 'https://rpc.ankr.com/fantom_testnet',
     alfajores: 'https://alfajores-forno.celo-testnet.org',
     solana: 'https://api.testnet.solana.com',
-    moonbasealpha: 'https://moonbase-alpha.public.blastapi.io',
+    moonbasealpha: 'https://rpc.api.moonbase.moonbeam.network',
   },
   chains: TESTNET,
 };
