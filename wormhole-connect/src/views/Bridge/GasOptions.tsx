@@ -100,7 +100,9 @@ const getOptions = (
     subtitle: '(one transaction)',
     description: `Gas fees on ${dest.displayName} will be paid automatically`,
     estimate:
-      gasEst.automatic && relayerFee ? `${automaticFees} ${token}` : '—',
+      gasEst.automatic && relayerFee !== undefined
+        ? `${automaticFees} ${token}`
+        : '—',
   };
   return [automatic, manual];
 };
