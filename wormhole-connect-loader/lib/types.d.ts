@@ -1,3 +1,4 @@
+import { Theme } from './theme';
 export declare const MAINNET_CHAINS: {
     readonly solana: 1;
     readonly ethereum: 2;
@@ -33,5 +34,9 @@ export interface WormholeConnectConfig {
     networks?: ChainName[];
     tokens?: string[];
     mode?: 'dark' | 'light';
-    customTheme?: any;
+    customTheme?: Theme;
+    cta?: {
+        text: string;
+        link: string;
+    };
 }
