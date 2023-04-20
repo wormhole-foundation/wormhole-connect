@@ -6,8 +6,8 @@ import { useDispatch } from 'react-redux';
 import { RootState } from '../../store';
 import {
   setReceiverNativeBalance,
-  setAutomaticRelayAvail,
-  setDestGasPayment,
+  enableAutomaticTransfer,
+  disableAutomaticTransfer,
   touchValidations,
 } from '../../store/transfer';
 import { getNativeBalance, isAcceptedToken, PaymentOption } from '../../sdk';
@@ -88,22 +88,19 @@ function Bridge() {
     const fromConfig = CHAINS[fromNetwork]!;
     const toConfig = CHAINS[toNetwork]!;
     if (fromConfig.automaticRelayer && toConfig.automaticRelayer) {
-      const checkTokenAccepted = async () => {
+      const isTokenAcceptedForRelay = async () => {
         const tokenConfig = TOKENS[token]!;
         const tokenId = getWrappedTokenId(tokenConfig);
         const accepted = await isAcceptedToken(tokenId);
         if (accepted) {
-          dispatch(setAutomaticRelayAvail(true));
-          dispatch(setDestGasPayment(PaymentOption.AUTOMATIC));
+          dispatch(enableAutomaticTransfer());
         } else {
-          dispatch(setAutomaticRelayAvail(false));
-          dispatch(setDestGasPayment(PaymentOption.MANUAL));
+          dispatch(disableAutomaticTransfer());
         }
       };
-      checkTokenAccepted();
+      isTokenAcceptedForRelay();
     } else {
-      dispatch(setAutomaticRelayAvail(false));
-      dispatch(setDestGasPayment(PaymentOption.MANUAL));
+      dispatch(disableAutomaticTransfer());
     }
   }, [fromNetwork, toNetwork, token]);
 

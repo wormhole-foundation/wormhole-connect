@@ -21,8 +21,7 @@ import {
   toFixedDecimals,
 } from '../../utils/balance';
 import {
-  setAutomaticRelayAvail,
-  setDestGasPayment,
+  disableAutomaticTransfer,
   setMaxSwapAmt,
   setReceiveNativeAmt,
   setToNativeToken,
@@ -140,8 +139,7 @@ function GasSlider(props: { disabled: boolean }) {
       })
       .catch((e) => {
         if (e.message.includes('swap rate not set')) {
-          dispatch(setAutomaticRelayAvail(false));
-          dispatch(setDestGasPayment(PaymentOption.MANUAL));
+          dispatch(disableAutomaticTransfer());
         } else {
           throw e;
         }

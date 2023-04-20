@@ -3,11 +3,7 @@ import { useSelector } from 'react-redux';
 import { useTheme } from '@mui/material/styles';
 import { useDispatch } from 'react-redux';
 import { RootState } from '../../store';
-import {
-  setAutomaticRelayAvail,
-  setDestGasPayment,
-  setRelayerFee,
-} from '../../store/transfer';
+import { disableAutomaticTransfer, setRelayerFee } from '../../store/transfer';
 import { CHAINS, TOKENS } from '../../config';
 import { PaymentOption } from '../../sdk';
 import { TokenConfig } from '../../config/types';
@@ -148,8 +144,7 @@ function Preview(props: { collapsed: boolean }) {
         })
         .catch((e) => {
           if (e.message.includes('swap rate not set')) {
-            dispatch(setAutomaticRelayAvail(false));
-            dispatch(setDestGasPayment(PaymentOption.MANUAL));
+            dispatch(disableAutomaticTransfer());
           } else {
             throw e;
           }

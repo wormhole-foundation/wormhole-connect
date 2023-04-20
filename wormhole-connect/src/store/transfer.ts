@@ -175,12 +175,13 @@ export const transferSlice = createSlice({
     clearBalances: (state: TransferState) => {
       state.balances = {};
     },
-    setAutomaticRelayAvail: (
-      state: TransferState,
-      { payload }: PayloadAction<boolean>,
-    ) => {
-      state.automaticRelayAvail = payload;
-      if (payload) state.destGasPayment = PaymentOption.AUTOMATIC;
+    enableAutomaticTransfer: (state: TransferState) => {
+      state.automaticRelayAvail = true;
+      state.destGasPayment = PaymentOption.AUTOMATIC;
+    },
+    disableAutomaticTransfer: (state: TransferState) => {
+      state.automaticRelayAvail = false;
+      state.destGasPayment = PaymentOption.MANUAL;
     },
     setForeignAsset: (
       state: TransferState,
@@ -243,7 +244,8 @@ export const {
   setRelayerFee,
   setBalance,
   clearBalances,
-  setAutomaticRelayAvail,
+  enableAutomaticTransfer,
+  disableAutomaticTransfer,
   setForeignAsset,
   setAssociatedTokenAddress,
   setManualGasEst,
