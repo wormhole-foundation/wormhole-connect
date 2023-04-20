@@ -10,7 +10,7 @@ import {
   setDestGasPayment,
   touchValidations,
 } from '../../store/transfer';
-import { getNativeBalance, PaymentOption } from '../../sdk';
+import { getNativeBalance, isAcceptedToken, PaymentOption } from '../../sdk';
 import { CHAINS, TOKENS } from '../../config';
 import { isTransferValid, validate } from '../../utils/transferValidation';
 
@@ -26,6 +26,7 @@ import TokensModal from './Modals/TokensModal';
 import FromInputs from './Inputs.tsx/From';
 import ToInputs from './Inputs.tsx/To';
 import { toDecimals } from '../../utils/balance';
+import { getWrappedTokenId } from '../../utils';
 
 const useStyles = makeStyles()((theme) => ({
   bridgeContent: {
@@ -83,17 +84,28 @@ function Bridge() {
 
   // check if automatic relay option is available
   useEffect(() => {
-    if (!fromNetwork || !toNetwork) return;
+    if (!fromNetwork || !toNetwork || !token) return;
     const fromConfig = CHAINS[fromNetwork]!;
     const toConfig = CHAINS[toNetwork]!;
     if (fromConfig.automaticRelayer && toConfig.automaticRelayer) {
-      dispatch(setAutomaticRelayAvail(true));
-      dispatch(setDestGasPayment(PaymentOption.AUTOMATIC));
+      const checkTokenAccepted = async () => {
+        const tokenConfig = TOKENS[token]!;
+        const tokenId = getWrappedTokenId(tokenConfig);
+        const accepted = await isAcceptedToken(tokenId);
+        if (accepted) {
+          dispatch(setAutomaticRelayAvail(true));
+          dispatch(setDestGasPayment(PaymentOption.AUTOMATIC));
+        } else {
+          dispatch(setAutomaticRelayAvail(false));
+          dispatch(setDestGasPayment(PaymentOption.MANUAL));
+        }
+      };
+      checkTokenAccepted();
     } else {
       dispatch(setAutomaticRelayAvail(false));
       dispatch(setDestGasPayment(PaymentOption.MANUAL));
     }
-  }, [fromNetwork, toNetwork]);
+  }, [fromNetwork, toNetwork, token]);
 
   // validate transfer inputs
   useEffect(() => {

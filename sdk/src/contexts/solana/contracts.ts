@@ -151,7 +151,7 @@ export class SolContracts<
   getTokenBridgeRelayer(
     chain?: ChainName | ChainId,
   ): TokenBridgeRelayer | undefined {
-    throw new Error('relayer not deployed on Solana');
+    return undefined;
   }
 
   /**
