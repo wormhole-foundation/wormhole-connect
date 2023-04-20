@@ -9,7 +9,9 @@ We aim to use GitHub Issues as the task management system to track work.
 - We always welcome pull requests that improve Wormhole Connect. In case you would like to work on a specific task, please let us know by commenting in the issue. Be sure to reference the original task in the PR(s) that you submit. 
 - Discussion threads are an excellent place to discuss future improvement plans or ask the maintainers any questions. If you have a cool idea for Wormhole Connect, open a discussion thread about it.
 - If you notice a problem but you're unsure how to fix it, please open a new issue if the problem hasn't been reported yet.
+
 ## Publish to NPM
+
 1. Create a PR against `production`
 2. In `/sdk`, run `npm i && npm run lint && npm run build`
 3. In `/wormhole-connect`, run `npm i && npm run lint && npm run build`
