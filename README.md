@@ -45,6 +45,8 @@ Start builder UI and view in browser at localhost:3000
 npm run start
 ```
 
+Render Connect with the following code 
+
 ```html
 <!-- include in <head> -->
 <script src="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.1-beta.2/dist/main.js" defer></script>
@@ -56,7 +58,7 @@ npm run start
 
 OR
 
-```react
+```javascript
 import WormholeBridge from '@wormhole-foundation/wormhole-connect';
 function App() {
   return (
