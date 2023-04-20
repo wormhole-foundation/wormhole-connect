@@ -15,7 +15,11 @@ import { TokenConfig } from '../../config/types';
 import { RootState } from '../../store';
 import TokenIcon from '../../icons/TokenIcons';
 import { BigNumber, utils } from 'ethers';
-import { toDecimals, toFixedDecimals } from '../../utils/balance';
+import {
+  getConversion,
+  toDecimals,
+  toFixedDecimals,
+} from '../../utils/balance';
 import {
   setAutomaticRelayAvail,
   setDestGasPayment,
@@ -142,6 +146,12 @@ function GasSlider(props: { disabled: boolean }) {
           throw e;
         }
       });
+
+    // get conversion rate of token
+    const { gasToken } = CHAINS[toNetwork]!;
+    getConversion(token, gasToken).then((res: number) => {
+      setState({ ...state, conversionRate: res });
+    });
   }, [sendingToken, toNetwork, destGasPayment]);
 
   function Thumb(props: ThumbProps) {
