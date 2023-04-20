@@ -59,6 +59,11 @@ export function getNetworkByChainId(chainId: number): NetworkConfig | void {
 
 export function getWrappedToken(token: TokenConfig): TokenConfig {
   if (!token) throw new Error('token must be defined');
+
+  // if token is not native, return token
+  if (token.tokenId) return token;
+
+  // otherwise get wrapped token
   if (!token.tokenId && !token.wrappedAsset)
     throw new Error(`token details misconfigured for ${token.symbol}`);
   if (!token.tokenId && token.wrappedAsset) {
