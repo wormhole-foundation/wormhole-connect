@@ -3,8 +3,7 @@ import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { BigNumber } from 'ethers';
 import { TokenConfig } from 'config/types';
 import { toDecimals } from '../utils/balance';
-import { TransferValidations, validateAll } from '../utils/transferValidation';
-import { WalletState } from './wallet';
+import { TransferValidations } from '../utils/transferValidation';
 import { PaymentOption } from '../sdk';
 import { TOKENS } from 'config';
 
@@ -90,14 +89,13 @@ export const transferSlice = createSlice({
     touchValidations: (state: TransferState) => {
       state.validate = true;
     },
-    validateTransfer: (
+    setValidations: (
       state: TransferState,
-      { payload }: PayloadAction<WalletState>,
+      { payload }: PayloadAction<TransferValidations>,
     ) => {
-      const validations = validateAll(state, payload);
-      Object.keys(validations).forEach((key) => {
+      Object.keys(payload).forEach((key) => {
         // @ts-ignore
-        state.validations[key] = validations[key];
+        state.validations[key] = payload[key];
       });
     },
     // user input
@@ -232,7 +230,7 @@ export const transferSlice = createSlice({
 
 export const {
   touchValidations,
-  validateTransfer,
+  setValidations,
   setToken,
   setFromNetwork,
   setToNetwork,

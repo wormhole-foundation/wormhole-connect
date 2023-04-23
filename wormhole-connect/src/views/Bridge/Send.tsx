@@ -10,7 +10,7 @@ import {
   PaymentOption,
   sendTransfer,
 } from '../../sdk';
-import { RootState, store } from '../../store';
+import { RootState } from '../../store';
 import { setRoute } from '../../store/router';
 import { setTxDetails, setSendTx } from '../../store/redeem';
 import { displayWalletAddress } from '../../utils';
@@ -19,10 +19,10 @@ import {
   switchNetwork,
   TransferWallet,
 } from '../../utils/wallet';
-import { isTransferValid } from '../../utils/transferValidation';
+import { validateAll, isTransferValid } from '../../utils/transferValidation';
 import {
   touchValidations,
-  validateTransfer,
+  setValidations,
   setManualGasEst,
   setAutomaticGasEst,
   setClaimGasEst,
@@ -79,8 +79,8 @@ function Send(props: { valid: boolean }) {
   async function send() {
     setSendError('');
     dispatch(touchValidations());
-    const state = store.getState();
-    dispatch(validateTransfer(state.wallet));
+    const validations = await validateAll(transfer, wallets);
+    dispatch(setValidations(validations));
     const valid = isTransferValid(validations);
     if (!valid) return;
     dispatch(setIsTransactionInProgress(true));

@@ -1,8 +1,9 @@
 import { AnyAction } from '@reduxjs/toolkit';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+import fetch from 'node-fetch';
 import { Dispatch } from 'react';
 import { store } from 'store';
-import { TransferState, validateTransfer } from '../store/transfer';
+import { TransferState, setValidations } from '../store/transfer';
 import { WalletData, WalletState } from '../store/wallet';
 import { walletAcceptedNetworks } from './wallet';
 import { CHAINS, TOKENS } from '../config';
@@ -36,6 +37,7 @@ export const validateToNetwork = (
   chain: ChainName | undefined,
   fromChain: ChainName | undefined,
 ): ValidationErr => {
+  console.log(chain);
   if (!chain) return 'Select a destination chain';
   const chainConfig = CHAINS[chain];
   if (!chainConfig) return 'Select a destination chain';
@@ -79,11 +81,39 @@ export const validateAmount = (
   return '';
 };
 
-export const validateWallet = (
+async function checkAddressIsSanctioned(address: string): Promise<boolean> {
+  const res = await fetch(
+    `https://api.trmlabs.com/public/v1/sanctions/screening`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization:
+          'Basic ' + Buffer.from('<username>:<password>').toString('base64'),
+      },
+      body: JSON.stringify([{ address }]),
+    },
+  );
+
+  if (res.status !== 200) return false;
+
+  const data = await res.json();
+  return data[0].isSanctioned;
+}
+
+export const validateWallet = async (
   wallet: WalletData,
   chain: ChainName | undefined,
-): ValidationErr => {
+): Promise<ValidationErr> => {
   if (!wallet.address) return 'Wallet not connected';
+  try {
+    const isSanctioned = await checkAddressIsSanctioned(wallet.address);
+    if (isSanctioned)
+      return 'This address is sanctioned, bridging is not available';
+  } catch (e) {
+    // TODO: how do we want to handle if we get an error from the API?
+    console.error(e);
+  }
   if (wallet.currentAddress && wallet.currentAddress !== wallet.address)
     return 'Switch to connected wallet';
   const acceptedNetworks = walletAcceptedNetworks[wallet.type];
@@ -142,10 +172,10 @@ export const validateSolanaTokenAccount = (
   return '';
 };
 
-export const validateAll = (
+export const validateAll = async (
   transferData: TransferState,
   walletData: WalletState,
-) => {
+): Promise<TransferValidations> => {
   const {
     fromNetwork,
     toNetwork,
@@ -164,8 +194,8 @@ export const validateAll = (
   const isAutomatic = destGasPayment === PaymentOption.AUTOMATIC;
   const minAmt = isAutomatic ? toNativeToken + (relayerFee || 0) : 0;
   const baseValidations = {
-    sendingWallet: validateWallet(sending, fromNetwork),
-    receivingWallet: validateWallet(receiving, toNetwork),
+    sendingWallet: await validateWallet(sending, fromNetwork),
+    receivingWallet: await validateWallet(receiving, toNetwork),
     fromNetwork: validateFromNetwork(fromNetwork),
     toNetwork: validateToNetwork(toNetwork, fromNetwork),
     token: validateToken(token, fromNetwork),
@@ -173,7 +203,7 @@ export const validateAll = (
     destGasPayment: validateDestGasPayment(destGasPayment, automaticRelayAvail),
     toNativeToken: '',
     foreignAsset: validateDestToken(foreignAsset),
-    associatedTokenAddress: validateSolanaTokenAccount(
+    associatedTokenAccount: validateSolanaTokenAccount(
       toNetwork,
       foreignAsset,
       associatedTokenAddress,
@@ -198,7 +228,8 @@ export const isTransferValid = (validations: TransferValidations) => {
   return true;
 };
 
-export const validate = (dispatch: Dispatch<AnyAction>) => {
+export const validate = async (dispatch: Dispatch<AnyAction>) => {
   const state = store.getState();
-  dispatch(validateTransfer(state.wallet));
+  const validations = await validateAll(state.transfer, state.wallet);
+  dispatch(setValidations(validations));
 };
