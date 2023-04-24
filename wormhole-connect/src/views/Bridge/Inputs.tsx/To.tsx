@@ -95,9 +95,7 @@ function ToInputs() {
       }
 
       const address = await getForeignAsset(tokenId, toNetwork);
-      if (address) {
-        dispatch(setForeignAsset(address));
-      }
+      dispatch(setForeignAsset(address || ''));
     };
     checkWrappedTokenExists();
   }, [toNetwork, token]);
@@ -195,7 +193,7 @@ function ToInputs() {
     } else {
       setWarnings([]);
     }
-  }, [foreignAsset, wallet, associatedTokenAddress]);
+  }, [toNetwork, foreignAsset, wallet, associatedTokenAddress]);
 
   return (
     <Inputs
