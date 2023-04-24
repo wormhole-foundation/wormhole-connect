@@ -19,10 +19,8 @@ import {
   switchNetwork,
   TransferWallet,
 } from '../../utils/wallet';
-import { validateAll, isTransferValid } from '../../utils/transferValidation';
+import { validate, isTransferValid } from '../../utils/transferValidation';
 import {
-  touchValidations,
-  setValidations,
   setManualGasEst,
   setAutomaticGasEst,
   setClaimGasEst,
@@ -78,9 +76,7 @@ function Send(props: { valid: boolean }) {
 
   async function send() {
     setSendError('');
-    dispatch(touchValidations());
-    const validations = await validateAll(transfer, wallets);
-    dispatch(setValidations(validations));
+    await validate(dispatch);
     const valid = isTransferValid(validations);
     if (!valid) return;
     dispatch(setIsTransactionInProgress(true));

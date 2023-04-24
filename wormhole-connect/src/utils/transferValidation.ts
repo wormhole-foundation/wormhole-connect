@@ -3,7 +3,11 @@ import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import fetch from 'node-fetch';
 import { Dispatch } from 'react';
 import { store } from 'store';
-import { TransferState, setValidations } from '../store/transfer';
+import {
+  TransferState,
+  setValidations,
+  touchValidations,
+} from '../store/transfer';
 import { WalletData, WalletState } from '../store/wallet';
 import { walletAcceptedNetworks } from './wallet';
 import { CHAINS, TOKENS } from '../config';
@@ -24,6 +28,8 @@ export type TransferValidations = {
   associatedTokenAccount: ValidationErr;
 };
 
+let trmCache: any = {};
+
 export const validateFromNetwork = (
   chain: ChainName | undefined,
 ): ValidationErr => {
@@ -37,7 +43,6 @@ export const validateToNetwork = (
   chain: ChainName | undefined,
   fromChain: ChainName | undefined,
 ): ValidationErr => {
-  console.log(chain);
   if (!chain) return 'Select a destination chain';
   const chainConfig = CHAINS[chain];
   if (!chainConfig) return 'Select a destination chain';
@@ -82,6 +87,9 @@ export const validateAmount = (
 };
 
 async function checkAddressIsSanctioned(address: string): Promise<boolean> {
+  if (trmCache[address]) {
+    return trmCache[address].isSanctioned;
+  }
   const res = await fetch(
     `https://api.trmlabs.com/public/v1/sanctions/screening`,
     {
@@ -98,6 +106,7 @@ async function checkAddressIsSanctioned(address: string): Promise<boolean> {
   if (res.status !== 200) return false;
 
   const data = await res.json();
+  trmCache[address] = data[0];
   return data[0].isSanctioned;
 }
 
@@ -229,7 +238,19 @@ export const isTransferValid = (validations: TransferValidations) => {
 };
 
 export const validate = async (dispatch: Dispatch<AnyAction>) => {
-  const state = store.getState();
-  const validations = await validateAll(state.transfer, state.wallet);
+  const { transfer, wallet } = store.getState();
+  const validations = await validateAll(transfer, wallet);
+  // if all fields are filled out, show validations
+  if (
+    wallet.sending.address &&
+    wallet.receiving.address &&
+    transfer.fromNetwork &&
+    transfer.toNetwork &&
+    transfer.token &&
+    transfer.amount &&
+    transfer.amount >= 0
+  ) {
+    dispatch(touchValidations());
+  }
   dispatch(setValidations(validations));
 };

@@ -8,7 +8,6 @@ import {
   setReceiverNativeBalance,
   enableAutomaticTransfer,
   disableAutomaticTransfer,
-  touchValidations,
 } from '../../store/transfer';
 import { getNativeBalance, isAcceptedToken, PaymentOption } from '../../sdk';
 import { CHAINS, TOKENS } from '../../config';
@@ -120,20 +119,6 @@ function Bridge() {
     foreignAsset,
     associatedTokenAddress,
   ]);
-  // show validations when everything is filled out
-  useEffect(() => {
-    if (
-      sending.address &&
-      receiving.address &&
-      fromNetwork &&
-      toNetwork &&
-      token &&
-      amount &&
-      amount >= 0
-    ) {
-      dispatch(touchValidations());
-    }
-  }, [sending, receiving, fromNetwork, toNetwork, token, amount]);
   const valid = isTransferValid(validations);
 
   const disabled = !valid || isTransactionInProgress;
