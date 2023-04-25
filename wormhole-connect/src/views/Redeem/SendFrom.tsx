@@ -92,7 +92,6 @@ function SendFrom() {
         <Header
           network={txData.fromChain}
           address={txData.sender}
-          // loading={transferComplete ? false : !vaa}
           txHash={txData.sendTx}
         />
         <RenderRows rows={rows} />

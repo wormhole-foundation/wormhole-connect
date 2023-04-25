@@ -265,15 +265,26 @@ function SendTo() {
     }
   };
 
+  const loading =
+    txData.payloadID === PaymentOption.MANUAL
+      ? inProgress && !transferComplete
+      : !transferComplete;
+  const manualClaimText =
+    transferComplete || txData.payloadID === PaymentOption.AUTOMATIC
+      ? ''
+      : claimError
+      ? 'Error please retry . . .'
+      : 'Awaiting claim . . .';
+
   return (
     <div>
       <InputContainer>
         <Header
           network={txData.toChain}
           address={txData.recipient}
-          loading={inProgress && !transferComplete}
+          loading={loading}
           txHash={redeemTx}
-          error={claimError ? 'Error please retry . . .' : ''}
+          text={manualClaimText}
         />
         <RenderRows rows={rows} />
       </InputContainer>
