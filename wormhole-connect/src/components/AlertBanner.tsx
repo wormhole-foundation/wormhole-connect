@@ -35,14 +35,23 @@ type Props = {
 function AlertBanner(props: Props) {
   const { classes } = useStyles();
   const [alertContent, setAlertContent] = useState(props.content);
+  const [clearContentTimeout, setClearContentTimeout] = useState(
+    undefined as any,
+  );
   const prevText = usePrevious(props.content);
 
   useEffect(() => {
     if (!!prevText && !props.content) {
-      setTimeout(() => {
-        setAlertContent(undefined);
-      }, 500);
+      // clear the content of the alert after the collapse transition
+      setClearContentTimeout(
+        setTimeout(() => {
+          setAlertContent(undefined);
+        }, 500),
+      );
     } else {
+      // cancel clear timeout and set the new value
+      clearTimeout(clearContentTimeout);
+      setClearContentTimeout(undefined);
       setAlertContent(props.content);
     }
   }, [props.content]);
