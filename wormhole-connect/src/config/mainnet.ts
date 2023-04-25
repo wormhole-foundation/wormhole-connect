@@ -92,6 +92,17 @@ export const MAINNET_NETWORKS: NetworksConfig = {
     automaticRelayer: false,
     maxBlockSearch: 2000,
   },
+  sui: {
+    ...chains.sui!,
+    displayName: 'Sui',
+    explorerUrl: 'https://explorer.sui.io/',
+    explorerName: 'Sui Explorer',
+    gasToken: 'SUI',
+    chainId: 0,
+    icon: Icon.SUI,
+    automaticRelayer: false, // TODO: true
+    maxBlockSearch: 0, // TODO: what is this?
+  },
 };
 
 export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
@@ -104,6 +115,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#62688F',
     decimals: 18,
     solDecimals: 8,
+    suiDecimals: 8,
     wrappedAsset: 'WETH',
   },
   WETH: {
@@ -119,6 +131,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#62688F',
     decimals: 18,
     solDecimals: 8,
+    suiDecimals: 8,
   },
   USDCeth: {
     key: 'USDCeth',
@@ -199,6 +212,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#8247E5',
     decimals: 18,
     solDecimals: 8,
+    suiDecimals: 8,
     wrappedAsset: 'WMATIC',
   },
   WMATIC: {
@@ -214,6 +228,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#8247E5',
     decimals: 18,
     solDecimals: 8,
+    suiDecimals: 8,
   },
   USDCpolygon: {
     key: 'USDCpolygon',
@@ -238,6 +253,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#F3BA30',
     decimals: 18,
     solDecimals: 8,
+    suiDecimals: 8,
     wrappedAsset: 'WBNB',
   },
   WBNB: {
@@ -253,6 +269,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#F3BA30',
     decimals: 18,
     solDecimals: 8,
+    suiDecimals: 8,
   },
   USDCbnb: {
     key: 'USDCbnb',
@@ -277,6 +294,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#E84141',
     decimals: 18,
     solDecimals: 8,
+    suiDecimals: 8,
     wrappedAsset: 'WAVAX',
   },
   WAVAX: {
@@ -292,6 +310,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#E84141',
     decimals: 18,
     solDecimals: 8,
+    suiDecimals: 8,
   },
   USDCavax: {
     key: 'USDCavax',
@@ -316,6 +335,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#12B4EC',
     decimals: 18,
     solDecimals: 8,
+    suiDecimals: 8,
     wrappedAsset: 'WFTM',
   },
   WFTM: {
@@ -331,6 +351,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#12B4EC',
     decimals: 18,
     solDecimals: 8,
+    suiDecimals: 8,
   },
   CELO: {
     key: 'CELO',
@@ -345,6 +366,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#35D07E',
     decimals: 18,
     solDecimals: 8,
+    suiDecimals: 8,
   },
   GLMR: {
     key: 'GLMR',
@@ -355,6 +377,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#e1147b',
     decimals: 18,
     solDecimals: 8,
+    suiDecimals: 8,
     wrappedAsset: 'WGLMR',
   },
   WGLMR: {
@@ -370,6 +393,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#e1147b',
     decimals: 18,
     solDecimals: 8,
+    suiDecimals: 8,
   },
   SOL: {
     key: 'SOL',
@@ -380,6 +404,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#8457EF',
     decimals: 9,
     solDecimals: 9,
+    suiDecimals: 8,
     wrappedAsset: 'WSOL',
   },
   WSOL: {
@@ -395,6 +420,21 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#8457EF',
     decimals: 9,
     solDecimals: 9,
+    suiDecimals: 8,
+  },
+  SUI: {
+    symbol: 'SUI',
+    nativeNetwork: 'sui',
+    tokenId: {
+      chain: 'sui',
+      address: '0x2::sui::SUI',
+    },
+    icon: Icon.SUI,
+    coinGeckoId: 'sui',
+    color: '#8457EF',
+    decimals: 9,
+    solDecimals: 8,
+    suiDecimals: 9,
   },
   USDCsol: {
     key: 'USDCsol',

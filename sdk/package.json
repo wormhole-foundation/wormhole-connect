@@ -5,8 +5,9 @@
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
   "dependencies": {
-    "@certusone/wormhole-sdk": "^0.9.14",
+    "@certusone/wormhole-sdk": "^0.9.15-beta.0",
     "@injectivelabs/sdk-ts": "1.0.211",
+    "@mysten/sui.js": "^0.32.1",
     "@nomad-xyz/multi-provider": "^1.1.0",
     "@solana/spl-token": "^0.3.7",
     "@solana/web3.js": "^1.73.0",

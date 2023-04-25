@@ -18,6 +18,7 @@ const useStyles = makeStyles<{ size: number }>()((theme, { size }) => ({
 type Props = {
   type: WalletType;
   height?: number;
+  icon?: string; // icon from the wallet
 };
 
 function WalletIcon(props: Props) {
@@ -244,6 +245,13 @@ function WalletIcon(props: Props) {
               </clipPath>
             </defs>
           </svg>
+        </div>
+      );
+    }
+    case WalletType.SUI_WALLET: {
+      return (
+        <div className={classes.container}>
+          <img src={props.icon} height={size} width={size} />
         </div>
       );
     }

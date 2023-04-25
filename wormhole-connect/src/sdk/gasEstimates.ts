@@ -69,6 +69,7 @@ const estimateGasFee = async (
     const gasFee = est.mul(gasPrice);
     return toFixedDecimals(utils.formatEther(gasFee), 6);
   }
+  // TODO: sui?
 };
 
 // gets a fallback gas fee estimate from config
@@ -112,6 +113,8 @@ const getGasFeeFallback = async (
     const gasFees = BigNumber.from(gasEst).mul(gasPrice);
     return toFixedDecimals(utils.formatEther(gasFees), 6);
   }
+
+  // TODO: sui?
 };
 
 // returns the gas fees estimate for any send transfer

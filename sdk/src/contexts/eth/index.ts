@@ -50,7 +50,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
     // else fetch the representation
     const tokenBridge = this.contracts.mustGetBridge(chain);
     const sourceContext = this.context.getContext(tokenId.chain);
-    const tokenAddr = sourceContext.formatAddress(tokenId.address);
+    const tokenAddr = await sourceContext.formatAssetAddress(tokenId.address);
     const foreignAddr = await tokenBridge.wrappedAsset(
       chainId,
       utils.arrayify(tokenAddr),
@@ -297,7 +297,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
       const tokenAddr = await this.mustGetForeignAsset(token, sendingChain);
       await this.approve(sendingChain, bridge.address, tokenAddr, amountBN);
       const v = await bridge.transferTokensWithPayload(
-        destContext.parseAddress(tokenAddr),
+        destContext.parseAddress(tokenAddr), // TODO: shouldn't this be the sending context (possible bug)?
         amountBN,
         recipientChainId,
         destContext.formatAddress(recipientAddress),
@@ -474,7 +474,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
         const tokenContext = this.context.getContext(
           parsedTransfer.tokenChain as ChainId,
         );
-        const tokenAddress = tokenContext.parseAddress(
+        const tokenAddress = await tokenContext.parseAssetAddress(
           parsedTransfer.tokenAddress,
         );
         const tokenChain = this.context.toChainName(parsedTransfer.tokenChain);
@@ -579,6 +579,14 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
   parseAddress(address: ethers.utils.BytesLike): string {
     const parsed = utils.hexlify(utils.stripZeros(address));
     return utils.getAddress(parsed);
+  }
+
+  async formatAssetAddress(address: string): Promise<ethers.utils.BytesLike> {
+    return this.formatAddress(address);
+  }
+
+  async parseAssetAddress(address: any): Promise<string> {
+    return this.parseAddress(address);
   }
 
   getTxIdFromReceipt(receipt: ethers.ContractReceipt) {

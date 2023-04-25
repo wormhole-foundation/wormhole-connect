@@ -9,10 +9,16 @@ import {
   MAINNET_CHAINS,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { Transaction } from '@solana/web3.js';
+import { TransactionBlock } from '@mysten/sui.js';
 
 import { getTokenById, getTokenDecimals, getWrappedTokenId } from '../utils';
 import { isMainnet, TOKENS, WH_CONFIG } from '../config';
-import { postVaa, signSolanaTransaction, TransferWallet } from 'utils/wallet';
+import {
+  postVaa,
+  signSolanaTransaction,
+  signSuiTransaction,
+  TransferWallet,
+} from 'utils/wallet';
 import { estimateClaimFees, estimateSendFees } from './gasEstimates';
 
 export enum PaymentOption {
@@ -149,7 +155,7 @@ export const sendTransfer = async (
   toAddress: string,
   paymentOption: PaymentOption,
   toNativeToken?: string,
-) => {
+): Promise<any> => {
   const fromChainId = wh.toChainId(fromNetwork);
   const decimals = getTokenDecimals(fromChainId, token);
   const parsedAmt = utils.parseUnits(amount, decimals);
@@ -163,32 +169,45 @@ export const sendTransfer = async (
       toAddress,
       undefined,
     );
-    if (fromChainId !== MAINNET_CHAINS.solana) {
+    if (fromChainId === MAINNET_CHAINS.solana) {
+      const solTx = await signSolanaTransaction(
+        tx as Transaction,
+        TransferWallet.SENDING,
+      );
+      wh.registerProviders();
+      return solTx;
+    } else if (fromChainId === MAINNET_CHAINS.sui) {
+      const response = await signSuiTransaction(
+        tx as unknown as TransactionBlock,
+        TransferWallet.SENDING,
+      );
+      wh.registerProviders();
+      return response;
+    } else {
       wh.registerProviders();
       return tx;
     }
-    const solTx = await signSolanaTransaction(
-      tx as Transaction,
-      TransferWallet.SENDING,
-    );
-    wh.registerProviders();
-    return solTx;
   } else {
     const parsedNativeAmt = toNativeToken
       ? utils.parseUnits(toNativeToken, decimals).toString()
       : '0';
-    const tx = await wh.sendWithRelay(
-      token,
-      parsedAmt.toString(),
-      fromNetwork,
-      fromAddress,
-      toNetwork,
-      toAddress,
-      parsedNativeAmt,
-    );
-    // relay not supported on Solana, so we can just return the ethers receipt
-    wh.registerProviders();
-    return tx;
+    if (fromChainId === MAINNET_CHAINS.solana) {
+      throw new Error('solana send with relay not supported');
+    } else if (fromChainId === MAINNET_CHAINS.sui) {
+      throw new Error('sui send with relay not supported');
+    } else {
+      const tx = await wh.sendWithRelay(
+        token,
+        parsedAmt.toString(),
+        fromNetwork,
+        fromAddress,
+        toNetwork,
+        toAddress,
+        parsedNativeAmt,
+      );
+      wh.registerProviders();
+      return tx;
+    }
   }
 };
 
@@ -229,16 +248,24 @@ export const claimTransfer = async (
   }
 
   const tx = await wh.redeem(destChain, vaa, { gasLimit: 250000 }, payerAddr);
-  if (destChainId !== MAINNET_CHAINS.solana) {
+  if (destChainId === MAINNET_CHAINS.solana) {
+    const solTx = await signSolanaTransaction(
+      tx as Transaction,
+      TransferWallet.RECEIVING,
+    );
+    wh.registerProviders();
+    return solTx;
+  } else if (destChainId === MAINNET_CHAINS.sui) {
+    const response = await signSuiTransaction(
+      tx as TransactionBlock,
+      TransferWallet.RECEIVING,
+    );
+    wh.registerProviders();
+    return response;
+  } else {
     wh.registerProviders();
     return tx;
   }
-  const solTx = await signSolanaTransaction(
-    tx as Transaction,
-    TransferWallet.RECEIVING,
-  );
-  wh.registerProviders();
-  return solTx;
 };
 
 export const fetchTokenDecimals = async (
@@ -271,6 +298,8 @@ export const getCurrentBlock = async (
     const connection = context.connection;
     if (!connection) throw new Error('no connection');
     return await connection.getSlot();
+  } else if (chainId === MAINNET_CHAINS.sui) {
+    throw new Error('sui get block not implemented');
   } else {
     const provider = wh.mustGetProvider(chain);
     return await provider.getBlockNumber();
