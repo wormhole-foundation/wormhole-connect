@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { makeStyles } from 'tss-react/mui';
 import InputTransparent from './InputTransparent';
 import SearchIcon from '../icons/Search';
@@ -42,11 +42,12 @@ type Props = {
 
 function Search(props: Props) {
   const { classes } = useStyles();
-  const [id] = useState(Math.floor(Math.random() * 1000).toString());
+  const searchEl = useRef(null);
+
   const focus = () => {
-    const input = document.getElementById(id);
-    if (!input) return;
-    input.focus();
+    if (searchEl.current) {
+      (searchEl.current as any).focus();
+    }
   };
 
   return (
@@ -55,7 +56,7 @@ function Search(props: Props) {
         <div className={classes.searchContent}>
           <div className={classes.input}>
             <InputTransparent
-              id={id}
+              inputRef={searchEl}
               placeholder={props.placeholder}
               onChange={props.onChange}
               onEnter={props.onSearch}

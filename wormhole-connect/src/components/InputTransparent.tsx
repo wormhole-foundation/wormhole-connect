@@ -31,6 +31,7 @@ type Props = {
   min?: number;
   max?: number;
   step?: number;
+  inputRef?: React.MutableRefObject<null>;
   onChange?: (
     e?:
       | React.ChangeEvent<HTMLInputElement>
@@ -83,6 +84,7 @@ function InputTransparent(props: Props) {
 
   return (
     <input
+      ref={props.inputRef}
       id={props.id}
       className={classes.input}
       placeholder={props.placeholder}
