@@ -92,6 +92,17 @@ export const TESTNET_NETWORKS: NetworksConfig = {
     automaticRelayer: false,
     maxBlockSearch: 2000,
   },
+  sui: {
+    ...chains.sui!,
+    displayName: 'Sui',
+    explorerUrl: 'https://explorer.sui.io/',
+    explorerName: 'Sui Explorer',
+    gasToken: 'SUI',
+    chainId: 0,
+    icon: Icon.SUI,
+    automaticRelayer: false,
+    maxBlockSearch: 0,
+  },
 };
 
 export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
@@ -105,6 +116,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 18,
     wrappedAsset: 'WETH',
     solDecimals: 8,
+    suiDecimals: 8,
   },
   WETH: {
     key: 'WETH',
@@ -119,6 +131,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#62688F',
     decimals: 18,
     solDecimals: 8,
+    suiDecimals: 8,
   },
   USDCeth: {
     key: 'USDCeth',
@@ -133,6 +146,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#2774CA',
     decimals: 6,
     solDecimals: 6,
+    suiDecimals: 8,
   },
   MATIC: {
     key: 'MATIC',
@@ -143,6 +157,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#8247E5',
     decimals: 18,
     solDecimals: 8,
+    suiDecimals: 8,
     wrappedAsset: 'WMATIC',
   },
   WMATIC: {
@@ -158,6 +173,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#8247E5',
     decimals: 18,
     solDecimals: 8,
+    suiDecimals: 8,
   },
   USDCpolygon: {
     key: 'USDCpolygon',
@@ -182,6 +198,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#F3BA30',
     decimals: 18,
     solDecimals: 8,
+    suiDecimals: 8,
     wrappedAsset: 'WBNB',
   },
   WBNB: {
@@ -197,6 +214,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#F3BA30',
     decimals: 18,
     solDecimals: 8,
+    suiDecimals: 8,
   },
   AVAX: {
     key: 'AVAX',
@@ -207,6 +225,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#E84141',
     decimals: 18,
     solDecimals: 8,
+    suiDecimals: 8,
     wrappedAsset: 'WAVAX',
   },
   WAVAX: {
@@ -222,6 +241,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#E84141',
     decimals: 18,
     solDecimals: 8,
+    suiDecimals: 8,
   },
   USDCavax: {
     key: 'USDCavax',
@@ -246,6 +266,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#12B4EC',
     decimals: 18,
     solDecimals: 8,
+    suiDecimals: 8,
     wrappedAsset: 'WFTM',
   },
   WFTM: {
@@ -261,6 +282,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#12B4EC',
     decimals: 18,
     solDecimals: 8,
+    suiDecimals: 8,
   },
   CELO: {
     key: 'CELO',
@@ -275,6 +297,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#35D07E',
     decimals: 18,
     solDecimals: 8,
+    suiDecimals: 8,
   },
   GLMR: {
     key: 'GLMR',
@@ -285,6 +308,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#e1147b',
     decimals: 18,
     solDecimals: 8,
+    suiDecimals: 8,
     wrappedAsset: 'WGLMR',
   },
   WGLMR: {
@@ -300,6 +324,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#e1147b',
     decimals: 18,
     solDecimals: 8,
+    suiDecimals: 8,
   },
   SOL: {
     key: 'SOL',
@@ -310,6 +335,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#8457EF',
     decimals: 9,
     solDecimals: 9,
+    suiDecimals: 8,
     wrappedAsset: 'WSOL',
   },
   WSOL: {
@@ -325,6 +351,21 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#8457EF',
     decimals: 9,
     solDecimals: 9,
+    suiDecimals: 8,
+  },
+  SUI: {
+    symbol: 'SUI',
+    nativeNetwork: 'sui',
+    tokenId: {
+      chain: 'sui',
+      address: '0x2::sui::SUI',
+    },
+    icon: Icon.SUI,
+    coinGeckoId: 'sui',
+    color: '#8457EF',
+    decimals: 9,
+    solDecimals: 8,
+    suiDecimals: 9,
   },
   USDCsol: {
     key: 'USDCsol',
@@ -397,4 +438,5 @@ export const TESTNET_GAS_ESTIMATES: GasEstimates = {
     sendToken: 15000,
     claim: 25000,
   },
+  // TODO: sui
 };

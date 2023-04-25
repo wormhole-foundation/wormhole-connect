@@ -368,8 +368,9 @@ export class SolanaContext<
         'finalized',
       );
     } else {
+      // TODO: I don't think this is right, we should be passing the external address to formatAssetAddress
       const formattedTokenAddr = arrayify(
-        destContext.formatAddress(token.address),
+        await destContext.formatAssetAddress(token.address),
       );
       const solTokenAddr = await this.mustGetForeignAsset(
         token,
@@ -427,7 +428,7 @@ export class SolanaContext<
       );
     } else {
       const formattedTokenAddr = arrayify(
-        destContext.formatAddress(token.address),
+        await destContext.formatAssetAddress(token.address),
       );
       const solTokenAddr = await this.mustGetForeignAsset(
         token,
@@ -472,6 +473,14 @@ export class SolanaContext<
     return new PublicKey(addr).toString();
   }
 
+  async formatAssetAddress(address: string): Promise<string> {
+    return this.formatAddress(address);
+  }
+
+  async parseAssetAddress(address: any): Promise<string> {
+    return this.parseAddress(address);
+  }
+
   async getForeignAsset(
     tokenId: TokenId,
     chain: ChainName | ChainId,
@@ -486,7 +495,9 @@ export class SolanaContext<
     if (!contracts.token_bridge) throw new Error('contracts not found');
 
     const tokenContext = this.context.getContext(tokenId.chain);
-    const formattedAddr = tokenContext.formatAddress(tokenId.address);
+    const formattedAddr = await tokenContext.formatAssetAddress(
+      tokenId.address,
+    );
     const addr = await getForeignAssetSolana(
       this.connection,
       contracts.token_bridge,
@@ -560,7 +571,7 @@ export class SolanaContext<
     const tokenContext = this.context.getContext(parsed.tokenChain as ChainId);
     const destContext = this.context.getContext(parsed.toChain as ChainId);
 
-    const tokenAddress = tokenContext.parseAddress(
+    const tokenAddress = await tokenContext.parseAssetAddress(
       hexlify(parsed.tokenAddress),
     );
     const tokenChain = this.context.toChainName(parsed.tokenChain);
