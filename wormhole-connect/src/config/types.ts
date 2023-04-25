@@ -35,6 +35,7 @@ export type TokenConfig = {
   color: string;
   decimals: number;
   solDecimals: number;
+  suiDecimals: number;
   wrappedAsset?: string;
 };
 
@@ -64,6 +65,7 @@ export enum Icon {
   'SOLANA',
   'USDC',
   'GLMR',
+  'SUI',
 }
 
 export type GasEstimates = {

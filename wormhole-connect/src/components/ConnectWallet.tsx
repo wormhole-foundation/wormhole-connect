@@ -76,7 +76,7 @@ function ConnectWallet(props: Props) {
       {(popupState) => (
         <div>
           <div className={classes.connectWallet} {...bindTrigger(popupState)}>
-            <WalletIcons type={wallet.type} height={24} />
+            <WalletIcons type={wallet.type} icon={wallet.icon} height={24} />
             {displayWalletAddress(wallet.type, wallet.address)}
             <DownIcon className={classes.down} />
           </div>

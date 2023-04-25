@@ -141,6 +141,7 @@ function AddToWallet() {
   } else if (chainId === MAINNET_NETWORKS.solana?.id) {
     return <AddToSolanaWallet address={targetAddress} token={targetToken} />;
   }
+  // TODO: sui?
 
   return <></>;
 }

@@ -14,7 +14,12 @@ export const formatBalance = (
   token: TokenConfig,
   balance: BigNumber | null,
 ) => {
-  const decimals = chain === 'solana' ? token.solDecimals : token.decimals;
+  const decimals =
+    chain === 'solana'
+      ? token.solDecimals
+      : chain === 'sui'
+      ? token.suiDecimals
+      : token.decimals;
   const formattedBalance =
     balance !== null ? toDecimals(balance, decimals, 6) : null;
   return { [token.symbol]: formattedBalance };

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { makeStyles } from 'tss-react/mui';
 import { useDispatch, useSelector } from 'react-redux';
 import { Wallet, WalletState } from '@xlabs-libs/wallet-aggregator-core';
+import { getWallets as getSuiWallets } from '@xlabs-libs/wallet-aggregator-sui';
 import {
   ChainConfig,
   ChainName,
@@ -62,7 +63,7 @@ type WalletData = {
   type: WalletType;
   isReady: boolean;
 };
-const WALLETS = {
+const WALLETS: { [key: string]: WalletData } = {
   metamask: {
     name: 'Metamask',
     wallet: wallets.evm.metamask,
@@ -88,11 +89,19 @@ const WALLETS = {
     isReady: getReady(wallets.solana.solflare),
   },
 };
-const getWalletOptions = (chain: ChainConfig) => {
+const getWalletOptions = async (chain: ChainConfig) => {
   if (chain.context === Context.ETH) {
     return [WALLETS.metamask, WALLETS.walletConnect];
   } else if (chain.context === Context.SOLANA) {
     return [WALLETS.phantom, WALLETS.solflare];
+  } else if (chain.context === Context.SUI) {
+    const suiWallets = await getSuiWallets({ timeout: 0 });
+    return suiWallets.map<WalletData>((w) => ({
+      name: w.getName(),
+      wallet: w,
+      type: WalletType.SUI_WALLET, // sui wallets share the same wallet type
+      isReady: getReady(w),
+    }));
   }
 };
 
@@ -109,23 +118,31 @@ function WalletsModal(props: Props) {
     (state: RootState) => state.transfer,
   );
   const wallets = useSelector((state: RootState) => state.wallet);
-  const [walletOptions, setWalletOptions] = useState(
-    getAvailableWallets() || [],
-  );
+  const [walletOptions, setWalletOptions] = useState<WalletData[]>([]);
 
-  function getAvailableWallets() {
+  async function getAvailableWallets() {
     const chain =
       props.chain ||
       (props.type === TransferWallet.SENDING ? fromNetwork : toNetwork);
 
     const config = CHAINS[chain!];
+    // TODO: include sui wallets when no chain is selected,
+    // but what if a sui wallet matches one in WALLETS?
     if (!config) return Object.values(WALLETS);
-    return getWalletOptions(config);
+    return await getWalletOptions(config);
   }
 
   useEffect(() => {
-    const options = getAvailableWallets();
-    if (options) setWalletOptions(options);
+    let cancelled = false;
+    (async () => {
+      const options = await getAvailableWallets();
+      if (!cancelled && options) {
+        setWalletOptions(options);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [fromNetwork, toNetwork, props.chain]);
 
   const connect = async (walletInfo: WalletData) => {
@@ -154,7 +171,11 @@ function WalletsModal(props: Props) {
     });
 
     if (address) {
-      const payload = { address, type: walletInfo.type };
+      const payload = {
+        address,
+        type: walletInfo.type,
+        icon: wallet.getIcon(),
+      };
       if (props.type === TransferWallet.SENDING) {
         dispatch(connectWallet(payload));
       } else {
@@ -174,7 +195,11 @@ function WalletsModal(props: Props) {
         : () => window.open(wallet.wallet.getUrl());
       return (
         <div className={classes.walletRow} key={i} onClick={select}>
-          <WalletIcon type={wallet.type} height={32} />
+          <WalletIcon
+            type={wallet.type}
+            icon={wallet.wallet.getIcon()}
+            height={32}
+          />
           <div className={`${!ready && classes.notInstalled}`}>
             {!ready && 'Install'} {wallet.name}
           </div>

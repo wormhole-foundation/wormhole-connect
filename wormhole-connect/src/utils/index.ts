@@ -10,6 +10,10 @@ import { CHAINS_ARR, TOKENS, TOKENS_ARR } from '../config';
 import { NetworkConfig, TokenConfig } from '../config/types';
 import { WalletType } from './wallet';
 import { toDecimals } from './balance';
+import {
+  formatAddress as formatAddressSui,
+  SUI_TYPE_ARG,
+} from '@mysten/sui.js';
 
 export const MAX_DECIMALS = 6;
 export const NORMALIZED_DECIMALS = 8;
@@ -35,6 +39,8 @@ export function displayAddress(chain: ChainName, address: string): string {
       '...' +
       address.slice(address.length - 4, address.length)
     );
+  } else if (chain === 'sui') {
+    return address === SUI_TYPE_ARG ? address : formatAddressSui(address);
   } else {
     return displayEvmAddress(address);
   }
@@ -46,7 +52,8 @@ export function displayWalletAddress(
 ): string {
   if (
     walletType === WalletType.METAMASK ||
-    walletType === WalletType.WALLET_CONNECT
+    walletType === WalletType.WALLET_CONNECT ||
+    walletType === WalletType.SUI_WALLET
   ) {
     return displayEvmAddress(address);
   }
@@ -57,6 +64,7 @@ export function getNetworkByChainId(chainId: number): NetworkConfig | void {
   return CHAINS_ARR.filter((c) => chainId === c.chainId)[0];
 }
 
+// TODO: sui
 export function getWrappedToken(token: TokenConfig): TokenConfig {
   if (!token) throw new Error('token must be defined');
 
@@ -98,6 +106,8 @@ export function getTokenDecimals(
   if (!tokenConfig) throw new Error('token config not found');
   return chain === MAINNET_CHAINS.solana
     ? tokenConfig.solDecimals
+    : chain === MAINNET_CHAINS.sui
+    ? tokenConfig.suiDecimals
     : tokenConfig.decimals;
 }
 

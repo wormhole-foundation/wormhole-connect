@@ -7,6 +7,8 @@ import { EthContracts } from './contexts/eth/contracts';
 import { SolContracts } from './contexts/solana/contracts';
 import { MainnetChainName, MainnetChainId } from './config/MAINNET';
 import { TestnetChainName, TestnetChainId } from './config/TESTNET';
+import { SuiContext } from './contexts/sui';
+import { SuiContracts } from './contexts/sui/contracts';
 
 export const NATIVE = 'native';
 // TODO: conditionally set these types
@@ -21,6 +23,7 @@ export enum Context {
   ALGORAND = 'Algorand',
   NEAR = 'Near',
   APTOS = 'Aptos',
+  SUI = 'Sui',
   OTHER = 'OTHER',
 }
 
@@ -60,11 +63,13 @@ export type TokenId = {
 
 export type AnyContext =
   | EthContext<WormholeContext>
-  | SolanaContext<WormholeContext>;
+  | SolanaContext<WormholeContext>
+  | SuiContext<WormholeContext>;
 
 export type AnyContracts =
   | EthContracts<WormholeContext>
-  | SolContracts<WormholeContext>;
+  | SolContracts<WormholeContext>
+  | SuiContracts<WormholeContext>;
 
 export interface ParsedMessage {
   sendTx: string;
