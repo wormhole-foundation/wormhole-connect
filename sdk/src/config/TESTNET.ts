@@ -108,7 +108,7 @@ const TESTNET_CONFIG: WormholeConfig = {
   rpcs: {
     goerli: 'https://rpc.ankr.com/eth_goerli',
     mumbai: 'https://polygon-mumbai.blockpi.network/v1/rpc/public',
-    bsc: 'https://bsc-testnet.public.blastapi.io',
+    bsc: 'https://data-seed-prebsc-1-s3.binance.org:8545',
     fuji: 'https://api.avax-test.network/ext/bc/C/rpc',
     fantom: 'https://rpc.ankr.com/fantom_testnet',
     alfajores: 'https://alfajores-forno.celo-testnet.org',

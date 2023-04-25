@@ -63,7 +63,7 @@ function Bridge() {
     foreignAsset,
     associatedTokenAddress,
     isTransactionInProgress,
-    balances
+    balances,
   } = useSelector((state: RootState) => state.transfer);
   const { sending, receiving } = useSelector(
     (state: RootState) => state.wallet,
@@ -120,7 +120,7 @@ function Bridge() {
     relayerFee,
     foreignAsset,
     associatedTokenAddress,
-    balances
+    balances,
   ]);
   // show validations when everything is filled out
   useEffect(() => {
