@@ -56,6 +56,18 @@ class Redeem extends React.Component<
 
   componentDidMount() {
     this.update();
+
+    // poll more frequently for the first 10 seconds
+    let i = 0;
+    const initializePoll = setInterval(async () => {
+      if (!this.props.transferComplete && i < 10) {
+        this.update();
+        i++;
+      } else {
+        clearInterval(initializePoll);
+      }
+    }, 1000);
+
     const poll = setInterval(async () => {
       if (!this.props.transferComplete) {
         this.update();
