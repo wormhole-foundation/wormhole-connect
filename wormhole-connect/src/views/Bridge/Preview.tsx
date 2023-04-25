@@ -128,6 +128,8 @@ function Preview(props: { collapsed: boolean }) {
           const decimals =
             fromNetwork === 'solana'
               ? tokenConfig.solDecimals
+              : fromNetwork === 'sui'
+              ? tokenConfig.suiDecimals
               : tokenConfig.decimals;
           const formattedFee = Number.parseFloat(toDecimals(fee, decimals, 6));
           dispatch(setRelayerFee(formattedFee));

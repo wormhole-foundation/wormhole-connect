@@ -11,6 +11,7 @@ export const MAINNET_CHAINS = {
   fantom: 10,
   celo: 14,
   moonbeam: 16,
+  sui: 21,
 } as const;
 
 export type MainnetChainName = keyof typeof MAINNET_CHAINS;
@@ -98,6 +99,16 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     },
     finalityThreshold: 1,
   },
+  sui: {
+    key: 'sui',
+    id: 21,
+    context: Context.SUI,
+    contracts: {
+      ...CONTRACTS.MAINNET.sui,
+      relayer: undefined, // TODO: add relayer
+    },
+    finalityThreshold: 0,
+  },
 };
 
 const env: Environment = 'MAINNET';
@@ -112,6 +123,7 @@ const MAINNET_CONFIG: WormholeConfig = {
     fantom: 'https://rpc.ankr.com/fantom',
     celo: 'https://rpc.ankr.com/celo',
     moonbeam: 'https://rpc.ankr.com/moonbeam',
+    sui: 'https://fullnode.mainnet.sui.io',
   },
   chains: MAINNET,
 };

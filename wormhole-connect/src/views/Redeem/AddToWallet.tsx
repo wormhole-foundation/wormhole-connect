@@ -103,6 +103,8 @@ function AddToSolanaWallet({ token, address }: AddTokenProps) {
   );
 }
 
+// TODO: add to sui wallet
+
 function AddToWallet() {
   const txData = useSelector((state: RootState) => state.redeem.txData)!;
 
@@ -144,6 +146,7 @@ function AddToWallet() {
   ) {
     return <AddToSolanaWallet address={targetAddress} token={targetToken} />;
   }
+  // TODO: sui?
 
   return <></>;
 }
