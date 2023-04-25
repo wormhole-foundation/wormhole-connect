@@ -11,6 +11,7 @@ export const TESTNET_CHAINS = {
   fantom: 10,
   alfajores: 14,
   moonbasealpha: 16,
+  sui: 21,
 } as const;
 
 export type TestnetChainName = keyof typeof TESTNET_CHAINS;
@@ -100,6 +101,21 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     },
     finalityThreshold: 1,
   },
+  sui: {
+    key: 'sui',
+    id: 21,
+    context: Context.SUI,
+    contracts: {
+      // ...CONTRACTS.TESTNET.sui,
+      // TODO: remove when addresses are in the SDK
+      core: '0x69ae41bdef4770895eb4e7aaefee5e4673acc08f6917b4856cf55549c4573ca8',
+      token_bridge:
+        '0x32422cb2f929b6a4e3f81b4791ea11ac2af896b310f3d9442aa1fe924ce0bab4',
+      nft_bridge: undefined,
+      relayer: undefined, // TODO: add relayer
+    },
+    finalityThreshold: 0,
+  },
 };
 
 const env: Environment = 'TESTNET';
@@ -114,6 +130,7 @@ const TESTNET_CONFIG: WormholeConfig = {
     alfajores: 'https://alfajores-forno.celo-testnet.org',
     solana: 'https://api.devnet.solana.com',
     moonbasealpha: 'https://rpc.api.moonbase.moonbeam.network',
+    sui: 'https://fullnode.testnet.sui.io',
   },
   chains: TESTNET,
 };
