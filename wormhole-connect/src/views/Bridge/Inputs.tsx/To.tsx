@@ -193,7 +193,7 @@ function ToInputs() {
     } else {
       setWarnings([]);
     }
-  }, [toNetwork, foreignAsset, wallet, associatedTokenAddress]);
+  }, [toNetwork, token, foreignAsset, wallet, associatedTokenAddress]);
 
   return (
     <Inputs
