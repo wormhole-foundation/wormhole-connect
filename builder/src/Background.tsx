@@ -105,7 +105,11 @@ const useStyles = makeStyles()((theme) => ({
   },
 }))
 
-function Background({ children }) {
+type Props = {
+  children: React.ReactNode | React.ReactNode[]
+}
+
+function Background({ children }: Props) {
   const { classes } = useStyles();
 
   return (

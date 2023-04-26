@@ -2,7 +2,7 @@ import React from 'react';
 import { copyTextToClipboard } from './utils';
 import Background from './Background';
 import { makeStyles } from 'tss-react/mui';
-import WormholeBridge, { defaultTheme } from '@wormhole-foundation/wormhole-connect';
+import WormholeBridge, { defaultTheme, WormholeConnectConfig } from '@wormhole-foundation/wormhole-connect';
 
 const useStyles = makeStyles()((theme) => ({
   appContent: {
@@ -37,9 +37,10 @@ function App() {
   `
   const customized = defaultTheme;
   customized.background.default = 'transparent';
-  const config = {
+  const config: WormholeConnectConfig = {
     mode: 'dark',
-    customTheme: customized
+    customTheme: customized,
+    networks: ['goerli', 'alfajores', 'fuji']
   }
   return (
     <div className="App">
