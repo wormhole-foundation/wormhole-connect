@@ -31,7 +31,7 @@ import {
 } from '../../sdk';
 import { CHAINS, TOKENS } from '../../config';
 import WalletsModal from '../WalletModal';
-import { GAS_ESTIMATES } from '../../config/testnet';
+import { GAS_ESTIMATES } from '../../config';
 import { fetchRedeemedEvent, fetchSwapEvent } from '../../utils/events';
 
 import Header from './Header';

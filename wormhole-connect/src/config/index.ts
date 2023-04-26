@@ -2,8 +2,16 @@ import {
   WormholeContext,
   CONFIG as CONF,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { MAINNET_NETWORKS, MAINNET_TOKENS } from './mainnet';
-import { TESTNET_NETWORKS, TESTNET_TOKENS } from './testnet';
+import {
+  MAINNET_NETWORKS,
+  MAINNET_TOKENS,
+  MAINNET_GAS_ESTIMATES,
+} from './mainnet';
+import {
+  TESTNET_NETWORKS,
+  TESTNET_TOKENS,
+  TESTNET_GAS_ESTIMATES,
+} from './testnet';
 import { TokenConfig, NetworkConfig, WormholeConnectConfig } from './types';
 import { dark, light } from '../theme';
 import {
@@ -61,6 +69,10 @@ export const TOKENS_ARR =
   config && config.tokens
     ? Object.values(TOKENS).filter((c) => config.tokens!.includes(c.symbol))
     : (Object.values(TOKENS) as TokenConfig[]);
+
+export const GAS_ESTIMATES = isProduction
+  ? MAINNET_GAS_ESTIMATES
+  : TESTNET_GAS_ESTIMATES;
 
 export const THEME_MODE = config && config.mode ? config.mode : 'dark';
 export const CUSTOM_THEME = config && config.customTheme;

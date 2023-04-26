@@ -284,7 +284,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
   },
 };
 
-export const GAS_ESTIMATES: GasEstimates = {
+export const TESTNET_GAS_ESTIMATES: GasEstimates = {
   goerli: {
     sendNative: 100000,
     sendToken: 150000,
