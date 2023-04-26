@@ -1,8 +1,10 @@
-import grey from '@mui/material/colors/grey';
-import green from '@mui/material/colors/green';
-import orange from '@mui/material/colors/orange';
-import red from '@mui/material/colors/red';
-import lightblue from '@mui/material/colors/lightBlue';
+import {
+  grey,
+  green,
+  orange,
+  red,
+  lightBlue,
+} from '@mui/material/colors';
 
 export type PaletteColor = {
   50: string;
@@ -170,7 +172,7 @@ export const light: Theme = {
   },
 };
 
-export const dark = {
+export const dark: Theme = {
   primary: grey,
   secondary: grey,
   divider: '#ffffff' + OPACITY[20],
@@ -182,7 +184,7 @@ export const dark = {
     secondary: grey[500],
   },
   error: red,
-  info: lightblue,
+  info: lightBlue,
   success: green,
   warning: orange,
   button: {
@@ -210,6 +212,10 @@ export const dark = {
   },
   modal: {
     background: '#474747',
+  },
+  font: {
+    primary: '"Inter", sans-serif',
+    header: '"IBM Plex Mono", monospace',
   },
 };
 

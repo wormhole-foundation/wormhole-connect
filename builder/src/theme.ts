@@ -1,7 +1,9 @@
+import { Theme } from '@wormhole-foundation/wormhole-connect';
 import grey from '@mui/material/colors/grey';
 import green from '@mui/material/colors/green';
 import orange from '@mui/material/colors/orange';
 import red from '@mui/material/colors/red';
+import lightBlue from '@mui/material/colors/lightBlue';
 
 export const OPACITY = {
   0: '00',
@@ -28,7 +30,7 @@ export const OPACITY = {
   100: 'FF',
 };
 
-export const light = {
+export const light: Theme = {
   primary: {
     50: '#161718',
     100: '#2d2e30',
@@ -105,51 +107,54 @@ export const light = {
   },
 };
 
-// // generic dark theme
-// export const dark = {
-//   primary: grey,
-//   secondary: grey,
-//   divider: '#ffffff' + OPACITY[20],
-//   background: {
-//     default: '#232323',
-//   },
-//   text: {
-//     primary: '#ffffff',
-//     secondary: grey[500],
-//   },
-//   error: red,
-//   info: lightblue,
-//   success: green,
-//   warning: orange,
-//   button: {
-//     primary: '#ffffff' + OPACITY[20],
-//     primaryText: '#ffffff',
-//     disabled: '#ffffff' + OPACITY[10],
-//     disabledText: '#ffffff' + OPACITY[40],
-//     action: orange[300],
-//     actionText: '#000000',
-//     hover: '#ffffff' + OPACITY[7],
-//   },
-//   options: {
-//     hover: '#474747',
-//     select: '#5b5b5b',
-//   },
-//   card: {
-//     background: '#333333',
-//     secondary: '#474747',
-//     elevation: 'none',
-//   },
-//   popover: {
-//     background: '#1b2033',
-//     secondary: '#ffffff' + OPACITY[5],
-//     elevation: 'none',
-//   },
-//   modal: {
-//     background: '#474747',
-//   },
-// };
+export const dark: Theme = {
+  primary: grey,
+  secondary: grey,
+  divider: '#ffffff' + OPACITY[20],
+  background: {
+    default: '#232323',
+  },
+  text: {
+    primary: '#ffffff',
+    secondary: grey[500],
+  },
+  error: red,
+  info: lightBlue,
+  success: green,
+  warning: orange,
+  button: {
+    primary: '#ffffff' + OPACITY[20],
+    primaryText: '#ffffff',
+    disabled: '#ffffff' + OPACITY[10],
+    disabledText: '#ffffff' + OPACITY[40],
+    action: orange[300],
+    actionText: '#000000',
+    hover: '#ffffff' + OPACITY[7],
+  },
+  options: {
+    hover: '#474747',
+    select: '#5b5b5b',
+  },
+  card: {
+    background: '#333333',
+    secondary: '#474747',
+    elevation: 'none',
+  },
+  popover: {
+    background: '#1b2033',
+    secondary: '#ffffff' + OPACITY[5],
+    elevation: 'none',
+  },
+  modal: {
+    background: '#474747',
+  },
+  font: {
+    primary: '"Inter", sans-serif',
+    header: '"IBM Plex Mono", monospace',
+  },
+};
 
-export const custom = {
+export const custom: Theme = {
   primary: grey,
   secondary: grey,
   divider: '#ffffff' + OPACITY[20],
