@@ -98,8 +98,8 @@ function App() {
 
 Specify networks/tokens (optional)
 ```jsx
-import WormholeBridge from '@wormhole-foundation/wormhole-connect';
-const config = {
+import WormholeBridge, { WormholeConnectConfig } from '@wormhole-foundation/wormhole-connect';
+const config: WormholeConnectConfig = {
   environment: "mainnet",
   networks: ["ethereum", "polygon", "solana"],
   tokens: ["ETH", "WETH", "MATIC", "WMATIC"],
@@ -114,14 +114,17 @@ function App() {
 
 Customize theme (optional)
 ```jsx
-import WormholeBridge, { light, Theme } from '@wormhole-foundation/wormhole-connect';
+import WormholeBridge, { light, Theme, WormholeConnectConfig } from '@wormhole-foundation/wormhole-connect';
 import lightblue from '@mui/material/colors/lightBlue';
 
 // alters the `light` theme
 const customized: Theme = light;
 customized.success = lightblue;
 customized.background.default = 'transparent';
-const config = {
+customized.button.action = '#81c784';
+customized.button.actionText = '#000000';
+
+const config: WormholeConnectConfig = {
   mode: 'light',
   customTheme: customized,
 }
@@ -135,7 +138,7 @@ function App() {
 
 Create fully customized theme (optional)
 ```jsx
-import WormholeBridge, { Theme, OPACITY } from '@wormhole-foundation/wormhole-connect';
+import WormholeBridge, { Theme, OPACITY, WormholeConnectConfig } from '@wormhole-foundation/wormhole-connect';
 import lightblue from '@mui/material/colors/lightBlue';
 import grey from '@mui/material/colors/grey';
 import green from '@mui/material/colors/green';
@@ -183,7 +186,7 @@ const customized: Theme = {
     background: '#474747',
   },
 };
-const config = {
+const config: WormholeConnectConfig = {
   mode: 'dark',
   customTheme: customized,
 }
