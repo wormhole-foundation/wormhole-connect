@@ -121,6 +121,9 @@ import lightblue from '@mui/material/colors/lightBlue';
 const customized: Theme = light;
 customized.success = lightblue;
 customized.background.default = 'transparent';
+customized.button.action = '#81c784';
+customized.button.actionText = '#000000';
+
 const config: WormholeConnectConfig = {
   mode: 'light',
   customTheme: customized,
