@@ -7,7 +7,7 @@ import {
   MAINNET_CHAINS,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { toFixedDecimals } from '../utils/balance';
-import { GAS_ESTIMATES } from '../config/testnet';
+import { GAS_ESTIMATES } from '../config';
 import { PaymentOption } from '.';
 import { getTokenDecimals } from '../utils';
 
@@ -81,7 +81,10 @@ const getGasFeeFallback = async (
   const fromChainId = context.toChainId(fromNetwork);
   const fromChainName = context.toChainName(fromNetwork);
   const sendNative = token === 'native';
-  const gasEstimates = GAS_ESTIMATES[fromChainName]!;
+  const gasEstimates = GAS_ESTIMATES[fromChainName];
+  if (!gasEstimates)
+    throw new Error(`no gas estimates configured, cannot estimate fees`);
+
   // Solana gas estimates
   if (fromChainId === MAINNET_CHAINS.solana) {
     return toFixedDecimals(utils.formatUnits(gasEstimates.sendToken, 9), 6);
