@@ -1,8 +1,12 @@
-import grey from '@mui/material/colors/grey';
-import green from '@mui/material/colors/green';
-import orange from '@mui/material/colors/orange';
-import red from '@mui/material/colors/red';
-// import lightblue from '@mui/material/colors/lightBlue';
+import { Theme } from '@wormhole-foundation/wormhole-connect';
+import {
+  grey,
+  green,
+  orange,
+  red,
+  cyan,
+  purple,
+} from '@mui/material/colors';
 
 export const OPACITY = {
   0: '00',
@@ -29,67 +33,7 @@ export const OPACITY = {
   100: 'FF',
 };
 
-// export type PaletteColor = {
-//   50: string;
-//   100: string;
-//   200: string;
-//   300: string;
-//   400: string;
-//   500: string;
-//   600: string;
-//   700: string;
-//   800: string;
-//   900: string;
-//   A100: string;
-//   A200: string;
-//   A400: string;
-//   A700: string;
-// };
-
-// export type ExtendedTheme = {
-//   primary: PaletteColor;
-//   secondary: PaletteColor;
-//   divider: string;
-//   background: {
-//     default: string;
-//   };
-//   text: {
-//     primary: string;
-//     secondary: string;
-//   };
-//   error: PaletteColor;
-//   info: PaletteColor;
-//   success: PaletteColor;
-//   warning: PaletteColor;
-//   button: {
-//     primary: string;
-//     primaryText: string;
-//     disabled: string;
-//     disabledText: string;
-//     action: string;
-//     actionText: string;
-//     hover: string;
-//   };
-//   options: {
-//     hover: string;
-//     select: string;
-//   };
-//   card: {
-//     background: string;
-//     elevation: string;
-//     secondary: string;
-//   };
-//   popover: {
-//     background: string;
-//     elevation: string;
-//     secondary: string;
-//   };
-//   modal: {
-//     background: string;
-//   };
-// };
-
-export const light = {
+export const light: Theme = {
   primary: {
     50: '#161718',
     100: '#2d2e30',
@@ -166,51 +110,54 @@ export const light = {
   },
 };
 
-// // generic dark theme
-// export const dark = {
-//   primary: grey,
-//   secondary: grey,
-//   divider: '#ffffff' + OPACITY[20],
-//   background: {
-//     default: '#232323',
-//   },
-//   text: {
-//     primary: '#ffffff',
-//     secondary: grey[500],
-//   },
-//   error: red,
-//   info: lightblue,
-//   success: green,
-//   warning: orange,
-//   button: {
-//     primary: '#ffffff' + OPACITY[20],
-//     primaryText: '#ffffff',
-//     disabled: '#ffffff' + OPACITY[10],
-//     disabledText: '#ffffff' + OPACITY[40],
-//     action: orange[300],
-//     actionText: '#000000',
-//     hover: '#ffffff' + OPACITY[7],
-//   },
-//   options: {
-//     hover: '#474747',
-//     select: '#5b5b5b',
-//   },
-//   card: {
-//     background: '#333333',
-//     secondary: '#474747',
-//     elevation: 'none',
-//   },
-//   popover: {
-//     background: '#1b2033',
-//     secondary: '#ffffff' + OPACITY[5],
-//     elevation: 'none',
-//   },
-//   modal: {
-//     background: '#474747',
-//   },
-// };
+export const dark: Theme = {
+  primary: grey,
+  secondary: grey,
+  divider: '#ffffff' + OPACITY[20],
+  background: {
+    default: '#212121',
+  },
+  text: {
+    primary: '#ffffff',
+    secondary: grey[500],
+  },
+  error: red,
+  info: cyan,
+  success: green,
+  warning: orange,
+  button: {
+    primary: '#ffffff' + OPACITY[20],
+    primaryText: '#ffffff',
+    disabled: '#ffffff' + OPACITY[10],
+    disabledText: '#ffffff' + OPACITY[40],
+    action: purple[400],
+    actionText: '#000000',
+    hover: '#ffffff' + OPACITY[7],
+  },
+  options: {
+    hover: '#373737',
+    select: '#3F3F3F',
+  },
+  card: {
+    background: '#2F2F2F',
+    secondary: '#474747',
+    elevation: 'none',
+  },
+  popover: {
+    background: '#111111',
+    secondary: '#ffffff' + OPACITY[5],
+    elevation: 'none',
+  },
+  modal: {
+    background: '#2d2d2d',
+  },
+  font: {
+    primary: '"Inter", sans-serif',
+    header: '"IBM Plex Mono", monospace',
+  },
+};
 
-export const custom = {
+export const custom: Theme = {
   primary: grey,
   secondary: grey,
   divider: '#ffffff' + OPACITY[20],

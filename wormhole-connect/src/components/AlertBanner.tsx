@@ -35,7 +35,6 @@ type Props = {
 function AlertBanner(props: Props) {
   const { classes } = useStyles();
   const [alertContent, setAlertContent] = useState(props.content);
-  const prevText = usePrevious(props.content);
 
   const clear = () => {
     setAlertContent(undefined);

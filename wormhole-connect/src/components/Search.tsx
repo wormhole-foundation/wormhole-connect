@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import { makeStyles } from 'tss-react/mui';
 import InputTransparent from './InputTransparent';
 import SearchIcon from '../icons/Search';
