@@ -1,83 +1,46 @@
-# Wormhole Connect Example Integration
+# Getting Started with Create React App
 
-Integration does not get easier than this. Wormhole Connect is an easy seamless experience that will help to bring all the functionality of the Wormhole Token Bridge right into your application.
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## Integration instructions
+## Available Scripts
 
-1. Customize by editing `src/wormhole-config.json`
+In the project directory, you can run:
 
-```ts
-{
-  // accepted values: "goerli", "mumbai", "bsc", "fuji", "fantom", "alfajores"
-  "networks": ["goerli", "mumbai"],
-  // accepted values: "ETH", "WETH", "USDC", "MATIC", "WMATIC", "BNB", "WBNB", "AVAX", "WAVAX", "FTM", "WFTM", "CELO
-  "tokens": ["ETH", "WETH", "MATIC", "WMATIC"],
-  // accepted values: "light", "dark" or custom (future)
-  "mode": "light"
-}
-```
+### `npm start`
 
-2. Add a script and link tag
+Runs the app in the development mode.\
+Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
-```html
-<!-- paste below into index.html body -->
-<script src="https://wormhole-foundation.github.io/wormhole-connect/main.js"></script>
-<link src="https://wormhole-foundation.github.io/wormhole-connect/main.css"/>
-```
+The page will reload if you make edits.\
+You will also see any lint errors in the console.
 
-3. Embed it in your application
+### `npm test`
 
-This is where your widget will appear. Specify an id of `wormhole-connect` and pass it the stringified json config to customize.
+Launches the test runner in the interactive watch mode.\
+See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
-```jsx
-// root element with id
-<div id="wormhole-connect"></div>
-// with customization from JSON config
-<div id="wormhole-connect" config={JSON.stringify(jsonConfig)} />
-```
+### `npm run build`
 
-### React Applications
+Builds the app for production to the `build` folder.\
+It correctly bundles React in production mode and optimizes the build for the best performance.
 
-For React applications, you must add the script tags after the dom has been rendered:
+The build is minified and the filenames include the hashes.\
+Your app is ready to be deployed!
 
-```ts
-class WormholeConnect extends React.Component {
-  componentDidMount() {
-    const script = document.createElement("script");
-    script.src = "https://wormhole-foundation.github.io/wormhole-connect/main.js";
-    script.async = true;
+See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
-    const link = document.createElement("link");
-    link.src = "https://wormhole-foundation.github.io/wormhole-connect/main.css";
-    link.async = true;
+### `npm run eject`
 
-    document.body.appendChild(script);
-    document.body.appendChild(link);
-  }
+**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
 
-  render() {
-    return <div id="wormhole-connect"></div>
-  }
-}
-```
+If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
 
-### Customize theme
+Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
 
-See `src/theme.js` for example theme configurations. Edit the values, then import into your configuration:
+You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
 
-```ts
-import React from 'react';
-import config from './wormhole-config.json';
-import * as theme from './theme';
+## Learn More
 
-class App extends React.Component {
-  componentDidMount() {...}
+You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
-  render() {
-    config.customTheme = theme.dark;
-    return (
-      <div id="wormhole-connect" config={JSON.stringify(config)}></div>
-    );
-  }
-}
-```
+To learn React, check out the [React documentation](https://reactjs.org/).

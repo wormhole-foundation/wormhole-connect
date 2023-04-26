@@ -101,7 +101,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     icon: Icon.ETH,
     coinGeckoId: 'ethereum',
     color: '#62688F',
-    decimals: 9,
+    decimals: 18,
     solDecimals: 8,
     wrappedAsset: 'WETH',
   },
