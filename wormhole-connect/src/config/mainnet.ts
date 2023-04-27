@@ -1,5 +1,5 @@
 import { CONFIG } from '@wormhole-foundation/wormhole-connect-sdk';
-import { NetworksConfig, TokenConfig, Icon } from './types';
+import { NetworksConfig, TokenConfig, Icon, GasEstimates } from './types';
 
 const { chains } = CONFIG.MAINNET;
 
@@ -268,5 +268,62 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#8457EF',
     decimals: 9,
     solDecimals: 9,
+  },
+};
+
+export const MAINNET_GAS_ESTIMATES: GasEstimates = {
+  ethereum: {
+    sendNative: 100000,
+    sendToken: 150000,
+    sendNativeWithRelay: 200000,
+    sendTokenWithRelay: 300000,
+    claim: 300000,
+  },
+  polygon: {
+    sendNative: 100000,
+    sendToken: 150000,
+    sendNativeWithRelay: 200000,
+    sendTokenWithRelay: 250000,
+    claim: 300000,
+  },
+  bsc: {
+    sendNative: 100000,
+    sendToken: 200000,
+    sendNativeWithRelay: 200000,
+    sendTokenWithRelay: 300000,
+    claim: 250000,
+  },
+  avalanche: {
+    sendNative: 100000,
+    sendToken: 150000,
+    sendNativeWithRelay: 200000,
+    sendTokenWithRelay: 300000,
+    claim: 300000,
+  },
+  fantom: {
+    sendNative: 100000,
+    sendToken: 150000,
+    sendNativeWithRelay: 250000,
+    sendTokenWithRelay: 300000,
+    claim: 300000,
+  },
+  celo: {
+    sendNative: 150000,
+    sendToken: 150000,
+    sendNativeWithRelay: 300000,
+    sendTokenWithRelay: 300000,
+    claim: 300000,
+  },
+  moonbeam: {
+    sendNative: 100000,
+    sendToken: 150000,
+    sendNativeWithRelay: 200000,
+    sendTokenWithRelay: 300000,
+    claim: 300000,
+  },
+  solana: {
+    sendNative: 15000,
+    sendToken: 15000,
+    claim: 25000,
   },
 };
