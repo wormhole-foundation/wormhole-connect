@@ -107,6 +107,8 @@ export const transferSlice = createSlice({
       { payload }: PayloadAction<ChainName>,
     ) => {
       state.fromNetwork = payload;
+      // clear balances if the network changes;
+      state.balances = {};
 
       const { fromNetwork, token } = state;
 
