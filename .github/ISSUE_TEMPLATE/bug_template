@@ -1,0 +1,21 @@
+---
+name: Bug Template
+about: Report a bug from a developer or end user
+title: "[Bug]"
+labels: 'bug'
+assignees: ''
+
+---
+
+## Before you proceed
+
+ - Check if this is already reported in another issue
+ - Leave a comment on the issue if there is information missing or you have a question
+
+## Describe the current behavior in detail
+
+ - If possible, add a screenshot of the issue
+ - If possible, add debug output, either from the browser console or a screenshot of debug output
+ - If this issue is unique to a particular environment, add information about that environment, e.g. OS, browser, front-end framework
+
+## What is the expected/desired behavior
