@@ -18,7 +18,8 @@ import Input from './Input';
 import Select from './Select';
 import InputTransparent from '../../../components/InputTransparent';
 import { getWrappedToken, getWrappedTokenId } from '../../../utils';
-import { Link, Typography } from '@mui/material';
+import { CircularProgress, Link, Typography } from '@mui/material';
+import { joinClass } from '../../../utils/style';
 
 const { REACT_APP_ATTEST_URL } = process.env;
 
@@ -31,67 +32,64 @@ const useStyles = makeStyles()((theme) => ({
   link: {
     textDecoration: 'underline',
     opacity: '0.8',
-    marginTop: '4px',
     padding: '4px 0',
     cursor: 'pointer',
     '&:hover': {
       opacity: '1',
     },
   },
+  disabled: {
+    cursor: 'not-allowed',
+    opacity: '0.6',
+    '&:hover': {
+      opacity: '0.6',
+    },
+  },
+  inProgress: {
+    marginRight: '8px',
+  },
+  error: {
+    color: theme.palette.error[500],
+    marginTop: '4px',
+  },
 }));
 
-function associatedTokenWarning() {
+type Props = {
+  createAssociatedTokenAccount: any;
+};
+function AssociatedTokenWarning(props: Props) {
   const { classes } = useStyles();
-  const [inProgress, setInProgress] = useState();
+  const [inProgress, setInProgress] = useState(false);
+  const [error, setError] = useState('');
 
-  const {
-    validations,
-    fromNetwork,
-    toNetwork,
-    token,
-    amount,
-    foreignAsset,
-    associatedTokenAddress,
-  } = useSelector((state: RootState) => state.transfer);
-  const wallet = useSelector((state: RootState) => state.wallet.receiving);
-  const tokenConfig = TOKENS[token];
-
-  const createAssociatedTokenAccount = async () => {
-    if (!wallet.address || !token)
-      throw new Error(
-        'Must fill in all fields before you can create a token account',
-      );
-    if (!foreignAsset)
-      throw new Error(
-        'The token must be registered on Solana before an associated token account can be created',
-      );
-    const tokenId = getWrappedTokenId(tokenConfig);
-    const tx = await solanaContext().createAssociatedTokenAccount(
-      tokenId,
-      wallet.address,
-      'finalized',
-    );
-    // if `tx` is null it means the account already exists
-    if (!tx) return setWarnings([]);
-    await signSolanaTransaction(tx, TransferWallet.RECEIVING);
-
-    let accountExists = false;
-    let retries = 0;
-    const checkAccount = setInterval(async () => {
-      if (accountExists || retries > 10) {
-        clearInterval(checkAccount);
-      } else {
-        accountExists = await checkSolanaAssociatedTokenAccount();
-        retries += 1;
-      }
-    }, 1000);
+  const createAccount = async () => {
+    // if `createAccount` is already in progress, disable function
+    if (inProgress) return;
+    setInProgress(true);
+    setError('');
+    try {
+      await props.createAssociatedTokenAccount();
+      setError('');
+    } catch (e) {
+      setError('Encountered an error, please try again.');
+      console.error(e);
+    } finally {
+      setInProgress(false);
+    }
   };
 
   return (
     <div className={classes.associatedTokenWarning}>
       No associated token account exists for your wallet on Solana. You must
       create it before proceeding.
-      <div className={classes.link} onClick={createAssociatedTokenAccount}>
+      {error && <div className={classes.error}>{error}</div>}
+      <div
+        className={joinClass([classes.link, inProgress && classes.disabled])}
+        onClick={createAccount}
+      >
+        {inProgress && (
+          <CircularProgress size={18} className={classes.inProgress} />
+        )}
         Create account
       </div>
     </div>
@@ -190,6 +188,40 @@ function ToInputs() {
     }
   };
 
+  const createAssociatedTokenAccount = async () => {
+    if (!wallet.address || !token)
+      throw new Error(
+        'Must fill in all fields before you can create a token account',
+      );
+    if (!foreignAsset)
+      throw new Error(
+        'The token must be registered on Solana before an associated token account can be created',
+      );
+    const tokenId = getWrappedTokenId(tokenConfig);
+    const tx = await solanaContext().createAssociatedTokenAccount(
+      tokenId,
+      wallet.address,
+      'finalized',
+    );
+    // if `tx` is null it means the account already exists
+    if (!tx) return setWarnings([]);
+    await signSolanaTransaction(tx, TransferWallet.RECEIVING);
+
+    let accountExists = false;
+    let retries = 0;
+    return await new Promise((resolve) => {
+      const checkAccount = setInterval(async () => {
+        if (accountExists || retries > 20) {
+          clearInterval(checkAccount);
+          resolve(true);
+        } else {
+          accountExists = await checkSolanaAssociatedTokenAccount();
+          retries += 1;
+        }
+      }, 1000);
+    });
+  };
+
   // destination token warnings
   const tokenWarning = (
     <Typography>
@@ -200,6 +232,11 @@ function ToInputs() {
       it before you continue. Newly registered tokens will not have liquid
       markets.
     </Typography>
+  );
+  const associatedTokenWarning = (
+    <AssociatedTokenWarning
+      createAssociatedTokenAccount={createAssociatedTokenAccount}
+    />
   );
 
   useEffect(() => {
