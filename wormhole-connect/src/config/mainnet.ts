@@ -280,7 +280,7 @@ export const MAINNET_GAS_ESTIMATES: GasEstimates = {
     claim: 300000,
   },
   polygon: {
-    sendNative: 200000,
+    sendNative: 100000,
     sendToken: 150000,
     sendNativeWithRelay: 200000,
     sendTokenWithRelay: 250000,
@@ -291,7 +291,7 @@ export const MAINNET_GAS_ESTIMATES: GasEstimates = {
     sendToken: 200000,
     sendNativeWithRelay: 200000,
     sendTokenWithRelay: 300000,
-    claim: 175000,
+    claim: 250000,
   },
   avalanche: {
     sendNative: 100000,
@@ -301,18 +301,18 @@ export const MAINNET_GAS_ESTIMATES: GasEstimates = {
     claim: 300000,
   },
   fantom: {
-    sendNative: 150000,
+    sendNative: 100000,
     sendToken: 150000,
-    sendNativeWithRelay: 200000,
+    sendNativeWithRelay: 250000,
     sendTokenWithRelay: 300000,
-    claim: 250000,
+    claim: 300000,
   },
   celo: {
-    sendNative: 100000,
-    sendToken: 100000,
+    sendNative: 150000,
+    sendToken: 150000,
     sendNativeWithRelay: 300000,
     sendTokenWithRelay: 300000,
-    claim: 175000,
+    claim: 300000,
   },
   moonbeam: {
     sendNative: 100000,
