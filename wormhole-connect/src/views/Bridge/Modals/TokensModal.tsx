@@ -263,7 +263,7 @@ function TokensModal() {
     }
     const filtered = networkTokens.filter((t) => {
       const b = tokenBalances[t.symbol];
-      return b !== undefined && b !== null && b !== '0';
+      return b !== null && b !== '0';
     });
     setTokens(filtered);
   }, [fromNetwork, tokenBalances, networkTokens, walletAddr]);
