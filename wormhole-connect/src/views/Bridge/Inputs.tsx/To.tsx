@@ -110,7 +110,9 @@ function ToInputs() {
     foreignAsset,
     associatedTokenAddress,
   } = useSelector((state: RootState) => state.transfer);
-  const wallet = useSelector((state: RootState) => state.wallet.receiving);
+  const { sending, receiving } = useSelector(
+    (state: RootState) => state.wallet,
+  );
 
   const tokenConfig = TOKENS[token];
 
@@ -118,19 +120,19 @@ function ToInputs() {
 
   // get balance on destination chain
   useEffect(() => {
-    if (!fromNetwork || !toNetwork || !tokenConfig || !wallet.address) {
+    if (!fromNetwork || !toNetwork || !tokenConfig || !receiving.address) {
       return setBalance(undefined);
     }
     const { tokenId } = tokenConfig.tokenId
       ? tokenConfig
       : TOKENS[tokenConfig.wrappedAsset!];
-    getBalance(wallet.address, tokenId!, toNetwork).then(
+    getBalance(receiving.address, tokenId!, toNetwork).then(
       (res: BigNumber | null) => {
         const balance = formatBalance(toNetwork, tokenConfig, res);
         setBalance(balance[tokenConfig.symbol]);
       },
     );
-  }, [tokenConfig, fromNetwork, toNetwork, wallet.address]);
+  }, [tokenConfig, fromNetwork, toNetwork, receiving.address]);
 
   // check if the destination token contract is deployed
   useEffect(() => {
@@ -160,7 +162,13 @@ function ToInputs() {
   const selectedToken = tokenConfig
     ? { icon: tokenConfig.icon, text: symbol }
     : undefined;
-  const tokenInput = <Select label="Asset" selected={selectedToken} />;
+  const tokenInput = (
+    <Select
+      label="Asset"
+      selected={selectedToken}
+      disabled={!fromNetwork || !sending.address}
+    />
+  );
 
   // amount display jsx
   const amountInput = (
@@ -176,7 +184,7 @@ function ToInputs() {
     let tokenId = tokenConfig.tokenId || getWrappedTokenId(tokenConfig);
     const account = await solanaContext().getAssociatedTokenAccount(
       tokenId,
-      wallet.address,
+      receiving.address,
     );
     if (account) {
       dispatch(setAssociatedTokenAddress(account.toString()));
@@ -189,7 +197,7 @@ function ToInputs() {
   };
 
   const createAssociatedTokenAccount = async () => {
-    if (!wallet.address || !token)
+    if (!receiving.address || !token)
       throw new Error(
         'Must fill in all fields before you can create a token account',
       );
@@ -200,7 +208,7 @@ function ToInputs() {
     const tokenId = getWrappedTokenId(tokenConfig);
     const tx = await solanaContext().createAssociatedTokenAccount(
       tokenId,
-      wallet.address,
+      receiving.address,
       'finalized',
     );
     // if `tx` is null it means the account already exists
@@ -240,21 +248,21 @@ function ToInputs() {
   );
 
   useEffect(() => {
-    if (!toNetwork || !token || !wallet.address) return setWarnings([]);
+    if (!toNetwork || !token || !receiving.address) return setWarnings([]);
     if (!foreignAsset) return setWarnings([tokenWarning]);
     if (toNetwork === 'solana') {
       checkSolanaAssociatedTokenAccount();
     } else {
       setWarnings([]);
     }
-  }, [toNetwork, token, foreignAsset, wallet, associatedTokenAddress]);
+  }, [toNetwork, token, foreignAsset, receiving, associatedTokenAddress]);
 
   return (
     <Inputs
       title="To"
       wallet={TransferWallet.RECEIVING}
       walletValidations={[validations.receivingWallet]}
-      walletError={wallet.error}
+      walletError={receiving.error}
       inputValidations={[validations.toNetwork]}
       network={toNetwork}
       networkValidation={validations.toNetwork}

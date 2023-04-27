@@ -222,7 +222,7 @@ function TokensModal() {
     const getBalances = async (
       tokens: TokenConfig[],
       walletAddr: string,
-      chain: ChainName | ChainId,
+      chain: ChainName,
     ) => {
       // fetch all N tokens and trigger a single update action
       const balances = await Promise.all(
@@ -255,19 +255,18 @@ function TokensModal() {
     setTokens(networkTokens);
   }, [networkTokens]);
 
-  // TODO: filter out tokens that don't exist
   useEffect(() => {
     // filter only when a wallet is connected AND a network is selected
-    const filtered =
-      fromNetwork && walletAddr
-        ? networkTokens.filter(
-            (t) =>
-              tokenBalances[t.symbol] !== undefined &&
-              tokenBalances[t.symbol] !== null,
-          )
-        : networkTokens;
+    if (!fromNetwork || !walletAddr) {
+      setTokens(networkTokens);
+      return;
+    }
+    const filtered = networkTokens.filter((t) => {
+      const b = tokenBalances[t.symbol];
+      return b !== null && b !== '0';
+    });
     setTokens(filtered);
-  }, [tokenBalances, networkTokens, walletAddr]);
+  }, [fromNetwork, tokenBalances, networkTokens, walletAddr]);
 
   return (
     <Modal
@@ -363,13 +362,6 @@ function TokensModal() {
           </Collapse> */}
         </div>
       </Scroll>
-
-      <div className={classes.register}>
-        <div className={classes.registerText}>Don't see your token?</div>
-        <a href="#" className={classes.registerLink}>
-          Register token
-        </a>
-      </div>
     </Modal>
   );
 }

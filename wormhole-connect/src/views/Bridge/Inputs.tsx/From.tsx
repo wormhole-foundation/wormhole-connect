@@ -81,6 +81,7 @@ function FromInputs() {
       error={!!(showErrors && validations.token)}
       onClick={openTokensModal}
       editable
+      disabled={!fromNetwork || !wallet.address}
     />
   );
 
