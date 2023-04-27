@@ -42,5 +42,10 @@ export interface WormholeConnectConfig {
   cta?: {
     text: string;
     link: string;
+  };
+  bridgeDefaults?: {
+    fromNetwork?: ChainName;
+    toNetwork?: ChainName;
+    token?: string;
   }
 }

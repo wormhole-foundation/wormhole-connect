@@ -17,6 +17,11 @@ export interface WormholeConnectConfig {
     text: string;
     link: string;
   };
+  bridgeDefaults?: {
+    fromNetwork?: ChainName;
+    toNetwork?: ChainName;
+    token?: string;
+  };
 }
 
 export type TokenConfig = {
