@@ -71,7 +71,9 @@ export class SolanaContext<
     super();
     this.context = context;
     const tag = context.environment === 'MAINNET' ? 'mainnet-beta' : 'devnet';
-    this.connection = new Connection(clusterApiUrl(tag));
+    this.connection = new Connection(
+      context.conf.rpcs.solana || clusterApiUrl(tag),
+    );
     this.contracts = new SolContracts(context);
   }
 
