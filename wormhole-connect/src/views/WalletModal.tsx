@@ -108,6 +108,7 @@ function WalletsModal(props: Props) {
   const { fromNetwork, toNetwork } = useSelector(
     (state: RootState) => state.transfer,
   );
+  const wallets = useSelector((state: RootState) => state.wallet);
   const [walletOptions, setWalletOptions] = useState(
     getAvailableWallets() || [],
   );
@@ -132,6 +133,8 @@ function WalletsModal(props: Props) {
     await wallet.connect();
     setWalletConnection(props.type, wallet);
 
+    const address = wallet.getAddress();
+
     // clear wallet when the user manually disconnects from outside the app
     wallet.on('disconnect', () => {
       wallet.removeAllListeners();
@@ -140,11 +143,16 @@ function WalletsModal(props: Props) {
 
     // when the user has multiple wallets connected and either changes
     // or disconnects the current wallet, clear the wallet
-    wallet.on('accountsChanged', () => {
-      wallet.disconnect();
+    wallet.on('accountsChanged', (accs: string[]) => {
+      // disconnect only if there are no accounts, or if the new account is different from the current
+      const shouldDisconnect =
+        accs.length === 0 || (accs.length && address && accs[0] !== address);
+
+      if (shouldDisconnect) {
+        wallet.disconnect();
+      }
     });
 
-    const address = wallet.getAddress();
     if (address) {
       const payload = { address, type: walletInfo.type };
       if (props.type === TransferWallet.SENDING) {
