@@ -81,8 +81,8 @@ function FromInputs() {
       selected={selectedToken}
       error={!!(showErrors && validations.token)}
       onClick={openTokensModal}
-      editable={!isTransactionInProgress}
       disabled={!fromNetwork || !wallet.address || isTransactionInProgress}
+      editable
     />
   );
 
@@ -92,7 +92,7 @@ function FromInputs() {
       label="Amount"
       error={!!(showErrors && validations.amount)}
       onClick={focusAmt}
-      editable={!isTransactionInProgress}
+      editable
     >
       {token ? (
         <InputTransparent
