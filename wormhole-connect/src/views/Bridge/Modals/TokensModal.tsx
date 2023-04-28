@@ -33,7 +33,7 @@ import Tooltip from '../../../components/Tooltip';
 import TokenIcon from '../../../icons/TokenIcons';
 import CircularProgress from '@mui/material/CircularProgress';
 import { TokenConfig } from '../../../config/types';
-import { ChainId, ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 
 const useStyles = makeStyles()((theme) => ({
   tokensContainer: {

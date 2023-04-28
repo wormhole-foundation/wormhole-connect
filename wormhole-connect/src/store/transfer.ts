@@ -5,7 +5,7 @@ import { TokenConfig } from 'config/types';
 import { toDecimals } from '../utils/balance';
 import { TransferValidations } from '../utils/transferValidation';
 import { PaymentOption } from '../sdk';
-import { TOKENS } from 'config';
+import { TOKENS, config } from 'config';
 
 export type Balances = { [key: string]: string | null };
 
@@ -59,10 +59,10 @@ const initialState: TransferState = {
     foreignAsset: '',
     associatedTokenAccount: '',
   },
-  fromNetwork: undefined,
-  toNetwork: undefined,
+  fromNetwork: config?.bridgeDefaults?.fromNetwork || undefined,
+  toNetwork: config?.bridgeDefaults?.toNetwork || undefined,
   automaticRelayAvail: false,
-  token: '',
+  token: config?.bridgeDefaults?.token || '',
   amount: undefined,
   destGasPayment: PaymentOption.MANUAL,
   maxSwapAmt: undefined,
