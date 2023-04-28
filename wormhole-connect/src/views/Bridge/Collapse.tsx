@@ -50,6 +50,8 @@ const useStyles = makeStyles()((theme) => ({
     backgroundColor: theme.palette.info[500],
     padding: '8px 16px',
     transition: 'border-radius 0.4s',
+    display: 'flex',
+    flexDirection: 'row',
   },
   open: {
     borderBottomLeftRadius: '0 !important',
@@ -60,8 +62,8 @@ const useStyles = makeStyles()((theme) => ({
     cursor: 'not-allowed !important',
   },
   link: {
-    ...LINK,
-    color: theme.palette.text.primary,
+    ...LINK(theme),
+    margin: '0 0 0 4px',
   },
 }));
 
@@ -144,7 +146,7 @@ function BridgeCollapse(props: Props) {
             !collapsedState && classes.open,
           ])}
         >
-          This feature provided by{' '}
+          This feature provided by
           <a
             href="https://github.com/XLabs"
             target="_blank"

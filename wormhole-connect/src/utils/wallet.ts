@@ -134,7 +134,7 @@ export const signSolanaTransaction = async (
 
   const tx = await (wallet as SolanaWallet).signAndSendTransaction({
     transaction,
-    options
+    options,
   });
   return { transactionHash: tx.id };
 };
