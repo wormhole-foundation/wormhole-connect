@@ -185,7 +185,8 @@ function Inputs(props: Props) {
                       selected={selectedNetwork}
                       error={!!(showErrors && props.networkValidation)}
                       onClick={props.onNetworkClick}
-                      editable={!isTransactionInProgress}
+                      editable
+                      disabled={isTransactionInProgress}
                     />
                   </div>
                 )}
