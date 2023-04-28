@@ -32,6 +32,12 @@ export type Rpcs = {
   [chain in ChainName]?: string;
 };
 
+export interface BridgeDefaults {
+  fromNetwork?: ChainName;
+  toNetwork?: ChainName;
+  token?: string;
+}
+
 export interface WormholeConnectConfig {
   env?: 'mainnet' | 'testnet';
   rpcs?: Rpcs;
@@ -42,5 +48,6 @@ export interface WormholeConnectConfig {
   cta?: {
     text: string;
     link: string;
-  }
+  };
+  bridgeDefaults?: BridgeDefaults;
 }

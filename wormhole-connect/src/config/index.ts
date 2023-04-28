@@ -18,12 +18,13 @@ import {
   MainnetChainName,
   TestnetChainName,
 } from '@wormhole-foundation/wormhole-connect-sdk';
+import { validateDefaults } from './utils';
 
 const el = document.getElementById('wormhole-connect');
 if (!el)
   throw new Error('must specify an anchor element with id wormhole-connect');
 const configJson = el.getAttribute('config');
-const config: WormholeConnectConfig | null = JSON.parse(configJson!);
+export const config: WormholeConnectConfig | null = JSON.parse(configJson!);
 
 const { REACT_APP_ENV } = process.env;
 export const isProduction =
@@ -83,6 +84,8 @@ export const THEME = CUSTOM_THEME
   : light;
 
 export const CTA = config && config.cta;
+export const BRIDGE_DEFAULTS =
+  config && validateDefaults(config.bridgeDefaults);
 
 export const TESTNET_TO_MAINNET_CHAIN_NAMES: {
   [k in TestnetChainName]: MainnetChainName;
