@@ -28,6 +28,7 @@ function FromInputs() {
     validations,
     fromNetwork,
     token,
+    isTransactionInProgress,
   } = useSelector((state: RootState) => state.transfer);
   const tokenConfig = token && TOKENS[token];
 
@@ -80,8 +81,8 @@ function FromInputs() {
       selected={selectedToken}
       error={!!(showErrors && validations.token)}
       onClick={openTokensModal}
+      disabled={!fromNetwork || !wallet.address || isTransactionInProgress}
       editable
-      disabled={!fromNetwork || !wallet.address}
     />
   );
 
@@ -89,9 +90,9 @@ function FromInputs() {
   const amountInput = (
     <Input
       label="Amount"
-      editable
       error={!!(showErrors && validations.amount)}
       onClick={focusAmt}
+      editable
     >
       {token ? (
         <InputTransparent
@@ -102,6 +103,7 @@ function FromInputs() {
           step={0.1}
           onChange={handleAmountChange}
           onPause={validateAmount}
+          disabled={isTransactionInProgress}
         />
       ) : (
         <div>-</div>

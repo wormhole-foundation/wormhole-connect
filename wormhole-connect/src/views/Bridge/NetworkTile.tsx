@@ -41,17 +41,25 @@ type Props = {
   network?: NetworkConfig;
   onClick: React.MouseEventHandler<HTMLDivElement>;
   error?: boolean;
+  disabled?: boolean;
 };
 
 function NetworkTile(props: Props) {
+  const { disabled = false } = props;
   const { classes } = useStyles();
+
+  const onClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    if (disabled) return;
+    props.onClick(e);
+  };
+
   return props.network ? (
     <div
       className={joinClass([
         classes.networkTile,
         !!props.error && classes.error,
       ])}
-      onClick={props.onClick}
+      onClick={onClick}
     >
       <div className={classes.networkHeader}>Network</div>
       <TokenIcon name={props.network.icon} height={56} />
@@ -64,7 +72,7 @@ function NetworkTile(props: Props) {
         classes.networkNone,
         !!props.error && classes.error,
       ])}
-      onClick={props.onClick}
+      onClick={onClick}
     >
       <TokenIcon height={56} />
       <div className={classes.networkName}>Select network</div>
