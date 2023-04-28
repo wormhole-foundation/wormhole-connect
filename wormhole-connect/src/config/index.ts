@@ -18,6 +18,7 @@ import {
   MainnetChainName,
   TestnetChainName,
 } from '@wormhole-foundation/wormhole-connect-sdk';
+import { validateDefaults } from './utils';
 
 const el = document.getElementById('wormhole-connect');
 if (!el)
@@ -83,7 +84,8 @@ export const THEME = CUSTOM_THEME
   : light;
 
 export const CTA = config && config.cta;
-export const BRIDGE_DEFAULTS = config && config.bridgeDefaults;
+export const BRIDGE_DEFAULTS =
+  config && validateDefaults(config.bridgeDefaults);
 
 export const TESTNET_TO_MAINNET_CHAIN_NAMES: {
   [k in TestnetChainName]: MainnetChainName;

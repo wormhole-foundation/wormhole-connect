@@ -3,7 +3,6 @@ import { makeStyles } from 'tss-react/mui';
 import { joinClass, OPACITY } from '../utils/style';
 import AlertIcon from '../icons/Alert';
 import { Collapse } from '@mui/material';
-import { usePrevious } from '../utils';
 
 const useStyles = makeStyles()((theme) => ({
   base: {
