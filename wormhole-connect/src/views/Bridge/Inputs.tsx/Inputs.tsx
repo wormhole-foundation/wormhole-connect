@@ -120,7 +120,7 @@ type Props = {
 function Inputs(props: Props) {
   const { classes } = useStyles();
 
-  const { validate: showErrors } = useSelector(
+  const { validate: showErrors, isTransactionInProgress } = useSelector(
     (state: RootState) => state.transfer,
   );
 
@@ -138,7 +138,10 @@ function Inputs(props: Props) {
         <div className={classes.header}>
           <div className={classes.headerTitle}>{props.title}</div>
           {/* connect wallet button */}
-          <ConnectWallet type={props.wallet} />
+          <ConnectWallet
+            type={props.wallet}
+            disabled={isTransactionInProgress}
+          />
         </div>
 
         {/* wallet validation error banner */}
@@ -167,6 +170,7 @@ function Inputs(props: Props) {
                   network={networkConfig}
                   error={!!(showErrors && props.networkValidation)}
                   onClick={props.onNetworkClick}
+                  disabled={isTransactionInProgress}
                 />
               </div>
             )}
@@ -181,7 +185,7 @@ function Inputs(props: Props) {
                       selected={selectedNetwork}
                       error={!!(showErrors && props.networkValidation)}
                       onClick={props.onNetworkClick}
-                      editable
+                      editable={!isTransactionInProgress}
                     />
                   </div>
                 )}
