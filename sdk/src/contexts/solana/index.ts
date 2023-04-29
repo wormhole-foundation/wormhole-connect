@@ -352,7 +352,7 @@ export class SolanaContext<
     const relayerFeeBN = relayerFee ? BigInt(relayerFee) : undefined;
     const amountBN = BigNumber.from(amount).toBigInt();
 
-    if (token === NATIVE || token.chain === 'solana') {
+    if (token === NATIVE) {
       return await this.transferNativeSol(
         senderAddress,
         amountBN,
