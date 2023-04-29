@@ -65,7 +65,7 @@ export function getWrappedToken(token: TokenConfig): TokenConfig {
 
   // otherwise get wrapped token
   if (!token.tokenId && !token.wrappedAsset)
-    throw new Error(`token details misconfigured for ${token.symbol}`);
+    throw new Error(`token details misconfigured for ${token.key}`);
   if (!token.tokenId && token.wrappedAsset) {
     const wrapped = TOKENS[token.wrappedAsset];
     if (!wrapped) throw new Error('wrapped token not found');

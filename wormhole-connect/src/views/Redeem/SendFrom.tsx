@@ -24,13 +24,14 @@ const getRows = (txData: any): RowsData => {
     txData.gasFee &&
     toDecimals(txData.gasFee, sourceGasToken.decimals, MAX_DECIMALS);
   const type = txData.payloadID;
+  const token = TOKENS[txData.tokenSymbol];
 
   // manual transfers
   if (type === PaymentOption.MANUAL) {
     return [
       {
         title: 'Amount',
-        value: `${formattedAmt} ${txData.tokenSymbol}`,
+        value: `${formattedAmt} ${token.symbol}`,
       },
       {
         title: 'Gas fee',
@@ -54,7 +55,7 @@ const getRows = (txData: any): RowsData => {
   return [
     {
       title: 'Amount',
-      value: `${formattedAmt} ${txData.tokenSymbol}`,
+      value: `${formattedAmt} ${token.symbol}`,
     },
     {
       title: 'Gas fee',
@@ -62,11 +63,11 @@ const getRows = (txData: any): RowsData => {
     },
     {
       title: 'Relayer fee',
-      value: `${formattedFee} ${txData.tokenSymbol}`,
+      value: `${formattedFee} ${token.symbol}`,
     },
     {
       title: 'Convert to native gas token',
-      value: `≈ ${formattedToNative} ${txData.tokenSymbol} \u2192 ${gasToken}`,
+      value: `≈ ${formattedToNative} ${token.symbol} \u2192 ${gasToken}`,
     },
   ];
 };

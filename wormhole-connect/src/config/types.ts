@@ -27,6 +27,7 @@ export interface WormholeConnectConfig {
 }
 
 export type TokenConfig = {
+  key: string;
   symbol: string;
   nativeNetwork: ChainName;
   icon: Icon;
@@ -64,6 +65,10 @@ export enum Icon {
   'SOLANA',
   'USDC',
   'GLMR',
+  'DAI',
+  'USDT',
+  'BUSD',
+  'WBTC',
 }
 
 export type GasEstimates = {

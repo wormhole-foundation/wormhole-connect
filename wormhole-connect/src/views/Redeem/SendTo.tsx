@@ -68,6 +68,7 @@ const getManualRows = async (
   txData: any,
   receiveTx?: string,
 ): Promise<RowsData> => {
+  const token = TOKENS[txData.tokenSymbol];
   const { gasToken } = CHAINS[txData.toChain]!;
 
   // get gas used (if complete) or gas estimate if not
@@ -81,7 +82,7 @@ const getManualRows = async (
   return [
     {
       title: 'Amount',
-      value: `${formattedAmt} ${txData.tokenSymbol}`,
+      value: `${formattedAmt} ${token.symbol}`,
     },
     {
       title: receiveTx ? 'Gas fee' : 'Gas estimate',
@@ -95,6 +96,7 @@ const getAutomaticRows = async (
   receiveTx?: string,
   transferComplete?: boolean,
 ): Promise<RowsData> => {
+  const token = TOKENS[txData.tokenSymbol];
   const { gasToken } = CHAINS[txData.toChain]!;
 
   // calculate the amount of native gas received
@@ -145,7 +147,7 @@ const getAutomaticRows = async (
   return [
     {
       title: 'Amount',
-      value: `${formattedAmt} ${txData.tokenSymbol}`,
+      value: `${formattedAmt} ${token.symbol}`,
     },
     {
       title: 'Native gas token',
