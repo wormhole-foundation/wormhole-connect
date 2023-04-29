@@ -109,7 +109,7 @@ function AddToWallet() {
   const [targetToken, setTargetToken] = useState<TokenConfig | undefined>(
     undefined,
   );
-  const [targetAddress, setTargetAddress] = useState<string | undefined>(
+  const [targetAddress, setTargetAddress] = useState<string | null | undefined>(
     undefined,
   );
 
@@ -138,7 +138,10 @@ function AddToWallet() {
 
   if (isEVMChain(chainId)) {
     return <AddToEVMWallet address={targetAddress} token={targetToken} />;
-  } else if (chainId === MAINNET_NETWORKS.solana?.id) {
+  } else if (
+    chainId === MAINNET_NETWORKS.solana?.id &&
+    targetToken.symbol !== 'WSOL'
+  ) {
     return <AddToSolanaWallet address={targetAddress} token={targetToken} />;
   }
 

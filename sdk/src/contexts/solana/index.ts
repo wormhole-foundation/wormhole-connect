@@ -276,7 +276,7 @@ export class SolanaContext<
   }
 
   private async transferFromSolana(
-    senderAddress: string,
+    senderAddress: PublicKeyInitData,
     amount: bigint,
     recipientChain: ChainId | ChainName,
     recipientAddress: Uint8Array | Buffer,
@@ -363,12 +363,8 @@ export class SolanaContext<
         'finalized',
       );
     } else {
-      const destTokenAddr = await destContext.mustGetForeignAsset(
-        token,
-        recipientChain,
-      );
       const formattedTokenAddr = arrayify(
-        destContext.formatAddress(destTokenAddr),
+        destContext.formatAddress(token.address),
       );
       const solTokenAddr = await this.mustGetForeignAsset(
         token,
@@ -387,7 +383,7 @@ export class SolanaContext<
         recipientChain,
         formattedRecipient,
         splToken.value[0].pubkey,
-        this.context.resolveDomain(token.chain),
+        this.context.toChainId(token.chain),
         formattedTokenAddr,
         undefined,
         relayerFeeBN,
