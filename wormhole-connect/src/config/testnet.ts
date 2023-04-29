@@ -105,7 +105,6 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 18,
     wrappedAsset: 'WETH',
     solDecimals: 8,
-    automaticRelaying: true,
   },
   WETH: {
     key: 'WETH',
@@ -120,7 +119,6 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#62688F',
     decimals: 18,
     solDecimals: 8,
-    automaticRelaying: true,
   },
   USDCeth: {
     key: 'USDCeth',
@@ -146,7 +144,6 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 18,
     solDecimals: 8,
     wrappedAsset: 'WMATIC',
-    automaticRelaying: true,
   },
   WMATIC: {
     key: 'WMATIC',
@@ -161,7 +158,6 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#8247E5',
     decimals: 18,
     solDecimals: 8,
-    automaticRelaying: true,
   },
   USDCpolygon: {
     key: 'USDCpolygon',
@@ -187,7 +183,6 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 18,
     solDecimals: 8,
     wrappedAsset: 'WBNB',
-    automaticRelaying: true,
   },
   WBNB: {
     key: 'WBNB',
@@ -202,7 +197,6 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#F3BA30',
     decimals: 18,
     solDecimals: 8,
-    automaticRelaying: true,
   },
   AVAX: {
     key: 'AVAX',
@@ -214,7 +208,6 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 18,
     solDecimals: 8,
     wrappedAsset: 'WAVAX',
-    automaticRelaying: true,
   },
   WAVAX: {
     key: 'WAVAX',
@@ -229,7 +222,6 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#E84141',
     decimals: 18,
     solDecimals: 8,
-    automaticRelaying: true,
   },
   USDCavax: {
     key: 'USDCavax',
@@ -244,7 +236,6 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#2774CA',
     decimals: 6,
     solDecimals: 6,
-    automaticRelaying: true,
   },
   FTM: {
     key: 'FTM',
@@ -256,7 +247,6 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 18,
     solDecimals: 8,
     wrappedAsset: 'WFTM',
-    automaticRelaying: true,
   },
   WFTM: {
     key: 'WFTM',
@@ -271,7 +261,6 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#12B4EC',
     decimals: 18,
     solDecimals: 8,
-    automaticRelaying: true,
   },
   CELO: {
     key: 'CELO',
@@ -286,7 +275,6 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#35D07E',
     decimals: 18,
     solDecimals: 8,
-    automaticRelaying: true,
   },
   GLMR: {
     key: 'GLMR',
@@ -298,7 +286,6 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 18,
     solDecimals: 8,
     wrappedAsset: 'WGLMR',
-    automaticRelaying: true,
   },
   WGLMR: {
     key: 'WGLMR',
@@ -313,7 +300,6 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#e1147b',
     decimals: 18,
     solDecimals: 8,
-    automaticRelaying: true,
   },
   SOL: {
     key: 'SOL',

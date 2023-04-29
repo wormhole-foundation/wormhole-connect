@@ -105,7 +105,6 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 18,
     solDecimals: 8,
     wrappedAsset: 'WETH',
-    automaticRelaying: true,
   },
   WETH: {
     key: 'WETH',
@@ -120,7 +119,6 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#62688F',
     decimals: 18,
     solDecimals: 8,
-    automaticRelaying: true,
   },
   USDCeth: {
     key: 'USDCeth',
@@ -135,7 +133,6 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#ffffff',
     decimals: 6,
     solDecimals: 6,
-    automaticRelaying: true,
   },
   WBTC: {
     key: 'WBTC',
@@ -150,7 +147,6 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#ffffff',
     decimals: 8,
     solDecimals: 8,
-    automaticRelaying: true,
   },
   USDT: {
     key: 'USDT',
@@ -165,7 +161,6 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#ffffff',
     decimals: 6,
     solDecimals: 6,
-    automaticRelaying: true,
   },
   DAI: {
     key: 'DAI',
@@ -180,7 +175,6 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#FEFEFD',
     decimals: 18,
     solDecimals: 8,
-    automaticRelaying: false,
   },
   BUSD: {
     key: 'BUSD',
@@ -206,7 +200,6 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 18,
     solDecimals: 8,
     wrappedAsset: 'WMATIC',
-    automaticRelaying: true,
   },
   WMATIC: {
     key: 'WMATIC',
@@ -221,7 +214,6 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#8247E5',
     decimals: 18,
     solDecimals: 8,
-    automaticRelaying: true,
   },
   USDCpolygon: {
     key: 'USDCpolygon',
@@ -236,7 +228,6 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#2774CA',
     decimals: 6,
     solDecimals: 6,
-    automaticRelaying: false,
   },
   BNB: {
     key: 'BNB',
@@ -248,7 +239,6 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 18,
     solDecimals: 8,
     wrappedAsset: 'WBNB',
-    automaticRelaying: true,
   },
   WBNB: {
     key: 'WBNB',
@@ -263,7 +253,6 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#F3BA30',
     decimals: 18,
     solDecimals: 8,
-    automaticRelaying: true,
   },
   USDCbnb: {
     key: 'USDCbnb',
@@ -278,7 +267,6 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#2774CA',
     decimals: 18,
     solDecimals: 8,
-    automaticRelaying: false,
   },
   AVAX: {
     key: 'AVAX',
@@ -290,7 +278,6 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 18,
     solDecimals: 8,
     wrappedAsset: 'WAVAX',
-    automaticRelaying: true,
   },
   WAVAX: {
     key: 'WAVAX',
@@ -305,7 +292,6 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#E84141',
     decimals: 18,
     solDecimals: 8,
-    automaticRelaying: true,
   },
   USDCavax: {
     key: 'USDCavax',
@@ -320,7 +306,6 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#2774CA',
     decimals: 6,
     solDecimals: 6,
-    automaticRelaying: false,
   },
   FTM: {
     key: 'FTM',
@@ -332,7 +317,6 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 18,
     solDecimals: 8,
     wrappedAsset: 'WFTM',
-    automaticRelaying: true,
   },
   WFTM: {
     key: 'WFTM',
@@ -347,7 +331,6 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#12B4EC',
     decimals: 18,
     solDecimals: 8,
-    automaticRelaying: true,
   },
   CELO: {
     key: 'CELO',
@@ -362,7 +345,6 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#35D07E',
     decimals: 18,
     solDecimals: 8,
-    automaticRelaying: true,
   },
   GLMR: {
     key: 'GLMR',
@@ -374,7 +356,6 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 18,
     solDecimals: 8,
     wrappedAsset: 'WGLMR',
-    automaticRelaying: true,
   },
   WGLMR: {
     key: 'WGLMR',
@@ -389,7 +370,6 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#e1147b',
     decimals: 18,
     solDecimals: 8,
-    automaticRelaying: true,
   },
   SOL: {
     key: 'SOL',
