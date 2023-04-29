@@ -104,6 +104,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 18,
     wrappedAsset: 'WETH',
     solDecimals: 8,
+    automaticRelaying: true,
   },
   WETH: {
     symbol: 'WETH',
@@ -117,14 +118,15 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#62688F',
     decimals: 18,
     solDecimals: 8,
+    automaticRelaying: true,
   },
-  USDC: {
-    symbol: 'USDC',
-    nativeNetwork: 'fuji',
+  USDCeth: {
+    symbol: 'USDCeth',
+    nativeNetwork: 'goerli',
     icon: Icon.USDC,
     tokenId: {
-      chain: 'fuji',
-      address: '0x5425890298aed601595a70AB815c96711a31Bc65',
+      chain: 'goerli',
+      address: '0x07865c6e87b9f70255377e024ace6630c1eaa37f',
     },
     coinGeckoId: 'usd-coin',
     color: '#2774CA',
@@ -140,6 +142,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 18,
     solDecimals: 8,
     wrappedAsset: 'WMATIC',
+    automaticRelaying: true,
   },
   WMATIC: {
     symbol: 'WMATIC',
@@ -153,6 +156,20 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#8247E5',
     decimals: 18,
     solDecimals: 8,
+    automaticRelaying: true,
+  },
+  USDCpolygon: {
+    symbol: 'USDCpolygon',
+    nativeNetwork: 'mumbai',
+    icon: Icon.USDC,
+    tokenId: {
+      chain: 'mumbai',
+      address: '0x0FA8781a83E46826621b3BC094Ea2A0212e71B23',
+    },
+    coinGeckoId: 'usd-coin',
+    color: '#2774CA',
+    decimals: 6,
+    solDecimals: 6,
   },
   BNB: {
     symbol: 'BNB',
@@ -163,6 +180,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 18,
     solDecimals: 8,
     wrappedAsset: 'WBNB',
+    automaticRelaying: true,
   },
   WBNB: {
     symbol: 'WBNB',
@@ -176,7 +194,21 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#F3BA30',
     decimals: 18,
     solDecimals: 8,
+    automaticRelaying: true,
   },
+  // BUSD: {
+  //   symbol: 'BUSD',
+  //   nativeNetwork: 'goerli',
+  //   icon: Icon.BNB,
+  //   tokenId: {
+  //     chain: 'goerli',
+  //     address: '0x4fabb145d64652a948d72533023f6e7a623c7c53',
+  //   },
+  //   coinGeckoId: 'binance-usd',
+  //   color: '#F3BA30',
+  //   decimals: 18,
+  //   solDecimals: 8,
+  // },
   AVAX: {
     symbol: 'AVAX',
     nativeNetwork: 'fuji',
@@ -186,6 +218,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 18,
     solDecimals: 8,
     wrappedAsset: 'WAVAX',
+    automaticRelaying: true,
   },
   WAVAX: {
     symbol: 'WAVAX',
@@ -199,6 +232,21 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#E84141',
     decimals: 18,
     solDecimals: 8,
+    automaticRelaying: true,
+  },
+  USDCavax: {
+    symbol: 'USDC',
+    nativeNetwork: 'fuji',
+    icon: Icon.USDC,
+    tokenId: {
+      chain: 'fuji',
+      address: '0x5425890298aed601595a70AB815c96711a31Bc65',
+    },
+    coinGeckoId: 'usd-coin',
+    color: '#2774CA',
+    decimals: 6,
+    solDecimals: 6,
+    automaticRelaying: true,
   },
   FTM: {
     symbol: 'FTM',
@@ -209,6 +257,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 18,
     solDecimals: 8,
     wrappedAsset: 'WFTM',
+    automaticRelaying: true,
   },
   WFTM: {
     symbol: 'WFTM',
@@ -222,6 +271,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#12B4EC',
     decimals: 18,
     solDecimals: 8,
+    automaticRelaying: true,
   },
   CELO: {
     symbol: 'CELO',
@@ -235,6 +285,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#35D07E',
     decimals: 18,
     solDecimals: 8,
+    automaticRelaying: true,
   },
   GLMR: {
     symbol: 'GLMR',
@@ -245,6 +296,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 18,
     solDecimals: 8,
     wrappedAsset: 'WGLMR',
+    automaticRelaying: true,
   },
   WGLMR: {
     symbol: 'WGLMR',
@@ -258,6 +310,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#e1147b',
     decimals: 18,
     solDecimals: 8,
+    automaticRelaying: true,
   },
   SOL: {
     symbol: 'SOL',
@@ -281,6 +334,19 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#8457EF',
     decimals: 9,
     solDecimals: 9,
+  },
+  USDCsol: {
+    symbol: 'USDCsol',
+    nativeNetwork: 'solana',
+    tokenId: {
+      chain: 'solana',
+      address: '4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU',
+    },
+    icon: Icon.USDC,
+    coinGeckoId: 'usd-coin',
+    color: '#2774CA',
+    decimals: 6,
+    solDecimals: 6,
   },
 };
 

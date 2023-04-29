@@ -36,6 +36,7 @@ export type TokenConfig = {
   decimals: number;
   solDecimals: number;
   wrappedAsset?: string;
+  automaticRelaying?: boolean;
 };
 
 export interface NetworkConfig extends ChainConfig {
