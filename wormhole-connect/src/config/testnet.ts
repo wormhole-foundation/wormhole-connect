@@ -196,19 +196,6 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 8,
     automaticRelaying: true,
   },
-  // BUSD: {
-  //   symbol: 'BUSD',
-  //   nativeNetwork: 'goerli',
-  //   icon: Icon.BNB,
-  //   tokenId: {
-  //     chain: 'goerli',
-  //     address: '0x4fabb145d64652a948d72533023f6e7a623c7c53',
-  //   },
-  //   coinGeckoId: 'binance-usd',
-  //   color: '#F3BA30',
-  //   decimals: 18,
-  //   solDecimals: 8,
-  // },
   AVAX: {
     symbol: 'AVAX',
     nativeNetwork: 'fuji',

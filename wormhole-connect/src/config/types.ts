@@ -65,6 +65,10 @@ export enum Icon {
   'SOLANA',
   'USDC',
   'GLMR',
+  'DAI',
+  'USDT',
+  'BUSD',
+  'WBTC',
 }
 
 export type GasEstimates = {

@@ -137,7 +137,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   WBTC: {
     symbol: 'WBTC',
     nativeNetwork: 'ethereum',
-    icon: Icon.ETH,
+    icon: Icon.WBTC,
     tokenId: {
       chain: 'ethereum',
       address: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
@@ -151,7 +151,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   USDT: {
     symbol: 'USDT',
     nativeNetwork: 'ethereum',
-    icon: Icon.ETH,
+    icon: Icon.USDT,
     tokenId: {
       chain: 'ethereum',
       address: '0xdac17f958d2ee523a2206206994597c13d831ec7',
@@ -165,13 +165,13 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   DAI: {
     symbol: 'DAI',
     nativeNetwork: 'ethereum',
-    icon: Icon.ETH,
+    icon: Icon.DAI,
     tokenId: {
       chain: 'ethereum',
       address: '0x6b175474e89094c44da98b954eedeac495271d0f',
     },
     coinGeckoId: 'dai',
-    color: '#fffff',
+    color: '#FEFEFD',
     decimals: 18,
     solDecimals: 8,
     automaticRelaying: false,
@@ -179,13 +179,13 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   BUSD: {
     symbol: 'BUSD',
     nativeNetwork: 'ethereum',
-    icon: Icon.BNB,
+    icon: Icon.BUSD,
     tokenId: {
       chain: 'ethereum',
       address: '0x4fabb145d64652a948d72533023f6e7a623c7c53',
     },
     coinGeckoId: 'binance-usd',
-    color: '#F3BA30',
+    color: '#F0B90B',
     decimals: 18,
     solDecimals: 8,
   },
@@ -223,7 +223,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
       address: '0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
     },
     coinGeckoId: 'usd-coin',
-    color: '#ffffff',
+    color: '#2774CA',
     decimals: 6,
     solDecimals: 6,
     automaticRelaying: false,
@@ -256,13 +256,13 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   USDCbnb: {
     symbol: 'USDCbnb',
     nativeNetwork: 'bsc',
-    icon: Icon.USDC,
+    icon: Icon.BUSD,
     tokenId: {
       chain: 'bsc',
       address: '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d',
     },
     coinGeckoId: 'usd-coin',
-    color: '#ffffff',
+    color: '#2774CA',
     decimals: 18,
     solDecimals: 8,
     automaticRelaying: false,
@@ -301,7 +301,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
       address: '0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E',
     },
     coinGeckoId: 'usd-coin',
-    color: '#ffffff',
+    color: '#2774CA',
     decimals: 6,
     solDecimals: 6,
     automaticRelaying: false,
@@ -392,6 +392,19 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#8457EF',
     decimals: 9,
     solDecimals: 9,
+  },
+  USDCsol: {
+    symbol: 'USDCsol',
+    nativeNetwork: 'solana',
+    tokenId: {
+      chain: 'solana',
+      address: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
+    },
+    icon: Icon.USDC,
+    coinGeckoId: 'usd-coin',
+    color: '#2774CA',
+    decimals: 6,
+    solDecimals: 6,
   },
 };
 
