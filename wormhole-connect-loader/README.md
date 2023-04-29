@@ -33,6 +33,7 @@ Chains:
 | celo       | avalanche     |
 | moonbeam   | moonbasealpha |
 | solana     | solana        |
+| sui        | sui           |
 
 Tokens:
 | Mainnet     | Testnet |
@@ -59,6 +60,7 @@ Tokens:
 | GLMR        | GLMR    |
 | WGLMR       | WGLMR   |
 | SOL         | WSOL    |
+| SUI         | SUI     |
 | USDCsol     |         |
 
 Mode:

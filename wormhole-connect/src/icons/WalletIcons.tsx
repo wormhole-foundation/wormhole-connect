@@ -251,7 +251,7 @@ function WalletIcon(props: Props) {
     case WalletType.SUI_WALLET: {
       return (
         <div className={classes.container}>
-          <img src={props.icon} height={size} width={size} />
+          <img src={props.icon} height={size} width={size} alt="sui icon" />
         </div>
       );
     }

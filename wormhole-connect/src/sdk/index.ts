@@ -108,6 +108,7 @@ export const parseMessageFromTx = async (
   };
   const decimals = await fetchTokenDecimals(tokenId, parsed.fromChain);
   const token = getTokenById(tokenId);
+  console.log(token, tokenId);
 
   const base: ParsedMessage = {
     ...parsed,

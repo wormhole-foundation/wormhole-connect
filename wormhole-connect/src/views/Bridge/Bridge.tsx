@@ -92,6 +92,7 @@ function Bridge() {
         const tokenConfig = TOKENS[token]!;
         const tokenId = getWrappedTokenId(tokenConfig);
         const accepted = await isAcceptedToken(tokenId);
+        console.log(`automatic relay accepted for ${token} - ${accepted}`);
         if (accepted) {
           dispatch(enableAutomaticTransfer());
         } else {

@@ -24,6 +24,7 @@ const getRows = (txData: any): RowsData => {
     txData.gasFee &&
     toDecimals(txData.gasFee, sourceGasToken.decimals, MAX_DECIMALS);
   const type = txData.payloadID;
+  console.log(txData);
   const token = TOKENS[txData.tokenSymbol];
 
   // manual transfers
