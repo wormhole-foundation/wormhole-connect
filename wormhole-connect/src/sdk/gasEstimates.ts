@@ -10,6 +10,7 @@ import { toFixedDecimals } from '../utils/balance';
 import { GAS_ESTIMATES } from '../config';
 import { PaymentOption } from '.';
 import { getTokenDecimals } from '../utils';
+import { JsonRpcProvider, getTotalGasUsed } from '@mysten/sui.js';
 
 // simulates a send transaction and returns the estimated fees
 const estimateGasFee = async (
@@ -29,9 +30,44 @@ const estimateGasFee = async (
   const chainContext = context.getContext(fromNetwork) as any;
   const fromChainName = context.toChainName(fromNetwork);
   const gasEstimates = GAS_ESTIMATES[fromChainName]!;
+  console.log('simulating gas');
   // Solana gas estimates
   if (fromChainId === MAINNET_CHAINS.solana) {
     return toFixedDecimals(utils.formatUnits(gasEstimates.sendToken, 9), 6);
+  }
+
+  // Sui gas estimates
+  if (fromChainId === MAINNET_CHAINS.sui) {
+    const provider = chainContext.provider as JsonRpcProvider;
+    if (!provider) throw new Error('no provider');
+    if (paymentOption === PaymentOption.MANUAL) {
+      const tx = await chainContext.send(
+        token,
+        parsedAmt,
+        fromNetwork,
+        fromAddress,
+        toNetwork,
+        toAddress,
+        undefined,
+      );
+      // TODO: is there a better way to do this?
+      tx.setSenderIfNotSet(fromAddress);
+      const dryRunTxBytes = await tx.build({
+        provider,
+      });
+      const response = await provider.dryRunTransactionBlock({
+        transactionBlock: dryRunTxBytes,
+      });
+      console.log(response.effects.gasUsed);
+      const gasFee = getTotalGasUsed(response.effects);
+      if (!gasFee) throw new Error('cannot estimate gas fee');
+      const result = toFixedDecimals(utils.formatUnits(gasFee, 9), 6);
+      console.log(`gas fee est. - ${gasFee}, formatted - ${result}`);
+      return result;
+    } else {
+      // TODO: automatic payment gas fee est.
+      throw new Error('cannot estimate gas fee');
+    }
   }
 
   // EVM gas estimates
@@ -69,7 +105,6 @@ const estimateGasFee = async (
     const gasFee = est.mul(gasPrice);
     return toFixedDecimals(utils.formatEther(gasFee), 6);
   }
-  // TODO: sui?
 };
 
 // gets a fallback gas fee estimate from config
@@ -89,6 +124,16 @@ const getGasFeeFallback = async (
   // Solana gas estimates
   if (fromChainId === MAINNET_CHAINS.solana) {
     return toFixedDecimals(utils.formatUnits(gasEstimates.sendToken, 9), 6);
+  }
+
+  // Sui gas estimates
+  if (fromChainId === MAINNET_CHAINS.sui) {
+    if (paymentOption === PaymentOption.MANUAL) {
+      return toFixedDecimals(utils.formatUnits(gasEstimates.sendToken, 9), 6);
+    } else {
+      // TODO: automatic payment gas fee est. fallback
+      throw new Error('cannot estimate gas fee');
+    }
   }
 
   // EVM gas estimates
@@ -113,8 +158,6 @@ const getGasFeeFallback = async (
     const gasFees = BigNumber.from(gasEst).mul(gasPrice);
     return toFixedDecimals(utils.formatEther(gasFees), 6);
   }
-
-  // TODO: sui?
 };
 
 // returns the gas fees estimate for any send transfer
@@ -142,7 +185,8 @@ export const estimateSendFees = async (
       toNativeToken,
     );
     return gasFee;
-  } catch (_) {
+  } catch (e) {
+    console.error(e);
     return await getGasFeeFallback(context, token, fromNetwork, paymentOption);
   }
 };

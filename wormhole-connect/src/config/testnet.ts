@@ -380,5 +380,12 @@ export const TESTNET_GAS_ESTIMATES: GasEstimates = {
     sendToken: 15000,
     claim: 25000,
   },
-  // TODO: sui
+  sui: {
+    // TODO: sui relay gas estimates
+    sendNative: 5100000,
+    sendToken: 5100000,
+    // TODO: is this accurate?
+    claim: 5100000,
+    // TODO: sui relay gas estimates
+  },
 };
