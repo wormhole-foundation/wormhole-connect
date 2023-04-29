@@ -35,23 +35,31 @@ Chains:
 | solana     | solana        |
 
 Tokens:
-| Mainnet | Testnet |
-| ------- | ------- |
-| ETH     | ETH     |
-| WETH    | WETH    |
-| USDC    | USDC    |
-| MATIC   | MATIC   |
-| WMATIC  | WMATIC  |
-| BNB     | BNB     |
-| WBNB    | WBNB    |
-| AVAX    | AVAX    |
-| WAVAX   | WAVAX   |
-| FTM     | FTM     |
-| WFTM    | WFTM    |
-| CELO    | CELO    |
-| GLMR    | GLMR    |
-| WGLMR   | WGLMR   |
-| SOL     | WSOL    |
+| Mainnet     | Testnet |
+| ----------- | ------- |
+| ETH         | ETH     |
+| WETH        | WETH    |
+| USDCeth     | USDCeth |
+| WBTC        |         |
+| USDT        |         |
+| DAI         |         |
+| BUSD        |         |
+| MATIC       | MATIC   |
+| WMATIC      | WMATIC  |
+| USDCpolygon |         |
+| BNB         | BNB     |
+| WBNB        | WBNB    |
+| USDCbnb     |         |
+| AVAX        | AVAX    |
+| WAVAX       | WAVAX   |
+| USDCavax    |         |
+| FTM         | FTM     |
+| WFTM        | WFTM    |
+| CELO        | CELO    |
+| GLMR        | GLMR    |
+| WGLMR       | WGLMR   |
+| SOL         | WSOL    |
+| USDCsol     |         |
 
 Mode:
 |      |       |

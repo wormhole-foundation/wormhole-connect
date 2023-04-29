@@ -202,6 +202,7 @@ function TokensModal() {
   // listen for close event
   const closeTokensModal = () => {
     dispatch(setTokensModal(false));
+    setTokens(networkTokens);
   };
 
   // select token
@@ -262,7 +263,7 @@ function TokensModal() {
       return;
     }
     const filtered = networkTokens.filter((t) => {
-      const b = tokenBalances[t.symbol];
+      const b = tokenBalances[t.key];
       return b !== null && b !== '0';
     });
     setTokens(filtered);
@@ -301,7 +302,7 @@ function TokensModal() {
                 <div
                   className={classes.tokenRow}
                   key={i}
-                  onClick={() => selectToken(token.symbol)}
+                  onClick={() => selectToken(token.key)}
                 >
                   <div className={classes.tokenRowLeft}>
                     <TokenIcon name={token.icon} height={32} />
@@ -315,8 +316,8 @@ function TokensModal() {
                   <div className={classes.tokenRowRight}>
                     <div className={classes.tokenRowBalanceText}>Balance</div>
                     <div className={classes.tokenRowBalance}>
-                      {tokenBalances[token.symbol] && walletAddr ? (
-                        <div>{tokenBalances[token.symbol]}</div>
+                      {tokenBalances[token.key] && walletAddr ? (
+                        <div>{tokenBalances[token.key]}</div>
                       ) : fromNetwork && walletAddr ? (
                         <CircularProgress size={14} />
                       ) : (

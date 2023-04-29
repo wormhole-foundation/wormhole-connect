@@ -96,6 +96,7 @@ export const MAINNET_NETWORKS: NetworksConfig = {
 
 export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   ETH: {
+    key: 'ETH',
     symbol: 'ETH',
     nativeNetwork: 'ethereum',
     icon: Icon.ETH,
@@ -107,6 +108,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     automaticRelaying: true,
   },
   WETH: {
+    key: 'WETH',
     symbol: 'WETH',
     nativeNetwork: 'ethereum',
     icon: Icon.ETH,
@@ -121,7 +123,8 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     automaticRelaying: true,
   },
   USDCeth: {
-    symbol: 'USDCeth',
+    key: 'USDCeth',
+    symbol: 'USDC',
     nativeNetwork: 'ethereum',
     icon: Icon.USDC,
     tokenId: {
@@ -135,6 +138,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     automaticRelaying: true,
   },
   WBTC: {
+    key: 'WBTC',
     symbol: 'WBTC',
     nativeNetwork: 'ethereum',
     icon: Icon.WBTC,
@@ -149,6 +153,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     automaticRelaying: true,
   },
   USDT: {
+    key: 'USDT',
     symbol: 'USDT',
     nativeNetwork: 'ethereum',
     icon: Icon.USDT,
@@ -163,6 +168,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     automaticRelaying: true,
   },
   DAI: {
+    key: 'DAI',
     symbol: 'DAI',
     nativeNetwork: 'ethereum',
     icon: Icon.DAI,
@@ -177,6 +183,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     automaticRelaying: false,
   },
   BUSD: {
+    key: 'BUSD',
     symbol: 'BUSD',
     nativeNetwork: 'ethereum',
     icon: Icon.BUSD,
@@ -190,6 +197,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 8,
   },
   MATIC: {
+    key: 'MATIC',
     symbol: 'MATIC',
     nativeNetwork: 'polygon',
     icon: Icon.POLYGON,
@@ -201,6 +209,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     automaticRelaying: true,
   },
   WMATIC: {
+    key: 'WMATIC',
     symbol: 'WMATIC',
     nativeNetwork: 'polygon',
     icon: Icon.POLYGON,
@@ -215,7 +224,8 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     automaticRelaying: true,
   },
   USDCpolygon: {
-    symbol: 'USDCpolygon',
+    key: 'USDCpolygon',
+    symbol: 'USDC',
     nativeNetwork: 'polygon',
     icon: Icon.USDC,
     tokenId: {
@@ -229,6 +239,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     automaticRelaying: false,
   },
   BNB: {
+    key: 'BNB',
     symbol: 'BNB',
     nativeNetwork: 'bsc',
     icon: Icon.BNB,
@@ -240,6 +251,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     automaticRelaying: true,
   },
   WBNB: {
+    key: 'WBNB',
     symbol: 'WBNB',
     nativeNetwork: 'bsc',
     icon: Icon.BNB,
@@ -254,9 +266,10 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     automaticRelaying: true,
   },
   USDCbnb: {
-    symbol: 'USDCbnb',
+    key: 'USDCbnb',
+    symbol: 'USDC',
     nativeNetwork: 'bsc',
-    icon: Icon.BUSD,
+    icon: Icon.USDC,
     tokenId: {
       chain: 'bsc',
       address: '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d',
@@ -268,6 +281,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     automaticRelaying: false,
   },
   AVAX: {
+    key: 'AVAX',
     symbol: 'AVAX',
     nativeNetwork: 'avalanche',
     icon: Icon.AVAX,
@@ -279,6 +293,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     automaticRelaying: true,
   },
   WAVAX: {
+    key: 'WAVAX',
     symbol: 'WAVAX',
     nativeNetwork: 'avalanche',
     icon: Icon.AVAX,
@@ -293,7 +308,8 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     automaticRelaying: true,
   },
   USDCavax: {
-    symbol: 'USDCavax',
+    key: 'USDCavax',
+    symbol: 'USDC',
     nativeNetwork: 'avalanche',
     icon: Icon.USDC,
     tokenId: {
@@ -307,6 +323,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     automaticRelaying: false,
   },
   FTM: {
+    key: 'FTM',
     symbol: 'FTM',
     nativeNetwork: 'fantom',
     icon: Icon.FANTOM,
@@ -318,6 +335,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     automaticRelaying: true,
   },
   WFTM: {
+    key: 'WFTM',
     symbol: 'WFTM',
     nativeNetwork: 'fantom',
     icon: Icon.FANTOM,
@@ -332,6 +350,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     automaticRelaying: true,
   },
   CELO: {
+    key: 'CELO',
     symbol: 'CELO',
     nativeNetwork: 'celo',
     icon: Icon.CELO,
@@ -346,6 +365,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     automaticRelaying: true,
   },
   GLMR: {
+    key: 'GLMR',
     symbol: 'GLMR',
     nativeNetwork: 'moonbeam',
     icon: Icon.GLMR,
@@ -357,6 +377,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     automaticRelaying: true,
   },
   WGLMR: {
+    key: 'WGLMR',
     symbol: 'WGLMR',
     nativeNetwork: 'moonbeam',
     icon: Icon.GLMR,
@@ -371,6 +392,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     automaticRelaying: true,
   },
   SOL: {
+    key: 'SOL',
     symbol: 'SOL',
     nativeNetwork: 'solana',
     icon: Icon.SOLANA,
@@ -381,6 +403,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     wrappedAsset: 'WSOL',
   },
   WSOL: {
+    key: 'WSOL',
     symbol: 'WSOL',
     nativeNetwork: 'solana',
     tokenId: {
@@ -394,7 +417,8 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 9,
   },
   USDCsol: {
-    symbol: 'USDCsol',
+    key: 'USDCsol',
+    symbol: 'USDC',
     nativeNetwork: 'solana',
     tokenId: {
       chain: 'solana',

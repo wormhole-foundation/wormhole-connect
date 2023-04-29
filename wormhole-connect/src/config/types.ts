@@ -27,6 +27,7 @@ export interface WormholeConnectConfig {
 }
 
 export type TokenConfig = {
+  key: string;
   symbol: string;
   nativeNetwork: ChainName;
   icon: Icon;

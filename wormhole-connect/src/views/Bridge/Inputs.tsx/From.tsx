@@ -58,14 +58,14 @@ function FromInputs() {
       getBalance(wallet.address, tokenConfig.tokenId, fromNetwork).then(
         (res: BigNumber | null) => {
           const balance = formatBalance(fromNetwork, tokenConfig, res);
-          setBalance(balance[tokenConfig.symbol]);
+          setBalance(balance[tokenConfig.key]);
           dispatch(setStoreBalance(balance));
         },
       );
     } else {
       getNativeBalance(wallet.address, fromNetwork).then((res: BigNumber) => {
         const balance = formatBalance(fromNetwork, tokenConfig, res);
-        setBalance(balance[tokenConfig.symbol]);
+        setBalance(balance[tokenConfig.key]);
         dispatch(setStoreBalance(balance));
       });
     }

@@ -129,7 +129,7 @@ function ToInputs() {
     getBalance(receiving.address, tokenId!, toNetwork).then(
       (res: BigNumber | null) => {
         const balance = formatBalance(toNetwork, tokenConfig, res);
-        setBalance(balance[tokenConfig.symbol]);
+        setBalance(balance[tokenConfig.key]);
       },
     );
   }, [tokenConfig, fromNetwork, toNetwork, receiving.address]);

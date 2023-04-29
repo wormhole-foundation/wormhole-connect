@@ -96,6 +96,7 @@ export const TESTNET_NETWORKS: NetworksConfig = {
 
 export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
   ETH: {
+    key: 'ETH',
     symbol: 'ETH',
     nativeNetwork: 'goerli',
     icon: Icon.ETH,
@@ -107,6 +108,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     automaticRelaying: true,
   },
   WETH: {
+    key: 'WETH',
     symbol: 'WETH',
     nativeNetwork: 'goerli',
     icon: Icon.ETH,
@@ -121,7 +123,8 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     automaticRelaying: true,
   },
   USDCeth: {
-    symbol: 'USDCeth',
+    key: 'USDCeth',
+    symbol: 'USDC',
     nativeNetwork: 'goerli',
     icon: Icon.USDC,
     tokenId: {
@@ -134,6 +137,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 6,
   },
   MATIC: {
+    key: 'MATIC',
     symbol: 'MATIC',
     nativeNetwork: 'mumbai',
     icon: Icon.POLYGON,
@@ -145,6 +149,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     automaticRelaying: true,
   },
   WMATIC: {
+    key: 'WMATIC',
     symbol: 'WMATIC',
     nativeNetwork: 'mumbai',
     icon: Icon.POLYGON,
@@ -159,7 +164,8 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     automaticRelaying: true,
   },
   USDCpolygon: {
-    symbol: 'USDCpolygon',
+    key: 'USDCpolygon',
+    symbol: 'USDC',
     nativeNetwork: 'mumbai',
     icon: Icon.USDC,
     tokenId: {
@@ -172,6 +178,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 6,
   },
   BNB: {
+    key: 'BNB',
     symbol: 'BNB',
     nativeNetwork: 'bsc',
     icon: Icon.BNB,
@@ -183,6 +190,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     automaticRelaying: true,
   },
   WBNB: {
+    key: 'WBNB',
     symbol: 'WBNB',
     nativeNetwork: 'bsc',
     icon: Icon.BNB,
@@ -197,6 +205,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     automaticRelaying: true,
   },
   AVAX: {
+    key: 'AVAX',
     symbol: 'AVAX',
     nativeNetwork: 'fuji',
     icon: Icon.AVAX,
@@ -208,6 +217,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     automaticRelaying: true,
   },
   WAVAX: {
+    key: 'WAVAX',
     symbol: 'WAVAX',
     nativeNetwork: 'fuji',
     icon: Icon.AVAX,
@@ -222,6 +232,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     automaticRelaying: true,
   },
   USDCavax: {
+    key: 'USDCavax',
     symbol: 'USDC',
     nativeNetwork: 'fuji',
     icon: Icon.USDC,
@@ -236,6 +247,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     automaticRelaying: true,
   },
   FTM: {
+    key: 'FTM',
     symbol: 'FTM',
     nativeNetwork: 'fantom',
     icon: Icon.FANTOM,
@@ -247,6 +259,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     automaticRelaying: true,
   },
   WFTM: {
+    key: 'WFTM',
     symbol: 'WFTM',
     nativeNetwork: 'fantom',
     icon: Icon.FANTOM,
@@ -261,6 +274,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     automaticRelaying: true,
   },
   CELO: {
+    key: 'CELO',
     symbol: 'CELO',
     nativeNetwork: 'alfajores',
     icon: Icon.CELO,
@@ -275,6 +289,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     automaticRelaying: true,
   },
   GLMR: {
+    key: 'GLMR',
     symbol: 'GLMR',
     nativeNetwork: 'moonbasealpha',
     icon: Icon.GLMR,
@@ -286,6 +301,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     automaticRelaying: true,
   },
   WGLMR: {
+    key: 'WGLMR',
     symbol: 'WGLMR',
     nativeNetwork: 'moonbasealpha',
     icon: Icon.GLMR,
@@ -300,6 +316,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     automaticRelaying: true,
   },
   SOL: {
+    key: 'SOL',
     symbol: 'SOL',
     nativeNetwork: 'solana',
     icon: Icon.SOLANA,
@@ -310,6 +327,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     wrappedAsset: 'WSOL',
   },
   WSOL: {
+    key: 'WSOL',
     symbol: 'WSOL',
     nativeNetwork: 'solana',
     tokenId: {
@@ -323,7 +341,8 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 9,
   },
   USDCsol: {
-    symbol: 'USDCsol',
+    key: 'USDCsol',
+    symbol: 'USDC',
     nativeNetwork: 'solana',
     tokenId: {
       chain: 'solana',
