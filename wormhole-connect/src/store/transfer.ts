@@ -17,7 +17,7 @@ export const formatBalance = (
   const decimals = chain === 'solana' ? token.solDecimals : token.decimals;
   const formattedBalance =
     balance !== null ? toDecimals(balance, decimals, 6) : null;
-  return { [token.symbol]: formattedBalance };
+  return { [token.key]: formattedBalance };
 };
 
 export interface TransferState {

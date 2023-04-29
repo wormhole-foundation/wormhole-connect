@@ -68,7 +68,7 @@ export const CHAINS_ARR =
 export const TOKENS = isProduction ? MAINNET_TOKENS : TESTNET_TOKENS;
 export const TOKENS_ARR =
   config && config.tokens
-    ? Object.values(TOKENS).filter((c) => config.tokens!.includes(c.symbol))
+    ? Object.values(TOKENS).filter((c) => config.tokens!.includes(c.key))
     : (Object.values(TOKENS) as TokenConfig[]);
 
 export const GAS_ESTIMATES = isProduction

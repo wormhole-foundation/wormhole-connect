@@ -106,7 +106,7 @@ export const parseMessageFromTx = async (
   const base: ParsedMessage = {
     ...parsed,
     amount: parsed.amount.toString(),
-    tokenSymbol: token?.symbol,
+    tokenSymbol: token?.key,
     tokenDecimals: decimals,
     sequence: parsed.sequence.toString(),
     gasFee: parsed.gasFee ? parsed.gasFee.toString() : undefined,
