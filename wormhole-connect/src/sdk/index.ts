@@ -299,7 +299,11 @@ export const getCurrentBlock = async (
     if (!connection) throw new Error('no connection');
     return await connection.getSlot();
   } else if (chainId === MAINNET_CHAINS.sui) {
-    throw new Error('sui get block not implemented');
+    const provider = context.provider;
+    if (!provider) throw new Error('no provider');
+    const sequence = await provider.getLatestCheckpointSequenceNumber();
+    console.log(`latest sequence is ${sequence}`);
+    return Number(sequence);
   } else {
     const provider = wh.mustGetProvider(chain);
     return await provider.getBlockNumber();

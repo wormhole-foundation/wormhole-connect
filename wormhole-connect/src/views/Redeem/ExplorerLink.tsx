@@ -22,13 +22,24 @@ function ExplorerLink(props: ExplorerLinkProps) {
 
   const networkConfig = CHAINS[props.network]!;
 
-  let explorerLink =
-    props.type === 'tx'
-      ? `${networkConfig.explorerUrl}tx/${props.txHash}`
-      : `${networkConfig.explorerUrl}address/${props.address}`;
+  let explorerLink;
+  if (props.type === 'tx') {
+    if (networkConfig.key === 'sui') {
+      explorerLink = `${networkConfig.explorerUrl}txblock/${props.txHash}`;
+    } else {
+      explorerLink = `${networkConfig.explorerUrl}tx/${props.txHash}`;
+    }
+  } else {
+    explorerLink = `${networkConfig.explorerUrl}address/${props.address}`;
+  }
 
-  if (networkConfig.key === 'solana' && !isMainnet) {
-    explorerLink += '?cluster=devnet';
+  if (!isMainnet) {
+    if (networkConfig.key === 'solana') {
+      explorerLink += '?cluster=devnet';
+    }
+    if (networkConfig.key === 'sui') {
+      explorerLink += '?network=testnet';
+    }
   }
 
   return (
