@@ -118,6 +118,7 @@ function AddToWallet() {
       const tokenInfo = TOKENS[txData.tokenSymbol];
       const wrapped = getWrappedToken(tokenInfo);
       if (!wrapped.tokenId) return;
+      // TODO: address can be null (why is it null?)
       const address = await getForeignAsset(wrapped.tokenId, txData.toChain);
 
       setTargetToken(wrapped);
