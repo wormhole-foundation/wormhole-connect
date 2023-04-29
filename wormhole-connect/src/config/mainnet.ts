@@ -146,6 +146,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#ffffff',
     decimals: 6,
     solDecimals: 6,
+    suiDecimals: 6,
   },
   WBTC: {
     key: 'WBTC',
@@ -160,6 +161,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#ffffff',
     decimals: 8,
     solDecimals: 8,
+    suiDecimals: 8,
   },
   USDT: {
     key: 'USDT',
@@ -174,6 +176,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#ffffff',
     decimals: 6,
     solDecimals: 6,
+    suiDecimals: 6,
   },
   DAI: {
     key: 'DAI',
@@ -188,6 +191,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#FEFEFD',
     decimals: 18,
     solDecimals: 8,
+    suiDecimals: 8,
   },
   BUSD: {
     key: 'BUSD',
@@ -202,6 +206,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#F0B90B',
     decimals: 18,
     solDecimals: 8,
+    suiDecimals: 8,
   },
   MATIC: {
     key: 'MATIC',
@@ -243,6 +248,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#2774CA',
     decimals: 6,
     solDecimals: 6,
+    suiDecimals: 6,
   },
   BNB: {
     key: 'BNB',
@@ -284,6 +290,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#2774CA',
     decimals: 18,
     solDecimals: 8,
+    suiDecimals: 8,
   },
   AVAX: {
     key: 'AVAX',
@@ -325,6 +332,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#2774CA',
     decimals: 6,
     solDecimals: 6,
+    suiDecimals: 6,
   },
   FTM: {
     key: 'FTM',
@@ -422,20 +430,6 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 9,
     suiDecimals: 8,
   },
-  SUI: {
-    symbol: 'SUI',
-    nativeNetwork: 'sui',
-    tokenId: {
-      chain: 'sui',
-      address: '0x2::sui::SUI',
-    },
-    icon: Icon.SUI,
-    coinGeckoId: 'sui',
-    color: '#8457EF',
-    decimals: 9,
-    solDecimals: 8,
-    suiDecimals: 9,
-  },
   USDCsol: {
     key: 'USDCsol',
     symbol: 'USDC',
@@ -449,6 +443,22 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#2774CA',
     decimals: 6,
     solDecimals: 6,
+    suiDecimals: 6,
+  },
+  SUI: {
+    key: 'SUI',
+    symbol: 'SUI',
+    nativeNetwork: 'sui',
+    tokenId: {
+      chain: 'sui',
+      address: '0x2::sui::SUI',
+    },
+    icon: Icon.SUI,
+    coinGeckoId: 'sui',
+    color: '#8457EF',
+    decimals: 9,
+    solDecimals: 8,
+    suiDecimals: 9,
   },
 };
 
@@ -506,5 +516,12 @@ export const MAINNET_GAS_ESTIMATES: GasEstimates = {
     sendNative: 15000,
     sendToken: 15000,
     claim: 25000,
+  },
+  sui: {
+    sendNative: 5100000,
+    sendToken: 5100000,
+    // TODO: is this accurate?
+    claim: 5100000,
+    // TODO: sui relay gas estimates
   },
 };

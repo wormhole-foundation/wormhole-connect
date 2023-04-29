@@ -10,7 +10,7 @@ import { CHAINS_ARR, TOKENS, TOKENS_ARR } from '../config';
 import { NetworkConfig, TokenConfig } from '../config/types';
 import { WalletType } from './wallet';
 import { toDecimals } from './balance';
-import { isValidTransactionDigest } from '@mysten/sui.js';
+import { isValidTransactionDigest, SUI_TYPE_ARG } from '@mysten/sui.js';
 
 export const MAX_DECIMALS = 6;
 export const NORMALIZED_DECIMALS = 8;
@@ -29,7 +29,10 @@ export function displayEvmAddress(address: string): string {
   );
 }
 
+// TODO: handle native sui case -- what will this look like for other tokens?
+// get some COIN_8 test tokens to test this
 export function displaySuiAddress(address: string): string {
+  if (address === SUI_TYPE_ARG) return address; // special case for native sui
   return (
     address.slice(0, 6) +
     '...' +
@@ -37,8 +40,6 @@ export function displaySuiAddress(address: string): string {
   );
 }
 
-// TODO: handle native sui case -- what will this look like for other tokens?
-// get some COIN_8 test tokens to test this
 export function displayAddress(chain: ChainName, address: string): string {
   if (chain === 'solana') {
     return (
