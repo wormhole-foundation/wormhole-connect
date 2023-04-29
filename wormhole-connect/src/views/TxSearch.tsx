@@ -58,7 +58,7 @@ function TxSearch() {
     if (!state.tx || !state.chain) {
       return setError('Enter the source chain and transaction ID');
     }
-    if (!isValidTxId(state.tx)) {
+    if (!isValidTxId(state.chain, state.tx)) {
       return setError('Invalid transaction ID');
     }
     try {
