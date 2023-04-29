@@ -41,28 +41,47 @@ function Confirmations(props: Props) {
   const requiredHeight = props.blockHeight + chainConfig.finalityThreshold;
   const [currentBlock, setCurrentBlock] = useState(0);
 
-  const updateCurrentBlock = async () => {
-    const height = await getCurrentBlock(props.chain);
-    setCurrentBlock(height);
-  };
+  //const updateCurrentBlock = async () => {
+  //  const height = await getCurrentBlock(props.chain);
+  //  setCurrentBlock(height);
+  //};
+
+  //useEffect(() => {
+  //  updateCurrentBlock();
+  //  const interval = setInterval(async () => {
+  //    console.log(currentBlock, requiredHeight);
+  //    if (currentBlock < requiredHeight) {
+  //      updateCurrentBlock();
+  //    } else {
+  //      clearInterval(interval);
+  //    }
+  //  }, 1000);
+  //}, []);
 
   useEffect(() => {
-    updateCurrentBlock();
-    const interval = setInterval(async () => {
-      if (currentBlock < requiredHeight) {
-        updateCurrentBlock();
-      } else {
-        clearInterval(interval);
+    let cancelled = false;
+    (async () => {
+      let currentBlock = 0;
+      while (currentBlock < requiredHeight && !cancelled) {
+        const currentBlock = await getCurrentBlock(props.chain);
+        if (!cancelled) {
+          setCurrentBlock(currentBlock);
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+        }
       }
-    }, 1000);
-  }, []);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [requiredHeight, props.chain]);
 
   const blockDiff =
     currentBlock > requiredHeight ? 0 : requiredHeight - currentBlock;
   const confirmations = chainConfig.finalityThreshold - blockDiff;
-  const percentage = Math.floor(
-    (confirmations / chainConfig.finalityThreshold) * 100,
-  );
+  const percentage =
+    chainConfig.finalityThreshold === 0
+      ? 100
+      : Math.floor((confirmations / chainConfig.finalityThreshold) * 100);
 
   return (
     <div className={classes.confirmations}>

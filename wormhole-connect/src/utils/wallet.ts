@@ -154,7 +154,7 @@ export const signSuiTransaction = async (
     throw new Error('wallet.signAndSendTransaction is undefined');
   }
 
-  const response = await wallet.signAndSendTransaction(transactionBlock);
+  const response = await wallet.signAndSendTransaction({ transactionBlock });
   return { transactionHash: response.id }; // TODO: is this right?
 };
 

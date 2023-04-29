@@ -5,8 +5,11 @@ import {
   SuiTransactionBlockResponse,
   testnetConnection,
   PaginatedCoins,
+  getTransactionSender,
+  getTotalGasUsed,
+  isValidSuiAddress,
 } from '@mysten/sui.js';
-import { BigNumber, BigNumberish, utils } from 'ethers';
+import { BigNumber, BigNumberish } from 'ethers';
 
 import {
   TokenId,
@@ -25,9 +28,10 @@ import {
   redeemOnSui,
   transferFromSui,
 } from '@certusone/wormhole-sdk';
-import { arrayify } from 'ethers/lib/utils';
+import { arrayify, hexlify } from 'ethers/lib/utils';
 import { SuiContracts } from './contracts';
 import { SolanaContext } from '../solana';
+import { parseTokenTransferPayload } from '../../vaa';
 
 export class SuiContext<T extends WormholeContext> extends RelayerAbstract {
   protected contracts: SuiContracts<T>;
@@ -42,6 +46,7 @@ export class SuiContext<T extends WormholeContext> extends RelayerAbstract {
     if (connection === undefined) throw new Error('no connection');
     this.provider = new JsonRpcProvider(connection);
     this.contracts = new SuiContracts(context);
+    this.provider.getLatestCheckpointSequenceNumber();
   }
 
   async getCoins(coinType: string, owner: string) {
@@ -111,6 +116,7 @@ export class SuiContext<T extends WormholeContext> extends RelayerAbstract {
       BigInt(0), // TODO: wormhole fee
       relayerFeeBigInt,
     );
+    console.log(tx);
     return tx;
   }
 
@@ -126,16 +132,26 @@ export class SuiContext<T extends WormholeContext> extends RelayerAbstract {
     throw new Error('not implemented');
   }
 
-  formatAddress(address: string): Buffer {
-    const result = Buffer.from(utils.zeroPad(address, 32));
-    console.log(`native to hex ${address} - ${result}`);
-    return result;
+  formatAddress(address: string): string {
+    // const result = Buffer.from(utils.zeroPad(address, 32));
+    // console.log(`native to hex ${address} - ${result}`);
+    if (!isValidSuiAddress(address)) {
+      throw new Error(`can't format an invalid sui address: ${address}`);
+    }
+    console.log(`sui format address - ${address}`);
+    // valid sui addresses are already 32 bytes, hex prefixed
+    return address;
   }
 
   parseAddress(address: string): string {
-    const result = utils.hexlify(utils.stripZeros(address));
-    console.log(`hex to native ${address} - ${result}`);
-    return result;
+    //const result = utils.hexlify(utils.stripZeros(address));
+    //console.log(`hex to native ${address} - ${result}`);
+    if (!isValidSuiAddress(address)) {
+      throw new Error(`can't parse an invalid sui address: ${address}`);
+    }
+    console.log(`sui parse address - ${address}`);
+    // valid sui addresses are already 32 bytes, hex prefixed
+    return address;
   }
 
   /**
@@ -169,6 +185,13 @@ export class SuiContext<T extends WormholeContext> extends RelayerAbstract {
    */
   async parseAssetAddress(address: string): Promise<string> {
     console.log(`parseAssetAddress - external address: ${address}`);
+    // TODO: remove this when getForeignAssetSui is fixed in the SDK
+    if (
+      address ===
+      '0x9d31091f5decefeb373de2218d634dbe198c72feac6e50fba0a5330cb5e65cff'
+    ) {
+      return SUI_TYPE_ARG;
+    }
     try {
       const { token_bridge } = this.contracts.mustGetContracts('sui');
       if (!token_bridge) throw new Error('token bridge contract not found');
@@ -215,6 +238,7 @@ export class SuiContext<T extends WormholeContext> extends RelayerAbstract {
         chainId,
         arrayify(formattedAddr),
       );
+      console.log(`getForeignAsset returned ${coinType}`);
       return coinType;
     } catch (e) {
       console.log(`getForeignAsset - error: ${e}`);
@@ -239,17 +263,62 @@ export class SuiContext<T extends WormholeContext> extends RelayerAbstract {
     if (tokenAddr === SUI_TYPE_ARG) {
       return 9;
     }
-    const { decimals } = await this.provider.getCoinMetadata({
+    const metadata = await this.provider.getCoinMetadata({
       coinType: tokenAddr,
     });
-    return decimals;
+    if (metadata === null) {
+      throw new Error(`Can't fetch decimals for token ${tokenAddr}`);
+    }
+    return metadata.decimals;
   }
 
   async parseMessageFromTx(
     tx: string,
     chain: ChainName | ChainId,
   ): Promise<ParsedMessage[] | ParsedRelayerMessage[]> {
-    throw new Error('not implemented');
+    const txBlock = await this.provider.getTransactionBlock({
+      digest: tx,
+      options: { showEvents: true, showEffects: true, showInput: true },
+    });
+    // console.log(JSON.stringify(txBlock));
+    // TODO: search for full type instead?
+    // "type": "0x15e1e51cb59fe1f987b037da12745a278855c8ac73050f4f194466096a0ca05b::publish_message::WormholeMessage",
+    const message = txBlock.events?.find((event) =>
+      event.type.endsWith('WormholeMessage'),
+    );
+    if (!message || !message.parsedJson) {
+      throw new Error('WormholeMessage not found');
+    }
+    const { payload, sender: emitterAddress, sequence } = message.parsedJson;
+    const parsed = parseTokenTransferPayload(Buffer.from(payload));
+    const tokenContext = this.context.getContext(parsed.tokenChain as ChainId);
+    const destContext = this.context.getContext(parsed.toChain as ChainId);
+    const tokenAddress = await tokenContext.parseAssetAddress(
+      hexlify(parsed.tokenAddress),
+    );
+    console.log(`transferred token from sui ${tokenAddress}`);
+    const tokenChain = this.context.toChainName(parsed.tokenChain);
+    const gasFee = getTotalGasUsed(txBlock);
+    const parsedMessage: ParsedMessage = {
+      sendTx: tx,
+      sender: getTransactionSender(txBlock) || '',
+      amount: BigNumber.from(parsed.amount),
+      payloadID: parsed.payloadType,
+      recipient: destContext.parseAddress(hexlify(parsed.to)),
+      toChain: this.context.toChainName(parsed.toChain),
+      fromChain: this.context.toChainName(chain),
+      tokenAddress,
+      tokenChain,
+      tokenId: {
+        chain: tokenChain,
+        address: tokenAddress,
+      },
+      sequence: BigNumber.from(sequence),
+      emitterAddress,
+      block: Number(txBlock.checkpoint || ''),
+      gasFee: gasFee ? BigNumber.from(gasFee) : undefined,
+    };
+    return [parsedMessage];
   }
 
   getTxIdFromReceipt(receipt: SuiTransactionBlockResponse) {
