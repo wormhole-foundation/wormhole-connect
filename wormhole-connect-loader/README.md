@@ -35,6 +35,7 @@ Networks (`networks`):
 | celo       | avalanche     |
 | moonbeam   | moonbasealpha |
 | solana     | solana        |
+| sui        | sui           |
 
 <br>
 
@@ -63,6 +64,7 @@ Tokens (`tokens`):
 | GLMR        | GLMR    |
 | WGLMR       | WGLMR   |
 | SOL         | WSOL    |
+| SUI         | SUI     |
 | USDCsol     |         |
 
 <br>
