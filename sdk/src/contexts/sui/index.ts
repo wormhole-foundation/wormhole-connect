@@ -59,7 +59,7 @@ export class SuiContext<T extends WormholeContext> extends RelayerAbstract {
         cursor,
       });
       coins = [...coins, ...result.data];
-      cursor = result.nextCursor;
+      cursor = result.hasNextPage ? result.nextCursor : null;
     } while (cursor);
     return coins;
   }
@@ -75,7 +75,6 @@ export class SuiContext<T extends WormholeContext> extends RelayerAbstract {
   ): Promise<TransactionBlock> {
     const destContext = this.context.getContext(recipientChain);
     const recipientChainId = this.context.toChainId(recipientChain);
-    const sendingChainName = this.context.toChainName(sendingChain);
     const relayerFeeBigInt = relayerFee ? BigInt(relayerFee) : undefined;
     const amountBigInt = BigNumber.from(amount).toBigInt();
 
@@ -86,7 +85,7 @@ export class SuiContext<T extends WormholeContext> extends RelayerAbstract {
       if (token === NATIVE) {
         tokenId = {
           address: SUI_TYPE_ARG,
-          chain: sendingChainName,
+          chain: 'sui',
         };
       }
       const account = await (
@@ -116,7 +115,6 @@ export class SuiContext<T extends WormholeContext> extends RelayerAbstract {
       BigInt(0), // TODO: wormhole fee
       relayerFeeBigInt,
     );
-    console.log(tx);
     return tx;
   }
 

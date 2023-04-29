@@ -100,7 +100,7 @@ export const TESTNET_NETWORKS: NetworksConfig = {
     gasToken: 'SUI',
     chainId: 0,
     icon: Icon.SUI,
-    automaticRelayer: false,
+    automaticRelayer: true,
     maxBlockSearch: 0,
   },
 };
@@ -188,6 +188,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#2774CA',
     decimals: 6,
     solDecimals: 6,
+    suiDecimals: 6,
   },
   BNB: {
     key: 'BNB',
@@ -256,6 +257,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#2774CA',
     decimals: 6,
     solDecimals: 6,
+    suiDecimals: 6,
   },
   FTM: {
     key: 'FTM',
@@ -353,20 +355,6 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 9,
     suiDecimals: 8,
   },
-  SUI: {
-    symbol: 'SUI',
-    nativeNetwork: 'sui',
-    tokenId: {
-      chain: 'sui',
-      address: '0x2::sui::SUI',
-    },
-    icon: Icon.SUI,
-    coinGeckoId: 'sui',
-    color: '#8457EF',
-    decimals: 9,
-    solDecimals: 8,
-    suiDecimals: 9,
-  },
   USDCsol: {
     key: 'USDCsol',
     symbol: 'USDC',
@@ -380,6 +368,22 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#2774CA',
     decimals: 6,
     solDecimals: 6,
+    suiDecimals: 6,
+  },
+  SUI: {
+    key: 'SUI',
+    symbol: 'SUI',
+    nativeNetwork: 'sui',
+    tokenId: {
+      chain: 'sui',
+      address: '0x2::sui::SUI',
+    },
+    icon: Icon.SUI,
+    coinGeckoId: 'sui',
+    color: '#8457EF',
+    decimals: 9,
+    solDecimals: 8,
+    suiDecimals: 9,
   },
 };
 
@@ -438,5 +442,11 @@ export const TESTNET_GAS_ESTIMATES: GasEstimates = {
     sendToken: 15000,
     claim: 25000,
   },
-  // TODO: sui
+  sui: {
+    sendNative: 5100000,
+    sendToken: 5100000,
+    // TODO: is this accurate?
+    claim: 5100000,
+    // TODO: sui relay gas estimates
+  },
 };
