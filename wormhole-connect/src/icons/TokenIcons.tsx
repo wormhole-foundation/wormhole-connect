@@ -55,7 +55,7 @@ export const getIcon = (icon: Icon) => {
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
-          <g clip-path="url(#clip0_313_9795)">
+          <g clipPath="url(#clip0_313_9795)">
             <path
               d="M99.6979 0.420898L124.296 25.6121L62.3557 87.5527L37.7573 62.9542L99.6979 0.420898Z"
               fill="#F0B90B"
