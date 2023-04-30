@@ -54,7 +54,6 @@ function Bridge() {
     fromNetwork,
     toNetwork,
     token,
-    amount,
     destGasPayment,
     automaticRelayAvail,
     toNativeToken,
