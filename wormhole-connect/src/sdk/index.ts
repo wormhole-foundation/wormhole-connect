@@ -140,11 +140,11 @@ export const getRelayerFee = async (
   destChain: ChainName | ChainId,
   token: string,
 ) => {
-  const EthContext: any = wh.getContext(destChain);
+  const context: any = wh.getContext(sourceChain); // TODO: this was the `destChain` before and I think it worked because we only relayed to evm chains
   const tokenConfig = TOKENS[token];
   if (!tokenConfig) throw new Error('could not get token config');
   const tokenId = tokenConfig.tokenId || getWrappedTokenId(tokenConfig);
-  return await EthContext.getRelayerFee(sourceChain, destChain, tokenId);
+  return await context.getRelayerFee(sourceChain, destChain, tokenId);
 };
 
 export const sendTransfer = async (
@@ -194,9 +194,8 @@ export const sendTransfer = async (
       : '0';
     if (fromChainId === MAINNET_CHAINS.solana) {
       throw new Error('solana send with relay not supported');
-    } else if (fromChainId === MAINNET_CHAINS.sui) {
-      throw new Error('sui send with relay not supported');
     } else {
+      // TODO: will send sui too
       const tx = await wh.sendWithRelay(
         token,
         parsedAmt.toString(),
@@ -227,8 +226,8 @@ export const calculateNativeTokenAmt = async (
   token: TokenId,
   amount: BigNumber,
 ) => {
-  const EthContext: any = wh.getContext(destChain);
-  return await EthContext.calculateNativeTokenAmt(destChain, token, amount);
+  const context: any = wh.getContext(destChain);
+  return await context.calculateNativeTokenAmt(destChain, token, amount);
 };
 
 export const claimTransfer = async (
