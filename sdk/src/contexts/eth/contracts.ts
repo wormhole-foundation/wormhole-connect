@@ -6,9 +6,11 @@ import {
 } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
 
 import { ChainName, ChainId, Contracts, Context } from '../../types';
-import { TokenBridgeRelayer } from '../../abis/TokenBridgeRelayer';
 import { TokenBridgeRelayer__factory } from '../../abis/TokenBridgeRelayer__factory';
-import { ContractsAbstract } from '../abstracts/contracts';
+import {
+  ContractsAbstract,
+  TokenBridgeRelayerInterface,
+} from '../abstracts/contracts';
 import { WormholeContext } from '../../wormhole';
 import { filterByContext } from '../../utils';
 
@@ -118,7 +120,7 @@ export class EthContracts<
    */
   getTokenBridgeRelayer(
     chain: ChainName | ChainId,
-  ): TokenBridgeRelayer | undefined {
+  ): TokenBridgeRelayerInterface | undefined {
     const connection = this.context.mustGetConnection(chain);
     const address = this.mustGetContracts(chain).relayer;
     if (!address) return undefined;
@@ -130,7 +132,9 @@ export class EthContracts<
    *
    * @returns An interface for the Token Bridge Relayer contract, errors if not found
    */
-  mustGetTokenBridgeRelayer(chain: ChainName | ChainId): TokenBridgeRelayer {
+  mustGetTokenBridgeRelayer(
+    chain: ChainName | ChainId,
+  ): TokenBridgeRelayerInterface {
     const relayer = this.getTokenBridgeRelayer(chain);
     if (!relayer)
       throw new Error(

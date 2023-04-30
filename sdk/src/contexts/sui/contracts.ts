@@ -1,17 +1,24 @@
 import { ChainName, ChainId, Contracts, Context } from '../../types';
-import { ContractsAbstract } from '../abstracts/contracts';
+import {
+  ContractsAbstract,
+  TokenBridgeRelayerInterface,
+} from '../abstracts/contracts';
 import { WormholeContext } from '../../wormhole';
 import { filterByContext } from '../../utils';
+import { SuiRelayer } from './relayer';
+import { JsonRpcProvider } from '@mysten/sui.js';
 
 export class SuiContracts<
   T extends WormholeContext,
 > extends ContractsAbstract<T> {
   protected _contracts: Map<ChainName, any>;
   readonly context: T;
+  readonly provider: JsonRpcProvider;
 
-  constructor(context: T) {
+  constructor(context: T, provider: JsonRpcProvider) {
     super();
     this.context = context;
+    this.provider = provider;
     this._contracts = new Map();
     const chains = filterByContext(context.conf, Context.SUI);
     chains.forEach((c) => {
@@ -90,8 +97,12 @@ export class SuiContracts<
    *
    * @returns An interface for the Token Bridge Relayer contract, undefined if not found
    */
-  getTokenBridgeRelayer(chain: ChainName | ChainId) {
-    return undefined;
+  getTokenBridgeRelayer(
+    chain: ChainName | ChainId,
+  ): TokenBridgeRelayerInterface | undefined {
+    const address = this.mustGetContracts(chain).relayer;
+    if (!address) return undefined;
+    return new SuiRelayer(this.provider, address);
   }
 
   /**
@@ -99,7 +110,14 @@ export class SuiContracts<
    *
    * @returns An interface for the Token Bridge Relayer contract, errors if not found
    */
-  mustGetTokenBridgeRelayer(chain: ChainName | ChainId) {
-    throw new Error('relayer not deployed on Sui');
+  mustGetTokenBridgeRelayer(
+    chain: ChainName | ChainId,
+  ): TokenBridgeRelayerInterface {
+    const relayer = this.getTokenBridgeRelayer(chain);
+    if (!relayer)
+      throw new Error(
+        `Token Bridge Relayer contract for domain ${chain} not found`,
+      );
+    return relayer;
   }
 }
