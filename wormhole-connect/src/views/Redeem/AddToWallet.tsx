@@ -115,7 +115,7 @@ function AddToWallet() {
 
   useEffect(() => {
     const fetchTokenInfo = async () => {
-      const tokenInfo = TOKENS[txData.tokenSymbol];
+      const tokenInfo = TOKENS[txData.tokenKey];
       const wrapped = getWrappedToken(tokenInfo);
       if (!wrapped.tokenId) return;
       const address = await getForeignAsset(wrapped.tokenId, txData.toChain);

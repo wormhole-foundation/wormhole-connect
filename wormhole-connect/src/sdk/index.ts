@@ -34,7 +34,7 @@ export interface ParsedMessage {
   fromChain: ChainName;
   tokenAddress: string;
   tokenChain: ChainName;
-  tokenSymbol: string;
+  tokenKey: string;
   tokenDecimals: number;
   emitterAddress: string;
   sequence: string;
@@ -106,7 +106,7 @@ export const parseMessageFromTx = async (
   const base: ParsedMessage = {
     ...parsed,
     amount: parsed.amount.toString(),
-    tokenSymbol: token?.key,
+    tokenKey: token?.key,
     tokenDecimals: decimals,
     sequence: parsed.sequence.toString(),
     gasFee: parsed.gasFee ? parsed.gasFee.toString() : undefined,
