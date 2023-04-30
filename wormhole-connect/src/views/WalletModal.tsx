@@ -63,7 +63,7 @@ type WalletData = {
   type: WalletType;
   isReady: boolean;
 };
-const WALLETS: { [key: string]: WalletData } = {
+let WALLETS: { [key: string]: WalletData } = {
   metamask: {
     name: 'Metamask',
     wallet: wallets.evm.metamask,
@@ -89,20 +89,41 @@ const WALLETS: { [key: string]: WalletData } = {
     isReady: getReady(wallets.solana.solflare),
   },
 };
-const getWalletOptions = async (chain: ChainConfig) => {
+
+let suiWalletOptions = {};
+
+const fetchSuiOptions = async () => {
+  const suiWallets = await getSuiWallets({ timeout: 0 });
+  suiWalletOptions = suiWallets
+    .map<WalletData>((w) => ({
+      name: w.getName(),
+      wallet: w,
+      type: WalletType.SUI_WALLET, // sui wallets share the same wallet type
+      isReady: getReady(w),
+    }))
+    .reduce((obj, value) => {
+      obj[value.name] = value;
+      return obj;
+    }, {});
+};
+
+const getWalletOptions = async (
+  chain: ChainConfig | undefined,
+): Promise<WalletData[]> => {
+  await fetchSuiOptions();
+  if (!chain) {
+    const options = Object.assign({}, suiWalletOptions, WALLETS);
+    return Object.values(options);
+  }
   if (chain.context === Context.ETH) {
     return [WALLETS.metamask, WALLETS.walletConnect];
   } else if (chain.context === Context.SOLANA) {
     return [WALLETS.phantom, WALLETS.solflare];
   } else if (chain.context === Context.SUI) {
-    const suiWallets = await getSuiWallets({ timeout: 0 });
-    return suiWallets.map<WalletData>((w) => ({
-      name: w.getName(),
-      wallet: w,
-      type: WalletType.SUI_WALLET, // sui wallets share the same wallet type
-      isReady: getReady(w),
-    }));
+    return Object.values(suiWalletOptions);
   }
+  const options = Object.assign({}, suiWalletOptions, WALLETS);
+  return Object.values(options);
 };
 
 type Props = {
@@ -117,7 +138,6 @@ function WalletsModal(props: Props) {
   const { fromNetwork, toNetwork } = useSelector(
     (state: RootState) => state.transfer,
   );
-  const wallets = useSelector((state: RootState) => state.wallet);
   const [walletOptions, setWalletOptions] = useState<WalletData[]>([]);
 
   async function getAvailableWallets() {
@@ -126,9 +146,6 @@ function WalletsModal(props: Props) {
       (props.type === TransferWallet.SENDING ? fromNetwork : toNetwork);
 
     const config = CHAINS[chain!];
-    // TODO: include sui wallets when no chain is selected,
-    // but what if a sui wallet matches one in WALLETS?
-    if (!config) return Object.values(WALLETS);
     return await getWalletOptions(config);
   }
 
