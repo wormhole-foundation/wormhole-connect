@@ -8,7 +8,7 @@ Integration does not get easier than this. Wormhole Connect is an easy seamless 
 
 ```ts
 {
-  "environment": "testnet",
+  "env": "testnet",
   "networks": ["goerli", "mumbai"],
   "tokens": ["ETH", "WETH", "MATIC", "WMATIC"],
   "mode": "light"
