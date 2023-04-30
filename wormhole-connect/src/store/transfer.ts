@@ -114,9 +114,10 @@ export const transferSlice = createSlice({
 
       if (token) {
         const tokenConfig = TOKENS[token];
-        // clear token if not supported on the selected network
+        // clear token and amount if not supported on the selected network
         if (!tokenConfig.tokenId && tokenConfig.nativeNetwork !== fromNetwork) {
           state.token = '';
+          state.amount = undefined;
         }
       }
     },
