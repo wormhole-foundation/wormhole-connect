@@ -18,12 +18,14 @@ Integration does not get easier than this. Wormhole Connect is an easy seamless 
 
 #### Accepted values
 
-Environment:
+Environment (`env`):
 | Mainnet    | Testnet   |
 | ---------- | --------- |
 | mainnet    | testnet   |
 
-Chains:
+<br>
+
+Networks (`networks`):
 | Mainnet    | Testnet       |
 | ---------- | ------------- |
 | ethereum   | goerli        |
@@ -34,7 +36,9 @@ Chains:
 | moonbeam   | moonbasealpha |
 | solana     | solana        |
 
-Tokens:
+<br>
+
+Tokens (`tokens`):
 | Mainnet     | Testnet |
 | ----------- | ------- |
 | ETH         | ETH     |
@@ -61,12 +65,16 @@ Tokens:
 | SOL         | WSOL    |
 | USDCsol     |         |
 
-Mode:
+<br>
+
+Mode (`mode`):
 |      |       |
 | ---- | ----- |
 | dark | light |
 
-Custom theme:
+<br>
+
+Custom theme (`customTheme`):
 
 ```js
 import { dark, light, Theme } from '@wormhole-foundation/wormhole-connect';
@@ -76,8 +84,8 @@ import { dark, light, Theme } from '@wormhole-foundation/wormhole-connect';
 
 ```html
 <!-- paste below into index.html body -->
-<script src="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.1-beta.3/dist/main.js"></script>
-<link href="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.1-beta.3/dist/main.css" />
+<script src="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.1-beta.5/dist/main.js"></script>
+<link href="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.1-beta.5/dist/main.css" />
 ```
 
 ### 3. Embed it in your application
@@ -108,7 +116,7 @@ Specify networks/tokens (optional)
 ```jsx
 import WormholeBridge, { WormholeConnectConfig } from '@wormhole-foundation/wormhole-connect';
 const config: WormholeConnectConfig = {
-  environment: "mainnet",
+  env: "mainnet",
   networks: ["ethereum", "polygon", "solana"],
   tokens: ["ETH", "WETH", "MATIC", "WMATIC"],
 }
