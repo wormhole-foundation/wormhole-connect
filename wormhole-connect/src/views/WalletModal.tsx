@@ -63,7 +63,7 @@ type WalletData = {
   type: WalletType;
   isReady: boolean;
 };
-let WALLETS: { [key: string]: WalletData } = {
+const WALLETS: { [key: string]: WalletData } = {
   metamask: {
     name: 'Metamask',
     wallet: wallets.evm.metamask,
