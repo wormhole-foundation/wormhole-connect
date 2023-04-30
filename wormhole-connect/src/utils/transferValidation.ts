@@ -202,6 +202,7 @@ export const validateAll = async (
   const { sending, receiving } = walletData;
   const isAutomatic = destGasPayment === PaymentOption.AUTOMATIC;
   const minAmt = isAutomatic ? toNativeToken + (relayerFee || 0) : 0;
+  console.log('toNativeToken:', toNativeToken, 'relayerFee:', relayerFee);
   const baseValidations = {
     sendingWallet: await validateWallet(sending, fromNetwork),
     receivingWallet: await validateWallet(receiving, toNetwork),

@@ -31,6 +31,8 @@ export async function getUsdVal(token: string) {
   const tokenConfig = TOKENS[token];
   if (!tokenConfig) throw new Error(`invalid token: ${token}`);
   const { coinGeckoId } = tokenConfig;
+  console.log(token);
+  if (token === 'SUI') return 1; // TODO: remove this
   const res = await fetch(
     `https://api.coingecko.com/api/v3/simple/price?ids=${coinGeckoId}&vs_currencies=usd`,
   );

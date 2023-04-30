@@ -114,6 +114,7 @@ function GasSlider(props: { disabled: boolean }) {
       return;
     const actualMaxSwap =
       amount && maxSwapAmt && maxSwapAmt > amount ? amount : maxSwapAmt;
+    console.log('amount:', amount, 'maxSwapAmt:', maxSwapAmt);
     const newTokenAmount = toFixedDecimals(`${amount - state.swapAmt}`, 6);
     setState({
       ...state,
@@ -135,6 +136,7 @@ function GasSlider(props: { disabled: boolean }) {
           return;
         }
         const amt = toDecimals(res, sendingToken.decimals, 6);
+        console.log('setMaxSwapAmt:', amt);
         dispatch(setMaxSwapAmt(Number.parseFloat(amt)));
       })
       .catch((e) => {
@@ -177,6 +179,7 @@ function GasSlider(props: { disabled: boolean }) {
 
   // compute amounts on change
   const handleChange = (e: any) => {
+    console.log('conversion rate', state.conversionRate);
     if (!amount || !state.conversionRate) return;
     const convertedAmt = `${e.target.value * state.conversionRate}`;
     const newGasAmount = toFixedDecimals(convertedAmt, 6);
@@ -207,6 +210,8 @@ function GasSlider(props: { disabled: boolean }) {
     dispatch(setReceiveNativeAmt(formattedNativeAmt));
     setState({ ...state, nativeGas: formattedNativeAmt });
   }, 250);
+
+  console.log('max:', state.max, 'swapAmt:', state.swapAmt);
 
   return (
     <BridgeCollapse

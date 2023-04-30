@@ -28,6 +28,7 @@ import { EthContracts } from './contracts';
 import { parseVaa } from '../../vaa';
 import { RelayerAbstract } from '../abstracts/relayer';
 import { SolanaContext } from '../solana';
+import { TokenBridgeRelayer } from 'abis/TokenBridgeRelayer';
 
 export class EthContext<T extends WormholeContext> extends RelayerAbstract {
   readonly contracts: EthContracts<T>;
@@ -319,13 +320,16 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
     recipientAddress: string,
     overrides?: PayableOverrides & { from?: string | Promise<string> },
   ): Promise<ethers.PopulatedTransaction> {
-    const isAddress = ethers.utils.isAddress(recipientAddress);
-    if (!isAddress)
-      throw new Error(`invalid recipient address: ${recipientAddress}`);
+    // TODO: this throws when SUI is 
+    //const isAddress = ethers.utils.isAddress(recipientAddress);
+    //if (!isAddress)
+    //  throw new Error(`invalid recipient address: ${recipientAddress}`);
     const destContext = this.context.getContext(recipientChain);
     const recipientChainId = this.context.toChainId(recipientChain);
     const amountBN = ethers.BigNumber.from(amount);
-    const relayer = this.contracts.mustGetTokenBridgeRelayer(sendingChain);
+    const relayer = this.contracts.mustGetTokenBridgeRelayer(
+      sendingChain,
+    ) as TokenBridgeRelayer;
     const nativeTokenBN = ethers.BigNumber.from(toNativeToken);
 
     if (token === NATIVE) {
@@ -374,7 +378,9 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
     // approve for ERC-20 token transfers
     if (token !== NATIVE) {
       const amountBN = ethers.BigNumber.from(amount);
-      const relayer = this.contracts.mustGetTokenBridgeRelayer(sendingChain);
+      const relayer = this.contracts.mustGetTokenBridgeRelayer(
+        sendingChain,
+      ) as TokenBridgeRelayer;
       const tokenAddr = await this.mustGetForeignAsset(token, sendingChain);
       await this.approve(sendingChain, relayer.address, tokenAddr, amountBN);
     }
@@ -425,7 +431,9 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
     destChain: ChainName | ChainId,
     tokenId: TokenId,
   ): Promise<BigNumber> {
-    const relayer = this.contracts.mustGetTokenBridgeRelayer(destChain);
+    const relayer = this.contracts.mustGetTokenBridgeRelayer(
+      destChain,
+    ) as TokenBridgeRelayer;
     const token = await this.mustGetForeignAsset(tokenId, destChain);
     return await relayer.calculateMaxSwapAmountIn(token);
   }
@@ -435,7 +443,9 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
     tokenId: TokenId,
     amount: BigNumberish,
   ): Promise<BigNumber> {
-    const relayer = this.contracts.mustGetTokenBridgeRelayer(destChain);
+    const relayer = this.contracts.mustGetTokenBridgeRelayer(
+      destChain,
+    ) as TokenBridgeRelayer;
     const token = await this.mustGetForeignAsset(tokenId, destChain);
     return await relayer.calculateNativeSwapAmountOut(token, amount);
   }
@@ -456,7 +466,9 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
 
     const core = this.contracts.mustGetCore(chain);
     const bridge = this.contracts.mustGetBridge(chain);
-    const relayer = this.contracts.getTokenBridgeRelayer(chain);
+    const relayer = this.contracts.getTokenBridgeRelayer(
+      chain,
+    ) as TokenBridgeRelayer;
     const bridgeLogs = receipt.logs.filter((l: any) => {
       return l.address === core.address;
     });
@@ -548,7 +560,9 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
     destChain: ChainName | ChainId,
     tokenId: TokenId,
   ): Promise<BigNumber> {
-    const relayer = this.contracts.mustGetTokenBridgeRelayer(sourceChain);
+    const relayer = this.contracts.mustGetTokenBridgeRelayer(
+      sourceChain,
+    ) as TokenBridgeRelayer;
     // get asset address
     const address = await this.mustGetForeignAsset(tokenId, sourceChain);
     // get token decimals

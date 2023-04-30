@@ -10,6 +10,8 @@ import { wh } from '../sdk';
 import { fromNormalizedDecimals } from '.';
 import { CHAINS } from '../config';
 
+// TODO: sui support
+
 export const fetchRedeemedEvent = async (
   destChainId: ChainId | ChainName,
   emitterChainId: ChainId,
