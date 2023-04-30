@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { BigNumber } from 'ethers';
 import { makeStyles } from 'tss-react/mui';
@@ -155,7 +155,7 @@ function ToInputs() {
       dispatch(setForeignAsset(address || ''));
     };
     checkWrappedTokenExists();
-  }, [toNetwork, token]);
+  }, [toNetwork, token, dispatch]);
 
   // token display jsx
   const symbol = tokenConfig && getWrappedToken(tokenConfig).symbol;
@@ -177,26 +177,7 @@ function ToInputs() {
     </Input>
   );
 
-  // the associated token account address is deterministic, so we still
-  // need to check if there is an account created for that address
-  const checkSolanaAssociatedTokenAccount = async (): Promise<boolean> => {
-    if (!foreignAsset) return false;
-    let tokenId = tokenConfig.tokenId || getWrappedTokenId(tokenConfig);
-    const account = await solanaContext().getAssociatedTokenAccount(
-      tokenId,
-      receiving.address,
-    );
-    if (account) {
-      dispatch(setAssociatedTokenAddress(account.toString()));
-      setWarnings([]);
-      return true;
-    } else {
-      setWarnings([associatedTokenWarning]);
-      return false;
-    }
-  };
-
-  const createAssociatedTokenAccount = async () => {
+  const createAssociatedTokenAccount = useCallback(async () => {
     if (!receiving.address || !token)
       throw new Error(
         'Must fill in all fields before you can create a token account',
@@ -228,24 +209,56 @@ function ToInputs() {
         }
       }, 1000);
     });
-  };
+  }, [token, receiving, foreignAsset, tokenConfig]);
 
   // destination token warnings
-  const tokenWarning = (
-    <Typography>
-      This token is not registered, you must{' '}
-      <Link target={'_blank'} variant="inherit" href={REACT_APP_ATTEST_URL}>
-        register
-      </Link>{' '}
-      it before you continue. Newly registered tokens will not have liquid
-      markets.
-    </Typography>
+  const tokenWarning = useMemo(
+    () => (
+      <Typography>
+        This token is not registered, you must{' '}
+        <Link target={'_blank'} variant="inherit" href={REACT_APP_ATTEST_URL}>
+          register
+        </Link>{' '}
+        it before you continue. Newly registered tokens will not have liquid
+        markets.
+      </Typography>
+    ),
+    [],
   );
-  const associatedTokenWarning = (
-    <AssociatedTokenWarning
-      createAssociatedTokenAccount={createAssociatedTokenAccount}
-    />
+  const associatedTokenWarning = useMemo(
+    () => (
+      <AssociatedTokenWarning
+        createAssociatedTokenAccount={createAssociatedTokenAccount}
+      />
+    ),
+    [createAssociatedTokenAccount],
   );
+
+  // the associated token account address is deterministic, so we still
+  // need to check if there is an account created for that address
+  const checkSolanaAssociatedTokenAccount =
+    useCallback(async (): Promise<boolean> => {
+      if (!foreignAsset) return false;
+      let tokenId = tokenConfig.tokenId || getWrappedTokenId(tokenConfig);
+      const account = await solanaContext().getAssociatedTokenAccount(
+        tokenId,
+        receiving.address,
+      );
+      if (account) {
+        dispatch(setAssociatedTokenAddress(account.toString()));
+        setWarnings([]);
+        return true;
+      } else {
+        setWarnings([associatedTokenWarning]);
+        return false;
+      }
+    }, [
+      foreignAsset,
+      tokenConfig,
+      receiving,
+      dispatch,
+      associatedTokenWarning,
+    ]);
 
   useEffect(() => {
     if (!toNetwork || !token || !receiving.address) return setWarnings([]);
@@ -255,7 +268,15 @@ function ToInputs() {
     } else {
       setWarnings([]);
     }
-  }, [toNetwork, token, foreignAsset, receiving, associatedTokenAddress]);
+  }, [
+    toNetwork,
+    token,
+    foreignAsset,
+    receiving,
+    associatedTokenAddress,
+    tokenWarning,
+    checkSolanaAssociatedTokenAccount,
+  ]);
 
   return (
     <Inputs

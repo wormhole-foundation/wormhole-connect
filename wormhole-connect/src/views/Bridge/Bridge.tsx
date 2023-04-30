@@ -80,7 +80,7 @@ function Bridge() {
         setReceiverNativeBalance(toDecimals(res, tokenConfig.decimals, 6)),
       );
     });
-  }, [fromNetwork, toNetwork, receiving.address]);
+  }, [fromNetwork, toNetwork, receiving.address, dispatch]);
 
   // check if automatic relay option is available
   useEffect(() => {
@@ -102,7 +102,7 @@ function Bridge() {
     } else {
       dispatch(disableAutomaticTransfer());
     }
-  }, [fromNetwork, toNetwork, token]);
+  }, [fromNetwork, toNetwork, token, dispatch]);
 
   // validate transfer inputs
   useEffect(() => {
@@ -120,6 +120,7 @@ function Bridge() {
     foreignAsset,
     associatedTokenAddress,
     balances,
+    dispatch,
   ]);
   const valid = isTransferValid(validations);
 

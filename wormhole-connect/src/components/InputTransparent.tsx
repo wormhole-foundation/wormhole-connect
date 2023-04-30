@@ -80,7 +80,7 @@ function InputTransparent(props: Props) {
         }, 1000),
       );
     }
-  }, []);
+  }, [props.id, props.onPause]);
 
   return (
     <input

@@ -139,6 +139,9 @@ export const transferSlice = createSlice({
       state: TransferState,
       { payload }: PayloadAction<PaymentOption>,
     ) => {
+      if (payload === PaymentOption.MANUAL) {
+        state.maxSwapAmt = undefined;
+      }
       state.destGasPayment = payload;
     },
     // transfer calculations

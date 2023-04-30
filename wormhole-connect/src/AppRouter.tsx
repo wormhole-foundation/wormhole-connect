@@ -59,7 +59,7 @@ function AppRouter() {
     if (prevRoute !== bridgeRoute && route === bridgeRoute) {
       dispatch(clearWallets());
     }
-  }, [route]);
+  }, [route, prevRoute, dispatch]);
 
   return (
     <div className={classes.appContent}>

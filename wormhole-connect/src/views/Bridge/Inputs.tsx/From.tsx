@@ -69,7 +69,7 @@ function FromInputs() {
         dispatch(setStoreBalance(balance));
       });
     }
-  }, [tokenConfig, fromNetwork, wallet.address]);
+  }, [tokenConfig, fromNetwork, wallet.address, dispatch]);
 
   // token input jsx
   const selectedToken = tokenConfig

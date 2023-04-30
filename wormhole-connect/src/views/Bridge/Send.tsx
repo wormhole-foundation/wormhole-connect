@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Context } from '@wormhole-foundation/wormhole-connect-sdk';
 import { useTheme } from '@mui/material/styles';
@@ -132,34 +132,46 @@ function Send(props: { valid: boolean }) {
     }
   }
 
-  const setSendingGas = async (gasPayment: PaymentOption) => {
-    const tokenConfig = TOKENS[token]!;
-    if (!tokenConfig) return;
-    const sendToken = tokenConfig.tokenId;
+  const setSendingGas = useCallback(
+    async (gasPayment: PaymentOption) => {
+      const tokenConfig = TOKENS[token]!;
+      if (!tokenConfig) return;
+      const sendToken = tokenConfig.tokenId;
 
-    const gasFee = await estimateSendGasFee(
-      sendToken || 'native',
-      `${amount}`,
-      fromNetwork!,
-      sending.address,
-      toNetwork!,
-      receiving.address,
-      gasPayment,
-      `${toNativeToken}`,
-    );
-    if (gasPayment === PaymentOption.MANUAL) {
-      dispatch(setManualGasEst(gasFee));
-    } else {
-      dispatch(setAutomaticGasEst(gasFee));
-    }
-  };
+      const gasFee = await estimateSendGasFee(
+        sendToken || 'native',
+        `${amount}`,
+        fromNetwork!,
+        sending.address,
+        toNetwork!,
+        receiving.address,
+        gasPayment,
+        `${toNativeToken}`,
+      );
+      if (gasPayment === PaymentOption.MANUAL) {
+        dispatch(setManualGasEst(gasFee));
+      } else {
+        dispatch(setAutomaticGasEst(gasFee));
+      }
+    },
+    [
+      token,
+      amount,
+      fromNetwork,
+      sending,
+      toNetwork,
+      receiving,
+      toNativeToken,
+      dispatch,
+    ],
+  );
 
   // TODO: mock vaa?
-  const setDestGas = async () => {
+  const setDestGas = useCallback(async () => {
     if (!toNetwork) return;
     const gasFee = await estimateClaimGasFee(toNetwork!);
     dispatch(setClaimGasEst(gasFee));
-  };
+  }, [toNetwork, dispatch]);
 
   useEffect(() => {
     const valid = isTransferValid(validations);
@@ -180,6 +192,9 @@ function Send(props: { valid: boolean }) {
     destGasPayment,
     toNativeToken,
     relayerFee,
+    automaticRelayAvail,
+    setDestGas,
+    setSendingGas,
   ]);
 
   useEffect(() => {
