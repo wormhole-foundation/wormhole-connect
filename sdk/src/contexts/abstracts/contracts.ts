@@ -1,5 +1,16 @@
 import { WormholeContext } from '../../wormhole';
 import { ChainName, ChainId } from '../../types';
+import { BigNumber, BigNumberish } from 'ethers';
+
+export interface TokenBridgeRelayerInterface {
+  isAcceptedToken(token: string): Promise<boolean>;
+
+  calculateRelayerFee(
+    targetChainId: BigNumberish,
+    token: string,
+    decimals: BigNumberish,
+  ): Promise<BigNumber>;
+}
 
 export abstract class ContractsAbstract<T extends WormholeContext> {
   protected abstract _contracts: Map<ChainName, any>;
@@ -13,6 +24,8 @@ export abstract class ContractsAbstract<T extends WormholeContext> {
   protected abstract mustGetNftBridge(chain: ChainName | ChainId): any;
   protected abstract getTokenBridgeRelayer(
     chain: ChainName | ChainId,
-  ): any | undefined;
-  protected abstract mustGetTokenBridgeRelayer(chain: ChainName | ChainId): any;
+  ): TokenBridgeRelayerInterface | undefined;
+  protected abstract mustGetTokenBridgeRelayer(
+    chain: ChainName | ChainId,
+  ): TokenBridgeRelayerInterface;
 }
