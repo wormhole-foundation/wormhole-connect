@@ -112,13 +112,17 @@ function App() {
 }
 ```
 
-Specify networks/tokens (optional)
+Specify networks/tokens and rpc endpoints (optional)
 ```jsx
 import WormholeBridge, { WormholeConnectConfig } from '@wormhole-foundation/wormhole-connect';
 const config: WormholeConnectConfig = {
   env: "mainnet",
   networks: ["ethereum", "polygon", "solana"],
   tokens: ["ETH", "WETH", "MATIC", "WMATIC"],
+  rpc: {
+    ethereum: "https://rpc.ankr.com/eth",
+    solana: "https://rpc.ankr.com/solana",
+  }
 }
 
 function App() {
