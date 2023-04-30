@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { makeStyles } from 'tss-react/mui';
 import { useDispatch, useSelector } from 'react-redux';
 import { Wallet, WalletState } from '@xlabs-libs/wallet-aggregator-core';
@@ -104,28 +104,28 @@ type Props = {
 
 function WalletsModal(props: Props) {
   const { classes } = useStyles();
+  const { chain: chainProp, type } = props;
   const dispatch = useDispatch();
   const { fromNetwork, toNetwork } = useSelector(
     (state: RootState) => state.transfer,
   );
-  const [walletOptions, setWalletOptions] = useState(
-    getAvailableWallets() || [],
-  );
-
-  function getAvailableWallets() {
+  const getAvailableWallets = useCallback(() => {
     const chain =
-      props.chain ||
-      (props.type === TransferWallet.SENDING ? fromNetwork : toNetwork);
+      chainProp || (type === TransferWallet.SENDING ? fromNetwork : toNetwork);
 
     const config = CHAINS[chain!];
     if (!config) return Object.values(WALLETS);
     return getWalletOptions(config);
-  }
+  }, [chainProp, type, fromNetwork, toNetwork]);
+
+  const [walletOptions, setWalletOptions] = useState(
+    getAvailableWallets() || [],
+  );
 
   useEffect(() => {
     const options = getAvailableWallets();
     if (options) setWalletOptions(options);
-  }, [fromNetwork, toNetwork, props.chain]);
+  }, [fromNetwork, toNetwork, props.chain, getAvailableWallets]);
 
   const connect = async (walletInfo: WalletData) => {
     const { wallet } = walletInfo;

@@ -153,7 +153,15 @@ function GasOptions(props: { disabled: boolean }) {
       ),
       description,
     });
-  }, [token, selectedOption, fromNetwork, toNetwork, gasEst, relayerFee]);
+  }, [
+    token,
+    selectedOption,
+    fromNetwork,
+    toNetwork,
+    gasEst,
+    relayerFee,
+    automaticRelayAvail,
+  ]);
 
   return (
     <BridgeCollapse

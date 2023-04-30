@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { BigNumber, utils } from 'ethers';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -180,14 +180,14 @@ function SendTo() {
     setWalletModal(true);
   };
 
-  const checkConnection = () => {
+  const checkConnection = useCallback(() => {
     if (!txData) return;
     const addr = wallet.address.toLowerCase();
     const curAddr = wallet.currentAddress.toLowerCase();
     const formattedRecipient = parseAddress(txData.toChain, txData.recipient);
     const reqAddr = formattedRecipient.toLowerCase();
     return addr === curAddr && addr === reqAddr;
-  };
+  }, [wallet, txData]);
 
   const [inProgress, setInProgress] = useState(false);
   const [isConnected, setIsConnected] = useState(checkConnection());
@@ -195,7 +195,7 @@ function SendTo() {
   const [openWalletModal, setWalletModal] = useState(false);
 
   // get the redeem tx, for automatic transfers only
-  const getRedeemTx = async () => {
+  const getRedeemTx = useCallback(async () => {
     if (redeemTx) return redeemTx;
     if (
       vaa &&
@@ -213,7 +213,7 @@ function SendTo() {
         return redeemed.transactionHash;
       }
     }
-  };
+  }, [redeemTx, vaa, txData, dispatch]);
 
   useEffect(() => {
     if (!txData) return;
@@ -228,11 +228,11 @@ function SendTo() {
       setRows(rows);
     };
     populate();
-  }, [transferComplete]);
+  }, [transferComplete, getRedeemTx, txData]);
 
   useEffect(() => {
     setIsConnected(checkConnection());
-  }, [wallet]);
+  }, [wallet, checkConnection]);
 
   const claim = async () => {
     setInProgress(true);

@@ -18,7 +18,7 @@ const getRows = (txData: any): RowsData => {
     txData.tokenDecimals,
     MAX_DECIMALS,
   );
-  const { gasToken: sourceGasTokenSymbol } = CHAINS[txData.fromChain];
+  const { gasToken: sourceGasTokenSymbol } = CHAINS[txData.fromChain]!;
   const sourceGasToken = TOKENS[sourceGasTokenSymbol];
   const formattedGas =
     txData.gasFee &&
@@ -85,7 +85,7 @@ function SendFrom() {
     if (!txData) return;
     const rows = getRows(txData);
     setRows(rows);
-  }, []);
+  }, [txData]);
 
   return (
     <div>

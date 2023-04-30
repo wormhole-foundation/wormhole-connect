@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { styled } from '@mui/material/styles';
 import { makeStyles } from 'tss-react/mui';
 import { LinearProgress, linearProgressClasses } from '@mui/material';
@@ -37,14 +37,15 @@ type Props = {
 
 function Confirmations(props: Props) {
   const { classes } = useStyles();
-  const chainConfig = CHAINS[props.chain]!;
-  const requiredHeight = props.blockHeight + chainConfig.finalityThreshold;
+  const { chain, blockHeight } = props;
+  const chainConfig = CHAINS[chain]!;
+  const requiredHeight = blockHeight + chainConfig.finalityThreshold;
   const [currentBlock, setCurrentBlock] = useState(0);
 
-  const updateCurrentBlock = async () => {
-    const height = await getCurrentBlock(props.chain);
+  const updateCurrentBlock = useCallback(async () => {
+    const height = await getCurrentBlock(chain);
     setCurrentBlock(height);
-  };
+  }, [chain]);
 
   useEffect(() => {
     updateCurrentBlock();
@@ -55,7 +56,7 @@ function Confirmations(props: Props) {
         clearInterval(interval);
       }
     }, 1000);
-  }, []);
+  }, [currentBlock, requiredHeight, updateCurrentBlock]);
 
   const blockDiff =
     currentBlock > requiredHeight ? 0 : requiredHeight - currentBlock;
