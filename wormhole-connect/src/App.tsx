@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Provider } from 'react-redux';
-import CssBaseline from '@mui/material/CssBaseline';
+import ScopedCssBaseline from '@mui/material/ScopedCssBaseline';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 // import Box from '@mui/material/Box';
 import { PaletteMode } from '@mui/material';
@@ -36,38 +36,11 @@ function App() {
     <Provider store={store}>
       <ColorModeContext.Provider value={colorMode}>
         <ThemeProvider theme={theme}>
-          <CssBaseline enableColorScheme />
-          {/* light/dark theme switch */}
-          {/* <Box
-            sx={{
-              display: 'flex',
-              width: '100%',
-              alignItems: 'center',
-              justifyContent: 'end',
-              bgcolor: 'background.default',
-              color: 'text.primary',
-              borderRadius: 1,
-              p: 3,
-            }}
-          >
-            {theme.palette.mode} mode
-            <IconButton
-              sx={{ ml: 1 }}
-              onClick={colorMode.toggleColorMode}
-              color="inherit"
-            >
-              {theme.palette.mode === 'dark' ? (
-                <Brightness7Icon />
-              ) : (
-                <Brightness4Icon />
-              )}
-            </IconButton>
-          </Box> */}
-
-          {/* App content */}
-          <BackgroundImage>
-            <AppRouter />
-          </BackgroundImage>
+          <ScopedCssBaseline enableColorScheme>
+            <BackgroundImage>
+              <AppRouter />
+            </BackgroundImage>
+          </ScopedCssBaseline>
         </ThemeProvider>
       </ColorModeContext.Provider>
     </Provider>
