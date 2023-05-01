@@ -1,6 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Context } from '@wormhole-foundation/wormhole-connect-sdk';
+import { useTheme } from '@mui/material/styles';
+import { makeStyles } from 'tss-react/mui';
 
 import { CHAINS, TOKENS } from '../../config';
 import {
@@ -30,9 +32,8 @@ import {
 import Button from '../../components/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 import AlertBanner from '../../components/AlertBanner';
-import { Link, Typography } from '@mui/material';
-import { makeStyles } from 'tss-react/mui';
 import PoweredByIcon from '../../icons/PoweredBy';
+import { LINK } from '../../utils/style';
 
 const useStyles = makeStyles()((theme) => ({
   body: {
@@ -46,13 +47,21 @@ const useStyles = makeStyles()((theme) => ({
     marginTop: '24px',
   },
   tosDisclaimer: {
+    display: 'flex',
+    flexDirection: 'row',
     marginBottom: 5,
     marginLeft: 16,
+    fontSize: '12px',
+  },
+  link: {
+    ...LINK(theme),
+    margin: '0 0 0 4px',
   },
 }));
 
 function Send(props: { valid: boolean }) {
   const { classes } = useStyles();
+  const theme = useTheme();
   const dispatch = useDispatch();
   const wallets = useSelector((state: RootState) => state.wallet);
   const { sending, receiving } = wallets;
@@ -123,34 +132,46 @@ function Send(props: { valid: boolean }) {
     }
   }
 
-  const setSendingGas = async (gasPayment: PaymentOption) => {
-    const tokenConfig = TOKENS[token]!;
-    if (!tokenConfig) return;
-    const sendToken = tokenConfig.tokenId;
+  const setSendingGas = useCallback(
+    async (gasPayment: PaymentOption) => {
+      const tokenConfig = TOKENS[token]!;
+      if (!tokenConfig) return;
+      const sendToken = tokenConfig.tokenId;
 
-    const gasFee = await estimateSendGasFee(
-      sendToken || 'native',
-      `${amount}`,
-      fromNetwork!,
-      sending.address,
-      toNetwork!,
-      receiving.address,
-      gasPayment,
-      `${toNativeToken}`,
-    );
-    if (gasPayment === PaymentOption.MANUAL) {
-      dispatch(setManualGasEst(gasFee));
-    } else {
-      dispatch(setAutomaticGasEst(gasFee));
-    }
-  };
+      const gasFee = await estimateSendGasFee(
+        sendToken || 'native',
+        `${amount}`,
+        fromNetwork!,
+        sending.address,
+        toNetwork!,
+        receiving.address,
+        gasPayment,
+        `${toNativeToken}`,
+      );
+      if (gasPayment === PaymentOption.MANUAL) {
+        dispatch(setManualGasEst(gasFee));
+      } else {
+        dispatch(setAutomaticGasEst(gasFee));
+      }
+    },
+    [
+      token,
+      amount,
+      fromNetwork,
+      sending,
+      toNetwork,
+      receiving,
+      toNativeToken,
+      dispatch,
+    ],
+  );
 
   // TODO: mock vaa?
-  const setDestGas = async () => {
+  const setDestGas = useCallback(async () => {
     if (!toNetwork) return;
     const gasFee = await estimateClaimGasFee(toNetwork!);
     dispatch(setClaimGasEst(gasFee));
-  };
+  }, [toNetwork, dispatch]);
 
   useEffect(() => {
     const valid = isTransferValid(validations);
@@ -171,6 +192,9 @@ function Send(props: { valid: boolean }) {
     destGasPayment,
     toNativeToken,
     relayerFee,
+    automaticRelayAvail,
+    setDestGas,
+    setSendingGas,
   ]);
 
   useEffect(() => {
@@ -203,12 +227,14 @@ function Send(props: { valid: boolean }) {
       ) : (
         <>
           <div className={classes.tosDisclaimer}>
-            <Typography variant="caption">
-              By proceeding, you agree to the{' '}
-              <Link onClick={() => dispatch(setRoute('terms'))} href="#">
-                Terms of Service
-              </Link>
-            </Typography>
+            By proceeding, you agree to the
+            <span
+              className={classes.link}
+              onClick={() => dispatch(setRoute('terms'))}
+              rel="noreferrer"
+            >
+              Terms of Use
+            </span>
           </div>
           <Button
             onClick={send}
@@ -226,7 +252,7 @@ function Send(props: { valid: boolean }) {
       )}
 
       <div className={classes.poweredBy}>
-        <PoweredByIcon color={'white'} />
+        <PoweredByIcon color={theme.palette.text.primary} />
       </div>
     </div>
   );

@@ -109,13 +109,13 @@ function AddToWallet() {
   const [targetToken, setTargetToken] = useState<TokenConfig | undefined>(
     undefined,
   );
-  const [targetAddress, setTargetAddress] = useState<string | undefined>(
+  const [targetAddress, setTargetAddress] = useState<string | null | undefined>(
     undefined,
   );
 
   useEffect(() => {
     const fetchTokenInfo = async () => {
-      const tokenInfo = TOKENS[txData.tokenSymbol];
+      const tokenInfo = TOKENS[txData.tokenKey];
       const wrapped = getWrappedToken(tokenInfo);
       if (!wrapped.tokenId) return;
       const address = await getForeignAsset(wrapped.tokenId, txData.toChain);
@@ -138,7 +138,10 @@ function AddToWallet() {
 
   if (isEVMChain(chainId)) {
     return <AddToEVMWallet address={targetAddress} token={targetToken} />;
-  } else if (chainId === MAINNET_NETWORKS.solana?.id) {
+  } else if (
+    chainId === MAINNET_NETWORKS.solana?.id &&
+    targetToken.symbol !== 'WSOL'
+  ) {
     return <AddToSolanaWallet address={targetAddress} token={targetToken} />;
   }
 

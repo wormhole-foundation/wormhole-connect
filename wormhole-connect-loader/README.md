@@ -8,7 +8,7 @@ Integration does not get easier than this. Wormhole Connect is an easy seamless 
 
 ```ts
 {
-  "environment": "testnet",
+  "env": "testnet",
   "networks": ["goerli", "mumbai"],
   "tokens": ["ETH", "WETH", "MATIC", "WMATIC"],
   "mode": "light"
@@ -18,12 +18,14 @@ Integration does not get easier than this. Wormhole Connect is an easy seamless 
 
 #### Accepted values
 
-Environment:
+Environment (`env`):
 | Mainnet    | Testnet   |
 | ---------- | --------- |
 | mainnet    | testnet   |
 
-Chains:
+<br>
+
+Networks (`networks`):
 | Mainnet    | Testnet       |
 | ---------- | ------------- |
 | ethereum   | goerli        |
@@ -34,31 +36,45 @@ Chains:
 | moonbeam   | moonbasealpha |
 | solana     | solana        |
 
-Tokens:
-| Mainnet | Testnet |
-| ------- | ------- |
-| ETH     | ETH     |
-| WETH    | WETH    |
-| USDC    | USDC    |
-| MATIC   | MATIC   |
-| WMATIC  | WMATIC  |
-| BNB     | BNB     |
-| WBNB    | WBNB    |
-| AVAX    | AVAX    |
-| WAVAX   | WAVAX   |
-| FTM     | FTM     |
-| WFTM    | WFTM    |
-| CELO    | CELO    |
-| GLMR    | GLMR    |
-| WGLMR   | WGLMR   |
-| SOL     | WSOL    |
+<br>
 
-Mode:
+Tokens (`tokens`):
+| Mainnet     | Testnet |
+| ----------- | ------- |
+| ETH         | ETH     |
+| WETH        | WETH    |
+| USDCeth     | USDCeth |
+| WBTC        |         |
+| USDT        |         |
+| DAI         |         |
+| BUSD        |         |
+| MATIC       | MATIC   |
+| WMATIC      | WMATIC  |
+| USDCpolygon |         |
+| BNB         | BNB     |
+| WBNB        | WBNB    |
+| USDCbnb     |         |
+| AVAX        | AVAX    |
+| WAVAX       | WAVAX   |
+| USDCavax    |         |
+| FTM         | FTM     |
+| WFTM        | WFTM    |
+| CELO        | CELO    |
+| GLMR        | GLMR    |
+| WGLMR       | WGLMR   |
+| SOL         | WSOL    |
+| USDCsol     |         |
+
+<br>
+
+Mode (`mode`):
 |      |       |
 | ---- | ----- |
 | dark | light |
 
-Custom theme:
+<br>
+
+Custom theme (`customTheme`):
 
 ```js
 import { dark, light, Theme } from '@wormhole-foundation/wormhole-connect';
@@ -68,8 +84,8 @@ import { dark, light, Theme } from '@wormhole-foundation/wormhole-connect';
 
 ```html
 <!-- paste below into index.html body -->
-<script src="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.1-beta.3/dist/main.js"></script>
-<link href="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.1-beta.3/dist/main.css" />
+<script src="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.1-beta.5/dist/main.js"></script>
+<link href="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.1-beta.5/dist/main.css" />
 ```
 
 ### 3. Embed it in your application
@@ -96,13 +112,17 @@ function App() {
 }
 ```
 
-Specify networks/tokens (optional)
+Specify networks/tokens and rpc endpoints (optional)
 ```jsx
 import WormholeBridge, { WormholeConnectConfig } from '@wormhole-foundation/wormhole-connect';
 const config: WormholeConnectConfig = {
-  environment: "mainnet",
+  env: "mainnet",
   networks: ["ethereum", "polygon", "solana"],
   tokens: ["ETH", "WETH", "MATIC", "WMATIC"],
+  rpc: {
+    ethereum: "https://rpc.ankr.com/eth",
+    solana: "https://rpc.ankr.com/solana",
+  }
 }
 
 function App() {

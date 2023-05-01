@@ -6,11 +6,11 @@ class WormholeBridge extends React.Component<
 > {
   componentDidMount() {
     const script = document.createElement("script");
-    script.src = "https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.1-beta.4/dist/main.js";
+    script.src = "https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.1-beta.5/dist/main.js";
     script.async = true;
 
     const link = document.createElement("link");
-    link.href = "https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.1-beta.4/dist/main.css";
+    link.href = "https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.1-beta.5/dist/main.css";
 
     document.body.appendChild(script);
     document.body.appendChild(link);

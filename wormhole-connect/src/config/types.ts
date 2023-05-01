@@ -6,6 +6,12 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { ExtendedTheme } from 'theme';
 
+export interface BridgeDefaults {
+  fromNetwork?: ChainName;
+  toNetwork?: ChainName;
+  token?: string;
+}
+
 export interface WormholeConnectConfig {
   env?: 'mainnet' | 'testnet';
   rpcs?: Rpcs;
@@ -17,9 +23,11 @@ export interface WormholeConnectConfig {
     text: string;
     link: string;
   };
+  bridgeDefaults?: BridgeDefaults;
 }
 
 export type TokenConfig = {
+  key: string;
   symbol: string;
   nativeNetwork: ChainName;
   icon: Icon;
@@ -57,6 +65,10 @@ export enum Icon {
   'SOLANA',
   'USDC',
   'GLMR',
+  'DAI',
+  'USDT',
+  'BUSD',
+  'WBTC',
 }
 
 export type GasEstimates = {

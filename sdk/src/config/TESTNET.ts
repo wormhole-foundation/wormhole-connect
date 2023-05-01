@@ -112,7 +112,7 @@ const TESTNET_CONFIG: WormholeConfig = {
     fuji: 'https://api.avax-test.network/ext/bc/C/rpc',
     fantom: 'https://rpc.ankr.com/fantom_testnet',
     alfajores: 'https://alfajores-forno.celo-testnet.org',
-    solana: 'https://api.testnet.solana.com',
+    solana: 'https://api.devnet.solana.com',
     moonbasealpha: 'https://rpc.api.moonbase.moonbeam.network',
   },
   chains: TESTNET,
