@@ -11,7 +11,7 @@ Integration does not get easier than this. Wormhole Connect is an easy seamless 
   "env": "testnet",
   "networks": ["goerli", "mumbai"],
   "tokens": ["ETH", "WETH", "MATIC", "WMATIC"],
-  "mode": "light"
+  "mode": "light",
   "customTheme": {} // see src/theme.ts
 }
 ```
@@ -72,12 +72,19 @@ Mode (`mode`):
 | ---- | ----- |
 | dark | light |
 
-<br>
+### 2. Add your config
 
-Custom theme (`customTheme`):
+Add a div with the id `wormhole-connect`. This is where the bridge will be rendered.
 
-```js
-import { dark, light, Theme } from '@wormhole-foundation/wormhole-connect';
+```html
+<div id="wormhole-connect" />
+```
+
+If you created a config from step 1, assign it to the `config` attribute and replace <replace-with-config> with your config.
+
+```html
+<div id="wormhole-connect" config='<replace-with-config>' />
+<div id="wormhole-connect" config={JSON.stringify(jsonConfig)} />
 ```
 
 ### 2. Add a script and link tag
@@ -88,17 +95,20 @@ import { dark, light, Theme } from '@wormhole-foundation/wormhole-connect';
 <link href="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.1-beta.5/dist/main.css" />
 ```
 
-### 3. Embed it in your application
+Note that the `wormhole-connect` div with your config has to be present _before_ the scripts are loaded.  If your application loads it after, you may need to add the scripts like this:
 
-This is where your widget will appear. Specify an id of `wormhole-connect` and pass it the stringified json config to customize.
+```js
+function mount () {
+  const script = document.createElement("script");
+  script.src = "https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.1-beta.5/dist/main.js";
+  script.async = true;
 
-```jsx
-// root element with id
-<div id="wormhole-connect"></div>
-// with customization
-<div id="wormhole-connect" config='{"networks": ["goerli", "mumbai"], "tokens": ["ETH", "WETH", "MATIC", "WMATIC"], "mode": "light"}'></div>
-// stringify JSON config
-<div id="wormhole-connect" config={JSON.stringify(jsonConfig)} />
+  const link = document.createElement("link");
+  link.href = "https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.1-beta.5/dist/main.css";
+
+  document.body.appendChild(script);
+  document.body.appendChild(link);
+}
 ```
 
 ## Integrate with React
