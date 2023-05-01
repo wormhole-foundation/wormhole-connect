@@ -53,7 +53,7 @@ const useStyles = makeStyles()((theme) => ({
 
 const getReady = (wallet: Wallet) => {
   const ready = wallet.getWalletState();
-  return ready !== WalletState.Unsupported;
+  return ready !== WalletState.Unsupported && ready !== WalletState.NotDetected;
 };
 
 type WalletData = {
@@ -62,39 +62,27 @@ type WalletData = {
   type: WalletType;
   isReady: boolean;
 };
-const WALLETS = {
-  metamask: {
-    name: 'Metamask',
-    wallet: wallets.evm.metamask,
-    type: WalletType.METAMASK,
-    isReady: getReady(wallets.evm.metamask),
-  },
-  walletConnect: {
-    name: 'Wallet Connect',
-    wallet: wallets.evm.walletConnect,
-    type: WalletType.WALLET_CONNECT,
-    isReady: getReady(wallets.evm.walletConnect),
-  },
-  phantom: {
-    name: 'Phantom',
-    wallet: wallets.solana.phantom,
-    type: WalletType.PHANTOM,
-    isReady: getReady(wallets.solana.phantom),
-  },
-  solflare: {
-    name: 'Solflare',
-    wallet: wallets.solana.solflare,
-    type: WalletType.SOLFLARE,
-    isReady: getReady(wallets.solana.solflare),
-  },
+
+const mapWallets = (wallets: Record<string, Wallet>, type: WalletType): WalletData[] => {
+  return Object.values(wallets).map((wallet) => ({
+    name: wallet.getName(),
+    wallet,
+    type,
+    isReady: getReady(wallet),
+  }));
 };
-const getWalletOptions = (chain: ChainConfig) => {
-  if (chain.context === Context.ETH) {
-    return [WALLETS.metamask, WALLETS.walletConnect];
-  } else if (chain.context === Context.SOLANA) {
-    return [WALLETS.phantom, WALLETS.solflare];
+
+const getWalletOptions = (context: Context) => {
+  if (context === Context.ETH) {
+    return mapWallets(wallets.evm, WalletType.EVM);
+  } else if (context === Context.SOLANA) {
+    return mapWallets(wallets.solana, WalletType.SOLANA);
   }
+  return [];
 };
+
+const ALL_WALLETS: WalletData[] =
+  Object.values(Context).reduce<WalletData[]>((acc, context) => acc.concat(getWalletOptions(context)), []);
 
 type Props = {
   type: TransferWallet;
@@ -113,9 +101,9 @@ function WalletsModal(props: Props) {
     const chain =
       chainProp || (type === TransferWallet.SENDING ? fromNetwork : toNetwork);
 
-    const config = CHAINS[chain!];
-    if (!config) return Object.values(WALLETS);
-    return getWalletOptions(config);
+    const config: ChainConfig = CHAINS[chain!];
+    if (!config) return ALL_WALLETS;
+    return getWalletOptions(config.context);
   }, [chainProp, type, fromNetwork, toNetwork]);
 
   const [walletOptions, setWalletOptions] = useState(
@@ -173,7 +161,7 @@ function WalletsModal(props: Props) {
         : () => window.open(wallet.wallet.getUrl());
       return (
         <div className={classes.walletRow} key={i} onClick={select}>
-          <WalletIcon type={wallet.type} height={32} />
+          <WalletIcon wallet={wallet.wallet} height={32} />
           <div className={`${!ready && classes.notInstalled}`}>
             {!ready && 'Install'} {wallet.name}
           </div>
