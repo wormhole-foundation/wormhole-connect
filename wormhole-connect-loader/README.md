@@ -4,7 +4,7 @@ Integration does not get easier than this. Wormhole Connect is an easy seamless 
 
 ## Integrate with script/link tags
 
-### 1. (optional) Create a JSON config with customized values:
+### 1. (Optional) Create a JSON config with customized values:
 
 ```ts
 {
@@ -80,17 +80,16 @@ See [theme.ts](https://github.com/wormhole-foundation/wormhole-connect/blob/deve
 
 ### 2. Add your config
 
-Add a div with the id `wormhole-connect`. This is where the bridge will be rendered.
+Add a container div with the id `wormhole-connect`. This is where the bridge will be rendered.
 
 ```html
 <div id="wormhole-connect" />
 ```
 
-If you created a config from step 1, assign it to the `config` attribute and replace <replace-with-config> with your config.
+If you created a config from step 1, [stringify](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify) it and assign to the `config` attribute on the container element.
 
 ```html
-<div id="wormhole-connect" config='<replace-with-config>' />
-<div id="wormhole-connect" config={JSON.stringify(jsonConfig)} />
+<div id="wormhole-connect" config='{"env":"mainnet","tokens":["ETH","WETH","WBTC","USDCeth"]}' />
 ```
 
 ### 2. Add a script and link tag
@@ -128,7 +127,7 @@ function App() {
 }
 ```
 
-Specify networks/tokens and rpc endpoints (optional)
+(Optional) Specify supported networks/tokens and custom RPC endpoints. Your users may encounter rate limits using public RPC endpoints if you do not provide your own
 ```jsx
 import WormholeBridge, { WormholeConnectConfig } from '@wormhole-foundation/wormhole-connect';
 const config: WormholeConnectConfig = {
@@ -148,7 +147,7 @@ function App() {
 }
 ```
 
-Customize theme (optional)
+(Optional) Customize theme
 ```jsx
 import WormholeBridge, { light, Theme, WormholeConnectConfig } from '@wormhole-foundation/wormhole-connect';
 import lightblue from '@mui/material/colors/lightBlue';
@@ -172,7 +171,7 @@ function App() {
 }
 ```
 
-Create fully customized theme (optional)
+(Optional) Create fully customized theme
 ```jsx
 import WormholeBridge, { Theme, OPACITY, WormholeConnectConfig } from '@wormhole-foundation/wormhole-connect';
 import lightblue from '@mui/material/colors/lightBlue';
