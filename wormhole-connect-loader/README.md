@@ -72,6 +72,12 @@ Mode (`mode`):
 | ---- | ----- |
 | dark | light |
 
+<br>
+
+Theme (`customTheme`)
+
+See [theme.ts](https://github.com/wormhole-foundation/wormhole-connect/blob/development/wormhole-connect-loader/src/theme.ts) for examples
+
 ### 2. Add your config
 
 Add a div with the id `wormhole-connect`. This is where the bridge will be rendered.
