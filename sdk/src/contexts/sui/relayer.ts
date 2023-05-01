@@ -1,5 +1,5 @@
 import { JsonRpcProvider, TransactionBlock } from '@mysten/sui.js';
-import { BigNumber, ethers } from 'ethers';
+import { BigNumber, BigNumberish } from 'ethers';
 import { getObjectFields } from '@certusone/wormhole-sdk/lib/cjs/sui';
 
 export interface TokenInfo {
@@ -68,25 +68,57 @@ export class SuiRelayer {
       console.log(`isAcceptedToken - token: ${token}`);
       const tokenInfo = await this.getTokenInfo(token);
       console.log(tokenInfo);
-      return tokenInfo !== null;
+      return tokenInfo?.swap_enabled === true;
     } catch (e) {
       console.error(e);
       return false;
     }
   }
 
-  calculateRelayerFee(
-    targetChainId: ethers.BigNumberish,
+  async calculateRelayerFee(
+    targetChainId: BigNumberish,
     coinType: string,
-    decimals: ethers.BigNumberish,
-  ): Promise<ethers.BigNumber> {
-    try {
-      // TODO: implement
-      throw new Error('unable to get relayer fee');
-    } catch (e) {
-      console.error(`calculateRelayerFee - error ${e}`);
-      throw e;
+    decimals: BigNumberish,
+  ): Promise<BigNumber> {
+    const tokenInfo = await this.getTokenInfo(coinType);
+    if (tokenInfo === null) {
+      throw new Error('Unable to get token info for relayer fee');
     }
+    const relayerFees = await this.provider.getDynamicFieldObject({
+      parentId: this.objectId,
+      name: {
+        type: 'vector<u8>',
+        value: [...Buffer.from('relayer_fees')],
+      },
+    });
+    if (
+      relayerFees.data &&
+      relayerFees.data.content &&
+      'fields' in relayerFees.data.content
+    ) {
+      const entry = await this.provider.getDynamicFieldObject({
+        parentId: relayerFees.data.content.fields!.id!.id,
+        name: {
+          type: 'u16',
+          value: Number(targetChainId),
+        },
+      });
+      if (entry.data && entry.data.content && 'fields' in entry.data.content) {
+        const fields = await this.getFields();
+        const relayerFeePrecision = BigNumber.from(
+          fields.relayer_fee_precision,
+        );
+        const swapRatePrecision = BigNumber.from(fields.swap_rate_precision);
+        const swapRate = BigNumber.from(tokenInfo.swap_rate);
+        const fee = BigNumber.from(entry.data.content.fields.value);
+        return BigNumber.from(10)
+          .pow(decimals)
+          .mul(fee)
+          .mul(swapRatePrecision)
+          .div(swapRate.mul(relayerFeePrecision));
+      }
+    }
+    throw new Error('Unable to compute relayer fee');
   }
 
   async calculateMaxSwapAmountIn(
@@ -110,9 +142,10 @@ export class SuiRelayer {
       transactionBlock: tx,
       sender: senderAddress,
     });
+    console.log(JSON.stringify(result));
     const returnValues = result.results?.[0]?.returnValues;
     if (returnValues?.length != 1) {
-      throw Error('Unable to calculate maxSwapAmountIn');
+      throw Error('swap rate not set');
     }
     const maxSwapAmountIn = Buffer.from(returnValues[0][0]).readBigUInt64LE();
     console.log(
@@ -124,7 +157,7 @@ export class SuiRelayer {
   async calculateNativeSwapAmountOut(
     senderAddress: string,
     coinType: string,
-    toNativeAmount: ethers.BigNumberish,
+    toNativeAmount: BigNumberish,
   ): Promise<BigNumber> {
     const metadata = await this.provider.getCoinMetadata({ coinType });
     if (!metadata) {
@@ -146,14 +179,14 @@ export class SuiRelayer {
       transactionBlock: tx,
       sender: senderAddress,
     });
+    console.log(JSON.stringify(result));
     const returnValues = result.results?.[0]?.returnValues;
     if (returnValues?.length != 1) {
       throw Error('Unable to calculate nativeSwapAmountOut');
     }
-
-    const nativeSwapAmountOut = Buffer.from(returnValues[0][0]).readBigUInt64LE(
-      0,
-    );
+    const nativeSwapAmountOut = Buffer.from(
+      returnValues[0][0],
+    ).readBigUInt64LE();
     console.log(
       `calculateNativeSwapAmountOut - nativeSwapAmountOut: ${nativeSwapAmountOut}`,
     );

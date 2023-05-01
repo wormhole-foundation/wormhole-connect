@@ -29,7 +29,7 @@ import {
   PaymentOption,
   calculateNativeTokenAmt,
 } from '../../sdk';
-import { CHAINS, TOKENS } from '../../config';
+import { CHAINS, TOKENS, getTokenDecimalsForChain } from '../../config';
 import WalletsModal from '../WalletModal';
 import { GAS_ESTIMATES } from '../../config';
 import { fetchRedeemedEvent, fetchSwapEvent } from '../../utils/events';
@@ -123,14 +123,29 @@ const getAutomaticRows = async (
       );
     }
   } else if (!transferComplete) {
+    // get the decimals on the target chain
+    const destinationTokenDecimals = getTokenDecimalsForChain(
+      txData.toChain,
+      txData.tokenId,
+    );
     const amount = await calculateNativeTokenAmt(
       txData.toChain,
       txData.tokenId,
-      fromNormalizedDecimals(txData.toNativeTokenAmount, txData.tokenDecimals),
+      // fromNormalizedDecimals(txData.toNativeTokenAmount, txData.tokenDecimals),
+      fromNormalizedDecimals(
+        txData.toNativeTokenAmount,
+        destinationTokenDecimals,
+      ),
+    );
+    // get the decimals on the target chain
+    const nativeGasTokenDecimals = getTokenDecimalsForChain(
+      txData.toChain,
+      nativeGasToken,
     );
     nativeGasAmt = toDecimals(
       amount.toString(),
-      nativeGasToken.decimals,
+      // nativeGasToken.decimals,
+      nativeGasTokenDecimals,
       MAX_DECIMALS,
     );
   }

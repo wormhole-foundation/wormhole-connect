@@ -5,7 +5,7 @@ import Slider, { SliderThumb } from '@mui/material/Slider';
 import { styled } from '@mui/material/styles';
 import BridgeCollapse, { CollapseControlStyle } from './Collapse';
 import InputContainer from '../../components/InputContainer';
-import { CHAINS, TOKENS } from '../../config';
+import { CHAINS, TOKENS, getTokenDecimalsForChain } from '../../config';
 import {
   PaymentOption,
   calculateMaxSwapAmount,
@@ -110,6 +110,7 @@ function GasSlider(props: { disabled: boolean }) {
 
   // set the actual max swap amount (checks if max swap amount is greater than the sending amount)
   useEffect(() => {
+    console.log(amount, maxSwapAmt, destGasPayment);
     if (!amount || !maxSwapAmt || destGasPayment === PaymentOption.MANUAL)
       return;
     const actualMaxSwap =
@@ -127,7 +128,6 @@ function GasSlider(props: { disabled: boolean }) {
     if (!toNetwork || !sendingToken || destGasPayment === PaymentOption.MANUAL)
       return;
 
-    // calculate max swap amount to native gas token
     const tokenId = getWrappedTokenId(sendingToken);
     calculateMaxSwapAmount(toNetwork, tokenId)
       .then((res: BigNumber) => {
@@ -135,8 +135,16 @@ function GasSlider(props: { disabled: boolean }) {
           dispatch(setMaxSwapAmt(undefined));
           return;
         }
-        const amt = toDecimals(res, sendingToken.decimals, 6);
-        console.log('setMaxSwapAmt:', amt);
+        // const amt = toDecimals(res, sendingToken.decimals, 6);
+        const toNetworkDecimals = getTokenDecimalsForChain(
+          toNetwork,
+          sendingToken,
+        );
+        const amt = toDecimals(res, toNetworkDecimals, 6);
+        console.log('setMaxSwapAmt:', amt, 'res:', res);
+        console.log(Number.parseFloat(amt));
+        // calculateMaxSwapAmountIn - maxSwapAmountIn: 6250000
+        // balance.ts:17 toFixedDecimals 0.00000000000625
         dispatch(setMaxSwapAmt(Number.parseFloat(amt)));
       })
       .catch((e) => {
@@ -195,17 +203,27 @@ function GasSlider(props: { disabled: boolean }) {
   const setNativeAmt = debounce(async () => {
     dispatch(setToNativeToken(state.swapAmt));
     const tokenId = getWrappedTokenId(sendingToken);
+    const sendingTokenToChainDecimals = getTokenDecimalsForChain(
+      toNetwork!,
+      sendingToken,
+    );
     const formattedAmt = utils.parseUnits(
       `${state.swapAmt}`,
-      sendingToken.decimals,
+      // sendingToken.decimals,
+      sendingTokenToChainDecimals,
     );
     const nativeGasAmt = await calculateNativeTokenAmt(
       toNetwork!,
       tokenId,
       formattedAmt,
     );
+    const nativeGasTokenToChainDecimals = getTokenDecimalsForChain(
+      toNetwork!,
+      nativeGasToken,
+    );
     const formattedNativeAmt = Number.parseFloat(
-      toDecimals(nativeGasAmt.toString(), nativeGasToken.decimals, 6),
+      // toDecimals(nativeGasAmt.toString(), nativeGasToken.decimals, 6),
+      toDecimals(nativeGasAmt.toString(), nativeGasTokenToChainDecimals, 6),
     );
     dispatch(setReceiveNativeAmt(formattedNativeAmt));
     setState({ ...state, nativeGas: formattedNativeAmt });
