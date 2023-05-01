@@ -57,10 +57,8 @@
   "scripts": {
     "lint": "npm run prettier && eslint --fix ./src",
     "prettier": "prettier --write ./src",
-    "start": "env-cmd -f .env.testnet react-app-rewired start",
-    "start:prod": "env-cmd -f .env.mainnet react-app-rewired start",
-    "build": "NODE_ENV=production env-cmd -f .env.testnet react-app-rewired build --max_old_space_size=4096 build",
-    "build:prod": "env-cmd -f .env.mainnet react-app-rewired build --max_old_space_size=4096 build",
+    "start": "react-app-rewired start",
+    "build": "NODE_ENV=production react-app-rewired build --max_old_space_size=4096 build",
     "test": "jest ./tests/*.test.ts --detectOpenHandles",
     "eject": "react-app-rewired eject"
   },

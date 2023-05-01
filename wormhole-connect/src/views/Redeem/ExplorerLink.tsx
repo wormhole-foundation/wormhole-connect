@@ -2,7 +2,7 @@ import React from 'react';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { makeStyles } from 'tss-react/mui';
 import { LINK } from '../../utils/style';
-import { CHAINS } from '../../config';
+import { CHAINS, isProduction } from '../../config';
 import LaunchIcon from '@mui/icons-material/Launch';
 
 const useStyles = makeStyles()((theme) => ({
@@ -27,10 +27,7 @@ function ExplorerLink(props: ExplorerLinkProps) {
       ? `${networkConfig.explorerUrl}tx/${props.txHash}`
       : `${networkConfig.explorerUrl}address/${props.address}`;
 
-  if (
-    networkConfig.key === 'solana' &&
-    process.env.REACT_APP_ENV === 'TESTNET'
-  ) {
+  if (networkConfig.key === 'solana' && !isProduction) {
     explorerLink += '?cluster=devnet';
   }
 

@@ -3,7 +3,7 @@ import { ChainId } from '@wormhole-foundation/wormhole-connect-sdk';
 import axios from 'axios';
 
 import { utils } from 'ethers';
-import { CHAINS } from '../config';
+import { CHAINS, WORMHOLE_API } from '../config';
 import { ParsedMessage } from '../sdk';
 
 export type ParsedVaa = {
@@ -24,8 +24,6 @@ export type ParsedVaa = {
   txHash: string;
 };
 
-const { REACT_APP_WORMHOLE_API } = process.env;
-
 export async function fetchVaa(
   txData: ParsedMessage,
 ): Promise<ParsedVaa | undefined> {
@@ -36,7 +34,7 @@ export async function fetchVaa(
   const emitterAddress = txData.emitterAddress.startsWith('0x')
     ? txData.emitterAddress.slice(2)
     : txData.emitterAddress;
-  const url = `${REACT_APP_WORMHOLE_API}api/v1/vaas/${emitterChain.id}/${emitterAddress}/${txData.sequence}`;
+  const url = `${WORMHOLE_API}api/v1/vaas/${emitterChain.id}/${emitterAddress}/${txData.sequence}`;
 
   return axios
     .get(url)

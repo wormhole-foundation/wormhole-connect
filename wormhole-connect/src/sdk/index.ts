@@ -11,7 +11,7 @@ import {
 import { Transaction } from '@solana/web3.js';
 
 import { getTokenById, getTokenDecimals, getWrappedTokenId } from '../utils';
-import { TOKENS, WH_CONFIG } from '../config';
+import { isProduction, TOKENS, WH_CONFIG } from '../config';
 import { postVaa, signSolanaTransaction, TransferWallet } from 'utils/wallet';
 import { estimateClaimFees, estimateSendFees } from './gasEstimates';
 
@@ -20,9 +20,8 @@ export enum PaymentOption {
   AUTOMATIC = 3,
 }
 
-const { REACT_APP_ENV } = process.env;
-
-export const wh = new WormholeContext(REACT_APP_ENV! as Environment, WH_CONFIG);
+const ENV = isProduction ? 'MAINNET' : 'TESTNET';
+export const wh = new WormholeContext(ENV as Environment, WH_CONFIG);
 
 export interface ParsedMessage {
   sendTx: string;

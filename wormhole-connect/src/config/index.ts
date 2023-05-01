@@ -26,10 +26,17 @@ if (!el)
 const configJson = el.getAttribute('config');
 export const config: WormholeConnectConfig | null = JSON.parse(configJson!);
 
-const { REACT_APP_ENV } = process.env;
-export const isProduction =
-  (config && config.env === 'mainnet') || REACT_APP_ENV === 'MAINNET';
+export const isProduction = config && config.env === 'mainnet';
 export const CONFIG = isProduction ? CONF.MAINNET : CONF.TESTNET;
+export const ENV = isProduction ? 'MAINNET' : 'TESTNET';
+
+export const WORMHOLE_EXPLORER = 'https://wormhole.com/explorer/';
+export const WORMHOLE_API = isProduction
+  ? 'http://api.wormscan.io/'
+  : 'https://api.testnet.wormscan.io/';
+export const ATTEST_URL = isProduction
+  ? 'https://www.portalbridge.com/#/register'
+  : 'https://wormhole-foundation.github.io/example-token-bridge-ui/#/register';
 
 const conf = WormholeContext.getConfig(CONFIG.env);
 const mainnetRpcs = {
