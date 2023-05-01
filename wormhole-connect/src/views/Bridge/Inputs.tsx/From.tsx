@@ -28,6 +28,7 @@ function FromInputs() {
     validations,
     fromNetwork,
     token,
+    isTransactionInProgress,
   } = useSelector((state: RootState) => state.transfer);
   const tokenConfig = token && TOKENS[token];
 
@@ -57,18 +58,18 @@ function FromInputs() {
       getBalance(wallet.address, tokenConfig.tokenId, fromNetwork).then(
         (res: BigNumber | null) => {
           const balance = formatBalance(fromNetwork, tokenConfig, res);
-          setBalance(balance[tokenConfig.symbol]);
+          setBalance(balance[tokenConfig.key]);
           dispatch(setStoreBalance(balance));
         },
       );
     } else {
       getNativeBalance(wallet.address, fromNetwork).then((res: BigNumber) => {
         const balance = formatBalance(fromNetwork, tokenConfig, res);
-        setBalance(balance[tokenConfig.symbol]);
+        setBalance(balance[tokenConfig.key]);
         dispatch(setStoreBalance(balance));
       });
     }
-  }, [tokenConfig, fromNetwork, wallet.address]);
+  }, [tokenConfig, fromNetwork, wallet.address, dispatch]);
 
   // token input jsx
   const selectedToken = tokenConfig
@@ -80,6 +81,7 @@ function FromInputs() {
       selected={selectedToken}
       error={!!(showErrors && validations.token)}
       onClick={openTokensModal}
+      disabled={!fromNetwork || !wallet.address || isTransactionInProgress}
       editable
     />
   );
@@ -88,9 +90,9 @@ function FromInputs() {
   const amountInput = (
     <Input
       label="Amount"
-      editable
       error={!!(showErrors && validations.amount)}
       onClick={focusAmt}
+      editable
     >
       {token ? (
         <InputTransparent
@@ -101,6 +103,7 @@ function FromInputs() {
           step={0.1}
           onChange={handleAmountChange}
           onPause={validateAmount}
+          disabled={isTransactionInProgress}
         />
       ) : (
         <div>-</div>

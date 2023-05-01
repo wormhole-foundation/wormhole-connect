@@ -1,5 +1,5 @@
 import { CONFIG } from '@wormhole-foundation/wormhole-connect-sdk';
-import { NetworksConfig, TokenConfig, Icon } from './types';
+import { NetworksConfig, TokenConfig, Icon, GasEstimates } from './types';
 
 const { chains } = CONFIG.MAINNET;
 
@@ -96,6 +96,7 @@ export const MAINNET_NETWORKS: NetworksConfig = {
 
 export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   ETH: {
+    key: 'ETH',
     symbol: 'ETH',
     nativeNetwork: 'ethereum',
     icon: Icon.ETH,
@@ -106,6 +107,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     wrappedAsset: 'WETH',
   },
   WETH: {
+    key: 'WETH',
     symbol: 'WETH',
     nativeNetwork: 'ethereum',
     icon: Icon.ETH,
@@ -118,7 +120,78 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 18,
     solDecimals: 8,
   },
+  USDCeth: {
+    key: 'USDCeth',
+    symbol: 'USDC',
+    nativeNetwork: 'ethereum',
+    icon: Icon.USDC,
+    tokenId: {
+      chain: 'ethereum',
+      address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+    },
+    coinGeckoId: 'usd-coin',
+    color: '#ffffff',
+    decimals: 6,
+    solDecimals: 6,
+  },
+  WBTC: {
+    key: 'WBTC',
+    symbol: 'WBTC',
+    nativeNetwork: 'ethereum',
+    icon: Icon.WBTC,
+    tokenId: {
+      chain: 'ethereum',
+      address: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
+    },
+    coinGeckoId: 'wrapped-bitcoin',
+    color: '#ffffff',
+    decimals: 8,
+    solDecimals: 8,
+  },
+  USDT: {
+    key: 'USDT',
+    symbol: 'USDT',
+    nativeNetwork: 'ethereum',
+    icon: Icon.USDT,
+    tokenId: {
+      chain: 'ethereum',
+      address: '0xdac17f958d2ee523a2206206994597c13d831ec7',
+    },
+    coinGeckoId: 'tether',
+    color: '#ffffff',
+    decimals: 6,
+    solDecimals: 6,
+  },
+  DAI: {
+    key: 'DAI',
+    symbol: 'DAI',
+    nativeNetwork: 'ethereum',
+    icon: Icon.DAI,
+    tokenId: {
+      chain: 'ethereum',
+      address: '0x6b175474e89094c44da98b954eedeac495271d0f',
+    },
+    coinGeckoId: 'dai',
+    color: '#FEFEFD',
+    decimals: 18,
+    solDecimals: 8,
+  },
+  BUSD: {
+    key: 'BUSD',
+    symbol: 'BUSD',
+    nativeNetwork: 'ethereum',
+    icon: Icon.BUSD,
+    tokenId: {
+      chain: 'ethereum',
+      address: '0x4fabb145d64652a948d72533023f6e7a623c7c53',
+    },
+    coinGeckoId: 'binance-usd',
+    color: '#F0B90B',
+    decimals: 18,
+    solDecimals: 8,
+  },
   MATIC: {
+    key: 'MATIC',
     symbol: 'MATIC',
     nativeNetwork: 'polygon',
     icon: Icon.POLYGON,
@@ -129,6 +202,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     wrappedAsset: 'WMATIC',
   },
   WMATIC: {
+    key: 'WMATIC',
     symbol: 'WMATIC',
     nativeNetwork: 'polygon',
     icon: Icon.POLYGON,
@@ -141,7 +215,22 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 18,
     solDecimals: 8,
   },
+  USDCpolygon: {
+    key: 'USDCpolygon',
+    symbol: 'USDC',
+    nativeNetwork: 'polygon',
+    icon: Icon.USDC,
+    tokenId: {
+      chain: 'polygon',
+      address: '0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
+    },
+    coinGeckoId: 'usd-coin',
+    color: '#2774CA',
+    decimals: 6,
+    solDecimals: 6,
+  },
   BNB: {
+    key: 'BNB',
     symbol: 'BNB',
     nativeNetwork: 'bsc',
     icon: Icon.BNB,
@@ -152,6 +241,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     wrappedAsset: 'WBNB',
   },
   WBNB: {
+    key: 'WBNB',
     symbol: 'WBNB',
     nativeNetwork: 'bsc',
     icon: Icon.BNB,
@@ -164,7 +254,22 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 18,
     solDecimals: 8,
   },
+  USDCbnb: {
+    key: 'USDCbnb',
+    symbol: 'USDC',
+    nativeNetwork: 'bsc',
+    icon: Icon.USDC,
+    tokenId: {
+      chain: 'bsc',
+      address: '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d',
+    },
+    coinGeckoId: 'usd-coin',
+    color: '#2774CA',
+    decimals: 18,
+    solDecimals: 8,
+  },
   AVAX: {
+    key: 'AVAX',
     symbol: 'AVAX',
     nativeNetwork: 'avalanche',
     icon: Icon.AVAX,
@@ -175,6 +280,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     wrappedAsset: 'WAVAX',
   },
   WAVAX: {
+    key: 'WAVAX',
     symbol: 'WAVAX',
     nativeNetwork: 'avalanche',
     icon: Icon.AVAX,
@@ -187,7 +293,22 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 18,
     solDecimals: 8,
   },
+  USDCavax: {
+    key: 'USDCavax',
+    symbol: 'USDC',
+    nativeNetwork: 'avalanche',
+    icon: Icon.USDC,
+    tokenId: {
+      chain: 'avalanche',
+      address: '0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E',
+    },
+    coinGeckoId: 'usd-coin',
+    color: '#2774CA',
+    decimals: 6,
+    solDecimals: 6,
+  },
   FTM: {
+    key: 'FTM',
     symbol: 'FTM',
     nativeNetwork: 'fantom',
     icon: Icon.FANTOM,
@@ -198,6 +319,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     wrappedAsset: 'WFTM',
   },
   WFTM: {
+    key: 'WFTM',
     symbol: 'WFTM',
     nativeNetwork: 'fantom',
     icon: Icon.FANTOM,
@@ -211,6 +333,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 8,
   },
   CELO: {
+    key: 'CELO',
     symbol: 'CELO',
     nativeNetwork: 'celo',
     icon: Icon.CELO,
@@ -224,6 +347,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 8,
   },
   GLMR: {
+    key: 'GLMR',
     symbol: 'GLMR',
     nativeNetwork: 'moonbeam',
     icon: Icon.GLMR,
@@ -234,6 +358,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     wrappedAsset: 'WGLMR',
   },
   WGLMR: {
+    key: 'WGLMR',
     symbol: 'WGLMR',
     nativeNetwork: 'moonbeam',
     icon: Icon.GLMR,
@@ -247,6 +372,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 8,
   },
   SOL: {
+    key: 'SOL',
     symbol: 'SOL',
     nativeNetwork: 'solana',
     icon: Icon.SOLANA,
@@ -257,6 +383,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     wrappedAsset: 'WSOL',
   },
   WSOL: {
+    key: 'WSOL',
     symbol: 'WSOL',
     nativeNetwork: 'solana',
     tokenId: {
@@ -268,5 +395,76 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#8457EF',
     decimals: 9,
     solDecimals: 9,
+  },
+  USDCsol: {
+    key: 'USDCsol',
+    symbol: 'USDC',
+    nativeNetwork: 'solana',
+    tokenId: {
+      chain: 'solana',
+      address: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
+    },
+    icon: Icon.USDC,
+    coinGeckoId: 'usd-coin',
+    color: '#2774CA',
+    decimals: 6,
+    solDecimals: 6,
+  },
+};
+
+export const MAINNET_GAS_ESTIMATES: GasEstimates = {
+  ethereum: {
+    sendNative: 100000,
+    sendToken: 150000,
+    sendNativeWithRelay: 200000,
+    sendTokenWithRelay: 300000,
+    claim: 300000,
+  },
+  polygon: {
+    sendNative: 100000,
+    sendToken: 150000,
+    sendNativeWithRelay: 200000,
+    sendTokenWithRelay: 250000,
+    claim: 300000,
+  },
+  bsc: {
+    sendNative: 100000,
+    sendToken: 200000,
+    sendNativeWithRelay: 200000,
+    sendTokenWithRelay: 300000,
+    claim: 250000,
+  },
+  avalanche: {
+    sendNative: 100000,
+    sendToken: 150000,
+    sendNativeWithRelay: 200000,
+    sendTokenWithRelay: 300000,
+    claim: 300000,
+  },
+  fantom: {
+    sendNative: 100000,
+    sendToken: 150000,
+    sendNativeWithRelay: 250000,
+    sendTokenWithRelay: 300000,
+    claim: 300000,
+  },
+  celo: {
+    sendNative: 150000,
+    sendToken: 150000,
+    sendNativeWithRelay: 300000,
+    sendTokenWithRelay: 300000,
+    claim: 300000,
+  },
+  moonbeam: {
+    sendNative: 100000,
+    sendToken: 150000,
+    sendNativeWithRelay: 200000,
+    sendTokenWithRelay: 300000,
+    claim: 300000,
+  },
+  solana: {
+    sendNative: 15000,
+    sendToken: 15000,
+    claim: 25000,
   },
 };

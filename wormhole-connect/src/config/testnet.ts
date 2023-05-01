@@ -96,6 +96,7 @@ export const TESTNET_NETWORKS: NetworksConfig = {
 
 export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
   ETH: {
+    key: 'ETH',
     symbol: 'ETH',
     nativeNetwork: 'goerli',
     icon: Icon.ETH,
@@ -106,6 +107,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 8,
   },
   WETH: {
+    key: 'WETH',
     symbol: 'WETH',
     nativeNetwork: 'goerli',
     icon: Icon.ETH,
@@ -118,13 +120,14 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 18,
     solDecimals: 8,
   },
-  USDC: {
+  USDCeth: {
+    key: 'USDCeth',
     symbol: 'USDC',
-    nativeNetwork: 'fuji',
+    nativeNetwork: 'goerli',
     icon: Icon.USDC,
     tokenId: {
-      chain: 'fuji',
-      address: '0x5425890298aed601595a70AB815c96711a31Bc65',
+      chain: 'goerli',
+      address: '0x07865c6e87b9f70255377e024ace6630c1eaa37f',
     },
     coinGeckoId: 'usd-coin',
     color: '#2774CA',
@@ -132,6 +135,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 6,
   },
   MATIC: {
+    key: 'MATIC',
     symbol: 'MATIC',
     nativeNetwork: 'mumbai',
     icon: Icon.POLYGON,
@@ -142,6 +146,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     wrappedAsset: 'WMATIC',
   },
   WMATIC: {
+    key: 'WMATIC',
     symbol: 'WMATIC',
     nativeNetwork: 'mumbai',
     icon: Icon.POLYGON,
@@ -154,7 +159,22 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 18,
     solDecimals: 8,
   },
+  USDCpolygon: {
+    key: 'USDCpolygon',
+    symbol: 'USDC',
+    nativeNetwork: 'mumbai',
+    icon: Icon.USDC,
+    tokenId: {
+      chain: 'mumbai',
+      address: '0x0FA8781a83E46826621b3BC094Ea2A0212e71B23',
+    },
+    coinGeckoId: 'usd-coin',
+    color: '#2774CA',
+    decimals: 6,
+    solDecimals: 6,
+  },
   BNB: {
+    key: 'BNB',
     symbol: 'BNB',
     nativeNetwork: 'bsc',
     icon: Icon.BNB,
@@ -165,6 +185,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     wrappedAsset: 'WBNB',
   },
   WBNB: {
+    key: 'WBNB',
     symbol: 'WBNB',
     nativeNetwork: 'bsc',
     icon: Icon.BNB,
@@ -178,6 +199,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 8,
   },
   AVAX: {
+    key: 'AVAX',
     symbol: 'AVAX',
     nativeNetwork: 'fuji',
     icon: Icon.AVAX,
@@ -188,6 +210,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     wrappedAsset: 'WAVAX',
   },
   WAVAX: {
+    key: 'WAVAX',
     symbol: 'WAVAX',
     nativeNetwork: 'fuji',
     icon: Icon.AVAX,
@@ -200,7 +223,22 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 18,
     solDecimals: 8,
   },
+  USDCavax: {
+    key: 'USDCavax',
+    symbol: 'USDC',
+    nativeNetwork: 'fuji',
+    icon: Icon.USDC,
+    tokenId: {
+      chain: 'fuji',
+      address: '0x5425890298aed601595a70AB815c96711a31Bc65',
+    },
+    coinGeckoId: 'usd-coin',
+    color: '#2774CA',
+    decimals: 6,
+    solDecimals: 6,
+  },
   FTM: {
+    key: 'FTM',
     symbol: 'FTM',
     nativeNetwork: 'fantom',
     icon: Icon.FANTOM,
@@ -211,6 +249,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     wrappedAsset: 'WFTM',
   },
   WFTM: {
+    key: 'WFTM',
     symbol: 'WFTM',
     nativeNetwork: 'fantom',
     icon: Icon.FANTOM,
@@ -224,6 +263,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 8,
   },
   CELO: {
+    key: 'CELO',
     symbol: 'CELO',
     nativeNetwork: 'alfajores',
     icon: Icon.CELO,
@@ -237,6 +277,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 8,
   },
   GLMR: {
+    key: 'GLMR',
     symbol: 'GLMR',
     nativeNetwork: 'moonbasealpha',
     icon: Icon.GLMR,
@@ -247,6 +288,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     wrappedAsset: 'WGLMR',
   },
   WGLMR: {
+    key: 'WGLMR',
     symbol: 'WGLMR',
     nativeNetwork: 'moonbasealpha',
     icon: Icon.GLMR,
@@ -260,6 +302,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 8,
   },
   SOL: {
+    key: 'SOL',
     symbol: 'SOL',
     nativeNetwork: 'solana',
     icon: Icon.SOLANA,
@@ -270,6 +313,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     wrappedAsset: 'WSOL',
   },
   WSOL: {
+    key: 'WSOL',
     symbol: 'WSOL',
     nativeNetwork: 'solana',
     tokenId: {
@@ -282,9 +326,23 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 9,
     solDecimals: 9,
   },
+  USDCsol: {
+    key: 'USDCsol',
+    symbol: 'USDC',
+    nativeNetwork: 'solana',
+    tokenId: {
+      chain: 'solana',
+      address: '4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU',
+    },
+    icon: Icon.USDC,
+    coinGeckoId: 'usd-coin',
+    color: '#2774CA',
+    decimals: 6,
+    solDecimals: 6,
+  },
 };
 
-export const GAS_ESTIMATES: GasEstimates = {
+export const TESTNET_GAS_ESTIMATES: GasEstimates = {
   goerli: {
     sendNative: 100000,
     sendToken: 150000,

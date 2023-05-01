@@ -150,7 +150,7 @@ function GasSlider(props: { disabled: boolean }) {
     getConversion(token, gasToken).then((res: number) => {
       setState({ ...state, conversionRate: res });
     });
-  }, [sendingToken, toNetwork, destGasPayment]);
+  }, [sendingToken, toNetwork, destGasPayment, token, dispatch]);
 
   function Thumb(props: ThumbProps) {
     const { children, ...other } = props;

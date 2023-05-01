@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { makeStyles } from 'tss-react/mui';
 import { useDispatch, useSelector } from 'react-redux';
 import { Wallet, WalletState } from '@xlabs-libs/wallet-aggregator-core';
@@ -104,33 +104,35 @@ type Props = {
 
 function WalletsModal(props: Props) {
   const { classes } = useStyles();
+  const { chain: chainProp, type } = props;
   const dispatch = useDispatch();
   const { fromNetwork, toNetwork } = useSelector(
     (state: RootState) => state.transfer,
   );
-  const [walletOptions, setWalletOptions] = useState(
-    getAvailableWallets() || [],
-  );
-
-  function getAvailableWallets() {
+  const getAvailableWallets = useCallback(() => {
     const chain =
-      props.chain ||
-      (props.type === TransferWallet.SENDING ? fromNetwork : toNetwork);
+      chainProp || (type === TransferWallet.SENDING ? fromNetwork : toNetwork);
 
     const config = CHAINS[chain!];
     if (!config) return Object.values(WALLETS);
     return getWalletOptions(config);
-  }
+  }, [chainProp, type, fromNetwork, toNetwork]);
+
+  const [walletOptions, setWalletOptions] = useState(
+    getAvailableWallets() || [],
+  );
 
   useEffect(() => {
     const options = getAvailableWallets();
     if (options) setWalletOptions(options);
-  }, [fromNetwork, toNetwork, props.chain]);
+  }, [fromNetwork, toNetwork, props.chain, getAvailableWallets]);
 
   const connect = async (walletInfo: WalletData) => {
     const { wallet } = walletInfo;
     await wallet.connect();
     setWalletConnection(props.type, wallet);
+
+    const address = wallet.getAddress();
 
     // clear wallet when the user manually disconnects from outside the app
     wallet.on('disconnect', () => {
@@ -140,11 +142,16 @@ function WalletsModal(props: Props) {
 
     // when the user has multiple wallets connected and either changes
     // or disconnects the current wallet, clear the wallet
-    wallet.on('accountsChanged', () => {
-      wallet.disconnect();
+    wallet.on('accountsChanged', (accs: string[]) => {
+      // disconnect only if there are no accounts, or if the new account is different from the current
+      const shouldDisconnect =
+        accs.length === 0 || (accs.length && address && accs[0] !== address);
+
+      if (shouldDisconnect) {
+        wallet.disconnect();
+      }
     });
 
-    const address = wallet.getAddress();
     if (address) {
       const payload = { address, type: walletInfo.type };
       if (props.type === TransferWallet.SENDING) {

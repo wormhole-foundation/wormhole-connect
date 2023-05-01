@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { BigNumber, utils } from 'ethers';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -31,7 +31,7 @@ import {
 } from '../../sdk';
 import { CHAINS, TOKENS } from '../../config';
 import WalletsModal from '../WalletModal';
-import { GAS_ESTIMATES } from '../../config/testnet';
+import { GAS_ESTIMATES } from '../../config';
 import { fetchRedeemedEvent, fetchSwapEvent } from '../../utils/events';
 
 import Header from './Header';
@@ -68,6 +68,7 @@ const getManualRows = async (
   txData: any,
   receiveTx?: string,
 ): Promise<RowsData> => {
+  const token = TOKENS[txData.tokenKey];
   const { gasToken } = CHAINS[txData.toChain]!;
 
   // get gas used (if complete) or gas estimate if not
@@ -81,7 +82,7 @@ const getManualRows = async (
   return [
     {
       title: 'Amount',
-      value: `${formattedAmt} ${txData.tokenSymbol}`,
+      value: `${formattedAmt} ${token.symbol}`,
     },
     {
       title: receiveTx ? 'Gas fee' : 'Gas estimate',
@@ -95,6 +96,7 @@ const getAutomaticRows = async (
   receiveTx?: string,
   transferComplete?: boolean,
 ): Promise<RowsData> => {
+  const token = TOKENS[txData.tokenKey];
   const { gasToken } = CHAINS[txData.toChain]!;
 
   // calculate the amount of native gas received
@@ -145,7 +147,7 @@ const getAutomaticRows = async (
   return [
     {
       title: 'Amount',
-      value: `${formattedAmt} ${txData.tokenSymbol}`,
+      value: `${formattedAmt} ${token.symbol}`,
     },
     {
       title: 'Native gas token',
@@ -178,14 +180,14 @@ function SendTo() {
     setWalletModal(true);
   };
 
-  const checkConnection = () => {
+  const checkConnection = useCallback(() => {
     if (!txData) return;
     const addr = wallet.address.toLowerCase();
     const curAddr = wallet.currentAddress.toLowerCase();
     const formattedRecipient = parseAddress(txData.toChain, txData.recipient);
     const reqAddr = formattedRecipient.toLowerCase();
     return addr === curAddr && addr === reqAddr;
-  };
+  }, [wallet, txData]);
 
   const [inProgress, setInProgress] = useState(false);
   const [isConnected, setIsConnected] = useState(checkConnection());
@@ -193,7 +195,7 @@ function SendTo() {
   const [openWalletModal, setWalletModal] = useState(false);
 
   // get the redeem tx, for automatic transfers only
-  const getRedeemTx = async () => {
+  const getRedeemTx = useCallback(async () => {
     if (redeemTx) return redeemTx;
     if (
       vaa &&
@@ -211,7 +213,7 @@ function SendTo() {
         return redeemed.transactionHash;
       }
     }
-  };
+  }, [redeemTx, vaa, txData, dispatch]);
 
   useEffect(() => {
     if (!txData) return;
@@ -226,11 +228,11 @@ function SendTo() {
       setRows(rows);
     };
     populate();
-  }, [transferComplete]);
+  }, [transferComplete, getRedeemTx, txData]);
 
   useEffect(() => {
     setIsConnected(checkConnection());
-  }, [wallet]);
+  }, [wallet, checkConnection]);
 
   const claim = async () => {
     setInProgress(true);

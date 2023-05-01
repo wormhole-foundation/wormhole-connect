@@ -33,7 +33,7 @@ import Tooltip from '../../../components/Tooltip';
 import TokenIcon from '../../../icons/TokenIcons';
 import CircularProgress from '@mui/material/CircularProgress';
 import { TokenConfig } from '../../../config/types';
-import { ChainId, ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 
 const useStyles = makeStyles()((theme) => ({
   tokensContainer: {
@@ -202,6 +202,7 @@ function TokensModal() {
   // listen for close event
   const closeTokensModal = () => {
     dispatch(setTokensModal(false));
+    setTokens(networkTokens);
   };
 
   // select token
@@ -222,7 +223,7 @@ function TokensModal() {
     const getBalances = async (
       tokens: TokenConfig[],
       walletAddr: string,
-      chain: ChainName | ChainId,
+      chain: ChainName,
     ) => {
       // fetch all N tokens and trigger a single update action
       const balances = await Promise.all(
@@ -255,19 +256,18 @@ function TokensModal() {
     setTokens(networkTokens);
   }, [networkTokens]);
 
-  // TODO: filter out tokens that don't exist
   useEffect(() => {
     // filter only when a wallet is connected AND a network is selected
-    const filtered =
-      fromNetwork && walletAddr
-        ? networkTokens.filter(
-            (t) =>
-              tokenBalances[t.symbol] !== undefined &&
-              tokenBalances[t.symbol] !== null,
-          )
-        : networkTokens;
+    if (!fromNetwork || !walletAddr) {
+      setTokens(networkTokens);
+      return;
+    }
+    const filtered = networkTokens.filter((t) => {
+      const b = tokenBalances[t.key];
+      return b !== null && b !== '0';
+    });
     setTokens(filtered);
-  }, [tokenBalances, networkTokens, walletAddr]);
+  }, [fromNetwork, tokenBalances, networkTokens, walletAddr]);
 
   return (
     <Modal
@@ -302,7 +302,7 @@ function TokensModal() {
                 <div
                   className={classes.tokenRow}
                   key={i}
-                  onClick={() => selectToken(token.symbol)}
+                  onClick={() => selectToken(token.key)}
                 >
                   <div className={classes.tokenRowLeft}>
                     <TokenIcon name={token.icon} height={32} />
@@ -316,8 +316,8 @@ function TokensModal() {
                   <div className={classes.tokenRowRight}>
                     <div className={classes.tokenRowBalanceText}>Balance</div>
                     <div className={classes.tokenRowBalance}>
-                      {tokenBalances[token.symbol] && walletAddr ? (
-                        <div>{tokenBalances[token.symbol]}</div>
+                      {tokenBalances[token.key] && walletAddr ? (
+                        <div>{tokenBalances[token.key]}</div>
                       ) : fromNetwork && walletAddr ? (
                         <CircularProgress size={14} />
                       ) : (
@@ -363,13 +363,6 @@ function TokensModal() {
           </Collapse> */}
         </div>
       </Scroll>
-
-      <div className={classes.register}>
-        <div className={classes.registerText}>Don't see your token?</div>
-        <a href="#" className={classes.registerLink}>
-          Register token
-        </a>
-      </div>
     </Modal>
   );
 }

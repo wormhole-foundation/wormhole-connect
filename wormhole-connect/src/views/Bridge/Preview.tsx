@@ -159,6 +159,7 @@ function Preview(props: { collapsed: boolean }) {
     toNativeToken,
     receiveNativeAmt,
     gasEst,
+    dispatch,
   ]);
 
   return (

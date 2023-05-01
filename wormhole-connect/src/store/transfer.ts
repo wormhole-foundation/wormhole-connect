@@ -5,7 +5,7 @@ import { TokenConfig } from 'config/types';
 import { toDecimals } from '../utils/balance';
 import { TransferValidations } from '../utils/transferValidation';
 import { PaymentOption } from '../sdk';
-import { TOKENS } from 'config';
+import { TOKENS, config } from 'config';
 
 export type Balances = { [key: string]: string | null };
 
@@ -17,7 +17,7 @@ export const formatBalance = (
   const decimals = chain === 'solana' ? token.solDecimals : token.decimals;
   const formattedBalance =
     balance !== null ? toDecimals(balance, decimals, 6) : null;
-  return { [token.symbol]: formattedBalance };
+  return { [token.key]: formattedBalance };
 };
 
 export interface TransferState {
@@ -59,10 +59,10 @@ const initialState: TransferState = {
     foreignAsset: '',
     associatedTokenAccount: '',
   },
-  fromNetwork: undefined,
-  toNetwork: undefined,
+  fromNetwork: config?.bridgeDefaults?.fromNetwork || undefined,
+  toNetwork: config?.bridgeDefaults?.toNetwork || undefined,
   automaticRelayAvail: false,
-  token: '',
+  token: config?.bridgeDefaults?.token || '',
   amount: undefined,
   destGasPayment: PaymentOption.MANUAL,
   maxSwapAmt: undefined,
@@ -107,14 +107,17 @@ export const transferSlice = createSlice({
       { payload }: PayloadAction<ChainName>,
     ) => {
       state.fromNetwork = payload;
+      // clear balances if the network changes;
+      state.balances = {};
 
       const { fromNetwork, token } = state;
 
       if (token) {
         const tokenConfig = TOKENS[token];
-        // clear token if not supported on the selected network
+        // clear token and amount if not supported on the selected network
         if (!tokenConfig.tokenId && tokenConfig.nativeNetwork !== fromNetwork) {
           state.token = '';
+          state.amount = undefined;
         }
       }
     },
@@ -137,6 +140,9 @@ export const transferSlice = createSlice({
       state: TransferState,
       { payload }: PayloadAction<PaymentOption>,
     ) => {
+      if (payload === PaymentOption.MANUAL) {
+        state.maxSwapAmt = undefined;
+      }
       state.destGasPayment = payload;
     },
     // transfer calculations

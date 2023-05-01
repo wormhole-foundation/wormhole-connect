@@ -103,7 +103,16 @@ async function checkAddressIsSanctioned(address: string): Promise<boolean> {
     },
   );
 
-  if (res.status !== 200) return false;
+  if (res.status !== 200) {
+    // set cache so it stops making requests
+    if (res.status === 429) {
+      trmCache[address] = {
+        address,
+        isSanctioned: false,
+      };
+    }
+    return false;
+  }
 
   const data = await res.json();
   trmCache[address] = data[0];
