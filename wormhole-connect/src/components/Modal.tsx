@@ -1,6 +1,6 @@
 import { makeStyles } from 'tss-react/mui';
 import React from 'react';
-import { Dialog } from '@mui/material';
+import { Dialog, ScopedCssBaseline } from '@mui/material';
 // import { useTheme } from '@mui/material/styles';
 // import useMediaQuery from '@mui/material/useMediaQuery';
 import CloseIcon from '../icons/Close';
@@ -68,16 +68,18 @@ function Modal({ open, width, closable, children, onClose }: Props) {
       // maxWidth={width}
       // fullScreen={fullScreen}
     >
-      <div className={classes.container}>
-        {closable && (
-          <CloseIcon
-            sx={{ fontSize: 32 }}
-            className={classes.close}
-            onClick={onClose}
-          />
-        )}
-        <div className={classes.modal}>{children}</div>
-      </div>
+      <ScopedCssBaseline enableColorScheme>
+        <div className={classes.container}>
+          {closable && (
+            <CloseIcon
+              sx={{ fontSize: 32 }}
+              className={classes.close}
+              onClick={onClose}
+            />
+          )}
+          <div className={classes.modal}>{children}</div>
+        </div>
+      </ScopedCssBaseline>
     </Dialog>
   );
 }
