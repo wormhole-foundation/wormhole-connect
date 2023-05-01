@@ -33,13 +33,6 @@ type Props = {
 
 function AlertBanner(props: Props) {
   const { classes } = useStyles();
-  const [alertContent, setAlertContent] = useState(props.content);
-
-  useEffect(() => {
-    if (props.content) {
-      setAlertContent(props.content);
-    }
-  }, [props.content]);
 
   return (
     <Collapse in={props.show && !!props.content} unmountOnExit>
@@ -52,7 +45,7 @@ function AlertBanner(props: Props) {
         style={{ margin: props.margin || 0 }}
       >
         <AlertIcon />
-        {alertContent}
+        {props.content}
       </div>
     </Collapse>
   );
