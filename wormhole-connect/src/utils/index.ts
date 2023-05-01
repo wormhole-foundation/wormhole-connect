@@ -57,8 +57,7 @@ export function displayWalletAddress(
   address: string,
 ): string {
   if (
-    walletType === WalletType.METAMASK ||
-    walletType === WalletType.WALLET_CONNECT
+    walletType === WalletType.EVM
   ) {
     return displayEvmAddress(address);
   } else if (walletType === WalletType.SUI_WALLET) {

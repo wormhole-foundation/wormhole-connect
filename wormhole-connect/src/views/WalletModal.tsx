@@ -5,7 +5,7 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { Wallet, WalletState } from '@xlabs-libs/wallet-aggregator-core';
 import { getWallets as getSuiWallets } from '@xlabs-libs/wallet-aggregator-sui';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { CHAINS } from '../config';
@@ -54,7 +54,7 @@ const useStyles = makeStyles()((theme) => ({
 
 const getReady = (wallet: Wallet) => {
   const ready = wallet.getWalletState();
-  return ready !== WalletState.Unsupported;
+  return ready !== WalletState.Unsupported && ready !== WalletState.NotDetected;
 };
 
 type WalletData = {
@@ -63,42 +63,16 @@ type WalletData = {
   type: WalletType;
   isReady: boolean;
 };
-const WALLETS: { [key: string]: WalletData } = {
-  metamask: {
-    name: 'Metamask',
-    wallet: wallets.evm.metamask,
-    type: WalletType.METAMASK,
-    isReady: getReady(wallets.evm.metamask),
-  },
-  walletConnect: {
-    name: 'Wallet Connect',
-    wallet: wallets.evm.walletConnect,
-    type: WalletType.WALLET_CONNECT,
-    isReady: getReady(wallets.evm.walletConnect),
-  },
-  phantom: {
-    name: 'Phantom',
-    wallet: wallets.solana.phantom,
-    type: WalletType.PHANTOM,
-    isReady: getReady(wallets.solana.phantom),
-  },
-  solflare: {
-    name: 'Solflare',
-    wallet: wallets.solana.solflare,
-    type: WalletType.SOLFLARE,
-    isReady: getReady(wallets.solana.solflare),
-  },
-};
 
-let suiWalletOptions = {};
+// let suiWalletOptions = {};
 
 const fetchSuiOptions = async () => {
   const suiWallets = await getSuiWallets({ timeout: 0 });
-  suiWalletOptions = suiWallets
+  return suiWallets
     .map<WalletData>((w) => ({
       name: w.getName(),
       wallet: w,
-      type: WalletType.SUI_WALLET, // sui wallets share the same wallet type
+      type: WalletType.SUI, // sui wallets share the same wallet type
       isReady: getReady(w),
     }))
     .reduce((obj, value) => {
@@ -107,24 +81,53 @@ const fetchSuiOptions = async () => {
     }, {});
 };
 
-const getWalletOptions = async (
-  chain: ChainConfig | undefined,
-): Promise<WalletData[]> => {
-  await fetchSuiOptions();
-  if (!chain) {
-    const options = Object.assign({}, suiWalletOptions, WALLETS);
-    return Object.values(options);
-  }
-  if (chain.context === Context.ETH) {
-    return [WALLETS.metamask, WALLETS.walletConnect];
-  } else if (chain.context === Context.SOLANA) {
-    return [WALLETS.phantom, WALLETS.solflare];
-  } else if (chain.context === Context.SUI) {
-    return Object.values(suiWalletOptions);
-  }
-  const options = Object.assign({}, suiWalletOptions, WALLETS);
-  return Object.values(options);
+// const getWalletOptions = async (
+//   chain: ChainConfig | undefined,
+// ): Promise<WalletData[]> => {
+//   await fetchSuiOptions();
+//   if (!chain) {
+//     const options = Object.assign({}, suiWalletOptions, WALLETS);
+//     return Object.values(options);
+//   }
+//   if (chain.context === Context.ETH) {
+//     return [WALLETS.metamask, WALLETS.walletConnect];
+//   } else if (chain.context === Context.SOLANA) {
+//     return [WALLETS.phantom, WALLETS.solflare];
+//   } else if (chain.context === Context.SUI) {
+//     return Object.values(suiWalletOptions);
+//   }
+//   const options = Object.assign({}, suiWalletOptions, WALLETS);
+//   return Object.values(options);
+// }
+
+const mapWallets = (wallets: Record<string, Wallet>, type: WalletType): WalletData[] => {
+  return Object.values(wallets).map((wallet) => ({
+    name: wallet.getName(),
+    wallet,
+    type,
+    isReady: getReady(wallet),
+  }));
 };
+
+const getWalletOptions = async (config: any) => {
+  if (!config) {
+    const suiOptions = await fetchSuiOptions();
+    return mapWallets(Object.assign({}, suiOptions, wallets.evm, wallets.solana), WalletType.EVM);
+  }
+  if (config.context === Context.ETH) {
+    return mapWallets(wallets.evm, WalletType.EVM);
+  } else if (config.context === Context.SOLANA) {
+    return mapWallets(wallets.solana, WalletType.SOLANA);
+  } else if (config.context === Context.SUI) {
+    const suiOptions = await fetchSuiOptions();
+    return mapWallets(suiOptions, WalletType.SUI);
+  }
+  const suiOptions = await fetchSuiOptions();
+  return mapWallets(Object.assign({}, suiOptions, wallets.evm, wallets.solana), WalletType.EVM);
+};
+
+// const ALL_WALLETS: WalletData[] =
+//   Object.values(Context).reduce<WalletData[]>((acc, context) => acc.concat(getWalletOptions(context)), []);
 
 type Props = {
   type: TransferWallet;
@@ -139,6 +142,7 @@ function WalletsModal(props: Props) {
   const { fromNetwork, toNetwork } = useSelector(
     (state: RootState) => state.transfer,
   );
+
   const [walletOptions, setWalletOptions] = useState<WalletData[]>([]);
 
   useEffect(() => {
@@ -212,11 +216,7 @@ function WalletsModal(props: Props) {
         : () => window.open(wallet.wallet.getUrl());
       return (
         <div className={classes.walletRow} key={i} onClick={select}>
-          <WalletIcon
-            type={wallet.type}
-            icon={wallet.wallet.getIcon()}
-            height={32}
-          />
+          <WalletIcon wallet={wallet.wallet} height={32} />
           <div className={`${!ready && classes.notInstalled}`}>
             {!ready && 'Install'} {wallet.name}
           </div>
