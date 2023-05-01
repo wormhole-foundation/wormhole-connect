@@ -40,12 +40,14 @@ class Redeem extends React.Component<
     if (!this.props.txData.sendTx || !!this.state.vaa) return;
     const vaa = await fetchVaa(this.props.txData);
     if (vaa) {
+      console.log('got vaa');
       this.props.setVaa(vaa);
       this.setState({ ...this.state, vaa });
     }
   }
 
   async getTransferComplete() {
+    console.log('have vaa?', !!this.state.vaa, this.props.txData);
     if (!this.state.vaa || !this.props.txData) return;
     const isComplete = await getTransferComplete(
       this.props.txData.toChain,

@@ -97,7 +97,13 @@ export class SuiContext<T extends WormholeContext> extends RelayerAbstract {
       destContext.formatAddress(recipientAccount),
     );
 
-    const coinType = token === NATIVE ? SUI_TYPE_ARG : token.address;
+    let coinType;
+    if (token === NATIVE) {
+      coinType = SUI_TYPE_ARG;
+    } else {
+      coinType = await this.mustGetForeignAsset(token, sendingChain);
+    }
+    console.log(`will send ${coinType}`);
     const coins = await this.getCoins(coinType, senderAddress);
 
     const { core, token_bridge } = this.context.mustGetContracts('sui');
@@ -382,7 +388,12 @@ export class SuiContext<T extends WormholeContext> extends RelayerAbstract {
     recipientAddress: string,
     overrides?: any,
   ): Promise<TransactionBlock> {
-    throw new Error('sui send with relay not implemented');
+    throw new Error('not implemented');
+    //const destContext = this.context.getContext(recipientChain);
+    //const recipientChainId = this.context.toChainId(recipientChain);
+    //const relayerFeeBigInt = relayerFee ? BigInt(relayerFee) : undefined;
+    //const amountBigInt = BigNumber.from(amount).toBigInt();
+
     //const tx = new TransactionBlock();
     //const feeAmount = BigInt(0); // TODO: wormhole fee
     //const [feeCoin] = tx.splitCoins(tx.gas, [tx.pure(feeAmount)]);
@@ -435,17 +446,27 @@ export class SuiContext<T extends WormholeContext> extends RelayerAbstract {
     tokenId: TokenId,
     amount: BigNumberish,
   ): Promise<BigNumber> {
-    // throw new Error('Method not implemented.');
-    return BigNumber.from(1);
+    const relayer = this.contracts.mustGetTokenBridgeRelayer(
+      'sui',
+    ) as SuiRelayer;
+    const coinType = await this.mustGetForeignAsset(tokenId, destChain);
+    // TODO: use actual sender's address
+    const dummyAddress =
+      '0xed867315e3f7c83ae82e6d5858b6a6cc57c291fd84f7509646ebc8162169cf96';
+    const nativeTokenAmount = await relayer.calculateNativeSwapAmountOut(
+      dummyAddress,
+      coinType,
+      amount,
+    );
+    return nativeTokenAmount;
   }
 
   async calculateMaxSwapAmount(
     destChain: ChainName | ChainId,
     tokenId: TokenId,
   ): Promise<BigNumber> {
-    // throw new Error('Method not implemented.');
     const relayer = this.contracts.mustGetTokenBridgeRelayer(
-      destChain,
+      'sui',
     ) as SuiRelayer;
     const coinType = await this.mustGetForeignAsset(tokenId, destChain);
     // TODO: use actual sender's address
@@ -455,7 +476,7 @@ export class SuiContext<T extends WormholeContext> extends RelayerAbstract {
       dummyAddress,
       coinType,
     );
-    return BigNumber.from(maxSwap);
+    return maxSwap;
   }
 
   async getRelayerFee(
@@ -463,19 +484,15 @@ export class SuiContext<T extends WormholeContext> extends RelayerAbstract {
     destChain: ChainName | ChainId,
     tokenId: TokenId,
   ): Promise<BigNumber> {
-    // when calculating relayer fees, it's from the source chain to the dest chain
     console.log(
       `getRelayerFee - sourceChain ${sourceChain}, destChain: ${destChain}, tokenId: ${tokenId}`,
     );
-    return BigNumber.from(0);
-    //// sourceChain fuji, destChain: sui
-    //const relayer = this.contracts.mustGetTokenBridgeRelayer(sourceChain);
-    //// get asset address
-    //const address = await this.mustGetForeignAsset(tokenId, sourceChain);
-    ////  get token decimals
-    //const decimals = await this.fetchTokenDecimals(address, sourceChain);
-    //// get relayer fee as token amt
-    //const destChainId = this.context.toChainId(destChain);
-    //return await relayer.calculateRelayerFee(destChainId, address, decimals);
+    const relayer = this.contracts.mustGetTokenBridgeRelayer(
+      sourceChain,
+    ) as SuiRelayer;
+    const address = await this.mustGetForeignAsset(tokenId, sourceChain);
+    const decimals = await this.fetchTokenDecimals(address, sourceChain);
+    const destChainId = this.context.toChainId(destChain);
+    return await relayer.calculateRelayerFee(destChainId, address, decimals);
   }
 }
