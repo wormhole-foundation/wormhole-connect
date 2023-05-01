@@ -81,8 +81,6 @@ export const validateAmount = (
   if (paymentOption === PaymentOption.MANUAL) return '';
   if (!minAmt) return '';
   if (amount < minAmt) return `Minimum amount is ${minAmt}`;
-  if (amount + minAmt > b)
-    return 'Amount plus estimated fees exceeds the wallet balance';
   return '';
 };
 
@@ -190,6 +188,14 @@ export const validateSolanaTokenAccount = (
   return '';
 };
 
+export const getMinAmount = (
+  isAutomatic: boolean,
+  toNativeToken: number,
+  relayerFee: number | undefined,
+) => {
+  return isAutomatic ? toNativeToken + (relayerFee || 0) : 0;
+};
+
 export const validateAll = async (
   transferData: TransferState,
   walletData: WalletState,
@@ -210,7 +216,7 @@ export const validateAll = async (
   } = transferData;
   const { sending, receiving } = walletData;
   const isAutomatic = destGasPayment === PaymentOption.AUTOMATIC;
-  const minAmt = isAutomatic ? toNativeToken + (relayerFee || 0) : 0;
+  const minAmt = getMinAmount(isAutomatic, toNativeToken, relayerFee);
   const baseValidations = {
     sendingWallet: await validateWallet(sending, fromNetwork),
     receivingWallet: await validateWallet(receiving, toNetwork),
