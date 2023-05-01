@@ -488,7 +488,7 @@ export class SuiContext<T extends WormholeContext> extends RelayerAbstract {
       `getRelayerFee - sourceChain ${sourceChain}, destChain: ${destChain}, tokenId: ${tokenId}`,
     );
     const relayer = this.contracts.mustGetTokenBridgeRelayer(
-      sourceChain,
+      'sui',
     ) as SuiRelayer;
     const address = await this.mustGetForeignAsset(tokenId, sourceChain);
     const decimals = await this.fetchTokenDecimals(address, sourceChain);
