@@ -112,7 +112,9 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
         '0x32422cb2f929b6a4e3f81b4791ea11ac2af896b310f3d9442aa1fe924ce0bab4',
       nft_bridge: undefined,
       relayer:
-        '0xe7e7bf3994f63d1eb58896411d1c211d280cc6182cb2a29bf95ce8f338431523',
+        '0xe7e7bf3994f63d1eb58896411d1c211d280cc6182cb2a29bf95ce8f338431523', // suiRelayerObjectId
+      suiRelayerPackageId:
+        '0x683696ce7d22989c880452c93fc608e4decd1dcbe1e9e1960a142be0544c3ff1',
     },
     finalityThreshold: 0,
   },
