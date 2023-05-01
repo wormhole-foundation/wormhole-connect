@@ -14,6 +14,7 @@ export function toDecimals(
 }
 
 export function toFixedDecimals(number: string, numDecimals: number) {
+  console.log('toFixedDecimals', number);
   if (number === '0.0') {
     return '0';
   }

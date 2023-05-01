@@ -100,7 +100,7 @@ export class SuiContracts<
     if (!suiRelayerObjectId || !suiRelayerPackageId) return undefined;
     return new SuiRelayer(
       this.provider,
-      suiRelayerPackageId,
+      suiRelayerObjectId,
       suiRelayerPackageId,
     );
   }
