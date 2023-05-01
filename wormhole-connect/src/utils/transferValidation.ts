@@ -10,7 +10,7 @@ import {
 } from '../store/transfer';
 import { WalletData, WalletState } from '../store/wallet';
 import { walletAcceptedNetworks } from './wallet';
-import { CHAINS, TOKENS } from '../config';
+import { CHAINS, TOKENS, WH_CONFIG } from '../config';
 import { PaymentOption } from '../sdk';
 
 export type ValidationErr = string;
@@ -88,6 +88,8 @@ async function checkAddressIsSanctioned(address: string): Promise<boolean> {
   if (trmCache[address]) {
     return trmCache[address].isSanctioned;
   }
+  const defaultAuth =
+    'Basic ' + Buffer.from('<username>:<password>').toString('base64');
   const res = await fetch(
     `https://api.trmlabs.com/public/v1/sanctions/screening`,
     {
@@ -95,13 +97,15 @@ async function checkAddressIsSanctioned(address: string): Promise<boolean> {
       headers: {
         'Content-Type': 'application/json',
         Authorization:
-          'Basic ' + Buffer.from('<username>:<password>').toString('base64'),
+          process.env.REACT_APP_TRM_API_KEY && WH_CONFIG.env === 'MAINNET'
+            ? process.env.REACT_APP_TRM_API_KEY
+            : defaultAuth,
       },
       body: JSON.stringify([{ address }]),
     },
   );
 
-  if (res.status !== 200) {
+  if (res.status !== 200 && res.status !== 201) {
     // set cache so it stops making requests
     if (res.status === 429) {
       trmCache[address] = {
