@@ -53,7 +53,7 @@ const useStyles = makeStyles()((theme) => ({
 
 const getReady = (wallet: Wallet) => {
   const ready = wallet.getWalletState();
-  return ready !== WalletState.Unsupported;
+  return ready !== WalletState.Unsupported && ready !== WalletState.NotDetected;
 };
 
 type WalletData = {
