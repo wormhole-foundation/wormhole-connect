@@ -15,7 +15,8 @@ import BridgeCollapse from './Collapse';
 
 const getAutomaticRows = (
   token: TokenConfig,
-  gasToken: string,
+  sourceGasToken: string,
+  destinationGasToken: string,
   amount: number,
   nativeTokenAmt: number,
   receiveNativeAmt: number,
@@ -37,7 +38,7 @@ const getAutomaticRows = (
     },
     {
       title: 'Native token on destination',
-      value: `${receiveNativeAmt} ${gasToken}`,
+      value: `${receiveNativeAmt} ${destinationGasToken}`,
     },
     {
       title: 'Total fee estimates',
@@ -50,7 +51,7 @@ const getAutomaticRows = (
         },
         {
           title: 'Source chain gas estimate',
-          value: sendingGasEst ? `~ ${sendingGasEst} ${token.symbol}` : '—',
+          value: sendingGasEst ? `~ ${sendingGasEst} ${sourceGasToken}` : '—',
         },
       ],
     },
@@ -59,7 +60,8 @@ const getAutomaticRows = (
 
 const getManualRows = (
   token: TokenConfig,
-  gasToken: string,
+  sourceGasToken: string,
+  destinationGasToken: string,
   amount: number,
   sendingGasEst: string,
   destGasEst: string,
@@ -75,18 +77,18 @@ const getManualRows = (
       title: 'Total fee estimates',
       value:
         sendingGasEst && destGasEst
-          ? `${sendingGasEst} ${token.symbol} & ${destGasEst} ${gasToken}`
+          ? `${sendingGasEst} ${sourceGasToken} & ${destGasEst} ${destinationGasToken}`
           : '',
       rows: [
         {
           title: 'Source chain gas estimate',
           value: sendingGasEst
-            ? `~ ${sendingGasEst} ${token.symbol}`
+            ? `~ ${sendingGasEst} ${sourceGasToken}`
             : 'Not available',
         },
         {
           title: 'Destination chain gas estimate',
-          value: destGasEst ? `~ ${destGasEst} ${gasToken}` : 'Not available',
+          value: destGasEst ? `~ ${destGasEst} ${destinationGasToken}` : 'Not available',
         },
       ],
     },
@@ -109,13 +111,15 @@ function Preview(props: { collapsed: boolean }) {
   } = useSelector((state: RootState) => state.transfer);
 
   useEffect(() => {
+    const sourceConfig = toNetwork && CHAINS[fromNetwork];
     const destConfig = toNetwork && CHAINS[toNetwork];
     const tokenConfig = token && TOKENS[token];
-    if (!fromNetwork || !tokenConfig || !destConfig || !amount) return;
+    if (!fromNetwork || !tokenConfig || !sourceConfig || !destConfig || !amount) return;
 
     if (destGasPayment === PaymentOption.MANUAL) {
       const rows = getManualRows(
         tokenConfig,
+        sourceConfig!.gasToken,
         destConfig!.gasToken,
         amount,
         gasEst.manual,
@@ -133,6 +137,7 @@ function Preview(props: { collapsed: boolean }) {
           dispatch(setRelayerFee(formattedFee));
           const rows = getAutomaticRows(
             tokenConfig,
+            sourceConfig!.gasToken,
             destConfig!.gasToken,
             amount,
             toNativeToken,
