@@ -88,7 +88,9 @@ const getManualRows = (
         },
         {
           title: 'Destination chain gas estimate',
-          value: destGasEst ? `~ ${destGasEst} ${destinationGasToken}` : 'Not available',
+          value: destGasEst
+            ? `~ ${destGasEst} ${destinationGasToken}`
+            : 'Not available',
         },
       ],
     },
@@ -114,7 +116,8 @@ function Preview(props: { collapsed: boolean }) {
     const sourceConfig = toNetwork && CHAINS[fromNetwork];
     const destConfig = toNetwork && CHAINS[toNetwork];
     const tokenConfig = token && TOKENS[token];
-    if (!fromNetwork || !tokenConfig || !sourceConfig || !destConfig || !amount) return;
+    if (!fromNetwork || !tokenConfig || !sourceConfig || !destConfig || !amount)
+      return;
 
     if (destGasPayment === PaymentOption.MANUAL) {
       const rows = getManualRows(

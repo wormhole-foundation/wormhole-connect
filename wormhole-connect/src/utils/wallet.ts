@@ -20,6 +20,7 @@ import { Transaction, ConfirmOptions } from '@solana/web3.js';
 import { registerSigner } from '../sdk';
 import { CHAINS_ARR } from '../config';
 import { getNetworkByChainId } from 'utils';
+import { WH_CONFIG } from '../config';
 
 export enum TransferWallet {
   SENDING = 'sending',
@@ -46,8 +47,10 @@ let walletConnection = {
   receiving: undefined as Wallet | undefined,
 };
 
-const url = clusterApiUrl('devnet');
-const connection = new SolanaConnection(url);
+const tag = WH_CONFIG.env === 'MAINNET' ? 'mainnet-beta' : 'devnet';
+const connection = new SolanaConnection(
+  WH_CONFIG.rpcs.solana || clusterApiUrl(tag),
+);
 
 export const wallets = {
   evm: {
