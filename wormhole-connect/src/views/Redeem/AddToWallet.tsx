@@ -10,7 +10,7 @@ import {
   CHAINS,
   TESTNET_TO_MAINNET_CHAIN_NAMES,
   TOKENS,
-  isProduction,
+  isMainnet,
 } from '../../config';
 import { MAINNET_NETWORKS } from '../../config/mainnet';
 import TokenIcon from '../../icons/TokenIcons';
@@ -129,7 +129,7 @@ function AddToWallet() {
     );
   }, [txData]);
 
-  const chainName = isProduction
+  const chainName = isMainnet
     ? (txData.toChain as ChainName)
     : TESTNET_TO_MAINNET_CHAIN_NAMES[txData.toChain];
   const chainId = coalesceChainId(chainName);
