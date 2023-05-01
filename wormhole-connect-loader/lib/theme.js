@@ -1,8 +1,4 @@
-import grey from '@mui/material/colors/grey';
-import green from '@mui/material/colors/green';
-import orange from '@mui/material/colors/orange';
-import red from '@mui/material/colors/red';
-import lightblue from '@mui/material/colors/lightBlue';
+import { grey, green, orange, red, cyan, purple, } from '@mui/material/colors';
 export var OPACITY = {
     0: '00',
     5: '0C',
@@ -108,14 +104,14 @@ export var dark = {
     secondary: grey,
     divider: '#ffffff' + OPACITY[20],
     background: {
-        default: '#232323',
+        default: '#212121',
     },
     text: {
         primary: '#ffffff',
         secondary: grey[500],
     },
     error: red,
-    info: lightblue,
+    info: cyan,
     success: green,
     warning: orange,
     button: {
@@ -123,26 +119,30 @@ export var dark = {
         primaryText: '#ffffff',
         disabled: '#ffffff' + OPACITY[10],
         disabledText: '#ffffff' + OPACITY[40],
-        action: orange[300],
+        action: purple[400],
         actionText: '#000000',
         hover: '#ffffff' + OPACITY[7],
     },
     options: {
-        hover: '#474747',
-        select: '#5b5b5b',
+        hover: '#373737',
+        select: '#3F3F3F',
     },
     card: {
-        background: '#333333',
+        background: '#2F2F2F',
         secondary: '#474747',
         elevation: 'none',
     },
     popover: {
-        background: '#1b2033',
+        background: '#111111',
         secondary: '#ffffff' + OPACITY[5],
         elevation: 'none',
     },
     modal: {
-        background: '#474747',
+        background: '#2d2d2d',
+    },
+    font: {
+        primary: '"Inter", sans-serif',
+        header: '"IBM Plex Mono", monospace',
     },
 };
 export var defaultTheme = {
