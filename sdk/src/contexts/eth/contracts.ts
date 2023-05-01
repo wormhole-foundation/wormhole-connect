@@ -7,10 +7,7 @@ import {
 
 import { ChainName, ChainId, Contracts, Context } from '../../types';
 import { TokenBridgeRelayer__factory } from '../../abis/TokenBridgeRelayer__factory';
-import {
-  ContractsAbstract,
-  TokenBridgeRelayerInterface,
-} from '../abstracts/contracts';
+import { ContractsAbstract } from '../abstracts/contracts';
 import { WormholeContext } from '../../wormhole';
 import { filterByContext } from '../../utils';
 
@@ -118,9 +115,7 @@ export class EthContracts<
    *
    * @returns An interface for the Token Bridge Relayer contract, undefined if not found
    */
-  getTokenBridgeRelayer(
-    chain: ChainName | ChainId,
-  ): TokenBridgeRelayerInterface | undefined {
+  getTokenBridgeRelayer(chain: ChainName | ChainId): any {
     const connection = this.context.mustGetConnection(chain);
     const address = this.mustGetContracts(chain).relayer;
     if (!address) return undefined;
@@ -132,9 +127,7 @@ export class EthContracts<
    *
    * @returns An interface for the Token Bridge Relayer contract, errors if not found
    */
-  mustGetTokenBridgeRelayer(
-    chain: ChainName | ChainId,
-  ): TokenBridgeRelayerInterface {
+  mustGetTokenBridgeRelayer(chain: ChainName | ChainId): any {
     const relayer = this.getTokenBridgeRelayer(chain);
     if (!relayer)
       throw new Error(

@@ -1,8 +1,5 @@
 import { ChainName, ChainId, Contracts, Context } from '../../types';
-import {
-  ContractsAbstract,
-  TokenBridgeRelayerInterface,
-} from '../abstracts/contracts';
+import { ContractsAbstract } from '../abstracts/contracts';
 import { WormholeContext } from '../../wormhole';
 import { filterByContext } from '../../utils';
 import { SuiRelayer } from './relayer';
@@ -97,12 +94,15 @@ export class SuiContracts<
    *
    * @returns An interface for the Token Bridge Relayer contract, undefined if not found
    */
-  getTokenBridgeRelayer(
-    chain: ChainName | ChainId,
-  ): TokenBridgeRelayerInterface | undefined {
-    const address = this.mustGetContracts(chain).relayer;
-    if (!address) return undefined;
-    return new SuiRelayer(this.provider, address);
+  getTokenBridgeRelayer(chain: ChainName | ChainId): any {
+    const { relayer: suiRelayerObjectId, suiRelayerPackageId } =
+      this.mustGetContracts(chain);
+    if (!suiRelayerObjectId || !suiRelayerPackageId) return undefined;
+    return new SuiRelayer(
+      this.provider,
+      suiRelayerPackageId,
+      suiRelayerPackageId,
+    );
   }
 
   /**
@@ -110,9 +110,7 @@ export class SuiContracts<
    *
    * @returns An interface for the Token Bridge Relayer contract, errors if not found
    */
-  mustGetTokenBridgeRelayer(
-    chain: ChainName | ChainId,
-  ): TokenBridgeRelayerInterface {
+  mustGetTokenBridgeRelayer(chain: ChainName | ChainId): any {
     const relayer = this.getTokenBridgeRelayer(chain);
     if (!relayer)
       throw new Error(
