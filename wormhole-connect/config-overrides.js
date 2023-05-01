@@ -41,6 +41,7 @@ module.exports = function override(config, env) {
         buffer: "buffer",
         url: "url",
         os: "os-browserify/browser",
+        zlib: "browserify-zlib",
       },
     },
     optimization: {

@@ -2,20 +2,29 @@ import {
   WormholeContext,
   CONFIG as CONF,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { MAINNET_NETWORKS, MAINNET_TOKENS } from './mainnet';
-import { TESTNET_NETWORKS, TESTNET_TOKENS } from './testnet';
+import {
+  MAINNET_NETWORKS,
+  MAINNET_TOKENS,
+  MAINNET_GAS_ESTIMATES,
+} from './mainnet';
+import {
+  TESTNET_NETWORKS,
+  TESTNET_TOKENS,
+  TESTNET_GAS_ESTIMATES,
+} from './testnet';
 import { TokenConfig, NetworkConfig, WormholeConnectConfig } from './types';
 import { dark, light } from '../theme';
 import {
   MainnetChainName,
   TestnetChainName,
 } from '@wormhole-foundation/wormhole-connect-sdk';
+import { validateDefaults } from './utils';
 
 const el = document.getElementById('wormhole-connect');
 if (!el)
   throw new Error('must specify an anchor element with id wormhole-connect');
 const configJson = el.getAttribute('config');
-const config: WormholeConnectConfig | null = JSON.parse(configJson!);
+export const config: WormholeConnectConfig | null = JSON.parse(configJson!);
 
 const { REACT_APP_ENV } = process.env;
 export const isProduction =
@@ -59,8 +68,12 @@ export const CHAINS_ARR =
 export const TOKENS = isProduction ? MAINNET_TOKENS : TESTNET_TOKENS;
 export const TOKENS_ARR =
   config && config.tokens
-    ? Object.values(TOKENS).filter((c) => config.tokens!.includes(c.symbol))
+    ? Object.values(TOKENS).filter((c) => config.tokens!.includes(c.key))
     : (Object.values(TOKENS) as TokenConfig[]);
+
+export const GAS_ESTIMATES = isProduction
+  ? MAINNET_GAS_ESTIMATES
+  : TESTNET_GAS_ESTIMATES;
 
 export const THEME_MODE = config && config.mode ? config.mode : 'dark';
 export const CUSTOM_THEME = config && config.customTheme;
@@ -71,6 +84,8 @@ export const THEME = CUSTOM_THEME
   : light;
 
 export const CTA = config && config.cta;
+export const BRIDGE_DEFAULTS =
+  config && validateDefaults(config.bridgeDefaults);
 
 export const TESTNET_TO_MAINNET_CHAIN_NAMES: {
   [k in TestnetChainName]: MainnetChainName;

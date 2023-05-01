@@ -50,6 +50,8 @@ const useStyles = makeStyles()((theme) => ({
     backgroundColor: theme.palette.info[500],
     padding: '8px 16px',
     transition: 'border-radius 0.4s',
+    display: 'flex',
+    flexDirection: 'row',
   },
   open: {
     borderBottomLeftRadius: '0 !important',
@@ -60,8 +62,8 @@ const useStyles = makeStyles()((theme) => ({
     cursor: 'not-allowed !important',
   },
   link: {
-    ...LINK,
-    color: theme.palette.text.primary,
+    ...LINK(theme),
+    margin: '0 0 0 4px',
   },
 }));
 
@@ -85,18 +87,19 @@ type Props = {
 
 function BridgeCollapse(props: Props) {
   const { classes } = useStyles();
+  const { onCollapseChange } = props;
   const [collapsed, setCollapsed] = React.useState(props.close || false);
 
   const toggleCollapsed = useCallback(() => {
     if (props.disabled) return;
     setCollapsed((prev) => !prev);
-  }, [collapsed, props.disabled, props.onCollapseChange]);
+  }, [props.disabled]);
 
-  const onCollapseChange = useCallback(() => {
-    if (props.onCollapseChange) {
-      props.onCollapseChange(collapsed);
+  const onChange = useCallback(() => {
+    if (onCollapseChange) {
+      onCollapseChange(collapsed);
     }
-  }, [collapsed, props.onCollapseChange]);
+  }, [collapsed, onCollapseChange]);
 
   const relayAvail = useSelector(
     (state: RootState) => state.transfer.automaticRelayAvail,
@@ -144,7 +147,7 @@ function BridgeCollapse(props: Props) {
             !collapsedState && classes.open,
           ])}
         >
-          This feature provided by{' '}
+          This feature provided by
           <a
             href="https://github.com/XLabs"
             target="_blank"
@@ -156,7 +159,7 @@ function BridgeCollapse(props: Props) {
         </div>
       )}
 
-      <Collapse onExited={onCollapseChange} in={!collapsedState}>
+      <Collapse onExited={onChange} in={!collapsedState}>
         {props.children}
       </Collapse>
     </div>

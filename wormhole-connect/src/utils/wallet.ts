@@ -132,7 +132,10 @@ export const signSolanaTransaction = async (
     throw new Error('wallet.signAndSendTransaction is undefined');
   }
 
-  const tx = await wallet?.signAndSendTransaction(transaction);
+  const tx = await (wallet as SolanaWallet).signAndSendTransaction({
+    transaction,
+    options,
+  });
   return { transactionHash: tx.id };
 };
 
