@@ -1,11 +1,13 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { disconnect, TransferWallet, WalletType } from '../utils/wallet';
+import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
 
 export type WalletData = {
   type: WalletType;
   address: string;
   currentAddress: string;
   error: string;
+  wallet?: Wallet;
 };
 
 export interface WalletState {
@@ -18,6 +20,7 @@ const NO_WALLET: WalletData = {
   type: WalletType.NONE,
   currentAddress: '',
   error: '',
+  wallet: undefined
 };
 
 const initialState: WalletState = {
@@ -28,6 +31,7 @@ const initialState: WalletState = {
 export type ConnectPayload = {
   address: string;
   type: WalletType;
+  wallet: Wallet;
 };
 
 export const walletSlice = createSlice({
@@ -41,6 +45,7 @@ export const walletSlice = createSlice({
       state.sending.type = payload.type;
       state.sending.address = payload.address;
       state.sending.currentAddress = payload.address;
+      state.sending.wallet = payload.wallet;
       state.sending.error = '';
     },
     connectReceivingWallet: (
@@ -50,6 +55,7 @@ export const walletSlice = createSlice({
       state.receiving.type = payload.type;
       state.receiving.address = payload.address;
       state.receiving.currentAddress = payload.address;
+      state.receiving.wallet = payload.wallet;
       state.receiving.error = '';
     },
     clearWallet: (

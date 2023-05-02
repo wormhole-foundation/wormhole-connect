@@ -141,7 +141,7 @@ function WalletsModal(props: Props) {
     });
 
     if (address) {
-      const payload = { address, type: walletInfo.type };
+      const payload = { address, type: walletInfo.type, wallet };
       if (props.type === TransferWallet.SENDING) {
         dispatch(connectWallet(payload));
       } else {
