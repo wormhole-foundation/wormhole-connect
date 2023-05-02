@@ -92,7 +92,7 @@ function ConnectWallet(props: Props) {
               onClick={onClick}
               {...boundProps}
             >
-              <WalletIcons wallet={wallet.wallet!} height={24} />
+              <WalletIcons wallet={wallet.wallet} height={24} />
               {displayWalletAddress(wallet.type, wallet.address)}
               {!disabled && <DownIcon className={classes.down} />}
             </div>
