@@ -150,7 +150,7 @@ export const sendTransfer = async (
   toAddress: string,
   paymentOption: PaymentOption,
   toNativeToken?: string,
-): Promise<any> => {
+): Promise<string> => {
   const fromChainId = wh.toChainId(fromNetwork);
   const fromChainName = wh.toChainName(fromNetwork);
   const decimals = getTokenDecimals(fromChainId, token);
@@ -223,7 +223,7 @@ export const claimTransfer = async (
   destChain: ChainName | ChainId,
   vaa: Uint8Array,
   payerAddr: string,
-) => {
+): Promise<string> => {
   // post vaa (solana)
   // TODO: move to context
   const destChainId = wh.toChainId(destChain);

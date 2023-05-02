@@ -100,7 +100,7 @@ function Send(props: { valid: boolean }) {
       const tokenConfig = TOKENS[token]!;
       const sendToken = tokenConfig.tokenId;
 
-      const receipt: any = await sendTransfer(
+      const txId = await sendTransfer(
         sendToken || 'native',
         `${amount}`,
         fromNetwork!,
@@ -110,7 +110,6 @@ function Send(props: { valid: boolean }) {
         destGasPayment,
         `${toNativeToken}`,
       );
-      const txId = receipt.transactionHash;
 
       let message;
       const toRedeem = setInterval(async () => {

@@ -217,15 +217,15 @@ function SendTo() {
       txData.toChain !== 'solana' &&
       txData.payloadID === PaymentOption.AUTOMATIC
     ) {
-      const redeemed = await fetchRedeemedEvent(
+      const txId = await fetchRedeemedEvent(
         txData.toChain,
         vaa.emitterChain as ChainId,
         vaa.emitterAddress,
         vaa.sequence,
       );
-      if (redeemed) {
-        dispatch(setRedeemTx(redeemed.transactionHash));
-        return redeemed.transactionHash;
+      if (txId) {
+        dispatch(setRedeemTx(txId));
+        return txId;
       }
     }
   };
@@ -266,12 +266,12 @@ function SendTo() {
         registerWalletSigner(txData.toChain, TransferWallet.RECEIVING);
         await switchNetwork(networkConfig.chainId, TransferWallet.RECEIVING);
       }
-      const receipt = await claimTransfer(
+      const txId = await claimTransfer(
         txData.toChain,
         utils.arrayify(vaa.bytes),
         wallet.address,
       );
-      dispatch(setRedeemTx(receipt.transactionHash));
+      dispatch(setRedeemTx(txId));
       dispatch(setTransferComplete(true));
       setInProgress(false);
       setClaimError('');
