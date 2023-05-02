@@ -28,7 +28,6 @@ import { EthContracts } from './contracts';
 import { parseVaa } from '../../vaa';
 import { RelayerAbstract } from '../abstracts/relayer';
 import { SolanaContext } from '../solana';
-import { TokenBridgeRelayer } from 'abis/TokenBridgeRelayer';
 
 export class EthContext<T extends WormholeContext> extends RelayerAbstract {
   readonly contracts: EthContracts<T>;
@@ -298,7 +297,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
       const tokenAddr = await this.mustGetForeignAsset(token, sendingChain);
       await this.approve(sendingChain, bridge.address, tokenAddr, amountBN);
       const v = await bridge.transferTokensWithPayload(
-        destContext.parseAddress(tokenAddr), // TODO: shouldn't this be the sending context (possible bug)?
+        destContext.parseAddress(tokenAddr),
         amountBN,
         recipientChainId,
         destContext.formatAddress(recipientAddress),
@@ -323,9 +322,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
     const destContext = this.context.getContext(recipientChain);
     const recipientChainId = this.context.toChainId(recipientChain);
     const amountBN = ethers.BigNumber.from(amount);
-    const relayer = this.contracts.mustGetTokenBridgeRelayer(
-      sendingChain,
-    ) as TokenBridgeRelayer;
+    const relayer = this.contracts.mustGetTokenBridgeRelayer(sendingChain);
     const nativeTokenBN = ethers.BigNumber.from(toNativeToken);
 
     if (token === NATIVE) {
@@ -374,9 +371,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
     // approve for ERC-20 token transfers
     if (token !== NATIVE) {
       const amountBN = ethers.BigNumber.from(amount);
-      const relayer = this.contracts.mustGetTokenBridgeRelayer(
-        sendingChain,
-      ) as TokenBridgeRelayer;
+      const relayer = this.contracts.mustGetTokenBridgeRelayer(sendingChain);
       const tokenAddr = await this.mustGetForeignAsset(token, sendingChain);
       await this.approve(sendingChain, relayer.address, tokenAddr, amountBN);
     }
@@ -427,9 +422,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
     destChain: ChainName | ChainId,
     tokenId: TokenId,
   ): Promise<BigNumber> {
-    const relayer = this.contracts.mustGetTokenBridgeRelayer(
-      destChain,
-    ) as TokenBridgeRelayer;
+    const relayer = this.contracts.mustGetTokenBridgeRelayer(destChain);
     const token = await this.mustGetForeignAsset(tokenId, destChain);
     return await relayer.calculateMaxSwapAmountIn(token);
   }
@@ -439,9 +432,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
     tokenId: TokenId,
     amount: BigNumberish,
   ): Promise<BigNumber> {
-    const relayer = this.contracts.mustGetTokenBridgeRelayer(
-      destChain,
-    ) as TokenBridgeRelayer;
+    const relayer = this.contracts.mustGetTokenBridgeRelayer(destChain);
     const token = await this.mustGetForeignAsset(tokenId, destChain);
     return await relayer.calculateNativeSwapAmountOut(token, amount);
   }
@@ -462,9 +453,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
 
     const core = this.contracts.mustGetCore(chain);
     const bridge = this.contracts.mustGetBridge(chain);
-    const relayer = this.contracts.getTokenBridgeRelayer(
-      chain,
-    ) as TokenBridgeRelayer;
+    const relayer = this.contracts.getTokenBridgeRelayer(chain);
     const bridgeLogs = receipt.logs.filter((l: any) => {
       return l.address === core.address;
     });
@@ -556,9 +545,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
     destChain: ChainName | ChainId,
     tokenId: TokenId,
   ): Promise<BigNumber> {
-    const relayer = this.contracts.mustGetTokenBridgeRelayer(
-      sourceChain,
-    ) as TokenBridgeRelayer;
+    const relayer = this.contracts.mustGetTokenBridgeRelayer(sourceChain);
     // get asset address
     const address = await this.mustGetForeignAsset(tokenId, sourceChain);
     // get token decimals

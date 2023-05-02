@@ -158,7 +158,7 @@ export const signSuiTransaction = async (
   }
 
   const response = await wallet.signAndSendTransaction({ transactionBlock });
-  return { transactionHash: response.id }; // TODO: is this right?
+  return { transactionHash: response.id };
 };
 
 export const postVaa = async (

@@ -13,6 +13,8 @@ import {
   MAX_DECIMALS,
   displayAddress,
   fromNormalizedDecimals,
+  getTokenDecimals,
+  getWrappedTokenId,
   toNormalizedDecimals,
 } from '../../utils';
 import {
@@ -29,7 +31,7 @@ import {
   PaymentOption,
   calculateNativeTokenAmt,
 } from '../../sdk';
-import { CHAINS, TOKENS, getTokenDecimalsForChain } from '../../config';
+import { CHAINS, TOKENS } from '../../config';
 import WalletsModal from '../WalletModal';
 import { GAS_ESTIMATES } from '../../config';
 import { fetchRedeemedEvent, fetchSwapEvent } from '../../utils/events';
@@ -124,8 +126,8 @@ const getAutomaticRows = async (
     }
   } else if (!transferComplete) {
     // get the decimals on the target chain
-    const destinationTokenDecimals = getTokenDecimalsForChain(
-      txData.toChain,
+    const destinationTokenDecimals = getTokenDecimals(
+      wh.toChainId(txData.toChain),
       txData.tokenId,
     );
     const amount = await calculateNativeTokenAmt(
@@ -138,9 +140,9 @@ const getAutomaticRows = async (
       ),
     );
     // get the decimals on the target chain
-    const nativeGasTokenDecimals = getTokenDecimalsForChain(
-      txData.toChain,
-      nativeGasToken,
+    const nativeGasTokenDecimals = getTokenDecimals(
+      wh.toChainId(txData.toChain),
+      getWrappedTokenId(nativeGasToken),
     );
     nativeGasAmt = toDecimals(
       amount.toString(),

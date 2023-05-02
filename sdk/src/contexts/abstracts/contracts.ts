@@ -11,6 +11,8 @@ export abstract class ContractsAbstract<T extends WormholeContext> {
   protected abstract mustGetBridge(chain: ChainName | ChainId): any;
   protected abstract getNftBridge(chain: ChainName | ChainId): any | undefined;
   protected abstract mustGetNftBridge(chain: ChainName | ChainId): any;
-  protected abstract getTokenBridgeRelayer(chain: ChainName | ChainId): any;
+  protected abstract getTokenBridgeRelayer(
+    chain: ChainName | ChainId,
+  ): any | undefined;
   protected abstract mustGetTokenBridgeRelayer(chain: ChainName | ChainId): any;
 }

@@ -22,10 +22,10 @@ var WormholeBridge = /** @class */ (function (_super) {
     }
     WormholeBridge.prototype.componentDidMount = function () {
         var script = document.createElement("script");
-        script.src = "https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.1-beta.3/dist/main.js";
+        script.src = "https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.1-beta.5/dist/main.js";
         script.async = true;
         var link = document.createElement("link");
-        link.href = "https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.1-beta.3/dist/main.css";
+        link.href = "https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.1-beta.5/dist/main.css";
         document.body.appendChild(script);
         document.body.appendChild(link);
     };
