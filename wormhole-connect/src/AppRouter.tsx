@@ -55,10 +55,6 @@ function AppRouter() {
     if (prevRoute === bridgeRoute && route !== bridgeRoute) {
       dispatch(clearTransfer());
     }
-    // reset wallets when starting a new bridge transfer
-    if (prevRoute !== bridgeRoute && route === bridgeRoute) {
-      dispatch(clearWallets());
-    }
   }, [route, prevRoute, dispatch]);
 
   return (
