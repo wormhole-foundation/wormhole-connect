@@ -189,13 +189,6 @@ export class SuiContext<T extends WormholeContext> extends RelayerAbstract {
    */
   async parseAssetAddress(address: string): Promise<string> {
     console.log(`parseAssetAddress - external address: ${address}`);
-    // TODO: remove this when getForeignAssetSui is fixed in the SDK
-    if (
-      address ===
-      '0x9d31091f5decefeb373de2218d634dbe198c72feac6e50fba0a5330cb5e65cff'
-    ) {
-      return SUI_TYPE_ARG;
-    }
     try {
       const { token_bridge } = this.contracts.mustGetContracts('sui');
       if (!token_bridge) throw new Error('token bridge contract not found');
@@ -263,10 +256,6 @@ export class SuiContext<T extends WormholeContext> extends RelayerAbstract {
     tokenAddr: string,
     chain: ChainName | ChainId,
   ): Promise<number> {
-    // optimization to avoid rpc call for native sui
-    if (tokenAddr === SUI_TYPE_ARG) {
-      return 9;
-    }
     const metadata = await this.provider.getCoinMetadata({
       coinType: tokenAddr,
     });

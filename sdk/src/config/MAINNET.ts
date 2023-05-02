@@ -105,8 +105,9 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     context: Context.SUI,
     contracts: {
       ...CONTRACTS.MAINNET.sui,
-      relayer: undefined, // TODO: add relayer object id
-      suiRelayerPackageId: undefined, // TODO: add relayer package id
+      relayer: undefined,
+      suiRelayerPackageId: undefined,
+      suiOriginalTokenBridgePackageId: undefined,
     },
     finalityThreshold: 0,
   },

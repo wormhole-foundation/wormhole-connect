@@ -115,6 +115,8 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
         '0xe7e7bf3994f63d1eb58896411d1c211d280cc6182cb2a29bf95ce8f338431523', // suiRelayerObjectId
       suiRelayerPackageId:
         '0x683696ce7d22989c880452c93fc608e4decd1dcbe1e9e1960a142be0544c3ff1',
+      suiOriginalTokenBridgePackageId:
+        '0x92d81f28c167d90f84638c654b412fe7fa8e55bdfac7f638bdcf70306289be86',
     },
     finalityThreshold: 0,
   },
