@@ -5,6 +5,7 @@ import { NftBridge } from '@certusone/wormhole-sdk/lib/cjs/solana/types/nftBridg
 import { Wormhole } from '@certusone/wormhole-sdk/lib/cjs/solana/types/wormhole';
 
 import { ChainName, ChainId, Contracts, Context } from '../../types';
+import { TokenBridgeRelayer } from '../../abis/TokenBridgeRelayer';
 import { ContractsAbstract } from '../abstracts/contracts';
 import { WormholeContext } from '../../wormhole';
 import { filterByContext } from '../../utils';
@@ -147,7 +148,9 @@ export class SolContracts<
    *
    * @returns An interface for the Token Bridge Relayer contract, undefined if not found
    */
-  getTokenBridgeRelayer(chain?: ChainName | ChainId): any {
+  getTokenBridgeRelayer(
+    chain?: ChainName | ChainId,
+  ): TokenBridgeRelayer | undefined {
     return undefined;
   }
 
@@ -156,7 +159,7 @@ export class SolContracts<
    *
    * @returns An interface for the Token Bridge Relayer contract, errors if not found
    */
-  mustGetTokenBridgeRelayer(chain: ChainName | ChainId): any {
+  mustGetTokenBridgeRelayer(chain: ChainName | ChainId): TokenBridgeRelayer {
     throw new Error('relayer not deployed on Solana');
   }
 }

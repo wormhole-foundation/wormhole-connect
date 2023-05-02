@@ -50,7 +50,6 @@ export class SuiRelayer {
         tokenInfo.data.content &&
         'fields' in tokenInfo.data.content
       ) {
-        console.log(tokenInfo.data.content.fields.value?.fields);
         return tokenInfo.data.content.fields.value?.fields || null;
       }
       return null;
@@ -65,9 +64,7 @@ export class SuiRelayer {
 
   async isAcceptedToken(token: string): Promise<boolean> {
     try {
-      console.log(`isAcceptedToken - token: ${token}`);
       const tokenInfo = await this.getTokenInfo(token);
-      console.log(tokenInfo);
       return tokenInfo?.swap_enabled === true;
     } catch (e) {
       console.error(e);
@@ -142,7 +139,6 @@ export class SuiRelayer {
       transactionBlock: tx,
       sender: senderAddress,
     });
-    console.log(JSON.stringify(result));
     const returnValues = result.results?.[0]?.returnValues;
     if (returnValues?.length != 1) {
       throw Error('swap rate not set');
@@ -179,7 +175,6 @@ export class SuiRelayer {
       transactionBlock: tx,
       sender: senderAddress,
     });
-    console.log(JSON.stringify(result));
     const returnValues = result.results?.[0]?.returnValues;
     if (returnValues?.length != 1) {
       throw Error('Unable to calculate nativeSwapAmountOut');

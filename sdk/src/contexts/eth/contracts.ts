@@ -6,6 +6,7 @@ import {
 } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
 
 import { ChainName, ChainId, Contracts, Context } from '../../types';
+import { TokenBridgeRelayer } from '../../abis/TokenBridgeRelayer';
 import { TokenBridgeRelayer__factory } from '../../abis/TokenBridgeRelayer__factory';
 import { ContractsAbstract } from '../abstracts/contracts';
 import { WormholeContext } from '../../wormhole';
@@ -115,7 +116,7 @@ export class EthContracts<
    *
    * @returns An interface for the Token Bridge Relayer contract, undefined if not found
    */
-  getTokenBridgeRelayer(chain: ChainName | ChainId): any {
+  getTokenBridgeRelayer(chain: ChainName | ChainId): TokenBridgeRelayer | undefined {
     const connection = this.context.mustGetConnection(chain);
     const address = this.mustGetContracts(chain).relayer;
     if (!address) return undefined;

@@ -42,23 +42,6 @@ function Confirmations(props: Props) {
   const requiredHeight = blockHeight + chainConfig.finalityThreshold;
   const [currentBlock, setCurrentBlock] = useState(0);
 
-  //const updateCurrentBlock = async () => {
-  //  const height = await getCurrentBlock(props.chain);
-  //  setCurrentBlock(height);
-  //};
-
-  //useEffect(() => {
-  //  updateCurrentBlock();
-  //  const interval = setInterval(async () => {
-  //    console.log(currentBlock, requiredHeight);
-  //    if (currentBlock < requiredHeight) {
-  //      updateCurrentBlock();
-  //    } else {
-  //      clearInterval(interval);
-  //    }
-  //  }, 1000);
-  //}, []);
-
   useEffect(() => {
     let cancelled = false;
     (async () => {
