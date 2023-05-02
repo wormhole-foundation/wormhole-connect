@@ -18,7 +18,7 @@ import { clusterApiUrl, Connection as SolanaConnection } from '@solana/web3.js';
 import { SolanaWallet } from '@xlabs-libs/wallet-aggregator-solana';
 import { Transaction, ConfirmOptions } from '@solana/web3.js';
 import { registerSigner } from '../sdk';
-import { CHAINS_ARR } from '../config';
+import { CHAINS, CHAINS_ARR } from '../config';
 import { getNetworkByChainId } from 'utils';
 import { WH_CONFIG } from '../config';
 import { TransactionBlock } from '@mysten/sui.js';
@@ -133,32 +133,61 @@ export const watchAsset = async (asset: AssetInfo, type: TransferWallet) => {
 
 export const signSolanaTransaction = async (
   transaction: Transaction,
-  type: TransferWallet,
+  walletType: TransferWallet,
   options?: ConfirmOptions,
 ) => {
-  const wallet = walletConnection[type];
+  const wallet = walletConnection[walletType];
   if (!wallet || !wallet.signAndSendTransaction) {
     throw new Error('wallet.signAndSendTransaction is undefined');
   }
 
-  const tx = await (wallet as SolanaWallet).signAndSendTransaction({
+  return await (wallet as SolanaWallet).signAndSendTransaction({
     transaction,
     options,
   });
-  return { transactionHash: tx.id };
 };
 
 export const signSuiTransaction = async (
   transactionBlock: TransactionBlock,
-  type: TransferWallet,
+  walletType: TransferWallet,
 ) => {
-  const wallet = walletConnection[type];
+  const wallet = walletConnection[walletType];
   if (!wallet || !wallet.signAndSendTransaction) {
     throw new Error('wallet.signAndSendTransaction is undefined');
   }
 
-  const response = await wallet.signAndSendTransaction({ transactionBlock });
-  return { transactionHash: response.id };
+  return await wallet.signAndSendTransaction({ transactionBlock });
+};
+
+export const signAndSendTransaction = async (
+  chain: ChainName,
+  transaction: any,
+  walletType: TransferWallet,
+  options?: ConfirmOptions,
+): Promise<string> => {
+  const network = CHAINS[chain]!;
+  switch (network.context) {
+    case Context.ETH: {
+      return transaction.transactionHash;
+    }
+    case Context.SOLANA: {
+      const tx = await signSolanaTransaction(
+        transaction as Transaction,
+        walletType,
+        options,
+      );
+      return tx.id;
+    }
+    case Context.SUI: {
+      const tx = await signSuiTransaction(
+        transaction as TransactionBlock,
+        walletType,
+      );
+      return tx.id;
+    }
+    default:
+      return '';
+  }
 };
 
 export const postVaa = async (

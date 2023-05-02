@@ -116,7 +116,9 @@ export class EthContracts<
    *
    * @returns An interface for the Token Bridge Relayer contract, undefined if not found
    */
-  getTokenBridgeRelayer(chain: ChainName | ChainId): TokenBridgeRelayer | undefined {
+  getTokenBridgeRelayer(
+    chain: ChainName | ChainId,
+  ): TokenBridgeRelayer | undefined {
     const connection = this.context.mustGetConnection(chain);
     const address = this.mustGetContracts(chain).relayer;
     if (!address) return undefined;
