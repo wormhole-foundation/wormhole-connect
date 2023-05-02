@@ -219,15 +219,15 @@ function SendTo() {
       txData.toChain !== 'solana' &&
       txData.payloadID === PaymentOption.AUTOMATIC
     ) {
-      const txId = await fetchRedeemedEvent(
+      const redeemed = await fetchRedeemedEvent(
         txData.toChain,
         vaa.emitterChain as ChainId,
         vaa.emitterAddress,
         vaa.sequence,
       );
-      if (txId) {
-        dispatch(setRedeemTx(txId));
-        return txId;
+      if (redeemed) {
+        dispatch(setRedeemTx(redeemed.transactionHash));
+        return redeemed.transactionHash;
       }
     }
   }, [redeemTx, vaa, txData, dispatch]);
