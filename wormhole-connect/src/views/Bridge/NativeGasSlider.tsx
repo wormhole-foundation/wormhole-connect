@@ -5,11 +5,12 @@ import Slider, { SliderThumb } from '@mui/material/Slider';
 import { styled } from '@mui/material/styles';
 import BridgeCollapse, { CollapseControlStyle } from './Collapse';
 import InputContainer from '../../components/InputContainer';
-import { CHAINS, TOKENS, getTokenDecimalsForChain } from '../../config';
+import { CHAINS, TOKENS } from '../../config';
 import {
   PaymentOption,
   calculateMaxSwapAmount,
   calculateNativeTokenAmt,
+  wh,
 } from '../../sdk';
 import { TokenConfig } from '../../config/types';
 import { RootState } from '../../store';
@@ -27,7 +28,7 @@ import {
   setToNativeToken,
 } from '../../store/transfer';
 import { useDispatch } from 'react-redux';
-import { debounce, getWrappedTokenId } from '../../utils';
+import { debounce, getTokenDecimals, getWrappedTokenId } from '../../utils';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -110,12 +111,10 @@ function GasSlider(props: { disabled: boolean }) {
 
   // set the actual max swap amount (checks if max swap amount is greater than the sending amount)
   useEffect(() => {
-    console.log(amount, maxSwapAmt, destGasPayment);
     if (!amount || !maxSwapAmt || destGasPayment === PaymentOption.MANUAL)
       return;
     const actualMaxSwap =
       amount && maxSwapAmt && maxSwapAmt > amount ? amount : maxSwapAmt;
-    console.log('amount:', amount, 'maxSwapAmt:', maxSwapAmt);
     const newTokenAmount = toFixedDecimals(`${amount - state.swapAmt}`, 6);
     setState({
       ...state,
@@ -136,15 +135,18 @@ function GasSlider(props: { disabled: boolean }) {
           return;
         }
         // const amt = toDecimals(res, sendingToken.decimals, 6);
-        const toNetworkDecimals = getTokenDecimalsForChain(
-          toNetwork,
-          sendingToken,
+        //const toNetworkDecimals = getTokenDecimalsForChain(
+        //  toNetwork,
+        //  sendingToken,
+        //);
+        console.log(wh.toChainId(toNetwork));
+        const toNetworkDecimals = getTokenDecimals(
+          wh.toChainId(toNetwork),
+          tokenId,
         );
+        console.log(toNetworkDecimals);
         const amt = toDecimals(res, toNetworkDecimals, 6);
-        console.log('setMaxSwapAmt:', amt, 'res:', res);
-        console.log(Number.parseFloat(amt));
-        // calculateMaxSwapAmountIn - maxSwapAmountIn: 6250000
-        // balance.ts:17 toFixedDecimals 0.00000000000625
+        console.log(amt);
         dispatch(setMaxSwapAmt(Number.parseFloat(amt)));
       })
       .catch((e) => {
@@ -187,7 +189,6 @@ function GasSlider(props: { disabled: boolean }) {
 
   // compute amounts on change
   const handleChange = (e: any) => {
-    console.log('conversion rate', state.conversionRate);
     if (!amount || !state.conversionRate) return;
     const convertedAmt = `${e.target.value * state.conversionRate}`;
     const newGasAmount = toFixedDecimals(convertedAmt, 6);
@@ -203,13 +204,12 @@ function GasSlider(props: { disabled: boolean }) {
   const setNativeAmt = debounce(async () => {
     dispatch(setToNativeToken(state.swapAmt));
     const tokenId = getWrappedTokenId(sendingToken);
-    const sendingTokenToChainDecimals = getTokenDecimalsForChain(
-      toNetwork!,
-      sendingToken,
+    const sendingTokenToChainDecimals = getTokenDecimals(
+      wh.toChainId(toNetwork!),
+      tokenId,
     );
     const formattedAmt = utils.parseUnits(
       `${state.swapAmt}`,
-      // sendingToken.decimals,
       sendingTokenToChainDecimals,
     );
     const nativeGasAmt = await calculateNativeTokenAmt(
@@ -217,19 +217,17 @@ function GasSlider(props: { disabled: boolean }) {
       tokenId,
       formattedAmt,
     );
-    const nativeGasTokenToChainDecimals = getTokenDecimalsForChain(
-      toNetwork!,
-      nativeGasToken,
+    const nativeGasTokenId = getWrappedTokenId(nativeGasToken);
+    const nativeGasTokenToChainDecimals = getTokenDecimals(
+      wh.toChainId(toNetwork!),
+      nativeGasTokenId,
     );
     const formattedNativeAmt = Number.parseFloat(
-      // toDecimals(nativeGasAmt.toString(), nativeGasToken.decimals, 6),
       toDecimals(nativeGasAmt.toString(), nativeGasTokenToChainDecimals, 6),
     );
     dispatch(setReceiveNativeAmt(formattedNativeAmt));
     setState({ ...state, nativeGas: formattedNativeAmt });
   }, 250);
-
-  console.log('max:', state.max, 'swapAmt:', state.swapAmt);
 
   return (
     <BridgeCollapse

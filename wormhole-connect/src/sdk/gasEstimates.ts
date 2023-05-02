@@ -34,7 +34,6 @@ const estimateGasFee = async (
   const chainContext = context.getContext(fromNetwork) as any;
   const fromChainName = context.toChainName(fromNetwork);
   const gasEstimates = GAS_ESTIMATES[fromChainName]!;
-  console.log('simulating gas');
   // Solana gas estimates
   if (fromChainId === MAINNET_CHAINS.solana) {
     return toFixedDecimals(utils.formatUnits(gasEstimates.sendToken, 9), 6);
@@ -43,7 +42,6 @@ const estimateGasFee = async (
   // Sui gas estimates
   if (fromChainId === MAINNET_CHAINS.sui) {
     const provider = chainContext.provider as JsonRpcProvider;
-    console.log('provider');
     if (!provider) throw new Error('no provider');
     let tx: TransactionBlock;
     if (paymentOption === PaymentOption.MANUAL) {
@@ -74,15 +72,12 @@ const estimateGasFee = async (
     const dryRunTxBytes = await tx.build({
       provider,
     });
-    console.log('dryRun');
     const response = await provider.dryRunTransactionBlock({
       transactionBlock: dryRunTxBytes,
     });
-    console.log(response.effects.gasUsed);
     const gasFee = getTotalGasUsed(response.effects);
     if (!gasFee) throw new Error('cannot estimate gas fee');
     const result = toFixedDecimals(utils.formatUnits(gasFee, 9), 6);
-    console.log(`gas fee est. - ${gasFee}, formatted - ${result}`);
     return result;
   }
 

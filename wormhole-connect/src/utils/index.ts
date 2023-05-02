@@ -29,8 +29,6 @@ export function displayEvmAddress(address: string): string {
   );
 }
 
-// TODO: handle native sui case -- what will this look like for other tokens?
-// get some COIN_8 test tokens to test this
 export function displaySuiAddress(address: string): string {
   if (address === SUI_TYPE_ARG) return address; // special case for native sui
   return (
@@ -73,7 +71,6 @@ export function getNetworkByChainId(chainId: number): NetworkConfig | void {
   return CHAINS_ARR.filter((c) => chainId === c.chainId)[0];
 }
 
-// TODO: sui
 export function getWrappedToken(token: TokenConfig): TokenConfig {
   if (!token) throw new Error('token must be defined');
 

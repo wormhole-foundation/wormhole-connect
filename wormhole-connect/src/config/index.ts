@@ -1,7 +1,6 @@
 import {
   WormholeContext,
   CONFIG as CONF,
-  ChainName,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import {
   MAINNET_NETWORKS,
@@ -111,13 +110,3 @@ export const TESTNET_TO_MAINNET_CHAIN_NAMES: {
   fantom: 'fantom',
   sui: 'sui',
 };
-
-export const getTokenDecimalsForChain = (
-  chain: ChainName,
-  token: TokenConfig,
-) =>
-  chain === 'sui'
-    ? token.suiDecimals
-    : chain === 'solana'
-    ? token.solDecimals
-    : token.decimals;

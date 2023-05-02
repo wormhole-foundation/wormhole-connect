@@ -14,7 +14,6 @@ export function toDecimals(
 }
 
 export function toFixedDecimals(number: string, numDecimals: number) {
-  console.log('toFixedDecimals', number);
   if (number === '0.0') {
     return '0';
   }
@@ -31,9 +30,8 @@ export function toFixedDecimals(number: string, numDecimals: number) {
 export async function getUsdVal(token: string) {
   const tokenConfig = TOKENS[token];
   if (!tokenConfig) throw new Error(`invalid token: ${token}`);
+  if (tokenConfig.key === 'SUI') return 0.1; // TODO: remove when coingecko has prices
   const { coinGeckoId } = tokenConfig;
-  console.log(token);
-  if (token === 'SUI') return 1; // TODO: remove this
   const res = await fetch(
     `https://api.coingecko.com/api/v3/simple/price?ids=${coinGeckoId}&vs_currencies=usd`,
   );

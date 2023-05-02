@@ -112,7 +112,6 @@ export class SuiContext<T extends WormholeContext> extends RelayerAbstract {
     } else {
       coinType = await this.mustGetForeignAsset(token, sendingChain);
     }
-    console.log(`will send ${coinType}`);
     const coins = await this.getCoins(coinType, senderAddress);
 
     const { core, token_bridge } = this.context.mustGetContracts('sui');
@@ -166,18 +165,14 @@ export class SuiContext<T extends WormholeContext> extends RelayerAbstract {
    * @returns The external address associated with the asset address
    */
   async formatAssetAddress(address: string): Promise<Uint8Array> {
-    console.log(`formatAssetAddress - external address: ${address}`);
     try {
       const { token_bridge } = this.contracts.mustGetContracts('sui');
       if (!token_bridge) throw new Error('token bridge contract not found');
-      // TODO: this will throw if the asset hasn't been attested
+      // this will throw if the asset hasn't been attested
       const { assetAddress } = await getOriginalAssetSui(
         this.provider,
         token_bridge,
         address,
-      );
-      console.log(
-        `formatAssetAddress - address: ${address}, external address: ${assetAddress}`,
       );
       return assetAddress;
     } catch (e) {
@@ -191,7 +186,6 @@ export class SuiContext<T extends WormholeContext> extends RelayerAbstract {
    * @returns The asset's address (the Sui `CoinType`) associated with the external address
    */
   async parseAssetAddress(address: string): Promise<string> {
-    console.log(`parseAssetAddress - external address: ${address}`);
     try {
       const { token_bridge } = this.contracts.mustGetContracts('sui');
       if (!token_bridge) throw new Error('token bridge contract not found');
@@ -204,9 +198,6 @@ export class SuiContext<T extends WormholeContext> extends RelayerAbstract {
       if (coinType === null) {
         throw new Error('coinType is null');
       }
-      console.log(
-        `parseAssetAddress - external address: ${address}, coinType: ${coinType}`,
-      );
       return coinType;
     } catch (e) {
       console.error(`parseAssetAddress - error: ${e}`);
@@ -218,9 +209,6 @@ export class SuiContext<T extends WormholeContext> extends RelayerAbstract {
     tokenId: TokenId,
     chain: ChainName | ChainId,
   ): Promise<string | null> {
-    console.log(
-      `getForeignAsset - native address: ${tokenId.address}, token chain: ${tokenId.chain}`,
-    );
     try {
       const chainId = this.context.toChainId(tokenId.chain);
       const toChainId = this.context.toChainId(chain);
@@ -238,7 +226,6 @@ export class SuiContext<T extends WormholeContext> extends RelayerAbstract {
         chainId,
         arrayify(formattedAddr),
       );
-      console.log(`getForeignAsset returned ${coinType}`);
       return coinType;
     } catch (e) {
       console.log(`getForeignAsset - error: ${e}`);
@@ -290,7 +277,6 @@ export class SuiContext<T extends WormholeContext> extends RelayerAbstract {
       digest: tx,
       options: { showEvents: true, showEffects: true, showInput: true },
     });
-    console.log(txBlock);
     const message = txBlock.events?.find((event) =>
       event.type.endsWith('WormholeMessage'),
     );
@@ -304,7 +290,6 @@ export class SuiContext<T extends WormholeContext> extends RelayerAbstract {
     const tokenAddress = await tokenContext.parseAssetAddress(
       hexlify(parsed.tokenAddress),
     );
-    console.log(`transferred token from sui ${tokenAddress}`);
     const tokenChain = this.context.toChainName(parsed.tokenChain);
     const gasFee = getTotalGasUsed(txBlock);
     const parsedMessage: ParsedMessage = {
@@ -435,7 +420,6 @@ export class SuiContext<T extends WormholeContext> extends RelayerAbstract {
     } else {
       coinType = await this.mustGetForeignAsset(token, sendingChain);
     }
-    console.log(`will sendWithRelay ${coinType}`);
     const coins = await this.getCoins(coinType, senderAddress);
     const [primaryCoin, ...mergeCoins] = coins.filter(
       (coin) => coin.coinType === coinType,
@@ -554,9 +538,6 @@ export class SuiContext<T extends WormholeContext> extends RelayerAbstract {
     destChain: ChainName | ChainId,
     tokenId: TokenId,
   ): Promise<BigNumber> {
-    console.log(
-      `getRelayerFee - sourceChain ${sourceChain}, destChain: ${destChain}, tokenId: ${tokenId}`,
-    );
     const relayer = this.contracts.mustGetTokenBridgeRelayer(
       'sui',
     ) as SuiRelayer;
