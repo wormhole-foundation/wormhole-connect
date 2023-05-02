@@ -9,7 +9,7 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { RootState } from '../store';
 import { setWalletModal } from '../store/router';
-import { CHAINS } from '../config';
+import { CHAINS, CHAINS_ARR } from '../config';
 import {
   setWalletConnection,
   TransferWallet,
@@ -82,7 +82,10 @@ const getWalletOptions = (context: Context) => {
 };
 
 const ALL_WALLETS: WalletData[] =
-  Object.values(Context).reduce<WalletData[]>((acc, context) => acc.concat(getWalletOptions(context)), []);
+  Object
+    .values(Context)
+    .filter(context => !!CHAINS_ARR.find(c => c.context === context))
+    .reduce<WalletData[]>((acc, context) => acc.concat(getWalletOptions(context)), []);
 
 type Props = {
   type: TransferWallet;
