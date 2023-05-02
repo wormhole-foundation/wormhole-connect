@@ -133,11 +133,11 @@ const getAutomaticRows = async (
     const amount = await calculateNativeTokenAmt(
       txData.toChain,
       txData.tokenId,
-      // fromNormalizedDecimals(txData.toNativeTokenAmount, txData.tokenDecimals),
       fromNormalizedDecimals(
         txData.toNativeTokenAmount,
         destinationTokenDecimals,
       ),
+      txData.recipient,
     );
     // get the decimals on the target chain
     const nativeGasTokenDecimals = getTokenDecimals(
