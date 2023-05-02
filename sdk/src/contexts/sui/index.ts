@@ -8,6 +8,7 @@ import {
   getTransactionSender,
   getTotalGasUsed,
   isValidSuiAddress,
+  SUI_CLOCK_OBJECT_ID,
 } from '@mysten/sui.js';
 import { BigNumber, BigNumberish } from 'ethers';
 
@@ -33,6 +34,14 @@ import { SuiContracts } from './contracts';
 import { SolanaContext } from '../solana';
 import { parseTokenTransferPayload } from '../../vaa';
 import { SuiRelayer } from './relayer';
+import { getPackageId } from '@certusone/wormhole-sdk/lib/cjs/sui';
+
+interface TransferWithRelay {
+  payloadType: number;
+  targetRelayerFee: BigNumber;
+  toNativeTokenAmount: BigNumber;
+  recipient: string;
+}
 
 export class SuiContext<T extends WormholeContext> extends RelayerAbstract {
   protected contracts: SuiContracts<T>;
@@ -137,23 +146,17 @@ export class SuiContext<T extends WormholeContext> extends RelayerAbstract {
   }
 
   formatAddress(address: string): string {
-    // const result = Buffer.from(utils.zeroPad(address, 32));
-    // console.log(`native to hex ${address} - ${result}`);
     if (!isValidSuiAddress(address)) {
       throw new Error(`can't format an invalid sui address: ${address}`);
     }
-    console.log(`sui format address - ${address}`);
     // valid sui addresses are already 32 bytes, hex prefixed
     return address;
   }
 
   parseAddress(address: string): string {
-    //const result = utils.hexlify(utils.stripZeros(address));
-    //console.log(`hex to native ${address} - ${result}`);
     if (!isValidSuiAddress(address)) {
       throw new Error(`can't parse an invalid sui address: ${address}`);
     }
-    console.log(`sui parse address - ${address}`);
     // valid sui addresses are already 32 bytes, hex prefixed
     return address;
   }
@@ -189,13 +192,6 @@ export class SuiContext<T extends WormholeContext> extends RelayerAbstract {
    */
   async parseAssetAddress(address: string): Promise<string> {
     console.log(`parseAssetAddress - external address: ${address}`);
-    // TODO: remove this when getForeignAssetSui is fixed in the SDK
-    if (
-      address ===
-      '0x9d31091f5decefeb373de2218d634dbe198c72feac6e50fba0a5330cb5e65cff'
-    ) {
-      return SUI_TYPE_ARG;
-    }
     try {
       const { token_bridge } = this.contracts.mustGetContracts('sui');
       if (!token_bridge) throw new Error('token bridge contract not found');
@@ -263,10 +259,6 @@ export class SuiContext<T extends WormholeContext> extends RelayerAbstract {
     tokenAddr: string,
     chain: ChainName | ChainId,
   ): Promise<number> {
-    // optimization to avoid rpc call for native sui
-    if (tokenAddr === SUI_TYPE_ARG) {
-      return 9;
-    }
     const metadata = await this.provider.getCoinMetadata({
       coinType: tokenAddr,
     });
@@ -274,6 +266,20 @@ export class SuiContext<T extends WormholeContext> extends RelayerAbstract {
       throw new Error(`Can't fetch decimals for token ${tokenAddr}`);
     }
     return metadata.decimals;
+  }
+
+  parseTransferWithRelay(payload: Buffer): TransferWithRelay {
+    let relay: TransferWithRelay = {} as TransferWithRelay;
+    // Parse the additional payload.
+    relay.payloadType = payload.readUint8(133);
+    relay.targetRelayerFee = BigNumber.from(
+      '0x' + payload.subarray(134, 166).toString('hex'),
+    );
+    relay.toNativeTokenAmount = BigNumber.from(
+      '0x' + payload.subarray(166, 198).toString('hex'),
+    );
+    relay.recipient = '0x' + payload.subarray(198, 231).toString('hex');
+    return relay;
   }
 
   async parseMessageFromTx(
@@ -284,9 +290,7 @@ export class SuiContext<T extends WormholeContext> extends RelayerAbstract {
       digest: tx,
       options: { showEvents: true, showEffects: true, showInput: true },
     });
-    // console.log(JSON.stringify(txBlock));
-    // TODO: search for full type instead?
-    // "type": "0x15e1e51cb59fe1f987b037da12745a278855c8ac73050f4f194466096a0ca05b::publish_message::WormholeMessage",
+    console.log(txBlock);
     const message = txBlock.events?.find((event) =>
       event.type.endsWith('WormholeMessage'),
     );
@@ -322,6 +326,19 @@ export class SuiContext<T extends WormholeContext> extends RelayerAbstract {
       block: Number(txBlock.checkpoint || ''),
       gasFee: gasFee ? BigNumber.from(gasFee) : undefined,
     };
+    if (parsed.payloadType === 3) {
+      const relayerPayload = this.parseTransferWithRelay(
+        Buffer.from(message.parsedJson?.payload),
+      );
+      const relayerMessage: ParsedRelayerMessage = {
+        ...parsedMessage,
+        relayerFee: relayerPayload.targetRelayerFee,
+        relayerPayloadId: parsed.payloadType as number,
+        to: relayerPayload.recipient,
+        toNativeTokenAmount: relayerPayload.toNativeTokenAmount,
+      };
+      return [relayerMessage];
+    }
     return [parsedMessage];
   }
 
@@ -388,57 +405,110 @@ export class SuiContext<T extends WormholeContext> extends RelayerAbstract {
     recipientAddress: string,
     overrides?: any,
   ): Promise<TransactionBlock> {
-    throw new Error('not implemented');
-    //const destContext = this.context.getContext(recipientChain);
-    //const recipientChainId = this.context.toChainId(recipientChain);
-    //const relayerFeeBigInt = relayerFee ? BigInt(relayerFee) : undefined;
-    //const amountBigInt = BigNumber.from(amount).toBigInt();
+    const destContext = this.context.getContext(recipientChain);
+    const recipientChainId = this.context.toChainId(recipientChain);
+    const amountBigInt = BigNumber.from(amount).toBigInt();
+    const toNativeTokenBigInt = BigNumber.from(toNativeToken).toBigInt();
 
-    //const tx = new TransactionBlock();
-    //const feeAmount = BigInt(0); // TODO: wormhole fee
-    //const [feeCoin] = tx.splitCoins(tx.gas, [tx.pure(feeAmount)]);
-    //const [transferCoin] = tx.splitCoins(tx.object(coin.coinObjectId), [
-    //  tx.pure(outboundTransferAmount),
-    //]);
-    //const [assetInfo] = tx.moveCall({
-    //  target: `${TOKEN_BRIDGE_ID}::state::verified_asset`,
-    //  arguments: [tx.object(TOKEN_BRIDGE_STATE_ID)],
-    //  typeArguments: [COIN_8_TYPE],
-    //});
+    let recipientAccount = recipientAddress;
+    // get token account for solana
+    if (recipientChainId === 1) {
+      let tokenId = token;
+      if (token === NATIVE) {
+        tokenId = {
+          address: SUI_TYPE_ARG,
+          chain: 'sui',
+        };
+      }
+      const account = await (
+        destContext as SolanaContext<WormholeContext>
+      ).getAssociatedTokenAddress(tokenId as TokenId, recipientAddress);
+      recipientAccount = account.toString();
+    }
+    const formattedRecipientAccount = `0x${Buffer.from(
+      arrayify(destContext.formatAddress(recipientAccount)),
+    ).toString('hex')}`;
 
-    //// Fetch the transfer ticket.
-    //const [transferTicket] = tx.moveCall({
-    //  target: `${RELAYER_ID}::transfer::transfer_tokens_with_relay`,
-    //  arguments: [
-    //    tx.object(stateId),
-    //    transferCoin,
-    //    assetInfo,
-    //    tx.pure(toNativeAmount),
-    //    tx.pure(foreignChain),
-    //    tx.pure(walletAddress),
-    //    tx.pure(nonce),
-    //  ],
-    //  typeArguments: [COIN_8_TYPE],
-    //});
+    let coinType: string;
+    if (token === NATIVE) {
+      coinType = SUI_TYPE_ARG;
+    } else {
+      coinType = await this.mustGetForeignAsset(token, sendingChain);
+    }
+    console.log(`will sendWithRelay ${coinType}`);
+    const coins = await this.getCoins(coinType, senderAddress);
+    const [primaryCoin, ...mergeCoins] = coins.filter(
+      (coin) => coin.coinType === coinType,
+    );
+    if (primaryCoin === undefined) {
+      throw new Error(
+        `Coins array doesn't contain any coins of type ${coinType}`,
+      );
+    }
+    const { core, token_bridge, relayer, suiRelayerPackageId } =
+      this.context.mustGetContracts('sui');
+    if (!core || !token_bridge || !relayer || !suiRelayerPackageId)
+      throw new Error('contracts not found');
+    const coreBridgePackageId = await getPackageId(this.provider, core);
+    if (!coreBridgePackageId)
+      throw new Error('unable to get core bridge package id');
+    const tokenBridgePackageId = await getPackageId(
+      this.provider,
+      token_bridge,
+    );
+    if (!tokenBridgePackageId)
+      throw new Error('unable to get token bridge package id');
 
-    //// Transfer the tokens with payload.
-    //const [messageTicket] = tx.moveCall({
-    //  target: `${TOKEN_BRIDGE_ID}::transfer_tokens_with_payload::transfer_tokens_with_payload`,
-    //  arguments: [tx.object(TOKEN_BRIDGE_STATE_ID), transferTicket],
-    //  typeArguments: [COIN_8_TYPE],
-    //});
-
-    //// Publish the message.
-    //tx.moveCall({
-    //  target: `${WORMHOLE_ID}::publish_message::publish_message`,
-    //  arguments: [
-    //    tx.object(WORMHOLE_STATE_ID),
-    //    feeCoin,
-    //    messageTicket,
-    //    tx.object(SUI_CLOCK_OBJECT_ID),
-    //  ],
-    //});
-    //return tx;
+    const tx = new TransactionBlock();
+    const feeAmount = BigInt(0); // TODO: wormhole fee
+    const [feeCoin] = tx.splitCoins(tx.gas, [tx.pure(feeAmount)]);
+    const [transferCoin] = (() => {
+      if (coinType === SUI_TYPE_ARG) {
+        return tx.splitCoins(tx.gas, [tx.pure(amountBigInt)]);
+      } else {
+        const primaryCoinInput = tx.object(primaryCoin.coinObjectId);
+        if (mergeCoins.length) {
+          tx.mergeCoins(
+            primaryCoinInput,
+            mergeCoins.map((coin) => tx.object(coin.coinObjectId)),
+          );
+        }
+        return tx.splitCoins(primaryCoinInput, [tx.pure(amountBigInt)]);
+      }
+    })();
+    const [assetInfo] = tx.moveCall({
+      target: `${tokenBridgePackageId}::state::verified_asset`,
+      arguments: [tx.object(token_bridge)],
+      typeArguments: [coinType],
+    });
+    const [transferTicket] = tx.moveCall({
+      target: `${suiRelayerPackageId}::transfer::transfer_tokens_with_relay`,
+      arguments: [
+        tx.object(relayer),
+        transferCoin,
+        assetInfo,
+        tx.pure(toNativeTokenBigInt),
+        tx.pure(recipientChainId),
+        tx.pure(formattedRecipientAccount),
+        tx.pure(117),
+      ],
+      typeArguments: [coinType],
+    });
+    const [messageTicket] = tx.moveCall({
+      target: `${tokenBridgePackageId}::transfer_tokens_with_payload::transfer_tokens_with_payload`,
+      arguments: [tx.object(token_bridge), transferTicket],
+      typeArguments: [coinType],
+    });
+    tx.moveCall({
+      target: `${coreBridgePackageId}::publish_message::publish_message`,
+      arguments: [
+        tx.object(core),
+        feeCoin,
+        messageTicket,
+        tx.object(SUI_CLOCK_OBJECT_ID),
+      ],
+    });
+    return tx;
   }
 
   async calculateNativeTokenAmt(

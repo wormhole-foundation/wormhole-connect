@@ -195,7 +195,6 @@ export const sendTransfer = async (
     if (fromChainId === MAINNET_CHAINS.solana) {
       throw new Error('solana send with relay not supported');
     } else {
-      // TODO: will send sui too
       const tx = await wh.sendWithRelay(
         token,
         parsedAmt.toString(),
@@ -205,6 +204,14 @@ export const sendTransfer = async (
         toAddress,
         parsedNativeAmt,
       );
+      if (fromChainId === MAINNET_CHAINS.sui) {
+        const response = await signSuiTransaction(
+          tx as unknown as TransactionBlock,
+          TransferWallet.SENDING,
+        );
+        wh.registerProviders();
+        return response;
+      }
       wh.registerProviders();
       return tx;
     }

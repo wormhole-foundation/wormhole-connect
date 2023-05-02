@@ -520,8 +520,8 @@ export const MAINNET_GAS_ESTIMATES: GasEstimates = {
   sui: {
     sendNative: 5100000,
     sendToken: 5100000,
-    // TODO: is this accurate?
+    sendNativeWithRelay: 5100000,
+    sendTokenWithRelay: 5100000,
     claim: 5100000,
-    // TODO: sui relay gas estimates
   },
 };

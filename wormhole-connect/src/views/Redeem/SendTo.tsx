@@ -103,9 +103,9 @@ const getAutomaticRows = async (
   let nativeGasAmt: string | undefined;
   const nativeGasToken = TOKENS[gasToken];
   if (receiveTx) {
-    let event: any;
+    let nativeSwapAmount: any;
     try {
-      event = await fetchSwapEvent(
+      nativeSwapAmount = await fetchSwapEvent(
         txData.toChain,
         txData.recipient,
         txData.tokenId,
@@ -115,9 +115,9 @@ const getAutomaticRows = async (
     } catch (e) {
       console.error(`could not fetch swap event:\n${e}`);
     }
-    if (event) {
+    if (nativeSwapAmount) {
       nativeGasAmt = toDecimals(
-        event.args[4],
+        nativeSwapAmount,
         nativeGasToken.decimals,
         MAX_DECIMALS,
       );
