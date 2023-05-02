@@ -133,7 +133,7 @@ export const getRelayerFee = async (
   destChain: ChainName | ChainId,
   token: string,
 ) => {
-  const context: any = wh.getContext(sourceChain); // TODO: this was the `destChain` before and I think it worked because we only relayed to evm chains
+  const context: any = wh.getContext(sourceChain);
   const tokenConfig = TOKENS[token];
   if (!tokenConfig) throw new Error('could not get token config');
   const tokenId = tokenConfig.tokenId || getWrappedTokenId(tokenConfig);
@@ -286,7 +286,6 @@ export const getCurrentBlock = async (
     const provider = context.provider;
     if (!provider) throw new Error('no provider');
     const sequence = await provider.getLatestCheckpointSequenceNumber();
-    console.log(`latest sequence is ${sequence}`);
     return Number(sequence);
   } else {
     const provider = wh.mustGetProvider(chain);

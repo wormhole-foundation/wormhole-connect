@@ -368,7 +368,6 @@ export class SolanaContext<
         'finalized',
       );
     } else {
-      // TODO: I don't think this is right, we should be passing the external address to formatAssetAddress
       const formattedTokenAddr = arrayify(
         await destContext.formatAssetAddress(token.address),
       );

@@ -424,7 +424,6 @@ export class SuiContext<T extends WormholeContext> extends RelayerAbstract {
     const [primaryCoin, ...mergeCoins] = coins.filter(
       (coin) => coin.coinType === coinType,
     );
-    console.log(coinType);
     if (primaryCoin === undefined) {
       throw new Error(
         `Coins array doesn't contain any coins of type ${coinType}`,

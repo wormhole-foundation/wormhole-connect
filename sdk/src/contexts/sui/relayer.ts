@@ -144,9 +144,6 @@ export class SuiRelayer {
       throw Error('swap rate not set');
     }
     const maxSwapAmountIn = Buffer.from(returnValues[0][0]).readBigUInt64LE();
-    console.log(
-      `calculateMaxSwapAmountIn - maxSwapAmountIn: ${maxSwapAmountIn}`,
-    );
     return BigNumber.from(maxSwapAmountIn);
   }
 
@@ -182,9 +179,6 @@ export class SuiRelayer {
     const nativeSwapAmountOut = Buffer.from(
       returnValues[0][0],
     ).readBigUInt64LE();
-    console.log(
-      `calculateNativeSwapAmountOut - nativeSwapAmountOut: ${nativeSwapAmountOut}`,
-    );
     return BigNumber.from(nativeSwapAmountOut);
   }
 }
