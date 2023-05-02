@@ -8,17 +8,10 @@ import {
   ChainName,
   MAINNET_CHAINS,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { Transaction } from '@solana/web3.js';
-import { TransactionBlock } from '@mysten/sui.js';
 
 import { getTokenById, getTokenDecimals, getWrappedTokenId } from '../utils';
 import { TOKENS, WH_CONFIG } from '../config';
-import {
-  postVaa,
-  signSolanaTransaction,
-  signSuiTransaction,
-  TransferWallet,
-} from 'utils/wallet';
+import { postVaa, signAndSendTransaction, TransferWallet } from 'utils/wallet';
 import { estimateClaimFees, estimateSendFees } from './gasEstimates';
 
 export enum PaymentOption {
@@ -159,6 +152,7 @@ export const sendTransfer = async (
   toNativeToken?: string,
 ): Promise<any> => {
   const fromChainId = wh.toChainId(fromNetwork);
+  const fromChainName = wh.toChainName(fromNetwork);
   const decimals = getTokenDecimals(fromChainId, token);
   const parsedAmt = utils.parseUnits(amount, decimals);
   if (paymentOption === PaymentOption.MANUAL) {
@@ -171,24 +165,13 @@ export const sendTransfer = async (
       toAddress,
       undefined,
     );
-    if (fromChainId === MAINNET_CHAINS.solana) {
-      const solTx = await signSolanaTransaction(
-        tx as Transaction,
-        TransferWallet.SENDING,
-      );
-      wh.registerProviders();
-      return solTx;
-    } else if (fromChainId === MAINNET_CHAINS.sui) {
-      const response = await signSuiTransaction(
-        tx as unknown as TransactionBlock,
-        TransferWallet.SENDING,
-      );
-      wh.registerProviders();
-      return response;
-    } else {
-      wh.registerProviders();
-      return tx;
-    }
+    const txId = await signAndSendTransaction(
+      fromChainName,
+      tx,
+      TransferWallet.SENDING,
+    );
+    wh.registerProviders();
+    return txId;
   } else {
     const parsedNativeAmt = toNativeToken
       ? utils.parseUnits(toNativeToken, decimals).toString()
@@ -206,8 +189,13 @@ export const sendTransfer = async (
         toAddress,
         parsedNativeAmt,
       );
+      const txId = await signAndSendTransaction(
+        fromChainName,
+        tx,
+        TransferWallet.SENDING,
+      );
       wh.registerProviders();
-      return tx;
+      return txId;
     }
   }
 };
@@ -239,6 +227,7 @@ export const claimTransfer = async (
   // post vaa (solana)
   // TODO: move to context
   const destChainId = wh.toChainId(destChain);
+  const destChainName = wh.toChainName(destChain);
   if (destChainId === MAINNET_CHAINS.solana) {
     const destContext = wh.getContext(destChain) as any;
     const connection = destContext.connection;
@@ -249,24 +238,13 @@ export const claimTransfer = async (
   }
 
   const tx = await wh.redeem(destChain, vaa, { gasLimit: 250000 }, payerAddr);
-  if (destChainId === MAINNET_CHAINS.solana) {
-    const solTx = await signSolanaTransaction(
-      tx as Transaction,
-      TransferWallet.RECEIVING,
-    );
-    wh.registerProviders();
-    return solTx;
-  } else if (destChainId === MAINNET_CHAINS.sui) {
-    const response = await signSuiTransaction(
-      tx as TransactionBlock,
-      TransferWallet.RECEIVING,
-    );
-    wh.registerProviders();
-    return response;
-  } else {
-    wh.registerProviders();
-    return tx;
-  }
+  const txId = await signAndSendTransaction(
+    destChainName,
+    tx,
+    TransferWallet.RECEIVING,
+  );
+  wh.registerProviders();
+  return txId;
 };
 
 export const fetchTokenDecimals = async (

@@ -320,7 +320,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
     recipientAddress: string,
     overrides?: PayableOverrides & { from?: string | Promise<string> },
   ): Promise<ethers.PopulatedTransaction> {
-    // TODO: this throws when SUI is 
+    // TODO: this throws when SUI is
     //const isAddress = ethers.utils.isAddress(recipientAddress);
     //if (!isAddress)
     //  throw new Error(`invalid recipient address: ${recipientAddress}`);
