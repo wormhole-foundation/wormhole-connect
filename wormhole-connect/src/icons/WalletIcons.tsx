@@ -29,7 +29,13 @@ function WalletIcon(props: Props) {
 
   return (
     <div className={classes.container}>
-      {wallet && <img className={classes.icon} src={wallet.getIcon()} alt={wallet.getName()} />}
+      {wallet && (
+        <img
+          className={classes.icon}
+          src={wallet.getIcon()}
+          alt={wallet.getName()}
+        />
+      )}
     </div>
   );
 }

@@ -22,7 +22,7 @@ import {
   BackpackWalletAdapter,
   NightlyWalletAdapter,
   BloctoWalletAdapter,
-  BraveWalletAdapter
+  BraveWalletAdapter,
 } from '@solana/wallet-adapter-wallets';
 import { clusterApiUrl, Connection as SolanaConnection } from '@solana/web3.js';
 import { SolanaWallet } from '@xlabs-libs/wallet-aggregator-solana';

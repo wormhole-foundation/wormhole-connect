@@ -1,13 +1,13 @@
+import React, { useEffect, useState } from 'react';
+import { makeStyles } from 'tss-react/mui';
+import { useTheme } from '@mui/material/styles';
+import { useDispatch, useSelector } from 'react-redux';
+import { Wallet, WalletState } from '@xlabs-libs/wallet-aggregator-core';
 import {
-  ChainConfig,
   ChainName,
   Context,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { Wallet, WalletState } from '@xlabs-libs/wallet-aggregator-core';
 import { getWallets as getSuiWallets } from '@xlabs-libs/wallet-aggregator-sui';
-import React, { useCallback, useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { makeStyles } from 'tss-react/mui';
 import { CHAINS } from '../config';
 import { RootState } from '../store';
 import { setWalletModal } from '../store/router';
@@ -26,6 +26,7 @@ import {
 import Header from '../components/Header';
 import Modal from '../components/Modal';
 import Spacer from '../components/Spacer';
+import Scroll from '../components/Scroll';
 import WalletIcon from '../icons/WalletIcons';
 
 const useStyles = makeStyles()((theme) => ({
@@ -64,8 +65,6 @@ type WalletData = {
   isReady: boolean;
 };
 
-// let suiWalletOptions = {};
-
 const fetchSuiOptions = async () => {
   const suiWallets = await getSuiWallets({ timeout: 0 });
   return suiWallets
@@ -81,26 +80,10 @@ const fetchSuiOptions = async () => {
     }, {});
 };
 
-// const getWalletOptions = async (
-//   chain: ChainConfig | undefined,
-// ): Promise<WalletData[]> => {
-//   await fetchSuiOptions();
-//   if (!chain) {
-//     const options = Object.assign({}, suiWalletOptions, WALLETS);
-//     return Object.values(options);
-//   }
-//   if (chain.context === Context.ETH) {
-//     return [WALLETS.metamask, WALLETS.walletConnect];
-//   } else if (chain.context === Context.SOLANA) {
-//     return [WALLETS.phantom, WALLETS.solflare];
-//   } else if (chain.context === Context.SUI) {
-//     return Object.values(suiWalletOptions);
-//   }
-//   const options = Object.assign({}, suiWalletOptions, WALLETS);
-//   return Object.values(options);
-// }
-
-const mapWallets = (wallets: Record<string, Wallet>, type: WalletType): WalletData[] => {
+const mapWallets = (
+  wallets: Record<string, Wallet>,
+  type: WalletType,
+): WalletData[] => {
   return Object.values(wallets).map((wallet) => ({
     name: wallet.getName(),
     wallet,
@@ -140,6 +123,7 @@ type Props = {
 
 function WalletsModal(props: Props) {
   const { classes } = useStyles();
+  const theme = useTheme();
   const { chain: chainProp, type } = props;
   const dispatch = useDispatch();
   const { fromNetwork, toNetwork } = useSelector(
@@ -240,7 +224,12 @@ function WalletsModal(props: Props) {
     <Modal open={!!props.type} closable width={500} onClose={closeWalletModal}>
       <Header text="Connect wallet" size={28} />
       <Spacer height={16} />
-      <div>{displayWalletOptions(walletOptions)}</div>
+      <Scroll
+        height="calc(100vh - 175px)"
+        blendColor={theme.palette.modal.background}
+      >
+        <div>{displayWalletOptions(walletOptions)}</div>
+      </Scroll>
     </Modal>
   );
 }
