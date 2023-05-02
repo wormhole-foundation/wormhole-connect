@@ -36,6 +36,7 @@ export type Contracts = {
   token_bridge?: string;
   nft_bridge?: string;
   relayer?: string;
+  suiOriginalTokenBridgePackageId?: string;
   suiRelayerPackageId?: string;
 };
 

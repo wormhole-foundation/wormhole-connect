@@ -443,10 +443,10 @@ export const TESTNET_GAS_ESTIMATES: GasEstimates = {
     claim: 25000,
   },
   sui: {
-    sendNative: 5100000,
-    sendToken: 5100000,
-    // TODO: is this accurate?
-    claim: 5100000,
-    // TODO: sui relay gas estimates
+    sendNative: 20000000,
+    sendToken: 20000000,
+    sendNativeWithRelay: 20000000,
+    sendTokenWithRelay: 20000000,
+    claim: 20000000,
   },
 };

@@ -241,20 +241,34 @@ export class WormholeContext extends MultiProvider<Domain> {
     recipientAddress: string,
     toNativeToken: string,
     relayerFee?: string,
-  ): Promise<ContractReceipt> {
-    // only supported on EVM
-    const context = this.getContext(
-      sendingChain,
-    ) as EthContext<WormholeContext>;
-    return context.sendWithRelay(
-      token,
-      amount,
-      toNativeToken,
-      sendingChain,
-      senderAddress,
-      recipientChain,
-      recipientAddress,
-    );
+  ): Promise<ContractReceipt | TransactionBlock> {
+    if (sendingChain === 'sui') {
+      const context = this.getContext(
+        sendingChain,
+      ) as SuiContext<WormholeContext>;
+      return context.sendWithRelay(
+        token,
+        amount,
+        toNativeToken,
+        sendingChain,
+        senderAddress,
+        recipientChain,
+        recipientAddress,
+      );
+    } else {
+      const context = this.getContext(
+        sendingChain,
+      ) as EthContext<WormholeContext>;
+      return context.sendWithRelay(
+        token,
+        amount,
+        toNativeToken,
+        sendingChain,
+        senderAddress,
+        recipientChain,
+        recipientAddress,
+      );
+    }
   }
 
   async redeem(
