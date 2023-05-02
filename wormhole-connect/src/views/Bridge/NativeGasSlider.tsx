@@ -103,6 +103,9 @@ function GasSlider(props: { disabled: boolean }) {
   const { token, toNetwork, amount, maxSwapAmt, destGasPayment } = useSelector(
     (state: RootState) => state.transfer,
   );
+  const { receiving: receivingWallet } = useSelector(
+    (state: RootState) => state.wallet,
+  );
   const destConfig = CHAINS[toNetwork!];
   const sendingToken = TOKENS[token];
   const nativeGasToken = TOKENS[destConfig?.gasToken!];
@@ -121,32 +124,29 @@ function GasSlider(props: { disabled: boolean }) {
       token: Number.parseFloat(newTokenAmount),
       max: actualMaxSwap,
     });
-  }, [maxSwapAmt, amount, destGasPayment]);
+  }, [maxSwapAmt, amount, destGasPayment, state.swapAmt]);
 
   useEffect(() => {
-    if (!toNetwork || !sendingToken || destGasPayment === PaymentOption.MANUAL)
+    if (
+      !toNetwork ||
+      !sendingToken ||
+      destGasPayment === PaymentOption.MANUAL ||
+      !receivingWallet.address
+    )
       return;
 
     const tokenId = getWrappedTokenId(sendingToken);
-    calculateMaxSwapAmount(toNetwork, tokenId)
+    calculateMaxSwapAmount(toNetwork, tokenId, receivingWallet.address)
       .then((res: BigNumber) => {
         if (!res) {
           dispatch(setMaxSwapAmt(undefined));
           return;
         }
-        // const amt = toDecimals(res, sendingToken.decimals, 6);
-        //const toNetworkDecimals = getTokenDecimalsForChain(
-        //  toNetwork,
-        //  sendingToken,
-        //);
-        console.log(wh.toChainId(toNetwork));
         const toNetworkDecimals = getTokenDecimals(
           wh.toChainId(toNetwork),
           tokenId,
         );
-        console.log(toNetworkDecimals);
         const amt = toDecimals(res, toNetworkDecimals, 6);
-        console.log(amt);
         dispatch(setMaxSwapAmt(Number.parseFloat(amt)));
       })
       .catch((e) => {
@@ -162,7 +162,14 @@ function GasSlider(props: { disabled: boolean }) {
     getConversion(token, gasToken).then((res: number) => {
       setState({ ...state, conversionRate: res });
     });
-  }, [sendingToken, toNetwork, destGasPayment, token, dispatch]);
+  }, [
+    sendingToken,
+    receivingWallet,
+    toNetwork,
+    destGasPayment,
+    token,
+    dispatch,
+  ]);
 
   function Thumb(props: ThumbProps) {
     const { children, ...other } = props;
@@ -216,6 +223,7 @@ function GasSlider(props: { disabled: boolean }) {
       toNetwork!,
       tokenId,
       formattedAmt,
+      receivingWallet.address,
     );
     const nativeGasTokenId = getWrappedTokenId(nativeGasToken);
     const nativeGasTokenToChainDecimals = getTokenDecimals(

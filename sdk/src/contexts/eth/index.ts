@@ -421,6 +421,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
   async calculateMaxSwapAmount(
     destChain: ChainName | ChainId,
     tokenId: TokenId,
+    walletAddress: string,
   ): Promise<BigNumber> {
     const relayer = this.contracts.mustGetTokenBridgeRelayer(destChain);
     const token = await this.mustGetForeignAsset(tokenId, destChain);
@@ -431,6 +432,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
     destChain: ChainName | ChainId,
     tokenId: TokenId,
     amount: BigNumberish,
+    walletAddress: string,
   ): Promise<BigNumber> {
     const relayer = this.contracts.mustGetTokenBridgeRelayer(destChain);
     const token = await this.mustGetForeignAsset(tokenId, destChain);

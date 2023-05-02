@@ -39,7 +39,7 @@ export const fetchRedeemedEvent = async (
         Number(event.parsedJson?.emitter_chain) === emitterChainId &&
         event.parsedJson?.sequence === sequence
       ) {
-        return { transactionHash: event.id.txDigest };
+        return event.id.txDigest;
       }
     }
     return null;

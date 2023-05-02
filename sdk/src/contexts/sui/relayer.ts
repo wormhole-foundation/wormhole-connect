@@ -65,7 +65,7 @@ export class SuiRelayer {
   async isAcceptedToken(token: string): Promise<boolean> {
     try {
       const tokenInfo = await this.getTokenInfo(token);
-      return tokenInfo?.swap_enabled === true;
+      return tokenInfo !== null;
     } catch (e) {
       console.error(e);
       return false;

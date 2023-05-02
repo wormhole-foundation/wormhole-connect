@@ -201,20 +201,27 @@ export const sendTransfer = async (
 export const calculateMaxSwapAmount = async (
   destChain: ChainName | ChainId,
   token: TokenId,
+  walletAddress: string,
 ) => {
   const contracts = wh.getContracts(destChain);
   if (!contracts?.relayer) return;
   const context: any = wh.getContext(destChain);
-  return await context.calculateMaxSwapAmount(destChain, token);
+  return await context.calculateMaxSwapAmount(destChain, token, walletAddress);
 };
 
 export const calculateNativeTokenAmt = async (
   destChain: ChainName | ChainId,
   token: TokenId,
   amount: BigNumber,
+  walletAddress: string,
 ) => {
   const context: any = wh.getContext(destChain);
-  return await context.calculateNativeTokenAmt(destChain, token, amount);
+  return await context.calculateNativeTokenAmt(
+    destChain,
+    token,
+    amount,
+    walletAddress,
+  );
 };
 
 export const claimTransfer = async (

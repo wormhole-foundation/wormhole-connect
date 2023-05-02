@@ -33,7 +33,7 @@ function ExplorerLink(props: ExplorerLinkProps) {
     } else {
       explorerLink = `${networkConfig.explorerUrl}tx/${props.txHash}`;
     }
-  } else {
+  } else if (props.type === 'address') {
     explorerLink = `${networkConfig.explorerUrl}address/${props.address}`;
   }
 

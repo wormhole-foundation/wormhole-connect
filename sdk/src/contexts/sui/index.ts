@@ -424,6 +424,7 @@ export class SuiContext<T extends WormholeContext> extends RelayerAbstract {
     const [primaryCoin, ...mergeCoins] = coins.filter(
       (coin) => coin.coinType === coinType,
     );
+    console.log(coinType);
     if (primaryCoin === undefined) {
       throw new Error(
         `Coins array doesn't contain any coins of type ${coinType}`,
@@ -499,16 +500,14 @@ export class SuiContext<T extends WormholeContext> extends RelayerAbstract {
     destChain: ChainName | ChainId,
     tokenId: TokenId,
     amount: BigNumberish,
+    walletAddress: string,
   ): Promise<BigNumber> {
     const relayer = this.contracts.mustGetTokenBridgeRelayer(
       'sui',
     ) as SuiRelayer;
     const coinType = await this.mustGetForeignAsset(tokenId, destChain);
-    // TODO: use actual sender's address
-    const dummyAddress =
-      '0xed867315e3f7c83ae82e6d5858b6a6cc57c291fd84f7509646ebc8162169cf96';
     const nativeTokenAmount = await relayer.calculateNativeSwapAmountOut(
-      dummyAddress,
+      walletAddress,
       coinType,
       amount,
     );
@@ -518,16 +517,14 @@ export class SuiContext<T extends WormholeContext> extends RelayerAbstract {
   async calculateMaxSwapAmount(
     destChain: ChainName | ChainId,
     tokenId: TokenId,
+    walletAddress: string,
   ): Promise<BigNumber> {
     const relayer = this.contracts.mustGetTokenBridgeRelayer(
       'sui',
     ) as SuiRelayer;
     const coinType = await this.mustGetForeignAsset(tokenId, destChain);
-    // TODO: use actual sender's address
-    const dummyAddress =
-      '0xed867315e3f7c83ae82e6d5858b6a6cc57c291fd84f7509646ebc8162169cf96';
     const maxSwap = await relayer.calculateMaxSwapAmountIn(
-      dummyAddress,
+      walletAddress,
       coinType,
     );
     return maxSwap;
@@ -544,6 +541,11 @@ export class SuiContext<T extends WormholeContext> extends RelayerAbstract {
     const address = await this.mustGetForeignAsset(tokenId, sourceChain);
     const decimals = await this.fetchTokenDecimals(address, sourceChain);
     const destChainId = this.context.toChainId(destChain);
-    return await relayer.calculateRelayerFee(destChainId, address, decimals);
+    const fee = await relayer.calculateRelayerFee(
+      destChainId,
+      address,
+      decimals,
+    );
+    return fee;
   }
 }
