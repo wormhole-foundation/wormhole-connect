@@ -127,7 +127,10 @@ const getWalletOptions = async (config: any) => {
 };
 
 // const ALL_WALLETS: WalletData[] =
-//   Object.values(Context).reduce<WalletData[]>((acc, context) => acc.concat(getWalletOptions(context)), []);
+//   Object
+//     .values(Context)
+//     .filter(context => !!CHAINS_ARR.find(c => c.context === context))
+//     .reduce<WalletData[]>((acc, context) => acc.concat(getWalletOptions(context)), []);
 
 type Props = {
   type: TransferWallet;
@@ -196,6 +199,7 @@ function WalletsModal(props: Props) {
         address,
         type: walletInfo.type,
         icon: wallet.getIcon(),
+        wallet: wallet,
       };
       if (props.type === TransferWallet.SENDING) {
         dispatch(connectWallet(payload));
