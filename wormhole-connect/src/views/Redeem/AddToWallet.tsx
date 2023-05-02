@@ -14,14 +14,18 @@ import {
 } from '../../config';
 import { MAINNET_NETWORKS } from '../../config/mainnet';
 import TokenIcon from '../../icons/TokenIcons';
-import { getForeignAsset } from '../../sdk';
+import { getForeignAsset, wh } from '../../sdk';
 import { RootState } from '../../store';
 import { setWalletModal } from '../../store/router';
 import { getWrappedToken } from '../../utils';
 import { TransferWallet, switchNetwork, watchAsset } from '../../utils/wallet';
 import { TokenConfig } from '../../config/types';
 import ExplorerLink from './ExplorerLink';
-import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+import {
+  ChainName,
+  SuiContext,
+  WormholeContext,
+} from '@wormhole-foundation/wormhole-connect-sdk';
 
 const useStyles = makeStyles()((theme) => ({
   addToken: {
@@ -103,7 +107,23 @@ function AddToSolanaWallet({ token, address }: AddTokenProps) {
   );
 }
 
-// TODO: add to sui wallet
+function AddToSuiWallet({ token, address }: AddTokenProps) {
+  const { classes } = useStyles();
+
+  // display the token's metadata object ID for Sui
+  return (
+    <Typography component={'span'} className={classes.addToken}>
+      <TokenIcon height={20} name={token.icon} />
+      <span className={classes.addTokenText}>See {token.symbol} token on</span>
+      <ExplorerLink
+        styles={{ marginLeft: -4 }}
+        network={'sui'}
+        type={'object'}
+        object={address}
+      />
+    </Typography>
+  );
+}
 
 function AddToWallet() {
   const txData = useSelector((state: RootState) => state.redeem.txData)!;
@@ -122,8 +142,18 @@ function AddToWallet() {
       if (!wrapped.tokenId) return;
       const address = await getForeignAsset(wrapped.tokenId, txData.toChain);
 
-      setTargetToken(wrapped);
+      if (txData.toChain === 'sui' && address) {
+        const context = wh.getContext('sui') as SuiContext<WormholeContext>;
+        const metadata = await context.provider.getCoinMetadata({
+          coinType: address,
+        });
+        setTargetAddress(metadata?.id);
+        setTargetToken(wrapped);
+        return;
+      }
+
       setTargetAddress(address);
+      setTargetToken(wrapped);
     };
 
     fetchTokenInfo().catch((err) =>
@@ -145,6 +175,8 @@ function AddToWallet() {
     targetToken.symbol !== 'WSOL'
   ) {
     return <AddToSolanaWallet address={targetAddress} token={targetToken} />;
+  } else if (chainId === MAINNET_NETWORKS.sui?.id) {
+    return <AddToSuiWallet address={targetAddress} token={targetToken} />;
   }
 
   return <></>;
