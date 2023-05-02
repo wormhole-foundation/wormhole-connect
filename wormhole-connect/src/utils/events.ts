@@ -17,7 +17,7 @@ export const fetchRedeemedEvent = async (
   emitterChainId: ChainId,
   emitterAddress: string,
   sequence: string,
-) => {
+): Promise<{ transactionHash: string } | null> => {
   if (destChainId === 'sui') {
     const context = wh.getContext(destChainId) as SuiContext<WormholeContext>;
     const { suiOriginalTokenBridgePackageId } =
@@ -39,7 +39,7 @@ export const fetchRedeemedEvent = async (
         Number(event.parsedJson?.emitter_chain) === emitterChainId &&
         event.parsedJson?.sequence === sequence
       ) {
-        return event.id.txDigest;
+        return { transactionHash: event.id.txDigest };
       }
     }
     return null;
