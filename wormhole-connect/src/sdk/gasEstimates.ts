@@ -196,8 +196,7 @@ export const estimateSendFees = async (
       toNativeToken,
     );
     return gasFee;
-  } catch (e) {
-    console.error(e);
+  } catch (_) {
     return await getGasFeeFallback(context, token, fromNetwork, paymentOption);
   }
 };

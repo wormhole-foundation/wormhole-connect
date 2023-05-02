@@ -30,7 +30,6 @@ export function toFixedDecimals(number: string, numDecimals: number) {
 export async function getUsdVal(token: string) {
   const tokenConfig = TOKENS[token];
   if (!tokenConfig) throw new Error(`invalid token: ${token}`);
-  if (tokenConfig.key === 'SUI') return 0.1; // TODO: remove when coingecko has prices
   const { coinGeckoId } = tokenConfig;
   const res = await fetch(
     `https://api.coingecko.com/api/v3/simple/price?ids=${coinGeckoId}&vs_currencies=usd`,
@@ -38,6 +37,12 @@ export async function getUsdVal(token: string) {
   const data = await res.json();
   if (data[coinGeckoId]) {
     const { usd } = data[coinGeckoId];
+    if (usd === undefined) {
+      // use fallback price
+      if (tokenConfig.key === 'SUI') {
+        return 0.1;
+      }
+    }
     return usd;
   }
 }

@@ -100,8 +100,8 @@ export const MAINNET_NETWORKS: NetworksConfig = {
     gasToken: 'SUI',
     chainId: 0,
     icon: Icon.SUI,
-    automaticRelayer: false, // TODO: true
-    maxBlockSearch: 0, // TODO: what is this?
+    automaticRelayer: true,
+    maxBlockSearch: 0,
   },
 };
 
