@@ -36,6 +36,7 @@ export interface BridgeDefaults {
   fromNetwork?: ChainName;
   toNetwork?: ChainName;
   token?: string;
+  requiredNetwork?: ChainName;
 }
 
 export interface WormholeConnectConfig {

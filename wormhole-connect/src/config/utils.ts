@@ -7,46 +7,60 @@ const error = (msg: string) => {
 
 export const validateDefaults = (defaults: BridgeDefaults | undefined) => {
   if (!defaults) return;
+  const { fromNetwork, toNetwork, token, requiredNetwork } = defaults;
   let validDefaults = defaults;
-  if (defaults.fromNetwork) {
-    const network = CHAINS[defaults.fromNetwork];
+  if (fromNetwork) {
+    const network = CHAINS[fromNetwork];
     if (!network) {
       error(
-        `Invalid chain name "${defaults.fromNetwork}" specified for bridgeDefaults.fromNetwork`,
+        `Invalid chain name "${fromNetwork}" specified for bridgeDefaults.fromNetwork`,
       );
       validDefaults.fromNetwork = undefined;
     }
   }
-  if (defaults.toNetwork) {
-    const network = CHAINS[defaults.toNetwork];
+  if (toNetwork) {
+    const network = CHAINS[toNetwork];
     if (!network) {
       error(
-        `Invalid chain name "${defaults.toNetwork}" specified for bridgeDefaults.toNetwork`,
+        `Invalid chain name "${toNetwork}" specified for bridgeDefaults.toNetwork`,
       );
       validDefaults.toNetwork = undefined;
     }
   }
-  if (defaults.toNetwork && defaults.fromNetwork) {
-    if (defaults.toNetwork === defaults.fromNetwork) {
+  if (toNetwork && fromNetwork) {
+    if (toNetwork === fromNetwork) {
       error(
         `Source and destination chain cannot be the same, check the bridgeDefaults configuration`,
       );
       validDefaults.toNetwork = undefined;
     }
   }
-  if (defaults.token) {
-    const token = TOKENS[defaults.token];
-    if (!token) {
+  if (toNetwork && fromNetwork && requiredNetwork) {
+    const requiredConfig = CHAINS[requiredNetwork];
+    if (!requiredConfig) {
       error(
-        `Invalid token "${defaults.token}" specified for bridgeDefaults.token`,
+        `Invalid network value "${requiredNetwork}" specified for bridgeDefaults.requiredNetwork`,
       );
+      validDefaults.requiredNetwork = undefined;
+    }
+    if (toNetwork !== requiredNetwork && fromNetwork !== requiredNetwork) {
+      error(
+        `Source chain or destination chain must equal the required network`,
+      );
+      validDefaults.requiredNetwork = undefined;
+    }
+  }
+  if (token) {
+    const tokenConfig = TOKENS[token];
+    if (!tokenConfig) {
+      error(`Invalid token "${token}" specified for bridgeDefaults.token`);
       validDefaults.token = undefined;
     }
   }
   if (validDefaults.fromNetwork && validDefaults.token) {
     const network = CHAINS[validDefaults.fromNetwork]!;
-    const token = TOKENS[validDefaults.token];
-    if (!token.tokenId && token.nativeNetwork !== network.key) {
+    const { tokenId, nativeNetwork } = TOKENS[validDefaults.token]!;
+    if (!tokenId && nativeNetwork !== network.key) {
       error(
         `Invalid token "${validDefaults.token}" specified for bridgeDefaults.token. It does not exist on "${validDefaults.fromNetwork}"`,
       );
