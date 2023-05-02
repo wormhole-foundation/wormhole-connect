@@ -202,7 +202,6 @@ function TokensModal() {
   // listen for close event
   const closeTokensModal = () => {
     dispatch(setTokensModal(false));
-    setTokens(networkTokens);
   };
 
   // select token

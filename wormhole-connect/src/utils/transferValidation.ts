@@ -10,7 +10,7 @@ import {
 } from '../store/transfer';
 import { WalletData, WalletState } from '../store/wallet';
 import { walletAcceptedNetworks } from './wallet';
-import { CHAINS, TOKENS, WH_CONFIG } from '../config';
+import { CHAINS, TOKENS, WH_CONFIG, BRIDGE_DEFAULTS } from '../config';
 import { PaymentOption } from '../sdk';
 
 export type ValidationErr = string;
@@ -48,6 +48,21 @@ export const validateToNetwork = (
   if (!chainConfig) return 'Select a destination chain';
   if (fromChain && chain === fromChain)
     return 'Source chain and destination chain cannot be the same';
+  if (
+    BRIDGE_DEFAULTS &&
+    BRIDGE_DEFAULTS.requiredNetwork &&
+    chain &&
+    fromChain
+  ) {
+    const { requiredNetwork } = BRIDGE_DEFAULTS;
+    const requiredConfig = CHAINS[requiredNetwork];
+    if (
+      requiredConfig &&
+      chain !== requiredNetwork &&
+      fromChain !== requiredNetwork
+    )
+      return `Must select ${requiredConfig.displayName} as either the source or destination chain`;
+  }
   return '';
 };
 
