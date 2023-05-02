@@ -1,4 +1,4 @@
 [context.mainnet]
-  command = "npm run build:prod"
+  command = "npm run build"
 [context.production]
-  command = "npm run build:prod"
+  command = "npm run build"
