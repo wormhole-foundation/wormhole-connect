@@ -35,10 +35,6 @@ function AlertBanner(props: Props) {
   const { classes } = useStyles();
   const [alertContent, setAlertContent] = useState(props.content);
 
-  const clear = () => {
-    setAlertContent(undefined);
-  };
-
   useEffect(() => {
     if (props.content) {
       setAlertContent(props.content);
@@ -46,7 +42,7 @@ function AlertBanner(props: Props) {
   }, [props.content]);
 
   return (
-    <Collapse in={props.show && !!props.content} onExited={clear}>
+    <Collapse in={props.show && !!props.content} unmountOnExit>
       <div
         className={joinClass([
           classes.base,

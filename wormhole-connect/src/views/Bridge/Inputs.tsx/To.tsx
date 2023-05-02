@@ -3,9 +3,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { BigNumber } from 'ethers';
 import { makeStyles } from 'tss-react/mui';
 import { RootState } from '../../../store';
+import { CircularProgress, Link, Typography } from '@mui/material';
 import { setToNetworksModal } from '../../../store/router';
 import { TransferWallet, signSolanaTransaction } from '../../../utils/wallet';
-import { TOKENS } from '../../../config';
+import { getWrappedToken, getWrappedTokenId } from '../../../utils';
+import { joinClass } from '../../../utils/style';
+import { ATTEST_URL, TOKENS } from '../../../config';
 import { getBalance, getForeignAsset, solanaContext } from '../../../sdk';
 import {
   formatBalance,
@@ -17,11 +20,6 @@ import Inputs from './Inputs';
 import Input from './Input';
 import Select from './Select';
 import InputTransparent from '../../../components/InputTransparent';
-import { getWrappedToken, getWrappedTokenId } from '../../../utils';
-import { CircularProgress, Link, Typography } from '@mui/material';
-import { joinClass } from '../../../utils/style';
-
-const { REACT_APP_ATTEST_URL } = process.env;
 
 const useStyles = makeStyles()((theme) => ({
   associatedTokenWarning: {
@@ -216,7 +214,7 @@ function ToInputs() {
     () => (
       <Typography>
         This token is not registered, you must{' '}
-        <Link target={'_blank'} variant="inherit" href={REACT_APP_ATTEST_URL}>
+        <Link target={'_blank'} variant="inherit" href={ATTEST_URL}>
           register
         </Link>{' '}
         it before you continue. Newly registered tokens will not have liquid

@@ -3,12 +3,11 @@ import { useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { RootState } from '../../store';
 import { LINK } from '../../utils/style';
-import { CHAINS } from '../../config';
+import { CHAINS, WORMHOLE_EXPLORER } from '../../config';
 import InputContainer from '../../components/InputContainer';
 import ArrowRight from '../../icons/ArrowRight';
 import LaunchIcon from '@mui/icons-material/Launch';
 import TokenIcon from '../../icons/TokenIcons';
-const { REACT_APP_WORMHOLE_EXPLORER } = process.env;
 
 const useStyles = makeStyles()((theme) => ({
   row: {
@@ -42,7 +41,7 @@ function NetworksTag() {
     : txData.emitterAddress;
   const link =
     txData &&
-    `${REACT_APP_WORMHOLE_EXPLORER}?emitterChain=${fromNetworkConfig.id}&emitterAddress=${emitterAddress}&sequence=${txData.sequence}`;
+    `${WORMHOLE_EXPLORER}?emitterChain=${fromNetworkConfig.id}&emitterAddress=${emitterAddress}&sequence=${txData.sequence}`;
 
   return (
     <div>
