@@ -15,7 +15,11 @@ const useStyles = makeStyles()((theme) => ({
 type ExplorerLinkProps = {
   network: ChainName;
   styles?: React.CSSProperties;
-} & ({ type: 'tx'; txHash: string } | { type: 'address'; address: string });
+} & (
+  | { type: 'tx'; txHash: string }
+  | { type: 'address'; address: string }
+  | { type: 'object'; object: string }
+);
 
 function ExplorerLink(props: ExplorerLinkProps) {
   const { classes } = useStyles();
@@ -31,6 +35,10 @@ function ExplorerLink(props: ExplorerLinkProps) {
     }
   } else {
     explorerLink = `${networkConfig.explorerUrl}address/${props.address}`;
+  }
+
+  if (props.type === 'object' && networkConfig.key === 'sui') {
+    explorerLink = `${networkConfig.explorerUrl}object/${props.object}`;
   }
 
   if (!isMainnet) {
