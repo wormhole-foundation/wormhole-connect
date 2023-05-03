@@ -1,33 +1,34 @@
-import React, { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
-import { makeStyles } from 'tss-react/mui';
 import Slider, { SliderThumb } from '@mui/material/Slider';
 import { styled } from '@mui/material/styles';
-import BridgeCollapse, { CollapseControlStyle } from './Collapse';
+import { BigNumber, utils } from 'ethers';
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { makeStyles } from 'tss-react/mui';
+import { useDebounce } from 'use-debounce';
 import InputContainer from '../../components/InputContainer';
 import { CHAINS, TOKENS } from '../../config';
+import { TokenConfig } from '../../config/types';
+import TokenIcon from '../../icons/TokenIcons';
 import {
   PaymentOption,
   calculateMaxSwapAmount,
   calculateNativeTokenAmt,
+  wh,
 } from '../../sdk';
-import { TokenConfig } from '../../config/types';
 import { RootState } from '../../store';
-import TokenIcon from '../../icons/TokenIcons';
-import { BigNumber, utils } from 'ethers';
-import {
-  getConversion,
-  toDecimals,
-  toFixedDecimals,
-} from '../../utils/balance';
 import {
   disableAutomaticTransfer,
   setMaxSwapAmt,
   setReceiveNativeAmt,
   setToNativeToken,
 } from '../../store/transfer';
-import { useDispatch } from 'react-redux';
-import { debounce, getWrappedTokenId } from '../../utils';
+import { getTokenDecimals, getWrappedTokenId } from '../../utils';
+import {
+  getConversion,
+  toDecimals,
+  toFixedDecimals,
+} from '../../utils/balance';
+import BridgeCollapse, { CollapseControlStyle } from './Collapse';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -102,11 +103,15 @@ function GasSlider(props: { disabled: boolean }) {
   const { token, toNetwork, amount, maxSwapAmt, destGasPayment } = useSelector(
     (state: RootState) => state.transfer,
   );
+  const { receiving: receivingWallet } = useSelector(
+    (state: RootState) => state.wallet,
+  );
   const destConfig = CHAINS[toNetwork!];
   const sendingToken = TOKENS[token];
   const nativeGasToken = TOKENS[destConfig?.gasToken!];
 
   const [state, setState] = useState(INITIAL_STATE);
+  const [debouncedSwapAmt] = useDebounce(state.swapAmt, 250);
 
   // set the actual max swap amount (checks if max swap amount is greater than the sending amount)
   useEffect(() => {
@@ -115,26 +120,34 @@ function GasSlider(props: { disabled: boolean }) {
     const actualMaxSwap =
       amount && maxSwapAmt && maxSwapAmt > amount ? amount : maxSwapAmt;
     const newTokenAmount = toFixedDecimals(`${amount - state.swapAmt}`, 6);
-    setState({
-      ...state,
+    setState((prevState) => ({
+      ...prevState,
       token: Number.parseFloat(newTokenAmount),
       max: actualMaxSwap,
-    });
-  }, [maxSwapAmt, amount, destGasPayment]);
+    }));
+  }, [maxSwapAmt, amount, destGasPayment, state.swapAmt]);
 
   useEffect(() => {
-    if (!toNetwork || !sendingToken || destGasPayment === PaymentOption.MANUAL)
+    if (
+      !toNetwork ||
+      !sendingToken ||
+      destGasPayment === PaymentOption.MANUAL ||
+      !receivingWallet.address
+    )
       return;
 
-    // calculate max swap amount to native gas token
     const tokenId = getWrappedTokenId(sendingToken);
-    calculateMaxSwapAmount(toNetwork, tokenId)
+    calculateMaxSwapAmount(toNetwork, tokenId, receivingWallet.address)
       .then((res: BigNumber) => {
         if (!res) {
           dispatch(setMaxSwapAmt(undefined));
           return;
         }
-        const amt = toDecimals(res, sendingToken.decimals, 6);
+        const toNetworkDecimals = getTokenDecimals(
+          wh.toChainId(toNetwork),
+          tokenId,
+        );
+        const amt = toDecimals(res, toNetworkDecimals, 6);
         dispatch(setMaxSwapAmt(Number.parseFloat(amt)));
       })
       .catch((e) => {
@@ -148,9 +161,16 @@ function GasSlider(props: { disabled: boolean }) {
     // get conversion rate of token
     const { gasToken } = CHAINS[toNetwork]!;
     getConversion(token, gasToken).then((res: number) => {
-      setState({ ...state, conversionRate: res });
+      setState((prevState) => ({ ...prevState, conversionRate: res }));
     });
-  }, [sendingToken, toNetwork, destGasPayment, token, dispatch]);
+  }, [
+    sendingToken,
+    receivingWallet,
+    toNetwork,
+    destGasPayment,
+    token,
+    dispatch,
+  ]);
 
   function Thumb(props: ThumbProps) {
     const { children, ...other } = props;
@@ -165,12 +185,12 @@ function GasSlider(props: { disabled: boolean }) {
   const onCollapseChange = (collapsed: boolean) => {
     // user switched off conversion to native gas, so reset values
     if (collapsed) {
-      setState({
-        ...state,
+      setState((prevState) => ({
+        ...prevState,
         swapAmt: 0,
         nativeGas: 0,
         token: formatAmount(amount),
-      });
+      }));
       dispatch(setReceiveNativeAmt(0));
     }
   };
@@ -186,27 +206,54 @@ function GasSlider(props: { disabled: boolean }) {
       token: Number.parseFloat(newTokenAmount),
       swapAmt: e.target.value,
     };
-    setState({ ...state, ...conversion });
+    setState((prevState) => ({ ...prevState, ...conversion }));
   };
 
-  const setNativeAmt = debounce(async () => {
-    dispatch(setToNativeToken(state.swapAmt));
-    const tokenId = getWrappedTokenId(sendingToken);
-    const formattedAmt = utils.parseUnits(
-      `${state.swapAmt}`,
-      sendingToken.decimals,
-    );
-    const nativeGasAmt = await calculateNativeTokenAmt(
-      toNetwork!,
-      tokenId,
-      formattedAmt,
-    );
-    const formattedNativeAmt = Number.parseFloat(
-      toDecimals(nativeGasAmt.toString(), nativeGasToken.decimals, 6),
-    );
-    dispatch(setReceiveNativeAmt(formattedNativeAmt));
-    setState({ ...state, nativeGas: formattedNativeAmt });
-  }, 250);
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      dispatch(setToNativeToken(debouncedSwapAmt));
+      const tokenId = getWrappedTokenId(sendingToken);
+      const sendingTokenToChainDecimals = getTokenDecimals(
+        wh.toChainId(toNetwork!),
+        tokenId,
+      );
+      const formattedAmt = utils.parseUnits(
+        `${debouncedSwapAmt}`,
+        sendingTokenToChainDecimals,
+      );
+      const nativeGasAmt = await calculateNativeTokenAmt(
+        toNetwork!,
+        tokenId,
+        formattedAmt,
+        receivingWallet.address,
+      );
+      if (cancelled) return;
+      const nativeGasTokenId = getWrappedTokenId(nativeGasToken);
+      const nativeGasTokenToChainDecimals = getTokenDecimals(
+        wh.toChainId(toNetwork!),
+        nativeGasTokenId,
+      );
+      const formattedNativeAmt = Number.parseFloat(
+        toDecimals(nativeGasAmt.toString(), nativeGasTokenToChainDecimals, 6),
+      );
+      dispatch(setReceiveNativeAmt(formattedNativeAmt));
+      setState((prevState) => ({
+        ...prevState,
+        nativeGas: formattedNativeAmt,
+      }));
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    debouncedSwapAmt,
+    dispatch,
+    nativeGasToken,
+    receivingWallet.address,
+    sendingToken,
+    toNetwork,
+  ]);
 
   return (
     <BridgeCollapse
@@ -253,7 +300,6 @@ function GasSlider(props: { disabled: boolean }) {
                 }
                 valueLabelDisplay="auto"
                 onChange={handleChange}
-                onMouseUp={setNativeAmt}
               />
               <div className={classes.amounts}>
                 <div className={classes.amountDisplay}>

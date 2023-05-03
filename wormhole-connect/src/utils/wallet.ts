@@ -18,9 +18,10 @@ import { clusterApiUrl, Connection as SolanaConnection } from '@solana/web3.js';
 import { SolanaWallet } from '@xlabs-libs/wallet-aggregator-solana';
 import { Transaction, ConfirmOptions } from '@solana/web3.js';
 import { registerSigner } from '../sdk';
-import { CHAINS_ARR } from '../config';
+import { CHAINS, CHAINS_ARR } from '../config';
 import { getNetworkByChainId } from 'utils';
 import { WH_CONFIG } from '../config';
+import { TransactionBlock } from '@mysten/sui.js';
 
 export enum TransferWallet {
   SENDING = 'sending',
@@ -33,6 +34,7 @@ export enum WalletType {
   WALLET_CONNECT,
   PHANTOM,
   SOLFLARE,
+  SUI_WALLET, // there may be multiple sui wallets
 }
 
 interface AssetInfo {
@@ -69,12 +71,16 @@ const EVM_CHAINS = CHAINS_ARR.filter((c) => c.context === Context.ETH).map(
 const SOL_CHAINS = CHAINS_ARR.filter((c) => c.context === Context.SOLANA).map(
   (c) => c.key,
 );
+const SUI_CHAINS = CHAINS_ARR.filter((c) => c.context === Context.SUI).map(
+  (c) => c.key,
+);
 export const walletAcceptedNetworks: Record<WalletType, ChainName[]> = {
   [WalletType.NONE]: CHAINS_ARR.map((c) => c.key),
   [WalletType.METAMASK]: EVM_CHAINS,
   [WalletType.WALLET_CONNECT]: EVM_CHAINS,
   [WalletType.PHANTOM]: SOL_CHAINS,
   [WalletType.SOLFLARE]: SOL_CHAINS,
+  [WalletType.SUI_WALLET]: SUI_CHAINS,
 };
 
 export const setWalletConnection = (type: TransferWallet, wallet: Wallet) => {
@@ -127,19 +133,61 @@ export const watchAsset = async (asset: AssetInfo, type: TransferWallet) => {
 
 export const signSolanaTransaction = async (
   transaction: Transaction,
-  type: TransferWallet,
+  walletType: TransferWallet,
   options?: ConfirmOptions,
 ) => {
-  const wallet = walletConnection[type];
+  const wallet = walletConnection[walletType];
   if (!wallet || !wallet.signAndSendTransaction) {
     throw new Error('wallet.signAndSendTransaction is undefined');
   }
 
-  const tx = await (wallet as SolanaWallet).signAndSendTransaction({
+  return await (wallet as SolanaWallet).signAndSendTransaction({
     transaction,
     options,
   });
-  return { transactionHash: tx.id };
+};
+
+export const signSuiTransaction = async (
+  transactionBlock: TransactionBlock,
+  walletType: TransferWallet,
+) => {
+  const wallet = walletConnection[walletType];
+  if (!wallet || !wallet.signAndSendTransaction) {
+    throw new Error('wallet.signAndSendTransaction is undefined');
+  }
+
+  return await wallet.signAndSendTransaction({ transactionBlock });
+};
+
+export const signAndSendTransaction = async (
+  chain: ChainName,
+  transaction: any,
+  walletType: TransferWallet,
+  options?: ConfirmOptions,
+): Promise<string> => {
+  const network = CHAINS[chain]!;
+  switch (network.context) {
+    case Context.ETH: {
+      return transaction.transactionHash;
+    }
+    case Context.SOLANA: {
+      const tx = await signSolanaTransaction(
+        transaction as Transaction,
+        walletType,
+        options,
+      );
+      return tx.id;
+    }
+    case Context.SUI: {
+      const tx = await signSuiTransaction(
+        transaction as TransactionBlock,
+        walletType,
+      );
+      return tx.id;
+    }
+    default:
+      return '';
+  }
 };
 
 export const postVaa = async (

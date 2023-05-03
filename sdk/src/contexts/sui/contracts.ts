@@ -1,28 +1,23 @@
-import { ethers_contracts } from '@certusone/wormhole-sdk';
-import {
-  Wormhole,
-  Bridge,
-  NFTBridge,
-} from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
-
 import { ChainName, ChainId, Contracts, Context } from '../../types';
-import { TokenBridgeRelayer } from '../../abis/TokenBridgeRelayer';
-import { TokenBridgeRelayer__factory } from '../../abis/TokenBridgeRelayer__factory';
 import { ContractsAbstract } from '../abstracts/contracts';
 import { WormholeContext } from '../../wormhole';
 import { filterByContext } from '../../utils';
+import { SuiRelayer } from './relayer';
+import { JsonRpcProvider } from '@mysten/sui.js';
 
-export class EthContracts<
+export class SuiContracts<
   T extends WormholeContext,
 > extends ContractsAbstract<T> {
   protected _contracts: Map<ChainName, any>;
   readonly context: T;
+  readonly provider: JsonRpcProvider;
 
-  constructor(context: T) {
+  constructor(context: T, provider: JsonRpcProvider) {
     super();
     this.context = context;
+    this.provider = provider;
     this._contracts = new Map();
-    const chains = filterByContext(context.conf, Context.ETH);
+    const chains = filterByContext(context.conf, Context.SUI);
     chains.forEach((c) => {
       this._contracts.set(c.key, c.contracts);
     });
@@ -36,7 +31,7 @@ export class EthContracts<
   mustGetContracts(chain: ChainName | ChainId): Contracts {
     const chainName = this.context.toChainName(chain);
     const contracts = this._contracts.get(chainName);
-    if (!contracts) throw new Error(`no EVM contracts found for ${chain}`);
+    if (!contracts) throw new Error(`no Sui contracts found for ${chain}`);
     return contracts;
   }
 
@@ -45,11 +40,8 @@ export class EthContracts<
    *
    * @returns An interface for the core contract, undefined if not found
    */
-  getCore(chain: ChainName | ChainId): Wormhole | undefined {
-    const connection = this.context.mustGetConnection(chain);
-    const address = this.mustGetContracts(chain).core;
-    if (!address) return undefined;
-    return ethers_contracts.Wormhole__factory.connect(address, connection);
+  getCore(chain: ChainName | ChainId) {
+    return undefined;
   }
 
   /**
@@ -57,10 +49,8 @@ export class EthContracts<
    *
    * @returns An interface for the core contract, errors if not found
    */
-  mustGetCore(chain: ChainName | ChainId): Wormhole {
-    const core = this.getCore(chain);
-    if (!core) throw new Error(`Core contract for domain ${chain} not found`);
-    return core;
+  mustGetCore(chain: ChainName | ChainId) {
+    throw new Error('not implemented');
   }
 
   /**
@@ -68,11 +58,8 @@ export class EthContracts<
    *
    * @returns An interface for the bridge contract, undefined if not found
    */
-  getBridge(chain: ChainName | ChainId): Bridge | undefined {
-    const connection = this.context.mustGetConnection(chain);
-    const address = this.mustGetContracts(chain).token_bridge;
-    if (!address) return undefined;
-    return ethers_contracts.Bridge__factory.connect(address, connection);
+  getBridge(chain: ChainName | ChainId) {
+    return undefined;
   }
 
   /**
@@ -80,11 +67,8 @@ export class EthContracts<
    *
    * @returns An interface for the bridge contract, errors if not found
    */
-  mustGetBridge(chain: ChainName | ChainId): Bridge {
-    const bridge = this.getBridge(chain);
-    if (!bridge)
-      throw new Error(`Bridge contract for domain ${chain} not found`);
-    return bridge;
+  mustGetBridge(chain: ChainName | ChainId) {
+    throw new Error('not implemented');
   }
 
   /**
@@ -92,11 +76,8 @@ export class EthContracts<
    *
    * @returns An interface for the NFT bridge contract, undefined if not found
    */
-  getNftBridge(chain: ChainName | ChainId): NFTBridge | undefined {
-    const connection = this.context.mustGetConnection(chain);
-    const address = this.mustGetContracts(chain).nft_bridge;
-    if (!address) return undefined;
-    return ethers_contracts.NFTBridge__factory.connect(address, connection);
+  getNftBridge(chain: ChainName | ChainId) {
+    return undefined;
   }
 
   /**
@@ -104,11 +85,8 @@ export class EthContracts<
    *
    * @returns An interface for the NFT bridge contract, errors if not found
    */
-  mustGetNftBridge(chain: ChainName | ChainId): NFTBridge {
-    const nftBridge = this.getNftBridge(chain);
-    if (!nftBridge)
-      throw new Error(`NFT Bridge contract for domain ${chain} not found`);
-    return nftBridge;
+  mustGetNftBridge(chain: ChainName | ChainId) {
+    throw new Error('not implemented');
   }
 
   /**
@@ -116,13 +94,15 @@ export class EthContracts<
    *
    * @returns An interface for the Token Bridge Relayer contract, undefined if not found
    */
-  getTokenBridgeRelayer(
-    chain: ChainName | ChainId,
-  ): TokenBridgeRelayer | undefined {
-    const connection = this.context.mustGetConnection(chain);
-    const address = this.mustGetContracts(chain).relayer;
-    if (!address) return undefined;
-    return TokenBridgeRelayer__factory.connect(address, connection);
+  getTokenBridgeRelayer(chain: ChainName | ChainId): any {
+    const { relayer: suiRelayerObjectId, suiRelayerPackageId } =
+      this.mustGetContracts(chain);
+    if (!suiRelayerObjectId || !suiRelayerPackageId) return undefined;
+    return new SuiRelayer(
+      this.provider,
+      suiRelayerObjectId,
+      suiRelayerPackageId,
+    );
   }
 
   /**

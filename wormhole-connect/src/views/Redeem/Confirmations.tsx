@@ -1,8 +1,8 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { styled } from '@mui/material/styles';
-import { makeStyles } from 'tss-react/mui';
 import { LinearProgress, linearProgressClasses } from '@mui/material';
+import { styled } from '@mui/material/styles';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+import React, { useEffect, useState } from 'react';
+import { makeStyles } from 'tss-react/mui';
 import { CHAINS } from '../../config';
 import { getCurrentBlock } from '../../sdk';
 
@@ -42,28 +42,30 @@ function Confirmations(props: Props) {
   const requiredHeight = blockHeight + chainConfig.finalityThreshold;
   const [currentBlock, setCurrentBlock] = useState(0);
 
-  const updateCurrentBlock = useCallback(async () => {
-    const height = await getCurrentBlock(chain);
-    setCurrentBlock(height);
-  }, [chain]);
-
   useEffect(() => {
-    updateCurrentBlock();
-    const interval = setInterval(async () => {
-      if (currentBlock < requiredHeight) {
-        updateCurrentBlock();
-      } else {
-        clearInterval(interval);
+    let cancelled = false;
+    (async () => {
+      let currentBlock = 0;
+      while (currentBlock < requiredHeight && !cancelled) {
+        const currentBlock = await getCurrentBlock(props.chain);
+        if (!cancelled) {
+          setCurrentBlock(currentBlock);
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+        }
       }
-    }, 1000);
-  }, [currentBlock, requiredHeight, updateCurrentBlock]);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [requiredHeight, props.chain]);
 
   const blockDiff =
     currentBlock > requiredHeight ? 0 : requiredHeight - currentBlock;
   const confirmations = chainConfig.finalityThreshold - blockDiff;
-  const percentage = Math.floor(
-    (confirmations / chainConfig.finalityThreshold) * 100,
-  );
+  const percentage =
+    chainConfig.finalityThreshold === 0
+      ? 100
+      : Math.floor((confirmations / chainConfig.finalityThreshold) * 100);
 
   return (
     <div className={classes.confirmations}>

@@ -6,6 +6,7 @@ export type WalletData = {
   address: string;
   currentAddress: string;
   error: string;
+  icon?: string; // the wallet's icon encoded as a base64 string
 };
 
 export interface WalletState {
@@ -18,6 +19,7 @@ const NO_WALLET: WalletData = {
   type: WalletType.NONE,
   currentAddress: '',
   error: '',
+  icon: undefined,
 };
 
 const initialState: WalletState = {
@@ -28,6 +30,7 @@ const initialState: WalletState = {
 export type ConnectPayload = {
   address: string;
   type: WalletType;
+  icon?: string;
 };
 
 export const walletSlice = createSlice({
@@ -42,6 +45,7 @@ export const walletSlice = createSlice({
       state.sending.address = payload.address;
       state.sending.currentAddress = payload.address;
       state.sending.error = '';
+      state.sending.icon = payload.icon;
     },
     connectReceivingWallet: (
       state: WalletState,
@@ -51,6 +55,7 @@ export const walletSlice = createSlice({
       state.receiving.address = payload.address;
       state.receiving.currentAddress = payload.address;
       state.receiving.error = '';
+      state.receiving.icon = payload.icon;
     },
     clearWallet: (
       state: WalletState,

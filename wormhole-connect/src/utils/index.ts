@@ -10,6 +10,7 @@ import { CHAINS_ARR, TOKENS, TOKENS_ARR } from '../config';
 import { NetworkConfig, TokenConfig } from '../config/types';
 import { WalletType } from './wallet';
 import { toDecimals } from './balance';
+import { isValidTransactionDigest, SUI_TYPE_ARG } from '@mysten/sui.js';
 
 export const MAX_DECIMALS = 6;
 export const NORMALIZED_DECIMALS = 8;
@@ -28,6 +29,15 @@ export function displayEvmAddress(address: string): string {
   );
 }
 
+export function displaySuiAddress(address: string): string {
+  if (address === SUI_TYPE_ARG) return address; // special case for native sui
+  return (
+    address.slice(0, 6) +
+    '...' +
+    address.slice(address.length - 4, address.length)
+  );
+}
+
 export function displayAddress(chain: ChainName, address: string): string {
   if (chain === 'solana') {
     return (
@@ -35,6 +45,8 @@ export function displayAddress(chain: ChainName, address: string): string {
       '...' +
       address.slice(address.length - 4, address.length)
     );
+  } else if (chain === 'sui') {
+    return displaySuiAddress(address);
   } else {
     return displayEvmAddress(address);
   }
@@ -49,6 +61,8 @@ export function displayWalletAddress(
     walletType === WalletType.WALLET_CONNECT
   ) {
     return displayEvmAddress(address);
+  } else if (walletType === WalletType.SUI_WALLET) {
+    return displaySuiAddress(address);
   }
   return displayAddress('solana', address);
 }
@@ -92,12 +106,18 @@ export function getTokenDecimals(
   tokenId: TokenId | 'native',
 ): number {
   if (tokenId === 'native') {
-    return chain === MAINNET_CHAINS.solana ? 9 : 18;
+    return chain === MAINNET_CHAINS.solana
+      ? 9
+      : chain === MAINNET_CHAINS.sui
+      ? 9
+      : 18;
   }
   const tokenConfig = getTokenById(tokenId);
   if (!tokenConfig) throw new Error('token config not found');
   return chain === MAINNET_CHAINS.solana
     ? tokenConfig.solDecimals
+    : chain === MAINNET_CHAINS.sui
+    ? tokenConfig.suiDecimals
     : tokenConfig.decimals;
 }
 
@@ -138,9 +158,13 @@ export function copyTextToClipboard(text: string) {
   return fallbackCopyTextToClipboard(text);
 }
 
-export function isValidTxId(tx: string) {
-  if (tx.startsWith('0x') && tx.length === 66) return true;
-  return tx.length > 70 && tx.length < 100;
+export function isValidTxId(chain: string, tx: string) {
+  if (chain === 'sui') {
+    return isValidTransactionDigest(tx);
+  } else {
+    if (tx.startsWith('0x') && tx.length === 66) return true;
+    return tx.length > 70 && tx.length < 100;
+  }
 }
 
 export function debounce(callback: any, wait: number) {

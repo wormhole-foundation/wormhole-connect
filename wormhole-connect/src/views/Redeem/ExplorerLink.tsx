@@ -15,20 +15,39 @@ const useStyles = makeStyles()((theme) => ({
 type ExplorerLinkProps = {
   network: ChainName;
   styles?: React.CSSProperties;
-} & ({ type: 'tx'; txHash: string } | { type: 'address'; address: string });
+} & (
+  | { type: 'tx'; txHash: string }
+  | { type: 'address'; address: string }
+  | { type: 'object'; object: string }
+);
 
 function ExplorerLink(props: ExplorerLinkProps) {
   const { classes } = useStyles();
 
   const networkConfig = CHAINS[props.network]!;
 
-  let explorerLink =
-    props.type === 'tx'
-      ? `${networkConfig.explorerUrl}tx/${props.txHash}`
-      : `${networkConfig.explorerUrl}address/${props.address}`;
+  let explorerLink;
+  if (props.type === 'tx') {
+    if (networkConfig.key === 'sui') {
+      explorerLink = `${networkConfig.explorerUrl}txblock/${props.txHash}`;
+    } else {
+      explorerLink = `${networkConfig.explorerUrl}tx/${props.txHash}`;
+    }
+  } else if (props.type === 'address') {
+    explorerLink = `${networkConfig.explorerUrl}address/${props.address}`;
+  }
 
-  if (networkConfig.key === 'solana' && !isMainnet) {
-    explorerLink += '?cluster=devnet';
+  if (props.type === 'object' && networkConfig.key === 'sui') {
+    explorerLink = `${networkConfig.explorerUrl}object/${props.object}`;
+  }
+
+  if (!isMainnet) {
+    if (networkConfig.key === 'solana') {
+      explorerLink += '?cluster=devnet';
+    }
+    if (networkConfig.key === 'sui') {
+      explorerLink += '?network=testnet';
+    }
   }
 
   return (

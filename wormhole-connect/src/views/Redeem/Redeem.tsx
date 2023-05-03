@@ -41,7 +41,7 @@ class Redeem extends React.Component<
     const vaa = await fetchVaa(this.props.txData);
     if (vaa) {
       this.props.setVaa(vaa);
-      this.setState({ ...this.state, vaa });
+      this.setState((prevState) => ({ ...prevState, vaa }));
     }
   }
 

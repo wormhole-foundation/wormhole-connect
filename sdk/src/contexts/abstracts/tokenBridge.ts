@@ -38,6 +38,9 @@ export abstract class TokenBridgeAbstract {
   protected abstract formatAddress(address: string): any;
   protected abstract parseAddress(address: any): string;
 
+  protected abstract formatAssetAddress(address: string): Promise<any>;
+  protected abstract parseAssetAddress(address: any): Promise<string>;
+
   protected abstract getForeignAsset(
     tokenId: TokenId,
     chain: ChainName | ChainId,

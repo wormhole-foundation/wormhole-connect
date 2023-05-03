@@ -50,7 +50,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
     // else fetch the representation
     const tokenBridge = this.contracts.mustGetBridge(chain);
     const sourceContext = this.context.getContext(tokenId.chain);
-    const tokenAddr = sourceContext.formatAddress(tokenId.address);
+    const tokenAddr = await sourceContext.formatAssetAddress(tokenId.address);
     const foreignAddr = await tokenBridge.wrappedAsset(
       chainId,
       utils.arrayify(tokenAddr),
@@ -114,7 +114,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
     contractAddress: string,
     token: string,
     amount?: BigNumberish,
-    overrides?: any,
+    overrides: PayableOverrides & { from?: string | Promise<string> } = {},
   ): Promise<ethers.ContractReceipt | void> {
     const signer = this.context.getSigner(chain);
     if (!signer) throw new Error(`No signer for ${chain}`);
@@ -136,7 +136,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
       const tx = await tokenImplementation.approve(
         contractAddress,
         approveAmount,
-        // overrides,
+        overrides
       );
       await tx.wait();
     }
@@ -150,7 +150,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
     recipientChain: ChainName | ChainId,
     recipientAddress: string,
     relayerFee: ethers.BigNumberish = 0,
-    overrides?: PayableOverrides & { from?: string | Promise<string> },
+    overrides: PayableOverrides & { from?: string | Promise<string> } = {},
   ): Promise<ethers.PopulatedTransaction> {
     const destContext = this.context.getContext(recipientChain);
     const recipientChainId = this.context.toChainId(recipientChain);
@@ -182,8 +182,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
         relayerFee,
         createNonce(),
         {
-          // ...(overrides || {}), // TODO: fix overrides/gas limit here
-          gasLimit: 250000,
+          ...overrides,
           value: amountBN,
           from: senderAddress,
         },
@@ -194,8 +193,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
         relayerFee,
         createNonce(),
         {
-          // ...(overrides || {}), // TODO: fix overrides/gas limit here
-          gasLimit: 250000,
+          ...overrides,
           value: amountBN,
         },
       );
@@ -211,8 +209,10 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
         destContext.formatAddress(recipientAccount),
         relayerFee,
         createNonce(),
-        // overrides,
-        { gasLimit: 250000, from: senderAddress },
+        {
+          ...overrides,
+          from: senderAddress,
+        },
       );
       return bridge.populateTransaction.transferTokens(
         tokenAddr,
@@ -221,8 +221,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
         destContext.formatAddress(recipientAccount),
         relayerFee,
         createNonce(),
-        // overrides,
-        { gasLimit: 250000 },
+        overrides,
       );
     }
   }
@@ -235,7 +234,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
     recipientChain: ChainName | ChainId,
     recipientAddress: string,
     relayerFee: ethers.BigNumberish = 0,
-    overrides?: PayableOverrides & { from?: string | Promise<string> },
+    overrides: PayableOverrides & { from?: string | Promise<string> } = {},
   ): Promise<ethers.ContractReceipt> {
     const signer = this.context.getSigner(sendingChain);
     if (!signer) throw new Error(`No signer for ${sendingChain}`);
@@ -245,7 +244,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
       const amountBN = ethers.BigNumber.from(amount);
       const bridge = this.contracts.mustGetBridge(sendingChain);
       const tokenAddr = await this.mustGetForeignAsset(token, sendingChain);
-      await this.approve(sendingChain, bridge.address, tokenAddr, amountBN);
+      await this.approve(sendingChain, bridge.address, tokenAddr, amountBN, overrides);
     }
 
     // prepare and simulate transfer
@@ -272,7 +271,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
     recipientChain: ChainName | ChainId,
     recipientAddress: string,
     payload: Uint8Array,
-    overrides?: PayableOverrides & { from?: string | Promise<string> },
+    overrides: PayableOverrides & { from?: string | Promise<string> } = {},
   ): Promise<ethers.ContractReceipt> {
     const destContext = this.context.getContext(recipientChain);
     const recipientChainId = this.context.toChainId(recipientChain);
@@ -287,7 +286,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
         createNonce(),
         payload,
         {
-          ...(overrides || {}),
+          ...overrides,
           value: amountBN,
         },
       );
@@ -317,11 +316,8 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
     senderAddress: string,
     recipientChain: ChainName | ChainId,
     recipientAddress: string,
-    overrides?: PayableOverrides & { from?: string | Promise<string> },
+    overrides: PayableOverrides & { from?: string | Promise<string> } = {},
   ): Promise<ethers.PopulatedTransaction> {
-    const isAddress = ethers.utils.isAddress(recipientAddress);
-    if (!isAddress)
-      throw new Error(`invalid recipient address: ${recipientAddress}`);
     const destContext = this.context.getContext(recipientChain);
     const recipientChainId = this.context.toChainId(recipientChain);
     const amountBN = ethers.BigNumber.from(amount);
@@ -336,8 +332,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
         destContext.formatAddress(recipientAddress),
         0, // opt out of batching
         {
-          // ...(overrides || {}), // TODO: fix overrides/gas limit here
-          gasLimit: 300000,
+          ...overrides,
           value: amountBN,
         },
       );
@@ -351,9 +346,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
         recipientChainId,
         destContext.formatAddress(recipientAddress),
         0, // opt out of batching
-        {
-          gasLimit: 300000,
-        },
+        overrides,
       );
     }
   }
@@ -366,7 +359,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
     senderAddress: string,
     recipientChain: ChainName | ChainId,
     recipientAddress: string,
-    overrides?: PayableOverrides & { from?: string | Promise<string> },
+    overrides: PayableOverrides & { from?: string | Promise<string> } = {},
   ): Promise<ethers.ContractReceipt> {
     const signer = this.context.getSigner(sendingChain);
     if (!signer) throw new Error(`No signer for ${sendingChain}`);
@@ -376,7 +369,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
       const amountBN = ethers.BigNumber.from(amount);
       const relayer = this.contracts.mustGetTokenBridgeRelayer(sendingChain);
       const tokenAddr = await this.mustGetForeignAsset(token, sendingChain);
-      await this.approve(sendingChain, relayer.address, tokenAddr, amountBN);
+      await this.approve(sendingChain, relayer.address, tokenAddr, amountBN, overrides);
     }
 
     // prepare and simulate transfer
@@ -424,6 +417,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
   async calculateMaxSwapAmount(
     destChain: ChainName | ChainId,
     tokenId: TokenId,
+    walletAddress: string,
   ): Promise<BigNumber> {
     const relayer = this.contracts.mustGetTokenBridgeRelayer(destChain);
     const token = await this.mustGetForeignAsset(tokenId, destChain);
@@ -434,6 +428,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
     destChain: ChainName | ChainId,
     tokenId: TokenId,
     amount: BigNumberish,
+    walletAddress: string,
   ): Promise<BigNumber> {
     const relayer = this.contracts.mustGetTokenBridgeRelayer(destChain);
     const token = await this.mustGetForeignAsset(tokenId, destChain);
@@ -474,7 +469,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
         const tokenContext = this.context.getContext(
           parsedTransfer.tokenChain as ChainId,
         );
-        const tokenAddress = tokenContext.parseAddress(
+        const tokenAddress = await tokenContext.parseAssetAddress(
           parsedTransfer.tokenAddress,
         );
         const tokenChain = this.context.toChainName(parsedTransfer.tokenChain);
@@ -579,6 +574,14 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
   parseAddress(address: ethers.utils.BytesLike): string {
     const parsed = utils.hexlify(utils.stripZeros(address));
     return utils.getAddress(parsed);
+  }
+
+  async formatAssetAddress(address: string): Promise<ethers.utils.BytesLike> {
+    return this.formatAddress(address);
+  }
+
+  async parseAssetAddress(address: any): Promise<string> {
+    return this.parseAddress(address);
   }
 
   getTxIdFromReceipt(receipt: ethers.ContractReceipt) {

@@ -17,10 +17,12 @@ export abstract class RelayerAbstract extends TokenBridgeAbstract {
     destChain: ChainName | ChainId,
     tokenId: TokenId,
     amount: BigNumberish,
+    walletAddress: string,
   ): Promise<BigNumber>;
   protected abstract calculateMaxSwapAmount(
     destChain: ChainName | ChainId,
     tokenId: TokenId,
+    walletAddress: string,
   ): Promise<BigNumber>;
   protected abstract getRelayerFee(
     sourceChain: ChainName | ChainId,

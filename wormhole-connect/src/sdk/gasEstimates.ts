@@ -10,6 +10,11 @@ import { toFixedDecimals } from '../utils/balance';
 import { GAS_ESTIMATES } from '../config';
 import { PaymentOption } from '.';
 import { getTokenDecimals } from '../utils';
+import {
+  JsonRpcProvider,
+  TransactionBlock,
+  getTotalGasUsed,
+} from '@mysten/sui.js';
 
 // simulates a send transaction and returns the estimated fees
 const estimateGasFee = async (
@@ -32,6 +37,48 @@ const estimateGasFee = async (
   // Solana gas estimates
   if (fromChainId === MAINNET_CHAINS.solana) {
     return toFixedDecimals(utils.formatUnits(gasEstimates.sendToken, 9), 6);
+  }
+
+  // Sui gas estimates
+  if (fromChainId === MAINNET_CHAINS.sui) {
+    const provider = chainContext.provider as JsonRpcProvider;
+    if (!provider) throw new Error('no provider');
+    let tx: TransactionBlock;
+    if (paymentOption === PaymentOption.MANUAL) {
+      tx = await chainContext.send(
+        token,
+        parsedAmt,
+        fromNetwork,
+        fromAddress,
+        toNetwork,
+        toAddress,
+        undefined,
+      );
+    } else {
+      const parsedNativeAmt = toNativeToken
+        ? utils.parseUnits(toNativeToken, decimals).toString()
+        : '0';
+      tx = await chainContext.sendWithRelay(
+        token,
+        parsedAmt.toString(),
+        parsedNativeAmt,
+        fromNetwork,
+        fromAddress,
+        toNetwork,
+        toAddress,
+      );
+    }
+    tx.setSenderIfNotSet(fromAddress);
+    const dryRunTxBytes = await tx.build({
+      provider,
+    });
+    const response = await provider.dryRunTransactionBlock({
+      transactionBlock: dryRunTxBytes,
+    });
+    const gasFee = getTotalGasUsed(response.effects);
+    if (!gasFee) throw new Error('cannot estimate gas fee');
+    const result = toFixedDecimals(utils.formatUnits(gasFee, 9), 6);
+    return result;
   }
 
   // EVM gas estimates
@@ -88,6 +135,16 @@ const getGasFeeFallback = async (
   // Solana gas estimates
   if (fromChainId === MAINNET_CHAINS.solana) {
     return toFixedDecimals(utils.formatUnits(gasEstimates.sendToken, 9), 6);
+  }
+
+  // Sui gas estimates
+  if (fromChainId === MAINNET_CHAINS.sui) {
+    if (paymentOption === PaymentOption.MANUAL) {
+      return toFixedDecimals(utils.formatUnits(gasEstimates.sendToken, 9), 6);
+    } else {
+      // TODO: automatic payment gas fee est. fallback
+      throw new Error('cannot estimate gas fee');
+    }
   }
 
   // EVM gas estimates
@@ -152,6 +209,11 @@ export const estimateClaimFees = async (
   const destChainId = context.toChainId(destChain);
   if (destChainId === MAINNET_CHAINS.solana) {
     const gasEstimates = GAS_ESTIMATES['solana'];
+    return toFixedDecimals(utils.formatUnits(gasEstimates?.claim!, 9), 6);
+  }
+
+  if (destChainId === MAINNET_CHAINS.sui) {
+    const gasEstimates = GAS_ESTIMATES['sui'];
     return toFixedDecimals(utils.formatUnits(gasEstimates?.claim!, 9), 6);
   }
 

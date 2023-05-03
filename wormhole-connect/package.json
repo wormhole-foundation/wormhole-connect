@@ -7,11 +7,12 @@
     "access": "restricted"
   },
   "dependencies": {
-    "@certusone/wormhole-sdk": "^0.9.13",
+    "@certusone/wormhole-sdk": "^0.9.16",
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
     "@mui/icons-material": "^5.11.0",
     "@mui/material": "^5.11.4",
+    "@mysten/sui.js": "^0.32.2",
     "@nomad-xyz/multi-provider": "^1.1.0",
     "@reduxjs/toolkit": "^1.9.1",
     "@solana/wallet-adapter-wallets": "^0.19.11",
@@ -27,6 +28,7 @@
     "@xlabs-libs/wallet-aggregator-evm": "^0.0.1-alpha.25",
     "@xlabs-libs/wallet-aggregator-react": "^0.0.1-alpha.11",
     "@xlabs-libs/wallet-aggregator-solana": "^0.0.1-alpha.10",
+    "@xlabs-libs/wallet-aggregator-sui": "^0.0.1-alpha.2",
     "axios": "^1.2.4",
     "babel-jest": "^29.5.0",
     "bn.js": "^5.2.1",
@@ -52,6 +54,7 @@
     "tss-react": "^4.5.2",
     "typescript": "^4.9.4",
     "url": "^0.11.0",
+    "use-debounce": "^9.0.4",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
@@ -70,9 +73,11 @@
   },
   "browserslist": {
     "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
+      "chrome >= 67",
+      "edge >= 79",
+      "firefox >= 68",
+      "opera >= 54",
+      "safari >= 14"
     ],
     "development": [
       "last 1 chrome version",

@@ -2,6 +2,7 @@ import { Network as Environment } from '@certusone/wormhole-sdk';
 import { MultiProvider, Domain } from '@nomad-xyz/multi-provider';
 import { ContractReceipt, BigNumber } from 'ethers';
 import { Transaction } from '@solana/web3.js';
+import { TransactionBlock } from '@mysten/sui.js';
 
 import MAINNET_CONFIG, { MAINNET_CHAINS } from './config/MAINNET';
 import TESTNET_CONFIG, { TESTNET_CHAINS } from './config/TESTNET';
@@ -17,6 +18,7 @@ import {
 } from './types';
 import { EthContext } from './contexts/eth';
 import { SolanaContext } from './contexts/solana';
+import { SuiContext } from './contexts/sui';
 import { TokenId } from './types';
 
 /**
@@ -63,6 +65,7 @@ export class WormholeContext extends MultiProvider<Domain> {
     this._contexts = new Map();
     this._contexts.set(Context.ETH, new EthContext(this));
     this._contexts.set(Context.SOLANA, new SolanaContext(this));
+    this._contexts.set(Context.SUI, new SuiContext(this));
 
     this.registerProviders();
   }
@@ -119,6 +122,9 @@ export class WormholeContext extends MultiProvider<Domain> {
       }
       case Context.SOLANA: {
         return new SolanaContext(this);
+      }
+      case Context.SUI: {
+        return new SuiContext(this);
       }
       default: {
         throw new Error('Not able to retrieve context');
@@ -190,7 +196,7 @@ export class WormholeContext extends MultiProvider<Domain> {
     recipientAddress: string,
     relayerFee?: string,
     payload?: any,
-  ): Promise<ContractReceipt | Transaction> {
+  ): Promise<ContractReceipt | Transaction | TransactionBlock> {
     const context = this.getContext(sendingChain);
     if (payload) {
       return context.sendWithPayload(
@@ -235,20 +241,34 @@ export class WormholeContext extends MultiProvider<Domain> {
     recipientAddress: string,
     toNativeToken: string,
     relayerFee?: string,
-  ): Promise<ContractReceipt> {
-    // only supported on EVM
-    const context = this.getContext(
-      sendingChain,
-    ) as EthContext<WormholeContext>;
-    return context.sendWithRelay(
-      token,
-      amount,
-      toNativeToken,
-      sendingChain,
-      senderAddress,
-      recipientChain,
-      recipientAddress,
-    );
+  ): Promise<ContractReceipt | TransactionBlock> {
+    if (sendingChain === 'sui') {
+      const context = this.getContext(
+        sendingChain,
+      ) as SuiContext<WormholeContext>;
+      return context.sendWithRelay(
+        token,
+        amount,
+        toNativeToken,
+        sendingChain,
+        senderAddress,
+        recipientChain,
+        recipientAddress,
+      );
+    } else {
+      const context = this.getContext(
+        sendingChain,
+      ) as EthContext<WormholeContext>;
+      return context.sendWithRelay(
+        token,
+        amount,
+        toNativeToken,
+        sendingChain,
+        senderAddress,
+        recipientChain,
+        recipientAddress,
+      );
+    }
   }
 
   async redeem(

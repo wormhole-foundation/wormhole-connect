@@ -37,6 +37,12 @@ export async function getUsdVal(token: string) {
   const data = await res.json();
   if (data[coinGeckoId]) {
     const { usd } = data[coinGeckoId];
+    if (usd === undefined) {
+      // use fallback price
+      if (tokenConfig.key === 'SUI') {
+        return 0.1;
+      }
+    }
     return usd;
   }
 }

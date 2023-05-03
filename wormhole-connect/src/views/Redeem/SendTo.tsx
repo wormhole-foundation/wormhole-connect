@@ -13,6 +13,8 @@ import {
   MAX_DECIMALS,
   displayAddress,
   fromNormalizedDecimals,
+  getTokenDecimals,
+  getWrappedTokenId,
   toNormalizedDecimals,
 } from '../../utils';
 import {
@@ -103,9 +105,9 @@ const getAutomaticRows = async (
   let nativeGasAmt: string | undefined;
   const nativeGasToken = TOKENS[gasToken];
   if (receiveTx) {
-    let event: any;
+    let nativeSwapAmount: any;
     try {
-      event = await fetchSwapEvent(
+      nativeSwapAmount = await fetchSwapEvent(
         txData.toChain,
         txData.recipient,
         txData.tokenId,
@@ -115,22 +117,37 @@ const getAutomaticRows = async (
     } catch (e) {
       console.error(`could not fetch swap event:\n${e}`);
     }
-    if (event) {
+    if (nativeSwapAmount) {
       nativeGasAmt = toDecimals(
-        event.args[4],
+        nativeSwapAmount,
         nativeGasToken.decimals,
         MAX_DECIMALS,
       );
     }
   } else if (!transferComplete) {
+    // get the decimals on the target chain
+    const destinationTokenDecimals = getTokenDecimals(
+      wh.toChainId(txData.toChain),
+      txData.tokenId,
+    );
     const amount = await calculateNativeTokenAmt(
       txData.toChain,
       txData.tokenId,
-      fromNormalizedDecimals(txData.toNativeTokenAmount, txData.tokenDecimals),
+      fromNormalizedDecimals(
+        txData.toNativeTokenAmount,
+        destinationTokenDecimals,
+      ),
+      txData.recipient,
+    );
+    // get the decimals on the target chain
+    const nativeGasTokenDecimals = getTokenDecimals(
+      wh.toChainId(txData.toChain),
+      getWrappedTokenId(nativeGasToken),
     );
     nativeGasAmt = toDecimals(
       amount.toString(),
-      nativeGasToken.decimals,
+      // nativeGasToken.decimals,
+      nativeGasTokenDecimals,
       MAX_DECIMALS,
     );
   }
@@ -251,12 +268,12 @@ function SendTo() {
         registerWalletSigner(txData.toChain, TransferWallet.RECEIVING);
         await switchNetwork(networkConfig.chainId, TransferWallet.RECEIVING);
       }
-      const receipt = await claimTransfer(
+      const txId = await claimTransfer(
         txData.toChain,
         utils.arrayify(vaa.bytes),
         wallet.address,
       );
-      dispatch(setRedeemTx(receipt.transactionHash));
+      dispatch(setRedeemTx(txId));
       dispatch(setTransferComplete(true));
       setInProgress(false);
       setClaimError('');
