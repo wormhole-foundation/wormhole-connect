@@ -100,9 +100,8 @@ const INITIAL_STATE = {
 function GasSlider(props: { disabled: boolean }) {
   const { classes } = useStyles();
   const dispatch = useDispatch();
-  const { token, toNetwork, amount, maxSwapAmt, destGasPayment } = useSelector(
-    (state: RootState) => state.transfer,
-  );
+  const { token, toNetwork, amount, maxSwapAmt, destGasPayment, relayerFee } =
+    useSelector((state: RootState) => state.transfer);
   const { receiving: receivingWallet } = useSelector(
     (state: RootState) => state.wallet,
   );
@@ -117,15 +116,19 @@ function GasSlider(props: { disabled: boolean }) {
   useEffect(() => {
     if (!amount || !maxSwapAmt || destGasPayment === PaymentOption.MANUAL)
       return;
+    // multiply by 0.995 to avoid errors due to rounding, low amount, low gas, etc.
+    const amountWithoutRelayerFee = (amount - (relayerFee || 0)) * 0.995;
     const actualMaxSwap =
-      amount && maxSwapAmt && maxSwapAmt > amount ? amount : maxSwapAmt;
+      amount &&
+      maxSwapAmt &&
+      Math.max(Math.min(maxSwapAmt, amountWithoutRelayerFee), 0);
     const newTokenAmount = toFixedDecimals(`${amount - state.swapAmt}`, 6);
     setState((prevState) => ({
       ...prevState,
       token: Number.parseFloat(newTokenAmount),
       max: actualMaxSwap,
     }));
-  }, [maxSwapAmt, amount, destGasPayment, state.swapAmt]);
+  }, [maxSwapAmt, amount, destGasPayment, state.swapAmt, relayerFee]);
 
   useEffect(() => {
     if (
