@@ -7,7 +7,7 @@
     "access": "restricted"
   },
   "dependencies": {
-    "@certusone/wormhole-sdk": "^0.9.15",
+    "@certusone/wormhole-sdk": "^0.9.16",
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
     "@mui/icons-material": "^5.11.0",
