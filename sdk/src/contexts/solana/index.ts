@@ -368,8 +368,9 @@ export class SolanaContext<
         'finalized',
       );
     } else {
+      const tokenContext = this.context.getContext(token.chain);
       const formattedTokenAddr = arrayify(
-        await destContext.formatAssetAddress(token.address),
+        await tokenContext.formatAssetAddress(token.address),
       );
       const solTokenAddr = await this.mustGetForeignAsset(
         token,
@@ -426,8 +427,9 @@ export class SolanaContext<
         'finalized',
       );
     } else {
+      const tokenContext = this.context.getContext(token.chain);
       const formattedTokenAddr = arrayify(
-        await destContext.formatAssetAddress(token.address),
+        await tokenContext.formatAssetAddress(token.address),
       );
       const solTokenAddr = await this.mustGetForeignAsset(
         token,
