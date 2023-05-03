@@ -3,12 +3,12 @@ import {
   SUI_TYPE_ARG,
   TransactionBlock,
   SuiTransactionBlockResponse,
-  testnetConnection,
   PaginatedCoins,
   getTransactionSender,
   getTotalGasUsed,
   isValidSuiAddress,
   SUI_CLOCK_OBJECT_ID,
+  Connection,
 } from '@mysten/sui.js';
 import { BigNumber, BigNumberish } from 'ethers';
 
@@ -51,10 +51,11 @@ export class SuiContext<T extends WormholeContext> extends RelayerAbstract {
   constructor(context: T) {
     super();
     this.context = context;
-    const connection =
-      context.environment === 'MAINNET' ? undefined : testnetConnection;
+    const connection = context.conf.rpcs.sui;
     if (connection === undefined) throw new Error('no connection');
-    this.provider = new JsonRpcProvider(connection);
+    this.provider = new JsonRpcProvider(
+      new Connection({ fullnode: connection }),
+    );
     this.contracts = new SuiContracts(context, this.provider);
   }
 

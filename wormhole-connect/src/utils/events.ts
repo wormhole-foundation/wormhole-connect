@@ -30,6 +30,7 @@ export const fetchRedeemedEvent = async (
       query: {
         MoveEventType: `${suiOriginalTokenBridgePackageId}::complete_transfer::TransferRedeemed`,
       },
+      order: 'descending',
     });
     for (const event of events.data) {
       if (
@@ -82,6 +83,7 @@ export const fetchSwapEvent = async (
       query: {
         MoveEventType: `${suiRelayerPackageId}::redeem::SwapExecuted`,
       },
+      order: 'descending',
     });
     const tokenContext = wh.getContext(tokenId.chain);
     const tokenAddress = arrayify(

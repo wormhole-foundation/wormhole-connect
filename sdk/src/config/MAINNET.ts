@@ -107,7 +107,8 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
       ...CONTRACTS.MAINNET.sui,
       relayer: undefined,
       suiRelayerPackageId: undefined,
-      suiOriginalTokenBridgePackageId: undefined,
+      suiOriginalTokenBridgePackageId:
+        '0x26efee2b51c911237888e5dc6702868abca3c7ac12c53f76ef8eba0697695e3d',
     },
     finalityThreshold: 0,
   },
@@ -125,7 +126,7 @@ const MAINNET_CONFIG: WormholeConfig = {
     fantom: 'https://rpc.ankr.com/fantom',
     celo: 'https://rpc.ankr.com/celo',
     moonbeam: 'https://rpc.ankr.com/moonbeam',
-    sui: 'https://fullnode.mainnet.sui.io',
+    sui: 'https://rpc.mainnet.sui.io',
   },
   chains: MAINNET,
 };
