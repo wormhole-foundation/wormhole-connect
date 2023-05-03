@@ -30,7 +30,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
       ...CONTRACTS.MAINNET.ethereum,
       relayer: '0x461a8878060aa45fa685732bff654ca1fdef2830',
     },
-    finalityThreshold: 15,
+    finalityThreshold: 64,
   },
   solana: {
     key: 'solana',
@@ -67,7 +67,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
       ...CONTRACTS.MAINNET.avalanche,
       relayer: '0x461a8878060aa45fa685732bff654ca1fdef2830',
     },
-    finalityThreshold: 15,
+    finalityThreshold: 1,
   },
   fantom: {
     key: 'fantom',

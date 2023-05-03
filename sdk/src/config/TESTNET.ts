@@ -30,7 +30,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
       ...CONTRACTS.TESTNET.ethereum,
       relayer: '0xe32b14c48e4b7c6825b855f231786fe5ba9ce014',
     },
-    finalityThreshold: 15,
+    finalityThreshold: 64,
   },
   solana: {
     key: 'solana',
@@ -69,7 +69,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
       ...CONTRACTS.TESTNET.avalanche,
       relayer: '0x8369839932222c1ca3bc7d16f970c56f61993a44',
     },
-    finalityThreshold: 0,
+    finalityThreshold: 1,
   },
   fantom: {
     key: 'fantom',
