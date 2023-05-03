@@ -136,7 +136,7 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
       const tx = await tokenImplementation.approve(
         contractAddress,
         approveAmount,
-        overrides
+        overrides,
       );
       await tx.wait();
     }
@@ -244,7 +244,13 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
       const amountBN = ethers.BigNumber.from(amount);
       const bridge = this.contracts.mustGetBridge(sendingChain);
       const tokenAddr = await this.mustGetForeignAsset(token, sendingChain);
-      await this.approve(sendingChain, bridge.address, tokenAddr, amountBN, overrides);
+      await this.approve(
+        sendingChain,
+        bridge.address,
+        tokenAddr,
+        amountBN,
+        overrides,
+      );
     }
 
     // prepare and simulate transfer
@@ -369,7 +375,13 @@ export class EthContext<T extends WormholeContext> extends RelayerAbstract {
       const amountBN = ethers.BigNumber.from(amount);
       const relayer = this.contracts.mustGetTokenBridgeRelayer(sendingChain);
       const tokenAddr = await this.mustGetForeignAsset(token, sendingChain);
-      await this.approve(sendingChain, relayer.address, tokenAddr, amountBN, overrides);
+      await this.approve(
+        sendingChain,
+        relayer.address,
+        tokenAddr,
+        amountBN,
+        overrides,
+      );
     }
 
     // prepare and simulate transfer
