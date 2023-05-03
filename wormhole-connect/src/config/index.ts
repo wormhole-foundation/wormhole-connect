@@ -84,11 +84,12 @@ export const GAS_ESTIMATES = isMainnet
 
 export const THEME_MODE = config && config.mode ? config.mode : 'dark';
 export const CUSTOM_THEME = config && config.customTheme;
-export const THEME = CUSTOM_THEME
-  ? CUSTOM_THEME
-  : THEME_MODE === 'dark'
+const BASE_THEME = THEME_MODE === 'dark'
   ? dark
-  : light;
+  : light
+export const THEME = CUSTOM_THEME
+  ? Object.assign({}, BASE_THEME, CUSTOM_THEME)
+  : BASE_THEME;
 
 export const CTA = config && config.cta;
 export const BRIDGE_DEFAULTS =
