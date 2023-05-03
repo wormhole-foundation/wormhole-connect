@@ -32,7 +32,7 @@ export const ENV = isMainnet ? 'MAINNET' : 'TESTNET';
 
 export const WORMHOLE_EXPLORER = 'https://wormhole.com/explorer/';
 export const WORMHOLE_API = isMainnet
-  ? 'http://api.wormscan.io/'
+  ? 'https://api.wormscan.io/'
   : 'https://api.testnet.wormscan.io/';
 export const ATTEST_URL = isMainnet
   ? 'https://www.portalbridge.com/#/register'
