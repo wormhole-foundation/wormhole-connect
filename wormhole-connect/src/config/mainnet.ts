@@ -518,10 +518,10 @@ export const MAINNET_GAS_ESTIMATES: GasEstimates = {
     claim: 25000,
   },
   sui: {
-    sendNative: 5100000,
-    sendToken: 5100000,
-    sendNativeWithRelay: 5100000,
-    sendTokenWithRelay: 5100000,
-    claim: 5100000,
+    sendNative: 5000000,
+    sendToken: 5000000,
+    sendNativeWithRelay: 5000000,
+    sendTokenWithRelay: 5000000,
+    claim: 200000000,
   },
 };
