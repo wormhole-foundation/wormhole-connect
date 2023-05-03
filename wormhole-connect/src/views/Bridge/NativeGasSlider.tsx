@@ -120,7 +120,6 @@ function GasSlider(props: { disabled: boolean }) {
     const amountWithoutRelayerFee = Number.parseFloat(
       ((amount - (relayerFee || 0)) * 0.995).toFixed(8),
     );
-    console.log(amountWithoutRelayerFee);
     const actualMaxSwap =
       amount &&
       maxSwapAmt &&
