@@ -117,7 +117,10 @@ function GasSlider(props: { disabled: boolean }) {
     if (!amount || !maxSwapAmt || destGasPayment === PaymentOption.MANUAL)
       return;
     // multiply by 0.995 to avoid errors due to rounding, low amount, low gas, etc.
-    const amountWithoutRelayerFee = (amount - (relayerFee || 0)) * 0.995;
+    const amountWithoutRelayerFee = Number.parseFloat(
+      ((amount - (relayerFee || 0)) * 0.995).toFixed(8),
+    );
+    console.log(amountWithoutRelayerFee);
     const actualMaxSwap =
       amount &&
       maxSwapAmt &&
