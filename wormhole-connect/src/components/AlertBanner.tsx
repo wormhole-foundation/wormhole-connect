@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { makeStyles } from 'tss-react/mui';
-import { joinClass, OPACITY } from '../utils/style';
-import AlertIcon from '../icons/Alert';
 import { Collapse } from '@mui/material';
+import React from 'react';
+import { makeStyles } from 'tss-react/mui';
+import AlertIcon from '../icons/Alert';
+import { OPACITY, joinClass } from '../utils/style';
 
 const useStyles = makeStyles()((theme) => ({
   base: {

@@ -1,8 +1,8 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { styled } from '@mui/material/styles';
-import { makeStyles } from 'tss-react/mui';
 import { LinearProgress, linearProgressClasses } from '@mui/material';
+import { styled } from '@mui/material/styles';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+import React, { useEffect, useState } from 'react';
+import { makeStyles } from 'tss-react/mui';
 import { CHAINS } from '../../config';
 import { getCurrentBlock } from '../../sdk';
 

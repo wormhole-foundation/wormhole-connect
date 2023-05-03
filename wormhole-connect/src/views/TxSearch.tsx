@@ -47,11 +47,11 @@ function TxSearch() {
   const [error, setError] = useState('');
 
   function setChain(e: any) {
-    setState({ ...state, chain: e.target.value });
+    setState((prevState) => ({ ...prevState, chain: e.target.value }));
   }
 
   function setTx(e: any) {
-    setState({ ...state, tx: e.target.value });
+    setState((prevState) => ({ ...prevState, tx: e.target.value }));
   }
 
   async function search() {

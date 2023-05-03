@@ -1,20 +1,18 @@
 import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
-import { useSelector } from 'react-redux';
-import { useDispatch } from 'react-redux';
+import './App.css';
 import { RootState } from './store';
 import { clearRedeem } from './store/redeem';
 import { clearTransfer } from './store/transfer';
 import { usePrevious } from './utils';
-import './App.css';
 
 import Bridge from './views/Bridge/Bridge';
-import WalletModal from './views/WalletModal';
-import Redeem from './views/Redeem/Redeem';
-import TxSearch from './views/TxSearch';
-import { clearWallets } from './store/wallet';
-import Terms from './views/Terms';
 import FAQ from './views/FAQ';
+import Redeem from './views/Redeem/Redeem';
+import Terms from './views/Terms';
+import TxSearch from './views/TxSearch';
+import WalletModal from './views/WalletModal';
 
 const useStyles = makeStyles()((theme) => ({
   appContent: {

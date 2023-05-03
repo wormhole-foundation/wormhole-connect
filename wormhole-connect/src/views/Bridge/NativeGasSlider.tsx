@@ -119,11 +119,11 @@ function GasSlider(props: { disabled: boolean }) {
     const actualMaxSwap =
       amount && maxSwapAmt && maxSwapAmt > amount ? amount : maxSwapAmt;
     const newTokenAmount = toFixedDecimals(`${amount - state.swapAmt}`, 6);
-    setState({
-      ...state,
+    setState((prevState) => ({
+      ...prevState,
       token: Number.parseFloat(newTokenAmount),
       max: actualMaxSwap,
-    });
+    }));
   }, [maxSwapAmt, amount, destGasPayment, state.swapAmt]);
 
   useEffect(() => {
@@ -160,7 +160,7 @@ function GasSlider(props: { disabled: boolean }) {
     // get conversion rate of token
     const { gasToken } = CHAINS[toNetwork]!;
     getConversion(token, gasToken).then((res: number) => {
-      setState({ ...state, conversionRate: res });
+      setState((prevState) => ({ ...prevState, conversionRate: res }));
     });
   }, [
     sendingToken,
@@ -184,12 +184,12 @@ function GasSlider(props: { disabled: boolean }) {
   const onCollapseChange = (collapsed: boolean) => {
     // user switched off conversion to native gas, so reset values
     if (collapsed) {
-      setState({
-        ...state,
+      setState((prevState) => ({
+        ...prevState,
         swapAmt: 0,
         nativeGas: 0,
         token: formatAmount(amount),
-      });
+      }));
       dispatch(setReceiveNativeAmt(0));
     }
   };
@@ -205,7 +205,7 @@ function GasSlider(props: { disabled: boolean }) {
       token: Number.parseFloat(newTokenAmount),
       swapAmt: e.target.value,
     };
-    setState({ ...state, ...conversion });
+    setState((prevState) => ({ ...prevState, ...conversion }));
   };
 
   const setNativeAmt = debounce(async () => {
@@ -234,7 +234,10 @@ function GasSlider(props: { disabled: boolean }) {
       toDecimals(nativeGasAmt.toString(), nativeGasTokenToChainDecimals, 6),
     );
     dispatch(setReceiveNativeAmt(formattedNativeAmt));
-    setState({ ...state, nativeGas: formattedNativeAmt });
+    setState((prevState) => ({
+      ...prevState,
+      nativeGas: formattedNativeAmt,
+    }));
   }, 250);
 
   return (

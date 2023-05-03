@@ -1,27 +1,27 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { makeStyles } from 'tss-react/mui';
-import { useDispatch, useSelector } from 'react-redux';
-import { Wallet, WalletState } from '@xlabs-libs/wallet-aggregator-core';
-import { getWallets as getSuiWallets } from '@xlabs-libs/wallet-aggregator-sui';
 import {
   ChainConfig,
   ChainName,
   Context,
 } from '@wormhole-foundation/wormhole-connect-sdk';
+import { Wallet, WalletState } from '@xlabs-libs/wallet-aggregator-core';
+import { getWallets as getSuiWallets } from '@xlabs-libs/wallet-aggregator-sui';
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { makeStyles } from 'tss-react/mui';
+import { CHAINS } from '../config';
 import { RootState } from '../store';
 import { setWalletModal } from '../store/router';
-import { CHAINS } from '../config';
-import {
-  setWalletConnection,
-  TransferWallet,
-  wallets,
-  WalletType,
-} from '../utils/wallet';
 import {
   clearWallet,
   connectReceivingWallet,
   connectWallet,
 } from '../store/wallet';
+import {
+  TransferWallet,
+  WalletType,
+  setWalletConnection,
+  wallets,
+} from '../utils/wallet';
 
 import Header from '../components/Header';
 import Modal from '../components/Modal';
@@ -141,16 +141,16 @@ function WalletsModal(props: Props) {
   );
   const [walletOptions, setWalletOptions] = useState<WalletData[]>([]);
 
-  async function getAvailableWallets() {
-    const chain =
-      chainProp || (type === TransferWallet.SENDING ? fromNetwork : toNetwork);
-
-    const config = CHAINS[chain!];
-    return await getWalletOptions(config);
-  }
-
   useEffect(() => {
     let cancelled = false;
+    async function getAvailableWallets() {
+      const chain =
+        chainProp ||
+        (type === TransferWallet.SENDING ? fromNetwork : toNetwork);
+
+      const config = CHAINS[chain!];
+      return await getWalletOptions(config);
+    }
     (async () => {
       const options = await getAvailableWallets();
       if (!cancelled && options) {
@@ -160,7 +160,7 @@ function WalletsModal(props: Props) {
     return () => {
       cancelled = true;
     };
-  }, [fromNetwork, toNetwork, props.chain]);
+  }, [fromNetwork, toNetwork, props.chain, chainProp, type]);
 
   const connect = async (walletInfo: WalletData) => {
     const { wallet } = walletInfo;
