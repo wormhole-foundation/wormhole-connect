@@ -293,7 +293,7 @@ function SendTo() {
       ? ''
       : claimError
       ? 'Error please retry . . .'
-      : 'Awaiting claim . . .';
+      : 'Claim below';
 
   return (
     <div>

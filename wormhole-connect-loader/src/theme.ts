@@ -286,8 +286,8 @@ export const defaultTheme: Theme = {
     primaryText: '#ffffff',
     disabled: '#ffffff' + OPACITY[7],
     disabledText: '#ffffff' + OPACITY[40],
-    action: '#ffffff' + OPACITY[20],
-    actionText: '#ffffff',
+    action: '#ffffff',
+    actionText: '#000000',
     hover: '#ffffff' + OPACITY[7],
   },
   options: {
