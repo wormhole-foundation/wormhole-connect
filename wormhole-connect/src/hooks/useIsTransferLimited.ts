@@ -6,6 +6,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { formatAssetAddress, wh } from 'sdk';
 import { RootState } from 'store';
+import { getWrappedTokenId } from 'utils';
 
 const REMAINING_NOTIONAL_TOLERANCE = 0.98;
 interface TokenListEntry {
@@ -64,32 +65,46 @@ const useIsTransferLimited = (): IsTransferLimitedResult => {
   const [tokenList, setTokenList] = useState<TokenList | null>(null);
   const [availableNotionalByChain, setAvailableNotionalByChain] =
     useState<AvailableNotionalByChain | null>(null);
-  const [assetAddress, setAssetAddress] = useState<string | undefined>();
+  const [assetAddress, setAssetAddress] = useState<string | undefined>(
+    undefined,
+  );
 
-  const { fromNetwork, toNetwork, token, amount } = useSelector(
+  const { fromNetwork, token, amount } = useSelector(
     (state: RootState) => state.transfer,
   );
 
-  const effectTriggered = useRef(false);
+  const fetchedTokenList = useRef(false);
 
   useEffect(() => {
+    let cancelled = false;
     const formatAddress = async () => {
-      const tokenConfig = TOKENS[token]!;
-      if (!token || !tokenConfig.tokenId || !fromNetwork || !token) return;
-
-      let formatted: string | undefined = undefined;
+      if (!token || !fromNetwork) {
+        setAssetAddress(undefined);
+        return;
+      }
       try {
-        formatted = hexlify(await formatAssetAddress(fromNetwork, tokenConfig.tokenId.address));
-      } catch (e) { }
-
-      setAssetAddress(formatted);
-    }
-
+        const tokenConfig = TOKENS[token];
+        const tokenId = getWrappedTokenId(tokenConfig);
+        const formatted = hexlify(
+          await formatAssetAddress(fromNetwork, tokenId.address),
+        );
+        if (!cancelled) {
+          setAssetAddress(formatted);
+        }
+      } catch (e) {
+        if (!cancelled) {
+          setAssetAddress(undefined);
+        }
+      }
+    };
     formatAddress();
-  }, [ token, fromNetwork ]);
+    return () => {
+      cancelled = true;
+    };
+  }, [token, fromNetwork]);
 
   useEffect(() => {
-    if (!effectTriggered.current && amount) {
+    if (!fetchedTokenList.current) {
       let cancelled = false;
       (async () => {
         for (const rpcHost of WORMHOLE_RPC_HOSTS) {
@@ -120,19 +135,18 @@ const useIsTransferLimited = (): IsTransferLimitedResult => {
           cancelled = true;
         };
       })();
-      effectTriggered.current = true;
+      fetchedTokenList.current = true;
     }
-  }, [amount]);
+  }, []);
 
   const result = useMemo<IsTransferLimitedResult>(() => {
-    if (!fromNetwork || !toNetwork || !token || !amount || !assetAddress)
+    if (!fromNetwork || !token || !amount || !assetAddress)
       return { isLimited: false };
 
     const fromChainId = wh.toChainId(fromNetwork);
 
     if (
       token &&
-      toNetwork &&
       fromNetwork &&
       amount &&
       tokenList &&
@@ -178,7 +192,6 @@ const useIsTransferLimited = (): IsTransferLimitedResult => {
     };
   }, [
     fromNetwork,
-    toNetwork,
     token,
     assetAddress,
     amount,
