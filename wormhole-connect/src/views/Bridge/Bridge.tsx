@@ -50,6 +50,7 @@ function Bridge() {
   const { classes } = useStyles();
   const dispatch = useDispatch();
   const {
+    validate: showValidationState,
     validations,
     fromNetwork,
     toNetwork,
@@ -147,7 +148,7 @@ function Bridge() {
         {showGasSlider && <GasSlider disabled={disabled} />}
       </Collapse>
 
-      <Preview collapsed={!valid} />
+      <Preview collapsed={!showValidationState ? true : !valid} />
 
       <Send valid={!!valid} />
 
