@@ -108,7 +108,7 @@ type Props = {
   walletError: string;
   walletValidations: string[];
   inputValidations: string[];
-  warnings?: React.ReactNode[];
+  warning?: React.ReactNode | null;
   network: ChainName | undefined;
   networkValidation: ValidationErr;
   onNetworkClick: any;
@@ -214,12 +214,7 @@ function Inputs(props: Props) {
             margin="8px 0 0 0"
           />
 
-          <AlertBanner
-            show={!!props.warnings && props.warnings.length > 0}
-            content={props.warnings ? props.warnings[0] : undefined}
-            warning
-            margin="8px 0 0 0"
-          />
+          {props.warning && props.warning}
         </div>
       </InputContainer>
     </div>
