@@ -19,6 +19,7 @@ import {
   ChainId,
   NATIVE,
   ParsedMessage,
+  Context,
 } from '../../types';
 import { WormholeContext } from '../../wormhole';
 import { RelayerAbstract } from '../abstracts/relayer';
@@ -43,7 +44,11 @@ interface TransferWithRelay {
   recipient: string;
 }
 
-export class SuiContext<T extends WormholeContext> extends RelayerAbstract {
+export class SuiContext<T extends WormholeContext> extends RelayerAbstract<
+  TransactionBlock,
+  TransactionBlock
+> {
+  readonly type = Context.SUI;
   protected contracts: SuiContracts<T>;
   readonly context: T;
   readonly provider: JsonRpcProvider;

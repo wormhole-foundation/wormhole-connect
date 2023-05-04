@@ -1,14 +1,14 @@
 import { Network as Environment } from '@certusone/wormhole-sdk';
 import { BigNumber } from 'ethers';
-import { WormholeContext } from './wormhole';
+import { MainnetChainId, MainnetChainName } from './config/MAINNET';
+import { TestnetChainId, TestnetChainName } from './config/TESTNET';
 import { EthContext } from './contexts/eth';
-import { SolanaContext } from './contexts/solana';
 import { EthContracts } from './contexts/eth/contracts';
+import { SolanaContext } from './contexts/solana';
 import { SolContracts } from './contexts/solana/contracts';
-import { MainnetChainName, MainnetChainId } from './config/MAINNET';
-import { TestnetChainName, TestnetChainId } from './config/TESTNET';
 import { SuiContext } from './contexts/sui';
 import { SuiContracts } from './contexts/sui/contracts';
+import { WormholeContext } from './wormhole';
 
 export const NATIVE = 'native';
 // TODO: conditionally set these types
@@ -104,3 +104,6 @@ export type TokenDetails = {
   symbol: string;
   decimals: number;
 };
+
+export type SendResult = ReturnType<AnyContext['send']>;
+export type RedeemResult = ReturnType<AnyContext['redeem']>;
