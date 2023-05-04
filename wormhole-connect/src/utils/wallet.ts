@@ -13,6 +13,16 @@ import {
 import {
   PhantomWalletAdapter,
   SolflareWalletAdapter,
+  CloverWalletAdapter,
+  Coin98WalletAdapter,
+  SlopeWalletAdapter,
+  SolongWalletAdapter,
+  TorusWalletAdapter,
+  ExodusWalletAdapter,
+  BackpackWalletAdapter,
+  NightlyWalletAdapter,
+  BloctoWalletAdapter,
+  BraveWalletAdapter,
 } from '@solana/wallet-adapter-wallets';
 import { clusterApiUrl, Connection as SolanaConnection } from '@solana/web3.js';
 import { SolanaWallet } from '@xlabs-libs/wallet-aggregator-solana';
@@ -30,12 +40,16 @@ export enum TransferWallet {
 
 export enum WalletType {
   NONE = 0,
-  METAMASK,
-  WALLET_CONNECT,
-  PHANTOM,
-  SOLFLARE,
-  SUI_WALLET, // there may be multiple sui wallets
+  EVM,
+  SOLANA,
+  SUI,
 }
+
+export const TYPES_TO_CONTEXTS: Partial<Record<WalletType, Context>> = {
+  [WalletType.EVM]: Context.ETH,
+  [WalletType.SOLANA]: Context.SOLANA,
+  [WalletType.SUI]: Context.SUI,
+};
 
 interface AssetInfo {
   address: string;
@@ -62,6 +76,16 @@ export const wallets = {
   solana: {
     phantom: new SolanaWallet(new PhantomWalletAdapter(), connection),
     solflare: new SolanaWallet(new SolflareWalletAdapter(), connection),
+    clover: new SolanaWallet(new CloverWalletAdapter(), connection),
+    coin98: new SolanaWallet(new Coin98WalletAdapter(), connection),
+    slope: new SolanaWallet(new SlopeWalletAdapter(), connection),
+    solong: new SolanaWallet(new SolongWalletAdapter(), connection),
+    torus: new SolanaWallet(new TorusWalletAdapter(), connection),
+    exodus: new SolanaWallet(new ExodusWalletAdapter(), connection),
+    backpack: new SolanaWallet(new BackpackWalletAdapter(), connection),
+    nightly: new SolanaWallet(new NightlyWalletAdapter(), connection),
+    blocto: new SolanaWallet(new BloctoWalletAdapter(), connection),
+    brave: new SolanaWallet(new BraveWalletAdapter(), connection),
   },
 };
 
@@ -76,11 +100,9 @@ const SUI_CHAINS = CHAINS_ARR.filter((c) => c.context === Context.SUI).map(
 );
 export const walletAcceptedNetworks: Record<WalletType, ChainName[]> = {
   [WalletType.NONE]: CHAINS_ARR.map((c) => c.key),
-  [WalletType.METAMASK]: EVM_CHAINS,
-  [WalletType.WALLET_CONNECT]: EVM_CHAINS,
-  [WalletType.PHANTOM]: SOL_CHAINS,
-  [WalletType.SOLFLARE]: SOL_CHAINS,
-  [WalletType.SUI_WALLET]: SUI_CHAINS,
+  [WalletType.EVM]: EVM_CHAINS,
+  [WalletType.SOLANA]: SOL_CHAINS,
+  [WalletType.SUI]: SUI_CHAINS,
 };
 
 export const setWalletConnection = (type: TransferWallet, wallet: Wallet) => {

@@ -12,6 +12,7 @@ import PopupState, { bindTrigger, bindPopover } from 'material-ui-popup-state';
 import Popover from '@mui/material/Popover';
 import { setWalletModal } from '../store/router';
 import { clearWallet } from '../store/wallet';
+import { ScopedCssBaseline } from '@mui/material';
 
 const useStyles = makeStyles()((theme) => ({
   connectWallet: {
@@ -86,50 +87,52 @@ function ConnectWallet(props: Props) {
         };
 
         return (
-          <div>
-            <div
-              className={classes.connectWallet}
-              onClick={onClick}
-              {...boundProps}
-            >
-              <WalletIcons type={wallet.type} height={24} icon={wallet.icon} />
-              {displayWalletAddress(wallet.type, wallet.address)}
-              {!disabled && <DownIcon className={classes.down} />}
-            </div>
-            <Popover
-              {...bindPopover(popupState)}
-              sx={{ marginTop: 1 }}
-              anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'right',
-              }}
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-            >
-              <div className={classes.dropdown}>
-                <div
-                  className={classes.dropdownItem}
-                  onClick={() => copy(popupState)}
-                >
-                  Copy address
-                </div>
-                <div
-                  className={classes.dropdownItem}
-                  onClick={() => connect(popupState)}
-                >
-                  Change wallet
-                </div>
-                <div
-                  className={classes.dropdownItem}
-                  onClick={disconnectWallet}
-                >
-                  Disconnect
-                </div>
+            <div>
+              <div
+                className={classes.connectWallet}
+                onClick={onClick}
+                {...boundProps}
+              >
+                <WalletIcons name={wallet.name} icon={wallet.icon} height={24} />
+                {displayWalletAddress(wallet.type, wallet.address)}
+                {!disabled && <DownIcon className={classes.down} />}
               </div>
-            </Popover>
-          </div>
+              <Popover
+                {...bindPopover(popupState)}
+                sx={{ marginTop: 1 }}
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'right',
+                }}
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+              >
+                <ScopedCssBaseline enableColorScheme>
+                  <div className={classes.dropdown}>
+                    <div
+                      className={classes.dropdownItem}
+                      onClick={() => copy(popupState)}
+                    >
+                      Copy address
+                    </div>
+                    <div
+                      className={classes.dropdownItem}
+                      onClick={() => connect(popupState)}
+                    >
+                      Change wallet
+                    </div>
+                    <div
+                      className={classes.dropdownItem}
+                      onClick={disconnectWallet}
+                    >
+                      Disconnect
+                    </div>
+                  </div>
+                </ScopedCssBaseline>
+              </Popover>
+            </div>
         );
       }}
     </PopupState>
