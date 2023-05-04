@@ -67,6 +67,7 @@ function Send(props: { valid: boolean }) {
   const { sending, receiving } = wallets;
   const transfer = useSelector((state: RootState) => state.transfer);
   const {
+    validate: showValidationState,
     validations,
     fromNetwork,
     toNetwork,
@@ -206,7 +207,11 @@ function Send(props: { valid: boolean }) {
     <div className={classes.body}>
       {!!props.valid && (
         <AlertBanner
-          show={!!props.valid && destGasPayment === PaymentOption.MANUAL}
+          show={
+            showValidationState &&
+            !!props.valid &&
+            destGasPayment === PaymentOption.MANUAL
+          }
           content="This transfer will require two transactions - one on the source chain and one on the destination chain."
           warning
           margin="0 0 16px 0"
