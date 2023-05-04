@@ -60,7 +60,7 @@ export const WORMHOLE_RPC_HOSTS =
     ? ['https://wormhole-v2-testnet-api.certus.one']
     : ['http://localhost:7071'];
 
-export const useIsTransferLimited = (): IsTransferLimitedResult => {
+const useIsTransferLimited = (): IsTransferLimitedResult => {
   const [tokenList, setTokenList] = useState<TokenList | null>(null);
   const [availableNotionalByChain, setAvailableNotionalByChain] =
     useState<AvailableNotionalByChain | null>(null);
@@ -68,11 +68,6 @@ export const useIsTransferLimited = (): IsTransferLimitedResult => {
   const { fromNetwork, toNetwork, token, amount } = useSelector(
     (state: RootState) => state.transfer,
   );
-  if (!fromNetwork || !toNetwork || !token || !amount)
-    return { isLimited: false };
-
-  const fromChainId = wh.toChainId(fromNetwork);
-  const tokenConfig = TOKENS[token]!;
 
   const effectTriggered = useRef(false);
 
@@ -113,6 +108,12 @@ export const useIsTransferLimited = (): IsTransferLimitedResult => {
   }, [amount]);
 
   const result = useMemo<IsTransferLimitedResult>(() => {
+    if (!fromNetwork || !toNetwork || !token || !amount)
+      return { isLimited: false };
+
+    const fromChainId = wh.toChainId(fromNetwork);
+    const tokenConfig = TOKENS[token]!;
+
     if (
       token &&
       fromNetwork &&
