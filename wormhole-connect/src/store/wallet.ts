@@ -22,7 +22,7 @@ const NO_WALLET: WalletData = {
   currentAddress: '',
   error: '',
   icon: undefined,
-  wallet: undefined
+  wallet: undefined,
 };
 
 const initialState: WalletState = {
@@ -32,7 +32,6 @@ const initialState: WalletState = {
 
 export type ConnectPayload = {
   address: string;
-  type: WalletType;
   icon?: string;
   wallet: Wallet;
 };
@@ -45,7 +44,6 @@ export const walletSlice = createSlice({
       state: WalletState,
       { payload }: PayloadAction<ConnectPayload>,
     ) => {
-      state.sending.type = payload.type;
       state.sending.address = payload.address;
       state.sending.currentAddress = payload.address;
       state.sending.wallet = payload.wallet;
@@ -56,7 +54,6 @@ export const walletSlice = createSlice({
       state: WalletState,
       { payload }: PayloadAction<ConnectPayload>,
     ) => {
-      state.receiving.type = payload.type;
       state.receiving.address = payload.address;
       state.receiving.currentAddress = payload.address;
       state.receiving.wallet = payload.wallet;

@@ -58,7 +58,7 @@ export function displayWalletAddress(
 ): string {
   if (walletType === WalletType.EVM) {
     return displayEvmAddress(address);
-  } else if (walletType === WalletType.SUI_WALLET) {
+  } else if (walletType === WalletType.SUI) {
     return displaySuiAddress(address);
   }
   return displayAddress('solana', address);

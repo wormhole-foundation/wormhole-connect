@@ -3,10 +3,7 @@ import { makeStyles } from 'tss-react/mui';
 import { useTheme } from '@mui/material/styles';
 import { useDispatch, useSelector } from 'react-redux';
 import { Wallet, WalletState } from '@xlabs-libs/wallet-aggregator-core';
-import {
-  ChainName,
-  Context,
-} from '@wormhole-foundation/wormhole-connect-sdk';
+import { ChainName, Context } from '@wormhole-foundation/wormhole-connect-sdk';
 import { getWallets as getSuiWallets } from '@xlabs-libs/wallet-aggregator-sui';
 import { CHAINS } from '../config';
 import { RootState } from '../store';
@@ -61,7 +58,6 @@ const getReady = (wallet: Wallet) => {
 type WalletData = {
   name: string;
   wallet: Wallet;
-  type: WalletType;
   isReady: boolean;
 };
 
@@ -80,40 +76,35 @@ const fetchSuiOptions = async () => {
     }, {});
 };
 
-const mapWallets = (
-  wallets: Record<string, Wallet>,
-  type: WalletType,
-): WalletData[] => {
-  return Object.values(wallets).map((wallet) => ({
-    name: wallet.getName(),
-    wallet,
-    type,
-    isReady: getReady(wallet),
-  }));
+const mapWallets = (wallets: Record<string, Wallet>) => {
+  return Object.values(wallets)
+    .map((wallet) => ({
+      name: wallet.getName(),
+      wallet,
+      isReady: getReady(wallet),
+    }))
+    .reduce((obj, value) => {
+      obj[value.name] = value;
+      return obj;
+    }, {});
 };
 
 const getWalletOptions = async (config: any) => {
   if (!config) {
     const suiOptions = await fetchSuiOptions();
-    return mapWallets(Object.assign({}, suiOptions, wallets.evm, wallets.solana), WalletType.EVM);
+    return Object.values(
+      Object.assign({}, mapWallets(wallets.evm), mapWallets(wallets.solana)),
+    );
   }
   if (config.context === Context.ETH) {
-    return mapWallets(wallets.evm, WalletType.EVM);
+    return Object.values(mapWallets(wallets.evm));
   } else if (config.context === Context.SOLANA) {
-    return mapWallets(wallets.solana, WalletType.SOLANA);
+    return Object.values(mapWallets(wallets.solana));
   } else if (config.context === Context.SUI) {
     const suiOptions = await fetchSuiOptions();
-    return mapWallets(suiOptions, WalletType.SUI);
+    return Object.values(mapWallets(suiOptions));
   }
-  const suiOptions = await fetchSuiOptions();
-  return mapWallets(Object.assign({}, suiOptions, wallets.evm, wallets.solana), WalletType.EVM);
 };
-
-// const ALL_WALLETS: WalletData[] =
-//   Object
-//     .values(Context)
-//     .filter(context => !!CHAINS_ARR.find(c => c.context === context))
-//     .reduce<WalletData[]>((acc, context) => acc.concat(getWalletOptions(context)), []);
 
 type Props = {
   type: TransferWallet;
@@ -181,7 +172,6 @@ function WalletsModal(props: Props) {
     if (address) {
       const payload = {
         address,
-        type: walletInfo.type,
         icon: wallet.getIcon(),
         wallet: wallet,
       };
