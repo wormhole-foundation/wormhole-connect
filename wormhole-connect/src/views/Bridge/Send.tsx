@@ -49,7 +49,7 @@ const useStyles = makeStyles()((theme) => ({
   tosDisclaimer: {
     display: 'flex',
     flexDirection: 'row',
-    marginBottom: 5,
+    marginBottom: 10,
     marginLeft: 16,
     fontSize: '12px',
   },
