@@ -16,24 +16,24 @@ const useStyles = makeStyles<{ size: number }>()((theme, { size }) => ({
 }));
 
 type Props = {
-  wallet?: Wallet;
+  name?: string;
+  icon?: string;
   height?: number;
-  icon?: string; // icon from the wallet
 };
 
 function WalletIcon(props: Props) {
   const size = props.height || 32;
   const { classes } = useStyles({ size });
 
-  const { wallet } = props;
+  const { icon, name } = props;
 
   return (
     <div className={classes.container}>
-      {wallet && (
+      {icon && (
         <img
           className={classes.icon}
-          src={wallet.getIcon()}
-          alt={wallet.getName()}
+          src={icon}
+          alt={name}
         />
       )}
     </div>

@@ -1,6 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { disconnect, TransferWallet, WalletType } from '../utils/wallet';
-import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
 
 export type WalletData = {
   type: WalletType;
@@ -8,7 +7,7 @@ export type WalletData = {
   currentAddress: string;
   error: string;
   icon?: string; // the wallet's icon encoded as a base64 string
-  wallet?: Wallet;
+  name: string;
 };
 
 export interface WalletState {
@@ -22,7 +21,7 @@ const NO_WALLET: WalletData = {
   currentAddress: '',
   error: '',
   icon: undefined,
-  wallet: undefined,
+  name: '',
 };
 
 const initialState: WalletState = {
@@ -33,7 +32,7 @@ const initialState: WalletState = {
 export type ConnectPayload = {
   address: string;
   icon?: string;
-  wallet: Wallet;
+  name: string;
 };
 
 export const walletSlice = createSlice({
@@ -46,7 +45,7 @@ export const walletSlice = createSlice({
     ) => {
       state.sending.address = payload.address;
       state.sending.currentAddress = payload.address;
-      state.sending.wallet = payload.wallet;
+      state.sending.name = payload.name;
       state.sending.error = '';
       state.sending.icon = payload.icon;
     },
@@ -56,7 +55,7 @@ export const walletSlice = createSlice({
     ) => {
       state.receiving.address = payload.address;
       state.receiving.currentAddress = payload.address;
-      state.receiving.wallet = payload.wallet;
+      state.receiving.name = payload.name;
       state.receiving.error = '';
       state.receiving.icon = payload.icon;
     },

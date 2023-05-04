@@ -3,9 +3,8 @@ import { makeStyles } from 'tss-react/mui';
 import { useTheme } from '@mui/material/styles';
 import { useDispatch, useSelector } from 'react-redux';
 import { Wallet, WalletState } from '@xlabs-libs/wallet-aggregator-core';
-import { ChainName, Context } from '@wormhole-foundation/wormhole-connect-sdk';
 import { getWallets as getSuiWallets } from '@xlabs-libs/wallet-aggregator-sui';
-import { CHAINS } from '../config';
+import { CHAINS, CHAINS_ARR } from '../config';
 import { RootState } from '../store';
 import { setWalletModal } from '../store/router';
 import {
@@ -14,6 +13,7 @@ import {
   connectWallet,
 } from '../store/wallet';
 import {
+  TYPES_TO_CONTEXTS,
   TransferWallet,
   WalletType,
   setWalletConnection,
@@ -25,6 +25,7 @@ import Modal from '../components/Modal';
 import Spacer from '../components/Spacer';
 import Scroll from '../components/Scroll';
 import WalletIcon from '../icons/WalletIcons';
+import { ChainConfig, ChainName, Context } from '@wormhole-foundation/wormhole-connect-sdk';
 
 const useStyles = makeStyles()((theme) => ({
   walletRow: {
@@ -57,53 +58,57 @@ const getReady = (wallet: Wallet) => {
 
 type WalletData = {
   name: string;
-  wallet: Wallet;
+  type: WalletType;
+  icon: string;
   isReady: boolean;
+  wallet: Wallet;
 };
 
 const fetchSuiOptions = async () => {
   const suiWallets = await getSuiWallets({ timeout: 0 });
   return suiWallets
-    .map<WalletData>((w) => ({
-      name: w.getName(),
-      wallet: w,
-      type: WalletType.SUI, // sui wallets share the same wallet type
-      isReady: getReady(w),
-    }))
     .reduce((obj, value) => {
-      obj[value.name] = value;
+      obj[value.getName()] = value;
       return obj;
     }, {});
 };
 
-const mapWallets = (wallets: Record<string, Wallet>) => {
+const mapWallets = (wallets: Record<string, Wallet>, type: WalletType): WalletData[] => {
   return Object.values(wallets)
     .map((wallet) => ({
-      name: wallet.getName(),
       wallet,
+      type,
+      name: wallet.getName(),
+      icon: wallet.getIcon(),
       isReady: getReady(wallet),
-    }))
-    .reduce((obj, value) => {
-      obj[value.name] = value;
-      return obj;
-    }, {});
+    }));
 };
 
-const getWalletOptions = async (config: any) => {
+const getWalletOptions = async (config: ChainConfig | undefined): Promise<WalletData[]> => {
   if (!config) {
     const suiOptions = await fetchSuiOptions();
-    return Object.values(
-      Object.assign({}, mapWallets(wallets.evm), mapWallets(wallets.solana)),
-    );
+
+    const allWallets: Partial<Record<WalletType, Record<string, Wallet>>> = {
+      [WalletType.EVM]: wallets.evm,
+      [WalletType.SOLANA]: wallets.solana,
+      [WalletType.SUI]: suiOptions,
+    };
+
+    return Object
+      .entries(allWallets)
+      .filter(([type]) => !!CHAINS_ARR.find((chain: ChainConfig) => chain.context === TYPES_TO_CONTEXTS[type]))
+      .map(([type, wallets]) => mapWallets(wallets, type))
+      .reduce((acc, arr) => acc.concat(arr), []);
   }
   if (config.context === Context.ETH) {
-    return Object.values(mapWallets(wallets.evm));
+    return Object.values(mapWallets(wallets.evm, WalletType.EVM));
   } else if (config.context === Context.SOLANA) {
-    return Object.values(mapWallets(wallets.solana));
+    return Object.values(mapWallets(wallets.solana, WalletType.SOLANA));
   } else if (config.context === Context.SUI) {
     const suiOptions = await fetchSuiOptions();
-    return Object.values(mapWallets(suiOptions));
+    return Object.values(mapWallets(suiOptions, WalletType.SUI));
   }
+  return [];
 };
 
 type Props = {
@@ -173,7 +178,7 @@ function WalletsModal(props: Props) {
       const payload = {
         address,
         icon: wallet.getIcon(),
-        wallet: wallet,
+        name: wallet.getName(),
       };
       if (props.type === TransferWallet.SENDING) {
         dispatch(connectWallet(payload));
@@ -194,7 +199,7 @@ function WalletsModal(props: Props) {
         : () => window.open(wallet.wallet.getUrl());
       return (
         <div className={classes.walletRow} key={i} onClick={select}>
-          <WalletIcon wallet={wallet.wallet} height={32} />
+          <WalletIcon name={wallet.name} icon={wallet.icon} height={32} />
           <div className={`${!ready && classes.notInstalled}`}>
             {!ready && 'Install'} {wallet.name}
           </div>

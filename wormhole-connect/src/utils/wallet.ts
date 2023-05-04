@@ -45,6 +45,12 @@ export enum WalletType {
   SUI,
 }
 
+export const TYPES_TO_CONTEXTS: Partial<Record<WalletType, Context>> = {
+  [WalletType.EVM]: Context.ETH,
+  [WalletType.SOLANA]: Context.SOLANA,
+  [WalletType.SUI]: Context.SUI,
+};
+
 interface AssetInfo {
   address: string;
   symbol: string;
