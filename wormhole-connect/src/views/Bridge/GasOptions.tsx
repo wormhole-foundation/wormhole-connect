@@ -90,19 +90,27 @@ const getOptions = (
         : '—',
   };
   if (!relayAvail) return [manual];
-  const automaticFees = toFixedDecimals(
-    `${Number.parseFloat(gasEst.automatic) + relayerFee!}`,
-    6,
-  );
+
+  let estimateText = '-';
+
+  if (gasEst.automatic && relayerFee !== undefined) {
+    const isNative = token === source.gasToken;
+
+    const fee = toFixedDecimals(
+      `${relayerFee + (isNative ? Number.parseFloat(gasEst.automatic) : 0)}`,
+      6,
+    );
+    estimateText = isNative
+      ? `${fee} ${token}`
+      : `${gasEst.automatic} ${source.gasToken} & ${fee} ${token}`;
+  }
+
   const automatic = {
     key: PaymentOption.AUTOMATIC,
     title: payWith(source.gasToken, token),
     subtitle: '(one transaction)',
     description: `Gas fees on ${dest.displayName} will be paid automatically`,
-    estimate:
-      gasEst.automatic && relayerFee !== undefined
-        ? `${automaticFees} ${token}`
-        : '—',
+    estimate: estimateText,
   };
   return [automatic, manual];
 };
