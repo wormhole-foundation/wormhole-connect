@@ -26,6 +26,7 @@ import FromInputs from './Inputs.tsx/From';
 import ToInputs from './Inputs.tsx/To';
 import { toDecimals } from '../../utils/balance';
 import { getWrappedTokenId } from '../../utils';
+import TransferLimitedWarning from './TransferLimitedWarning';
 
 const useStyles = makeStyles()((theme) => ({
   bridgeContent: {
@@ -149,6 +150,8 @@ function Bridge() {
       </Collapse>
 
       <Preview collapsed={!showValidationState ? true : !valid} />
+
+      <TransferLimitedWarning />
 
       <Send valid={!!valid} />
 
