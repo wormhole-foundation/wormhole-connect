@@ -25,7 +25,7 @@ function FromNetworksModal() {
 
   const isDisabled = (chain: ChainName) => {
     // Check if the wallet type (i.e. Metamask, Phantom...) is supported for the given chain
-    return !walletAcceptedNetworks[sending.type].includes(chain);
+    return !walletAcceptedNetworks(sending.type).includes(chain);
   };
 
   const selectNetwork = async (network: ChainName) => {

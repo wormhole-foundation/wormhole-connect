@@ -38,19 +38,6 @@ export enum TransferWallet {
   RECEIVING = 'receiving',
 }
 
-export enum WalletType {
-  NONE = 0,
-  EVM,
-  SOLANA,
-  SUI,
-}
-
-export const TYPES_TO_CONTEXTS: Partial<Record<WalletType, Context>> = {
-  [WalletType.EVM]: Context.ETH,
-  [WalletType.SOLANA]: Context.SOLANA,
-  [WalletType.SUI]: Context.SUI,
-};
-
 interface AssetInfo {
   address: string;
   symbol: string;
@@ -89,20 +76,13 @@ export const wallets = {
   },
 };
 
-const EVM_CHAINS = CHAINS_ARR.filter((c) => c.context === Context.ETH).map(
-  (c) => c.key,
-);
-const SOL_CHAINS = CHAINS_ARR.filter((c) => c.context === Context.SOLANA).map(
-  (c) => c.key,
-);
-const SUI_CHAINS = CHAINS_ARR.filter((c) => c.context === Context.SUI).map(
-  (c) => c.key,
-);
-export const walletAcceptedNetworks: Record<WalletType, ChainName[]> = {
-  [WalletType.NONE]: CHAINS_ARR.map((c) => c.key),
-  [WalletType.EVM]: EVM_CHAINS,
-  [WalletType.SOLANA]: SOL_CHAINS,
-  [WalletType.SUI]: SUI_CHAINS,
+export const walletAcceptedNetworks = (
+  context: Context | undefined,
+): ChainName[] => {
+  if (!context) {
+    return CHAINS_ARR.map((c) => c.key);
+  }
+  return CHAINS_ARR.filter((c) => c.context === context).map((c) => c.key);
 };
 
 export const setWalletConnection = (type: TransferWallet, wallet: Wallet) => {

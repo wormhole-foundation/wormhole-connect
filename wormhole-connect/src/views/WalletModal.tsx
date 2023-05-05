@@ -12,13 +12,7 @@ import {
   connectReceivingWallet,
   connectWallet,
 } from '../store/wallet';
-import {
-  TYPES_TO_CONTEXTS,
-  TransferWallet,
-  WalletType,
-  setWalletConnection,
-  wallets,
-} from '../utils/wallet';
+import { TransferWallet, setWalletConnection, wallets } from '../utils/wallet';
 
 import Header from '../components/Header';
 import Modal from '../components/Modal';
@@ -77,7 +71,7 @@ const getReady = (wallet: Wallet) => {
 
 type WalletData = {
   name: string;
-  type: WalletType;
+  type: Context;
   icon: string;
   isReady: boolean;
   wallet: Wallet;
@@ -93,7 +87,7 @@ const fetchSuiOptions = async () => {
 
 const mapWallets = (
   wallets: Record<string, Wallet>,
-  type: WalletType,
+  type: Context,
 ): WalletData[] => {
   return Object.values(wallets).map((wallet) => ({
     wallet,
@@ -110,29 +104,27 @@ const getWalletOptions = async (
   if (!config) {
     const suiOptions = await fetchSuiOptions();
 
-    const allWallets: Partial<Record<WalletType, Record<string, Wallet>>> = {
-      [WalletType.EVM]: wallets.evm,
-      [WalletType.SOLANA]: wallets.solana,
-      [WalletType.SUI]: suiOptions,
+    const allWallets: Partial<Record<Context, Record<string, Wallet>>> = {
+      [Context.ETH]: wallets.evm,
+      [Context.SOLANA]: wallets.solana,
+      [Context.SUI]: suiOptions,
     };
 
     return Object.entries(allWallets)
       .filter(
         ([type]) =>
-          !!CHAINS_ARR.find(
-            (chain: ChainConfig) => chain.context === TYPES_TO_CONTEXTS[type],
-          ),
+          !!CHAINS_ARR.find((chain: ChainConfig) => chain.context === type),
       )
       .map(([type, wallets]) => mapWallets(wallets, type))
       .reduce((acc, arr) => acc.concat(arr), []);
   }
   if (config.context === Context.ETH) {
-    return Object.values(mapWallets(wallets.evm, WalletType.EVM));
+    return Object.values(mapWallets(wallets.evm, Context.ETH));
   } else if (config.context === Context.SOLANA) {
-    return Object.values(mapWallets(wallets.solana, WalletType.SOLANA));
+    return Object.values(mapWallets(wallets.solana, Context.SOLANA));
   } else if (config.context === Context.SUI) {
     const suiOptions = await fetchSuiOptions();
-    return Object.values(mapWallets(suiOptions, WalletType.SUI));
+    return Object.values(mapWallets(suiOptions, Context.SUI));
   }
   return [];
 };

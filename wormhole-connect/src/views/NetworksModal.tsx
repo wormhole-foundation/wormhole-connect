@@ -95,7 +95,7 @@ function NetworksModal(props: Props) {
 
   const isDisabled = (chain: ChainName) => {
     const type = props.type === ModalType.FROM ? sending.type : receiving.type;
-    return !walletAcceptedNetworks[type].includes(chain);
+    return !walletAcceptedNetworks(type).includes(chain);
   };
 
   // dispatch selectNetwork event
