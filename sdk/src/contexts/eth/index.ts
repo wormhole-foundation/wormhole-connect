@@ -523,7 +523,12 @@ export class EthContext<
       const parsedPayload = await relayer.decodeTransferWithRelay(
         parsedTransfer.payload,
       );
-      const tokenAddress = this.parseAddress(parsedTransfer.tokenAddress);
+      const tokenContext = this.context.getContext(
+        parsedTransfer.tokenChain as ChainId,
+      );
+      const tokenAddress = await tokenContext.parseAssetAddress(
+        parsedTransfer.tokenAddress,
+      );
       const tokenChain = this.context.toChainName(parsedTransfer.tokenChain);
       const parsedMessage: ParsedRelayerMessage = {
         sendTx: tx,
