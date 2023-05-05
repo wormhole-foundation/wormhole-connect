@@ -4,7 +4,6 @@ import AlertBanner from '../../components/AlertBanner';
 import { wh } from '../../sdk';
 
 const TransferLimitedWarning = () => {
-  // const isTransferLimited = { isLimited: true, reason: "EXCEEDS_MAX_NOTIONAL", limits: {chainNotionalLimit: 5, chainId: 1, chainBigTransactionSize: 5, chainRemainingAvailableNotional: 5}};
   const isTransferLimited = useIsTransferLimited();
   if (
     isTransferLimited.isLimited &&

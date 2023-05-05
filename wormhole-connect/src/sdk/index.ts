@@ -57,7 +57,10 @@ export const formatAddress = (chain: ChainName | ChainId, address: string) => {
   return context.formatAddress(address);
 };
 
-export const formatAssetAddress = (chain: ChainName | ChainId, address: string) => {
+export const formatAssetAddress = (
+  chain: ChainName | ChainId,
+  address: string,
+) => {
   const context = wh.getContext(chain);
   return context.formatAssetAddress(address);
 };
