@@ -68,7 +68,7 @@ const SOLANA_TESTNET_EMITTER_ID =
 
 export class SolanaContext<
   T extends WormholeContext,
-> extends TokenBridgeAbstract<Transaction, Transaction> {
+> extends TokenBridgeAbstract<Transaction> {
   readonly type = Context.SOLANA;
   protected contracts: SolContracts<T>;
   readonly context: T;

@@ -9,7 +9,7 @@ import {
 } from '../../types';
 
 // template for different environment contexts
-export abstract class TokenBridgeAbstract<SendResult, RedeemResult> {
+export abstract class TokenBridgeAbstract<TransactionResult> {
   protected abstract contracts: AnyContracts;
 
   /**
@@ -23,7 +23,7 @@ export abstract class TokenBridgeAbstract<SendResult, RedeemResult> {
     recipientChain: ChainName | ChainId,
     recipientAddress: string,
     relayerFee: any,
-  ): Promise<SendResult>;
+  ): Promise<TransactionResult>;
 
   protected abstract sendWithPayload(
     token: TokenId | 'native',
@@ -33,7 +33,7 @@ export abstract class TokenBridgeAbstract<SendResult, RedeemResult> {
     recipientChain: ChainName | ChainId,
     recipientAddress: string,
     payload: any,
-  ): Promise<SendResult>;
+  ): Promise<TransactionResult>;
 
   protected abstract formatAddress(address: string): any;
   protected abstract parseAddress(address: any): string;
@@ -69,7 +69,7 @@ export abstract class TokenBridgeAbstract<SendResult, RedeemResult> {
     signedVAA: Uint8Array,
     overrides: any,
     payerAddr?: any,
-  ): Promise<RedeemResult>;
+  ): Promise<TransactionResult>;
   protected abstract isTransferCompleted(
     destChain: ChainName | ChainId,
     signedVaa: string,

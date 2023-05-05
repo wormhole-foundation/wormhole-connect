@@ -3,9 +3,8 @@ import { TokenId, ChainName, ChainId } from '../../types';
 import { TokenBridgeAbstract } from './tokenBridge';
 
 export abstract class RelayerAbstract<
-  SendResult,
-  RedeemResult,
-> extends TokenBridgeAbstract<SendResult, RedeemResult> {
+  TransactionResult,
+> extends TokenBridgeAbstract<TransactionResult> {
   protected abstract sendWithRelay(
     token: TokenId | 'native',
     amount: string,
@@ -15,7 +14,7 @@ export abstract class RelayerAbstract<
     recipientChain: ChainName | ChainId,
     recipientAddress: string,
     overrides?: any,
-  ): Promise<SendResult>;
+  ): Promise<TransactionResult>;
   protected abstract calculateNativeTokenAmt(
     destChain: ChainName | ChainId,
     tokenId: TokenId,

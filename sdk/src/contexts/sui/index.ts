@@ -44,10 +44,9 @@ interface TransferWithRelay {
   recipient: string;
 }
 
-export class SuiContext<T extends WormholeContext> extends RelayerAbstract<
-  TransactionBlock,
-  TransactionBlock
-> {
+export class SuiContext<
+  T extends WormholeContext,
+> extends RelayerAbstract<TransactionBlock> {
   readonly type = Context.SUI;
   protected contracts: SuiContracts<T>;
   readonly context: T;

@@ -30,10 +30,9 @@ import { parseVaa } from '../../vaa';
 import { RelayerAbstract } from '../abstracts/relayer';
 import { SolanaContext } from '../solana';
 
-export class EthContext<T extends WormholeContext> extends RelayerAbstract<
-  ethers.ContractReceipt,
-  ethers.ContractReceipt
-> {
+export class EthContext<
+  T extends WormholeContext,
+> extends RelayerAbstract<ethers.ContractReceipt> {
   readonly type = Context.ETH;
   readonly contracts: EthContracts<T>;
   readonly context: T;
