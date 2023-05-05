@@ -42,6 +42,7 @@ import {
   ChainId,
   NATIVE,
   ParsedMessage,
+  Context,
 } from '../../types';
 import { SolContracts } from './contracts';
 import { WormholeContext } from '../../wormhole';
@@ -67,7 +68,8 @@ const SOLANA_TESTNET_EMITTER_ID =
 
 export class SolanaContext<
   T extends WormholeContext,
-> extends TokenBridgeAbstract {
+> extends TokenBridgeAbstract<Transaction> {
+  readonly type = Context.SOLANA;
   protected contracts: SolContracts<T>;
   readonly context: T;
   connection: Connection | undefined;
@@ -607,7 +609,7 @@ export class SolanaContext<
     signedVAA: Uint8Array,
     overrides: any,
     payerAddr?: PublicKeyInitData,
-  ): Promise<any> {
+  ): Promise<Transaction> {
     if (!payerAddr)
       throw new Error(
         'receiving wallet address required for redeeming on Solana',

@@ -2,7 +2,9 @@ import { BigNumber, BigNumberish } from 'ethers';
 import { TokenId, ChainName, ChainId } from '../../types';
 import { TokenBridgeAbstract } from './tokenBridge';
 
-export abstract class RelayerAbstract extends TokenBridgeAbstract {
+export abstract class RelayerAbstract<
+  TransactionResult,
+> extends TokenBridgeAbstract<TransactionResult> {
   protected abstract sendWithRelay(
     token: TokenId | 'native',
     amount: string,
@@ -12,7 +14,7 @@ export abstract class RelayerAbstract extends TokenBridgeAbstract {
     recipientChain: ChainName | ChainId,
     recipientAddress: string,
     overrides?: any,
-  ): Promise<any>;
+  ): Promise<TransactionResult>;
   protected abstract calculateNativeTokenAmt(
     destChain: ChainName | ChainId,
     tokenId: TokenId,

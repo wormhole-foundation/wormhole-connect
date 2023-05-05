@@ -1,25 +1,25 @@
 import { Network as Environment } from '@certusone/wormhole-sdk';
-import { MultiProvider, Domain } from '@nomad-xyz/multi-provider';
-import { ContractReceipt, BigNumber } from 'ethers';
-import { Transaction } from '@solana/web3.js';
-import { TransactionBlock } from '@mysten/sui.js';
+import { Domain, MultiProvider } from '@nomad-xyz/multi-provider';
+import { BigNumber } from 'ethers';
 
 import MAINNET_CONFIG, { MAINNET_CHAINS } from './config/MAINNET';
 import TESTNET_CONFIG, { TESTNET_CHAINS } from './config/TESTNET';
-import {
-  WormholeConfig,
-  ChainName,
-  ChainId,
-  Context,
-  AnyContext,
-  Contracts,
-  ParsedRelayerMessage,
-  ParsedMessage,
-} from './types';
 import { EthContext } from './contexts/eth';
 import { SolanaContext } from './contexts/solana';
 import { SuiContext } from './contexts/sui';
-import { TokenId } from './types';
+import {
+  AnyContext,
+  ChainId,
+  ChainName,
+  Context,
+  Contracts,
+  ParsedMessage,
+  ParsedRelayerMessage,
+  RedeemResult,
+  SendResult,
+  TokenId,
+  WormholeConfig,
+} from './types';
 
 /**
  * The WormholeContext manages connections to Wormhole Core, Bridge and NFT Bridge contracts.
@@ -196,7 +196,7 @@ export class WormholeContext extends MultiProvider<Domain> {
     recipientAddress: string,
     relayerFee?: string,
     payload?: any,
-  ): Promise<ContractReceipt | Transaction | TransactionBlock> {
+  ): Promise<SendResult> {
     const context = this.getContext(sendingChain);
     if (payload) {
       return context.sendWithPayload(
@@ -241,34 +241,25 @@ export class WormholeContext extends MultiProvider<Domain> {
     recipientAddress: string,
     toNativeToken: string,
     relayerFee?: string,
-  ): Promise<ContractReceipt | TransactionBlock> {
-    if (sendingChain === 'sui') {
-      const context = this.getContext(
-        sendingChain,
-      ) as SuiContext<WormholeContext>;
-      return context.sendWithRelay(
-        token,
-        amount,
-        toNativeToken,
-        sendingChain,
-        senderAddress,
-        recipientChain,
-        recipientAddress,
-      );
-    } else {
-      const context = this.getContext(
-        sendingChain,
-      ) as EthContext<WormholeContext>;
-      return context.sendWithRelay(
-        token,
-        amount,
-        toNativeToken,
-        sendingChain,
-        senderAddress,
-        recipientChain,
-        recipientAddress,
+  ): Promise<SendResult> {
+    const context = this.getContext(sendingChain);
+
+    // TODO: generalize to multiple chains
+    if (context.type === Context.SOLANA) {
+      throw new Error(
+        `Relayer is not supported on ${this.toChainName(sendingChain)}`,
       );
     }
+
+    return context.sendWithRelay(
+      token,
+      amount,
+      toNativeToken,
+      sendingChain,
+      senderAddress,
+      recipientChain,
+      recipientAddress,
+    );
   }
 
   async redeem(
@@ -276,7 +267,7 @@ export class WormholeContext extends MultiProvider<Domain> {
     signedVAA: Uint8Array,
     overrides: any,
     receivingAddr?: string,
-  ): Promise<any> {
+  ): Promise<RedeemResult> {
     const context = this.getContext(destChain);
     return await context.redeem(destChain, signedVAA, overrides, receivingAddr);
   }
