@@ -25,7 +25,11 @@ import Modal from '../components/Modal';
 import Spacer from '../components/Spacer';
 import Scroll from '../components/Scroll';
 import WalletIcon from '../icons/WalletIcons';
-import { ChainConfig, ChainName, Context } from '@wormhole-foundation/wormhole-connect-sdk';
+import {
+  ChainConfig,
+  ChainName,
+  Context,
+} from '@wormhole-foundation/wormhole-connect-sdk';
 
 const useStyles = makeStyles()((theme) => ({
   walletRow: {
@@ -66,25 +70,28 @@ type WalletData = {
 
 const fetchSuiOptions = async () => {
   const suiWallets = await getSuiWallets({ timeout: 0 });
-  return suiWallets
-    .reduce((obj, value) => {
-      obj[value.getName()] = value;
-      return obj;
-    }, {});
+  return suiWallets.reduce((obj, value) => {
+    obj[value.getName()] = value;
+    return obj;
+  }, {});
 };
 
-const mapWallets = (wallets: Record<string, Wallet>, type: WalletType): WalletData[] => {
-  return Object.values(wallets)
-    .map((wallet) => ({
-      wallet,
-      type,
-      name: wallet.getName(),
-      icon: wallet.getIcon(),
-      isReady: getReady(wallet),
-    }));
+const mapWallets = (
+  wallets: Record<string, Wallet>,
+  type: WalletType,
+): WalletData[] => {
+  return Object.values(wallets).map((wallet) => ({
+    wallet,
+    type,
+    name: wallet.getName(),
+    icon: wallet.getIcon(),
+    isReady: getReady(wallet),
+  }));
 };
 
-const getWalletOptions = async (config: ChainConfig | undefined): Promise<WalletData[]> => {
+const getWalletOptions = async (
+  config: ChainConfig | undefined,
+): Promise<WalletData[]> => {
   if (!config) {
     const suiOptions = await fetchSuiOptions();
 
@@ -94,9 +101,13 @@ const getWalletOptions = async (config: ChainConfig | undefined): Promise<Wallet
       [WalletType.SUI]: suiOptions,
     };
 
-    return Object
-      .entries(allWallets)
-      .filter(([type]) => !!CHAINS_ARR.find((chain: ChainConfig) => chain.context === TYPES_TO_CONTEXTS[type]))
+    return Object.entries(allWallets)
+      .filter(
+        ([type]) =>
+          !!CHAINS_ARR.find(
+            (chain: ChainConfig) => chain.context === TYPES_TO_CONTEXTS[type],
+          ),
+      )
       .map(([type, wallets]) => mapWallets(wallets, type))
       .reduce((acc, arr) => acc.concat(arr), []);
   }

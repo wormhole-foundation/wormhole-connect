@@ -1,7 +1,6 @@
 import React from 'react';
 import { makeStyles } from 'tss-react/mui';
 import { CENTER } from '../utils/style';
-import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
 
 const useStyles = makeStyles<{ size: number }>()((theme, { size }) => ({
   container: {
@@ -29,13 +28,7 @@ function WalletIcon(props: Props) {
 
   return (
     <div className={classes.container}>
-      {icon && (
-        <img
-          className={classes.icon}
-          src={icon}
-          alt={name}
-        />
-      )}
+      {icon && <img className={classes.icon} src={icon} alt={name} />}
     </div>
   );
 }
