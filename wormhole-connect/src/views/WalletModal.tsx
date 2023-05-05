@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { ChangeEvent, useEffect, useState } from 'react';
 import { makeStyles } from 'tss-react/mui';
 import { useTheme } from '@mui/material/styles';
 import { useDispatch, useSelector } from 'react-redux';
@@ -12,13 +12,7 @@ import {
   connectReceivingWallet,
   connectWallet,
 } from '../store/wallet';
-import {
-  TYPES_TO_CONTEXTS,
-  TransferWallet,
-  WalletType,
-  setWalletConnection,
-  wallets,
-} from '../utils/wallet';
+import { TransferWallet, setWalletConnection, wallets } from '../utils/wallet';
 
 import Header from '../components/Header';
 import Modal from '../components/Modal';
@@ -30,6 +24,8 @@ import {
   ChainName,
   Context,
 } from '@wormhole-foundation/wormhole-connect-sdk';
+import Search from '../components/Search';
+import { CENTER } from '../utils/style';
 
 const useStyles = makeStyles()((theme) => ({
   walletRow: {
@@ -53,6 +49,19 @@ const useStyles = makeStyles()((theme) => ({
   notInstalled: {
     opacity: '60%',
   },
+  noResults: {
+    ...CENTER,
+    minHeight: '72px',
+    maxWidth: '350px',
+    margin: 'auto',
+    flexDirection: 'column',
+    marginBottom: '10px',
+    gap: '8px',
+  },
+  noResultsTitle: {
+    fontSize: '20px',
+    fontWeight: '600',
+  },
 }));
 
 const getReady = (wallet: Wallet) => {
@@ -62,7 +71,7 @@ const getReady = (wallet: Wallet) => {
 
 type WalletData = {
   name: string;
-  type: WalletType;
+  type: Context;
   icon: string;
   isReady: boolean;
   wallet: Wallet;
@@ -78,7 +87,7 @@ const fetchSuiOptions = async () => {
 
 const mapWallets = (
   wallets: Record<string, Wallet>,
-  type: WalletType,
+  type: Context,
 ): WalletData[] => {
   return Object.values(wallets).map((wallet) => ({
     wallet,
@@ -95,29 +104,27 @@ const getWalletOptions = async (
   if (!config) {
     const suiOptions = await fetchSuiOptions();
 
-    const allWallets: Partial<Record<WalletType, Record<string, Wallet>>> = {
-      [WalletType.EVM]: wallets.evm,
-      [WalletType.SOLANA]: wallets.solana,
-      [WalletType.SUI]: suiOptions,
+    const allWallets: Partial<Record<Context, Record<string, Wallet>>> = {
+      [Context.ETH]: wallets.evm,
+      [Context.SOLANA]: wallets.solana,
+      [Context.SUI]: suiOptions,
     };
 
     return Object.entries(allWallets)
       .filter(
         ([type]) =>
-          !!CHAINS_ARR.find(
-            (chain: ChainConfig) => chain.context === TYPES_TO_CONTEXTS[type],
-          ),
+          !!CHAINS_ARR.find((chain: ChainConfig) => chain.context === type),
       )
       .map(([type, wallets]) => mapWallets(wallets, type))
       .reduce((acc, arr) => acc.concat(arr), []);
   }
   if (config.context === Context.ETH) {
-    return Object.values(mapWallets(wallets.evm, WalletType.EVM));
+    return Object.values(mapWallets(wallets.evm, Context.ETH));
   } else if (config.context === Context.SOLANA) {
-    return Object.values(mapWallets(wallets.solana, WalletType.SOLANA));
+    return Object.values(mapWallets(wallets.solana, Context.SOLANA));
   } else if (config.context === Context.SUI) {
     const suiOptions = await fetchSuiOptions();
-    return Object.values(mapWallets(suiOptions, WalletType.SUI));
+    return Object.values(mapWallets(suiOptions, Context.SUI));
   }
   return [];
 };
@@ -138,6 +145,7 @@ function WalletsModal(props: Props) {
   );
 
   const [walletOptions, setWalletOptions] = useState<WalletData[]>([]);
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     let cancelled = false;
@@ -159,6 +167,17 @@ function WalletsModal(props: Props) {
       cancelled = true;
     };
   }, [fromNetwork, toNetwork, props.chain, chainProp, type]);
+
+  const handleSearch = (
+    e:
+      | ChangeEvent<HTMLInputElement>
+      | ChangeEvent<HTMLTextAreaElement>
+      | undefined,
+  ) => {
+    if (!e) return;
+    const lowercase = e.target.value.toLowerCase();
+    setSearch(lowercase);
+  };
 
   const connect = async (walletInfo: WalletData) => {
     const { wallet } = walletInfo;
@@ -203,7 +222,10 @@ function WalletsModal(props: Props) {
 
   const displayWalletOptions = (wallets: WalletData[]): JSX.Element[] => {
     const sorted = wallets.sort((w) => (w.isReady ? -1 : 1));
-    return sorted.map((wallet, i) => {
+    const filtered = !search
+      ? sorted
+      : sorted.filter((w) => w.name.toLowerCase().includes(search));
+    return filtered.map((wallet, i) => {
       const ready = wallet.isReady;
       const select = ready
         ? () => connect(wallet)
@@ -230,11 +252,20 @@ function WalletsModal(props: Props) {
     <Modal open={!!props.type} closable width={500} onClose={closeWalletModal}>
       <Header text="Connect wallet" size={28} />
       <Spacer height={16} />
+      <Search placeholder="Search" onChange={handleSearch} />
+      <Spacer height={16} />
       <Scroll
-        height="calc(100vh - 175px)"
+        height="calc(100vh - 250px)"
         blendColor={theme.palette.modal.background}
       >
-        <div>{displayWalletOptions(walletOptions)}</div>
+        {walletOptions.length > 0 ? (
+          <div>{displayWalletOptions(walletOptions)}</div>
+        ) : (
+          <div className={classes.noResults}>
+            <div className={classes.noResultsTitle}>No wallets detected</div>
+            <div>Install a wallet extension to continue</div>
+          </div>
+        )}
       </Scroll>
     </Modal>
   );

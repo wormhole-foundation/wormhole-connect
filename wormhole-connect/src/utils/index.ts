@@ -5,10 +5,10 @@ import {
   ChainName,
   ChainId,
   MAINNET_CHAINS,
+  Context,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { CHAINS_ARR, TOKENS, TOKENS_ARR } from '../config';
 import { NetworkConfig, TokenConfig } from '../config/types';
-import { WalletType } from './wallet';
 import { toDecimals } from './balance';
 import { isValidTransactionDigest, SUI_TYPE_ARG } from '@mysten/sui.js';
 
@@ -53,12 +53,12 @@ export function displayAddress(chain: ChainName, address: string): string {
 }
 
 export function displayWalletAddress(
-  walletType: WalletType,
+  walletType: Context,
   address: string,
 ): string {
-  if (walletType === WalletType.EVM) {
+  if (walletType === Context.ETH) {
     return displayEvmAddress(address);
-  } else if (walletType === WalletType.SUI) {
+  } else if (walletType === Context.SUI) {
     return displaySuiAddress(address);
   }
   return displayAddress('solana', address);

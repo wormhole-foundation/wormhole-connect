@@ -1,8 +1,9 @@
+import { Context } from '@wormhole-foundation/wormhole-connect-sdk';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { disconnect, TransferWallet, WalletType } from '../utils/wallet';
+import { disconnect, TransferWallet } from '../utils/wallet';
 
 export type WalletData = {
-  type: WalletType;
+  type: Context | undefined;
   address: string;
   currentAddress: string;
   error: string;
@@ -17,7 +18,7 @@ export interface WalletState {
 
 const NO_WALLET: WalletData = {
   address: '',
-  type: WalletType.NONE,
+  type: undefined,
   currentAddress: '',
   error: '',
   icon: undefined,
