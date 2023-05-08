@@ -4,7 +4,7 @@ import { useTheme } from '@mui/material/styles';
 import { useDispatch, useSelector } from 'react-redux';
 import { Wallet, WalletState } from '@xlabs-libs/wallet-aggregator-core';
 import { getWallets as getSuiWallets } from '@xlabs-libs/wallet-aggregator-sui';
-import { CHAINS, CHAINS_ARR } from '../config';
+import { CHAINS } from '../config';
 import { RootState } from '../store';
 import { setWalletModal } from '../store/router';
 import {
@@ -33,8 +33,8 @@ const useStyles = makeStyles()((theme) => ({
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     width: '100%',
-    gap: '16px',
     padding: '16px 8px',
     transition: `background-color 0.4s`,
     cursor: 'pointer',
@@ -45,6 +45,15 @@ const useStyles = makeStyles()((theme) => ({
     '&:not(:last-child)': {
       borderBottom: `0.5px solid ${theme.palette.divider}`,
     },
+  },
+  walletRowLeft: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: '16px',
+  },
+  context: {
+    opacity: '0.6',
   },
   notInstalled: {
     opacity: '60%',
@@ -110,12 +119,8 @@ const getWalletOptions = async (
       [Context.SUI]: suiOptions,
     };
 
-    return Object.entries(allWallets)
-      .filter(
-        ([type]) =>
-          !!CHAINS_ARR.find((chain: ChainConfig) => chain.context === type),
-      )
-      .map(([type, wallets]) => mapWallets(wallets, type))
+    return Object.keys(allWallets)
+      .map((key) => mapWallets(allWallets[key], key as Context))
       .reduce((acc, arr) => acc.concat(arr), []);
   }
   if (config.context === Context.ETH) {
@@ -127,6 +132,12 @@ const getWalletOptions = async (
     return Object.values(mapWallets(suiOptions, Context.SUI));
   }
   return [];
+};
+
+const getWalletChainText = (context: Context) => {
+  if (context === Context.SOLANA) return 'Solana';
+  if (context === Context.SUI) return 'Sui';
+  return 'EVM';
 };
 
 type Props = {
@@ -207,6 +218,7 @@ function WalletsModal(props: Props) {
     if (address) {
       const payload = {
         address,
+        type: walletInfo.type,
         icon: wallet.getIcon(),
         name: wallet.getName(),
       };
@@ -232,9 +244,14 @@ function WalletsModal(props: Props) {
         : () => window.open(wallet.wallet.getUrl());
       return (
         <div className={classes.walletRow} key={i} onClick={select}>
-          <WalletIcon name={wallet.name} icon={wallet.icon} height={32} />
-          <div className={`${!ready && classes.notInstalled}`}>
-            {!ready && 'Install'} {wallet.name}
+          <div className={classes.walletRowLeft}>
+            <WalletIcon name={wallet.name} icon={wallet.icon} height={32} />
+            <div className={`${!ready && classes.notInstalled}`}>
+              {!ready && 'Install'} {wallet.name}
+            </div>
+          </div>
+          <div className={classes.context}>
+            {getWalletChainText(wallet.type)}
           </div>
         </div>
       );

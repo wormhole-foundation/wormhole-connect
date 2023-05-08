@@ -32,6 +32,7 @@ const initialState: WalletState = {
 
 export type ConnectPayload = {
   address: string;
+  type: Context;
   icon?: string;
   name: string;
 };
@@ -46,6 +47,7 @@ export const walletSlice = createSlice({
     ) => {
       state.sending.address = payload.address;
       state.sending.currentAddress = payload.address;
+      state.sending.type = payload.type;
       state.sending.name = payload.name;
       state.sending.error = '';
       state.sending.icon = payload.icon;
@@ -56,11 +58,18 @@ export const walletSlice = createSlice({
     ) => {
       state.receiving.address = payload.address;
       state.receiving.currentAddress = payload.address;
+      state.receiving.type = payload.type;
       state.receiving.name = payload.name;
       state.receiving.error = '';
       state.receiving.icon = payload.icon;
     },
     clearWallet: (
+      state: WalletState,
+      { payload }: PayloadAction<TransferWallet>,
+    ) => {
+      state[payload] = NO_WALLET;
+    },
+    disconnectWallet: (
       state: WalletState,
       { payload }: PayloadAction<TransferWallet>,
     ) => {
@@ -82,6 +91,12 @@ export const walletSlice = createSlice({
       state[type].currentAddress = address;
     },
     clearWallets: (state: WalletState) => {
+      Object.keys(state).forEach((key) => {
+        // @ts-ignore
+        state[key] = initialState[key];
+      });
+    },
+    disconnectWallets: (state: WalletState) => {
       disconnect(TransferWallet.SENDING);
       disconnect(TransferWallet.RECEIVING);
       Object.keys(state).forEach((key) => {
@@ -99,6 +114,8 @@ export const {
   setCurrentAddress,
   setWalletError,
   clearWallets,
+  disconnectWallet,
+  disconnectWallets,
 } = walletSlice.actions;
 
 export default walletSlice.reducer;

@@ -11,7 +11,7 @@ import WalletIcons from '../icons/WalletIcons';
 import PopupState, { bindTrigger, bindPopover } from 'material-ui-popup-state';
 import Popover from '@mui/material/Popover';
 import { setWalletModal } from '../store/router';
-import { clearWallet } from '../store/wallet';
+import { disconnectWallet as disconnectFromStore } from '../store/wallet';
 import { ScopedCssBaseline } from '@mui/material';
 
 const useStyles = makeStyles()((theme) => ({
@@ -72,7 +72,7 @@ function ConnectWallet(props: Props) {
   };
 
   const disconnectWallet = async () => {
-    dispatch(clearWallet(type));
+    dispatch(disconnectFromStore(type));
   };
 
   return wallet && wallet.address ? (
