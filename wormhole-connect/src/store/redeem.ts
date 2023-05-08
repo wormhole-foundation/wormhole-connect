@@ -13,6 +13,7 @@ export interface RedeemState {
   sendTx: string;
   redeemTx: string;
   transferComplete: boolean;
+  isVaaEnqueued: boolean;
 }
 
 const initialState: RedeemState = {
@@ -21,6 +22,7 @@ const initialState: RedeemState = {
   sendTx: '',
   redeemTx: '',
   transferComplete: false,
+  isVaaEnqueued: false,
 };
 
 export const redeemSlice = createSlice({
@@ -45,6 +47,12 @@ export const redeemSlice = createSlice({
     ) => {
       state.transferComplete = payload;
     },
+    setIsVaaEnqueued: (
+      state: RedeemState,
+      { payload }: PayloadAction<boolean>,
+    ) => {
+      state.isVaaEnqueued = payload;
+    },
     clearRedeem: (state: RedeemState) => {
       Object.keys(state).forEach((key) => {
         // @ts-ignore
@@ -60,6 +68,7 @@ export const {
   setSendTx,
   setRedeemTx,
   setTransferComplete,
+  setIsVaaEnqueued,
   clearRedeem,
 } = redeemSlice.actions;
 

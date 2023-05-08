@@ -19,7 +19,7 @@ const TransferLimitedWarning = () => {
         : isTransferLimited.reason === 'EXCEEDS_REMAINING_NOTIONAL'
         ? `This transfer's estimated notional value may exceed the remaining notional value available for transfers on ${chainName} (${isTransferLimited.limits.chainRemainingAvailableNotional}) and may be subject to a delay.`
         : '';
-    return <AlertBanner show={!!message} content={message} warning />;
+    return <AlertBanner show={!!message} content={message} error />;
   }
   return null;
 };
