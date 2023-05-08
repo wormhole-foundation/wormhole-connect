@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { fetchVaa, ParsedVaa } from '../../utils/vaa';
+import { fetchIsVAAEnqueued, fetchVaa, ParsedVaa } from '../../utils/vaa';
 import {
   setIsVaaEnqueued,
   setTransferComplete,
@@ -12,14 +12,17 @@ import PageHeader from '../../components/PageHeader';
 import Spacer from '../../components/Spacer';
 import NetworksTag from './Tag';
 import Stepper from './Stepper';
+import GovernorEnqueuedWarning from './GovernorEnqueuedWarning';
+import { ParsedMessage, ParsedRelayerMessage } from '../../sdk';
 
 class Redeem extends React.Component<
   {
     setVaa: any;
     setIsVaaEnqueued: (isVaaEnqueued: boolean) => any;
     setTransferComplete: any;
-    txData: any;
+    txData: ParsedMessage | ParsedRelayerMessage;
     transferComplete: boolean;
+    isVaaEnqueued: boolean;
   },
   {
     vaa: ParsedVaa | undefined;
@@ -52,7 +55,7 @@ class Redeem extends React.Component<
 
   async getIsVaaEnqueued() {
     if (!this.props.txData.sendTx || !!this.state.vaa) return;
-    const isVaaEnqueued = await fetchIsVaaEnqueued(this.props.txData);
+    const isVaaEnqueued = await fetchIsVAAEnqueued(this.props.txData);
     if (isVaaEnqueued) {
       this.props.setIsVaaEnqueued(isVaaEnqueued);
       // this.setState((prevState) => ({ ...prevState, isVaaEnqueued }));
@@ -69,6 +72,7 @@ class Redeem extends React.Component<
   }
 
   componentDidMount() {
+    this.getIsVaaEnqueued();
     this.update();
 
     // poll more frequently for the first 10 seconds
@@ -106,17 +110,20 @@ class Redeem extends React.Component<
 
         <NetworksTag />
         <Spacer />
-        <Stepper cta="Some CTA" />
+        <GovernorEnqueuedWarning
+          show={this.props.isVaaEnqueued}
+          chain={this.props.txData.fromChain}
+        />
+        <Stepper />
       </div>
     );
   }
 }
 
 function mapStateToProps(state: RootState) {
-  const txData = state.redeem.txData!;
-  const transferComplete = state.redeem.transferComplete;
+  const { txData, transferComplete, isVaaEnqueued } = state.redeem;
 
-  return { txData, transferComplete };
+  return { txData, transferComplete, isVaaEnqueued };
 }
 
 const mapDispatchToProps = (dispatch) => {

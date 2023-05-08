@@ -1,12 +1,13 @@
 import { ChainId } from '@certusone/wormhole-sdk';
 import axios from 'axios';
-import { TOKENS, WH_CONFIG } from 'config';
+import { TOKENS } from 'config';
 import { hexlify } from 'ethers/lib/utils.js';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { formatAssetAddress, wh } from 'sdk';
 import { RootState } from 'store';
 import { getWrappedTokenId } from 'utils';
+import { WORMHOLE_RPC_HOSTS } from 'utils/vaa';
 
 const REMAINING_NOTIONAL_TOLERANCE = 0.98;
 interface TokenListEntry {
@@ -46,20 +47,6 @@ export interface IsTransferLimitedResult {
     | 'EXCEEDS_LARGE_TRANSFER_LIMIT';
   limits?: ChainLimits;
 }
-
-export const WORMHOLE_RPC_HOSTS =
-  WH_CONFIG.env === 'MAINNET'
-    ? [
-        'https://wormhole-v2-mainnet-api.certus.one',
-        'https://wormhole.inotel.ro',
-        'https://wormhole-v2-mainnet-api.mcf.rocks',
-        'https://wormhole-v2-mainnet-api.chainlayer.network',
-        'https://wormhole-v2-mainnet-api.staking.fund',
-        'https://wormhole-v2-mainnet.01node.com',
-      ]
-    : WH_CONFIG.env === 'TESTNET'
-    ? ['https://wormhole-v2-testnet-api.certus.one']
-    : ['http://localhost:7071'];
 
 const useIsTransferLimited = (): IsTransferLimitedResult => {
   const [tokenList, setTokenList] = useState<TokenList | null>(null);
