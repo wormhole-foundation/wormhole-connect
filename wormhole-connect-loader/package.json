@@ -25,7 +25,9 @@
     "react-dom": "^18.2.0"
   },
   "scripts": {
-    "build": "tsc"
+    "build:cjs": "tsc -p tsconfig.cjs.json",
+    "build:esm": "tsc -p tsconfig.esm.json",
+    "build": "rm -rf lib && npm run build:cjs && npm run build:esm"
   },
   "eslintConfig": {
     "extends": [
@@ -46,9 +48,17 @@
     ]
   },
   "description": "This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).",
-  "main": "lib/index.js",
-  "types": "lib/index.d.ts",
-  "files": [ "lib/*.js", "lib/*.d.ts", "dist/main.js", "dist/main.css" ],
+  "main": "lib/cjs/index.js",
+  "module": "lib/esm/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./lib/cjs/index.js",
+      "import": "./lib/esm/index.js",
+      "types": "./lib/index.d.ts"
+    }
+  },
+  "files": [ "lib", "dist" ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/wormhole-foundation/wormhole-connect.git"
