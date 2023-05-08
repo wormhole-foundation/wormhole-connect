@@ -24,10 +24,18 @@ const getAutomaticRows = (
   sendingGasEst: string,
 ): RowsData => {
   const receivingToken = token.wrappedAsset || token.symbol;
-  const totalFees = toFixedDecimals(
-    `${Number.parseFloat(sendingGasEst) + relayerFee}`,
-    6,
-  );
+  const isNative = token.symbol === sourceGasToken;
+  let totalFeesText = '';
+  if (sendingGasEst && relayerFee) {
+    const fee = toFixedDecimals(
+      `${relayerFee + (isNative ? Number.parseFloat(sendingGasEst) : 0)}`,
+      6,
+    );
+    totalFeesText = isNative
+      ? `${fee} ${token.symbol}`
+      : `${sendingGasEst} ${sourceGasToken} & ${fee} ${token.symbol}`;
+  }
+
   return [
     {
       title: 'Amount',
@@ -42,16 +50,15 @@ const getAutomaticRows = (
     },
     {
       title: 'Total fee estimates',
-      value:
-        totalFees && totalFees !== 'NaN' ? `${totalFees} ${token.symbol}` : '',
+      value: totalFeesText,
       rows: [
-        {
-          title: 'Relayer fee',
-          value: relayerFee ? `${relayerFee} ${token.symbol}` : '—',
-        },
         {
           title: 'Source chain gas estimate',
           value: sendingGasEst ? `~ ${sendingGasEst} ${sourceGasToken}` : '—',
+        },
+        {
+          title: 'Relayer fee',
+          value: relayerFee ? `${relayerFee} ${token.symbol}` : '—',
         },
       ],
     },
