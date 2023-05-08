@@ -1,7 +1,4 @@
-import {
-  parseTokenTransferVaa,
-  getGovernorIsVAAEnqueued,
-} from '@certusone/wormhole-sdk';
+import { parseTokenTransferVaa } from '@certusone/wormhole-sdk';
 import { ChainId } from '@wormhole-foundation/wormhole-connect-sdk';
 import axios from 'axios';
 
@@ -112,28 +109,19 @@ export async function fetchVaa(
 export const fetchIsVAAEnqueued = async (
   txData: ParsedMessage | ParsedRelayerMessage,
 ): Promise<boolean> => {
-  console.log('fetch');
-  const retryAttempts = 10;
   const messageId = getEmitterAndSequence(txData);
   const { emitterChain, emitterAddress, sequence } = messageId;
 
-  let currentWormholeRpcHost = -1;
-  const getNextRpcHost = () =>
-    ++currentWormholeRpcHost % WORMHOLE_RPC_HOSTS.length;
-  let attempts = 0;
-  while (true) {
-    attempts++;
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    const rpcHost = WORMHOLE_RPC_HOSTS[getNextRpcHost()];
-    const res = await getGovernorIsVAAEnqueued(
-      rpcHost,
-      emitterChain,
-      emitterAddress,
-      sequence,
-    );
-    if (res) return res.isEnqueued;
-    if (attempts > retryAttempts) {
-      throw new Error('out of retries');
-    }
-  }
+  const url = `${WORMHOLE_API}v1/governor/is_vaa_enqueued/${emitterChain}/${emitterAddress}/${sequence}`;
+
+  return axios
+    .get(url)
+    .then(function (response: any) {
+      const data = response.data;
+      if (!data) return false;
+      return data.isEnqueued;
+    })
+    .catch(function (error) {
+      throw error;
+    });
 };
