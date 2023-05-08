@@ -1,10 +1,13 @@
 import React from 'react';
-import useIsTransferLimited from '../../hooks/useIsTransferLimited';
 import AlertBanner from '../../components/AlertBanner';
-import { wh } from '../../sdk';
+import { ParsedMessage, ParsedRelayerMessage, wh } from '../../sdk';
+import useIsTransferLimited from '../../hooks/useIsTransferLimited';
 
-const TransferLimitedWarning = () => {
-  const isTransferLimited = useIsTransferLimited();
+type Props = {
+  txData?: ParsedMessage | ParsedRelayerMessage;
+};
+const TransferLimitedWarning = (props: Props) => {
+  const isTransferLimited = useIsTransferLimited(props.txData);
   if (
     isTransferLimited.isLimited &&
     isTransferLimited.reason &&

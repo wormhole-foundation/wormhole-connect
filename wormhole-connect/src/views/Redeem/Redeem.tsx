@@ -8,12 +8,14 @@ import PageHeader from '../../components/PageHeader';
 import Spacer from '../../components/Spacer';
 import NetworksTag from './Tag';
 import Stepper from './Stepper';
+import TransferLimitedWarning from '../Bridge/TransferLimitedWarning';
+import { ParsedMessage, ParsedRelayerMessage } from '../../sdk';
 
 class Redeem extends React.Component<
   {
     setVaa: any;
     setTransferComplete: any;
-    txData: any;
+    txData: ParsedMessage | ParsedRelayerMessage;
     transferComplete: boolean;
   },
   {
@@ -92,7 +94,9 @@ class Redeem extends React.Component<
 
         <NetworksTag />
         <Spacer />
-        <Stepper cta="Some CTA" />
+        <TransferLimitedWarning txData={this.props.txData} />
+
+        <Stepper />
       </div>
     );
   }

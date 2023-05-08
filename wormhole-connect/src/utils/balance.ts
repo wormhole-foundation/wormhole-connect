@@ -1,11 +1,11 @@
-import { BigNumber, utils } from 'ethers';
+import { BigNumberish, utils } from 'ethers';
 import { TOKENS } from '../config';
 
 /**
  * Makes a BigNumber have # of decimals
  */
 export function toDecimals(
-  amnt: BigNumber,
+  amnt: BigNumberish,
   tokenDecimals: number,
   numDecimals?: number,
 ): string {

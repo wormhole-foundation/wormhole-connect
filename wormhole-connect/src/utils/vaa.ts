@@ -4,7 +4,7 @@ import axios from 'axios';
 
 import { utils } from 'ethers';
 import { CHAINS, WORMHOLE_API } from '../config';
-import { ParsedMessage } from '../sdk';
+import { ParsedMessage, ParsedRelayerMessage } from '../sdk';
 
 export type ParsedVaa = {
   bytes: string;
@@ -25,7 +25,7 @@ export type ParsedVaa = {
 };
 
 export async function fetchVaa(
-  txData: ParsedMessage,
+  txData: ParsedMessage | ParsedRelayerMessage,
 ): Promise<ParsedVaa | undefined> {
   const emitterChain = CHAINS[txData.fromChain];
   if (!emitterChain || !emitterChain.id) {

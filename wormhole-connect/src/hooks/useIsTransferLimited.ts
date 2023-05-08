@@ -1,12 +1,17 @@
-import { ChainId } from '@certusone/wormhole-sdk';
+import { ChainName, ChainId } from '@wormhole-foundation/wormhole-connect-sdk';
 import axios from 'axios';
 import { TOKENS, WH_CONFIG } from 'config';
 import { hexlify } from 'ethers/lib/utils.js';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { formatAssetAddress, wh } from 'sdk';
+import {
+  ParsedMessage,
+  ParsedRelayerMessage,
+  formatAssetAddress,
+  wh,
+} from 'sdk';
 import { RootState } from 'store';
-import { getWrappedTokenId } from 'utils';
+import { MAX_DECIMALS, getWrappedTokenId, toNormalizedDecimals } from 'utils';
 
 const REMAINING_NOTIONAL_TOLERANCE = 0.98;
 interface TokenListEntry {
@@ -61,7 +66,15 @@ export const WORMHOLE_RPC_HOSTS =
     ? ['https://wormhole-v2-testnet-api.certus.one']
     : ['http://localhost:7071'];
 
-const useIsTransferLimited = (): IsTransferLimitedResult => {
+type TxDetails = {
+  chain: ChainName | undefined;
+  tokenKey: string;
+  amount: number | undefined;
+};
+
+const useIsTransferLimited = (
+  txData?: ParsedMessage | ParsedRelayerMessage,
+): IsTransferLimitedResult => {
   const [tokenList, setTokenList] = useState<TokenList | null>(null);
   const [availableNotionalByChain, setAvailableNotionalByChain] =
     useState<AvailableNotionalByChain | null>(null);
@@ -72,21 +85,40 @@ const useIsTransferLimited = (): IsTransferLimitedResult => {
   const { fromNetwork, token, amount } = useSelector(
     (state: RootState) => state.transfer,
   );
+  const [txDetails, setTxDetails] = useState<TxDetails>({
+    chain: fromNetwork,
+    tokenKey: token,
+    amount,
+  });
+
+  if (txData) {
+    const { fromChain, tokenKey, tokenDecimals, amount } = txData;
+    const formattedAmt = toNormalizedDecimals(
+      amount,
+      tokenDecimals,
+      MAX_DECIMALS,
+    );
+    setTxDetails({
+      chain: fromChain,
+      tokenKey,
+      amount: Number.parseFloat(formattedAmt),
+    });
+  }
 
   const fetchedTokenList = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
     const formatAddress = async () => {
-      if (!token || !fromNetwork) {
+      if (!txDetails.tokenKey || !txDetails.chain) {
         setAssetAddress(undefined);
         return;
       }
       try {
-        const tokenConfig = TOKENS[token];
+        const tokenConfig = TOKENS[txDetails.tokenKey];
         const tokenId = getWrappedTokenId(tokenConfig);
         const formatted = hexlify(
-          await formatAssetAddress(fromNetwork, tokenId.address),
+          await formatAssetAddress(txDetails.chain, tokenId.address),
         );
         if (!cancelled) {
           setAssetAddress(formatted);
@@ -101,7 +133,7 @@ const useIsTransferLimited = (): IsTransferLimitedResult => {
     return () => {
       cancelled = true;
     };
-  }, [token, fromNetwork]);
+  }, [txDetails]);
 
   useEffect(() => {
     if (!fetchedTokenList.current) {
@@ -140,15 +172,20 @@ const useIsTransferLimited = (): IsTransferLimitedResult => {
   }, []);
 
   const result = useMemo<IsTransferLimitedResult>(() => {
-    if (!fromNetwork || !token || !amount || !assetAddress)
+    if (
+      !txDetails.chain ||
+      !txDetails.tokenKey ||
+      !txDetails.amount ||
+      !assetAddress
+    )
       return { isLimited: false };
 
-    const fromChainId = wh.toChainId(fromNetwork);
+    const fromChainId = wh.toChainId(txDetails.chain);
 
     if (
-      token &&
-      fromNetwork &&
-      amount &&
+      txDetails.tokenKey &&
+      txDetails.chain &&
+      txDetails.amount &&
       tokenList &&
       availableNotionalByChain
     ) {
@@ -162,7 +199,7 @@ const useIsTransferLimited = (): IsTransferLimitedResult => {
           (entry) => entry.chainId === fromChainId,
         );
         if (chain) {
-          const transferNotional = token.price * amount;
+          const transferNotional = token.price * txDetails.amount;
           const isLimitedReason =
             transferNotional > chain.notionalLimit
               ? 'EXCEEDS_MAX_NOTIONAL'
@@ -190,14 +227,7 @@ const useIsTransferLimited = (): IsTransferLimitedResult => {
     return {
       isLimited: false,
     };
-  }, [
-    fromNetwork,
-    token,
-    assetAddress,
-    amount,
-    tokenList,
-    availableNotionalByChain,
-  ]);
+  }, [txDetails, assetAddress, tokenList, availableNotionalByChain]);
 
   return result;
 };
