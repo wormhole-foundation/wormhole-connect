@@ -94,7 +94,12 @@ class Redeem extends React.Component<
 
         <NetworksTag />
         <Spacer />
-        <TransferLimitedWarning txData={this.props.txData} />
+        {!this.props.transferComplete && (
+          <div>
+            <TransferLimitedWarning txData={this.props.txData} />
+            <Spacer />
+          </div>
+        )}
 
         <Stepper />
       </div>
