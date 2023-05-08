@@ -55,10 +55,14 @@ class Redeem extends React.Component<
 
   async getIsVaaEnqueued() {
     if (!this.props.txData.sendTx || !!this.state.vaa) return;
-    const isVaaEnqueued = await fetchIsVAAEnqueued(this.props.txData);
-    if (isVaaEnqueued) {
+    let isVaaEnqueued = false;
+    try {
+      isVaaEnqueued = await fetchIsVAAEnqueued(this.props.txData);
+    } catch (e) {
+      // log error and continue
+      console.error(e);
+    } finally {
       this.props.setIsVaaEnqueued(isVaaEnqueued);
-      // this.setState((prevState) => ({ ...prevState, isVaaEnqueued }));
     }
   }
 
