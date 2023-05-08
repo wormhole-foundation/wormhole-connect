@@ -1,7 +1,11 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { fetchVaa, ParsedVaa } from '../../utils/vaa';
-import { setTransferComplete, setVaa } from '../../store/redeem';
+import {
+  setIsVaaEnqueued,
+  setTransferComplete,
+  setVaa,
+} from '../../store/redeem';
 import { RootState } from '../../store';
 import { getTransferComplete } from '../../sdk';
 import PageHeader from '../../components/PageHeader';
@@ -12,6 +16,7 @@ import Stepper from './Stepper';
 class Redeem extends React.Component<
   {
     setVaa: any;
+    setIsVaaEnqueued: (isVaaEnqueued: boolean) => any;
     setTransferComplete: any;
     txData: any;
     transferComplete: boolean;
@@ -42,6 +47,15 @@ class Redeem extends React.Component<
     if (vaa) {
       this.props.setVaa(vaa);
       this.setState((prevState) => ({ ...prevState, vaa }));
+    }
+  }
+
+  async getIsVaaEnqueued() {
+    if (!this.props.txData.sendTx || !!this.state.vaa) return;
+    const isVaaEnqueued = await fetchIsVaaEnqueued(this.props.txData);
+    if (isVaaEnqueued) {
+      this.props.setIsVaaEnqueued(isVaaEnqueued);
+      // this.setState((prevState) => ({ ...prevState, isVaaEnqueued }));
     }
   }
 
@@ -108,6 +122,8 @@ function mapStateToProps(state: RootState) {
 const mapDispatchToProps = (dispatch) => {
   return {
     setVaa: (vaa: ParsedVaa) => dispatch(setVaa(vaa)),
+    setIsVaaEnqueued: (isVaaEnqueued: boolean) =>
+      dispatch(setIsVaaEnqueued(isVaaEnqueued)),
     setTransferComplete: () => dispatch(setTransferComplete(true)),
   };
 };
