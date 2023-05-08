@@ -111,7 +111,7 @@ class Redeem extends React.Component<
         <NetworksTag />
         <Spacer />
         <GovernorEnqueuedWarning
-          show={this.props.isVaaEnqueued}
+          show={!this.state.vaa && this.props.isVaaEnqueued}
           chain={this.props.txData.fromChain}
         />
         <Stepper />
