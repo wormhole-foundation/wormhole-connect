@@ -45,7 +45,7 @@ const getAutomaticRows = (
       )} ${receivingToken}`,
     },
     {
-      title: 'Native token on destination',
+      title: 'Native gas on destination',
       value: `${receiveNativeAmt} ${destinationGasToken}`,
     },
     {

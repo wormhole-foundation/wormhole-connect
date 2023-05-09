@@ -18,6 +18,7 @@ const useStyles = makeStyles()((theme) => ({
     [theme.breakpoints.down('sm')]: {
       flexDirection: 'column',
       gap: '16px',
+      alignItems: 'flex-start',
     },
   },
   title: {
