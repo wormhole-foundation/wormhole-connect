@@ -1,5 +1,5 @@
 import { Network as Environment } from '@certusone/wormhole-sdk';
-import { BigNumber, utils } from 'ethers';
+import { BigNumber, utils, providers } from 'ethers';
 import {
   WormholeContext,
   SolanaContext,
@@ -85,15 +85,17 @@ export const getBalance = async (
   walletAddr: string,
   tokenId: TokenId,
   chain: ChainName | ChainId,
+  batchProvider?: providers.JsonRpcBatchProvider,
 ): Promise<BigNumber | null> => {
-  return await wh.getTokenBalance(walletAddr, tokenId, chain);
+  return await wh.getTokenBalance(walletAddr, tokenId, chain, batchProvider);
 };
 
 export const getNativeBalance = async (
   walletAddr: string,
   chain: ChainName | ChainId,
+  batchProvider?: providers.JsonRpcBatchProvider,
 ): Promise<BigNumber> => {
-  return await wh.getNativeBalance(walletAddr, chain);
+  return await wh.getNativeBalance(walletAddr, chain, batchProvider);
 };
 
 export const parseMessageFromTx = async (

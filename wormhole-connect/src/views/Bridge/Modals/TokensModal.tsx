@@ -12,15 +12,10 @@ import { makeStyles } from 'tss-react/mui';
 import { RootState } from '../../../store';
 import { CHAINS, TOKENS_ARR } from '../../../config';
 import { setTokensModal } from '../../../store/router';
-import {
-  setToken,
-  setBalance,
-  formatBalance,
-  clearBalances,
-} from '../../../store/transfer';
+import { setToken, setBalance, clearBalances } from '../../../store/transfer';
 import { displayAddress } from '../../../utils';
 import { CENTER } from '../../../utils/style';
-import { getBalance, getNativeBalance } from '../../../sdk';
+import { getBalances as fetchBalances } from 'utils/balance';
 
 import Header from '../../../components/Header';
 import Modal from '../../../components/Modal';
@@ -225,15 +220,16 @@ function TokensModal() {
       chain: ChainName,
     ) => {
       // fetch all N tokens and trigger a single update action
-      const balances = await Promise.all(
-        tokens.map(async (t) => {
-          const balance = t.tokenId
-            ? await getBalance(walletAddr, t.tokenId, chain)
-            : await getNativeBalance(walletAddr, chain);
+      // const balances = await Promise.all(
+      //   tokens.map(async (t) => {
+      //     const balance = t.tokenId
+      //       ? await getBalance(walletAddr, t.tokenId, chain)
+      //       : await getNativeBalance(walletAddr, chain);
 
-          return formatBalance(chain, t, balance);
-        }),
-      );
+      //     return formatBalance(chain, t, balance);
+      //   }),
+      // );
+      const balances = await fetchBalances(chain, walletAddr, tokens);
 
       const balancesObj = balances.reduceRight((acc, tokenBalance) => {
         return Object.assign(acc, tokenBalance);

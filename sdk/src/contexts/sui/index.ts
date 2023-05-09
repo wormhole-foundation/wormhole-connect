@@ -339,6 +339,7 @@ export class SuiContext<
   async getNativeBalance(
     walletAddress: string,
     chain: ChainName | ChainId,
+    batchProvider?: any,
   ): Promise<BigNumber> {
     const { totalBalance } = await this.provider.getBalance({
       owner: walletAddress,
@@ -350,6 +351,7 @@ export class SuiContext<
     walletAddress: string,
     tokenId: TokenId,
     chain: ChainName | ChainId,
+    batchProvider?: any,
   ): Promise<BigNumber | null> {
     const coinType = await this.getForeignAsset(tokenId, chain);
     if (!coinType) return null;

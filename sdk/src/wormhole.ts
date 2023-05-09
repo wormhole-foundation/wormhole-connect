@@ -1,6 +1,6 @@
 import { Network as Environment } from '@certusone/wormhole-sdk';
 import { Domain, MultiProvider } from '@nomad-xyz/multi-provider';
-import { BigNumber } from 'ethers';
+import { BigNumber, providers } from 'ethers';
 
 import MAINNET_CONFIG, { MAINNET_CHAINS } from './config/MAINNET';
 import TESTNET_CONFIG, { TESTNET_CHAINS } from './config/TESTNET';
@@ -160,18 +160,25 @@ export class WormholeContext extends MultiProvider<Domain> {
   async getNativeBalance(
     walletAddress: string,
     chain: ChainName | ChainId,
+    batchProvider?: providers.JsonRpcBatchProvider,
   ): Promise<BigNumber> {
     const context = this.getContext(chain);
-    return await context.getNativeBalance(walletAddress, chain);
+    return await context.getNativeBalance(walletAddress, chain, batchProvider);
   }
 
   async getTokenBalance(
     walletAddress: string,
     tokenId: TokenId,
     chain: ChainName | ChainId,
+    batchProvider?: providers.JsonRpcBatchProvider,
   ): Promise<BigNumber | null> {
     const context = this.getContext(chain);
-    return await context.getTokenBalance(walletAddress, tokenId, chain);
+    return await context.getTokenBalance(
+      walletAddress,
+      tokenId,
+      chain,
+      batchProvider,
+    );
   }
 
   /**

@@ -57,11 +57,13 @@ export abstract class TokenBridgeAbstract<TransactionResult> {
   protected abstract getNativeBalance(
     walletAddress: string,
     chain: ChainName | ChainId,
+    batchProvider: any,
   ): Promise<BigNumber>;
   protected abstract getTokenBalance(
     walletAddress: string,
     tokenId: TokenId,
     chain: ChainName | ChainId,
+    batchProvider: any,
   ): Promise<BigNumber | null>;
 
   protected abstract redeem(

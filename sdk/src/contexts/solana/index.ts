@@ -109,6 +109,7 @@ export class SolanaContext<
   async getNativeBalance(
     walletAddress: string,
     chain: ChainName | ChainId,
+    batchProvider?: any,
   ): Promise<BigNumber> {
     if (!this.connection) throw new Error('no connection');
     const balance = await this.connection.getBalance(
@@ -121,6 +122,7 @@ export class SolanaContext<
     walletAddress: string,
     tokenId: TokenId,
     chain: ChainName | ChainId,
+    batchProvider?: any,
   ): Promise<BigNumber | null> {
     if (!this.connection) throw new Error('no connection');
     const address = await this.getForeignAsset(tokenId, chain);

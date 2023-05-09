@@ -12,8 +12,9 @@ import {
   Overrides,
   PayableOverrides,
   PopulatedTransaction,
+  utils,
+  providers,
 } from 'ethers';
-import { utils } from 'ethers';
 
 import {
   TokenId,
@@ -88,8 +89,9 @@ export class EthContext<
   async getNativeBalance(
     walletAddr: string,
     chain: ChainName | ChainId,
+    batchProvider?: providers.JsonRpcBatchProvider,
   ): Promise<BigNumber> {
-    const provider = this.context.mustGetProvider(chain);
+    const provider = batchProvider || this.context.mustGetProvider(chain);
     return await provider.getBalance(walletAddr);
   }
 
@@ -97,10 +99,11 @@ export class EthContext<
     walletAddr: string,
     tokenId: TokenId,
     chain: ChainName | ChainId,
+    batchProvider?: providers.JsonRpcBatchProvider,
   ): Promise<BigNumber | null> {
     const address = await this.getForeignAsset(tokenId, chain);
     if (!address) return null;
-    const provider = this.context.mustGetProvider(chain);
+    const provider = batchProvider || this.context.mustGetProvider(chain);
     const token = TokenImplementation__factory.connect(address, provider);
     const balance = await token.balanceOf(walletAddr);
     return balance;

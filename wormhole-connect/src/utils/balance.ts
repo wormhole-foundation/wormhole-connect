@@ -1,5 +1,30 @@
-import { BigNumber, utils } from 'ethers';
+import { BigNumber, utils, providers } from 'ethers';
+import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { TOKENS } from '../config';
+import { WH_CONFIG } from '../config';
+import { getBalance, getNativeBalance } from 'sdk';
+import { formatBalance } from 'store/transfer';
+import { TokenConfig } from 'config/types';
+
+export async function getBalances(
+  chain: ChainName,
+  walletAddr: string,
+  tokens: any,
+) {
+  const rpcUrl = WH_CONFIG.rpcs[chain];
+  if (!rpcUrl) return {};
+  const batchProvider = new providers.JsonRpcBatchProvider(rpcUrl);
+  const balances = await Promise.all(
+    tokens.map(async (t: TokenConfig) => {
+      const balance = t.tokenId
+        ? await getBalance(walletAddr, t.tokenId, chain, batchProvider)
+        : await getNativeBalance(walletAddr, chain, batchProvider);
+
+      return formatBalance(chain, t, balance);
+    }),
+  );
+  return balances;
+}
 
 /**
  * Makes a BigNumber have # of decimals
