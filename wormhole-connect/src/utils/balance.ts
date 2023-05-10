@@ -1,6 +1,6 @@
 import { BigNumber, utils, providers } from 'ethers';
-import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
-import { TOKENS } from '../config';
+import { ChainName, Context } from '@wormhole-foundation/wormhole-connect-sdk';
+import { CHAINS, TOKENS } from '../config';
 import { WH_CONFIG } from '../config';
 import { getBalance, getNativeBalance } from 'sdk';
 import { formatBalance } from 'store/transfer';
@@ -9,10 +9,32 @@ import { TokenConfig } from 'config/types';
 export async function getBalances(
   chain: ChainName,
   walletAddr: string,
+  tokens: TokenConfig[],
+): Promise<any[]> {
+  const chainConfig = CHAINS[chain]!;
+  if (chainConfig.context === Context.ETH) {
+    return await getEvmBalances(chain, walletAddr, tokens);
+  } else {
+    // fetch all N tokens and trigger a single update action
+    let balances: any = [];
+    for (const token of tokens) {
+      const balance = token.tokenId
+        ? await getBalance(walletAddr, token.tokenId, chain)
+        : await getNativeBalance(walletAddr, chain);
+
+      balances.push(formatBalance(chain, token, balance));
+    }
+    return balances;
+  }
+}
+
+export async function getEvmBalances(
+  chain: ChainName,
+  walletAddr: string,
   tokens: any,
-) {
+): Promise<any[]> {
   const rpcUrl = WH_CONFIG.rpcs[chain];
-  if (!rpcUrl) return {};
+  if (!rpcUrl) return [];
   const batchProvider = new providers.JsonRpcBatchProvider(rpcUrl);
   const balances = await Promise.all(
     tokens.map(async (t: TokenConfig) => {

@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { makeStyles } from 'tss-react/mui';
 import InputTransparent from './InputTransparent';
 import SearchIcon from '../icons/Search';
@@ -49,6 +49,10 @@ function Search(props: Props) {
       (searchEl.current as any).focus();
     }
   };
+
+  useEffect(() => {
+    focus();
+  }, []);
 
   return (
     <div className={classes.searchBorder}>
