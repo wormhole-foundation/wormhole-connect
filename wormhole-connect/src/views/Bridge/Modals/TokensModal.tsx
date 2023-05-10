@@ -1,10 +1,4 @@
-import React, {
-  ChangeEvent,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import React, { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTheme } from '@mui/material/styles';
 import { useMediaQuery } from '@mui/material';
@@ -158,6 +152,7 @@ function TokensModal() {
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [loading, setLoading] = useState(false);
   const [tokens, setTokens] = useState<TokenConfig[]>([]);
+  const [search, setSearch] = useState('');
 
   // store values
   const showTokensModal = useSelector(
@@ -170,37 +165,35 @@ function TokensModal() {
     (state: RootState) => state.wallet.sending.address,
   );
 
-  const networkTokens = useMemo(() => {
-    return TOKENS_ARR.filter((t) => {
-      if (!fromNetwork) return true;
-      return !!t.tokenId || (!t.tokenId && t.nativeNetwork === fromNetwork);
-    });
-  }, [fromNetwork]);
-
   // search tokens
-  const searchTokens = useCallback(
-    (
-      e:
-        | ChangeEvent<HTMLInputElement>
-        | ChangeEvent<HTMLTextAreaElement>
-        | undefined,
-    ) => {
-      if (!e) return;
+  const handleSearch = (
+    e:
+      | ChangeEvent<HTMLInputElement>
+      | ChangeEvent<HTMLTextAreaElement>
+      | undefined,
+  ) => {
+    if (e) {
       const lowercase = e.target.value.toLowerCase();
-      const filtered = networkTokens.filter((c) => {
-        const symbol = c.symbol.toLowerCase();
-        return (
-          symbol.includes(lowercase) ||
-          (c.tokenId && c.tokenId.address.toLowerCase().includes(lowercase))
-        );
-      });
-      setTokens(filtered);
-    },
-    [networkTokens],
-  );
+      setSearch(lowercase);
+    } else {
+      setSearch('');
+    }
+  };
+
+  const displayedTokens = useMemo(() => {
+    if (!search) return tokens;
+    return tokens.filter((c) => {
+      const symbol = c.symbol.toLowerCase();
+      return (
+        symbol.includes(search) ||
+        (c.tokenId && c.tokenId.address.toLowerCase().includes(search))
+      );
+    });
+  }, [tokens, search]);
 
   // listen for close event
   const closeTokensModal = () => {
+    setTimeout(() => setSearch(''), 500);
     dispatch(setTokensModal(false));
   };
 
@@ -245,28 +238,27 @@ function TokensModal() {
     dispatch(clearBalances());
 
     setLoading(true);
-    getBalances(networkTokens, walletAddr, fromNetwork).finally(() =>
+    getBalances(TOKENS_ARR, walletAddr, fromNetwork).finally(() =>
       setLoading(false),
     );
     // eslint-disable-next-line
-  }, [walletAddr, fromNetwork, networkTokens]);
+  }, [walletAddr, fromNetwork]);
 
   useEffect(() => {
-    setTokens(networkTokens);
-  }, [networkTokens]);
-
-  useEffect(() => {
-    // filter only when a wallet is connected AND a network is selected
     if (!fromNetwork || !walletAddr) {
-      setTokens(networkTokens);
+      setTokens(TOKENS_ARR);
       return;
     }
-    const filtered = networkTokens.filter((t) => {
+
+    // get tokens that exist on the chain and have a balance greater than 0
+    const filtered = TOKENS_ARR.filter((t) => {
+      if (!fromNetwork) return true;
+      if (!t.tokenId && t.nativeNetwork !== fromNetwork) return false;
       const b = tokenBalances[t.key];
       return b !== null && b !== '0';
     });
     setTokens(filtered);
-  }, [fromNetwork, tokenBalances, networkTokens, walletAddr]);
+  }, [fromNetwork, tokenBalances, walletAddr]);
 
   return (
     <Modal
@@ -283,7 +275,7 @@ function TokensModal() {
             ? 'Token symbol or address'
             : 'Search by name or contract address'
         }
-        onChange={searchTokens}
+        onChange={handleSearch}
       />
       <Spacer height={16} />
       <div className={classes.sectionHeader}>
@@ -295,9 +287,9 @@ function TokensModal() {
         blendColor={theme.palette.modal.background}
       >
         <div className={classes.tokensContainer}>
-          {tokens.length > 0 ? (
+          {displayedTokens.length > 0 ? (
             <div>
-              {tokens.map((token, i) => (
+              {displayedTokens.map((token, i) => (
                 <div
                   className={classes.tokenRow}
                   key={i}

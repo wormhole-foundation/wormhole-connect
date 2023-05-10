@@ -5,7 +5,7 @@ import {
   ChainConfig,
   ChainName,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { CHAINS_ARR } from '../config';
+import { CHAINS_ARR, CHAINS } from '../config';
 import { CENTER, joinClass } from '../utils/style';
 
 import Header from './Header';
@@ -77,7 +77,7 @@ function NetworksModal(props: Props) {
   const theme = useTheme();
 
   const chains = props.chains || CHAINS_ARR;
-  const [search, setSearch] = useState('' as string | undefined);
+  const [search, setSearch] = useState<string | undefined>();
 
   const searchChains = (
     e:
@@ -90,7 +90,19 @@ function NetworksModal(props: Props) {
 
   const showChain = (chain: ChainName) => {
     if (!search) return true;
-    return chain.includes(search);
+    const chainConfig = CHAINS[chain]!;
+    const name = chainConfig.displayName.toLowerCase();
+    return name.includes(search);
+  };
+
+  const handleClose = () => {
+    setTimeout(() => setSearch(undefined), 500);
+    props.onClose();
+  };
+
+  const handleSelect = (chain: ChainName) => {
+    props.onSelect(chain);
+    handleClose();
   };
 
   return (
@@ -98,7 +110,7 @@ function NetworksModal(props: Props) {
       open={props.open}
       closable
       width={CHAINS_ARR.length > 6 ? 650 : 500}
-      onClose={props.onClose}
+      onClose={handleClose}
     >
       <Header text={props.title} size={28} />
       <div className={classes.subtitle}>Select Network</div>
@@ -123,7 +135,7 @@ function NetworksModal(props: Props) {
                       classes.networkTile,
                       !!disabled && classes.disabled,
                     ])}
-                    onClick={() => props.onSelect(chain.key)}
+                    onClick={() => handleSelect(chain.key)}
                   >
                     <TokenIcon name={chain.icon} height={48} />
                     <div className={classes.networkText}>
