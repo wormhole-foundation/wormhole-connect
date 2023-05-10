@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useEffect, useState } from 'react';
+import React, { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTheme } from '@mui/material/styles';
 import { useMediaQuery } from '@mui/material';
@@ -180,7 +180,7 @@ function TokensModal() {
     }
   };
 
-  const tokensSearch = () => {
+  const displayedTokens = useMemo(() => {
     if (!search) return tokens;
     return tokens.filter((c) => {
       const symbol = c.symbol.toLowerCase();
@@ -189,7 +189,7 @@ function TokensModal() {
         (c.tokenId && c.tokenId.address.toLowerCase().includes(search))
       );
     });
-  };
+  }, [tokens, search]);
 
   // listen for close event
   const closeTokensModal = () => {
@@ -253,8 +253,7 @@ function TokensModal() {
     // get tokens that exist on the chain and have a balance greater than 0
     const filtered = TOKENS_ARR.filter((t) => {
       if (!fromNetwork) return true;
-      return !!t.tokenId || (!t.tokenId && t.nativeNetwork === fromNetwork);
-    }).filter((t) => {
+      if (!t.tokenId && t.nativeNetwork !== fromNetwork) return false;
       const b = tokenBalances[t.key];
       return b !== null && b !== '0';
     });
@@ -288,9 +287,9 @@ function TokensModal() {
         blendColor={theme.palette.modal.background}
       >
         <div className={classes.tokensContainer}>
-          {tokensSearch().length > 0 ? (
+          {displayedTokens.length > 0 ? (
             <div>
-              {tokensSearch().map((token, i) => (
+              {displayedTokens.map((token, i) => (
                 <div
                   className={classes.tokenRow}
                   key={i}

@@ -5,7 +5,7 @@ import {
   ChainConfig,
   ChainName,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { CHAINS_ARR } from '../config';
+import { CHAINS_ARR, CHAINS } from '../config';
 import { CENTER, joinClass } from '../utils/style';
 
 import Header from './Header';
@@ -90,7 +90,9 @@ function NetworksModal(props: Props) {
 
   const showChain = (chain: ChainName) => {
     if (!search) return true;
-    return chain.includes(search);
+    const chainConfig = CHAINS[chain]!;
+    const name = chainConfig.displayName.toLowerCase();
+    return name.includes(search);
   };
 
   const handleClose = () => {
