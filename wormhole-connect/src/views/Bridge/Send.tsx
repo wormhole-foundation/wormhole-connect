@@ -140,13 +140,14 @@ function Send(props: { valid: boolean }) {
 
       const gasFee = await estimateSendGasFee(
         sendToken || 'native',
-        `${amount}`,
+        amount || 0,
         fromNetwork!,
         sending.address,
         toNetwork!,
         receiving.address,
         gasPayment,
-        `${toNativeToken}`,
+        relayerFee,
+        toNativeToken,
       );
       if (gasPayment === PaymentOption.MANUAL) {
         dispatch(setManualGasEst(gasFee));
@@ -162,6 +163,7 @@ function Send(props: { valid: boolean }) {
       toNetwork,
       receiving,
       toNativeToken,
+      relayerFee,
       dispatch,
     ],
   );

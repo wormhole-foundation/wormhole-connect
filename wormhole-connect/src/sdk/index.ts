@@ -302,13 +302,14 @@ export const getCurrentBlock = async (
 
 export const estimateSendGasFee = async (
   token: TokenId | 'native',
-  amount: string,
+  amount: number,
   fromNetwork: ChainName | ChainId,
   fromAddress: string,
   toNetwork: ChainName | ChainId,
   toAddress: string,
   paymentOption: PaymentOption,
-  toNativeToken?: string,
+  relayerFee: number = 0,
+  toNativeToken: number = 0,
 ): Promise<string> => {
   return await estimateSendFees(
     wh,
@@ -319,6 +320,7 @@ export const estimateSendGasFee = async (
     toNetwork,
     toAddress,
     paymentOption,
+    relayerFee,
     toNativeToken,
   );
 };
