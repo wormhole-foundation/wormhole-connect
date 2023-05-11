@@ -90,6 +90,7 @@ function formatAmount(amount?: number): number {
 }
 
 const INITIAL_STATE = {
+  disabled: false,
   max: 0,
   nativeGas: 0,
   token: formatAmount(),
@@ -116,19 +117,16 @@ function GasSlider(props: { disabled: boolean }) {
   useEffect(() => {
     if (!amount || !maxSwapAmt || destGasPayment === PaymentOption.MANUAL)
       return;
-    // multiply by 0.995 to avoid errors due to rounding, low amount, low gas, etc.
-    const amountWithoutRelayerFee = Number.parseFloat(
-      ((amount - (relayerFee || 0)) * 0.995).toFixed(8),
-    );
-    const actualMaxSwap =
-      amount &&
-      maxSwapAmt &&
-      Math.max(Math.min(maxSwapAmt, amountWithoutRelayerFee), 0);
+
+    const min = (relayerFee || 0) + maxSwapAmt;
+    const actualMin = Number.parseFloat((min * 1.05).toFixed(6));
     const newTokenAmount = toFixedDecimals(`${amount - state.swapAmt}`, 6);
+
     setState((prevState) => ({
       ...prevState,
+      disabled: amount < actualMin,
       token: Number.parseFloat(newTokenAmount),
-      max: actualMaxSwap,
+      max: maxSwapAmt,
     }));
   }, [maxSwapAmt, amount, destGasPayment, state.swapAmt, relayerFee]);
 
@@ -264,7 +262,7 @@ function GasSlider(props: { disabled: boolean }) {
     <BridgeCollapse
       title="Native gas"
       banner={!props.disabled}
-      disabled={props.disabled}
+      disabled={props.disabled || state.disabled}
       close={props.disabled}
       controlStyle={CollapseControlStyle.Switch}
       onCollapseChange={onCollapseChange}

@@ -15,6 +15,7 @@ import {
   TransactionBlock,
   getTotalGasUsed,
 } from '@mysten/sui.js';
+import { getMinAmount } from 'utils/transferValidation';
 
 // simulates a send transaction and returns the estimated fees
 const estimateGasFee = async (
@@ -59,8 +60,8 @@ const estimateGasFee = async (
       const parsedNativeAmt = utils
         .parseUnits(`${toNativeToken}`, decimals)
         .toString();
-      const fees = ((relayerFee + toNativeToken) * 1.005).toFixed(8);
-      const amountOrMin = Math.max(amount, Number.parseFloat(fees));
+      const min = getMinAmount(true, relayerFee, toNativeToken);
+      const amountOrMin = Math.max(amount, min);
       const parsedAmount = utils.parseUnits(`${amountOrMin}`, decimals);
       tx = await chainContext.sendWithRelay(
         token,
@@ -107,8 +108,8 @@ const estimateGasFee = async (
     const parsedNativeAmt = utils
       .parseUnits(`${toNativeToken}`, decimals)
       .toString();
-    const fees = ((relayerFee + toNativeToken) * 1.05).toFixed(8);
-    const amountOrMin = Math.max(amount, Number.parseFloat(fees));
+    const min = getMinAmount(true, relayerFee, toNativeToken);
+    const amountOrMin = Math.max(amount, min);
     const parsedAmount = utils.parseUnits(`${amountOrMin}`, decimals);
 
     const tx = await chainContext.prepareSendWithRelay(
