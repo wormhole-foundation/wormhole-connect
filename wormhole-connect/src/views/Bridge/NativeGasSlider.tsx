@@ -29,6 +29,7 @@ import {
   toFixedDecimals,
 } from '../../utils/balance';
 import BridgeCollapse, { CollapseControlStyle } from './Collapse';
+import { getMinAmount } from '../../utils/transferValidation';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -118,15 +119,20 @@ function GasSlider(props: { disabled: boolean }) {
     if (!amount || !maxSwapAmt || destGasPayment === PaymentOption.MANUAL)
       return;
 
-    const min = (relayerFee || 0) + maxSwapAmt;
-    const actualMin = Number.parseFloat((min * 1.05).toFixed(6));
-    const newTokenAmount = toFixedDecimals(`${amount - state.swapAmt}`, 6);
+    const min = getMinAmount(true, relayerFee, 0);
+    const amountWithoutRelayerFee = amount - min;
+    const actualMaxSwap =
+      amount &&
+      maxSwapAmt &&
+      Math.max(Math.min(maxSwapAmt, amountWithoutRelayerFee), 0);
+
+    const newTokenAmount = amount - state.swapAmt;
 
     setState((prevState) => ({
       ...prevState,
-      disabled: amount < actualMin,
-      token: Number.parseFloat(newTokenAmount),
-      max: maxSwapAmt,
+      disabled: amount <= min,
+      token: formatAmount(newTokenAmount),
+      max: formatAmount(actualMaxSwap),
     }));
   }, [maxSwapAmt, amount, destGasPayment, state.swapAmt, relayerFee]);
 
@@ -201,13 +207,13 @@ function GasSlider(props: { disabled: boolean }) {
   // compute amounts on change
   const handleChange = (e: any) => {
     if (!amount || !state.conversionRate) return;
-    const convertedAmt = `${e.target.value * state.conversionRate}`;
-    const newGasAmount = toFixedDecimals(convertedAmt, 6);
-    const newTokenAmount = toFixedDecimals(`${amount - e.target.value}`, 6);
+    const newGasAmount = e.target.value * state.conversionRate;
+    const newTokenAmount = amount - e.target.value;
+    const swapAmount = e.target.value;
     const conversion = {
-      nativeGas: Number.parseFloat(newGasAmount),
-      token: Number.parseFloat(newTokenAmount),
-      swapAmt: e.target.value,
+      nativeGas: formatAmount(newGasAmount),
+      token: formatAmount(newTokenAmount),
+      swapAmt: formatAmount(swapAmount),
     };
     setState((prevState) => ({ ...prevState, ...conversion }));
   };
