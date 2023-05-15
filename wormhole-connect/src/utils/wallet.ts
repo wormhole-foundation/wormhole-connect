@@ -50,6 +50,10 @@ let walletConnection = {
   receiving: undefined as Wallet | undefined,
 };
 
+// if (walletConnection.sending) {
+//   console.log((walletConnection.sending as SolanaWallet).getAdapter().signAllTransactions)
+// }
+
 const tag = WH_CONFIG.env === 'MAINNET' ? 'mainnet-beta' : 'devnet';
 const connection = new SolanaConnection(
   WH_CONFIG.rpcs.solana || clusterApiUrl(tag),
@@ -142,6 +146,9 @@ export const signSolanaTransaction = async (
   if (!wallet || !wallet.signAndSendTransaction) {
     throw new Error('wallet.signAndSendTransaction is undefined');
   }
+
+  const signed = await (wallet as SolanaWallet).getAdapter().signAllTransactions!([transaction]);
+  console.log('signed', signed);
 
   return await (wallet as SolanaWallet).signAndSendTransaction({
     transaction,
