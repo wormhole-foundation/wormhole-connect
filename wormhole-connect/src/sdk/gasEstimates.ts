@@ -17,6 +17,21 @@ import {
 } from '@mysten/sui.js';
 import { getMinAmount } from 'utils/transferValidation';
 
+const simulateRelayAmount = (
+  paymentOption: PaymentOption,
+  amount: number,
+  relayerFee: number,
+  toNativeToken: number,
+  tokenDecimals: number,
+): BigNumber => {
+  if (paymentOption === PaymentOption.AUTOMATIC) {
+    const min = getMinAmount(true, relayerFee, toNativeToken);
+    const amountOrMin = Math.max(amount, min);
+    return utils.parseUnits(`${amountOrMin}`, tokenDecimals);
+  }
+  return BigNumber.from(0);
+};
+
 // simulates a send transaction and returns the estimated fees
 const estimateGasFee = async (
   context: WormholeContext,
@@ -36,6 +51,17 @@ const estimateGasFee = async (
   const chainContext = context.getContext(fromNetwork) as any;
   const fromChainName = context.toChainName(fromNetwork);
   const gasEstimates = GAS_ESTIMATES[fromChainName]!;
+  const parsedNativeAmt = utils
+    .parseUnits(`${toNativeToken}`, decimals)
+    .toString();
+  const relayAmount = simulateRelayAmount(
+    paymentOption,
+    amount,
+    relayerFee,
+    toNativeToken,
+    decimals,
+  );
+
   // Solana gas estimates
   if (fromChainId === MAINNET_CHAINS.solana) {
     return toFixedDecimals(utils.formatUnits(gasEstimates.sendToken, 9), 6);
@@ -57,15 +83,9 @@ const estimateGasFee = async (
         undefined,
       );
     } else {
-      const parsedNativeAmt = utils
-        .parseUnits(`${toNativeToken}`, decimals)
-        .toString();
-      const min = getMinAmount(true, relayerFee, toNativeToken);
-      const amountOrMin = Math.max(amount, min);
-      const parsedAmount = utils.parseUnits(`${amountOrMin}`, decimals);
       tx = await chainContext.sendWithRelay(
         token,
-        parsedAmount.toString(),
+        relayAmount.toString(),
         parsedNativeAmt,
         fromNetwork,
         fromAddress,
@@ -105,16 +125,9 @@ const estimateGasFee = async (
     const gasFee = est.mul(gasPrice);
     return toFixedDecimals(utils.formatEther(gasFee), 6);
   } else {
-    const parsedNativeAmt = utils
-      .parseUnits(`${toNativeToken}`, decimals)
-      .toString();
-    const min = getMinAmount(true, relayerFee, toNativeToken);
-    const amountOrMin = Math.max(amount, min);
-    const parsedAmount = utils.parseUnits(`${amountOrMin}`, decimals);
-
     const tx = await chainContext.prepareSendWithRelay(
       token,
-      parsedAmount.toString(),
+      relayAmount.toString(),
       parsedNativeAmt,
       fromNetwork,
       fromAddress,
