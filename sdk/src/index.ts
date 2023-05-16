@@ -12,6 +12,7 @@ export * from './vaa';
 export * from './config/MAINNET';
 export * from './wormhole';
 export * from './contexts/solana';
+export * from './contexts/solana/solana';
 export * from './contexts/eth';
 export * from './contexts/sui';
 export const CONFIG = {

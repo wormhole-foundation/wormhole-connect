@@ -142,13 +142,10 @@ export const signSolanaTransaction = async (
   walletType: TransferWallet,
   options?: ConfirmOptions,
 ) => {
-  const wallet = walletConnection[walletType];
+  const wallet = walletConnection[walletType] as SolanaWallet;
   if (!wallet || !wallet.signAndSendTransaction) {
     throw new Error('wallet.signAndSendTransaction is undefined');
   }
-
-  const signed = await (wallet as SolanaWallet).getAdapter().signAllTransactions!([transaction]);
-  console.log('signed', signed);
 
   return await (wallet as SolanaWallet).signAndSendTransaction({
     transaction,
