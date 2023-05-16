@@ -29,6 +29,7 @@ import {
   toFixedDecimals,
 } from '../../utils/balance';
 import BridgeCollapse, { CollapseControlStyle } from './Collapse';
+import { getMinAmount } from '../../utils/transferValidation';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -90,6 +91,7 @@ function formatAmount(amount?: number): number {
 }
 
 const INITIAL_STATE = {
+  disabled: false,
   max: 0,
   nativeGas: 0,
   token: formatAmount(),
@@ -116,19 +118,21 @@ function GasSlider(props: { disabled: boolean }) {
   useEffect(() => {
     if (!amount || !maxSwapAmt || destGasPayment === PaymentOption.MANUAL)
       return;
-    // multiply by 0.995 to avoid errors due to rounding, low amount, low gas, etc.
-    const amountWithoutRelayerFee = Number.parseFloat(
-      ((amount - (relayerFee || 0)) * 0.995).toFixed(8),
-    );
+
+    const min = getMinAmount(true, relayerFee, 0);
+    const amountWithoutRelayerFee = amount - min;
     const actualMaxSwap =
       amount &&
       maxSwapAmt &&
       Math.max(Math.min(maxSwapAmt, amountWithoutRelayerFee), 0);
-    const newTokenAmount = toFixedDecimals(`${amount - state.swapAmt}`, 6);
+
+    const newTokenAmount = amount - state.swapAmt;
+
     setState((prevState) => ({
       ...prevState,
-      token: Number.parseFloat(newTokenAmount),
-      max: actualMaxSwap,
+      disabled: amount <= min,
+      token: formatAmount(newTokenAmount),
+      max: formatAmount(actualMaxSwap),
     }));
   }, [maxSwapAmt, amount, destGasPayment, state.swapAmt, relayerFee]);
 
@@ -203,13 +207,13 @@ function GasSlider(props: { disabled: boolean }) {
   // compute amounts on change
   const handleChange = (e: any) => {
     if (!amount || !state.conversionRate) return;
-    const convertedAmt = `${e.target.value * state.conversionRate}`;
-    const newGasAmount = toFixedDecimals(convertedAmt, 6);
-    const newTokenAmount = toFixedDecimals(`${amount - e.target.value}`, 6);
+    const newGasAmount = e.target.value * state.conversionRate;
+    const newTokenAmount = amount - e.target.value;
+    const swapAmount = e.target.value;
     const conversion = {
-      nativeGas: Number.parseFloat(newGasAmount),
-      token: Number.parseFloat(newTokenAmount),
-      swapAmt: e.target.value,
+      nativeGas: formatAmount(newGasAmount),
+      token: formatAmount(newTokenAmount),
+      swapAmt: formatAmount(swapAmount),
     };
     setState((prevState) => ({ ...prevState, ...conversion }));
   };
@@ -264,7 +268,7 @@ function GasSlider(props: { disabled: boolean }) {
     <BridgeCollapse
       title="Native gas"
       banner={!props.disabled}
-      disabled={props.disabled}
+      disabled={props.disabled || state.disabled}
       close={props.disabled}
       controlStyle={CollapseControlStyle.Switch}
       onCollapseChange={onCollapseChange}

@@ -15,25 +15,53 @@ import {
   TransactionBlock,
   getTotalGasUsed,
 } from '@mysten/sui.js';
+import { getMinAmount } from 'utils/transferValidation';
+
+const simulateRelayAmount = (
+  paymentOption: PaymentOption,
+  amount: number,
+  relayerFee: number,
+  toNativeToken: number,
+  tokenDecimals: number,
+): BigNumber => {
+  if (paymentOption === PaymentOption.AUTOMATIC) {
+    const min = getMinAmount(true, relayerFee, toNativeToken);
+    const amountOrMin = Math.max(amount, min);
+    return utils.parseUnits(`${amountOrMin}`, tokenDecimals);
+  }
+  return BigNumber.from(0);
+};
 
 // simulates a send transaction and returns the estimated fees
 const estimateGasFee = async (
   context: WormholeContext,
   token: TokenId | 'native',
-  amount: string,
+  amount: number,
   fromNetwork: ChainName | ChainId,
   fromAddress: string,
   toNetwork: ChainName | ChainId,
   toAddress: string,
   paymentOption: PaymentOption,
-  toNativeToken?: string,
+  relayerFee: number = 0,
+  toNativeToken: number = 0,
 ): Promise<string> => {
   const fromChainId = context.toChainId(fromNetwork);
   const decimals = getTokenDecimals(fromChainId, token);
-  const parsedAmt = utils.parseUnits(amount, decimals);
+  const parsedAmt = utils.parseUnits(`${amount}`, decimals);
   const chainContext = context.getContext(fromNetwork) as any;
   const fromChainName = context.toChainName(fromNetwork);
   const gasEstimates = GAS_ESTIMATES[fromChainName]!;
+  const parsedNativeAmt = utils
+    .parseUnits(`${toNativeToken}`, decimals)
+    .toString();
+  const relayAmount = simulateRelayAmount(
+    paymentOption,
+    amount,
+    relayerFee,
+    toNativeToken,
+    decimals,
+  );
+
   // Solana gas estimates
   if (fromChainId === MAINNET_CHAINS.solana) {
     return toFixedDecimals(utils.formatUnits(gasEstimates.sendToken, 9), 6);
@@ -55,12 +83,9 @@ const estimateGasFee = async (
         undefined,
       );
     } else {
-      const parsedNativeAmt = toNativeToken
-        ? utils.parseUnits(toNativeToken, decimals).toString()
-        : '0';
       tx = await chainContext.sendWithRelay(
         token,
-        parsedAmt.toString(),
+        relayAmount.toString(),
         parsedNativeAmt,
         fromNetwork,
         fromAddress,
@@ -100,12 +125,9 @@ const estimateGasFee = async (
     const gasFee = est.mul(gasPrice);
     return toFixedDecimals(utils.formatEther(gasFee), 6);
   } else {
-    const parsedNativeAmt = toNativeToken
-      ? utils.parseUnits(toNativeToken, decimals).toString()
-      : '0';
     const tx = await chainContext.prepareSendWithRelay(
       token,
-      parsedAmt.toString(),
+      relayAmount.toString(),
       parsedNativeAmt,
       fromNetwork,
       fromAddress,
@@ -175,13 +197,14 @@ const getGasFeeFallback = async (
 export const estimateSendFees = async (
   context: WormholeContext,
   token: TokenId | 'native',
-  amount: string,
+  amount: number,
   fromNetwork: ChainName | ChainId,
   fromAddress: string,
   toNetwork: ChainName | ChainId,
   toAddress: string,
   paymentOption: PaymentOption,
-  toNativeToken?: string,
+  relayerFee: number = 0,
+  toNativeToken: number = 0,
 ): Promise<string> => {
   try {
     const gasFee = await estimateGasFee(
@@ -193,6 +216,7 @@ export const estimateSendFees = async (
       toNetwork,
       toAddress,
       paymentOption,
+      relayerFee,
       toNativeToken,
     );
     return gasFee;
