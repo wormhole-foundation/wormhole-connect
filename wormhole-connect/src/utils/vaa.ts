@@ -3,8 +3,13 @@ import { ChainId } from '@wormhole-foundation/wormhole-connect-sdk';
 import axios from 'axios';
 
 import { utils } from 'ethers';
-import { CHAINS, WH_CONFIG, WORMHOLE_API } from '../config';
-import { ParsedMessage, ParsedRelayerMessage } from '../sdk';
+import { CHAINS, WH_CONFIG, WORMHOLE_API, isMainnet } from '../config';
+import {
+  ParsedMessage,
+  ParsedRelayerMessage,
+  getCurrentBlock,
+  wh,
+} from '../sdk';
 
 export const WORMHOLE_RPC_HOSTS =
   WH_CONFIG.env === 'MAINNET'
@@ -19,6 +24,9 @@ export const WORMHOLE_RPC_HOSTS =
     : WH_CONFIG.env === 'TESTNET'
     ? ['https://wormhole-v2-testnet-api.certus.one']
     : ['http://localhost:7071'];
+const WORMHOLE_STAGING_API = isMainnet
+  ? 'https://api.staging.wormscan.io/'
+  : 'https://api.testnet.wormscan.io/';
 
 export type ParsedVaa = {
   bytes: string;
@@ -64,6 +72,12 @@ export function getEmitterAndSequence(
 export async function fetchVaa(
   txData: ParsedMessage | ParsedRelayerMessage,
 ): Promise<ParsedVaa | undefined> {
+  // return if the number of block confirmations hasn't been met
+  const chainName = wh.toChainName(txData.fromChain);
+  const { finalityThreshold } = CHAINS[chainName]! as any;
+  const currentBlock = await getCurrentBlock(txData.fromChain);
+  if (currentBlock < txData.block + finalityThreshold) return;
+
   const messageId = getEmitterAndSequence(txData);
   const { emitterChain, emitterAddress, sequence } = messageId;
   const url = `${WORMHOLE_API}api/v1/vaas/${emitterChain}/${emitterAddress}/${sequence}`;
@@ -120,6 +134,26 @@ export const fetchIsVAAEnqueued = async (
       const data = response.data;
       if (!data) return false;
       return data.isEnqueued;
+    })
+    .catch(function (error) {
+      throw error;
+    });
+};
+
+export const fetchGlobalTx = async (
+  txData: ParsedMessage | ParsedRelayerMessage,
+): Promise<string | undefined> => {
+  const messageId = getEmitterAndSequence(txData);
+  const { emitterChain, emitterAddress, sequence } = messageId;
+
+  const url = `${WORMHOLE_STAGING_API}api/v1/global-tx/${emitterChain}/${emitterAddress}/${sequence}`;
+
+  return axios
+    .get(url)
+    .then(function (response: any) {
+      const data = response.data;
+      if (!data || !data.destinationTx?.txHash) return undefined;
+      return `0x${data.destinationTx.txHash}`;
     })
     .catch(function (error) {
       throw error;

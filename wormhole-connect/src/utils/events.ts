@@ -1,25 +1,48 @@
 import { BigNumber } from 'ethers';
 import {
-  ChainId,
   ChainName,
-  TokenId,
   EthContext,
   SuiContext,
   WormholeContext,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { wh } from '../sdk';
+import { ParsedMessage, ParsedRelayerMessage, PaymentOption, wh } from '../sdk';
 import { fromNormalizedDecimals } from '.';
 import { CHAINS } from '../config';
 import { arrayify } from 'ethers/lib/utils.js';
+import { fetchGlobalTx, getEmitterAndSequence } from './vaa';
+
+export const fetchRedeemTx = async (
+  txData: ParsedMessage | ParsedRelayerMessage,
+): Promise<{ transactionHash: string } | null> => {
+  try {
+    const transactionHash = await fetchGlobalTx(txData);
+    if (transactionHash) {
+      return { transactionHash };
+    } else {
+      throw new Error(
+        'transaction fetch failed, continuing to fallback method',
+      );
+    }
+  } catch (_) {
+    // continue to fallback
+    if (txData.payloadID === PaymentOption.AUTOMATIC) {
+      return await fetchRedeemedEvent(txData);
+    }
+    return null;
+  }
+};
 
 export const fetchRedeemedEvent = async (
-  destChainId: ChainId | ChainName,
-  emitterChainId: ChainId,
-  emitterAddress: string,
-  sequence: string,
+  txData: ParsedMessage | ParsedRelayerMessage,
 ): Promise<{ transactionHash: string } | null> => {
-  if (destChainId === 'sui') {
-    const context = wh.getContext(destChainId) as SuiContext<WormholeContext>;
+  const messageId = getEmitterAndSequence(txData);
+  const { emitterChain, emitterAddress, sequence } = messageId;
+  const emitter = `0x${emitterAddress}`;
+
+  if (txData.toChain === 'sui') {
+    const context = wh.getContext(
+      txData.toChain,
+    ) as SuiContext<WormholeContext>;
     const { suiOriginalTokenBridgePackageId } =
       context.context.mustGetContracts('sui');
     if (!suiOriginalTokenBridgePackageId)
@@ -36,8 +59,8 @@ export const fetchRedeemedEvent = async (
       if (
         `0x${Buffer.from(event.parsedJson?.emitter_address.value.data).toString(
           'hex',
-        )}` === emitterAddress &&
-        Number(event.parsedJson?.emitter_chain) === emitterChainId &&
+        )}` === emitter &&
+        Number(event.parsedJson?.emitter_chain) === emitterChain &&
         event.parsedJson?.sequence === sequence
       ) {
         return { transactionHash: event.id.txDigest };
@@ -45,16 +68,16 @@ export const fetchRedeemedEvent = async (
     }
     return null;
   } else {
-    const provider = wh.mustGetProvider(destChainId);
+    const provider = wh.mustGetProvider(txData.toChain);
     const context: any = wh.getContext(
-      destChainId,
+      txData.toChain,
     ) as EthContext<WormholeContext>;
-    const chainName = wh.toChainName(destChainId) as ChainName;
+    const chainName = wh.toChainName(txData.toChain) as ChainName;
     const chainConfig = CHAINS[chainName]!;
-    const relayer = context.contracts.mustGetTokenBridgeRelayer(destChainId);
+    const relayer = context.contracts.mustGetTokenBridgeRelayer(txData.toChain);
     const eventFilter = relayer.filters.TransferRedeemed(
-      emitterChainId,
-      emitterAddress,
+      emitterChain,
+      emitter,
       sequence,
     );
     const currentBlock = await provider.getBlockNumber();
@@ -67,14 +90,13 @@ export const fetchRedeemedEvent = async (
 };
 
 export const fetchSwapEvent = async (
-  destChainId: ChainId | ChainName,
-  recipient: string,
-  tokenId: TokenId,
-  amount: BigNumber,
-  decimals: number,
+  txData: ParsedMessage | ParsedRelayerMessage,
 ) => {
-  if (destChainId === 'sui') {
-    const context = wh.getContext(destChainId) as SuiContext<WormholeContext>;
+  const { tokenId, recipient, amount, tokenDecimals } = txData;
+  if (txData.toChain === 'sui') {
+    const context = wh.getContext(
+      txData.toChain,
+    ) as SuiContext<WormholeContext>;
     const { suiRelayerPackageId } = context.context.mustGetContracts('sui');
     if (!suiRelayerPackageId) throw new Error('suiRelayerPackageId not set');
     const provider = context.provider;
@@ -92,7 +114,7 @@ export const fetchSwapEvent = async (
     for (const event of events.data) {
       if (
         event.parsedJson?.recipient === recipient &&
-        event.parsedJson?.coin_amount === amount.toString() &&
+        event.parsedJson?.coin_amount === amount &&
         event.parsedJson?.coin ===
           `0x${Buffer.from(tokenAddress).toString('hex')}`
       ) {
@@ -101,13 +123,14 @@ export const fetchSwapEvent = async (
     }
     return null;
   } else {
-    const provider = wh.mustGetProvider(destChainId);
-    const context: any = wh.getContext(destChainId);
-    const chainName = wh.toChainName(destChainId) as ChainName;
+    const provider = wh.mustGetProvider(txData.toChain);
+    const context: any = wh.getContext(txData.toChain);
+    const chainName = wh.toChainName(txData.toChain) as ChainName;
     const chainConfig = CHAINS[chainName]!;
-    const relayerContract =
-      context.contracts.mustGetTokenBridgeRelayer(destChainId);
-    const foreignAsset = await context.getForeignAsset(tokenId, destChainId);
+    const relayerContract = context.contracts.mustGetTokenBridgeRelayer(
+      txData.toChain,
+    );
+    const foreignAsset = await context.getForeignAsset(tokenId, txData.toChain);
     const eventFilter = relayerContract.filters.SwapExecuted(
       recipient,
       undefined,
@@ -119,7 +142,10 @@ export const fetchSwapEvent = async (
       currentBlock - chainConfig.maxBlockSearch,
     );
     const match = events.filter((e: any) => {
-      const normalized = fromNormalizedDecimals(amount, decimals);
+      const normalized = fromNormalizedDecimals(
+        BigNumber.from(amount),
+        tokenDecimals,
+      );
       return normalized.eq(e.args[3]);
     });
     return match ? match[0]?.args?.[4] : null;

@@ -2,11 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { BigNumber, utils } from 'ethers';
 import CircularProgress from '@mui/material/CircularProgress';
-import {
-  ChainName,
-  Context,
-  ChainId,
-} from '@wormhole-foundation/wormhole-connect-sdk';
+import { ChainName, Context } from '@wormhole-foundation/wormhole-connect-sdk';
 import { RootState } from '../../store';
 import { setRedeemTx, setTransferComplete } from '../../store/redeem';
 import {
@@ -34,7 +30,7 @@ import {
 import { CHAINS, TOKENS } from '../../config';
 import WalletsModal from '../WalletModal';
 import { GAS_ESTIMATES } from '../../config';
-import { fetchRedeemedEvent, fetchSwapEvent } from '../../utils/events';
+import { fetchRedeemTx, fetchSwapEvent } from '../../utils/events';
 
 import Header from './Header';
 import AlertBanner from '../../components/AlertBanner';
@@ -107,13 +103,7 @@ const getAutomaticRows = async (
   if (receiveTx) {
     let nativeSwapAmount: any;
     try {
-      nativeSwapAmount = await fetchSwapEvent(
-        txData.toChain,
-        txData.recipient,
-        txData.tokenId,
-        BigNumber.from(txData.toNativeTokenAmount),
-        txData.tokenDecimals,
-      );
+      nativeSwapAmount = await fetchSwapEvent(txData);
     } catch (e) {
       console.error(`could not fetch swap event:\n${e}`);
     }
@@ -214,17 +204,8 @@ function SendTo() {
   // get the redeem tx, for automatic transfers only
   const getRedeemTx = useCallback(async () => {
     if (redeemTx) return redeemTx;
-    if (
-      vaa &&
-      txData.toChain !== 'solana' &&
-      txData.payloadID === PaymentOption.AUTOMATIC
-    ) {
-      const redeemed = await fetchRedeemedEvent(
-        txData.toChain,
-        vaa.emitterChain as ChainId,
-        vaa.emitterAddress,
-        vaa.sequence,
-      );
+    if (vaa) {
+      const redeemed = await fetchRedeemTx(txData);
       if (redeemed) {
         dispatch(setRedeemTx(redeemed.transactionHash));
         return redeemed.transactionHash;
