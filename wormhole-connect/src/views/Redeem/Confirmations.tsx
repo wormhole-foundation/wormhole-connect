@@ -43,6 +43,9 @@ function Confirmations(props: Props) {
   const [currentBlock, setCurrentBlock] = useState(0);
 
   useEffect(() => {
+    if (chainConfig.finalityThreshold === 0) {
+      return;
+    }
     let cancelled = false;
     (async () => {
       let currentBlock = 0;
@@ -57,7 +60,7 @@ function Confirmations(props: Props) {
     return () => {
       cancelled = true;
     };
-  }, [requiredHeight, props.chain]);
+  }, [requiredHeight, props.chain, chainConfig.finalityThreshold]);
 
   const blockDiff =
     currentBlock > requiredHeight ? 0 : requiredHeight - currentBlock;

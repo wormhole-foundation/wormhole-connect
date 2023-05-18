@@ -30,11 +30,17 @@ function ExplorerLink(props: ExplorerLinkProps) {
   if (props.type === 'tx') {
     if (networkConfig.key === 'sui') {
       explorerLink = `${networkConfig.explorerUrl}txblock/${props.txHash}`;
+    } else if (networkConfig.key === 'aptos') {
+      explorerLink = `${networkConfig.explorerUrl}txn/${props.txHash}`;
     } else {
       explorerLink = `${networkConfig.explorerUrl}tx/${props.txHash}`;
     }
   } else if (props.type === 'address') {
-    explorerLink = `${networkConfig.explorerUrl}address/${props.address}`;
+    if (networkConfig.key === 'aptos') {
+      explorerLink = `${networkConfig.explorerUrl}account/${props.address}`;
+    } else {
+      explorerLink = `${networkConfig.explorerUrl}address/${props.address}`;
+    }
   }
 
   if (props.type === 'object' && networkConfig.key === 'sui') {
@@ -46,6 +52,9 @@ function ExplorerLink(props: ExplorerLinkProps) {
       explorerLink += '?cluster=devnet';
     }
     if (networkConfig.key === 'sui') {
+      explorerLink += '?network=testnet';
+    }
+    if (networkConfig.key === 'aptos') {
       explorerLink += '?network=testnet';
     }
   }

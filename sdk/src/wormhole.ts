@@ -4,6 +4,7 @@ import { BigNumber } from 'ethers';
 
 import MAINNET_CONFIG, { MAINNET_CHAINS } from './config/MAINNET';
 import TESTNET_CONFIG, { TESTNET_CHAINS } from './config/TESTNET';
+import { AptosContext } from './contexts/aptos';
 import { EthContext } from './contexts/eth';
 import { SolanaContext } from './contexts/solana';
 import { SuiContext } from './contexts/sui';
@@ -66,6 +67,7 @@ export class WormholeContext extends MultiProvider<Domain> {
     this._contexts.set(Context.ETH, new EthContext(this));
     this._contexts.set(Context.SOLANA, new SolanaContext(this));
     this._contexts.set(Context.SUI, new SuiContext(this));
+    this._contexts.set(Context.APTOS, new AptosContext(this));
 
     this.registerProviders();
   }
@@ -125,6 +127,9 @@ export class WormholeContext extends MultiProvider<Domain> {
       }
       case Context.SUI: {
         return new SuiContext(this);
+      }
+      case Context.APTOS: {
+        return new AptosContext(this);
       }
       default: {
         throw new Error('Not able to retrieve context');
@@ -220,6 +225,13 @@ export class WormholeContext extends MultiProvider<Domain> {
     );
   }
 
+  supportsSendWithRelay(chain: ChainName | ChainId): boolean {
+    return !!(
+      this.getContracts(chain)?.relayer &&
+      'sendWithRelay' in this.getContext(chain)
+    );
+  }
+
   /**
    * Sends transaction to the bridge using the relayer
    *
@@ -242,13 +254,15 @@ export class WormholeContext extends MultiProvider<Domain> {
     toNativeToken: string,
     relayerFee?: string,
   ): Promise<SendResult> {
-    const context = this.getContext(sendingChain);
-
-    // TODO: generalize to multiple chains
-    if (context.type === Context.SOLANA) {
+    if (!this.supportsSendWithRelay(sendingChain)) {
       throw new Error(
         `Relayer is not supported on ${this.toChainName(sendingChain)}`,
       );
+    }
+
+    const context = this.getContext(sendingChain);
+    if (!('sendWithRelay' in context)) {
+      throw new Error('sendWithRelay function not found');
     }
 
     return context.sendWithRelay(

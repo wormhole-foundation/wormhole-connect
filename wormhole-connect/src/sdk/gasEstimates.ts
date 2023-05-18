@@ -5,6 +5,7 @@ import {
   ChainId,
   ChainName,
   MAINNET_CHAINS,
+  AptosContext,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { toFixedDecimals } from '../utils/balance';
 import { GAS_ESTIMATES } from '../config';
@@ -16,6 +17,7 @@ import {
   getTotalGasUsed,
 } from '@mysten/sui.js';
 import { getMinAmount } from 'utils/transferValidation';
+import { AptosClient } from 'aptos';
 
 const simulateRelayAmount = (
   paymentOption: PaymentOption,
@@ -106,6 +108,12 @@ const estimateGasFee = async (
     return result;
   }
 
+  // Aptos gas estimates
+  if (fromChainId === MAINNET_CHAINS.aptos) {
+    // TODO: the account's public key is needed for AptosClient.simulateTransaction
+    throw new Error('Aptos estimateGasFee not implemented');
+  }
+
   // EVM gas estimates
   const provider = context.mustGetProvider(fromNetwork);
   const { gasPrice } = await provider.getFeeData();
@@ -163,6 +171,24 @@ const getGasFeeFallback = async (
   if (fromChainId === MAINNET_CHAINS.sui) {
     if (paymentOption === PaymentOption.MANUAL) {
       return toFixedDecimals(utils.formatUnits(gasEstimates.sendToken, 9), 6);
+    } else {
+      // TODO: automatic payment gas fee est. fallback
+      throw new Error('cannot estimate gas fee');
+    }
+  }
+
+  // Aptos gas estimates
+  if (fromChainId === MAINNET_CHAINS.aptos) {
+    if (paymentOption === PaymentOption.MANUAL) {
+      const aptosClient = (
+        context.getContext(fromChainId) as AptosContext<WormholeContext>
+      ).aptosClient as AptosClient;
+      const gasPrice = await aptosClient.estimateGasPrice();
+      const gasEst = sendNative
+        ? gasEstimates.sendNative
+        : gasEstimates.sendToken;
+      const gasFees = BigNumber.from(gasEst).mul(gasPrice.gas_estimate);
+      return toFixedDecimals(utils.formatUnits(gasFees, 8), 6);
     } else {
       // TODO: automatic payment gas fee est. fallback
       throw new Error('cannot estimate gas fee');
@@ -239,6 +265,18 @@ export const estimateClaimFees = async (
   if (destChainId === MAINNET_CHAINS.sui) {
     const gasEstimates = GAS_ESTIMATES['sui'];
     return toFixedDecimals(utils.formatUnits(gasEstimates?.claim!, 9), 6);
+  }
+
+  if (destChainId === MAINNET_CHAINS.aptos) {
+    const aptosClient = (
+      context.getContext('aptos') as AptosContext<WormholeContext>
+    ).aptosClient;
+    const gasPrice = await aptosClient.estimateGasPrice();
+    const gasEstimates = GAS_ESTIMATES['aptos'];
+    const gasFee = BigNumber.from(gasEstimates?.claim || 0).mul(
+      gasPrice.gas_estimate,
+    );
+    return toFixedDecimals(utils.formatUnits(gasFee, 8), 6);
   }
 
   const provider = context.mustGetProvider(destChain);

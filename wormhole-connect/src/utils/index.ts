@@ -30,7 +30,16 @@ export function displayEvmAddress(address: string): string {
 }
 
 export function displaySuiAddress(address: string): string {
-  if (address === SUI_TYPE_ARG) return address; // special case for native sui
+  if (address === SUI_TYPE_ARG) return 'Native';
+  return (
+    address.slice(0, 6) +
+    '...' +
+    address.slice(address.length - 4, address.length)
+  );
+}
+
+export function displayAptosAddress(address: string): string {
+  if (address === '0x1::aptos_coin::AptosCoin') return 'Native';
   return (
     address.slice(0, 6) +
     '...' +
@@ -47,6 +56,8 @@ export function displayAddress(chain: ChainName, address: string): string {
     );
   } else if (chain === 'sui') {
     return displaySuiAddress(address);
+  } else if (chain === 'aptos') {
+    return displayAptosAddress(address);
   } else {
     return displayEvmAddress(address);
   }
@@ -60,6 +71,8 @@ export function displayWalletAddress(
     return displayEvmAddress(address);
   } else if (walletType === Context.SUI) {
     return displaySuiAddress(address);
+  } else if (walletType === Context.APTOS) {
+    return displayAptosAddress(address);
   }
   return displayAddress('solana', address);
 }
@@ -107,6 +120,8 @@ export function getTokenDecimals(
       ? 9
       : chain === MAINNET_CHAINS.sui
       ? 9
+      : chain === MAINNET_CHAINS.aptos
+      ? 8
       : 18;
   }
   const tokenConfig = getTokenById(tokenId);
@@ -115,6 +130,8 @@ export function getTokenDecimals(
     ? tokenConfig.solDecimals
     : chain === MAINNET_CHAINS.sui
     ? tokenConfig.suiDecimals
+    : chain === MAINNET_CHAINS.aptos
+    ? tokenConfig.aptosDecimals
     : tokenConfig.decimals;
 }
 

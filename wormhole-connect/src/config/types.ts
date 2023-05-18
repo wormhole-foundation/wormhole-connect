@@ -38,6 +38,7 @@ export type TokenConfig = {
   decimals: number;
   solDecimals: number;
   suiDecimals: number;
+  aptosDecimals: number;
   wrappedAsset?: string;
 };
 
@@ -72,6 +73,7 @@ export enum Icon {
   'BUSD',
   'WBTC',
   'SUI',
+  'APT',
 }
 
 export type GasEstimates = {

@@ -2,7 +2,13 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { BigNumber, utils } from 'ethers';
 import CircularProgress from '@mui/material/CircularProgress';
-import { ChainName, Context } from '@wormhole-foundation/wormhole-connect-sdk';
+import {
+  ChainName,
+  Context,
+  WormholeContext,
+  SuiContext,
+  AptosContext,
+} from '@wormhole-foundation/wormhole-connect-sdk';
 import { RootState } from '../../store';
 import { setRedeemTx, setTransferComplete } from '../../store/redeem';
 import {
@@ -39,6 +45,8 @@ import Button from '../../components/Button';
 import Spacer from '../../components/Spacer';
 import { RenderRows, RowsData } from '../../components/RenderRows';
 import InputContainer from '../../components/InputContainer';
+import { Types } from 'aptos';
+import { getTotalGasUsed } from '@mysten/sui.js';
 
 const calculateGas = async (chain: ChainName, receiveTx?: string) => {
   const { gasToken } = CHAINS[chain]!;
@@ -52,12 +60,35 @@ const calculateGas = async (chain: ChainName, receiveTx?: string) => {
     );
   }
   if (receiveTx) {
-    const provider = wh.mustGetProvider(chain);
-    const receipt = await provider.getTransactionReceipt(receiveTx);
-    const { gasUsed, effectiveGasPrice } = receipt;
-    if (!gasUsed || !effectiveGasPrice) return;
-    const gasFee = gasUsed.mul(effectiveGasPrice);
-    return toDecimals(gasFee, decimals, MAX_DECIMALS);
+    if (chain === 'aptos') {
+      const aptosClient = (
+        wh.getContext('aptos') as AptosContext<WormholeContext>
+      ).aptosClient;
+      const txn = await aptosClient.getTransactionByHash(receiveTx);
+      if (txn.type === 'user_transaction') {
+        const userTxn = txn as Types.UserTransaction;
+        const gasFee = BigNumber.from(userTxn.gas_used).mul(
+          userTxn.gas_unit_price,
+        );
+        return toDecimals(gasFee || 0, decimals, MAX_DECIMALS);
+      }
+    } else if (chain === 'sui') {
+      const provider = (wh.getContext('sui') as SuiContext<WormholeContext>)
+        .provider;
+      const txBlock = await provider.getTransactionBlock({
+        digest: receiveTx,
+        options: { showEvents: true, showEffects: true, showInput: true },
+      });
+      const gasFee = BigNumber.from(getTotalGasUsed(txBlock) || 0);
+      return toDecimals(gasFee, decimals, MAX_DECIMALS);
+    } else {
+      const provider = wh.mustGetProvider(chain);
+      const receipt = await provider.getTransactionReceipt(receiveTx);
+      const { gasUsed, effectiveGasPrice } = receipt;
+      if (!gasUsed || !effectiveGasPrice) return;
+      const gasFee = gasUsed.mul(effectiveGasPrice);
+      return toDecimals(gasFee, decimals, MAX_DECIMALS);
+    }
   }
   return await estimateClaimGasFee(chain);
 };
