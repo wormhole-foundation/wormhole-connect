@@ -1,7 +1,9 @@
 import {
+  AptosContext,
   ChainId,
   ChainName,
   Context,
+  WormholeContext,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { postVaaSolanaWithRetry } from '@certusone/wormhole-sdk';
 import { NotSupported, Wallet } from '@xlabs-libs/wallet-aggregator-core';
@@ -27,11 +29,25 @@ import {
 import { clusterApiUrl, Connection as SolanaConnection } from '@solana/web3.js';
 import { SolanaWallet } from '@xlabs-libs/wallet-aggregator-solana';
 import { Transaction, ConfirmOptions } from '@solana/web3.js';
-import { registerSigner } from '../sdk';
+import { registerSigner, wh } from '../sdk';
 import { CHAINS, CHAINS_ARR } from '../config';
 import { getNetworkByChainId } from 'utils';
 import { WH_CONFIG } from '../config';
 import { TransactionBlock } from '@mysten/sui.js';
+import { AptosWallet } from '@xlabs-libs/wallet-aggregator-aptos';
+import { Types } from 'aptos';
+import {
+  AptosSnapAdapter,
+  AptosWalletAdapter,
+  BitkeepWalletAdapter,
+  FewchaWalletAdapter,
+  MartianWalletAdapter,
+  NightlyWalletAdapter as NightlyWalletAdapterAptos,
+  PontemWalletAdapter,
+  RiseWalletAdapter,
+  SpikaWalletAdapter,
+  WalletAdapterNetwork,
+} from '@manahippo/aptos-wallet-adapter';
 
 export enum TransferWallet {
   SENDING = 'sending',
@@ -73,6 +89,24 @@ export const wallets = {
     nightly: new SolanaWallet(new NightlyWalletAdapter(), connection),
     blocto: new SolanaWallet(new BloctoWalletAdapter(), connection),
     brave: new SolanaWallet(new BraveWalletAdapter(), connection),
+  },
+  aptos: {
+    aptos: new AptosWallet(new AptosWalletAdapter()),
+    martian: new AptosWallet(new MartianWalletAdapter()),
+    rise: new AptosWallet(new RiseWalletAdapter()),
+    nightly: new AptosWallet(new NightlyWalletAdapterAptos()),
+    pontem: new AptosWallet(new PontemWalletAdapter()),
+    fewcha: new AptosWallet(new FewchaWalletAdapter()),
+    spika: new AptosWallet(new SpikaWalletAdapter()),
+    snap: new AptosWallet(
+      new AptosSnapAdapter({
+        network:
+          WH_CONFIG.env === 'MAINNET'
+            ? WalletAdapterNetwork.Mainnet
+            : WalletAdapterNetwork.Testnet,
+      }),
+    ),
+    bitkeep: new AptosWallet(new BitkeepWalletAdapter()),
   },
 };
 
@@ -161,6 +195,27 @@ export const signSuiTransaction = async (
   return await wallet.signAndSendTransaction({ transactionBlock });
 };
 
+export const signAptosTransaction = async (
+  payload: Types.EntryFunctionPayload,
+  walletType: TransferWallet,
+) => {
+  const wallet = walletConnection[walletType];
+  if (!wallet || !wallet.signAndSendTransaction) {
+    throw new Error('wallet.signAndSendTransaction is undefined');
+  }
+
+  // The wallets do not handle Uint8Array serialization
+  if (payload.arguments) {
+    payload.arguments = payload.arguments.map((a: any) =>
+      a instanceof Uint8Array ? Array.from(a) : a,
+    );
+  }
+
+  return await (wallet as AptosWallet).signAndSendTransaction(
+    payload as Types.TransactionPayload,
+  );
+};
+
 export const signAndSendTransaction = async (
   chain: ChainName,
   transaction: any,
@@ -185,6 +240,17 @@ export const signAndSendTransaction = async (
         transaction as TransactionBlock,
         walletType,
       );
+      return tx.id;
+    }
+    case Context.APTOS: {
+      const tx = await signAptosTransaction(
+        transaction as Types.EntryFunctionPayload,
+        walletType,
+      );
+      const aptosClient = (
+        wh.getContext('aptos') as AptosContext<WormholeContext>
+      ).aptosClient;
+      await aptosClient.waitForTransaction(tx.id);
       return tx.id;
     }
     default:

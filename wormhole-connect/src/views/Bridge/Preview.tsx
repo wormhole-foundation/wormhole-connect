@@ -120,7 +120,7 @@ function Preview(props: { collapsed: boolean }) {
   } = useSelector((state: RootState) => state.transfer);
 
   useEffect(() => {
-    const sourceConfig = toNetwork && CHAINS[fromNetwork];
+    const sourceConfig = fromNetwork && CHAINS[fromNetwork];
     const destConfig = toNetwork && CHAINS[toNetwork];
     const tokenConfig = token && TOKENS[token];
     if (!fromNetwork || !tokenConfig || !sourceConfig || !destConfig || !amount)
@@ -144,6 +144,8 @@ function Preview(props: { collapsed: boolean }) {
               ? tokenConfig.solDecimals
               : fromNetwork === 'sui'
               ? tokenConfig.suiDecimals
+              : fromNetwork === 'aptos'
+              ? tokenConfig.aptosDecimals
               : tokenConfig.decimals;
           const formattedFee = Number.parseFloat(toDecimals(fee, decimals, 6));
           dispatch(setRelayerFee(formattedFee));

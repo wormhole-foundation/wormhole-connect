@@ -103,6 +103,17 @@ export const MAINNET_NETWORKS: NetworksConfig = {
     automaticRelayer: true,
     maxBlockSearch: 0,
   },
+  aptos: {
+    ...chains.aptos!,
+    displayName: 'Aptos',
+    explorerUrl: 'https://explorer.aptoslabs.com/',
+    explorerName: 'Aptos Explorer',
+    gasToken: 'APT',
+    chainId: 0,
+    icon: Icon.APT,
+    automaticRelayer: false,
+    maxBlockSearch: 0,
+  },
 };
 
 export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
@@ -116,6 +127,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 18,
     solDecimals: 8,
     suiDecimals: 8,
+    aptosDecimals: 8,
     wrappedAsset: 'WETH',
   },
   WETH: {
@@ -132,6 +144,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 18,
     solDecimals: 8,
     suiDecimals: 8,
+    aptosDecimals: 8,
   },
   USDCeth: {
     key: 'USDCeth',
@@ -147,6 +160,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 6,
     solDecimals: 6,
     suiDecimals: 6,
+    aptosDecimals: 6,
   },
   WBTC: {
     key: 'WBTC',
@@ -162,6 +176,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 8,
     solDecimals: 8,
     suiDecimals: 8,
+    aptosDecimals: 8,
   },
   USDT: {
     key: 'USDT',
@@ -177,6 +192,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 6,
     solDecimals: 6,
     suiDecimals: 6,
+    aptosDecimals: 6,
   },
   DAI: {
     key: 'DAI',
@@ -192,6 +208,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 18,
     solDecimals: 8,
     suiDecimals: 8,
+    aptosDecimals: 8,
   },
   BUSD: {
     key: 'BUSD',
@@ -207,6 +224,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 18,
     solDecimals: 8,
     suiDecimals: 8,
+    aptosDecimals: 8,
   },
   MATIC: {
     key: 'MATIC',
@@ -218,6 +236,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 18,
     solDecimals: 8,
     suiDecimals: 8,
+    aptosDecimals: 8,
     wrappedAsset: 'WMATIC',
   },
   WMATIC: {
@@ -234,6 +253,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 18,
     solDecimals: 8,
     suiDecimals: 8,
+    aptosDecimals: 8,
   },
   USDCpolygon: {
     key: 'USDCpolygon',
@@ -249,6 +269,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 6,
     solDecimals: 6,
     suiDecimals: 6,
+    aptosDecimals: 6,
   },
   BNB: {
     key: 'BNB',
@@ -260,6 +281,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 18,
     solDecimals: 8,
     suiDecimals: 8,
+    aptosDecimals: 8,
     wrappedAsset: 'WBNB',
   },
   WBNB: {
@@ -276,6 +298,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 18,
     solDecimals: 8,
     suiDecimals: 8,
+    aptosDecimals: 8,
   },
   USDCbnb: {
     key: 'USDCbnb',
@@ -291,6 +314,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 18,
     solDecimals: 8,
     suiDecimals: 8,
+    aptosDecimals: 8,
   },
   AVAX: {
     key: 'AVAX',
@@ -302,6 +326,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 18,
     solDecimals: 8,
     suiDecimals: 8,
+    aptosDecimals: 8,
     wrappedAsset: 'WAVAX',
   },
   WAVAX: {
@@ -318,6 +343,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 18,
     solDecimals: 8,
     suiDecimals: 8,
+    aptosDecimals: 8,
   },
   USDCavax: {
     key: 'USDCavax',
@@ -333,6 +359,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 6,
     solDecimals: 6,
     suiDecimals: 6,
+    aptosDecimals: 6,
   },
   FTM: {
     key: 'FTM',
@@ -344,6 +371,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 18,
     solDecimals: 8,
     suiDecimals: 8,
+    aptosDecimals: 8,
     wrappedAsset: 'WFTM',
   },
   WFTM: {
@@ -360,6 +388,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 18,
     solDecimals: 8,
     suiDecimals: 8,
+    aptosDecimals: 8,
   },
   CELO: {
     key: 'CELO',
@@ -375,6 +404,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 18,
     solDecimals: 8,
     suiDecimals: 8,
+    aptosDecimals: 8,
   },
   GLMR: {
     key: 'GLMR',
@@ -386,6 +416,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 18,
     solDecimals: 8,
     suiDecimals: 8,
+    aptosDecimals: 8,
     wrappedAsset: 'WGLMR',
   },
   WGLMR: {
@@ -402,6 +433,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 18,
     solDecimals: 8,
     suiDecimals: 8,
+    aptosDecimals: 8,
   },
   SOL: {
     key: 'SOL',
@@ -413,6 +445,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 9,
     solDecimals: 9,
     suiDecimals: 8,
+    aptosDecimals: 8,
     wrappedAsset: 'WSOL',
   },
   WSOL: {
@@ -429,6 +462,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 9,
     solDecimals: 9,
     suiDecimals: 8,
+    aptosDecimals: 8,
   },
   USDCsol: {
     key: 'USDCsol',
@@ -444,6 +478,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 6,
     solDecimals: 6,
     suiDecimals: 6,
+    aptosDecimals: 6,
   },
   SUI: {
     key: 'SUI',
@@ -459,6 +494,23 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 9,
     solDecimals: 8,
     suiDecimals: 9,
+    aptosDecimals: 8,
+  },
+  APT: {
+    key: 'APT',
+    symbol: 'APT',
+    nativeNetwork: 'aptos',
+    tokenId: {
+      chain: 'aptos',
+      address: '0x1::aptos_coin::AptosCoin',
+    },
+    icon: Icon.APT,
+    coinGeckoId: 'aptos',
+    color: '#8457EF',
+    decimals: 8,
+    solDecimals: 8,
+    suiDecimals: 8,
+    aptosDecimals: 8,
   },
 };
 
@@ -523,5 +575,10 @@ export const MAINNET_GAS_ESTIMATES: GasEstimates = {
     sendNativeWithRelay: 5000000,
     sendTokenWithRelay: 5000000,
     claim: 200000000,
+  },
+  aptos: {
+    sendNative: 40,
+    sendToken: 40,
+    claim: 1250,
   },
 };

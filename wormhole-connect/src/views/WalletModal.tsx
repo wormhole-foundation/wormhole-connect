@@ -117,6 +117,7 @@ const getWalletOptions = async (
       [Context.ETH]: wallets.evm,
       [Context.SOLANA]: wallets.solana,
       [Context.SUI]: suiOptions,
+      [Context.APTOS]: wallets.aptos,
     };
 
     return Object.keys(allWallets)
@@ -130,6 +131,8 @@ const getWalletOptions = async (
   } else if (config.context === Context.SUI) {
     const suiOptions = await fetchSuiOptions();
     return Object.values(mapWallets(suiOptions, Context.SUI));
+  } else if (config.context === Context.APTOS) {
+    return Object.values(mapWallets(wallets.aptos, Context.APTOS));
   }
   return [];
 };
@@ -137,6 +140,7 @@ const getWalletOptions = async (
 const getWalletChainText = (context: Context) => {
   if (context === Context.SOLANA) return 'Solana';
   if (context === Context.SUI) return 'Sui';
+  if (context === Context.APTOS) return 'Aptos';
   return 'EVM';
 };
 

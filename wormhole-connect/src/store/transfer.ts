@@ -19,6 +19,8 @@ export const formatBalance = (
       ? token.solDecimals
       : chain === 'sui'
       ? token.suiDecimals
+      : chain === 'aptos'
+      ? token.aptosDecimals
       : token.decimals;
   const formattedBalance =
     balance !== null ? toDecimals(balance, decimals, 6) : null;

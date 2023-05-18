@@ -125,6 +125,24 @@ function AddToSuiWallet({ token, address }: AddTokenProps) {
   );
 }
 
+function AddToAptosWallet({ token, address }: AddTokenProps) {
+  const { classes } = useStyles();
+
+  const tokenAccount = address.split('::')[0];
+  return (
+    <Typography component={'span'} className={classes.addToken}>
+      <TokenIcon height={20} name={token.icon} />
+      <span className={classes.addTokenText}>See {token.symbol} token on</span>
+      <ExplorerLink
+        styles={{ marginLeft: -4 }}
+        network={'aptos'}
+        type={'address'}
+        address={tokenAccount}
+      />
+    </Typography>
+  );
+}
+
 function AddToWallet() {
   const txData = useSelector((state: RootState) => state.redeem.txData)!;
 
@@ -177,6 +195,11 @@ function AddToWallet() {
     return <AddToSolanaWallet address={targetAddress} token={targetToken} />;
   } else if (chainId === MAINNET_NETWORKS.sui?.id) {
     return <AddToSuiWallet address={targetAddress} token={targetToken} />;
+  } else if (
+    chainId === MAINNET_NETWORKS.aptos?.id &&
+    targetToken.symbol !== 'APT'
+  ) {
+    return <AddToAptosWallet address={targetAddress} token={targetToken} />;
   }
 
   return <></>;

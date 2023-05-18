@@ -103,6 +103,17 @@ export const TESTNET_NETWORKS: NetworksConfig = {
     automaticRelayer: true,
     maxBlockSearch: 0,
   },
+  aptos: {
+    ...chains.aptos!,
+    displayName: 'Aptos',
+    explorerUrl: 'https://explorer.aptoslabs.com/',
+    explorerName: 'Aptos Explorer',
+    gasToken: 'APT',
+    chainId: 0,
+    icon: Icon.APT,
+    automaticRelayer: false,
+    maxBlockSearch: 0,
+  },
 };
 
 export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
@@ -117,6 +128,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     wrappedAsset: 'WETH',
     solDecimals: 8,
     suiDecimals: 8,
+    aptosDecimals: 8,
   },
   WETH: {
     key: 'WETH',
@@ -132,6 +144,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 18,
     solDecimals: 8,
     suiDecimals: 8,
+    aptosDecimals: 8,
   },
   USDCeth: {
     key: 'USDCeth',
@@ -147,6 +160,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 6,
     solDecimals: 6,
     suiDecimals: 8,
+    aptosDecimals: 8,
   },
   MATIC: {
     key: 'MATIC',
@@ -158,6 +172,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 18,
     solDecimals: 8,
     suiDecimals: 8,
+    aptosDecimals: 8,
     wrappedAsset: 'WMATIC',
   },
   WMATIC: {
@@ -174,6 +189,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 18,
     solDecimals: 8,
     suiDecimals: 8,
+    aptosDecimals: 8,
   },
   USDCpolygon: {
     key: 'USDCpolygon',
@@ -189,6 +205,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 6,
     solDecimals: 6,
     suiDecimals: 6,
+    aptosDecimals: 6,
   },
   BNB: {
     key: 'BNB',
@@ -200,6 +217,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 18,
     solDecimals: 8,
     suiDecimals: 8,
+    aptosDecimals: 8,
     wrappedAsset: 'WBNB',
   },
   WBNB: {
@@ -216,6 +234,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 18,
     solDecimals: 8,
     suiDecimals: 8,
+    aptosDecimals: 8,
   },
   AVAX: {
     key: 'AVAX',
@@ -227,6 +246,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 18,
     solDecimals: 8,
     suiDecimals: 8,
+    aptosDecimals: 8,
     wrappedAsset: 'WAVAX',
   },
   WAVAX: {
@@ -243,6 +263,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 18,
     solDecimals: 8,
     suiDecimals: 8,
+    aptosDecimals: 8,
   },
   USDCavax: {
     key: 'USDCavax',
@@ -258,6 +279,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 6,
     solDecimals: 6,
     suiDecimals: 6,
+    aptosDecimals: 6,
   },
   FTM: {
     key: 'FTM',
@@ -269,6 +291,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 18,
     solDecimals: 8,
     suiDecimals: 8,
+    aptosDecimals: 8,
     wrappedAsset: 'WFTM',
   },
   WFTM: {
@@ -285,6 +308,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 18,
     solDecimals: 8,
     suiDecimals: 8,
+    aptosDecimals: 8,
   },
   CELO: {
     key: 'CELO',
@@ -300,6 +324,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 18,
     solDecimals: 8,
     suiDecimals: 8,
+    aptosDecimals: 8,
   },
   GLMR: {
     key: 'GLMR',
@@ -311,6 +336,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 18,
     solDecimals: 8,
     suiDecimals: 8,
+    aptosDecimals: 8,
     wrappedAsset: 'WGLMR',
   },
   WGLMR: {
@@ -327,6 +353,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 18,
     solDecimals: 8,
     suiDecimals: 8,
+    aptosDecimals: 8,
   },
   SOL: {
     key: 'SOL',
@@ -338,6 +365,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 9,
     solDecimals: 9,
     suiDecimals: 8,
+    aptosDecimals: 8,
     wrappedAsset: 'WSOL',
   },
   WSOL: {
@@ -354,6 +382,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 9,
     solDecimals: 9,
     suiDecimals: 8,
+    aptosDecimals: 8,
   },
   USDCsol: {
     key: 'USDCsol',
@@ -369,6 +398,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 6,
     solDecimals: 6,
     suiDecimals: 6,
+    aptosDecimals: 6,
   },
   SUI: {
     key: 'SUI',
@@ -384,6 +414,23 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 9,
     solDecimals: 8,
     suiDecimals: 9,
+    aptosDecimals: 8,
+  },
+  APT: {
+    key: 'APT',
+    symbol: 'APT',
+    nativeNetwork: 'aptos',
+    tokenId: {
+      chain: 'aptos',
+      address: '0x1::aptos_coin::AptosCoin',
+    },
+    icon: Icon.APT,
+    coinGeckoId: 'aptos',
+    color: '#8457EF',
+    decimals: 8,
+    solDecimals: 8,
+    suiDecimals: 8,
+    aptosDecimals: 8,
   },
 };
 
@@ -448,5 +495,10 @@ export const TESTNET_GAS_ESTIMATES: GasEstimates = {
     sendNativeWithRelay: 20000000,
     sendTokenWithRelay: 20000000,
     claim: 20000000,
+  },
+  aptos: {
+    sendNative: 34,
+    sendToken: 34,
+    claim: 615,
   },
 };

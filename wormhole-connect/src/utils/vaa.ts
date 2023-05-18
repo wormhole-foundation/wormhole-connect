@@ -75,8 +75,10 @@ export async function fetchVaa(
   // return if the number of block confirmations hasn't been met
   const chainName = wh.toChainName(txData.fromChain);
   const { finalityThreshold } = CHAINS[chainName]! as any;
-  const currentBlock = await getCurrentBlock(txData.fromChain);
-  if (currentBlock < txData.block + finalityThreshold) return;
+  if (finalityThreshold > 0) {
+    const currentBlock = await getCurrentBlock(txData.fromChain);
+    if (currentBlock < txData.block + finalityThreshold) return;
+  }
 
   const messageId = getEmitterAndSequence(txData);
   const { emitterChain, emitterAddress, sequence } = messageId;

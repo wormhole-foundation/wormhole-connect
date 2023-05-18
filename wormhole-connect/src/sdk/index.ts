@@ -180,29 +180,28 @@ export const sendTransfer = async (
     wh.registerProviders();
     return txId;
   } else {
+    if (!wh.supportsSendWithRelay(fromChainId)) {
+      throw new Error(`send with relay not supported`);
+    }
     const parsedNativeAmt = toNativeToken
       ? utils.parseUnits(toNativeToken, decimals).toString()
       : '0';
-    if (fromChainId === MAINNET_CHAINS.solana) {
-      throw new Error('solana send with relay not supported');
-    } else {
-      const tx = await wh.sendWithRelay(
-        token,
-        parsedAmt.toString(),
-        fromNetwork,
-        fromAddress,
-        toNetwork,
-        toAddress,
-        parsedNativeAmt,
-      );
-      const txId = await signAndSendTransaction(
-        fromChainName,
-        tx,
-        TransferWallet.SENDING,
-      );
-      wh.registerProviders();
-      return txId;
-    }
+    const tx = await wh.sendWithRelay(
+      token,
+      parsedAmt.toString(),
+      fromNetwork,
+      fromAddress,
+      toNetwork,
+      toAddress,
+      parsedNativeAmt,
+    );
+    const txId = await signAndSendTransaction(
+      fromChainName,
+      tx,
+      TransferWallet.SENDING,
+    );
+    wh.registerProviders();
+    return txId;
   }
 };
 
@@ -295,6 +294,8 @@ export const getCurrentBlock = async (
     if (!provider) throw new Error('no provider');
     const sequence = await provider.getLatestCheckpointSequenceNumber();
     return Number(sequence);
+  } else if (chainId === MAINNET_CHAINS.aptos) {
+    throw new Error('Aptos getCurrentBlock not implemented');
   } else {
     const provider = wh.mustGetProvider(chain);
     return await provider.getBlockNumber();

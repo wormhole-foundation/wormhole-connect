@@ -2,6 +2,8 @@ import { Network as Environment } from '@certusone/wormhole-sdk';
 import { BigNumber } from 'ethers';
 import { MainnetChainId, MainnetChainName } from './config/MAINNET';
 import { TestnetChainId, TestnetChainName } from './config/TESTNET';
+import { AptosContext } from './contexts/aptos';
+import { AptosContracts } from './contexts/aptos/contracts';
 import { EthContext } from './contexts/eth';
 import { EthContracts } from './contexts/eth/contracts';
 import { SolanaContext } from './contexts/solana';
@@ -66,12 +68,14 @@ export type TokenId = {
 export type AnyContext =
   | EthContext<WormholeContext>
   | SolanaContext<WormholeContext>
-  | SuiContext<WormholeContext>;
+  | SuiContext<WormholeContext>
+  | AptosContext<WormholeContext>;
 
 export type AnyContracts =
   | EthContracts<WormholeContext>
   | SolContracts<WormholeContext>
-  | SuiContracts<WormholeContext>;
+  | SuiContracts<WormholeContext>
+  | AptosContracts<WormholeContext>;
 
 export interface ParsedMessage {
   sendTx: string;

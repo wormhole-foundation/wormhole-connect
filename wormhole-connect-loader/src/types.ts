@@ -8,6 +8,8 @@ export const MAINNET_CHAINS = {
   fantom: 10,
   celo: 14,
   moonbeam: 16,
+  sui: 21,
+  aptos: 22,
 } as const;
 export type MainnetChainName = keyof typeof MAINNET_CHAINS;
 export type MainnetChainId = (typeof MAINNET_CHAINS)[MainnetChainName];
@@ -21,6 +23,8 @@ export const TESTNET_CHAINS = {
   fantom: 10,
   alfajores: 14,
   moonbasealpha: 16,
+  sui: 21,
+  aptos: 22,
 } as const;
 export type TestnetChainName = keyof typeof TESTNET_CHAINS;
 export type TestnetChainId = (typeof TESTNET_CHAINS)[TestnetChainName];

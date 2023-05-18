@@ -12,6 +12,7 @@ export const MAINNET_CHAINS = {
   celo: 14,
   moonbeam: 16,
   sui: 21,
+  aptos: 22,
 } as const;
 
 export type MainnetChainName = keyof typeof MAINNET_CHAINS;
@@ -114,6 +115,13 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     },
     finalityThreshold: 0,
   },
+  aptos: {
+    key: 'aptos',
+    id: 22,
+    context: Context.APTOS,
+    contracts: CONTRACTS.MAINNET.aptos,
+    finalityThreshold: 0,
+  },
 };
 
 const env: Environment = 'MAINNET';
@@ -129,6 +137,7 @@ const MAINNET_CONFIG: WormholeConfig = {
     celo: 'https://rpc.ankr.com/celo',
     moonbeam: 'https://rpc.ankr.com/moonbeam',
     sui: 'https://rpc.mainnet.sui.io',
+    aptos: 'https://fullnode.mainnet.aptoslabs.com/v1',
   },
   chains: MAINNET,
 };

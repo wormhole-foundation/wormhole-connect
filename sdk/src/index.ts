@@ -14,6 +14,7 @@ export * from './wormhole';
 export * from './contexts/solana';
 export * from './contexts/eth';
 export * from './contexts/sui';
+export * from './contexts/aptos';
 export const CONFIG = {
   MAINNET: MAINNET_CONFIG,
   TESTNET: TESTNET_CONFIG,
