@@ -3,6 +3,7 @@ import {
   ChainName,
   EthContext,
   SuiContext,
+  SeiContext,
   WormholeContext,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { ParsedMessage, ParsedRelayerMessage, PaymentOption, wh } from '../sdk';
@@ -67,6 +68,14 @@ export const fetchRedeemedEvent = async (
       }
     }
     return null;
+  } else if (txData.toChain === 'sei') {
+    const context = wh.getContext(txData.toChain) as SeiContext<WormholeContext>;
+    const transactionHash = await context.fetchRedeemedEvent(
+      emitterChain,
+      emitterAddress,
+      sequence,
+    );
+    return transactionHash ? { transactionHash } : null;
   } else {
     const provider = wh.mustGetProvider(txData.toChain);
     const context: any = wh.getContext(

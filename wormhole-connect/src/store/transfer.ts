@@ -17,7 +17,7 @@ export const formatBalance = (
   const decimals =
     chain === 'solana'
       ? token.solDecimals
-      : chain === 'sui'
+      : chain === 'sui' || chain === 'sei'
       ? token.suiDecimals
       : chain === 'aptos'
       ? token.aptosDecimals

@@ -13,6 +13,7 @@ export const TESTNET_CHAINS = {
   moonbasealpha: 16,
   sui: 21,
   aptos: 22,
+  sei: 32,
 } as const;
 
 export type TestnetChainName = keyof typeof TESTNET_CHAINS;
@@ -126,6 +127,19 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     },
     finalityThreshold: 0,
   },
+  sei: {
+    key: 'sei',
+    id: 32,
+    context: Context.SEI,
+    contracts: {
+      ...CONTRACTS.TESTNET.sei,
+      core: 'sei1nna9mzp274djrgzhzkac2gvm3j27l402s4xzr08chq57pjsupqnqaj0d5s',
+      token_bridge:
+        'sei1jv5xw094mclanxt5emammy875qelf3v62u4tl4lp5nhte3w3s9ts9w9az2',
+      nft_bridge: undefined,
+    },
+    finalityThreshold: 0, // TODO: update
+  },
 };
 
 const env: Environment = 'TESTNET';
@@ -142,6 +156,7 @@ const TESTNET_CONFIG: WormholeConfig = {
     moonbasealpha: 'https://rpc.api.moonbase.moonbeam.network',
     sui: 'https://fullnode.testnet.sui.io',
     aptos: 'https://fullnode.testnet.aptoslabs.com/v1',
+    sei: 'https://rpc.atlantic-2.seinetwork.io',
   },
   chains: TESTNET,
 };

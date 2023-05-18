@@ -51,6 +51,7 @@ const mainnetRpcs = {
   moonbeam: process.env.REACT_APP_MOONBEAM_RPC || conf.rpcs.moonbeam,
   sui: process.env.REACT_APP_SUI_RPC || conf.rpcs.sui,
   aptos: process.env.REACT_APP_APTOS_RPC || conf.rpcs.aptos,
+  sei: process.env.REACT_APP_SEI_RPC || conf.rpcs.sei,
 };
 const testnetRpcs = {
   goerli: process.env.REACT_APP_GOERLI_RPC || conf.rpcs.goerli,
@@ -63,6 +64,7 @@ const testnetRpcs = {
   moonbasealpha: process.env.REACT_APP_MOONBASE_RPC || conf.rpcs.moonbasealpha,
   sui: process.env.REACT_APP_SUI_TESTNET_RPC || conf.rpcs.sui,
   aptos: process.env.REACT_APP_APTOS_TESTNET_RPC || conf.rpcs.aptos,
+  sei: process.env.REACT_APP_SEI_TESTNET_RPC || conf.rpcs.sei,
 };
 conf.rpcs = Object.assign(
   {},
@@ -111,4 +113,5 @@ export const TESTNET_TO_MAINNET_CHAIN_NAMES: {
   fantom: 'fantom',
   sui: 'sui',
   aptos: 'aptos',
+  sei: 'sei',
 };

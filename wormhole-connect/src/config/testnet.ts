@@ -111,6 +111,16 @@ export const TESTNET_NETWORKS: NetworksConfig = {
     gasToken: 'APT',
     chainId: 0,
     icon: Icon.APT,
+    maxBlockSearch: 0
+  },
+  sei: {
+    ...chains.sei!,
+    displayName: 'Sei',
+    explorerUrl: 'https://sei.explorers.guru/',
+    explorerName: 'Sei Explorer',
+    gasToken: 'SEI',
+    chainId: 0,
+    icon: Icon.SEI,
     automaticRelayer: false,
     maxBlockSearch: 0,
   },
@@ -432,6 +442,22 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     suiDecimals: 8,
     aptosDecimals: 8,
   },
+  SEI: {
+    key: 'SEI',
+    symbol: 'SEI',
+    nativeNetwork: 'sei',
+    tokenId: {
+      chain: 'sei',
+      address: 'usei',
+    },
+    icon: Icon.SEI,
+    coinGeckoId: 'sei',
+    color: '#FFFFFF',
+    decimals: 9,
+    solDecimals: 8,
+    suiDecimals: 6,
+    aptosDecimals: 6
+  },
 };
 
 export const TESTNET_GAS_ESTIMATES: GasEstimates = {
@@ -500,5 +526,10 @@ export const TESTNET_GAS_ESTIMATES: GasEstimates = {
     sendNative: 34,
     sendToken: 34,
     claim: 615,
+  },
+  sei: {
+    claim: 1000000,
+    sendNative: 1000000,
+    sendToken: 1000000,
   },
 };

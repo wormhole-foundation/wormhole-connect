@@ -11,6 +11,8 @@ import { SolContracts } from './contexts/solana/contracts';
 import { SuiContext } from './contexts/sui';
 import { SuiContracts } from './contexts/sui/contracts';
 import { WormholeContext } from './wormhole';
+import { SeiContracts } from './contexts/sei/contracts';
+import { SeiContext } from './contexts/sei';
 
 export const NATIVE = 'native';
 // TODO: conditionally set these types
@@ -26,6 +28,7 @@ export enum Context {
   NEAR = 'Near',
   APTOS = 'Aptos',
   SUI = 'Sui',
+  SEI = 'Sei',
   OTHER = 'OTHER',
 }
 
@@ -69,13 +72,15 @@ export type AnyContext =
   | EthContext<WormholeContext>
   | SolanaContext<WormholeContext>
   | SuiContext<WormholeContext>
-  | AptosContext<WormholeContext>;
+  | AptosContext<WormholeContext>
+  | SeiContext<WormholeContext>;
 
 export type AnyContracts =
   | EthContracts<WormholeContext>
   | SolContracts<WormholeContext>
   | SuiContracts<WormholeContext>
-  | AptosContracts<WormholeContext>;
+  | AptosContracts<WormholeContext>
+  | SeiContracts<WormholeContext>;
 
 export interface ParsedMessage {
   sendTx: string;
@@ -95,12 +100,14 @@ export interface ParsedMessage {
   payload?: string;
 }
 
-export interface ParsedRelayerMessage extends ParsedMessage {
+export interface ParsedRelayerPayload {
   relayerPayloadId: number;
   to: string;
   relayerFee: BigNumber;
   toNativeTokenAmount: BigNumber;
 }
+
+export type ParsedRelayerMessage = ParsedMessage & ParsedRelayerPayload;
 
 export type AnyMessage = ParsedMessage | ParsedRelayerMessage;
 

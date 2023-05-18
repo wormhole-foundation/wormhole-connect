@@ -69,6 +69,10 @@ const estimateGasFee = async (
     return toFixedDecimals(utils.formatUnits(gasEstimates.sendToken, 9), 6);
   }
 
+  if (fromChainId === MAINNET_CHAINS.sei) {
+    return toFixedDecimals(utils.formatUnits(gasEstimates.sendToken, 6), 6);
+  }
+
   // Sui gas estimates
   if (fromChainId === MAINNET_CHAINS.sui) {
     const provider = chainContext.provider as JsonRpcProvider;
@@ -195,6 +199,11 @@ const getGasFeeFallback = async (
     }
   }
 
+  // TODO: look into cosmosdk/sei tx fees simulation/estimation
+  if (fromChainId === MAINNET_CHAINS.sei) {
+    return '0';
+  }
+
   // EVM gas estimates
   const provider = context.mustGetProvider(fromNetwork);
   const { gasPrice } = await provider.getFeeData();
@@ -260,6 +269,11 @@ export const estimateClaimFees = async (
   if (destChainId === MAINNET_CHAINS.solana) {
     const gasEstimates = GAS_ESTIMATES['solana'];
     return toFixedDecimals(utils.formatUnits(gasEstimates?.claim!, 9), 6);
+  }
+
+  if (destChainId === MAINNET_CHAINS.sei) {
+    const gasEstimates = GAS_ESTIMATES['sei'];
+    return toFixedDecimals(utils.formatUnits(gasEstimates?.claim!, 6), 6);
   }
 
   if (destChainId === MAINNET_CHAINS.sui) {

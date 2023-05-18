@@ -28,10 +28,13 @@ function ExplorerLink(props: ExplorerLinkProps) {
 
   let explorerLink;
   if (props.type === 'tx') {
+    // TODO: refactor and use a map instead
     if (networkConfig.key === 'sui') {
       explorerLink = `${networkConfig.explorerUrl}txblock/${props.txHash}`;
     } else if (networkConfig.key === 'aptos') {
       explorerLink = `${networkConfig.explorerUrl}txn/${props.txHash}`;
+    } else if (networkConfig.key === 'sei') {
+      explorerLink = `${networkConfig.explorerUrl}transaction/${props.txHash}`;
     } else {
       explorerLink = `${networkConfig.explorerUrl}tx/${props.txHash}`;
     }

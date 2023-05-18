@@ -512,6 +512,22 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     suiDecimals: 8,
     aptosDecimals: 8,
   },
+  SEI: {
+    key: 'SEI',
+    symbol: 'SEI',
+    nativeNetwork: 'sei',
+    tokenId: {
+      chain: 'sei',
+      address: 'usei',
+    },
+    icon: Icon.SEI,
+    coinGeckoId: 'sei',
+    color: '#FFFFFF',
+    decimals: 9,
+    solDecimals: 8,
+    suiDecimals: 6,
+    aptosDecimals: 6,
+  },
 };
 
 export const MAINNET_GAS_ESTIMATES: GasEstimates = {
@@ -580,5 +596,10 @@ export const MAINNET_GAS_ESTIMATES: GasEstimates = {
     sendNative: 40,
     sendToken: 40,
     claim: 1250,
+  },
+  sei: {
+    claim: 1000000,
+    sendToken: 1000000,
+    sendNative: 1000000,
   },
 };

@@ -1,28 +1,16 @@
 import {
+  Connection,
   JsonRpcProvider,
+  PaginatedCoins,
+  SUI_CLOCK_OBJECT_ID,
   SUI_TYPE_ARG,
   TransactionBlock,
-  SuiTransactionBlockResponse,
-  PaginatedCoins,
-  getTransactionSender,
   getTotalGasUsed,
+  getTransactionSender,
   isValidSuiAddress,
-  SUI_CLOCK_OBJECT_ID,
-  Connection,
 } from '@mysten/sui.js';
 import { BigNumber, BigNumberish } from 'ethers';
 
-import {
-  TokenId,
-  ParsedRelayerMessage,
-  ChainName,
-  ChainId,
-  NATIVE,
-  ParsedMessage,
-  Context,
-} from '../../types';
-import { WormholeContext } from '../../wormhole';
-import { RelayerAbstract } from '../abstracts/relayer';
 import {
   getForeignAssetSui,
   getIsTransferCompletedSui,
@@ -30,19 +18,23 @@ import {
   redeemOnSui,
   transferFromSui,
 } from '@certusone/wormhole-sdk';
-import { arrayify, hexlify } from 'ethers/lib/utils';
-import { SuiContracts } from './contracts';
-import { SolanaContext } from '../solana';
-import { parseTokenTransferPayload } from '../../vaa';
-import { SuiRelayer } from './relayer';
 import { getPackageId } from '@certusone/wormhole-sdk/lib/cjs/sui';
-
-interface TransferWithRelay {
-  payloadType: number;
-  targetRelayerFee: BigNumber;
-  toNativeTokenAmount: BigNumber;
-  recipient: string;
-}
+import { arrayify, hexlify } from 'ethers/lib/utils';
+import {
+  ChainId,
+  ChainName,
+  Context,
+  NATIVE,
+  ParsedMessage,
+  ParsedRelayerMessage,
+  TokenId,
+} from '../../types';
+import { parseTokenTransferPayload } from '../../vaa';
+import { WormholeContext } from '../../wormhole';
+import { RelayerAbstract } from '../abstracts/relayer';
+import { SolanaContext } from '../solana';
+import { SuiContracts } from './contracts';
+import { SuiRelayer } from './relayer';
 
 export class SuiContext<
   T extends WormholeContext,
@@ -260,20 +252,6 @@ export class SuiContext<
     return metadata.decimals;
   }
 
-  parseTransferWithRelay(payload: Buffer): TransferWithRelay {
-    let relay: TransferWithRelay = {} as TransferWithRelay;
-    // Parse the additional payload.
-    relay.payloadType = payload.readUint8(133);
-    relay.targetRelayerFee = BigNumber.from(
-      '0x' + payload.subarray(134, 166).toString('hex'),
-    );
-    relay.toNativeTokenAmount = BigNumber.from(
-      '0x' + payload.subarray(166, 198).toString('hex'),
-    );
-    relay.recipient = '0x' + payload.subarray(198, 231).toString('hex');
-    return relay;
-  }
-
   async parseMessageFromTx(
     tx: string,
     chain: ChainName | ChainId,
@@ -317,23 +295,19 @@ export class SuiContext<
       gasFee: gasFee ? BigNumber.from(gasFee) : undefined,
     };
     if (parsed.payloadType === 3) {
-      const relayerPayload = this.parseTransferWithRelay(
+      const relayerPayload = destContext.parseRelayerPayload(
         Buffer.from(message.parsedJson?.payload),
       );
       const relayerMessage: ParsedRelayerMessage = {
         ...parsedMessage,
-        relayerFee: relayerPayload.targetRelayerFee,
+        relayerFee: relayerPayload.relayerFee,
         relayerPayloadId: parsed.payloadType as number,
-        to: relayerPayload.recipient,
+        to: relayerPayload.to,
         toNativeTokenAmount: relayerPayload.toNativeTokenAmount,
       };
       return [relayerMessage];
     }
     return [parsedMessage];
-  }
-
-  getTxIdFromReceipt(receipt: SuiTransactionBlockResponse) {
-    return receipt.digest;
   }
 
   async getNativeBalance(

@@ -29,7 +29,6 @@ import {
   wh,
   claimTransfer,
   estimateClaimGasFee,
-  parseAddress,
   PaymentOption,
   calculateNativeTokenAmt,
 } from '../../sdk';
@@ -222,8 +221,7 @@ function SendTo() {
     if (!txData) return;
     const addr = wallet.address.toLowerCase();
     const curAddr = wallet.currentAddress.toLowerCase();
-    const formattedRecipient = parseAddress(txData.toChain, txData.recipient);
-    const reqAddr = formattedRecipient.toLowerCase();
+    const reqAddr = txData.recipient.toLowerCase();
     return addr === curAddr && addr === reqAddr;
   }, [wallet, txData]);
 

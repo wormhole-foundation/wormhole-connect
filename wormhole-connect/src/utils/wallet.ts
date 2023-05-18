@@ -48,6 +48,8 @@ import {
   SpikaWalletAdapter,
   WalletAdapterNetwork,
 } from '@manahippo/aptos-wallet-adapter';
+import { MsgExecuteContractEncodeObject } from '@cosmjs/cosmwasm-stargate';
+import { calculateFee } from '@cosmjs/stargate';
 
 export enum TransferWallet {
   SENDING = 'sending',
@@ -216,6 +218,26 @@ export const signAptosTransaction = async (
   );
 };
 
+export const signSeiTransaction = async (
+  msgs: MsgExecuteContractEncodeObject[],
+  walletType: TransferWallet,
+) => {
+  const wallet = walletConnection[walletType];
+  if (!wallet || !wallet.signAndSendTransaction) {
+    throw new Error('wallet.signAndSendTransaction is undefined');
+  }
+  const fee = calculateFee(750000, '0.1usei');
+
+  msgs.forEach((msg) => {
+    msg.value.sender = msg.value.sender || wallet.getAddress();
+  });
+
+  return wallet.signAndSendTransaction({
+    msgs,
+    fee,
+  });
+};
+
 export const signAndSendTransaction = async (
   chain: ChainName,
   transaction: any,
@@ -251,6 +273,13 @@ export const signAndSendTransaction = async (
         wh.getContext('aptos') as AptosContext<WormholeContext>
       ).aptosClient;
       await aptosClient.waitForTransaction(tx.id);
+      return tx.id;
+    }
+    case Context.SEI: {
+      const tx = await signSeiTransaction(
+        transaction as MsgExecuteContractEncodeObject[],
+        walletType,
+      );
       return tx.id;
     }
     default:

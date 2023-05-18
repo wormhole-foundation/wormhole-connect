@@ -11,6 +11,7 @@ import { CHAINS_ARR, TOKENS, TOKENS_ARR } from '../config';
 import { NetworkConfig, TokenConfig } from '../config/types';
 import { toDecimals } from './balance';
 import { isValidTransactionDigest, SUI_TYPE_ARG } from '@mysten/sui.js';
+import { isHexString } from 'ethers/lib/utils.js';
 
 export const MAX_DECIMALS = 6;
 export const NORMALIZED_DECIMALS = 8;
@@ -54,7 +55,7 @@ export function displayAddress(chain: ChainName, address: string): string {
       '...' +
       address.slice(address.length - 4, address.length)
     );
-  } else if (chain === 'sui') {
+  } else if (chain === 'sui' || chain === 'sei') {
     return displaySuiAddress(address);
   } else if (chain === 'aptos') {
     return displayAptosAddress(address);
@@ -118,7 +119,7 @@ export function getTokenDecimals(
   if (tokenId === 'native') {
     return chain === MAINNET_CHAINS.solana
       ? 9
-      : chain === MAINNET_CHAINS.sui
+      : chain === MAINNET_CHAINS.sui || chain === MAINNET_CHAINS.sei
       ? 9
       : chain === MAINNET_CHAINS.aptos
       ? 8
@@ -128,7 +129,7 @@ export function getTokenDecimals(
   if (!tokenConfig) throw new Error('token config not found');
   return chain === MAINNET_CHAINS.solana
     ? tokenConfig.solDecimals
-    : chain === MAINNET_CHAINS.sui
+    : chain === MAINNET_CHAINS.sui || chain === MAINNET_CHAINS.sei
     ? tokenConfig.suiDecimals
     : chain === MAINNET_CHAINS.aptos
     ? tokenConfig.aptosDecimals
@@ -172,9 +173,15 @@ export function copyTextToClipboard(text: string) {
   return fallbackCopyTextToClipboard(text);
 }
 
+export function hexPreffix(hex: string) {
+  return hex.startsWith('0x') ? hex : `0x${hex}`;
+}
+
 export function isValidTxId(chain: string, tx: string) {
   if (chain === 'sui') {
     return isValidTransactionDigest(tx);
+  } else if (chain === 'sei') {
+    return isHexString(hexPreffix(tx), 32);
   } else {
     if (tx.startsWith('0x') && tx.length === 66) return true;
     return tx.length > 70 && tx.length < 100;

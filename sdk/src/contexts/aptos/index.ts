@@ -7,6 +7,7 @@ import {
   NATIVE,
   ParsedMessage,
   Context,
+  ParsedRelayerPayload,
 } from '../../types';
 import { WormholeContext } from '../../wormhole';
 import { TokenBridgeAbstract } from '../abstracts/tokenBridge';
@@ -303,5 +304,9 @@ export class AptosContext<
 
   getTxIdFromReceipt(hash: Types.HexEncodedBytes) {
     return hash;
+  }
+
+  parseRelayerPayload(payload: Buffer): ParsedRelayerPayload {
+    throw new Error('relaying is not supported on aptos');
   }
 }

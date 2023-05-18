@@ -74,6 +74,7 @@ export enum Icon {
   'WBTC',
   'SUI',
   'APT',
+  'SEI',
 }
 
 export type GasEstimates = {

@@ -23,12 +23,14 @@ import {
   ParsedRelayerMessage,
   ParsedMessage,
   Context,
+  ParsedRelayerPayload,
 } from '../../types';
 import { WormholeContext } from '../../wormhole';
 import { EthContracts } from './contracts';
 import { parseVaa } from '../../vaa';
 import { RelayerAbstract } from '../abstracts/relayer';
 import { SolanaContext } from '../solana';
+import { arrayify } from 'ethers/lib/utils';
 
 export class EthContext<
   T extends WormholeContext,
@@ -306,7 +308,7 @@ export class EthContext<
       const tokenAddr = await this.mustGetForeignAsset(token, sendingChain);
       await this.approve(sendingChain, bridge.address, tokenAddr, amountBN);
       const v = await bridge.transferTokensWithPayload(
-        destContext.parseAddress(tokenAddr),
+        tokenAddr,
         amountBN,
         recipientChainId,
         destContext.formatAddress(recipientAddress),
@@ -467,7 +469,6 @@ export class EthContext<
 
     const core = this.contracts.mustGetCore(chain);
     const bridge = this.contracts.mustGetBridge(chain);
-    const relayer = this.contracts.getTokenBridgeRelayer(chain);
     const bridgeLogs = receipt.logs.filter((l: any) => {
       return l.address === core.address;
     });
@@ -512,17 +513,18 @@ export class EthContext<
       }
 
       // parse token bridge relayer message
-      if (!relayer)
-        throw new Error('no relayer contract to decode message payload');
       const parsedTransfer = await bridge.parseTransferWithPayload(
         parsed.args.payload,
       );
       const destContext = this.context.getContext(
         parsedTransfer.toChain as ChainId,
       );
-      const parsedPayload = await relayer.decodeTransferWithRelay(
-        parsedTransfer.payload,
-      );
+
+      const toChain = this.context.toChainName(parsedTransfer.toChain);
+
+      const parsedPayload: ParsedRelayerPayload =
+        destContext.parseRelayerPayload(Buffer.from(arrayify(parsedTransfer.payload)));
+
       const tokenContext = this.context.getContext(
         parsedTransfer.tokenChain as ChainId,
       );
@@ -536,7 +538,7 @@ export class EthContext<
         amount: parsedTransfer.amount,
         payloadID: parsedTransfer.payloadID,
         to: destContext.parseAddress(parsedTransfer.to),
-        toChain: this.context.toChainName(parsedTransfer.toChain),
+        toChain,
         fromChain,
         tokenAddress,
         tokenChain,
@@ -549,9 +551,9 @@ export class EthContext<
         block: receipt.blockNumber,
         gasFee,
         payload: parsedTransfer.payload,
-        relayerPayloadId: parsedPayload.payloadId,
-        recipient: destContext.parseAddress(parsedPayload.targetRecipient),
-        relayerFee: parsedPayload.targetRelayerFee,
+        relayerPayloadId: parsedPayload.relayerPayloadId,
+        recipient: destContext.parseAddress(parsedPayload.to),
+        relayerFee: parsedPayload.relayerFee,
         toNativeTokenAmount: parsedPayload.toNativeTokenAmount,
       };
       return parsedMessage;
@@ -588,7 +590,7 @@ export class EthContext<
     return await tokenBridge.isTransferCompleted(hash);
   }
 
-  formatAddress(address: string): ethers.utils.BytesLike {
+  formatAddress(address: string): Uint8Array {
     return Buffer.from(utils.zeroPad(address, 32));
   }
 
@@ -597,15 +599,11 @@ export class EthContext<
     return utils.getAddress(parsed);
   }
 
-  async formatAssetAddress(address: string): Promise<ethers.utils.BytesLike> {
+  async formatAssetAddress(address: string): Promise<Uint8Array> {
     return this.formatAddress(address);
   }
 
   async parseAssetAddress(address: any): Promise<string> {
     return this.parseAddress(address);
-  }
-
-  getTxIdFromReceipt(receipt: ethers.ContractReceipt) {
-    return receipt.transactionHash;
   }
 }

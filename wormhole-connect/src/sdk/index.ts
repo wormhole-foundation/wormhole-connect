@@ -157,6 +157,7 @@ export const sendTransfer = async (
   toAddress: string,
   paymentOption: PaymentOption,
   toNativeToken?: string,
+  payload?: any,
 ): Promise<string> => {
   const fromChainId = wh.toChainId(fromNetwork);
   const fromChainName = wh.toChainName(fromNetwork);
@@ -171,6 +172,7 @@ export const sendTransfer = async (
       toNetwork,
       toAddress,
       undefined,
+      payload,
     );
     const txId = await signAndSendTransaction(
       fromChainName,
@@ -271,13 +273,6 @@ export const getTransferComplete = async (
   signedVaa: string,
 ): Promise<boolean> => {
   return await wh.isTransferCompleted(destChain, signedVaa);
-};
-
-export const getTxIdFromReceipt = (
-  sourceChain: ChainName | ChainId,
-  receipt: any,
-): string => {
-  return wh.getTxIdFromReceipt(sourceChain, receipt);
 };
 
 export const getCurrentBlock = async (

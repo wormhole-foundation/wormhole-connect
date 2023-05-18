@@ -21,6 +21,7 @@ import {
   TokenId,
   WormholeConfig,
 } from './types';
+import { SeiContext } from './contexts/sei';
 
 /**
  * The WormholeContext manages connections to Wormhole Core, Bridge and NFT Bridge contracts.
@@ -68,6 +69,7 @@ export class WormholeContext extends MultiProvider<Domain> {
     this._contexts.set(Context.SOLANA, new SolanaContext(this));
     this._contexts.set(Context.SUI, new SuiContext(this));
     this._contexts.set(Context.APTOS, new AptosContext(this));
+    this._contexts.set(Context.SEI, new SeiContext(this));
 
     this.registerProviders();
   }
@@ -130,6 +132,9 @@ export class WormholeContext extends MultiProvider<Domain> {
       }
       case Context.APTOS: {
         return new AptosContext(this);
+      }
+      case Context.SEI: {
+        return new SeiContext(this);
       }
       default: {
         throw new Error('Not able to retrieve context');
@@ -302,11 +307,6 @@ export class WormholeContext extends MultiProvider<Domain> {
   parseAddress(address: any, chain: ChainName | ChainId): string {
     const context = this.getContext(chain);
     return context.parseAddress(address);
-  }
-
-  getTxIdFromReceipt(chain: ChainName | ChainId, receipt: any): string {
-    const context = this.getContext(chain);
-    return context.getTxIdFromReceipt(receipt);
   }
 
   async parseMessageFromTx(

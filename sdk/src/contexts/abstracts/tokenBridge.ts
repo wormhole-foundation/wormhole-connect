@@ -38,7 +38,7 @@ export abstract class TokenBridgeAbstract<TransactionResult> {
   protected abstract formatAddress(address: string): any;
   protected abstract parseAddress(address: any): string;
 
-  protected abstract formatAssetAddress(address: string): Promise<any>;
+  protected abstract formatAssetAddress(address: string): Promise<Uint8Array>;
   protected abstract parseAssetAddress(address: any): Promise<string>;
 
   protected abstract getForeignAsset(

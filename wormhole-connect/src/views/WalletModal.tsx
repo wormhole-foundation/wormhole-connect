@@ -4,7 +4,8 @@ import { useTheme } from '@mui/material/styles';
 import { useDispatch, useSelector } from 'react-redux';
 import { Wallet, WalletState } from '@xlabs-libs/wallet-aggregator-core';
 import { getWallets as getSuiWallets } from '@xlabs-libs/wallet-aggregator-sui';
-import { CHAINS } from '../config';
+import { getSupportedWallets as getSeiWallets } from '@xlabs-libs/wallet-aggregator-sei';
+import { CHAINS, WH_CONFIG } from '../config';
 import { RootState } from '../store';
 import { setWalletModal } from '../store/router';
 import {
@@ -94,6 +95,18 @@ const fetchSuiOptions = async () => {
   }, {});
 };
 
+const fetchSeiOptions = async () => {
+  const seiWallets = await getSeiWallets({
+    chainId: 'atlantic-2',
+    rpcUrl: WH_CONFIG.rpcs.sei || '',
+  });
+
+  return seiWallets.reduce((obj, value) => {
+    obj[value.getName()] = value;
+    return obj;
+  }, {});
+};
+
 const mapWallets = (
   wallets: Record<string, Wallet>,
   type: Context,
@@ -112,12 +125,14 @@ const getWalletOptions = async (
 ): Promise<WalletData[]> => {
   if (!config) {
     const suiOptions = await fetchSuiOptions();
+    const seiOptions = await fetchSeiOptions();
 
     const allWallets: Partial<Record<Context, Record<string, Wallet>>> = {
       [Context.ETH]: wallets.evm,
       [Context.SOLANA]: wallets.solana,
       [Context.SUI]: suiOptions,
       [Context.APTOS]: wallets.aptos,
+      [Context.SEI]: seiOptions,
     };
 
     return Object.keys(allWallets)
@@ -133,6 +148,9 @@ const getWalletOptions = async (
     return Object.values(mapWallets(suiOptions, Context.SUI));
   } else if (config.context === Context.APTOS) {
     return Object.values(mapWallets(wallets.aptos, Context.APTOS));
+  } else if (config.context === Context.SEI) {
+    const suiOptions = await fetchSeiOptions();
+    return Object.values(mapWallets(suiOptions, Context.SEI));
   }
   return [];
 };
@@ -254,9 +272,7 @@ function WalletsModal(props: Props) {
               {!ready && 'Install'} {wallet.name}
             </div>
           </div>
-          <div className={classes.context}>
-            {getWalletChainText(wallet.type)}
-          </div>
+          <div className={classes.context}>{wallet.type.toUpperCase()}</div>
         </div>
       );
     });

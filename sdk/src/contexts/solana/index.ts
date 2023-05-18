@@ -43,6 +43,7 @@ import {
   NATIVE,
   ParsedMessage,
   Context,
+  ParsedRelayerPayload,
 } from '../../types';
 import { SolContracts } from './contracts';
 import { WormholeContext } from '../../wormhole';
@@ -476,8 +477,8 @@ export class SolanaContext<
     return new PublicKey(addr).toString();
   }
 
-  async formatAssetAddress(address: string): Promise<string> {
-    return this.formatAddress(address);
+  async formatAssetAddress(address: string): Promise<Uint8Array> {
+    return Buffer.from(this.formatAddress(address), 'hex');
   }
 
   async parseAssetAddress(address: any): Promise<string> {
@@ -658,7 +659,7 @@ export class SolanaContext<
     ).catch((e) => false);
   }
 
-  getTxIdFromReceipt(receipt: Transaction) {
-    return receipt.signatures[0].publicKey.toString();
+  parseRelayerPayload(payload: Buffer): ParsedRelayerPayload {
+    throw new Error('relaying is not supported on solana');
   }
 }
