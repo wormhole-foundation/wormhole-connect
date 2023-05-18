@@ -606,4 +606,9 @@ export class EthContext<
   async parseAssetAddress(address: any): Promise<string> {
     return this.parseAddress(address);
   }
+
+  async getCurrentBlock(chain: ChainName | ChainId): Promise<number> {
+    const provider = this.context.mustGetProvider(chain);
+    return await provider.getBlockNumber();
+  }
 }

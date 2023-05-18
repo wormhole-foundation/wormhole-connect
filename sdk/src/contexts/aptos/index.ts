@@ -309,4 +309,8 @@ export class AptosContext<
   parseRelayerPayload(payload: Buffer): ParsedRelayerPayload {
     throw new Error('relaying is not supported on aptos');
   }
+
+  async getCurrentBlock(): Promise<number> {
+    throw new Error('Aptos getCurrentBlock not implemented')
+  }
 }

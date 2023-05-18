@@ -9,7 +9,7 @@ import {
   MsgExecuteContractEncodeObject,
 } from '@cosmjs/cosmwasm-stargate';
 import { decodeTxRaw } from '@cosmjs/proto-signing';
-import { StargateClient, logs as cosmosLogs } from '@cosmjs/stargate';
+import { logs as cosmosLogs } from '@cosmjs/stargate';
 import base58 from 'bs58';
 import { MsgExecuteContract } from 'cosmjs-types/cosmwasm/wasm/v1/tx';
 import { BigNumber, BigNumberish } from 'ethers';
@@ -37,8 +37,7 @@ interface WrappedRegistryResponse {
   address: string;
 }
 
-const SEI_TRANSLATOR =
-  'sei1dkdwdvknx0qav5cp5kw68mkn3r99m3svkyjfvkztwh97dv2lm0ksj6xrak';
+const MSG_EXECUTE_CONTRACT_TYPE_URL = '/cosmwasm.wasm.v1.MsgExecuteContract';
 
 export class SeiContext<
   T extends WormholeContext,
@@ -46,9 +45,6 @@ export class SeiContext<
   readonly type = Context.SEI;
   readonly contracts: SeiContracts<T>;
 
-  private readonly DEFAULT_RPC: string =
-    'https://rpc.atlantic-2.seinetwork.io/';
-  private client?: StargateClient;
   private wasmClient?: CosmWasmClient;
 
   private readonly NATIVE_DENOM = 'usei';
@@ -83,10 +79,10 @@ export class SeiContext<
 
     return [
       {
-        typeUrl: '/cosmwasm.wasm.v1.MsgExecuteContract',
+        typeUrl: MSG_EXECUTE_CONTRACT_TYPE_URL,
         value: MsgExecuteContract.fromPartial({
           sender: senderAddress,
-          contract: SEI_TRANSLATOR,
+          contract: this.getTranslatorAddress(),
           msg: Buffer.from(
             JSON.stringify({
               convert_and_transfer: {
@@ -107,6 +103,12 @@ export class SeiContext<
     ];
   }
 
+  getTranslatorAddress(): string {
+    const { seiTokenTranslator: translatorAddress } = this.contracts.mustGetContracts('sei');
+    if (!translatorAddress) throw new Error('no translator address found');
+    return translatorAddress;
+  }
+
   parseRelayerPayload(payload: Buffer): ParsedRelayerPayload {
     return {
       relayerPayloadId: payload.readUInt8(0),
@@ -114,6 +116,19 @@ export class SeiContext<
       relayerFee: BigNumber.from(0),
       toNativeTokenAmount: BigNumber.from(0),
     };
+  }
+
+  async sendWithRelay(
+    token: TokenId | 'native',
+    amount: string,
+    toNativeToken: string,
+    sendingChain: ChainName | ChainId,
+    senderAddress: string,
+    recipientChain: ChainName | ChainId,
+    recipientAddress: string,
+    relayerFee?: string,
+  ): Promise<any> {
+    throw new Error('Method not implemented.');
   }
 
   sendWithPayload(
@@ -244,11 +259,6 @@ export class SeiContext<
     );
     const tokenChain = this.context.toChainName(parsed.tokenChain);
 
-    // let relayerInfo = {};
-    // if (parsed.payloadType === TokenBridgePayload.TransferWithPayload) {
-    //   const relayerPayload = parseTransfer
-    // }
-
     return [
       {
         sendTx: tx.hash,
@@ -268,11 +278,6 @@ export class SeiContext<
         emitterAddress,
         block: tx.height,
         gasFee: BigNumber.from(tx.gasUsed),
-        // payload: parsedTransfer.payload,
-        // relayerPayloadId: parsedPayload.payloadId,
-        // recipient: destContext.parseAddress(parsedPayload.targetRecipient),
-        // relayerFee: parsedPayload.targetRelayerFee,
-        // toNativeTokenAmount: parsedPayload.toNativeTokenAmount,
       },
     ];
   }
@@ -281,7 +286,7 @@ export class SeiContext<
     walletAddress: string,
     chain: ChainName | ChainId,
   ): Promise<BigNumber> {
-    const client = await this.getStargateClient();
+    const client = await this.getCosmWasmClient();
     const { amount } = await client.getBalance(
       walletAddress,
       this.NATIVE_DENOM,
@@ -311,7 +316,7 @@ export class SeiContext<
     let denom = this.NATIVE_DENOM;
     if (!isNative) {
       const encodedAddress = base58.encode(cosmos.canonicalAddress(address));
-      denom = `factory/${SEI_TRANSLATOR}/${encodedAddress}`;
+      denom = `factory/${this.getTranslatorAddress()}/${encodedAddress}`;
     }
     return denom;
   }
@@ -330,9 +335,9 @@ export class SeiContext<
   ): Promise<MsgExecuteContractEncodeObject[]> {
     return [
       {
-        typeUrl: '/cosmwasm.wasm.v1.MsgExecuteContract',
+        typeUrl: MSG_EXECUTE_CONTRACT_TYPE_URL,
         value: MsgExecuteContract.fromPartial({
-          contract: SEI_TRANSLATOR,
+          contract: this.getTranslatorAddress(),
           msg: Buffer.from(
             JSON.stringify({
               complete_transfer_and_convert: {
@@ -362,7 +367,7 @@ export class SeiContext<
     for (const tx of txs) {
       const decoded = decodeTxRaw(tx.tx);
       for (const msg of decoded.body.messages) {
-        if (msg.typeUrl === '/cosmwasm.wasm.v1.MsgExecuteContract') {
+        if (msg.typeUrl === MSG_EXECUTE_CONTRACT_TYPE_URL) {
           const parsed = MsgExecuteContract.decode(msg.value);
           const instruction = JSON.parse(Buffer.from(parsed.msg).toString());
           const base64Vaa = instruction?.complete_transfer_and_convert?.vaa;
@@ -409,19 +414,11 @@ export class SeiContext<
     return decimals;
   }
 
-  private async getStargateClient(): Promise<StargateClient> {
-    if (!this.client) {
-      this.client = await StargateClient.connect(
-        this.context.conf.rpcs.sei || this.DEFAULT_RPC,
-      );
-    }
-    return this.client;
-  }
-
   private async getCosmWasmClient(): Promise<CosmWasmClient> {
     if (!this.wasmClient) {
+      if (!this.context.conf.rpcs.sei) throw new Error('Sei RPC not configured');
       this.wasmClient = await CosmWasmClient.connect(
-        this.context.conf.rpcs.sei || this.DEFAULT_RPC,
+        this.context.conf.rpcs.sei,
       );
     }
     return this.wasmClient;
@@ -434,5 +431,10 @@ export class SeiContext<
     walletAddress: string,
   ): Promise<BigNumber> {
     return BigNumber.from(0);
+  }
+
+  async getCurrentBlock(): Promise<number> {
+    const client = await this.getCosmWasmClient();
+    return client.getHeight();
   }
 }

@@ -526,4 +526,10 @@ export class SuiContext<
     );
     return fee;
   }
+
+  async getCurrentBlock(): Promise<number> {
+    if (!this.provider) throw new Error('no provider');
+    const sequence = await this.provider.getLatestCheckpointSequenceNumber();
+    return Number(sequence);
+  }
 }

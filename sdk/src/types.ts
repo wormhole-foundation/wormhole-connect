@@ -43,6 +43,7 @@ export type Contracts = {
   relayer?: string;
   suiOriginalTokenBridgePackageId?: string;
   suiRelayerPackageId?: string;
+  seiTokenTranslator?: string;
 };
 
 export type ChainConfig = {

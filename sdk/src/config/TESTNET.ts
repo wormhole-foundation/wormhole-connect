@@ -137,6 +137,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
       token_bridge:
         'sei1jv5xw094mclanxt5emammy875qelf3v62u4tl4lp5nhte3w3s9ts9w9az2',
       nft_bridge: undefined,
+      seiTokenTranslator: 'sei1dkdwdvknx0qav5cp5kw68mkn3r99m3svkyjfvkztwh97dv2lm0ksj6xrak'
     },
     finalityThreshold: 0, // TODO: update
   },

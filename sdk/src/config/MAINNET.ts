@@ -129,9 +129,9 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     context: Context.SEI,
     contracts: {
       ...CONTRACTS.MAINNET.sei,
-      core: 'sei1nna9mzp274djrgzhzkac2gvm3j27l402s4xzr08chq57pjsupqnqaj0d5s',
+      core: '',
       token_bridge:
-        'sei1jv5xw094mclanxt5emammy875qelf3v62u4tl4lp5nhte3w3s9ts9w9az2',
+        '',
       nft_bridge: undefined,
     },
     finalityThreshold: 0, // TODO: update

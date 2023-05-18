@@ -659,6 +659,11 @@ export class SolanaContext<
     ).catch((e) => false);
   }
 
+  async getCurrentBlock(): Promise<number> {
+    if (!this.connection) throw new Error('no connection');
+    return await this.connection.getSlot();
+  }
+
   parseRelayerPayload(payload: Buffer): ParsedRelayerPayload {
     throw new Error('relaying is not supported on solana');
   }

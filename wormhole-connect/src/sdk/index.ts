@@ -280,21 +280,7 @@ export const getCurrentBlock = async (
 ): Promise<number> => {
   const chainId = wh.toChainId(chain);
   const context: any = wh.getContext(chain);
-  if (chainId === MAINNET_CHAINS.solana) {
-    const connection = context.connection;
-    if (!connection) throw new Error('no connection');
-    return await connection.getSlot();
-  } else if (chainId === MAINNET_CHAINS.sui) {
-    const provider = context.provider;
-    if (!provider) throw new Error('no provider');
-    const sequence = await provider.getLatestCheckpointSequenceNumber();
-    return Number(sequence);
-  } else if (chainId === MAINNET_CHAINS.aptos) {
-    throw new Error('Aptos getCurrentBlock not implemented');
-  } else {
-    const provider = wh.mustGetProvider(chain);
-    return await provider.getBlockNumber();
-  }
+  return context.getCurrentBlock(chainId);
 };
 
 export const estimateSendGasFee = async (
