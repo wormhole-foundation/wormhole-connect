@@ -245,10 +245,7 @@ export class SeiContext<
     if (!tx) throw new Error('tx not found');
 
     const decoded = decodeTxRaw(tx.tx);
-    const sender = cosmos.humanAddress(
-      'sei',
-      decoded.authInfo.signerInfos[0].publicKey!.value,
-    );
+    const { sender } = MsgExecuteContract.decode(decoded.body.messages[0].value);
 
     // parse logs
     const logs = cosmosLogs.parseRawLog(tx.rawLog);
