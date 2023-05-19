@@ -3,31 +3,25 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useTheme } from '@mui/material/styles';
 import { useMediaQuery } from '@mui/material';
 import { makeStyles } from 'tss-react/mui';
-import { RootState } from '../../../store';
-import { CHAINS, TOKENS_ARR } from '../../../config';
-import { setTokensModal } from '../../../store/router';
-import {
-  setToken,
-  setBalance,
-  formatBalance,
-  clearBalances,
-} from '../../../store/transfer';
-import { displayAddress } from '../../../utils';
-import { CENTER } from '../../../utils/style';
-import { getBalance, getNativeBalance } from '../../../sdk';
+import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+import { RootState } from '../store';
+import { CHAINS, TOKENS_ARR } from '../config';
+import { TokenConfig } from '../config/types';
+import { setBalance, formatBalance, clearBalances } from '../store/transfer';
+import { displayAddress } from '../utils';
+import { CENTER } from '../utils/style';
+import { getBalance, getNativeBalance } from '../sdk';
 
-import Header from '../../../components/Header';
-import Modal from '../../../components/Modal';
-import Spacer from '../../../components/Spacer';
-import Search from '../../../components/Search';
-import Scroll from '../../../components/Scroll';
-import Tooltip from '../../../components/Tooltip';
+import Header from './Header';
+import Modal from './Modal';
+import Spacer from './Spacer';
+import Search from './Search';
+import Scroll from './Scroll';
+import Tooltip from './Tooltip';
 // import Down from '../icons/Down';
 // import Collapse from '@mui/material/Collapse';
-import TokenIcon from '../../../icons/TokenIcons';
+import TokenIcon from '../icons/TokenIcons';
 import CircularProgress from '@mui/material/CircularProgress';
-import { TokenConfig } from '../../../config/types';
-import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 
 const useStyles = makeStyles()((theme) => ({
   tokensContainer: {
@@ -145,24 +139,26 @@ const useStyles = makeStyles()((theme) => ({
   },
 }));
 
-function TokensModal() {
+type Props = {
+  open: boolean;
+  network: ChainName | undefined;
+  walletAddress: string | undefined;
+  onSelect: (string) => any;
+  onClose: any;
+};
+
+function TokensModal(props: Props) {
   const { classes } = useStyles();
   const theme = useTheme();
   const dispatch = useDispatch();
+  const { open, network, walletAddress } = props;
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [loading, setLoading] = useState(false);
   const [tokens, setTokens] = useState<TokenConfig[]>([]);
   const [search, setSearch] = useState('');
 
-  // store values
-  const showTokensModal = useSelector(
-    (state: RootState) => state.router.showTokensModal,
-  );
-  const { fromNetwork, balances: tokenBalances } = useSelector(
+  const { balances: tokenBalances } = useSelector(
     (state: RootState) => state.transfer,
-  );
-  const walletAddr = useSelector(
-    (state: RootState) => state.wallet.sending.address,
   );
 
   // search tokens
@@ -194,12 +190,12 @@ function TokensModal() {
   // listen for close event
   const closeTokensModal = () => {
     setTimeout(() => setSearch(''), 500);
-    dispatch(setTokensModal(false));
+    props.onClose();
   };
 
   // select token
   const selectToken = (token: string) => {
-    dispatch(setToken(token));
+    props.onSelect(token);
     closeTokensModal();
   };
 
@@ -211,20 +207,20 @@ function TokensModal() {
 
   // fetch token balances and set in store
   useEffect(() => {
-    if (!walletAddr || !fromNetwork) return;
-    const getBalances = async (
-      tokens: TokenConfig[],
-      walletAddr: string,
-      chain: ChainName,
-    ) => {
+    if (!walletAddress || !network) {
+      setTokens(TOKENS_ARR);
+      return;
+    }
+
+    const getBalances = async () => {
       // fetch all N tokens and trigger a single update action
       const balances = await Promise.all(
-        tokens.map(async (t) => {
+        TOKENS_ARR.map(async (t) => {
           const balance = t.tokenId
-            ? await getBalance(walletAddr, t.tokenId, chain)
-            : await getNativeBalance(walletAddr, chain);
+            ? await getBalance(walletAddress, t.tokenId, network)
+            : await getNativeBalance(walletAddress, network);
 
-          return formatBalance(chain, t, balance);
+          return formatBalance(network, t, balance);
         }),
       );
 
@@ -236,37 +232,20 @@ function TokensModal() {
     };
 
     dispatch(clearBalances());
-
     setLoading(true);
-    getBalances(TOKENS_ARR, walletAddr, fromNetwork).finally(() =>
-      setLoading(false),
-    );
-    // eslint-disable-next-line
-  }, [walletAddr, fromNetwork]);
-
-  useEffect(() => {
-    if (!fromNetwork || !walletAddr) {
-      setTokens(TOKENS_ARR);
-      return;
-    }
+    getBalances().finally(() => setLoading(false));
 
     // get tokens that exist on the chain and have a balance greater than 0
     const filtered = TOKENS_ARR.filter((t) => {
-      if (!fromNetwork) return true;
-      if (!t.tokenId && t.nativeNetwork !== fromNetwork) return false;
+      if (!t.tokenId && t.nativeNetwork !== network) return false;
       const b = tokenBalances[t.key];
       return b !== null && b !== '0';
     });
     setTokens(filtered);
-  }, [fromNetwork, tokenBalances, walletAddr]);
+  }, [walletAddress, network]);
 
   return (
-    <Modal
-      open={showTokensModal}
-      closable
-      width={500}
-      onClose={closeTokensModal}
-    >
+    <Modal open={open} closable width={500} onClose={closeTokensModal}>
       <Header text="Select asset" size={28} />
       <Spacer height={16} />
       <Search
@@ -307,9 +286,9 @@ function TokensModal() {
                   <div className={classes.tokenRowRight}>
                     <div className={classes.tokenRowBalanceText}>Balance</div>
                     <div className={classes.tokenRowBalance}>
-                      {tokenBalances[token.key] && walletAddr ? (
+                      {tokenBalances[token.key] && walletAddress ? (
                         <div>{tokenBalances[token.key]}</div>
-                      ) : fromNetwork && walletAddr ? (
+                      ) : network && walletAddress ? (
                         <CircularProgress size={14} />
                       ) : (
                         <div>—</div>
