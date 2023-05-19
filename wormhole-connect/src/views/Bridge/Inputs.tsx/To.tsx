@@ -2,22 +2,31 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { BigNumber } from 'ethers';
 import { RootState } from '../../../store';
-import { setToNetworksModal } from '../../../store/router';
-import { TransferWallet } from '../../../utils/wallet';
+import { TransferWallet, walletAcceptedNetworks } from '../../../utils/wallet';
 import { getWrappedToken } from '../../../utils';
-import { TOKENS } from '../../../config';
+import { CHAINS_ARR, TOKENS } from '../../../config';
 import { getBalance } from '../../../sdk';
-import { formatBalance } from '../../../store/transfer';
+import {
+  formatBalance,
+  setDestToken,
+  setToNetwork,
+} from '../../../store/transfer';
 
 import Inputs from './Inputs';
 import Input from './Input';
 import Select from './Select';
 import InputTransparent from '../../../components/InputTransparent';
 import TokenWarnings from './TokenWarnings';
+import TokensModal from '../../../components/TokensModal';
+import NetworksModal from '../../../components/NetworksModal';
+import { clearWallet, setWalletError } from '../../../store/wallet';
+import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 
 function ToInputs() {
   const dispatch = useDispatch();
   const [balance, setBalance] = useState(undefined as string | undefined);
+  const [showTokensModal, setShowTokensModal] = useState(false);
+  const [showNetworksModal, setShowNetworksModal] = useState(false);
 
   const { validations, fromNetwork, toNetwork, token, amount } = useSelector(
     (state: RootState) => state.transfer,
@@ -28,7 +37,26 @@ function ToInputs() {
 
   const tokenConfig = TOKENS[token];
 
-  const openToNetworksModal = () => dispatch(setToNetworksModal(true));
+  const selectToken = (token: string) => {
+    dispatch(setDestToken(token));
+  };
+
+  const isDisabled = (chain: ChainName) => {
+    // Check if the wallet type (i.e. Metamask, Phantom...) is supported for the given chain
+    return !walletAcceptedNetworks(receiving.type).includes(chain);
+  };
+
+  const selectNetwork = async (network: ChainName) => {
+    if (isDisabled(network)) {
+      dispatch(clearWallet(TransferWallet.RECEIVING));
+      const payload = {
+        type: TransferWallet.RECEIVING,
+        error: 'Wallet disconnected, please connect a supported wallet',
+      };
+      dispatch(setWalletError(payload));
+    }
+    dispatch(setToNetwork(network));
+  };
 
   // get balance on destination chain
   useEffect(() => {
@@ -67,20 +95,37 @@ function ToInputs() {
   );
 
   return (
-    <Inputs
-      title="To"
-      wallet={TransferWallet.RECEIVING}
-      walletValidations={[validations.receivingWallet]}
-      walletError={receiving.error}
-      inputValidations={[validations.toNetwork]}
-      network={toNetwork}
-      networkValidation={validations.toNetwork}
-      onNetworkClick={openToNetworksModal}
-      tokenInput={tokenInput}
-      amountInput={amountInput}
-      balance={balance}
-      warning={<TokenWarnings />}
-    />
+    <>
+      <Inputs
+        title="To"
+        wallet={TransferWallet.RECEIVING}
+        walletValidations={[validations.receivingWallet]}
+        walletError={receiving.error}
+        inputValidations={[validations.toNetwork]}
+        network={toNetwork}
+        networkValidation={validations.toNetwork}
+        onNetworkClick={() => setShowNetworksModal(true)}
+        tokenInput={tokenInput}
+        amountInput={amountInput}
+        balance={balance}
+        warning={<TokenWarnings />}
+      />
+      <TokensModal
+        open={showTokensModal}
+        network={toNetwork}
+        walletAddress={receiving.address}
+        onSelect={selectToken}
+        onClose={() => setShowTokensModal(false)}
+      />
+      <NetworksModal
+        open={showNetworksModal}
+        title="Sending to"
+        chains={CHAINS_ARR.filter((c) => c.key !== fromNetwork)}
+        onSelect={selectNetwork}
+        onClose={() => setShowNetworksModal(false)}
+        isDisabled={isDisabled}
+      />
+    </>
   );
 }
 
