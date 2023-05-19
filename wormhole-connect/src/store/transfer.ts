@@ -28,6 +28,7 @@ export interface TransferState {
   toNetwork: ChainName | undefined;
   automaticRelayAvail: boolean;
   token: string;
+  destToken: string;
   amount: number | undefined;
   destGasPayment: PaymentOption;
   maxSwapAmt: number | undefined;
@@ -64,6 +65,7 @@ const initialState: TransferState = {
   toNetwork: config?.bridgeDefaults?.toNetwork || undefined,
   automaticRelayAvail: false,
   token: config?.bridgeDefaults?.token || '',
+  destToken: '',
   amount: undefined,
   destGasPayment: PaymentOption.MANUAL,
   maxSwapAmt: undefined,
@@ -102,6 +104,12 @@ export const transferSlice = createSlice({
     // user input
     setToken: (state: TransferState, { payload }: PayloadAction<string>) => {
       state.token = payload;
+    },
+    setDestToken: (
+      state: TransferState,
+      { payload }: PayloadAction<string>,
+    ) => {
+      state.destToken = payload;
     },
     setFromNetwork: (
       state: TransferState,
@@ -239,6 +247,7 @@ export const {
   touchValidations,
   setValidations,
   setToken,
+  setDestToken,
   setFromNetwork,
   setToNetwork,
   setDestGasPayment,

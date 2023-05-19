@@ -1,15 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { BigNumber } from 'ethers';
+import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { RootState } from '../../../store';
-import { setFromNetworksModal, setTokensModal } from '../../../store/router';
-import { TransferWallet } from '../../../utils/wallet';
-import { setAmount } from '../../../store/transfer';
+import { TransferWallet, walletAcceptedNetworks } from '../../../utils/wallet';
+import { clearWallet, setWalletError } from '../../../store/wallet';
 import {
   setBalance as setStoreBalance,
   formatBalance,
+  setAmount,
+  setFromNetwork,
+  setToken,
 } from '../../../store/transfer';
-import { TOKENS } from '../../../config';
+import { CHAINS_ARR, TOKENS } from '../../../config';
 import { getBalance, getNativeBalance } from '../../../sdk';
 import { validate } from '../../../utils/transferValidation';
 
@@ -17,29 +20,51 @@ import InputTransparent from '../../../components/InputTransparent';
 import Inputs from './Inputs';
 import Input from './Input';
 import Select from './Select';
+import TokensModal from '../../../components/TokensModal';
+import NetworksModal from '../../../components/NetworksModal';
 
 function FromInputs() {
   const dispatch = useDispatch();
   const [balance, setBalance] = useState(undefined as string | undefined);
+  const [showTokensModal, setShowTokensModal] = useState(false);
+  const [showNetworksModal, setShowNetworksModal] = useState(false);
 
   const wallet = useSelector((state: RootState) => state.wallet.sending);
   const {
     validate: showErrors,
     validations,
     fromNetwork,
+    toNetwork,
     token,
     isTransactionInProgress,
   } = useSelector((state: RootState) => state.transfer);
   const tokenConfig = token && TOKENS[token];
 
-  // set store values
-  const openFromNetworksModal = () => dispatch(setFromNetworksModal(true));
-  const openTokensModal = () => dispatch(setTokensModal(true));
+  const isDisabled = (chain: ChainName) => {
+    // Check if the wallet type (i.e. Metamask, Phantom...) is supported for the given chain
+    return !walletAcceptedNetworks(wallet.type).includes(chain);
+  };
+
+  const selectNetwork = async (network: ChainName) => {
+    if (isDisabled(network)) {
+      dispatch(clearWallet(TransferWallet.SENDING));
+      const payload = {
+        type: TransferWallet.SENDING,
+        error: 'Wallet disconnected, please connect a supported wallet',
+      };
+      dispatch(setWalletError(payload));
+    }
+    dispatch(setFromNetwork(network));
+  };
+
   function handleAmountChange(event) {
     const newAmount = Number.parseFloat(event.target.value);
     dispatch(setAmount(newAmount));
   }
   const validateAmount = () => validate(dispatch);
+  const selectToken = (token: string) => {
+    dispatch(setToken(token));
+  };
 
   // amount input focus
   const amtId = 'sendAmt';
@@ -80,7 +105,7 @@ function FromInputs() {
       label="Asset"
       selected={selectedToken}
       error={!!(showErrors && validations.token)}
-      onClick={openTokensModal}
+      onClick={() => setShowTokensModal(true)}
       disabled={!fromNetwork || !wallet.address || isTransactionInProgress}
       editable
     />
@@ -112,23 +137,40 @@ function FromInputs() {
   );
 
   return (
-    <Inputs
-      title="From"
-      wallet={TransferWallet.SENDING}
-      walletValidations={[validations.sendingWallet]}
-      walletError={wallet.error}
-      inputValidations={[
-        validations.fromNetwork,
-        validations.token,
-        validations.amount,
-      ]}
-      network={fromNetwork}
-      networkValidation={validations.fromNetwork}
-      onNetworkClick={openFromNetworksModal}
-      tokenInput={tokenInput}
-      amountInput={amountInput}
-      balance={balance}
-    />
+    <>
+      <Inputs
+        title="From"
+        wallet={TransferWallet.SENDING}
+        walletValidations={[validations.sendingWallet]}
+        walletError={wallet.error}
+        inputValidations={[
+          validations.fromNetwork,
+          validations.token,
+          validations.amount,
+        ]}
+        network={fromNetwork}
+        networkValidation={validations.fromNetwork}
+        onNetworkClick={() => setShowNetworksModal(true)}
+        tokenInput={tokenInput}
+        amountInput={amountInput}
+        balance={balance}
+      />
+      <TokensModal
+        open={showTokensModal}
+        network={fromNetwork}
+        walletAddress={wallet.address}
+        onSelect={selectToken}
+        onClose={() => setShowTokensModal(false)}
+      />
+      <NetworksModal
+        open={showNetworksModal}
+        title="Sending to"
+        chains={CHAINS_ARR.filter((c) => c.key !== toNetwork)}
+        onSelect={selectNetwork}
+        onClose={() => setShowNetworksModal(false)}
+        isDisabled={isDisabled}
+      />
+    </>
   );
 }
 
