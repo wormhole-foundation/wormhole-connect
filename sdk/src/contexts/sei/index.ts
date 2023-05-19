@@ -124,9 +124,11 @@ export class SeiContext<
   }
 
   parseRelayerPayload(payload: Buffer): ParsedRelayerPayload {
+    const body = JSON.parse(payload.toString());
+    const recipientAddress = Buffer.from(body.basic_recipient.recipient, 'base64').toString();
     return {
-      relayerPayloadId: payload.readUInt8(0),
-      to: hexlify(payload.slice(33, 65)),
+      relayerPayloadId: 0,
+      to: hexlify(this.formatAddress(recipientAddress)),
       relayerFee: BigNumber.from(0),
       toNativeTokenAmount: BigNumber.from(0),
     };
