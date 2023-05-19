@@ -32,6 +32,7 @@ import {
 import { WormholeContext } from '../../wormhole';
 import { TokenBridgeAbstract } from '../abstracts/tokenBridge';
 import { SeiContracts } from './contracts';
+import { SolanaContext } from '../solana';
 
 interface WrappedRegistryResponse {
   address: string;
@@ -68,8 +69,20 @@ export class SeiContext<
 
     const destContext = this.context.getContext(recipientChain);
     const targetChain = this.context.toChainId(recipientChain);
+
+    let recipientAccount = recipientAddress;
+    // get token account for solana
+    if (targetChain === 1) {
+      let tokenId = token;
+      // todo: fix for native sui when implemented
+      const account = await (
+        destContext as SolanaContext<WormholeContext>
+      ).getAssociatedTokenAddress(tokenId as TokenId, recipientAddress);
+      recipientAccount = account.toString();
+    }
+
     const targetAddress = Buffer.from(
-      destContext.formatAddress(recipientAddress),
+      destContext.formatAddress(recipientAccount),
     ).toString('base64');
 
     const denom = this.CW20AddressToFactory(
@@ -104,7 +117,8 @@ export class SeiContext<
   }
 
   getTranslatorAddress(): string {
-    const { seiTokenTranslator: translatorAddress } = this.contracts.mustGetContracts('sei');
+    const { seiTokenTranslator: translatorAddress } =
+      this.contracts.mustGetContracts('sei');
     if (!translatorAddress) throw new Error('no translator address found');
     return translatorAddress;
   }
@@ -143,8 +157,8 @@ export class SeiContext<
     throw new Error('Method not implemented.');
   }
 
-  formatAddress(address: string): string {
-    return hexlify(zeroPad(cosmos.canonicalAddress(address), 32));
+  formatAddress(address: string): Uint8Array {
+    return arrayify(zeroPad(cosmos.canonicalAddress(address), 32));
   }
 
   parseAddress(address: any): string {
@@ -416,7 +430,8 @@ export class SeiContext<
 
   private async getCosmWasmClient(): Promise<CosmWasmClient> {
     if (!this.wasmClient) {
-      if (!this.context.conf.rpcs.sei) throw new Error('Sei RPC not configured');
+      if (!this.context.conf.rpcs.sei)
+        throw new Error('Sei RPC not configured');
       this.wasmClient = await CosmWasmClient.connect(
         this.context.conf.rpcs.sei,
       );

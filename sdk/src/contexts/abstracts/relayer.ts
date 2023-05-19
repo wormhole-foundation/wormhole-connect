@@ -41,7 +41,7 @@ export abstract class RelayerAbstract<
       toNativeTokenAmount: BigNumber.from(
         '0x' + payload.subarray(166, 198).toString('hex'),
       ),
-      to: '0x' + payload.subarray(198, 231).toString('hex'),  
+      to: '0x' + payload.subarray(198, 231).toString('hex'),
     };
   }
 }

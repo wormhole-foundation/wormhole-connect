@@ -130,8 +130,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     contracts: {
       ...CONTRACTS.MAINNET.sei,
       core: '',
-      token_bridge:
-        '',
+      token_bridge: '',
       nft_bridge: undefined,
     },
     finalityThreshold: 0, // TODO: update

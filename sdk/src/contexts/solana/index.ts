@@ -44,13 +44,16 @@ import {
   ParsedMessage,
   Context,
   ParsedRelayerPayload,
+  ParsedRelayerMessage,
 } from '../../types';
 import { SolContracts } from './contracts';
 import { WormholeContext } from '../../wormhole';
 import {
   createTransferNativeInstruction,
   createTransferWrappedInstruction,
+  createTransferNativeWithPayloadInstruction,
   createApproveAuthoritySignerInstruction,
+  createTransferWrappedWithPayloadInstruction,
 } from './solana/tokenBridge';
 import {
   deriveWormholeEmitterKey,
@@ -245,20 +248,35 @@ export class SolanaContext<
 
     const message = Keypair.generate();
     const nonce = createNonce().readUInt32LE(0);
-    const tokenBridgeTransferIx = createTransferNativeInstruction(
-      this.connection,
-      contracts.token_bridge,
-      contracts.core,
-      senderAddress,
-      message.publicKey,
-      ancillaryKeypair.publicKey,
-      NATIVE_MINT,
-      nonce,
-      amount,
-      relayerFee || BigInt(0),
-      Buffer.from(recipientAddress),
-      this.context.toChainId(recipientChain),
-    );
+    const tokenBridgeTransferIx = payload
+      ? createTransferNativeWithPayloadInstruction(
+          this.connection,
+          contracts.token_bridge,
+          contracts.core,
+          senderAddress,
+          message.publicKey,
+          ancillaryKeypair.publicKey,
+          NATIVE_MINT,
+          nonce,
+          amount,
+          Buffer.from(recipientAddress),
+          this.context.toChainId(recipientChain),
+          payload,
+        )
+      : createTransferNativeInstruction(
+          this.connection,
+          contracts.token_bridge,
+          contracts.core,
+          senderAddress,
+          message.publicKey,
+          ancillaryKeypair.publicKey,
+          NATIVE_MINT,
+          nonce,
+          amount,
+          relayerFee || BigInt(0),
+          Buffer.from(recipientAddress),
+          this.context.toChainId(recipientChain),
+        );
 
     //Close the ancillary account for cleanup. Payer address receives any remaining funds
     const closeAccountIx = createCloseAccountInstruction(
@@ -315,22 +333,39 @@ export class SolanaContext<
     );
     const message = Keypair.generate();
 
-    const tokenBridgeTransferIx = createTransferWrappedInstruction(
-      this.connection,
-      contracts.token_bridge,
-      contracts.core,
-      senderAddress,
-      message.publicKey,
-      fromAddress,
-      fromOwnerAddress,
-      tokenChainId,
-      mintAddress,
-      nonce,
-      amount,
-      relayerFee || BigInt(0),
-      recipientAddress,
-      recipientChainId,
-    );
+    const tokenBridgeTransferIx = payload
+      ? createTransferWrappedWithPayloadInstruction(
+          this.connection,
+          contracts.token_bridge,
+          contracts.core,
+          senderAddress,
+          message.publicKey,
+          fromAddress,
+          fromOwnerAddress,
+          tokenChainId,
+          mintAddress,
+          nonce,
+          amount,
+          recipientAddress,
+          recipientChainId,
+          payload,
+        )
+      : createTransferWrappedInstruction(
+          this.connection,
+          contracts.token_bridge,
+          contracts.core,
+          senderAddress,
+          message.publicKey,
+          fromAddress,
+          fromOwnerAddress,
+          tokenChainId,
+          mintAddress,
+          nonce,
+          amount,
+          relayerFee || BigInt(0),
+          recipientAddress,
+          recipientChainId,
+        );
     const transaction = new Transaction().add(
       approvalIx,
       tokenBridgeTransferIx,
@@ -461,12 +496,12 @@ export class SolanaContext<
     }
   }
 
-  formatAddress(address: PublicKeyInitData): string {
+  formatAddress(address: PublicKeyInitData): Uint8Array {
     const addr =
       typeof address === 'string' && address.startsWith('0x')
         ? arrayify(address)
         : address;
-    return hexlify(zeroPad(new PublicKey(addr).toBytes(), 32));
+    return arrayify(zeroPad(new PublicKey(addr).toBytes(), 32));
   }
 
   parseAddress(address: string): string {
@@ -478,7 +513,7 @@ export class SolanaContext<
   }
 
   async formatAssetAddress(address: string): Promise<Uint8Array> {
-    return Buffer.from(this.formatAddress(address), 'hex');
+    return this.formatAddress(address);
   }
 
   async parseAssetAddress(address: any): Promise<string> {
@@ -602,6 +637,22 @@ export class SolanaContext<
       gasFee: BigNumber.from(gasFee),
       block: response.slot,
     };
+
+    if (parsedMessage.payloadID === 3) {
+      const destContext = this.context.getContext(parsed.toChain as ChainId);
+      const parsedPayload = destContext.parseRelayerPayload(
+        parsed.tokenTransferPayload,
+      );
+      const parsedPayloadMessage: ParsedRelayerMessage = {
+        ...parsedMessage,
+        relayerPayloadId: parsedPayload.relayerPayloadId,
+        to: destContext.parseAddress(parsedPayload.to),
+        relayerFee: parsedPayload.relayerFee,
+        toNativeTokenAmount: parsedPayload.toNativeTokenAmount,
+      };
+      return [parsedPayloadMessage];
+    }
+
     return [parsedMessage];
   }
 

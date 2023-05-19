@@ -141,12 +141,12 @@ export class SuiContext<
     throw new Error('not implemented');
   }
 
-  formatAddress(address: string): string {
+  formatAddress(address: string): Uint8Array {
     if (!isValidSuiAddress(address)) {
       throw new Error(`can't format an invalid sui address: ${address}`);
     }
     // valid sui addresses are already 32 bytes, hex prefixed
-    return address;
+    return arrayify(address);
   }
 
   parseAddress(address: string): string {

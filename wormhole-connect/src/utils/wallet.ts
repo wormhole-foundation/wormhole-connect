@@ -28,6 +28,7 @@ import {
 } from '@solana/wallet-adapter-wallets';
 import { clusterApiUrl, Connection as SolanaConnection } from '@solana/web3.js';
 import { SolanaWallet } from '@xlabs-libs/wallet-aggregator-solana';
+import { SeiWallet } from '@xlabs-libs/wallet-aggregator-sei';
 import { Transaction, ConfirmOptions } from '@solana/web3.js';
 import { registerSigner, wh } from '../sdk';
 import { CHAINS, CHAINS_ARR } from '../config';
@@ -232,10 +233,20 @@ export const signSeiTransaction = async (
     msg.value.sender = msg.value.sender || wallet.getAddress();
   });
 
-  return wallet.signAndSendTransaction({
+  const seiWallet = wallet as SeiWallet;
+  const result = await seiWallet.signAndSendTransaction({
     msgs,
     fee,
+    memo: '',
   });
+
+  if (result.data?.code) {
+    throw new Error(
+      `Sei transaction failed with code ${result.data.code}. Log: ${result.data.rawLog}`,
+    );
+  }
+
+  return result;
 };
 
 export const signAndSendTransaction = async (

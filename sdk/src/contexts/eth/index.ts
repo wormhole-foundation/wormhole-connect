@@ -523,7 +523,9 @@ export class EthContext<
       const toChain = this.context.toChainName(parsedTransfer.toChain);
 
       const parsedPayload: ParsedRelayerPayload =
-        destContext.parseRelayerPayload(Buffer.from(arrayify(parsedTransfer.payload)));
+        destContext.parseRelayerPayload(
+          Buffer.from(arrayify(parsedTransfer.payload)),
+        );
 
       const tokenContext = this.context.getContext(
         parsedTransfer.tokenChain as ChainId,
