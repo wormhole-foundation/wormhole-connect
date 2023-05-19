@@ -8,18 +8,15 @@ import { clearWallet, setWalletError } from '../../../store/wallet';
 import {
   setBalance as setStoreBalance,
   formatBalance,
-  setAmount,
   setFromNetwork,
   setToken,
 } from '../../../store/transfer';
 import { CHAINS_ARR, TOKENS } from '../../../config';
 import { getBalance, getNativeBalance } from '../../../sdk';
-import { validate } from '../../../utils/transferValidation';
 
-import InputTransparent from '../../../components/InputTransparent';
 import Inputs from './Inputs';
-import Input from './Input';
 import Select from './Select';
+import AmountInput from './AmountInput';
 import TokensModal from '../../../components/TokensModal';
 import NetworksModal from '../../../components/NetworksModal';
 
@@ -57,22 +54,9 @@ function FromInputs() {
     dispatch(setFromNetwork(network));
   };
 
-  function handleAmountChange(event) {
-    const newAmount = Number.parseFloat(event.target.value);
-    dispatch(setAmount(newAmount));
-  }
-  const validateAmount = () => validate(dispatch);
   const selectToken = (token: string) => {
     dispatch(setToken(token));
   };
-
-  // amount input focus
-  const amtId = 'sendAmt';
-  function focusAmt() {
-    const input = document.getElementById(amtId);
-    if (!input) return;
-    input.focus();
-  }
 
   // balance
   useEffect(() => {
@@ -111,31 +95,6 @@ function FromInputs() {
     />
   );
 
-  // amount input jsx
-  const amountInput = (
-    <Input
-      label="Amount"
-      error={!!(showErrors && validations.amount)}
-      onClick={focusAmt}
-      editable
-    >
-      {token ? (
-        <InputTransparent
-          placeholder="0.00"
-          id={amtId}
-          type="number"
-          min={0}
-          step={0.1}
-          onChange={handleAmountChange}
-          onPause={validateAmount}
-          disabled={isTransactionInProgress}
-        />
-      ) : (
-        <div>-</div>
-      )}
-    </Input>
-  );
-
   return (
     <>
       <Inputs
@@ -152,7 +111,7 @@ function FromInputs() {
         networkValidation={validations.fromNetwork}
         onNetworkClick={() => setShowNetworksModal(true)}
         tokenInput={tokenInput}
-        amountInput={amountInput}
+        amountInput={<AmountInput />}
         balance={balance}
       />
       <TokensModal

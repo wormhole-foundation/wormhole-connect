@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { BigNumber } from 'ethers';
+import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { RootState } from '../../../store';
 import { TransferWallet, walletAcceptedNetworks } from '../../../utils/wallet';
 import { getWrappedToken } from '../../../utils';
@@ -11,16 +12,14 @@ import {
   setDestToken,
   setToNetwork,
 } from '../../../store/transfer';
+import { clearWallet, setWalletError } from '../../../store/wallet';
 
 import Inputs from './Inputs';
-import Input from './Input';
 import Select from './Select';
-import InputTransparent from '../../../components/InputTransparent';
+import AmountInput from './AmountInput';
 import TokenWarnings from './TokenWarnings';
 import TokensModal from '../../../components/TokensModal';
 import NetworksModal from '../../../components/NetworksModal';
-import { clearWallet, setWalletError } from '../../../store/wallet';
-import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 
 function ToInputs() {
   const dispatch = useDispatch();
@@ -28,12 +27,15 @@ function ToInputs() {
   const [showTokensModal, setShowTokensModal] = useState(false);
   const [showNetworksModal, setShowNetworksModal] = useState(false);
 
-  const { validations, fromNetwork, toNetwork, token, amount } = useSelector(
-    (state: RootState) => state.transfer,
-  );
-  const { sending, receiving } = useSelector(
-    (state: RootState) => state.wallet,
-  );
+  const {
+    validate: showErrors,
+    validations,
+    fromNetwork,
+    toNetwork,
+    token,
+    isTransactionInProgress,
+  } = useSelector((state: RootState) => state.transfer);
+  const { receiving } = useSelector((state: RootState) => state.wallet);
 
   const tokenConfig = TOKENS[token];
 
@@ -79,19 +81,16 @@ function ToInputs() {
   const selectedToken = tokenConfig
     ? { icon: tokenConfig.icon, text: symbol }
     : undefined;
+  // TODO: add validation for destination token
   const tokenInput = (
     <Select
       label="Asset"
       selected={selectedToken}
-      disabled={!fromNetwork || !sending.address}
+      error={!!(showErrors && validations.token)}
+      onClick={() => setShowTokensModal(true)}
+      disabled={!toNetwork || !receiving.address || isTransactionInProgress}
+      editable
     />
-  );
-
-  // amount display jsx
-  const amountInput = (
-    <Input label="Amount">
-      <InputTransparent placeholder="-" disabled value={amount || ''} />
-    </Input>
   );
 
   return (
@@ -106,7 +105,7 @@ function ToInputs() {
         networkValidation={validations.toNetwork}
         onNetworkClick={() => setShowNetworksModal(true)}
         tokenInput={tokenInput}
-        amountInput={amountInput}
+        amountInput={<AmountInput />}
         balance={balance}
         warning={<TokenWarnings />}
       />

@@ -242,7 +242,7 @@ function TokensModal(props: Props) {
       return b !== null && b !== '0';
     });
     setTokens(filtered);
-  }, [walletAddress, network]);
+  }, [walletAddress, network, dispatch]);
 
   return (
     <Modal open={open} closable width={500} onClose={closeTokensModal}>
