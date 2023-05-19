@@ -296,7 +296,7 @@ export class SuiContext<
     };
     if (parsed.payloadType === 3) {
       const relayerPayload = destContext.parseRelayerPayload(
-        Buffer.from(message.parsedJson?.payload),
+        Buffer.from(parsed.tokenTransferPayload),
       );
       const relayerMessage: ParsedRelayerMessage = {
         ...parsedMessage,

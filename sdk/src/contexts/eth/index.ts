@@ -522,7 +522,7 @@ export class EthContext<
 
       const toChain = this.context.toChainName(parsedTransfer.toChain);
 
-      const parsedPayload: ParsedRelayerPayload =
+      const relayerPayload: ParsedRelayerPayload =
         destContext.parseRelayerPayload(
           Buffer.from(arrayify(parsedTransfer.payload)),
         );
@@ -553,10 +553,10 @@ export class EthContext<
         block: receipt.blockNumber,
         gasFee,
         payload: parsedTransfer.payload,
-        relayerPayloadId: parsedPayload.relayerPayloadId,
-        recipient: destContext.parseAddress(parsedPayload.to),
-        relayerFee: parsedPayload.relayerFee,
-        toNativeTokenAmount: parsedPayload.toNativeTokenAmount,
+        relayerPayloadId: relayerPayload.relayerPayloadId,
+        recipient: destContext.parseAddress(relayerPayload.to),
+        relayerFee: relayerPayload.relayerFee,
+        toNativeTokenAmount: relayerPayload.toNativeTokenAmount,
       };
       return parsedMessage;
     });

@@ -32,16 +32,16 @@ export abstract class RelayerAbstract<
     tokenId: TokenId,
   ): Promise<BigNumber>;
 
-  parseRelayerPayload(payload: Buffer): ParsedRelayerPayload {
+  parseRelayerPayload(transferPayload: Buffer): ParsedRelayerPayload {
     return {
-      relayerPayloadId: payload.readUint8(133),
+      relayerPayloadId: transferPayload.readUint8(0),
       relayerFee: BigNumber.from(
-        '0x' + payload.subarray(134, 166).toString('hex'),
+        '0x' + transferPayload.subarray(1, 33).toString('hex'),
       ),
       toNativeTokenAmount: BigNumber.from(
-        '0x' + payload.subarray(166, 198).toString('hex'),
+        '0x' + transferPayload.subarray(33, 65).toString('hex'),
       ),
-      to: '0x' + payload.subarray(198, 231).toString('hex'),
+      to: '0x' + transferPayload.subarray(65, 98).toString('hex'),
     };
   }
 }

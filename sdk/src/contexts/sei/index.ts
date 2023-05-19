@@ -1,4 +1,3 @@
-// import { SeiContracts } from './contracts';
 import {
   cosmos,
   parseTokenTransferPayload,
@@ -125,7 +124,10 @@ export class SeiContext<
 
   parseRelayerPayload(payload: Buffer): ParsedRelayerPayload {
     const body = JSON.parse(payload.toString());
-    const recipientAddress = Buffer.from(body.basic_recipient.recipient, 'base64').toString();
+    const recipientAddress = Buffer.from(
+      body.basic_recipient.recipient,
+      'base64',
+    ).toString();
     return {
       relayerPayloadId: 0,
       to: hexlify(this.formatAddress(recipientAddress)),
@@ -195,7 +197,6 @@ export class SeiContext<
 
     const sourceContext = this.context.getContext(tokenId.chain);
     const tokenAddr = await sourceContext.formatAssetAddress(tokenId.address);
-    // TODO: modify formatAssetAddress to return Uint8Array
     const base64Addr = Buffer.from(tokenAddr).toString('base64');
 
     try {
@@ -247,7 +248,9 @@ export class SeiContext<
     if (!tx) throw new Error('tx not found');
 
     const decoded = decodeTxRaw(tx.tx);
-    const { sender } = MsgExecuteContract.decode(decoded.body.messages[0].value);
+    const { sender } = MsgExecuteContract.decode(
+      decoded.body.messages[0].value,
+    );
 
     // parse logs
     const logs = cosmosLogs.parseRawLog(tx.rawLog);
