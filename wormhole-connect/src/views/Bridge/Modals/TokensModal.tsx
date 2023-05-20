@@ -145,6 +145,12 @@ const useStyles = makeStyles()((theme) => ({
   },
 }));
 
+// Sei native token is not supported by the translator contract
+const HIDDEN_TOKENS = ['SEI'];
+const AVAILABLE_TOKENS: TokenConfig[] = TOKENS_ARR.filter(
+  (t) => !HIDDEN_TOKENS.includes(t.key),
+);
+
 function TokensModal() {
   const { classes } = useStyles();
   const theme = useTheme();
@@ -238,7 +244,7 @@ function TokensModal() {
     dispatch(clearBalances());
 
     setLoading(true);
-    getBalances(TOKENS_ARR, walletAddr, fromNetwork).finally(() =>
+    getBalances(AVAILABLE_TOKENS, walletAddr, fromNetwork).finally(() =>
       setLoading(false),
     );
     // eslint-disable-next-line
@@ -246,12 +252,12 @@ function TokensModal() {
 
   useEffect(() => {
     if (!fromNetwork || !walletAddr) {
-      setTokens(TOKENS_ARR);
+      setTokens(AVAILABLE_TOKENS);
       return;
     }
 
     // get tokens that exist on the chain and have a balance greater than 0
-    const filtered = TOKENS_ARR.filter((t) => {
+    const filtered = AVAILABLE_TOKENS.filter((t) => {
       if (!fromNetwork) return true;
       if (!t.tokenId && t.nativeNetwork !== fromNetwork) return false;
       const b = tokenBalances[t.key];
