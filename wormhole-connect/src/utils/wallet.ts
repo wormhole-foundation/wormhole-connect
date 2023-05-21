@@ -4,6 +4,7 @@ import {
   ChainName,
   Context,
   WormholeContext,
+  SendResult
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { postVaaSolanaWithRetry } from '@certusone/wormhole-sdk';
 import { NotSupported, Wallet } from '@xlabs-libs/wallet-aggregator-core';
@@ -28,7 +29,7 @@ import {
 } from '@solana/wallet-adapter-wallets';
 import { clusterApiUrl, Connection as SolanaConnection } from '@solana/web3.js';
 import { SolanaWallet } from '@xlabs-libs/wallet-aggregator-solana';
-import { SeiWallet } from '@xlabs-libs/wallet-aggregator-sei';
+import { SeiTransaction, SeiWallet } from '@xlabs-libs/wallet-aggregator-sei';
 import { Transaction, ConfirmOptions } from '@solana/web3.js';
 import { registerSigner, wh } from '../sdk';
 import { CHAINS, CHAINS_ARR } from '../config';
@@ -49,8 +50,7 @@ import {
   SpikaWalletAdapter,
   WalletAdapterNetwork,
 } from '@manahippo/aptos-wallet-adapter';
-import { MsgExecuteContractEncodeObject } from '@cosmjs/cosmwasm-stargate';
-import { calculateFee } from '@cosmjs/stargate';
+import { ContractReceipt } from 'ethers';
 
 export enum TransferWallet {
   SENDING = 'sending',
@@ -220,25 +220,16 @@ export const signAptosTransaction = async (
 };
 
 export const signSeiTransaction = async (
-  msgs: MsgExecuteContractEncodeObject[],
+  transaction: SeiTransaction,
   walletType: TransferWallet,
 ) => {
   const wallet = walletConnection[walletType];
   if (!wallet || !wallet.signAndSendTransaction) {
     throw new Error('wallet.signAndSendTransaction is undefined');
   }
-  const fee = calculateFee(750000, '0.1usei');
-
-  msgs.forEach((msg) => {
-    msg.value.sender = msg.value.sender || wallet.getAddress();
-  });
 
   const seiWallet = wallet as SeiWallet;
-  const result = await seiWallet.signAndSendTransaction({
-    msgs,
-    fee,
-    memo: '',
-  });
+  const result = await seiWallet.signAndSendTransaction(transaction);
 
   if (result.data?.code) {
     throw new Error(
@@ -251,14 +242,14 @@ export const signSeiTransaction = async (
 
 export const signAndSendTransaction = async (
   chain: ChainName,
-  transaction: any,
+  transaction: SendResult,
   walletType: TransferWallet,
   options?: ConfirmOptions,
 ): Promise<string> => {
   const network = CHAINS[chain]!;
   switch (network.context) {
     case Context.ETH: {
-      return transaction.transactionHash;
+      return (transaction as ContractReceipt).transactionHash;
     }
     case Context.SOLANA: {
       const tx = await signSolanaTransaction(
@@ -288,7 +279,7 @@ export const signAndSendTransaction = async (
     }
     case Context.SEI: {
       const tx = await signSeiTransaction(
-        transaction as MsgExecuteContractEncodeObject[],
+        transaction as SeiTransaction,
         walletType,
       );
       return tx.id;

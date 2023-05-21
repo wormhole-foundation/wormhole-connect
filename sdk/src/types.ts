@@ -117,5 +117,5 @@ export type TokenDetails = {
   decimals: number;
 };
 
-export type SendResult = ReturnType<AnyContext['send']>;
-export type RedeemResult = ReturnType<AnyContext['redeem']>;
+export type SendResult = Awaited<ReturnType<AnyContext['send']>>;
+export type RedeemResult = Awaited<ReturnType<AnyContext['redeem']>>;

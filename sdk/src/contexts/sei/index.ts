@@ -5,10 +5,9 @@ import {
 } from '@certusone/wormhole-sdk';
 import {
   CosmWasmClient,
-  MsgExecuteContractEncodeObject,
 } from '@cosmjs/cosmwasm-stargate';
-import { decodeTxRaw } from '@cosmjs/proto-signing';
-import { logs as cosmosLogs } from '@cosmjs/stargate';
+import { EncodeObject, decodeTxRaw } from '@cosmjs/proto-signing';
+import { StdFee, calculateFee, logs as cosmosLogs } from '@cosmjs/stargate';
 import base58 from 'bs58';
 import { MsgExecuteContract } from 'cosmjs-types/cosmwasm/wasm/v1/tx';
 import { BigNumber, BigNumberish } from 'ethers';
@@ -39,9 +38,15 @@ interface WrappedRegistryResponse {
 
 const MSG_EXECUTE_CONTRACT_TYPE_URL = '/cosmwasm.wasm.v1.MsgExecuteContract';
 
+export interface SeiTransaction {
+  fee: StdFee | "auto" | "number";
+  msgs: EncodeObject[];
+  memo: string;
+}
+
 export class SeiContext<
   T extends WormholeContext,
-> extends TokenBridgeAbstract<any> {
+> extends TokenBridgeAbstract<SeiTransaction> {
   readonly type = Context.SEI;
   readonly contracts: SeiContracts<T>;
 
@@ -63,7 +68,7 @@ export class SeiContext<
     recipientChain: ChainName | ChainId,
     recipientAddress: string,
     relayerFee: string | undefined = '0',
-  ): Promise<MsgExecuteContractEncodeObject[]> {
+  ): Promise<SeiTransaction> {
     if (token === 'native') throw new Error('Native token not supported');
 
     const destContext = this.context.getContext(recipientChain);
@@ -89,7 +94,7 @@ export class SeiContext<
       await this.mustGetForeignAsset(token, sendingChain),
     );
 
-    return [
+    const msgs = [
       {
         typeUrl: MSG_EXECUTE_CONTRACT_TYPE_URL,
         value: MsgExecuteContract.fromPartial({
@@ -113,6 +118,15 @@ export class SeiContext<
         }),
       },
     ];
+
+    // TODO: find a way to simulate
+    const fee = calculateFee(1000000, "0.1usei");
+
+    return {
+      msgs,
+      fee,
+      memo: 'Wormhole - Initiate Transfer'
+    }
   }
 
   getTranslatorAddress(): string {
@@ -348,8 +362,8 @@ export class SeiContext<
     signedVAA: Uint8Array,
     overrides: any,
     payerAddr?: any,
-  ): Promise<MsgExecuteContractEncodeObject[]> {
-    return [
+  ): Promise<SeiTransaction> {
+    const msgs = [
       {
         typeUrl: MSG_EXECUTE_CONTRACT_TYPE_URL,
         value: MsgExecuteContract.fromPartial({
@@ -364,6 +378,14 @@ export class SeiContext<
         }),
       },
     ];
+
+    const fee = calculateFee(1000000, "0.1usei");
+
+    return {
+      msgs,
+      fee,
+      memo: 'Wormhole - Complete Transfer'
+    }
   }
 
   async fetchRedeemedEvent(
