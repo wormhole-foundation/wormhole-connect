@@ -12,6 +12,7 @@ import { NetworkConfig, TokenConfig } from '../config/types';
 import { toDecimals } from './balance';
 import { isValidTransactionDigest, SUI_TYPE_ARG } from '@mysten/sui.js';
 import { isHexString } from 'ethers/lib/utils.js';
+import { isEvmChain } from '../sdk';
 
 export const MAX_DECIMALS = 6;
 export const NORMALIZED_DECIMALS = 8;
@@ -21,47 +22,27 @@ export function convertAddress(address: string): string {
   return `0x${address.slice(address.length - 40, address.length)}`;
 }
 
-export function displayEvmAddress(address: string): string {
-  const evmAddress = convertAddress(address);
-  return (
-    evmAddress.slice(0, 6) +
-    '...' +
-    evmAddress.slice(evmAddress.length - 4, evmAddress.length)
-  );
+function isNative(address: string) {
+  return address === SUI_TYPE_ARG || address === '0x1::aptos_coin::AptosCoin';
 }
 
-export function displaySuiAddress(address: string): string {
-  if (address === SUI_TYPE_ARG) return 'Native';
+export function trimAddress(address: string, max: number = 6): string {
+  if (isNative(address)) return address;
   return (
-    address.slice(0, 6) +
-    '...' +
-    address.slice(address.length - 4, address.length)
-  );
-}
-
-export function displayAptosAddress(address: string): string {
-  if (address === '0x1::aptos_coin::AptosCoin') return 'Native';
-  return (
-    address.slice(0, 6) +
+    address.slice(0, max) +
     '...' +
     address.slice(address.length - 4, address.length)
   );
 }
 
 export function displayAddress(chain: ChainName, address: string): string {
-  if (chain === 'solana') {
-    return (
-      address.slice(0, 4) +
-      '...' +
-      address.slice(address.length - 4, address.length)
-    );
-  } else if (chain === 'sui' || chain === 'sei') {
-    return displaySuiAddress(address);
-  } else if (chain === 'aptos') {
-    return displayAptosAddress(address);
-  } else {
-    return displayEvmAddress(address);
+  if (isEvmChain(chain)) {
+    return trimAddress(convertAddress(address));
+  } else if (chain === 'solana') {
+    return trimAddress(address, 4);
   }
+
+  return trimAddress(address);
 }
 
 export function displayWalletAddress(
@@ -69,13 +50,11 @@ export function displayWalletAddress(
   address: string,
 ): string {
   if (walletType === Context.ETH) {
-    return displayEvmAddress(address);
-  } else if (walletType === Context.SUI) {
-    return displaySuiAddress(address);
-  } else if (walletType === Context.APTOS) {
-    return displayAptosAddress(address);
+    return trimAddress(convertAddress(address));
+  } else if (walletType === Context.SOLANA) {
+    return trimAddress(address, 4);
   }
-  return displayAddress('solana', address);
+  return trimAddress(address);
 }
 
 export function getNetworkByChainId(chainId: number): NetworkConfig | void {

@@ -1,4 +1,4 @@
-import { Network as Environment } from '@certusone/wormhole-sdk';
+import { Network as Environment, isEVMChain } from '@certusone/wormhole-sdk';
 import { BigNumber, utils } from 'ethers';
 import {
   WormholeContext,
@@ -320,4 +320,8 @@ export const isAcceptedToken = async (tokenId: TokenId): Promise<boolean> => {
   if (!relayer) return false;
   const accepted = await relayer.isAcceptedToken(tokenId.address);
   return accepted;
+};
+
+export const isEvmChain = (chain: ChainName | ChainId) => {
+  return isEVMChain(wh.toChainId(chain));
 };
