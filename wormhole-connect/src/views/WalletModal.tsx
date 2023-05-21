@@ -4,7 +4,7 @@ import { useTheme } from '@mui/material/styles';
 import { useDispatch, useSelector } from 'react-redux';
 import { Wallet, WalletState } from '@xlabs-libs/wallet-aggregator-core';
 import { getWallets as getSuiWallets } from '@xlabs-libs/wallet-aggregator-sui';
-import { getSupportedWallets as getSeiWallets } from '@xlabs-libs/wallet-aggregator-sei';
+import { SeiChainId, getSupportedWallets as getSeiWallets } from '@xlabs-libs/wallet-aggregator-sei';
 import { CHAINS, WH_CONFIG } from '../config';
 import { RootState } from '../store';
 import { setWalletModal } from '../store/router';
@@ -27,6 +27,7 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import Search from '../components/Search';
 import { CENTER } from '../utils/style';
+import { getSeiChainId } from '../utils/sei';
 
 const useStyles = makeStyles()((theme) => ({
   walletRow: {
@@ -97,7 +98,7 @@ const fetchSuiOptions = async () => {
 
 const fetchSeiOptions = async () => {
   const seiWallets = await getSeiWallets({
-    chainId: 'atlantic-2',
+    chainId: getSeiChainId(WH_CONFIG.env) as SeiChainId,
     rpcUrl: WH_CONFIG.rpcs.sei || '',
   });
 

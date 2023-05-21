@@ -1,5 +1,6 @@
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { WH_CONFIG } from '../config';
+import { Network } from '@certusone/wormhole-sdk';
 
 export function buildSeiPayload(
   toNetwork: ChainName,
@@ -26,3 +27,7 @@ export function buildSeiPayload(
   }
   return {};
 }
+
+// TODO: fill in when Sei mainnet launches
+export const getSeiChainId = (env: Network) =>
+  env === 'MAINNET' ? '' : 'atlantic-2';
