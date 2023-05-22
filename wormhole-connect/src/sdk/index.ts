@@ -32,7 +32,6 @@ export interface ParsedMessage {
   fromChain: ChainName;
   tokenAddress: string;
   tokenChain: ChainName;
-  tokenId: TokenId;
   tokenKey: string;
   tokenDecimals: number;
   emitterAddress: string;
@@ -40,6 +39,7 @@ export interface ParsedMessage {
   block: number;
   gasFee?: string;
   payload?: string;
+  tokenId: TokenId;
 }
 
 export interface ParsedRelayerMessage extends ParsedMessage {
@@ -325,3 +325,7 @@ export const isAcceptedToken = async (tokenId: TokenId): Promise<boolean> => {
 export const isEvmChain = (chain: ChainName | ChainId) => {
   return isEVMChain(wh.toChainId(chain));
 };
+
+export const toChainId = (chain: ChainName | ChainId) => {
+  return wh.toChainId(chain);
+}

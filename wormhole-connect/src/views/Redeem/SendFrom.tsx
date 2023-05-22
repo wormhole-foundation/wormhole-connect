@@ -3,14 +3,14 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import { ParsedVaa } from '../../utils/vaa';
 import { CHAINS, TOKENS } from '../../config';
-import { PaymentOption } from '../../sdk';
+import { PaymentOption, toChainId } from '../../sdk';
 import { toDecimals } from '../../utils/balance';
 
 import InputContainer from '../../components/InputContainer';
 import Header from './Header';
 import { RenderRows, RowsData } from '../../components/RenderRows';
 import Confirmations from './Confirmations';
-import { toNormalizedDecimals, MAX_DECIMALS } from '../../utils';
+import { toNormalizedDecimals, MAX_DECIMALS, getTokenDecimals } from '../../utils';
 
 const getRows = (txData: any): RowsData => {
   const formattedAmt = toNormalizedDecimals(
@@ -20,9 +20,13 @@ const getRows = (txData: any): RowsData => {
   );
   const { gasToken: sourceGasTokenSymbol } = CHAINS[txData.fromChain]!;
   const sourceGasToken = TOKENS[sourceGasTokenSymbol];
+  const decimals = getTokenDecimals(
+    toChainId(sourceGasToken.nativeNetwork),
+    sourceGasToken.tokenId
+  );
   const formattedGas =
     txData.gasFee &&
-    toDecimals(txData.gasFee, sourceGasToken.decimals, MAX_DECIMALS);
+    toDecimals(txData.gasFee, decimals, MAX_DECIMALS);
   const type = txData.payloadID;
   const token = TOKENS[txData.tokenKey];
 

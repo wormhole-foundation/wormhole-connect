@@ -139,6 +139,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 8,
     suiDecimals: 8,
     aptosDecimals: 8,
+    seiDecimals: 8,
   },
   WETH: {
     key: 'WETH',
@@ -155,6 +156,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 8,
     suiDecimals: 8,
     aptosDecimals: 8,
+    seiDecimals: 8,
   },
   USDCeth: {
     key: 'USDCeth',
@@ -171,6 +173,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 6,
     suiDecimals: 8,
     aptosDecimals: 8,
+    seiDecimals: 8,
   },
   MATIC: {
     key: 'MATIC',
@@ -183,6 +186,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 8,
     suiDecimals: 8,
     aptosDecimals: 8,
+    seiDecimals: 8,
     wrappedAsset: 'WMATIC',
   },
   WMATIC: {
@@ -200,6 +204,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 8,
     suiDecimals: 8,
     aptosDecimals: 8,
+    seiDecimals: 8,
   },
   USDCpolygon: {
     key: 'USDCpolygon',
@@ -216,6 +221,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 6,
     suiDecimals: 6,
     aptosDecimals: 6,
+    seiDecimals: 6,
   },
   BNB: {
     key: 'BNB',
@@ -228,6 +234,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 8,
     suiDecimals: 8,
     aptosDecimals: 8,
+    seiDecimals: 8,
     wrappedAsset: 'WBNB',
   },
   WBNB: {
@@ -245,6 +252,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 8,
     suiDecimals: 8,
     aptosDecimals: 8,
+    seiDecimals: 8,
   },
   AVAX: {
     key: 'AVAX',
@@ -257,6 +265,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 8,
     suiDecimals: 8,
     aptosDecimals: 8,
+    seiDecimals: 8,
     wrappedAsset: 'WAVAX',
   },
   WAVAX: {
@@ -274,6 +283,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 8,
     suiDecimals: 8,
     aptosDecimals: 8,
+    seiDecimals: 8,
   },
   USDCavax: {
     key: 'USDCavax',
@@ -290,6 +300,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 6,
     suiDecimals: 6,
     aptosDecimals: 6,
+    seiDecimals: 6,
   },
   FTM: {
     key: 'FTM',
@@ -302,6 +313,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 8,
     suiDecimals: 8,
     aptosDecimals: 8,
+    seiDecimals: 8,
     wrappedAsset: 'WFTM',
   },
   WFTM: {
@@ -319,6 +331,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 8,
     suiDecimals: 8,
     aptosDecimals: 8,
+    seiDecimals: 8,
   },
   CELO: {
     key: 'CELO',
@@ -335,6 +348,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 8,
     suiDecimals: 8,
     aptosDecimals: 8,
+    seiDecimals: 8,
   },
   GLMR: {
     key: 'GLMR',
@@ -347,6 +361,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 8,
     suiDecimals: 8,
     aptosDecimals: 8,
+    seiDecimals: 8,
     wrappedAsset: 'WGLMR',
   },
   WGLMR: {
@@ -364,6 +379,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 8,
     suiDecimals: 8,
     aptosDecimals: 8,
+    seiDecimals: 8,
   },
   SOL: {
     key: 'SOL',
@@ -376,6 +392,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 9,
     suiDecimals: 8,
     aptosDecimals: 8,
+    seiDecimals: 8,
     wrappedAsset: 'WSOL',
   },
   WSOL: {
@@ -393,6 +410,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 9,
     suiDecimals: 8,
     aptosDecimals: 8,
+    seiDecimals: 8,
   },
   USDCsol: {
     key: 'USDCsol',
@@ -409,6 +427,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 6,
     suiDecimals: 6,
     aptosDecimals: 6,
+    seiDecimals: 6,
   },
   SUI: {
     key: 'SUI',
@@ -425,6 +444,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 8,
     suiDecimals: 9,
     aptosDecimals: 8,
+    seiDecimals: 8,
   },
   APT: {
     key: 'APT',
@@ -441,6 +461,7 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 8,
     suiDecimals: 8,
     aptosDecimals: 8,
+    seiDecimals: 8,
   },
   SEI: {
     key: 'SEI',
@@ -456,7 +477,8 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: 9,
     solDecimals: 8,
     suiDecimals: 6,
-    aptosDecimals: 6
+    aptosDecimals: 6,
+    seiDecimals: 6,
   },
 };
 

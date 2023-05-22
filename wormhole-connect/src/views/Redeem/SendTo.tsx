@@ -31,6 +31,7 @@ import {
   estimateClaimGasFee,
   PaymentOption,
   calculateNativeTokenAmt,
+  toChainId,
 } from '../../sdk';
 import { CHAINS, TOKENS } from '../../config';
 import WalletsModal from '../WalletModal';
@@ -49,7 +50,11 @@ import { getTotalGasUsed } from '@mysten/sui.js';
 
 const calculateGas = async (chain: ChainName, receiveTx?: string) => {
   const { gasToken } = CHAINS[chain]!;
-  const { decimals } = TOKENS[gasToken];
+  const token = TOKENS[gasToken];
+  const decimals = getTokenDecimals(
+    toChainId(chain),
+    token.tokenId
+  );
 
   if (chain === 'solana') {
     return toDecimals(
@@ -138,9 +143,13 @@ const getAutomaticRows = async (
       console.error(`could not fetch swap event:\n${e}`);
     }
     if (nativeSwapAmount) {
+      const decimals = getTokenDecimals(
+        wh.toChainId(txData.toChain),
+        nativeGasToken.tokenId,
+      );
       nativeGasAmt = toDecimals(
         nativeSwapAmount,
-        nativeGasToken.decimals,
+        decimals,
         MAX_DECIMALS,
       );
     }

@@ -39,6 +39,7 @@ export type TokenConfig = {
   solDecimals: number;
   suiDecimals: number;
   aptosDecimals: number;
+  seiDecimals: number;
   wrappedAsset?: string;
 };
 

@@ -93,25 +93,29 @@ export function getTokenById(tokenId: TokenId): TokenConfig | void {
 
 export function getTokenDecimals(
   chain: ChainId,
-  tokenId: TokenId | 'native',
+  tokenId: TokenId | 'native' = 'native',
 ): number {
   if (tokenId === 'native') {
     return chain === MAINNET_CHAINS.solana
       ? 9
-      : chain === MAINNET_CHAINS.sui || chain === MAINNET_CHAINS.sei
+      : chain === MAINNET_CHAINS.sui
       ? 9
       : chain === MAINNET_CHAINS.aptos
       ? 8
+      : chain === MAINNET_CHAINS.sei
+      ? 6
       : 18;
   }
   const tokenConfig = getTokenById(tokenId);
   if (!tokenConfig) throw new Error('token config not found');
   return chain === MAINNET_CHAINS.solana
     ? tokenConfig.solDecimals
-    : chain === MAINNET_CHAINS.sui || chain === MAINNET_CHAINS.sei
+    : chain === MAINNET_CHAINS.sui
     ? tokenConfig.suiDecimals
     : chain === MAINNET_CHAINS.aptos
     ? tokenConfig.aptosDecimals
+    : chain === MAINNET_CHAINS.sei
+    ? tokenConfig.seiDecimals
     : tokenConfig.decimals;
 }
 
