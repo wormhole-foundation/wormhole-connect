@@ -35,8 +35,19 @@ export abstract class TokenBridgeAbstract<TransactionResult> {
     payload: any,
   ): Promise<TransactionResult>;
 
-  protected abstract formatAddress(address: string): any;
-  protected abstract parseAddress(address: any): string;
+  /**
+   * Format an address to a 32-byte array, padded with zeros if needed
+   * @param address The address to format
+   * @returns A 32 byte array of the address, padded with zeros if needed
+   */
+  protected abstract formatAddress(address: string): Uint8Array;
+  /**
+   * Parse an address to the blockchain specific address format
+   * (e.g. 40-byte hex 0xabcd... for evm chains)
+   * @param address The address to parse
+   * @returns The parsed address to the blockchain specific format
+   */
+  protected abstract parseAddress(address: string | Uint8Array): string;
 
   protected abstract formatAssetAddress(address: string): Promise<Uint8Array>;
   protected abstract parseAssetAddress(address: any): Promise<string>;

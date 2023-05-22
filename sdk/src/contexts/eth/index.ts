@@ -522,6 +522,10 @@ export class EthContext<
 
       const toChain = this.context.toChainName(parsedTransfer.toChain);
 
+      /**
+       * Not all relayers follow the same payload structure (i.e. sei)
+       * so we request the destination context to parse the payload
+       */
       const relayerPayload: ParsedRelayerPayload =
         destContext.parseRelayerPayload(
           Buffer.from(arrayify(parsedTransfer.payload)),

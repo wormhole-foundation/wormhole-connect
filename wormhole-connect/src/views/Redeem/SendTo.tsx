@@ -51,10 +51,7 @@ import { getTotalGasUsed } from '@mysten/sui.js';
 const calculateGas = async (chain: ChainName, receiveTx?: string) => {
   const { gasToken } = CHAINS[chain]!;
   const token = TOKENS[gasToken];
-  const decimals = getTokenDecimals(
-    toChainId(chain),
-    token.tokenId
-  );
+  const decimals = getTokenDecimals(toChainId(chain), token.tokenId);
 
   if (chain === 'solana') {
     return toDecimals(
@@ -147,11 +144,7 @@ const getAutomaticRows = async (
         wh.toChainId(txData.toChain),
         nativeGasToken.tokenId,
       );
-      nativeGasAmt = toDecimals(
-        nativeSwapAmount,
-        decimals,
-        MAX_DECIMALS,
-      );
+      nativeGasAmt = toDecimals(nativeSwapAmount, decimals, MAX_DECIMALS);
     }
   } else if (!transferComplete) {
     // get the decimals on the target chain

@@ -125,8 +125,7 @@ function Preview(props: { collapsed: boolean }) {
     const sourceConfig = toNetwork && CHAINS[fromNetwork];
     const destConfig = toNetwork && CHAINS[toNetwork];
     const tokenConfig = token && TOKENS[token];
-    if (!tokenConfig || !sourceConfig || !destConfig || !amount)
-      return;
+    if (!tokenConfig || !sourceConfig || !destConfig || !amount) return;
 
     if (destGasPayment === PaymentOption.MANUAL) {
       const rows = getManualRows(
@@ -141,7 +140,10 @@ function Preview(props: { collapsed: boolean }) {
     } else {
       getRelayerFee(fromNetwork, toNetwork, token)
         .then((fee) => {
-          const decimals = getTokenDecimals(toChainId(fromNetwork), tokenConfig.tokenId || 'native');
+          const decimals = getTokenDecimals(
+            toChainId(fromNetwork),
+            tokenConfig.tokenId || 'native',
+          );
           const formattedFee = Number.parseFloat(toDecimals(fee, decimals, 6));
           dispatch(setRelayerFee(formattedFee));
           const rows = getAutomaticRows(

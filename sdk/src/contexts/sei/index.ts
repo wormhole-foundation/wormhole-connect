@@ -3,9 +3,7 @@ import {
   parseTokenTransferPayload,
   parseVaa,
 } from '@certusone/wormhole-sdk';
-import {
-  CosmWasmClient,
-} from '@cosmjs/cosmwasm-stargate';
+import { CosmWasmClient } from '@cosmjs/cosmwasm-stargate';
 import { EncodeObject, decodeTxRaw } from '@cosmjs/proto-signing';
 import { StdFee, calculateFee, logs as cosmosLogs } from '@cosmjs/stargate';
 import base58 from 'bs58';
@@ -39,11 +37,44 @@ interface WrappedRegistryResponse {
 const MSG_EXECUTE_CONTRACT_TYPE_URL = '/cosmwasm.wasm.v1.MsgExecuteContract';
 
 export interface SeiTransaction {
-  fee: StdFee | "auto" | "number";
+  fee: StdFee | 'auto' | 'number';
   msgs: EncodeObject[];
   memo: string;
 }
 
+/**
+ * Implements token bridge transfers to and from Sei
+ *
+ * The Sei blockchain provides a feature through its `tokenfactory`
+ * ([docs](https://github.com/sei-protocol/sei-chain/tree/master/x/tokenfactory))
+ * module that allows the creation of native denominations through
+ * a special message.
+ *
+ * In order to take leverage this feature to provide a native
+ * counterpart to bridged assets, a special relayer contract called
+ * "token translator" is deployed on Sei
+ * (refer [here](https://github.com/wormhole-foundation/example-sei-token-translator/)
+ * for the reference implementation)
+ *
+ * The translator contract works the same
+ * way as relayers on other chains, although it uses a different payload
+ * structure than the others and has no native drop off features.
+ *
+ * As an additional step to the bridge process, the translator contract receives
+ * the tokens and locks them, minting to the actual recipient an equivalent
+ * amount of the native denomination created through the tokenfactory module.
+ * In order to transfer the tokens out of Sei, the user can then use the
+ * `convert_and_transfer` message of the token translator contract, which will burn
+ * the native denominationand send the locked CW20 tokens through the usual bridge process
+ * The contract also offers a message that allows burning the native denomination
+ * and receive the CW20 tokens back on a sei account, without going through
+ * the bridging process, but such message is not implemented on WH Connect.
+ *
+ * A mayor drawback of this implementation is that the translator contract does not support
+ * transfering out the native SEI and CW20 tokens that were not bridged through
+ * Wormhole's token bridge. Although it is possible to do so through the
+ * traditional token bridge workflow, it is yet to be implemented.
+ */
 export class SeiContext<
   T extends WormholeContext,
 > extends TokenBridgeAbstract<SeiTransaction> {
@@ -89,9 +120,13 @@ export class SeiContext<
       destContext.formatAddress(recipientAccount),
     ).toString('base64');
 
+    const wrappedAssetAddress = await this.mustGetForeignAsset(
+      token,
+      sendingChain,
+    );
     const denom = this.CW20AddressToFactory(
       token.address === this.NATIVE_DENOM,
-      await this.mustGetForeignAsset(token, sendingChain),
+      wrappedAssetAddress,
     );
 
     const msgs = [
@@ -120,13 +155,13 @@ export class SeiContext<
     ];
 
     // TODO: find a way to simulate
-    const fee = calculateFee(1000000, "0.1usei");
+    const fee = calculateFee(1000000, '0.1usei');
 
     return {
       msgs,
       fee,
-      memo: 'Wormhole - Initiate Transfer'
-    }
+      memo: 'Wormhole - Initiate Transfer',
+    };
   }
 
   getTranslatorAddress(): string {
@@ -237,6 +272,11 @@ export class SeiContext<
     return assetAdddress;
   }
 
+  /**
+   * Search for a specific piece of information emitted by the contracts during the transaction
+   * For example: to retrieve the bridge transfer recipient, we would have to look
+   * for the "transfer.recipient" under the "wasm" event
+   */
   private searchLogs(
     key: string,
     logs: readonly cosmosLogs.Log[],
@@ -266,10 +306,13 @@ export class SeiContext<
       decoded.body.messages[0].value,
     );
 
-    // parse logs
+    // parse logs emitted for the tx execution
     const logs = cosmosLogs.parseRawLog(tx.rawLog);
 
     // extract information wormhole contract logs
+    // - message.message: the vaa payload (i.e. the transfer information)
+    // - message.sequence: the vaa's sequence number
+    // - message.sender: the vaa's emitter address
     const tokenTransferPayload = this.searchLogs('message.message', logs);
     const sequence = this.searchLogs('message.sequence', logs);
     const emitterAddress = this.searchLogs('message.sender', logs);
@@ -379,13 +422,13 @@ export class SeiContext<
       },
     ];
 
-    const fee = calculateFee(1000000, "0.1usei");
+    const fee = calculateFee(1000000, '0.1usei');
 
     return {
       msgs,
       fee,
-      memo: 'Wormhole - Complete Transfer'
-    }
+      memo: 'Wormhole - Complete Transfer',
+    };
   }
 
   async fetchRedeemedEvent(
@@ -394,6 +437,10 @@ export class SeiContext<
     sequence: string,
   ) {
     const client = await this.getCosmWasmClient();
+
+    // there is no direct way to find the transaction through the chain/emitter/sequence identificator
+    // so we need to search for all the transactions that completed a transfer
+    // and pick out the one which has a VAA parameter that matches the chain/emitter/sequence we need
     const txs = await client.searchTx({
       tags: [
         {

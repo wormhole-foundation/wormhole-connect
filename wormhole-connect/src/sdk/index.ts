@@ -328,4 +328,4 @@ export const isEvmChain = (chain: ChainName | ChainId) => {
 
 export const toChainId = (chain: ChainName | ChainId) => {
   return wh.toChainId(chain);
-}
+};

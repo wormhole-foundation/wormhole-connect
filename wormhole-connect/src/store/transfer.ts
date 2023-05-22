@@ -15,7 +15,7 @@ export const formatBalance = (
   token: TokenConfig,
   balance: BigNumber | null,
 ) => {
-  const decimals = getTokenDecimals(toChainId(chain), token.tokenId)
+  const decimals = getTokenDecimals(toChainId(chain), token.tokenId);
   const formattedBalance =
     balance !== null ? toDecimals(balance, decimals, 6) : null;
   return { [token.key]: formattedBalance };

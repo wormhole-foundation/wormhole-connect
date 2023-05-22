@@ -9,7 +9,12 @@ import {
   enableAutomaticTransfer,
   disableAutomaticTransfer,
 } from '../../store/transfer';
-import { getNativeBalance, isAcceptedToken, PaymentOption, toChainId } from '../../sdk';
+import {
+  getNativeBalance,
+  isAcceptedToken,
+  PaymentOption,
+  toChainId,
+} from '../../sdk';
 import { CHAINS, TOKENS } from '../../config';
 import { isTransferValid, validate } from '../../utils/transferValidation';
 
@@ -77,10 +82,11 @@ function Bridge() {
       const tokenConfig = TOKENS[networkConfig.gasToken];
       if (!tokenConfig)
         throw new Error('Could not get native gas token config');
-      const decimals = getTokenDecimals(toChainId(tokenConfig.nativeNetwork), tokenConfig.tokenId || 'native');
-      dispatch(
-        setReceiverNativeBalance(toDecimals(res, decimals, 6)),
+      const decimals = getTokenDecimals(
+        toChainId(tokenConfig.nativeNetwork),
+        tokenConfig.tokenId,
       );
+      dispatch(setReceiverNativeBalance(toDecimals(res, decimals, 6)));
     });
   }, [fromNetwork, toNetwork, receiving.address, dispatch]);
 

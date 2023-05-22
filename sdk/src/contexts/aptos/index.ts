@@ -110,8 +110,8 @@ export class AptosContext<
     throw new Error('Aptos send with payload not implemented');
   }
 
-  formatAddress(address: string): string {
-    return hexlify(zeroPad(address, 32));
+  formatAddress(address: string): Uint8Array {
+    return arrayify(zeroPad(address, 32));
   }
 
   parseAddress(address: string): string {
@@ -230,7 +230,7 @@ export class AptosContext<
         address: tokenAddress,
       },
       sequence: BigNumber.from(sequence),
-      emitterAddress: this.formatAddress(emitter),
+      emitterAddress: hexlify(this.formatAddress(emitter)),
       block: Number(userTransaction.version),
       gasFee: BigNumber.from(userTransaction.gas_used).mul(
         userTransaction.gas_unit_price,

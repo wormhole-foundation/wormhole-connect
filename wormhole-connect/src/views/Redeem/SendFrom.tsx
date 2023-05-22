@@ -10,7 +10,11 @@ import InputContainer from '../../components/InputContainer';
 import Header from './Header';
 import { RenderRows, RowsData } from '../../components/RenderRows';
 import Confirmations from './Confirmations';
-import { toNormalizedDecimals, MAX_DECIMALS, getTokenDecimals } from '../../utils';
+import {
+  toNormalizedDecimals,
+  MAX_DECIMALS,
+  getTokenDecimals,
+} from '../../utils';
 
 const getRows = (txData: any): RowsData => {
   const formattedAmt = toNormalizedDecimals(
@@ -22,11 +26,10 @@ const getRows = (txData: any): RowsData => {
   const sourceGasToken = TOKENS[sourceGasTokenSymbol];
   const decimals = getTokenDecimals(
     toChainId(sourceGasToken.nativeNetwork),
-    sourceGasToken.tokenId
+    sourceGasToken.tokenId,
   );
   const formattedGas =
-    txData.gasFee &&
-    toDecimals(txData.gasFee, decimals, MAX_DECIMALS);
+    txData.gasFee && toDecimals(txData.gasFee, decimals, MAX_DECIMALS);
   const type = txData.payloadID;
   const token = TOKENS[txData.tokenKey];
 

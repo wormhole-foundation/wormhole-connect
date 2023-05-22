@@ -4,7 +4,10 @@ import { useTheme } from '@mui/material/styles';
 import { useDispatch, useSelector } from 'react-redux';
 import { Wallet, WalletState } from '@xlabs-libs/wallet-aggregator-core';
 import { getWallets as getSuiWallets } from '@xlabs-libs/wallet-aggregator-sui';
-import { SeiChainId, getSupportedWallets as getSeiWallets } from '@xlabs-libs/wallet-aggregator-sei';
+import {
+  SeiChainId,
+  getSupportedWallets as getSeiWallets,
+} from '@xlabs-libs/wallet-aggregator-sei';
 import { CHAINS, WH_CONFIG } from '../config';
 import { RootState } from '../store';
 import { setWalletModal } from '../store/router';
