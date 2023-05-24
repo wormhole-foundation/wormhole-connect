@@ -32,6 +32,7 @@ export interface ParsedMessage {
   fromChain: ChainName;
   tokenAddress: string;
   tokenChain: ChainName;
+  tokenId: TokenId;
   tokenKey: string;
   tokenDecimals: number;
   emitterAddress: string;
