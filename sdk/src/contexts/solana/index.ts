@@ -615,12 +615,14 @@ export class SolanaContext<
     );
     const tokenChain = this.context.toChainName(parsed.tokenChain);
 
+    const toAddress = destContext.parseAddress(hexlify(parsed.to));
+
     const parsedMessage: ParsedMessage = {
       sendTx: tx,
       sender: accounts[0].toString(),
       amount: BigNumber.from(parsed.amount),
       payloadID: parsed.payloadType,
-      recipient: destContext.parseAddress(hexlify(parsed.to)),
+      recipient: toAddress,
       toChain: this.context.toChainName(parsed.toChain),
       fromChain: this.context.toChainName(chain),
       tokenAddress,
@@ -646,7 +648,8 @@ export class SolanaContext<
       const parsedPayloadMessage: ParsedRelayerMessage = {
         ...parsedMessage,
         relayerPayloadId: parsedPayload.relayerPayloadId,
-        to: destContext.parseAddress(parsedPayload.to),
+        recipient: destContext.parseAddress(parsedPayload.to),
+        to: toAddress,
         relayerFee: parsedPayload.relayerFee,
         toNativeTokenAmount: parsedPayload.toNativeTokenAmount,
       };
