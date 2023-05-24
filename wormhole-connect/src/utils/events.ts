@@ -14,19 +14,18 @@ import { fetchGlobalTx, getEmitterAndSequence } from './vaa';
 export const fetchRedeemTx = async (
   txData: ParsedMessage | ParsedRelayerMessage,
 ): Promise<{ transactionHash: string } | null> => {
+  let transactionHash: string | undefined;
   try {
-    const transactionHash = await fetchGlobalTx(txData);
-    if (transactionHash) {
-      return { transactionHash };
-    } else {
-      throw new Error(
-        'transaction fetch failed, continuing to fallback method',
-      );
-    }
+    transactionHash = await fetchGlobalTx(txData);
   } catch (_) {
     // continue to fallback
     if (txData.payloadID === PaymentOption.AUTOMATIC) {
-      return await fetchRedeemedEvent(txData);
+      const res = await fetchRedeemedEvent(txData);
+      transactionHash = res?.transactionHash;
+    }
+  } finally {
+    if (transactionHash) {
+      return { transactionHash };
     }
     return null;
   }
