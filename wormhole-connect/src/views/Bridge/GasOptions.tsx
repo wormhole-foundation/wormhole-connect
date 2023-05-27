@@ -9,6 +9,7 @@ import { CHAINS } from '../../config';
 import { PaymentOption } from '../../sdk';
 import { NetworkConfig } from '../../config/types';
 import { toFixedDecimals } from '../../utils/balance';
+import { CHAIN_ID_SEI } from '@certusone/wormhole-sdk';
 
 const useStyles = makeStyles()((theme) => ({
   option: {
@@ -68,6 +69,64 @@ type OptionConfig = {
   description: string;
   estimate: string;
 };
+
+const manualOption = (
+  source: NetworkConfig,
+  dest: NetworkConfig,
+  gasEst: {
+    manual: string;
+    automatic: string;
+    claim: string;
+  },
+): OptionConfig => ({
+  key: PaymentOption.MANUAL,
+  title: payWith(source.gasToken, dest.gasToken),
+  subtitle: '(two transactions)',
+  description: `Claim with ${dest.gasToken} on ${dest.displayName}`,
+  estimate:
+    gasEst.manual && gasEst.claim
+      ? `${gasEst.manual} ${source.gasToken} & ${gasEst.claim} ${dest.gasToken}`
+      : '—',
+});
+
+const automaticOption = (
+  source: NetworkConfig,
+  dest: NetworkConfig,
+  token: string,
+  relayerFee: number | undefined,
+  gasEst: string,
+): OptionConfig => {
+  let estimateText = '-';
+
+  let title = payWith(source.gasToken, token);
+
+  if (gasEst && relayerFee !== undefined) {
+    const isNative = token === source.gasToken;
+
+    const fee = relayerFee + (isNative ? Number.parseFloat(gasEst) : 0);
+    const feeStr = toFixedDecimals(fee.toString(), 6);
+
+    if (isNative) {
+      estimateText = `${feeStr} ${token}`;
+    } else {
+      // only add the fee if it's not zero (some times the relay could be subsidized)
+      estimateText =
+        fee > 0
+          ? `${gasEst} ${source.gasToken} & ${feeStr} ${token}`
+          : `${gasEst} ${source.gasToken}`;
+      title = fee > 0 ? title : payWith(source.gasToken, source.gasToken);
+    }
+  }
+
+  return {
+    key: PaymentOption.AUTOMATIC,
+    title,
+    subtitle: '(one transaction)',
+    description: `Gas fees on ${dest.displayName} will be paid automatically`,
+    estimate: estimateText,
+  };
+};
+
 const getOptions = (
   source: NetworkConfig,
   dest: NetworkConfig,
@@ -80,40 +139,23 @@ const getOptions = (
     claim: string;
   },
 ): OptionConfig[] => {
-  const manual = {
-    key: PaymentOption.MANUAL,
-    title: payWith(source.gasToken, dest.gasToken),
-    subtitle: '(two transactions)',
-    description: `Claim with ${dest.gasToken} on ${dest.displayName}`,
-    estimate:
-      gasEst.manual && gasEst.claim
-        ? `${gasEst.manual} ${source.gasToken} & ${gasEst.claim} ${dest.gasToken}`
-        : '—',
-  };
+  const manual = manualOption(source, dest, gasEst);
+
+  // Sei only allows automatic payments throught the translator contract for now
+  // however, it does not follow the usual flow due to its different relayer contract
+  // it uses a normal sendWithPayload and defines a custom payload structure
+  if (dest.id === CHAIN_ID_SEI)
+    return [
+      {
+        ...automaticOption(source, dest, token, relayerFee || 0, gasEst.manual),
+        key: PaymentOption.MANUAL,
+      },
+    ];
   if (!relayAvail) return [manual];
-
-  let estimateText = '-';
-
-  if (gasEst.automatic && relayerFee !== undefined) {
-    const isNative = token === source.gasToken;
-
-    const fee = toFixedDecimals(
-      `${relayerFee + (isNative ? Number.parseFloat(gasEst.automatic) : 0)}`,
-      6,
-    );
-    estimateText = isNative
-      ? `${fee} ${token}`
-      : `${gasEst.automatic} ${source.gasToken} & ${fee} ${token}`;
-  }
-
-  const automatic = {
-    key: PaymentOption.AUTOMATIC,
-    title: payWith(source.gasToken, token),
-    subtitle: '(one transaction)',
-    description: `Gas fees on ${dest.displayName} will be paid automatically`,
-    estimate: estimateText,
-  };
-  return [automatic, manual];
+  return [
+    automaticOption(source, dest, token, relayerFee, gasEst.automatic),
+    manual,
+  ];
 };
 
 function GasOptions(props: { disabled: boolean }) {
