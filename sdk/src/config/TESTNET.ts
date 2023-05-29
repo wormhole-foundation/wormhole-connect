@@ -107,16 +107,16 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     context: Context.SUI,
     contracts: {
       ...CONTRACTS.TESTNET.sui,
-      core: '0x69ae41bdef4770895eb4e7aaefee5e4673acc08f6917b4856cf55549c4573ca8',
+      core: '0x31358d198147da50db32eda2562951d53973a0c0ad5ed738e9b17d88b213d790',
       token_bridge:
-        '0x32422cb2f929b6a4e3f81b4791ea11ac2af896b310f3d9442aa1fe924ce0bab4',
+        '0x6fb10cdb7aa299e9a4308752dadecb049ff55a892de92992a1edbd7912b3d6da',
       nft_bridge: undefined,
       relayer:
         '0xe7e7bf3994f63d1eb58896411d1c211d280cc6182cb2a29bf95ce8f338431523', // suiRelayerObjectId
       suiRelayerPackageId:
         '0x683696ce7d22989c880452c93fc608e4decd1dcbe1e9e1960a142be0544c3ff1',
       suiOriginalTokenBridgePackageId:
-        '0x92d81f28c167d90f84638c654b412fe7fa8e55bdfac7f638bdcf70306289be86',
+        '0x562760fc51d90d4ae1835bac3e91e0e6987d3497b06f066941d3e51f6e8d76d0',
     },
     finalityThreshold: 0,
   },
