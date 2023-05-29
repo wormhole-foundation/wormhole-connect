@@ -70,7 +70,7 @@ export class SuiContext<
     return coins;
   }
 
-  async send(
+  async innerSend(
     token: TokenId | typeof NATIVE,
     amount: string,
     sendingChain: ChainName | ChainId,
@@ -78,6 +78,7 @@ export class SuiContext<
     recipientChain: ChainName | ChainId,
     recipientAddress: string,
     relayerFee: any,
+    payload?: Uint8Array | undefined
   ): Promise<TransactionBlock> {
     const destContext = this.context.getContext(recipientChain);
     const recipientChainId = this.context.toChainId(recipientChain);
@@ -125,8 +126,30 @@ export class SuiContext<
       formattedRecipientAccount,
       BigInt(0), // TODO: wormhole fee
       relayerFeeBigInt,
+      payload
     );
     return tx;
+  }
+
+
+  async send(
+    token: TokenId | typeof NATIVE,
+    amount: string,
+    sendingChain: ChainName | ChainId,
+    senderAddress: string,
+    recipientChain: ChainName | ChainId,
+    recipientAddress: string,
+    relayerFee: any,
+  ): Promise<TransactionBlock> {
+    return this.innerSend(
+      token,
+      amount,
+      sendingChain,
+      senderAddress,
+      recipientChain,
+      recipientAddress,
+      relayerFee,
+    );
   }
 
   async sendWithPayload(
@@ -136,9 +159,18 @@ export class SuiContext<
     senderAddress: string,
     recipientChain: ChainName | ChainId,
     recipientAddress: string,
-    payload: any,
+    payload: Uint8Array | undefined,
   ): Promise<TransactionBlock> {
-    throw new Error('not implemented');
+    return this.innerSend(
+      token,
+      amount,
+      sendingChain,
+      senderAddress,
+      recipientChain,
+      recipientAddress,
+      undefined,
+      payload
+    );
   }
 
   formatAddress(address: string): Uint8Array {
