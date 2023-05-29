@@ -100,7 +100,7 @@ function ToInputs() {
         wallet={TransferWallet.RECEIVING}
         walletValidations={[validations.receivingWallet]}
         walletError={receiving.error}
-        inputValidations={[validations.toNetwork]}
+        inputValidations={[validations.toNetwork, validations.destToken]}
         network={toNetwork}
         networkValidation={validations.toNetwork}
         onNetworkClick={() => setShowNetworksModal(true)}
