@@ -53,6 +53,7 @@ const initialState: TransferState = {
     fromNetwork: '',
     toNetwork: '',
     token: '',
+    destToken: '',
     amount: '',
     destGasPayment: '',
     toNativeToken: '',
@@ -136,7 +137,10 @@ export const transferSlice = createSlice({
     ) => {
       state.toNetwork = payload;
     },
-    setAmount: (state: TransferState, { payload }: PayloadAction<number>) => {
+    setAmount: (
+      state: TransferState,
+      { payload }: PayloadAction<number | undefined>,
+    ) => {
       state.amount = payload;
     },
     setToNativeToken: (

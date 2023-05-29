@@ -21,6 +21,7 @@ export type TransferValidations = {
   fromNetwork: ValidationErr;
   toNetwork: ValidationErr;
   token: ValidationErr;
+  destToken: ValidationErr;
   amount: ValidationErr;
   destGasPayment: ValidationErr;
   toNativeToken: ValidationErr;
@@ -65,6 +66,22 @@ export const validateToNetwork = (
 };
 
 export const validateToken = (
+  token: string,
+  chain: ChainName | undefined,
+): ValidationErr => {
+  if (!token) return 'Select an asset';
+  const tokenConfig = TOKENS[token];
+  if (!tokenConfig) return 'Select an asset';
+  if (chain) {
+    const chainConfig = CHAINS[chain];
+    if (!chainConfig || !!tokenConfig.tokenId) return '';
+    if (!tokenConfig.tokenId && tokenConfig.nativeNetwork !== chain)
+      return `${token} not available on ${chain}, select a different token`;
+  }
+  return '';
+};
+
+export const validateDestToken = (
   token: string,
   chain: ChainName | undefined,
 ): ValidationErr => {
@@ -149,7 +166,7 @@ export const validateDestGasPayment = (
   return '';
 };
 
-export const validateDestToken = (
+export const validateForeignAsset = (
   destTokenAddr: string | undefined,
 ): ValidationErr => {
   if (!destTokenAddr) {
@@ -193,6 +210,7 @@ export const validateAll = async (
     fromNetwork,
     toNetwork,
     token,
+    destToken,
     automaticRelayAvail,
     amount,
     destGasPayment,
@@ -212,10 +230,11 @@ export const validateAll = async (
     fromNetwork: validateFromNetwork(fromNetwork),
     toNetwork: validateToNetwork(toNetwork, fromNetwork),
     token: validateToken(token, fromNetwork),
+    destToken: validateDestToken(destToken, toNetwork),
     amount: validateAmount(amount, balances[token], destGasPayment, minAmt),
     destGasPayment: validateDestGasPayment(destGasPayment, automaticRelayAvail),
     toNativeToken: '',
-    foreignAsset: validateDestToken(foreignAsset),
+    foreignAsset: validateForeignAsset(foreignAsset),
     associatedTokenAccount: validateSolanaTokenAccount(
       toNetwork,
       foreignAsset,
