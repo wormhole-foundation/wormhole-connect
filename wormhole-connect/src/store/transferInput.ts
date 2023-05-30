@@ -8,8 +8,8 @@ import { toChainId } from '../utils/sdk';
 import { TOKENS, config } from 'config';
 import { getTokenDecimals } from '../utils';
 import { TransferWallet, walletAcceptedNetworks } from 'utils/wallet';
-import { clearWallet, setWalletError, WalletData } from './wallet';
 import { PayloadType } from 'utils/sdk';
+import { clearWallet, setWalletError, WalletData } from './wallet';
 
 export enum Route {
   BRIDGE = PayloadType.MANUAL, // 1

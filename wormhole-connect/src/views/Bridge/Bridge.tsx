@@ -132,7 +132,6 @@ function Bridge() {
     dispatch,
   ]);
   const valid = isTransferValid(validations);
-  console.log(valid);
 
   const disabled = !valid || isTransactionInProgress;
   const showGasSlider = automaticRelayAvail && route === Route.RELAY;
