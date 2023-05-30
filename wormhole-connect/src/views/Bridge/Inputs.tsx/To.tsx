@@ -9,10 +9,9 @@ import { CHAINS_ARR, TOKENS } from '../../../config';
 import { getBalance } from '../../../sdk';
 import {
   formatBalance,
+  selectToNetwork,
   setDestToken,
-  setToNetwork,
 } from '../../../store/transfer';
-import { clearWallet, setWalletError } from '../../../store/wallet';
 
 import Inputs from './Inputs';
 import Select from './Select';
@@ -49,15 +48,7 @@ function ToInputs() {
   };
 
   const selectNetwork = async (network: ChainName) => {
-    if (isDisabled(network)) {
-      dispatch(clearWallet(TransferWallet.RECEIVING));
-      const payload = {
-        type: TransferWallet.RECEIVING,
-        error: 'Wallet disconnected, please connect a supported wallet',
-      };
-      dispatch(setWalletError(payload));
-    }
-    dispatch(setToNetwork(network));
+    selectToNetwork(dispatch, network, receiving);
   };
 
   // get balance on destination chain
