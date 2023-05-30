@@ -234,7 +234,9 @@ function TokensModal(props: Props) {
     dispatch(clearBalances());
     setLoading(true);
     getBalances().finally(() => setLoading(false));
+  }, [walletAddress, network, dispatch]);
 
+  useEffect(() => {
     // get tokens that exist on the chain and have a balance greater than 0
     const filtered = TOKENS_ARR.filter((t) => {
       if (!t.tokenId && t.nativeNetwork !== network) return false;
@@ -242,7 +244,7 @@ function TokensModal(props: Props) {
       return b !== null && b !== '0';
     });
     setTokens(filtered);
-  }, [walletAddress, network, dispatch]);
+  }, [tokenBalances, network]);
 
   return (
     <Modal open={open} closable width={500} onClose={closeTokensModal}>

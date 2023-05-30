@@ -270,6 +270,7 @@ export const validate = async (dispatch: Dispatch<AnyAction>) => {
     transfer.fromNetwork &&
     transfer.toNetwork &&
     transfer.token &&
+    transfer.destToken &&
     transfer.amount &&
     transfer.amount >= 0
   ) {
