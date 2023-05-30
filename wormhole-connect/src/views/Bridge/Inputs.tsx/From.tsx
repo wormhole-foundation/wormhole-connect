@@ -4,12 +4,11 @@ import { BigNumber } from 'ethers';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { RootState } from '../../../store';
 import { TransferWallet, walletAcceptedNetworks } from '../../../utils/wallet';
-import { clearWallet, setWalletError } from '../../../store/wallet';
 import {
   setBalance as setStoreBalance,
   formatBalance,
-  setFromNetwork,
   setToken,
+  selectFromNetwork,
 } from '../../../store/transfer';
 import { CHAINS_ARR, TOKENS } from '../../../config';
 import { getBalance, getNativeBalance } from '../../../sdk';
@@ -43,15 +42,7 @@ function FromInputs() {
   };
 
   const selectNetwork = async (network: ChainName) => {
-    if (isDisabled(network)) {
-      dispatch(clearWallet(TransferWallet.SENDING));
-      const payload = {
-        type: TransferWallet.SENDING,
-        error: 'Wallet disconnected, please connect a supported wallet',
-      };
-      dispatch(setWalletError(payload));
-    }
-    dispatch(setFromNetwork(network));
+    selectFromNetwork(dispatch, network, wallet);
   };
 
   const selectToken = (token: string) => {

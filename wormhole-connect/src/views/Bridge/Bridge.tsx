@@ -25,6 +25,7 @@ import { toDecimals } from '../../utils/balance';
 import { getWrappedTokenId } from '../../utils';
 import TransferLimitedWarning from './TransferLimitedWarning';
 import { joinClass } from '../../utils/style';
+import SwapNetworks from './SwapNetworks';
 
 const useStyles = makeStyles()((theme) => ({
   spacer: {
@@ -126,7 +127,6 @@ function Bridge() {
     dispatch,
   ]);
   const valid = isTransferValid(validations);
-  console.log(valid);
 
   const disabled = !valid || isTransactionInProgress;
   const showGasSlider =
@@ -137,6 +137,7 @@ function Bridge() {
       <PageHeader title="Bridge" />
 
       <FromInputs />
+      <SwapNetworks />
       <ToInputs />
 
       <Collapse in={valid && showValidationState}>
