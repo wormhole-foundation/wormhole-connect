@@ -24,17 +24,20 @@ import ToInputs from './Inputs.tsx/To';
 import { toDecimals } from '../../utils/balance';
 import { getWrappedTokenId } from '../../utils';
 import TransferLimitedWarning from './TransferLimitedWarning';
+import { joinClass } from '../../utils/style';
 
 const useStyles = makeStyles()((theme) => ({
+  spacer: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '16px',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+  },
   bridgeContent: {
     margin: 'auto',
     maxWidth: '650px',
-    width: '100%',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '16px',
   },
   header: {
     display: 'flex',
@@ -53,6 +56,7 @@ function Bridge() {
     fromNetwork,
     toNetwork,
     token,
+    destToken,
     destGasPayment,
     automaticRelayAvail,
     toNativeToken,
@@ -111,6 +115,7 @@ function Bridge() {
     fromNetwork,
     toNetwork,
     token,
+    destToken,
     destGasPayment,
     automaticRelayAvail,
     toNativeToken,
@@ -121,36 +126,41 @@ function Bridge() {
     dispatch,
   ]);
   const valid = isTransferValid(validations);
+  console.log(valid);
 
   const disabled = !valid || isTransactionInProgress;
   const showGasSlider =
     automaticRelayAvail && destGasPayment === PaymentOption.AUTOMATIC;
 
   return (
-    <div className={classes.bridgeContent}>
+    <div className={joinClass([classes.bridgeContent, classes.spacer])}>
       <PageHeader title="Bridge" />
 
       <FromInputs />
       <ToInputs />
 
-      <GasOptions disabled={disabled} />
+      <Collapse in={valid && showValidationState}>
+        <div className={classes.spacer}>
+          <GasOptions disabled={disabled} />
 
-      <Collapse
-        in={showGasSlider}
-        sx={
-          !showGasSlider
-            ? { marginBottom: '-16px', transition: 'margin 0.4s' }
-            : {}
-        }
-      >
-        {showGasSlider && <GasSlider disabled={disabled} />}
+          <Collapse
+            in={showGasSlider}
+            sx={
+              !showGasSlider
+                ? { marginBottom: '-16px', transition: 'margin 0.4s' }
+                : {}
+            }
+          >
+            {showGasSlider && <GasSlider disabled={disabled} />}
+          </Collapse>
+
+          <Preview collapsed={!showValidationState ? true : !valid} />
+
+          <TransferLimitedWarning />
+
+          <Send valid={!!valid} />
+        </div>
       </Collapse>
-
-      <Preview collapsed={!showValidationState ? true : !valid} />
-
-      <TransferLimitedWarning />
-
-      <Send valid={!!valid} />
     </div>
   );
 }
