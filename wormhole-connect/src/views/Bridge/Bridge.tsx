@@ -1,8 +1,7 @@
 import React, { useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { BigNumber } from 'ethers';
-import { useDispatch } from 'react-redux';
 import { RootState } from '../../store';
 import {
   setReceiverNativeBalance,
@@ -10,10 +9,15 @@ import {
   disableAutomaticTransfer,
   Route,
 } from '../../store/transferInput';
-import { wh, isAcceptedToken, toChainId } from '../../utils/sdk';
 import { CHAINS, TOKENS } from '../../config';
+import { getTokenDecimals, getWrappedTokenId } from '../../utils';
+import { wh, isAcceptedToken, toChainId } from '../../utils/sdk';
 import { isTransferValid, validate } from '../../utils/transferValidation';
+import { joinClass } from '../../utils/style';
+import { toDecimals } from '../../utils/balance';
 
+
+import TransferLimitedWarning from './TransferLimitedWarning';
 import GasOptions from './GasOptions';
 import GasSlider from './NativeGasSlider';
 import Preview from './Preview';
@@ -22,10 +26,6 @@ import { Collapse } from '@mui/material';
 import PageHeader from '../../components/PageHeader';
 import FromInputs from './Inputs/From';
 import ToInputs from './Inputs/To';
-import { toDecimals } from '../../utils/balance';
-import { getTokenDecimals, getWrappedTokenId } from '../../utils';
-import TransferLimitedWarning from './TransferLimitedWarning';
-import { joinClass } from '../../utils/style';
 import SwapNetworks from './SwapNetworks';
 import RouteOptions from './RouteOptions';
 
@@ -132,6 +132,7 @@ function Bridge() {
     dispatch,
   ]);
   const valid = isTransferValid(validations);
+  console.log(valid);
 
   const disabled = !valid || isTransactionInProgress;
   const showGasSlider = automaticRelayAvail && route === Route.RELAY;
