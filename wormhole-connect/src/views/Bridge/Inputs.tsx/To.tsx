@@ -32,12 +32,12 @@ function ToInputs() {
     validations,
     fromNetwork,
     toNetwork,
-    token,
+    destToken,
     isTransactionInProgress,
   } = useSelector((state: RootState) => state.transfer);
   const { receiving } = useSelector((state: RootState) => state.wallet);
 
-  const tokenConfig = TOKENS[token];
+  const tokenConfig = TOKENS[destToken];
 
   const selectToken = (token: string) => {
     dispatch(setDestToken(token));
