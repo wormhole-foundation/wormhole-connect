@@ -6,6 +6,8 @@ import { toDecimals } from '../utils/balance';
 import { TransferValidations } from '../utils/transferValidation';
 import { PaymentOption } from '../sdk';
 import { TOKENS, config } from 'config';
+import { TransferWallet, walletAcceptedNetworks } from 'utils/wallet';
+import { clearWallet, setWalletError, WalletData } from './wallet';
 
 export type Balances = { [key: string]: string | null };
 
@@ -250,6 +252,43 @@ export const transferSlice = createSlice({
     },
   },
 });
+
+export const isDisabledNetwork = (chain: ChainName, wallet: WalletData) => {
+  // Check if the wallet type (i.e. Metamask, Phantom...) is supported for the given chain
+  return !walletAcceptedNetworks(wallet.type).includes(chain);
+};
+
+export const selectFromNetwork = async (
+  dispatch: any,
+  network: ChainName,
+  wallet: WalletData,
+) => {
+  if (isDisabledNetwork(network, wallet)) {
+    dispatch(clearWallet(TransferWallet.SENDING));
+    const payload = {
+      type: TransferWallet.SENDING,
+      error: 'Wallet disconnected, please connect a supported wallet',
+    };
+    dispatch(setWalletError(payload));
+  }
+  dispatch(setFromNetwork(network));
+};
+
+export const selectToNetwork = async (
+  dispatch: any,
+  network: ChainName,
+  wallet: WalletData,
+) => {
+  if (isDisabledNetwork(network, wallet)) {
+    dispatch(clearWallet(TransferWallet.RECEIVING));
+    const payload = {
+      type: TransferWallet.RECEIVING,
+      error: 'Wallet disconnected, please connect a supported wallet',
+    };
+    dispatch(setWalletError(payload));
+  }
+  dispatch(setToNetwork(network));
+};
 
 export const {
   touchValidations,
