@@ -234,7 +234,9 @@ function TokensModal(props: Props) {
     dispatch(clearBalances());
     setLoading(true);
     getBalances().finally(() => setLoading(false));
+  }, [walletAddress, network, dispatch]);
 
+  useEffect(() => {
     // get tokens that exist on the chain and have a balance greater than 0
     const filtered = TOKENS_ARR.filter((t) => {
       if (!t.tokenId && t.nativeNetwork !== network) return false;
@@ -242,7 +244,7 @@ function TokensModal(props: Props) {
       return b !== null && b !== '0';
     });
     setTokens(filtered);
-  }, [walletAddress, network, dispatch]);
+  }, [tokenBalances, network]);
 
   return (
     <Modal open={open} closable width={500} onClose={closeTokensModal}>
@@ -259,7 +261,8 @@ function TokensModal(props: Props) {
       <Spacer height={16} />
       <div className={classes.sectionHeader}>
         <div className={classes.subheader}>Tokens with liquid markets</div>
-        <Tooltip text="Please perform your own due diligence, but to our knowledge these tokens have liquid markets available (i.e. you should be able to trade and utilize your tokens) on your destination chain." />
+        {/* <Tooltip text="Please perform your own due diligence, but to our knowledge these tokens have liquid markets available (i.e. you should be able to trade and utilize your tokens) on your destination chain." /> */}
+        <Tooltip text="Please perform your own due diligence, these tokens may not have liquid markets (i.e. you should be able to trade and utilize your tokens) on your destination chain." />
       </div>
       <Scroll
         height="calc(100vh - 375px)"
