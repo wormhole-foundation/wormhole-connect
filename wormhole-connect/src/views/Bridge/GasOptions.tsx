@@ -1,14 +1,15 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
-import Options from '../../components/Options';
-import BridgeCollapse from './Collapse';
 import { RootState } from '../../store';
 import { CHAINS } from '../../config';
 import { Route, setTransferRoute } from '../../store/transferInput';
 import { NetworkConfig } from '../../config/types';
 import { toFixedDecimals } from '../../utils/balance';
 import { CHAIN_ID_SEI } from '@certusone/wormhole-sdk';
+
+import Options from '../../components/Options';
+import BridgeCollapse, { XLabsBanner } from './Collapse';
 
 const useStyles = makeStyles()((theme) => ({
   option: {
@@ -208,11 +209,13 @@ function GasOptions(props: { disabled: boolean }) {
     automaticRelayAvail,
   ]);
 
+  const banner = automaticRelayAvail && !props.disabled && <XLabsBanner />;
+
   return (
     <BridgeCollapse
       title="Gas payment"
       description={state.description}
-      banner={!props.disabled}
+      banner={banner}
       disabled={props.disabled}
       close={props.disabled}
     >

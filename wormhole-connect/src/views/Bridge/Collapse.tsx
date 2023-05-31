@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import { makeStyles } from 'tss-react/mui';
 import Collapse from '@mui/material/Collapse';
 import Down from '../../icons/Down';
-import { joinClass, LINK } from '../../utils/style';
+import { LINK, joinClass } from '../../utils/style';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import Switch from '../../components/Switch';
@@ -67,6 +67,23 @@ const useStyles = makeStyles()((theme) => ({
   },
 }));
 
+export function XLabsBanner() {
+  const { classes } = useStyles();
+  return (
+    <>
+      This feature provided by
+      <a
+        href="https://xlabs.xyz"
+        target="_blank"
+        className={classes.link}
+        rel="noreferrer"
+      >
+        xLabs
+      </a>
+    </>
+  );
+}
+
 export enum CollapseControlStyle {
   Arrow,
   Switch,
@@ -78,7 +95,7 @@ type Props = {
   children: JSX.Element | JSX.Element[];
   close?: boolean;
   disabled?: boolean;
-  banner?: boolean;
+  banner?: JSX.Element | JSX.Element[] | false | undefined;
   controlled?: boolean; // control the open/closed state
   controlStyle?: CollapseControlStyle;
   value?: boolean; // open/closed value
@@ -147,19 +164,11 @@ function BridgeCollapse(props: Props) {
             !collapsedState && classes.open,
           ])}
         >
-          This feature provided by
-          <a
-            href="https://xlabs.xyz"
-            target="_blank"
-            className={classes.link}
-            rel="noreferrer"
-          >
-            xLabs
-          </a>
+          {props.banner}
         </div>
       )}
 
-      <Collapse onExited={onChange} in={!collapsedState}>
+      <Collapse onExited={onChange} in={!collapsedState} unmountOnExit>
         {props.children}
       </Collapse>
     </div>
