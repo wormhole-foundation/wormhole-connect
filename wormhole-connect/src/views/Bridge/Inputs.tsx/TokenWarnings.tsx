@@ -11,7 +11,7 @@ import { getForeignAsset, solanaContext } from '../../../sdk';
 import {
   setAssociatedTokenAddress,
   setForeignAsset,
-} from '../../../store/transfer';
+} from '../../../store/transferInput';
 import AlertBanner from '../../../components/AlertBanner';
 
 const useStyles = makeStyles()((theme) => ({
@@ -91,7 +91,7 @@ function TokenWarnings() {
   const dispatch = useDispatch();
 
   const { toNetwork, token, foreignAsset, associatedTokenAddress } =
-    useSelector((state: RootState) => state.transfer);
+    useSelector((state: RootState) => state.transferInput);
   const { receiving } = useSelector((state: RootState) => state.wallet);
   const [showErrors, setShowErrors] = useState(false);
 
