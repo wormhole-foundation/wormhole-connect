@@ -31,7 +31,7 @@
     "@xlabs-libs/wallet-aggregator-core": "^0.0.1-alpha.12",
     "@xlabs-libs/wallet-aggregator-evm": "^0.0.1-alpha.25",
     "@xlabs-libs/wallet-aggregator-react": "^0.0.1-alpha.11",
-    "@xlabs-libs/wallet-aggregator-sei": "^0.0.1-alpha.1",
+    "@xlabs-libs/wallet-aggregator-sei": "^0.0.1-alpha.5",
     "@xlabs-libs/wallet-aggregator-solana": "^0.0.1-alpha.10",
     "@xlabs-libs/wallet-aggregator-sui": "^0.0.1-alpha.5",
     "aptos": "^1.5.0",
