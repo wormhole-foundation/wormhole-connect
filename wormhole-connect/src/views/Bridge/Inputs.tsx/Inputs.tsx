@@ -121,7 +121,7 @@ function Inputs(props: Props) {
   const { classes } = useStyles();
 
   const { validate: showErrors, isTransactionInProgress } = useSelector(
-    (state: RootState) => state.transfer,
+    (state: RootState) => state.transferInput,
   );
 
   const networkConfig = props.network && CHAINS[props.network];

@@ -5,6 +5,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { ChainName, Context } from '@wormhole-foundation/wormhole-connect-sdk';
 import { RootState } from '../../store';
 import { setRedeemTx, setTransferComplete } from '../../store/redeem';
+import { Route } from '../../store/transferInput';
 import {
   MAX_DECIMALS,
   displayAddress,
@@ -24,7 +25,6 @@ import {
   claimTransfer,
   estimateClaimGasFee,
   parseAddress,
-  PaymentOption,
   calculateNativeTokenAmt,
 } from '../../sdk';
 import { CHAINS, TOKENS } from '../../config';
@@ -168,7 +168,7 @@ const getRows = async (
   receiveTx?: string,
   transferComplete?: boolean,
 ): Promise<RowsData> => {
-  if (txData.payloadID === PaymentOption.MANUAL) {
+  if (txData.payloadID === Route.BRIDGE) {
     return await getManualRows(txData, receiveTx);
   }
   return await getAutomaticRows(txData, receiveTx, transferComplete);
@@ -266,11 +266,11 @@ function SendTo() {
   };
 
   const loading =
-    txData.payloadID === PaymentOption.MANUAL
+    txData.payloadID === Route.BRIDGE
       ? inProgress && !transferComplete
       : !transferComplete;
   const manualClaimText =
-    transferComplete || txData.payloadID === PaymentOption.AUTOMATIC
+    transferComplete || txData.payloadID === Route.RELAY
       ? ''
       : claimError
       ? 'Error please retry . . .'
@@ -290,7 +290,7 @@ function SendTo() {
       </InputContainer>
 
       {/* Claim button for manual transfers */}
-      {txData.payloadID === PaymentOption.MANUAL && !transferComplete && (
+      {txData.payloadID === Route.BRIDGE && !transferComplete && (
         <>
           <Spacer height={8} />
           <AlertBanner

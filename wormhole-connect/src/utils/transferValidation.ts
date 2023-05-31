@@ -4,14 +4,15 @@ import fetch from 'node-fetch';
 import { Dispatch } from 'react';
 import { store } from 'store';
 import {
-  TransferState,
+  TransferInputState,
   setValidations,
   touchValidations,
-} from '../store/transfer';
+  Route,
+} from '../store/transferInput';
 import { WalletData, WalletState } from '../store/wallet';
 import { walletAcceptedNetworks } from './wallet';
 import { CHAINS, TOKENS, WH_CONFIG, BRIDGE_DEFAULTS } from '../config';
-import { PaymentOption } from '../sdk';
+import { RelayState } from 'store/relay';
 
 export type ValidationErr = string;
 
@@ -23,7 +24,7 @@ export type TransferValidations = {
   token: ValidationErr;
   destToken: ValidationErr;
   amount: ValidationErr;
-  destGasPayment: ValidationErr;
+  route: ValidationErr;
   toNativeToken: ValidationErr;
   foreignAsset: ValidationErr;
   associatedTokenAccount: ValidationErr;
@@ -102,7 +103,7 @@ export const validateDestToken = (
 export const validateAmount = (
   amount: number | undefined,
   balance: string | null,
-  paymentOption: PaymentOption,
+  route: Route,
   minAmt: number | undefined,
 ): ValidationErr => {
   if (!amount) return 'Enter an amount';
@@ -110,7 +111,7 @@ export const validateAmount = (
   if (!balance) return '';
   const b = Number.parseFloat(balance);
   if (amount > b) return 'Amount cannot exceed balance';
-  if (paymentOption === PaymentOption.MANUAL) return '';
+  if (route === Route.BRIDGE) return '';
   if (!minAmt) return '';
   if (amount < minAmt) return `Minimum amount is ${minAmt}`;
   return '';
@@ -174,15 +175,6 @@ export const validateWallet = async (
   return '';
 };
 
-export const validateGasPaymentOption = (
-  destGasPayment: PaymentOption,
-  relayAvailable: boolean,
-): ValidationErr => {
-  if (destGasPayment === PaymentOption.AUTOMATIC && !relayAvailable)
-    return 'Single transaction gas payment not available for this transaction';
-  return '';
-};
-
 export const validateToNativeAmt = (
   amount: number,
   max: number | undefined,
@@ -192,11 +184,11 @@ export const validateToNativeAmt = (
   return '';
 };
 
-export const validateDestGasPayment = (
-  payment: PaymentOption,
+export const validateRoute = (
+  route: Route,
   relayAvailable: boolean,
 ): ValidationErr => {
-  if (payment === PaymentOption.MANUAL) return '';
+  if (route === Route.BRIDGE) return '';
   if (!relayAvailable)
     return 'Single transaction payment not available for this transfer';
   return '';
@@ -239,7 +231,8 @@ export const getMinAmount = (
 };
 
 export const validateAll = async (
-  transferData: TransferState,
+  transferData: TransferInputState,
+  relayData: RelayState,
   walletData: WalletState,
 ): Promise<TransferValidations> => {
   const {
@@ -249,16 +242,14 @@ export const validateAll = async (
     destToken,
     automaticRelayAvail,
     amount,
-    destGasPayment,
-    maxSwapAmt,
-    toNativeToken,
-    relayerFee,
     balances,
     foreignAsset,
     associatedTokenAddress,
+    route,
   } = transferData;
+  const { maxSwapAmt, toNativeToken, relayerFee } = relayData;
   const { sending, receiving } = walletData;
-  const isAutomatic = destGasPayment === PaymentOption.AUTOMATIC;
+  const isAutomatic = route === Route.RELAY;
   const minAmt = getMinAmount(isAutomatic, toNativeToken, relayerFee);
   const baseValidations = {
     sendingWallet: await validateWallet(sending, fromNetwork),
@@ -267,8 +258,8 @@ export const validateAll = async (
     toNetwork: validateToNetwork(toNetwork, fromNetwork),
     token: validateToken(token, fromNetwork),
     destToken: validateDestToken(destToken, toNetwork),
-    amount: validateAmount(amount, balances[token], destGasPayment, minAmt),
-    destGasPayment: validateDestGasPayment(destGasPayment, automaticRelayAvail),
+    amount: validateAmount(amount, balances[token], route, minAmt),
+    route: validateRoute(route, automaticRelayAvail),
     toNativeToken: '',
     foreignAsset: validateForeignAsset(foreignAsset),
     associatedTokenAccount: validateSolanaTokenAccount(
@@ -280,11 +271,8 @@ export const validateAll = async (
   if (!isAutomatic) return baseValidations;
   return {
     ...baseValidations,
-    amount: validateAmount(amount, balances[token], destGasPayment, minAmt),
-    destGasPayment: validateGasPaymentOption(
-      destGasPayment,
-      automaticRelayAvail,
-    ),
+    amount: validateAmount(amount, balances[token], route, minAmt),
+    route: validateRoute(route, automaticRelayAvail),
     toNativeToken: validateToNativeAmt(toNativeToken, maxSwapAmt),
   };
 };
@@ -297,18 +285,18 @@ export const isTransferValid = (validations: TransferValidations) => {
 };
 
 export const validate = async (dispatch: Dispatch<AnyAction>) => {
-  const { transfer, wallet } = store.getState();
-  const validations = await validateAll(transfer, wallet);
+  const { transferInput, relay, wallet } = store.getState();
+  const validations = await validateAll(transferInput, relay, wallet);
   // if all fields are filled out, show validations
   if (
     wallet.sending.address &&
     wallet.receiving.address &&
-    transfer.fromNetwork &&
-    transfer.toNetwork &&
-    transfer.token &&
-    transfer.destToken &&
-    transfer.amount &&
-    transfer.amount >= 0
+    transferInput.fromNetwork &&
+    transferInput.toNetwork &&
+    transferInput.token &&
+    transferInput.destToken &&
+    transferInput.amount &&
+    transferInput.amount >= 0
   ) {
     dispatch(touchValidations());
   }

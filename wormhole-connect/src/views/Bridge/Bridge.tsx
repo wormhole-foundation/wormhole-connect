@@ -8,8 +8,9 @@ import {
   setReceiverNativeBalance,
   enableAutomaticTransfer,
   disableAutomaticTransfer,
-} from '../../store/transfer';
-import { getNativeBalance, isAcceptedToken, PaymentOption } from '../../sdk';
+  Route,
+} from '../../store/transferInput';
+import { getNativeBalance, isAcceptedToken } from '../../sdk';
 import { CHAINS, TOKENS } from '../../config';
 import { isTransferValid, validate } from '../../utils/transferValidation';
 
@@ -58,15 +59,16 @@ function Bridge() {
     toNetwork,
     token,
     destToken,
-    destGasPayment,
+    route,
     automaticRelayAvail,
-    toNativeToken,
-    relayerFee,
     foreignAsset,
     associatedTokenAddress,
     isTransactionInProgress,
     balances,
-  } = useSelector((state: RootState) => state.transfer);
+  } = useSelector((state: RootState) => state.transferInput);
+  const { toNativeToken, relayerFee } = useSelector(
+    (state: RootState) => state.relay,
+  );
   const { sending, receiving } = useSelector(
     (state: RootState) => state.wallet,
   );
@@ -117,7 +119,7 @@ function Bridge() {
     toNetwork,
     token,
     destToken,
-    destGasPayment,
+    route,
     automaticRelayAvail,
     toNativeToken,
     relayerFee,
@@ -129,8 +131,7 @@ function Bridge() {
   const valid = isTransferValid(validations);
 
   const disabled = !valid || isTransactionInProgress;
-  const showGasSlider =
-    automaticRelayAvail && destGasPayment === PaymentOption.AUTOMATIC;
+  const showGasSlider = automaticRelayAvail && route === Route.RELAY;
 
   return (
     <div className={joinClass([classes.bridgeContent, classes.spacer])}>

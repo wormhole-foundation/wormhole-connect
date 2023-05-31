@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 
 import { RootState } from '../../store';
-import { selectFromNetwork, selectToNetwork } from '../../store/transfer';
+import { selectFromNetwork, selectToNetwork } from '../../store/transferInput';
 
 const useStyles = makeStyles()((theme) => ({
   button: {
@@ -26,7 +26,7 @@ function SwapNetworks() {
     (state: RootState) => state.wallet,
   );
   const { fromNetwork, toNetwork } = useSelector(
-    (state: RootState) => state.transfer,
+    (state: RootState) => state.transferInput,
   );
 
   const swap = () => {
