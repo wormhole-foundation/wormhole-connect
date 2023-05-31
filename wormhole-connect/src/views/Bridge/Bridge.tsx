@@ -20,13 +20,14 @@ import Preview from './Preview';
 import Send from './Send';
 import { Collapse } from '@mui/material';
 import PageHeader from '../../components/PageHeader';
-import FromInputs from './Inputs.tsx/From';
-import ToInputs from './Inputs.tsx/To';
+import FromInputs from './Inputs/From';
+import ToInputs from './Inputs/To';
 import { toDecimals } from '../../utils/balance';
 import { getWrappedTokenId } from '../../utils';
 import TransferLimitedWarning from './TransferLimitedWarning';
 import { joinClass } from '../../utils/style';
 import SwapNetworks from './SwapNetworks';
+import RouteOptions from './RouteOptions';
 
 const useStyles = makeStyles()((theme) => ({
   spacer: {
@@ -132,6 +133,7 @@ function Bridge() {
 
   const disabled = !valid || isTransactionInProgress;
   const showGasSlider = automaticRelayAvail && route === Route.RELAY;
+  const showHashflowRoute = true;
 
   return (
     <div className={joinClass([classes.bridgeContent, classes.spacer])}>
@@ -144,6 +146,17 @@ function Bridge() {
       <Collapse in={valid && showValidationState}>
         <div className={classes.spacer}>
           <GasOptions disabled={disabled} />
+
+          <Collapse
+            in={showHashflowRoute}
+            sx={
+              !showHashflowRoute
+                ? { marginBottom: '-16px', transition: 'margin 0.4s' }
+                : {}
+            }
+          >
+            <RouteOptions />
+          </Collapse>
 
           <Collapse
             in={showGasSlider}
