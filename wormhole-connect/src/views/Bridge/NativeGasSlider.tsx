@@ -25,7 +25,7 @@ import { getMinAmount } from '../../utils/transferValidation';
 
 import InputContainer from '../../components/InputContainer';
 import TokenIcon from '../../icons/TokenIcons';
-import BridgeCollapse, { CollapseControlStyle } from './Collapse';
+import BridgeCollapse, { CollapseControlStyle, XLabsBanner } from './Collapse';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -98,7 +98,7 @@ const INITIAL_STATE = {
 function GasSlider(props: { disabled: boolean }) {
   const { classes } = useStyles();
   const dispatch = useDispatch();
-  const { token, toNetwork, amount, route } = useSelector(
+  const { token, toNetwork, amount, route, automaticRelayAvail } = useSelector(
     (state: RootState) => state.transferInput,
   );
   const { maxSwapAmt, relayerFee } = useSelector(
@@ -256,10 +256,12 @@ function GasSlider(props: { disabled: boolean }) {
     toNetwork,
   ]);
 
+  const banner = automaticRelayAvail && !props.disabled && <XLabsBanner />;
+
   return (
     <BridgeCollapse
       title="Native gas"
-      banner={!props.disabled}
+      banner={banner}
       disabled={props.disabled || state.disabled}
       close={props.disabled}
       controlStyle={CollapseControlStyle.Switch}
