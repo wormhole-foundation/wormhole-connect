@@ -11,6 +11,9 @@ import { CHAIN_ID_SEI } from '@certusone/wormhole-sdk';
 import Options from '../../components/Options';
 import BridgeCollapse, { XLabsBanner } from './Collapse';
 
+import Options from '../../components/Options';
+import BridgeCollapse, { XLabsBanner } from './Collapse';
+
 const useStyles = makeStyles()((theme) => ({
   option: {
     display: 'flex',
