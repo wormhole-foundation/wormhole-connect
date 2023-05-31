@@ -4,12 +4,17 @@ import { BigNumber } from 'ethers';
 import { TokenConfig } from 'config/types';
 import { toDecimals } from '../utils/balance';
 import { TransferValidations } from '../utils/transferValidation';
-import { toChainId } from '../utils/sdk';
 import { TOKENS, config } from 'config';
 import { getTokenDecimals } from '../utils';
 import { TransferWallet, walletAcceptedNetworks } from 'utils/wallet';
-import { PayloadType } from 'utils/sdk';
+import { PayloadType, toChainId } from 'utils/sdk';
 import { clearWallet, setWalletError, WalletData } from './wallet';
+
+export enum Route {
+  BRIDGE = PayloadType.MANUAL, // 1
+  RELAY = PayloadType.AUTOMATIC, // 3
+  HASHFLOW = 10,
+}
 
 export enum Route {
   BRIDGE = PayloadType.MANUAL, // 1
