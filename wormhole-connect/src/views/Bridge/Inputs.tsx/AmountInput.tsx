@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../../store';
-import { setAmount } from '../../../store/transfer';
+import { setAmount } from '../../../store/transferInput';
 import { validate } from '../../../utils/transferValidation';
 
 import InputTransparent from '../../../components/InputTransparent';
@@ -17,7 +17,7 @@ function AmountInput() {
     token,
     isTransactionInProgress,
     amount,
-  } = useSelector((state: RootState) => state.transfer);
+  } = useSelector((state: RootState) => state.transferInput);
   const [value, setValue] = useState(amount ? `${amount}` : '');
 
   function handleAmountChange(event) {

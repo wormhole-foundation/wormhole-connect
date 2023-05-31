@@ -11,7 +11,7 @@ import {
   formatBalance,
   selectToNetwork,
   setDestToken,
-} from '../../../store/transfer';
+} from '../../../store/transferInput';
 
 import Inputs from './Inputs';
 import Select from './Select';
@@ -33,7 +33,7 @@ function ToInputs() {
     toNetwork,
     destToken,
     isTransactionInProgress,
-  } = useSelector((state: RootState) => state.transfer);
+  } = useSelector((state: RootState) => state.transferInput);
   const { receiving } = useSelector((state: RootState) => state.wallet);
 
   const tokenConfig = TOKENS[destToken];

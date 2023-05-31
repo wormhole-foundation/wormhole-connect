@@ -3,9 +3,9 @@ import { useSelector } from 'react-redux';
 import { useTheme } from '@mui/material/styles';
 import { useDispatch } from 'react-redux';
 import { RootState } from '../../store';
-import { disableAutomaticTransfer, setRelayerFee } from '../../store/transfer';
+import { disableAutomaticTransfer, Route } from '../../store/transferInput';
+import { setRelayerFee } from '../../store/relay';
 import { CHAINS, TOKENS } from '../../config';
-import { PaymentOption } from '../../sdk';
 import { TokenConfig } from '../../config/types';
 import { toDecimals, toFixedDecimals } from '../../utils/balance';
 import { getRelayerFee } from '../../sdk';
@@ -108,16 +108,12 @@ function Preview(props: { collapsed: boolean }) {
   const dispatch = useDispatch();
   const theme = useTheme();
   const [state, setState] = React.useState({ rows: [] as RowsData });
-  const {
-    token,
-    fromNetwork,
-    toNetwork,
-    destGasPayment,
-    amount,
-    toNativeToken,
-    receiveNativeAmt,
-    gasEst,
-  } = useSelector((state: RootState) => state.transfer);
+  const { token, fromNetwork, toNetwork, route, amount, gasEst } = useSelector(
+    (state: RootState) => state.transferInput,
+  );
+  const { toNativeToken, receiveNativeAmt } = useSelector(
+    (state: RootState) => state.relay,
+  );
 
   useEffect(() => {
     const sourceConfig = fromNetwork && CHAINS[fromNetwork];
@@ -126,7 +122,7 @@ function Preview(props: { collapsed: boolean }) {
     if (!fromNetwork || !tokenConfig || !sourceConfig || !destConfig || !amount)
       return;
 
-    if (destGasPayment === PaymentOption.MANUAL) {
+    if (route === Route.BRIDGE) {
       const rows = getManualRows(
         tokenConfig,
         sourceConfig!.gasToken,
@@ -173,7 +169,7 @@ function Preview(props: { collapsed: boolean }) {
     token,
     fromNetwork,
     toNetwork,
-    destGasPayment,
+    route,
     amount,
     toNativeToken,
     receiveNativeAmt,

@@ -4,10 +4,16 @@ import { BigNumber } from 'ethers';
 import { TokenConfig } from 'config/types';
 import { toDecimals } from '../utils/balance';
 import { TransferValidations } from '../utils/transferValidation';
-import { PaymentOption } from '../sdk';
 import { TOKENS, config } from 'config';
 import { TransferWallet, walletAcceptedNetworks } from 'utils/wallet';
 import { clearWallet, setWalletError, WalletData } from './wallet';
+import { PayloadType } from 'sdk';
+
+export enum Route {
+  BRIDGE = PayloadType.MANUAL, // 1
+  RELAY = PayloadType.AUTOMATIC, // 3
+  HASHFLOW = 10,
+}
 
 export type Balances = { [key: string]: string | null };
 
@@ -29,20 +35,16 @@ export const formatBalance = (
   return { [token.key]: formattedBalance };
 };
 
-export interface TransferState {
+export interface TransferInputState {
   validate: boolean;
   validations: TransferValidations;
   fromNetwork: ChainName | undefined;
   toNetwork: ChainName | undefined;
-  automaticRelayAvail: boolean;
   token: string;
   destToken: string;
   amount: number | undefined;
-  destGasPayment: PaymentOption;
-  maxSwapAmt: number | undefined;
-  toNativeToken: number;
-  receiveNativeAmt: number | undefined;
-  relayerFee: number | undefined;
+  route: Route;
+  automaticRelayAvail: boolean;
   balances: Balances;
   foreignAsset: string;
   associatedTokenAddress: string;
@@ -55,7 +57,7 @@ export interface TransferState {
   receiverNativeBalance: string | undefined;
 }
 
-const initialState: TransferState = {
+const initialState: TransferInputState = {
   validate: false,
   validations: {
     fromNetwork: '',
@@ -63,7 +65,7 @@ const initialState: TransferState = {
     token: '',
     destToken: '',
     amount: '',
-    destGasPayment: '',
+    route: '',
     toNativeToken: '',
     sendingWallet: '',
     receivingWallet: '',
@@ -72,15 +74,11 @@ const initialState: TransferState = {
   },
   fromNetwork: config?.bridgeDefaults?.fromNetwork || undefined,
   toNetwork: config?.bridgeDefaults?.toNetwork || undefined,
-  automaticRelayAvail: false,
   token: config?.bridgeDefaults?.token || '',
   destToken: '',
   amount: undefined,
-  destGasPayment: PaymentOption.MANUAL,
-  maxSwapAmt: undefined,
-  toNativeToken: 0,
-  receiveNativeAmt: undefined,
-  relayerFee: undefined,
+  route: Route.BRIDGE,
+  automaticRelayAvail: false,
   balances: {},
   foreignAsset: '',
   associatedTokenAddress: '',
@@ -93,16 +91,16 @@ const initialState: TransferState = {
   receiverNativeBalance: '',
 };
 
-export const transferSlice = createSlice({
+export const transferInputSlice = createSlice({
   name: 'transfer',
   initialState,
   reducers: {
     // validations
-    touchValidations: (state: TransferState) => {
+    touchValidations: (state: TransferInputState) => {
       state.validate = true;
     },
     setValidations: (
-      state: TransferState,
+      state: TransferInputState,
       { payload }: PayloadAction<TransferValidations>,
     ) => {
       Object.keys(payload).forEach((key) => {
@@ -111,17 +109,20 @@ export const transferSlice = createSlice({
       });
     },
     // user input
-    setToken: (state: TransferState, { payload }: PayloadAction<string>) => {
+    setToken: (
+      state: TransferInputState,
+      { payload }: PayloadAction<string>,
+    ) => {
       state.token = payload;
     },
     setDestToken: (
-      state: TransferState,
+      state: TransferInputState,
       { payload }: PayloadAction<string>,
     ) => {
       state.destToken = payload;
     },
     setFromNetwork: (
-      state: TransferState,
+      state: TransferInputState,
       { payload }: PayloadAction<ChainName>,
     ) => {
       state.fromNetwork = payload;
@@ -140,114 +141,86 @@ export const transferSlice = createSlice({
       }
     },
     setToNetwork: (
-      state: TransferState,
+      state: TransferInputState,
       { payload }: PayloadAction<ChainName>,
     ) => {
       state.toNetwork = payload;
     },
     setAmount: (
-      state: TransferState,
+      state: TransferInputState,
       { payload }: PayloadAction<number | undefined>,
     ) => {
       state.amount = payload;
     },
-    setToNativeToken: (
-      state: TransferState,
-      { payload }: PayloadAction<number>,
-    ) => {
-      state.toNativeToken = payload;
-    },
-    setDestGasPayment: (
-      state: TransferState,
-      { payload }: PayloadAction<PaymentOption>,
-    ) => {
-      if (payload === PaymentOption.MANUAL) {
-        state.maxSwapAmt = undefined;
-      }
-      state.destGasPayment = payload;
-    },
-    // transfer calculations
-    setMaxSwapAmt: (
-      state: TransferState,
-      { payload }: PayloadAction<number | undefined>,
-    ) => {
-      state.maxSwapAmt = payload;
-    },
-    setReceiveNativeAmt: (
-      state: TransferState,
-      { payload }: PayloadAction<number>,
-    ) => {
-      state.receiveNativeAmt = payload;
-    },
-    setRelayerFee: (
-      state: TransferState,
-      { payload }: PayloadAction<number>,
-    ) => {
-      state.relayerFee = payload;
-    },
     setBalance: (
-      state: TransferState,
+      state: TransferInputState,
       { payload }: PayloadAction<Balances>,
     ) => {
       state.balances = { ...state.balances, ...payload };
     },
     setReceiverNativeBalance: (
-      state: TransferState,
+      state: TransferInputState,
       { payload }: PayloadAction<string>,
     ) => {
       state.receiverNativeBalance = payload;
     },
-    clearBalances: (state: TransferState) => {
+    clearBalances: (state: TransferInputState) => {
       state.balances = {};
     },
-    enableAutomaticTransfer: (state: TransferState) => {
-      state.automaticRelayAvail = true;
-      state.destGasPayment = PaymentOption.AUTOMATIC;
-    },
-    disableAutomaticTransfer: (state: TransferState) => {
-      state.automaticRelayAvail = false;
-      state.destGasPayment = PaymentOption.MANUAL;
-    },
     setForeignAsset: (
-      state: TransferState,
+      state: TransferInputState,
       { payload }: PayloadAction<string>,
     ) => {
       state.foreignAsset = payload;
     },
     setAssociatedTokenAddress: (
-      state: TransferState,
+      state: TransferInputState,
       { payload }: PayloadAction<string>,
     ) => {
       state.associatedTokenAddress = payload;
     },
+    enableAutomaticTransfer: (state: TransferInputState) => {
+      state.automaticRelayAvail = true;
+      state.route = Route.RELAY;
+    },
+    disableAutomaticTransfer: (state: TransferInputState) => {
+      state.automaticRelayAvail = false;
+      state.route = Route.RELAY;
+    },
+    setTransferRoute: (
+      state: TransferInputState,
+      { payload }: PayloadAction<Route>,
+    ) => {
+      state.route = payload;
+    },
     // gas estimates
     setManualGasEst: (
-      state: TransferState,
+      state: TransferInputState,
       { payload }: PayloadAction<string>,
     ) => {
       state.gasEst.manual = payload;
     },
     setAutomaticGasEst: (
-      state: TransferState,
+      state: TransferInputState,
       { payload }: PayloadAction<string>,
     ) => {
       state.gasEst.automatic = payload;
     },
     setClaimGasEst: (
-      state: TransferState,
+      state: TransferInputState,
       { payload }: PayloadAction<string>,
     ) => {
       state.gasEst.claim = payload;
     },
     // clear inputs
-    clearTransfer: (state: TransferState) => {
+    clearTransfer: (state: TransferInputState) => {
       Object.keys(state).forEach((key) => {
         // @ts-ignore
         state[key] = initialState[key];
       });
     },
     setIsTransactionInProgress: (
-      state: TransferState,
+      state: TransferInputState,
       { payload }: PayloadAction<boolean>,
     ) => {
       state.isTransactionInProgress = payload;
@@ -299,24 +272,20 @@ export const {
   setDestToken,
   setFromNetwork,
   setToNetwork,
-  setDestGasPayment,
   setAmount,
-  setToNativeToken,
-  setMaxSwapAmt,
-  setReceiveNativeAmt,
-  setRelayerFee,
   setBalance,
   clearBalances,
-  enableAutomaticTransfer,
-  disableAutomaticTransfer,
   setForeignAsset,
   setAssociatedTokenAddress,
+  enableAutomaticTransfer,
+  disableAutomaticTransfer,
+  setTransferRoute,
   setManualGasEst,
   setAutomaticGasEst,
   setClaimGasEst,
   clearTransfer,
   setIsTransactionInProgress,
   setReceiverNativeBalance,
-} = transferSlice.actions;
+} = transferInputSlice.actions;
 
-export default transferSlice.reducer;
+export default transferInputSlice.reducer;

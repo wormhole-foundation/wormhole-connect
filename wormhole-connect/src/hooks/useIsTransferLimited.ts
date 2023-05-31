@@ -57,7 +57,7 @@ const useIsTransferLimited = (): IsTransferLimitedResult => {
   );
 
   const { fromNetwork, token, amount } = useSelector(
-    (state: RootState) => state.transfer,
+    (state: RootState) => state.transferInput,
   );
 
   const fetchedTokenList = useRef(false);

@@ -5,31 +5,27 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { useDebounce } from 'use-debounce';
-import InputContainer from '../../components/InputContainer';
 import { CHAINS, TOKENS } from '../../config';
 import { TokenConfig } from '../../config/types';
-import TokenIcon from '../../icons/TokenIcons';
-import {
-  PaymentOption,
-  calculateMaxSwapAmount,
-  calculateNativeTokenAmt,
-  wh,
-} from '../../sdk';
+import { calculateMaxSwapAmount, calculateNativeTokenAmt, wh } from '../../sdk';
 import { RootState } from '../../store';
+import { disableAutomaticTransfer, Route } from '../../store/transferInput';
 import {
-  disableAutomaticTransfer,
   setMaxSwapAmt,
   setReceiveNativeAmt,
   setToNativeToken,
-} from '../../store/transfer';
+} from '../../store/relay';
 import { getTokenDecimals, getWrappedTokenId } from '../../utils';
 import {
   getConversion,
   toDecimals,
   toFixedDecimals,
 } from '../../utils/balance';
-import BridgeCollapse, { CollapseControlStyle } from './Collapse';
 import { getMinAmount } from '../../utils/transferValidation';
+
+import InputContainer from '../../components/InputContainer';
+import TokenIcon from '../../icons/TokenIcons';
+import BridgeCollapse, { CollapseControlStyle } from './Collapse';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -102,8 +98,12 @@ const INITIAL_STATE = {
 function GasSlider(props: { disabled: boolean }) {
   const { classes } = useStyles();
   const dispatch = useDispatch();
-  const { token, toNetwork, amount, maxSwapAmt, destGasPayment, relayerFee } =
-    useSelector((state: RootState) => state.transfer);
+  const { token, toNetwork, amount, route } = useSelector(
+    (state: RootState) => state.transferInput,
+  );
+  const { maxSwapAmt, relayerFee } = useSelector(
+    (state: RootState) => state.relay,
+  );
   const { receiving: receivingWallet } = useSelector(
     (state: RootState) => state.wallet,
   );
@@ -116,8 +116,7 @@ function GasSlider(props: { disabled: boolean }) {
 
   // set the actual max swap amount (checks if max swap amount is greater than the sending amount)
   useEffect(() => {
-    if (!amount || !maxSwapAmt || destGasPayment === PaymentOption.MANUAL)
-      return;
+    if (!amount || !maxSwapAmt || route !== Route.RELAY) return;
 
     const min = getMinAmount(true, relayerFee, 0);
     const amountWithoutRelayerFee = amount - min;
@@ -134,13 +133,13 @@ function GasSlider(props: { disabled: boolean }) {
       token: formatAmount(newTokenAmount),
       max: formatAmount(actualMaxSwap),
     }));
-  }, [maxSwapAmt, amount, destGasPayment, state.swapAmt, relayerFee]);
+  }, [maxSwapAmt, amount, route, state.swapAmt, relayerFee]);
 
   useEffect(() => {
     if (
       !toNetwork ||
       !sendingToken ||
-      destGasPayment === PaymentOption.MANUAL ||
+      route !== Route.RELAY ||
       !receivingWallet.address
     )
       return;
@@ -172,14 +171,7 @@ function GasSlider(props: { disabled: boolean }) {
     getConversion(token, gasToken).then((res: number) => {
       setState((prevState) => ({ ...prevState, conversionRate: res }));
     });
-  }, [
-    sendingToken,
-    receivingWallet,
-    toNetwork,
-    destGasPayment,
-    token,
-    dispatch,
-  ]);
+  }, [sendingToken, receivingWallet, toNetwork, route, token, dispatch]);
 
   function Thumb(props: ThumbProps) {
     const { children, ...other } = props;
