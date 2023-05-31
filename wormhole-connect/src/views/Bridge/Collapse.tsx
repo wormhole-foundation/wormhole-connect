@@ -102,7 +102,7 @@ function BridgeCollapse(props: Props) {
   }, [collapsed, onCollapseChange]);
 
   const relayAvail = useSelector(
-    (state: RootState) => state.transfer.automaticRelayAvail,
+    (state: RootState) => state.transferInput.automaticRelayAvail,
   );
   const controlled = !relayAvail || props.controlled;
   const controlStyle = props.controlStyle || CollapseControlStyle.Arrow;

@@ -1,18 +1,17 @@
 import React, { useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { useTheme } from '@mui/material/styles';
-import { useDispatch } from 'react-redux';
 import { RootState } from '../../store';
-import { disableAutomaticTransfer, setRelayerFee } from '../../store/transfer';
+import { disableAutomaticTransfer, Route } from '../../store/transferInput';
+import { setRelayerFee } from '../../store/relay';
 import { CHAINS, TOKENS } from '../../config';
-import { PaymentOption, toChainId } from '../../sdk';
 import { TokenConfig } from '../../config/types';
-import { toDecimals, toFixedDecimals } from '../../utils/balance';
-import { getRelayerFee } from '../../sdk';
-import { RenderRows, RowsData } from '../../components/RenderRows';
-import InputContainer from '../../components/InputContainer';
-import BridgeCollapse from './Collapse';
+import { toChainId, getRelayerFee } from '../../sdk';
 import { getTokenDecimals } from '../../utils';
+import { toDecimals, toFixedDecimals } from '../../utils/balance';
+import { RenderRows, RowsData } from '../../components/RenderRows';
+import BridgeCollapse from './Collapse';
+import InputContainer from '../../components/InputContainer';
 
 const getAutomaticRows = (
   token: TokenConfig,
@@ -109,16 +108,12 @@ function Preview(props: { collapsed: boolean }) {
   const dispatch = useDispatch();
   const theme = useTheme();
   const [state, setState] = React.useState({ rows: [] as RowsData });
-  const {
-    token,
-    fromNetwork,
-    toNetwork,
-    destGasPayment,
-    amount,
-    toNativeToken,
-    receiveNativeAmt,
-    gasEst,
-  } = useSelector((state: RootState) => state.transfer);
+  const { token, fromNetwork, toNetwork, route, amount, gasEst } = useSelector(
+    (state: RootState) => state.transferInput,
+  );
+  const { toNativeToken, receiveNativeAmt } = useSelector(
+    (state: RootState) => state.relay,
+  );
 
   useEffect(() => {
     if (!fromNetwork) return;
@@ -127,7 +122,7 @@ function Preview(props: { collapsed: boolean }) {
     const tokenConfig = token && TOKENS[token];
     if (!tokenConfig || !sourceConfig || !destConfig || !amount) return;
 
-    if (destGasPayment === PaymentOption.MANUAL) {
+    if (route === Route.BRIDGE) {
       const rows = getManualRows(
         tokenConfig,
         sourceConfig!.gasToken,
@@ -170,7 +165,7 @@ function Preview(props: { collapsed: boolean }) {
     token,
     fromNetwork,
     toNetwork,
-    destGasPayment,
+    route,
     amount,
     toNativeToken,
     receiveNativeAmt,

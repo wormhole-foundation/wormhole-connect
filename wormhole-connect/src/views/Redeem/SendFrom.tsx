@@ -1,20 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
+import { Route } from '../../store/transferInput';
 import { ParsedVaa } from '../../utils/vaa';
 import { CHAINS, TOKENS } from '../../config';
-import { PaymentOption, toChainId } from '../../sdk';
+import { toChainId } from '../../sdk';
+import {
+  toNormalizedDecimals,
+  MAX_DECIMALS,
+  getTokenDecimals,
+} from '../../utils';
 import { toDecimals } from '../../utils/balance';
 
 import InputContainer from '../../components/InputContainer';
 import Header from './Header';
 import { RenderRows, RowsData } from '../../components/RenderRows';
 import Confirmations from './Confirmations';
-import {
-  toNormalizedDecimals,
-  MAX_DECIMALS,
-  getTokenDecimals,
-} from '../../utils';
 
 const getRows = (txData: any): RowsData => {
   const formattedAmt = toNormalizedDecimals(
@@ -34,7 +35,7 @@ const getRows = (txData: any): RowsData => {
   const token = TOKENS[txData.tokenKey];
 
   // manual transfers
-  if (type === PaymentOption.MANUAL) {
+  if (type === Route.BRIDGE) {
     return [
       {
         title: 'Amount',
