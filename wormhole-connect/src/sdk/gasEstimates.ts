@@ -9,7 +9,7 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { toFixedDecimals } from '../utils/balance';
 import { CHAINS, GAS_ESTIMATES } from '../config';
-import { PaymentOption } from '.';
+import { Route } from '../store/transferInput';
 import { getTokenDecimals } from '../utils';
 import {
   JsonRpcProvider,
@@ -21,13 +21,13 @@ import { AptosClient } from 'aptos';
 import { TransferWallet, simulateSeiTransaction } from '../utils/wallet';
 
 const simulateRelayAmount = (
-  paymentOption: PaymentOption,
+  route: Route,
   amount: number,
   relayerFee: number,
   toNativeToken: number,
   tokenDecimals: number,
 ): BigNumber => {
-  if (paymentOption === PaymentOption.AUTOMATIC) {
+  if (route === Route.RELAY) {
     const min = getMinAmount(true, relayerFee, toNativeToken);
     const amountOrMin = Math.max(amount, min);
     return utils.parseUnits(`${amountOrMin}`, tokenDecimals);
@@ -44,7 +44,7 @@ const estimateGasFee = async (
   fromAddress: string,
   toNetwork: ChainName | ChainId,
   toAddress: string,
-  paymentOption: PaymentOption,
+  route: Route,
   relayerFee: number = 0,
   toNativeToken: number = 0,
 ): Promise<string> => {
@@ -58,7 +58,7 @@ const estimateGasFee = async (
     .parseUnits(`${toNativeToken}`, decimals)
     .toString();
   const relayAmount = simulateRelayAmount(
-    paymentOption,
+    route,
     amount,
     relayerFee,
     toNativeToken,
@@ -95,7 +95,7 @@ const estimateGasFee = async (
     const provider = chainContext.provider as JsonRpcProvider;
     if (!provider) throw new Error('no provider');
     let tx: TransactionBlock;
-    if (paymentOption === PaymentOption.MANUAL) {
+    if (route === Route.BRIDGE) {
       tx = await chainContext.send(
         token,
         parsedAmt,
@@ -143,7 +143,7 @@ const estimateGasFee = async (
   const { gasPrice } = await provider.getFeeData();
   if (!gasPrice)
     throw new Error('gas price not available, cannot estimate fees');
-  if (paymentOption === PaymentOption.MANUAL) {
+  if (route === Route.BRIDGE) {
     const tx = await chainContext.prepareSend(
       token,
       parsedAmt.toString(),
@@ -177,7 +177,7 @@ const getGasFeeFallback = async (
   context: WormholeContext,
   token: TokenId | 'native',
   fromNetwork: ChainName | ChainId,
-  paymentOption: PaymentOption,
+  route: Route,
 ): Promise<string> => {
   const fromChainId = context.toChainId(fromNetwork);
   const fromChainName = context.toChainName(fromNetwork);
@@ -197,11 +197,8 @@ const getGasFeeFallback = async (
 
   // Sui gas estimates
   if (fromChainId === MAINNET_CHAINS.sui) {
-    if (paymentOption === PaymentOption.MANUAL) {
-      return toFixedDecimals(
-        utils.formatUnits(gasEstimates.sendToken, nativeDecimals),
-        6,
-      );
+    if (route === Route.BRIDGE) {
+      return toFixedDecimals(utils.formatUnits(gasEstimates.sendToken, nativeDecimals), 6);
     } else {
       // TODO: automatic payment gas fee est. fallback
       throw new Error('cannot estimate gas fee');
@@ -238,7 +235,7 @@ const getGasFeeFallback = async (
   const { gasPrice } = await provider.getFeeData();
   if (!gasPrice)
     throw new Error('gas price not available, cannot estimate fees');
-  if (paymentOption === PaymentOption.MANUAL) {
+  if (route === Route.BRIDGE) {
     const gasEst = sendNative
       ? gasEstimates.sendNative
       : gasEstimates.sendToken;
@@ -266,7 +263,7 @@ export const estimateSendFees = async (
   fromAddress: string,
   toNetwork: ChainName | ChainId,
   toAddress: string,
-  paymentOption: PaymentOption,
+  route: Route,
   relayerFee: number = 0,
   toNativeToken: number = 0,
 ): Promise<string> => {
@@ -279,13 +276,13 @@ export const estimateSendFees = async (
       fromAddress,
       toNetwork,
       toAddress,
-      paymentOption,
+      route,
       relayerFee,
       toNativeToken,
     );
     return gasFee;
   } catch (_) {
-    return await getGasFeeFallback(context, token, fromNetwork, paymentOption);
+    return await getGasFeeFallback(context, token, fromNetwork, route);
   }
 };
 

@@ -13,8 +13,9 @@ import { getTokenById, getTokenDecimals, getWrappedTokenId } from '../utils';
 import { GAS_ESTIMATES, isMainnet, TOKENS, WH_CONFIG } from '../config';
 import { postVaa, signAndSendTransaction, TransferWallet } from 'utils/wallet';
 import { estimateClaimFees, estimateSendFees } from './gasEstimates';
+import { Route } from '../store/transferInput';
 
-export enum PaymentOption {
+export enum PayloadType {
   MANUAL = 1,
   AUTOMATIC = 3,
 }
@@ -126,7 +127,7 @@ export const parseMessageFromTx = async (
     );
     base.recipient = accountOwner;
   }
-  if (parsed.payloadID === PaymentOption.MANUAL) {
+  if (parsed.payloadID === PayloadType.MANUAL) {
     return base;
   }
   return {
@@ -155,7 +156,7 @@ export const sendTransfer = async (
   fromAddress: string,
   toNetwork: ChainName | ChainId,
   toAddress: string,
-  paymentOption: PaymentOption,
+  payloadType: PayloadType,
   toNativeToken?: string,
   payload?: any,
 ): Promise<string> => {
@@ -163,7 +164,7 @@ export const sendTransfer = async (
   const fromChainName = wh.toChainName(fromNetwork);
   const decimals = getTokenDecimals(fromChainId, token);
   const parsedAmt = utils.parseUnits(amount, decimals);
-  if (paymentOption === PaymentOption.MANUAL) {
+  if (payloadType === PayloadType.MANUAL) {
     const tx = await wh.send(
       token,
       parsedAmt.toString(),
@@ -291,7 +292,7 @@ export const estimateSendGasFee = async (
   fromAddress: string,
   toNetwork: ChainName | ChainId,
   toAddress: string,
-  paymentOption: PaymentOption,
+  route: Route,
   relayerFee: number = 0,
   toNativeToken: number = 0,
 ): Promise<string> => {
@@ -303,7 +304,7 @@ export const estimateSendGasFee = async (
     fromAddress,
     toNetwork,
     toAddress,
-    paymentOption,
+    route,
     relayerFee,
     toNativeToken,
   );

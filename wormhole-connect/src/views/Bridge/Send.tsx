@@ -6,10 +6,10 @@ import { makeStyles } from 'tss-react/mui';
 
 import { CHAINS, TOKENS } from '../../config';
 import {
+  PayloadType,
   estimateClaimGasFee,
   estimateSendGasFee,
   parseMessageFromTx,
-  PaymentOption,
   sendTransfer,
 } from '../../sdk';
 import { RootState } from '../../store';
@@ -27,7 +27,8 @@ import {
   setAutomaticGasEst,
   setClaimGasEst,
   setIsTransactionInProgress,
-} from '../../store/transfer';
+  Route,
+} from '../../store/transferInput';
 
 import Button from '../../components/Button';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -65,7 +66,10 @@ function Send(props: { valid: boolean }) {
   const dispatch = useDispatch();
   const wallets = useSelector((state: RootState) => state.wallet);
   const { sending, receiving } = wallets;
-  const transfer = useSelector((state: RootState) => state.transfer);
+  const transfer = useSelector((state: RootState) => state.transferInput);
+  const { toNativeToken, relayerFee } = useSelector(
+    (state: RootState) => state.relay,
+  );
   const {
     validate: showValidationState,
     validations,
@@ -73,9 +77,7 @@ function Send(props: { valid: boolean }) {
     toNetwork,
     token,
     amount,
-    destGasPayment,
-    toNativeToken,
-    relayerFee,
+    route,
     automaticRelayAvail,
     isTransactionInProgress,
   } = transfer;
@@ -101,6 +103,7 @@ function Send(props: { valid: boolean }) {
       const tokenConfig = TOKENS[token]!;
       const sendToken = tokenConfig.tokenId;
 
+      // TODO: update sendTransfer to handle routing
       const txId = await sendTransfer(
         sendToken || 'native',
         `${amount}`,
@@ -108,7 +111,7 @@ function Send(props: { valid: boolean }) {
         sending.address,
         toNetwork!,
         receiving.address,
-        destGasPayment,
+        route as unknown as PayloadType,
         `${toNativeToken}`,
       );
 
@@ -133,7 +136,7 @@ function Send(props: { valid: boolean }) {
   }
 
   const setSendingGas = useCallback(
-    async (gasPayment: PaymentOption) => {
+    async (route: Route) => {
       const tokenConfig = TOKENS[token]!;
       if (!tokenConfig) return;
       const sendToken = tokenConfig.tokenId;
@@ -145,11 +148,11 @@ function Send(props: { valid: boolean }) {
         sending.address,
         toNetwork!,
         receiving.address,
-        gasPayment,
+        route,
         relayerFee,
         toNativeToken,
       );
-      if (gasPayment === PaymentOption.MANUAL) {
+      if (route === Route.BRIDGE) {
         dispatch(setManualGasEst(gasFee));
       } else {
         dispatch(setAutomaticGasEst(gasFee));
@@ -180,9 +183,9 @@ function Send(props: { valid: boolean }) {
     if (!valid) return;
 
     if (automaticRelayAvail) {
-      setSendingGas(PaymentOption.AUTOMATIC);
+      setSendingGas(Route.RELAY);
     }
-    setSendingGas(PaymentOption.MANUAL);
+    setSendingGas(Route.BRIDGE);
     setDestGas();
   }, [
     validations,
@@ -191,7 +194,7 @@ function Send(props: { valid: boolean }) {
     fromNetwork,
     toNetwork,
     token,
-    destGasPayment,
+    route,
     toNativeToken,
     relayerFee,
     automaticRelayAvail,
@@ -212,7 +215,7 @@ function Send(props: { valid: boolean }) {
           show={
             showValidationState &&
             !!props.valid &&
-            destGasPayment === PaymentOption.MANUAL &&
+            route === Route.BRIDGE &&
             toNetwork !== 'sei'
           }
           content="This transfer will require two transactions - one on the source chain and one on the destination chain."
@@ -229,7 +232,7 @@ function Send(props: { valid: boolean }) {
       />
       {props.valid && !isConnected ? (
         <Button disabled elevated>
-          Connect to {displayWalletAddress(sending.type, sending.address)}
+          Connect to {displayWalletAddress(sending.type!, sending.address)}
         </Button>
       ) : (
         <>

@@ -9,7 +9,7 @@ import {
   formatBalance,
   setToken,
   selectFromNetwork,
-} from '../../../store/transfer';
+} from '../../../store/transferInput';
 import { CHAINS_ARR, TOKENS } from '../../../config';
 import { getBalance, getNativeBalance } from '../../../sdk';
 
@@ -33,7 +33,7 @@ function FromInputs() {
     toNetwork,
     token,
     isTransactionInProgress,
-  } = useSelector((state: RootState) => state.transfer);
+  } = useSelector((state: RootState) => state.transferInput);
   const tokenConfig = token && TOKENS[token];
 
   const isDisabled = (chain: ChainName) => {
@@ -58,14 +58,14 @@ function FromInputs() {
       getBalance(wallet.address, tokenConfig.tokenId, fromNetwork).then(
         (res: BigNumber | null) => {
           const balance = formatBalance(fromNetwork, tokenConfig, res);
-          setBalance(balance[tokenConfig.key]);
+          setBalance(balance[tokenConfig.key] || undefined);
           dispatch(setStoreBalance(balance));
         },
       );
     } else {
       getNativeBalance(wallet.address, fromNetwork).then((res: BigNumber) => {
         const balance = formatBalance(fromNetwork, tokenConfig, res);
-        setBalance(balance[tokenConfig.key]);
+        setBalance(balance[tokenConfig.key] || undefined);
         dispatch(setStoreBalance(balance));
       });
     }

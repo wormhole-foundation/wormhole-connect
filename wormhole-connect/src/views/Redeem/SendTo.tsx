@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { BigNumber, utils } from 'ethers';
-import CircularProgress from '@mui/material/CircularProgress';
 import {
   ChainName,
   Context,
@@ -11,6 +10,7 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { RootState } from '../../store';
 import { setRedeemTx, setTransferComplete } from '../../store/redeem';
+import { Route } from '../../store/transferInput';
 import {
   MAX_DECIMALS,
   displayAddress,
@@ -25,21 +25,20 @@ import {
   TransferWallet,
 } from '../../utils/wallet';
 import { toDecimals } from '../../utils/balance';
+import { fetchRedeemTx, fetchSwapEvent } from '../../utils/events';
 import {
   wh,
   claimTransfer,
   estimateClaimGasFee,
-  PaymentOption,
   calculateNativeTokenAmt,
   toChainId,
 } from '../../sdk';
-import { CHAINS, TOKENS } from '../../config';
+import { CHAINS, TOKENS, GAS_ESTIMATES } from '../../config';
 import WalletsModal from '../WalletModal';
-import { GAS_ESTIMATES } from '../../config';
-import { fetchRedeemTx, fetchSwapEvent } from '../../utils/events';
 
 import Header from './Header';
 import AlertBanner from '../../components/AlertBanner';
+import CircularProgress from '@mui/material/CircularProgress';
 // import Confirmations from './Confirmations';
 import Button from '../../components/Button';
 import Spacer from '../../components/Spacer';
@@ -200,7 +199,7 @@ const getRows = async (
   receiveTx?: string,
   transferComplete?: boolean,
 ): Promise<RowsData> => {
-  if (txData.payloadID === PaymentOption.MANUAL) {
+  if (txData.payloadID === Route.BRIDGE) {
     return await getManualRows(txData, receiveTx);
   }
   return await getAutomaticRows(txData, receiveTx, transferComplete);
@@ -297,11 +296,11 @@ function SendTo() {
   };
 
   const loading =
-    txData.payloadID === PaymentOption.MANUAL
+    txData.payloadID === Route.BRIDGE
       ? inProgress && !transferComplete
       : !transferComplete;
   const manualClaimText =
-    transferComplete || txData.payloadID === PaymentOption.AUTOMATIC
+    transferComplete || txData.payloadID === Route.RELAY
       ? ''
       : claimError
       ? 'Error please retry . . .'
@@ -321,7 +320,7 @@ function SendTo() {
       </InputContainer>
 
       {/* Claim button for manual transfers */}
-      {txData.payloadID === PaymentOption.MANUAL && !transferComplete && (
+      {txData.payloadID === Route.BRIDGE && !transferComplete && (
         <>
           <Spacer height={8} />
           <AlertBanner

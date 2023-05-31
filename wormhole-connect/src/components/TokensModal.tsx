@@ -7,7 +7,11 @@ import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { RootState } from '../store';
 import { CHAINS, TOKENS_ARR } from '../config';
 import { TokenConfig } from '../config/types';
-import { setBalance, formatBalance, clearBalances } from '../store/transfer';
+import {
+  setBalance,
+  formatBalance,
+  clearBalances,
+} from '../store/transferInput';
 import { displayAddress } from '../utils';
 import { CENTER } from '../utils/style';
 import { getBalance, getNativeBalance } from '../sdk';
@@ -158,7 +162,7 @@ function TokensModal(props: Props) {
   const [search, setSearch] = useState('');
 
   const { balances: tokenBalances } = useSelector(
-    (state: RootState) => state.transfer,
+    (state: RootState) => state.transferInput,
   );
 
   // search tokens
