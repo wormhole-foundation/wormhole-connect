@@ -18,15 +18,34 @@ const useStyles = makeStyles()((theme) => ({
     minHeight: '100vh',
     height: '100%',
     zIndex: '-2',
+    // overflow: 'hidden',
   },
   bg: {
-    display: 'flex',
-    flexDirection: 'column',
+    // display: 'flex',
+    // flexDirection: 'column',
     position: 'relative',
     overflow: 'hidden',
     width: '100%',
+    // minWidth: '600px',
     height: '100%',
     minHeight: '100vh',
+    // overscrollBehaviorY: 'none',
+    // backgroundImage: `url(${bg})`,
+    // backgroundPosition: 'top center',
+    // backgroundRepeat: 'repeat-y',
+    // backgroundSize: '120%',
+  },
+  circles: {
+    position: 'absolute',
+    display: 'flex',
+    flexDirection: 'column',
+    width: '100%',
+    minWidth: '600px',
+    height: '100%',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
     overscrollBehaviorY: 'none',
     backgroundImage: `url(${bg})`,
     backgroundPosition: 'top center',
@@ -36,6 +55,7 @@ const useStyles = makeStyles()((theme) => ({
   background: {
     position: 'absolute',
     width: '100%',
+    minWidth: '600px',
     height: '100%',
     top: 0,
     bottom: 0,
@@ -50,20 +70,19 @@ const useStyles = makeStyles()((theme) => ({
     top: '72px',
     right: '-1000px',
     width: '1757px',
+    minWidth: '600px',
     height: '1506px',
     background: `radial-gradient(closest-side at 50% 50%, ${colors.blue} 0%, ${colors.blue}00 100%)`,
     opacity: '0.5',
     transform: 'matrix(0.87, 0.48, -0.48, 0.87, 0, 0)',
     zIndex: '-1',
     pointerEvent: 'none',
-    [theme.breakpoints.down('sm')]: {
-      display: 'none',
-    },
   },
   gradientLeft: {
     top: '-530px',
     left: '-350px',
     width: '1379px',
+    minWidth: '600px',
     height: '1378px',
     position: 'absolute',
     background: `radial-gradient(closest-side at 50% 50%, ${colors.pink}${OPACITY[60]} 0%, ${colors.pink}00 100%)`,
@@ -81,24 +100,19 @@ const useStyles = makeStyles()((theme) => ({
     opacity: '0.5',
     zIndex: '-1',
     pointerEvent: 'none',
-    [theme.breakpoints.down('sm')]: {
-      display: 'none',
-    },
   },
   gradientRight2: {
     position: 'absolute',
     bottom: '-900px',
     right: '-1000px',
     width: '1757px',
+    minWidth: '600px',
     height: '1506px',
     background: `radial-gradient(closest-side at 50% 50%, ${colors.purple} 0%, ${colors.purple}00 100%)`,
     opacity: '0.5',
     transform: 'matrix(0.87, 0.48, -0.48, 0.87, 0, 0);',
     zIndex: '-1',
     pointerEvent: 'none',
-    [theme.breakpoints.down('sm')]: {
-      display: 'none',
-    },
   },
   children: {
     width: '100%',
@@ -116,6 +130,7 @@ function Background({ children }: Props) {
     <div className="container">
       <div className={classes.bg}>
         {children}
+        <div className={classes.circles}></div>
         <div className={classes.background}></div>
         <div className={classes.gradientRight}></div>
         <div className={classes.gradientRight2}></div>

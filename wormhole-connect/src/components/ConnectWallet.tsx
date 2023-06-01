@@ -1,5 +1,6 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { useTheme } from '@mui/material/styles';
 import { makeStyles } from 'tss-react/mui';
 import { RootState } from '../store';
 import { TransferWallet } from '../utils/wallet';
@@ -12,7 +13,7 @@ import PopupState, { bindTrigger, bindPopover } from 'material-ui-popup-state';
 import Popover from '@mui/material/Popover';
 import { setWalletModal } from '../store/router';
 import { disconnectWallet as disconnectFromStore } from '../store/wallet';
-import { ScopedCssBaseline } from '@mui/material';
+import { ScopedCssBaseline, useMediaQuery } from '@mui/material';
 
 const useStyles = makeStyles()((theme) => ({
   connectWallet: {
@@ -58,7 +59,9 @@ type Props = {
 function ConnectWallet(props: Props) {
   const { disabled = false, type } = props;
   const { classes } = useStyles();
+  const theme = useTheme();
   const dispatch = useDispatch();
+  const mobile = useMediaQuery(theme.breakpoints.down('sm'));
   const wallet = useSelector((state: RootState) => state.wallet[type]);
 
   const connect = async (popupState?: any) => {
@@ -139,7 +142,7 @@ function ConnectWallet(props: Props) {
   ) : (
     <div className={classes.connectWallet} onClick={() => connect()}>
       <WalletIcon />
-      <div>Connect wallet</div>
+      <div>{mobile ? 'Connect' : 'Connect wallet'}</div>
     </div>
   );
 }
