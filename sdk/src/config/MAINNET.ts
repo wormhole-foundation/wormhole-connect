@@ -106,9 +106,9 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     contracts: {
       ...CONTRACTS.MAINNET.sui,
       relayer:
-        '0x5730c8467ecb1a258c95ecb8168537d4aa4a8f2673f6462fcd3280968e4f6a12',
-      suiRelayerPackageId:
         '0x57f4e0ba41a7045e29d435bc66cc4175f381eb700e6ec16d4fdfe92e5a4dff9f',
+      suiRelayerPackageId:
+        '0x38035f4c1e1772d43a3535535ea5b29c1c3ab2c0026d4ad639969831bd1d174d',
       suiOriginalTokenBridgePackageId:
         '0x26efee2b51c911237888e5dc6702868abca3c7ac12c53f76ef8eba0697695e3d',
     },
