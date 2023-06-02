@@ -4,6 +4,8 @@ Integration does not get easier than this. Wormhole Connect is an easy seamless 
 
 ## Integrate with script/link tags
 
+> IMPORTANT! For the best performance and functionality, you should provide your own custom rpc endpoints for each supported network.
+
 ### 1. (Optional) Create a JSON config with customized values:
 
 ```ts

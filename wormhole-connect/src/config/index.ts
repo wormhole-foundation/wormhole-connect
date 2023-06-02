@@ -18,13 +18,14 @@ import {
   MainnetChainName,
   TestnetChainName,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { validateDefaults } from './utils';
+import { validateDefaults, validateRpcs } from './utils';
 
 const el = document.getElementById('wormhole-connect');
 if (!el)
   throw new Error('must specify an anchor element with id wormhole-connect');
 const configJson = el.getAttribute('config');
 export const config: WormholeConnectConfig | null = JSON.parse(configJson!);
+validateRpcs();
 
 export const isMainnet = config && config.env === 'mainnet';
 export const CONFIG = isMainnet ? CONF.MAINNET : CONF.TESTNET;

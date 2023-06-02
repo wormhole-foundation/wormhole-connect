@@ -1,8 +1,28 @@
+import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { CHAINS, TOKENS } from '.';
 import { BridgeDefaults } from './types';
+import { config } from '.';
 
 const error = (msg: string) => {
   console.error(`Wormhole Connect:\n${msg}`);
+};
+
+export const validateRpcs = () => {
+  console.log(config);
+  if (!config || !config.rpcs) {
+    error(
+      `WARNING! No custom rpcs provided. It is strongly recommended that you provide your own rpcs for the best performance and functionality`,
+    );
+    return;
+  }
+  const networks = config.networks || (Object.keys(CHAINS) as ChainName[]);
+  for (let network of networks) {
+    if (!config.rpcs[network]) {
+      error(
+        `WARNING! No custom rpc provided for ${network}. It is strongly recommended that you provide your own rpcs for the best performance and functionality`,
+      );
+    }
+  }
 };
 
 export const validateDefaults = (defaults: BridgeDefaults | undefined) => {
