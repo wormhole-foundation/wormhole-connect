@@ -8,7 +8,6 @@ const error = (msg: string) => {
 };
 
 export const validateRpcs = () => {
-  console.log(config);
   if (!config || !config.rpcs) {
     error(
       `WARNING! No custom rpcs provided. It is strongly recommended that you provide your own rpcs for the best performance and functionality`,
