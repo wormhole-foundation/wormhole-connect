@@ -5,7 +5,12 @@ import {
 } from '@certusone/wormhole-sdk';
 import { CosmWasmClient } from '@cosmjs/cosmwasm-stargate';
 import { EncodeObject, decodeTxRaw } from '@cosmjs/proto-signing';
-import { StdFee, calculateFee, logs as cosmosLogs } from '@cosmjs/stargate';
+import {
+  Coin,
+  StdFee,
+  calculateFee,
+  logs as cosmosLogs,
+} from '@cosmjs/stargate';
 import base58 from 'bs58';
 import { MsgExecuteContract } from 'cosmjs-types/cosmwasm/wasm/v1/tx';
 import { BigNumber, BigNumberish } from 'ethers';
@@ -15,6 +20,7 @@ import {
   hexlify,
   zeroPad,
   hexStripZeros,
+  keccak256,
 } from 'ethers/lib/utils';
 import {
   ChainId,
@@ -29,18 +35,62 @@ import { WormholeContext } from '../../wormhole';
 import { TokenBridgeAbstract } from '../abstracts/tokenBridge';
 import { SeiContracts } from './contracts';
 import { SolanaContext } from '../solana';
+import axios from 'axios';
+import { stripHexPrefix } from '../../utils';
 
 interface WrappedRegistryResponse {
   address: string;
 }
 
-const MSG_EXECUTE_CONTRACT_TYPE_URL = '/cosmwasm.wasm.v1.MsgExecuteContract';
+interface QueryExternalIdResponse {
+  token_id: {
+    Bank?: {
+      denom: string;
+    };
+    Contract?: {
+      NativeCW20?: {
+        contract_address: string;
+      };
+      ForeignToken?: {
+        chain_id: number;
+        // base64 encoded address
+        foreign_address: string;
+      };
+    };
+  };
+}
+
+export interface CosmosAssetInfo {
+  // The asset is native to the chain
+  isNative: boolean;
+  // The asset is a native denomination and not a contract (e.g. CW20)
+  isDenom: boolean;
+  // The asset's address or denomination
+  address: string;
+}
 
 export interface SeiTransaction {
   fee: StdFee | 'auto' | 'number';
   msgs: EncodeObject[];
   memo: string;
 }
+
+const MSG_EXECUTE_CONTRACT_TYPE_URL = '/cosmwasm.wasm.v1.MsgExecuteContract';
+
+const buildExecuteMsg = (
+  sender: string,
+  contract: string,
+  msg: Record<string, any>,
+  funds?: Coin[],
+): EncodeObject => ({
+  typeUrl: MSG_EXECUTE_CONTRACT_TYPE_URL,
+  value: MsgExecuteContract.fromPartial({
+    sender: sender,
+    contract: contract,
+    msg: Buffer.from(JSON.stringify(msg)),
+    funds,
+  }),
+});
 
 /**
  * Implements token bridge transfers to and from Sei
@@ -124,35 +174,37 @@ export class SeiContext<
       token,
       sendingChain,
     );
-    const denom = this.CW20AddressToFactory(
-      token.address === this.NATIVE_DENOM,
-      wrappedAssetAddress,
-    );
 
-    const msgs = [
-      {
-        typeUrl: MSG_EXECUTE_CONTRACT_TYPE_URL,
-        value: MsgExecuteContract.fromPartial({
-          sender: senderAddress,
-          contract: this.getTranslatorAddress(),
-          msg: Buffer.from(
-            JSON.stringify({
-              convert_and_transfer: {
-                recipient_chain: targetChain,
-                recipient: targetAddress,
-                fee: relayerFee,
-              },
-            }),
-          ),
-          funds: [
-            {
-              denom,
-              amount,
-            },
-          ],
-        }),
-      },
-    ];
+    const isNative = token.address === this.NATIVE_DENOM;
+
+    let msgs = [];
+    if (isNative) {
+      msgs = this.createInitiateNativeTransferMessages(
+        senderAddress,
+        targetChain,
+        targetAddress,
+        relayerFee,
+        amount,
+      );
+    } else {
+      const isTranslated = await this.isTranslatedToken(wrappedAssetAddress);
+      msgs = isTranslated
+        ? this.createConvertAndTransferMessage(
+            senderAddress,
+            targetChain,
+            targetAddress,
+            relayerFee,
+            { denom: this.CW20AddressToFactory(wrappedAssetAddress), amount },
+          )
+        : this.createInitiateTokenTransferMessages(
+            senderAddress,
+            targetChain,
+            targetAddress,
+            relayerFee,
+            wrappedAssetAddress,
+            amount,
+          );
+    }
 
     // TODO: find a way to simulate
     const fee = calculateFee(1000000, '0.1usei');
@@ -164,11 +216,129 @@ export class SeiContext<
     };
   }
 
+  /**
+   * @param tokenAddress The cw20 token address
+   * @returns Whether there exists a native denomination created by the translator contract for the given token
+   */
+  async isTranslatedToken(tokenAddress: string): Promise<boolean> {
+    if (!this.context.conf.rest.sei) throw new Error('Sei rest not configured');
+    const resp = await axios.get(
+      `${new URL(
+        this.context.conf.rest.sei,
+      )}sei-protocol/seichain/tokenfactory/denoms_from_creator/${this.getTranslatorAddress()}`,
+    );
+    const denoms: string[] = resp.data.denoms || [];
+    const encoded = this.CW20AddressToFactory(tokenAddress);
+    return !!denoms.find((d) => d === encoded);
+  }
+
+  private createInitiateNativeTransferMessages(
+    senderAddress: string,
+    targetChain: ChainId,
+    targetAddress: string,
+    relayerFee: string,
+    amount: string,
+  ): EncodeObject[] {
+    const tokenBridge = this.getTokenBridgeAddress();
+
+    const nonce = Math.round(Math.random() * 100000);
+
+    return [
+      buildExecuteMsg(
+        senderAddress,
+        tokenBridge,
+        {
+          deposit_tokens: {},
+        },
+        [{ denom: this.NATIVE_DENOM, amount }],
+      ),
+      buildExecuteMsg(senderAddress, tokenBridge, {
+        initiate_transfer: {
+          asset: {
+            amount,
+            info: { native_token: { denom: this.NATIVE_DENOM } },
+          },
+          recipient_chain: targetChain,
+          recipient: targetAddress,
+          fee: relayerFee,
+          nonce,
+        },
+      }),
+    ];
+  }
+
+  private createInitiateTokenTransferMessages(
+    senderAddress: string,
+    targetChain: ChainId,
+    targetAddress: string,
+    relayerFee: string,
+    tokenAddress: string,
+    amount: string,
+  ): EncodeObject[] {
+    const tokenBridge = this.getTokenBridgeAddress();
+
+    const nonce = Math.round(Math.random() * 1000000);
+
+    return [
+      buildExecuteMsg(senderAddress, tokenAddress, {
+        increase_allowance: {
+          spender: tokenBridge,
+          amount,
+          expires: {
+            never: {},
+          },
+        },
+      }),
+      buildExecuteMsg(senderAddress, tokenBridge, {
+        initiate_transfer: {
+          asset: {
+            amount,
+            info: { token: { contract_addr: tokenAddress } },
+          },
+          recipient_chain: targetChain,
+          recipient: targetAddress,
+          fee: relayerFee,
+          nonce,
+        },
+      }),
+    ];
+  }
+
+  private createConvertAndTransferMessage(
+    senderAddress: string,
+    targetChain: ChainId,
+    targetAddress: string,
+    relayerFee: string,
+    coin: Coin,
+  ): EncodeObject[] {
+    return [
+      buildExecuteMsg(
+        senderAddress,
+        this.getTranslatorAddress(),
+        {
+          convert_and_transfer: {
+            recipient_chain: targetChain,
+            recipient: targetAddress,
+            fee: relayerFee,
+          },
+        },
+        [coin],
+      ),
+    ];
+  }
+
   getTranslatorAddress(): string {
     const { seiTokenTranslator: translatorAddress } =
       this.contracts.mustGetContracts('sei');
     if (!translatorAddress) throw new Error('no translator address found');
     return translatorAddress;
+  }
+
+  getTokenBridgeAddress(): string {
+    const { token_bridge: tokenBridge } =
+      this.contracts.mustGetContracts('sei');
+    if (!tokenBridge) throw new Error('no token bridge found');
+    return tokenBridge;
   }
 
   parseRelayerPayload(payload: Buffer): ParsedRelayerPayload {
@@ -222,13 +392,96 @@ export class SeiContext<
     return cosmos.humanAddress('sei', addr);
   }
 
-  async formatAssetAddress(denom: string): Promise<Uint8Array> {
-    const cw20Address = this.factoryToCW20(denom);
-    return cosmos.canonicalAddress(cw20Address);
+  /**
+   * @param addressOrDenom CW20 token address or bank denomination
+   * @returns The external address associated with the asset address
+   */
+  async formatAssetAddress(addressOrDenom: string): Promise<Uint8Array> {
+    if (addressOrDenom === this.NATIVE_DENOM) {
+      return Buffer.from(this.buildNativeId(), 'hex');
+    }
+
+    // TODO: I think this is not how the external id is calculated
+    // see getOriginalAsset for other cosmos chains in the sdk
+    const cw20Address = addressOrDenom.startsWith('factory')
+      ? this.factoryToCW20(addressOrDenom)
+      : addressOrDenom;
+    return zeroPad(cosmos.canonicalAddress(cw20Address), 32);
   }
 
-  async parseAssetAddress(cw20Address: any): Promise<string> {
-    return this.CW20AddressToFactory(false, cw20Address);
+  private buildNativeId(): string {
+    return (
+      '01' + keccak256(Buffer.from(this.NATIVE_DENOM, 'utf-8')).substring(4)
+    );
+  }
+
+  /**
+   * @param externalId The asset's external id
+   * @returns The asset's CW20 token address or the bank denomination associated with the external address
+   */
+  async parseAssetAddress(externalId: string): Promise<string> {
+    const info = await this.queryExternalId(externalId);
+
+    if (!info) throw new Error('Asset not found');
+
+    const { address, isDenom } = info;
+    if (isDenom) return address;
+
+    const isTranslated = await this.isTranslatedToken(address);
+    return isTranslated
+      ? this.CW20AddressToFactory(address)
+      : this.parseAddress(address);
+  }
+
+  /**
+   * @param externalId An external id representing an asset
+   * @returns Information about the asset including its address/denom and whether it is native to this chain
+   */
+  async queryExternalId(externalId: string): Promise<CosmosAssetInfo | null> {
+    const wasmClient = await this.getCosmWasmClient();
+    const { token_bridge: tokenBridgeAddress } =
+      await this.contracts.mustGetContracts(this.CHAIN);
+    if (!tokenBridgeAddress) throw new Error('Token bridge contract not found');
+
+    try {
+      const response: QueryExternalIdResponse =
+        await wasmClient.queryContractSmart(tokenBridgeAddress, {
+          external_id: {
+            external_id: Buffer.from(
+              stripHexPrefix(externalId),
+              'hex',
+            ).toString('base64'),
+          },
+        });
+
+      if (response.token_id.Bank) {
+        return {
+          isNative: true,
+          isDenom: true,
+          address: response.token_id.Bank.denom,
+        };
+      }
+
+      if (response.token_id.Contract?.NativeCW20) {
+        return {
+          isNative: true,
+          isDenom: false,
+          address: response.token_id.Contract.NativeCW20.contract_address,
+        };
+      }
+
+      if (response.token_id.Contract?.ForeignToken) {
+        return {
+          isNative: false,
+          isDenom: false,
+          address: response.token_id.Contract.ForeignToken.foreign_address,
+        };
+      }
+
+      return null;
+    } catch {
+      return null;
+    }
   }
 
   async getForeignAsset(
@@ -359,12 +612,7 @@ export class SeiContext<
     walletAddress: string,
     chain: ChainName | ChainId,
   ): Promise<BigNumber> {
-    const client = await this.getCosmWasmClient();
-    const { amount } = await client.getBalance(
-      walletAddress,
-      this.NATIVE_DENOM,
-    );
-    return BigNumber.from(amount);
+    return this.getDenomBalance(walletAddress, this.NATIVE_DENOM);
   }
 
   async getTokenBalance(
@@ -375,26 +623,38 @@ export class SeiContext<
     const assetAddress = await this.getForeignAsset(tokenId, chain);
     if (!assetAddress) return null;
 
-    const denom = this.CW20AddressToFactory(
-      tokenId.address === this.NATIVE_DENOM,
-      assetAddress,
-    );
+    if (assetAddress === this.NATIVE_DENOM) {
+      return this.getNativeBalance(walletAddress, chain);
+    }
+
+    const isTranslated = await this.isTranslatedToken(assetAddress);
+    if (isTranslated) {
+      return this.getDenomBalance(walletAddress, this.CW20AddressToFactory(assetAddress))
+    }
 
     const client = await this.getCosmWasmClient();
-    const { amount } = await client.getBalance(walletAddress, denom);
+    const { balance } = await client.queryContractSmart(assetAddress, {
+      balance: { address: walletAddress }
+    });
+    return BigNumber.from(balance);
+  }
+
+  async getDenomBalance(walletAddress: string, denom: string): Promise<BigNumber> {
+    const client = await this.getCosmWasmClient();
+    const { amount } = await client.getBalance(
+      walletAddress,
+      denom,
+    );
     return BigNumber.from(amount);
   }
 
-  private CW20AddressToFactory(isNative: boolean, address: string): string {
-    let denom = this.NATIVE_DENOM;
-    if (!isNative) {
-      const encodedAddress = base58.encode(cosmos.canonicalAddress(address));
-      denom = `factory/${this.getTranslatorAddress()}/${encodedAddress}`;
-    }
-    return denom;
+  private CW20AddressToFactory(address: string): string {
+    const encodedAddress = base58.encode(cosmos.canonicalAddress(address));
+    return `factory/${this.getTranslatorAddress()}/${encodedAddress}`;
   }
 
   private factoryToCW20(denom: string): string {
+    if (!denom.startsWith('factory/')) return '';
     const encoded = denom.split('/')[2];
     if (!encoded) return '';
     return cosmos.humanAddress('sei', base58.decode(encoded));
@@ -406,21 +666,36 @@ export class SeiContext<
     overrides: any,
     payerAddr?: any,
   ): Promise<SeiTransaction> {
-    const msgs = [
-      {
-        typeUrl: MSG_EXECUTE_CONTRACT_TYPE_URL,
-        value: MsgExecuteContract.fromPartial({
-          contract: this.getTranslatorAddress(),
-          msg: Buffer.from(
-            JSON.stringify({
-              complete_transfer_and_convert: {
-                vaa: base64.encode(signedVAA),
+    const vaa = parseVaa(signedVAA);
+    const transfer = parseTokenTransferPayload(vaa.payload);
+
+    // transfer to comes as a 32 byte array, but cosmos addresses are 20 bytes
+    const recipient = cosmos.humanAddress('sei', transfer.to.slice(12));
+
+    const msgs =
+      recipient === this.getTranslatorAddress()
+        ? [
+            buildExecuteMsg(
+              payerAddr || recipient,
+              this.getTranslatorAddress(),
+              {
+                complete_transfer_and_convert: {
+                  vaa: base64.encode(signedVAA),
+                },
               },
-            }),
-          ),
-        }),
-      },
-    ];
+            ),
+          ]
+        : [
+            buildExecuteMsg(
+              payerAddr || recipient,
+              this.getTokenBridgeAddress(),
+              {
+                submit_vaa: {
+                  data: base64.encode(signedVAA),
+                },
+              },
+            ),
+          ];
 
     const fee = calculateFee(1000000, '0.1usei');
 
@@ -492,6 +767,7 @@ export class SeiContext<
     tokenAddr: string,
     chain: ChainName | ChainId,
   ): Promise<number> {
+    if (tokenAddr === this.NATIVE_DENOM) return 6;
     const client = await this.getCosmWasmClient();
     const { decimals } = await client.queryContractSmart(tokenAddr, {
       token_info: {},

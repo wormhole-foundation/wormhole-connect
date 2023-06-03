@@ -160,6 +160,9 @@ const TESTNET_CONFIG: WormholeConfig = {
     aptos: 'https://fullnode.testnet.aptoslabs.com/v1',
     sei: 'https://rpc.atlantic-2.seinetwork.io',
   },
+  rest: {
+    sei: 'https://rest.atlantic-2.seinetwork.io',
+  },
   chains: TESTNET,
 };
 

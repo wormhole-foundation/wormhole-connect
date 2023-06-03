@@ -50,7 +50,7 @@ export abstract class TokenBridgeAbstract<TransactionResult> {
   protected abstract parseAddress(address: string | Uint8Array): string;
 
   protected abstract formatAssetAddress(address: string): Promise<Uint8Array>;
-  protected abstract parseAssetAddress(address: any): Promise<string>;
+  protected abstract parseAssetAddress(address: string): Promise<string>;
 
   protected abstract getForeignAsset(
     tokenId: TokenId,

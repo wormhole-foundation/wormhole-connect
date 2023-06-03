@@ -1,19 +1,45 @@
-import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
-import { WH_CONFIG } from '../config';
 import { Network } from '@certusone/wormhole-sdk';
+import {
+  ChainName,
+  SeiContext,
+  WormholeContext,
+} from '@wormhole-foundation/wormhole-connect-sdk';
+import { TokenConfig } from '../config/types';
+import { wh } from '../sdk';
+import { getWrappedTokenId } from '.';
 
-export function buildSeiPayload(
+interface SeiTranslatorTransferPayload {
+  receiver?: string;
+  payload?: Uint8Array;
+}
+
+export async function buildSeiPayload(
+  tokenConfig: TokenConfig,
   toNetwork: ChainName,
   recipient: string,
-): { receiver?: string; payload?: Uint8Array } {
+): Promise<SeiTranslatorTransferPayload> {
   if (toNetwork === 'sei') {
-    const translatorAddress =
-      WH_CONFIG.chains.sei?.contracts.seiTokenTranslator;
-    if (!translatorAddress)
-      throw new Error('Sei token translator not configured not found');
+    const ctx = wh.getContext(toNetwork) as SeiContext<WormholeContext>;
+    const token = getWrappedTokenId(tokenConfig);
+
+    // if translated -> through translator
+    // if originally native denom/cw20 -> through token bridge
+    if (token.address === 'usei') {
+      return {};
+    }
+
+    const representation = await ctx.getForeignAsset(token, toNetwork);
+
+    // not registered on sei
+    if (!representation) return {};
+
+    const isTranslated = await ctx.isTranslatedToken(representation);
+    if (!isTranslated) {
+      return {};
+    }
 
     return {
-      receiver: translatorAddress,
+      receiver: ctx.getTranslatorAddress(),
       payload: new Uint8Array(
         Buffer.from(
           JSON.stringify({

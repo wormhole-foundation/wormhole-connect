@@ -153,6 +153,9 @@ const MAINNET_CONFIG: WormholeConfig = {
     aptos: 'https://fullnode.mainnet.aptoslabs.com/v1',
     sei: '', // TODO: fill in
   },
+  rest: {
+    sei: '',
+  },
   chains: MAINNET,
 };
 

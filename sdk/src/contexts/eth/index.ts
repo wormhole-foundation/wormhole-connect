@@ -609,7 +609,7 @@ export class EthContext<
     return this.formatAddress(address);
   }
 
-  async parseAssetAddress(address: any): Promise<string> {
+  async parseAssetAddress(address: string): Promise<string> {
     return this.parseAddress(address);
   }
 

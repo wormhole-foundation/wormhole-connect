@@ -78,7 +78,7 @@ export class SuiContext<
     recipientChain: ChainName | ChainId,
     recipientAddress: string,
     relayerFee: any,
-    payload?: Uint8Array | undefined
+    payload?: Uint8Array | undefined,
   ): Promise<TransactionBlock> {
     const destContext = this.context.getContext(recipientChain);
     const recipientChainId = this.context.toChainId(recipientChain);
@@ -126,11 +126,10 @@ export class SuiContext<
       formattedRecipientAccount,
       BigInt(0), // TODO: wormhole fee
       relayerFeeBigInt,
-      payload
+      payload,
     );
     return tx;
   }
-
 
   async send(
     token: TokenId | typeof NATIVE,
@@ -169,7 +168,7 @@ export class SuiContext<
       recipientChain,
       recipientAddress,
       undefined,
-      payload
+      payload,
     );
   }
 

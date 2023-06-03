@@ -102,7 +102,11 @@ function Send(props: { valid: boolean }) {
       const tokenConfig = TOKENS[token]!;
       const sendToken = tokenConfig.tokenId;
 
-      const seiPayload = buildSeiPayload(toNetwork!, receiving.address);
+      const seiPayload = await buildSeiPayload(
+        tokenConfig,
+        toNetwork!,
+        receiving.address,
+      );
       let receiver = seiPayload.receiver || receiving.address;
       let payload: Uint8Array | undefined = seiPayload.payload;
 
@@ -218,7 +222,8 @@ function Send(props: { valid: boolean }) {
           show={
             showValidationState &&
             !!props.valid &&
-            destGasPayment === PaymentOption.MANUAL
+            destGasPayment === PaymentOption.MANUAL &&
+            toNetwork !== 'sei'
           }
           content="This transfer will require two transactions - one on the source chain and one on the destination chain."
           warning

@@ -71,6 +71,18 @@ conf.rpcs = Object.assign(
   isMainnet ? mainnetRpcs : testnetRpcs,
   config?.rpcs || {},
 );
+
+const mainnetRest = {
+  sei: process.env.REACT_APP_SEI_REST || conf.rest.sei,
+};
+const testnetRest = {
+  sei: process.env.REACT_APP_SEI_REST || conf.rest.sei,
+};
+conf.rest = Object.assign(
+  {},
+  isMainnet ? mainnetRest : testnetRest,
+  config?.rest || {},
+);
 export const WH_CONFIG = conf;
 
 export const CHAINS = isMainnet ? MAINNET_NETWORKS : TESTNET_NETWORKS;

@@ -32,7 +32,7 @@ export enum Context {
   OTHER = 'OTHER',
 }
 
-export type Rpcs = {
+export type ChainResourceMap = {
   [chain in ChainName]?: string;
 };
 
@@ -56,7 +56,8 @@ export type ChainConfig = {
 
 export type WormholeConfig = {
   env: Environment;
-  rpcs: Rpcs;
+  rpcs: ChainResourceMap;
+  rest: ChainResourceMap;
   chains: {
     [chain in ChainName]?: ChainConfig;
   };
