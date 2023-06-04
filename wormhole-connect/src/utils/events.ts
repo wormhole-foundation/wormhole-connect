@@ -11,7 +11,7 @@ import { fromNormalizedDecimals } from '.';
 import { CHAINS } from '../config';
 import { arrayify } from 'ethers/lib/utils.js';
 import { fetchGlobalTx, getEmitterAndSequence } from './vaa';
-import { isEVMChain } from '@certusone/wormhole-sdk';
+import { isEvmChain } from '../sdk';
 
 export const fetchRedeemTx = async (
   txData: ParsedMessage | ParsedRelayerMessage,
@@ -132,7 +132,7 @@ export const fetchSwapEvent = async (
       }
     }
     return null;
-  } else if (isEVMChain(wh.toChainId(txData.toChain))) {
+  } else if (isEvmChain(wh.toChainId(txData.toChain))) {
     const provider = wh.mustGetProvider(txData.toChain);
     const context: any = wh.getContext(txData.toChain);
     const chainName = wh.toChainName(txData.toChain) as ChainName;

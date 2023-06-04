@@ -32,6 +32,7 @@ export interface ParsedMessage {
   fromChain: ChainName;
   tokenAddress: string;
   tokenChain: ChainName;
+  tokenId: TokenId;
   tokenKey: string;
   tokenDecimals: number;
   emitterAddress: string;
@@ -39,7 +40,6 @@ export interface ParsedMessage {
   block: number;
   gasFee?: string;
   payload?: string;
-  tokenId: TokenId;
 }
 
 export interface ParsedRelayerMessage extends ParsedMessage {
