@@ -17,18 +17,19 @@ export const fetchRedeemTx = async (
   let transactionHash: string | undefined;
   try {
     transactionHash = await fetchGlobalTx(txData);
-  } catch (_) {
-    // continue to fallback
-    if (txData.payloadID === PaymentOption.AUTOMATIC) {
+  } catch {}
+  // if this is an automatic transfer and the transaction hash was not found,
+  // then try to fetch the redeemed event
+  if (!transactionHash && txData.payloadID === PaymentOption.AUTOMATIC) {
+    try {
       const res = await fetchRedeemedEvent(txData);
       transactionHash = res?.transactionHash;
-    }
-  } finally {
-    if (transactionHash) {
-      return { transactionHash };
-    }
-    return null;
+    } catch {}
   }
+  if (transactionHash) {
+    return { transactionHash };
+  }
+  return null;
 };
 
 export const fetchRedeemedEvent = async (
