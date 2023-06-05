@@ -179,7 +179,7 @@ const getGasFeeFallback = async (
 
   // Aptos gas estimates
   if (fromChainId === MAINNET_CHAINS.aptos) {
-    if (paymentOption === PaymentOption.MANUAL) {
+    if (route === Route.BRIDGE) {
       const aptosClient = (
         context.getContext(fromChainId) as AptosContext<WormholeContext>
       ).aptosClient as AptosClient;
