@@ -22,19 +22,9 @@ export async function buildSeiPayload(
     const ctx = wh.getContext(toNetwork) as SeiContext<WormholeContext>;
     const token = getWrappedTokenId(tokenConfig);
 
-    // if translated -> through translator
-    // if originally native denom/cw20 -> through token bridge
-    if (token.address === 'usei') {
-      return {};
-    }
-
-    const representation = await ctx.getForeignAsset(token, toNetwork);
-
-    // not registered on sei
-    if (!representation) return {};
-
-    const isTranslated = await ctx.isTranslatedToken(representation);
-    if (!isTranslated) {
+    // if the token is originally from sei (e.g. native denom or cw20 token)
+    // then it has to go through the token bridge and not the translator contract
+    if (token.chain === 'sei') {
       return {};
     }
 
