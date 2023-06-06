@@ -7,21 +7,27 @@ const error = (msg: string) => {
   console.error(`Wormhole Connect:\n${msg}`);
 };
 
-export const validateRpcs = () => {
-  if (!config || !config.rpcs) {
+export const validateResourceMap = (field: 'rpcs' | 'rest') => {
+  if (!config || !config[field]) {
     error(
-      `WARNING! No custom rpcs provided. It is strongly recommended that you provide your own rpcs for the best performance and functionality`,
+      `WARNING! No custom ${field} provided. It is strongly recommended that you provide your own ${field} for the best performance and functionality`,
     );
     return;
   }
+  const resourceMap = config[field]!;
   const networks = config.networks || (Object.keys(CHAINS) as ChainName[]);
   for (let network of networks) {
-    if (!config.rpcs[network]) {
+    if (!resourceMap[network]) {
       error(
-        `WARNING! No custom rpc provided for ${network}. It is strongly recommended that you provide your own rpcs for the best performance and functionality`,
+        `WARNING! No custom ${field} provided for ${network}. It is strongly recommended that you provide your own ${field} for the best performance and functionality`,
       );
     }
   }
+};
+
+export const validateChainResources = () => {
+  validateResourceMap('rpcs');
+  validateResourceMap('rest');
 };
 
 export const validateDefaults = (defaults: BridgeDefaults | undefined) => {

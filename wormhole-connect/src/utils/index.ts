@@ -156,7 +156,7 @@ export function copyTextToClipboard(text: string) {
   return fallbackCopyTextToClipboard(text);
 }
 
-export function hexPreffix(hex: string) {
+export function hexPrefix(hex: string) {
   return hex.startsWith('0x') ? hex : `0x${hex}`;
 }
 
@@ -164,7 +164,7 @@ export function isValidTxId(chain: string, tx: string) {
   if (chain === 'sui') {
     return isValidTransactionDigest(tx);
   } else if (chain === 'sei') {
-    return isHexString(hexPreffix(tx), 32);
+    return isHexString(hexPrefix(tx), 32);
   } else {
     if (tx.startsWith('0x') && tx.length === 66) return true;
     return tx.length > 70 && tx.length < 100;

@@ -1,5 +1,10 @@
 import {
+  CHAIN_ID_SEI,
+  WormholeWrappedInfo,
+  buildTokenId,
   cosmos,
+  hexToUint8Array,
+  isNativeCosmWasmDenom,
   parseTokenTransferPayload,
   parseVaa,
 } from '@certusone/wormhole-sdk';
@@ -482,6 +487,37 @@ export class SeiContext<
     } catch {
       return null;
     }
+  }
+
+  async getOriginalAssetSei(
+    wrappedAddress: string
+  ): Promise<WormholeWrappedInfo> {
+    const chainId = CHAIN_ID_SEI;
+    if (isNativeCosmWasmDenom(chainId, wrappedAddress)) {
+      return {
+        isWrapped: false,
+        chainId,
+        assetAddress: hexToUint8Array(buildTokenId(chainId, wrappedAddress)),
+      };
+    }
+    try {
+      const client = await this.getCosmWasmClient();
+      const response = await client.queryContractSmart(wrappedAddress, {
+        wrapped_asset_info: {},
+      });
+      return {
+        isWrapped: true,
+        chainId: response.asset_chain,
+        assetAddress: new Uint8Array(
+          Buffer.from(response.asset_address, "base64")
+        ),
+      };
+    } catch {}
+    return {
+      isWrapped: false,
+      chainId: chainId,
+      assetAddress: hexToUint8Array(buildTokenId(chainId, wrappedAddress)),
+    };
   }
 
   async getForeignAsset(

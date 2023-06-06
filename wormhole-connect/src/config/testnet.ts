@@ -171,8 +171,8 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#2774CA',
     decimals: 6,
     solDecimals: 6,
-    suiDecimals: 8,
-    aptosDecimals: 8,
+    suiDecimals: 6,
+    aptosDecimals: 6,
     seiDecimals: 6,
   },
   MATIC: {

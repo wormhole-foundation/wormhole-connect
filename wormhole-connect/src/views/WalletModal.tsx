@@ -159,13 +159,6 @@ const getWalletOptions = async (
   return [];
 };
 
-const getWalletChainText = (context: Context) => {
-  if (context === Context.SOLANA) return 'Solana';
-  if (context === Context.SUI) return 'Sui';
-  if (context === Context.APTOS) return 'Aptos';
-  return 'EVM';
-};
-
 type Props = {
   type: TransferWallet;
   chain?: ChainName;
