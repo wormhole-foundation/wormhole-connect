@@ -16,7 +16,6 @@ import { RootState } from '../../store';
 import { setRoute } from '../../store/router';
 import { setTxDetails, setSendTx } from '../../store/redeem';
 import { displayWalletAddress } from '../../utils';
-import { buildSeiPayload } from '../../utils/sei';
 import {
   registerWalletSigner,
   switchNetwork,
@@ -102,24 +101,15 @@ function Send(props: { valid: boolean }) {
       const tokenConfig = TOKENS[token]!;
       const sendToken = tokenConfig.tokenId;
 
-      const seiPayload = await buildSeiPayload(
-        tokenConfig,
-        toNetwork!,
-        receiving.address,
-      );
-      let receiver = seiPayload.receiver || receiving.address;
-      let payload: Uint8Array | undefined = seiPayload.payload;
-
       const txId = await sendTransfer(
         sendToken || 'native',
         `${amount}`,
         fromNetwork!,
         sending.address,
         toNetwork!,
-        receiver,
+        receiving.address,
         destGasPayment,
         `${toNativeToken}`,
-        payload,
       );
 
       let message;

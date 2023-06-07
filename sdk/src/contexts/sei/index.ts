@@ -80,6 +80,11 @@ export interface SeiTransaction {
   memo: string;
 }
 
+interface SeiTranslatorTransferPayload {
+  receiver?: string;
+  payload?: Uint8Array;
+}
+
 const MSG_EXECUTE_CONTRACT_TYPE_URL = '/cosmwasm.wasm.v1.MsgExecuteContract';
 
 const buildExecuteMsg = (
@@ -417,6 +422,39 @@ export class SeiContext<
     return (
       '01' + keccak256(Buffer.from(this.NATIVE_DENOM, 'utf-8')).substring(4)
     );
+  }
+
+  /**
+   * Builds the information required to send the tokens through the translator
+   * contract relay process in order to receive a native denomination on the Sei chain
+   *
+   * @param token The token or native coin to send
+   * @param recipient The final recipient address
+   * @returns The receiver and payload necessary to send
+   * the tokens through the translator contract relay
+   */
+  async buildSendPayload(
+    token: TokenId | 'native',
+    recipient: string,
+  ): Promise<SeiTranslatorTransferPayload> {
+    // if the token is originally from sei (e.g. native denom or cw20 token)
+    // then it has to go through the token bridge and not the translator contract
+    if (token !== 'native' && token.chain === 'sei') {
+      return {};
+    }
+
+    return {
+      receiver: this.getTranslatorAddress(),
+      payload: new Uint8Array(
+        Buffer.from(
+          JSON.stringify({
+            basic_recipient: {
+              recipient: Buffer.from(recipient).toString('base64'),
+            },
+          }),
+        ),
+      ),
+    };
   }
 
   /**

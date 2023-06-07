@@ -205,9 +205,18 @@ export class WormholeContext extends MultiProvider<Domain> {
     recipientChain: ChainName | ChainId,
     recipientAddress: string,
     relayerFee?: string,
-    payload?: any,
+    payload?: Uint8Array,
   ): Promise<SendResult> {
     const context = this.getContext(sendingChain);
+
+    if (!payload && recipientChain === 'sei') {
+      const { payload: seiPayload, receiver } = await (
+        this.getContext('sei') as SeiContext<WormholeContext>
+      ).buildSendPayload(token, recipientAddress);
+      recipientAddress = receiver || recipientAddress;
+      payload = seiPayload || payload;
+    }
+
     if (payload) {
       return context.sendWithPayload(
         token,
