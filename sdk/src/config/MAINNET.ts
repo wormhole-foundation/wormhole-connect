@@ -129,8 +129,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     context: Context.SEI,
     contracts: {
       ...CONTRACTS.MAINNET.sei,
-      seiTokenTranslator:
-        '',
+      seiTokenTranslator: '',
     },
     finalityThreshold: 0,
   },

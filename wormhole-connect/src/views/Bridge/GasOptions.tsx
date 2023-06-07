@@ -141,7 +141,7 @@ const getOptions = (
 ): OptionConfig[] => {
   const manual = manualOption(source, dest, gasEst);
 
-  // Sei only allows automatic payments throught the translator contract for now
+  // Sei only allows automatic payments through the translator contract for now
   // however, it does not follow the usual flow due to its different relayer contract
   // it uses a normal sendWithPayload and defines a custom payload structure
   if (dest.id === CHAIN_ID_SEI)

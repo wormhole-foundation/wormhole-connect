@@ -311,6 +311,6 @@ export class AptosContext<
   }
 
   async getCurrentBlock(): Promise<number> {
-    throw new Error('Aptos getCurrentBlock not implemented')
+    throw new Error('Aptos getCurrentBlock not implemented');
   }
 }

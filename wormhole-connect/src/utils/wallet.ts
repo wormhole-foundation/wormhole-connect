@@ -4,7 +4,7 @@ import {
   ChainName,
   Context,
   WormholeContext,
-  SendResult
+  SendResult,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { postVaaSolanaWithRetry } from '@certusone/wormhole-sdk';
 import { NotSupported, Wallet } from '@xlabs-libs/wallet-aggregator-core';

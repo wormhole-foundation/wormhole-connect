@@ -70,7 +70,9 @@ export const fetchRedeemedEvent = async (
     }
     return null;
   } else if (txData.toChain === 'sei') {
-    const context = wh.getContext(txData.toChain) as SeiContext<WormholeContext>;
+    const context = wh.getContext(
+      txData.toChain,
+    ) as SeiContext<WormholeContext>;
     const transactionHash = await context.fetchRedeemedEvent(
       emitterChain,
       emitter,

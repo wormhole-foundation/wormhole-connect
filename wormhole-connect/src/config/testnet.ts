@@ -111,7 +111,7 @@ export const TESTNET_NETWORKS: NetworksConfig = {
     gasToken: 'APT',
     chainId: 0,
     icon: Icon.APT,
-    maxBlockSearch: 0
+    maxBlockSearch: 0,
   },
   sei: {
     ...chains.sei!,

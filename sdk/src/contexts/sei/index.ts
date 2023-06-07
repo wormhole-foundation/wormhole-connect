@@ -120,15 +120,14 @@ const buildExecuteMsg = (
  * amount of the native denomination created through the tokenfactory module.
  * In order to transfer the tokens out of Sei, the user can then use the
  * `convert_and_transfer` message of the token translator contract, which will burn
- * the native denominationand send the locked CW20 tokens through the usual bridge process
+ * the native denomination and send the locked CW20 tokens through the usual bridge process
  * The contract also offers a message that allows burning the native denomination
  * and receive the CW20 tokens back on a sei account, without going through
  * the bridging process, but such message is not implemented on WH Connect.
  *
  * A mayor drawback of this implementation is that the translator contract does not support
- * transfering out the native SEI and CW20 tokens that were not bridged through
- * Wormhole's token bridge. Although it is possible to do so through the
- * traditional token bridge workflow, it is yet to be implemented.
+ * transferring native Sei assets (usei denom or cw20 tokens) in or out. For these cases,
+ * the traditional token bridge process is used
  */
 export class SeiContext<
   T extends WormholeContext,
@@ -490,7 +489,7 @@ export class SeiContext<
   }
 
   async getOriginalAssetSei(
-    wrappedAddress: string
+    wrappedAddress: string,
   ): Promise<WormholeWrappedInfo> {
     const chainId = CHAIN_ID_SEI;
     if (isNativeCosmWasmDenom(chainId, wrappedAddress)) {
@@ -509,7 +508,7 @@ export class SeiContext<
         isWrapped: true,
         chainId: response.asset_chain,
         assetAddress: new Uint8Array(
-          Buffer.from(response.asset_address, "base64")
+          Buffer.from(response.asset_address, 'base64'),
         ),
       };
     } catch {}
@@ -665,22 +664,25 @@ export class SeiContext<
 
     const isTranslated = await this.isTranslatedToken(assetAddress);
     if (isTranslated) {
-      return this.getDenomBalance(walletAddress, this.CW20AddressToFactory(assetAddress))
+      return this.getDenomBalance(
+        walletAddress,
+        this.CW20AddressToFactory(assetAddress),
+      );
     }
 
     const client = await this.getCosmWasmClient();
     const { balance } = await client.queryContractSmart(assetAddress, {
-      balance: { address: walletAddress }
+      balance: { address: walletAddress },
     });
     return BigNumber.from(balance);
   }
 
-  async getDenomBalance(walletAddress: string, denom: string): Promise<BigNumber> {
+  async getDenomBalance(
+    walletAddress: string,
+    denom: string,
+  ): Promise<BigNumber> {
     const client = await this.getCosmWasmClient();
-    const { amount } = await client.getBalance(
-      walletAddress,
-      denom,
-    );
+    const { amount } = await client.getBalance(walletAddress, denom);
     return BigNumber.from(amount);
   }
 
