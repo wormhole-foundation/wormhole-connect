@@ -6,7 +6,7 @@ import {
   WormholeContext,
   SendResult,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { postVaaSolanaWithRetry } from '@certusone/wormhole-sdk';
+import { CHAIN_ID_SEI, postVaaSolanaWithRetry } from '@certusone/wormhole-sdk';
 import { NotSupported, Wallet } from '@xlabs-libs/wallet-aggregator-core';
 import {
   EVMWallet,
@@ -307,4 +307,14 @@ export const postVaa = async (
     Buffer.from(signedVAA),
     MAX_VAA_UPLOAD_RETRIES_SOLANA,
   );
+};
+
+export const simulateSeiTransaction = async (
+  transaction: SeiTransaction,
+  walletType: TransferWallet,
+) => {
+  const wallet = walletConnection[walletType] as SeiWallet;
+  if (wallet?.getChainId() !== CHAIN_ID_SEI)
+    throw new Error('Wallet is not for Sei chain');
+  return wallet.calculateFee(transaction);
 };

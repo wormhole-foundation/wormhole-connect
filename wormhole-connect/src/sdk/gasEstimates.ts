@@ -18,6 +18,7 @@ import {
 } from '@mysten/sui.js';
 import { getMinAmount } from 'utils/transferValidation';
 import { AptosClient } from 'aptos';
+import { TransferWallet, simulateSeiTransaction } from '../utils/wallet';
 
 const simulateRelayAmount = (
   paymentOption: PaymentOption,
@@ -70,7 +71,19 @@ const estimateGasFee = async (
   }
 
   if (fromChainId === MAINNET_CHAINS.sei) {
-    return toFixedDecimals(utils.formatUnits(gasEstimates.sendToken, 6), 6);
+    const tx = await chainContext.send(
+      token,
+      parsedAmt.toString(),
+      fromNetwork,
+      fromAddress,
+      toNetwork,
+      toAddress,
+      undefined,
+    );
+    // the cosmos client requires a signer (i.e. a wallet) for transaction simulation
+    // so we must rely on the wallet to estimate the gas fee
+    const estimate = await simulateSeiTransaction(tx, TransferWallet.SENDING);
+    return toFixedDecimals(utils.formatUnits(estimate, 6), 6);
   }
 
   // Sui gas estimates
@@ -201,7 +214,7 @@ const getGasFeeFallback = async (
 
   // TODO: look into cosmosdk/sei tx fees simulation/estimation
   if (fromChainId === MAINNET_CHAINS.sei) {
-    return '0';
+    return toFixedDecimals(utils.formatUnits(gasEstimates.sendToken, 6), 6);
   }
 
   // EVM gas estimates
