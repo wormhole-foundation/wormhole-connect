@@ -25,7 +25,6 @@ if (!el)
   throw new Error('must specify an anchor element with id wormhole-connect');
 const configJson = el.getAttribute('config');
 export const config: WormholeConnectConfig | null = JSON.parse(configJson!);
-validateChainResources();
 
 export const isMainnet = config && config.env === 'mainnet';
 export const CONFIG = isMainnet ? CONF.MAINNET : CONF.TESTNET;
@@ -38,6 +37,20 @@ export const WORMHOLE_API = isMainnet
 export const ATTEST_URL = isMainnet
   ? 'https://www.portalbridge.com/#/register'
   : 'https://wormhole-foundation.github.io/example-token-bridge-ui/#/register';
+
+export const CHAINS = isMainnet ? MAINNET_NETWORKS : TESTNET_NETWORKS;
+export const CHAINS_ARR =
+  config && config.networks
+    ? Object.values(CHAINS).filter((c) => config.networks!.includes(c.key))
+    : (Object.values(CHAINS) as NetworkConfig[]);
+
+export const TOKENS = isMainnet ? MAINNET_TOKENS : TESTNET_TOKENS;
+export const TOKENS_ARR =
+  config && config.tokens
+    ? Object.values(TOKENS).filter((c) => config.tokens!.includes(c.key))
+    : (Object.values(TOKENS) as TokenConfig[]);
+
+validateChainResources();
 
 const conf = WormholeContext.getConfig(CONFIG.env);
 const mainnetRpcs = {
@@ -84,18 +97,6 @@ conf.rest = Object.assign(
   config?.rest || {},
 );
 export const WH_CONFIG = conf;
-
-export const CHAINS = isMainnet ? MAINNET_NETWORKS : TESTNET_NETWORKS;
-export const CHAINS_ARR =
-  config && config.networks
-    ? Object.values(CHAINS).filter((c) => config.networks!.includes(c.key))
-    : (Object.values(CHAINS) as NetworkConfig[]);
-
-export const TOKENS = isMainnet ? MAINNET_TOKENS : TESTNET_TOKENS;
-export const TOKENS_ARR =
-  config && config.tokens
-    ? Object.values(TOKENS).filter((c) => config.tokens!.includes(c.key))
-    : (Object.values(TOKENS) as TokenConfig[]);
 
 export const GAS_ESTIMATES = isMainnet
   ? MAINNET_GAS_ESTIMATES
