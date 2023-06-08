@@ -12,6 +12,7 @@ import { CosmWasmClient } from '@cosmjs/cosmwasm-stargate';
 import { EncodeObject, decodeTxRaw } from '@cosmjs/proto-signing';
 import {
   Coin,
+  SearchTxFilter,
   StdFee,
   calculateFee,
   logs as cosmosLogs,
@@ -144,6 +145,7 @@ export class SeiContext<
 
   private readonly NATIVE_DENOM = 'usei';
   private readonly CHAIN = 'sei';
+  private readonly REDEEM_EVENT_DEFAULT_MAX_BLOCKS = 2000;
 
   constructor(private readonly context: T) {
     super();
@@ -787,19 +789,56 @@ export class SeiContext<
     emitterAddress: string,
     sequence: string,
   ) {
+    // search a max of blocks backwards, amplify the search only if nothing was found
+    let res = await this.fetchRedeemedEventInner(
+      emitterChainId,
+      emitterAddress,
+      sequence,
+      this.REDEEM_EVENT_DEFAULT_MAX_BLOCKS,
+    );
+
+    if (!res) {
+      res = await this.fetchRedeemedEventInner(
+        emitterChainId,
+        emitterAddress,
+        sequence,
+      );
+    }
+
+    return res;
+  }
+
+  private async fetchRedeemedEventInner(
+    emitterChainId: ChainId,
+    emitterAddress: string,
+    sequence: string,
+    maxBlocks?: number,
+  ) {
     const client = await this.getCosmWasmClient();
+
+    let filters: SearchTxFilter | undefined = undefined;
+    if (maxBlocks) {
+      const height = await client.getHeight();
+      filters = {
+        minHeight: height - maxBlocks,
+        maxHeight: height,
+      };
+    }
 
     // there is no direct way to find the transaction through the chain/emitter/sequence identificator
     // so we need to search for all the transactions that completed a transfer
     // and pick out the one which has a VAA parameter that matches the chain/emitter/sequence we need
-    const txs = await client.searchTx({
-      tags: [
-        {
-          key: 'wasm.action',
-          value: 'complete_transfer_wrapped',
-        },
-      ],
-    });
+    const txs = await client.searchTx(
+      {
+        tags: [
+          {
+            key: 'wasm.action',
+            value: 'complete_transfer_wrapped',
+          },
+        ],
+      },
+      filters,
+    );
     for (const tx of txs) {
       const decoded = decodeTxRaw(tx.tx);
       for (const msg of decoded.body.messages) {
