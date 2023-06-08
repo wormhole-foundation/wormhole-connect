@@ -105,13 +105,8 @@ export function getTokenDecimals(
   const tokenConfig = getTokenById(tokenId);
   if (!tokenConfig) throw new Error('token config not found');
 
-  const decimals = tokenConfig.decimals[chainConfig.context];
-
-  if (!decimals)
-    throw new Error(
-      `no decimals configured for token ${tokenConfig.symbol} chain ${chain}`,
-    );
-  return decimals;
+  const decimals = tokenConfig.decimals;
+  return decimals[chainConfig.context] || decimals.default;
 }
 
 function fallbackCopyTextToClipboard(text: string) {

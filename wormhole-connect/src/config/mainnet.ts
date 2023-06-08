@@ -137,10 +137,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#62688F',
     decimals: {
       Ethereum: 18,
-      Solana: 8,
-      Sui: 8,
-      Aptos: 8,
-      Sei: 8,
+      default: 8,
     },
     wrappedAsset: 'WETH',
   },
@@ -157,10 +154,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#62688F',
     decimals: {
       Ethereum: 18,
-      Solana: 8,
-      Sui: 8,
-      Aptos: 8,
-      Sei: 8,
+      default: 8,
     },
   },
   USDCeth: {
@@ -175,11 +169,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     coinGeckoId: 'usd-coin',
     color: '#ffffff',
     decimals: {
-      Ethereum: 6,
-      Solana: 6,
-      Sui: 6,
-      Aptos: 6,
-      Sei: 6,
+      default: 6,
     },
   },
   WBTC: {
@@ -194,11 +184,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     coinGeckoId: 'wrapped-bitcoin',
     color: '#ffffff',
     decimals: {
-      Ethereum: 8,
-      Solana: 8,
-      Sui: 8,
-      Aptos: 8,
-      Sei: 8,
+      default: 8,
     },
   },
   USDT: {
@@ -213,11 +199,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     coinGeckoId: 'tether',
     color: '#ffffff',
     decimals: {
-      Ethereum: 6,
-      Solana: 6,
-      Sui: 6,
-      Aptos: 6,
-      Sei: 6,
+      default: 6,
     },
   },
   DAI: {
@@ -233,10 +215,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#FEFEFD',
     decimals: {
       Ethereum: 18,
-      Solana: 8,
-      Sui: 8,
-      Aptos: 8,
-      Sei: 8,
+      default: 8,
     },
   },
   BUSD: {
@@ -252,10 +231,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#F0B90B',
     decimals: {
       Ethereum: 18,
-      Solana: 8,
-      Sui: 8,
-      Aptos: 8,
-      Sei: 8,
+      default: 8,
     },
   },
   MATIC: {
@@ -267,10 +243,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#8247E5',
     decimals: {
       Ethereum: 18,
-      Solana: 8,
-      Sui: 8,
-      Aptos: 8,
-      Sei: 8,
+      default: 8,
     },
     wrappedAsset: 'WMATIC',
   },
@@ -287,10 +260,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#8247E5',
     decimals: {
       Ethereum: 18,
-      Solana: 8,
-      Sui: 8,
-      Aptos: 8,
-      Sei: 8,
+      default: 8,
     },
   },
   USDCpolygon: {
@@ -305,11 +275,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     coinGeckoId: 'usd-coin',
     color: '#2774CA',
     decimals: {
-      Ethereum: 6,
-      Solana: 6,
-      Sui: 6,
-      Aptos: 6,
-      Sei: 6,
+      default: 6,
     },
   },
   BNB: {
@@ -321,10 +287,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#F3BA30',
     decimals: {
       Ethereum: 18,
-      Solana: 8,
-      Sui: 8,
-      Aptos: 8,
-      Sei: 8,
+      default: 8,
     },
     wrappedAsset: 'WBNB',
   },
@@ -341,10 +304,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#F3BA30',
     decimals: {
       Ethereum: 18,
-      Solana: 8,
-      Sui: 8,
-      Aptos: 8,
-      Sei: 8,
+      default: 8,
     },
   },
   USDCbnb: {
@@ -360,10 +320,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#2774CA',
     decimals: {
       Ethereum: 18,
-      Solana: 8,
-      Sui: 8,
-      Aptos: 8,
-      Sei: 8,
+      default: 8,
     },
   },
   AVAX: {
@@ -375,10 +332,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#E84141',
     decimals: {
       Ethereum: 18,
-      Solana: 8,
-      Sui: 8,
-      Aptos: 8,
-      Sei: 8,
+      default: 8,
     },
     wrappedAsset: 'WAVAX',
   },
@@ -395,10 +349,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#E84141',
     decimals: {
       Ethereum: 18,
-      Solana: 8,
-      Sui: 8,
-      Aptos: 8,
-      Sei: 8,
+      default: 8,
     },
   },
   USDCavax: {
@@ -413,11 +364,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     coinGeckoId: 'usd-coin',
     color: '#2774CA',
     decimals: {
-      Ethereum: 6,
-      Solana: 6,
-      Sui: 6,
-      Aptos: 6,
-      Sei: 6,
+      default: 6,
     },
   },
   FTM: {
@@ -429,10 +376,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#12B4EC',
     decimals: {
       Ethereum: 18,
-      Solana: 8,
-      Sui: 8,
-      Aptos: 8,
-      Sei: 8,
+      default: 8,
     },
     wrappedAsset: 'WFTM',
   },
@@ -449,10 +393,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#12B4EC',
     decimals: {
       Ethereum: 18,
-      Solana: 8,
-      Sui: 8,
-      Aptos: 8,
-      Sei: 8,
+      default: 8,
     },
   },
   CELO: {
@@ -468,10 +409,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#35D07E',
     decimals: {
       Ethereum: 18,
-      Solana: 8,
-      Sui: 8,
-      Aptos: 8,
-      Sei: 8,
+      default: 8,
     },
   },
   GLMR: {
@@ -483,10 +421,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#e1147b',
     decimals: {
       Ethereum: 18,
-      Solana: 8,
-      Sui: 8,
-      Aptos: 8,
-      Sei: 8,
+      default: 8,
     },
     wrappedAsset: 'WGLMR',
   },
@@ -503,10 +438,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#e1147b',
     decimals: {
       Ethereum: 18,
-      Solana: 8,
-      Sui: 8,
-      Aptos: 8,
-      Sei: 8,
+      default: 8,
     },
   },
   SOL: {
@@ -519,9 +451,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: {
       Ethereum: 9,
       Solana: 9,
-      Sui: 8,
-      Aptos: 8,
-      Sei: 8,
+      default: 8,
     },
     wrappedAsset: 'WSOL',
   },
@@ -539,9 +469,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: {
       Ethereum: 9,
       Solana: 9,
-      Sui: 8,
-      Aptos: 8,
-      Sei: 8,
+      default: 8,
     },
   },
   USDCsol: {
@@ -556,11 +484,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     coinGeckoId: 'usd-coin',
     color: '#2774CA',
     decimals: {
-      Ethereum: 6,
-      Solana: 6,
-      Sui: 6,
-      Aptos: 6,
-      Sei: 6,
+      default: 6,
     },
   },
   SUI: {
@@ -576,10 +500,8 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#8457EF',
     decimals: {
       Ethereum: 9,
-      Solana: 8,
       Sui: 9,
-      Aptos: 8,
-      Sei: 8,
+      default: 8,
     },
   },
   APT: {
@@ -595,10 +517,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#8457EF',
     decimals: {
       Ethereum: 8,
-      Solana: 8,
-      Sui: 8,
-      Aptos: 8,
-      Sei: 8,
+      default: 8,
     },
   },
   // SEI: {
@@ -613,11 +532,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   //   coinGeckoId: 'sei',
   //   color: '#FFFFFF',
   //   decimals: {
-  //     Ethereum: 6,
-  //     Solana: 6,
-  //     Sui: 6,
-  //     Aptos: 6,
-  //     Sei: 6,
+  //     default: 6,
   //   },
   // },
 };

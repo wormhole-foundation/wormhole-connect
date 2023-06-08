@@ -29,6 +29,10 @@ export interface WormholeConnectConfig {
   bridgeDefaults?: BridgeDefaults;
 }
 
+type DecimalsMap = Partial<Record<Context, number>> & {
+  default: number;
+};
+
 export type TokenConfig = {
   key: string;
   symbol: string;
@@ -37,7 +41,7 @@ export type TokenConfig = {
   tokenId?: TokenId; // if no token id, it is the native token
   coinGeckoId: string;
   color: string;
-  decimals: Partial<Record<Context, number>>;
+  decimals: DecimalsMap;
   wrappedAsset?: string;
 };
 
