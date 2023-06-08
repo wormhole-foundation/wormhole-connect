@@ -114,6 +114,17 @@ export const MAINNET_NETWORKS: NetworksConfig = {
     automaticRelayer: false,
     maxBlockSearch: 0,
   },
+  sei: {
+    ...chains.sei!,
+    displayName: 'Sei',
+    explorerUrl: 'https://sei.explorers.guru/',
+    explorerName: 'Sei Explorer',
+    gasToken: 'SEI',
+    chainId: 0,
+    icon: Icon.SEI,
+    automaticRelayer: false,
+    maxBlockSearch: 0,
+  },
 };
 
 export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
