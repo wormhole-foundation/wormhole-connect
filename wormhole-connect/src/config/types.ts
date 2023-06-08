@@ -3,6 +3,7 @@ import {
   ChainName,
   TokenId,
   ChainResourceMap,
+  Context,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { ExtendedTheme } from 'theme';
 
@@ -36,11 +37,7 @@ export type TokenConfig = {
   tokenId?: TokenId; // if no token id, it is the native token
   coinGeckoId: string;
   color: string;
-  decimals: number;
-  solDecimals: number;
-  suiDecimals: number;
-  aptosDecimals: number;
-  seiDecimals: number;
+  decimals: Partial<Record<Context, number>>;
   wrappedAsset?: string;
 };
 

@@ -33,6 +33,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
       relayer: '0xcafd2f0a35a4459fa40c0517e17e6fa2939441ca',
     },
     finalityThreshold: 64,
+    nativeTokenDecimals: 18,
   },
   solana: {
     key: 'solana',
@@ -40,6 +41,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     context: Context.SOLANA,
     contracts: CONTRACTS.MAINNET.solana,
     finalityThreshold: 32,
+    nativeTokenDecimals: 9,
   },
   polygon: {
     key: 'polygon',
@@ -50,6 +52,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
       relayer: '0xcafd2f0a35a4459fa40c0517e17e6fa2939441ca',
     },
     finalityThreshold: 512,
+    nativeTokenDecimals: 18,
   },
   bsc: {
     key: 'bsc',
@@ -60,6 +63,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
       relayer: '0xcafd2f0a35a4459fa40c0517e17e6fa2939441ca',
     },
     finalityThreshold: 15,
+    nativeTokenDecimals: 18,
   },
   avalanche: {
     key: 'avalanche',
@@ -70,6 +74,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
       relayer: '0xcafd2f0a35a4459fa40c0517e17e6fa2939441ca',
     },
     finalityThreshold: 1,
+    nativeTokenDecimals: 18,
   },
   fantom: {
     key: 'fantom',
@@ -80,6 +85,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
       relayer: '0xcafd2f0a35a4459fa40c0517e17e6fa2939441ca',
     },
     finalityThreshold: 1,
+    nativeTokenDecimals: 18,
   },
   celo: {
     key: 'celo',
@@ -90,6 +96,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
       relayer: '0xcafd2f0a35a4459fa40c0517e17e6fa2939441ca',
     },
     finalityThreshold: 1,
+    nativeTokenDecimals: 18,
   },
   moonbeam: {
     key: 'moonbeam',
@@ -100,6 +107,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
       relayer: '0xcafd2f0a35a4459fa40c0517e17e6fa2939441ca',
     },
     finalityThreshold: 1,
+    nativeTokenDecimals: 18,
   },
   sui: {
     key: 'sui',
@@ -115,6 +123,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
         '0x26efee2b51c911237888e5dc6702868abca3c7ac12c53f76ef8eba0697695e3d',
     },
     finalityThreshold: 0,
+    nativeTokenDecimals: 9,
   },
   aptos: {
     key: 'aptos',
@@ -122,6 +131,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     context: Context.APTOS,
     contracts: CONTRACTS.MAINNET.aptos,
     finalityThreshold: 0,
+    nativeTokenDecimals: 8,
   },
   sei: {
     key: 'sei',
@@ -132,6 +142,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
       seiTokenTranslator: '',
     },
     finalityThreshold: 0,
+    nativeTokenDecimals: 6,
   },
 };
 

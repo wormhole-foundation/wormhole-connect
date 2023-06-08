@@ -8,7 +8,7 @@ import {
   AptosContext,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { toFixedDecimals } from '../utils/balance';
-import { GAS_ESTIMATES } from '../config';
+import { CHAINS, GAS_ESTIMATES } from '../config';
 import { PaymentOption } from '.';
 import { getTokenDecimals } from '../utils';
 import {
@@ -64,10 +64,14 @@ const estimateGasFee = async (
     toNativeToken,
     decimals,
   );
+  const nativeDecimals = CHAINS[fromChainName]!.nativeTokenDecimals;
 
   // Solana gas estimates
   if (fromChainId === MAINNET_CHAINS.solana) {
-    return toFixedDecimals(utils.formatUnits(gasEstimates.sendToken, 9), 6);
+    return toFixedDecimals(
+      utils.formatUnits(gasEstimates.sendToken, nativeDecimals),
+      6,
+    );
   }
 
   if (fromChainId === MAINNET_CHAINS.sei) {
@@ -83,7 +87,7 @@ const estimateGasFee = async (
     // the cosmos client requires a signer (i.e. a wallet) for transaction simulation
     // so we must rely on the wallet to estimate the gas fee
     const estimate = await simulateSeiTransaction(tx, TransferWallet.SENDING);
-    return toFixedDecimals(utils.formatUnits(estimate, 6), 6);
+    return toFixedDecimals(utils.formatUnits(estimate, nativeDecimals), 6);
   }
 
   // Sui gas estimates
@@ -121,7 +125,10 @@ const estimateGasFee = async (
     });
     const gasFee = getTotalGasUsed(response.effects);
     if (!gasFee) throw new Error('cannot estimate gas fee');
-    const result = toFixedDecimals(utils.formatUnits(gasFee, 9), 6);
+    const result = toFixedDecimals(
+      utils.formatUnits(gasFee, nativeDecimals),
+      6,
+    );
     return result;
   }
 
@@ -178,16 +185,23 @@ const getGasFeeFallback = async (
   const gasEstimates = GAS_ESTIMATES[fromChainName];
   if (!gasEstimates)
     throw new Error(`no gas estimates configured, cannot estimate fees`);
+  const nativeDecimals = CHAINS[fromChainName]!.nativeTokenDecimals;
 
   // Solana gas estimates
   if (fromChainId === MAINNET_CHAINS.solana) {
-    return toFixedDecimals(utils.formatUnits(gasEstimates.sendToken, 9), 6);
+    return toFixedDecimals(
+      utils.formatUnits(gasEstimates.sendToken, nativeDecimals),
+      6,
+    );
   }
 
   // Sui gas estimates
   if (fromChainId === MAINNET_CHAINS.sui) {
     if (paymentOption === PaymentOption.MANUAL) {
-      return toFixedDecimals(utils.formatUnits(gasEstimates.sendToken, 9), 6);
+      return toFixedDecimals(
+        utils.formatUnits(gasEstimates.sendToken, nativeDecimals),
+        6,
+      );
     } else {
       // TODO: automatic payment gas fee est. fallback
       throw new Error('cannot estimate gas fee');
@@ -205,16 +219,18 @@ const getGasFeeFallback = async (
         ? gasEstimates.sendNative
         : gasEstimates.sendToken;
       const gasFees = BigNumber.from(gasEst).mul(gasPrice.gas_estimate);
-      return toFixedDecimals(utils.formatUnits(gasFees, 8), 6);
+      return toFixedDecimals(utils.formatUnits(gasFees, nativeDecimals), 6);
     } else {
       // TODO: automatic payment gas fee est. fallback
       throw new Error('cannot estimate gas fee');
     }
   }
 
-  // TODO: look into cosmosdk/sei tx fees simulation/estimation
   if (fromChainId === MAINNET_CHAINS.sei) {
-    return toFixedDecimals(utils.formatUnits(gasEstimates.sendToken, 6), 6);
+    return toFixedDecimals(
+      utils.formatUnits(gasEstimates.sendToken, nativeDecimals),
+      6,
+    );
   }
 
   // EVM gas estimates
@@ -278,20 +294,32 @@ export const estimateClaimFees = async (
   context: WormholeContext,
   destChain: ChainName | ChainId,
 ): Promise<string> => {
+  const nativeDecimals =
+    CHAINS[context.toChainName(destChain)]!.nativeTokenDecimals;
   const destChainId = context.toChainId(destChain);
+
   if (destChainId === MAINNET_CHAINS.solana) {
     const gasEstimates = GAS_ESTIMATES['solana'];
-    return toFixedDecimals(utils.formatUnits(gasEstimates?.claim!, 9), 6);
+    return toFixedDecimals(
+      utils.formatUnits(gasEstimates?.claim!, nativeDecimals),
+      6,
+    );
   }
 
   if (destChainId === MAINNET_CHAINS.sei) {
     const gasEstimates = GAS_ESTIMATES['sei'];
-    return toFixedDecimals(utils.formatUnits(gasEstimates?.claim!, 6), 6);
+    return toFixedDecimals(
+      utils.formatUnits(gasEstimates?.claim!, nativeDecimals),
+      6,
+    );
   }
 
   if (destChainId === MAINNET_CHAINS.sui) {
     const gasEstimates = GAS_ESTIMATES['sui'];
-    return toFixedDecimals(utils.formatUnits(gasEstimates?.claim!, 9), 6);
+    return toFixedDecimals(
+      utils.formatUnits(gasEstimates?.claim!, nativeDecimals),
+      6,
+    );
   }
 
   if (destChainId === MAINNET_CHAINS.aptos) {
@@ -303,7 +331,7 @@ export const estimateClaimFees = async (
     const gasFee = BigNumber.from(gasEstimates?.claim || 0).mul(
       gasPrice.gas_estimate,
     );
-    return toFixedDecimals(utils.formatUnits(gasFee, 8), 6);
+    return toFixedDecimals(utils.formatUnits(gasFee, nativeDecimals), 6);
   }
 
   const provider = context.mustGetProvider(destChain);
