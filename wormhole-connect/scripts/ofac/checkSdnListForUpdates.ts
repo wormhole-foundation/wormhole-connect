@@ -9,7 +9,7 @@ const checkSdnListForUpdates = async () => {
   );
 
   if (newAddresses.length) {
-    console.log('Updated list:', addresses);
+    console.log('Updated list:', JSON.stringify(addresses, null, 2));
     throw new Error(
       'New addresses found, please update `SANCTIONED_WALLETS` in `src/consts/wallet.ts`.',
     );
