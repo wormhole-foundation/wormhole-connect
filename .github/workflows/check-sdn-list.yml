@@ -1,0 +1,15 @@
+name: Check SDN list
+
+on:
+  schedule:
+    - cron: "0 0 * * *" # Run at 12:00 AM UTC everyday
+
+jobs:
+  check-sdn-list:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Run script
+        run: cd wormhole-connect && npx ts-node scripts/ofac/checkSdnListForUpdates.ts
