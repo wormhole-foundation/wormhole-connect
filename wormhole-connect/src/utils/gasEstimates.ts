@@ -20,10 +20,7 @@ import { getMinAmount } from 'utils/transferValidation';
 import { AptosClient } from 'aptos';
 import { TransferWallet, simulateSeiTransaction } from '../utils/wallet';
 import { wh } from 'utils/sdk';
-
 const simulateRelayAmount = (
-  route: Route,
-  amount: number,
   relayerFee: number,
   toNativeToken: number,
   tokenDecimals: number,
@@ -294,13 +291,9 @@ export const estimateClaimGasFees = async (
   const destChainId = wh.toChainId(destChain);
 
   if (destChainId === MAINNET_CHAINS.solana) {
-    const gasEstimates = GAS_ESTIMATES['solana'];
     return toFixedDecimals(
       utils.formatUnits(gasEstimates?.claim!, nativeDecimals),
       6,
-    );
-  }
-
   if (destChainId === MAINNET_CHAINS.sei) {
     const gasEstimates = GAS_ESTIMATES['sei'];
     return toFixedDecimals(

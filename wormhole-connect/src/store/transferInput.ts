@@ -16,12 +16,6 @@ export enum Route {
   HASHFLOW = 10,
 }
 
-export enum Route {
-  BRIDGE = PayloadType.MANUAL, // 1
-  RELAY = PayloadType.AUTOMATIC, // 3
-  HASHFLOW = 10,
-}
-
 export type Balances = { [key: string]: string | null };
 
 export const formatBalance = (
