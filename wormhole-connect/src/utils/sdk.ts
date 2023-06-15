@@ -12,8 +12,6 @@ import {
 import { getTokenById, getTokenDecimals, getWrappedTokenId } from '../utils';
 import { GAS_ESTIMATES, isMainnet, TOKENS, WH_CONFIG } from '../config';
 import { postVaa, signAndSendTransaction, TransferWallet } from 'utils/wallet';
-import { estimateClaimFees, estimateSendFees } from './gasEstimates';
-import { Route } from '../store/transferInput';
 
 export enum PayloadType {
   MANUAL = 1,
@@ -72,32 +70,6 @@ export const parseAddress = (chain: ChainName | ChainId, address: string) => {
   return context.parseAddress(address);
 };
 
-export const registerSigner = (chain: ChainName | ChainId, signer: any) => {
-  wh.registerSigner(chain, signer);
-};
-
-export const getForeignAsset = async (
-  tokenId: TokenId,
-  chain: ChainName | ChainId,
-): Promise<string | null> => {
-  return await wh.getForeignAsset(tokenId, chain);
-};
-
-export const getBalance = async (
-  walletAddr: string,
-  tokenId: TokenId,
-  chain: ChainName | ChainId,
-): Promise<BigNumber | null> => {
-  return await wh.getTokenBalance(walletAddr, tokenId, chain);
-};
-
-export const getNativeBalance = async (
-  walletAddr: string,
-  chain: ChainName | ChainId,
-): Promise<BigNumber> => {
-  return await wh.getNativeBalance(walletAddr, chain);
-};
-
 export const parseMessageFromTx = async (
   tx: string,
   chain: ChainName | ChainId,
@@ -108,7 +80,7 @@ export const parseMessageFromTx = async (
     address: parsed.tokenAddress,
     chain: parsed.tokenChain,
   };
-  const decimals = await fetchTokenDecimals(tokenId, parsed.fromChain);
+  const decimals = await wh.fetchTokenDecimals(tokenId, parsed.fromChain);
   const token = getTokenById(tokenId);
 
   const base: ParsedMessage = {
@@ -283,37 +255,6 @@ export const getCurrentBlock = async (
   const chainId = wh.toChainId(chain);
   const context: any = wh.getContext(chain);
   return context.getCurrentBlock(chainId);
-};
-
-export const estimateSendGasFee = async (
-  token: TokenId | 'native',
-  amount: number,
-  fromNetwork: ChainName | ChainId,
-  fromAddress: string,
-  toNetwork: ChainName | ChainId,
-  toAddress: string,
-  route: Route,
-  relayerFee: number = 0,
-  toNativeToken: number = 0,
-): Promise<string> => {
-  return await estimateSendFees(
-    wh,
-    token,
-    amount,
-    fromNetwork,
-    fromAddress,
-    toNetwork,
-    toAddress,
-    route,
-    relayerFee,
-    toNativeToken,
-  );
-};
-
-export const estimateClaimGasFee = async (
-  destChain: ChainName | ChainId,
-): Promise<string> => {
-  return await estimateClaimFees(wh, destChain);
 };
 
 export const isAcceptedToken = async (tokenId: TokenId): Promise<boolean> => {

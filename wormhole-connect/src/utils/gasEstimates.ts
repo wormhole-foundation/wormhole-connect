@@ -7,10 +7,10 @@ import {
   MAINNET_CHAINS,
   AptosContext,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { toFixedDecimals } from '../utils/balance';
 import { CHAINS, GAS_ESTIMATES } from '../config';
+import { toFixedDecimals } from './balance';
 import { Route } from '../store/transferInput';
-import { getTokenDecimals } from '../utils';
+import { getTokenDecimals } from '.';
 import {
   JsonRpcProvider,
   TransactionBlock,
@@ -19,6 +19,7 @@ import {
 import { getMinAmount } from 'utils/transferValidation';
 import { AptosClient } from 'aptos';
 import { TransferWallet, simulateSeiTransaction } from '../utils/wallet';
+import { wh } from 'utils/sdk';
 
 const simulateRelayAmount = (
   route: Route,
@@ -37,7 +38,6 @@ const simulateRelayAmount = (
 
 // simulates a send transaction and returns the estimated fees
 const estimateGasFee = async (
-  context: WormholeContext,
   token: TokenId | 'native',
   amount: number,
   fromNetwork: ChainName | ChainId,
@@ -48,11 +48,11 @@ const estimateGasFee = async (
   relayerFee: number = 0,
   toNativeToken: number = 0,
 ): Promise<string> => {
-  const fromChainId = context.toChainId(fromNetwork);
+  const fromChainId = wh.toChainId(fromNetwork);
   const decimals = getTokenDecimals(fromChainId, token);
   const parsedAmt = utils.parseUnits(`${amount}`, decimals);
-  const chainContext = context.getContext(fromNetwork) as any;
-  const fromChainName = context.toChainName(fromNetwork);
+  const chainContext = wh.getContext(fromNetwork) as any;
+  const fromChainName = wh.toChainName(fromNetwork);
   const gasEstimates = GAS_ESTIMATES[fromChainName]!;
   const parsedNativeAmt = utils
     .parseUnits(`${toNativeToken}`, decimals)
@@ -139,7 +139,7 @@ const estimateGasFee = async (
   }
 
   // EVM gas estimates
-  const provider = context.mustGetProvider(fromNetwork);
+  const provider = wh.mustGetProvider(fromNetwork);
   const { gasPrice } = await provider.getFeeData();
   if (!gasPrice)
     throw new Error('gas price not available, cannot estimate fees');
@@ -174,13 +174,12 @@ const estimateGasFee = async (
 
 // gets a fallback gas fee estimate from config
 const getGasFeeFallback = async (
-  context: WormholeContext,
   token: TokenId | 'native',
   fromNetwork: ChainName | ChainId,
   route: Route,
 ): Promise<string> => {
-  const fromChainId = context.toChainId(fromNetwork);
-  const fromChainName = context.toChainName(fromNetwork);
+  const fromChainId = wh.toChainId(fromNetwork);
+  const fromChainName = wh.toChainName(fromNetwork);
   const sendNative = token === 'native';
   const gasEstimates = GAS_ESTIMATES[fromChainName];
   if (!gasEstimates)
@@ -209,7 +208,7 @@ const getGasFeeFallback = async (
   if (fromChainId === MAINNET_CHAINS.aptos) {
     if (route === Route.BRIDGE) {
       const aptosClient = (
-        context.getContext(fromChainId) as AptosContext<WormholeContext>
+        wh.getContext(fromChainId) as AptosContext<WormholeContext>
       ).aptosClient as AptosClient;
       const gasPrice = await aptosClient.estimateGasPrice();
       const gasEst = sendNative
@@ -231,7 +230,7 @@ const getGasFeeFallback = async (
   }
 
   // EVM gas estimates
-  const provider = context.mustGetProvider(fromNetwork);
+  const provider = wh.mustGetProvider(fromNetwork);
   const { gasPrice } = await provider.getFeeData();
   if (!gasPrice)
     throw new Error('gas price not available, cannot estimate fees');
@@ -255,8 +254,7 @@ const getGasFeeFallback = async (
 };
 
 // returns the gas fees estimate for any send transfer
-export const estimateSendFees = async (
-  context: WormholeContext,
+export const estimateSendGasFees = async (
   token: TokenId | 'native',
   amount: number,
   fromNetwork: ChainName | ChainId,
@@ -269,7 +267,6 @@ export const estimateSendFees = async (
 ): Promise<string> => {
   try {
     const gasFee = await estimateGasFee(
-      context,
       token,
       amount,
       fromNetwork,
@@ -282,18 +279,17 @@ export const estimateSendFees = async (
     );
     return gasFee;
   } catch (_) {
-    return await getGasFeeFallback(context, token, fromNetwork, route);
+    return await getGasFeeFallback(token, fromNetwork, route);
   }
 };
 
 // returns the gas fee estimates for claiming on the destination chain
-export const estimateClaimFees = async (
-  context: WormholeContext,
+export const estimateClaimGasFees = async (
   destChain: ChainName | ChainId,
 ): Promise<string> => {
   const nativeDecimals =
-    CHAINS[context.toChainName(destChain)]!.nativeTokenDecimals;
-  const destChainId = context.toChainId(destChain);
+    CHAINS[wh.toChainName(destChain)]!.nativeTokenDecimals;
+  const destChainId = wh.toChainId(destChain);
 
   if (destChainId === MAINNET_CHAINS.solana) {
     const gasEstimates = GAS_ESTIMATES['solana'];
@@ -321,7 +317,7 @@ export const estimateClaimFees = async (
 
   if (destChainId === MAINNET_CHAINS.aptos) {
     const aptosClient = (
-      context.getContext('aptos') as AptosContext<WormholeContext>
+      wh.getContext('aptos') as AptosContext<WormholeContext>
     ).aptosClient;
     const gasPrice = await aptosClient.estimateGasPrice();
     const gasEstimates = GAS_ESTIMATES['aptos'];
@@ -331,7 +327,7 @@ export const estimateClaimFees = async (
     return toFixedDecimals(utils.formatUnits(gasFee, nativeDecimals), 6);
   }
 
-  const provider = context.mustGetProvider(destChain);
+  const provider = wh.mustGetProvider(destChain);
   const gasPrice = await provider.getGasPrice();
 
   const est = BigNumber.from('300000');

@@ -1,7 +1,7 @@
 import React from 'react';
 import useIsTransferLimited from '../../hooks/useIsTransferLimited';
 import AlertBanner from '../../components/AlertBanner';
-import { wh } from '../../sdk';
+import { wh } from '../../utils/sdk';
 
 const TransferLimitedWarning = () => {
   const isTransferLimited = useIsTransferLimited();

@@ -4,7 +4,7 @@ import { TOKENS } from 'config';
 import { hexlify } from 'ethers/lib/utils.js';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { formatAssetAddress, wh } from 'sdk';
+import { formatAssetAddress, wh } from 'utils/sdk';
 import { RootState } from 'store';
 import { getWrappedTokenId } from 'utils';
 import { WORMHOLE_RPC_HOSTS } from 'utils/vaa';

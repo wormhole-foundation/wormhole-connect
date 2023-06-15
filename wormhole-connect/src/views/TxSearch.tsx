@@ -4,7 +4,7 @@ import { useDispatch } from 'react-redux';
 import { Select, MenuItem } from '@mui/material';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { CHAINS_ARR } from '../config';
-import { parseMessageFromTx } from '../sdk';
+import { parseMessageFromTx } from '../utils/sdk';
 import { setTxDetails } from '../store/redeem';
 import { setRoute } from '../store/router';
 import PageHeader from '../components/PageHeader';

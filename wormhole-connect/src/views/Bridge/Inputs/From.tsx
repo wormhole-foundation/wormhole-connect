@@ -11,7 +11,7 @@ import {
   selectFromNetwork,
 } from '../../../store/transferInput';
 import { CHAINS_ARR, TOKENS } from '../../../config';
-import { getBalance, getNativeBalance } from '../../../sdk';
+import { wh } from '../../../utils/sdk';
 
 import Inputs from './Inputs';
 import Select from './Select';
@@ -55,7 +55,7 @@ function FromInputs() {
       return setBalance(undefined);
     }
     if (tokenConfig.tokenId) {
-      getBalance(wallet.address, tokenConfig.tokenId, fromNetwork).then(
+      wh.getTokenBalance(wallet.address, tokenConfig.tokenId, fromNetwork).then(
         (res: BigNumber | null) => {
           const balance = formatBalance(fromNetwork, tokenConfig, res);
           setBalance(balance[tokenConfig.key] || undefined);
@@ -63,11 +63,13 @@ function FromInputs() {
         },
       );
     } else {
-      getNativeBalance(wallet.address, fromNetwork).then((res: BigNumber) => {
-        const balance = formatBalance(fromNetwork, tokenConfig, res);
-        setBalance(balance[tokenConfig.key] || undefined);
-        dispatch(setStoreBalance(balance));
-      });
+      wh.getNativeBalance(wallet.address, fromNetwork).then(
+        (res: BigNumber) => {
+          const balance = formatBalance(fromNetwork, tokenConfig, res);
+          setBalance(balance[tokenConfig.key] || undefined);
+          dispatch(setStoreBalance(balance));
+        },
+      );
     }
   }, [tokenConfig, fromNetwork, wallet.address, dispatch]);
 

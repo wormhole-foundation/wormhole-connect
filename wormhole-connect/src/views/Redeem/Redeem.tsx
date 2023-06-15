@@ -7,13 +7,12 @@ import {
   setVaa,
 } from '../../store/redeem';
 import { RootState } from '../../store';
-import { getTransferComplete } from '../../sdk';
+import { wh, ParsedMessage, ParsedRelayerMessage } from '../../utils/sdk';
 import PageHeader from '../../components/PageHeader';
 import Spacer from '../../components/Spacer';
 import NetworksTag from './Tag';
 import Stepper from './Stepper';
 import GovernorEnqueuedWarning from './GovernorEnqueuedWarning';
-import { ParsedMessage, ParsedRelayerMessage } from '../../sdk';
 
 class Redeem extends React.Component<
   {
@@ -68,7 +67,7 @@ class Redeem extends React.Component<
 
   async getTransferComplete() {
     if (!this.state.vaa || !this.props.txData) return;
-    const isComplete = await getTransferComplete(
+    const isComplete = await wh.wh(
       this.props.txData.toChain,
       this.state.vaa.bytes,
     );

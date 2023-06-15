@@ -9,7 +9,7 @@ import { TOKENS, config } from 'config';
 import { getTokenDecimals } from '../utils';
 import { TransferWallet, walletAcceptedNetworks } from 'utils/wallet';
 import { clearWallet, setWalletError, WalletData } from './wallet';
-import { PayloadType } from 'sdk';
+import { PayloadType } from 'utils/sdk';
 
 export enum Route {
   BRIDGE = PayloadType.MANUAL, // 1
