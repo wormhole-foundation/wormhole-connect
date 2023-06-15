@@ -10,7 +10,7 @@ import {
   disableAutomaticTransfer,
   Route,
 } from '../../store/transferInput';
-import { getNativeBalance, isAcceptedToken, toChainId } from '../../sdk';
+import { wh, isAcceptedToken, toChainId } from '../../utils/sdk';
 import { CHAINS, TOKENS } from '../../config';
 import { isTransferValid, validate } from '../../utils/transferValidation';
 
@@ -78,7 +78,7 @@ function Bridge() {
   useEffect(() => {
     if (!fromNetwork || !toNetwork || !receiving.address) return;
     const networkConfig = CHAINS[toNetwork]!;
-    getNativeBalance(receiving.address, toNetwork).then((res: BigNumber) => {
+    wh.getNativeBalance(receiving.address, toNetwork).then((res: BigNumber) => {
       const tokenConfig = TOKENS[networkConfig.gasToken];
       if (!tokenConfig)
         throw new Error('Could not get native gas token config');

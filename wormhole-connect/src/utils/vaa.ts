@@ -9,7 +9,7 @@ import {
   ParsedRelayerMessage,
   getCurrentBlock,
   wh,
-} from '../sdk';
+} from './sdk';
 
 export const WORMHOLE_RPC_HOSTS =
   WH_CONFIG.env === 'MAINNET'

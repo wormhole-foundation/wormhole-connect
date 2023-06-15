@@ -7,7 +7,11 @@ import { makeStyles } from 'tss-react/mui';
 import { useDebounce } from 'use-debounce';
 import { CHAINS, TOKENS } from '../../config';
 import { TokenConfig } from '../../config/types';
-import { calculateMaxSwapAmount, calculateNativeTokenAmt, wh } from '../../sdk';
+import {
+  calculateMaxSwapAmount,
+  calculateNativeTokenAmt,
+  wh,
+} from '../../utils/sdk';
 import { RootState } from '../../store';
 import { disableAutomaticTransfer, Route } from '../../store/transferInput';
 import {

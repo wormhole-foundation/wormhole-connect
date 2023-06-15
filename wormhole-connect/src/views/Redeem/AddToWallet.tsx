@@ -14,7 +14,7 @@ import {
 } from '../../config';
 import { MAINNET_NETWORKS } from '../../config/mainnet';
 import TokenIcon from '../../icons/TokenIcons';
-import { getForeignAsset, wh } from '../../sdk';
+import { wh } from '../../utils/sdk';
 import { RootState } from '../../store';
 import { setWalletModal } from '../../store/router';
 import { getWrappedToken } from '../../utils';
@@ -158,7 +158,7 @@ function AddToWallet() {
       const tokenInfo = TOKENS[txData.tokenKey];
       const wrapped = getWrappedToken(tokenInfo);
       if (!wrapped.tokenId) return;
-      const address = await getForeignAsset(wrapped.tokenId, txData.toChain);
+      const address = await wh.getForeignAsset(wrapped.tokenId, txData.toChain);
 
       if (txData.toChain === 'sui' && address) {
         const context = wh.getContext('sui') as SuiContext<WormholeContext>;

@@ -6,7 +6,7 @@ import { RootState } from '../../../store';
 import { TransferWallet, walletAcceptedNetworks } from '../../../utils/wallet';
 import { getWrappedToken } from '../../../utils';
 import { CHAINS_ARR, TOKENS } from '../../../config';
-import { getBalance } from '../../../sdk';
+import { wh } from '../../../utils/sdk';
 import {
   formatBalance,
   selectToNetwork,
@@ -59,7 +59,7 @@ function ToInputs() {
     const { tokenId } = tokenConfig.tokenId
       ? tokenConfig
       : TOKENS[tokenConfig.wrappedAsset!];
-    getBalance(receiving.address, tokenId!, toNetwork).then(
+    wh.getTokenBalance(receiving.address, tokenId!, toNetwork).then(
       (res: BigNumber | null) => {
         const balance = formatBalance(toNetwork, tokenConfig, res);
         setBalance(balance[tokenConfig.key]);

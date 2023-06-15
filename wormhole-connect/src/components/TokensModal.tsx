@@ -14,7 +14,7 @@ import {
 } from '../store/transferInput';
 import { displayAddress } from '../utils';
 import { CENTER } from '../utils/style';
-import { getBalance, getNativeBalance } from '../sdk';
+import { wh } from '../utils/sdk';
 
 import Header from './Header';
 import Modal from './Modal';
@@ -221,8 +221,8 @@ function TokensModal(props: Props) {
       const balances = await Promise.all(
         TOKENS_ARR.map(async (t) => {
           const balance = t.tokenId
-            ? await getBalance(walletAddress, t.tokenId, network)
-            : await getNativeBalance(walletAddress, network);
+            ? await wh.getTokenBalance(walletAddress, t.tokenId, network)
+            : await wh.getNativeBalance(walletAddress, network);
 
           return formatBalance(network, t, balance);
         }),

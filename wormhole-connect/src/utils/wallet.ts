@@ -31,7 +31,7 @@ import { clusterApiUrl, Connection as SolanaConnection } from '@solana/web3.js';
 import { SolanaWallet } from '@xlabs-libs/wallet-aggregator-solana';
 import { SeiTransaction, SeiWallet } from '@xlabs-libs/wallet-aggregator-sei';
 import { Transaction, ConfirmOptions } from '@solana/web3.js';
-import { registerSigner, wh } from '../sdk';
+import { wh } from './sdk';
 import { CHAINS, CHAINS_ARR } from '../config';
 import { getNetworkByChainId } from 'utils';
 import { WH_CONFIG } from '../config';
@@ -133,7 +133,7 @@ export const registerWalletSigner = (
   const w = walletConnection[type]! as any;
   if (!w) throw new Error('must connect wallet');
   const signer = w.getSigner();
-  registerSigner(chain, signer);
+  wh.registerSigner(chain, signer);
 };
 
 export const switchNetwork = async (chainId: number, type: TransferWallet) => {

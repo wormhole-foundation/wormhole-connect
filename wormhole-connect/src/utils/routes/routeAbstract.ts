@@ -3,18 +3,35 @@ import {
   ChainName,
   ChainId,
 } from '@wormhole-foundation/wormhole-connect-sdk';
+import { TokenConfig } from 'config/types';
 
-export abstract class RouteAbstract<TransactionResult> {
-  protected abstract gasEstFallback: any;
+export default abstract class RouteAbstract {
+  // protected abstract sendGasFallback: { [key: ChainName]: TokenConfig };
+  // protected abstract claimGasFallback: { [key: ChainName]: TokenConfig };
 
   protected abstract isRouteAvailable(
-    token: TokenId | 'native',
+    sourceToken: string,
+    destToken: string,
     amount: string,
-    sendingChain: ChainName | ChainId,
-    recipientChain: ChainName | ChainId,
+    sourceChain: ChainName | ChainId,
+    destChain: ChainName | ChainId,
   ): Promise<boolean>;
 
-  protected abstract supportedTokens(tokens: any[]): Promise<any[]>;
+  protected abstract isSupportedSourceToken(
+    token: TokenConfig | undefined,
+    destToken: TokenConfig | undefined,
+  ): Promise<boolean>;
+  protected abstract isSupportedDestToken(
+    token: TokenConfig | undefined,
+    sourceToken: TokenConfig | undefined,
+  ): Promise<boolean>;
+
+  protected abstract supportedSourceTokens(
+    tokens: TokenConfig[],
+  ): Promise<TokenConfig[]>;
+  protected abstract supportedDestTokens(
+    tokens: TokenConfig[],
+  ): Promise<TokenConfig[]>;
 
   protected abstract validate(
     token: TokenId | 'native',
@@ -26,7 +43,7 @@ export abstract class RouteAbstract<TransactionResult> {
     routeOptions: any,
   ): Promise<boolean>;
 
-  protected abstract estimateGas(
+  protected abstract estimateSendGas(
     token: TokenId | 'native',
     amount: string,
     sendingChain: ChainName | ChainId,
@@ -34,7 +51,11 @@ export abstract class RouteAbstract<TransactionResult> {
     recipientChain: ChainName | ChainId,
     recipientAddress: string,
     routeOptions: any,
-  ): Promise<number>;
+  ): Promise<string>;
+
+  protected abstract estimateClaimGas(
+    destChain: ChainName | ChainId,
+  ): Promise<string>;
 
   /**
    * These operations have to be implemented in subclasses.
@@ -47,9 +68,12 @@ export abstract class RouteAbstract<TransactionResult> {
     recipientChain: ChainName | ChainId,
     recipientAddress: string,
     routeOptions: any,
-  ): Promise<TransactionResult>;
+  ): Promise<any>;
 
-  protected abstract parseVaa(vaa: any): any;
+  protected abstract parseMessageFromTx(
+    tx: string,
+    chain: ChainName | ChainId,
+  ): any;
 
   // send, validate, estimate gas, isRouteAvailable, parse data from VAA/fetch data, claim
 }

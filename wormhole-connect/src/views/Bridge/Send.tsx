@@ -5,13 +5,7 @@ import { useTheme } from '@mui/material/styles';
 import { makeStyles } from 'tss-react/mui';
 
 import { CHAINS, TOKENS } from '../../config';
-import {
-  PayloadType,
-  estimateClaimGasFee,
-  estimateSendGasFee,
-  parseMessageFromTx,
-  sendTransfer,
-} from '../../sdk';
+import { PayloadType, parseMessageFromTx, sendTransfer } from '../../utils/sdk';
 import { RootState } from '../../store';
 import { setRoute } from '../../store/router';
 import { setTxDetails, setSendTx } from '../../store/redeem';
@@ -35,6 +29,10 @@ import CircularProgress from '@mui/material/CircularProgress';
 import AlertBanner from '../../components/AlertBanner';
 import PoweredByIcon from '../../icons/PoweredBy';
 import { LINK } from '../../utils/style';
+import {
+  estimateClaimGasFees,
+  estimateSendGasFees,
+} from '../../utils/gasEstimates';
 
 const useStyles = makeStyles()((theme) => ({
   body: {
@@ -141,7 +139,7 @@ function Send(props: { valid: boolean }) {
       if (!tokenConfig) return;
       const sendToken = tokenConfig.tokenId;
 
-      const gasFee = await estimateSendGasFee(
+      const gasFee = await estimateSendGasFees(
         sendToken || 'native',
         amount || 0,
         fromNetwork!,
@@ -174,7 +172,7 @@ function Send(props: { valid: boolean }) {
   // TODO: mock vaa?
   const setDestGas = useCallback(async () => {
     if (!toNetwork) return;
-    const gasFee = await estimateClaimGasFee(toNetwork!);
+    const gasFee = await estimateClaimGasFees(toNetwork!);
     dispatch(setClaimGasEst(gasFee));
   }, [toNetwork, dispatch]);
 
