@@ -7,7 +7,7 @@ import {
   SeiContext,
   WormholeContext,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { ParsedMessage, ParsedRelayerMessage, wh } from '../sdk';
+import { ParsedMessage, ParsedRelayerMessage, wh } from './sdk';
 import { Route } from '../store/transferInput';
 import { fromNormalizedDecimals } from '.';
 import { CHAINS } from '../config';

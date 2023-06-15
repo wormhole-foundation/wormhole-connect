@@ -6,9 +6,10 @@ import { disableAutomaticTransfer, Route } from '../../store/transferInput';
 import { setRelayerFee } from '../../store/relay';
 import { CHAINS, TOKENS } from '../../config';
 import { TokenConfig } from '../../config/types';
-import { toChainId, getRelayerFee } from '../../sdk';
 import { getTokenDecimals } from '../../utils';
 import { toDecimals, toFixedDecimals } from '../../utils/balance';
+import { toChainId, getRelayerFee } from '../../utils/sdk';
+
 import { RenderRows, RowsData } from '../../components/RenderRows';
 import BridgeCollapse from './Collapse';
 import InputContainer from '../../components/InputContainer';

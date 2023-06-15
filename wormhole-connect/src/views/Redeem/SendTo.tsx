@@ -29,10 +29,9 @@ import { fetchRedeemTx, fetchSwapEvent } from '../../utils/events';
 import {
   wh,
   claimTransfer,
-  estimateClaimGasFee,
   calculateNativeTokenAmt,
   toChainId,
-} from '../../sdk';
+} from '../../utils/sdk';
 import { CHAINS, TOKENS, GAS_ESTIMATES } from '../../config';
 import WalletsModal from '../WalletModal';
 
@@ -46,6 +45,7 @@ import { RenderRows, RowsData } from '../../components/RenderRows';
 import InputContainer from '../../components/InputContainer';
 import { Types } from 'aptos';
 import { getTotalGasUsed } from '@mysten/sui.js';
+import { estimateClaimGasFees } from '../../utils/gasEstimates';
 
 const calculateGas = async (chain: ChainName, receiveTx?: string) => {
   const { gasToken } = CHAINS[chain]!;
@@ -90,7 +90,7 @@ const calculateGas = async (chain: ChainName, receiveTx?: string) => {
       return toDecimals(gasFee, decimals, MAX_DECIMALS);
     }
   }
-  return await estimateClaimGasFee(chain);
+  return await estimateClaimGasFees(chain);
 };
 
 const getManualRows = async (
