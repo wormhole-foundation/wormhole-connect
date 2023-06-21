@@ -9,7 +9,7 @@ export default abstract class RouteAbstract {
   // protected abstract sendGasFallback: { [key: ChainName]: TokenConfig };
   // protected abstract claimGasFallback: { [key: ChainName]: TokenConfig };
 
-  protected abstract isRouteAvailable(
+  public abstract isRouteAvailable(
     sourceToken: string,
     destToken: string,
     amount: string,
@@ -17,23 +17,23 @@ export default abstract class RouteAbstract {
     destChain: ChainName | ChainId,
   ): Promise<boolean>;
 
-  protected abstract isSupportedSourceToken(
+  public abstract isSupportedSourceToken(
     token: TokenConfig | undefined,
     destToken: TokenConfig | undefined,
   ): Promise<boolean>;
-  protected abstract isSupportedDestToken(
+  public abstract isSupportedDestToken(
     token: TokenConfig | undefined,
     sourceToken: TokenConfig | undefined,
   ): Promise<boolean>;
 
-  protected abstract supportedSourceTokens(
+  public abstract supportedSourceTokens(
     tokens: TokenConfig[],
   ): Promise<TokenConfig[]>;
-  protected abstract supportedDestTokens(
+  public abstract supportedDestTokens(
     tokens: TokenConfig[],
   ): Promise<TokenConfig[]>;
 
-  protected abstract validate(
+  public abstract validate(
     token: TokenId | 'native',
     amount: string,
     sendingChain: ChainName | ChainId,
@@ -43,7 +43,7 @@ export default abstract class RouteAbstract {
     routeOptions: any,
   ): Promise<boolean>;
 
-  protected abstract estimateSendGas(
+  public abstract estimateSendGas(
     token: TokenId | 'native',
     amount: string,
     sendingChain: ChainName | ChainId,
@@ -53,14 +53,14 @@ export default abstract class RouteAbstract {
     routeOptions: any,
   ): Promise<string>;
 
-  protected abstract estimateClaimGas(
+  public abstract estimateClaimGas(
     destChain: ChainName | ChainId,
   ): Promise<string>;
 
   /**
    * These operations have to be implemented in subclasses.
    */
-  protected abstract send(
+  public abstract send(
     token: TokenId | 'native',
     amount: string,
     sendingChain: ChainName | ChainId,
@@ -70,10 +70,16 @@ export default abstract class RouteAbstract {
     routeOptions: any,
   ): Promise<any>;
 
-  protected abstract parseMessageFromTx(
+  public abstract parseMessageFromTx(
     tx: string,
     chain: ChainName | ChainId,
   ): any;
+
+  public abstract redeem(
+    destChain: ChainName | ChainId,
+    vaa: Uint8Array,
+    recipient: string,
+  ): Promise<string>;
 
   // send, validate, estimate gas, isRouteAvailable, parse data from VAA/fetch data, claim
 }
