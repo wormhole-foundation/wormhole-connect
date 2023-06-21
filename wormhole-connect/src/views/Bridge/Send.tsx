@@ -5,11 +5,11 @@ import { useTheme } from '@mui/material/styles';
 import { makeStyles } from 'tss-react/mui';
 
 import { CHAINS, TOKENS } from '../../config';
-import { PayloadType, parseMessageFromTx, sendTransfer } from '../../utils/sdk';
 import { RootState } from '../../store';
 import { setRoute } from '../../store/router';
 import { setTxDetails, setSendTx } from '../../store/redeem';
 import { displayWalletAddress } from '../../utils';
+import { BridgeRoute, HashflowRoute, RelayRoute } from '../../utils/routes';
 import {
   registerWalletSigner,
   switchNetwork,
@@ -31,8 +31,8 @@ import PoweredByIcon from '../../icons/PoweredBy';
 import { LINK } from '../../utils/style';
 import {
   estimateClaimGasFees,
-  estimateSendGasFees,
 } from '../../utils/gasEstimates';
+import RouteAbstract from '../../utils/routes/routeAbstract';
 
 const useStyles = makeStyles()((theme) => ({
   body: {
@@ -58,6 +58,12 @@ const useStyles = makeStyles()((theme) => ({
   },
 }));
 
+const ROUTE_HANDLERS: { [r in Route]: RouteAbstract } = {
+  [Route.BRIDGE]: new BridgeRoute(),
+  [Route.RELAY]: new RelayRoute(),
+  [Route.HASHFLOW]: new HashflowRoute(),
+};
+
 function Send(props: { valid: boolean }) {
   const { classes } = useStyles();
   const theme = useTheme();
@@ -75,7 +81,7 @@ function Send(props: { valid: boolean }) {
     toNetwork,
     token,
     amount,
-    route,
+    route: routeType,
     automaticRelayAvail,
     isTransactionInProgress,
   } = transfer;
@@ -84,12 +90,16 @@ function Send(props: { valid: boolean }) {
   );
   const [sendError, setSendError] = useState('');
 
+  const route = ROUTE_HANDLERS[routeType];
+
   async function send() {
     setSendError('');
     await validate(dispatch);
     const valid = isTransferValid(validations);
     if (!valid) return;
     dispatch(setIsTransactionInProgress(true));
+
+
     try {
       const fromConfig = CHAINS[fromNetwork!];
       if (fromConfig?.context === Context.ETH) {
@@ -101,17 +111,26 @@ function Send(props: { valid: boolean }) {
       const tokenConfig = TOKENS[token]!;
       const sendToken = tokenConfig.tokenId;
 
-      // TODO: update sendTransfer to handle routing
-      const txId = await sendTransfer(
+      const txId = await route.send(
         sendToken || 'native',
         `${amount}`,
         fromNetwork!,
         sending.address,
         toNetwork!,
         receiving.address,
-        route as unknown as PayloadType,
-        `${toNativeToken}`,
+        { toNativeToken }
       );
+      // // TODO: update sendTransfer to handle routing
+      // const txId = await sendTransfer(
+      //   sendToken || 'native',
+      //   `${amount}`,
+      //   fromNetwork!,
+      //   sending.address,
+      //   toNetwork!,
+      //   receiving.address,
+      //   route as unknown as PayloadType,
+      //   `${toNativeToken}`,
+      // );
 
       let message;
       const toRedeem = setInterval(async () => {
@@ -123,7 +142,7 @@ function Send(props: { valid: boolean }) {
           dispatch(setRoute('redeem'));
           setSendError('');
         } else {
-          message = await parseMessageFromTx(txId, fromNetwork!);
+          message = await route.parseMessageFromTx(txId, fromNetwork!);
         }
       }, 1000);
     } catch (e) {
@@ -134,23 +153,21 @@ function Send(props: { valid: boolean }) {
   }
 
   const setSendingGas = useCallback(
-    async (route: Route) => {
+    async (routeType: Route) => {
       const tokenConfig = TOKENS[token]!;
       if (!tokenConfig) return;
       const sendToken = tokenConfig.tokenId;
 
-      const gasFee = await estimateSendGasFees(
+      const gasFee = await route.estimateSendGas(
         sendToken || 'native',
-        amount || 0,
+        (amount || 0).toString(),
         fromNetwork!,
         sending.address,
         toNetwork!,
         receiving.address,
-        route,
-        relayerFee,
-        toNativeToken,
+        { relayerFee, toNativeToken }
       );
-      if (route === Route.BRIDGE) {
+      if (routeType === Route.BRIDGE) {
         dispatch(setManualGasEst(gasFee));
       } else {
         dispatch(setAutomaticGasEst(gasFee));
@@ -166,6 +183,7 @@ function Send(props: { valid: boolean }) {
       toNativeToken,
       relayerFee,
       dispatch,
+      route
     ],
   );
 

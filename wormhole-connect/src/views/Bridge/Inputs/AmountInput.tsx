@@ -21,28 +21,9 @@ function AmountInput() {
   const [value, setValue] = useState(amount ? `${amount}` : '');
 
   function handleAmountChange(event) {
-    let value = event.target.value;
-    const index = value.indexOf('.');
-    switch (true) {
-      case index === -1: {
-        value = Number.parseInt(event.target.value);
-        break;
-      }
-      case index === 0: {
-        value = '0.';
-        break;
-      }
-      case index >= 0 && index < value.length - 1: {
-        value = toFixedDecimals(value, 8);
-        break;
-      }
-      default: {
-        break;
-      }
-    }
-
-    setValue(value);
-    dispatch(setAmount(Number.parseFloat(value)));
+    const newAmount = Number.parseFloat(event.target.value);
+    setValue(event.target.value);
+    dispatch(setAmount(newAmount));
   }
   const validateAmount = () => validate(dispatch);
 

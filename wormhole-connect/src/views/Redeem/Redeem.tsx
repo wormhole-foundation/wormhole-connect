@@ -67,7 +67,7 @@ class Redeem extends React.Component<
 
   async getTransferComplete() {
     if (!this.state.vaa || !this.props.txData) return;
-    const isComplete = await wh.wh(
+    const isComplete = await wh.isTransferCompleted(
       this.props.txData.toChain,
       this.state.vaa.bytes,
     );

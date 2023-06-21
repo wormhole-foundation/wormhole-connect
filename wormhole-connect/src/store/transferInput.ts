@@ -179,7 +179,7 @@ export const transferInputSlice = createSlice({
     },
     disableAutomaticTransfer: (state: TransferInputState) => {
       state.automaticRelayAvail = false;
-      state.route = Route.RELAY;
+      state.route = Route.BRIDGE;
     },
     setTransferRoute: (
       state: TransferInputState,
