@@ -30,7 +30,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     context: Context.ETH,
     contracts: {
       ...CONTRACTS.TESTNET.ethereum,
-      relayer: '0xe32b14c48e4b7c6825b855f231786fe5ba9ce014',
+      relayer: '0x9563a59c15842a6f322b10f69d1dd88b41f2e97b',
     },
     finalityThreshold: 64,
   },
@@ -49,7 +49,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     context: Context.ETH,
     contracts: {
       ...CONTRACTS.TESTNET.polygon,
-      relayer: '0x953a2342496b15d69dec25c8e62274995e82d243',
+      relayer: '0x9563a59c15842a6f322b10f69d1dd88b41f2e97b',
     },
     finalityThreshold: 64,
   },
@@ -59,7 +59,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     context: Context.ETH,
     contracts: {
       ...CONTRACTS.TESTNET.bsc,
-      relayer: '0x49a401f7fa594bc618a7a39b316b78e329620103',
+      relayer: '0x9563a59c15842a6f322b10f69d1dd88b41f2e97b',
     },
     finalityThreshold: 15,
   },
@@ -69,7 +69,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     context: Context.ETH,
     contracts: {
       ...CONTRACTS.TESTNET.avalanche,
-      relayer: '0x8369839932222c1ca3bc7d16f970c56f61993a44',
+      relayer: '0x9563a59c15842a6f322b10f69d1dd88b41f2e97b',
     },
     finalityThreshold: 1,
   },
@@ -79,7 +79,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     context: Context.ETH,
     contracts: {
       ...CONTRACTS.TESTNET.fantom,
-      relayer: '0x5122298f68341a088c5370d7678e13912e4ed378',
+      relayer: '0x9563a59c15842a6f322b10f69d1dd88b41f2e97b',
     },
     finalityThreshold: 1,
   },
@@ -89,7 +89,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     context: Context.ETH,
     contracts: {
       ...CONTRACTS.TESTNET.celo,
-      relayer: '0x5c9da01cbf5088ee660b9701dc526c6e5df1c239',
+      relayer: '0x9563a59c15842a6f322b10f69d1dd88b41f2e97b',
     },
     finalityThreshold: 1,
   },
@@ -99,7 +99,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     context: Context.ETH,
     contracts: {
       ...CONTRACTS.TESTNET.moonbeam,
-      relayer: '0xa098368aaadc0fdf3e309cda710d7a5f8bdeecd9',
+      relayer: '0x9563a59c15842a6f322b10f69d1dd88b41f2e97b',
     },
     finalityThreshold: 1,
   },

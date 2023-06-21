@@ -1,8 +1,10 @@
 import { AnyAction } from '@reduxjs/toolkit';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
-import fetch from 'node-fetch';
 import { Dispatch } from 'react';
 import { store } from 'store';
+import { BRIDGE_DEFAULTS, CHAINS, TOKENS } from '../config';
+import { SANCTIONED_WALLETS } from '../consts/wallet';
+import { PaymentOption } from '../sdk';
 import {
   TransferState,
   setValidations,
@@ -10,8 +12,6 @@ import {
 } from '../store/transfer';
 import { WalletData, WalletState } from '../store/wallet';
 import { walletAcceptedNetworks } from './wallet';
-import { CHAINS, TOKENS, WH_CONFIG, BRIDGE_DEFAULTS } from '../config';
-import { PaymentOption } from '../sdk';
 
 export type ValidationErr = string;
 
@@ -27,8 +27,6 @@ export type TransferValidations = {
   foreignAsset: ValidationErr;
   associatedTokenAccount: ValidationErr;
 };
-
-let trmCache: any = {};
 
 export const validateFromNetwork = (
   chain: ChainName | undefined,
@@ -99,42 +97,8 @@ export const validateAmount = (
   return '';
 };
 
-async function checkAddressIsSanctioned(address: string): Promise<boolean> {
-  if (trmCache[address]) {
-    return trmCache[address].isSanctioned;
-  }
-  const defaultAuth =
-    'Basic ' + Buffer.from('<username>:<password>').toString('base64');
-  const res = await fetch(
-    `https://api.trmlabs.com/public/v1/sanctions/screening`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization:
-          process.env.REACT_APP_TRM_API_KEY && WH_CONFIG.env === 'MAINNET'
-            ? process.env.REACT_APP_TRM_API_KEY
-            : defaultAuth,
-      },
-      body: JSON.stringify([{ address }]),
-    },
-  );
-
-  if (res.status !== 200 && res.status !== 201) {
-    // set cache so it stops making requests
-    if (res.status === 429) {
-      trmCache[address] = {
-        address,
-        isSanctioned: false,
-      };
-    }
-    return false;
-  }
-
-  const data = await res.json();
-  trmCache[address] = data[0];
-  return data[0].isSanctioned;
-}
+const checkAddressIsSanctioned = (address: string): boolean =>
+  SANCTIONED_WALLETS.has(address) || SANCTIONED_WALLETS.has('0x' + address);
 
 export const validateWallet = async (
   wallet: WalletData,
