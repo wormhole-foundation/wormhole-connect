@@ -28,8 +28,6 @@ export type TransferValidations = {
   associatedTokenAccount: ValidationErr;
 };
 
-let trmCache: any = {};
-
 export const validateFromNetwork = (
   chain: ChainName | undefined,
 ): ValidationErr => {
