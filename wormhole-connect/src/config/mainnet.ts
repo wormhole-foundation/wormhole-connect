@@ -114,17 +114,17 @@ export const MAINNET_NETWORKS: NetworksConfig = {
     automaticRelayer: false,
     maxBlockSearch: 0,
   },
-  sei: {
-    ...chains.sei!,
-    displayName: 'Sei',
-    explorerUrl: 'https://sei.explorers.guru/',
-    explorerName: 'Sei Explorer',
-    gasToken: 'SEI',
-    chainId: 0,
-    icon: Icon.SEI,
-    automaticRelayer: false,
-    maxBlockSearch: 0,
-  },
+  // sei: {
+  //   ...chains.sei!,
+  //   displayName: 'Sei',
+  //   explorerUrl: 'https://sei.explorers.guru/',
+  //   explorerName: 'Sei Explorer',
+  //   gasToken: 'SEI',
+  //   chainId: 0,
+  //   icon: Icon.SEI,
+  //   automaticRelayer: false,
+  //   maxBlockSearch: 0,
+  // },
 };
 
 export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
@@ -549,23 +549,23 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     aptosDecimals: 8,
     seiDecimals: 8,
   },
-  SEI: {
-    key: 'SEI',
-    symbol: 'SEI',
-    nativeNetwork: 'sei',
-    tokenId: {
-      chain: 'sei',
-      address: 'usei',
-    },
-    icon: Icon.SEI,
-    coinGeckoId: 'sei',
-    color: '#FFFFFF',
-    decimals: 6,
-    solDecimals: 6,
-    suiDecimals: 6,
-    aptosDecimals: 6,
-    seiDecimals: 6,
-  },
+  // SEI: {
+  //   key: 'SEI',
+  //   symbol: 'SEI',
+  //   nativeNetwork: 'sei',
+  //   tokenId: {
+  //     chain: 'sei',
+  //     address: 'usei',
+  //   },
+  //   icon: Icon.SEI,
+  //   coinGeckoId: 'sei',
+  //   color: '#FFFFFF',
+  //   decimals: 6,
+  //   solDecimals: 6,
+  //   suiDecimals: 6,
+  //   aptosDecimals: 6,
+  //   seiDecimals: 6,
+  // },
 };
 
 export const MAINNET_GAS_ESTIMATES: GasEstimates = {
