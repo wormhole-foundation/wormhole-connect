@@ -2,14 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import { Route } from '../../store/transferInput';
-import { ParsedVaa } from '../../utils/vaa';
 import { CHAINS, TOKENS } from '../../config';
-import { toChainId } from '../../sdk';
 import {
   toNormalizedDecimals,
   MAX_DECIMALS,
   getTokenDecimals,
 } from '../../utils';
+import { ParsedVaa } from '../../utils/vaa';
+import { toChainId } from '../../utils/sdk';
 import { toDecimals } from '../../utils/balance';
 
 import InputContainer from '../../components/InputContainer';
