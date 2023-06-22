@@ -79,7 +79,7 @@ const manualOption = (
     claim: string;
   },
 ): OptionConfig => ({
-  key: Route.RELAY,
+  key: Route.BRIDGE,
   title: payWith(source.gasToken, dest.gasToken),
   subtitle: '(two transactions)',
   description: `Claim with ${dest.gasToken} on ${dest.displayName}`,
@@ -171,7 +171,6 @@ function GasOptions(props: { disabled: boolean }) {
   const { token, fromNetwork, toNetwork, automaticRelayAvail, gasEst } =
     useSelector((state: RootState) => state.transferInput);
   const { relayerFee } = useSelector((state: RootState) => state.relay);
-  const active = selectedOption;
 
   // listen for selectOption
   document.addEventListener('selectOption', (event: Event) => {
@@ -217,9 +216,10 @@ function GasOptions(props: { disabled: boolean }) {
       description={state.description}
       banner={banner}
       disabled={props.disabled}
-      close={props.disabled}
+      value={true}
+      close={true}
     >
-      <Options active={active}>
+      <Options active={selectedOption}>
         {state.options.map((option, i) => {
           const jsx = (
             <div className={classes.option} key={i}>
