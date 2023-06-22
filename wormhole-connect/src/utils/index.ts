@@ -4,15 +4,14 @@ import {
   TokenId,
   ChainName,
   ChainId,
-  MAINNET_CHAINS,
   Context,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { CHAINS_ARR, TOKENS, TOKENS_ARR } from '../config';
+import { CHAINS, CHAINS_ARR, TOKENS, TOKENS_ARR } from '../config';
 import { NetworkConfig, TokenConfig } from '../config/types';
 import { toDecimals } from './balance';
 import { isValidTransactionDigest, SUI_TYPE_ARG } from '@mysten/sui.js';
 import { isHexString } from 'ethers/lib/utils.js';
-import { isEvmChain } from '../sdk';
+import { isEvmChain, wh } from '../sdk';
 
 export const MAX_DECIMALS = 6;
 export const NORMALIZED_DECIMALS = 8;
@@ -95,28 +94,19 @@ export function getTokenDecimals(
   chain: ChainId,
   tokenId: TokenId | 'native' = 'native',
 ): number {
+  const chainName = wh.toChainName(chain);
+  const chainConfig = CHAINS[chainName];
+  if (!chainConfig) throw new Error(`chain config for ${chainName} not found`);
+
   if (tokenId === 'native') {
-    return chain === MAINNET_CHAINS.solana
-      ? 9
-      : chain === MAINNET_CHAINS.sui
-      ? 9
-      : chain === MAINNET_CHAINS.aptos
-      ? 8
-      : chain === MAINNET_CHAINS.sei
-      ? 6
-      : 18;
+    return chainConfig.nativeTokenDecimals;
   }
+
   const tokenConfig = getTokenById(tokenId);
   if (!tokenConfig) throw new Error('token config not found');
-  return chain === MAINNET_CHAINS.solana
-    ? tokenConfig.solDecimals
-    : chain === MAINNET_CHAINS.sui
-    ? tokenConfig.suiDecimals
-    : chain === MAINNET_CHAINS.aptos
-    ? tokenConfig.aptosDecimals
-    : chain === MAINNET_CHAINS.sei
-    ? tokenConfig.seiDecimals
-    : tokenConfig.decimals;
+
+  const decimals = tokenConfig.decimals;
+  return decimals[chainConfig.context] || decimals.default;
 }
 
 function fallbackCopyTextToClipboard(text: string) {

@@ -33,6 +33,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
       relayer: '0x9563a59c15842a6f322b10f69d1dd88b41f2e97b',
     },
     finalityThreshold: 64,
+    nativeTokenDecimals: 18,
   },
   solana: {
     key: 'solana',
@@ -42,6 +43,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
       ...CONTRACTS.TESTNET.solana,
     },
     finalityThreshold: 32,
+    nativeTokenDecimals: 9,
   },
   mumbai: {
     key: 'mumbai',
@@ -52,6 +54,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
       relayer: '0x9563a59c15842a6f322b10f69d1dd88b41f2e97b',
     },
     finalityThreshold: 64,
+    nativeTokenDecimals: 18,
   },
   bsc: {
     key: 'bsc',
@@ -62,6 +65,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
       relayer: '0x9563a59c15842a6f322b10f69d1dd88b41f2e97b',
     },
     finalityThreshold: 15,
+    nativeTokenDecimals: 18,
   },
   fuji: {
     key: 'fuji',
@@ -72,6 +76,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
       relayer: '0x9563a59c15842a6f322b10f69d1dd88b41f2e97b',
     },
     finalityThreshold: 1,
+    nativeTokenDecimals: 18,
   },
   fantom: {
     key: 'fantom',
@@ -82,6 +87,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
       relayer: '0x9563a59c15842a6f322b10f69d1dd88b41f2e97b',
     },
     finalityThreshold: 1,
+    nativeTokenDecimals: 18,
   },
   alfajores: {
     key: 'alfajores',
@@ -92,6 +98,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
       relayer: '0x9563a59c15842a6f322b10f69d1dd88b41f2e97b',
     },
     finalityThreshold: 1,
+    nativeTokenDecimals: 18,
   },
   moonbasealpha: {
     key: 'moonbasealpha',
@@ -102,6 +109,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
       relayer: '0x9563a59c15842a6f322b10f69d1dd88b41f2e97b',
     },
     finalityThreshold: 1,
+    nativeTokenDecimals: 18,
   },
   sui: {
     key: 'sui',
@@ -117,6 +125,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
         '0x562760fc51d90d4ae1835bac3e91e0e6987d3497b06f066941d3e51f6e8d76d0',
     },
     finalityThreshold: 0,
+    nativeTokenDecimals: 9,
   },
   aptos: {
     key: 'aptos',
@@ -126,6 +135,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
       ...CONTRACTS.TESTNET.aptos,
     },
     finalityThreshold: 0,
+    nativeTokenDecimals: 8,
   },
   sei: {
     key: 'sei',
@@ -137,6 +147,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
         'sei1dkdwdvknx0qav5cp5kw68mkn3r99m3svkyjfvkztwh97dv2lm0ksj6xrak',
     },
     finalityThreshold: 0,
+    nativeTokenDecimals: 6,
   },
 };
 

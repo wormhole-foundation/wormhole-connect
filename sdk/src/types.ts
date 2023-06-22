@@ -52,6 +52,7 @@ export type ChainConfig = {
   context: Context;
   contracts: Contracts;
   finalityThreshold: number;
+  nativeTokenDecimals: number;
 };
 
 export type WormholeConfig = {
