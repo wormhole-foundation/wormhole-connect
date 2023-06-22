@@ -1,5 +1,5 @@
 import { BigNumber, BigNumberish } from 'ethers';
-import { TokenId, ChainName, ChainId } from '../../types';
+import { TokenId, ChainName, ChainId, ParsedRelayerPayload } from '../../types';
 import { TokenBridgeAbstract } from './tokenBridge';
 
 export abstract class RelayerAbstract<
@@ -31,4 +31,17 @@ export abstract class RelayerAbstract<
     destChain: ChainName | ChainId,
     tokenId: TokenId,
   ): Promise<BigNumber>;
+
+  parseRelayerPayload(transferPayload: Buffer): ParsedRelayerPayload {
+    return {
+      relayerPayloadId: transferPayload.readUint8(0),
+      relayerFee: BigNumber.from(
+        '0x' + transferPayload.subarray(1, 33).toString('hex'),
+      ),
+      toNativeTokenAmount: BigNumber.from(
+        '0x' + transferPayload.subarray(33, 65).toString('hex'),
+      ),
+      to: '0x' + transferPayload.subarray(65, 98).toString('hex'),
+    };
+  }
 }

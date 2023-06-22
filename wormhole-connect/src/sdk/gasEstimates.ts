@@ -18,6 +18,7 @@ import {
 } from '@mysten/sui.js';
 import { getMinAmount } from 'utils/transferValidation';
 import { AptosClient } from 'aptos';
+import { TransferWallet, simulateSeiTransaction } from '../utils/wallet';
 
 const simulateRelayAmount = (
   paymentOption: PaymentOption,
@@ -67,6 +68,22 @@ const estimateGasFee = async (
   // Solana gas estimates
   if (fromChainId === MAINNET_CHAINS.solana) {
     return toFixedDecimals(utils.formatUnits(gasEstimates.sendToken, 9), 6);
+  }
+
+  if (fromChainId === MAINNET_CHAINS.sei) {
+    const tx = await chainContext.send(
+      token,
+      parsedAmt.toString(),
+      fromNetwork,
+      fromAddress,
+      toNetwork,
+      toAddress,
+      undefined,
+    );
+    // the cosmos client requires a signer (i.e. a wallet) for transaction simulation
+    // so we must rely on the wallet to estimate the gas fee
+    const estimate = await simulateSeiTransaction(tx, TransferWallet.SENDING);
+    return toFixedDecimals(utils.formatUnits(estimate, 6), 6);
   }
 
   // Sui gas estimates
@@ -195,6 +212,11 @@ const getGasFeeFallback = async (
     }
   }
 
+  // TODO: look into cosmosdk/sei tx fees simulation/estimation
+  if (fromChainId === MAINNET_CHAINS.sei) {
+    return toFixedDecimals(utils.formatUnits(gasEstimates.sendToken, 6), 6);
+  }
+
   // EVM gas estimates
   const provider = context.mustGetProvider(fromNetwork);
   const { gasPrice } = await provider.getFeeData();
@@ -260,6 +282,11 @@ export const estimateClaimFees = async (
   if (destChainId === MAINNET_CHAINS.solana) {
     const gasEstimates = GAS_ESTIMATES['solana'];
     return toFixedDecimals(utils.formatUnits(gasEstimates?.claim!, 9), 6);
+  }
+
+  if (destChainId === MAINNET_CHAINS.sei) {
+    const gasEstimates = GAS_ESTIMATES['sei'];
+    return toFixedDecimals(utils.formatUnits(gasEstimates?.claim!, 6), 6);
   }
 
   if (destChainId === MAINNET_CHAINS.sui) {

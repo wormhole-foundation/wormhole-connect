@@ -5,13 +5,14 @@ import { useDispatch } from 'react-redux';
 import { RootState } from '../../store';
 import { disableAutomaticTransfer, setRelayerFee } from '../../store/transfer';
 import { CHAINS, TOKENS } from '../../config';
-import { PaymentOption } from '../../sdk';
+import { PaymentOption, toChainId } from '../../sdk';
 import { TokenConfig } from '../../config/types';
 import { toDecimals, toFixedDecimals } from '../../utils/balance';
 import { getRelayerFee } from '../../sdk';
 import { RenderRows, RowsData } from '../../components/RenderRows';
 import InputContainer from '../../components/InputContainer';
 import BridgeCollapse from './Collapse';
+import { getTokenDecimals } from '../../utils';
 
 const getAutomaticRows = (
   token: TokenConfig,
@@ -120,11 +121,11 @@ function Preview(props: { collapsed: boolean }) {
   } = useSelector((state: RootState) => state.transfer);
 
   useEffect(() => {
-    const sourceConfig = fromNetwork && CHAINS[fromNetwork];
+    if (!fromNetwork) return;
+    const sourceConfig = toNetwork && CHAINS[fromNetwork];
     const destConfig = toNetwork && CHAINS[toNetwork];
     const tokenConfig = token && TOKENS[token];
-    if (!fromNetwork || !tokenConfig || !sourceConfig || !destConfig || !amount)
-      return;
+    if (!tokenConfig || !sourceConfig || !destConfig || !amount) return;
 
     if (destGasPayment === PaymentOption.MANUAL) {
       const rows = getManualRows(
@@ -139,14 +140,10 @@ function Preview(props: { collapsed: boolean }) {
     } else {
       getRelayerFee(fromNetwork, toNetwork, token)
         .then((fee) => {
-          const decimals =
-            fromNetwork === 'solana'
-              ? tokenConfig.solDecimals
-              : fromNetwork === 'sui'
-              ? tokenConfig.suiDecimals
-              : fromNetwork === 'aptos'
-              ? tokenConfig.aptosDecimals
-              : tokenConfig.decimals;
+          const decimals = getTokenDecimals(
+            toChainId(fromNetwork),
+            tokenConfig.tokenId || 'native',
+          );
           const formattedFee = Number.parseFloat(toDecimals(fee, decimals, 6));
           dispatch(setRelayerFee(formattedFee));
           const rows = getAutomaticRows(

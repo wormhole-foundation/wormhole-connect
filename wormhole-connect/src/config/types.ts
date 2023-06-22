@@ -2,7 +2,7 @@ import {
   ChainConfig,
   ChainName,
   TokenId,
-  Rpcs,
+  ChainResourceMap,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { ExtendedTheme } from 'theme';
 
@@ -15,7 +15,8 @@ export interface BridgeDefaults {
 
 export interface WormholeConnectConfig {
   env?: 'mainnet' | 'testnet';
-  rpcs?: Rpcs;
+  rpcs?: ChainResourceMap;
+  rest?: ChainResourceMap;
   networks?: ChainName[];
   tokens?: string[];
   mode?: 'dark' | 'light';
@@ -39,6 +40,7 @@ export type TokenConfig = {
   solDecimals: number;
   suiDecimals: number;
   aptosDecimals: number;
+  seiDecimals: number;
   wrappedAsset?: string;
 };
 
@@ -74,6 +76,7 @@ export enum Icon {
   'WBTC',
   'SUI',
   'APT',
+  'SEI',
 }
 
 export type GasEstimates = {

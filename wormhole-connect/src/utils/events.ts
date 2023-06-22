@@ -3,6 +3,7 @@ import {
   ChainName,
   EthContext,
   SuiContext,
+  SeiContext,
   WormholeContext,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { ParsedMessage, ParsedRelayerMessage, PaymentOption, wh } from '../sdk';
@@ -10,6 +11,7 @@ import { fromNormalizedDecimals } from '.';
 import { CHAINS } from '../config';
 import { arrayify } from 'ethers/lib/utils.js';
 import { fetchGlobalTx, getEmitterAndSequence } from './vaa';
+import { isEvmChain } from '../sdk';
 
 export const fetchRedeemTx = async (
   txData: ParsedMessage | ParsedRelayerMessage,
@@ -67,6 +69,16 @@ export const fetchRedeemedEvent = async (
       }
     }
     return null;
+  } else if (txData.toChain === 'sei') {
+    const context = wh.getContext(
+      txData.toChain,
+    ) as SeiContext<WormholeContext>;
+    const transactionHash = await context.fetchRedeemedEvent(
+      emitterChain,
+      emitter,
+      sequence,
+    );
+    return transactionHash ? { transactionHash } : null;
   } else {
     const provider = wh.mustGetProvider(txData.toChain);
     const context: any = wh.getContext(
@@ -122,7 +134,7 @@ export const fetchSwapEvent = async (
       }
     }
     return null;
-  } else {
+  } else if (isEvmChain(wh.toChainId(txData.toChain))) {
     const provider = wh.mustGetProvider(txData.toChain);
     const context: any = wh.getContext(txData.toChain);
     const chainName = wh.toChainName(txData.toChain) as ChainName;
@@ -150,4 +162,5 @@ export const fetchSwapEvent = async (
     });
     return match ? match[0]?.args?.[4] : null;
   }
+  return null;
 };

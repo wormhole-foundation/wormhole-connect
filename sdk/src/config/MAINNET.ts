@@ -13,6 +13,7 @@ export const MAINNET_CHAINS = {
   moonbeam: 16,
   sui: 21,
   aptos: 22,
+  sei: 32,
 } as const;
 
 export type MainnetChainName = keyof typeof MAINNET_CHAINS;
@@ -122,6 +123,16 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     contracts: CONTRACTS.MAINNET.aptos,
     finalityThreshold: 0,
   },
+  sei: {
+    key: 'sei',
+    id: 32,
+    context: Context.SEI,
+    contracts: {
+      ...CONTRACTS.MAINNET.sei,
+      seiTokenTranslator: '',
+    },
+    finalityThreshold: 0,
+  },
 };
 
 const env: Environment = 'MAINNET';
@@ -138,6 +149,10 @@ const MAINNET_CONFIG: WormholeConfig = {
     moonbeam: 'https://rpc.ankr.com/moonbeam',
     sui: 'https://rpc.mainnet.sui.io',
     aptos: 'https://fullnode.mainnet.aptoslabs.com/v1',
+    sei: '', // TODO: fill in
+  },
+  rest: {
+    sei: '',
   },
   chains: MAINNET,
 };

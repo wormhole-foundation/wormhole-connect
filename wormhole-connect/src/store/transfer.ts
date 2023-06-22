@@ -4,8 +4,9 @@ import { BigNumber } from 'ethers';
 import { TokenConfig } from 'config/types';
 import { toDecimals } from '../utils/balance';
 import { TransferValidations } from '../utils/transferValidation';
-import { PaymentOption } from '../sdk';
+import { PaymentOption, toChainId } from '../sdk';
 import { TOKENS, config } from 'config';
+import { getTokenDecimals } from '../utils';
 
 export type Balances = { [key: string]: string | null };
 
@@ -14,14 +15,7 @@ export const formatBalance = (
   token: TokenConfig,
   balance: BigNumber | null,
 ) => {
-  const decimals =
-    chain === 'solana'
-      ? token.solDecimals
-      : chain === 'sui'
-      ? token.suiDecimals
-      : chain === 'aptos'
-      ? token.aptosDecimals
-      : token.decimals;
+  const decimals = getTokenDecimals(toChainId(chain), token.tokenId);
   const formattedBalance =
     balance !== null ? toDecimals(balance, decimals, 6) : null;
   return { [token.key]: formattedBalance };

@@ -9,7 +9,12 @@ import {
   enableAutomaticTransfer,
   disableAutomaticTransfer,
 } from '../../store/transfer';
-import { getNativeBalance, isAcceptedToken, PaymentOption } from '../../sdk';
+import {
+  getNativeBalance,
+  isAcceptedToken,
+  PaymentOption,
+  toChainId,
+} from '../../sdk';
 import { CHAINS, TOKENS } from '../../config';
 import { isTransferValid, validate } from '../../utils/transferValidation';
 
@@ -25,7 +30,7 @@ import TokensModal from './Modals/TokensModal';
 import FromInputs from './Inputs.tsx/From';
 import ToInputs from './Inputs.tsx/To';
 import { toDecimals } from '../../utils/balance';
-import { getWrappedTokenId } from '../../utils';
+import { getTokenDecimals, getWrappedTokenId } from '../../utils';
 import TransferLimitedWarning from './TransferLimitedWarning';
 
 const useStyles = makeStyles()((theme) => ({
@@ -77,9 +82,11 @@ function Bridge() {
       const tokenConfig = TOKENS[networkConfig.gasToken];
       if (!tokenConfig)
         throw new Error('Could not get native gas token config');
-      dispatch(
-        setReceiverNativeBalance(toDecimals(res, tokenConfig.decimals, 6)),
+      const decimals = getTokenDecimals(
+        toChainId(tokenConfig.nativeNetwork),
+        tokenConfig.tokenId,
       );
+      dispatch(setReceiverNativeBalance(toDecimals(res, decimals, 6)));
     });
   }, [fromNetwork, toNetwork, receiving.address, dispatch]);
 

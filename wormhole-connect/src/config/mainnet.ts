@@ -114,6 +114,17 @@ export const MAINNET_NETWORKS: NetworksConfig = {
     automaticRelayer: false,
     maxBlockSearch: 0,
   },
+  // sei: {
+  //   ...chains.sei!,
+  //   displayName: 'Sei',
+  //   explorerUrl: 'https://sei.explorers.guru/',
+  //   explorerName: 'Sei Explorer',
+  //   gasToken: 'SEI',
+  //   chainId: 0,
+  //   icon: Icon.SEI,
+  //   automaticRelayer: false,
+  //   maxBlockSearch: 0,
+  // },
 };
 
 export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
@@ -128,6 +139,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 8,
     suiDecimals: 8,
     aptosDecimals: 8,
+    seiDecimals: 8,
     wrappedAsset: 'WETH',
   },
   WETH: {
@@ -145,6 +157,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 8,
     suiDecimals: 8,
     aptosDecimals: 8,
+    seiDecimals: 8,
   },
   USDCeth: {
     key: 'USDCeth',
@@ -161,6 +174,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 6,
     suiDecimals: 6,
     aptosDecimals: 6,
+    seiDecimals: 6,
   },
   WBTC: {
     key: 'WBTC',
@@ -177,6 +191,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 8,
     suiDecimals: 8,
     aptosDecimals: 8,
+    seiDecimals: 8,
   },
   USDT: {
     key: 'USDT',
@@ -193,6 +208,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 6,
     suiDecimals: 6,
     aptosDecimals: 6,
+    seiDecimals: 6,
   },
   DAI: {
     key: 'DAI',
@@ -209,6 +225,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 8,
     suiDecimals: 8,
     aptosDecimals: 8,
+    seiDecimals: 8,
   },
   BUSD: {
     key: 'BUSD',
@@ -225,6 +242,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 8,
     suiDecimals: 8,
     aptosDecimals: 8,
+    seiDecimals: 8,
   },
   MATIC: {
     key: 'MATIC',
@@ -237,6 +255,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 8,
     suiDecimals: 8,
     aptosDecimals: 8,
+    seiDecimals: 8,
     wrappedAsset: 'WMATIC',
   },
   WMATIC: {
@@ -254,6 +273,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 8,
     suiDecimals: 8,
     aptosDecimals: 8,
+    seiDecimals: 8,
   },
   USDCpolygon: {
     key: 'USDCpolygon',
@@ -270,6 +290,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 6,
     suiDecimals: 6,
     aptosDecimals: 6,
+    seiDecimals: 6,
   },
   BNB: {
     key: 'BNB',
@@ -282,6 +303,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 8,
     suiDecimals: 8,
     aptosDecimals: 8,
+    seiDecimals: 8,
     wrappedAsset: 'WBNB',
   },
   WBNB: {
@@ -299,6 +321,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 8,
     suiDecimals: 8,
     aptosDecimals: 8,
+    seiDecimals: 8,
   },
   USDCbnb: {
     key: 'USDCbnb',
@@ -315,6 +338,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 8,
     suiDecimals: 8,
     aptosDecimals: 8,
+    seiDecimals: 8,
   },
   AVAX: {
     key: 'AVAX',
@@ -327,6 +351,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 8,
     suiDecimals: 8,
     aptosDecimals: 8,
+    seiDecimals: 8,
     wrappedAsset: 'WAVAX',
   },
   WAVAX: {
@@ -344,6 +369,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 8,
     suiDecimals: 8,
     aptosDecimals: 8,
+    seiDecimals: 8,
   },
   USDCavax: {
     key: 'USDCavax',
@@ -360,6 +386,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 6,
     suiDecimals: 6,
     aptosDecimals: 6,
+    seiDecimals: 6,
   },
   FTM: {
     key: 'FTM',
@@ -372,6 +399,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 8,
     suiDecimals: 8,
     aptosDecimals: 8,
+    seiDecimals: 8,
     wrappedAsset: 'WFTM',
   },
   WFTM: {
@@ -389,6 +417,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 8,
     suiDecimals: 8,
     aptosDecimals: 8,
+    seiDecimals: 8,
   },
   CELO: {
     key: 'CELO',
@@ -405,6 +434,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 8,
     suiDecimals: 8,
     aptosDecimals: 8,
+    seiDecimals: 8,
   },
   GLMR: {
     key: 'GLMR',
@@ -417,6 +447,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 8,
     suiDecimals: 8,
     aptosDecimals: 8,
+    seiDecimals: 8,
     wrappedAsset: 'WGLMR',
   },
   WGLMR: {
@@ -434,6 +465,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 8,
     suiDecimals: 8,
     aptosDecimals: 8,
+    seiDecimals: 8,
   },
   SOL: {
     key: 'SOL',
@@ -446,6 +478,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 9,
     suiDecimals: 8,
     aptosDecimals: 8,
+    seiDecimals: 8,
     wrappedAsset: 'WSOL',
   },
   WSOL: {
@@ -463,6 +496,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 9,
     suiDecimals: 8,
     aptosDecimals: 8,
+    seiDecimals: 8,
   },
   USDCsol: {
     key: 'USDCsol',
@@ -479,6 +513,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 6,
     suiDecimals: 6,
     aptosDecimals: 6,
+    seiDecimals: 6,
   },
   SUI: {
     key: 'SUI',
@@ -495,6 +530,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 8,
     suiDecimals: 9,
     aptosDecimals: 8,
+    seiDecimals: 8,
   },
   APT: {
     key: 'APT',
@@ -511,7 +547,25 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     solDecimals: 8,
     suiDecimals: 8,
     aptosDecimals: 8,
+    seiDecimals: 8,
   },
+  // SEI: {
+  //   key: 'SEI',
+  //   symbol: 'SEI',
+  //   nativeNetwork: 'sei',
+  //   tokenId: {
+  //     chain: 'sei',
+  //     address: 'usei',
+  //   },
+  //   icon: Icon.SEI,
+  //   coinGeckoId: 'sei',
+  //   color: '#FFFFFF',
+  //   decimals: 6,
+  //   solDecimals: 6,
+  //   suiDecimals: 6,
+  //   aptosDecimals: 6,
+  //   seiDecimals: 6,
+  // },
 };
 
 export const MAINNET_GAS_ESTIMATES: GasEstimates = {
@@ -580,5 +634,10 @@ export const MAINNET_GAS_ESTIMATES: GasEstimates = {
     sendNative: 40,
     sendToken: 40,
     claim: 1250,
+  },
+  sei: {
+    claim: 1000000,
+    sendToken: 1000000,
+    sendNative: 1000000,
   },
 };

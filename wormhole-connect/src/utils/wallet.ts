@@ -4,8 +4,9 @@ import {
   ChainName,
   Context,
   WormholeContext,
+  SendResult,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { postVaaSolanaWithRetry } from '@certusone/wormhole-sdk';
+import { CHAIN_ID_SEI, postVaaSolanaWithRetry } from '@certusone/wormhole-sdk';
 import { NotSupported, Wallet } from '@xlabs-libs/wallet-aggregator-core';
 import {
   EVMWallet,
@@ -28,6 +29,7 @@ import {
 } from '@solana/wallet-adapter-wallets';
 import { clusterApiUrl, Connection as SolanaConnection } from '@solana/web3.js';
 import { SolanaWallet } from '@xlabs-libs/wallet-aggregator-solana';
+import { SeiTransaction, SeiWallet } from '@xlabs-libs/wallet-aggregator-sei';
 import { Transaction, ConfirmOptions } from '@solana/web3.js';
 import { registerSigner, wh } from '../sdk';
 import { CHAINS, CHAINS_ARR } from '../config';
@@ -48,6 +50,7 @@ import {
   SpikaWalletAdapter,
   WalletAdapterNetwork,
 } from '@manahippo/aptos-wallet-adapter';
+import { ContractReceipt } from 'ethers';
 
 export enum TransferWallet {
   SENDING = 'sending',
@@ -216,16 +219,37 @@ export const signAptosTransaction = async (
   );
 };
 
+export const signSeiTransaction = async (
+  transaction: SeiTransaction,
+  walletType: TransferWallet,
+) => {
+  const wallet = walletConnection[walletType];
+  if (!wallet || !wallet.signAndSendTransaction) {
+    throw new Error('wallet.signAndSendTransaction is undefined');
+  }
+
+  const seiWallet = wallet as SeiWallet;
+  const result = await seiWallet.signAndSendTransaction(transaction);
+
+  if (result.data?.code) {
+    throw new Error(
+      `Sei transaction failed with code ${result.data.code}. Log: ${result.data.rawLog}`,
+    );
+  }
+
+  return result;
+};
+
 export const signAndSendTransaction = async (
   chain: ChainName,
-  transaction: any,
+  transaction: SendResult,
   walletType: TransferWallet,
   options?: ConfirmOptions,
 ): Promise<string> => {
   const network = CHAINS[chain]!;
   switch (network.context) {
     case Context.ETH: {
-      return transaction.transactionHash;
+      return (transaction as ContractReceipt).transactionHash;
     }
     case Context.SOLANA: {
       const tx = await signSolanaTransaction(
@@ -253,6 +277,13 @@ export const signAndSendTransaction = async (
       await aptosClient.waitForTransaction(tx.id);
       return tx.id;
     }
+    case Context.SEI: {
+      const tx = await signSeiTransaction(
+        transaction as SeiTransaction,
+        walletType,
+      );
+      return tx.id;
+    }
     default:
       return '';
   }
@@ -276,4 +307,14 @@ export const postVaa = async (
     Buffer.from(signedVAA),
     MAX_VAA_UPLOAD_RETRIES_SOLANA,
   );
+};
+
+export const simulateSeiTransaction = async (
+  transaction: SeiTransaction,
+  walletType: TransferWallet,
+) => {
+  const wallet = walletConnection[walletType] as SeiWallet;
+  if (wallet?.getChainId() !== CHAIN_ID_SEI)
+    throw new Error('Wallet is not for Sei chain');
+  return wallet.calculateFee(transaction);
 };

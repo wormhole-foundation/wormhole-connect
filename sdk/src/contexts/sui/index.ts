@@ -1,28 +1,16 @@
 import {
+  Connection,
   JsonRpcProvider,
+  PaginatedCoins,
+  SUI_CLOCK_OBJECT_ID,
   SUI_TYPE_ARG,
   TransactionBlock,
-  SuiTransactionBlockResponse,
-  PaginatedCoins,
-  getTransactionSender,
   getTotalGasUsed,
+  getTransactionSender,
   isValidSuiAddress,
-  SUI_CLOCK_OBJECT_ID,
-  Connection,
 } from '@mysten/sui.js';
 import { BigNumber, BigNumberish } from 'ethers';
 
-import {
-  TokenId,
-  ParsedRelayerMessage,
-  ChainName,
-  ChainId,
-  NATIVE,
-  ParsedMessage,
-  Context,
-} from '../../types';
-import { WormholeContext } from '../../wormhole';
-import { RelayerAbstract } from '../abstracts/relayer';
 import {
   getForeignAssetSui,
   getIsTransferCompletedSui,
@@ -30,19 +18,23 @@ import {
   redeemOnSui,
   transferFromSui,
 } from '@certusone/wormhole-sdk';
-import { arrayify, hexlify } from 'ethers/lib/utils';
-import { SuiContracts } from './contracts';
-import { SolanaContext } from '../solana';
-import { parseTokenTransferPayload } from '../../vaa';
-import { SuiRelayer } from './relayer';
 import { getPackageId } from '@certusone/wormhole-sdk/lib/cjs/sui';
-
-interface TransferWithRelay {
-  payloadType: number;
-  targetRelayerFee: BigNumber;
-  toNativeTokenAmount: BigNumber;
-  recipient: string;
-}
+import { arrayify, hexlify } from 'ethers/lib/utils';
+import {
+  ChainId,
+  ChainName,
+  Context,
+  NATIVE,
+  ParsedMessage,
+  ParsedRelayerMessage,
+  TokenId,
+} from '../../types';
+import { parseTokenTransferPayload } from '../../vaa';
+import { WormholeContext } from '../../wormhole';
+import { RelayerAbstract } from '../abstracts/relayer';
+import { SolanaContext } from '../solana';
+import { SuiContracts } from './contracts';
+import { SuiRelayer } from './relayer';
 
 export class SuiContext<
   T extends WormholeContext,
@@ -78,7 +70,7 @@ export class SuiContext<
     return coins;
   }
 
-  async send(
+  async innerSend(
     token: TokenId | typeof NATIVE,
     amount: string,
     sendingChain: ChainName | ChainId,
@@ -86,6 +78,7 @@ export class SuiContext<
     recipientChain: ChainName | ChainId,
     recipientAddress: string,
     relayerFee: any,
+    payload?: Uint8Array | undefined,
   ): Promise<TransactionBlock> {
     const destContext = this.context.getContext(recipientChain);
     const recipientChainId = this.context.toChainId(recipientChain);
@@ -133,8 +126,29 @@ export class SuiContext<
       formattedRecipientAccount,
       BigInt(0), // TODO: wormhole fee
       relayerFeeBigInt,
+      payload,
     );
     return tx;
+  }
+
+  async send(
+    token: TokenId | typeof NATIVE,
+    amount: string,
+    sendingChain: ChainName | ChainId,
+    senderAddress: string,
+    recipientChain: ChainName | ChainId,
+    recipientAddress: string,
+    relayerFee: any,
+  ): Promise<TransactionBlock> {
+    return this.innerSend(
+      token,
+      amount,
+      sendingChain,
+      senderAddress,
+      recipientChain,
+      recipientAddress,
+      relayerFee,
+    );
   }
 
   async sendWithPayload(
@@ -144,17 +158,26 @@ export class SuiContext<
     senderAddress: string,
     recipientChain: ChainName | ChainId,
     recipientAddress: string,
-    payload: any,
+    payload: Uint8Array | undefined,
   ): Promise<TransactionBlock> {
-    throw new Error('not implemented');
+    return this.innerSend(
+      token,
+      amount,
+      sendingChain,
+      senderAddress,
+      recipientChain,
+      recipientAddress,
+      undefined,
+      payload,
+    );
   }
 
-  formatAddress(address: string): string {
+  formatAddress(address: string): Uint8Array {
     if (!isValidSuiAddress(address)) {
       throw new Error(`can't format an invalid sui address: ${address}`);
     }
     // valid sui addresses are already 32 bytes, hex prefixed
-    return address;
+    return arrayify(address);
   }
 
   parseAddress(address: string): string {
@@ -260,20 +283,6 @@ export class SuiContext<
     return metadata.decimals;
   }
 
-  parseTransferWithRelay(payload: Buffer): TransferWithRelay {
-    let relay: TransferWithRelay = {} as TransferWithRelay;
-    // Parse the additional payload.
-    relay.payloadType = payload.readUint8(133);
-    relay.targetRelayerFee = BigNumber.from(
-      '0x' + payload.subarray(134, 166).toString('hex'),
-    );
-    relay.toNativeTokenAmount = BigNumber.from(
-      '0x' + payload.subarray(166, 198).toString('hex'),
-    );
-    relay.recipient = '0x' + payload.subarray(198, 231).toString('hex');
-    return relay;
-  }
-
   async parseMessageFromTx(
     tx: string,
     chain: ChainName | ChainId,
@@ -317,23 +326,19 @@ export class SuiContext<
       gasFee: gasFee ? BigNumber.from(gasFee) : undefined,
     };
     if (parsed.payloadType === 3) {
-      const relayerPayload = this.parseTransferWithRelay(
-        Buffer.from(message.parsedJson?.payload),
+      const relayerPayload = destContext.parseRelayerPayload(
+        Buffer.from(parsed.tokenTransferPayload),
       );
       const relayerMessage: ParsedRelayerMessage = {
         ...parsedMessage,
-        relayerFee: relayerPayload.targetRelayerFee,
+        relayerFee: relayerPayload.relayerFee,
         relayerPayloadId: parsed.payloadType as number,
-        to: relayerPayload.recipient,
+        to: relayerPayload.to,
         toNativeTokenAmount: relayerPayload.toNativeTokenAmount,
       };
       return [relayerMessage];
     }
     return [parsedMessage];
-  }
-
-  getTxIdFromReceipt(receipt: SuiTransactionBlockResponse) {
-    return receipt.digest;
   }
 
   async getNativeBalance(
@@ -551,5 +556,11 @@ export class SuiContext<
       decimals,
     );
     return fee;
+  }
+
+  async getCurrentBlock(): Promise<number> {
+    if (!this.provider) throw new Error('no provider');
+    const sequence = await this.provider.getLatestCheckpointSequenceNumber();
+    return Number(sequence);
   }
 }

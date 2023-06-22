@@ -18,14 +18,13 @@ import {
   MainnetChainName,
   TestnetChainName,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { validateDefaults, validateRpcs } from './utils';
+import { validateChainResources, validateDefaults } from './utils';
 
 const el = document.getElementById('wormhole-connect');
 if (!el)
   throw new Error('must specify an anchor element with id wormhole-connect');
 const configJson = el.getAttribute('config');
 export const config: WormholeConnectConfig | null = JSON.parse(configJson!);
-validateRpcs();
 
 export const isMainnet = config && config.env === 'mainnet';
 export const CONFIG = isMainnet ? CONF.MAINNET : CONF.TESTNET;
@@ -39,6 +38,20 @@ export const ATTEST_URL = isMainnet
   ? 'https://www.portalbridge.com/#/register'
   : 'https://wormhole-foundation.github.io/example-token-bridge-ui/#/register';
 
+export const CHAINS = isMainnet ? MAINNET_NETWORKS : TESTNET_NETWORKS;
+export const CHAINS_ARR =
+  config && config.networks
+    ? Object.values(CHAINS).filter((c) => config.networks!.includes(c.key))
+    : (Object.values(CHAINS) as NetworkConfig[]);
+
+export const TOKENS = isMainnet ? MAINNET_TOKENS : TESTNET_TOKENS;
+export const TOKENS_ARR =
+  config && config.tokens
+    ? Object.values(TOKENS).filter((c) => config.tokens!.includes(c.key))
+    : (Object.values(TOKENS) as TokenConfig[]);
+
+validateChainResources();
+
 const conf = WormholeContext.getConfig(CONFIG.env);
 const mainnetRpcs = {
   ethereum: process.env.REACT_APP_ETHEREUM_RPC || conf.rpcs.ethereum,
@@ -51,6 +64,7 @@ const mainnetRpcs = {
   moonbeam: process.env.REACT_APP_MOONBEAM_RPC || conf.rpcs.moonbeam,
   sui: process.env.REACT_APP_SUI_RPC || conf.rpcs.sui,
   aptos: process.env.REACT_APP_APTOS_RPC || conf.rpcs.aptos,
+  sei: process.env.REACT_APP_SEI_RPC || conf.rpcs.sei,
 };
 const testnetRpcs = {
   goerli: process.env.REACT_APP_GOERLI_RPC || conf.rpcs.goerli,
@@ -63,25 +77,26 @@ const testnetRpcs = {
   moonbasealpha: process.env.REACT_APP_MOONBASE_RPC || conf.rpcs.moonbasealpha,
   sui: process.env.REACT_APP_SUI_TESTNET_RPC || conf.rpcs.sui,
   aptos: process.env.REACT_APP_APTOS_TESTNET_RPC || conf.rpcs.aptos,
+  sei: process.env.REACT_APP_SEI_TESTNET_RPC || conf.rpcs.sei,
 };
 conf.rpcs = Object.assign(
   {},
   isMainnet ? mainnetRpcs : testnetRpcs,
   config?.rpcs || {},
 );
+
+const mainnetRest = {
+  sei: process.env.REACT_APP_SEI_REST || conf.rest.sei,
+};
+const testnetRest = {
+  sei: process.env.REACT_APP_SEI_REST || conf.rest.sei,
+};
+conf.rest = Object.assign(
+  {},
+  isMainnet ? mainnetRest : testnetRest,
+  config?.rest || {},
+);
 export const WH_CONFIG = conf;
-
-export const CHAINS = isMainnet ? MAINNET_NETWORKS : TESTNET_NETWORKS;
-export const CHAINS_ARR =
-  config && config.networks
-    ? Object.values(CHAINS).filter((c) => config.networks!.includes(c.key))
-    : (Object.values(CHAINS) as NetworkConfig[]);
-
-export const TOKENS = isMainnet ? MAINNET_TOKENS : TESTNET_TOKENS;
-export const TOKENS_ARR =
-  config && config.tokens
-    ? Object.values(TOKENS).filter((c) => config.tokens!.includes(c.key))
-    : (Object.values(TOKENS) as TokenConfig[]);
 
 export const GAS_ESTIMATES = isMainnet
   ? MAINNET_GAS_ESTIMATES
@@ -111,4 +126,5 @@ export const TESTNET_TO_MAINNET_CHAIN_NAMES: {
   fantom: 'fantom',
   sui: 'sui',
   aptos: 'aptos',
+  sei: 'sei',
 };

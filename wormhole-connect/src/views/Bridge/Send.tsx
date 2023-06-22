@@ -212,7 +212,8 @@ function Send(props: { valid: boolean }) {
           show={
             showValidationState &&
             !!props.valid &&
-            destGasPayment === PaymentOption.MANUAL
+            destGasPayment === PaymentOption.MANUAL &&
+            toNetwork !== 'sei'
           }
           content="This transfer will require two transactions - one on the source chain and one on the destination chain."
           warning

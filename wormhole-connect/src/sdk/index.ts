@@ -1,4 +1,4 @@
-import { Network as Environment } from '@certusone/wormhole-sdk';
+import { Network as Environment, isEVMChain } from '@certusone/wormhole-sdk';
 import { BigNumber, utils } from 'ethers';
 import {
   WormholeContext,
@@ -157,6 +157,7 @@ export const sendTransfer = async (
   toAddress: string,
   paymentOption: PaymentOption,
   toNativeToken?: string,
+  payload?: any,
 ): Promise<string> => {
   const fromChainId = wh.toChainId(fromNetwork);
   const fromChainName = wh.toChainName(fromNetwork);
@@ -171,6 +172,7 @@ export const sendTransfer = async (
       toNetwork,
       toAddress,
       undefined,
+      payload,
     );
     const txId = await signAndSendTransaction(
       fromChainName,
@@ -273,33 +275,12 @@ export const getTransferComplete = async (
   return await wh.isTransferCompleted(destChain, signedVaa);
 };
 
-export const getTxIdFromReceipt = (
-  sourceChain: ChainName | ChainId,
-  receipt: any,
-): string => {
-  return wh.getTxIdFromReceipt(sourceChain, receipt);
-};
-
 export const getCurrentBlock = async (
   chain: ChainName | ChainId,
 ): Promise<number> => {
   const chainId = wh.toChainId(chain);
   const context: any = wh.getContext(chain);
-  if (chainId === MAINNET_CHAINS.solana) {
-    const connection = context.connection;
-    if (!connection) throw new Error('no connection');
-    return await connection.getSlot();
-  } else if (chainId === MAINNET_CHAINS.sui) {
-    const provider = context.provider;
-    if (!provider) throw new Error('no provider');
-    const sequence = await provider.getLatestCheckpointSequenceNumber();
-    return Number(sequence);
-  } else if (chainId === MAINNET_CHAINS.aptos) {
-    throw new Error('Aptos getCurrentBlock not implemented');
-  } else {
-    const provider = wh.mustGetProvider(chain);
-    return await provider.getBlockNumber();
-  }
+  return context.getCurrentBlock(chainId);
 };
 
 export const estimateSendGasFee = async (
@@ -339,4 +320,12 @@ export const isAcceptedToken = async (tokenId: TokenId): Promise<boolean> => {
   if (!relayer) return false;
   const accepted = await relayer.isAcceptedToken(tokenId.address);
   return accepted;
+};
+
+export const isEvmChain = (chain: ChainName | ChainId) => {
+  return isEVMChain(wh.toChainId(chain));
+};
+
+export const toChainId = (chain: ChainName | ChainId) => {
+  return wh.toChainId(chain);
 };

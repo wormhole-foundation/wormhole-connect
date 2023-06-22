@@ -29,9 +29,9 @@ import {
   wh,
   claimTransfer,
   estimateClaimGasFee,
-  parseAddress,
   PaymentOption,
   calculateNativeTokenAmt,
+  toChainId,
 } from '../../sdk';
 import { CHAINS, TOKENS } from '../../config';
 import WalletsModal from '../WalletModal';
@@ -50,7 +50,8 @@ import { getTotalGasUsed } from '@mysten/sui.js';
 
 const calculateGas = async (chain: ChainName, receiveTx?: string) => {
   const { gasToken } = CHAINS[chain]!;
-  const { decimals } = TOKENS[gasToken];
+  const token = TOKENS[gasToken];
+  const decimals = getTokenDecimals(toChainId(chain), token.tokenId);
 
   if (chain === 'solana') {
     return toDecimals(
@@ -139,11 +140,11 @@ const getAutomaticRows = async (
       console.error(`could not fetch swap event:\n${e}`);
     }
     if (nativeSwapAmount) {
-      nativeGasAmt = toDecimals(
-        nativeSwapAmount,
-        nativeGasToken.decimals,
-        MAX_DECIMALS,
+      const decimals = getTokenDecimals(
+        wh.toChainId(txData.toChain),
+        nativeGasToken.tokenId,
       );
+      nativeGasAmt = toDecimals(nativeSwapAmount, decimals, MAX_DECIMALS);
     }
   } else if (!transferComplete) {
     // get the decimals on the target chain
@@ -222,8 +223,7 @@ function SendTo() {
     if (!txData) return;
     const addr = wallet.address.toLowerCase();
     const curAddr = wallet.currentAddress.toLowerCase();
-    const formattedRecipient = parseAddress(txData.toChain, txData.recipient);
-    const reqAddr = formattedRecipient.toLowerCase();
+    const reqAddr = txData.recipient.toLowerCase();
     return addr === curAddr && addr === reqAddr;
   }, [wallet, txData]);
 

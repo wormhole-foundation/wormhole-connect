@@ -7,6 +7,7 @@ import {
   NATIVE,
   ParsedMessage,
   Context,
+  ParsedRelayerPayload,
 } from '../../types';
 import { WormholeContext } from '../../wormhole';
 import { TokenBridgeAbstract } from '../abstracts/tokenBridge';
@@ -109,8 +110,8 @@ export class AptosContext<
     throw new Error('Aptos send with payload not implemented');
   }
 
-  formatAddress(address: string): string {
-    return hexlify(zeroPad(address, 32));
+  formatAddress(address: string): Uint8Array {
+    return arrayify(zeroPad(address, 32));
   }
 
   parseAddress(address: string): string {
@@ -229,7 +230,7 @@ export class AptosContext<
         address: tokenAddress,
       },
       sequence: BigNumber.from(sequence),
-      emitterAddress: this.formatAddress(emitter),
+      emitterAddress: hexlify(this.formatAddress(emitter)),
       block: Number(userTransaction.version),
       gasFee: BigNumber.from(userTransaction.gas_used).mul(
         userTransaction.gas_unit_price,
@@ -303,5 +304,13 @@ export class AptosContext<
 
   getTxIdFromReceipt(hash: Types.HexEncodedBytes) {
     return hash;
+  }
+
+  parseRelayerPayload(payload: Buffer): ParsedRelayerPayload {
+    throw new Error('relaying is not supported on aptos');
+  }
+
+  async getCurrentBlock(): Promise<number> {
+    throw new Error('Aptos getCurrentBlock not implemented');
   }
 }

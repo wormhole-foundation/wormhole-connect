@@ -15,6 +15,7 @@ export * from './contexts/solana';
 export * from './contexts/eth';
 export * from './contexts/sui';
 export * from './contexts/aptos';
+export * from './contexts/sei';
 export const CONFIG = {
   MAINNET: MAINNET_CONFIG,
   TESTNET: TESTNET_CONFIG,
