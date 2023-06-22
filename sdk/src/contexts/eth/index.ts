@@ -32,6 +32,9 @@ import { RelayerAbstract } from '../abstracts/relayer';
 import { SolanaContext } from '../solana';
 import { arrayify } from 'ethers/lib/utils';
 
+/**
+ * @category EVM
+ */
 export class EthContext<
   T extends WormholeContext,
 > extends RelayerAbstract<ethers.ContractReceipt> {
@@ -74,6 +77,13 @@ export class EthContext<
     return addr;
   }
 
+  /**
+   * Returns the decimals for a token
+   *
+   * @param tokenAddr The token address
+   * @param chain The token chain name or id
+   * @returns The number of token decimals
+   */
   async fetchTokenDecimals(
     tokenAddr: string,
     chain: ChainName | ChainId,
@@ -111,14 +121,17 @@ export class EthContext<
   /**
    * Approves amount for bridge transfer. If no amount is specified, the max amount is approved
    *
-   * @param token The tokenId (chain and address) of the token being sent
-   * @param Amount The amount to approve. If absent, will approve the maximum amount
-   * @throws If unable to get the signer or contracts
+   * @param chain The sending chain name or id
+   * @param contractAddress The contract for which to approve (i.e. bridge or relayer)
+   * @param tokenAddr The token address
+   * @param amount The amount to approve
+   * @param overrides Optional overrides, varies by chain
+   * @throws If the token address does not exist
    */
   async approve(
     chain: ChainName | ChainId,
     contractAddress: string,
-    token: string,
+    tokenAddr: string,
     amount?: BigNumberish,
     overrides: PayableOverrides & { from?: string | Promise<string> } = {},
   ): Promise<ethers.ContractReceipt | void> {
@@ -126,11 +139,11 @@ export class EthContext<
     if (!signer) throw new Error(`No signer for ${chain}`);
     const senderAddress = await signer.getAddress();
     const tokenImplementation = TokenImplementation__factory.connect(
-      token,
+      tokenAddr,
       signer,
     );
     if (!tokenImplementation)
-      throw new Error(`token contract not available for ${token}`);
+      throw new Error(`token contract not available for ${tokenAddr}`);
 
     const approved = await tokenImplementation.allowance(
       senderAddress,
@@ -148,6 +161,19 @@ export class EthContext<
     }
   }
 
+  /**
+   * Prepare a send tx for a Token Bridge transfer (does not dispatch the transaction)
+   *
+   * @param token The Token Identifier (chain/address) or `'native'` if sending the native token
+   * @param amount The token amount to be sent, as a string
+   * @param sendingChain The source chain name or id
+   * @param senderAddress The address that is dispatching the transfer
+   * @param recipientChain The destination chain name or id
+   * @param recipientAddress The wallet address where funds will be sent (On solana, this is the associated token account)
+   * @param relayerFee A fee that would go to a relayer, if any
+   * @param overrides Overrides
+   * @returns The populated transaction
+   */
   async prepareSend(
     token: TokenId | typeof NATIVE,
     amount: string,
@@ -275,6 +301,21 @@ export class EthContext<
     return await v.wait();
   }
 
+  /**
+   * Prepares a send tx for a Token Bridge transfer with a payload.  The payload is used to convey extra information about a transfer to be utilized in an application
+   *
+   * @dev This _must_ be claimed on the destination chain, see `redeem`
+   *
+   * @param token The Token Identifier (chain/address) or `'native'` if sending the native token
+   * @param amount The token amount to be sent, as a string
+   * @param sendingChain The source chain name or id
+   * @param senderAddress The address that is dispatching the transfer
+   * @param recipientChain The destination chain name or id
+   * @param recipientAddress The wallet address where funds will be sent (On solana, this is the associated token account)
+   * @param payload Arbitrary bytes that can contain any addition information about a given transfer
+   * @param overrides Overrides
+   * @returns The populated transaction
+   */
   async sendWithPayload(
     token: TokenId | typeof NATIVE,
     amount: string,
@@ -320,6 +361,19 @@ export class EthContext<
     }
   }
 
+  /**
+   * Prepares a send tx for a Token Bridge Relay transfer. This will automatically dispatch funds to the recipient on the destination chain.
+   *
+   * @param token The Token Identifier (native chain/address) or `'native'` if sending the native token
+   * @param amount The token amount to be sent, as a string
+   * @param toNativeToken The amount of sending token to be converted to native gas token on the destination chain
+   * @param sendingChain The source chain name or id
+   * @param senderAddress The address that is dispatching the transfer
+   * @param recipientChain The destination chain name or id
+   * @param recipientAddress The wallet address where funds will be sent (On solana, this is the associated token account)
+   * @param overrides Optional overrides, varies by chain
+   * @returns The populated relay transaction
+   */
   async prepareSendWithRelay(
     token: TokenId | 'native',
     amount: string,
@@ -406,6 +460,14 @@ export class EthContext<
     return await v.wait();
   }
 
+  /**
+   * Prepares a redeem tx, which redeems funds for a token bridge transfer on the destination chain
+   *
+   * @param destChain The destination chain name or id
+   * @param signedVAA The Signed VAA bytes
+   * @param overrides Optional overrides, varies between chains
+   * @returns The populated redeem transaction
+   */
   async prepareRedeem(
     destChain: ChainName | ChainId,
     signedVAA: Uint8Array,

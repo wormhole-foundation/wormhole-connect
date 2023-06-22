@@ -7,13 +7,36 @@ import {
   ChainName,
   ChainId,
 } from '../../types';
+import { WormholeContext } from 'wormhole';
 
-// template for different environment contexts
+/**
+ * A standard set of methods for interacting with the Token Bridge contracts across any of the supported chains
+ *
+ * @example
+ * const context = Wormhole.getContext(chain); // get the chain Context
+ * context.send(...); // call any of the supported methods in a standardized uniform fashion
+ */
 export abstract class TokenBridgeAbstract<TransactionResult> {
+  /**
+   * A standard set of methods for accessing interfaces for Wormhole contracts on a given chain
+   * @see {@link ContractsAbstract}
+   */
   protected abstract contracts: AnyContracts;
+  protected abstract context: WormholeContext;
 
   /**
-   * These operations have to be implemented in subclasses.
+   * Send a Token Bridge transfer
+   *
+   * @dev This _must_ be claimed on the destination chain, see `redeem`
+   *
+   * @param token The Token Identifier (chain/address) or `'native'` if sending the native token
+   * @param amount The token amount to be sent, as a string
+   * @param sendingChain The source chain name or id
+   * @param senderAddress The address that is dispatching the transfer
+   * @param recipientChain The destination chain name or id
+   * @param recipientAddress The wallet address where funds will be sent (On solana, this is the associated token account)
+   * @param relayerFee A fee that would go to a relayer, if any
+   * @returns The transaction receipt
    */
   protected abstract send(
     token: TokenId | 'native',
@@ -25,6 +48,20 @@ export abstract class TokenBridgeAbstract<TransactionResult> {
     relayerFee: any,
   ): Promise<TransactionResult>;
 
+  /**
+   * Send a Token Bridge transfer with a payload.  The payload is used to convey extra information about a transfer to be utilized in an application
+   *
+   * @dev This _must_ be claimed on the destination chain, see `redeem`
+   *
+   * @param token The Token Identifier (chain/address) or `'native'` if sending the native token
+   * @param amount The token amount to be sent, as a string
+   * @param sendingChain The source chain name or id
+   * @param senderAddress The address that is dispatching the transfer
+   * @param recipientChain The destination chain name or id
+   * @param recipientAddress The wallet address where funds will be sent (On solana, this is the associated token account)
+   * @param payload Arbitrary bytes that can contain any addition information about a given transfer
+   * @returns The transaction receipt
+   */
   protected abstract sendWithPayload(
     token: TokenId | 'native',
     amount: string,
@@ -36,51 +73,118 @@ export abstract class TokenBridgeAbstract<TransactionResult> {
   ): Promise<TransactionResult>;
 
   /**
-   * Format an address to a 32-byte array, padded with zeros if needed
-   * @param address The address to format
-   * @returns A 32 byte array of the address, padded with zeros if needed
+   * Format an address to 32-bytes which can be utilized by the Wormhole contracts
+   *
+   * @param address The address as a string
+   * @returns The address as a 32-byte Wormhole address
    */
-  protected abstract formatAddress(address: string): Uint8Array;
+  protected abstract formatAddress(address: string): any;
   /**
-   * Parse an address to the blockchain specific address format
-   * (e.g. 40-byte hex 0xabcd... for evm chains)
-   * @param address The address to parse
-   * @returns The parsed address to the blockchain specific format
+   * Parse an address from a 32-byte Wormhole address which is the standard format for a given chain
+   *
+   * @param address The 32-byte wormhole address
+   * @returns The address in the blockchain specific format
    */
-  protected abstract parseAddress(address: string | Uint8Array): string;
+  protected abstract parseAddress(address: any): string;
 
-  protected abstract formatAssetAddress(address: string): Promise<Uint8Array>;
-  protected abstract parseAssetAddress(address: string): Promise<string>;
+  /**
+   * Format a token address to 32-bytes which can be utilized by the Wormhole contracts
+   *
+   * @param address The token address as a string
+   * @returns The token address as a 32-byte Wormhole address
+   */
+  protected abstract formatAssetAddress(address: string): Promise<any>;
+  /**
+   * Parse a token address from a 32-byte Wormhole address which is the standard format for a given chain
+   *
+   * @param address The 32-byte wormhole address
+   * @returns The token address in the blockchain specific format
+   */
+  protected abstract parseAssetAddress(address: any): Promise<string>;
 
+  /**
+   * Fetches the address for a token on any chain (These are the Wormhole token addresses, not necessarily the cannonical version of that token)
+   *
+   * @param tokenId The Token ID (chain/address)
+   * @param chain The chain name or id
+   * @returns The Wormhole address on the given chain, null if it does not exist
+   */
   protected abstract getForeignAsset(
     tokenId: TokenId,
     chain: ChainName | ChainId,
   ): Promise<string | null>;
+  /**
+   * Fetches the address for a token on any chain (These are the Wormhole token addresses, not necessarily the cannonical version of that token)
+   *
+   * @param tokenId The Token ID (chain/address)
+   * @param chain The chain name or id
+   * @returns The Wormhole address on the given chain
+   * @throws Throws if the token does not exist
+   */
   protected abstract mustGetForeignAsset(
     tokenId: TokenId,
     chain: ChainName | ChainId,
   ): Promise<string>;
+  /**
+   * Parses all relevant information from a transaction given the sending tx hash and sending chain
+   *
+   * @param tx The sending transaction hash
+   * @param chain The sending chain name or id
+   * @returns The parsed data
+   */
   protected abstract parseMessageFromTx(
     tx: string,
     chain: ChainName | ChainId,
   ): Promise<ParsedMessage[] | ParsedRelayerMessage[]>;
 
+  /**
+   * Fetches the native token balance for a wallet
+   *
+   * @param walletAddress The wallet address
+   * @param chain The chain name or id
+   * @returns The native balance as a BigNumber
+   */
   protected abstract getNativeBalance(
     walletAddress: string,
     chain: ChainName | ChainId,
   ): Promise<BigNumber>;
+  /**
+   * Fetches the balance of a given token for a wallet
+   *
+   * @param walletAddress The wallet address
+   * @param tokenId The token ID (its home chain and address on the home chain)
+   * @param chain The chain name or id
+   * @returns The token balance of the wormhole asset as a BigNumber
+   */
   protected abstract getTokenBalance(
     walletAddress: string,
     tokenId: TokenId,
     chain: ChainName | ChainId,
   ): Promise<BigNumber | null>;
 
+  /**
+   * Redeems funds for a token bridge transfer on the destination chain
+   *
+   * @param destChain The destination chain name or id
+   * @param signedVAA The Signed VAA bytes
+   * @param overrides Optional overrides, varies between chains
+   * @param payerAddr Optional, Solana specific. The address that pays for the redeem transaction
+   * @returns The transaction receipt
+   */
   protected abstract redeem(
     destChain: ChainName | ChainId,
     signedVAA: Uint8Array,
     overrides: any,
     payerAddr?: any,
   ): Promise<TransactionResult>;
+
+  /**
+   * Checks if a transfer has been completed or not
+   *
+   * @param destChain The destination chain name or id
+   * @param signedVAA The Signed VAA bytes
+   * @returns True if the transfer has been completed, otherwise false
+   */
   protected abstract isTransferCompleted(
     destChain: ChainName | ChainId,
     signedVaa: string,

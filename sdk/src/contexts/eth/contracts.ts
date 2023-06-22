@@ -12,6 +12,9 @@ import { ContractsAbstract } from '../abstracts/contracts';
 import { WormholeContext } from '../../wormhole';
 import { filterByContext } from '../../utils';
 
+/**
+ * @category EVM
+ */
 export class EthContracts<
   T extends WormholeContext,
 > extends ContractsAbstract<T> {

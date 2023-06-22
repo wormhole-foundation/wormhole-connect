@@ -14,6 +14,9 @@ import { createReadOnlyWormholeProgramInterface } from './solana/wormhole';
 import { createReadOnlyTokenBridgeProgramInterface } from './solana/tokenBridge';
 import { createReadOnlyNftBridgeProgramInterface } from './solana/nftBridge';
 
+/**
+ * @category Solana
+ */
 export class SolContracts<
   T extends WormholeContext,
 > extends ContractsAbstract<T> {

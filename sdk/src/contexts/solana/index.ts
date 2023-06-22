@@ -70,6 +70,9 @@ const SOLANA_MAINNET_EMMITER_ID =
 const SOLANA_TESTNET_EMITTER_ID =
   '3b26409f8aaded3f5ddca184695aa6a0fa829b0c85caf84856324896d214ca98';
 
+/**
+ * @category Solana
+ */
 export class SolanaContext<
   T extends WormholeContext,
 > extends TokenBridgeAbstract<Transaction> {
@@ -88,6 +91,11 @@ export class SolanaContext<
     this.contracts = new SolContracts(context);
   }
 
+  /**
+   * Sets the Connection
+   *
+   * @param connection The Solana Connection
+   */
   async setConnection(connection: Connection) {
     this.connection = connection;
   }
@@ -105,8 +113,17 @@ export class SolanaContext<
     return decimals;
   }
 
-  async getTokenAccountOwner(tokenAddr: string): Promise<string> {
-    const token = await getAccount(this.connection!, new PublicKey(tokenAddr));
+  /**
+   * Gets the owner address of an Associated Token Account
+   *
+   * @param accountAddr The associated token account address
+   * @returns The owner address
+   */
+  async getTokenAccountOwner(accountAddr: string): Promise<string> {
+    const token = await getAccount(
+      this.connection!,
+      new PublicKey(accountAddr),
+    );
     return token.owner.toString();
   }
 
@@ -141,7 +158,17 @@ export class SolanaContext<
     return BigNumber.from(balance.value.amount);
   }
 
-  async getAssociatedTokenAddress(token: TokenId, account: PublicKeyInitData) {
+  /**
+   * Gets the Associate Token Address
+   *
+   * @param token The token id (home chain/address)
+   * @param account The wallet address
+   * @returns The associated token address
+   */
+  async getAssociatedTokenAddress(
+    token: TokenId,
+    account: PublicKeyInitData,
+  ): Promise<PublicKey> {
     const solAddr = await this.mustGetForeignAsset(token, SOLANA_CHAIN_NAME);
     return await getAssociatedTokenAddress(
       new PublicKey(solAddr),
@@ -152,6 +179,13 @@ export class SolanaContext<
     );
   }
 
+  /**
+   * Gets the Associate Token Account
+   *
+   * @param token The token id (home chain/address)
+   * @param account The wallet address
+   * @returns The account, or null if it does not exist
+   */
   async getAssociatedTokenAccount(
     token: TokenId,
     account: PublicKeyInitData,
@@ -166,6 +200,14 @@ export class SolanaContext<
     }
   }
 
+  /**
+   * Creates the Associated Token Account for a given wallet address. This must exist before a user can send a token bridge transfer, also it is the recipient address when sending the transfer.
+   *
+   * @param token The token id (home chain/address)
+   * @param account The wallet address
+   * @param commitment The commitment level
+   * @returns The transaction for creating the Associated Token Account
+   */
   async createAssociatedTokenAccount(
     token: TokenId,
     account: PublicKeyInitData,
@@ -194,6 +236,20 @@ export class SolanaContext<
     return transaction;
   }
 
+  /**
+   * Prepare the transfer instructions for a native token bridge transfer from Solana
+   *
+   * @dev This _must_ be claimed on the destination chain, see `redeem`
+   *
+   * @param senderAddress The address of the sender
+   * @param amount The token amount to be sent
+   * @param recipientChain The destination chain name or id
+   * @param recipientAddress The associated token address where funds will be sent
+   * @param relayerFee The fee that would be paid to a relayer
+   * @param payload Arbitrary bytes that can contain any addition information about a given transfer
+   * @param commitment The commitment level
+   * @returns The transaction for sending Native SOL from Solana
+   */
   private async transferNativeSol(
     senderAddress: PublicKeyInitData,
     amount: bigint,
@@ -301,6 +357,24 @@ export class SolanaContext<
     return transaction;
   }
 
+  /**
+   * Prepare the transfer instructions for a token bridge transfer from Solana
+   *
+   * @dev This _must_ be claimed on the destination chain, see `redeem`
+   *
+   * @param senderAddress The address of the sender
+   * @param amount The token amount to be sent
+   * @param recipientChain The destination chain name or id
+   * @param recipientAddress The associated token address where funds will be sent
+   * @param fromAddress The token account pubkey, owned by fromOwner address
+   * @param tokenChainId The id of the token's chain
+   * @param mintAddress The token address on the destination
+   * @param fromOwnerAddress If not specified, will default to the sender address
+   * @param relayerFee The fee that would be paid to a relayer
+   * @param payload Arbitrary bytes that can contain any addition information about a given transfer
+   * @param commitment The commitment level
+   * @returns The transaction for sending tokens from Solana
+   */
   private async transferFromSolana(
     senderAddress: PublicKeyInitData,
     amount: bigint,

@@ -27,7 +27,7 @@
 <ul class="tsd-hierarchy">
 <li><span class="target">EthContext</span></li></ul></li></ul></section><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/barnjamin/wormhole-connect/blob/ffd1682/sdk/src/contexts/eth/index.ts#L33">sdk/src/contexts/eth/index.ts:33</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/wormhole-foundation/wormhole-connect/blob/49b7f84/sdk/src/contexts/eth/index.ts#L36">src/contexts/eth/index.ts:36</a></li></ul></aside>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <details class="tsd-index-content tsd-index-accordion" open><summary class="tsd-accordion-summary tsd-index-summary">
@@ -55,7 +55,6 @@
 <a href="EthContext.html#getNativeBalance" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Native<wbr/>Balance</span></a>
 <a href="EthContext.html#getRelayerFee" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Relayer<wbr/>Fee</span></a>
 <a href="EthContext.html#getTokenBalance" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Token<wbr/>Balance</span></a>
-<a href="EthContext.html#getTxIdFromReceipt" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Tx<wbr/>Id<wbr/>From<wbr/>Receipt</span></a>
 <a href="EthContext.html#isTransferCompleted" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>is<wbr/>Transfer<wbr/>Completed</span></a>
 <a href="EthContext.html#mustGetForeignAsset" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>must<wbr/>Get<wbr/>Foreign<wbr/>Asset</span></a>
 <a href="EthContext.html#parseAddress" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>parse<wbr/>Address</span></a>
@@ -65,6 +64,7 @@
 <a href="EthContext.html#prepareSend" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>prepare<wbr/>Send</span></a>
 <a href="EthContext.html#prepareSendWithRelay" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>prepare<wbr/>Send<wbr/>With<wbr/>Relay</span></a>
 <a href="EthContext.html#redeem" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>redeem</span></a>
+<a href="EthContext.html#relaySupported" class="tsd-index-link tsd-is-protected tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>relay<wbr/>Supported</span></a>
 <a href="EthContext.html#send" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>send</span></a>
 <a href="EthContext.html#sendWithPayload" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>send<wbr/>With<wbr/>Payload</span></a>
 <a href="EthContext.html#sendWithRelay" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>send<wbr/>With<wbr/>Relay</span></a>
@@ -89,31 +89,32 @@
 <h4 class="tsd-returns-title">Returns <a href="EthContext.html" class="tsd-signature-type tsd-kind-class">EthContext</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">T</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Overrides RelayerAbstract&lt;ethers.ContractReceipt&gt;.constructor</p>
 <ul>
-<li>Defined in <a href="https://github.com/barnjamin/wormhole-connect/blob/ffd1682/sdk/src/contexts/eth/index.ts#L40">sdk/src/contexts/eth/index.ts:40</a></li></ul></aside></li></ul></section></section>
+<li>Defined in <a href="https://github.com/wormhole-foundation/wormhole-connect/blob/49b7f84/sdk/src/contexts/eth/index.ts#L43">src/contexts/eth/index.ts:43</a></li></ul></aside></li></ul></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Properties</h2>
 <section class="tsd-panel tsd-member"><a id="context" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>context</span><a href="#context" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">context</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type tsd-kind-type-parameter">T</span></div><aside class="tsd-sources">
+<p>Overrides RelayerAbstract.context</p>
 <ul>
-<li>Defined in <a href="https://github.com/barnjamin/wormhole-connect/blob/ffd1682/sdk/src/contexts/eth/index.ts#L38">sdk/src/contexts/eth/index.ts:38</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/wormhole-foundation/wormhole-connect/blob/49b7f84/sdk/src/contexts/eth/index.ts#L41">src/contexts/eth/index.ts:41</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member"><a id="contracts" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>contracts</span><a href="#contracts" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">contracts</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type ">EthContracts</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">T</span><span class="tsd-signature-symbol">&gt;</span></div><aside class="tsd-sources">
 <p>Overrides RelayerAbstract.contracts</p>
 <ul>
-<li>Defined in <a href="https://github.com/barnjamin/wormhole-connect/blob/ffd1682/sdk/src/contexts/eth/index.ts#L37">sdk/src/contexts/eth/index.ts:37</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/wormhole-foundation/wormhole-connect/blob/49b7f84/sdk/src/contexts/eth/index.ts#L40">src/contexts/eth/index.ts:40</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member"><a id="type" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>type</span><a href="#type" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">type</span><span class="tsd-signature-symbol">:</span> <a href="../enums/Context.html#ETH" class="tsd-signature-type tsd-kind-enum-member">ETH</a><span class="tsd-signature-symbol"> = Context.ETH</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/barnjamin/wormhole-connect/blob/ffd1682/sdk/src/contexts/eth/index.ts#L36">sdk/src/contexts/eth/index.ts:36</a></li></ul></aside></section></section>
+<li>Defined in <a href="https://github.com/wormhole-foundation/wormhole-connect/blob/49b7f84/sdk/src/contexts/eth/index.ts#L39">src/contexts/eth/index.ts:39</a></li></ul></aside></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Methods</h2>
 <section class="tsd-panel tsd-member"><a id="approve" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>approve</span><a href="#approve" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
-<li class="tsd-signature tsd-anchor-link" id="approve.approve-1"><span class="tsd-kind-call-signature">approve</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">chain</span>, <span class="tsd-kind-parameter">contractAddress</span>, <span class="tsd-kind-parameter">token</span>, <span class="tsd-kind-parameter">amount</span><span class="tsd-signature-symbol">?</span>, <span class="tsd-kind-parameter">overrides</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type ">ContractReceipt</span><span class="tsd-signature-symbol">&gt;</span><a href="#approve.approve-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="approve.approve-1"><span class="tsd-kind-call-signature">approve</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">chain</span>, <span class="tsd-kind-parameter">contractAddress</span>, <span class="tsd-kind-parameter">tokenAddr</span>, <span class="tsd-kind-parameter">amount</span><span class="tsd-signature-symbol">?</span>, <span class="tsd-kind-parameter">overrides</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type ">ContractReceipt</span><span class="tsd-signature-symbol">&gt;</span><a href="#approve.approve-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Approves amount for bridge transfer. If no amount is specified, the max amount is approved</p>
 </div>
@@ -121,24 +122,36 @@
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5><span class="tsd-kind-parameter">chain</span>: <a href="../types/ChainName.html" class="tsd-signature-type tsd-kind-type-alias">ChainName</a><span class="tsd-signature-symbol"> | </span><a href="../types/ChainId.html" class="tsd-signature-type tsd-kind-type-alias">ChainId</a></h5></li>
-<li>
-<h5><span class="tsd-kind-parameter">contractAddress</span>: <span class="tsd-signature-type">string</span></h5></li>
-<li>
-<h5><span class="tsd-kind-parameter">token</span>: <span class="tsd-signature-type">string</span></h5>
-<div class="tsd-comment tsd-typography"><p>The tokenId (chain and address) of the token being sent</p>
+<h5><span class="tsd-kind-parameter">chain</span>: <a href="../types/ChainName.html" class="tsd-signature-type tsd-kind-type-alias">ChainName</a><span class="tsd-signature-symbol"> | </span><a href="../types/ChainId.html" class="tsd-signature-type tsd-kind-type-alias">ChainId</a></h5>
+<div class="tsd-comment tsd-typography"><p>The sending chain name or id</p>
 </div>
 <div class="tsd-comment tsd-typography"></div></li>
 <li>
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-parameter">amount</span>: <span class="tsd-signature-type ">BigNumberish</span></h5></li>
+<h5><span class="tsd-kind-parameter">contractAddress</span>: <span class="tsd-signature-type">string</span></h5>
+<div class="tsd-comment tsd-typography"><p>The contract for which to approve (i.e. bridge or relayer)</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li>
 <li>
-<h5><span class="tsd-kind-parameter">overrides</span>: <span class="tsd-signature-type ">PayableOverrides</span><span class="tsd-signature-symbol"> &amp; </span><span class="tsd-signature-symbol">{ </span><br/><span>    </span><span class="tsd-kind-property">from</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol"> = {}</span></h5></li></ul></div>
+<h5><span class="tsd-kind-parameter">tokenAddr</span>: <span class="tsd-signature-type">string</span></h5>
+<div class="tsd-comment tsd-typography"><p>The token address</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li>
+<li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-parameter">amount</span>: <span class="tsd-signature-type ">BigNumberish</span></h5>
+<div class="tsd-comment tsd-typography"><p>The amount to approve</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li>
+<li>
+<h5><span class="tsd-kind-parameter">overrides</span>: <span class="tsd-signature-type ">PayableOverrides</span><span class="tsd-signature-symbol"> &amp; </span><span class="tsd-signature-symbol">{ </span><br/><span>    </span><span class="tsd-kind-property">from</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol"> = {}</span></h5>
+<div class="tsd-comment tsd-typography"><p>Optional overrides, varies by chain</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type ">ContractReceipt</span><span class="tsd-signature-symbol">&gt;</span></h4>
 <div class="tsd-comment tsd-typography">
-<h4>Throws</h4><p>If unable to get the signer or contracts</p>
+<h4>Throws</h4><p>If the token address does not exist</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/barnjamin/wormhole-connect/blob/ffd1682/sdk/src/contexts/eth/index.ts#L116">sdk/src/contexts/eth/index.ts:116</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/wormhole-foundation/wormhole-connect/blob/49b7f84/sdk/src/contexts/eth/index.ts#L129">src/contexts/eth/index.ts:129</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="calculateMaxSwapAmount" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>calculate<wbr/>Max<wbr/>Swap<wbr/>Amount</span><a href="#calculateMaxSwapAmount" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -156,7 +169,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">BigNumber</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Overrides RelayerAbstract.calculateMaxSwapAmount</p>
 <ul>
-<li>Defined in <a href="https://github.com/barnjamin/wormhole-connect/blob/ffd1682/sdk/src/contexts/eth/index.ts#L433">sdk/src/contexts/eth/index.ts:433</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/wormhole-foundation/wormhole-connect/blob/49b7f84/sdk/src/contexts/eth/index.ts#L495">src/contexts/eth/index.ts:495</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="calculateNativeTokenAmt" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>calculate<wbr/>Native<wbr/>Token<wbr/>Amt</span><a href="#calculateNativeTokenAmt" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -176,22 +189,32 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">BigNumber</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Overrides RelayerAbstract.calculateNativeTokenAmt</p>
 <ul>
-<li>Defined in <a href="https://github.com/barnjamin/wormhole-connect/blob/ffd1682/sdk/src/contexts/eth/index.ts#L443">sdk/src/contexts/eth/index.ts:443</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/wormhole-foundation/wormhole-connect/blob/49b7f84/sdk/src/contexts/eth/index.ts#L505">src/contexts/eth/index.ts:505</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="fetchTokenDecimals" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>fetch<wbr/>Token<wbr/>Decimals</span><a href="#fetchTokenDecimals" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
 <li class="tsd-signature tsd-anchor-link" id="fetchTokenDecimals.fetchTokenDecimals-1"><span class="tsd-kind-call-signature">fetch<wbr/>Token<wbr/>Decimals</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">tokenAddr</span>, <span class="tsd-kind-parameter">chain</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><a href="#fetchTokenDecimals.fetchTokenDecimals-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Returns the decimals for a token</p>
+</div>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5><span class="tsd-kind-parameter">tokenAddr</span>: <span class="tsd-signature-type">string</span></h5></li>
+<h5><span class="tsd-kind-parameter">tokenAddr</span>: <span class="tsd-signature-type">string</span></h5>
+<div class="tsd-comment tsd-typography"><p>The token address</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li>
 <li>
-<h5><span class="tsd-kind-parameter">chain</span>: <a href="../types/ChainName.html" class="tsd-signature-type tsd-kind-type-alias">ChainName</a><span class="tsd-signature-symbol"> | </span><a href="../types/ChainId.html" class="tsd-signature-type tsd-kind-type-alias">ChainId</a></h5></li></ul></div>
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
+<h5><span class="tsd-kind-parameter">chain</span>: <a href="../types/ChainName.html" class="tsd-signature-type tsd-kind-type-alias">ChainName</a><span class="tsd-signature-symbol"> | </span><a href="../types/ChainId.html" class="tsd-signature-type tsd-kind-type-alias">ChainId</a></h5>
+<div class="tsd-comment tsd-typography"><p>The token chain name or id</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span></h4><p>The number of token decimals</p>
+
+<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/barnjamin/wormhole-connect/blob/ffd1682/sdk/src/contexts/eth/index.ts#L75">sdk/src/contexts/eth/index.ts:75</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/wormhole-foundation/wormhole-connect/blob/49b7f84/sdk/src/contexts/eth/index.ts#L85">src/contexts/eth/index.ts:85</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="formatAddress" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>format<wbr/>Address</span><a href="#formatAddress" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -205,7 +228,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">BytesLike</span></h4><aside class="tsd-sources">
 <p>Overrides RelayerAbstract.formatAddress</p>
 <ul>
-<li>Defined in <a href="https://github.com/barnjamin/wormhole-connect/blob/ffd1682/sdk/src/contexts/eth/index.ts#L591">sdk/src/contexts/eth/index.ts:591</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/wormhole-foundation/wormhole-connect/blob/49b7f84/sdk/src/contexts/eth/index.ts#L653">src/contexts/eth/index.ts:653</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="formatAssetAddress" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>format<wbr/>Asset<wbr/>Address</span><a href="#formatAssetAddress" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -219,7 +242,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">BytesLike</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Overrides RelayerAbstract.formatAssetAddress</p>
 <ul>
-<li>Defined in <a href="https://github.com/barnjamin/wormhole-connect/blob/ffd1682/sdk/src/contexts/eth/index.ts#L600">sdk/src/contexts/eth/index.ts:600</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/wormhole-foundation/wormhole-connect/blob/49b7f84/sdk/src/contexts/eth/index.ts#L662">src/contexts/eth/index.ts:662</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="getForeignAsset" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Foreign<wbr/>Asset</span><a href="#getForeignAsset" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -235,7 +258,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Overrides RelayerAbstract.getForeignAsset</p>
 <ul>
-<li>Defined in <a href="https://github.com/barnjamin/wormhole-connect/blob/ffd1682/sdk/src/contexts/eth/index.ts#L46">sdk/src/contexts/eth/index.ts:46</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/wormhole-foundation/wormhole-connect/blob/49b7f84/sdk/src/contexts/eth/index.ts#L49">src/contexts/eth/index.ts:49</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="getNativeBalance" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Native<wbr/>Balance</span><a href="#getNativeBalance" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -251,7 +274,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">BigNumber</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Overrides RelayerAbstract.getNativeBalance</p>
 <ul>
-<li>Defined in <a href="https://github.com/barnjamin/wormhole-connect/blob/ffd1682/sdk/src/contexts/eth/index.ts#L88">sdk/src/contexts/eth/index.ts:88</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/wormhole-foundation/wormhole-connect/blob/49b7f84/sdk/src/contexts/eth/index.ts#L98">src/contexts/eth/index.ts:98</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="getRelayerFee" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Relayer<wbr/>Fee</span><a href="#getRelayerFee" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -269,7 +292,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">BigNumber</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Overrides RelayerAbstract.getRelayerFee</p>
 <ul>
-<li>Defined in <a href="https://github.com/barnjamin/wormhole-connect/blob/ffd1682/sdk/src/contexts/eth/index.ts#L562">sdk/src/contexts/eth/index.ts:562</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/wormhole-foundation/wormhole-connect/blob/49b7f84/sdk/src/contexts/eth/index.ts#L624">src/contexts/eth/index.ts:624</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="getTokenBalance" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Token<wbr/>Balance</span><a href="#getTokenBalance" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -287,20 +310,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type ">BigNumber</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Overrides RelayerAbstract.getTokenBalance</p>
 <ul>
-<li>Defined in <a href="https://github.com/barnjamin/wormhole-connect/blob/ffd1682/sdk/src/contexts/eth/index.ts#L96">sdk/src/contexts/eth/index.ts:96</a></li></ul></aside></li></ul></section>
-<section class="tsd-panel tsd-member"><a id="getTxIdFromReceipt" class="tsd-anchor"></a>
-<h3 class="tsd-anchor-link"><span>get<wbr/>Tx<wbr/>Id<wbr/>From<wbr/>Receipt</span><a href="#getTxIdFromReceipt" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<ul class="tsd-signatures">
-<li class="tsd-signature tsd-anchor-link" id="getTxIdFromReceipt.getTxIdFromReceipt-1"><span class="tsd-kind-call-signature">get<wbr/>Tx<wbr/>Id<wbr/>From<wbr/>Receipt</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">receipt</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><a href="#getTxIdFromReceipt.getTxIdFromReceipt-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
-<li class="tsd-description">
-<div class="tsd-parameters">
-<h4 class="tsd-parameters-title">Parameters</h4>
-<ul class="tsd-parameter-list">
-<li>
-<h5><span class="tsd-kind-parameter">receipt</span>: <span class="tsd-signature-type ">ContractReceipt</span></h5></li></ul></div>
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/barnjamin/wormhole-connect/blob/ffd1682/sdk/src/contexts/eth/index.ts#L608">sdk/src/contexts/eth/index.ts:608</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/wormhole-foundation/wormhole-connect/blob/49b7f84/sdk/src/contexts/eth/index.ts#L106">src/contexts/eth/index.ts:106</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="isTransferCompleted" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>is<wbr/>Transfer<wbr/>Completed</span><a href="#isTransferCompleted" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -316,7 +326,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Overrides RelayerAbstract.isTransferCompleted</p>
 <ul>
-<li>Defined in <a href="https://github.com/barnjamin/wormhole-connect/blob/ffd1682/sdk/src/contexts/eth/index.ts#L582">sdk/src/contexts/eth/index.ts:582</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/wormhole-foundation/wormhole-connect/blob/49b7f84/sdk/src/contexts/eth/index.ts#L644">src/contexts/eth/index.ts:644</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="mustGetForeignAsset" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>must<wbr/>Get<wbr/>Foreign<wbr/>Asset</span><a href="#mustGetForeignAsset" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -332,7 +342,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Overrides RelayerAbstract.mustGetForeignAsset</p>
 <ul>
-<li>Defined in <a href="https://github.com/barnjamin/wormhole-connect/blob/ffd1682/sdk/src/contexts/eth/index.ts#L66">sdk/src/contexts/eth/index.ts:66</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/wormhole-foundation/wormhole-connect/blob/49b7f84/sdk/src/contexts/eth/index.ts#L69">src/contexts/eth/index.ts:69</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="parseAddress" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>parse<wbr/>Address</span><a href="#parseAddress" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -346,7 +356,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4><aside class="tsd-sources">
 <p>Overrides RelayerAbstract.parseAddress</p>
 <ul>
-<li>Defined in <a href="https://github.com/barnjamin/wormhole-connect/blob/ffd1682/sdk/src/contexts/eth/index.ts#L595">sdk/src/contexts/eth/index.ts:595</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/wormhole-foundation/wormhole-connect/blob/49b7f84/sdk/src/contexts/eth/index.ts#L657">src/contexts/eth/index.ts:657</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="parseAssetAddress" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>parse<wbr/>Asset<wbr/>Address</span><a href="#parseAssetAddress" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -360,7 +370,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Overrides RelayerAbstract.parseAssetAddress</p>
 <ul>
-<li>Defined in <a href="https://github.com/barnjamin/wormhole-connect/blob/ffd1682/sdk/src/contexts/eth/index.ts#L604">sdk/src/contexts/eth/index.ts:604</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/wormhole-foundation/wormhole-connect/blob/49b7f84/sdk/src/contexts/eth/index.ts#L666">src/contexts/eth/index.ts:666</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="parseMessageFromTx" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>parse<wbr/>Message<wbr/>From<wbr/>Tx</span><a href="#parseMessageFromTx" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -376,78 +386,147 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/ParsedMessage.html" class="tsd-signature-type tsd-kind-interface">ParsedMessage</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> | </span><a href="../interfaces/ParsedRelayerMessage.html" class="tsd-signature-type tsd-kind-interface">ParsedRelayerMessage</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Overrides RelayerAbstract.parseMessageFromTx</p>
 <ul>
-<li>Defined in <a href="https://github.com/barnjamin/wormhole-connect/blob/ffd1682/sdk/src/contexts/eth/index.ts#L454">sdk/src/contexts/eth/index.ts:454</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/wormhole-foundation/wormhole-connect/blob/49b7f84/sdk/src/contexts/eth/index.ts#L516">src/contexts/eth/index.ts:516</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="prepareRedeem" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>prepare<wbr/>Redeem</span><a href="#prepareRedeem" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
 <li class="tsd-signature tsd-anchor-link" id="prepareRedeem.prepareRedeem-1"><span class="tsd-kind-call-signature">prepare<wbr/>Redeem</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">destChain</span>, <span class="tsd-kind-parameter">signedVAA</span>, <span class="tsd-kind-parameter">overrides</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">PopulatedTransaction</span><span class="tsd-signature-symbol">&gt;</span><a href="#prepareRedeem.prepareRedeem-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Prepares a redeem tx, which redeems funds for a token bridge transfer on the destination chain</p>
+</div>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5><span class="tsd-kind-parameter">destChain</span>: <a href="../types/ChainName.html" class="tsd-signature-type tsd-kind-type-alias">ChainName</a><span class="tsd-signature-symbol"> | </span><a href="../types/ChainId.html" class="tsd-signature-type tsd-kind-type-alias">ChainId</a></h5></li>
+<h5><span class="tsd-kind-parameter">destChain</span>: <a href="../types/ChainName.html" class="tsd-signature-type tsd-kind-type-alias">ChainName</a><span class="tsd-signature-symbol"> | </span><a href="../types/ChainId.html" class="tsd-signature-type tsd-kind-type-alias">ChainId</a></h5>
+<div class="tsd-comment tsd-typography"><p>The destination chain name or id</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li>
 <li>
-<h5><span class="tsd-kind-parameter">signedVAA</span>: <span class="tsd-signature-type ">Uint8Array</span></h5></li>
+<h5><span class="tsd-kind-parameter">signedVAA</span>: <span class="tsd-signature-type ">Uint8Array</span></h5>
+<div class="tsd-comment tsd-typography"><p>The Signed VAA bytes</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li>
 <li>
-<h5><span class="tsd-kind-parameter">overrides</span>: <span class="tsd-signature-type ">Overrides</span><span class="tsd-signature-symbol"> &amp; </span><span class="tsd-signature-symbol">{ </span><br/><span>    </span><span class="tsd-kind-property">from</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol"> = {}</span></h5></li></ul></div>
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">PopulatedTransaction</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
+<h5><span class="tsd-kind-parameter">overrides</span>: <span class="tsd-signature-type ">Overrides</span><span class="tsd-signature-symbol"> &amp; </span><span class="tsd-signature-symbol">{ </span><br/><span>    </span><span class="tsd-kind-property">from</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol"> = {}</span></h5>
+<div class="tsd-comment tsd-typography"><p>Optional overrides, varies between chains</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">PopulatedTransaction</span><span class="tsd-signature-symbol">&gt;</span></h4><p>The populated redeem transaction</p>
+
+<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/barnjamin/wormhole-connect/blob/ffd1682/sdk/src/contexts/eth/index.ts#L407">sdk/src/contexts/eth/index.ts:407</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/wormhole-foundation/wormhole-connect/blob/49b7f84/sdk/src/contexts/eth/index.ts#L469">src/contexts/eth/index.ts:469</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="prepareSend" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>prepare<wbr/>Send</span><a href="#prepareSend" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
 <li class="tsd-signature tsd-anchor-link" id="prepareSend.prepareSend-1"><span class="tsd-kind-call-signature">prepare<wbr/>Send</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">token</span>, <span class="tsd-kind-parameter">amount</span>, <span class="tsd-kind-parameter">sendingChain</span>, <span class="tsd-kind-parameter">senderAddress</span>, <span class="tsd-kind-parameter">recipientChain</span>, <span class="tsd-kind-parameter">recipientAddress</span>, <span class="tsd-kind-parameter">relayerFee</span><span class="tsd-signature-symbol">?</span>, <span class="tsd-kind-parameter">overrides</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">PopulatedTransaction</span><span class="tsd-signature-symbol">&gt;</span><a href="#prepareSend.prepareSend-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Prepare a send tx for a Token Bridge transfer (does not dispatch the transaction)</p>
+</div>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5><span class="tsd-kind-parameter">token</span>: <a href="../types/TokenId.html" class="tsd-signature-type tsd-kind-type-alias">TokenId</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;native&quot;</span></h5></li>
+<h5><span class="tsd-kind-parameter">token</span>: <a href="../types/TokenId.html" class="tsd-signature-type tsd-kind-type-alias">TokenId</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;native&quot;</span></h5>
+<div class="tsd-comment tsd-typography"><p>The Token Identifier (chain/address) or <code>&#39;native&#39;</code> if sending the native token</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li>
 <li>
-<h5><span class="tsd-kind-parameter">amount</span>: <span class="tsd-signature-type">string</span></h5></li>
+<h5><span class="tsd-kind-parameter">amount</span>: <span class="tsd-signature-type">string</span></h5>
+<div class="tsd-comment tsd-typography"><p>The token amount to be sent, as a string</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li>
 <li>
-<h5><span class="tsd-kind-parameter">sendingChain</span>: <a href="../types/ChainName.html" class="tsd-signature-type tsd-kind-type-alias">ChainName</a><span class="tsd-signature-symbol"> | </span><a href="../types/ChainId.html" class="tsd-signature-type tsd-kind-type-alias">ChainId</a></h5></li>
+<h5><span class="tsd-kind-parameter">sendingChain</span>: <a href="../types/ChainName.html" class="tsd-signature-type tsd-kind-type-alias">ChainName</a><span class="tsd-signature-symbol"> | </span><a href="../types/ChainId.html" class="tsd-signature-type tsd-kind-type-alias">ChainId</a></h5>
+<div class="tsd-comment tsd-typography"><p>The source chain name or id</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li>
 <li>
-<h5><span class="tsd-kind-parameter">senderAddress</span>: <span class="tsd-signature-type">string</span></h5></li>
+<h5><span class="tsd-kind-parameter">senderAddress</span>: <span class="tsd-signature-type">string</span></h5>
+<div class="tsd-comment tsd-typography"><p>The address that is dispatching the transfer</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li>
 <li>
-<h5><span class="tsd-kind-parameter">recipientChain</span>: <a href="../types/ChainName.html" class="tsd-signature-type tsd-kind-type-alias">ChainName</a><span class="tsd-signature-symbol"> | </span><a href="../types/ChainId.html" class="tsd-signature-type tsd-kind-type-alias">ChainId</a></h5></li>
+<h5><span class="tsd-kind-parameter">recipientChain</span>: <a href="../types/ChainName.html" class="tsd-signature-type tsd-kind-type-alias">ChainName</a><span class="tsd-signature-symbol"> | </span><a href="../types/ChainId.html" class="tsd-signature-type tsd-kind-type-alias">ChainId</a></h5>
+<div class="tsd-comment tsd-typography"><p>The destination chain name or id</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li>
 <li>
-<h5><span class="tsd-kind-parameter">recipientAddress</span>: <span class="tsd-signature-type">string</span></h5></li>
+<h5><span class="tsd-kind-parameter">recipientAddress</span>: <span class="tsd-signature-type">string</span></h5>
+<div class="tsd-comment tsd-typography"><p>The wallet address where funds will be sent (On solana, this is the associated token account)</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li>
 <li>
-<h5><span class="tsd-kind-parameter">relayerFee</span>: <span class="tsd-signature-type ">BigNumberish</span><span class="tsd-signature-symbol"> = 0</span></h5></li>
+<h5><span class="tsd-kind-parameter">relayerFee</span>: <span class="tsd-signature-type ">BigNumberish</span><span class="tsd-signature-symbol"> = 0</span></h5>
+<div class="tsd-comment tsd-typography"><p>A fee that would go to a relayer, if any</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li>
 <li>
-<h5><span class="tsd-kind-parameter">overrides</span>: <span class="tsd-signature-type ">PayableOverrides</span><span class="tsd-signature-symbol"> &amp; </span><span class="tsd-signature-symbol">{ </span><br/><span>    </span><span class="tsd-kind-property">from</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol"> = {}</span></h5></li></ul></div>
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">PopulatedTransaction</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
+<h5><span class="tsd-kind-parameter">overrides</span>: <span class="tsd-signature-type ">PayableOverrides</span><span class="tsd-signature-symbol"> &amp; </span><span class="tsd-signature-symbol">{ </span><br/><span>    </span><span class="tsd-kind-property">from</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol"> = {}</span></h5>
+<div class="tsd-comment tsd-typography"><p>Overrides</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">PopulatedTransaction</span><span class="tsd-signature-symbol">&gt;</span></h4><p>The populated transaction</p>
+
+<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/barnjamin/wormhole-connect/blob/ffd1682/sdk/src/contexts/eth/index.ts#L149">sdk/src/contexts/eth/index.ts:149</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/wormhole-foundation/wormhole-connect/blob/49b7f84/sdk/src/contexts/eth/index.ts#L175">src/contexts/eth/index.ts:175</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="prepareSendWithRelay" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>prepare<wbr/>Send<wbr/>With<wbr/>Relay</span><a href="#prepareSendWithRelay" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
 <li class="tsd-signature tsd-anchor-link" id="prepareSendWithRelay.prepareSendWithRelay-1"><span class="tsd-kind-call-signature">prepare<wbr/>Send<wbr/>With<wbr/>Relay</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">token</span>, <span class="tsd-kind-parameter">amount</span>, <span class="tsd-kind-parameter">toNativeToken</span>, <span class="tsd-kind-parameter">sendingChain</span>, <span class="tsd-kind-parameter">senderAddress</span>, <span class="tsd-kind-parameter">recipientChain</span>, <span class="tsd-kind-parameter">recipientAddress</span>, <span class="tsd-kind-parameter">overrides</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">PopulatedTransaction</span><span class="tsd-signature-symbol">&gt;</span><a href="#prepareSendWithRelay.prepareSendWithRelay-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Prepares a send tx for a Token Bridge Relay transfer. This will automatically dispatch funds to the recipient on the destination chain.</p>
+</div>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5><span class="tsd-kind-parameter">token</span>: <a href="../types/TokenId.html" class="tsd-signature-type tsd-kind-type-alias">TokenId</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;native&quot;</span></h5></li>
+<h5><span class="tsd-kind-parameter">token</span>: <a href="../types/TokenId.html" class="tsd-signature-type tsd-kind-type-alias">TokenId</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;native&quot;</span></h5>
+<div class="tsd-comment tsd-typography"><p>The Token Identifier (native chain/address) or <code>&#39;native&#39;</code> if sending the native token</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li>
 <li>
-<h5><span class="tsd-kind-parameter">amount</span>: <span class="tsd-signature-type">string</span></h5></li>
+<h5><span class="tsd-kind-parameter">amount</span>: <span class="tsd-signature-type">string</span></h5>
+<div class="tsd-comment tsd-typography"><p>The token amount to be sent, as a string</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li>
 <li>
-<h5><span class="tsd-kind-parameter">toNativeToken</span>: <span class="tsd-signature-type">string</span></h5></li>
+<h5><span class="tsd-kind-parameter">toNativeToken</span>: <span class="tsd-signature-type">string</span></h5>
+<div class="tsd-comment tsd-typography"><p>The amount of sending token to be converted to native gas token on the destination chain</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li>
 <li>
-<h5><span class="tsd-kind-parameter">sendingChain</span>: <a href="../types/ChainName.html" class="tsd-signature-type tsd-kind-type-alias">ChainName</a><span class="tsd-signature-symbol"> | </span><a href="../types/ChainId.html" class="tsd-signature-type tsd-kind-type-alias">ChainId</a></h5></li>
+<h5><span class="tsd-kind-parameter">sendingChain</span>: <a href="../types/ChainName.html" class="tsd-signature-type tsd-kind-type-alias">ChainName</a><span class="tsd-signature-symbol"> | </span><a href="../types/ChainId.html" class="tsd-signature-type tsd-kind-type-alias">ChainId</a></h5>
+<div class="tsd-comment tsd-typography"><p>The source chain name or id</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li>
 <li>
-<h5><span class="tsd-kind-parameter">senderAddress</span>: <span class="tsd-signature-type">string</span></h5></li>
+<h5><span class="tsd-kind-parameter">senderAddress</span>: <span class="tsd-signature-type">string</span></h5>
+<div class="tsd-comment tsd-typography"><p>The address that is dispatching the transfer</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li>
 <li>
-<h5><span class="tsd-kind-parameter">recipientChain</span>: <a href="../types/ChainName.html" class="tsd-signature-type tsd-kind-type-alias">ChainName</a><span class="tsd-signature-symbol"> | </span><a href="../types/ChainId.html" class="tsd-signature-type tsd-kind-type-alias">ChainId</a></h5></li>
+<h5><span class="tsd-kind-parameter">recipientChain</span>: <a href="../types/ChainName.html" class="tsd-signature-type tsd-kind-type-alias">ChainName</a><span class="tsd-signature-symbol"> | </span><a href="../types/ChainId.html" class="tsd-signature-type tsd-kind-type-alias">ChainId</a></h5>
+<div class="tsd-comment tsd-typography"><p>The destination chain name or id</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li>
 <li>
-<h5><span class="tsd-kind-parameter">recipientAddress</span>: <span class="tsd-signature-type">string</span></h5></li>
+<h5><span class="tsd-kind-parameter">recipientAddress</span>: <span class="tsd-signature-type">string</span></h5>
+<div class="tsd-comment tsd-typography"><p>The wallet address where funds will be sent (On solana, this is the associated token account)</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li>
 <li>
-<h5><span class="tsd-kind-parameter">overrides</span>: <span class="tsd-signature-type ">PayableOverrides</span><span class="tsd-signature-symbol"> &amp; </span><span class="tsd-signature-symbol">{ </span><br/><span>    </span><span class="tsd-kind-property">from</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol"> = {}</span></h5></li></ul></div>
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">PopulatedTransaction</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
+<h5><span class="tsd-kind-parameter">overrides</span>: <span class="tsd-signature-type ">PayableOverrides</span><span class="tsd-signature-symbol"> &amp; </span><span class="tsd-signature-symbol">{ </span><br/><span>    </span><span class="tsd-kind-property">from</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol"> = {}</span></h5>
+<div class="tsd-comment tsd-typography"><p>Optional overrides, varies by chain</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">PopulatedTransaction</span><span class="tsd-signature-symbol">&gt;</span></h4><p>The populated relay transaction</p>
+
+<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/barnjamin/wormhole-connect/blob/ffd1682/sdk/src/contexts/eth/index.ts#L321">sdk/src/contexts/eth/index.ts:321</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/wormhole-foundation/wormhole-connect/blob/49b7f84/sdk/src/contexts/eth/index.ts#L375">src/contexts/eth/index.ts:375</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="redeem" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>redeem</span><a href="#redeem" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -465,7 +544,28 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">ContractReceipt</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Overrides RelayerAbstract.redeem</p>
 <ul>
-<li>Defined in <a href="https://github.com/barnjamin/wormhole-connect/blob/ffd1682/sdk/src/contexts/eth/index.ts#L417">sdk/src/contexts/eth/index.ts:417</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/wormhole-foundation/wormhole-connect/blob/49b7f84/sdk/src/contexts/eth/index.ts#L479">src/contexts/eth/index.ts:479</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-is-protected tsd-is-inherited"><a id="relaySupported" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>relay<wbr/>Supported</span><a href="#relaySupported" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-protected tsd-is-inherited">
+<li class="tsd-signature tsd-anchor-link" id="relaySupported.relaySupported-1"><span class="tsd-kind-call-signature">relay<wbr/>Supported</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">chain</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><a href="#relaySupported.relaySupported-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Returns if the Token Bridge relayer is supported on a given chain</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li>
+<h5><span class="tsd-kind-parameter">chain</span>: <a href="../types/ChainName.html" class="tsd-signature-type tsd-kind-type-alias">ChainName</a><span class="tsd-signature-symbol"> | </span><a href="../types/ChainId.html" class="tsd-signature-type tsd-kind-type-alias">ChainId</a></h5>
+<div class="tsd-comment tsd-typography"><p>The chain name or id</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><p>True/False if the Token Bridge relayer is supported or not</p>
+
+<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
+<p>Inherited from RelayerAbstract.relaySupported</p>
+<ul>
+<li>Defined in <a href="https://github.com/wormhole-foundation/wormhole-connect/blob/49b7f84/sdk/src/contexts/abstracts/relayer.ts#L25">src/contexts/abstracts/relayer.ts:25</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="send" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>send</span><a href="#send" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -493,35 +593,65 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">ContractReceipt</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Overrides RelayerAbstract.send</p>
 <ul>
-<li>Defined in <a href="https://github.com/barnjamin/wormhole-connect/blob/ffd1682/sdk/src/contexts/eth/index.ts#L233">sdk/src/contexts/eth/index.ts:233</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/wormhole-foundation/wormhole-connect/blob/49b7f84/sdk/src/contexts/eth/index.ts#L259">src/contexts/eth/index.ts:259</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="sendWithPayload" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>send<wbr/>With<wbr/>Payload</span><a href="#sendWithPayload" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
 <li class="tsd-signature tsd-anchor-link" id="sendWithPayload.sendWithPayload-1"><span class="tsd-kind-call-signature">send<wbr/>With<wbr/>Payload</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">token</span>, <span class="tsd-kind-parameter">amount</span>, <span class="tsd-kind-parameter">sendingChain</span>, <span class="tsd-kind-parameter">senderAddress</span>, <span class="tsd-kind-parameter">recipientChain</span>, <span class="tsd-kind-parameter">recipientAddress</span>, <span class="tsd-kind-parameter">payload</span>, <span class="tsd-kind-parameter">overrides</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">ContractReceipt</span><span class="tsd-signature-symbol">&gt;</span><a href="#sendWithPayload.sendWithPayload-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Prepares a send tx for a Token Bridge transfer with a payload.  The payload is used to convey extra information about a transfer to be utilized in an application</p>
+</div>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5><span class="tsd-kind-parameter">token</span>: <a href="../types/TokenId.html" class="tsd-signature-type tsd-kind-type-alias">TokenId</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;native&quot;</span></h5></li>
+<h5><span class="tsd-kind-parameter">token</span>: <a href="../types/TokenId.html" class="tsd-signature-type tsd-kind-type-alias">TokenId</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;native&quot;</span></h5>
+<div class="tsd-comment tsd-typography"><p>The Token Identifier (chain/address) or <code>&#39;native&#39;</code> if sending the native token</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li>
 <li>
-<h5><span class="tsd-kind-parameter">amount</span>: <span class="tsd-signature-type">string</span></h5></li>
+<h5><span class="tsd-kind-parameter">amount</span>: <span class="tsd-signature-type">string</span></h5>
+<div class="tsd-comment tsd-typography"><p>The token amount to be sent, as a string</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li>
 <li>
-<h5><span class="tsd-kind-parameter">sendingChain</span>: <a href="../types/ChainName.html" class="tsd-signature-type tsd-kind-type-alias">ChainName</a><span class="tsd-signature-symbol"> | </span><a href="../types/ChainId.html" class="tsd-signature-type tsd-kind-type-alias">ChainId</a></h5></li>
+<h5><span class="tsd-kind-parameter">sendingChain</span>: <a href="../types/ChainName.html" class="tsd-signature-type tsd-kind-type-alias">ChainName</a><span class="tsd-signature-symbol"> | </span><a href="../types/ChainId.html" class="tsd-signature-type tsd-kind-type-alias">ChainId</a></h5>
+<div class="tsd-comment tsd-typography"><p>The source chain name or id</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li>
 <li>
-<h5><span class="tsd-kind-parameter">senderAddress</span>: <span class="tsd-signature-type">string</span></h5></li>
+<h5><span class="tsd-kind-parameter">senderAddress</span>: <span class="tsd-signature-type">string</span></h5>
+<div class="tsd-comment tsd-typography"><p>The address that is dispatching the transfer</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li>
 <li>
-<h5><span class="tsd-kind-parameter">recipientChain</span>: <a href="../types/ChainName.html" class="tsd-signature-type tsd-kind-type-alias">ChainName</a><span class="tsd-signature-symbol"> | </span><a href="../types/ChainId.html" class="tsd-signature-type tsd-kind-type-alias">ChainId</a></h5></li>
+<h5><span class="tsd-kind-parameter">recipientChain</span>: <a href="../types/ChainName.html" class="tsd-signature-type tsd-kind-type-alias">ChainName</a><span class="tsd-signature-symbol"> | </span><a href="../types/ChainId.html" class="tsd-signature-type tsd-kind-type-alias">ChainId</a></h5>
+<div class="tsd-comment tsd-typography"><p>The destination chain name or id</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li>
 <li>
-<h5><span class="tsd-kind-parameter">recipientAddress</span>: <span class="tsd-signature-type">string</span></h5></li>
+<h5><span class="tsd-kind-parameter">recipientAddress</span>: <span class="tsd-signature-type">string</span></h5>
+<div class="tsd-comment tsd-typography"><p>The wallet address where funds will be sent (On solana, this is the associated token account)</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li>
 <li>
-<h5><span class="tsd-kind-parameter">payload</span>: <span class="tsd-signature-type ">Uint8Array</span></h5></li>
+<h5><span class="tsd-kind-parameter">payload</span>: <span class="tsd-signature-type ">Uint8Array</span></h5>
+<div class="tsd-comment tsd-typography"><p>Arbitrary bytes that can contain any addition information about a given transfer</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li>
 <li>
-<h5><span class="tsd-kind-parameter">overrides</span>: <span class="tsd-signature-type ">PayableOverrides</span><span class="tsd-signature-symbol"> &amp; </span><span class="tsd-signature-symbol">{ </span><br/><span>    </span><span class="tsd-kind-property">from</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol"> = {}</span></h5></li></ul></div>
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">ContractReceipt</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
+<h5><span class="tsd-kind-parameter">overrides</span>: <span class="tsd-signature-type ">PayableOverrides</span><span class="tsd-signature-symbol"> &amp; </span><span class="tsd-signature-symbol">{ </span><br/><span>    </span><span class="tsd-kind-property">from</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol"> = {}</span></h5>
+<div class="tsd-comment tsd-typography"><p>Overrides</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">ContractReceipt</span><span class="tsd-signature-symbol">&gt;</span></h4><p>The populated transaction</p>
+
+<div class="tsd-comment tsd-typography">
+<h4>Dev</h4><p>This <em>must</em> be claimed on the destination chain, see <code>redeem</code></p>
+</div><aside class="tsd-sources">
 <p>Overrides RelayerAbstract.sendWithPayload</p>
 <ul>
-<li>Defined in <a href="https://github.com/barnjamin/wormhole-connect/blob/ffd1682/sdk/src/contexts/eth/index.ts#L276">sdk/src/contexts/eth/index.ts:276</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/wormhole-foundation/wormhole-connect/blob/49b7f84/sdk/src/contexts/eth/index.ts#L317">src/contexts/eth/index.ts:317</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="sendWithRelay" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>send<wbr/>With<wbr/>Relay</span><a href="#sendWithRelay" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -549,7 +679,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">ContractReceipt</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Overrides RelayerAbstract.sendWithRelay</p>
 <ul>
-<li>Defined in <a href="https://github.com/barnjamin/wormhole-connect/blob/ffd1682/sdk/src/contexts/eth/index.ts#L364">sdk/src/contexts/eth/index.ts:364</a></li></ul></aside></li></ul></section></section></div>
+<li>Defined in <a href="https://github.com/wormhole-foundation/wormhole-connect/blob/49b7f84/sdk/src/contexts/eth/index.ts#L418">src/contexts/eth/index.ts:418</a></li></ul></aside></li></ul></section></section></div>
 <div class="col-sidebar">
 <div class="page-menu">
 <div class="tsd-navigation settings">
@@ -583,7 +713,6 @@
 <li><a href="#getNativeBalance" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Native<wbr/>Balance</span></a></li>
 <li><a href="#getRelayerFee" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Relayer<wbr/>Fee</span></a></li>
 <li><a href="#getTokenBalance" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Token<wbr/>Balance</span></a></li>
-<li><a href="#getTxIdFromReceipt" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Tx<wbr/>Id<wbr/>From<wbr/>Receipt</span></a></li>
 <li><a href="#isTransferCompleted" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>is<wbr/>Transfer<wbr/>Completed</span></a></li>
 <li><a href="#mustGetForeignAsset" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>must<wbr/>Get<wbr/>Foreign<wbr/>Asset</span></a></li>
 <li><a href="#parseAddress" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>parse<wbr/>Address</span></a></li>
@@ -593,6 +722,7 @@
 <li><a href="#prepareSend" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>prepare<wbr/>Send</span></a></li>
 <li><a href="#prepareSendWithRelay" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>prepare<wbr/>Send<wbr/>With<wbr/>Relay</span></a></li>
 <li><a href="#redeem" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>redeem</span></a></li>
+<li><a href="#relaySupported" class="tsd-is-protected tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>relay<wbr/>Supported</span></a></li>
 <li><a href="#send" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>send</span></a></li>
 <li><a href="#sendWithPayload" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>send<wbr/>With<wbr/>Payload</span></a></li>
 <li><a href="#sendWithRelay" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>send<wbr/>With<wbr/>Relay</span></a></li></ul></div></details></div>

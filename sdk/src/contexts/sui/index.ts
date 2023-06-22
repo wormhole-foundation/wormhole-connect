@@ -36,6 +36,9 @@ import { SolanaContext } from '../solana';
 import { SuiContracts } from './contracts';
 import { SuiRelayer } from './relayer';
 
+/**
+ * @category Sui
+ */
 export class SuiContext<
   T extends WormholeContext,
 > extends RelayerAbstract<TransactionBlock> {

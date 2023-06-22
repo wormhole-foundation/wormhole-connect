@@ -30,6 +30,9 @@ import { SolanaContext } from '../solana';
 
 export const APTOS_COIN = '0x1::aptos_coin::AptosCoin';
 
+/**
+ * @category Aptos
+ */
 export class AptosContext<
   T extends WormholeContext,
 > extends TokenBridgeAbstract<Types.EntryFunctionPayload> {
