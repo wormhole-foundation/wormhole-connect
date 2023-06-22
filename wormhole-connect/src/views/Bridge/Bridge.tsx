@@ -135,7 +135,7 @@ function Bridge() {
 
   const disabled = !valid || isTransactionInProgress;
   const showGasSlider = automaticRelayAvail && route === Route.RELAY;
-  const showHashflowRoute = true;
+  const showHashflowRoute = route === Route.HASHFLOW;
 
   return (
     <div className={joinClass([classes.bridgeContent, classes.spacer])}>

@@ -12,7 +12,7 @@ import { Route } from '../store/transferInput';
 import { fromNormalizedDecimals } from '.';
 import { CHAINS } from '../config';
 import { fetchGlobalTx, getEmitterAndSequence } from './vaa';
-import { isEvmChain } from '../sdk';
+import { isEvmChain } from '../utils/sdk';
 
 export const fetchRedeemTx = async (
   txData: ParsedMessage | ParsedRelayerMessage,

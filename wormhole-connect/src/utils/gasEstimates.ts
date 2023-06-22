@@ -197,7 +197,10 @@ const getGasFeeFallback = async (
   // Sui gas estimates
   if (fromChainId === MAINNET_CHAINS.sui) {
     if (route === Route.BRIDGE) {
-      return toFixedDecimals(utils.formatUnits(gasEstimates.sendToken, nativeDecimals), 6);
+      return toFixedDecimals(
+        utils.formatUnits(gasEstimates.sendToken, nativeDecimals),
+        6,
+      );
     } else {
       // TODO: automatic payment gas fee est. fallback
       throw new Error('cannot estimate gas fee');
@@ -287,8 +290,7 @@ export const estimateSendGasFees = async (
 export const estimateClaimGasFees = async (
   destChain: ChainName | ChainId,
 ): Promise<string> => {
-  const nativeDecimals =
-    CHAINS[wh.toChainName(destChain)]!.nativeTokenDecimals;
+  const nativeDecimals = CHAINS[wh.toChainName(destChain)]!.nativeTokenDecimals;
   const destChainId = wh.toChainId(destChain);
 
   if (destChainId === MAINNET_CHAINS.solana) {

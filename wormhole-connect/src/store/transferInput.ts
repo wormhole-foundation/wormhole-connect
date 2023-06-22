@@ -4,7 +4,7 @@ import { BigNumber } from 'ethers';
 import { TokenConfig } from 'config/types';
 import { toDecimals } from '../utils/balance';
 import { TransferValidations } from '../utils/transferValidation';
-import { toChainId } from '../sdk';
+import { toChainId } from '../utils/sdk';
 import { TOKENS, config } from 'config';
 import { getTokenDecimals } from '../utils';
 import { TransferWallet, walletAcceptedNetworks } from 'utils/wallet';
