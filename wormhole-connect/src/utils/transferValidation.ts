@@ -99,19 +99,20 @@ export const validateDestToken = (
 };
 
 export const validateAmount = (
-  amount: number | undefined,
+  amount: string,
   balance: string | null,
   route: Route,
   minAmt: number | undefined,
 ): ValidationErr => {
-  if (!amount) return 'Enter an amount';
-  if (amount <= 0) return 'Amount must be greater than 0';
+  const numAmount = Number.parseFloat(amount);
+  if (!numAmount) return 'Enter an amount';
+  if (numAmount <= 0) return 'Amount must be greater than 0';
   if (!balance) return '';
   const b = Number.parseFloat(balance);
-  if (amount > b) return 'Amount cannot exceed balance';
+  if (numAmount > b) return 'Amount cannot exceed balance';
   if (route === Route.BRIDGE) return '';
   if (!minAmt) return '';
-  if (amount < minAmt) return `Minimum amount is ${minAmt}`;
+  if (numAmount < minAmt) return `Minimum amount is ${minAmt}`;
   return '';
 };
 
@@ -260,7 +261,7 @@ export const validate = async (dispatch: Dispatch<AnyAction>) => {
     transferInput.token &&
     transferInput.destToken &&
     transferInput.amount &&
-    transferInput.amount >= 0
+    Number.parseFloat(transferInput.amount) >= 0
   ) {
     dispatch(touchValidations());
   }

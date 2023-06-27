@@ -37,7 +37,8 @@ export interface TransferInputState {
   toNetwork: ChainName | undefined;
   token: string;
   destToken: string;
-  amount: number | undefined;
+  amount: string;
+  receiveAmount: string;
   route: Route;
   automaticRelayAvail: boolean;
   balances: Balances;
@@ -71,7 +72,8 @@ const initialState: TransferInputState = {
   toNetwork: config?.bridgeDefaults?.toNetwork || undefined,
   token: config?.bridgeDefaults?.token || '',
   destToken: '',
-  amount: undefined,
+  amount: '',
+  receiveAmount: '',
   route: Route.BRIDGE,
   automaticRelayAvail: false,
   balances: {},
@@ -131,7 +133,7 @@ export const transferInputSlice = createSlice({
         // clear token and amount if not supported on the selected network
         if (!tokenConfig.tokenId && tokenConfig.nativeNetwork !== fromNetwork) {
           state.token = '';
-          state.amount = undefined;
+          state.amount = '';
         }
       }
     },
@@ -143,9 +145,15 @@ export const transferInputSlice = createSlice({
     },
     setAmount: (
       state: TransferInputState,
-      { payload }: PayloadAction<number | undefined>,
+      { payload }: PayloadAction<string>,
     ) => {
       state.amount = payload;
+    },
+    setReceiveAmount: (
+      state: TransferInputState,
+      { payload }: PayloadAction<string>,
+    ) => {
+      state.receiveAmount = payload;
     },
     setBalance: (
       state: TransferInputState,
@@ -268,6 +276,7 @@ export const {
   setFromNetwork,
   setToNetwork,
   setAmount,
+  setReceiveAmount,
   setBalance,
   clearBalances,
   setForeignAsset,

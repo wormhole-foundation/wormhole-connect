@@ -3,15 +3,17 @@ import { useDispatch, useSelector } from 'react-redux';
 import { BigNumber } from 'ethers';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { RootState } from '../../../store';
-import { TransferWallet, walletAcceptedNetworks } from '../../../utils/wallet';
 import {
   setBalance as setStoreBalance,
   formatBalance,
   setToken,
   selectFromNetwork,
+  setAmount,
+  setReceiveAmount,
 } from '../../../store/transferInput';
 import { CHAINS_ARR, TOKENS } from '../../../config';
 import { wh } from '../../../utils/sdk';
+import { TransferWallet, walletAcceptedNetworks } from '../../../utils/wallet';
 
 import Inputs from './Inputs';
 import Select from './Select';
@@ -32,6 +34,7 @@ function FromInputs() {
     fromNetwork,
     toNetwork,
     token,
+    amount,
     isTransactionInProgress,
   } = useSelector((state: RootState) => state.transferInput);
   const tokenConfig = token && TOKENS[token];
@@ -88,6 +91,15 @@ function FromInputs() {
     />
   );
 
+  // TODO: add receive amount calculations to routes
+  const handleAmountChange = (amount: string) => {
+    dispatch(setAmount(amount));
+    dispatch(setReceiveAmount(amount));
+  };
+  const amountInput = (
+    <AmountInput handleAmountChange={handleAmountChange} value={amount} />
+  );
+
   return (
     <>
       <Inputs
@@ -104,7 +116,7 @@ function FromInputs() {
         networkValidation={validations.fromNetwork}
         onNetworkClick={() => setShowNetworksModal(true)}
         tokenInput={tokenInput}
-        amountInput={<AmountInput />}
+        amountInput={amountInput}
         balance={balance}
       />
       <TokensModal
