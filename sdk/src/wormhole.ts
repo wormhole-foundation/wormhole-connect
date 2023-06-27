@@ -1,4 +1,4 @@
-import { Network as Environment } from '@certusone/wormhole-sdk';
+import { Network as Environment, SignedVaa } from '@certusone/wormhole-sdk';
 import { Domain, MultiProvider } from '@nomad-xyz/multi-provider';
 import { BigNumber } from 'ethers';
 
@@ -434,6 +434,20 @@ export class WormholeContext extends MultiProvider<Domain> {
   ): Promise<ParsedMessage[] | ParsedRelayerMessage[]> {
     const context = this.getContext(chain);
     return await context.parseMessageFromTx(tx, chain);
+  }
+
+  async getVaa(tx: string, chain: ChainName | ChainId): Promise<SignedVaa> {
+    const context = this.getContext(chain);
+    return await context.getVaa(tx, chain);
+  }
+
+  async parseMessage(
+    sourceTx: string,
+    vaa: SignedVaa,
+    chain: ChainName | ChainId,
+  ): Promise<ParsedMessage | ParsedRelayerMessage> {
+    const context = this.getContext(chain);
+    return context.parseMessage(sourceTx, vaa);
   }
 
   /**

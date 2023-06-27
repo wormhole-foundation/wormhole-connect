@@ -4,7 +4,8 @@ import { useDispatch } from 'react-redux';
 import { Select, MenuItem } from '@mui/material';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { CHAINS_ARR } from '../config';
-import { parseMessageFromTx } from '../utils/sdk';
+import { getVaa } from '../utils/sdk';
+import { ROUTES, getRouteForVaa } from '../utils/routes';
 import { setTxDetails, setRoute as setTransferRoute } from '../store/redeem';
 import { setRoute } from '../store/router';
 import PageHeader from '../components/PageHeader';
@@ -62,14 +63,16 @@ function TxSearch() {
       return setError('Invalid transaction ID');
     }
     try {
-      const message = await parseMessageFromTx(
+      const vaa = await getVaa(state.tx, state.chain as ChainName);
+      const route = getRouteForVaa(vaa);
+      const message = await ROUTES[route].parseMessage(
         state.tx,
+        vaa,
         state.chain as ChainName,
       );
       setError('');
       dispatch(setTxDetails(message));
-      // TODO: change once hashflow or other routes are implemented
-      dispatch(setTransferRoute(message.payloadID));
+      dispatch(setTransferRoute(route));
       dispatch(setRoute('redeem'));
     } catch (e) {
       console.error(e);

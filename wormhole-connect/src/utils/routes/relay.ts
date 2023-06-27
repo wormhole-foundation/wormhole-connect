@@ -6,11 +6,22 @@ import {
 import { TokenConfig } from 'config/types';
 import { estimateClaimGasFees, estimateSendGasFees } from 'utils/gasEstimates';
 import { Route } from 'store/transferInput';
-import { ParsedMessage, PayloadType, wh, isAcceptedToken } from 'utils/sdk';
-import { BridgeRoute, parseBaseMessageFromTx } from './bridge';
+import {
+  ParsedMessage,
+  PayloadType,
+  wh,
+  isAcceptedToken,
+  ParsedRelayerMessage,
+} from 'utils/sdk';
+import {
+  BridgeRoute,
+  adaptParsedMessage,
+  parseBaseMessageFromTx,
+} from './bridge';
 import { getTokenDecimals, getWrappedTokenId } from 'utils';
 import { utils } from 'ethers';
 import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
+import { SignedVaa } from '@certusone/wormhole-sdk';
 
 export type RelayOptions = {
   relayerFee?: number;
@@ -196,6 +207,23 @@ export class RelayRoute extends BridgeRoute {
     chain: ChainName | ChainId,
   ): Promise<ParsedMessage> {
     const parsed: any = await parseBaseMessageFromTx(tx, chain);
+    if (parsed.payloadID !== PayloadType.AUTOMATIC) {
+      throw new Error('wrong payload, not a token bridge relay transfer');
+    }
+    return {
+      ...parsed,
+      relayerFee: parsed.relayerFee.toString(),
+      toNativeTokenAmount: parsed.toNativeTokenAmount.toString(),
+    };
+  }
+
+  async parseMessage(
+    sourceTx: string,
+    vaa: SignedVaa,
+    chain: ChainName | ChainId,
+  ): Promise<ParsedMessage | ParsedRelayerMessage> {
+    const message = await wh.parseMessage(sourceTx, vaa, chain);
+    const parsed: any = await adaptParsedMessage(message);
     if (parsed.payloadID !== PayloadType.AUTOMATIC) {
       throw new Error('wrong payload, not a token bridge relay transfer');
     }

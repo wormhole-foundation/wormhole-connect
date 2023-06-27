@@ -169,3 +169,7 @@ export const isEvmChain = (chain: ChainName | ChainId) => {
 export const toChainId = (chain: ChainName | ChainId) => {
   return wh.toChainId(chain);
 };
+
+export const getVaa = (tx: string, chain: ChainName | ChainId) => {
+  return wh.getVaa(tx, chain);
+};
