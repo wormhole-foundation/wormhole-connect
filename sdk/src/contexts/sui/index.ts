@@ -12,9 +12,13 @@ import {
 import { BigNumber, BigNumberish } from 'ethers';
 
 import {
+  CHAIN_ID_SUI,
+  SignedVaa,
   getForeignAssetSui,
   getIsTransferCompletedSui,
   getOriginalAssetSui,
+  getSignedVAAWithRetry,
+  parseVaa,
   redeemOnSui,
   transferFromSui,
 } from '@certusone/wormhole-sdk';
@@ -35,6 +39,7 @@ import { RelayerAbstract } from '../abstracts/relayer';
 import { SolanaContext } from '../solana';
 import { SuiContracts } from './contracts';
 import { SuiRelayer } from './relayer';
+import { stripHexPrefix } from '../../utils';
 
 export class SuiContext<
   T extends WormholeContext,
@@ -281,6 +286,86 @@ export class SuiContext<
       throw new Error(`Can't fetch decimals for token ${tokenAddr}`);
     }
     return metadata.decimals;
+  }
+
+  async getVaa(tx: string, chain: ChainName | ChainId): Promise<SignedVaa> {
+    const txBlock = await this.provider.getTransactionBlock({
+      digest: tx,
+      options: { showEvents: true, showEffects: true, showInput: true },
+    });
+    const message = txBlock.events?.find((event) =>
+      event.type.endsWith('WormholeMessage'),
+    );
+    if (!message || !message.parsedJson) {
+      throw new Error('WormholeMessage not found');
+    }
+    const { sender: emitterAddress, sequence } = message.parsedJson;
+
+    const { vaaBytes } = await getSignedVAAWithRetry(
+      this.context.conf.wormholeHosts,
+      CHAIN_ID_SUI,
+      stripHexPrefix(emitterAddress),
+      sequence,
+      undefined,
+      undefined,
+      3,
+    );
+
+    return vaaBytes;
+  }
+
+  async parseMessage(
+    tx: string,
+    vaa: SignedVaa,
+  ): Promise<ParsedMessage | ParsedRelayerMessage> {
+    const message = parseVaa(vaa);
+    const parsed = parseTokenTransferPayload(message.payload);
+
+    const txBlock = await this.provider.getTransactionBlock({
+      digest: tx,
+      options: { showEvents: true, showEffects: true, showInput: true },
+    });
+
+    const tokenContext = this.context.getContext(parsed.tokenChain as ChainId);
+    const destContext = this.context.getContext(parsed.toChain as ChainId);
+    const tokenAddress = await tokenContext.parseAssetAddress(
+      hexlify(parsed.tokenAddress),
+    );
+    const tokenChain = this.context.toChainName(parsed.tokenChain);
+    const gasFee = getTotalGasUsed(txBlock);
+    const parsedMessage: ParsedMessage = {
+      sendTx: tx,
+      sender: getTransactionSender(txBlock) || '',
+      amount: BigNumber.from(parsed.amount),
+      payloadID: parsed.payloadType,
+      recipient: destContext.parseAddress(hexlify(parsed.to)),
+      toChain: this.context.toChainName(parsed.toChain),
+      fromChain: this.context.toChainName(message.emitterChain),
+      tokenAddress,
+      tokenChain,
+      tokenId: {
+        chain: tokenChain,
+        address: tokenAddress,
+      },
+      sequence: BigNumber.from(message.sequence),
+      emitterAddress: hexlify(message.emitterAddress),
+      block: Number(txBlock.checkpoint || ''),
+      gasFee: gasFee ? BigNumber.from(gasFee) : undefined,
+    };
+    if (parsed.payloadType === 3) {
+      const relayerPayload = destContext.parseRelayerPayload(
+        Buffer.from(parsed.tokenTransferPayload),
+      );
+      const relayerMessage: ParsedRelayerMessage = {
+        ...parsedMessage,
+        relayerFee: relayerPayload.relayerFee,
+        relayerPayloadId: parsed.payloadType as number,
+        to: relayerPayload.to,
+        toNativeTokenAmount: relayerPayload.toNativeTokenAmount,
+      };
+      return relayerMessage;
+    }
+    return parsedMessage;
   }
 
   async parseMessageFromTx(

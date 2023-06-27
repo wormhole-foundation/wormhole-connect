@@ -1,4 +1,5 @@
 import {
+  SignedVaa,
   createNonce,
   getForeignAssetSolana,
   redeemAndUnwrapOnSolana,
@@ -56,11 +57,13 @@ import {
   createTransferWrappedWithPayloadInstruction,
 } from './solana/tokenBridge';
 import {
+  PostedMessageData,
   deriveWormholeEmitterKey,
   getClaim,
   getPostedMessage,
 } from './solana/wormhole';
 import { TokenBridgeAbstract } from '../abstracts/tokenBridge';
+import { getAccountData } from './solana';
 
 const SOLANA_SEQ_LOG = 'Program log: Sequence: ';
 const SOLANA_CHAIN_NAME = MAINNET_CONFIG.chains.solana!.key;
@@ -554,6 +557,112 @@ export class SolanaContext<
     const addr = await this.getForeignAsset(tokenId, chain);
     if (!addr) throw new Error('token not registered');
     return addr;
+  }
+
+  async getVaa(tx: string, chain: ChainName | ChainId): Promise<SignedVaa> {
+    if (!this.connection) throw new Error('no connection');
+    const contracts = this.contracts.mustGetContracts(SOLANA_CHAIN_NAME);
+    if (!contracts.core || !contracts.token_bridge)
+      throw new Error('contracts not found');
+    const response = await this.connection.getTransaction(tx);
+    if (!response || !response.meta?.innerInstructions![0].instructions)
+      throw new Error('transaction not found');
+
+    const instructions = response.meta?.innerInstructions![0].instructions;
+    const accounts = response.transaction.message.accountKeys;
+
+    // find the instruction where the programId equals the Wormhole ProgramId and the emitter equals the Token Bridge
+    const bridgeInstructions = instructions.filter((i) => {
+      const programId = accounts[i.programIdIndex].toString();
+      const emitterId = accounts[i.accounts[2]];
+      const wormholeCore = contracts.core;
+      const tokenBridge = deriveWormholeEmitterKey(contracts.token_bridge!);
+      return programId === wormholeCore && emitterId.equals(tokenBridge);
+    });
+
+    const messageKey = accounts[bridgeInstructions[0].accounts[1]];
+    const messageAccountInfo = await this.connection.getAccountInfo(
+      new PublicKey(messageKey),
+    );
+    return getAccountData(messageAccountInfo);
+  }
+
+  async parseMessage(
+    tx: string,
+    vaa: SignedVaa,
+  ): Promise<ParsedMessage | ParsedRelayerMessage> {
+    if (!this.connection) throw new Error('no connection');
+    const parsedResponse = await this.connection.getParsedTransaction(tx);
+
+    const parsedInstr =
+      parsedResponse?.meta?.innerInstructions![0].instructions;
+    const gasFee = parsedInstr
+      ? parsedInstr.reduce((acc, c: any) => {
+          if (!c.parsed || !c.parsed.info || !c.parsed.info.lamports)
+            return acc;
+          return acc + c.parsed.info.lamports;
+        }, 0)
+      : 0;
+
+    // parse message payload
+    const { message } = PostedMessageData.deserialize(Buffer.from(vaa));
+    const transfer = parseTokenTransferPayload(message.payload);
+
+    // format response
+    const tokenContext = this.context.getContext(
+      transfer.tokenChain as ChainId,
+    );
+    const destContext = this.context.getContext(transfer.toChain as ChainId);
+
+    const tokenAddress = await tokenContext.parseAssetAddress(
+      hexlify(transfer.tokenAddress),
+    );
+    const tokenChain = this.context.toChainName(transfer.tokenChain);
+
+    const fromChain = this.context.toChainName(message.emitterChain);
+    const toChain = this.context.toChainName(transfer.toChain);
+    const toAddress = destContext.parseAddress(hexlify(transfer.to));
+
+    const parsedMessage: ParsedMessage = {
+      sendTx: tx,
+      sender: new PublicKey(transfer.fromAddress!).toString(),
+      amount: BigNumber.from(transfer.amount),
+      payloadID: transfer.payloadType,
+      recipient: toAddress,
+      toChain,
+      fromChain,
+      tokenAddress,
+      tokenChain,
+      tokenId: {
+        chain: tokenChain,
+        address: tokenAddress,
+      },
+      sequence: BigNumber.from(message.sequence),
+      emitterAddress:
+        this.context.conf.env === 'MAINNET'
+          ? SOLANA_MAINNET_EMMITER_ID
+          : SOLANA_TESTNET_EMITTER_ID,
+      gasFee: BigNumber.from(gasFee),
+      block: parsedResponse!.slot,
+    };
+
+    if (parsedMessage.payloadID === 3) {
+      const destContext = this.context.getContext(transfer.toChain as ChainId);
+      const parsedPayload = destContext.parseRelayerPayload(
+        transfer.tokenTransferPayload,
+      );
+      const parsedPayloadMessage: ParsedRelayerMessage = {
+        ...parsedMessage,
+        relayerPayloadId: parsedPayload.relayerPayloadId,
+        recipient: destContext.parseAddress(parsedPayload.to),
+        to: toAddress,
+        relayerFee: parsedPayload.relayerFee,
+        toNativeTokenAmount: parsedPayload.toNativeTokenAmount,
+      };
+      return parsedPayloadMessage;
+    }
+
+    return parsedMessage;
   }
 
   async parseMessageFromTx(

@@ -3,6 +3,8 @@ import {
   ChainName,
   ChainId,
   MAINNET_CHAINS,
+  ParsedMessage as SdkParsedMessage,
+  ParsedRelayerMessage as SdkParsedRelayerMessage,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import RouteAbstract from './routeAbstract';
 import { TOKENS } from 'config';
@@ -10,16 +12,30 @@ import { getTokenById, getTokenDecimals, getWrappedToken } from 'utils';
 import { TokenConfig } from 'config/types';
 import { estimateClaimGasFees, estimateSendGasFees } from 'utils/gasEstimates';
 import { Route } from 'store/transferInput';
-import { ParsedMessage, PayloadType, solanaContext, wh } from 'utils/sdk';
+import {
+  ParsedMessage,
+  ParsedRelayerMessage,
+  PayloadType,
+  solanaContext,
+  wh,
+} from 'utils/sdk';
 import { utils } from 'ethers';
 import { TransferWallet, postVaa, signAndSendTransaction } from 'utils/wallet';
+import { SignedVaa } from '@certusone/wormhole-sdk';
 
 export const parseBaseMessageFromTx = async (
   tx: string,
   chain: ChainName | ChainId,
 ): Promise<ParsedMessage> => {
   const parsed: any = (await wh.parseMessageFromTx(tx, chain))[0];
+  return adaptParsedMessage(parsed);
+};
 
+// adapts the sdk returned parsed message to the type that
+// wh connect uses
+export const adaptParsedMessage = async (
+  parsed: SdkParsedMessage | SdkParsedRelayerMessage,
+): Promise<ParsedMessage | ParsedRelayerMessage> => {
   const tokenId = {
     address: parsed.tokenAddress,
     chain: parsed.tokenChain,
@@ -30,7 +46,7 @@ export const parseBaseMessageFromTx = async (
   const base: ParsedMessage = {
     ...parsed,
     amount: parsed.amount.toString(),
-    tokenKey: token?.key,
+    tokenKey: token?.key || '',
     tokenDecimals: decimals,
     sequence: parsed.sequence.toString(),
     gasFee: parsed.gasFee ? parsed.gasFee.toString() : undefined,
@@ -236,5 +252,14 @@ export class BridgeRoute extends RouteAbstract {
       throw new Error('wrong payload, not a manual token bridge transfer');
     }
     return parsed;
+  }
+
+  async parseMessage(
+    sourceTx: string,
+    vaa: SignedVaa,
+    chain: ChainName | ChainId,
+  ): Promise<ParsedMessage | ParsedRelayerMessage> {
+    const message = await wh.parseMessage(sourceTx, vaa, chain);
+    return adaptParsedMessage(message);
   }
 }

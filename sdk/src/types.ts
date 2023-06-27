@@ -59,6 +59,7 @@ export type WormholeConfig = {
   env: Environment;
   rpcs: ChainResourceMap;
   rest: ChainResourceMap;
+  wormholeHosts: string[];
   chains: {
     [chain in ChainName]?: ChainConfig;
   };

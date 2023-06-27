@@ -2,7 +2,13 @@ import {
   Implementation__factory,
   TokenImplementation__factory,
 } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
-import { createNonce } from '@certusone/wormhole-sdk';
+import {
+  SignedVaa,
+  TokenBridgePayload,
+  createNonce,
+  getSignedVAAWithRetry,
+  parseTokenTransferPayload,
+} from '@certusone/wormhole-sdk';
 import {
   BigNumber,
   BigNumberish,
@@ -30,7 +36,7 @@ import { EthContracts } from './contracts';
 import { parseVaa } from '../../vaa';
 import { RelayerAbstract } from '../abstracts/relayer';
 import { SolanaContext } from '../solana';
-import { arrayify } from 'ethers/lib/utils';
+import { arrayify, hexZeroPad } from 'ethers/lib/utils';
 
 export class EthContext<
   T extends WormholeContext,
@@ -451,6 +457,123 @@ export class EthContext<
     const relayer = this.contracts.mustGetTokenBridgeRelayer(destChain);
     const token = await this.mustGetForeignAsset(tokenId, destChain);
     return await relayer.calculateNativeSwapAmountOut(token, amount);
+  }
+
+  async getVaa(tx: string, chain: ChainName | ChainId): Promise<SignedVaa> {
+    const provider = this.context.mustGetProvider(chain);
+    const receipt = await provider.getTransactionReceipt(tx);
+    if (!receipt) throw new Error(`No receipt for ${tx} on ${chain}`);
+
+    const core = this.contracts.mustGetCore(chain);
+    const bridgeLogs = receipt.logs.filter((l: any) => {
+      return l.address === core.address;
+    });
+
+    if (bridgeLogs.length === 0) {
+      throw new Error('No message publish found in logs');
+    }
+
+    const parsed = Implementation__factory.createInterface().parseLog(
+      bridgeLogs[0],
+    );
+
+    const { vaaBytes } = await getSignedVAAWithRetry(
+      this.context.conf.wormholeHosts,
+      this.context.toChainId(chain),
+      hexZeroPad(parsed.args.sender, 32).substring(2),
+      parsed.args.sequence.toString(),
+      undefined,
+      undefined,
+      3,
+    );
+
+    return vaaBytes;
+  }
+
+  async getReceipt(
+    tx: string,
+    chain: ChainName | ChainId,
+  ): Promise<ContractReceipt> {
+    const provider = this.context.mustGetProvider(chain);
+    const receipt = await provider.getTransactionReceipt(tx);
+    if (!receipt) throw new Error(`No receipt for ${tx} on ${chain}`);
+    return receipt;
+  }
+
+  async parseMessage(
+    sourceTx: string,
+    vaa: SignedVaa,
+  ): Promise<ParsedMessage | ParsedRelayerMessage> {
+    const parsed = parseVaa(vaa);
+    const transfer = parseTokenTransferPayload(parsed.payload);
+
+    const fromChain = this.context.toChainName(parsed.emitterChain);
+
+    const receipt = await this.getReceipt(
+      sourceTx,
+      this.context.toChainId(parsed.emitterChain),
+    );
+    let gasFee: BigNumber = BigNumber.from(0);
+    if (receipt.gasUsed && receipt.effectiveGasPrice) {
+      gasFee = receipt.gasUsed.mul(receipt.effectiveGasPrice);
+    }
+
+    const toChain = this.context.toChainName(transfer.toChain);
+    const tokenChain = this.context.toChainName(transfer.tokenChain);
+
+    const destContext = this.context.getContext(toChain);
+    const tokenContext = this.context.getContext(tokenChain);
+    const tokenAddress = await tokenContext.parseAssetAddress(
+      utils.hexlify(transfer.tokenAddress),
+    );
+
+    const baseMessage: ParsedMessage = {
+      sendTx: sourceTx,
+      sender: receipt.from,
+      amount: BigNumber.from(transfer.amount),
+      payloadID: transfer.payloadType,
+      recipient: destContext.parseAddress(utils.hexlify(transfer.to)),
+      toChain: this.context.toChainName(transfer.toChain),
+      fromChain,
+      tokenAddress,
+      tokenChain,
+      tokenId: {
+        chain: tokenChain,
+        address: tokenAddress,
+      },
+      sequence: BigNumber.from(parsed.sequence),
+      emitterAddress: utils.hexlify(
+        this.formatAddress(utils.hexlify(parsed.emitterAddress)),
+      ),
+      block: receipt.blockNumber,
+      gasFee,
+      payload: transfer.tokenTransferPayload
+        ? utils.hexlify(transfer.tokenTransferPayload)
+        : undefined,
+    };
+
+    if (transfer.payloadType === TokenBridgePayload.Transfer) {
+      return baseMessage;
+    }
+
+    /**
+     * Not all relayers follow the same payload structure (i.e. sei)
+     * so we request the destination context to parse the payload
+     */
+    const relayerPayload: ParsedRelayerPayload =
+      destContext.parseRelayerPayload(
+        Buffer.from(arrayify(transfer.tokenTransferPayload)),
+      );
+
+    const relayerMessage: ParsedRelayerMessage = {
+      ...baseMessage,
+      relayerPayloadId: relayerPayload.relayerPayloadId,
+      recipient: destContext.parseAddress(relayerPayload.to),
+      relayerFee: relayerPayload.relayerFee,
+      toNativeTokenAmount: relayerPayload.toNativeTokenAmount,
+      to: destContext.parseAddress(utils.hexlify(transfer.to)),
+    };
+    return relayerMessage;
   }
 
   async parseMessageFromTx(
