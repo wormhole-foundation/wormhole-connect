@@ -193,6 +193,7 @@ const MAINNET_CONFIG: WormholeConfig = {
     sei: '',
   },
   chains: MAINNET,
+  wormholeHosts: ['https://wormhole-v2-mainnet-api.certus.one'],
 };
 
 export default MAINNET_CONFIG;

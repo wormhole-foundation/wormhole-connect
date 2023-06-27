@@ -1,9 +1,11 @@
+import { SignedVaa } from '@certusone/wormhole-sdk';
 import {
   TokenId,
   ChainName,
   ChainId,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { TokenConfig } from 'config/types';
+import { ParsedMessage, ParsedRelayerMessage } from '../sdk';
 
 export default abstract class RouteAbstract {
   // protected abstract sendGasFallback: { [key: ChainName]: TokenConfig };
@@ -89,6 +91,12 @@ export default abstract class RouteAbstract {
     tx: string,
     chain: ChainName | ChainId,
   ): any;
+
+  public abstract parseMessage(
+    sourceTx: string,
+    vaa: SignedVaa,
+    chain: ChainName | ChainId,
+  ): Promise<ParsedMessage | ParsedRelayerMessage>;
 
   public abstract redeem(
     destChain: ChainName | ChainId,

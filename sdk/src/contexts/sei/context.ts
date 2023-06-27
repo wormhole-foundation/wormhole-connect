@@ -1,8 +1,10 @@
 import {
   CHAIN_ID_SEI,
+  SignedVaa,
   WormholeWrappedInfo,
   buildTokenId,
   cosmos,
+  getSignedVAAWithRetry,
   hexToUint8Array,
   isNativeCosmWasmDenom,
   parseTokenTransferPayload,
@@ -104,7 +106,7 @@ const buildExecuteMsg = (
 });
 
 /**
- * Implements token bridge transfers to and from Sei.
+ * Implements token bridge transfers to and from Sei
  *
  * The Sei blockchain provides a feature through its `tokenfactory`
  * ([docs](https://github.com/sei-protocol/sei-chain/tree/master/x/tokenfactory))
@@ -134,15 +136,12 @@ const buildExecuteMsg = (
  * A mayor drawback of this implementation is that the translator contract does not support
  * transferring native Sei assets (usei denom or cw20 tokens) in or out. For these cases,
  * the traditional token bridge process is used
- *
- * @category Sei
  */
 export class SeiContext<
   T extends WormholeContext,
 > extends TokenBridgeAbstract<SeiTransaction> {
   readonly type = Context.SEI;
   readonly contracts: SeiContracts<T>;
-  readonly context: T;
 
   private wasmClient?: CosmWasmClient;
 
@@ -150,9 +149,8 @@ export class SeiContext<
   private readonly CHAIN = 'sei';
   private readonly REDEEM_EVENT_DEFAULT_MAX_BLOCKS = 2000;
 
-  constructor(context: T) {
+  constructor(private readonly context: T) {
     super();
-    this.context = context;
     this.contracts = new SeiContracts<T>(context);
   }
 
@@ -623,6 +621,77 @@ export class SeiContext<
       }
     }
     return null;
+  }
+
+  async getVaa(id: string, chain: ChainName | ChainId): Promise<SignedVaa> {
+    const client = await this.getCosmWasmClient();
+    const tx = await client.getTx(id);
+    if (!tx) throw new Error('tx not found');
+
+    // parse logs emitted for the tx execution
+    const logs = cosmosLogs.parseRawLog(tx.rawLog);
+
+    const sequence = this.searchLogs('message.sequence', logs);
+    if (!sequence) throw new Error('sequence not found');
+    const emitterAddress = this.searchLogs('message.sender', logs);
+    if (!emitterAddress) throw new Error('emitter not found');
+
+    const { vaaBytes } = await getSignedVAAWithRetry(
+      this.context.conf.wormholeHosts,
+      CHAIN_ID_SEI,
+      emitterAddress,
+      sequence,
+      undefined,
+      undefined,
+      3,
+    );
+
+    return vaaBytes;
+  }
+
+  async parseMessage(
+    sourceTx: string,
+    vaa: SignedVaa,
+  ): Promise<ParsedMessage | ParsedRelayerMessage> {
+    const client = await this.getCosmWasmClient();
+    const tx = await client.getTx(sourceTx);
+    if (!tx) throw new Error('tx not found');
+
+    const message = parseVaa(vaa);
+    const parsed = parseTokenTransferPayload(message.payload);
+
+    const decoded = decodeTxRaw(tx.tx);
+    const { sender } = MsgExecuteContract.decode(
+      decoded.body.messages[0].value,
+    );
+
+    const destContext = this.context.getContext(parsed.toChain as ChainId);
+    const tokenContext = this.context.getContext(parsed.tokenChain as ChainId);
+
+    const tokenAddress = await tokenContext.parseAssetAddress(
+      hexlify(parsed.tokenAddress),
+    );
+    const tokenChain = this.context.toChainName(parsed.tokenChain);
+
+    return {
+      sendTx: tx.hash,
+      sender,
+      amount: BigNumber.from(parsed.amount),
+      payloadID: parsed.payloadType,
+      recipient: destContext.parseAddress(hexlify(parsed.to)),
+      toChain: this.context.toChainName(parsed.toChain),
+      fromChain: this.context.toChainName(message.emitterChain),
+      tokenAddress,
+      tokenChain,
+      tokenId: {
+        address: tokenAddress,
+        chain: tokenChain,
+      },
+      sequence: BigNumber.from(message.sequence),
+      emitterAddress: message.emitterAddress.toString('hex'),
+      block: tx.height,
+      gasFee: BigNumber.from(tx.gasUsed),
+    };
   }
 
   async parseMessageFromTx(

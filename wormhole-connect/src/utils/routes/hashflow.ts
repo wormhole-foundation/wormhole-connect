@@ -5,6 +5,8 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { TokenConfig } from '../../config/types';
 import RouteAbstract from './routeAbstract';
+import { SignedVaa } from '@certusone/wormhole-sdk';
+import { ParsedMessage, ParsedRelayerMessage } from '../sdk';
 
 export class HashflowRoute extends RouteAbstract {
   public isRouteAvailable(
@@ -84,6 +86,13 @@ export class HashflowRoute extends RouteAbstract {
     vaa: Uint8Array,
     recipient: string,
   ): Promise<string> {
+    throw new Error('Method not implemented.');
+  }
+  public parseMessage(
+    sourceTx: string,
+    vaa: SignedVaa,
+    chain: ChainName | ChainId,
+  ): Promise<ParsedMessage | ParsedRelayerMessage> {
     throw new Error('Method not implemented.');
   }
 }
