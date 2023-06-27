@@ -177,9 +177,7 @@ export class RelayRoute extends BridgeRoute {
     );
   }
 
-  async estimateClaimGas(
-    destChain: ChainName | ChainId,
-  ): Promise<string> {
+  async estimateClaimGas(destChain: ChainName | ChainId): Promise<string> {
     return await estimateClaimGasFees(destChain);
   }
 
