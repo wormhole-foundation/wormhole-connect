@@ -5,7 +5,7 @@ import { Select, MenuItem } from '@mui/material';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { CHAINS_ARR } from '../config';
 import { parseMessageFromTx } from '../utils/sdk';
-import { setTxDetails } from '../store/redeem';
+import { setTxDetails, setRoute as setTransferRoute } from '../store/redeem';
 import { setRoute } from '../store/router';
 import PageHeader from '../components/PageHeader';
 import Search from '../components/Search';
@@ -68,6 +68,8 @@ function TxSearch() {
       );
       setError('');
       dispatch(setTxDetails(message));
+      // TODO: change once hashflow or other routes are implemented
+      dispatch(setTransferRoute(message.payloadID));
       dispatch(setRoute('redeem'));
     } catch (e) {
       console.error(e);

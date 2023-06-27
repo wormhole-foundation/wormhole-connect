@@ -12,7 +12,7 @@ import { estimateClaimGasFees, estimateSendGasFees } from 'utils/gasEstimates';
 import { Route } from 'store/transferInput';
 import { ParsedMessage, PayloadType, solanaContext, wh } from 'utils/sdk';
 import { utils } from 'ethers';
-import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
+import { TransferWallet, postVaa, signAndSendTransaction } from 'utils/wallet';
 
 export const parseBaseMessageFromTx = async (
   tx: string,
@@ -146,7 +146,7 @@ export class BridgeRoute extends RouteAbstract {
     );
   }
 
-  protected async estimateClaimGas(
+  async estimateClaimGas(
     destChain: ChainName | ChainId,
   ): Promise<string> {
     return await estimateClaimGasFees(destChain);
@@ -181,6 +181,30 @@ export class BridgeRoute extends RouteAbstract {
       fromChainName,
       tx,
       TransferWallet.SENDING,
+    );
+    wh.registerProviders();
+    return txId;
+  }
+
+  async redeem(destChain: ChainName | ChainId, vaa: Uint8Array, payer: string): Promise<string> {
+    // post vaa (solana)
+    // TODO: move to context
+    const destChainId = wh.toChainId(destChain);
+    const destChainName = wh.toChainName(destChain);
+    if (destChainId === MAINNET_CHAINS.solana) {
+      const destContext = wh.getContext(destChain) as any;
+      const connection = destContext.connection;
+      if (!connection) throw new Error('no connection');
+      const contracts = wh.mustGetContracts(destChain);
+      if (!contracts.core) throw new Error('contract not found');
+      await postVaa(connection, contracts.core, Buffer.from(vaa));
+    }
+
+    const tx = await wh.redeem(destChain, vaa, { gasLimit: 250000 }, payer);
+    const txId = await signAndSendTransaction(
+      destChainName,
+      tx,
+      TransferWallet.RECEIVING,
     );
     wh.registerProviders();
     return txId;
