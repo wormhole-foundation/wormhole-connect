@@ -29,9 +29,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import AlertBanner from '../../components/AlertBanner';
 import PoweredByIcon from '../../icons/PoweredBy';
 import { LINK } from '../../utils/style';
-import {
-  estimateClaimGasFees,
-} from '../../utils/gasEstimates';
+import { estimateClaimGasFees } from '../../utils/gasEstimates';
 import RouteAbstract from '../../utils/routes/routeAbstract';
 
 const useStyles = makeStyles()((theme) => ({
@@ -99,7 +97,6 @@ function Send(props: { valid: boolean }) {
     if (!valid) return;
     dispatch(setIsTransactionInProgress(true));
 
-
     try {
       const fromConfig = CHAINS[fromNetwork!];
       if (fromConfig?.context === Context.ETH) {
@@ -118,7 +115,7 @@ function Send(props: { valid: boolean }) {
         sending.address,
         toNetwork!,
         receiving.address,
-        { toNativeToken }
+        { toNativeToken },
       );
       // // TODO: update sendTransfer to handle routing
       // const txId = await sendTransfer(
@@ -165,7 +162,7 @@ function Send(props: { valid: boolean }) {
         sending.address,
         toNetwork!,
         receiving.address,
-        { relayerFee, toNativeToken }
+        { relayerFee, toNativeToken },
       );
       if (routeType === Route.BRIDGE) {
         dispatch(setManualGasEst(gasFee));
@@ -183,7 +180,7 @@ function Send(props: { valid: boolean }) {
       toNativeToken,
       relayerFee,
       dispatch,
-      route
+      route,
     ],
   );
 
