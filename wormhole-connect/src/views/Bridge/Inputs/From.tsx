@@ -14,6 +14,7 @@ import {
 import { CHAINS_ARR, TOKENS } from '../../../config';
 import { wh } from '../../../utils/sdk';
 import { TransferWallet, walletAcceptedNetworks } from '../../../utils/wallet';
+import Operator from '../../../utils/routes';
 
 import Inputs from './Inputs';
 import Select from './Select';
@@ -31,6 +32,7 @@ function FromInputs() {
   const {
     validate: showErrors,
     validations,
+    route,
     fromNetwork,
     toNetwork,
     token,
@@ -91,10 +93,16 @@ function FromInputs() {
     />
   );
 
-  // TODO: add receive amount calculations to routes
-  const handleAmountChange = (amount: string) => {
+  // TODO: clean up the send/receive amount set logic
+  const handleAmountChange = async (amount: string) => {
     dispatch(setAmount(amount));
-    dispatch(setReceiveAmount(amount));
+    const r = new Operator();
+    const receiveAmount = await r.computeReceiveAmount(
+      route,
+      Number.parseFloat(amount),
+      undefined,
+    );
+    dispatch(setReceiveAmount(`${receiveAmount}`));
   };
   const amountInput = (
     <AmountInput handleAmountChange={handleAmountChange} value={amount} />
