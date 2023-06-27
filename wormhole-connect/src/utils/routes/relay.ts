@@ -92,14 +92,14 @@ export class RelayRoute extends BridgeRoute {
     routeOptions: RelayOptions,
   ): Promise<number> {
     if (!sendAmount) return 0;
-    return sendAmount - (routeOptions.toNativeToken || 0);
+    return sendAmount - (routeOptions?.toNativeToken || 0);
   }
   async computeSendAmount(
     receiveAmount: number | undefined,
     routeOptions: RelayOptions,
   ): Promise<number> {
     if (!receiveAmount) return 0;
-    return receiveAmount + (routeOptions.toNativeToken || 0);
+    return receiveAmount + (routeOptions?.toNativeToken || 0);
   }
 
   async validate(

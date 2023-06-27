@@ -21,6 +21,7 @@ import AmountInput from './AmountInput';
 import TokenWarnings from './TokenWarnings';
 import TokensModal from '../../../components/TokensModal';
 import NetworksModal from '../../../components/NetworksModal';
+import Operator from '../../../utils/routes';
 
 function ToInputs() {
   const dispatch = useDispatch();
@@ -31,6 +32,7 @@ function ToInputs() {
   const {
     validate: showErrors,
     validations,
+    route,
     fromNetwork,
     toNetwork,
     destToken,
@@ -87,9 +89,15 @@ function ToInputs() {
     />
   );
 
-  const handleAmountChange = (amount: string) => {
-    dispatch(setAmount(amount));
+  const handleAmountChange = async (amount: string) => {
     dispatch(setReceiveAmount(amount));
+    const r = new Operator();
+    const sendAmount = await r.computeSendAmount(
+      route,
+      Number.parseFloat(amount),
+      undefined,
+    );
+    dispatch(setAmount(`${receiveAmount}`));
   };
   const amountInput = (
     <AmountInput
