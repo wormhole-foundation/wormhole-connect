@@ -1,14 +1,17 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../../store';
-import { setAmount } from '../../../store/transferInput';
 import { validate } from '../../../utils/transferValidation';
 
 import InputTransparent from '../../../components/InputTransparent';
 import Input from './Input';
 import { toFixedDecimals } from '../../../utils/balance';
 
-function AmountInput() {
+type Props = {
+  handleAmountChange: (number) => void;
+  value: string;
+};
+function AmountInput(props: Props) {
   const dispatch = useDispatch();
   const amountEl = useRef(null);
   const {
@@ -16,18 +19,12 @@ function AmountInput() {
     validations,
     token,
     isTransactionInProgress,
-    amount,
   } = useSelector((state: RootState) => state.transferInput);
-  const [value, setValue] = useState(amount ? `${amount}` : '');
 
   function handleAmountChange(event) {
     let value = event.target.value;
     const index = value.indexOf('.');
     switch (true) {
-      case index === -1: {
-        value = Number.parseInt(event.target.value);
-        break;
-      }
       case index === 0: {
         value = '0.';
         break;
@@ -41,14 +38,9 @@ function AmountInput() {
       }
     }
 
-    setValue(value);
-    dispatch(setAmount(Number.parseFloat(value)));
+    props.handleAmountChange(value);
   }
   const validateAmount = () => validate(dispatch);
-
-  useEffect(() => {
-    setValue(amount ? `${amount}` : '');
-  }, [amount]);
 
   const focus = () => {
     if (amountEl.current) {
@@ -73,7 +65,7 @@ function AmountInput() {
           onChange={handleAmountChange}
           onPause={validateAmount}
           disabled={isTransactionInProgress}
-          value={value}
+          value={props.value}
         />
       ) : (
         <div>-</div>

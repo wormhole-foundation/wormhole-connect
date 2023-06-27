@@ -9,6 +9,7 @@ export default abstract class RouteAbstract {
   // protected abstract sendGasFallback: { [key: ChainName]: TokenConfig };
   // protected abstract claimGasFallback: { [key: ChainName]: TokenConfig };
 
+  // Is this route available for the given network, token and amount specifications?
   public abstract isRouteAvailable(
     sourceToken: string,
     destToken: string,
@@ -33,6 +34,18 @@ export default abstract class RouteAbstract {
     tokens: TokenConfig[],
   ): Promise<TokenConfig[]>;
 
+  // Calculate the amount a user would receive if sending a certain amount
+  public abstract computeReceiveAmount(
+    sendAmount: number | undefined,
+    routeOptions: any,
+  ): Promise<number>;
+  // Calculate the amount a user would need to send in order to receive a certain amount
+  public abstract computeSendAmount(
+    receiveAmount: number | undefined,
+    routeOptions: any,
+  ): Promise<number>;
+
+  // Validate a transfer before sending via the chosen route
   public abstract validate(
     token: TokenId | 'native',
     amount: string,
@@ -43,6 +56,7 @@ export default abstract class RouteAbstract {
     routeOptions: any,
   ): Promise<boolean>;
 
+  // estimate send gas fees
   public abstract estimateSendGas(
     token: TokenId | 'native',
     amount: string,
@@ -53,6 +67,7 @@ export default abstract class RouteAbstract {
     routeOptions: any,
   ): Promise<string>;
 
+  // estimate claim gas fees, return 0 if none
   public abstract estimateClaimGas(
     destChain: ChainName | ChainId,
   ): Promise<string>;
