@@ -160,12 +160,13 @@ const MAINNET_CONFIG: WormholeConfig = {
     moonbeam: 'https://rpc.ankr.com/moonbeam',
     sui: 'https://rpc.mainnet.sui.io',
     aptos: 'https://fullnode.mainnet.aptoslabs.com/v1',
-    sei: '', // TODO: fill in
+    sei: '', // TODO: fill in,
   },
   rest: {
     sei: '',
   },
   chains: MAINNET,
+  wormholeHosts: ['https://wormhole-v2-mainnet-api.certus.one'],
 };
 
 export default MAINNET_CONFIG;
