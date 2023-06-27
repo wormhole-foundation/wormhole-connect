@@ -10,7 +10,9 @@ import { wh } from '../../../utils/sdk';
 import {
   formatBalance,
   selectToNetwork,
+  setAmount,
   setDestToken,
+  setReceiveAmount,
 } from '../../../store/transferInput';
 
 import Inputs from './Inputs';
@@ -32,6 +34,7 @@ function ToInputs() {
     fromNetwork,
     toNetwork,
     destToken,
+    receiveAmount,
     isTransactionInProgress,
   } = useSelector((state: RootState) => state.transferInput);
   const { receiving } = useSelector((state: RootState) => state.wallet);
@@ -84,6 +87,17 @@ function ToInputs() {
     />
   );
 
+  const handleAmountChange = (amount: string) => {
+    dispatch(setAmount(amount));
+    dispatch(setReceiveAmount(amount));
+  };
+  const amountInput = (
+    <AmountInput
+      handleAmountChange={handleAmountChange}
+      value={receiveAmount}
+    />
+  );
+
   return (
     <>
       <Inputs
@@ -96,7 +110,7 @@ function ToInputs() {
         networkValidation={validations.toNetwork}
         onNetworkClick={() => setShowNetworksModal(true)}
         tokenInput={tokenInput}
-        amountInput={<AmountInput />}
+        amountInput={amountInput}
         balance={balance}
         warning={<TokenWarnings />}
       />

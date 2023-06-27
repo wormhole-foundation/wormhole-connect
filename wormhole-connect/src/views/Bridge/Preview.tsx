@@ -122,13 +122,14 @@ function Preview(props: { collapsed: boolean }) {
     const destConfig = toNetwork && CHAINS[toNetwork];
     const tokenConfig = token && TOKENS[token];
     if (!tokenConfig || !sourceConfig || !destConfig || !amount) return;
+    const numAmount = Number.parseFloat(amount);
 
     if (route === Route.BRIDGE) {
       const rows = getManualRows(
         tokenConfig,
         sourceConfig!.gasToken,
         destConfig!.gasToken,
-        amount,
+        numAmount,
         gasEst.manual,
         gasEst.claim,
       );
@@ -146,7 +147,7 @@ function Preview(props: { collapsed: boolean }) {
             tokenConfig,
             sourceConfig!.gasToken,
             destConfig!.gasToken,
-            amount,
+            numAmount,
             toNativeToken,
             receiveNativeAmt || 0,
             formattedFee,

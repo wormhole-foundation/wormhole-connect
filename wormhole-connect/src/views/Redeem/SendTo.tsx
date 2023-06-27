@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { BigNumber, utils } from 'ethers';
 import {
@@ -26,11 +26,7 @@ import {
 } from '../../utils/wallet';
 import { toDecimals } from '../../utils/balance';
 import { fetchRedeemTx, fetchSwapEvent } from '../../utils/events';
-import {
-  wh,
-  calculateNativeTokenAmt,
-  toChainId,
-} from '../../utils/sdk';
+import { wh, calculateNativeTokenAmt, toChainId } from '../../utils/sdk';
 import { CHAINS, TOKENS, GAS_ESTIMATES } from '../../config';
 import WalletsModal from '../WalletModal';
 
@@ -214,9 +210,12 @@ const ROUTE_HANDLERS: { [r in Route]: RouteAbstract } = {
 
 function SendTo() {
   const dispatch = useDispatch();
-  const { vaa, redeemTx, transferComplete, route: routeType } = useSelector(
-    (state: RootState) => state.redeem,
-  );
+  const {
+    vaa,
+    redeemTx,
+    transferComplete,
+    route: routeType,
+  } = useSelector((state: RootState) => state.redeem);
   const txData = useSelector((state: RootState) => state.redeem.txData)!;
   const wallet = useSelector((state: RootState) => state.wallet.receiving);
   const [claimError, setClaimError] = useState('');

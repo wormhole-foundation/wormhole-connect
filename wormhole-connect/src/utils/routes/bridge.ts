@@ -114,6 +114,21 @@ export class BridgeRoute extends RouteAbstract {
     });
   }
 
+  async computeReceiveAmount(
+    sendAmount: number | undefined,
+    routeOptions: any,
+  ): Promise<number> {
+    if (!sendAmount) return 0;
+    return sendAmount;
+  }
+  async computeSendAmount(
+    receiveAmount: number | undefined,
+    routeOptions: any,
+  ): Promise<number> {
+    if (!receiveAmount) return 0;
+    return receiveAmount;
+  }
+
   async validate(
     token: TokenId | 'native',
     amount: string,
@@ -146,9 +161,7 @@ export class BridgeRoute extends RouteAbstract {
     );
   }
 
-  async estimateClaimGas(
-    destChain: ChainName | ChainId,
-  ): Promise<string> {
+  async estimateClaimGas(destChain: ChainName | ChainId): Promise<string> {
     return await estimateClaimGasFees(destChain);
   }
 
@@ -186,7 +199,11 @@ export class BridgeRoute extends RouteAbstract {
     return txId;
   }
 
-  async redeem(destChain: ChainName | ChainId, vaa: Uint8Array, payer: string): Promise<string> {
+  async redeem(
+    destChain: ChainName | ChainId,
+    vaa: Uint8Array,
+    payer: string,
+  ): Promise<string> {
     // post vaa (solana)
     // TODO: move to context
     const destChainId = wh.toChainId(destChain);

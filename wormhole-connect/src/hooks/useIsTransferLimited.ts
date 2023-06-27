@@ -149,7 +149,7 @@ const useIsTransferLimited = (): IsTransferLimitedResult => {
           (entry) => entry.chainId === fromChainId,
         );
         if (chain) {
-          const transferNotional = token.price * amount;
+          const transferNotional = token.price * Number.parseFloat(amount);
           const isLimitedReason =
             transferNotional > chain.notionalLimit
               ? 'EXCEEDS_MAX_NOTIONAL'

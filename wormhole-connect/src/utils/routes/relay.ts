@@ -87,6 +87,21 @@ export class RelayRoute extends BridgeRoute {
     });
   }
 
+  async computeReceiveAmount(
+    sendAmount: number | undefined,
+    routeOptions: RelayOptions,
+  ): Promise<number> {
+    if (!sendAmount) return 0;
+    return sendAmount - (routeOptions.toNativeToken || 0);
+  }
+  async computeSendAmount(
+    receiveAmount: number | undefined,
+    routeOptions: RelayOptions,
+  ): Promise<number> {
+    if (!receiveAmount) return 0;
+    return receiveAmount + (routeOptions.toNativeToken || 0);
+  }
+
   async validate(
     token: TokenId | 'native',
     amount: string,
@@ -121,9 +136,7 @@ export class RelayRoute extends BridgeRoute {
     );
   }
 
-  async estimateClaimGas(
-    destChain: ChainName | ChainId,
-  ): Promise<string> {
+  async estimateClaimGas(destChain: ChainName | ChainId): Promise<string> {
     return await estimateClaimGasFees(destChain);
   }
 
@@ -147,7 +160,9 @@ export class RelayRoute extends BridgeRoute {
       throw new Error(`send with relay not supported`);
     }
     const parsedNativeAmt = routeOptions.toNativeToken
-      ? utils.parseUnits(routeOptions.toNativeToken.toString(), decimals).toString()
+      ? utils
+          .parseUnits(routeOptions.toNativeToken.toString(), decimals)
+          .toString()
       : '0';
     const tx = await wh.sendWithRelay(
       token,
@@ -167,7 +182,11 @@ export class RelayRoute extends BridgeRoute {
     return txId;
   }
 
-  async redeem(destChain: ChainName | ChainId, vaa: Uint8Array, payer: string): Promise<string> {
+  async redeem(
+    destChain: ChainName | ChainId,
+    vaa: Uint8Array,
+    payer: string,
+  ): Promise<string> {
     // TODO: implement redeemRelay in the WormholeContext for self redemptions
     throw new Error('not implemented');
   }
