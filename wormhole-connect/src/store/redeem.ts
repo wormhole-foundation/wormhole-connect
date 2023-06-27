@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { ParsedVaa } from 'utils/vaa';
 import { ParsedMessage, ParsedRelayerMessage } from '../utils/sdk';
+import { Route } from './transferInput';
 
 export enum MessageType {
   BRIDGE = 1,
@@ -14,6 +15,7 @@ export interface RedeemState {
   redeemTx: string;
   transferComplete: boolean;
   isVaaEnqueued: boolean;
+  route: Route;
 }
 
 const initialState: RedeemState = {
@@ -23,6 +25,7 @@ const initialState: RedeemState = {
   redeemTx: '',
   transferComplete: false,
   isVaaEnqueued: false,
+  route: Route.BRIDGE,
 };
 
 export const redeemSlice = createSlice({
@@ -40,6 +43,9 @@ export const redeemSlice = createSlice({
     },
     setRedeemTx: (state: RedeemState, { payload }) => {
       state.redeemTx = payload;
+    },
+    setRoute: (state: RedeemState, { payload }) => {
+      state.route = payload;
     },
     setTransferComplete: (
       state: RedeemState,
@@ -70,6 +76,7 @@ export const {
   setTransferComplete,
   setIsVaaEnqueued,
   clearRedeem,
+  setRoute,
 } = redeemSlice.actions;
 
 export default redeemSlice.reducer;
