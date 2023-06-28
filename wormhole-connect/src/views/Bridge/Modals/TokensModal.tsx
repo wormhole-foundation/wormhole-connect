@@ -21,7 +21,7 @@ import Modal from '../../../components/Modal';
 import Spacer from '../../../components/Spacer';
 import Search from '../../../components/Search';
 import Scroll from '../../../components/Scroll';
-import Tooltip from '../../../components/Tooltip';
+// import Tooltip from '../../../components/Tooltip';
 // import Down from '../icons/Down';
 // import Collapse from '@mui/material/Collapse';
 import TokenIcon from '../../../icons/TokenIcons';
@@ -279,8 +279,8 @@ function TokensModal() {
       />
       <Spacer height={16} />
       <div className={classes.sectionHeader}>
-        <div className={classes.subheader}>Tokens with liquid markets</div>
-        <Tooltip text="Please perform your own due diligence, but to our knowledge these tokens have liquid markets available (i.e. you should be able to trade and utilize your tokens) on your destination chain." />
+        {/* <div className={classes.subheader}>Tokens with liquid markets</div>
+        <Tooltip text="Please perform your own due diligence, but to our knowledge these tokens have liquid markets available (i.e. you should be able to trade and utilize your tokens) on your destination chain." /> */}
       </div>
       <Scroll
         height="calc(100vh - 375px)"
@@ -334,7 +334,9 @@ function TokensModal() {
               <CircularProgress size={24} />
             </div>
           ) : (
-            <div className={classes.noResults}>No results</div>
+            <div className={classes.noResults}>
+              {search ? 'No results' : 'No balances detected'}
+            </div>
           )}
 
           {/* <div className={classes.advanced} onClick={toggleAdvanced}>
