@@ -16,15 +16,14 @@ import InputContainer from '../../components/InputContainer';
 
 const getAutomaticRows = (
   token: TokenConfig,
+  destToken: TokenConfig,
   sourceGasToken: string,
   destinationGasToken: string,
-  amount: number,
-  nativeTokenAmt: number,
+  receiveAmount: number,
   receiveNativeAmt: number,
   relayerFee: number,
   sendingGasEst: string,
 ): RowsData => {
-  const receivingToken = token.wrappedAsset || token.symbol;
   const isNative = token.symbol === sourceGasToken;
   let totalFeesText = '';
   if (sendingGasEst && relayerFee) {
@@ -40,10 +39,7 @@ const getAutomaticRows = (
   return [
     {
       title: 'Amount',
-      value: `${toFixedDecimals(
-        `${amount - nativeTokenAmt}`,
-        6,
-      )} ${receivingToken}`,
+      value: `${toFixedDecimals(`${receiveAmount}`, 6)} ${destToken.symbol}`,
     },
     {
       title: 'Native gas on destination',
@@ -67,19 +63,17 @@ const getAutomaticRows = (
 };
 
 const getManualRows = (
-  token: TokenConfig,
+  destToken: TokenConfig,
   sourceGasToken: string,
   destinationGasToken: string,
   amount: number,
   sendingGasEst: string,
   destGasEst: string,
 ): RowsData => {
-  const receivingToken = token.wrappedAsset || token.symbol;
-
   return [
     {
       title: 'Amount',
-      value: `${amount} ${receivingToken}`,
+      value: `${amount} ${destToken.symbol}`,
     },
     {
       title: 'Total fee estimates',
@@ -109,9 +103,8 @@ function Preview(props: { collapsed: boolean }) {
   const dispatch = useDispatch();
   const theme = useTheme();
   const [state, setState] = React.useState({ rows: [] as RowsData });
-  const { token, fromNetwork, toNetwork, route, amount, gasEst } = useSelector(
-    (state: RootState) => state.transferInput,
-  );
+  const { token, destToken, fromNetwork, toNetwork, route, amount, gasEst } =
+    useSelector((state: RootState) => state.transferInput);
   const { toNativeToken, receiveNativeAmt } = useSelector(
     (state: RootState) => state.relay,
   );
@@ -121,12 +114,20 @@ function Preview(props: { collapsed: boolean }) {
     const sourceConfig = toNetwork && CHAINS[fromNetwork];
     const destConfig = toNetwork && CHAINS[toNetwork];
     const tokenConfig = token && TOKENS[token];
-    if (!tokenConfig || !sourceConfig || !destConfig || !amount) return;
+    const destTokenConfig = destToken && TOKENS[destToken];
+    if (
+      !tokenConfig ||
+      !destTokenConfig ||
+      !sourceConfig ||
+      !destConfig ||
+      !amount
+    )
+      return;
     const numAmount = Number.parseFloat(amount);
 
     if (route === Route.BRIDGE) {
       const rows = getManualRows(
-        tokenConfig,
+        destTokenConfig,
         sourceConfig!.gasToken,
         destConfig!.gasToken,
         numAmount,
@@ -145,10 +146,10 @@ function Preview(props: { collapsed: boolean }) {
           dispatch(setRelayerFee(formattedFee));
           const rows = getAutomaticRows(
             tokenConfig,
+            destTokenConfig,
             sourceConfig!.gasToken,
             destConfig!.gasToken,
             numAmount,
-            toNativeToken,
             receiveNativeAmt || 0,
             formattedFee,
             gasEst.automatic,
@@ -165,6 +166,7 @@ function Preview(props: { collapsed: boolean }) {
     }
   }, [
     token,
+    destToken,
     fromNetwork,
     toNetwork,
     route,
