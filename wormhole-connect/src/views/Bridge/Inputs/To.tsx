@@ -97,7 +97,7 @@ function ToInputs() {
       Number.parseFloat(amount),
       undefined,
     );
-    dispatch(setAmount(`${receiveAmount}`));
+    dispatch(setAmount(`${sendAmount}`));
   };
   const amountInput = (
     <AmountInput
