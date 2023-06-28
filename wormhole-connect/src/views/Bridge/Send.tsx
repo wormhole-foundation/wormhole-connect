@@ -31,6 +31,8 @@ import PoweredByIcon from '../../icons/PoweredBy';
 import { LINK } from '../../utils/style';
 import { estimateClaimGasFees } from '../../utils/gasEstimates';
 import RouteAbstract from '../../utils/routes/routeAbstract';
+import { SignedVaa } from '@certusone/wormhole-sdk';
+import { getVaa } from '../../utils/sdk';
 
 const useStyles = makeStyles()((theme) => ({
   body: {
@@ -117,21 +119,11 @@ function Send(props: { valid: boolean }) {
         receiving.address,
         { toNativeToken },
       );
-      // // TODO: update sendTransfer to handle routing
-      // const txId = await sendTransfer(
-      //   sendToken || 'native',
-      //   `${amount}`,
-      //   fromNetwork!,
-      //   sending.address,
-      //   toNetwork!,
-      //   receiving.address,
-      //   route as unknown as PayloadType,
-      //   `${toNativeToken}`,
-      // );
 
-      let message;
+      let vaa: SignedVaa | undefined;
       const toRedeem = setInterval(async () => {
-        if (message) {
+        if (vaa) {
+          const message = await route.parseMessage(txId, vaa, fromNetwork!);
           clearInterval(toRedeem);
           dispatch(setIsTransactionInProgress(false));
           dispatch(setSendTx(txId));
@@ -139,7 +131,7 @@ function Send(props: { valid: boolean }) {
           dispatch(setRoute('redeem'));
           setSendError('');
         } else {
-          message = await route.parseMessageFromTx(txId, fromNetwork!);
+          vaa = await getVaa(txId, fromNetwork!);
         }
       }, 1000);
     } catch (e) {

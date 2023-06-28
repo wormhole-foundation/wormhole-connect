@@ -1,11 +1,11 @@
 import { BigNumber } from 'ethers';
 import {
   AnyContracts,
-  ParsedMessage,
-  ParsedRelayerMessage,
   TokenId,
   ChainName,
   ChainId,
+  ParsedMessage,
+  ParsedRelayerMessage,
 } from '../../types';
 import { WormholeContext } from 'wormhole';
 
