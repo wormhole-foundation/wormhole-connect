@@ -16,7 +16,6 @@ import {
 import {
   BridgeRoute,
   adaptParsedMessage,
-  parseBaseMessageFromTx,
 } from './bridge';
 import { getTokenDecimals, getWrappedTokenId } from 'utils';
 import { utils } from 'ethers';
@@ -200,21 +199,6 @@ export class RelayRoute extends BridgeRoute {
   ): Promise<string> {
     // TODO: implement redeemRelay in the WormholeContext for self redemptions
     throw new Error('not implemented');
-  }
-
-  async parseMessageFromTx(
-    tx: string,
-    chain: ChainName | ChainId,
-  ): Promise<ParsedMessage> {
-    const parsed: any = await parseBaseMessageFromTx(tx, chain);
-    if (parsed.payloadID !== PayloadType.AUTOMATIC) {
-      throw new Error('wrong payload, not a token bridge relay transfer');
-    }
-    return {
-      ...parsed,
-      relayerFee: parsed.relayerFee.toString(),
-      toNativeTokenAmount: parsed.toNativeTokenAmount.toString(),
-    };
   }
 
   async parseMessage(

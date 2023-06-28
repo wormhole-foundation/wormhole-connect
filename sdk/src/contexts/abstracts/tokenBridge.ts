@@ -1,8 +1,6 @@
 import { BigNumber } from 'ethers';
 import {
   AnyContracts,
-  ParsedMessage,
-  ParsedRelayerMessage,
   TokenId,
   ChainName,
   ChainId,
@@ -60,10 +58,6 @@ export abstract class TokenBridgeAbstract<TransactionResult> {
     tokenId: TokenId,
     chain: ChainName | ChainId,
   ): Promise<string>;
-  protected abstract parseMessageFromTx(
-    tx: string,
-    chain: ChainName | ChainId,
-  ): Promise<ParsedMessage[] | ParsedRelayerMessage[]>;
 
   protected abstract getNativeBalance(
     walletAddress: string,

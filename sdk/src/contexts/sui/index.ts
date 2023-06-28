@@ -368,64 +368,6 @@ export class SuiContext<
     return parsedMessage;
   }
 
-  async parseMessageFromTx(
-    tx: string,
-    chain: ChainName | ChainId,
-  ): Promise<ParsedMessage[] | ParsedRelayerMessage[]> {
-    const txBlock = await this.provider.getTransactionBlock({
-      digest: tx,
-      options: { showEvents: true, showEffects: true, showInput: true },
-    });
-    const message = txBlock.events?.find((event) =>
-      event.type.endsWith('WormholeMessage'),
-    );
-    if (!message || !message.parsedJson) {
-      throw new Error('WormholeMessage not found');
-    }
-    const { payload, sender: emitterAddress, sequence } = message.parsedJson;
-    const parsed = parseTokenTransferPayload(Buffer.from(payload));
-    const tokenContext = this.context.getContext(parsed.tokenChain as ChainId);
-    const destContext = this.context.getContext(parsed.toChain as ChainId);
-    const tokenAddress = await tokenContext.parseAssetAddress(
-      hexlify(parsed.tokenAddress),
-    );
-    const tokenChain = this.context.toChainName(parsed.tokenChain);
-    const gasFee = getTotalGasUsed(txBlock);
-    const parsedMessage: ParsedMessage = {
-      sendTx: tx,
-      sender: getTransactionSender(txBlock) || '',
-      amount: BigNumber.from(parsed.amount),
-      payloadID: parsed.payloadType,
-      recipient: destContext.parseAddress(hexlify(parsed.to)),
-      toChain: this.context.toChainName(parsed.toChain),
-      fromChain: this.context.toChainName(chain),
-      tokenAddress,
-      tokenChain,
-      tokenId: {
-        chain: tokenChain,
-        address: tokenAddress,
-      },
-      sequence: BigNumber.from(sequence),
-      emitterAddress,
-      block: Number(txBlock.checkpoint || ''),
-      gasFee: gasFee ? BigNumber.from(gasFee) : undefined,
-    };
-    if (parsed.payloadType === 3) {
-      const relayerPayload = destContext.parseRelayerPayload(
-        Buffer.from(parsed.tokenTransferPayload),
-      );
-      const relayerMessage: ParsedRelayerMessage = {
-        ...parsedMessage,
-        relayerFee: relayerPayload.relayerFee,
-        relayerPayloadId: parsed.payloadType as number,
-        to: relayerPayload.to,
-        toNativeTokenAmount: relayerPayload.toNativeTokenAmount,
-      };
-      return [relayerMessage];
-    }
-    return [parsedMessage];
-  }
-
   async getNativeBalance(
     walletAddress: string,
     chain: ChainName | ChainId,

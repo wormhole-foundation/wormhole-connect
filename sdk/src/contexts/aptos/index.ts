@@ -287,60 +287,6 @@ export class AptosContext<
     return parsedMessage;
   }
 
-  async parseMessageFromTx(
-    tx: string,
-    chain: ChainName | ChainId,
-  ): Promise<ParsedMessage[] | ParsedRelayerMessage[]> {
-    const transaction = await this.aptosClient.getTransactionByHash(tx);
-    if (transaction.type !== 'user_transaction') {
-      throw new Error(`${tx} is not a user_transaction`);
-    }
-    const userTransaction = transaction as Types.UserTransaction;
-    const message = userTransaction.events.find((event) =>
-      event.type.endsWith('WormholeMessage'),
-    );
-    if (!message || !message.data) {
-      throw new Error(`WormholeMessage not found for ${tx}`);
-    }
-    const { payload, sender, sequence } = message.data;
-    const parsed = parseTokenTransferPayload(
-      Buffer.from(payload.slice(2), 'hex'),
-    );
-    const tokenContext = this.context.getContext(parsed.tokenChain as ChainId);
-    const destContext = this.context.getContext(parsed.toChain as ChainId);
-    const tokenAddress = await tokenContext.parseAssetAddress(
-      hexlify(parsed.tokenAddress),
-    );
-    const tokenChain = this.context.toChainName(parsed.tokenChain);
-    // make sender address even-length
-    const emitter = hexlify(sender, {
-      allowMissingPrefix: true,
-      hexPad: 'left',
-    });
-    const parsedMessage: ParsedMessage = {
-      sendTx: tx,
-      sender: userTransaction.sender,
-      amount: BigNumber.from(parsed.amount),
-      payloadID: Number(parsed.payloadType),
-      recipient: destContext.parseAddress(hexlify(parsed.to)),
-      toChain: this.context.toChainName(parsed.toChain),
-      fromChain: this.context.toChainName(chain),
-      tokenAddress,
-      tokenChain,
-      tokenId: {
-        chain: tokenChain,
-        address: tokenAddress,
-      },
-      sequence: BigNumber.from(sequence),
-      emitterAddress: hexlify(this.formatAddress(emitter)),
-      block: Number(userTransaction.version),
-      gasFee: BigNumber.from(userTransaction.gas_used).mul(
-        userTransaction.gas_unit_price,
-      ),
-    };
-    return [parsedMessage];
-  }
-
   async getNativeBalance(
     walletAddress: string,
     chain: ChainName | ChainId,

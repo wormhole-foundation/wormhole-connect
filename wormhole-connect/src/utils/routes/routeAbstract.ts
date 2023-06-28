@@ -87,11 +87,6 @@ export default abstract class RouteAbstract {
     routeOptions: any,
   ): Promise<any>;
 
-  public abstract parseMessageFromTx(
-    tx: string,
-    chain: ChainName | ChainId,
-  ): any;
-
   public abstract parseMessage(
     sourceTx: string,
     vaa: SignedVaa,
