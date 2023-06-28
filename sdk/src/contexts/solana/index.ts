@@ -60,12 +60,10 @@ import {
   PostedMessageData,
   deriveWormholeEmitterKey,
   getClaim,
-  getPostedMessage,
 } from './solana/wormhole';
 import { TokenBridgeAbstract } from '../abstracts/tokenBridge';
 import { getAccountData } from './solana';
 
-const SOLANA_SEQ_LOG = 'Program log: Sequence: ';
 const SOLANA_CHAIN_NAME = MAINNET_CONFIG.chains.solana!.key;
 
 const SOLANA_MAINNET_EMMITER_ID =
@@ -663,109 +661,6 @@ export class SolanaContext<
     }
 
     return parsedMessage;
-  }
-
-  async parseMessageFromTx(
-    tx: string,
-    chain: ChainName | ChainId,
-  ): Promise<ParsedMessage[]> {
-    if (!this.connection) throw new Error('no connection');
-    const contracts = this.contracts.mustGetContracts(SOLANA_CHAIN_NAME);
-    if (!contracts.core || !contracts.token_bridge)
-      throw new Error('contracts not found');
-    const response = await this.connection.getTransaction(tx);
-    const parsedResponse = await this.connection.getParsedTransaction(tx);
-    if (!response || !response.meta?.innerInstructions![0].instructions)
-      throw new Error('transaction not found');
-
-    const instructions = response.meta?.innerInstructions![0].instructions;
-    const accounts = response.transaction.message.accountKeys;
-
-    // find the instruction where the programId equals the Wormhole ProgramId and the emitter equals the Token Bridge
-    const bridgeInstructions = instructions.filter((i) => {
-      const programId = accounts[i.programIdIndex].toString();
-      const emitterId = accounts[i.accounts[2]];
-      const wormholeCore = contracts.core;
-      const tokenBridge = deriveWormholeEmitterKey(contracts.token_bridge!);
-      return programId === wormholeCore && emitterId.equals(tokenBridge);
-    });
-    const { message } = await getPostedMessage(
-      this.connection,
-      accounts[bridgeInstructions[0].accounts[1]],
-    );
-
-    const parsedInstr =
-      parsedResponse?.meta?.innerInstructions![0].instructions;
-    const gasFee = parsedInstr
-      ? parsedInstr.reduce((acc, c: any) => {
-          if (!c.parsed || !c.parsed.info || !c.parsed.info.lamports)
-            return acc;
-          return acc + c.parsed.info.lamports;
-        }, 0)
-      : 0;
-
-    // parse message payload
-    const parsed = parseTokenTransferPayload(message.payload);
-
-    // get sequence
-    const sequence = response.meta?.logMessages
-      ?.filter((msg) => msg.startsWith(SOLANA_SEQ_LOG))?.[0]
-      ?.replace(SOLANA_SEQ_LOG, '');
-    if (!sequence) {
-      throw new Error('sequence not found');
-    }
-
-    // format response
-    const tokenContext = this.context.getContext(parsed.tokenChain as ChainId);
-    const destContext = this.context.getContext(parsed.toChain as ChainId);
-
-    const tokenAddress = await tokenContext.parseAssetAddress(
-      hexlify(parsed.tokenAddress),
-    );
-    const tokenChain = this.context.toChainName(parsed.tokenChain);
-
-    const toAddress = destContext.parseAddress(hexlify(parsed.to));
-
-    const parsedMessage: ParsedMessage = {
-      sendTx: tx,
-      sender: accounts[0].toString(),
-      amount: BigNumber.from(parsed.amount),
-      payloadID: parsed.payloadType,
-      recipient: toAddress,
-      toChain: this.context.toChainName(parsed.toChain),
-      fromChain: this.context.toChainName(chain),
-      tokenAddress,
-      tokenChain,
-      tokenId: {
-        chain: tokenChain,
-        address: tokenAddress,
-      },
-      sequence: BigNumber.from(sequence),
-      emitterAddress:
-        this.context.conf.env === 'MAINNET'
-          ? SOLANA_MAINNET_EMMITER_ID
-          : SOLANA_TESTNET_EMITTER_ID,
-      gasFee: BigNumber.from(gasFee),
-      block: response.slot,
-    };
-
-    if (parsedMessage.payloadID === 3) {
-      const destContext = this.context.getContext(parsed.toChain as ChainId);
-      const parsedPayload = destContext.parseRelayerPayload(
-        parsed.tokenTransferPayload,
-      );
-      const parsedPayloadMessage: ParsedRelayerMessage = {
-        ...parsedMessage,
-        relayerPayloadId: parsedPayload.relayerPayloadId,
-        recipient: destContext.parseAddress(parsedPayload.to),
-        to: toAddress,
-        relayerFee: parsedPayload.relayerFee,
-        toNativeTokenAmount: parsedPayload.toNativeTokenAmount,
-      };
-      return [parsedPayloadMessage];
-    }
-
-    return [parsedMessage];
   }
 
   async redeem(

@@ -8,7 +8,6 @@ import { BridgeRoute } from './bridge';
 import { RelayRoute } from './relay';
 import { HashflowRoute } from './hashflow';
 import { TokenConfig } from 'config/types';
-import { ParsedMessage } from 'utils/sdk';
 
 export default class Operator {
   getRoute(route: Route) {
@@ -181,14 +180,5 @@ export default class Operator {
   ): Promise<string> {
     const r = this.getRoute(route);
     return await r.redeem(destChain, vaa, payer);
-  }
-
-  async parseMessageFromTx(
-    route: Route,
-    tx: string,
-    chain: ChainName | ChainId,
-  ): Promise<ParsedMessage | void> {
-    const r = this.getRoute(route);
-    return await r.parseMessageFromTx(tx, chain);
   }
 }

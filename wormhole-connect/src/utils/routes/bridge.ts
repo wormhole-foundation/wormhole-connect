@@ -15,7 +15,6 @@ import { Route } from 'store/transferInput';
 import {
   ParsedMessage,
   ParsedRelayerMessage,
-  PayloadType,
   solanaContext,
   wh,
 } from 'utils/sdk';
@@ -23,13 +22,6 @@ import { utils } from 'ethers';
 import { TransferWallet, postVaa, signAndSendTransaction } from 'utils/wallet';
 import { SignedVaa } from '@certusone/wormhole-sdk';
 
-export const parseBaseMessageFromTx = async (
-  tx: string,
-  chain: ChainName | ChainId,
-): Promise<ParsedMessage> => {
-  const parsed: any = (await wh.parseMessageFromTx(tx, chain))[0];
-  return adaptParsedMessage(parsed);
-};
 
 // adapts the sdk returned parsed message to the type that
 // wh connect uses
@@ -241,17 +233,6 @@ export class BridgeRoute extends RouteAbstract {
     );
     wh.registerProviders();
     return txId;
-  }
-
-  async parseMessageFromTx(
-    tx: string,
-    chain: ChainName | ChainId,
-  ): Promise<ParsedMessage> {
-    const parsed: any = await parseBaseMessageFromTx(tx, chain);
-    if (parsed.payloadID !== PayloadType.MANUAL) {
-      throw new Error('wrong payload, not a manual token bridge transfer');
-    }
-    return parsed;
   }
 
   async parseMessage(
