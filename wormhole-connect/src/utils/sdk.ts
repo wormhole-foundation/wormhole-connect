@@ -9,7 +9,7 @@ import {
   WormholeContext,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 
-import { getTokenById, getWrappedTokenId } from '.';
+import { getWrappedTokenId } from '.';
 import { TOKENS, WH_CONFIG, isMainnet } from '../config';
 
 export enum PayloadType {
@@ -18,7 +18,7 @@ export enum PayloadType {
 }
 
 const ENV = isMainnet ? 'MAINNET' : 'TESTNET';
-export const wh = new WormholeContext(ENV as Environment, WH_CONFIG);
+export const wh: WormholeContext = new WormholeContext(ENV as Environment, WH_CONFIG);
 
 export interface ParsedMessage {
   sendTx: string;
@@ -67,45 +67,6 @@ export const formatAssetAddress = (
 export const parseAddress = (chain: ChainName | ChainId, address: string) => {
   const context = wh.getContext(chain);
   return context.parseAddress(address);
-};
-
-export const parseMessageFromTx = async (
-  tx: string,
-  chain: ChainName | ChainId,
-): Promise<ParsedMessage | ParsedRelayerMessage> => {
-  const parsed: any = (await wh.parseMessageFromTx(tx, chain))[0];
-
-  const tokenId = {
-    address: parsed.tokenAddress,
-    chain: parsed.tokenChain,
-  };
-  const decimals = await wh.fetchTokenDecimals(tokenId, parsed.fromChain);
-  const token = getTokenById(tokenId);
-
-  const base: ParsedMessage = {
-    ...parsed,
-    amount: parsed.amount.toString(),
-    tokenKey: token?.key,
-    tokenDecimals: decimals,
-    sequence: parsed.sequence.toString(),
-    gasFee: parsed.gasFee ? parsed.gasFee.toString() : undefined,
-  };
-  // get wallet address of associated token account for Solana
-  const toChainId = wh.toChainId(parsed.toChain);
-  if (toChainId === MAINNET_CHAINS.solana) {
-    const accountOwner = await solanaContext().getTokenAccountOwner(
-      parsed.recipient,
-    );
-    base.recipient = accountOwner;
-  }
-  if (parsed.payloadID === PayloadType.MANUAL) {
-    return base;
-  }
-  return {
-    ...base,
-    relayerFee: parsed.relayerFee.toString(),
-    toNativeTokenAmount: parsed.toNativeTokenAmount.toString(),
-  };
 };
 
 export const getRelayerFee = async (

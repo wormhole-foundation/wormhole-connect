@@ -78,9 +78,6 @@ export class HashflowRoute extends RouteAbstract {
   ): Promise<any> {
     throw new Error('Method not implemented.');
   }
-  public parseMessageFromTx(tx: string, chain: ChainName | ChainId) {
-    throw new Error('Method not implemented.');
-  }
   public redeem(
     destChain: ChainName | ChainId,
     vaa: Uint8Array,
