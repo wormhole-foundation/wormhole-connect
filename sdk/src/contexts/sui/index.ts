@@ -4,6 +4,7 @@ import {
   PaginatedCoins,
   SUI_CLOCK_OBJECT_ID,
   SUI_TYPE_ARG,
+  SuiTransactionBlockResponse,
   TransactionBlock,
   getTotalGasUsed,
   getTransactionSender,
@@ -13,7 +14,6 @@ import { BigNumber, BigNumberish } from 'ethers';
 
 import {
   CHAIN_ID_SUI,
-  SignedVaa,
   getForeignAssetSui,
   getIsTransferCompletedSui,
   getOriginalAssetSui,
@@ -32,6 +32,7 @@ import {
   ParsedMessage,
   ParsedRelayerMessage,
   TokenId,
+  VaaInfo,
 } from '../../types';
 import { parseTokenTransferPayload } from '../../vaa';
 import { WormholeContext } from '../../wormhole';
@@ -288,7 +289,10 @@ export class SuiContext<
     return metadata.decimals;
   }
 
-  async getVaa(tx: string, chain: ChainName | ChainId): Promise<SignedVaa> {
+  async getVaa(
+    tx: string,
+    chain: ChainName | ChainId,
+  ): Promise<VaaInfo<SuiTransactionBlockResponse>> {
     const txBlock = await this.provider.getTransactionBlock({
       digest: tx,
       options: { showEvents: true, showEffects: true, showInput: true },
@@ -311,20 +315,18 @@ export class SuiContext<
       3,
     );
 
-    return vaaBytes;
+    return {
+      transaction: txBlock,
+      rawVaa: vaaBytes,
+      vaa: parseVaa(vaaBytes),
+    };
   }
 
   async parseMessage(
-    tx: string,
-    vaa: SignedVaa,
+    info: VaaInfo<SuiTransactionBlockResponse>,
   ): Promise<ParsedMessage | ParsedRelayerMessage> {
-    const message = parseVaa(vaa);
+    const { transaction: txBlock, vaa: message } = info;
     const parsed = parseTokenTransferPayload(message.payload);
-
-    const txBlock = await this.provider.getTransactionBlock({
-      digest: tx,
-      options: { showEvents: true, showEffects: true, showInput: true },
-    });
 
     const tokenContext = this.context.getContext(parsed.tokenChain as ChainId);
     const destContext = this.context.getContext(parsed.toChain as ChainId);
@@ -334,7 +336,7 @@ export class SuiContext<
     const tokenChain = this.context.toChainName(parsed.tokenChain);
     const gasFee = getTotalGasUsed(txBlock);
     const parsedMessage: ParsedMessage = {
-      sendTx: tx,
+      sendTx: txBlock.digest,
       sender: getTransactionSender(txBlock) || '',
       amount: BigNumber.from(parsed.amount),
       payloadID: parsed.payloadType,

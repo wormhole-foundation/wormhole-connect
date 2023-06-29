@@ -1,6 +1,5 @@
 import {
   CHAIN_ID_SEI,
-  SignedVaa,
   WormholeWrappedInfo,
   buildTokenId,
   cosmos,
@@ -14,6 +13,7 @@ import { CosmWasmClient } from '@cosmjs/cosmwasm-stargate';
 import { EncodeObject, decodeTxRaw } from '@cosmjs/proto-signing';
 import {
   Coin,
+  IndexedTx,
   SearchTxFilter,
   StdFee,
   calculateFee,
@@ -38,6 +38,7 @@ import {
   ParsedRelayerMessage,
   ParsedRelayerPayload,
   TokenId,
+  VaaInfo,
 } from '../../types';
 import { WormholeContext } from '../../wormhole';
 import { TokenBridgeAbstract } from '../abstracts/tokenBridge';
@@ -623,7 +624,10 @@ export class SeiContext<
     return null;
   }
 
-  async getVaa(id: string, chain: ChainName | ChainId): Promise<SignedVaa> {
+  async getVaa(
+    id: string,
+    chain: ChainName | ChainId,
+  ): Promise<VaaInfo<IndexedTx>> {
     const client = await this.getCosmWasmClient();
     const tx = await client.getTx(id);
     if (!tx) throw new Error('tx not found');
@@ -646,18 +650,20 @@ export class SeiContext<
       3,
     );
 
-    return vaaBytes;
+    return {
+      transaction: tx,
+      rawVaa: vaaBytes,
+      vaa: parseVaa(vaaBytes),
+    };
   }
 
   async parseMessage(
-    sourceTx: string,
-    vaa: SignedVaa,
+    info: VaaInfo<IndexedTx>,
   ): Promise<ParsedMessage | ParsedRelayerMessage> {
-    const client = await this.getCosmWasmClient();
-    const tx = await client.getTx(sourceTx);
+    const { transaction: tx, vaa: message } = info;
+
     if (!tx) throw new Error('tx not found');
 
-    const message = parseVaa(vaa);
     const parsed = parseTokenTransferPayload(message.payload);
 
     const decoded = decodeTxRaw(tx.tx);

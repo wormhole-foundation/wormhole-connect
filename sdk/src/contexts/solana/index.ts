@@ -1,5 +1,4 @@
 import {
-  SignedVaa,
   createNonce,
   getForeignAssetSolana,
   redeemAndUnwrapOnSolana,
@@ -27,6 +26,7 @@ import {
   PublicKeyInitData,
   SystemProgram,
   Transaction,
+  TransactionResponse,
 } from '@solana/web3.js';
 import { BigNumber } from 'ethers';
 import { arrayify, zeroPad, hexlify } from 'ethers/lib/utils';
@@ -46,6 +46,7 @@ import {
   Context,
   ParsedRelayerPayload,
   ParsedRelayerMessage,
+  VaaInfo,
 } from '../../types';
 import { SolContracts } from './contracts';
 import { WormholeContext } from '../../wormhole';
@@ -63,6 +64,7 @@ import {
 } from './solana/wormhole';
 import { TokenBridgeAbstract } from '../abstracts/tokenBridge';
 import { getAccountData } from './solana';
+import base58 from 'bs58';
 
 const SOLANA_CHAIN_NAME = MAINNET_CONFIG.chains.solana!.key;
 
@@ -557,7 +559,10 @@ export class SolanaContext<
     return addr;
   }
 
-  async getVaa(tx: string, chain: ChainName | ChainId): Promise<SignedVaa> {
+  async getVaa(
+    tx: string,
+    chain: ChainName | ChainId,
+  ): Promise<VaaInfo<TransactionResponse>> {
     if (!this.connection) throw new Error('no connection');
     const contracts = this.contracts.mustGetContracts(SOLANA_CHAIN_NAME);
     if (!contracts.core || !contracts.token_bridge)
@@ -582,18 +587,30 @@ export class SolanaContext<
     const messageAccountInfo = await this.connection.getAccountInfo(
       new PublicKey(messageKey),
     );
-    return getAccountData(messageAccountInfo);
+    const vaaBytes = getAccountData(messageAccountInfo);
+    const { message } = PostedMessageData.deserialize(vaaBytes);
+
+    return {
+      transaction: response,
+      rawVaa: vaaBytes,
+      vaa: {
+        ...message,
+        version: message.vaaVersion,
+        timestamp: message.vaaTime,
+        hash: Buffer.from([]),
+        guardianSetIndex: 0,
+        guardianSignatures: [],
+      },
+    };
   }
 
   async parseMessage(
-    tx: string,
-    vaa: SignedVaa,
+    info: VaaInfo<TransactionResponse>,
   ): Promise<ParsedMessage | ParsedRelayerMessage> {
+    const { transaction, vaa } = info;
     if (!this.connection) throw new Error('no connection');
-    const parsedResponse = await this.connection.getParsedTransaction(tx);
 
-    const parsedInstr =
-      parsedResponse?.meta?.innerInstructions![0].instructions;
+    const parsedInstr = transaction?.meta?.innerInstructions![0].instructions;
     const gasFee = parsedInstr
       ? parsedInstr.reduce((acc, c: any) => {
           if (!c.parsed || !c.parsed.info || !c.parsed.info.lamports)
@@ -602,9 +619,16 @@ export class SolanaContext<
         }, 0)
       : 0;
 
+    const sender = transaction.transaction.message.accountKeys[0].toString();
+
+    const txId = base58.encode(
+      Transaction.populate(
+        transaction.transaction.message,
+        transaction.transaction.signatures,
+      ).signature!,
+    );
     // parse message payload
-    const { message } = PostedMessageData.deserialize(Buffer.from(vaa));
-    const transfer = parseTokenTransferPayload(message.payload);
+    const transfer = parseTokenTransferPayload(vaa.payload);
 
     // format response
     const tokenContext = this.context.getContext(
@@ -617,13 +641,13 @@ export class SolanaContext<
     );
     const tokenChain = this.context.toChainName(transfer.tokenChain);
 
-    const fromChain = this.context.toChainName(message.emitterChain);
+    const fromChain = this.context.toChainName(vaa.emitterChain);
     const toChain = this.context.toChainName(transfer.toChain);
     const toAddress = destContext.parseAddress(hexlify(transfer.to));
 
     const parsedMessage: ParsedMessage = {
-      sendTx: tx,
-      sender: new PublicKey(transfer.fromAddress!).toString(),
+      sendTx: txId,
+      sender,
       amount: BigNumber.from(transfer.amount),
       payloadID: transfer.payloadType,
       recipient: toAddress,
@@ -635,13 +659,13 @@ export class SolanaContext<
         chain: tokenChain,
         address: tokenAddress,
       },
-      sequence: BigNumber.from(message.sequence),
+      sequence: BigNumber.from(vaa.sequence),
       emitterAddress:
         this.context.conf.env === 'MAINNET'
           ? SOLANA_MAINNET_EMMITER_ID
           : SOLANA_TESTNET_EMITTER_ID,
       gasFee: BigNumber.from(gasFee),
-      block: parsedResponse!.slot,
+      block: transaction.slot,
     };
 
     if (parsedMessage.payloadID === 3) {

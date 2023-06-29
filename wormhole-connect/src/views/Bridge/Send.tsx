@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Context } from '@wormhole-foundation/wormhole-connect-sdk';
+import { Context, VaaInfo } from '@wormhole-foundation/wormhole-connect-sdk';
 import { useTheme } from '@mui/material/styles';
 import { makeStyles } from 'tss-react/mui';
 
@@ -120,10 +120,10 @@ function Send(props: { valid: boolean }) {
         { toNativeToken },
       );
 
-      let vaa: SignedVaa | undefined;
+      let vaa: VaaInfo<any> | undefined;
       const toRedeem = setInterval(async () => {
         if (vaa) {
-          const message = await route.parseMessage(txId, vaa, fromNetwork!);
+          const message = await route.parseMessage(vaa);
           clearInterval(toRedeem);
           dispatch(setIsTransactionInProgress(false));
           dispatch(setSendTx(txId));

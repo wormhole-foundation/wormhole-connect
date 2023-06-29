@@ -1,10 +1,5 @@
 import { BigNumber } from 'ethers';
-import {
-  AnyContracts,
-  TokenId,
-  ChainName,
-  ChainId,
-} from '../../types';
+import { AnyContracts, TokenId, ChainName, ChainId } from '../../types';
 
 // template for different environment contexts
 export abstract class TokenBridgeAbstract<TransactionResult> {
