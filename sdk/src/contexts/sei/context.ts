@@ -1,6 +1,5 @@
 import {
   CHAIN_ID_SEI,
-  SignedVaa,
   WormholeWrappedInfo,
   buildTokenId,
   cosmos,
@@ -14,6 +13,7 @@ import { CosmWasmClient } from '@cosmjs/cosmwasm-stargate';
 import { EncodeObject, decodeTxRaw } from '@cosmjs/proto-signing';
 import {
   Coin,
+  IndexedTx,
   SearchTxFilter,
   StdFee,
   calculateFee,
@@ -38,6 +38,7 @@ import {
   ParsedRelayerMessage,
   ParsedRelayerPayload,
   TokenId,
+  VaaInfo,
 } from '../../types';
 import { WormholeContext } from '../../wormhole';
 import { TokenBridgeAbstract } from '../abstracts/tokenBridge';
@@ -623,7 +624,10 @@ export class SeiContext<
     return null;
   }
 
-  async getVaa(id: string, chain: ChainName | ChainId): Promise<SignedVaa> {
+  async getVaa(
+    id: string,
+    chain: ChainName | ChainId,
+  ): Promise<VaaInfo<IndexedTx>> {
     const client = await this.getCosmWasmClient();
     const tx = await client.getTx(id);
     if (!tx) throw new Error('tx not found');
@@ -646,18 +650,20 @@ export class SeiContext<
       3,
     );
 
-    return vaaBytes;
+    return {
+      transaction: tx,
+      rawVaa: vaaBytes,
+      vaa: parseVaa(vaaBytes),
+    };
   }
 
   async parseMessage(
-    sourceTx: string,
-    vaa: SignedVaa,
+    info: VaaInfo<IndexedTx>,
   ): Promise<ParsedMessage | ParsedRelayerMessage> {
-    const client = await this.getCosmWasmClient();
-    const tx = await client.getTx(sourceTx);
+    const { transaction: tx, vaa: message } = info;
+
     if (!tx) throw new Error('tx not found');
 
-    const message = parseVaa(vaa);
     const parsed = parseTokenTransferPayload(message.payload);
 
     const decoded = decodeTxRaw(tx.tx);
@@ -692,68 +698,6 @@ export class SeiContext<
       block: tx.height,
       gasFee: BigNumber.from(tx.gasUsed),
     };
-  }
-
-  async parseMessageFromTx(
-    id: string,
-    chain: ChainName | ChainId,
-  ): Promise<ParsedMessage[] | ParsedRelayerMessage[]> {
-    const client = await this.getCosmWasmClient();
-    const tx = await client.getTx(id);
-    if (!tx) throw new Error('tx not found');
-
-    const decoded = decodeTxRaw(tx.tx);
-    const { sender } = MsgExecuteContract.decode(
-      decoded.body.messages[0].value,
-    );
-
-    // parse logs emitted for the tx execution
-    const logs = cosmosLogs.parseRawLog(tx.rawLog);
-
-    // extract information wormhole contract logs
-    // - message.message: the vaa payload (i.e. the transfer information)
-    // - message.sequence: the vaa's sequence number
-    // - message.sender: the vaa's emitter address
-    const tokenTransferPayload = this.searchLogs('message.message', logs);
-    const sequence = this.searchLogs('message.sequence', logs);
-    const emitterAddress = this.searchLogs('message.sender', logs);
-
-    if (!tokenTransferPayload || !sequence || !emitterAddress)
-      throw new Error('No token transfer payload found');
-
-    const parsed = parseTokenTransferPayload(
-      Buffer.from(tokenTransferPayload, 'hex'),
-    );
-
-    const destContext = this.context.getContext(parsed.toChain as ChainId);
-    const tokenContext = this.context.getContext(parsed.tokenChain as ChainId);
-
-    const tokenAddress = await tokenContext.parseAssetAddress(
-      hexlify(parsed.tokenAddress),
-    );
-    const tokenChain = this.context.toChainName(parsed.tokenChain);
-
-    return [
-      {
-        sendTx: tx.hash,
-        sender,
-        amount: BigNumber.from(parsed.amount),
-        payloadID: parsed.payloadType,
-        recipient: destContext.parseAddress(hexlify(parsed.to)),
-        toChain: this.context.toChainName(parsed.toChain),
-        fromChain: this.context.toChainName(chain),
-        tokenAddress,
-        tokenChain,
-        tokenId: {
-          address: tokenAddress,
-          chain: tokenChain,
-        },
-        sequence: BigNumber.from(sequence),
-        emitterAddress,
-        block: tx.height,
-        gasFee: BigNumber.from(tx.gasUsed),
-      },
-    ];
   }
 
   async getNativeBalance(

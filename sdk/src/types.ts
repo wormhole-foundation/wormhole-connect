@@ -1,4 +1,8 @@
-import { Network as Environment } from '@certusone/wormhole-sdk';
+import {
+  Network as Environment,
+  ParsedVaa,
+  SignedVaa,
+} from '@certusone/wormhole-sdk';
 import { BigNumber } from 'ethers';
 import { MainnetChainId, MainnetChainName } from './config/MAINNET';
 import { TestnetChainId, TestnetChainName } from './config/TESTNET';
@@ -118,3 +122,9 @@ export type TokenDetails = {
 
 export type SendResult = Awaited<ReturnType<AnyContext['send']>>;
 export type RedeemResult = Awaited<ReturnType<AnyContext['redeem']>>;
+
+export interface VaaInfo<T> {
+  transaction: T;
+  rawVaa: SignedVaa;
+  vaa: ParsedVaa;
+}

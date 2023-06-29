@@ -18,7 +18,10 @@ export enum PayloadType {
 }
 
 const ENV = isMainnet ? 'MAINNET' : 'TESTNET';
-export const wh: WormholeContext = new WormholeContext(ENV as Environment, WH_CONFIG);
+export const wh: WormholeContext = new WormholeContext(
+  ENV as Environment,
+  WH_CONFIG,
+);
 
 export interface ParsedMessage {
   sendTx: string;
