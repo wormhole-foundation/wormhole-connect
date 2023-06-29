@@ -5,6 +5,7 @@ import {
   MAINNET_CHAINS,
   ParsedMessage as SdkParsedMessage,
   ParsedRelayerMessage as SdkParsedRelayerMessage,
+  VaaInfo,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import RouteAbstract from './routeAbstract';
 import { TOKENS } from 'config';
@@ -20,8 +21,6 @@ import {
 } from 'utils/sdk';
 import { utils } from 'ethers';
 import { TransferWallet, postVaa, signAndSendTransaction } from 'utils/wallet';
-import { SignedVaa } from '@certusone/wormhole-sdk';
-
 
 // adapts the sdk returned parsed message to the type that
 // wh connect uses
@@ -236,11 +235,9 @@ export class BridgeRoute extends RouteAbstract {
   }
 
   async parseMessage(
-    sourceTx: string,
-    vaa: SignedVaa,
-    chain: ChainName | ChainId,
+    info: VaaInfo<any>,
   ): Promise<ParsedMessage | ParsedRelayerMessage> {
-    const message = await wh.parseMessage(sourceTx, vaa, chain);
+    const message = await wh.parseMessage(info);
     return adaptParsedMessage(message);
   }
 }

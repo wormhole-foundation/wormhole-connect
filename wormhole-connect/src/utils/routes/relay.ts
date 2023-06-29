@@ -2,6 +2,7 @@ import {
   TokenId,
   ChainName,
   ChainId,
+  VaaInfo,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { TokenConfig } from 'config/types';
 import { estimateClaimGasFees, estimateSendGasFees } from 'utils/gasEstimates';
@@ -13,14 +14,10 @@ import {
   isAcceptedToken,
   ParsedRelayerMessage,
 } from 'utils/sdk';
-import {
-  BridgeRoute,
-  adaptParsedMessage,
-} from './bridge';
+import { BridgeRoute, adaptParsedMessage } from './bridge';
 import { getTokenDecimals, getWrappedTokenId } from 'utils';
 import { utils } from 'ethers';
 import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
-import { SignedVaa } from '@certusone/wormhole-sdk';
 
 export type RelayOptions = {
   relayerFee?: number;
@@ -202,11 +199,9 @@ export class RelayRoute extends BridgeRoute {
   }
 
   async parseMessage(
-    sourceTx: string,
-    vaa: SignedVaa,
-    chain: ChainName | ChainId,
+    info: VaaInfo<any>,
   ): Promise<ParsedMessage | ParsedRelayerMessage> {
-    const message = await wh.parseMessage(sourceTx, vaa, chain);
+    const message = await wh.parseMessage(info);
     const parsed: any = await adaptParsedMessage(message);
     if (parsed.payloadID !== PayloadType.AUTOMATIC) {
       throw new Error('wrong payload, not a token bridge relay transfer');
