@@ -10,7 +10,7 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 
 import { getTokenById, getTokenDecimals, getWrappedTokenId } from '../utils';
-import { isMainnet, TOKENS, WH_CONFIG } from '../config';
+import { GAS_ESTIMATES, isMainnet, TOKENS, WH_CONFIG } from '../config';
 import { postVaa, signAndSendTransaction, TransferWallet } from 'utils/wallet';
 import { estimateClaimFees, estimateSendFees } from './gasEstimates';
 
@@ -250,8 +250,10 @@ export const claimTransfer = async (
     if (!contracts.core) throw new Error('contract not found');
     await postVaa(connection, contracts.core, Buffer.from(vaa));
   }
+  const gasEstimates = GAS_ESTIMATES[destChainName];
+  const gasLimit = gasEstimates?.claim || 250000;
 
-  const tx = await wh.redeem(destChain, vaa, { gasLimit: 250000 }, payerAddr);
+  const tx = await wh.redeem(destChain, vaa, { gasLimit }, payerAddr);
   const txId = await signAndSendTransaction(
     destChainName,
     tx,
