@@ -319,16 +319,16 @@ export class WormholeContext extends MultiProvider<Domain> {
     return context.parseAddress(address);
   }
 
-  async getVaa<T = any>(
+  async getVaa(
     tx: string,
     chain: ChainName | ChainId,
-  ): Promise<VaaInfo<any>> {
+  ): Promise<VaaInfo> {
     const context = this.getContext(chain);
     return await context.getVaa(tx, chain);
   }
 
   async parseMessage(
-    info: VaaInfo<any>,
+    info: VaaInfo,
   ): Promise<ParsedMessage | ParsedRelayerMessage> {
     const context = this.getContext(info.vaa.emitterChain as ChainId);
     return context.parseMessage(info);

@@ -3,7 +3,7 @@ import {
   ParsedVaa,
   SignedVaa,
 } from '@certusone/wormhole-sdk';
-import { BigNumber } from 'ethers';
+import { BigNumber, ContractReceipt } from 'ethers';
 import { MainnetChainId, MainnetChainName } from './config/MAINNET';
 import { TestnetChainId, TestnetChainName } from './config/TESTNET';
 import { AptosContext } from './contexts/aptos';
@@ -17,6 +17,10 @@ import { SuiContracts } from './contexts/sui/contracts';
 import { WormholeContext } from './wormhole';
 import { SeiContracts } from './contexts/sei/contracts';
 import { SeiContext } from './contexts/sei';
+import { Types } from 'aptos';
+import { TransactionResponse } from '@solana/web3.js';
+import { SuiTransactionBlockResponse } from '@mysten/sui.js';
+import { IndexedTx } from '@cosmjs/stargate';
 
 export const NATIVE = 'native';
 // TODO: conditionally set these types
@@ -127,7 +131,8 @@ export type TokenDetails = {
 export type SendResult = Awaited<ReturnType<AnyContext['send']>>;
 export type RedeemResult = Awaited<ReturnType<AnyContext['redeem']>>;
 
-export interface VaaInfo<T> {
+export type VaaSourceTransaction = ContractReceipt | Types.UserTransaction | TransactionResponse | SuiTransactionBlockResponse | IndexedTx;
+export interface VaaInfo<T extends VaaSourceTransaction = any> {
   transaction: T;
   rawVaa: SignedVaa;
   vaa: ParsedVaa;
