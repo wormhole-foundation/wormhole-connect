@@ -8,6 +8,7 @@ import {
   ParsedMessage,
   Context,
   ParsedRelayerPayload,
+  VaaInfo,
 } from '../../types';
 import { WormholeContext } from '../../wormhole';
 import { TokenBridgeAbstract } from '../abstracts/tokenBridge';
@@ -15,7 +16,6 @@ import { AptosContracts } from './contracts';
 import { AptosClient, CoinClient, Types } from 'aptos';
 import {
   CHAIN_ID_APTOS,
-  SignedVaa,
   getForeignAssetAptos,
   getIsTransferCompletedAptos,
   getSignedVAAWithRetry,
@@ -196,7 +196,10 @@ export class AptosContext<
     return decimals;
   }
 
-  async getVaa(tx: string, chain: ChainName | ChainId): Promise<SignedVaa> {
+  async getVaa(
+    tx: string,
+    chain: ChainName | ChainId,
+  ): Promise<VaaInfo<Types.UserTransaction>> {
     const transaction = await this.aptosClient.getTransactionByHash(tx);
     if (transaction.type !== 'user_transaction') {
       throw new Error(`${tx} is not a user_transaction`);
@@ -231,25 +234,19 @@ export class AptosContext<
       3,
     );
 
-    return vaaBytes;
+    return {
+      transaction: userTransaction,
+      rawVaa: vaaBytes,
+      vaa: parseVaa(vaaBytes),
+    };
   }
 
   async parseMessage(
-    tx: string,
-    vaa: SignedVaa,
+    info: VaaInfo<Types.UserTransaction>,
   ): Promise<ParsedMessage | ParsedRelayerMessage> {
-    const transaction = await this.aptosClient.getTransactionByHash(tx);
-    if (transaction.type !== 'user_transaction') {
-      throw new Error(`${tx} is not a user_transaction`);
-    }
-    const userTransaction = transaction as Types.UserTransaction;
+    const { transaction, vaa } = info;
 
-    const {
-      emitterChain: chain,
-      payload,
-      emitterAddress,
-      sequence,
-    } = parseVaa(vaa);
+    const { emitterChain: chain, payload, emitterAddress, sequence } = vaa;
     const parsed = parseTokenTransferPayload(payload);
     const tokenContext = this.context.getContext(parsed.tokenChain as ChainId);
     const destContext = this.context.getContext(parsed.toChain as ChainId);
@@ -264,8 +261,8 @@ export class AptosContext<
       hexPad: 'left',
     });
     const parsedMessage: ParsedMessage = {
-      sendTx: tx,
-      sender: userTransaction.sender,
+      sendTx: transaction.hash,
+      sender: transaction.sender,
       amount: BigNumber.from(parsed.amount),
       payloadID: Number(parsed.payloadType),
       recipient: destContext.parseAddress(hexlify(parsed.to)),
@@ -279,9 +276,9 @@ export class AptosContext<
       },
       sequence: BigNumber.from(sequence),
       emitterAddress: hexlify(this.formatAddress(emitter)),
-      block: Number(userTransaction.version),
-      gasFee: BigNumber.from(userTransaction.gas_used).mul(
-        userTransaction.gas_unit_price,
+      block: Number(transaction.version),
+      gasFee: BigNumber.from(transaction.gas_used).mul(
+        transaction.gas_unit_price,
       ),
     };
     return parsedMessage;

@@ -3,7 +3,6 @@ import {
   TokenImplementation__factory,
 } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
 import {
-  SignedVaa,
   TokenBridgePayload,
   createNonce,
   getSignedVAAWithRetry,
@@ -30,6 +29,7 @@ import {
   ParsedMessage,
   Context,
   ParsedRelayerPayload,
+  VaaInfo,
 } from '../../types';
 import { WormholeContext } from '../../wormhole';
 import { EthContracts } from './contracts';
@@ -459,7 +459,10 @@ export class EthContext<
     return await relayer.calculateNativeSwapAmountOut(token, amount);
   }
 
-  async getVaa(tx: string, chain: ChainName | ChainId): Promise<SignedVaa> {
+  async getVaa(
+    tx: string,
+    chain: ChainName | ChainId,
+  ): Promise<VaaInfo<ContractReceipt>> {
     const provider = this.context.mustGetProvider(chain);
     const receipt = await provider.getTransactionReceipt(tx);
     if (!receipt) throw new Error(`No receipt for ${tx} on ${chain}`);
@@ -487,7 +490,11 @@ export class EthContext<
       3,
     );
 
-    return vaaBytes;
+    return {
+      transaction: receipt,
+      rawVaa: vaaBytes,
+      vaa: parseVaa(vaaBytes),
+    };
   }
 
   async getReceipt(
@@ -501,18 +508,14 @@ export class EthContext<
   }
 
   async parseMessage(
-    sourceTx: string,
-    vaa: SignedVaa,
+    info: VaaInfo<ContractReceipt>,
   ): Promise<ParsedMessage | ParsedRelayerMessage> {
-    const parsed = parseVaa(vaa);
-    const transfer = parseTokenTransferPayload(parsed.payload);
+    const { transaction: receipt, vaa: vaa } = info;
 
-    const fromChain = this.context.toChainName(parsed.emitterChain);
+    const transfer = parseTokenTransferPayload(vaa.payload);
 
-    const receipt = await this.getReceipt(
-      sourceTx,
-      this.context.toChainId(parsed.emitterChain),
-    );
+    const fromChain = this.context.toChainName(vaa.emitterChain);
+
     let gasFee: BigNumber = BigNumber.from(0);
     if (receipt.gasUsed && receipt.effectiveGasPrice) {
       gasFee = receipt.gasUsed.mul(receipt.effectiveGasPrice);
@@ -528,7 +531,7 @@ export class EthContext<
     );
 
     const baseMessage: ParsedMessage = {
-      sendTx: sourceTx,
+      sendTx: receipt.blockHash,
       sender: receipt.from,
       amount: BigNumber.from(transfer.amount),
       payloadID: transfer.payloadType,
@@ -541,9 +544,9 @@ export class EthContext<
         chain: tokenChain,
         address: tokenAddress,
       },
-      sequence: BigNumber.from(parsed.sequence),
+      sequence: BigNumber.from(vaa.sequence),
       emitterAddress: utils.hexlify(
-        this.formatAddress(utils.hexlify(parsed.emitterAddress)),
+        this.formatAddress(utils.hexlify(vaa.emitterAddress)),
       ),
       block: receipt.blockNumber,
       gasFee,
