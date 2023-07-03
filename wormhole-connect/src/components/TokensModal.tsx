@@ -5,7 +5,7 @@ import { useMediaQuery } from '@mui/material';
 import { makeStyles } from 'tss-react/mui';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { RootState } from '../store';
-import { CHAINS, TOKENS_ARR } from '../config';
+import { CHAINS, TOKENS, TOKENS_ARR } from '../config';
 import { TokenConfig } from '../config/types';
 import {
   setBalance,
@@ -26,6 +26,7 @@ import Tooltip from './Tooltip';
 // import Collapse from '@mui/material/Collapse';
 import TokenIcon from '../icons/TokenIcons';
 import CircularProgress from '@mui/material/CircularProgress';
+import useTransferRoute from '../hooks/useTransferRoute';
 
 const useStyles = makeStyles()((theme) => ({
   tokensContainer: {
@@ -149,21 +150,26 @@ type Props = {
   walletAddress: string | undefined;
   onSelect: (string) => any;
   onClose: any;
+  type: 'source' | 'dest';
 };
 
 function TokensModal(props: Props) {
   const { classes } = useStyles();
   const theme = useTheme();
   const dispatch = useDispatch();
-  const { open, network, walletAddress } = props;
+  const route = useTransferRoute();
+  const { open, network, walletAddress, type } = props;
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [loading, setLoading] = useState(false);
+  const [supportedTokens, setSupportedTokens] = useState<TokenConfig[]>([]);
   const [tokens, setTokens] = useState<TokenConfig[]>([]);
   const [search, setSearch] = useState('');
 
-  const { balances: tokenBalances } = useSelector(
-    (state: RootState) => state.transferInput,
-  );
+  const {
+    balances: tokenBalances,
+    token: sourceToken,
+    destToken,
+  } = useSelector((state: RootState) => state.transferInput);
 
   // search tokens
   const handleSearch = (
@@ -179,6 +185,34 @@ function TokensModal(props: Props) {
       setSearch('');
     }
   };
+
+  useEffect(() => {
+    // TODO: we want to avoid triggering this when the modal is not open
+    // but we should find a way to avoid recomputing when not necessary
+    if (!open) return;
+    let isCancelled = false;
+    const computeSupported = async () => {
+      const supported: TokenConfig[] = [];
+      for (const token of TOKENS_ARR) {
+        const shouldAdd =
+          type === 'source'
+            // the user should be able to pick any source token
+            ? await route.isSupportedSourceToken(token, undefined)
+              .catch(() => false)
+            : await route.isSupportedDestToken(token, TOKENS[sourceToken])
+              .catch(() => false);
+        if (shouldAdd) {
+          supported.push(token);
+        }
+      }
+      if (isCancelled) return;
+      setSupportedTokens(supported);
+    };
+    computeSupported();
+    return () => {
+      isCancelled = true;
+    };
+  }, [route, sourceToken, destToken, type, open]);
 
   const displayedTokens = useMemo(() => {
     if (!search) return tokens;
@@ -211,15 +245,17 @@ function TokensModal(props: Props) {
 
   // fetch token balances and set in store
   useEffect(() => {
+    if (!open) return;
+
     if (!walletAddress || !network) {
-      setTokens(TOKENS_ARR);
+      setTokens(supportedTokens);
       return;
     }
 
     const getBalances = async () => {
       // fetch all N tokens and trigger a single update action
       const balances = await Promise.all(
-        TOKENS_ARR.map(async (t) => {
+        supportedTokens.map(async (t) => {
           const balance = t.tokenId
             ? await wh.getTokenBalance(walletAddress, t.tokenId, network)
             : await wh.getNativeBalance(walletAddress, network);
@@ -238,17 +274,18 @@ function TokensModal(props: Props) {
     dispatch(clearBalances());
     setLoading(true);
     getBalances().finally(() => setLoading(false));
-  }, [walletAddress, network, dispatch]);
+  }, [walletAddress, network, dispatch, supportedTokens, open]);
 
   useEffect(() => {
+    if (!open) return;
     // get tokens that exist on the chain and have a balance greater than 0
-    const filtered = TOKENS_ARR.filter((t) => {
+    const filtered = supportedTokens.filter((t) => {
       if (!t.tokenId && t.nativeNetwork !== network) return false;
       const b = tokenBalances[t.key];
       return b !== null && b !== '0';
     });
     setTokens(filtered);
-  }, [tokenBalances, network]);
+  }, [tokenBalances, network, supportedTokens, open]);
 
   return (
     <Modal open={open} closable width={500} onClose={closeTokensModal}>

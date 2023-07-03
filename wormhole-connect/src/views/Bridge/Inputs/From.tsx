@@ -132,6 +132,7 @@ function FromInputs() {
         open={showTokensModal}
         network={fromNetwork}
         walletAddress={wallet.address}
+        type="source"
         onSelect={selectToken}
         onClose={() => setShowTokensModal(false)}
       />
