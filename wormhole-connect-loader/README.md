@@ -38,6 +38,7 @@ Networks (`networks`):
 | moonbeam   | moonbasealpha |
 | solana     | solana        |
 | sui        | sui           |
+| aptos      | aptos         |
 
 <br>
 
@@ -68,6 +69,7 @@ Tokens (`tokens`):
 | SOL         | WSOL    |
 | SUI         | SUI     |
 | USDCsol     |         |
+| APT         | APT     |
 
 <br>
 
