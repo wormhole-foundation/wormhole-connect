@@ -9,7 +9,6 @@ import { RootState } from '../../store';
 import { setRoute } from '../../store/router';
 import { setTxDetails, setSendTx } from '../../store/redeem';
 import { displayWalletAddress } from '../../utils';
-import { BridgeRoute, HashflowRoute, RelayRoute } from '../../utils/routes';
 import {
   registerWalletSigner,
   switchNetwork,
@@ -30,9 +29,8 @@ import AlertBanner from '../../components/AlertBanner';
 import PoweredByIcon from '../../icons/PoweredBy';
 import { LINK } from '../../utils/style';
 import { estimateClaimGasFees } from '../../utils/gasEstimates';
-import RouteAbstract from '../../utils/routes/routeAbstract';
-import { SignedVaa } from '@certusone/wormhole-sdk';
 import { getVaa } from '../../utils/sdk';
+import Operator from '../../utils/routes';
 
 const useStyles = makeStyles()((theme) => ({
   body: {
@@ -58,12 +56,6 @@ const useStyles = makeStyles()((theme) => ({
   },
 }));
 
-const ROUTE_HANDLERS: { [r in Route]: RouteAbstract } = {
-  [Route.BRIDGE]: new BridgeRoute(),
-  [Route.RELAY]: new RelayRoute(),
-  [Route.HASHFLOW]: new HashflowRoute(),
-};
-
 function Send(props: { valid: boolean }) {
   const { classes } = useStyles();
   const theme = useTheme();
@@ -84,13 +76,12 @@ function Send(props: { valid: boolean }) {
     route: routeType,
     automaticRelayAvail,
     isTransactionInProgress,
+    route
   } = transfer;
   const [isConnected, setIsConnected] = useState(
     sending.currentAddress.toLowerCase() === sending.address.toLowerCase(),
   );
   const [sendError, setSendError] = useState('');
-
-  const route = ROUTE_HANDLERS[routeType];
 
   async function send() {
     setSendError('');
@@ -110,7 +101,9 @@ function Send(props: { valid: boolean }) {
       const tokenConfig = TOKENS[token]!;
       const sendToken = tokenConfig.tokenId;
 
-      const txId = await route.send(
+      const operator = new Operator();
+      const txId = await operator.send(
+        route,
         sendToken || 'native',
         `${amount}`,
         fromNetwork!,
@@ -123,7 +116,7 @@ function Send(props: { valid: boolean }) {
       let vaa: VaaInfo<any> | undefined;
       const toRedeem = setInterval(async () => {
         if (vaa) {
-          const message = await route.parseMessage(vaa);
+          const message = await operator.parseMessage(route, vaa);
           clearInterval(toRedeem);
           dispatch(setIsTransactionInProgress(false));
           dispatch(setSendTx(txId));
@@ -147,7 +140,8 @@ function Send(props: { valid: boolean }) {
       if (!tokenConfig) return;
       const sendToken = tokenConfig.tokenId;
 
-      const gasFee = await route.estimateSendGas(
+      const gasFee = await new Operator().estimateSendGas(
+        route,
         sendToken || 'native',
         (amount || 0).toString(),
         fromNetwork!,

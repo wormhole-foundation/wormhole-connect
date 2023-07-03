@@ -127,6 +127,7 @@ function ToInputs() {
         open={showTokensModal}
         network={toNetwork}
         walletAddress={receiving.address}
+        type="dest"
         onSelect={selectToken}
         onClose={() => setShowTokensModal(false)}
       />
