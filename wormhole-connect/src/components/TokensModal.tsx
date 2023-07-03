@@ -190,28 +190,23 @@ function TokensModal(props: Props) {
     // TODO: we want to avoid triggering this when the modal is not open
     // but we should find a way to avoid recomputing when not necessary
     if (!open) return;
-    let isCancelled = false;
     const computeSupported = async () => {
-      const supported: TokenConfig[] = [];
-      for (const token of TOKENS_ARR) {
-        const shouldAdd =
+      // TODO: move to bridge route or abstract route
+      const shouldAdd = await Promise.allSettled(
+        TOKENS_ARR.map((token) =>
           type === 'source'
             // the user should be able to pick any source token
-            ? await route.isSupportedSourceToken(token, undefined)
-              .catch(() => false)
-            : await route.isSupportedDestToken(token, TOKENS[sourceToken])
-              .catch(() => false);
-        if (shouldAdd) {
-          supported.push(token);
-        }
-      }
-      if (isCancelled) return;
+            ? route.isSupportedSourceToken(token, undefined)
+            : route.isSupportedDestToken(token, TOKENS[sourceToken]))
+      );
+      const supported = TOKENS_ARR.filter((_token, i) => {
+        const res = shouldAdd[i];
+        return res.status === 'fulfilled' && res.value;
+      });
+
       setSupportedTokens(supported);
     };
     computeSupported();
-    return () => {
-      isCancelled = true;
-    };
   }, [route, sourceToken, destToken, type, open]);
 
   const displayedTokens = useMemo(() => {
