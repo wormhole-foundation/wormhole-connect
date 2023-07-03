@@ -41,8 +41,7 @@ import InputContainer from '../../components/InputContainer';
 import { Types } from 'aptos';
 import { getTotalGasUsed } from '@mysten/sui.js';
 import { estimateClaimGasFees } from '../../utils/gasEstimates';
-import { BridgeRoute, HashflowRoute, RelayRoute } from '../../utils/routes';
-import RouteAbstract from '../../utils/routes/routeAbstract';
+import Operator from '../../utils/routes';
 
 const calculateGas = async (chain: ChainName, receiveTx?: string) => {
   const { gasToken } = CHAINS[chain]!;
@@ -202,12 +201,6 @@ const getRows = async (
   return await getAutomaticRows(txData, receiveTx, transferComplete);
 };
 
-const ROUTE_HANDLERS: { [r in Route]: RouteAbstract } = {
-  [Route.BRIDGE]: new BridgeRoute(),
-  [Route.RELAY]: new RelayRoute(),
-  [Route.HASHFLOW]: new HashflowRoute(),
-};
-
 function SendTo() {
   const dispatch = useDispatch();
   const {
@@ -219,8 +212,6 @@ function SendTo() {
   const txData = useSelector((state: RootState) => state.redeem.txData)!;
   const wallet = useSelector((state: RootState) => state.wallet.receiving);
   const [claimError, setClaimError] = useState('');
-
-  const route = ROUTE_HANDLERS[routeType];
 
   const connect = () => {
     setWalletModal(true);
@@ -287,11 +278,13 @@ function SendTo() {
         registerWalletSigner(txData.toChain, TransferWallet.RECEIVING);
         await switchNetwork(networkConfig.chainId, TransferWallet.RECEIVING);
       }
-      const txId = await route.redeem(
-        txData.toChain,
-        utils.arrayify(vaa.bytes),
-        wallet.address,
-      );
+      const txId = await new Operator()
+        .redeem(
+          routeType,
+          txData.toChain,
+          utils.arrayify(vaa.bytes),
+          wallet.address,
+        );
       dispatch(setRedeemTx(txId));
       dispatch(setTransferComplete(true));
       setInProgress(false);
