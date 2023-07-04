@@ -32,7 +32,7 @@ export class SeiContracts<
   }
 
   getCore(chain: ChainName | ChainId) {
-    throw new Error('Method not implemented.');
+    return undefined;
   }
 
   mustGetCore(chain: ChainName | ChainId) {
@@ -40,7 +40,7 @@ export class SeiContracts<
   }
 
   getBridge(chain: ChainName | ChainId) {
-    throw new Error('Method not implemented.');
+    return undefined;
   }
 
   mustGetBridge(chain: ChainName | ChainId) {
@@ -48,7 +48,7 @@ export class SeiContracts<
   }
 
   getNftBridge(chain: ChainName | ChainId) {
-    throw new Error('Method not implemented.');
+    return undefined;
   }
 
   mustGetNftBridge(chain: ChainName | ChainId) {
@@ -56,7 +56,7 @@ export class SeiContracts<
   }
 
   getTokenBridgeRelayer(chain: ChainName | ChainId) {
-    throw new Error('Method not implemented.');
+    return undefined;
   }
 
   mustGetTokenBridgeRelayer(chain: ChainName | ChainId) {
