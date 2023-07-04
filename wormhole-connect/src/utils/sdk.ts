@@ -122,7 +122,9 @@ export const isAcceptedToken = async (tokenId: TokenId): Promise<boolean> => {
   const context: any = wh.getContext(tokenId.chain);
   const relayer = context.contracts.getTokenBridgeRelayer(tokenId.chain);
   if (!relayer) return false;
-  const accepted = await relayer.isAcceptedToken(tokenId.address);
+  const accepted = await relayer
+    .isAcceptedToken(tokenId.address)
+    .catch(() => false);
   return accepted;
 };
 

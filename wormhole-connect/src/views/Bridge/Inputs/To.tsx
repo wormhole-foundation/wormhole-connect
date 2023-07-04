@@ -1,14 +1,11 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { BigNumber } from 'ethers';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { RootState } from '../../../store';
 import { TransferWallet, walletAcceptedNetworks } from '../../../utils/wallet';
 import { getWrappedToken } from '../../../utils';
 import { CHAINS_ARR, TOKENS } from '../../../config';
-import { wh } from '../../../utils/sdk';
 import {
-  formatBalance,
   selectToNetwork,
   setAmount,
   setDestToken,
@@ -25,7 +22,6 @@ import Operator from '../../../utils/routes';
 
 function ToInputs() {
   const dispatch = useDispatch();
-  const [balance, setBalance] = useState(undefined as string | undefined);
   const [showTokensModal, setShowTokensModal] = useState(false);
   const [showNetworksModal, setShowNetworksModal] = useState(false);
 
@@ -35,12 +31,14 @@ function ToInputs() {
     route,
     fromNetwork,
     toNetwork,
+    destBalances,
     destToken,
     receiveAmount,
     isTransactionInProgress,
   } = useSelector((state: RootState) => state.transferInput);
   const { toNativeToken } = useSelector((state: RootState) => state.relay);
   const { receiving } = useSelector((state: RootState) => state.wallet);
+  const balance = destBalances[destToken] || undefined;
 
   const tokenConfig = TOKENS[destToken];
 
@@ -56,22 +54,6 @@ function ToInputs() {
   const selectNetwork = async (network: ChainName) => {
     selectToNetwork(dispatch, network, receiving);
   };
-
-  // get balance on destination chain
-  useEffect(() => {
-    if (!fromNetwork || !toNetwork || !tokenConfig || !receiving.address) {
-      return setBalance(undefined);
-    }
-    const { tokenId } = tokenConfig.tokenId
-      ? tokenConfig
-      : TOKENS[tokenConfig.wrappedAsset!];
-    wh.getTokenBalance(receiving.address, tokenId!, toNetwork).then(
-      (res: BigNumber | null) => {
-        const balance = formatBalance(toNetwork, tokenConfig, res);
-        setBalance(balance[tokenConfig.key]);
-      },
-    );
-  }, [tokenConfig, fromNetwork, toNetwork, receiving.address]);
 
   // token display jsx
   const symbol = tokenConfig && getWrappedToken(tokenConfig).symbol;
