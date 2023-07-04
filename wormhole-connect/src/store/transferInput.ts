@@ -41,7 +41,8 @@ export interface TransferInputState {
   receiveAmount: string;
   route: Route;
   automaticRelayAvail: boolean;
-  balances: Balances;
+  sourceBalances: Balances;
+  destBalances: Balances;
   foreignAsset: string;
   associatedTokenAddress: string;
   gasEst: {
@@ -76,7 +77,8 @@ const initialState: TransferInputState = {
   receiveAmount: '',
   route: Route.BRIDGE,
   automaticRelayAvail: false,
-  balances: {},
+  sourceBalances: {},
+  destBalances: {},
   foreignAsset: '',
   associatedTokenAddress: '',
   gasEst: {
@@ -124,7 +126,7 @@ export const transferInputSlice = createSlice({
     ) => {
       state.fromNetwork = payload;
       // clear balances if the network changes;
-      state.balances = {};
+      state.sourceBalances = {};
 
       const { fromNetwork, token } = state;
 
@@ -157,9 +159,16 @@ export const transferInputSlice = createSlice({
     },
     setBalance: (
       state: TransferInputState,
-      { payload }: PayloadAction<Balances>,
+      {
+        payload,
+      }: PayloadAction<{ type: 'source' | 'dest'; balances: Balances }>,
     ) => {
-      state.balances = { ...state.balances, ...payload };
+      const { type, balances } = payload;
+      if (type === 'source') {
+        state.sourceBalances = { ...state.sourceBalances, ...balances };
+      } else {
+        state.destBalances = { ...state.destBalances, ...balances };
+      }
     },
     setReceiverNativeBalance: (
       state: TransferInputState,
@@ -167,8 +176,15 @@ export const transferInputSlice = createSlice({
     ) => {
       state.receiverNativeBalance = payload;
     },
-    clearBalances: (state: TransferInputState) => {
-      state.balances = {};
+    clearBalances: (
+      state: TransferInputState,
+      { payload }: PayloadAction<'source' | 'dest'>,
+    ) => {
+      if (payload === 'source') {
+        state.sourceBalances = {};
+      } else {
+        state.destBalances = {};
+      }
     },
     setForeignAsset: (
       state: TransferInputState,

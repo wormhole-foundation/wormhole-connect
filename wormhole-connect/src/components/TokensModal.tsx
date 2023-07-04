@@ -1,7 +1,7 @@
 import React, { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTheme } from '@mui/material/styles';
-import { useMediaQuery } from '@mui/material';
+import { Checkbox, useMediaQuery } from '@mui/material';
 import { makeStyles } from 'tss-react/mui';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { RootState } from '../store';
@@ -36,6 +36,14 @@ const useStyles = makeStyles()((theme) => ({
   noResults: {
     ...CENTER,
     minHeight: '72px',
+  },
+  checkboxRow: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontFamily: theme.palette.font.primary,
+    fontWeight: 400,
+    fontSize: '14px',
   },
   subheader: {
     margin: '0 8px',
@@ -164,12 +172,19 @@ function TokensModal(props: Props) {
   const [supportedTokens, setSupportedTokens] = useState<TokenConfig[]>([]);
   const [tokens, setTokens] = useState<TokenConfig[]>([]);
   const [search, setSearch] = useState('');
+  const [showNullBalances, setShowNullBalances] = useState(false);
 
   const {
-    balances: tokenBalances,
+    sourceBalances,
+    destBalances,
     token: sourceToken,
     destToken,
   } = useSelector((state: RootState) => state.transferInput);
+
+  const tokenBalances = useMemo(
+    () => (type === 'source' ? sourceBalances : destBalances),
+    [type, sourceBalances, destBalances],
+  );
 
   // search tokens
   const handleSearch = (
@@ -187,9 +202,6 @@ function TokensModal(props: Props) {
   };
 
   useEffect(() => {
-    // TODO: we want to avoid triggering this when the modal is not open
-    // but we should find a way to avoid recomputing when not necessary
-    if (!open) return;
     const computeSupported = async () => {
       const supported =
         type === 'source'
@@ -200,7 +212,7 @@ function TokensModal(props: Props) {
       setSupportedTokens(supported);
     };
     computeSupported();
-  }, [route, sourceToken, destToken, type, open]);
+  }, [route, sourceToken, destToken, type]);
 
   const displayedTokens = useMemo(() => {
     if (!search) return tokens;
@@ -233,8 +245,6 @@ function TokensModal(props: Props) {
 
   // fetch token balances and set in store
   useEffect(() => {
-    if (!open) return;
-
     if (!walletAddress || !network) {
       setTokens(supportedTokens);
       return;
@@ -242,7 +252,7 @@ function TokensModal(props: Props) {
 
     const getBalances = async () => {
       // fetch all N tokens and trigger a single update action
-      const balances = await Promise.all(
+      const balancesArr = await Promise.all(
         supportedTokens.map(async (t) => {
           const balance = t.tokenId
             ? await wh.getTokenBalance(walletAddress, t.tokenId, network)
@@ -252,28 +262,37 @@ function TokensModal(props: Props) {
         }),
       );
 
-      const balancesObj = balances.reduceRight((acc, tokenBalance) => {
+      const balances = balancesArr.reduceRight((acc, tokenBalance) => {
         return Object.assign(acc, tokenBalance);
       }, {});
 
-      dispatch(setBalance(balancesObj));
+      dispatch(
+        setBalance({
+          type,
+          balances,
+        }),
+      );
     };
 
-    dispatch(clearBalances());
+    dispatch(clearBalances(type));
     setLoading(true);
     getBalances().finally(() => setLoading(false));
-  }, [walletAddress, network, dispatch, supportedTokens, open]);
+  }, [walletAddress, network, dispatch, supportedTokens, type]);
 
   useEffect(() => {
-    if (!open) return;
     // get tokens that exist on the chain and have a balance greater than 0
     const filtered = supportedTokens.filter((t) => {
       if (!t.tokenId && t.nativeNetwork !== network) return false;
       const b = tokenBalances[t.key];
-      return b !== null && b !== '0';
+      const isNullBalance = b !== null && b !== '0';
+      return isNullBalance || showNullBalances;
     });
     setTokens(filtered);
-  }, [tokenBalances, network, supportedTokens, open]);
+  }, [tokenBalances, network, supportedTokens, showNullBalances]);
+
+  const toggleOnShowNullBallances = () => {
+    setShowNullBalances(!showNullBalances);
+  };
 
   return (
     <Modal open={open} closable width={500} onClose={closeTokensModal}>
@@ -287,7 +306,13 @@ function TokensModal(props: Props) {
         }
         onChange={handleSearch}
       />
-      <Spacer height={16} />
+      <div className={classes.checkboxRow}>
+        <Checkbox
+          onChange={toggleOnShowNullBallances}
+          checked={showNullBalances}
+        />
+        Show assets with zero balance
+      </div>
       <div className={classes.sectionHeader}>
         <div className={classes.subheader}>Tokens with liquid markets</div>
         {/* <Tooltip text="Please perform your own due diligence, but to our knowledge these tokens have liquid markets available (i.e. you should be able to trade and utilize your tokens) on your destination chain." /> */}

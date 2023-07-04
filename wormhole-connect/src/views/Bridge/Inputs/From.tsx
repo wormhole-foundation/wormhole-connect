@@ -1,18 +1,14 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { BigNumber } from 'ethers';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { RootState } from '../../../store';
 import {
-  setBalance as setStoreBalance,
-  formatBalance,
   setToken,
   selectFromNetwork,
   setAmount,
   setReceiveAmount,
 } from '../../../store/transferInput';
 import { CHAINS_ARR, TOKENS } from '../../../config';
-import { wh } from '../../../utils/sdk';
 import { TransferWallet, walletAcceptedNetworks } from '../../../utils/wallet';
 import Operator from '../../../utils/routes';
 
@@ -24,7 +20,6 @@ import NetworksModal from '../../../components/NetworksModal';
 
 function FromInputs() {
   const dispatch = useDispatch();
-  const [balance, setBalance] = useState(undefined as string | undefined);
   const [showTokensModal, setShowTokensModal] = useState(false);
   const [showNetworksModal, setShowNetworksModal] = useState(false);
 
@@ -36,11 +31,13 @@ function FromInputs() {
     route,
     fromNetwork,
     toNetwork,
+    sourceBalances: balances,
     token,
     amount,
     isTransactionInProgress,
   } = useSelector((state: RootState) => state.transferInput);
   const tokenConfig = token && TOKENS[token];
+  const balance = balances[token] || undefined;
 
   const isDisabled = (chain: ChainName) => {
     // Check if the wallet type (i.e. Metamask, Phantom...) is supported for the given chain
@@ -54,30 +51,6 @@ function FromInputs() {
   const selectToken = (token: string) => {
     dispatch(setToken(token));
   };
-
-  // balance
-  useEffect(() => {
-    if (!fromNetwork || !tokenConfig || !wallet.address) {
-      return setBalance(undefined);
-    }
-    if (tokenConfig.tokenId) {
-      wh.getTokenBalance(wallet.address, tokenConfig.tokenId, fromNetwork).then(
-        (res: BigNumber | null) => {
-          const balance = formatBalance(fromNetwork, tokenConfig, res);
-          setBalance(balance[tokenConfig.key] || undefined);
-          dispatch(setStoreBalance(balance));
-        },
-      );
-    } else {
-      wh.getNativeBalance(wallet.address, fromNetwork).then(
-        (res: BigNumber) => {
-          const balance = formatBalance(fromNetwork, tokenConfig, res);
-          setBalance(balance[tokenConfig.key] || undefined);
-          dispatch(setStoreBalance(balance));
-        },
-      );
-    }
-  }, [tokenConfig, fromNetwork, wallet.address, dispatch]);
 
   // token input jsx
   const selectedToken = tokenConfig

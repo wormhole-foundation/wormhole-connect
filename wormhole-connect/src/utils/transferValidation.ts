@@ -207,7 +207,7 @@ export const validateAll = async (
     destToken,
     automaticRelayAvail,
     amount,
-    balances,
+    sourceBalances: balances,
     foreignAsset,
     associatedTokenAddress,
     route,
