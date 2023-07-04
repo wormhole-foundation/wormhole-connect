@@ -107,8 +107,13 @@ export class BridgeRoute extends RouteAbstract {
     tokens: TokenConfig[],
     destToken?: TokenConfig,
   ): Promise<TokenConfig[]> {
-    return tokens.filter(async (t) => {
-      return await this.isSupportedSourceToken(t, destToken);
+    if (!destToken) return tokens;
+    const shouldAdd = await Promise.allSettled(
+      tokens.map((token) => this.isSupportedSourceToken(token, destToken)),
+    );
+    return tokens.filter((_token, i) => {
+      const res = shouldAdd[i];
+      return res.status === 'fulfilled' && res.value;
     });
   }
 
@@ -116,8 +121,13 @@ export class BridgeRoute extends RouteAbstract {
     tokens: TokenConfig[],
     sourceToken?: TokenConfig,
   ): Promise<TokenConfig[]> {
-    return tokens.filter(async (t) => {
-      return await this.isSupportedDestToken(t, sourceToken);
+    if (!sourceToken) return tokens;
+    const shouldAdd = await Promise.allSettled(
+      tokens.map((token) => this.isSupportedDestToken(token, sourceToken)),
+    );
+    return tokens.filter((_token, i) => {
+      const res = shouldAdd[i];
+      return res.status === 'fulfilled' && res.value;
     });
   }
 
