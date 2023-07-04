@@ -80,8 +80,12 @@ export class RelayRoute extends BridgeRoute {
     tokens: TokenConfig[],
     destToken?: TokenConfig,
   ): Promise<TokenConfig[]> {
-    return tokens.filter(async (t) => {
-      return await this.isSupportedSourceToken(t, destToken);
+    const shouldAdd = await Promise.allSettled(
+      tokens.map((token) => this.isSupportedSourceToken(token, destToken)),
+    );
+    return tokens.filter((_token, i) => {
+      const res = shouldAdd[i];
+      return res.status === 'fulfilled' && res.value;
     });
   }
 
@@ -89,8 +93,12 @@ export class RelayRoute extends BridgeRoute {
     tokens: TokenConfig[],
     sourceToken?: TokenConfig,
   ): Promise<TokenConfig[]> {
-    return tokens.filter(async (t) => {
-      return await this.isSupportedDestToken(t, sourceToken);
+    const shouldAdd = await Promise.allSettled(
+      tokens.map((token) => this.isSupportedDestToken(token, sourceToken)),
+    );
+    return tokens.filter((_token, i) => {
+      const res = shouldAdd[i];
+      return res.status === 'fulfilled' && res.value;
     });
   }
 

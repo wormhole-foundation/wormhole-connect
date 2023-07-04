@@ -191,18 +191,11 @@ function TokensModal(props: Props) {
     // but we should find a way to avoid recomputing when not necessary
     if (!open) return;
     const computeSupported = async () => {
-      // TODO: move to bridge route or abstract route
-      const shouldAdd = await Promise.allSettled(
-        TOKENS_ARR.map((token) =>
-          type === 'source'
-            // the user should be able to pick any source token
-            ? route.isSupportedSourceToken(token, undefined)
-            : route.isSupportedDestToken(token, TOKENS[sourceToken]))
-      );
-      const supported = TOKENS_ARR.filter((_token, i) => {
-        const res = shouldAdd[i];
-        return res.status === 'fulfilled' && res.value;
-      });
+      const supported =
+        type === 'source'
+          ? // the user should be able to pick any source token
+            await route.supportedSourceTokens(TOKENS_ARR, undefined)
+          : await route.supportedDestTokens(TOKENS_ARR, TOKENS[sourceToken]);
 
       setSupportedTokens(supported);
     };
