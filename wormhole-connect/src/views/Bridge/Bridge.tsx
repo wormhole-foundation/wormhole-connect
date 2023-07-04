@@ -10,6 +10,7 @@ import {
   disableAutomaticTransfer,
   Route,
   setReceiveAmount,
+  setDestToken,
 } from '../../store/transferInput';
 import { wh, isAcceptedToken, toChainId } from '../../utils/sdk';
 import { CHAINS, TOKENS } from '../../config';
@@ -92,6 +93,20 @@ function Bridge() {
       dispatch(setReceiverNativeBalance(toDecimals(res, decimals, 6)));
     });
   }, [fromNetwork, toNetwork, receiving.address, dispatch]);
+
+  useEffect(() => {
+    const checkDestToken = async () => {
+      const supported = await new Operator().isSupportedDestToken(
+        route,
+        TOKENS[destToken],
+        TOKENS[token],
+      );
+      if (!supported) {
+        dispatch(setDestToken(''));
+      }
+    };
+    checkDestToken();
+  }, [route, token, destToken, dispatch]);
 
   // check if automatic relay option is available
   useEffect(() => {
