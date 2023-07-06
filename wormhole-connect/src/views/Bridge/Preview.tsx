@@ -103,7 +103,7 @@ function Preview(props: { collapsed: boolean }) {
   const dispatch = useDispatch();
   const theme = useTheme();
   const [state, setState] = React.useState({ rows: [] as RowsData });
-  const { token, destToken, fromNetwork, toNetwork, route, amount, gasEst } =
+  const { token, destToken, fromNetwork, toNetwork, route, receiveAmount, gasEst } =
     useSelector((state: RootState) => state.transferInput);
   const { toNativeToken, receiveNativeAmt } = useSelector(
     (state: RootState) => state.relay,
@@ -120,17 +120,17 @@ function Preview(props: { collapsed: boolean }) {
       !destTokenConfig ||
       !sourceConfig ||
       !destConfig ||
-      !amount
+      !receiveAmount
     )
       return;
-    const numAmount = Number.parseFloat(amount);
+    const numReceiveAmount = Number.parseFloat(receiveAmount);
 
     if (route === Route.BRIDGE) {
       const rows = getManualRows(
         destTokenConfig,
         sourceConfig!.gasToken,
         destConfig!.gasToken,
-        numAmount,
+        numReceiveAmount,
         gasEst.manual,
         gasEst.claim,
       );
@@ -149,7 +149,7 @@ function Preview(props: { collapsed: boolean }) {
             destTokenConfig,
             sourceConfig!.gasToken,
             destConfig!.gasToken,
-            numAmount,
+            numReceiveAmount,
             receiveNativeAmt || 0,
             formattedFee,
             gasEst.automatic,
@@ -170,7 +170,7 @@ function Preview(props: { collapsed: boolean }) {
     fromNetwork,
     toNetwork,
     route,
-    amount,
+    receiveAmount,
     toNativeToken,
     receiveNativeAmt,
     gasEst,

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { BigNumber } from 'ethers';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
@@ -39,6 +39,7 @@ function ToInputs() {
     receiveAmount,
     isTransactionInProgress,
   } = useSelector((state: RootState) => state.transferInput);
+  const { toNativeToken } = useSelector((state: RootState) => state.relay);
   const { receiving } = useSelector((state: RootState) => state.wallet);
 
   const tokenConfig = TOKENS[destToken];
@@ -89,16 +90,16 @@ function ToInputs() {
     />
   );
 
-  const handleAmountChange = async (amount: string) => {
+  const handleAmountChange = useCallback(async (amount: string) => {
     dispatch(setReceiveAmount(amount));
     const r = new Operator();
     const sendAmount = await r.computeSendAmount(
       route,
       Number.parseFloat(amount),
-      undefined,
+      { toNativeToken },
     );
     dispatch(setAmount(`${sendAmount}`));
-  };
+  }, [ route, toNativeToken ]);
   const amountInput = (
     <AmountInput
       handleAmountChange={handleAmountChange}

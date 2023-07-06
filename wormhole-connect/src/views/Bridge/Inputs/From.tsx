@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { BigNumber } from 'ethers';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
@@ -28,6 +28,7 @@ function FromInputs() {
   const [showTokensModal, setShowTokensModal] = useState(false);
   const [showNetworksModal, setShowNetworksModal] = useState(false);
 
+  const { toNativeToken } = useSelector((state: RootState) => state.relay);
   const wallet = useSelector((state: RootState) => state.wallet.sending);
   const {
     validate: showErrors,
@@ -94,16 +95,16 @@ function FromInputs() {
   );
 
   // TODO: clean up the send/receive amount set logic
-  const handleAmountChange = async (amount: string) => {
+  const handleAmountChange = useCallback(async (amount: string) => {
     dispatch(setAmount(amount));
     const r = new Operator();
     const receiveAmount = await r.computeReceiveAmount(
       route,
       Number.parseFloat(amount),
-      undefined,
+      { toNativeToken },
     );
     dispatch(setReceiveAmount(`${receiveAmount}`));
-  };
+  }, [ route, toNativeToken ]);
   const amountInput = (
     <AmountInput handleAmountChange={handleAmountChange} value={amount} />
   );
