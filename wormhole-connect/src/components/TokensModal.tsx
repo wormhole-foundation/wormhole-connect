@@ -26,7 +26,7 @@ import Tooltip from './Tooltip';
 // import Collapse from '@mui/material/Collapse';
 import TokenIcon from '../icons/TokenIcons';
 import CircularProgress from '@mui/material/CircularProgress';
-import useTransferRoute from '../hooks/useTransferRoute';
+import Operator from '../utils/routes';
 
 const useStyles = makeStyles()((theme) => ({
   tokensContainer: {
@@ -165,7 +165,6 @@ function TokensModal(props: Props) {
   const { classes } = useStyles();
   const theme = useTheme();
   const dispatch = useDispatch();
-  const route = useTransferRoute();
   const { open, network, walletAddress, type } = props;
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [loading, setLoading] = useState(false);
@@ -179,6 +178,7 @@ function TokensModal(props: Props) {
     destBalances,
     token: sourceToken,
     destToken,
+    route,
   } = useSelector((state: RootState) => state.transferInput);
 
   const tokenBalances = useMemo(
@@ -203,11 +203,16 @@ function TokensModal(props: Props) {
 
   useEffect(() => {
     const computeSupported = async () => {
+      const operator = new Operator();
       const supported =
         type === 'source'
           ? // the user should be able to pick any source token
-            await route.supportedSourceTokens(TOKENS_ARR, undefined)
-          : await route.supportedDestTokens(TOKENS_ARR, TOKENS[sourceToken]);
+            await operator.supportedSourceTokens(route, TOKENS_ARR, undefined)
+          : await operator.supportedDestTokens(
+              route,
+              TOKENS_ARR,
+              TOKENS[sourceToken],
+            );
 
       setSupportedTokens(supported);
     };
