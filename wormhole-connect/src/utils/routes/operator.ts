@@ -2,15 +2,19 @@ import {
   ChainName,
   ChainId,
   TokenId,
+  VaaInfo,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { Route } from 'store/transferInput';
 import { BridgeRoute } from './bridge';
 import { RelayRoute } from './relay';
 import { HashflowRoute } from './hashflow';
 import { TokenConfig } from 'config/types';
+import { ParsedMessage, ParsedRelayerMessage, PayloadType } from '../sdk';
+import RouteAbstract from './routeAbstract';
+import { CHAIN_ID_SEI, ParsedVaa, parseTokenTransferPayload } from '@certusone/wormhole-sdk';
 
 export default class Operator {
-  getRoute(route: Route) {
+  getRoute(route: Route): RouteAbstract {
     console.log(route);
     switch (route) {
       case Route.BRIDGE: {
@@ -27,6 +31,22 @@ export default class Operator {
       }
     }
   }
+
+  getRouteForVaa(vaa: ParsedVaa): Route {
+    // if (parsed.emitterAddress === HASHFLOW_CONTRACT_ADDRESS) {
+    //    return Route.HASHFLOW;
+    // }
+
+    const transfer = parseTokenTransferPayload(vaa.payload);
+    if (transfer.toChain === CHAIN_ID_SEI) {
+      return Route.RELAY;
+    }
+
+    return vaa.payload && vaa.payload[0] === PayloadType.AUTOMATIC
+      ? Route.RELAY
+      : Route.BRIDGE;
+  }
+
   async isRouteAvailable(
     route: Route,
     sourceToken: string,
@@ -180,5 +200,13 @@ export default class Operator {
   ): Promise<string> {
     const r = this.getRoute(route);
     return await r.redeem(destChain, vaa, payer);
+  }
+
+  async parseMessage(
+    route: Route,
+    info: VaaInfo<any>,
+  ): Promise<ParsedMessage | ParsedRelayerMessage> {
+    const r = this.getRoute(route);
+    return await r.parseMessage(info);
   }
 }
