@@ -5,7 +5,7 @@ import { Select, MenuItem } from '@mui/material';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { CHAINS_ARR } from '../config';
 import { getVaa } from '../utils/sdk';
-import { ROUTES, getRouteForVaa } from '../utils/routes';
+import Operator from '../utils/routes';
 import { setTxDetails, setRoute as setTransferRoute } from '../store/redeem';
 import { setRoute } from '../store/router';
 import PageHeader from '../components/PageHeader';
@@ -64,8 +64,9 @@ function TxSearch() {
     }
     try {
       const vaaInfo = await getVaa(state.tx, state.chain as ChainName);
-      const route = getRouteForVaa(vaaInfo.vaa);
-      const message = await ROUTES[route].parseMessage(vaaInfo);
+      const operator = new Operator();
+      const route = operator.getRouteForVaa(vaaInfo.vaa);
+      const message = await operator.parseMessage(route, vaaInfo);
       setError('');
       dispatch(setTxDetails(message));
       dispatch(setTransferRoute(route));
