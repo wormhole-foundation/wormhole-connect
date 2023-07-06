@@ -31,9 +31,11 @@ export default abstract class RouteAbstract {
 
   public abstract supportedSourceTokens(
     tokens: TokenConfig[],
+    destToken?: TokenConfig,
   ): Promise<TokenConfig[]>;
   public abstract supportedDestTokens(
     tokens: TokenConfig[],
+    sourceToken?: TokenConfig,
   ): Promise<TokenConfig[]>;
 
   // Calculate the amount a user would receive if sending a certain amount
