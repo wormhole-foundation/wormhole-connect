@@ -9,6 +9,7 @@ import {
   enableAutomaticTransfer,
   disableAutomaticTransfer,
   Route,
+  setReceiveAmount,
 } from '../../store/transferInput';
 import { wh, isAcceptedToken, toChainId } from '../../utils/sdk';
 import { CHAINS, TOKENS } from '../../config';
@@ -28,6 +29,7 @@ import TransferLimitedWarning from './TransferLimitedWarning';
 import { joinClass } from '../../utils/style';
 import SwapNetworks from './SwapNetworks';
 import RouteOptions from './RouteOptions';
+import Operator from '../../utils/routes';
 
 const useStyles = makeStyles()((theme) => ({
   spacer: {
@@ -66,6 +68,7 @@ function Bridge() {
     associatedTokenAddress,
     isTransactionInProgress,
     balances,
+    amount
   } = useSelector((state: RootState) => state.transferInput);
   const { toNativeToken, relayerFee } = useSelector(
     (state: RootState) => state.relay,
@@ -111,6 +114,16 @@ function Bridge() {
       dispatch(disableAutomaticTransfer());
     }
   }, [fromNetwork, toNetwork, token, dispatch]);
+
+  useEffect(() => {
+    const recomputeReceive = async () => {
+      const operator = new Operator();
+      const newReceiveAmount = await operator
+        .computeReceiveAmount(route, Number.parseFloat(amount), { toNativeToken })
+      dispatch(setReceiveAmount(newReceiveAmount.toString()));
+    };
+    recomputeReceive();
+  }, [ amount, toNativeToken, route ])
 
   // validate transfer inputs
   useEffect(() => {
