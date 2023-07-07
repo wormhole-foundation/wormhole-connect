@@ -102,8 +102,8 @@ If you created a config from step 1, [stringify](https://developer.mozilla.org/e
 
 ```html
 <!-- paste below into index.html body -->
-<script src="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.5/dist/main.js"></script>
-<link href="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.5/dist/main.css" />
+<script src="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.6/dist/main.js"></script>
+<link href="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.6/dist/main.css" />
 ```
 
 Note that the `wormhole-connect` div with your config has to be present _before_ the scripts are loaded.  If your application loads it after, you may need to add the scripts like this:
@@ -111,11 +111,11 @@ Note that the `wormhole-connect` div with your config has to be present _before_
 ```js
 function mount () {
   const script = document.createElement("script");
-  script.src = "https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.5/dist/main.js";
+  script.src = "https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.6/dist/main.js";
   script.async = true;
 
   const link = document.createElement("link");
-  link.href = "https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.5/dist/main.css";
+  link.href = "https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.6/dist/main.css";
 
   document.body.appendChild(script);
   document.body.appendChild(link);
