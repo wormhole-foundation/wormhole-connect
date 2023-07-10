@@ -6,7 +6,7 @@ import MAINNET_CONFIG, { MAINNET_CHAINS } from './config/MAINNET';
 import TESTNET_CONFIG, { TESTNET_CHAINS } from './config/TESTNET';
 import { AptosContext } from './contexts/aptos';
 import { EthContext } from './contexts/eth';
-import { SolanaContext } from './contexts/solana';
+import { SolanaContext } from './contexts/solana/context';
 import { SuiContext } from './contexts/sui';
 import {
   AnyContext,
@@ -422,10 +422,7 @@ export class WormholeContext extends MultiProvider<Domain> {
     return context.parseAddress(address);
   }
 
-  async getVaa(
-    tx: string,
-    chain: ChainName | ChainId,
-  ): Promise<VaaInfo> {
+  async getVaa(tx: string, chain: ChainName | ChainId): Promise<VaaInfo> {
     const context = this.getContext(chain);
     return await context.getVaa(tx, chain);
   }
