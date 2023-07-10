@@ -126,7 +126,12 @@ export type TokenDetails = {
 export type SendResult = Awaited<ReturnType<AnyContext['send']>>;
 export type RedeemResult = Awaited<ReturnType<AnyContext['redeem']>>;
 
-export type VaaSourceTransaction = ContractReceipt | Types.UserTransaction | TransactionResponse | SuiTransactionBlockResponse | IndexedTx;
+export type VaaSourceTransaction =
+  | ContractReceipt
+  | Types.UserTransaction
+  | TransactionResponse
+  | SuiTransactionBlockResponse
+  | IndexedTx;
 export interface VaaInfo<T extends VaaSourceTransaction = any> {
   transaction: T;
   rawVaa: SignedVaa;

@@ -56,14 +56,14 @@ import {
   createTransferNativeWithPayloadInstruction,
   createApproveAuthoritySignerInstruction,
   createTransferWrappedWithPayloadInstruction,
-} from './solana/tokenBridge';
+} from './utils/tokenBridge';
 import {
   PostedMessageData,
   deriveWormholeEmitterKey,
   getClaim,
-} from './solana/wormhole';
+} from './utils/wormhole';
 import { TokenBridgeAbstract } from '../abstracts/tokenBridge';
-import { getAccountData } from './solana';
+import { getAccountData } from './utils';
 import base58 from 'bs58';
 
 const SOLANA_CHAIN_NAME = MAINNET_CONFIG.chains.solana!.key;
