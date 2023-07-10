@@ -8,6 +8,9 @@ export interface TokenInfo {
   swap_rate: string;
 }
 
+/**
+ * @category Sui
+ */
 export class SuiRelayer {
   private fields: Record<string, any> | null = null;
 

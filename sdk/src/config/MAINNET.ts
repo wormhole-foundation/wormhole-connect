@@ -1,7 +1,9 @@
 import { Network as Environment, CONTRACTS } from '@certusone/wormhole-sdk';
 import { WormholeConfig, Context, ChainConfig, Contracts } from '../types';
 
-// https://book.wormhole.com/reference/contracts.html
+/**
+ * Mainnet chain name to chain id mapping
+ */
 export const MAINNET_CHAINS = {
   solana: 1,
   ethereum: 2,
@@ -16,9 +18,18 @@ export const MAINNET_CHAINS = {
   sei: 32,
 } as const;
 
+/**
+ * mainnet chain name type
+ */
 export type MainnetChainName = keyof typeof MAINNET_CHAINS;
+/**
+ * mainnet chain id type
+ */
 export type MainnetChainId = (typeof MAINNET_CHAINS)[MainnetChainName];
 
+/**
+ * chain name to contracts mapping
+ */
 export type ChainContracts = {
   [chain in MainnetChainName]: Contracts;
 };
@@ -147,6 +158,9 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
 };
 
 const env: Environment = 'MAINNET';
+/**
+ * default mainnet chain config
+ */
 const MAINNET_CONFIG: WormholeConfig = {
   env,
   rpcs: {

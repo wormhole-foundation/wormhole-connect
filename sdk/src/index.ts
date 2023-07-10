@@ -11,11 +11,11 @@ export * from './types';
 export * from './vaa';
 export * from './config/MAINNET';
 export * from './wormhole';
-export * from './contexts/solana';
-export * from './contexts/eth';
-export * from './contexts/sui';
-export * from './contexts/aptos';
-export * from './contexts/sei';
+export * from './contexts/solana/context';
+export * from './contexts/eth/context';
+export * from './contexts/sui/context';
+export * from './contexts/aptos/context';
+export * from './contexts/sei/context';
 export const CONFIG = {
   MAINNET: MAINNET_CONFIG,
   TESTNET: TESTNET_CONFIG,

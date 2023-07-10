@@ -9,11 +9,14 @@ import { TokenBridgeRelayer } from '../../abis/TokenBridgeRelayer';
 import { ContractsAbstract } from '../abstracts/contracts';
 import { WormholeContext } from '../../wormhole';
 import { filterByContext } from '../../utils';
-import { SolanaContext } from '.';
-import { createReadOnlyWormholeProgramInterface } from './solana/wormhole';
-import { createReadOnlyTokenBridgeProgramInterface } from './solana/tokenBridge';
-import { createReadOnlyNftBridgeProgramInterface } from './solana/nftBridge';
+import { SolanaContext } from './context';
+import { createReadOnlyWormholeProgramInterface } from './utils/wormhole';
+import { createReadOnlyTokenBridgeProgramInterface } from './utils/tokenBridge';
+import { createReadOnlyNftBridgeProgramInterface } from './utils/nftBridge';
 
+/**
+ * @category Solana
+ */
 export class SolContracts<
   T extends WormholeContext,
 > extends ContractsAbstract<T> {
