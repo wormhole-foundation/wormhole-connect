@@ -40,7 +40,7 @@ import {
 import { WormholeContext } from '../../wormhole';
 import { TokenBridgeAbstract } from '../abstracts/tokenBridge';
 import { SeiContracts } from './contracts';
-import { SolanaContext } from '../solana/context';
+import { SolanaContext } from '../solana';
 import axios from 'axios';
 import { stripHexPrefix } from '../../utils';
 

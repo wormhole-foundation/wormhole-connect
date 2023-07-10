@@ -4,10 +4,10 @@ import { BigNumber } from 'ethers';
 
 import MAINNET_CONFIG, { MAINNET_CHAINS } from './config/MAINNET';
 import TESTNET_CONFIG, { TESTNET_CHAINS } from './config/TESTNET';
-import { AptosContext } from './contexts/aptos/context';
-import { EthContext } from './contexts/eth/context';
-import { SolanaContext } from './contexts/solana/context';
-import { SuiContext } from './contexts/sui/context';
+import { AptosContext } from './contexts/aptos';
+import { EthContext } from './contexts/eth';
+import { SolanaContext } from './contexts/solana';
+import { SuiContext } from './contexts/sui';
 import {
   AnyContext,
   ChainId,
@@ -21,7 +21,7 @@ import {
   TokenId,
   WormholeConfig,
 } from './types';
-import { SeiContext } from './contexts/sei/context';
+import { SeiContext } from './contexts/sei';
 
 /**
  * The WormholeContext manages connections to Wormhole Core, Bridge and NFT Bridge contracts.

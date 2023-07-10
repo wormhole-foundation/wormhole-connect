@@ -29,7 +29,7 @@ import { WormholeContext } from '../../wormhole';
 import { EthContracts } from './contracts';
 import { parseVaa } from '../../vaa';
 import { RelayerAbstract } from '../abstracts/relayer';
-import { SolanaContext } from '../solana/context';
+import { SolanaContext } from '../solana';
 import { arrayify } from 'ethers/lib/utils';
 
 export * from './contracts';

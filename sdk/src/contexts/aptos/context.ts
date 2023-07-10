@@ -26,7 +26,7 @@ import {
 import { arrayify, hexlify, stripZeros, zeroPad } from 'ethers/lib/utils';
 import { sha3_256 } from 'js-sha3';
 import { MAINNET_CHAINS } from '../../config/MAINNET';
-import { SolanaContext } from '../solana/context';
+import { SolanaContext } from '../solana';
 
 export const APTOS_COIN = '0x1::aptos_coin::AptosCoin';
 
