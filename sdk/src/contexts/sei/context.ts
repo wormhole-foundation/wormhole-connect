@@ -143,6 +143,7 @@ export class SeiContext<
 > extends TokenBridgeAbstract<SeiTransaction> {
   readonly type = Context.SEI;
   readonly contracts: SeiContracts<T>;
+  readonly context: T;
 
   private wasmClient?: CosmWasmClient;
 
@@ -150,9 +151,10 @@ export class SeiContext<
   private readonly CHAIN = 'sei';
   private readonly REDEEM_EVENT_DEFAULT_MAX_BLOCKS = 2000;
 
-  constructor(private readonly context: T) {
+  constructor(context: T) {
     super();
     this.contracts = new SeiContracts<T>(context);
+    this.context = context;
   }
 
   async send(
