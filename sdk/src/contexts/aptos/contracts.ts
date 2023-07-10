@@ -4,6 +4,9 @@ import { WormholeContext } from '../../wormhole';
 import { filterByContext } from '../../utils';
 import { AptosClient } from 'aptos';
 
+/**
+ * @category Aptos
+ */
 export class AptosContracts<
   T extends WormholeContext,
 > extends ContractsAbstract<T> {

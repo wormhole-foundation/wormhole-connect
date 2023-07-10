@@ -5,6 +5,9 @@ import { filterByContext } from '../../utils';
 import { SuiRelayer } from './relayer';
 import { JsonRpcProvider } from '@mysten/sui.js';
 
+/**
+ * @category Sui
+ */
 export class SuiContracts<
   T extends WormholeContext,
 > extends ContractsAbstract<T> {

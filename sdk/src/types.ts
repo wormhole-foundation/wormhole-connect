@@ -2,17 +2,13 @@ import { Network as Environment } from '@certusone/wormhole-sdk';
 import { BigNumber } from 'ethers';
 import { MainnetChainId, MainnetChainName } from './config/MAINNET';
 import { TestnetChainId, TestnetChainName } from './config/TESTNET';
-import { AptosContext } from './contexts/aptos';
-import { AptosContracts } from './contexts/aptos/contracts';
-import { EthContext } from './contexts/eth';
-import { EthContracts } from './contexts/eth/contracts';
-import { SolanaContext } from './contexts/solana';
-import { SolContracts } from './contexts/solana/contracts';
-import { SuiContext } from './contexts/sui';
-import { SuiContracts } from './contexts/sui/contracts';
+import { AptosContext, AptosContracts } from './contexts/aptos';
+import { EthContext, EthContracts } from './contexts/eth';
+import { SolanaContext, SolContracts } from './contexts/solana';
+import { SuiContext, SuiContracts } from './contexts/sui';
 import { WormholeContext } from './wormhole';
 import { SeiContracts } from './contexts/sei/contracts';
-import { SeiContext } from './contexts/sei';
+import { SeiContext } from './contexts/sei/context';
 
 export const NATIVE = 'native';
 // TODO: conditionally set these types
