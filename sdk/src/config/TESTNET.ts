@@ -1,7 +1,9 @@
 import { Network as Environment, CONTRACTS } from '@certusone/wormhole-sdk';
 import { WormholeConfig, Context, ChainConfig, Contracts } from '../types';
 
-// https://book.wormhole.com/reference/contracts.html
+/**
+ * Testnet chain name to chain id mapping
+ */
 export const TESTNET_CHAINS = {
   solana: 1,
   goerli: 2,
@@ -16,9 +18,17 @@ export const TESTNET_CHAINS = {
   sei: 32,
 } as const;
 
+/**
+ * testnet chain name type
+ */
 export type TestnetChainName = keyof typeof TESTNET_CHAINS;
+/**
+ * testnet chain id type
+ */
 export type TestnetChainId = (typeof TESTNET_CHAINS)[TestnetChainName];
-
+/**
+ * chain name to contracts mapping
+ */
 export type ChainContracts = {
   [chain in TestnetChainName]: Contracts;
 };
@@ -152,6 +162,9 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
 };
 
 const env: Environment = 'TESTNET';
+/**
+ * default testnet chain config
+ */
 const TESTNET_CONFIG: WormholeConfig = {
   env,
   rpcs: {

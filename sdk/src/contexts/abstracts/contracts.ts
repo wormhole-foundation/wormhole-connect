@@ -2,6 +2,8 @@ import { WormholeContext } from '../../wormhole';
 import { ChainName, ChainId } from '../../types';
 
 /**
+ * @abstract
+ *
  * A standard set of methods for accessing interfaces for Wormhole contracts on a given chain
  *
  * @example

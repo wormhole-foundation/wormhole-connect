@@ -255,6 +255,7 @@ function vaaBody(vaa: VAA<Payload | Other>) {
   return body.join('');
 }
 
+/** @category VAA */
 export function sign(signers: string[], vaa: VAA<Payload>): Signature[] {
   const hash = vaaDigest(vaa);
   const ec = new elliptic.ec('secp256k1');

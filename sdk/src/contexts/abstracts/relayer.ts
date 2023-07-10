@@ -3,6 +3,8 @@ import { TokenId, ChainName, ChainId, ParsedRelayerPayload } from '../../types';
 import { TokenBridgeAbstract } from './tokenBridge';
 
 /**
+ * @abstract
+ *
  * A standard set of methods for interacting with the Token Bridge Relayer contracts across any of the supported chains
  *
  * @example

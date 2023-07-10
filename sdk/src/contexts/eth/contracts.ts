@@ -14,6 +14,7 @@ import { filterByContext } from '../../utils';
 
 /**
  * @category EVM
+ * Evm Contracts class. Contains methods for accessing ts interfaces for all available contracts
  */
 export class EthContracts<
   T extends WormholeContext,
