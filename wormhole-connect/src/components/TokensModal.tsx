@@ -5,7 +5,7 @@ import { useMediaQuery } from '@mui/material';
 import { makeStyles } from 'tss-react/mui';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { RootState } from '../store';
-import { CHAINS } from '../config';
+import { CHAINS, TOKENS_ARR } from '../config';
 import { TokenConfig } from '../config/types';
 import {
   setBalance,
@@ -24,7 +24,6 @@ import Scroll from './Scroll';
 import TokenIcon from '../icons/TokenIcons';
 import CircularProgress from '@mui/material/CircularProgress';
 import Tabs from './Tabs';
-// import Operator from '../utils/routes';
 
 const useStyles = makeStyles()((theme) => ({
   tokensContainer: {

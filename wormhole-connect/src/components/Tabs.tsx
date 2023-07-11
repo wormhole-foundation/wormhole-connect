@@ -2,7 +2,6 @@ import * as React from 'react';
 import { makeStyles } from 'tss-react/mui';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
-import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import { useTheme } from '@mui/material/styles';
 
@@ -35,8 +34,8 @@ function CustomTabPanel(props: TabPanelProps) {
       {...other}
     >
       {value === index && (
-        <Box sx={{ p: 3 }}>
-          <Typography>{children}</Typography>
+        <Box sx={{ py: 3 }}>
+          {children}
         </Box>
       )}
     </div>
@@ -70,12 +69,12 @@ export default function BasicTabs(props: { tabs: Tab[] }) {
       <Box sx={{ borderBottom: 1, borderColor: `${theme.palette.divider}` }}>
         <Tabs value={value} onChange={handleChange} className={classes.tabs}>
           {tabs.map((tab, i) => (
-            <Tab label={tab.label} {...a11yProps(i)} className={classes.tab} />
+            <Tab label={tab.label} {...a11yProps(i)} className={classes.tab} key={`tab${i}`} />
           ))}
         </Tabs>
       </Box>
       {tabs.map((tab, i) => (
-        <CustomTabPanel value={value} index={i}>
+        <CustomTabPanel value={value} index={i} key={`panel${i}`}>
           {tab.panel}
         </CustomTabPanel>
       ))}
