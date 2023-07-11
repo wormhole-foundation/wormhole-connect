@@ -11,9 +11,12 @@ import {
   Route,
   setReceiveAmount,
   setDestToken,
+  setToken,
+  setSupportedSourceTokens,
+  setSupportedDestTokens,
 } from '../../store/transferInput';
 import { wh, isAcceptedToken, toChainId } from '../../utils/sdk';
-import { CHAINS, TOKENS } from '../../config';
+import { CHAINS, TOKENS, TOKENS_ARR } from '../../config';
 import { isTransferValid, validate } from '../../utils/transferValidation';
 
 import GasOptions from './GasOptions';
@@ -68,7 +71,6 @@ function Bridge() {
     foreignAsset,
     associatedTokenAddress,
     isTransactionInProgress,
-    balances,
     amount,
   } = useSelector((state: RootState) => state.transferInput);
   const { toNativeToken, relayerFee } = useSelector(
@@ -95,17 +97,50 @@ function Bridge() {
   }, [fromNetwork, toNetwork, receiving.address, dispatch]);
 
   useEffect(() => {
+    const computeSrcTokens = async () => {
+      const operator = new Operator();
+      const supported =
+        // the user should be able to pick any source token
+        await operator.supportedSourceTokens(route, TOKENS_ARR, undefined);
+
+      dispatch(setSupportedSourceTokens(supported));
+      if (supported.length === 1) {
+        dispatch(setToken(supported[0]));
+      }
+    };
+    computeSrcTokens();
+  }, [route, destToken, dispatch]);
+
+  useEffect(() => {
     const checkDestToken = async () => {
       const supported = await new Operator().isSupportedDestToken(
         route,
         TOKENS[destToken],
         TOKENS[token],
       );
+
       if (!supported) {
         dispatch(setDestToken(''));
       }
     };
     checkDestToken();
+  }, [route, token, destToken, dispatch]);
+
+  useEffect(() => {
+    const computeDestTokens = async () => {
+      const operator = new Operator();
+      const supported = await operator.supportedDestTokens(
+        route,
+        TOKENS_ARR,
+        TOKENS[token],
+      );
+
+      dispatch(setSupportedDestTokens(supported));
+      if (supported.length === 1) {
+        dispatch(setDestToken(supported[0].key));
+      }
+    };
+    computeDestTokens();
   }, [route, token, destToken, dispatch]);
 
   // check if automatic relay option is available
@@ -159,7 +194,6 @@ function Bridge() {
     relayerFee,
     foreignAsset,
     associatedTokenAddress,
-    balances,
     dispatch,
   ]);
   const valid = isTransferValid(validations);
