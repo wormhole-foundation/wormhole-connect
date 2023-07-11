@@ -1,10 +1,5 @@
 import { BigNumber } from 'ethers';
-import {
-  AnyContracts,
-  TokenId,
-  ChainName,
-  ChainId,
-} from '../../types';
+import { AnyContracts, TokenId, ChainName, ChainId } from '../../types';
 import { WormholeContext } from 'wormhole';
 
 /**

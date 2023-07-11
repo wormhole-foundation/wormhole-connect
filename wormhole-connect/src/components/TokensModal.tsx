@@ -5,7 +5,7 @@ import { Checkbox, useMediaQuery } from '@mui/material';
 import { makeStyles } from 'tss-react/mui';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { RootState } from '../store';
-import { CHAINS, TOKENS, TOKENS_ARR } from '../config';
+import { CHAINS } from '../config';
 import { TokenConfig } from '../config/types';
 import {
   setBalance,
@@ -26,7 +26,6 @@ import Scroll from './Scroll';
 // import Collapse from '@mui/material/Collapse';
 import TokenIcon from '../icons/TokenIcons';
 import CircularProgress from '@mui/material/CircularProgress';
-import Operator from '../utils/routes';
 
 const useStyles = makeStyles()((theme) => ({
   tokensContainer: {
@@ -168,7 +167,6 @@ function TokensModal(props: Props) {
   const { open, network, walletAddress, type } = props;
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [loading, setLoading] = useState(false);
-  const [supportedTokens, setSupportedTokens] = useState<TokenConfig[]>([]);
   const [tokens, setTokens] = useState<TokenConfig[]>([]);
   const [search, setSearch] = useState('');
   const [showNullBalances, setShowNullBalances] = useState(false);
@@ -176,10 +174,14 @@ function TokensModal(props: Props) {
   const {
     sourceBalances,
     destBalances,
-    token: sourceToken,
-    destToken,
-    route,
+    supportedSourceTokens,
+    supportedDestTokens,
   } = useSelector((state: RootState) => state.transferInput);
+
+  const supportedTokens = useMemo(
+    () => (type === 'source' ? supportedSourceTokens : supportedDestTokens),
+    [type, supportedSourceTokens, supportedDestTokens],
+  );
 
   const tokenBalances = useMemo(
     () => (type === 'source' ? sourceBalances : destBalances),
@@ -200,24 +202,6 @@ function TokensModal(props: Props) {
       setSearch('');
     }
   };
-
-  useEffect(() => {
-    const computeSupported = async () => {
-      const operator = new Operator();
-      const supported =
-        type === 'source'
-          ? // the user should be able to pick any source token
-            await operator.supportedSourceTokens(route, TOKENS_ARR, undefined)
-          : await operator.supportedDestTokens(
-              route,
-              TOKENS_ARR,
-              TOKENS[sourceToken],
-            );
-
-      setSupportedTokens(supported);
-    };
-    computeSupported();
-  }, [route, sourceToken, destToken, type]);
 
   const displayedTokens = useMemo(() => {
     if (!search) return tokens;
