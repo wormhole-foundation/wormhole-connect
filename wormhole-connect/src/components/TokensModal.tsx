@@ -232,7 +232,6 @@ type Props = {
 };
 
 function TokensModal(props: Props) {
-  const { classes } = useStyles();
   const theme = useTheme();
   const dispatch = useDispatch();
   const { open, network, walletAddress, type } = props;
@@ -240,7 +239,6 @@ function TokensModal(props: Props) {
   const [loading, setLoading] = useState(false);
   const [tokens, setTokens] = useState<TokenConfig[]>([]);
   const [search, setSearch] = useState('');
-  const [showNullBalances, setShowNullBalances] = useState(false);
 
   const {
     sourceBalances,
@@ -307,7 +305,7 @@ function TokensModal(props: Props) {
     const getBalances = async () => {
       // fetch all N tokens and trigger a single update action
       const balancesArr = await Promise.all(
-        supportedTokens.map(async (t) => {
+        TOKENS_ARR.map(async (t) => {
           const balance = t.tokenId
             ? await wh.getTokenBalance(walletAddress, t.tokenId, network)
             : await wh.getNativeBalance(walletAddress, network);
@@ -337,12 +335,13 @@ function TokensModal(props: Props) {
     // get tokens that exist on the chain and have a balance greater than 0
     const filtered = supportedTokens.filter((t) => {
       if (!t.tokenId && t.nativeNetwork !== network) return false;
+      if (type === 'dest') return true;
       const b = tokenBalances[t.key];
       const isNullBalance = b !== null && b !== '0';
-      return isNullBalance || showNullBalances;
+      return isNullBalance;
     });
     setTokens(filtered);
-  }, [tokenBalances, network, supportedTokens, showNullBalances]);
+  }, [tokenBalances, network, supportedTokens]);
 
   const tabs = [
     {

@@ -67,7 +67,7 @@ export default function BasicTabs(props: { tabs: Tab[] }) {
 
   return (
     <Box sx={{ width: '100%' }}>
-      <Box sx={{ borderBottom: 1, borderColor: `${theme.palette.button.action}` }}>
+      <Box sx={{ borderBottom: 1, borderColor: `${theme.palette.divider}` }}>
         <Tabs value={value} onChange={handleChange} className={classes.tabs}>
           {tabs.map((tab, i) => (
             <Tab label={tab.label} {...a11yProps(i)} className={classes.tab} />
