@@ -19,7 +19,6 @@ import {
 
 export default class Operator {
   getRoute(route: Route): RouteAbstract {
-    console.log(route);
     switch (route) {
       case Route.BRIDGE: {
         return new BridgeRoute();
