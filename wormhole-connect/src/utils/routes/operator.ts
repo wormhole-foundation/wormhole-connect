@@ -11,7 +11,11 @@ import { HashflowRoute } from './hashflow';
 import { TokenConfig } from 'config/types';
 import { ParsedMessage, ParsedRelayerMessage, PayloadType } from '../sdk';
 import RouteAbstract from './routeAbstract';
-import { CHAIN_ID_SEI, ParsedVaa, parseTokenTransferPayload } from '@certusone/wormhole-sdk';
+import {
+  CHAIN_ID_SEI,
+  ParsedVaa,
+  parseTokenTransferPayload,
+} from '@certusone/wormhole-sdk';
 
 export default class Operator {
   getRoute(route: Route): RouteAbstract {

@@ -69,7 +69,7 @@ function Bridge() {
     associatedTokenAddress,
     isTransactionInProgress,
     balances,
-    amount
+    amount,
   } = useSelector((state: RootState) => state.transferInput);
   const { toNativeToken, relayerFee } = useSelector(
     (state: RootState) => state.relay,
@@ -133,12 +133,15 @@ function Bridge() {
   useEffect(() => {
     const recomputeReceive = async () => {
       const operator = new Operator();
-      const newReceiveAmount = await operator
-        .computeReceiveAmount(route, Number.parseFloat(amount), { toNativeToken })
+      const newReceiveAmount = await operator.computeReceiveAmount(
+        route,
+        Number.parseFloat(amount),
+        { toNativeToken },
+      );
       dispatch(setReceiveAmount(newReceiveAmount.toString()));
     };
     recomputeReceive();
-  }, [ amount, toNativeToken, route ])
+  }, [amount, toNativeToken, route, dispatch]);
 
   // validate transfer inputs
   useEffect(() => {

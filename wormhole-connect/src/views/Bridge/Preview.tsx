@@ -103,8 +103,15 @@ function Preview(props: { collapsed: boolean }) {
   const dispatch = useDispatch();
   const theme = useTheme();
   const [state, setState] = React.useState({ rows: [] as RowsData });
-  const { token, destToken, fromNetwork, toNetwork, route, receiveAmount, gasEst } =
-    useSelector((state: RootState) => state.transferInput);
+  const {
+    token,
+    destToken,
+    fromNetwork,
+    toNetwork,
+    route,
+    receiveAmount,
+    gasEst,
+  } = useSelector((state: RootState) => state.transferInput);
   const { toNativeToken, receiveNativeAmt } = useSelector(
     (state: RootState) => state.relay,
   );

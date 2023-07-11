@@ -76,7 +76,7 @@ function Send(props: { valid: boolean }) {
     route: routeType,
     automaticRelayAvail,
     isTransactionInProgress,
-    route
+    route,
   } = transfer;
   const [isConnected, setIsConnected] = useState(
     sending.currentAddress.toLowerCase() === sending.address.toLowerCase(),
