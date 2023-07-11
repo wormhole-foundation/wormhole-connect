@@ -1,5 +1,5 @@
 import { makeStyles } from 'tss-react/mui';
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback } from 'react';
 import { debounce } from '../utils';
 
 type StyleProps = {
@@ -75,7 +75,7 @@ function InputTransparent(props: Props) {
         props.onPause();
       }
     }, 1000),
-    [ props.onPause ]
+    [props.onPause],
   );
 
   return (

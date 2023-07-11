@@ -278,13 +278,12 @@ function SendTo() {
         registerWalletSigner(txData.toChain, TransferWallet.RECEIVING);
         await switchNetwork(networkConfig.chainId, TransferWallet.RECEIVING);
       }
-      const txId = await new Operator()
-        .redeem(
-          routeType,
-          txData.toChain,
-          utils.arrayify(vaa.bytes),
-          wallet.address,
-        );
+      const txId = await new Operator().redeem(
+        routeType,
+        txData.toChain,
+        utils.arrayify(vaa.bytes),
+        wallet.address,
+      );
       dispatch(setRedeemTx(txId));
       dispatch(setTransferComplete(true));
       setInProgress(false);

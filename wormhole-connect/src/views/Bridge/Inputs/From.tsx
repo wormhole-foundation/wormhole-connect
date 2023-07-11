@@ -68,16 +68,19 @@ function FromInputs() {
   );
 
   // TODO: clean up the send/receive amount set logic
-  const handleAmountChange = useCallback(async (amount: string) => {
-    dispatch(setAmount(amount));
-    const r = new Operator();
-    const receiveAmount = await r.computeReceiveAmount(
-      route,
-      Number.parseFloat(amount),
-      { toNativeToken },
-    );
-    dispatch(setReceiveAmount(`${receiveAmount}`));
-  }, [ route, toNativeToken ]);
+  const handleAmountChange = useCallback(
+    async (amount: string) => {
+      dispatch(setAmount(amount));
+      const r = new Operator();
+      const receiveAmount = await r.computeReceiveAmount(
+        route,
+        Number.parseFloat(amount),
+        { toNativeToken },
+      );
+      dispatch(setReceiveAmount(`${receiveAmount}`));
+    },
+    [route, toNativeToken, dispatch],
+  );
   const amountInput = (
     <AmountInput handleAmountChange={handleAmountChange} value={amount} />
   );

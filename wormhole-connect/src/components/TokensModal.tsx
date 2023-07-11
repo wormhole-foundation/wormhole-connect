@@ -21,7 +21,7 @@ import Modal from './Modal';
 import Spacer from './Spacer';
 import Search from './Search';
 import Scroll from './Scroll';
-import Tooltip from './Tooltip';
+// import Tooltip from './Tooltip';
 // import Down from '../icons/Down';
 // import Collapse from '@mui/material/Collapse';
 import TokenIcon from '../icons/TokenIcons';

@@ -72,16 +72,19 @@ function ToInputs() {
     />
   );
 
-  const handleAmountChange = useCallback(async (amount: string) => {
-    dispatch(setReceiveAmount(amount));
-    const r = new Operator();
-    const sendAmount = await r.computeSendAmount(
-      route,
-      Number.parseFloat(amount),
-      { toNativeToken },
-    );
-    dispatch(setAmount(`${sendAmount}`));
-  }, [ route, toNativeToken ]);
+  const handleAmountChange = useCallback(
+    async (amount: string) => {
+      dispatch(setReceiveAmount(amount));
+      const r = new Operator();
+      const sendAmount = await r.computeSendAmount(
+        route,
+        Number.parseFloat(amount),
+        { toNativeToken },
+      );
+      dispatch(setAmount(`${sendAmount}`));
+    },
+    [route, toNativeToken, dispatch],
+  );
   const amountInput = (
     <AmountInput
       handleAmountChange={handleAmountChange}
