@@ -1,11 +1,11 @@
 import React, { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTheme } from '@mui/material/styles';
-import { Checkbox, useMediaQuery } from '@mui/material';
+import { useMediaQuery } from '@mui/material';
 import { makeStyles } from 'tss-react/mui';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { RootState } from '../store';
-import { CHAINS } from '../config';
+import { CHAINS, TOKENS_ARR } from '../config';
 import { TokenConfig } from '../config/types';
 import {
   setBalance,
@@ -21,11 +21,9 @@ import Modal from './Modal';
 import Spacer from './Spacer';
 import Search from './Search';
 import Scroll from './Scroll';
-// import Tooltip from './Tooltip';
-// import Down from '../icons/Down';
-// import Collapse from '@mui/material/Collapse';
 import TokenIcon from '../icons/TokenIcons';
 import CircularProgress from '@mui/material/CircularProgress';
+import Tabs from './Tabs';
 
 const useStyles = makeStyles()((theme) => ({
   tokensContainer: {
@@ -151,6 +149,94 @@ const useStyles = makeStyles()((theme) => ({
   },
 }));
 
+const displayNativeNetwork = (token: TokenConfig): string => {
+  const chainConfig = CHAINS[token.nativeNetwork];
+  if (!chainConfig) return '';
+  return chainConfig.displayName;
+};
+
+function DisplayTokens(props: {
+  tokens: TokenConfig[];
+  balances: any;
+  walletAddress: string | undefined;
+  network: any;
+  selectToken: any;
+  loading: boolean;
+  search: string;
+}) {
+  const { classes } = useStyles();
+  const theme = useTheme();
+  const {
+    tokens,
+    balances,
+    walletAddress,
+    network,
+    selectToken,
+    loading,
+    search,
+  } = props;
+  return (
+    <Scroll
+      height="calc(100vh - 375px)"
+      blendColor={theme.palette.modal.background}
+    >
+      <div className={classes.tokensContainer}>
+        {tokens.length > 0 ? (
+          <div>
+            {tokens.map((token, i) => (
+              <div
+                className={classes.tokenRow}
+                key={i}
+                onClick={() => selectToken(token.key)}
+              >
+                <div className={classes.tokenRowLeft}>
+                  <TokenIcon name={token.icon} height={32} />
+                  <div>
+                    <div>{token.symbol}</div>
+                    <div className={classes.nativeNetwork}>
+                      {displayNativeNetwork(token)}
+                    </div>
+                  </div>
+                </div>
+                <div className={classes.tokenRowRight}>
+                  <div className={classes.tokenRowBalanceText}>Balance</div>
+                  <div className={classes.tokenRowBalance}>
+                    {balances[token.key] && walletAddress ? (
+                      <div>{balances[token.key]}</div>
+                    ) : network && walletAddress ? (
+                      <CircularProgress size={14} />
+                    ) : (
+                      <div>—</div>
+                    )}
+                  </div>
+                </div>
+                <div className={classes.tokenRowAddressContainer}>
+                  <div className={classes.tokenRowAddress}>
+                    {token.tokenId
+                      ? displayAddress(
+                          token.tokenId.chain,
+                          token.tokenId.address,
+                        )
+                      : 'Native'}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : loading ? (
+          <div className={classes.loading}>
+            <CircularProgress size={24} />
+          </div>
+        ) : (
+          <div className={classes.noResults}>
+            {search ? 'No results' : 'No balances detected'}
+          </div>
+        )}
+      </div>
+    </Scroll>
+  );
+}
+
 type Props = {
   open: boolean;
   network: ChainName | undefined;
@@ -161,7 +247,6 @@ type Props = {
 };
 
 function TokensModal(props: Props) {
-  const { classes } = useStyles();
   const theme = useTheme();
   const dispatch = useDispatch();
   const { open, network, walletAddress, type } = props;
@@ -169,7 +254,6 @@ function TokensModal(props: Props) {
   const [loading, setLoading] = useState(false);
   const [tokens, setTokens] = useState<TokenConfig[]>([]);
   const [search, setSearch] = useState('');
-  const [showNullBalances, setShowNullBalances] = useState(false);
 
   const {
     sourceBalances,
@@ -177,6 +261,16 @@ function TokensModal(props: Props) {
     supportedSourceTokens,
     supportedDestTokens,
   } = useSelector((state: RootState) => state.transferInput);
+
+  const allTokens = useMemo(
+    () =>
+      type === 'source'
+        ? TOKENS_ARR
+        : TOKENS_ARR.filter((t) => {
+            return !!t.tokenId;
+          }),
+    [type],
+  );
 
   const supportedTokens = useMemo(
     () => (type === 'source' ? supportedSourceTokens : supportedDestTokens),
@@ -226,12 +320,6 @@ function TokensModal(props: Props) {
     closeTokensModal();
   };
 
-  const displayNativeNetwork = (token: TokenConfig): string => {
-    const chainConfig = CHAINS[token.nativeNetwork];
-    if (!chainConfig) return '';
-    return chainConfig.displayName;
-  };
-
   // fetch token balances and set in store
   useEffect(() => {
     if (!walletAddress || !network) {
@@ -242,7 +330,7 @@ function TokensModal(props: Props) {
     const getBalances = async () => {
       // fetch all N tokens and trigger a single update action
       const balancesArr = await Promise.all(
-        supportedTokens.map(async (t) => {
+        allTokens.map(async (t) => {
           const balance = t.tokenId
             ? await wh.getTokenBalance(walletAddress, t.tokenId, network)
             : await wh.getNativeBalance(walletAddress, network);
@@ -266,22 +354,50 @@ function TokensModal(props: Props) {
     dispatch(clearBalances(type));
     setLoading(true);
     getBalances().finally(() => setLoading(false));
-  }, [walletAddress, network, dispatch, supportedTokens, type]);
+  }, [walletAddress, network, dispatch, supportedTokens, type, allTokens]);
 
   useEffect(() => {
     // get tokens that exist on the chain and have a balance greater than 0
     const filtered = supportedTokens.filter((t) => {
       if (!t.tokenId && t.nativeNetwork !== network) return false;
+      if (type === 'dest') return true;
       const b = tokenBalances[t.key];
       const isNullBalance = b !== null && b !== '0';
-      return isNullBalance || showNullBalances;
+      return isNullBalance;
     });
     setTokens(filtered);
-  }, [tokenBalances, network, supportedTokens, showNullBalances]);
+  }, [tokenBalances, network, supportedTokens, type]);
 
-  const toggleOnShowNullBallances = () => {
-    setShowNullBalances(!showNullBalances);
-  };
+  const tabs = [
+    {
+      label: 'Available Tokens',
+      panel: (
+        <DisplayTokens
+          tokens={displayedTokens}
+          balances={tokenBalances}
+          walletAddress={walletAddress}
+          network={network}
+          selectToken={selectToken}
+          loading={loading}
+          search={search}
+        />
+      ),
+    },
+    {
+      label: 'All Tokens',
+      panel: (
+        <DisplayTokens
+          tokens={allTokens}
+          balances={tokenBalances}
+          walletAddress={walletAddress}
+          network={network}
+          selectToken={selectToken}
+          loading={loading}
+          search={search}
+        />
+      ),
+    },
+  ];
 
   return (
     <Modal open={open} closable width={500} onClose={closeTokensModal}>
@@ -295,91 +411,7 @@ function TokensModal(props: Props) {
         }
         onChange={handleSearch}
       />
-      <div className={classes.checkboxRow}>
-        <Checkbox
-          onChange={toggleOnShowNullBallances}
-          checked={showNullBalances}
-        />
-        Show assets with zero balance
-      </div>
-      <div className={classes.sectionHeader}>
-        {/* <div className={classes.subheader}>Tokens with liquid markets</div>
-        <Tooltip text="Please perform your own due diligence, but to our knowledge these tokens have liquid markets available (i.e. you should be able to trade and utilize your tokens) on your destination chain." /> */}
-      </div>
-      <Scroll
-        height="calc(100vh - 375px)"
-        blendColor={theme.palette.modal.background}
-      >
-        <div className={classes.tokensContainer}>
-          {displayedTokens.length > 0 ? (
-            <div>
-              {displayedTokens.map((token, i) => (
-                <div
-                  className={classes.tokenRow}
-                  key={i}
-                  onClick={() => selectToken(token.key)}
-                >
-                  <div className={classes.tokenRowLeft}>
-                    <TokenIcon name={token.icon} height={32} />
-                    <div>
-                      <div>{token.symbol}</div>
-                      <div className={classes.nativeNetwork}>
-                        {displayNativeNetwork(token)}
-                      </div>
-                    </div>
-                  </div>
-                  <div className={classes.tokenRowRight}>
-                    <div className={classes.tokenRowBalanceText}>Balance</div>
-                    <div className={classes.tokenRowBalance}>
-                      {tokenBalances[token.key] && walletAddress ? (
-                        <div>{tokenBalances[token.key]}</div>
-                      ) : network && walletAddress ? (
-                        <CircularProgress size={14} />
-                      ) : (
-                        <div>—</div>
-                      )}
-                    </div>
-                  </div>
-                  <div className={classes.tokenRowAddressContainer}>
-                    <div className={classes.tokenRowAddress}>
-                      {token.tokenId
-                        ? displayAddress(
-                            token.tokenId.chain,
-                            token.tokenId.address,
-                          )
-                        : 'Native'}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : loading ? (
-            <div className={classes.loading}>
-              <CircularProgress size={24} />
-            </div>
-          ) : (
-            <div className={classes.noResults}>
-              {search ? 'No results' : 'No balances detected'}
-            </div>
-          )}
-
-          {/* <div className={classes.advanced} onClick={toggleAdvanced}>
-            <div className={classes.sectionHeader}>
-              <div className={classes.subheader}>Tokens without established liquid markets</div>
-              <Tooltip text="Once you transfer these assets to the destination chain you may not be able to trade or use them. If for any reason you cannot and want to transfer the assets back to the source chain, you'll be responsible for any gas fees necessary to complete the transaction." />
-              </div>
-              <Down
-                className={joinClass([
-                  classes.arrow,
-                  showAdvanced && classes.invert,
-                ])}
-              />
-            </div>
-            <Collapse in={showAdvanced}>
-            <div className={classes.advancedContent}>Advanced Options</div>
-          </Collapse> */}
-        </div>
-      </Scroll>
+      <Tabs tabs={tabs} />
     </Modal>
   );
 }

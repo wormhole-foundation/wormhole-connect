@@ -34,6 +34,7 @@ import { joinClass } from '../../utils/style';
 import SwapNetworks from './SwapNetworks';
 import RouteOptions from './RouteOptions';
 import Operator from '../../utils/routes';
+import { TokenConfig } from '../../config/types';
 
 const useStyles = makeStyles()((theme) => ({
   spacer: {
@@ -55,6 +56,11 @@ const useStyles = makeStyles()((theme) => ({
     width: '100%',
   },
 }));
+
+function isSupportedToken(token: string, supportedTokens: TokenConfig[]): boolean {
+  if (!token) return true;
+  return supportedTokens.some(t => t.key === token);
+}
 
 function Bridge() {
   const { classes } = useStyles();
@@ -104,27 +110,16 @@ function Bridge() {
         await operator.supportedSourceTokens(route, TOKENS_ARR, undefined);
 
       dispatch(setSupportedSourceTokens(supported));
+      const selectedIsSupported = isSupportedToken(token, supported);
+      if (!selectedIsSupported) {
+        dispatch(setToken(''));
+      }
       if (supported.length === 1) {
         dispatch(setToken(supported[0]));
       }
     };
     computeSrcTokens();
   }, [route, destToken, dispatch]);
-
-  useEffect(() => {
-    const checkDestToken = async () => {
-      const supported = await new Operator().isSupportedDestToken(
-        route,
-        TOKENS[destToken],
-        TOKENS[token],
-      );
-
-      if (!supported) {
-        dispatch(setDestToken(''));
-      }
-    };
-    checkDestToken();
-  }, [route, token, destToken, dispatch]);
 
   useEffect(() => {
     const computeDestTokens = async () => {
@@ -136,12 +131,16 @@ function Bridge() {
       );
 
       dispatch(setSupportedDestTokens(supported));
+      const selectedIsSupported = isSupportedToken(destToken, supported);
+      if (!selectedIsSupported) {
+        dispatch(setDestToken(''));
+      }
       if (supported.length === 1) {
         dispatch(setDestToken(supported[0].key));
       }
     };
     computeDestTokens();
-  }, [route, token, destToken, dispatch]);
+  }, [route, token, dispatch]);
 
   // check if automatic relay option is available
   useEffect(() => {
