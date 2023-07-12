@@ -5,104 +5,19 @@ import { RootState } from '../../store';
 import { disableAutomaticTransfer, Route } from '../../store/transferInput';
 import { setRelayerFee } from '../../store/relay';
 import { CHAINS, TOKENS } from '../../config';
-import { TokenConfig } from '../../config/types';
 import { getTokenDecimals } from '../../utils';
-import { toDecimals, toFixedDecimals } from '../../utils/balance';
+import { toDecimals } from '../../utils/balance';
 import { toChainId, getRelayerFee } from '../../utils/sdk';
+import Operator, { PreviewData } from '../../utils/routes';
 
-import { RenderRows, RowsData } from '../../components/RenderRows';
+import { RenderRows } from '../../components/RenderRows';
 import BridgeCollapse from './Collapse';
 import InputContainer from '../../components/InputContainer';
-
-const getAutomaticRows = (
-  token: TokenConfig,
-  destToken: TokenConfig,
-  sourceGasToken: string,
-  destinationGasToken: string,
-  receiveAmount: number,
-  receiveNativeAmt: number,
-  relayerFee: number,
-  sendingGasEst: string,
-): RowsData => {
-  const isNative = token.symbol === sourceGasToken;
-  let totalFeesText = '';
-  if (sendingGasEst && relayerFee) {
-    const fee = toFixedDecimals(
-      `${relayerFee + (isNative ? Number.parseFloat(sendingGasEst) : 0)}`,
-      6,
-    );
-    totalFeesText = isNative
-      ? `${fee} ${token.symbol}`
-      : `${sendingGasEst} ${sourceGasToken} & ${fee} ${token.symbol}`;
-  }
-
-  return [
-    {
-      title: 'Amount',
-      value: `${toFixedDecimals(`${receiveAmount}`, 6)} ${destToken.symbol}`,
-    },
-    {
-      title: 'Native gas on destination',
-      value: `${receiveNativeAmt} ${destinationGasToken}`,
-    },
-    {
-      title: 'Total fee estimates',
-      value: totalFeesText,
-      rows: [
-        {
-          title: 'Source chain gas estimate',
-          value: sendingGasEst ? `~ ${sendingGasEst} ${sourceGasToken}` : '—',
-        },
-        {
-          title: 'Relayer fee',
-          value: relayerFee ? `${relayerFee} ${token.symbol}` : '—',
-        },
-      ],
-    },
-  ];
-};
-
-const getManualRows = (
-  destToken: TokenConfig,
-  sourceGasToken: string,
-  destinationGasToken: string,
-  amount: number,
-  sendingGasEst: string,
-  destGasEst: string,
-): RowsData => {
-  return [
-    {
-      title: 'Amount',
-      value: `${amount} ${destToken.symbol}`,
-    },
-    {
-      title: 'Total fee estimates',
-      value:
-        sendingGasEst && destGasEst
-          ? `${sendingGasEst} ${sourceGasToken} & ${destGasEst} ${destinationGasToken}`
-          : '',
-      rows: [
-        {
-          title: 'Source chain gas estimate',
-          value: sendingGasEst
-            ? `~ ${sendingGasEst} ${sourceGasToken}`
-            : 'Not available',
-        },
-        {
-          title: 'Destination chain gas estimate',
-          value: destGasEst
-            ? `~ ${destGasEst} ${destinationGasToken}`
-            : 'Not available',
-        },
-      ],
-    },
-  ];
-};
 
 function Preview(props: { collapsed: boolean }) {
   const dispatch = useDispatch();
   const theme = useTheme();
-  const [state, setState] = React.useState({ rows: [] as RowsData });
+  const [state, setState] = React.useState({ rows: [] as PreviewData });
   const {
     token,
     destToken,
@@ -112,65 +27,49 @@ function Preview(props: { collapsed: boolean }) {
     receiveAmount,
     gasEst,
   } = useSelector((state: RootState) => state.transferInput);
-  const { toNativeToken, receiveNativeAmt } = useSelector(
+  const { toNativeToken, receiveNativeAmt, relayerFee } = useSelector(
     (state: RootState) => state.relay,
   );
 
   useEffect(() => {
-    if (!fromNetwork) return;
-    const sourceConfig = toNetwork && CHAINS[fromNetwork];
-    const destConfig = toNetwork && CHAINS[toNetwork];
-    const tokenConfig = token && TOKENS[token];
-    const destTokenConfig = destToken && TOKENS[destToken];
-    if (
-      !tokenConfig ||
-      !destTokenConfig ||
-      !sourceConfig ||
-      !destConfig ||
-      !receiveAmount
-    )
-      return;
-    const numReceiveAmount = Number.parseFloat(receiveAmount);
+    const buildPreview = async () => {
+      if (!fromNetwork) return;
+      const sourceConfig = toNetwork && CHAINS[fromNetwork];
+      const destConfig = toNetwork && CHAINS[toNetwork];
+      const tokenConfig = token && TOKENS[token];
+      const destTokenConfig = destToken && TOKENS[destToken];
+      if (
+        !tokenConfig ||
+        !destTokenConfig ||
+        !sourceConfig ||
+        !destConfig ||
+        !receiveAmount
+      )
+        return;
+      const numReceiveAmount = Number.parseFloat(receiveAmount);
 
-    if (route === Route.BRIDGE) {
-      const rows = getManualRows(
-        destTokenConfig,
-        sourceConfig!.gasToken,
-        destConfig!.gasToken,
-        numReceiveAmount,
-        gasEst.manual,
-        gasEst.claim,
-      );
+      // TODO: find a way to bundle the parameters without the need
+      // of checking for a specific route.
+      const rows = await new Operator().getPreview(route, {
+        destToken: destTokenConfig,
+        sourceGasToken: sourceConfig.gasToken,
+        destinationGasToken: destConfig.gasToken,
+        amount: numReceiveAmount,
+        sendingGasEst:
+          route === Route.BRIDGE ? gasEst.manual : gasEst.automatic,
+        destGasEst: gasEst.claim,
+
+        // relay params
+        token: tokenConfig,
+        receiveAmount: numReceiveAmount,
+        receiveNativeAmt: receiveNativeAmt || 0,
+        relayerFee,
+      });
+
       setState({ rows });
-    } else {
-      getRelayerFee(fromNetwork, toNetwork, token)
-        .then((fee) => {
-          const decimals = getTokenDecimals(
-            toChainId(fromNetwork),
-            tokenConfig.tokenId || 'native',
-          );
-          const formattedFee = Number.parseFloat(toDecimals(fee, decimals, 6));
-          dispatch(setRelayerFee(formattedFee));
-          const rows = getAutomaticRows(
-            tokenConfig,
-            destTokenConfig,
-            sourceConfig!.gasToken,
-            destConfig!.gasToken,
-            numReceiveAmount,
-            receiveNativeAmt || 0,
-            formattedFee,
-            gasEst.automatic,
-          );
-          setState({ rows });
-        })
-        .catch((e) => {
-          if (e.message.includes('swap rate not set')) {
-            dispatch(disableAutomaticTransfer());
-          } else {
-            throw e;
-          }
-        });
-    }
+    };
+
+    buildPreview();
   }, [
     token,
     destToken,
@@ -182,7 +81,33 @@ function Preview(props: { collapsed: boolean }) {
     receiveNativeAmt,
     gasEst,
     dispatch,
+    relayerFee,
   ]);
+
+  useEffect(() => {
+    const computeRelayerFee = async () => {
+      try {
+        if (!token || !fromNetwork || !toNetwork) return;
+        const tokenConfig = token && TOKENS[token];
+        if (!tokenConfig) return;
+
+        const fee = await getRelayerFee(fromNetwork, toNetwork, token);
+        const decimals = getTokenDecimals(
+          toChainId(fromNetwork),
+          tokenConfig.tokenId || 'native',
+        );
+        const formattedFee = Number.parseFloat(toDecimals(fee, decimals, 6));
+        dispatch(setRelayerFee(formattedFee));
+      } catch (e) {
+        if (e.message.includes('swap rate not set')) {
+          dispatch(disableAutomaticTransfer());
+        } else {
+          throw e;
+        }
+      }
+    };
+    computeRelayerFee();
+  }, [token, toNetwork, fromNetwork, dispatch]);
 
   return (
     <BridgeCollapse
