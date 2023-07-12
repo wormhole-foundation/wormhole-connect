@@ -21,6 +21,7 @@ import {
 } from 'utils/sdk';
 import { utils } from 'ethers';
 import { TransferWallet, postVaa, signAndSendTransaction } from 'utils/wallet';
+import { PreviewData } from './types';
 
 // adapts the sdk returned parsed message to the type that
 // wh connect uses
@@ -52,6 +53,15 @@ export const adaptParsedMessage = async (
   }
   return base;
 };
+
+export interface BridgePreviewParams {
+  destToken: TokenConfig;
+  sourceGasToken: string;
+  destinationGasToken: string;
+  receiveAmount: number;
+  sendingGasEst: string;
+  destGasEst: string;
+}
 
 export class BridgeRoute extends RouteAbstract {
   async isRouteAvailable(
@@ -249,5 +259,42 @@ export class BridgeRoute extends RouteAbstract {
   ): Promise<ParsedMessage | ParsedRelayerMessage> {
     const message = await wh.parseMessage(info);
     return adaptParsedMessage(message);
+  }
+
+  public async getPreview({
+    destToken,
+    sourceGasToken,
+    destinationGasToken,
+    receiveAmount: amount,
+    sendingGasEst,
+    destGasEst,
+  }: BridgePreviewParams): Promise<PreviewData> {
+    return [
+      {
+        title: 'Amount',
+        value: `${amount} ${destToken.symbol}`,
+      },
+      {
+        title: 'Total fee estimates',
+        value:
+          sendingGasEst && destGasEst
+            ? `${sendingGasEst} ${sourceGasToken} & ${destGasEst} ${destinationGasToken}`
+            : '',
+        rows: [
+          {
+            title: 'Source chain gas estimate',
+            value: sendingGasEst
+              ? `~ ${sendingGasEst} ${sourceGasToken}`
+              : 'Not available',
+          },
+          {
+            title: 'Destination chain gas estimate',
+            value: destGasEst
+              ? `~ ${destGasEst} ${destinationGasToken}`
+              : 'Not available',
+          },
+        ],
+      },
+    ];
   }
 }

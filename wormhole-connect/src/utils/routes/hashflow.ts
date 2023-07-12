@@ -7,6 +7,7 @@ import {
 import { TokenConfig } from '../../config/types';
 import RouteAbstract from './routeAbstract';
 import { ParsedMessage, ParsedRelayerMessage } from '../sdk';
+import { PreviewData } from './types';
 
 export class HashflowRoute extends RouteAbstract {
   public isRouteAvailable(
@@ -88,6 +89,9 @@ export class HashflowRoute extends RouteAbstract {
   public parseMessage(
     info: VaaInfo<any>,
   ): Promise<ParsedMessage | ParsedRelayerMessage> {
+    throw new Error('Method not implemented.');
+  }
+  public getPreview<P>(params: P): Promise<PreviewData> {
     throw new Error('Method not implemented.');
   }
 }
