@@ -14,15 +14,23 @@ import {
   isAcceptedToken,
   ParsedRelayerMessage,
 } from 'utils/sdk';
-import { BridgeRoute, adaptParsedMessage } from './bridge';
+import { BridgePreviewParams, BridgeRoute, adaptParsedMessage } from './bridge';
 import { getTokenDecimals, getWrappedTokenId } from 'utils';
 import { utils } from 'ethers';
 import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
+import { toFixedDecimals } from '../balance';
+import { PreviewData } from './types';
 
 export type RelayOptions = {
   relayerFee?: number;
   toNativeToken?: number;
 };
+
+export interface RelayPreviewParams extends BridgePreviewParams {
+  token: TokenConfig;
+  receiveNativeAmt: number;
+  relayerFee: number;
+}
 
 export class RelayRoute extends BridgeRoute {
   async isRouteAvailable(
@@ -219,5 +227,56 @@ export class RelayRoute extends BridgeRoute {
       relayerFee: parsed.relayerFee.toString(),
       toNativeTokenAmount: parsed.toNativeTokenAmount.toString(),
     };
+  }
+
+  public async getPreview({
+    token,
+    destToken,
+    sourceGasToken,
+    destinationGasToken,
+    receiveAmount,
+    receiveNativeAmt,
+    sendingGasEst,
+    relayerFee,
+  }: RelayPreviewParams): Promise<PreviewData> {
+    const isNative = token.symbol === sourceGasToken;
+    let totalFeesText = '';
+    if (sendingGasEst && relayerFee) {
+      const fee = toFixedDecimals(
+        `${relayerFee + (isNative ? Number.parseFloat(sendingGasEst) : 0)}`,
+        6,
+      );
+      totalFeesText = isNative
+        ? `${fee} ${token.symbol}`
+        : `${sendingGasEst} ${sourceGasToken} & ${fee} ${token.symbol}`;
+    }
+
+    return [
+      {
+        title: 'Amount',
+        value: `${toFixedDecimals(`${receiveAmount}`, 6)} ${destToken.symbol}`,
+      },
+      {
+        title: 'Native gas on destination',
+        value:
+          receiveNativeAmt > 0
+            ? `${receiveNativeAmt} ${destinationGasToken}`
+            : '-',
+      },
+      {
+        title: 'Total fee estimates',
+        value: totalFeesText,
+        rows: [
+          {
+            title: 'Source chain gas estimate',
+            value: sendingGasEst ? `~ ${sendingGasEst} ${sourceGasToken}` : '—',
+          },
+          {
+            title: 'Relayer fee',
+            value: relayerFee ? `${relayerFee} ${token.symbol}` : '—',
+          },
+        ],
+      },
+    ];
   }
 }

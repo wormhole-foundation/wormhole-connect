@@ -16,6 +16,7 @@ import {
   ParsedVaa,
   parseTokenTransferPayload,
 } from '@certusone/wormhole-sdk';
+import { PreviewData } from './types';
 
 export default class Operator {
   getRoute(route: Route): RouteAbstract {
@@ -212,5 +213,10 @@ export default class Operator {
   ): Promise<ParsedMessage | ParsedRelayerMessage> {
     const r = this.getRoute(route);
     return await r.parseMessage(info);
+  }
+
+  async getPreview(route: Route, params: any): Promise<PreviewData> {
+    const r = this.getRoute(route);
+    return await r.getPreview(params);
   }
 }

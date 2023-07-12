@@ -6,6 +6,7 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { TokenConfig } from 'config/types';
 import { ParsedMessage, ParsedRelayerMessage } from '../sdk';
+import { PreviewData } from './types';
 
 export default abstract class RouteAbstract {
   // protected abstract sendGasFallback: { [key: ChainName]: TokenConfig };
@@ -99,5 +100,6 @@ export default abstract class RouteAbstract {
     recipient: string,
   ): Promise<string>;
 
+  public abstract getPreview(params: any): Promise<PreviewData>;
   // send, validate, estimate gas, isRouteAvailable, parse data from VAA/fetch data, claim
 }
