@@ -531,7 +531,7 @@ export class EthContext<
     );
 
     const baseMessage: ParsedMessage = {
-      sendTx: receipt.blockHash,
+      sendTx: receipt.transactionHash,
       sender: receipt.from,
       amount: BigNumber.from(transfer.amount),
       payloadID: transfer.payloadType,
