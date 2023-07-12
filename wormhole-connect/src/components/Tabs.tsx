@@ -13,7 +13,7 @@ const useStyles = makeStyles()((theme) => ({
   },
   tab: {
     flexGrow: 1,
-  }
+  },
 }));
 
 interface TabPanelProps {
@@ -33,11 +33,7 @@ function CustomTabPanel(props: TabPanelProps) {
       aria-labelledby={`simple-tab-${index}`}
       {...other}
     >
-      {value === index && (
-        <Box sx={{ py: 3 }}>
-          {children}
-        </Box>
-      )}
+      {value === index && <Box sx={{ py: 3 }}>{children}</Box>}
     </div>
   );
 }
@@ -49,12 +45,12 @@ function a11yProps(index: number) {
   };
 }
 
-type Tab = {
+type TabData = {
   label: string;
   panel: React.ReactNode;
-}
+};
 
-export default function BasicTabs(props: { tabs: Tab[] }) {
+export default function BasicTabs(props: { tabs: TabData[] }) {
   const { tabs } = props;
   const { classes } = useStyles();
   const theme = useTheme();
@@ -69,7 +65,12 @@ export default function BasicTabs(props: { tabs: Tab[] }) {
       <Box sx={{ borderBottom: 1, borderColor: `${theme.palette.divider}` }}>
         <Tabs value={value} onChange={handleChange} className={classes.tabs}>
           {tabs.map((tab, i) => (
-            <Tab label={tab.label} {...a11yProps(i)} className={classes.tab} key={`tab${i}`} />
+            <Tab
+              label={tab.label}
+              {...a11yProps(i)}
+              className={classes.tab}
+              key={`tab${i}`}
+            />
           ))}
         </Tabs>
       </Box>

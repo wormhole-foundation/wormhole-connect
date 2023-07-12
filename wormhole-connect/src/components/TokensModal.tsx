@@ -155,10 +155,26 @@ const displayNativeNetwork = (token: TokenConfig): string => {
   return chainConfig.displayName;
 };
 
-function DisplayTokens(props: { tokens: TokenConfig[], balances: any, walletAddress: string | undefined, network: any, selectToken: any, loading: boolean, search: string}) {
+function DisplayTokens(props: {
+  tokens: TokenConfig[];
+  balances: any;
+  walletAddress: string | undefined;
+  network: any;
+  selectToken: any;
+  loading: boolean;
+  search: string;
+}) {
   const { classes } = useStyles();
   const theme = useTheme();
-  const { tokens, balances, walletAddress, network, selectToken, loading, search } = props;
+  const {
+    tokens,
+    balances,
+    walletAddress,
+    network,
+    selectToken,
+    loading,
+    search,
+  } = props;
   return (
     <Scroll
       height="calc(100vh - 375px)"
@@ -246,6 +262,16 @@ function TokensModal(props: Props) {
     supportedDestTokens,
   } = useSelector((state: RootState) => state.transferInput);
 
+  const allTokens = useMemo(
+    () =>
+      type === 'source'
+        ? TOKENS_ARR
+        : TOKENS_ARR.filter((t) => {
+            return !!t.tokenId;
+          }),
+    [type],
+  );
+
   const supportedTokens = useMemo(
     () => (type === 'source' ? supportedSourceTokens : supportedDestTokens),
     [type, supportedSourceTokens, supportedDestTokens],
@@ -304,7 +330,7 @@ function TokensModal(props: Props) {
     const getBalances = async () => {
       // fetch all N tokens and trigger a single update action
       const balancesArr = await Promise.all(
-        TOKENS_ARR.map(async (t) => {
+        allTokens.map(async (t) => {
           const balance = t.tokenId
             ? await wh.getTokenBalance(walletAddress, t.tokenId, network)
             : await wh.getNativeBalance(walletAddress, network);
@@ -328,7 +354,7 @@ function TokensModal(props: Props) {
     dispatch(clearBalances(type));
     setLoading(true);
     getBalances().finally(() => setLoading(false));
-  }, [walletAddress, network, dispatch, supportedTokens, type]);
+  }, [walletAddress, network, dispatch, supportedTokens, type, allTokens]);
 
   useEffect(() => {
     // get tokens that exist on the chain and have a balance greater than 0
@@ -340,18 +366,38 @@ function TokensModal(props: Props) {
       return isNullBalance;
     });
     setTokens(filtered);
-  }, [tokenBalances, network, supportedTokens]);
+  }, [tokenBalances, network, supportedTokens, type]);
 
   const tabs = [
     {
       label: 'Available Tokens',
-      panel: <DisplayTokens tokens={displayedTokens} balances={tokenBalances} walletAddress={walletAddress} network={network} selectToken={selectToken} loading={loading} search={search} />
+      panel: (
+        <DisplayTokens
+          tokens={displayedTokens}
+          balances={tokenBalances}
+          walletAddress={walletAddress}
+          network={network}
+          selectToken={selectToken}
+          loading={loading}
+          search={search}
+        />
+      ),
     },
     {
       label: 'All Tokens',
-      panel: <DisplayTokens tokens={TOKENS_ARR} balances={tokenBalances} walletAddress={walletAddress} network={network} selectToken={selectToken} loading={loading} search={search} />
+      panel: (
+        <DisplayTokens
+          tokens={allTokens}
+          balances={tokenBalances}
+          walletAddress={walletAddress}
+          network={network}
+          selectToken={selectToken}
+          loading={loading}
+          search={search}
+        />
+      ),
     },
-  ]
+  ];
 
   return (
     <Modal open={open} closable width={500} onClose={closeTokensModal}>
