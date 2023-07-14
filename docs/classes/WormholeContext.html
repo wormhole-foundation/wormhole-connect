@@ -23,7 +23,7 @@ always use the latest registered providers and signers.</p>
 deployments. These can be imported directly from the wormhole sdk.</p>
 </div>
 <div class="tsd-comment tsd-typography">
-<h4>Example</h4><pre><code class="language-ts"><span class="hl-5">// Set up mainnet and then access contracts as below:</span><br/><span class="hl-1">const</span><span class="hl-0"> </span><span class="hl-2">context</span><span class="hl-0"> = </span><span class="hl-1">new</span><span class="hl-0"> </span><span class="hl-3">WormholeContext</span><span class="hl-0">(</span><span class="hl-4">&#39;MAINNET&#39;</span><span class="hl-0">);</span><br/><span class="hl-1">let</span><span class="hl-0"> </span><span class="hl-6">bridge</span><span class="hl-0"> = </span><span class="hl-6">context</span><span class="hl-0">.</span><span class="hl-3">mustGetBridge</span><span class="hl-0">(</span><span class="hl-4">&#39;ethereum&#39;</span><span class="hl-0">);</span><br/><br/><span class="hl-5">// interact easily with any chain!</span><br/><span class="hl-5">// supports EVM, Solana, Terra, etc</span><br/><span class="hl-1">const</span><span class="hl-0"> </span><span class="hl-2">tokenId</span><span class="hl-0"> = {</span><br/><span class="hl-0">  </span><span class="hl-6">chain:</span><span class="hl-0"> </span><span class="hl-4">&#39;ethereum&#39;</span><span class="hl-0">,</span><br/><span class="hl-0">  </span><span class="hl-6">address:</span><span class="hl-0"> </span><span class="hl-4">&#39;0x123...&#39;</span><span class="hl-0">,</span><br/><span class="hl-0">}</span><br/><span class="hl-1">const</span><span class="hl-0"> </span><span class="hl-2">receipt</span><span class="hl-0"> = </span><span class="hl-6">context</span><span class="hl-0">.</span><span class="hl-3">send</span><span class="hl-0">(</span><br/><span class="hl-0">  </span><span class="hl-6">tokenId</span><span class="hl-0">,</span><br/><span class="hl-0">  </span><span class="hl-4">&#39;10&#39;</span><span class="hl-0">, </span><span class="hl-5">// amount</span><br/><span class="hl-0">  </span><span class="hl-4">&#39;ethereum&#39;</span><span class="hl-0">, </span><span class="hl-5">// sending chain</span><br/><span class="hl-0">  </span><span class="hl-4">&#39;0x789...&#39;</span><span class="hl-0">, </span><span class="hl-5">// sender address</span><br/><span class="hl-0">  </span><span class="hl-4">&#39;moonbeam&#39;</span><span class="hl-0">, </span><span class="hl-5">// destination chain</span><br/><span class="hl-0">  </span><span class="hl-4">&#39;0x789..., // recipient address on destination chai</span><span class="hl-7">n</span><br/><span class="hl-0">)</span>
+<h4>Example</h4><pre><code class="language-ts"><span class="hl-5">// Set up mainnet and then access contracts as below:</span><br/><span class="hl-1">const</span><span class="hl-0"> </span><span class="hl-2">context</span><span class="hl-0"> = </span><span class="hl-1">new</span><span class="hl-0"> </span><span class="hl-3">WormholeContext</span><span class="hl-0">(</span><span class="hl-4">&#39;MAINNET&#39;</span><span class="hl-0">);</span><br/><span class="hl-1">let</span><span class="hl-0"> </span><span class="hl-6">bridge</span><span class="hl-0"> = </span><span class="hl-6">context</span><span class="hl-0">.</span><span class="hl-3">mustGetBridge</span><span class="hl-0">(</span><span class="hl-4">&#39;ethereum&#39;</span><span class="hl-0">);</span><br/><br/><span class="hl-5">// interact easily with any chain!</span><br/><span class="hl-5">// supports EVM, Solana, Terra, etc</span><br/><span class="hl-1">const</span><span class="hl-0"> </span><span class="hl-2">tokenId</span><span class="hl-0"> = {</span><br/><span class="hl-0">  </span><span class="hl-6">chain:</span><span class="hl-0"> </span><span class="hl-4">&#39;ethereum&#39;</span><span class="hl-0">,</span><br/><span class="hl-0">  </span><span class="hl-6">address:</span><span class="hl-0"> </span><span class="hl-4">&#39;0x123...&#39;</span><span class="hl-0">,</span><br/><span class="hl-0">}</span><br/><span class="hl-1">const</span><span class="hl-0"> </span><span class="hl-2">receipt</span><span class="hl-0"> = </span><span class="hl-6">context</span><span class="hl-0">.</span><span class="hl-3">send</span><span class="hl-0">(</span><br/><span class="hl-0">  </span><span class="hl-6">tokenId</span><span class="hl-0">,</span><br/><span class="hl-0">  </span><span class="hl-4">&#39;10&#39;</span><span class="hl-0">, </span><span class="hl-5">// amount</span><br/><span class="hl-0">  </span><span class="hl-4">&#39;ethereum&#39;</span><span class="hl-0">, </span><span class="hl-5">// sending chain</span><br/><span class="hl-0">  </span><span class="hl-4">&#39;0x789...&#39;</span><span class="hl-0">, </span><span class="hl-5">// sender address</span><br/><span class="hl-0">  </span><span class="hl-4">&#39;moonbeam&#39;</span><span class="hl-0">, </span><span class="hl-5">// destination chain</span><br/><span class="hl-0">  </span><span class="hl-4">&#39;0x789...&#39;</span><span class="hl-0">, </span><span class="hl-5">// recipient address on destination chain</span><br/><span class="hl-0">)</span>
 </code><button>Copy</button></pre>
 </div></section>
 <section class="tsd-panel tsd-hierarchy">
@@ -33,7 +33,7 @@ deployments. These can be imported directly from the wormhole sdk.</p>
 <ul class="tsd-hierarchy">
 <li><span class="target">WormholeContext</span></li></ul></li></ul></section><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/wormhole-foundation/wormhole-connect/blob/c930a2c/sdk/src/wormhole.ts#L54">sdk/src/wormhole.ts:54</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/arihantbansal/wormhole-connect/blob/fbdc118/sdk/src/wormhole.ts#L54">sdk/src/wormhole.ts:54</a></li></ul></aside>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <details class="tsd-index-content tsd-index-accordion" open><summary class="tsd-accordion-summary tsd-index-summary">
@@ -118,19 +118,19 @@ deployments. These can be imported directly from the wormhole sdk.</p>
 <h4 class="tsd-returns-title">Returns <a href="WormholeContext.html" class="tsd-signature-type tsd-kind-class">WormholeContext</a></h4><aside class="tsd-sources">
 <p>Overrides MultiProvider&lt;Domain&gt;.constructor</p>
 <ul>
-<li>Defined in <a href="https://github.com/wormhole-foundation/wormhole-connect/blob/c930a2c/sdk/src/wormhole.ts#L58">sdk/src/wormhole.ts:58</a></li></ul></aside></li></ul></section></section>
+<li>Defined in <a href="https://github.com/arihantbansal/wormhole-connect/blob/fbdc118/sdk/src/wormhole.ts#L58">sdk/src/wormhole.ts:58</a></li></ul></aside></li></ul></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Properties</h2>
 <section class="tsd-panel tsd-member tsd-is-protected"><a id="_contexts" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>_contexts</span><a href="#_contexts" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">_contexts</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type ">Map</span><span class="tsd-signature-symbol">&lt;</span><a href="../enums/Context.html" class="tsd-signature-type tsd-kind-enum">Context</a><span class="tsd-signature-symbol">, </span><a href="../types/AnyContext.html" class="tsd-signature-type tsd-kind-type-alias">AnyContext</a><span class="tsd-signature-symbol">&gt;</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/wormhole-foundation/wormhole-connect/blob/c930a2c/sdk/src/wormhole.ts#L55">sdk/src/wormhole.ts:55</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/arihantbansal/wormhole-connect/blob/fbdc118/sdk/src/wormhole.ts#L55">sdk/src/wormhole.ts:55</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member"><a id="conf" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>conf</span><a href="#conf" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">conf</span><span class="tsd-signature-symbol">:</span> <a href="../types/WormholeConfig.html" class="tsd-signature-type tsd-kind-type-alias">WormholeConfig</a></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/wormhole-foundation/wormhole-connect/blob/c930a2c/sdk/src/wormhole.ts#L56">sdk/src/wormhole.ts:56</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/arihantbansal/wormhole-connect/blob/fbdc118/sdk/src/wormhole.ts#L56">sdk/src/wormhole.ts:56</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-is-protected tsd-is-inherited tsd-is-external"><a id="domains" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>domains</span><a href="#domains" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">domains</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type ">Map</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type ">Domain</span><span class="tsd-signature-symbol">&gt;</span></div><aside class="tsd-sources">
@@ -176,7 +176,7 @@ deployments. These can be imported directly from the wormhole sdk.</p>
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/wormhole-foundation/wormhole-connect/blob/c930a2c/sdk/src/wormhole.ts#L77">sdk/src/wormhole.ts:77</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/arihantbansal/wormhole-connect/blob/fbdc118/sdk/src/wormhole.ts#L77">sdk/src/wormhole.ts:77</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited tsd-is-external"><a id="missingProviders" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>missing<wbr/>Providers</span><a href="#missingProviders" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited tsd-is-external">
@@ -233,7 +233,7 @@ deployments. These can be imported directly from the wormhole sdk.</p>
 
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/wormhole-foundation/wormhole-connect/blob/c930a2c/sdk/src/wormhole.ts#L213">sdk/src/wormhole.ts:213</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/arihantbansal/wormhole-connect/blob/fbdc118/sdk/src/wormhole.ts#L213">sdk/src/wormhole.ts:213</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="formatAddress" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>format<wbr/>Address</span><a href="#formatAddress" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -255,7 +255,7 @@ deployments. These can be imported directly from the wormhole sdk.</p>
 
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/wormhole-foundation/wormhole-connect/blob/c930a2c/sdk/src/wormhole.ts#L408">sdk/src/wormhole.ts:408</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/arihantbansal/wormhole-connect/blob/fbdc118/sdk/src/wormhole.ts#L408">sdk/src/wormhole.ts:408</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited tsd-is-external"><a id="getAddress" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Address</span><a href="#getAddress" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited tsd-is-external">
@@ -323,7 +323,7 @@ registered for a domain, it will return undefined</p>
 <h4>Throws</h4><p>Errors if context is not found</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/wormhole-foundation/wormhole-connect/blob/c930a2c/sdk/src/wormhole.ts#L150">sdk/src/wormhole.ts:150</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/arihantbansal/wormhole-connect/blob/fbdc118/sdk/src/wormhole.ts#L150">sdk/src/wormhole.ts:150</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="getContracts" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Contracts</span><a href="#getContracts" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -343,7 +343,7 @@ registered for a domain, it will return undefined</p>
 
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/wormhole-foundation/wormhole-connect/blob/c930a2c/sdk/src/wormhole.ts#L127">sdk/src/wormhole.ts:127</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/arihantbansal/wormhole-connect/blob/fbdc118/sdk/src/wormhole.ts#L127">sdk/src/wormhole.ts:127</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited tsd-is-external"><a id="getDomain" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Domain</span><a href="#getDomain" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited tsd-is-external">
@@ -389,7 +389,7 @@ registered for a domain, it will return undefined</p>
 
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/wormhole-foundation/wormhole-connect/blob/c930a2c/sdk/src/wormhole.ts#L182">sdk/src/wormhole.ts:182</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/arihantbansal/wormhole-connect/blob/fbdc118/sdk/src/wormhole.ts#L182">sdk/src/wormhole.ts:182</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="getNativeBalance" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Native<wbr/>Balance</span><a href="#getNativeBalance" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -414,7 +414,7 @@ registered for a domain, it will return undefined</p>
 
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/wormhole-foundation/wormhole-connect/blob/c930a2c/sdk/src/wormhole.ts#L229">sdk/src/wormhole.ts:229</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/arihantbansal/wormhole-connect/blob/fbdc118/sdk/src/wormhole.ts#L229">sdk/src/wormhole.ts:229</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited tsd-is-external"><a id="getProvider" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Provider</span><a href="#getProvider" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited tsd-is-external">
@@ -486,7 +486,7 @@ registered for a domain, it will return undefined</p>
 
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/wormhole-foundation/wormhole-connect/blob/c930a2c/sdk/src/wormhole.ts#L245">sdk/src/wormhole.ts:245</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/arihantbansal/wormhole-connect/blob/fbdc118/sdk/src/wormhole.ts#L245">sdk/src/wormhole.ts:245</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="isTransferCompleted" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>is<wbr/>Transfer<wbr/>Completed</span><a href="#isTransferCompleted" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -508,7 +508,7 @@ registered for a domain, it will return undefined</p>
 
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/wormhole-foundation/wormhole-connect/blob/c930a2c/sdk/src/wormhole.ts#L394">sdk/src/wormhole.ts:394</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/arihantbansal/wormhole-connect/blob/fbdc118/sdk/src/wormhole.ts#L394">sdk/src/wormhole.ts:394</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited tsd-is-external"><a id="knownDomain" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>known<wbr/>Domain</span><a href="#knownDomain" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited tsd-is-external">
@@ -572,7 +572,7 @@ registered for a domain, it will return undefined</p>
 <h4>Throws</h4><p>Errors if contracts are not found</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/wormhole-foundation/wormhole-connect/blob/c930a2c/sdk/src/wormhole.ts#L138">sdk/src/wormhole.ts:138</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/arihantbansal/wormhole-connect/blob/fbdc118/sdk/src/wormhole.ts#L138">sdk/src/wormhole.ts:138</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited tsd-is-external"><a id="mustGetDomain" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>must<wbr/>Get<wbr/>Domain</span><a href="#mustGetDomain" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited tsd-is-external">
@@ -622,7 +622,7 @@ registered for a domain, it will return undefined</p>
 <h4>Throws</h4><p>Throws if the token does not exist</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/wormhole-foundation/wormhole-connect/blob/c930a2c/sdk/src/wormhole.ts#L198">sdk/src/wormhole.ts:198</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/arihantbansal/wormhole-connect/blob/fbdc118/sdk/src/wormhole.ts#L198">sdk/src/wormhole.ts:198</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited tsd-is-external"><a id="mustGetProvider" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>must<wbr/>Get<wbr/>Provider</span><a href="#mustGetProvider" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited tsd-is-external">
@@ -690,7 +690,7 @@ registered for a domain, it will return undefined</p>
 
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/wormhole-foundation/wormhole-connect/blob/c930a2c/sdk/src/wormhole.ts#L419">sdk/src/wormhole.ts:419</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/arihantbansal/wormhole-connect/blob/fbdc118/sdk/src/wormhole.ts#L419">sdk/src/wormhole.ts:419</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="parseMessageFromTx" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>parse<wbr/>Message<wbr/>From<wbr/>Tx</span><a href="#parseMessageFromTx" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -715,7 +715,7 @@ registered for a domain, it will return undefined</p>
 
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/wormhole-foundation/wormhole-connect/blob/c930a2c/sdk/src/wormhole.ts#L431">sdk/src/wormhole.ts:431</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/arihantbansal/wormhole-connect/blob/fbdc118/sdk/src/wormhole.ts#L431">sdk/src/wormhole.ts:431</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="redeem" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>redeem</span><a href="#redeem" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -747,7 +747,7 @@ registered for a domain, it will return undefined</p>
 
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/wormhole-foundation/wormhole-connect/blob/c930a2c/sdk/src/wormhole.ts#L377">sdk/src/wormhole.ts:377</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/arihantbansal/wormhole-connect/blob/fbdc118/sdk/src/wormhole.ts#L377">sdk/src/wormhole.ts:377</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited tsd-is-external"><a id="registerDomain" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>register<wbr/>Domain</span><a href="#registerDomain" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited tsd-is-external">
@@ -804,7 +804,7 @@ to resolves tha domain info, and reference it by name or number.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/wormhole-foundation/wormhole-connect/blob/c930a2c/sdk/src/wormhole.ts#L84">sdk/src/wormhole.ts:84</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/arihantbansal/wormhole-connect/blob/fbdc118/sdk/src/wormhole.ts#L84">sdk/src/wormhole.ts:84</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited tsd-is-external"><a id="registerRpcProvider" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>register<wbr/>Rpc<wbr/>Provider</span><a href="#registerRpcProvider" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited tsd-is-external">
@@ -984,7 +984,7 @@ to resolves tha domain info, and reference it by name or number.</p>
 <h4>Throws</h4><p>If unable to get the signer or contracts, or if there is a problem executing the transaction</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/wormhole-foundation/wormhole-connect/blob/c930a2c/sdk/src/wormhole.ts#L270">sdk/src/wormhole.ts:270</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/arihantbansal/wormhole-connect/blob/fbdc118/sdk/src/wormhole.ts#L270">sdk/src/wormhole.ts:270</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="sendWithRelay" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>send<wbr/>With<wbr/>Relay</span><a href="#sendWithRelay" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -1037,7 +1037,7 @@ to resolves tha domain info, and reference it by name or number.</p>
 <h4>Throws</h4><p>If unable to get the signer or contracts, or if there is a problem executing the transaction</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/wormhole-foundation/wormhole-connect/blob/c930a2c/sdk/src/wormhole.ts#L336">sdk/src/wormhole.ts:336</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/arihantbansal/wormhole-connect/blob/fbdc118/sdk/src/wormhole.ts#L336">sdk/src/wormhole.ts:336</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="supportsSendWithRelay" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>supports<wbr/>Send<wbr/>With<wbr/>Relay</span><a href="#supportsSendWithRelay" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -1057,7 +1057,7 @@ to resolves tha domain info, and reference it by name or number.</p>
 
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/wormhole-foundation/wormhole-connect/blob/c930a2c/sdk/src/wormhole.ts#L317">sdk/src/wormhole.ts:317</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/arihantbansal/wormhole-connect/blob/fbdc118/sdk/src/wormhole.ts#L317">sdk/src/wormhole.ts:317</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="toChainId" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>to<wbr/>Chain<wbr/>Id</span><a href="#toChainId" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -1077,7 +1077,7 @@ to resolves tha domain info, and reference it by name or number.</p>
 
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/wormhole-foundation/wormhole-connect/blob/c930a2c/sdk/src/wormhole.ts#L109">sdk/src/wormhole.ts:109</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/arihantbansal/wormhole-connect/blob/fbdc118/sdk/src/wormhole.ts#L109">sdk/src/wormhole.ts:109</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member"><a id="toChainName" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>to<wbr/>Chain<wbr/>Name</span><a href="#toChainName" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -1097,7 +1097,7 @@ to resolves tha domain info, and reference it by name or number.</p>
 
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/wormhole-foundation/wormhole-connect/blob/c930a2c/sdk/src/wormhole.ts#L118">sdk/src/wormhole.ts:118</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/arihantbansal/wormhole-connect/blob/fbdc118/sdk/src/wormhole.ts#L118">sdk/src/wormhole.ts:118</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited tsd-is-external"><a id="unregisterSigner" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>unregister<wbr/>Signer</span><a href="#unregisterSigner" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited tsd-is-external">
@@ -1136,7 +1136,7 @@ domain.</p>
 
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/wormhole-foundation/wormhole-connect/blob/c930a2c/sdk/src/wormhole.ts#L445">sdk/src/wormhole.ts:445</a></li></ul></aside></li></ul></section></section></div>
+<li>Defined in <a href="https://github.com/arihantbansal/wormhole-connect/blob/fbdc118/sdk/src/wormhole.ts#L445">sdk/src/wormhole.ts:445</a></li></ul></aside></li></ul></section></section></div>
 <div class="col-sidebar">
 <div class="page-menu">
 <div class="tsd-navigation settings">

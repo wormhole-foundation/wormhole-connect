@@ -48,7 +48,7 @@ import { SeiContext } from './contexts/sei';
  *   'ethereum', // sending chain
  *   '0x789...', // sender address
  *   'moonbeam', // destination chain
- *   '0x789..., // recipient address on destination chain
+ *   '0x789...', // recipient address on destination chain
  * )
  */
 export class WormholeContext extends MultiProvider<Domain> {
