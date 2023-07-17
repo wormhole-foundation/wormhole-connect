@@ -167,6 +167,7 @@ const env: Environment = 'TESTNET';
  */
 const TESTNET_CONFIG: WormholeConfig = {
   env,
+  api: 'https://api.testnet.wormscan.io',
   rpcs: {
     goerli: 'https://rpc.ankr.com/eth_goerli',
     mumbai: 'https://polygon-mumbai.blockpi.network/v1/rpc/public',

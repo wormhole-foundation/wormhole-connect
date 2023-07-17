@@ -53,6 +53,7 @@ export type ChainConfig = {
 
 export type WormholeConfig = {
   env: Environment;
+  api: string;
   rpcs: ChainResourceMap;
   rest: ChainResourceMap;
   chains: {
@@ -109,6 +110,12 @@ export interface ParsedRelayerPayload {
 export type ParsedRelayerMessage = ParsedMessage & ParsedRelayerPayload;
 
 export type AnyMessage = ParsedMessage | ParsedRelayerMessage;
+
+export type MessageIdentifier = {
+  emitterChain: ChainId;
+  emitterAddress: string;
+  sequence: string;
+};
 
 export type TokenDetails = {
   symbol: string;

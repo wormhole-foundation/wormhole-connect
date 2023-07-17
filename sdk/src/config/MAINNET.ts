@@ -163,6 +163,7 @@ const env: Environment = 'MAINNET';
  */
 const MAINNET_CONFIG: WormholeConfig = {
   env,
+  api: 'https://api.wormscan.io',
   rpcs: {
     ethereum: 'https://rpc.ankr.com/eth',
     solana: 'https://api.mainnet-beta.solana.com',

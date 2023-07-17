@@ -1,6 +1,7 @@
 import { Network as Environment } from '@certusone/wormhole-sdk';
 import { Domain, MultiProvider } from '@nomad-xyz/multi-provider';
 import { BigNumber } from 'ethers';
+import axios from 'axios';
 
 import MAINNET_CONFIG, { MAINNET_CHAINS } from './config/MAINNET';
 import TESTNET_CONFIG, { TESTNET_CHAINS } from './config/TESTNET';
@@ -20,7 +21,9 @@ import {
   SendResult,
   TokenId,
   WormholeConfig,
+  MessageIdentifier,
 } from './types';
+import { ParsedVaa, parseVaa } from 'vaa';
 import { SeiContext } from './contexts/sei';
 
 /**
@@ -363,6 +366,48 @@ export class WormholeContext extends MultiProvider<Domain> {
       recipientChain,
       recipientAddress,
     );
+  }
+
+  /**
+   * Gets required fields from a ParsedMessage or ParsedRelayerMessage used to fetch a VAA
+   *
+   * @param txData The ParsedMessage or ParsedRelayerMessage that is the result of a transaction on a source chain
+   * @returns The MessageIdentifier collection of fields to uniquely identify a VAA
+   */
+
+  getMessageIdentifier(
+    txData: ParsedMessage | ParsedRelayerMessage,
+  ): MessageIdentifier {
+    // TODO: wh-connect checks finality first, do we need to?
+    const emitterChain = this.toChainId(txData.fromChain);
+    const emitterAddress = txData.emitterAddress.startsWith('0x')
+      ? txData.emitterAddress.slice(2)
+      : txData.emitterAddress;
+
+    return {
+      emitterChain: emitterChain,
+      emitterAddress,
+      sequence: txData.sequence.toString(),
+    };
+  }
+
+  /**
+   * Gets a VAA from the API or Guardian RPC
+   *
+   * @param msg The MessageIdentifier used to fetch the VAA
+   * @returns The ParsedVAA if available
+   */
+  async getVAA(msg: MessageIdentifier): Promise<ParsedVaa | undefined> {
+    const { emitterChain, emitterAddress, sequence } = msg;
+    const url = `${this.conf.api}/api/v1/vaas/${emitterChain}/${emitterAddress}/${sequence}`;
+    const response = await axios.get(url);
+
+    // TODO: raise exception? wait?
+    if (!response.data.data) return;
+
+    const data = response.data.data;
+    const vaaBytes = Buffer.from(data.vaa, 'base64');
+    return parseVaa(vaaBytes);
   }
 
   /**
