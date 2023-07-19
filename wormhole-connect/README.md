@@ -8,7 +8,10 @@ Integration does not get easier than this. Wormhole Connect is an easy seamless 
 
 ```ts
 {
-  // accepted values: "goerli", "mumbai", "bsc", "fuji", "fantom", "alfajores"
+  // accepted values for testnet:
+  //  ["goerli", "mumbai", "bsc", "fuji", "fantom", "alfajores", "moonbasealpha", "solana", "sui", "aptos", "sei"]
+  // accepted values for mainnet:
+  //  ["ethereum", "bsc", "polygon", "avalanche", "fantom", "celo", "moonbeam", "solana", "sui", "aptos"]
   "networks": ["goerli", "mumbai"],
   // accepted values: "ETH", "WETH", "USDC", "MATIC", "WMATIC", "BNB", "WBNB", "AVAX", "WAVAX", "FTM", "WFTM", "CELO
   "tokens": ["ETH", "WETH", "MATIC", "WMATIC"],
@@ -16,6 +19,9 @@ Integration does not get easier than this. Wormhole Connect is an easy seamless 
   "theme": "light"
 }
 ```
+
+> See the full config for supported chains [here](https://github.com/wormhole-foundation/wormhole-connect/tree/development/wormhole-connect/src/config)
+
 
 2. Add a script and link tag
 
