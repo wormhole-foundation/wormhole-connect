@@ -39,20 +39,6 @@ interface SimpleGatewayPayload {
   };
 }
 
-interface SimpleIbcTransferPayload {
-  wasm: {
-    contract: string;
-    msg: {
-      simple_convert_and_transfer: {
-        chain: ChainId;
-        recipient: string;
-        fee: string;
-        nonce: number;
-      };
-    };
-  };
-}
-
 const IBC_MSG_TYPE = '/ibc.applications.transfer.v1.MsgTransfer';
 const IBC_PORT = 'transfer';
 const IBC_TIMEOUT_MILLIS = 60 * 60 * 1000; // 1 hour
@@ -188,18 +174,19 @@ export class CosmosGatewayRoute extends BaseRoute {
     recipientAddress: string,
   ): string {
     const nonce = Math.round(Math.random() * 10000);
-    const recipient = Buffer.from(recipientAddress).toString('base64');
 
-    const payloadObject: SimpleIbcTransferPayload = {
-      wasm: {
-        contract: Buffer.from(this.getTranslatorAddress()).toString('base64'),
-        msg: {
-          simple_convert_and_transfer: {
-            chain: recipientChainId,
-            nonce,
-            recipient,
-            fee: '0',
-          },
+    const destContext = wh.getContext(recipientChainId);
+    const recipient = Buffer.from(
+      destContext.formatAddress(recipientAddress),
+    ).toString('base64');
+
+    const payloadObject = {
+      gateway_ibc_token_bridge_payload: {
+        simple: {
+          chain: recipientChainId,
+          nonce,
+          recipient,
+          fee: '0',
         },
       },
     };
@@ -243,7 +230,7 @@ export class CosmosGatewayRoute extends BaseRoute {
     };
 
     const tx: CosmosTransaction = {
-      fee: calculateFee(100000, '1.0uosmo'),
+      fee: calculateFee(1000000, '1.0uosmo'),
       msgs: [ibcMessage],
       memo: payload,
     };
