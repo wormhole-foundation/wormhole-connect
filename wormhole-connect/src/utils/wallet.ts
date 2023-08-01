@@ -13,7 +13,11 @@ import {
   MetamaskWallet,
   WalletConnectLegacyWallet,
 } from '@xlabs-libs/wallet-aggregator-evm';
-import { getWallets as getCosmosWallets } from '@xlabs-libs/wallet-aggregator-cosmos';
+import {
+  CosmosTransaction,
+  CosmosWallet,
+  getWallets as getCosmosWallets,
+} from '@xlabs-libs/wallet-aggregator-cosmos';
 import {
   PhantomWalletAdapter,
   SolflareWalletAdapter,
@@ -33,7 +37,7 @@ import { SolanaWallet } from '@xlabs-libs/wallet-aggregator-solana';
 import { SeiTransaction, SeiWallet } from '@xlabs-libs/wallet-aggregator-sei';
 import { Transaction, ConfirmOptions } from '@solana/web3.js';
 import { wh } from './sdk';
-import { CHAINS, CHAINS_ARR } from '../config';
+import { CHAINS, CHAINS_ARR, CONFIG } from '../config';
 import { getNetworkByChainId } from 'utils';
 import { WH_CONFIG } from '../config';
 import { TransactionBlock } from '@mysten/sui.js';
@@ -75,6 +79,21 @@ const connection = new SolanaConnection(
   WH_CONFIG.rpcs.solana || clusterApiUrl(tag),
 );
 
+const buildCosmosWallets = () => {
+  const rpcs = Object.keys(CONFIG.rpcs).reduce((acc, k) => {
+    const conf = CHAINS[k as ChainName];
+    if (conf?.chainId && conf?.context === Context.COSMOS) {
+      acc[conf.chainId] = CONFIG.rpcs[k as ChainName]!;
+    }
+    return acc;
+  }, {} as Record<string, string>);
+
+  return getCosmosWallets(rpcs).reduce((acc, w) => {
+    acc[w.getName()] = w;
+    return acc;
+  }, {} as Record<string, Wallet>);
+};
+
 export const wallets = {
   evm: {
     metamask: new MetamaskWallet(),
@@ -112,10 +131,7 @@ export const wallets = {
     ),
     bitkeep: new AptosWallet(new BitkeepWalletAdapter()),
   },
-  cosmos: getCosmosWallets().reduce((acc, w) => {
-    acc[w.getName()] = w;
-    return acc;
-  }, {} as Record<string, Wallet>),
+  cosmos: buildCosmosWallets(),
 };
 
 export const walletAcceptedNetworks = (
@@ -245,6 +261,27 @@ export const signSeiTransaction = async (
   return result;
 };
 
+export const signCosmosTransaction = async (
+  transaction: CosmosTransaction,
+  walletType: TransferWallet,
+) => {
+  const wallet = walletConnection[walletType];
+  if (!wallet || !wallet.signAndSendTransaction) {
+    throw new Error('wallet.signAndSendTransaction is undefined');
+  }
+
+  const cosmosWallet = wallet as CosmosWallet;
+  const result = await cosmosWallet.signAndSendTransaction(transaction);
+
+  if (result.data?.code) {
+    throw new Error(
+      `Sei transaction failed with code ${result.data.code}. Log: ${result.data.rawLog}`,
+    );
+  }
+
+  return await wallet.signAndSendTransaction(transaction);
+};
+
 export const signAndSendTransaction = async (
   chain: ChainName,
   transaction: SendResult,
@@ -289,8 +326,15 @@ export const signAndSendTransaction = async (
       );
       return tx.id;
     }
+    case Context.COSMOS: {
+      const tx = await signCosmosTransaction(
+        transaction as CosmosTransaction,
+        walletType,
+      );
+      return tx.id;
+    }
     default:
-      return '';
+      throw new Error(`Invalid context ${network.context}`);
   }
 };
 

@@ -154,17 +154,19 @@ function Bridge() {
   // check if automatic relay option is available
   useEffect(() => {
     const establishRoute = async () => {
-      if (!fromNetwork || !toNetwork || !token) return;
-      const fromConfig = CHAINS[fromNetwork]!;
-      const toConfig = CHAINS[toNetwork]!;
-
-      if (
-        !isCosmWasmChain(wh.toChainId(fromNetwork)) &&
-        isCosmWasmChain(wh.toChainId(toNetwork))
-      ) {
+      if (fromNetwork && isCosmWasmChain(wh.toChainId(fromNetwork))) {
         dispatch(setTransferRoute(Route.COSMOS_GATEWAY));
         return;
       }
+
+      if (toNetwork && isCosmWasmChain(wh.toChainId(toNetwork))) {
+        dispatch(setTransferRoute(Route.COSMOS_GATEWAY));
+        return;
+      }
+
+      if (!fromNetwork || !toNetwork || !token) return;
+      const fromConfig = CHAINS[fromNetwork]!;
+      const toConfig = CHAINS[toNetwork]!;
 
       // check if automatic relay option is available
       if (fromConfig.automaticRelayer && toConfig.automaticRelayer) {

@@ -1,7 +1,18 @@
-import { cosmos, parseVaa } from '@certusone/wormhole-sdk';
+import {
+  cosmos,
+  getSignedVAAWithRetry,
+  parseTokenTransferPayload,
+  parseVaa,
+} from '@certusone/wormhole-sdk';
 import { CosmWasmClient } from '@cosmjs/cosmwasm-stargate';
 import { EncodeObject } from '@cosmjs/proto-signing';
-import { StdFee } from '@cosmjs/stargate';
+import {
+  Coin,
+  StdFee,
+  calculateFee,
+  logs as cosmosLogs,
+} from '@cosmjs/stargate';
+import { MsgExecuteContract } from 'cosmjs-types/cosmwasm/wasm/v1/tx';
 import { BigNumber } from 'ethers';
 import {
   arrayify,
@@ -25,7 +36,7 @@ import { TokenBridgeAbstract } from '../abstracts/tokenBridge';
 import { CosmosContracts } from './contracts';
 
 export interface CosmosTransaction {
-  fee: StdFee | 'auto' | 'number';
+  fee: StdFee | 'auto' | number;
   msgs: EncodeObject[];
   memo: string;
 }
@@ -43,6 +54,22 @@ const PREFIXES: Record<string, string> = {
   osmosis: 'osmo',
   wormchain: 'wormchain',
 };
+
+const MSG_EXECUTE_CONTRACT_TYPE_URL = '/cosmwasm.wasm.v1.MsgExecuteContract';
+const buildExecuteMsg = (
+  sender: string,
+  contract: string,
+  msg: Record<string, any>,
+  funds?: Coin[],
+): EncodeObject => ({
+  typeUrl: MSG_EXECUTE_CONTRACT_TYPE_URL,
+  value: MsgExecuteContract.fromPartial({
+    sender: sender,
+    contract: contract,
+    msg: Buffer.from(JSON.stringify(msg)),
+    funds,
+  }),
+});
 
 export class CosmosContext<
   T extends WormholeContext,
@@ -85,7 +112,7 @@ export class CosmosContext<
     throw new Error('Method not implemented.');
   }
 
-  formatAddress(address: string) {
+  formatAddress(address: string): Uint8Array {
     return arrayify(zeroPad(cosmos.canonicalAddress(address), 32));
   }
 
@@ -100,8 +127,8 @@ export class CosmosContext<
     return cosmos.humanAddress(prefix, addr);
   }
 
-  async formatAssetAddress(address: string): Promise<any> {
-    return this.buildTokenId(address);
+  async formatAssetAddress(address: string): Promise<Uint8Array> {
+    return Buffer.from(this.buildTokenId(address), 'hex');
   }
 
   private buildTokenId(address: string): string {
@@ -205,13 +232,48 @@ export class CosmosContext<
     return denom;
   }
 
-  redeem(
+  private getPrefix(chain: ChainName | ChainId): string {
+    const name = this.context.toChainName(chain);
+    const prefix = PREFIXES[name];
+    if (!prefix) throw new Error(`Prefix not found for chain ${chain}`);
+    return prefix;
+  }
+
+  async redeem(
     destChain: ChainName | ChainId,
     signedVAA: Uint8Array,
     overrides: any,
     payerAddr?: any,
   ): Promise<CosmosTransaction> {
-    throw new Error('Method not implemented.');
+    const chainName = this.context.toChainName(destChain);
+    const vaa = parseVaa(signedVAA);
+    const transfer = parseTokenTransferPayload(vaa.payload);
+
+    const denom = this.getNativeDenom(chainName);
+    const prefix = this.getPrefix(chainName);
+
+    // transfer to comes as a 32 byte array, but cosmos addresses are 20 bytes
+    const recipient = cosmos.humanAddress(prefix, transfer.to.slice(12));
+
+    const msgs = [
+      buildExecuteMsg(
+        payerAddr || recipient,
+        this.getTokenBridgeAddress(chainName),
+        {
+          submit_vaa: {
+            data: base64.encode(signedVAA),
+          },
+        },
+      ),
+    ];
+
+    const fee = calculateFee(1000000, `0.1${denom}`);
+
+    return {
+      msgs,
+      fee,
+      memo: 'Wormhole - Complete Transfer',
+    };
   }
 
   async isTransferCompleted(
@@ -242,16 +304,58 @@ export class CosmosContext<
     return decimals;
   }
 
-  async getVaa(id: string, chain: ChainName | ChainId): Promise<VaaInfo<any>> {
+  /**
+   * Search for a specific piece of information emitted by the contracts during the transaction
+   * For example: to retrieve the bridge transfer recipient, we would have to look
+   * for the "transfer.recipient" under the "wasm" event
+   */
+  private searchLogs(
+    key: string,
+    logs: readonly cosmosLogs.Log[],
+  ): string | null {
+    for (const log of logs) {
+      for (const ev of log.events) {
+        for (const attr of ev.attributes) {
+          if (attr.key === key) {
+            return attr.value;
+          }
+        }
+      }
+    }
+    return null;
+  }
+
+  async getVaa(
+    txId: string,
+    chain: ChainName | ChainId,
+  ): Promise<VaaInfo<any>> {
+    const client = await this.getCosmWasmClient(chain);
+    const tx = await client.getTx(txId);
+    if (!tx) throw new Error('tx not found');
+
+    // parse logs emitted for the tx execution
+    const logs = cosmosLogs.parseRawLog(tx.rawLog);
+
+    const sequence = this.searchLogs('message.sequence', logs);
+    if (!sequence) throw new Error('sequence not found');
+    const emitterAddress = this.searchLogs('message.sender', logs);
+    if (!emitterAddress) throw new Error('emitter not found');
+
+    const chainId = this.context.toChainId(chain);
+    const { vaaBytes } = await getSignedVAAWithRetry(
+      this.context.conf.wormholeHosts,
+      chainId,
+      emitterAddress,
+      sequence,
+      undefined,
+      undefined,
+      3,
+    );
+
     return {
-      transaction: {},
-      rawVaa: new Uint8Array(),
-      vaa: parseVaa(
-        Buffer.from(
-          'AQAAAAABAHTuF2Lg16OAXXVV1pNTMf3yDcspZEPFxfSLISpBQn/2XVwsnLcu/MkZgliKAhxozR7XKiJqiGDRg95zDumU7lABZLmEUgAAAAAAIJMoZzy13j/ZmXTO+72Q/qAz9MWaVyq/1+Gk7rzF0YFXAAAAAAAAV5AAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAATEtAAAAAAAAAAAAAAAAAtPvycRQ/T797kaXe0xgF5CsiCNYAAgAAAAAAAAAAAAAAAEUYf7kP6QCfmadDsyFFyKEsyO8gAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==',
-          'base64',
-        ),
-      ),
+      transaction: tx,
+      rawVaa: vaaBytes,
+      vaa: parseVaa(vaaBytes),
     };
   }
 
@@ -280,6 +384,14 @@ export class CosmosContext<
       this.wasmClient = await CosmWasmClient.connect(rpc);
     }
     return this.wasmClient;
+  }
+
+  getTokenBridgeAddress(chain: ChainName): string {
+    const { token_bridge: tokenBridge } =
+      this.contracts.mustGetContracts(chain);
+    if (!tokenBridge)
+      throw new Error(`No token bridge found for chain ${chain}`);
+    return tokenBridge;
   }
 
   async getCurrentBlock(): Promise<number> {

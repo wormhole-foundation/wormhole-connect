@@ -168,11 +168,6 @@ type Props = {
   onClose?: () => any;
 };
 
-const getChainId = (chain?: ChainName) => {
-  if (chain === 'osmosis') return 'osmosis-1002';
-  return undefined;
-};
-
 function WalletsModal(props: Props) {
   const { classes } = useStyles();
   const theme = useTheme();
@@ -220,11 +215,9 @@ function WalletsModal(props: Props) {
   const connect = async (walletInfo: WalletData) => {
     const { wallet } = walletInfo;
 
-    await wallet.connect({
-      chainId: getChainId(
-        type === TransferWallet.SENDING ? fromNetwork : toNetwork,
-      ),
-    });
+    const network = type === TransferWallet.SENDING ? fromNetwork : toNetwork;
+    const chainId = network ? CHAINS[network]?.chainId : undefined;
+    await wallet.connect({ chainId });
 
     setWalletConnection(props.type, wallet);
 

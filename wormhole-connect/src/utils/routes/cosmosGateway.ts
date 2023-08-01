@@ -6,12 +6,15 @@ import {
   parseTokenTransferPayload,
 } from '@certusone/wormhole-sdk';
 import { CosmWasmClient } from '@cosmjs/cosmwasm-stargate';
+import { Coin, MsgTransferEncodeObject, calculateFee } from '@cosmjs/stargate';
 import {
   ChainId,
   ChainName,
+  CosmosTransaction,
   TokenId,
   VaaInfo,
 } from '@wormhole-foundation/wormhole-connect-sdk';
+import { MsgTransfer } from 'cosmjs-types/ibc/applications/transfer/v1/tx';
 import { BigNumber, utils } from 'ethers';
 import { base58 } from 'ethers/lib/utils.js';
 import { wh } from 'utils/sdk';
@@ -35,6 +38,26 @@ interface SimpleGatewayPayload {
     nonce: number;
   };
 }
+
+interface SimpleIbcTransferPayload {
+  wasm: {
+    contract: string;
+    msg: {
+      simple_convert_and_transfer: {
+        chain: ChainId;
+        recipient: string;
+        fee: string;
+        nonce: number;
+      };
+    };
+  };
+}
+
+const IBC_MSG_TYPE = '/ibc.applications.transfer.v1.MsgTransfer';
+const IBC_PORT = 'transfer';
+const IBC_TIMEOUT_MILLIS = 60 * 60 * 1000; // 1 hour
+
+const millisToNano = (seconds: number) => seconds * 1_000_000;
 
 export class CosmosGatewayRoute extends BaseRoute {
   public async isRouteAvailable(
@@ -112,7 +135,7 @@ export class CosmosGatewayRoute extends BaseRoute {
   private buildToCosmosPayload(
     recipientChainId: ChainId,
     recipientAddress: string,
-  ): Uint8Array {
+  ): Buffer {
     const nonce = Math.round(Math.random() * 10000);
     const recipient = Buffer.from(recipientAddress).toString('base64');
 
@@ -160,6 +183,30 @@ export class CosmosGatewayRoute extends BaseRoute {
     );
   }
 
+  private buildFromCosmosPayloadMemo(
+    recipientChainId: ChainId,
+    recipientAddress: string,
+  ): string {
+    const nonce = Math.round(Math.random() * 10000);
+    const recipient = Buffer.from(recipientAddress).toString('base64');
+
+    const payloadObject: SimpleIbcTransferPayload = {
+      wasm: {
+        contract: Buffer.from(this.getTranslatorAddress()).toString('base64'),
+        msg: {
+          simple_convert_and_transfer: {
+            chain: recipientChainId,
+            nonce,
+            recipient,
+            fee: '0',
+          },
+        },
+      },
+    };
+
+    return JSON.stringify(payloadObject);
+  }
+
   public async fromCosmos(
     token: TokenId | 'native',
     amount: string,
@@ -169,42 +216,43 @@ export class CosmosGatewayRoute extends BaseRoute {
     recipientAddress: string,
     routeOptions: any,
   ): Promise<any> {
-    // const { fee = 0 } = routeOptions;
-    // const nonce = Math.round(Math.random() * 100000);
-    // const recipientBytes = cosmos.canonicalAddress(recipientAddress);
-    // const recipient = Buffer.from(recipientBytes).toString('base64');
-    // const ibcPayload = Buffer.from(new Uint8Array()).toString('base64');
-    // const parameters = {
-    //   chain: recipientChainId,
-    //   nonce,
-    // };
-    // const payloadObject = {
-    //         simple: {
-    //           ...parameters,
-    //           recipient,
-    //           fee,
-    //         },
-    //       };
-    // const payload = new Uint8Array(Buffer.from(JSON.stringify(payloadObject)));
-    // const ibcShimAddress = CHAINS['wormchain']?.contracts.ibcShimContract;
-    // if (!ibcShimAddress) {
-    //   throw new Error('IBC Shim contract not configured');
-    // }
-    // const tx = await wh.send(
-    //   token,
-    //   amount,
-    //   sendingChainId,
-    //   senderAddress,
-    //   CHAIN_ID_WORMCHAIN,
-    //   ibcShimAddress,
-    //   undefined,
-    //   payload,
-    // );
-    // return signAndSendTransaction(
-    //   wh.toChainName(sendingChainId),
-    //   tx,
-    //   TransferWallet.SENDING,
-    // );
+    if (token === 'native') throw new Error('Native token not supported');
+
+    const payload = this.buildFromCosmosPayloadMemo(
+      recipientChainId,
+      recipientAddress,
+    );
+
+    const denom = await this.getForeignAsset(token, sendingChainId);
+    if (!denom) throw new Error('Could not derive IBC asset denom');
+    const coin: Coin = {
+      denom,
+      amount,
+    };
+    const channel = await this.getIbcChannel(sendingChainId);
+    const ibcMessage: MsgTransferEncodeObject = {
+      typeUrl: IBC_MSG_TYPE,
+      value: MsgTransfer.fromPartial({
+        sourcePort: IBC_PORT,
+        sourceChannel: channel,
+        sender: senderAddress,
+        receiver: this.getTranslatorAddress(),
+        token: coin,
+        timeoutTimestamp: millisToNano(Date.now() + IBC_TIMEOUT_MILLIS),
+      }),
+    };
+
+    const tx: CosmosTransaction = {
+      fee: calculateFee(100000, '1.0uosmo'),
+      msgs: [ibcMessage],
+      memo: payload,
+    };
+
+    return signAndSendTransaction(
+      wh.toChainName(sendingChainId),
+      tx,
+      TransferWallet.SENDING,
+    );
   }
 
   public async send(
@@ -310,9 +358,8 @@ export class CosmosGatewayRoute extends BaseRoute {
     tokenId: TokenId,
     network: ChainName | ChainId,
   ): Promise<BigNumber | null> {
-    const chainId = wh.toChainId(network);
-    if (isCosmWasmChain(chainId)) {
-      const denom = await this.getForeignAsset(tokenId, chainId);
+    if (isCosmWasmChain(wh.toChainId(network))) {
+      const denom = await this.getForeignAsset(tokenId, network);
       if (!denom) return null;
       return wh.getNativeBalance(address, network, denom);
     }
@@ -357,6 +404,9 @@ export class CosmosGatewayRoute extends BaseRoute {
     tokenId: TokenId,
     chain: ChainId | ChainName,
   ): Promise<string | null> {
+    // add check here in case the token is a native cosmos denom
+    // in such cases there's no need to look for in the wormchain network
+    if (tokenId.chain === chain) return tokenId.address;
     const wrappedAsset = await wh.getForeignAsset(tokenId, CHAIN_ID_WORMCHAIN);
     if (!wrappedAsset) return null;
     return this.isNativeDenom(wrappedAsset, chain)

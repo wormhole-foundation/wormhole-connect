@@ -134,6 +134,28 @@ export const TESTNET_NETWORKS: NetworksConfig = {
     automaticRelayer: false,
     maxBlockSearch: 0,
   },
+  osmosis: {
+    ...chains.osmosis!,
+    displayName: 'Osmosis',
+    explorerUrl: 'https://testnet.mintscan.io/osmosis-testnet',
+    explorerName: 'MintScan',
+    gasToken: 'OSMO',
+    chainId: 'osmo-test-4',
+    icon: Icon.OSMO,
+    automaticRelayer: false,
+    maxBlockSearch: 0,
+  },
+  wormchain: {
+    ...chains.wormchain!,
+    displayName: 'Wormchain',
+    explorerUrl: '',
+    explorerName: '',
+    gasToken: 'WORM',
+    chainId: 'wormchain-test-0',
+    icon: Icon.OSMO,
+    automaticRelayer: false,
+    maxBlockSearch: 0,
+  },
 };
 
 export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
@@ -495,6 +517,21 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
       default: 8,
     },
   },
+  OSMO: {
+    key: 'OSMO',
+    symbol: 'OSMO',
+    nativeNetwork: 'osmosis',
+    tokenId: {
+      chain: 'osmosis',
+      address: 'uosmo',
+    },
+    icon: Icon.OSMO,
+    coinGeckoId: 'osmosis',
+    color: '#FFFFFF',
+    decimals: {
+      default: 6,
+    },
+  },
 };
 
 export const TESTNET_GAS_ESTIMATES: GasEstimates = {
@@ -573,5 +610,15 @@ export const TESTNET_GAS_ESTIMATES: GasEstimates = {
     claim: 100000,
     sendNative: 1000000,
     sendToken: 1000000,
+  },
+  wormchain: {
+    sendNative: 0,
+    sendToken: 0,
+    claim: 0,
+  },
+  osmosis: {
+    sendNative: 0,
+    sendToken: 0,
+    claim: 0,
   },
 };
