@@ -65,6 +65,7 @@ const mainnetRpcs = {
   sui: process.env.REACT_APP_SUI_RPC || conf.rpcs.sui,
   aptos: process.env.REACT_APP_APTOS_RPC || conf.rpcs.aptos,
   sei: process.env.REACT_APP_SEI_RPC || conf.rpcs.sei,
+  base: process.env.REACT_APP_BASE_RPC || conf.rpcs.base,
 };
 const testnetRpcs = {
   goerli: process.env.REACT_APP_GOERLI_RPC || conf.rpcs.goerli,
@@ -78,6 +79,7 @@ const testnetRpcs = {
   sui: process.env.REACT_APP_SUI_TESTNET_RPC || conf.rpcs.sui,
   aptos: process.env.REACT_APP_APTOS_TESTNET_RPC || conf.rpcs.aptos,
   sei: process.env.REACT_APP_SEI_TESTNET_RPC || conf.rpcs.sei,
+  basegoerli: process.env.REACT_APP_BASE_GOERLI_RPC || conf.rpcs.basegoerli,
 };
 conf.rpcs = Object.assign(
   {},
@@ -126,5 +128,6 @@ export const TESTNET_TO_MAINNET_CHAIN_NAMES: {
   fantom: 'fantom',
   sui: 'sui',
   aptos: 'aptos',
+  basegoerli: 'base',
   sei: 'sei',
 };

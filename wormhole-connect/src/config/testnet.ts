@@ -113,6 +113,16 @@ export const TESTNET_NETWORKS: NetworksConfig = {
     icon: Icon.APT,
     maxBlockSearch: 0,
   },
+  basegoerli: {
+    ...chains.basegoerli!,
+    displayName: 'Base Goerli',
+    explorerUrl: 'https://goerli.basescan.org/',
+    explorerName: 'BaseScan',
+    gasToken: 'ETHbase',
+    chainId: 84531,
+    icon: Icon.BASE,
+    maxBlockSearch: 2000,
+  },
   sei: {
     ...chains.sei!,
     displayName: 'Sei',
@@ -456,6 +466,35 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
       default: 6,
     },
   },
+  ETHbase: {
+    key: 'ETHbase',
+    symbol: 'ETH',
+    nativeNetwork: 'basegoerli',
+    icon: Icon.ETH,
+    coinGeckoId: 'ethereum',
+    color: '#62688F',
+    decimals: {
+      Ethereum: 18,
+      default: 8,
+    },
+    wrappedAsset: 'WETHbase',
+  },
+  WETHbase: {
+    key: 'WETHbase',
+    symbol: 'WETH',
+    nativeNetwork: 'basegoerli',
+    icon: Icon.ETH,
+    tokenId: {
+      chain: 'basegoerli',
+      address: '0x4200000000000000000000000000000000000006',
+    },
+    coinGeckoId: 'ethereum',
+    color: '#62688F',
+    decimals: {
+      Ethereum: 18,
+      default: 8,
+    },
+  },
 };
 
 export const TESTNET_GAS_ESTIMATES: GasEstimates = {
@@ -527,6 +566,11 @@ export const TESTNET_GAS_ESTIMATES: GasEstimates = {
   },
   sei: {
     claim: 1000000,
+    sendNative: 1000000,
+    sendToken: 1000000,
+  },
+  basegoerli: {
+    claim: 100000,
     sendNative: 1000000,
     sendToken: 1000000,
   },
