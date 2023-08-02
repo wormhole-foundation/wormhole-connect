@@ -1,4 +1,4 @@
-import { Theme } from './theme';
+import {Theme} from "./theme";
 export const MAINNET_CHAINS = {
   solana: 1,
   ethereum: 2,
@@ -10,6 +10,7 @@ export const MAINNET_CHAINS = {
   moonbeam: 16,
   sui: 21,
   aptos: 22,
+  base: 30,
 } as const;
 export type MainnetChainName = keyof typeof MAINNET_CHAINS;
 export type MainnetChainId = (typeof MAINNET_CHAINS)[MainnetChainName];
@@ -25,6 +26,7 @@ export const TESTNET_CHAINS = {
   moonbasealpha: 16,
   sui: 21,
   aptos: 22,
+  basegoerli: 30,
 } as const;
 export type TestnetChainName = keyof typeof TESTNET_CHAINS;
 export type TestnetChainId = (typeof TESTNET_CHAINS)[TestnetChainName];
@@ -44,11 +46,11 @@ export interface BridgeDefaults {
 }
 
 export interface WormholeConnectConfig {
-  env?: 'mainnet' | 'testnet';
+  env?: "mainnet" | "testnet";
   rpcs?: Rpcs;
   networks?: ChainName[];
   tokens?: string[];
-  mode?: 'dark' | 'light';
+  mode?: "dark" | "light";
   customTheme?: Theme;
   cta?: {
     text: string;

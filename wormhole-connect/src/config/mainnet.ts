@@ -114,6 +114,16 @@ export const MAINNET_NETWORKS: NetworksConfig = {
     automaticRelayer: false,
     maxBlockSearch: 0,
   },
+  base: {
+    ...chains.base!,
+    displayName: 'Base',
+    explorerUrl: 'https://basescan.org/',
+    explorerName: 'BaseScan',
+    gasToken: 'ETHbase',
+    chainId: 8453,
+    icon: Icon.BASE,
+    maxBlockSearch: 2000,
+  },
   // sei: {
   //   ...chains.sei!,
   //   displayName: 'Sei',
@@ -535,6 +545,35 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   //     default: 6,
   //   },
   // },
+  ETHbase: {
+    key: 'ETHbase',
+    symbol: 'ETH',
+    nativeNetwork: 'base',
+    icon: Icon.ETH,
+    coinGeckoId: 'ethereum',
+    color: '#62688F',
+    decimals: {
+      Ethereum: 18,
+      default: 8,
+    },
+    wrappedAsset: 'WETHbase',
+  },
+  WETHbase: {
+    key: 'WETHbase',
+    symbol: 'WETH',
+    nativeNetwork: 'base',
+    icon: Icon.ETH,
+    tokenId: {
+      chain: 'base',
+      address: '0x4200000000000000000000000000000000000006',
+    },
+    coinGeckoId: 'ethereum',
+    color: '#62688F',
+    decimals: {
+      Ethereum: 18,
+      default: 8,
+    },
+  },
 };
 
 export const MAINNET_GAS_ESTIMATES: GasEstimates = {
@@ -608,5 +647,10 @@ export const MAINNET_GAS_ESTIMATES: GasEstimates = {
     claim: 1000000,
     sendToken: 1000000,
     sendNative: 1000000,
+  },
+  base: {
+    claim: 1000000,
+    sendNative: 1000000,
+    sendToken: 1000000,
   },
 };

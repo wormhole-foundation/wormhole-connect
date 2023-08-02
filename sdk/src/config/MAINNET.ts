@@ -15,6 +15,7 @@ export const MAINNET_CHAINS = {
   moonbeam: 16,
   sui: 21,
   aptos: 22,
+  base: 30,
   sei: 32,
 } as const;
 
@@ -144,6 +145,17 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     finalityThreshold: 0,
     nativeTokenDecimals: 8,
   },
+  base: {
+    key: 'base',
+    id: 30,
+    context: Context.ETH,
+    contracts: {
+      ...CONTRACTS.MAINNET.base,
+      relayer: undefined,
+    },
+    finalityThreshold: 0,
+    nativeTokenDecimals: 18,
+  },
   sei: {
     key: 'sei',
     id: 32,
@@ -174,6 +186,7 @@ const MAINNET_CONFIG: WormholeConfig = {
     moonbeam: 'https://rpc.ankr.com/moonbeam',
     sui: 'https://rpc.mainnet.sui.io',
     aptos: 'https://fullnode.mainnet.aptoslabs.com/v1',
+    base: 'https://mainnet.base.org',
     sei: '', // TODO: fill in
   },
   rest: {

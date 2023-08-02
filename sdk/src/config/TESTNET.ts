@@ -15,6 +15,7 @@ export const TESTNET_CHAINS = {
   moonbasealpha: 16,
   sui: 21,
   aptos: 22,
+  basegoerli: 30,
   sei: 32,
 } as const;
 
@@ -147,6 +148,17 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     finalityThreshold: 0,
     nativeTokenDecimals: 8,
   },
+  basegoerli: {
+    key: 'basegoerli',
+    id: 30,
+    context: Context.ETH,
+    contracts: {
+      ...CONTRACTS.TESTNET.base,
+      relayer: undefined,
+    },
+    finalityThreshold: 0,
+    nativeTokenDecimals: 18,
+  },
   sei: {
     key: 'sei',
     id: 32,
@@ -178,6 +190,7 @@ const TESTNET_CONFIG: WormholeConfig = {
     moonbasealpha: 'https://rpc.api.moonbase.moonbeam.network',
     sui: 'https://fullnode.testnet.sui.io',
     aptos: 'https://fullnode.testnet.aptoslabs.com/v1',
+    basegoerli: 'https://goerli.base.org',
     sei: 'https://rpc.atlantic-2.seinetwork.io',
   },
   rest: {

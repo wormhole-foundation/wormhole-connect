@@ -39,37 +39,41 @@ Networks (`networks`):
 | solana     | solana        |
 | sui        | sui           |
 | aptos      | aptos         |
+| base       | basegoerli    |
 
 <br>
 
 Tokens (`tokens`):
-| Mainnet     | Testnet |
-| ----------- | ------- |
-| ETH         | ETH     |
-| WETH        | WETH    |
-| USDCeth     | USDCeth |
-| WBTC        |         |
-| USDT        |         |
-| DAI         |         |
-| BUSD        |         |
-| MATIC       | MATIC   |
-| WMATIC      | WMATIC  |
-| USDCpolygon |         |
-| BNB         | BNB     |
-| WBNB        | WBNB    |
-| USDCbnb     |         |
-| AVAX        | AVAX    |
-| WAVAX       | WAVAX   |
-| USDCavax    |         |
-| FTM         | FTM     |
-| WFTM        | WFTM    |
-| CELO        | CELO    |
-| GLMR        | GLMR    |
-| WGLMR       | WGLMR   |
-| SOL         | WSOL    |
-| SUI         | SUI     |
-| USDCsol     |         |
-| APT         | APT     |
+| Mainnet     | Testnet  |
+| ----------- | -------- |
+| ETH         | ETH      |
+| WETH        | WETH     |
+| USDCeth     | USDCeth  |
+| WBTC        |          |
+| USDT        |          |
+| DAI         |          |
+| BUSD        |          |
+| MATIC       | MATIC    |
+| WMATIC      | WMATIC   |
+| USDCpolygon |          |
+| BNB         | BNB      |
+| WBNB        | WBNB     |
+| USDCbnb     |          |
+| AVAX        | AVAX     |
+| WAVAX       | WAVAX    |
+| USDCavax    |          |
+| FTM         | FTM      |
+| WFTM        | WFTM     |
+| CELO        | CELO     |
+| GLMR        | GLMR     |
+| WGLMR       | WGLMR    |
+| SOL         | WSOL     |
+| SUI         | SUI      |
+| USDCsol     |          |
+| APT         | APT      |
+| ETHbase     | ETHbase  |
+| WETHbase    | WETHbase |
+
 
 <br>
 
