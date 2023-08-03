@@ -106,8 +106,8 @@ If you created a config from step 1, [stringify](https://developer.mozilla.org/e
 
 ```html
 <!-- paste below into index.html body -->
-<script src="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.7/dist/main.js"></script>
-<link href="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.7/dist/main.css" />
+<script src="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.8/dist/main.js"></script>
+<link href="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.8/dist/main.css" />
 ```
 
 Note that the `wormhole-connect` div with your config has to be present _before_ the scripts are loaded.  If your application loads it after, you may need to add the scripts like this:

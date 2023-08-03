@@ -1,6 +1,6 @@
 {
   "name": "@wormhole-foundation/wormhole-connect",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "dependencies": {
     "@mui/material": "^5.12.1"
   },
