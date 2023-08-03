@@ -596,7 +596,7 @@ export const MAINNET_GAS_ESTIMATES: GasEstimates = {
     sendToken: 200000,
     sendNativeWithRelay: 200000,
     sendTokenWithRelay: 300000,
-    claim: 250000,
+    claim: 300000,
   },
   avalanche: {
     sendNative: 100000,
