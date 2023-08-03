@@ -88,10 +88,10 @@ function FAQ() {
         <>
           Initially, Connect supports wrapped asset bridging of ETH, WETH, USDC,
           MATIC, WMATIC, BNB, WBNB, AVAX, WAVAX, FTM, WFTM, CELO, GLMR, WGLRM,
-          AND SOL across Ethereum, Polygon, BSC, Avalanche, Celo, Moonbeam, Base,
-          Solana and Sui. Connect will support other Wormhole-connected chains
-          and assets in the future, see the full list of Connect supported
-          chains on the{' '}
+          AND SOL across Ethereum, Polygon, BSC, Avalanche, Celo, Moonbeam,
+          Base, Solana and Sui. Connect will support other Wormhole-connected
+          chains and assets in the future, see the full list of Connect
+          supported chains on the{' '}
           <a
             href="https://github.com/wormhole-foundation/wormhole-connect/blob/development/wormhole-connect/src/config/mainnet.ts"
             target="_blank"
