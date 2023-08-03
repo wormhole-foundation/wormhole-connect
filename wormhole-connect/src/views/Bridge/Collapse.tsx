@@ -149,7 +149,7 @@ function BridgeCollapse(props: Props) {
         >
           This feature provided by
           <a
-            href="https://github.com/XLabs"
+            href="https://xlabs.xyz"
             target="_blank"
             className={classes.link}
             rel="noreferrer"
