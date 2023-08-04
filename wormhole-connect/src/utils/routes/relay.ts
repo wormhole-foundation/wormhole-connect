@@ -208,7 +208,7 @@ export class RelayRoute extends BridgeRoute {
   public async readyForRedeem(
     txData: ParsedMessage | ParsedRelayerMessage,
   ): Promise<boolean> {
-    throw new Error('not implemented');
+    return true;
   }
 
   async redeem(txData: ParsedMessage | ParsedRelayerMessage): Promise<string> {
