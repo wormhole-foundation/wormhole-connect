@@ -222,7 +222,7 @@ export class RelayRoute extends BridgeRoute {
   ): Promise<ParsedMessage | ParsedRelayerMessage> {
     const info = await wh.getVaa(tx, chain);
     const message = await wh.parseMessage(info);
-    const parsed: any = await adaptParsedMessage(message, Route.RELAY);
+    const parsed: any = await adaptParsedMessage(message);
     if (parsed.payloadID !== PayloadType.AUTOMATIC) {
       throw new Error('wrong payload, not a token bridge relay transfer');
     }

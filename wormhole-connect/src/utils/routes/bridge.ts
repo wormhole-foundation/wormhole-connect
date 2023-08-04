@@ -27,7 +27,6 @@ import { PreviewData } from './types';
 // wh connect uses
 export const adaptParsedMessage = async (
   parsed: SdkParsedMessage | SdkParsedRelayerMessage,
-  route: Route,
 ): Promise<ParsedMessage | ParsedRelayerMessage> => {
   const tokenId = {
     address: parsed.tokenAddress,
@@ -38,7 +37,6 @@ export const adaptParsedMessage = async (
 
   const base: ParsedMessage = {
     ...parsed,
-    route,
     amount: parsed.amount.toString(),
     tokenKey: token?.key || '',
     tokenDecimals: decimals,
@@ -275,7 +273,7 @@ export class BridgeRoute extends RouteAbstract {
   ): Promise<ParsedMessage | ParsedRelayerMessage> {
     const info = await wh.getVaa(tx, chain);
     const message = await wh.parseMessage(info);
-    return adaptParsedMessage(message, Route.BRIDGE);
+    return adaptParsedMessage(message);
   }
 
   public async isTransferCompleted(

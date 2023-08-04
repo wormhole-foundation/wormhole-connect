@@ -14,6 +14,7 @@ import {
   setToken,
   setSupportedSourceTokens,
   setSupportedDestTokens,
+  setTransferRoute,
 } from '../../store/transferInput';
 import { wh, isAcceptedToken, toChainId } from '../../utils/sdk';
 import { CHAINS, TOKENS, TOKENS_ARR } from '../../config';
@@ -57,9 +58,12 @@ const useStyles = makeStyles()((theme) => ({
   },
 }));
 
-function isSupportedToken(token: string, supportedTokens: TokenConfig[]): boolean {
+function isSupportedToken(
+  token: string,
+  supportedTokens: TokenConfig[],
+): boolean {
   if (!token) return true;
-  return supportedTokens.some(t => t.key === token);
+  return supportedTokens.some((t) => t.key === token);
 }
 
 function Bridge() {
