@@ -229,6 +229,13 @@ export class RelayRoute extends BridgeRoute {
     };
   }
 
+  public async isTransferCompleted(
+    destChain: ChainName | ChainId,
+    signedVaa: string,
+  ): Promise<boolean> {
+    return await wh.isTransferCompleted(destChain, signedVaa);
+  }
+
   public async getPreview({
     token,
     destToken,

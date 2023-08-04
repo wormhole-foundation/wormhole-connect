@@ -91,6 +91,14 @@ export class HashflowRoute extends RouteAbstract {
   ): Promise<ParsedMessage | ParsedRelayerMessage> {
     throw new Error('Method not implemented.');
   }
+
+  public async isTransferCompleted(
+    destChain: ChainName | ChainId,
+    signedVaa: string,
+  ): Promise<boolean> {
+    throw new Error('Method not implemented.');
+  }
+
   public getPreview<P>(params: P): Promise<PreviewData> {
     throw new Error('Method not implemented.');
   }

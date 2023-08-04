@@ -100,6 +100,11 @@ export default abstract class RouteAbstract {
     recipient: string,
   ): Promise<string>;
 
+  public abstract isTransferCompleted(
+    destChain: ChainName | ChainId,
+    signedVaa: string,
+  ): Promise<boolean>;
+
   public abstract getPreview(params: any): Promise<PreviewData>;
   // send, validate, estimate gas, isRouteAvailable, parse data from VAA/fetch data, claim
 }
