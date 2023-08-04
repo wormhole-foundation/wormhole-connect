@@ -2,7 +2,6 @@ import {
   TokenId,
   ChainName,
   ChainId,
-  VaaInfo,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { TokenConfig } from 'config/types';
 import { estimateClaimGasFees, estimateSendGasFees } from 'utils/gasEstimates';
@@ -16,6 +15,7 @@ import {
 } from 'utils/sdk';
 import { BridgePreviewParams, BridgeRoute, adaptParsedMessage } from './bridge';
 import { getTokenDecimals, getWrappedTokenId } from 'utils';
+import { fetchVaa } from 'utils/vaa';
 import { utils } from 'ethers';
 import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
 import { toFixedDecimals } from '../balance';
@@ -205,20 +205,24 @@ export class RelayRoute extends BridgeRoute {
     return txId;
   }
 
-  async redeem(
-    destChain: ChainName | ChainId,
-    vaa: Uint8Array,
-    payer: string,
-  ): Promise<string> {
+  public async readyForRedeem(
+    txData: ParsedMessage | ParsedRelayerMessage,
+  ): Promise<boolean> {
+    throw new Error('not implemented');
+  }
+
+  async redeem(txData: ParsedMessage | ParsedRelayerMessage): Promise<string> {
     // TODO: implement redeemRelay in the WormholeContext for self redemptions
     throw new Error('not implemented');
   }
 
   async parseMessage(
-    info: VaaInfo<any>,
+    tx: string,
+    chain: ChainName | ChainId,
   ): Promise<ParsedMessage | ParsedRelayerMessage> {
+    const info = await wh.getVaa(tx, chain);
     const message = await wh.parseMessage(info);
-    const parsed: any = await adaptParsedMessage(message);
+    const parsed: any = await adaptParsedMessage(message, Route.RELAY);
     if (parsed.payloadID !== PayloadType.AUTOMATIC) {
       throw new Error('wrong payload, not a token bridge relay transfer');
     }
@@ -230,10 +234,12 @@ export class RelayRoute extends BridgeRoute {
   }
 
   public async isTransferCompleted(
-    destChain: ChainName | ChainId,
-    signedVaa: string,
+    txData: ParsedMessage | ParsedRelayerMessage,
   ): Promise<boolean> {
-    return await wh.isTransferCompleted(destChain, signedVaa);
+    const parsedVaa = await fetchVaa(txData);
+    if (!parsedVaa) return false;
+    const signedVaa = parsedVaa.bytes;
+    return await wh.isTransferCompleted(txData.toChain, signedVaa);
   }
 
   public async getPreview({

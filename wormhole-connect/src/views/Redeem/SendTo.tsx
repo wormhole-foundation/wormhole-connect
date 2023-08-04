@@ -204,7 +204,6 @@ const getRows = async (
 function SendTo() {
   const dispatch = useDispatch();
   const {
-    vaa,
     redeemTx,
     transferComplete,
     route: routeType,
@@ -233,14 +232,14 @@ function SendTo() {
   // get the redeem tx, for automatic transfers only
   const getRedeemTx = useCallback(async () => {
     if (redeemTx) return redeemTx;
-    if (vaa) {
+    if (txData) {
       const redeemed = await fetchRedeemTx(txData);
       if (redeemed) {
         dispatch(setRedeemTx(redeemed.transactionHash));
         return redeemed.transactionHash;
       }
     }
-  }, [redeemTx, vaa, txData, dispatch]);
+  }, [redeemTx, txData, dispatch]);
 
   useEffect(() => {
     if (!txData) return;
@@ -278,12 +277,7 @@ function SendTo() {
         registerWalletSigner(txData.toChain, TransferWallet.RECEIVING);
         await switchNetwork(networkConfig.chainId, TransferWallet.RECEIVING);
       }
-      const txId = await new Operator().redeem(
-        routeType,
-        txData.toChain,
-        utils.arrayify(vaa.bytes),
-        wallet.address,
-      );
+      const txId = await new Operator().redeem(routeType, txData);
       dispatch(setRedeemTx(txId));
       dispatch(setTransferComplete(true));
       setInProgress(false);

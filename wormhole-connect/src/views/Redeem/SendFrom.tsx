@@ -8,7 +8,6 @@ import {
   MAX_DECIMALS,
   getTokenDecimals,
 } from '../../utils';
-import { ParsedVaa } from '../../utils/vaa';
 import { toChainId } from '../../utils/sdk';
 import { toDecimals } from '../../utils/balance';
 
@@ -81,7 +80,9 @@ const getRows = (txData: any): RowsData => {
 };
 
 function SendFrom() {
-  const vaa: ParsedVaa = useSelector((state: RootState) => state.redeem.vaa);
+  const readyForRedeem: boolean = useSelector(
+    (state: RootState) => state.redeem.readyForRedeem,
+  );
   const txData = useSelector((state: RootState) => state.redeem.txData)!;
   const transferComplete = useSelector(
     (state: RootState) => state.redeem.transferComplete,
@@ -105,7 +106,7 @@ function SendFrom() {
         />
         <RenderRows rows={rows} />
       </InputContainer>
-      {!transferComplete && !vaa && (
+      {!transferComplete && !readyForRedeem && (
         <Confirmations chain={txData.fromChain} blockHeight={txData.block} />
       )}
     </div>

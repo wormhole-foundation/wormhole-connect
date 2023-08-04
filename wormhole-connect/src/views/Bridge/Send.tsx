@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Context, VaaInfo } from '@wormhole-foundation/wormhole-connect-sdk';
+import { Context } from '@wormhole-foundation/wormhole-connect-sdk';
 import { useTheme } from '@mui/material/styles';
 import { makeStyles } from 'tss-react/mui';
 
@@ -29,7 +29,7 @@ import AlertBanner from '../../components/AlertBanner';
 import PoweredByIcon from '../../icons/PoweredBy';
 import { LINK } from '../../utils/style';
 import { estimateClaimGasFees } from '../../utils/gasEstimates';
-import { getVaa } from '../../utils/sdk';
+import { ParsedMessage, ParsedRelayerMessage } from '../../utils/sdk';
 import Operator from '../../utils/routes';
 
 const useStyles = makeStyles()((theme) => ({
@@ -113,10 +113,9 @@ function Send(props: { valid: boolean }) {
         { toNativeToken },
       );
 
-      let vaa: VaaInfo<any> | undefined;
+      let message: ParsedMessage | ParsedRelayerMessage;
       const toRedeem = setInterval(async () => {
-        if (vaa) {
-          const message = await operator.parseMessage(route, vaa);
+        if (message) {
           clearInterval(toRedeem);
           dispatch(setIsTransactionInProgress(false));
           dispatch(setSendTx(txId));
@@ -124,7 +123,7 @@ function Send(props: { valid: boolean }) {
           dispatch(setRoute('redeem'));
           setSendError('');
         } else {
-          vaa = await getVaa(txId, fromNetwork!);
+          message = await operator.parseMessage(route, txId, fromNetwork!);
         }
       }, 1000);
     } catch (e) {

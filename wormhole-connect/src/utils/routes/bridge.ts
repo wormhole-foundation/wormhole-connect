@@ -5,11 +5,11 @@ import {
   MAINNET_CHAINS,
   ParsedMessage as SdkParsedMessage,
   ParsedRelayerMessage as SdkParsedRelayerMessage,
-  VaaInfo,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import RouteAbstract from './routeAbstract';
 import { TOKENS } from 'config';
 import { getTokenById, getTokenDecimals, getWrappedToken } from 'utils';
+import { fetchVaa } from 'utils/vaa';
 import { TokenConfig } from 'config/types';
 import { estimateClaimGasFees, estimateSendGasFees } from 'utils/gasEstimates';
 import { Route } from 'store/transferInput';
@@ -27,6 +27,7 @@ import { PreviewData } from './types';
 // wh connect uses
 export const adaptParsedMessage = async (
   parsed: SdkParsedMessage | SdkParsedRelayerMessage,
+  route: Route,
 ): Promise<ParsedMessage | ParsedRelayerMessage> => {
   const tokenId = {
     address: parsed.tokenAddress,
@@ -37,6 +38,7 @@ export const adaptParsedMessage = async (
 
   const base: ParsedMessage = {
     ...parsed,
+    route,
     amount: parsed.amount.toString(),
     tokenKey: token?.key || '',
     tokenDecimals: decimals,
@@ -226,13 +228,21 @@ export class BridgeRoute extends RouteAbstract {
     return txId;
   }
 
-  async redeem(
-    destChain: ChainName | ChainId,
-    vaa: Uint8Array,
-    payer: string,
-  ): Promise<string> {
+  public async readyForRedeem(
+    txData: ParsedMessage | ParsedRelayerMessage,
+  ): Promise<boolean> {
+    const parsedVaa = await fetchVaa(txData);
+    return parsedVaa ? true : false;
+  }
+
+  async redeem(txData: ParsedMessage | ParsedRelayerMessage): Promise<string> {
+    const parsedVaa = await fetchVaa(txData);
+    if (!parsedVaa) throw Error("Wasn't ready for redeem");
+    const vaa = utils.arrayify(parsedVaa.bytes);
+
     // post vaa (solana)
     // TODO: move to context
+    const destChain = txData.toChain;
     const destChainId = wh.toChainId(destChain);
     const destChainName = wh.toChainName(destChain);
     if (destChainId === MAINNET_CHAINS.solana) {
@@ -244,7 +254,12 @@ export class BridgeRoute extends RouteAbstract {
       await postVaa(connection, contracts.core, Buffer.from(vaa));
     }
 
-    const tx = await wh.redeem(destChain, vaa, { gasLimit: 250000 }, payer);
+    const tx = await wh.redeem(
+      destChain,
+      vaa,
+      { gasLimit: 250000 },
+      txData.recipient,
+    );
     const txId = await signAndSendTransaction(
       destChainName,
       tx,
@@ -255,17 +270,21 @@ export class BridgeRoute extends RouteAbstract {
   }
 
   async parseMessage(
-    info: VaaInfo<any>,
+    tx: string,
+    chain: ChainName | ChainId,
   ): Promise<ParsedMessage | ParsedRelayerMessage> {
+    const info = await wh.getVaa(tx, chain);
     const message = await wh.parseMessage(info);
-    return adaptParsedMessage(message);
+    return adaptParsedMessage(message, Route.BRIDGE);
   }
 
   public async isTransferCompleted(
-    destChain: ChainName | ChainId,
-    signedVaa: string,
+    txData: ParsedMessage | ParsedRelayerMessage,
   ): Promise<boolean> {
-    return await wh.isTransferCompleted(destChain, signedVaa);
+    const parsedVaa = await fetchVaa(txData);
+    if (!parsedVaa) return false;
+    const signedVaa = parsedVaa.bytes;
+    return await wh.isTransferCompleted(txData.toChain, signedVaa);
   }
 
   public async getPreview({

@@ -2,7 +2,6 @@ import {
   TokenId,
   ChainName,
   ChainId,
-  VaaInfo,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { TokenConfig } from 'config/types';
 import { ParsedMessage, ParsedRelayerMessage } from '../sdk';
@@ -91,18 +90,20 @@ export default abstract class RouteAbstract {
   ): Promise<any>;
 
   public abstract parseMessage(
-    info: VaaInfo<any>,
+    tx: string,
+    chain: ChainName | ChainId,
   ): Promise<ParsedMessage | ParsedRelayerMessage>;
 
   public abstract redeem(
-    destChain: ChainName | ChainId,
-    vaa: Uint8Array,
-    recipient: string,
+    txData: ParsedMessage | ParsedRelayerMessage,
   ): Promise<string>;
 
+  public abstract readyForRedeem(
+    txData: ParsedMessage | ParsedRelayerMessage,
+  ): Promise<boolean>;
+
   public abstract isTransferCompleted(
-    destChain: ChainName | ChainId,
-    signedVaa: string,
+    txData: ParsedMessage | ParsedRelayerMessage,
   ): Promise<boolean>;
 
   public abstract getPreview(params: any): Promise<PreviewData>;

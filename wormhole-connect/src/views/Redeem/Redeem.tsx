@@ -1,22 +1,23 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { fetchIsVAAEnqueued, fetchVaa, ParsedVaa } from '../../utils/vaa';
+import { fetchIsVAAEnqueued } from '../../utils/vaa';
 import {
   setIsVaaEnqueued,
   setTransferComplete,
-  setVaa,
+  setReadyForRedeem,
 } from '../../store/redeem';
 import { RootState } from '../../store';
-import { wh, ParsedMessage, ParsedRelayerMessage } from '../../utils/sdk';
+import { ParsedMessage, ParsedRelayerMessage } from '../../utils/sdk';
 import PageHeader from '../../components/PageHeader';
 import Spacer from '../../components/Spacer';
 import NetworksTag from './Tag';
 import Stepper from './Stepper';
 import GovernorEnqueuedWarning from './GovernorEnqueuedWarning';
+import Operator from '../../utils/routes';
 
 class Redeem extends React.Component<
   {
-    setVaa: any;
+    setReadyForRedeem: (readyForRedeem: boolean) => void;
     setIsVaaEnqueued: (isVaaEnqueued: boolean) => any;
     setTransferComplete: any;
     txData: ParsedMessage | ParsedRelayerMessage;
@@ -24,36 +25,39 @@ class Redeem extends React.Component<
     isVaaEnqueued: boolean;
   },
   {
-    vaa: ParsedVaa | undefined;
+    readyForRedeem: boolean;
   }
 > {
   constructor(props) {
     super(props);
     this.state = {
-      vaa: undefined,
+      readyForRedeem: false,
     };
   }
 
   async update() {
     if (!this.props.transferComplete) {
-      if (!this.state.vaa) {
-        await this.getVaa();
+      if (!this.state.readyForRedeem) {
+        await this.checkReadyForRedeem();
       }
       await this.getTransferComplete();
     }
   }
 
-  async getVaa() {
-    if (!this.props.txData.sendTx || !!this.state.vaa) return;
-    const vaa = await fetchVaa(this.props.txData);
-    if (vaa) {
-      this.props.setVaa(vaa);
-      this.setState((prevState) => ({ ...prevState, vaa }));
+  async checkReadyForRedeem() {
+    if (!this.props.txData.sendTx || this.state.readyForRedeem) return;
+    const isReadyForRedeem = await new Operator().readyForRedeem(
+      this.props.txData.route,
+      this.props.txData,
+    );
+    if (isReadyForRedeem) {
+      this.props.setReadyForRedeem(true);
+      this.setState((prevState) => ({ ...prevState, readyForRedeem: true }));
     }
   }
 
   async getIsVaaEnqueued() {
-    if (!this.props.txData.sendTx || !!this.state.vaa) return;
+    if (!this.props.txData.sendTx || this.state.readyForRedeem) return;
     let isVaaEnqueued = false;
     try {
       isVaaEnqueued = await fetchIsVAAEnqueued(this.props.txData);
@@ -66,10 +70,10 @@ class Redeem extends React.Component<
   }
 
   async getTransferComplete() {
-    if (!this.state.vaa || !this.props.txData) return;
-    const isComplete = await wh.isTransferCompleted(
-      this.props.txData.toChain,
-      this.state.vaa.bytes,
+    if (!this.state.readyForRedeem || !this.props.txData) return;
+    const isComplete = await new Operator().isTransferCompleted(
+      this.props.txData.route,
+      this.props.txData,
     );
     if (isComplete) this.props.setTransferComplete();
   }
@@ -114,7 +118,7 @@ class Redeem extends React.Component<
         <NetworksTag />
         <Spacer />
         <GovernorEnqueuedWarning
-          show={!this.state.vaa && this.props.isVaaEnqueued}
+          show={!this.state.readyForRedeem && this.props.isVaaEnqueued}
           chain={this.props.txData.fromChain}
         />
         <Stepper />
@@ -131,7 +135,8 @@ function mapStateToProps(state: RootState) {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    setVaa: (vaa: ParsedVaa) => dispatch(setVaa(vaa)),
+    setReadyForRedeem: (readyForRedeem: boolean) =>
+      dispatch(setReadyForRedeem(readyForRedeem)),
     setIsVaaEnqueued: (isVaaEnqueued: boolean) =>
       dispatch(setIsVaaEnqueued(isVaaEnqueued)),
     setTransferComplete: () => dispatch(setTransferComplete(true)),

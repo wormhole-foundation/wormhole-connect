@@ -2,7 +2,6 @@ import {
   ChainName,
   ChainId,
   TokenId,
-  VaaInfo,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { TokenConfig } from '../../config/types';
 import RouteAbstract from './routeAbstract';
@@ -79,22 +78,25 @@ export class HashflowRoute extends RouteAbstract {
   ): Promise<any> {
     throw new Error('Method not implemented.');
   }
-  public redeem(
-    destChain: ChainName | ChainId,
-    vaa: Uint8Array,
-    recipient: string,
-  ): Promise<string> {
+
+  public readyForRedeem(
+    txData: ParsedMessage | ParsedRelayerMessage,
+  ): Promise<boolean> {
+    throw new Error('Method not implemented.');
+  }
+
+  public redeem(txData: ParsedMessage | ParsedRelayerMessage): Promise<string> {
     throw new Error('Method not implemented.');
   }
   public parseMessage(
-    info: VaaInfo<any>,
+    tx: string,
+    chain: ChainName | ChainId,
   ): Promise<ParsedMessage | ParsedRelayerMessage> {
     throw new Error('Method not implemented.');
   }
 
   public async isTransferCompleted(
-    destChain: ChainName | ChainId,
-    signedVaa: string,
+    txData: ParsedMessage | ParsedRelayerMessage,
   ): Promise<boolean> {
     throw new Error('Method not implemented.');
   }

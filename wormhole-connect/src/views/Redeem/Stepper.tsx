@@ -3,16 +3,17 @@ import Stepper from '../../components/Stepper/Stepper';
 import SendFrom from './SendFrom';
 import SendTo from './SendTo';
 import BridgeComplete from './BridgeComplete';
-import { ParsedVaa } from '../../utils/vaa';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
 
 export default function MilestoneStepper() {
-  const vaa: ParsedVaa = useSelector((state: RootState) => state.redeem.vaa);
+  const readyForRedeem: boolean = useSelector(
+    (state: RootState) => state.redeem.readyForRedeem,
+  );
   const transferComplete = useSelector(
     (state: RootState) => state.redeem.transferComplete,
   );
-  const activeStep = transferComplete ? 4 : vaa ? 2 : 1;
+  const activeStep = transferComplete ? 4 : readyForRedeem ? 2 : 1;
 
   const steps = [
     {

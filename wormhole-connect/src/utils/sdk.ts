@@ -12,6 +12,8 @@ import {
 import { getWrappedTokenId } from '.';
 import { TOKENS, WH_CONFIG, isMainnet } from '../config';
 
+import { Route } from 'store/transferInput';
+
 export enum PayloadType {
   MANUAL = 1,
   AUTOMATIC = 3,
@@ -39,6 +41,7 @@ export interface ParsedMessage {
   emitterAddress: string;
   sequence: string;
   block: number;
+  route: Route;
   gasFee?: string;
   payload?: string;
 }

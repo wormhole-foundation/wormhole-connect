@@ -2,18 +2,21 @@ import {
   ChainName,
   ChainId,
   TokenId,
-  VaaInfo,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { Route } from 'store/transferInput';
 import { BridgeRoute } from './bridge';
 import { RelayRoute } from './relay';
 import { HashflowRoute } from './hashflow';
 import { TokenConfig } from 'config/types';
-import { ParsedMessage, ParsedRelayerMessage, PayloadType } from '../sdk';
+import {
+  ParsedMessage,
+  ParsedRelayerMessage,
+  PayloadType,
+  getVaa,
+} from '../sdk';
 import RouteAbstract from './routeAbstract';
 import {
   CHAIN_ID_SEI,
-  ParsedVaa,
   parseTokenTransferPayload,
 } from '@certusone/wormhole-sdk';
 import { PreviewData } from './types';
@@ -36,12 +39,20 @@ export default class Operator {
     }
   }
 
-  getRouteForVaa(vaa: ParsedVaa): Route {
-    // if (parsed.emitterAddress === HASHFLOW_CONTRACT_ADDRESS) {
-    //    return Route.HASHFLOW;
+  async getRouteForTx(txHash: string, chain: ChainName): Promise<Route> {
+    const result = await getVaa(txHash, chain);
+    const vaa = result.vaa;
+
+    // if(HASHFLOW_CONTRACT_ADDRESSES.includes(vaa.emitterAddress)) {
+    //   return Route.HASHFLOW
+    // }
+
+    // if(CCTP_CONTRACT_ADDRESSES.includes(vaa.emitterAddress)) {
+    //   return Route.CCTP
     // }
 
     const transfer = parseTokenTransferPayload(vaa.payload);
+
     if (transfer.toChain === CHAIN_ID_SEI) {
       return Route.RELAY;
     }
@@ -196,22 +207,37 @@ export default class Operator {
     );
   }
 
+  async readyForRedeem(
+    route: Route,
+    txData: ParsedMessage | ParsedRelayerMessage,
+  ): Promise<boolean> {
+    const r = this.getRoute(route);
+    return await r.readyForRedeem(txData);
+  }
+
   async redeem(
     route: Route,
-    destChain: ChainName | ChainId,
-    vaa: Uint8Array,
-    payer: string,
+    txData: ParsedMessage | ParsedRelayerMessage,
   ): Promise<string> {
     const r = this.getRoute(route);
-    return await r.redeem(destChain, vaa, payer);
+    return await r.redeem(txData);
   }
 
   async parseMessage(
     route: Route,
-    info: VaaInfo<any>,
+    tx: string,
+    chain: ChainName | ChainId,
   ): Promise<ParsedMessage | ParsedRelayerMessage> {
     const r = this.getRoute(route);
-    return await r.parseMessage(info);
+    return await r.parseMessage(tx, chain);
+  }
+
+  async isTransferCompleted(
+    route: Route,
+    txData: ParsedMessage | ParsedRelayerMessage,
+  ): Promise<boolean> {
+    const r = this.getRoute(route);
+    return await r.isTransferCompleted(txData);
   }
 
   async getPreview(route: Route, params: any): Promise<PreviewData> {
