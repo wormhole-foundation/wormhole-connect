@@ -128,11 +128,15 @@ export const TESTNET_GAS_ESTIMATES: GasEstimates = {
       claim: 1000000,
     },
   },
-  base: {
+  basegoerli: {
     [Route.Bridge]: {
       sendNative: 100000,
       sendToken: 1000000,
       claim: 1000000,
+    },
+    [Route.Relay]: {
+      sendNative: 300000,
+      sendToken: 300000,
     },
   },
   wormchain: {

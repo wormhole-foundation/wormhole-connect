@@ -207,7 +207,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     context: Context.ETH,
     contracts: {
       ...CONTRACTS.TESTNET.base,
-      relayer: undefined,
+      relayer: '0xae8dc4a7438801ec4edc0b035eccccf3807f4cc1',
     },
     finalityThreshold: 0,
     nativeTokenDecimals: 18,

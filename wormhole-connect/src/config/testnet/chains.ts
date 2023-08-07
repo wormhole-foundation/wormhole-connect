@@ -121,6 +121,7 @@ export const TESTNET_CHAINS: ChainsConfig = {
     gasToken: 'ETHbase',
     chainId: 84531,
     icon: Icon.BASE,
+    automaticRelayer: true,
     maxBlockSearch: 2000,
   },
   sei: {
