@@ -100,6 +100,21 @@ export const DEVNET_TOKENS: { [key: string]: TokenConfig } = {
       default: 6,
     },
   },
+  WORM: {
+    key: 'WORM',
+    symbol: 'WORM',
+    nativeNetwork: 'wormchain',
+    tokenId: {
+      chain: 'wormchain',
+      address: 'uworm',
+    },
+    icon: Icon.SEI,
+    coinGeckoId: 'worm',
+    color: '#FFFFFF',
+    decimals: {
+      default: 6,
+    },
+  },
 };
 
 export const DEVNET_GAS_ESTIMATES: GasEstimates = {

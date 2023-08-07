@@ -6,13 +6,19 @@ import {
   parseTokenTransferPayload,
 } from '@certusone/wormhole-sdk';
 import { CosmWasmClient } from '@cosmjs/cosmwasm-stargate';
-import { Coin, MsgTransferEncodeObject, calculateFee } from '@cosmjs/stargate';
+import {
+  Coin,
+  MsgTransferEncodeObject,
+  calculateFee,
+  logs as cosmosLogs,
+} from '@cosmjs/stargate';
 import {
   ChainId,
   ChainName,
   CosmosTransaction,
   TokenId,
   VaaInfo,
+  searchCosmosLogs,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { MsgTransfer } from 'cosmjs-types/ibc/applications/transfer/v1/tx';
 import { BigNumber, utils } from 'ethers';
@@ -30,8 +36,8 @@ import { BaseRoute } from './baseRoute';
 import { adaptParsedMessage } from './common';
 import { PreviewData } from './types';
 
-interface SimpleGatewayPayload {
-  simple: {
+interface GatewayTransferMsg {
+  gateway_transfer: {
     chain: ChainId;
     recipient: string;
     fee: string;
@@ -125,8 +131,8 @@ export class CosmosGatewayRoute extends BaseRoute {
     const nonce = Math.round(Math.random() * 10000);
     const recipient = Buffer.from(recipientAddress).toString('base64');
 
-    const payloadObject: SimpleGatewayPayload = {
-      simple: {
+    const payloadObject: any = {
+      gateway_transfer: {
         chain: recipientChainId,
         nonce,
         recipient,
@@ -182,7 +188,7 @@ export class CosmosGatewayRoute extends BaseRoute {
 
     const payloadObject = {
       gateway_ibc_token_bridge_payload: {
-        simple: {
+        gateway_transfer: {
           chain: recipientChainId,
           nonce,
           recipient,
@@ -205,7 +211,7 @@ export class CosmosGatewayRoute extends BaseRoute {
   ): Promise<any> {
     if (token === 'native') throw new Error('Native token not supported');
 
-    const payload = this.buildFromCosmosPayloadMemo(
+    const memo = this.buildFromCosmosPayloadMemo(
       recipientChainId,
       recipientAddress,
     );
@@ -226,13 +232,14 @@ export class CosmosGatewayRoute extends BaseRoute {
         receiver: this.getTranslatorAddress(),
         token: coin,
         timeoutTimestamp: millisToNano(Date.now() + IBC_TIMEOUT_MILLIS),
+        memo,
       }),
     };
 
     const tx: CosmosTransaction = {
       fee: calculateFee(1000000, '1.0uosmo'),
       msgs: [ibcMessage],
-      memo: payload,
+      memo: '',
     };
 
     return signAndSendTransaction(
@@ -283,14 +290,23 @@ export class CosmosGatewayRoute extends BaseRoute {
     info: VaaInfo<any>,
   ): Promise<ParsedMessage | ParsedRelayerMessage> {
     const message = await wh.parseMessage(info);
+    if (isCosmWasmChain(info.vaa.emitterChain as ChainId)) {
+      // need to set the info from the original cosmos chain
+      // even if the message originated from wormchain
+      return adaptParsedMessage(message);
+    }
+
     const transfer = parseTokenTransferPayload(info.vaa.payload);
-    const decoded: SimpleGatewayPayload = JSON.parse(
+    const decoded: GatewayTransferMsg = JSON.parse(
       transfer.tokenTransferPayload.toString(),
     );
     const adapted: any = await adaptParsedMessage({
       ...message,
-      recipient: Buffer.from(decoded.simple.recipient, 'base64').toString(),
-      toChain: wh.toChainName(decoded.simple.chain),
+      recipient: Buffer.from(
+        decoded.gateway_transfer.recipient,
+        'base64',
+      ).toString(),
+      toChain: wh.toChainName(decoded.gateway_transfer.chain),
     });
     return {
       ...adapted,
@@ -412,6 +428,7 @@ export class CosmosGatewayRoute extends BaseRoute {
   }
 
   async getIbcChannel(chain: ChainId | ChainName): Promise<string> {
+    return 'channel-0';
     const id = wh.toChainId(chain);
     if (!isCosmWasmChain(id)) throw new Error('Chain is not cosmos chain');
     const client = await this.getCosmWasmClient(CHAIN_ID_WORMCHAIN);
@@ -439,5 +456,62 @@ export class CosmosGatewayRoute extends BaseRoute {
     signedVaa: string,
   ): Promise<boolean> {
     return wh.isTransferCompleted(CHAIN_ID_WORMCHAIN, signedVaa);
+  }
+
+  async getVaa(
+    hash: string,
+    chain: ChainName | ChainId,
+  ): Promise<VaaInfo<any>> {
+    if (!isCosmWasmChain(wh.toChainId(chain))) {
+      return wh.getVaa(hash, chain);
+    }
+
+    // Get tx on the source chain (e.g. osmosis)
+    const sourceClient = await this.getCosmWasmClient(chain);
+    const tx = await sourceClient.getTx(hash);
+    if (!tx) {
+      throw new Error(`Transaction ${hash} not found on chain ${chain}`);
+    }
+
+    // Extract IBC transfer info initiated on the source chain
+    const logs = cosmosLogs.parseRawLog(tx.rawLog);
+    const packetSeq = searchCosmosLogs('packet_sequence', logs);
+    const packetTimeout = searchCosmosLogs('packet_timeout_timestamp', logs);
+    const packetSrcChannel = searchCosmosLogs('packet_src_channel', logs);
+    const packetDstChannel = searchCosmosLogs('packet_dst_channel', logs);
+    if (
+      !packetSeq ||
+      !packetTimeout ||
+      !packetSrcChannel ||
+      !packetDstChannel
+    ) {
+      throw new Error('Missing packet information in transaction logs');
+    }
+
+    // Look for the matching IBC receive on wormchain
+    // The IBC hooks middleware will execute the translator contract
+    // and include the execution logs on the transaction
+    // which can be used to extract the VAA
+    const wormchainClient = await this.getCosmWasmClient(CHAIN_ID_WORMCHAIN);
+    const destTx = await wormchainClient.searchTx({
+      tags: [
+        { key: 'recv_packet.packet_sequence', value: packetSeq },
+        { key: 'recv_packet.packet_timeout_timestamp', value: packetTimeout },
+        { key: 'recv_packet.packet_src_channel', value: packetSrcChannel },
+        { key: 'recv_packet.packet_dst_channel', value: packetDstChannel },
+      ],
+    });
+    if (destTx.length === 0) {
+      throw new Error(
+        `No wormchain transaction found for packet by ${hash} on chain ${chain}`,
+      );
+    }
+    if (destTx.length > 1) {
+      throw new Error(
+        `Multiple transactions found for the same packet by ${hash} on chain ${chain}`,
+      );
+    }
+
+    return wh.getVaa(destTx[0].hash, CHAIN_ID_WORMCHAIN);
   }
 }

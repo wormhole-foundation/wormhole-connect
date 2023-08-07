@@ -279,7 +279,7 @@ export const signCosmosTransaction = async (
     );
   }
 
-  return await wallet.signAndSendTransaction(transaction);
+  return result;
 };
 
 export const signAndSendTransaction = async (

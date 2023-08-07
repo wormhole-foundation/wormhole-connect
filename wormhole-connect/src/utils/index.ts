@@ -12,6 +12,7 @@ import { toDecimals } from './balance';
 import { isValidTransactionDigest, SUI_TYPE_ARG } from '@mysten/sui.js';
 import { isHexString } from 'ethers/lib/utils.js';
 import { isEvmChain, wh } from '../utils/sdk';
+import { isCosmWasmChain } from './cosmos';
 
 export const MAX_DECIMALS = 6;
 export const NORMALIZED_DECIMALS = 8;
@@ -153,7 +154,7 @@ export function hexPrefix(hex: string) {
 export function isValidTxId(chain: string, tx: string) {
   if (chain === 'sui') {
     return isValidTransactionDigest(tx);
-  } else if (chain === 'sei') {
+  } else if (isCosmWasmChain(chain as any)) {
     return isHexString(hexPrefix(tx), 32);
   } else {
     if (tx.startsWith('0x') && tx.length === 66) return true;
