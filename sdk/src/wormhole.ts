@@ -177,7 +177,7 @@ export class WormholeContext extends MultiProvider<Domain> {
   }
 
   /**
-   * Fetches the address for a token representation on any chain (These are the Wormhole token addresses, not necessarily the cannonical version of that token)
+   * Fetches the address for a token representation on any chain (These are the Wormhole token addresses, not necessarily the canonical version of that token)
    *
    * @param tokenId The Token ID (chain/address)
    * @param chain The chain name or id
@@ -192,7 +192,7 @@ export class WormholeContext extends MultiProvider<Domain> {
   }
 
   /**
-   * Fetches the address for a token representation on any chain (These are the Wormhole token addresses, not necessarily the cannonical version of that token)
+   * Fetches the address for a token representation on any chain (These are the Wormhole token addresses, not necessarily the canonical version of that token)
    *
    * @param tokenId The Token ID (chain/address)
    * @param chain The chain name or id
@@ -476,7 +476,7 @@ export class WormholeContext extends MultiProvider<Domain> {
   }
 
   /**
-   * Parse an address from a 32-byte universal address to a cannonical address
+   * Parse an address from a 32-byte universal address to a canonical address
    *
    * @param address The 32-byte wormhole address
    * @returns The address in the blockchain specific format

@@ -5,7 +5,6 @@ import { NftBridge } from '@certusone/wormhole-sdk/lib/cjs/solana/types/nftBridg
 import { Wormhole } from '@certusone/wormhole-sdk/lib/cjs/solana/types/wormhole';
 
 import { ChainName, ChainId, Contracts, Context } from '../../types';
-import { TokenBridgeRelayer } from '../../abis/TokenBridgeRelayer';
 import { ContractsAbstract } from '../abstracts/contracts';
 import { WormholeContext } from '../../wormhole';
 import { filterByContext } from '../../utils';
@@ -13,6 +12,7 @@ import { SolanaContext } from './context';
 import { createReadOnlyWormholeProgramInterface } from './utils/wormhole';
 import { createReadOnlyTokenBridgeProgramInterface } from './utils/tokenBridge';
 import { createReadOnlyNftBridgeProgramInterface } from './utils/nftBridge';
+import { SolanaRelayer } from './relayer';
 
 /**
  * @category Solana
@@ -153,8 +153,17 @@ export class SolContracts<
    */
   getTokenBridgeRelayer(
     chain?: ChainName | ChainId,
-  ): TokenBridgeRelayer | undefined {
-    return undefined;
+  ): SolanaRelayer | undefined {
+    const context = this.context.getContext(
+      'solana',
+    ) as SolanaContext<WormholeContext>;
+    const connection = context.connection;
+    if (!connection) throw new Error('no connection');
+
+    const contracts = this.context.mustGetContracts('solana');
+    if (!contracts.relayer) return undefined;
+
+    return new SolanaRelayer(contracts.relayer, connection);
   }
 
   /**
@@ -162,8 +171,11 @@ export class SolContracts<
    *
    * @returns An interface for the Token Bridge Relayer contract, errors if not found
    */
-  mustGetTokenBridgeRelayer(chain: ChainName | ChainId): TokenBridgeRelayer {
-    throw new Error('relayer not deployed on Solana');
+  mustGetTokenBridgeRelayer(chain: ChainName | ChainId): SolanaRelayer {
+    const relayer = this.getTokenBridgeRelayer(chain);
+    if (!relayer)
+      throw new Error(`Relayer contract for domain ${chain} not found`);
+    return relayer;
   }
 
   /**

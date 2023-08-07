@@ -5,6 +5,7 @@ import {
   EthContext,
   SuiContext,
   SeiContext,
+  SolanaContext,
   WormholeContext,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { ParsedMessage, ParsedRelayerMessage, PayloadType, wh } from './sdk';
@@ -41,7 +42,17 @@ export const fetchRedeemedEvent = async (
   const { emitterChain, emitterAddress, sequence } = messageId;
   const emitter = `0x${emitterAddress}`;
 
-  if (txData.toChain === 'sui') {
+  if (txData.toChain === 'solana') {
+    const context = wh.getContext(
+      txData.toChain,
+    ) as SolanaContext<WormholeContext>;
+    const signature = await context.fetchRedeemedSignature(
+      emitterChain,
+      emitterAddress,
+      sequence,
+    );
+    return signature ? { transactionHash: signature } : null;
+  } else if (txData.toChain === 'sui') {
     const context = wh.getContext(
       txData.toChain,
     ) as SuiContext<WormholeContext>;
@@ -105,7 +116,25 @@ export const fetchSwapEvent = async (
   txData: ParsedMessage | ParsedRelayerMessage,
 ) => {
   const { tokenId, recipient, amount, tokenDecimals } = txData;
-  if (txData.toChain === 'sui') {
+  if (txData.toChain === 'solana') {
+    const context = wh.getContext(
+      txData.toChain,
+    ) as SolanaContext<WormholeContext>;
+    const messageId = getEmitterAndSequence(txData);
+    const { emitterChain, emitterAddress, sequence } = messageId;
+    const signature = await context.fetchRedeemedSignature(
+      emitterChain,
+      emitterAddress,
+      sequence,
+    );
+    if (signature) {
+      const relayer = context.contracts.mustGetTokenBridgeRelayer(
+        txData.toChain,
+      );
+      const swapEvent = await relayer.fetchSwapEvent(signature);
+      return swapEvent ? BigNumber.from(swapEvent.nativeAmount) : null;
+    }
+  } else if (txData.toChain === 'sui') {
     const context = wh.getContext(
       txData.toChain,
     ) as SuiContext<WormholeContext>;

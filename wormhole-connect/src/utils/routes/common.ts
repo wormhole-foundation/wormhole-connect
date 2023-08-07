@@ -7,6 +7,7 @@ import { getTokenById } from 'utils';
 import {
   ParsedMessage,
   ParsedRelayerMessage,
+  PayloadType,
   solanaContext,
   wh,
 } from 'utils/sdk';
@@ -33,8 +34,12 @@ export const adaptParsedMessage = async (
     gasFee: parsed.gasFee ? parsed.gasFee.toString() : undefined,
   };
   // get wallet address of associated token account for Solana
+  // the recipient is the wallet address for the automatic payload type
   const toChainId = wh.toChainId(parsed.toChain);
-  if (toChainId === MAINNET_CHAINS.solana) {
+  if (
+    toChainId === MAINNET_CHAINS.solana &&
+    parsed.payloadID === PayloadType.MANUAL
+  ) {
     const accountOwner = await solanaContext().getTokenAccountOwner(
       parsed.recipient,
     );

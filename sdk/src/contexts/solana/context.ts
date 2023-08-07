@@ -27,8 +27,9 @@ import {
   PublicKeyInitData,
   SystemProgram,
   Transaction,
+  TransactionInstruction,
 } from '@solana/web3.js';
-import { BigNumber } from 'ethers';
+import { BigNumber, BigNumberish } from 'ethers';
 import { arrayify, zeroPad, hexlify } from 'ethers/lib/utils';
 
 import MAINNET_CONFIG, { MAINNET_CHAINS } from '../../config/MAINNET';
@@ -44,7 +45,6 @@ import {
   NATIVE,
   ParsedMessage,
   Context,
-  ParsedRelayerPayload,
   ParsedRelayerMessage,
 } from '../../types';
 import { SolContracts } from './contracts';
@@ -57,12 +57,17 @@ import {
   createTransferWrappedWithPayloadInstruction,
 } from './utils/tokenBridge';
 import {
+  deriveClaimKey,
   deriveWormholeEmitterKey,
   getClaim,
   getPostedMessage,
 } from './utils/wormhole';
-import { TokenBridgeAbstract } from '../abstracts/tokenBridge';
 import { ForeignAssetCache } from '../../utils';
+import { RelayerAbstract } from '../abstracts/relayer';
+import {
+  createTransferNativeTokensWithRelayInstruction,
+  createTransferWrappedTokensWithRelayInstruction,
+} from './utils/tokenBridgeRelayer';
 
 const SOLANA_SEQ_LOG = 'Program log: Sequence: ';
 const SOLANA_CHAIN_NAME = MAINNET_CONFIG.chains.solana!.key;
@@ -77,9 +82,9 @@ const SOLANA_TESTNET_EMITTER_ID =
  */
 export class SolanaContext<
   T extends WormholeContext,
-> extends TokenBridgeAbstract<Transaction> {
+> extends RelayerAbstract<Transaction> {
   readonly type = Context.SOLANA;
-  protected contracts: SolContracts<T>;
+  readonly contracts: SolContracts<T>;
   readonly context: T;
   connection: Connection | undefined;
   private foreignAssetCache: ForeignAssetCache;
@@ -864,12 +869,139 @@ export class SolanaContext<
     ).catch((e) => false);
   }
 
+  async fetchRedeemedSignature(
+    emitterChainId: ChainId,
+    emitterAddress: string,
+    sequence: string,
+  ): Promise<string | null> {
+    if (!this.connection) throw new Error('no connection');
+    const tokenBridge = this.contracts.mustGetBridge(SOLANA_CHAIN_NAME);
+    const claimKey = deriveClaimKey(
+      tokenBridge.programId,
+      emitterAddress,
+      emitterChainId,
+      BigInt(sequence),
+    );
+    const signatures = await this.connection.getSignaturesForAddress(claimKey, {
+      limit: 1,
+    });
+    return signatures ? signatures[0].signature : null;
+  }
+
   async getCurrentBlock(): Promise<number> {
     if (!this.connection) throw new Error('no connection');
     return await this.connection.getSlot();
   }
 
-  parseRelayerPayload(payload: Buffer): ParsedRelayerPayload {
-    throw new Error('relaying is not supported on solana');
+  async sendWithRelay(
+    token: TokenId | 'native',
+    amount: string,
+    toNativeToken: string,
+    sendingChain: ChainName | ChainId,
+    senderAddress: string,
+    recipientChain: ChainName | ChainId,
+    recipientAddress: string,
+    overrides?: any,
+  ): Promise<Transaction> {
+    if (!this.connection) throw new Error('no connection');
+    const { core, token_bridge, relayer } =
+      this.contracts.mustGetContracts(SOLANA_CHAIN_NAME);
+    if (!core || !token_bridge || !relayer) {
+      throw new Error('contracts not found');
+    }
+    const destContext = this.context.getContext(recipientChain);
+    const formattedRecipient = arrayify(
+      destContext.formatAddress(recipientAddress),
+    );
+    const recipientChainId = this.context.toChainId(recipientChain);
+    const nonce = createNonce().readUint32LE();
+    let transferIx: TransactionInstruction;
+    if (token === NATIVE || token.chain === SOLANA_CHAIN_NAME) {
+      const mint = token === NATIVE ? NATIVE_MINT : token.address;
+      const wrapToken = token === NATIVE;
+      transferIx = await createTransferNativeTokensWithRelayInstruction(
+        this.connection,
+        relayer,
+        senderAddress,
+        token_bridge,
+        core,
+        mint,
+        BigInt(amount),
+        BigInt(toNativeToken),
+        formattedRecipient,
+        recipientChainId,
+        nonce,
+        wrapToken,
+      );
+    } else {
+      const mint = await this.mustGetForeignAsset(token, sendingChain);
+      transferIx = await createTransferWrappedTokensWithRelayInstruction(
+        this.connection,
+        relayer,
+        senderAddress,
+        token_bridge,
+        core,
+        mint,
+        BigInt(amount),
+        BigInt(toNativeToken),
+        formattedRecipient,
+        recipientChainId,
+        nonce,
+      );
+    }
+    const transaction = new Transaction().add(transferIx);
+    const { blockhash } = await this.connection.getLatestBlockhash('finalized');
+    transaction.recentBlockhash = blockhash;
+    transaction.feePayer = new PublicKey(senderAddress);
+    return transaction;
+  }
+
+  async calculateNativeTokenAmt(
+    destChain: ChainName | ChainId,
+    tokenId: TokenId,
+    amount: BigNumberish,
+    walletAddress: string,
+  ): Promise<BigNumber> {
+    const relayer = this.contracts.mustGetTokenBridgeRelayer(destChain);
+    const address = await this.mustGetForeignAsset(tokenId, destChain);
+    const decimals = await this.fetchTokenDecimals(address, destChain);
+    const nativeTokenAmount = await relayer.calculateNativeSwapAmountOut(
+      new PublicKey(address),
+      BigNumber.from(amount).toBigInt(),
+      decimals,
+    );
+    return BigNumber.from(nativeTokenAmount);
+  }
+
+  async calculateMaxSwapAmount(
+    destChain: ChainName | ChainId,
+    tokenId: TokenId,
+    walletAddress: string,
+  ): Promise<BigNumber> {
+    const relayer = this.contracts.mustGetTokenBridgeRelayer(destChain);
+    const address = await this.mustGetForeignAsset(tokenId, destChain);
+    const decimals = await this.fetchTokenDecimals(address, destChain);
+    const maxSwap = await relayer.calculateMaxSwapAmountIn(
+      new PublicKey(address),
+      decimals,
+    );
+    return BigNumber.from(maxSwap);
+  }
+
+  async getRelayerFee(
+    sourceChain: ChainName | ChainId,
+    destChain: ChainName | ChainId,
+    tokenId: TokenId,
+  ): Promise<BigNumber> {
+    const relayer = this.contracts.mustGetTokenBridgeRelayer(sourceChain);
+    const address = await this.mustGetForeignAsset(tokenId, sourceChain);
+    const decimals = await this.fetchTokenDecimals(address, sourceChain);
+    const destChainId = this.context.toChainId(destChain);
+    const fee = await relayer.calculateRelayerFee(
+      destChainId,
+      new PublicKey(address),
+      decimals,
+    );
+    return BigNumber.from(fee);
   }
 }
