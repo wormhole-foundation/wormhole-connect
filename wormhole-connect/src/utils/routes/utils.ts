@@ -10,11 +10,13 @@ import RouteAbstract from './routeAbstract';
 import { BridgeRoute } from './bridge';
 import { RelayRoute } from './relay';
 import { HashflowRoute } from './hashflow';
+import { CosmosGatewayRoute } from './cosmosGateway';
 
 export const ROUTES: { [r in Route]: RouteAbstract } = {
   [Route.BRIDGE]: new BridgeRoute(),
   [Route.RELAY]: new RelayRoute(),
   [Route.HASHFLOW]: new HashflowRoute(),
+  [Route.COSMOS_GATEWAY]: new CosmosGatewayRoute(),
 };
 
 export const getRouteForVaa = (vaa: SignedVaa): Route => {

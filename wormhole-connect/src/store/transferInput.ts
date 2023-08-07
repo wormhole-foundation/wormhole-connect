@@ -15,6 +15,7 @@ export enum Route {
   BRIDGE = PayloadType.MANUAL, // 1
   RELAY = PayloadType.AUTOMATIC, // 3
   HASHFLOW = 10,
+  COSMOS_GATEWAY = 11,
 }
 
 export type Balances = { [key: string]: string | null };

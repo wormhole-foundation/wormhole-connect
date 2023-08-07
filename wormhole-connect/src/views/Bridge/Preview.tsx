@@ -7,7 +7,7 @@ import { setRelayerFee } from '../../store/relay';
 import { CHAINS, TOKENS } from '../../config';
 import { getTokenDecimals } from '../../utils';
 import { toDecimals } from '../../utils/balance';
-import { toChainId, getRelayerFee } from '../../utils/sdk';
+import { toChainId } from '../../utils/sdk';
 import Operator, { TransferDisplayData } from '../../utils/routes';
 
 import { RenderRows } from '../../components/RenderRows';
@@ -55,8 +55,7 @@ function Preview(props: { collapsed: boolean }) {
         sourceGasToken: sourceConfig.gasToken,
         destinationGasToken: destConfig.gasToken,
         amount: numReceiveAmount,
-        sendingGasEst:
-          route === Route.BRIDGE ? gasEst.manual : gasEst.automatic,
+        sendingGasEst: route === Route.RELAY ? gasEst.automatic : gasEst.manual,
         destGasEst: gasEst.claim,
 
         // relay params
@@ -91,7 +90,12 @@ function Preview(props: { collapsed: boolean }) {
         const tokenConfig = token && TOKENS[token];
         if (!tokenConfig) return;
 
-        const fee = await getRelayerFee(fromNetwork, toNetwork, token);
+        const fee = await new Operator().getRelayerFee(
+          route,
+          fromNetwork,
+          toNetwork,
+          token,
+        );
         const decimals = getTokenDecimals(
           toChainId(fromNetwork),
           tokenConfig.tokenId || 'native',
@@ -107,7 +111,7 @@ function Preview(props: { collapsed: boolean }) {
       }
     };
     computeRelayerFee();
-  }, [token, toNetwork, fromNetwork, dispatch]);
+  }, [route, token, toNetwork, fromNetwork, dispatch]);
 
   return (
     <BridgeCollapse

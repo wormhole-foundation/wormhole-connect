@@ -153,7 +153,7 @@ export const validateRoute = (
   route: Route,
   relayAvailable: boolean,
 ): ValidationErr => {
-  if (route === Route.BRIDGE) return '';
+  if (route !== Route.RELAY) return '';
   if (!relayAvailable)
     return 'Single transaction payment not available for this transfer';
   return '';
@@ -244,7 +244,9 @@ export const validateAll = async (
 
 export const isTransferValid = (validations: TransferValidations) => {
   for (const validationErr of Object.values(validations)) {
-    if (!!validationErr) return false;
+    if (!!validationErr) {
+      return false;
+    }
   }
   return true;
 };

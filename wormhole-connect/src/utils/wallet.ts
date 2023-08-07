@@ -13,6 +13,7 @@ import {
   MetamaskWallet,
   WalletConnectLegacyWallet,
 } from '@xlabs-libs/wallet-aggregator-evm';
+import { getWallets as getCosmosWallets } from '@xlabs-libs/wallet-aggregator-cosmos';
 import {
   PhantomWalletAdapter,
   SolflareWalletAdapter,
@@ -111,6 +112,10 @@ export const wallets = {
     ),
     bitkeep: new AptosWallet(new BitkeepWalletAdapter()),
   },
+  cosmos: getCosmosWallets().reduce((acc, w) => {
+    acc[w.getName()] = w;
+    return acc;
+  }, {} as Record<string, Wallet>),
 };
 
 export const walletAcceptedNetworks = (

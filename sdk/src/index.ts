@@ -1,5 +1,6 @@
 import TESTNET_CONFIG from './config/TESTNET';
 import MAINNET_CONFIG from './config/MAINNET';
+import DEVNET_CONFIG from './config/DEVNET';
 
 export type {
   TestnetChainId,
@@ -19,4 +20,5 @@ export * from './contexts/sei';
 export const CONFIG = {
   MAINNET: MAINNET_CONFIG,
   TESTNET: TESTNET_CONFIG,
+  DEVNET: DEVNET_CONFIG,
 };

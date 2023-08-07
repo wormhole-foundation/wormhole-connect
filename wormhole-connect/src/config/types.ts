@@ -15,7 +15,7 @@ export interface BridgeDefaults {
 }
 
 export interface WormholeConnectConfig {
-  env?: 'mainnet' | 'testnet';
+  env?: 'mainnet' | 'testnet' | 'devnet';
   rpcs?: ChainResourceMap;
   rest?: ChainResourceMap;
   networks?: ChainName[];

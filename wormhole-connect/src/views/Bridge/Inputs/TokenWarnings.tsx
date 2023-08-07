@@ -13,6 +13,7 @@ import {
   setForeignAsset,
 } from '../../../store/transferInput';
 import AlertBanner from '../../../components/AlertBanner';
+import Operator from '../../../utils/routes';
 
 const useStyles = makeStyles()((theme) => ({
   associatedTokenWarning: {
@@ -90,7 +91,7 @@ function AssociatedTokenWarning(props: Props) {
 function TokenWarnings() {
   const dispatch = useDispatch();
 
-  const { toNetwork, token, foreignAsset, associatedTokenAddress } =
+  const { toNetwork, token, foreignAsset, associatedTokenAddress, route } =
     useSelector((state: RootState) => state.transferInput);
   const { receiving } = useSelector((state: RootState) => state.wallet);
   const [showErrors, setShowErrors] = useState(false);
@@ -112,7 +113,11 @@ function TokenWarnings() {
         throw new Error('Could not retrieve target token info');
       }
 
-      const address = await wh.getForeignAsset(tokenId, toNetwork);
+      const address = await new Operator().getForeignAsset(
+        route,
+        tokenId,
+        toNetwork,
+      );
       if (address) {
         dispatch(setForeignAsset(address));
         setShowErrors(false);
@@ -122,7 +127,7 @@ function TokenWarnings() {
       }
     };
     checkWrappedTokenExists();
-  }, [toNetwork, tokenConfig, dispatch]);
+  }, [toNetwork, tokenConfig, route, dispatch]);
 
   // the associated token account address is deterministic, so we still
   // need to check if there is an account created for that address

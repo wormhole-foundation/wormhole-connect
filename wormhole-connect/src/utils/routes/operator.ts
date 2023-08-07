@@ -23,7 +23,9 @@ import {
   parseTokenTransferPayload,
 } from '@certusone/wormhole-sdk';
 import { TransferDisplayData } from './types';
+import { CosmosGatewayRoute } from './cosmosGateway';
 import { BigNumber } from 'ethers';
+import { isCosmWasmChain } from '../cosmos';
 
 export default class Operator {
   getRoute(route: Route): RouteAbstract {
@@ -36,6 +38,9 @@ export default class Operator {
       }
       case Route.HASHFLOW: {
         return new HashflowRoute();
+      }
+      case Route.COSMOS_GATEWAY: {
+        return new CosmosGatewayRoute();
       }
       default: {
         throw new Error('Not a valid route');
@@ -58,6 +63,13 @@ export default class Operator {
     const transfer = parseTokenTransferPayload(vaa.payload);
     if (transfer.toChain === CHAIN_ID_SEI) {
       return Route.RELAY;
+    }
+
+    if (
+      isCosmWasmChain(vaa.emitterChain as ChainId) ||
+      isCosmWasmChain(transfer.toChain as ChainId)
+    ) {
+      return Route.COSMOS_GATEWAY;
     }
 
     return vaa.payload && vaa.payload[0] === PayloadType.AUTOMATIC

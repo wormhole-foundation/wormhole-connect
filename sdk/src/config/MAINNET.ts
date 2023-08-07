@@ -17,6 +17,7 @@ export const MAINNET_CHAINS = {
   aptos: 22,
   base: 30,
   sei: 32,
+  wormchain: 3104,
 } as const;
 
 /**
@@ -167,6 +168,17 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     finalityThreshold: 0,
     nativeTokenDecimals: 6,
   },
+  wormchain: {
+    context: Context.COSMOS,
+    key: 'wormchain',
+    id: 3104,
+    contracts: {
+      ...CONTRACTS.MAINNET.wormchain,
+      ibcShimContract: '',
+    },
+    finalityThreshold: 0,
+    nativeTokenDecimals: 6,
+  },
 };
 
 const env: Environment = 'MAINNET';
@@ -188,6 +200,7 @@ const MAINNET_CONFIG: WormholeConfig = {
     aptos: 'https://fullnode.mainnet.aptoslabs.com/v1',
     base: 'https://mainnet.base.org',
     sei: '', // TODO: fill in
+    wormchain: '',
   },
   rest: {
     sei: '',

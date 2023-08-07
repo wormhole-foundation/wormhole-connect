@@ -10,14 +10,13 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 
 import { getWrappedTokenId } from '.';
-import { TOKENS, WH_CONFIG, isMainnet } from '../config';
+import { ENV, TOKENS, WH_CONFIG } from '../config';
 
 export enum PayloadType {
   MANUAL = 1,
   AUTOMATIC = 3,
 }
 
-const ENV = isMainnet ? 'MAINNET' : 'TESTNET';
 export const wh: WormholeContext = new WormholeContext(
   ENV as Environment,
   WH_CONFIG,
