@@ -24,6 +24,8 @@ import Scroll from './Scroll';
 import TokenIcon from '../icons/TokenIcons';
 import CircularProgress from '@mui/material/CircularProgress';
 import Tabs from './Tabs';
+import { BigNumber } from 'ethers';
+import Operator from '../utils/routes';
 
 const useStyles = makeStyles()((theme) => ({
   tokensContainer: {
@@ -260,6 +262,7 @@ function TokensModal(props: Props) {
     destBalances,
     supportedSourceTokens,
     supportedDestTokens,
+    route,
   } = useSelector((state: RootState) => state.transferInput);
 
   const allTokens = useMemo(
@@ -328,12 +331,23 @@ function TokensModal(props: Props) {
     }
 
     const getBalances = async () => {
+      const operator = new Operator();
       // fetch all N tokens and trigger a single update action
       const balancesArr = await Promise.all(
         allTokens.map(async (t) => {
-          const balance = t.tokenId
-            ? await wh.getTokenBalance(walletAddress, t.tokenId, network)
-            : await wh.getNativeBalance(walletAddress, network);
+          let balance: BigNumber | null = null;
+          try {
+            balance = t.tokenId
+              ? await operator.getTokenBalance(
+                  route,
+                  walletAddress,
+                  t.tokenId,
+                  network,
+                )
+              : await operator.getNativeBalance(route, walletAddress, network);
+          } catch (e) {
+            console.warn('Failed to fetch balance', e);
+          }
 
           return formatBalance(network, t, balance);
         }),
