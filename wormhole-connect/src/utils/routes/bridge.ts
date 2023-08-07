@@ -1,58 +1,21 @@
 import {
-  TokenId,
-  ChainName,
   ChainId,
+  ChainName,
   MAINNET_CHAINS,
-  ParsedMessage as SdkParsedMessage,
-  ParsedRelayerMessage as SdkParsedRelayerMessage,
+  TokenId,
   VaaInfo,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import RouteAbstract from './routeAbstract';
 import { TOKENS } from 'config';
-import { getTokenById, getTokenDecimals, getWrappedToken } from 'utils';
 import { TokenConfig } from 'config/types';
-import { estimateClaimGasFees, estimateSendGasFees } from 'utils/gasEstimates';
+import { BigNumber, utils } from 'ethers';
 import { Route } from 'store/transferInput';
-import {
-  ParsedMessage,
-  ParsedRelayerMessage,
-  solanaContext,
-  wh,
-} from 'utils/sdk';
-import { utils } from 'ethers';
+import { getTokenDecimals } from 'utils';
+import { estimateClaimGasFees, estimateSendGasFees } from 'utils/gasEstimates';
+import { ParsedMessage, ParsedRelayerMessage, wh } from 'utils/sdk';
 import { TransferWallet, postVaa, signAndSendTransaction } from 'utils/wallet';
 import { PreviewData } from './types';
-
-// adapts the sdk returned parsed message to the type that
-// wh connect uses
-export const adaptParsedMessage = async (
-  parsed: SdkParsedMessage | SdkParsedRelayerMessage,
-): Promise<ParsedMessage | ParsedRelayerMessage> => {
-  const tokenId = {
-    address: parsed.tokenAddress,
-    chain: parsed.tokenChain,
-  };
-  const decimals = await wh.fetchTokenDecimals(tokenId, parsed.fromChain);
-  const token = getTokenById(tokenId);
-
-  const base: ParsedMessage = {
-    ...parsed,
-    amount: parsed.amount.toString(),
-    tokenKey: token?.key || '',
-    tokenDecimals: decimals,
-    sequence: parsed.sequence.toString(),
-    gasFee: parsed.gasFee ? parsed.gasFee.toString() : undefined,
-  };
-  // get wallet address of associated token account for Solana
-  const toChainId = wh.toChainId(parsed.toChain);
-  if (toChainId === MAINNET_CHAINS.solana) {
-    const accountOwner = await solanaContext().getTokenAccountOwner(
-      parsed.recipient,
-    );
-    base.recipient = accountOwner;
-  }
-  return base;
-};
+import { BaseRoute } from './baseRoute';
+import { adaptParsedMessage } from './common';
 
 export interface BridgePreviewParams {
   destToken: TokenConfig;
@@ -63,7 +26,7 @@ export interface BridgePreviewParams {
   destGasEst: string;
 }
 
-export class BridgeRoute extends RouteAbstract {
+export class BridgeRoute extends BaseRoute {
   async isRouteAvailable(
     sourceToken: string,
     destToken: string,
@@ -85,60 +48,6 @@ export class BridgeRoute extends RouteAbstract {
     )
       return true;
     return false;
-  }
-
-  async isSupportedSourceToken(
-    token: TokenConfig | undefined,
-    destToken: TokenConfig | undefined,
-  ): Promise<boolean> {
-    if (!token) return false;
-    if (destToken) {
-      const wrapped = getWrappedToken(token);
-      return wrapped.key === destToken.key;
-    }
-    return true;
-  }
-
-  async isSupportedDestToken(
-    token: TokenConfig | undefined,
-    sourceToken: TokenConfig | undefined,
-  ): Promise<boolean> {
-    if (!token) return false;
-    if (token.key === 'WSOL') return false;
-    if (!token.tokenId) return false;
-    if (sourceToken) {
-      const wrapped = getWrappedToken(sourceToken);
-      return wrapped.key === token.key;
-    }
-    return true;
-  }
-
-  async supportedSourceTokens(
-    tokens: TokenConfig[],
-    destToken?: TokenConfig,
-  ): Promise<TokenConfig[]> {
-    if (!destToken) return tokens;
-    const shouldAdd = await Promise.allSettled(
-      tokens.map((token) => this.isSupportedSourceToken(token, destToken)),
-    );
-    return tokens.filter((_token, i) => {
-      const res = shouldAdd[i];
-      return res.status === 'fulfilled' && res.value;
-    });
-  }
-
-  async supportedDestTokens(
-    tokens: TokenConfig[],
-    sourceToken?: TokenConfig,
-  ): Promise<TokenConfig[]> {
-    if (!sourceToken) return tokens;
-    const shouldAdd = await Promise.allSettled(
-      tokens.map((token) => this.isSupportedDestToken(token, sourceToken)),
-    );
-    return tokens.filter((_token, i) => {
-      const res = shouldAdd[i];
-      return res.status === 'fulfilled' && res.value;
-    });
   }
 
   async computeReceiveAmount(
@@ -296,5 +205,39 @@ export class BridgeRoute extends RouteAbstract {
         ],
       },
     ];
+  }
+
+  public getNativeBalance(
+    address: string,
+    network: ChainName | ChainId,
+  ): Promise<BigNumber | null> {
+    return wh.getNativeBalance(address, network);
+  }
+
+  public getTokenBalance(
+    address: string,
+    tokenId: TokenId,
+    network: ChainName | ChainId,
+  ): Promise<BigNumber | null> {
+    return wh.getTokenBalance(address, tokenId, network);
+  }
+
+  async getRelayerFee(
+    sourceChain: ChainName | ChainId,
+    destChain: ChainName | ChainId,
+    token: string,
+  ): Promise<BigNumber> {
+    return BigNumber.from(0);
+  }
+
+  async getForeignAsset(
+    token: TokenId,
+    chain: ChainName | ChainId,
+  ): Promise<string | null> {
+    return wh.getForeignAsset(token, chain);
+  }
+
+  async getVaa(tx: string, chain: ChainName | ChainId): Promise<VaaInfo<any>> {
+    return wh.getVaa(tx, chain);
   }
 }

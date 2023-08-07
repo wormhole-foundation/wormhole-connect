@@ -17,6 +17,7 @@ import {
   parseTokenTransferPayload,
 } from '@certusone/wormhole-sdk';
 import { PreviewData } from './types';
+import { BigNumber } from 'ethers';
 
 export default class Operator {
   getRoute(route: Route): RouteAbstract {
@@ -217,5 +218,61 @@ export default class Operator {
   async getPreview(route: Route, params: any): Promise<PreviewData> {
     const r = this.getRoute(route);
     return await r.getPreview(params);
+  }
+
+  public async getNativeBalance(
+    route: Route,
+    address: string,
+    network: ChainName | ChainId,
+  ): Promise<BigNumber | null> {
+    const r = this.getRoute(route);
+    return r.getNativeBalance(address, network);
+  }
+
+  public async getTokenBalance(
+    route: Route,
+    address: string,
+    tokenId: TokenId,
+    network: ChainName | ChainId,
+  ): Promise<BigNumber | null> {
+    const r = this.getRoute(route);
+    return r.getTokenBalance(address, tokenId, network);
+  }
+
+  public async getRelayerFee(
+    route: Route,
+    sourceChain: ChainName | ChainId,
+    destChain: ChainName | ChainId,
+    token: string,
+  ): Promise<BigNumber> {
+    const r = this.getRoute(route);
+    return r.getRelayerFee(sourceChain, destChain, token);
+  }
+
+  public async getForeignAsset(
+    route: Route,
+    tokenId: TokenId,
+    network: ChainName | ChainId,
+  ): Promise<string | null> {
+    const r = this.getRoute(route);
+    return r.getForeignAsset(tokenId, network);
+  }
+
+  public async isTransferCompleted(
+    route: Route,
+    destChain: ChainName | ChainId,
+    signedVaa: string,
+  ): Promise<boolean> {
+    const r = this.getRoute(route);
+    return r.isTransferCompleted(destChain, signedVaa);
+  }
+
+  public async getVaa(
+    route: Route,
+    tx: string,
+    network: ChainName | ChainId,
+  ): Promise<VaaInfo<any>> {
+    const r = this.getRoute(route);
+    return r.getVaa(tx, network);
   }
 }

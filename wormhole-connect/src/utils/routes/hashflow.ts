@@ -8,6 +8,7 @@ import { TokenConfig } from '../../config/types';
 import RouteAbstract from './routeAbstract';
 import { ParsedMessage, ParsedRelayerMessage } from '../sdk';
 import { PreviewData } from './types';
+import { BigNumber } from 'ethers';
 
 export class HashflowRoute extends RouteAbstract {
   public isRouteAvailable(
@@ -92,6 +93,41 @@ export class HashflowRoute extends RouteAbstract {
     throw new Error('Method not implemented.');
   }
   public getPreview<P>(params: P): Promise<PreviewData> {
+    throw new Error('Method not implemented.');
+  }
+  public getNativeBalance(
+    address: string,
+    network: ChainName | ChainId,
+  ): Promise<BigNumber | null> {
+    throw new Error('Method not implemented.');
+  }
+  public getTokenBalance(
+    address: string,
+    tokenId: TokenId,
+    network: ChainName | ChainId,
+  ): Promise<BigNumber | null> {
+    throw new Error('Method not implemented.');
+  }
+  async getRelayerFee(
+    sourceChain: ChainName | ChainId,
+    destChain: ChainName | ChainId,
+    token: string,
+  ): Promise<BigNumber> {
+    throw new Error('Method not implemented.');
+  }
+  getForeignAsset(
+    token: TokenId,
+    chain: ChainName | ChainId,
+  ): Promise<string | null> {
+    throw new Error('Method not implemented.');
+  }
+  isTransferCompleted(
+    destChain: ChainName | ChainId,
+    signedVaa: string,
+  ): Promise<boolean> {
+    throw new Error('Method not implemented.');
+  }
+  getVaa(tx: string, chain: ChainName | ChainId): Promise<VaaInfo<any>> {
     throw new Error('Method not implemented.');
   }
 }

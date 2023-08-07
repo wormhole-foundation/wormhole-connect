@@ -14,12 +14,14 @@ import {
   isAcceptedToken,
   ParsedRelayerMessage,
 } from 'utils/sdk';
-import { BridgePreviewParams, BridgeRoute, adaptParsedMessage } from './bridge';
+import { BridgePreviewParams, BridgeRoute } from './bridge';
 import { getTokenDecimals, getWrappedTokenId } from 'utils';
-import { utils } from 'ethers';
+import { BigNumber, utils } from 'ethers';
 import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
 import { toFixedDecimals } from '../balance';
 import { PreviewData } from './types';
+import { TOKENS } from '../../config';
+import { adaptParsedMessage } from './common';
 
 export type RelayOptions = {
   relayerFee?: number;
@@ -278,5 +280,17 @@ export class RelayRoute extends BridgeRoute {
         ],
       },
     ];
+  }
+
+  async getRelayerFee(
+    sourceChain: ChainName | ChainId,
+    destChain: ChainName | ChainId,
+    token: string,
+  ): Promise<BigNumber> {
+    const context: any = wh.getContext(sourceChain);
+    const tokenConfig = TOKENS[token];
+    if (!tokenConfig) throw new Error('could not get token config');
+    const tokenId = tokenConfig.tokenId || getWrappedTokenId(tokenConfig);
+    return await context.getRelayerFee(sourceChain, destChain, tokenId);
   }
 }

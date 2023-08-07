@@ -7,6 +7,7 @@ import {
 import { TokenConfig } from 'config/types';
 import { ParsedMessage, ParsedRelayerMessage } from '../sdk';
 import { PreviewData } from './types';
+import { BigNumber } from 'ethers';
 
 export default abstract class RouteAbstract {
   // protected abstract sendGasFallback: { [key: ChainName]: TokenConfig };
@@ -102,4 +103,35 @@ export default abstract class RouteAbstract {
 
   public abstract getPreview(params: any): Promise<PreviewData>;
   // send, validate, estimate gas, isRouteAvailable, parse data from VAA/fetch data, claim
+
+  abstract getNativeBalance(
+    address: string,
+    network: ChainName | ChainId,
+  ): Promise<BigNumber | null>;
+  abstract getTokenBalance(
+    address: string,
+    tokenId: TokenId,
+    network: ChainName | ChainId,
+  ): Promise<BigNumber | null>;
+
+  abstract getRelayerFee(
+    sourceChain: ChainName | ChainId,
+    destChain: ChainName | ChainId,
+    token: string,
+  ): Promise<BigNumber>;
+
+  abstract getForeignAsset(
+    token: TokenId,
+    chain: ChainName | ChainId,
+  ): Promise<string | null>;
+
+  abstract isTransferCompleted(
+    destChain: ChainName | ChainId,
+    signedVaa: string,
+  ): Promise<boolean>;
+
+  abstract getVaa(
+    tx: string,
+    chain: ChainName | ChainId,
+  ): Promise<VaaInfo<any>>;
 }

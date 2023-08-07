@@ -124,7 +124,7 @@ function Send(props: { valid: boolean }) {
           dispatch(setRoute('redeem'));
           setSendError('');
         } else {
-          vaa = await getVaa(txId, fromNetwork!);
+          vaa = await operator.getVaa(route, txId, fromNetwork!);
         }
       }, 1000);
     } catch (e) {
