@@ -4,7 +4,7 @@ import Background from './Background';
 import { makeStyles } from 'tss-react/mui';
 import WormholeBridge, { defaultTheme, WormholeConnectConfig } from '@wormhole-foundation/wormhole-connect';
 
-const useStyles = makeStyles()((theme) => ({
+const useStyles = makeStyles()(() => ({
   appContent: {
     paddingBottom: '60px',
   },
@@ -32,8 +32,8 @@ function App() {
   const { classes } = useStyles();
   const script = `
     <div id="wormhole-connect"></div>
-    <script src="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.8/dist/main.js"></script>
-    <link src="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.8/dist/main.css"/>
+    <script src="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.9/dist/main.js"></script>
+    <link src="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.9/dist/main.css"/>
   `
   const customized = defaultTheme;
   customized.background.default = 'transparent';
