@@ -5,7 +5,7 @@ import {
   parseVaa,
 } from '@certusone/wormhole-sdk';
 import { CosmWasmClient } from '@cosmjs/cosmwasm-stargate';
-import { EncodeObject } from '@cosmjs/proto-signing';
+import { EncodeObject, decodeTxRaw } from '@cosmjs/proto-signing';
 import {
   Coin,
   StdFee,
@@ -18,6 +18,7 @@ import {
   arrayify,
   base64,
   hexStripZeros,
+  hexlify,
   keccak256,
   zeroPad,
 } from 'ethers/lib/utils';
@@ -34,6 +35,7 @@ import {
 import { WormholeContext } from '../../wormhole';
 import { TokenBridgeAbstract } from '../abstracts/tokenBridge';
 import { CosmosContracts } from './contracts';
+import { searchCosmosLogs } from './utils';
 
 export interface CosmosTransaction {
   fee: StdFee | 'auto' | number;
@@ -304,27 +306,6 @@ export class CosmosContext<
     return decimals;
   }
 
-  /**
-   * Search for a specific piece of information emitted by the contracts during the transaction
-   * For example: to retrieve the bridge transfer recipient, we would have to look
-   * for the "transfer.recipient" under the "wasm" event
-   */
-  private searchLogs(
-    key: string,
-    logs: readonly cosmosLogs.Log[],
-  ): string | null {
-    for (const log of logs) {
-      for (const ev of log.events) {
-        for (const attr of ev.attributes) {
-          if (attr.key === key) {
-            return attr.value;
-          }
-        }
-      }
-    }
-    return null;
-  }
-
   async getVaa(
     txId: string,
     chain: ChainName | ChainId,
@@ -336,10 +317,11 @@ export class CosmosContext<
     // parse logs emitted for the tx execution
     const logs = cosmosLogs.parseRawLog(tx.rawLog);
 
-    const sequence = this.searchLogs('message.sequence', logs);
-    if (!sequence) throw new Error('sequence not found');
-    const emitterAddress = this.searchLogs('message.sender', logs);
-    if (!emitterAddress) throw new Error('emitter not found');
+    const emitterAddress = searchCosmosLogs('message.sender', logs);
+    const sequence = searchCosmosLogs('message.sequence', logs);
+
+    if (!sequence) throw new Error('VAA sequence not found');
+    if (!emitterAddress) throw new Error('VAA emitter not found');
 
     const chainId = this.context.toChainId(chain);
     const { vaaBytes } = await getSignedVAAWithRetry(
@@ -362,7 +344,44 @@ export class CosmosContext<
   async parseMessage(
     info: VaaInfo<any>,
   ): Promise<ParsedMessage | ParsedRelayerMessage> {
-    throw new Error('not implemented');
+    const { transaction: tx, vaa: message } = info;
+
+    if (!tx) throw new Error('tx not found');
+
+    const parsed = parseTokenTransferPayload(message.payload);
+
+    const decoded = decodeTxRaw(tx.tx);
+    const { sender } = MsgExecuteContract.decode(
+      decoded.body.messages[0].value,
+    );
+
+    const destContext = this.context.getContext(parsed.toChain as ChainId);
+    const tokenContext = this.context.getContext(parsed.tokenChain as ChainId);
+
+    const tokenAddress = await tokenContext.parseAssetAddress(
+      hexlify(parsed.tokenAddress),
+    );
+    const tokenChain = this.context.toChainName(parsed.tokenChain);
+
+    return {
+      sendTx: tx.hash,
+      sender,
+      amount: BigNumber.from(parsed.amount),
+      payloadID: parsed.payloadType,
+      recipient: destContext.parseAddress(hexlify(parsed.to)),
+      toChain: this.context.toChainName(parsed.toChain),
+      fromChain: this.context.toChainName(message.emitterChain),
+      tokenAddress,
+      tokenChain,
+      tokenId: {
+        address: tokenAddress,
+        chain: tokenChain,
+      },
+      sequence: BigNumber.from(message.sequence),
+      emitterAddress: message.emitterAddress.toString('hex'),
+      block: tx.height,
+      gasFee: BigNumber.from(tx.gasUsed),
+    };
   }
 
   parseRelayerPayload(payload: Buffer): ParsedRelayerPayload {
