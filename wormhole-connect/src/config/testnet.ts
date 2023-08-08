@@ -570,7 +570,7 @@ export const TESTNET_GAS_ESTIMATES: GasEstimates = {
     sendToken: 1000000,
   },
   basegoerli: {
-    claim: 100000,
+    claim: 1000000,
     sendNative: 1000000,
     sendToken: 1000000,
   },
