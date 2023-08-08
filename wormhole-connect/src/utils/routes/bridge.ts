@@ -5,17 +5,20 @@ import {
   TokenId,
   VaaInfo,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { TOKENS } from 'config';
+import { CHAINS, TOKENS } from 'config';
 import { TokenConfig } from 'config/types';
 import { BigNumber, utils } from 'ethers';
 import { Route } from 'store/transferInput';
-import { getTokenDecimals } from 'utils';
+import { MAX_DECIMALS, getTokenDecimals, toNormalizedDecimals } from 'utils';
 import { estimateClaimGasFees, estimateSendGasFees } from 'utils/gasEstimates';
-import { ParsedMessage, ParsedRelayerMessage, wh } from 'utils/sdk';
+import { ParsedMessage, ParsedRelayerMessage, toChainId, wh } from 'utils/sdk';
 import { TransferWallet, postVaa, signAndSendTransaction } from 'utils/wallet';
-import { PreviewData } from './types';
+import { TransferDisplayData } from './types';
 import { BaseRoute } from './baseRoute';
 import { adaptParsedMessage } from './common';
+import { toDecimals } from '../balance';
+import { calculateGas } from '../gas';
+import { TransferInfoBaseParams } from './routeAbstract';
 
 export interface BridgePreviewParams {
   destToken: TokenConfig;
@@ -24,6 +27,11 @@ export interface BridgePreviewParams {
   receiveAmount: number;
   sendingGasEst: string;
   destGasEst: string;
+}
+
+interface TransferDestInfoParams {
+  txData: ParsedMessage | ParsedRelayerMessage;
+  receiveTx?: string;
 }
 
 export class BridgeRoute extends BaseRoute {
@@ -177,7 +185,7 @@ export class BridgeRoute extends BaseRoute {
     receiveAmount: amount,
     sendingGasEst,
     destGasEst,
-  }: BridgePreviewParams): Promise<PreviewData> {
+  }: BridgePreviewParams): Promise<TransferDisplayData> {
     return [
       {
         title: 'Amount',
@@ -239,5 +247,61 @@ export class BridgeRoute extends BaseRoute {
 
   async getVaa(tx: string, chain: ChainName | ChainId): Promise<VaaInfo<any>> {
     return wh.getVaa(tx, chain);
+  }
+
+  async getTransferSourceInfo({
+    txData,
+  }: TransferInfoBaseParams): Promise<TransferDisplayData> {
+    const formattedAmt = toNormalizedDecimals(
+      txData.amount,
+      txData.tokenDecimals,
+      MAX_DECIMALS,
+    );
+    const { gasToken: sourceGasTokenSymbol } = CHAINS[txData.fromChain]!;
+    const sourceGasToken = TOKENS[sourceGasTokenSymbol];
+    const decimals = getTokenDecimals(
+      toChainId(sourceGasToken.nativeNetwork),
+      sourceGasToken.tokenId,
+    );
+    const formattedGas =
+      txData.gasFee && toDecimals(txData.gasFee, decimals, MAX_DECIMALS);
+    const token = TOKENS[txData.tokenKey];
+
+    return [
+      {
+        title: 'Amount',
+        value: `${formattedAmt} ${token.symbol}`,
+      },
+      {
+        title: 'Gas fee',
+        value: formattedGas ? `${formattedGas} ${sourceGasTokenSymbol}` : '—',
+      },
+    ];
+  }
+
+  async getTransferDestInfo({
+    txData,
+    receiveTx,
+  }: TransferDestInfoParams): Promise<TransferDisplayData> {
+    const token = TOKENS[txData.tokenKey];
+    const { gasToken } = CHAINS[txData.toChain]!;
+
+    const gas = await calculateGas(txData.toChain, receiveTx);
+
+    const formattedAmt = toNormalizedDecimals(
+      txData.amount,
+      txData.tokenDecimals,
+      MAX_DECIMALS,
+    );
+    return [
+      {
+        title: 'Amount',
+        value: `${formattedAmt} ${token.symbol}`,
+      },
+      {
+        title: receiveTx ? 'Gas fee' : 'Gas estimate',
+        value: gas ? `${gas} ${gasToken}` : '—',
+      },
+    ];
   }
 }

@@ -13,15 +13,25 @@ import {
   wh,
   isAcceptedToken,
   ParsedRelayerMessage,
+  toChainId,
+  calculateNativeTokenAmt,
 } from 'utils/sdk';
 import { BridgePreviewParams, BridgeRoute } from './bridge';
-import { getTokenDecimals, getWrappedTokenId } from 'utils';
+import {
+  MAX_DECIMALS,
+  fromNormalizedDecimals,
+  getTokenDecimals,
+  getWrappedTokenId,
+  toNormalizedDecimals,
+} from 'utils';
 import { BigNumber, utils } from 'ethers';
 import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
-import { toFixedDecimals } from '../balance';
-import { PreviewData } from './types';
-import { TOKENS } from '../../config';
+import { toDecimals, toFixedDecimals } from '../balance';
+import { TransferDisplayData } from './types';
+import { CHAINS, TOKENS } from '../../config';
 import { adaptParsedMessage } from './common';
+import { fetchSwapEvent } from '../events';
+import { TransferInfoBaseParams } from './routeAbstract';
 
 export type RelayOptions = {
   relayerFee?: number;
@@ -32,6 +42,12 @@ export interface RelayPreviewParams extends BridgePreviewParams {
   token: TokenConfig;
   receiveNativeAmt: number;
   relayerFee: number;
+}
+
+interface TransferDestInfoParams {
+  txData: ParsedMessage | ParsedRelayerMessage;
+  receiveTx?: string;
+  transferComplete?: boolean;
 }
 
 export class RelayRoute extends BridgeRoute {
@@ -240,7 +256,7 @@ export class RelayRoute extends BridgeRoute {
     receiveNativeAmt,
     sendingGasEst,
     relayerFee,
-  }: RelayPreviewParams): Promise<PreviewData> {
+  }: RelayPreviewParams): Promise<TransferDisplayData> {
     const isNative = token.symbol === sourceGasToken;
     let totalFeesText = '';
     if (sendingGasEst && relayerFee) {
@@ -292,5 +308,133 @@ export class RelayRoute extends BridgeRoute {
     if (!tokenConfig) throw new Error('could not get token config');
     const tokenId = tokenConfig.tokenId || getWrappedTokenId(tokenConfig);
     return await context.getRelayerFee(sourceChain, destChain, tokenId);
+  }
+
+  async getTransferSourceInfo({
+    txData: data,
+  }: TransferInfoBaseParams): Promise<TransferDisplayData> {
+    const txData = data as ParsedRelayerMessage;
+
+    const formattedAmt = toNormalizedDecimals(
+      txData.amount,
+      txData.tokenDecimals,
+      MAX_DECIMALS,
+    );
+    const { gasToken: sourceGasTokenSymbol } = CHAINS[txData.fromChain]!;
+    const sourceGasToken = TOKENS[sourceGasTokenSymbol];
+    const decimals = getTokenDecimals(
+      toChainId(sourceGasToken.nativeNetwork),
+      sourceGasToken.tokenId,
+    );
+    const formattedGas =
+      txData.gasFee && toDecimals(txData.gasFee, decimals, MAX_DECIMALS);
+    const token = TOKENS[txData.tokenKey];
+
+    // automatic transfers
+    const formattedFee = toNormalizedDecimals(
+      txData.relayerFee,
+      txData.tokenDecimals,
+      MAX_DECIMALS,
+    );
+    const formattedToNative = toNormalizedDecimals(
+      txData.toNativeTokenAmount,
+      txData.tokenDecimals,
+      MAX_DECIMALS,
+    );
+    const { gasToken } = CHAINS[txData.toChain]!;
+    return [
+      {
+        title: 'Amount',
+        value: `${formattedAmt} ${token.symbol}`,
+      },
+      {
+        title: 'Gas fee',
+        value: formattedGas ? `${formattedGas} ${sourceGasTokenSymbol}` : '—',
+      },
+      {
+        title: 'Relayer fee',
+        value: `${formattedFee} ${token.symbol}`,
+      },
+      {
+        title: 'Convert to native gas token',
+        value: `≈ ${formattedToNative} ${token.symbol} \u2192 ${gasToken}`,
+      },
+    ];
+  }
+
+  async getTransferDestInfo({
+    txData: data,
+    receiveTx,
+    transferComplete,
+  }: TransferDestInfoParams): Promise<TransferDisplayData> {
+    const txData: ParsedRelayerMessage = data as ParsedRelayerMessage;
+
+    const token = TOKENS[txData.tokenKey];
+    const { gasToken } = CHAINS[txData.toChain]!;
+
+    // calculate the amount of native gas received
+    let nativeGasAmt: string | undefined;
+    const nativeGasToken = TOKENS[gasToken];
+    if (receiveTx) {
+      let nativeSwapAmount: any;
+      try {
+        nativeSwapAmount = await fetchSwapEvent(txData);
+      } catch (e) {
+        console.error(`could not fetch swap event:\n${e}`);
+      }
+      if (nativeSwapAmount) {
+        const decimals = getTokenDecimals(
+          wh.toChainId(txData.toChain),
+          nativeGasToken.tokenId,
+        );
+        nativeGasAmt = toDecimals(nativeSwapAmount, decimals, MAX_DECIMALS);
+      }
+    } else if (!transferComplete) {
+      // get the decimals on the target chain
+      const destinationTokenDecimals = getTokenDecimals(
+        wh.toChainId(txData.toChain),
+        txData.tokenId,
+      );
+      const amount = await calculateNativeTokenAmt(
+        txData.toChain,
+        txData.tokenId,
+        fromNormalizedDecimals(
+          BigNumber.from(txData.toNativeTokenAmount),
+          destinationTokenDecimals,
+        ),
+        txData.recipient,
+      );
+      // get the decimals on the target chain
+      const nativeGasTokenDecimals = getTokenDecimals(
+        wh.toChainId(txData.toChain),
+        getWrappedTokenId(nativeGasToken),
+      );
+      nativeGasAmt = toDecimals(
+        amount.toString(),
+        // nativeGasToken.decimals,
+        nativeGasTokenDecimals,
+        MAX_DECIMALS,
+      );
+    }
+
+    const receiveAmt = BigNumber.from(txData.amount)
+      .sub(BigNumber.from(txData.relayerFee))
+      .sub(BigNumber.from(txData.toNativeTokenAmount || 0));
+    const formattedAmt = toNormalizedDecimals(
+      receiveAmt,
+      txData.tokenDecimals,
+      MAX_DECIMALS,
+    );
+
+    return [
+      {
+        title: 'Amount',
+        value: `${formattedAmt} ${token.symbol}`,
+      },
+      {
+        title: 'Native gas token',
+        value: nativeGasAmt ? `${nativeGasAmt} ${gasToken}` : '—',
+      },
+    ];
   }
 }
