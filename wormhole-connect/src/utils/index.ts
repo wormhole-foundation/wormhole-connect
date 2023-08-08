@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { BigNumber, utils } from 'ethers';
+import { BigNumber, BigNumberish, utils } from 'ethers';
 import {
   TokenId,
   ChainName,
@@ -189,7 +189,7 @@ export function fromNormalizedDecimals(
 }
 
 export function toNormalizedDecimals(
-  amount: BigNumber,
+  amount: BigNumberish,
   decimals: number,
   numDecimals?: number,
 ): string {

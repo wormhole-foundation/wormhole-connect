@@ -5,9 +5,9 @@ import {
   VaaInfo,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { TokenConfig } from '../../config/types';
-import RouteAbstract from './routeAbstract';
+import RouteAbstract, { TransferInfoBaseParams } from './routeAbstract';
 import { ParsedMessage, ParsedRelayerMessage } from '../sdk';
-import { PreviewData } from './types';
+import { TransferDisplayData } from './types';
 import { BigNumber } from 'ethers';
 
 export class HashflowRoute extends RouteAbstract {
@@ -92,7 +92,7 @@ export class HashflowRoute extends RouteAbstract {
   ): Promise<ParsedMessage | ParsedRelayerMessage> {
     throw new Error('Method not implemented.');
   }
-  public getPreview<P>(params: P): Promise<PreviewData> {
+  public getPreview<P>(params: P): Promise<TransferDisplayData> {
     throw new Error('Method not implemented.');
   }
   public getNativeBalance(
@@ -128,6 +128,16 @@ export class HashflowRoute extends RouteAbstract {
     throw new Error('Method not implemented.');
   }
   getVaa(tx: string, chain: ChainName | ChainId): Promise<VaaInfo<any>> {
+    throw new Error('Method not implemented.');
+  }
+  getTransferSourceInfo<T extends TransferInfoBaseParams>(
+    params: T,
+  ): Promise<TransferDisplayData> {
+    throw new Error('Method not implemented.');
+  }
+  getTransferDestInfo<T extends TransferInfoBaseParams>(
+    params: T,
+  ): Promise<TransferDisplayData> {
     throw new Error('Method not implemented.');
   }
 }
