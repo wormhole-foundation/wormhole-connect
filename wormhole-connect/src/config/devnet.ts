@@ -22,7 +22,7 @@ export const DEVNET_NETWORKS: NetworksConfig = {
     explorerName: '',
     gasToken: 'OSMO',
     chainId: 'osmosis-1002',
-    icon: Icon.SEI,
+    icon: Icon.OSMO,
     automaticRelayer: false,
     maxBlockSearch: 0,
   },
@@ -33,7 +33,7 @@ export const DEVNET_NETWORKS: NetworksConfig = {
     explorerName: '',
     gasToken: 'WORM',
     chainId: 'wormchain-1',
-    icon: Icon.SEI,
+    icon: Icon.OSMO,
     automaticRelayer: false,
     maxBlockSearch: 0,
   },
@@ -93,7 +93,7 @@ export const DEVNET_TOKENS: { [key: string]: TokenConfig } = {
       chain: 'osmosis',
       address: 'uosmo',
     },
-    icon: Icon.SEI,
+    icon: Icon.OSMO,
     coinGeckoId: 'osmo',
     color: '#FFFFFF',
     decimals: {
@@ -108,7 +108,7 @@ export const DEVNET_TOKENS: { [key: string]: TokenConfig } = {
       chain: 'wormchain',
       address: 'uworm',
     },
-    icon: Icon.SEI,
+    icon: Icon.OSMO,
     coinGeckoId: 'worm',
     color: '#FFFFFF',
     decimals: {
@@ -131,8 +131,8 @@ export const DEVNET_GAS_ESTIMATES: GasEstimates = {
     claim: 0,
   },
   osmosis: {
-    sendNative: 0,
-    sendToken: 0,
-    claim: 0,
+    sendNative: 750000,
+    sendToken: 750000,
+    claim: 700000,
   },
 };

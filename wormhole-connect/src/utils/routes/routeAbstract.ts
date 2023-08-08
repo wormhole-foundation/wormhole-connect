@@ -18,6 +18,11 @@ export interface TransferInfoBaseParams {
   txData: ParsedMessage | ParsedRelayerMessage;
 }
 
+export interface TransferDestInfoBaseParams {
+  txData: ParsedMessage | ParsedRelayerMessage;
+  receiveTx?: string;
+}
+
 export default abstract class RouteAbstract {
   // protected abstract sendGasFallback: { [key: ChainName]: TokenConfig };
   // protected abstract claimGasFallback: { [key: ChainName]: TokenConfig };
@@ -114,7 +119,7 @@ export default abstract class RouteAbstract {
   public abstract getTransferSourceInfo<T extends TransferInfoBaseParams>(
     params: T,
   ): Promise<TransferDisplayData>;
-  public abstract getTransferDestInfo<T extends TransferInfoBaseParams>(
+  public abstract getTransferDestInfo<T extends TransferDestInfoBaseParams>(
     params: T,
   ): Promise<TransferDisplayData>;
 

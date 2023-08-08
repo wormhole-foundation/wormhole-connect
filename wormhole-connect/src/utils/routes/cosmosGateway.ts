@@ -23,18 +23,24 @@ import {
 import { MsgTransfer } from 'cosmjs-types/ibc/applications/transfer/v1/tx';
 import { BigNumber, utils } from 'ethers';
 import { base58 } from 'ethers/lib/utils.js';
-import { wh } from 'utils/sdk';
-import { getTokenDecimals } from '..';
-import { CHAINS, CONFIG } from '../../config';
+import { toChainId, wh } from 'utils/sdk';
+import { MAX_DECIMALS, getTokenDecimals, toNormalizedDecimals } from '..';
+import { CHAINS, CONFIG, TOKENS } from '../../config';
 import { Route } from '../../store/transferInput';
 import { isCosmWasmChain } from '../../utils/cosmos';
-import { toFixedDecimals } from '../balance';
+import { toDecimals, toFixedDecimals } from '../balance';
 import { estimateSendGasFees } from '../gasEstimates';
 import { ParsedMessage, ParsedRelayerMessage } from '../sdk';
 import { TransferWallet, signAndSendTransaction } from '../wallet';
 import { BaseRoute } from './baseRoute';
 import { adaptParsedMessage } from './common';
-import { PreviewData } from './types';
+import { TransferDisplayData } from './types';
+import {
+  MessageInfo,
+  TransferDestInfoBaseParams,
+  TransferInfoBaseParams,
+} from './routeAbstract';
+import { calculateGas } from '../gas';
 
 interface GatewayTransferMsg {
   gateway_transfer: {
@@ -131,7 +137,7 @@ export class CosmosGatewayRoute extends BaseRoute {
     const nonce = Math.round(Math.random() * 10000);
     const recipient = Buffer.from(recipientAddress).toString('base64');
 
-    const payloadObject: any = {
+    const payloadObject: GatewayTransferMsg = {
       gateway_transfer: {
         chain: recipientChainId,
         nonce,
@@ -319,7 +325,7 @@ export class CosmosGatewayRoute extends BaseRoute {
 
   public async redeem(
     destChain: ChainName | ChainId,
-    vaa: Uint8Array,
+    messageInfo: MessageInfo,
     recipient: string,
   ): Promise<string> {
     throw new Error('Manual redeem is not supported by this route');
@@ -330,7 +336,7 @@ export class CosmosGatewayRoute extends BaseRoute {
     sourceGasToken,
     receiveAmount,
     sendingGasEst,
-  }: any): Promise<PreviewData> {
+  }: any): Promise<TransferDisplayData> {
     return [
       {
         title: 'Amount',
@@ -453,12 +459,15 @@ export class CosmosGatewayRoute extends BaseRoute {
 
   isTransferCompleted(
     destChain: ChainName | ChainId,
-    signedVaa: string,
+    messageInfo: VaaInfo,
   ): Promise<boolean> {
-    return wh.isTransferCompleted(CHAIN_ID_WORMCHAIN, signedVaa);
+    return wh.isTransferCompleted(
+      destChain,
+      Buffer.from(messageInfo.rawVaa).toString(),
+    );
   }
 
-  async getVaa(
+  async getMessageInfo(
     hash: string,
     chain: ChainName | ChainId,
   ): Promise<VaaInfo<any>> {
@@ -513,5 +522,61 @@ export class CosmosGatewayRoute extends BaseRoute {
     }
 
     return wh.getVaa(destTx[0].hash, CHAIN_ID_WORMCHAIN);
+  }
+
+  async getTransferSourceInfo({
+    txData,
+  }: TransferInfoBaseParams): Promise<TransferDisplayData> {
+    const formattedAmt = toNormalizedDecimals(
+      txData.amount,
+      txData.tokenDecimals,
+      MAX_DECIMALS,
+    );
+    const { gasToken: sourceGasTokenSymbol } = CHAINS[txData.fromChain]!;
+    const sourceGasToken = TOKENS[sourceGasTokenSymbol];
+    const decimals = getTokenDecimals(
+      toChainId(sourceGasToken.nativeNetwork),
+      sourceGasToken.tokenId,
+    );
+    const formattedGas =
+      txData.gasFee && toDecimals(txData.gasFee, decimals, MAX_DECIMALS);
+    const token = TOKENS[txData.tokenKey];
+
+    return [
+      {
+        title: 'Amount',
+        value: `${formattedAmt} ${token.symbol}`,
+      },
+      {
+        title: 'Gas fee',
+        value: formattedGas ? `${formattedGas} ${sourceGasTokenSymbol}` : '—',
+      },
+    ];
+  }
+
+  async getTransferDestInfo({
+    txData,
+    receiveTx,
+  }: TransferDestInfoBaseParams): Promise<TransferDisplayData> {
+    const token = TOKENS[txData.tokenKey];
+    const { gasToken } = CHAINS[txData.toChain]!;
+
+    const gas = await calculateGas(txData.toChain, receiveTx);
+
+    const formattedAmt = toNormalizedDecimals(
+      txData.amount,
+      txData.tokenDecimals,
+      MAX_DECIMALS,
+    );
+    return [
+      {
+        title: 'Amount',
+        value: `${formattedAmt} ${token.symbol}`,
+      },
+      {
+        title: receiveTx ? 'Gas fee' : 'Gas estimate',
+        value: gas ? `${gas} ${gasToken}` : '—',
+      },
+    ];
   }
 }

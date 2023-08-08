@@ -105,13 +105,15 @@ function TxSearch() {
             <MenuItem disabled value="" key={0}>
               Select network
             </MenuItem>
-            {CHAINS_ARR.map((chain, i) => {
-              return (
-                <MenuItem value={chain.key} key={i + 1}>
-                  {chain.displayName}
-                </MenuItem>
-              );
-            })}
+            {CHAINS_ARR.filter((chain) => chain.key !== 'wormchain').map(
+              (chain, i) => {
+                return (
+                  <MenuItem value={chain.key} key={i + 1}>
+                    {chain.displayName}
+                  </MenuItem>
+                );
+              },
+            )}
           </Select>
         </div>
         <div className={classes.search}>

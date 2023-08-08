@@ -18,7 +18,9 @@ import { BaseRoute } from './baseRoute';
 import { adaptParsedMessage } from './common';
 import { toDecimals } from '../balance';
 import { calculateGas } from '../gas';
-import { TransferInfoBaseParams } from './routeAbstract';
+import {
+  TransferDestInfoBaseParams, TransferInfoBaseParams,
+} from './routeAbstract';
 
 export interface BridgePreviewParams {
   destToken: TokenConfig;
@@ -27,11 +29,6 @@ export interface BridgePreviewParams {
   receiveAmount: number;
   sendingGasEst: string;
   destGasEst: string;
-}
-
-interface TransferDestInfoParams {
-  txData: ParsedMessage | ParsedRelayerMessage;
-  receiveTx?: string;
 }
 
 export class BridgeRoute extends BaseRoute {
@@ -290,7 +287,7 @@ export class BridgeRoute extends BaseRoute {
   async getTransferDestInfo({
     txData,
     receiveTx,
-  }: TransferDestInfoParams): Promise<TransferDisplayData> {
+  }: TransferDestInfoBaseParams): Promise<TransferDisplayData> {
     const token = TOKENS[txData.tokenKey];
     const { gasToken } = CHAINS[txData.toChain]!;
 

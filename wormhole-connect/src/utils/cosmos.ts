@@ -1,8 +1,7 @@
+import { ChainName, ChainId } from '@wormhole-foundation/wormhole-connect-sdk';
 import {
   CHAIN_ID_OSMOSIS,
   CHAIN_ID_WORMCHAIN,
-  ChainId,
-  ChainName,
   isCosmWasmChain as isBaseCosmWasmChain,
 } from '@certusone/wormhole-sdk';
 import { wh } from './sdk';
