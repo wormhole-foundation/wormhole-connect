@@ -13,4 +13,4 @@ export interface NestedRow extends Row {
   rows?: Row[];
 }
 
-export type PreviewData = NestedRow[];
+export type TransferDisplayData = NestedRow[];

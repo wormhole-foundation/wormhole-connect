@@ -57,9 +57,12 @@ const useStyles = makeStyles()((theme) => ({
   },
 }));
 
-function isSupportedToken(token: string, supportedTokens: TokenConfig[]): boolean {
+function isSupportedToken(
+  token: string,
+  supportedTokens: TokenConfig[],
+): boolean {
   if (!token) return true;
-  return supportedTokens.some(t => t.key === token);
+  return supportedTokens.some((t) => t.key === token);
 }
 
 function Bridge() {

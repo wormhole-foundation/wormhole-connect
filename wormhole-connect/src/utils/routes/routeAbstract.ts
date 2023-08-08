@@ -6,8 +6,12 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { TokenConfig } from 'config/types';
 import { ParsedMessage, ParsedRelayerMessage } from '../sdk';
-import { PreviewData } from './types';
+import { TransferDisplayData } from './types';
 import { BigNumber } from 'ethers';
+
+export interface TransferInfoBaseParams {
+  txData: ParsedMessage | ParsedRelayerMessage;
+}
 
 export default abstract class RouteAbstract {
   // protected abstract sendGasFallback: { [key: ChainName]: TokenConfig };
@@ -101,7 +105,14 @@ export default abstract class RouteAbstract {
     recipient: string,
   ): Promise<string>;
 
-  public abstract getPreview(params: any): Promise<PreviewData>;
+  public abstract getPreview(params: any): Promise<TransferDisplayData>;
+  public abstract getTransferSourceInfo<T extends TransferInfoBaseParams>(
+    params: T,
+  ): Promise<TransferDisplayData>;
+  public abstract getTransferDestInfo<T extends TransferInfoBaseParams>(
+    params: T,
+  ): Promise<TransferDisplayData>;
+
   // send, validate, estimate gas, isRouteAvailable, parse data from VAA/fetch data, claim
 
   abstract getNativeBalance(

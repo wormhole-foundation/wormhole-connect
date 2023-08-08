@@ -10,13 +10,13 @@ import { RelayRoute } from './relay';
 import { HashflowRoute } from './hashflow';
 import { TokenConfig } from 'config/types';
 import { ParsedMessage, ParsedRelayerMessage, PayloadType } from '../sdk';
-import RouteAbstract from './routeAbstract';
+import RouteAbstract, { TransferInfoBaseParams } from './routeAbstract';
 import {
   CHAIN_ID_SEI,
   ParsedVaa,
   parseTokenTransferPayload,
 } from '@certusone/wormhole-sdk';
-import { PreviewData } from './types';
+import { TransferDisplayData } from './types';
 import { BigNumber } from 'ethers';
 
 export default class Operator {
@@ -215,7 +215,7 @@ export default class Operator {
     return await r.parseMessage(info);
   }
 
-  async getPreview(route: Route, params: any): Promise<PreviewData> {
+  async getPreview(route: Route, params: any): Promise<TransferDisplayData> {
     const r = this.getRoute(route);
     return await r.getPreview(params);
   }
@@ -274,5 +274,21 @@ export default class Operator {
   ): Promise<VaaInfo<any>> {
     const r = this.getRoute(route);
     return r.getVaa(tx, network);
+  }
+
+  public getTransferSourceInfo<T extends TransferInfoBaseParams>(
+    route: Route,
+    params: T,
+  ): Promise<TransferDisplayData> {
+    const r = this.getRoute(route);
+    return r.getTransferSourceInfo(params);
+  }
+
+  public getTransferDestInfo<T extends TransferInfoBaseParams>(
+    route: Route,
+    params: T,
+  ): Promise<TransferDisplayData> {
+    const r = this.getRoute(route);
+    return r.getTransferDestInfo(params);
   }
 }

@@ -32,7 +32,12 @@ const useStyles = makeStyles()((theme) => ({
   },
 }));
 
-export function RenderRows(props: { rows: NestedRow[]; small?: boolean }) {
+interface RenderRowsProps {
+  rows: NestedRow[];
+  small?: boolean;
+}
+
+export function RenderRows(props: RenderRowsProps) {
   const { classes } = useStyles();
   const [collapsed, setCollapsed] = React.useState(true);
   const toggleCollapsed = () => setCollapsed((prev) => !prev);

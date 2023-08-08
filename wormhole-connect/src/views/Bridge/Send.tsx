@@ -7,7 +7,11 @@ import { makeStyles } from 'tss-react/mui';
 import { CHAINS, TOKENS } from '../../config';
 import { RootState } from '../../store';
 import { setRoute } from '../../store/router';
-import { setTxDetails, setSendTx } from '../../store/redeem';
+import {
+  setTxDetails,
+  setSendTx,
+  setRoute as setRedeemTransferRoute,
+} from '../../store/redeem';
 import { displayWalletAddress } from '../../utils';
 import {
   registerWalletSigner,
@@ -29,7 +33,6 @@ import AlertBanner from '../../components/AlertBanner';
 import PoweredByIcon from '../../icons/PoweredBy';
 import { LINK } from '../../utils/style';
 import { estimateClaimGasFees } from '../../utils/gasEstimates';
-import { getVaa } from '../../utils/sdk';
 import Operator from '../../utils/routes';
 
 const useStyles = makeStyles()((theme) => ({
@@ -122,6 +125,7 @@ function Send(props: { valid: boolean }) {
           dispatch(setSendTx(txId));
           dispatch(setTxDetails(message));
           dispatch(setRoute('redeem'));
+          dispatch(setRedeemTransferRoute(route));
           setSendError('');
         } else {
           vaa = await operator.getVaa(route, txId, fromNetwork!);
