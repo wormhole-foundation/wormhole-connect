@@ -2,7 +2,6 @@ import {
   ChainName,
   ChainId,
   TokenId,
-  VaaInfo,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { Route } from 'store/transferInput';
 import { BridgeRoute } from './bridge';
@@ -22,7 +21,6 @@ import RouteAbstract, {
 import {
   CHAIN_ID_SEI,
   parseTokenTransferPayload,
-  ParsedVaa,
 } from '@certusone/wormhole-sdk';
 import { TransferDisplayData } from './types';
 import { BigNumber } from 'ethers';

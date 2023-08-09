@@ -1,7 +1,5 @@
-import { ChainId, ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { TokenConfig } from 'config/types';
 import { getWrappedToken } from 'utils';
-import { wh } from '../sdk';
 import RouteAbstract from './routeAbstract';
 
 export abstract class BaseRoute extends RouteAbstract {
