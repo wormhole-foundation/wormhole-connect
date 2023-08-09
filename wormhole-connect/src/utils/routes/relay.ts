@@ -225,7 +225,7 @@ export class RelayRoute extends BridgeRoute {
 
   async redeem(
     destChain: ChainName | ChainId,
-    vaa: Uint8Array,
+    messageInfo: VaaInfo,
     payer: string,
   ): Promise<string> {
     // TODO: implement redeemRelay in the WormholeContext for self redemptions
@@ -233,7 +233,7 @@ export class RelayRoute extends BridgeRoute {
   }
 
   async parseMessage(
-    info: VaaInfo<any>,
+    info: VaaInfo,
   ): Promise<ParsedMessage | ParsedRelayerMessage> {
     const message = await wh.parseMessage(info);
     const parsed: any = await adaptParsedMessage(message);

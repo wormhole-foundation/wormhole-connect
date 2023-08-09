@@ -2,18 +2,24 @@ import {
   ChainName,
   ChainId,
   TokenId,
-  VaaInfo,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { Route } from 'store/transferInput';
 import { BridgeRoute } from './bridge';
 import { RelayRoute } from './relay';
 import { HashflowRoute } from './hashflow';
 import { TokenConfig } from 'config/types';
-import { ParsedMessage, ParsedRelayerMessage, PayloadType } from '../sdk';
-import RouteAbstract, { TransferInfoBaseParams } from './routeAbstract';
+import {
+  ParsedMessage,
+  ParsedRelayerMessage,
+  PayloadType,
+  getVaa,
+} from '../sdk';
+import RouteAbstract, {
+  TransferInfoBaseParams,
+  MessageInfo,
+} from './routeAbstract';
 import {
   CHAIN_ID_SEI,
-  ParsedVaa,
   parseTokenTransferPayload,
 } from '@certusone/wormhole-sdk';
 import { TransferDisplayData } from './types';
@@ -37,9 +43,16 @@ export default class Operator {
     }
   }
 
-  getRouteForVaa(vaa: ParsedVaa): Route {
-    // if (parsed.emitterAddress === HASHFLOW_CONTRACT_ADDRESS) {
-    //    return Route.HASHFLOW;
+  async getRouteFromTx(txHash: string, chain: ChainName): Promise<Route> {
+    const result = await getVaa(txHash, chain);
+    const vaa = result.vaa;
+
+    // if(HASHFLOW_CONTRACT_ADDRESSES.includes(vaa.emitterAddress)) {
+    //   return Route.HASHFLOW
+    // }
+
+    // if(CCTP_CONTRACT_ADDRESSES.includes(vaa.emitterAddress)) {
+    //   return Route.CCTP
     // }
 
     const transfer = parseTokenTransferPayload(vaa.payload);
@@ -200,16 +213,16 @@ export default class Operator {
   async redeem(
     route: Route,
     destChain: ChainName | ChainId,
-    vaa: Uint8Array,
+    messageInfo: MessageInfo,
     payer: string,
   ): Promise<string> {
     const r = this.getRoute(route);
-    return await r.redeem(destChain, vaa, payer);
+    return await r.redeem(destChain, messageInfo, payer);
   }
 
   async parseMessage(
     route: Route,
-    info: VaaInfo<any>,
+    info: MessageInfo,
   ): Promise<ParsedMessage | ParsedRelayerMessage> {
     const r = this.getRoute(route);
     return await r.parseMessage(info);
@@ -261,19 +274,19 @@ export default class Operator {
   public async isTransferCompleted(
     route: Route,
     destChain: ChainName | ChainId,
-    signedVaa: string,
+    messageInfo: MessageInfo,
   ): Promise<boolean> {
     const r = this.getRoute(route);
-    return r.isTransferCompleted(destChain, signedVaa);
+    return r.isTransferCompleted(destChain, messageInfo);
   }
 
-  public async getVaa(
+  public async getMessageInfo(
     route: Route,
     tx: string,
     network: ChainName | ChainId,
-  ): Promise<VaaInfo<any>> {
+  ): Promise<MessageInfo> {
     const r = this.getRoute(route);
-    return r.getVaa(tx, network);
+    return r.getMessageInfo(tx, network);
   }
 
   public getTransferSourceInfo<T extends TransferInfoBaseParams>(

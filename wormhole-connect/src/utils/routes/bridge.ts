@@ -145,11 +145,12 @@ export class BridgeRoute extends BaseRoute {
 
   async redeem(
     destChain: ChainName | ChainId,
-    vaa: Uint8Array,
+    messageInfo: VaaInfo,
     payer: string,
   ): Promise<string> {
     // post vaa (solana)
     // TODO: move to context
+
     const destChainId = wh.toChainId(destChain);
     const destChainName = wh.toChainName(destChain);
     if (destChainId === MAINNET_CHAINS.solana) {
@@ -158,10 +159,19 @@ export class BridgeRoute extends BaseRoute {
       if (!connection) throw new Error('no connection');
       const contracts = wh.mustGetContracts(destChain);
       if (!contracts.core) throw new Error('contract not found');
-      await postVaa(connection, contracts.core, Buffer.from(vaa));
+      await postVaa(
+        connection,
+        contracts.core,
+        Buffer.from(messageInfo.rawVaa),
+      );
     }
 
-    const tx = await wh.redeem(destChain, vaa, { gasLimit: 250000 }, payer);
+    const tx = await wh.redeem(
+      destChain,
+      messageInfo.rawVaa,
+      { gasLimit: 250000 },
+      payer,
+    );
     const txId = await signAndSendTransaction(
       destChainName,
       tx,
@@ -172,9 +182,9 @@ export class BridgeRoute extends BaseRoute {
   }
 
   async parseMessage(
-    info: VaaInfo<any>,
+    messageInfo: VaaInfo<any>,
   ): Promise<ParsedMessage | ParsedRelayerMessage> {
-    const message = await wh.parseMessage(info);
+    const message = await wh.parseMessage(messageInfo);
     return adaptParsedMessage(message);
   }
 
@@ -245,7 +255,10 @@ export class BridgeRoute extends BaseRoute {
     return wh.getForeignAsset(token, chain);
   }
 
-  async getVaa(tx: string, chain: ChainName | ChainId): Promise<VaaInfo<any>> {
+  async getMessageInfo(
+    tx: string,
+    chain: ChainName | ChainId,
+  ): Promise<VaaInfo<any>> {
     return wh.getVaa(tx, chain);
   }
 
@@ -303,5 +316,15 @@ export class BridgeRoute extends BaseRoute {
         value: gas ? `${gas} ${gasToken}` : '—',
       },
     ];
+  }
+
+  async isTransferCompleted(
+    destChain: ChainName | ChainId,
+    messageInfo: VaaInfo,
+  ): Promise<boolean> {
+    return wh.isTransferCompleted(
+      destChain,
+      Buffer.from(messageInfo.rawVaa).toString(),
+    );
   }
 }
