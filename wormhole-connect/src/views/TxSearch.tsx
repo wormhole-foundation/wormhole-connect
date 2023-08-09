@@ -63,10 +63,17 @@ function TxSearch() {
       return setError('Invalid transaction ID');
     }
     try {
-      const vaaInfo = await getVaa(state.tx, state.chain as ChainName);
       const operator = new Operator();
-      const route = operator.getRouteForVaa(vaaInfo.vaa);
-      const message = await operator.parseMessage(route, vaaInfo);
+      const route = await operator.getRouteFromTx(
+        state.tx,
+        state.chain as ChainName,
+      );
+      const messageInfo = await operator.getMessageInfo(
+        route,
+        state.tx,
+        state.chain as ChainName,
+      );
+      const message = await operator.parseMessage(route, messageInfo);
       setError('');
       dispatch(setTxDetails(message));
       dispatch(setTransferRoute(route));

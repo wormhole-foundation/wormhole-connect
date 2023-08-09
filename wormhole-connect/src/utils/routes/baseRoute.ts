@@ -58,11 +58,4 @@ export abstract class BaseRoute extends RouteAbstract {
       return res.status === 'fulfilled' && res.value;
     });
   }
-
-  isTransferCompleted(
-    destChain: ChainName | ChainId,
-    signedVaa: string,
-  ): Promise<boolean> {
-    return wh.isTransferCompleted(destChain, signedVaa);
-  }
 }
