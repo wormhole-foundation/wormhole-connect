@@ -31,7 +31,7 @@ import { TransferDisplayData } from './types';
 import { CHAINS, TOKENS } from '../../config';
 import { adaptParsedMessage } from './common';
 import { fetchSwapEvent } from '../events';
-import { TransferInfoBaseParams, MessageInfo } from './routeAbstract';
+import { TransferInfoBaseParams } from './routeAbstract';
 
 export type RelayOptions = {
   relayerFee?: number;
