@@ -34,6 +34,7 @@ import PoweredByIcon from '../../icons/PoweredBy';
 import { LINK } from '../../utils/style';
 import { estimateClaimGasFees } from '../../utils/gasEstimates';
 import Operator from '../../utils/routes';
+import { MessageInfo } from '../../utils/routes';
 
 const useStyles = makeStyles()((theme) => ({
   body: {
@@ -116,10 +117,10 @@ function Send(props: { valid: boolean }) {
         { toNativeToken },
       );
 
-      let vaa: VaaInfo<any> | undefined;
+      let messageInfo: MessageInfo | undefined;
       const toRedeem = setInterval(async () => {
-        if (vaa) {
-          const message = await operator.parseMessage(route, vaa);
+        if (messageInfo) {
+          const message = await operator.parseMessage(route, messageInfo);
           clearInterval(toRedeem);
           dispatch(setIsTransactionInProgress(false));
           dispatch(setSendTx(txId));
@@ -128,7 +129,11 @@ function Send(props: { valid: boolean }) {
           dispatch(setRedeemTransferRoute(route));
           setSendError('');
         } else {
-          vaa = await operator.getVaa(route, txId, fromNetwork!);
+          messageInfo = await operator.getMessageInfo(
+            route,
+            txId,
+            fromNetwork!,
+          );
         }
       }, 1000);
     } catch (e) {

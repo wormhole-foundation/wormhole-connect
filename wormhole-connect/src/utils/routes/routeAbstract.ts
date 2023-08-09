@@ -9,6 +9,10 @@ import { ParsedMessage, ParsedRelayerMessage } from '../sdk';
 import { TransferDisplayData } from './types';
 import { BigNumber } from 'ethers';
 
+// As more routes are added, more types should be added here (e.g. MessageInfo = ParsedVaa | DifferentRouteInfoStruct | ..)
+// This struct contains information needed to redeem the transfer
+export type MessageInfo = VaaInfo;
+
 export interface TransferInfoBaseParams {
   txData: ParsedMessage | ParsedRelayerMessage;
 }
@@ -96,12 +100,12 @@ export default abstract class RouteAbstract {
   ): Promise<any>;
 
   public abstract parseMessage(
-    info: VaaInfo<any>,
+    messageInfo: MessageInfo,
   ): Promise<ParsedMessage | ParsedRelayerMessage>;
 
   public abstract redeem(
     destChain: ChainName | ChainId,
-    vaa: Uint8Array,
+    messageInfo: MessageInfo,
     recipient: string,
   ): Promise<string>;
 
@@ -136,13 +140,13 @@ export default abstract class RouteAbstract {
     chain: ChainName | ChainId,
   ): Promise<string | null>;
 
-  abstract isTransferCompleted(
-    destChain: ChainName | ChainId,
-    signedVaa: string,
-  ): Promise<boolean>;
-
-  abstract getVaa(
+  abstract getMessageInfo(
     tx: string,
     chain: ChainName | ChainId,
-  ): Promise<VaaInfo<any>>;
+  ): Promise<MessageInfo>;
+
+  abstract isTransferCompleted(
+    destChain: ChainName | ChainId,
+    messageInfo: MessageInfo,
+  ): Promise<boolean>;
 }

@@ -2,10 +2,12 @@ import {
   ChainName,
   ChainId,
   TokenId,
-  VaaInfo,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { TokenConfig } from '../../config/types';
-import RouteAbstract, { TransferInfoBaseParams } from './routeAbstract';
+import RouteAbstract, {
+  TransferInfoBaseParams,
+  MessageInfo,
+} from './routeAbstract';
 import { ParsedMessage, ParsedRelayerMessage } from '../sdk';
 import { TransferDisplayData } from './types';
 import { BigNumber } from 'ethers';
@@ -82,13 +84,13 @@ export class HashflowRoute extends RouteAbstract {
   }
   public redeem(
     destChain: ChainName | ChainId,
-    vaa: Uint8Array,
+    messageInfo: MessageInfo,
     recipient: string,
   ): Promise<string> {
     throw new Error('Method not implemented.');
   }
   public parseMessage(
-    info: VaaInfo<any>,
+    messageInfo: MessageInfo,
   ): Promise<ParsedMessage | ParsedRelayerMessage> {
     throw new Error('Method not implemented.');
   }
@@ -123,11 +125,11 @@ export class HashflowRoute extends RouteAbstract {
   }
   isTransferCompleted(
     destChain: ChainName | ChainId,
-    signedVaa: string,
+    messageInfo: MessageInfo,
   ): Promise<boolean> {
     throw new Error('Method not implemented.');
   }
-  getVaa(tx: string, chain: ChainName | ChainId): Promise<VaaInfo<any>> {
+  getMessageInfo(tx: string, chain: ChainName | ChainId): Promise<MessageInfo> {
     throw new Error('Method not implemented.');
   }
   getTransferSourceInfo<T extends TransferInfoBaseParams>(
