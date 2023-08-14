@@ -86,7 +86,7 @@ export class WormholeContext extends MultiProvider<Domain> {
           ? DEVNET_CHAINS
           : TESTNET_CHAINS;
       const chainConfig = (chains as any)[n];
-      if (!chainConfig) throw new Error('invalid network name');
+      if (!chainConfig) throw new Error(`invalid network name ${n}`);
       // register domain
       this.registerDomain({
         // @ts-ignore

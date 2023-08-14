@@ -50,11 +50,13 @@ interface WrappedRegistryResponse {
 const NATIVE_DENOMS: Record<string, string> = {
   osmosis: 'uosmo',
   wormchain: 'uworm',
+  terra2: 'uluna',
 };
 
 const PREFIXES: Record<string, string> = {
   osmosis: 'osmo',
   wormchain: 'wormchain',
+  terra2: 'terra',
 };
 
 const MSG_EXECUTE_CONTRACT_TYPE_URL = '/cosmwasm.wasm.v1.MsgExecuteContract';

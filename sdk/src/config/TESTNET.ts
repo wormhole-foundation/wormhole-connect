@@ -13,11 +13,13 @@ export const TESTNET_CHAINS = {
   fantom: 10,
   alfajores: 14,
   moonbasealpha: 16,
+  terra2: 18,
   sui: 21,
   aptos: 22,
   basegoerli: 30,
   sei: 32,
   wormchain: 3104,
+  osmosis: 4000,
 } as const;
 
 /**
@@ -123,6 +125,16 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     finalityThreshold: 1,
     nativeTokenDecimals: 18,
   },
+  terra2: {
+    context: Context.COSMOS,
+    key: 'terra2',
+    id: 18,
+    contracts: {
+      ...CONTRACTS.TESTNET.terra2,
+    },
+    finalityThreshold: 0,
+    nativeTokenDecimals: 6,
+  },
   sui: {
     key: 'sui',
     id: 21,
@@ -177,8 +189,21 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     key: 'wormchain',
     id: 3104,
     contracts: {
-      ...CONTRACTS.TESTNET.wormchain,
-      ibcShimContract: '',
+      token_bridge:
+        'wormhole1aaf9r6s7nxhysuegqrxv0wpm27ypyv4886medd3mrkrw6t4yfcnst3qpex',
+      ibcShimContract:
+        'wormhole1ctnjk7an90lz5wjfvr3cf6x984a8cjnv8dpmztmlpcq4xteaa2xs9pwmzk',
+    },
+    finalityThreshold: 0,
+    nativeTokenDecimals: 6,
+  },
+  osmosis: {
+    key: 'osmosis',
+    id: 4000,
+    context: Context.COSMOS,
+    contracts: {
+      core: '',
+      token_bridge: '',
     },
     finalityThreshold: 0,
     nativeTokenDecimals: 6,
@@ -200,11 +225,13 @@ const TESTNET_CONFIG: WormholeConfig = {
     alfajores: 'https://alfajores-forno.celo-testnet.org',
     solana: 'https://api.devnet.solana.com',
     moonbasealpha: 'https://rpc.api.moonbase.moonbeam.network',
+    terra2: 'https://pisco-rpc.terra.dev',
     sui: 'https://fullnode.testnet.sui.io',
     aptos: 'https://fullnode.testnet.aptoslabs.com/v1',
     basegoerli: 'https://goerli.base.org',
     sei: 'https://rpc.atlantic-2.seinetwork.io',
     wormchain: '',
+    osmosis: 'http://rpc.osmotest5.osmosis.zone',
   },
   rest: {
     sei: 'https://rest.atlantic-2.seinetwork.io',

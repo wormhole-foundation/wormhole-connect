@@ -1,4 +1,4 @@
-import { Network as Environment } from '@certusone/wormhole-sdk';
+import { CONTRACTS, Network as Environment } from '@certusone/wormhole-sdk';
 import { ChainConfig, Context, Contracts, WormholeConfig } from '../types';
 
 /**
@@ -6,7 +6,8 @@ import { ChainConfig, Context, Contracts, WormholeConfig } from '../types';
  */
 export const DEVNET_CHAINS = {
   ethereum: 2,
-  osmosis: 20,
+  terra2: 18,
+  osmosis: 4000,
   wormchain: 3104,
 } as const;
 
@@ -39,7 +40,7 @@ const DEVNET: { [chain in DevnetChainName]: ChainConfig } = {
   },
   osmosis: {
     key: 'osmosis',
-    id: 20,
+    id: 4000,
     context: Context.COSMOS,
     contracts: {
       core: '',
@@ -53,11 +54,21 @@ const DEVNET: { [chain in DevnetChainName]: ChainConfig } = {
     key: 'wormchain',
     id: 3104,
     contracts: {
-      core: 'wormhole14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9srrg465',
+      core: 'wormhole17p9rzwnnfxcjp32un9ug7yhhzgtkhvl9jfksztgw5uh69wac2pgshdnj3k',
       token_bridge:
-        'wormhole1qg5ega6dykkxc307y25pecuufrjkxkaggkkxh7nad0vhyhtuhw3svg697z',
-      ibcShimContract:
         'wormhole1ghd753shjuwexxywmgs4xz7x2q732vcnkm6h2pyv9s6ah3hylvrqtm7t3h',
+      ibcShimContract:
+        'wormhole1mf6ptkssddfmxvhdx0ech0k03ktp6kf9yk59renau2gvht3nq2gq6n0sg2',
+    },
+    finalityThreshold: 0,
+    nativeTokenDecimals: 6,
+  },
+  terra2: {
+    context: Context.COSMOS,
+    key: 'terra2',
+    id: 18,
+    contracts: {
+      ...CONTRACTS.DEVNET.terra2,
     },
     finalityThreshold: 0,
     nativeTokenDecimals: 6,
@@ -72,8 +83,9 @@ const DEVNET_CONFIG: WormholeConfig = {
   env,
   rpcs: {
     ethereum: 'http://localhost:8545',
-    wormchain: 'http://localhost:32778',
-    osmosis: 'http://localhost:32806',
+    wormchain: 'http://localhost:26659',
+    osmosis: 'http://localhost:33043',
+    terra2: 'http://localhost:26658',
   },
   rest: {},
   chains: DEVNET,
