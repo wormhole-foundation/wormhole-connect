@@ -8,6 +8,7 @@ import {
 import { ChainName, ChainId, Contracts, Context } from '../../types';
 import { TokenBridgeRelayer } from '../../abis/TokenBridgeRelayer';
 import { TokenBridgeRelayer__factory } from '../../abis/TokenBridgeRelayer__factory';
+import { CircleRelayer__factory } from '../../abis/CircleRelayer__factory';
 import { ContractsAbstract } from '../abstracts/contracts';
 import { WormholeContext } from '../../wormhole';
 import { filterByContext } from '../../utils';
@@ -141,5 +142,32 @@ export class EthContracts<
         `Token Bridge Relayer contract for domain ${chain} not found`,
       );
     return relayer;
+  }
+
+  /**
+   * Returns wormhole CCTP relayer contract for the chain
+   *
+   * @returns An interface for the Wormhole CCTP relayer contract, undefined if not found
+   */
+  getWormholeCircleRelayer(chain: ChainName | ChainId): any {
+    const connection = this.context.mustGetConnection(chain);
+    const address =
+      this.mustGetContracts(chain).cctpContracts?.wormholeCircleRelayer;
+    if (!address) return undefined;
+    return CircleRelayer__factory.connect(address, connection);
+  }
+
+  /**
+   * Returns wormhole CCTP relayer contract for the chain
+   *
+   * @returns An interface for the Wormhole CCTP relayer contract, errors if not found
+   */
+  mustGetWormholeCircleRelayer(chain: ChainName | ChainId): any {
+    const circleRelayer = this.getWormholeCircleRelayer(chain);
+    if (!circleRelayer)
+      throw new Error(
+        `Wormhole Circle relayer contract for domain ${chain} not found`,
+      );
+    return circleRelayer;
   }
 }

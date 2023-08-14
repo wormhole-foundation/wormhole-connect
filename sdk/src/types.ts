@@ -44,6 +44,12 @@ export type Contracts = {
   token_bridge?: string;
   nft_bridge?: string;
   relayer?: string;
+  cctpContracts?: {
+    cctpTokenMessenger: string;
+    cctpMessageTransmitter: string;
+    wormholeCCTP?: string;
+    wormholeCircleRelayer?: string;
+  };
   suiOriginalTokenBridgePackageId?: string;
   suiRelayerPackageId?: string;
   seiTokenTranslator?: string;
