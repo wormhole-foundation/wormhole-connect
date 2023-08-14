@@ -42,6 +42,11 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     contracts: {
       ...CONTRACTS.TESTNET.ethereum,
       relayer: '0x9563a59c15842a6f322b10f69d1dd88b41f2e97b',
+      cctpContracts: {
+        cctpTokenMessenger: '0xd0c3da58f55358142b8d3e06c1c30c5c6114efe8',
+        cctpMessageTransmitter: '0x26413e8157cd32011e726065a5462e97dd4d03d9',
+        wormholeCircleRelayer: '0x17da1ff5386d044c63f00747b5b8ad1e3806448d',
+      },
     },
     finalityThreshold: 64,
     nativeTokenDecimals: 18,
@@ -85,6 +90,11 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     contracts: {
       ...CONTRACTS.TESTNET.avalanche,
       relayer: '0x9563a59c15842a6f322b10f69d1dd88b41f2e97b',
+      cctpContracts: {
+        cctpTokenMessenger: '0xeb08f243e5d3fcff26a9e38ae5520a669f4019d0',
+        cctpMessageTransmitter: '0xa9fb1b3009dcb79e2fe346c16a604b8fa8ae0a79',
+        wormholeCircleRelayer: '0x774a70bbd03327c21460b60f25b677d9e46ab458',
+      },
     },
     finalityThreshold: 1,
     nativeTokenDecimals: 18,
