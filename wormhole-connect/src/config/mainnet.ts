@@ -81,6 +81,17 @@ export const MAINNET_NETWORKS: NetworksConfig = {
     automaticRelayer: true,
     maxBlockSearch: 2000,
   },
+  terra2: {
+    ...chains.terra2!,
+    displayName: 'Terra',
+    explorerUrl: '',
+    explorerName: '',
+    gasToken: 'LUNA',
+    chainId: 'phoenix-1',
+    icon: Icon.OSMO,
+    automaticRelayer: false,
+    maxBlockSearch: 0,
+  },
   solana: {
     ...chains.solana!,
     displayName: 'Solana',
@@ -528,6 +539,21 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: {
       Ethereum: 8,
       default: 8,
+    },
+  },
+  LUNA: {
+    key: 'LUNA',
+    symbol: 'LUNA',
+    nativeNetwork: 'terra2',
+    tokenId: {
+      chain: 'terra2',
+      address: 'uluna',
+    },
+    icon: Icon.OSMO,
+    coinGeckoId: 'uluna',
+    color: '#FFFFFF',
+    decimals: {
+      default: 6,
     },
   },
   // SEI: {

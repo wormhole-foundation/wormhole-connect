@@ -275,7 +275,7 @@ export const signCosmosTransaction = async (
 
   if (result.data?.code) {
     throw new Error(
-      `Sei transaction failed with code ${result.data.code}. Log: ${result.data.rawLog}`,
+      `Cosmos transaction failed with code ${result.data.code}. Log: ${result.data.rawLog}`,
     );
   }
 

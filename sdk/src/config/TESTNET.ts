@@ -19,7 +19,7 @@ export const TESTNET_CHAINS = {
   basegoerli: 30,
   sei: 32,
   wormchain: 3104,
-  osmosis: 4000,
+  osmosis: 20,
 } as const;
 
 /**
@@ -199,7 +199,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
   },
   osmosis: {
     key: 'osmosis',
-    id: 4000,
+    id: 20,
     context: Context.COSMOS,
     contracts: {
       core: '',
@@ -231,7 +231,7 @@ const TESTNET_CONFIG: WormholeConfig = {
     basegoerli: 'https://goerli.base.org',
     sei: 'https://rpc.atlantic-2.seinetwork.io',
     wormchain: '',
-    osmosis: 'http://rpc.osmotest5.osmosis.zone',
+    osmosis: 'https://rpc.osmotest5.osmosis.zone',
   },
   rest: {
     sei: 'https://rest.atlantic-2.seinetwork.io',

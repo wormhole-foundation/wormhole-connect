@@ -8,9 +8,12 @@ import {
 import { CosmWasmClient } from '@cosmjs/cosmwasm-stargate';
 import {
   Coin,
+  IbcExtension,
   MsgTransferEncodeObject,
+  QueryClient,
   calculateFee,
   logs as cosmosLogs,
+  setupIbcExtension,
 } from '@cosmjs/stargate';
 import {
   ChainId,
@@ -41,14 +44,23 @@ import {
   TransferInfoBaseParams,
 } from './routeAbstract';
 import { calculateGas } from '../gas';
+import {
+  Tendermint34Client,
+  Tendermint37Client,
+  TendermintClient,
+} from '@cosmjs/tendermint-rpc';
 
 interface GatewayTransferMsg {
-  gateway_transfer: {
+  simple: {
     chain: ChainId;
     recipient: string;
     fee: string;
     nonce: number;
   };
+}
+
+interface FromCosmosPayload {
+  gateway_ibc_token_bridge_payload: GatewayTransferMsg;
 }
 
 const IBC_MSG_TYPE = '/ibc.applications.transfer.v1.MsgTransfer';
@@ -138,7 +150,7 @@ export class CosmosGatewayRoute extends BaseRoute {
     const recipient = Buffer.from(recipientAddress).toString('base64');
 
     const payloadObject: GatewayTransferMsg = {
-      gateway_transfer: {
+      simple: {
         chain: recipientChainId,
         nonce,
         recipient,
@@ -192,9 +204,9 @@ export class CosmosGatewayRoute extends BaseRoute {
       destContext.formatAddress(recipientAddress),
     ).toString('base64');
 
-    const payloadObject = {
+    const payloadObject: FromCosmosPayload = {
       gateway_ibc_token_bridge_payload: {
-        gateway_transfer: {
+        simple: {
           chain: recipientChainId,
           nonce,
           recipient,
@@ -228,7 +240,7 @@ export class CosmosGatewayRoute extends BaseRoute {
       denom,
       amount,
     };
-    const channel = await this.getIbcChannel(sendingChainId);
+    const channel = await this.getIbcDestinationChannel(sendingChainId);
     const ibcMessage: MsgTransferEncodeObject = {
       typeUrl: IBC_MSG_TYPE,
       value: MsgTransfer.fromPartial({
@@ -308,11 +320,8 @@ export class CosmosGatewayRoute extends BaseRoute {
     );
     const adapted: any = await adaptParsedMessage({
       ...message,
-      recipient: Buffer.from(
-        decoded.gateway_transfer.recipient,
-        'base64',
-      ).toString(),
-      toChain: wh.toChainName(decoded.gateway_transfer.chain),
+      recipient: Buffer.from(decoded.simple.recipient, 'base64').toString(),
+      toChain: wh.toChainName(decoded.simple.chain),
     });
     return {
       ...adapted,
@@ -427,14 +436,26 @@ export class CosmosGatewayRoute extends BaseRoute {
     denom: string,
     chain: ChainId | ChainName,
   ): Promise<string | null> {
-    const channel = await this.getIbcChannel(chain);
+    const channel = await this.getIbcDestinationChannel(chain);
     const hashData = utils.hexlify(Buffer.from(`transfer/${channel}/${denom}`));
     const hash = utils.sha256(hashData).substring(2);
     return `ibc/${hash.toUpperCase()}`;
   }
 
-  async getIbcChannel(chain: ChainId | ChainName): Promise<string> {
-    return 'channel-0';
+  async getIbcDestinationChannel(chain: ChainId | ChainName): Promise<string> {
+    const sourceChannel = await this.getIbcSourceChannel(chain);
+    const queryClient = await this.getQueryClient(CHAIN_ID_WORMCHAIN);
+    const conn = await queryClient.ibc.channel.channel(IBC_PORT, sourceChannel);
+
+    const destChannel = conn.channel?.counterparty?.channelId;
+    if (!destChannel) {
+      throw new Error(`No destination channel found on chain ${chain}`);
+    }
+
+    return destChannel;
+  }
+
+  async getIbcSourceChannel(chain: ChainId | ChainName): Promise<string> {
     const id = wh.toChainId(chain);
     if (!isCosmWasmChain(id)) throw new Error('Chain is not cosmos chain');
     const client = await this.getCosmWasmClient(CHAIN_ID_WORMCHAIN);
@@ -447,6 +468,33 @@ export class CosmosGatewayRoute extends BaseRoute {
       },
     );
     return channel;
+  }
+
+  private async getQueryClient(
+    chain: ChainId | ChainName,
+  ): Promise<QueryClient & IbcExtension> {
+    const tmClient = await this.getTmClient(chain);
+    return QueryClient.withExtensions(tmClient, setupIbcExtension);
+  }
+
+  private async getTmClient(
+    chain: ChainId | ChainName,
+  ): Promise<Tendermint34Client | Tendermint37Client> {
+    const rpc = CONFIG.rpcs[wh.toChainName(chain)];
+    if (!rpc) throw new Error(`${chain} RPC not configured`);
+
+    // from cosmjs: https://github.com/cosmos/cosmjs/blob/358260bff71c9d3e7ad6644fcf64dc00325cdfb9/packages/stargate/src/stargateclient.ts#L218
+    let tmClient: TendermintClient;
+    const tm37Client = await Tendermint37Client.connect(rpc);
+    const version = (await tm37Client.status()).nodeInfo.version;
+    if (version.startsWith('0.37.')) {
+      tmClient = tm37Client;
+    } else {
+      tm37Client.disconnect();
+      tmClient = await Tendermint34Client.connect(rpc);
+    }
+
+    return tmClient;
   }
 
   private async getCosmWasmClient(

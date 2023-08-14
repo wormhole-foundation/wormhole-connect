@@ -7,7 +7,7 @@ import { ChainConfig, Context, Contracts, WormholeConfig } from '../types';
 export const DEVNET_CHAINS = {
   ethereum: 2,
   terra2: 18,
-  osmosis: 4000,
+  osmosis: 20,
   wormchain: 3104,
 } as const;
 
@@ -40,7 +40,7 @@ const DEVNET: { [chain in DevnetChainName]: ChainConfig } = {
   },
   osmosis: {
     key: 'osmosis',
-    id: 4000,
+    id: 20,
     context: Context.COSMOS,
     contracts: {
       core: '',

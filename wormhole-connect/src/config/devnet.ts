@@ -37,6 +37,17 @@ export const DEVNET_NETWORKS: NetworksConfig = {
     automaticRelayer: false,
     maxBlockSearch: 0,
   },
+  terra2: {
+    ...chains.terra2!,
+    displayName: 'Terra',
+    explorerUrl: '',
+    explorerName: '',
+    gasToken: 'LUNA',
+    chainId: 'localterra',
+    icon: Icon.OSMO,
+    automaticRelayer: false,
+    maxBlockSearch: 0,
+  },
 };
 
 export const DEVNET_TOKENS: { [key: string]: TokenConfig } = {
@@ -115,6 +126,21 @@ export const DEVNET_TOKENS: { [key: string]: TokenConfig } = {
       default: 6,
     },
   },
+  LUNA: {
+    key: 'LUNA',
+    symbol: 'LUNA',
+    nativeNetwork: 'terra2',
+    tokenId: {
+      chain: 'terra2',
+      address: 'uluna',
+    },
+    icon: Icon.OSMO,
+    coinGeckoId: 'uluna',
+    color: '#FFFFFF',
+    decimals: {
+      default: 6,
+    },
+  },
 };
 
 export const DEVNET_GAS_ESTIMATES: GasEstimates = {
@@ -131,6 +157,11 @@ export const DEVNET_GAS_ESTIMATES: GasEstimates = {
     claim: 0,
   },
   osmosis: {
+    sendNative: 750000,
+    sendToken: 750000,
+    claim: 700000,
+  },
+  terra2: {
     sendNative: 750000,
     sendToken: 750000,
     claim: 700000,

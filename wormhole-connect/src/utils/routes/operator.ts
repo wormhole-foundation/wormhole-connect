@@ -1,31 +1,31 @@
 import {
-  ChainName,
+  CHAIN_ID_SEI,
+  parseTokenTransferPayload,
+} from '@certusone/wormhole-sdk';
+import {
   ChainId,
+  ChainName,
   TokenId,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { Route } from 'store/transferInput';
-import { BridgeRoute } from './bridge';
-import { RelayRoute } from './relay';
-import { HashflowRoute } from './hashflow';
 import { TokenConfig } from 'config/types';
+import { BigNumber } from 'ethers';
+import { Route } from 'store/transferInput';
+import { isCosmWasmChain } from '../cosmos';
 import {
   ParsedMessage,
   ParsedRelayerMessage,
   PayloadType,
   getVaa,
 } from '../sdk';
+import { BridgeRoute } from './bridge';
+import { CosmosGatewayRoute } from './cosmosGateway';
+import { HashflowRoute } from './hashflow';
+import { RelayRoute } from './relay';
 import RouteAbstract, {
   TransferInfoBaseParams,
   MessageInfo,
 } from './routeAbstract';
-import {
-  CHAIN_ID_SEI,
-  parseTokenTransferPayload,
-} from '@certusone/wormhole-sdk';
 import { TransferDisplayData } from './types';
-import { CosmosGatewayRoute } from './cosmosGateway';
-import { BigNumber } from 'ethers';
-import { isCosmWasmChain } from '../cosmos';
 
 export default class Operator {
   getRoute(route: Route): RouteAbstract {
@@ -49,6 +49,10 @@ export default class Operator {
   }
 
   async getRouteFromTx(txHash: string, chain: ChainName): Promise<Route> {
+    if (isCosmWasmChain(chain)) {
+      return Route.COSMOS_GATEWAY;
+    }
+
     const result = await getVaa(txHash, chain);
     const vaa = result.vaa;
 
@@ -73,8 +77,8 @@ export default class Operator {
     }
 
     return vaa.payload && vaa.payload[0] === PayloadType.AUTOMATIC
-      ? Route.RELAY
-      : Route.BRIDGE;
+        ? Route.RELAY
+        : Route.BRIDGE;
   }
 
   async isRouteAvailable(

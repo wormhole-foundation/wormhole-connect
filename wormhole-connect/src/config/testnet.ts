@@ -140,7 +140,7 @@ export const TESTNET_NETWORKS: NetworksConfig = {
     explorerUrl: 'https://testnet.mintscan.io/osmosis-testnet',
     explorerName: 'MintScan',
     gasToken: 'OSMO',
-    chainId: 'osmo-test-4',
+    chainId: 'osmo-test-5',
     icon: Icon.OSMO,
     automaticRelayer: false,
     maxBlockSearch: 0,

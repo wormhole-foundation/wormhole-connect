@@ -19,7 +19,7 @@ export const MAINNET_CHAINS = {
   base: 30,
   sei: 32,
   wormchain: 3104,
-  osmosis: 4000,
+  osmosis: 20,
 } as const;
 
 /**
@@ -193,7 +193,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
   },
   osmosis: {
     key: 'osmosis',
-    id: 4000,
+    id: 20,
     context: Context.COSMOS,
     contracts: {
       ...CONTRACTS.MAINNET.wormchain,
