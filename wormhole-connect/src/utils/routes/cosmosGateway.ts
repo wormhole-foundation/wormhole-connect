@@ -51,7 +51,7 @@ import {
 } from '@cosmjs/tendermint-rpc';
 
 interface GatewayTransferMsg {
-  simple: {
+  gateway_transfer: {
     chain: ChainId;
     recipient: string;
     fee: string;
@@ -150,7 +150,7 @@ export class CosmosGatewayRoute extends BaseRoute {
     const recipient = Buffer.from(recipientAddress).toString('base64');
 
     const payloadObject: GatewayTransferMsg = {
-      simple: {
+      gateway_transfer: {
         chain: recipientChainId,
         nonce,
         recipient,
@@ -206,7 +206,7 @@ export class CosmosGatewayRoute extends BaseRoute {
 
     const payloadObject: FromCosmosPayload = {
       gateway_ibc_token_bridge_payload: {
-        simple: {
+        gateway_transfer: {
           chain: recipientChainId,
           nonce,
           recipient,
@@ -320,8 +320,11 @@ export class CosmosGatewayRoute extends BaseRoute {
     );
     const adapted: any = await adaptParsedMessage({
       ...message,
-      recipient: Buffer.from(decoded.simple.recipient, 'base64').toString(),
-      toChain: wh.toChainName(decoded.simple.chain),
+      recipient: Buffer.from(
+        decoded.gateway_transfer.recipient,
+        'base64',
+      ).toString(),
+      toChain: wh.toChainName(decoded.gateway_transfer.chain),
     });
     return {
       ...adapted,
