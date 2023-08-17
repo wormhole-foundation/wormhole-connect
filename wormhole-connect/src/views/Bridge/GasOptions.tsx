@@ -175,6 +175,9 @@ function GasOptions(props: { disabled: boolean }) {
   // listen for selectOption
   document.addEventListener('selectOption', (event: Event) => {
     const { detail } = event as CustomEvent;
+    // TODO This should be the seperate enum that isn't 'Route'
+    // and then this should set the transferRoute to be the correct thing
+    // depending on what the enum is set to
     dispatch(setTransferRoute(detail as Route));
   });
 

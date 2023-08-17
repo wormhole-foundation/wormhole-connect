@@ -214,7 +214,7 @@ export const validateAll = async (
   } = transferData;
   const { maxSwapAmt, toNativeToken, relayerFee } = relayData;
   const { sending, receiving } = walletData;
-  const isAutomatic = route === Route.RELAY;
+  const isAutomatic = route === Route.RELAY || route === Route.CCTPRelay;
   const minAmt = getMinAmount(isAutomatic, toNativeToken, relayerFee);
   const baseValidations = {
     sendingWallet: await validateWallet(sending, fromNetwork),
