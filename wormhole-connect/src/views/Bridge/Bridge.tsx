@@ -225,7 +225,6 @@ function Bridge() {
   const showGasSlider =
     automaticRelayAvail && (route === Route.RELAY || route === Route.CCTPRelay);
   const showHashflowRoute = route === Route.HASHFLOW;
-  console.log(`show validation state ${JSON.stringify(validations)}`);
   return (
     <div className={joinClass([classes.bridgeContent, classes.spacer])}>
       <PageHeader title="Bridge" />

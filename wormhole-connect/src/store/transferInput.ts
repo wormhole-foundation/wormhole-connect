@@ -210,8 +210,6 @@ export const transferInputSlice = createSlice({
     ) => {
       state.automaticRelayAvail = true;
       state.route = payload;
-
-      console.log(`Set transferbbbbb ${payload as Route}`);
     },
     disableAutomaticTransferAndSetRoute: (
       state: TransferInputState,
@@ -219,16 +217,12 @@ export const transferInputSlice = createSlice({
     ) => {
       state.automaticRelayAvail = false;
       state.route = payload;
-
-      console.log(`Set transferaaaaa ${payload as Route}`);
     },
     setTransferRoute: (
       state: TransferInputState,
       { payload }: PayloadAction<Route>,
     ) => {
       state.route = payload;
-
-      console.log(`Set transfer route to be ${payload as Route}`);
     },
     // gas estimates
     setManualGasEst: (
