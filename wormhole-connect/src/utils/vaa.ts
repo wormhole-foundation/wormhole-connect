@@ -25,8 +25,8 @@ export const WORMHOLE_RPC_HOSTS =
     ? ['https://wormhole-v2-testnet-api.certus.one']
     : ['http://localhost:7071'];
 const WORMHOLE_STAGING_API = isMainnet
-  ? 'https://api.staging.wormscan.io/'
-  : 'https://api.testnet.wormscan.io/';
+  ? 'https://api.staging.wormholescan.io/'
+  : 'https://api.testnet.wormholescan.io/';
 
 export type ParsedVaa = {
   bytes: string;
