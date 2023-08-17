@@ -173,7 +173,7 @@ const estimateGasFee = async (
 };
 
 // gets a fallback gas fee estimate from config
-const getGasFeeFallback = async (
+export const getGasFeeFallback = async (
   token: TokenId | 'native',
   fromNetwork: ChainName | ChainId,
   route: Route,
@@ -243,7 +243,7 @@ const getGasFeeFallback = async (
       : gasEstimates.sendToken;
     const gasFees = BigNumber.from(gasEst).mul(gasPrice);
     return toFixedDecimals(utils.formatEther(gasFees), 6);
-  } else {
+  } else if (route === Route.RELAY) {
     const gasEst = sendNative
       ? gasEstimates.sendNativeWithRelay
       : gasEstimates.sendTokenWithRelay;
@@ -253,6 +253,12 @@ const getGasFeeFallback = async (
       );
     const gasFees = BigNumber.from(gasEst).mul(gasPrice);
     return toFixedDecimals(utils.formatEther(gasFees), 6);
+  } else if (route === Route.CCTPRelay) {
+    const gasEst = gasEstimates.sendCCTPWithRelay;
+    const gasFees = BigNumber.from(gasEst).mul(gasPrice);
+    return toFixedDecimals(utils.formatEther(gasFees), 6);
+  } else {
+    throw 'Invalid Route';
   }
 };
 

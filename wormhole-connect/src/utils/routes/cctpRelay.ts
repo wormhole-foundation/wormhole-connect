@@ -5,9 +5,8 @@ import {
   EthContext,
   WormholeContext,
   VaaInfo,
-  CircleIntegration__factory,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { CHAINS, TOKENS } from 'config';
+import { CHAINS, TOKENS, TOKENS_ARR } from 'config';
 import { TokenConfig } from 'config/types';
 import { BigNumber, utils, BytesLike, ethers } from 'ethers';
 import axios, { AxiosResponse } from 'axios';
@@ -34,6 +33,8 @@ import { BaseRoute } from './baseRoute';
 import { toDecimals, toFixedDecimals } from '../balance';
 import { TransferInfoBaseParams, CCTPInfo } from './routeAbstract';
 import { RelayOptions } from './relay';
+import { getGasFeeFallback } from '../gasEstimates';
+import { Route } from 'store/transferInput';
 export interface CCTPRelayPreviewParams {
   destToken: TokenConfig;
   sourceGasToken: string;
@@ -94,6 +95,26 @@ async function tryGetCircleAttestation(
     });
 }
 
+function getChainNameCCTP(domain: number): ChainName {
+  switch (domain) {
+    case 0:
+      return isMainnet ? 'ethereum' : 'goerli';
+    case 1:
+      return isMainnet ? 'avalanche' : 'fuji';
+  }
+  throw Error('Invalid CCTP domain');
+}
+function getDomainCCTP(chain: ChainName | ChainId): number {
+  const chainId = wh.toChainId(chain);
+  switch (chainId) {
+    case 2:
+      return 0;
+    case 6:
+      return 1;
+  }
+  throw Error('Invalid CCTP domain');
+}
+
 export class CCTPRelayRoute extends BaseRoute {
   async isSupportedSourceToken(
     token: TokenConfig | undefined,
@@ -130,14 +151,27 @@ export class CCTPRelayRoute extends BaseRoute {
     if (!sourceChain || !destChain || !sourceTokenConfig || !destTokenConfig)
       return false;
 
+    console.log('Ok the inputs exist');
+
     const sourceChainName = wh.toChainName(sourceChain);
     const destChainName = wh.toChainName(destChain);
     if (sourceChainName === destChainName) return false;
 
+    console.log(
+      `about to check symbols ${sourceTokenConfig.symbol} ${destTokenConfig.symbol}`,
+    );
+
     if (sourceTokenConfig.symbol !== 'USDC') return false;
     if (destTokenConfig.symbol !== 'USDC') return false;
 
-    const CCTPRelay_CHAINS: ChainName[] = ['ethereum', 'avalanche'];
+    console.log(`about to check names ${sourceChainName} ${destChainName}`);
+
+    const CCTPRelay_CHAINS: ChainName[] = [
+      'ethereum',
+      'avalanche',
+      'fuji',
+      'goerli',
+    ];
     return (
       CCTPRelay_CHAINS.includes(sourceChainName) &&
       CCTPRelay_CHAINS.includes(destChainName)
@@ -198,16 +232,22 @@ export class CCTPRelayRoute extends BaseRoute {
     const fromChainId = wh.toChainId(sendingChain);
     const decimals = getTokenDecimals(fromChainId, token);
     const parsedAmt = utils.parseUnits(`${amount}`, decimals);
-    const tx = await circleRelayer.populateTransaction.transferTokensWithRelay(
-      chainContext.context.parseAddress(tokenAddr, sendingChain),
-      parsedAmt,
-      BigNumber.from(routeOptions.toNativeToken),
-      wh.toChainId(recipientChain),
-      chainContext.context.formatAddress(recipientAddress, recipientChain),
-    );
-    const est = await provider.estimateGas(tx);
-    const gasFee = est.mul(gasPrice);
-    return toFixedDecimals(utils.formatEther(gasFee), 6);
+
+    try {
+      const tx =
+        await circleRelayer.populateTransaction.transferTokensWithRelay(
+          chainContext.context.parseAddress(tokenAddr, sendingChain),
+          parsedAmt,
+          BigNumber.from(routeOptions.toNativeToken),
+          wh.toChainId(recipientChain),
+          chainContext.context.formatAddress(recipientAddress, recipientChain),
+        );
+      const est = await provider.estimateGas(tx);
+      const gasFee = est.mul(gasPrice);
+      return toFixedDecimals(utils.formatEther(gasFee), 6);
+    } catch (Error) {
+      return getGasFeeFallback(token, sendingChain, Route.CCTPRelay);
+    }
 
     // maybe put this in a try catch and add fallback!
   }
@@ -228,11 +268,16 @@ export class CCTPRelayRoute extends BaseRoute {
     recipientAddress: string,
     routeOptions: any,
   ): Promise<string> {
+    console.log('About to send');
+
     const fromChainId = wh.toChainId(sendingChain);
     const fromChainName = wh.toChainName(sendingChain);
     const decimals = getTokenDecimals(fromChainId, token);
     const parsedAmt = utils.parseUnits(amount, decimals);
-
+    const parsedNativeAmt = routeOptions.toNativeToken
+      ? utils.parseUnits(routeOptions.toNativeToken.toString(), decimals)
+      : BigNumber.from(0);
+    console.log('About to send 1');
     // only works on EVM
     const chainContext = wh.getContext(
       sendingChain,
@@ -243,18 +288,36 @@ export class CCTPRelayRoute extends BaseRoute {
       token as TokenId,
       sendingChain,
     );
+
+    // approve
+    await chainContext.approve(
+      sendingChain,
+      circleRelayer.address,
+      tokenAddr,
+      parsedAmt,
+    );
+
+    console.log('About to send 2');
     const tx = await circleRelayer.populateTransaction.transferTokensWithRelay(
       chainContext.context.parseAddress(tokenAddr, sendingChain),
       parsedAmt,
-      BigNumber.from(routeOptions.toNativeToken),
+      parsedNativeAmt,
       wh.toChainId(recipientChain),
       chainContext.context.formatAddress(recipientAddress, recipientChain),
     );
+    console.log('About to send 3');
+    console.log(
+      `Parsed amount ${parsedAmt}\nParsed native amount ${parsedNativeAmt}\n`,
+    );
+    const sentTx = await wh.getSigner(fromChainName)?.sendTransaction(tx);
+    const rx = await sentTx?.wait();
+    if (!rx) throw "Transaction didn't go through";
     const txId = await signAndSendTransaction(
       fromChainName,
-      tx,
+      rx,
       TransferWallet.SENDING,
     );
+    console.log('signed and sent');
     wh.registerProviders();
     return txId;
   }
@@ -268,19 +331,11 @@ export class CCTPRelayRoute extends BaseRoute {
     throw new Error('not implemented');
   }
 
-  private getChainNameCCTP(domain: number): ChainName {
-    switch (domain) {
-      case 0:
-        return 'ethereum';
-      case 1:
-        return 'avalanche';
-    }
-    throw Error('Invalid CCTP domain');
-  }
-
   async parseMessage(
     messageInfo: CCTPInfo,
   ): Promise<ParsedMessage | ParsedRelayerMessage> {
+    console.log('here is the message to parse');
+    console.log(JSON.stringify(messageInfo));
     const tokenId: TokenId = {
       chain: messageInfo.fromChain,
       address: messageInfo.burnToken,
@@ -300,23 +355,23 @@ export class CCTPRelayRoute extends BaseRoute {
       };
     }
     return {
-      sendTx: messageInfo.transactionReceipt.transactionHash,
+      sendTx: messageInfo.transactionHash,
       sender: messageInfo.depositor,
       amount: messageInfo.amount.toString(),
       payloadID: PayloadType.AUTOMATIC,
       recipient: messageInfo.mintRecipient,
-      toChain: this.getChainNameCCTP(messageInfo.destinationDomain),
+      toChain: getChainNameCCTP(messageInfo.destinationDomain),
       fromChain: messageInfo.fromChain,
       tokenAddress: messageInfo.burnToken,
       tokenChain: messageInfo.fromChain,
       tokenId: tokenId,
       tokenDecimals: decimals,
       tokenKey: token?.key || '',
-      emitterAddress: 'circle',
-      sequence: '0',
-      block: messageInfo.transactionReceipt.blockNumber,
-      gasFee: messageInfo.transactionReceipt.gasUsed
-        .mul(messageInfo.transactionReceipt.effectiveGasPrice)
+      emitterAddress: messageInfo.vaaEmitter,
+      sequence: messageInfo.vaaSequence,
+      block: messageInfo.blockNumber,
+      gasFee: BigNumber.from(messageInfo.gasUsed)
+        .mul(messageInfo.effectiveGasPrice)
         .toString(),
       ...relayerPart,
     };
@@ -404,14 +459,21 @@ export class CCTPRelayRoute extends BaseRoute {
     const circleRelayer =
       chainContext.contracts.mustGetWormholeCircleRelayer(sourceChain);
     const destChainId = wh.toChainId(destChain);
-    return await circleRelayer.relayerFee(destChainId, tokenId?.address);
+    const fee = await circleRelayer.relayerFee(destChainId, tokenId?.address);
+    console.log(`RELAYER FEE: ${fee}`);
+    return fee;
   }
 
   async getForeignAsset(
     token: TokenId,
     chain: ChainName | ChainId,
   ): Promise<string | null> {
-    return wh.getForeignAsset(token, chain);
+    // assumes USDC
+    const addr = TOKENS_ARR.find(
+      (t) => t.symbol === 'USDC' && t.nativeNetwork === chain,
+    )?.tokenId?.address;
+    if (!addr) throw 'USDC not found';
+    return addr;
   }
 
   async getMessageInfo(
@@ -422,6 +484,8 @@ export class CCTPRelayRoute extends BaseRoute {
     // use this as reference
     // https://goerli.etherscan.io/tx/0xe4984775c76b8fe7c2b09cd56fb26830f6e5c5c6b540eb97d37d41f47f33faca#eventlog
     const provider = wh.mustGetProvider(chain);
+
+    console.log(`transaction hash: ${tx}`);
     const receipt = await provider.getTransactionReceipt(tx);
     if (!receipt) throw new Error(`No receipt for ${tx} on ${chain}`);
 
@@ -435,8 +499,9 @@ export class CCTPRelayRoute extends BaseRoute {
         '0x2fa9ca894982930190727e75500a97d8dc500233a5065e0f3126c48fbe0343c0',
     )[0];
 
-    const parsedCCTPLog =
-      CircleIntegration__factory.createInterface().parseLog(cctpLog);
+    const parsedCCTPLog = new utils.Interface([
+      'event DepositForBurn(uint64 indexed nonce, address indexed burnToken, uint256 amount, address indexed depositor, bytes32 mintRecipient, uint32 destinationDomain, bytes32 destinationTokenMessenger, bytes32 destinationCaller)',
+    ]).parseLog(cctpLog);
 
     const messageLog = receipt.logs.filter(
       (log) =>
@@ -451,12 +516,15 @@ export class CCTPRelayRoute extends BaseRoute {
     const messageHash = utils.keccak256(message);
     const signedAttestation = await getCircleAttestation(messageHash);
 
-    return {
+    const result = {
       fromChain: wh.toChainName(chain),
-      transactionReceipt: receipt,
+      transactionHash: receipt.transactionHash,
+      blockNumber: receipt.blockNumber,
+      gasUsed: receipt.gasUsed.toString(),
+      effectiveGasPrice: receipt.effectiveGasPrice.toString(),
       burnToken: parsedCCTPLog.args.burnToken, // '0x' + payload.substring(26, 66)
       depositor: receipt.from,
-      amount: parsedCCTPLog.args.amount,
+      amount: parsedCCTPLog.args.amount.toString(),
       mintRecipient: parsedCCTPLog.args.mintRecipient,
       destinationDomain: parsedCCTPLog.args.destinationDomain,
       destinationCaller: parsedCCTPLog.args.destinationCaller,
@@ -471,7 +539,13 @@ export class CCTPRelayRoute extends BaseRoute {
       toNativeTokenAmount: BigNumber.from(
         '0x' + payload.substring(296 + 64, 296 + 64 * 2),
       ).toString(),
+      vaaEmitter: vaaInfo.vaa.emitterAddress.toString('hex'),
+      vaaSequence: vaaInfo.vaa.sequence.toString(),
     };
+    //const stringresult: any = result;
+    //stringresult.transactionReceipt = undefined;
+    //console.log(JSON.stringify(stringresult));
+    return result;
   }
 
   async getTransferSourceInfo({
@@ -613,17 +687,31 @@ export class CCTPRelayRoute extends BaseRoute {
     const circleMessageTransmitter =
       context.contracts.mustGetContracts(destChain).cctpContracts
         ?.cctpMessageTransmitter;
-    const connection = context.mustGetConnection(destChain);
+    const connection = wh.mustGetProvider(destChain);
     const iface = new utils.Interface([
-      'function usedNonces(bytes32 nonce) returns (uint256)',
+      'function usedNonces(bytes32 domainNonceHash) view returns (uint256)',
     ]);
     const contract = new ethers.Contract(
       circleMessageTransmitter,
       iface,
       connection,
     );
-    const result = await contract.usedNonces(nonce);
-    return result === 1;
+    const hash = ethers.utils.keccak256(
+      ethers.utils.solidityPack(
+        ['uint32', 'uint64'],
+        [getDomainCCTP(messageInfo.fromChain), nonce],
+      ),
+    );
+    console.log(
+      ethers.utils.solidityPack(
+        ['uint32', 'uint64'],
+        [getDomainCCTP(messageInfo.fromChain), nonce],
+      ),
+    );
+    console.log(hash);
+    const result = await contract.usedNonces(hash);
+    console.log(JSON.stringify(result));
+    return result.toString() === '1';
   }
 }
 
