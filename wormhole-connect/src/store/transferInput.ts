@@ -204,19 +204,31 @@ export const transferInputSlice = createSlice({
     ) => {
       state.associatedTokenAddress = payload;
     },
-    enableAutomaticTransfer: (state: TransferInputState) => {
+    enableAutomaticTransferAndSetRoute: (
+      state: TransferInputState,
+      { payload }: PayloadAction<Route>,
+    ) => {
       state.automaticRelayAvail = true;
-      state.route = Route.RELAY;
+      state.route = payload;
+
+      console.log(`Set transferbbbbb ${payload as Route}`);
     },
-    disableAutomaticTransfer: (state: TransferInputState) => {
+    disableAutomaticTransferAndSetRoute: (
+      state: TransferInputState,
+      { payload }: PayloadAction<Route>,
+    ) => {
       state.automaticRelayAvail = false;
-      state.route = Route.BRIDGE;
+      state.route = payload;
+
+      console.log(`Set transferaaaaa ${payload as Route}`);
     },
     setTransferRoute: (
       state: TransferInputState,
       { payload }: PayloadAction<Route>,
     ) => {
       state.route = payload;
+
+      console.log(`Set transfer route to be ${payload as Route}`);
     },
     // gas estimates
     setManualGasEst: (
@@ -315,8 +327,8 @@ export const {
   clearBalances,
   setForeignAsset,
   setAssociatedTokenAddress,
-  enableAutomaticTransfer,
-  disableAutomaticTransfer,
+  enableAutomaticTransferAndSetRoute,
+  disableAutomaticTransferAndSetRoute,
   setTransferRoute,
   setManualGasEst,
   setAutomaticGasEst,

@@ -43,6 +43,7 @@ function ValidationError(props: Props) {
   let content: React.ReactNode = validationErrors[0];
 
   const selectManual = () => {
+    // TODO: Only change the enum
     dispatch(setTransferRoute(Route.BRIDGE));
   };
 
@@ -50,7 +51,7 @@ function ValidationError(props: Props) {
     validationErrors[0] &&
     validationErrors[0].includes('Minimum amount is')
   ) {
-    const isAutomatic = route === Route.RELAY;
+    const isAutomatic = route === Route.RELAY || route === Route.CCTPRelay;
     const min = getMinAmount(isAutomatic, toNativeToken, relayerFee);
     content = (
       <div className={classes.minAmtError}>

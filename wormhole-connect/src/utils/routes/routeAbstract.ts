@@ -7,11 +7,14 @@ import {
 import { TokenConfig } from 'config/types';
 import { ParsedMessage, ParsedRelayerMessage } from '../sdk';
 import { TransferDisplayData } from './types';
-import { BigNumber, ContractReceipt } from 'ethers';
+import { BigNumber } from 'ethers';
 
 export type CCTPInfo = {
   fromChain: ChainName;
-  transactionReceipt: ContractReceipt;
+  transactionHash: string;
+  blockNumber: number;
+  gasUsed: string;
+  effectiveGasPrice: string;
   burnToken: string;
   depositor: string;
   amount: BigNumber;
@@ -25,6 +28,8 @@ export type CCTPInfo = {
   relayerPayloadId?: number;
   relayerFee?: string;
   toNativeTokenAmount?: string;
+  vaaEmitter: string;
+  vaaSequence: string;
 };
 // As more routes are added, more types should be added here (e.g. MessageInfo = ParsedVaa | DifferentRouteInfoStruct | ..)
 // This struct contains information needed to redeem the transfer

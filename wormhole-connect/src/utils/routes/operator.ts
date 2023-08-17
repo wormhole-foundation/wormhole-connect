@@ -7,6 +7,7 @@ import { Route } from 'store/transferInput';
 import { BridgeRoute } from './bridge';
 import { RelayRoute } from './relay';
 import { HashflowRoute } from './hashflow';
+import { CCTPRelayRoute } from './cctpRelay';
 import { TokenConfig } from 'config/types';
 import {
   ParsedMessage,
@@ -24,15 +25,20 @@ import {
 } from '@certusone/wormhole-sdk';
 import { TransferDisplayData } from './types';
 import { BigNumber } from 'ethers';
+import { wh } from '../sdk';
 
 export default class Operator {
   getRoute(route: Route): RouteAbstract {
+    console.log(`GEtting route ${route}`);
     switch (route) {
       case Route.BRIDGE: {
         return new BridgeRoute();
       }
       case Route.RELAY: {
         return new RelayRoute();
+      }
+      case Route.CCTPRelay: {
+        return new CCTPRelayRoute();
       }
       case Route.HASHFLOW: {
         return new HashflowRoute();
@@ -51,9 +57,21 @@ export default class Operator {
     //   return Route.HASHFLOW
     // }
 
-    // if(CCTP_CONTRACT_ADDRESSES.includes(vaa.emitterAddress)) {
-    //   return Route.CCTP
-    // }
+    const CCTP_CONTRACT_ADDRESSES = [2, 6].map((chainId) => {
+      return wh.getContracts(chainId as ChainId)?.cctpContracts?.wormholeCCTP;
+    });
+    console.log('Checking route');
+    console.log(CCTP_CONTRACT_ADDRESSES);
+    console.log('0x' + vaa.emitterAddress.toString('hex').substring(24));
+
+    if (
+      CCTP_CONTRACT_ADDRESSES.includes(
+        '0x' + vaa.emitterAddress.toString('hex').substring(24),
+      )
+    ) {
+      console.log('CCTP!');
+      return Route.CCTPRelay;
+    }
 
     const transfer = parseTokenTransferPayload(vaa.payload);
     if (transfer.toChain === CHAIN_ID_SEI) {

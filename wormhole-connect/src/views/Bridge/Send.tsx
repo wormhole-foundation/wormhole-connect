@@ -77,11 +77,14 @@ function Send(props: { valid: boolean }) {
     toNetwork,
     token,
     amount,
-    route: routeType,
+    route,
     automaticRelayAvail,
     isTransactionInProgress,
-    route,
   } = transfer;
+
+  // TODO: change this to be the right enum
+  // route type should be one of two things - one transaction or two
+  const routeType = route;
   const [isConnected, setIsConnected] = useState(
     sending.currentAddress.toLowerCase() === sending.address.toLowerCase(),
   );
@@ -94,9 +97,12 @@ function Send(props: { valid: boolean }) {
     if (!valid) return;
     dispatch(setIsTransactionInProgress(true));
 
+    console.log('something 0');
     try {
       const fromConfig = CHAINS[fromNetwork!];
+      console.log('something 1');
       if (fromConfig?.context === Context.ETH) {
+        console.log('something huh');
         registerWalletSigner(fromNetwork!, TransferWallet.SENDING);
         const { chainId } = CHAINS[fromNetwork!]!;
         await switchNetwork(chainId, TransferWallet.SENDING);
@@ -106,6 +112,7 @@ function Send(props: { valid: boolean }) {
       const sendToken = tokenConfig.tokenId;
 
       const operator = new Operator();
+      console.log(`Route: ${route}`);
       const txId = await operator.send(
         route,
         sendToken || 'native',
@@ -121,6 +128,8 @@ function Send(props: { valid: boolean }) {
       const toRedeem = setInterval(async () => {
         if (messageInfo) {
           const message = await operator.parseMessage(route, messageInfo);
+          console.log('GOT THE MESSAGE AND PARSED IT');
+          console.log(JSON.stringify(message));
           clearInterval(toRedeem);
           dispatch(setIsTransactionInProgress(false));
           dispatch(setSendTx(txId));
@@ -143,6 +152,9 @@ function Send(props: { valid: boolean }) {
     }
   }
 
+  // TODO: 'routeType', if meant to be
+  // either one transaction or two transactions
+  // should be a different enum than 'Route'
   const setSendingGas = useCallback(
     async (routeType: Route) => {
       const tokenConfig = TOKENS[token]!;
@@ -190,6 +202,8 @@ function Send(props: { valid: boolean }) {
     const valid = isTransferValid(validations);
     if (!valid) return;
 
+    // TODO: should use a different enum than Route
+    // which is either one transaction or two
     if (automaticRelayAvail) {
       setSendingGas(Route.RELAY);
     }
