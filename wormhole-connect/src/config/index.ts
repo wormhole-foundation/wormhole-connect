@@ -32,8 +32,8 @@ export const ENV = isMainnet ? 'MAINNET' : 'TESTNET';
 
 export const WORMHOLE_EXPLORER = 'https://wormhole.com/explorer/';
 export const WORMHOLE_API = isMainnet
-  ? 'https://api.wormscan.io/'
-  : 'https://api.testnet.wormscan.io/';
+  ? 'https://api.wormholescan.io/'
+  : 'https://api.testnet.wormholescan.io/';
 export const ATTEST_URL = isMainnet
   ? 'https://www.portalbridge.com/#/register'
   : 'https://wormhole-foundation.github.io/example-token-bridge-ui/#/register';
