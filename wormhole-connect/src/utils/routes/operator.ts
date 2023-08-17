@@ -29,7 +29,6 @@ import { wh } from '../sdk';
 
 export default class Operator {
   getRoute(route: Route): RouteAbstract {
-    console.log(`GEtting route ${route}`);
     switch (route) {
       case Route.BRIDGE: {
         return new BridgeRoute();
@@ -60,16 +59,12 @@ export default class Operator {
     const CCTP_CONTRACT_ADDRESSES = [2, 6].map((chainId) => {
       return wh.getContracts(chainId as ChainId)?.cctpContracts?.wormholeCCTP;
     });
-    console.log('Checking route');
-    console.log(CCTP_CONTRACT_ADDRESSES);
-    console.log('0x' + vaa.emitterAddress.toString('hex').substring(24));
 
     if (
       CCTP_CONTRACT_ADDRESSES.includes(
         '0x' + vaa.emitterAddress.toString('hex').substring(24),
       )
     ) {
-      console.log('CCTP!');
       return Route.CCTPRelay;
     }
 
