@@ -65,7 +65,7 @@ interface FromCosmosPayload {
 
 const IBC_MSG_TYPE = '/ibc.applications.transfer.v1.MsgTransfer';
 const IBC_PORT = 'transfer';
-const IBC_TIMEOUT_MILLIS = 60 * 60 * 1000; // 1 hour
+const IBC_TIMEOUT_MILLIS = 10 * 60 * 1000; // 10 minutes
 
 const millisToNano = (seconds: number) => seconds * 1_000_000;
 
@@ -553,14 +553,12 @@ export class CosmosGatewayRoute extends BaseRoute {
     // and include the execution logs on the transaction
     // which can be used to extract the VAA
     const wormchainClient = await this.getCosmWasmClient(CHAIN_ID_WORMCHAIN);
-    const destTx = await wormchainClient.searchTx({
-      tags: [
-        { key: 'recv_packet.packet_sequence', value: packetSeq },
-        { key: 'recv_packet.packet_timeout_timestamp', value: packetTimeout },
-        { key: 'recv_packet.packet_src_channel', value: packetSrcChannel },
-        { key: 'recv_packet.packet_dst_channel', value: packetDstChannel },
-      ],
-    });
+    const destTx = await wormchainClient.searchTx([
+      { key: 'recv_packet.packet_sequence', value: packetSeq },
+      { key: 'recv_packet.packet_timeout_timestamp', value: packetTimeout },
+      { key: 'recv_packet.packet_src_channel', value: packetSrcChannel },
+      { key: 'recv_packet.packet_dst_channel', value: packetDstChannel },
+    ]);
     if (destTx.length === 0) {
       throw new Error(
         `No wormchain transaction found for packet by ${hash} on chain ${chain}`,
