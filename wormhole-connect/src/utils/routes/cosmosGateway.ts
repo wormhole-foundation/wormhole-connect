@@ -425,6 +425,11 @@ export class CosmosGatewayRoute extends BaseRoute {
     tokenId: TokenId,
     chain: ChainId | ChainName,
   ): Promise<string | null> {
+    // fall back to original implementation if not cosmos chain
+    if (!isCosmWasmChain(wh.toChainId(chain))) {
+      return wh.getForeignAsset(tokenId, chain);
+    }
+
     // add check here in case the token is a native cosmos denom
     // in such cases there's no need to look for in the wormchain network
     if (tokenId.chain === chain) return tokenId.address;
