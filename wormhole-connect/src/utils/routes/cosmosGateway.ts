@@ -25,7 +25,7 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { MsgTransfer } from 'cosmjs-types/ibc/applications/transfer/v1/tx';
 import { BigNumber, utils } from 'ethers';
-import { base58 } from 'ethers/lib/utils.js';
+import { base58, hexlify } from 'ethers/lib/utils.js';
 import { toChainId, wh } from 'utils/sdk';
 import { MAX_DECIMALS, getTokenDecimals, toNormalizedDecimals } from '..';
 import { CHAINS, CONFIG, TOKENS } from '../../config';
@@ -513,8 +513,8 @@ export class CosmosGatewayRoute extends BaseRoute {
     messageInfo: VaaInfo,
   ): Promise<boolean> {
     return wh.isTransferCompleted(
-      destChain,
-      Buffer.from(messageInfo.rawVaa).toString(),
+      CHAIN_ID_WORMCHAIN,
+      hexlify(messageInfo.rawVaa),
     );
   }
 
