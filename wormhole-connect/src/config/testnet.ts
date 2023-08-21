@@ -504,6 +504,7 @@ export const TESTNET_GAS_ESTIMATES: GasEstimates = {
     sendNativeWithRelay: 200000,
     sendTokenWithRelay: 300000,
     sendCCTPWithRelay: 300000,
+    sendCCTPManual: 150000,
     claim: 200000,
   },
   mumbai: {
@@ -526,6 +527,7 @@ export const TESTNET_GAS_ESTIMATES: GasEstimates = {
     sendNativeWithRelay: 200000,
     sendTokenWithRelay: 300000,
     sendCCTPWithRelay: 300000,
+    sendCCTPManual: 150000,
     claim: 200000,
   },
   fantom: {

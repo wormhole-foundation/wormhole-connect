@@ -44,7 +44,11 @@ function ValidationError(props: Props) {
 
   const selectManual = () => {
     // TODO: Only change the enum
-    dispatch(setTransferRoute(Route.BRIDGE));
+    if (route === Route.RELAY || route === Route.BRIDGE) {
+      dispatch(setTransferRoute(Route.BRIDGE));
+    } else {
+      dispatch(setTransferRoute(Route.CCTPManual));
+    }
   };
 
   if (

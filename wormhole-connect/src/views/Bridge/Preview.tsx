@@ -51,8 +51,6 @@ function Preview(props: { collapsed: boolean }) {
         return;
       const numReceiveAmount = Number.parseFloat(receiveAmount);
 
-      console.log(`Getting preview for route ${route}`);
-      console.log(`Fee: ${relayerFee}`);
       // TODO: find a way to bundle the parameters without the need
       // of checking for a specific route.
       const rows = await new Operator().getPreview(route, {
@@ -61,7 +59,9 @@ function Preview(props: { collapsed: boolean }) {
         destinationGasToken: destConfig.gasToken,
         amount: numReceiveAmount,
         sendingGasEst:
-          route === Route.BRIDGE ? gasEst.manual : gasEst.automatic,
+          route === Route.BRIDGE || route === Route.CCTPManual
+            ? gasEst.manual
+            : gasEst.automatic,
         destGasEst: gasEst.claim,
 
         // relay params

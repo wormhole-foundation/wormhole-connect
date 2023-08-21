@@ -26,6 +26,7 @@ import {
 import { TransferDisplayData } from './types';
 import { BigNumber } from 'ethers';
 import { wh } from '../sdk';
+import { CCTPManualRoute } from './cctpManual';
 
 export default class Operator {
   getRoute(route: Route): RouteAbstract {
@@ -35,6 +36,9 @@ export default class Operator {
       }
       case Route.RELAY: {
         return new RelayRoute();
+      }
+      case Route.CCTPManual: {
+        return new CCTPManualRoute();
       }
       case Route.CCTPRelay: {
         return new CCTPRelayRoute();
@@ -49,12 +53,21 @@ export default class Operator {
   }
 
   async getRouteFromTx(txHash: string, chain: ChainName): Promise<Route> {
-    const result = await getVaa(txHash, chain);
-    const vaa = result.vaa;
+    let vaa;
+    try {
+      const result = await getVaa(txHash, chain);
+      vaa = result.vaa;
+    } catch {}
+    console.log(`GET ROUTE FROM TX ${JSON.stringify(vaa)}`);
 
     // if(HASHFLOW_CONTRACT_ADDRESSES.includes(vaa.emitterAddress)) {
     //   return Route.HASHFLOW
     // }
+
+    if (!vaa) {
+      // Currently, CCTP manual is the only route without a VAA
+      return Route.CCTPManual;
+    }
 
     const CCTP_CONTRACT_ADDRESSES = [2, 6].map((chainId) => {
       return wh.getContracts(chainId as ChainId)?.cctpContracts?.wormholeCCTP;
