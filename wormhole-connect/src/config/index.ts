@@ -114,8 +114,8 @@ const testnetRpcs = {
   aptos: process.env.REACT_APP_APTOS_TESTNET_RPC || conf.rpcs.aptos,
   sei: process.env.REACT_APP_SEI_TESTNET_RPC || conf.rpcs.sei,
   basegoerli: process.env.REACT_APP_BASE_GOERLI_RPC || conf.rpcs.basegoerli,
-  osmosis: process.env.REACT_APP_OSMOSIS_RPC || conf.rpcs.osmosis,
-  wormchain: process.env.REACT_APP_WORMCHAIN_RPC || conf.rpcs.wormchain,
+  osmosis: process.env.REACT_APP_OSMOSIS_TESTNET_RPC || conf.rpcs.osmosis,
+  wormchain: process.env.REACT_APP_WORMCHAIN_TESTNET_RPC || conf.rpcs.wormchain,
 };
 const devnetRpcs = {
   ethereum: process.env.REACT_APP_ETHEREUM_DEVNET_RPC || conf.rpcs.ethereum,

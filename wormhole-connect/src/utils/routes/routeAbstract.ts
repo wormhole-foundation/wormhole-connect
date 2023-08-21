@@ -1,4 +1,3 @@
-import { SignedVaa } from '@certusone/wormhole-sdk';
 import {
   TokenId,
   ChainName,
