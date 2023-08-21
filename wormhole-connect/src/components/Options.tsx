@@ -47,15 +47,11 @@ type Option = {
 type Props = {
   children: Option[];
   active?: number;
+  onSelect: (key: any) => void;
 };
 
 function Options(props: Props) {
   const { classes } = useStyles();
-  // dispatch selectOption event
-  const emitSelectOption = (key: any) => {
-    const event = new CustomEvent('selectOption', { detail: key });
-    document.dispatchEvent(event);
-  };
 
   return (
     <div className={classes.options}>
@@ -66,7 +62,7 @@ function Options(props: Props) {
               classes.option,
               props.active === option.key && classes.active,
             ])}
-            onClick={() => emitSelectOption(option.key)}
+            onClick={() => props.onSelect(option.key)}
             style={{
               cursor: props.children.length > 0 ? 'pointer' : 'default',
             }}

@@ -28,8 +28,8 @@ export type CCTPInfo = {
   relayerPayloadId?: number;
   relayerFee?: string;
   toNativeTokenAmount?: string;
-  vaaEmitter: string;
-  vaaSequence: string;
+  vaaEmitter?: string;
+  vaaSequence?: string;
 };
 // As more routes are added, more types should be added here (e.g. MessageInfo = ParsedVaa | DifferentRouteInfoStruct | ..)
 // This struct contains information needed to redeem the transfer

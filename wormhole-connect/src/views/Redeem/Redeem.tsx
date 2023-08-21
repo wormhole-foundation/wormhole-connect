@@ -60,7 +60,12 @@ class Redeem extends React.Component<
   }
 
   async getIsVaaEnqueued() {
-    if (!this.props.txData.sendTx || !!this.state.messageInfo) return;
+    if (
+      !this.props.txData.sendTx ||
+      !!this.state.messageInfo ||
+      !this.props.txData.emitterAddress // no VAA exists, e.g. CCTP route
+    )
+      return;
     let isVaaEnqueued = false;
     try {
       isVaaEnqueued = await fetchIsVAAEnqueued(this.props.txData);

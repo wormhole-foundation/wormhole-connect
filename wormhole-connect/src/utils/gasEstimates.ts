@@ -257,6 +257,10 @@ export const getGasFeeFallback = async (
     const gasEst = gasEstimates.sendCCTPWithRelay;
     const gasFees = BigNumber.from(gasEst).mul(gasPrice);
     return toFixedDecimals(utils.formatEther(gasFees), 6);
+  } else if (route === Route.CCTPManual) {
+    const gasEst = gasEstimates.sendCCTPManual;
+    const gasFees = BigNumber.from(gasEst).mul(gasPrice);
+    return toFixedDecimals(utils.formatEther(gasFees), 6);
   } else {
     throw 'Invalid Route';
   }

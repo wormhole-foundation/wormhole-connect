@@ -544,6 +544,7 @@ export const MAINNET_GAS_ESTIMATES: GasEstimates = {
     sendNativeWithRelay: 200000,
     sendTokenWithRelay: 300000,
     sendCCTPWithRelay: 300000,
+    sendCCTPManual: 150000,
     claim: 300000,
   },
   polygon: {
@@ -566,6 +567,7 @@ export const MAINNET_GAS_ESTIMATES: GasEstimates = {
     sendNativeWithRelay: 200000,
     sendTokenWithRelay: 300000,
     sendCCTPWithRelay: 300000,
+    sendCCTPManual: 150000,
     claim: 300000,
   },
   fantom: {

@@ -36,11 +36,15 @@ function NetworksTag() {
   const fromNetworkConfig = CHAINS[txData.fromChain]!;
   const toNetworkConfig = CHAINS[txData.toChain]!;
 
-  const emitterAddress = txData.emitterAddress.startsWith('0x')
-    ? txData.emitterAddress.slice(2)
-    : txData.emitterAddress;
+  const emitterAddress = txData.emitterAddress
+    ? txData.emitterAddress.startsWith('0x')
+      ? txData.emitterAddress.slice(2)
+      : txData.emitterAddress
+    : undefined;
   const link =
     txData &&
+    txData.emitterAddress &&
+    txData.sequence &&
     `${WORMHOLE_EXPLORER}?emitterChain=${fromNetworkConfig.id}&emitterAddress=${emitterAddress}&sequence=${txData.sequence}`;
 
   return (
@@ -58,7 +62,7 @@ function NetworksTag() {
           </div>
         </div>
       </InputContainer>
-      {txData && (
+      {txData && link && (
         <a
           className={classes.link}
           href={link}

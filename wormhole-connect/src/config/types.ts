@@ -89,5 +89,6 @@ export type GasEstimates = {
     sendNativeWithRelay?: number;
     sendTokenWithRelay?: number;
     sendCCTPWithRelay?: number;
+    sendCCTPManual?: number;
   };
 };

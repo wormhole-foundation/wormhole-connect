@@ -153,7 +153,7 @@ export const validateRoute = (
   route: Route,
   relayAvailable: boolean,
 ): ValidationErr => {
-  if (route === Route.BRIDGE) return '';
+  if (route === Route.BRIDGE || route == Route.CCTPManual) return '';
   if (!relayAvailable)
     return 'Single transaction payment not available for this transfer';
   return '';
