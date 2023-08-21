@@ -118,6 +118,11 @@ function TokenWarnings() {
         tokenId,
         toNetwork,
       );
+      console.log(
+        `route: ${route}, token id: ${JSON.stringify(
+          tokenId,
+        )}, tonetwork: ${toNetwork}, foreing asset ${address}`,
+      );
       if (address) {
         dispatch(setForeignAsset(address));
         setShowErrors(false);

@@ -152,7 +152,7 @@ function Bridge() {
   // check if automatic relay option is available
   useEffect(() => {
     const establishRoute = async () => {
-      if (!fromNetwork || !toNetwork || !token) return;
+      if (!fromNetwork || !toNetwork || !token || !destToken) return;
       const cctpAvailable = await new Operator().isRouteAvailable(
         Route.CCTPRelay,
         token,
@@ -163,6 +163,19 @@ function Bridge() {
       );
       if (cctpAvailable) {
         dispatch(enableAutomaticTransferAndSetRoute(Route.CCTPRelay));
+        return;
+      }
+
+      const cctpManualAvailable = await new Operator().isRouteAvailable(
+        Route.CCTPManual,
+        token,
+        destToken,
+        amount,
+        fromNetwork,
+        toNetwork,
+      );
+      if (cctpManualAvailable) {
+        dispatch(disableAutomaticTransferAndSetRoute(Route.CCTPManual));
         return;
       }
 
@@ -186,7 +199,7 @@ function Bridge() {
       }
     };
     establishRoute();
-  }, [fromNetwork, toNetwork, token, destToken, dispatch, route]);
+  }, [fromNetwork, toNetwork, token, destToken, dispatch]);
 
   useEffect(() => {
     const recomputeReceive = async () => {
@@ -220,7 +233,6 @@ function Bridge() {
     dispatch,
   ]);
   const valid = isTransferValid(validations);
-
   const disabled = !valid || isTransactionInProgress;
   const showGasSlider =
     automaticRelayAvail && (route === Route.RELAY || route === Route.CCTPRelay);
