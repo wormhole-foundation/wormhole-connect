@@ -130,7 +130,6 @@ function SendTo() {
       : claimError
       ? 'Error please retry . . .'
       : 'Claim below';
-  console.log(`IS CONNECTED ${isConnected} WALLET ${wallet.address}`);
   return (
     <div>
       <InputContainer>

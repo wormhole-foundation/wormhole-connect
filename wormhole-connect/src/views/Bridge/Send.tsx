@@ -97,12 +97,9 @@ function Send(props: { valid: boolean }) {
     if (!valid) return;
     dispatch(setIsTransactionInProgress(true));
 
-    console.log('something 0');
     try {
       const fromConfig = CHAINS[fromNetwork!];
-      console.log('something 1');
       if (fromConfig?.context === Context.ETH) {
-        console.log('something huh');
         registerWalletSigner(fromNetwork!, TransferWallet.SENDING);
         const { chainId } = CHAINS[fromNetwork!]!;
         await switchNetwork(chainId, TransferWallet.SENDING);
@@ -112,7 +109,6 @@ function Send(props: { valid: boolean }) {
       const sendToken = tokenConfig.tokenId;
 
       const operator = new Operator();
-      console.log(`Route: ${route}`);
       const txId = await operator.send(
         route,
         sendToken || 'native',
@@ -128,8 +124,6 @@ function Send(props: { valid: boolean }) {
       const toRedeem = setInterval(async () => {
         if (messageInfo) {
           const message = await operator.parseMessage(route, messageInfo);
-          console.log('GOT THE MESSAGE AND PARSED IT');
-          console.log(JSON.stringify(message));
           clearInterval(toRedeem);
           dispatch(setIsTransactionInProgress(false));
           dispatch(setSendTx(txId));
