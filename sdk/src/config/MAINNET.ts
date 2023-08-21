@@ -186,7 +186,8 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     id: 3104,
     contracts: {
       ...CONTRACTS.MAINNET.wormchain,
-      ibcShimContract: '',
+      ibcShimContract:
+        'wormhole14ejqjyq8um4p3xfqj74yld5waqljf88fz25yxnma0cngspxe3les00fpjx',
     },
     finalityThreshold: 0,
     nativeTokenDecimals: 6,
