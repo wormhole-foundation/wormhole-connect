@@ -35,6 +35,8 @@ function ExplorerLink(props: ExplorerLinkProps) {
       explorerLink = `${networkConfig.explorerUrl}txn/${props.txHash}`;
     } else if (networkConfig.key === 'sei') {
       explorerLink = `${networkConfig.explorerUrl}transaction/${props.txHash}`;
+    } else if (networkConfig.key === 'osmosis') {
+      explorerLink = `${networkConfig.explorerUrl}txs/${props.txHash}`;
     } else {
       explorerLink = `${networkConfig.explorerUrl}tx/${props.txHash}`;
     }
