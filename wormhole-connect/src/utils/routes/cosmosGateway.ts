@@ -394,7 +394,7 @@ export class CosmosGatewayRoute extends BaseRoute {
     return signAndSendTransaction(
       wh.toChainName(destChain),
       tx,
-      TransferWallet.SENDING,
+      TransferWallet.RECEIVING,
     );
   }
 
