@@ -3,7 +3,6 @@ import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { BigNumber } from 'ethers';
 import { TokenConfig } from 'config/types';
 import { toDecimals } from '../utils/balance';
-import { TransferValidations } from '../utils/transferValidation';
 import { toChainId } from '../utils/sdk';
 import { TOKENS, config } from 'config';
 import { getTokenDecimals } from '../utils';
@@ -29,6 +28,22 @@ export const formatBalance = (
   const formattedBalance =
     balance !== null ? toDecimals(balance, decimals, 6) : null;
   return { [token.key]: formattedBalance };
+};
+
+export type ValidationErr = string;
+
+export type TransferValidations = {
+  sendingWallet: ValidationErr;
+  receivingWallet: ValidationErr;
+  fromNetwork: ValidationErr;
+  toNetwork: ValidationErr;
+  token: ValidationErr;
+  destToken: ValidationErr;
+  amount: ValidationErr;
+  route: ValidationErr;
+  toNativeToken: ValidationErr;
+  foreignAsset: ValidationErr;
+  associatedTokenAccount: ValidationErr;
 };
 
 export interface TransferInputState {
