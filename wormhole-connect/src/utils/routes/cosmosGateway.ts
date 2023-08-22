@@ -91,6 +91,8 @@ const IBC_TIMEOUT_MILLIS = 10 * 60 * 1000; // 10 minutes
 const millisToNano = (seconds: number) => seconds * 1_000_000;
 
 export class CosmosGatewayRoute extends BaseRoute {
+  private static CLIENT_MAP: Record<string, CosmWasmClient> = {};
+
   public async isRouteAvailable(
     sourceToken: string,
     destToken: string,
@@ -578,9 +580,16 @@ export class CosmosGatewayRoute extends BaseRoute {
   private async getCosmWasmClient(
     chain: ChainId | ChainName,
   ): Promise<CosmWasmClient> {
-    const rpc = CONFIG.rpcs[wh.toChainName(chain)];
+    const name = wh.toChainName(chain);
+    if (CosmosGatewayRoute.CLIENT_MAP[name]) {
+      return CosmosGatewayRoute.CLIENT_MAP[name];
+    }
+
+    const rpc = CONFIG.rpcs[name];
     if (!rpc) throw new Error(`${chain} RPC not configured`);
-    return await CosmWasmClient.connect(rpc);
+    const client = await CosmWasmClient.connect(rpc);
+    CosmosGatewayRoute.CLIENT_MAP[name] = client;
+    return client;
   }
 
   isTransferCompleted(
