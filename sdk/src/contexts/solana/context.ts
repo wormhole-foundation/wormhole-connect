@@ -790,7 +790,7 @@ export class SolanaContext<
     signedVaa: string,
   ): Promise<boolean> {
     if (!this.connection) throw new Error('no connection');
-    const parsed = parseVaa(arrayify(signedVaa));
+    const parsed = parseVaa(arrayify(signedVaa, { allowMissingPrefix: true }));
     const tokenBridge = this.contracts.mustGetBridge(destChain);
     return getClaim(
       this.connection,

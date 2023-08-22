@@ -1,6 +1,7 @@
 import {
   CHAIN_ID_OSMOSIS,
   CHAIN_ID_SEI,
+  CHAIN_ID_SOLANA,
   CHAIN_ID_WORMCHAIN,
   cosmos,
   parseTokenTransferPayload,
@@ -26,6 +27,8 @@ import {
   VaaInfo,
   VaaSourceTransaction,
   searchCosmosLogs,
+  SolanaContext,
+  WormholeContext,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { MsgTransfer } from 'cosmjs-types/ibc/applications/transfer/v1/tx';
 import { MsgExecuteContract } from 'cosmjs-types/cosmwasm/wasm/v1/tx';
@@ -252,10 +255,16 @@ export class CosmosGatewayRoute extends BaseRoute {
   ): Promise<any> {
     if (token === 'native') throw new Error('Native token not supported');
 
-    const memo = this.buildFromCosmosPayloadMemo(
-      recipientChainId,
-      recipientAddress,
-    );
+    let recipient = recipientAddress;
+    // get token account for solana
+    if (recipientChainId === CHAIN_ID_SOLANA) {
+      const account = await (
+        wh.getContext(CHAIN_ID_SOLANA) as SolanaContext<WormholeContext>
+      ).getAssociatedTokenAddress(token, recipientAddress);
+      recipient = account.toString();
+    }
+
+    const memo = this.buildFromCosmosPayloadMemo(recipientChainId, recipient);
 
     const denom = await this.getForeignAsset(token, sendingChainId);
     if (!denom) throw new Error('Could not derive IBC asset denom');
