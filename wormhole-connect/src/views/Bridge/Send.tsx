@@ -116,17 +116,6 @@ function Send(props: { valid: boolean }) {
         receiving.address,
         { toNativeToken },
       );
-      // // TODO: update sendTransfer to handle routing
-      // const txId = await sendTransfer(
-      //   sendToken || 'native',
-      //   `${amount}`,
-      //   fromNetwork!,
-      //   sending.address,
-      //   toNetwork!,
-      //   receiving.address,
-      //   route as unknown as PayloadType,
-      //   `${toNativeToken}`,
-      // );
 
       let messageInfo: MessageInfo | undefined;
       const toRedeem = setInterval(async () => {

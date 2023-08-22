@@ -137,7 +137,7 @@ export const TESTNET_NETWORKS: NetworksConfig = {
   osmosis: {
     ...chains.osmosis!,
     displayName: 'Osmosis',
-    explorerUrl: 'https://testnet.mintscan.io/osmosis-testnet',
+    explorerUrl: 'https://testnet.mintscan.io/osmosis-testnet/',
     explorerName: 'MintScan',
     gasToken: 'OSMO',
     chainId: 'osmo-test-5',

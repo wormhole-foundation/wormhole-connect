@@ -604,7 +604,9 @@ export class EthContext<
     signedVaa: string,
   ): Promise<boolean> {
     const tokenBridge = this.contracts.mustGetBridge(destChain);
-    const hash = parseVaa(utils.arrayify(signedVaa)).hash;
+    const hash = parseVaa(
+      utils.arrayify(signedVaa, { allowMissingPrefix: true }),
+    ).hash;
     return await tokenBridge.isTransferCompleted(hash);
   }
 

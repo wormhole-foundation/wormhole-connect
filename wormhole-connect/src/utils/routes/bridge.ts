@@ -19,7 +19,8 @@ import { adaptParsedMessage } from './common';
 import { toDecimals } from '../balance';
 import { calculateGas } from '../gas';
 import {
-  TransferDestInfoBaseParams, TransferInfoBaseParams,
+  TransferDestInfoBaseParams,
+  TransferInfoBaseParams,
 } from './routeAbstract';
 
 export interface BridgePreviewParams {
@@ -316,7 +317,7 @@ export class BridgeRoute extends BaseRoute {
   ): Promise<boolean> {
     return wh.isTransferCompleted(
       destChain,
-      Buffer.from(messageInfo.rawVaa).toString(),
+      Buffer.from(messageInfo.rawVaa).toString('hex'),
     );
   }
 }

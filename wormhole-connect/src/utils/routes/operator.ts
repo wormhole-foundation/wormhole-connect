@@ -77,8 +77,8 @@ export default class Operator {
     }
 
     return vaa.payload && vaa.payload[0] === PayloadType.AUTOMATIC
-        ? Route.RELAY
-        : Route.BRIDGE;
+      ? Route.RELAY
+      : Route.BRIDGE;
   }
 
   async isRouteAvailable(

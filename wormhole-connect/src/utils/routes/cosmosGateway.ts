@@ -5,7 +5,10 @@ import {
   cosmos,
   parseTokenTransferPayload,
 } from '@certusone/wormhole-sdk';
-import { CosmWasmClient } from '@cosmjs/cosmwasm-stargate';
+import {
+  CosmWasmClient,
+  MsgExecuteContractEncodeObject,
+} from '@cosmjs/cosmwasm-stargate';
 import {
   Coin,
   IbcExtension,
@@ -21,9 +24,11 @@ import {
   CosmosTransaction,
   TokenId,
   VaaInfo,
+  VaaSourceTransaction,
   searchCosmosLogs,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { MsgTransfer } from 'cosmjs-types/ibc/applications/transfer/v1/tx';
+import { MsgExecuteContract } from 'cosmjs-types/cosmwasm/wasm/v1/tx';
 import { BigNumber, utils } from 'ethers';
 import { base58, hexlify } from 'ethers/lib/utils.js';
 import { toChainId, wh } from 'utils/sdk';
@@ -49,6 +54,7 @@ import {
   Tendermint37Client,
   TendermintClient,
 } from '@cosmjs/tendermint-rpc';
+import { BridgeRoute } from './bridge';
 
 interface GatewayTransferMsg {
   gateway_transfer: {
@@ -61,6 +67,20 @@ interface GatewayTransferMsg {
 
 interface FromCosmosPayload {
   gateway_ibc_token_bridge_payload: GatewayTransferMsg;
+}
+
+// this contains additional info given that the transaction that emits
+// the vaa ocurs in wormchain, but the original action that started
+// the process takes place in another cosmos chain
+interface GatewayVaaInfo<T extends VaaSourceTransaction = any>
+  extends VaaInfo<T> {
+  sourceChain: ChainName | ChainId;
+  sourceChainTx: string;
+}
+function isGatewayVaaInfo(
+  info: VaaInfo | GatewayVaaInfo,
+): info is GatewayVaaInfo {
+  return (info as GatewayVaaInfo).sourceChain !== undefined;
 }
 
 const IBC_MSG_TYPE = '/ibc.applications.transfer.v1.MsgTransfer';
@@ -305,13 +325,20 @@ export class CosmosGatewayRoute extends BaseRoute {
   }
 
   public async parseMessage(
-    info: VaaInfo<any>,
+    info: VaaInfo | GatewayVaaInfo,
   ): Promise<ParsedMessage | ParsedRelayerMessage> {
     const message = await wh.parseMessage(info);
     if (isCosmWasmChain(info.vaa.emitterChain as ChainId)) {
       // need to set the info from the original cosmos chain
       // even if the message originated from wormchain
-      return adaptParsedMessage(message);
+      const parsed = await adaptParsedMessage(message);
+      return isGatewayVaaInfo(info)
+        ? {
+            ...parsed,
+            sendTx: info.sourceChainTx,
+            fromChain: wh.toChainName(info.sourceChain),
+          }
+        : parsed;
     }
 
     const transfer = parseTokenTransferPayload(info.vaa.payload);
@@ -326,13 +353,47 @@ export class CosmosGatewayRoute extends BaseRoute {
       ).toString(),
       toChain: wh.toChainName(decoded.gateway_transfer.chain),
     });
-    return {
+
+    const parsed = {
       ...adapted,
       // the context assumes that if the transfer is payload 3, it's a relayer transfer
       // but in this case, it is not, so we clear these fields
       relayerFee: '0',
       toNativeTokenAmount: '0',
     };
+
+    return isGatewayVaaInfo(info)
+      ? { ...parsed, sendTx: info.sourceChainTx, fromChain: info.sourceChain }
+      : parsed;
+  }
+
+  private async manualRedeem(
+    destChain: ChainName | ChainId,
+    messageInfo: MessageInfo,
+    recipient: string,
+  ): Promise<string> {
+    const vaa = Buffer.from(messageInfo.rawVaa).toString('base64');
+    const msg: MsgExecuteContractEncodeObject = {
+      typeUrl: '/cosmwasm.wasm.v1.MsgExecuteContract',
+      value: MsgExecuteContract.fromPartial({
+        contract: this.getTranslatorAddress(),
+        msg: Buffer.from(
+          JSON.stringify({ complete_transfer_and_convert: { vaa } }),
+        ),
+      }),
+    };
+
+    const tx: CosmosTransaction = {
+      fee: calculateFee(1000000, '1.0uosmo'),
+      msgs: [msg],
+      memo: '',
+    };
+
+    return signAndSendTransaction(
+      wh.toChainName(destChain),
+      tx,
+      TransferWallet.SENDING,
+    );
   }
 
   public async redeem(
@@ -340,7 +401,14 @@ export class CosmosGatewayRoute extends BaseRoute {
     messageInfo: MessageInfo,
     recipient: string,
   ): Promise<string> {
-    throw new Error('Manual redeem is not supported by this route');
+    const chain = wh.toChainId(destChain);
+
+    if (isCosmWasmChain(chain)) {
+      return this.manualRedeem(CHAIN_ID_WORMCHAIN, messageInfo, recipient);
+    }
+
+    // for non-cosmos chains, the redeem behavior is the same as the bridge route (manual)
+    return new BridgeRoute().redeem(destChain, messageInfo, recipient);
   }
 
   public async getPreview({
@@ -517,16 +585,15 @@ export class CosmosGatewayRoute extends BaseRoute {
     destChain: ChainName | ChainId,
     messageInfo: VaaInfo,
   ): Promise<boolean> {
-    return wh.isTransferCompleted(
-      CHAIN_ID_WORMCHAIN,
-      hexlify(messageInfo.rawVaa),
-    );
+    return isCosmWasmChain(destChain)
+      ? wh.isTransferCompleted(CHAIN_ID_WORMCHAIN, hexlify(messageInfo.rawVaa))
+      : new BridgeRoute().isTransferCompleted(destChain, messageInfo);
   }
 
   async getMessageInfo(
     hash: string,
     chain: ChainName | ChainId,
-  ): Promise<VaaInfo<any>> {
+  ): Promise<VaaInfo | GatewayVaaInfo> {
     if (!isCosmWasmChain(wh.toChainId(chain))) {
       return wh.getVaa(hash, chain);
     }
@@ -575,7 +642,15 @@ export class CosmosGatewayRoute extends BaseRoute {
       );
     }
 
-    return wh.getVaa(destTx[0].hash, CHAIN_ID_WORMCHAIN);
+    const base = await wh.getVaa(destTx[0].hash, CHAIN_ID_WORMCHAIN);
+
+    // add the original source chain and tx hash to the info
+    // the vaa contains only the wormchain information
+    return {
+      ...base,
+      sourceChain: chain,
+      sourceChainTx: hash,
+    };
   }
 
   async getTransferSourceInfo({
