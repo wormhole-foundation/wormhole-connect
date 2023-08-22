@@ -76,6 +76,7 @@ interface GatewayVaaInfo<T extends VaaSourceTransaction = any>
   extends VaaInfo<T> {
   sourceChain: ChainName | ChainId;
   sourceChainTx: string;
+  sourceChainSender: string;
 }
 function isGatewayVaaInfo(
   info: VaaInfo | GatewayVaaInfo,
@@ -337,6 +338,7 @@ export class CosmosGatewayRoute extends BaseRoute {
             ...parsed,
             sendTx: info.sourceChainTx,
             fromChain: wh.toChainName(info.sourceChain),
+            sender: info.sourceChainSender,
           }
         : parsed;
     }
@@ -642,6 +644,9 @@ export class CosmosGatewayRoute extends BaseRoute {
       );
     }
 
+    const sender = searchCosmosLogs('sender', logs);
+    if (!sender) throw new Error('Missing sender in transaction logs');
+
     const base = await wh.getVaa(destTx[0].hash, CHAIN_ID_WORMCHAIN);
 
     // add the original source chain and tx hash to the info
@@ -650,6 +655,7 @@ export class CosmosGatewayRoute extends BaseRoute {
       ...base,
       sourceChain: chain,
       sourceChainTx: hash,
+      sourceChainSender: sender,
     };
   }
 
