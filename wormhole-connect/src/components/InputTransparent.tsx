@@ -1,5 +1,5 @@
 import { makeStyles } from 'tss-react/mui';
-import React, { useEffect } from 'react';
+import React, { useCallback } from 'react';
 import { debounce } from '../utils';
 
 type StyleProps = {
@@ -69,18 +69,14 @@ function InputTransparent(props: Props) {
     }
   };
 
-  useEffect(() => {
-    if (props.onPause && props.id) {
-      const input = document.getElementById(props.id);
-      if (!input) return;
-      input.addEventListener(
-        'keyup',
-        debounce(() => {
-          props.onPause!();
-        }, 1000),
-      );
-    }
-  }, [props.id, props.onPause]);
+  const handleKeyUp = useCallback(
+    debounce(() => {
+      if (props.onPause) {
+        props.onPause();
+      }
+    }, 1000),
+    [props.onPause],
+  );
 
   return (
     <input
@@ -93,6 +89,7 @@ function InputTransparent(props: Props) {
       step={props.step}
       onChange={onChange}
       onKeyDown={handleKeyDown}
+      onKeyUp={handleKeyUp}
       readOnly={props.disabled}
       value={props.value}
     />

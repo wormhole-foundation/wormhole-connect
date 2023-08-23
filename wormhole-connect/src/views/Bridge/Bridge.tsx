@@ -8,14 +8,15 @@ import {
   setReceiverNativeBalance,
   enableAutomaticTransfer,
   disableAutomaticTransfer,
-} from '../../store/transfer';
-import {
-  getNativeBalance,
-  isAcceptedToken,
-  PaymentOption,
-  toChainId,
-} from '../../sdk';
-import { CHAINS, TOKENS } from '../../config';
+  Route,
+  setReceiveAmount,
+  setDestToken,
+  setToken,
+  setSupportedSourceTokens,
+  setSupportedDestTokens,
+} from '../../store/transferInput';
+import { wh, isAcceptedToken, toChainId } from '../../utils/sdk';
+import { CHAINS, TOKENS, TOKENS_ARR } from '../../config';
 import { isTransferValid, validate } from '../../utils/transferValidation';
 
 import GasOptions from './GasOptions';
@@ -24,25 +25,29 @@ import Preview from './Preview';
 import Send from './Send';
 import { Collapse } from '@mui/material';
 import PageHeader from '../../components/PageHeader';
-import FromNetworksModal from './Modals/FromNetworksModal';
-import ToNetworksModal from './Modals/ToNetworksModal';
-import TokensModal from './Modals/TokensModal';
-import FromInputs from './Inputs.tsx/From';
-import ToInputs from './Inputs.tsx/To';
+import FromInputs from './Inputs/From';
+import ToInputs from './Inputs/To';
 import { toDecimals } from '../../utils/balance';
 import { getTokenDecimals, getWrappedTokenId } from '../../utils';
 import TransferLimitedWarning from './TransferLimitedWarning';
+import { joinClass } from '../../utils/style';
+import SwapNetworks from './SwapNetworks';
+import RouteOptions from './RouteOptions';
+import Operator from '../../utils/routes';
+import { TokenConfig } from '../../config/types';
 
 const useStyles = makeStyles()((theme) => ({
+  spacer: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '16px',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+  },
   bridgeContent: {
     margin: 'auto',
     maxWidth: '650px',
-    width: '100%',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '16px',
   },
   header: {
     display: 'flex',
@@ -51,6 +56,14 @@ const useStyles = makeStyles()((theme) => ({
     width: '100%',
   },
 }));
+
+function isSupportedToken(
+  token: string,
+  supportedTokens: TokenConfig[],
+): boolean {
+  if (!token) return true;
+  return supportedTokens.some((t) => t.key === token);
+}
 
 function Bridge() {
   const { classes } = useStyles();
@@ -61,15 +74,17 @@ function Bridge() {
     fromNetwork,
     toNetwork,
     token,
-    destGasPayment,
+    destToken,
+    route,
     automaticRelayAvail,
-    toNativeToken,
-    relayerFee,
     foreignAsset,
     associatedTokenAddress,
     isTransactionInProgress,
-    balances,
-  } = useSelector((state: RootState) => state.transfer);
+    amount,
+  } = useSelector((state: RootState) => state.transferInput);
+  const { toNativeToken, relayerFee } = useSelector(
+    (state: RootState) => state.relay,
+  );
   const { sending, receiving } = useSelector(
     (state: RootState) => state.wallet,
   );
@@ -78,7 +93,7 @@ function Bridge() {
   useEffect(() => {
     if (!fromNetwork || !toNetwork || !receiving.address) return;
     const networkConfig = CHAINS[toNetwork]!;
-    getNativeBalance(receiving.address, toNetwork).then((res: BigNumber) => {
+    wh.getNativeBalance(receiving.address, toNetwork).then((res: BigNumber) => {
       const tokenConfig = TOKENS[networkConfig.gasToken];
       if (!tokenConfig)
         throw new Error('Could not get native gas token config');
@@ -89,6 +104,50 @@ function Bridge() {
       dispatch(setReceiverNativeBalance(toDecimals(res, decimals, 6)));
     });
   }, [fromNetwork, toNetwork, receiving.address, dispatch]);
+
+  useEffect(() => {
+    const computeSrcTokens = async () => {
+      const operator = new Operator();
+      const supported =
+        // the user should be able to pick any source token
+        await operator.supportedSourceTokens(route, TOKENS_ARR, undefined);
+
+      dispatch(setSupportedSourceTokens(supported));
+      const selectedIsSupported = isSupportedToken(token, supported);
+      if (!selectedIsSupported) {
+        dispatch(setToken(''));
+      }
+      if (supported.length === 1) {
+        dispatch(setToken(supported[0]));
+      }
+    };
+    computeSrcTokens();
+    // IMPORTANT: do not include token in dependency array
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [route, destToken, dispatch]);
+
+  useEffect(() => {
+    const computeDestTokens = async () => {
+      const operator = new Operator();
+      const supported = await operator.supportedDestTokens(
+        route,
+        TOKENS_ARR,
+        TOKENS[token],
+      );
+
+      dispatch(setSupportedDestTokens(supported));
+      const selectedIsSupported = isSupportedToken(destToken, supported);
+      if (!selectedIsSupported) {
+        dispatch(setDestToken(''));
+      }
+      if (supported.length === 1) {
+        dispatch(setDestToken(supported[0].key));
+      }
+    };
+    computeDestTokens();
+    // IMPORTANT: do not include destToken in dependency array
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [route, token, dispatch]);
 
   // check if automatic relay option is available
   useEffect(() => {
@@ -112,6 +171,19 @@ function Bridge() {
     }
   }, [fromNetwork, toNetwork, token, dispatch]);
 
+  useEffect(() => {
+    const recomputeReceive = async () => {
+      const operator = new Operator();
+      const newReceiveAmount = await operator.computeReceiveAmount(
+        route,
+        Number.parseFloat(amount),
+        { toNativeToken },
+      );
+      dispatch(setReceiveAmount(newReceiveAmount.toString()));
+    };
+    recomputeReceive();
+  }, [amount, toNativeToken, route, dispatch]);
+
   // validate transfer inputs
   useEffect(() => {
     validate(dispatch);
@@ -121,51 +193,62 @@ function Bridge() {
     fromNetwork,
     toNetwork,
     token,
-    destGasPayment,
+    destToken,
+    route,
     automaticRelayAvail,
     toNativeToken,
     relayerFee,
     foreignAsset,
     associatedTokenAddress,
-    balances,
     dispatch,
   ]);
   const valid = isTransferValid(validations);
 
   const disabled = !valid || isTransactionInProgress;
-  const showGasSlider =
-    automaticRelayAvail && destGasPayment === PaymentOption.AUTOMATIC;
+  const showGasSlider = automaticRelayAvail && route === Route.RELAY;
+  const showHashflowRoute = route === Route.HASHFLOW;
 
   return (
-    <div className={classes.bridgeContent}>
+    <div className={joinClass([classes.bridgeContent, classes.spacer])}>
       <PageHeader title="Bridge" />
 
       <FromInputs />
+      <SwapNetworks />
       <ToInputs />
 
-      <GasOptions disabled={disabled} />
+      <Collapse in={valid && showValidationState}>
+        <div className={classes.spacer}>
+          <GasOptions disabled={disabled} />
 
-      <Collapse
-        in={showGasSlider}
-        sx={
-          !showGasSlider
-            ? { marginBottom: '-16px', transition: 'margin 0.4s' }
-            : {}
-        }
-      >
-        {showGasSlider && <GasSlider disabled={disabled} />}
+          <Collapse
+            in={showHashflowRoute}
+            sx={
+              !showHashflowRoute
+                ? { marginBottom: '-16px', transition: 'margin 0.4s' }
+                : {}
+            }
+          >
+            <RouteOptions />
+          </Collapse>
+
+          <Collapse
+            in={showGasSlider}
+            sx={
+              !showGasSlider
+                ? { marginBottom: '-16px', transition: 'margin 0.4s' }
+                : {}
+            }
+          >
+            {showGasSlider && <GasSlider disabled={disabled} />}
+          </Collapse>
+
+          <Preview collapsed={!showValidationState ? true : !valid} />
+
+          <TransferLimitedWarning />
+
+          <Send valid={!!valid} />
+        </div>
       </Collapse>
-
-      <Preview collapsed={!showValidationState ? true : !valid} />
-
-      <TransferLimitedWarning />
-
-      <Send valid={!!valid} />
-
-      {/* modals */}
-      <FromNetworksModal />
-      <ToNetworksModal />
-      <TokensModal />
     </div>
   );
 }

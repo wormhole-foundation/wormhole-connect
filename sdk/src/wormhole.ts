@@ -6,7 +6,7 @@ import MAINNET_CONFIG, { MAINNET_CHAINS } from './config/MAINNET';
 import TESTNET_CONFIG, { TESTNET_CHAINS } from './config/TESTNET';
 import { AptosContext } from './contexts/aptos';
 import { EthContext } from './contexts/eth';
-import { SolanaContext } from './contexts/solana';
+import { SolanaContext } from './contexts/solana/context';
 import { SuiContext } from './contexts/sui';
 import {
   AnyContext,
@@ -19,6 +19,7 @@ import {
   RedeemResult,
   SendResult,
   TokenId,
+  VaaInfo,
   WormholeConfig,
 } from './types';
 import { SeiContext } from './contexts/sei';
@@ -421,19 +422,16 @@ export class WormholeContext extends MultiProvider<Domain> {
     return context.parseAddress(address);
   }
 
-  /**
-   * Parses all relevant information from a transaction given the sending tx hash and sending chain
-   *
-   * @param tx The sending transaction hash
-   * @param chain The sending chain name or id
-   * @returns The parsed data
-   */
-  async parseMessageFromTx(
-    tx: string,
-    chain: ChainName | ChainId,
-  ): Promise<ParsedMessage[] | ParsedRelayerMessage[]> {
+  async getVaa(tx: string, chain: ChainName | ChainId): Promise<VaaInfo> {
     const context = this.getContext(chain);
-    return await context.parseMessageFromTx(tx, chain);
+    return await context.getVaa(tx, chain);
+  }
+
+  async parseMessage(
+    info: VaaInfo,
+  ): Promise<ParsedMessage | ParsedRelayerMessage> {
+    const context = this.getContext(info.vaa.emitterChain as ChainId);
+    return context.parseMessage(info);
   }
 
   /**

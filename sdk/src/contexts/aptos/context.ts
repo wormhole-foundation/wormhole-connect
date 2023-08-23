@@ -8,31 +8,39 @@ import {
   ParsedMessage,
   Context,
   ParsedRelayerPayload,
+  VaaInfo,
 } from '../../types';
 import { WormholeContext } from '../../wormhole';
 import { TokenBridgeAbstract } from '../abstracts/tokenBridge';
 import { AptosContracts } from './contracts';
 import { AptosClient, CoinClient, Types } from 'aptos';
 import {
+  CHAIN_ID_APTOS,
   getForeignAssetAptos,
   getIsTransferCompletedAptos,
+  getSignedVAAWithRetry,
   getTypeFromExternalAddress,
   hexToUint8Array,
   isValidAptosType,
   parseTokenTransferPayload,
+  parseVaa,
   redeemOnAptos,
   transferFromAptos,
 } from '@certusone/wormhole-sdk';
-import { arrayify, hexlify, stripZeros, zeroPad } from 'ethers/lib/utils';
+import {
+  arrayify,
+  hexZeroPad,
+  hexlify,
+  stripZeros,
+  zeroPad,
+} from 'ethers/lib/utils';
 import { sha3_256 } from 'js-sha3';
 import { MAINNET_CHAINS } from '../../config/MAINNET';
 import { SolanaContext } from '../solana';
+import { stripHexPrefix } from '../../utils';
 
 export const APTOS_COIN = '0x1::aptos_coin::AptosCoin';
 
-/**
- * @category Aptos
- */
 export class AptosContext<
   T extends WormholeContext,
 > extends TokenBridgeAbstract<Types.EntryFunctionPayload> {
@@ -188,10 +196,10 @@ export class AptosContext<
     return decimals;
   }
 
-  async parseMessageFromTx(
+  async getVaa(
     tx: string,
     chain: ChainName | ChainId,
-  ): Promise<ParsedMessage[] | ParsedRelayerMessage[]> {
+  ): Promise<VaaInfo<Types.UserTransaction>> {
     const transaction = await this.aptosClient.getTransactionByHash(tx);
     if (transaction.type !== 'user_transaction') {
       throw new Error(`${tx} is not a user_transaction`);
@@ -203,24 +211,58 @@ export class AptosContext<
     if (!message || !message.data) {
       throw new Error(`WormholeMessage not found for ${tx}`);
     }
-    const { payload, sender, sequence } = message.data;
-    const parsed = parseTokenTransferPayload(
-      Buffer.from(payload.slice(2), 'hex'),
+
+    const { sender, sequence } = message.data;
+
+    const emitter = stripHexPrefix(
+      hexZeroPad(
+        hexlify(sender, {
+          allowMissingPrefix: true,
+          hexPad: 'left',
+        }),
+        32,
+      ),
     );
+
+    const { vaaBytes } = await getSignedVAAWithRetry(
+      this.context.conf.wormholeHosts,
+      CHAIN_ID_APTOS,
+      emitter,
+      sequence,
+      undefined,
+      undefined,
+      3,
+    );
+
+    return {
+      transaction: userTransaction,
+      rawVaa: vaaBytes,
+      vaa: parseVaa(vaaBytes),
+    };
+  }
+
+  async parseMessage(
+    info: VaaInfo<Types.UserTransaction>,
+  ): Promise<ParsedMessage | ParsedRelayerMessage> {
+    const { transaction, vaa } = info;
+
+    const { emitterChain: chain, payload, emitterAddress, sequence } = vaa;
+    const parsed = parseTokenTransferPayload(payload);
     const tokenContext = this.context.getContext(parsed.tokenChain as ChainId);
     const destContext = this.context.getContext(parsed.toChain as ChainId);
     const tokenAddress = await tokenContext.parseAssetAddress(
       hexlify(parsed.tokenAddress),
     );
     const tokenChain = this.context.toChainName(parsed.tokenChain);
+
     // make sender address even-length
-    const emitter = hexlify(sender, {
+    const emitter = hexlify(emitterAddress, {
       allowMissingPrefix: true,
       hexPad: 'left',
     });
     const parsedMessage: ParsedMessage = {
-      sendTx: tx,
-      sender: userTransaction.sender,
+      sendTx: transaction.hash,
+      sender: transaction.sender,
       amount: BigNumber.from(parsed.amount),
       payloadID: Number(parsed.payloadType),
       recipient: destContext.parseAddress(hexlify(parsed.to)),
@@ -234,12 +276,12 @@ export class AptosContext<
       },
       sequence: BigNumber.from(sequence),
       emitterAddress: hexlify(this.formatAddress(emitter)),
-      block: Number(userTransaction.version),
-      gasFee: BigNumber.from(userTransaction.gas_used).mul(
-        userTransaction.gas_unit_price,
+      block: Number(transaction.version),
+      gasFee: BigNumber.from(transaction.gas_used).mul(
+        transaction.gas_unit_price,
       ),
     };
-    return [parsedMessage];
+    return parsedMessage;
   }
 
   async getNativeBalance(

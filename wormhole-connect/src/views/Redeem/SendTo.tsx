@@ -1,216 +1,35 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { BigNumber, utils } from 'ethers';
 import CircularProgress from '@mui/material/CircularProgress';
-import {
-  ChainName,
-  Context,
-  WormholeContext,
-  SuiContext,
-  AptosContext,
-} from '@wormhole-foundation/wormhole-connect-sdk';
+import { Context } from '@wormhole-foundation/wormhole-connect-sdk';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import AlertBanner from '../../components/AlertBanner';
+import Button from '../../components/Button';
+import InputContainer from '../../components/InputContainer';
+import { RenderRows } from '../../components/RenderRows';
+import Spacer from '../../components/Spacer';
+import { CHAINS } from '../../config';
 import { RootState } from '../../store';
 import { setRedeemTx, setTransferComplete } from '../../store/redeem';
+import { Route } from '../../store/transferInput';
+import { displayAddress } from '../../utils';
+import { fetchRedeemTx } from '../../utils/events';
+import Operator, { TransferDisplayData } from '../../utils/routes';
 import {
-  MAX_DECIMALS,
-  displayAddress,
-  fromNormalizedDecimals,
-  getTokenDecimals,
-  getWrappedTokenId,
-  toNormalizedDecimals,
-} from '../../utils';
-import {
+  TransferWallet,
   registerWalletSigner,
   switchNetwork,
-  TransferWallet,
 } from '../../utils/wallet';
-import { toDecimals } from '../../utils/balance';
-import {
-  wh,
-  claimTransfer,
-  estimateClaimGasFee,
-  PaymentOption,
-  calculateNativeTokenAmt,
-  toChainId,
-} from '../../sdk';
-import { CHAINS, TOKENS } from '../../config';
 import WalletsModal from '../WalletModal';
-import { GAS_ESTIMATES } from '../../config';
-import { fetchRedeemTx, fetchSwapEvent } from '../../utils/events';
-
 import Header from './Header';
-import AlertBanner from '../../components/AlertBanner';
-// import Confirmations from './Confirmations';
-import Button from '../../components/Button';
-import Spacer from '../../components/Spacer';
-import { RenderRows, RowsData } from '../../components/RenderRows';
-import InputContainer from '../../components/InputContainer';
-import { Types } from 'aptos';
-import { getTotalGasUsed } from '@mysten/sui.js';
-
-const calculateGas = async (chain: ChainName, receiveTx?: string) => {
-  const { gasToken } = CHAINS[chain]!;
-  const token = TOKENS[gasToken];
-  const decimals = getTokenDecimals(toChainId(chain), token.tokenId);
-
-  if (chain === 'solana') {
-    return toDecimals(
-      BigNumber.from(GAS_ESTIMATES.solana!.claim),
-      decimals,
-      MAX_DECIMALS,
-    );
-  }
-  if (receiveTx) {
-    if (chain === 'aptos') {
-      const aptosClient = (
-        wh.getContext('aptos') as AptosContext<WormholeContext>
-      ).aptosClient;
-      const txn = await aptosClient.getTransactionByHash(receiveTx);
-      if (txn.type === 'user_transaction') {
-        const userTxn = txn as Types.UserTransaction;
-        const gasFee = BigNumber.from(userTxn.gas_used).mul(
-          userTxn.gas_unit_price,
-        );
-        return toDecimals(gasFee || 0, decimals, MAX_DECIMALS);
-      }
-    } else if (chain === 'sui') {
-      const provider = (wh.getContext('sui') as SuiContext<WormholeContext>)
-        .provider;
-      const txBlock = await provider.getTransactionBlock({
-        digest: receiveTx,
-        options: { showEvents: true, showEffects: true, showInput: true },
-      });
-      const gasFee = BigNumber.from(getTotalGasUsed(txBlock) || 0);
-      return toDecimals(gasFee, decimals, MAX_DECIMALS);
-    } else {
-      const provider = wh.mustGetProvider(chain);
-      const receipt = await provider.getTransactionReceipt(receiveTx);
-      const { gasUsed, effectiveGasPrice } = receipt;
-      if (!gasUsed || !effectiveGasPrice) return;
-      const gasFee = gasUsed.mul(effectiveGasPrice);
-      return toDecimals(gasFee, decimals, MAX_DECIMALS);
-    }
-  }
-  return await estimateClaimGasFee(chain);
-};
-
-const getManualRows = async (
-  txData: any,
-  receiveTx?: string,
-): Promise<RowsData> => {
-  const token = TOKENS[txData.tokenKey];
-  const { gasToken } = CHAINS[txData.toChain]!;
-
-  // get gas used (if complete) or gas estimate if not
-  const gas = await calculateGas(txData.toChain, receiveTx);
-
-  const formattedAmt = toNormalizedDecimals(
-    txData.amount,
-    txData.tokenDecimals,
-    MAX_DECIMALS,
-  );
-  return [
-    {
-      title: 'Amount',
-      value: `${formattedAmt} ${token.symbol}`,
-    },
-    {
-      title: receiveTx ? 'Gas fee' : 'Gas estimate',
-      value: gas ? `${gas} ${gasToken}` : '—',
-    },
-  ];
-};
-
-const getAutomaticRows = async (
-  txData: any,
-  receiveTx?: string,
-  transferComplete?: boolean,
-): Promise<RowsData> => {
-  const token = TOKENS[txData.tokenKey];
-  const { gasToken } = CHAINS[txData.toChain]!;
-
-  // calculate the amount of native gas received
-  let nativeGasAmt: string | undefined;
-  const nativeGasToken = TOKENS[gasToken];
-  if (receiveTx) {
-    let nativeSwapAmount: any;
-    try {
-      nativeSwapAmount = await fetchSwapEvent(txData);
-    } catch (e) {
-      console.error(`could not fetch swap event:\n${e}`);
-    }
-    if (nativeSwapAmount) {
-      const decimals = getTokenDecimals(
-        wh.toChainId(txData.toChain),
-        nativeGasToken.tokenId,
-      );
-      nativeGasAmt = toDecimals(nativeSwapAmount, decimals, MAX_DECIMALS);
-    }
-  } else if (!transferComplete) {
-    // get the decimals on the target chain
-    const destinationTokenDecimals = getTokenDecimals(
-      wh.toChainId(txData.toChain),
-      txData.tokenId,
-    );
-    const amount = await calculateNativeTokenAmt(
-      txData.toChain,
-      txData.tokenId,
-      fromNormalizedDecimals(
-        txData.toNativeTokenAmount,
-        destinationTokenDecimals,
-      ),
-      txData.recipient,
-    );
-    // get the decimals on the target chain
-    const nativeGasTokenDecimals = getTokenDecimals(
-      wh.toChainId(txData.toChain),
-      getWrappedTokenId(nativeGasToken),
-    );
-    nativeGasAmt = toDecimals(
-      amount.toString(),
-      // nativeGasToken.decimals,
-      nativeGasTokenDecimals,
-      MAX_DECIMALS,
-    );
-  }
-
-  const receiveAmt = BigNumber.from(txData.amount)
-    .sub(BigNumber.from(txData.relayerFee))
-    .sub(BigNumber.from(txData.toNativeTokenAmount || 0));
-  const formattedAmt = toNormalizedDecimals(
-    receiveAmt,
-    txData.tokenDecimals,
-    MAX_DECIMALS,
-  );
-
-  return [
-    {
-      title: 'Amount',
-      value: `${formattedAmt} ${token.symbol}`,
-    },
-    {
-      title: 'Native gas token',
-      value: nativeGasAmt ? `${nativeGasAmt} ${gasToken}` : '—',
-    },
-  ];
-};
-
-const getRows = async (
-  txData: any,
-  receiveTx?: string,
-  transferComplete?: boolean,
-): Promise<RowsData> => {
-  if (txData.payloadID === PaymentOption.MANUAL) {
-    return await getManualRows(txData, receiveTx);
-  }
-  return await getAutomaticRows(txData, receiveTx, transferComplete);
-};
 
 function SendTo() {
   const dispatch = useDispatch();
-  const { vaa, redeemTx, transferComplete } = useSelector(
-    (state: RootState) => state.redeem,
-  );
+  const {
+    messageInfo,
+    redeemTx,
+    transferComplete,
+    route: routeType,
+  } = useSelector((state: RootState) => state.redeem);
   const txData = useSelector((state: RootState) => state.redeem.txData)!;
   const wallet = useSelector((state: RootState) => state.wallet.receiving);
   const [claimError, setClaimError] = useState('');
@@ -229,35 +48,39 @@ function SendTo() {
 
   const [inProgress, setInProgress] = useState(false);
   const [isConnected, setIsConnected] = useState(checkConnection());
-  const [rows, setRows] = useState([] as RowsData);
+  const [rows, setRows] = useState([] as TransferDisplayData);
   const [openWalletModal, setWalletModal] = useState(false);
 
   // get the redeem tx, for automatic transfers only
   const getRedeemTx = useCallback(async () => {
     if (redeemTx) return redeemTx;
-    if (vaa) {
+    if (messageInfo) {
       const redeemed = await fetchRedeemTx(txData);
       if (redeemed) {
         dispatch(setRedeemTx(redeemed.transactionHash));
         return redeemed.transactionHash;
       }
     }
-  }, [redeemTx, vaa, txData, dispatch]);
+  }, [redeemTx, messageInfo, txData, dispatch]);
 
   useEffect(() => {
     if (!txData) return;
     const populate = async () => {
-      let tx: string | undefined;
+      let receiveTx: string | undefined;
       try {
-        tx = await getRedeemTx();
+        receiveTx = await getRedeemTx();
       } catch (e) {
         console.error(`could not fetch redeem event:\n${e}`);
       }
-      const rows = await getRows(txData, tx, transferComplete);
+      const rows = await new Operator().getTransferDestInfo(routeType, {
+        txData,
+        receiveTx,
+        transferComplete,
+      });
       setRows(rows);
     };
     populate();
-  }, [transferComplete, getRedeemTx, txData]);
+  }, [transferComplete, getRedeemTx, txData, routeType]);
 
   useEffect(() => {
     setIsConnected(checkConnection());
@@ -280,9 +103,10 @@ function SendTo() {
         registerWalletSigner(txData.toChain, TransferWallet.RECEIVING);
         await switchNetwork(networkConfig.chainId, TransferWallet.RECEIVING);
       }
-      const txId = await claimTransfer(
+      const txId = await new Operator().redeem(
+        routeType,
         txData.toChain,
-        utils.arrayify(vaa.bytes),
+        messageInfo,
         wallet.address,
       );
       dispatch(setRedeemTx(txId));
@@ -297,11 +121,11 @@ function SendTo() {
   };
 
   const loading =
-    txData.payloadID === PaymentOption.MANUAL
+    txData.payloadID === Route.BRIDGE
       ? inProgress && !transferComplete
       : !transferComplete;
   const manualClaimText =
-    transferComplete || txData.payloadID === PaymentOption.AUTOMATIC
+    transferComplete || txData.payloadID === Route.RELAY
       ? ''
       : claimError
       ? 'Error please retry . . .'
@@ -321,7 +145,7 @@ function SendTo() {
       </InputContainer>
 
       {/* Claim button for manual transfers */}
-      {txData.payloadID === PaymentOption.MANUAL && !transferComplete && (
+      {txData.payloadID === Route.BRIDGE && !transferComplete && (
         <>
           <Spacer height={8} />
           <AlertBanner

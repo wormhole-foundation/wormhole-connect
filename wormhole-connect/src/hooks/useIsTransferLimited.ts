@@ -4,7 +4,7 @@ import { TOKENS } from 'config';
 import { hexlify } from 'ethers/lib/utils.js';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { formatAssetAddress, wh } from 'sdk';
+import { formatAssetAddress, wh } from 'utils/sdk';
 import { RootState } from 'store';
 import { getWrappedTokenId } from 'utils';
 import { WORMHOLE_RPC_HOSTS } from 'utils/vaa';
@@ -57,7 +57,7 @@ const useIsTransferLimited = (): IsTransferLimitedResult => {
   );
 
   const { fromNetwork, token, amount } = useSelector(
-    (state: RootState) => state.transfer,
+    (state: RootState) => state.transferInput,
   );
 
   const fetchedTokenList = useRef(false);
@@ -149,7 +149,7 @@ const useIsTransferLimited = (): IsTransferLimitedResult => {
           (entry) => entry.chainId === fromChainId,
         );
         if (chain) {
-          const transferNotional = token.price * amount;
+          const transferNotional = token.price * Number.parseFloat(amount);
           const isLimitedReason =
             transferNotional > chain.notionalLimit
               ? 'EXCEEDS_MAX_NOTIONAL'

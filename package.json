@@ -13,9 +13,18 @@
     "wormhole-connect": "npm run workspace @wormhole-foundation/wormhole-connect",
     "sdk": "npm run workspace @wormhole-foundation/wormhole-connect-sdk",
     "builder": "npm run workspace wormhole-connect-builder",
-    "prettier": "npm run prettier --workspaces --if-present"
+    "prettier": "npm run prettier --workspaces --if-present",
+    "prepare": "husky install"
   },
   "dependencies": {
     "tss-react": "^4.7.7"
+  },
+  "devDependencies": {
+    "husky": "^8.0.3",
+    "lint-staged": "^13.2.3",
+    "prettier": "^2.8.2"
+  },
+  "lint-staged": {
+    "**/*": "prettier --workspaces --if-present --write --ignore-unknown"
   }
 }

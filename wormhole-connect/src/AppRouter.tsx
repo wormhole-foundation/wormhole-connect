@@ -4,7 +4,7 @@ import { makeStyles } from 'tss-react/mui';
 import './App.css';
 import { RootState } from './store';
 import { clearRedeem } from './store/redeem';
-import { clearTransfer } from './store/transfer';
+import { clearTransfer } from './store/transferInput';
 import { usePrevious } from './utils';
 
 import Bridge from './views/Bridge/Bridge';

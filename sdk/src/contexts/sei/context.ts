@@ -3,6 +3,7 @@ import {
   WormholeWrappedInfo,
   buildTokenId,
   cosmos,
+  getSignedVAAWithRetry,
   hexToUint8Array,
   isNativeCosmWasmDenom,
   parseTokenTransferPayload,
@@ -12,6 +13,7 @@ import { CosmWasmClient } from '@cosmjs/cosmwasm-stargate';
 import { EncodeObject, decodeTxRaw } from '@cosmjs/proto-signing';
 import {
   Coin,
+  IndexedTx,
   SearchTxFilter,
   StdFee,
   calculateFee,
@@ -36,6 +38,7 @@ import {
   ParsedRelayerMessage,
   ParsedRelayerPayload,
   TokenId,
+  VaaInfo,
 } from '../../types';
 import { WormholeContext } from '../../wormhole';
 import { TokenBridgeAbstract } from '../abstracts/tokenBridge';
@@ -104,7 +107,7 @@ const buildExecuteMsg = (
 });
 
 /**
- * Implements token bridge transfers to and from Sei.
+ * Implements token bridge transfers to and from Sei
  *
  * The Sei blockchain provides a feature through its `tokenfactory`
  * ([docs](https://github.com/sei-protocol/sei-chain/tree/master/x/tokenfactory))
@@ -134,8 +137,6 @@ const buildExecuteMsg = (
  * A mayor drawback of this implementation is that the translator contract does not support
  * transferring native Sei assets (usei denom or cw20 tokens) in or out. For these cases,
  * the traditional token bridge process is used
- *
- * @category Sei
  */
 export class SeiContext<
   T extends WormholeContext,
@@ -152,8 +153,8 @@ export class SeiContext<
 
   constructor(context: T) {
     super();
-    this.context = context;
     this.contracts = new SeiContracts<T>(context);
+    this.context = context;
   }
 
   async send(
@@ -625,35 +626,51 @@ export class SeiContext<
     return null;
   }
 
-  async parseMessageFromTx(
+  async getVaa(
     id: string,
     chain: ChainName | ChainId,
-  ): Promise<ParsedMessage[] | ParsedRelayerMessage[]> {
+  ): Promise<VaaInfo<IndexedTx>> {
     const client = await this.getCosmWasmClient();
     const tx = await client.getTx(id);
     if (!tx) throw new Error('tx not found');
 
-    const decoded = decodeTxRaw(tx.tx);
-    const { sender } = MsgExecuteContract.decode(
-      decoded.body.messages[0].value,
-    );
-
     // parse logs emitted for the tx execution
     const logs = cosmosLogs.parseRawLog(tx.rawLog);
 
-    // extract information wormhole contract logs
-    // - message.message: the vaa payload (i.e. the transfer information)
-    // - message.sequence: the vaa's sequence number
-    // - message.sender: the vaa's emitter address
-    const tokenTransferPayload = this.searchLogs('message.message', logs);
     const sequence = this.searchLogs('message.sequence', logs);
+    if (!sequence) throw new Error('sequence not found');
     const emitterAddress = this.searchLogs('message.sender', logs);
+    if (!emitterAddress) throw new Error('emitter not found');
 
-    if (!tokenTransferPayload || !sequence || !emitterAddress)
-      throw new Error('No token transfer payload found');
+    const { vaaBytes } = await getSignedVAAWithRetry(
+      this.context.conf.wormholeHosts,
+      CHAIN_ID_SEI,
+      emitterAddress,
+      sequence,
+      undefined,
+      undefined,
+      3,
+    );
 
-    const parsed = parseTokenTransferPayload(
-      Buffer.from(tokenTransferPayload, 'hex'),
+    return {
+      transaction: tx,
+      rawVaa: vaaBytes,
+      vaa: parseVaa(vaaBytes),
+    };
+  }
+
+  async parseMessage(
+    info: VaaInfo<IndexedTx>,
+  ): Promise<ParsedMessage | ParsedRelayerMessage> {
+    const { transaction: tx, vaa: message } = info;
+
+    if (!tx) throw new Error('tx not found');
+
+    const parsed = parseTokenTransferPayload(message.payload);
+
+    const decoded = decodeTxRaw(tx.tx);
+    const { sender } = MsgExecuteContract.decode(
+      decoded.body.messages[0].value,
     );
 
     const destContext = this.context.getContext(parsed.toChain as ChainId);
@@ -664,27 +681,25 @@ export class SeiContext<
     );
     const tokenChain = this.context.toChainName(parsed.tokenChain);
 
-    return [
-      {
-        sendTx: tx.hash,
-        sender,
-        amount: BigNumber.from(parsed.amount),
-        payloadID: parsed.payloadType,
-        recipient: destContext.parseAddress(hexlify(parsed.to)),
-        toChain: this.context.toChainName(parsed.toChain),
-        fromChain: this.context.toChainName(chain),
-        tokenAddress,
-        tokenChain,
-        tokenId: {
-          address: tokenAddress,
-          chain: tokenChain,
-        },
-        sequence: BigNumber.from(sequence),
-        emitterAddress,
-        block: tx.height,
-        gasFee: BigNumber.from(tx.gasUsed),
+    return {
+      sendTx: tx.hash,
+      sender,
+      amount: BigNumber.from(parsed.amount),
+      payloadID: parsed.payloadType,
+      recipient: destContext.parseAddress(hexlify(parsed.to)),
+      toChain: this.context.toChainName(parsed.toChain),
+      fromChain: this.context.toChainName(message.emitterChain),
+      tokenAddress,
+      tokenChain,
+      tokenId: {
+        address: tokenAddress,
+        chain: tokenChain,
       },
-    ];
+      sequence: BigNumber.from(message.sequence),
+      emitterAddress: message.emitterAddress.toString('hex'),
+      block: tx.height,
+      gasFee: BigNumber.from(tx.gasUsed),
+    };
   }
 
   async getNativeBalance(

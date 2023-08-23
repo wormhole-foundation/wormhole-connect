@@ -4,8 +4,8 @@ import { useDispatch } from 'react-redux';
 import { Select, MenuItem } from '@mui/material';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { CHAINS_ARR } from '../config';
-import { parseMessageFromTx } from '../sdk';
-import { setTxDetails } from '../store/redeem';
+import Operator from '../utils/routes';
+import { setTxDetails, setRoute as setTransferRoute } from '../store/redeem';
 import { setRoute } from '../store/router';
 import PageHeader from '../components/PageHeader';
 import Search from '../components/Search';
@@ -62,12 +62,20 @@ function TxSearch() {
       return setError('Invalid transaction ID');
     }
     try {
-      const message = await parseMessageFromTx(
+      const operator = new Operator();
+      const route = await operator.getRouteFromTx(
         state.tx,
         state.chain as ChainName,
       );
+      const messageInfo = await operator.getMessageInfo(
+        route,
+        state.tx,
+        state.chain as ChainName,
+      );
+      const message = await operator.parseMessage(route, messageInfo);
       setError('');
       dispatch(setTxDetails(message));
+      dispatch(setTransferRoute(route));
       dispatch(setRoute('redeem'));
     } catch (e) {
       console.error(e);

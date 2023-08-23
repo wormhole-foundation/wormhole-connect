@@ -1,15 +1,15 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
-import Options from '../../components/Options';
-import BridgeCollapse from './Collapse';
-import { setDestGasPayment } from '../../store/transfer';
 import { RootState } from '../../store';
 import { CHAINS } from '../../config';
-import { PaymentOption } from '../../sdk';
+import { Route, setTransferRoute } from '../../store/transferInput';
 import { NetworkConfig } from '../../config/types';
 import { toFixedDecimals } from '../../utils/balance';
 import { CHAIN_ID_SEI } from '@certusone/wormhole-sdk';
+
+import Options from '../../components/Options';
+import BridgeCollapse, { XLabsBanner } from './Collapse';
 
 const useStyles = makeStyles()((theme) => ({
   option: {
@@ -63,7 +63,7 @@ const payWith = (token1: string, token2: string): string => {
 };
 
 type OptionConfig = {
-  key: PaymentOption;
+  key: Route;
   title: string;
   subtitle: string;
   description: string;
@@ -79,7 +79,7 @@ const manualOption = (
     claim: string;
   },
 ): OptionConfig => ({
-  key: PaymentOption.MANUAL,
+  key: Route.BRIDGE,
   title: payWith(source.gasToken, dest.gasToken),
   subtitle: '(two transactions)',
   description: `Claim with ${dest.gasToken} on ${dest.displayName}`,
@@ -119,7 +119,7 @@ const automaticOption = (
   }
 
   return {
-    key: PaymentOption.AUTOMATIC,
+    key: Route.RELAY,
     title,
     subtitle: '(one transaction)',
     description: `Gas fees on ${dest.displayName} will be paid automatically`,
@@ -148,7 +148,7 @@ const getOptions = (
     return [
       {
         ...automaticOption(source, dest, token, relayerFee || 0, gasEst.manual),
-        key: PaymentOption.MANUAL,
+        key: Route.BRIDGE,
       },
     ];
   if (!relayAvail) return [manual];
@@ -166,22 +166,16 @@ function GasOptions(props: { disabled: boolean }) {
     options: [] as OptionConfig[],
   });
   const selectedOption = useSelector(
-    (state: RootState) => state.transfer.destGasPayment,
+    (state: RootState) => state.transferInput.route,
   );
-  const {
-    token,
-    fromNetwork,
-    toNetwork,
-    automaticRelayAvail,
-    gasEst,
-    relayerFee,
-  } = useSelector((state: RootState) => state.transfer);
-  const active = selectedOption;
+  const { token, fromNetwork, toNetwork, automaticRelayAvail, gasEst } =
+    useSelector((state: RootState) => state.transferInput);
+  const { relayerFee } = useSelector((state: RootState) => state.relay);
 
   // listen for selectOption
   document.addEventListener('selectOption', (event: Event) => {
     const { detail } = event as CustomEvent;
-    dispatch(setDestGasPayment(detail as PaymentOption));
+    dispatch(setTransferRoute(detail as Route));
   });
 
   useEffect(() => {
@@ -190,7 +184,7 @@ function GasOptions(props: { disabled: boolean }) {
     if (!token || !sourceConfig || !destConfig) return;
 
     const description =
-      selectedOption === PaymentOption.AUTOMATIC
+      selectedOption === Route.RELAY
         ? payWith(sourceConfig.gasToken, token)
         : payWith(sourceConfig.gasToken, destConfig!.gasToken);
     setState({
@@ -214,15 +208,18 @@ function GasOptions(props: { disabled: boolean }) {
     automaticRelayAvail,
   ]);
 
+  const banner = automaticRelayAvail && !props.disabled && <XLabsBanner />;
+
   return (
     <BridgeCollapse
       title="Gas payment"
       description={state.description}
-      banner={!props.disabled}
+      banner={banner}
       disabled={props.disabled}
-      close={props.disabled}
+      value={true}
+      close={true}
     >
-      <Options active={active}>
+      <Options active={selectedOption}>
         {state.options.map((option, i) => {
           const jsx = (
             <div className={classes.option} key={i}>

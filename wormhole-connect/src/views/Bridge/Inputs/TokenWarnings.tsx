@@ -7,11 +7,11 @@ import { TransferWallet, signSolanaTransaction } from '../../../utils/wallet';
 import { getWrappedTokenId } from '../../../utils';
 import { joinClass } from '../../../utils/style';
 import { ATTEST_URL, TOKENS } from '../../../config';
-import { getForeignAsset, solanaContext } from '../../../sdk';
+import { wh, solanaContext } from '../../../utils/sdk';
 import {
   setAssociatedTokenAddress,
   setForeignAsset,
-} from '../../../store/transfer';
+} from '../../../store/transferInput';
 import AlertBanner from '../../../components/AlertBanner';
 
 const useStyles = makeStyles()((theme) => ({
@@ -91,7 +91,7 @@ function TokenWarnings() {
   const dispatch = useDispatch();
 
   const { toNetwork, token, foreignAsset, associatedTokenAddress } =
-    useSelector((state: RootState) => state.transfer);
+    useSelector((state: RootState) => state.transferInput);
   const { receiving } = useSelector((state: RootState) => state.wallet);
   const [showErrors, setShowErrors] = useState(false);
 
@@ -112,7 +112,7 @@ function TokenWarnings() {
         throw new Error('Could not retrieve target token info');
       }
 
-      const address = await getForeignAsset(tokenId, toNetwork);
+      const address = await wh.getForeignAsset(tokenId, toNetwork);
       if (address) {
         dispatch(setForeignAsset(address));
         setShowErrors(false);

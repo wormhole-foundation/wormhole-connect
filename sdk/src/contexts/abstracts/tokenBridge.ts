@@ -1,12 +1,5 @@
 import { BigNumber } from 'ethers';
-import {
-  AnyContracts,
-  ParsedMessage,
-  ParsedRelayerMessage,
-  TokenId,
-  ChainName,
-  ChainId,
-} from '../../types';
+import { AnyContracts, TokenId, ChainName, ChainId } from '../../types';
 import { WormholeContext } from 'wormhole';
 
 /**
@@ -130,17 +123,6 @@ export abstract class TokenBridgeAbstract<TransactionResult> {
     tokenId: TokenId,
     chain: ChainName | ChainId,
   ): Promise<string>;
-  /**
-   * Parses all relevant information from a transaction given the sending tx hash and sending chain
-   *
-   * @param tx The sending transaction hash
-   * @param chain The sending chain name or id
-   * @returns The parsed data
-   */
-  protected abstract parseMessageFromTx(
-    tx: string,
-    chain: ChainName | ChainId,
-  ): Promise<ParsedMessage[] | ParsedRelayerMessage[]>;
 
   /**
    * Fetches the native token balance for a wallet

@@ -1,4 +1,5 @@
 import { BigNumber } from 'ethers';
+import { arrayify } from 'ethers/lib/utils.js';
 import {
   ChainName,
   EthContext,
@@ -6,12 +7,12 @@ import {
   SeiContext,
   WormholeContext,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { ParsedMessage, ParsedRelayerMessage, PaymentOption, wh } from '../sdk';
+import { ParsedMessage, ParsedRelayerMessage, wh } from './sdk';
+import { Route } from '../store/transferInput';
 import { fromNormalizedDecimals } from '.';
 import { CHAINS } from '../config';
-import { arrayify } from 'ethers/lib/utils.js';
 import { fetchGlobalTx, getEmitterAndSequence } from './vaa';
-import { isEvmChain } from '../sdk';
+import { isEvmChain } from '../utils/sdk';
 
 export const fetchRedeemTx = async (
   txData: ParsedMessage | ParsedRelayerMessage,
@@ -22,7 +23,7 @@ export const fetchRedeemTx = async (
   } catch {}
   // if this is an automatic transfer and the transaction hash was not found,
   // then try to fetch the redeemed event
-  if (!transactionHash && txData.payloadID === PaymentOption.AUTOMATIC) {
+  if (!transactionHash && txData.payloadID === Route.RELAY) {
     try {
       const res = await fetchRedeemedEvent(txData);
       transactionHash = res?.transactionHash;

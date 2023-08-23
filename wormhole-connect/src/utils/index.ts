@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { BigNumber, utils } from 'ethers';
+import { BigNumber, BigNumberish, utils } from 'ethers';
 import {
   TokenId,
   ChainName,
@@ -11,7 +11,7 @@ import { NetworkConfig, TokenConfig } from '../config/types';
 import { toDecimals } from './balance';
 import { isValidTransactionDigest, SUI_TYPE_ARG } from '@mysten/sui.js';
 import { isHexString } from 'ethers/lib/utils.js';
-import { isEvmChain, wh } from '../sdk';
+import { isEvmChain, wh } from '../utils/sdk';
 
 export const MAX_DECIMALS = 6;
 export const NORMALIZED_DECIMALS = 8;
@@ -189,7 +189,7 @@ export function fromNormalizedDecimals(
 }
 
 export function toNormalizedDecimals(
-  amount: BigNumber,
+  amount: BigNumberish,
   decimals: number,
   numDecimals?: number,
 ): string {

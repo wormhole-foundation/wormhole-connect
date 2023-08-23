@@ -3,6 +3,7 @@ import { makeStyles } from 'tss-react/mui';
 import Down from '../icons/Down';
 import { Collapse } from '@mui/material';
 import { joinClass } from '../utils/style';
+import { NestedRow } from '../utils/routes/types';
 
 const useStyles = makeStyles()((theme) => ({
   row: {
@@ -31,18 +32,12 @@ const useStyles = makeStyles()((theme) => ({
   },
 }));
 
-type Row = {
-  title: string;
-  value: string;
-};
-
-interface RowData extends Row {
-  rows?: Row[];
+interface RenderRowsProps {
+  rows: NestedRow[];
+  small?: boolean;
 }
 
-export type RowsData = RowData[];
-
-export function RenderRows(props: { rows: RowsData; small?: boolean }) {
+export function RenderRows(props: RenderRowsProps) {
   const { classes } = useStyles();
   const [collapsed, setCollapsed] = React.useState(true);
   const toggleCollapsed = () => setCollapsed((prev) => !prev);

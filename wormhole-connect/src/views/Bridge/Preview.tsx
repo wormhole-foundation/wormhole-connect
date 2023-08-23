@@ -1,182 +1,113 @@
 import React, { useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { useTheme } from '@mui/material/styles';
-import { useDispatch } from 'react-redux';
 import { RootState } from '../../store';
-import { disableAutomaticTransfer, setRelayerFee } from '../../store/transfer';
+import { disableAutomaticTransfer, Route } from '../../store/transferInput';
+import { setRelayerFee } from '../../store/relay';
 import { CHAINS, TOKENS } from '../../config';
-import { PaymentOption, toChainId } from '../../sdk';
-import { TokenConfig } from '../../config/types';
-import { toDecimals, toFixedDecimals } from '../../utils/balance';
-import { getRelayerFee } from '../../sdk';
-import { RenderRows, RowsData } from '../../components/RenderRows';
-import InputContainer from '../../components/InputContainer';
-import BridgeCollapse from './Collapse';
 import { getTokenDecimals } from '../../utils';
+import { toDecimals } from '../../utils/balance';
+import { toChainId, getRelayerFee } from '../../utils/sdk';
+import Operator, { PreviewData } from '../../utils/routes';
 
-const getAutomaticRows = (
-  token: TokenConfig,
-  sourceGasToken: string,
-  destinationGasToken: string,
-  amount: number,
-  nativeTokenAmt: number,
-  receiveNativeAmt: number,
-  relayerFee: number,
-  sendingGasEst: string,
-): RowsData => {
-  const receivingToken = token.wrappedAsset || token.symbol;
-  const isNative = token.symbol === sourceGasToken;
-  let totalFeesText = '';
-  if (sendingGasEst && relayerFee) {
-    const fee = toFixedDecimals(
-      `${relayerFee + (isNative ? Number.parseFloat(sendingGasEst) : 0)}`,
-      6,
-    );
-    totalFeesText = isNative
-      ? `${fee} ${token.symbol}`
-      : `${sendingGasEst} ${sourceGasToken} & ${fee} ${token.symbol}`;
-  }
-
-  return [
-    {
-      title: 'Amount',
-      value: `${toFixedDecimals(
-        `${amount - nativeTokenAmt}`,
-        6,
-      )} ${receivingToken}`,
-    },
-    {
-      title: 'Native gas on destination',
-      value: `${receiveNativeAmt} ${destinationGasToken}`,
-    },
-    {
-      title: 'Total fee estimates',
-      value: totalFeesText,
-      rows: [
-        {
-          title: 'Source chain gas estimate',
-          value: sendingGasEst ? `~ ${sendingGasEst} ${sourceGasToken}` : '—',
-        },
-        {
-          title: 'Relayer fee',
-          value: relayerFee ? `${relayerFee} ${token.symbol}` : '—',
-        },
-      ],
-    },
-  ];
-};
-
-const getManualRows = (
-  token: TokenConfig,
-  sourceGasToken: string,
-  destinationGasToken: string,
-  amount: number,
-  sendingGasEst: string,
-  destGasEst: string,
-): RowsData => {
-  const receivingToken = token.wrappedAsset || token.symbol;
-
-  return [
-    {
-      title: 'Amount',
-      value: `${amount} ${receivingToken}`,
-    },
-    {
-      title: 'Total fee estimates',
-      value:
-        sendingGasEst && destGasEst
-          ? `${sendingGasEst} ${sourceGasToken} & ${destGasEst} ${destinationGasToken}`
-          : '',
-      rows: [
-        {
-          title: 'Source chain gas estimate',
-          value: sendingGasEst
-            ? `~ ${sendingGasEst} ${sourceGasToken}`
-            : 'Not available',
-        },
-        {
-          title: 'Destination chain gas estimate',
-          value: destGasEst
-            ? `~ ${destGasEst} ${destinationGasToken}`
-            : 'Not available',
-        },
-      ],
-    },
-  ];
-};
+import { RenderRows } from '../../components/RenderRows';
+import BridgeCollapse from './Collapse';
+import InputContainer from '../../components/InputContainer';
 
 function Preview(props: { collapsed: boolean }) {
   const dispatch = useDispatch();
   const theme = useTheme();
-  const [state, setState] = React.useState({ rows: [] as RowsData });
+  const [state, setState] = React.useState({ rows: [] as PreviewData });
   const {
     token,
+    destToken,
     fromNetwork,
     toNetwork,
-    destGasPayment,
-    amount,
-    toNativeToken,
-    receiveNativeAmt,
+    route,
+    receiveAmount,
     gasEst,
-  } = useSelector((state: RootState) => state.transfer);
+  } = useSelector((state: RootState) => state.transferInput);
+  const { toNativeToken, receiveNativeAmt, relayerFee } = useSelector(
+    (state: RootState) => state.relay,
+  );
 
   useEffect(() => {
-    if (!fromNetwork) return;
-    const sourceConfig = toNetwork && CHAINS[fromNetwork];
-    const destConfig = toNetwork && CHAINS[toNetwork];
-    const tokenConfig = token && TOKENS[token];
-    if (!tokenConfig || !sourceConfig || !destConfig || !amount) return;
+    const buildPreview = async () => {
+      if (!fromNetwork) return;
+      const sourceConfig = toNetwork && CHAINS[fromNetwork];
+      const destConfig = toNetwork && CHAINS[toNetwork];
+      const tokenConfig = token && TOKENS[token];
+      const destTokenConfig = destToken && TOKENS[destToken];
+      if (
+        !tokenConfig ||
+        !destTokenConfig ||
+        !sourceConfig ||
+        !destConfig ||
+        !receiveAmount
+      )
+        return;
+      const numReceiveAmount = Number.parseFloat(receiveAmount);
 
-    if (destGasPayment === PaymentOption.MANUAL) {
-      const rows = getManualRows(
-        tokenConfig,
-        sourceConfig!.gasToken,
-        destConfig!.gasToken,
-        amount,
-        gasEst.manual,
-        gasEst.claim,
-      );
+      // TODO: find a way to bundle the parameters without the need
+      // of checking for a specific route.
+      const rows = await new Operator().getPreview(route, {
+        destToken: destTokenConfig,
+        sourceGasToken: sourceConfig.gasToken,
+        destinationGasToken: destConfig.gasToken,
+        amount: numReceiveAmount,
+        sendingGasEst:
+          route === Route.BRIDGE ? gasEst.manual : gasEst.automatic,
+        destGasEst: gasEst.claim,
+
+        // relay params
+        token: tokenConfig,
+        receiveAmount: numReceiveAmount,
+        receiveNativeAmt: receiveNativeAmt || 0,
+        relayerFee,
+      });
+
       setState({ rows });
-    } else {
-      getRelayerFee(fromNetwork, toNetwork, token)
-        .then((fee) => {
-          const decimals = getTokenDecimals(
-            toChainId(fromNetwork),
-            tokenConfig.tokenId || 'native',
-          );
-          const formattedFee = Number.parseFloat(toDecimals(fee, decimals, 6));
-          dispatch(setRelayerFee(formattedFee));
-          const rows = getAutomaticRows(
-            tokenConfig,
-            sourceConfig!.gasToken,
-            destConfig!.gasToken,
-            amount,
-            toNativeToken,
-            receiveNativeAmt || 0,
-            formattedFee,
-            gasEst.automatic,
-          );
-          setState({ rows });
-        })
-        .catch((e) => {
-          if (e.message.includes('swap rate not set')) {
-            dispatch(disableAutomaticTransfer());
-          } else {
-            throw e;
-          }
-        });
-    }
+    };
+
+    buildPreview();
   }, [
     token,
+    destToken,
     fromNetwork,
     toNetwork,
-    destGasPayment,
-    amount,
+    route,
+    receiveAmount,
     toNativeToken,
     receiveNativeAmt,
     gasEst,
     dispatch,
+    relayerFee,
   ]);
+
+  useEffect(() => {
+    const computeRelayerFee = async () => {
+      try {
+        if (!token || !fromNetwork || !toNetwork) return;
+        const tokenConfig = token && TOKENS[token];
+        if (!tokenConfig) return;
+
+        const fee = await getRelayerFee(fromNetwork, toNetwork, token);
+        const decimals = getTokenDecimals(
+          toChainId(fromNetwork),
+          tokenConfig.tokenId || 'native',
+        );
+        const formattedFee = Number.parseFloat(toDecimals(fee, decimals, 6));
+        dispatch(setRelayerFee(formattedFee));
+      } catch (e) {
+        if (e.message.includes('swap rate not set')) {
+          dispatch(disableAutomaticTransfer());
+        } else {
+          throw e;
+        }
+      }
+    };
+    computeRelayerFee();
+  }, [token, toNetwork, fromNetwork, dispatch]);
 
   return (
     <BridgeCollapse

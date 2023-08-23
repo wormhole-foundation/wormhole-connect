@@ -5,16 +5,13 @@ import { useTheme } from '@mui/material/styles';
 import { makeStyles } from 'tss-react/mui';
 
 import { CHAINS, TOKENS } from '../../config';
-import {
-  estimateClaimGasFee,
-  estimateSendGasFee,
-  parseMessageFromTx,
-  PaymentOption,
-  sendTransfer,
-} from '../../sdk';
 import { RootState } from '../../store';
 import { setRoute } from '../../store/router';
-import { setTxDetails, setSendTx } from '../../store/redeem';
+import {
+  setTxDetails,
+  setSendTx,
+  setRoute as setRedeemTransferRoute,
+} from '../../store/redeem';
 import { displayWalletAddress } from '../../utils';
 import {
   registerWalletSigner,
@@ -27,13 +24,17 @@ import {
   setAutomaticGasEst,
   setClaimGasEst,
   setIsTransactionInProgress,
-} from '../../store/transfer';
+  Route,
+} from '../../store/transferInput';
 
 import Button from '../../components/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 import AlertBanner from '../../components/AlertBanner';
 import PoweredByIcon from '../../icons/PoweredBy';
 import { LINK } from '../../utils/style';
+import { estimateClaimGasFees } from '../../utils/gasEstimates';
+import Operator from '../../utils/routes';
+import { MessageInfo } from '../../utils/routes';
 
 const useStyles = makeStyles()((theme) => ({
   body: {
@@ -65,7 +66,10 @@ function Send(props: { valid: boolean }) {
   const dispatch = useDispatch();
   const wallets = useSelector((state: RootState) => state.wallet);
   const { sending, receiving } = wallets;
-  const transfer = useSelector((state: RootState) => state.transfer);
+  const transfer = useSelector((state: RootState) => state.transferInput);
+  const { toNativeToken, relayerFee } = useSelector(
+    (state: RootState) => state.relay,
+  );
   const {
     validate: showValidationState,
     validations,
@@ -73,11 +77,10 @@ function Send(props: { valid: boolean }) {
     toNetwork,
     token,
     amount,
-    destGasPayment,
-    toNativeToken,
-    relayerFee,
+    route: routeType,
     automaticRelayAvail,
     isTransactionInProgress,
+    route,
   } = transfer;
   const [isConnected, setIsConnected] = useState(
     sending.currentAddress.toLowerCase() === sending.address.toLowerCase(),
@@ -90,6 +93,7 @@ function Send(props: { valid: boolean }) {
     const valid = isTransferValid(validations);
     if (!valid) return;
     dispatch(setIsTransactionInProgress(true));
+
     try {
       const fromConfig = CHAINS[fromNetwork!];
       if (fromConfig?.context === Context.ETH) {
@@ -101,28 +105,35 @@ function Send(props: { valid: boolean }) {
       const tokenConfig = TOKENS[token]!;
       const sendToken = tokenConfig.tokenId;
 
-      const txId = await sendTransfer(
+      const operator = new Operator();
+      const txId = await operator.send(
+        route,
         sendToken || 'native',
         `${amount}`,
         fromNetwork!,
         sending.address,
         toNetwork!,
         receiving.address,
-        destGasPayment,
-        `${toNativeToken}`,
+        { toNativeToken },
       );
 
-      let message;
+      let messageInfo: MessageInfo | undefined;
       const toRedeem = setInterval(async () => {
-        if (message) {
+        if (messageInfo) {
+          const message = await operator.parseMessage(route, messageInfo);
           clearInterval(toRedeem);
           dispatch(setIsTransactionInProgress(false));
           dispatch(setSendTx(txId));
           dispatch(setTxDetails(message));
           dispatch(setRoute('redeem'));
+          dispatch(setRedeemTransferRoute(route));
           setSendError('');
         } else {
-          message = await parseMessageFromTx(txId, fromNetwork!);
+          messageInfo = await operator.getMessageInfo(
+            route,
+            txId,
+            fromNetwork!,
+          );
         }
       }, 1000);
     } catch (e) {
@@ -133,23 +144,22 @@ function Send(props: { valid: boolean }) {
   }
 
   const setSendingGas = useCallback(
-    async (gasPayment: PaymentOption) => {
+    async (routeType: Route) => {
       const tokenConfig = TOKENS[token]!;
       if (!tokenConfig) return;
       const sendToken = tokenConfig.tokenId;
 
-      const gasFee = await estimateSendGasFee(
+      const gasFee = await new Operator().estimateSendGas(
+        route,
         sendToken || 'native',
-        amount || 0,
+        (amount || 0).toString(),
         fromNetwork!,
         sending.address,
         toNetwork!,
         receiving.address,
-        gasPayment,
-        relayerFee,
-        toNativeToken,
+        { relayerFee, toNativeToken },
       );
-      if (gasPayment === PaymentOption.MANUAL) {
+      if (routeType === Route.BRIDGE) {
         dispatch(setManualGasEst(gasFee));
       } else {
         dispatch(setAutomaticGasEst(gasFee));
@@ -165,13 +175,14 @@ function Send(props: { valid: boolean }) {
       toNativeToken,
       relayerFee,
       dispatch,
+      route,
     ],
   );
 
   // TODO: mock vaa?
   const setDestGas = useCallback(async () => {
     if (!toNetwork) return;
-    const gasFee = await estimateClaimGasFee(toNetwork!);
+    const gasFee = await estimateClaimGasFees(toNetwork!);
     dispatch(setClaimGasEst(gasFee));
   }, [toNetwork, dispatch]);
 
@@ -180,9 +191,9 @@ function Send(props: { valid: boolean }) {
     if (!valid) return;
 
     if (automaticRelayAvail) {
-      setSendingGas(PaymentOption.AUTOMATIC);
+      setSendingGas(Route.RELAY);
     }
-    setSendingGas(PaymentOption.MANUAL);
+    setSendingGas(Route.BRIDGE);
     setDestGas();
   }, [
     validations,
@@ -191,7 +202,7 @@ function Send(props: { valid: boolean }) {
     fromNetwork,
     toNetwork,
     token,
-    destGasPayment,
+    route,
     toNativeToken,
     relayerFee,
     automaticRelayAvail,
@@ -212,7 +223,7 @@ function Send(props: { valid: boolean }) {
           show={
             showValidationState &&
             !!props.valid &&
-            destGasPayment === PaymentOption.MANUAL &&
+            routeType === Route.BRIDGE &&
             toNetwork !== 'sei'
           }
           content="This transfer will require two transactions - one on the source chain and one on the destination chain."
@@ -229,7 +240,7 @@ function Send(props: { valid: boolean }) {
       />
       {props.valid && !isConnected ? (
         <Button disabled elevated>
-          Connect to {displayWalletAddress(sending.type, sending.address)}
+          Connect to {displayWalletAddress(sending.type!, sending.address)}
         </Button>
       ) : (
         <>

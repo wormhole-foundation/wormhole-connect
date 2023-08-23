@@ -197,6 +197,7 @@ const TESTNET_CONFIG: WormholeConfig = {
     sei: 'https://rest.atlantic-2.seinetwork.io',
   },
   chains: TESTNET,
+  wormholeHosts: ['https://wormhole-v2-testnet-api.certus.one'],
 };
 
 export default TESTNET_CONFIG;

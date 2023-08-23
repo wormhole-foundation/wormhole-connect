@@ -2,3 +2,4 @@
 # Local Netlify folder
 .netlify
 .vscode
+.ignore

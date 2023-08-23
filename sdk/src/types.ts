@@ -1,14 +1,21 @@
-import { Network as Environment } from '@certusone/wormhole-sdk';
-import { BigNumber } from 'ethers';
+import {
+  Network as Environment,
+  ParsedVaa,
+  SignedVaa,
+} from '@certusone/wormhole-sdk';
+import { BigNumber, ContractReceipt } from 'ethers';
 import { MainnetChainId, MainnetChainName } from './config/MAINNET';
 import { TestnetChainId, TestnetChainName } from './config/TESTNET';
 import { AptosContext, AptosContracts } from './contexts/aptos';
 import { EthContext, EthContracts } from './contexts/eth';
 import { SolanaContext, SolContracts } from './contexts/solana';
 import { SuiContext, SuiContracts } from './contexts/sui';
+import { SeiContext, SeiContracts } from './contexts/sei';
 import { WormholeContext } from './wormhole';
-import { SeiContracts } from './contexts/sei/contracts';
-import { SeiContext } from './contexts/sei/context';
+import { Types } from 'aptos';
+import { TransactionResponse } from '@solana/web3.js';
+import { SuiTransactionBlockResponse } from '@mysten/sui.js';
+import { IndexedTx } from '@cosmjs/stargate';
 
 export const NATIVE = 'native';
 // TODO: conditionally set these types
@@ -55,6 +62,7 @@ export type WormholeConfig = {
   env: Environment;
   rpcs: ChainResourceMap;
   rest: ChainResourceMap;
+  wormholeHosts: string[];
   chains: {
     [chain in ChainName]?: ChainConfig;
   };
@@ -117,3 +125,15 @@ export type TokenDetails = {
 
 export type SendResult = Awaited<ReturnType<AnyContext['send']>>;
 export type RedeemResult = Awaited<ReturnType<AnyContext['redeem']>>;
+
+export type VaaSourceTransaction =
+  | ContractReceipt
+  | Types.UserTransaction
+  | TransactionResponse
+  | SuiTransactionBlockResponse
+  | IndexedTx;
+export interface VaaInfo<T extends VaaSourceTransaction = any> {
+  transaction: T;
+  rawVaa: SignedVaa;
+  vaa: ParsedVaa;
+}

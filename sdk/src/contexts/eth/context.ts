@@ -2,7 +2,12 @@ import {
   Implementation__factory,
   TokenImplementation__factory,
 } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
-import { createNonce } from '@certusone/wormhole-sdk';
+import {
+  TokenBridgePayload,
+  createNonce,
+  getSignedVAAWithRetry,
+  parseTokenTransferPayload,
+} from '@certusone/wormhole-sdk';
 import {
   BigNumber,
   BigNumberish,
@@ -24,19 +29,15 @@ import {
   ParsedMessage,
   Context,
   ParsedRelayerPayload,
+  VaaInfo,
 } from '../../types';
 import { WormholeContext } from '../../wormhole';
 import { EthContracts } from './contracts';
 import { parseVaa } from '../../vaa';
 import { RelayerAbstract } from '../abstracts/relayer';
 import { SolanaContext } from '../solana';
-import { arrayify } from 'ethers/lib/utils';
+import { arrayify, hexZeroPad } from 'ethers/lib/utils';
 
-export * from './contracts';
-
-/**
- * @category EVM
- */
 export class EthContext<
   T extends WormholeContext,
 > extends RelayerAbstract<ethers.ContractReceipt> {
@@ -79,13 +80,6 @@ export class EthContext<
     return addr;
   }
 
-  /**
-   * Returns the decimals for a token
-   *
-   * @param tokenAddr The token address
-   * @param chain The token chain name or id
-   * @returns The number of token decimals
-   */
   async fetchTokenDecimals(
     tokenAddr: string,
     chain: ChainName | ChainId,
@@ -123,17 +117,14 @@ export class EthContext<
   /**
    * Approves amount for bridge transfer. If no amount is specified, the max amount is approved
    *
-   * @param chain The sending chain name or id
-   * @param contractAddress The contract for which to approve (i.e. bridge or relayer)
-   * @param tokenAddr The token address
-   * @param amount The amount to approve
-   * @param overrides Optional overrides, varies by chain
-   * @throws If the token address does not exist
+   * @param token The tokenId (chain and address) of the token being sent
+   * @param Amount The amount to approve. If absent, will approve the maximum amount
+   * @throws If unable to get the signer or contracts
    */
   async approve(
     chain: ChainName | ChainId,
     contractAddress: string,
-    tokenAddr: string,
+    token: string,
     amount?: BigNumberish,
     overrides: PayableOverrides & { from?: string | Promise<string> } = {},
   ): Promise<ethers.ContractReceipt | void> {
@@ -141,11 +132,11 @@ export class EthContext<
     if (!signer) throw new Error(`No signer for ${chain}`);
     const senderAddress = await signer.getAddress();
     const tokenImplementation = TokenImplementation__factory.connect(
-      tokenAddr,
+      token,
       signer,
     );
     if (!tokenImplementation)
-      throw new Error(`token contract not available for ${tokenAddr}`);
+      throw new Error(`token contract not available for ${token}`);
 
     const approved = await tokenImplementation.allowance(
       senderAddress,
@@ -163,19 +154,6 @@ export class EthContext<
     }
   }
 
-  /**
-   * Prepare a send tx for a Token Bridge transfer (does not dispatch the transaction)
-   *
-   * @param token The Token Identifier (chain/address) or `'native'` if sending the native token
-   * @param amount The token amount to be sent, as a string
-   * @param sendingChain The source chain name or id
-   * @param senderAddress The address that is dispatching the transfer
-   * @param recipientChain The destination chain name or id
-   * @param recipientAddress The wallet address where funds will be sent (On solana, this is the associated token account)
-   * @param relayerFee A fee that would go to a relayer, if any
-   * @param overrides Overrides
-   * @returns The populated transaction
-   */
   async prepareSend(
     token: TokenId | typeof NATIVE,
     amount: string,
@@ -303,21 +281,6 @@ export class EthContext<
     return await v.wait();
   }
 
-  /**
-   * Prepares a send tx for a Token Bridge transfer with a payload.  The payload is used to convey extra information about a transfer to be utilized in an application
-   *
-   * @dev This _must_ be claimed on the destination chain, see {@link WormholeContext#redeem | redeem}
-   *
-   * @param token The Token Identifier (chain/address) or `'native'` if sending the native token
-   * @param amount The token amount to be sent, as a string
-   * @param sendingChain The source chain name or id
-   * @param senderAddress The address that is dispatching the transfer
-   * @param recipientChain The destination chain name or id
-   * @param recipientAddress The wallet address where funds will be sent (On solana, this is the associated token account)
-   * @param payload Arbitrary bytes that can contain any addition information about a given transfer
-   * @param overrides Overrides
-   * @returns The populated transaction
-   */
   async sendWithPayload(
     token: TokenId | typeof NATIVE,
     amount: string,
@@ -363,19 +326,6 @@ export class EthContext<
     }
   }
 
-  /**
-   * Prepares a send tx for a Token Bridge Relay transfer. This will automatically dispatch funds to the recipient on the destination chain.
-   *
-   * @param token The Token Identifier (native chain/address) or `'native'` if sending the native token
-   * @param amount The token amount to be sent, as a string
-   * @param toNativeToken The amount of sending token to be converted to native gas token on the destination chain
-   * @param sendingChain The source chain name or id
-   * @param senderAddress The address that is dispatching the transfer
-   * @param recipientChain The destination chain name or id
-   * @param recipientAddress The wallet address where funds will be sent (On solana, this is the associated token account)
-   * @param overrides Optional overrides, varies by chain
-   * @returns The populated relay transaction
-   */
   async prepareSendWithRelay(
     token: TokenId | 'native',
     amount: string,
@@ -462,14 +412,6 @@ export class EthContext<
     return await v.wait();
   }
 
-  /**
-   * Prepares a redeem tx, which redeems funds for a token bridge transfer on the destination chain
-   *
-   * @param destChain The destination chain name or id
-   * @param signedVAA The Signed VAA bytes
-   * @param overrides Optional overrides, varies between chains
-   * @returns The populated redeem transaction
-   */
   async prepareRedeem(
     destChain: ChainName | ChainId,
     signedVAA: Uint8Array,
@@ -517,118 +459,124 @@ export class EthContext<
     return await relayer.calculateNativeSwapAmountOut(token, amount);
   }
 
-  async parseMessageFromTx(
+  async getVaa(
     tx: string,
     chain: ChainName | ChainId,
-  ): Promise<ParsedMessage[] | ParsedRelayerMessage[]> {
+  ): Promise<VaaInfo<ContractReceipt>> {
     const provider = this.context.mustGetProvider(chain);
     const receipt = await provider.getTransactionReceipt(tx);
     if (!receipt) throw new Error(`No receipt for ${tx} on ${chain}`);
 
-    let gasFee: BigNumber;
-    const { gasUsed, effectiveGasPrice } = receipt;
-    if (gasUsed && effectiveGasPrice) {
-      gasFee = gasUsed.mul(effectiveGasPrice);
-    }
-
     const core = this.contracts.mustGetCore(chain);
-    const bridge = this.contracts.mustGetBridge(chain);
     const bridgeLogs = receipt.logs.filter((l: any) => {
       return l.address === core.address;
     });
-    const parsedLogs = bridgeLogs.map(async (bridgeLog) => {
-      const parsed =
-        Implementation__factory.createInterface().parseLog(bridgeLog);
 
-      // parse token bridge message
-      const fromChain = this.context.toChainName(chain);
-      if (parsed.args.payload.startsWith('0x01')) {
-        const parsedTransfer = await bridge.parseTransfer(parsed.args.payload); // for bridge messages
-        const destContext = this.context.getContext(
-          parsedTransfer.toChain as ChainId,
-        );
-        const tokenContext = this.context.getContext(
-          parsedTransfer.tokenChain as ChainId,
-        );
-        const tokenAddress = await tokenContext.parseAssetAddress(
-          parsedTransfer.tokenAddress,
-        );
-        const tokenChain = this.context.toChainName(parsedTransfer.tokenChain);
-        const parsedMessage: ParsedMessage = {
-          sendTx: tx,
-          sender: receipt.from,
-          amount: parsedTransfer.amount,
-          payloadID: parsedTransfer.payloadID,
-          recipient: destContext.parseAddress(parsedTransfer.to),
-          toChain: this.context.toChainName(parsedTransfer.toChain),
-          fromChain,
-          tokenAddress,
-          tokenChain,
-          tokenId: {
-            chain: tokenChain,
-            address: tokenAddress,
-          },
-          sequence: parsed.args.sequence,
-          emitterAddress: utils.hexlify(this.formatAddress(bridge.address)),
-          block: receipt.blockNumber,
-          gasFee,
-        };
-        return parsedMessage;
-      }
+    if (bridgeLogs.length === 0) {
+      throw new Error('No message publish found in logs');
+    }
 
-      // parse token bridge relayer message
-      const parsedTransfer = await bridge.parseTransferWithPayload(
-        parsed.args.payload,
+    const parsed = Implementation__factory.createInterface().parseLog(
+      bridgeLogs[0],
+    );
+
+    const { vaaBytes } = await getSignedVAAWithRetry(
+      this.context.conf.wormholeHosts,
+      this.context.toChainId(chain),
+      hexZeroPad(parsed.args.sender, 32).substring(2),
+      parsed.args.sequence.toString(),
+      undefined,
+      undefined,
+      3,
+    );
+
+    return {
+      transaction: receipt,
+      rawVaa: vaaBytes,
+      vaa: parseVaa(vaaBytes),
+    };
+  }
+
+  async getReceipt(
+    tx: string,
+    chain: ChainName | ChainId,
+  ): Promise<ContractReceipt> {
+    const provider = this.context.mustGetProvider(chain);
+    const receipt = await provider.getTransactionReceipt(tx);
+    if (!receipt) throw new Error(`No receipt for ${tx} on ${chain}`);
+    return receipt;
+  }
+
+  async parseMessage(
+    info: VaaInfo<ContractReceipt>,
+  ): Promise<ParsedMessage | ParsedRelayerMessage> {
+    const { transaction: receipt, vaa: vaa } = info;
+
+    const transfer = parseTokenTransferPayload(vaa.payload);
+
+    const fromChain = this.context.toChainName(vaa.emitterChain);
+
+    let gasFee: BigNumber = BigNumber.from(0);
+    if (receipt.gasUsed && receipt.effectiveGasPrice) {
+      gasFee = receipt.gasUsed.mul(receipt.effectiveGasPrice);
+    }
+
+    const toChain = this.context.toChainName(transfer.toChain);
+    const tokenChain = this.context.toChainName(transfer.tokenChain);
+
+    const destContext = this.context.getContext(toChain);
+    const tokenContext = this.context.getContext(tokenChain);
+    const tokenAddress = await tokenContext.parseAssetAddress(
+      utils.hexlify(transfer.tokenAddress),
+    );
+
+    const baseMessage: ParsedMessage = {
+      sendTx: receipt.transactionHash,
+      sender: receipt.from,
+      amount: BigNumber.from(transfer.amount),
+      payloadID: transfer.payloadType,
+      recipient: destContext.parseAddress(utils.hexlify(transfer.to)),
+      toChain: this.context.toChainName(transfer.toChain),
+      fromChain,
+      tokenAddress,
+      tokenChain,
+      tokenId: {
+        chain: tokenChain,
+        address: tokenAddress,
+      },
+      sequence: BigNumber.from(vaa.sequence),
+      emitterAddress: utils.hexlify(
+        this.formatAddress(utils.hexlify(vaa.emitterAddress)),
+      ),
+      block: receipt.blockNumber,
+      gasFee,
+      payload: transfer.tokenTransferPayload
+        ? utils.hexlify(transfer.tokenTransferPayload)
+        : undefined,
+    };
+
+    if (transfer.payloadType === TokenBridgePayload.Transfer) {
+      return baseMessage;
+    }
+
+    /**
+     * Not all relayers follow the same payload structure (i.e. sei)
+     * so we request the destination context to parse the payload
+     */
+    const relayerPayload: ParsedRelayerPayload =
+      destContext.parseRelayerPayload(
+        Buffer.from(arrayify(transfer.tokenTransferPayload)),
       );
-      const destContext = this.context.getContext(
-        parsedTransfer.toChain as ChainId,
-      );
 
-      const toChain = this.context.toChainName(parsedTransfer.toChain);
-
-      /**
-       * Not all relayers follow the same payload structure (i.e. sei)
-       * so we request the destination context to parse the payload
-       */
-      const relayerPayload: ParsedRelayerPayload =
-        destContext.parseRelayerPayload(
-          Buffer.from(arrayify(parsedTransfer.payload)),
-        );
-
-      const tokenContext = this.context.getContext(
-        parsedTransfer.tokenChain as ChainId,
-      );
-      const tokenAddress = await tokenContext.parseAssetAddress(
-        parsedTransfer.tokenAddress,
-      );
-      const tokenChain = this.context.toChainName(parsedTransfer.tokenChain);
-      const parsedMessage: ParsedRelayerMessage = {
-        sendTx: tx,
-        sender: receipt.from,
-        amount: parsedTransfer.amount,
-        payloadID: parsedTransfer.payloadID,
-        to: destContext.parseAddress(parsedTransfer.to),
-        toChain,
-        fromChain,
-        tokenAddress,
-        tokenChain,
-        tokenId: {
-          chain: tokenChain,
-          address: tokenAddress,
-        },
-        sequence: parsed.args.sequence,
-        emitterAddress: utils.hexlify(this.formatAddress(bridge.address)),
-        block: receipt.blockNumber,
-        gasFee,
-        payload: parsedTransfer.payload,
-        relayerPayloadId: relayerPayload.relayerPayloadId,
-        recipient: destContext.parseAddress(relayerPayload.to),
-        relayerFee: relayerPayload.relayerFee,
-        toNativeTokenAmount: relayerPayload.toNativeTokenAmount,
-      };
-      return parsedMessage;
-    });
-    return await Promise.all(parsedLogs);
+    const relayerMessage: ParsedRelayerMessage = {
+      ...baseMessage,
+      relayerPayloadId: relayerPayload.relayerPayloadId,
+      recipient: destContext.parseAddress(relayerPayload.to),
+      relayerFee: relayerPayload.relayerFee,
+      toNativeTokenAmount: relayerPayload.toNativeTokenAmount,
+      to: destContext.parseAddress(utils.hexlify(transfer.to)),
+    };
+    return relayerMessage;
   }
 
   async getRelayerFee(

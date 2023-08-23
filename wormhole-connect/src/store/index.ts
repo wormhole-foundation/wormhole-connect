@@ -1,15 +1,17 @@
 import { configureStore } from '@reduxjs/toolkit';
 import redeemReducer from './redeem';
-import transferReducer from './transfer';
+import transferInputReducer from './transferInput';
+import relayReducer from './relay';
 import routerReducer from './router';
 import walletReducer from './wallet';
 
 export const store = configureStore({
   reducer: {
     redeem: redeemReducer,
-    transfer: transferReducer,
+    transferInput: transferInputReducer,
     router: routerReducer,
     wallet: walletReducer,
+    relay: relayReducer,
   },
 });
 
