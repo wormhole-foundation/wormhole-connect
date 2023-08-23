@@ -166,7 +166,7 @@ export class WormholeContext extends MultiProvider<Domain> {
         return new SeiContext(this);
       }
       case Context.COSMOS: {
-        return new CosmosContext(this, chain);
+        return new CosmosContext(this, chainName);
       }
       default: {
         throw new Error('Not able to retrieve context');

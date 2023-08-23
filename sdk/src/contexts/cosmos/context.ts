@@ -81,11 +81,11 @@ export class CosmosContext<
   readonly type = Context.COSMOS;
   readonly contracts: CosmosContracts<T>;
   readonly context: T;
-  readonly chain: ChainName | ChainId;
+  readonly chain: ChainName;
 
   private wasmClient?: CosmWasmClient;
 
-  constructor(context: T, chain: ChainName | ChainId) {
+  constructor(context: T, chain: ChainName) {
     super();
     this.context = context;
     this.contracts = new CosmosContracts<T>(context);
