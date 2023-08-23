@@ -1,6 +1,7 @@
 import {
   createNonce,
   getForeignAssetSolana,
+  getSignedVAAWithRetry,
   redeemAndUnwrapOnSolana,
   redeemOnSolana,
 } from '@certusone/wormhole-sdk';
@@ -648,20 +649,23 @@ export class SolanaContext<
     const messageAccountInfo = await this.connection.getAccountInfo(
       new PublicKey(messageKey),
     );
-    const vaaBytes = getAccountData(messageAccountInfo);
-    const { message } = PostedMessageData.deserialize(vaaBytes);
+    const data = getAccountData(messageAccountInfo);
+    const { message } = PostedMessageData.deserialize(data);
+
+    const { vaaBytes } = await getSignedVAAWithRetry(
+      this.context.conf.wormholeHosts,
+      message.emitterChain as ChainId,
+      Buffer.from(message.emitterAddress).toString('hex'),
+      message.sequence.toString(),
+      undefined,
+      undefined,
+      3,
+    );
 
     return {
       transaction: response,
       rawVaa: vaaBytes,
-      vaa: {
-        ...message,
-        version: message.vaaVersion,
-        timestamp: message.vaaTime,
-        hash: Buffer.from([]),
-        guardianSetIndex: 0,
-        guardianSignatures: [],
-      },
+      vaa: parseVaa(vaaBytes),
     };
   }
 
