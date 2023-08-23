@@ -193,7 +193,13 @@ const MAINNET_CONFIG: WormholeConfig = {
     sei: '',
   },
   chains: MAINNET,
-  wormholeHosts: ['https://wormhole-v2-mainnet-api.certus.one'],
+  wormholeHosts: [
+    'https://wormhole-v2-mainnet-api.certus.one',
+    'https://wormhole.inotel.ro',
+    'https://wormhole-v2-mainnet-api.mcf.rocks',
+    'https://wormhole-v2-mainnet-api.chainlayer.network',
+    'https://wormhole-v2-mainnet-api.staking.fund',
+  ],
 };
 
 export default MAINNET_CONFIG;
