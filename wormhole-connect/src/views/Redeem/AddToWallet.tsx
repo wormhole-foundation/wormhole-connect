@@ -26,6 +26,7 @@ import {
   SuiContext,
   WormholeContext,
 } from '@wormhole-foundation/wormhole-connect-sdk';
+import { isCosmWasmChain } from '../../utils/cosmos';
 
 const useStyles = makeStyles()((theme) => ({
   addToken: {
@@ -155,6 +156,7 @@ function AddToWallet() {
 
   useEffect(() => {
     const fetchTokenInfo = async () => {
+      if (isCosmWasmChain(txData.toChain)) return;
       const tokenInfo = TOKENS[txData.tokenKey];
       const wrapped = getWrappedToken(tokenInfo);
       if (!wrapped.tokenId) return;
