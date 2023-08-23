@@ -58,7 +58,6 @@ export default class Operator {
       const result = await getVaa(txHash, chain);
       vaa = result.vaa;
     } catch {}
-    console.log(`GET ROUTE FROM TX ${JSON.stringify(vaa)}`);
 
     // if(HASHFLOW_CONTRACT_ADDRESSES.includes(vaa.emitterAddress)) {
     //   return Route.HASHFLOW

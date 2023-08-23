@@ -7,7 +7,7 @@ import { TransferWallet, signSolanaTransaction } from '../../../utils/wallet';
 import { getWrappedTokenId } from '../../../utils';
 import { joinClass } from '../../../utils/style';
 import { ATTEST_URL, TOKENS } from '../../../config';
-import { wh, solanaContext } from '../../../utils/sdk';
+import { solanaContext } from '../../../utils/sdk';
 import {
   setAssociatedTokenAddress,
   setForeignAsset,
@@ -117,11 +117,6 @@ function TokenWarnings() {
         route,
         tokenId,
         toNetwork,
-      );
-      console.log(
-        `route: ${route}, token id: ${JSON.stringify(
-          tokenId,
-        )}, tonetwork: ${toNetwork}, foreing asset ${address}`,
       );
       if (address) {
         dispatch(setForeignAsset(address));

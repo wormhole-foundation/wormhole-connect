@@ -35,6 +35,7 @@ import { TransferInfoBaseParams, CCTPInfo } from './routeAbstract';
 import { RelayOptions } from './relay';
 import { getGasFeeFallback } from '../gasEstimates';
 import { Route } from 'store/transferInput';
+import { getChainNameCCTP } from './cctpManual';
 export interface CCTPRelayPreviewParams {
   destToken: TokenConfig;
   sourceGasToken: string;
@@ -95,26 +96,6 @@ async function tryGetCircleAttestation(
     });
 }
 
-function getChainNameCCTP(domain: number): ChainName {
-  switch (domain) {
-    case 0:
-      return isMainnet ? 'ethereum' : 'goerli';
-    case 1:
-      return isMainnet ? 'avalanche' : 'fuji';
-  }
-  throw Error('Invalid CCTP domain');
-}
-function getDomainCCTP(chain: ChainName | ChainId): number {
-  const chainId = wh.toChainId(chain);
-  switch (chainId) {
-    case 2:
-      return 0;
-    case 6:
-      return 1;
-  }
-  throw Error('Invalid CCTP domain');
-}
-
 export class CCTPRelayRoute extends BaseRoute {
   async isSupportedSourceToken(
     token: TokenConfig | undefined,
@@ -151,20 +132,12 @@ export class CCTPRelayRoute extends BaseRoute {
     if (!sourceChain || !destChain || !sourceTokenConfig || !destTokenConfig)
       return false;
 
-    console.log('Ok the inputs exist');
-
     const sourceChainName = wh.toChainName(sourceChain);
     const destChainName = wh.toChainName(destChain);
     if (sourceChainName === destChainName) return false;
 
-    console.log(
-      `about to check symbols ${sourceTokenConfig.symbol} ${destTokenConfig.symbol}`,
-    );
-
     if (sourceTokenConfig.symbol !== 'USDC') return false;
     if (destTokenConfig.symbol !== 'USDC') return false;
-
-    console.log(`about to check names ${sourceChainName} ${destChainName}`);
 
     const CCTPRelay_CHAINS: ChainName[] = [
       'ethereum',
@@ -253,7 +226,7 @@ export class CCTPRelayRoute extends BaseRoute {
   }
 
   async estimateClaimGas(destChain: ChainName | ChainId): Promise<string> {
-    throw Error('No claiming for this route!');
+    throw new Error('No claiming for this route!');
   }
 
   /**
@@ -268,8 +241,6 @@ export class CCTPRelayRoute extends BaseRoute {
     recipientAddress: string,
     routeOptions: any,
   ): Promise<string> {
-    console.log('About to send');
-
     const fromChainId = wh.toChainId(sendingChain);
     const fromChainName = wh.toChainName(sendingChain);
     const decimals = getTokenDecimals(fromChainId, token);
@@ -277,7 +248,6 @@ export class CCTPRelayRoute extends BaseRoute {
     const parsedNativeAmt = routeOptions.toNativeToken
       ? utils.parseUnits(routeOptions.toNativeToken.toString(), decimals)
       : BigNumber.from(0);
-    console.log('About to send 1');
     // only works on EVM
     const chainContext = wh.getContext(
       sendingChain,
@@ -296,8 +266,6 @@ export class CCTPRelayRoute extends BaseRoute {
       tokenAddr,
       parsedAmt,
     );
-
-    console.log('About to send 2');
     const tx = await circleRelayer.populateTransaction.transferTokensWithRelay(
       chainContext.context.parseAddress(tokenAddr, sendingChain),
       parsedAmt,
@@ -305,19 +273,14 @@ export class CCTPRelayRoute extends BaseRoute {
       wh.toChainId(recipientChain),
       chainContext.context.formatAddress(recipientAddress, recipientChain),
     );
-    console.log('About to send 3');
-    console.log(
-      `Parsed amount ${parsedAmt}\nParsed native amount ${parsedNativeAmt}\n`,
-    );
     const sentTx = await wh.getSigner(fromChainName)?.sendTransaction(tx);
     const rx = await sentTx?.wait();
-    if (!rx) throw "Transaction didn't go through";
+    if (!rx) throw new Error("Transaction didn't go through");
     const txId = await signAndSendTransaction(
       fromChainName,
       rx,
       TransferWallet.SENDING,
     );
-    console.log('signed and sent');
     wh.registerProviders();
     return txId;
   }
@@ -334,8 +297,6 @@ export class CCTPRelayRoute extends BaseRoute {
   async parseMessage(
     messageInfo: CCTPInfo,
   ): Promise<ParsedMessage | ParsedRelayerMessage> {
-    console.log('here is the message to parse');
-    console.log(JSON.stringify(messageInfo));
     const tokenId: TokenId = {
       chain: messageInfo.fromChain,
       address: messageInfo.burnToken,
@@ -460,7 +421,6 @@ export class CCTPRelayRoute extends BaseRoute {
       chainContext.contracts.mustGetWormholeCircleRelayer(sourceChain);
     const destChainId = wh.toChainId(destChain);
     const fee = await circleRelayer.relayerFee(destChainId, tokenId?.address);
-    console.log(`RELAYER FEE: ${fee}`);
     return fee;
   }
 
@@ -472,7 +432,7 @@ export class CCTPRelayRoute extends BaseRoute {
     const addr = TOKENS_ARR.find(
       (t) => t.symbol === 'USDC' && t.nativeNetwork === chain,
     )?.tokenId?.address;
-    if (!addr) throw 'USDC not found';
+    if (!addr) throw new Error('USDC not found');
     return addr;
   }
 
@@ -485,7 +445,6 @@ export class CCTPRelayRoute extends BaseRoute {
     // https://goerli.etherscan.io/tx/0xe4984775c76b8fe7c2b09cd56fb26830f6e5c5c6b540eb97d37d41f47f33faca#eventlog
     const provider = wh.mustGetProvider(chain);
 
-    console.log(`transaction hash: ${tx}`);
     const receipt = await provider.getTransactionReceipt(tx);
     if (!receipt) throw new Error(`No receipt for ${tx} on ${chain}`);
 
@@ -542,9 +501,6 @@ export class CCTPRelayRoute extends BaseRoute {
       vaaEmitter: vaaInfo.vaa.emitterAddress.toString('hex'),
       vaaSequence: vaaInfo.vaa.sequence.toString(),
     };
-    //const stringresult: any = result;
-    //stringresult.transactionReceipt = undefined;
-    //console.log(JSON.stringify(stringresult));
     return result;
   }
 
@@ -696,21 +652,15 @@ export class CCTPRelayRoute extends BaseRoute {
       iface,
       connection,
     );
+
+    const cctpDomain = wh.conf.chains[messageInfo.fromChain]?.cctpDomain;
+    if (cctpDomain === undefined)
+      throw new Error(`CCTP not supported on ${messageInfo.fromChain}`);
+
     const hash = ethers.utils.keccak256(
-      ethers.utils.solidityPack(
-        ['uint32', 'uint64'],
-        [getDomainCCTP(messageInfo.fromChain), nonce],
-      ),
+      ethers.utils.solidityPack(['uint32', 'uint64'], [cctpDomain, nonce]),
     );
-    console.log(
-      ethers.utils.solidityPack(
-        ['uint32', 'uint64'],
-        [getDomainCCTP(messageInfo.fromChain), nonce],
-      ),
-    );
-    console.log(hash);
     const result = await contract.usedNonces(hash);
-    console.log(JSON.stringify(result));
     return result.toString() === '1';
   }
 }

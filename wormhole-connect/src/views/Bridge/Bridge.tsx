@@ -14,7 +14,6 @@ import {
   setToken,
   setSupportedSourceTokens,
   setSupportedDestTokens,
-  setTransferRoute,
   TransferInputState,
 } from '../../store/transferInput';
 import { wh, isAcceptedToken, toChainId } from '../../utils/sdk';

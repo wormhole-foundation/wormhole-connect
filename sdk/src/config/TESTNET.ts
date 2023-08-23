@@ -51,6 +51,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     },
     finalityThreshold: 64,
     nativeTokenDecimals: 18,
+    cctpDomain: 0,
   },
   solana: {
     key: 'solana',
@@ -100,6 +101,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     },
     finalityThreshold: 1,
     nativeTokenDecimals: 18,
+    cctpDomain: 1,
   },
   fantom: {
     key: 'fantom',

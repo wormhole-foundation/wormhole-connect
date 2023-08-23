@@ -102,7 +102,6 @@ function Preview(props: { collapsed: boolean }) {
           toNetwork,
           token,
         );
-        console.log(`RELAYER FEE: ${fee} for route ${route}`);
         const decimals = getTokenDecimals(
           toChainId(fromNetwork),
           tokenConfig.tokenId || 'native',
