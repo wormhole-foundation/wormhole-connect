@@ -1,6 +1,5 @@
 import CircularProgress from '@mui/material/CircularProgress';
 import { Context } from '@wormhole-foundation/wormhole-connect-sdk';
-import { utils } from 'ethers';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import AlertBanner from '../../components/AlertBanner';

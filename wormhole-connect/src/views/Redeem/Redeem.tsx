@@ -1,13 +1,13 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { fetchIsVAAEnqueued, fetchVaa, ParsedVaa } from '../../utils/vaa';
+import { fetchIsVAAEnqueued } from '../../utils/vaa';
 import {
   setIsVaaEnqueued,
   setTransferComplete,
   setMessageInfo,
 } from '../../store/redeem';
 import { RootState } from '../../store';
-import { wh, ParsedMessage, ParsedRelayerMessage } from '../../utils/sdk';
+import { ParsedMessage, ParsedRelayerMessage } from '../../utils/sdk';
 import PageHeader from '../../components/PageHeader';
 import Spacer from '../../components/Spacer';
 import NetworksTag from './Tag';

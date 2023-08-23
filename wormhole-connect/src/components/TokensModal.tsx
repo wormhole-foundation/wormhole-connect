@@ -14,7 +14,6 @@ import {
 } from '../store/transferInput';
 import { displayAddress } from '../utils';
 import { CENTER } from '../utils/style';
-import { wh } from '../utils/sdk';
 
 import Header from './Header';
 import Modal from './Modal';
@@ -368,7 +367,15 @@ function TokensModal(props: Props) {
     dispatch(clearBalances(type));
     setLoading(true);
     getBalances().finally(() => setLoading(false));
-  }, [walletAddress, network, dispatch, supportedTokens, type, allTokens]);
+  }, [
+    walletAddress,
+    network,
+    dispatch,
+    supportedTokens,
+    type,
+    allTokens,
+    route,
+  ]);
 
   useEffect(() => {
     // get tokens that exist on the chain and have a balance greater than 0
