@@ -125,6 +125,8 @@ function Bridge() {
       }
     };
     computeSrcTokens();
+    // IMPORTANT: do not include token in dependency array
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [route, destToken, dispatch]);
 
   useEffect(() => {
@@ -146,6 +148,8 @@ function Bridge() {
       }
     };
     computeDestTokens();
+    // IMPORTANT: do not include destToken in dependency array
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [route, token, dispatch]);
 
   // check if automatic relay option is available
