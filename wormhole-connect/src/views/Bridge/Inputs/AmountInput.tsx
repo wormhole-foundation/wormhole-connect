@@ -29,6 +29,9 @@ function AmountInput(props: Props) {
         value = '0.';
         break;
       }
+      case Number.isInteger(Number.parseFloat(value)): {
+        break;
+      }
       case index >= 0 && index < value.length - 1: {
         value = toFixedDecimals(value, 8);
         break;
