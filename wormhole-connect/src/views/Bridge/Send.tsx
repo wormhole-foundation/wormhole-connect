@@ -129,11 +129,17 @@ function Send(props: { valid: boolean }) {
           dispatch(setAppRoute('redeem'));
           setSendError('');
         } else {
-          messageInfo = await operator.getMessageInfo(
-            route,
-            txId,
-            fromNetwork!,
-          );
+          try {
+            messageInfo = await operator.getMessageInfo(
+              route,
+              txId,
+              fromNetwork!,
+            );
+          } catch (e) {
+            if (!e.message.includes('requested VAA not found in store')) {
+              throw e;
+            }
+          }
         }
       }, 1000);
     } catch (e) {
