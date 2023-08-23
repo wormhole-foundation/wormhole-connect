@@ -174,7 +174,9 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     key: 'wormchain',
     id: 3104,
     contracts: {
-      ...CONTRACTS.MAINNET.wormchain,
+      core: 'wormhole1ufs3tlq4umljk0qfe8k5ya0x6hpavn897u2cnf9k0en9jr7qarqqaqfk2j',
+      token_bridge:
+        'wormhole1466nf3zuxpya8q9emxukd7vftaf6h4psr0a07srl5zw74zh84yjq4lyjmh',
       ibcShimContract:
         'wormhole14ejqjyq8um4p3xfqj74yld5waqljf88fz25yxnma0cngspxe3les00fpjx',
     },
