@@ -235,35 +235,29 @@ export const getGasFeeFallback = async (
   // EVM gas estimates
   const provider = wh.mustGetProvider(fromNetwork);
   const { gasPrice } = await provider.getFeeData();
+  let gasEst;
+  switch (route) {
+    case Route.BRIDGE:
+      gasEst = sendNative ? gasEstimates.sendNative : gasEstimates.sendToken;
+      break;
+    case Route.RELAY:
+      gasEst = sendNative
+        ? gasEstimates.sendNativeWithRelay
+        : gasEstimates.sendTokenWithRelay;
+      break;
+    case Route.CCTPManual:
+      gasEst = gasEstimates.sendCCTPManual;
+      break;
+    case Route.CCTPRelay:
+      gasEst = gasEstimates.sendCCTPWithRelay;
+      break;
+    default:
+      throw new Error('Invalid Route');
+  }
   if (!gasPrice)
     throw new Error('gas price not available, cannot estimate fees');
-  if (route === Route.BRIDGE) {
-    const gasEst = sendNative
-      ? gasEstimates.sendNative
-      : gasEstimates.sendToken;
-    const gasFees = BigNumber.from(gasEst).mul(gasPrice);
-    return toFixedDecimals(utils.formatEther(gasFees), 6);
-  } else if (route === Route.RELAY) {
-    const gasEst = sendNative
-      ? gasEstimates.sendNativeWithRelay
-      : gasEstimates.sendTokenWithRelay;
-    if (!gasEst)
-      throw new Error(
-        `gas estimate not configured for relay from ${fromChainName}`,
-      );
-    const gasFees = BigNumber.from(gasEst).mul(gasPrice);
-    return toFixedDecimals(utils.formatEther(gasFees), 6);
-  } else if (route === Route.CCTPRelay) {
-    const gasEst = gasEstimates.sendCCTPWithRelay;
-    const gasFees = BigNumber.from(gasEst).mul(gasPrice);
-    return toFixedDecimals(utils.formatEther(gasFees), 6);
-  } else if (route === Route.CCTPManual) {
-    const gasEst = gasEstimates.sendCCTPManual;
-    const gasFees = BigNumber.from(gasEst).mul(gasPrice);
-    return toFixedDecimals(utils.formatEther(gasFees), 6);
-  } else {
-    throw 'Invalid Route';
-  }
+  const gasFees = BigNumber.from(gasEst).mul(gasPrice);
+  return toFixedDecimals(utils.formatEther(gasFees), 6);
 };
 
 // returns the gas fees estimate for any send transfer

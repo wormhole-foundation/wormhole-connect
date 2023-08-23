@@ -89,24 +89,14 @@ async function tryGetCircleAttestation(
     });
 }
 
-function getChainNameCCTP(domain: number): ChainName {
+export function getChainNameCCTP(domain: number): ChainName {
   switch (domain) {
     case 0:
       return isMainnet ? 'ethereum' : 'goerli';
     case 1:
       return isMainnet ? 'avalanche' : 'fuji';
   }
-  throw Error('Invalid CCTP domain');
-}
-function getDomainCCTP(chain: ChainName | ChainId): number {
-  const chainId = wh.toChainId(chain);
-  switch (chainId) {
-    case 2:
-      return 0;
-    case 6:
-      return 1;
-  }
-  throw Error('Invalid CCTP domain');
+  throw new Error('Invalid CCTP domain');
 }
 
 export class CCTPManualRoute extends BaseRoute {
@@ -148,15 +138,8 @@ export class CCTPManualRoute extends BaseRoute {
     const sourceChainName = wh.toChainName(sourceChain);
     const destChainName = wh.toChainName(destChain);
     if (sourceChainName === destChainName) return false;
-
-    console.log(
-      `about to check symbols ${sourceTokenConfig.symbol} ${destTokenConfig.symbol}`,
-    );
-
     if (sourceTokenConfig.symbol !== 'USDC') return false;
     if (destTokenConfig.symbol !== 'USDC') return false;
-
-    console.log(`about to check names ${sourceChainName} ${destChainName}`);
 
     const CCTPManual_CHAINS: ChainName[] = [
       'ethereum',
@@ -225,14 +208,16 @@ export class CCTPManualRoute extends BaseRoute {
       token as TokenId,
       sendingChain,
     );
-    const toChainId = wh.toChainId(recipientChain);
+    const toChainName = wh.toChainName(recipientChain)!;
     const decimals = getTokenDecimals(wh.toChainId(sendingChain), token);
     const parsedAmt = utils.parseUnits(`${amount}`, decimals);
-
+    const destinationDomain = wh.conf.chains[toChainName]?.cctpDomain;
+    if (destinationDomain === undefined)
+      throw new Error(`CCTP not supported on ${toChainName}`);
     try {
       const tx = await circleSender.populateTransaction.depositForBurn(
         parsedAmt,
-        getDomainCCTP(toChainId),
+        destinationDomain,
         chainContext.context.formatAddress(recipientAddress, recipientChain),
         chainContext.context.parseAddress(tokenAddr, sendingChain),
       );
@@ -268,13 +253,11 @@ export class CCTPManualRoute extends BaseRoute {
     recipientAddress: string,
     routeOptions: any,
   ): Promise<string> {
-    console.log('About to send');
-
     const fromChainId = wh.toChainId(sendingChain);
     const fromChainName = wh.toChainName(sendingChain);
     const decimals = getTokenDecimals(fromChainId, token);
     const parsedAmt = utils.parseUnits(amount, decimals);
-    console.log('About to send 1');
+
     // only works on EVM
     const chainContext = wh.getContext(
       sendingChain,
@@ -297,24 +280,25 @@ export class CCTPManualRoute extends BaseRoute {
       tokenAddr,
       parsedAmt,
     );
-
-    console.log('About to send 2');
+    const recipientChainName = wh.toChainName(recipientChain);
+    const destinationDomain = wh.conf.chains[recipientChainName]?.cctpDomain;
+    if (destinationDomain === undefined)
+      throw new Error(`No CCTP on ${recipientChainName}`);
     const tx = await circleTokenMessenger.populateTransaction.depositForBurn(
       parsedAmt,
-      getDomainCCTP(wh.toChainId(recipientChain)),
+      destinationDomain,
       chainContext.context.formatAddress(recipientAddress, recipientChain),
       chainContext.context.parseAddress(tokenAddr, sendingChain),
     );
 
     const sentTx = await wh.getSigner(fromChainName)?.sendTransaction(tx);
     const rx = await sentTx?.wait();
-    if (!rx) throw "Transaction didn't go through";
+    if (!rx) throw new Error("Transaction didn't go through");
     const txId = await signAndSendTransaction(
       fromChainName,
       rx,
       TransferWallet.SENDING,
     );
-    console.log('signed and sent');
     wh.registerProviders();
     return txId;
   }
@@ -344,8 +328,6 @@ export class CCTPManualRoute extends BaseRoute {
   async parseMessage(
     messageInfo: CCTPInfo,
   ): Promise<ParsedMessage | ParsedRelayerMessage> {
-    console.log('here is the message to parse');
-    console.log(JSON.stringify(messageInfo));
     const tokenId: TokenId = {
       chain: messageInfo.fromChain,
       address: messageInfo.burnToken,
@@ -455,7 +437,7 @@ export class CCTPManualRoute extends BaseRoute {
     const addr = TOKENS_ARR.find(
       (t) => t.symbol === 'USDC' && t.nativeNetwork === chain,
     )?.tokenId?.address;
-    if (!addr) throw 'USDC not found';
+    if (!addr) throw new Error('USDC not found');
     return addr;
   }
 
@@ -468,7 +450,6 @@ export class CCTPManualRoute extends BaseRoute {
     // https://goerli.etherscan.io/tx/0xe4984775c76b8fe7c2b09cd56fb26830f6e5c5c6b540eb97d37d41f47f33faca#eventlog
     const provider = wh.mustGetProvider(chain);
 
-    console.log(`transaction hash: ${tx}`);
     const receipt = await provider.getTransactionReceipt(tx);
     if (!receipt) throw new Error(`No receipt for ${tx} on ${chain}`);
 
@@ -512,8 +493,7 @@ export class CCTPManualRoute extends BaseRoute {
       messageHash,
       signedAttestation,
     };
-    console.log(result.mintRecipient);
-    console.log(parsedCCTPLog.args.mintRecipient);
+
     return result;
   }
 
@@ -592,21 +572,15 @@ export class CCTPManualRoute extends BaseRoute {
       iface,
       connection,
     );
+    const cctpDomain = wh.conf.chains[messageInfo.fromChain]?.cctpDomain;
+    if (cctpDomain === undefined)
+      throw new Error(`CCTP not supported on ${messageInfo.fromChain}`);
+
     const hash = ethers.utils.keccak256(
-      ethers.utils.solidityPack(
-        ['uint32', 'uint64'],
-        [getDomainCCTP(messageInfo.fromChain), nonce],
-      ),
+      ethers.utils.solidityPack(['uint32', 'uint64'], [cctpDomain, nonce]),
     );
-    console.log(
-      ethers.utils.solidityPack(
-        ['uint32', 'uint64'],
-        [getDomainCCTP(messageInfo.fromChain), nonce],
-      ),
-    );
-    console.log(hash);
+
     const result = await contract.usedNonces(hash);
-    console.log(JSON.stringify(result));
     return result.toString() === '1';
   }
 }

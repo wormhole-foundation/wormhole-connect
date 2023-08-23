@@ -178,13 +178,11 @@ function GasOptions(props: { disabled: boolean }) {
       : Route.RELAY;
   const { relayerFee } = useSelector((state: RootState) => state.relay);
 
-  // listen for selectOption
   const onSelect = useCallback(
     (key: Route) => {
       // TODO This should be the seperate enum that isn't 'Route'
       // and then this should set the transferRoute to be the correct thing
       // depending on what the enum is set to
-      console.log(`Route ${route}, detail ${key as Route}`);
       if (route === Route.BRIDGE || route === Route.RELAY) {
         dispatch(setTransferRoute(key as Route));
       } else if (route === Route.CCTPManual || route === Route.CCTPRelay) {

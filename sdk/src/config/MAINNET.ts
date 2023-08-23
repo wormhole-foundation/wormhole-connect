@@ -52,6 +52,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     },
     finalityThreshold: 64,
     nativeTokenDecimals: 18,
+    cctpDomain: 0,
   },
   solana: {
     key: 'solana',
@@ -99,6 +100,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     },
     finalityThreshold: 1,
     nativeTokenDecimals: 18,
+    cctpDomain: 1,
   },
   fantom: {
     key: 'fantom',
