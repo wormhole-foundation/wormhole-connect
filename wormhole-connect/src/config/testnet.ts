@@ -151,7 +151,7 @@ export const TESTNET_NETWORKS: NetworksConfig = {
     explorerUrl: '',
     explorerName: '',
     gasToken: 'WORM',
-    chainId: 'wormchain-test-0',
+    chainId: 'wormchain-testnet-0',
     icon: Icon.OSMO,
     automaticRelayer: false,
     maxBlockSearch: 0,

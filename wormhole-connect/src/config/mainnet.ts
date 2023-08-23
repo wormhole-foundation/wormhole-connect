@@ -81,17 +81,6 @@ export const MAINNET_NETWORKS: NetworksConfig = {
     automaticRelayer: true,
     maxBlockSearch: 2000,
   },
-  terra2: {
-    ...chains.terra2!,
-    displayName: 'Terra',
-    explorerUrl: '',
-    explorerName: '',
-    gasToken: 'LUNA',
-    chainId: 'phoenix-1',
-    icon: Icon.OSMO,
-    automaticRelayer: false,
-    maxBlockSearch: 0,
-  },
   solana: {
     ...chains.solana!,
     displayName: 'Solana',
@@ -135,17 +124,28 @@ export const MAINNET_NETWORKS: NetworksConfig = {
     icon: Icon.BASE,
     maxBlockSearch: 2000,
   },
-  // sei: {
-  //   ...chains.sei!,
-  //   displayName: 'Sei',
-  //   explorerUrl: 'https://sei.explorers.guru/',
-  //   explorerName: 'Sei Explorer',
-  //   gasToken: 'SEI',
-  //   chainId: 0,
-  //   icon: Icon.SEI,
-  //   automaticRelayer: false,
-  //   maxBlockSearch: 0,
-  // },
+  osmosis: {
+    ...chains.osmosis!,
+    displayName: 'Osmosis',
+    explorerUrl: 'https://mintscan.io/osmosis/',
+    explorerName: 'MintScan',
+    gasToken: 'OSMO',
+    chainId: 'osmosis-1',
+    icon: Icon.OSMO,
+    automaticRelayer: false,
+    maxBlockSearch: 0,
+  },
+  wormchain: {
+    ...chains.wormchain!,
+    displayName: 'Wormchain',
+    explorerUrl: '',
+    explorerName: '',
+    gasToken: 'WORM',
+    chainId: '',
+    icon: Icon.OSMO,
+    automaticRelayer: false,
+    maxBlockSearch: 0,
+  },
 };
 
 export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
@@ -541,36 +541,6 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
       default: 8,
     },
   },
-  LUNA: {
-    key: 'LUNA',
-    symbol: 'LUNA',
-    nativeNetwork: 'terra2',
-    tokenId: {
-      chain: 'terra2',
-      address: 'uluna',
-    },
-    icon: Icon.OSMO,
-    coinGeckoId: 'uluna',
-    color: '#FFFFFF',
-    decimals: {
-      default: 6,
-    },
-  },
-  // SEI: {
-  //   key: 'SEI',
-  //   symbol: 'SEI',
-  //   nativeNetwork: 'sei',
-  //   tokenId: {
-  //     chain: 'sei',
-  //     address: 'usei',
-  //   },
-  //   icon: Icon.SEI,
-  //   coinGeckoId: 'sei',
-  //   color: '#FFFFFF',
-  //   decimals: {
-  //     default: 6,
-  //   },
-  // },
   ETHbase: {
     key: 'ETHbase',
     symbol: 'ETH',
@@ -598,6 +568,21 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: {
       Ethereum: 18,
       default: 8,
+    },
+  },
+  OSMO: {
+    key: 'OSMO',
+    symbol: 'OSMO',
+    nativeNetwork: 'osmosis',
+    tokenId: {
+      chain: 'osmosis',
+      address: 'uosmo',
+    },
+    icon: Icon.OSMO,
+    coinGeckoId: 'osmosis',
+    color: '#FFFFFF',
+    decimals: {
+      default: 6,
     },
   },
 };
@@ -678,5 +663,15 @@ export const MAINNET_GAS_ESTIMATES: GasEstimates = {
     claim: 1000000,
     sendNative: 1000000,
     sendToken: 1000000,
+  },
+  wormchain: {
+    sendNative: 0,
+    sendToken: 0,
+    claim: 0,
+  },
+  osmosis: {
+    sendNative: 0,
+    sendToken: 0,
+    claim: 0,
   },
 };

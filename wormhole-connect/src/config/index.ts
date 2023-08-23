@@ -99,7 +99,6 @@ const mainnetRpcs = {
   base: process.env.REACT_APP_BASE_RPC || conf.rpcs.base,
   osmosis: process.env.REACT_APP_OSMOSIS_RPC || conf.rpcs.osmosis,
   wormchain: process.env.REACT_APP_WORMCHAIN_RPC || conf.rpcs.wormchain,
-  terra2: process.env.REACT_APP_TERRA2_RPC || conf.rpcs.terra2,
 };
 const testnetRpcs = {
   goerli: process.env.REACT_APP_GOERLI_RPC || conf.rpcs.goerli,
@@ -181,5 +180,4 @@ export const TESTNET_TO_MAINNET_CHAIN_NAMES: {
   sei: 'sei',
   wormchain: 'wormchain',
   osmosis: 'osmosis',
-  terra2: 'terra2',
 };

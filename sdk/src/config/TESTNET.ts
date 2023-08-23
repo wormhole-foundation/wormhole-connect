@@ -13,7 +13,6 @@ export const TESTNET_CHAINS = {
   fantom: 10,
   alfajores: 14,
   moonbasealpha: 16,
-  terra2: 18,
   sui: 21,
   aptos: 22,
   basegoerli: 30,
@@ -125,16 +124,6 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     finalityThreshold: 1,
     nativeTokenDecimals: 18,
   },
-  terra2: {
-    context: Context.COSMOS,
-    key: 'terra2',
-    id: 18,
-    contracts: {
-      ...CONTRACTS.TESTNET.terra2,
-    },
-    finalityThreshold: 0,
-    nativeTokenDecimals: 6,
-  },
   sui: {
     key: 'sui',
     id: 21,
@@ -226,7 +215,6 @@ const TESTNET_CONFIG: WormholeConfig = {
     alfajores: 'https://alfajores-forno.celo-testnet.org',
     solana: 'https://api.devnet.solana.com',
     moonbasealpha: 'https://rpc.api.moonbase.moonbeam.network',
-    terra2: 'https://pisco-rpc.terra.dev',
     sui: 'https://fullnode.testnet.sui.io',
     aptos: 'https://fullnode.testnet.aptoslabs.com/v1',
     basegoerli: 'https://goerli.base.org',

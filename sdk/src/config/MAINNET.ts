@@ -13,7 +13,6 @@ export const MAINNET_CHAINS = {
   fantom: 10,
   celo: 14,
   moonbeam: 16,
-  terra2: 18,
   sui: 21,
   aptos: 22,
   base: 30,
@@ -124,16 +123,6 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     finalityThreshold: 1,
     nativeTokenDecimals: 18,
   },
-  terra2: {
-    context: Context.COSMOS,
-    key: 'terra2',
-    id: 18,
-    contracts: {
-      ...CONTRACTS.MAINNET.terra2,
-    },
-    finalityThreshold: 0,
-    nativeTokenDecimals: 6,
-  },
   sui: {
     key: 'sui',
     id: 21,
@@ -196,9 +185,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     key: 'osmosis',
     id: 20,
     context: Context.COSMOS,
-    contracts: {
-      ...CONTRACTS.MAINNET.wormchain,
-    },
+    contracts: {},
     finalityThreshold: 0,
     nativeTokenDecimals: 6,
   },
@@ -219,12 +206,12 @@ const MAINNET_CONFIG: WormholeConfig = {
     fantom: 'https://rpc.ankr.com/fantom',
     celo: 'https://rpc.ankr.com/celo',
     moonbeam: 'https://rpc.ankr.com/moonbeam',
-    terra2: 'https://phoenix-lcd.terra.dev',
     sui: 'https://rpc.mainnet.sui.io',
     aptos: 'https://fullnode.mainnet.aptoslabs.com/v1',
     base: 'https://mainnet.base.org',
     sei: '', // TODO: fill in
     wormchain: '',
+    osmosis: 'https://rpc.osmosis.zone',
   },
   rest: {
     sei: '',

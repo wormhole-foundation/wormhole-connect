@@ -2,7 +2,7 @@ import React from 'react';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { makeStyles } from 'tss-react/mui';
 import { LINK } from '../../utils/style';
-import { CHAINS, isMainnet } from '../../config';
+import { CHAINS, ENV, isMainnet } from '../../config';
 import LaunchIcon from '@mui/icons-material/Launch';
 
 const useStyles = makeStyles()((theme) => ({
@@ -36,7 +36,10 @@ function ExplorerLink(props: ExplorerLinkProps) {
     } else if (networkConfig.key === 'sei') {
       explorerLink = `${networkConfig.explorerUrl}transaction/${props.txHash}`;
     } else if (networkConfig.key === 'osmosis') {
-      explorerLink = `${networkConfig.explorerUrl}txs/${props.txHash}`;
+      explorerLink =
+        ENV === 'TESTNET'
+          ? `${networkConfig.explorerUrl}txs/${props.txHash}`
+          : `${networkConfig.explorerUrl}transactions/${props.txHash}`;
     } else {
       explorerLink = `${networkConfig.explorerUrl}tx/${props.txHash}`;
     }

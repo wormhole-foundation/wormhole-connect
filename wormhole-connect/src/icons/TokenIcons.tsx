@@ -609,6 +609,7 @@ export const getIcon = (icon: Icon) => {
       return (
         <svg
           xmlns="http://www.w3.org/2000/svg"
+          style={{ maxHeight: '100%', maxWidth: '100%' }}
           width="256"
           height="256"
           fill="none"
