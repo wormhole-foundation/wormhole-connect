@@ -1,4 +1,5 @@
 import {
+  CHAIN_ID_SOLANA,
   createNonce,
   getForeignAssetSolana,
   getSignedVAAWithRetry,
@@ -398,7 +399,40 @@ export class SolanaContext<
     );
     const message = Keypair.generate();
 
-    const tokenBridgeTransferIx = payload
+    const isSolanaNative =
+      tokenChainId === undefined || tokenChainId === CHAIN_ID_SOLANA;
+
+    const tokenBridgeTransferIx = isSolanaNative
+      ? payload
+        ? createTransferNativeWithPayloadInstruction(
+            this.connection,
+            contracts.token_bridge,
+            contracts.core,
+            senderAddress,
+            message.publicKey,
+            fromAddress,
+            mintAddress,
+            nonce,
+            amount,
+            recipientAddress,
+            recipientChainId,
+            payload,
+          )
+        : createTransferNativeInstruction(
+            this.connection,
+            contracts.token_bridge,
+            contracts.core,
+            senderAddress,
+            message.publicKey,
+            fromAddress,
+            mintAddress,
+            nonce,
+            amount,
+            relayerFee || BigInt(0),
+            recipientAddress,
+            recipientChainId,
+          )
+      : payload
       ? createTransferWrappedWithPayloadInstruction(
           this.connection,
           contracts.token_bridge,
