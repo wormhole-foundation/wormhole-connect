@@ -80,6 +80,9 @@ export enum Icon {
   'SEI',
   'BASE',
   'OSMO',
+  'BONK',
+  'TBTC',
+  'WSTETH',
 }
 
 export type GasEstimates = {

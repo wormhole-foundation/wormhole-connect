@@ -585,6 +585,53 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
       default: 6,
     },
   },
+  BONK: {
+    key: 'BONK',
+    symbol: 'BONK',
+    nativeNetwork: 'solana',
+    tokenId: {
+      chain: 'solana',
+      address: 'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263',
+    },
+    icon: Icon.BONK,
+    coinGeckoId: 'bonk',
+    color: '#FC8E03',
+    decimals: {
+      default: 5,
+    },
+  },
+  tBTC: {
+    key: 'tBTC',
+    symbol: 'tBTC',
+    nativeNetwork: 'ethereum',
+    tokenId: {
+      chain: 'ethereum',
+      address: '0x18084fbA666a33d37592fA2633fD49a74DD93a88',
+    },
+    icon: Icon.TBTC,
+    coinGeckoId: 'tbtc',
+    color: '#000000',
+    decimals: {
+      default: 8,
+      Ethereum: 18,
+    },
+  },
+  wstETH: {
+    key: 'wstETH',
+    symbol: 'wstETH',
+    nativeNetwork: 'ethereum',
+    tokenId: {
+      chain: 'ethereum',
+      address: '0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0',
+    },
+    icon: Icon.WSTETH,
+    coinGeckoId: 'wrapped-steth',
+    color: '#3AA3FF',
+    decimals: {
+      default: 8,
+      Ethereum: 18,
+    },
+  },
 };
 
 export const MAINNET_GAS_ESTIMATES: GasEstimates = {
