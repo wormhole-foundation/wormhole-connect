@@ -14,7 +14,7 @@ import Terms from './views/Terms';
 import TxSearch from './views/TxSearch';
 import WalletModal from './views/WalletModal';
 
-const useStyles = makeStyles()((theme) => ({
+const useStyles = makeStyles()((theme: any) => ({
   appContent: {
     textAlign: 'left',
     margin: '40px auto',

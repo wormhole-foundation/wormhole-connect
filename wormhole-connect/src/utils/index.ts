@@ -45,9 +45,10 @@ export function displayAddress(chain: ChainName, address: string): string {
 }
 
 export function displayWalletAddress(
-  walletType: Context,
+  walletType: Context | undefined,
   address: string,
 ): string {
+  if (!walletType) return '';
   if (walletType === Context.ETH) {
     return trimAddress(convertAddress(address));
   } else if (walletType === Context.SOLANA) {

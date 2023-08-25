@@ -26,7 +26,7 @@ import Tabs from './Tabs';
 import { BigNumber } from 'ethers';
 import Operator from '../utils/routes';
 
-const useStyles = makeStyles()((theme) => ({
+const useStyles = makeStyles()((theme: any) => ({
   tokensContainer: {
     display: 'flex',
     flexDirection: 'column',
@@ -166,7 +166,7 @@ function DisplayTokens(props: {
   search: string;
 }) {
   const { classes } = useStyles();
-  const theme = useTheme();
+  const theme: any = useTheme();
   const {
     tokens,
     balances,

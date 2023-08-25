@@ -36,7 +36,7 @@ function SOL() {
         </clipPath>
       </defs>
     </svg>
-  )
-};
+  );
+}
 
 export default SOL;

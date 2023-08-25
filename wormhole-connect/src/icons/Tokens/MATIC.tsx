@@ -22,7 +22,7 @@ function MATIC() {
         </clipPath>
       </defs>
     </svg>
-  )
-};
+  );
+}
 
 export default MATIC;

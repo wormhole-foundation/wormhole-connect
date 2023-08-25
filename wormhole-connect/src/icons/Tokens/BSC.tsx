@@ -27,7 +27,7 @@ function BSC() {
         fill="#F0B90B"
       />
     </svg>
-  )
-};
+  );
+}
 
 export default BSC;

@@ -4,7 +4,7 @@ import InputTransparent from './InputTransparent';
 import SearchIcon from '../icons/Search';
 import { changeOpacity } from '../utils/style';
 
-const useStyles = makeStyles()((theme) => ({
+const useStyles = makeStyles()((theme: any) => ({
   searchContent: {
     display: 'flex',
     flexDirection: 'row',

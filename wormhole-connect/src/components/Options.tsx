@@ -2,7 +2,7 @@ import React from 'react';
 import { makeStyles } from 'tss-react/mui';
 import { joinClass } from '../utils/style';
 
-const useStyles = makeStyles()((theme) => ({
+const useStyles = makeStyles()((theme: any) => ({
   options: {
     backgroundColor: theme.palette.card.background,
     borderBottomLeftRadius: '8px',
@@ -40,22 +40,18 @@ const useStyles = makeStyles()((theme) => ({
   },
 }));
 
-type Option = {
+export type Option = {
   key: any;
   child: any;
 };
 type Props = {
   children: Option[];
+  onSelect: (value: any) => void;
   active?: number;
 };
 
 function Options(props: Props) {
   const { classes } = useStyles();
-  // dispatch selectOption event
-  const emitSelectOption = (key: any) => {
-    const event = new CustomEvent('selectOption', { detail: key });
-    document.dispatchEvent(event);
-  };
 
   return (
     <div className={classes.options}>
@@ -66,7 +62,7 @@ function Options(props: Props) {
               classes.option,
               props.active === option.key && classes.active,
             ])}
-            onClick={() => emitSelectOption(option.key)}
+            onClick={() => props.onSelect(option.key)}
             style={{
               cursor: props.children.length > 0 ? 'pointer' : 'default',
             }}

@@ -11,7 +11,7 @@ const colors = {
   pink: '#5A1E46',
 };
 
-const useStyles = makeStyles()((theme) => ({
+const useStyles = makeStyles()(() => ({
   container: {
     backgroundColor: `${colors.bg} !important`,
     width: '100%',

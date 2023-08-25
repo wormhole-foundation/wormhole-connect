@@ -25,7 +25,7 @@ function BNB() {
         </g>
       </g>
     </svg>
-  )
-};
+  );
+}
 
 export default BNB;

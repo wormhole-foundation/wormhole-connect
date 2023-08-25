@@ -6,7 +6,7 @@ import { makeStyles } from 'tss-react/mui';
 import { CHAINS } from '../../config';
 import { getCurrentBlock } from '../../utils/sdk';
 
-const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
+const BorderLinearProgress = styled(LinearProgress)(({ theme }: any) => ({
   borderRadius: 5,
   [`&.${linearProgressClasses.colorPrimary}`]: {
     backgroundColor: theme.palette.card.secondary,

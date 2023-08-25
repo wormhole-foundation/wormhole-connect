@@ -30,7 +30,7 @@ function USDT() {
         </clipPath>
       </defs>
     </svg>
-  )
-};
+  );
+}
 
 export default USDT;

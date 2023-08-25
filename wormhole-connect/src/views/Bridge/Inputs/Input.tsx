@@ -2,7 +2,7 @@ import React from 'react';
 import { makeStyles } from 'tss-react/mui';
 import { ERROR_BORDER, joinClass } from '../../../utils/style';
 
-const useStyles = makeStyles()((theme) => ({
+const useStyles = makeStyles()((theme: any) => ({
   inputField: {
     display: 'flex',
     flexDirection: 'column',

@@ -7,7 +7,7 @@ import MenuIcon from '../icons/Menu';
 import { Route, setRoute } from '../store/router';
 import { useDispatch } from 'react-redux';
 
-const useStyles = makeStyles()((theme) => ({
+const useStyles = makeStyles()((theme: any) => ({
   menuIcon: ICON,
   menu: {
     backgroundColor: theme.palette.popover.background,

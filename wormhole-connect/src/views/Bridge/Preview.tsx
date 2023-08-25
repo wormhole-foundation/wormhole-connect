@@ -8,16 +8,16 @@ import { CHAINS, TOKENS } from '../../config';
 import { getTokenDecimals } from '../../utils';
 import { toDecimals } from '../../utils/balance';
 import { toChainId, getRelayerFee } from '../../utils/sdk';
-import Operator, { PreviewData } from '../../utils/routes';
+import Operator, { TransferDisplayData } from '../../utils/routes';
 
 import { RenderRows } from '../../components/RenderRows';
-import BridgeCollapse from './Collapse';
+import BridgeCollapse, { CollapseControlStyle } from './Collapse';
 import InputContainer from '../../components/InputContainer';
 
 function Preview(props: { collapsed: boolean }) {
   const dispatch = useDispatch();
-  const theme = useTheme();
-  const [state, setState] = React.useState({ rows: [] as PreviewData });
+  const theme: any = useTheme();
+  const [state, setState] = React.useState({ rows: [] as TransferDisplayData });
   const {
     token,
     destToken,
@@ -115,6 +115,7 @@ function Preview(props: { collapsed: boolean }) {
       disabled={props.collapsed}
       controlled
       value={props.collapsed}
+      controlStyle={CollapseControlStyle.None}
     >
       <InputContainer
         styles={{

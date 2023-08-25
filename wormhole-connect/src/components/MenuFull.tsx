@@ -9,7 +9,7 @@ import Modal from './Modal';
 import Spacer from './Spacer';
 import PoweredByIcon from '../icons/PoweredBy';
 
-const useStyles = makeStyles()((theme) => ({
+const useStyles = makeStyles()(() => ({
   menuIcon: ICON,
   menu: {
     display: 'flex',
