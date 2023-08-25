@@ -1,6 +1,6 @@
 {
   "exclude": ["dist", "node_modules", "tests", "coverage"],
-  "include": ["scripts/**/*.ts", "src/**/*.ts", "tests/*.test.ts"],
+  "include": ["scripts/**/*.ts", "src/**/*.ts", "src/Icons/**/*.tsx", "tests/*.test.ts"],
   "compilerOptions": {
     "composite": true,
     "declaration": true,
@@ -22,6 +22,7 @@
     "sourceMap": true,
     "target": "es2021",
     "strict": true,
-    "baseUrl": "./src"
+    "baseUrl": "./src",
+    "jsx": "react"
   }
 }

@@ -47,14 +47,6 @@ export default class Operator {
     const result = await getVaa(txHash, chain);
     const vaa = result.vaa;
 
-    // if(HASHFLOW_CONTRACT_ADDRESSES.includes(vaa.emitterAddress)) {
-    //   return Route.HASHFLOW
-    // }
-
-    // if(CCTP_CONTRACT_ADDRESSES.includes(vaa.emitterAddress)) {
-    //   return Route.CCTP
-    // }
-
     const transfer = parseTokenTransferPayload(vaa.payload);
     if (transfer.toChain === CHAIN_ID_SEI) {
       return Route.RELAY;

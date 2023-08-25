@@ -1,15 +1,14 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
-import { useTheme } from '@mui/material/styles';
 import { RootState } from '../../store';
 import BridgeCollapse from './Collapse';
 import { LINK, joinClass } from '../../utils/style';
-import InputContainer from '../../components/InputContainer';
 import { TOKENS } from '../../config';
 import TokenIcon from '../../icons/TokenIcons';
 import ArrowRightIcon from '../../icons/ArrowRight';
-import HashflowIcon from '../../icons/Hashflow';
+import Options from '../../components/Options';
+import { ROUTES, RouteData } from '../../config/routes';
 
 const useStyles = makeStyles()((theme) => ({
   link: {
@@ -26,20 +25,112 @@ const useStyles = makeStyles()((theme) => ({
   filled: {
     backgroundColor: theme.palette.card.secondary,
   },
+  // content: {
+  //   display: 'grid',
+  //   gridTemplateColumns: '158px 1fr',
+  //   gridTemplateRows: '1fr',
+  //   gridTemplateAreas: `"network inputs"`,
+  //   width: '100%',
+  //   maxWidth: '100%',
+  //   [theme.breakpoints.down('sm')]: {
+  //     gridTemplateColumns: '1fr !important',
+  //     gridTemplateAreas: `"inputs" !important`,
+  //   },
+  // },
+  // network: {
+  //   gridArea: 'network',
+  // },
+  // inputs: {
+  //   gridArea: 'inputs',
+  //   display: 'flex',
+  //   flexDirection: 'column',
+  //   gap: '8px',
+  //   width: '100%',
+  //   paddingLeft: '8px',
+  //   [theme.breakpoints.down('sm')]: {
+  //     paddingLeft: '0',
+  //   },
+  // },
   route: {
+    display: 'grid',
+    gridTemplateColumns: '158px 1fr',
+    gridTemplateRows: '1fr',
+    gridTemplateAreas: `"path fees"`,
+    width: '100%',
+    maxWidth: '100%',
+    [theme.breakpoints.down('sm')]: {
+      gridTemplateColumns: '1fr !important',
+      gridTemplateAreas: `"path" !important`,
+    },
+    // display: 'flex',
+    // justifyContent: 'space-between',
+    fontSize: '14px',
+  },
+  routeLeft: {
+    gridArea: 'path',
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  routeName: {
+    fontSize: '14px',
+    fontWeight: '600',
+    marginBottom: '8px',
+  },
+  routePath: {
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
   },
+  routeRight: {
+    gridArea: 'fees',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    alignItems: 'flex-end',
+    padding: '4px 0',
+    height: '100%',
+  },
+  routeAmt: {
+    opacity: '0.6',
+    fontSize: '12px',
+  }
 }));
+
+function Banner() {
+  const { classes } = useStyles();
+  const [routeData, setRouteData] = useState<RouteData | undefined>(undefined);
+  const { route } = useSelector(
+    (state: RootState) => state.transferInput,
+  );
+
+  useEffect(() => {
+    setRouteData(ROUTES[route]);
+  })
+
+  return routeData ? (
+    <>
+      This route provided by
+      <a
+        href={routeData.link}
+        target="_blank"
+        className={classes.link}
+        rel="noreferrer"
+      >
+        {routeData.providedBy}
+      </a>
+    </>
+  ) : <></>;
+}
 
 type TagProps = {
   icon: JSX.Element;
   text: string;
   colorFilled?: boolean;
+  height?: number;
 };
 function Tag(props: TagProps) {
   const { classes } = useStyles();
+  const height = props.height || 20;
   // const tokenConfig = TOKENS[props.token];
   // if (!tokenConfig) return <></>;
   return (
@@ -49,17 +140,17 @@ function Tag(props: TagProps) {
         !!props.colorFilled && classes.filled,
       ])}
     >
-      {props.icon}
+      <div style={{ height: height, width: height }}>
+        {props.icon}
+      </div>
       {props.text}
     </div>
   );
 }
 
-function RouteOptions() {
+function RouteOption(props: { route: RouteData }) {
   const { classes } = useStyles();
-  const theme = useTheme();
-  // const [collapsed, setCollapsed] = useState(false);
-  const { isTransactionInProgress, token, destToken } = useSelector(
+  const { token, destToken } = useSelector(
     (state: RootState) => state.transferInput,
   );
   const fromTokenConfig = TOKENS[token];
@@ -70,20 +161,34 @@ function RouteOptions() {
   const toTokenIcon = toTokenConfig && (
     <TokenIcon name={toTokenConfig.icon} height={16} />
   );
-  const hashflowIcon = <HashflowIcon sx={{ fontSize: 16 }} />;
 
-  const banner = (
-    <>
-      This route provided by
-      <a
-        href="https://www.hashflow.com/"
-        target="_blank"
-        className={classes.link}
-        rel="noreferrer"
-      >
-        Hashflow
-      </a>
-    </>
+  return fromTokenConfig && toTokenConfig && (
+    <div className={classes.route}>
+      <div className={classes.routeLeft}>
+        <div className={classes.routeName}>{props.route.name}</div>
+        <div className={classes.routePath}>
+          <Tag
+            icon={fromTokenIcon}
+            text={fromTokenConfig.symbol}
+            colorFilled
+          />
+          <ArrowRightIcon />
+          <Tag icon={props.route.icon()} text={props.route.providedBy} />
+          <ArrowRightIcon />
+          <Tag icon={toTokenIcon} text={toTokenConfig.symbol} colorFilled />
+        </div>
+      </div>
+      <div className={classes.routeRight}>
+        <div>22.5 USDC</div>
+        <div className={classes.routeAmt}>~ $22.50 after fees</div>
+      </div>
+    </div>
+  );
+}
+
+function RouteOptions() {
+  const { isTransactionInProgress, route } = useSelector(
+    (state: RootState) => state.transferInput,
   );
 
   return (
@@ -91,32 +196,18 @@ function RouteOptions() {
       title="Route"
       disabled={isTransactionInProgress}
       controlled
-      banner={banner}
+      banner={<Banner />}
       value={false}
       onCollapseChange={() => {}}
     >
-      <InputContainer
-        styles={{
-          boxShadow: 'none',
-          borderTopLeftRadius: '0',
-          borderTopRightRadius: '0',
-        }}
-        bg={theme.palette.options.select}
-      >
-        {fromTokenConfig && toTokenConfig && (
-          <div className={classes.route}>
-            <Tag
-              icon={fromTokenIcon}
-              text={fromTokenConfig.symbol}
-              colorFilled
-            />
-            <ArrowRightIcon />
-            <Tag icon={hashflowIcon} text={'Hashflow'} />
-            <ArrowRightIcon />
-            <Tag icon={toTokenIcon} text={toTokenConfig.symbol} colorFilled />
-          </div>
-        )}
-      </InputContainer>
+      <Options active={route}>
+        {Object.values(ROUTES).map(route => {
+          return {
+            key: route.route,
+            child: <RouteOption route={route}/>,
+          };
+        })}
+      </Options>
     </BridgeCollapse>
   );
 }
