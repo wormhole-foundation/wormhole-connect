@@ -103,8 +103,7 @@ type TagProps = {
 function Tag(props: TagProps) {
   const { classes } = useStyles();
   const height = props.height || 20;
-  // const tokenConfig = TOKENS[props.token];
-  // if (!tokenConfig) return <></>;
+
   return (
     <div
       className={joinClass([
@@ -167,24 +166,36 @@ function RouteOptions() {
   const onSelect = (value: Route) => {
     dispatch(setTransferRoute(value));
   };
+  const selectedRoute = useSelector((state: RootState) => state.transferInput.route);
+  const selectedElement = (
+    <Options active={route} onSelect={() => {}}>
+      {[{
+        key: selectedRoute,
+        child: <RouteOption route={ROUTES[selectedRoute]} />,
+      }]}
+    </Options>
+  )
 
   return (
-    <BridgeCollapse
-      title="Route"
-      disabled={isTransactionInProgress}
-      banner={<Banner />}
-      startClosed={true}
-      controlStyle={CollapseControlStyle.Arrow}
-    >
-      <Options active={route} onSelect={onSelect}>
-        {Object.values(ROUTES).map((route) => {
-          return {
-            key: route.route,
-            child: <RouteOption route={route} />,
-          };
-        })}
-      </Options>
-    </BridgeCollapse>
+    <>
+      <BridgeCollapse
+        title="Route"
+        disabled={isTransactionInProgress}
+        banner={<Banner />}
+        startClosed={true}
+        controlStyle={CollapseControlStyle.Arrow}
+        selectedElement={selectedElement}
+      >
+        <Options active={route} onSelect={onSelect}>
+          {Object.values(ROUTES).map((route) => {
+            return {
+              key: route.route,
+              child: <RouteOption route={route} />,
+            };
+          })}
+        </Options>
+      </BridgeCollapse>
+    </>
   );
 }
 

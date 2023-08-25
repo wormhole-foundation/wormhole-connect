@@ -3,7 +3,7 @@ import MuiSwitch from '@mui/material/Switch';
 
 // Based on an example from material ui docs
 // https://github.com/mui/material-ui/blob/05127cf65b4250f836897428cd15829669ab8d6c/docs/data/material/components/switches/CustomizedSwitches.tsx#L140
-const Switch = styled(MuiSwitch)(({ theme }) => ({
+const Switch = styled(MuiSwitch)(({ theme }: any) => ({
   width: 40,
   height: 20,
   padding: 0,
