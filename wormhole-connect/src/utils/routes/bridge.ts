@@ -166,12 +166,7 @@ export class BridgeRoute extends BaseRoute {
       );
     }
 
-    const tx = await wh.redeem(
-      destChain,
-      messageInfo.rawVaa,
-      { gasLimit: 250000 },
-      payer,
-    );
+    const tx = await wh.redeem(destChain, messageInfo.rawVaa, undefined, payer);
     const txId = await signAndSendTransaction(
       destChainName,
       tx,
