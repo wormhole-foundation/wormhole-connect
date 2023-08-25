@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { RootState } from '../../store';
@@ -165,18 +165,34 @@ function GasOptions(props: { disabled: boolean }) {
     description: '',
     options: [] as OptionConfig[],
   });
-  const selectedOption = useSelector(
-    (state: RootState) => state.transferInput.route,
-  );
-  const { token, fromNetwork, toNetwork, automaticRelayAvail, gasEst } =
+
+  const { token, fromNetwork, toNetwork, automaticRelayAvail, gasEst, route } =
     useSelector((state: RootState) => state.transferInput);
+  const automaticOrManual =
+    route === Route.BRIDGE
+      ? Route.BRIDGE
+      : route === Route.RELAY
+      ? Route.RELAY
+      : route === Route.CCTPManual
+      ? Route.BRIDGE
+      : Route.RELAY;
   const { relayerFee } = useSelector((state: RootState) => state.relay);
 
-  // listen for selectOption
-  document.addEventListener('selectOption', (event: Event) => {
-    const { detail } = event as CustomEvent;
-    dispatch(setTransferRoute(detail as Route));
-  });
+  const onSelect = useCallback(
+    (key: Route) => {
+      // TODO This should be the seperate enum that isn't 'Route'
+      // and then this should set the transferRoute to be the correct thing
+      // depending on what the enum is set to
+      if (route === Route.BRIDGE || route === Route.RELAY) {
+        dispatch(setTransferRoute(key as Route));
+      } else if (route === Route.CCTPManual || route === Route.CCTPRelay) {
+        if ((key as Route) === Route.BRIDGE) {
+          dispatch(setTransferRoute(Route.CCTPManual));
+        } else dispatch(setTransferRoute(Route.CCTPRelay));
+      }
+    },
+    [route],
+  );
 
   useEffect(() => {
     const sourceConfig = fromNetwork && CHAINS[fromNetwork];
@@ -184,7 +200,7 @@ function GasOptions(props: { disabled: boolean }) {
     if (!token || !sourceConfig || !destConfig) return;
 
     const description =
-      selectedOption === Route.RELAY
+      route === Route.RELAY
         ? payWith(sourceConfig.gasToken, token)
         : payWith(sourceConfig.gasToken, destConfig!.gasToken);
     setState({
@@ -200,7 +216,7 @@ function GasOptions(props: { disabled: boolean }) {
     });
   }, [
     token,
-    selectedOption,
+    route,
     fromNetwork,
     toNetwork,
     gasEst,
@@ -219,7 +235,7 @@ function GasOptions(props: { disabled: boolean }) {
       value={true}
       close={true}
     >
-      <Options active={selectedOption}>
+      <Options active={automaticOrManual} onSelect={onSelect}>
         {state.options.map((option, i) => {
           const jsx = (
             <div className={classes.option} key={i}>

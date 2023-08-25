@@ -165,4 +165,24 @@ export class SolContracts<
   mustGetTokenBridgeRelayer(chain: ChainName | ChainId): TokenBridgeRelayer {
     throw new Error('relayer not deployed on Solana');
   }
+
+  /**
+   * Returns wormhole CCTP relayer contract for the chain
+   *
+   * @returns An interface for the Wormhole CCTP relayer contract, undefined if not found
+   */
+  getWormholeCircleRelayer(chain: ChainName | ChainId): any {
+    return undefined;
+  }
+
+  /**
+   * Returns wormhole CCTP relayer contract for the chain
+   *
+   * @returns An interface for the Wormhole CCTP relayer contract, errors if not found
+   */
+  mustGetWormholeCircleRelayer(chain: ChainName | ChainId): any {
+    throw new Error(
+      `Wormhole circle relayer contract for domain ${chain} not found`,
+    );
+  }
 }

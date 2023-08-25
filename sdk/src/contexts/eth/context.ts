@@ -38,6 +38,8 @@ import { RelayerAbstract } from '../abstracts/relayer';
 import { SolanaContext } from '../solana';
 import { arrayify, hexZeroPad } from 'ethers/lib/utils';
 
+export const NO_VAA_FOUND = 'No message publish found in logs';
+
 export class EthContext<
   T extends WormholeContext,
 > extends RelayerAbstract<ethers.ContractReceipt> {
@@ -473,7 +475,7 @@ export class EthContext<
     });
 
     if (bridgeLogs.length === 0) {
-      throw new Error('No message publish found in logs');
+      throw new Error(NO_VAA_FOUND);
     }
 
     const parsed = Implementation__factory.createInterface().parseLog(

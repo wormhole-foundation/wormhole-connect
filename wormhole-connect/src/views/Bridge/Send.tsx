@@ -77,11 +77,14 @@ function Send(props: { valid: boolean }) {
     toNetwork,
     token,
     amount,
-    route: routeType,
+    route,
     automaticRelayAvail,
     isTransactionInProgress,
-    route,
   } = transfer;
+
+  // TODO: change this to be the right enum
+  // route type should be one of two things - one transaction or two
+  const routeType = route;
   const [isConnected, setIsConnected] = useState(
     sending.currentAddress.toLowerCase() === sending.address.toLowerCase(),
   );
@@ -143,6 +146,9 @@ function Send(props: { valid: boolean }) {
     }
   }
 
+  // TODO: 'routeType', if meant to be
+  // either one transaction or two transactions
+  // should be a different enum than 'Route'
   const setSendingGas = useCallback(
     async (routeType: Route) => {
       const tokenConfig = TOKENS[token]!;
@@ -190,6 +196,8 @@ function Send(props: { valid: boolean }) {
     const valid = isTransferValid(validations);
     if (!valid) return;
 
+    // TODO: should use a different enum than Route
+    // which is either one transaction or two
     if (automaticRelayAvail) {
       setSendingGas(Route.RELAY);
     }

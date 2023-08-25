@@ -13,7 +13,10 @@ import {
   wh,
 } from '../../utils/sdk';
 import { RootState } from '../../store';
-import { disableAutomaticTransfer, Route } from '../../store/transferInput';
+import {
+  disableAutomaticTransferAndSetRoute,
+  Route,
+} from '../../store/transferInput';
 import {
   setMaxSwapAmt,
   setReceiveNativeAmt,
@@ -120,7 +123,12 @@ function GasSlider(props: { disabled: boolean }) {
 
   // set the actual max swap amount (checks if max swap amount is greater than the sending amount)
   useEffect(() => {
-    if (!amount || !maxSwapAmt || route !== Route.RELAY) return;
+    if (
+      !amount ||
+      !maxSwapAmt ||
+      (route !== Route.RELAY && route !== Route.CCTPRelay)
+    )
+      return;
 
     const min = getMinAmount(true, relayerFee, 0);
     const amountWithoutRelayerFee = amount - min;
@@ -143,7 +151,7 @@ function GasSlider(props: { disabled: boolean }) {
     if (
       !toNetwork ||
       !sendingToken ||
-      route !== Route.RELAY ||
+      (route !== Route.RELAY && route !== Route.CCTPRelay) ||
       !receivingWallet.address
     )
       return;
@@ -164,7 +172,7 @@ function GasSlider(props: { disabled: boolean }) {
       })
       .catch((e) => {
         if (e.message.includes('swap rate not set')) {
-          dispatch(disableAutomaticTransfer());
+          dispatch(disableAutomaticTransferAndSetRoute(Route.BRIDGE));
         } else {
           throw e;
         }

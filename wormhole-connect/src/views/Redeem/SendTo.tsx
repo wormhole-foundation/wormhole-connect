@@ -125,12 +125,11 @@ function SendTo() {
       ? inProgress && !transferComplete
       : !transferComplete;
   const manualClaimText =
-    transferComplete || txData.payloadID === Route.RELAY
+    transferComplete || txData.payloadID === Route.RELAY // todo: should be the other enum, should be named better than payload id
       ? ''
       : claimError
       ? 'Error please retry . . .'
       : 'Claim below';
-
   return (
     <div>
       <InputContainer>

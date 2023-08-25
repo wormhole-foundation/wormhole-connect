@@ -2,11 +2,13 @@ import {
   ChainName,
   ChainId,
   TokenId,
+  NO_VAA_FOUND,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { Route } from 'store/transferInput';
 import { BridgeRoute } from './bridge';
 import { RelayRoute } from './relay';
 import { HashflowRoute } from './hashflow';
+import { CCTPRelayRoute } from './cctpRelay';
 import { TokenConfig } from 'config/types';
 import {
   ParsedMessage,
@@ -24,6 +26,11 @@ import {
 } from '@certusone/wormhole-sdk';
 import { TransferDisplayData } from './types';
 import { BigNumber } from 'ethers';
+import { wh } from '../sdk';
+import {
+  CCTPManualRoute,
+  CCTP_LOG_TokenMessenger_DepositForBurn,
+} from './cctpManual';
 
 export default class Operator {
   getRoute(route: Route): RouteAbstract {
@@ -33,6 +40,12 @@ export default class Operator {
       }
       case Route.RELAY: {
         return new RelayRoute();
+      }
+      case Route.CCTPManual: {
+        return new CCTPManualRoute();
+      }
+      case Route.CCTPRelay: {
+        return new CCTPRelayRoute();
       }
       case Route.HASHFLOW: {
         return new HashflowRoute();
@@ -44,16 +57,46 @@ export default class Operator {
   }
 
   async getRouteFromTx(txHash: string, chain: ChainName): Promise<Route> {
-    const result = await getVaa(txHash, chain);
-    const vaa = result.vaa;
+    let vaa;
+    let error;
+    try {
+      const result = await getVaa(txHash, chain);
+      vaa = result.vaa;
+    } catch (_error: any) {
+      error = _error;
+    }
 
     // if(HASHFLOW_CONTRACT_ADDRESSES.includes(vaa.emitterAddress)) {
     //   return Route.HASHFLOW
     // }
 
-    // if(CCTP_CONTRACT_ADDRESSES.includes(vaa.emitterAddress)) {
-    //   return Route.CCTP
-    // }
+    if (!vaa) {
+      // Currently, CCTP manual is the only route without a VAA
+      if (error === NO_VAA_FOUND) {
+        const provider = wh.mustGetProvider(chain);
+        const receipt = await provider.getTransactionReceipt(txHash);
+        if (!receipt) throw new Error(`No receipt for ${txHash} on ${chain}`);
+        if (
+          receipt.logs.find(
+            (log) => log.topics[0] === CCTP_LOG_TokenMessenger_DepositForBurn,
+          )
+        )
+          return Route.CCTPManual;
+      }
+      throw error;
+    }
+
+    const CCTP_CONTRACT_ADDRESSES = [2, 6].map((chainId) => {
+      return wh.getContracts(chainId as ChainId)?.cctpContracts?.wormholeCCTP;
+    });
+
+    if (
+      CCTP_CONTRACT_ADDRESSES.includes(
+        '0x' + vaa.emitterAddress.toString('hex').substring(24),
+      )
+    ) {
+      return Route.CCTPRelay;
+    }
 
     const transfer = parseTokenTransferPayload(vaa.payload);
     if (transfer.toChain === CHAIN_ID_SEI) {

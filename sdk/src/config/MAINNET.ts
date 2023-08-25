@@ -43,9 +43,16 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     contracts: {
       ...CONTRACTS.MAINNET.ethereum,
       relayer: '0xcafd2f0a35a4459fa40c0517e17e6fa2939441ca',
+      cctpContracts: {
+        cctpTokenMessenger: '0xbd3fa81b58ba92a82136038b25adec7066af3155',
+        cctpMessageTransmitter: '0x0a992d191deec32afe36203ad87d7d289a738f81',
+        wormholeCircleRelayer: '0x4cb69FaE7e7Af841e44E1A1c30Af640739378bb2',
+        wormholeCCTP: '0xAaDA05BD399372f0b0463744C09113c137636f6a',
+      },
     },
     finalityThreshold: 64,
     nativeTokenDecimals: 18,
+    cctpDomain: 0,
   },
   solana: {
     key: 'solana',
@@ -84,9 +91,16 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     contracts: {
       ...CONTRACTS.MAINNET.avalanche,
       relayer: '0xcafd2f0a35a4459fa40c0517e17e6fa2939441ca',
+      cctpContracts: {
+        cctpTokenMessenger: '0x6b25532e1060ce10cc3b0a99e5683b91bfde6982',
+        cctpMessageTransmitter: '0x8186359af5f57fbb40c6b14a588d2a59c0c29880',
+        wormholeCircleRelayer: '0x4cb69FaE7e7Af841e44E1A1c30Af640739378bb2',
+        wormholeCCTP: '0x09Fb06A271faFf70A651047395AaEb6265265F13',
+      },
     },
     finalityThreshold: 1,
     nativeTokenDecimals: 18,
+    cctpDomain: 1,
   },
   fantom: {
     key: 'fantom',

@@ -2,12 +2,15 @@ import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useTheme } from '@mui/material/styles';
 import { RootState } from '../../store';
-import { disableAutomaticTransfer, Route } from '../../store/transferInput';
+import {
+  disableAutomaticTransferAndSetRoute,
+  Route,
+} from '../../store/transferInput';
 import { setRelayerFee } from '../../store/relay';
 import { CHAINS, TOKENS } from '../../config';
 import { getTokenDecimals } from '../../utils';
 import { toDecimals } from '../../utils/balance';
-import { toChainId, getRelayerFee } from '../../utils/sdk';
+import { toChainId } from '../../utils/sdk';
 import Operator, { PreviewData } from '../../utils/routes';
 
 import { RenderRows } from '../../components/RenderRows';
@@ -56,7 +59,9 @@ function Preview(props: { collapsed: boolean }) {
         destinationGasToken: destConfig.gasToken,
         amount: numReceiveAmount,
         sendingGasEst:
-          route === Route.BRIDGE ? gasEst.manual : gasEst.automatic,
+          route === Route.BRIDGE || route === Route.CCTPManual
+            ? gasEst.manual
+            : gasEst.automatic,
         destGasEst: gasEst.claim,
 
         // relay params
@@ -91,7 +96,12 @@ function Preview(props: { collapsed: boolean }) {
         const tokenConfig = token && TOKENS[token];
         if (!tokenConfig) return;
 
-        const fee = await getRelayerFee(fromNetwork, toNetwork, token);
+        const fee = await new Operator().getRelayerFee(
+          route,
+          fromNetwork,
+          toNetwork,
+          token,
+        );
         const decimals = getTokenDecimals(
           toChainId(fromNetwork),
           tokenConfig.tokenId || 'native',
@@ -100,14 +110,14 @@ function Preview(props: { collapsed: boolean }) {
         dispatch(setRelayerFee(formattedFee));
       } catch (e) {
         if (e.message.includes('swap rate not set')) {
-          dispatch(disableAutomaticTransfer());
+          dispatch(disableAutomaticTransferAndSetRoute(Route.BRIDGE));
         } else {
           throw e;
         }
       }
     };
     computeRelayerFee();
-  }, [token, toNetwork, fromNetwork, dispatch]);
+  }, [route, token, toNetwork, fromNetwork, dispatch]);
 
   return (
     <BridgeCollapse

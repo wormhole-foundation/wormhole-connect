@@ -6,14 +6,15 @@ import { useDispatch } from 'react-redux';
 import { RootState } from '../../store';
 import {
   setReceiverNativeBalance,
-  enableAutomaticTransfer,
-  disableAutomaticTransfer,
+  enableAutomaticTransferAndSetRoute,
+  disableAutomaticTransferAndSetRoute,
   Route,
   setReceiveAmount,
   setDestToken,
   setToken,
   setSupportedSourceTokens,
   setSupportedDestTokens,
+  TransferInputState,
 } from '../../store/transferInput';
 import { wh, isAcceptedToken, toChainId } from '../../utils/sdk';
 import { CHAINS, TOKENS, TOKENS_ARR } from '../../config';
@@ -81,7 +82,9 @@ function Bridge() {
     associatedTokenAddress,
     isTransactionInProgress,
     amount,
-  } = useSelector((state: RootState) => state.transferInput);
+  }: TransferInputState = useSelector(
+    (state: RootState) => state.transferInput,
+  );
   const { toNativeToken, relayerFee } = useSelector(
     (state: RootState) => state.relay,
   );
@@ -151,25 +154,55 @@ function Bridge() {
 
   // check if automatic relay option is available
   useEffect(() => {
-    if (!fromNetwork || !toNetwork || !token) return;
-    const fromConfig = CHAINS[fromNetwork]!;
-    const toConfig = CHAINS[toNetwork]!;
-    if (fromConfig.automaticRelayer && toConfig.automaticRelayer) {
-      const isTokenAcceptedForRelay = async () => {
-        const tokenConfig = TOKENS[token]!;
-        const tokenId = getWrappedTokenId(tokenConfig);
-        const accepted = await isAcceptedToken(tokenId);
-        if (accepted) {
-          dispatch(enableAutomaticTransfer());
-        } else {
-          dispatch(disableAutomaticTransfer());
-        }
-      };
-      isTokenAcceptedForRelay();
-    } else {
-      dispatch(disableAutomaticTransfer());
-    }
-  }, [fromNetwork, toNetwork, token, dispatch]);
+    const establishRoute = async () => {
+      if (!fromNetwork || !toNetwork || !token || !destToken) return;
+      const cctpAvailable = await new Operator().isRouteAvailable(
+        Route.CCTPRelay,
+        token,
+        destToken,
+        amount,
+        fromNetwork,
+        toNetwork,
+      );
+      if (cctpAvailable) {
+        dispatch(enableAutomaticTransferAndSetRoute(Route.CCTPRelay));
+        return;
+      }
+
+      const cctpManualAvailable = await new Operator().isRouteAvailable(
+        Route.CCTPManual,
+        token,
+        destToken,
+        amount,
+        fromNetwork,
+        toNetwork,
+      );
+      if (cctpManualAvailable) {
+        dispatch(disableAutomaticTransferAndSetRoute(Route.CCTPManual));
+        return;
+      }
+
+      // The code below should maybe be rewritten to use isRouteAvailable!
+      const fromConfig = CHAINS[fromNetwork]!;
+      const toConfig = CHAINS[toNetwork]!;
+      if (fromConfig.automaticRelayer && toConfig.automaticRelayer) {
+        const isTokenAcceptedForRelay = async () => {
+          const tokenConfig = TOKENS[token]!;
+          const tokenId = getWrappedTokenId(tokenConfig);
+          const accepted = await isAcceptedToken(tokenId);
+          if (accepted) {
+            dispatch(enableAutomaticTransferAndSetRoute(Route.RELAY));
+          } else {
+            dispatch(disableAutomaticTransferAndSetRoute(Route.BRIDGE));
+          }
+        };
+        isTokenAcceptedForRelay();
+      } else {
+        dispatch(disableAutomaticTransferAndSetRoute(Route.BRIDGE));
+      }
+    };
+    establishRoute();
+  }, [fromNetwork, toNetwork, token, destToken, dispatch]);
 
   useEffect(() => {
     const recomputeReceive = async () => {
@@ -203,11 +236,10 @@ function Bridge() {
     dispatch,
   ]);
   const valid = isTransferValid(validations);
-
   const disabled = !valid || isTransactionInProgress;
-  const showGasSlider = automaticRelayAvail && route === Route.RELAY;
+  const showGasSlider =
+    automaticRelayAvail && (route === Route.RELAY || route === Route.CCTPRelay);
   const showHashflowRoute = route === Route.HASHFLOW;
-
   return (
     <div className={joinClass([classes.bridgeContent, classes.spacer])}>
       <PageHeader title="Bridge" />

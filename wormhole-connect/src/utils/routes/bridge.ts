@@ -294,7 +294,7 @@ export class BridgeRoute extends BaseRoute {
     const token = TOKENS[txData.tokenKey];
     const { gasToken } = CHAINS[txData.toChain]!;
 
-    const gas = await calculateGas(txData.toChain, receiveTx);
+    const gas = await calculateGas(txData.toChain, Route.BRIDGE, receiveTx);
 
     const formattedAmt = toNormalizedDecimals(
       txData.amount,
