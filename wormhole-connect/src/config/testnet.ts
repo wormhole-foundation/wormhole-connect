@@ -203,6 +203,52 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
       default: 6,
     },
   },
+  WBTC: {
+    key: 'WBTC',
+    symbol: 'WBTC',
+    nativeNetwork: 'goerli',
+    icon: Icon.WBTC,
+    tokenId: {
+      chain: 'goerli',
+      address: '0xC04B0d3107736C32e19F1c62b2aF67BE61d63a05',
+    },
+    coinGeckoId: 'wrapped-bitcoin',
+    color: '#ffffff',
+    decimals: {
+      default: 8,
+    },
+  },
+  USDT: {
+    key: 'USDT',
+    symbol: 'USDT',
+    nativeNetwork: 'goerli',
+    icon: Icon.USDT,
+    tokenId: {
+      chain: 'goerli',
+      address: '0xC2C527C0CACF457746Bd31B2a698Fe89de2b6d49',
+    },
+    coinGeckoId: 'tether',
+    color: '#ffffff',
+    decimals: {
+      default: 6,
+    },
+  },
+  DAI: {
+    key: 'DAI',
+    symbol: 'DAI',
+    nativeNetwork: 'goerli',
+    icon: Icon.DAI,
+    tokenId: {
+      chain: 'goerli',
+      address: '0x11fE4B6AE13d2a6055C8D9cF65c55bac32B5d844',
+    },
+    coinGeckoId: 'dai',
+    color: '#FEFEFD',
+    decimals: {
+      Ethereum: 18,
+      default: 8,
+    },
+  },
   MATIC: {
     key: 'MATIC',
     symbol: 'MATIC',
@@ -473,21 +519,6 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
       default: 8,
     },
   },
-  SEI: {
-    key: 'SEI',
-    symbol: 'SEI',
-    nativeNetwork: 'sei',
-    tokenId: {
-      chain: 'sei',
-      address: 'usei',
-    },
-    icon: Icon.SEI,
-    coinGeckoId: 'sei',
-    color: '#FFFFFF',
-    decimals: {
-      default: 6,
-    },
-  },
   ETHbase: {
     key: 'ETHbase',
     symbol: 'ETH',
@@ -527,6 +558,53 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     },
     icon: Icon.OSMO,
     coinGeckoId: 'osmosis',
+    color: '#FFFFFF',
+    decimals: {
+      default: 6,
+    },
+  },
+  tBTC: {
+    key: 'tBTC',
+    symbol: 'tBTC',
+    nativeNetwork: 'goerli',
+    tokenId: {
+      chain: 'goerli',
+      address: '0x679874fBE6D4E7Cc54A59e315FF1eB266686a937',
+    },
+    icon: Icon.TBTC,
+    coinGeckoId: 'tbtc',
+    color: '#000000',
+    decimals: {
+      default: 8,
+      Ethereum: 18,
+    },
+  },
+  wstETH: {
+    key: 'wstETH',
+    symbol: 'wstETH',
+    nativeNetwork: 'goerli',
+    tokenId: {
+      chain: 'goerli',
+      address: '0x6320cD32aA674d2898A68ec82e869385Fc5f7E2f',
+    },
+    icon: Icon.WSTETH,
+    coinGeckoId: 'wrapped-steth',
+    color: '#3AA3FF',
+    decimals: {
+      default: 8,
+      Ethereum: 18,
+    },
+  },
+  SEI: {
+    key: 'SEI',
+    symbol: 'SEI',
+    nativeNetwork: 'sei',
+    tokenId: {
+      chain: 'sei',
+      address: 'usei',
+    },
+    icon: Icon.SEI,
+    coinGeckoId: 'sei',
     color: '#FFFFFF',
     decimals: {
       default: 6,

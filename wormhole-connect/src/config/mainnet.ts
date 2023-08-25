@@ -585,21 +585,6 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
       default: 6,
     },
   },
-  BONK: {
-    key: 'BONK',
-    symbol: 'BONK',
-    nativeNetwork: 'solana',
-    tokenId: {
-      chain: 'solana',
-      address: 'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263',
-    },
-    icon: Icon.BONK,
-    coinGeckoId: 'bonk',
-    color: '#FC8E03',
-    decimals: {
-      default: 5,
-    },
-  },
   tBTC: {
     key: 'tBTC',
     symbol: 'tBTC',
@@ -630,6 +615,21 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: {
       default: 8,
       Ethereum: 18,
+    },
+  },
+  BONK: {
+    key: 'BONK',
+    symbol: 'BONK',
+    nativeNetwork: 'solana',
+    tokenId: {
+      chain: 'solana',
+      address: 'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263',
+    },
+    icon: Icon.BONK,
+    coinGeckoId: 'bonk',
+    color: '#FC8E03',
+    decimals: {
+      default: 5,
     },
   },
 };
