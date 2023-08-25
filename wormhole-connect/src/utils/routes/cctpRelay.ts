@@ -5,37 +5,43 @@ import {
   EthContext,
   WormholeContext,
   VaaInfo,
+  CCTPInfo,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { CHAINS, TOKENS, TOKENS_ARR } from 'config';
+import { CHAINS, TOKENS } from 'config';
 import { TokenConfig } from 'config/types';
-import { BigNumber, utils, BytesLike, ethers } from 'ethers';
-import axios, { AxiosResponse } from 'axios';
+import { BigNumber, utils } from 'ethers';
 import {
   MAX_DECIMALS,
-  getTokenById,
   getTokenDecimals,
   toNormalizedDecimals,
   fromNormalizedDecimals,
   getWrappedTokenId,
+  getTokenById,
 } from 'utils';
-import { isMainnet } from 'config';
 import {
   ParsedMessage,
   ParsedRelayerMessage,
-  PayloadType,
   toChainId,
   wh,
   calculateNativeTokenAmt,
+  PayloadType,
 } from 'utils/sdk';
 import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
 import { TransferDisplayData } from './types';
-import { BaseRoute } from './baseRoute';
 import { toDecimals, toFixedDecimals } from '../balance';
-import { TransferInfoBaseParams, CCTPInfo } from './routeAbstract';
+import { TransferInfoBaseParams } from './routeAbstract';
 import { RelayOptions } from './relay';
 import { getGasFeeFallback } from '../gasEstimates';
 import { Route } from 'store/transferInput';
-import { getChainNameCCTP } from './cctpManual';
+import {
+  CCTPTokenSymbol,
+  CCTPManual_CHAINS as CCTPRelay_CHAINS,
+  CCTP_LOG_MessageSent,
+  CCTP_LOG_TokenMessenger_DepositForBurn,
+  getCircleAttestation,
+  CCTPManualRoute,
+  getChainNameCCTP,
+} from './cctpManual';
 export interface CCTPRelayPreviewParams {
   destToken: TokenConfig;
   sourceGasToken: string;
@@ -54,58 +60,26 @@ interface TransferDestInfoParams {
   transferComplete?: boolean;
 }
 
-async function sleep(timeout: number) {
-  return new Promise((resolve) => setTimeout(resolve, timeout));
-}
-
-const CIRCLE_ATTESTATION = isMainnet
-  ? 'https://iris-api.circle.com/attestations/'
-  : 'https://iris-api-sandbox.circle.com/attestations/';
-
-async function getCircleAttestation(messageHash: BytesLike) {
-  while (true) {
-    // get the post
-    const response = await tryGetCircleAttestation(messageHash);
-
-    if (response !== null) {
-      return response;
-    }
-
-    await sleep(6500);
-  }
-}
-
-async function tryGetCircleAttestation(
-  messageHash: BytesLike,
-): Promise<string | null> {
-  return await axios
-    .get(`${CIRCLE_ATTESTATION}${messageHash}`)
-    .catch((reason) => {
-      return null;
-    })
-    .then(async (response: AxiosResponse | null) => {
-      if (
-        response !== null &&
-        response.status === 200 &&
-        response.data.status === 'complete'
-      ) {
-        return response.data.attestation as string;
-      }
-
-      return null;
-    });
-}
-
-export class CCTPRelayRoute extends BaseRoute {
+export class CCTPRelayRoute extends CCTPManualRoute {
   async isSupportedSourceToken(
     token: TokenConfig | undefined,
     destToken: TokenConfig | undefined,
   ): Promise<boolean> {
     if (!token) return false;
+    const sourceChainName = token.nativeNetwork;
+    const sourceChainCCTP = CCTPRelay_CHAINS.includes(sourceChainName);
     if (destToken) {
-      return destToken.symbol === 'USDC' && token.symbol === 'USDC';
+      const destChainName = token.nativeNetwork;
+      const destChainCCTP = CCTPRelay_CHAINS.includes(destChainName);
+
+      return (
+        destToken.symbol === CCTPTokenSymbol &&
+        token.symbol === CCTPTokenSymbol &&
+        sourceChainCCTP &&
+        destChainCCTP
+      );
     }
-    return token.symbol === 'USDC';
+    return token.symbol === CCTPTokenSymbol && sourceChainCCTP;
   }
 
   async isSupportedDestToken(
@@ -113,10 +87,20 @@ export class CCTPRelayRoute extends BaseRoute {
     sourceToken: TokenConfig | undefined,
   ): Promise<boolean> {
     if (!token) return false;
+    const destChainName = token.nativeNetwork;
+    const destChainCCTP = CCTPRelay_CHAINS.includes(destChainName);
     if (sourceToken) {
-      return sourceToken.symbol === 'USDC' && token.symbol === 'USDC';
+      const sourceChainName = token.nativeNetwork;
+      const sourceChainCCTP = CCTPRelay_CHAINS.includes(sourceChainName);
+
+      return (
+        sourceToken.symbol === CCTPTokenSymbol &&
+        token.symbol === CCTPTokenSymbol &&
+        sourceChainCCTP &&
+        destChainCCTP
+      );
     }
-    return token.symbol === 'USDC';
+    return token.symbol === CCTPTokenSymbol && destChainCCTP;
   }
 
   async isRouteAvailable(
@@ -136,15 +120,9 @@ export class CCTPRelayRoute extends BaseRoute {
     const destChainName = wh.toChainName(destChain);
     if (sourceChainName === destChainName) return false;
 
-    if (sourceTokenConfig.symbol !== 'USDC') return false;
-    if (destTokenConfig.symbol !== 'USDC') return false;
+    if (sourceTokenConfig.symbol !== CCTPTokenSymbol) return false;
+    if (destTokenConfig.symbol !== CCTPTokenSymbol) return false;
 
-    const CCTPRelay_CHAINS: ChainName[] = [
-      'ethereum',
-      'avalanche',
-      'fuji',
-      'goerli',
-    ];
     return (
       CCTPRelay_CHAINS.includes(sourceChainName) &&
       CCTPRelay_CHAINS.includes(destChainName)
@@ -164,18 +142,6 @@ export class CCTPRelayRoute extends BaseRoute {
   ): Promise<number> {
     if (!receiveAmount) return 0;
     return receiveAmount + (routeOptions?.toNativeToken || 0);
-  }
-
-  async validate(
-    token: TokenId | 'native',
-    amount: string,
-    sendingChain: ChainName | ChainId,
-    senderAddress: string,
-    recipientChain: ChainName | ChainId,
-    recipientAddress: string,
-    routeOptions: any,
-  ): Promise<boolean> {
-    throw new Error('not implemented');
   }
 
   async estimateSendGas(
@@ -310,7 +276,7 @@ export class CCTPRelayRoute extends BaseRoute {
     if (messageInfo.relayerPayloadId !== undefined) {
       relayerPart = {
         relayerPayloadId: messageInfo.relayerPayloadId,
-        to: messageInfo.mintRecipient,
+        to: messageInfo.recipient,
         relayerFee: messageInfo.relayerFee,
         toNativeTokenAmount: messageInfo.toNativeTokenAmount,
       };
@@ -320,7 +286,7 @@ export class CCTPRelayRoute extends BaseRoute {
       sender: messageInfo.depositor,
       amount: messageInfo.amount.toString(),
       payloadID: PayloadType.AUTOMATIC,
-      recipient: messageInfo.mintRecipient,
+      recipient: messageInfo.recipient,
       toChain: getChainNameCCTP(messageInfo.destinationDomain),
       fromChain: messageInfo.fromChain,
       tokenAddress: messageInfo.burnToken,
@@ -389,21 +355,6 @@ export class CCTPRelayRoute extends BaseRoute {
     ];
   }
 
-  public getNativeBalance(
-    address: string,
-    network: ChainName | ChainId,
-  ): Promise<BigNumber | null> {
-    return wh.getNativeBalance(address, network);
-  }
-
-  public getTokenBalance(
-    address: string,
-    tokenId: TokenId,
-    network: ChainName | ChainId,
-  ): Promise<BigNumber | null> {
-    return wh.getTokenBalance(address, tokenId, network);
-  }
-
   async getRelayerFee(
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
@@ -424,18 +375,6 @@ export class CCTPRelayRoute extends BaseRoute {
     return fee;
   }
 
-  async getForeignAsset(
-    token: TokenId,
-    chain: ChainName | ChainId,
-  ): Promise<string | null> {
-    // assumes USDC
-    const addr = TOKENS_ARR.find(
-      (t) => t.symbol === 'USDC' && t.nativeNetwork === chain,
-    )?.tokenId?.address;
-    if (!addr) throw new Error('USDC not found');
-    return addr;
-  }
-
   async getMessageInfo(
     tx: string,
     chain: ChainName | ChainId,
@@ -453,9 +392,7 @@ export class CCTPRelayRoute extends BaseRoute {
 
     // Get the CCTP log
     const cctpLog = receipt.logs.filter(
-      (log) =>
-        log.topics[0] ===
-        '0x2fa9ca894982930190727e75500a97d8dc500233a5065e0f3126c48fbe0343c0',
+      (log) => log.topics[0] === CCTP_LOG_TokenMessenger_DepositForBurn,
     )[0];
 
     const parsedCCTPLog = new utils.Interface([
@@ -463,9 +400,7 @@ export class CCTPRelayRoute extends BaseRoute {
     ]).parseLog(cctpLog);
 
     const messageLog = receipt.logs.filter(
-      (log) =>
-        log.topics[0] ===
-        '0x8c5261668696ce22758910d05bab8f186d6eb247ceac2af2e82c7dc17669b036',
+      (log) => log.topics[0] === CCTP_LOG_MessageSent,
     )[0];
 
     const message = new utils.Interface([
@@ -484,7 +419,8 @@ export class CCTPRelayRoute extends BaseRoute {
       burnToken: parsedCCTPLog.args.burnToken, // '0x' + payload.substring(26, 66)
       depositor: receipt.from,
       amount: parsedCCTPLog.args.amount.toString(),
-      mintRecipient: parsedCCTPLog.args.mintRecipient,
+      recipient:
+        '0x' + payload.substring(296 + 64 + 64 + 24, 296 + 64 + 64 + 64),
       destinationDomain: parsedCCTPLog.args.destinationDomain,
       destinationCaller: parsedCCTPLog.args.destinationCaller,
       destinationTokenMessenger: parsedCCTPLog.args.destinationTokenMessenger,
@@ -630,38 +566,6 @@ export class CCTPRelayRoute extends BaseRoute {
         value: nativeGasAmt ? `${nativeGasAmt} ${gasToken}` : '—',
       },
     ];
-  }
-
-  async isTransferCompleted(
-    destChain: ChainName | ChainId,
-    messageInfo: CCTPInfo,
-  ): Promise<boolean> {
-    const nonce = BigNumber.from(
-      '0x' + messageInfo.message.substring(24, 40),
-    ).toNumber();
-    const context: any = wh.getContext(destChain);
-    const circleMessageTransmitter =
-      context.contracts.mustGetContracts(destChain).cctpContracts
-        ?.cctpMessageTransmitter;
-    const connection = wh.mustGetProvider(destChain);
-    const iface = new utils.Interface([
-      'function usedNonces(bytes32 domainNonceHash) view returns (uint256)',
-    ]);
-    const contract = new ethers.Contract(
-      circleMessageTransmitter,
-      iface,
-      connection,
-    );
-
-    const cctpDomain = wh.conf.chains[messageInfo.fromChain]?.cctpDomain;
-    if (cctpDomain === undefined)
-      throw new Error(`CCTP not supported on ${messageInfo.fromChain}`);
-
-    const hash = ethers.utils.keccak256(
-      ethers.utils.solidityPack(['uint32', 'uint64'], [cctpDomain, nonce]),
-    );
-    const result = await contract.usedNonces(hash);
-    return result.toString() === '1';
   }
 }
 

@@ -3,34 +3,13 @@ import {
   ChainName,
   ChainId,
   VaaInfo,
+  CCTPInfo,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { TokenConfig } from 'config/types';
 import { ParsedMessage, ParsedRelayerMessage } from '../sdk';
 import { TransferDisplayData } from './types';
 import { BigNumber } from 'ethers';
 
-export type CCTPInfo = {
-  fromChain: ChainName;
-  transactionHash: string;
-  blockNumber: number;
-  gasUsed: string;
-  effectiveGasPrice: string;
-  burnToken: string;
-  depositor: string;
-  amount: BigNumber;
-  mintRecipient: string;
-  destinationDomain: number;
-  destinationTokenMessenger: string;
-  destinationCaller: string;
-  message: string;
-  messageHash: string;
-  signedAttestation: string;
-  relayerPayloadId?: number;
-  relayerFee?: string;
-  toNativeTokenAmount?: string;
-  vaaEmitter?: string;
-  vaaSequence?: string;
-};
 // As more routes are added, more types should be added here (e.g. MessageInfo = ParsedVaa | DifferentRouteInfoStruct | ..)
 // This struct contains information needed to redeem the transfer
 export type MessageInfo = VaaInfo | CCTPInfo;

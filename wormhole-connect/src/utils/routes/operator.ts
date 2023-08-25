@@ -2,6 +2,7 @@ import {
   ChainName,
   ChainId,
   TokenId,
+  NO_VAA_FOUND,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { Route } from 'store/transferInput';
 import { BridgeRoute } from './bridge';
@@ -26,7 +27,10 @@ import {
 import { TransferDisplayData } from './types';
 import { BigNumber } from 'ethers';
 import { wh } from '../sdk';
-import { CCTPManualRoute } from './cctpManual';
+import {
+  CCTPManualRoute,
+  CCTP_LOG_TokenMessenger_DepositForBurn,
+} from './cctpManual';
 
 export default class Operator {
   getRoute(route: Route): RouteAbstract {
@@ -54,10 +58,13 @@ export default class Operator {
 
   async getRouteFromTx(txHash: string, chain: ChainName): Promise<Route> {
     let vaa;
+    let error;
     try {
       const result = await getVaa(txHash, chain);
       vaa = result.vaa;
-    } catch {}
+    } catch (_error: any) {
+      error = _error;
+    }
 
     // if(HASHFLOW_CONTRACT_ADDRESSES.includes(vaa.emitterAddress)) {
     //   return Route.HASHFLOW
@@ -65,7 +72,18 @@ export default class Operator {
 
     if (!vaa) {
       // Currently, CCTP manual is the only route without a VAA
-      return Route.CCTPManual;
+      if (error === NO_VAA_FOUND) {
+        const provider = wh.mustGetProvider(chain);
+        const receipt = await provider.getTransactionReceipt(txHash);
+        if (!receipt) throw new Error(`No receipt for ${txHash} on ${chain}`);
+        if (
+          receipt.logs.find(
+            (log) => log.topics[0] === CCTP_LOG_TokenMessenger_DepositForBurn,
+          )
+        )
+          return Route.CCTPManual;
+      }
+      throw error;
     }
 
     const CCTP_CONTRACT_ADDRESSES = [2, 6].map((chainId) => {

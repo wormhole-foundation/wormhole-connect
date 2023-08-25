@@ -6,6 +6,7 @@ import {
   WormholeContext,
   TokenMessenger__factory,
   MessageTransmitter__factory,
+  CCTPInfo,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { CHAINS, TOKENS, TOKENS_ARR } from 'config';
 import { TokenConfig } from 'config/types';
@@ -22,6 +23,7 @@ import {
   ParsedMessage,
   ParsedRelayerMessage,
   PayloadType,
+  isEvmChain,
   toChainId,
   wh,
 } from 'utils/sdk';
@@ -30,7 +32,7 @@ import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
 import { TransferDisplayData } from './types';
 import { BaseRoute } from './baseRoute';
 import { toDecimals, toFixedDecimals } from '../balance';
-import { TransferInfoBaseParams, CCTPInfo } from './routeAbstract';
+import { TransferInfoBaseParams } from './routeAbstract';
 import { getGasFeeFallback } from '../gasEstimates';
 import { Route } from 'store/transferInput';
 export interface CCTPManualPreviewParams {
@@ -41,6 +43,18 @@ export interface CCTPManualPreviewParams {
   sendingGasEst: string;
   destGasEst: string;
 }
+
+export const CCTPTokenSymbol = 'USDC';
+export const CCTPManual_CHAINS: ChainName[] = [
+  'ethereum',
+  'avalanche',
+  'fuji',
+  'goerli',
+];
+export const CCTP_LOG_TokenMessenger_DepositForBurn =
+  '0x2fa9ca894982930190727e75500a97d8dc500233a5065e0f3126c48fbe0343c0';
+export const CCTP_LOG_MessageSent =
+  '0x8c5261668696ce22758910d05bab8f186d6eb247ceac2af2e82c7dc17669b036';
 
 interface TransferDestInfoParams {
   txData: ParsedMessage | ParsedRelayerMessage;
@@ -55,7 +69,7 @@ const CIRCLE_ATTESTATION = isMainnet
   ? 'https://iris-api.circle.com/attestations/'
   : 'https://iris-api-sandbox.circle.com/attestations/';
 
-async function getCircleAttestation(messageHash: BytesLike) {
+export async function getCircleAttestation(messageHash: BytesLike) {
   while (true) {
     // get the post
     const response = await tryGetCircleAttestation(messageHash);
@@ -105,10 +119,21 @@ export class CCTPManualRoute extends BaseRoute {
     destToken: TokenConfig | undefined,
   ): Promise<boolean> {
     if (!token) return false;
+    const sourceChainName = token.nativeNetwork;
+    const sourceChainCCTP = CCTPManual_CHAINS.includes(sourceChainName);
+
     if (destToken) {
-      return destToken.symbol === 'USDC' && token.symbol === 'USDC';
+      const destChainName = token.nativeNetwork;
+      const destChainCCTP = CCTPManual_CHAINS.includes(destChainName);
+
+      return (
+        destToken.symbol === CCTPTokenSymbol &&
+        token.symbol === CCTPTokenSymbol &&
+        sourceChainCCTP &&
+        destChainCCTP
+      );
     }
-    return token.symbol === 'USDC';
+    return token.symbol === CCTPTokenSymbol && sourceChainCCTP;
   }
 
   async isSupportedDestToken(
@@ -116,10 +141,20 @@ export class CCTPManualRoute extends BaseRoute {
     sourceToken: TokenConfig | undefined,
   ): Promise<boolean> {
     if (!token) return false;
+    const sourceChainName = token.nativeNetwork;
+    const sourceChainCCTP = CCTPManual_CHAINS.includes(sourceChainName);
     if (sourceToken) {
-      return sourceToken.symbol === 'USDC' && token.symbol === 'USDC';
+      const destChainName = token.nativeNetwork;
+      const destChainCCTP = CCTPManual_CHAINS.includes(destChainName);
+
+      return (
+        sourceToken.symbol === CCTPTokenSymbol &&
+        token.symbol === CCTPTokenSymbol &&
+        sourceChainCCTP &&
+        destChainCCTP
+      );
     }
-    return token.symbol === 'USDC';
+    return token.symbol === CCTPTokenSymbol && sourceChainCCTP;
   }
 
   async isRouteAvailable(
@@ -138,15 +173,9 @@ export class CCTPManualRoute extends BaseRoute {
     const sourceChainName = wh.toChainName(sourceChain);
     const destChainName = wh.toChainName(destChain);
     if (sourceChainName === destChainName) return false;
-    if (sourceTokenConfig.symbol !== 'USDC') return false;
-    if (destTokenConfig.symbol !== 'USDC') return false;
+    if (sourceTokenConfig.symbol !== CCTPTokenSymbol) return false;
+    if (destTokenConfig.symbol !== CCTPTokenSymbol) return false;
 
-    const CCTPManual_CHAINS: ChainName[] = [
-      'ethereum',
-      'avalanche',
-      'fuji',
-      'goerli',
-    ];
     return (
       CCTPManual_CHAINS.includes(sourceChainName) &&
       CCTPManual_CHAINS.includes(destChainName)
@@ -195,6 +224,9 @@ export class CCTPManualRoute extends BaseRoute {
       throw new Error('gas price not available, cannot estimate fees');
 
     // only works on EVM
+    if (!isEvmChain(sendingChain)) {
+      throw new Error('No support for non EVM cctp currently');
+    }
     const chainContext = wh.getContext(
       sendingChain,
     ) as EthContext<WormholeContext>;
@@ -259,6 +291,9 @@ export class CCTPManualRoute extends BaseRoute {
     const parsedAmt = utils.parseUnits(amount, decimals);
 
     // only works on EVM
+    if (!isEvmChain(sendingChain)) {
+      throw new Error('No support for non EVM cctp currently');
+    }
     const chainContext = wh.getContext(
       sendingChain,
     ) as EthContext<WormholeContext>;
@@ -341,7 +376,7 @@ export class CCTPManualRoute extends BaseRoute {
     if (messageInfo.relayerPayloadId !== undefined) {
       relayerPart = {
         relayerPayloadId: messageInfo.relayerPayloadId,
-        to: messageInfo.mintRecipient,
+        to: messageInfo.recipient,
         relayerFee: messageInfo.relayerFee,
         toNativeTokenAmount: messageInfo.toNativeTokenAmount,
       };
@@ -351,7 +386,7 @@ export class CCTPManualRoute extends BaseRoute {
       sender: messageInfo.depositor,
       amount: messageInfo.amount.toString(),
       payloadID: PayloadType.MANUAL,
-      recipient: messageInfo.mintRecipient,
+      recipient: messageInfo.recipient,
       toChain: getChainNameCCTP(messageInfo.destinationDomain),
       fromChain: messageInfo.fromChain,
       tokenAddress: messageInfo.burnToken,
@@ -435,7 +470,7 @@ export class CCTPManualRoute extends BaseRoute {
   ): Promise<string | null> {
     // assumes USDC
     const addr = TOKENS_ARR.find(
-      (t) => t.symbol === 'USDC' && t.nativeNetwork === chain,
+      (t) => t.symbol === CCTPTokenSymbol && t.nativeNetwork === chain,
     )?.tokenId?.address;
     if (!addr) throw new Error('USDC not found');
     return addr;
@@ -455,18 +490,14 @@ export class CCTPManualRoute extends BaseRoute {
 
     // Get the CCTP log
     const cctpLog = receipt.logs.filter(
-      (log) =>
-        log.topics[0] ===
-        '0x2fa9ca894982930190727e75500a97d8dc500233a5065e0f3126c48fbe0343c0',
+      (log) => log.topics[0] === CCTP_LOG_TokenMessenger_DepositForBurn,
     )[0];
 
     const parsedCCTPLog =
       TokenMessenger__factory.createInterface().parseLog(cctpLog);
 
     const messageLog = receipt.logs.filter(
-      (log) =>
-        log.topics[0] ===
-        '0x8c5261668696ce22758910d05bab8f186d6eb247ceac2af2e82c7dc17669b036',
+      (log) => log.topics[0] === CCTP_LOG_MessageSent,
     )[0];
 
     const message =
@@ -485,7 +516,7 @@ export class CCTPManualRoute extends BaseRoute {
       burnToken: parsedCCTPLog.args.burnToken,
       depositor: receipt.from,
       amount: parsedCCTPLog.args.amount.toString(),
-      mintRecipient: '0x' + parsedCCTPLog.args.mintRecipient.substring(26),
+      recipient: '0x' + parsedCCTPLog.args.mintRecipient.substring(26),
       destinationDomain: parsedCCTPLog.args.destinationDomain,
       destinationCaller: parsedCCTPLog.args.destinationCaller,
       destinationTokenMessenger: parsedCCTPLog.args.destinationTokenMessenger,
@@ -572,6 +603,7 @@ export class CCTPManualRoute extends BaseRoute {
       iface,
       connection,
     );
+
     const cctpDomain = wh.conf.chains[messageInfo.fromChain]?.cctpDomain;
     if (cctpDomain === undefined)
       throw new Error(`CCTP not supported on ${messageInfo.fromChain}`);
@@ -579,7 +611,6 @@ export class CCTPManualRoute extends BaseRoute {
     const hash = ethers.utils.keccak256(
       ethers.utils.solidityPack(['uint32', 'uint64'], [cctpDomain, nonce]),
     );
-
     const result = await contract.usedNonces(hash);
     return result.toString() === '1';
   }
