@@ -803,8 +803,10 @@ export class SolanaContext<
     }
 
     const parsed = parseTokenTransferVaa(signedVAA);
-    const tokenChain = parsed.tokenChain;
-    if (tokenChain === MAINNET_CHAINS.solana) {
+    const isNativeSol =
+      parsed.tokenChain === MAINNET_CHAINS.solana &&
+      new PublicKey(parsed.tokenAddress).equals(NATIVE_MINT);
+    if (isNativeSol) {
       return await redeemAndUnwrapOnSolana(
         this.connection,
         contracts.core,
