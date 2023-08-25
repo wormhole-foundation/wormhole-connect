@@ -20,7 +20,6 @@ import { wh, isAcceptedToken, toChainId } from '../../utils/sdk';
 import { CHAINS, TOKENS, TOKENS_ARR } from '../../config';
 import { isTransferValid, validate } from '../../utils/transferValidation';
 
-import GasOptions from './GasOptions';
 import GasSlider from './NativeGasSlider';
 import Preview from './Preview';
 import Send from './Send';
@@ -283,7 +282,7 @@ function Bridge() {
   const disabled = !valid || isTransactionInProgress;
   const showGasSlider =
     automaticRelayAvail && (route === Route.RELAY || route === Route.CCTPRelay);
-  const showHashflowRoute = route === Route.HASHFLOW;
+
   return (
     <div className={joinClass([classes.bridgeContent, classes.spacer])}>
       <PageHeader title="Bridge" />
@@ -294,18 +293,7 @@ function Bridge() {
 
       <Collapse in={valid && showValidationState}>
         <div className={classes.spacer}>
-          <GasOptions disabled={disabled} />
-
-          <Collapse
-            in={showHashflowRoute}
-            sx={
-              !showHashflowRoute
-                ? { marginBottom: '-16px', transition: 'margin 0.4s' }
-                : {}
-            }
-          >
-            <RouteOptions />
-          </Collapse>
+          <RouteOptions />
 
           <Collapse
             in={showGasSlider}
