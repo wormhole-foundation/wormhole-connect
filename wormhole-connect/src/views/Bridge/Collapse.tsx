@@ -47,11 +47,12 @@ const useStyles = makeStyles()((theme: any) => ({
     borderBottomLeftRadius: '8px',
     backgroundColor: theme.palette.info[500],
     padding: '8px 16px',
-    transition: 'border-radius 0.4s',
     display: 'flex',
     flexDirection: 'row',
+    transition: 'border-radius 0.1s 0.3s'
   },
   open: {
+    transition: 'border-radius 0s 0s',
     borderBottomLeftRadius: '0 !important',
     borderBottomRightRadius: '0 !important',
   },
