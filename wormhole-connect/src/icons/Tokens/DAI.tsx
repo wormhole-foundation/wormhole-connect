@@ -26,7 +26,7 @@ function DAI() {
         </clipPath>
       </defs>
     </svg>
-  )
-};
+  );
+}
 
 export default DAI;

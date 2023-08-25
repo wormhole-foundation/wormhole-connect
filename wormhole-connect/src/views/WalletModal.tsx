@@ -32,7 +32,7 @@ import Search from '../components/Search';
 import { CENTER } from '../utils/style';
 import { getSeiChainId } from '../utils/sei';
 
-const useStyles = makeStyles()((theme) => ({
+const useStyles = makeStyles()((theme: any) => ({
   walletRow: {
     position: 'relative',
     display: 'flex',
@@ -167,7 +167,7 @@ type Props = {
 
 function WalletsModal(props: Props) {
   const { classes } = useStyles();
-  const theme = useTheme();
+  const theme: any = useTheme();
   const { chain: chainProp, type } = props;
   const dispatch = useDispatch();
   const { fromNetwork, toNetwork } = useSelector(

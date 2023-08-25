@@ -1,8 +1,8 @@
-import { Route } from "store/transferInput";
+import { Route } from 'store/transferInput';
 import WormholeIcon from '../icons/Routes/Wormhole';
 import XLabsIcon from '../icons/Routes/XLabs';
-import HashflowIcon from "icons/Routes/Hashflow";
-import CCTPIcon from "icons/Routes/CCTP";
+import HashflowIcon from 'icons/Routes/Hashflow';
+import CCTPIcon from 'icons/Routes/CCTP';
 
 export type RouteData = {
   route: Route;
@@ -10,7 +10,7 @@ export type RouteData = {
   providedBy: string;
   link: string;
   icon: () => JSX.Element;
-}
+};
 
 export const ROUTES: {
   [route in Route]: RouteData;
@@ -20,12 +20,12 @@ export const ROUTES: {
     name: 'Bridge',
     providedBy: 'Wormhole',
     link: 'https://wormhole.com/',
-    icon: WormholeIcon
+    icon: WormholeIcon,
   },
   [Route.RELAY]: {
     route: Route.RELAY,
     name: 'Automatic Deposit',
-    providedBy: 'XLabs',
+    providedBy: 'xLabs',
     link: 'https://xlabs.xyz',
     icon: XLabsIcon,
   },
@@ -37,10 +37,10 @@ export const ROUTES: {
     icon: HashflowIcon,
   },
   [Route.CCTP]: {
-    route: Route.HASHFLOW,
+    route: Route.CCTP,
     name: 'Circle CCTP',
     providedBy: 'Circle',
     link: 'https://www.circle.com/en/cross-chain-transfer-protocol',
     icon: CCTPIcon,
-  }
-}
+  },
+};

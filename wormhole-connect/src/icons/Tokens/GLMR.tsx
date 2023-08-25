@@ -105,7 +105,7 @@ function GLMR() {
         </g>
       </g>
     </svg>
-  )
-};
+  );
+}
 
 export default GLMR;

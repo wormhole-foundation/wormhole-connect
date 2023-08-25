@@ -15,7 +15,7 @@ function BASE() {
         fill="#0052FF"
       />
     </svg>
-  )
-};
+  );
+}
 
 export default BASE;

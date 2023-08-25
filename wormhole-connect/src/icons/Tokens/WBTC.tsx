@@ -26,7 +26,7 @@ function WBTC() {
         </clipPath>
       </defs>
     </svg>
-  )
-};
+  );
+}
 
 export default WBTC;

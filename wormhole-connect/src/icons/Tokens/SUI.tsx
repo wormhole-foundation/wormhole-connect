@@ -45,7 +45,7 @@ function SUI() {
         fill="white"
       />
     </svg>
-  )
-};
+  );
+}
 
 export default SUI;

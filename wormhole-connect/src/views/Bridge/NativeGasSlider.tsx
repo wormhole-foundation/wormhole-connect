@@ -28,10 +28,12 @@ import { getMinAmount } from '../../utils/transferValidation';
 
 import InputContainer from '../../components/InputContainer';
 import TokenIcon from '../../icons/TokenIcons';
-import BridgeCollapse, { CollapseControlStyle, XLabsBanner } from './Collapse';
+import BridgeCollapse, { CollapseControlStyle } from './Collapse';
 import Operator from '../../utils/routes';
+import { Banner } from './RouteOptions';
+import { ROUTES } from '../../config/routes';
 
-const useStyles = makeStyles()((theme) => ({
+const useStyles = makeStyles()(() => ({
   container: {
     display: 'flex',
     flexDirection: 'column',
@@ -122,6 +124,7 @@ function GasSlider(props: { disabled: boolean }) {
   useEffect(() => {
     if (
       !amount ||
+      typeof amount !== 'number' ||
       !maxSwapAmt ||
       (route !== Route.RELAY && route !== Route.CCTPRelay)
     )
@@ -207,13 +210,14 @@ function GasSlider(props: { disabled: boolean }) {
   }
 
   const onCollapseChange = (collapsed: boolean) => {
+    console.log(collapsed);
     // user switched off conversion to native gas, so reset values
     if (collapsed) {
       setState((prevState) => ({
         ...prevState,
         swapAmt: 0,
         nativeGas: 0,
-        token: formatAmount(amount),
+        token: formatAmount(Number.parseFloat(amount)),
       }));
       dispatch(setReceiveNativeAmt(0));
     }
@@ -223,7 +227,7 @@ function GasSlider(props: { disabled: boolean }) {
   const handleChange = (e: any) => {
     if (!amount || !state.conversionRate) return;
     const newGasAmount = e.target.value * state.conversionRate;
-    const newTokenAmount = amount - e.target.value;
+    const newTokenAmount = Number.parseFloat(amount) - e.target.value;
     const swapAmount = e.target.value;
     const conversion = {
       nativeGas: formatAmount(newGasAmount),
@@ -282,14 +286,16 @@ function GasSlider(props: { disabled: boolean }) {
     toNetwork,
   ]);
 
-  const banner = automaticRelayAvail && !props.disabled && <XLabsBanner />;
+  const banner = automaticRelayAvail && !props.disabled && (
+    <Banner text="This feature provided by" route={ROUTES[Route.RELAY]} />
+  );
 
   return (
     <BridgeCollapse
       title="Native gas"
       banner={banner}
       disabled={props.disabled || state.disabled}
-      close={props.disabled}
+      startClosed={props.disabled}
       controlStyle={CollapseControlStyle.Switch}
       onCollapseChange={onCollapseChange}
     >

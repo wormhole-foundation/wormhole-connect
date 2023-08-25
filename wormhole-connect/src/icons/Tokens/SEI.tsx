@@ -18,7 +18,7 @@ function SEI() {
         style={{ strokeWidth: 6.82333 }}
       />
     </svg>
-  )
-};
+  );
+}
 
 export default SEI;

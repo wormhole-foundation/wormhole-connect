@@ -4,7 +4,7 @@ import { makeStyles } from 'tss-react/mui';
 import Check from '@mui/icons-material/Check';
 import { joinClass, OPACITY } from '../../utils/style';
 
-const useStyles = makeStyles()((theme) => ({
+const useStyles = makeStyles()((theme: any) => ({
   label: {
     display: 'flex',
     alignItems: 'center',

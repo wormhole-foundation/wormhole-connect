@@ -15,7 +15,7 @@ import { setWalletModal } from '../store/router';
 import { disconnectWallet as disconnectFromStore } from '../store/wallet';
 import { ScopedCssBaseline, useMediaQuery } from '@mui/material';
 
-const useStyles = makeStyles()((theme) => ({
+const useStyles = makeStyles()((theme: any) => ({
   connectWallet: {
     display: 'flex',
     alignItems: 'center',

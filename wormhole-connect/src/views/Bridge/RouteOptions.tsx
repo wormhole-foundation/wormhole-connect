@@ -1,16 +1,18 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { RootState } from '../../store';
-import BridgeCollapse from './Collapse';
+import BridgeCollapse, { CollapseControlStyle } from './Collapse';
 import { LINK, joinClass } from '../../utils/style';
 import { TOKENS } from '../../config';
 import TokenIcon from '../../icons/TokenIcons';
 import ArrowRightIcon from '../../icons/ArrowRight';
 import Options from '../../components/Options';
 import { ROUTES, RouteData } from '../../config/routes';
+import { useDispatch } from 'react-redux';
+import { setTransferRoute, Route } from '../../store/transferInput';
 
-const useStyles = makeStyles()((theme) => ({
+const useStyles = makeStyles()((theme: any) => ({
   link: {
     ...LINK(theme),
     margin: '0 0 0 4px',
@@ -25,32 +27,6 @@ const useStyles = makeStyles()((theme) => ({
   filled: {
     backgroundColor: theme.palette.card.secondary,
   },
-  // content: {
-  //   display: 'grid',
-  //   gridTemplateColumns: '158px 1fr',
-  //   gridTemplateRows: '1fr',
-  //   gridTemplateAreas: `"network inputs"`,
-  //   width: '100%',
-  //   maxWidth: '100%',
-  //   [theme.breakpoints.down('sm')]: {
-  //     gridTemplateColumns: '1fr !important',
-  //     gridTemplateAreas: `"inputs" !important`,
-  //   },
-  // },
-  // network: {
-  //   gridArea: 'network',
-  // },
-  // inputs: {
-  //   gridArea: 'inputs',
-  //   display: 'flex',
-  //   flexDirection: 'column',
-  //   gap: '8px',
-  //   width: '100%',
-  //   paddingLeft: '8px',
-  //   [theme.breakpoints.down('sm')]: {
-  //     paddingLeft: '0',
-  //   },
-  // },
   route: {
     display: 'grid',
     gridTemplateColumns: '158px 1fr',
@@ -62,8 +38,6 @@ const useStyles = makeStyles()((theme) => ({
       gridTemplateColumns: '1fr !important',
       gridTemplateAreas: `"path" !important`,
     },
-    // display: 'flex',
-    // justifyContent: 'space-between',
     fontSize: '14px',
   },
   routeLeft: {
@@ -93,33 +67,31 @@ const useStyles = makeStyles()((theme) => ({
   routeAmt: {
     opacity: '0.6',
     fontSize: '12px',
-  }
+  },
 }));
 
-function Banner() {
+export function Banner(props: { text?: string; route?: RouteData }) {
   const { classes } = useStyles();
-  const [routeData, setRouteData] = useState<RouteData | undefined>(undefined);
-  const { route } = useSelector(
-    (state: RootState) => state.transferInput,
-  );
+  const text = props.text || 'This route provided by';
+  const { route } = useSelector((state: RootState) => state.transferInput);
 
-  useEffect(() => {
-    setRouteData(ROUTES[route]);
-  })
+  const displayRoute = props.route || ROUTES[route];
 
-  return routeData ? (
+  return displayRoute ? (
     <>
-      This route provided by
+      {text}
       <a
-        href={routeData.link}
+        href={displayRoute.link}
         target="_blank"
         className={classes.link}
         rel="noreferrer"
       >
-        {routeData.providedBy}
+        {displayRoute.providedBy}
       </a>
     </>
-  ) : <></>;
+  ) : (
+    <></>
+  );
 }
 
 type TagProps = {
@@ -140,9 +112,7 @@ function Tag(props: TagProps) {
         !!props.colorFilled && classes.filled,
       ])}
     >
-      <div style={{ height: height, width: height }}>
-        {props.icon}
-      </div>
+      <div style={{ height: height, width: height }}>{props.icon}</div>
       {props.text}
     </div>
   );
@@ -162,49 +132,55 @@ function RouteOption(props: { route: RouteData }) {
     <TokenIcon name={toTokenConfig.icon} height={16} />
   );
 
-  return fromTokenConfig && toTokenConfig && (
-    <div className={classes.route}>
-      <div className={classes.routeLeft}>
-        <div className={classes.routeName}>{props.route.name}</div>
-        <div className={classes.routePath}>
-          <Tag
-            icon={fromTokenIcon}
-            text={fromTokenConfig.symbol}
-            colorFilled
-          />
-          <ArrowRightIcon />
-          <Tag icon={props.route.icon()} text={props.route.providedBy} />
-          <ArrowRightIcon />
-          <Tag icon={toTokenIcon} text={toTokenConfig.symbol} colorFilled />
+  return (
+    fromTokenConfig &&
+    toTokenConfig && (
+      <div className={classes.route}>
+        <div className={classes.routeLeft}>
+          <div className={classes.routeName}>{props.route.name}</div>
+          <div className={classes.routePath}>
+            <Tag
+              icon={fromTokenIcon}
+              text={fromTokenConfig.symbol}
+              colorFilled
+            />
+            <ArrowRightIcon />
+            <Tag icon={props.route.icon()} text={props.route.providedBy} />
+            <ArrowRightIcon />
+            <Tag icon={toTokenIcon} text={toTokenConfig.symbol} colorFilled />
+          </div>
+        </div>
+        <div className={classes.routeRight}>
+          <div>22.5 USDC</div>
+          <div className={classes.routeAmt}>~ $22.50 after fees</div>
         </div>
       </div>
-      <div className={classes.routeRight}>
-        <div>22.5 USDC</div>
-        <div className={classes.routeAmt}>~ $22.50 after fees</div>
-      </div>
-    </div>
+    )
   );
 }
 
 function RouteOptions() {
+  const dispatch = useDispatch();
   const { isTransactionInProgress, route } = useSelector(
     (state: RootState) => state.transferInput,
   );
+  const onSelect = (value: Route) => {
+    dispatch(setTransferRoute(value));
+  };
 
   return (
     <BridgeCollapse
       title="Route"
       disabled={isTransactionInProgress}
-      controlled
       banner={<Banner />}
-      value={false}
-      onCollapseChange={() => {}}
+      startClosed={true}
+      controlStyle={CollapseControlStyle.Arrow}
     >
-      <Options active={route}>
-        {Object.values(ROUTES).map(route => {
+      <Options active={route} onSelect={onSelect}>
+        {Object.values(ROUTES).map((route) => {
           return {
             key: route.route,
-            child: <RouteOption route={route}/>,
+            child: <RouteOption route={route} />,
           };
         })}
       </Options>

@@ -38,7 +38,7 @@ function BUSD() {
         </clipPath>
       </defs>
     </svg>
-  )
-};
+  );
+}
 
 export default BUSD;

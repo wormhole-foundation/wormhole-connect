@@ -21,7 +21,7 @@ function FTM() {
         fill="white"
       />
     </svg>
-  )
-};
+  );
+}
 
 export default FTM;

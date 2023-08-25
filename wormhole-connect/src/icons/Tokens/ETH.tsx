@@ -18,7 +18,7 @@ function ETH() {
       <path fill="#8A92B2" d="M420.1 1078.7l539.7 760.6v-441.7z"></path>
       <path fill="#62688F" d="M959.8 1397.6v441.7l540.1-760.6z"></path>
     </svg>
-  )
-};
+  );
+}
 
 export default ETH;

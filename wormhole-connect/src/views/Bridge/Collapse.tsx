@@ -3,11 +3,9 @@ import { makeStyles } from 'tss-react/mui';
 import Collapse from '@mui/material/Collapse';
 import Down from '../../icons/Down';
 import { LINK, joinClass } from '../../utils/style';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../store';
 import Switch from '../../components/Switch';
 
-const useStyles = makeStyles()((theme) => ({
+const useStyles = makeStyles()((theme: any) => ({
   container: {
     width: '100%',
     borderRadius: '8px',
@@ -67,24 +65,8 @@ const useStyles = makeStyles()((theme) => ({
   },
 }));
 
-export function XLabsBanner() {
-  const { classes } = useStyles();
-  return (
-    <>
-      This feature provided by
-      <a
-        href="https://xlabs.xyz"
-        target="_blank"
-        className={classes.link}
-        rel="noreferrer"
-      >
-        xLabs
-      </a>
-    </>
-  );
-}
-
 export enum CollapseControlStyle {
+  None,
   Arrow,
   Switch,
 }
@@ -93,7 +75,7 @@ type Props = {
   title: string;
   description?: string;
   children: JSX.Element | JSX.Element[];
-  close?: boolean;
+  startClosed?: boolean;
   disabled?: boolean;
   banner?: JSX.Element | JSX.Element[] | false | undefined;
   controlled?: boolean; // control the open/closed state
@@ -105,7 +87,7 @@ type Props = {
 function BridgeCollapse(props: Props) {
   const { classes } = useStyles();
   const { onCollapseChange } = props;
-  const [collapsed, setCollapsed] = React.useState(props.close || false);
+  const [collapsed, setCollapsed] = React.useState(props.startClosed || false);
 
   const toggleCollapsed = useCallback(() => {
     if (props.disabled) return;
@@ -118,16 +100,8 @@ function BridgeCollapse(props: Props) {
     }
   }, [collapsed, onCollapseChange]);
 
-  const relayAvail = useSelector(
-    (state: RootState) => state.transferInput.automaticRelayAvail,
-  );
-  const controlled = !relayAvail || props.controlled;
   const controlStyle = props.controlStyle || CollapseControlStyle.Arrow;
-  const collapsedState = props.disabled
-    ? true
-    : controlled
-    ? props.value
-    : collapsed;
+  const collapsedState = props.controlled ? props.value : collapsed;
 
   const collapseControl =
     controlStyle === CollapseControlStyle.Arrow ? (
@@ -145,7 +119,7 @@ function BridgeCollapse(props: Props) {
           classes.header,
           (!!props.banner || !collapsedState) && classes.open,
           !!props.disabled && classes.disabled,
-          !!props.controlled && classes.controlled,
+          // !!props.controlled && classes.controlled,
         ])}
         onClick={toggleCollapsed}
       >
@@ -155,9 +129,9 @@ function BridgeCollapse(props: Props) {
             <div className={classes.description}>{props.description}</div>
           )}
         </div>
-        {!props.controlled && collapseControl}
+        {collapseControl}
       </div>
-      {props.banner && relayAvail && (
+      {props.banner && (
         <div
           className={joinClass([
             classes.banner,
