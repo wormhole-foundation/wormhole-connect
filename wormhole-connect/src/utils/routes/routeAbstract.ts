@@ -150,4 +150,18 @@ export default abstract class RouteAbstract {
     destChain: ChainName | ChainId,
     messageInfo: MessageInfo,
   ): Promise<boolean>;
+
+  // swap information (native gas slider)
+  abstract nativeTokenAmount(
+    destChain: ChainName | ChainId,
+    token: TokenId,
+    amount: BigNumber,
+    walletAddress: string,
+  ): Promise<BigNumber>;
+
+  abstract maxSwapAmount(
+    destChain: ChainName | ChainId,
+    token: TokenId,
+    walletAddress: string,
+  ): Promise<BigNumber>;
 }

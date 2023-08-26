@@ -172,9 +172,20 @@ export class CCTPManualRoute extends BaseRoute {
 
     const sourceChainName = wh.toChainName(sourceChain);
     const destChainName = wh.toChainName(destChain);
+
+    console.log(sourceChainName);
+    console.log(destChainName);
+
+    console.log(sourceTokenConfig.symbol);
+    console.log(destTokenConfig.symbol);
+
     if (sourceChainName === destChainName) return false;
     if (sourceTokenConfig.symbol !== CCTPTokenSymbol) return false;
     if (destTokenConfig.symbol !== CCTPTokenSymbol) return false;
+    console.log(`${sourceTokenConfig.nativeNetwork} ${sourceChainName}`);
+    console.log(`${destTokenConfig.nativeNetwork} ${destChainName}`);
+    if (sourceTokenConfig.nativeNetwork !== sourceChainName) return false;
+    if (destTokenConfig.nativeNetwork !== destChainName) return false;
 
     return (
       CCTPManual_CHAINS.includes(sourceChainName) &&
@@ -613,5 +624,22 @@ export class CCTPManualRoute extends BaseRoute {
     );
     const result = await contract.usedNonces(hash);
     return result.toString() === '1';
+  }
+
+  async nativeTokenAmount(
+    destChain: ChainName | ChainId,
+    token: TokenId,
+    amount: BigNumber,
+    walletAddress: string,
+  ): Promise<BigNumber> {
+    throw new Error('Not implemented');
+  }
+
+  async maxSwapAmount(
+    destChain: ChainName | ChainId,
+    token: TokenId,
+    walletAddress: string,
+  ): Promise<BigNumber> {
+    throw new Error('Not implemented');
   }
 }

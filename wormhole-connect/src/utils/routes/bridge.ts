@@ -322,4 +322,21 @@ export class BridgeRoute extends BaseRoute {
       Buffer.from(messageInfo.rawVaa).toString(),
     );
   }
+
+  async nativeTokenAmount(
+    destChain: ChainName | ChainId,
+    token: TokenId,
+    amount: BigNumber,
+    walletAddress: string,
+  ): Promise<BigNumber> {
+    throw new Error('Not implemented');
+  }
+
+  async maxSwapAmount(
+    destChain: ChainName | ChainId,
+    token: TokenId,
+    walletAddress: string,
+  ): Promise<BigNumber> {
+    throw new Error('Not implemented');
+  }
 }

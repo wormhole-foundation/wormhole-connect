@@ -36,15 +36,19 @@ export default class Operator {
   getRoute(route: Route): RouteAbstract {
     switch (route) {
       case Route.BRIDGE: {
+        console.log('Bridge');
         return new BridgeRoute();
       }
       case Route.RELAY: {
+        console.log('Relay');
         return new RelayRoute();
       }
       case Route.CCTPManual: {
+        console.log('CCTPManual');
         return new CCTPManualRoute();
       }
       case Route.CCTPRelay: {
+        console.log('CCTPRelay');
         return new CCTPRelayRoute();
       }
       case Route.HASHFLOW: {
@@ -63,7 +67,7 @@ export default class Operator {
       const result = await getVaa(txHash, chain);
       vaa = result.vaa;
     } catch (_error: any) {
-      error = _error;
+      error = _error.message;
     }
 
     // if(HASHFLOW_CONTRACT_ADDRESSES.includes(vaa.emitterAddress)) {
@@ -72,6 +76,7 @@ export default class Operator {
 
     if (!vaa) {
       // Currently, CCTP manual is the only route without a VAA
+      console.log(error);
       if (error === NO_VAA_FOUND) {
         const provider = wh.mustGetProvider(chain);
         const receipt = await provider.getTransactionReceipt(txHash);
@@ -346,5 +351,27 @@ export default class Operator {
   ): Promise<TransferDisplayData> {
     const r = this.getRoute(route);
     return r.getTransferDestInfo(params);
+  }
+
+  // swap information (native gas slider)
+  public nativeTokenAmount(
+    route: Route,
+    destChain: ChainName | ChainId,
+    token: TokenId,
+    amount: BigNumber,
+    walletAddress: string,
+  ): Promise<BigNumber> {
+    const r = this.getRoute(route);
+    return r.nativeTokenAmount(destChain, token, amount, walletAddress);
+  }
+
+  public maxSwapAmount(
+    route: Route,
+    destChain: ChainName | ChainId,
+    token: TokenId,
+    walletAddress: string,
+  ): Promise<BigNumber> {
+    const r = this.getRoute(route);
+    return r.maxSwapAmount(destChain, token, walletAddress);
   }
 }

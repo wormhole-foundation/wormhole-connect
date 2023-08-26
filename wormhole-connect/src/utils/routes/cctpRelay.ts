@@ -23,7 +23,6 @@ import {
   ParsedRelayerMessage,
   toChainId,
   wh,
-  calculateNativeTokenAmt,
   PayloadType,
 } from 'utils/sdk';
 import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
@@ -118,10 +117,17 @@ export class CCTPRelayRoute extends CCTPManualRoute {
 
     const sourceChainName = wh.toChainName(sourceChain);
     const destChainName = wh.toChainName(destChain);
+
+    console.log(sourceChainName);
+    console.log(destChainName);
+    console.log(sourceTokenConfig.symbol);
+    console.log(destTokenConfig.symbol);
     if (sourceChainName === destChainName) return false;
 
     if (sourceTokenConfig.symbol !== CCTPTokenSymbol) return false;
     if (destTokenConfig.symbol !== CCTPTokenSymbol) return false;
+    if (sourceTokenConfig.nativeNetwork !== sourceChainName) return false;
+    if (destTokenConfig.nativeNetwork !== destChainName) return false;
 
     return (
       CCTPRelay_CHAINS.includes(sourceChainName) &&
@@ -371,6 +377,9 @@ export class CCTPRelayRoute extends CCTPManualRoute {
     const circleRelayer =
       chainContext.contracts.mustGetWormholeCircleRelayer(sourceChain);
     const destChainId = wh.toChainId(destChain);
+    console.log(destChainId);
+    console.log('ToKen address');
+    console.log(tokenId?.address);
     const fee = await circleRelayer.relayerFee(destChainId, tokenId?.address);
     return fee;
   }
@@ -525,7 +534,8 @@ export class CCTPRelayRoute extends CCTPManualRoute {
         wh.toChainId(txData.toChain),
         txData.tokenId,
       ); // should be 6
-      const amount = await calculateNativeTokenAmt(
+
+      const amount = this.nativeTokenAmount(
         txData.toChain,
         txData.tokenId,
         fromNormalizedDecimals(
@@ -534,6 +544,7 @@ export class CCTPRelayRoute extends CCTPManualRoute {
         ),
         txData.recipient,
       );
+
       // get the decimals on the target chain
       const nativeGasTokenDecimals = getTokenDecimals(
         wh.toChainId(txData.toChain),
@@ -566,6 +577,32 @@ export class CCTPRelayRoute extends CCTPManualRoute {
         value: nativeGasAmt ? `${nativeGasAmt} ${gasToken}` : '—',
       },
     ];
+  }
+
+  async nativeTokenAmount(
+    destChain: ChainName | ChainId,
+    token: TokenId,
+    amount: BigNumber,
+    walletAddress: string,
+  ): Promise<BigNumber> {
+    const context: any = wh.getContext(destChain);
+    const relayer = context.contracts.mustGetWormholeCircleRelayer(destChain);
+    const tokenAddress = await wh.mustGetForeignAsset(token, destChain);
+    console.log(
+      `relayer calculating native swap amount out ${tokenAddress} ${amount}`,
+    );
+    return relayer.calculateNativeSwapAmountOut(tokenAddress, amount);
+  }
+
+  async maxSwapAmount(
+    destChain: ChainName | ChainId,
+    token: TokenId,
+    walletAddress: string,
+  ): Promise<BigNumber> {
+    const context: any = wh.getContext(destChain);
+    const relayer = context.contracts.mustGetWormholeCircleRelayer(destChain);
+    const tokenAddress = await wh.mustGetForeignAsset(token, destChain);
+    return relayer.calculateMaxSwapAmountIn(tokenAddress);
   }
 }
 
