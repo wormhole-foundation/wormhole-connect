@@ -7,8 +7,8 @@ import {
   VaaInfo,
   CCTPInfo,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { CHAINS, TOKENS } from 'config';
-import { TokenConfig } from 'config/types';
+import { CHAINS, TOKENS } from '../../config';
+import { TokenConfig } from '../../config/types';
 import { BigNumber, utils } from 'ethers';
 import {
   MAX_DECIMALS,
@@ -17,21 +17,21 @@ import {
   fromNormalizedDecimals,
   getWrappedTokenId,
   getTokenById,
-} from 'utils';
+} from '../../utils';
 import {
   ParsedMessage,
   ParsedRelayerMessage,
   toChainId,
   wh,
   PayloadType,
-} from 'utils/sdk';
-import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
+} from '../../utils/sdk';
+import { TransferWallet, signAndSendTransaction } from '../../utils/wallet';
 import { TransferDisplayData } from './types';
 import { toDecimals, toFixedDecimals } from '../balance';
 import { TransferInfoBaseParams } from './routeAbstract';
 import { RelayOptions } from './relay';
 import { getGasFeeFallback } from '../gasEstimates';
-import { Route } from 'store/transferInput';
+import { Route } from '../../store/transferInput';
 import {
   CCTPTokenSymbol,
   CCTPManual_CHAINS as CCTPRelay_CHAINS,
@@ -424,6 +424,9 @@ export class CCTPRelayRoute extends CCTPManualRoute {
     const circleRelayer =
       chainContext.contracts.mustGetWormholeCircleRelayer(sourceChain);
     const destChainId = wh.toChainId(destChain);
+    console.log(destChainId);
+    console.log('ToKen address');
+    console.log(tokenId?.address);
     const fee = await circleRelayer.relayerFee(destChainId, tokenId?.address);
     return fee;
   }

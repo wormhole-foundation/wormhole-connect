@@ -4,12 +4,12 @@ import {
   TokenId,
   NO_VAA_FOUND,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { Route } from 'store/transferInput';
+import { Route } from '../../store/transferInput';
 import { BridgeRoute } from './bridge';
 import { RelayRoute } from './relay';
 import { HashflowRoute } from './hashflow';
 import { CCTPRelayRoute } from './cctpRelay';
-import { TokenConfig } from 'config/types';
+import { TokenConfig } from '../../config/types';
 import {
   ParsedMessage,
   ParsedRelayerMessage,
@@ -42,15 +42,19 @@ export default class Operator {
   getRoute(route: Route): RouteAbstract {
     switch (route) {
       case Route.BRIDGE: {
+        console.log('Bridge');
         return new BridgeRoute();
       }
       case Route.RELAY: {
+        console.log('Relay');
         return new RelayRoute();
       }
       case Route.CCTPManual: {
+        console.log('CCTPManual');
         return new CCTPManualRoute();
       }
       case Route.CCTPRelay: {
+        console.log('CCTPRelay');
         return new CCTPRelayRoute();
       }
       case Route.HASHFLOW: {
@@ -78,7 +82,6 @@ export default class Operator {
 
     if (!vaa) {
       // Currently, CCTP manual is the only route without a VAA
-
       if (error === NO_VAA_FOUND) {
         const provider = wh.mustGetProvider(chain);
         const receipt = await provider.getTransactionReceipt(txHash);

@@ -11,7 +11,7 @@ import { CHAINS, TOKENS } from '../../config';
 import { getTokenDecimals } from '../../utils';
 import { toDecimals } from '../../utils/balance';
 import { toChainId } from '../../utils/sdk';
-import Operator, { PreviewData } from '../../utils/routes';
+import Operator from '../../utils/routes';
 
 import { RenderRows } from '../../components/RenderRows';
 import BridgeCollapse from './Collapse';
