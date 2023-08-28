@@ -322,7 +322,6 @@ export class CCTPManualRoute extends BaseRoute {
 
     const est = BigNumber.from('300000');
     const gasFee = est.mul(gasPrice);
-    console.log(`GAS FEE ${toFixedDecimals(utils.formatEther(gasFee), 6)}`);
     return toFixedDecimals(utils.formatEther(gasFee), 6);
   }
 
@@ -623,7 +622,6 @@ export class CCTPManualRoute extends BaseRoute {
     const token = TOKENS[txData.tokenKey];
     const { gasToken } = CHAINS[txData.toChain]!;
     const gas = await calculateGas(txData.toChain, Route.CCTPManual, receiveTx);
-    console.log(`the gas is ${gas}`);
     const formattedAmt = toNormalizedDecimals(
       txData.amount,
       txData.tokenDecimals,
