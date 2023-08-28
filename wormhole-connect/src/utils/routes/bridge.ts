@@ -19,6 +19,7 @@ import { adaptParsedMessage } from './common';
 import { toDecimals } from '../balance';
 import { calculateGas } from '../gas';
 import { TransferInfoBaseParams } from './routeAbstract';
+import { hexlify } from 'ethers/lib/utils.js';
 
 export interface BridgePreviewParams {
   destToken: TokenConfig;
@@ -319,10 +320,7 @@ export class BridgeRoute extends BaseRoute {
     destChain: ChainName | ChainId,
     messageInfo: VaaInfo,
   ): Promise<boolean> {
-    return wh.isTransferCompleted(
-      destChain,
-      Buffer.from(messageInfo.rawVaa).toString(),
-    );
+    return wh.isTransferCompleted(destChain, hexlify(messageInfo.rawVaa));
   }
 
   async nativeTokenAmount(
