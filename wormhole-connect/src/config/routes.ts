@@ -1,8 +1,8 @@
-import { Route } from 'store/transferInput';
+import { Route } from '../store/transferInput';
 import WormholeIcon from '../icons/Routes/Wormhole';
 import XLabsIcon from '../icons/Routes/XLabs';
-import HashflowIcon from 'icons/Routes/Hashflow';
-import CCTPIcon from 'icons/Routes/CCTP';
+import HashflowIcon from '../icons/Routes/Hashflow';
+import CCTPIcon from '../icons/Routes/CCTP';
 
 export type RouteData = {
   route: Route;
@@ -36,8 +36,15 @@ export const ROUTES: {
     link: 'https://www.hashflow.com/',
     icon: HashflowIcon,
   },
-  [Route.CCTP]: {
-    route: Route.CCTP,
+  [Route.CCTPManual]: {
+    route: Route.CCTPManual,
+    name: 'Circle CCTP',
+    providedBy: 'Circle',
+    link: 'https://www.circle.com/en/cross-chain-transfer-protocol',
+    icon: CCTPIcon,
+  },
+  [Route.CCTPRelay]: {
+    route: Route.CCTPRelay,
     name: 'Circle CCTP',
     providedBy: 'Circle',
     link: 'https://www.circle.com/en/cross-chain-transfer-protocol',
