@@ -375,7 +375,7 @@ export class AptosContext<
     return await getIsTransferCompletedAptos(
       this.aptosClient,
       this.contracts.mustGetBridge(destChain),
-      arrayify(signedVaa),
+      arrayify(signedVaa, { allowMissingPrefix: true }),
     );
   }
 
