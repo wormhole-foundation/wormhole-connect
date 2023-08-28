@@ -31,7 +31,10 @@ export const getIcon = (route: Route) => {
     case Route.HASHFLOW: {
       return HashflowIcon;
     }
-    case Route.CCTP: {
+    case Route.CCTPRelay: {
+      return CCTPIcon;
+    }
+    case Route.CCTPManual: {
       return CCTPIcon;
     }
     default: {

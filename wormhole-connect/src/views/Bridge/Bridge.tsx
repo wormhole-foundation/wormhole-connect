@@ -245,7 +245,7 @@ function Bridge() {
       }
     };
     establishRoute();
-  }, [fromNetwork, toNetwork, token, destToken, dispatch]);
+  }, [fromNetwork, toNetwork, token, destToken, amount, dispatch]);
 
   useEffect(() => {
     const recomputeReceive = async () => {

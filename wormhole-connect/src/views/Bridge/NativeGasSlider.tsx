@@ -191,6 +191,7 @@ function GasSlider(props: { disabled: boolean }) {
     });
   }, [
     sendingToken,
+    receivingToken,
     receivingWallet,
     toNetwork,
     route,
@@ -284,6 +285,7 @@ function GasSlider(props: { disabled: boolean }) {
     sendingToken,
     receivingToken,
     toNetwork,
+    route,
   ]);
 
   const banner = automaticRelayAvail && !props.disabled && (
