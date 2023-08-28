@@ -32,6 +32,7 @@ import {
   CCTP_LOG_TokenMessenger_DepositForBurn,
 } from './cctpManual';
 
+// TODO: need to make this configurable
 export const listOfRoutes = [
   Route.BRIDGE,
   Route.CCTPManual,

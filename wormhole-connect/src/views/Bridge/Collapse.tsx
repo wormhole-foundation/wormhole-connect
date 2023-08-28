@@ -48,7 +48,7 @@ const useStyles = makeStyles()((theme: any) => ({
     padding: '8px 16px',
     display: 'flex',
     flexDirection: 'row',
-    transition: 'border-radius 0.1s 0.3s'
+    transition: 'border-radius 0.1s 0.3s',
   },
   open: {
     transition: 'border-radius 0s 0s',
@@ -65,7 +65,7 @@ const useStyles = makeStyles()((theme: any) => ({
   },
   collapseControl: {
     cursor: 'pointer',
-  }
+  },
 }));
 
 export enum CollapseControlStyle {
@@ -80,22 +80,25 @@ function DownControl(props: { collapsed: boolean }) {
     <Down
       className={joinClass([classes.arrow, !props.collapsed && classes.invert])}
     />
-  )
+  );
 }
 
-function getControlComponent(control: CollapseControlStyle, collapsed: boolean) {
+function getControlComponent(
+  control: CollapseControlStyle,
+  collapsed: boolean,
+) {
   switch (control) {
     case CollapseControlStyle.None: {
-      return <></>
+      return <></>;
     }
     case CollapseControlStyle.Arrow: {
-      return <DownControl collapsed={collapsed} />
+      return <DownControl collapsed={collapsed} />;
     }
     case CollapseControlStyle.Switch: {
-      return <Switch checked={!collapsed} />
+      return <Switch checked={!collapsed} />;
     }
     default: {
-      return <></>
+      return <></>;
     }
   }
 }
@@ -107,11 +110,11 @@ type Props = {
   startClosed?: boolean;
   disabled?: boolean;
   banner?: JSX.Element | JSX.Element[] | false | undefined;
-  selectedElement?: JSX.Element | JSX.Element[];
   controlled?: boolean; // control the open/closed state
   controlStyle?: CollapseControlStyle;
   value?: boolean; // open/closed value
   onCollapseChange?: (value: boolean) => void;
+  disableCollapse?: boolean;
 };
 
 function BridgeCollapse(props: Props) {
@@ -121,14 +124,13 @@ function BridgeCollapse(props: Props) {
 
   const toggleCollapsed = useCallback(() => {
     if (props.disabled) return;
-    setCollapsed((prev) => !prev);
+    setCollapsed((prev) => {
+      if (onCollapseChange) {
+        onCollapseChange(!prev);
+      }
+      return !prev;
+    });
   }, [props.disabled]);
-
-  const onChange = useCallback(() => {
-    if (onCollapseChange) {
-      onCollapseChange(collapsed);
-    }
-  }, [collapsed, onCollapseChange]);
 
   const controlStyle = props.controlStyle || CollapseControlStyle.Arrow;
   const collapsedState = props.controlled ? props.value || false : collapsed;
@@ -140,7 +142,7 @@ function BridgeCollapse(props: Props) {
       <div
         className={joinClass([
           classes.header,
-          (!!props.banner || !collapsedState || !!props.selectedElement) && classes.open,
+          (!!props.banner || !collapsedState) && classes.open,
           !!props.disabled && classes.disabled,
         ])}
       >
@@ -158,19 +160,15 @@ function BridgeCollapse(props: Props) {
         <div
           className={joinClass([
             classes.banner,
-            (!collapsedState || !!props.selectedElement) && classes.open,
+            (props.disableCollapse || !collapsedState) && classes.open,
           ])}
         >
           {props.banner}
         </div>
       )}
 
-      <Collapse onExited={onChange} in={!collapsedState} unmountOnExit>
+      <Collapse in={props.disableCollapse || !collapsedState} unmountOnExit>
         {props.children}
-      </Collapse>
-
-      <Collapse onExited={onChange} in={collapsedState} unmountOnExit>
-        {props.selectedElement}
       </Collapse>
     </div>
   );

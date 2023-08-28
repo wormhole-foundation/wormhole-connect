@@ -1,6 +1,7 @@
 import React from 'react';
 import { makeStyles } from 'tss-react/mui';
 import { joinClass } from '../utils/style';
+import { Collapse } from '@mui/material';
 
 const useStyles = makeStyles()((theme: any) => ({
   options: {
@@ -9,9 +10,9 @@ const useStyles = makeStyles()((theme: any) => ({
     borderBottomRightRadius: '8px',
   },
   option: {
-    position: 'relative',
+    // position: 'relative',
     width: '100%',
-    padding: '16px',
+    // padding: '16px',
     borderRadius: '0',
     backgroundColor: theme.palette.card.background,
     '&:last-child': {
@@ -21,6 +22,9 @@ const useStyles = makeStyles()((theme: any) => ({
     '&:not(:last-child)': {
       borderBottom: `0.5px solid ${theme.palette.divider}`,
     },
+  },
+  optionContent: {
+    padding: '16px',
     '&:hover': {
       backgroundColor: theme.palette.options.hover,
     },
@@ -48,29 +52,40 @@ type Props = {
   children: Option[];
   onSelect: (value: any) => void;
   active?: number;
-  onSelect: (key: any) => void;
+  collapsable?: boolean;
+  collapsed?: boolean;
 };
 
 function Options(props: Props) {
   const { classes } = useStyles();
 
+  const isCollapsed = (key: any) => {
+    return props.collapsable && props.collapsed && props.active !== key;
+  };
+
   return (
     <div className={classes.options}>
       {props.children.map((option, i) => {
         return (
-          <div
+          <Collapse
+            in={!isCollapsed(option.key)}
+            key={i}
             className={joinClass([
               classes.option,
               props.active === option.key && classes.active,
             ])}
-            onClick={() => props.onSelect(option.key)}
-            style={{
-              cursor: props.children.length > 0 ? 'pointer' : 'default',
-            }}
-            key={i}
+            unmountOnExit
           >
-            {option.child}
-          </div>
+            <div
+              className={classes.optionContent}
+              onClick={() => props.onSelect(option.key)}
+              style={{
+                cursor: props.children.length > 0 ? 'pointer' : 'default',
+              }}
+            >
+              {option.child}
+            </div>
+          </Collapse>
         );
       })}
     </div>

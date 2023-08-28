@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { RootState } from '../../store';
@@ -13,6 +13,7 @@ import { useDispatch } from 'react-redux';
 import { setTransferRoute, Route } from '../../store/transferInput';
 import { Chip } from '@mui/material';
 import Operator from '../../utils/routes';
+import { listOfRoutes } from '../../utils/routes/operator';
 
 const useStyles = makeStyles()((theme: any) => ({
   link: {
@@ -187,6 +188,7 @@ function RouteOption(props: { route: RouteData }) {
 
 function RouteOptions() {
   const dispatch = useDispatch();
+  const [collapsed, setCollapsed] = useState(true);
   const {
     isTransactionInProgress,
     route,
@@ -202,11 +204,10 @@ function RouteOptions() {
   };
 
   const availableRoutes = useMemo(() => {
-    if (!validate || !fromNetwork || !toNetwork) return Object.keys(ROUTES);
+    if (!validate || !fromNetwork || !toNetwork) return listOfRoutes;
     let available: Route[] = [];
-    Object.keys(ROUTES).forEach(async (r) => {
-      const routeId = Number.parseInt(r) as Route;
-      const route = new Operator().getRoute(routeId);
+    listOfRoutes.forEach(async (r) => {
+      const route = new Operator().getRoute(r);
       const isSupported = await route.isRouteAvailable(
         token,
         destToken,
@@ -215,22 +216,16 @@ function RouteOptions() {
         toNetwork,
       );
       if (isSupported) {
-        available.push(routeId);
+        available.push(r);
       }
     });
     return available;
   }, [token, destToken, amount, fromNetwork, toNetwork]);
+  console.log(availableRoutes);
 
-  const selectedElement = (
-    <Options active={route} onSelect={() => {}}>
-      {[
-        {
-          key: route,
-          child: <RouteOption route={ROUTES[route]} />,
-        },
-      ]}
-    </Options>
-  );
+  const onCollapseChange = (collapsed: boolean) => {
+    setCollapsed(collapsed);
+  };
 
   return (
     <>
@@ -238,11 +233,21 @@ function RouteOptions() {
         title="Route"
         disabled={isTransactionInProgress}
         banner={<Banner />}
-        startClosed={true}
-        controlStyle={CollapseControlStyle.Arrow}
-        selectedElement={selectedElement}
+        disableCollapse
+        startClosed
+        onCollapseChange={onCollapseChange}
+        controlStyle={
+          availableRoutes.length > 1
+            ? CollapseControlStyle.Arrow
+            : CollapseControlStyle.None
+        }
       >
-        <Options active={route} onSelect={onSelect}>
+        <Options
+          active={route}
+          onSelect={onSelect}
+          collapsable
+          collapsed={collapsed}
+        >
           {availableRoutes.map((route) => {
             return {
               key: route,
