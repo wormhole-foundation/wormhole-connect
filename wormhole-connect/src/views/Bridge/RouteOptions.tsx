@@ -11,6 +11,7 @@ import Options from '../../components/Options';
 import { ROUTES, RouteData } from '../../config/routes';
 import { useDispatch } from 'react-redux';
 import { setTransferRoute, Route } from '../../store/transferInput';
+import { Chip } from '@mui/material';
 
 const useStyles = makeStyles()((theme: any) => ({
   link: {
@@ -29,7 +30,7 @@ const useStyles = makeStyles()((theme: any) => ({
   },
   route: {
     display: 'grid',
-    gridTemplateColumns: '158px 1fr',
+    gridTemplateColumns: '1fr 1fr',
     gridTemplateRows: '1fr',
     gridTemplateAreas: `"path fees"`,
     width: '100%',
@@ -45,7 +46,10 @@ const useStyles = makeStyles()((theme: any) => ({
     display: 'flex',
     flexDirection: 'column',
   },
-  routeName: {
+  routeTitle: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
     fontSize: '14px',
     fontWeight: '600',
     marginBottom: '8px',
@@ -136,7 +140,10 @@ function RouteOption(props: { route: RouteData }) {
     toTokenConfig && (
       <div className={classes.route}>
         <div className={classes.routeLeft}>
-          <div className={classes.routeName}>{props.route.name}</div>
+          <div className={classes.routeTitle}>
+            {props.route.name}
+            <Chip label="Two transactions" color="warning" variant="outlined" size="small" />
+          </div>
           <div className={classes.routePath}>
             <Tag
               icon={fromTokenIcon}
