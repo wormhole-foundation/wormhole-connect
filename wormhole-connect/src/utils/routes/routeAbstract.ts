@@ -19,6 +19,8 @@ export interface TransferInfoBaseParams {
 }
 
 export default abstract class RouteAbstract {
+  abstract readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean;
+  abstract readonly AUTOMATIC_DEPOSIT: boolean;
   // protected abstract sendGasFallback: { [key: ChainName]: TokenConfig };
   // protected abstract claimGasFallback: { [key: ChainName]: TokenConfig };
 

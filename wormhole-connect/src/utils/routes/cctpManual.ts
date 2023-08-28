@@ -127,7 +127,8 @@ export function getChainNameCCTP(domain: number): ChainName {
 }
 
 export class CCTPManualRoute extends BaseRoute {
-  NATIVE_GAS_DROPOFF_SUPPORTED = false;
+  readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean = false;
+  readonly AUTOMATIC_DEPOSIT: boolean = false;
   async isSupportedSourceToken(
     token: TokenConfig | undefined,
     destToken: TokenConfig | undefined,

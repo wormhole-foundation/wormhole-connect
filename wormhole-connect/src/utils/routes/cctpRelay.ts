@@ -61,7 +61,8 @@ interface TransferDestInfoParams {
 }
 
 export class CCTPRelayRoute extends CCTPManualRoute {
-  NATIVE_GAS_DROPOFF_SUPPORTED = true;
+  readonly NATIVE_GAS_DROPOFF_SUPPORTED = true;
+  readonly AUTOMATIC_DEPOSIT = true;
   async isSupportedSourceToken(
     token: TokenConfig | undefined,
     destToken: TokenConfig | undefined,

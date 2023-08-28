@@ -36,7 +36,8 @@ interface TransferDestInfoParams {
 }
 
 export class BridgeRoute extends BaseRoute {
-  NATIVE_GAS_DROPOFF_SUPPORTED = false;
+  readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean = false;
+  readonly AUTOMATIC_DEPOSIT: boolean = false;
 
   async isRouteAvailable(
     sourceToken: string,

@@ -52,7 +52,8 @@ interface TransferDestInfoParams {
 }
 
 export class RelayRoute extends BridgeRoute {
-  NATIVE_GAS_DROPOFF_SUPPORTED = true;
+  readonly NATIVE_GAS_DROPOFF_SUPPORTED = true;
+  readonly AUTOMATIC_DEPOSIT = true;
 
   async isRouteAvailable(
     sourceToken: string,

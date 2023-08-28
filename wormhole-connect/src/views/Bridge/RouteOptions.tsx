@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { RootState } from '../../store';
@@ -12,6 +12,7 @@ import { ROUTES, RouteData } from '../../config/routes';
 import { useDispatch } from 'react-redux';
 import { setTransferRoute, Route } from '../../store/transferInput';
 import { Chip } from '@mui/material';
+import Operator from '../../utils/routes';
 
 const useStyles = makeStyles()((theme: any) => ({
   link: {
@@ -134,6 +135,11 @@ function RouteOption(props: { route: RouteData }) {
   const toTokenIcon = toTokenConfig && (
     <TokenIcon name={toTokenConfig.icon} height={16} />
   );
+  const routeName = props.route.route;
+
+  const route = useMemo(() => {
+    return new Operator().getRoute(routeName);
+  }, [routeName]);
 
   return (
     fromTokenConfig &&
@@ -142,7 +148,14 @@ function RouteOption(props: { route: RouteData }) {
         <div className={classes.routeLeft}>
           <div className={classes.routeTitle}>
             {props.route.name}
-            <Chip label="Two transactions" color="warning" variant="outlined" size="small" />
+            {!route.AUTOMATIC_DEPOSIT && (
+              <Chip
+                label="Two transactions"
+                color="warning"
+                variant="outlined"
+                size="small"
+              />
+            )}
           </div>
           <div className={classes.routePath}>
             <Tag
@@ -173,15 +186,19 @@ function RouteOptions() {
   const onSelect = (value: Route) => {
     dispatch(setTransferRoute(value));
   };
-  const selectedRoute = useSelector((state: RootState) => state.transferInput.route);
+  const selectedRoute = useSelector(
+    (state: RootState) => state.transferInput.route,
+  );
   const selectedElement = (
     <Options active={route} onSelect={() => {}}>
-      {[{
-        key: selectedRoute,
-        child: <RouteOption route={ROUTES[selectedRoute]} />,
-      }]}
+      {[
+        {
+          key: selectedRoute,
+          child: <RouteOption route={ROUTES[selectedRoute]} />,
+        },
+      ]}
     </Options>
-  )
+  );
 
   return (
     <>
