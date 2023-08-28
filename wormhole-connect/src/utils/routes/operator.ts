@@ -363,7 +363,7 @@ export default class Operator {
     tx: string,
     network: ChainName | ChainId,
     unsigned?: boolean,
-  ): Promise<MessageInfo> {
+  ): Promise<MessageInfo | undefined> {
     const r = this.getRoute(route);
     return r.getMessageInfo(tx, network, unsigned);
   }

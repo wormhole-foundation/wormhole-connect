@@ -136,7 +136,7 @@ function Send(props: { valid: boolean }) {
             route,
             txId,
             fromNetwork!,
-            true,
+            true, // don't need to get the signed attestation
           );
         }
       }, 1000);

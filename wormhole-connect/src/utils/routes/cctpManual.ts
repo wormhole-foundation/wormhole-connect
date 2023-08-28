@@ -95,7 +95,7 @@ export async function getCircleAttestation(messageHash: BytesLike) {
   }
 }
 
-async function tryGetCircleAttestation(
+export async function tryGetCircleAttestation(
   messageHash: BytesLike,
 ): Promise<string | undefined> {
   return await axios
@@ -550,7 +550,7 @@ export class CCTPManualRoute extends BaseRoute {
     tx: string,
     chain: ChainName | ChainId,
     unsigned?: boolean,
-  ): Promise<CCTPInfo> {
+  ): Promise<CCTPInfo | undefined> {
     // only EVM
     // use this as reference
     // https://goerli.etherscan.io/tx/0xe4984775c76b8fe7c2b09cd56fb26830f6e5c5c6b540eb97d37d41f47f33faca#eventlog
@@ -579,6 +579,8 @@ export class CCTPManualRoute extends BaseRoute {
     let signedAttestation;
     if (!unsigned) {
       signedAttestation = await getCircleAttestation(messageHash);
+      // If no attestion, and attestation was requested, return undefined
+      if (!signedAttestation) return undefined;
     }
 
     const result = {

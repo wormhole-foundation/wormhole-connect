@@ -37,7 +37,7 @@ import {
   CCTPManual_CHAINS as CCTPRelay_CHAINS,
   CCTP_LOG_MessageSent,
   CCTP_LOG_TokenMessenger_DepositForBurn,
-  getCircleAttestation,
+  tryGetCircleAttestation,
   CCTPManualRoute,
   getChainNameCCTP,
   getForeignUSDCAddress,
@@ -432,7 +432,7 @@ export class CCTPRelayRoute extends CCTPManualRoute {
     tx: string,
     chain: ChainName | ChainId,
     unsigned?: boolean,
-  ): Promise<CCTPInfo> {
+  ): Promise<CCTPInfo | undefined> {
     // only EVM
     // use this as reference
     // https://goerli.etherscan.io/tx/0xe4984775c76b8fe7c2b09cd56fb26830f6e5c5c6b540eb97d37d41f47f33faca#eventlog
@@ -464,7 +464,9 @@ export class CCTPRelayRoute extends CCTPManualRoute {
     const messageHash = utils.keccak256(message);
     let signedAttestation;
     if (!unsigned) {
-      signedAttestation = await getCircleAttestation(messageHash);
+      signedAttestation = await tryGetCircleAttestation(messageHash);
+      // If no attestion, and attestation was requested, return undefined
+      if (!signedAttestation) return undefined;
     }
 
     const result = {

@@ -160,7 +160,7 @@ export type CCTPInfo = {
   destinationCaller: string;
   message: string;
   messageHash: string;
-  signedAttestation: string;
+  signedAttestation?: string;
   relayerPayloadId?: number;
   relayerFee?: string;
   toNativeTokenAmount?: string;
