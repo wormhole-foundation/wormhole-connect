@@ -75,7 +75,7 @@ export class CCTPRelayRoute extends CCTPManualRoute {
       (!sourceChain || wh.toChainName(sourceChain) === sourceChainName);
 
     if (destToken) {
-      const destChainName = token.nativeNetwork;
+      const destChainName = destToken.nativeNetwork;
       const destChainCCTP =
         CCTPRelay_CHAINS.includes(destChainName) &&
         (!destChain || wh.toChainName(destChain) === destChainName);
@@ -102,7 +102,7 @@ export class CCTPRelayRoute extends CCTPManualRoute {
       CCTPRelay_CHAINS.includes(destChainName) &&
       (!destChain || wh.toChainName(destChain) === destChainName);
     if (sourceToken) {
-      const sourceChainName = token.nativeNetwork;
+      const sourceChainName = sourceToken.nativeNetwork;
       const sourceChainCCTP =
         CCTPRelay_CHAINS.includes(sourceChainName) &&
         (!sourceChain || wh.toChainName(sourceChain) === sourceChainName);

@@ -141,7 +141,7 @@ export class CCTPManualRoute extends BaseRoute {
       (!sourceChain || wh.toChainName(sourceChain) === sourceChainName);
 
     if (destToken) {
-      const destChainName = token.nativeNetwork;
+      const destChainName = destToken.nativeNetwork;
       const destChainCCTP =
         CCTPManual_CHAINS.includes(destChainName) &&
         (!destChain || wh.toChainName(destChain) === destChainName);
@@ -168,11 +168,10 @@ export class CCTPManualRoute extends BaseRoute {
       CCTPManual_CHAINS.includes(destChainName) &&
       (!destChain || wh.toChainName(destChain) === destChainName);
     if (sourceToken) {
-      const sourceChainName = token.nativeNetwork;
+      const sourceChainName = sourceToken.nativeNetwork;
       const sourceChainCCTP =
         CCTPManual_CHAINS.includes(sourceChainName) &&
         (!sourceChain || wh.toChainName(sourceChain) === sourceChainName);
-
       return (
         sourceToken.symbol === CCTPTokenSymbol &&
         token.symbol === CCTPTokenSymbol &&
