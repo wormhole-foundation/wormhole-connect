@@ -57,7 +57,7 @@ export default class Operator {
         return new HashflowRoute();
       }
       default: {
-        throw new Error('Not a valid route');
+        throw new Error(`${route} is not a valid route`);
       }
     }
   }

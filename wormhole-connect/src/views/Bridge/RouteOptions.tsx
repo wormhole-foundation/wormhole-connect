@@ -187,21 +187,46 @@ function RouteOption(props: { route: RouteData }) {
 
 function RouteOptions() {
   const dispatch = useDispatch();
-  const { isTransactionInProgress, route } = useSelector(
-    (state: RootState) => state.transferInput,
-  );
+  const {
+    isTransactionInProgress,
+    route,
+    token,
+    destToken,
+    fromNetwork,
+    toNetwork,
+    amount,
+    validate,
+  } = useSelector((state: RootState) => state.transferInput);
   const onSelect = (value: Route) => {
     dispatch(setTransferRoute(value));
   };
-  const selectedRoute = useSelector(
-    (state: RootState) => state.transferInput.route,
-  );
+
+  const availableRoutes = useMemo(() => {
+    if (!validate || !fromNetwork || !toNetwork) return Object.keys(ROUTES);
+    let available: Route[] = [];
+    Object.keys(ROUTES).forEach(async (r) => {
+      const routeId = Number.parseInt(r) as Route;
+      const route = new Operator().getRoute(routeId);
+      const isSupported = await route.isRouteAvailable(
+        token,
+        destToken,
+        amount,
+        fromNetwork,
+        toNetwork,
+      );
+      if (isSupported) {
+        available.push(routeId);
+      }
+    });
+    return available;
+  }, [token, destToken, amount, fromNetwork, toNetwork]);
+
   const selectedElement = (
     <Options active={route} onSelect={() => {}}>
       {[
         {
-          key: selectedRoute,
-          child: <RouteOption route={ROUTES[selectedRoute]} />,
+          key: route,
+          child: <RouteOption route={ROUTES[route]} />,
         },
       ]}
     </Options>
@@ -218,10 +243,10 @@ function RouteOptions() {
         selectedElement={selectedElement}
       >
         <Options active={route} onSelect={onSelect}>
-          {Object.values(ROUTES).map((route) => {
+          {availableRoutes.map((route) => {
             return {
-              key: route.route,
-              child: <RouteOption route={route} />,
+              key: route,
+              child: <RouteOption route={ROUTES[route]} />,
             };
           })}
         </Options>
