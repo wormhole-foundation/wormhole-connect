@@ -113,14 +113,15 @@ function Bridge() {
     const computeSrcTokens = async () => {
       const operator = new Operator();
 
-      // Get all possible source tokens over all routes, given the destination token (which could be undefined)
+      // Get all possible source tokens over all routes
       const supportedList = (
         await Promise.all(
           listOfRoutes.map((r) => {
             const returnedTokens = operator.supportedSourceTokens(
               r,
               TOKENS_ARR,
-              destToken ? TOKENS[destToken] : undefined,
+              undefined,
+              fromNetwork,
             );
             return returnedTokens;
           }),
@@ -151,7 +152,13 @@ function Bridge() {
       const supportedList = (
         await Promise.all(
           listOfRoutes.map((r) =>
-            operator.supportedDestTokens(r, TOKENS_ARR, TOKENS[token]),
+            operator.supportedDestTokens(
+              r,
+              TOKENS_ARR,
+              TOKENS[token],
+              fromNetwork,
+              toNetwork,
+            ),
           ),
         )
       ).reduce((a, b) => a.concat(b));
@@ -186,7 +193,7 @@ function Bridge() {
     computeDestTokens();
     // IMPORTANT: do not include destToken in dependency array
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [route, token, toNetwork, dispatch]);
+  }, [route, token, fromNetwork, toNetwork, dispatch]);
 
   // check if automatic relay option is available
   useEffect(() => {

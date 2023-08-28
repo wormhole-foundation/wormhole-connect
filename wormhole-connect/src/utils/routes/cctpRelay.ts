@@ -65,18 +65,20 @@ export class CCTPRelayRoute extends CCTPManualRoute {
   async isSupportedSourceToken(
     token: TokenConfig | undefined,
     destToken: TokenConfig | undefined,
+    sourceChain?: ChainName | ChainId,
+    destChain?: ChainName | ChainId,
   ): Promise<boolean> {
     if (!token) return false;
     const sourceChainName = token.nativeNetwork;
     const sourceChainCCTP =
       CCTPRelay_CHAINS.includes(sourceChainName) &&
-      token.tokenId?.chain! === sourceChainName;
+      (!sourceChain || wh.toChainName(sourceChain) === sourceChainName);
 
     if (destToken) {
       const destChainName = token.nativeNetwork;
       const destChainCCTP =
         CCTPRelay_CHAINS.includes(destChainName) &&
-        token.tokenId?.chain! === destChainName;
+        (!destChain || wh.toChainName(destChain) === destChainName);
 
       return (
         destToken.symbol === CCTPTokenSymbol &&
@@ -91,17 +93,19 @@ export class CCTPRelayRoute extends CCTPManualRoute {
   async isSupportedDestToken(
     token: TokenConfig | undefined,
     sourceToken: TokenConfig | undefined,
+    sourceChain?: ChainName | ChainId,
+    destChain?: ChainName | ChainId,
   ): Promise<boolean> {
     if (!token) return false;
-    const sourceChainName = token.nativeNetwork;
-    const sourceChainCCTP =
-      CCTPRelay_CHAINS.includes(sourceChainName) &&
-      token.tokenId?.chain! === sourceChainName;
+    const destChainName = token.nativeNetwork;
+    const destChainCCTP =
+      CCTPRelay_CHAINS.includes(destChainName) &&
+      (!destChain || wh.toChainName(destChain) === destChainName);
     if (sourceToken) {
-      const destChainName = token.nativeNetwork;
-      const destChainCCTP =
-        CCTPRelay_CHAINS.includes(destChainName) &&
-        token.tokenId?.chain! === destChainName;
+      const sourceChainName = token.nativeNetwork;
+      const sourceChainCCTP =
+        CCTPRelay_CHAINS.includes(sourceChainName) &&
+        (!sourceChain || wh.toChainName(sourceChain) === sourceChainName);
 
       return (
         sourceToken.symbol === CCTPTokenSymbol &&
@@ -110,16 +114,20 @@ export class CCTPRelayRoute extends CCTPManualRoute {
         destChainCCTP
       );
     }
-    return token.symbol === CCTPTokenSymbol && sourceChainCCTP;
+    return token.symbol === CCTPTokenSymbol && destChainCCTP;
   }
 
   async supportedSourceTokens(
     tokens: TokenConfig[],
     destToken?: TokenConfig,
+    sourceChain?: ChainName | ChainId,
+    destChain?: ChainName | ChainId,
   ): Promise<TokenConfig[]> {
     if (!destToken) return tokens;
     const shouldAdd = await Promise.allSettled(
-      tokens.map((token) => this.isSupportedSourceToken(token, destToken)),
+      tokens.map((token) =>
+        this.isSupportedSourceToken(token, destToken, sourceChain, destChain),
+      ),
     );
     return tokens.filter((_token, i) => {
       const res = shouldAdd[i];
@@ -130,10 +138,14 @@ export class CCTPRelayRoute extends CCTPManualRoute {
   async supportedDestTokens(
     tokens: TokenConfig[],
     sourceToken?: TokenConfig,
+    sourceChain?: ChainName | ChainId,
+    destChain?: ChainName | ChainId,
   ): Promise<TokenConfig[]> {
     if (!sourceToken) return tokens;
     const shouldAdd = await Promise.allSettled(
-      tokens.map((token) => this.isSupportedDestToken(token, sourceToken)),
+      tokens.map((token) =>
+        this.isSupportedDestToken(token, sourceToken, sourceChain, destChain),
+      ),
     );
     return tokens.filter((_token, i) => {
       const res = shouldAdd[i];
