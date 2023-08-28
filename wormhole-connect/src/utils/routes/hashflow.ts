@@ -13,6 +13,7 @@ import { TransferDisplayData } from './types';
 import { BigNumber } from 'ethers';
 
 export class HashflowRoute extends RouteAbstract {
+  NATIVE_GAS_DROPOFF_SUPPORTED = false;
   public isRouteAvailable(
     sourceToken: string,
     destToken: string,

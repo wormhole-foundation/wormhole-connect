@@ -127,6 +127,7 @@ export function getChainNameCCTP(domain: number): ChainName {
 }
 
 export class CCTPManualRoute extends BaseRoute {
+  NATIVE_GAS_DROPOFF_SUPPORTED = false;
   async isSupportedSourceToken(
     token: TokenConfig | undefined,
     destToken: TokenConfig | undefined,
@@ -677,7 +678,7 @@ export class CCTPManualRoute extends BaseRoute {
     amount: BigNumber,
     walletAddress: string,
   ): Promise<BigNumber> {
-    throw new Error('Not implemented');
+    throw new Error('Not supported');
   }
 
   async maxSwapAmount(
@@ -685,6 +686,6 @@ export class CCTPManualRoute extends BaseRoute {
     token: TokenId,
     walletAddress: string,
   ): Promise<BigNumber> {
-    throw new Error('Not implemented');
+    throw new Error('Not supported');
   }
 }
