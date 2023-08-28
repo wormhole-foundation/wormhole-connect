@@ -362,6 +362,7 @@ export class CCTPManualRoute extends BaseRoute {
 
     const est = BigNumber.from('300000');
     const gasFee = est.mul(gasPrice);
+    console.log(`GAS FEE ${toFixedDecimals(utils.formatEther(gasFee), 6)}`);
     return toFixedDecimals(utils.formatEther(gasFee), 6);
   }
 
