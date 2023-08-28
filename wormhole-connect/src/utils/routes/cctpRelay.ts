@@ -114,7 +114,35 @@ export class CCTPRelayRoute extends CCTPManualRoute {
         destChainCCTP
       );
     }
-    return token.symbol === CCTPTokenSymbol && destChainCCTP;
+    return token.symbol === CCTPTokenSymbol && sourceChainCCTP;
+  }
+
+  async supportedSourceTokens(
+    tokens: TokenConfig[],
+    destToken?: TokenConfig,
+  ): Promise<TokenConfig[]> {
+    if (!destToken) return tokens;
+    const shouldAdd = await Promise.allSettled(
+      tokens.map((token) => this.isSupportedSourceToken(token, destToken)),
+    );
+    return tokens.filter((_token, i) => {
+      const res = shouldAdd[i];
+      return res.status === 'fulfilled' && res.value;
+    });
+  }
+
+  async supportedDestTokens(
+    tokens: TokenConfig[],
+    sourceToken?: TokenConfig,
+  ): Promise<TokenConfig[]> {
+    if (!sourceToken) return tokens;
+    const shouldAdd = await Promise.allSettled(
+      tokens.map((token) => this.isSupportedDestToken(token, sourceToken)),
+    );
+    return tokens.filter((_token, i) => {
+      const res = shouldAdd[i];
+      return res.status === 'fulfilled' && res.value;
+    });
   }
 
   async supportedSourceTokens(
@@ -424,9 +452,6 @@ export class CCTPRelayRoute extends CCTPManualRoute {
     const circleRelayer =
       chainContext.contracts.mustGetWormholeCircleRelayer(sourceChain);
     const destChainId = wh.toChainId(destChain);
-    console.log(destChainId);
-    console.log('ToKen address');
-    console.log(tokenId?.address);
     const fee = await circleRelayer.relayerFee(destChainId, tokenId?.address);
     return fee;
   }

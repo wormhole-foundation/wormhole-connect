@@ -139,7 +139,7 @@ function Bridge() {
         dispatch(setToken(''));
       }
       if (supported.length === 1) {
-        dispatch(setToken(supported[0]));
+        dispatch(setToken(supported[0].key));
       }
     };
     computeSrcTokens();

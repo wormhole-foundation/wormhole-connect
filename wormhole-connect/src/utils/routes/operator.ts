@@ -42,19 +42,15 @@ export default class Operator {
   getRoute(route: Route): RouteAbstract {
     switch (route) {
       case Route.BRIDGE: {
-        console.log('Bridge');
         return new BridgeRoute();
       }
       case Route.RELAY: {
-        console.log('Relay');
         return new RelayRoute();
       }
       case Route.CCTPManual: {
-        console.log('CCTPManual');
         return new CCTPManualRoute();
       }
       case Route.CCTPRelay: {
-        console.log('CCTPRelay');
         return new CCTPRelayRoute();
       }
       case Route.HASHFLOW: {
