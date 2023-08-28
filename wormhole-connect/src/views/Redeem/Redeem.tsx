@@ -15,6 +15,7 @@ import Stepper from './Stepper';
 import GovernorEnqueuedWarning from './GovernorEnqueuedWarning';
 import Operator, { MessageInfo } from '../../utils/routes';
 import { Route } from '../../store/transferInput';
+import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 
 class Redeem extends React.Component<
   {
@@ -25,6 +26,8 @@ class Redeem extends React.Component<
     transferComplete: boolean;
     isVaaEnqueued: boolean;
     route: Route;
+    fromChain: ChainName;
+    sendTx: string;
   },
   {
     messageInfo: MessageInfo | undefined;
@@ -47,11 +50,11 @@ class Redeem extends React.Component<
   }
 
   async getMessageInfo() {
-    if (!this.props.txData.sendTx || !!this.state.messageInfo) return;
+    if (!this.props.sendTx || !this.props.fromChain) return;
     const messageInfo = await new Operator().getMessageInfo(
       this.props.route,
-      this.props.txData.sendTx,
-      this.props.txData.fromChain,
+      this.props.sendTx,
+      this.props.fromChain,
     );
     if (messageInfo) {
       this.props.setMessageInfo(messageInfo);
@@ -137,9 +140,10 @@ class Redeem extends React.Component<
 }
 
 function mapStateToProps(state: RootState) {
-  const { txData, transferComplete, isVaaEnqueued, route } = state.redeem;
+  const { txData, transferComplete, isVaaEnqueued, route, fromChain, sendTx } =
+    state.redeem;
 
-  return { txData, transferComplete, isVaaEnqueued, route };
+  return { txData, transferComplete, isVaaEnqueued, route, fromChain, sendTx };
 }
 
 const mapDispatchToProps = (dispatch) => {

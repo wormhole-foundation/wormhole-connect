@@ -31,6 +31,7 @@ export const CONFIG = isMainnet ? CONF.MAINNET : CONF.TESTNET;
 export const ENV = isMainnet ? 'MAINNET' : 'TESTNET';
 
 export const WORMHOLE_EXPLORER = 'https://wormhole.com/explorer/';
+export const WORMSCAN = 'https://wormholescan.io/#/';
 export const WORMHOLE_API = isMainnet
   ? 'https://api.wormholescan.io/'
   : 'https://api.testnet.wormholescan.io/';

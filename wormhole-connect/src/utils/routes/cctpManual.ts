@@ -61,6 +61,19 @@ interface TransferDestInfoParams {
   receiveTx?: string;
 }
 
+export function getForeignUSDCAddress(chain: ChainName | ChainId) {
+  const usdcToken = TOKENS_ARR.find(
+    (t) =>
+      t.symbol === CCTPTokenSymbol &&
+      t.nativeNetwork === wh.toChainName(chain) &&
+      t.tokenId?.chain === wh.toChainName(chain),
+  );
+  if (!usdcToken) {
+    throw new Error('No foreign native USDC address');
+  }
+  return usdcToken.tokenId?.address;
+}
+
 async function sleep(timeout: number) {
   return new Promise((resolve) => setTimeout(resolve, timeout));
 }
@@ -74,7 +87,7 @@ export async function getCircleAttestation(messageHash: BytesLike) {
     // get the post
     const response = await tryGetCircleAttestation(messageHash);
 
-    if (response !== null) {
+    if (response) {
       return response;
     }
 
@@ -84,22 +97,22 @@ export async function getCircleAttestation(messageHash: BytesLike) {
 
 async function tryGetCircleAttestation(
   messageHash: BytesLike,
-): Promise<string | null> {
+): Promise<string | undefined> {
   return await axios
     .get(`${CIRCLE_ATTESTATION}${messageHash}`)
     .catch((reason) => {
-      return null;
+      return undefined;
     })
-    .then(async (response: AxiosResponse | null) => {
+    .then(async (response: AxiosResponse | undefined) => {
       if (
-        response !== null &&
+        response &&
         response.status === 200 &&
         response.data.status === 'complete'
       ) {
         return response.data.attestation as string;
       }
 
-      return null;
+      return undefined;
     });
 }
 
@@ -120,11 +133,15 @@ export class CCTPManualRoute extends BaseRoute {
   ): Promise<boolean> {
     if (!token) return false;
     const sourceChainName = token.nativeNetwork;
-    const sourceChainCCTP = CCTPManual_CHAINS.includes(sourceChainName);
+    const sourceChainCCTP =
+      CCTPManual_CHAINS.includes(sourceChainName) &&
+      token.tokenId?.chain! === sourceChainName;
 
     if (destToken) {
       const destChainName = token.nativeNetwork;
-      const destChainCCTP = CCTPManual_CHAINS.includes(destChainName);
+      const destChainCCTP =
+        CCTPManual_CHAINS.includes(destChainName) &&
+        token.tokenId?.chain! === destChainName;
 
       return (
         destToken.symbol === CCTPTokenSymbol &&
@@ -142,10 +159,14 @@ export class CCTPManualRoute extends BaseRoute {
   ): Promise<boolean> {
     if (!token) return false;
     const sourceChainName = token.nativeNetwork;
-    const sourceChainCCTP = CCTPManual_CHAINS.includes(sourceChainName);
+    const sourceChainCCTP =
+      CCTPManual_CHAINS.includes(sourceChainName) &&
+      token.tokenId?.chain! === sourceChainName;
     if (sourceToken) {
       const destChainName = token.nativeNetwork;
-      const destChainCCTP = CCTPManual_CHAINS.includes(destChainName);
+      const destChainCCTP =
+        CCTPManual_CHAINS.includes(destChainName) &&
+        token.tokenId?.chain! === destChainName;
 
       return (
         sourceToken.symbol === CCTPTokenSymbol &&
@@ -155,6 +176,34 @@ export class CCTPManualRoute extends BaseRoute {
       );
     }
     return token.symbol === CCTPTokenSymbol && sourceChainCCTP;
+  }
+
+  async supportedSourceTokens(
+    tokens: TokenConfig[],
+    destToken?: TokenConfig,
+  ): Promise<TokenConfig[]> {
+    if (!destToken) return tokens;
+    const shouldAdd = await Promise.allSettled(
+      tokens.map((token) => this.isSupportedSourceToken(token, destToken)),
+    );
+    return tokens.filter((_token, i) => {
+      const res = shouldAdd[i];
+      return res.status === 'fulfilled' && res.value;
+    });
+  }
+
+  async supportedDestTokens(
+    tokens: TokenConfig[],
+    sourceToken?: TokenConfig,
+  ): Promise<TokenConfig[]> {
+    if (!sourceToken) return tokens;
+    const shouldAdd = await Promise.allSettled(
+      tokens.map((token) => this.isSupportedDestToken(token, sourceToken)),
+    );
+    return tokens.filter((_token, i) => {
+      const res = shouldAdd[i];
+      return res.status === 'fulfilled' && res.value;
+    });
   }
 
   async isRouteAvailable(
@@ -173,17 +222,9 @@ export class CCTPManualRoute extends BaseRoute {
     const sourceChainName = wh.toChainName(sourceChain);
     const destChainName = wh.toChainName(destChain);
 
-    console.log(sourceChainName);
-    console.log(destChainName);
-
-    console.log(sourceTokenConfig.symbol);
-    console.log(destTokenConfig.symbol);
-
     if (sourceChainName === destChainName) return false;
     if (sourceTokenConfig.symbol !== CCTPTokenSymbol) return false;
     if (destTokenConfig.symbol !== CCTPTokenSymbol) return false;
-    console.log(`${sourceTokenConfig.nativeNetwork} ${sourceChainName}`);
-    console.log(`${destTokenConfig.nativeNetwork} ${destChainName}`);
     if (sourceTokenConfig.nativeNetwork !== sourceChainName) return false;
     if (destTokenConfig.nativeNetwork !== destChainName) return false;
 
@@ -481,7 +522,10 @@ export class CCTPManualRoute extends BaseRoute {
   ): Promise<string | null> {
     // assumes USDC
     const addr = TOKENS_ARR.find(
-      (t) => t.symbol === CCTPTokenSymbol && t.nativeNetwork === chain,
+      (t) =>
+        t.symbol === CCTPTokenSymbol &&
+        t.nativeNetwork === chain &&
+        t.tokenId?.chain === chain,
     )?.tokenId?.address;
     if (!addr) throw new Error('USDC not found');
     return addr;
@@ -490,7 +534,7 @@ export class CCTPManualRoute extends BaseRoute {
   async getMessageInfo(
     tx: string,
     chain: ChainName | ChainId,
-  ): Promise<CCTPInfo> {
+  ): Promise<CCTPInfo | undefined> {
     // only EVM
     // use this as reference
     // https://goerli.etherscan.io/tx/0xe4984775c76b8fe7c2b09cd56fb26830f6e5c5c6b540eb97d37d41f47f33faca#eventlog
@@ -516,7 +560,9 @@ export class CCTPManualRoute extends BaseRoute {
         .message;
 
     const messageHash = utils.keccak256(message);
-    const signedAttestation = await getCircleAttestation(messageHash);
+    const signedAttestation = await tryGetCircleAttestation(messageHash);
+
+    if (!signedAttestation) return undefined;
 
     const result = {
       fromChain: wh.toChainName(chain),

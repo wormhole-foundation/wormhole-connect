@@ -171,7 +171,6 @@ function GasSlider(props: { disabled: boolean }) {
       })
       .catch((e) => {
         if (e.message.includes('swap rate not set')) {
-          console.log('OK SETTING ROUTE TO BRIDGE!!!');
           if (route === Route.CCTPRelay) {
             dispatch(disableAutomaticTransferAndSetRoute(Route.CCTPManual));
           } else {
@@ -237,6 +236,7 @@ function GasSlider(props: { disabled: boolean }) {
   useEffect(() => {
     let cancelled = false;
     (async () => {
+      if (!receivingToken || !sendingToken) return;
       dispatch(setToNativeToken(debouncedSwapAmt));
       const tokenId = receivingToken.tokenId!;
       const tokenToChainDecimals = getTokenDecimals(

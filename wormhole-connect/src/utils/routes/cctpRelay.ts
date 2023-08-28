@@ -40,6 +40,7 @@ import {
   getCircleAttestation,
   CCTPManualRoute,
   getChainNameCCTP,
+  getForeignUSDCAddress,
 } from './cctpManual';
 export interface CCTPRelayPreviewParams {
   destToken: TokenConfig;
@@ -66,10 +67,15 @@ export class CCTPRelayRoute extends CCTPManualRoute {
   ): Promise<boolean> {
     if (!token) return false;
     const sourceChainName = token.nativeNetwork;
-    const sourceChainCCTP = CCTPRelay_CHAINS.includes(sourceChainName);
+    const sourceChainCCTP =
+      CCTPRelay_CHAINS.includes(sourceChainName) &&
+      token.tokenId?.chain! === sourceChainName;
+
     if (destToken) {
       const destChainName = token.nativeNetwork;
-      const destChainCCTP = CCTPRelay_CHAINS.includes(destChainName);
+      const destChainCCTP =
+        CCTPRelay_CHAINS.includes(destChainName) &&
+        token.tokenId?.chain! === destChainName;
 
       return (
         destToken.symbol === CCTPTokenSymbol &&
@@ -86,11 +92,15 @@ export class CCTPRelayRoute extends CCTPManualRoute {
     sourceToken: TokenConfig | undefined,
   ): Promise<boolean> {
     if (!token) return false;
-    const destChainName = token.nativeNetwork;
-    const destChainCCTP = CCTPRelay_CHAINS.includes(destChainName);
+    const sourceChainName = token.nativeNetwork;
+    const sourceChainCCTP =
+      CCTPRelay_CHAINS.includes(sourceChainName) &&
+      token.tokenId?.chain! === sourceChainName;
     if (sourceToken) {
-      const sourceChainName = token.nativeNetwork;
-      const sourceChainCCTP = CCTPRelay_CHAINS.includes(sourceChainName);
+      const destChainName = token.nativeNetwork;
+      const destChainCCTP =
+        CCTPRelay_CHAINS.includes(destChainName) &&
+        token.tokenId?.chain! === destChainName;
 
       return (
         sourceToken.symbol === CCTPTokenSymbol &&
@@ -99,7 +109,35 @@ export class CCTPRelayRoute extends CCTPManualRoute {
         destChainCCTP
       );
     }
-    return token.symbol === CCTPTokenSymbol && destChainCCTP;
+    return token.symbol === CCTPTokenSymbol && sourceChainCCTP;
+  }
+
+  async supportedSourceTokens(
+    tokens: TokenConfig[],
+    destToken?: TokenConfig,
+  ): Promise<TokenConfig[]> {
+    if (!destToken) return tokens;
+    const shouldAdd = await Promise.allSettled(
+      tokens.map((token) => this.isSupportedSourceToken(token, destToken)),
+    );
+    return tokens.filter((_token, i) => {
+      const res = shouldAdd[i];
+      return res.status === 'fulfilled' && res.value;
+    });
+  }
+
+  async supportedDestTokens(
+    tokens: TokenConfig[],
+    sourceToken?: TokenConfig,
+  ): Promise<TokenConfig[]> {
+    if (!sourceToken) return tokens;
+    const shouldAdd = await Promise.allSettled(
+      tokens.map((token) => this.isSupportedDestToken(token, sourceToken)),
+    );
+    return tokens.filter((_token, i) => {
+      const res = shouldAdd[i];
+      return res.status === 'fulfilled' && res.value;
+    });
   }
 
   async isRouteAvailable(
@@ -118,10 +156,6 @@ export class CCTPRelayRoute extends CCTPManualRoute {
     const sourceChainName = wh.toChainName(sourceChain);
     const destChainName = wh.toChainName(destChain);
 
-    console.log(sourceChainName);
-    console.log(destChainName);
-    console.log(sourceTokenConfig.symbol);
-    console.log(destTokenConfig.symbol);
     if (sourceChainName === destChainName) return false;
 
     if (sourceTokenConfig.symbol !== CCTPTokenSymbol) return false;
@@ -377,9 +411,6 @@ export class CCTPRelayRoute extends CCTPManualRoute {
     const circleRelayer =
       chainContext.contracts.mustGetWormholeCircleRelayer(sourceChain);
     const destChainId = wh.toChainId(destChain);
-    console.log(destChainId);
-    console.log('ToKen address');
-    console.log(tokenId?.address);
     const fee = await circleRelayer.relayerFee(destChainId, tokenId?.address);
     return fee;
   }
@@ -535,7 +566,7 @@ export class CCTPRelayRoute extends CCTPManualRoute {
         txData.tokenId,
       ); // should be 6
 
-      const amount = this.nativeTokenAmount(
+      const amount = await this.nativeTokenAmount(
         txData.toChain,
         txData.tokenId,
         fromNormalizedDecimals(
@@ -587,10 +618,8 @@ export class CCTPRelayRoute extends CCTPManualRoute {
   ): Promise<BigNumber> {
     const context: any = wh.getContext(destChain);
     const relayer = context.contracts.mustGetWormholeCircleRelayer(destChain);
-    const tokenAddress = await wh.mustGetForeignAsset(token, destChain);
-    console.log(
-      `relayer calculating native swap amount out ${tokenAddress} ${amount}`,
-    );
+    const tokenAddress = getForeignUSDCAddress(destChain);
+
     return relayer.calculateNativeSwapAmountOut(tokenAddress, amount);
   }
 
@@ -601,13 +630,13 @@ export class CCTPRelayRoute extends CCTPManualRoute {
   ): Promise<BigNumber> {
     const context: any = wh.getContext(destChain);
     const relayer = context.contracts.mustGetWormholeCircleRelayer(destChain);
-    const tokenAddress = await wh.mustGetForeignAsset(token, destChain);
+    const tokenAddress = getForeignUSDCAddress(destChain);
     return relayer.calculateMaxSwapAmountIn(tokenAddress);
   }
 }
 
 async function fetchSwapEvent(txData: ParsedMessage | ParsedRelayerMessage) {
-  const { tokenId, recipient, amount, tokenDecimals } = txData;
+  const { recipient, amount, tokenDecimals } = txData;
   const provider = wh.mustGetProvider(txData.toChain);
   const context: any = wh.getContext(txData.toChain);
   const chainName = wh.toChainName(txData.toChain) as ChainName;
@@ -615,7 +644,7 @@ async function fetchSwapEvent(txData: ParsedMessage | ParsedRelayerMessage) {
   const relayerContract = context.contracts.mustGetWormholeCircleRelayer(
     txData.toChain,
   );
-  const foreignAsset = await context.getForeignAsset(tokenId, txData.toChain);
+  const foreignAsset = getForeignUSDCAddress(txData.toChain);
   const eventFilter = relayerContract.filters.SwapExecuted(
     recipient,
     undefined,

@@ -110,7 +110,6 @@ function Preview(props: { collapsed: boolean }) {
         dispatch(setRelayerFee(formattedFee));
       } catch (e) {
         if (e.message.includes('swap rate not set')) {
-          console.log('OK SETTING ROUTE TO BRIDGE!!! 2');
           if (route === Route.CCTPRelay) {
             dispatch(disableAutomaticTransferAndSetRoute(Route.CCTPManual));
           } else {

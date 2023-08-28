@@ -32,23 +32,25 @@ import {
   CCTP_LOG_TokenMessenger_DepositForBurn,
 } from './cctpManual';
 
+export const listOfRoutes = [
+  Route.BRIDGE,
+  Route.CCTPManual,
+  Route.CCTPRelay,
+  Route.RELAY,
+];
 export default class Operator {
   getRoute(route: Route): RouteAbstract {
     switch (route) {
       case Route.BRIDGE: {
-        console.log('Bridge');
         return new BridgeRoute();
       }
       case Route.RELAY: {
-        console.log('Relay');
         return new RelayRoute();
       }
       case Route.CCTPManual: {
-        console.log('CCTPManual');
         return new CCTPManualRoute();
       }
       case Route.CCTPRelay: {
-        console.log('CCTPRelay');
         return new CCTPRelayRoute();
       }
       case Route.HASHFLOW: {
@@ -76,7 +78,7 @@ export default class Operator {
 
     if (!vaa) {
       // Currently, CCTP manual is the only route without a VAA
-      console.log(error);
+
       if (error === NO_VAA_FOUND) {
         const provider = wh.mustGetProvider(chain);
         const receipt = await provider.getTransactionReceipt(txHash);
@@ -332,7 +334,7 @@ export default class Operator {
     route: Route,
     tx: string,
     network: ChainName | ChainId,
-  ): Promise<MessageInfo> {
+  ): Promise<MessageInfo | undefined> {
     const r = this.getRoute(route);
     return r.getMessageInfo(tx, network);
   }

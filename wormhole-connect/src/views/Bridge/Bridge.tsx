@@ -35,6 +35,7 @@ import { joinClass } from '../../utils/style';
 import SwapNetworks from './SwapNetworks';
 import RouteOptions from './RouteOptions';
 import Operator from '../../utils/routes';
+import { listOfRoutes } from '../../utils/routes/operator';
 import { TokenConfig } from '../../config/types';
 
 const useStyles = makeStyles()((theme) => ({
@@ -111,10 +112,26 @@ function Bridge() {
   useEffect(() => {
     const computeSrcTokens = async () => {
       const operator = new Operator();
-      const supported =
-        // the user should be able to pick any source token
-        await operator.supportedSourceTokens(route, TOKENS_ARR, undefined);
 
+      // Get all possible source tokens over all routes, given the destination token (which could be undefined)
+      const supportedList = await Promise.all(
+        listOfRoutes.map((r) => {
+          const returnedTokens = operator.supportedSourceTokens(
+            r,
+            TOKENS_ARR,
+            destToken ? TOKENS[destToken] : undefined,
+          );
+          return returnedTokens;
+        }),
+      );
+      const supportedListReduced = supportedList.reduce(
+        (a, b) => a.concat(b),
+        [],
+      );
+      const supported = supportedListReduced.filter(
+        (t, i) =>
+          supportedListReduced.findIndex((_t) => _t.key === t.key) === i,
+      );
       dispatch(setSupportedSourceTokens(supported));
       const selectedIsSupported = isSupportedToken(token, supported);
       if (!selectedIsSupported) {
@@ -132,10 +149,17 @@ function Bridge() {
   useEffect(() => {
     const computeDestTokens = async () => {
       const operator = new Operator();
-      const supported = await operator.supportedDestTokens(
-        route,
-        TOKENS_ARR,
-        TOKENS[token],
+
+      // Get all possible destination tokens over all routes, given the source token
+      const supportedList = (
+        await Promise.all(
+          listOfRoutes.map((r) =>
+            operator.supportedDestTokens(r, TOKENS_ARR, TOKENS[token]),
+          ),
+        )
+      ).reduce((a, b) => a.concat(b));
+      const supported = supportedList.filter(
+        (t, i) => supportedList.findIndex((_t) => _t.key === t.key) === i,
       );
 
       dispatch(setSupportedDestTokens(supported));
@@ -146,11 +170,26 @@ function Bridge() {
       if (supported.length === 1) {
         dispatch(setDestToken(supported[0].key));
       }
+
+      // If all the supported tokens are the same token
+      // select the native version
+      const symbols = supported.map((t) => t.symbol);
+      if (toNetwork && symbols.every((s) => s === symbols[0])) {
+        const key = supported.find(
+          (t) =>
+            t.symbol === symbols[0] &&
+            t.nativeNetwork === t.tokenId?.chain &&
+            t.nativeNetwork === toNetwork,
+        )?.key;
+        if (key) {
+          dispatch(setDestToken(key));
+        }
+      }
     };
     computeDestTokens();
     // IMPORTANT: do not include destToken in dependency array
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [route, token, dispatch]);
+  }, [route, token, toNetwork, dispatch]);
 
   // check if automatic relay option is available
   useEffect(() => {
