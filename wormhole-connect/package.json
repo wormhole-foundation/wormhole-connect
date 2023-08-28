@@ -7,7 +7,7 @@
     "access": "restricted"
   },
   "dependencies": {
-    "@certusone/wormhole-sdk": "^0.9.22",
+    "@certusone/wormhole-sdk": "^0.9.24",
     "@cosmjs/cosmwasm-stargate": "^0.31.0",
     "@cosmjs/stargate": "^0.31.0",
     "@cosmjs/tendermint-rpc": "^0.31.0",

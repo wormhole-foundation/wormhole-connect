@@ -133,6 +133,9 @@ export class SuiContext<
       BigInt(0), // TODO: wormhole fee
       relayerFeeBigInt,
       payload,
+      undefined,
+      undefined,
+      payload ? senderAddress : undefined,
     );
     return tx;
   }
@@ -415,7 +418,7 @@ export class SuiContext<
     return await getIsTransferCompletedSui(
       this.provider,
       token_bridge,
-      arrayify(signedVaa),
+      arrayify(signedVaa, { allowMissingPrefix: true }),
     );
   }
 
