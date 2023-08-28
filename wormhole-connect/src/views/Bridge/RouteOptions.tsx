@@ -148,10 +148,17 @@ function RouteOption(props: { route: RouteData }) {
         <div className={classes.routeLeft}>
           <div className={classes.routeTitle}>
             {props.route.name}
-            {!route.AUTOMATIC_DEPOSIT && (
+            {!route.AUTOMATIC_DEPOSIT ? (
               <Chip
                 label="Two transactions"
                 color="warning"
+                variant="outlined"
+                size="small"
+              />
+            ) : (
+              <Chip
+                label="One transaction"
+                color="success"
                 variant="outlined"
                 size="small"
               />
