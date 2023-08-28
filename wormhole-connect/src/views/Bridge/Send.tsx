@@ -10,7 +10,6 @@ import { setRoute } from '../../store/router';
 import {
   setTxDetails,
   setSendTx,
-  setFromChain,
   setRoute as setRedeemTransferRoute,
 } from '../../store/redeem';
 import { displayWalletAddress } from '../../utils';
@@ -122,25 +121,24 @@ function Send(props: { valid: boolean }) {
       );
 
       let messageInfo: MessageInfo | undefined;
-      //const toRedeem = setInterval(async () => {
-      //if (messageInfo) {
-      //  const message = await operator.parseMessage(route, messageInfo);
-      //  clearInterval(toRedeem);
-      //  dispatch(setIsTransactionInProgress(false));
-      dispatch(setSendTx(txId));
-      dispatch(setFromChain(fromNetwork!));
-      //  dispatch(setTxDetails(message));
-      dispatch(setRoute('redeem'));
-      dispatch(setRedeemTransferRoute(route));
-      setSendError('');
-      // } else {
-      //  messageInfo = await operator.getMessageInfo(
-      //    route,
-      //    txId,
-      //     fromNetwork!,
-      //  );
-      //  }
-      //}, 3000);
+      const toRedeem = setInterval(async () => {
+        if (messageInfo) {
+          const message = await operator.parseMessage(route, messageInfo);
+          clearInterval(toRedeem);
+          dispatch(setIsTransactionInProgress(false));
+          dispatch(setSendTx(txId));
+          dispatch(setTxDetails(message));
+          dispatch(setRoute('redeem'));
+          dispatch(setRedeemTransferRoute(route));
+          setSendError('');
+        } else {
+          messageInfo = await operator.getMessageInfo(
+            route,
+            txId,
+            fromNetwork!,
+          );
+        }
+      }, 1000);
     } catch (e) {
       dispatch(setIsTransactionInProgress(false));
       setSendError('Error sending transfer, please try again');
