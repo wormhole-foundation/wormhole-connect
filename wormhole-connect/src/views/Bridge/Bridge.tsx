@@ -123,14 +123,9 @@ function Bridge() {
           );
           return returnedTokens;
         }),
-      );
-      const supportedListReduced = supportedList.reduce(
-        (a, b) => a.concat(b),
-        [],
-      );
-      const supported = supportedListReduced.filter(
-        (t, i) =>
-          supportedListReduced.findIndex((_t) => _t.key === t.key) === i,
+      ).reduce((a, b) => a.concat(b), []);
+      const supported = supportedList.filter(
+        (t, i) => supportedList.findIndex((_t) => _t.key === t.key) === i,
       );
       dispatch(setSupportedSourceTokens(supported));
       const selectedIsSupported = isSupportedToken(token, supported);
