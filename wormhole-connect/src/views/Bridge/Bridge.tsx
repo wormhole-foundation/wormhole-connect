@@ -114,15 +114,17 @@ function Bridge() {
       const operator = new Operator();
 
       // Get all possible source tokens over all routes, given the destination token (which could be undefined)
-      const supportedList = await Promise.all(
-        listOfRoutes.map((r) => {
-          const returnedTokens = operator.supportedSourceTokens(
-            r,
-            TOKENS_ARR,
-            destToken ? TOKENS[destToken] : undefined,
-          );
-          return returnedTokens;
-        }),
+      const supportedList = (
+        await Promise.all(
+          listOfRoutes.map((r) => {
+            const returnedTokens = operator.supportedSourceTokens(
+              r,
+              TOKENS_ARR,
+              destToken ? TOKENS[destToken] : undefined,
+            );
+            return returnedTokens;
+          }),
+        )
       ).reduce((a, b) => a.concat(b), []);
       const supported = supportedList.filter(
         (t, i) => supportedList.findIndex((_t) => _t.key === t.key) === i,
