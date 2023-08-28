@@ -152,7 +152,8 @@ export default abstract class RouteAbstract {
   abstract getMessageInfo(
     tx: string,
     chain: ChainName | ChainId,
-  ): Promise<MessageInfo | undefined>;
+    unsigned?: boolean,
+  ): Promise<MessageInfo>;
 
   abstract isTransferCompleted(
     destChain: ChainName | ChainId,

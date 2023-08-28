@@ -136,6 +136,7 @@ function Send(props: { valid: boolean }) {
             route,
             txId,
             fromNetwork!,
+            true,
           );
         }
       }, 1000);

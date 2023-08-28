@@ -362,9 +362,10 @@ export default class Operator {
     route: Route,
     tx: string,
     network: ChainName | ChainId,
-  ): Promise<MessageInfo | undefined> {
+    unsigned?: boolean,
+  ): Promise<MessageInfo> {
     const r = this.getRoute(route);
-    return r.getMessageInfo(tx, network);
+    return r.getMessageInfo(tx, network, unsigned);
   }
 
   public getTransferSourceInfo<T extends TransferInfoBaseParams>(

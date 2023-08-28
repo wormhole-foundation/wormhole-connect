@@ -431,6 +431,7 @@ export class CCTPRelayRoute extends CCTPManualRoute {
   async getMessageInfo(
     tx: string,
     chain: ChainName | ChainId,
+    unsigned?: boolean,
   ): Promise<CCTPInfo> {
     // only EVM
     // use this as reference
@@ -461,7 +462,10 @@ export class CCTPRelayRoute extends CCTPManualRoute {
     ]).parseLog(messageLog).args.message;
 
     const messageHash = utils.keccak256(message);
-    const signedAttestation = await getCircleAttestation(messageHash);
+    let signedAttestation;
+    if (!unsigned) {
+      signedAttestation = await getCircleAttestation(messageHash);
+    }
 
     const result = {
       fromChain: wh.toChainName(chain),
@@ -572,7 +576,7 @@ export class CCTPRelayRoute extends CCTPManualRoute {
         );
         nativeGasAmt = toDecimals(nativeSwapAmount, decimals, MAX_DECIMALS);
       }
-    } else if (!transferComplete) {
+    } else {
       // get the decimals on the target chain
       const destinationTokenDecimals = getTokenDecimals(
         wh.toChainId(txData.toChain),
