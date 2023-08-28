@@ -69,6 +69,49 @@ export class AptosContext<
     recipientAddress: string,
     relayerFee: string = '0',
   ): Promise<Types.EntryFunctionPayload> {
+    return this.innerSend(
+      token,
+      amount,
+      sendingChain,
+      senderAddress,
+      recipientChain,
+      recipientAddress,
+      relayerFee,
+      undefined,
+    );
+  }
+
+  async sendWithPayload(
+    token: TokenId | typeof NATIVE,
+    amount: string,
+    sendingChain: ChainName | ChainId,
+    senderAddress: string,
+    recipientChain: ChainName | ChainId,
+    recipientAddress: string,
+    payload: Uint8Array,
+  ): Promise<Types.EntryFunctionPayload> {
+    return this.innerSend(
+      token,
+      amount,
+      sendingChain,
+      senderAddress,
+      recipientChain,
+      recipientAddress,
+      undefined,
+      payload,
+    );
+  }
+
+  private async innerSend(
+    token: TokenId | typeof NATIVE,
+    amount: string,
+    sendingChain: ChainName | ChainId,
+    senderAddress: string,
+    recipientChain: ChainName | ChainId,
+    recipientAddress: string,
+    relayerFee: string = '0',
+    payload: Uint8Array | undefined,
+  ): Promise<Types.EntryFunctionPayload> {
     const destContext = this.context.getContext(recipientChain);
     const recipientChainId = this.context.toChainId(recipientChain);
 
@@ -98,27 +141,16 @@ export class AptosContext<
       coinType = await this.mustGetForeignAsset(token, sendingChain);
     }
 
-    const payload = transferFromAptos(
+    const tx = transferFromAptos(
       this.contracts.mustGetBridge(sendingChain),
       coinType,
       amount,
       recipientChainId,
       formattedRecipientAccount,
       relayerFee,
+      payload,
     );
-    return payload;
-  }
-
-  async sendWithPayload(
-    token: TokenId | typeof NATIVE,
-    amount: string,
-    sendingChain: ChainName | ChainId,
-    senderAddress: string,
-    recipientChain: ChainName | ChainId,
-    recipientAddress: string,
-    payload: any,
-  ): Promise<Types.EntryFunctionPayload> {
-    throw new Error('Aptos send with payload not implemented');
+    return tx;
   }
 
   formatAddress(address: string): Uint8Array {
