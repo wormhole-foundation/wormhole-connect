@@ -59,6 +59,10 @@ const useStyles = makeStyles()((theme) => ({
   },
 }));
 
+function getUniqueTokens(arr: TokenConfig[]) {
+  return arr.filter((t, i) => arr.findIndex((_t) => _t.key === t.key) === i);
+}
+
 function isSupportedToken(
   token: string,
   supportedTokens: TokenConfig[],
@@ -114,21 +118,20 @@ function Bridge() {
       const operator = new Operator();
 
       // Get all possible source tokens over all routes
-      const supportedList = (
-        await Promise.all(
-          listOfRoutes.map((r) => {
-            const returnedTokens = operator.supportedSourceTokens(
-              r,
-              TOKENS_ARR,
-              undefined,
-              fromNetwork,
-            );
-            return returnedTokens;
-          }),
-        )
-      ).reduce((a, b) => a.concat(b), []);
-      const supported = supportedList.filter(
-        (t, i) => supportedList.findIndex((_t) => _t.key === t.key) === i,
+      const supported = getUniqueTokens(
+        (
+          await Promise.all(
+            listOfRoutes.map((r) => {
+              const returnedTokens = operator.supportedSourceTokens(
+                r,
+                TOKENS_ARR,
+                undefined,
+                fromNetwork,
+              );
+              return returnedTokens;
+            }),
+          )
+        ).reduce((a, b) => a.concat(b), []),
       );
       dispatch(setSupportedSourceTokens(supported));
       const selectedIsSupported = isSupportedToken(token, supported);
@@ -149,23 +152,21 @@ function Bridge() {
       const operator = new Operator();
 
       // Get all possible destination tokens over all routes, given the source token
-      const supportedList = (
-        await Promise.all(
-          listOfRoutes.map((r) =>
-            operator.supportedDestTokens(
-              r,
-              TOKENS_ARR,
-              TOKENS[token],
-              fromNetwork,
-              toNetwork,
+      const supported = getUniqueTokens(
+        (
+          await Promise.all(
+            listOfRoutes.map((r) =>
+              operator.supportedDestTokens(
+                r,
+                TOKENS_ARR,
+                TOKENS[token],
+                fromNetwork,
+                toNetwork,
+              ),
             ),
-          ),
-        )
-      ).reduce((a, b) => a.concat(b));
-      const supported = supportedList.filter(
-        (t, i) => supportedList.findIndex((_t) => _t.key === t.key) === i,
+          )
+        ).reduce((a, b) => a.concat(b)),
       );
-
       dispatch(setSupportedDestTokens(supported));
       const selectedIsSupported = isSupportedToken(destToken, supported);
       if (!selectedIsSupported) {
