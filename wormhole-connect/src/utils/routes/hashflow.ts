@@ -3,17 +3,19 @@ import {
   ChainId,
   TokenId,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { TokenConfig } from '../../config/types';
+import { BigNumber } from 'ethers';
+
+import { TokenConfig } from 'config/types';
 import RouteAbstract, {
   TransferInfoBaseParams,
   MessageInfo,
 } from './routeAbstract';
 import { ParsedMessage, ParsedRelayerMessage } from '../sdk';
 import { TransferDisplayData } from './types';
-import { BigNumber } from 'ethers';
 
 export class HashflowRoute extends RouteAbstract {
-  NATIVE_GAS_DROPOFF_SUPPORTED = false;
+  readonly NATIVE_GAS_DROPOFF_SUPPORTED = false;
+  readonly AUTOMATIC_DEPOSIT = true;
   public isRouteAvailable(
     sourceToken: string,
     destToken: string,

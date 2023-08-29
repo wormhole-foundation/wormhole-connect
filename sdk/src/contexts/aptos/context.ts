@@ -35,9 +35,9 @@ import {
   zeroPad,
 } from 'ethers/lib/utils';
 import { sha3_256 } from 'js-sha3';
-import { MAINNET_CHAINS } from '../../config/MAINNET';
+import { MAINNET_CHAINS } from 'config/MAINNET';
 import { SolanaContext } from '../solana';
-import { stripHexPrefix } from '../../utils';
+import { stripHexPrefix } from 'utils';
 
 export const APTOS_COIN = '0x1::aptos_coin::AptosCoin';
 

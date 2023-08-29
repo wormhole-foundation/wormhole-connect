@@ -1,6 +1,8 @@
 import React from 'react';
 import { makeStyles } from 'tss-react/mui';
+
 import { Icon } from '../../../config/types';
+import { NO_INPUT } from '../../../utils/style';
 import TokenIcon from '../../../icons/TokenIcons';
 import Input from './Input';
 
@@ -10,11 +12,19 @@ const useStyles = makeStyles()((theme) => ({
     alignItems: 'center',
     gap: '8px',
   },
+  secondaryText: {
+    opacity: '0.6',
+    fontSize: '13px',
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
+    },
+  },
 }));
 
 type Selected = {
   icon: Icon;
   text: string;
+  secondaryText?: string;
 };
 
 type Props = {
@@ -28,7 +38,7 @@ type Props = {
 
 function Select(props: Props) {
   const { classes } = useStyles();
-
+  const { selected } = props;
   const handleClick = () => {
     if (props.editable && !props.disabled) {
       props.onClick();
@@ -42,13 +52,18 @@ function Select(props: Props) {
       editable={props.editable}
       onClick={handleClick}
     >
-      {props.selected ? (
+      {selected ? (
         <div className={classes.select}>
-          <TokenIcon name={props.selected.icon} height={24} />
-          {props.selected.text}
+          <TokenIcon name={selected.icon} height={24} />
+          {selected.text}
+          {selected.secondaryText && (
+            <div className={classes.secondaryText}>
+              {selected.secondaryText}
+            </div>
+          )}
         </div>
       ) : props.disabled ? (
-        '-'
+        NO_INPUT
       ) : (
         <div className={classes.select}>
           <TokenIcon height={24} />

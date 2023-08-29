@@ -2,11 +2,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { Context } from '@wormhole-foundation/wormhole-connect-sdk';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import AlertBanner from '../../components/AlertBanner';
-import Button from '../../components/Button';
-import InputContainer from '../../components/InputContainer';
-import { RenderRows } from '../../components/RenderRows';
-import Spacer from '../../components/Spacer';
+
 import { CHAINS } from '../../config';
 import { RootState } from '../../store';
 import { setRedeemTx, setTransferComplete } from '../../store/redeem';
@@ -19,6 +15,12 @@ import {
   registerWalletSigner,
   switchNetwork,
 } from '../../utils/wallet';
+
+import AlertBanner from '../../components/AlertBanner';
+import Button from '../../components/Button';
+import InputContainer from '../../components/InputContainer';
+import { RenderRows } from '../../components/RenderRows';
+import Spacer from '../../components/Spacer';
 import WalletsModal from '../WalletModal';
 import Header from './Header';
 

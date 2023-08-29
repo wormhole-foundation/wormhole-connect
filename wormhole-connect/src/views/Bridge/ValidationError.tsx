@@ -1,10 +1,12 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
+
 import { RootState } from '../../store';
-import { ValidationErr, getMinAmount } from '../../utils/transferValidation';
-import AlertBanner from '../../components/AlertBanner';
 import { Route, setTransferRoute } from '../../store/transferInput';
+import { ValidationErr, getMinAmount } from '../../utils/transferValidation';
+
+import AlertBanner from '../../components/AlertBanner';
 
 const useStyles = makeStyles()((theme) => ({
   minAmtError: {

@@ -1,9 +1,11 @@
-import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+
+import { NO_INPUT } from '../../../utils/style';
 
 import ConnectWallet from '../../../components/ConnectWallet';
 import InputContainer from '../../../components/InputContainer';
@@ -201,7 +203,7 @@ function Inputs(props: Props) {
                 {/* balance */}
                 <div className={classes.balance}>
                   <Input label="Balance">
-                    <div>{props.balance || '-'}</div>
+                    <div>{props.balance || NO_INPUT}</div>
                   </Input>
                 </div>
               </div>

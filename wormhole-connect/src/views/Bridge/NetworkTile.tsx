@@ -4,7 +4,7 @@ import TokenIcon from '../../icons/TokenIcons';
 import { ERROR_BORDER, joinClass } from '../../utils/style';
 import { NetworkConfig } from '../../config/types';
 
-const useStyles = makeStyles()((theme) => ({
+const useStyles = makeStyles()((theme: any) => ({
   networkTile: {
     backgroundColor: theme.palette.card.secondary,
     borderRadius: '8px',

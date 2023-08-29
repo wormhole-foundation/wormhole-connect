@@ -5,7 +5,7 @@ import { makeStyles } from 'tss-react/mui';
 import { RootState } from '../../store';
 import { selectFromNetwork, selectToNetwork } from '../../store/transferInput';
 
-const useStyles = makeStyles()((theme) => ({
+const useStyles = makeStyles()((theme: any) => ({
   button: {
     borderRadius: '50%',
     width: '42px',
@@ -16,6 +16,8 @@ const useStyles = makeStyles()((theme) => ({
     backgroundColor: theme.palette.card.background,
     boxShadow: theme.palette.card.elevation,
     cursor: 'pointer',
+    marginBottom: '-40px',
+    zIndex: 2,
   },
 }));
 

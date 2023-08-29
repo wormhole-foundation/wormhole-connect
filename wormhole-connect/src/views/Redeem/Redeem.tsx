@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
+
 import { fetchIsVAAEnqueued } from '../../utils/vaa';
 import {
   setIsVaaEnqueued,
@@ -7,14 +8,15 @@ import {
   setMessageInfo,
 } from '../../store/redeem';
 import { RootState } from '../../store';
+import { Route } from '../../store/transferInput';
 import { ParsedMessage, ParsedRelayerMessage } from '../../utils/sdk';
+import Operator, { MessageInfo } from '../../utils/routes';
+
 import PageHeader from '../../components/PageHeader';
 import Spacer from '../../components/Spacer';
 import NetworksTag from './Tag';
 import Stepper from './Stepper';
 import GovernorEnqueuedWarning from './GovernorEnqueuedWarning';
-import Operator, { MessageInfo } from '../../utils/routes';
-import { Route } from '../../store/transferInput';
 
 class Redeem extends React.Component<
   {

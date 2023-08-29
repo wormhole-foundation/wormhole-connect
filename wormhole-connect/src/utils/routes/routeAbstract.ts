@@ -5,10 +5,11 @@ import {
   VaaInfo,
   CCTPInfo,
 } from '@wormhole-foundation/wormhole-connect-sdk';
+import { BigNumber } from 'ethers';
+
 import { TokenConfig } from 'config/types';
 import { ParsedMessage, ParsedRelayerMessage } from '../sdk';
 import { TransferDisplayData } from './types';
-import { BigNumber } from 'ethers';
 
 // As more routes are added, more types should be added here (e.g. MessageInfo = ParsedVaa | DifferentRouteInfoStruct | ..)
 // This struct contains information needed to redeem the transfer
@@ -19,6 +20,8 @@ export interface TransferInfoBaseParams {
 }
 
 export default abstract class RouteAbstract {
+  abstract readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean;
+  abstract readonly AUTOMATIC_DEPOSIT: boolean;
   // protected abstract sendGasFallback: { [key: ChainName]: TokenConfig };
   // protected abstract claimGasFallback: { [key: ChainName]: TokenConfig };
 
@@ -118,7 +121,16 @@ export default abstract class RouteAbstract {
     recipient: string,
   ): Promise<string>;
 
-  public abstract getPreview(params: any): Promise<TransferDisplayData>;
+  public abstract getPreview(
+    token: TokenConfig,
+    destToken: TokenConfig,
+    amount: number,
+    sendingChain: ChainName | ChainId,
+    receipientChain: ChainName | ChainId,
+    sendingGasEst: string,
+    claimingGasEst: string,
+    routeOptions?: any,
+  ): Promise<TransferDisplayData>;
   public abstract getTransferSourceInfo<T extends TransferInfoBaseParams>(
     params: T,
   ): Promise<TransferDisplayData>;

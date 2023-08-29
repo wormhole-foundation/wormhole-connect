@@ -1,3 +1,5 @@
+import { BigNumber, utils, BytesLike, ethers } from 'ethers';
+import axios, { AxiosResponse } from 'axios';
 import {
   ChainId,
   ChainName,
@@ -8,17 +10,15 @@ import {
   MessageTransmitter__factory,
   CCTPInfo,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { CHAINS, TOKENS, TOKENS_ARR } from 'config';
+
+import { CHAINS, TOKENS, TOKENS_ARR, isMainnet } from 'config';
 import { TokenConfig } from 'config/types';
-import { BigNumber, utils, BytesLike, ethers } from 'ethers';
-import axios, { AxiosResponse } from 'axios';
 import {
   MAX_DECIMALS,
   getTokenById,
   getTokenDecimals,
   toNormalizedDecimals,
 } from 'utils';
-import { isMainnet } from 'config';
 import {
   ParsedMessage,
   ParsedRelayerMessage,
@@ -29,20 +29,13 @@ import {
 } from 'utils/sdk';
 import { calculateGas } from 'utils/gas';
 import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
+import { NO_INPUT } from 'utils/style';
+import { Route } from 'store/transferInput';
 import { TransferDisplayData } from './types';
 import { BaseRoute } from './baseRoute';
 import { toDecimals, toFixedDecimals } from '../balance';
 import { TransferInfoBaseParams } from './routeAbstract';
 import { getGasFeeFallback } from '../gasEstimates';
-import { Route } from 'store/transferInput';
-export interface CCTPManualPreviewParams {
-  destToken: TokenConfig;
-  sourceGasToken: string;
-  destinationGasToken: string;
-  receiveAmount: number;
-  sendingGasEst: string;
-  destGasEst: string;
-}
 
 export const CCTPTokenSymbol = 'USDC';
 export const CCTPManual_CHAINS: ChainName[] = [
@@ -127,7 +120,8 @@ export function getChainNameCCTP(domain: number): ChainName {
 }
 
 export class CCTPManualRoute extends BaseRoute {
-  NATIVE_GAS_DROPOFF_SUPPORTED = false;
+  readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean = false;
+  readonly AUTOMATIC_DEPOSIT: boolean = false;
   async isSupportedSourceToken(
     token: TokenConfig | undefined,
     destToken: TokenConfig | undefined,
@@ -439,7 +433,7 @@ export class CCTPManualRoute extends BaseRoute {
       tokenId,
       messageInfo.fromChain,
     );
-    let relayerPart = undefined;
+    let relayerPart = {};
     if (messageInfo.relayerPayloadId !== undefined) {
       relayerPart = {
         relayerPayloadId: messageInfo.relayerPayloadId,
@@ -471,14 +465,21 @@ export class CCTPManualRoute extends BaseRoute {
     };
   }
 
-  public async getPreview({
-    destToken,
-    sourceGasToken,
-    destinationGasToken,
-    receiveAmount: amount,
-    sendingGasEst,
-    destGasEst,
-  }: CCTPManualPreviewParams): Promise<TransferDisplayData> {
+  public async getPreview(
+    token: TokenConfig,
+    destToken: TokenConfig,
+    amount: number,
+    sendingChain: ChainName | ChainId,
+    receipientChain: ChainName | ChainId,
+    sendingGasEst: string,
+    claimingGasEst: string,
+    routeOptions?: any,
+  ): Promise<TransferDisplayData> {
+    const sendingChainName = wh.toChainName(sendingChain);
+    const receipientChainName = wh.toChainName(receipientChain);
+    const sourceGasToken = CHAINS[sendingChainName]?.gasToken;
+    const destinationGasToken = CHAINS[receipientChainName]?.gasToken;
+
     return [
       {
         title: 'Amount',
@@ -487,8 +488,8 @@ export class CCTPManualRoute extends BaseRoute {
       {
         title: 'Total fee estimates',
         value:
-          sendingGasEst && destGasEst
-            ? `${sendingGasEst} ${sourceGasToken} & ${destGasEst} ${destinationGasToken}`
+          sendingGasEst && claimingGasEst
+            ? `${sendingGasEst} ${sourceGasToken} & ${claimingGasEst} ${destinationGasToken}`
             : '',
         rows: [
           {
@@ -499,8 +500,8 @@ export class CCTPManualRoute extends BaseRoute {
           },
           {
             title: 'Destination chain gas estimate',
-            value: destGasEst
-              ? `~ ${destGasEst} ${destinationGasToken}`
+            value: claimingGasEst
+              ? `~ ${claimingGasEst} ${destinationGasToken}`
               : 'Not available',
           },
         ],
@@ -629,7 +630,9 @@ export class CCTPManualRoute extends BaseRoute {
       },
       {
         title: 'Gas fee',
-        value: formattedGas ? `${formattedGas} ${sourceGasTokenSymbol}` : '—',
+        value: formattedGas
+          ? `${formattedGas} ${sourceGasTokenSymbol}`
+          : NO_INPUT,
       },
     ];
   }
@@ -653,7 +656,7 @@ export class CCTPManualRoute extends BaseRoute {
       },
       {
         title: receiveTx ? 'Gas fee' : 'Gas estimate',
-        value: gas ? `${gas} ${gasToken}` : '—',
+        value: gas ? `${gas} ${gasToken}` : NO_INPUT,
       },
     ];
   }

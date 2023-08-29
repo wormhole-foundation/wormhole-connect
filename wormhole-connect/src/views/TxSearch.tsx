@@ -3,15 +3,17 @@ import { makeStyles } from 'tss-react/mui';
 import { useDispatch } from 'react-redux';
 import { Select, MenuItem } from '@mui/material';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+
 import { CHAINS_ARR } from '../config';
+import { isValidTxId } from '../utils';
 import Operator from '../utils/routes';
 import { setTxDetails, setRoute as setTransferRoute } from '../store/redeem';
 import { setRoute } from '../store/router';
+
 import PageHeader from '../components/PageHeader';
 import Search from '../components/Search';
 import Button from '../components/Button';
 import Spacer from '../components/Spacer';
-import { isValidTxId } from '../utils';
 import AlertBanner from '../components/AlertBanner';
 
 const useStyles = makeStyles()((theme) => ({

@@ -31,12 +31,12 @@ import {
 import { BigNumber } from 'ethers';
 import { arrayify, zeroPad, hexlify } from 'ethers/lib/utils';
 
-import MAINNET_CONFIG, { MAINNET_CHAINS } from '../../config/MAINNET';
+import MAINNET_CONFIG, { MAINNET_CHAINS } from 'config/MAINNET';
 import {
   parseTokenTransferPayload,
   parseTokenTransferVaa,
   parseVaa,
-} from '../../vaa';
+} from 'vaa';
 import {
   TokenId,
   ChainName,
@@ -47,9 +47,9 @@ import {
   ParsedRelayerPayload,
   ParsedRelayerMessage,
   VaaInfo,
-} from '../../types';
+} from 'types';
 import { SolContracts } from './contracts';
-import { WormholeContext } from '../../wormhole';
+import { WormholeContext } from 'wormhole';
 import {
   createTransferNativeInstruction,
   createTransferWrappedInstruction,

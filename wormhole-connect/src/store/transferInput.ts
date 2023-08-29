@@ -1,15 +1,15 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { BigNumber } from 'ethers';
-import { TokenConfig } from 'config/types';
-import { toDecimals } from '../utils/balance';
-import { TransferValidations } from '../utils/transferValidation';
-import { toChainId } from '../utils/sdk';
+
 import { TOKENS, config } from 'config';
-import { getTokenDecimals } from '../utils';
+import { TokenConfig } from 'config/types';
+import { getTokenDecimals } from 'utils';
+import { toDecimals } from 'utils/balance';
+import { TransferValidations } from 'utils/transferValidation';
+import { toChainId, PayloadType } from 'utils/sdk';
 import { TransferWallet, walletAcceptedNetworks } from 'utils/wallet';
 import { clearWallet, setWalletError, WalletData } from './wallet';
-import { PayloadType } from 'utils/sdk';
 
 export enum Route {
   BRIDGE = PayloadType.MANUAL, // 1
@@ -42,7 +42,6 @@ export interface TransferInputState {
   amount: string;
   receiveAmount: string;
   route: Route;
-  automaticRelayAvail: boolean;
   sourceBalances: Balances;
   destBalances: Balances;
   foreignAsset: string;
@@ -80,7 +79,6 @@ const initialState: TransferInputState = {
   amount: '',
   receiveAmount: '',
   route: Route.BRIDGE,
-  automaticRelayAvail: false,
   sourceBalances: {},
   destBalances: {},
   foreignAsset: '',
@@ -204,20 +202,6 @@ export const transferInputSlice = createSlice({
     ) => {
       state.associatedTokenAddress = payload;
     },
-    enableAutomaticTransferAndSetRoute: (
-      state: TransferInputState,
-      { payload }: PayloadAction<Route>,
-    ) => {
-      state.automaticRelayAvail = true;
-      state.route = payload;
-    },
-    disableAutomaticTransferAndSetRoute: (
-      state: TransferInputState,
-      { payload }: PayloadAction<Route>,
-    ) => {
-      state.automaticRelayAvail = false;
-      state.route = payload;
-    },
     setTransferRoute: (
       state: TransferInputState,
       { payload }: PayloadAction<Route>,
@@ -321,8 +305,6 @@ export const {
   clearBalances,
   setForeignAsset,
   setAssociatedTokenAddress,
-  enableAutomaticTransferAndSetRoute,
-  disableAutomaticTransferAndSetRoute,
   setTransferRoute,
   setManualGasEst,
   setAutomaticGasEst,

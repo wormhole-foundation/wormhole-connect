@@ -1,5 +1,6 @@
 import React from 'react';
 import { makeStyles } from 'tss-react/mui';
+
 import bg from './bg.svg';
 import { OPACITY } from '../../utils/style';
 import { THEME } from '../../config';
@@ -11,7 +12,7 @@ const colors = {
   pink: '#5A1E46',
 };
 
-const useStyles = makeStyles()((theme) => ({
+const useStyles = makeStyles()(() => ({
   container: {
     backgroundColor: `${colors.bg} !important`,
     width: '100%',

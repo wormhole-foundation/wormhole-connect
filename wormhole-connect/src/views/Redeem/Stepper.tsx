@@ -1,11 +1,13 @@
 import * as React from 'react';
+import { useSelector } from 'react-redux';
+
+import { RootState } from '../../store';
+import { MessageInfo } from '../../utils/routes';
+
 import Stepper from '../../components/Stepper/Stepper';
 import SendFrom from './SendFrom';
 import SendTo from './SendTo';
 import BridgeComplete from './BridgeComplete';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../store';
-import { MessageInfo } from '../../utils/routes';
 
 export default function MilestoneStepper() {
   const messageInfo: MessageInfo | undefined = useSelector(

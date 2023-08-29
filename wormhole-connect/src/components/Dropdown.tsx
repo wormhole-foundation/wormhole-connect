@@ -4,7 +4,7 @@ import Collapse from '@mui/material/Collapse';
 import Down from '../icons/Down';
 import { joinClass } from '../utils/style';
 
-const useStyles = makeStyles()((theme) => ({
+const useStyles = makeStyles()((theme: any) => ({
   container: {
     width: '100%',
     borderRadius: '8px',

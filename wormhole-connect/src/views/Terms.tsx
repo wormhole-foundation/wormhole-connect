@@ -2,7 +2,7 @@ import React from 'react';
 import { makeStyles } from 'tss-react/mui';
 import PageHeader from '../components/PageHeader';
 
-const useStyles = makeStyles()((theme) => ({
+const useStyles = makeStyles()(() => ({
   terms: {
     width: '100%',
     maxWidth: '700px',

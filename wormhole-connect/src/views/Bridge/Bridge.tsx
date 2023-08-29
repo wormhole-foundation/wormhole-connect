@@ -1,13 +1,11 @@
 import React, { useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { BigNumber } from 'ethers';
-import { useDispatch } from 'react-redux';
+
 import { RootState } from '../../store';
 import {
   setReceiverNativeBalance,
-  enableAutomaticTransferAndSetRoute,
-  disableAutomaticTransferAndSetRoute,
   Route,
   setReceiveAmount,
   setDestToken,
@@ -15,12 +13,18 @@ import {
   setSupportedSourceTokens,
   setSupportedDestTokens,
   TransferInputState,
+  setTransferRoute,
 } from '../../store/transferInput';
-import { wh, isAcceptedToken, toChainId } from '../../utils/sdk';
 import { CHAINS, TOKENS, TOKENS_ARR } from '../../config';
+import { TokenConfig } from '../../config/types';
+import { getTokenDecimals, getWrappedTokenId } from '../../utils';
+import { wh, isAcceptedToken, toChainId } from '../../utils/sdk';
+import { joinClass } from '../../utils/style';
+import { toDecimals } from '../../utils/balance';
+import Operator from '../../utils/routes';
+import { listOfRoutes } from '../../utils/routes/operator';
 import { isTransferValid, validate } from '../../utils/transferValidation';
 
-import GasOptions from './GasOptions';
 import GasSlider from './NativeGasSlider';
 import Preview from './Preview';
 import Send from './Send';
@@ -28,15 +32,9 @@ import { Collapse } from '@mui/material';
 import PageHeader from '../../components/PageHeader';
 import FromInputs from './Inputs/From';
 import ToInputs from './Inputs/To';
-import { toDecimals } from '../../utils/balance';
-import { getTokenDecimals, getWrappedTokenId } from '../../utils';
 import TransferLimitedWarning from './TransferLimitedWarning';
-import { joinClass } from '../../utils/style';
 import SwapNetworks from './SwapNetworks';
 import RouteOptions from './RouteOptions';
-import Operator from '../../utils/routes';
-import { listOfRoutes } from '../../utils/routes/operator';
-import { TokenConfig } from '../../config/types';
 
 const useStyles = makeStyles()((theme) => ({
   spacer: {
@@ -82,7 +80,6 @@ function Bridge() {
     token,
     destToken,
     route,
-    automaticRelayAvail,
     foreignAsset,
     associatedTokenAddress,
     isTransactionInProgress,
@@ -139,7 +136,7 @@ function Bridge() {
         dispatch(setToken(''));
       }
       if (supported.length === 1) {
-        dispatch(setToken(supported[0]));
+        dispatch(setToken(supported[0].key));
       }
     };
     computeSrcTokens();
@@ -209,7 +206,7 @@ function Bridge() {
         toNetwork,
       );
       if (cctpAvailable) {
-        dispatch(enableAutomaticTransferAndSetRoute(Route.CCTPRelay));
+        dispatch(setTransferRoute(Route.CCTPRelay));
         return;
       }
 
@@ -222,7 +219,7 @@ function Bridge() {
         toNetwork,
       );
       if (cctpManualAvailable) {
-        dispatch(disableAutomaticTransferAndSetRoute(Route.CCTPManual));
+        dispatch(setTransferRoute(Route.CCTPManual));
         return;
       }
 
@@ -235,18 +232,18 @@ function Bridge() {
           const tokenId = getWrappedTokenId(tokenConfig);
           const accepted = await isAcceptedToken(tokenId);
           if (accepted) {
-            dispatch(enableAutomaticTransferAndSetRoute(Route.RELAY));
+            dispatch(setTransferRoute(Route.RELAY));
           } else {
-            dispatch(disableAutomaticTransferAndSetRoute(Route.BRIDGE));
+            dispatch(setTransferRoute(Route.BRIDGE));
           }
         };
         isTokenAcceptedForRelay();
       } else {
-        dispatch(disableAutomaticTransferAndSetRoute(Route.BRIDGE));
+        dispatch(setTransferRoute(Route.BRIDGE));
       }
     };
     establishRoute();
-  }, [fromNetwork, toNetwork, token, destToken, dispatch]);
+  }, [fromNetwork, toNetwork, token, destToken, amount, dispatch]);
 
   useEffect(() => {
     const recomputeReceive = async () => {
@@ -272,7 +269,6 @@ function Bridge() {
     token,
     destToken,
     route,
-    automaticRelayAvail,
     toNativeToken,
     relayerFee,
     foreignAsset,
@@ -281,9 +277,10 @@ function Bridge() {
   ]);
   const valid = isTransferValid(validations);
   const disabled = !valid || isTransactionInProgress;
-  const showGasSlider =
-    automaticRelayAvail && (route === Route.RELAY || route === Route.CCTPRelay);
-  const showHashflowRoute = route === Route.HASHFLOW;
+  const showGasSlider = new Operator().getRoute(
+    route,
+  ).NATIVE_GAS_DROPOFF_SUPPORTED;
+
   return (
     <div className={joinClass([classes.bridgeContent, classes.spacer])}>
       <PageHeader title="Bridge" />
@@ -294,18 +291,7 @@ function Bridge() {
 
       <Collapse in={valid && showValidationState}>
         <div className={classes.spacer}>
-          <GasOptions disabled={disabled} />
-
-          <Collapse
-            in={showHashflowRoute}
-            sx={
-              !showHashflowRoute
-                ? { marginBottom: '-16px', transition: 'margin 0.4s' }
-                : {}
-            }
-          >
-            <RouteOptions />
-          </Collapse>
+          <RouteOptions />
 
           <Collapse
             in={showGasSlider}

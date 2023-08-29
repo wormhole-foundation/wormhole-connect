@@ -1,8 +1,10 @@
 import React from 'react';
 import { makeStyles } from 'tss-react/mui';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+
 import { CHAINS } from '../../config';
 import { displayAddress } from '../../utils';
+
 import WalletIcon from '../../icons/Wallet';
 import TokenIcon from '../../icons/TokenIcons';
 import CircularProgress from '@mui/material/CircularProgress';
