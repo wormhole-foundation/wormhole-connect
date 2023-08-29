@@ -24,6 +24,7 @@ import {
   TransferInfoBaseParams,
 } from './routeAbstract';
 import { hexlify } from 'ethers/lib/utils.js';
+import { isCosmWasmChain } from '../cosmos';
 
 export class BridgeRoute extends BaseRoute {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean = false;
@@ -41,6 +42,8 @@ export class BridgeRoute extends BaseRoute {
     if (!sourceChain || !destChain || !sourceTokenConfig || !destTokenConfig)
       return false;
     if (sourceChain === destChain) return false;
+    if (isCosmWasmChain(sourceChain) || isCosmWasmChain(destChain))
+      return false;
     // TODO: probably not true for Solana
     if (destToken === 'native') return false;
     if (!!sourceTokenConfig.tokenId && sourceToken === destToken) return true;
