@@ -11,6 +11,8 @@ export const MAINNET_CHAINS = {
   osmosis: 20,
   sui: 21,
   aptos: 22,
+  arbitrum: 23,
+  optimism: 24,
   base: 30,
 } as const;
 export type MainnetChainName = keyof typeof MAINNET_CHAINS;
@@ -28,6 +30,8 @@ export const TESTNET_CHAINS = {
   osmosis: 20,
   sui: 21,
   aptos: 22,
+  arbitrumgoerli: 23,
+  optimismgoerli: 24,
   basegoerli: 30,
 } as const;
 export type TestnetChainName = keyof typeof TESTNET_CHAINS;

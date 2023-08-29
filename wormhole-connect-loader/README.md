@@ -73,6 +73,10 @@ Tokens (`tokens`):
 | SUI | SUI |
 | USDCsol | |
 | APT | APT |
+| ETHarbitrum | ETHarbitrum|
+| WETHarbitrum | WETHarbitrum|
+| ETHoptimism | ETHoptimism|
+| WETHoptimism | WETHoptimism|
 | ETHbase | ETHbase |
 | WETHbase | WETHbase |
 

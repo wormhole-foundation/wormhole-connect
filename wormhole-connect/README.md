@@ -9,9 +9,9 @@ Integration does not get easier than this. Wormhole Connect is an easy seamless 
 ```ts
 {
   // accepted values for testnet:
-  //  ["goerli", "mumbai", "bsc", "fuji", "fantom", "alfajores", "moonbasealpha", "solana", "sui", "aptos", "sei", "basegoerli"]
+  //  ["goerli", "mumbai", "bsc", "fuji", "fantom", "alfajores", "moonbasealpha", "solana", "sui", "aptos", "sei", "arbitrumgoerli", "optimismgoerli", "basegoerli"]
   // accepted values for mainnet:
-  //  ["ethereum", "bsc", "polygon", "avalanche", "fantom", "celo", "moonbeam", "solana", "sui", "aptos", "base"]
+  //  ["ethereum", "bsc", "polygon", "avalanche", "fantom", "celo", "moonbeam", "solana", "sui", "aptos", "arbitrum", "optimism", "base"]
   "networks": ["goerli", "mumbai"],
   // accepted values: "ETH", "WETH", "USDC", "MATIC", "WMATIC", "BNB", "WBNB", "AVAX", "WAVAX", "FTM", "WFTM", "CELO
   "tokens": ["ETH", "WETH", "MATIC", "WMATIC"],
@@ -22,14 +22,15 @@ Integration does not get easier than this. Wormhole Connect is an easy seamless 
 
 > See the full config for supported chains [here](https://github.com/wormhole-foundation/wormhole-connect/tree/development/wormhole-connect/src/config)
 
-
 2. Add a script and link tag
 
 ```html
 <!-- paste below into index.html body -->
 <script src="https://wormhole-foundation.github.io/wormhole-connect/main.js"></script>
 <script src="https://wormhole-foundation.github.io/wormhole-connect/718.06852233.chunk.js"></script>
-<link rel="https://wormhole-foundation.github.io/wormhole-connect/main.ba17183d.css" />
+<link
+  rel="https://wormhole-foundation.github.io/wormhole-connect/main.ba17183d.css"
+/>
 ```
 
 3. Embed it in your application
@@ -52,18 +53,20 @@ For React applications, you must add the script tags after the dom has been rend
 ```ts
 class WormholeConnect extends React.Component {
   componentDidMount() {
-    const link = document.createElement("link");
-    link.src = "https://wormhole-foundation.github.io/wormhole-connect/main.ba17183d.css";
+    const link = document.createElement('link');
+    link.src =
+      'https://wormhole-foundation.github.io/wormhole-connect/main.ba17183d.css';
     link.async = true;
 
-    const script1 = document.createElement("script");
-    script1.src = "https://wormhole-foundation.github.io/wormhole-connect/718.06852233.chunk.js";
+    const script1 = document.createElement('script');
+    script1.src =
+      'https://wormhole-foundation.github.io/wormhole-connect/718.06852233.chunk.js';
     script1.async = true;
 
-    const script2 = document.createElement("script");
-    script2.src = "https://wormhole-foundation.github.io/wormhole-connect/main.js";
+    const script2 = document.createElement('script');
+    script2.src =
+      'https://wormhole-foundation.github.io/wormhole-connect/main.js';
     script2.async = true;
-
 
     document.body.appendChild(link);
     document.body.appendChild(script1);
@@ -71,7 +74,7 @@ class WormholeConnect extends React.Component {
   }
 
   render() {
-    return <div id="wormhole-connect"></div>
+    return <div id="wormhole-connect"></div>;
   }
 }
 ```

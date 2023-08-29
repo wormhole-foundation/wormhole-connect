@@ -77,6 +77,8 @@ export enum Icon {
   'WBTC',
   'SUI',
   'APT',
+  'ARBITRUM',
+  'OPTIMISM',
   'SEI',
   'BASE',
   'OSMO',
