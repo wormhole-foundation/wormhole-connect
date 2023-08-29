@@ -172,9 +172,16 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     context: Context.ETH,
     contracts: {
       ...CONTRACTS.TESTNET.optimism,
+      cctpContracts: {
+        cctpTokenMessenger: '0x12dcfd3fe2e9eac2859fd1ed86d2ab8c5a2f9352',
+        cctpMessageTransmitter: '0x109bc137cb64eab7c0b1dddd1edf341467dc2d35',
+        wormholeCircleRelayer: '0xbf683d541e11320418ca78ec13309938e6c5922f',
+        wormholeCCTP: '0x2e8f5e00a9c5d450a72700546b89e2b70dfb00f2',
+      },
     },
     finalityThreshold: 0,
     nativeTokenDecimals: 18,
+    cctpDomain: 3,
   },
   optimismgoerli: {
     key: 'optimismgoerli',
@@ -182,9 +189,16 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     context: Context.ETH,
     contracts: {
       ...CONTRACTS.TESTNET.optimism,
+      cctpContracts: {
+        cctpTokenMessenger: '0x23a04d5935ed8bc8e3eb78db3541f0abfb001c6e',
+        cctpMessageTransmitter: '0x9ff9a4da6f2157a9c82ce756f8fd7e0d75be8895',
+        wormholeCircleRelayer: '0x4cb69FaE7e7Af841e44E1A1c30Af640739378bb2',
+        wormholeCCTP: '0x2703483B1a5a7c577e8680de9Df8Be03c6f30e3c',
+      },
     },
     finalityThreshold: 0,
     nativeTokenDecimals: 18,
+    cctpDomain: 2,
   },
   basegoerli: {
     key: 'basegoerli',

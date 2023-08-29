@@ -50,6 +50,10 @@ export const CCTPManual_CHAINS: ChainName[] = [
   'avalanche',
   'fuji',
   'goerli',
+  // 'optimism' TODO: uncomment,
+  'arbitrum',
+  'optimismgoerli',
+  'arbitrumgoerli',
 ];
 export const CCTP_LOG_TokenMessenger_DepositForBurn =
   '0x2fa9ca894982930190727e75500a97d8dc500233a5065e0f3126c48fbe0343c0';
@@ -118,6 +122,10 @@ export function getChainNameCCTP(domain: number): ChainName {
       return isMainnet ? 'ethereum' : 'goerli';
     case 1:
       return isMainnet ? 'avalanche' : 'fuji';
+    case 2:
+      return isMainnet ? 'optimism' : 'optimismgoerli';
+    case 3:
+      return isMainnet ? 'arbitrum' : 'arbitrumgoerli';
   }
   throw new Error('Invalid CCTP domain');
 }
