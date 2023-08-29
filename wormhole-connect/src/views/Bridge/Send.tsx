@@ -6,11 +6,11 @@ import { makeStyles } from 'tss-react/mui';
 
 import { CHAINS, TOKENS } from '../../config';
 import { RootState } from '../../store';
-import { setRoute } from '../../store/router';
+import { setRoute as setAppRoute } from '../../store/router';
 import {
   setTxDetails,
   setSendTx,
-  setRoute as setRedeemTransferRoute,
+  setRoute as setRedeemRoute,
 } from '../../store/redeem';
 import { displayWalletAddress } from '../../utils';
 import { LINK } from '../../utils/style';
@@ -121,16 +121,22 @@ function Send(props: { valid: boolean }) {
           dispatch(setIsTransactionInProgress(false));
           dispatch(setSendTx(txId));
           dispatch(setTxDetails(message));
-          dispatch(setRoute('redeem'));
-          dispatch(setRedeemTransferRoute(route));
+          dispatch(setRedeemRoute(route));
+          dispatch(setAppRoute('redeem'));
           setSendError('');
         } else {
-          messageInfo = await operator.getMessageInfo(
-            route,
-            txId,
-            fromNetwork!,
-            true, // don't need to get the signed attestation
-          );
+          try {
+            messageInfo = await operator.getMessageInfo(
+              route,
+              txId,
+              fromNetwork!,
+              true, // don't need to get the signed attestation
+            );
+          } catch (e) {
+            if (!e.message.includes('requested VAA not found in store')) {
+              throw e;
+            }
+          }
         }
       }, 1000);
     } catch (e) {
@@ -238,7 +244,7 @@ function Send(props: { valid: boolean }) {
             By proceeding, you agree to the
             <span
               className={classes.link}
-              onClick={() => dispatch(setRoute('terms'))}
+              onClick={() => dispatch(setAppRoute('terms'))}
               rel="noreferrer"
             >
               Terms of Use

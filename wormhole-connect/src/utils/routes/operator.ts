@@ -1,21 +1,21 @@
 import {
-  ChainName,
+  CHAIN_ID_SEI,
+  parseTokenTransferPayload,
+} from '@certusone/wormhole-sdk';
+import {
   ChainId,
+  ChainName,
   TokenId,
   NO_VAA_FOUND,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { BigNumber } from 'ethers';
-import {
-  CHAIN_ID_SEI,
-  parseTokenTransferPayload,
-} from '@certusone/wormhole-sdk';
-
 import { Route } from 'store/transferInput';
 import { TokenConfig } from 'config/types';
 import { BridgeRoute } from './bridge';
 import { RelayRoute } from './relay';
 import { HashflowRoute } from './hashflow';
 import { CCTPRelayRoute } from './cctpRelay';
+import { CosmosGatewayRoute } from './cosmosGateway';
 import {
   ParsedMessage,
   ParsedRelayerMessage,
@@ -23,6 +23,7 @@ import {
   getVaa,
   wh,
 } from '../sdk';
+import { isCosmWasmChain } from '../cosmos';
 import RouteAbstract, {
   TransferInfoBaseParams,
   MessageInfo,
@@ -39,6 +40,7 @@ export const listOfRoutes = [
   Route.CCTPManual,
   Route.CCTPRelay,
   Route.RELAY,
+  Route.COSMOS_GATEWAY,
 ];
 export default class Operator {
   getRoute(route: Route): RouteAbstract {
@@ -58,6 +60,9 @@ export default class Operator {
       case Route.HASHFLOW: {
         return new HashflowRoute();
       }
+      case Route.COSMOS_GATEWAY: {
+        return new CosmosGatewayRoute();
+      }
       default: {
         throw new Error(`${route} is not a valid route`);
       }
@@ -65,6 +70,10 @@ export default class Operator {
   }
 
   async getRouteFromTx(txHash: string, chain: ChainName): Promise<Route> {
+    if (isCosmWasmChain(chain)) {
+      return Route.COSMOS_GATEWAY;
+    }
+
     let vaa;
     let error;
     try {
@@ -109,6 +118,13 @@ export default class Operator {
     const transfer = parseTokenTransferPayload(vaa.payload);
     if (transfer.toChain === CHAIN_ID_SEI) {
       return Route.RELAY;
+    }
+
+    if (
+      isCosmWasmChain(vaa.emitterChain as ChainId) ||
+      isCosmWasmChain(transfer.toChain as ChainId)
+    ) {
+      return Route.COSMOS_GATEWAY;
     }
 
     return vaa.payload && vaa.payload[0] === PayloadType.AUTOMATIC

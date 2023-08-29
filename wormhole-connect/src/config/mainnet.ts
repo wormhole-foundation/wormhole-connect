@@ -124,17 +124,28 @@ export const MAINNET_NETWORKS: NetworksConfig = {
     icon: Icon.BASE,
     maxBlockSearch: 2000,
   },
-  // sei: {
-  //   ...chains.sei!,
-  //   displayName: 'Sei',
-  //   explorerUrl: 'https://sei.explorers.guru/',
-  //   explorerName: 'Sei Explorer',
-  //   gasToken: 'SEI',
-  //   chainId: 0,
-  //   icon: Icon.SEI,
-  //   automaticRelayer: false,
-  //   maxBlockSearch: 0,
-  // },
+  osmosis: {
+    ...chains.osmosis!,
+    displayName: 'Osmosis',
+    explorerUrl: 'https://mintscan.io/osmosis/',
+    explorerName: 'MintScan',
+    gasToken: 'OSMO',
+    chainId: 'osmosis-1',
+    icon: Icon.OSMO,
+    automaticRelayer: false,
+    maxBlockSearch: 0,
+  },
+  wormchain: {
+    ...chains.wormchain!,
+    displayName: 'Wormchain',
+    explorerUrl: '',
+    explorerName: '',
+    gasToken: 'WORM',
+    chainId: '',
+    icon: Icon.OSMO,
+    automaticRelayer: false,
+    maxBlockSearch: 0,
+  },
 };
 
 export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
@@ -530,21 +541,6 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
       default: 8,
     },
   },
-  // SEI: {
-  //   key: 'SEI',
-  //   symbol: 'SEI',
-  //   nativeNetwork: 'sei',
-  //   tokenId: {
-  //     chain: 'sei',
-  //     address: 'usei',
-  //   },
-  //   icon: Icon.SEI,
-  //   coinGeckoId: 'sei',
-  //   color: '#FFFFFF',
-  //   decimals: {
-  //     default: 6,
-  //   },
-  // },
   ETHbase: {
     key: 'ETHbase',
     symbol: 'ETH',
@@ -572,6 +568,68 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: {
       Ethereum: 18,
       default: 8,
+    },
+  },
+  OSMO: {
+    key: 'OSMO',
+    symbol: 'OSMO',
+    nativeNetwork: 'osmosis',
+    tokenId: {
+      chain: 'osmosis',
+      address: 'uosmo',
+    },
+    icon: Icon.OSMO,
+    coinGeckoId: 'osmosis',
+    color: '#FFFFFF',
+    decimals: {
+      default: 6,
+    },
+  },
+  tBTC: {
+    key: 'tBTC',
+    symbol: 'tBTC',
+    nativeNetwork: 'ethereum',
+    tokenId: {
+      chain: 'ethereum',
+      address: '0x18084fbA666a33d37592fA2633fD49a74DD93a88',
+    },
+    icon: Icon.TBTC,
+    coinGeckoId: 'tbtc',
+    color: '#000000',
+    decimals: {
+      default: 8,
+      Ethereum: 18,
+    },
+  },
+  wstETH: {
+    key: 'wstETH',
+    symbol: 'wstETH',
+    nativeNetwork: 'ethereum',
+    tokenId: {
+      chain: 'ethereum',
+      address: '0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0',
+    },
+    icon: Icon.WSTETH,
+    coinGeckoId: 'wrapped-steth',
+    color: '#3AA3FF',
+    decimals: {
+      default: 8,
+      Ethereum: 18,
+    },
+  },
+  BONK: {
+    key: 'BONK',
+    symbol: 'BONK',
+    nativeNetwork: 'solana',
+    tokenId: {
+      chain: 'solana',
+      address: 'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263',
+    },
+    icon: Icon.BONK,
+    coinGeckoId: 'bonk',
+    color: '#FC8E03',
+    decimals: {
+      default: 5,
     },
   },
 };
@@ -656,5 +714,15 @@ export const MAINNET_GAS_ESTIMATES: GasEstimates = {
     claim: 1000000,
     sendNative: 1000000,
     sendToken: 1000000,
+  },
+  wormchain: {
+    sendNative: 0,
+    sendToken: 0,
+    claim: 0,
+  },
+  osmosis: {
+    sendNative: 0,
+    sendToken: 0,
+    claim: 0,
   },
 };

@@ -17,6 +17,8 @@ export const TESTNET_CHAINS = {
   aptos: 22,
   basegoerli: 30,
   sei: 32,
+  wormchain: 3104,
+  osmosis: 20,
 } as const;
 
 /**
@@ -185,6 +187,31 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     finalityThreshold: 0,
     nativeTokenDecimals: 6,
   },
+  wormchain: {
+    context: Context.COSMOS,
+    key: 'wormchain',
+    id: 3104,
+    contracts: {
+      core: 'wormhole16jzpxp0e8550c9aht6q9svcux30vtyyyyxv5w2l2djjra46580wsazcjwp',
+      token_bridge:
+        'wormhole1aaf9r6s7nxhysuegqrxv0wpm27ypyv4886medd3mrkrw6t4yfcnst3qpex',
+      ibcShimContract:
+        'wormhole1ctnjk7an90lz5wjfvr3cf6x984a8cjnv8dpmztmlpcq4xteaa2xs9pwmzk',
+    },
+    finalityThreshold: 0,
+    nativeTokenDecimals: 6,
+  },
+  osmosis: {
+    key: 'osmosis',
+    id: 20,
+    context: Context.COSMOS,
+    contracts: {
+      core: '',
+      token_bridge: '',
+    },
+    finalityThreshold: 0,
+    nativeTokenDecimals: 6,
+  },
 };
 
 const env: Environment = 'TESTNET';
@@ -206,6 +233,8 @@ const TESTNET_CONFIG: WormholeConfig = {
     aptos: 'https://fullnode.testnet.aptoslabs.com/v1',
     basegoerli: 'https://goerli.base.org',
     sei: 'https://rpc.atlantic-2.seinetwork.io',
+    wormchain: '',
+    osmosis: 'https://rpc.osmotest5.osmosis.zone',
   },
   rest: {
     sei: 'https://rest.atlantic-2.seinetwork.io',

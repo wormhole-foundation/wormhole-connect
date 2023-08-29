@@ -138,6 +138,7 @@ const getWalletOptions = async (
       [Context.SUI]: suiOptions,
       [Context.APTOS]: wallets.aptos,
       [Context.SEI]: seiOptions,
+      [Context.COSMOS]: seiOptions,
     };
 
     return Object.keys(allWallets)
@@ -156,6 +157,8 @@ const getWalletOptions = async (
   } else if (config.context === Context.SEI) {
     const suiOptions = await fetchSeiOptions();
     return Object.values(mapWallets(suiOptions, Context.SEI));
+  } else if (config.context === Context.COSMOS) {
+    return Object.values(mapWallets(wallets.cosmos, Context.COSMOS));
   }
   return [];
 };
@@ -212,7 +215,11 @@ function WalletsModal(props: Props) {
 
   const connect = async (walletInfo: WalletData) => {
     const { wallet } = walletInfo;
-    await wallet.connect();
+
+    const network = type === TransferWallet.SENDING ? fromNetwork : toNetwork;
+    const chainId = network ? CHAINS[network]?.chainId : undefined;
+    await wallet.connect({ chainId });
+
     setWalletConnection(props.type, wallet);
 
     const address = wallet.getAddress();

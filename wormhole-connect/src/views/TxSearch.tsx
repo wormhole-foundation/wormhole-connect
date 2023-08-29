@@ -1,20 +1,20 @@
 import React, { useState } from 'react';
 import { makeStyles } from 'tss-react/mui';
 import { useDispatch } from 'react-redux';
-import { Select, MenuItem } from '@mui/material';
+import { Select, MenuItem, CircularProgress } from '@mui/material';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 
 import { CHAINS_ARR } from '../config';
 import { isValidTxId } from '../utils';
 import Operator from '../utils/routes';
-import { setTxDetails, setRoute as setTransferRoute } from '../store/redeem';
-import { setRoute } from '../store/router';
-
+import { setTxDetails, setRoute as setRedeemRoute } from '../store/redeem';
+import { setRoute as setAppRoute } from '../store/router';
 import PageHeader from '../components/PageHeader';
 import Search from '../components/Search';
 import Button from '../components/Button';
 import Spacer from '../components/Spacer';
 import AlertBanner from '../components/AlertBanner';
+import { setToNetwork } from '../store/transferInput';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -47,6 +47,7 @@ function TxSearch() {
     tx: '',
   });
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   function setChain(e: any) {
     setState((prevState) => ({ ...prevState, chain: e.target.value }));
@@ -64,6 +65,7 @@ function TxSearch() {
       return setError('Invalid transaction ID');
     }
     try {
+      setLoading(true);
       const operator = new Operator();
       const route = await operator.getRouteFromTx(
         state.tx,
@@ -78,13 +80,16 @@ function TxSearch() {
       const message = await operator.parseMessage(route, messageInfo!);
       setError('');
       dispatch(setTxDetails(message));
-      dispatch(setTransferRoute(route));
-      dispatch(setRoute('redeem'));
+      dispatch(setRedeemRoute(route));
+      dispatch(setAppRoute('redeem'));
+      dispatch(setToNetwork(message.toChain));
     } catch (e) {
       console.error(e);
       setError(
         'Bridge transaction not found, check that you have the correct chain and transaction ID',
       );
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -108,13 +113,15 @@ function TxSearch() {
             <MenuItem disabled value="" key={0}>
               Select network
             </MenuItem>
-            {CHAINS_ARR.map((chain, i) => {
-              return (
-                <MenuItem value={chain.key} key={i + 1}>
-                  {chain.displayName}
-                </MenuItem>
-              );
-            })}
+            {CHAINS_ARR.filter((chain) => chain.key !== 'wormchain').map(
+              (chain, i) => {
+                return (
+                  <MenuItem value={chain.key} key={i + 1}>
+                    {chain.displayName}
+                  </MenuItem>
+                );
+              },
+            )}
           </Select>
         </div>
         <div className={classes.search}>
@@ -131,7 +138,7 @@ function TxSearch() {
       <AlertBanner show={!!error} content={error} error margin="0 0 16px 0" />
 
       <Button disabled={!state.chain || !state.tx} elevated onClick={search}>
-        Search
+        {loading ? <CircularProgress size={24} /> : 'Search'}
       </Button>
     </div>
   );

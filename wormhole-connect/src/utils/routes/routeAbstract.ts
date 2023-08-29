@@ -19,6 +19,11 @@ export interface TransferInfoBaseParams {
   txData: ParsedMessage | ParsedRelayerMessage;
 }
 
+export interface TransferDestInfoBaseParams {
+  txData: ParsedMessage | ParsedRelayerMessage;
+  receiveTx?: string;
+}
+
 export default abstract class RouteAbstract {
   abstract readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean;
   abstract readonly AUTOMATIC_DEPOSIT: boolean;
@@ -134,7 +139,7 @@ export default abstract class RouteAbstract {
   public abstract getTransferSourceInfo<T extends TransferInfoBaseParams>(
     params: T,
   ): Promise<TransferDisplayData>;
-  public abstract getTransferDestInfo<T extends TransferInfoBaseParams>(
+  public abstract getTransferDestInfo<T extends TransferDestInfoBaseParams>(
     params: T,
   ): Promise<TransferDisplayData>;
 

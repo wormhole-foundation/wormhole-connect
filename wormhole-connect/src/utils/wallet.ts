@@ -15,6 +15,11 @@ import {
   WalletConnectLegacyWallet,
 } from '@xlabs-libs/wallet-aggregator-evm';
 import {
+  CosmosTransaction,
+  CosmosWallet,
+  getWallets as getCosmosWallets,
+} from '@xlabs-libs/wallet-aggregator-cosmos';
+import {
   PhantomWalletAdapter,
   SolflareWalletAdapter,
   CloverWalletAdapter,
@@ -37,6 +42,10 @@ import {
 import { TransactionBlock } from '@mysten/sui.js';
 import { SolanaWallet } from '@xlabs-libs/wallet-aggregator-solana';
 import { SeiTransaction, SeiWallet } from '@xlabs-libs/wallet-aggregator-sei';
+import { wh } from './sdk';
+import { CHAINS, CHAINS_ARR, CONFIG } from '../config';
+import { getNetworkByChainId } from 'utils';
+import { WH_CONFIG } from '../config';
 import { AptosWallet } from '@xlabs-libs/wallet-aggregator-aptos';
 import { Types } from 'aptos';
 import {
@@ -51,10 +60,6 @@ import {
   SpikaWalletAdapter,
   WalletAdapterNetwork,
 } from '@manahippo/aptos-wallet-adapter';
-
-import { wh } from './sdk';
-import { CHAINS, CHAINS_ARR, WH_CONFIG } from 'config';
-import { getNetworkByChainId } from 'utils';
 
 export enum TransferWallet {
   SENDING = 'sending',
@@ -77,6 +82,21 @@ const tag = WH_CONFIG.env === 'MAINNET' ? 'mainnet-beta' : 'devnet';
 const connection = new SolanaConnection(
   WH_CONFIG.rpcs.solana || clusterApiUrl(tag),
 );
+
+const buildCosmosWallets = () => {
+  const rpcs = Object.keys(CONFIG.rpcs).reduce((acc, k) => {
+    const conf = CHAINS[k as ChainName];
+    if (conf?.chainId && conf?.context === Context.COSMOS) {
+      acc[conf.chainId] = CONFIG.rpcs[k as ChainName]!;
+    }
+    return acc;
+  }, {} as Record<string, string>);
+
+  return getCosmosWallets(rpcs).reduce((acc, w) => {
+    acc[w.getName()] = w;
+    return acc;
+  }, {} as Record<string, Wallet>);
+};
 
 export const wallets = {
   evm: {
@@ -115,6 +135,7 @@ export const wallets = {
     ),
     bitkeep: new AptosWallet(new BitkeepWalletAdapter()),
   },
+  cosmos: buildCosmosWallets(),
 };
 
 export const walletAcceptedNetworks = (
@@ -244,6 +265,27 @@ export const signSeiTransaction = async (
   return result;
 };
 
+export const signCosmosTransaction = async (
+  transaction: CosmosTransaction,
+  walletType: TransferWallet,
+) => {
+  const wallet = walletConnection[walletType];
+  if (!wallet || !wallet.signAndSendTransaction) {
+    throw new Error('wallet.signAndSendTransaction is undefined');
+  }
+
+  const cosmosWallet = wallet as CosmosWallet;
+  const result = await cosmosWallet.signAndSendTransaction(transaction);
+
+  if (result.data?.code) {
+    throw new Error(
+      `Cosmos transaction failed with code ${result.data.code}. Log: ${result.data.rawLog}`,
+    );
+  }
+
+  return result;
+};
+
 export const signAndSendTransaction = async (
   chain: ChainName,
   transaction: SendResult,
@@ -288,8 +330,15 @@ export const signAndSendTransaction = async (
       );
       return tx.id;
     }
+    case Context.COSMOS: {
+      const tx = await signCosmosTransaction(
+        transaction as CosmosTransaction,
+        walletType,
+      );
+      return tx.id;
+    }
     default:
-      return '';
+      throw new Error(`Invalid context ${network.context}`);
   }
 };
 

@@ -23,6 +23,8 @@ import {
   WormholeConfig,
 } from './types';
 import { SeiContext } from './contexts/sei';
+import DEVNET_CONFIG, { DEVNET_CHAINS } from './config/DEVNET';
+import { CosmosContext } from './contexts/cosmos';
 
 /**
  * The WormholeContext manages connections to Wormhole Core, Bridge and NFT Bridge contracts.
@@ -53,7 +55,6 @@ import { SeiContext } from './contexts/sei';
  * )
  */
 export class WormholeContext extends MultiProvider<Domain> {
-  protected _contexts: Map<Context, AnyContext>;
   readonly conf: WormholeConfig;
 
   constructor(env: Environment, conf?: WormholeConfig) {
@@ -62,15 +63,8 @@ export class WormholeContext extends MultiProvider<Domain> {
     if (conf) {
       this.conf = conf;
     } else {
-      this.conf = env === 'MAINNET' ? MAINNET_CONFIG : TESTNET_CONFIG;
+      this.conf = WormholeContext.getConfig(env);
     }
-
-    this._contexts = new Map();
-    this._contexts.set(Context.ETH, new EthContext(this));
-    this._contexts.set(Context.SOLANA, new SolanaContext(this));
-    this._contexts.set(Context.SUI, new SuiContext(this));
-    this._contexts.set(Context.APTOS, new AptosContext(this));
-    this._contexts.set(Context.SEI, new SeiContext(this));
 
     this.registerProviders();
   }
@@ -86,9 +80,13 @@ export class WormholeContext extends MultiProvider<Domain> {
     for (const network of Object.keys(this.conf.rpcs)) {
       const n = network as ChainName;
       const chains =
-        this.conf.env === 'MAINNET' ? MAINNET_CHAINS : TESTNET_CHAINS;
+        this.conf.env === 'MAINNET'
+          ? MAINNET_CHAINS
+          : this.conf.env === 'DEVNET'
+          ? DEVNET_CHAINS
+          : TESTNET_CHAINS;
       const chainConfig = (chains as any)[n];
-      if (!chainConfig) throw new Error('invalid network name');
+      if (!chainConfig) throw new Error(`invalid network name ${n}`);
       // register domain
       this.registerDomain({
         // @ts-ignore
@@ -167,6 +165,9 @@ export class WormholeContext extends MultiProvider<Domain> {
       case Context.SEI: {
         return new SeiContext(this);
       }
+      case Context.COSMOS: {
+        return new CosmosContext(this, chainName);
+      }
       default: {
         throw new Error('Not able to retrieve context');
       }
@@ -230,9 +231,10 @@ export class WormholeContext extends MultiProvider<Domain> {
   async getNativeBalance(
     walletAddress: string,
     chain: ChainName | ChainId,
+    asset?: string,
   ): Promise<BigNumber> {
     const context = this.getContext(chain);
-    return await context.getNativeBalance(walletAddress, chain);
+    return await context.getNativeBalance(walletAddress, chain, asset);
   }
 
   /**
@@ -441,6 +443,10 @@ export class WormholeContext extends MultiProvider<Domain> {
    * @returns A Wormhole Config
    */
   static getConfig(env: Environment): WormholeConfig {
-    return env === 'MAINNET' ? MAINNET_CONFIG : TESTNET_CONFIG;
+    return env === 'MAINNET'
+      ? MAINNET_CONFIG
+      : env === 'DEVNET'
+      ? DEVNET_CONFIG
+      : TESTNET_CONFIG;
   }
 }

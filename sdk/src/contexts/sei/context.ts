@@ -14,21 +14,21 @@ import { EncodeObject, decodeTxRaw } from '@cosmjs/proto-signing';
 import {
   Coin,
   IndexedTx,
-  SearchTxFilter,
   StdFee,
   calculateFee,
   logs as cosmosLogs,
 } from '@cosmjs/stargate';
+import axios from 'axios';
 import base58 from 'bs58';
 import { MsgExecuteContract } from 'cosmjs-types/cosmwasm/wasm/v1/tx';
 import { BigNumber, BigNumberish } from 'ethers';
 import {
   arrayify,
   base64,
-  hexlify,
-  zeroPad,
   hexStripZeros,
+  hexlify,
   keccak256,
+  zeroPad,
 } from 'ethers/lib/utils';
 import {
   ChainId,
@@ -40,12 +40,11 @@ import {
   TokenId,
   VaaInfo,
 } from '../../types';
+import { stripHexPrefix } from '../../utils';
 import { WormholeContext } from '../../wormhole';
 import { TokenBridgeAbstract } from '../abstracts/tokenBridge';
-import { SeiContracts } from './contracts';
 import { SolanaContext } from '../solana';
-import axios from 'axios';
-import { stripHexPrefix } from '../../utils';
+import { SeiContracts } from './contracts';
 
 interface WrappedRegistryResponse {
   address: string;
@@ -143,7 +142,6 @@ export class SeiContext<
 > extends TokenBridgeAbstract<SeiTransaction> {
   readonly type = Context.SEI;
   readonly contracts: SeiContracts<T>;
-  readonly context: T;
 
   private wasmClient?: CosmWasmClient;
 
@@ -151,10 +149,9 @@ export class SeiContext<
   private readonly CHAIN = 'sei';
   private readonly REDEEM_EVENT_DEFAULT_MAX_BLOCKS = 2000;
 
-  constructor(context: T) {
+  constructor(protected readonly context: T) {
     super();
     this.contracts = new SeiContracts<T>(context);
-    this.context = context;
   }
 
   async send(
@@ -835,29 +832,15 @@ export class SeiContext<
   ) {
     const client = await this.getCosmWasmClient();
 
-    let filters: SearchTxFilter | undefined = undefined;
-    if (maxBlocks) {
-      const height = await client.getHeight();
-      filters = {
-        minHeight: height - maxBlocks,
-        maxHeight: height,
-      };
-    }
-
     // there is no direct way to find the transaction through the chain/emitter/sequence identificator
     // so we need to search for all the transactions that completed a transfer
     // and pick out the one which has a VAA parameter that matches the chain/emitter/sequence we need
-    const txs = await client.searchTx(
+    const txs = await client.searchTx([
       {
-        tags: [
-          {
-            key: 'wasm.action',
-            value: 'complete_transfer_wrapped',
-          },
-        ],
+        key: 'wasm.action',
+        value: 'complete_transfer_wrapped',
       },
-      filters,
-    );
+    ]);
     for (const tx of txs) {
       const decoded = decodeTxRaw(tx.tx);
       for (const msg of decoded.body.messages) {
