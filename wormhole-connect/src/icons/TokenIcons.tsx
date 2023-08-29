@@ -22,6 +22,8 @@ import MATIC from './Tokens/MATIC';
 import BSC from './Tokens/BSC';
 import USDC from './Tokens/USDC';
 import noIcon from './Tokens/noIcon';
+import ARBITRUM from './Tokens/ARBITRUM';
+import OPTIMISM from './Tokens/OPTIMISM';
 
 const useStyles = makeStyles<{ size: number }>()((theme, { size }) => ({
   container: {
@@ -84,6 +86,12 @@ export const getIcon = (icon: Icon) => {
     }
     case Icon.APT: {
       return APT;
+    }
+    case Icon.ARBITRUM: {
+      return ARBITRUM;
+    }
+    case Icon.OPTIMISM: {
+      return OPTIMISM;
     }
     case Icon.SEI: {
       return SEI;
