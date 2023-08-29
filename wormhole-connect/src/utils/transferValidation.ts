@@ -93,9 +93,10 @@ export const validateAmount = (
   const numAmount = Number.parseFloat(amount);
   if (!numAmount) return 'Enter an amount';
   if (numAmount <= 0) return 'Amount must be greater than 0';
-  if (!balance) return '';
-  const b = Number.parseFloat(balance);
-  if (numAmount > b) return 'Amount cannot exceed balance';
+  if (balance) {
+    const b = Number.parseFloat(balance);
+    if (numAmount > b) return 'Amount cannot exceed balance';
+  }
   if (route === Route.BRIDGE) return '';
   if (!minAmt) return '';
   if (numAmount < minAmt) return `Minimum amount is ${minAmt}`;
@@ -139,7 +140,7 @@ export const validateRoute = (
   route: Route,
   relayAvailable: boolean,
 ): ValidationErr => {
-  if (route !== Route.RELAY) return '';
+  if (route !== Route.RELAY && route !== Route.CCTPRelay) return '';
   if (!relayAvailable)
     return 'Single transaction payment not available for this transfer';
   return '';
@@ -200,7 +201,7 @@ export const validateAll = async (
   } = transferData;
   const { maxSwapAmt, toNativeToken, relayerFee } = relayData;
   const { sending, receiving } = walletData;
-  const isAutomatic = route === Route.RELAY;
+  const isAutomatic = route === Route.RELAY || route === Route.CCTPRelay;
   const minAmt = getMinAmount(isAutomatic, toNativeToken, relayerFee);
   const baseValidations = {
     sendingWallet: await validateWallet(sending, fromNetwork),

@@ -43,7 +43,7 @@ export const CONFIG =
     ? CONF.DEVNET
     : CONF.TESTNET;
 
-export const WORMHOLE_EXPLORER = 'https://wormhole.com/explorer/';
+export const WORMSCAN = 'https://wormholescan.io/#/';
 export const WORMHOLE_API =
   ENV === 'MAINNET'
     ? 'https://api.wormholescan.io/'

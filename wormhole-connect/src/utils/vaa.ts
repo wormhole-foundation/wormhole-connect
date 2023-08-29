@@ -59,6 +59,8 @@ export function getEmitterAndSequence(
   if (!emitterChain || !emitterChain.id) {
     throw new Error('invalid emitter chain');
   }
+  if (!txData.emitterAddress) throw Error('No vaa emitter address');
+  if (!txData.sequence) throw Error('No vaa sequence');
   const emitterAddress = txData.emitterAddress.startsWith('0x')
     ? txData.emitterAddress.slice(2)
     : txData.emitterAddress;
@@ -210,7 +212,6 @@ export const fetchGlobalTx = async (
   const { emitterChain, emitterAddress, sequence } = messageId;
 
   const url = `${WORMHOLE_STAGING_API}api/v1/global-tx/${emitterChain}/${emitterAddress}/${sequence}`;
-
   return axios
     .get(url)
     .then(function (response: any) {

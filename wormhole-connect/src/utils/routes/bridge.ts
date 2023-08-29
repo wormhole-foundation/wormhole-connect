@@ -22,6 +22,7 @@ import {
   TransferDestInfoBaseParams,
   TransferInfoBaseParams,
 } from './routeAbstract';
+import { hexlify } from 'ethers/lib/utils.js';
 
 export interface BridgePreviewParams {
   destToken: TokenConfig;
@@ -33,6 +34,8 @@ export interface BridgePreviewParams {
 }
 
 export class BridgeRoute extends BaseRoute {
+  NATIVE_GAS_DROPOFF_SUPPORTED = false;
+
   async isRouteAvailable(
     sourceToken: string,
     destToken: string,
@@ -292,7 +295,7 @@ export class BridgeRoute extends BaseRoute {
     const token = TOKENS[txData.tokenKey];
     const { gasToken } = CHAINS[txData.toChain]!;
 
-    const gas = await calculateGas(txData.toChain, receiveTx);
+    const gas = await calculateGas(txData.toChain, Route.BRIDGE, receiveTx);
 
     const formattedAmt = toNormalizedDecimals(
       txData.amount,
@@ -315,9 +318,23 @@ export class BridgeRoute extends BaseRoute {
     destChain: ChainName | ChainId,
     messageInfo: VaaInfo,
   ): Promise<boolean> {
-    return wh.isTransferCompleted(
-      destChain,
-      Buffer.from(messageInfo.rawVaa).toString('hex'),
-    );
+    return wh.isTransferCompleted(destChain, hexlify(messageInfo.rawVaa));
+  }
+
+  async nativeTokenAmount(
+    destChain: ChainName | ChainId,
+    token: TokenId,
+    amount: BigNumber,
+    walletAddress: string,
+  ): Promise<BigNumber> {
+    throw new Error('Not implemented');
+  }
+
+  async maxSwapAmount(
+    destChain: ChainName | ChainId,
+    token: TokenId,
+    walletAddress: string,
+  ): Promise<BigNumber> {
+    throw new Error('Not implemented');
   }
 }

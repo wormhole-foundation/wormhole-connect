@@ -119,4 +119,24 @@ export class CosmosContracts<
       );
     return relayer;
   }
+
+  /**
+   * Returns wormhole CCTP relayer contract for the chain
+   *
+   * @returns An interface for the Wormhole CCTP relayer contract, undefined if not found
+   */
+  getWormholeCircleRelayer(chain: ChainName | ChainId) {
+    return undefined;
+  }
+
+  /**
+   * Returns wormhole CCTP relayer contract for the chain
+   *
+   * @returns An interface for the Wormhole CCTP relayer contract, errors if not found
+   */
+  mustGetWormholeCircleRelayer(chain: ChainName | ChainId) {
+    throw new Error(
+      `Wormhole circle relayer contract for domain ${chain} not found`,
+    );
+  }
 }

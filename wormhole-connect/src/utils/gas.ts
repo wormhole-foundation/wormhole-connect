@@ -10,10 +10,11 @@ import { BigNumber } from 'ethers';
 import { CHAINS, CONFIG, GAS_ESTIMATES, TOKENS } from '../config';
 import { MAX_DECIMALS, getTokenDecimals } from './index';
 import { toDecimals } from './balance';
-import { estimateClaimGasFees } from './gasEstimates';
+import Operator from './routes';
 import { toChainId, wh } from './sdk';
 import { isCosmWasmChain } from './cosmos';
 import { StargateClient } from '@cosmjs/stargate';
+import { Route } from 'store/transferInput';
 
 /**
  * Retrieve the gas used for the execution of a redeem transaction
@@ -23,7 +24,11 @@ import { StargateClient } from '@cosmjs/stargate';
  * @param receiveTx The transaction's id
  * @returns
  */
-export const calculateGas = async (chain: ChainName, receiveTx?: string) => {
+export const calculateGas = async (
+  chain: ChainName,
+  route: Route,
+  receiveTx?: string,
+) => {
   const { gasToken } = CHAINS[chain]!;
   const token = TOKENS[gasToken];
   const decimals = getTokenDecimals(toChainId(chain), token.tokenId);
@@ -73,5 +78,5 @@ export const calculateGas = async (chain: ChainName, receiveTx?: string) => {
       return toDecimals(gasFee, decimals, MAX_DECIMALS);
     }
   }
-  return await estimateClaimGasFees(chain);
+  return await new Operator().estimateClaimGas(route, chain);
 };

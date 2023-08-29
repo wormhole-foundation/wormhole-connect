@@ -15,6 +15,8 @@ export enum Route {
   RELAY = PayloadType.AUTOMATIC, // 3
   HASHFLOW = 10,
   COSMOS_GATEWAY = 11,
+  CCTPManual = 12,
+  CCTPRelay = 13,
 }
 
 export type Balances = { [key: string]: string | null };
@@ -218,13 +220,19 @@ export const transferInputSlice = createSlice({
     ) => {
       state.associatedTokenAddress = payload;
     },
-    enableAutomaticTransfer: (state: TransferInputState) => {
+    enableAutomaticTransferAndSetRoute: (
+      state: TransferInputState,
+      { payload }: PayloadAction<Route>,
+    ) => {
       state.automaticRelayAvail = true;
-      state.route = Route.RELAY;
+      state.route = payload;
     },
-    disableAutomaticTransfer: (state: TransferInputState) => {
+    disableAutomaticTransferAndSetRoute: (
+      state: TransferInputState,
+      { payload }: PayloadAction<Route>,
+    ) => {
       state.automaticRelayAvail = false;
-      state.route = Route.BRIDGE;
+      state.route = payload;
     },
     setTransferRoute: (
       state: TransferInputState,
@@ -329,8 +337,8 @@ export const {
   clearBalances,
   setForeignAsset,
   setAssociatedTokenAddress,
-  enableAutomaticTransfer,
-  disableAutomaticTransfer,
+  enableAutomaticTransferAndSetRoute,
+  disableAutomaticTransferAndSetRoute,
   setTransferRoute,
   setManualGasEst,
   setAutomaticGasEst,

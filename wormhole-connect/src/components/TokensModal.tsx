@@ -385,8 +385,10 @@ function TokensModal(props: Props) {
 
   useEffect(() => {
     // get tokens that exist on the chain and have a balance greater than 0
+    // if token is USDC, only show native ones
     const filtered = supportedTokens.filter((t) => {
       if (!t.tokenId && t.nativeNetwork !== network) return false;
+      if (t.symbol === 'USDC' && t.nativeNetwork !== network) return false;
       if (type === 'dest') return true;
       const b = tokenBalances[t.key];
       const isNullBalance = b !== null && b !== '0';

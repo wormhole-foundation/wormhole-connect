@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { RootState } from '../../store';
 import { LINK } from '../../utils/style';
-import { CHAINS, WORMHOLE_EXPLORER } from '../../config';
+import { CHAINS, WORMSCAN, isMainnet } from '../../config';
 import InputContainer from '../../components/InputContainer';
 import ArrowRight from '../../icons/ArrowRight';
 import LaunchIcon from '@mui/icons-material/Launch';
@@ -36,12 +36,18 @@ function NetworksTag() {
   const fromNetworkConfig = CHAINS[txData.fromChain]!;
   const toNetworkConfig = CHAINS[txData.toChain]!;
 
-  const emitterAddress = txData.emitterAddress.startsWith('0x')
-    ? txData.emitterAddress.slice(2)
-    : txData.emitterAddress;
+  const emitterAddress = txData.emitterAddress
+    ? txData.emitterAddress.startsWith('0x')
+      ? txData.emitterAddress.slice(2)
+      : txData.emitterAddress
+    : undefined;
   const link =
     txData &&
-    `${WORMHOLE_EXPLORER}?emitterChain=${fromNetworkConfig.id}&emitterAddress=${emitterAddress}&sequence=${txData.sequence}`;
+    txData.emitterAddress &&
+    txData.sequence &&
+    `${WORMSCAN}tx/${fromNetworkConfig.id}/${emitterAddress}/${
+      txData.sequence
+    }${isMainnet ? '' : '?network=TESTNET'}`;
 
   return (
     <div>
@@ -58,7 +64,7 @@ function NetworksTag() {
           </div>
         </div>
       </InputContainer>
-      {txData && (
+      {txData && link && (
         <a
           className={classes.link}
           href={link}

@@ -2,7 +2,10 @@ import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useTheme } from '@mui/material/styles';
 import { RootState } from '../../store';
-import { disableAutomaticTransfer, Route } from '../../store/transferInput';
+import {
+  disableAutomaticTransferAndSetRoute,
+  Route,
+} from '../../store/transferInput';
 import { setRelayerFee } from '../../store/relay';
 import { CHAINS, TOKENS } from '../../config';
 import { getTokenDecimals } from '../../utils';
@@ -55,7 +58,10 @@ function Preview(props: { collapsed: boolean }) {
         sourceGasToken: sourceConfig.gasToken,
         destinationGasToken: destConfig.gasToken,
         amount: numReceiveAmount,
-        sendingGasEst: route === Route.RELAY ? gasEst.automatic : gasEst.manual,
+        sendingGasEst:
+          route === Route.RELAY || route === Route.CCTPRelay
+            ? gasEst.automatic
+            : gasEst.manual,
         destGasEst: gasEst.claim,
 
         // relay params
@@ -104,7 +110,11 @@ function Preview(props: { collapsed: boolean }) {
         dispatch(setRelayerFee(formattedFee));
       } catch (e) {
         if (e.message.includes('swap rate not set')) {
-          dispatch(disableAutomaticTransfer());
+          if (route === Route.CCTPRelay) {
+            dispatch(disableAutomaticTransferAndSetRoute(Route.CCTPManual));
+          } else {
+            dispatch(disableAutomaticTransferAndSetRoute(Route.BRIDGE));
+          }
         } else {
           throw e;
         }

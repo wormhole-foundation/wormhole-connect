@@ -77,4 +77,21 @@ export abstract class ContractsAbstract<T extends WormholeContext> {
    * @returns The Token Bridge Relayer contract interface
    */
   protected abstract mustGetTokenBridgeRelayer(chain: ChainName | ChainId): any;
+  /**
+   * Get the Wormhole CCTP Relayer contract interface
+   * @param chain The name or ID of a supported chain
+   * @returns The Token Bridge Relayer contract interface or undefined
+   */
+  protected abstract getWormholeCircleRelayer(
+    chain: ChainName | ChainId,
+  ): any | undefined;
+  /**
+   * Get the Wormhole CCTP Relayer contract interface
+   * @param chain The name or ID of a supported chain
+   * @throws Errors if the contract doesn't exist
+   * @returns The Token Bridge Relayer contract interface
+   */
+  protected abstract mustGetWormholeCircleRelayer(
+    chain: ChainName | ChainId,
+  ): any;
 }

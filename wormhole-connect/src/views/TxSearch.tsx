@@ -74,8 +74,9 @@ function TxSearch() {
         route,
         state.tx,
         state.chain as ChainName,
+        true, // don't need to get the signed attestation
       );
-      const message = await operator.parseMessage(route, messageInfo);
+      const message = await operator.parseMessage(route, messageInfo!);
       setError('');
       dispatch(setTxDetails(message));
       dispatch(setRedeemRoute(route));

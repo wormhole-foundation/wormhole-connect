@@ -81,9 +81,7 @@ interface GatewayVaaInfo<T extends VaaSourceTransaction = any>
   sourceChainTx: string;
   sourceChainSender: string;
 }
-function isGatewayVaaInfo(
-  info: VaaInfo | GatewayVaaInfo,
-): info is GatewayVaaInfo {
+function isGatewayVaaInfo(info: MessageInfo): info is GatewayVaaInfo {
   return (info as GatewayVaaInfo).sourceChain !== undefined;
 }
 
@@ -385,6 +383,10 @@ export class CosmosGatewayRoute extends BaseRoute {
     messageInfo: MessageInfo,
     recipient: string,
   ): Promise<string> {
+    if (!isGatewayVaaInfo(messageInfo)) {
+      throw new Error('Message information is not for a gateway transfer');
+    }
+
     const vaa = Buffer.from(messageInfo.rawVaa).toString('base64');
     const msg: MsgExecuteContractEncodeObject = {
       typeUrl: '/cosmwasm.wasm.v1.MsgExecuteContract',
@@ -414,6 +416,10 @@ export class CosmosGatewayRoute extends BaseRoute {
     messageInfo: MessageInfo,
     recipient: string,
   ): Promise<string> {
+    if (!isGatewayVaaInfo(messageInfo)) {
+      throw new Error('Message information is not for a gateway transfer');
+    }
+
     const chain = wh.toChainId(destChain);
 
     if (isCosmWasmChain(chain)) {
@@ -714,7 +720,11 @@ export class CosmosGatewayRoute extends BaseRoute {
     const token = TOKENS[txData.tokenKey];
     const { gasToken } = CHAINS[txData.toChain]!;
 
-    const gas = await calculateGas(txData.toChain, receiveTx);
+    const gas = await calculateGas(
+      txData.toChain,
+      Route.COSMOS_GATEWAY,
+      receiveTx,
+    );
 
     const formattedAmt = toNormalizedDecimals(
       txData.amount,
@@ -731,5 +741,22 @@ export class CosmosGatewayRoute extends BaseRoute {
         value: gas ? `${gas} ${gasToken}` : '—',
       },
     ];
+  }
+
+  nativeTokenAmount(
+    destChain: ChainId | ChainName,
+    token: TokenId,
+    amount: BigNumber,
+    walletAddress: string,
+  ): Promise<BigNumber> {
+    throw new Error('Native gas drop-off not supported by this route');
+  }
+
+  maxSwapAmount(
+    destChain: ChainId | ChainName,
+    token: TokenId,
+    walletAddress: string,
+  ): Promise<BigNumber> {
+    throw new Error('Native gas drop-off not supported by this route');
   }
 }

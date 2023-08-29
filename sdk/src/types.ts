@@ -48,6 +48,12 @@ export type Contracts = {
   token_bridge?: string;
   nft_bridge?: string;
   relayer?: string;
+  cctpContracts?: {
+    cctpTokenMessenger: string;
+    cctpMessageTransmitter: string;
+    wormholeCCTP?: string;
+    wormholeCircleRelayer?: string;
+  };
   suiOriginalTokenBridgePackageId?: string;
   suiRelayerPackageId?: string;
   seiTokenTranslator?: string;
@@ -61,6 +67,7 @@ export type ChainConfig = {
   contracts: Contracts;
   finalityThreshold: number;
   nativeTokenDecimals: number;
+  cctpDomain?: number;
 };
 
 export type WormholeConfig = {
@@ -144,3 +151,26 @@ export interface VaaInfo<T extends VaaSourceTransaction = any> {
   rawVaa: SignedVaa;
   vaa: ParsedVaa;
 }
+
+export type CCTPInfo = {
+  fromChain: ChainName;
+  transactionHash: string;
+  blockNumber: number;
+  gasUsed: string;
+  effectiveGasPrice: string;
+  burnToken: string;
+  depositor: string;
+  amount: BigNumber;
+  recipient: string;
+  destinationDomain: number;
+  destinationTokenMessenger: string;
+  destinationCaller: string;
+  message: string;
+  messageHash: string;
+  signedAttestation?: string;
+  relayerPayloadId?: number;
+  relayerFee?: string;
+  toNativeTokenAmount?: string;
+  vaaEmitter?: string;
+  vaaSequence?: string;
+};

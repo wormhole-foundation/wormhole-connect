@@ -6,8 +6,8 @@ import { useDispatch } from 'react-redux';
 import { RootState } from '../../store';
 import {
   setReceiverNativeBalance,
-  enableAutomaticTransfer,
-  disableAutomaticTransfer,
+  enableAutomaticTransferAndSetRoute,
+  disableAutomaticTransferAndSetRoute,
   Route,
   setReceiveAmount,
   setDestToken,
@@ -15,6 +15,7 @@ import {
   setSupportedSourceTokens,
   setSupportedDestTokens,
   setTransferRoute,
+  TransferInputState,
 } from '../../store/transferInput';
 import { wh, isAcceptedToken, toChainId } from '../../utils/sdk';
 import { CHAINS, TOKENS, TOKENS_ARR } from '../../config';
@@ -35,6 +36,7 @@ import { joinClass } from '../../utils/style';
 import SwapNetworks from './SwapNetworks';
 import RouteOptions from './RouteOptions';
 import Operator from '../../utils/routes';
+import { listOfRoutes } from '../../utils/routes/operator';
 import { TokenConfig } from '../../config/types';
 import { isCosmWasmChain } from '../../utils/cosmos';
 
@@ -58,6 +60,10 @@ const useStyles = makeStyles()((theme) => ({
     width: '100%',
   },
 }));
+
+function getUniqueTokens(arr: TokenConfig[]) {
+  return arr.filter((t, i) => arr.findIndex((_t) => _t.key === t.key) === i);
+}
 
 function isSupportedToken(
   token: string,
@@ -83,7 +89,9 @@ function Bridge() {
     associatedTokenAddress,
     isTransactionInProgress,
     amount,
-  } = useSelector((state: RootState) => state.transferInput);
+  }: TransferInputState = useSelector(
+    (state: RootState) => state.transferInput,
+  );
   const { toNativeToken, relayerFee } = useSelector(
     (state: RootState) => state.relay,
   );
@@ -110,10 +118,23 @@ function Bridge() {
   useEffect(() => {
     const computeSrcTokens = async () => {
       const operator = new Operator();
-      const supported =
-        // the user should be able to pick any source token
-        await operator.supportedSourceTokens(route, TOKENS_ARR, undefined);
 
+      // Get all possible source tokens over all routes
+      const supported = getUniqueTokens(
+        (
+          await Promise.all(
+            listOfRoutes.map((r) => {
+              const returnedTokens = operator.supportedSourceTokens(
+                r,
+                TOKENS_ARR,
+                undefined,
+                fromNetwork,
+              );
+              return returnedTokens;
+            }),
+          )
+        ).reduce((a, b) => a.concat(b), []),
+      );
       dispatch(setSupportedSourceTokens(supported));
       const selectedIsSupported = isSupportedToken(token, supported);
       if (!selectedIsSupported) {
@@ -131,12 +152,23 @@ function Bridge() {
   useEffect(() => {
     const computeDestTokens = async () => {
       const operator = new Operator();
-      const supported = await operator.supportedDestTokens(
-        route,
-        TOKENS_ARR,
-        TOKENS[token],
-      );
 
+      // Get all possible destination tokens over all routes, given the source token
+      const supported = getUniqueTokens(
+        (
+          await Promise.all(
+            listOfRoutes.map((r) =>
+              operator.supportedDestTokens(
+                r,
+                TOKENS_ARR,
+                TOKENS[token],
+                fromNetwork,
+                toNetwork,
+              ),
+            ),
+          )
+        ).reduce((a, b) => a.concat(b)),
+      );
       dispatch(setSupportedDestTokens(supported));
       const selectedIsSupported = isSupportedToken(destToken, supported);
       if (!selectedIsSupported) {
@@ -145,11 +177,26 @@ function Bridge() {
       if (supported.length === 1) {
         dispatch(setDestToken(supported[0].key));
       }
+
+      // If all the supported tokens are the same token
+      // select the native version
+      const symbols = supported.map((t) => t.symbol);
+      if (toNetwork && symbols.every((s) => s === symbols[0])) {
+        const key = supported.find(
+          (t) =>
+            t.symbol === symbols[0] &&
+            t.nativeNetwork === t.tokenId?.chain &&
+            t.nativeNetwork === toNetwork,
+        )?.key;
+        if (key) {
+          dispatch(setDestToken(key));
+        }
+      }
     };
     computeDestTokens();
     // IMPORTANT: do not include destToken in dependency array
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [route, token, dispatch]);
+  }, [route, token, fromNetwork, toNetwork, dispatch]);
 
   // check if automatic relay option is available
   useEffect(() => {
@@ -164,26 +211,54 @@ function Bridge() {
         return;
       }
 
-      if (!fromNetwork || !toNetwork || !token) return;
+      if (!fromNetwork || !toNetwork || !token || !destToken) return;
+      const cctpAvailable = await new Operator().isRouteAvailable(
+        Route.CCTPRelay,
+        token,
+        destToken,
+        amount,
+        fromNetwork,
+        toNetwork,
+      );
+      if (cctpAvailable) {
+        dispatch(enableAutomaticTransferAndSetRoute(Route.CCTPRelay));
+        return;
+      }
+
+      const cctpManualAvailable = await new Operator().isRouteAvailable(
+        Route.CCTPManual,
+        token,
+        destToken,
+        amount,
+        fromNetwork,
+        toNetwork,
+      );
+      if (cctpManualAvailable) {
+        dispatch(disableAutomaticTransferAndSetRoute(Route.CCTPManual));
+        return;
+      }
+
+      // The code below should maybe be rewritten to use isRouteAvailable!
       const fromConfig = CHAINS[fromNetwork]!;
       const toConfig = CHAINS[toNetwork]!;
-
-      // check if automatic relay option is available
       if (fromConfig.automaticRelayer && toConfig.automaticRelayer) {
-        const tokenConfig = TOKENS[token]!;
-        const tokenId = getWrappedTokenId(tokenConfig);
-        const accepted = await isAcceptedToken(tokenId);
-        if (accepted) {
-          dispatch(enableAutomaticTransfer());
-        } else {
-          dispatch(disableAutomaticTransfer());
-        }
+        const isTokenAcceptedForRelay = async () => {
+          const tokenConfig = TOKENS[token]!;
+          const tokenId = getWrappedTokenId(tokenConfig);
+          const accepted = await isAcceptedToken(tokenId);
+          if (accepted) {
+            dispatch(enableAutomaticTransferAndSetRoute(Route.RELAY));
+          } else {
+            dispatch(disableAutomaticTransferAndSetRoute(Route.BRIDGE));
+          }
+        };
+        isTokenAcceptedForRelay();
       } else {
-        dispatch(disableAutomaticTransfer());
+        dispatch(disableAutomaticTransferAndSetRoute(Route.BRIDGE));
       }
     };
     establishRoute();
-  }, [fromNetwork, toNetwork, token, dispatch]);
+  }, [fromNetwork, toNetwork, token, destToken, dispatch]);
 
   useEffect(() => {
     const recomputeReceive = async () => {
@@ -217,11 +292,10 @@ function Bridge() {
     dispatch,
   ]);
   const valid = isTransferValid(validations);
-
   const disabled = !valid || isTransactionInProgress;
-  const showGasSlider = automaticRelayAvail && route === Route.RELAY;
+  const showGasSlider =
+    automaticRelayAvail && (route === Route.RELAY || route === Route.CCTPRelay);
   const showHashflowRoute = route === Route.HASHFLOW;
-
   return (
     <div className={joinClass([classes.bridgeContent, classes.spacer])}>
       <PageHeader title="Bridge" />

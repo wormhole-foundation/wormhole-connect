@@ -3,6 +3,7 @@ import {
   ChainName,
   ChainId,
   VaaInfo,
+  CCTPInfo,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { TokenConfig } from 'config/types';
 import { ParsedMessage, ParsedRelayerMessage } from '../sdk';
@@ -11,7 +12,7 @@ import { BigNumber } from 'ethers';
 
 // As more routes are added, more types should be added here (e.g. MessageInfo = ParsedVaa | DifferentRouteInfoStruct | ..)
 // This struct contains information needed to redeem the transfer
-export type MessageInfo = VaaInfo;
+export type MessageInfo = VaaInfo | CCTPInfo;
 
 export interface TransferInfoBaseParams {
   txData: ParsedMessage | ParsedRelayerMessage;
@@ -38,19 +39,27 @@ export default abstract class RouteAbstract {
   public abstract isSupportedSourceToken(
     token: TokenConfig | undefined,
     destToken: TokenConfig | undefined,
+    sourceChain?: ChainName | ChainId,
+    destChain?: ChainName | ChainId,
   ): Promise<boolean>;
   public abstract isSupportedDestToken(
     token: TokenConfig | undefined,
     sourceToken: TokenConfig | undefined,
+    sourceChain?: ChainName | ChainId,
+    destChain?: ChainName | ChainId,
   ): Promise<boolean>;
 
   public abstract supportedSourceTokens(
     tokens: TokenConfig[],
     destToken?: TokenConfig,
+    sourceChain?: ChainName | ChainId,
+    destChain?: ChainName | ChainId,
   ): Promise<TokenConfig[]>;
   public abstract supportedDestTokens(
     tokens: TokenConfig[],
     sourceToken?: TokenConfig,
+    sourceChain?: ChainName | ChainId,
+    destChain?: ChainName | ChainId,
   ): Promise<TokenConfig[]>;
 
   // Calculate the amount a user would receive if sending a certain amount
@@ -148,10 +157,25 @@ export default abstract class RouteAbstract {
   abstract getMessageInfo(
     tx: string,
     chain: ChainName | ChainId,
-  ): Promise<MessageInfo>;
+    unsigned?: boolean,
+  ): Promise<MessageInfo | undefined>;
 
   abstract isTransferCompleted(
     destChain: ChainName | ChainId,
     messageInfo: MessageInfo,
   ): Promise<boolean>;
+
+  // swap information (native gas slider)
+  abstract nativeTokenAmount(
+    destChain: ChainName | ChainId,
+    token: TokenId,
+    amount: BigNumber,
+    walletAddress: string,
+  ): Promise<BigNumber>;
+
+  abstract maxSwapAmount(
+    destChain: ChainName | ChainId,
+    token: TokenId,
+    walletAddress: string,
+  ): Promise<BigNumber>;
 }
