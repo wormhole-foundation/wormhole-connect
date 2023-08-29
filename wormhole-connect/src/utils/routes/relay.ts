@@ -299,7 +299,7 @@ export class RelayRoute extends BridgeRoute {
         : `${sendingGasEst} ${sourceGasToken} & ${fee} ${token.symbol}`;
     }
 
-    const receiveAmt = this.computeReceiveAmount(amount, routeOptions);
+    const receiveAmt = await this.computeReceiveAmount(amount, routeOptions);
 
     return [
       {

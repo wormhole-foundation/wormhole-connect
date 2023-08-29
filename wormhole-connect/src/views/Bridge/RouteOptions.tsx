@@ -15,6 +15,7 @@ import { Chip, useMediaQuery, useTheme } from '@mui/material';
 import Operator from '../../utils/routes';
 import { listOfRoutes } from '../../utils/routes/operator';
 import { isTransferValid } from '../../utils/transferValidation';
+import { toFixedDecimals } from '../../utils/balance';
 
 const useStyles = makeStyles()((theme: any) => ({
   link: {
@@ -157,7 +158,7 @@ function RouteOption(props: { route: RouteData }) {
         Number.parseFloat(amount),
         { toNativeToken, relayerFee },
       );
-      setReceiveAmt(receiveAmt);
+      setReceiveAmt(Number.parseFloat(toFixedDecimals(`${receiveAmt}`, 6)));
     }
     load();
   }, [props.route, amount, toNativeToken, relayerFee]);

@@ -1,7 +1,7 @@
 import Slider, { SliderThumb } from '@mui/material/Slider';
 import { styled } from '@mui/material/styles';
 import { BigNumber, utils } from 'ethers';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { useDebounce } from 'use-debounce';
@@ -104,6 +104,7 @@ function GasSlider(props: { disabled: boolean }) {
   const { token, toNetwork, amount, route, destToken } = useSelector(
     (state: RootState) => state.transferInput,
   );
+  const amountNum = useMemo(() => Number.parseFloat(amount), [amount]);
   const { maxSwapAmt, relayerFee } = useSelector(
     (state: RootState) => state.relay,
   );
@@ -121,29 +122,29 @@ function GasSlider(props: { disabled: boolean }) {
   // set the actual max swap amount (checks if max swap amount is greater than the sending amount)
   useEffect(() => {
     if (
-      !amount ||
-      typeof amount !== 'number' ||
+      !amountNum ||
+      amountNum === 0 ||
       !maxSwapAmt ||
       (route !== Route.RELAY && route !== Route.CCTPRelay)
     )
       return;
 
     const min = getMinAmount(true, relayerFee, 0);
-    const amountWithoutRelayerFee = amount - min;
+    const amountWithoutRelayerFee = amountNum - min;
     const actualMaxSwap =
-      amount &&
+      amountNum &&
       maxSwapAmt &&
       Math.max(Math.min(maxSwapAmt, amountWithoutRelayerFee), 0);
 
-    const newTokenAmount = amount - state.swapAmt;
+    const newTokenAmount = amountNum - state.swapAmt;
 
     setState((prevState) => ({
       ...prevState,
-      disabled: amount <= min,
+      disabled: amountNum <= min,
       token: formatAmount(newTokenAmount),
       max: formatAmount(actualMaxSwap),
     }));
-  }, [maxSwapAmt, amount, route, state.swapAmt, relayerFee]);
+  }, [maxSwapAmt, amountNum, route, state.swapAmt, relayerFee]);
 
   useEffect(() => {
     if (
@@ -209,7 +210,6 @@ function GasSlider(props: { disabled: boolean }) {
   }
 
   const onCollapseChange = (collapsed: boolean) => {
-    console.log(collapsed);
     // user switched off conversion to native gas, so reset values
     if (collapsed) {
       setState((prevState) => ({
