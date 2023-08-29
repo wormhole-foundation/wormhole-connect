@@ -14,6 +14,7 @@ import { setTransferRoute, Route } from '../../store/transferInput';
 import { Chip } from '@mui/material';
 import Operator from '../../utils/routes';
 import { listOfRoutes } from '../../utils/routes/operator';
+import { isTransferValid } from '../../utils/transferValidation';
 
 const useStyles = makeStyles()((theme: any) => ({
   link: {
@@ -198,13 +199,16 @@ function RouteOptions() {
     toNetwork,
     amount,
     validate,
+    validations,
   } = useSelector((state: RootState) => state.transferInput);
   const onSelect = (value: Route) => {
     dispatch(setTransferRoute(value));
   };
 
   const availableRoutes = useMemo(() => {
-    if (!validate || !fromNetwork || !toNetwork) return listOfRoutes;
+    if (!validate) return listOfRoutes;
+    const valid = isTransferValid(validations);
+    if (!valid || !fromNetwork || !toNetwork) return listOfRoutes;
     let available: Route[] = [];
     listOfRoutes.forEach(async (r) => {
       const route = new Operator().getRoute(r);
@@ -220,7 +224,7 @@ function RouteOptions() {
       }
     });
     return available;
-  }, [token, destToken, amount, fromNetwork, toNetwork]);
+  }, [token, destToken, amount, fromNetwork, toNetwork, validate, validations]);
   console.log(availableRoutes);
 
   const onCollapseChange = (collapsed: boolean) => {

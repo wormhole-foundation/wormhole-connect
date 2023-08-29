@@ -332,7 +332,7 @@ function GasSlider(props: { disabled: boolean }) {
                     state.nativeGas,
                     nativeGasToken.symbol,
                     state.token,
-                    token,
+                    TOKENS[token].symbol,
                   )
                 }
                 valueLabelDisplay="auto"
