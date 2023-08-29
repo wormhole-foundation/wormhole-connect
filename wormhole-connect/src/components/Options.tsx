@@ -10,9 +10,7 @@ const useStyles = makeStyles()((theme: any) => ({
     borderBottomRightRadius: '8px',
   },
   option: {
-    // position: 'relative',
     width: '100%',
-    // padding: '16px',
     borderRadius: '0',
     backgroundColor: theme.palette.card.background,
     '&:last-child': {
