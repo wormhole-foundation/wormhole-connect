@@ -1,3 +1,5 @@
+import { BigNumber, utils, BytesLike, ethers } from 'ethers';
+import axios, { AxiosResponse } from 'axios';
 import {
   ChainId,
   ChainName,
@@ -8,17 +10,15 @@ import {
   MessageTransmitter__factory,
   CCTPInfo,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import axios, { AxiosResponse } from 'axios';
-import { CHAINS, TOKENS, TOKENS_ARR } from '../../config';
-import { TokenConfig } from '../../config/types';
-import { BigNumber, utils, BytesLike, ethers } from 'ethers';
+
+import { CHAINS, TOKENS, TOKENS_ARR, isMainnet } from 'config';
+import { TokenConfig } from 'config/types';
 import {
   MAX_DECIMALS,
   getTokenById,
   getTokenDecimals,
   toNormalizedDecimals,
-} from '../../utils';
-import { isMainnet } from '../../config';
+} from 'utils';
 import {
   ParsedMessage,
   ParsedRelayerMessage,
@@ -26,16 +26,16 @@ import {
   isEvmChain,
   toChainId,
   wh,
-} from '../../utils/sdk';
-import { calculateGas } from '../../utils/gas';
-import { TransferWallet, signAndSendTransaction } from '../../utils/wallet';
+} from 'utils/sdk';
+import { calculateGas } from 'utils/gas';
+import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
+import { NO_INPUT } from 'utils/style';
+import { Route } from 'store/transferInput';
 import { TransferDisplayData } from './types';
 import { BaseRoute } from './baseRoute';
 import { toDecimals, toFixedDecimals } from '../balance';
 import { TransferInfoBaseParams } from './routeAbstract';
 import { getGasFeeFallback } from '../gasEstimates';
-import { Route } from '../../store/transferInput';
-import { NO_INPUT } from 'utils/style';
 
 export const CCTPTokenSymbol = 'USDC';
 export const CCTPManual_CHAINS: ChainName[] = [

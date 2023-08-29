@@ -5,10 +5,11 @@ import {
   VaaInfo,
   CCTPInfo,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { TokenConfig } from '../../config/types';
+import { BigNumber } from 'ethers';
+
+import { TokenConfig } from 'config/types';
 import { ParsedMessage, ParsedRelayerMessage } from '../sdk';
 import { TransferDisplayData } from './types';
-import { BigNumber } from 'ethers';
 
 // As more routes are added, more types should be added here (e.g. MessageInfo = ParsedVaa | DifferentRouteInfoStruct | ..)
 // This struct contains information needed to redeem the transfer

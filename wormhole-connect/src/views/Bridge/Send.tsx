@@ -13,11 +13,14 @@ import {
   setRoute as setRedeemTransferRoute,
 } from '../../store/redeem';
 import { displayWalletAddress } from '../../utils';
+import { LINK } from '../../utils/style';
 import {
   registerWalletSigner,
   switchNetwork,
   TransferWallet,
 } from '../../utils/wallet';
+import { estimateClaimGasFees } from '../../utils/gasEstimates';
+import Operator, { MessageInfo } from '../../utils/routes';
 import { validate, isTransferValid } from '../../utils/transferValidation';
 import {
   setManualGasEst,
@@ -30,10 +33,6 @@ import Button from '../../components/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 import AlertBanner from '../../components/AlertBanner';
 import PoweredByIcon from '../../icons/PoweredBy';
-import { LINK } from '../../utils/style';
-import { estimateClaimGasFees } from '../../utils/gasEstimates';
-import Operator from '../../utils/routes';
-import { MessageInfo } from '../../utils/routes';
 
 const useStyles = makeStyles()((theme) => ({
   body: {

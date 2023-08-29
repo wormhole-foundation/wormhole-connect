@@ -7,9 +7,10 @@ import {
   VaaInfo,
   CCTPInfo,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { CHAINS, TOKENS } from '../../config';
-import { TokenConfig } from '../../config/types';
 import { BigNumber, utils } from 'ethers';
+
+import { CHAINS, TOKENS } from 'config';
+import { TokenConfig } from 'config/types';
 import {
   MAX_DECIMALS,
   getTokenDecimals,
@@ -17,21 +18,22 @@ import {
   fromNormalizedDecimals,
   getWrappedTokenId,
   getTokenById,
-} from '../../utils';
+} from 'utils';
 import {
   ParsedMessage,
   ParsedRelayerMessage,
   toChainId,
   wh,
   PayloadType,
-} from '../../utils/sdk';
-import { TransferWallet, signAndSendTransaction } from '../../utils/wallet';
+} from 'utils/sdk';
+import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
+import { NO_INPUT } from 'utils/style';
+import { Route } from 'store/transferInput';
 import { TransferDisplayData } from './types';
 import { toDecimals, toFixedDecimals } from '../balance';
 import { TransferInfoBaseParams } from './routeAbstract';
 import { RelayOptions } from './relay';
 import { getGasFeeFallback } from '../gasEstimates';
-import { Route } from '../../store/transferInput';
 import {
   CCTPTokenSymbol,
   CCTPManual_CHAINS as CCTPRelay_CHAINS,
@@ -42,7 +44,6 @@ import {
   getChainNameCCTP,
   getForeignUSDCAddress,
 } from './cctpManual';
-import { NO_INPUT } from 'utils/style';
 
 interface TransferDestInfoParams {
   txData: ParsedMessage | ParsedRelayerMessage;

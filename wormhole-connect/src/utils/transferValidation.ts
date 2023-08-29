@@ -1,18 +1,19 @@
+import { Dispatch } from 'react';
 import { AnyAction } from '@reduxjs/toolkit';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
-import { Dispatch } from 'react';
+
+import { BRIDGE_DEFAULTS, CHAINS, TOKENS } from 'config';
+import { SANCTIONED_WALLETS } from 'consts/wallet';
 import { store } from 'store';
-import { BRIDGE_DEFAULTS, CHAINS, TOKENS } from '../config';
-import { SANCTIONED_WALLETS } from '../consts/wallet';
 import {
   TransferInputState,
   setValidations,
   touchValidations,
   Route,
-} from '../store/transferInput';
-import { WalletData, WalletState } from '../store/wallet';
-import { walletAcceptedNetworks } from './wallet';
+} from 'store/transferInput';
+import { WalletData, WalletState } from 'store/wallet';
 import { RelayState } from 'store/relay';
+import { walletAcceptedNetworks } from './wallet';
 
 export type ValidationErr = string;
 

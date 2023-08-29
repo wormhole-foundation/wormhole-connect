@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { BigNumber } from 'ethers';
-import { useDispatch } from 'react-redux';
+
 import { RootState } from '../../store';
 import {
   setReceiverNativeBalance,
@@ -15,8 +15,14 @@ import {
   TransferInputState,
   setTransferRoute,
 } from '../../store/transferInput';
-import { wh, isAcceptedToken, toChainId } from '../../utils/sdk';
 import { CHAINS, TOKENS, TOKENS_ARR } from '../../config';
+import { TokenConfig } from '../../config/types';
+import { getTokenDecimals, getWrappedTokenId } from '../../utils';
+import { wh, isAcceptedToken, toChainId } from '../../utils/sdk';
+import { joinClass } from '../../utils/style';
+import { toDecimals } from '../../utils/balance';
+import Operator from '../../utils/routes';
+import { listOfRoutes } from '../../utils/routes/operator';
 import { isTransferValid, validate } from '../../utils/transferValidation';
 
 import GasSlider from './NativeGasSlider';
@@ -26,15 +32,9 @@ import { Collapse } from '@mui/material';
 import PageHeader from '../../components/PageHeader';
 import FromInputs from './Inputs/From';
 import ToInputs from './Inputs/To';
-import { toDecimals } from '../../utils/balance';
-import { getTokenDecimals, getWrappedTokenId } from '../../utils';
 import TransferLimitedWarning from './TransferLimitedWarning';
-import { joinClass } from '../../utils/style';
 import SwapNetworks from './SwapNetworks';
 import RouteOptions from './RouteOptions';
-import Operator from '../../utils/routes';
-import { listOfRoutes } from '../../utils/routes/operator';
-import { TokenConfig } from '../../config/types';
 
 const useStyles = makeStyles()((theme) => ({
   spacer: {

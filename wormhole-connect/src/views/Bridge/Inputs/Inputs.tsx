@@ -1,9 +1,11 @@
-import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+
+import { NO_INPUT } from '../../../utils/style';
 
 import ConnectWallet from '../../../components/ConnectWallet';
 import InputContainer from '../../../components/InputContainer';
@@ -16,7 +18,6 @@ import ValidationError from '../ValidationError';
 import Input from './Input';
 import Select from './Select';
 import AlertBanner from '../../../components/AlertBanner';
-import { NO_INPUT } from '../../../utils/style';
 
 const useStyles = makeStyles()((theme) => ({
   outerContainer: {

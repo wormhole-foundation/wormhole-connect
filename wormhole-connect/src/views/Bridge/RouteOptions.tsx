@@ -1,21 +1,22 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
-import { RootState } from '../../store';
-import BridgeCollapse, { CollapseControlStyle } from './Collapse';
-import { LINK, joinClass } from '../../utils/style';
-import { TOKENS } from '../../config';
-import TokenIcon from '../../icons/TokenIcons';
-import ArrowRightIcon from '../../icons/ArrowRight';
-import Options from '../../components/Options';
-import { ROUTES, RouteData } from '../../config/routes';
-import { useDispatch } from 'react-redux';
-import { setTransferRoute, Route } from '../../store/transferInput';
 import { Chip, useMediaQuery, useTheme } from '@mui/material';
+
+import { RootState } from '../../store';
+import { setTransferRoute, Route } from '../../store/transferInput';
+import { LINK, joinClass } from '../../utils/style';
 import Operator from '../../utils/routes';
 import { listOfRoutes } from '../../utils/routes/operator';
 import { isTransferValid } from '../../utils/transferValidation';
 import { toFixedDecimals } from '../../utils/balance';
+import { TOKENS } from '../../config';
+import { ROUTES, RouteData } from '../../config/routes';
+
+import BridgeCollapse, { CollapseControlStyle } from './Collapse';
+import TokenIcon from '../../icons/TokenIcons';
+import ArrowRightIcon from '../../icons/ArrowRight';
+import Options from '../../components/Options';
 
 const useStyles = makeStyles()((theme: any) => ({
   link: {

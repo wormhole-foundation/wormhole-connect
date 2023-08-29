@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
+
 import InputContainer from '../../components/InputContainer';
 import { RenderRows } from '../../components/RenderRows';
 import { RootState } from '../../store';
 import Operator, { TransferDisplayData } from '../../utils/routes';
+
 import Confirmations from './Confirmations';
 import Header from './Header';
 

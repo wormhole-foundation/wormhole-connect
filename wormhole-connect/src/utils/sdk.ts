@@ -10,7 +10,7 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 
 import { getWrappedTokenId } from '.';
-import { TOKENS, WH_CONFIG, isMainnet } from '../config';
+import { TOKENS, WH_CONFIG, isMainnet } from 'config';
 
 export enum PayloadType {
   MANUAL = 1,

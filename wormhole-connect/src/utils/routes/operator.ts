@@ -4,29 +4,30 @@ import {
   TokenId,
   NO_VAA_FOUND,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { Route } from '../../store/transferInput';
+import { BigNumber } from 'ethers';
+import {
+  CHAIN_ID_SEI,
+  parseTokenTransferPayload,
+} from '@certusone/wormhole-sdk';
+
+import { Route } from 'store/transferInput';
+import { TokenConfig } from 'config/types';
 import { BridgeRoute } from './bridge';
 import { RelayRoute } from './relay';
 import { HashflowRoute } from './hashflow';
 import { CCTPRelayRoute } from './cctpRelay';
-import { TokenConfig } from '../../config/types';
 import {
   ParsedMessage,
   ParsedRelayerMessage,
   PayloadType,
   getVaa,
+  wh,
 } from '../sdk';
 import RouteAbstract, {
   TransferInfoBaseParams,
   MessageInfo,
 } from './routeAbstract';
-import {
-  CHAIN_ID_SEI,
-  parseTokenTransferPayload,
-} from '@certusone/wormhole-sdk';
 import { TransferDisplayData } from './types';
-import { BigNumber } from 'ethers';
-import { wh } from '../sdk';
 import {
   CCTPManualRoute,
   CCTP_LOG_TokenMessenger_DepositForBurn,

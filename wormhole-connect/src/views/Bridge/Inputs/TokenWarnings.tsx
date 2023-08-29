@@ -1,19 +1,21 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
+
 import { RootState } from '../../../store';
-import { CircularProgress, Link, Typography } from '@mui/material';
-import { TransferWallet, signSolanaTransaction } from '../../../utils/wallet';
-import { getWrappedTokenId } from '../../../utils';
-import { joinClass } from '../../../utils/style';
-import { ATTEST_URL, TOKENS } from '../../../config';
-import { solanaContext } from '../../../utils/sdk';
 import {
   setAssociatedTokenAddress,
   setForeignAsset,
 } from '../../../store/transferInput';
-import AlertBanner from '../../../components/AlertBanner';
+import { getWrappedTokenId } from '../../../utils';
+import { TransferWallet, signSolanaTransaction } from '../../../utils/wallet';
+import { joinClass } from '../../../utils/style';
+import { ATTEST_URL, TOKENS } from '../../../config';
+import { solanaContext } from '../../../utils/sdk';
 import Operator from '../../../utils/routes';
+
+import { CircularProgress, Link, Typography } from '@mui/material';
+import AlertBanner from '../../../components/AlertBanner';
 
 const useStyles = makeStyles()((theme) => ({
   associatedTokenWarning: {

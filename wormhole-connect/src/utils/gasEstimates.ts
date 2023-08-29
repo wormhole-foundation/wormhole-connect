@@ -7,19 +7,20 @@ import {
   MAINNET_CHAINS,
   AptosContext,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { CHAINS, GAS_ESTIMATES } from '../config';
-import { toFixedDecimals } from './balance';
-import { Route } from '../store/transferInput';
-import { getTokenDecimals } from '.';
 import {
   JsonRpcProvider,
   TransactionBlock,
   getTotalGasUsed,
 } from '@mysten/sui.js';
-import { getMinAmount } from 'utils/transferValidation';
 import { AptosClient } from 'aptos';
-import { TransferWallet, simulateSeiTransaction } from '../utils/wallet';
+
+import { CHAINS, GAS_ESTIMATES } from 'config';
+import { Route } from 'store/transferInput';
+import { getMinAmount } from 'utils/transferValidation';
+import { TransferWallet, simulateSeiTransaction } from 'utils/wallet';
 import { wh } from 'utils/sdk';
+import { toFixedDecimals } from './balance';
+import { getTokenDecimals } from '.';
 
 const simulateRelayAmount = (
   route: Route,

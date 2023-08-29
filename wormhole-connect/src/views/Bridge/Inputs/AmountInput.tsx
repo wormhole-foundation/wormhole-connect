@@ -1,12 +1,13 @@
 import React, { useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+
 import { RootState } from '../../../store';
 import { validate } from '../../../utils/transferValidation';
+import { toFixedDecimals } from '../../../utils/balance';
+import { NO_INPUT } from '../../../utils/style';
 
 import InputTransparent from '../../../components/InputTransparent';
 import Input from './Input';
-import { toFixedDecimals } from '../../../utils/balance';
-import { NO_INPUT } from '../../../utils/style';
 
 type Props = {
   handleAmountChange: (number) => void;

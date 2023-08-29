@@ -7,7 +7,7 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { Types } from 'aptos';
 import { BigNumber } from 'ethers';
-import { CHAINS, GAS_ESTIMATES, TOKENS } from '../config';
+import { CHAINS, GAS_ESTIMATES, TOKENS } from 'config';
 import { MAX_DECIMALS, getTokenDecimals } from './index';
 import { toDecimals } from './balance';
 import Operator from './routes';

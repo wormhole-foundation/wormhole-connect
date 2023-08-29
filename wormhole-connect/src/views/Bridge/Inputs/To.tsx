@@ -1,16 +1,18 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+
 import { RootState } from '../../../store';
-import { TransferWallet, walletAcceptedNetworks } from '../../../utils/wallet';
-import { getWrappedToken } from '../../../utils';
-import { CHAINS, CHAINS_ARR, TOKENS } from '../../../config';
 import {
   selectToNetwork,
   setAmount,
   setDestToken,
   setReceiveAmount,
 } from '../../../store/transferInput';
+import { TransferWallet, walletAcceptedNetworks } from '../../../utils/wallet';
+import { getWrappedToken } from '../../../utils';
+import Operator from '../../../utils/routes';
+import { CHAINS, CHAINS_ARR, TOKENS } from '../../../config';
 
 import Inputs from './Inputs';
 import Select from './Select';
@@ -18,7 +20,6 @@ import AmountInput from './AmountInput';
 import TokenWarnings from './TokenWarnings';
 import TokensModal from '../../../components/TokensModal';
 import NetworksModal from '../../../components/NetworksModal';
-import Operator from '../../../utils/routes';
 
 function ToInputs() {
   const dispatch = useDispatch();

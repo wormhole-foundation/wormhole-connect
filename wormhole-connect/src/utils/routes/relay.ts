@@ -4,12 +4,18 @@ import {
   ChainId,
   VaaInfo,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { TokenConfig } from '../../config/types';
+import { BigNumber, utils } from 'ethers';
+
+import { CHAINS, TOKENS } from 'config';
+import { TokenConfig } from 'config/types';
 import {
-  estimateClaimGasFees,
-  estimateSendGasFees,
-} from '../../utils/gasEstimates';
-import { Route } from '../../store/transferInput';
+  MAX_DECIMALS,
+  fromNormalizedDecimals,
+  getTokenDecimals,
+  getWrappedTokenId,
+  toNormalizedDecimals,
+} from 'utils';
+import { estimateClaimGasFees, estimateSendGasFees } from 'utils/gasEstimates';
 import {
   ParsedMessage,
   PayloadType,
@@ -19,24 +25,16 @@ import {
   toChainId,
   calculateNativeTokenAmt,
   calculateMaxSwapAmount,
-} from '../../utils/sdk';
+} from 'utils/sdk';
+import { NO_INPUT } from 'utils/style';
+import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
+import { Route } from 'store/transferInput';
 import { BridgeRoute } from './bridge';
-import {
-  MAX_DECIMALS,
-  fromNormalizedDecimals,
-  getTokenDecimals,
-  getWrappedTokenId,
-  toNormalizedDecimals,
-} from '../../utils';
-import { BigNumber, utils } from 'ethers';
-import { TransferWallet, signAndSendTransaction } from '../../utils/wallet';
 import { toDecimals, toFixedDecimals } from '../balance';
 import { TransferDisplayData } from './types';
-import { CHAINS, TOKENS } from '../../config';
 import { adaptParsedMessage } from './common';
 import { fetchSwapEvent } from '../events';
 import { TransferInfoBaseParams } from './routeAbstract';
-import { NO_INPUT } from 'utils/style';
 
 export type RelayOptions = {
   relayerFee?: number;

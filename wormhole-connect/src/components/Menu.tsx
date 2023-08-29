@@ -1,11 +1,12 @@
 import * as React from 'react';
+import { useDispatch } from 'react-redux';
 import Popover from '@mui/material/Popover';
 import PopupState, { bindTrigger, bindPopover } from 'material-ui-popup-state';
-import { ICON } from '../utils/style';
 import { makeStyles } from 'tss-react/mui';
-import MenuIcon from '../icons/Menu';
+
+import { ICON } from '../utils/style';
 import { Route, setRoute } from '../store/router';
-import { useDispatch } from 'react-redux';
+import MenuIcon from '../icons/Menu';
 
 const useStyles = makeStyles()((theme: any) => ({
   menuIcon: ICON,

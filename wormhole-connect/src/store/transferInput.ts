@@ -1,15 +1,15 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { BigNumber } from 'ethers';
-import { TokenConfig } from '../config/types';
-import { toDecimals } from '../utils/balance';
-import { TransferValidations } from '../utils/transferValidation';
-import { toChainId } from '../utils/sdk';
-import { TOKENS, config } from '../config';
-import { getTokenDecimals } from '../utils';
-import { TransferWallet, walletAcceptedNetworks } from '../utils/wallet';
+
+import { TOKENS, config } from 'config';
+import { TokenConfig } from 'config/types';
+import { getTokenDecimals } from 'utils';
+import { toDecimals } from 'utils/balance';
+import { TransferValidations } from 'utils/transferValidation';
+import { toChainId, PayloadType } from 'utils/sdk';
+import { TransferWallet, walletAcceptedNetworks } from 'utils/wallet';
 import { clearWallet, setWalletError, WalletData } from './wallet';
-import { PayloadType } from '../utils/sdk';
 
 export enum Route {
   BRIDGE = PayloadType.MANUAL, // 1
