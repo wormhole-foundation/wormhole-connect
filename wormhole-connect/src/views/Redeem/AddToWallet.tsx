@@ -74,7 +74,7 @@ function AddToEVMWallet({ token, address }: AddTokenProps) {
       {
         address: address,
         symbol: token.symbol,
-        decimals: token.decimals,
+        decimals: token.decimals.default,
         // evm chain id
         chainId: CHAINS[token.nativeNetwork]?.chainId,
       },

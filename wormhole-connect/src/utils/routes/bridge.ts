@@ -9,26 +9,10 @@ import { CHAINS, TOKENS } from 'config';
 import { TokenConfig } from 'config/types';
 import { BigNumber, utils } from 'ethers';
 import { Route } from 'store/transferInput';
-import {
-  MAX_DECIMALS,
-  getTokenDecimals,
-  toNormalizedDecimals,
-} from 'utils';
-import {
-  estimateClaimGasFees,
-  estimateSendGasFees,
-} from 'utils/gasEstimates';
-import {
-  ParsedMessage,
-  ParsedRelayerMessage,
-  toChainId,
-  wh,
-} from 'utils/sdk';
-import {
-  TransferWallet,
-  postVaa,
-  signAndSendTransaction,
-} from 'utils/wallet';
+import { MAX_DECIMALS, getTokenDecimals, toNormalizedDecimals } from 'utils';
+import { estimateClaimGasFees, estimateSendGasFees } from 'utils/gasEstimates';
+import { ParsedMessage, ParsedRelayerMessage, toChainId, wh } from 'utils/sdk';
+import { TransferWallet, postVaa, signAndSendTransaction } from 'utils/wallet';
 import { NO_INPUT } from 'utils/style';
 import { TransferDisplayData } from './types';
 import { BaseRoute } from './baseRoute';

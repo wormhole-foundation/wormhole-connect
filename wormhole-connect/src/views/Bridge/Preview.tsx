@@ -72,6 +72,7 @@ function Preview(props: { collapsed: boolean }) {
   }, [
     token,
     destToken,
+    amount,
     fromNetwork,
     toNetwork,
     route,
