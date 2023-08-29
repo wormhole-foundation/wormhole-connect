@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { RootState } from '../../store';
@@ -11,7 +11,7 @@ import Options from '../../components/Options';
 import { ROUTES, RouteData } from '../../config/routes';
 import { useDispatch } from 'react-redux';
 import { setTransferRoute, Route } from '../../store/transferInput';
-import { Chip } from '@mui/material';
+import { Chip, useMediaQuery, useTheme } from '@mui/material';
 import Operator from '../../utils/routes';
 import { listOfRoutes } from '../../utils/routes/operator';
 import { isTransferValid } from '../../utils/transferValidation';
@@ -27,9 +27,18 @@ const useStyles = makeStyles()((theme: any) => ({
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
+    [theme.breakpoints.down('sm')]: {
+      padding: '4px 0',
+      backgroundColor: 'transparent !important',
+    },
   },
   filled: {
     backgroundColor: theme.palette.card.secondary,
+  },
+  tagIcon: {
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
+    },
   },
   route: {
     display: 'grid',
@@ -38,10 +47,6 @@ const useStyles = makeStyles()((theme: any) => ({
     gridTemplateAreas: `"path fees"`,
     width: '100%',
     maxWidth: '100%',
-    [theme.breakpoints.down('sm')]: {
-      gridTemplateColumns: '1fr !important',
-      gridTemplateAreas: `"path" !important`,
-    },
     fontSize: '14px',
   },
   routeLeft: {
@@ -61,12 +66,15 @@ const useStyles = makeStyles()((theme: any) => ({
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
+    [theme.breakpoints.down('sm')]: {
+      gap: '4px',
+    },
   },
   routeRight: {
     gridArea: 'fees',
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
     alignItems: 'flex-end',
     padding: '4px 0',
     height: '100%',
@@ -118,7 +126,12 @@ function Tag(props: TagProps) {
         !!props.colorFilled && classes.filled,
       ])}
     >
-      <div style={{ height: height, width: height }}>{props.icon}</div>
+      <div
+        style={{ height: height, width: height }}
+        className={classes.tagIcon}
+      >
+        {props.icon}
+      </div>
       {props.text}
     </div>
   );
@@ -126,9 +139,28 @@ function Tag(props: TagProps) {
 
 function RouteOption(props: { route: RouteData }) {
   const { classes } = useStyles();
-  const { token, destToken } = useSelector(
+  const theme = useTheme();
+  const mobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const { token, destToken, amount } = useSelector(
     (state: RootState) => state.transferInput,
   );
+  const { toNativeToken, relayerFee } = useSelector(
+    (state: RootState) => state.relay,
+  );
+  const [receiveAmt, setReceiveAmt] = useState<number | undefined>(undefined);
+
+  useEffect(() => {
+    async function load() {
+      const operator = new Operator();
+      const receiveAmt = await operator.computeReceiveAmount(
+        props.route.route,
+        Number.parseFloat(amount),
+        { toNativeToken, relayerFee },
+      );
+      setReceiveAmt(receiveAmt);
+    }
+    load();
+  }, [props.route, amount, toNativeToken, relayerFee]);
   const fromTokenConfig = TOKENS[token];
   const fromTokenIcon = fromTokenConfig && (
     <TokenIcon name={fromTokenConfig.icon} height={20} />
@@ -172,15 +204,17 @@ function RouteOption(props: { route: RouteData }) {
               text={fromTokenConfig.symbol}
               colorFilled
             />
-            <ArrowRightIcon />
+            <ArrowRightIcon fontSize={mobile ? 'inherit' : undefined} />
             <Tag icon={props.route.icon()} text={props.route.providedBy} />
-            <ArrowRightIcon />
+            <ArrowRightIcon fontSize={mobile ? 'inherit' : undefined} />
             <Tag icon={toTokenIcon} text={toTokenConfig.symbol} colorFilled />
           </div>
         </div>
         <div className={classes.routeRight}>
-          <div>22.5 USDC</div>
-          <div className={classes.routeAmt}>~ $22.50 after fees</div>
+          <div>
+            {receiveAmt} {TOKENS[destToken].symbol}
+          </div>
+          <div className={classes.routeAmt}>after fees</div>
         </div>
       </div>
     )
@@ -200,6 +234,7 @@ function RouteOptions() {
     amount,
     validate,
     validations,
+    // toNativeToken,
   } = useSelector((state: RootState) => state.transferInput);
   const onSelect = (value: Route) => {
     dispatch(setTransferRoute(value));

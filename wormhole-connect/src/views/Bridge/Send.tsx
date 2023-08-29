@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Context } from '@wormhole-foundation/wormhole-connect-sdk';
 import { useTheme } from '@mui/material/styles';
@@ -24,7 +24,6 @@ import {
   setAutomaticGasEst,
   setClaimGasEst,
   setIsTransactionInProgress,
-  Route,
 } from '../../store/transferInput';
 
 import Button from '../../components/Button';
@@ -80,10 +79,6 @@ function Send(props: { valid: boolean }) {
     route,
     isTransactionInProgress,
   } = transfer;
-
-  // TODO: change this to be the right enum
-  // route type should be one of two things - one transaction or two
-  const routeType = route;
   const [isConnected, setIsConnected] = useState(
     sending.currentAddress.toLowerCase() === sending.address.toLowerCase(),
   );
@@ -146,46 +141,40 @@ function Send(props: { valid: boolean }) {
     }
   }
 
-  // TODO: 'routeType', if meant to be
-  // either one transaction or two transactions
-  // should be a different enum than 'Route'
-  const setSendingGas = useCallback(
-    async (routeType: Route) => {
-      const tokenConfig = TOKENS[token]!;
-      if (!tokenConfig) return;
-      const sendToken = tokenConfig.tokenId;
+  const setSendingGas = useCallback(async () => {
+    const tokenConfig = TOKENS[token]!;
+    if (!tokenConfig) return;
+    const sendToken = tokenConfig.tokenId;
 
-      const gasFee = await new Operator().estimateSendGas(
-        route,
-        sendToken || 'native',
-        (amount || 0).toString(),
-        fromNetwork!,
-        sending.address,
-        toNetwork!,
-        receiving.address,
-        { relayerFee, toNativeToken },
-      );
-      if (routeType === Route.BRIDGE) {
-        dispatch(setManualGasEst(gasFee));
-      } else {
-        dispatch(setAutomaticGasEst(gasFee));
-      }
-    },
-    [
-      token,
-      amount,
-      fromNetwork,
-      sending,
-      toNetwork,
-      receiving,
-      toNativeToken,
-      relayerFee,
-      dispatch,
+    const gasFee = await new Operator().estimateSendGas(
       route,
-    ],
-  );
+      sendToken || 'native',
+      (amount || 0).toString(),
+      fromNetwork!,
+      sending.address,
+      toNetwork!,
+      receiving.address,
+      { relayerFee, toNativeToken },
+    );
+    const isAutomatic = new Operator().getRoute(route).AUTOMATIC_DEPOSIT;
+    if (isAutomatic) {
+      dispatch(setAutomaticGasEst(gasFee));
+    } else {
+      dispatch(setManualGasEst(gasFee));
+    }
+  }, [
+    token,
+    amount,
+    fromNetwork,
+    sending,
+    toNetwork,
+    receiving,
+    toNativeToken,
+    relayerFee,
+    dispatch,
+    route,
+  ]);
 
-  // TODO: mock vaa?
   const setDestGas = useCallback(async () => {
     if (!toNetwork) return;
     const gasFee = await estimateClaimGasFees(toNetwork!);
@@ -196,12 +185,7 @@ function Send(props: { valid: boolean }) {
     const valid = isTransferValid(validations);
     if (!valid) return;
 
-    // TODO: should use a different enum than Route
-    // which is either one transaction or two
-    if (route === Route.RELAY || route === Route.CCTPRelay) {
-      setSendingGas(Route.RELAY);
-    }
-    setSendingGas(Route.BRIDGE);
+    setSendingGas();
     setDestGas();
   }, [
     validations,
@@ -223,16 +207,16 @@ function Send(props: { valid: boolean }) {
     );
   }, [sending]);
 
+  const showWarning = useMemo(() => {
+    const r = new Operator().getRoute(route);
+    return !r.AUTOMATIC_DEPOSIT;
+  }, [route]);
+
   return (
     <div className={classes.body}>
       {!!props.valid && (
         <AlertBanner
-          show={
-            showValidationState &&
-            !!props.valid &&
-            routeType === Route.BRIDGE &&
-            toNetwork !== 'sei'
-          }
+          show={showValidationState && !!props.valid && showWarning}
           content="This transfer will require two transactions - one on the source chain and one on the destination chain."
           warning
           margin="0 0 16px 0"

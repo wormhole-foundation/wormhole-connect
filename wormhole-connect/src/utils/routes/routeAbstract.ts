@@ -120,7 +120,16 @@ export default abstract class RouteAbstract {
     recipient: string,
   ): Promise<string>;
 
-  public abstract getPreview(params: any): Promise<TransferDisplayData>;
+  public abstract getPreview(
+    token: TokenConfig,
+    destToken: TokenConfig,
+    amount: number,
+    sendingChain: ChainName | ChainId,
+    receipientChain: ChainName | ChainId,
+    sendingGasEst: string,
+    claimingGasEst: string,
+    routeOptions?: any,
+  ): Promise<TransferDisplayData>;
   public abstract getTransferSourceInfo<T extends TransferInfoBaseParams>(
     params: T,
   ): Promise<TransferDisplayData>;

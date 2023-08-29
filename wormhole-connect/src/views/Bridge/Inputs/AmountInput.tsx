@@ -6,6 +6,7 @@ import { validate } from '../../../utils/transferValidation';
 import InputTransparent from '../../../components/InputTransparent';
 import Input from './Input';
 import { toFixedDecimals } from '../../../utils/balance';
+import { NO_INPUT } from '../../../utils/style';
 
 type Props = {
   handleAmountChange: (number) => void;
@@ -71,7 +72,7 @@ function AmountInput(props: Props) {
           value={props.value}
         />
       ) : (
-        <div>-</div>
+        <div>{NO_INPUT}</div>
       )}
     </Input>
   );

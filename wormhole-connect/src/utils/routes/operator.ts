@@ -306,9 +306,28 @@ export default class Operator {
     return await r.parseMessage(info);
   }
 
-  async getPreview(route: Route, params: any): Promise<TransferDisplayData> {
+  async getPreview(
+    route: Route,
+    token: TokenConfig,
+    destToken: TokenConfig,
+    amount: number,
+    sendingChain: ChainName | ChainId,
+    receipientChain: ChainName | ChainId,
+    sendingGasEst: string,
+    claimingGasEst: string,
+    routeOptions?: any,
+  ): Promise<TransferDisplayData> {
     const r = this.getRoute(route);
-    return await r.getPreview(params);
+    return await r.getPreview(
+      token,
+      destToken,
+      amount,
+      sendingChain,
+      receipientChain,
+      sendingGasEst,
+      claimingGasEst,
+      routeOptions,
+    );
   }
 
   public async getNativeBalance(

@@ -13,7 +13,7 @@ import {
   clearBalances,
 } from '../store/transferInput';
 import { displayAddress } from '../utils';
-import { CENTER } from '../utils/style';
+import { CENTER, NO_INPUT } from '../utils/style';
 
 import Header from './Header';
 import Modal from './Modal';
@@ -207,7 +207,7 @@ function DisplayTokens(props: {
                     ) : network && walletAddress ? (
                       <CircularProgress size={14} />
                     ) : (
-                      <div>—</div>
+                      <div>{NO_INPUT}</div>
                     )}
                   </div>
                 </div>

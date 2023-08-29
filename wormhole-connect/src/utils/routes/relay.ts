@@ -20,7 +20,7 @@ import {
   calculateNativeTokenAmt,
   calculateMaxSwapAmount,
 } from '../../utils/sdk';
-import { BridgePreviewParams, BridgeRoute } from './bridge';
+import { BridgeRoute } from './bridge';
 import {
   MAX_DECIMALS,
   fromNormalizedDecimals,
@@ -36,17 +36,13 @@ import { CHAINS, TOKENS } from '../../config';
 import { adaptParsedMessage } from './common';
 import { fetchSwapEvent } from '../events';
 import { TransferInfoBaseParams } from './routeAbstract';
+import { NO_INPUT } from 'utils/style';
 
 export type RelayOptions = {
   relayerFee?: number;
   toNativeToken?: number;
-};
-
-export interface RelayPreviewParams extends BridgePreviewParams {
-  token: TokenConfig;
   receiveNativeAmt: number;
-  relayerFee: number;
-}
+};
 
 interface TransferDestInfoParams {
   txData: ParsedMessage | ParsedRelayerMessage;
@@ -140,7 +136,11 @@ export class RelayRoute extends BridgeRoute {
     routeOptions: RelayOptions,
   ): Promise<number> {
     if (!sendAmount) return 0;
-    return sendAmount - (routeOptions?.toNativeToken || 0);
+    return (
+      sendAmount -
+      (routeOptions?.toNativeToken || 0) -
+      (routeOptions?.relayerFee || 0)
+    );
   }
   async computeSendAmount(
     receiveAmount: number | undefined,
@@ -271,17 +271,23 @@ export class RelayRoute extends BridgeRoute {
     };
   }
 
-  public async getPreview({
-    token,
-    destToken,
-    sourceGasToken,
-    destinationGasToken,
-    receiveAmount,
-    receiveNativeAmt,
-    sendingGasEst,
-    relayerFee,
-  }: RelayPreviewParams): Promise<TransferDisplayData> {
+  public async getPreview(
+    token: TokenConfig,
+    destToken: TokenConfig,
+    amount: number,
+    sendingChain: ChainName | ChainId,
+    receipientChain: ChainName | ChainId,
+    sendingGasEst: string,
+    claimingGasEst: string,
+    routeOptions: RelayOptions,
+  ): Promise<TransferDisplayData> {
+    const sendingChainName = wh.toChainName(sendingChain);
+    const receipientChainName = wh.toChainName(receipientChain);
+    const sourceGasToken = CHAINS[sendingChainName]?.gasToken;
+    const destinationGasToken = CHAINS[receipientChainName]?.gasToken;
+    const { relayerFee, receiveNativeAmt } = routeOptions;
     const isNative = token.symbol === sourceGasToken;
+
     let totalFeesText = '';
     if (sendingGasEst && relayerFee) {
       const fee = toFixedDecimals(
@@ -293,17 +299,19 @@ export class RelayRoute extends BridgeRoute {
         : `${sendingGasEst} ${sourceGasToken} & ${fee} ${token.symbol}`;
     }
 
+    const receiveAmt = this.computeReceiveAmount(amount, routeOptions);
+
     return [
       {
         title: 'Amount',
-        value: `${toFixedDecimals(`${receiveAmount}`, 6)} ${destToken.symbol}`,
+        value: `${toFixedDecimals(`${receiveAmt}`, 6)} ${destToken.symbol}`,
       },
       {
         title: 'Native gas on destination',
         value:
           receiveNativeAmt > 0
             ? `${receiveNativeAmt} ${destinationGasToken}`
-            : '-',
+            : NO_INPUT,
       },
       {
         title: 'Total fee estimates',
@@ -311,11 +319,13 @@ export class RelayRoute extends BridgeRoute {
         rows: [
           {
             title: 'Source chain gas estimate',
-            value: sendingGasEst ? `~ ${sendingGasEst} ${sourceGasToken}` : '—',
+            value: sendingGasEst
+              ? `~ ${sendingGasEst} ${sourceGasToken}`
+              : NO_INPUT,
           },
           {
             title: 'Relayer fee',
-            value: relayerFee ? `${relayerFee} ${token.symbol}` : '—',
+            value: relayerFee ? `${relayerFee} ${token.symbol}` : NO_INPUT,
           },
         ],
       },
@@ -373,7 +383,9 @@ export class RelayRoute extends BridgeRoute {
       },
       {
         title: 'Gas fee',
-        value: formattedGas ? `${formattedGas} ${sourceGasTokenSymbol}` : '—',
+        value: formattedGas
+          ? `${formattedGas} ${sourceGasTokenSymbol}`
+          : NO_INPUT,
       },
       {
         title: 'Relayer fee',
@@ -457,7 +469,7 @@ export class RelayRoute extends BridgeRoute {
       },
       {
         title: 'Native gas token',
-        value: nativeGasAmt ? `${nativeGasAmt} ${gasToken}` : '—',
+        value: nativeGasAmt ? `${nativeGasAmt} ${gasToken}` : NO_INPUT,
       },
     ];
   }

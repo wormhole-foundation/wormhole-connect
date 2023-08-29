@@ -21,6 +21,7 @@ function Preview(props: { collapsed: boolean }) {
   const {
     token,
     destToken,
+    amount,
     fromNetwork,
     toNetwork,
     route,
@@ -38,35 +39,30 @@ function Preview(props: { collapsed: boolean }) {
       const destConfig = toNetwork && CHAINS[toNetwork];
       const tokenConfig = token && TOKENS[token];
       const destTokenConfig = destToken && TOKENS[destToken];
-      if (
-        !tokenConfig ||
-        !destTokenConfig ||
-        !sourceConfig ||
-        !destConfig ||
-        !receiveAmount
-      )
+      if (!tokenConfig || !destTokenConfig || !sourceConfig || !destConfig)
         return;
-      const numReceiveAmount = Number.parseFloat(receiveAmount);
 
-      // TODO: find a way to bundle the parameters without the need
-      // of checking for a specific route.
-      const rows = await new Operator().getPreview(route, {
-        destToken: destTokenConfig,
-        sourceGasToken: sourceConfig.gasToken,
-        destinationGasToken: destConfig.gasToken,
-        amount: numReceiveAmount,
-        sendingGasEst:
-          route === Route.BRIDGE || route === Route.CCTPManual
-            ? gasEst.manual
-            : gasEst.automatic,
-        destGasEst: gasEst.claim,
+      const sendingGasEst = new Operator().getRoute(route).AUTOMATIC_DEPOSIT
+        ? gasEst.automatic
+        : gasEst.manual;
+      const destGasEst = gasEst.claim;
 
-        // relay params
-        token: tokenConfig,
-        receiveAmount: numReceiveAmount,
-        receiveNativeAmt: receiveNativeAmt || 0,
+      const routeOptions = {
+        toNativeToken,
+        receiveNativeAmt,
         relayerFee,
-      });
+      };
+      const rows = await new Operator().getPreview(
+        route,
+        tokenConfig,
+        destTokenConfig,
+        Number.parseFloat(amount),
+        fromNetwork,
+        toNetwork,
+        sendingGasEst,
+        destGasEst,
+        routeOptions,
+      );
 
       setState({ rows });
     };

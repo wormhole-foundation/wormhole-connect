@@ -16,6 +16,7 @@ import ValidationError from '../ValidationError';
 import Input from './Input';
 import Select from './Select';
 import AlertBanner from '../../../components/AlertBanner';
+import { NO_INPUT } from '../../../utils/style';
 
 const useStyles = makeStyles()((theme) => ({
   outerContainer: {
@@ -201,7 +202,7 @@ function Inputs(props: Props) {
                 {/* balance */}
                 <div className={classes.balance}>
                   <Input label="Balance">
-                    <div>{props.balance || '-'}</div>
+                    <div>{props.balance || NO_INPUT}</div>
                   </Input>
                 </div>
               </div>

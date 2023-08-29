@@ -5,30 +5,31 @@ import {
   TokenId,
   VaaInfo,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { CHAINS, TOKENS } from '../../config';
-import { TokenConfig } from '../../config/types';
+import { CHAINS, TOKENS } from 'config';
+import { TokenConfig } from 'config/types';
 import { BigNumber, utils } from 'ethers';
-import { Route } from '../../store/transferInput';
+import { Route } from 'store/transferInput';
 import {
   MAX_DECIMALS,
   getTokenDecimals,
   toNormalizedDecimals,
-} from '../../utils';
+} from 'utils';
 import {
   estimateClaimGasFees,
   estimateSendGasFees,
-} from '../../utils/gasEstimates';
+} from 'utils/gasEstimates';
 import {
   ParsedMessage,
   ParsedRelayerMessage,
   toChainId,
   wh,
-} from '../../utils/sdk';
+} from 'utils/sdk';
 import {
   TransferWallet,
   postVaa,
   signAndSendTransaction,
-} from '../../utils/wallet';
+} from 'utils/wallet';
+import { NO_INPUT } from 'utils/style';
 import { TransferDisplayData } from './types';
 import { BaseRoute } from './baseRoute';
 import { adaptParsedMessage } from './common';
@@ -36,15 +37,6 @@ import { toDecimals } from '../balance';
 import { calculateGas } from '../gas';
 import { TransferInfoBaseParams } from './routeAbstract';
 import { hexlify } from 'ethers/lib/utils.js';
-
-export interface BridgePreviewParams {
-  destToken: TokenConfig;
-  sourceGasToken: string;
-  destinationGasToken: string;
-  receiveAmount: number;
-  sendingGasEst: string;
-  destGasEst: string;
-}
 
 interface TransferDestInfoParams {
   txData: ParsedMessage | ParsedRelayerMessage;
@@ -203,14 +195,20 @@ export class BridgeRoute extends BaseRoute {
     return adaptParsedMessage(message);
   }
 
-  public async getPreview({
-    destToken,
-    sourceGasToken,
-    destinationGasToken,
-    receiveAmount: amount,
-    sendingGasEst,
-    destGasEst,
-  }: BridgePreviewParams): Promise<TransferDisplayData> {
+  async getPreview(
+    token: TokenConfig,
+    destToken: TokenConfig,
+    amount: number,
+    sendingChain: ChainName | ChainId,
+    receipientChain: ChainName | ChainId,
+    sendingGasEst: string,
+    claimingGasEst: string,
+    routeOptions?: any,
+  ): Promise<TransferDisplayData> {
+    const sendingChainName = wh.toChainName(sendingChain);
+    const receipientChainName = wh.toChainName(receipientChain);
+    const sourceGasToken = CHAINS[sendingChainName]?.gasToken;
+    const destinationGasToken = CHAINS[receipientChainName]?.gasToken;
     return [
       {
         title: 'Amount',
@@ -219,8 +217,8 @@ export class BridgeRoute extends BaseRoute {
       {
         title: 'Total fee estimates',
         value:
-          sendingGasEst && destGasEst
-            ? `${sendingGasEst} ${sourceGasToken} & ${destGasEst} ${destinationGasToken}`
+          sendingGasEst && claimingGasEst
+            ? `${sendingGasEst} ${sourceGasToken} & ${claimingGasEst} ${destinationGasToken}`
             : '',
         rows: [
           {
@@ -231,8 +229,8 @@ export class BridgeRoute extends BaseRoute {
           },
           {
             title: 'Destination chain gas estimate',
-            value: destGasEst
-              ? `~ ${destGasEst} ${destinationGasToken}`
+            value: claimingGasEst
+              ? `~ ${claimingGasEst} ${destinationGasToken}`
               : 'Not available',
           },
         ],
@@ -240,14 +238,14 @@ export class BridgeRoute extends BaseRoute {
     ];
   }
 
-  public getNativeBalance(
+  getNativeBalance(
     address: string,
     network: ChainName | ChainId,
   ): Promise<BigNumber | null> {
     return wh.getNativeBalance(address, network);
   }
 
-  public getTokenBalance(
+  getTokenBalance(
     address: string,
     tokenId: TokenId,
     network: ChainName | ChainId,
@@ -302,7 +300,9 @@ export class BridgeRoute extends BaseRoute {
       },
       {
         title: 'Gas fee',
-        value: formattedGas ? `${formattedGas} ${sourceGasTokenSymbol}` : '—',
+        value: formattedGas
+          ? `${formattedGas} ${sourceGasTokenSymbol}`
+          : NO_INPUT,
       },
     ];
   }
@@ -328,7 +328,7 @@ export class BridgeRoute extends BaseRoute {
       },
       {
         title: receiveTx ? 'Gas fee' : 'Gas estimate',
-        value: gas ? `${gas} ${gasToken}` : '—',
+        value: gas ? `${gas} ${gasToken}` : NO_INPUT,
       },
     ];
   }

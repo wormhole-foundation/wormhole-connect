@@ -42,17 +42,7 @@ import {
   getChainNameCCTP,
   getForeignUSDCAddress,
 } from './cctpManual';
-export interface CCTPRelayPreviewParams {
-  destToken: TokenConfig;
-  sourceGasToken: string;
-  destinationGasToken: string;
-  receiveAmount: number;
-  sendingGasEst: string;
-  destGasEst: string;
-  token: TokenConfig;
-  receiveNativeAmt: number;
-  relayerFee: number;
-}
+import { NO_INPUT } from 'utils/style';
 
 interface TransferDestInfoParams {
   txData: ParsedMessage | ParsedRelayerMessage;
@@ -188,14 +178,16 @@ export class CCTPRelayRoute extends CCTPManualRoute {
     routeOptions: RelayOptions,
   ): Promise<number> {
     if (!sendAmount) return 0;
-    return sendAmount - (routeOptions?.toNativeToken || 0);
+    const { toNativeToken, relayerFee } = routeOptions;
+    return sendAmount - (toNativeToken || 0) - (relayerFee || 0);
   }
   async computeSendAmount(
     receiveAmount: number | undefined,
     routeOptions: RelayOptions,
   ): Promise<number> {
     if (!receiveAmount) return 0;
-    return receiveAmount + (routeOptions?.toNativeToken || 0);
+    const { toNativeToken, relayerFee } = routeOptions;
+    return receiveAmount + (toNativeToken || 0) + (relayerFee || 0);
   }
 
   async estimateSendGas(
@@ -358,21 +350,28 @@ export class CCTPRelayRoute extends CCTPManualRoute {
     };
   }
 
-  public async getPreview({
-    token,
-    destToken,
-    sourceGasToken,
-    destinationGasToken,
-    receiveAmount,
-    receiveNativeAmt,
-    sendingGasEst,
-    relayerFee,
-  }: CCTPRelayPreviewParams): Promise<TransferDisplayData> {
+  public async getPreview(
+    token: TokenConfig,
+    destToken: TokenConfig,
+    amount: number,
+    sendingChain: ChainName | ChainId,
+    receipientChain: ChainName | ChainId,
+    sendingGasEst: string,
+    claimingGasEst: string,
+    routeOptions?: any,
+  ): Promise<TransferDisplayData> {
+    const sendingChainName = wh.toChainName(sendingChain);
+    const receipientChainName = wh.toChainName(receipientChain);
+    const sourceGasToken = CHAINS[sendingChainName]?.gasToken;
+    const destinationGasToken = CHAINS[receipientChainName]?.gasToken;
+    const { relayerFee, receiveNativeAmt } = routeOptions;
+
     const isNative = token.symbol === sourceGasToken;
+
     let totalFeesText = '';
     if (sendingGasEst && relayerFee) {
       const fee = toFixedDecimals(
-        `${relayerFee + (isNative ? Number.parseFloat(sendingGasEst) : 0)}`,
+        `${relayerFee + (isNative ? sendingGasEst : 0)}`,
         6,
       );
       totalFeesText = isNative
@@ -380,17 +379,19 @@ export class CCTPRelayRoute extends CCTPManualRoute {
         : `${sendingGasEst} ${sourceGasToken} & ${fee} ${token.symbol}`;
     }
 
+    const receiveAmt = this.computeReceiveAmount(amount, routeOptions);
+
     return [
       {
         title: 'Amount',
-        value: `${toFixedDecimals(`${receiveAmount}`, 6)} ${destToken.symbol}`,
+        value: `${toFixedDecimals(`${receiveAmt}`, 6)} ${destToken.symbol}`,
       },
       {
         title: 'Native gas on destination',
         value:
           receiveNativeAmt > 0
             ? `${receiveNativeAmt} ${destinationGasToken}`
-            : '-',
+            : NO_INPUT,
       },
       {
         title: 'Total fee estimates',
@@ -398,11 +399,13 @@ export class CCTPRelayRoute extends CCTPManualRoute {
         rows: [
           {
             title: 'Source chain gas estimate',
-            value: sendingGasEst ? `~ ${sendingGasEst} ${sourceGasToken}` : '—',
+            value: sendingGasEst
+              ? `~ ${sendingGasEst} ${sourceGasToken}`
+              : NO_INPUT,
           },
           {
             title: 'Relayer fee',
-            value: relayerFee ? `${relayerFee} ${token.symbol}` : '—',
+            value: relayerFee ? `${relayerFee} ${token.symbol}` : NO_INPUT,
           },
         ],
       },
@@ -539,7 +542,9 @@ export class CCTPRelayRoute extends CCTPManualRoute {
       },
       {
         title: 'Gas fee',
-        value: formattedGas ? `${formattedGas} ${sourceGasTokenSymbol}` : '—',
+        value: formattedGas
+          ? `${formattedGas} ${sourceGasTokenSymbol}`
+          : NO_INPUT,
       },
       {
         title: 'Relayer fee',
@@ -625,7 +630,7 @@ export class CCTPRelayRoute extends CCTPManualRoute {
       },
       {
         title: 'Native gas token',
-        value: nativeGasAmt ? `${nativeGasAmt} ${gasToken}` : '—',
+        value: nativeGasAmt ? `${nativeGasAmt} ${gasToken}` : NO_INPUT,
       },
     ];
   }
