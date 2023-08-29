@@ -352,6 +352,9 @@ export class CCTPManualRoute extends BaseRoute {
       circleMessageTransmitter,
       connection,
     );
+    if (!messageInfo.signedAttestation) {
+      throw new Error('No signed attestation');
+    }
     const tx = await contract.receiveMessage(
       messageInfo.message,
       messageInfo.signedAttestation,
