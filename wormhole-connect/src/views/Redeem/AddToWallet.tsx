@@ -7,26 +7,27 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import {
+  ChainName,
+  SuiContext,
+  WormholeContext,
+} from '@wormhole-foundation/wormhole-connect-sdk';
+
+import {
   CHAINS,
   TESTNET_TO_MAINNET_CHAIN_NAMES,
   TOKENS,
   isMainnet,
 } from '../../config';
 import { MAINNET_NETWORKS } from '../../config/mainnet';
-import TokenIcon from '../../icons/TokenIcons';
-import { wh } from '../../utils/sdk';
+import { TokenConfig } from '../../config/types';
 import { RootState } from '../../store';
 import { setWalletModal } from '../../store/router';
 import { getWrappedToken } from '../../utils';
+import { wh } from '../../utils/sdk';
 import { TransferWallet, switchNetwork, watchAsset } from '../../utils/wallet';
-import { TokenConfig } from '../../config/types';
+
+import TokenIcon from '../../icons/TokenIcons';
 import ExplorerLink from './ExplorerLink';
-import {
-  ChainName,
-  SuiContext,
-  WormholeContext,
-} from '@wormhole-foundation/wormhole-connect-sdk';
-import { isCosmWasmChain } from '../../utils/cosmos';
 
 const useStyles = makeStyles()((theme) => ({
   addToken: {
@@ -73,7 +74,7 @@ function AddToEVMWallet({ token, address }: AddTokenProps) {
       {
         address: address,
         symbol: token.symbol,
-        decimals: token.decimals,
+        decimals: token.decimals.default,
         // evm chain id
         chainId: CHAINS[token.nativeNetwork]?.chainId,
       },

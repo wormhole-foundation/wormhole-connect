@@ -58,6 +58,7 @@ import {
   TendermintClient,
 } from '@cosmjs/tendermint-rpc';
 import { BridgeRoute } from './bridge';
+import { TokenConfig } from '../../config/types';
 
 interface GatewayTransferMsg {
   gateway_transfer: {
@@ -92,6 +93,9 @@ const IBC_TIMEOUT_MILLIS = 10 * 60 * 1000; // 10 minutes
 const millisToNano = (seconds: number) => seconds * 1_000_000;
 
 export class CosmosGatewayRoute extends BaseRoute {
+  readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean = false;
+  readonly AUTOMATIC_DEPOSIT: boolean = false;
+
   private static CLIENT_MAP: Record<string, CosmWasmClient> = {};
 
   public async isRouteAvailable(
@@ -430,16 +434,23 @@ export class CosmosGatewayRoute extends BaseRoute {
     return new BridgeRoute().redeem(destChain, messageInfo, recipient);
   }
 
-  public async getPreview({
-    destToken,
-    sourceGasToken,
-    receiveAmount,
-    sendingGasEst,
-  }: any): Promise<TransferDisplayData> {
+  public async getPreview(
+    token: TokenConfig,
+    destToken: TokenConfig,
+    amount: number,
+    sendingChain: ChainName | ChainId,
+    receipientChain: ChainName | ChainId,
+    sendingGasEst: string,
+    claimingGasEst: string,
+    routeOptions?: any,
+  ): Promise<TransferDisplayData> {
+    const sendingChainName = wh.toChainName(sendingChain);
+    const sourceGasToken = CHAINS[sendingChainName]?.gasToken;
+
     return [
       {
         title: 'Amount',
-        value: `${toFixedDecimals(`${receiveAmount}`, 6)} ${destToken.symbol}`,
+        value: `${toFixedDecimals(`${amount}`, 6)} ${destToken.symbol}`,
       },
       {
         title: 'Total fee estimates',

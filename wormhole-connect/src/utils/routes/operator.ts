@@ -8,32 +8,33 @@ import {
   TokenId,
   NO_VAA_FOUND,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { CCTPRelayRoute } from './cctpRelay';
-import { TokenConfig } from 'config/types';
 import { BigNumber } from 'ethers';
 import { Route } from 'store/transferInput';
-import { isCosmWasmChain } from '../cosmos';
+import { TokenConfig } from 'config/types';
+import { BridgeRoute } from './bridge';
+import { RelayRoute } from './relay';
+import { HashflowRoute } from './hashflow';
+import { CCTPRelayRoute } from './cctpRelay';
+import { CosmosGatewayRoute } from './cosmosGateway';
 import {
   ParsedMessage,
   ParsedRelayerMessage,
   PayloadType,
   getVaa,
+  wh,
 } from '../sdk';
-import { BridgeRoute } from './bridge';
-import { CosmosGatewayRoute } from './cosmosGateway';
-import { HashflowRoute } from './hashflow';
-import { RelayRoute } from './relay';
+import { isCosmWasmChain } from '../cosmos';
 import RouteAbstract, {
   TransferInfoBaseParams,
   MessageInfo,
 } from './routeAbstract';
 import { TransferDisplayData } from './types';
-import { wh } from '../sdk';
 import {
   CCTPManualRoute,
   CCTP_LOG_TokenMessenger_DepositForBurn,
 } from './cctpManual';
 
+// TODO: need to make this configurable
 export const listOfRoutes = [
   Route.BRIDGE,
   Route.CCTPManual,
@@ -63,7 +64,7 @@ export default class Operator {
         return new CosmosGatewayRoute();
       }
       default: {
-        throw new Error('Not a valid route');
+        throw new Error(`${route} is not a valid route`);
       }
     }
   }
@@ -88,7 +89,6 @@ export default class Operator {
 
     if (!vaa) {
       // Currently, CCTP manual is the only route without a VAA
-
       if (error === NO_VAA_FOUND) {
         const provider = wh.mustGetProvider(chain);
         const receipt = await provider.getTransactionReceipt(txHash);
@@ -323,9 +323,28 @@ export default class Operator {
     return await r.parseMessage(info);
   }
 
-  async getPreview(route: Route, params: any): Promise<TransferDisplayData> {
+  async getPreview(
+    route: Route,
+    token: TokenConfig,
+    destToken: TokenConfig,
+    amount: number,
+    sendingChain: ChainName | ChainId,
+    receipientChain: ChainName | ChainId,
+    sendingGasEst: string,
+    claimingGasEst: string,
+    routeOptions?: any,
+  ): Promise<TransferDisplayData> {
     const r = this.getRoute(route);
-    return await r.getPreview(params);
+    return await r.getPreview(
+      token,
+      destToken,
+      amount,
+      sendingChain,
+      receipientChain,
+      sendingGasEst,
+      claimingGasEst,
+      routeOptions,
+    );
   }
 
   public async getNativeBalance(

@@ -2,14 +2,16 @@ import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { useTheme } from '@mui/material/styles';
+
 import { ICON } from '../utils/style';
 import { Route, setRoute } from '../store/router';
+
 import MenuIcon from '../icons/Menu';
 import Modal from './Modal';
 import Spacer from './Spacer';
 import PoweredByIcon from '../icons/PoweredBy';
 
-const useStyles = makeStyles()((theme) => ({
+const useStyles = makeStyles()(() => ({
   menuIcon: ICON,
   menu: {
     display: 'flex',

@@ -1,9 +1,10 @@
+import { Dispatch } from 'react';
 import { AnyAction } from '@reduxjs/toolkit';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
-import { Dispatch } from 'react';
+
+import { BRIDGE_DEFAULTS, CHAINS, TOKENS } from 'config';
+import { SANCTIONED_WALLETS } from 'consts/wallet';
 import { store } from 'store';
-import { BRIDGE_DEFAULTS, CHAINS, TOKENS } from '../config';
-import { SANCTIONED_WALLETS } from '../consts/wallet';
 import {
   TransferInputState,
   setValidations,
@@ -136,13 +137,8 @@ export const validateToNativeAmt = (
   return '';
 };
 
-export const validateRoute = (
-  route: Route,
-  relayAvailable: boolean,
-): ValidationErr => {
-  if (route !== Route.RELAY && route !== Route.CCTPRelay) return '';
-  if (!relayAvailable)
-    return 'Single transaction payment not available for this transfer';
+export const validateRoute = (route: Route): ValidationErr => {
+  // TODO: better validation
   return '';
 };
 
@@ -192,7 +188,6 @@ export const validateAll = async (
     toNetwork,
     token,
     destToken,
-    automaticRelayAvail,
     amount,
     sourceBalances: balances,
     foreignAsset,
@@ -211,7 +206,7 @@ export const validateAll = async (
     token: validateToken(token, fromNetwork),
     destToken: validateDestToken(destToken, toNetwork),
     amount: validateAmount(amount, balances[token], route, minAmt),
-    route: validateRoute(route, automaticRelayAvail),
+    route: validateRoute(route),
     toNativeToken: '',
     foreignAsset: validateForeignAsset(foreignAsset),
     associatedTokenAccount: validateSolanaTokenAccount(
@@ -224,7 +219,7 @@ export const validateAll = async (
   return {
     ...baseValidations,
     amount: validateAmount(amount, balances[token], route, minAmt),
-    route: validateRoute(route, automaticRelayAvail),
+    route: validateRoute(route),
     toNativeToken: validateToNativeAmt(toNativeToken, maxSwapAmt),
   };
 };

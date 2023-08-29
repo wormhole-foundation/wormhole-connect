@@ -1,37 +1,37 @@
 import Slider, { SliderThumb } from '@mui/material/Slider';
 import { styled } from '@mui/material/styles';
 import { BigNumber, utils } from 'ethers';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { useDebounce } from 'use-debounce';
+
 import { CHAINS, TOKENS } from '../../config';
 import { TokenConfig } from '../../config/types';
-import { wh } from '../../utils/sdk';
-import { RootState } from '../../store';
-import {
-  disableAutomaticTransferAndSetRoute,
-  Route,
-} from '../../store/transferInput';
-import {
-  setMaxSwapAmt,
-  setReceiveNativeAmt,
-  setToNativeToken,
-} from '../../store/relay';
+import { ROUTES } from '../../config/routes';
 import { getTokenDecimals, getWrappedTokenId } from '../../utils';
+import { wh } from '../../utils/sdk';
 import {
   getConversion,
   toDecimals,
   toFixedDecimals,
 } from '../../utils/balance';
 import { getMinAmount } from '../../utils/transferValidation';
+import Operator from '../../utils/routes';
+import { RootState } from '../../store';
+import { setTransferRoute, Route } from '../../store/transferInput';
+import {
+  setMaxSwapAmt,
+  setReceiveNativeAmt,
+  setToNativeToken,
+} from '../../store/relay';
 
 import InputContainer from '../../components/InputContainer';
 import TokenIcon from '../../icons/TokenIcons';
-import BridgeCollapse, { CollapseControlStyle, XLabsBanner } from './Collapse';
-import Operator from '../../utils/routes';
+import BridgeCollapse, { CollapseControlStyle } from './Collapse';
+import { Banner } from './RouteOptions';
 
-const useStyles = makeStyles()((theme) => ({
+const useStyles = makeStyles()(() => ({
   container: {
     display: 'flex',
     flexDirection: 'column',
@@ -102,8 +102,10 @@ const INITIAL_STATE = {
 function GasSlider(props: { disabled: boolean }) {
   const { classes } = useStyles();
   const dispatch = useDispatch();
-  const { token, toNetwork, amount, route, automaticRelayAvail, destToken } =
-    useSelector((state: RootState) => state.transferInput);
+  const { token, toNetwork, amount, route, destToken } = useSelector(
+    (state: RootState) => state.transferInput,
+  );
+  const amountNum = useMemo(() => Number.parseFloat(amount), [amount]);
   const { maxSwapAmt, relayerFee } = useSelector(
     (state: RootState) => state.relay,
   );
@@ -121,28 +123,29 @@ function GasSlider(props: { disabled: boolean }) {
   // set the actual max swap amount (checks if max swap amount is greater than the sending amount)
   useEffect(() => {
     if (
-      !amount ||
+      !amountNum ||
+      amountNum === 0 ||
       !maxSwapAmt ||
       (route !== Route.RELAY && route !== Route.CCTPRelay)
     )
       return;
 
     const min = getMinAmount(true, relayerFee, 0);
-    const amountWithoutRelayerFee = amount - min;
+    const amountWithoutRelayerFee = amountNum - min;
     const actualMaxSwap =
-      amount &&
+      amountNum &&
       maxSwapAmt &&
       Math.max(Math.min(maxSwapAmt, amountWithoutRelayerFee), 0);
 
-    const newTokenAmount = amount - state.swapAmt;
+    const newTokenAmount = amountNum - state.swapAmt;
 
     setState((prevState) => ({
       ...prevState,
-      disabled: amount <= min,
+      disabled: amountNum <= min,
       token: formatAmount(newTokenAmount),
       max: formatAmount(actualMaxSwap),
     }));
-  }, [maxSwapAmt, amount, route, state.swapAmt, relayerFee]);
+  }, [maxSwapAmt, amountNum, route, state.swapAmt, relayerFee]);
 
   useEffect(() => {
     if (
@@ -172,9 +175,9 @@ function GasSlider(props: { disabled: boolean }) {
       .catch((e) => {
         if (e.message.includes('swap rate not set')) {
           if (route === Route.CCTPRelay) {
-            dispatch(disableAutomaticTransferAndSetRoute(Route.CCTPManual));
+            dispatch(setTransferRoute(Route.CCTPManual));
           } else {
-            dispatch(disableAutomaticTransferAndSetRoute(Route.BRIDGE));
+            dispatch(setTransferRoute(Route.BRIDGE));
           }
         } else {
           throw e;
@@ -188,6 +191,7 @@ function GasSlider(props: { disabled: boolean }) {
     });
   }, [
     sendingToken,
+    receivingToken,
     receivingWallet,
     toNetwork,
     route,
@@ -213,7 +217,7 @@ function GasSlider(props: { disabled: boolean }) {
         ...prevState,
         swapAmt: 0,
         nativeGas: 0,
-        token: formatAmount(amount),
+        token: formatAmount(Number.parseFloat(amount)),
       }));
       dispatch(setReceiveNativeAmt(0));
     }
@@ -223,7 +227,7 @@ function GasSlider(props: { disabled: boolean }) {
   const handleChange = (e: any) => {
     if (!amount || !state.conversionRate) return;
     const newGasAmount = e.target.value * state.conversionRate;
-    const newTokenAmount = amount - e.target.value;
+    const newTokenAmount = Number.parseFloat(amount) - e.target.value;
     const swapAmount = e.target.value;
     const conversion = {
       nativeGas: formatAmount(newGasAmount),
@@ -280,16 +284,19 @@ function GasSlider(props: { disabled: boolean }) {
     sendingToken,
     receivingToken,
     toNetwork,
+    route,
   ]);
 
-  const banner = automaticRelayAvail && !props.disabled && <XLabsBanner />;
+  const banner = !props.disabled && (
+    <Banner text="This feature provided by" route={ROUTES[Route.RELAY]} />
+  );
 
   return (
     <BridgeCollapse
       title="Native gas"
       banner={banner}
       disabled={props.disabled || state.disabled}
-      close={props.disabled}
+      startClosed={props.disabled}
       controlStyle={CollapseControlStyle.Switch}
       onCollapseChange={onCollapseChange}
     >
@@ -324,7 +331,7 @@ function GasSlider(props: { disabled: boolean }) {
                     state.nativeGas,
                     nativeGasToken.symbol,
                     state.token,
-                    token,
+                    TOKENS[token].symbol,
                   )
                 }
                 valueLabelDisplay="auto"

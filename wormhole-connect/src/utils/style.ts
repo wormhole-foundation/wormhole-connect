@@ -6,6 +6,8 @@ export const joinClass = (classes: Class[]): string => {
   return classes.filter((c) => !!c).join(' ');
 };
 
+export const NO_INPUT = '—';
+
 export const OPACITY = {
   0: '00',
   5: '0C',

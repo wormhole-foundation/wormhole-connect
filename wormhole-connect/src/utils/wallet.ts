@@ -7,6 +7,7 @@ import {
   SendResult,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { CHAIN_ID_SEI, postVaaSolanaWithRetry } from '@certusone/wormhole-sdk';
+import { ContractReceipt } from 'ethers';
 import { NotSupported, Wallet } from '@xlabs-libs/wallet-aggregator-core';
 import {
   EVMWallet,
@@ -32,15 +33,19 @@ import {
   BloctoWalletAdapter,
   BraveWalletAdapter,
 } from '@solana/wallet-adapter-wallets';
-import { clusterApiUrl, Connection as SolanaConnection } from '@solana/web3.js';
+import {
+  clusterApiUrl,
+  Connection as SolanaConnection,
+  Transaction,
+  ConfirmOptions,
+} from '@solana/web3.js';
+import { TransactionBlock } from '@mysten/sui.js';
 import { SolanaWallet } from '@xlabs-libs/wallet-aggregator-solana';
 import { SeiTransaction, SeiWallet } from '@xlabs-libs/wallet-aggregator-sei';
-import { Transaction, ConfirmOptions } from '@solana/web3.js';
 import { wh } from './sdk';
 import { CHAINS, CHAINS_ARR, CONFIG } from '../config';
 import { getNetworkByChainId } from 'utils';
 import { WH_CONFIG } from '../config';
-import { TransactionBlock } from '@mysten/sui.js';
 import { AptosWallet } from '@xlabs-libs/wallet-aggregator-aptos';
 import { Types } from 'aptos';
 import {
@@ -55,7 +60,6 @@ import {
   SpikaWalletAdapter,
   WalletAdapterNetwork,
 } from '@manahippo/aptos-wallet-adapter';
-import { ContractReceipt } from 'ethers';
 
 export enum TransferWallet {
   SENDING = 'sending',

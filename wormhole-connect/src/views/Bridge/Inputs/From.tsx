@@ -1,6 +1,7 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+
 import { RootState } from '../../../store';
 import {
   setToken,
@@ -8,7 +9,7 @@ import {
   setAmount,
   setReceiveAmount,
 } from '../../../store/transferInput';
-import { CHAINS_ARR, TOKENS } from '../../../config';
+import { CHAINS, CHAINS_ARR, TOKENS } from '../../../config';
 import { TransferWallet, walletAcceptedNetworks } from '../../../utils/wallet';
 import Operator from '../../../utils/routes';
 
@@ -53,9 +54,15 @@ function FromInputs() {
   };
 
   // token input jsx
-  const selectedToken = tokenConfig
-    ? { icon: tokenConfig.icon, text: tokenConfig.symbol }
-    : undefined;
+  const selectedToken = useMemo(() => {
+    if (!tokenConfig) return undefined;
+    const network = CHAINS[tokenConfig.nativeNetwork]?.displayName;
+    return {
+      icon: tokenConfig.icon,
+      text: tokenConfig.symbol,
+      secondaryText: `(${network})`,
+    };
+  }, [tokenConfig]);
   const tokenInput = (
     <Select
       label="Asset"

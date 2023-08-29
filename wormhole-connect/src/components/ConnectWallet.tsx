@@ -2,6 +2,8 @@ import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useTheme } from '@mui/material/styles';
 import { makeStyles } from 'tss-react/mui';
+import { ScopedCssBaseline, useMediaQuery } from '@mui/material';
+
 import { RootState } from '../store';
 import { TransferWallet } from '../utils/wallet';
 import { copyTextToClipboard, displayWalletAddress } from '../utils';
@@ -13,9 +15,8 @@ import PopupState, { bindTrigger, bindPopover } from 'material-ui-popup-state';
 import Popover from '@mui/material/Popover';
 import { setWalletModal } from '../store/router';
 import { disconnectWallet as disconnectFromStore } from '../store/wallet';
-import { ScopedCssBaseline, useMediaQuery } from '@mui/material';
 
-const useStyles = makeStyles()((theme) => ({
+const useStyles = makeStyles()((theme: any) => ({
   connectWallet: {
     display: 'flex',
     alignItems: 'center',

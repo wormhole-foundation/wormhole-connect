@@ -15,7 +15,7 @@ import Search from './Search';
 import Scroll from './Scroll';
 import TokenIcon from '../icons/TokenIcons';
 
-const useStyles = makeStyles()((theme) => ({
+const useStyles = makeStyles()((theme: any) => ({
   networksContainer: {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fill, 150px)',
@@ -74,7 +74,7 @@ type Props = {
 
 function NetworksModal(props: Props) {
   const { classes } = useStyles();
-  const theme = useTheme();
+  const theme: any = useTheme();
 
   const chains = props.chains || CHAINS_ARR;
   const [search, setSearch] = useState<string | undefined>();

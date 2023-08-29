@@ -1,5 +1,5 @@
 import { BigNumberish, utils } from 'ethers';
-import { TOKENS } from '../config';
+import { TOKENS } from 'config';
 
 /**
  * Makes a BigNumber have # of decimals

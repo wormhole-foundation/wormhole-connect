@@ -8,11 +8,11 @@ import {
   WormholeContext,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { ParsedMessage, ParsedRelayerMessage, wh } from './sdk';
-import { Route } from '../store/transferInput';
+import { Route } from 'store/transferInput';
 import { fromNormalizedDecimals } from '.';
-import { CHAINS } from '../config';
+import { CHAINS } from 'config';
 import { fetchGlobalTx, getEmitterAndSequence } from './vaa';
-import { isEvmChain } from '../utils/sdk';
+import { isEvmChain } from 'utils/sdk';
 
 export const fetchRedeemTx = async (
   txData: ParsedMessage | ParsedRelayerMessage,

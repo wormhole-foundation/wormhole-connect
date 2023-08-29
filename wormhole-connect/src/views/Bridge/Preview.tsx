@@ -1,11 +1,9 @@
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useTheme } from '@mui/material/styles';
+
 import { RootState } from '../../store';
-import {
-  disableAutomaticTransferAndSetRoute,
-  Route,
-} from '../../store/transferInput';
+import { setTransferRoute, Route } from '../../store/transferInput';
 import { setRelayerFee } from '../../store/relay';
 import { CHAINS, TOKENS } from '../../config';
 import { getTokenDecimals } from '../../utils';
@@ -14,16 +12,17 @@ import { toChainId } from '../../utils/sdk';
 import Operator, { TransferDisplayData } from '../../utils/routes';
 
 import { RenderRows } from '../../components/RenderRows';
-import BridgeCollapse from './Collapse';
+import BridgeCollapse, { CollapseControlStyle } from './Collapse';
 import InputContainer from '../../components/InputContainer';
 
 function Preview(props: { collapsed: boolean }) {
   const dispatch = useDispatch();
-  const theme = useTheme();
+  const theme: any = useTheme();
   const [state, setState] = React.useState({ rows: [] as TransferDisplayData });
   const {
     token,
     destToken,
+    amount,
     fromNetwork,
     toNetwork,
     route,
@@ -41,35 +40,30 @@ function Preview(props: { collapsed: boolean }) {
       const destConfig = toNetwork && CHAINS[toNetwork];
       const tokenConfig = token && TOKENS[token];
       const destTokenConfig = destToken && TOKENS[destToken];
-      if (
-        !tokenConfig ||
-        !destTokenConfig ||
-        !sourceConfig ||
-        !destConfig ||
-        !receiveAmount
-      )
+      if (!tokenConfig || !destTokenConfig || !sourceConfig || !destConfig)
         return;
-      const numReceiveAmount = Number.parseFloat(receiveAmount);
 
-      // TODO: find a way to bundle the parameters without the need
-      // of checking for a specific route.
-      const rows = await new Operator().getPreview(route, {
-        destToken: destTokenConfig,
-        sourceGasToken: sourceConfig.gasToken,
-        destinationGasToken: destConfig.gasToken,
-        amount: numReceiveAmount,
-        sendingGasEst:
-          route === Route.RELAY || route === Route.CCTPRelay
-            ? gasEst.automatic
-            : gasEst.manual,
-        destGasEst: gasEst.claim,
+      const sendingGasEst = new Operator().getRoute(route).AUTOMATIC_DEPOSIT
+        ? gasEst.automatic
+        : gasEst.manual;
+      const destGasEst = gasEst.claim;
 
-        // relay params
-        token: tokenConfig,
-        receiveAmount: numReceiveAmount,
-        receiveNativeAmt: receiveNativeAmt || 0,
+      const routeOptions = {
+        toNativeToken,
+        receiveNativeAmt,
         relayerFee,
-      });
+      };
+      const rows = await new Operator().getPreview(
+        route,
+        tokenConfig,
+        destTokenConfig,
+        Number.parseFloat(amount),
+        fromNetwork,
+        toNetwork,
+        sendingGasEst,
+        destGasEst,
+        routeOptions,
+      );
 
       setState({ rows });
     };
@@ -78,6 +72,7 @@ function Preview(props: { collapsed: boolean }) {
   }, [
     token,
     destToken,
+    amount,
     fromNetwork,
     toNetwork,
     route,
@@ -111,9 +106,9 @@ function Preview(props: { collapsed: boolean }) {
       } catch (e) {
         if (e.message.includes('swap rate not set')) {
           if (route === Route.CCTPRelay) {
-            dispatch(disableAutomaticTransferAndSetRoute(Route.CCTPManual));
+            dispatch(setTransferRoute(Route.CCTPManual));
           } else {
-            dispatch(disableAutomaticTransferAndSetRoute(Route.BRIDGE));
+            dispatch(setTransferRoute(Route.BRIDGE));
           }
         } else {
           throw e;
@@ -129,6 +124,7 @@ function Preview(props: { collapsed: boolean }) {
       disabled={props.collapsed}
       controlled
       value={props.collapsed}
+      controlStyle={CollapseControlStyle.None}
     >
       <InputContainer
         styles={{

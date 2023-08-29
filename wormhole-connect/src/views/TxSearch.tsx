@@ -3,7 +3,9 @@ import { makeStyles } from 'tss-react/mui';
 import { useDispatch } from 'react-redux';
 import { Select, MenuItem, CircularProgress } from '@mui/material';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+
 import { CHAINS_ARR } from '../config';
+import { isValidTxId } from '../utils';
 import Operator from '../utils/routes';
 import { setTxDetails, setRoute as setRedeemRoute } from '../store/redeem';
 import { setRoute as setAppRoute } from '../store/router';
@@ -11,7 +13,6 @@ import PageHeader from '../components/PageHeader';
 import Search from '../components/Search';
 import Button from '../components/Button';
 import Spacer from '../components/Spacer';
-import { isValidTxId } from '../utils';
 import AlertBanner from '../components/AlertBanner';
 import { setToNetwork } from '../store/transferInput';
 

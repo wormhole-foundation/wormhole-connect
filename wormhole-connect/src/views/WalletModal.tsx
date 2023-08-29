@@ -8,6 +8,12 @@ import {
   SeiChainId,
   getSupportedWallets as getSeiWallets,
 } from '@xlabs-libs/wallet-aggregator-sei';
+import {
+  ChainConfig,
+  ChainName,
+  Context,
+} from '@wormhole-foundation/wormhole-connect-sdk';
+
 import { CHAINS, WH_CONFIG } from '../config';
 import { RootState } from '../store';
 import { setWalletModal } from '../store/router';
@@ -17,22 +23,17 @@ import {
   connectWallet,
 } from '../store/wallet';
 import { TransferWallet, setWalletConnection, wallets } from '../utils/wallet';
+import { CENTER } from '../utils/style';
+import { getSeiChainId } from '../utils/sei';
 
 import Header from '../components/Header';
 import Modal from '../components/Modal';
 import Spacer from '../components/Spacer';
 import Scroll from '../components/Scroll';
 import WalletIcon from '../icons/WalletIcons';
-import {
-  ChainConfig,
-  ChainName,
-  Context,
-} from '@wormhole-foundation/wormhole-connect-sdk';
 import Search from '../components/Search';
-import { CENTER } from '../utils/style';
-import { getSeiChainId } from '../utils/sei';
 
-const useStyles = makeStyles()((theme) => ({
+const useStyles = makeStyles()((theme: any) => ({
   walletRow: {
     position: 'relative',
     display: 'flex',
@@ -170,7 +171,7 @@ type Props = {
 
 function WalletsModal(props: Props) {
   const { classes } = useStyles();
-  const theme = useTheme();
+  const theme: any = useTheme();
   const { chain: chainProp, type } = props;
   const dispatch = useDispatch();
   const { fromNetwork, toNetwork } = useSelector(

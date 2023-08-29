@@ -1,9 +1,9 @@
 import { getSignedVAA, parseTokenTransferVaa } from '@certusone/wormhole-sdk';
-import { ChainId } from '@wormhole-foundation/wormhole-connect-sdk';
-import axios from 'axios';
-
 import { utils } from 'ethers';
-import { CHAINS, CONFIG, WH_CONFIG, WORMHOLE_API, isMainnet } from '../config';
+import axios from 'axios';
+import { ChainId } from '@wormhole-foundation/wormhole-connect-sdk';
+
+import { CHAINS, CONFIG, WH_CONFIG, WORMHOLE_API, isMainnet } from 'config';
 import {
   ParsedMessage,
   ParsedRelayerMessage,

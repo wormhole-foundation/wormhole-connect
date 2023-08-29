@@ -1,17 +1,18 @@
 import { useEffect, useRef } from 'react';
 import { BigNumber, BigNumberish, utils } from 'ethers';
+import { isHexString } from 'ethers/lib/utils.js';
+import { isValidTransactionDigest, SUI_TYPE_ARG } from '@mysten/sui.js';
 import {
   TokenId,
   ChainName,
   ChainId,
   Context,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { CHAINS, CHAINS_ARR, TOKENS, TOKENS_ARR } from '../config';
-import { NetworkConfig, TokenConfig } from '../config/types';
+
+import { CHAINS, CHAINS_ARR, TOKENS, TOKENS_ARR } from 'config';
+import { NetworkConfig, TokenConfig } from 'config/types';
+import { isEvmChain, wh } from 'utils/sdk';
 import { toDecimals } from './balance';
-import { isValidTransactionDigest, SUI_TYPE_ARG } from '@mysten/sui.js';
-import { isHexString } from 'ethers/lib/utils.js';
-import { isEvmChain, wh } from '../utils/sdk';
 import { isCosmWasmChain } from './cosmos';
 
 export const MAX_DECIMALS = 6;
@@ -46,9 +47,10 @@ export function displayAddress(chain: ChainName, address: string): string {
 }
 
 export function displayWalletAddress(
-  walletType: Context,
+  walletType: Context | undefined,
   address: string,
 ): string {
+  if (!walletType) return '';
   if (walletType === Context.ETH) {
     return trimAddress(convertAddress(address));
   } else if (walletType === Context.SOLANA) {
