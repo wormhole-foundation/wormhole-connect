@@ -65,6 +65,8 @@ const mainnetRpcs = {
   sui: process.env.REACT_APP_SUI_RPC || conf.rpcs.sui,
   aptos: process.env.REACT_APP_APTOS_RPC || conf.rpcs.aptos,
   sei: process.env.REACT_APP_SEI_RPC || conf.rpcs.sei,
+  arbitrum: process.env.REACT_APP_ARBITRUM_RPC || conf.rpcs.arbitrum,
+  optimism: process.env.REACT_APP_OPTIMISM_RPC || conf.rpcs.optimism,
   base: process.env.REACT_APP_BASE_RPC || conf.rpcs.base,
 };
 const testnetRpcs = {
@@ -79,6 +81,10 @@ const testnetRpcs = {
   sui: process.env.REACT_APP_SUI_TESTNET_RPC || conf.rpcs.sui,
   aptos: process.env.REACT_APP_APTOS_TESTNET_RPC || conf.rpcs.aptos,
   sei: process.env.REACT_APP_SEI_TESTNET_RPC || conf.rpcs.sei,
+  arbitrumgoerli:
+    process.env.REACT_APP_ARBITRUM_GOERLI_RPC || conf.rpcs.arbitrumgoerli,
+  optimismgoerli:
+    process.env.REACT_APP_OPTIMISM_GOERLI_RPC || conf.rpcs.optimismgoerli,
   basegoerli: process.env.REACT_APP_BASE_GOERLI_RPC || conf.rpcs.basegoerli,
 };
 conf.rpcs = Object.assign(
@@ -128,6 +134,8 @@ export const TESTNET_TO_MAINNET_CHAIN_NAMES: {
   fantom: 'fantom',
   sui: 'sui',
   aptos: 'aptos',
+  arbitrumgoerli: 'arbitrum',
+  optimismgoerli: 'optimism',
   basegoerli: 'base',
   sei: 'sei',
 };
