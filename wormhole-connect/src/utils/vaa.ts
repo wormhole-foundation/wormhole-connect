@@ -3,7 +3,7 @@ import { utils } from 'ethers';
 import axios from 'axios';
 import { ChainId } from '@wormhole-foundation/wormhole-connect-sdk';
 
-import { CHAINS, WH_CONFIG, WORMHOLE_API, isMainnet } from 'config';
+import { CHAINS, WH_CONFIG, WORMHOLE_API } from 'config';
 import {
   ParsedMessage,
   ParsedRelayerMessage,
@@ -24,9 +24,6 @@ export const WORMHOLE_RPC_HOSTS =
     : WH_CONFIG.env === 'TESTNET'
     ? ['https://wormhole-v2-testnet-api.certus.one']
     : ['http://localhost:7071'];
-const WORMHOLE_STAGING_API = isMainnet
-  ? 'https://api.staging.wormholescan.io/'
-  : 'https://api.testnet.wormholescan.io/';
 
 export type ParsedVaa = {
   bytes: string;
@@ -150,7 +147,7 @@ export const fetchGlobalTx = async (
   const messageId = getEmitterAndSequence(txData);
   const { emitterChain, emitterAddress, sequence } = messageId;
 
-  const url = `${WORMHOLE_STAGING_API}api/v1/global-tx/${emitterChain}/${emitterAddress}/${sequence}`;
+  const url = `${WORMHOLE_API}api/v1/global-tx/${emitterChain}/${emitterAddress}/${sequence}`;
   return axios
     .get(url)
     .then(function (response: any) {
