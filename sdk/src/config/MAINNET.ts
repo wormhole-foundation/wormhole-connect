@@ -15,6 +15,8 @@ export const MAINNET_CHAINS = {
   moonbeam: 16,
   sui: 21,
   aptos: 22,
+  arbitrum: 23,
+  optimism: 24,
   base: 30,
   sei: 32,
 } as const;
@@ -159,6 +161,26 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     finalityThreshold: 0,
     nativeTokenDecimals: 8,
   },
+  arbitrum: {
+    key: 'arbitrum',
+    id: 23,
+    context: Context.ETH,
+    contracts: {
+      ...CONTRACTS.MAINNET.arbitrum,
+    },
+    finalityThreshold: 0,
+    nativeTokenDecimals: 18,
+  },
+  optimism: {
+    key: 'optimism',
+    id: 24,
+    context: Context.ETH,
+    contracts: {
+      ...CONTRACTS.MAINNET.optimism,
+    },
+    finalityThreshold: 0,
+    nativeTokenDecimals: 18,
+  },
   base: {
     key: 'base',
     id: 30,
@@ -200,6 +222,8 @@ const MAINNET_CONFIG: WormholeConfig = {
     moonbeam: 'https://rpc.ankr.com/moonbeam',
     sui: 'https://rpc.mainnet.sui.io',
     aptos: 'https://fullnode.mainnet.aptoslabs.com/v1',
+    arbitrum: 'https://arb1.arbitrum.io/rpc',
+    optimism: 'https://mainnet.optimism.io',
     base: 'https://mainnet.base.org',
     sei: '', // TODO: fill in
   },
