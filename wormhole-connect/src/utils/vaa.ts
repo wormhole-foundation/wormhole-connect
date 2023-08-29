@@ -151,7 +151,6 @@ export const fetchGlobalTx = async (
   const { emitterChain, emitterAddress, sequence } = messageId;
 
   const url = `${WORMHOLE_STAGING_API}api/v1/global-tx/${emitterChain}/${emitterAddress}/${sequence}`;
-
   return axios
     .get(url)
     .then(function (response: any) {

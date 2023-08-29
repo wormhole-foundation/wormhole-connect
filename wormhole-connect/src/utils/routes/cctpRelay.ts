@@ -23,7 +23,6 @@ import {
   ParsedRelayerMessage,
   toChainId,
   wh,
-  calculateNativeTokenAmt,
   PayloadType,
 } from 'utils/sdk';
 import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
@@ -38,9 +37,10 @@ import {
   CCTPManual_CHAINS as CCTPRelay_CHAINS,
   CCTP_LOG_MessageSent,
   CCTP_LOG_TokenMessenger_DepositForBurn,
-  getCircleAttestation,
+  tryGetCircleAttestation,
   CCTPManualRoute,
   getChainNameCCTP,
+  getForeignUSDCAddress,
 } from './cctpManual';
 export interface CCTPRelayPreviewParams {
   destToken: TokenConfig;
@@ -61,16 +61,24 @@ interface TransferDestInfoParams {
 }
 
 export class CCTPRelayRoute extends CCTPManualRoute {
+  NATIVE_GAS_DROPOFF_SUPPORTED = true;
   async isSupportedSourceToken(
     token: TokenConfig | undefined,
     destToken: TokenConfig | undefined,
+    sourceChain?: ChainName | ChainId,
+    destChain?: ChainName | ChainId,
   ): Promise<boolean> {
     if (!token) return false;
     const sourceChainName = token.nativeNetwork;
-    const sourceChainCCTP = CCTPRelay_CHAINS.includes(sourceChainName);
+    const sourceChainCCTP =
+      CCTPRelay_CHAINS.includes(sourceChainName) &&
+      (!sourceChain || wh.toChainName(sourceChain) === sourceChainName);
+
     if (destToken) {
-      const destChainName = token.nativeNetwork;
-      const destChainCCTP = CCTPRelay_CHAINS.includes(destChainName);
+      const destChainName = destToken.nativeNetwork;
+      const destChainCCTP =
+        CCTPRelay_CHAINS.includes(destChainName) &&
+        (!destChain || wh.toChainName(destChain) === destChainName);
 
       return (
         destToken.symbol === CCTPTokenSymbol &&
@@ -85,13 +93,19 @@ export class CCTPRelayRoute extends CCTPManualRoute {
   async isSupportedDestToken(
     token: TokenConfig | undefined,
     sourceToken: TokenConfig | undefined,
+    sourceChain?: ChainName | ChainId,
+    destChain?: ChainName | ChainId,
   ): Promise<boolean> {
     if (!token) return false;
     const destChainName = token.nativeNetwork;
-    const destChainCCTP = CCTPRelay_CHAINS.includes(destChainName);
+    const destChainCCTP =
+      CCTPRelay_CHAINS.includes(destChainName) &&
+      (!destChain || wh.toChainName(destChain) === destChainName);
     if (sourceToken) {
-      const sourceChainName = token.nativeNetwork;
-      const sourceChainCCTP = CCTPRelay_CHAINS.includes(sourceChainName);
+      const sourceChainName = sourceToken.nativeNetwork;
+      const sourceChainCCTP =
+        CCTPRelay_CHAINS.includes(sourceChainName) &&
+        (!sourceChain || wh.toChainName(sourceChain) === sourceChainName);
 
       return (
         sourceToken.symbol === CCTPTokenSymbol &&
@@ -101,6 +115,42 @@ export class CCTPRelayRoute extends CCTPManualRoute {
       );
     }
     return token.symbol === CCTPTokenSymbol && destChainCCTP;
+  }
+
+  async supportedSourceTokens(
+    tokens: TokenConfig[],
+    destToken?: TokenConfig,
+    sourceChain?: ChainName | ChainId,
+    destChain?: ChainName | ChainId,
+  ): Promise<TokenConfig[]> {
+    if (!destToken) return tokens;
+    const shouldAdd = await Promise.allSettled(
+      tokens.map((token) =>
+        this.isSupportedSourceToken(token, destToken, sourceChain, destChain),
+      ),
+    );
+    return tokens.filter((_token, i) => {
+      const res = shouldAdd[i];
+      return res.status === 'fulfilled' && res.value;
+    });
+  }
+
+  async supportedDestTokens(
+    tokens: TokenConfig[],
+    sourceToken?: TokenConfig,
+    sourceChain?: ChainName | ChainId,
+    destChain?: ChainName | ChainId,
+  ): Promise<TokenConfig[]> {
+    if (!sourceToken) return tokens;
+    const shouldAdd = await Promise.allSettled(
+      tokens.map((token) =>
+        this.isSupportedDestToken(token, sourceToken, sourceChain, destChain),
+      ),
+    );
+    return tokens.filter((_token, i) => {
+      const res = shouldAdd[i];
+      return res.status === 'fulfilled' && res.value;
+    });
   }
 
   async isRouteAvailable(
@@ -118,10 +168,13 @@ export class CCTPRelayRoute extends CCTPManualRoute {
 
     const sourceChainName = wh.toChainName(sourceChain);
     const destChainName = wh.toChainName(destChain);
+
     if (sourceChainName === destChainName) return false;
 
     if (sourceTokenConfig.symbol !== CCTPTokenSymbol) return false;
     if (destTokenConfig.symbol !== CCTPTokenSymbol) return false;
+    if (sourceTokenConfig.nativeNetwork !== sourceChainName) return false;
+    if (destTokenConfig.nativeNetwork !== destChainName) return false;
 
     return (
       CCTPRelay_CHAINS.includes(sourceChainName) &&
@@ -378,7 +431,8 @@ export class CCTPRelayRoute extends CCTPManualRoute {
   async getMessageInfo(
     tx: string,
     chain: ChainName | ChainId,
-  ): Promise<CCTPInfo> {
+    unsigned?: boolean,
+  ): Promise<CCTPInfo | undefined> {
     // only EVM
     // use this as reference
     // https://goerli.etherscan.io/tx/0xe4984775c76b8fe7c2b09cd56fb26830f6e5c5c6b540eb97d37d41f47f33faca#eventlog
@@ -408,7 +462,12 @@ export class CCTPRelayRoute extends CCTPManualRoute {
     ]).parseLog(messageLog).args.message;
 
     const messageHash = utils.keccak256(message);
-    const signedAttestation = await getCircleAttestation(messageHash);
+    let signedAttestation;
+    if (!unsigned) {
+      signedAttestation = await tryGetCircleAttestation(messageHash);
+      // If no attestion, and attestation was requested, return undefined
+      if (!signedAttestation) return undefined;
+    }
 
     const result = {
       fromChain: wh.toChainName(chain),
@@ -519,13 +578,14 @@ export class CCTPRelayRoute extends CCTPManualRoute {
         );
         nativeGasAmt = toDecimals(nativeSwapAmount, decimals, MAX_DECIMALS);
       }
-    } else if (!transferComplete) {
+    } else {
       // get the decimals on the target chain
       const destinationTokenDecimals = getTokenDecimals(
         wh.toChainId(txData.toChain),
         txData.tokenId,
       ); // should be 6
-      const amount = await calculateNativeTokenAmt(
+
+      const amount = await this.nativeTokenAmount(
         txData.toChain,
         txData.tokenId,
         fromNormalizedDecimals(
@@ -534,6 +594,7 @@ export class CCTPRelayRoute extends CCTPManualRoute {
         ),
         txData.recipient,
       );
+
       // get the decimals on the target chain
       const nativeGasTokenDecimals = getTokenDecimals(
         wh.toChainId(txData.toChain),
@@ -567,10 +628,34 @@ export class CCTPRelayRoute extends CCTPManualRoute {
       },
     ];
   }
+
+  async nativeTokenAmount(
+    destChain: ChainName | ChainId,
+    token: TokenId,
+    amount: BigNumber,
+    walletAddress: string,
+  ): Promise<BigNumber> {
+    const context: any = wh.getContext(destChain);
+    const relayer = context.contracts.mustGetWormholeCircleRelayer(destChain);
+    const tokenAddress = getForeignUSDCAddress(destChain);
+
+    return relayer.calculateNativeSwapAmountOut(tokenAddress, amount);
+  }
+
+  async maxSwapAmount(
+    destChain: ChainName | ChainId,
+    token: TokenId,
+    walletAddress: string,
+  ): Promise<BigNumber> {
+    const context: any = wh.getContext(destChain);
+    const relayer = context.contracts.mustGetWormholeCircleRelayer(destChain);
+    const tokenAddress = getForeignUSDCAddress(destChain);
+    return relayer.calculateMaxSwapAmountIn(tokenAddress);
+  }
 }
 
 async function fetchSwapEvent(txData: ParsedMessage | ParsedRelayerMessage) {
-  const { tokenId, recipient, amount, tokenDecimals } = txData;
+  const { recipient, amount, tokenDecimals } = txData;
   const provider = wh.mustGetProvider(txData.toChain);
   const context: any = wh.getContext(txData.toChain);
   const chainName = wh.toChainName(txData.toChain) as ChainName;
@@ -578,7 +663,7 @@ async function fetchSwapEvent(txData: ParsedMessage | ParsedRelayerMessage) {
   const relayerContract = context.contracts.mustGetWormholeCircleRelayer(
     txData.toChain,
   );
-  const foreignAsset = await context.getForeignAsset(tokenId, txData.toChain);
+  const foreignAsset = getForeignUSDCAddress(txData.toChain);
   const eventFilter = relayerContract.filters.SwapExecuted(
     recipient,
     undefined,

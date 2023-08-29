@@ -34,19 +34,27 @@ export default abstract class RouteAbstract {
   public abstract isSupportedSourceToken(
     token: TokenConfig | undefined,
     destToken: TokenConfig | undefined,
+    sourceChain?: ChainName | ChainId,
+    destChain?: ChainName | ChainId,
   ): Promise<boolean>;
   public abstract isSupportedDestToken(
     token: TokenConfig | undefined,
     sourceToken: TokenConfig | undefined,
+    sourceChain?: ChainName | ChainId,
+    destChain?: ChainName | ChainId,
   ): Promise<boolean>;
 
   public abstract supportedSourceTokens(
     tokens: TokenConfig[],
     destToken?: TokenConfig,
+    sourceChain?: ChainName | ChainId,
+    destChain?: ChainName | ChainId,
   ): Promise<TokenConfig[]>;
   public abstract supportedDestTokens(
     tokens: TokenConfig[],
     sourceToken?: TokenConfig,
+    sourceChain?: ChainName | ChainId,
+    destChain?: ChainName | ChainId,
   ): Promise<TokenConfig[]>;
 
   // Calculate the amount a user would receive if sending a certain amount
@@ -144,10 +152,25 @@ export default abstract class RouteAbstract {
   abstract getMessageInfo(
     tx: string,
     chain: ChainName | ChainId,
-  ): Promise<MessageInfo>;
+    unsigned?: boolean,
+  ): Promise<MessageInfo | undefined>;
 
   abstract isTransferCompleted(
     destChain: ChainName | ChainId,
     messageInfo: MessageInfo,
   ): Promise<boolean>;
+
+  // swap information (native gas slider)
+  abstract nativeTokenAmount(
+    destChain: ChainName | ChainId,
+    token: TokenId,
+    amount: BigNumber,
+    walletAddress: string,
+  ): Promise<BigNumber>;
+
+  abstract maxSwapAmount(
+    destChain: ChainName | ChainId,
+    token: TokenId,
+    walletAddress: string,
+  ): Promise<BigNumber>;
 }

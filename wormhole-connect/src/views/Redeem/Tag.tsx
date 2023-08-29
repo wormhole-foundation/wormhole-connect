@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { RootState } from '../../store';
 import { LINK } from '../../utils/style';
-import { CHAINS, WORMHOLE_EXPLORER } from '../../config';
+import { CHAINS, WORMSCAN, isMainnet } from '../../config';
 import InputContainer from '../../components/InputContainer';
 import ArrowRight from '../../icons/ArrowRight';
 import LaunchIcon from '@mui/icons-material/Launch';
@@ -45,7 +45,9 @@ function NetworksTag() {
     txData &&
     txData.emitterAddress &&
     txData.sequence &&
-    `${WORMHOLE_EXPLORER}?emitterChain=${fromNetworkConfig.id}&emitterAddress=${emitterAddress}&sequence=${txData.sequence}`;
+    `${WORMSCAN}tx/${fromNetworkConfig.id}/${emitterAddress}/${
+      txData.sequence
+    }${isMainnet ? '' : '?network=TESTNET'}`;
 
   return (
     <div>

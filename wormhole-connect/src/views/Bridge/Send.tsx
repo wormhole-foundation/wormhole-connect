@@ -136,6 +136,7 @@ function Send(props: { valid: boolean }) {
             route,
             txId,
             fromNetwork!,
+            true, // don't need to get the signed attestation
           );
         }
       }, 1000);
@@ -198,7 +199,10 @@ function Send(props: { valid: boolean }) {
 
     // TODO: should use a different enum than Route
     // which is either one transaction or two
-    if (automaticRelayAvail) {
+    if (
+      automaticRelayAvail &&
+      (route === Route.RELAY || route === Route.CCTPRelay)
+    ) {
       setSendingGas(Route.RELAY);
     }
     setSendingGas(Route.BRIDGE);

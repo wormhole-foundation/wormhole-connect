@@ -35,6 +35,8 @@ interface TransferDestInfoParams {
 }
 
 export class BridgeRoute extends BaseRoute {
+  NATIVE_GAS_DROPOFF_SUPPORTED = false;
+
   async isRouteAvailable(
     sourceToken: string,
     destToken: string,
@@ -321,5 +323,22 @@ export class BridgeRoute extends BaseRoute {
       destChain,
       Buffer.from(messageInfo.rawVaa).toString(),
     );
+  }
+
+  async nativeTokenAmount(
+    destChain: ChainName | ChainId,
+    token: TokenId,
+    amount: BigNumber,
+    walletAddress: string,
+  ): Promise<BigNumber> {
+    throw new Error('Not implemented');
+  }
+
+  async maxSwapAmount(
+    destChain: ChainName | ChainId,
+    token: TokenId,
+    walletAddress: string,
+  ): Promise<BigNumber> {
+    throw new Error('Not implemented');
   }
 }

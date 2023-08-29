@@ -61,6 +61,19 @@ interface TransferDestInfoParams {
   receiveTx?: string;
 }
 
+export function getForeignUSDCAddress(chain: ChainName | ChainId) {
+  const usdcToken = TOKENS_ARR.find(
+    (t) =>
+      t.symbol === CCTPTokenSymbol &&
+      t.nativeNetwork === wh.toChainName(chain) &&
+      t.tokenId?.chain === wh.toChainName(chain),
+  );
+  if (!usdcToken) {
+    throw new Error('No foreign native USDC address');
+  }
+  return usdcToken.tokenId?.address;
+}
+
 async function sleep(timeout: number) {
   return new Promise((resolve) => setTimeout(resolve, timeout));
 }
@@ -74,7 +87,7 @@ export async function getCircleAttestation(messageHash: BytesLike) {
     // get the post
     const response = await tryGetCircleAttestation(messageHash);
 
-    if (response !== null) {
+    if (response) {
       return response;
     }
 
@@ -82,24 +95,24 @@ export async function getCircleAttestation(messageHash: BytesLike) {
   }
 }
 
-async function tryGetCircleAttestation(
+export async function tryGetCircleAttestation(
   messageHash: BytesLike,
-): Promise<string | null> {
+): Promise<string | undefined> {
   return await axios
     .get(`${CIRCLE_ATTESTATION}${messageHash}`)
     .catch((reason) => {
-      return null;
+      return undefined;
     })
-    .then(async (response: AxiosResponse | null) => {
+    .then(async (response: AxiosResponse | undefined) => {
       if (
-        response !== null &&
+        response &&
         response.status === 200 &&
         response.data.status === 'complete'
       ) {
         return response.data.attestation as string;
       }
 
-      return null;
+      return undefined;
     });
 }
 
@@ -114,17 +127,24 @@ export function getChainNameCCTP(domain: number): ChainName {
 }
 
 export class CCTPManualRoute extends BaseRoute {
+  NATIVE_GAS_DROPOFF_SUPPORTED = false;
   async isSupportedSourceToken(
     token: TokenConfig | undefined,
     destToken: TokenConfig | undefined,
+    sourceChain?: ChainName | ChainId,
+    destChain?: ChainName | ChainId,
   ): Promise<boolean> {
     if (!token) return false;
     const sourceChainName = token.nativeNetwork;
-    const sourceChainCCTP = CCTPManual_CHAINS.includes(sourceChainName);
+    const sourceChainCCTP =
+      CCTPManual_CHAINS.includes(sourceChainName) &&
+      (!sourceChain || wh.toChainName(sourceChain) === sourceChainName);
 
     if (destToken) {
-      const destChainName = token.nativeNetwork;
-      const destChainCCTP = CCTPManual_CHAINS.includes(destChainName);
+      const destChainName = destToken.nativeNetwork;
+      const destChainCCTP =
+        CCTPManual_CHAINS.includes(destChainName) &&
+        (!destChain || wh.toChainName(destChain) === destChainName);
 
       return (
         destToken.symbol === CCTPTokenSymbol &&
@@ -139,14 +159,19 @@ export class CCTPManualRoute extends BaseRoute {
   async isSupportedDestToken(
     token: TokenConfig | undefined,
     sourceToken: TokenConfig | undefined,
+    sourceChain?: ChainName | ChainId,
+    destChain?: ChainName | ChainId,
   ): Promise<boolean> {
     if (!token) return false;
-    const sourceChainName = token.nativeNetwork;
-    const sourceChainCCTP = CCTPManual_CHAINS.includes(sourceChainName);
+    const destChainName = token.nativeNetwork;
+    const destChainCCTP =
+      CCTPManual_CHAINS.includes(destChainName) &&
+      (!destChain || wh.toChainName(destChain) === destChainName);
     if (sourceToken) {
-      const destChainName = token.nativeNetwork;
-      const destChainCCTP = CCTPManual_CHAINS.includes(destChainName);
-
+      const sourceChainName = sourceToken.nativeNetwork;
+      const sourceChainCCTP =
+        CCTPManual_CHAINS.includes(sourceChainName) &&
+        (!sourceChain || wh.toChainName(sourceChain) === sourceChainName);
       return (
         sourceToken.symbol === CCTPTokenSymbol &&
         token.symbol === CCTPTokenSymbol &&
@@ -154,7 +179,43 @@ export class CCTPManualRoute extends BaseRoute {
         destChainCCTP
       );
     }
-    return token.symbol === CCTPTokenSymbol && sourceChainCCTP;
+    return token.symbol === CCTPTokenSymbol && destChainCCTP;
+  }
+
+  async supportedSourceTokens(
+    tokens: TokenConfig[],
+    destToken?: TokenConfig,
+    sourceChain?: ChainName | ChainId,
+    destChain?: ChainName | ChainId,
+  ): Promise<TokenConfig[]> {
+    if (!destToken) return tokens;
+    const shouldAdd = await Promise.allSettled(
+      tokens.map((token) =>
+        this.isSupportedSourceToken(token, destToken, sourceChain, destChain),
+      ),
+    );
+    return tokens.filter((_token, i) => {
+      const res = shouldAdd[i];
+      return res.status === 'fulfilled' && res.value;
+    });
+  }
+
+  async supportedDestTokens(
+    tokens: TokenConfig[],
+    sourceToken?: TokenConfig,
+    sourceChain?: ChainName | ChainId,
+    destChain?: ChainName | ChainId,
+  ): Promise<TokenConfig[]> {
+    if (!sourceToken) return tokens;
+    const shouldAdd = await Promise.allSettled(
+      tokens.map((token) =>
+        this.isSupportedDestToken(token, sourceToken, sourceChain, destChain),
+      ),
+    );
+    return tokens.filter((_token, i) => {
+      const res = shouldAdd[i];
+      return res.status === 'fulfilled' && res.value;
+    });
   }
 
   async isRouteAvailable(
@@ -172,9 +233,12 @@ export class CCTPManualRoute extends BaseRoute {
 
     const sourceChainName = wh.toChainName(sourceChain);
     const destChainName = wh.toChainName(destChain);
+
     if (sourceChainName === destChainName) return false;
     if (sourceTokenConfig.symbol !== CCTPTokenSymbol) return false;
     if (destTokenConfig.symbol !== CCTPTokenSymbol) return false;
+    if (sourceTokenConfig.nativeNetwork !== sourceChainName) return false;
+    if (destTokenConfig.nativeNetwork !== destChainName) return false;
 
     return (
       CCTPManual_CHAINS.includes(sourceChainName) &&
@@ -352,6 +416,9 @@ export class CCTPManualRoute extends BaseRoute {
       circleMessageTransmitter,
       connection,
     );
+    if (!messageInfo.signedAttestation) {
+      throw new Error('No signed attestation');
+    }
     const tx = await contract.receiveMessage(
       messageInfo.message,
       messageInfo.signedAttestation,
@@ -470,7 +537,10 @@ export class CCTPManualRoute extends BaseRoute {
   ): Promise<string | null> {
     // assumes USDC
     const addr = TOKENS_ARR.find(
-      (t) => t.symbol === CCTPTokenSymbol && t.nativeNetwork === chain,
+      (t) =>
+        t.symbol === CCTPTokenSymbol &&
+        t.nativeNetwork === chain &&
+        t.tokenId?.chain === chain,
     )?.tokenId?.address;
     if (!addr) throw new Error('USDC not found');
     return addr;
@@ -479,7 +549,8 @@ export class CCTPManualRoute extends BaseRoute {
   async getMessageInfo(
     tx: string,
     chain: ChainName | ChainId,
-  ): Promise<CCTPInfo> {
+    unsigned?: boolean,
+  ): Promise<CCTPInfo | undefined> {
     // only EVM
     // use this as reference
     // https://goerli.etherscan.io/tx/0xe4984775c76b8fe7c2b09cd56fb26830f6e5c5c6b540eb97d37d41f47f33faca#eventlog
@@ -505,7 +576,12 @@ export class CCTPManualRoute extends BaseRoute {
         .message;
 
     const messageHash = utils.keccak256(message);
-    const signedAttestation = await getCircleAttestation(messageHash);
+    let signedAttestation;
+    if (!unsigned) {
+      signedAttestation = await tryGetCircleAttestation(messageHash);
+      // If no attestion, and attestation was requested, return undefined
+      if (!signedAttestation) return undefined;
+    }
 
     const result = {
       fromChain: wh.toChainName(chain),
@@ -565,7 +641,6 @@ export class CCTPManualRoute extends BaseRoute {
     const token = TOKENS[txData.tokenKey];
     const { gasToken } = CHAINS[txData.toChain]!;
     const gas = await calculateGas(txData.toChain, Route.CCTPManual, receiveTx);
-
     const formattedAmt = toNormalizedDecimals(
       txData.amount,
       txData.tokenDecimals,
@@ -613,5 +688,22 @@ export class CCTPManualRoute extends BaseRoute {
     );
     const result = await contract.usedNonces(hash);
     return result.toString() === '1';
+  }
+
+  async nativeTokenAmount(
+    destChain: ChainName | ChainId,
+    token: TokenId,
+    amount: BigNumber,
+    walletAddress: string,
+  ): Promise<BigNumber> {
+    throw new Error('Not supported');
+  }
+
+  async maxSwapAmount(
+    destChain: ChainName | ChainId,
+    token: TokenId,
+    walletAddress: string,
+  ): Promise<BigNumber> {
+    throw new Error('Not supported');
   }
 }

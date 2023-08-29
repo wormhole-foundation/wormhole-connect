@@ -110,7 +110,11 @@ function Preview(props: { collapsed: boolean }) {
         dispatch(setRelayerFee(formattedFee));
       } catch (e) {
         if (e.message.includes('swap rate not set')) {
-          dispatch(disableAutomaticTransferAndSetRoute(Route.BRIDGE));
+          if (route === Route.CCTPRelay) {
+            dispatch(disableAutomaticTransferAndSetRoute(Route.CCTPManual));
+          } else {
+            dispatch(disableAutomaticTransferAndSetRoute(Route.BRIDGE));
+          }
         } else {
           throw e;
         }

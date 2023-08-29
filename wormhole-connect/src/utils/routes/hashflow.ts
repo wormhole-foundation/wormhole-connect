@@ -13,6 +13,7 @@ import { TransferDisplayData } from './types';
 import { BigNumber } from 'ethers';
 
 export class HashflowRoute extends RouteAbstract {
+  NATIVE_GAS_DROPOFF_SUPPORTED = false;
   public isRouteAvailable(
     sourceToken: string,
     destToken: string,
@@ -141,5 +142,22 @@ export class HashflowRoute extends RouteAbstract {
     params: T,
   ): Promise<TransferDisplayData> {
     throw new Error('Method not implemented.');
+  }
+
+  async nativeTokenAmount(
+    destChain: ChainName | ChainId,
+    token: TokenId,
+    amount: BigNumber,
+    walletAddress: string,
+  ): Promise<BigNumber> {
+    throw new Error('Not implemented');
+  }
+
+  async maxSwapAmount(
+    destChain: ChainName | ChainId,
+    token: TokenId,
+    walletAddress: string,
+  ): Promise<BigNumber> {
+    throw new Error('Not implemented');
   }
 }

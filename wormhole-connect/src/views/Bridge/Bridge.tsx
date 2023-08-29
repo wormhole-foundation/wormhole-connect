@@ -35,6 +35,7 @@ import { joinClass } from '../../utils/style';
 import SwapNetworks from './SwapNetworks';
 import RouteOptions from './RouteOptions';
 import Operator from '../../utils/routes';
+import { listOfRoutes } from '../../utils/routes/operator';
 import { TokenConfig } from '../../config/types';
 
 const useStyles = makeStyles()((theme) => ({
@@ -57,6 +58,10 @@ const useStyles = makeStyles()((theme) => ({
     width: '100%',
   },
 }));
+
+function getUniqueTokens(arr: TokenConfig[]) {
+  return arr.filter((t, i) => arr.findIndex((_t) => _t.key === t.key) === i);
+}
 
 function isSupportedToken(
   token: string,
@@ -111,10 +116,23 @@ function Bridge() {
   useEffect(() => {
     const computeSrcTokens = async () => {
       const operator = new Operator();
-      const supported =
-        // the user should be able to pick any source token
-        await operator.supportedSourceTokens(route, TOKENS_ARR, undefined);
 
+      // Get all possible source tokens over all routes
+      const supported = getUniqueTokens(
+        (
+          await Promise.all(
+            listOfRoutes.map((r) => {
+              const returnedTokens = operator.supportedSourceTokens(
+                r,
+                TOKENS_ARR,
+                undefined,
+                fromNetwork,
+              );
+              return returnedTokens;
+            }),
+          )
+        ).reduce((a, b) => a.concat(b), []),
+      );
       dispatch(setSupportedSourceTokens(supported));
       const selectedIsSupported = isSupportedToken(token, supported);
       if (!selectedIsSupported) {
@@ -132,12 +150,23 @@ function Bridge() {
   useEffect(() => {
     const computeDestTokens = async () => {
       const operator = new Operator();
-      const supported = await operator.supportedDestTokens(
-        route,
-        TOKENS_ARR,
-        TOKENS[token],
-      );
 
+      // Get all possible destination tokens over all routes, given the source token
+      const supported = getUniqueTokens(
+        (
+          await Promise.all(
+            listOfRoutes.map((r) =>
+              operator.supportedDestTokens(
+                r,
+                TOKENS_ARR,
+                TOKENS[token],
+                fromNetwork,
+                toNetwork,
+              ),
+            ),
+          )
+        ).reduce((a, b) => a.concat(b)),
+      );
       dispatch(setSupportedDestTokens(supported));
       const selectedIsSupported = isSupportedToken(destToken, supported);
       if (!selectedIsSupported) {
@@ -146,11 +175,26 @@ function Bridge() {
       if (supported.length === 1) {
         dispatch(setDestToken(supported[0].key));
       }
+
+      // If all the supported tokens are the same token
+      // select the native version
+      const symbols = supported.map((t) => t.symbol);
+      if (toNetwork && symbols.every((s) => s === symbols[0])) {
+        const key = supported.find(
+          (t) =>
+            t.symbol === symbols[0] &&
+            t.nativeNetwork === t.tokenId?.chain &&
+            t.nativeNetwork === toNetwork,
+        )?.key;
+        if (key) {
+          dispatch(setDestToken(key));
+        }
+      }
     };
     computeDestTokens();
     // IMPORTANT: do not include destToken in dependency array
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [route, token, dispatch]);
+  }, [route, token, fromNetwork, toNetwork, dispatch]);
 
   // check if automatic relay option is available
   useEffect(() => {

@@ -15,6 +15,7 @@ import {
   ParsedRelayerMessage,
   toChainId,
   calculateNativeTokenAmt,
+  calculateMaxSwapAmount,
 } from 'utils/sdk';
 import { BridgePreviewParams, BridgeRoute } from './bridge';
 import {
@@ -51,6 +52,8 @@ interface TransferDestInfoParams {
 }
 
 export class RelayRoute extends BridgeRoute {
+  NATIVE_GAS_DROPOFF_SUPPORTED = true;
+
   async isRouteAvailable(
     sourceToken: string,
     destToken: string,
@@ -141,6 +144,23 @@ export class RelayRoute extends BridgeRoute {
   ): Promise<number> {
     if (!receiveAmount) return 0;
     return receiveAmount + (routeOptions?.toNativeToken || 0);
+  }
+
+  async nativeTokenAmount(
+    destChain: ChainName | ChainId,
+    token: TokenId,
+    amount: BigNumber,
+    walletAddress: string,
+  ): Promise<BigNumber> {
+    return calculateNativeTokenAmt(destChain, token, amount, walletAddress);
+  }
+
+  async maxSwapAmount(
+    destChain: ChainName | ChainId,
+    token: TokenId,
+    walletAddress: string,
+  ): Promise<BigNumber> {
+    return calculateMaxSwapAmount(destChain, token, walletAddress);
   }
 
   async validate(

@@ -32,6 +32,12 @@ import {
   CCTP_LOG_TokenMessenger_DepositForBurn,
 } from './cctpManual';
 
+export const listOfRoutes = [
+  Route.BRIDGE,
+  Route.CCTPManual,
+  Route.CCTPRelay,
+  Route.RELAY,
+];
 export default class Operator {
   getRoute(route: Route): RouteAbstract {
     switch (route) {
@@ -63,7 +69,7 @@ export default class Operator {
       const result = await getVaa(txHash, chain);
       vaa = result.vaa;
     } catch (_error: any) {
-      error = _error;
+      error = _error.message;
     }
 
     // if(HASHFLOW_CONTRACT_ADDRESSES.includes(vaa.emitterAddress)) {
@@ -72,6 +78,7 @@ export default class Operator {
 
     if (!vaa) {
       // Currently, CCTP manual is the only route without a VAA
+
       if (error === NO_VAA_FOUND) {
         const provider = wh.mustGetProvider(chain);
         const receipt = await provider.getTransactionReceipt(txHash);
@@ -130,36 +137,64 @@ export default class Operator {
     route: Route,
     token: TokenConfig | undefined,
     destToken: TokenConfig | undefined,
+    sourceChain?: ChainName | ChainId,
+    destChain?: ChainName | ChainId,
   ): Promise<boolean> {
     const r = this.getRoute(route);
-    return await r.isSupportedSourceToken(token, destToken);
+    return await r.isSupportedSourceToken(
+      token,
+      destToken,
+      sourceChain,
+      destChain,
+    );
   }
 
   async isSupportedDestToken(
     route: Route,
     token: TokenConfig | undefined,
     sourceToken: TokenConfig | undefined,
+    sourceChain?: ChainName | ChainId,
+    destChain?: ChainName | ChainId,
   ): Promise<boolean> {
     const r = this.getRoute(route);
-    return await r.isSupportedDestToken(token, sourceToken);
+    return await r.isSupportedDestToken(
+      token,
+      sourceToken,
+      sourceChain,
+      destChain,
+    );
   }
 
   async supportedSourceTokens(
     route: Route,
     tokens: TokenConfig[],
     destToken?: TokenConfig,
+    sourceChain?: ChainName | ChainId,
+    destChain?: ChainName | ChainId,
   ): Promise<TokenConfig[]> {
     const r = this.getRoute(route);
-    return await r.supportedSourceTokens(tokens, destToken);
+    return await r.supportedSourceTokens(
+      tokens,
+      destToken,
+      sourceChain,
+      destChain,
+    );
   }
 
   async supportedDestTokens(
     route: Route,
     tokens: TokenConfig[],
     sourceToken?: TokenConfig,
+    sourceChain?: ChainName | ChainId,
+    destChain?: ChainName | ChainId,
   ): Promise<TokenConfig[]> {
     const r = this.getRoute(route);
-    return await r.supportedDestTokens(tokens, sourceToken);
+    return await r.supportedDestTokens(
+      tokens,
+      sourceToken,
+      sourceChain,
+      destChain,
+    );
   }
 
   async computeReceiveAmount(
@@ -327,9 +362,10 @@ export default class Operator {
     route: Route,
     tx: string,
     network: ChainName | ChainId,
-  ): Promise<MessageInfo> {
+    unsigned?: boolean,
+  ): Promise<MessageInfo | undefined> {
     const r = this.getRoute(route);
-    return r.getMessageInfo(tx, network);
+    return r.getMessageInfo(tx, network, unsigned);
   }
 
   public getTransferSourceInfo<T extends TransferInfoBaseParams>(
@@ -346,5 +382,27 @@ export default class Operator {
   ): Promise<TransferDisplayData> {
     const r = this.getRoute(route);
     return r.getTransferDestInfo(params);
+  }
+
+  // swap information (native gas slider)
+  public nativeTokenAmount(
+    route: Route,
+    destChain: ChainName | ChainId,
+    token: TokenId,
+    amount: BigNumber,
+    walletAddress: string,
+  ): Promise<BigNumber> {
+    const r = this.getRoute(route);
+    return r.nativeTokenAmount(destChain, token, amount, walletAddress);
+  }
+
+  public maxSwapAmount(
+    route: Route,
+    destChain: ChainName | ChainId,
+    token: TokenId,
+    walletAddress: string,
+  ): Promise<BigNumber> {
+    const r = this.getRoute(route);
+    return r.maxSwapAmount(destChain, token, walletAddress);
   }
 }
