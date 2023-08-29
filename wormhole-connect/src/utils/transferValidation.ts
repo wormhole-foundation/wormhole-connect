@@ -150,13 +150,8 @@ export const validateToNativeAmt = (
   return '';
 };
 
-export const validateRoute = (
-  route: Route,
-  relayAvailable: boolean,
-): ValidationErr => {
-  if (route === Route.BRIDGE || route === Route.CCTPManual) return '';
-  if (!relayAvailable)
-    return 'Single transaction payment not available for this transfer';
+export const validateRoute = (route: Route): ValidationErr => {
+  // TODO: better validation
   return '';
 };
 
@@ -206,7 +201,6 @@ export const validateAll = async (
     toNetwork,
     token,
     destToken,
-    automaticRelayAvail,
     amount,
     sourceBalances: balances,
     foreignAsset,
@@ -225,7 +219,7 @@ export const validateAll = async (
     token: validateToken(token, fromNetwork),
     destToken: validateDestToken(destToken, toNetwork),
     amount: validateAmount(amount, balances[token], route, minAmt),
-    route: validateRoute(route, automaticRelayAvail),
+    route: validateRoute(route),
     toNativeToken: '',
     foreignAsset: validateForeignAsset(foreignAsset),
     associatedTokenAccount: validateSolanaTokenAccount(
@@ -238,7 +232,7 @@ export const validateAll = async (
   return {
     ...baseValidations,
     amount: validateAmount(amount, balances[token], route, minAmt),
-    route: validateRoute(route, automaticRelayAvail),
+    route: validateRoute(route),
     toNativeToken: validateToNativeAmt(toNativeToken, maxSwapAmt),
   };
 };

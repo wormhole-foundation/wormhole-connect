@@ -5,14 +5,30 @@ import {
   TokenId,
   VaaInfo,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { CHAINS, TOKENS } from 'config';
-import { TokenConfig } from 'config/types';
+import { CHAINS, TOKENS } from '../../config';
+import { TokenConfig } from '../../config/types';
 import { BigNumber, utils } from 'ethers';
-import { Route } from 'store/transferInput';
-import { MAX_DECIMALS, getTokenDecimals, toNormalizedDecimals } from 'utils';
-import { estimateClaimGasFees, estimateSendGasFees } from 'utils/gasEstimates';
-import { ParsedMessage, ParsedRelayerMessage, toChainId, wh } from 'utils/sdk';
-import { TransferWallet, postVaa, signAndSendTransaction } from 'utils/wallet';
+import { Route } from '../../store/transferInput';
+import {
+  MAX_DECIMALS,
+  getTokenDecimals,
+  toNormalizedDecimals,
+} from '../../utils';
+import {
+  estimateClaimGasFees,
+  estimateSendGasFees,
+} from '../../utils/gasEstimates';
+import {
+  ParsedMessage,
+  ParsedRelayerMessage,
+  toChainId,
+  wh,
+} from '../../utils/sdk';
+import {
+  TransferWallet,
+  postVaa,
+  signAndSendTransaction,
+} from '../../utils/wallet';
 import { TransferDisplayData } from './types';
 import { BaseRoute } from './baseRoute';
 import { adaptParsedMessage } from './common';

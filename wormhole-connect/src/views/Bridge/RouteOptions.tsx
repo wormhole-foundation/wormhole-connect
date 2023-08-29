@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { RootState } from '../../store';
@@ -131,11 +131,11 @@ function RouteOption(props: { route: RouteData }) {
   );
   const fromTokenConfig = TOKENS[token];
   const fromTokenIcon = fromTokenConfig && (
-    <TokenIcon name={fromTokenConfig.icon} height={16} />
+    <TokenIcon name={fromTokenConfig.icon} height={20} />
   );
   const toTokenConfig = TOKENS[destToken];
   const toTokenIcon = toTokenConfig && (
-    <TokenIcon name={toTokenConfig.icon} height={16} />
+    <TokenIcon name={toTokenConfig.icon} height={20} />
   );
   const routeName = props.route.route;
 
@@ -225,7 +225,6 @@ function RouteOptions() {
     });
     return available;
   }, [token, destToken, amount, fromNetwork, toNetwork, validate, validations]);
-  console.log(availableRoutes);
 
   const onCollapseChange = (collapsed: boolean) => {
     setCollapsed(collapsed);

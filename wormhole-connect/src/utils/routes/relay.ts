@@ -4,9 +4,12 @@ import {
   ChainId,
   VaaInfo,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { TokenConfig } from 'config/types';
-import { estimateClaimGasFees, estimateSendGasFees } from 'utils/gasEstimates';
-import { Route } from 'store/transferInput';
+import { TokenConfig } from '../../config/types';
+import {
+  estimateClaimGasFees,
+  estimateSendGasFees,
+} from '../../utils/gasEstimates';
+import { Route } from '../../store/transferInput';
 import {
   ParsedMessage,
   PayloadType,
@@ -16,7 +19,7 @@ import {
   toChainId,
   calculateNativeTokenAmt,
   calculateMaxSwapAmount,
-} from 'utils/sdk';
+} from '../../utils/sdk';
 import { BridgePreviewParams, BridgeRoute } from './bridge';
 import {
   MAX_DECIMALS,
@@ -24,9 +27,9 @@ import {
   getTokenDecimals,
   getWrappedTokenId,
   toNormalizedDecimals,
-} from 'utils';
+} from '../../utils';
 import { BigNumber, utils } from 'ethers';
-import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
+import { TransferWallet, signAndSendTransaction } from '../../utils/wallet';
 import { toDecimals, toFixedDecimals } from '../balance';
 import { TransferDisplayData } from './types';
 import { CHAINS, TOKENS } from '../../config';

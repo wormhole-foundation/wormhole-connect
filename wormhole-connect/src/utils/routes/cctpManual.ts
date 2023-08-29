@@ -8,17 +8,17 @@ import {
   MessageTransmitter__factory,
   CCTPInfo,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { CHAINS, TOKENS, TOKENS_ARR } from 'config';
-import { TokenConfig } from 'config/types';
-import { BigNumber, utils, BytesLike, ethers } from 'ethers';
 import axios, { AxiosResponse } from 'axios';
+import { CHAINS, TOKENS, TOKENS_ARR } from '../../config';
+import { TokenConfig } from '../../config/types';
+import { BigNumber, utils, BytesLike, ethers } from 'ethers';
 import {
   MAX_DECIMALS,
   getTokenById,
   getTokenDecimals,
   toNormalizedDecimals,
-} from 'utils';
-import { isMainnet } from 'config';
+} from '../../utils';
+import { isMainnet } from '../../config';
 import {
   ParsedMessage,
   ParsedRelayerMessage,
@@ -26,15 +26,15 @@ import {
   isEvmChain,
   toChainId,
   wh,
-} from 'utils/sdk';
-import { calculateGas } from 'utils/gas';
-import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
+} from '../../utils/sdk';
+import { calculateGas } from '../../utils/gas';
+import { TransferWallet, signAndSendTransaction } from '../../utils/wallet';
 import { TransferDisplayData } from './types';
 import { BaseRoute } from './baseRoute';
 import { toDecimals, toFixedDecimals } from '../balance';
 import { TransferInfoBaseParams } from './routeAbstract';
 import { getGasFeeFallback } from '../gasEstimates';
-import { Route } from 'store/transferInput';
+import { Route } from '../../store/transferInput';
 export interface CCTPManualPreviewParams {
   destToken: TokenConfig;
   sourceGasToken: string;
@@ -212,34 +212,6 @@ export class CCTPManualRoute extends BaseRoute {
       tokens.map((token) =>
         this.isSupportedDestToken(token, sourceToken, sourceChain, destChain),
       ),
-    );
-    return tokens.filter((_token, i) => {
-      const res = shouldAdd[i];
-      return res.status === 'fulfilled' && res.value;
-    });
-  }
-
-  async supportedSourceTokens(
-    tokens: TokenConfig[],
-    destToken?: TokenConfig,
-  ): Promise<TokenConfig[]> {
-    if (!destToken) return tokens;
-    const shouldAdd = await Promise.allSettled(
-      tokens.map((token) => this.isSupportedSourceToken(token, destToken)),
-    );
-    return tokens.filter((_token, i) => {
-      const res = shouldAdd[i];
-      return res.status === 'fulfilled' && res.value;
-    });
-  }
-
-  async supportedDestTokens(
-    tokens: TokenConfig[],
-    sourceToken?: TokenConfig,
-  ): Promise<TokenConfig[]> {
-    if (!sourceToken) return tokens;
-    const shouldAdd = await Promise.allSettled(
-      tokens.map((token) => this.isSupportedDestToken(token, sourceToken)),
     );
     return tokens.filter((_token, i) => {
       const res = shouldAdd[i];
@@ -468,7 +440,7 @@ export class CCTPManualRoute extends BaseRoute {
       tokenId,
       messageInfo.fromChain,
     );
-    let relayerPart = undefined;
+    let relayerPart = {};
     if (messageInfo.relayerPayloadId !== undefined) {
       relayerPart = {
         relayerPayloadId: messageInfo.relayerPayloadId,

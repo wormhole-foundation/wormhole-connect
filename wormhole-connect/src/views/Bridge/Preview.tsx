@@ -2,10 +2,7 @@ import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useTheme } from '@mui/material/styles';
 import { RootState } from '../../store';
-import {
-  disableAutomaticTransferAndSetRoute,
-  Route,
-} from '../../store/transferInput';
+import { setTransferRoute, Route } from '../../store/transferInput';
 import { setRelayerFee } from '../../store/relay';
 import { CHAINS, TOKENS } from '../../config';
 import { getTokenDecimals } from '../../utils';
@@ -111,9 +108,9 @@ function Preview(props: { collapsed: boolean }) {
       } catch (e) {
         if (e.message.includes('swap rate not set')) {
           if (route === Route.CCTPRelay) {
-            dispatch(disableAutomaticTransferAndSetRoute(Route.CCTPManual));
+            dispatch(setTransferRoute(Route.CCTPManual));
           } else {
-            dispatch(disableAutomaticTransferAndSetRoute(Route.BRIDGE));
+            dispatch(setTransferRoute(Route.BRIDGE));
           }
         } else {
           throw e;

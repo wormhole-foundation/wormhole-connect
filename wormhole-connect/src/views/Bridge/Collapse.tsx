@@ -119,18 +119,18 @@ type Props = {
 
 function BridgeCollapse(props: Props) {
   const { classes } = useStyles();
-  const { onCollapseChange } = props;
+  const { onCollapseChange, disabled } = props;
   const [collapsed, setCollapsed] = React.useState(props.startClosed || false);
 
   const toggleCollapsed = useCallback(() => {
-    if (props.disabled) return;
+    if (disabled) return;
     setCollapsed((prev) => {
       if (onCollapseChange) {
         onCollapseChange(!prev);
       }
       return !prev;
     });
-  }, [props.disabled]);
+  }, [disabled, onCollapseChange]);
 
   const controlStyle = props.controlStyle || CollapseControlStyle.Arrow;
   const collapsedState = props.controlled ? props.value || false : collapsed;
@@ -143,7 +143,7 @@ function BridgeCollapse(props: Props) {
         className={joinClass([
           classes.header,
           (!!props.banner || !collapsedState) && classes.open,
-          !!props.disabled && classes.disabled,
+          !!disabled && classes.disabled,
         ])}
       >
         <div>

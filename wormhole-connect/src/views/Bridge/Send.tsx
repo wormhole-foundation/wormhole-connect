@@ -78,7 +78,6 @@ function Send(props: { valid: boolean }) {
     token,
     amount,
     route,
-    automaticRelayAvail,
     isTransactionInProgress,
   } = transfer;
 
@@ -199,10 +198,7 @@ function Send(props: { valid: boolean }) {
 
     // TODO: should use a different enum than Route
     // which is either one transaction or two
-    if (
-      automaticRelayAvail &&
-      (route === Route.RELAY || route === Route.CCTPRelay)
-    ) {
+    if (route === Route.RELAY || route === Route.CCTPRelay) {
       setSendingGas(Route.RELAY);
     }
     setSendingGas(Route.BRIDGE);
@@ -217,7 +213,6 @@ function Send(props: { valid: boolean }) {
     route,
     toNativeToken,
     relayerFee,
-    automaticRelayAvail,
     setDestGas,
     setSendingGas,
   ]);

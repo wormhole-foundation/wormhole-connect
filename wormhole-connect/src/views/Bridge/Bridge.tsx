@@ -6,8 +6,6 @@ import { useDispatch } from 'react-redux';
 import { RootState } from '../../store';
 import {
   setReceiverNativeBalance,
-  enableAutomaticTransferAndSetRoute,
-  disableAutomaticTransferAndSetRoute,
   Route,
   setReceiveAmount,
   setDestToken,
@@ -15,6 +13,7 @@ import {
   setSupportedSourceTokens,
   setSupportedDestTokens,
   TransferInputState,
+  setTransferRoute,
 } from '../../store/transferInput';
 import { wh, isAcceptedToken, toChainId } from '../../utils/sdk';
 import { CHAINS, TOKENS, TOKENS_ARR } from '../../config';
@@ -81,7 +80,6 @@ function Bridge() {
     token,
     destToken,
     route,
-    automaticRelayAvail,
     foreignAsset,
     associatedTokenAddress,
     isTransactionInProgress,
@@ -208,7 +206,7 @@ function Bridge() {
         toNetwork,
       );
       if (cctpAvailable) {
-        dispatch(enableAutomaticTransferAndSetRoute(Route.CCTPRelay));
+        dispatch(setTransferRoute(Route.CCTPRelay));
         return;
       }
 
@@ -221,7 +219,7 @@ function Bridge() {
         toNetwork,
       );
       if (cctpManualAvailable) {
-        dispatch(disableAutomaticTransferAndSetRoute(Route.CCTPManual));
+        dispatch(setTransferRoute(Route.CCTPManual));
         return;
       }
 
@@ -234,14 +232,14 @@ function Bridge() {
           const tokenId = getWrappedTokenId(tokenConfig);
           const accepted = await isAcceptedToken(tokenId);
           if (accepted) {
-            dispatch(enableAutomaticTransferAndSetRoute(Route.RELAY));
+            dispatch(setTransferRoute(Route.RELAY));
           } else {
-            dispatch(disableAutomaticTransferAndSetRoute(Route.BRIDGE));
+            dispatch(setTransferRoute(Route.BRIDGE));
           }
         };
         isTokenAcceptedForRelay();
       } else {
-        dispatch(disableAutomaticTransferAndSetRoute(Route.BRIDGE));
+        dispatch(setTransferRoute(Route.BRIDGE));
       }
     };
     establishRoute();
@@ -271,7 +269,6 @@ function Bridge() {
     token,
     destToken,
     route,
-    automaticRelayAvail,
     toNativeToken,
     relayerFee,
     foreignAsset,
@@ -280,8 +277,9 @@ function Bridge() {
   ]);
   const valid = isTransferValid(validations);
   const disabled = !valid || isTransactionInProgress;
-  const showGasSlider =
-    automaticRelayAvail && (route === Route.RELAY || route === Route.CCTPRelay);
+  const showGasSlider = new Operator().getRoute(
+    route,
+  ).NATIVE_GAS_DROPOFF_SUPPORTED;
 
   return (
     <div className={joinClass([classes.bridgeContent, classes.spacer])}>

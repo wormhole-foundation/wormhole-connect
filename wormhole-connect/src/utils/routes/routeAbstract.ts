@@ -5,7 +5,7 @@ import {
   VaaInfo,
   CCTPInfo,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { TokenConfig } from 'config/types';
+import { TokenConfig } from '../../config/types';
 import { ParsedMessage, ParsedRelayerMessage } from '../sdk';
 import { TransferDisplayData } from './types';
 import { BigNumber } from 'ethers';

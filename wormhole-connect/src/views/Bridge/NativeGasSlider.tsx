@@ -9,10 +9,7 @@ import { CHAINS, TOKENS } from '../../config';
 import { TokenConfig } from '../../config/types';
 import { wh } from '../../utils/sdk';
 import { RootState } from '../../store';
-import {
-  disableAutomaticTransferAndSetRoute,
-  Route,
-} from '../../store/transferInput';
+import { setTransferRoute, Route } from '../../store/transferInput';
 import {
   setMaxSwapAmt,
   setReceiveNativeAmt,
@@ -104,8 +101,9 @@ const INITIAL_STATE = {
 function GasSlider(props: { disabled: boolean }) {
   const { classes } = useStyles();
   const dispatch = useDispatch();
-  const { token, toNetwork, amount, route, automaticRelayAvail, destToken } =
-    useSelector((state: RootState) => state.transferInput);
+  const { token, toNetwork, amount, route, destToken } = useSelector(
+    (state: RootState) => state.transferInput,
+  );
   const { maxSwapAmt, relayerFee } = useSelector(
     (state: RootState) => state.relay,
   );
@@ -175,9 +173,9 @@ function GasSlider(props: { disabled: boolean }) {
       .catch((e) => {
         if (e.message.includes('swap rate not set')) {
           if (route === Route.CCTPRelay) {
-            dispatch(disableAutomaticTransferAndSetRoute(Route.CCTPManual));
+            dispatch(setTransferRoute(Route.CCTPManual));
           } else {
-            dispatch(disableAutomaticTransferAndSetRoute(Route.BRIDGE));
+            dispatch(setTransferRoute(Route.BRIDGE));
           }
         } else {
           throw e;
@@ -288,7 +286,7 @@ function GasSlider(props: { disabled: boolean }) {
     route,
   ]);
 
-  const banner = automaticRelayAvail && !props.disabled && (
+  const banner = !props.disabled && (
     <Banner text="This feature provided by" route={ROUTES[Route.RELAY]} />
   );
 

@@ -42,7 +42,6 @@ export interface TransferInputState {
   amount: string;
   receiveAmount: string;
   route: Route;
-  automaticRelayAvail: boolean;
   sourceBalances: Balances;
   destBalances: Balances;
   foreignAsset: string;
@@ -80,7 +79,6 @@ const initialState: TransferInputState = {
   amount: '',
   receiveAmount: '',
   route: Route.BRIDGE,
-  automaticRelayAvail: false,
   sourceBalances: {},
   destBalances: {},
   foreignAsset: '',
@@ -204,20 +202,6 @@ export const transferInputSlice = createSlice({
     ) => {
       state.associatedTokenAddress = payload;
     },
-    enableAutomaticTransferAndSetRoute: (
-      state: TransferInputState,
-      { payload }: PayloadAction<Route>,
-    ) => {
-      state.automaticRelayAvail = true;
-      state.route = payload;
-    },
-    disableAutomaticTransferAndSetRoute: (
-      state: TransferInputState,
-      { payload }: PayloadAction<Route>,
-    ) => {
-      state.automaticRelayAvail = false;
-      state.route = payload;
-    },
     setTransferRoute: (
       state: TransferInputState,
       { payload }: PayloadAction<Route>,
@@ -321,8 +305,6 @@ export const {
   clearBalances,
   setForeignAsset,
   setAssociatedTokenAddress,
-  enableAutomaticTransferAndSetRoute,
-  disableAutomaticTransferAndSetRoute,
   setTransferRoute,
   setManualGasEst,
   setAutomaticGasEst,
