@@ -578,7 +578,7 @@ export class CCTPManualRoute extends BaseRoute {
     const messageHash = utils.keccak256(message);
     let signedAttestation;
     if (!unsigned) {
-      signedAttestation = await getCircleAttestation(messageHash);
+      signedAttestation = await tryGetCircleAttestation(messageHash);
       // If no attestion, and attestation was requested, return undefined
       if (!signedAttestation) return undefined;
     }
