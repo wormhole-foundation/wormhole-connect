@@ -1,6 +1,6 @@
 {
   "name": "@wormhole-foundation/wormhole-connect",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "dependencies": {
     "@mui/material": "^5.12.1"
   },
@@ -58,7 +58,10 @@
       "types": "./lib/index.d.ts"
     }
   },
-  "files": [ "lib", "dist" ],
+  "files": [
+    "lib",
+    "dist"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/wormhole-foundation/wormhole-connect.git"
