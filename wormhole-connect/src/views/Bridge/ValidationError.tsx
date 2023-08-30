@@ -5,7 +5,7 @@ import { makeStyles } from 'tss-react/mui';
 import { RootState } from '../../store';
 import { Route, setTransferRoute } from '../../store/transferInput';
 import { ValidationErr, getMinAmount } from '../../utils/transferValidation';
-
+import Operator from '../../utils/routes';
 import AlertBanner from '../../components/AlertBanner';
 
 const useStyles = makeStyles()((theme) => ({
@@ -46,10 +46,10 @@ function ValidationError(props: Props) {
 
   const selectManual = () => {
     // TODO: Only change the enum
-    if (route === Route.RELAY || route === Route.BRIDGE) {
-      dispatch(setTransferRoute(Route.BRIDGE));
-    } else {
+    if (route === Route.CCTPRelay || route === Route.CCTPManual) {
       dispatch(setTransferRoute(Route.CCTPManual));
+    } else {
+      dispatch(setTransferRoute(Route.BRIDGE));
     }
   };
 
@@ -57,7 +57,7 @@ function ValidationError(props: Props) {
     validationErrors[0] &&
     validationErrors[0].includes('Minimum amount is')
   ) {
-    const isAutomatic = route === Route.RELAY || route === Route.CCTPRelay;
+    const isAutomatic = new Operator().getRoute(route).AUTOMATIC_DEPOSIT;
     const min = getMinAmount(isAutomatic, toNativeToken, relayerFee);
     content = (
       <div className={classes.minAmtError}>

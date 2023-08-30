@@ -126,7 +126,7 @@ function GasSlider(props: { disabled: boolean }) {
       !amountNum ||
       amountNum === 0 ||
       !maxSwapAmt ||
-      (route !== Route.RELAY && route !== Route.CCTPRelay)
+      !new Operator().getRoute(route).NATIVE_GAS_DROPOFF_SUPPORTED
     )
       return;
 
@@ -151,7 +151,7 @@ function GasSlider(props: { disabled: boolean }) {
     if (
       !toNetwork ||
       !sendingToken ||
-      (route !== Route.RELAY && route !== Route.CCTPRelay) ||
+      !new Operator().getRoute(route).NATIVE_GAS_DROPOFF_SUPPORTED ||
       !receivingWallet.address ||
       !receivingToken
     )
