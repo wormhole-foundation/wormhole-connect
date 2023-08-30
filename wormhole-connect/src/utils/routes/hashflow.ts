@@ -35,31 +35,51 @@ export class HashflowRoute extends RouteAbstract {
 
     throw new Error('Method not implemented.');
   }
-  isSupportedSourceToken(
+  async isSupportedSourceToken(
     token: TokenConfig | undefined,
     destToken: TokenConfig | undefined,
   ): Promise<boolean> {
+    if (!destToken) return true;
     throw new Error('Method not implemented.');
   }
-  isSupportedDestToken(
+  async isSupportedDestToken(
     token: TokenConfig | undefined,
     sourceToken: TokenConfig | undefined,
   ): Promise<boolean> {
+    if (!sourceToken) return true;
     throw new Error('Method not implemented.');
   }
-  supportedSourceTokens(tokens: TokenConfig[]): Promise<TokenConfig[]> {
-    throw new Error('Method not implemented.');
+  async supportedSourceTokens(
+    tokens: TokenConfig[],
+    destToken?: TokenConfig,
+  ): Promise<TokenConfig[]> {
+    const shouldAdd = await Promise.allSettled(
+      tokens.map((token) => this.isSupportedSourceToken(token, destToken)),
+    );
+    return tokens.filter((_token, i) => {
+      const res = shouldAdd[i];
+      return res.status === 'fulfilled' && res.value;
+    });
   }
-  supportedDestTokens(tokens: TokenConfig[]): Promise<TokenConfig[]> {
-    throw new Error('Method not implemented.');
+  async supportedDestTokens(
+    tokens: TokenConfig[],
+    sourceToken?: TokenConfig,
+  ): Promise<TokenConfig[]> {
+    const shouldAdd = await Promise.allSettled(
+      tokens.map((token) => this.isSupportedSourceToken(token, sourceToken)),
+    );
+    return tokens.filter((_token, i) => {
+      const res = shouldAdd[i];
+      return res.status === 'fulfilled' && res.value;
+    });
   }
-  computeReceiveAmount(sendAmount: number | undefined): Promise<number> {
+  async computeReceiveAmount(sendAmount: number | undefined): Promise<number> {
     throw new Error('Method not implemented');
   }
-  computeSendAmount(receiveAmount: number | undefined): Promise<number> {
+  async computeSendAmount(receiveAmount: number | undefined): Promise<number> {
     throw new Error('Method not implemented');
   }
-  validate(
+  async validate(
     token: TokenId | 'native',
     amount: string,
     sendingChain: ChainName | ChainId,
@@ -70,7 +90,7 @@ export class HashflowRoute extends RouteAbstract {
   ): Promise<boolean> {
     throw new Error('Method not implemented.');
   }
-  estimateSendGas(
+  async estimateSendGas(
     token: TokenId | 'native',
     amount: string,
     sendingChain: ChainName | ChainId,
@@ -90,7 +110,7 @@ export class HashflowRoute extends RouteAbstract {
   getMinSendAmount(routeOptions: any): number {
     return 0;
   }
-  send(
+  async send(
     token: TokenId | 'native',
     amount: string,
     sendingChain: ChainName | ChainId,
@@ -101,14 +121,32 @@ export class HashflowRoute extends RouteAbstract {
   ): Promise<any> {
     throw new Error('Method not implemented.');
   }
-  redeem(
+  async redeem(
     destChain: ChainName | ChainId,
     messageInfo: SignedMessage,
     recipient: string,
   ): Promise<string> {
     throw new Error('Method not implemented.');
   }
-  getPreview<P>(params: P): Promise<TransferDisplayData> {
+  async parseMessage(
+    messageInfo: MessageInfo,
+  ): Promise<ParsedMessage | ParsedRelayerMessage> {
+    throw new Error('Method not implemented.');
+  }
+  async getPreview<P>(params: P): Promise<TransferDisplayData> {
+    throw new Error('Method not implemented.');
+  }
+  async getNativeBalance(
+    address: string,
+    network: ChainName | ChainId,
+  ): Promise<BigNumber | null> {
+    throw new Error('Method not implemented.');
+  }
+  async getTokenBalance(
+    address: string,
+    tokenId: TokenId,
+    network: ChainName | ChainId,
+  ): Promise<BigNumber | null> {
     throw new Error('Method not implemented.');
   }
   async getRelayerFee(
@@ -153,7 +191,7 @@ export class HashflowRoute extends RouteAbstract {
     amount: BigNumber,
     walletAddress: string,
   ): Promise<BigNumber> {
-    throw new Error('Not implemented');
+    throw new Error('Not supported');
   }
 
   async maxSwapAmount(
@@ -161,7 +199,7 @@ export class HashflowRoute extends RouteAbstract {
     token: TokenId,
     walletAddress: string,
   ): Promise<BigNumber> {
-    throw new Error('Not implemented');
+    throw new Error('Not supported');
   }
 
   async tryFetchRedeemTx(txData: UnsignedMessage): Promise<string | undefined> {

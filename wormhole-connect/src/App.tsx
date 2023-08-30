@@ -14,6 +14,7 @@ import { getDesignTokens } from './theme';
 import { THEME_MODE } from './config';
 import BackgroundImage from './components/Background/BackgroundImage';
 import ErrorBoundary from './components/ErrorBoundary';
+import { fetchMarketMakers } from './utils/hashflow';
 
 const ColorModeContext = React.createContext({ toggleColorMode: () => {} });
 
@@ -30,6 +31,7 @@ function App() {
     }),
     [],
   );
+  fetchMarketMakers(1);
   // Update the theme only if the mode changes
   const theme = React.useMemo(() => createTheme(getDesignTokens(mode)), [mode]);
 

@@ -45,7 +45,6 @@ export class SuiRelayer {
         },
       });
       if (tokenInfo.error) {
-        console.error(tokenInfo.error);
         return null;
       }
       if (
