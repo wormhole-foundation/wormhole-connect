@@ -67,6 +67,7 @@ import {
 import { TokenBridgeAbstract } from '../abstracts/tokenBridge';
 import { getAccountData } from './utils';
 import base58 from 'bs58';
+import { ForeignAssetCache } from '../../utils';
 
 const SOLANA_CHAIN_NAME = MAINNET_CONFIG.chains.solana!.key;
 
@@ -85,8 +86,9 @@ export class SolanaContext<
   protected contracts: SolContracts<T>;
   readonly context: T;
   connection: Connection | undefined;
+  private foreignAssetCache: ForeignAssetCache;
 
-  constructor(context: T) {
+  constructor(context: T, foreignAssetCache: ForeignAssetCache) {
     super();
     this.context = context;
     const tag = context.environment === 'MAINNET' ? 'mainnet-beta' : 'devnet';
@@ -94,6 +96,7 @@ export class SolanaContext<
       context.conf.rpcs.solana || clusterApiUrl(tag),
     );
     this.contracts = new SolContracts(context);
+    this.foreignAssetCache = foreignAssetCache;
   }
 
   /**
@@ -623,6 +626,15 @@ export class SolanaContext<
     tokenId: TokenId,
     chain: ChainName | ChainId,
   ): Promise<string | null> {
+    const chainName = this.context.toChainName(chain);
+    if (this.foreignAssetCache.get(tokenId.chain, tokenId.address, chainName)) {
+      return this.foreignAssetCache.get(
+        tokenId.chain,
+        tokenId.address,
+        chainName,
+      )!;
+    }
+
     if (!this.connection) throw new Error('no connection');
 
     const chainId = this.context.toChainId(tokenId.chain);
@@ -643,6 +655,7 @@ export class SolanaContext<
       arrayify(formattedAddr),
     );
     if (!addr) return null;
+    this.foreignAssetCache.set(tokenId.chain, tokenId.address, chainName, addr);
     return addr;
   }
 

@@ -25,6 +25,7 @@ import {
 import { SeiContext } from './contexts/sei';
 import DEVNET_CONFIG, { DEVNET_CHAINS } from './config/DEVNET';
 import { CosmosContext } from './contexts/cosmos';
+import { ForeignAssetCache } from './utils';
 
 /**
  * The WormholeContext manages connections to Wormhole Core, Bridge and NFT Bridge contracts.
@@ -55,6 +56,7 @@ import { CosmosContext } from './contexts/cosmos';
  * )
  */
 export class WormholeContext extends MultiProvider<Domain> {
+  private foreignAssetCache: ForeignAssetCache = new ForeignAssetCache();
   readonly conf: WormholeConfig;
 
   constructor(env: Environment, conf?: WormholeConfig) {
@@ -151,22 +153,22 @@ export class WormholeContext extends MultiProvider<Domain> {
     const { context } = this.conf.chains[chainName]!;
     switch (context) {
       case Context.ETH: {
-        return new EthContext(this);
+        return new EthContext(this, this.foreignAssetCache);
       }
       case Context.SOLANA: {
-        return new SolanaContext(this);
+        return new SolanaContext(this, this.foreignAssetCache);
       }
       case Context.SUI: {
-        return new SuiContext(this);
+        return new SuiContext(this, this.foreignAssetCache);
       }
       case Context.APTOS: {
-        return new AptosContext(this);
+        return new AptosContext(this, this.foreignAssetCache);
       }
       case Context.SEI: {
-        return new SeiContext(this);
+        return new SeiContext(this, this.foreignAssetCache);
       }
       case Context.COSMOS: {
-        return new CosmosContext(this, chainName);
+        return new CosmosContext(this, chainName, this.foreignAssetCache);
       }
       default: {
         throw new Error('Not able to retrieve context');

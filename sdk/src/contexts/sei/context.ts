@@ -40,7 +40,7 @@ import {
   TokenId,
   VaaInfo,
 } from '../../types';
-import { stripHexPrefix } from '../../utils';
+import { ForeignAssetCache, stripHexPrefix } from '../../utils';
 import { WormholeContext } from '../../wormhole';
 import { TokenBridgeAbstract } from '../abstracts/tokenBridge';
 import { SolanaContext } from '../solana';
@@ -142,6 +142,7 @@ export class SeiContext<
 > extends TokenBridgeAbstract<SeiTransaction> {
   readonly type = Context.SEI;
   readonly contracts: SeiContracts<T>;
+  private foreignAssetCache: ForeignAssetCache;
 
   private wasmClient?: CosmWasmClient;
 
@@ -149,9 +150,13 @@ export class SeiContext<
   private readonly CHAIN = 'sei';
   private readonly REDEEM_EVENT_DEFAULT_MAX_BLOCKS = 2000;
 
-  constructor(protected readonly context: T) {
+  constructor(
+    protected readonly context: T,
+    foreignAssetCache: ForeignAssetCache,
+  ) {
     super();
     this.contracts = new SeiContracts<T>(context);
+    this.foreignAssetCache = foreignAssetCache;
   }
 
   async send(
@@ -565,6 +570,15 @@ export class SeiContext<
     tokenId: TokenId,
     chain: ChainName | ChainId,
   ): Promise<string | null> {
+    const chainName = this.context.toChainName(chain);
+    if (this.foreignAssetCache.get(tokenId.chain, tokenId.address, chainName)) {
+      return this.foreignAssetCache.get(
+        tokenId.chain,
+        tokenId.address,
+        chainName,
+      )!;
+    }
+
     const toChainId = this.context.toChainId(chain);
     const chainId = this.context.toChainId(tokenId.chain);
     if (toChainId === chainId) return tokenId.address;
@@ -587,6 +601,12 @@ export class SeiContext<
           },
         });
 
+      this.foreignAssetCache.set(
+        tokenId.chain,
+        tokenId.address,
+        chainName,
+        address,
+      );
       return address;
     } catch (e) {
       return null;

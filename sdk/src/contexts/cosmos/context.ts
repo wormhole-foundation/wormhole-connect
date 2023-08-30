@@ -36,6 +36,7 @@ import { WormholeContext } from '../../wormhole';
 import { TokenBridgeAbstract } from '../abstracts/tokenBridge';
 import { CosmosContracts } from './contracts';
 import { searchCosmosLogs } from './utils';
+import { ForeignAssetCache } from '../../utils';
 
 export interface CosmosTransaction {
   fee: StdFee | 'auto' | number;
@@ -84,12 +85,18 @@ export class CosmosContext<
   readonly chain: ChainName;
 
   private wasmClient?: CosmWasmClient;
+  private foreignAssetCache: ForeignAssetCache;
 
-  constructor(context: T, chain: ChainName) {
+  constructor(
+    context: T,
+    chain: ChainName,
+    foreignAssetCache: ForeignAssetCache,
+  ) {
     super();
     this.context = context;
     this.contracts = new CosmosContracts<T>(context);
     this.chain = chain;
+    this.foreignAssetCache = foreignAssetCache;
   }
 
   send(
@@ -158,6 +165,15 @@ export class CosmosContext<
     tokenId: TokenId,
     chain: ChainName | ChainId,
   ): Promise<string | null> {
+    const chainName = this.context.toChainName(chain);
+    if (this.foreignAssetCache.get(tokenId.chain, tokenId.address, chainName)) {
+      return this.foreignAssetCache.get(
+        tokenId.chain,
+        tokenId.address,
+        chainName,
+      )!;
+    }
+
     const toChainId = this.context.toChainId(chain);
     const chainId = this.context.toChainId(tokenId.chain);
     if (toChainId === chainId) return tokenId.address;
@@ -179,6 +195,13 @@ export class CosmosContext<
             address: base64Addr,
           },
         });
+
+      this.foreignAssetCache.set(
+        tokenId.chain,
+        tokenId.address,
+        chainName,
+        address,
+      );
 
       return address;
     } catch (e) {

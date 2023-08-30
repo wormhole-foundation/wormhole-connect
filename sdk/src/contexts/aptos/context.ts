@@ -37,7 +37,7 @@ import {
 import { sha3_256 } from 'js-sha3';
 import { MAINNET_CHAINS } from '../../config/MAINNET';
 import { SolanaContext } from '../solana';
-import { stripHexPrefix } from '../../utils';
+import { ForeignAssetCache, stripHexPrefix } from '../../utils';
 
 export const APTOS_COIN = '0x1::aptos_coin::AptosCoin';
 
@@ -49,8 +49,9 @@ export class AptosContext<
   readonly context: T;
   readonly aptosClient: AptosClient;
   readonly coinClient: CoinClient;
+  private foreignAssetCache: ForeignAssetCache;
 
-  constructor(context: T) {
+  constructor(context: T, foreignAssetCache: ForeignAssetCache) {
     super();
     this.context = context;
     const rpc = context.conf.rpcs.aptos;
@@ -58,6 +59,7 @@ export class AptosContext<
     this.aptosClient = new AptosClient(rpc);
     this.coinClient = new CoinClient(this.aptosClient);
     this.contracts = new AptosContracts(context, this.aptosClient);
+    this.foreignAssetCache = foreignAssetCache;
   }
 
   async send(
@@ -184,6 +186,15 @@ export class AptosContext<
     tokenId: TokenId,
     chain: ChainName | ChainId,
   ): Promise<string | null> {
+    const chainName = this.context.toChainName(chain);
+    if (this.foreignAssetCache.get(tokenId.chain, tokenId.address, chainName)) {
+      return this.foreignAssetCache.get(
+        tokenId.chain,
+        tokenId.address,
+        chainName,
+      )!;
+    }
+
     const chainId = this.context.toChainId(tokenId.chain);
     const toChainId = this.context.toChainId(chain);
     if (toChainId === chainId) return tokenId.address;
@@ -195,12 +206,21 @@ export class AptosContext<
     const formattedAddr = await tokenContext.formatAssetAddress(
       tokenId.address,
     );
-    return await getForeignAssetAptos(
+    const asset = await getForeignAssetAptos(
       this.aptosClient,
       token_bridge,
       chainId,
       hexlify(formattedAddr),
     );
+
+    if (!asset) return null;
+    this.foreignAssetCache.set(
+      tokenId.chain,
+      tokenId.address,
+      chainName,
+      asset,
+    );
+    return asset;
   }
 
   async mustGetForeignAsset(

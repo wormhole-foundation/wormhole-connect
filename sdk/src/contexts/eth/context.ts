@@ -37,6 +37,7 @@ import { parseVaa } from '../../vaa';
 import { RelayerAbstract } from '../abstracts/relayer';
 import { SolanaContext } from '../solana';
 import { arrayify, hexZeroPad } from 'ethers/lib/utils';
+import { ForeignAssetCache } from '../../utils';
 
 export const NO_VAA_FOUND = 'No message publish found in logs';
 
@@ -46,17 +47,28 @@ export class EthContext<
   readonly type = Context.ETH;
   readonly contracts: EthContracts<T>;
   readonly context: T;
+  private foreignAssetCache: ForeignAssetCache;
 
-  constructor(context: T) {
+  constructor(context: T, foreignAssetCache: ForeignAssetCache) {
     super();
     this.context = context;
     this.contracts = new EthContracts(context);
+    this.foreignAssetCache = foreignAssetCache;
   }
 
   async getForeignAsset(
     tokenId: TokenId,
     chain: ChainName | ChainId,
   ): Promise<string | null> {
+    const chainName = this.context.toChainName(chain);
+    if (this.foreignAssetCache.get(tokenId.chain, tokenId.address, chainName)) {
+      return this.foreignAssetCache.get(
+        tokenId.chain,
+        tokenId.address,
+        chainName,
+      )!;
+    }
+
     const toChainId = this.context.toChainId(chain);
     const chainId = this.context.toChainId(tokenId.chain);
     // if the token is already native, return the token address
@@ -70,6 +82,12 @@ export class EthContext<
       utils.arrayify(tokenAddr),
     );
     if (foreignAddr === constants.AddressZero) return null;
+    this.foreignAssetCache.set(
+      tokenId.chain,
+      tokenId.address,
+      chainName,
+      foreignAddr,
+    );
     return foreignAddr;
   }
 
