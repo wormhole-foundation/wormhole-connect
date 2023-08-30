@@ -143,7 +143,7 @@ function Bridge() {
     computeSrcTokens();
     // IMPORTANT: do not include token in dependency array
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [route, destToken, dispatch]);
+  }, [route, fromNetwork, destToken, dispatch]);
 
   useEffect(() => {
     const computeDestTokens = async () => {

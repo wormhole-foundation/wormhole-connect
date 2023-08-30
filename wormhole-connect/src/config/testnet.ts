@@ -568,6 +568,21 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
       default: 8,
     },
   },
+  USDCarbitrum: {
+    key: 'USDCarbitrum',
+    symbol: 'USDC',
+    nativeNetwork: 'arbitrumgoerli',
+    icon: Icon.USDC,
+    tokenId: {
+      chain: 'arbitrumgoerli',
+      address: '0xfd064A18f3BF249cf1f87FC203E90D8f650f2d63',
+    },
+    coinGeckoId: 'usd-coin',
+    color: '#2774CA',
+    decimals: {
+      default: 6,
+    },
+  },
   ETHoptimism: {
     key: 'ETHoptimism',
     symbol: 'ETH',
@@ -595,6 +610,21 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: {
       Ethereum: 18,
       default: 8,
+    },
+  },
+  USDCoptimism: {
+    key: 'USDCoptimism',
+    symbol: 'USDC',
+    nativeNetwork: 'optimismgoerli',
+    icon: Icon.USDC,
+    tokenId: {
+      chain: 'optimismgoerli',
+      address: '0xe05606174bac4A6364B31bd0eCA4bf4dD368f8C6',
+    },
+    coinGeckoId: 'usd-coin',
+    color: '#2774CA',
+    decimals: {
+      default: 6,
     },
   },
   SEI: {
@@ -686,21 +716,6 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: {
       default: 8,
       Ethereum: 18,
-    },
-  },
-  SEI: {
-    key: 'SEI',
-    symbol: 'SEI',
-    nativeNetwork: 'sei',
-    tokenId: {
-      chain: 'sei',
-      address: 'usei',
-    },
-    icon: Icon.SEI,
-    coinGeckoId: 'sei',
-    color: '#FFFFFF',
-    decimals: {
-      default: 6,
     },
   },
 };

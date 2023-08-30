@@ -590,6 +590,21 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
       default: 8,
     },
   },
+  USDCarbitrum: {
+    key: 'USDCarbitrum',
+    symbol: 'USDC',
+    nativeNetwork: 'avalanche',
+    icon: Icon.USDC,
+    tokenId: {
+      chain: 'arbitrum',
+      address: '0xaf88d065e77c8cC2239327C5EDb3A432268e5831',
+    },
+    coinGeckoId: 'usd-coin',
+    color: '#2774CA',
+    decimals: {
+      default: 6,
+    },
+  },
   ETHoptimism: {
     key: 'ETHoptimism',
     symbol: 'ETH',
@@ -617,6 +632,21 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: {
       Ethereum: 18,
       default: 8,
+    },
+  },
+  USDCoptimism: {
+    key: 'USDCoptimism',
+    symbol: 'USDC',
+    nativeNetwork: 'optimism',
+    icon: Icon.USDC,
+    tokenId: {
+      chain: 'optimism',
+      address: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607',
+    },
+    coinGeckoId: 'usd-coin',
+    color: '#2774CA',
+    decimals: {
+      default: 6,
     },
   },
   // SEI: {
