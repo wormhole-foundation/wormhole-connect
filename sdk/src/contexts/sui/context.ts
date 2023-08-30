@@ -338,10 +338,14 @@ export class SuiContext<
       3,
     );
 
+    const parsedVaa = parseVaa(vaaBytes);
     return {
       transaction: txBlock,
       rawVaa: vaaBytes,
-      vaa: parseVaa(vaaBytes),
+      vaa: {
+        ...parsedVaa,
+        sequence: parsedVaa.sequence.toString(),
+      },
     };
   }
 

@@ -149,7 +149,8 @@ export type VaaSourceTransaction =
 export interface VaaInfo<T extends VaaSourceTransaction = any> {
   transaction: T;
   rawVaa: SignedVaa;
-  vaa: ParsedVaa;
+  // BigInt is not serializable to JSON, so we use a string instead
+  vaa: Omit<ParsedVaa, 'sequence'> & { sequence: string };
 }
 
 export type CCTPInfo = {
