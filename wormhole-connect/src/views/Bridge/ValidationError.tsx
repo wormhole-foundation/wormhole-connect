@@ -57,9 +57,7 @@ function ValidationError(props: Props) {
     validationErrors[0] &&
     validationErrors[0].includes('Minimum amount is')
   ) {
-    const isAutomatic = new Operator().getRoute(
-      route,
-    ).NATIVE_GAS_DROPOFF_SUPPORTED;
+    const isAutomatic = new Operator().getRoute(route).AUTOMATIC_DEPOSIT;
     const min = getMinAmount(isAutomatic, toNativeToken, relayerFee);
     content = (
       <div className={classes.minAmtError}>
