@@ -709,10 +709,14 @@ export class SolanaContext<
       3,
     );
 
+    const parsedVaa = parseVaa(vaaBytes);
     return {
       transaction: response,
       rawVaa: vaaBytes,
-      vaa: parseVaa(vaaBytes),
+      vaa: {
+        ...parsedVaa,
+        sequence: parsedVaa.sequence.toString(),
+      },
     };
   }
 

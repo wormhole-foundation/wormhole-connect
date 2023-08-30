@@ -510,10 +510,14 @@ export class EthContext<
       3,
     );
 
+    const parsedVaa = parseVaa(vaaBytes);
     return {
       transaction: receipt,
       rawVaa: vaaBytes,
-      vaa: parseVaa(vaaBytes),
+      vaa: {
+        ...parsedVaa,
+        sequence: parsedVaa.sequence.toString(),
+      },
     };
   }
 

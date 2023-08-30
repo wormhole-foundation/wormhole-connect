@@ -286,10 +286,14 @@ export class AptosContext<
       3,
     );
 
+    const parsedVaa = parseVaa(vaaBytes);
     return {
       transaction: userTransaction,
       rawVaa: vaaBytes,
-      vaa: parseVaa(vaaBytes),
+      vaa: {
+        ...parsedVaa,
+        sequence: parsedVaa.sequence.toString(),
+      },
     };
   }
 

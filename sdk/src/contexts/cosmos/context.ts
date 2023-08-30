@@ -359,10 +359,14 @@ export class CosmosContext<
       3,
     );
 
+    const parsedVaa = parseVaa(vaaBytes);
     return {
       transaction: tx,
       rawVaa: vaaBytes,
-      vaa: parseVaa(vaaBytes),
+      vaa: {
+        ...parsedVaa,
+        sequence: parsedVaa.sequence.toString(),
+      },
     };
   }
 
