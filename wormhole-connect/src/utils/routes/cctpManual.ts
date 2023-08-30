@@ -9,6 +9,7 @@ import {
   TokenMessenger__factory,
   MessageTransmitter__factory,
 } from '@wormhole-foundation/wormhole-connect-sdk';
+import { TokenImplementation__factory } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
 
 import { CHAINS, TOKENS, TOKENS_ARR, isMainnet } from 'config';
 import { TokenConfig } from 'config/types';
@@ -487,12 +488,27 @@ export class CCTPManualRoute extends BaseRoute {
     return wh.getNativeBalance(address, network);
   }
 
-  public getTokenBalance(
+  public async getTokenBalance(
     address: string,
     tokenId: TokenId,
     network: ChainName | ChainId,
   ): Promise<BigNumber | null> {
-    return wh.getTokenBalance(address, tokenId, network);
+    const context = wh.getContext(network);
+    const foreignAddress = await this.getForeignAsset(tokenId, network);
+    if (!foreignAddress) return null;
+
+    if (!isEvmChain(network)) {
+      throw new Error('No support for non EVM cctp currently');
+    }
+    const provider = (
+      context as EthContext<WormholeContext>
+    ).context.mustGetProvider(network);
+    const token = TokenImplementation__factory.connect(
+      foreignAddress,
+      provider,
+    );
+    const balance = await token.balanceOf(address);
+    return balance;
   }
 
   async getRelayerFee(
