@@ -28,6 +28,7 @@ import { TransferWallet, switchNetwork, watchAsset } from '../../utils/wallet';
 
 import TokenIcon from '../../icons/TokenIcons';
 import ExplorerLink from './ExplorerLink';
+import { isCosmWasmChain } from '../../utils/cosmos';
 
 const useStyles = makeStyles()((theme) => ({
   addToken: {

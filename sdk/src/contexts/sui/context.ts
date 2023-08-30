@@ -40,7 +40,7 @@ import { RelayerAbstract } from '../abstracts/relayer';
 import { SolanaContext } from '../solana';
 import { SuiContracts } from './contracts';
 import { SuiRelayer } from './relayer';
-import { stripHexPrefix } from '../../utils';
+import { ForeignAssetCache, stripHexPrefix } from '../../utils';
 
 export class SuiContext<
   T extends WormholeContext,
@@ -49,8 +49,9 @@ export class SuiContext<
   protected contracts: SuiContracts<T>;
   readonly context: T;
   readonly provider: JsonRpcProvider;
+  private foreignAssetCache: ForeignAssetCache;
 
-  constructor(context: T) {
+  constructor(context: T, foreignAssetCache: ForeignAssetCache) {
     super();
     this.context = context;
     const connection = context.conf.rpcs.sui;
@@ -59,6 +60,7 @@ export class SuiContext<
       new Connection({ fullnode: connection }),
     );
     this.contracts = new SuiContracts(context, this.provider);
+    this.foreignAssetCache = foreignAssetCache;
   }
 
   async getCoins(coinType: string, owner: string) {
@@ -246,6 +248,15 @@ export class SuiContext<
     tokenId: TokenId,
     chain: ChainName | ChainId,
   ): Promise<string | null> {
+    const chainName = this.context.toChainName(chain);
+    if (this.foreignAssetCache.get(tokenId.chain, tokenId.address, chainName)) {
+      return this.foreignAssetCache.get(
+        tokenId.chain,
+        tokenId.address,
+        chainName,
+      )!;
+    }
+
     try {
       const chainId = this.context.toChainId(tokenId.chain);
       const toChainId = this.context.toChainId(chain);
@@ -262,6 +273,15 @@ export class SuiContext<
         token_bridge,
         chainId,
         arrayify(formattedAddr),
+      );
+
+      if (!coinType) return null;
+
+      this.foreignAssetCache.set(
+        tokenId.chain,
+        tokenId.address,
+        chainName,
+        coinType,
       );
       return coinType;
     } catch (e) {
