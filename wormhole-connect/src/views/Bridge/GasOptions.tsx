@@ -6,10 +6,10 @@ import { CHAINS } from '../../config';
 import { Route, setTransferRoute } from '../../store/transferInput';
 import { NetworkConfig } from '../../config/types';
 import { toFixedDecimals } from '../../utils/balance';
-import { CHAIN_ID_SEI } from '@certusone/wormhole-sdk';
 
 import Options from '../../components/Options';
 import BridgeCollapse, { XLabsBanner } from './Collapse';
+import { isCosmWasmChain } from '../../utils/cosmos';
 
 const useStyles = makeStyles()((theme) => ({
   option: {
@@ -55,8 +55,8 @@ const useStyles = makeStyles()((theme) => ({
 }));
 
 const payWith = (token1: string, token2: string): string => {
-  if (!token1 || !token2) return '';
-  if (token1 === token2) {
+  if (!token1 && !token2) return '';
+  if (token1 === token2 || !token2) {
     return `Pay with ${token1}`;
   }
   return `Pay with ${token1} & ${token2}`;
@@ -144,13 +144,15 @@ const getOptions = (
   // Sei only allows automatic payments through the translator contract for now
   // however, it does not follow the usual flow due to its different relayer contract
   // it uses a normal sendWithPayload and defines a custom payload structure
-  if (dest.id === CHAIN_ID_SEI)
+  if (isCosmWasmChain(dest.id)) {
     return [
       {
         ...automaticOption(source, dest, token, relayerFee || 0, gasEst.manual),
         key: Route.BRIDGE,
       },
     ];
+  }
+
   if (!relayAvail) return [manual];
   return [
     automaticOption(source, dest, token, relayerFee, gasEst.automatic),
@@ -186,6 +188,8 @@ function GasOptions(props: { disabled: boolean }) {
     const description =
       selectedOption === Route.RELAY
         ? payWith(sourceConfig.gasToken, token)
+        : isCosmWasmChain(destConfig.id)
+        ? payWith(sourceConfig.gasToken)
         : payWith(sourceConfig.gasToken, destConfig!.gasToken);
     setState({
       options: getOptions(
