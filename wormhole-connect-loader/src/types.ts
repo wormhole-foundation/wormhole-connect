@@ -1,4 +1,4 @@
-import {Theme} from "./theme";
+import { Theme } from "./theme";
 export const MAINNET_CHAINS = {
   solana: 1,
   ethereum: 2,
@@ -8,6 +8,7 @@ export const MAINNET_CHAINS = {
   fantom: 10,
   celo: 14,
   moonbeam: 16,
+  osmosis: 20,
   sui: 21,
   aptos: 22,
   base: 30,
@@ -24,6 +25,7 @@ export const TESTNET_CHAINS = {
   fantom: 10,
   alfajores: 14,
   moonbasealpha: 16,
+  osmosis: 20,
   sui: 21,
   aptos: 22,
   basegoerli: 30,
