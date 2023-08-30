@@ -796,7 +796,7 @@ export const TESTNET_GAS_ESTIMATES: GasEstimates = {
     sendNative: 2000000,
     sendToken: 2000000,
   },
-  optimism: {
+  optimismgoerli: {
     claim: 300000,
     sendNative: 100000,
     sendToken: 150000,
