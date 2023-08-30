@@ -1,29 +1,34 @@
-import React from 'react';
-import { WormholeConnectConfig } from './types';
+import { useEffect } from "react";
+import { WormholeConnectConfig } from "./types";
 
-class WormholeBridge extends React.Component<
-  { config?: WormholeConnectConfig; }
-> {
-  componentDidMount() {
+function WormholeBridge({ config }: { config?: WormholeConnectConfig }) {
+  useEffect(() => {
     const script = document.createElement("script");
-    script.src = "https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.11/dist/main.js";
+    script.src =
+      "https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.11/dist/main.js";
     script.async = true;
 
     const link = document.createElement("link");
-    link.href = "https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.11/dist/main.css";
+    link.href =
+      "https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.11/dist/main.css";
 
     document.body.appendChild(script);
     document.body.appendChild(link);
-  }
+    return () => {
+      script.remove();
+      link.remove();
+    };
+  }, []);
 
-  render() {
-    return (
-      // @ts-ignore
-      <div id="wormhole-connect" config={this.props.config ? JSON.stringify(this.props.config) : null}></div>
-    );
-  }
+  return (
+    <div
+      id="wormhole-connect"
+      //@ts-ignore
+      config={config ? JSON.stringify(config) : null}
+    ></div>
+  );
 }
 
-export * from './theme';
-export * from './types';
+export * from "./theme";
+export * from "./types";
 export default WormholeBridge;
