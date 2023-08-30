@@ -1,4 +1,10 @@
-import React, { ChangeEvent, useEffect, useMemo, useState } from 'react';
+import React, {
+  ChangeEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTheme } from '@mui/material/styles';
 import { useMediaQuery } from '@mui/material';
@@ -259,6 +265,7 @@ function TokensModal(props: Props) {
   const { open, network, walletAddress, type } = props;
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [loading, setLoading] = useState(false);
+  const [balancesLoaded, setBalancesLoaded] = useState(false);
   const [tokens, setTokens] = useState<TokenConfig[]>([]);
   const [search, setSearch] = useState('');
 
@@ -329,6 +336,46 @@ function TokensModal(props: Props) {
     closeTokensModal();
   };
 
+  useEffect(() => {
+    setBalancesLoaded(false);
+  }, [network, walletAddress]);
+
+  const getBalances = useCallback(async () => {
+    if (!walletAddress || !network) return;
+    const operator = new Operator();
+    // fetch all N tokens and trigger a single update action
+    const balancesArr = await Promise.all(
+      allTokens.map(async (t) => {
+        let balance: BigNumber | null = null;
+        try {
+          balance = t.tokenId
+            ? await operator.getTokenBalance(
+                route,
+                walletAddress,
+                t.tokenId,
+                network,
+              )
+            : await operator.getNativeBalance(route, walletAddress, network);
+        } catch (e) {
+          console.warn('Failed to fetch balance', e);
+        }
+
+        return formatBalance(network, t, balance);
+      }),
+    );
+
+    const balances = balancesArr.reduceRight((acc, tokenBalance) => {
+      return Object.assign(acc, tokenBalance);
+    }, {});
+
+    dispatch(
+      setBalance({
+        type,
+        balances,
+      }),
+    );
+  }, [walletAddress, network, dispatch, type, allTokens, route]);
+
   // fetch token balances and set in store
   useEffect(() => {
     if (!walletAddress || !network) {
@@ -336,52 +383,23 @@ function TokensModal(props: Props) {
       return;
     }
 
-    const getBalances = async () => {
-      const operator = new Operator();
-      // fetch all N tokens and trigger a single update action
-      const balancesArr = await Promise.all(
-        allTokens.map(async (t) => {
-          let balance: BigNumber | null = null;
-          try {
-            balance = t.tokenId
-              ? await operator.getTokenBalance(
-                  route,
-                  walletAddress,
-                  t.tokenId,
-                  network,
-                )
-              : await operator.getNativeBalance(route, walletAddress, network);
-          } catch (e) {
-            console.warn('Failed to fetch balance', e);
-          }
-
-          return formatBalance(network, t, balance);
-        }),
-      );
-
-      const balances = balancesArr.reduceRight((acc, tokenBalance) => {
-        return Object.assign(acc, tokenBalance);
-      }, {});
-
-      dispatch(
-        setBalance({
-          type,
-          balances,
-        }),
-      );
-    };
-
-    dispatch(clearBalances(type));
-    setLoading(true);
-    getBalances().finally(() => setLoading(false));
+    if (!balancesLoaded) {
+      dispatch(clearBalances(type));
+      setLoading(true);
+      getBalances().finally(() => {
+        setLoading(false);
+        setBalancesLoaded(true);
+      });
+    }
   }, [
     walletAddress,
+    supportedTokens,
     network,
     dispatch,
-    supportedTokens,
+    getBalances,
     type,
-    allTokens,
-    route,
+    open,
+    balancesLoaded,
   ]);
 
   useEffect(() => {
