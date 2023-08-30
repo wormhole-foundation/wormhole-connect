@@ -7,11 +7,13 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { Types } from 'aptos';
 import { BigNumber } from 'ethers';
-import { CHAINS, GAS_ESTIMATES, TOKENS } from 'config';
+import { CHAINS, CONFIG, GAS_ESTIMATES, TOKENS } from '../config';
 import { MAX_DECIMALS, getTokenDecimals } from './index';
 import { toDecimals } from './balance';
 import Operator from './routes';
 import { toChainId, wh } from './sdk';
+import { isCosmWasmChain } from './cosmos';
+import { StargateClient } from '@cosmjs/stargate';
 import { Route } from 'store/transferInput';
 
 /**
@@ -60,6 +62,13 @@ export const calculateGas = async (
       });
       const gasFee = BigNumber.from(getTotalGasUsed(txBlock) || 0);
       return toDecimals(gasFee, decimals, MAX_DECIMALS);
+    } else if (isCosmWasmChain(chain)) {
+      const rpc = CONFIG.rpcs[chain];
+      if (rpc) {
+        const client = await StargateClient.connect(rpc);
+        const transaction = await client.getTx(receiveTx);
+        return toDecimals(transaction?.gasUsed || 0, decimals, MAX_DECIMALS);
+      }
     } else {
       const provider = wh.mustGetProvider(chain);
       const receipt = await provider.getTransactionReceipt(receiveTx);

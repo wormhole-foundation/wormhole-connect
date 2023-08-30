@@ -19,6 +19,7 @@ import { Route } from 'store/transferInput';
 import { getMinAmount } from 'utils/transferValidation';
 import { TransferWallet, simulateSeiTransaction } from 'utils/wallet';
 import { wh } from 'utils/sdk';
+import { isCosmWasmChain } from './cosmos';
 import { toFixedDecimals } from './balance';
 import { getTokenDecimals } from '.';
 
@@ -296,6 +297,7 @@ export const estimateClaimGasFees = async (
   destChain: ChainName | ChainId,
 ): Promise<string> => {
   const nativeDecimals = CHAINS[wh.toChainName(destChain)]!.nativeTokenDecimals;
+  const name = wh.toChainName(destChain);
   const destChainId = wh.toChainId(destChain);
 
   if (destChainId === MAINNET_CHAINS.solana) {
@@ -306,8 +308,8 @@ export const estimateClaimGasFees = async (
     );
   }
 
-  if (destChainId === MAINNET_CHAINS.sei) {
-    const gasEstimates = GAS_ESTIMATES['sei'];
+  if (isCosmWasmChain(destChain)) {
+    const gasEstimates = GAS_ESTIMATES[name];
     return toFixedDecimals(
       utils.formatUnits(gasEstimates?.claim!, nativeDecimals),
       6,

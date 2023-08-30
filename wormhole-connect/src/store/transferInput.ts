@@ -1,12 +1,10 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { BigNumber } from 'ethers';
-
 import { TOKENS, config } from 'config';
 import { TokenConfig } from 'config/types';
 import { getTokenDecimals } from 'utils';
 import { toDecimals } from 'utils/balance';
-import { TransferValidations } from 'utils/transferValidation';
 import { toChainId, PayloadType } from 'utils/sdk';
 import { TransferWallet, walletAcceptedNetworks } from 'utils/wallet';
 import { clearWallet, setWalletError, WalletData } from './wallet';
@@ -15,6 +13,7 @@ export enum Route {
   BRIDGE = PayloadType.MANUAL, // 1
   RELAY = PayloadType.AUTOMATIC, // 3
   HASHFLOW = 10,
+  COSMOS_GATEWAY = 11,
   CCTPManual = 12,
   CCTPRelay = 13,
 }
@@ -30,6 +29,22 @@ export const formatBalance = (
   const formattedBalance =
     balance !== null ? toDecimals(balance, decimals, 6) : null;
   return { [token.key]: formattedBalance };
+};
+
+export type ValidationErr = string;
+
+export type TransferValidations = {
+  sendingWallet: ValidationErr;
+  receivingWallet: ValidationErr;
+  fromNetwork: ValidationErr;
+  toNetwork: ValidationErr;
+  token: ValidationErr;
+  destToken: ValidationErr;
+  amount: ValidationErr;
+  route: ValidationErr;
+  toNativeToken: ValidationErr;
+  foreignAsset: ValidationErr;
+  associatedTokenAccount: ValidationErr;
 };
 
 export interface TransferInputState {

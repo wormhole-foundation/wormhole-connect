@@ -134,6 +134,28 @@ export const TESTNET_NETWORKS: NetworksConfig = {
     automaticRelayer: false,
     maxBlockSearch: 0,
   },
+  osmosis: {
+    ...chains.osmosis!,
+    displayName: 'Osmosis',
+    explorerUrl: 'https://testnet.mintscan.io/osmosis-testnet/',
+    explorerName: 'MintScan',
+    gasToken: 'OSMO',
+    chainId: 'osmo-test-5',
+    icon: Icon.OSMO,
+    automaticRelayer: false,
+    maxBlockSearch: 0,
+  },
+  wormchain: {
+    ...chains.wormchain!,
+    displayName: 'Wormchain',
+    explorerUrl: '',
+    explorerName: '',
+    gasToken: 'WORM',
+    chainId: 'wormchain-testnet-0',
+    icon: Icon.OSMO,
+    automaticRelayer: false,
+    maxBlockSearch: 0,
+  },
 };
 
 export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
@@ -179,6 +201,52 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     color: '#2774CA',
     decimals: {
       default: 6,
+    },
+  },
+  WBTC: {
+    key: 'WBTC',
+    symbol: 'WBTC',
+    nativeNetwork: 'goerli',
+    icon: Icon.WBTC,
+    tokenId: {
+      chain: 'goerli',
+      address: '0xC04B0d3107736C32e19F1c62b2aF67BE61d63a05',
+    },
+    coinGeckoId: 'wrapped-bitcoin',
+    color: '#ffffff',
+    decimals: {
+      default: 8,
+    },
+  },
+  USDT: {
+    key: 'USDT',
+    symbol: 'USDT',
+    nativeNetwork: 'goerli',
+    icon: Icon.USDT,
+    tokenId: {
+      chain: 'goerli',
+      address: '0xC2C527C0CACF457746Bd31B2a698Fe89de2b6d49',
+    },
+    coinGeckoId: 'tether',
+    color: '#ffffff',
+    decimals: {
+      default: 6,
+    },
+  },
+  DAI: {
+    key: 'DAI',
+    symbol: 'DAI',
+    nativeNetwork: 'goerli',
+    icon: Icon.DAI,
+    tokenId: {
+      chain: 'goerli',
+      address: '0x11fE4B6AE13d2a6055C8D9cF65c55bac32B5d844',
+    },
+    coinGeckoId: 'dai',
+    color: '#FEFEFD',
+    decimals: {
+      Ethereum: 18,
+      default: 8,
     },
   },
   MATIC: {
@@ -451,21 +519,6 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
       default: 8,
     },
   },
-  SEI: {
-    key: 'SEI',
-    symbol: 'SEI',
-    nativeNetwork: 'sei',
-    tokenId: {
-      chain: 'sei',
-      address: 'usei',
-    },
-    icon: Icon.SEI,
-    coinGeckoId: 'sei',
-    color: '#FFFFFF',
-    decimals: {
-      default: 6,
-    },
-  },
   ETHbase: {
     key: 'ETHbase',
     symbol: 'ETH',
@@ -493,6 +546,68 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: {
       Ethereum: 18,
       default: 8,
+    },
+  },
+  OSMO: {
+    key: 'OSMO',
+    symbol: 'OSMO',
+    nativeNetwork: 'osmosis',
+    tokenId: {
+      chain: 'osmosis',
+      address: 'uosmo',
+    },
+    icon: Icon.OSMO,
+    coinGeckoId: 'osmosis',
+    color: '#FFFFFF',
+    decimals: {
+      default: 6,
+    },
+  },
+  tBTC: {
+    key: 'tBTC',
+    symbol: 'tBTC',
+    nativeNetwork: 'goerli',
+    tokenId: {
+      chain: 'goerli',
+      address: '0x679874fBE6D4E7Cc54A59e315FF1eB266686a937',
+    },
+    icon: Icon.TBTC,
+    coinGeckoId: 'tbtc',
+    color: '#000000',
+    decimals: {
+      default: 8,
+      Ethereum: 18,
+    },
+  },
+  wstETH: {
+    key: 'wstETH',
+    symbol: 'wstETH',
+    nativeNetwork: 'goerli',
+    tokenId: {
+      chain: 'goerli',
+      address: '0x6320cD32aA674d2898A68ec82e869385Fc5f7E2f',
+    },
+    icon: Icon.WSTETH,
+    coinGeckoId: 'wrapped-steth',
+    color: '#3AA3FF',
+    decimals: {
+      default: 8,
+      Ethereum: 18,
+    },
+  },
+  SEI: {
+    key: 'SEI',
+    symbol: 'SEI',
+    nativeNetwork: 'sei',
+    tokenId: {
+      chain: 'sei',
+      address: 'usei',
+    },
+    icon: Icon.SEI,
+    coinGeckoId: 'sei',
+    color: '#FFFFFF',
+    decimals: {
+      default: 6,
     },
   },
 };
@@ -577,5 +692,15 @@ export const TESTNET_GAS_ESTIMATES: GasEstimates = {
     claim: 100000,
     sendNative: 1000000,
     sendToken: 1000000,
+  },
+  wormchain: {
+    sendNative: 0,
+    sendToken: 0,
+    claim: 0,
+  },
+  osmosis: {
+    sendNative: 0,
+    sendToken: 0,
+    claim: 0,
   },
 };

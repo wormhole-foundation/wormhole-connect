@@ -16,11 +16,14 @@ import { Types } from 'aptos';
 import { TransactionResponse } from '@solana/web3.js';
 import { SuiTransactionBlockResponse } from '@mysten/sui.js';
 import { IndexedTx } from '@cosmjs/stargate';
+import { DevnetChainId, DevnetChainName } from './config/DEVNET';
+import { CosmosContext } from './contexts/cosmos';
+import { CosmosContracts } from './contexts/cosmos/contracts';
 
 export const NATIVE = 'native';
 // TODO: conditionally set these types
-export type ChainName = MainnetChainName | TestnetChainName;
-export type ChainId = MainnetChainId | TestnetChainId;
+export type ChainName = MainnetChainName | TestnetChainName | DevnetChainName;
+export type ChainId = MainnetChainId | TestnetChainId | DevnetChainId;
 export enum Context {
   ETH = 'Ethereum',
   TERRA = 'Terra',
@@ -32,6 +35,7 @@ export enum Context {
   APTOS = 'Aptos',
   SUI = 'Sui',
   SEI = 'Sei',
+  COSMOS = 'Cosmos',
   OTHER = 'OTHER',
 }
 
@@ -53,6 +57,7 @@ export type Contracts = {
   suiOriginalTokenBridgePackageId?: string;
   suiRelayerPackageId?: string;
   seiTokenTranslator?: string;
+  ibcShimContract?: string;
 };
 
 export type ChainConfig = {
@@ -87,14 +92,16 @@ export type AnyContext =
   | SolanaContext<WormholeContext>
   | SuiContext<WormholeContext>
   | AptosContext<WormholeContext>
-  | SeiContext<WormholeContext>;
+  | SeiContext<WormholeContext>
+  | CosmosContext<WormholeContext>;
 
 export type AnyContracts =
   | EthContracts<WormholeContext>
   | SolContracts<WormholeContext>
   | SuiContracts<WormholeContext>
   | AptosContracts<WormholeContext>
-  | SeiContracts<WormholeContext>;
+  | SeiContracts<WormholeContext>
+  | CosmosContracts<WormholeContext>;
 
 export interface ParsedMessage {
   sendTx: string;

@@ -20,7 +20,6 @@ export abstract class BaseRoute extends RouteAbstract {
     sourceToken: TokenConfig | undefined,
   ): Promise<boolean> {
     if (!token) return false;
-    if (token.key === 'WSOL') return false;
     if (!token.tokenId) return false;
     if (sourceToken) {
       const wrapped = getWrappedToken(sourceToken);

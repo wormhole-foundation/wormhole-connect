@@ -17,6 +17,8 @@ export const MAINNET_CHAINS = {
   aptos: 22,
   base: 30,
   sei: 32,
+  wormchain: 3104,
+  osmosis: 20,
 } as const;
 
 /**
@@ -181,6 +183,28 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     finalityThreshold: 0,
     nativeTokenDecimals: 6,
   },
+  wormchain: {
+    context: Context.COSMOS,
+    key: 'wormchain',
+    id: 3104,
+    contracts: {
+      core: 'wormhole1ufs3tlq4umljk0qfe8k5ya0x6hpavn897u2cnf9k0en9jr7qarqqaqfk2j',
+      token_bridge:
+        'wormhole1466nf3zuxpya8q9emxukd7vftaf6h4psr0a07srl5zw74zh84yjq4lyjmh',
+      ibcShimContract:
+        'wormhole14ejqjyq8um4p3xfqj74yld5waqljf88fz25yxnma0cngspxe3les00fpjx',
+    },
+    finalityThreshold: 0,
+    nativeTokenDecimals: 6,
+  },
+  osmosis: {
+    key: 'osmosis',
+    id: 20,
+    context: Context.COSMOS,
+    contracts: {},
+    finalityThreshold: 0,
+    nativeTokenDecimals: 6,
+  },
 };
 
 const env: Environment = 'MAINNET';
@@ -202,6 +226,8 @@ const MAINNET_CONFIG: WormholeConfig = {
     aptos: 'https://fullnode.mainnet.aptoslabs.com/v1',
     base: 'https://mainnet.base.org',
     sei: '', // TODO: fill in
+    wormchain: '',
+    osmosis: 'https://rpc.osmosis.zone',
   },
   rest: {
     sei: '',

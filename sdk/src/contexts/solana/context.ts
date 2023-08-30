@@ -1,6 +1,8 @@
 import {
+  CHAIN_ID_SOLANA,
   createNonce,
   getForeignAssetSolana,
+  getSignedVAAWithRetry,
   redeemAndUnwrapOnSolana,
   redeemOnSolana,
 } from '@certusone/wormhole-sdk';
@@ -31,12 +33,12 @@ import {
 import { BigNumber } from 'ethers';
 import { arrayify, zeroPad, hexlify } from 'ethers/lib/utils';
 
-import MAINNET_CONFIG, { MAINNET_CHAINS } from 'config/MAINNET';
+import MAINNET_CONFIG, { MAINNET_CHAINS } from '../../config/MAINNET';
 import {
   parseTokenTransferPayload,
   parseTokenTransferVaa,
   parseVaa,
-} from 'vaa';
+} from '../../vaa';
 import {
   TokenId,
   ChainName,
@@ -47,9 +49,9 @@ import {
   ParsedRelayerPayload,
   ParsedRelayerMessage,
   VaaInfo,
-} from 'types';
+} from '../../types';
 import { SolContracts } from './contracts';
-import { WormholeContext } from 'wormhole';
+import { WormholeContext } from '../../wormhole';
 import {
   createTransferNativeInstruction,
   createTransferWrappedInstruction,
@@ -397,7 +399,40 @@ export class SolanaContext<
     );
     const message = Keypair.generate();
 
-    const tokenBridgeTransferIx = payload
+    const isSolanaNative =
+      tokenChainId === undefined || tokenChainId === CHAIN_ID_SOLANA;
+
+    const tokenBridgeTransferIx = isSolanaNative
+      ? payload
+        ? createTransferNativeWithPayloadInstruction(
+            this.connection,
+            contracts.token_bridge,
+            contracts.core,
+            senderAddress,
+            message.publicKey,
+            fromAddress,
+            mintAddress,
+            nonce,
+            amount,
+            recipientAddress,
+            recipientChainId,
+            payload,
+          )
+        : createTransferNativeInstruction(
+            this.connection,
+            contracts.token_bridge,
+            contracts.core,
+            senderAddress,
+            message.publicKey,
+            fromAddress,
+            mintAddress,
+            nonce,
+            amount,
+            relayerFee || BigInt(0),
+            recipientAddress,
+            recipientChainId,
+          )
+      : payload
       ? createTransferWrappedWithPayloadInstruction(
           this.connection,
           contracts.token_bridge,
@@ -648,20 +683,23 @@ export class SolanaContext<
     const messageAccountInfo = await this.connection.getAccountInfo(
       new PublicKey(messageKey),
     );
-    const vaaBytes = getAccountData(messageAccountInfo);
-    const { message } = PostedMessageData.deserialize(vaaBytes);
+    const data = getAccountData(messageAccountInfo);
+    const { message } = PostedMessageData.deserialize(data);
+
+    const { vaaBytes } = await getSignedVAAWithRetry(
+      this.context.conf.wormholeHosts,
+      message.emitterChain as ChainId,
+      Buffer.from(message.emitterAddress).toString('hex'),
+      message.sequence.toString(),
+      undefined,
+      undefined,
+      3,
+    );
 
     return {
       transaction: response,
       rawVaa: vaaBytes,
-      vaa: {
-        ...message,
-        version: message.vaaVersion,
-        timestamp: message.vaaTime,
-        hash: Buffer.from([]),
-        guardianSetIndex: 0,
-        guardianSignatures: [],
-      },
+      vaa: parseVaa(vaaBytes),
     };
   }
 
@@ -765,8 +803,10 @@ export class SolanaContext<
     }
 
     const parsed = parseTokenTransferVaa(signedVAA);
-    const tokenChain = parsed.tokenChain;
-    if (tokenChain === MAINNET_CHAINS.solana) {
+    const isNativeSol =
+      parsed.tokenChain === MAINNET_CHAINS.solana &&
+      new PublicKey(parsed.tokenAddress).equals(NATIVE_MINT);
+    if (isNativeSol) {
       return await redeemAndUnwrapOnSolana(
         this.connection,
         contracts.core,
@@ -790,7 +830,7 @@ export class SolanaContext<
     signedVaa: string,
   ): Promise<boolean> {
     if (!this.connection) throw new Error('no connection');
-    const parsed = parseVaa(arrayify(signedVaa));
+    const parsed = parseVaa(arrayify(signedVaa, { allowMissingPrefix: true }));
     const tokenBridge = this.contracts.mustGetBridge(destChain);
     return getClaim(
       this.connection,

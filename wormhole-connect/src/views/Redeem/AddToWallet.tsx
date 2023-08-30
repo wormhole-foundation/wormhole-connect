@@ -157,6 +157,7 @@ function AddToWallet() {
 
   useEffect(() => {
     const fetchTokenInfo = async () => {
+      if (isCosmWasmChain(txData.toChain)) return;
       const tokenInfo = TOKENS[txData.tokenKey];
       const wrapped = getWrappedToken(tokenInfo);
       if (!wrapped.tokenId) return;

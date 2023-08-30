@@ -12,8 +12,8 @@ import {
   setToken,
   setSupportedSourceTokens,
   setSupportedDestTokens,
-  TransferInputState,
   setTransferRoute,
+  TransferInputState,
 } from '../../store/transferInput';
 import { CHAINS, TOKENS, TOKENS_ARR } from '../../config';
 import { TokenConfig } from '../../config/types';
@@ -35,6 +35,7 @@ import ToInputs from './Inputs/To';
 import TransferLimitedWarning from './TransferLimitedWarning';
 import SwapNetworks from './SwapNetworks';
 import RouteOptions from './RouteOptions';
+import { isCosmWasmChain } from '../../utils/cosmos';
 
 const useStyles = makeStyles()((theme) => ({
   spacer: {
@@ -196,6 +197,16 @@ function Bridge() {
   // check if automatic relay option is available
   useEffect(() => {
     const establishRoute = async () => {
+      if (fromNetwork && isCosmWasmChain(wh.toChainId(fromNetwork))) {
+        dispatch(setTransferRoute(Route.COSMOS_GATEWAY));
+        return;
+      }
+
+      if (toNetwork && isCosmWasmChain(wh.toChainId(toNetwork))) {
+        dispatch(setTransferRoute(Route.COSMOS_GATEWAY));
+        return;
+      }
+
       if (!fromNetwork || !toNetwork || !token || !destToken) return;
       const cctpAvailable = await new Operator().isRouteAvailable(
         Route.CCTPRelay,

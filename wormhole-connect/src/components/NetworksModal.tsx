@@ -89,6 +89,7 @@ function NetworksModal(props: Props) {
   };
 
   const showChain = (chain: ChainName) => {
+    if (chain === 'wormchain') return false;
     if (!search) return true;
     const chainConfig = CHAINS[chain]!;
     const name = chainConfig.displayName.toLowerCase();

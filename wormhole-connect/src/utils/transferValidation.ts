@@ -10,26 +10,12 @@ import {
   setValidations,
   touchValidations,
   Route,
-} from 'store/transferInput';
-import { WalletData, WalletState } from 'store/wallet';
-import { RelayState } from 'store/relay';
+  ValidationErr,
+  TransferValidations,
+} from '../store/transferInput';
+import { WalletData, WalletState } from '../store/wallet';
 import { walletAcceptedNetworks } from './wallet';
-
-export type ValidationErr = string;
-
-export type TransferValidations = {
-  sendingWallet: ValidationErr;
-  receivingWallet: ValidationErr;
-  fromNetwork: ValidationErr;
-  toNetwork: ValidationErr;
-  token: ValidationErr;
-  destToken: ValidationErr;
-  amount: ValidationErr;
-  route: ValidationErr;
-  toNativeToken: ValidationErr;
-  foreignAsset: ValidationErr;
-  associatedTokenAccount: ValidationErr;
-};
+import { RelayState } from 'store/relay';
 
 export const validateFromNetwork = (
   chain: ChainName | undefined,
@@ -240,7 +226,9 @@ export const validateAll = async (
 
 export const isTransferValid = (validations: TransferValidations) => {
   for (const validationErr of Object.values(validations)) {
-    if (!!validationErr) return false;
+    if (!!validationErr) {
+      return false;
+    }
   }
   return true;
 };

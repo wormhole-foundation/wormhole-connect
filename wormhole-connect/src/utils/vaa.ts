@@ -1,9 +1,9 @@
-import { parseTokenTransferVaa } from '@certusone/wormhole-sdk';
+import { getSignedVAA, parseTokenTransferVaa } from '@certusone/wormhole-sdk';
 import { utils } from 'ethers';
 import axios from 'axios';
 import { ChainId } from '@wormhole-foundation/wormhole-connect-sdk';
 
-import { CHAINS, WH_CONFIG, WORMHOLE_API } from 'config';
+import { CHAINS, CONFIG, WH_CONFIG, WORMHOLE_API } from 'config';
 import {
   ParsedMessage,
   ParsedRelayerMessage,
@@ -71,6 +71,21 @@ export function getEmitterAndSequence(
 export async function fetchVaa(
   txData: ParsedMessage | ParsedRelayerMessage,
 ): Promise<ParsedVaa | undefined> {
+  let vaa = await fetchVaaWormscan(txData);
+
+  if (!vaa) {
+    console.warn(
+      'Failed to fetch VAA from wormscan. Falling back to guardian.',
+    );
+    vaa = await fetchVaaGuardian(txData);
+  }
+
+  return vaa;
+}
+
+export async function fetchVaaWormscan(
+  txData: ParsedMessage | ParsedRelayerMessage,
+): Promise<ParsedVaa | undefined> {
   // return if the number of block confirmations hasn't been met
   const chainName = wh.toChainName(txData.fromChain);
   const { finalityThreshold } = CHAINS[chainName]! as any;
@@ -119,6 +134,52 @@ export async function fetchVaa(
         throw error;
       }
     });
+}
+
+export async function fetchVaaGuardian(
+  txData: ParsedMessage | ParsedRelayerMessage,
+): Promise<ParsedVaa | undefined> {
+  // return if the number of block confirmations hasn't been met
+  const chainName = wh.toChainName(txData.fromChain);
+  const { finalityThreshold } = CHAINS[chainName]! as any;
+  if (finalityThreshold > 0) {
+    const currentBlock = await getCurrentBlock(txData.fromChain);
+    if (currentBlock < txData.block + finalityThreshold) return;
+  }
+
+  const messageId = getEmitterAndSequence(txData);
+  const { emitterChain, emitterAddress, sequence } = messageId;
+
+  const { vaaBytes: vaa } = await getSignedVAA(
+    CONFIG.wormholeHosts[0],
+    emitterChain,
+    emitterAddress,
+    sequence,
+  );
+
+  const parsed = parseTokenTransferVaa(vaa);
+
+  const vaaData: ParsedVaa = {
+    bytes: utils.hexlify(vaa),
+    hash: utils.hexlify(parsed.hash),
+    amount: parsed.amount.toString(),
+    emitterAddress: utils.hexlify(parsed.emitterAddress),
+    emitterChain: parsed.emitterChain as ChainId,
+    fee: parsed.fee ? parsed.fee.toString() : null,
+    fromAddress: parsed.fromAddress
+      ? utils.hexlify(parsed.fromAddress)
+      : undefined,
+    guardianSignatures: parsed.guardianSignatures.length,
+    sequence: parsed.sequence.toString(),
+    timestamp: parsed.timestamp,
+    toAddress: utils.hexlify(parsed.to),
+    toChain: parsed.toChain as ChainId,
+    tokenAddress: utils.hexlify(parsed.tokenAddress),
+    tokenChain: parsed.tokenChain as ChainId,
+    txHash: txData.sendTx,
+  };
+
+  return vaaData;
 }
 
 export const fetchIsVAAEnqueued = async (

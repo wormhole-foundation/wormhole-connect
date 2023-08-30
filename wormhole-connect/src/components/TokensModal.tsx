@@ -26,6 +26,7 @@ import Scroll from './Scroll';
 import TokenIcon from '../icons/TokenIcons';
 import CircularProgress from '@mui/material/CircularProgress';
 import Tabs from './Tabs';
+import { isCosmWasmChain } from '../utils/cosmos';
 
 const useStyles = makeStyles()((theme: any) => ({
   tokensContainer: {
@@ -248,6 +249,10 @@ type Props = {
   type: 'source' | 'dest';
 };
 
+function isCosmosNativeToken(token: TokenConfig) {
+  return token.tokenId && isCosmWasmChain(token.tokenId.chain);
+}
+
 function TokensModal(props: Props) {
   const theme = useTheme();
   const dispatch = useDispatch();
@@ -265,20 +270,21 @@ function TokensModal(props: Props) {
     route,
   } = useSelector((state: RootState) => state.transferInput);
 
-  const allTokens = useMemo(
-    () =>
+  const allTokens = useMemo(() => {
+    const arr =
       type === 'source'
         ? TOKENS_ARR
         : TOKENS_ARR.filter((t) => {
             return !!t.tokenId;
-          }),
-    [type],
-  );
+          });
+    return arr.filter((t) => !isCosmosNativeToken(t));
+  }, [type]);
 
-  const supportedTokens = useMemo(
-    () => (type === 'source' ? supportedSourceTokens : supportedDestTokens),
-    [type, supportedSourceTokens, supportedDestTokens],
-  );
+  const supportedTokens = useMemo(() => {
+    const supported =
+      type === 'source' ? supportedSourceTokens : supportedDestTokens;
+    return supported.filter((t) => !isCosmosNativeToken(t));
+  }, [type, supportedSourceTokens, supportedDestTokens]);
 
   const tokenBalances = useMemo(
     () => (type === 'source' ? sourceBalances : destBalances),

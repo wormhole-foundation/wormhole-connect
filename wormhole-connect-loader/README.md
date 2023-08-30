@@ -21,64 +21,64 @@ Integration does not get easier than this. Wormhole Connect is an easy seamless 
 #### Accepted values
 
 Environment (`env`):
-| Mainnet    | Testnet   |
+| Mainnet | Testnet |
 | ---------- | --------- |
-| mainnet    | testnet   |
+| mainnet | testnet |
 
 <br>
 
 Networks (`networks`):
-| Mainnet    | Testnet       |
+| Mainnet | Testnet |
 | ---------- | ------------- |
-| ethereum   | goerli        |
-| polygon    | mumbai        |
-| bsc        | bsc           |
-| avalanche  | fuji          |
-| celo       | avalanche     |
-| moonbeam   | moonbasealpha |
-| solana     | solana        |
-| sui        | sui           |
-| aptos      | aptos         |
-| base       | basegoerli    |
+| ethereum | goerli |
+| polygon | mumbai |
+| bsc | bsc |
+| avalanche | fuji |
+| celo | avalanche |
+| moonbeam | moonbasealpha |
+| solana | solana |
+| sui | sui |
+| aptos | aptos |
+| base | basegoerli |
+| osmosis | osmosis |
 
 <br>
 
 Tokens (`tokens`):
-| Mainnet     | Testnet  |
+| Mainnet | Testnet |
 | ----------- | -------- |
-| ETH         | ETH      |
-| WETH        | WETH     |
-| USDCeth     | USDCeth  |
-| WBTC        |          |
-| USDT        |          |
-| DAI         |          |
-| BUSD        |          |
-| MATIC       | MATIC    |
-| WMATIC      | WMATIC   |
-| USDCpolygon |          |
-| BNB         | BNB      |
-| WBNB        | WBNB     |
-| USDCbnb     |          |
-| AVAX        | AVAX     |
-| WAVAX       | WAVAX    |
-| USDCavax    |          |
-| FTM         | FTM      |
-| WFTM        | WFTM     |
-| CELO        | CELO     |
-| GLMR        | GLMR     |
-| WGLMR       | WGLMR    |
-| SOL         | WSOL     |
-| SUI         | SUI      |
-| USDCsol     |          |
-| APT         | APT      |
-| ETHbase     | ETHbase  |
-| WETHbase    | WETHbase |
-
+| ETH | ETH |
+| WETH | WETH |
+| USDCeth | USDCeth |
+| WBTC | |
+| USDT | |
+| DAI | |
+| BUSD | |
+| MATIC | MATIC |
+| WMATIC | WMATIC |
+| USDCpolygon | |
+| BNB | BNB |
+| WBNB | WBNB |
+| USDCbnb | |
+| AVAX | AVAX |
+| WAVAX | WAVAX |
+| USDCavax | |
+| FTM | FTM |
+| WFTM | WFTM |
+| CELO | CELO |
+| GLMR | GLMR |
+| WGLMR | WGLMR |
+| SOL | WSOL |
+| SUI | SUI |
+| USDCsol | |
+| APT | APT |
+| ETHbase | ETHbase |
+| WETHbase | WETHbase |
 
 <br>
 
 Mode (`mode`):
-|      |       |
+| | |
 | ---- | ----- |
 | dark | light |
 
@@ -99,7 +99,10 @@ Add a container div with the id `wormhole-connect`. This is where the bridge wil
 If you created a config from step 1, [stringify](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify) it and assign to the `config` attribute on the container element.
 
 ```html
-<div id="wormhole-connect" config='{"env":"mainnet","tokens":["ETH","WETH","WBTC","USDCeth"]}' />
+<div
+  id="wormhole-connect"
+  config='{"env":"mainnet","tokens":["ETH","WETH","WBTC","USDCeth"]}'
+/>
 ```
 
 ### 2. Add a script and link tag
@@ -107,19 +110,23 @@ If you created a config from step 1, [stringify](https://developer.mozilla.org/e
 ```html
 <!-- paste below into index.html body -->
 <script src="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.9/dist/main.js"></script>
-<link href="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.9/dist/main.css" />
+<link
+  href="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.9/dist/main.css"
+/>
 ```
 
-Note that the `wormhole-connect` div with your config has to be present _before_ the scripts are loaded.  If your application loads it after, you may need to add the scripts like this:
+Note that the `wormhole-connect` div with your config has to be present _before_ the scripts are loaded. If your application loads it after, you may need to add the scripts like this:
 
 ```js
-function mount () {
+function mount() {
   const script = document.createElement("script");
-  script.src = "https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.9/dist/main.js";
+  script.src =
+    "https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.9/dist/main.js";
   script.async = true;
 
   const link = document.createElement("link");
-  link.href = "https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.9/dist/main.css";
+  link.href =
+    "https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.9/dist/main.css";
 
   document.body.appendChild(script);
   document.body.appendChild(link);
@@ -129,17 +136,18 @@ function mount () {
 ## Integrate with React
 
 ```jsx
-import WormholeBridge from '@wormhole-foundation/wormhole-connect';
+import WormholeBridge from "@wormhole-foundation/wormhole-connect";
 function App() {
-  return (
-    <WormholeBridge />
-  );
+  return <WormholeBridge />;
 }
 ```
 
 (Optional) Specify supported networks/tokens and custom RPC endpoints. Your users may encounter rate limits using public RPC endpoints if you do not provide your own
+
 ```jsx
-import WormholeBridge, { WormholeConnectConfig } from '@wormhole-foundation/wormhole-connect';
+import WormholeBridge, {
+  WormholeConnectConfig,
+} from "@wormhole-foundation/wormhole-connect";
 const config: WormholeConnectConfig = {
   env: "mainnet",
   networks: ["ethereum", "polygon", "solana"],
@@ -147,57 +155,63 @@ const config: WormholeConnectConfig = {
   rpc: {
     ethereum: "https://rpc.ankr.com/eth",
     solana: "https://rpc.ankr.com/solana",
-  }
-}
+  },
+};
 
 function App() {
-  return (
-    <WormholeBridge config={config} />
-  );
+  return <WormholeBridge config={config} />;
 }
 ```
 
 (Optional) Customize theme
+
 ```jsx
-import WormholeBridge, { light, Theme, WormholeConnectConfig } from '@wormhole-foundation/wormhole-connect';
-import lightblue from '@mui/material/colors/lightBlue';
+import WormholeBridge, {
+  light,
+  Theme,
+  WormholeConnectConfig,
+} from "@wormhole-foundation/wormhole-connect";
+import lightblue from "@mui/material/colors/lightBlue";
 
 // alters the `light` theme
 const customized: Theme = light;
 customized.success = lightblue;
-customized.background.default = 'transparent';
-customized.button.action = '#81c784';
-customized.button.actionText = '#000000';
+customized.background.default = "transparent";
+customized.button.action = "#81c784";
+customized.button.actionText = "#000000";
 
 const config: WormholeConnectConfig = {
-  mode: 'light',
+  mode: "light",
   customTheme: customized,
-}
+};
 
 function App() {
-  return (
-    <WormholeBridge config={config} />
-  );
+  return <WormholeBridge config={config} />;
 }
 ```
 
 (Optional) Create fully customized theme
+
 ```jsx
-import WormholeBridge, { Theme, OPACITY, WormholeConnectConfig } from '@wormhole-foundation/wormhole-connect';
-import lightblue from '@mui/material/colors/lightBlue';
-import grey from '@mui/material/colors/grey';
-import green from '@mui/material/colors/green';
-import orange from '@mui/material/colors/orange';
+import WormholeBridge, {
+  Theme,
+  OPACITY,
+  WormholeConnectConfig,
+} from "@wormhole-foundation/wormhole-connect";
+import lightblue from "@mui/material/colors/lightBlue";
+import grey from "@mui/material/colors/grey";
+import green from "@mui/material/colors/green";
+import orange from "@mui/material/colors/orange";
 
 const customized: Theme = {
   primary: grey,
   secondary: grey,
-  divider: '#ffffff' + OPACITY[20],
+  divider: "#ffffff" + OPACITY[20],
   background: {
-    default: '#232323',
+    default: "#232323",
   },
   text: {
-    primary: '#ffffff',
+    primary: "#ffffff",
     secondary: grey[500],
   },
   error: red,
@@ -205,40 +219,38 @@ const customized: Theme = {
   success: green,
   warning: orange,
   button: {
-    primary: '#ffffff' + OPACITY[20],
-    primaryText: '#ffffff',
-    disabled: '#ffffff' + OPACITY[10],
-    disabledText: '#ffffff' + OPACITY[40],
+    primary: "#ffffff" + OPACITY[20],
+    primaryText: "#ffffff",
+    disabled: "#ffffff" + OPACITY[10],
+    disabledText: "#ffffff" + OPACITY[40],
     action: orange[300],
-    actionText: '#000000',
-    hover: '#ffffff' + OPACITY[7],
+    actionText: "#000000",
+    hover: "#ffffff" + OPACITY[7],
   },
   options: {
-    hover: '#474747',
-    select: '#5b5b5b',
+    hover: "#474747",
+    select: "#5b5b5b",
   },
   card: {
-    background: '#333333',
-    secondary: '#474747',
-    elevation: 'none',
+    background: "#333333",
+    secondary: "#474747",
+    elevation: "none",
   },
   popover: {
-    background: '#1b2033',
-    secondary: '#ffffff' + OPACITY[5],
-    elevation: 'none',
+    background: "#1b2033",
+    secondary: "#ffffff" + OPACITY[5],
+    elevation: "none",
   },
   modal: {
-    background: '#474747',
+    background: "#474747",
   },
 };
 const config: WormholeConnectConfig = {
-  mode: 'dark',
+  mode: "dark",
   customTheme: customized,
-}
+};
 
 function App() {
-  return (
-    <WormholeBridge config={config} />
-  );
+  return <WormholeBridge config={config} />;
 }
 ```

@@ -19,13 +19,12 @@ import { BaseRoute } from './baseRoute';
 import { adaptParsedMessage } from './common';
 import { toDecimals } from '../balance';
 import { calculateGas } from '../gas';
-import { TransferInfoBaseParams } from './routeAbstract';
+import {
+  TransferDestInfoBaseParams,
+  TransferInfoBaseParams,
+} from './routeAbstract';
 import { hexlify } from 'ethers/lib/utils.js';
-
-interface TransferDestInfoParams {
-  txData: ParsedMessage | ParsedRelayerMessage;
-  receiveTx?: string;
-}
+import { isCosmWasmChain } from '../cosmos';
 
 export class BridgeRoute extends BaseRoute {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean = false;
@@ -43,6 +42,8 @@ export class BridgeRoute extends BaseRoute {
     if (!sourceChain || !destChain || !sourceTokenConfig || !destTokenConfig)
       return false;
     if (sourceChain === destChain) return false;
+    if (isCosmWasmChain(sourceChain) || isCosmWasmChain(destChain))
+      return false;
     // TODO: probably not true for Solana
     if (destToken === 'native') return false;
     if (!!sourceTokenConfig.tokenId && sourceToken === destToken) return true;
@@ -294,7 +295,7 @@ export class BridgeRoute extends BaseRoute {
   async getTransferDestInfo({
     txData,
     receiveTx,
-  }: TransferDestInfoParams): Promise<TransferDisplayData> {
+  }: TransferDestInfoBaseParams): Promise<TransferDisplayData> {
     const token = TOKENS[txData.tokenKey];
     const { gasToken } = CHAINS[txData.toChain]!;
 

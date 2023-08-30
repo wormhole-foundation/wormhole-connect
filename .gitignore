@@ -3,3 +3,5 @@
 .netlify
 .vscode
 .ignore
+.yalc
+yalc.lock

@@ -15,7 +15,7 @@ export interface BridgeDefaults {
 }
 
 export interface WormholeConnectConfig {
-  env?: 'mainnet' | 'testnet';
+  env?: 'mainnet' | 'testnet' | 'devnet';
   rpcs?: ChainResourceMap;
   rest?: ChainResourceMap;
   networks?: ChainName[];
@@ -50,7 +50,7 @@ export interface NetworkConfig extends ChainConfig {
   explorerUrl: string;
   explorerName: string;
   gasToken: string;
-  chainId: number;
+  chainId: number | string;
   icon: Icon;
   maxBlockSearch: number;
   automaticRelayer?: boolean;
@@ -79,6 +79,10 @@ export enum Icon {
   'APT',
   'SEI',
   'BASE',
+  'OSMO',
+  'BONK',
+  'TBTC',
+  'WSTETH',
 }
 
 export type GasEstimates = {

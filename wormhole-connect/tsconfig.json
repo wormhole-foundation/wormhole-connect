@@ -1,6 +1,11 @@
 {
   "exclude": ["dist", "node_modules", "tests", "coverage"],
-  "include": ["scripts/**/*.ts", "src/**/*.ts", "src/Icons/**/*.tsx", "tests/*.test.ts"],
+  "include": [
+    "scripts/**/*.ts",
+    "src/**/*.ts",
+    "src/Icons/**/*.tsx",
+    "tests/*.test.ts"
+  ],
   "compilerOptions": {
     "composite": true,
     "declaration": true,

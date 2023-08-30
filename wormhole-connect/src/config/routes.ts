@@ -50,4 +50,11 @@ export const ROUTES: {
     link: 'https://www.circle.com/en/cross-chain-transfer-protocol',
     icon: CCTPIcon,
   },
+  [Route.COSMOS_GATEWAY]: {
+    route: Route.COSMOS_GATEWAY,
+    name: 'Cosmos Gateway',
+    providedBy: 'Wormhole',
+    link: 'https://wormhole.com/',
+    icon: WormholeIcon,
+  },
 };
