@@ -268,7 +268,7 @@ const TESTNET_CONFIG: WormholeConfig = {
     sui: 'https://fullnode.testnet.sui.io',
     aptos: 'https://fullnode.testnet.aptoslabs.com/v1',
     arbitrumgoerli: 'https://arbitrum-goerli.publicnode.com',
-    optimismgoerli: 'https://goerli.optimism.io',
+    optimismgoerli: 'https://rpc.ankr.com/optimism',
     basegoerli: 'https://goerli.base.org',
     sei: 'https://rpc.atlantic-2.seinetwork.io',
     wormchain: '',
