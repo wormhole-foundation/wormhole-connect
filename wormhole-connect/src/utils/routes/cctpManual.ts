@@ -141,9 +141,6 @@ export class CCTPManualRoute extends BaseRoute {
     destChain?: ChainName | ChainId,
   ): Promise<boolean> {
     if (!token) return false;
-    if (sourceChain) {
-      console.log(`SOURCE CHAIN ${sourceChain} ${wh.toChainName(sourceChain)}`);
-    }
     const sourceChainName = token.nativeNetwork;
     const sourceChainCCTP =
       CCTPManual_CHAINS.includes(sourceChainName) &&
