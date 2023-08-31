@@ -121,7 +121,7 @@ function FromInputs() {
       />
       <NetworksModal
         open={showNetworksModal}
-        title="Sending to"
+        title="Sending from"
         chains={CHAINS_ARR.filter((c) => c.key !== toNetwork)}
         onSelect={selectNetwork}
         onClose={() => setShowNetworksModal(false)}
