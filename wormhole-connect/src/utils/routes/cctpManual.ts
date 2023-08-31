@@ -17,6 +17,7 @@ import {
   MAX_DECIMALS,
   getTokenById,
   getTokenDecimals,
+  sleep,
   toNormalizedDecimals,
 } from 'utils';
 import {
@@ -65,10 +66,6 @@ export function getForeignUSDCAddress(chain: ChainName | ChainId) {
     throw new Error('No foreign native USDC address');
   }
   return usdcToken.tokenId?.address;
-}
-
-async function sleep(timeout: number) {
-  return new Promise((resolve) => setTimeout(resolve, timeout));
 }
 
 const CIRCLE_ATTESTATION = isMainnet

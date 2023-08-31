@@ -283,7 +283,7 @@ export class AptosContext<
       sequence,
       undefined,
       undefined,
-      3,
+      this.context.conf.wormholeHosts.length,
     );
 
     const parsedVaa = parseVaa(vaaBytes);
