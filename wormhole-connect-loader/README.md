@@ -110,9 +110,9 @@ If you created a config from step 1, [stringify](https://developer.mozilla.org/e
 
 ```html
 <!-- paste below into index.html body -->
-<script src="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.10/dist/main.js"></script>
+<script src="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.11/dist/main.js"></script>
 <link
-  href="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.10/dist/main.css"
+  href="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.11/dist/main.css"
 />
 ```
 
@@ -122,12 +122,12 @@ Note that the `wormhole-connect` div with your config has to be present _before_
 function mount() {
   const script = document.createElement("script");
   script.src =
-    "https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.10/dist/main.js";
+    "https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.11/dist/main.js";
   script.async = true;
 
   const link = document.createElement("link");
   link.href =
-    "https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.10/dist/main.css";
+    "https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.11/dist/main.css";
 
   document.body.appendChild(script);
   document.body.appendChild(link);
@@ -153,7 +153,7 @@ const config: WormholeConnectConfig = {
   env: "mainnet",
   networks: ["ethereum", "polygon", "solana"],
   tokens: ["ETH", "WETH", "MATIC", "WMATIC"],
-  rpcs: {
+  rpc: {
     ethereum: "https://rpc.ankr.com/eth",
     solana: "https://rpc.ankr.com/solana",
   },
