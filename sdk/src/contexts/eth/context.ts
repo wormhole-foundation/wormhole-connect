@@ -507,7 +507,7 @@ export class EthContext<
       parsed.args.sequence.toString(),
       undefined,
       undefined,
-      3000,
+      3,
     );
 
     const parsedVaa = parseVaa(vaaBytes);
