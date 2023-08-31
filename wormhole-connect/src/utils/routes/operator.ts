@@ -30,9 +30,8 @@ import {
 // TODO: need to make this configurable
 export const listOfRoutes = [
   Route.BRIDGE,
-  /*
   Route.CCTPManual,
-  Route.CCTPRelay,*/
+  Route.CCTPRelay,
   Route.RELAY,
   Route.COSMOS_GATEWAY,
 ];

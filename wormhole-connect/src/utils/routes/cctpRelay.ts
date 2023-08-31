@@ -154,8 +154,6 @@ export class CCTPRelayRoute extends CCTPManualRoute {
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
   ): Promise<boolean> {
-    return false;
-
     const sourceTokenConfig = TOKENS[sourceToken];
     const destTokenConfig = TOKENS[destToken];
 
