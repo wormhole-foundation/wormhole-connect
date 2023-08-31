@@ -283,7 +283,7 @@ export class AptosContext<
       sequence,
       undefined,
       undefined,
-      3000,
+      3,
     );
 
     const parsedVaa = parseVaa(vaaBytes);
