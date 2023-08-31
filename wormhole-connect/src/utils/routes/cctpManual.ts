@@ -53,7 +53,7 @@ export const CCTPManual_CHAINS: ChainName[] = [
   'goerli',
   // 'optimism' TODO: uncomment,
   'arbitrum',
-  'optimismgoerli',
+  // 'optimismgoerli' TODO: uncomment
   'arbitrumgoerli',
 ];
 export const CCTP_LOG_TokenMessenger_DepositForBurn =
@@ -141,6 +141,9 @@ export class CCTPManualRoute extends BaseRoute {
     destChain?: ChainName | ChainId,
   ): Promise<boolean> {
     if (!token) return false;
+    if (sourceChain) {
+      console.log(`SOURCE CHAIN ${sourceChain} ${wh.toChainName(sourceChain)}`);
+    }
     const sourceChainName = token.nativeNetwork;
     const sourceChainCCTP =
       CCTPManual_CHAINS.includes(sourceChainName) &&
@@ -308,10 +311,7 @@ export class CCTPManualRoute extends BaseRoute {
       tokenMessenger!,
       wh.getSigner(sendingChain)!,
     );
-    const tokenAddr = await wh.mustGetForeignAsset(
-      token as TokenId,
-      sendingChain,
-    );
+    const tokenAddr = (token as TokenId).address;
     const toChainName = wh.toChainName(recipientChain)!;
     const decimals = getTokenDecimals(wh.toChainId(sendingChain), token);
     const parsedAmt = utils.parseUnits(`${amount}`, decimals);
@@ -375,11 +375,7 @@ export class CCTPManualRoute extends BaseRoute {
       tokenMessenger!,
       wh.getSigner(fromChainId)!,
     );
-    const tokenAddr = await wh.mustGetForeignAsset(
-      token as TokenId,
-      sendingChain,
-    );
-
+    const tokenAddr = (token as TokenId).address;
     // approve
     await chainContext.approve(
       sendingChain,

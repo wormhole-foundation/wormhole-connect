@@ -171,7 +171,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     id: 23,
     context: Context.ETH,
     contracts: {
-      ...CONTRACTS.TESTNET.optimism,
+      ...CONTRACTS.TESTNET.arbitrum,
       cctpContracts: {
         cctpTokenMessenger: '0x12dcfd3fe2e9eac2859fd1ed86d2ab8c5a2f9352',
         cctpMessageTransmitter: '0x109bc137cb64eab7c0b1dddd1edf341467dc2d35',
@@ -267,7 +267,7 @@ const TESTNET_CONFIG: WormholeConfig = {
     moonbasealpha: 'https://rpc.api.moonbase.moonbeam.network',
     sui: 'https://fullnode.testnet.sui.io',
     aptos: 'https://fullnode.testnet.aptoslabs.com/v1',
-    arbitrumgoerli: 'https://goerli-rollup.arbitrum.io/rpc',
+    arbitrumgoerli: 'https://arbitrum-goerli.publicnode.com',
     optimismgoerli: 'https://goerli.optimism.io',
     basegoerli: 'https://goerli.base.org',
     sei: 'https://rpc.atlantic-2.seinetwork.io',

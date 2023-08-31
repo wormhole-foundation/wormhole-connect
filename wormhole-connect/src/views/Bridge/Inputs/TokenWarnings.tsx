@@ -102,6 +102,8 @@ function TokenWarnings() {
 
   // check if the destination token contract is deployed
   useEffect(() => {
+    // Avoid race conditions
+    let active = true;
     const checkWrappedTokenExists = async () => {
       if (!toNetwork || !tokenConfig) {
         dispatch(setForeignAsset(''));
@@ -114,12 +116,13 @@ function TokenWarnings() {
       if (!tokenId) {
         throw new Error('Could not retrieve target token info');
       }
-
       const address = await new Operator().getForeignAsset(
         route,
         tokenId,
         toNetwork,
       );
+
+      if (!active) return;
       if (address) {
         dispatch(setForeignAsset(address));
         setShowErrors(false);
@@ -129,6 +132,9 @@ function TokenWarnings() {
       }
     };
     checkWrappedTokenExists();
+    return () => {
+      active = false;
+    };
   }, [toNetwork, tokenConfig, route, dispatch]);
 
   // the associated token account address is deterministic, so we still

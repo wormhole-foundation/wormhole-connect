@@ -215,10 +215,7 @@ export class CCTPRelayRoute extends CCTPManualRoute {
     ) as EthContext<WormholeContext>;
     const circleRelayer =
       chainContext.contracts.mustGetWormholeCircleRelayer(sendingChain);
-    const tokenAddr = await wh.mustGetForeignAsset(
-      token as TokenId,
-      sendingChain,
-    );
+    const tokenAddr = (token as TokenId).address;
     const fromChainId = wh.toChainId(sendingChain);
     const decimals = getTokenDecimals(fromChainId, token);
     const parsedAmt = utils.parseUnits(`${amount}`, decimals);
@@ -271,10 +268,7 @@ export class CCTPRelayRoute extends CCTPManualRoute {
     ) as EthContext<WormholeContext>;
     const circleRelayer =
       chainContext.contracts.mustGetWormholeCircleRelayer(sendingChain);
-    const tokenAddr = await wh.mustGetForeignAsset(
-      token as TokenId,
-      sendingChain,
-    );
+    const tokenAddr = (token as TokenId).address;
 
     // approve
     await chainContext.approve(

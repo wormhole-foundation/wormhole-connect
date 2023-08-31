@@ -830,14 +830,18 @@ export const MAINNET_GAS_ESTIMATES: GasEstimates = {
     claim: 1250,
   },
   arbitrum: {
-    claim: 8000000,
-    sendNative: 2000000,
-    sendToken: 2000000,
+    claim: 4000000,
+    sendNative: 1000000,
+    sendToken: 1000000,
+    sendCCTPWithRelay: 1500000,
+    sendCCTPManual: 800000,
   },
   optimism: {
     claim: 300000,
     sendNative: 100000,
-    sendToken: 150000,
+    sendToken: 100000,
+    sendCCTPManual: 100000,
+    sendCCTPWithRelay: 150000,
   },
   sei: {
     claim: 1000000,
