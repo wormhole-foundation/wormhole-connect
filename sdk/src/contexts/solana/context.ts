@@ -706,7 +706,7 @@ export class SolanaContext<
       message.sequence.toString(),
       undefined,
       undefined,
-      3,
+      this.context.conf.wormholeHosts.length,
     );
 
     const parsedVaa = parseVaa(vaaBytes);

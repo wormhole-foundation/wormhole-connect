@@ -507,7 +507,7 @@ export class EthContext<
       parsed.args.sequence.toString(),
       undefined,
       undefined,
-      3,
+      this.context.conf.wormholeHosts.length,
     );
 
     const parsedVaa = parseVaa(vaaBytes);

@@ -12,7 +12,7 @@ import {
   setSendTx,
   setRoute as setRedeemRoute,
 } from '../../store/redeem';
-import { displayWalletAddress } from '../../utils';
+import { displayWalletAddress, sleep } from '../../utils';
 import { LINK } from '../../utils/style';
 import {
   registerWalletSigner,
@@ -115,31 +115,26 @@ function Send(props: { valid: boolean }) {
       );
 
       let messageInfo: MessageInfo | undefined;
-      const toRedeem = setInterval(async () => {
-        if (messageInfo) {
-          const message = await operator.parseMessage(route, messageInfo);
-          clearInterval(toRedeem);
-          dispatch(setIsTransactionInProgress(false));
-          dispatch(setSendTx(txId));
-          dispatch(setTxDetails(message));
-          dispatch(setRedeemRoute(route));
-          dispatch(setAppRoute('redeem'));
-          setSendError('');
-        } else {
-          try {
-            messageInfo = await operator.getMessageInfo(
-              route,
-              txId,
-              fromNetwork!,
-              true, // don't need to get the signed attestation
-            );
-          } catch (e) {
-            if (!e.message.includes('requested VAA not found in store')) {
-              throw e;
-            }
-          }
+      while (messageInfo === undefined) {
+        try {
+          messageInfo = await operator.getMessageInfo(
+            route,
+            txId,
+            fromNetwork!,
+            true, // don't need to get the signed attestation
+          );
+        } catch {}
+        if (messageInfo === undefined) {
+          await sleep(3000);
         }
-      }, 1000);
+      }
+      const message = await operator.parseMessage(route, messageInfo);
+      dispatch(setIsTransactionInProgress(false));
+      dispatch(setSendTx(txId));
+      dispatch(setTxDetails(message));
+      dispatch(setRedeemRoute(route));
+      dispatch(setAppRoute('redeem'));
+      setSendError('');
     } catch (e) {
       dispatch(setIsTransactionInProgress(false));
       setSendError('Error sending transfer, please try again');

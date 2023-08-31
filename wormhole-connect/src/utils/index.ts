@@ -200,3 +200,7 @@ export function toNormalizedDecimals(
     decimals > NORMALIZED_DECIMALS ? NORMALIZED_DECIMALS : decimals;
   return toDecimals(amount, normalizedDecimals, numDecimals);
 }
+
+export async function sleep(timeout: number) {
+  return new Promise((resolve) => setTimeout(resolve, timeout));
+}
