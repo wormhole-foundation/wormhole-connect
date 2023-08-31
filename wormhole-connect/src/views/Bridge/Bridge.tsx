@@ -6,7 +6,6 @@ import { BigNumber } from 'ethers';
 import { RootState } from '../../store';
 import {
   setReceiverNativeBalance,
-  Route,
   setReceiveAmount,
   setDestToken,
   setToken,
@@ -16,7 +15,7 @@ import {
   TransferInputState,
 } from '../../store/transferInput';
 import { CHAINS, TOKENS, TOKENS_ARR } from '../../config';
-import { TokenConfig } from '../../config/types';
+import { TokenConfig, Route } from '../../config/types';
 import { getTokenDecimals, getWrappedTokenId } from '../../utils';
 import { wh, isAcceptedToken, toChainId } from '../../utils/sdk';
 import { joinClass } from '../../utils/style';
@@ -202,12 +201,12 @@ function Bridge() {
   useEffect(() => {
     const establishRoute = async () => {
       if (fromNetwork && isCosmWasmChain(wh.toChainId(fromNetwork))) {
-        dispatch(setTransferRoute(Route.COSMOS_GATEWAY));
+        dispatch(setTransferRoute(Route.CosmosGateway));
         return;
       }
 
       if (toNetwork && isCosmWasmChain(wh.toChainId(toNetwork))) {
-        dispatch(setTransferRoute(Route.COSMOS_GATEWAY));
+        dispatch(setTransferRoute(Route.CosmosGateway));
         return;
       }
 
@@ -247,14 +246,14 @@ function Bridge() {
           const tokenId = getWrappedTokenId(tokenConfig);
           const accepted = await isAcceptedToken(tokenId);
           if (accepted) {
-            dispatch(setTransferRoute(Route.RELAY));
+            dispatch(setTransferRoute(Route.Relay));
           } else {
-            dispatch(setTransferRoute(Route.BRIDGE));
+            dispatch(setTransferRoute(Route.Bridge));
           }
         };
         isTokenAcceptedForRelay();
       } else {
-        dispatch(setTransferRoute(Route.BRIDGE));
+        dispatch(setTransferRoute(Route.Bridge));
       }
     };
     establishRoute();

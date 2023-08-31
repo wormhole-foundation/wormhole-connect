@@ -11,7 +11,7 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 
 import { CHAINS, TOKENS, TOKENS_ARR, isMainnet } from 'config';
-import { TokenConfig } from 'config/types';
+import { TokenConfig, Route } from 'config/types';
 import {
   MAX_DECIMALS,
   getTokenById,

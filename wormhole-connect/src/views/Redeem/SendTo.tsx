@@ -4,9 +4,9 @@ import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { CHAINS } from '../../config';
+import { Route } from '../../config/types';
 import { RootState } from '../../store';
 import { setRedeemTx, setTransferComplete } from '../../store/redeem';
-import { Route } from '../../store/transferInput';
 import { displayAddress } from '../../utils';
 import { fetchRedeemTx } from '../../utils/events';
 import Operator, { TransferDisplayData } from '../../utils/routes';
@@ -149,7 +149,7 @@ function SendTo() {
       </InputContainer>
 
       {/* Claim button for manual transfers */}
-      {txData.payloadID === Route.BRIDGE && !transferComplete && (
+      {txData.payloadID === Route.Bridge && !transferComplete && (
         <>
           <Spacer height={8} />
           <AlertBanner

@@ -2,21 +2,12 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { BigNumber } from 'ethers';
 import { TOKENS, config } from 'config';
-import { TokenConfig } from 'config/types';
+import { Route, TokenConfig } from 'config/types';
 import { getTokenDecimals } from 'utils';
 import { toDecimals } from 'utils/balance';
-import { toChainId, PayloadType } from 'utils/sdk';
+import { toChainId } from 'utils/sdk';
 import { TransferWallet, walletAcceptedNetworks } from 'utils/wallet';
 import { clearWallet, setWalletError, WalletData } from './wallet';
-
-export enum Route {
-  BRIDGE = PayloadType.MANUAL, // 1
-  RELAY = PayloadType.AUTOMATIC, // 3
-  HASHFLOW = 10,
-  COSMOS_GATEWAY = 11,
-  CCTPManual = 12,
-  CCTPRelay = 13,
-}
 
 export type Balances = { [key: string]: string | null };
 
@@ -104,7 +95,7 @@ const initialState: TransferInputState = {
   destToken: '',
   amount: '',
   receiveAmount: '',
-  route: Route.BRIDGE,
+  route: Route.Bridge,
   sourceBalances: {},
   destBalances: {},
   foreignAsset: '',

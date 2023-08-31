@@ -4,8 +4,8 @@ import {
   TokenId,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { BigNumber } from 'ethers';
-import { Route } from 'store/transferInput';
-import { TokenConfig } from 'config/types';
+
+import { TokenConfig, Route } from 'config/types';
 import { BridgeRoute } from './bridge';
 import { RelayRoute } from './relay';
 import { HashflowRoute } from './hashflow';
@@ -27,19 +27,19 @@ import {
 
 // TODO: need to make this configurable
 export const listOfRoutes = [
-  Route.BRIDGE,
+  Route.Bridge,
   Route.CCTPManual,
   Route.CCTPRelay,
-  Route.RELAY,
-  Route.COSMOS_GATEWAY,
+  Route.Relay,
+  Route.CosmosGateway,
 ];
 export default class Operator {
   getRoute(route: Route): RouteAbstract {
     switch (route) {
-      case Route.BRIDGE: {
+      case Route.Bridge: {
         return new BridgeRoute();
       }
-      case Route.RELAY: {
+      case Route.Relay: {
         return new RelayRoute();
       }
       case Route.CCTPManual: {
@@ -48,10 +48,10 @@ export default class Operator {
       case Route.CCTPRelay: {
         return new CCTPRelayRoute();
       }
-      case Route.HASHFLOW: {
+      case Route.Hashflow: {
         return new HashflowRoute();
       }
-      case Route.COSMOS_GATEWAY: {
+      case Route.CosmosGateway: {
         return new CosmosGatewayRoute();
       }
       default: {
@@ -62,7 +62,7 @@ export default class Operator {
 
   async getRouteFromTx(txHash: string, chain: ChainName): Promise<Route> {
     if (isCosmWasmChain(chain)) {
-      return Route.COSMOS_GATEWAY;
+      return Route.CosmosGateway;
     }
 
     // Check if is CCTP Route (CCTPRelay or CCTPManual)
@@ -89,19 +89,19 @@ export default class Operator {
     let message = await getMessage(txHash, chain);
 
     if (message.toChain === 'sei') {
-      return Route.RELAY;
+      return Route.Relay;
     }
 
     if (
       isCosmWasmChain(message.fromChain) ||
       isCosmWasmChain(message.toChain)
     ) {
-      return Route.COSMOS_GATEWAY;
+      return Route.CosmosGateway;
     }
 
     return (message as ParsedMessage).payloadID === PayloadType.AUTOMATIC
-      ? Route.RELAY
-      : Route.BRIDGE;
+      ? Route.Relay
+      : Route.Bridge;
   }
 
   async isRouteAvailable(

@@ -7,7 +7,7 @@ import { makeStyles } from 'tss-react/mui';
 import { useDebounce } from 'use-debounce';
 
 import { CHAINS, TOKENS } from '../../config';
-import { TokenConfig } from '../../config/types';
+import { TokenConfig, Route } from '../../config/types';
 import { ROUTES } from '../../config/routes';
 import { getTokenDecimals, getWrappedTokenId } from '../../utils';
 import { wh } from '../../utils/sdk';
@@ -19,7 +19,7 @@ import {
 import { getMinAmount } from '../../utils/transferValidation';
 import Operator from '../../utils/routes';
 import { RootState } from '../../store';
-import { setTransferRoute, Route } from '../../store/transferInput';
+import { setTransferRoute } from '../../store/transferInput';
 import {
   setMaxSwapAmt,
   setReceiveNativeAmt,
@@ -178,7 +178,7 @@ function GasSlider(props: { disabled: boolean }) {
           if (route === Route.CCTPRelay) {
             dispatch(setTransferRoute(Route.CCTPManual));
           } else {
-            dispatch(setTransferRoute(Route.BRIDGE));
+            dispatch(setTransferRoute(Route.Bridge));
           }
         } else {
           throw e;
@@ -291,7 +291,7 @@ function GasSlider(props: { disabled: boolean }) {
   ]);
 
   const banner = !props.disabled && (
-    <Banner text="This feature provided by" route={ROUTES[Route.RELAY]} />
+    <Banner text="This feature provided by" route={ROUTES[Route.Relay]} />
   );
 
   return (

@@ -3,13 +3,13 @@ import { AnyAction } from '@reduxjs/toolkit';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 
 import { BRIDGE_DEFAULTS, CHAINS, TOKENS } from 'config';
+import { Route } from 'config/types';
 import { SANCTIONED_WALLETS } from 'consts/wallet';
 import { store } from 'store';
 import {
   TransferInputState,
   setValidations,
   touchValidations,
-  Route,
   ValidationErr,
   TransferValidations,
 } from '../store/transferInput';
@@ -98,7 +98,7 @@ export const validateAmount = (
     const b = Number.parseFloat(balance);
     if (numAmount > b) return 'Amount cannot exceed balance';
   }
-  if (route === Route.BRIDGE) return '';
+  if (route === Route.Bridge) return '';
   if (!minAmt) return '';
   if (numAmount < minAmt) return `Minimum amount is ${minAmt}`;
   return '';
@@ -196,7 +196,7 @@ export const validateAll = async (
   } = transferData;
   const { maxSwapAmt, toNativeToken, relayerFee } = relayData;
   const { sending, receiving } = walletData;
-  const isAutomatic = route === Route.RELAY || route === Route.CCTPRelay;
+  const isAutomatic = route === Route.Relay || route === Route.CCTPRelay;
   const minAmt = getMinAmount(isAutomatic, toNativeToken, relayerFee);
   const baseValidations = {
     sendingWallet: await validateWallet(sending, fromNetwork),

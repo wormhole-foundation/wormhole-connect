@@ -5,9 +5,8 @@ import {
   TokenId,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { CHAINS, TOKENS } from 'config';
-import { TokenConfig } from 'config/types';
+import { TokenConfig, Route } from 'config/types';
 import { BigNumber, utils } from 'ethers';
-import { Route } from 'store/transferInput';
 import { MAX_DECIMALS, getTokenDecimals, toNormalizedDecimals } from 'utils';
 import { estimateClaimGasFees, estimateSendGasFees } from 'utils/gasEstimates';
 import { toChainId, wh } from 'utils/sdk';
@@ -105,7 +104,7 @@ export class BridgeRoute extends BaseRoute {
       senderAddress,
       recipientChain,
       recipientAddress,
-      Route.BRIDGE,
+      Route.Bridge,
     );
   }
 
@@ -331,7 +330,7 @@ export class BridgeRoute extends BaseRoute {
     const token = TOKENS[txData.tokenKey];
     const { gasToken } = CHAINS[txData.toChain]!;
 
-    const gas = await calculateGas(txData.toChain, Route.BRIDGE, receiveTx);
+    const gas = await calculateGas(txData.toChain, Route.Bridge, receiveTx);
 
     const formattedAmt = toNormalizedDecimals(
       txData.amount,
