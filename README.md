@@ -4,7 +4,7 @@ Wormhole Connect is a project to facilitate integration with the Wormhole protoc
 
 ### wormhole-connect
 
-An app that brings all the functionality and utility of the Wormhole token bridge right into your application and removes all of the complexity. It is built to be embedded within any application, simply copy a script tag or install the [npm package](https://www.npmjs.com/package/@wormhole-foundation/wormhole-connect). 
+An app that brings all the functionality and utility of the Wormhole token bridge right into your application and removes all of the complexity. It is built to be embedded within any application, simply copy a script tag or install the [npm package](https://www.npmjs.com/package/@wormhole-foundation/wormhole-connect).
 
 Optionally, configure a number of parameters such as supported chains/tokens and theme.
 
@@ -18,21 +18,25 @@ Read more [here](./sdk/README.md)
 
 ### Builder
 
-Initially this serves as a way to test integrating wormhole-connect. 
+Initially this serves as a way to test integrating wormhole-connect.
 
 In the future, this will become a playground where developers can come to customize their integration by selecting the chain and tokens they would like to support as well as edit theme variables to make it blend seamlessly within their application.
 
 Read more [here](./builder/README.md)
 
+## Integration
 
-## Integration 
-
-Include the wormhole connect 
+Include the wormhole connect
 
 ```html
 <!-- include in <head> -->
-<script src="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.9/dist/main.js" defer></script>
-<link rel="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.9/dist/main.css" />
+<script
+  src="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.10/dist/main.js"
+  defer
+></script>
+<link
+  rel="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.10/dist/main.css"
+/>
 
 <!-- include in <body> -->
 <div id="wormhole-connect"></div>
@@ -41,14 +45,11 @@ Include the wormhole connect
 OR
 
 ```javascript
-import WormholeBridge from '@wormhole-foundation/wormhole-connect';
+import WormholeBridge from "@wormhole-foundation/wormhole-connect";
 function App() {
-  return (
-    <WormholeBridge />
-  );
+  return <WormholeBridge />;
 }
 ```
-
 
 ## Contributing
 
@@ -56,7 +57,7 @@ Contributions are welcome! To work on wormhole-connect locally you'll want to us
 
 ### Setup
 
-1) Link the sdk
+1. Link the sdk
 
 ```bash
 cd ./sdk
@@ -67,24 +68,25 @@ cd ../wormhole-connect
 npm link @wormhole-foundation/wormhole-connect-sdk
 ```
 
-2) Install
+2. Install
 
 Run `npm i` at the root of the repo
 
-3) Start
+3. Start
 
 Start wormhole-connect UI and view in browser at localhost:3000
+
 ```bash
 # in /wormhole-connect
 npm run start # testnet
 ```
 
 Start builder UI and view in browser at localhost:3000
+
 ```bash
 # in /builder
 npm run start
 ```
-
 
 ## Disclaimer
 

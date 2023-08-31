@@ -5,6 +5,7 @@ Integration does not get easier than this. Wormhole Connect is an easy seamless 
 ## Integrate with script/link tags
 
 > IMPORTANT! For the best performance and functionality, you should provide your own custom rpc endpoints for each supported network.
+> Osmosis support is in beta, reach out to a Wormhole contributor for early access.
 
 ### 1. (Optional) Create a JSON config with customized values:
 
@@ -109,9 +110,9 @@ If you created a config from step 1, [stringify](https://developer.mozilla.org/e
 
 ```html
 <!-- paste below into index.html body -->
-<script src="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.9/dist/main.js"></script>
+<script src="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.10/dist/main.js"></script>
 <link
-  href="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.9/dist/main.css"
+  href="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.10/dist/main.css"
 />
 ```
 
@@ -121,12 +122,12 @@ Note that the `wormhole-connect` div with your config has to be present _before_
 function mount() {
   const script = document.createElement("script");
   script.src =
-    "https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.9/dist/main.js";
+    "https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.10/dist/main.js";
   script.async = true;
 
   const link = document.createElement("link");
   link.href =
-    "https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.9/dist/main.css";
+    "https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.10/dist/main.css";
 
   document.body.appendChild(script);
   document.body.appendChild(link);
