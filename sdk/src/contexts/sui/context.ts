@@ -49,10 +49,9 @@ export class SuiContext<
   protected contracts: SuiContracts<T>;
   readonly context: T;
   readonly provider: JsonRpcProvider;
-  private foreignAssetCache: ForeignAssetCache;
 
   constructor(context: T, foreignAssetCache: ForeignAssetCache) {
-    super();
+    super(foreignAssetCache);
     this.context = context;
     const connection = context.conf.rpcs.sui;
     if (connection === undefined) throw new Error('no connection');
@@ -60,7 +59,6 @@ export class SuiContext<
       new Connection({ fullnode: connection }),
     );
     this.contracts = new SuiContracts(context, this.provider);
-    this.foreignAssetCache = foreignAssetCache;
   }
 
   async getCoins(coinType: string, owner: string) {
@@ -244,19 +242,10 @@ export class SuiContext<
     }
   }
 
-  async getForeignAsset(
+  async getForeignAssetInner(
     tokenId: TokenId,
     chain: ChainName | ChainId,
   ): Promise<string | null> {
-    const chainName = this.context.toChainName(chain);
-    if (this.foreignAssetCache.get(tokenId.chain, tokenId.address, chainName)) {
-      return this.foreignAssetCache.get(
-        tokenId.chain,
-        tokenId.address,
-        chainName,
-      )!;
-    }
-
     try {
       const chainId = this.context.toChainId(tokenId.chain);
       const toChainId = this.context.toChainId(chain);
@@ -276,13 +265,6 @@ export class SuiContext<
       );
 
       if (!coinType) return null;
-
-      this.foreignAssetCache.set(
-        tokenId.chain,
-        tokenId.address,
-        chainName,
-        coinType,
-      );
       return coinType;
     } catch (e) {
       console.log(`getForeignAsset - error: ${e}`);

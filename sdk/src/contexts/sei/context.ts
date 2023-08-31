@@ -142,7 +142,6 @@ export class SeiContext<
 > extends TokenBridgeAbstract<SeiTransaction> {
   readonly type = Context.SEI;
   readonly contracts: SeiContracts<T>;
-  private foreignAssetCache: ForeignAssetCache;
 
   private wasmClient?: CosmWasmClient;
 
@@ -154,9 +153,8 @@ export class SeiContext<
     protected readonly context: T,
     foreignAssetCache: ForeignAssetCache,
   ) {
-    super();
+    super(foreignAssetCache);
     this.contracts = new SeiContracts<T>(context);
-    this.foreignAssetCache = foreignAssetCache;
   }
 
   async send(
@@ -566,19 +564,10 @@ export class SeiContext<
     };
   }
 
-  async getForeignAsset(
+  async getForeignAssetInner(
     tokenId: TokenId,
     chain: ChainName | ChainId,
   ): Promise<string | null> {
-    const chainName = this.context.toChainName(chain);
-    if (this.foreignAssetCache.get(tokenId.chain, tokenId.address, chainName)) {
-      return this.foreignAssetCache.get(
-        tokenId.chain,
-        tokenId.address,
-        chainName,
-      )!;
-    }
-
     const toChainId = this.context.toChainId(chain);
     const chainId = this.context.toChainId(tokenId.chain);
     if (toChainId === chainId) return tokenId.address;
@@ -601,12 +590,6 @@ export class SeiContext<
           },
         });
 
-      this.foreignAssetCache.set(
-        tokenId.chain,
-        tokenId.address,
-        chainName,
-        address,
-      );
       return address;
     } catch (e) {
       return null;

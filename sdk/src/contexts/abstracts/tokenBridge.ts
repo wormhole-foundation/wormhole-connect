@@ -1,6 +1,7 @@
 import { BigNumber } from 'ethers';
 import { AnyContracts, TokenId, ChainName, ChainId } from '../../types';
 import { WormholeContext } from 'wormhole';
+import { ForeignAssetCache } from '../../utils';
 
 /**
  * @abstract
@@ -17,6 +18,11 @@ export abstract class TokenBridgeAbstract<TransactionResult> {
    */
   protected abstract contracts: AnyContracts;
   protected abstract context: WormholeContext;
+  protected foreignAssetCache: ForeignAssetCache;
+
+  constructor(foreignAssetCache: ForeignAssetCache) {
+    this.foreignAssetCache = foreignAssetCache;
+  }
 
   /**
    * Send a Token Bridge transfer
@@ -107,10 +113,40 @@ export abstract class TokenBridgeAbstract<TransactionResult> {
    * @param chain The chain name or id
    * @returns The Wormhole address on the given chain, null if it does not exist
    */
-  protected abstract getForeignAsset(
+  async getForeignAsset(
+    tokenId: TokenId,
+    chain: ChainName | ChainId,
+  ): Promise<string | null> {
+    const chainName = this.context.toChainName(chain);
+
+    const cached = this.foreignAssetCache.get(
+      tokenId.chain,
+      tokenId.address,
+      chainName,
+    );
+    if (cached) {
+      console.debug('cache hit');
+      return cached;
+    }
+
+    const asset = await this.getForeignAssetInner(tokenId, chain);
+    if (asset) {
+      console.debug('cache set');
+      this.foreignAssetCache.set(
+        tokenId.chain,
+        tokenId.address,
+        chainName,
+        asset,
+      );
+    }
+    return asset;
+  }
+
+  protected abstract getForeignAssetInner(
     tokenId: TokenId,
     chain: ChainName | ChainId,
   ): Promise<string | null>;
+
   /**
    * Fetches the address for a token representation on any chain (These are the Wormhole token addresses, not necessarily the cannonical version of that token)
    *
