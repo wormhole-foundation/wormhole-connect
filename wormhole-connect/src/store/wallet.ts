@@ -104,6 +104,11 @@ export const walletSlice = createSlice({
         state[key] = initialState[key];
       });
     },
+    swapWallets: (state: WalletState) => {
+      const tmp = state.sending;
+      state.sending = state.receiving;
+      state.receiving = tmp;
+    },
   },
 });
 
@@ -116,6 +121,7 @@ export const {
   clearWallets,
   disconnectWallet,
   disconnectWallets,
+  swapWallets,
 } = walletSlice.actions;
 
 export default walletSlice.reducer;

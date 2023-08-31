@@ -1,9 +1,8 @@
 import React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
-
-import { RootState } from '../../store';
-import { selectFromNetwork, selectToNetwork } from '../../store/transferInput';
+import { clearBalances, swapNetworks } from '../../store/transferInput';
+import { swapWallets } from '../../store/wallet';
 
 const useStyles = makeStyles()((theme: any) => ({
   button: {
@@ -24,20 +23,11 @@ const useStyles = makeStyles()((theme: any) => ({
 function SwapNetworks() {
   const { classes } = useStyles();
   const dispatch = useDispatch();
-  const { sending, receiving } = useSelector(
-    (state: RootState) => state.wallet,
-  );
-  const { fromNetwork, toNetwork } = useSelector(
-    (state: RootState) => state.transferInput,
-  );
 
   const swap = () => {
-    if (toNetwork) {
-      selectFromNetwork(dispatch, toNetwork, sending);
-    }
-    if (fromNetwork) {
-      selectToNetwork(dispatch, fromNetwork, receiving);
-    }
+    dispatch(swapNetworks());
+    dispatch(swapWallets());
+    dispatch(clearBalances('all'));
   };
 
   return (

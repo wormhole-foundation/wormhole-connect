@@ -378,6 +378,7 @@ function TokensModal(props: Props) {
 
   // fetch token balances and set in store
   useEffect(() => {
+    let active = true;
     if (!walletAddress || !network) {
       setTokens(supportedTokens);
       return;
@@ -387,10 +388,15 @@ function TokensModal(props: Props) {
       dispatch(clearBalances(type));
       setLoading(true);
       getBalances().finally(() => {
-        setLoading(false);
-        setBalancesLoaded(true);
+        if (active) {
+          setLoading(false);
+          setBalancesLoaded(true);
+        }
       });
     }
+    return () => {
+      active = false;
+    };
   }, [
     walletAddress,
     supportedTokens,
