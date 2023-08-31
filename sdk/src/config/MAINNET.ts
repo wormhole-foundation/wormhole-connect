@@ -226,8 +226,8 @@ const MAINNET_CONFIG: WormholeConfig = {
     aptos: 'https://fullnode.mainnet.aptoslabs.com/v1',
     base: 'https://mainnet.base.org',
     sei: '', // TODO: fill in
-    wormchain: '',
-    osmosis: 'https://rpc.osmosis.zone',
+    wormchain: 'https://wormchain-rpc.quickapi.com',
+    osmosis: 'https://osmosis-rpc.polkachu.com',
   },
   rest: {
     sei: '',
