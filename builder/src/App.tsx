@@ -32,8 +32,8 @@ function App() {
   const { classes } = useStyles();
   const script = `
     <div id="wormhole-connect"></div>
-    <script src="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.9/dist/main.js"></script>
-    <link src="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.9/dist/main.css"/>
+    <script src="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.10/dist/main.js"></script>
+    <link src="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.10/dist/main.css"/>
   `
   const customized = defaultTheme;
   customized.background.default = 'transparent';
