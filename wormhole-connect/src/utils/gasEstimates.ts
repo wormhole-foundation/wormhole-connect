@@ -15,7 +15,7 @@ import {
 import { AptosClient } from 'aptos';
 
 import { CHAINS, GAS_ESTIMATES } from 'config';
-import { Route } from 'store/transferInput';
+import { Route } from 'config/types';
 import { getMinAmount } from 'utils/transferValidation';
 import { TransferWallet, simulateSeiTransaction } from 'utils/wallet';
 import { wh } from 'utils/sdk';
@@ -30,7 +30,7 @@ const simulateRelayAmount = (
   toNativeToken: number,
   tokenDecimals: number,
 ): BigNumber => {
-  if (route === Route.RELAY) {
+  if (route === Route.Relay) {
     const min = getMinAmount(true, relayerFee, toNativeToken);
     const amountOrMin = Math.max(amount, min);
     return utils.parseUnits(`${amountOrMin}`, tokenDecimals);
@@ -97,7 +97,7 @@ const estimateGasFee = async (
     const provider = chainContext.provider as JsonRpcProvider;
     if (!provider) throw new Error('no provider');
     let tx: TransactionBlock;
-    if (route === Route.BRIDGE) {
+    if (route === Route.Bridge) {
       tx = await chainContext.send(
         token,
         parsedAmt,
@@ -145,7 +145,7 @@ const estimateGasFee = async (
   const { gasPrice } = await provider.getFeeData();
   if (!gasPrice)
     throw new Error('gas price not available, cannot estimate fees');
-  if (route === Route.BRIDGE) {
+  if (route === Route.Bridge) {
     const tx = await chainContext.prepareSend(
       token,
       parsedAmt.toString(),
@@ -198,7 +198,7 @@ export const getGasFeeFallback = async (
 
   // Sui gas estimates
   if (fromChainId === MAINNET_CHAINS.sui) {
-    if (route === Route.BRIDGE) {
+    if (route === Route.Bridge) {
       return toFixedDecimals(
         utils.formatUnits(gasEstimates.sendToken, nativeDecimals),
         6,
@@ -211,7 +211,7 @@ export const getGasFeeFallback = async (
 
   // Aptos gas estimates
   if (fromChainId === MAINNET_CHAINS.aptos) {
-    if (route === Route.BRIDGE) {
+    if (route === Route.Bridge) {
       const aptosClient = (
         wh.getContext(fromChainId) as AptosContext<WormholeContext>
       ).aptosClient as AptosClient;
@@ -239,10 +239,10 @@ export const getGasFeeFallback = async (
   const { gasPrice } = await provider.getFeeData();
   let gasEst;
   switch (route) {
-    case Route.BRIDGE:
+    case Route.Bridge:
       gasEst = sendNative ? gasEstimates.sendNative : gasEstimates.sendToken;
       break;
-    case Route.RELAY:
+    case Route.Relay:
       gasEst = sendNative
         ? gasEstimates.sendNativeWithRelay
         : gasEstimates.sendTokenWithRelay;

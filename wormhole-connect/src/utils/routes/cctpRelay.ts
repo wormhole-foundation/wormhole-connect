@@ -9,7 +9,7 @@ import {
 import { BigNumber, utils } from 'ethers';
 
 import { CHAINS, TOKENS } from 'config';
-import { TokenConfig } from 'config/types';
+import { TokenConfig, Route } from 'config/types';
 import {
   MAX_DECIMALS,
   getTokenDecimals,
@@ -27,7 +27,6 @@ import {
 } from 'utils/sdk';
 import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
 import { NO_INPUT } from 'utils/style';
-import { Route } from 'store/transferInput';
 import {
   TransferDisplayData,
   TransferInfoBaseParams,

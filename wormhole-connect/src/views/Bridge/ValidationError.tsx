@@ -3,8 +3,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 
 import { RootState } from '../../store';
-import { Route, setTransferRoute } from '../../store/transferInput';
-import { ValidationErr, getMinAmount } from '../../utils/transferValidation';
+import { ValidationErr, setTransferRoute } from '../../store/transferInput';
+import { Route } from '../../config/types';
+import { getMinAmount } from '../../utils/transferValidation';
 import Operator from '../../utils/routes';
 import AlertBanner from '../../components/AlertBanner';
 
@@ -49,7 +50,7 @@ function ValidationError(props: Props) {
     if (route === Route.CCTPRelay || route === Route.CCTPManual) {
       dispatch(setTransferRoute(Route.CCTPManual));
     } else {
-      dispatch(setTransferRoute(Route.BRIDGE));
+      dispatch(setTransferRoute(Route.Bridge));
     }
   };
 

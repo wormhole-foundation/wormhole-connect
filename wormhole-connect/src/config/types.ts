@@ -6,6 +6,18 @@ import {
   Context,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { ExtendedTheme } from 'theme';
+import { PayloadType } from 'utils/sdk';
+
+export enum Route {
+  Bridge = PayloadType.MANUAL, // 1
+  Relay = PayloadType.AUTOMATIC, // 3
+  Hashflow = 10,
+  CosmosGateway = 11,
+  CCTPManual = 12,
+  CCTPRelay = 13,
+}
+
+export type SupportedRoutes = keyof typeof Route;
 
 export interface BridgeDefaults {
   fromNetwork?: ChainName;
@@ -27,6 +39,7 @@ export interface WormholeConnectConfig {
     link: string;
   };
   bridgeDefaults?: BridgeDefaults;
+  routes?: string[];
 }
 
 type DecimalsMap = Partial<Record<Context, number>> & {

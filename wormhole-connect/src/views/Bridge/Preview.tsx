@@ -3,9 +3,10 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useTheme } from '@mui/material/styles';
 
 import { RootState } from '../../store';
-import { setTransferRoute, Route } from '../../store/transferInput';
+import { setTransferRoute } from '../../store/transferInput';
 import { setRelayerFee } from '../../store/relay';
 import { CHAINS, TOKENS } from '../../config';
+import { Route } from '../../config/types';
 import { getTokenDecimals } from '../../utils';
 import { toDecimals } from '../../utils/balance';
 import { toChainId } from '../../utils/sdk';
@@ -108,7 +109,7 @@ function Preview(props: { collapsed: boolean }) {
           if (route === Route.CCTPRelay) {
             dispatch(setTransferRoute(Route.CCTPManual));
           } else {
-            dispatch(setTransferRoute(Route.BRIDGE));
+            dispatch(setTransferRoute(Route.Bridge));
           }
         } else {
           throw e;

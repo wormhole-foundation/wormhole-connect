@@ -32,10 +32,10 @@ import { MsgExecuteContract } from 'cosmjs-types/cosmwasm/wasm/v1/tx';
 import { BigNumber, utils } from 'ethers';
 import { arrayify, base58, hexlify } from 'ethers/lib/utils.js';
 import { toChainId, wh } from 'utils/sdk';
+import { isCosmWasmChain } from 'utils/cosmos';
+import { CHAINS, CONFIG, TOKENS } from 'config';
+import { Route } from 'config/types';
 import { MAX_DECIMALS, getTokenDecimals, toNormalizedDecimals } from '..';
-import { CHAINS, CONFIG, TOKENS } from '../../config';
-import { Route } from '../../store/transferInput';
-import { isCosmWasmChain } from '../../utils/cosmos';
 import { toDecimals, toFixedDecimals } from '../balance';
 import { estimateSendGasFees } from '../gasEstimates';
 import { TransferWallet, signAndSendTransaction } from '../wallet';
@@ -149,7 +149,7 @@ export class CosmosGatewayRoute extends BaseRoute {
       senderAddress,
       CHAIN_ID_WORMCHAIN,
       this.getTranslatorAddress(),
-      Route.BRIDGE,
+      Route.Bridge,
       undefined,
       undefined,
       // payload,
@@ -736,7 +736,7 @@ export class CosmosGatewayRoute extends BaseRoute {
 
     const gas = await calculateGas(
       txData.toChain,
-      Route.COSMOS_GATEWAY,
+      Route.CosmosGateway,
       receiveTx,
     );
 

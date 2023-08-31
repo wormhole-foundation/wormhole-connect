@@ -4,11 +4,11 @@ import { makeStyles } from 'tss-react/mui';
 import { CENTER } from '../utils/style';
 import noIcon from './Tokens/noIcon';
 
-import { Route } from '../store/transferInput';
 import WormholeIcon from './Routes/Wormhole';
 import XLabsIcon from './Routes/XLabs';
 import HashflowIcon from './Routes/Hashflow';
 import CCTPIcon from './Routes/CCTP';
+import { Route } from 'config/types';
 
 const useStyles = makeStyles<{ size: number }>()((theme, { size }) => ({
   container: {
@@ -24,19 +24,19 @@ const useStyles = makeStyles<{ size: number }>()((theme, { size }) => ({
 
 export const getIcon = (route: Route) => {
   switch (route) {
-    case Route.BRIDGE: {
+    case Route.Bridge: {
       return WormholeIcon;
     }
-    case Route.RELAY: {
+    case Route.Relay: {
       return XLabsIcon;
     }
-    case Route.HASHFLOW: {
+    case Route.Hashflow: {
       return HashflowIcon;
     }
-    case Route.CCTPRelay: {
+    case Route.CCTPManual: {
       return CCTPIcon;
     }
-    case Route.CCTPManual: {
+    case Route.CCTPRelay: {
       return CCTPIcon;
     }
     default: {

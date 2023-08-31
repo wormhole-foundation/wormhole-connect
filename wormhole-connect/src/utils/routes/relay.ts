@@ -6,7 +6,7 @@ import {
 import { BigNumber, utils } from 'ethers';
 
 import { CHAINS, TOKENS } from 'config';
-import { TokenConfig } from 'config/types';
+import { TokenConfig, Route } from 'config/types';
 import {
   MAX_DECIMALS,
   fromNormalizedDecimals,
@@ -27,7 +27,6 @@ import {
 } from 'utils/sdk';
 import { NO_INPUT } from 'utils/style';
 import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
-import { Route } from 'store/transferInput';
 import { BridgeRoute } from './bridge';
 import { toDecimals, toFixedDecimals } from '../balance';
 import {
@@ -201,7 +200,7 @@ export class RelayRoute extends BridgeRoute {
       senderAddress,
       recipientChain,
       recipientAddress,
-      Route.RELAY,
+      Route.Relay,
       routeOptions.relayerFee,
       routeOptions.toNativeToken,
     );

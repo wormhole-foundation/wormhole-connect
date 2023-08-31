@@ -4,9 +4,9 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { CHAINS } from '../../config';
+import { Route } from '../../config/types';
 import { RootState } from '../../store';
 import { setRedeemTx, setTransferComplete } from '../../store/redeem';
-import { Route } from '../../store/transferInput';
 import { displayAddress } from '../../utils';
 import { fetchRedeemTx } from '../../utils/events';
 import Operator, { TransferDisplayData } from '../../utils/routes';
@@ -123,11 +123,11 @@ function SendTo() {
   };
 
   const loading =
-    txData.payloadID === Route.BRIDGE
+    txData.payloadID === Route.Bridge
       ? inProgress && !transferComplete
       : !transferComplete;
   const manualClaimText =
-    transferComplete || txData.payloadID === Route.RELAY // todo: should be the other enum, should be named better than payload id
+    transferComplete || txData.payloadID === Route.Relay // todo: should be the other enum, should be named better than payload id
       ? ''
       : claimError
       ? 'Error please retry . . .'
@@ -146,7 +146,7 @@ function SendTo() {
       </InputContainer>
 
       {/* Claim button for manual transfers */}
-      {txData.payloadID === Route.BRIDGE && !transferComplete && (
+      {txData.payloadID === Route.Bridge && !transferComplete && (
         <>
           <Spacer height={8} />
           <AlertBanner

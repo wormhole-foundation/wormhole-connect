@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { ParsedMessage, ParsedRelayerMessage } from '../utils/sdk';
-import { Route } from './transferInput';
-import { SignedMessage } from '../utils/routes/types';
+import { ParsedMessage, ParsedRelayerMessage } from 'utils/sdk';
+import { SignedMessage } from 'utils/routes';
+import { Route } from 'config/types';
 
 export enum MessageType {
   BRIDGE = 1,
@@ -25,7 +25,7 @@ const initialState: RedeemState = {
   redeemTx: '',
   transferComplete: false,
   isVaaEnqueued: false,
-  route: Route.BRIDGE,
+  route: Route.Bridge,
 };
 
 export const redeemSlice = createSlice({
