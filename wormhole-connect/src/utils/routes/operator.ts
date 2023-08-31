@@ -24,6 +24,7 @@ import {
 import {
   CCTPManualRoute,
   CCTP_LOG_TokenMessenger_DepositForBurn,
+  CCTPManual_CHAINS as CCTPChains,
 } from './cctpManual';
 
 // TODO: need to make this configurable
@@ -63,6 +64,7 @@ export default class Operator {
   }
 
   async getRouteFromTx(txHash: string, chain: ChainName): Promise<Route> {
+    console.log('Get route from tx');
     if (isCosmWasmChain(chain)) {
       return Route.COSMOS_GATEWAY;
     }
@@ -95,8 +97,13 @@ export default class Operator {
       throw error;
     }
 
-    const CCTP_CONTRACT_ADDRESSES = [2, 6].map((chainId) => {
-      return wh.getContracts(chainId as ChainId)?.cctpContracts?.wormholeCCTP;
+    const CCTP_CONTRACT_ADDRESSES = CCTPChains.map((chainName) => {
+      try {
+        return wh.getContracts(chainName as ChainName)?.cctpContracts
+          ?.wormholeCCTP;
+      } catch (e) {
+        return '0x0';
+      }
     });
 
     if (
