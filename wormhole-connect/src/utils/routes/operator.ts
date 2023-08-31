@@ -64,7 +64,6 @@ export default class Operator {
   }
 
   async getRouteFromTx(txHash: string, chain: ChainName): Promise<Route> {
-    console.log('Get route from tx');
     if (isCosmWasmChain(chain)) {
       return Route.COSMOS_GATEWAY;
     }
