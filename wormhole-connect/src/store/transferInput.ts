@@ -197,11 +197,13 @@ export const transferInputSlice = createSlice({
     },
     clearBalances: (
       state: TransferInputState,
-      { payload }: PayloadAction<'source' | 'dest'>,
+      { payload }: PayloadAction<'source' | 'dest' | 'all'>,
     ) => {
-      if (payload === 'source') {
+      if (payload === 'source' || payload === 'all') {
         state.sourceBalances = {};
-      } else {
+      }
+
+      if (payload === 'dest' || payload === 'all') {
         state.destBalances = {};
       }
     },
@@ -267,6 +269,11 @@ export const transferInputSlice = createSlice({
     ) => {
       state.supportedDestTokens = payload;
     },
+    swapNetworks: (state: TransferInputState) => {
+      const tmp = state.fromNetwork;
+      state.fromNetwork = state.toNetwork;
+      state.toNetwork = tmp;
+    },
   },
 });
 
@@ -329,6 +336,7 @@ export const {
   setReceiverNativeBalance,
   setSupportedDestTokens,
   setSupportedSourceTokens,
+  swapNetworks,
 } = transferInputSlice.actions;
 
 export default transferInputSlice.reducer;

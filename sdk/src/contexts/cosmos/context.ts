@@ -84,7 +84,7 @@ export class CosmosContext<
   readonly context: T;
   readonly chain: ChainName;
 
-  private wasmClient?: CosmWasmClient;
+  private static CLIENT_MAP: Record<string, CosmWasmClient> = {};
   private foreignAssetCache: ForeignAssetCache;
 
   constructor(
@@ -423,15 +423,18 @@ export class CosmosContext<
   }
 
   private async getCosmWasmClient(
-    chain: ChainName | ChainId,
+    chain: ChainId | ChainName,
   ): Promise<CosmWasmClient> {
-    if (!this.wasmClient) {
-      const name = this.context.toChainName(chain);
-      const rpc = this.context.conf.rpcs[name];
-      if (!rpc) throw new Error('RPC not configured');
-      this.wasmClient = await CosmWasmClient.connect(rpc);
+    const name = this.context.toChainName(chain);
+    if (CosmosContext.CLIENT_MAP[name]) {
+      return CosmosContext.CLIENT_MAP[name];
     }
-    return this.wasmClient;
+
+    const rpc = this.context.conf.rpcs[name];
+    if (!rpc) throw new Error(`${chain} RPC not configured`);
+    const client = await CosmWasmClient.connect(rpc);
+    CosmosContext.CLIENT_MAP[name] = client;
+    return client;
   }
 
   getTokenBridgeAddress(chain: ChainName): string {
