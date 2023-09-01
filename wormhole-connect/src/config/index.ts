@@ -81,6 +81,12 @@ export const TOKENS_ARR =
     ? Object.values(TOKENS).filter((c) => config.tokens!.includes(c.key))
     : (Object.values(TOKENS) as TokenConfig[]);
 
+// export const ROUTES =
+//   config && config.routes
+//     ? Object.values(Route)
+//     : Object.values(Route);
+// console.log(ROUTES);
+
 validateChainResources();
 
 const conf = WormholeContext.getConfig(CONFIG.env);

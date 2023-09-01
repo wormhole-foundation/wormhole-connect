@@ -1,16 +1,16 @@
 import React, { useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { RootState } from '../../../store';
-import { validate } from '../../../utils/transferValidation';
-import { toFixedDecimals } from '../../../utils/balance';
-import { NO_INPUT } from '../../../utils/style';
+import { RootState } from 'store';
+import { validate } from 'utils/transferValidation';
+import { toFixedDecimals } from 'utils/balance';
+import { NO_INPUT } from 'utils/style';
 
-import InputTransparent from '../../../components/InputTransparent';
+import InputTransparent from 'components/InputTransparent';
 import Input from './Input';
 
 type Props = {
-  handleAmountChange: (number) => void;
+  handleAmountChange: (number: number) => void;
   value: string;
 };
 function AmountInput(props: Props) {
@@ -23,8 +23,13 @@ function AmountInput(props: Props) {
     isTransactionInProgress,
   } = useSelector((state: RootState) => state.transferInput);
 
-  function handleAmountChange(event) {
-    let value = event.target.value;
+  function handleAmountChange(
+    e:
+      | React.ChangeEvent<HTMLInputElement>
+      | React.ChangeEvent<HTMLTextAreaElement>
+      | undefined,
+  ) {
+    let value = e!.target.value;
     const index = value.indexOf('.');
     switch (true) {
       case index === 0: {
@@ -43,7 +48,7 @@ function AmountInput(props: Props) {
       }
     }
 
-    props.handleAmountChange(value);
+    props.handleAmountChange(Number.parseFloat(value));
   }
   const validateAmount = () => validate(dispatch);
 

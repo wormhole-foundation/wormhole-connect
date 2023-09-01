@@ -252,7 +252,7 @@ type Props = {
   open: boolean;
   network: ChainName | undefined;
   walletAddress: string | undefined;
-  onSelect: (string) => any;
+  onSelect: (token: string) => any;
   onClose: any;
   type: 'source' | 'dest';
 };

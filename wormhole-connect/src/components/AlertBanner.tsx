@@ -1,10 +1,10 @@
 import { Collapse } from '@mui/material';
 import React from 'react';
 import { makeStyles } from 'tss-react/mui';
-import AlertIcon from '../icons/Alert';
-import { OPACITY, joinClass } from '../utils/style';
+import AlertIcon from 'icons/Alert';
+import { OPACITY, joinClass } from 'utils/style';
 
-const useStyles = makeStyles()((theme) => ({
+const useStyles = makeStyles()((theme: any) => ({
   base: {
     width: '100%',
     padding: '8px',

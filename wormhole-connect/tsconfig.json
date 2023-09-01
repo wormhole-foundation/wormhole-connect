@@ -3,7 +3,7 @@
   "include": [
     "scripts/**/*.ts",
     "src/**/*.ts",
-    "src/icons/**/*.tsx",
+    "src/**/*.tsx",
     "tests/*.test.ts"
   ],
   "compilerOptions": {

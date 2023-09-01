@@ -5,19 +5,19 @@ import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 
-import { NO_INPUT } from '../../../utils/style';
+import { CHAINS } from 'config';
+import { RootState } from 'store';
+import { ValidationErr } from 'store/transferInput';
+import { NO_INPUT } from 'utils/style';
+import { TransferWallet } from 'utils/wallet';
 
-import ConnectWallet from '../../../components/ConnectWallet';
-import InputContainer from '../../../components/InputContainer';
-import { CHAINS } from '../../../config';
-import { RootState } from '../../../store';
-import { ValidationErr } from '../../../utils/transferValidation';
-import { TransferWallet } from '../../../utils/wallet';
+import ConnectWallet from 'components/ConnectWallet';
+import InputContainer from 'components/InputContainer';
+import AlertBanner from 'components/AlertBanner';
 import NetworkTile from '../NetworkTile';
 import ValidationError from '../ValidationError';
 import Input from './Input';
 import Select from './Select';
-import AlertBanner from '../../../components/AlertBanner';
 
 const useStyles = makeStyles()((theme) => ({
   outerContainer: {

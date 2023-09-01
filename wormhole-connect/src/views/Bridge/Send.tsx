@@ -4,36 +4,36 @@ import { Context } from '@wormhole-foundation/wormhole-connect-sdk';
 import { useTheme } from '@mui/material/styles';
 import { makeStyles } from 'tss-react/mui';
 
-import { CHAINS, TOKENS } from '../../config';
-import { RootState } from '../../store';
-import { setRoute as setAppRoute } from '../../store/router';
+import { CHAINS, TOKENS } from 'config';
+import { RootState } from 'store';
+import { setRoute as setAppRoute } from 'store/router';
 import {
   setTxDetails,
   setSendTx,
   setRoute as setRedeemRoute,
-} from '../../store/redeem';
-import { displayWalletAddress, sleep } from '../../utils';
-import { LINK } from '../../utils/style';
+} from 'store/redeem';
+import { displayWalletAddress, sleep } from 'utils';
+import { LINK } from 'utils/style';
 import {
   registerWalletSigner,
   switchNetwork,
   TransferWallet,
-} from '../../utils/wallet';
-import { estimateClaimGasFees } from '../../utils/gasEstimates';
-import Operator, { UnsignedMessage } from '../../utils/routes';
-import { validate, isTransferValid } from '../../utils/transferValidation';
+} from 'utils/wallet';
+import { estimateClaimGasFees } from 'utils/gasEstimates';
+import Operator, { UnsignedMessage } from 'utils/routes';
+import { validate, isTransferValid } from 'utils/transferValidation';
 import {
   setManualGasEst,
   setAutomaticGasEst,
   setClaimGasEst,
   setIsTransactionInProgress,
-} from '../../store/transferInput';
+} from 'store/transferInput';
 
-import Button from '../../components/Button';
+import Button from 'components/Button';
 import CircularProgress from '@mui/material/CircularProgress';
-import AlertBanner from '../../components/AlertBanner';
-import PoweredByIcon from '../../icons/PoweredBy';
-import { isCosmWasmChain } from '../../utils/cosmos';
+import AlertBanner from 'components/AlertBanner';
+import PoweredByIcon from 'icons/PoweredBy';
+import { isCosmWasmChain } from 'utils/cosmos';
 
 const useStyles = makeStyles()((theme) => ({
   body: {
@@ -95,7 +95,10 @@ function Send(props: { valid: boolean }) {
       const fromConfig = CHAINS[fromNetwork!];
       if (fromConfig?.context === Context.ETH) {
         registerWalletSigner(fromNetwork!, TransferWallet.SENDING);
-        const { chainId } = CHAINS[fromNetwork!]!;
+        const chainId = CHAINS[fromNetwork!]!.chainId;
+        if (typeof chainId !== 'number') {
+          throw new Error('invalid evm chain ID');
+        }
         await switchNetwork(chainId, TransferWallet.SENDING);
       }
 

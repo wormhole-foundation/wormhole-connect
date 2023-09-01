@@ -1,8 +1,5 @@
 import { Link, Typography } from '@mui/material';
-import {
-  coalesceChainId,
-  isEVMChain,
-} from '@xlabs-libs/wallet-aggregator-core';
+import { isEVMChain } from '@xlabs-libs/wallet-aggregator-core';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
@@ -10,6 +7,7 @@ import {
   ChainName,
   SuiContext,
   WormholeContext,
+  TestnetChainName,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 
 import {
@@ -17,18 +15,19 @@ import {
   TESTNET_TO_MAINNET_CHAIN_NAMES,
   TOKENS,
   isMainnet,
-} from '../../config';
-import { MAINNET_NETWORKS } from '../../config/mainnet';
-import { TokenConfig } from '../../config/types';
-import { RootState } from '../../store';
-import { setWalletModal } from '../../store/router';
-import { getWrappedToken } from '../../utils';
-import { wh } from '../../utils/sdk';
-import { TransferWallet, switchNetwork, watchAsset } from '../../utils/wallet';
-import Operator from '../../utils/routes';
-import TokenIcon from '../../icons/TokenIcons';
+} from 'config';
+import { MAINNET_NETWORKS } from 'config/mainnet';
+import { TokenConfig } from 'config/types';
+import { RootState } from 'store';
+import { setWalletModal } from 'store/router';
+import { getWrappedToken } from 'utils';
+import { wh } from 'utils/sdk';
+import { TransferWallet, switchNetwork, watchAsset } from 'utils/wallet';
+import Operator from 'utils/routes';
+
+import TokenIcon from 'icons/TokenIcons';
 import ExplorerLink from './ExplorerLink';
-import { isCosmWasmChain } from '../../utils/cosmos';
+import { isCosmWasmChain } from 'utils/cosmos';
 
 const useStyles = makeStyles()((theme) => ({
   addToken: {
@@ -68,7 +67,7 @@ function AddToEVMWallet({ token, address }: AddTokenProps) {
     // when using the automatic relay method the user may still have their wallet
     // configured to the source chain instead of the destination chain
     const evmChainId = CHAINS[txData.toChain]?.chainId;
-    if (!evmChainId) return;
+    if (!evmChainId || typeof evmChainId === 'string') return;
     await switchNetwork(evmChainId, TransferWallet.RECEIVING);
 
     await watchAsset(
@@ -77,7 +76,7 @@ function AddToEVMWallet({ token, address }: AddTokenProps) {
         symbol: token.symbol,
         decimals: token.decimals.default,
         // evm chain id
-        chainId: CHAINS[token.nativeNetwork]?.chainId,
+        chainId: evmChainId,
       },
       TransferWallet.RECEIVING,
     );
@@ -189,8 +188,8 @@ function AddToWallet() {
 
   const chainName = isMainnet
     ? (txData.toChain as ChainName)
-    : TESTNET_TO_MAINNET_CHAIN_NAMES[txData.toChain];
-  const chainId = coalesceChainId(chainName);
+    : TESTNET_TO_MAINNET_CHAIN_NAMES[txData.toChain as TestnetChainName];
+  const chainId = wh.toChainId(chainName);
 
   if (!targetToken || !targetAddress) return <></>;
 

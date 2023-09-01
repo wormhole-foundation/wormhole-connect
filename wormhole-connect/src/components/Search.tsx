@@ -37,7 +37,7 @@ type Props = {
       | React.ChangeEvent<HTMLInputElement>
       | React.ChangeEvent<HTMLTextAreaElement>,
   ) => void;
-  onSearch?: React.MouseEventHandler<HTMLDivElement>;
+  onSearch?: () => void;
 };
 
 function Search(props: Props) {

@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { BigNumber } from 'ethers';
 
-import { RootState } from '../../store';
+import { RootState } from 'store';
 import {
   setReceiverNativeBalance,
   setReceiveAmount,
@@ -13,28 +13,28 @@ import {
   setSupportedDestTokens,
   setTransferRoute,
   TransferInputState,
-} from '../../store/transferInput';
-import { CHAINS, TOKENS, TOKENS_ARR } from '../../config';
-import { TokenConfig, Route } from '../../config/types';
-import { getTokenDecimals, getWrappedTokenId } from '../../utils';
-import { wh, isAcceptedToken, toChainId } from '../../utils/sdk';
-import { joinClass } from '../../utils/style';
-import { toDecimals } from '../../utils/balance';
-import Operator from '../../utils/routes';
-import { listOfRoutes } from '../../utils/routes/operator';
-import { isTransferValid, validate } from '../../utils/transferValidation';
+} from 'store/transferInput';
+import { CHAINS, TOKENS, TOKENS_ARR } from 'config';
+import { TokenConfig, Route } from 'config/types';
+import { getTokenDecimals, getWrappedTokenId } from 'utils';
+import { wh, isAcceptedToken, toChainId } from 'utils/sdk';
+import { joinClass } from 'utils/style';
+import { toDecimals } from 'utils/balance';
+import Operator from 'utils/routes';
+import { listOfRoutes } from 'utils/routes/operator';
+import { isTransferValid, validate } from 'utils/transferValidation';
 
 import GasSlider from './NativeGasSlider';
 import Preview from './Preview';
 import Send from './Send';
 import { Collapse } from '@mui/material';
-import PageHeader from '../../components/PageHeader';
+import PageHeader from 'components/PageHeader';
 import FromInputs from './Inputs/From';
 import ToInputs from './Inputs/To';
 import TransferLimitedWarning from './TransferLimitedWarning';
 import SwapNetworks from './SwapNetworks';
 import RouteOptions from './RouteOptions';
-import { isCosmWasmChain } from '../../utils/cosmos';
+import { isCosmWasmChain } from 'utils/cosmos';
 
 const useStyles = makeStyles()((theme) => ({
   spacer: {

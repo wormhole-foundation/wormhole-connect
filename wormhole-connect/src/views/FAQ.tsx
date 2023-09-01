@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { makeStyles } from 'tss-react/mui';
-import Dropdown from '../components/Dropdown';
-import PageHeader from '../components/PageHeader';
-import AlertBanner from '../components/AlertBanner';
+import Dropdown from 'components/Dropdown';
+import PageHeader from 'components/PageHeader';
+import AlertBanner from 'components/AlertBanner';
 
 const useStyles = makeStyles()((theme) => ({
   container: {

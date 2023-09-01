@@ -3,9 +3,13 @@ import { makeStyles } from 'tss-react/mui';
 import { useTheme } from '@mui/material/styles';
 import { useDispatch, useSelector } from 'react-redux';
 import { Wallet, WalletState } from '@xlabs-libs/wallet-aggregator-core';
-import { getWallets as getSuiWallets } from '@xlabs-libs/wallet-aggregator-sui';
+import {
+  SuiWallet,
+  getWallets as getSuiWallets,
+} from '@xlabs-libs/wallet-aggregator-sui';
 import {
   SeiChainId,
+  SeiWallet,
   getSupportedWallets as getSeiWallets,
 } from '@xlabs-libs/wallet-aggregator-sei';
 import {
@@ -14,24 +18,24 @@ import {
   Context,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 
-import { CHAINS, WH_CONFIG } from '../config';
-import { RootState } from '../store';
-import { setWalletModal } from '../store/router';
+import { CHAINS, WH_CONFIG } from 'config';
+import { RootState } from 'store';
+import { setWalletModal } from 'store/router';
 import {
   clearWallet,
   connectReceivingWallet,
   connectWallet,
-} from '../store/wallet';
-import { TransferWallet, setWalletConnection, wallets } from '../utils/wallet';
-import { CENTER } from '../utils/style';
-import { getSeiChainId } from '../utils/sei';
+} from 'store/wallet';
+import { TransferWallet, setWalletConnection, wallets } from 'utils/wallet';
+import { CENTER } from 'utils/style';
+import { getSeiChainId } from 'utils/sei';
 
-import Header from '../components/Header';
-import Modal from '../components/Modal';
-import Spacer from '../components/Spacer';
-import Scroll from '../components/Scroll';
-import WalletIcon from '../icons/WalletIcons';
-import Search from '../components/Search';
+import Header from 'components/Header';
+import Modal from 'components/Modal';
+import Spacer from 'components/Spacer';
+import Scroll from 'components/Scroll';
+import WalletIcon from 'icons/WalletIcons';
+import Search from 'components/Search';
 
 const useStyles = makeStyles()((theme: any) => ({
   walletRow: {
@@ -94,7 +98,7 @@ type WalletData = {
 
 const fetchSuiOptions = async () => {
   const suiWallets = await getSuiWallets({ timeout: 0 });
-  return suiWallets.reduce((obj, value) => {
+  return suiWallets.reduce((obj: { [key: string]: SuiWallet }, value) => {
     obj[value.getName()] = value;
     return obj;
   }, {});
@@ -106,7 +110,7 @@ const fetchSeiOptions = async () => {
     rpcUrl: WH_CONFIG.rpcs.sei || '',
   });
 
-  return seiWallets.reduce((obj, value) => {
+  return seiWallets.reduce((obj: { [key: string]: SeiWallet }, value) => {
     obj[value.getName()] = value;
     return obj;
   }, {});
@@ -142,7 +146,9 @@ const getWalletOptions = async (
     };
 
     return Object.keys(allWallets)
-      .map((key) => mapWallets(allWallets[key], key as Context))
+      .map((value: string) =>
+        mapWallets(allWallets[value as Context]!, value as Context),
+      )
       .reduce((acc, arr) => acc.concat(arr), []);
   }
   if (config.context === Context.ETH) {

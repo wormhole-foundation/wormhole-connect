@@ -4,17 +4,17 @@ import { useTheme } from '@mui/material/styles';
 import { makeStyles } from 'tss-react/mui';
 import { ScopedCssBaseline, useMediaQuery } from '@mui/material';
 
-import { RootState } from '../store';
-import { TransferWallet } from '../utils/wallet';
-import { copyTextToClipboard, displayWalletAddress } from '../utils';
+import { RootState } from 'store';
+import { setWalletModal } from 'store/router';
+import { disconnectWallet as disconnectFromStore } from 'store/wallet';
+import { TransferWallet } from 'utils/wallet';
+import { copyTextToClipboard, displayWalletAddress } from 'utils';
 
-import DownIcon from '../icons/Down';
-import WalletIcon from '../icons/Wallet';
-import WalletIcons from '../icons/WalletIcons';
+import DownIcon from 'icons/Down';
+import WalletIcon from 'icons/Wallet';
+import WalletIcons from 'icons/WalletIcons';
 import PopupState, { bindTrigger, bindPopover } from 'material-ui-popup-state';
 import Popover from '@mui/material/Popover';
-import { setWalletModal } from '../store/router';
-import { disconnectWallet as disconnectFromStore } from '../store/wallet';
 
 const useStyles = makeStyles()((theme: any) => ({
   connectWallet: {

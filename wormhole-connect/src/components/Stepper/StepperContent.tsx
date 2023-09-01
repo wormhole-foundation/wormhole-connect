@@ -2,7 +2,7 @@ import * as React from 'react';
 import { makeStyles } from 'tss-react/mui';
 import { joinClass } from '../../utils/style';
 
-const useStyles = makeStyles()((theme) => ({
+const useStyles = makeStyles()((theme: any) => ({
   content: {
     marginLeft: '14px',
     minHeight: '40px',

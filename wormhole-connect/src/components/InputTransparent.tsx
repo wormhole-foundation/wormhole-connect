@@ -6,7 +6,7 @@ type StyleProps = {
   align?: 'center' | 'right';
 };
 
-const useStyles = makeStyles<StyleProps>()((theme, { align }) => ({
+const useStyles = makeStyles<StyleProps>()((_, { align }) => ({
   input: {
     width: '100%',
     border: 'none',
@@ -37,7 +37,7 @@ type Props = {
       | React.ChangeEvent<HTMLInputElement>
       | React.ChangeEvent<HTMLTextAreaElement>,
   ) => void;
-  onEnter?: React.MouseEventHandler<HTMLDivElement>;
+  onEnter?: React.KeyboardEventHandler;
   onPause?: (
     e?:
       | React.ChangeEvent<HTMLInputElement>
@@ -53,7 +53,7 @@ const NUMBER_REPLACE_REGEX = /[^0-9.]/g;
 function InputTransparent(props: Props) {
   const { classes } = useStyles({ align: props.align });
 
-  const onChange = (e) => {
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (props.type === 'number' && !NUMBER_FORMAT_REGEX.test(e.target.value)) {
       e.target.value = e.target.value.replace(NUMBER_REPLACE_REGEX, '');
     }
@@ -63,7 +63,7 @@ function InputTransparent(props: Props) {
     }
   };
 
-  const handleKeyDown = (e) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && props.onEnter) {
       props.onEnter(e);
     }

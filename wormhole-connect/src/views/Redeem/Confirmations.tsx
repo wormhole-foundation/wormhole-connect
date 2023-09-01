@@ -5,10 +5,10 @@ import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 
-import { CHAINS } from '../../config';
-import { getCurrentBlock } from '../../utils/sdk';
-import { ROUTES } from '../../config/routes';
-import { RootState } from '../../store';
+import { CHAINS } from 'config';
+import { getCurrentBlock } from 'utils/sdk';
+import { ROUTES } from 'config/routes';
+import { RootState } from 'store';
 
 const BorderLinearProgress = styled(LinearProgress)(({ theme }: any) => ({
   borderRadius: 5,

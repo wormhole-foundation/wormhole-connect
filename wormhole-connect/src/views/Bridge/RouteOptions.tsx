@@ -3,24 +3,25 @@ import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { Chip, useMediaQuery, useTheme } from '@mui/material';
 
-import { RootState } from '../../store';
-import { setTransferRoute } from '../../store/transferInput';
-import { LINK, joinClass } from '../../utils/style';
-import Operator from '../../utils/routes';
-import { listOfRoutes } from '../../utils/routes/operator';
-import { isTransferValid } from '../../utils/transferValidation';
-import { toFixedDecimals } from '../../utils/balance';
-import { TOKENS } from '../../config';
-import { Route } from '../../config/types';
-import { ROUTES, RouteData } from '../../config/routes';
-import { getTokenDecimals } from '../../utils';
-import { toDecimals } from '../../utils/balance';
-import { toChainId } from '../../utils/sdk';
+import { RootState } from 'store';
+import { setTransferRoute } from 'store/transferInput';
+import { getTokenDecimals } from 'utils';
+import { toDecimals } from 'utils/balance';
+import { LINK, joinClass } from 'utils/style';
+import { toChainId } from 'utils/sdk';
+import Operator from 'utils/routes';
+import { listOfRoutes } from 'utils/routes/operator';
+import { isTransferValid } from 'utils/transferValidation';
+import { toFixedDecimals } from 'utils/balance';
+import { TOKENS } from 'config';
+import { Route } from 'config/types';
+import { ROUTES, RouteData } from 'config/routes';
+
 import BridgeCollapse, { CollapseControlStyle } from './Collapse';
-import TokenIcon from '../../icons/TokenIcons';
-import ArrowRightIcon from '../../icons/ArrowRight';
-import Options from '../../components/Options';
-import { isCosmWasmChain } from '../../utils/cosmos';
+import TokenIcon from 'icons/TokenIcons';
+import ArrowRightIcon from 'icons/ArrowRight';
+import Options from 'components/Options';
+import { isCosmWasmChain } from 'utils/cosmos';
 
 const useStyles = makeStyles()((theme: any) => ({
   link: {

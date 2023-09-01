@@ -2,14 +2,14 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 
-import { RootState } from '../../store';
-import { LINK } from '../../utils/style';
-import { CHAINS, WORMSCAN, isMainnet } from '../../config';
+import { RootState } from 'store';
+import { LINK } from 'utils/style';
+import { CHAINS, WORMSCAN, isMainnet } from 'config';
 
-import InputContainer from '../../components/InputContainer';
-import ArrowRight from '../../icons/ArrowRight';
+import InputContainer from 'components/InputContainer';
+import ArrowRight from 'icons/ArrowRight';
 import LaunchIcon from '@mui/icons-material/Launch';
-import TokenIcon from '../../icons/TokenIcons';
+import TokenIcon from 'icons/TokenIcons';
 
 const useStyles = makeStyles()((theme) => ({
   row: {

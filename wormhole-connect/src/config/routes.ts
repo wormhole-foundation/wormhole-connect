@@ -1,4 +1,3 @@
-// import { Route } from '../store/transferInput';
 import WormholeIcon from '../icons/Routes/Wormhole';
 import XLabsIcon from '../icons/Routes/XLabs';
 import HashflowIcon from '../icons/Routes/Hashflow';

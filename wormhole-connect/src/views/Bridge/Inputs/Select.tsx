@@ -1,9 +1,9 @@
 import React from 'react';
 import { makeStyles } from 'tss-react/mui';
 
-import { Icon } from '../../../config/types';
-import { NO_INPUT } from '../../../utils/style';
-import TokenIcon from '../../../icons/TokenIcons';
+import { Icon } from 'config/types';
+import { NO_INPUT } from 'utils/style';
+import TokenIcon from 'icons/TokenIcons';
 import Input from './Input';
 
 const useStyles = makeStyles()((theme) => ({

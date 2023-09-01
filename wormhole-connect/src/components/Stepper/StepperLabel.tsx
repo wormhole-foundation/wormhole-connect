@@ -43,7 +43,7 @@ function StepIcon(props: {
 }) {
   const { active, completed, filled } = props;
   const { classes } = useStyles();
-  const theme = useTheme();
+  const theme: any = useTheme();
 
   if (completed) {
     return (
