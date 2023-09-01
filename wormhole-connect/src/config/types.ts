@@ -5,19 +5,48 @@ import {
   ChainResourceMap,
   Context,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { ExtendedTheme } from 'theme';
-import { PayloadType } from 'utils/sdk';
+import { ExtendedTheme } from '../theme';
+
+export enum Icon {
+  'AVAX' = 1,
+  'BNB',
+  'BSC',
+  'CELO',
+  'ETH',
+  'FANTOM',
+  'POLYGON',
+  'SOLANA',
+  'USDC',
+  'GLMR',
+  'DAI',
+  'USDT',
+  'BUSD',
+  'WBTC',
+  'SUI',
+  'APT',
+  'SEI',
+  'BASE',
+  'OSMO',
+  'BONK',
+  'TBTC',
+  'WSTETH',
+}
+
+export enum PayloadType {
+  Manual = 1,
+  Automatic = 3,
+}
 
 export enum Route {
-  Bridge = PayloadType.MANUAL, // 1
-  Relay = PayloadType.AUTOMATIC, // 3
+  Bridge = PayloadType.Manual,
+  Relay = PayloadType.Automatic,
   Hashflow = 10,
   CosmosGateway = 11,
   CCTPManual = 12,
   CCTPRelay = 13,
 }
 
-export type SupportedRoutes = keyof typeof Route;
+// export type SupportedRoutes = keyof typeof Route;
 
 export interface BridgeDefaults {
   fromNetwork?: ChainName;
@@ -72,31 +101,6 @@ export interface NetworkConfig extends ChainConfig {
 export type NetworksConfig = {
   [chain in ChainName]?: NetworkConfig;
 };
-
-export enum Icon {
-  'AVAX' = 1,
-  'BNB',
-  'BSC',
-  'CELO',
-  'ETH',
-  'FANTOM',
-  'POLYGON',
-  'SOLANA',
-  'USDC',
-  'GLMR',
-  'DAI',
-  'USDT',
-  'BUSD',
-  'WBTC',
-  'SUI',
-  'APT',
-  'SEI',
-  'BASE',
-  'OSMO',
-  'BONK',
-  'TBTC',
-  'WSTETH',
-}
 
 export type GasEstimates = {
   [chain in ChainName]?: {

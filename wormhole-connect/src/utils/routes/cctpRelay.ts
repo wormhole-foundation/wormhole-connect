@@ -9,7 +9,7 @@ import {
 import { BigNumber, utils } from 'ethers';
 
 import { CHAINS, TOKENS } from 'config';
-import { TokenConfig, Route } from 'config/types';
+import { TokenConfig, Route, PayloadType } from 'config/types';
 import {
   MAX_DECIMALS,
   getTokenDecimals,
@@ -18,13 +18,7 @@ import {
   getWrappedTokenId,
   getTokenById,
 } from 'utils';
-import {
-  ParsedMessage,
-  ParsedRelayerMessage,
-  toChainId,
-  wh,
-  PayloadType,
-} from 'utils/sdk';
+import { ParsedMessage, ParsedRelayerMessage, toChainId, wh } from 'utils/sdk';
 import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
 import { NO_INPUT } from 'utils/style';
 import {
