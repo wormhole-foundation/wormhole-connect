@@ -7,8 +7,8 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { BigNumber, utils } from 'ethers';
 
-import { CHAINS, TOKENS } from 'config';
-import { TokenConfig, Route, PayloadType } from 'config/types';
+import { CHAINS, ROUTES, TOKENS } from 'config';
+import { TokenConfig, Route } from 'config/types';
 import {
   MAX_DECIMALS,
   getTokenDecimals,
@@ -17,7 +17,13 @@ import {
   getWrappedTokenId,
   getTokenById,
 } from 'utils';
-import { ParsedMessage, ParsedRelayerMessage, toChainId, wh } from 'utils/sdk';
+import {
+  ParsedMessage,
+  ParsedRelayerMessage,
+  PayloadType,
+  toChainId,
+  wh,
+} from 'utils/sdk';
 import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
 import { NO_INPUT } from 'utils/style';
 import {
@@ -147,6 +153,10 @@ export class CCTPRelayRoute extends CCTPManualRoute {
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
   ): Promise<boolean> {
+    if (!(Route.CCTPManual in ROUTES)) {
+      return false;
+    }
+
     const sourceTokenConfig = TOKENS[sourceToken];
     const destTokenConfig = TOKENS[destToken];
 
@@ -431,7 +441,7 @@ export class CCTPRelayRoute extends CCTPManualRoute {
       sendTx: receipt.transactionHash,
       sender: receipt.from,
       amount: parsedCCTPLog.args.amount.toString(),
-      payloadID: PayloadType.AUTOMATIC,
+      payloadID: PayloadType.Automatic,
       recipient: recipient,
       toChain: getChainNameCCTP(parsedCCTPLog.args.destinationDomain),
       fromChain: fromChain,

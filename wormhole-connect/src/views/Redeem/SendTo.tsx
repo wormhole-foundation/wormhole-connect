@@ -4,7 +4,6 @@ import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { CHAINS } from 'config';
-import { Route } from 'config/types';
 import { RootState } from 'store';
 import { setRedeemTx, setTransferComplete } from 'store/redeem';
 import { displayAddress } from 'utils';
@@ -15,6 +14,7 @@ import {
   registerWalletSigner,
   switchNetwork,
 } from 'utils/wallet';
+import { PayloadType } from 'utils/sdk';
 
 import AlertBanner from 'components/AlertBanner';
 import Button from 'components/Button';
@@ -66,7 +66,7 @@ function SendTo() {
   }, [redeemTx, signedMessage, dispatch]);
 
   useEffect(() => {
-    if (!txData) return;
+    if (!txData || !routeType) return;
     const populate = async () => {
       let receiveTx: string | undefined;
       try {
@@ -95,6 +95,9 @@ function SendTo() {
   const claim = async () => {
     setInProgress(true);
     setClaimError('');
+    if (!routeType) {
+      throw new Error('Unknown route, cannot claim');
+    }
     if (!wallet || !isConnected) {
       setClaimError('Connect to receiving wallet');
       throw new Error('Connect to receiving wallet');
@@ -112,13 +115,13 @@ function SendTo() {
         registerWalletSigner(txData.toChain, TransferWallet.RECEIVING);
         await switchNetwork(networkConfig.chainId, TransferWallet.RECEIVING);
       }
-      if (!messageInfo) {
+      if (!signedMessage) {
         throw new Error('failed to get vaa, cannot redeem');
       }
       const txId = await new Operator().redeem(
         routeName,
         txData.toChain,
-        signedMessage!,
+        signedMessage,
         wallet.address,
       );
       dispatch(setRedeemTx(txId));
@@ -155,7 +158,7 @@ function SendTo() {
       </InputContainer>
 
       {/* Claim button for manual transfers */}
-      {txData.payloadID === Route.Bridge && !transferComplete && (
+      {txData.payloadID === PayloadType.Manual && !transferComplete && (
         <>
           <Spacer height={8} />
           <AlertBanner

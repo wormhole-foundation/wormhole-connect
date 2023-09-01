@@ -5,10 +5,11 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { BigNumber } from 'ethers';
 
+import { ROUTES } from 'config';
 import { TokenConfig, Route } from 'config/types';
 import { BridgeRoute } from './bridge';
 import { RelayRoute } from './relay';
-import { HashflowRoute } from './hashflow';
+// import { HashflowRoute } from './hashflow';
 import { CCTPRelayRoute } from './cctpRelay';
 import { CosmosGatewayRoute } from './cosmosGateway';
 import { ParsedMessage, PayloadType, getMessage, isEvmChain, wh } from '../sdk';
@@ -25,14 +26,6 @@ import {
   CCTP_LOG_TokenMessenger_DepositForBurn,
 } from './cctpManual';
 
-// TODO: need to make this configurable
-export const listOfRoutes = [
-  Route.Bridge,
-  Route.CCTPManual,
-  Route.CCTPRelay,
-  Route.Relay,
-  Route.CosmosGateway,
-];
 export default class Operator {
   getRoute(route: Route): RouteAbstract {
     switch (route) {
@@ -48,9 +41,9 @@ export default class Operator {
       case Route.CCTPRelay: {
         return new CCTPRelayRoute();
       }
-      case Route.Hashflow: {
-        return new HashflowRoute();
-      }
+      // case Route.Hashflow: {
+      //   return new HashflowRoute();
+      // }
       case Route.CosmosGateway: {
         return new CosmosGatewayRoute();
       }
@@ -99,7 +92,7 @@ export default class Operator {
       return Route.CosmosGateway;
     }
 
-    return (message as ParsedMessage).payloadID === PayloadType.AUTOMATIC
+    return (message as ParsedMessage).payloadID === PayloadType.Automatic
       ? Route.Relay
       : Route.Bridge;
   }
@@ -112,6 +105,10 @@ export default class Operator {
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
   ): Promise<boolean> {
+    if (!(route in ROUTES)) {
+      return false;
+    }
+
     const r = this.getRoute(route);
     return await r.isRouteAvailable(
       sourceToken,

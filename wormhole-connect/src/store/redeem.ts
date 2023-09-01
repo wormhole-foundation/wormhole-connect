@@ -15,7 +15,7 @@ export interface RedeemState {
   redeemTx: string;
   transferComplete: boolean;
   isVaaEnqueued: boolean;
-  route: Route;
+  route: Route | undefined;
 }
 
 const initialState: RedeemState = {
@@ -25,7 +25,7 @@ const initialState: RedeemState = {
   redeemTx: '',
   transferComplete: false,
   isVaaEnqueued: false,
-  route: Route.Bridge,
+  route: undefined,
 };
 
 export const redeemSlice = createSlice({

@@ -1,31 +1,25 @@
 import {
   WormholeContext,
-  CONFIG as CONF,
-} from '@wormhole-foundation/wormhole-connect-sdk';
-import {
-  MAINNET_NETWORKS,
-  MAINNET_TOKENS,
-  MAINNET_GAS_ESTIMATES,
-} from './mainnet';
-import {
-  TESTNET_NETWORKS,
-  TESTNET_TOKENS,
-  TESTNET_GAS_ESTIMATES,
-} from './testnet';
-import { TokenConfig, NetworkConfig, WormholeConnectConfig } from './types';
-import { dark, light } from '../theme';
-import {
   MainnetChainName,
   TestnetChainName,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { validateChainResources, validateDefaults } from './utils';
-import { DEVNET_GAS_ESTIMATES, DEVNET_NETWORKS, DEVNET_TOKENS } from './devnet';
+import MAINNET from './mainnet';
+import TESTNET from './testnet';
+import DEVNET from './devnet';
+import {
+  TokenConfig,
+  ChainConfig,
+  WormholeConnectConfig,
+  Route,
+} from './types';
+import { dark, light } from '../theme';
+import { validateConfigs, validateDefaults } from './utils';
 
 const el = document.getElementById('wormhole-connect');
 if (!el)
   throw new Error('must specify an anchor element with id wormhole-connect');
 const configJson = el.getAttribute('config');
-export const config: WormholeConnectConfig | null = JSON.parse(configJson!);
+export const config: WormholeConnectConfig = JSON.parse(configJson!) || {};
 
 const getEnv = () => {
   if (!config) return 'TESTNET';
@@ -36,12 +30,7 @@ const getEnv = () => {
 
 export const ENV = getEnv();
 export const isMainnet = ENV === 'MAINNET';
-export const CONFIG =
-  ENV === 'MAINNET'
-    ? CONF.MAINNET
-    : ENV === 'DEVNET'
-    ? CONF.DEVNET
-    : CONF.TESTNET;
+export const sdkConfig = WormholeContext.getConfig(ENV);
 
 export const WORMSCAN = 'https://wormholescan.io/#/';
 export const WORMHOLE_API =
@@ -58,111 +47,35 @@ export const ATTEST_URL =
     ? ''
     : 'https://wormhole-foundation.github.io/example-token-bridge-ui/#/register';
 
-export const CHAINS =
-  ENV === 'MAINNET'
-    ? MAINNET_NETWORKS
-    : ENV === 'DEVNET'
-    ? DEVNET_NETWORKS
-    : TESTNET_NETWORKS;
+export const NETWORK_DATA =
+  ENV === 'MAINNET' ? MAINNET : ENV === 'DEVNET' ? DEVNET : TESTNET;
 
+export const CHAINS = NETWORK_DATA.chains;
 export const CHAINS_ARR =
   config && config.networks
     ? Object.values(CHAINS).filter((c) => config.networks!.includes(c.key))
-    : (Object.values(CHAINS) as NetworkConfig[]);
+    : (Object.values(CHAINS) as ChainConfig[]);
 
-export const TOKENS =
-  ENV === 'MAINNET'
-    ? MAINNET_TOKENS
-    : ENV === 'DEVNET'
-    ? DEVNET_TOKENS
-    : TESTNET_TOKENS;
+export const TOKENS = NETWORK_DATA.tokens;
 export const TOKENS_ARR =
   config && config.tokens
     ? Object.values(TOKENS).filter((c) => config.tokens!.includes(c.key))
     : (Object.values(TOKENS) as TokenConfig[]);
 
-// export const ROUTES =
-//   config && config.routes
-//     ? Object.values(Route)
-//     : Object.values(Route);
-// console.log(ROUTES);
+export const ROUTES =
+  config && config.routes ? config.routes : Object.values(Route);
 
-validateChainResources();
+export const RPCS =
+  config && config.rpcs
+    ? Object.assign({}, NETWORK_DATA.rpcs, config.rpcs)
+    : NETWORK_DATA.rpcs;
 
-const conf = WormholeContext.getConfig(CONFIG.env);
-const mainnetRpcs = {
-  ethereum: process.env.REACT_APP_ETHEREUM_RPC || conf.rpcs.ethereum,
-  solana: process.env.REACT_APP_SOLANA_RPC || conf.rpcs.solana,
-  polygon: process.env.REACT_APP_POLYGON_RPC || conf.rpcs.polygon,
-  bsc: process.env.REACT_APP_BSC_RPC || conf.rpcs.bsc,
-  avalanche: process.env.REACT_APP_AVALANCHE_RPC || conf.rpcs.avalanche,
-  fantom: process.env.REACT_APP_FANTOM_RPC || conf.rpcs.fantom,
-  celo: process.env.REACT_APP_CELO_RPC || conf.rpcs.celo,
-  moonbeam: process.env.REACT_APP_MOONBEAM_RPC || conf.rpcs.moonbeam,
-  sui: process.env.REACT_APP_SUI_RPC || conf.rpcs.sui,
-  aptos: process.env.REACT_APP_APTOS_RPC || conf.rpcs.aptos,
-  sei: process.env.REACT_APP_SEI_RPC || conf.rpcs.sei,
-  arbitrum: process.env.REACT_APP_ARBITRUM_RPC || conf.rpcs.arbitrum,
-  optimism: process.env.REACT_APP_OPTIMISM_RPC || conf.rpcs.optimism,
-  base: process.env.REACT_APP_BASE_RPC || conf.rpcs.base,
-  osmosis: process.env.REACT_APP_OSMOSIS_RPC || conf.rpcs.osmosis,
-  wormchain: process.env.REACT_APP_WORMCHAIN_RPC || conf.rpcs.wormchain,
-};
-const testnetRpcs = {
-  goerli: process.env.REACT_APP_GOERLI_RPC || conf.rpcs.goerli,
-  mumbai: process.env.REACT_APP_MUMBAI_RPC || conf.rpcs.mumbai,
-  bsc: process.env.REACT_APP_BSC_TESTNET_RPC || conf.rpcs.bsc,
-  fuji: process.env.REACT_APP_FUJI_RPC || conf.rpcs.fuji,
-  fantom: process.env.REACT_APP_FANTOM_TESTNET_RPC || conf.rpcs.fantom,
-  alfajores: process.env.REACT_APP_ALFAJORES_RPC || conf.rpcs.alfajores,
-  solana: process.env.REACT_APP_SOLANA_DEVNET_RPC || conf.rpcs.solana,
-  moonbasealpha: process.env.REACT_APP_MOONBASE_RPC || conf.rpcs.moonbasealpha,
-  sui: process.env.REACT_APP_SUI_TESTNET_RPC || conf.rpcs.sui,
-  aptos: process.env.REACT_APP_APTOS_TESTNET_RPC || conf.rpcs.aptos,
-  sei: process.env.REACT_APP_SEI_TESTNET_RPC || conf.rpcs.sei,
-  arbitrumgoerli:
-    process.env.REACT_APP_ARBITRUM_GOERLI_RPC || conf.rpcs.arbitrumgoerli,
-  optimismgoerli:
-    process.env.REACT_APP_OPTIMISM_GOERLI_RPC || conf.rpcs.optimismgoerli,
-  basegoerli: process.env.REACT_APP_BASE_GOERLI_RPC || conf.rpcs.basegoerli,
-  osmosis: process.env.REACT_APP_OSMOSIS_TESTNET_RPC || conf.rpcs.osmosis,
-  wormchain: process.env.REACT_APP_WORMCHAIN_TESTNET_RPC || conf.rpcs.wormchain,
-};
-const devnetRpcs = {
-  ethereum: process.env.REACT_APP_ETHEREUM_DEVNET_RPC || conf.rpcs.ethereum,
-  osmosis: process.env.REACT_APP_OSMOSIS_DEVNET_RPC || conf.rpcs.osmosis,
-  wormchain: process.env.REACT_APP_WORMCHAIN_DEVNET_RPC || conf.rpcs.wormchain,
-  terra2: process.env.REACT_APP_TERRA2_DEVNET_RPC || conf.rpcs.terra2,
-};
-conf.rpcs = Object.assign(
-  {},
-  ENV === 'MAINNET' ? mainnetRpcs : ENV === 'DEVNET' ? devnetRpcs : testnetRpcs,
-  config?.rpcs || {},
-);
+export const REST =
+  config && config.rest
+    ? Object.assign({}, NETWORK_DATA.rest, config.rest)
+    : NETWORK_DATA.rest;
 
-const mainnetRest = {
-  sei: process.env.REACT_APP_SEI_REST || conf.rest.sei,
-};
-const testnetRest = {
-  sei: process.env.REACT_APP_SEI_REST || conf.rest.sei,
-};
-const devnetRest = {
-  sei: process.env.REACT_APP_SEI_REST || conf.rest.sei,
-};
-conf.rest = Object.assign(
-  {},
-
-  ENV === 'MAINNET' ? mainnetRest : ENV === 'DEVNET' ? devnetRest : testnetRest,
-  config?.rest || {},
-);
-export const WH_CONFIG = conf;
-
-export const GAS_ESTIMATES =
-  ENV === 'MAINNET'
-    ? MAINNET_GAS_ESTIMATES
-    : ENV === 'DEVNET'
-    ? DEVNET_GAS_ESTIMATES
-    : TESTNET_GAS_ESTIMATES;
+export const GAS_ESTIMATES = NETWORK_DATA.gasEstimates;
 
 export const THEME_MODE = config && config.mode ? config.mode : 'dark';
 export const CUSTOM_THEME = config && config.customTheme;
@@ -195,3 +108,5 @@ export const TESTNET_TO_MAINNET_CHAIN_NAMES: {
   wormchain: 'wormchain',
   osmosis: 'osmosis',
 };
+
+validateConfigs();

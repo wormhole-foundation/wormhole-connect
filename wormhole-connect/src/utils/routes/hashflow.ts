@@ -5,7 +5,7 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { BigNumber } from 'ethers';
 
-import { TokenConfig } from 'config/types';
+import { Route, TokenConfig } from 'config/types';
 import {
   TransferInfoBaseParams,
   UnsignedMessage,
@@ -13,17 +13,22 @@ import {
 } from './types';
 import { TransferDisplayData } from './types';
 import RouteAbstract from './routeAbstract';
+import { ROUTES } from 'config';
 
 export class HashflowRoute extends RouteAbstract {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED = false;
   readonly AUTOMATIC_DEPOSIT = true;
-  public isRouteAvailable(
+  async isRouteAvailable(
     sourceToken: string,
     destToken: string,
     amount: string,
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
   ): Promise<boolean> {
+    if (!(Route.CCTPManual in ROUTES)) {
+      return false;
+    }
+
     throw new Error('Method not implemented.');
   }
   public isSupportedSourceToken(

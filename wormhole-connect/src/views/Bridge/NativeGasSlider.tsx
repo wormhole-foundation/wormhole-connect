@@ -8,7 +8,7 @@ import { useDebounce } from 'use-debounce';
 
 import { CHAINS, TOKENS } from 'config';
 import { TokenConfig, Route } from 'config/types';
-import { ROUTES } from 'config/routes';
+import { RoutesConfig } from 'config/routes';
 import { getTokenDecimals, getWrappedTokenId } from 'utils';
 import { wh } from 'utils/sdk';
 import { getConversion, toDecimals, toFixedDecimals } from 'utils/balance';
@@ -123,6 +123,7 @@ function GasSlider(props: { disabled: boolean }) {
       !amountNum ||
       amountNum === 0 ||
       !maxSwapAmt ||
+      !route ||
       !new Operator().getRoute(route).NATIVE_GAS_DROPOFF_SUPPORTED
     )
       return;
@@ -148,6 +149,7 @@ function GasSlider(props: { disabled: boolean }) {
     if (
       !toNetwork ||
       !sendingToken ||
+      !route ||
       !new Operator().getRoute(route).NATIVE_GAS_DROPOFF_SUPPORTED ||
       !receivingWallet.address ||
       !receivingToken
@@ -237,7 +239,7 @@ function GasSlider(props: { disabled: boolean }) {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      if (!receivingToken || !sendingToken) return;
+      if (!receivingToken || !sendingToken || !route) return;
       dispatch(setToNativeToken(debouncedSwapAmt));
       const tokenId = receivingToken.tokenId!;
       const tokenToChainDecimals = getTokenDecimals(
@@ -287,7 +289,7 @@ function GasSlider(props: { disabled: boolean }) {
   ]);
 
   const banner = !props.disabled && (
-    <Banner text="This feature provided by" route={ROUTES[Route.Relay]} />
+    <Banner text="This feature provided by" route={RoutesConfig[Route.Relay]} />
   );
 
   return (

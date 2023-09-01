@@ -1,6 +1,6 @@
 import WormholeIcon from '../icons/Routes/Wormhole';
 import XLabsIcon from '../icons/Routes/XLabs';
-import HashflowIcon from '../icons/Routes/Hashflow';
+// import HashflowIcon from '../icons/Routes/Hashflow';
 import CCTPIcon from '../icons/Routes/CCTP';
 import { Route } from './types';
 
@@ -13,7 +13,7 @@ export type RouteData = {
   pendingMessage: string;
 };
 
-export const ROUTES: {
+export const RoutesConfig: {
   [route in Route]: RouteData;
 } = {
   [Route.Bridge]: {
@@ -32,14 +32,14 @@ export const ROUTES: {
     icon: XLabsIcon,
     pendingMessage: 'Waiting for Wormhole network consensus . . .',
   },
-  [Route.Hashflow]: {
-    route: Route.Hashflow,
-    name: 'Hashflow',
-    providedBy: 'Hashflow',
-    link: 'https://www.hashflow.com/',
-    icon: HashflowIcon,
-    pendingMessage: 'Waiting for Wormhole network consensus . . .',
-  },
+  // [Route.Hashflow]: {
+  //   route: Route.Hashflow,
+  //   name: 'Hashflow',
+  //   providedBy: 'Hashflow',
+  //   link: 'https://www.hashflow.com/',
+  //   icon: HashflowIcon,
+  //   pendingMessage: 'Waiting for Wormhole network consensus . . .',
+  // },
   [Route.CCTPManual]: {
     route: Route.CCTPManual,
     name: 'Circle CCTP',

@@ -4,9 +4,9 @@ import {
   MAINNET_CHAINS,
   TokenId,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { CHAINS, TOKENS } from 'config';
-import { TokenConfig, Route } from 'config/types';
 import { BigNumber, utils } from 'ethers';
+import { CHAINS, ROUTES, TOKENS } from 'config';
+import { TokenConfig, Route } from 'config/types';
 import { MAX_DECIMALS, getTokenDecimals, toNormalizedDecimals } from 'utils';
 import { estimateClaimGasFees, estimateSendGasFees } from 'utils/gasEstimates';
 import { toChainId, wh } from 'utils/sdk';
@@ -43,6 +43,10 @@ export class BridgeRoute extends BaseRoute {
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
   ): Promise<boolean> {
+    if (!(Route.Bridge in ROUTES)) {
+      return false;
+    }
+
     const sourceTokenConfig = TOKENS[sourceToken];
     const destTokenConfig = TOKENS[destToken];
     if (!sourceChain || !destChain || !sourceTokenConfig || !destTokenConfig)

@@ -344,7 +344,7 @@ function TokensModal(props: Props) {
   }, [network, walletAddress]);
 
   const getBalances = useCallback(async () => {
-    if (!walletAddress || !network) return;
+    if (!walletAddress || !network || !route) return;
     const operator = new Operator();
     // fetch all N tokens and trigger a single update action
     const balancesArr = await Promise.all(

@@ -22,6 +22,7 @@ import { wh } from 'utils/sdk';
 import { isCosmWasmChain } from './cosmos';
 import { toFixedDecimals } from './balance';
 import { getTokenDecimals } from '.';
+import Operator from './routes';
 
 const simulateRelayAmount = (
   route: Route,
@@ -30,7 +31,9 @@ const simulateRelayAmount = (
   toNativeToken: number,
   tokenDecimals: number,
 ): BigNumber => {
-  if (route === Route.Relay) {
+  const r = new Operator().getRoute(route);
+  // TODO: get min amount from the routes
+  if (r.AUTOMATIC_DEPOSIT && r.NATIVE_GAS_DROPOFF_SUPPORTED) {
     const min = getMinAmount(true, relayerFee, toNativeToken);
     const amountOrMin = Math.max(amount, min);
     return utils.parseUnits(`${amountOrMin}`, tokenDecimals);

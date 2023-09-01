@@ -14,14 +14,13 @@ import {
   setTransferRoute,
   TransferInputState,
 } from 'store/transferInput';
-import { CHAINS, TOKENS, TOKENS_ARR } from 'config';
+import { CHAINS, ROUTES, TOKENS, TOKENS_ARR } from 'config';
 import { TokenConfig, Route } from 'config/types';
 import { getTokenDecimals, getWrappedTokenId } from 'utils';
 import { wh, isAcceptedToken, toChainId } from 'utils/sdk';
 import { joinClass } from 'utils/style';
 import { toDecimals } from 'utils/balance';
 import Operator from 'utils/routes';
-import { listOfRoutes } from 'utils/routes/operator';
 import { isTransferValid, validate } from 'utils/transferValidation';
 
 import GasSlider from './NativeGasSlider';
@@ -118,9 +117,9 @@ function Bridge() {
       const supported = getUniqueTokens(
         (
           await Promise.all(
-            listOfRoutes.map(async (r) => {
-              const returnedTokens = await operator.supportedSourceTokens(
-                r,
+            ROUTES.map((value) => {
+              const returnedTokens = operator.supportedSourceTokens(
+                value as Route,
                 TOKENS_ARR,
                 undefined,
                 fromNetwork,
@@ -152,9 +151,9 @@ function Bridge() {
       const supported = getUniqueTokens(
         (
           await Promise.all(
-            listOfRoutes.map((r) =>
+            ROUTES.map((value) =>
               operator.supportedDestTokens(
-                r,
+                value as Route,
                 TOKENS_ARR,
                 TOKENS[token],
                 fromNetwork,
@@ -262,6 +261,7 @@ function Bridge() {
   useEffect(() => {
     const recomputeReceive = async () => {
       const operator = new Operator();
+      if (!route) return;
       const newReceiveAmount = await operator.computeReceiveAmount(
         route,
         Number.parseFloat(amount),
@@ -291,9 +291,8 @@ function Bridge() {
   ]);
   const valid = isTransferValid(validations);
   const disabled = !valid || isTransactionInProgress;
-  const showGasSlider = new Operator().getRoute(
-    route,
-  ).NATIVE_GAS_DROPOFF_SUPPORTED;
+  const showGasSlider =
+    route && new Operator().getRoute(route).NATIVE_GAS_DROPOFF_SUPPORTED;
 
   return (
     <div className={joinClass([classes.bridgeContent, classes.spacer])}>
