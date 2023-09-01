@@ -1,5 +1,5 @@
 import {
-  ChainConfig,
+  ChainConfig as BaseChainConfig,
   ChainName,
   TokenId,
   ChainResourceMap,
@@ -32,21 +32,16 @@ export enum Icon {
   'WSTETH',
 }
 
-export enum PayloadType {
-  Manual = 1,
-  Automatic = 3,
-}
-
 export enum Route {
-  Bridge = PayloadType.Manual,
-  Relay = PayloadType.Automatic,
-  Hashflow = 10,
-  CosmosGateway = 11,
-  CCTPManual = 12,
-  CCTPRelay = 13,
+  Bridge = 'bridge',
+  Relay = 'relay',
+  // Hashflow = 'hashflow',
+  CosmosGateway = 'cosmosGateway',
+  CCTPManual = 'cctpManual',
+  CCTPRelay = 'cctpRelay',
 }
 
-// export type SupportedRoutes = keyof typeof Route;
+export type SupportedRoutes = keyof typeof Route;
 
 export interface BridgeDefaults {
   fromNetwork?: ChainName;
@@ -87,7 +82,9 @@ export type TokenConfig = {
   wrappedAsset?: string;
 };
 
-export interface NetworkConfig extends ChainConfig {
+export type TokensConfig = { [key: string]: TokenConfig };
+
+export interface ChainConfig extends BaseChainConfig {
   displayName: string;
   explorerUrl: string;
   explorerName: string;
@@ -98,8 +95,8 @@ export interface NetworkConfig extends ChainConfig {
   automaticRelayer?: boolean;
 }
 
-export type NetworksConfig = {
-  [chain in ChainName]?: NetworkConfig;
+export type ChainsConfig = {
+  [chain in ChainName]?: ChainConfig;
 };
 
 export type GasEstimates = {
@@ -113,4 +110,14 @@ export type GasEstimates = {
     sendCCTPWithRelay?: number;
     sendCCTPManual?: number;
   };
+};
+
+export type RpcMapping = { [chain in ChainName]?: string };
+
+export type NetworkData = {
+  chains: ChainsConfig;
+  tokens: TokensConfig;
+  gasEstimates: GasEstimates;
+  rpcs: RpcMapping;
+  rest: RpcMapping;
 };

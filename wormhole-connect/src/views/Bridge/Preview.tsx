@@ -36,7 +36,7 @@ function Preview(props: { collapsed: boolean }) {
 
   useEffect(() => {
     const buildPreview = async () => {
-      if (!fromNetwork) return;
+      if (!fromNetwork || !route) return;
       const sourceConfig = toNetwork && CHAINS[fromNetwork];
       const destConfig = toNetwork && CHAINS[toNetwork];
       const tokenConfig = token && TOKENS[token];
@@ -88,7 +88,7 @@ function Preview(props: { collapsed: boolean }) {
   useEffect(() => {
     const computeRelayerFee = async () => {
       try {
-        if (!token || !fromNetwork || !toNetwork) return;
+        if (!token || !fromNetwork || !toNetwork || !route) return;
         const tokenConfig = token && TOKENS[token];
         if (!tokenConfig) return;
 

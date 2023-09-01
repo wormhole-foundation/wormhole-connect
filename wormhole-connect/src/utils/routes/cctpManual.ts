@@ -10,8 +10,8 @@ import {
   MessageTransmitter__factory,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 
-import { CHAINS, TOKENS, TOKENS_ARR, isMainnet } from 'config';
-import { TokenConfig, Route, PayloadType } from 'config/types';
+import { CHAINS, ROUTES, TOKENS, TOKENS_ARR, isMainnet } from 'config';
+import { TokenConfig, Route } from 'config/types';
 import {
   MAX_DECIMALS,
   getTokenById,
@@ -25,6 +25,7 @@ import {
   isEvmChain,
   toChainId,
   wh,
+  PayloadType,
 } from 'utils/sdk';
 import { calculateGas } from 'utils/gas';
 import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
@@ -221,7 +222,9 @@ export class CCTPManualRoute extends BaseRoute {
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
   ): Promise<boolean> {
-    return false;
+    if (!(Route.CCTPManual in ROUTES)) {
+      return false;
+    }
 
     const sourceTokenConfig = TOKENS[sourceToken];
     const destTokenConfig = TOKENS[destToken];

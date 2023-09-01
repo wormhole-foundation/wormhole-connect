@@ -47,7 +47,7 @@ export interface TransferInputState {
   destToken: string;
   amount: string;
   receiveAmount: string;
-  route: Route;
+  route: Route | undefined;
   sourceBalances: Balances;
   destBalances: Balances;
   foreignAsset: string;
@@ -84,7 +84,7 @@ const initialState: TransferInputState = {
   destToken: '',
   amount: '',
   receiveAmount: '',
-  route: Route.Bridge,
+  route: undefined,
   sourceBalances: {},
   destBalances: {},
   foreignAsset: '',

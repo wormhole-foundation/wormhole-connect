@@ -49,7 +49,7 @@ export type Option = {
 type Props = {
   children: Option[];
   onSelect: (value: any) => void;
-  active?: number;
+  active?: number | string;
   collapsable?: boolean;
   collapsed?: boolean;
 };

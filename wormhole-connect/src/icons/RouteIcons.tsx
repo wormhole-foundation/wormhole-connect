@@ -6,7 +6,7 @@ import noIcon from './Tokens/noIcon';
 
 import WormholeIcon from './Routes/Wormhole';
 import XLabsIcon from './Routes/XLabs';
-import HashflowIcon from './Routes/Hashflow';
+// import HashflowIcon from './Routes/Hashflow';
 import CCTPIcon from './Routes/CCTP';
 import { Route } from 'config/types';
 
@@ -30,9 +30,9 @@ export const getIcon = (route: Route) => {
     case Route.Relay: {
       return XLabsIcon;
     }
-    case Route.Hashflow: {
-      return HashflowIcon;
-    }
+    // case Route.Hashflow: {
+    //   return HashflowIcon;
+    // }
     case Route.CCTPManual: {
       return CCTPIcon;
     }

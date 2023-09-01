@@ -1,6 +1,6 @@
 import WormholeIcon from '../icons/Routes/Wormhole';
 import XLabsIcon from '../icons/Routes/XLabs';
-import HashflowIcon from '../icons/Routes/Hashflow';
+// import HashflowIcon from '../icons/Routes/Hashflow';
 import CCTPIcon from '../icons/Routes/CCTP';
 import { Route } from './types';
 
@@ -12,7 +12,7 @@ export type RouteData = {
   icon: () => JSX.Element;
 };
 
-export const ROUTES: {
+export const RoutesConfig: {
   [route in Route]: RouteData;
 } = {
   [Route.Bridge]: {
@@ -29,13 +29,13 @@ export const ROUTES: {
     link: 'https://xlabs.xyz',
     icon: XLabsIcon,
   },
-  [Route.Hashflow]: {
-    route: Route.Hashflow,
-    name: 'Hashflow',
-    providedBy: 'Hashflow',
-    link: 'https://www.hashflow.com/',
-    icon: HashflowIcon,
-  },
+  // [Route.Hashflow]: {
+  //   route: Route.Hashflow,
+  //   name: 'Hashflow',
+  //   providedBy: 'Hashflow',
+  //   link: 'https://www.hashflow.com/',
+  //   icon: HashflowIcon,
+  // },
   [Route.CCTPManual]: {
     route: Route.CCTPManual,
     name: 'Circle CCTP',

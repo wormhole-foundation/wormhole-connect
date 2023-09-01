@@ -5,8 +5,8 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { BigNumber, utils } from 'ethers';
 
-import { CHAINS, TOKENS } from 'config';
-import { TokenConfig, Route, PayloadType } from 'config/types';
+import { CHAINS, ROUTES, TOKENS } from 'config';
+import { TokenConfig, Route } from 'config/types';
 import {
   MAX_DECIMALS,
   fromNormalizedDecimals,
@@ -23,6 +23,7 @@ import {
   toChainId,
   calculateNativeTokenAmt,
   calculateMaxSwapAmount,
+  PayloadType,
 } from 'utils/sdk';
 import { NO_INPUT } from 'utils/style';
 import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
@@ -65,6 +66,10 @@ export class RelayRoute extends BridgeRoute {
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
   ): Promise<boolean> {
+    if (!(Route.Relay in ROUTES)) {
+      return false;
+    }
+
     const isBridgeRouteAvailable = await super.isRouteAvailable(
       sourceToken,
       destToken,

@@ -1,7 +1,7 @@
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
-import { CHAINS, TOKENS } from '.';
+import { TOKENS } from '.';
 import { BridgeDefaults } from './types';
-import { config } from '.';
+import { config, NETWORK_DATA, CHAINS, ROUTES } from '.';
 
 const error = (msg: string) => {
   console.error(`Wormhole Connect:\n${msg}`);
@@ -14,10 +14,11 @@ export const validateResourceMap = (field: 'rpcs' | 'rest') => {
     );
     return;
   }
+  const defaultResourceMap = NETWORK_DATA[field];
   const resourceMap = config[field]!;
-  const networks = config.networks || (Object.keys(CHAINS) as ChainName[]);
+  const networks = Object.keys(CHAINS) as ChainName[];
   for (let network of networks) {
-    if (!resourceMap[network]) {
+    if (resourceMap[network] === defaultResourceMap[network]) {
       error(
         `WARNING! No custom ${field} provided for ${network}. It is strongly recommended that you provide your own ${field} for the best performance and functionality`,
       );
@@ -33,14 +34,12 @@ export const validateChainResources = () => {
 export const validateDefaults = (defaults: BridgeDefaults | undefined) => {
   if (!defaults) return;
   const { fromNetwork, toNetwork, token, requiredNetwork } = defaults;
-  let validDefaults = defaults;
   if (fromNetwork) {
     const network = CHAINS[fromNetwork];
     if (!network) {
       error(
         `Invalid chain name "${fromNetwork}" specified for bridgeDefaults.fromNetwork`,
       );
-      validDefaults.fromNetwork = undefined;
     }
   }
   if (toNetwork) {
@@ -49,7 +48,6 @@ export const validateDefaults = (defaults: BridgeDefaults | undefined) => {
       error(
         `Invalid chain name "${toNetwork}" specified for bridgeDefaults.toNetwork`,
       );
-      validDefaults.toNetwork = undefined;
     }
   }
   if (toNetwork && fromNetwork) {
@@ -57,7 +55,6 @@ export const validateDefaults = (defaults: BridgeDefaults | undefined) => {
       error(
         `Source and destination chain cannot be the same, check the bridgeDefaults configuration`,
       );
-      validDefaults.toNetwork = undefined;
     }
   }
   if (toNetwork && fromNetwork && requiredNetwork) {
@@ -66,31 +63,38 @@ export const validateDefaults = (defaults: BridgeDefaults | undefined) => {
       error(
         `Invalid network value "${requiredNetwork}" specified for bridgeDefaults.requiredNetwork`,
       );
-      validDefaults.requiredNetwork = undefined;
     }
     if (toNetwork !== requiredNetwork && fromNetwork !== requiredNetwork) {
       error(
         `Source chain or destination chain must equal the required network`,
       );
-      validDefaults.requiredNetwork = undefined;
     }
   }
   if (token) {
     const tokenConfig = TOKENS[token];
     if (!tokenConfig) {
       error(`Invalid token "${token}" specified for bridgeDefaults.token`);
-      validDefaults.token = undefined;
     }
   }
-  if (validDefaults.fromNetwork && validDefaults.token) {
-    const network = CHAINS[validDefaults.fromNetwork]!;
-    const { tokenId, nativeNetwork } = TOKENS[validDefaults.token]!;
+  if (fromNetwork && token) {
+    const network = CHAINS[fromNetwork]!;
+    const { tokenId, nativeNetwork } = TOKENS[token]!;
     if (!tokenId && nativeNetwork !== network.key) {
       error(
-        `Invalid token "${validDefaults.token}" specified for bridgeDefaults.token. It does not exist on "${validDefaults.fromNetwork}"`,
+        `Invalid token "${token}" specified for bridgeDefaults.token. It does not exist on "${fromNetwork}"`,
       );
-      validDefaults.token = undefined;
     }
   }
-  return validDefaults;
+  return defaults;
+};
+
+export const validateRoutes = () => {
+  if (ROUTES.length === 0) {
+    error('You must enable at least 1 transfer route');
+  }
+};
+
+export const validateConfigs = () => {
+  validateRoutes();
+  validateChainResources();
 };

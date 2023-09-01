@@ -81,11 +81,11 @@ Tokens (`tokens`):
 Routes (`routes`)
 | Mainnet | Testnet |
 | -------- | ---------|
-| Bridge | Bridge |
-| Relay | Relay |
-| CCTPManual | CCTPManual |
-| CCTPRelay | CCTPRelay |
-| CosmosGateway | CosmosGateway |
+| bridge | bridge |
+| relay | relay |
+| cctpManual | cctpManual |
+| cctpRelay | cctpRelay |
+| cosmosGateway | cosmosGateway |
 
 <br>
 

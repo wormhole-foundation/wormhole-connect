@@ -7,12 +7,11 @@ import { RootState } from 'store';
 import { setTransferRoute } from 'store/transferInput';
 import { LINK, joinClass } from 'utils/style';
 import Operator from 'utils/routes';
-import { listOfRoutes } from 'utils/routes/operator';
 import { isTransferValid } from 'utils/transferValidation';
 import { toFixedDecimals } from 'utils/balance';
-import { TOKENS } from 'config';
+import { TOKENS, ROUTES } from 'config';
 import { Route } from 'config/types';
-import { ROUTES, RouteData } from 'config/routes';
+import { RoutesConfig, RouteData } from 'config/routes';
 
 import BridgeCollapse, { CollapseControlStyle } from './Collapse';
 import TokenIcon from 'icons/TokenIcons';
@@ -92,9 +91,9 @@ const useStyles = makeStyles()((theme: any) => ({
 export function Banner(props: { text?: string; route?: RouteData }) {
   const { classes } = useStyles();
   const text = props.text || 'This route provided by';
-  const { route } = useSelector((state: RootState) => state.transferInput);
+  const route = useSelector((state: RootState) => state.transferInput.route);
 
-  const displayRoute = props.route || ROUTES[route];
+  const displayRoute = route && (props.route || RoutesConfig[route]);
 
   return displayRoute ? (
     <>
@@ -247,13 +246,14 @@ function RouteOptions() {
   };
 
   const availableRoutes = useMemo(() => {
-    if (!validate) return listOfRoutes;
+    if (!validate) return ROUTES;
     const valid = isTransferValid(validations);
-    if (!valid || !fromNetwork || !toNetwork) return listOfRoutes;
+    if (!valid || !fromNetwork || !toNetwork) return ROUTES;
     let available: Route[] = [];
-    listOfRoutes.forEach(async (r) => {
-      const route = new Operator().getRoute(r);
-      const isSupported = await route.isRouteAvailable(
+    ROUTES.forEach(async (value) => {
+      const r = value as Route;
+      const isSupported = await new Operator().isRouteAvailable(
+        r,
         token,
         destToken,
         amount,
@@ -295,7 +295,7 @@ function RouteOptions() {
           {availableRoutes.map((route) => {
             return {
               key: route,
-              child: <RouteOption route={ROUTES[route]} />,
+              child: <RouteOption route={RoutesConfig[route as Route]} />,
             };
           })}
         </Options>
