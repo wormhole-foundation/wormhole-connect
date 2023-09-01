@@ -1,9 +1,5 @@
-import {
-  Network as Environment,
-  ParsedVaa,
-  SignedVaa,
-} from '@certusone/wormhole-sdk';
-import { BigNumber, ContractReceipt } from 'ethers';
+import { Network as Environment } from '@certusone/wormhole-sdk';
+import { BigNumber } from 'ethers';
 import { MainnetChainId, MainnetChainName } from './config/MAINNET';
 import { TestnetChainId, TestnetChainName } from './config/TESTNET';
 import { AptosContext, AptosContracts } from './contexts/aptos';
@@ -12,10 +8,6 @@ import { SolanaContext, SolContracts } from './contexts/solana';
 import { SuiContext, SuiContracts } from './contexts/sui';
 import { SeiContext, SeiContracts } from './contexts/sei';
 import { WormholeContext } from './wormhole';
-import { Types } from 'aptos';
-import { TransactionResponse } from '@solana/web3.js';
-import { SuiTransactionBlockResponse } from '@mysten/sui.js';
-import { IndexedTx } from '@cosmjs/stargate';
 import { DevnetChainId, DevnetChainName } from './config/DEVNET';
 import { CosmosContext } from './contexts/cosmos';
 import { CosmosContracts } from './contexts/cosmos/contracts';
@@ -139,39 +131,3 @@ export type TokenDetails = {
 
 export type SendResult = Awaited<ReturnType<AnyContext['send']>>;
 export type RedeemResult = Awaited<ReturnType<AnyContext['redeem']>>;
-
-export type VaaSourceTransaction =
-  | ContractReceipt
-  | Types.UserTransaction
-  | TransactionResponse
-  | SuiTransactionBlockResponse
-  | IndexedTx;
-export interface VaaInfo<T extends VaaSourceTransaction = any> {
-  transaction: T;
-  rawVaa: SignedVaa;
-  // BigInt is not serializable to JSON, so we use a string instead
-  vaa: Omit<ParsedVaa, 'sequence'> & { sequence: string };
-}
-
-export type CCTPInfo = {
-  fromChain: ChainName;
-  transactionHash: string;
-  blockNumber: number;
-  gasUsed: string;
-  effectiveGasPrice: string;
-  burnToken: string;
-  depositor: string;
-  amount: BigNumber;
-  recipient: string;
-  destinationDomain: number;
-  destinationTokenMessenger: string;
-  destinationCaller: string;
-  message: string;
-  messageHash: string;
-  signedAttestation?: string;
-  relayerPayloadId?: number;
-  relayerFee?: string;
-  toNativeTokenAmount?: string;
-  vaaEmitter?: string;
-  vaaSequence?: string;
-};

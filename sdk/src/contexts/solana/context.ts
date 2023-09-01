@@ -2,7 +2,6 @@ import {
   CHAIN_ID_SOLANA,
   createNonce,
   getForeignAssetSolana,
-  getSignedVAAWithRetry,
   redeemAndUnwrapOnSolana,
   redeemOnSolana,
 } from '@certusone/wormhole-sdk';
@@ -28,7 +27,6 @@ import {
   PublicKeyInitData,
   SystemProgram,
   Transaction,
-  TransactionResponse,
 } from '@solana/web3.js';
 import { BigNumber } from 'ethers';
 import { arrayify, zeroPad, hexlify } from 'ethers/lib/utils';
@@ -48,7 +46,6 @@ import {
   Context,
   ParsedRelayerPayload,
   ParsedRelayerMessage,
-  VaaInfo,
 } from '../../types';
 import { SolContracts } from './contracts';
 import { WormholeContext } from '../../wormhole';
@@ -60,15 +57,14 @@ import {
   createTransferWrappedWithPayloadInstruction,
 } from './utils/tokenBridge';
 import {
-  PostedMessageData,
   deriveWormholeEmitterKey,
   getClaim,
+  getPostedMessage,
 } from './utils/wormhole';
 import { TokenBridgeAbstract } from '../abstracts/tokenBridge';
-import { getAccountData } from './utils';
-import base58 from 'bs58';
 import { ForeignAssetCache } from '../../utils';
 
+const SOLANA_SEQ_LOG = 'Program log: Sequence: ';
 const SOLANA_CHAIN_NAME = MAINNET_CONFIG.chains.solana!.key;
 
 const SOLANA_MAINNET_EMMITER_ID =
@@ -668,10 +664,10 @@ export class SolanaContext<
     return addr;
   }
 
-  async getVaa(
+  async getMessage(
     tx: string,
     chain: ChainName | ChainId,
-  ): Promise<VaaInfo<TransactionResponse>> {
+  ): Promise<ParsedMessage | ParsedRelayerMessage> {
     if (!this.connection) throw new Error('no connection');
     const contracts = this.contracts.mustGetContracts(SOLANA_CHAIN_NAME);
     if (!contracts.core || !contracts.token_bridge)
@@ -679,6 +675,7 @@ export class SolanaContext<
     const response = await this.connection.getTransaction(tx);
     if (!response || !response.meta?.innerInstructions![0].instructions)
       throw new Error('transaction not found');
+    const transaction = await this.connection.getParsedTransaction(tx);
 
     const instructions = response.meta?.innerInstructions![0].instructions;
     const accounts = response.transaction.message.accountKeys;
@@ -691,40 +688,11 @@ export class SolanaContext<
       const tokenBridge = deriveWormholeEmitterKey(contracts.token_bridge!);
       return programId === wormholeCore && emitterId.equals(tokenBridge);
     });
-
-    const messageKey = accounts[bridgeInstructions[0].accounts[1]];
-    const messageAccountInfo = await this.connection.getAccountInfo(
-      new PublicKey(messageKey),
+    const { message } = await getPostedMessage(
+      this.connection,
+      accounts[bridgeInstructions[0].accounts[1]],
+      'finalized',
     );
-    const data = getAccountData(messageAccountInfo);
-    const { message } = PostedMessageData.deserialize(data);
-
-    const { vaaBytes } = await getSignedVAAWithRetry(
-      this.context.conf.wormholeHosts,
-      message.emitterChain as ChainId,
-      Buffer.from(message.emitterAddress).toString('hex'),
-      message.sequence.toString(),
-      undefined,
-      undefined,
-      this.context.conf.wormholeHosts.length,
-    );
-
-    const parsedVaa = parseVaa(vaaBytes);
-    return {
-      transaction: response,
-      rawVaa: vaaBytes,
-      vaa: {
-        ...parsedVaa,
-        sequence: parsedVaa.sequence.toString(),
-      },
-    };
-  }
-
-  async parseMessage(
-    info: VaaInfo<TransactionResponse>,
-  ): Promise<ParsedMessage | ParsedRelayerMessage> {
-    const { transaction, vaa } = info;
-    if (!this.connection) throw new Error('no connection');
 
     const parsedInstr = transaction?.meta?.innerInstructions![0].instructions;
     const gasFee = parsedInstr
@@ -735,16 +703,16 @@ export class SolanaContext<
         }, 0)
       : 0;
 
-    const sender = transaction.transaction.message.accountKeys[0].toString();
-
-    const txId = base58.encode(
-      Transaction.populate(
-        transaction.transaction.message,
-        transaction.transaction.signatures,
-      ).signature!,
-    );
     // parse message payload
-    const transfer = parseTokenTransferPayload(vaa.payload);
+    const transfer = parseTokenTransferPayload(message.payload);
+
+    // get sequence
+    const sequence = response.meta?.logMessages
+      ?.filter((msg) => msg.startsWith(SOLANA_SEQ_LOG))?.[0]
+      ?.replace(SOLANA_SEQ_LOG, '');
+    if (!sequence) {
+      throw new Error('sequence not found');
+    }
 
     // format response
     const tokenContext = this.context.getContext(
@@ -757,13 +725,13 @@ export class SolanaContext<
     );
     const tokenChain = this.context.toChainName(transfer.tokenChain);
 
-    const fromChain = this.context.toChainName(vaa.emitterChain);
+    const fromChain = this.context.toChainName(chain);
     const toChain = this.context.toChainName(transfer.toChain);
     const toAddress = destContext.parseAddress(hexlify(transfer.to));
 
     const parsedMessage: ParsedMessage = {
-      sendTx: txId,
-      sender,
+      sendTx: tx,
+      sender: accounts[0].toString(),
       amount: BigNumber.from(transfer.amount),
       payloadID: transfer.payloadType,
       recipient: toAddress,
@@ -775,13 +743,13 @@ export class SolanaContext<
         chain: tokenChain,
         address: tokenAddress,
       },
-      sequence: BigNumber.from(vaa.sequence),
+      sequence: BigNumber.from(sequence),
       emitterAddress:
         this.context.conf.env === 'MAINNET'
           ? SOLANA_MAINNET_EMMITER_ID
           : SOLANA_TESTNET_EMITTER_ID,
       gasFee: BigNumber.from(gasFee),
-      block: transaction.slot,
+      block: response.slot,
     };
 
     if (parsedMessage.payloadID === 3) {
