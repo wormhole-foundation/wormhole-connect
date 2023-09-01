@@ -56,7 +56,7 @@ function FromInputs() {
   // token input jsx
   const selectedToken = useMemo(() => {
     if (!tokenConfig) return undefined;
-    const network = CHAINS[tokenConfig.nativeNetwork]?.displayName;
+    const network = CHAINS[tokenConfig.nativeNetwork as ChainName]?.displayName;
     return {
       icon: tokenConfig.icon,
       text: tokenConfig.symbol,
