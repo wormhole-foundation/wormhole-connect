@@ -6,7 +6,7 @@ import {
 import { BigNumber, utils } from 'ethers';
 
 import { CHAINS, TOKENS } from 'config';
-import { TokenConfig, Route } from 'config/types';
+import { TokenConfig, Route, PayloadType } from 'config/types';
 import {
   MAX_DECIMALS,
   fromNormalizedDecimals,
@@ -17,7 +17,6 @@ import {
 import { estimateClaimGasFees, estimateSendGasFees } from 'utils/gasEstimates';
 import {
   ParsedMessage,
-  PayloadType,
   wh,
   isAcceptedToken,
   ParsedRelayerMessage,
@@ -267,7 +266,7 @@ export class RelayRoute extends BridgeRoute {
   ): Promise<UnsignedMessage> {
     const message = await wh.getMessage(tx, chain);
     const parsed = (await adaptParsedMessage(message)) as ParsedRelayerMessage;
-    if (parsed.payloadID !== PayloadType.AUTOMATIC) {
+    if (parsed.payloadID !== PayloadType.Automatic) {
       throw new Error('wrong payload, not a token bridge relay transfer');
     }
     return {

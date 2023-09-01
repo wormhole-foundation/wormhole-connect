@@ -4,8 +4,7 @@ import {
   parseTokenTransferPayload,
   parseVaa,
 } from '@certusone/wormhole-sdk';
-import { PayloadType } from '../sdk';
-import { Route } from 'config/types';
+import { PayloadType, Route } from 'config/types';
 
 export const getRouteForVaa = (vaa: SignedVaa): Route => {
   const message = parseVaa(vaa);
@@ -19,7 +18,7 @@ export const getRouteForVaa = (vaa: SignedVaa): Route => {
     return Route.Relay;
   }
 
-  return message.payload && message.payload[0] === PayloadType.AUTOMATIC
+  return message.payload && message.payload[0] === PayloadType.Automatic
     ? Route.Relay
     : Route.Bridge;
 };

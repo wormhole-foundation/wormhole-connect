@@ -3,6 +3,31 @@ import { NetworksConfig, TokenConfig, Icon, GasEstimates } from './types';
 
 const { chains } = CONFIG.DEVNET;
 
+// export enum Icon {
+//   'AVAX' = 1,
+//   'BNB',
+//   'BSC',
+//   'CELO',
+//   'ETH',
+//   'FANTOM',
+//   'POLYGON',
+//   'SOLANA',
+//   'USDC',
+//   'GLMR',
+//   'DAI',
+//   'USDT',
+//   'BUSD',
+//   'WBTC',
+//   'SUI',
+//   'APT',
+//   'SEI',
+//   'BASE',
+//   'OSMO',
+//   'BONK',
+//   'TBTC',
+//   'WSTETH',
+// }
+
 export const DEVNET_NETWORKS: NetworksConfig = {
   ethereum: {
     ...chains.ethereum!,

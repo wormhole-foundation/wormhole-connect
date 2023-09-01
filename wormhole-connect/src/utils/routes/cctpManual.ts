@@ -11,7 +11,7 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 
 import { CHAINS, TOKENS, TOKENS_ARR, isMainnet } from 'config';
-import { TokenConfig, Route } from 'config/types';
+import { TokenConfig, Route, PayloadType } from 'config/types';
 import {
   MAX_DECIMALS,
   getTokenById,
@@ -22,7 +22,6 @@ import {
 import {
   ParsedMessage,
   ParsedRelayerMessage,
-  PayloadType,
   isEvmChain,
   toChainId,
   wh,
@@ -30,7 +29,7 @@ import {
 import { calculateGas } from 'utils/gas';
 import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
 import { NO_INPUT } from 'utils/style';
-import { Route } from 'store/transferInput';
+// import { Route } from 'store/transferInput';
 import {
   SignedMessage,
   TransferDisplayData,
@@ -555,7 +554,7 @@ export class CCTPManualRoute extends BaseRoute {
       sendTx: receipt.transactionHash,
       sender: receipt.from,
       amount: parsedCCTPLog.args.amount.toString(),
-      payloadID: PayloadType.MANUAL,
+      payloadID: PayloadType.Manual,
       recipient: recipient,
       toChain: getChainNameCCTP(parsedCCTPLog.args.destinationDomain),
       fromChain: fromChain,

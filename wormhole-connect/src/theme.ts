@@ -3,9 +3,9 @@ import grey from '@mui/material/colors/grey';
 import green from '@mui/material/colors/green';
 import orange from '@mui/material/colors/orange';
 import red from '@mui/material/colors/red';
+import { PaletteMode } from '@mui/material';
 import { OPACITY } from './utils/style';
 import { THEME } from './config';
-import { PaletteMode } from '@mui/material';
 
 export type PaletteColor = {
   50: string;
