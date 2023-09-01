@@ -2,19 +2,19 @@ import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useTheme } from '@mui/material/styles';
 
-import { RootState } from '../../store';
-import { setTransferRoute } from '../../store/transferInput';
-import { setRelayerFee } from '../../store/relay';
-import { CHAINS, TOKENS } from '../../config';
-import { Route } from '../../config/types';
-import { getTokenDecimals } from '../../utils';
-import { toDecimals } from '../../utils/balance';
-import { toChainId } from '../../utils/sdk';
-import Operator, { TransferDisplayData } from '../../utils/routes';
+import { RootState } from 'store';
+import { setTransferRoute } from 'store/transferInput';
+import { setRelayerFee } from 'store/relay';
+import { CHAINS, TOKENS } from 'config';
+import { Route } from 'config/types';
+import { getTokenDecimals } from 'utils';
+import { toDecimals } from 'utils/balance';
+import { toChainId } from 'utils/sdk';
+import Operator, { TransferDisplayData } from 'utils/routes';
 
-import { RenderRows } from '../../components/RenderRows';
+import { RenderRows } from 'components/RenderRows';
 import BridgeCollapse, { CollapseControlStyle } from './Collapse';
-import InputContainer from '../../components/InputContainer';
+import InputContainer from 'components/InputContainer';
 
 function Preview(props: { collapsed: boolean }) {
   const dispatch = useDispatch();
@@ -104,7 +104,7 @@ function Preview(props: { collapsed: boolean }) {
         );
         const formattedFee = Number.parseFloat(toDecimals(fee, decimals, 6));
         dispatch(setRelayerFee(formattedFee));
-      } catch (e) {
+      } catch (e: any) {
         if (e.message.includes('swap rate not set')) {
           if (route === Route.CCTPRelay) {
             dispatch(setTransferRoute(Route.CCTPManual));

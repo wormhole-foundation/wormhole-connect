@@ -4,8 +4,8 @@ import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import React, { useEffect, useState } from 'react';
 import { makeStyles } from 'tss-react/mui';
 
-import { CHAINS } from '../../config';
-import { getCurrentBlock } from '../../utils/sdk';
+import { CHAINS } from 'config';
+import { getCurrentBlock } from 'utils/sdk';
 
 const BorderLinearProgress = styled(LinearProgress)(({ theme }: any) => ({
   borderRadius: 5,

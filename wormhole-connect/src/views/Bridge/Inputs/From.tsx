@@ -2,22 +2,22 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 
-import { RootState } from '../../../store';
+import { RootState } from 'store';
 import {
   setToken,
   selectFromNetwork,
   setAmount,
   setReceiveAmount,
-} from '../../../store/transferInput';
-import { CHAINS, CHAINS_ARR, TOKENS } from '../../../config';
-import { TransferWallet, walletAcceptedNetworks } from '../../../utils/wallet';
-import Operator from '../../../utils/routes';
+} from 'store/transferInput';
+import { CHAINS, CHAINS_ARR, TOKENS } from 'config';
+import { TransferWallet, walletAcceptedNetworks } from 'utils/wallet';
+import Operator from 'utils/routes';
 
 import Inputs from './Inputs';
 import Select from './Select';
 import AmountInput from './AmountInput';
-import TokensModal from '../../../components/TokensModal';
-import NetworksModal from '../../../components/NetworksModal';
+import TokensModal from 'components/TokensModal';
+import NetworksModal from 'components/NetworksModal';
 
 function FromInputs() {
   const dispatch = useDispatch();
@@ -76,14 +76,12 @@ function FromInputs() {
 
   // TODO: clean up the send/receive amount set logic
   const handleAmountChange = useCallback(
-    async (amount: string) => {
-      dispatch(setAmount(amount));
+    async (number: number) => {
+      dispatch(setAmount(`${number}`));
       const r = new Operator();
-      const receiveAmount = await r.computeReceiveAmount(
-        route,
-        Number.parseFloat(amount),
-        { toNativeToken },
-      );
+      const receiveAmount = await r.computeReceiveAmount(route, number, {
+        toNativeToken,
+      });
       dispatch(setReceiveAmount(`${receiveAmount}`));
     },
     [route, toNativeToken, dispatch],

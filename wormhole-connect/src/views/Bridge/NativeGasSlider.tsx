@@ -6,28 +6,24 @@ import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { useDebounce } from 'use-debounce';
 
-import { CHAINS, TOKENS } from '../../config';
-import { TokenConfig, Route } from '../../config/types';
-import { ROUTES } from '../../config/routes';
-import { getTokenDecimals, getWrappedTokenId } from '../../utils';
-import { wh } from '../../utils/sdk';
-import {
-  getConversion,
-  toDecimals,
-  toFixedDecimals,
-} from '../../utils/balance';
-import { getMinAmount } from '../../utils/transferValidation';
-import Operator from '../../utils/routes';
-import { RootState } from '../../store';
-import { setTransferRoute } from '../../store/transferInput';
+import { CHAINS, TOKENS } from 'config';
+import { TokenConfig, Route } from 'config/types';
+import { ROUTES } from 'config/routes';
+import { getTokenDecimals, getWrappedTokenId } from 'utils';
+import { wh } from 'utils/sdk';
+import { getConversion, toDecimals, toFixedDecimals } from 'utils/balance';
+import { getMinAmount } from 'utils/transferValidation';
+import Operator from 'utils/routes';
+import { RootState } from 'store';
+import { setTransferRoute } from 'store/transferInput';
 import {
   setMaxSwapAmt,
   setReceiveNativeAmt,
   setToNativeToken,
-} from '../../store/relay';
+} from 'store/relay';
 
-import InputContainer from '../../components/InputContainer';
-import TokenIcon from '../../icons/TokenIcons';
+import InputContainer from 'components/InputContainer';
+import TokenIcon from 'icons/TokenIcons';
 import BridgeCollapse, { CollapseControlStyle } from './Collapse';
 import { Banner } from './RouteOptions';
 

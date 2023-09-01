@@ -1,23 +1,23 @@
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 
-import { fetchIsVAAEnqueued } from '../../utils/vaa';
+import { Route } from 'config/types';
+import { RootState } from 'store';
 import {
   setIsVaaEnqueued,
   setSignedMessage,
   setTransferComplete,
-} from '../../store/redeem';
-import { RootState } from '../../store';
-import { Route } from '../../store/transferInput';
-import { ParsedMessage, ParsedRelayerMessage } from '../../utils/sdk';
-import Operator, { SignedMessage } from '../../utils/routes';
+} from 'store/redeem';
+import { sleep } from 'utils';
+import { fetchIsVAAEnqueued } from 'utils/vaa';
+import Operator, { SignedMessage } from 'utils/routes';
+import { ParsedMessage, ParsedRelayerMessage } from 'utils/sdk';
 
-import PageHeader from '../../components/PageHeader';
-import Spacer from '../../components/Spacer';
+import PageHeader from 'components/PageHeader';
+import Spacer from 'components/Spacer';
 import NetworksTag from './Tag';
 import Stepper from './Stepper';
 import GovernorEnqueuedWarning from './GovernorEnqueuedWarning';
-import { sleep } from '../../utils';
 
 function Redeem({
   setSignedMessage,
@@ -151,7 +151,7 @@ function mapStateToProps(state: RootState) {
   return { txData, transferComplete, isVaaEnqueued, route, signedMessage };
 }
 
-const mapDispatchToProps = (dispatch) => {
+const mapDispatchToProps = (dispatch: any) => {
   return {
     setSignedMessage: (signed: SignedMessage) =>
       dispatch(setSignedMessage(signed)),

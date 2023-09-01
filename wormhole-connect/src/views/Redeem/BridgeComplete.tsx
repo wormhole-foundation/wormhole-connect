@@ -1,12 +1,12 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
 
-import { CTA } from '../../config';
-import { setRoute } from '../../store/router';
+import { CTA } from 'config';
+import { setRoute } from 'store/router';
 
-import Button from '../../components/Button';
-import InputContainer from '../../components/InputContainer';
-import Spacer from '../../components/Spacer';
+import Button from 'components/Button';
+import InputContainer from 'components/InputContainer';
+import Spacer from 'components/Spacer';
 import AddToWallet from './AddToWallet';
 
 function BridgeComplete() {

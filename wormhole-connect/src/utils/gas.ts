@@ -7,14 +7,15 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { Types } from 'aptos';
 import { BigNumber } from 'ethers';
+import { StargateClient } from '@cosmjs/stargate';
+
 import { CHAINS, CONFIG, GAS_ESTIMATES, TOKENS } from '../config';
+import { Route } from 'config/types';
 import { MAX_DECIMALS, getTokenDecimals } from './index';
 import { toDecimals } from './balance';
 import Operator from './routes';
 import { toChainId, wh } from './sdk';
 import { isCosmWasmChain } from './cosmos';
-import { StargateClient } from '@cosmjs/stargate';
-import { Route } from 'store/transferInput';
 
 /**
  * Retrieve the gas used for the execution of a redeem transaction

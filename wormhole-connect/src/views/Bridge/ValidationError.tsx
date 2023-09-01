@@ -2,12 +2,12 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 
-import { RootState } from '../../store';
-import { ValidationErr, setTransferRoute } from '../../store/transferInput';
-import { Route } from '../../config/types';
-import { getMinAmount } from '../../utils/transferValidation';
-import Operator from '../../utils/routes';
-import AlertBanner from '../../components/AlertBanner';
+import { RootState } from 'store';
+import { ValidationErr, setTransferRoute } from 'store/transferInput';
+import { Route } from 'config/types';
+import { getMinAmount } from 'utils/transferValidation';
+import Operator from 'utils/routes';
+import AlertBanner from 'components/AlertBanner';
 
 const useStyles = makeStyles()((theme) => ({
   minAmtError: {

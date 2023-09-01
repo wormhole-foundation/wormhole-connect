@@ -1,8 +1,8 @@
 import React from 'react';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { makeStyles } from 'tss-react/mui';
-import { LINK } from '../../utils/style';
-import { CHAINS, ENV, isMainnet } from '../../config';
+import { LINK } from 'utils/style';
+import { CHAINS, ENV, isMainnet } from 'config';
 import LaunchIcon from '@mui/icons-material/Launch';
 
 const useStyles = makeStyles()((theme) => ({

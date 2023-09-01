@@ -1,8 +1,9 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
-import { clearBalances, swapNetworks } from '../../store/transferInput';
-import { swapWallets } from '../../store/wallet';
+
+import { clearBalances, swapNetworks } from 'store';
+import { swapWallets } from 'store/wallet';
 
 const useStyles = makeStyles()((theme: any) => ({
   button: {

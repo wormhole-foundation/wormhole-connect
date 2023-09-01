@@ -3,24 +3,24 @@ import { Context } from '@wormhole-foundation/wormhole-connect-sdk';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { CHAINS } from '../../config';
-import { Route } from '../../config/types';
-import { RootState } from '../../store';
-import { setRedeemTx, setTransferComplete } from '../../store/redeem';
-import { displayAddress } from '../../utils';
-import { fetchRedeemTx } from '../../utils/events';
-import Operator, { TransferDisplayData } from '../../utils/routes';
+import { CHAINS } from 'config';
+import { Route } from 'config/types';
+import { RootState } from 'store';
+import { setRedeemTx, setTransferComplete } from 'store/redeem';
+import { displayAddress } from 'utils';
+import { fetchRedeemTx } from 'utils/events';
+import Operator, { TransferDisplayData } from 'utils/routes';
 import {
   TransferWallet,
   registerWalletSigner,
   switchNetwork,
-} from '../../utils/wallet';
+} from 'utils/wallet';
 
-import AlertBanner from '../../components/AlertBanner';
-import Button from '../../components/Button';
-import InputContainer from '../../components/InputContainer';
-import { RenderRows } from '../../components/RenderRows';
-import Spacer from '../../components/Spacer';
+import AlertBanner from 'components/AlertBanner';
+import Button from 'components/Button';
+import InputContainer from 'components/InputContainer';
+import { RenderRows } from 'components/RenderRows';
+import Spacer from 'components/Spacer';
 import WalletsModal from '../WalletModal';
 import Header from './Header';
 
@@ -101,9 +101,15 @@ function SendTo() {
       throw new Error('invalid destination chain');
     }
     try {
-      if (networkConfig!.context === Context.ETH) {
+      if (
+        networkConfig!.context === Context.ETH &&
+        typeof networkConfig.chainId === 'number'
+      ) {
         registerWalletSigner(txData.toChain, TransferWallet.RECEIVING);
         await switchNetwork(networkConfig.chainId, TransferWallet.RECEIVING);
+      }
+      if (!messageInfo) {
+        throw new Error('failed to get vaa, cannot redeem');
       }
       const txId = await new Operator().redeem(
         routeType,

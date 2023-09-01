@@ -2,24 +2,24 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 
-import { RootState } from '../../../store';
+import { RootState } from 'store';
 import {
   selectToNetwork,
   setAmount,
   setDestToken,
   setReceiveAmount,
-} from '../../../store/transferInput';
-import { TransferWallet, walletAcceptedNetworks } from '../../../utils/wallet';
-import { getWrappedToken } from '../../../utils';
-import Operator from '../../../utils/routes';
-import { CHAINS, CHAINS_ARR, TOKENS } from '../../../config';
+} from 'store/transferInput';
+import { TransferWallet, walletAcceptedNetworks } from 'utils/wallet';
+import { getWrappedToken } from 'utils';
+import Operator from 'utils/routes';
+import { CHAINS, CHAINS_ARR, TOKENS } from 'config';
 
 import Inputs from './Inputs';
 import Select from './Select';
 import AmountInput from './AmountInput';
 import TokenWarnings from './TokenWarnings';
-import TokensModal from '../../../components/TokensModal';
-import NetworksModal from '../../../components/NetworksModal';
+import TokensModal from 'components/TokensModal';
+import NetworksModal from 'components/NetworksModal';
 
 function ToInputs() {
   const dispatch = useDispatch();
@@ -79,14 +79,12 @@ function ToInputs() {
   );
 
   const handleAmountChange = useCallback(
-    async (amount: string) => {
-      dispatch(setReceiveAmount(amount));
+    async (number: number) => {
+      dispatch(setReceiveAmount(`${number}`));
       const r = new Operator();
-      const sendAmount = await r.computeSendAmount(
-        route,
-        Number.parseFloat(amount),
-        { toNativeToken },
-      );
+      const sendAmount = await r.computeSendAmount(route, number, {
+        toNativeToken,
+      });
       dispatch(setAmount(`${sendAmount}`));
     },
     [route, toNativeToken, dispatch],

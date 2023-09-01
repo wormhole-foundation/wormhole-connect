@@ -2,22 +2,22 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 
-import { RootState } from '../../../store';
+import { RootState } from 'store';
 import {
   setAssociatedTokenAddress,
   setForeignAsset,
-} from '../../../store/transferInput';
-import { getWrappedTokenId } from '../../../utils';
-import { TransferWallet, signSolanaTransaction } from '../../../utils/wallet';
-import { joinClass } from '../../../utils/style';
-import { ATTEST_URL, TOKENS } from '../../../config';
-import { solanaContext } from '../../../utils/sdk';
-import Operator from '../../../utils/routes';
+} from 'store/transferInput';
+import { getWrappedTokenId } from 'utils';
+import { TransferWallet, signSolanaTransaction } from 'utils/wallet';
+import { joinClass } from 'utils/style';
+import { ATTEST_URL, TOKENS } from 'config';
+import { solanaContext } from 'utils/sdk';
+import Operator from 'utils/routes';
 
 import { CircularProgress, Link, Typography } from '@mui/material';
-import AlertBanner from '../../../components/AlertBanner';
+import AlertBanner from 'components/AlertBanner';
 
-const useStyles = makeStyles()((theme) => ({
+const useStyles = makeStyles()((theme: any) => ({
   associatedTokenWarning: {
     display: 'flex',
     flexDirection: 'column',

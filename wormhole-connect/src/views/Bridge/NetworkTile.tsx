@@ -1,8 +1,8 @@
 import React from 'react';
 import { makeStyles } from 'tss-react/mui';
-import TokenIcon from '../../icons/TokenIcons';
-import { ERROR_BORDER, joinClass } from '../../utils/style';
-import { NetworkConfig } from '../../config/types';
+import TokenIcon from 'icons/TokenIcons';
+import { ERROR_BORDER, joinClass } from 'utils/style';
+import { NetworkConfig } from 'config/types';
 
 const useStyles = makeStyles()((theme: any) => ({
   networkTile: {
