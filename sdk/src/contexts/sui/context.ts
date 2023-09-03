@@ -361,6 +361,9 @@ export class SuiContext<
         relayerPayloadId: parsed.payloadType as number,
         to: relayerPayload.to,
         toNativeTokenAmount: relayerPayload.toNativeTokenAmount,
+        payload: parsed.tokenTransferPayload.length
+          ? hexlify(parsed.tokenTransferPayload)
+          : undefined,
       };
       return relayerMessage;
     }

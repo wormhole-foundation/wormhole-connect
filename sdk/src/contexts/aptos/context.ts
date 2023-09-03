@@ -291,6 +291,9 @@ export class AptosContext<
       gasFee: BigNumber.from(userTransaction.gas_used).mul(
         userTransaction.gas_unit_price,
       ),
+      payload: parsed.tokenTransferPayload.length
+        ? hexlify(parsed.tokenTransferPayload)
+        : undefined,
     };
     return parsedMessage;
   }

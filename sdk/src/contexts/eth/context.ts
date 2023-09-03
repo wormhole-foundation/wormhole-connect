@@ -584,6 +584,7 @@ export class EthContext<
       relayerFee: relayerPayload.relayerFee,
       toNativeTokenAmount: relayerPayload.toNativeTokenAmount,
       to: destContext.parseAddress(utils.hexlify(transferWithPayload.to)),
+      payload: transferWithPayload.payload,
     };
     return relayerMessage;
   }

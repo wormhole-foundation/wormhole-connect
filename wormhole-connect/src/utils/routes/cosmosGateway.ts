@@ -4,7 +4,6 @@ import {
   CHAIN_ID_SOLANA,
   CHAIN_ID_WORMCHAIN,
   cosmos,
-  parseTokenTransferPayload,
 } from '@certusone/wormhole-sdk';
 import {
   CosmWasmClient,
@@ -31,7 +30,7 @@ import {
 import { MsgTransfer } from 'cosmjs-types/ibc/applications/transfer/v1/tx';
 import { MsgExecuteContract } from 'cosmjs-types/cosmwasm/wasm/v1/tx';
 import { BigNumber, utils } from 'ethers';
-import { base58, hexlify } from 'ethers/lib/utils.js';
+import { arrayify, base58, hexlify } from 'ethers/lib/utils.js';
 import { toChainId, wh } from 'utils/sdk';
 import { MAX_DECIMALS, getTokenDecimals, toNormalizedDecimals } from '..';
 import { CHAINS, CONFIG, TOKENS } from '../../config';
@@ -606,11 +605,10 @@ export class CosmosGatewayRoute extends BaseRoute {
     const message = await wh.getMessage(hash, chain);
     if (!message.payload)
       throw new Error(`Missing payload from message ${hash} on chain ${chain}`);
-    const transfer = parseTokenTransferPayload(
-      Buffer.from(message.payload, 'hex'),
-    );
     const decoded: GatewayTransferMsg = JSON.parse(
-      transfer.tokenTransferPayload.toString(),
+      Buffer.from(
+        arrayify(message.payload, { allowMissingPrefix: true }),
+      ).toString(),
     );
     const adapted: any = await adaptParsedMessage({
       ...message,

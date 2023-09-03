@@ -387,6 +387,9 @@ export class CosmosContext<
       emitterAddress,
       block: tx.height,
       gasFee: BigNumber.from(tx.gasUsed),
+      payload: parsed.tokenTransferPayload.length
+        ? hexlify(parsed.tokenTransferPayload)
+        : undefined,
     };
   }
 

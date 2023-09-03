@@ -764,6 +764,9 @@ export class SolanaContext<
         to: toAddress,
         relayerFee: parsedPayload.relayerFee,
         toNativeTokenAmount: parsedPayload.toNativeTokenAmount,
+        payload: transfer.tokenTransferPayload.length
+          ? hexlify(transfer.tokenTransferPayload)
+          : undefined,
       };
       return parsedPayloadMessage;
     }
