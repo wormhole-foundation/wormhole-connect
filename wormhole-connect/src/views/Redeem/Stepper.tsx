@@ -10,13 +10,13 @@ import SendTo from './SendTo';
 import BridgeComplete from './BridgeComplete';
 
 export default function MilestoneStepper() {
-  const txData: UnsignedMessage | undefined = useSelector(
-    (state: RootState) => state.redeem.txData,
+  const signedMessage: UnsignedMessage | undefined = useSelector(
+    (state: RootState) => state.redeem.signedMessage,
   );
   const transferComplete = useSelector(
     (state: RootState) => state.redeem.transferComplete,
   );
-  const activeStep = transferComplete ? 4 : !!txData ? 2 : 1;
+  const activeStep = transferComplete ? 4 : !!signedMessage ? 2 : 1;
 
   const steps = [
     {

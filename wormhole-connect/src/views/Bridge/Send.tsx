@@ -123,9 +123,7 @@ function Send(props: { valid: boolean }) {
             fromNetwork!,
             true, // don't need to get the signed attestation
           );
-        } catch (e) {
-          console.warn(e);
-        }
+        } catch (e) {}
         if (message === undefined) {
           await sleep(3000);
         }

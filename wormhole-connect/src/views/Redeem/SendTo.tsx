@@ -56,14 +56,14 @@ function SendTo() {
   // get the redeem tx, for automatic transfers only
   const getRedeemTx = useCallback(async () => {
     if (redeemTx) return redeemTx;
-    if (txData) {
-      const redeemed = await fetchRedeemTx(txData);
+    if (signedMessage) {
+      const redeemed = await fetchRedeemTx(signedMessage);
       if (redeemed) {
         dispatch(setRedeemTx(redeemed.transactionHash));
         return redeemed.transactionHash;
       }
     }
-  }, [redeemTx, txData, dispatch]);
+  }, [redeemTx, signedMessage, dispatch]);
 
   useEffect(() => {
     if (!txData) return;

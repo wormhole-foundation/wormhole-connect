@@ -10,7 +10,9 @@ import Confirmations from './Confirmations';
 import Header from './Header';
 
 function SendFrom() {
-  const { txData, route } = useSelector((state: RootState) => state.redeem);
+  const { txData, route, signedMessage } = useSelector(
+    (state: RootState) => state.redeem,
+  );
   const transferComplete = useSelector(
     (state: RootState) => state.redeem.transferComplete,
   );
@@ -34,7 +36,7 @@ function SendFrom() {
         />
         <RenderRows rows={rows} />
       </InputContainer>
-      {!transferComplete && !txData && (
+      {!transferComplete && !signedMessage && (
         <Confirmations chain={txData!.fromChain} blockHeight={txData!.block} />
       )}
     </div>
