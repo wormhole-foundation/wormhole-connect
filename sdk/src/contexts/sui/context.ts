@@ -323,7 +323,7 @@ export class SuiContext<
     }
     const { payload, sender: emitterAddress, sequence } = message.parsedJson;
 
-    const parsed = parseTokenTransferPayload(payload);
+    const parsed = parseTokenTransferPayload(Buffer.from(payload));
 
     const tokenContext = this.context.getContext(parsed.tokenChain as ChainId);
     const destContext = this.context.getContext(parsed.toChain as ChainId);

@@ -2,7 +2,6 @@ import {
   TokenId,
   ChainName,
   ChainId,
-  VaaInfo,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { BigNumber, utils } from 'ethers';
 
@@ -31,10 +30,19 @@ import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
 import { Route } from 'store/transferInput';
 import { BridgeRoute } from './bridge';
 import { toDecimals, toFixedDecimals } from '../balance';
-import { TransferDisplayData } from './types';
+import {
+  RelayTransferMessage,
+  SignedRelayTransferMessage,
+  TransferDisplayData,
+} from './types';
 import { adaptParsedMessage } from './common';
 import { fetchSwapEvent } from '../events';
-import { TransferInfoBaseParams } from './routeAbstract';
+import {
+  UnsignedMessage,
+  SignedMessage,
+  TransferInfoBaseParams,
+} from './types';
+import { fetchVaa } from '../vaa';
 
 export type RelayOptions = {
   relayerFee?: number;
@@ -247,18 +255,19 @@ export class RelayRoute extends BridgeRoute {
 
   async redeem(
     destChain: ChainName | ChainId,
-    messageInfo: VaaInfo,
+    messageInfo: SignedMessage,
     payer: string,
   ): Promise<string> {
     // TODO: implement redeemRelay in the WormholeContext for self redemptions
     throw new Error('not implemented');
   }
 
-  async parseMessage(
-    info: VaaInfo,
-  ): Promise<ParsedMessage | ParsedRelayerMessage> {
-    const message = await wh.parseMessage(info);
-    const parsed: any = await adaptParsedMessage(message);
+  async getMessage(
+    tx: string,
+    chain: ChainName | ChainId,
+  ): Promise<UnsignedMessage> {
+    const message = await wh.getMessage(tx, chain);
+    const parsed = (await adaptParsedMessage(message)) as ParsedRelayerMessage;
     if (parsed.payloadID !== PayloadType.AUTOMATIC) {
       throw new Error('wrong payload, not a token bridge relay transfer');
     }
@@ -266,6 +275,21 @@ export class RelayRoute extends BridgeRoute {
       ...parsed,
       relayerFee: parsed.relayerFee.toString(),
       toNativeTokenAmount: parsed.toNativeTokenAmount.toString(),
+    };
+  }
+
+  async getSignedMessage(
+    message: RelayTransferMessage,
+  ): Promise<SignedRelayTransferMessage> {
+    const vaa = await fetchVaa(message);
+
+    if (!vaa) {
+      throw new Error('VAA not found');
+    }
+
+    return {
+      ...message,
+      vaa: utils.hexlify(vaa.bytes),
     };
   }
 

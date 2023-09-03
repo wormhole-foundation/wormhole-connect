@@ -10,10 +10,7 @@ import Confirmations from './Confirmations';
 import Header from './Header';
 
 function SendFrom() {
-  const { messageInfo, route } = useSelector(
-    (state: RootState) => state.redeem,
-  );
-  const txData = useSelector((state: RootState) => state.redeem.txData)!;
+  const { txData, route } = useSelector((state: RootState) => state.redeem);
   const transferComplete = useSelector(
     (state: RootState) => state.redeem.transferComplete,
   );
@@ -31,14 +28,14 @@ function SendFrom() {
     <div>
       <InputContainer>
         <Header
-          network={txData.fromChain}
-          address={txData.sender}
-          txHash={txData.sendTx}
+          network={txData!.fromChain}
+          address={txData!.sender}
+          txHash={txData!.sendTx}
         />
         <RenderRows rows={rows} />
       </InputContainer>
-      {!transferComplete && !messageInfo && (
-        <Confirmations chain={txData.fromChain} blockHeight={txData.block} />
+      {!transferComplete && !txData && (
+        <Confirmations chain={txData!.fromChain} blockHeight={txData!.block} />
       )}
     </div>
   );

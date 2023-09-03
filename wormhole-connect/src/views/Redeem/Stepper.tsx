@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useSelector } from 'react-redux';
 
 import { RootState } from '../../store';
-import { MessageInfo } from '../../utils/routes';
+import { UnsignedMessage } from '../../utils/routes';
 
 import Stepper from '../../components/Stepper/Stepper';
 import SendFrom from './SendFrom';
@@ -10,13 +10,13 @@ import SendTo from './SendTo';
 import BridgeComplete from './BridgeComplete';
 
 export default function MilestoneStepper() {
-  const messageInfo: MessageInfo | undefined = useSelector(
-    (state: RootState) => state.redeem.messageInfo,
+  const txData: UnsignedMessage | undefined = useSelector(
+    (state: RootState) => state.redeem.txData,
   );
   const transferComplete = useSelector(
     (state: RootState) => state.redeem.transferComplete,
   );
-  const activeStep = transferComplete ? 4 : !!messageInfo ? 2 : 1;
+  const activeStep = transferComplete ? 4 : !!txData ? 2 : 1;
 
   const steps = [
     {

@@ -8,7 +8,6 @@ import {
   WormholeContext,
   TokenMessenger__factory,
   MessageTransmitter__factory,
-  CCTPInfo,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 
 import { CHAINS, TOKENS, TOKENS_ARR, isMainnet } from 'config';
@@ -32,10 +31,17 @@ import { calculateGas } from 'utils/gas';
 import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
 import { NO_INPUT } from 'utils/style';
 import { Route } from 'store/transferInput';
-import { TransferDisplayData } from './types';
+import {
+  SignedMessage,
+  TransferDisplayData,
+  isSignedCCTPMessage,
+  SignedCCTPMessage,
+  ManualCCTPMessage,
+  UnsignedCCTPMessage,
+} from './types';
 import { BaseRoute } from './baseRoute';
 import { toDecimals, toFixedDecimals } from '../balance';
-import { TransferInfoBaseParams } from './routeAbstract';
+import { TransferInfoBaseParams } from './types';
 import { getGasFeeFallback } from '../gasEstimates';
 
 export const CCTPTokenSymbol = 'USDC';
@@ -397,9 +403,11 @@ export class CCTPManualRoute extends BaseRoute {
 
   async redeem(
     destChain: ChainName | ChainId,
-    messageInfo: CCTPInfo,
+    message: SignedMessage,
     payer: string,
   ): Promise<string> {
+    if (!isSignedCCTPMessage(message))
+      throw new Error('Signed message is not for CCTP');
     const context: any = wh.getContext(destChain);
     const circleMessageTransmitter =
       context.contracts.mustGetContracts(destChain).cctpContracts
@@ -409,59 +417,15 @@ export class CCTPManualRoute extends BaseRoute {
       circleMessageTransmitter,
       connection,
     );
-    if (!messageInfo.signedAttestation) {
+    if (!message.attestation) {
       throw new Error('No signed attestation');
     }
     const tx = await contract.receiveMessage(
-      messageInfo.message,
-      messageInfo.signedAttestation,
+      message.message,
+      message.attestation,
     );
     await tx.wait();
     return tx.hash;
-  }
-
-  async parseMessage(
-    messageInfo: CCTPInfo,
-  ): Promise<ParsedMessage | ParsedRelayerMessage> {
-    const tokenId: TokenId = {
-      chain: messageInfo.fromChain,
-      address: messageInfo.burnToken,
-    };
-    const token = getTokenById(tokenId);
-    const decimals = await wh.fetchTokenDecimals(
-      tokenId,
-      messageInfo.fromChain,
-    );
-    let relayerPart = {};
-    if (messageInfo.relayerPayloadId !== undefined) {
-      relayerPart = {
-        relayerPayloadId: messageInfo.relayerPayloadId,
-        to: messageInfo.recipient,
-        relayerFee: messageInfo.relayerFee,
-        toNativeTokenAmount: messageInfo.toNativeTokenAmount,
-      };
-    }
-    return {
-      sendTx: messageInfo.transactionHash,
-      sender: messageInfo.depositor,
-      amount: messageInfo.amount.toString(),
-      payloadID: PayloadType.MANUAL,
-      recipient: messageInfo.recipient,
-      toChain: getChainNameCCTP(messageInfo.destinationDomain),
-      fromChain: messageInfo.fromChain,
-      tokenAddress: messageInfo.burnToken,
-      tokenChain: messageInfo.fromChain,
-      tokenId: tokenId,
-      tokenDecimals: decimals,
-      tokenKey: token?.key || '',
-      emitterAddress: messageInfo.vaaEmitter,
-      sequence: messageInfo.vaaSequence,
-      block: messageInfo.blockNumber,
-      gasFee: BigNumber.from(messageInfo.gasUsed)
-        .mul(messageInfo.effectiveGasPrice)
-        .toString(),
-      ...relayerPart,
-    };
   }
 
   public async getPreview(
@@ -546,11 +510,10 @@ export class CCTPManualRoute extends BaseRoute {
     return addr;
   }
 
-  async getMessageInfo(
+  async getMessage(
     tx: string,
     chain: ChainName | ChainId,
-    unsigned?: boolean,
-  ): Promise<CCTPInfo | undefined> {
+  ): Promise<ManualCCTPMessage> {
     // only EVM
     // use this as reference
     // https://goerli.etherscan.io/tx/0xe4984775c76b8fe7c2b09cd56fb26830f6e5c5c6b540eb97d37d41f47f33faca#eventlog
@@ -575,33 +538,51 @@ export class CCTPManualRoute extends BaseRoute {
       MessageTransmitter__factory.createInterface().parseLog(messageLog).args
         .message;
 
-    const messageHash = utils.keccak256(message);
-    let signedAttestation;
-    if (!unsigned) {
-      signedAttestation = await tryGetCircleAttestation(messageHash);
-      // If no attestion, and attestation was requested, return undefined
-      if (!signedAttestation) return undefined;
-    }
-
-    const result = {
-      fromChain: wh.toChainName(chain),
-      transactionHash: receipt.transactionHash,
-      blockNumber: receipt.blockNumber,
-      gasUsed: receipt.gasUsed.toString(),
-      effectiveGasPrice: receipt.effectiveGasPrice.toString(),
-      burnToken: parsedCCTPLog.args.burnToken,
-      depositor: receipt.from,
-      amount: parsedCCTPLog.args.amount.toString(),
-      recipient: '0x' + parsedCCTPLog.args.mintRecipient.substring(26),
-      destinationDomain: parsedCCTPLog.args.destinationDomain,
-      destinationCaller: parsedCCTPLog.args.destinationCaller,
-      destinationTokenMessenger: parsedCCTPLog.args.destinationTokenMessenger,
-      message,
-      messageHash,
-      signedAttestation,
+    const recipient = '0x' + parsedCCTPLog.args.mintRecipient.substring(26);
+    const fromChain = wh.toChainName(chain);
+    const tokenId: TokenId = {
+      chain: fromChain,
+      address: parsedCCTPLog.args.burnToken,
     };
+    const token = getTokenById(tokenId);
+    const decimals = await wh.fetchTokenDecimals(tokenId, fromChain);
 
-    return result;
+    return {
+      sendTx: receipt.transactionHash,
+      sender: receipt.from,
+      amount: parsedCCTPLog.args.amount.toString(),
+      payloadID: PayloadType.MANUAL,
+      recipient: recipient,
+      toChain: getChainNameCCTP(parsedCCTPLog.args.destinationDomain),
+      fromChain: fromChain,
+      tokenAddress: parsedCCTPLog.args.burnToken,
+      tokenChain: fromChain,
+      tokenId: tokenId,
+      tokenDecimals: decimals,
+      tokenKey: token?.key || '',
+      gasFee: receipt.gasUsed.mul(receipt.effectiveGasPrice).toString(),
+      block: receipt.blockNumber,
+      message,
+
+      // manual CCTP does not use wormhole
+      emitterAddress: '',
+      sequence: '',
+    };
+  }
+
+  async getSignedMessage(
+    unsigned: UnsignedCCTPMessage,
+  ): Promise<SignedCCTPMessage> {
+    const { message } = unsigned;
+
+    const messageHash = utils.keccak256(message);
+    const signedAttestation = await tryGetCircleAttestation(messageHash);
+    if (!signedAttestation) throw new Error('Could not get attestation');
+
+    return {
+      ...unsigned,
+      attestation: signedAttestation,
+    };
   }
 
   async getTransferSourceInfo({
@@ -662,8 +643,10 @@ export class CCTPManualRoute extends BaseRoute {
 
   async isTransferCompleted(
     destChain: ChainName | ChainId,
-    messageInfo: CCTPInfo,
+    messageInfo: SignedCCTPMessage,
   ): Promise<boolean> {
+    if (!isSignedCCTPMessage(messageInfo))
+      throw new Error('Signed message is not for CCTP');
     const nonce = BigNumber.from(
       '0x' + messageInfo.message.substring(26, 42),
     ).toNumber();

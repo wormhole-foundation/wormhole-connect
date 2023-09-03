@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { ParsedMessage, ParsedRelayerMessage } from '../utils/sdk';
 import { Route } from './transferInput';
-import { MessageInfo } from 'utils/routes';
+import { SignedMessage } from '../utils/routes/types';
 
 export enum MessageType {
   BRIDGE = 1,
@@ -9,8 +9,8 @@ export enum MessageType {
 }
 
 export interface RedeemState {
-  messageInfo: MessageInfo | undefined;
   txData: ParsedMessage | ParsedRelayerMessage | undefined;
+  signedMessage: SignedMessage | undefined;
   sendTx: string;
   redeemTx: string;
   transferComplete: boolean;
@@ -19,8 +19,8 @@ export interface RedeemState {
 }
 
 const initialState: RedeemState = {
-  messageInfo: undefined,
   txData: undefined,
+  signedMessage: undefined,
   sendTx: '',
   redeemTx: '',
   transferComplete: false,
@@ -32,13 +32,10 @@ export const redeemSlice = createSlice({
   name: 'redeem',
   initialState,
   reducers: {
-    setMessageInfo: (
+    setTxDetails: (
       state: RedeemState,
-      { payload }: PayloadAction<MessageInfo>,
+      { payload }: PayloadAction<ParsedMessage | ParsedRelayerMessage>,
     ) => {
-      state.messageInfo = payload;
-    },
-    setTxDetails: (state: RedeemState, { payload }: PayloadAction<any>) => {
       state.txData = payload;
     },
     setSendTx: (state: RedeemState, { payload }: PayloadAction<string>) => {
@@ -68,11 +65,16 @@ export const redeemSlice = createSlice({
         state[key] = initialState[key];
       });
     },
+    setSignedMessage: (
+      state: RedeemState,
+      { payload }: PayloadAction<SignedMessage>,
+    ) => {
+      state.signedMessage = payload;
+    },
   },
 });
 
 export const {
-  setMessageInfo,
   setTxDetails,
   setSendTx,
   setRedeemTx,
@@ -80,6 +82,7 @@ export const {
   setIsVaaEnqueued,
   clearRedeem,
   setRoute,
+  setSignedMessage,
 } = redeemSlice.actions;
 
 export default redeemSlice.reducer;

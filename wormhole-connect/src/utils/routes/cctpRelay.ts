@@ -4,8 +4,7 @@ import {
   TokenId,
   EthContext,
   WormholeContext,
-  VaaInfo,
-  CCTPInfo,
+  ParsedRelayerMessage as RelayTransferMessage,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { BigNumber, utils } from 'ethers';
 
@@ -29,9 +28,13 @@ import {
 import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
 import { NO_INPUT } from 'utils/style';
 import { Route } from 'store/transferInput';
-import { TransferDisplayData } from './types';
+import {
+  TransferDisplayData,
+  TransferInfoBaseParams,
+  SignedMessage,
+  RelayCCTPMessage,
+} from './types';
 import { toDecimals, toFixedDecimals } from '../balance';
-import { TransferInfoBaseParams } from './routeAbstract';
 import { RelayOptions } from './relay';
 import { getGasFeeFallback } from '../gasEstimates';
 import {
@@ -39,7 +42,6 @@ import {
   CCTPManual_CHAINS as CCTPRelay_CHAINS,
   CCTP_LOG_MessageSent,
   CCTP_LOG_TokenMessenger_DepositForBurn,
-  tryGetCircleAttestation,
   CCTPManualRoute,
   getChainNameCCTP,
   getForeignUSDCAddress,
@@ -302,55 +304,11 @@ export class CCTPRelayRoute extends CCTPManualRoute {
 
   async redeem(
     destChain: ChainName | ChainId,
-    messageInfo: CCTPInfo,
+    messageInfo: SignedMessage,
     payer: string,
   ): Promise<string> {
     // TODO: implement redeemRelay in the WormholeContext for self redemptions
     throw new Error('not implemented');
-  }
-
-  async parseMessage(
-    messageInfo: CCTPInfo,
-  ): Promise<ParsedMessage | ParsedRelayerMessage> {
-    const tokenId: TokenId = {
-      chain: messageInfo.fromChain,
-      address: messageInfo.burnToken,
-    };
-    const token = getTokenById(tokenId);
-    const decimals = await wh.fetchTokenDecimals(
-      tokenId,
-      messageInfo.fromChain,
-    );
-    let relayerPart = {};
-    if (messageInfo.relayerPayloadId !== undefined) {
-      relayerPart = {
-        relayerPayloadId: messageInfo.relayerPayloadId,
-        to: messageInfo.recipient,
-        relayerFee: messageInfo.relayerFee,
-        toNativeTokenAmount: messageInfo.toNativeTokenAmount,
-      };
-    }
-    return {
-      sendTx: messageInfo.transactionHash,
-      sender: messageInfo.depositor,
-      amount: messageInfo.amount.toString(),
-      payloadID: PayloadType.AUTOMATIC,
-      recipient: messageInfo.recipient,
-      toChain: getChainNameCCTP(messageInfo.destinationDomain),
-      fromChain: messageInfo.fromChain,
-      tokenAddress: messageInfo.burnToken,
-      tokenChain: messageInfo.fromChain,
-      tokenId: tokenId,
-      tokenDecimals: decimals,
-      tokenKey: token?.key || '',
-      emitterAddress: messageInfo.vaaEmitter,
-      sequence: messageInfo.vaaSequence,
-      block: messageInfo.blockNumber,
-      gasFee: BigNumber.from(messageInfo.gasUsed)
-        .mul(messageInfo.effectiveGasPrice)
-        .toString(),
-      ...relayerPart,
-    };
   }
 
   public async getPreview(
@@ -435,11 +393,11 @@ export class CCTPRelayRoute extends CCTPManualRoute {
     return fee;
   }
 
-  async getMessageInfo(
+  async getMessage(
     tx: string,
     chain: ChainName | ChainId,
     unsigned?: boolean,
-  ): Promise<CCTPInfo | undefined> {
+  ): Promise<RelayCCTPMessage> {
     // only EVM
     // use this as reference
     // https://goerli.etherscan.io/tx/0xe4984775c76b8fe7c2b09cd56fb26830f6e5c5c6b540eb97d37d41f47f33faca#eventlog
@@ -448,8 +406,9 @@ export class CCTPRelayRoute extends CCTPManualRoute {
     const receipt = await provider.getTransactionReceipt(tx);
     if (!receipt) throw new Error(`No receipt for ${tx} on ${chain}`);
 
-    const vaaInfo: VaaInfo = await wh.getVaa(tx, chain);
-    const payload = vaaInfo.vaa.payload.toString('hex');
+    const relayInfo = (await wh.getMessage(tx, chain)) as RelayTransferMessage;
+    if (relayInfo.payloadID !== PayloadType.AUTOMATIC)
+      throw new Error('Transfer is not a relay transfer');
 
     // Get the CCTP log
     const cctpLog = receipt.logs.filter(
@@ -468,42 +427,38 @@ export class CCTPRelayRoute extends CCTPManualRoute {
       'event MessageSent(bytes message)',
     ]).parseLog(messageLog).args.message;
 
-    const messageHash = utils.keccak256(message);
-    let signedAttestation;
-    if (!unsigned) {
-      signedAttestation = await tryGetCircleAttestation(messageHash);
-      // If no attestion, and attestation was requested, return undefined
-      if (!signedAttestation) return undefined;
-    }
-
-    const result = {
-      fromChain: wh.toChainName(chain),
-      transactionHash: receipt.transactionHash,
-      blockNumber: receipt.blockNumber,
-      gasUsed: receipt.gasUsed.toString(),
-      effectiveGasPrice: receipt.effectiveGasPrice.toString(),
-      burnToken: parsedCCTPLog.args.burnToken, // '0x' + payload.substring(26, 66)
-      depositor: receipt.from,
-      amount: parsedCCTPLog.args.amount.toString(),
-      recipient:
-        '0x' + payload.substring(296 + 64 + 64 + 24, 296 + 64 + 64 + 64),
-      destinationDomain: parsedCCTPLog.args.destinationDomain,
-      destinationCaller: parsedCCTPLog.args.destinationCaller,
-      destinationTokenMessenger: parsedCCTPLog.args.destinationTokenMessenger,
-      message,
-      messageHash,
-      signedAttestation,
-      relayerPayloadId: 3,
-      relayerFee: BigNumber.from(
-        '0x' + payload.substring(296, 296 + 64),
-      ).toString(),
-      toNativeTokenAmount: BigNumber.from(
-        '0x' + payload.substring(296 + 64, 296 + 64 * 2),
-      ).toString(),
-      vaaEmitter: vaaInfo.vaa.emitterAddress.toString('hex'),
-      vaaSequence: vaaInfo.vaa.sequence.toString(),
+    const recipient = '0x' + parsedCCTPLog.args.mintRecipient.substring(26);
+    const fromChain = wh.toChainName(chain);
+    const tokenId: TokenId = {
+      chain: fromChain,
+      address: parsedCCTPLog.args.burnToken,
     };
-    return result;
+    const token = getTokenById(tokenId);
+    const decimals = await wh.fetchTokenDecimals(tokenId, fromChain);
+
+    return {
+      sendTx: receipt.transactionHash,
+      sender: receipt.from,
+      amount: parsedCCTPLog.args.amount.toString(),
+      payloadID: PayloadType.MANUAL,
+      recipient: recipient,
+      toChain: getChainNameCCTP(parsedCCTPLog.args.destinationDomain),
+      fromChain: fromChain,
+      tokenAddress: parsedCCTPLog.args.burnToken,
+      tokenChain: fromChain,
+      tokenId: tokenId,
+      tokenDecimals: decimals,
+      tokenKey: token?.key || '',
+      gasFee: receipt.gasUsed.mul(receipt.effectiveGasPrice).toString(),
+      block: receipt.blockNumber,
+      message,
+      relayerPayloadId: 3,
+      relayerFee: relayInfo.relayerFee.toString(),
+      toNativeTokenAmount: relayInfo.toNativeTokenAmount.toString(),
+      emitterAddress: relayInfo.emitterAddress,
+      sequence: relayInfo.sequence.toString(),
+      to: relayInfo.recipient,
+    };
   }
 
   async getTransferSourceInfo({

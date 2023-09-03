@@ -20,7 +20,7 @@ import {
   TransferWallet,
 } from '../../utils/wallet';
 import { estimateClaimGasFees } from '../../utils/gasEstimates';
-import Operator, { MessageInfo } from '../../utils/routes';
+import Operator, { UnsignedMessage } from '../../utils/routes';
 import { validate, isTransferValid } from '../../utils/transferValidation';
 import {
   setManualGasEst,
@@ -114,21 +114,22 @@ function Send(props: { valid: boolean }) {
         { toNativeToken },
       );
 
-      let messageInfo: MessageInfo | undefined;
-      while (messageInfo === undefined) {
+      let message: UnsignedMessage | undefined;
+      while (message === undefined) {
         try {
-          messageInfo = await operator.getMessageInfo(
+          message = await operator.getMessage(
             route,
             txId,
             fromNetwork!,
             true, // don't need to get the signed attestation
           );
-        } catch {}
-        if (messageInfo === undefined) {
+        } catch (e) {
+          console.warn(e);
+        }
+        if (message === undefined) {
           await sleep(3000);
         }
       }
-      const message = await operator.parseMessage(route, messageInfo);
       dispatch(setIsTransactionInProgress(false));
       dispatch(setSendTx(txId));
       dispatch(setTxDetails(message));

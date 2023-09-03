@@ -1,8 +1,4 @@
 import {
-  CHAIN_ID_SEI,
-  parseTokenTransferPayload,
-} from '@certusone/wormhole-sdk';
-import {
   ChainId,
   ChainName,
   TokenId,
@@ -16,19 +12,15 @@ import { RelayRoute } from './relay';
 import { HashflowRoute } from './hashflow';
 import { CCTPRelayRoute } from './cctpRelay';
 import { CosmosGatewayRoute } from './cosmosGateway';
-import {
-  ParsedMessage,
-  ParsedRelayerMessage,
-  PayloadType,
-  getVaa,
-  wh,
-} from '../sdk';
+import { ParsedMessage, PayloadType, getMessage, wh } from '../sdk';
 import { isCosmWasmChain } from '../cosmos';
-import RouteAbstract, {
+import RouteAbstract from './routeAbstract';
+import {
+  UnsignedMessage,
+  SignedMessage,
+  TransferDisplayData,
   TransferInfoBaseParams,
-  MessageInfo,
-} from './routeAbstract';
-import { TransferDisplayData } from './types';
+} from './types';
 import {
   CCTPManualRoute,
   CCTP_LOG_TokenMessenger_DepositForBurn,
@@ -75,11 +67,10 @@ export default class Operator {
       return Route.COSMOS_GATEWAY;
     }
 
-    let vaa;
+    let message: UnsignedMessage | undefined;
     let error;
     try {
-      const result = await getVaa(txHash, chain);
-      vaa = result.vaa;
+      message = await getMessage(txHash, chain);
     } catch (_error: any) {
       error = _error.message;
     }
@@ -88,7 +79,7 @@ export default class Operator {
     //   return Route.HASHFLOW
     // }
 
-    if (!vaa) {
+    if (!message) {
       // Currently, CCTP manual is the only route without a VAA
       if (error === NO_VAA_FOUND) {
         const provider = wh.mustGetProvider(chain);
@@ -110,25 +101,24 @@ export default class Operator {
 
     if (
       CCTP_CONTRACT_ADDRESSES.includes(
-        '0x' + vaa.emitterAddress.toString('hex').substring(24),
+        '0x' + message.emitterAddress?.substring(24),
       )
     ) {
       return Route.CCTPRelay;
     }
 
-    const transfer = parseTokenTransferPayload(vaa.payload);
-    if (transfer.toChain === CHAIN_ID_SEI) {
+    if (message.toChain === 'sei') {
       return Route.RELAY;
     }
 
     if (
-      isCosmWasmChain(vaa.emitterChain as ChainId) ||
-      isCosmWasmChain(transfer.toChain as ChainId)
+      isCosmWasmChain(message.fromChain) ||
+      isCosmWasmChain(message.toChain)
     ) {
       return Route.COSMOS_GATEWAY;
     }
 
-    return vaa.payload && vaa.payload[0] === PayloadType.AUTOMATIC
+    return (message as ParsedMessage).payloadID === PayloadType.AUTOMATIC
       ? Route.RELAY
       : Route.BRIDGE;
   }
@@ -309,19 +299,11 @@ export default class Operator {
   async redeem(
     route: Route,
     destChain: ChainName | ChainId,
-    messageInfo: MessageInfo,
+    signed: SignedMessage,
     payer: string,
   ): Promise<string> {
     const r = this.getRoute(route);
-    return await r.redeem(destChain, messageInfo, payer);
-  }
-
-  async parseMessage(
-    route: Route,
-    info: MessageInfo,
-  ): Promise<ParsedMessage | ParsedRelayerMessage> {
-    const r = this.getRoute(route);
-    return await r.parseMessage(info);
+    return await r.redeem(destChain, signed, payer);
   }
 
   async getPreview(
@@ -389,20 +371,29 @@ export default class Operator {
   public async isTransferCompleted(
     route: Route,
     destChain: ChainName | ChainId,
-    messageInfo: MessageInfo,
+    message: SignedMessage,
   ): Promise<boolean> {
     const r = this.getRoute(route);
-    return r.isTransferCompleted(destChain, messageInfo);
+    return r.isTransferCompleted(destChain, message);
   }
 
-  public async getMessageInfo(
+  public async getMessage(
     route: Route,
     tx: string,
     network: ChainName | ChainId,
     unsigned?: boolean,
-  ): Promise<MessageInfo | undefined> {
+  ): Promise<UnsignedMessage> {
     const r = this.getRoute(route);
-    return r.getMessageInfo(tx, network, unsigned);
+    return r.getMessage(tx, network);
+  }
+
+  public async getSignedMessage(
+    route: Route,
+    message: UnsignedMessage,
+    unsigned?: boolean,
+  ): Promise<SignedMessage> {
+    const r = this.getRoute(route);
+    return r.getSignedMessage(message);
   }
 
   public getTransferSourceInfo<T extends TransferInfoBaseParams>(

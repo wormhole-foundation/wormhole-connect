@@ -7,7 +7,7 @@ import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { CHAINS_ARR } from '../config';
 import { isValidTxId } from '../utils';
 import Operator from '../utils/routes';
-import { setTxDetails, setRoute as setRedeemRoute } from '../store/redeem';
+import { setRoute as setRedeemRoute, setTxDetails } from '../store/redeem';
 import { setRoute as setAppRoute } from '../store/router';
 import PageHeader from '../components/PageHeader';
 import Search from '../components/Search';
@@ -71,13 +71,11 @@ function TxSearch() {
         state.tx,
         state.chain as ChainName,
       );
-      const messageInfo = await operator.getMessageInfo(
+      const message = await operator.getMessage(
         route,
         state.tx,
         state.chain as ChainName,
-        true, // don't need to get the signed attestation
       );
-      const message = await operator.parseMessage(route, messageInfo!);
       setError('');
       dispatch(setTxDetails(message));
       dispatch(setRedeemRoute(route));
