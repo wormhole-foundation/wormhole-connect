@@ -32,16 +32,16 @@ function Redeem({
   setSignedMessage: (signed: SignedMessage) => any;
   setIsVaaEnqueued: (isVaaEnqueued: boolean) => any;
   setTransferComplete: any;
-  txData: ParsedMessage | ParsedRelayerMessage;
+  txData: ParsedMessage | ParsedRelayerMessage | undefined;
   transferComplete: boolean;
   isVaaEnqueued: boolean;
-  route: Route;
+  route: Route | undefined;
   signedMessage: SignedMessage;
 }) {
   // check if VAA is enqueued
   useEffect(() => {
     if (
-      !txData.sendTx ||
+      !txData?.sendTx ||
       !txData.emitterAddress // no VAA exists, e.g. CCTP route
     ) {
       return;
@@ -61,7 +61,7 @@ function Redeem({
 
   // fetch the VAA
   useEffect(() => {
-    if (!txData.sendTx || transferComplete) {
+    if (!route || !txData?.sendTx || transferComplete) {
       return;
     }
     let cancelled = false;
@@ -70,7 +70,10 @@ function Redeem({
       let signed: SignedMessage | undefined;
       while (signed === undefined && !cancelled) {
         try {
-          signed = await new Operator().getSignedMessage(route, txData);
+          signed = await new Operator().getSignedMessage(
+            route,
+            txData,
+          );
         } catch {}
         if (cancelled) {
           return;
@@ -90,7 +93,7 @@ function Redeem({
 
   // check if VAA has been redeemed
   useEffect(() => {
-    if (!txData.toChain || !signedMessage || transferComplete) {
+    if (!route || !txData?.toChain || !signedMessage || transferComplete) {
       return;
     }
     let cancelled = false;
@@ -119,9 +122,9 @@ function Redeem({
     return () => {
       cancelled = true;
     };
-  }, [txData, transferComplete, route, setTransferComplete, signedMessage]);
+  }, [route, txData, transferComplete, route, setTransferComplete, signedMessage]);
 
-  return (
+  return txData?.fromChain ? (
     <div
       style={{
         width: '100%',
@@ -141,6 +144,8 @@ function Redeem({
       />
       <Stepper />
     </div>
+  ) : (
+    <></>
   );
 }
 

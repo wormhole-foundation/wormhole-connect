@@ -372,7 +372,7 @@ export const {
   setReceiverNativeBalance,
   setSupportedDestTokens,
   setSupportedSourceTokens,
-  swapNetworks,
+  swapChains,
 } = transferInputSlice.actions;
 
 export default transferInputSlice.reducer;

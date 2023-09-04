@@ -2,8 +2,8 @@ import React from 'react';
 import { useDispatch } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 
-import { clearBalances, swapNetworks } from 'store';
 import { swapWallets } from 'store/wallet';
+import { swapChains, clearBalances } from 'store/transferInput';
 
 const useStyles = makeStyles()((theme: any) => ({
   button: {
@@ -21,12 +21,12 @@ const useStyles = makeStyles()((theme: any) => ({
   },
 }));
 
-function SwapNetworks() {
+function SwapChains() {
   const { classes } = useStyles();
   const dispatch = useDispatch();
 
   const swap = () => {
-    dispatch(swapNetworks());
+    dispatch(swapChains());
     dispatch(swapWallets());
     dispatch(clearBalances('all'));
   };
@@ -77,4 +77,4 @@ function SwapNetworks() {
   );
 }
 
-export default SwapNetworks;
+export default SwapChains;
