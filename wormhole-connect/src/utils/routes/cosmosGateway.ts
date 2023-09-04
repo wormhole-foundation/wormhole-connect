@@ -88,7 +88,7 @@ export class CosmosGatewayRoute extends BaseRoute {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean = false;
   readonly AUTOMATIC_DEPOSIT: boolean = false;
 
-  private static CLIENT_MAP: Record<string, CosmWasmClient> = {};
+  private static CLIENT_MAP: Record<string, TendermintClient> = {};
 
   public async isRouteAvailable(
     sourceToken: string,
@@ -528,6 +528,11 @@ export class CosmosGatewayRoute extends BaseRoute {
   private async getTmClient(
     chain: ChainId | ChainName,
   ): Promise<Tendermint34Client | Tendermint37Client> {
+    const name = wh.toChainName(chain);
+    if (CosmosGatewayRoute.CLIENT_MAP[name]) {
+      return CosmosGatewayRoute.CLIENT_MAP[name];
+    }
+
     const rpc = CONFIG.rpcs[wh.toChainName(chain)];
     if (!rpc) throw new Error(`${chain} RPC not configured`);
 
@@ -542,22 +547,16 @@ export class CosmosGatewayRoute extends BaseRoute {
       tmClient = await Tendermint34Client.connect(rpc);
     }
 
+    CosmosGatewayRoute.CLIENT_MAP[name] = tmClient;
+
     return tmClient;
   }
 
   private async getCosmWasmClient(
     chain: ChainId | ChainName,
   ): Promise<CosmWasmClient> {
-    const name = wh.toChainName(chain);
-    if (CosmosGatewayRoute.CLIENT_MAP[name]) {
-      return CosmosGatewayRoute.CLIENT_MAP[name];
-    }
-
-    const rpc = CONFIG.rpcs[name];
-    if (!rpc) throw new Error(`${chain} RPC not configured`);
-    const client = await CosmWasmClient.connect(rpc);
-    CosmosGatewayRoute.CLIENT_MAP[name] = client;
-    return client;
+    const tmClient = await this.getTmClient(chain);
+    return CosmWasmClient.create(tmClient);
   }
 
   isTransferCompleted(
