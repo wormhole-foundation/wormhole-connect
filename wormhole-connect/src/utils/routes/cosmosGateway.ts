@@ -583,7 +583,13 @@ export class CosmosGatewayRoute extends BaseRoute {
   async getSignedMessage(
     message: TokenTransferMessage | RelayTransferMessage,
   ): Promise<SignedTokenTransferMessage | SignedRelayTransferMessage> {
-    const vaa = await fetchVaa(message);
+    const vaa = await fetchVaa({
+      ...message,
+      // transfers from cosmos vaas are emitted by wormchain and not by the source chain
+      fromChain: isCosmWasmChain(message.fromChain)
+        ? 'wormchain'
+        : message.fromChain,
+    });
 
     if (!vaa) {
       throw new Error('VAA not found');
