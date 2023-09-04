@@ -76,8 +76,14 @@ function FromInputs() {
 
   // TODO: clean up the send/receive amount set logic
   const handleAmountChange = useCallback(
-    async (number: number) => {
-      dispatch(setAmount(`${number}`));
+    async (value: number | string) => {
+      if (typeof value === 'number') {
+        dispatch(setAmount(`${value}`));
+      } else {
+        dispatch(setAmount(value));
+      }
+      const number =
+        typeof value === 'number' ? value : Number.parseFloat(value);
       const r = new Operator();
       const receiveAmount = await r.computeReceiveAmount(route, number, {
         toNativeToken,

@@ -1,16 +1,16 @@
 import React, { useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { RootState } from 'store';
-import { validate } from 'utils/transferValidation';
-import { toFixedDecimals } from 'utils/balance';
-import { NO_INPUT } from 'utils/style';
+import { RootState } from '../../../store';
+import { validate } from '../../../utils/transferValidation';
+import { toFixedDecimals } from '../../../utils/balance';
+import { NO_INPUT } from '../../../utils/style';
 
-import InputTransparent from 'components/InputTransparent';
+import InputTransparent from '../../../components/InputTransparent';
 import Input from './Input';
 
 type Props = {
-  handleAmountChange: (number: number) => void;
+  handleAmountChange: (value: number | string) => void;
   value: string;
 };
 function AmountInput(props: Props) {
@@ -30,6 +30,7 @@ function AmountInput(props: Props) {
       | undefined,
   ) {
     let value = e!.target.value;
+    // let value = event.target.value;
     const index = value.indexOf('.');
     switch (true) {
       case index === 0: {
@@ -48,7 +49,7 @@ function AmountInput(props: Props) {
       }
     }
 
-    props.handleAmountChange(Number.parseFloat(value));
+    props.handleAmountChange(value);
   }
   const validateAmount = () => validate(dispatch);
 
