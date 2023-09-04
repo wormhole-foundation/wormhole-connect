@@ -8,17 +8,18 @@ import {
   SolanaContext,
   WormholeContext,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { ParsedMessage, ParsedRelayerMessage, wh } from './sdk';
+import { ParsedRelayerMessage, wh } from './sdk';
 import { fromNormalizedDecimals } from '.';
 import { CHAINS } from 'config';
 import { fetchGlobalTx, getEmitterAndSequence } from './vaa';
 import { isEvmChain } from 'utils/sdk';
 import RouteOperator from './routes/operator';
 import { Route } from 'config/types';
+import { SignedMessage } from './routes';
 
 export const fetchRedeemTx = async (
   route: Route,
-  txData: ParsedMessage | ParsedRelayerMessage,
+  txData: SignedMessage,
 ): Promise<{ transactionHash: string } | null> => {
   let transactionHash: string | undefined;
   if (txData.emitterAddress && txData.sequence) {
@@ -35,7 +36,7 @@ export const fetchRedeemTx = async (
 };
 
 export const fetchRedeemedEvent = async (
-  txData: ParsedMessage | ParsedRelayerMessage,
+  txData: SignedMessage,
 ): Promise<{ transactionHash: string } | null> => {
   const messageId = getEmitterAndSequence(txData);
   const { emitterChain, emitterAddress, sequence } = messageId;

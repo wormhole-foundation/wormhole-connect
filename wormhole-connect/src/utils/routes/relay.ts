@@ -34,6 +34,7 @@ import {
   RelayTransferMessage,
   SignedRelayTransferMessage,
   TransferDisplayData,
+  isSignedWormholeMessage,
 } from './types';
 import { adaptParsedMessage } from './common';
 import { fetchSwapEvent } from '../events';
@@ -502,7 +503,8 @@ export class RelayRoute extends BridgeRoute {
     receiveTx,
     transferComplete,
   }: TransferDestInfoParams): Promise<TransferDisplayData> {
-    const txData: ParsedRelayerMessage = data as ParsedRelayerMessage;
+    const txData: SignedRelayTransferMessage =
+      data as SignedRelayTransferMessage;
 
     const token = TOKENS[txData.tokenKey];
     const { gasToken } = CHAINS[txData.toChain]!;
@@ -575,12 +577,16 @@ export class RelayRoute extends BridgeRoute {
     ];
   }
 
-  async tryFetchRedeemTx(txData: UnsignedMessage): Promise<string | undefined> {
+  async tryFetchRedeemTx(message: SignedMessage): Promise<string | undefined> {
+    if (!isSignedWormholeMessage(message)) {
+      throw new Error('Signed message is not for relay');
+    }
+
     // if this is an automatic transfer and the transaction hash was not found,
     // then try to fetch the redeemed event
     let redeemTx: string | undefined = undefined;
     try {
-      const res = await fetchRedeemedEvent(txData);
+      const res = await fetchRedeemedEvent(message);
       redeemTx = res?.transactionHash;
     } catch {}
 
