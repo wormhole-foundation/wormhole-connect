@@ -5,12 +5,12 @@ function WormholeBridge({ config }: { config?: WormholeConnectConfig }) {
   useEffect(() => {
     const script = document.createElement("script");
     script.src =
-      "https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.11/dist/main.js";
+      "https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.12/dist/main.js";
     script.async = true;
 
     const link = document.createElement("link");
     link.href =
-      "https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.11/dist/main.css";
+      "https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.12/dist/main.css";
 
     document.body.appendChild(script);
     document.body.appendChild(link);

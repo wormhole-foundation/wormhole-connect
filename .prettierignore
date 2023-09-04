@@ -1,3 +1,5 @@
-wormhole-connect-loader/dist
 dist
 build
+*.md
+builder
+wormhole-connect-loader
