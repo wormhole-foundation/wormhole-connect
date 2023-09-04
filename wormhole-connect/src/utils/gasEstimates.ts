@@ -41,7 +41,7 @@ const simulateRelayAmount = (
 const estimateGasFee = async (
   token: TokenId | 'native',
   amount: number,
-  fromNetwork: ChainName | ChainId,
+  fromChain: ChainName | ChainId,
   fromAddress: string,
   toNetwork: ChainName | ChainId,
   toAddress: string,
@@ -49,11 +49,11 @@ const estimateGasFee = async (
   relayerFee: number = 0,
   toNativeToken: number = 0,
 ): Promise<string> => {
-  const fromChainId = wh.toChainId(fromNetwork);
+  const fromChainId = wh.toChainId(fromChain);
   const decimals = getTokenDecimals(fromChainId, token);
   const parsedAmt = utils.parseUnits(`${amount}`, decimals);
-  const chainContext = wh.getContext(fromNetwork) as any;
-  const fromChainName = wh.toChainName(fromNetwork);
+  const chainContext = wh.getContext(fromChain) as any;
+  const fromChainName = wh.toChainName(fromChain);
   const gasEstimates = GAS_ESTIMATES[fromChainName]!;
   const parsedNativeAmt = utils
     .parseUnits(`${toNativeToken}`, decimals)
@@ -79,7 +79,7 @@ const estimateGasFee = async (
     const tx = await chainContext.send(
       token,
       parsedAmt.toString(),
-      fromNetwork,
+      fromChain,
       fromAddress,
       toNetwork,
       toAddress,
@@ -100,7 +100,7 @@ const estimateGasFee = async (
       tx = await chainContext.send(
         token,
         parsedAmt,
-        fromNetwork,
+        fromChain,
         fromAddress,
         toNetwork,
         toAddress,
@@ -111,7 +111,7 @@ const estimateGasFee = async (
         token,
         relayAmount.toString(),
         parsedNativeAmt,
-        fromNetwork,
+        fromChain,
         fromAddress,
         toNetwork,
         toAddress,
@@ -140,7 +140,7 @@ const estimateGasFee = async (
   }
 
   // EVM gas estimates
-  const provider = wh.mustGetProvider(fromNetwork);
+  const provider = wh.mustGetProvider(fromChain);
   const { gasPrice } = await provider.getFeeData();
   if (!gasPrice)
     throw new Error('gas price not available, cannot estimate fees');
@@ -148,7 +148,7 @@ const estimateGasFee = async (
     const tx = await chainContext.prepareSend(
       token,
       parsedAmt.toString(),
-      fromNetwork,
+      fromChain,
       fromAddress,
       toNetwork,
       toAddress,
@@ -162,7 +162,7 @@ const estimateGasFee = async (
       token,
       relayAmount.toString(),
       parsedNativeAmt,
-      fromNetwork,
+      fromChain,
       fromAddress,
       toNetwork,
       toAddress,
@@ -176,11 +176,11 @@ const estimateGasFee = async (
 // gets a fallback gas fee estimate from config
 export const getGasFeeFallback = async (
   token: TokenId | 'native',
-  fromNetwork: ChainName | ChainId,
+  fromChain: ChainName | ChainId,
   route: Route,
 ): Promise<string> => {
-  const fromChainId = wh.toChainId(fromNetwork);
-  const fromChainName = wh.toChainName(fromNetwork);
+  const fromChainId = wh.toChainId(fromChain);
+  const fromChainName = wh.toChainName(fromChain);
   const sendNative = token === 'native';
   const gasEstimates = GAS_ESTIMATES[fromChainName];
   if (!gasEstimates)
@@ -234,7 +234,7 @@ export const getGasFeeFallback = async (
   }
 
   // EVM gas estimates
-  const provider = wh.mustGetProvider(fromNetwork);
+  const provider = wh.mustGetProvider(fromChain);
   const { gasPrice } = await provider.getFeeData();
   let gasEst;
   switch (route) {
@@ -265,7 +265,7 @@ export const getGasFeeFallback = async (
 export const estimateSendGasFees = async (
   token: TokenId | 'native',
   amount: number,
-  fromNetwork: ChainName | ChainId,
+  fromChain: ChainName | ChainId,
   fromAddress: string,
   toNetwork: ChainName | ChainId,
   toAddress: string,
@@ -277,7 +277,7 @@ export const estimateSendGasFees = async (
     const gasFee = await estimateGasFee(
       token,
       amount,
-      fromNetwork,
+      fromChain,
       fromAddress,
       toNetwork,
       toAddress,
@@ -287,7 +287,7 @@ export const estimateSendGasFees = async (
     );
     return gasFee;
   } catch (_) {
-    return await getGasFeeFallback(token, fromNetwork, route);
+    return await getGasFeeFallback(token, fromChain, route);
   }
 };
 

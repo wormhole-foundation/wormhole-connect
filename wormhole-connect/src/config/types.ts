@@ -43,6 +43,7 @@ export enum Route {
 
 export type SupportedRoutes = keyof typeof Route;
 
+// TODO: preference is fromChain/toChain, but want to keep backwards compatibility
 export interface BridgeDefaults {
   fromNetwork?: ChainName;
   toNetwork?: ChainName;

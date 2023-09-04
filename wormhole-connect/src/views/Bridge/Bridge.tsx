@@ -74,8 +74,8 @@ function Bridge() {
   const {
     validate: showValidationState,
     validations,
-    fromNetwork,
-    toNetwork,
+    fromChain,
+    toChain,
     token,
     destToken,
     route,
@@ -95,9 +95,9 @@ function Bridge() {
 
   // check destination native balance
   useEffect(() => {
-    if (!fromNetwork || !toNetwork || !receiving.address) return;
-    const networkConfig = CHAINS[toNetwork]!;
-    wh.getNativeBalance(receiving.address, toNetwork).then((res: BigNumber) => {
+    if (!fromChain || !toChain || !receiving.address) return;
+    const networkConfig = CHAINS[toChain]!;
+    wh.getNativeBalance(receiving.address, toChain).then((res: BigNumber) => {
       const tokenConfig = TOKENS[networkConfig.gasToken];
       if (!tokenConfig)
         throw new Error('Could not get native gas token config');
@@ -107,7 +107,7 @@ function Bridge() {
       );
       dispatch(setReceiverNativeBalance(toDecimals(res, decimals, 6)));
     });
-  }, [fromNetwork, toNetwork, receiving.address, dispatch]);
+  }, [fromChain, toChain, receiving.address, dispatch]);
 
   useEffect(() => {
     const computeSrcTokens = async () => {
@@ -122,7 +122,7 @@ function Bridge() {
                 value as Route,
                 TOKENS_ARR,
                 undefined,
-                fromNetwork,
+                fromChain,
               );
               return returnedTokens;
             }),
@@ -156,8 +156,8 @@ function Bridge() {
                 value as Route,
                 TOKENS_ARR,
                 TOKENS[token],
-                fromNetwork,
-                toNetwork,
+                fromChain,
+                toChain,
               ),
             ),
           )
@@ -175,12 +175,12 @@ function Bridge() {
       // If all the supported tokens are the same token
       // select the native version
       const symbols = supported.map((t) => t.symbol);
-      if (toNetwork && symbols.every((s) => s === symbols[0])) {
+      if (toChain && symbols.every((s) => s === symbols[0])) {
         const key = supported.find(
           (t) =>
             t.symbol === symbols[0] &&
             t.nativeNetwork === t.tokenId?.chain &&
-            t.nativeNetwork === toNetwork,
+            t.nativeNetwork === toChain,
         )?.key;
         if (key) {
           dispatch(setDestToken(key));
@@ -190,29 +190,29 @@ function Bridge() {
     computeDestTokens();
     // IMPORTANT: do not include destToken in dependency array
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [route, token, fromNetwork, toNetwork, dispatch]);
+  }, [route, token, fromChain, toChain, dispatch]);
 
   // check if automatic relay option is available
   useEffect(() => {
     const establishRoute = async () => {
-      if (fromNetwork && isCosmWasmChain(wh.toChainId(fromNetwork))) {
+      if (fromChain && isCosmWasmChain(wh.toChainId(fromChain))) {
         dispatch(setTransferRoute(Route.CosmosGateway));
         return;
       }
 
-      if (toNetwork && isCosmWasmChain(wh.toChainId(toNetwork))) {
+      if (toChain && isCosmWasmChain(wh.toChainId(toChain))) {
         dispatch(setTransferRoute(Route.CosmosGateway));
         return;
       }
 
-      if (!fromNetwork || !toNetwork || !token || !destToken) return;
+      if (!fromChain || !toChain || !token || !destToken) return;
       const cctpAvailable = await new Operator().isRouteAvailable(
         Route.CCTPRelay,
         token,
         destToken,
         amount,
-        fromNetwork,
-        toNetwork,
+        fromChain,
+        toChain,
       );
       if (cctpAvailable) {
         dispatch(setTransferRoute(Route.CCTPRelay));
@@ -224,8 +224,8 @@ function Bridge() {
         token,
         destToken,
         amount,
-        fromNetwork,
-        toNetwork,
+        fromChain,
+        toChain,
       );
       if (cctpManualAvailable) {
         dispatch(setTransferRoute(Route.CCTPManual));
@@ -233,8 +233,8 @@ function Bridge() {
       }
 
       // The code below should maybe be rewritten to use isRouteAvailable!
-      const fromConfig = CHAINS[fromNetwork]!;
-      const toConfig = CHAINS[toNetwork]!;
+      const fromConfig = CHAINS[fromChain]!;
+      const toConfig = CHAINS[toChain]!;
       if (fromConfig.automaticRelayer && toConfig.automaticRelayer) {
         const isTokenAcceptedForRelay = async () => {
           const tokenConfig = TOKENS[token]!;
@@ -252,7 +252,7 @@ function Bridge() {
       }
     };
     establishRoute();
-  }, [fromNetwork, toNetwork, token, destToken, amount, dispatch]);
+  }, [fromChain, toChain, token, destToken, amount, dispatch]);
 
   useEffect(() => {
     const recomputeReceive = async () => {
@@ -274,8 +274,8 @@ function Bridge() {
   }, [
     sending,
     receiving,
-    fromNetwork,
-    toNetwork,
+    fromChain,
+    toChain,
     token,
     destToken,
     route,

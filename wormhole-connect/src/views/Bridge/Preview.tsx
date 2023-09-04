@@ -24,8 +24,8 @@ function Preview(props: { collapsed: boolean }) {
     token,
     destToken,
     amount,
-    fromNetwork,
-    toNetwork,
+    fromChain,
+    toChain,
     route,
     receiveAmount,
     gasEst,
@@ -36,9 +36,9 @@ function Preview(props: { collapsed: boolean }) {
 
   useEffect(() => {
     const buildPreview = async () => {
-      if (!fromNetwork || !route) return;
-      const sourceConfig = toNetwork && CHAINS[fromNetwork];
-      const destConfig = toNetwork && CHAINS[toNetwork];
+      if (!fromChain || !route) return;
+      const sourceConfig = toChain && CHAINS[fromChain];
+      const destConfig = toChain && CHAINS[toChain];
       const tokenConfig = token && TOKENS[token];
       const destTokenConfig = destToken && TOKENS[destToken];
       if (!tokenConfig || !destTokenConfig || !sourceConfig || !destConfig)
@@ -59,8 +59,8 @@ function Preview(props: { collapsed: boolean }) {
         tokenConfig,
         destTokenConfig,
         Number.parseFloat(amount),
-        fromNetwork,
-        toNetwork,
+        fromChain,
+        toChain,
         sendingGasEst,
         destGasEst,
         routeOptions,
@@ -74,8 +74,8 @@ function Preview(props: { collapsed: boolean }) {
     token,
     destToken,
     amount,
-    fromNetwork,
-    toNetwork,
+    fromChain,
+    toChain,
     route,
     receiveAmount,
     toNativeToken,
@@ -88,18 +88,18 @@ function Preview(props: { collapsed: boolean }) {
   useEffect(() => {
     const computeRelayerFee = async () => {
       try {
-        if (!token || !fromNetwork || !toNetwork || !route) return;
+        if (!token || !fromChain || !toChain || !route) return;
         const tokenConfig = token && TOKENS[token];
         if (!tokenConfig) return;
 
         const fee = await new Operator().getRelayerFee(
           route,
-          fromNetwork,
-          toNetwork,
+          fromChain,
+          toChain,
           token,
         );
         const decimals = getTokenDecimals(
-          toChainId(fromNetwork),
+          toChainId(fromChain),
           tokenConfig.tokenId || 'native',
         );
         const formattedFee = Number.parseFloat(toDecimals(fee, decimals, 6));
@@ -117,7 +117,7 @@ function Preview(props: { collapsed: boolean }) {
       }
     };
     computeRelayerFee();
-  }, [route, token, toNetwork, fromNetwork, dispatch]);
+  }, [route, token, toChain, fromChain, dispatch]);
 
   return (
     <BridgeCollapse

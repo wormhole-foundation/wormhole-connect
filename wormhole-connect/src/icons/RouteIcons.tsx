@@ -58,7 +58,7 @@ function RouteIcon(props: Props) {
 
   useEffect(() => {
     if (props.route) {
-      setIcon(getIcon(props.route!)!);
+      setIcon(getIcon(props.route)!);
     } else {
       setIcon(noIcon);
     }

@@ -16,7 +16,7 @@ import {
   TOKENS,
   isMainnet,
 } from 'config';
-import { MAINNET_NETWORKS } from 'config/mainnet';
+import { MAINNET_CHAINS } from 'config/mainnet';
 import { TokenConfig } from 'config/types';
 import { RootState } from 'store';
 import { setWalletModal } from 'store/router';
@@ -191,14 +191,14 @@ function AddToWallet() {
   if (isEVMChain(chainId)) {
     return <AddToEVMWallet address={targetAddress} token={targetToken} />;
   } else if (
-    chainId === MAINNET_NETWORKS.solana?.id &&
+    chainId === MAINNET_CHAINS.solana?.id &&
     targetToken.symbol !== 'WSOL'
   ) {
     return <AddToSolanaWallet address={targetAddress} token={targetToken} />;
-  } else if (chainId === MAINNET_NETWORKS.sui?.id) {
+  } else if (chainId === MAINNET_CHAINS.sui?.id) {
     return <AddToSuiWallet address={targetAddress} token={targetToken} />;
   } else if (
-    chainId === MAINNET_NETWORKS.aptos?.id &&
+    chainId === MAINNET_CHAINS.aptos?.id &&
     targetToken.symbol !== 'APT'
   ) {
     return <AddToAptosWallet address={targetAddress} token={targetToken} />;

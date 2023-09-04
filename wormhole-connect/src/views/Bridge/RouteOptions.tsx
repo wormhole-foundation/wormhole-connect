@@ -144,7 +144,7 @@ function RouteOption(props: { route: RouteData }) {
   const { classes } = useStyles();
   const theme = useTheme();
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const { token, destToken, amount, toNetwork } = useSelector(
+  const { token, destToken, amount, toChain } = useSelector(
     (state: RootState) => state.transferInput,
   );
   const { toNativeToken, relayerFee } = useSelector(
@@ -187,7 +187,7 @@ function RouteOption(props: { route: RouteData }) {
             {props.route.name}
             {/* TODO: isAutomatic to route and use transfer parameters to decide */}
             {route.AUTOMATIC_DEPOSIT ||
-            (toNetwork && isCosmWasmChain(toNetwork)) ? (
+            (toChain && isCosmWasmChain(toChain)) ? (
               <Chip
                 label="One transaction"
                 color="success"
@@ -234,8 +234,8 @@ function RouteOptions() {
     route,
     token,
     destToken,
-    fromNetwork,
-    toNetwork,
+    fromChain,
+    toChain,
     amount,
     validate,
     validations,
@@ -248,7 +248,7 @@ function RouteOptions() {
   const availableRoutes = useMemo(() => {
     if (!validate) return ROUTES;
     const valid = isTransferValid(validations);
-    if (!valid || !fromNetwork || !toNetwork) return ROUTES;
+    if (!valid || !fromChain || !toChain) return ROUTES;
     let available: Route[] = [];
     ROUTES.forEach(async (value) => {
       const r = value as Route;
@@ -257,15 +257,15 @@ function RouteOptions() {
         token,
         destToken,
         amount,
-        fromNetwork,
-        toNetwork,
+        fromChain,
+        toChain,
       );
       if (isSupported) {
         available.push(r);
       }
     });
     return available;
-  }, [token, destToken, amount, fromNetwork, toNetwork, validate, validations]);
+  }, [token, destToken, amount, fromChain, toChain, validate, validations]);
 
   const onCollapseChange = (collapsed: boolean) => {
     setCollapsed(collapsed);

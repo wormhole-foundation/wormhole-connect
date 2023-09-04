@@ -30,8 +30,8 @@ function ToInputs() {
     validate: showErrors,
     validations,
     route,
-    fromNetwork,
-    toNetwork,
+    fromChain,
+    toChain,
     destBalances,
     destToken,
     receiveAmount,
@@ -73,7 +73,7 @@ function ToInputs() {
       selected={selectedToken}
       error={!!(showErrors && validations.token)}
       onClick={() => setShowTokensModal(true)}
-      disabled={!toNetwork || !receiving.address || isTransactionInProgress}
+      disabled={!toChain || !receiving.address || isTransactionInProgress}
       editable
     />
   );
@@ -103,9 +103,9 @@ function ToInputs() {
         wallet={TransferWallet.RECEIVING}
         walletValidations={[validations.receivingWallet]}
         walletError={receiving.error}
-        inputValidations={[validations.toNetwork, validations.destToken]}
-        network={toNetwork}
-        networkValidation={validations.toNetwork}
+        inputValidations={[validations.toChain, validations.destToken]}
+        network={toChain}
+        networkValidation={validations.toChain}
         onNetworkClick={() => setShowNetworksModal(true)}
         tokenInput={tokenInput}
         amountInput={amountInput}
@@ -114,7 +114,7 @@ function ToInputs() {
       />
       <TokensModal
         open={showTokensModal}
-        network={toNetwork}
+        network={toChain}
         walletAddress={receiving.address}
         type="dest"
         onSelect={selectToken}
@@ -123,7 +123,7 @@ function ToInputs() {
       <NetworksModal
         open={showNetworksModal}
         title="Sending to"
-        chains={CHAINS_ARR.filter((c) => c.key !== fromNetwork)}
+        chains={CHAINS_ARR.filter((c) => c.key !== fromChain)}
         onSelect={selectNetwork}
         onClose={() => setShowNetworksModal(false)}
         isDisabled={isDisabled}

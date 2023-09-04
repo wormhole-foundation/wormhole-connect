@@ -47,6 +47,20 @@ export const ATTEST_URL =
     ? ''
     : 'https://wormhole-foundation.github.io/example-token-bridge-ui/#/register';
 
+export const WORMHOLE_RPC_HOSTS =
+  ENV === 'MAINNET'
+    ? [
+        'https://wormhole-v2-mainnet-api.certus.one',
+        'https://wormhole.inotel.ro',
+        'https://wormhole-v2-mainnet-api.mcf.rocks',
+        'https://wormhole-v2-mainnet-api.chainlayer.network',
+        'https://wormhole-v2-mainnet-api.staking.fund',
+        'https://wormhole-v2-mainnet.01node.com',
+      ]
+    : ENV === 'TESTNET'
+    ? ['https://wormhole-v2-testnet-api.certus.one']
+    : ['http://localhost:7071'];
+
 export const NETWORK_DATA =
   ENV === 'MAINNET' ? MAINNET : ENV === 'DEVNET' ? DEVNET : TESTNET;
 
