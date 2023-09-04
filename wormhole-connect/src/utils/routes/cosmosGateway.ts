@@ -31,7 +31,7 @@ import {
 import { MsgTransfer } from 'cosmjs-types/ibc/applications/transfer/v1/tx';
 import { MsgExecuteContract } from 'cosmjs-types/cosmwasm/wasm/v1/tx';
 import { BigNumber, utils } from 'ethers';
-import { arrayify, base58, hexlify } from 'ethers/lib/utils.js';
+import { arrayify, base58 } from 'ethers/lib/utils.js';
 import { toChainId, wh } from 'utils/sdk';
 import { MAX_DECIMALS, getTokenDecimals, toNormalizedDecimals } from '..';
 import { CHAINS, CONFIG, TOKENS } from '../../config';
@@ -567,15 +567,19 @@ export class CosmosGatewayRoute extends BaseRoute {
     return CosmWasmClient.create(tmClient);
   }
 
-  isTransferCompleted(
+  async isTransferCompleted(
     destChain: ChainName | ChainId,
     message: SignedMessage,
   ): Promise<boolean> {
     if (!isSignedWormholeMessage(message))
       throw new Error('Signed message is not for gateway');
-    return isCosmWasmChain(destChain)
-      ? wh.isTransferCompleted(CHAIN_ID_WORMCHAIN, hexlify(message.vaa))
-      : new BridgeRoute().isTransferCompleted(destChain, message);
+
+    if (!isCosmWasmChain(destChain)) {
+      return new BridgeRoute().isTransferCompleted(destChain, message);
+    }
+
+    const destTx = await this.fetchRedeemedEvent(message);
+    return !!destTx;
   }
 
   async getMessage(
