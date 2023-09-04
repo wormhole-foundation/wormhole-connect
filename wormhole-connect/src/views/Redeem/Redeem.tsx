@@ -4,13 +4,13 @@ import { connect } from 'react-redux';
 import { fetchIsVAAEnqueued } from '../../utils/vaa';
 import {
   setIsVaaEnqueued,
+  setSignedMessage,
   setTransferComplete,
-  setMessageInfo,
 } from '../../store/redeem';
 import { RootState } from '../../store';
 import { Route } from '../../store/transferInput';
 import { ParsedMessage, ParsedRelayerMessage } from '../../utils/sdk';
-import Operator, { MessageInfo } from '../../utils/routes';
+import Operator, { SignedMessage } from '../../utils/routes';
 
 import PageHeader from '../../components/PageHeader';
 import Spacer from '../../components/Spacer';
@@ -20,29 +20,28 @@ import GovernorEnqueuedWarning from './GovernorEnqueuedWarning';
 import { sleep } from '../../utils';
 
 function Redeem({
-  messageInfo,
-  setMessageInfo,
+  setSignedMessage,
   setIsVaaEnqueued,
   setTransferComplete,
   txData,
   transferComplete,
   isVaaEnqueued,
   route,
+  signedMessage,
 }: {
-  messageInfo: MessageInfo | undefined;
-  setMessageInfo: any;
+  setSignedMessage: (signed: SignedMessage) => any;
   setIsVaaEnqueued: (isVaaEnqueued: boolean) => any;
   setTransferComplete: any;
   txData: ParsedMessage | ParsedRelayerMessage;
   transferComplete: boolean;
   isVaaEnqueued: boolean;
   route: Route;
+  signedMessage: SignedMessage;
 }) {
   // check if VAA is enqueued
   useEffect(() => {
     if (
       !txData.sendTx ||
-      !!messageInfo ||
       !txData.emitterAddress // no VAA exists, e.g. CCTP route
     ) {
       return;
@@ -58,30 +57,26 @@ function Redeem({
         setIsVaaEnqueued(isVaaEnqueued);
       }
     })();
-  }, [txData, messageInfo, setIsVaaEnqueued]);
+  }, [txData, setIsVaaEnqueued]);
 
   // fetch the VAA
   useEffect(() => {
-    if (!txData.sendTx || !!messageInfo || transferComplete) {
+    if (!txData.sendTx || transferComplete) {
       return;
     }
     let cancelled = false;
     (async () => {
       let i = 0;
-      let msgInfo: MessageInfo | undefined;
-      while (msgInfo === undefined && !cancelled) {
+      let signed: SignedMessage | undefined;
+      while (signed === undefined && !cancelled) {
         try {
-          msgInfo = await new Operator().getMessageInfo(
-            route,
-            txData.sendTx,
-            txData.fromChain,
-          );
+          signed = await new Operator().getSignedMessage(route, txData);
         } catch {}
         if (cancelled) {
           return;
         }
-        if (msgInfo !== undefined) {
-          setMessageInfo(msgInfo);
+        if (signed !== undefined) {
+          setSignedMessage(signed);
         } else {
           await sleep(i < 10 ? 3000 : 30000);
         }
@@ -91,18 +86,11 @@ function Redeem({
     return () => {
       cancelled = true;
     };
-  }, [
-    txData.sendTx,
-    txData.fromChain,
-    messageInfo,
-    setMessageInfo,
-    route,
-    transferComplete,
-  ]);
+  }, [txData, route, setSignedMessage, transferComplete]);
 
   // check if VAA has been redeemed
   useEffect(() => {
-    if (!messageInfo || !txData.toChain || transferComplete) {
+    if (!txData.toChain || !signedMessage || transferComplete) {
       return;
     }
     let cancelled = false;
@@ -114,7 +102,7 @@ function Redeem({
           isComplete = await new Operator().isTransferCompleted(
             route,
             txData.toChain,
-            messageInfo,
+            signedMessage,
           );
         } catch {}
         if (cancelled) {
@@ -131,14 +119,7 @@ function Redeem({
     return () => {
       cancelled = true;
     };
-  }, [
-    txData.toChain,
-    messageInfo,
-    setMessageInfo,
-    transferComplete,
-    route,
-    setTransferComplete,
-  ]);
+  }, [txData, transferComplete, route, setTransferComplete, signedMessage]);
 
   return (
     <div
@@ -155,7 +136,7 @@ function Redeem({
       <NetworksTag />
       <Spacer />
       <GovernorEnqueuedWarning
-        show={!messageInfo && isVaaEnqueued}
+        show={!txData && isVaaEnqueued}
         chain={txData.fromChain}
       />
       <Stepper />
@@ -164,16 +145,16 @@ function Redeem({
 }
 
 function mapStateToProps(state: RootState) {
-  const { txData, transferComplete, isVaaEnqueued, route, messageInfo } =
+  const { txData, transferComplete, isVaaEnqueued, route, signedMessage } =
     state.redeem;
 
-  return { txData, transferComplete, isVaaEnqueued, route, messageInfo };
+  return { txData, transferComplete, isVaaEnqueued, route, signedMessage };
 }
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    setMessageInfo: (messageInfo: MessageInfo) =>
-      dispatch(setMessageInfo(messageInfo)),
+    setSignedMessage: (signed: SignedMessage) =>
+      dispatch(setSignedMessage(signed)),
     setIsVaaEnqueued: (isVaaEnqueued: boolean) =>
       dispatch(setIsVaaEnqueued(isVaaEnqueued)),
     setTransferComplete: () => dispatch(setTransferComplete(true)),

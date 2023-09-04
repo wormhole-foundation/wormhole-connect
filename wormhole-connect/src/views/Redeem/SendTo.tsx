@@ -27,10 +27,10 @@ import Header from './Header';
 function SendTo() {
   const dispatch = useDispatch();
   const {
-    messageInfo,
     redeemTx,
     transferComplete,
     route: routeType,
+    signedMessage,
   } = useSelector((state: RootState) => state.redeem);
   const txData = useSelector((state: RootState) => state.redeem.txData)!;
   const wallet = useSelector((state: RootState) => state.wallet.receiving);
@@ -56,14 +56,14 @@ function SendTo() {
   // get the redeem tx, for automatic transfers only
   const getRedeemTx = useCallback(async () => {
     if (redeemTx) return redeemTx;
-    if (messageInfo) {
-      const redeemed = await fetchRedeemTx(txData);
+    if (signedMessage) {
+      const redeemed = await fetchRedeemTx(signedMessage);
       if (redeemed) {
         dispatch(setRedeemTx(redeemed.transactionHash));
         return redeemed.transactionHash;
       }
     }
-  }, [redeemTx, messageInfo, txData, dispatch]);
+  }, [redeemTx, signedMessage, dispatch]);
 
   useEffect(() => {
     if (!txData) return;
@@ -108,7 +108,7 @@ function SendTo() {
       const txId = await new Operator().redeem(
         routeType,
         txData.toChain,
-        messageInfo,
+        signedMessage!,
         wallet.address,
       );
       dispatch(setRedeemTx(txId));

@@ -6,12 +6,13 @@ import {
 import { BigNumber } from 'ethers';
 
 import { TokenConfig } from 'config/types';
-import RouteAbstract, {
+import {
   TransferInfoBaseParams,
-  MessageInfo,
-} from './routeAbstract';
-import { ParsedMessage, ParsedRelayerMessage } from '../sdk';
+  UnsignedMessage,
+  SignedMessage,
+} from './types';
 import { TransferDisplayData } from './types';
+import RouteAbstract from './routeAbstract';
 
 export class HashflowRoute extends RouteAbstract {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED = false;
@@ -87,14 +88,9 @@ export class HashflowRoute extends RouteAbstract {
   }
   public redeem(
     destChain: ChainName | ChainId,
-    messageInfo: MessageInfo,
+    messageInfo: SignedMessage,
     recipient: string,
   ): Promise<string> {
-    throw new Error('Method not implemented.');
-  }
-  public parseMessage(
-    messageInfo: MessageInfo,
-  ): Promise<ParsedMessage | ParsedRelayerMessage> {
     throw new Error('Method not implemented.');
   }
   public getPreview<P>(params: P): Promise<TransferDisplayData> {
@@ -128,11 +124,14 @@ export class HashflowRoute extends RouteAbstract {
   }
   isTransferCompleted(
     destChain: ChainName | ChainId,
-    messageInfo: MessageInfo,
+    message: SignedMessage,
   ): Promise<boolean> {
     throw new Error('Method not implemented.');
   }
-  getMessageInfo(tx: string, chain: ChainName | ChainId): Promise<MessageInfo> {
+  getMessage(tx: string, chain: ChainName | ChainId): Promise<UnsignedMessage> {
+    throw new Error('Method not implemented.');
+  }
+  getSignedMessage(message: UnsignedMessage): Promise<SignedMessage> {
     throw new Error('Method not implemented.');
   }
   getTransferSourceInfo<T extends TransferInfoBaseParams>(

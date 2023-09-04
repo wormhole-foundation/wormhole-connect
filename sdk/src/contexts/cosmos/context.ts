@@ -1,6 +1,5 @@
 import {
   cosmos,
-  getSignedVAAWithRetry,
   parseTokenTransferPayload,
   parseVaa,
 } from '@certusone/wormhole-sdk';
@@ -30,7 +29,6 @@ import {
   ParsedRelayerMessage,
   ParsedRelayerPayload,
   TokenId,
-  VaaInfo,
 } from '../../types';
 import { WormholeContext } from '../../wormhole';
 import { TokenBridgeAbstract } from '../abstracts/tokenBridge';
@@ -331,53 +329,32 @@ export class CosmosContext<
     return decimals;
   }
 
-  async getVaa(
-    txId: string,
+  async getMessage(
+    id: string,
     chain: ChainName | ChainId,
-  ): Promise<VaaInfo<any>> {
+  ): Promise<ParsedMessage | ParsedRelayerMessage> {
     const client = await this.getCosmWasmClient(chain);
-    const tx = await client.getTx(txId);
+    const tx = await client.getTx(id);
     if (!tx) throw new Error('tx not found');
 
     // parse logs emitted for the tx execution
     const logs = cosmosLogs.parseRawLog(tx.rawLog);
 
-    const emitterAddress = searchCosmosLogs('message.sender', logs);
+    // extract information wormhole contract logs
+    // - message.message: the vaa payload (i.e. the transfer information)
+    // - message.sequence: the vaa's sequence number
+    // - message.sender: the vaa's emitter address
+    const tokenTransferPayload = searchCosmosLogs('message.message', logs);
+    if (!tokenTransferPayload)
+      throw new Error('message/transfer payload not found');
     const sequence = searchCosmosLogs('message.sequence', logs);
+    if (!sequence) throw new Error('sequence not found');
+    const emitterAddress = searchCosmosLogs('message.sender', logs);
+    if (!emitterAddress) throw new Error('emitter not found');
 
-    if (!sequence) throw new Error('VAA sequence not found');
-    if (!emitterAddress) throw new Error('VAA emitter not found');
-
-    const chainId = this.context.toChainId(chain);
-    const { vaaBytes } = await getSignedVAAWithRetry(
-      this.context.conf.wormholeHosts,
-      chainId,
-      emitterAddress,
-      sequence,
-      undefined,
-      undefined,
-      this.context.conf.wormholeHosts.length,
+    const parsed = parseTokenTransferPayload(
+      Buffer.from(tokenTransferPayload, 'hex'),
     );
-
-    const parsedVaa = parseVaa(vaaBytes);
-    return {
-      transaction: tx,
-      rawVaa: vaaBytes,
-      vaa: {
-        ...parsedVaa,
-        sequence: parsedVaa.sequence.toString(),
-      },
-    };
-  }
-
-  async parseMessage(
-    info: VaaInfo<any>,
-  ): Promise<ParsedMessage | ParsedRelayerMessage> {
-    const { transaction: tx, vaa: message } = info;
-
-    if (!tx) throw new Error('tx not found');
-
-    const parsed = parseTokenTransferPayload(message.payload);
 
     const decoded = decodeTxRaw(tx.tx);
     const { sender } = MsgExecuteContract.decode(
@@ -399,17 +376,20 @@ export class CosmosContext<
       payloadID: parsed.payloadType,
       recipient: destContext.parseAddress(hexlify(parsed.to)),
       toChain: this.context.toChainName(parsed.toChain),
-      fromChain: this.context.toChainName(message.emitterChain),
+      fromChain: this.context.toChainName(chain),
       tokenAddress,
       tokenChain,
       tokenId: {
         address: tokenAddress,
         chain: tokenChain,
       },
-      sequence: BigNumber.from(message.sequence),
-      emitterAddress: message.emitterAddress.toString('hex'),
+      sequence: BigNumber.from(sequence),
+      emitterAddress,
       block: tx.height,
       gasFee: BigNumber.from(tx.gasUsed),
+      payload: parsed.tokenTransferPayload.length
+        ? hexlify(parsed.tokenTransferPayload)
+        : undefined,
     };
   }
 

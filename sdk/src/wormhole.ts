@@ -19,7 +19,6 @@ import {
   RedeemResult,
   SendResult,
   TokenId,
-  VaaInfo,
   WormholeConfig,
 } from './types';
 import { SeiContext } from './contexts/sei';
@@ -426,16 +425,12 @@ export class WormholeContext extends MultiProvider<Domain> {
     return context.parseAddress(address);
   }
 
-  async getVaa(tx: string, chain: ChainName | ChainId): Promise<VaaInfo> {
-    const context = this.getContext(chain);
-    return await context.getVaa(tx, chain);
-  }
-
-  async parseMessage(
-    info: VaaInfo,
+  async getMessage(
+    tx: string,
+    chain: ChainName | ChainId,
   ): Promise<ParsedMessage | ParsedRelayerMessage> {
-    const context = this.getContext(info.vaa.emitterChain as ChainId);
-    return context.parseMessage(info);
+    const context = this.getContext(chain);
+    return await context.getMessage(tx, chain);
   }
 
   /**

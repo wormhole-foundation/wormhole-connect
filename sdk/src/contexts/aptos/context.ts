@@ -8,36 +8,26 @@ import {
   ParsedMessage,
   Context,
   ParsedRelayerPayload,
-  VaaInfo,
 } from '../../types';
 import { WormholeContext } from '../../wormhole';
 import { TokenBridgeAbstract } from '../abstracts/tokenBridge';
 import { AptosContracts } from './contracts';
 import { AptosClient, CoinClient, Types } from 'aptos';
 import {
-  CHAIN_ID_APTOS,
   getForeignAssetAptos,
   getIsTransferCompletedAptos,
-  getSignedVAAWithRetry,
   getTypeFromExternalAddress,
   hexToUint8Array,
   isValidAptosType,
   parseTokenTransferPayload,
-  parseVaa,
   redeemOnAptos,
   transferFromAptos,
 } from '@certusone/wormhole-sdk';
-import {
-  arrayify,
-  hexZeroPad,
-  hexlify,
-  stripZeros,
-  zeroPad,
-} from 'ethers/lib/utils';
+import { arrayify, hexlify, stripZeros, zeroPad } from 'ethers/lib/utils';
 import { sha3_256 } from 'js-sha3';
 import { MAINNET_CHAINS } from '../../config/MAINNET';
 import { SolanaContext } from '../solana';
-import { ForeignAssetCache, stripHexPrefix } from '../../utils';
+import { ForeignAssetCache } from '../../utils';
 
 export const APTOS_COIN = '0x1::aptos_coin::AptosCoin';
 
@@ -248,10 +238,10 @@ export class AptosContext<
     return decimals;
   }
 
-  async getVaa(
+  async getMessage(
     tx: string,
     chain: ChainName | ChainId,
-  ): Promise<VaaInfo<Types.UserTransaction>> {
+  ): Promise<ParsedMessage | ParsedRelayerMessage> {
     const transaction = await this.aptosClient.getTransactionByHash(tx);
     if (transaction.type !== 'user_transaction') {
       throw new Error(`${tx} is not a user_transaction`);
@@ -264,46 +254,11 @@ export class AptosContext<
       throw new Error(`WormholeMessage not found for ${tx}`);
     }
 
-    const { sender, sequence } = message.data;
+    const { payload, sender, sequence } = message.data;
 
-    const emitter = stripHexPrefix(
-      hexZeroPad(
-        hexlify(sender, {
-          allowMissingPrefix: true,
-          hexPad: 'left',
-        }),
-        32,
-      ),
+    const parsed = parseTokenTransferPayload(
+      Buffer.from(payload.slice(2), 'hex'),
     );
-
-    const { vaaBytes } = await getSignedVAAWithRetry(
-      this.context.conf.wormholeHosts,
-      CHAIN_ID_APTOS,
-      emitter,
-      sequence,
-      undefined,
-      undefined,
-      this.context.conf.wormholeHosts.length,
-    );
-
-    const parsedVaa = parseVaa(vaaBytes);
-    return {
-      transaction: userTransaction,
-      rawVaa: vaaBytes,
-      vaa: {
-        ...parsedVaa,
-        sequence: parsedVaa.sequence.toString(),
-      },
-    };
-  }
-
-  async parseMessage(
-    info: VaaInfo<Types.UserTransaction>,
-  ): Promise<ParsedMessage | ParsedRelayerMessage> {
-    const { transaction, vaa } = info;
-
-    const { emitterChain: chain, payload, emitterAddress, sequence } = vaa;
-    const parsed = parseTokenTransferPayload(payload);
     const tokenContext = this.context.getContext(parsed.tokenChain as ChainId);
     const destContext = this.context.getContext(parsed.toChain as ChainId);
     const tokenAddress = await tokenContext.parseAssetAddress(
@@ -312,13 +267,13 @@ export class AptosContext<
     const tokenChain = this.context.toChainName(parsed.tokenChain);
 
     // make sender address even-length
-    const emitter = hexlify(emitterAddress, {
+    const emitter = hexlify(sender, {
       allowMissingPrefix: true,
       hexPad: 'left',
     });
     const parsedMessage: ParsedMessage = {
-      sendTx: transaction.hash,
-      sender: transaction.sender,
+      sendTx: userTransaction.hash,
+      sender: userTransaction.sender,
       amount: BigNumber.from(parsed.amount),
       payloadID: Number(parsed.payloadType),
       recipient: destContext.parseAddress(hexlify(parsed.to)),
@@ -332,10 +287,13 @@ export class AptosContext<
       },
       sequence: BigNumber.from(sequence),
       emitterAddress: hexlify(this.formatAddress(emitter)),
-      block: Number(transaction.version),
-      gasFee: BigNumber.from(transaction.gas_used).mul(
-        transaction.gas_unit_price,
+      block: Number(userTransaction.version),
+      gasFee: BigNumber.from(userTransaction.gas_used).mul(
+        userTransaction.gas_unit_price,
       ),
+      payload: parsed.tokenTransferPayload.length
+        ? hexlify(parsed.tokenTransferPayload)
+        : undefined,
     };
     return parsedMessage;
   }

@@ -4,7 +4,6 @@ import {
   PaginatedCoins,
   SUI_CLOCK_OBJECT_ID,
   SUI_TYPE_ARG,
-  SuiTransactionBlockResponse,
   TransactionBlock,
   getTotalGasUsed,
   getTransactionSender,
@@ -13,12 +12,9 @@ import {
 import { BigNumber, BigNumberish } from 'ethers';
 
 import {
-  CHAIN_ID_SUI,
   getForeignAssetSui,
   getIsTransferCompletedSui,
   getOriginalAssetSui,
-  getSignedVAAWithRetry,
-  parseVaa,
   redeemOnSui,
   transferFromSui,
 } from '@certusone/wormhole-sdk';
@@ -32,7 +28,6 @@ import {
   ParsedMessage,
   ParsedRelayerMessage,
   TokenId,
-  VaaInfo,
 } from '../../types';
 import { parseTokenTransferPayload } from '../../vaa';
 import { WormholeContext } from '../../wormhole';
@@ -40,7 +35,7 @@ import { RelayerAbstract } from '../abstracts/relayer';
 import { SolanaContext } from '../solana';
 import { SuiContracts } from './contracts';
 import { SuiRelayer } from './relayer';
-import { ForeignAssetCache, stripHexPrefix } from '../../utils';
+import { ForeignAssetCache } from '../../utils';
 
 export class SuiContext<
   T extends WormholeContext,
@@ -312,10 +307,10 @@ export class SuiContext<
     return metadata.decimals;
   }
 
-  async getVaa(
+  async getMessage(
     tx: string,
     chain: ChainName | ChainId,
-  ): Promise<VaaInfo<SuiTransactionBlockResponse>> {
+  ): Promise<ParsedMessage | ParsedRelayerMessage> {
     const txBlock = await this.provider.getTransactionBlock({
       digest: tx,
       options: { showEvents: true, showEffects: true, showInput: true },
@@ -326,34 +321,9 @@ export class SuiContext<
     if (!message || !message.parsedJson) {
       throw new Error('WormholeMessage not found');
     }
-    const { sender: emitterAddress, sequence } = message.parsedJson;
+    const { payload, sender: emitterAddress, sequence } = message.parsedJson;
 
-    const { vaaBytes } = await getSignedVAAWithRetry(
-      this.context.conf.wormholeHosts,
-      CHAIN_ID_SUI,
-      stripHexPrefix(emitterAddress),
-      sequence,
-      undefined,
-      undefined,
-      this.context.conf.wormholeHosts.length,
-    );
-
-    const parsedVaa = parseVaa(vaaBytes);
-    return {
-      transaction: txBlock,
-      rawVaa: vaaBytes,
-      vaa: {
-        ...parsedVaa,
-        sequence: parsedVaa.sequence.toString(),
-      },
-    };
-  }
-
-  async parseMessage(
-    info: VaaInfo<SuiTransactionBlockResponse>,
-  ): Promise<ParsedMessage | ParsedRelayerMessage> {
-    const { transaction: txBlock, vaa: message } = info;
-    const parsed = parseTokenTransferPayload(message.payload);
+    const parsed = parseTokenTransferPayload(Buffer.from(payload));
 
     const tokenContext = this.context.getContext(parsed.tokenChain as ChainId);
     const destContext = this.context.getContext(parsed.toChain as ChainId);
@@ -369,15 +339,15 @@ export class SuiContext<
       payloadID: parsed.payloadType,
       recipient: destContext.parseAddress(hexlify(parsed.to)),
       toChain: this.context.toChainName(parsed.toChain),
-      fromChain: this.context.toChainName(message.emitterChain),
+      fromChain: this.context.toChainName(chain),
       tokenAddress,
       tokenChain,
       tokenId: {
         chain: tokenChain,
         address: tokenAddress,
       },
-      sequence: BigNumber.from(message.sequence),
-      emitterAddress: hexlify(message.emitterAddress),
+      sequence: BigNumber.from(sequence),
+      emitterAddress: hexlify(emitterAddress),
       block: Number(txBlock.checkpoint || ''),
       gasFee: gasFee ? BigNumber.from(gasFee) : undefined,
     };
@@ -391,6 +361,9 @@ export class SuiContext<
         relayerPayloadId: parsed.payloadType as number,
         to: relayerPayload.to,
         toNativeTokenAmount: relayerPayload.toNativeTokenAmount,
+        payload: parsed.tokenTransferPayload.length
+          ? hexlify(parsed.tokenTransferPayload)
+          : undefined,
       };
       return relayerMessage;
     }

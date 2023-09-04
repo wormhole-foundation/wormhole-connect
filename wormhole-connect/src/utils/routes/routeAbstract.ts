@@ -1,28 +1,17 @@
 import {
-  TokenId,
-  ChainName,
   ChainId,
-  VaaInfo,
-  CCTPInfo,
+  ChainName,
+  TokenId,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { BigNumber } from 'ethers';
-
 import { TokenConfig } from 'config/types';
-import { ParsedMessage, ParsedRelayerMessage } from '../sdk';
-import { TransferDisplayData } from './types';
-
-// As more routes are added, more types should be added here (e.g. MessageInfo = ParsedVaa | DifferentRouteInfoStruct | ..)
-// This struct contains information needed to redeem the transfer
-export type MessageInfo = VaaInfo | CCTPInfo;
-
-export interface TransferInfoBaseParams {
-  txData: ParsedMessage | ParsedRelayerMessage;
-}
-
-export interface TransferDestInfoBaseParams {
-  txData: ParsedMessage | ParsedRelayerMessage;
-  receiveTx?: string;
-}
+import { BigNumber } from 'ethers';
+import {
+  UnsignedMessage,
+  SignedMessage,
+  TransferDestInfoBaseParams,
+  TransferDisplayData,
+  TransferInfoBaseParams,
+} from './types';
 
 export default abstract class RouteAbstract {
   abstract readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean;
@@ -116,13 +105,9 @@ export default abstract class RouteAbstract {
     routeOptions: any,
   ): Promise<any>;
 
-  public abstract parseMessage(
-    messageInfo: MessageInfo,
-  ): Promise<ParsedMessage | ParsedRelayerMessage>;
-
   public abstract redeem(
     destChain: ChainName | ChainId,
-    messageInfo: MessageInfo,
+    messageInfo: SignedMessage,
     recipient: string,
   ): Promise<string>;
 
@@ -166,15 +151,15 @@ export default abstract class RouteAbstract {
     chain: ChainName | ChainId,
   ): Promise<string | null>;
 
-  abstract getMessageInfo(
+  abstract getMessage(
     tx: string,
     chain: ChainName | ChainId,
-    unsigned?: boolean,
-  ): Promise<MessageInfo | undefined>;
+  ): Promise<UnsignedMessage>;
+  abstract getSignedMessage(message: UnsignedMessage): Promise<SignedMessage>;
 
   abstract isTransferCompleted(
     destChain: ChainName | ChainId,
-    messageInfo: MessageInfo,
+    messageInfo: SignedMessage,
   ): Promise<boolean>;
 
   // swap information (native gas slider)

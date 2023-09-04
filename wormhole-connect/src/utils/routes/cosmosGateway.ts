@@ -4,7 +4,6 @@ import {
   CHAIN_ID_SOLANA,
   CHAIN_ID_WORMCHAIN,
   cosmos,
-  parseTokenTransferPayload,
 } from '@certusone/wormhole-sdk';
 import {
   CosmWasmClient,
@@ -24,8 +23,6 @@ import {
   ChainName,
   CosmosTransaction,
   TokenId,
-  VaaInfo,
-  VaaSourceTransaction,
   searchCosmosLogs,
   SolanaContext,
   WormholeContext,
@@ -33,7 +30,7 @@ import {
 import { MsgTransfer } from 'cosmjs-types/ibc/applications/transfer/v1/tx';
 import { MsgExecuteContract } from 'cosmjs-types/cosmwasm/wasm/v1/tx';
 import { BigNumber, utils } from 'ethers';
-import { base58, hexlify } from 'ethers/lib/utils.js';
+import { arrayify, base58, hexlify } from 'ethers/lib/utils.js';
 import { toChainId, wh } from 'utils/sdk';
 import { MAX_DECIMALS, getTokenDecimals, toNormalizedDecimals } from '..';
 import { CHAINS, CONFIG, TOKENS } from '../../config';
@@ -41,16 +38,23 @@ import { Route } from '../../store/transferInput';
 import { isCosmWasmChain } from '../../utils/cosmos';
 import { toDecimals, toFixedDecimals } from '../balance';
 import { estimateSendGasFees } from '../gasEstimates';
-import { ParsedMessage, ParsedRelayerMessage } from '../sdk';
 import { TransferWallet, signAndSendTransaction } from '../wallet';
 import { BaseRoute } from './baseRoute';
 import { adaptParsedMessage } from './common';
-import { TransferDisplayData } from './types';
 import {
-  MessageInfo,
+  RelayTransferMessage,
+  SignedRelayTransferMessage,
+  SignedTokenTransferMessage,
+  TokenTransferMessage,
+  TransferDisplayData,
+  isSignedWormholeMessage,
+} from './types';
+import {
+  UnsignedMessage,
+  SignedMessage,
   TransferDestInfoBaseParams,
   TransferInfoBaseParams,
-} from './routeAbstract';
+} from './types';
 import { calculateGas } from '../gas';
 import {
   Tendermint34Client,
@@ -59,6 +63,7 @@ import {
 } from '@cosmjs/tendermint-rpc';
 import { BridgeRoute } from './bridge';
 import { TokenConfig } from '../../config/types';
+import { fetchVaa } from '../vaa';
 
 interface GatewayTransferMsg {
   gateway_transfer: {
@@ -73,19 +78,6 @@ interface FromCosmosPayload {
   gateway_ibc_token_bridge_payload: GatewayTransferMsg;
 }
 
-// this contains additional info given that the transaction that emits
-// the vaa ocurs in wormchain, but the original action that started
-// the process takes place in another cosmos chain
-interface GatewayVaaInfo<T extends VaaSourceTransaction = any>
-  extends VaaInfo<T> {
-  sourceChain: ChainName | ChainId;
-  sourceChainTx: string;
-  sourceChainSender: string;
-}
-function isGatewayVaaInfo(info: MessageInfo): info is GatewayVaaInfo {
-  return (info as GatewayVaaInfo).sourceChain !== undefined;
-}
-
 const IBC_MSG_TYPE = '/ibc.applications.transfer.v1.MsgTransfer';
 const IBC_PORT = 'transfer';
 const IBC_TIMEOUT_MILLIS = 10 * 60 * 1000; // 10 minutes
@@ -96,7 +88,7 @@ export class CosmosGatewayRoute extends BaseRoute {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean = false;
   readonly AUTOMATIC_DEPOSIT: boolean = false;
 
-  private static CLIENT_MAP: Record<string, CosmWasmClient> = {};
+  private static CLIENT_MAP: Record<string, TendermintClient> = {};
 
   public async isRouteAvailable(
     sourceToken: string,
@@ -338,60 +330,14 @@ export class CosmosGatewayRoute extends BaseRoute {
     );
   }
 
-  public async parseMessage(
-    info: VaaInfo | GatewayVaaInfo,
-  ): Promise<ParsedMessage | ParsedRelayerMessage> {
-    const message = await wh.parseMessage(info);
-    if (isCosmWasmChain(info.vaa.emitterChain as ChainId)) {
-      // need to set the info from the original cosmos chain
-      // even if the message originated from wormchain
-      const parsed = await adaptParsedMessage(message);
-      return isGatewayVaaInfo(info)
-        ? {
-            ...parsed,
-            sendTx: info.sourceChainTx,
-            fromChain: wh.toChainName(info.sourceChain),
-            sender: info.sourceChainSender,
-          }
-        : parsed;
-    }
-
-    const transfer = parseTokenTransferPayload(info.vaa.payload);
-    const decoded: GatewayTransferMsg = JSON.parse(
-      transfer.tokenTransferPayload.toString(),
-    );
-    const adapted: any = await adaptParsedMessage({
-      ...message,
-      recipient: Buffer.from(
-        decoded.gateway_transfer.recipient,
-        'base64',
-      ).toString(),
-      toChain: wh.toChainName(decoded.gateway_transfer.chain),
-    });
-
-    const parsed = {
-      ...adapted,
-      // the context assumes that if the transfer is payload 3, it's a relayer transfer
-      // but in this case, it is not, so we clear these fields
-      relayerFee: '0',
-      toNativeTokenAmount: '0',
-    };
-
-    return isGatewayVaaInfo(info)
-      ? { ...parsed, sendTx: info.sourceChainTx, fromChain: info.sourceChain }
-      : parsed;
-  }
-
   private async manualRedeem(
     destChain: ChainName | ChainId,
-    messageInfo: MessageInfo,
+    message: SignedMessage,
     recipient: string,
   ): Promise<string> {
-    if (!isGatewayVaaInfo(messageInfo)) {
-      throw new Error('Message information is not for a gateway transfer');
-    }
-
-    const vaa = Buffer.from(messageInfo.rawVaa).toString('base64');
+    if (!isSignedWormholeMessage(message))
+      throw new Error('Signed message is not for gateway');
+    const vaa = Buffer.from(message.vaa).toString('base64');
     const msg: MsgExecuteContractEncodeObject = {
       typeUrl: '/cosmwasm.wasm.v1.MsgExecuteContract',
       value: MsgExecuteContract.fromPartial({
@@ -417,13 +363,9 @@ export class CosmosGatewayRoute extends BaseRoute {
 
   public async redeem(
     destChain: ChainName | ChainId,
-    messageInfo: MessageInfo,
+    messageInfo: SignedMessage,
     recipient: string,
   ): Promise<string> {
-    if (!isGatewayVaaInfo(messageInfo)) {
-      throw new Error('Message information is not for a gateway transfer');
-    }
-
     const chain = wh.toChainId(destChain);
 
     if (isCosmWasmChain(chain)) {
@@ -586,6 +528,11 @@ export class CosmosGatewayRoute extends BaseRoute {
   private async getTmClient(
     chain: ChainId | ChainName,
   ): Promise<Tendermint34Client | Tendermint37Client> {
+    const name = wh.toChainName(chain);
+    if (CosmosGatewayRoute.CLIENT_MAP[name]) {
+      return CosmosGatewayRoute.CLIENT_MAP[name];
+    }
+
     const rpc = CONFIG.rpcs[wh.toChainName(chain)];
     if (!rpc) throw new Error(`${chain} RPC not configured`);
 
@@ -600,41 +547,96 @@ export class CosmosGatewayRoute extends BaseRoute {
       tmClient = await Tendermint34Client.connect(rpc);
     }
 
+    CosmosGatewayRoute.CLIENT_MAP[name] = tmClient;
+
     return tmClient;
   }
 
   private async getCosmWasmClient(
     chain: ChainId | ChainName,
   ): Promise<CosmWasmClient> {
-    const name = wh.toChainName(chain);
-    if (CosmosGatewayRoute.CLIENT_MAP[name]) {
-      return CosmosGatewayRoute.CLIENT_MAP[name];
-    }
-
-    const rpc = CONFIG.rpcs[name];
-    if (!rpc) throw new Error(`${chain} RPC not configured`);
-    const client = await CosmWasmClient.connect(rpc);
-    CosmosGatewayRoute.CLIENT_MAP[name] = client;
-    return client;
+    const tmClient = await this.getTmClient(chain);
+    return CosmWasmClient.create(tmClient);
   }
 
   isTransferCompleted(
     destChain: ChainName | ChainId,
-    messageInfo: VaaInfo,
+    message: SignedMessage,
   ): Promise<boolean> {
+    if (!isSignedWormholeMessage(message))
+      throw new Error('Signed message is not for gateway');
     return isCosmWasmChain(destChain)
-      ? wh.isTransferCompleted(CHAIN_ID_WORMCHAIN, hexlify(messageInfo.rawVaa))
-      : new BridgeRoute().isTransferCompleted(destChain, messageInfo);
+      ? wh.isTransferCompleted(CHAIN_ID_WORMCHAIN, hexlify(message.vaa))
+      : new BridgeRoute().isTransferCompleted(destChain, message);
   }
 
-  async getMessageInfo(
+  async getMessage(
     hash: string,
     chain: ChainName | ChainId,
-  ): Promise<VaaInfo | GatewayVaaInfo> {
-    if (!isCosmWasmChain(wh.toChainId(chain))) {
-      return wh.getVaa(hash, chain);
+  ): Promise<UnsignedMessage> {
+    const name = wh.toChainName(chain);
+    return isCosmWasmChain(name)
+      ? this.getMessageFromCosmos(hash, name)
+      : this.getMessageFromNonCosmos(hash, name);
+  }
+
+  async getSignedMessage(
+    message: TokenTransferMessage | RelayTransferMessage,
+  ): Promise<SignedTokenTransferMessage | SignedRelayTransferMessage> {
+    const vaa = await fetchVaa({
+      ...message,
+      // transfers from cosmos vaas are emitted by wormchain and not by the source chain
+      fromChain: isCosmWasmChain(message.fromChain)
+        ? 'wormchain'
+        : message.fromChain,
+    });
+
+    if (!vaa) {
+      throw new Error('VAA not found');
     }
 
+    return {
+      ...message,
+      vaa: utils.hexlify(vaa.bytes),
+    };
+  }
+
+  async getMessageFromNonCosmos(
+    hash: string,
+    chain: ChainName,
+  ): Promise<UnsignedMessage> {
+    // const message = await wh.getMessage(hash, chain);
+    // return adaptParsedMessage(message);
+    const message = await wh.getMessage(hash, chain);
+    if (!message.payload)
+      throw new Error(`Missing payload from message ${hash} on chain ${chain}`);
+    const decoded: GatewayTransferMsg = JSON.parse(
+      Buffer.from(
+        arrayify(message.payload, { allowMissingPrefix: true }),
+      ).toString(),
+    );
+    const adapted: any = await adaptParsedMessage({
+      ...message,
+      recipient: Buffer.from(
+        decoded.gateway_transfer.recipient,
+        'base64',
+      ).toString(),
+      toChain: wh.toChainName(decoded.gateway_transfer.chain),
+    });
+
+    return {
+      ...adapted,
+      // the context assumes that if the transfer is payload 3, it's a relayer transfer
+      // but in this case, it is not, so we clear these fields
+      relayerFee: '0',
+      toNativeTokenAmount: '0',
+    };
+  }
+
+  async getMessageFromCosmos(
+    hash: string,
+    chain: ChainName,
+  ): Promise<UnsignedMessage> {
     // Get tx on the source chain (e.g. osmosis)
     const sourceClient = await this.getCosmWasmClient(chain);
     const tx = await sourceClient.getTx(hash);
@@ -682,15 +684,16 @@ export class CosmosGatewayRoute extends BaseRoute {
     const sender = searchCosmosLogs('sender', logs);
     if (!sender) throw new Error('Missing sender in transaction logs');
 
-    const base = await wh.getVaa(destTx[0].hash, CHAIN_ID_WORMCHAIN);
+    const message = await wh.getMessage(destTx[0].hash, CHAIN_ID_WORMCHAIN);
+    const parsed = await adaptParsedMessage(message);
 
-    // add the original source chain and tx hash to the info
-    // the vaa contains only the wormchain information
     return {
-      ...base,
-      sourceChain: chain,
-      sourceChainTx: hash,
-      sourceChainSender: sender,
+      ...parsed,
+      // add the original source chain and tx hash to the info
+      // the vaa contains only the wormchain information
+      fromChain: wh.toChainName(chain),
+      sendTx: hash,
+      sender,
     };
   }
 

@@ -3,7 +3,6 @@ import {
   ChainName,
   MAINNET_CHAINS,
   TokenId,
-  VaaInfo,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { CHAINS, TOKENS } from 'config';
 import { TokenConfig } from 'config/types';
@@ -11,20 +10,28 @@ import { BigNumber, utils } from 'ethers';
 import { Route } from 'store/transferInput';
 import { MAX_DECIMALS, getTokenDecimals, toNormalizedDecimals } from 'utils';
 import { estimateClaimGasFees, estimateSendGasFees } from 'utils/gasEstimates';
-import { ParsedMessage, ParsedRelayerMessage, toChainId, wh } from 'utils/sdk';
+import { toChainId, wh } from 'utils/sdk';
 import { TransferWallet, postVaa, signAndSendTransaction } from 'utils/wallet';
 import { NO_INPUT } from 'utils/style';
-import { TransferDisplayData } from './types';
+import {
+  UnsignedMessage,
+  TransferDisplayData,
+  isSignedWormholeMessage,
+  TokenTransferMessage,
+  SignedTokenTransferMessage,
+} from './types';
 import { BaseRoute } from './baseRoute';
 import { adaptParsedMessage } from './common';
 import { toDecimals } from '../balance';
 import { calculateGas } from '../gas';
 import {
+  SignedMessage,
   TransferDestInfoBaseParams,
   TransferInfoBaseParams,
-} from './routeAbstract';
+} from './types';
 import { hexlify } from 'ethers/lib/utils.js';
 import { isCosmWasmChain } from '../cosmos';
+import { fetchVaa } from '../vaa';
 
 export class BridgeRoute extends BaseRoute {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean = false;
@@ -142,9 +149,12 @@ export class BridgeRoute extends BaseRoute {
 
   async redeem(
     destChain: ChainName | ChainId,
-    messageInfo: VaaInfo,
+    signedMessage: SignedMessage,
     payer: string,
   ): Promise<string> {
+    if (!isSignedWormholeMessage(signedMessage)) {
+      throw new Error('Invalid signed message');
+    }
     // post vaa (solana)
     // TODO: move to context
 
@@ -159,11 +169,18 @@ export class BridgeRoute extends BaseRoute {
       await postVaa(
         connection,
         contracts.core,
-        Buffer.from(messageInfo.rawVaa),
+        Buffer.from(
+          utils.arrayify(signedMessage.vaa, { allowMissingPrefix: true }),
+        ),
       );
     }
 
-    const tx = await wh.redeem(destChain, messageInfo.rawVaa, undefined, payer);
+    const tx = await wh.redeem(
+      destChain,
+      utils.arrayify(signedMessage.vaa),
+      undefined,
+      payer,
+    );
     const txId = await signAndSendTransaction(
       destChainName,
       tx,
@@ -171,13 +188,6 @@ export class BridgeRoute extends BaseRoute {
     );
     wh.registerProviders();
     return txId;
-  }
-
-  async parseMessage(
-    messageInfo: VaaInfo<any>,
-  ): Promise<ParsedMessage | ParsedRelayerMessage> {
-    const message = await wh.parseMessage(messageInfo);
-    return adaptParsedMessage(message);
   }
 
   async getPreview(
@@ -253,11 +263,27 @@ export class BridgeRoute extends BaseRoute {
     return wh.getForeignAsset(token, chain);
   }
 
-  async getMessageInfo(
+  async getMessage(
     tx: string,
     chain: ChainName | ChainId,
-  ): Promise<VaaInfo<any>> {
-    return wh.getVaa(tx, chain);
+  ): Promise<UnsignedMessage> {
+    const message = await wh.getMessage(tx, chain);
+    return adaptParsedMessage(message);
+  }
+
+  async getSignedMessage(
+    message: TokenTransferMessage,
+  ): Promise<SignedTokenTransferMessage> {
+    const vaa = await fetchVaa(message);
+
+    if (!vaa) {
+      throw new Error('VAA not found');
+    }
+
+    return {
+      ...message,
+      vaa: utils.hexlify(vaa.bytes),
+    };
   }
 
   async getTransferSourceInfo({
@@ -320,9 +346,12 @@ export class BridgeRoute extends BaseRoute {
 
   async isTransferCompleted(
     destChain: ChainName | ChainId,
-    messageInfo: VaaInfo,
+    signedMessage: SignedMessage,
   ): Promise<boolean> {
-    return wh.isTransferCompleted(destChain, hexlify(messageInfo.rawVaa));
+    if (!isSignedWormholeMessage(signedMessage)) {
+      throw new Error('Invalid signed message');
+    }
+    return wh.isTransferCompleted(destChain, hexlify(signedMessage.vaa));
   }
 
   async nativeTokenAmount(
