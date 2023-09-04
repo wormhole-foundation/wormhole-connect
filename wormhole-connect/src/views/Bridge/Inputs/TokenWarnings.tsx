@@ -93,7 +93,7 @@ function AssociatedTokenWarning(props: Props) {
 function TokenWarnings() {
   const dispatch = useDispatch();
 
-  const { toNetwork, token, foreignAsset, associatedTokenAddress, route } =
+  const { toChain, token, foreignAsset, associatedTokenAddress, route } =
     useSelector((state: RootState) => state.transferInput);
   const { receiving } = useSelector((state: RootState) => state.wallet);
   const [showErrors, setShowErrors] = useState(false);
@@ -105,7 +105,7 @@ function TokenWarnings() {
     // Avoid race conditions
     let active = true;
     const checkWrappedTokenExists = async () => {
-      if (!toNetwork || !tokenConfig) {
+      if (!toChain || !tokenConfig) {
         dispatch(setForeignAsset(''));
         setShowErrors(false);
         return;
@@ -119,7 +119,7 @@ function TokenWarnings() {
       const address = await new Operator().getForeignAsset(
         route,
         tokenId,
-        toNetwork,
+        toChain,
       );
 
       if (!active) return;
@@ -135,7 +135,7 @@ function TokenWarnings() {
     return () => {
       active = false;
     };
-  }, [toNetwork, tokenConfig, route, dispatch]);
+  }, [toChain, tokenConfig, route, dispatch]);
 
   // the associated token account address is deterministic, so we still
   // need to check if there is an account created for that address
@@ -203,12 +203,12 @@ function TokenWarnings() {
   ]);
 
   useEffect(() => {
-    if (!toNetwork || !token || !receiving.address) return;
-    if (toNetwork === 'solana' && foreignAsset) {
+    if (!toChain || !token || !receiving.address) return;
+    if (toChain === 'solana' && foreignAsset) {
       checkSolanaAssociatedTokenAccount();
     }
   }, [
-    toNetwork,
+    toChain,
     token,
     foreignAsset,
     receiving,
@@ -234,7 +234,7 @@ function TokenWarnings() {
 
   const content = !foreignAsset
     ? noForeignAssetWarning
-    : toNetwork === 'solana' && noAssociatedTokenAccount;
+    : toChain === 'solana' && noAssociatedTokenAccount;
 
   return (
     <AlertBanner

@@ -172,8 +172,8 @@ export const validateAll = async (
   walletData: WalletState,
 ): Promise<TransferValidations> => {
   const {
-    fromNetwork,
-    toNetwork,
+    fromChain,
+    toChain,
     token,
     destToken,
     amount,
@@ -189,18 +189,18 @@ export const validateAll = async (
   const isAutomatic = r.AUTOMATIC_DEPOSIT;
   const minAmt = r.getMinSendAmount(relayData);
   const baseValidations = {
-    sendingWallet: await validateWallet(sending, fromNetwork),
-    receivingWallet: await validateWallet(receiving, toNetwork),
-    fromNetwork: validateFromNetwork(fromNetwork),
-    toNetwork: validateToNetwork(toNetwork, fromNetwork),
-    token: validateToken(token, fromNetwork),
-    destToken: validateDestToken(destToken, toNetwork),
+    sendingWallet: await validateWallet(sending, fromChain),
+    receivingWallet: await validateWallet(receiving, toChain),
+    fromChain: validateFromNetwork(fromChain),
+    toChain: validateToNetwork(toChain, fromChain),
+    token: validateToken(token, fromChain),
+    destToken: validateDestToken(destToken, toChain),
     amount: validateAmount(amount, balances[token], route, minAmt),
     route: validateRoute(route),
     toNativeToken: '',
     foreignAsset: validateForeignAsset(foreignAsset),
     associatedTokenAccount: validateSolanaTokenAccount(
-      toNetwork,
+      toChain,
       foreignAsset,
       associatedTokenAddress,
     ),
@@ -230,8 +230,8 @@ export const validate = async (dispatch: Dispatch<AnyAction>) => {
   if (
     wallet.sending.address &&
     wallet.receiving.address &&
-    transferInput.fromNetwork &&
-    transferInput.toNetwork &&
+    transferInput.fromChain &&
+    transferInput.toChain &&
     transferInput.token &&
     transferInput.destToken &&
     transferInput.amount &&

@@ -4,7 +4,7 @@ import { utils, providers, BigNumberish } from 'ethers';
 import axios from 'axios';
 import { ChainId, ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 
-import { CHAINS, CONFIG, WH_CONFIG, WORMHOLE_API } from 'config';
+import { CHAINS, ENV, WORMHOLE_API } from 'config';
 import {
   ParsedMessage,
   ParsedRelayerMessage,
@@ -14,7 +14,7 @@ import {
 } from './sdk';
 
 export const WORMHOLE_RPC_HOSTS =
-  WH_CONFIG.env === 'MAINNET'
+  ENV === 'MAINNET'
     ? [
         'https://wormhole-v2-mainnet-api.certus.one',
         'https://wormhole.inotel.ro',
@@ -23,7 +23,7 @@ export const WORMHOLE_RPC_HOSTS =
         'https://wormhole-v2-mainnet-api.staking.fund',
         'https://wormhole-v2-mainnet.01node.com',
       ]
-    : WH_CONFIG.env === 'TESTNET'
+    : ENV === 'TESTNET'
     ? ['https://wormhole-v2-testnet-api.certus.one']
     : ['http://localhost:7071'];
 
@@ -185,7 +185,7 @@ export async function fetchVaaGuardian(
   const { emitterChain, emitterAddress, sequence } = messageId;
 
   const { vaaBytes: vaa } = await getSignedVAA(
-    CONFIG.wormholeHosts[0],
+    WORMHOLE_RPC_HOSTS[0],
     emitterChain,
     emitterAddress,
     sequence,

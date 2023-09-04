@@ -43,9 +43,8 @@ import { TransactionBlock } from '@mysten/sui.js';
 import { SolanaWallet } from '@xlabs-libs/wallet-aggregator-solana';
 import { SeiTransaction, SeiWallet } from '@xlabs-libs/wallet-aggregator-sei';
 import { wh } from './sdk';
-import { CHAINS, CHAINS_ARR, CONFIG } from '../config';
+import { CHAINS, CHAINS_ARR, ENV, RPCS, isMainnet } from '../config';
 import { getNetworkByChainId } from 'utils';
-import { WH_CONFIG } from '../config';
 import { AptosWallet } from '@xlabs-libs/wallet-aggregator-aptos';
 import { Types } from 'aptos';
 import {
@@ -78,16 +77,14 @@ let walletConnection = {
   receiving: undefined as Wallet | undefined,
 };
 
-const tag = WH_CONFIG.env === 'MAINNET' ? 'mainnet-beta' : 'devnet';
-const connection = new SolanaConnection(
-  WH_CONFIG.rpcs.solana || clusterApiUrl(tag),
-);
+const tag = ENV === 'MAINNET' ? 'mainnet-beta' : 'devnet';
+const connection = new SolanaConnection(RPCS.solana || clusterApiUrl(tag));
 
 const buildCosmosWallets = () => {
-  const rpcs = Object.keys(CONFIG.rpcs).reduce((acc, k) => {
+  const rpcs = Object.keys(RPCS).reduce((acc, k) => {
     const conf = CHAINS[k as ChainName];
     if (conf?.chainId && conf?.context === Context.COSMOS) {
-      acc[conf.chainId] = CONFIG.rpcs[k as ChainName]!;
+      acc[conf.chainId] = RPCS[k as ChainName]!;
     }
     return acc;
   }, {} as Record<string, string>);
@@ -127,10 +124,9 @@ export const wallets = {
     spika: new AptosWallet(new SpikaWalletAdapter()),
     snap: new AptosWallet(
       new AptosSnapAdapter({
-        network:
-          WH_CONFIG.env === 'MAINNET'
-            ? WalletAdapterNetwork.Mainnet
-            : WalletAdapterNetwork.Testnet,
+        network: isMainnet
+          ? WalletAdapterNetwork.Mainnet
+          : WalletAdapterNetwork.Testnet,
       }),
     ),
     bitkeep: new AptosWallet(new BitkeepWalletAdapter()),

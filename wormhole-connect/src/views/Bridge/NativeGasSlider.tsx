@@ -98,7 +98,7 @@ const INITIAL_STATE = {
 function GasSlider(props: { disabled: boolean }) {
   const { classes } = useStyles();
   const dispatch = useDispatch();
-  const { token, toNetwork, amount, route, destToken } = useSelector(
+  const { token, toChain, amount, route, destToken } = useSelector(
     (state: RootState) => state.transferInput,
   );
   const amountNum = useMemo(() => Number.parseFloat(amount), [amount]);
@@ -108,7 +108,7 @@ function GasSlider(props: { disabled: boolean }) {
   const { receiving: receivingWallet } = useSelector(
     (state: RootState) => state.wallet,
   );
-  const destConfig = CHAINS[toNetwork!];
+  const destConfig = CHAINS[toChain!];
   const sendingToken = TOKENS[token];
   const receivingToken = TOKENS[destToken];
   const nativeGasToken = TOKENS[destConfig?.gasToken!];
@@ -147,7 +147,7 @@ function GasSlider(props: { disabled: boolean }) {
 
   useEffect(() => {
     if (
-      !toNetwork ||
+      !toChain ||
       !sendingToken ||
       !route ||
       !new Operator().getRoute(route).NATIVE_GAS_DROPOFF_SUPPORTED ||
@@ -158,17 +158,17 @@ function GasSlider(props: { disabled: boolean }) {
 
     const tokenId = receivingToken.tokenId!;
     new Operator()
-      .maxSwapAmount(route, toNetwork, tokenId, receivingWallet.address)
+      .maxSwapAmount(route, toChain, tokenId, receivingWallet.address)
       .then((res: BigNumber) => {
         if (!res) {
           dispatch(setMaxSwapAmt(undefined));
           return;
         }
-        const toNetworkDecimals = getTokenDecimals(
-          wh.toChainId(toNetwork),
+        const toChainDecimals = getTokenDecimals(
+          wh.toChainId(toChain),
           tokenId,
         );
-        const amt = toDecimals(res, toNetworkDecimals, 6);
+        const amt = toDecimals(res, toChainDecimals, 6);
         dispatch(setMaxSwapAmt(Number.parseFloat(amt)));
       })
       .catch((e) => {
@@ -184,7 +184,7 @@ function GasSlider(props: { disabled: boolean }) {
       });
 
     // get conversion rate of token
-    const { gasToken } = CHAINS[toNetwork]!;
+    const { gasToken } = CHAINS[toChain]!;
     getConversion(token, gasToken).then((res: number) => {
       setState((prevState) => ({ ...prevState, conversionRate: res }));
     });
@@ -192,7 +192,7 @@ function GasSlider(props: { disabled: boolean }) {
     sendingToken,
     receivingToken,
     receivingWallet,
-    toNetwork,
+    toChain,
     route,
     token,
     destToken,
@@ -243,7 +243,7 @@ function GasSlider(props: { disabled: boolean }) {
       dispatch(setToNativeToken(debouncedSwapAmt));
       const tokenId = receivingToken.tokenId!;
       const tokenToChainDecimals = getTokenDecimals(
-        wh.toChainId(toNetwork!),
+        wh.toChainId(toChain!),
         tokenId,
       );
       const formattedAmt = utils.parseUnits(
@@ -252,7 +252,7 @@ function GasSlider(props: { disabled: boolean }) {
       );
       const nativeGasAmt = await new Operator().nativeTokenAmount(
         route,
-        toNetwork!,
+        toChain!,
         tokenId,
         formattedAmt,
         receivingWallet.address,
@@ -260,7 +260,7 @@ function GasSlider(props: { disabled: boolean }) {
       if (cancelled) return;
       const nativeGasTokenId = getWrappedTokenId(nativeGasToken);
       const nativeGasTokenToChainDecimals = getTokenDecimals(
-        wh.toChainId(toNetwork!),
+        wh.toChainId(toChain!),
         nativeGasTokenId,
       );
       const formattedNativeAmt = Number.parseFloat(
@@ -283,7 +283,7 @@ function GasSlider(props: { disabled: boolean }) {
     receivingWallet.address,
     sendingToken,
     receivingToken,
-    toNetwork,
+    toChain,
     route,
     amount,
   ]);

@@ -9,7 +9,7 @@ import { Types } from 'aptos';
 import { BigNumber } from 'ethers';
 import { StargateClient } from '@cosmjs/stargate';
 
-import { CHAINS, CONFIG, GAS_ESTIMATES, TOKENS } from '../config';
+import { CHAINS, GAS_ESTIMATES, TOKENS, RPCS } from '../config';
 import { Route } from 'config/types';
 import { MAX_DECIMALS, getTokenDecimals } from './index';
 import { toDecimals } from './balance';
@@ -64,7 +64,7 @@ export const calculateGas = async (
       const gasFee = BigNumber.from(getTotalGasUsed(txBlock) || 0);
       return toDecimals(gasFee, decimals, MAX_DECIMALS);
     } else if (isCosmWasmChain(chain)) {
-      const rpc = CONFIG.rpcs[chain];
+      const rpc = RPCS[chain];
       if (rpc) {
         const client = await StargateClient.connect(rpc);
         const transaction = await client.getTx(receiveTx);

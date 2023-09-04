@@ -18,7 +18,7 @@ import {
   Context,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 
-import { CHAINS, WH_CONFIG } from 'config';
+import { CHAINS, ENV, RPCS } from 'config';
 import { RootState } from 'store';
 import { setWalletModal } from 'store/router';
 import {
@@ -106,8 +106,8 @@ const fetchSuiOptions = async () => {
 
 const fetchSeiOptions = async () => {
   const seiWallets = await getSeiWallets({
-    chainId: getSeiChainId(WH_CONFIG.env) as SeiChainId,
-    rpcUrl: WH_CONFIG.rpcs.sei || '',
+    chainId: getSeiChainId(ENV) as SeiChainId,
+    rpcUrl: RPCS.sei || '',
   });
 
   return seiWallets.reduce((obj: { [key: string]: SeiWallet }, value) => {
@@ -180,7 +180,7 @@ function WalletsModal(props: Props) {
   const theme: any = useTheme();
   const { chain: chainProp, type } = props;
   const dispatch = useDispatch();
-  const { fromNetwork, toNetwork } = useSelector(
+  const { fromChain, toChain } = useSelector(
     (state: RootState) => state.transferInput,
   );
 
@@ -191,8 +191,7 @@ function WalletsModal(props: Props) {
     let cancelled = false;
     async function getAvailableWallets() {
       const chain =
-        chainProp ||
-        (type === TransferWallet.SENDING ? fromNetwork : toNetwork);
+        chainProp || (type === TransferWallet.SENDING ? fromChain : toChain);
 
       const config = CHAINS[chain!];
       return await getWalletOptions(config);
@@ -206,7 +205,7 @@ function WalletsModal(props: Props) {
     return () => {
       cancelled = true;
     };
-  }, [fromNetwork, toNetwork, props.chain, chainProp, type]);
+  }, [fromChain, toChain, props.chain, chainProp, type]);
 
   const handleSearch = (
     e:
@@ -222,7 +221,7 @@ function WalletsModal(props: Props) {
   const connect = async (walletInfo: WalletData) => {
     const { wallet } = walletInfo;
 
-    const network = type === TransferWallet.SENDING ? fromNetwork : toNetwork;
+    const network = type === TransferWallet.SENDING ? fromChain : toChain;
     const chainId = network ? CHAINS[network]?.chainId : undefined;
     await wallet.connect({ chainId });
 

@@ -57,7 +57,7 @@ function ValidationError(props: Props) {
     validationErrors[0] &&
     validationErrors[0].includes('Minimum amount is')
   ) {
-    const r = new Operator().getRoute(route!);
+    const r = new Operator().getRoute(route);
     const min = r.getMinSendAmount({ toNativeToken, relayerFee });
     content = (
       <div className={classes.minAmtError}>

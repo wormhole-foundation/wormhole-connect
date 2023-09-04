@@ -30,8 +30,8 @@ function FromInputs() {
     validate: showErrors,
     validations,
     route,
-    fromNetwork,
-    toNetwork,
+    fromChain,
+    toChain,
     sourceBalances: balances,
     token,
     amount,
@@ -69,7 +69,7 @@ function FromInputs() {
       selected={selectedToken}
       error={!!(showErrors && validations.token)}
       onClick={() => setShowTokensModal(true)}
-      disabled={!fromNetwork || !wallet.address || isTransactionInProgress}
+      disabled={!fromChain || !wallet.address || isTransactionInProgress}
       editable
     />
   );
@@ -98,12 +98,12 @@ function FromInputs() {
         walletValidations={[validations.sendingWallet]}
         walletError={wallet.error}
         inputValidations={[
-          validations.fromNetwork,
+          validations.fromChain,
           validations.token,
           validations.amount,
         ]}
-        network={fromNetwork}
-        networkValidation={validations.fromNetwork}
+        network={fromChain}
+        networkValidation={validations.fromChain}
         onNetworkClick={() => setShowNetworksModal(true)}
         tokenInput={tokenInput}
         amountInput={amountInput}
@@ -111,7 +111,7 @@ function FromInputs() {
       />
       <TokensModal
         open={showTokensModal}
-        network={fromNetwork}
+        network={fromChain}
         walletAddress={wallet.address}
         type="source"
         onSelect={selectToken}
@@ -120,7 +120,7 @@ function FromInputs() {
       <NetworksModal
         open={showNetworksModal}
         title="Sending from"
-        chains={CHAINS_ARR.filter((c) => c.key !== toNetwork)}
+        chains={CHAINS_ARR.filter((c) => c.key !== toChain)}
         onSelect={selectNetwork}
         onClose={() => setShowNetworksModal(false)}
         isDisabled={isDisabled}

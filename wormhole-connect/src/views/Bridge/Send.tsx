@@ -72,8 +72,8 @@ function Send(props: { valid: boolean }) {
   const {
     validate: showValidationState,
     validations,
-    fromNetwork,
-    toNetwork,
+    fromChain,
+    toChain,
     token,
     amount,
     route,
@@ -92,10 +92,10 @@ function Send(props: { valid: boolean }) {
     dispatch(setIsTransactionInProgress(true));
 
     try {
-      const fromConfig = CHAINS[fromNetwork!];
+      const fromConfig = CHAINS[fromChain!];
       if (fromConfig?.context === Context.ETH) {
-        registerWalletSigner(fromNetwork!, TransferWallet.SENDING);
-        const chainId = CHAINS[fromNetwork!]!.chainId;
+        registerWalletSigner(fromChain!, TransferWallet.SENDING);
+        const chainId = CHAINS[fromChain!]!.chainId;
         if (typeof chainId !== 'number') {
           throw new Error('invalid evm chain ID');
         }
@@ -110,9 +110,9 @@ function Send(props: { valid: boolean }) {
         route,
         sendToken || 'native',
         `${amount}`,
-        fromNetwork!,
+        fromChain!,
         sending.address,
-        toNetwork!,
+        toChain!,
         receiving.address,
         { toNativeToken },
       );
@@ -120,7 +120,12 @@ function Send(props: { valid: boolean }) {
       let message: UnsignedMessage | undefined;
       while (message === undefined) {
         try {
-          message = await operator.getMessage(route, txId, fromNetwork!);
+          message = await operator.getMessage(
+            route,
+            txId,
+            fromChain!,
+            true, // don't need to get the signed attestation
+          );
         } catch (e) {}
         if (message === undefined) {
           await sleep(3000);
@@ -148,9 +153,9 @@ function Send(props: { valid: boolean }) {
       route,
       sendToken || 'native',
       (amount || 0).toString(),
-      fromNetwork!,
+      fromChain!,
       sending.address,
-      toNetwork!,
+      toChain!,
       receiving.address,
       { relayerFee, toNativeToken },
     );
@@ -163,9 +168,9 @@ function Send(props: { valid: boolean }) {
   }, [
     token,
     amount,
-    fromNetwork,
+    fromChain,
     sending,
-    toNetwork,
+    toChain,
     receiving,
     toNativeToken,
     relayerFee,
@@ -174,10 +179,10 @@ function Send(props: { valid: boolean }) {
   ]);
 
   const setDestGas = useCallback(async () => {
-    if (!toNetwork) return;
-    const gasFee = await estimateClaimGasFees(toNetwork!);
+    if (!toChain) return;
+    const gasFee = await estimateClaimGasFees(toChain!);
     dispatch(setClaimGasEst(gasFee));
-  }, [toNetwork, dispatch]);
+  }, [toChain, dispatch]);
 
   useEffect(() => {
     const valid = isTransferValid(validations);
@@ -189,8 +194,8 @@ function Send(props: { valid: boolean }) {
     validations,
     sending,
     receiving,
-    fromNetwork,
-    toNetwork,
+    fromChain,
+    toChain,
     token,
     route,
     toNativeToken,
@@ -207,8 +212,8 @@ function Send(props: { valid: boolean }) {
 
   const showWarning = useMemo(() => {
     const r = new Operator().getRoute(route);
-    return !(r.AUTOMATIC_DEPOSIT || (toNetwork && isCosmWasmChain(toNetwork)));
-  }, [route, toNetwork]);
+    return !(r.AUTOMATIC_DEPOSIT || (toChain && isCosmWasmChain(toChain)));
+  }, [route, toChain]);
 
   return (
     <div className={classes.body}>

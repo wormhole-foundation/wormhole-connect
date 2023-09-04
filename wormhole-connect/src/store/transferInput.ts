@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { BigNumber } from 'ethers';
-import { TOKENS, config } from 'config';
+import { ROUTES, TOKENS, config } from 'config';
 import { Route, TokenConfig } from 'config/types';
 import { getTokenDecimals } from 'utils';
 import { toDecimals } from 'utils/balance';
@@ -38,8 +38,8 @@ export type ValidationErr = string;
 export type TransferValidations = {
   sendingWallet: ValidationErr;
   receivingWallet: ValidationErr;
-  fromNetwork: ValidationErr;
-  toNetwork: ValidationErr;
+  fromChain: ValidationErr;
+  toChain: ValidationErr;
   token: ValidationErr;
   destToken: ValidationErr;
   amount: ValidationErr;
@@ -52,13 +52,13 @@ export type TransferValidations = {
 export interface TransferInputState {
   validate: boolean;
   validations: TransferValidations;
-  fromNetwork: ChainName | undefined;
-  toNetwork: ChainName | undefined;
+  fromChain: ChainName | undefined;
+  toChain: ChainName | undefined;
   token: string;
   destToken: string;
   amount: string;
   receiveAmount: string;
-  route: Route | undefined;
+  route: Route;
   sourceBalances: Balances;
   destBalances: Balances;
   foreignAsset: string;
@@ -77,8 +77,8 @@ export interface TransferInputState {
 const initialState: TransferInputState = {
   validate: false,
   validations: {
-    fromNetwork: '',
-    toNetwork: '',
+    fromChain: '',
+    toChain: '',
     token: '',
     destToken: '',
     amount: '',
@@ -89,13 +89,13 @@ const initialState: TransferInputState = {
     foreignAsset: '',
     associatedTokenAccount: '',
   },
-  fromNetwork: config?.bridgeDefaults?.fromNetwork || undefined,
-  toNetwork: config?.bridgeDefaults?.toNetwork || undefined,
+  fromChain: config?.bridgeDefaults?.fromNetwork || undefined,
+  toChain: config?.bridgeDefaults?.toNetwork || undefined,
   token: config?.bridgeDefaults?.token || '',
   destToken: '',
   amount: '',
   receiveAmount: '',
-  route: undefined,
+  route: ROUTES[0] as Route,
   sourceBalances: {},
   destBalances: {},
   foreignAsset: '',
@@ -111,42 +111,42 @@ const initialState: TransferInputState = {
   supportedDestTokens: [],
 };
 
-const performModificationsIfFromNetworkChanged = (
+const performModificationsIfFromChainChanged = (
   state: TransferInputState,
 ) => {
-  const { fromNetwork, token } = state;
+  const { fromChain, token } = state;
   if (token) {
     const tokenConfig = TOKENS[token];
     // clear token and amount if not supported on the selected network
     if (
-      !fromNetwork ||
-      (!tokenConfig.tokenId && tokenConfig.nativeNetwork !== fromNetwork)
+      !fromChain ||
+      (!tokenConfig.tokenId && tokenConfig.nativeNetwork !== fromChain)
     ) {
       state.token = '';
       state.amount = '';
     }
     if (
       tokenConfig.symbol === 'USDC' &&
-      tokenConfig.nativeNetwork !== fromNetwork
+      tokenConfig.nativeNetwork !== fromChain
     ) {
-      state.token = getNativeVersionOfToken('USDC', fromNetwork!);
+      state.token = getNativeVersionOfToken('USDC', fromChain!);
     }
   }
 };
 
-const performModificationsIfToNetworkChanged = (state: TransferInputState) => {
-  const { toNetwork, destToken } = state;
+const performModificationsIfToChainChanged = (state: TransferInputState) => {
+  const { toChain, destToken } = state;
 
   if (destToken) {
     const tokenConfig = TOKENS[destToken];
-    if (!toNetwork) {
+    if (!toChain) {
       state.destToken = '';
     }
     if (
       tokenConfig.symbol === 'USDC' &&
-      tokenConfig.nativeNetwork !== toNetwork
+      tokenConfig.nativeNetwork !== toChain
     ) {
-      state.destToken = getNativeVersionOfToken('USDC', toNetwork!);
+      state.destToken = getNativeVersionOfToken('USDC', toChain!);
     }
   }
 };
@@ -181,22 +181,22 @@ export const transferInputSlice = createSlice({
     ) => {
       state.destToken = payload;
     },
-    setFromNetwork: (
+    setFromChain: (
       state: TransferInputState,
       { payload }: PayloadAction<ChainName>,
     ) => {
-      state.fromNetwork = payload;
+      state.fromChain = payload;
       // clear balances if the network changes;
       state.sourceBalances = {};
 
-      performModificationsIfFromNetworkChanged(state);
+      performModificationsIfFromChainChanged(state);
     },
-    setToNetwork: (
+    setToChain: (
       state: TransferInputState,
       { payload }: PayloadAction<ChainName>,
     ) => {
-      state.toNetwork = payload;
-      performModificationsIfToNetworkChanged(state);
+      state.toChain = payload;
+      performModificationsIfToChainChanged(state);
     },
     setAmount: (
       state: TransferInputState,
@@ -304,11 +304,11 @@ export const transferInputSlice = createSlice({
       state.supportedDestTokens = payload;
     },
     swapNetworks: (state: TransferInputState) => {
-      const tmp = state.fromNetwork;
-      state.fromNetwork = state.toNetwork;
-      state.toNetwork = tmp;
-      performModificationsIfFromNetworkChanged(state);
-      performModificationsIfToNetworkChanged(state);
+      const tmp = state.fromChain;
+      state.fromChain = state.toChain;
+      state.toChain = tmp;
+      performModificationsIfFromChainChanged(state);
+      performModificationsIfToChainChanged(state);
     },
   },
 });
@@ -331,7 +331,7 @@ export const selectFromNetwork = async (
     };
     dispatch(setWalletError(payload));
   }
-  dispatch(setFromNetwork(network));
+  dispatch(setFromChain(network));
 };
 
 export const selectToNetwork = async (
@@ -347,7 +347,7 @@ export const selectToNetwork = async (
     };
     dispatch(setWalletError(payload));
   }
-  dispatch(setToNetwork(network));
+  dispatch(setToChain(network));
 };
 
 export const {
@@ -355,8 +355,8 @@ export const {
   setValidations,
   setToken,
   setDestToken,
-  setFromNetwork,
-  setToNetwork,
+  setFromChain,
+  setToChain,
   setAmount,
   setReceiveAmount,
   setBalance,

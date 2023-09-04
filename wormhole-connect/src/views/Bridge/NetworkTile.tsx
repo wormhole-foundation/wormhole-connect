@@ -2,7 +2,7 @@ import React from 'react';
 import { makeStyles } from 'tss-react/mui';
 import TokenIcon from 'icons/TokenIcons';
 import { ERROR_BORDER, joinClass } from 'utils/style';
-import { NetworkConfig } from 'config/types';
+import { ChainConfig } from 'config/types';
 
 const useStyles = makeStyles()((theme: any) => ({
   networkTile: {
@@ -38,7 +38,7 @@ const useStyles = makeStyles()((theme: any) => ({
 }));
 
 type Props = {
-  network?: NetworkConfig;
+  network?: ChainConfig;
   onClick: React.MouseEventHandler<HTMLDivElement>;
   error?: boolean;
   disabled?: boolean;
