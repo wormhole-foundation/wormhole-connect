@@ -217,6 +217,14 @@ export class RelayRoute extends BridgeRoute {
   /**
    * These operations have to be implemented in subclasses.
    */
+  getMinSendAmount(routeOptions: any): number {
+    const { relayerFee, toNativeToken } = routeOptions;
+
+    // has to be slightly higher than the minimum or else tx will revert
+    const fees = relayerFee + toNativeToken;
+    const min = (fees * 1.05).toFixed(6);
+    return Number.parseFloat(min);
+  }
   async send(
     token: TokenId | 'native',
     amount: string,

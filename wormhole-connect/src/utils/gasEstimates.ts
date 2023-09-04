@@ -16,7 +16,6 @@ import { AptosClient } from 'aptos';
 
 import { CHAINS, GAS_ESTIMATES } from 'config';
 import { Route } from 'config/types';
-import { getMinAmount } from 'utils/transferValidation';
 import { TransferWallet, simulateSeiTransaction } from 'utils/wallet';
 import { wh } from 'utils/sdk';
 import { isCosmWasmChain } from './cosmos';
@@ -32,13 +31,10 @@ const simulateRelayAmount = (
   tokenDecimals: number,
 ): BigNumber => {
   const r = new Operator().getRoute(route);
-  // TODO: get min amount from the routes
-  if (r.AUTOMATIC_DEPOSIT && r.NATIVE_GAS_DROPOFF_SUPPORTED) {
-    const min = getMinAmount(true, relayerFee, toNativeToken);
-    const amountOrMin = Math.max(amount, min);
-    return utils.parseUnits(`${amountOrMin}`, tokenDecimals);
-  }
-  return BigNumber.from(0);
+  const min = r.getMinSendAmount({ relayerFee, toNativeToken });
+  if (min === 0) return BigNumber.from(0);
+  const amountOrMin = Math.max(amount, min);
+  return utils.parseUnits(`${amountOrMin}`, tokenDecimals);
 };
 
 // simulates a send transaction and returns the estimated fees

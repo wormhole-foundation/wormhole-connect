@@ -5,7 +5,6 @@ import { makeStyles } from 'tss-react/mui';
 import { RootState } from 'store';
 import { ValidationErr, setTransferRoute } from 'store/transferInput';
 import { Route } from 'config/types';
-import { getMinAmount } from 'utils/transferValidation';
 import Operator from 'utils/routes';
 import AlertBanner from 'components/AlertBanner';
 
@@ -58,8 +57,8 @@ function ValidationError(props: Props) {
     validationErrors[0] &&
     validationErrors[0].includes('Minimum amount is')
   ) {
-    const isAutomatic = new Operator().getRoute(route).AUTOMATIC_DEPOSIT;
-    const min = getMinAmount(isAutomatic, toNativeToken, relayerFee);
+    const r = new Operator().getRoute(route!);
+    const min = r.getMinSendAmount({ toNativeToken, relayerFee });
     content = (
       <div className={classes.minAmtError}>
         <div>

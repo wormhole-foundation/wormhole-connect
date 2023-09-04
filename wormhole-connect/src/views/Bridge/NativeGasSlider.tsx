@@ -12,7 +12,6 @@ import { RoutesConfig } from 'config/routes';
 import { getTokenDecimals, getWrappedTokenId } from 'utils';
 import { wh } from 'utils/sdk';
 import { getConversion, toDecimals, toFixedDecimals } from 'utils/balance';
-import { getMinAmount } from 'utils/transferValidation';
 import Operator from 'utils/routes';
 import { RootState } from 'store';
 import { setTransferRoute } from 'store/transferInput';
@@ -128,7 +127,8 @@ function GasSlider(props: { disabled: boolean }) {
     )
       return;
 
-    const min = getMinAmount(true, relayerFee, 0);
+    const r = new Operator().getRoute(route);
+    const min = r.getMinSendAmount({ relayerFee, toNativeToken: 0 });
     const amountWithoutRelayerFee = amountNum - min;
     const actualMaxSwap =
       amountNum &&
