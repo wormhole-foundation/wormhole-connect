@@ -79,7 +79,14 @@ function ToInputs() {
   );
 
   const handleAmountChange = useCallback(
-    async (number: number) => {
+    async (value: number | string) => {
+      if (typeof value === 'number') {
+        dispatch(setReceiveAmount(`${value}`));
+      } else {
+        dispatch(setReceiveAmount(value));
+      }
+      const number =
+        typeof value === 'number' ? value : Number.parseFloat(value);
       dispatch(setReceiveAmount(`${number}`));
       const r = new Operator();
       const sendAmount = await r.computeSendAmount(route, number, {
