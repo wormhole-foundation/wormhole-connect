@@ -12,17 +12,14 @@ import { makeStyles } from 'tss-react/mui';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { BigNumber } from 'ethers';
 
-import { RootState } from '../store';
-import { CHAINS, TOKENS_ARR } from '../config';
-import { TokenConfig } from '../config/types';
-import {
-  setBalance,
-  formatBalance,
-  clearBalances,
-} from '../store/transferInput';
-import { displayAddress } from '../utils';
-import { CENTER, NO_INPUT } from '../utils/style';
-import Operator from '../utils/routes';
+import { RootState } from 'store';
+import { CHAINS, TOKENS_ARR } from 'config';
+import { TokenConfig } from 'config/types';
+import { setBalance, formatBalance, clearBalances } from 'store/transferInput';
+import { displayAddress } from 'utils';
+import { CENTER, NO_INPUT } from 'utils/style';
+import Operator from 'utils/routes';
+import { isCosmWasmChain } from 'utils/cosmos';
 
 import Header from './Header';
 import Modal from './Modal';
@@ -32,7 +29,6 @@ import Scroll from './Scroll';
 import TokenIcon from '../icons/TokenIcons';
 import CircularProgress from '@mui/material/CircularProgress';
 import Tabs from './Tabs';
-import { isCosmWasmChain } from '../utils/cosmos';
 
 const useStyles = makeStyles()((theme: any) => ({
   tokensContainer: {

@@ -260,10 +260,10 @@ export const transferInputSlice = createSlice({
     ) => {
       state.supportedDestTokens = payload;
     },
-    swapNetworks: (state: TransferInputState) => {
-      const tmp = state.fromNetwork;
-      state.fromNetwork = state.toNetwork;
-      state.toNetwork = tmp;
+    swapChains: (state: TransferInputState) => {
+      const tmp = state.fromChain;
+      state.fromChain = state.toChain;
+      state.toChain = tmp;
     },
   },
 });
@@ -327,7 +327,7 @@ export const {
   setReceiverNativeBalance,
   setSupportedDestTokens,
   setSupportedSourceTokens,
-  swapNetworks,
+  swapChains,
 } = transferInputSlice.actions;
 
 export default transferInputSlice.reducer;

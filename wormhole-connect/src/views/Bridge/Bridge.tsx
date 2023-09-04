@@ -31,7 +31,7 @@ import PageHeader from 'components/PageHeader';
 import FromInputs from './Inputs/From';
 import ToInputs from './Inputs/To';
 import TransferLimitedWarning from './TransferLimitedWarning';
-import SwapNetworks from './SwapNetworks';
+import SwapChains from './SwapChains';
 import RouteOptions from './RouteOptions';
 import { isCosmWasmChain } from 'utils/cosmos';
 
@@ -295,7 +295,7 @@ function Bridge() {
       <PageHeader title="Bridge" />
 
       <FromInputs />
-      <SwapNetworks />
+      <SwapChains />
       <ToInputs />
 
       <Collapse in={valid && showValidationState}>
