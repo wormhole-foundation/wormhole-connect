@@ -80,6 +80,9 @@ export class HashflowRoute extends RouteAbstract {
   public estimateClaimGas(destChain: ChainName | ChainId): Promise<string> {
     throw new Error('Method not implemented.');
   }
+  public getMinSendAmount(routeOptions: any): number {
+    return 0;
+  }
   public send(
     token: TokenId | 'native',
     amount: string,

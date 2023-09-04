@@ -166,20 +166,6 @@ export const validateSolanaTokenAccount = (
   return '';
 };
 
-export const getMinAmount = (
-  isAutomatic: boolean,
-  relayerFee: number = 0,
-  toNativeToken: number = 0,
-) => {
-  // no minimum amount for manual transfers
-  if (!isAutomatic) return 0;
-
-  // has to be slightly higher than the minimum or else tx will revert
-  const fees = relayerFee + toNativeToken;
-  const min = (fees * 1.05).toFixed(6);
-  return Number.parseFloat(min);
-};
-
 export const validateAll = async (
   transferData: TransferInputState,
   relayData: RelayState,
@@ -196,11 +182,12 @@ export const validateAll = async (
     associatedTokenAddress,
     route,
   } = transferData;
-  const { maxSwapAmt, toNativeToken, relayerFee } = relayData;
+  const { maxSwapAmt, toNativeToken } = relayData;
   const { sending, receiving } = walletData;
   if (!route) throw new Error('no route selected');
-  const isAutomatic = new Operator().getRoute(route).AUTOMATIC_DEPOSIT;
-  const minAmt = getMinAmount(isAutomatic, toNativeToken, relayerFee);
+  const r = new Operator().getRoute(route);
+  const isAutomatic = r.AUTOMATIC_DEPOSIT;
+  const minAmt = r.getMinSendAmount(relayData);
   const baseValidations = {
     sendingWallet: await validateWallet(sending, fromNetwork),
     receivingWallet: await validateWallet(receiving, toNetwork),

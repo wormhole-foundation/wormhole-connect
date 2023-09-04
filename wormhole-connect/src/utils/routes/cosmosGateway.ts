@@ -33,7 +33,7 @@ import { BigNumber, utils } from 'ethers';
 import { arrayify, base58, hexlify } from 'ethers/lib/utils.js';
 import { toChainId, wh } from 'utils/sdk';
 import { isCosmWasmChain } from 'utils/cosmos';
-import { CHAINS, CONFIG, ROUTES, TOKENS } from 'config';
+import { CHAINS, RPCS, ROUTES, TOKENS } from 'config';
 import { Route } from 'config/types';
 import { MAX_DECIMALS, getTokenDecimals, toNormalizedDecimals } from '..';
 import { toDecimals, toFixedDecimals } from '../balance';
@@ -297,6 +297,10 @@ export class CosmosGatewayRoute extends BaseRoute {
     );
   }
 
+  public getMinSendAmount(routeOptions: any): number {
+    return 0;
+  }
+
   public async send(
     token: TokenId | 'native',
     amount: string,
@@ -537,7 +541,7 @@ export class CosmosGatewayRoute extends BaseRoute {
       return CosmosGatewayRoute.CLIENT_MAP[name];
     }
 
-    const rpc = CONFIG.rpcs[wh.toChainName(chain)];
+    const rpc = RPCS[wh.toChainName(chain)];
     if (!rpc) throw new Error(`${chain} RPC not configured`);
 
     // from cosmjs: https://github.com/cosmos/cosmjs/blob/358260bff71c9d3e7ad6644fcf64dc00325cdfb9/packages/stargate/src/stargateclient.ts#L218

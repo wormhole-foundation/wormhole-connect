@@ -341,6 +341,9 @@ export class CCTPManualRoute extends BaseRoute {
   /**
    * These operations have to be implemented in subclasses.
    */
+  public getMinSendAmount(routeOptions: any): number {
+    return 0;
+  }
   async send(
     token: TokenId | 'native',
     amount: string,

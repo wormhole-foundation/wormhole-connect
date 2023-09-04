@@ -250,6 +250,15 @@ export class CCTPRelayRoute extends CCTPManualRoute {
   /**
    * These operations have to be implemented in subclasses.
    */
+  public getMinSendAmount(routeOptions: any): number {
+    const { relayerFee, toNativeToken } = routeOptions;
+
+    // has to be slightly higher than the minimum or else tx will revert
+    const fees = relayerFee + toNativeToken;
+    const min = (fees * 1.05).toFixed(6);
+    return Number.parseFloat(min);
+  }
+
   async send(
     token: TokenId | 'native',
     amount: string,
