@@ -150,6 +150,11 @@ export const walletAcceptedNetworks = (
 export const setWalletConnection = (type: TransferWallet, wallet: Wallet) => {
   walletConnection[type] = wallet;
 };
+export const swapWalletConnections = () => {
+  const temp = walletConnection.sending;
+  walletConnection.sending = walletConnection.receiving;
+  walletConnection.receiving = temp;
+};
 
 export const registerWalletSigner = (
   chain: ChainName | ChainId,
