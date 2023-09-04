@@ -425,7 +425,8 @@ export class RelayRoute extends BridgeRoute {
     receiveTx,
     transferComplete,
   }: TransferDestInfoParams): Promise<TransferDisplayData> {
-    const txData: ParsedRelayerMessage = data as ParsedRelayerMessage;
+    const txData: SignedRelayTransferMessage =
+      data as SignedRelayTransferMessage;
 
     const token = TOKENS[txData.tokenKey];
     const { gasToken } = CHAINS[txData.toChain]!;
