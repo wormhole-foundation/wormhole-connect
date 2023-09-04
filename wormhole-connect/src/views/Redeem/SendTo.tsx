@@ -8,7 +8,8 @@ import { RootState } from 'store';
 import { setRedeemTx, setTransferComplete } from 'store/redeem';
 import { displayAddress } from 'utils';
 import { fetchRedeemTx } from 'utils/events';
-import Operator, { TransferDisplayData } from 'utils/routes';
+import { TransferDisplayData } from 'utils/routes';
+import RouteOperator from 'utils/routes/operator';
 import {
   TransferWallet,
   registerWalletSigner,
@@ -66,7 +67,7 @@ function SendTo() {
   }, [redeemTx, signedMessage, dispatch]);
 
   useEffect(() => {
-    if (!txData || !routeType) return;
+    if (!txData || !routeName) return;
     const populate = async () => {
       let receiveTx: string | undefined;
       try {
@@ -88,14 +89,15 @@ function SendTo() {
     setIsConnected(checkConnection());
   }, [wallet, checkConnection]);
 
-  const route = useMemo(() => {
-    return new Operator().getRoute(routeName);
+  const AUTOMATIC_DEPOSIT = useMemo(() => {
+    if (!routeName) return false;
+    return RouteOperator.getRoute(routeName).AUTOMATIC_DEPOSIT;
   }, [routeName]);
 
   const claim = async () => {
     setInProgress(true);
     setClaimError('');
-    if (!routeType) {
+    if (!routeName) {
       throw new Error('Unknown route, cannot claim');
     }
     if (!wallet || !isConnected) {
@@ -118,7 +120,7 @@ function SendTo() {
       if (!signedMessage) {
         throw new Error('failed to get vaa, cannot redeem');
       }
-      const txId = await new Operator().redeem(
+      const txId = await RouteOperator.redeem(
         routeName,
         txData.toChain,
         signedMessage,
@@ -135,11 +137,11 @@ function SendTo() {
     }
   };
 
-  const loading = !route.AUTOMATIC_DEPOSIT
+  const loading = !AUTOMATIC_DEPOSIT
     ? inProgress && !transferComplete
     : !transferComplete;
   const manualClaimText =
-    transferComplete || route.AUTOMATIC_DEPOSIT // todo: should be the other enum, should be named better than payload id
+    transferComplete || AUTOMATIC_DEPOSIT // todo: should be the other enum, should be named better than payload id
       ? ''
       : claimError
       ? 'Error please retry . . .'
