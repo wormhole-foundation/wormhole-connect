@@ -30,7 +30,7 @@ import {
   TendermintClient,
 } from '@cosmjs/tendermint-rpc';
 import { BigNumber, utils } from 'ethers';
-import { arrayify, hexlify } from 'ethers/lib/utils.js';
+import { arrayify } from 'ethers/lib/utils.js';
 import { toChainId, wh } from 'utils/sdk';
 import { getDisplayName } from 'utils';
 import { isCosmWasmChain } from 'utils/cosmos';
@@ -515,15 +515,19 @@ export class CosmosGatewayRoute extends BaseRoute {
     return CosmWasmClient.create(tmClient);
   }
 
-  isTransferCompleted(
+  async isTransferCompleted(
     destChain: ChainName | ChainId,
     message: SignedMessage,
   ): Promise<boolean> {
     if (!isSignedWormholeMessage(message))
       throw new Error('Signed message is not for gateway');
-    return isCosmWasmChain(destChain)
-      ? wh.isTransferCompleted(CHAIN_ID_WORMCHAIN, hexlify(message.vaa))
-      : new BridgeRoute().isTransferCompleted(destChain, message);
+
+    if (!isCosmWasmChain(destChain)) {
+      return new BridgeRoute().isTransferCompleted(destChain, message);
+    }
+
+    const destTx = await this.fetchRedeemedEvent(message);
+    return !!destTx;
   }
 
   async getMessage(
