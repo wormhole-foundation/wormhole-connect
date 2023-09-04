@@ -29,7 +29,7 @@ function SendTo() {
   const {
     redeemTx,
     transferComplete,
-    route: routeType,
+    route,
     signedMessage,
   } = useSelector((state: RootState) => state.redeem);
   const txData = useSelector((state: RootState) => state.redeem.txData)!;
@@ -66,7 +66,7 @@ function SendTo() {
   }, [redeemTx, signedMessage, dispatch]);
 
   useEffect(() => {
-    if (!txData || !routeType) return;
+    if (!txData || !route) return;
     const populate = async () => {
       let receiveTx: string | undefined;
       try {
@@ -74,7 +74,7 @@ function SendTo() {
       } catch (e) {
         console.error(`could not fetch redeem event:\n${e}`);
       }
-      const rows = await new Operator().getTransferDestInfo(routeType, {
+      const rows = await new Operator().getTransferDestInfo(route, {
         txData,
         receiveTx,
         transferComplete,
@@ -82,7 +82,7 @@ function SendTo() {
       setRows(rows);
     };
     populate();
-  }, [transferComplete, getRedeemTx, txData, routeType]);
+  }, [transferComplete, getRedeemTx, txData, route]);
 
   useEffect(() => {
     setIsConnected(checkConnection());
@@ -91,7 +91,7 @@ function SendTo() {
   const claim = async () => {
     setInProgress(true);
     setClaimError('');
-    if (!routeType) {
+    if (!route) {
       throw new Error('Unknown route, cannot claim');
     }
     if (!wallet || !isConnected) {
@@ -115,7 +115,7 @@ function SendTo() {
         throw new Error('failed to get vaa, cannot redeem');
       }
       const txId = await new Operator().redeem(
-        routeType,
+        route,
         txData.toChain,
         signedMessage,
         wallet.address,

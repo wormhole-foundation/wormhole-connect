@@ -20,7 +20,7 @@ function SendFrom() {
   const [rows, setRows] = useState([] as TransferDisplayData);
 
   useEffect(() => {
-    if (!txData) return;
+    if (!txData || !route) return;
     new Operator()
       .getTransferSourceInfo(route, { txData })
       .then((rows) => setRows(rows));
