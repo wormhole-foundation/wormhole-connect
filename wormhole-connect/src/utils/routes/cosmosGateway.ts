@@ -11,6 +11,7 @@ import {
   calculateFee,
   logs as cosmosLogs,
   setupIbcExtension,
+  IndexedTx,
 } from '@cosmjs/stargate';
 import {
   ChainId,
@@ -69,6 +70,13 @@ interface GatewayTransferMsg {
 
 interface FromCosmosPayload {
   gateway_ibc_token_bridge_payload: GatewayTransferMsg;
+}
+
+interface IBCTransferInfo {
+  sequence: string;
+  timeout: string;
+  srcChannel: string;
+  dstChannel: string;
 }
 
 const IBC_MSG_TYPE = '/ibc.applications.transfer.v1.MsgTransfer';
@@ -643,6 +651,107 @@ export class CosmosGatewayRoute extends BaseRoute {
       sendTx: hash,
       sender,
     };
+  }
+
+  async fetchRedeemedEvent(
+    message: SignedMessage,
+  ): Promise<string | null> {
+    if (!isSignedWormholeMessage(message)) {
+      throw new Error('Signed message is not for gateway');
+    }
+
+    return isCosmWasmChain(message.fromChain)
+      ? this.fetchRedeemedEventCosmosSource(message)
+      : this.fetchRedeemedEventNonCosmosSource(message);
+  }
+
+  private async fetchRedeemedEventNonCosmosSource(
+    message: SignedTokenTransferMessage | SignedRelayTransferMessage,
+  ): Promise<string | null> {
+    const wormchainClient = await this.getCosmWasmClient(CHAIN_ID_WORMCHAIN);
+    if (!message.payload) {
+      throw new Error('Missing payload from transfer');
+    }
+
+    // find the transaction on wormchain based on the gateway transfer payload
+    // since it has a nonce, we can assume it will be unique
+    const txs = await wormchainClient.searchTx([
+      { key: 'wasm.action', value: 'complete_transfer_with_payload' },
+      { key: 'wasm.recipient', value: this.getTranslatorAddress() },
+      {
+        key: 'wasm.transfer_payload',
+        value: Buffer.from(utils.arrayify(message.payload)).toString('base64'),
+      },
+    ]);
+    if (txs.length === 0) {
+      return null;
+    }
+    if (txs.length > 1) {
+      throw new Error('Multiple transactions found');
+    }
+
+    // extract the ibc transfer info from the transaction logs
+    const ibcInfo = this.getIBCTransferInfoFromLogs(txs[0]);
+
+    // find the transaction on the target chain based on the ibc transfer info
+    const destTx = await this.findDestinationIBCTransferTx(
+      message.toChain,
+      ibcInfo,
+    );
+    return destTx.hash;
+  }
+
+  private getIBCTransferInfoFromLogs(tx: IndexedTx): IBCTransferInfo {
+    const logs = cosmosLogs.parseRawLog(tx.rawLog);
+    const packetSeq = searchCosmosLogs('packet_sequence', logs);
+    const packetTimeout = searchCosmosLogs('packet_timeout_timestamp', logs);
+    const packetSrcChannel = searchCosmosLogs('packet_src_channel', logs);
+    const packetDstChannel = searchCosmosLogs('packet_dst_channel', logs);
+    if (
+      !packetSeq ||
+      !packetTimeout ||
+      !packetSrcChannel ||
+      !packetDstChannel
+    ) {
+      throw new Error('Missing packet information in transaction logs');
+    }
+
+    return {
+      sequence: packetSeq,
+      timeout: packetTimeout,
+      srcChannel: packetSrcChannel,
+      dstChannel: packetDstChannel,
+    };
+  }
+
+  private async findDestinationIBCTransferTx(
+    destChain: ChainName | ChainId,
+    ibcInfo: IBCTransferInfo,
+  ): Promise<IndexedTx> {
+    const wormchainClient = await this.getCosmWasmClient(destChain);
+    const destTx = await wormchainClient.searchTx([
+      { key: 'recv_packet.packet_sequence', value: ibcInfo.sequence },
+      { key: 'recv_packet.packet_timeout_timestamp', value: ibcInfo.timeout },
+      { key: 'recv_packet.packet_src_channel', value: ibcInfo.srcChannel },
+      { key: 'recv_packet.packet_dst_channel', value: ibcInfo.dstChannel },
+    ]);
+    if (destTx.length === 0) {
+      throw new Error(
+        `No wormchain transaction found for packet on chain ${destChain}`,
+      );
+    }
+    if (destTx.length > 1) {
+      throw new Error(
+        `Multiple transactions found for the same packet on chain ${destChain}`,
+      );
+    }
+    return destTx[0];
+  }
+
+  private async fetchRedeemedEventCosmosSource(
+    message: SignedTokenTransferMessage | SignedRelayTransferMessage,
+  ): Promise<string | null> {
+    throw new Error('Not implemented');
   }
 
   async getTransferSourceInfo({
