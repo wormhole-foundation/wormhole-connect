@@ -4,7 +4,6 @@ import {
   TokenId,
   EthContext,
   WormholeContext,
-  ParsedRelayerMessage as RelayTransferMessage,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { BigNumber, utils } from 'ethers';
 
@@ -46,6 +45,7 @@ import {
   getChainNameCCTP,
   getForeignUSDCAddress,
 } from './cctpManual';
+import { getUnsignedVaaEvm } from 'utils/vaa';
 
 interface TransferDestInfoParams {
   txData: ParsedMessage | ParsedRelayerMessage;
@@ -398,9 +398,7 @@ export class CCTPRelayRoute extends CCTPManualRoute {
     const receipt = await provider.getTransactionReceipt(tx);
     if (!receipt) throw new Error(`No receipt for ${tx} on ${chain}`);
 
-    const relayInfo = (await wh.getMessage(tx, chain)) as RelayTransferMessage;
-    if (relayInfo.payloadID !== PayloadType.AUTOMATIC)
-      throw new Error('Transfer is not a relay transfer');
+    const vaaInfo = await getUnsignedVaaEvm(tx, chain);
 
     // Get the CCTP log
     const cctpLog = receipt.logs.filter(
@@ -445,11 +443,17 @@ export class CCTPRelayRoute extends CCTPManualRoute {
       block: receipt.blockNumber,
       message,
       relayerPayloadId: 3,
-      relayerFee: relayInfo.relayerFee.toString(),
-      toNativeTokenAmount: relayInfo.toNativeTokenAmount.toString(),
-      emitterAddress: relayInfo.emitterAddress,
-      sequence: relayInfo.sequence.toString(),
-      to: relayInfo.recipient,
+      relayerFee: BigNumber.from(
+        '0x' + vaaInfo.payload.substring(296, 296 + 64),
+      ).toString(),
+      toNativeTokenAmount: BigNumber.from(
+        '0x' + vaaInfo.payload.substring(296 + 64, 296 + 64 * 2),
+      ).toString(),
+      emitterAddress: vaaInfo.emitterAddress,
+      sequence: vaaInfo.sequence.toString(),
+      to:
+        '0x' +
+        vaaInfo.payload.substring(296 + 64 + 64 + 24, 296 + 64 + 64 + 64),
     };
   }
 
