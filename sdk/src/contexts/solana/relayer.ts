@@ -65,7 +65,6 @@ export class SolanaRelayer {
       .mul(new BN(swapRatePrecision))
       .div(new BN(relayerFeePrecision).mul(swapRate));
 
-    console.log(`calculated relayerFee: ${relayerFee.toString()}`);
     return BigInt(relayerFee.toString());
   }
 
@@ -100,7 +99,6 @@ export class SolanaRelayer {
               TEN.pow(new BN(SOL_DECIMALS - decimals)).mul(swapRatePrecisionBN),
             );
 
-    console.log(`calculated maxSwapAmountIn: ${maxSwapAmountIn.toString()}`);
     return BigInt(maxSwapAmountIn.toString());
   }
 
@@ -134,15 +132,12 @@ export class SolanaRelayer {
             .mul(TEN.pow(new BN(SOL_DECIMALS - decimals)))
             .div(nativeSwapRate);
 
-    console.log(`calculated swapAmountOut: ${swapAmountOut.toString()}`);
     return BigInt(swapAmountOut.toString());
   }
 
   async fetchSwapEvent(signature: string): Promise<SwapEvent | null> {
-    console.log(`fetchSwapEvent signature: ${signature}`);
     const transaction = await this.connection.getParsedTransaction(signature);
     if (transaction) {
-      console.log(`fetchSwapEvent parsedTransaction: ${transaction}`);
       const logMessages = transaction.meta?.logMessages || [];
       for (const msg of logMessages) {
         const matches =
