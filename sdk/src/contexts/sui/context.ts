@@ -219,7 +219,7 @@ export class SuiContext<
     if (!gasFee) throw new Error('cannot estimate gas fee');
     return BigNumber.from(gasFee);
   }
-  async estimateClaimGas(): Promise<BigNumber> {
+  async estimateClaimGas(destChain: ChainName | ChainId): Promise<BigNumber> {
     throw new Error('not implemented');
   }
   async estimateSendWithRelayGas(

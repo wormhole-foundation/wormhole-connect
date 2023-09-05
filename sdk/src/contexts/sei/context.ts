@@ -248,20 +248,11 @@ export class SeiContext<
     recipientAddress: string,
   ): Promise<BigNumber> {
     throw new Error('not implemented');
-    // const tx = await this.send(
-    //   token,
-    //   parsedAmt.toString(),
-    //   fromChain,
-    //   fromAddress,
-    //   toChain,
-    //   toAddress,
-    //   undefined,
-    // );
-    // // the cosmos client requires a signer (i.e. a wallet) for transaction simulation
-    // // so we must rely on the wallet to estimate the gas fee
-    // const estimate = await simulateSeiTransaction(tx, TransferWallet.SENDING);
   }
-  async estimateClaimGas(): Promise<BigNumber> {
+  async estimateClaimGas(
+    destChain: ChainName | ChainId,
+    VAA: Uint8Array,
+  ): Promise<BigNumber> {
     throw new Error('not implemented');
   }
 

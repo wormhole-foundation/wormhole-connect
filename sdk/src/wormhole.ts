@@ -364,6 +364,16 @@ export class WormholeContext extends MultiProvider<Domain> {
     return gas;
   }
 
+  async estimateClaimGas(
+    destChain: ChainName | ChainId,
+    VAA?: Uint8Array,
+  ): Promise<BigNumber> {
+    if (!VAA) throw new Error('Cannot estimate claim without signed VAA');
+    const context = this.getContext(destChain);
+    const gas = await context.estimateClaimGas(destChain, VAA);
+    return gas;
+  }
+
   /**
    * Check whether a chain supports automatic relaying
    * @param chain the chain name or chain id

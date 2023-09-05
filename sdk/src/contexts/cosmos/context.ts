@@ -146,7 +146,10 @@ export class CosmosContext<
   ): Promise<BigNumber> {
     throw new Error('not implemented');
   }
-  async estimateClaimGas(): Promise<BigNumber> {
+  async estimateClaimGas(
+    destChain: ChainName | ChainId,
+    VAA: Uint8Array,
+  ): Promise<BigNumber> {
     throw new Error('not implemented');
   }
 

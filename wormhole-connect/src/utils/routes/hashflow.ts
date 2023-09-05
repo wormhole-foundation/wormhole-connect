@@ -74,10 +74,13 @@ export class HashflowRoute extends RouteAbstract {
     recipientChain: ChainName | ChainId,
     recipientAddress: string,
     routeOptions: any,
-  ): Promise<string> {
+  ): Promise<BigNumber> {
     throw new Error('Method not implemented.');
   }
-  estimateClaimGas(destChain: ChainName | ChainId): Promise<string> {
+  estimateClaimGas(
+    destChain: ChainName | ChainId,
+    VAA: Uint8Array,
+  ): Promise<BigNumber> {
     throw new Error('Method not implemented.');
   }
   getMinSendAmount(routeOptions: any): number {

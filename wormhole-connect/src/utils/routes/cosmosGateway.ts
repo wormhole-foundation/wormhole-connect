@@ -29,12 +29,17 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { MsgTransfer } from 'cosmjs-types/ibc/applications/transfer/v1/tx';
 import { MsgExecuteContract } from 'cosmjs-types/cosmwasm/wasm/v1/tx';
+import {
+  Tendermint34Client,
+  Tendermint37Client,
+  TendermintClient,
+} from '@cosmjs/tendermint-rpc';
 import { BigNumber, utils } from 'ethers';
 import { arrayify, base58, hexlify } from 'ethers/lib/utils.js';
 import { toChainId, wh } from 'utils/sdk';
 import { isCosmWasmChain } from 'utils/cosmos';
 import { CHAINS, RPCS, ROUTES, TOKENS } from 'config';
-import { Route } from 'config/types';
+import { Route, TokenConfig } from 'config/types';
 import { MAX_DECIMALS, getTokenDecimals, toNormalizedDecimals } from '..';
 import { toDecimals, toFixedDecimals } from '../balance';
 import { TransferWallet, signAndSendTransaction } from '../wallet';
@@ -54,13 +59,7 @@ import {
   TransferDestInfoBaseParams,
   TransferInfoBaseParams,
 } from './types';
-import {
-  Tendermint34Client,
-  Tendermint37Client,
-  TendermintClient,
-} from '@cosmjs/tendermint-rpc';
 import { BridgeRoute } from './bridge';
-import { TokenConfig } from '../../config/types';
 import { fetchVaa } from '../vaa';
 
 interface GatewayTransferMsg {
@@ -138,30 +137,28 @@ export class CosmosGatewayRoute extends BaseRoute {
     senderAddress: string,
     recipientChain: ChainName | ChainId,
     recipientAddress: string,
-    routeOptions: any,
-  ): Promise<string> {
-    // estimateSendGas(token, amount, sendingChain, senderAddress, recipientChain, recipientAddress);
-    throw new Error('not implemented');
-    // const recipientChainId = wh.toChainId(recipientChain);
-    // const payload = this.buildToCosmosPayload(recipientChainId, recipientAddress);
+    routeOptions?: any,
+  ): Promise<BigNumber> {
+    const gasFee = await wh.estimateSendGas(
+      token,
+      amount,
+      sendingChain,
+      senderAddress,
+      CHAIN_ID_WORMCHAIN,
+      this.getTranslatorAddress(),
+    );
 
-    // the transfer begins as a bridge transfer
-    // return estimateSendGasFees(
-    //   token,
-    //   Number.parseFloat(amount),
-    //   sendingChain,
-    //   senderAddress,
-    //   CHAIN_ID_WORMCHAIN,
-    //   this.getTranslatorAddress(),
-    //   Route.Bridge,
-    //   undefined,
-    //   undefined,
-    //   // payload,
-    // );
+    if (!gasFee) throw new Error('could not estimate gas fee');
+
+    return gasFee;
   }
 
-  async estimateClaimGas(destChain: ChainName | ChainId): Promise<string> {
-    return '0';
+  async estimateClaimGas(
+    destChain: ChainName | ChainId,
+    VAA?: Uint8Array,
+  ): Promise<BigNumber> {
+    if (!VAA) throw new Error('Cannot estimate gas without signedVAA');
+    throw new Error('not implemented');
   }
 
   private buildToCosmosPayload(

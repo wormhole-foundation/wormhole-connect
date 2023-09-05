@@ -29,7 +29,6 @@ import {
 } from './types';
 import { isCosmWasmChain } from '../cosmos';
 import { fetchVaa } from '../vaa';
-import { estimateSendGas } from 'utils/gas';
 
 export class BridgeRoute extends BaseRoute {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean = false;
@@ -98,9 +97,9 @@ export class BridgeRoute extends BaseRoute {
     senderAddress: string,
     recipientChain: ChainName | ChainId,
     recipientAddress: string,
-    routeOptions: any,
-  ): Promise<string> {
-    const sendGas = await estimateSendGas(
+    routeOptions?: any,
+  ): Promise<BigNumber> {
+    return await wh.estimateSendGas(
       token,
       amount,
       sendingChain,
@@ -108,13 +107,14 @@ export class BridgeRoute extends BaseRoute {
       recipientChain,
       recipientAddress,
     );
-    if (!sendGas) throw new Error('could not estimate gas');
-    return sendGas.toString();
   }
 
-  async estimateClaimGas(destChain: ChainName | ChainId): Promise<string> {
-    // return await estimateClaimGasFees(destChain);
-    throw new Error('not implemented');
+  async estimateClaimGas(
+    destChain: ChainName | ChainId,
+    VAA?: Uint8Array,
+  ): Promise<BigNumber> {
+    if (!VAA) throw new Error('Cannot estimate gas without signedVAA');
+    return await wh.estimateClaimGas(destChain, VAA);
   }
 
   /**

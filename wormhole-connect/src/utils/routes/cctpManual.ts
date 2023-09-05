@@ -27,10 +27,8 @@ import {
   wh,
   PayloadType,
 } from 'utils/sdk';
-// import { calculateGas } from 'utils/gas';
 import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
 import { NO_INPUT } from 'utils/style';
-// import { Route } from 'store/transferInput';
 import {
   SignedMessage,
   TransferDisplayData,
@@ -38,10 +36,10 @@ import {
   SignedCCTPMessage,
   ManualCCTPMessage,
   UnsignedCCTPMessage,
+  TransferInfoBaseParams,
 } from './types';
 import { BaseRoute } from './baseRoute';
-import { toDecimals, toFixedDecimals } from '../balance';
-import { TransferInfoBaseParams } from './types';
+import { toDecimals } from '../balance';
 import { getGasFallback } from '../gas';
 
 export const CCTPTokenSymbol = 'USDC';
@@ -289,8 +287,8 @@ export class CCTPManualRoute extends BaseRoute {
     senderAddress: string,
     recipientChain: ChainName | ChainId,
     recipientAddress: string,
-    routeOptions: any,
-  ): Promise<string> {
+    routeOptions?: any,
+  ): Promise<BigNumber> {
     const provider = wh.mustGetProvider(sendingChain);
     const { gasPrice } = await provider.getFeeData();
     if (!gasPrice)
@@ -316,33 +314,27 @@ export class CCTPManualRoute extends BaseRoute {
     const destinationDomain = wh.conf.chains[toChainName]?.cctpDomain;
     if (destinationDomain === undefined)
       throw new Error(`CCTP not supported on ${toChainName}`);
-    try {
-      const tx = await circleSender.populateTransaction.depositForBurn(
-        parsedAmt,
-        destinationDomain,
-        chainContext.context.formatAddress(recipientAddress, recipientChain),
-        chainContext.context.parseAddress(tokenAddr, sendingChain),
-      );
-      const est = await provider.estimateGas(tx);
-      const gasFee = est.mul(gasPrice);
-      return toFixedDecimals(utils.formatEther(gasFee), 6);
-    } catch (e) {
-      const gas = getGasFallback(sendingChain, Route.CCTPManual, 'sendToken');
-      if (!gas) throw new Error(`Cannot estimate gas for CCTP transfer\n${e}`);
-      return `${gas}`;
-    }
+    const tx = await circleSender.populateTransaction.depositForBurn(
+      parsedAmt,
+      destinationDomain,
+      chainContext.context.formatAddress(recipientAddress, recipientChain),
+      chainContext.context.parseAddress(tokenAddr, sendingChain),
+    );
+    const est = await provider.estimateGas(tx);
+    return est.mul(gasPrice);
 
     // maybe put this in a try catch and add fallback!
   }
 
-  async estimateClaimGas(destChain: ChainName | ChainId): Promise<string> {
-    // Note: This hardcodes 300000 gas - just as is done for the token bridge claim route
+  async estimateClaimGas(
+    destChain: ChainName | ChainId,
+    VAA?: Uint8Array,
+  ): Promise<BigNumber> {
     const provider = wh.mustGetProvider(destChain);
     const gasPrice = await provider.getGasPrice();
 
-    const est = BigNumber.from('300000');
-    const gasFee = est.mul(gasPrice);
-    return toFixedDecimals(utils.formatEther(gasFee), 6);
+    const est = getGasFallback(destChain, Route.CCTPManual, 'claim');
+    return est.mul(gasPrice);
   }
 
   /**
