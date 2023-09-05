@@ -112,10 +112,8 @@ export const fetchRedeemedEvent = async (
   }
 };
 
-export const fetchSwapEvent = async (
-  txData: ParsedMessage | ParsedRelayerMessage,
-) => {
-  const { tokenId, recipient, amount, tokenDecimals } = txData;
+export const fetchSwapEvent = async (txData: ParsedRelayerMessage) => {
+  const { tokenId, recipient, toNativeTokenAmount, tokenDecimals } = txData;
   if (txData.toChain === 'solana') {
     const context = wh.getContext(
       txData.toChain,
@@ -155,7 +153,7 @@ export const fetchSwapEvent = async (
     for (const event of events.data) {
       if (
         event.parsedJson?.recipient === recipient &&
-        event.parsedJson?.coin_amount === amount &&
+        event.parsedJson?.coin_amount === toNativeTokenAmount &&
         event.parsedJson?.coin ===
           `0x${Buffer.from(tokenAddress).toString('hex')}`
       ) {
@@ -182,11 +180,11 @@ export const fetchSwapEvent = async (
       eventFilter,
       currentBlock - chainConfig.maxBlockSearch,
     );
+    const normalized = fromNormalizedDecimals(
+      BigNumber.from(toNativeTokenAmount),
+      tokenDecimals,
+    );
     const match = events.filter((e: any) => {
-      const normalized = fromNormalizedDecimals(
-        BigNumber.from(amount),
-        tokenDecimals,
-      );
       return normalized.eq(e.args[3]);
     });
     return match ? match[0]?.args?.[4] : null;
