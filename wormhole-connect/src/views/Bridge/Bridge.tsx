@@ -119,8 +119,8 @@ function Bridge() {
       const supported = getUniqueTokens(
         (
           await Promise.all(
-            listOfRoutes.map((r) => {
-              const returnedTokens = operator.supportedSourceTokens(
+            listOfRoutes.map(async (r) => {
+              const returnedTokens = await operator.supportedSourceTokens(
                 r,
                 TOKENS_ARR,
                 undefined,

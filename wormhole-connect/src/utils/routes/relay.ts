@@ -19,7 +19,6 @@ import {
   ParsedMessage,
   PayloadType,
   wh,
-  isAcceptedToken,
   ParsedRelayerMessage,
   toChainId,
   calculateNativeTokenAmt,
@@ -92,9 +91,7 @@ export class RelayRoute extends BridgeRoute {
       token,
       destToken,
     );
-    if (!isSupportedBridgeToken) return false;
-    const tokenId = getWrappedTokenId(token);
-    return await isAcceptedToken(tokenId);
+    return isSupportedBridgeToken;
   }
 
   async isSupportedDestToken(
@@ -106,9 +103,7 @@ export class RelayRoute extends BridgeRoute {
       token,
       sourceToken,
     );
-    if (!isSupportedBridgeToken) return false;
-    const tokenId = getWrappedTokenId(token);
-    return await isAcceptedToken(tokenId);
+    return isSupportedBridgeToken;
   }
 
   async supportedSourceTokens(

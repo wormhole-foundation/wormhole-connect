@@ -2,7 +2,6 @@ import {
   ChainId,
   ChainName,
   TokenId,
-  NO_VAA_FOUND,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { BigNumber } from 'ethers';
 import { Route } from 'store/transferInput';
@@ -12,7 +11,7 @@ import { RelayRoute } from './relay';
 import { HashflowRoute } from './hashflow';
 import { CCTPRelayRoute } from './cctpRelay';
 import { CosmosGatewayRoute } from './cosmosGateway';
-import { ParsedMessage, PayloadType, getMessage, wh } from '../sdk';
+import { ParsedMessage, PayloadType, getMessage, isEvmChain, wh } from '../sdk';
 import { isCosmWasmChain } from '../cosmos';
 import RouteAbstract from './routeAbstract';
 import {
@@ -24,7 +23,6 @@ import {
 import {
   CCTPManualRoute,
   CCTP_LOG_TokenMessenger_DepositForBurn,
-  CCTPManual_CHAINS as CCTPChains,
 } from './cctpManual';
 
 // TODO: need to make this configurable
@@ -67,50 +65,28 @@ export default class Operator {
       return Route.COSMOS_GATEWAY;
     }
 
-    let message: UnsignedMessage | undefined;
-    let error;
-    try {
-      message = await getMessage(txHash, chain);
-    } catch (_error: any) {
-      error = _error.message;
-    }
-
-    // if(HASHFLOW_CONTRACT_ADDRESSES.includes(vaa.emitterAddress)) {
-    //   return Route.HASHFLOW
-    // }
-
-    if (!message) {
-      // Currently, CCTP manual is the only route without a VAA
-      if (error === NO_VAA_FOUND) {
-        const provider = wh.mustGetProvider(chain);
-        const receipt = await provider.getTransactionReceipt(txHash);
-        if (!receipt) throw new Error(`No receipt for ${txHash} on ${chain}`);
+    // Check if is CCTP Route (CCTPRelay or CCTPManual)
+    if (isEvmChain(chain)) {
+      const provider = wh.mustGetProvider(chain);
+      const receipt = await provider.getTransactionReceipt(txHash);
+      if (!receipt) throw new Error(`No receipt for ${txHash} on ${chain}`);
+      const cctpDepositForBurnLog = receipt.logs.find(
+        (log) => log.topics[0] === CCTP_LOG_TokenMessenger_DepositForBurn,
+      );
+      if (cctpDepositForBurnLog) {
         if (
-          receipt.logs.find(
-            (log) => log.topics[0] === CCTP_LOG_TokenMessenger_DepositForBurn,
-          )
+          cctpDepositForBurnLog.topics[3].substring(26).toLowerCase() ===
+          wh
+            .getContracts(chain)
+            ?.cctpContracts?.wormholeCCTP?.substring(2)
+            .toLowerCase()
         )
-          return Route.CCTPManual;
+          return Route.CCTPRelay;
+        else return Route.CCTPManual;
       }
-      throw error;
     }
 
-    const CCTP_CONTRACT_ADDRESSES = CCTPChains.map((chainName) => {
-      try {
-        return wh.getContracts(chainName as ChainName)?.cctpContracts
-          ?.wormholeCCTP;
-      } catch (e) {
-        return '0x0';
-      }
-    });
-
-    if (
-      CCTP_CONTRACT_ADDRESSES.includes(
-        '0x' + message.emitterAddress?.substring(24),
-      )
-    ) {
-      return Route.CCTPRelay;
-    }
+    let message = await getMessage(txHash, chain);
 
     if (message.toChain === 'sei') {
       return Route.RELAY;

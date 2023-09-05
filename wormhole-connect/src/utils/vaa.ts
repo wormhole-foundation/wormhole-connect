@@ -1,12 +1,8 @@
 import { getSignedVAA, parseTokenTransferVaa } from '@certusone/wormhole-sdk';
 import { Implementation__factory } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
-import { utils } from 'ethers';
+import { utils, providers, BigNumberish } from 'ethers';
 import axios from 'axios';
-import {
-  ChainId,
-  ChainName,
-  EthContext,
-} from '@wormhole-foundation/wormhole-connect-sdk';
+import { ChainId, ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 
 import { CHAINS, CONFIG, WH_CONFIG, WORMHOLE_API } from 'config';
 import {
@@ -57,19 +53,19 @@ export type MessageIdentifier = {
 
 export const NO_VAA_FOUND = 'No message publish found in logs';
 export async function getUnsignedVaaEvm(
-  tx: string,
-  chain: ChainName | ChainId,
-): Promise<{ emitterAddress: string; sequence: number; payload: string }> {
+  chain: ChainId | ChainName,
+  receipt: providers.TransactionReceipt,
+): Promise<{
+  emitterAddress: string;
+  sequence: BigNumberish;
+  payload: string;
+}> {
   if (!isEvmChain(chain)) {
     throw new Error('Not an evm chain');
   }
-  const context = (wh.getContext(chain) as EthContext<any>).context;
-  const provider = context.mustGetProvider(chain);
-  const receipt = await provider.getTransactionReceipt(tx);
-  if (!receipt) throw new Error(`No receipt for ${tx} on ${chain}`);
-  const core = context.contracts.mustGetCore(chain);
+  const core = wh.getContracts(chain)?.core;
   const bridgeLogs = receipt.logs.filter((l: any) => {
-    return l.address === core.address;
+    return l.address === core;
   });
 
   if (bridgeLogs.length === 0) {
@@ -81,9 +77,9 @@ export async function getUnsignedVaaEvm(
   );
 
   return {
-    emitterAddress: parsed.args.emitterAddress,
+    emitterAddress: parsed.args.sender,
     sequence: parsed.args.sequence,
-    payload: parsed.args.payload,
+    payload: parsed.args.payload.toString('hex'),
   };
 }
 

@@ -393,11 +393,10 @@ export class CCTPRelayRoute extends CCTPManualRoute {
     // use this as reference
     // https://goerli.etherscan.io/tx/0xe4984775c76b8fe7c2b09cd56fb26830f6e5c5c6b540eb97d37d41f47f33faca#eventlog
     const provider = wh.mustGetProvider(chain);
-
     const receipt = await provider.getTransactionReceipt(tx);
     if (!receipt) throw new Error(`No receipt for ${tx} on ${chain}`);
 
-    const vaaInfo = await getUnsignedVaaEvm(tx, chain);
+    const vaaInfo = await getUnsignedVaaEvm(chain, receipt);
 
     // Get the CCTP log
     const cctpLog = receipt.logs.filter(
@@ -416,7 +415,9 @@ export class CCTPRelayRoute extends CCTPManualRoute {
       'event MessageSent(bytes message)',
     ]).parseLog(messageLog).args.message;
 
-    const recipient = '0x' + parsedCCTPLog.args.mintRecipient.substring(26);
+    const recipient = utils.getAddress(
+      '0x' + vaaInfo.payload.substring(298 + 64 + 64 + 24, 298 + 64 + 64 + 64),
+    );
     const fromChain = wh.toChainName(chain);
     const tokenId: TokenId = {
       chain: fromChain,
@@ -429,7 +430,7 @@ export class CCTPRelayRoute extends CCTPManualRoute {
       sendTx: receipt.transactionHash,
       sender: receipt.from,
       amount: parsedCCTPLog.args.amount.toString(),
-      payloadID: PayloadType.MANUAL,
+      payloadID: PayloadType.AUTOMATIC,
       recipient: recipient,
       toChain: getChainNameCCTP(parsedCCTPLog.args.destinationDomain),
       fromChain: fromChain,
@@ -443,16 +444,14 @@ export class CCTPRelayRoute extends CCTPManualRoute {
       message,
       relayerPayloadId: 3,
       relayerFee: BigNumber.from(
-        '0x' + vaaInfo.payload.substring(296, 296 + 64),
+        '0x' + vaaInfo.payload.substring(298, 298 + 64),
       ).toString(),
       toNativeTokenAmount: BigNumber.from(
-        '0x' + vaaInfo.payload.substring(296 + 64, 296 + 64 * 2),
+        '0x' + vaaInfo.payload.substring(298 + 64, 298 + 64 * 2),
       ).toString(),
       emitterAddress: vaaInfo.emitterAddress,
       sequence: vaaInfo.sequence.toString(),
-      to:
-        '0x' +
-        vaaInfo.payload.substring(296 + 64 + 64 + 24, 296 + 64 + 64 + 64),
+      to: recipient,
     };
   }
 
@@ -551,7 +550,7 @@ export class CCTPRelayRoute extends CCTPManualRoute {
           BigNumber.from(txData.toNativeTokenAmount),
           destinationTokenDecimals,
         ),
-        txData.recipient,
+        txData.to,
       );
 
       // get the decimals on the target chain

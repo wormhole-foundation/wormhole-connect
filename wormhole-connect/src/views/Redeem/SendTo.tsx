@@ -1,6 +1,6 @@
 import CircularProgress from '@mui/material/CircularProgress';
 import { Context } from '@wormhole-foundation/wormhole-connect-sdk';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { CHAINS } from '../../config';
@@ -29,7 +29,7 @@ function SendTo() {
   const {
     redeemTx,
     transferComplete,
-    route: routeType,
+    route: routeName,
     signedMessage,
   } = useSelector((state: RootState) => state.redeem);
   const txData = useSelector((state: RootState) => state.redeem.txData)!;
@@ -74,7 +74,7 @@ function SendTo() {
       } catch (e) {
         console.error(`could not fetch redeem event:\n${e}`);
       }
-      const rows = await new Operator().getTransferDestInfo(routeType, {
+      const rows = await new Operator().getTransferDestInfo(routeName, {
         txData,
         receiveTx,
         transferComplete,
@@ -82,11 +82,15 @@ function SendTo() {
       setRows(rows);
     };
     populate();
-  }, [transferComplete, getRedeemTx, txData, routeType]);
+  }, [transferComplete, getRedeemTx, txData, routeName]);
 
   useEffect(() => {
     setIsConnected(checkConnection());
   }, [wallet, checkConnection]);
+
+  const route = useMemo(() => {
+    return new Operator().getRoute(routeName);
+  }, [routeName]);
 
   const claim = async () => {
     setInProgress(true);
@@ -106,7 +110,7 @@ function SendTo() {
         await switchNetwork(networkConfig.chainId, TransferWallet.RECEIVING);
       }
       const txId = await new Operator().redeem(
-        routeType,
+        routeName,
         txData.toChain,
         signedMessage!,
         wallet.address,
@@ -122,12 +126,11 @@ function SendTo() {
     }
   };
 
-  const loading =
-    txData.payloadID === Route.BRIDGE
-      ? inProgress && !transferComplete
-      : !transferComplete;
+  const loading = !route.AUTOMATIC_DEPOSIT
+    ? inProgress && !transferComplete
+    : !transferComplete;
   const manualClaimText =
-    transferComplete || txData.payloadID === Route.RELAY // todo: should be the other enum, should be named better than payload id
+    transferComplete || route.AUTOMATIC_DEPOSIT // todo: should be the other enum, should be named better than payload id
       ? ''
       : claimError
       ? 'Error please retry . . .'

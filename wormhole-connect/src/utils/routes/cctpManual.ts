@@ -51,9 +51,9 @@ export const CCTPManual_CHAINS: ChainName[] = [
   'avalanche',
   'fuji',
   'goerli',
-  // 'optimism' TODO: uncomment,
+  'optimism',
   'arbitrum',
-  // 'optimismgoerli' TODO: uncomment
+  'optimismgoerli',
   'arbitrumgoerli',
 ];
 export const CCTP_LOG_TokenMessenger_DepositForBurn =
