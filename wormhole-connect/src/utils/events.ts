@@ -184,10 +184,12 @@ export const fetchSwapEvent = async (txData: ParsedRelayerMessage) => {
       BigNumber.from(toNativeTokenAmount),
       tokenDecimals,
     );
-    const match = events.filter((e: any) => {
-      return normalized.eq(e.args[3]);
-    });
-    return match ? match[0]?.args?.[4] : null;
+    const matches = events
+      .sort((a: any, b: any) => b.blockNumber - a.blockNumber)
+      .filter((e: any) => {
+        return normalized.eq(e.args[3]);
+      });
+    return matches ? matches[0]?.args?.[4] : null;
   }
   return null;
 };
