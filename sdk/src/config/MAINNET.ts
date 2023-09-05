@@ -186,6 +186,12 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     context: Context.ETH,
     contracts: {
       ...CONTRACTS.MAINNET.optimism,
+      cctpContracts: {
+        cctpTokenMessenger: '0x2B4069517957735bE00ceE0fadAE88a26365528f',
+        cctpMessageTransmitter: '0x4d41f22c5a0e5c74090899e5a8fb597a8842b3e8',
+        wormholeCircleRelayer: '0x4cb69FaE7e7Af841e44E1A1c30Af640739378bb2',
+        wormholeCCTP: '0x2703483b1a5a7c577e8680de9df8be03c6f30e3c',
+      },
     },
     finalityThreshold: 0,
     nativeTokenDecimals: 18,
