@@ -19,6 +19,10 @@ export const getRouteForVaa = (vaa: SignedVaa): Route => {
     return Route.Relay;
   }
 
+  if (message.payload) {
+    console.log('message payload', message.payload, message.payload[0]);
+  }
+
   return message.payload && message.payload[0] === PayloadType.Automatic
     ? Route.Relay
     : Route.Bridge;

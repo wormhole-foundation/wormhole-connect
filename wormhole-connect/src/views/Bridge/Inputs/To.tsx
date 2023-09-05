@@ -11,7 +11,7 @@ import {
 } from 'store/transferInput';
 import { TransferWallet, walletAcceptedNetworks } from 'utils/wallet';
 import { getWrappedToken } from 'utils';
-import Operator from 'utils/routes';
+import RouteOperator from 'utils/routes/operator';
 import { CHAINS, CHAINS_ARR, TOKENS } from 'config';
 
 import Inputs from './Inputs';
@@ -88,8 +88,7 @@ function ToInputs() {
       const number =
         typeof value === 'number' ? value : Number.parseFloat(value);
       dispatch(setReceiveAmount(`${number}`));
-      const r = new Operator();
-      const sendAmount = await r.computeSendAmount(route, number, {
+      const sendAmount = await RouteOperator.computeSendAmount(route, number, {
         toNativeToken,
       });
       dispatch(setAmount(`${sendAmount}`));

@@ -1,83 +1,103 @@
-import { getTotalGasUsed } from '@mysten/sui.js';
+import { BigNumber, utils } from 'ethers';
 import {
-  AptosContext,
   ChainName,
-  SuiContext,
-  WormholeContext,
+  ChainId,
+  TokenId,
+  NATIVE,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { Types } from 'aptos';
-import { BigNumber } from 'ethers';
-import { StargateClient } from '@cosmjs/stargate';
+import { GAS_ESTIMATES } from 'config';
+import { GasEstimateOptions, Route } from 'config/types';
+import { wh } from './sdk';
+import RouteOperator from './routes/operator';
 
-import { CHAINS, GAS_ESTIMATES, TOKENS, RPCS } from '../config';
-import { Route } from 'config/types';
-import { MAX_DECIMALS, getTokenDecimals } from './index';
-import { toDecimals } from './balance';
-import Operator from './routes';
-import { toChainId, wh } from './sdk';
-import { isCosmWasmChain } from './cosmos';
-
-/**
- * Retrieve the gas used for the execution of a redeem transaction
- * Falls back to gas estimations if the transaction id is not provided
- *
- * @param chain The transaction's chain
- * @param receiveTx The transaction's id
- * @returns
- */
-export const calculateGas = async (
-  chain: ChainName,
+const simulateRelayAmount = (
   route: Route,
-  receiveTx?: string,
-) => {
-  const { gasToken } = CHAINS[chain]!;
-  const token = TOKENS[gasToken];
-  const decimals = getTokenDecimals(toChainId(chain), token.tokenId);
+  amount: number,
+  relayerFee: number,
+  toNativeToken: number,
+  tokenDecimals: number,
+): BigNumber => {
+  const r = RouteOperator.getRoute(route);
+  const min = r.getMinSendAmount({ relayerFee, toNativeToken });
+  if (min === 0) return BigNumber.from(0);
+  const amountOrMin = Math.max(amount, min);
+  return utils.parseUnits(`${amountOrMin}`, tokenDecimals);
+};
 
-  if (chain === 'solana') {
-    return toDecimals(
-      BigNumber.from(GAS_ESTIMATES.solana!.claim),
-      decimals,
-      MAX_DECIMALS,
+export const getGasFallback = (
+  chain: ChainName | ChainId,
+  route: Route,
+  operation: GasEstimateOptions,
+) => {
+  const chainName = wh.toChainName(chain);
+  const routeGasFallbacks = GAS_ESTIMATES[chainName]?.[route];
+  if (!routeGasFallbacks || !routeGasFallbacks[operation]) return 0;
+  return routeGasFallbacks[operation];
+};
+
+export const estimateSendGas = async (
+  token: TokenId | typeof NATIVE,
+  amount: string,
+  sendingChain: ChainName | ChainId,
+  senderAddress: string,
+  recipientChain: ChainName | ChainId,
+  recipientAddress: string,
+) => {
+  try {
+    const gas = await wh.estimateSendGas(
+      token,
+      amount,
+      sendingChain,
+      senderAddress,
+      recipientChain,
+      recipientAddress,
     );
-  }
-  if (receiveTx) {
-    if (chain === 'aptos') {
-      const aptosClient = (
-        wh.getContext('aptos') as AptosContext<WormholeContext>
-      ).aptosClient;
-      const txn = await aptosClient.getTransactionByHash(receiveTx);
-      if (txn.type === 'user_transaction') {
-        const userTxn = txn as Types.UserTransaction;
-        const gasFee = BigNumber.from(userTxn.gas_used).mul(
-          userTxn.gas_unit_price,
-        );
-        return toDecimals(gasFee || 0, decimals, MAX_DECIMALS);
-      }
-    } else if (chain === 'sui') {
-      const provider = (wh.getContext('sui') as SuiContext<WormholeContext>)
-        .provider;
-      const txBlock = await provider.getTransactionBlock({
-        digest: receiveTx,
-        options: { showEvents: true, showEffects: true, showInput: true },
-      });
-      const gasFee = BigNumber.from(getTotalGasUsed(txBlock) || 0);
-      return toDecimals(gasFee, decimals, MAX_DECIMALS);
-    } else if (isCosmWasmChain(chain)) {
-      const rpc = RPCS[chain];
-      if (rpc) {
-        const client = await StargateClient.connect(rpc);
-        const transaction = await client.getTx(receiveTx);
-        return toDecimals(transaction?.gasUsed || 0, decimals, MAX_DECIMALS);
-      }
+    if (gas) return gas;
+  } catch (_) {
+    if (token === NATIVE) {
+      getGasFallback(sendingChain, Route.Bridge, 'sendNative');
     } else {
-      const provider = wh.mustGetProvider(chain);
-      const receipt = await provider.getTransactionReceipt(receiveTx);
-      const { gasUsed, effectiveGasPrice } = receipt;
-      if (!gasUsed || !effectiveGasPrice) return;
-      const gasFee = gasUsed.mul(effectiveGasPrice);
-      return toDecimals(gasFee, decimals, MAX_DECIMALS);
+      getGasFallback(sendingChain, Route.Bridge, 'sendToken');
     }
   }
-  return await new Operator().estimateClaimGas(route, chain);
 };
+
+export const estimateSendWithRelayGas = async (
+  token: TokenId | typeof NATIVE,
+  amount: string,
+  sendingChain: ChainName | ChainId,
+  senderAddress: string,
+  recipientChain: ChainName | ChainId,
+  recipientAddress: string,
+  relayerFee: any,
+  toNativeToken: string,
+) => {
+  const relayAmount = simulateRelayAmount(
+    Route.Relay,
+    Number.parseFloat(amount),
+    relayerFee,
+    Number.parseFloat(toNativeToken),
+    18, // TODO: decimals,
+  );
+  try {
+    const gas = await wh.estimateSendWithRelayGas(
+      token,
+      relayAmount.toString(),
+      sendingChain,
+      senderAddress,
+      recipientChain,
+      recipientAddress,
+      relayerFee,
+      toNativeToken,
+    );
+    if (gas) return gas;
+  } catch (_) {
+    if (token === NATIVE) {
+      getGasFallback(sendingChain, Route.Relay, 'sendNative');
+    } else {
+      getGasFallback(sendingChain, Route.Relay, 'sendToken');
+    }
+  }
+};
+
+// TODO: estimate claim gas

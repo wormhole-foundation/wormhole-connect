@@ -37,7 +37,6 @@ import { CHAINS, RPCS, ROUTES, TOKENS } from 'config';
 import { Route } from 'config/types';
 import { MAX_DECIMALS, getTokenDecimals, toNormalizedDecimals } from '..';
 import { toDecimals, toFixedDecimals } from '../balance';
-import { estimateSendGasFees } from '../gasEstimates';
 import { TransferWallet, signAndSendTransaction } from '../wallet';
 import { BaseRoute } from './baseRoute';
 import { adaptParsedMessage } from './common';
@@ -55,7 +54,6 @@ import {
   TransferDestInfoBaseParams,
   TransferInfoBaseParams,
 } from './types';
-import { calculateGas } from '../gas';
 import {
   Tendermint34Client,
   Tendermint37Client,
@@ -90,7 +88,7 @@ export class CosmosGatewayRoute extends BaseRoute {
 
   private static CLIENT_MAP: Record<string, TendermintClient> = {};
 
-  public async isRouteAvailable(
+  async isRouteAvailable(
     sourceToken: string,
     destToken: string,
     amount: string,
@@ -107,21 +105,21 @@ export class CosmosGatewayRoute extends BaseRoute {
     );
   }
 
-  public async computeReceiveAmount(
+  async computeReceiveAmount(
     sendAmount: number | undefined,
     routeOptions: any,
   ): Promise<number> {
     return sendAmount || 0;
   }
 
-  public async computeSendAmount(
+  async computeSendAmount(
     receiveAmount: number | undefined,
     routeOptions: any,
   ): Promise<number> {
     return receiveAmount || 0;
   }
 
-  public async validate(
+  async validate(
     token: TokenId | 'native',
     amount: string,
     sendingChain: ChainName | ChainId,
@@ -133,7 +131,7 @@ export class CosmosGatewayRoute extends BaseRoute {
     throw new Error('not implemented');
   }
 
-  public async estimateSendGas(
+  async estimateSendGas(
     token: TokenId | 'native',
     amount: string,
     sendingChain: ChainName | ChainId,
@@ -142,27 +140,27 @@ export class CosmosGatewayRoute extends BaseRoute {
     recipientAddress: string,
     routeOptions: any,
   ): Promise<string> {
+    // estimateSendGas(token, amount, sendingChain, senderAddress, recipientChain, recipientAddress);
+    throw new Error('not implemented');
     // const recipientChainId = wh.toChainId(recipientChain);
     // const payload = this.buildToCosmosPayload(recipientChainId, recipientAddress);
 
     // the transfer begins as a bridge transfer
-    return estimateSendGasFees(
-      token,
-      Number.parseFloat(amount),
-      sendingChain,
-      senderAddress,
-      CHAIN_ID_WORMCHAIN,
-      this.getTranslatorAddress(),
-      Route.Bridge,
-      undefined,
-      undefined,
-      // payload,
-    );
+    // return estimateSendGasFees(
+    //   token,
+    //   Number.parseFloat(amount),
+    //   sendingChain,
+    //   senderAddress,
+    //   CHAIN_ID_WORMCHAIN,
+    //   this.getTranslatorAddress(),
+    //   Route.Bridge,
+    //   undefined,
+    //   undefined,
+    //   // payload,
+    // );
   }
 
-  public async estimateClaimGas(
-    destChain: ChainName | ChainId,
-  ): Promise<string> {
+  async estimateClaimGas(destChain: ChainName | ChainId): Promise<string> {
     return '0';
   }
 
@@ -185,7 +183,7 @@ export class CosmosGatewayRoute extends BaseRoute {
     return Buffer.from(JSON.stringify(payloadObject));
   }
 
-  public async toCosmos(
+  async toCosmos(
     token: TokenId | 'native',
     amount: string,
     sendingChainId: ChainId,
@@ -242,7 +240,7 @@ export class CosmosGatewayRoute extends BaseRoute {
     return JSON.stringify(payloadObject);
   }
 
-  public async fromCosmos(
+  async fromCosmos(
     token: TokenId | 'native',
     amount: string,
     sendingChainId: ChainId,
@@ -297,11 +295,11 @@ export class CosmosGatewayRoute extends BaseRoute {
     );
   }
 
-  public getMinSendAmount(routeOptions: any): number {
+  getMinSendAmount(routeOptions: any): number {
     return 0;
   }
 
-  public async send(
+  async send(
     token: TokenId | 'native',
     amount: string,
     sendingChain: ChainName | ChainId,
@@ -369,7 +367,7 @@ export class CosmosGatewayRoute extends BaseRoute {
     );
   }
 
-  public async redeem(
+  async redeem(
     destChain: ChainName | ChainId,
     messageInfo: SignedMessage,
     recipient: string,
@@ -384,7 +382,7 @@ export class CosmosGatewayRoute extends BaseRoute {
     return new BridgeRoute().redeem(destChain, messageInfo, recipient);
   }
 
-  public async getPreview(
+  async getPreview(
     token: TokenConfig,
     destToken: TokenConfig,
     amount: number,
@@ -415,14 +413,14 @@ export class CosmosGatewayRoute extends BaseRoute {
     ];
   }
 
-  public async getNativeBalance(
+  async getNativeBalance(
     address: string,
     network: ChainName | ChainId,
   ): Promise<BigNumber | null> {
     return wh.getNativeBalance(address, network);
   }
 
-  public async getTokenBalance(
+  async getTokenBalance(
     address: string,
     tokenId: TokenId,
     network: ChainName | ChainId,
@@ -742,11 +740,12 @@ export class CosmosGatewayRoute extends BaseRoute {
     const token = TOKENS[txData.tokenKey];
     const { gasToken } = CHAINS[txData.toChain]!;
 
-    const gas = await calculateGas(
-      txData.toChain,
-      Route.CosmosGateway,
-      receiveTx,
-    );
+    // const gas = await calculateGas(
+    //   txData.toChain,
+    //   Route.CosmosGateway,
+    //   receiveTx,
+    // );
+    const gas = 'TODO';
 
     const formattedAmt = toNormalizedDecimals(
       txData.amount,

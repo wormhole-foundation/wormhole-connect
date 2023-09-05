@@ -8,7 +8,7 @@ import { RootState } from 'store';
 import { setRedeemTx, setTransferComplete } from 'store/redeem';
 import { displayAddress } from 'utils';
 import { fetchRedeemTx } from 'utils/events';
-import Operator, { TransferDisplayData } from 'utils/routes';
+import RouteOperator, { TransferDisplayData } from 'utils/routes';
 import {
   TransferWallet,
   registerWalletSigner,
@@ -74,7 +74,7 @@ function SendTo() {
       } catch (e) {
         console.error(`could not fetch redeem event:\n${e}`);
       }
-      const rows = await new Operator().getTransferDestInfo(route, {
+      const rows = await RouteOperator.getTransferDestInfo(route, {
         txData,
         receiveTx,
         transferComplete,
@@ -114,7 +114,7 @@ function SendTo() {
       if (!signedMessage) {
         throw new Error('failed to get vaa, cannot redeem');
       }
-      const txId = await new Operator().redeem(
+      const txId = await RouteOperator.redeem(
         route,
         txData.toChain,
         signedMessage,

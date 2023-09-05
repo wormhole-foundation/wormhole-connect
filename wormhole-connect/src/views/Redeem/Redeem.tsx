@@ -10,7 +10,7 @@ import {
 } from 'store/redeem';
 import { sleep } from 'utils';
 import { fetchIsVAAEnqueued } from 'utils/vaa';
-import Operator, { SignedMessage } from 'utils/routes';
+import RouteOperator, { SignedMessage } from 'utils/routes';
 import { ParsedMessage, ParsedRelayerMessage } from 'utils/sdk';
 
 import PageHeader from 'components/PageHeader';
@@ -70,7 +70,7 @@ function Redeem({
       let signed: SignedMessage | undefined;
       while (signed === undefined && !cancelled) {
         try {
-          signed = await new Operator().getSignedMessage(
+          signed = await RouteOperator.getSignedMessage(
             route,
             txData,
           );
@@ -102,7 +102,7 @@ function Redeem({
       let isComplete = false;
       while (!isComplete && !cancelled) {
         try {
-          isComplete = await new Operator().isTransferCompleted(
+          isComplete = await RouteOperator.isTransferCompleted(
             route,
             txData.toChain,
             signedMessage,

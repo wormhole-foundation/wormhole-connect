@@ -6,9 +6,9 @@ import { Chip, useMediaQuery, useTheme } from '@mui/material';
 import { RootState } from 'store';
 import { setTransferRoute } from 'store/transferInput';
 import { LINK, joinClass } from 'utils/style';
-import Operator from 'utils/routes';
 import { isTransferValid } from 'utils/transferValidation';
 import { toFixedDecimals } from 'utils/balance';
+import RouteOperator from 'utils/routes/operator';
 import { TOKENS, ROUTES } from 'config';
 import { Route } from 'config/types';
 import { RoutesConfig, RouteData } from 'config/routes';
@@ -154,8 +154,7 @@ function RouteOption(props: { route: RouteData }) {
 
   useEffect(() => {
     async function load() {
-      const operator = new Operator();
-      const receiveAmt = await operator.computeReceiveAmount(
+      const receiveAmt = await RouteOperator.computeReceiveAmount(
         props.route.route,
         Number.parseFloat(amount),
         { toNativeToken, relayerFee },
@@ -175,7 +174,7 @@ function RouteOption(props: { route: RouteData }) {
   const routeName = props.route.route;
 
   const route = useMemo(() => {
-    return new Operator().getRoute(routeName);
+    return RouteOperator.getRoute(routeName);
   }, [routeName]);
 
   return (
@@ -252,7 +251,7 @@ function RouteOptions() {
     let available: Route[] = [];
     ROUTES.forEach(async (value) => {
       const r = value as Route;
-      const isSupported = await new Operator().isRouteAvailable(
+      const isSupported = await RouteOperator.isRouteAvailable(
         r,
         token,
         destToken,

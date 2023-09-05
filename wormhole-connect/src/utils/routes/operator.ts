@@ -27,7 +27,7 @@ import {
   CCTP_LOG_TokenMessenger_DepositForBurn,
 } from './cctpManual';
 
-export default class Operator {
+class Operator {
   getRoute(route: Route): RouteAbstract {
     switch (route) {
       case Route.Bridge: {
@@ -326,7 +326,7 @@ export default class Operator {
     );
   }
 
-  public async getNativeBalance(
+  async getNativeBalance(
     route: Route,
     address: string,
     network: ChainName | ChainId,
@@ -335,7 +335,7 @@ export default class Operator {
     return r.getNativeBalance(address, network);
   }
 
-  public async getTokenBalance(
+  async getTokenBalance(
     route: Route,
     address: string,
     tokenId: TokenId,
@@ -345,7 +345,7 @@ export default class Operator {
     return r.getTokenBalance(address, tokenId, network);
   }
 
-  public async getRelayerFee(
+  async getRelayerFee(
     route: Route,
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
@@ -355,7 +355,7 @@ export default class Operator {
     return r.getRelayerFee(sourceChain, destChain, token);
   }
 
-  public async getForeignAsset(
+  async getForeignAsset(
     route: Route,
     tokenId: TokenId,
     network: ChainName | ChainId,
@@ -364,7 +364,7 @@ export default class Operator {
     return r.getForeignAsset(tokenId, network);
   }
 
-  public async isTransferCompleted(
+  async isTransferCompleted(
     route: Route,
     destChain: ChainName | ChainId,
     message: SignedMessage,
@@ -373,7 +373,7 @@ export default class Operator {
     return r.isTransferCompleted(destChain, message);
   }
 
-  public async getMessage(
+  async getMessage(
     route: Route,
     tx: string,
     network: ChainName | ChainId,
@@ -383,7 +383,7 @@ export default class Operator {
     return r.getMessage(tx, network);
   }
 
-  public async getSignedMessage(
+  async getSignedMessage(
     route: Route,
     message: UnsignedMessage,
     unsigned?: boolean,
@@ -392,7 +392,7 @@ export default class Operator {
     return r.getSignedMessage(message);
   }
 
-  public getTransferSourceInfo<T extends TransferInfoBaseParams>(
+  getTransferSourceInfo<T extends TransferInfoBaseParams>(
     route: Route,
     params: T,
   ): Promise<TransferDisplayData> {
@@ -400,7 +400,7 @@ export default class Operator {
     return r.getTransferSourceInfo(params);
   }
 
-  public getTransferDestInfo<T extends TransferInfoBaseParams>(
+  getTransferDestInfo<T extends TransferInfoBaseParams>(
     route: Route,
     params: T,
   ): Promise<TransferDisplayData> {
@@ -409,7 +409,7 @@ export default class Operator {
   }
 
   // swap information (native gas slider)
-  public nativeTokenAmount(
+  nativeTokenAmount(
     route: Route,
     destChain: ChainName | ChainId,
     token: TokenId,
@@ -420,7 +420,7 @@ export default class Operator {
     return r.nativeTokenAmount(destChain, token, amount, walletAddress);
   }
 
-  public maxSwapAmount(
+  maxSwapAmount(
     route: Route,
     destChain: ChainName | ChainId,
     token: TokenId,
@@ -430,3 +430,6 @@ export default class Operator {
     return r.maxSwapAmount(destChain, token, walletAddress);
   }
 }
+
+const RouteOperator = new Operator();
+export default RouteOperator;

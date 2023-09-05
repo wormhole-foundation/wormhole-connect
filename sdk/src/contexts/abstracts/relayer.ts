@@ -1,5 +1,11 @@
 import { BigNumber, BigNumberish } from 'ethers';
-import { TokenId, ChainName, ChainId, ParsedRelayerPayload } from '../../types';
+import {
+  TokenId,
+  ChainName,
+  ChainId,
+  ParsedRelayerPayload,
+  NATIVE,
+} from '../../types';
 import { TokenBridgeAbstract } from './tokenBridge';
 
 /**
@@ -53,6 +59,18 @@ export abstract class RelayerAbstract<
     recipientAddress: string,
     overrides?: any,
   ): Promise<TransactionResult>;
+
+  protected abstract estimateSendWithRelayGas(
+    token: TokenId | typeof NATIVE,
+    amount: string,
+    sendingChain: ChainName | ChainId,
+    senderAddress: string,
+    recipientChain: ChainName | ChainId,
+    recipientAddress: string,
+    relayerFee: any,
+    toNativeToken: string,
+  ): Promise<BigNumber>;
+
   /**
    * Computes the amount of native gas tokens that would be received, given current conversion rates
    *

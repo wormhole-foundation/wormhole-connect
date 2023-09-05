@@ -19,8 +19,7 @@ import {
   switchNetwork,
   TransferWallet,
 } from 'utils/wallet';
-import { estimateClaimGasFees } from 'utils/gasEstimates';
-import Operator, { UnsignedMessage } from 'utils/routes';
+import RouteOperator, { UnsignedMessage } from 'utils/routes';
 import { validate, isTransferValid } from 'utils/transferValidation';
 import {
   setManualGasEst,
@@ -105,8 +104,7 @@ function Send(props: { valid: boolean }) {
       const tokenConfig = TOKENS[token]!;
       const sendToken = tokenConfig.tokenId;
 
-      const operator = new Operator();
-      const txId = await operator.send(
+      const txId = await RouteOperator.send(
         route,
         sendToken || 'native',
         `${amount}`,
@@ -120,7 +118,7 @@ function Send(props: { valid: boolean }) {
       let message: UnsignedMessage | undefined;
       while (message === undefined) {
         try {
-          message = await operator.getMessage(
+          message = await RouteOperator.getMessage(
             route,
             txId,
             fromChain!,
@@ -149,7 +147,7 @@ function Send(props: { valid: boolean }) {
     if (!tokenConfig) return;
     const sendToken = tokenConfig.tokenId;
 
-    const gasFee = await new Operator().estimateSendGas(
+    const gasFee = await RouteOperator.estimateSendGas(
       route,
       sendToken || 'native',
       (amount || 0).toString(),
@@ -159,7 +157,7 @@ function Send(props: { valid: boolean }) {
       receiving.address,
       { relayerFee, toNativeToken },
     );
-    const isAutomatic = new Operator().getRoute(route).AUTOMATIC_DEPOSIT;
+    const isAutomatic = RouteOperator.getRoute(route).AUTOMATIC_DEPOSIT;
     if (isAutomatic) {
       dispatch(setAutomaticGasEst(gasFee));
     } else {
@@ -180,8 +178,9 @@ function Send(props: { valid: boolean }) {
 
   const setDestGas = useCallback(async () => {
     if (!toChain) return;
-    const gasFee = await estimateClaimGasFees(toChain!);
-    dispatch(setClaimGasEst(gasFee));
+    // TODO:
+    // const gasFee = await estimateClaimGasFees(toChain!);
+    dispatch(setClaimGasEst('0'));
   }, [toChain, dispatch]);
 
   useEffect(() => {
@@ -211,7 +210,7 @@ function Send(props: { valid: boolean }) {
   }, [sending]);
 
   const showWarning = useMemo(() => {
-    const r = new Operator().getRoute(route);
+    const r = RouteOperator.getRoute(route);
     return !(r.AUTOMATIC_DEPOSIT || (toChain && isCosmWasmChain(toChain)));
   }, [route, toChain]);
 

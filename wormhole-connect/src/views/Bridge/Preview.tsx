@@ -10,7 +10,7 @@ import { Route } from 'config/types';
 import { getTokenDecimals } from 'utils';
 import { toDecimals } from 'utils/balance';
 import { toChainId } from 'utils/sdk';
-import Operator, { TransferDisplayData } from 'utils/routes';
+import RouteOperator, { TransferDisplayData } from 'utils/routes';
 
 import { RenderRows } from 'components/RenderRows';
 import BridgeCollapse, { CollapseControlStyle } from './Collapse';
@@ -44,7 +44,7 @@ function Preview(props: { collapsed: boolean }) {
       if (!tokenConfig || !destTokenConfig || !sourceConfig || !destConfig)
         return;
 
-      const sendingGasEst = new Operator().getRoute(route).AUTOMATIC_DEPOSIT
+      const sendingGasEst = RouteOperator.getRoute(route).AUTOMATIC_DEPOSIT
         ? gasEst.automatic
         : gasEst.manual;
       const destGasEst = gasEst.claim;
@@ -54,7 +54,7 @@ function Preview(props: { collapsed: boolean }) {
         receiveNativeAmt,
         relayerFee,
       };
-      const rows = await new Operator().getPreview(
+      const rows = await RouteOperator.getPreview(
         route,
         tokenConfig,
         destTokenConfig,
@@ -92,7 +92,7 @@ function Preview(props: { collapsed: boolean }) {
         const tokenConfig = token && TOKENS[token];
         if (!tokenConfig) return;
 
-        const fee = await new Operator().getRelayerFee(
+        const fee = await RouteOperator.getRelayerFee(
           route,
           fromChain,
           toChain,

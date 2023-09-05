@@ -16,12 +16,13 @@ import {
 } from 'store/transferInput';
 import { CHAINS, ROUTES, TOKENS, TOKENS_ARR } from 'config';
 import { TokenConfig, Route } from 'config/types';
-import { getTokenDecimals, getWrappedTokenId } from 'utils';
-import { wh, isAcceptedToken, toChainId } from 'utils/sdk';
+import { getTokenDecimals } from 'utils';
+import { wh, toChainId } from 'utils/sdk';
 import { joinClass } from 'utils/style';
 import { toDecimals } from 'utils/balance';
-import Operator from 'utils/routes';
 import { isTransferValid, validate } from 'utils/transferValidation';
+import { isCosmWasmChain } from 'utils/cosmos';
+import RouteOperator from 'utils/routes/operator';
 
 import GasSlider from './NativeGasSlider';
 import Preview from './Preview';
@@ -33,7 +34,6 @@ import ToInputs from './Inputs/To';
 import TransferLimitedWarning from './TransferLimitedWarning';
 import SwapChains from './SwapChains';
 import RouteOptions from './RouteOptions';
-import { isCosmWasmChain } from 'utils/cosmos';
 
 const useStyles = makeStyles()((theme) => ({
   spacer: {
@@ -111,14 +111,12 @@ function Bridge() {
 
   useEffect(() => {
     const computeSrcTokens = async () => {
-      const operator = new Operator();
-
       // Get all possible source tokens over all routes
       const supported = getUniqueTokens(
         (
           await Promise.all(
             ROUTES.map((value) => {
-              const returnedTokens = operator.supportedSourceTokens(
+              const returnedTokens = RouteOperator.supportedSourceTokens(
                 value as Route,
                 TOKENS_ARR,
                 undefined,
@@ -145,14 +143,12 @@ function Bridge() {
 
   useEffect(() => {
     const computeDestTokens = async () => {
-      const operator = new Operator();
-
       // Get all possible destination tokens over all routes, given the source token
       const supported = getUniqueTokens(
         (
           await Promise.all(
             ROUTES.map((value) =>
-              operator.supportedDestTokens(
+              RouteOperator.supportedDestTokens(
                 value as Route,
                 TOKENS_ARR,
                 TOKENS[token],
@@ -206,7 +202,7 @@ function Bridge() {
       }
 
       if (!fromChain || !toChain || !token || !destToken) return;
-      const cctpAvailable = await new Operator().isRouteAvailable(
+      const cctpAvailable = await RouteOperator.isRouteAvailable(
         Route.CCTPRelay,
         token,
         destToken,
@@ -219,7 +215,7 @@ function Bridge() {
         return;
       }
 
-      const cctpManualAvailable = await new Operator().isRouteAvailable(
+      const cctpManualAvailable = await RouteOperator.isRouteAvailable(
         Route.CCTPManual,
         token,
         destToken,
@@ -232,23 +228,20 @@ function Bridge() {
         return;
       }
 
-      // The code below should maybe be rewritten to use isRouteAvailable!
-      const fromConfig = CHAINS[fromChain]!;
-      const toConfig = CHAINS[toChain]!;
-      if (fromConfig.automaticRelayer && toConfig.automaticRelayer) {
-        const isTokenAcceptedForRelay = async () => {
-          const tokenConfig = TOKENS[token]!;
-          const tokenId = getWrappedTokenId(tokenConfig);
-          const accepted = await isAcceptedToken(tokenId);
-          if (accepted) {
-            dispatch(setTransferRoute(Route.Relay));
-          } else {
-            dispatch(setTransferRoute(Route.Bridge));
-          }
-        };
-        isTokenAcceptedForRelay();
+      const relayAvailable = await RouteOperator.isRouteAvailable(
+        Route.Relay,
+        token,
+        destToken,
+        amount,
+        fromChain,
+        toChain,
+      );
+      if (relayAvailable) {
+        dispatch(setTransferRoute(Route.Relay));
+        return;
       } else {
         dispatch(setTransferRoute(Route.Bridge));
+        return;
       }
     };
     establishRoute();
@@ -256,9 +249,8 @@ function Bridge() {
 
   useEffect(() => {
     const recomputeReceive = async () => {
-      const operator = new Operator();
       if (!route) return;
-      const newReceiveAmount = await operator.computeReceiveAmount(
+      const newReceiveAmount = await RouteOperator.computeReceiveAmount(
         route,
         Number.parseFloat(amount),
         { toNativeToken },
@@ -288,7 +280,7 @@ function Bridge() {
   const valid = isTransferValid(validations);
   const disabled = !valid || isTransactionInProgress;
   const showGasSlider =
-    route && new Operator().getRoute(route).NATIVE_GAS_DROPOFF_SUPPORTED;
+    route && RouteOperator.getRoute(route).NATIVE_GAS_DROPOFF_SUPPORTED;
 
   return (
     <div className={joinClass([classes.bridgeContent, classes.spacer])}>

@@ -12,7 +12,7 @@ import { RoutesConfig } from 'config/routes';
 import { getTokenDecimals, getWrappedTokenId } from 'utils';
 import { wh } from 'utils/sdk';
 import { getConversion, toDecimals, toFixedDecimals } from 'utils/balance';
-import Operator from 'utils/routes';
+import RouteOperator from 'utils/routes/operator';
 import { RootState } from 'store';
 import { setTransferRoute } from 'store/transferInput';
 import {
@@ -122,11 +122,11 @@ function GasSlider(props: { disabled: boolean }) {
       amountNum === 0 ||
       !maxSwapAmt ||
       !route ||
-      !new Operator().getRoute(route).NATIVE_GAS_DROPOFF_SUPPORTED
+      !RouteOperator.getRoute(route).NATIVE_GAS_DROPOFF_SUPPORTED
     )
       return;
 
-    const r = new Operator().getRoute(route);
+    const r = RouteOperator.getRoute(route);
     const min = r.getMinSendAmount({ relayerFee, toNativeToken: 0 });
     const amountWithoutRelayerFee = amountNum - min;
     const actualMaxSwap =
@@ -149,15 +149,19 @@ function GasSlider(props: { disabled: boolean }) {
       !toChain ||
       !sendingToken ||
       !route ||
-      !new Operator().getRoute(route).NATIVE_GAS_DROPOFF_SUPPORTED ||
+      !RouteOperator.getRoute(route).NATIVE_GAS_DROPOFF_SUPPORTED ||
       !receivingWallet.address ||
       !receivingToken
     )
       return;
 
     const tokenId = receivingToken.tokenId!;
-    new Operator()
-      .maxSwapAmount(route, toChain, tokenId, receivingWallet.address)
+    RouteOperator.maxSwapAmount(
+      route,
+      toChain,
+      tokenId,
+      receivingWallet.address,
+    )
       .then((res: BigNumber) => {
         if (!res) {
           dispatch(setMaxSwapAmt(undefined));
@@ -249,7 +253,7 @@ function GasSlider(props: { disabled: boolean }) {
         `${debouncedSwapAmt}`,
         tokenToChainDecimals,
       );
-      const nativeGasAmt = await new Operator().nativeTokenAmount(
+      const nativeGasAmt = await RouteOperator.nativeTokenAmount(
         route,
         toChain!,
         tokenId,

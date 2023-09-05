@@ -5,7 +5,7 @@ import { makeStyles } from 'tss-react/mui';
 import { RootState } from 'store';
 import { ValidationErr, setTransferRoute } from 'store/transferInput';
 import { Route } from 'config/types';
-import Operator from 'utils/routes';
+import RouteOperator from 'utils/routes';
 import AlertBanner from 'components/AlertBanner';
 
 const useStyles = makeStyles()((theme) => ({
@@ -57,7 +57,7 @@ function ValidationError(props: Props) {
     validationErrors[0] &&
     validationErrors[0].includes('Minimum amount is')
   ) {
-    const r = new Operator().getRoute(route);
+    const r = RouteOperator.getRoute(route);
     const min = r.getMinSendAmount({ toNativeToken, relayerFee });
     content = (
       <div className={classes.minAmtError}>

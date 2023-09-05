@@ -7,6 +7,7 @@ import { CosmWasmClient } from '@cosmjs/cosmwasm-stargate';
 import { EncodeObject, decodeTxRaw } from '@cosmjs/proto-signing';
 import {
   Coin,
+  StargateClient,
   StdFee,
   calculateFee,
   logs as cosmosLogs,
@@ -25,6 +26,7 @@ import {
   ChainId,
   ChainName,
   Context,
+  NATIVE,
   ParsedMessage,
   ParsedRelayerMessage,
   ParsedRelayerPayload,
@@ -97,6 +99,19 @@ export class CosmosContext<
     this.foreignAssetCache = foreignAssetCache;
   }
 
+  protected async getTxGasUsed(
+    txId: string,
+    chain: ChainName | ChainId,
+  ): Promise<BigNumber | undefined> {
+    const chainName = this.context.toChainName(chain);
+    const rpc = this.context.conf.rpcs[chainName];
+    if (rpc) {
+      const client = await StargateClient.connect(rpc);
+      const transaction = await client.getTx(txId);
+      return BigNumber.from(transaction?.gasUsed || 0);
+    }
+  }
+
   send(
     token: TokenId | 'native',
     amount: string,
@@ -119,6 +134,20 @@ export class CosmosContext<
     payload: any,
   ): Promise<CosmosTransaction> {
     throw new Error('Method not implemented.');
+  }
+
+  async estimateSendGas(
+    token: TokenId | typeof NATIVE,
+    amount: string,
+    sendingChain: ChainName | ChainId,
+    senderAddress: string,
+    recipientChain: ChainName | ChainId,
+    recipientAddress: string,
+  ): Promise<BigNumber> {
+    throw new Error('not implemented');
+  }
+  async estimateClaimGas(): Promise<BigNumber> {
+    throw new Error('not implemented');
   }
 
   formatAddress(address: string): Uint8Array {

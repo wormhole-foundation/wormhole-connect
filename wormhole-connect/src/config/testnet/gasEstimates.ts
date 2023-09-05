@@ -1,94 +1,146 @@
-import { GasEstimates } from '../types';
+import { GasEstimates, Route } from '../types';
 
 export const TESTNET_GAS_ESTIMATES: GasEstimates = {
   goerli: {
-    sendNative: 100000,
-    sendToken: 150000,
-    sendNativeWithRelay: 200000,
-    sendTokenWithRelay: 300000,
-    sendCCTPWithRelay: 300000,
-    sendCCTPManual: 150000,
-    claim: 200000,
+    [Route.Bridge]: {
+      sendNative: 100000,
+      sendToken: 150000,
+      claim: 200000,
+    },
+    [Route.Relay]: {
+      sendNative: 200000,
+      sendToken: 300000,
+    },
+    [Route.CCTPManual]: {
+      sendToken: 150000,
+    },
+    [Route.CCTPRelay]: {
+      sendToken: 300000,
+    },
   },
   mumbai: {
-    sendNative: 200000,
-    sendToken: 150000,
-    sendNativeWithRelay: 200000,
-    sendTokenWithRelay: 250000,
-    claim: 200000,
+    [Route.Bridge]: {
+      sendNative: 200000,
+      sendToken: 150000,
+      claim: 200000,
+    },
+    [Route.Relay]: {
+      sendNative: 200000,
+      sendToken: 250000,
+    },
   },
   bsc: {
-    sendNative: 100000,
-    sendToken: 200000,
-    sendNativeWithRelay: 200000,
-    sendTokenWithRelay: 300000,
-    claim: 175000,
+    [Route.Bridge]: {
+      sendNative: 100000,
+      sendToken: 200000,
+      claim: 175000,
+    },
+    [Route.Relay]: {
+      sendNative: 200000,
+      sendToken: 300000,
+    },
   },
   fuji: {
-    sendNative: 100000,
-    sendToken: 150000,
-    sendNativeWithRelay: 200000,
-    sendTokenWithRelay: 300000,
-    sendCCTPWithRelay: 300000,
-    sendCCTPManual: 150000,
-    claim: 200000,
+    [Route.Bridge]: {
+      sendNative: 100000,
+      sendToken: 150000,
+      claim: 200000,
+    },
+    [Route.Relay]: {
+      sendNative: 200000,
+      sendToken: 300000,
+    },
+    [Route.CCTPManual]: {
+      sendToken: 150000,
+    },
+    [Route.CCTPRelay]: {
+      sendToken: 300000,
+    },
   },
   fantom: {
-    sendNative: 150000,
-    sendToken: 150000,
-    sendNativeWithRelay: 200000,
-    sendTokenWithRelay: 300000,
-    claim: 200000,
+    [Route.Bridge]: {
+      sendNative: 150000,
+      sendToken: 150000,
+      claim: 200000,
+    },
+    [Route.Relay]: {
+      sendNative: 200000,
+      sendToken: 300000,
+    },
   },
   alfajores: {
-    sendNative: 100000,
-    sendToken: 100000,
-    sendNativeWithRelay: 300000,
-    sendTokenWithRelay: 300000,
-    claim: 175000,
+    [Route.Bridge]: {
+      sendNative: 100000,
+      sendToken: 100000,
+      claim: 175000,
+    },
+    [Route.Relay]: {
+      sendNative: 300000,
+      sendToken: 300000,
+    },
   },
   moonbasealpha: {
-    sendNative: 100000,
-    sendToken: 200000,
-    sendNativeWithRelay: 200000,
-    sendTokenWithRelay: 300000,
-    claim: 200000,
+    [Route.Bridge]: {
+      sendNative: 100000,
+      sendToken: 200000,
+      claim: 200000,
+    },
+    [Route.Relay]: {
+      sendNative: 200000,
+      sendToken: 300000,
+    },
   },
   solana: {
-    sendNative: 15000,
-    sendToken: 15000,
-    claim: 25000,
+    [Route.Bridge]: {
+      sendNative: 15000,
+      sendToken: 15000,
+      claim: 25000,
+    },
   },
   sui: {
-    sendNative: 20000000,
-    sendToken: 20000000,
-    sendNativeWithRelay: 20000000,
-    sendTokenWithRelay: 20000000,
-    claim: 20000000,
+    [Route.Bridge]: {
+      sendNative: 20000000,
+      sendToken: 20000000,
+      claim: 20000000,
+    },
+    [Route.Relay]: {
+      sendNative: 20000000,
+      sendToken: 20000000,
+    },
   },
   aptos: {
-    sendNative: 34,
-    sendToken: 34,
-    claim: 615,
+    [Route.Bridge]: {
+      sendNative: 34,
+      sendToken: 34,
+      claim: 615,
+    },
   },
   sei: {
-    claim: 1000000,
-    sendNative: 1000000,
-    sendToken: 1000000,
+    [Route.Bridge]: {
+      sendNative: 1000000,
+      sendToken: 1000000,
+      claim: 1000000,
+    },
   },
-  basegoerli: {
-    claim: 100000,
-    sendNative: 1000000,
-    sendToken: 1000000,
+  base: {
+    [Route.Bridge]: {
+      sendNative: 100000,
+      sendToken: 1000000,
+      claim: 1000000,
+    },
   },
   wormchain: {
-    sendNative: 0,
-    sendToken: 0,
-    claim: 0,
+    [Route.Bridge]: {
+      sendNative: 0,
+      sendToken: 0,
+      claim: 0,
+    },
   },
   osmosis: {
-    sendNative: 0,
-    sendToken: 0,
-    claim: 0,
+    [Route.Bridge]: {
+      sendNative: 0,
+      sendToken: 0,
+      claim: 0,
+    },
   },
 };

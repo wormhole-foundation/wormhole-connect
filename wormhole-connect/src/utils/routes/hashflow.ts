@@ -31,31 +31,31 @@ export class HashflowRoute extends RouteAbstract {
 
     throw new Error('Method not implemented.');
   }
-  public isSupportedSourceToken(
+  isSupportedSourceToken(
     token: TokenConfig | undefined,
     destToken: TokenConfig | undefined,
   ): Promise<boolean> {
     throw new Error('Method not implemented.');
   }
-  public isSupportedDestToken(
+  isSupportedDestToken(
     token: TokenConfig | undefined,
     sourceToken: TokenConfig | undefined,
   ): Promise<boolean> {
     throw new Error('Method not implemented.');
   }
-  public supportedSourceTokens(tokens: TokenConfig[]): Promise<TokenConfig[]> {
+  supportedSourceTokens(tokens: TokenConfig[]): Promise<TokenConfig[]> {
     throw new Error('Method not implemented.');
   }
-  public supportedDestTokens(tokens: TokenConfig[]): Promise<TokenConfig[]> {
+  supportedDestTokens(tokens: TokenConfig[]): Promise<TokenConfig[]> {
     throw new Error('Method not implemented.');
   }
-  public computeReceiveAmount(sendAmount: number | undefined): Promise<number> {
+  computeReceiveAmount(sendAmount: number | undefined): Promise<number> {
     throw new Error('Method not implemented');
   }
-  public computeSendAmount(receiveAmount: number | undefined): Promise<number> {
+  computeSendAmount(receiveAmount: number | undefined): Promise<number> {
     throw new Error('Method not implemented');
   }
-  public validate(
+  validate(
     token: TokenId | 'native',
     amount: string,
     sendingChain: ChainName | ChainId,
@@ -66,7 +66,7 @@ export class HashflowRoute extends RouteAbstract {
   ): Promise<boolean> {
     throw new Error('Method not implemented.');
   }
-  public estimateSendGas(
+  estimateSendGas(
     token: TokenId | 'native',
     amount: string,
     sendingChain: ChainName | ChainId,
@@ -77,13 +77,13 @@ export class HashflowRoute extends RouteAbstract {
   ): Promise<string> {
     throw new Error('Method not implemented.');
   }
-  public estimateClaimGas(destChain: ChainName | ChainId): Promise<string> {
+  estimateClaimGas(destChain: ChainName | ChainId): Promise<string> {
     throw new Error('Method not implemented.');
   }
-  public getMinSendAmount(routeOptions: any): number {
+  getMinSendAmount(routeOptions: any): number {
     return 0;
   }
-  public send(
+  send(
     token: TokenId | 'native',
     amount: string,
     sendingChain: ChainName | ChainId,
@@ -94,7 +94,7 @@ export class HashflowRoute extends RouteAbstract {
   ): Promise<any> {
     throw new Error('Method not implemented.');
   }
-  public redeem(
+  redeem(
     destChain: ChainName | ChainId,
     messageInfo: SignedMessage,
     recipient: string,
@@ -104,13 +104,13 @@ export class HashflowRoute extends RouteAbstract {
   public getPreview<P>(params: P): Promise<TransferDisplayData> {
     throw new Error('Method not implemented.');
   }
-  public getNativeBalance(
+  getNativeBalance(
     address: string,
     network: ChainName | ChainId,
   ): Promise<BigNumber | null> {
     throw new Error('Method not implemented.');
   }
-  public getTokenBalance(
+  getTokenBalance(
     address: string,
     tokenId: TokenId,
     network: ChainName | ChainId,

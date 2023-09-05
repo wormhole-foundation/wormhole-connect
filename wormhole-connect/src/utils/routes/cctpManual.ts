@@ -27,7 +27,7 @@ import {
   wh,
   PayloadType,
 } from 'utils/sdk';
-import { calculateGas } from 'utils/gas';
+// import { calculateGas } from 'utils/gas';
 import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
 import { NO_INPUT } from 'utils/style';
 // import { Route } from 'store/transferInput';
@@ -42,7 +42,7 @@ import {
 import { BaseRoute } from './baseRoute';
 import { toDecimals, toFixedDecimals } from '../balance';
 import { TransferInfoBaseParams } from './types';
-import { getGasFeeFallback } from '../gasEstimates';
+import { getGasFallback } from '../gas';
 
 export const CCTPTokenSymbol = 'USDC';
 export const CCTPManual_CHAINS: ChainName[] = [
@@ -321,8 +321,10 @@ export class CCTPManualRoute extends BaseRoute {
       const est = await provider.estimateGas(tx);
       const gasFee = est.mul(gasPrice);
       return toFixedDecimals(utils.formatEther(gasFee), 6);
-    } catch (Error) {
-      return getGasFeeFallback(token, sendingChain, Route.CCTPManual);
+    } catch (e) {
+      const gas = getGasFallback(sendingChain, Route.CCTPManual, 'sendToken');
+      if (!gas) throw new Error(`Cannot estimate gas for CCTP transfer\n${e}`);
+      return `${gas}`;
     }
 
     // maybe put this in a try catch and add fallback!
@@ -341,7 +343,7 @@ export class CCTPManualRoute extends BaseRoute {
   /**
    * These operations have to be implemented in subclasses.
    */
-  public getMinSendAmount(routeOptions: any): number {
+  getMinSendAmount(routeOptions: any): number {
     return 0;
   }
   async send(
@@ -477,14 +479,14 @@ export class CCTPManualRoute extends BaseRoute {
     ];
   }
 
-  public getNativeBalance(
+  getNativeBalance(
     address: string,
     network: ChainName | ChainId,
   ): Promise<BigNumber | null> {
     return wh.getNativeBalance(address, network);
   }
 
-  public getTokenBalance(
+  getTokenBalance(
     address: string,
     tokenId: TokenId,
     network: ChainName | ChainId,
@@ -628,7 +630,8 @@ export class CCTPManualRoute extends BaseRoute {
   }: TransferDestInfoParams): Promise<TransferDisplayData> {
     const token = TOKENS[txData.tokenKey];
     const { gasToken } = CHAINS[txData.toChain]!;
-    const gas = await calculateGas(txData.toChain, Route.CCTPManual, receiveTx);
+    // const gas = await calculateGas(txData.toChain, Route.CCTPManual, receiveTx);
+    const gas = 'TODO';
     const formattedAmt = toNormalizedDecimals(
       txData.amount,
       txData.tokenDecimals,
