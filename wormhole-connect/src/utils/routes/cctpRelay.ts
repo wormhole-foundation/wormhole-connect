@@ -388,7 +388,6 @@ export class CCTPRelayRoute extends CCTPManualRoute {
   async getMessage(
     tx: string,
     chain: ChainName | ChainId,
-    unsigned?: boolean,
   ): Promise<RelayCCTPMessage> {
     // only EVM
     // use this as reference

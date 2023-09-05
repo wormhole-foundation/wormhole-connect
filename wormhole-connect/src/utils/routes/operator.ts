@@ -386,7 +386,6 @@ export default class Operator {
     route: Route,
     tx: string,
     network: ChainName | ChainId,
-    unsigned?: boolean,
   ): Promise<UnsignedMessage> {
     const r = this.getRoute(route);
     return r.getMessage(tx, network);
@@ -395,7 +394,6 @@ export default class Operator {
   public async getSignedMessage(
     route: Route,
     message: UnsignedMessage,
-    unsigned?: boolean,
   ): Promise<SignedMessage> {
     const r = this.getRoute(route);
     return r.getSignedMessage(message);
