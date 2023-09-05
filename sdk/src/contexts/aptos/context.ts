@@ -116,7 +116,10 @@ export class AptosContext<
     // throw error so it goes to the fallback value
     throw new Error('not implemented');
   }
-  async estimateClaimGas(): Promise<BigNumber> {
+  async estimateClaimGas(
+    destChain: ChainName | ChainId,
+    VAA: Uint8Array,
+  ): Promise<BigNumber> {
     // TODO: the account's public key is needed for AptosClient.simulateTransaction
     // throw error so it goes to the fallback value
     throw new Error('not implemented');

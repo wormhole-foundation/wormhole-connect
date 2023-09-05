@@ -1,6 +1,6 @@
-import Operator from './operator';
+import RouteOperator from './operator';
 
-export default Operator;
+export default RouteOperator;
 export * from './routeAbstract';
 export * from './bridge';
 export * from './relay';

@@ -33,6 +33,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import AlertBanner from 'components/AlertBanner';
 import PoweredByIcon from 'icons/PoweredBy';
 import { isCosmWasmChain } from 'utils/cosmos';
+import { estimateClaimGas, estimateSendGas } from 'utils/gas';
 
 const useStyles = makeStyles()((theme) => ({
   body: {
@@ -147,7 +148,7 @@ function Send(props: { valid: boolean }) {
     if (!tokenConfig) return;
     const sendToken = tokenConfig.tokenId;
 
-    const gasFee = await RouteOperator.estimateSendGas(
+    const gasFee = await estimateSendGas(
       route,
       sendToken || 'native',
       (amount || 0).toString(),
@@ -179,9 +180,9 @@ function Send(props: { valid: boolean }) {
   const setDestGas = useCallback(async () => {
     if (!toChain) return;
     // TODO:
-    // const gasFee = await estimateClaimGasFees(toChain!);
-    dispatch(setClaimGasEst('0'));
-  }, [toChain, dispatch]);
+    const gasFee = await estimateClaimGas(route, toChain!, undefined);
+    dispatch(setClaimGasEst(gasFee));
+  }, [toChain, route, dispatch]);
 
   useEffect(() => {
     const valid = isTransferValid(validations);

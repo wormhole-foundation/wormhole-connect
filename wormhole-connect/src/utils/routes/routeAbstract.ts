@@ -84,13 +84,14 @@ export default abstract class RouteAbstract {
     senderAddress: string,
     recipientChain: ChainName | ChainId,
     recipientAddress: string,
-    routeOptions: any,
-  ): Promise<string>;
+    routeOptions?: any,
+  ): Promise<BigNumber>;
 
   // estimate claim gas fees, return 0 if none
   public abstract estimateClaimGas(
     destChain: ChainName | ChainId,
-  ): Promise<string>;
+    VAA?: Uint8Array,
+  ): Promise<BigNumber>;
 
   /**
    * These operations have to be implemented in subclasses.

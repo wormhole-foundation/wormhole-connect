@@ -14,7 +14,6 @@ import {
   getWrappedTokenId,
   toNormalizedDecimals,
 } from 'utils';
-// import { estimateClaimGasFees, estimateSendGasFees } from 'utils/gasEstimates';
 import {
   ParsedMessage,
   wh,
@@ -199,24 +198,30 @@ export class RelayRoute extends BridgeRoute {
     recipientChain: ChainName | ChainId,
     recipientAddress: string,
     routeOptions: RelayOptions,
-  ): Promise<string> {
-    throw new Error('not implemented');
-    // return await estimateSendGasFees(
-    //   token,
-    //   Number.parseFloat(amount),
-    //   sendingChain,
-    //   senderAddress,
-    //   recipientChain,
-    //   recipientAddress,
-    //   Route.Relay,
-    //   routeOptions.relayerFee,
-    //   routeOptions.toNativeToken,
-    // );
+  ): Promise<BigNumber> {
+    const { relayerFee, toNativeToken } = routeOptions;
+    const sendGas = await wh.estimateSendWithRelayGas(
+      token,
+      amount,
+      sendingChain,
+      senderAddress,
+      recipientChain,
+      recipientAddress,
+      relayerFee,
+      toNativeToken ? `${routeOptions.toNativeToken}` : '0',
+    );
+    if (!sendGas) throw new Error('could not estimate gas');
+    return sendGas;
   }
 
-  async estimateClaimGas(destChain: ChainName | ChainId): Promise<string> {
-    throw new Error('not implemented');
-    // return await estimateClaimGasFees(destChain);
+  async estimateClaimGas(
+    destChain: ChainName | ChainId,
+    VAA?: Uint8Array,
+  ): Promise<BigNumber> {
+    if (!VAA) throw new Error('Cannot estimate gas without signedVAA');
+    throw new Error(
+      'manual claim not implemented for automatic token bridge relays',
+    );
   }
 
   /**

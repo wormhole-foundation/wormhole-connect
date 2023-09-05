@@ -4,8 +4,12 @@ import {
   parseTokenTransferPayload,
   parseVaa,
 } from '@certusone/wormhole-sdk';
+import { ChainName, ChainId } from '@wormhole-foundation/wormhole-connect-sdk';
+import { CHAINS } from 'config';
 import { Route } from 'config/types';
-import { PayloadType } from 'utils/sdk';
+import { BigNumber, utils } from 'ethers';
+import { toFixedDecimals } from 'utils/balance';
+import { wh, PayloadType } from 'utils/sdk';
 
 export const getRouteForVaa = (vaa: SignedVaa): Route => {
   const message = parseVaa(vaa);
@@ -26,4 +30,10 @@ export const getRouteForVaa = (vaa: SignedVaa): Route => {
   return message.payload && message.payload[0] === PayloadType.Automatic
     ? Route.Relay
     : Route.Bridge;
+};
+
+export const formatGasFee = (chain: ChainName | ChainId, gasFee: BigNumber) => {
+  const chainName = wh.toChainName(chain);
+  const nativeDecimals = CHAINS[chainName]?.nativeTokenDecimals;
+  return toFixedDecimals(utils.formatUnits(gasFee, nativeDecimals), 6);
 };

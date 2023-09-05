@@ -249,7 +249,7 @@ class Operator {
     recipientChain: ChainName | ChainId,
     recipientAddress: string,
     routeOptions: any,
-  ): Promise<string> {
+  ): Promise<BigNumber> {
     const r = this.getRoute(route);
     return await r.estimateSendGas(
       token,
@@ -265,9 +265,11 @@ class Operator {
   async estimateClaimGas(
     route: Route,
     destChain: ChainName | ChainId,
-  ): Promise<string> {
+    VAA?: Uint8Array,
+  ): Promise<BigNumber> {
+    if (!VAA) throw new Error('Cannot estimate gas without signedVAA');
     const r = this.getRoute(route);
-    return await r.estimateClaimGas(destChain);
+    return await r.estimateClaimGas(destChain, VAA);
   }
 
   async send(

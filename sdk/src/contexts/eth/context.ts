@@ -487,8 +487,17 @@ export class EthContext<
     const est = await provider.estimateGas(tx);
     return est.mul(gasPrice);
   }
-  async estimateClaimGas(): Promise<BigNumber> {
-    throw new Error('not implemented');
+  async estimateClaimGas(
+    destChain: ChainName | ChainId,
+    VAA: Uint8Array,
+  ): Promise<BigNumber> {
+    const provider = this.context.mustGetProvider(destChain);
+    const { gasPrice } = await provider.getFeeData();
+    if (!gasPrice)
+      throw new Error('gas price not available, cannot estimate fees');
+    const tx = await this.prepareRedeem(destChain, VAA);
+    const est = await provider.estimateGas(tx);
+    return est.mul(gasPrice);
   }
   async estimateSendWithRelayGas(
     token: TokenId | typeof NATIVE,

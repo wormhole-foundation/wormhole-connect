@@ -74,7 +74,10 @@ export abstract class TokenBridgeAbstract<TransactionResult> {
     recipientChain: ChainName | ChainId,
     recipientAddress: string,
   ): Promise<BigNumber>;
-  protected abstract estimateClaimGas(): Promise<BigNumber>;
+  protected abstract estimateClaimGas(
+    destChain: ChainName | ChainId,
+    VAA: Uint8Array,
+  ): Promise<BigNumber>;
 
   /**
    * Format an address to a 32-byte universal address, which can be utilized by the Wormhole contracts

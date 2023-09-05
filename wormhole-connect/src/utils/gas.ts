@@ -9,8 +9,9 @@ import { GAS_ESTIMATES } from 'config';
 import { GasEstimateOptions, Route } from 'config/types';
 import { wh } from './sdk';
 import RouteOperator from './routes/operator';
+import { formatGasFee } from './routes';
 
-const simulateRelayAmount = (
+export const simulateRelayAmount = (
   route: Route,
   amount: number,
   relayerFee: number,
@@ -28,76 +29,59 @@ export const getGasFallback = (
   chain: ChainName | ChainId,
   route: Route,
   operation: GasEstimateOptions,
-) => {
+): BigNumber => {
   const chainName = wh.toChainName(chain);
   const routeGasFallbacks = GAS_ESTIMATES[chainName]?.[route];
-  if (!routeGasFallbacks || !routeGasFallbacks[operation]) return 0;
-  return routeGasFallbacks[operation];
+  if (!routeGasFallbacks || !routeGasFallbacks[operation])
+    return BigNumber.from(0);
+  return BigNumber.from(routeGasFallbacks[operation]);
 };
 
 export const estimateSendGas = async (
+  route: Route,
   token: TokenId | typeof NATIVE,
   amount: string,
   sendingChain: ChainName | ChainId,
   senderAddress: string,
   recipientChain: ChainName | ChainId,
   recipientAddress: string,
-) => {
+  routeOptions?: any,
+): Promise<string> => {
+  let gas: BigNumber;
   try {
-    const gas = await wh.estimateSendGas(
+    const r = RouteOperator.getRoute(route);
+    gas = await r.estimateSendGas(
       token,
       amount,
       sendingChain,
       senderAddress,
       recipientChain,
       recipientAddress,
+      routeOptions,
     );
-    if (gas) return gas;
   } catch (_) {
     if (token === NATIVE) {
-      getGasFallback(sendingChain, Route.Bridge, 'sendNative');
+      gas = getGasFallback(sendingChain, route, 'sendNative');
     } else {
-      getGasFallback(sendingChain, Route.Bridge, 'sendToken');
+      gas = getGasFallback(sendingChain, route, 'sendToken');
     }
   }
+  if (!gas) throw new Error('could not estimate send gas');
+  return formatGasFee(sendingChain, gas);
 };
 
-export const estimateSendWithRelayGas = async (
-  token: TokenId | typeof NATIVE,
-  amount: string,
-  sendingChain: ChainName | ChainId,
-  senderAddress: string,
-  recipientChain: ChainName | ChainId,
-  recipientAddress: string,
-  relayerFee: any,
-  toNativeToken: string,
-) => {
-  const relayAmount = simulateRelayAmount(
-    Route.Relay,
-    Number.parseFloat(amount),
-    relayerFee,
-    Number.parseFloat(toNativeToken),
-    18, // TODO: decimals,
-  );
+export const estimateClaimGas = async (
+  route: Route,
+  destChain: ChainName | ChainId,
+  VAA?: Uint8Array,
+): Promise<string> => {
+  let gas: BigNumber;
   try {
-    const gas = await wh.estimateSendWithRelayGas(
-      token,
-      relayAmount.toString(),
-      sendingChain,
-      senderAddress,
-      recipientChain,
-      recipientAddress,
-      relayerFee,
-      toNativeToken,
-    );
-    if (gas) return gas;
+    const r = RouteOperator.getRoute(route);
+    gas = await r.estimateClaimGas(destChain, VAA);
   } catch (_) {
-    if (token === NATIVE) {
-      getGasFallback(sendingChain, Route.Relay, 'sendNative');
-    } else {
-      getGasFallback(sendingChain, Route.Relay, 'sendToken');
-    }
+    gas = getGasFallback(destChain, route, 'claim');
   }
+  if (!gas) throw new Error('could not estimate send gas');
+  return formatGasFee(destChain, gas);
 };
-
-// TODO: estimate claim gas
