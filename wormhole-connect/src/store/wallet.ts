@@ -1,6 +1,10 @@
 import { Context } from '@wormhole-foundation/wormhole-connect-sdk';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { disconnect, TransferWallet } from '../utils/wallet';
+import {
+  disconnect,
+  swapWalletConnections,
+  TransferWallet,
+} from '../utils/wallet';
 
 export type WalletData = {
   type: Context | undefined;
@@ -108,6 +112,7 @@ export const walletSlice = createSlice({
       const tmp = state.sending;
       state.sending = state.receiving;
       state.receiving = tmp;
+      swapWalletConnections();
     },
   },
 });
