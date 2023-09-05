@@ -4,11 +4,11 @@ import {
   MAINNET_CHAINS,
   TokenId,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { BigNumber, utils } from 'ethers';
+import { BigNumber } from 'ethers';
+import { hexlify, parseUnits, arrayify } from 'ethers/lib/utils.js';
 import { CHAINS, ROUTES, TOKENS } from 'config';
 import { TokenConfig, Route } from 'config/types';
 import { MAX_DECIMALS, getTokenDecimals, toNormalizedDecimals } from 'utils';
-import { estimateClaimGasFees, estimateSendGasFees } from 'utils/gasEstimates';
 import { toChainId, wh } from 'utils/sdk';
 import { TransferWallet, postVaa, signAndSendTransaction } from 'utils/wallet';
 import { NO_INPUT } from 'utils/style';
@@ -22,15 +22,14 @@ import {
 import { BaseRoute } from './baseRoute';
 import { adaptParsedMessage } from './common';
 import { toDecimals } from '../balance';
-import { calculateGas } from '../gas';
 import {
   SignedMessage,
   TransferDestInfoBaseParams,
   TransferInfoBaseParams,
 } from './types';
-import { hexlify } from 'ethers/lib/utils.js';
 import { isCosmWasmChain } from '../cosmos';
 import { fetchVaa } from '../vaa';
+import { estimateSendGas } from 'utils/gas';
 
 export class BridgeRoute extends BaseRoute {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean = false;
@@ -101,25 +100,27 @@ export class BridgeRoute extends BaseRoute {
     recipientAddress: string,
     routeOptions: any,
   ): Promise<string> {
-    return await estimateSendGasFees(
+    const sendGas = await estimateSendGas(
       token,
-      Number.parseFloat(amount),
+      amount,
       sendingChain,
       senderAddress,
       recipientChain,
       recipientAddress,
-      Route.Bridge,
     );
+    if (!sendGas) throw new Error('could not estimate gas');
+    return sendGas.toString();
   }
 
   async estimateClaimGas(destChain: ChainName | ChainId): Promise<string> {
-    return await estimateClaimGasFees(destChain);
+    // return await estimateClaimGasFees(destChain);
+    throw new Error('not implemented');
   }
 
   /**
    * These operations have to be implemented in subclasses.
    */
-  public getMinSendAmount(routeOptions: any): number {
+  getMinSendAmount(routeOptions: any): number {
     return 0;
   }
 
@@ -135,7 +136,7 @@ export class BridgeRoute extends BaseRoute {
     const fromChainId = wh.toChainId(sendingChain);
     const fromChainName = wh.toChainName(sendingChain);
     const decimals = getTokenDecimals(fromChainId, token);
-    const parsedAmt = utils.parseUnits(amount, decimals);
+    const parsedAmt = parseUnits(amount, decimals);
     const tx = await wh.send(
       token,
       parsedAmt.toString(),
@@ -177,14 +178,14 @@ export class BridgeRoute extends BaseRoute {
         connection,
         contracts.core,
         Buffer.from(
-          utils.arrayify(signedMessage.vaa, { allowMissingPrefix: true }),
+          arrayify(signedMessage.vaa, { allowMissingPrefix: true }),
         ),
       );
     }
 
     const tx = await wh.redeem(
       destChain,
-      utils.arrayify(signedMessage.vaa),
+      arrayify(signedMessage.vaa),
       undefined,
       payer,
     );
@@ -295,7 +296,7 @@ export class BridgeRoute extends BaseRoute {
 
     return {
       ...message,
-      vaa: utils.hexlify(vaa.bytes),
+      vaa: hexlify(vaa.bytes),
     };
   }
 
@@ -337,8 +338,7 @@ export class BridgeRoute extends BaseRoute {
   }: TransferDestInfoBaseParams): Promise<TransferDisplayData> {
     const token = TOKENS[txData.tokenKey];
     const { gasToken } = CHAINS[txData.toChain]!;
-
-    const gas = await calculateGas(txData.toChain, Route.Bridge, receiveTx);
+    const gas = receiveTx && (await wh.getTxGasUsed(txData.toChain, receiveTx));
 
     const formattedAmt = toNormalizedDecimals(
       txData.amount,

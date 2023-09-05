@@ -12,7 +12,7 @@ import { TransferWallet, signSolanaTransaction } from 'utils/wallet';
 import { joinClass } from 'utils/style';
 import { ATTEST_URL, TOKENS } from 'config';
 import { solanaContext } from 'utils/sdk';
-import Operator from 'utils/routes';
+import RouteOperator from 'utils/routes/operator';
 
 import { CircularProgress, Link, Typography } from '@mui/material';
 import AlertBanner from 'components/AlertBanner';
@@ -116,7 +116,8 @@ function TokenWarnings() {
       if (!tokenId) {
         throw new Error('Could not retrieve target token info');
       }
-      const address = await new Operator().getForeignAsset(
+
+      const address = await RouteOperator.getForeignAsset(
         route,
         tokenId,
         toChain,

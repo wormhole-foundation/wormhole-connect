@@ -16,7 +16,7 @@ import {
 import { WalletData, WalletState } from '../store/wallet';
 import { walletAcceptedNetworks } from './wallet';
 import { RelayState } from 'store/relay';
-import Operator from './routes';
+import RouteOperator from './routes/operator';
 
 export const validateFromNetwork = (
   chain: ChainName | undefined,
@@ -99,8 +99,6 @@ export const validateAmount = (
     const b = Number.parseFloat(balance);
     if (numAmount > b) return 'Amount cannot exceed balance';
   }
-  // TODO: check minimum amount per route
-  if (route === Route.Bridge) return '';
   if (!minAmt) return '';
   if (numAmount < minAmt) return `Minimum amount is ${minAmt}`;
   return '';
@@ -185,7 +183,7 @@ export const validateAll = async (
   const { maxSwapAmt, toNativeToken } = relayData;
   const { sending, receiving } = walletData;
   if (!route) throw new Error('no route selected');
-  const r = new Operator().getRoute(route);
+  const r = RouteOperator.getRoute(route);
   const isAutomatic = r.AUTOMATIC_DEPOSIT;
   const minAmt = r.getMinSendAmount(relayData);
   const baseValidations = {

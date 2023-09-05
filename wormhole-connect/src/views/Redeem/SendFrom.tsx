@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import InputContainer from 'components/InputContainer';
 import { RenderRows } from 'components/RenderRows';
 import { RootState } from 'store';
-import Operator, { TransferDisplayData } from 'utils/routes';
+import RouteOperator, { TransferDisplayData } from 'utils/routes';
 
 import Confirmations from './Confirmations';
 import Header from './Header';
@@ -21,9 +21,9 @@ function SendFrom() {
 
   useEffect(() => {
     if (!txData || !route) return;
-    new Operator()
-      .getTransferSourceInfo(route, { txData })
-      .then((rows) => setRows(rows));
+    RouteOperator.getTransferSourceInfo(route, { txData }).then((rows) =>
+      setRows(rows),
+    );
   }, [txData, route]);
 
   return (

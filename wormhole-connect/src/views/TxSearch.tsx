@@ -6,7 +6,7 @@ import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 
 import { CHAINS_ARR } from 'config';
 import { isValidTxId } from 'utils';
-import Operator from 'utils/routes';
+import RouteOperator from 'utils/routes/operator';
 import { setTxDetails, setRoute as setRedeemRoute } from 'store/redeem';
 import { setRoute as setAppRoute } from 'store/router';
 import PageHeader from 'components/PageHeader';
@@ -66,12 +66,11 @@ function TxSearch() {
     }
     try {
       setLoading(true);
-      const operator = new Operator();
-      const route = await operator.getRouteFromTx(
+      const route = await RouteOperator.getRouteFromTx(
         state.tx,
         state.chain as ChainName,
       );
-      const message = await operator.getMessage(
+      const message = await RouteOperator.getMessage(
         route,
         state.tx,
         state.chain as ChainName,

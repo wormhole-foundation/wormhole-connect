@@ -12,6 +12,7 @@ import { toChainId } from 'utils/sdk';
 import Operator from 'utils/routes';
 import { isTransferValid } from 'utils/transferValidation';
 import { toFixedDecimals } from 'utils/balance';
+import RouteOperator from 'utils/routes/operator';
 import { TOKENS, ROUTES } from 'config';
 import { Route } from 'config/types';
 import { RoutesConfig, RouteData } from 'config/routes';
@@ -157,7 +158,7 @@ function RouteOption(props: { route: RouteData; active: boolean }) {
     async function getFee() {
       if (!fromChain || !toChain) return;
       try {
-        const fee = await new Operator().getRelayerFee(
+        const fee = await RouteOperator.getRelayerFee(
           props.route.route,
           fromChain,
           toChain,
@@ -175,8 +176,7 @@ function RouteOption(props: { route: RouteData; active: boolean }) {
   }, [fromChain, toChain, token, props.route.route]);
   useEffect(() => {
     async function load() {
-      const operator = new Operator();
-      const receiveAmt = await operator.computeReceiveAmount(
+      const receiveAmt = await RouteOperator.computeReceiveAmount(
         props.route.route,
         Number.parseFloat(amount),
         { toNativeToken: props.active ? toNativeToken : 0, relayerFee },
@@ -196,7 +196,7 @@ function RouteOption(props: { route: RouteData; active: boolean }) {
   const routeName = props.route.route;
 
   const route = useMemo(() => {
-    return new Operator().getRoute(routeName);
+    return RouteOperator.getRoute(routeName);
   }, [routeName]);
 
   return (
@@ -273,7 +273,7 @@ function RouteOptions() {
     let available: Route[] = [];
     ROUTES.forEach(async (value) => {
       const r = value as Route;
-      const isSupported = await new Operator().isRouteAvailable(
+      const isSupported = await RouteOperator.isRouteAvailable(
         r,
         token,
         destToken,

@@ -32,6 +32,7 @@ import {
   ChainId,
   ChainName,
   Context,
+  NATIVE,
   ParsedMessage,
   ParsedRelayerMessage,
   ParsedRelayerPayload,
@@ -156,6 +157,13 @@ export class SeiContext<
     this.foreignAssetCache = foreignAssetCache;
   }
 
+  protected async getTxGasUsed(
+    txId: string,
+    chain: ChainName | ChainId,
+  ): Promise<BigNumber | undefined> {
+    throw new Error('not implemented');
+  }
+
   async send(
     token: TokenId | 'native',
     amount: string,
@@ -229,6 +237,32 @@ export class SeiContext<
       fee,
       memo: 'Wormhole - Initiate Transfer',
     };
+  }
+
+  async estimateSendGas(
+    token: TokenId | typeof NATIVE,
+    amount: string,
+    sendingChain: ChainName | ChainId,
+    senderAddress: string,
+    recipientChain: ChainName | ChainId,
+    recipientAddress: string,
+  ): Promise<BigNumber> {
+    throw new Error('not implemented');
+    // const tx = await this.send(
+    //   token,
+    //   parsedAmt.toString(),
+    //   fromChain,
+    //   fromAddress,
+    //   toChain,
+    //   toAddress,
+    //   undefined,
+    // );
+    // // the cosmos client requires a signer (i.e. a wallet) for transaction simulation
+    // // so we must rely on the wallet to estimate the gas fee
+    // const estimate = await simulateSeiTransaction(tx, TransferWallet.SENDING);
+  }
+  async estimateClaimGas(): Promise<BigNumber> {
+    throw new Error('not implemented');
   }
 
   /**

@@ -52,6 +52,17 @@ export class AptosContext<
     this.foreignAssetCache = foreignAssetCache;
   }
 
+  protected async getTxGasUsed(
+    txId: string,
+    chain: ChainName | ChainId,
+  ): Promise<BigNumber | undefined> {
+    const txn = await this.aptosClient.getTransactionByHash(txId);
+    if (txn.type === 'user_transaction') {
+      const userTxn = txn as Types.UserTransaction;
+      return BigNumber.from(userTxn.gas_used).mul(userTxn.gas_unit_price);
+    }
+  }
+
   async send(
     token: TokenId | typeof NATIVE,
     amount: string,
@@ -92,6 +103,23 @@ export class AptosContext<
       undefined,
       payload,
     );
+  }
+  async estimateSendGas(
+    token: TokenId | typeof NATIVE,
+    amount: string,
+    sendingChain: ChainName | ChainId,
+    senderAddress: string,
+    recipientChain: ChainName | ChainId,
+    recipientAddress: string,
+  ): Promise<BigNumber> {
+    // TODO: the account's public key is needed for AptosClient.simulateTransaction
+    // throw error so it goes to the fallback value
+    throw new Error('not implemented');
+  }
+  async estimateClaimGas(): Promise<BigNumber> {
+    // TODO: the account's public key is needed for AptosClient.simulateTransaction
+    // throw error so it goes to the fallback value
+    throw new Error('not implemented');
   }
 
   private async innerSend(

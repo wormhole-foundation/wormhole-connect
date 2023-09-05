@@ -14,7 +14,7 @@ import {
   getWrappedTokenId,
   toNormalizedDecimals,
 } from 'utils';
-import { estimateClaimGasFees, estimateSendGasFees } from 'utils/gasEstimates';
+// import { estimateClaimGasFees, estimateSendGasFees } from 'utils/gasEstimates';
 import {
   ParsedMessage,
   wh,
@@ -83,7 +83,10 @@ export class RelayRoute extends BridgeRoute {
     if (!sourceContracts.relayer || !destContracts.relayer) {
       return false;
     }
-    return true;
+    const tokenConfig = TOKENS[sourceToken]!;
+    const tokenId = getWrappedTokenId(tokenConfig);
+    const accepted = await isAcceptedToken(tokenId);
+    return accepted;
   }
 
   async isSupportedSourceToken(
@@ -197,21 +200,23 @@ export class RelayRoute extends BridgeRoute {
     recipientAddress: string,
     routeOptions: RelayOptions,
   ): Promise<string> {
-    return await estimateSendGasFees(
-      token,
-      Number.parseFloat(amount),
-      sendingChain,
-      senderAddress,
-      recipientChain,
-      recipientAddress,
-      Route.Relay,
-      routeOptions.relayerFee,
-      routeOptions.toNativeToken,
-    );
+    throw new Error('not implemented');
+    // return await estimateSendGasFees(
+    //   token,
+    //   Number.parseFloat(amount),
+    //   sendingChain,
+    //   senderAddress,
+    //   recipientChain,
+    //   recipientAddress,
+    //   Route.Relay,
+    //   routeOptions.relayerFee,
+    //   routeOptions.toNativeToken,
+    // );
   }
 
   async estimateClaimGas(destChain: ChainName | ChainId): Promise<string> {
-    return await estimateClaimGasFees(destChain);
+    throw new Error('not implemented');
+    // return await estimateClaimGasFees(destChain);
   }
 
   /**
@@ -304,7 +309,7 @@ export class RelayRoute extends BridgeRoute {
     };
   }
 
-  public async getPreview(
+  async getPreview(
     token: TokenConfig,
     destToken: TokenConfig,
     amount: number,

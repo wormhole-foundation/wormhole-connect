@@ -34,7 +34,7 @@ import {
 } from './types';
 import { toDecimals, toFixedDecimals } from '../balance';
 import { RelayOptions } from './relay';
-import { getGasFeeFallback } from '../gasEstimates';
+// import { getGasFeeFallback } from '../gasEstimates';
 import {
   CCTPTokenSymbol,
   CCTPManual_CHAINS as CCTPRelay_CHAINS,
@@ -205,39 +205,43 @@ export class CCTPRelayRoute extends CCTPManualRoute {
     recipientAddress: string,
     routeOptions: any,
   ): Promise<string> {
-    const provider = wh.mustGetProvider(sendingChain);
-    const { gasPrice } = await provider.getFeeData();
-    if (!gasPrice)
-      throw new Error('gas price not available, cannot estimate fees');
+    throw new Error('not implemented');
+    // const provider = wh.mustGetProvider(sendingChain);
+    // const { gasPrice } = await provider.getFeeData();
+    // if (!gasPrice)
+    //   throw new Error('gas price not available, cannot estimate fees');
 
-    // only works on EVM
-    const chainContext = wh.getContext(
-      sendingChain,
-    ) as EthContext<WormholeContext>;
-    const circleRelayer =
-      chainContext.contracts.mustGetWormholeCircleRelayer(sendingChain);
-    const tokenAddr = (token as TokenId).address;
-    const fromChainId = wh.toChainId(sendingChain);
-    const decimals = getTokenDecimals(fromChainId, token);
-    const parsedAmt = utils.parseUnits(`${amount}`, decimals);
+    // // only works on EVM
+    // const chainContext = wh.getContext(
+    //   sendingChain,
+    // ) as EthContext<WormholeContext>;
+    // const circleRelayer =
+    //   chainContext.contracts.mustGetWormholeCircleRelayer(sendingChain);
+    // const tokenAddr = await wh.mustGetForeignAsset(
+    //   token as TokenId,
+    //   sendingChain,
+    // );
+    // const fromChainId = wh.toChainId(sendingChain);
+    // const decimals = getTokenDecimals(fromChainId, token);
+    // const parsedAmt = utils.parseUnits(`${amount}`, decimals);
 
-    try {
-      const tx =
-        await circleRelayer.populateTransaction.transferTokensWithRelay(
-          chainContext.context.parseAddress(tokenAddr, sendingChain),
-          parsedAmt,
-          BigNumber.from(routeOptions.toNativeToken),
-          wh.toChainId(recipientChain),
-          chainContext.context.formatAddress(recipientAddress, recipientChain),
-        );
-      const est = await provider.estimateGas(tx);
-      const gasFee = est.mul(gasPrice);
-      return toFixedDecimals(utils.formatEther(gasFee), 6);
-    } catch (Error) {
-      return getGasFeeFallback(token, sendingChain, Route.CCTPRelay);
-    }
+    // try {
+    //   const tx =
+    //     await circleRelayer.populateTransaction.transferTokensWithRelay(
+    //       chainContext.context.parseAddress(tokenAddr, sendingChain),
+    //       parsedAmt,
+    //       BigNumber.from(routeOptions.toNativeToken),
+    //       wh.toChainId(recipientChain),
+    //       chainContext.context.formatAddress(recipientAddress, recipientChain),
+    //     );
+    //   const est = await provider.estimateGas(tx);
+    //   const gasFee = est.mul(gasPrice);
+    //   return toFixedDecimals(utils.formatEther(gasFee), 6);
+    // } catch (Error) {
+    //   return getGasFeeFallback(token, sendingChain, Route.CCTPRelay);
+    // }
 
-    // maybe put this in a try catch and add fallback!
+    // // maybe put this in a try catch and add fallback!
   }
 
   async estimateClaimGas(destChain: ChainName | ChainId): Promise<string> {
@@ -247,7 +251,7 @@ export class CCTPRelayRoute extends CCTPManualRoute {
   /**
    * These operations have to be implemented in subclasses.
    */
-  public getMinSendAmount(routeOptions: any): number {
+  getMinSendAmount(routeOptions: any): number {
     const { relayerFee, toNativeToken } = routeOptions;
 
     // has to be slightly higher than the minimum or else tx will revert

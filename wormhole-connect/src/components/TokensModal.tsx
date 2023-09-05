@@ -18,8 +18,8 @@ import { TokenConfig } from 'config/types';
 import { setBalance, formatBalance, clearBalances } from 'store/transferInput';
 import { displayAddress } from 'utils';
 import { CENTER, NO_INPUT } from 'utils/style';
-import Operator from 'utils/routes';
 import { isCosmWasmChain } from 'utils/cosmos';
+import RouteOperator from 'utils/routes/operator';
 
 import Header from './Header';
 import Modal from './Modal';
@@ -341,21 +341,24 @@ function TokensModal(props: Props) {
 
   const getBalances = useCallback(async () => {
     if (!walletAddress || !network || !route) return;
-    const operator = new Operator();
     // fetch all N tokens and trigger a single update action
     const balancesArr = await Promise.all(
       allTokens.map(async (t) => {
         let balance: BigNumber | null = null;
         try {
           balance = t.tokenId
-            ? await operator.getTokenBalance(
+            ? await RouteOperator.getTokenBalance(
                 route,
                 walletAddress,
                 t.tokenId,
                 network,
               )
             : t.nativeNetwork === network
-            ? await operator.getNativeBalance(route, walletAddress, network)
+            ? await RouteOperator.getNativeBalance(
+                route,
+                walletAddress,
+                network,
+              )
             : null;
         } catch (e) {
           console.warn('Failed to fetch balance', e);

@@ -102,16 +102,17 @@ export type ChainsConfig = {
   [chain in ChainName]?: ChainConfig;
 };
 
+export type GasEstimatesByOperation = {
+  sendToken?: number;
+  sendNative?: number;
+  claim?: number;
+};
+
+export type GasEstimateOptions = keyof GasEstimatesByOperation;
+
 export type GasEstimates = {
   [chain in ChainName]?: {
-    send?: number;
-    sendNative: number;
-    sendToken: number;
-    claim: number;
-    sendNativeWithRelay?: number;
-    sendTokenWithRelay?: number;
-    sendCCTPWithRelay?: number;
-    sendCCTPManual?: number;
+    [route in Route]?: GasEstimatesByOperation;
   };
 };
 

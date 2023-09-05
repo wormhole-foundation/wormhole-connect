@@ -75,7 +75,7 @@ function SendTo() {
       } catch (e) {
         console.error(`could not fetch redeem event:\n${e}`);
       }
-      const rows = await new Operator().getTransferDestInfo(routeName, {
+      const rows = await RouteOperator.getTransferDestInfo(routeName, {
         txData,
         receiveTx,
         transferComplete,

@@ -95,6 +95,13 @@ export class SolanaContext<
     this.foreignAssetCache = foreignAssetCache;
   }
 
+  async getTxGasUsed(
+    txId: string,
+    chain: ChainName | ChainId,
+  ): Promise<BigNumber | undefined> {
+    throw new Error('not implemented');
+  }
+
   /**
    * Sets the Connection
    *
@@ -592,6 +599,20 @@ export class SolanaContext<
         'finalized',
       );
     }
+  }
+
+  async estimateSendGas(
+    token: TokenId | typeof NATIVE,
+    amount: string,
+    sendingChain: ChainName | ChainId,
+    senderAddress: string,
+    recipientChain: ChainName | ChainId,
+    recipientAddress: string,
+  ): Promise<BigNumber> {
+    throw new Error('not implemented');
+  }
+  async estimateClaimGas(): Promise<BigNumber> {
+    throw new Error('not implemented');
   }
 
   formatAddress(address: PublicKeyInitData): Uint8Array {
