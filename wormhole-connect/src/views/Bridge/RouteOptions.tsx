@@ -238,7 +238,6 @@ function RouteOptions() {
     amount,
     validate,
     validations,
-    // toNativeToken,
   } = useSelector((state: RootState) => state.transferInput);
   const onSelect = (value: Route) => {
     dispatch(setTransferRoute(value));

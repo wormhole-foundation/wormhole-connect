@@ -94,7 +94,7 @@ export class CosmosGatewayRoute extends BaseRoute {
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
   ): Promise<boolean> {
-    if (!(Route.CCTPManual in ROUTES)) {
+    if (!ROUTES.includes(Route.CosmosGateway)) {
       return false;
     }
 

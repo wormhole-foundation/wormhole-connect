@@ -41,7 +41,7 @@ export class BridgeRoute extends BaseRoute {
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
   ): Promise<boolean> {
-    if (!(Route.Bridge in ROUTES)) {
+    if (!ROUTES.includes(Route.Bridge)) {
       return false;
     }
 
