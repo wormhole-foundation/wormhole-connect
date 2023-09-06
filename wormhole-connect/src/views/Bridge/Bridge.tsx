@@ -34,6 +34,7 @@ import ToInputs from './Inputs/To';
 import TransferLimitedWarning from './TransferLimitedWarning';
 import SwapChains from './SwapChains';
 import RouteOptions from './RouteOptions';
+import ValidationError from './ValidationError';
 
 const useStyles = makeStyles()((theme) => ({
   spacer: {
@@ -289,6 +290,8 @@ function Bridge() {
       <FromInputs />
       <SwapChains />
       <ToInputs />
+
+      <ValidationError validations={[validations.route]} margin="8px 0 0 0" />
 
       <Collapse in={valid && showValidationState}>
         <div className={classes.spacer}>

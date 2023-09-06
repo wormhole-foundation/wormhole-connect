@@ -137,8 +137,13 @@ export const validateToNativeAmt = (
   return '';
 };
 
-export const validateRoute = (route: Route): ValidationErr => {
-  // TODO: better validation
+export const validateRoute = (
+  route: Route,
+  availableRoutes: string[],
+): ValidationErr => {
+  if (!availableRoutes || !availableRoutes.includes(route)) {
+    return 'No bridge or swap route available for selected tokens';
+  }
   return '';
 };
 
@@ -179,6 +184,7 @@ export const validateAll = async (
     foreignAsset,
     associatedTokenAddress,
     route,
+    availableRoutes,
   } = transferData;
   const { maxSwapAmt, toNativeToken } = relayData;
   const { sending, receiving } = walletData;
@@ -194,7 +200,7 @@ export const validateAll = async (
     token: validateToken(token, fromChain),
     destToken: validateDestToken(destToken, toChain),
     amount: validateAmount(amount, balances[token], route, minAmt),
-    route: validateRoute(route),
+    route: validateRoute(route, availableRoutes),
     toNativeToken: '',
     foreignAsset: validateForeignAsset(foreignAsset),
     associatedTokenAccount: validateSolanaTokenAccount(
@@ -207,7 +213,6 @@ export const validateAll = async (
   return {
     ...baseValidations,
     amount: validateAmount(amount, balances[token], route, minAmt),
-    route: validateRoute(route),
     toNativeToken: validateToNativeAmt(toNativeToken, maxSwapAmt),
   };
 };
