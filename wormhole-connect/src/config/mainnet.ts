@@ -593,7 +593,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   USDCarbitrum: {
     key: 'USDCarbitrum',
     symbol: 'USDC',
-    nativeNetwork: 'avalanche',
+    nativeNetwork: 'arbitrum',
     icon: Icon.USDC,
     tokenId: {
       chain: 'arbitrum',
