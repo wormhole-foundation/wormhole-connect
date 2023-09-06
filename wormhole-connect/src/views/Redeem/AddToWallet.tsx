@@ -25,7 +25,7 @@ import { setWalletModal } from '../../store/router';
 import { getWrappedToken } from '../../utils';
 import { wh } from '../../utils/sdk';
 import { TransferWallet, switchNetwork, watchAsset } from '../../utils/wallet';
-
+import Operator from '../../utils/routes';
 import TokenIcon from '../../icons/TokenIcons';
 import ExplorerLink from './ExplorerLink';
 import { isCosmWasmChain } from '../../utils/cosmos';
@@ -148,7 +148,7 @@ function AddToAptosWallet({ token, address }: AddTokenProps) {
 
 function AddToWallet() {
   const txData = useSelector((state: RootState) => state.redeem.txData)!;
-
+  const route = useSelector((state: RootState) => state.redeem.route);
   const [targetToken, setTargetToken] = useState<TokenConfig | undefined>(
     undefined,
   );
@@ -162,7 +162,11 @@ function AddToWallet() {
       const tokenInfo = TOKENS[txData.tokenKey];
       const wrapped = getWrappedToken(tokenInfo);
       if (!wrapped.tokenId) return;
-      const address = await wh.getForeignAsset(wrapped.tokenId, txData.toChain);
+      const address = await new Operator().getForeignAsset(
+        route,
+        wrapped.tokenId,
+        txData.toChain,
+      );
 
       if (txData.toChain === 'sui' && address) {
         const context = wh.getContext('sui') as SuiContext<WormholeContext>;
@@ -181,7 +185,7 @@ function AddToWallet() {
     fetchTokenInfo().catch((err) =>
       console.error('Failed to fetch token info', err),
     );
-  }, [txData]);
+  }, [txData, route]);
 
   const chainName = isMainnet
     ? (txData.toChain as ChainName)
