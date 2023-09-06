@@ -87,6 +87,10 @@ export class CosmosGatewayRoute extends BaseRoute {
 
   private static CLIENT_MAP: Record<string, TendermintClient> = {};
 
+  isSupportedChain(chain: ChainName): boolean {
+    return isCosmWasmChain(chain);
+  }
+
   async isRouteAvailable(
     sourceToken: string,
     destToken: string,

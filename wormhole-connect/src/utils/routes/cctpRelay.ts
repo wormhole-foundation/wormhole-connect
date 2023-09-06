@@ -7,7 +7,7 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { BigNumber, utils } from 'ethers';
 
-import { CHAINS, ROUTES, TOKENS } from 'config';
+import { CHAINS, ROUTES, TOKENS, sdkConfig } from 'config';
 import { TokenConfig, Route } from 'config/types';
 import {
   MAX_DECIMALS,
@@ -54,6 +54,12 @@ interface TransferDestInfoParams {
 export class CCTPRelayRoute extends CCTPManualRoute {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED = true;
   readonly AUTOMATIC_DEPOSIT = true;
+
+  isSupportedChain(chain: ChainName): boolean {
+    return !!sdkConfig.chains[chain]?.contracts.cctpContracts
+      ?.wormholeCircleRelayer;
+  }
+
   async isSupportedSourceToken(
     token: TokenConfig | undefined,
     destToken: TokenConfig | undefined,

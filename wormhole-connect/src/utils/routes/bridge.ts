@@ -63,6 +63,11 @@ export class BridgeRoute extends BaseRoute {
     return false;
   }
 
+  isSupportedChain(chain: ChainName): boolean {
+    // all chains are supported for manual
+    return true;
+  }
+
   async computeReceiveAmount(
     sendAmount: number | undefined,
     routeOptions: any,

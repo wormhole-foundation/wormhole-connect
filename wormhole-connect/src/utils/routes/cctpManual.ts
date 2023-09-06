@@ -10,7 +10,14 @@ import {
   MessageTransmitter__factory,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 
-import { CHAINS, ROUTES, TOKENS, TOKENS_ARR, isMainnet } from 'config';
+import {
+  CHAINS,
+  ROUTES,
+  TOKENS,
+  TOKENS_ARR,
+  isMainnet,
+  sdkConfig,
+} from 'config';
 import { TokenConfig, Route } from 'config/types';
 import {
   MAX_DECIMALS,
@@ -131,6 +138,11 @@ export function getChainNameCCTP(domain: number): ChainName {
 export class CCTPManualRoute extends BaseRoute {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean = false;
   readonly AUTOMATIC_DEPOSIT: boolean = false;
+
+  isSupportedChain(chain: ChainName): boolean {
+    return !!sdkConfig.chains[chain]?.contracts.cctpContracts;
+  }
+
   async isSupportedSourceToken(
     token: TokenConfig | undefined,
     destToken: TokenConfig | undefined,

@@ -287,6 +287,7 @@ function RouteOptions() {
     };
     getAvailable();
   }, [
+    dispatch,
     token,
     destToken,
     amount,
