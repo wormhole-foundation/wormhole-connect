@@ -61,6 +61,8 @@ import {
 } from './types';
 import { BridgeRoute } from './bridge';
 import { fetchVaa } from '../vaa';
+import { formatGasFee } from './utils';
+import { estimateClaimGas } from 'utils/gas';
 
 interface GatewayTransferMsg {
   gateway_transfer: {
@@ -745,12 +747,15 @@ export class CosmosGatewayRoute extends BaseRoute {
     const token = TOKENS[txData.tokenKey];
     const { gasToken } = CHAINS[txData.toChain]!;
 
-    // const gas = await calculateGas(
-    //   txData.toChain,
-    //   Route.CosmosGateway,
-    //   receiveTx,
-    // );
-    const gas = 'TODO';
+    let gas: string = '';
+    if (receiveTx) {
+      const gasUsed = await wh.getTxGasUsed(txData.toChain, receiveTx);
+      if (gasUsed) {
+        gas = formatGasFee(txData.toChain, gasUsed);
+      }
+    } else {
+      gas = await estimateClaimGas(Route.CosmosGateway, txData.toChain);
+    }
 
     const formattedAmt = toNormalizedDecimals(
       txData.amount,

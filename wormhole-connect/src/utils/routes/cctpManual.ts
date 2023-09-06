@@ -47,7 +47,8 @@ import {
 } from './types';
 import { BaseRoute } from './baseRoute';
 import { toDecimals } from '../balance';
-import { getGasFallback } from '../gas';
+import { estimateClaimGas, getGasFallback } from '../gas';
+import { formatGasFee } from './utils';
 
 export const CCTPTokenSymbol = 'USDC';
 export const CCTPManual_CHAINS: ChainName[] = [
@@ -640,8 +641,17 @@ export class CCTPManualRoute extends BaseRoute {
   }: TransferDestInfoParams): Promise<TransferDisplayData> {
     const token = TOKENS[txData.tokenKey];
     const { gasToken } = CHAINS[txData.toChain]!;
-    // const gas = await calculateGas(txData.toChain, Route.CCTPManual, receiveTx);
-    const gas = 'TODO';
+
+    let gas: string = '';
+    if (receiveTx) {
+      const gasUsed = await wh.getTxGasUsed(txData.toChain, receiveTx);
+      if (gasUsed) {
+        gas = formatGasFee(txData.toChain, gasUsed);
+      }
+    } else {
+      gas = await estimateClaimGas(Route.CosmosGateway, txData.toChain);
+    }
+
     const formattedAmt = toNormalizedDecimals(
       txData.amount,
       txData.tokenDecimals,

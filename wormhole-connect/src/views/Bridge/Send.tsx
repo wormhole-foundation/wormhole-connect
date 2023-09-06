@@ -180,7 +180,6 @@ function Send(props: { valid: boolean }) {
 
   const setDestGas = useCallback(async () => {
     if (!toChain) return;
-    // TODO:
     const gasFee = await estimateClaimGas(route, toChain!, undefined);
     dispatch(setClaimGasEst(gasFee));
   }, [toChain, route, dispatch]);
