@@ -25,6 +25,7 @@
     "react-dom": "^18.2.0"
   },
   "scripts": {
+    "lint:ci": "prettier -c ./src && eslint --max-warnings=0 ./src",
     "build:cjs": "tsc -p tsconfig.cjs.json",
     "build:esm": "tsc -p tsconfig.esm.json",
     "build": "rm -rf lib && npm run build:cjs && npm run build:esm"

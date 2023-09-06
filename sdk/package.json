@@ -43,6 +43,7 @@
   },
   "scripts": {
     "lint": "npm run prettier && eslint --fix",
+    "lint:ci": "prettier -c ./src && eslint --max-warnings=0 ./src",
     "prettier": "prettier --write ./src",
     "build": "tsc --build",
     "check": "tsc --noEmit",
