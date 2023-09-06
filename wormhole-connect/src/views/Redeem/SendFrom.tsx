@@ -31,7 +31,7 @@ function SendFrom() {
     <div>
       <InputContainer>
         <Header
-          network={txData!.fromChain}
+          chain={txData!.fromChain}
           address={txData!.sender}
           txHash={txData!.sendTx}
         />

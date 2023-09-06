@@ -5,24 +5,24 @@ import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { RootState } from 'store';
 import {
   setToken,
-  selectFromNetwork,
+  selectFromChain,
   setAmount,
   setReceiveAmount,
 } from 'store/transferInput';
 import { CHAINS, CHAINS_ARR, TOKENS } from 'config';
-import { TransferWallet, walletAcceptedNetworks } from 'utils/wallet';
+import { TransferWallet, walletAcceptedChains } from 'utils/wallet';
 import RouteOperator from 'utils/routes/operator';
 
 import Inputs from './Inputs';
 import Select from './Select';
 import AmountInput from './AmountInput';
 import TokensModal from 'components/TokensModal';
-import NetworksModal from 'components/NetworksModal';
+import ChainsModal from 'components/ChainsModal';
 
 function FromInputs() {
   const dispatch = useDispatch();
   const [showTokensModal, setShowTokensModal] = useState(false);
-  const [showNetworksModal, setShowNetworksModal] = useState(false);
+  const [showChainsModal, setShowChainsModal] = useState(false);
 
   const { toNativeToken } = useSelector((state: RootState) => state.relay);
   const wallet = useSelector((state: RootState) => state.wallet.sending);
@@ -42,11 +42,11 @@ function FromInputs() {
 
   const isDisabled = (chain: ChainName) => {
     // Check if the wallet type (i.e. Metamask, Phantom...) is supported for the given chain
-    return !walletAcceptedNetworks(wallet.type).includes(chain);
+    return !walletAcceptedChains(wallet.type).includes(chain);
   };
 
-  const selectNetwork = async (network: ChainName) => {
-    selectFromNetwork(dispatch, network, wallet);
+  const selectChain = async (chain: ChainName) => {
+    selectFromChain(dispatch, chain, wallet);
   };
 
   const selectToken = (token: string) => {
@@ -56,11 +56,11 @@ function FromInputs() {
   // token input jsx
   const selectedToken = useMemo(() => {
     if (!tokenConfig) return undefined;
-    const network = CHAINS[tokenConfig.nativeNetwork as ChainName]?.displayName;
+    const chain = CHAINS[tokenConfig.nativeChain as ChainName]?.displayName;
     return {
       icon: tokenConfig.icon,
       text: tokenConfig.symbol,
-      secondaryText: `(${network})`,
+      secondaryText: `(${chain})`,
     };
   }, [tokenConfig]);
   const tokenInput = (
@@ -111,27 +111,27 @@ function FromInputs() {
           validations.token,
           validations.amount,
         ]}
-        network={fromChain}
-        networkValidation={validations.fromChain}
-        onNetworkClick={() => setShowNetworksModal(true)}
+        chain={fromChain}
+        chainValidation={validations.fromChain}
+        onChainClick={() => setShowChainsModal(true)}
         tokenInput={tokenInput}
         amountInput={amountInput}
         balance={balance}
       />
       <TokensModal
         open={showTokensModal}
-        network={fromChain}
+        chain={fromChain}
         walletAddress={wallet.address}
         type="source"
         onSelect={selectToken}
         onClose={() => setShowTokensModal(false)}
       />
-      <NetworksModal
-        open={showNetworksModal}
+      <ChainsModal
+        open={showChainsModal}
         title="Sending from"
         chains={CHAINS_ARR.filter((c) => c.key !== toChain)}
-        onSelect={selectNetwork}
-        onClose={() => setShowNetworksModal(false)}
+        onSelect={selectChain}
+        onClose={() => setShowChainsModal(false)}
         isDisabled={isDisabled}
       />
     </>

@@ -63,7 +63,7 @@ export function getForeignUSDCAddress(chain: ChainName | ChainId) {
   const usdcToken = TOKENS_ARR.find(
     (t) =>
       t.symbol === CCTPTokenSymbol &&
-      t.nativeNetwork === wh.toChainName(chain) &&
+      t.nativeChain === wh.toChainName(chain) &&
       t.tokenId?.chain === wh.toChainName(chain),
   );
   if (!usdcToken) {
@@ -139,13 +139,13 @@ export class CCTPManualRoute extends BaseRoute {
     destChain?: ChainName | ChainId,
   ): Promise<boolean> {
     if (!token) return false;
-    const sourceChainName = token.nativeNetwork;
+    const sourceChainName = token.nativeChain;
     const sourceChainCCTP =
       CCTPManual_CHAINS.includes(sourceChainName) &&
       (!sourceChain || wh.toChainName(sourceChain) === sourceChainName);
 
     if (destToken) {
-      const destChainName = destToken.nativeNetwork;
+      const destChainName = destToken.nativeChain;
       const destChainCCTP =
         CCTPManual_CHAINS.includes(destChainName) &&
         (!destChain || wh.toChainName(destChain) === destChainName);
@@ -167,12 +167,12 @@ export class CCTPManualRoute extends BaseRoute {
     destChain?: ChainName | ChainId,
   ): Promise<boolean> {
     if (!token) return false;
-    const destChainName = token.nativeNetwork;
+    const destChainName = token.nativeChain;
     const destChainCCTP =
       CCTPManual_CHAINS.includes(destChainName) &&
       (!destChain || wh.toChainName(destChain) === destChainName);
     if (sourceToken) {
-      const sourceChainName = sourceToken.nativeNetwork;
+      const sourceChainName = sourceToken.nativeChain;
       const sourceChainCCTP =
         CCTPManual_CHAINS.includes(sourceChainName) &&
         (!sourceChain || wh.toChainName(sourceChain) === sourceChainName);
@@ -245,8 +245,8 @@ export class CCTPManualRoute extends BaseRoute {
     if (sourceChainName === destChainName) return false;
     if (sourceTokenConfig.symbol !== CCTPTokenSymbol) return false;
     if (destTokenConfig.symbol !== CCTPTokenSymbol) return false;
-    if (sourceTokenConfig.nativeNetwork !== sourceChainName) return false;
-    if (destTokenConfig.nativeNetwork !== destChainName) return false;
+    if (sourceTokenConfig.nativeChain !== sourceChainName) return false;
+    if (destTokenConfig.nativeChain !== destChainName) return false;
 
     return (
       CCTPManual_CHAINS.includes(sourceChainName) &&
@@ -476,17 +476,17 @@ export class CCTPManualRoute extends BaseRoute {
 
   getNativeBalance(
     address: string,
-    network: ChainName | ChainId,
+    chain: ChainName | ChainId,
   ): Promise<BigNumber | null> {
-    return wh.getNativeBalance(address, network);
+    return wh.getNativeBalance(address, chain);
   }
 
   async getTokenBalance(
     address: string,
     tokenId: TokenId,
-    network: ChainName | ChainId,
+    chain: ChainName | ChainId,
   ): Promise<BigNumber | null> {
-    return wh.getTokenBalance(address, tokenId, network);
+    return wh.getTokenBalance(address, tokenId, chain);
   }
 
   async getRelayerFee(
@@ -505,7 +505,7 @@ export class CCTPManualRoute extends BaseRoute {
     const addr = TOKENS_ARR.find(
       (t) =>
         t.symbol === CCTPTokenSymbol &&
-        t.nativeNetwork === chain &&
+        t.nativeChain === chain &&
         t.tokenId?.chain === chain,
     )?.tokenId?.address;
     if (!addr) throw new Error('USDC not found');
@@ -598,7 +598,7 @@ export class CCTPManualRoute extends BaseRoute {
     const { gasToken: sourceGasTokenSymbol } = CHAINS[txData.fromChain]!;
     const sourceGasToken = TOKENS[sourceGasTokenSymbol];
     const decimals = getTokenDecimals(
-      toChainId(sourceGasToken.nativeNetwork),
+      toChainId(sourceGasToken.nativeChain),
       sourceGasToken.tokenId,
     );
     const formattedGas =

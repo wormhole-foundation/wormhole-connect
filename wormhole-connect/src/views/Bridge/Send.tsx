@@ -16,7 +16,7 @@ import { displayWalletAddress, sleep } from 'utils';
 import { LINK } from 'utils/style';
 import {
   registerWalletSigner,
-  switchNetwork,
+  switchChain,
   TransferWallet,
 } from 'utils/wallet';
 import { UnsignedMessage } from 'utils/routes';
@@ -99,7 +99,7 @@ function Send(props: { valid: boolean }) {
         if (typeof chainId !== 'number') {
           throw new Error('invalid evm chain ID');
         }
-        await switchNetwork(chainId, TransferWallet.SENDING);
+        await switchChain(chainId, TransferWallet.SENDING);
       }
 
       const tokenConfig = TOKENS[token]!;

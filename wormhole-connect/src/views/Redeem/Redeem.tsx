@@ -16,7 +16,7 @@ import { ParsedMessage, ParsedRelayerMessage } from 'utils/sdk';
 
 import PageHeader from 'components/PageHeader';
 import Spacer from 'components/Spacer';
-import NetworksTag from './Tag';
+import ChainsTag from './Tag';
 import Stepper from './Stepper';
 import GovernorEnqueuedWarning from './GovernorEnqueuedWarning';
 
@@ -134,7 +134,7 @@ function Redeem({
     >
       <PageHeader title="Bridge" back />
 
-      <NetworksTag />
+      <ChainsTag />
       <Spacer />
       <GovernorEnqueuedWarning
         show={!txData && isVaaEnqueued}

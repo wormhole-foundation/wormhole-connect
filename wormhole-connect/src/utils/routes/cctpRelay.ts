@@ -62,13 +62,13 @@ export class CCTPRelayRoute extends CCTPManualRoute {
     destChain?: ChainName | ChainId,
   ): Promise<boolean> {
     if (!token) return false;
-    const sourceChainName = token.nativeNetwork;
+    const sourceChainName = token.nativeChain;
     const sourceChainCCTP =
       CCTPRelay_CHAINS.includes(sourceChainName) &&
       (!sourceChain || wh.toChainName(sourceChain) === sourceChainName);
 
     if (destToken) {
-      const destChainName = destToken.nativeNetwork;
+      const destChainName = destToken.nativeChain;
       const destChainCCTP =
         CCTPRelay_CHAINS.includes(destChainName) &&
         (!destChain || wh.toChainName(destChain) === destChainName);
@@ -90,12 +90,12 @@ export class CCTPRelayRoute extends CCTPManualRoute {
     destChain?: ChainName | ChainId,
   ): Promise<boolean> {
     if (!token) return false;
-    const destChainName = token.nativeNetwork;
+    const destChainName = token.nativeChain;
     const destChainCCTP =
       CCTPRelay_CHAINS.includes(destChainName) &&
       (!destChain || wh.toChainName(destChain) === destChainName);
     if (sourceToken) {
-      const sourceChainName = sourceToken.nativeNetwork;
+      const sourceChainName = sourceToken.nativeChain;
       const sourceChainCCTP =
         CCTPRelay_CHAINS.includes(sourceChainName) &&
         (!sourceChain || wh.toChainName(sourceChain) === sourceChainName);
@@ -170,8 +170,8 @@ export class CCTPRelayRoute extends CCTPManualRoute {
 
     if (sourceTokenConfig.symbol !== CCTPTokenSymbol) return false;
     if (destTokenConfig.symbol !== CCTPTokenSymbol) return false;
-    if (sourceTokenConfig.nativeNetwork !== sourceChainName) return false;
-    if (destTokenConfig.nativeNetwork !== destChainName) return false;
+    if (sourceTokenConfig.nativeChain !== sourceChainName) return false;
+    if (destTokenConfig.nativeChain !== destChainName) return false;
 
     return (
       CCTPRelay_CHAINS.includes(sourceChainName) &&
@@ -481,7 +481,7 @@ export class CCTPRelayRoute extends CCTPManualRoute {
     const { gasToken: sourceGasTokenSymbol } = CHAINS[txData.fromChain]!;
     const sourceGasToken = TOKENS[sourceGasTokenSymbol];
     const decimals = getTokenDecimals(
-      toChainId(sourceGasToken.nativeNetwork),
+      toChainId(sourceGasToken.nativeChain),
       sourceGasToken.tokenId,
     );
     const formattedGas =

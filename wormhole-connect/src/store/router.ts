@@ -5,16 +5,16 @@ export type Route = 'bridge' | 'redeem' | 'search' | 'terms' | 'faq';
 
 export interface RouterState {
   route: Route;
-  showFromNetworksModal: boolean;
-  showToNetworksModal: boolean;
+  showFromChainsModal: boolean;
+  showToChainsModal: boolean;
   showTokensModal: boolean;
   showWalletModal: TransferWallet | false;
 }
 
 const initialState: RouterState = {
   route: 'bridge',
-  showFromNetworksModal: false,
-  showToNetworksModal: false,
+  showFromChainsModal: false,
+  showToChainsModal: false,
   showTokensModal: false,
   showWalletModal: false,
 };

@@ -128,7 +128,7 @@ const useStyles = makeStyles()((theme: any) => ({
   advancedContent: {
     marginBottom: '16px',
   },
-  nativeNetwork: {
+  nativeChain: {
     opacity: '60%',
   },
   register: {
@@ -154,8 +154,8 @@ const useStyles = makeStyles()((theme: any) => ({
   },
 }));
 
-const displayNativeNetwork = (token: TokenConfig): string => {
-  const chainConfig = CHAINS[token.nativeNetwork];
+const displayNativeChain = (token: TokenConfig): string => {
+  const chainConfig = CHAINS[token.nativeChain];
   if (!chainConfig) return '';
   return chainConfig.displayName;
 };
@@ -164,7 +164,7 @@ function DisplayTokens(props: {
   tokens: TokenConfig[];
   balances: any;
   walletAddress: string | undefined;
-  network: any;
+  chain: any;
   selectToken: any;
   loading: boolean;
   search: string;
@@ -175,7 +175,7 @@ function DisplayTokens(props: {
     tokens,
     balances,
     walletAddress,
-    network,
+    chain,
     selectToken,
     loading,
     search,
@@ -198,8 +198,8 @@ function DisplayTokens(props: {
                   <TokenIcon name={token.icon} height={32} />
                   <div>
                     <div>{token.symbol}</div>
-                    <div className={classes.nativeNetwork}>
-                      {displayNativeNetwork(token)}
+                    <div className={classes.nativeChain}>
+                      {displayNativeChain(token)}
                     </div>
                   </div>
                 </div>
@@ -208,7 +208,7 @@ function DisplayTokens(props: {
                   <div className={classes.tokenRowBalance}>
                     {balances[token.key] && walletAddress ? (
                       <div>{balances[token.key]}</div>
-                    ) : network &&
+                    ) : chain &&
                       walletAddress &&
                       balances[token.key] !== null ? (
                       <CircularProgress size={14} />
@@ -246,7 +246,7 @@ function DisplayTokens(props: {
 
 type Props = {
   open: boolean;
-  network: ChainName | undefined;
+  chain: ChainName | undefined;
   walletAddress: string | undefined;
   onSelect: (token: string) => any;
   onClose: any;
@@ -260,7 +260,7 @@ function isCosmosNativeToken(token: TokenConfig) {
 function TokensModal(props: Props) {
   const theme = useTheme();
   const dispatch = useDispatch();
-  const { open, network, walletAddress, type } = props;
+  const { open, chain, walletAddress, type } = props;
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [loading, setLoading] = useState(false);
   const [balancesLoaded, setBalancesLoaded] = useState(false);
@@ -337,10 +337,10 @@ function TokensModal(props: Props) {
 
   useEffect(() => {
     setBalancesLoaded(false);
-  }, [network, walletAddress]);
+  }, [chain, walletAddress]);
 
   const getBalances = useCallback(async () => {
-    if (!walletAddress || !network || !route) return;
+    if (!walletAddress || !chain || !route) return;
     // fetch all N tokens and trigger a single update action
     const balancesArr = await Promise.all(
       allTokens.map(async (t) => {
@@ -351,20 +351,20 @@ function TokensModal(props: Props) {
                 route,
                 walletAddress,
                 t.tokenId,
-                network,
+                chain,
               )
-            : t.nativeNetwork === network
+            : t.nativeChain === chain
             ? await RouteOperator.getNativeBalance(
                 route,
                 walletAddress,
-                network,
+                chain,
               )
             : null;
         } catch (e) {
           console.warn('Failed to fetch balance', e);
         }
 
-        return formatBalance(network, t, balance);
+        return formatBalance(chain, t, balance);
       }),
     );
 
@@ -378,12 +378,12 @@ function TokensModal(props: Props) {
         balances,
       }),
     );
-  }, [walletAddress, network, dispatch, type, allTokens, route]);
+  }, [walletAddress, chain, dispatch, type, allTokens, route]);
 
   // fetch token balances and set in store
   useEffect(() => {
     let active = true;
-    if (!walletAddress || !network) {
+    if (!walletAddress || !chain) {
       setTokens(supportedTokens);
       return;
     }
@@ -404,7 +404,7 @@ function TokensModal(props: Props) {
   }, [
     walletAddress,
     supportedTokens,
-    network,
+    chain,
     dispatch,
     getBalances,
     type,
@@ -416,9 +416,10 @@ function TokensModal(props: Props) {
     // get tokens that exist on the chain and have a balance greater than 0
     // if token is USDC, only show native ones
     const filtered = supportedTokens.filter((t) => {
-      if (!t.tokenId && t.nativeNetwork !== network) return false;
+      if (!t.tokenId && t.nativeChain !== chain) return false;
+      if (t.symbol === 'USDC' && t.nativeChain !== chain) return false;
       const b = tokenBalances[t.key];
-      if (t.symbol === 'USDC' && t.nativeNetwork !== network && b === '0')
+      if (t.symbol === 'USDC' && t.nativeChain !== chain && b === '0')
         return false;
       if (b === null) return false;
       if (type === 'dest') return true;
@@ -426,7 +427,7 @@ function TokensModal(props: Props) {
       return isNonzeroBalance;
     });
     setTokens(filtered);
-  }, [tokenBalances, network, supportedTokens, type]);
+  }, [tokenBalances, chain, supportedTokens, type]);
 
   useEffect(() => {
     const allFiltered = allTokens.filter((t) => {
@@ -445,7 +446,7 @@ function TokensModal(props: Props) {
           tokens={displayedTokens}
           balances={tokenBalances}
           walletAddress={walletAddress}
-          network={network}
+          chain={chain}
           selectToken={selectToken}
           loading={loading}
           search={search}
@@ -459,7 +460,7 @@ function TokensModal(props: Props) {
           tokens={allTokensFiltered}
           balances={tokenBalances}
           walletAddress={walletAddress}
-          network={network}
+          chain={chain}
           selectToken={selectToken}
           loading={loading}
           search={search}

@@ -13,7 +13,7 @@ import RouteOperator from 'utils/routes/operator';
 import {
   TransferWallet,
   registerWalletSigner,
-  switchNetwork,
+  switchChain,
 } from 'utils/wallet';
 import { PayloadType } from 'utils/sdk';
 
@@ -112,18 +112,18 @@ function SendTo() {
       setClaimError('Connect to receiving wallet');
       throw new Error('Connect to receiving wallet');
     }
-    const networkConfig = CHAINS[txData.toChain]!;
-    if (!networkConfig) {
+    const chainConfig = CHAINS[txData.toChain]!;
+    if (!chainConfig) {
       setClaimError('Your claim has failed, please try again');
       throw new Error('invalid destination chain');
     }
     try {
       if (
-        networkConfig!.context === Context.ETH &&
-        typeof networkConfig.chainId === 'number'
+        chainConfig!.context === Context.ETH &&
+        typeof chainConfig.chainId === 'number'
       ) {
         registerWalletSigner(txData.toChain, TransferWallet.RECEIVING);
-        await switchNetwork(networkConfig.chainId, TransferWallet.RECEIVING);
+        await switchChain(chainConfig.chainId, TransferWallet.RECEIVING);
       }
       if (!signedMessage) {
         throw new Error('failed to get vaa, cannot redeem');
@@ -158,7 +158,7 @@ function SendTo() {
     <div>
       <InputContainer>
         <Header
-          network={txData.toChain}
+          chain={txData.toChain}
           address={txData.recipient}
           loading={loading}
           txHash={redeemTx}

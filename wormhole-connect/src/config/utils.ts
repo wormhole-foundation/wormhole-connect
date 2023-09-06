@@ -16,11 +16,11 @@ export const validateResourceMap = (field: 'rpcs' | 'rest') => {
   }
   const defaultResourceMap = NETWORK_DATA[field];
   const resourceMap = config[field]!;
-  const networks = Object.keys(CHAINS) as ChainName[];
-  for (let network of networks) {
-    if (resourceMap[network] === defaultResourceMap[network]) {
+  const chains = Object.keys(CHAINS) as ChainName[];
+  for (let chain of chains) {
+    if (resourceMap[chain] === defaultResourceMap[chain]) {
       error(
-        `WARNING! No custom ${field} provided for ${network}. It is strongly recommended that you provide your own ${field} for the best performance and functionality`,
+        `WARNING! No custom ${field} provided for ${chain}. It is strongly recommended that you provide your own ${field} for the best performance and functionality`,
       );
     }
   }
@@ -40,16 +40,16 @@ export const validateDefaults = (defaults: BridgeDefaults | undefined) => {
     requiredNetwork,
   } = defaults;
   if (fromChain) {
-    const network = CHAINS[fromChain];
-    if (!network) {
+    const chain = CHAINS[fromChain];
+    if (!chain) {
       error(
         `Invalid chain name "${fromChain}" specified for bridgeDefaults.fromNetwork`,
       );
     }
   }
   if (toChain) {
-    const network = CHAINS[toChain];
-    if (!network) {
+    const chain = CHAINS[toChain];
+    if (!chain) {
       error(
         `Invalid chain name "${toChain}" specified for bridgeDefaults.toNetwork`,
       );
@@ -82,9 +82,9 @@ export const validateDefaults = (defaults: BridgeDefaults | undefined) => {
     }
   }
   if (fromChain && token) {
-    const network = CHAINS[fromChain]!;
-    const { tokenId, nativeNetwork } = TOKENS[token]!;
-    if (!tokenId && nativeNetwork !== network.key) {
+    const chain = CHAINS[fromChain]!;
+    const { tokenId, nativeChain } = TOKENS[token]!;
+    if (!tokenId && nativeChain !== chain.key) {
       error(
         `Invalid token "${token}" specified for bridgeDefaults.token. It does not exist on "${fromChain}"`,
       );

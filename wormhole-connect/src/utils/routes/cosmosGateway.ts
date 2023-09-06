@@ -421,27 +421,27 @@ export class CosmosGatewayRoute extends BaseRoute {
 
   async getNativeBalance(
     address: string,
-    network: ChainName | ChainId,
+    chain: ChainName | ChainId,
   ): Promise<BigNumber | null> {
-    return wh.getNativeBalance(address, network);
+    return wh.getNativeBalance(address, chain);
   }
 
   async getTokenBalance(
     address: string,
     tokenId: TokenId,
-    network: ChainName | ChainId,
+    chain: ChainName | ChainId,
   ): Promise<BigNumber | null> {
-    if (isCosmWasmChain(wh.toChainId(network))) {
-      const denom = await this.getForeignAsset(tokenId, network);
+    if (isCosmWasmChain(wh.toChainId(chain))) {
+      const denom = await this.getForeignAsset(tokenId, chain);
       if (!denom) return null;
-      return wh.getNativeBalance(address, network, denom);
+      return wh.getNativeBalance(address, chain, denom);
     }
 
-    return wh.getTokenBalance(address, tokenId, network);
+    return wh.getTokenBalance(address, tokenId, chain);
   }
 
-  private isNativeDenom(denom: string, network: ChainName | ChainId): boolean {
-    const chainId = wh.toChainId(network);
+  private isNativeDenom(denom: string, chain: ChainName | ChainId): boolean {
+    const chainId = wh.toChainId(chain);
     switch (chainId) {
       case CHAIN_ID_SEI:
         return denom === 'usei';
@@ -720,7 +720,7 @@ export class CosmosGatewayRoute extends BaseRoute {
     const { gasToken: sourceGasTokenSymbol } = CHAINS[txData.fromChain]!;
     const sourceGasToken = TOKENS[sourceGasTokenSymbol];
     const decimals = getTokenDecimals(
-      toChainId(sourceGasToken.nativeNetwork),
+      toChainId(sourceGasToken.nativeChain),
       sourceGasToken.tokenId,
     );
     const formattedGas =

@@ -4,7 +4,7 @@ export const TESTNET_TOKENS: TokensConfig = {
   ETH: {
     key: 'ETH',
     symbol: 'ETH',
-    nativeNetwork: 'goerli',
+    nativeChain: 'goerli',
     icon: Icon.ETH,
     coinGeckoId: 'ethereum',
     color: '#62688F',
@@ -17,7 +17,7 @@ export const TESTNET_TOKENS: TokensConfig = {
   WETH: {
     key: 'WETH',
     symbol: 'WETH',
-    nativeNetwork: 'goerli',
+    nativeChain: 'goerli',
     icon: Icon.ETH,
     tokenId: {
       chain: 'goerli',
@@ -33,7 +33,7 @@ export const TESTNET_TOKENS: TokensConfig = {
   USDCeth: {
     key: 'USDCeth',
     symbol: 'USDC',
-    nativeNetwork: 'goerli',
+    nativeChain: 'goerli',
     icon: Icon.USDC,
     tokenId: {
       chain: 'goerli',
@@ -48,7 +48,7 @@ export const TESTNET_TOKENS: TokensConfig = {
   WBTC: {
     key: 'WBTC',
     symbol: 'WBTC',
-    nativeNetwork: 'goerli',
+    nativeChain: 'goerli',
     icon: Icon.WBTC,
     tokenId: {
       chain: 'goerli',
@@ -63,7 +63,7 @@ export const TESTNET_TOKENS: TokensConfig = {
   USDT: {
     key: 'USDT',
     symbol: 'USDT',
-    nativeNetwork: 'goerli',
+    nativeChain: 'goerli',
     icon: Icon.USDT,
     tokenId: {
       chain: 'goerli',
@@ -78,7 +78,7 @@ export const TESTNET_TOKENS: TokensConfig = {
   DAI: {
     key: 'DAI',
     symbol: 'DAI',
-    nativeNetwork: 'goerli',
+    nativeChain: 'goerli',
     icon: Icon.DAI,
     tokenId: {
       chain: 'goerli',
@@ -94,7 +94,7 @@ export const TESTNET_TOKENS: TokensConfig = {
   MATIC: {
     key: 'MATIC',
     symbol: 'MATIC',
-    nativeNetwork: 'mumbai',
+    nativeChain: 'mumbai',
     icon: Icon.POLYGON,
     coinGeckoId: 'matic-network',
     color: '#8247E5',
@@ -107,7 +107,7 @@ export const TESTNET_TOKENS: TokensConfig = {
   WMATIC: {
     key: 'WMATIC',
     symbol: 'WMATIC',
-    nativeNetwork: 'mumbai',
+    nativeChain: 'mumbai',
     icon: Icon.POLYGON,
     tokenId: {
       chain: 'mumbai',
@@ -123,7 +123,7 @@ export const TESTNET_TOKENS: TokensConfig = {
   USDCpolygon: {
     key: 'USDCpolygon',
     symbol: 'USDC',
-    nativeNetwork: 'mumbai',
+    nativeChain: 'mumbai',
     icon: Icon.USDC,
     tokenId: {
       chain: 'mumbai',
@@ -138,7 +138,7 @@ export const TESTNET_TOKENS: TokensConfig = {
   BNB: {
     key: 'BNB',
     symbol: 'BNB',
-    nativeNetwork: 'bsc',
+    nativeChain: 'bsc',
     icon: Icon.BNB,
     coinGeckoId: 'binancecoin',
     color: '#F3BA30',
@@ -151,7 +151,7 @@ export const TESTNET_TOKENS: TokensConfig = {
   WBNB: {
     key: 'WBNB',
     symbol: 'WBNB',
-    nativeNetwork: 'bsc',
+    nativeChain: 'bsc',
     icon: Icon.BNB,
     tokenId: {
       chain: 'bsc',
@@ -167,7 +167,7 @@ export const TESTNET_TOKENS: TokensConfig = {
   AVAX: {
     key: 'AVAX',
     symbol: 'AVAX',
-    nativeNetwork: 'fuji',
+    nativeChain: 'fuji',
     icon: Icon.AVAX,
     coinGeckoId: 'avalanche-2',
     color: '#E84141',
@@ -180,7 +180,7 @@ export const TESTNET_TOKENS: TokensConfig = {
   WAVAX: {
     key: 'WAVAX',
     symbol: 'WAVAX',
-    nativeNetwork: 'fuji',
+    nativeChain: 'fuji',
     icon: Icon.AVAX,
     tokenId: {
       chain: 'fuji',
@@ -196,7 +196,7 @@ export const TESTNET_TOKENS: TokensConfig = {
   USDCavax: {
     key: 'USDCavax',
     symbol: 'USDC',
-    nativeNetwork: 'fuji',
+    nativeChain: 'fuji',
     icon: Icon.USDC,
     tokenId: {
       chain: 'fuji',
@@ -211,7 +211,7 @@ export const TESTNET_TOKENS: TokensConfig = {
   FTM: {
     key: 'FTM',
     symbol: 'FTM',
-    nativeNetwork: 'fantom',
+    nativeChain: 'fantom',
     icon: Icon.FANTOM,
     coinGeckoId: 'fantom',
     color: '#12B4EC',
@@ -224,7 +224,7 @@ export const TESTNET_TOKENS: TokensConfig = {
   WFTM: {
     key: 'WFTM',
     symbol: 'WFTM',
-    nativeNetwork: 'fantom',
+    nativeChain: 'fantom',
     icon: Icon.FANTOM,
     tokenId: {
       chain: 'fantom',
@@ -240,7 +240,7 @@ export const TESTNET_TOKENS: TokensConfig = {
   CELO: {
     key: 'CELO',
     symbol: 'CELO',
-    nativeNetwork: 'alfajores',
+    nativeChain: 'alfajores',
     icon: Icon.CELO,
     tokenId: {
       chain: 'alfajores',
@@ -256,7 +256,7 @@ export const TESTNET_TOKENS: TokensConfig = {
   GLMR: {
     key: 'GLMR',
     symbol: 'GLMR',
-    nativeNetwork: 'moonbasealpha',
+    nativeChain: 'moonbasealpha',
     icon: Icon.GLMR,
     coinGeckoId: 'moonbeam',
     color: '#e1147b',
@@ -269,7 +269,7 @@ export const TESTNET_TOKENS: TokensConfig = {
   WGLMR: {
     key: 'WGLMR',
     symbol: 'WGLMR',
-    nativeNetwork: 'moonbasealpha',
+    nativeChain: 'moonbasealpha',
     icon: Icon.GLMR,
     tokenId: {
       chain: 'moonbasealpha',
@@ -285,7 +285,7 @@ export const TESTNET_TOKENS: TokensConfig = {
   SOL: {
     key: 'SOL',
     symbol: 'SOL',
-    nativeNetwork: 'solana',
+    nativeChain: 'solana',
     icon: Icon.SOLANA,
     coinGeckoId: 'solana',
     color: '#8457EF',
@@ -299,7 +299,7 @@ export const TESTNET_TOKENS: TokensConfig = {
   WSOL: {
     key: 'WSOL',
     symbol: 'WSOL',
-    nativeNetwork: 'solana',
+    nativeChain: 'solana',
     tokenId: {
       chain: 'solana',
       address: 'So11111111111111111111111111111111111111112',
@@ -316,7 +316,7 @@ export const TESTNET_TOKENS: TokensConfig = {
   USDCsol: {
     key: 'USDCsol',
     symbol: 'USDC',
-    nativeNetwork: 'solana',
+    nativeChain: 'solana',
     tokenId: {
       chain: 'solana',
       address: '4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU',
@@ -331,7 +331,7 @@ export const TESTNET_TOKENS: TokensConfig = {
   SUI: {
     key: 'SUI',
     symbol: 'SUI',
-    nativeNetwork: 'sui',
+    nativeChain: 'sui',
     tokenId: {
       chain: 'sui',
       address: '0x2::sui::SUI',
@@ -348,7 +348,7 @@ export const TESTNET_TOKENS: TokensConfig = {
   APT: {
     key: 'APT',
     symbol: 'APT',
-    nativeNetwork: 'aptos',
+    nativeChain: 'aptos',
     tokenId: {
       chain: 'aptos',
       address: '0x1::aptos_coin::AptosCoin',
@@ -449,25 +449,10 @@ export const TESTNET_TOKENS: TokensConfig = {
       default: 6,
     },
   },
-  SEI: {
-    key: 'SEI',
-    symbol: 'SEI',
-    nativeNetwork: 'sei',
-    tokenId: {
-      chain: 'sei',
-      address: 'usei',
-    },
-    icon: Icon.SEI,
-    coinGeckoId: 'sei',
-    color: '#FFFFFF',
-    decimals: {
-      default: 6,
-    },
-  },
   ETHbase: {
     key: 'ETHbase',
     symbol: 'ETH',
-    nativeNetwork: 'basegoerli',
+    nativeChain: 'basegoerli',
     icon: Icon.ETH,
     coinGeckoId: 'ethereum',
     color: '#62688F',
@@ -480,7 +465,7 @@ export const TESTNET_TOKENS: TokensConfig = {
   WETHbase: {
     key: 'WETHbase',
     symbol: 'WETH',
-    nativeNetwork: 'basegoerli',
+    nativeChain: 'basegoerli',
     icon: Icon.ETH,
     tokenId: {
       chain: 'basegoerli',
@@ -496,7 +481,7 @@ export const TESTNET_TOKENS: TokensConfig = {
   OSMO: {
     key: 'OSMO',
     symbol: 'OSMO',
-    nativeNetwork: 'osmosis',
+    nativeChain: 'osmosis',
     tokenId: {
       chain: 'osmosis',
       address: 'uosmo',
@@ -511,7 +496,7 @@ export const TESTNET_TOKENS: TokensConfig = {
   tBTC: {
     key: 'tBTC',
     symbol: 'tBTC',
-    nativeNetwork: 'goerli',
+    nativeChain: 'goerli',
     tokenId: {
       chain: 'goerli',
       address: '0x679874fBE6D4E7Cc54A59e315FF1eB266686a937',
@@ -527,7 +512,7 @@ export const TESTNET_TOKENS: TokensConfig = {
   wstETH: {
     key: 'wstETH',
     symbol: 'wstETH',
-    nativeNetwork: 'goerli',
+    nativeChain: 'goerli',
     tokenId: {
       chain: 'goerli',
       address: '0x6320cD32aA674d2898A68ec82e869385Fc5f7E2f',
@@ -538,6 +523,21 @@ export const TESTNET_TOKENS: TokensConfig = {
     decimals: {
       default: 8,
       Ethereum: 18,
+    },
+  },
+  SEI: {
+    key: 'SEI',
+    symbol: 'SEI',
+    nativeChain: 'sei',
+    tokenId: {
+      chain: 'sei',
+      address: 'usei',
+    },
+    icon: Icon.SEI,
+    coinGeckoId: 'sei',
+    color: '#FFFFFF',
+    decimals: {
+      default: 6,
     },
   },
 };

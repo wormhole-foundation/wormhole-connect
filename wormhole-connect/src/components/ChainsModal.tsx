@@ -17,7 +17,7 @@ import TokenIcon from '../icons/TokenIcons';
 import RouteOperator from 'utils/routes/operator';
 
 const useStyles = makeStyles()((theme: any) => ({
-  networksContainer: {
+  chainsContainer: {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fill, 150px)',
     justifyContent: 'space-between',
@@ -26,7 +26,7 @@ const useStyles = makeStyles()((theme: any) => ({
     ...CENTER,
     minHeight: '130px',
   },
-  networkTile: {
+  chainTile: {
     width: '117px',
     display: 'flex',
     flexDirection: 'column',
@@ -41,11 +41,11 @@ const useStyles = makeStyles()((theme: any) => ({
       backgroundColor: theme.palette.options.select,
     },
   },
-  networkIcon: {
+  chainIcon: {
     width: '48px',
     height: '48px',
   },
-  networkText: {
+  chainText: {
     fontSize: '14px',
     marginTop: '16px',
   },
@@ -73,7 +73,7 @@ type Props = {
   onSelect: (chain: ChainName) => any;
 };
 
-function NetworksModal(props: Props) {
+function ChainsModal(props: Props) {
   const { classes } = useStyles();
   const theme: any = useTheme();
 
@@ -131,7 +131,7 @@ function NetworksModal(props: Props) {
         blendColor={theme.palette.modal.background}
       >
         {supportedChains.length > 0 ? (
-          <div className={classes.networksContainer}>
+          <div className={classes.chainsContainer}>
             {supportedChains.map((chain: any, i) => {
               const disabled = !!props.isDisabled
                 ? props.isDisabled(chain.key)
@@ -141,15 +141,13 @@ function NetworksModal(props: Props) {
                   <div
                     key={i}
                     className={joinClass([
-                      classes.networkTile,
+                      classes.chainTile,
                       !!disabled && classes.disabled,
                     ])}
                     onClick={() => handleSelect(chain.key)}
                   >
                     <TokenIcon name={chain.icon} height={48} />
-                    <div className={classes.networkText}>
-                      {chain.displayName}
-                    </div>
+                    <div className={classes.chainText}>{chain.displayName}</div>
                   </div>
                 )
               );
@@ -163,4 +161,4 @@ function NetworksModal(props: Props) {
   );
 }
 
-export default NetworksModal;
+export default ChainsModal;

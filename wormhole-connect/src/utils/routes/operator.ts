@@ -402,20 +402,20 @@ export class Operator {
   async getNativeBalance(
     route: Route,
     address: string,
-    network: ChainName | ChainId,
+    chain: ChainName | ChainId,
   ): Promise<BigNumber | null> {
     const r = this.getRoute(route);
-    return r.getNativeBalance(address, network);
+    return r.getNativeBalance(address, chain);
   }
 
   async getTokenBalance(
     route: Route,
     address: string,
     tokenId: TokenId,
-    network: ChainName | ChainId,
+    chain: ChainName | ChainId,
   ): Promise<BigNumber | null> {
     const r = this.getRoute(route);
-    return r.getTokenBalance(address, tokenId, network);
+    return r.getTokenBalance(address, tokenId, chain);
   }
 
   async getRelayerFee(
@@ -431,10 +431,10 @@ export class Operator {
   async getForeignAsset(
     route: Route,
     tokenId: TokenId,
-    network: ChainName | ChainId,
+    chain: ChainName | ChainId,
   ): Promise<string | null> {
     const r = this.getRoute(route);
-    return r.getForeignAsset(tokenId, network);
+    return r.getForeignAsset(tokenId, chain);
   }
 
   async isTransferCompleted(
@@ -449,10 +449,11 @@ export class Operator {
   async getMessage(
     route: Route,
     tx: string,
-    network: ChainName | ChainId,
+    chain: ChainName | ChainId,
+    unsigned?: boolean,
   ): Promise<UnsignedMessage> {
     const r = this.getRoute(route);
-    return r.getMessage(tx, network);
+    return r.getMessage(tx, chain);
   }
 
   async getSignedMessage(
