@@ -93,13 +93,13 @@ function Bridge() {
   // check destination native balance
   useEffect(() => {
     if (!fromChain || !toChain || !receiving.address) return;
-    const networkConfig = CHAINS[toChain]!;
+    const chainConfig = CHAINS[toChain]!;
     wh.getNativeBalance(receiving.address, toChain).then((res: BigNumber) => {
-      const tokenConfig = TOKENS[networkConfig.gasToken];
+      const tokenConfig = TOKENS[chainConfig.gasToken];
       if (!tokenConfig)
         throw new Error('Could not get native gas token config');
       const decimals = getTokenDecimals(
-        toChainId(tokenConfig.nativeNetwork),
+        toChainId(tokenConfig.nativeChain),
         tokenConfig.tokenId,
       );
       dispatch(setReceiverNativeBalance(toDecimals(res, decimals, 6)));
@@ -150,8 +150,8 @@ function Bridge() {
         const key = supported.find(
           (t) =>
             t.symbol === symbols[0] &&
-            t.nativeNetwork === t.tokenId?.chain &&
-            t.nativeNetwork === toChain,
+            t.nativeChain === t.tokenId?.chain &&
+            t.nativeChain === toChain,
         )?.key;
         if (key) {
           dispatch(setDestToken(key));

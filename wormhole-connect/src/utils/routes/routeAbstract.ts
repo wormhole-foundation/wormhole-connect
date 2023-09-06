@@ -19,7 +19,7 @@ export default abstract class RouteAbstract {
   // protected abstract sendGasFallback: { [key: ChainName]: TokenConfig };
   // protected abstract claimGasFallback: { [key: ChainName]: TokenConfig };
 
-  // Is this route available for the given network, token and amount specifications?
+  // Is this route available for the given chain, token and amount specifications?
   public abstract isRouteAvailable(
     sourceToken: string,
     destToken: string,
@@ -137,12 +137,12 @@ export default abstract class RouteAbstract {
 
   abstract getNativeBalance(
     address: string,
-    network: ChainName | ChainId,
+    chain: ChainName | ChainId,
   ): Promise<BigNumber | null>;
   abstract getTokenBalance(
     address: string,
     tokenId: TokenId,
-    network: ChainName | ChainId,
+    chain: ChainName | ChainId,
   ): Promise<BigNumber | null>;
 
   abstract getRelayerFee(

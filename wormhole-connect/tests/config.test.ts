@@ -4,21 +4,21 @@ import { TESTNET_CHAINS, TESTNET_TOKENS } from '../src/config/testnet';
 export const envTests = [
   {
     title: 'mainnet configs',
-    NETWORKS: MAINNET_CHAINS,
+    CHAINS: MAINNET_CHAINS,
     TOKENS: MAINNET_TOKENS,
   },
   {
     title: 'testnet configs',
-    NETWORKS: TESTNET_CHAINS,
+    CHAINS: TESTNET_CHAINS,
     TOKENS: TESTNET_TOKENS,
   },
 ];
 
 envTests.forEach((env) => {
-  const { title, NETWORKS, TOKENS } = env;
+  const { title, CHAINS, TOKENS } = env;
   describe(title, () => {
-    test('network gas tokens', () => {
-      Object.values(NETWORKS).forEach(({ gasToken }) => {
+    test('chain gas tokens', () => {
+      Object.values(CHAINS).forEach(({ gasToken }) => {
         const tokenConfig = TOKENS[gasToken];
         expect(tokenConfig).toBeTruthy();
       });

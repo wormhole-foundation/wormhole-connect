@@ -21,7 +21,7 @@ const useStyles = makeStyles()((theme) => ({
     width: '24px',
     height: '24px',
   },
-  network: {
+  chain: {
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
@@ -32,7 +32,7 @@ const useStyles = makeStyles()((theme) => ({
   },
 }));
 
-function NetworksTag() {
+function ChainsTag() {
   const { classes } = useStyles();
   const txData = useSelector((state: RootState) => state.redeem.txData)!;
   const fromChainConfig = CHAINS[txData.fromChain]!;
@@ -55,12 +55,12 @@ function NetworksTag() {
     <div>
       <InputContainer>
         <div className={classes.row}>
-          <div className={classes.network}>
+          <div className={classes.chain}>
             <TokenIcon name={fromChainConfig.icon!} height={24} />
             <div>{fromChainConfig.displayName}</div>
           </div>
           <ArrowRight />
-          <div className={classes.network}>
+          <div className={classes.chain}>
             <TokenIcon name={toChainConfig.icon!} height={24} />
             <div>{toChainConfig.displayName}</div>
           </div>
@@ -81,4 +81,4 @@ function NetworksTag() {
   );
 }
 
-export default NetworksTag;
+export default ChainsTag;

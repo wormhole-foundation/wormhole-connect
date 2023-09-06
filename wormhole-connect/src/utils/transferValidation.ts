@@ -14,11 +14,11 @@ import {
   TransferValidations,
 } from '../store/transferInput';
 import { WalletData, WalletState } from '../store/wallet';
-import { walletAcceptedNetworks } from './wallet';
+import { walletAcceptedChains } from './wallet';
 import { RelayState } from 'store/relay';
 import RouteOperator from './routes/operator';
 
-export const validateFromNetwork = (
+export const validateFromChain = (
   chain: ChainName | undefined,
 ): ValidationErr => {
   if (!chain) return 'Select a source chain';
@@ -27,7 +27,7 @@ export const validateFromNetwork = (
   return '';
 };
 
-export const validateToNetwork = (
+export const validateToChain = (
   chain: ChainName | undefined,
   fromChain: ChainName | undefined,
 ): ValidationErr => {
@@ -64,7 +64,7 @@ export const validateToken = (
   if (chain) {
     const chainConfig = CHAINS[chain];
     if (!chainConfig || !!tokenConfig.tokenId) return '';
-    if (!tokenConfig.tokenId && tokenConfig.nativeNetwork !== chain)
+    if (!tokenConfig.tokenId && tokenConfig.nativeChain !== chain)
       return `${token} not available on ${chain}, select a different token`;
   }
   return '';
@@ -80,7 +80,7 @@ export const validateDestToken = (
   if (chain) {
     const chainConfig = CHAINS[chain];
     if (!chainConfig || !!tokenConfig.tokenId) return '';
-    if (!tokenConfig.tokenId && tokenConfig.nativeNetwork !== chain)
+    if (!tokenConfig.tokenId && tokenConfig.nativeChain !== chain)
       return `${token} not available on ${chain}, select a different token`;
   }
   return '';
@@ -122,8 +122,8 @@ export const validateWallet = async (
   }
   if (wallet.currentAddress && wallet.currentAddress !== wallet.address)
     return 'Switch to connected wallet';
-  const acceptedNetworks = walletAcceptedNetworks(wallet.type);
-  if (chain && !acceptedNetworks.includes(chain))
+  const acceptedChains = walletAcceptedChains(wallet.type);
+  if (chain && !acceptedChains.includes(chain))
     return `Connected wallet is not supported for ${chain}`;
   return '';
 };
@@ -195,8 +195,8 @@ export const validateAll = async (
   const baseValidations = {
     sendingWallet: await validateWallet(sending, fromChain),
     receivingWallet: await validateWallet(receiving, toChain),
-    fromChain: validateFromNetwork(fromChain),
-    toChain: validateToNetwork(toChain, fromChain),
+    fromChain: validateFromChain(fromChain),
+    toChain: validateToChain(toChain, fromChain),
     token: validateToken(token, fromChain),
     destToken: validateDestToken(destToken, toChain),
     amount: validateAmount(amount, balances[token], route, minAmt),

@@ -4,7 +4,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   ETH: {
     key: 'ETH',
     symbol: 'ETH',
-    nativeNetwork: 'ethereum',
+    nativeChain: 'ethereum',
     icon: Icon.ETH,
     coinGeckoId: 'ethereum',
     color: '#62688F',
@@ -17,7 +17,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   WETH: {
     key: 'WETH',
     symbol: 'WETH',
-    nativeNetwork: 'ethereum',
+    nativeChain: 'ethereum',
     icon: Icon.ETH,
     tokenId: {
       chain: 'ethereum',
@@ -33,7 +33,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   USDCeth: {
     key: 'USDCeth',
     symbol: 'USDC',
-    nativeNetwork: 'ethereum',
+    nativeChain: 'ethereum',
     icon: Icon.USDC,
     tokenId: {
       chain: 'ethereum',
@@ -48,7 +48,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   WBTC: {
     key: 'WBTC',
     symbol: 'WBTC',
-    nativeNetwork: 'ethereum',
+    nativeChain: 'ethereum',
     icon: Icon.WBTC,
     tokenId: {
       chain: 'ethereum',
@@ -63,7 +63,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   USDT: {
     key: 'USDT',
     symbol: 'USDT',
-    nativeNetwork: 'ethereum',
+    nativeChain: 'ethereum',
     icon: Icon.USDT,
     tokenId: {
       chain: 'ethereum',
@@ -78,7 +78,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   DAI: {
     key: 'DAI',
     symbol: 'DAI',
-    nativeNetwork: 'ethereum',
+    nativeChain: 'ethereum',
     icon: Icon.DAI,
     tokenId: {
       chain: 'ethereum',
@@ -94,7 +94,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   BUSD: {
     key: 'BUSD',
     symbol: 'BUSD',
-    nativeNetwork: 'ethereum',
+    nativeChain: 'ethereum',
     icon: Icon.BUSD,
     tokenId: {
       chain: 'ethereum',
@@ -110,7 +110,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   MATIC: {
     key: 'MATIC',
     symbol: 'MATIC',
-    nativeNetwork: 'polygon',
+    nativeChain: 'polygon',
     icon: Icon.POLYGON,
     coinGeckoId: 'matic-network',
     color: '#8247E5',
@@ -123,7 +123,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   WMATIC: {
     key: 'WMATIC',
     symbol: 'WMATIC',
-    nativeNetwork: 'polygon',
+    nativeChain: 'polygon',
     icon: Icon.POLYGON,
     tokenId: {
       chain: 'polygon',
@@ -139,7 +139,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   USDCpolygon: {
     key: 'USDCpolygon',
     symbol: 'USDC',
-    nativeNetwork: 'polygon',
+    nativeChain: 'polygon',
     icon: Icon.USDC,
     tokenId: {
       chain: 'polygon',
@@ -154,7 +154,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   BNB: {
     key: 'BNB',
     symbol: 'BNB',
-    nativeNetwork: 'bsc',
+    nativeChain: 'bsc',
     icon: Icon.BNB,
     coinGeckoId: 'binancecoin',
     color: '#F3BA30',
@@ -167,7 +167,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   WBNB: {
     key: 'WBNB',
     symbol: 'WBNB',
-    nativeNetwork: 'bsc',
+    nativeChain: 'bsc',
     icon: Icon.BNB,
     tokenId: {
       chain: 'bsc',
@@ -183,7 +183,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   USDCbnb: {
     key: 'USDCbnb',
     symbol: 'USDC',
-    nativeNetwork: 'bsc',
+    nativeChain: 'bsc',
     icon: Icon.USDC,
     tokenId: {
       chain: 'bsc',
@@ -199,7 +199,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   AVAX: {
     key: 'AVAX',
     symbol: 'AVAX',
-    nativeNetwork: 'avalanche',
+    nativeChain: 'avalanche',
     icon: Icon.AVAX,
     coinGeckoId: 'avalanche-2',
     color: '#E84141',
@@ -212,7 +212,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   WAVAX: {
     key: 'WAVAX',
     symbol: 'WAVAX',
-    nativeNetwork: 'avalanche',
+    nativeChain: 'avalanche',
     icon: Icon.AVAX,
     tokenId: {
       chain: 'avalanche',
@@ -228,7 +228,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   USDCavax: {
     key: 'USDCavax',
     symbol: 'USDC',
-    nativeNetwork: 'avalanche',
+    nativeChain: 'avalanche',
     icon: Icon.USDC,
     tokenId: {
       chain: 'avalanche',
@@ -243,7 +243,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   FTM: {
     key: 'FTM',
     symbol: 'FTM',
-    nativeNetwork: 'fantom',
+    nativeChain: 'fantom',
     icon: Icon.FANTOM,
     coinGeckoId: 'fantom',
     color: '#12B4EC',
@@ -256,7 +256,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   WFTM: {
     key: 'WFTM',
     symbol: 'WFTM',
-    nativeNetwork: 'fantom',
+    nativeChain: 'fantom',
     icon: Icon.FANTOM,
     tokenId: {
       chain: 'fantom',
@@ -272,7 +272,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   CELO: {
     key: 'CELO',
     symbol: 'CELO',
-    nativeNetwork: 'celo',
+    nativeChain: 'celo',
     icon: Icon.CELO,
     tokenId: {
       chain: 'celo',
@@ -288,7 +288,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   GLMR: {
     key: 'GLMR',
     symbol: 'GLMR',
-    nativeNetwork: 'moonbeam',
+    nativeChain: 'moonbeam',
     icon: Icon.GLMR,
     coinGeckoId: 'moonbeam',
     color: '#e1147b',
@@ -301,7 +301,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   WGLMR: {
     key: 'WGLMR',
     symbol: 'WGLMR',
-    nativeNetwork: 'moonbeam',
+    nativeChain: 'moonbeam',
     icon: Icon.GLMR,
     tokenId: {
       chain: 'moonbeam',
@@ -317,7 +317,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   SOL: {
     key: 'SOL',
     symbol: 'SOL',
-    nativeNetwork: 'solana',
+    nativeChain: 'solana',
     icon: Icon.SOLANA,
     coinGeckoId: 'solana',
     color: '#8457EF',
@@ -331,7 +331,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   WSOL: {
     key: 'WSOL',
     symbol: 'WSOL',
-    nativeNetwork: 'solana',
+    nativeChain: 'solana',
     tokenId: {
       chain: 'solana',
       address: 'So11111111111111111111111111111111111111112',
@@ -348,7 +348,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   USDCsol: {
     key: 'USDCsol',
     symbol: 'USDC',
-    nativeNetwork: 'solana',
+    nativeChain: 'solana',
     tokenId: {
       chain: 'solana',
       address: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
@@ -363,7 +363,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   SUI: {
     key: 'SUI',
     symbol: 'SUI',
-    nativeNetwork: 'sui',
+    nativeChain: 'sui',
     tokenId: {
       chain: 'sui',
       address: '0x2::sui::SUI',
@@ -380,7 +380,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   APT: {
     key: 'APT',
     symbol: 'APT',
-    nativeNetwork: 'aptos',
+    nativeChain: 'aptos',
     tokenId: {
       chain: 'aptos',
       address: '0x1::aptos_coin::AptosCoin',
@@ -396,7 +396,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   ETHbase: {
     key: 'ETHbase',
     symbol: 'ETH',
-    nativeNetwork: 'base',
+    nativeChain: 'base',
     icon: Icon.ETH,
     coinGeckoId: 'ethereum',
     color: '#62688F',
@@ -409,7 +409,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   WETHbase: {
     key: 'WETHbase',
     symbol: 'WETH',
-    nativeNetwork: 'base',
+    nativeChain: 'base',
     icon: Icon.ETH,
     tokenId: {
       chain: 'base',
@@ -425,7 +425,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   OSMO: {
     key: 'OSMO',
     symbol: 'OSMO',
-    nativeNetwork: 'osmosis',
+    nativeChain: 'osmosis',
     tokenId: {
       chain: 'osmosis',
       address: 'uosmo',
@@ -440,7 +440,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   tBTC: {
     key: 'tBTC',
     symbol: 'tBTC',
-    nativeNetwork: 'ethereum',
+    nativeChain: 'ethereum',
     tokenId: {
       chain: 'ethereum',
       address: '0x18084fbA666a33d37592fA2633fD49a74DD93a88',
@@ -456,7 +456,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   wstETH: {
     key: 'wstETH',
     symbol: 'wstETH',
-    nativeNetwork: 'ethereum',
+    nativeChain: 'ethereum',
     tokenId: {
       chain: 'ethereum',
       address: '0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0',
@@ -472,7 +472,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   BONK: {
     key: 'BONK',
     symbol: 'BONK',
-    nativeNetwork: 'solana',
+    nativeChain: 'solana',
     tokenId: {
       chain: 'solana',
       address: 'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263',

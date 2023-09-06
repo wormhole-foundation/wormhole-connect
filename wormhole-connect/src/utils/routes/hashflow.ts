@@ -113,14 +113,14 @@ export class HashflowRoute extends RouteAbstract {
   }
   getNativeBalance(
     address: string,
-    network: ChainName | ChainId,
+    chain: ChainName | ChainId,
   ): Promise<BigNumber | null> {
     throw new Error('Method not implemented.');
   }
   getTokenBalance(
     address: string,
     tokenId: TokenId,
-    network: ChainName | ChainId,
+    chain: ChainName | ChainId,
   ): Promise<BigNumber | null> {
     throw new Error('Method not implemented.');
   }

@@ -247,17 +247,17 @@ export class BridgeRoute extends BaseRoute {
 
   getNativeBalance(
     address: string,
-    network: ChainName | ChainId,
+    chain: ChainName | ChainId,
   ): Promise<BigNumber | null> {
-    return wh.getNativeBalance(address, network);
+    return wh.getNativeBalance(address, chain);
   }
 
   getTokenBalance(
     address: string,
     tokenId: TokenId,
-    network: ChainName | ChainId,
+    chain: ChainName | ChainId,
   ): Promise<BigNumber | null> {
-    return wh.getTokenBalance(address, tokenId, network);
+    return wh.getTokenBalance(address, tokenId, chain);
   }
 
   async getRelayerFee(
@@ -309,7 +309,7 @@ export class BridgeRoute extends BaseRoute {
     const { gasToken: sourceGasTokenSymbol } = CHAINS[txData.fromChain]!;
     const sourceGasToken = TOKENS[sourceGasTokenSymbol];
     const decimals = getTokenDecimals(
-      toChainId(sourceGasToken.nativeNetwork),
+      toChainId(sourceGasToken.nativeChain),
       sourceGasToken.tokenId,
     );
     const formattedGas =

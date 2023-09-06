@@ -6,7 +6,7 @@ import { Route, TokenConfig } from 'config/types';
 import { getTokenDecimals } from 'utils';
 import { toDecimals } from 'utils/balance';
 import { toChainId } from 'utils/sdk';
-import { TransferWallet, walletAcceptedNetworks } from 'utils/wallet';
+import { TransferWallet, walletAcceptedChains } from 'utils/wallet';
 import { clearWallet, setWalletError, WalletData } from './wallet';
 
 export type Balances = { [key: string]: string | null };
@@ -136,26 +136,26 @@ export const transferInputSlice = createSlice({
     ) => {
       state.destToken = payload;
     },
-    setFromNetwork: (
+    setFromChain: (
       state: TransferInputState,
       { payload }: PayloadAction<ChainName>,
     ) => {
       state.fromChain = payload;
-      // clear balances if the network changes;
+      // clear balances if the chain changes;
       state.sourceBalances = {};
 
       const { fromChain, token } = state;
 
       if (token) {
         const tokenConfig = TOKENS[token];
-        // clear token and amount if not supported on the selected network
-        if (!tokenConfig.tokenId && tokenConfig.nativeNetwork !== fromChain) {
+        // clear token and amount if not supported on the selected chain
+        if (!tokenConfig.tokenId && tokenConfig.nativeChain !== fromChain) {
           state.token = '';
           state.amount = '';
         }
       }
     },
-    setToNetwork: (
+    setToChain: (
       state: TransferInputState,
       { payload }: PayloadAction<ChainName>,
     ) => {
@@ -268,17 +268,17 @@ export const transferInputSlice = createSlice({
   },
 });
 
-export const isDisabledNetwork = (chain: ChainName, wallet: WalletData) => {
+export const isDisabledChain = (chain: ChainName, wallet: WalletData) => {
   // Check if the wallet type (i.e. Metamask, Phantom...) is supported for the given chain
-  return !walletAcceptedNetworks(wallet.type).includes(chain);
+  return !walletAcceptedChains(wallet.type).includes(chain);
 };
 
-export const selectFromNetwork = async (
+export const selectFromChain = async (
   dispatch: any,
-  network: ChainName,
+  chain: ChainName,
   wallet: WalletData,
 ) => {
-  if (isDisabledNetwork(network, wallet)) {
+  if (isDisabledChain(chain, wallet)) {
     dispatch(clearWallet(TransferWallet.SENDING));
     const payload = {
       type: TransferWallet.SENDING,
@@ -286,15 +286,15 @@ export const selectFromNetwork = async (
     };
     dispatch(setWalletError(payload));
   }
-  dispatch(setFromNetwork(network));
+  dispatch(setFromChain(chain));
 };
 
-export const selectToNetwork = async (
+export const selectToChain = async (
   dispatch: any,
-  network: ChainName,
+  chain: ChainName,
   wallet: WalletData,
 ) => {
-  if (isDisabledNetwork(network, wallet)) {
+  if (isDisabledChain(chain, wallet)) {
     dispatch(clearWallet(TransferWallet.RECEIVING));
     const payload = {
       type: TransferWallet.RECEIVING,
@@ -302,7 +302,7 @@ export const selectToNetwork = async (
     };
     dispatch(setWalletError(payload));
   }
-  dispatch(setToNetwork(network));
+  dispatch(setToChain(chain));
 };
 
 export const {
@@ -311,8 +311,8 @@ export const {
   setAvailableRoutes,
   setToken,
   setDestToken,
-  setFromNetwork,
-  setToNetwork,
+  setFromChain,
+  setToChain,
   setAmount,
   setReceiveAmount,
   setBalance,

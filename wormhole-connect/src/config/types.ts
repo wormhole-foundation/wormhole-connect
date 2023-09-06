@@ -74,7 +74,7 @@ type DecimalsMap = Partial<Record<Context, number>> & {
 export type TokenConfig = {
   key: string;
   symbol: string;
-  nativeNetwork: ChainName;
+  nativeChain: ChainName;
   icon: Icon;
   tokenId?: TokenId; // if no token id, it is the native token
   coinGeckoId: string;

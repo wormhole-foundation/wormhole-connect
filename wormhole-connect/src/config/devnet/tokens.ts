@@ -4,7 +4,7 @@ export const DEVNET_TOKENS: TokensConfig = {
   ETH: {
     key: 'ETH',
     symbol: 'ETH',
-    nativeNetwork: 'ethereum',
+    nativeChain: 'ethereum',
     icon: Icon.ETH,
     coinGeckoId: 'ethereum',
     color: '#62688F',
@@ -17,7 +17,7 @@ export const DEVNET_TOKENS: TokensConfig = {
   WETH: {
     key: 'WETH',
     symbol: 'WETH',
-    nativeNetwork: 'ethereum',
+    nativeChain: 'ethereum',
     icon: Icon.ETH,
     tokenId: {
       chain: 'ethereum',
@@ -33,7 +33,7 @@ export const DEVNET_TOKENS: TokensConfig = {
   TKN: {
     key: 'TKN',
     symbol: 'TKN',
-    nativeNetwork: 'ethereum',
+    nativeChain: 'ethereum',
     icon: Icon.ETH,
     tokenId: {
       chain: 'ethereum',
@@ -49,7 +49,7 @@ export const DEVNET_TOKENS: TokensConfig = {
   OSMO: {
     key: 'OSMO',
     symbol: 'OSMO',
-    nativeNetwork: 'osmosis',
+    nativeChain: 'osmosis',
     tokenId: {
       chain: 'osmosis',
       address: 'uosmo',
@@ -64,7 +64,7 @@ export const DEVNET_TOKENS: TokensConfig = {
   WORM: {
     key: 'WORM',
     symbol: 'WORM',
-    nativeNetwork: 'wormchain',
+    nativeChain: 'wormchain',
     tokenId: {
       chain: 'wormchain',
       address: 'uworm',
@@ -79,7 +79,7 @@ export const DEVNET_TOKENS: TokensConfig = {
   LUNA: {
     key: 'LUNA',
     symbol: 'LUNA',
-    nativeNetwork: 'terra2',
+    nativeChain: 'terra2',
     tokenId: {
       chain: 'terra2',
       address: 'uluna',

@@ -22,7 +22,7 @@ import { RootState } from 'store';
 import { setWalletModal } from 'store/router';
 import { getWrappedToken } from 'utils';
 import { wh } from 'utils/sdk';
-import { TransferWallet, switchNetwork, watchAsset } from 'utils/wallet';
+import { TransferWallet, switchChain, watchAsset } from 'utils/wallet';
 
 import TokenIcon from 'icons/TokenIcons';
 import ExplorerLink from './ExplorerLink';
@@ -67,7 +67,7 @@ function AddToEVMWallet({ token, address }: AddTokenProps) {
     // configured to the source chain instead of the destination chain
     const evmChainId = CHAINS[txData.toChain]?.chainId;
     if (!evmChainId || typeof evmChainId === 'string') return;
-    await switchNetwork(evmChainId, TransferWallet.RECEIVING);
+    await switchChain(evmChainId, TransferWallet.RECEIVING);
 
     await watchAsset(
       {
@@ -100,7 +100,7 @@ function AddToSolanaWallet({ token, address }: AddTokenProps) {
       <span className={classes.addTokenText}>See {token.symbol} token on</span>
       <ExplorerLink
         styles={{ marginLeft: -4 }}
-        network={'solana'}
+        chain={'solana'}
         type={'address'}
         address={address}
       />
@@ -118,7 +118,7 @@ function AddToSuiWallet({ token, address }: AddTokenProps) {
       <span className={classes.addTokenText}>See {token.symbol} token on</span>
       <ExplorerLink
         styles={{ marginLeft: -4 }}
-        network={'sui'}
+        chain={'sui'}
         type={'object'}
         object={address}
       />
@@ -136,7 +136,7 @@ function AddToAptosWallet({ token, address }: AddTokenProps) {
       <span className={classes.addTokenText}>See {token.symbol} token on</span>
       <ExplorerLink
         styles={{ marginLeft: -4 }}
-        network={'aptos'}
+        chain={'aptos'}
         type={'address'}
         address={tokenAccount}
       />

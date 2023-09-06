@@ -221,8 +221,8 @@ function WalletsModal(props: Props) {
   const connect = async (walletInfo: WalletData) => {
     const { wallet } = walletInfo;
 
-    const network = type === TransferWallet.SENDING ? fromChain : toChain;
-    const chainId = network ? CHAINS[network]?.chainId : undefined;
+    const chain = type === TransferWallet.SENDING ? fromChain : toChain;
+    const chainId = chain ? CHAINS[chain]?.chainId : undefined;
     await wallet.connect({ chainId });
 
     setWalletConnection(props.type, wallet);
