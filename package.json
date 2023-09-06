@@ -2,8 +2,8 @@
   "name": "wormhole-foundation",
   "private": true,
   "workspaces": [
-    "wormhole-connect",
     "sdk",
+    "wormhole-connect",
     "builder"
   ],
   "scripts": {
