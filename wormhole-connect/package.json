@@ -70,7 +70,7 @@
     "lint:ci": "prettier -c ./src && eslint --max-warnings=0 ./src",
     "prettier": "prettier --write ./src",
     "start": "react-app-rewired start",
-    "build": "NODE_ENV=production GENERATE_SOURCEMAP=false react-app-rewired build --max_old_space_size=4096 build",
+    "build": "NODE_ENV=production GENERATE_SOURCEMAP=false react-app-rewired --max_old_space_size=6144 build",
     "test": "jest ./tests/*.test.ts --detectOpenHandles",
     "eject": "react-app-rewired eject"
   },
