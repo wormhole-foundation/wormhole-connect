@@ -641,7 +641,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     icon: Icon.USDC,
     tokenId: {
       chain: 'optimism',
-      address: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607',
+      address: '0x0b2c639c533813f4aa9d7837caf62653d097ff85',
     },
     coinGeckoId: 'usd-coin',
     color: '#2774CA',
