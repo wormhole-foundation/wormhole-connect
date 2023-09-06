@@ -26,7 +26,7 @@ import {
   CCTP_LOG_TokenMessenger_DepositForBurn,
 } from './cctpManual';
 
-class Operator {
+export class Operator {
   getRoute(route: Route): RouteAbstract {
     switch (route) {
       case Route.Bridge: {

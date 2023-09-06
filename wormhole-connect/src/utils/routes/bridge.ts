@@ -177,9 +177,7 @@ export class BridgeRoute extends BaseRoute {
       await postVaa(
         connection,
         contracts.core,
-        Buffer.from(
-          arrayify(signedMessage.vaa, { allowMissingPrefix: true }),
-        ),
+        Buffer.from(arrayify(signedMessage.vaa, { allowMissingPrefix: true })),
       );
     }
 

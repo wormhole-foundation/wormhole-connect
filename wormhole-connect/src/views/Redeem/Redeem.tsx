@@ -10,7 +10,8 @@ import {
 } from 'store/redeem';
 import { sleep } from 'utils';
 import { fetchIsVAAEnqueued } from 'utils/vaa';
-import RouteOperator, { SignedMessage } from 'utils/routes';
+import { SignedMessage } from 'utils/routes';
+import RouteOperator from 'utils/routes/operator';
 import { ParsedMessage, ParsedRelayerMessage } from 'utils/sdk';
 
 import PageHeader from 'components/PageHeader';
@@ -36,7 +37,7 @@ function Redeem({
   transferComplete: boolean;
   isVaaEnqueued: boolean;
   route: Route | undefined;
-  signedMessage: SignedMessage;
+  signedMessage: SignedMessage | undefined;
 }) {
   // check if VAA is enqueued
   useEffect(() => {
@@ -70,10 +71,7 @@ function Redeem({
       let signed: SignedMessage | undefined;
       while (signed === undefined && !cancelled) {
         try {
-          signed = await RouteOperator.getSignedMessage(
-            route,
-            txData,
-          );
+          signed = await RouteOperator.getSignedMessage(route, txData);
         } catch {}
         if (cancelled) {
           return;
@@ -122,7 +120,7 @@ function Redeem({
     return () => {
       cancelled = true;
     };
-  }, [route, txData, transferComplete, route, setTransferComplete, signedMessage]);
+  }, [route, txData, transferComplete, setTransferComplete, signedMessage]);
 
   return txData?.fromChain ? (
     <div
