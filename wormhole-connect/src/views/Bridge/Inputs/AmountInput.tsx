@@ -30,7 +30,6 @@ function AmountInput(props: Props) {
       | undefined,
   ) {
     let value = e!.target.value;
-    // let value = event.target.value;
     const index = value.indexOf('.');
     switch (true) {
       case index === 0: {
