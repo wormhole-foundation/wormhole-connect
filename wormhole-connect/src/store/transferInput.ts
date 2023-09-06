@@ -41,6 +41,7 @@ export type TransferValidations = {
 export interface TransferInputState {
   validate: boolean;
   validations: TransferValidations;
+  availableRoutes: string[];
   fromChain: ChainName | undefined;
   toChain: ChainName | undefined;
   token: string;
@@ -78,6 +79,7 @@ const initialState: TransferInputState = {
     foreignAsset: '',
     associatedTokenAccount: '',
   },
+  availableRoutes: ROUTES,
   fromChain: config?.bridgeDefaults?.fromNetwork || undefined,
   toChain: config?.bridgeDefaults?.toNetwork || undefined,
   token: config?.bridgeDefaults?.token || '',
@@ -116,6 +118,12 @@ export const transferInputSlice = createSlice({
         // @ts-ignore
         state.validations[key] = payload[key];
       });
+    },
+    setAvailableRoutes: (
+      state: TransferInputState,
+      { payload }: PayloadAction<string[]>,
+    ) => {
+      state.availableRoutes = payload;
     },
     // user input
     setToken: (
@@ -308,6 +316,7 @@ export const selectToNetwork = async (
 export const {
   touchValidations,
   setValidations,
+  setAvailableRoutes,
   setToken,
   setDestToken,
   setFromNetwork,

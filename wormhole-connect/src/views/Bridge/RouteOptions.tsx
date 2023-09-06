@@ -4,9 +4,8 @@ import { makeStyles } from 'tss-react/mui';
 import { Chip, useMediaQuery, useTheme } from '@mui/material';
 
 import { RootState } from 'store';
-import { setTransferRoute } from 'store/transferInput';
+import { setAvailableRoutes, setTransferRoute } from 'store/transferInput';
 import { LINK, joinClass } from 'utils/style';
-import { isTransferValid } from 'utils/transferValidation';
 import { toFixedDecimals } from 'utils/balance';
 import RouteOperator from 'utils/routes/operator';
 import { TOKENS, ROUTES } from 'config';
@@ -231,6 +230,7 @@ function RouteOptions() {
   const {
     isTransactionInProgress,
     route,
+    availableRoutes,
     token,
     destToken,
     fromChain,
@@ -243,62 +243,73 @@ function RouteOptions() {
     dispatch(setTransferRoute(value));
   };
 
-  const availableRoutes = useMemo(() => {
-    if (!validate) return ROUTES;
-    const valid = isTransferValid(validations);
-    if (!valid || !fromChain || !toChain) return ROUTES;
-    let available: Route[] = [];
-    ROUTES.forEach(async (value) => {
-      const r = value as Route;
-      const isSupported = await RouteOperator.isRouteAvailable(
-        r,
-        token,
-        destToken,
-        amount,
-        fromChain,
-        toChain,
-      );
-      if (isSupported) {
-        available.push(r);
+  useEffect(() => {
+    if (!validate) return;
+    if (!fromChain || !toChain) return;
+    const getAvailable = async () => {
+      let available: string[] = [];
+      for (const value of ROUTES) {
+        const r = value as Route;
+        const isSupported = await RouteOperator.isRouteAvailable(
+          r,
+          token,
+          destToken,
+          amount,
+          fromChain,
+          toChain,
+        );
+        if (isSupported) {
+          available.push(r);
+        }
       }
-    });
-    return available;
-  }, [token, destToken, amount, fromChain, toChain, validate, validations]);
+      dispatch(setAvailableRoutes(available));
+    };
+    getAvailable();
+  }, [
+    token,
+    destToken,
+    amount,
+    fromChain,
+    toChain,
+    validate,
+    validations,
+    route,
+  ]);
 
   const onCollapseChange = (collapsed: boolean) => {
     setCollapsed(collapsed);
   };
 
-  return (
-    <>
-      <BridgeCollapse
-        title="Route"
-        disabled={isTransactionInProgress}
-        banner={<Banner />}
-        disableCollapse
-        startClosed
-        onCollapseChange={onCollapseChange}
-        controlStyle={
-          availableRoutes.length > 1
-            ? CollapseControlStyle.Arrow
-            : CollapseControlStyle.None
-        }
+  return availableRoutes ? (
+    <BridgeCollapse
+      title="Route"
+      disabled={isTransactionInProgress}
+      banner={<Banner />}
+      disableCollapse
+      startClosed
+      onCollapseChange={onCollapseChange}
+      controlStyle={
+        availableRoutes && availableRoutes.length > 1
+          ? CollapseControlStyle.Arrow
+          : CollapseControlStyle.None
+      }
+    >
+      <Options
+        active={route}
+        onSelect={onSelect}
+        collapsable
+        collapsed={collapsed}
       >
-        <Options
-          active={route}
-          onSelect={onSelect}
-          collapsable
-          collapsed={collapsed}
-        >
-          {availableRoutes.map((route) => {
-            return {
-              key: route,
-              child: <RouteOption route={RoutesConfig[route as Route]} />,
-            };
-          })}
-        </Options>
-      </BridgeCollapse>
-    </>
+        {availableRoutes.map((route) => {
+          return {
+            key: route,
+            child: <RouteOption route={RoutesConfig[route as Route]} />,
+          };
+        })}
+      </Options>
+    </BridgeCollapse>
+  ) : (
+    <></>
   );
 }
 
