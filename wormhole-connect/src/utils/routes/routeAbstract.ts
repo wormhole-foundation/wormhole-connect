@@ -28,6 +28,8 @@ export default abstract class RouteAbstract {
     destChain: ChainName | ChainId,
   ): Promise<boolean>;
 
+  public abstract isSupportedChain(chain: ChainName): boolean;
+
   public abstract isSupportedSourceToken(
     token: TokenConfig | undefined,
     destToken: TokenConfig | undefined,

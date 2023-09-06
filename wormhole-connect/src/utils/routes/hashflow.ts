@@ -17,6 +17,11 @@ import RouteAbstract from './routeAbstract';
 export class HashflowRoute extends RouteAbstract {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED = false;
   readonly AUTOMATIC_DEPOSIT = true;
+
+  isSupportedChain(chain: ChainName): boolean {
+    return false;
+  }
+
   async isRouteAvailable(
     sourceToken: string,
     destToken: string,

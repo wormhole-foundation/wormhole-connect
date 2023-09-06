@@ -14,7 +14,7 @@ import {
   setTransferRoute,
   TransferInputState,
 } from 'store/transferInput';
-import { CHAINS, ROUTES, TOKENS, TOKENS_ARR } from 'config';
+import { CHAINS, TOKENS } from 'config';
 import { TokenConfig, Route } from 'config/types';
 import { getTokenDecimals } from 'utils';
 import { wh, toChainId } from 'utils/sdk';
@@ -56,10 +56,6 @@ const useStyles = makeStyles()((theme) => ({
     width: '100%',
   },
 }));
-
-function getUniqueTokens(arr: TokenConfig[]) {
-  return arr.filter((t, i) => arr.findIndex((_t) => _t.key === t.key) === i);
-}
 
 function isSupportedToken(
   token: string,
@@ -112,21 +108,10 @@ function Bridge() {
 
   useEffect(() => {
     const computeSrcTokens = async () => {
-      // Get all possible source tokens over all routes
-      const supported = getUniqueTokens(
-        (
-          await Promise.all(
-            ROUTES.map((value) => {
-              const returnedTokens = RouteOperator.supportedSourceTokens(
-                value as Route,
-                TOKENS_ARR,
-                undefined,
-                fromChain,
-              );
-              return returnedTokens;
-            }),
-          )
-        ).reduce((a, b) => a.concat(b), []),
+      const supported = await RouteOperator.allSupportedSourceTokens(
+        TOKENS[destToken],
+        fromChain,
+        toChain,
       );
       dispatch(setSupportedSourceTokens(supported));
       const selectedIsSupported = isSupportedToken(token, supported);
@@ -144,21 +129,10 @@ function Bridge() {
 
   useEffect(() => {
     const computeDestTokens = async () => {
-      // Get all possible destination tokens over all routes, given the source token
-      const supported = getUniqueTokens(
-        (
-          await Promise.all(
-            ROUTES.map((value) =>
-              RouteOperator.supportedDestTokens(
-                value as Route,
-                TOKENS_ARR,
-                TOKENS[token],
-                fromChain,
-                toChain,
-              ),
-            ),
-          )
-        ).reduce((a, b) => a.concat(b)),
+      const supported = await RouteOperator.allSupportedDestTokens(
+        TOKENS[token],
+        fromChain,
+        toChain,
       );
       dispatch(setSupportedDestTokens(supported));
       const selectedIsSupported = isSupportedToken(destToken, supported);

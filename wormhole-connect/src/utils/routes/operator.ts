@@ -6,7 +6,7 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { BigNumber } from 'ethers';
 
-import { ROUTES } from 'config';
+import { CHAINS, ROUTES, TOKENS } from 'config';
 import { TokenConfig, Route } from 'config/types';
 import { BridgeRoute } from './bridge';
 import { RelayRoute } from './relay';
@@ -137,6 +137,79 @@ export class Operator {
     );
   }
 
+  allSupportedChains(): ChainName[] {
+    const supported = new Set<ChainName>();
+    for (const key in CHAINS) {
+      const chainName = key as ChainName;
+      for (const route of ROUTES) {
+        if (!supported.has(chainName)) {
+          const isSupported = this.isSupportedChain(route as Route, chainName);
+          if (isSupported) {
+            supported.add(chainName);
+          }
+        }
+      }
+    }
+    return Array.from(supported);
+  }
+
+  async allSupportedSourceTokens(
+    destToken: TokenConfig | undefined,
+    sourceChain?: ChainName | ChainId,
+    destChain?: ChainName | ChainId,
+  ): Promise<TokenConfig[]> {
+    const supported: { [key: string]: TokenConfig } = {};
+    for (const route of ROUTES) {
+      for (const key in TOKENS) {
+        const alreadySupported = supported[key];
+        if (!alreadySupported) {
+          const isSupported = await this.isSupportedSourceToken(
+            route as Route,
+            TOKENS[key],
+            destToken,
+            sourceChain,
+            destChain,
+          );
+          if (isSupported) {
+            supported[key] = TOKENS[key];
+          }
+        }
+      }
+    }
+    return Object.values(supported);
+  }
+
+  async allSupportedDestTokens(
+    sourceToken: TokenConfig | undefined,
+    sourceChain?: ChainName | ChainId,
+    destChain?: ChainName | ChainId,
+  ): Promise<TokenConfig[]> {
+    const supported: { [key: string]: TokenConfig } = {};
+    for (const route of ROUTES) {
+      for (const key in TOKENS) {
+        const alreadySupported = supported[key];
+        if (!alreadySupported) {
+          const isSupported = await this.isSupportedDestToken(
+            route as Route,
+            TOKENS[key],
+            sourceToken,
+            sourceChain,
+            destChain,
+          );
+          if (isSupported) {
+            supported[key] = TOKENS[key];
+          }
+        }
+      }
+    }
+    return Object.values(supported);
+  }
+
+  isSupportedChain(route: Route, chain: ChainName): boolean {
+    const r = this.getRoute(route);
+    return r.isSupportedChain(chain);
+  }
+
   async isSupportedSourceToken(
     route: Route,
     token: TokenConfig | undefined,
@@ -144,6 +217,10 @@ export class Operator {
     sourceChain?: ChainName | ChainId,
     destChain?: ChainName | ChainId,
   ): Promise<boolean> {
+    if (!ROUTES.includes(route)) {
+      return false;
+    }
+
     const r = this.getRoute(route);
     return await r.isSupportedSourceToken(
       token,
@@ -160,6 +237,10 @@ export class Operator {
     sourceChain?: ChainName | ChainId,
     destChain?: ChainName | ChainId,
   ): Promise<boolean> {
+    if (!ROUTES.includes(route)) {
+      return false;
+    }
+
     const r = this.getRoute(route);
     return await r.isSupportedDestToken(
       token,
@@ -176,6 +257,10 @@ export class Operator {
     sourceChain?: ChainName | ChainId,
     destChain?: ChainName | ChainId,
   ): Promise<TokenConfig[]> {
+    if (!ROUTES.includes(route)) {
+      return [];
+    }
+
     const r = this.getRoute(route);
     return await r.supportedSourceTokens(
       tokens,
@@ -192,6 +277,10 @@ export class Operator {
     sourceChain?: ChainName | ChainId,
     destChain?: ChainName | ChainId,
   ): Promise<TokenConfig[]> {
+    if (!ROUTES.includes(route)) {
+      return [];
+    }
+
     const r = this.getRoute(route);
     return await r.supportedDestTokens(
       tokens,

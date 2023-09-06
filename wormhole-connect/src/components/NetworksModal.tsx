@@ -1,11 +1,11 @@
-import React, { ChangeEvent, useState } from 'react';
+import React, { ChangeEvent, useMemo, useState } from 'react';
 import { useTheme } from '@mui/material/styles';
 import { makeStyles } from 'tss-react/mui';
 import {
   ChainConfig,
   ChainName,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { CHAINS_ARR, CHAINS } from '../config';
+import { CHAINS_ARR, CHAINS, ROUTES } from '../config';
 import { CENTER, joinClass } from '../utils/style';
 
 import Header from './Header';
@@ -14,6 +14,7 @@ import Spacer from './Spacer';
 import Search from './Search';
 import Scroll from './Scroll';
 import TokenIcon from '../icons/TokenIcons';
+import RouteOperator from 'utils/routes/operator';
 
 const useStyles = makeStyles()((theme: any) => ({
   networksContainer: {
@@ -79,6 +80,13 @@ function NetworksModal(props: Props) {
   const chains = props.chains || CHAINS_ARR;
   const [search, setSearch] = useState<string | undefined>();
 
+  const supportedChains = useMemo(() => {
+    const supported = RouteOperator.allSupportedChains();
+    return chains.filter((chain) => {
+      return supported.includes(chain.key);
+    });
+  }, [ROUTES]);
+
   const searchChains = (
     e:
       | ChangeEvent<HTMLInputElement>
@@ -122,9 +130,9 @@ function NetworksModal(props: Props) {
         height="calc(100vh - 300px)"
         blendColor={theme.palette.modal.background}
       >
-        {chains.length > 0 ? (
+        {supportedChains.length > 0 ? (
           <div className={classes.networksContainer}>
-            {chains.map((chain: any, i) => {
+            {supportedChains.map((chain: any, i) => {
               const disabled = !!props.isDisabled
                 ? props.isDisabled(chain.key)
                 : false;
