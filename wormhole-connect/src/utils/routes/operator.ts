@@ -105,7 +105,7 @@ export class Operator {
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
   ): Promise<boolean> {
-    if (!(route in ROUTES)) {
+    if (!ROUTES.includes(route)) {
       return false;
     }
 

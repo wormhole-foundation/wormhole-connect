@@ -152,7 +152,7 @@ export class CCTPRelayRoute extends CCTPManualRoute {
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
   ): Promise<boolean> {
-    if (!(Route.CCTPManual in ROUTES)) {
+    if (!ROUTES.includes(Route.CCTPRelay)) {
       return false;
     }
 

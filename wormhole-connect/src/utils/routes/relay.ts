@@ -65,7 +65,7 @@ export class RelayRoute extends BridgeRoute {
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
   ): Promise<boolean> {
-    if (!(Route.Relay in ROUTES)) {
+    if (!ROUTES.includes(Route.Relay)) {
       return false;
     }
 
