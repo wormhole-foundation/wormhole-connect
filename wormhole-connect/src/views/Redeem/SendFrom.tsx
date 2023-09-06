@@ -4,7 +4,8 @@ import { useSelector } from 'react-redux';
 import InputContainer from 'components/InputContainer';
 import { RenderRows } from 'components/RenderRows';
 import { RootState } from 'store';
-import RouteOperator, { TransferDisplayData } from 'utils/routes';
+import { TransferDisplayData } from 'utils/routes';
+import RouteOperator from 'utils/routes/operator';
 
 import Confirmations from './Confirmations';
 import Header from './Header';

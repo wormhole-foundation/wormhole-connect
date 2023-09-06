@@ -8,7 +8,8 @@ import { RootState } from 'store';
 import { setRedeemTx, setTransferComplete } from 'store/redeem';
 import { displayAddress } from 'utils';
 import { fetchRedeemTx } from 'utils/events';
-import RouteOperator, { TransferDisplayData } from 'utils/routes';
+import { TransferDisplayData } from 'utils/routes';
+import RouteOperator from 'utils/routes/operator';
 import {
   TransferWallet,
   registerWalletSigner,
@@ -26,12 +27,9 @@ import Header from './Header';
 
 function SendTo() {
   const dispatch = useDispatch();
-  const {
-    redeemTx,
-    transferComplete,
-    route,
-    signedMessage,
-  } = useSelector((state: RootState) => state.redeem);
+  const { redeemTx, transferComplete, route, signedMessage } = useSelector(
+    (state: RootState) => state.redeem,
+  );
   const txData = useSelector((state: RootState) => state.redeem.txData)!;
   const wallet = useSelector((state: RootState) => state.wallet.receiving);
   const [claimError, setClaimError] = useState('');

@@ -19,7 +19,8 @@ import {
   switchNetwork,
   TransferWallet,
 } from 'utils/wallet';
-import RouteOperator, { UnsignedMessage } from 'utils/routes';
+import { UnsignedMessage } from 'utils/routes';
+import RouteOperator from 'utils/routes/operator';
 import { validate, isTransferValid } from 'utils/transferValidation';
 import {
   setManualGasEst,

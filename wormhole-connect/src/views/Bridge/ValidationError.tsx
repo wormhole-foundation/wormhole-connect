@@ -5,7 +5,7 @@ import { makeStyles } from 'tss-react/mui';
 import { RootState } from 'store';
 import { ValidationErr, setTransferRoute } from 'store/transferInput';
 import { Route } from 'config/types';
-import RouteOperator from 'utils/routes';
+import RouteOperator from 'utils/routes/operator';
 import AlertBanner from 'components/AlertBanner';
 
 const useStyles = makeStyles()((theme) => ({

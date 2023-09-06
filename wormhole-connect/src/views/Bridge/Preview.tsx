@@ -10,7 +10,8 @@ import { Route } from 'config/types';
 import { getTokenDecimals } from 'utils';
 import { toDecimals } from 'utils/balance';
 import { toChainId } from 'utils/sdk';
-import RouteOperator, { TransferDisplayData } from 'utils/routes';
+import { TransferDisplayData } from 'utils/routes';
+import RouteOperator from 'utils/routes/operator';
 
 import { RenderRows } from 'components/RenderRows';
 import BridgeCollapse, { CollapseControlStyle } from './Collapse';
