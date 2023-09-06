@@ -330,36 +330,31 @@ export class CCTPRelayRoute extends CCTPManualRoute {
     const sourceGasTokenSymbol = sourceGasToken
       ? TOKENS[sourceGasToken].symbol
       : '';
-    const destinationGasTokenSymbol = destinationGasToken
-      ? TOKENS[destinationGasToken].symbol
-      : '';
-    const isNative = token.symbol === sourceGasToken;
 
     let totalFeesText = '';
-    if (sendingGasEst && relayerFee !== undefined) {
-      const fee = toFixedDecimals(
-        `${relayerFee + (isNative ? sendingGasEst : 0)}`,
-        6,
-      );
-      totalFeesText = isNative
-        ? `${fee} ${token.symbol}`
-        : `${sendingGasEst} ${sourceGasTokenSymbol} & ${fee} ${token.symbol}`;
+    if (sendingGasEst && relayerFee) {
+      const fee = toFixedDecimals(`${relayerFee}`, 6);
+      totalFeesText = `${sendingGasEst} ${sourceGasToken} & ${fee} ${token.symbol}`;
     }
 
     const receiveAmt = await this.computeReceiveAmount(amount, routeOptions);
+
+    const nativeGasDisplay =
+      receiveNativeAmt > 0
+        ? [
+            {
+              title: 'Native gas on destination',
+              value: `${receiveNativeAmt} ${destinationGasToken}`,
+            },
+          ]
+        : [];
 
     return [
       {
         title: 'Amount',
         value: `${toFixedDecimals(`${receiveAmt}`, 6)} ${destToken.symbol}`,
       },
-      {
-        title: 'Native gas on destination',
-        value:
-          receiveNativeAmt !== undefined
-            ? `${receiveNativeAmt} ${destinationGasTokenSymbol}`
-            : NO_INPUT,
-      },
+      ...nativeGasDisplay,
       {
         title: 'Total fee estimates',
         value: totalFeesText,

@@ -331,9 +331,6 @@ export class RelayRoute extends BridgeRoute {
     const sourceGasTokenSymbol = sourceGasToken
       ? TOKENS[sourceGasToken].symbol
       : '';
-    const destinationGasTokenSymbol = destinationGasToken
-      ? TOKENS[destinationGasToken].symbol
-      : '';
     const { relayerFee, receiveNativeAmt } = routeOptions;
     const isNative = token.symbol === sourceGasToken;
 
@@ -350,18 +347,22 @@ export class RelayRoute extends BridgeRoute {
 
     const receiveAmt = await this.computeReceiveAmount(amount, routeOptions);
 
+    const nativeGasDisplay =
+      receiveNativeAmt > 0
+        ? [
+            {
+              title: 'Native gas on destination',
+              value: `${receiveNativeAmt} ${destinationGasToken}`,
+            },
+          ]
+        : [];
+
     return [
       {
         title: 'Amount',
         value: `${toFixedDecimals(`${receiveAmt}`, 6)} ${destToken.symbol}`,
       },
-      {
-        title: 'Native gas on destination',
-        value:
-          receiveNativeAmt !== undefined
-            ? `${receiveNativeAmt} ${destinationGasTokenSymbol}`
-            : NO_INPUT,
-      },
+      ...nativeGasDisplay,
       {
         title: 'Total fee estimates',
         value: totalFeesText,
