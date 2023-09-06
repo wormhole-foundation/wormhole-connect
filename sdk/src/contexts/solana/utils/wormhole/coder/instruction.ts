@@ -6,6 +6,22 @@ import { IdlField, IdlStateMethod } from '../../anchor';
 import * as borsh from '@coral-xyz/borsh';
 import { IdlCoder } from './idl';
 
+/** Solitaire enum of existing the Core Bridge's instructions.
+ *
+ * https://github.com/certusone/wormhole/blob/main/solana/bridge/program/src/lib.rs#L92
+ */
+export enum WormholeInstruction {
+  Initialize,
+  PostMessage,
+  PostVaa,
+  SetFees,
+  TransferFees,
+  UpgradeContract,
+  UpgradeGuardianSet,
+  VerifySignatures,
+  PostMessageUnreliable, // sounds useful
+}
+
 // Inspired by  coral-xyz/anchor
 //
 // https://github.com/coral-xyz/anchor/blob/master/ts/packages/anchor/src/coder/borsh/instruction.ts
@@ -83,22 +99,6 @@ export class WormholeInstructionCoder implements InstructionCoder {
     }
     return { data: this.ixLayout.get(name)?.decode(data), name };
   }
-}
-
-/** Solitaire enum of existing the Core Bridge's instructions.
- *
- * https://github.com/certusone/wormhole/blob/main/solana/bridge/program/src/lib.rs#L92
- */
-export enum WormholeInstruction {
-  Initialize,
-  PostMessage,
-  PostVaa,
-  SetFees,
-  TransferFees,
-  UpgradeContract,
-  UpgradeGuardianSet,
-  VerifySignatures,
-  PostMessageUnreliable, // sounds useful
 }
 
 function encodeWormholeInstructionData(
