@@ -31,6 +31,17 @@ export const formatBalance = (
   return { [token.key]: formattedBalance };
 };
 
+// for use in USDC or other tokens that have versions on many chains
+// returns token key
+export const getNativeVersionOfToken = (
+  tokenSymbol: string,
+  chain: ChainName,
+): string =>
+  Object.entries(TOKENS)
+    .map(([key, t]) => t)
+    .find((t) => t.symbol === tokenSymbol && t.nativeNetwork === chain)?.key ||
+  '';
+
 export type ValidationErr = string;
 
 export type TransferValidations = {
@@ -156,6 +167,12 @@ export const transferInputSlice = createSlice({
           state.token = '';
           state.amount = '';
         }
+        if (
+          tokenConfig.symbol === 'USDC' &&
+          tokenConfig.nativeNetwork !== fromNetwork
+        ) {
+          state.token = getNativeVersionOfToken('USDC', fromNetwork);
+        }
       }
     },
     setToNetwork: (
@@ -163,6 +180,17 @@ export const transferInputSlice = createSlice({
       { payload }: PayloadAction<ChainName>,
     ) => {
       state.toNetwork = payload;
+      const { toNetwork, destToken } = state;
+
+      if (destToken) {
+        const tokenConfig = TOKENS[destToken];
+        if (
+          tokenConfig.symbol === 'USDC' &&
+          tokenConfig.nativeNetwork !== toNetwork
+        ) {
+          state.destToken = getNativeVersionOfToken('USDC', toNetwork);
+        }
+      }
     },
     setAmount: (
       state: TransferInputState,
