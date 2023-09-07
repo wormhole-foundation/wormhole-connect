@@ -388,7 +388,9 @@ export class CosmosGatewayRoute extends BaseRoute {
   ): Promise<TransferDisplayData> {
     const sendingChainName = wh.toChainName(sendingChain);
     const sourceGasToken = CHAINS[sendingChainName]?.gasToken;
-
+    const sourceGasTokenSymbol = sourceGasToken
+      ? TOKENS[sourceGasToken].symbol
+      : '';
     return [
       {
         title: 'Amount',
@@ -396,11 +398,13 @@ export class CosmosGatewayRoute extends BaseRoute {
       },
       {
         title: 'Total fee estimates',
-        value: `${sendingGasEst} ${sourceGasToken}`,
+        value: `${sendingGasEst} ${sourceGasTokenSymbol}`,
         rows: [
           {
             title: 'Source chain gas estimate',
-            value: sendingGasEst ? `~ ${sendingGasEst} ${sourceGasToken}` : '—',
+            value: sendingGasEst
+              ? `~ ${sendingGasEst} ${sourceGasTokenSymbol}`
+              : '—',
           },
         ],
       },

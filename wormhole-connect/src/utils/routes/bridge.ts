@@ -204,6 +204,12 @@ export class BridgeRoute extends BaseRoute {
     const receipientChainName = wh.toChainName(receipientChain);
     const sourceGasToken = CHAINS[sendingChainName]?.gasToken;
     const destinationGasToken = CHAINS[receipientChainName]?.gasToken;
+    const sourceGasTokenSymbol = sourceGasToken
+      ? TOKENS[sourceGasToken].symbol
+      : '';
+    const destinationGasTokenSymbol = destinationGasToken
+      ? TOKENS[destinationGasToken].symbol
+      : '';
     return [
       {
         title: 'Amount',
@@ -213,19 +219,19 @@ export class BridgeRoute extends BaseRoute {
         title: 'Total fee estimates',
         value:
           sendingGasEst && claimingGasEst
-            ? `${sendingGasEst} ${sourceGasToken} & ${claimingGasEst} ${destinationGasToken}`
+            ? `${sendingGasEst} ${sourceGasTokenSymbol} & ${claimingGasEst} ${destinationGasTokenSymbol}`
             : '',
         rows: [
           {
             title: 'Source chain gas estimate',
             value: sendingGasEst
-              ? `~ ${sendingGasEst} ${sourceGasToken}`
+              ? `~ ${sendingGasEst} ${sourceGasTokenSymbol}`
               : 'Not available',
           },
           {
             title: 'Destination chain gas estimate',
             value: claimingGasEst
-              ? `~ ${claimingGasEst} ${destinationGasToken}`
+              ? `~ ${claimingGasEst} ${destinationGasTokenSymbol}`
               : 'Not available',
           },
         ],

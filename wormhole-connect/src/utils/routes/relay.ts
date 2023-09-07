@@ -307,6 +307,12 @@ export class RelayRoute extends BridgeRoute {
     const receipientChainName = wh.toChainName(receipientChain);
     const sourceGasToken = CHAINS[sendingChainName]?.gasToken;
     const destinationGasToken = CHAINS[receipientChainName]?.gasToken;
+    const sourceGasTokenSymbol = sourceGasToken
+      ? TOKENS[sourceGasToken].symbol
+      : '';
+    const destinationGasTokenSymbol = destinationGasToken
+      ? TOKENS[destinationGasToken].symbol
+      : '';
     const { relayerFee, receiveNativeAmt } = routeOptions;
     const isNative = token.symbol === sourceGasToken;
 
@@ -318,7 +324,7 @@ export class RelayRoute extends BridgeRoute {
       );
       totalFeesText = isNative
         ? `${fee} ${token.symbol}`
-        : `${sendingGasEst} ${sourceGasToken} & ${fee} ${token.symbol}`;
+        : `${sendingGasEst} ${sourceGasTokenSymbol} & ${fee} ${token.symbol}`;
     }
 
     const receiveAmt = await this.computeReceiveAmount(amount, routeOptions);
@@ -332,7 +338,7 @@ export class RelayRoute extends BridgeRoute {
         title: 'Native gas on destination',
         value:
           receiveNativeAmt !== undefined
-            ? `${receiveNativeAmt} ${destinationGasToken}`
+            ? `${receiveNativeAmt} ${destinationGasTokenSymbol}`
             : NO_INPUT,
       },
       {
@@ -342,7 +348,7 @@ export class RelayRoute extends BridgeRoute {
           {
             title: 'Source chain gas estimate',
             value: sendingGasEst
-              ? `~ ${sendingGasEst} ${sourceGasToken}`
+              ? `~ ${sendingGasEst} ${sourceGasTokenSymbol}`
               : NO_INPUT,
           },
           {
