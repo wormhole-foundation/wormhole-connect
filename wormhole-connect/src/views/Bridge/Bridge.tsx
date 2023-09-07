@@ -136,7 +136,7 @@ function Bridge() {
       if (!selectedIsSupported) {
         dispatch(setToken(''));
       }
-      if (supported.length === 1) {
+      if (supported.length === 1 && token === '') {
         dispatch(setToken(supported[0].key));
       }
     };
@@ -170,14 +170,18 @@ function Bridge() {
       if (!selectedIsSupported) {
         dispatch(setDestToken(''));
       }
-      if (supported.length === 1) {
+      if (supported.length === 1 && destToken === '') {
         dispatch(setDestToken(supported[0].key));
       }
 
       // If all the supported tokens are the same token
       // select the native version
       const symbols = supported.map((t) => t.symbol);
-      if (toNetwork && symbols.every((s) => s === symbols[0])) {
+      if (
+        destToken === '' &&
+        toNetwork &&
+        symbols.every((s) => s === symbols[0])
+      ) {
         const key = supported.find(
           (t) =>
             t.symbol === symbols[0] &&
