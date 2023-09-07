@@ -24,6 +24,8 @@ import { RenderRows } from 'components/RenderRows';
 import Spacer from 'components/Spacer';
 import WalletsModal from '../WalletModal';
 import Header from './Header';
+import { estimateClaimGas } from 'utils/gas';
+import { arrayify } from 'ethers/lib/utils.js';
 
 function SendTo() {
   const dispatch = useDispatch();
@@ -72,15 +74,21 @@ function SendTo() {
       } catch (e) {
         console.error(`could not fetch redeem event:\n${e}`);
       }
+      let gasEstimate;
+      if (!receiveTx) {
+        const vaa = signedMessage && arrayify((signedMessage as any).vaa);
+        gasEstimate = await estimateClaimGas(route, txData.toChain, vaa);
+      }
       const rows = await RouteOperator.getTransferDestInfo(route, {
         txData,
         receiveTx,
         transferComplete,
+        gasEstimate,
       });
       setRows(rows);
     };
     populate();
-  }, [transferComplete, getRedeemTx, txData, route]);
+  }, [transferComplete, getRedeemTx, txData, route, signedMessage]);
 
   useEffect(() => {
     setIsConnected(checkConnection());

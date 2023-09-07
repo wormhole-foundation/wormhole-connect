@@ -32,6 +32,7 @@ import {
   TransferInfoBaseParams,
   SignedMessage,
   RelayCCTPMessage,
+  TransferDestInfoBaseParams,
 } from './types';
 import { toDecimals, toFixedDecimals } from '../balance';
 import { RelayOptions } from './relay';
@@ -44,12 +45,6 @@ import {
   getChainNameCCTP,
   getForeignUSDCAddress,
 } from './cctpManual';
-
-interface TransferDestInfoParams {
-  txData: ParsedMessage | ParsedRelayerMessage;
-  receiveTx?: string;
-  transferComplete?: boolean;
-}
 
 export class CCTPRelayRoute extends CCTPManualRoute {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED = true;
@@ -525,8 +520,7 @@ export class CCTPRelayRoute extends CCTPManualRoute {
   async getTransferDestInfo({
     txData: data,
     receiveTx,
-    transferComplete,
-  }: TransferDestInfoParams): Promise<TransferDisplayData> {
+  }: TransferDestInfoBaseParams): Promise<TransferDisplayData> {
     const txData: ParsedRelayerMessage = data as ParsedRelayerMessage;
 
     const token = TOKENS[txData.tokenKey];
