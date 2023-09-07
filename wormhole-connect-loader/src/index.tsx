@@ -1,16 +1,24 @@
 import { useEffect } from "react";
 import { WormholeConnectConfig } from "./types";
 
-function WormholeBridge({ config }: { config?: WormholeConnectConfig }) {
+const PACKAGE_NAME = "@wormhole-foundation/wormhole-connect";
+const DEFAULT_VERSION =
+  process.env.REACT_APP_CONNECT_CURRENT_VERSION || "latest";
+
+function WormholeBridge({
+  config,
+  versionOrTag = DEFAULT_VERSION,
+}: {
+  config?: WormholeConnectConfig;
+  versionOrTag?: string;
+}) {
   useEffect(() => {
     const script = document.createElement("script");
-    script.src =
-      "https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.12/dist/main.js";
+    script.src = `https://www.unpkg.com/${PACKAGE_NAME}@${versionOrTag}/dist/main.js`;
     script.async = true;
 
     const link = document.createElement("link");
-    link.href =
-      "https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.0.12/dist/main.css";
+    link.href = `https://www.unpkg.com/${PACKAGE_NAME}@${versionOrTag}/dist/main.css`;
 
     document.body.appendChild(script);
     document.body.appendChild(link);
@@ -18,7 +26,7 @@ function WormholeBridge({ config }: { config?: WormholeConnectConfig }) {
       script.remove();
       link.remove();
     };
-  }, []);
+  }, [versionOrTag]);
 
   return (
     <div
