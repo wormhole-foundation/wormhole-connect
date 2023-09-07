@@ -418,8 +418,9 @@ function TokensModal(props: Props) {
     // if token is USDC, only show native ones
     const filtered = supportedTokens.filter((t) => {
       if (!t.tokenId && t.nativeNetwork !== network) return false;
-      if (t.symbol === 'USDC' && t.nativeNetwork !== network) return false;
       const b = tokenBalances[t.key];
+      if (t.symbol === 'USDC' && t.nativeNetwork !== network && b === '0')
+        return false;
       if (b === null) return false;
       if (type === 'dest') return true;
       const isNonzeroBalance = b !== '0';
