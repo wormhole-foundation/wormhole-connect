@@ -311,7 +311,7 @@ export class RelayRoute extends BridgeRoute {
     const isNative = token.symbol === sourceGasToken;
 
     let totalFeesText = '';
-    if (sendingGasEst && relayerFee) {
+    if (sendingGasEst && relayerFee !== undefined) {
       const fee = toFixedDecimals(
         `${relayerFee + (isNative ? Number.parseFloat(sendingGasEst) : 0)}`,
         6,
@@ -347,7 +347,10 @@ export class RelayRoute extends BridgeRoute {
           },
           {
             title: 'Relayer fee',
-            value: relayerFee ? `${relayerFee} ${token.symbol}` : NO_INPUT,
+            value:
+              relayerFee !== undefined
+                ? `${relayerFee} ${token.symbol}`
+                : NO_INPUT,
           },
         ],
       },

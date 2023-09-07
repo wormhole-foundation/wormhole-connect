@@ -322,7 +322,7 @@ export class CCTPRelayRoute extends CCTPManualRoute {
     const isNative = token.symbol === sourceGasToken;
 
     let totalFeesText = '';
-    if (sendingGasEst && relayerFee) {
+    if (sendingGasEst && relayerFee !== undefined) {
       const fee = toFixedDecimals(
         `${relayerFee + (isNative ? sendingGasEst : 0)}`,
         6,
@@ -358,7 +358,10 @@ export class CCTPRelayRoute extends CCTPManualRoute {
           },
           {
             title: 'Relayer fee',
-            value: relayerFee ? `${relayerFee} ${token.symbol}` : NO_INPUT,
+            value:
+              relayerFee !== undefined
+                ? `${relayerFee} ${token.symbol}`
+                : NO_INPUT,
           },
         ],
       },
