@@ -26,14 +26,7 @@ import {
   sleep,
   toNormalizedDecimals,
 } from 'utils';
-import {
-  ParsedMessage,
-  ParsedRelayerMessage,
-  isEvmChain,
-  toChainId,
-  wh,
-  PayloadType,
-} from 'utils/sdk';
+import { isEvmChain, toChainId, wh, PayloadType } from 'utils/sdk';
 import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
 import { NO_INPUT } from 'utils/style';
 import {
@@ -44,10 +37,10 @@ import {
   ManualCCTPMessage,
   UnsignedCCTPMessage,
   TransferInfoBaseParams,
+  TransferDestInfoBaseParams,
 } from './types';
 import { BaseRoute } from './baseRoute';
 import { toDecimals } from '../balance';
-import { estimateClaimGas, getGasFallback } from '../gas';
 import { formatGasFee } from './utils';
 
 export const CCTPTokenSymbol = 'USDC';
@@ -65,11 +58,6 @@ export const CCTP_LOG_TokenMessenger_DepositForBurn =
   '0x2fa9ca894982930190727e75500a97d8dc500233a5065e0f3126c48fbe0343c0';
 export const CCTP_LOG_MessageSent =
   '0x8c5261668696ce22758910d05bab8f186d6eb247ceac2af2e82c7dc17669b036';
-
-interface TransferDestInfoParams {
-  txData: ParsedMessage | ParsedRelayerMessage;
-  receiveTx?: string;
-}
 
 export function getForeignUSDCAddress(chain: ChainName | ChainId) {
   const usdcToken = TOKENS_ARR.find(
@@ -343,11 +331,7 @@ export class CCTPManualRoute extends BaseRoute {
     destChain: ChainName | ChainId,
     VAA?: Uint8Array,
   ): Promise<BigNumber> {
-    const provider = wh.mustGetProvider(destChain);
-    const gasPrice = await provider.getGasPrice();
-
-    const est = getGasFallback(destChain, Route.CCTPManual, 'claim');
-    return est.mul(gasPrice);
+    throw new Error('not implemented');
   }
 
   /**
@@ -638,18 +622,17 @@ export class CCTPManualRoute extends BaseRoute {
   async getTransferDestInfo({
     txData,
     receiveTx,
-  }: TransferDestInfoParams): Promise<TransferDisplayData> {
+    gasEstimate,
+  }: TransferDestInfoBaseParams): Promise<TransferDisplayData> {
     const token = TOKENS[txData.tokenKey];
     const { gasToken } = CHAINS[txData.toChain]!;
 
-    let gas: string = '';
+    let gas = gasEstimate;
     if (receiveTx) {
       const gasUsed = await wh.getTxGasUsed(txData.toChain, receiveTx);
       if (gasUsed) {
         gas = formatGasFee(txData.toChain, gasUsed);
       }
-    } else {
-      gas = await estimateClaimGas(Route.CosmosGateway, txData.toChain);
     }
 
     const formattedAmt = toNormalizedDecimals(

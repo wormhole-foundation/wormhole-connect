@@ -85,7 +85,7 @@ function NetworksModal(props: Props) {
     return chains.filter((chain) => {
       return supported.includes(chain.key);
     });
-  }, [ROUTES]);
+  }, [ROUTES, chains]);
 
   const searchChains = (
     e:

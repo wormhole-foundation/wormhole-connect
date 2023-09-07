@@ -30,7 +30,6 @@ import {
 import { isCosmWasmChain } from '../cosmos';
 import { fetchVaa } from '../vaa';
 import { formatGasFee } from './utils';
-import { estimateClaimGas } from 'utils/gas';
 
 export class BridgeRoute extends BaseRoute {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean = false;
@@ -340,18 +339,17 @@ export class BridgeRoute extends BaseRoute {
   async getTransferDestInfo({
     txData,
     receiveTx,
+    gasEstimate,
   }: TransferDestInfoBaseParams): Promise<TransferDisplayData> {
     const token = TOKENS[txData.tokenKey];
     const { gasToken } = CHAINS[txData.toChain]!;
 
-    let gas: string = '';
+    let gas = gasEstimate;
     if (receiveTx) {
       const gasUsed = await wh.getTxGasUsed(txData.toChain, receiveTx);
       if (gasUsed) {
         gas = formatGasFee(txData.toChain, gasUsed);
       }
-    } else {
-      gas = await estimateClaimGas(Route.CosmosGateway, txData.toChain);
     }
 
     const formattedAmt = toNormalizedDecimals(
@@ -359,6 +357,7 @@ export class BridgeRoute extends BaseRoute {
       txData.tokenDecimals,
       MAX_DECIMALS,
     );
+
     return [
       {
         title: 'Amount',
