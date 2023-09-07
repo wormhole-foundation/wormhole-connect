@@ -45,11 +45,6 @@ function Preview(props: { collapsed: boolean }) {
       if (!tokenConfig || !destTokenConfig || !sourceConfig || !destConfig)
         return;
 
-      const sendingGasEst = RouteOperator.getRoute(route).AUTOMATIC_DEPOSIT
-        ? gasEst.automatic
-        : gasEst.manual;
-      const destGasEst = gasEst.claim;
-
       const routeOptions = {
         toNativeToken,
         receiveNativeAmt,
@@ -62,8 +57,8 @@ function Preview(props: { collapsed: boolean }) {
         Number.parseFloat(amount),
         fromChain,
         toChain,
-        sendingGasEst,
-        destGasEst,
+        gasEst.send,
+        gasEst.claim,
         routeOptions,
       );
 

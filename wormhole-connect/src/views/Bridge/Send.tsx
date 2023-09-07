@@ -23,8 +23,7 @@ import { UnsignedMessage } from 'utils/routes';
 import RouteOperator from 'utils/routes/operator';
 import { validate, isTransferValid } from 'utils/transferValidation';
 import {
-  setManualGasEst,
-  setAutomaticGasEst,
+  setSendingGasEst,
   setClaimGasEst,
   setIsTransactionInProgress,
 } from 'store/transferInput';
@@ -159,12 +158,7 @@ function Send(props: { valid: boolean }) {
       receiving.address,
       { relayerFee, toNativeToken },
     );
-    const isAutomatic = RouteOperator.getRoute(route).AUTOMATIC_DEPOSIT;
-    if (isAutomatic) {
-      dispatch(setAutomaticGasEst(gasFee));
-    } else {
-      dispatch(setManualGasEst(gasFee));
-    }
+    dispatch(setSendingGasEst(gasFee));
   }, [
     token,
     amount,
@@ -180,6 +174,7 @@ function Send(props: { valid: boolean }) {
 
   const setDestGas = useCallback(async () => {
     if (!toChain) return;
+    // don't have vaa yet, so set that to undefined and it will get the fallback estimate
     const gasFee = await estimateClaimGas(route, toChain!, undefined);
     dispatch(setClaimGasEst(gasFee));
   }, [toChain, route, dispatch]);
