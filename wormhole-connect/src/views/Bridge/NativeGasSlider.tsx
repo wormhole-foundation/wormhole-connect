@@ -287,6 +287,7 @@ function GasSlider(props: { disabled: boolean }) {
     receivingToken,
     toNetwork,
     route,
+    amount,
   ]);
 
   const banner = !props.disabled && (
