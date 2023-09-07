@@ -86,7 +86,8 @@ interface ThumbProps extends React.HTMLAttributes<unknown> {}
 
 function formatAmount(amount?: number): number {
   if (!amount) return 0;
-  const formatted = toFixedDecimals(`${amount}`, 6);
+  let formatted = toFixedDecimals(`${amount}`, 6);
+  if (amount < 0.000001) formatted = '0';
   return Number.parseFloat(formatted);
 }
 
@@ -271,6 +272,7 @@ function GasSlider(props: { disabled: boolean }) {
       setState((prevState) => ({
         ...prevState,
         nativeGas: formattedNativeAmt,
+        token: formatAmount(Number.parseFloat(amount) - debouncedSwapAmt),
       }));
     })();
     return () => {

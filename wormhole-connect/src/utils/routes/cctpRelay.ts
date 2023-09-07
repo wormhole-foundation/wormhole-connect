@@ -342,7 +342,7 @@ export class CCTPRelayRoute extends CCTPManualRoute {
       {
         title: 'Native gas on destination',
         value:
-          receiveNativeAmt > 0
+          receiveNativeAmt !== undefined
             ? `${receiveNativeAmt} ${destinationGasToken}`
             : NO_INPUT,
       },

@@ -331,7 +331,7 @@ export class RelayRoute extends BridgeRoute {
       {
         title: 'Native gas on destination',
         value:
-          receiveNativeAmt > 0
+          receiveNativeAmt !== undefined
             ? `${receiveNativeAmt} ${destinationGasToken}`
             : NO_INPUT,
       },
