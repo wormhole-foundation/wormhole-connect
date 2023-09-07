@@ -50,6 +50,10 @@ export const CCTPManual_CHAINS: ChainName[] = [
   'avalanche',
   'fuji',
   'goerli',
+  'optimism',
+  'arbitrum',
+  'optimismgoerli',
+  'arbitrumgoerli',
 ];
 export const CCTP_LOG_TokenMessenger_DepositForBurn =
   '0x2fa9ca894982930190727e75500a97d8dc500233a5065e0f3126c48fbe0343c0';
@@ -118,6 +122,10 @@ export function getChainNameCCTP(domain: number): ChainName {
       return isMainnet ? 'ethereum' : 'goerli';
     case 1:
       return isMainnet ? 'avalanche' : 'fuji';
+    case 2:
+      return isMainnet ? 'optimism' : 'optimismgoerli';
+    case 3:
+      return isMainnet ? 'arbitrum' : 'arbitrumgoerli';
   }
   throw new Error('Invalid CCTP domain');
 }
@@ -222,8 +230,6 @@ export class CCTPManualRoute extends BaseRoute {
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
   ): Promise<boolean> {
-    return false;
-
     const sourceTokenConfig = TOKENS[sourceToken];
     const destTokenConfig = TOKENS[destToken];
 
@@ -299,10 +305,7 @@ export class CCTPManualRoute extends BaseRoute {
       tokenMessenger!,
       wh.getSigner(sendingChain)!,
     );
-    const tokenAddr = await wh.mustGetForeignAsset(
-      token as TokenId,
-      sendingChain,
-    );
+    const tokenAddr = (token as TokenId).address;
     const toChainName = wh.toChainName(recipientChain)!;
     const decimals = getTokenDecimals(wh.toChainId(sendingChain), token);
     const parsedAmt = utils.parseUnits(`${amount}`, decimals);
@@ -366,11 +369,7 @@ export class CCTPManualRoute extends BaseRoute {
       tokenMessenger!,
       wh.getSigner(fromChainId)!,
     );
-    const tokenAddr = await wh.mustGetForeignAsset(
-      token as TokenId,
-      sendingChain,
-    );
-
+    const tokenAddr = (token as TokenId).address;
     // approve
     await chainContext.approve(
       sendingChain,
@@ -479,7 +478,7 @@ export class CCTPManualRoute extends BaseRoute {
     return wh.getNativeBalance(address, network);
   }
 
-  public getTokenBalance(
+  public async getTokenBalance(
     address: string,
     tokenId: TokenId,
     network: ChainName | ChainId,

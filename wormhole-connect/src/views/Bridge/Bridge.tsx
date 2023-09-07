@@ -119,8 +119,8 @@ function Bridge() {
       const supported = getUniqueTokens(
         (
           await Promise.all(
-            listOfRoutes.map((r) => {
-              const returnedTokens = operator.supportedSourceTokens(
+            listOfRoutes.map(async (r) => {
+              const returnedTokens = await operator.supportedSourceTokens(
                 r,
                 TOKENS_ARR,
                 undefined,
@@ -136,14 +136,14 @@ function Bridge() {
       if (!selectedIsSupported) {
         dispatch(setToken(''));
       }
-      if (supported.length === 1) {
+      if (supported.length === 1 && token === '') {
         dispatch(setToken(supported[0].key));
       }
     };
     computeSrcTokens();
     // IMPORTANT: do not include token in dependency array
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [route, destToken, dispatch]);
+  }, [route, fromNetwork, destToken, dispatch]);
 
   useEffect(() => {
     const computeDestTokens = async () => {
@@ -170,14 +170,18 @@ function Bridge() {
       if (!selectedIsSupported) {
         dispatch(setDestToken(''));
       }
-      if (supported.length === 1) {
+      if (supported.length === 1 && destToken === '') {
         dispatch(setDestToken(supported[0].key));
       }
 
       // If all the supported tokens are the same token
       // select the native version
       const symbols = supported.map((t) => t.symbol);
-      if (toNetwork && symbols.every((s) => s === symbols[0])) {
+      if (
+        destToken === '' &&
+        toNetwork &&
+        symbols.every((s) => s === symbols[0])
+      ) {
         const key = supported.find(
           (t) =>
             t.symbol === symbols[0] &&

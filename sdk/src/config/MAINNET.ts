@@ -15,6 +15,8 @@ export const MAINNET_CHAINS = {
   moonbeam: 16,
   sui: 21,
   aptos: 22,
+  arbitrum: 23,
+  optimism: 24,
   base: 30,
   sei: 32,
   wormchain: 3104,
@@ -161,6 +163,40 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     finalityThreshold: 0,
     nativeTokenDecimals: 8,
   },
+  arbitrum: {
+    key: 'arbitrum',
+    id: 23,
+    context: Context.ETH,
+    contracts: {
+      ...CONTRACTS.MAINNET.arbitrum,
+      cctpContracts: {
+        cctpTokenMessenger: '0x19330d10D9Cc8751218eaf51E8885D058642E08A',
+        cctpMessageTransmitter: '0xC30362313FBBA5cf9163F0bb16a0e01f01A896ca',
+        wormholeCircleRelayer: '0x4cb69FaE7e7Af841e44E1A1c30Af640739378bb2',
+        wormholeCCTP: '0x2703483b1a5a7c577e8680de9df8be03c6f30e3c',
+      },
+    },
+    finalityThreshold: 0,
+    nativeTokenDecimals: 18,
+    cctpDomain: 3,
+  },
+  optimism: {
+    key: 'optimism',
+    id: 24,
+    context: Context.ETH,
+    contracts: {
+      ...CONTRACTS.MAINNET.optimism,
+      cctpContracts: {
+        cctpTokenMessenger: '0x2B4069517957735bE00ceE0fadAE88a26365528f',
+        cctpMessageTransmitter: '0x4d41f22c5a0e5c74090899e5a8fb597a8842b3e8',
+        wormholeCircleRelayer: '0x4cb69FaE7e7Af841e44E1A1c30Af640739378bb2',
+        wormholeCCTP: '0x2703483b1a5a7c577e8680de9df8be03c6f30e3c',
+      },
+    },
+    finalityThreshold: 0,
+    nativeTokenDecimals: 18,
+    cctpDomain: 2,
+  },
   base: {
     key: 'base',
     id: 30,
@@ -224,6 +260,8 @@ const MAINNET_CONFIG: WormholeConfig = {
     moonbeam: 'https://rpc.ankr.com/moonbeam',
     sui: 'https://rpc.mainnet.sui.io',
     aptos: 'https://fullnode.mainnet.aptoslabs.com/v1',
+    arbitrum: 'https://arb1.arbitrum.io/rpc',
+    optimism: 'https://mainnet.optimism.io',
     base: 'https://mainnet.base.org',
     sei: '', // TODO: fill in
     wormchain: '',

@@ -117,12 +117,7 @@ function Send(props: { valid: boolean }) {
       let message: UnsignedMessage | undefined;
       while (message === undefined) {
         try {
-          message = await operator.getMessage(
-            route,
-            txId,
-            fromNetwork!,
-            true, // don't need to get the signed attestation
-          );
+          message = await operator.getMessage(route, txId, fromNetwork!);
         } catch (e) {}
         if (message === undefined) {
           await sleep(3000);

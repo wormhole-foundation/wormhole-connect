@@ -31,6 +31,17 @@ export const formatBalance = (
   return { [token.key]: formattedBalance };
 };
 
+// for use in USDC or other tokens that have versions on many chains
+// returns token key
+export const getNativeVersionOfToken = (
+  tokenSymbol: string,
+  chain: ChainName,
+): string =>
+  Object.entries(TOKENS)
+    .map(([key, t]) => t)
+    .find((t) => t.symbol === tokenSymbol && t.nativeNetwork === chain)?.key ||
+  '';
+
 export type ValidationErr = string;
 
 export type TransferValidations = {
@@ -109,6 +120,46 @@ const initialState: TransferInputState = {
   supportedDestTokens: [],
 };
 
+const performModificationsIfFromNetworkChanged = (
+  state: TransferInputState,
+) => {
+  const { fromNetwork, token } = state;
+  if (token) {
+    const tokenConfig = TOKENS[token];
+    // clear token and amount if not supported on the selected network
+    if (
+      !fromNetwork ||
+      (!tokenConfig.tokenId && tokenConfig.nativeNetwork !== fromNetwork)
+    ) {
+      state.token = '';
+      state.amount = '';
+    }
+    if (
+      tokenConfig.symbol === 'USDC' &&
+      tokenConfig.nativeNetwork !== fromNetwork
+    ) {
+      state.token = getNativeVersionOfToken('USDC', fromNetwork!);
+    }
+  }
+};
+
+const performModificationsIfToNetworkChanged = (state: TransferInputState) => {
+  const { toNetwork, destToken } = state;
+
+  if (destToken) {
+    const tokenConfig = TOKENS[destToken];
+    if (!toNetwork) {
+      state.destToken = '';
+    }
+    if (
+      tokenConfig.symbol === 'USDC' &&
+      tokenConfig.nativeNetwork !== toNetwork
+    ) {
+      state.destToken = getNativeVersionOfToken('USDC', toNetwork!);
+    }
+  }
+};
+
 export const transferInputSlice = createSlice({
   name: 'transfer',
   initialState,
@@ -147,22 +198,14 @@ export const transferInputSlice = createSlice({
       // clear balances if the network changes;
       state.sourceBalances = {};
 
-      const { fromNetwork, token } = state;
-
-      if (token) {
-        const tokenConfig = TOKENS[token];
-        // clear token and amount if not supported on the selected network
-        if (!tokenConfig.tokenId && tokenConfig.nativeNetwork !== fromNetwork) {
-          state.token = '';
-          state.amount = '';
-        }
-      }
+      performModificationsIfFromNetworkChanged(state);
     },
     setToNetwork: (
       state: TransferInputState,
       { payload }: PayloadAction<ChainName>,
     ) => {
       state.toNetwork = payload;
+      performModificationsIfToNetworkChanged(state);
     },
     setAmount: (
       state: TransferInputState,
@@ -273,6 +316,8 @@ export const transferInputSlice = createSlice({
       const tmp = state.fromNetwork;
       state.fromNetwork = state.toNetwork;
       state.toNetwork = tmp;
+      performModificationsIfFromNetworkChanged(state);
+      performModificationsIfToNetworkChanged(state);
     },
   },
 });

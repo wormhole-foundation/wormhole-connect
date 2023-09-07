@@ -1,13 +1,15 @@
 import { getSignedVAA, parseTokenTransferVaa } from '@certusone/wormhole-sdk';
-import { utils } from 'ethers';
+import { Implementation__factory } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
+import { utils, providers, BigNumberish } from 'ethers';
 import axios from 'axios';
-import { ChainId } from '@wormhole-foundation/wormhole-connect-sdk';
+import { ChainId, ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 
 import { CHAINS, CONFIG, WH_CONFIG, WORMHOLE_API } from 'config';
 import {
   ParsedMessage,
   ParsedRelayerMessage,
   getCurrentBlock,
+  isEvmChain,
   wh,
 } from './sdk';
 
@@ -48,6 +50,38 @@ export type MessageIdentifier = {
   emitterAddress: string;
   sequence: string;
 };
+
+export const NO_VAA_FOUND = 'No message publish found in logs';
+export async function getUnsignedVaaEvm(
+  chain: ChainId | ChainName,
+  receipt: providers.TransactionReceipt,
+): Promise<{
+  emitterAddress: string;
+  sequence: BigNumberish;
+  payload: string;
+}> {
+  if (!isEvmChain(chain)) {
+    throw new Error('Not an evm chain');
+  }
+  const core = wh.getContracts(chain)?.core;
+  const bridgeLogs = receipt.logs.filter((l: any) => {
+    return l.address === core;
+  });
+
+  if (bridgeLogs.length === 0) {
+    throw new Error(NO_VAA_FOUND);
+  }
+
+  const parsed = Implementation__factory.createInterface().parseLog(
+    bridgeLogs[0],
+  );
+
+  return {
+    emitterAddress: parsed.args.sender,
+    sequence: parsed.args.sequence,
+    payload: parsed.args.payload.toString('hex'),
+  };
+}
 
 export function getEmitterAndSequence(
   txData: ParsedMessage | ParsedRelayerMessage,

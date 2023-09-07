@@ -113,6 +113,26 @@ export const TESTNET_NETWORKS: NetworksConfig = {
     icon: Icon.APT,
     maxBlockSearch: 0,
   },
+  arbitrumgoerli: {
+    ...chains.arbitrumgoerli!,
+    displayName: 'Arbitrum Goerli',
+    explorerUrl: 'https://testnet.arbiscan.io/',
+    explorerName: 'Arbitrum Goerli Explorer',
+    gasToken: 'ETHarbitrum',
+    chainId: 421613,
+    icon: Icon.ARBITRUM,
+    maxBlockSearch: 2000,
+  },
+  optimismgoerli: {
+    ...chains.optimismgoerli!,
+    displayName: 'Optimism Goerli',
+    explorerUrl: 'https://goerli-optimism.etherscan.io/',
+    explorerName: 'Optimistic Goerli Explorer',
+    gasToken: 'ETHoptimism',
+    chainId: 420,
+    icon: Icon.OPTIMISM,
+    maxBlockSearch: 2000,
+  },
   basegoerli: {
     ...chains.basegoerli!,
     displayName: 'Base Goerli',
@@ -519,6 +539,109 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
       default: 8,
     },
   },
+  ETHarbitrum: {
+    key: 'ETHarbitrum',
+    symbol: 'ETH',
+    nativeNetwork: 'arbitrumgoerli',
+    icon: Icon.ETH,
+    coinGeckoId: 'ethereum',
+    color: '#5794EC',
+    decimals: {
+      Ethereum: 18,
+      default: 8,
+    },
+    wrappedAsset: 'WETHarbitrum',
+  },
+  WETHarbitrum: {
+    key: 'WETHarbitrum',
+    symbol: 'WETH',
+    nativeNetwork: 'arbitrumgoerli',
+    icon: Icon.ETH,
+    tokenId: {
+      chain: 'arbitrumgoerli',
+      address: '0xee01c0cd76354c383b8c7b4e65ea88d00b06f36f',
+    },
+    coinGeckoId: 'ethereum',
+    color: '#5794EC',
+    decimals: {
+      Ethereum: 18,
+      default: 8,
+    },
+  },
+  USDCarbitrum: {
+    key: 'USDCarbitrum',
+    symbol: 'USDC',
+    nativeNetwork: 'arbitrumgoerli',
+    icon: Icon.USDC,
+    tokenId: {
+      chain: 'arbitrumgoerli',
+      address: '0xfd064A18f3BF249cf1f87FC203E90D8f650f2d63',
+    },
+    coinGeckoId: 'usd-coin',
+    color: '#2774CA',
+    decimals: {
+      default: 6,
+    },
+  },
+  ETHoptimism: {
+    key: 'ETHoptimism',
+    symbol: 'ETH',
+    nativeNetwork: 'optimismgoerli',
+    icon: Icon.ETH,
+    coinGeckoId: 'ethereum',
+    color: '#D53424',
+    decimals: {
+      Ethereum: 18,
+      default: 8,
+    },
+    wrappedAsset: 'WETHoptimism',
+  },
+  WETHoptimism: {
+    key: 'WETHoptimism',
+    symbol: 'WETH',
+    nativeNetwork: 'optimismgoerli',
+    icon: Icon.ETH,
+    tokenId: {
+      chain: 'optimismgoerli',
+      address: '0x4200000000000000000000000000000000000006',
+    },
+    coinGeckoId: 'ethereum',
+    color: '#D53424',
+    decimals: {
+      Ethereum: 18,
+      default: 8,
+    },
+  },
+  USDCoptimism: {
+    key: 'USDCoptimism',
+    symbol: 'USDC',
+    nativeNetwork: 'optimismgoerli',
+    icon: Icon.USDC,
+    tokenId: {
+      chain: 'optimismgoerli',
+      address: '0xe05606174bac4A6364B31bd0eCA4bf4dD368f8C6',
+    },
+    coinGeckoId: 'usd-coin',
+    color: '#2774CA',
+    decimals: {
+      default: 6,
+    },
+  },
+  SEI: {
+    key: 'SEI',
+    symbol: 'SEI',
+    nativeNetwork: 'sei',
+    tokenId: {
+      chain: 'sei',
+      address: 'usei',
+    },
+    icon: Icon.SEI,
+    coinGeckoId: 'sei',
+    color: '#FFFFFF',
+    decimals: {
+      default: 6,
+    },
+  },
   ETHbase: {
     key: 'ETHbase',
     symbol: 'ETH',
@@ -595,21 +718,6 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
       Ethereum: 18,
     },
   },
-  SEI: {
-    key: 'SEI',
-    symbol: 'SEI',
-    nativeNetwork: 'sei',
-    tokenId: {
-      chain: 'sei',
-      address: 'usei',
-    },
-    icon: Icon.SEI,
-    coinGeckoId: 'sei',
-    color: '#FFFFFF',
-    decimals: {
-      default: 6,
-    },
-  },
 };
 
 export const TESTNET_GAS_ESTIMATES: GasEstimates = {
@@ -682,6 +790,20 @@ export const TESTNET_GAS_ESTIMATES: GasEstimates = {
     sendNative: 34,
     sendToken: 34,
     claim: 615,
+  },
+  arbitrumgoerli: {
+    claim: 150000,
+    sendNative: 100000,
+    sendToken: 150000,
+    sendCCTPManual: 150000,
+    sendCCTPWithRelay: 300000,
+  },
+  optimismgoerli: {
+    claim: 100000,
+    sendNative: 100000,
+    sendToken: 100000,
+    sendCCTPManual: 150000,
+    sendCCTPWithRelay: 300000,
   },
   sei: {
     claim: 1000000,

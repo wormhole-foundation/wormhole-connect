@@ -63,7 +63,7 @@ Tokens (`tokens`):
 | USDCbnb | |
 | AVAX | AVAX |
 | WAVAX | WAVAX |
-| USDCavax | |
+| USDCavax | USDCavax |
 | FTM | FTM |
 | WFTM | WFTM |
 | CELO | CELO |
@@ -73,6 +73,12 @@ Tokens (`tokens`):
 | SUI | SUI |
 | USDCsol | |
 | APT | APT |
+| ETHarbitrum | ETHarbitrum|
+| WETHarbitrum | WETHarbitrum|
+| USDCarbitrum | USDCarbitrum|
+| ETHoptimism | ETHoptimism|
+| WETHoptimism | WETHoptimism|
+| USDCoptimism | USDCoptimism|
 | ETHbase | ETHbase |
 | WETHbase | WETHbase |
 
