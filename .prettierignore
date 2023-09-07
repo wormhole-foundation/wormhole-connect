@@ -1,5 +1,3 @@
 dist
 build
 *.md
-builder
-wormhole-connect-loader

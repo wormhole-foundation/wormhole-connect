@@ -1,31 +1,31 @@
-import React from 'react';
-import { makeStyles } from 'tss-react/mui';
+import React from "react";
+import { makeStyles } from "tss-react/mui";
 import bg from "./bg.svg";
-import { OPACITY } from './theme';
+import { OPACITY } from "./theme";
 
 const colors = {
-  bg: '#030712',
-  purple: '#3B234E',
-  blue: '#302A60',
-  pink: '#5A1E46',
-}
+  bg: "#030712",
+  purple: "#3B234E",
+  blue: "#302A60",
+  pink: "#5A1E46",
+};
 
 const useStyles = makeStyles()((theme) => ({
   container: {
     backgroundColor: `${colors.bg} !important`,
-    width: '100%',
+    width: "100%",
     minHeight: "100vh",
-    height: '100%',
-    zIndex: '-2',
+    height: "100%",
+    zIndex: "-2",
   },
   bg: {
     display: "flex",
     flexDirection: "column",
     position: "relative",
     overflow: "hidden",
-    width: '100%',
+    width: "100%",
     height: "100%",
-    minHeight: '100vh',
+    minHeight: "100vh",
     overscrollBehaviorY: "none",
     backgroundImage: `url(${bg})`,
     backgroundPosition: "top center",
@@ -34,8 +34,8 @@ const useStyles = makeStyles()((theme) => ({
   },
   background: {
     position: "absolute",
-    width: '100%',
-    height: '100%',
+    width: "100%",
+    height: "100%",
     top: 0,
     bottom: 0,
     left: 0,
@@ -50,8 +50,7 @@ const useStyles = makeStyles()((theme) => ({
     right: "-1000px",
     width: "1757px",
     height: "1506px",
-    background:
-      `radial-gradient(closest-side at 50% 50%, ${colors.blue} 0%, ${colors.blue}00 100%)`,
+    background: `radial-gradient(closest-side at 50% 50%, ${colors.blue} 0%, ${colors.blue}00 100%)`,
     opacity: "0.5",
     transform: "matrix(0.87, 0.48, -0.48, 0.87, 0, 0)",
     zIndex: "-1",
@@ -66,8 +65,7 @@ const useStyles = makeStyles()((theme) => ({
     width: "1379px",
     height: "1378px",
     position: "absolute",
-    background:
-      `radial-gradient(closest-side at 50% 50%, ${colors.pink}${OPACITY[60]} 0%, ${colors.pink}00 100%)`,
+    background: `radial-gradient(closest-side at 50% 50%, ${colors.pink}${OPACITY[60]} 0%, ${colors.pink}00 100%)`,
     opacity: "0.5",
     zIndex: "-1",
     pointerEvent: "none",
@@ -78,8 +76,7 @@ const useStyles = makeStyles()((theme) => ({
     width: "1379px",
     height: "1378px",
     position: "absolute",
-    background:
-      `radial-gradient(closest-side at 50% 50%, ${colors.purple} 0%, ${colors.purple}00 100%)`,
+    background: `radial-gradient(closest-side at 50% 50%, ${colors.purple} 0%, ${colors.purple}00 100%)`,
     opacity: "0.5",
     zIndex: "-1",
     pointerEvent: "none",
@@ -93,8 +90,7 @@ const useStyles = makeStyles()((theme) => ({
     right: "-1000px",
     width: "1757px",
     height: "1506px",
-    background:
-      `radial-gradient(closest-side at 50% 50%, ${colors.purple} 0%, ${colors.purple}00 100%)`,
+    background: `radial-gradient(closest-side at 50% 50%, ${colors.purple} 0%, ${colors.purple}00 100%)`,
     opacity: "0.5",
     transform: "matrix(0.87, 0.48, -0.48, 0.87, 0, 0);",
     zIndex: "-1",
@@ -103,11 +99,11 @@ const useStyles = makeStyles()((theme) => ({
       display: "none",
     },
   },
-}))
+}));
 
 type Props = {
-  children: React.ReactNode | React.ReactNode[]
-}
+  children: React.ReactNode | React.ReactNode[];
+};
 
 function Background({ children }: Props) {
   const { classes } = useStyles();
