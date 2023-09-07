@@ -26,9 +26,10 @@
   },
   "scripts": {
     "lint:ci": "prettier -c ./src && eslint --max-warnings=0 ./src",
+    "build:deps": "rm -rf dist && mkdir dist && cp ../wormhole-connect/build/static/js/main.*.js dist/main.js && cp ../wormhole-connect/build/static/css/main.*.css dist/main.css",
     "build:cjs": "tsc -p tsconfig.cjs.json",
     "build:esm": "tsc -p tsconfig.esm.json",
-    "build": "rm -rf lib && npm run build:cjs && npm run build:esm"
+    "build": "npm run build:deps && rm -rf lib && npm run build:cjs && npm run build:esm"
   },
   "eslintConfig": {
     "extends": [
