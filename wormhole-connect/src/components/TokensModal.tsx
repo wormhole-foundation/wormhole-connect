@@ -212,7 +212,9 @@ function DisplayTokens(props: {
                   <div className={classes.tokenRowBalance}>
                     {balances[token.key] && walletAddress ? (
                       <div>{balances[token.key]}</div>
-                    ) : network && walletAddress ? (
+                    ) : network &&
+                      walletAddress &&
+                      balances[token.key] !== null ? (
                       <CircularProgress size={14} />
                     ) : (
                       <div>{NO_INPUT}</div>
@@ -267,6 +269,7 @@ function TokensModal(props: Props) {
   const [loading, setLoading] = useState(false);
   const [balancesLoaded, setBalancesLoaded] = useState(false);
   const [tokens, setTokens] = useState<TokenConfig[]>([]);
+  const [allTokensFiltered, setAllTokensFiltered] = useState<TokenConfig[]>([]);
   const [search, setSearch] = useState('');
 
   const {
@@ -355,7 +358,9 @@ function TokensModal(props: Props) {
                 t.tokenId,
                 network,
               )
-            : await operator.getNativeBalance(route, walletAddress, network);
+            : t.nativeNetwork === network
+            ? await operator.getNativeBalance(route, walletAddress, network)
+            : null;
         } catch (e) {
           console.warn('Failed to fetch balance', e);
         }
@@ -414,13 +419,23 @@ function TokensModal(props: Props) {
     const filtered = supportedTokens.filter((t) => {
       if (!t.tokenId && t.nativeNetwork !== network) return false;
       if (t.symbol === 'USDC' && t.nativeNetwork !== network) return false;
-      if (type === 'dest') return true;
       const b = tokenBalances[t.key];
-      const isNullBalance = b !== null && b !== '0';
-      return isNullBalance;
+      if (b === null) return false;
+      if (type === 'dest') return true;
+      const isNonzeroBalance = b !== '0';
+      return isNonzeroBalance;
     });
     setTokens(filtered);
   }, [tokenBalances, network, supportedTokens, type]);
+
+  useEffect(() => {
+    const allFiltered = allTokens.filter((t) => {
+      if (type === 'dest') return true;
+      const b = tokenBalances[t.key];
+      return !(b === null);
+    });
+    setAllTokensFiltered(allFiltered);
+  }, [tokenBalances, allTokens, type]);
 
   const tabs = [
     {
@@ -441,7 +456,7 @@ function TokensModal(props: Props) {
       label: 'All Tokens',
       panel: (
         <DisplayTokens
-          tokens={allTokens}
+          tokens={allTokensFiltered}
           balances={tokenBalances}
           walletAddress={walletAddress}
           network={network}
