@@ -65,8 +65,7 @@ export interface TransferInputState {
   foreignAsset: string;
   associatedTokenAddress: string;
   gasEst: {
-    manual: string;
-    automatic: string;
+    send: string;
     claim: string;
   };
   isTransactionInProgress: boolean;
@@ -103,8 +102,7 @@ const initialState: TransferInputState = {
   foreignAsset: '',
   associatedTokenAddress: '',
   gasEst: {
-    manual: '',
-    automatic: '',
+    send: '',
     claim: '',
   },
   isTransactionInProgress: false,
@@ -268,17 +266,11 @@ export const transferInputSlice = createSlice({
       state.route = payload;
     },
     // gas estimates
-    setManualGasEst: (
+    setSendingGasEst: (
       state: TransferInputState,
       { payload }: PayloadAction<string>,
     ) => {
-      state.gasEst.manual = payload;
-    },
-    setAutomaticGasEst: (
-      state: TransferInputState,
-      { payload }: PayloadAction<string>,
-    ) => {
-      state.gasEst.automatic = payload;
+      state.gasEst.send = payload;
     },
     setClaimGasEst: (
       state: TransferInputState,
@@ -373,8 +365,7 @@ export const {
   setForeignAsset,
   setAssociatedTokenAddress,
   setTransferRoute,
-  setManualGasEst,
-  setAutomaticGasEst,
+  setSendingGasEst,
   setClaimGasEst,
   clearTransfer,
   setIsTransactionInProgress,
