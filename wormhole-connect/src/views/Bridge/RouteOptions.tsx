@@ -274,7 +274,6 @@ function RouteOptions() {
     toChain,
     validate,
     validations,
-    route,
   ]);
 
   const onCollapseChange = (collapsed: boolean) => {

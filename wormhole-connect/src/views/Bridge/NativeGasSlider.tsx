@@ -100,10 +100,12 @@ function GasSlider(props: { disabled: boolean }) {
   const { token, toChain, amount, route, destToken } = useSelector(
     (state: RootState) => state.transferInput,
   );
-  const amountNum = useMemo(() => Number.parseFloat(amount), [amount]);
-  const { maxSwapAmt, relayerFee } = useSelector(
+  const { maxSwapAmt, relayerFee, toNativeToken } = useSelector(
     (state: RootState) => state.relay,
   );
+  const amountNum = useMemo(() => {
+    return Number.parseFloat(amount) - (toNativeToken || 0) - (relayerFee || 0);
+  }, [amount]);
   const { receiving: receivingWallet } = useSelector(
     (state: RootState) => state.wallet,
   );
@@ -134,7 +136,7 @@ function GasSlider(props: { disabled: boolean }) {
       maxSwapAmt &&
       Math.max(Math.min(maxSwapAmt, amountWithoutRelayerFee), 0);
 
-    const newTokenAmount = amountNum - state.swapAmt;
+    const newTokenAmount = amountNum - state.swapAmt - (relayerFee || 0);
 
     setState((prevState) => ({
       ...prevState,

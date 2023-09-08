@@ -84,6 +84,9 @@ function Preview(props: { collapsed: boolean }) {
   useEffect(() => {
     const computeRelayerFee = async () => {
       if (!token || !fromChain || !toChain || !route) return;
+      // don't bother if it's not an automatic route
+      const r = RouteOperator.getRoute(route);
+      if (!r.AUTOMATIC_DEPOSIT) return;
 
       try {
         const tokenConfig = token && TOKENS[token];
