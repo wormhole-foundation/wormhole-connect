@@ -47,7 +47,6 @@ function Confirmations(props: Props) {
   const [currentBlock, setCurrentBlock] = useState(0);
 
   const { route } = useSelector((state: RootState) => state.redeem);
-  console.log(`ROUTE: ${route}`);
 
   useEffect(() => {
     if (chainConfig.finalityThreshold === 0) {
