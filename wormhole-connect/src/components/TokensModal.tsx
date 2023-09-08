@@ -13,7 +13,7 @@ import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { BigNumber } from 'ethers';
 
 import { RootState } from 'store';
-import { CHAINS, TOKENS_ARR } from 'config';
+import { CHAINS } from 'config';
 import { TokenConfig } from 'config/types';
 import { setBalance, formatBalance, clearBalances } from 'store/transferInput';
 import { displayAddress } from 'utils';
@@ -274,16 +274,6 @@ function TokensModal(props: Props) {
     route,
   } = useSelector((state: RootState) => state.transferInput);
 
-  const allTokens = useMemo(() => {
-    const arr =
-      type === 'source'
-        ? TOKENS_ARR
-        : TOKENS_ARR.filter((t) => {
-            return !!t.tokenId;
-          });
-    return arr.filter((t) => !isCosmosNativeToken(t));
-  }, [type]);
-
   const supportedTokens = useMemo(() => {
     const supported =
       type === 'source' ? supportedSourceTokens : supportedDestTokens;
@@ -341,7 +331,7 @@ function TokensModal(props: Props) {
     if (!walletAddress || !chain) return;
     // fetch all N tokens and trigger a single update action
     const balancesArr = await Promise.all(
-      allTokens.map(async (t) => {
+      supportedTokens.map(async (t) => {
         let balance: BigNumber | null = null;
         try {
           if (t.tokenId) {
@@ -386,7 +376,7 @@ function TokensModal(props: Props) {
         balances,
       }),
     );
-  }, [walletAddress, chain, dispatch, type, allTokens, route]);
+  }, [walletAddress, chain, dispatch, type, supportedTokens, route]);
 
   // fetch token balances and set in store
   useEffect(() => {
@@ -453,7 +443,7 @@ function TokensModal(props: Props) {
       label: 'All Tokens',
       panel: (
         <DisplayTokens
-          tokens={allTokens}
+          tokens={supportedTokens}
           balances={tokenBalances}
           walletAddress={walletAddress}
           chain={chain}
