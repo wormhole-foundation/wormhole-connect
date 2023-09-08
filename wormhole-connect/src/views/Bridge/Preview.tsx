@@ -83,8 +83,9 @@ function Preview(props: { collapsed: boolean }) {
 
   useEffect(() => {
     const computeRelayerFee = async () => {
+      if (!token || !fromChain || !toChain || !route) return;
+
       try {
-        if (!token || !fromChain || !toChain || !route) return;
         const tokenConfig = token && TOKENS[token];
         if (!tokenConfig) return;
 
