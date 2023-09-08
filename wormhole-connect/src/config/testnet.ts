@@ -156,6 +156,28 @@ export const TESTNET_NETWORKS: NetworksConfig = {
     automaticRelayer: false,
     maxBlockSearch: 0,
   },
+  cosmoshub: {
+    ...chains.cosmoshub!,
+    displayName: 'Cosmoshub',
+    explorerUrl: 'https://testnet.mintscan.io/cosmoshub-testnet/',
+    explorerName: 'MintScan',
+    gasToken: 'ATOM',
+    chainId: 'theta-testnet-001',
+    icon: Icon.ATOM,
+    automaticRelayer: false,
+    maxBlockSearch: 0,
+  },
+  evmos: {
+    ...chains.evmos!,
+    displayName: 'Evmos',
+    explorerUrl: 'https://testnet.mintscan.io/evmos-testnet/',
+    explorerName: 'MintScan',
+    gasToken: 'EVMOS',
+    chainId: 'evmos_9000-4',
+    icon: Icon.EVMOS,
+    automaticRelayer: false,
+    maxBlockSearch: 0,
+  },
 };
 
 export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
@@ -563,6 +585,36 @@ export const TESTNET_TOKENS: { [key: string]: TokenConfig } = {
       default: 6,
     },
   },
+  ATOM: {
+    key: 'ATOM',
+    symbol: 'ATOM',
+    nativeNetwork: 'cosmoshub',
+    tokenId: {
+      chain: 'cosmoshub',
+      address: 'uatom',
+    },
+    icon: Icon.ATOM,
+    coinGeckoId: 'cosmos-hub',
+    color: '#6f7390',
+    decimals: {
+      default: 6,
+    },
+  },
+  EVMOS: {
+    key: 'EVMOS',
+    symbol: 'EVMOS',
+    nativeNetwork: 'evmos',
+    tokenId: {
+      chain: 'evmos',
+      address: 'atevmos',
+    },
+    icon: Icon.EVMOS,
+    coinGeckoId: 'evmos',
+    color: '#ed4e33',
+    decimals: {
+      default: 6,
+    },
+  },
   tBTC: {
     key: 'tBTC',
     symbol: 'tBTC',
@@ -699,6 +751,16 @@ export const TESTNET_GAS_ESTIMATES: GasEstimates = {
     claim: 0,
   },
   osmosis: {
+    sendNative: 0,
+    sendToken: 0,
+    claim: 0,
+  },
+  cosmoshub: {
+    sendNative: 0,
+    sendToken: 0,
+    claim: 0,
+  },
+  evmos: {
     sendNative: 0,
     sendToken: 0,
     claim: 0,

@@ -19,6 +19,8 @@ export const TESTNET_CHAINS = {
   sei: 32,
   wormchain: 3104,
   osmosis: 20,
+  cosmoshub: 4000,
+  evmos: 4001,
 } as const;
 
 /**
@@ -212,6 +214,28 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     finalityThreshold: 0,
     nativeTokenDecimals: 6,
   },
+  cosmoshub: {
+    key: 'cosmoshub',
+    id: 4000,
+    context: Context.COSMOS,
+    contracts: {
+      core: '',
+      token_bridge: '',
+    },
+    finalityThreshold: 0,
+    nativeTokenDecimals: 6,
+  },
+  evmos: {
+    key: 'evmos',
+    id: 4001,
+    context: Context.COSMOS,
+    contracts: {
+      core: '',
+      token_bridge: '',
+    },
+    finalityThreshold: 0,
+    nativeTokenDecimals: 6,
+  },
 };
 
 const env: Environment = 'TESTNET';
@@ -235,6 +259,8 @@ const TESTNET_CONFIG: WormholeConfig = {
     sei: 'https://rpc.atlantic-2.seinetwork.io',
     wormchain: '',
     osmosis: 'https://rpc.osmotest5.osmosis.zone',
+    cosmoshub: 'https://rpc.sentry-02.theta-testnet.polypore.xyz',
+    evmos: 'https://evmos-testnet-rpc.polkachu.com',
   },
   rest: {
     sei: 'https://rest.atlantic-2.seinetwork.io',

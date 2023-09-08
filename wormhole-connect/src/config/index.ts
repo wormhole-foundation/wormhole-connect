@@ -99,6 +99,8 @@ const mainnetRpcs = {
   base: process.env.REACT_APP_BASE_RPC || conf.rpcs.base,
   osmosis: process.env.REACT_APP_OSMOSIS_RPC || conf.rpcs.osmosis,
   wormchain: process.env.REACT_APP_WORMCHAIN_RPC || conf.rpcs.wormchain,
+  cosmoshub: process.env.REACT_APP_COSMOSHUB_RPC || conf.rpcs.cosmoshub,
+  evmos: process.env.REACT_APP_EVMOS_RPC || conf.rpcs.evmos,
 };
 const testnetRpcs = {
   goerli: process.env.REACT_APP_GOERLI_RPC || conf.rpcs.goerli,
@@ -115,6 +117,8 @@ const testnetRpcs = {
   basegoerli: process.env.REACT_APP_BASE_GOERLI_RPC || conf.rpcs.basegoerli,
   osmosis: process.env.REACT_APP_OSMOSIS_TESTNET_RPC || conf.rpcs.osmosis,
   wormchain: process.env.REACT_APP_WORMCHAIN_TESTNET_RPC || conf.rpcs.wormchain,
+  cosmoshub: process.env.REACT_APP_COSMOSHUB_TESTNET_RPC || conf.rpcs.cosmoshub,
+  evmos: process.env.REACT_APP_EVMOS_TESTNET_RPC || conf.rpcs.evmos,
 };
 const devnetRpcs = {
   ethereum: process.env.REACT_APP_ETHEREUM_DEVNET_RPC || conf.rpcs.ethereum,
@@ -180,4 +184,6 @@ export const TESTNET_TO_MAINNET_CHAIN_NAMES: {
   sei: 'sei',
   wormchain: 'wormchain',
   osmosis: 'osmosis',
+  cosmoshub: 'cosmoshub',
+  evmos: 'evmos',
 };

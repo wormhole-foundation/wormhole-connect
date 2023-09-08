@@ -17,6 +17,7 @@
     "prepare": "husky install"
   },
   "dependencies": {
+    "@certusone/wormhole-sdk": "file:.yalc/@certusone/wormhole-sdk",
     "tss-react": "^4.7.7"
   },
   "devDependencies": {

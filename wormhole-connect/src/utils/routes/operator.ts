@@ -11,7 +11,7 @@ import { BridgeRoute } from './bridge';
 import { RelayRoute } from './relay';
 import { HashflowRoute } from './hashflow';
 import { CCTPRelayRoute } from './cctpRelay';
-import { CosmosGatewayRoute } from './cosmosGateway';
+import { CosmosGatewayRoute } from './cosmos/cosmosGateway';
 import { ParsedMessage, PayloadType, getMessage, wh } from '../sdk';
 import { isCosmWasmChain } from '../cosmos';
 import RouteAbstract from './routeAbstract';

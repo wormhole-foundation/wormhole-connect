@@ -146,6 +146,28 @@ export const MAINNET_NETWORKS: NetworksConfig = {
     automaticRelayer: false,
     maxBlockSearch: 0,
   },
+  // cosmoshub: {
+  //   ...chains.cosmoshub!,
+  //   displayName: 'Cosmos Hub',
+  //   explorerUrl: 'https://www.mintscan.io/cosmos',
+  //   explorerName: 'MintScan',
+  //   gasToken: 'ATOM',
+  //   chainId: 'cosmoshub-4',
+  //   icon: Icon.ATOM,
+  //   automaticRelayer: false,
+  //   maxBlockSearch: 0,
+  // },
+  evmos: {
+    ...chains.evmos!,
+    displayName: 'Evmos',
+    explorerUrl: 'https://www.mintscan.io/evmos/',
+    explorerName: 'MintScan',
+    gasToken: 'EVMOS',
+    chainId: 'evmos_9001-2',
+    icon: Icon.EVMOS,
+    automaticRelayer: false,
+    maxBlockSearch: 0,
+  },
 };
 
 export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
@@ -632,6 +654,36 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
       default: 5,
     },
   },
+  // ATOM: {
+  //   key: 'ATOM',
+  //   symbol: 'ATOM',
+  //   nativeNetwork: 'cosmoshub',
+  //   tokenId: {
+  //     chain: 'cosmoshub',
+  //     address: 'uatom',
+  //   },
+  //   icon: Icon.ATOM,
+  //   coinGeckoId: 'cosmos-hub',
+  //   color: '#6f7390',
+  //   decimals: {
+  //     default: 6,
+  //   },
+  // },
+  EVMOS: {
+    key: 'EVMOS',
+    symbol: 'EVMOS',
+    nativeNetwork: 'evmos',
+    tokenId: {
+      chain: 'evmos',
+      address: 'atevmos',
+    },
+    icon: Icon.EVMOS,
+    coinGeckoId: 'evmos',
+    color: '#ed4e33',
+    decimals: {
+      default: 6,
+    },
+  },
 };
 
 export const MAINNET_GAS_ESTIMATES: GasEstimates = {
@@ -721,6 +773,16 @@ export const MAINNET_GAS_ESTIMATES: GasEstimates = {
     claim: 0,
   },
   osmosis: {
+    sendNative: 0,
+    sendToken: 0,
+    claim: 0,
+  },
+  // cosmoshub: {
+  //   sendNative: 0,
+  //   sendToken: 0,
+  //   claim: 0,
+  // },
+  evmos: {
     sendNative: 0,
     sendToken: 0,
     claim: 0,

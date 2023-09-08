@@ -19,6 +19,8 @@ export const MAINNET_CHAINS = {
   sei: 32,
   wormchain: 3104,
   osmosis: 20,
+  cosmoshub: 4000,
+  evmos: 4001,
 } as const;
 
 /**
@@ -205,6 +207,22 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     finalityThreshold: 0,
     nativeTokenDecimals: 6,
   },
+  cosmoshub: {
+    key: 'cosmoshub',
+    id: 4000,
+    context: Context.COSMOS,
+    contracts: {},
+    finalityThreshold: 0,
+    nativeTokenDecimals: 6,
+  },
+  evmos: {
+    key: 'evmos',
+    id: 4001,
+    context: Context.COSMOS,
+    contracts: {},
+    finalityThreshold: 0,
+    nativeTokenDecimals: 6,
+  },
 };
 
 const env: Environment = 'MAINNET';
@@ -228,6 +246,8 @@ const MAINNET_CONFIG: WormholeConfig = {
     sei: '', // TODO: fill in
     wormchain: '',
     osmosis: 'https://osmosis-rpc.polkachu.com',
+    cosmoshub: 'https://cosmos-rpc.polkachu.com',
+    evmos: 'https://evmos-rpc.polkachu.com',
   },
   rest: {
     sei: '',
