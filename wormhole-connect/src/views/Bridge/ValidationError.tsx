@@ -54,6 +54,7 @@ function ValidationError(props: Props) {
   };
 
   if (
+    route &&
     validationErrors[0] &&
     validationErrors[0].includes('Minimum amount is')
   ) {

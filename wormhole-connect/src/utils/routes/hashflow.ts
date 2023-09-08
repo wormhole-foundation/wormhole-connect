@@ -108,20 +108,7 @@ export class HashflowRoute extends RouteAbstract {
   ): Promise<string> {
     throw new Error('Method not implemented.');
   }
-  public getPreview<P>(params: P): Promise<TransferDisplayData> {
-    throw new Error('Method not implemented.');
-  }
-  getNativeBalance(
-    address: string,
-    chain: ChainName | ChainId,
-  ): Promise<BigNumber | null> {
-    throw new Error('Method not implemented.');
-  }
-  getTokenBalance(
-    address: string,
-    tokenId: TokenId,
-    chain: ChainName | ChainId,
-  ): Promise<BigNumber | null> {
+  getPreview<P>(params: P): Promise<TransferDisplayData> {
     throw new Error('Method not implemented.');
   }
   async getRelayerFee(

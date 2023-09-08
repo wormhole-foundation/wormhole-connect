@@ -21,7 +21,6 @@ import { wh, toChainId } from 'utils/sdk';
 import { joinClass } from 'utils/style';
 import { toDecimals } from 'utils/balance';
 import { isTransferValid, validate } from 'utils/transferValidation';
-import { isCosmWasmChain } from 'utils/cosmos';
 import RouteOperator from 'utils/routes/operator';
 
 import GasSlider from './NativeGasSlider';
@@ -80,6 +79,7 @@ function Bridge() {
     associatedTokenAddress,
     isTransactionInProgress,
     amount,
+    availableRoutes,
   }: TransferInputState = useSelector(
     (state: RootState) => state.transferInput,
   );
@@ -163,64 +163,38 @@ function Bridge() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [route, token, fromChain, toChain, dispatch]);
 
-  // check if automatic relay option is available
   useEffect(() => {
     const establishRoute = async () => {
-      if (fromChain && isCosmWasmChain(wh.toChainId(fromChain))) {
-        dispatch(setTransferRoute(Route.CosmosGateway));
+      if (!showValidationState || !availableRoutes) {
+        dispatch(setTransferRoute(undefined));
         return;
       }
-
-      if (toChain && isCosmWasmChain(wh.toChainId(toChain))) {
-        dispatch(setTransferRoute(Route.CosmosGateway));
-        return;
-      }
-
-      if (!fromChain || !toChain || !token || !destToken) return;
-      const cctpAvailable = await RouteOperator.isRouteAvailable(
+      const routeOrderOfPreference = [
+        Route.CosmosGateway,
         Route.CCTPRelay,
-        token,
-        destToken,
-        amount,
-        fromChain,
-        toChain,
-      );
-      if (cctpAvailable) {
-        dispatch(setTransferRoute(Route.CCTPRelay));
-        return;
-      }
-
-      const cctpManualAvailable = await RouteOperator.isRouteAvailable(
         Route.CCTPManual,
-        token,
-        destToken,
-        amount,
-        fromChain,
-        toChain,
-      );
-      if (cctpManualAvailable) {
-        dispatch(setTransferRoute(Route.CCTPManual));
-        return;
-      }
-
-      const relayAvailable = await RouteOperator.isRouteAvailable(
         Route.Relay,
-        token,
-        destToken,
-        amount,
-        fromChain,
-        toChain,
-      );
-      if (relayAvailable) {
-        dispatch(setTransferRoute(Route.Relay));
-        return;
-      } else {
-        dispatch(setTransferRoute(Route.Bridge));
-        return;
+        Route.Bridge,
+      ];
+      for (const r of routeOrderOfPreference) {
+        if (availableRoutes.includes(r)) {
+          dispatch(setTransferRoute(r));
+          return;
+        }
       }
+      dispatch(setTransferRoute(undefined));
     };
     establishRoute();
-  }, [fromChain, toChain, token, destToken, amount, dispatch]);
+  }, [
+    showValidationState,
+    availableRoutes,
+    fromChain,
+    toChain,
+    token,
+    destToken,
+    amount,
+    dispatch,
+  ]);
 
   useEffect(() => {
     const recomputeReceive = async () => {

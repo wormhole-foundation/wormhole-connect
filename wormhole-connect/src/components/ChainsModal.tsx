@@ -5,7 +5,7 @@ import {
   ChainConfig,
   ChainName,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { CHAINS_ARR, CHAINS, ROUTES } from '../config';
+import { CHAINS_ARR, CHAINS } from '../config';
 import { CENTER, joinClass } from '../utils/style';
 
 import Header from './Header';
@@ -85,7 +85,7 @@ function ChainsModal(props: Props) {
     return chains.filter((chain) => {
       return supported.includes(chain.key);
     });
-  }, [ROUTES, chains]);
+  }, [chains]);
 
   const searchChains = (
     e:

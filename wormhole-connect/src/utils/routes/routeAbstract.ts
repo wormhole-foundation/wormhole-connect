@@ -134,17 +134,6 @@ export default abstract class RouteAbstract {
   ): Promise<TransferDisplayData>;
 
   // send, validate, estimate gas, isRouteAvailable, parse data from VAA/fetch data, claim
-
-  abstract getNativeBalance(
-    address: string,
-    chain: ChainName | ChainId,
-  ): Promise<BigNumber | null>;
-  abstract getTokenBalance(
-    address: string,
-    tokenId: TokenId,
-    chain: ChainName | ChainId,
-  ): Promise<BigNumber | null>;
-
   abstract getRelayerFee(
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,

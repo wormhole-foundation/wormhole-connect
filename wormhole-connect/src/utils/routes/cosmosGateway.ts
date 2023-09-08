@@ -419,27 +419,6 @@ export class CosmosGatewayRoute extends BaseRoute {
     ];
   }
 
-  async getNativeBalance(
-    address: string,
-    chain: ChainName | ChainId,
-  ): Promise<BigNumber | null> {
-    return wh.getNativeBalance(address, chain);
-  }
-
-  async getTokenBalance(
-    address: string,
-    tokenId: TokenId,
-    chain: ChainName | ChainId,
-  ): Promise<BigNumber | null> {
-    if (isCosmWasmChain(wh.toChainId(chain))) {
-      const denom = await this.getForeignAsset(tokenId, chain);
-      if (!denom) return null;
-      return wh.getNativeBalance(address, chain, denom);
-    }
-
-    return wh.getTokenBalance(address, tokenId, chain);
-  }
-
   private isNativeDenom(denom: string, chain: ChainName | ChainId): boolean {
     const chainId = wh.toChainId(chain);
     switch (chainId) {

@@ -399,25 +399,6 @@ export class Operator {
     );
   }
 
-  async getNativeBalance(
-    route: Route,
-    address: string,
-    chain: ChainName | ChainId,
-  ): Promise<BigNumber | null> {
-    const r = this.getRoute(route);
-    return r.getNativeBalance(address, chain);
-  }
-
-  async getTokenBalance(
-    route: Route,
-    address: string,
-    tokenId: TokenId,
-    chain: ChainName | ChainId,
-  ): Promise<BigNumber | null> {
-    const r = this.getRoute(route);
-    return r.getTokenBalance(address, tokenId, chain);
-  }
-
   async getRelayerFee(
     route: Route,
     sourceChain: ChainName | ChainId,
