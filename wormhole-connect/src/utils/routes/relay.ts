@@ -307,18 +307,24 @@ export class RelayRoute extends BridgeRoute {
     const receipientChainName = wh.toChainName(receipientChain);
     const sourceGasToken = CHAINS[sendingChainName]?.gasToken;
     const destinationGasToken = CHAINS[receipientChainName]?.gasToken;
+    const sourceGasTokenSymbol = sourceGasToken
+      ? TOKENS[sourceGasToken].symbol
+      : '';
+    const destinationGasTokenSymbol = destinationGasToken
+      ? TOKENS[destinationGasToken].symbol
+      : '';
     const { relayerFee, receiveNativeAmt } = routeOptions;
     const isNative = token.symbol === sourceGasToken;
 
     let totalFeesText = '';
-    if (sendingGasEst && relayerFee) {
+    if (sendingGasEst && relayerFee !== undefined) {
       const fee = toFixedDecimals(
         `${relayerFee + (isNative ? Number.parseFloat(sendingGasEst) : 0)}`,
         6,
       );
       totalFeesText = isNative
         ? `${fee} ${token.symbol}`
-        : `${sendingGasEst} ${sourceGasToken} & ${fee} ${token.symbol}`;
+        : `${sendingGasEst} ${sourceGasTokenSymbol} & ${fee} ${token.symbol}`;
     }
 
     const receiveAmt = await this.computeReceiveAmount(amount, routeOptions);
@@ -331,8 +337,8 @@ export class RelayRoute extends BridgeRoute {
       {
         title: 'Native gas on destination',
         value:
-          receiveNativeAmt > 0
-            ? `${receiveNativeAmt} ${destinationGasToken}`
+          receiveNativeAmt !== undefined
+            ? `${receiveNativeAmt} ${destinationGasTokenSymbol}`
             : NO_INPUT,
       },
       {
@@ -342,12 +348,15 @@ export class RelayRoute extends BridgeRoute {
           {
             title: 'Source chain gas estimate',
             value: sendingGasEst
-              ? `~ ${sendingGasEst} ${sourceGasToken}`
+              ? `~ ${sendingGasEst} ${sourceGasTokenSymbol}`
               : NO_INPUT,
           },
           {
             title: 'Relayer fee',
-            value: relayerFee ? `${relayerFee} ${token.symbol}` : NO_INPUT,
+            value:
+              relayerFee !== undefined
+                ? `${relayerFee} ${token.symbol}`
+                : NO_INPUT,
           },
         ],
       },

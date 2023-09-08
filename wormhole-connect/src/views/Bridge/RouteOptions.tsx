@@ -12,7 +12,9 @@ import { isTransferValid } from '../../utils/transferValidation';
 import { toFixedDecimals } from '../../utils/balance';
 import { TOKENS } from '../../config';
 import { ROUTES, RouteData } from '../../config/routes';
-
+import { getTokenDecimals } from '../../utils';
+import { toDecimals } from '../../utils/balance';
+import { toChainId } from '../../utils/sdk';
 import BridgeCollapse, { CollapseControlStyle } from './Collapse';
 import TokenIcon from '../../icons/TokenIcons';
 import ArrowRightIcon from '../../icons/ArrowRight';
@@ -140,30 +142,48 @@ function Tag(props: TagProps) {
   );
 }
 
-function RouteOption(props: { route: RouteData }) {
+function RouteOption(props: { route: RouteData; active: boolean }) {
   const { classes } = useStyles();
   const theme = useTheme();
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const { token, destToken, amount, toNetwork } = useSelector(
+  const { token, destToken, amount, fromNetwork, toNetwork } = useSelector(
     (state: RootState) => state.transferInput,
   );
-  const { toNativeToken, relayerFee } = useSelector(
-    (state: RootState) => state.relay,
-  );
+  const { toNativeToken } = useSelector((state: RootState) => state.relay);
   const [receiveAmt, setReceiveAmt] = useState<number | undefined>(undefined);
-
+  const [relayerFee, setRelayerFee] = useState<number>(0);
+  useEffect(() => {
+    async function getFee() {
+      if (!fromNetwork || !toNetwork) return;
+      try {
+        const fee = await new Operator().getRelayerFee(
+          props.route.route,
+          fromNetwork,
+          toNetwork,
+          token,
+        );
+        const decimals = getTokenDecimals(
+          toChainId(fromNetwork),
+          TOKENS[token].tokenId || 'native',
+        );
+        const formattedFee = Number.parseFloat(toDecimals(fee, decimals, 6));
+        setRelayerFee(formattedFee);
+      } catch {}
+    }
+    getFee();
+  }, [fromNetwork, toNetwork, token, props.route.route]);
   useEffect(() => {
     async function load() {
       const operator = new Operator();
       const receiveAmt = await operator.computeReceiveAmount(
         props.route.route,
         Number.parseFloat(amount),
-        { toNativeToken, relayerFee },
+        { toNativeToken: props.active ? toNativeToken : 0, relayerFee },
       );
       setReceiveAmt(Number.parseFloat(toFixedDecimals(`${receiveAmt}`, 6)));
     }
     load();
-  }, [props.route, amount, toNativeToken, relayerFee]);
+  }, [props.route, amount, toNativeToken, relayerFee, props.active]);
   const fromTokenConfig = TOKENS[token];
   const fromTokenIcon = fromTokenConfig && (
     <TokenIcon name={fromTokenConfig.icon} height={20} />
@@ -291,10 +311,12 @@ function RouteOptions() {
           collapsable
           collapsed={collapsed}
         >
-          {availableRoutes.map((route) => {
+          {availableRoutes.map((route_) => {
             return {
-              key: route,
-              child: <RouteOption route={ROUTES[route]} />,
+              key: route_,
+              child: (
+                <RouteOption route={ROUTES[route_]} active={route_ === route} />
+              ),
             };
           })}
         </Options>
