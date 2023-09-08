@@ -1,12 +1,12 @@
 import React, { useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { RootState } from '../../../store';
-import { validate } from '../../../utils/transferValidation';
-import { toFixedDecimals } from '../../../utils/balance';
-import { NO_INPUT } from '../../../utils/style';
+import { RootState } from 'store';
+import { validate } from 'utils/transferValidation';
+import { toFixedDecimals } from 'utils/balance';
+import { NO_INPUT } from 'utils/style';
 
-import InputTransparent from '../../../components/InputTransparent';
+import InputTransparent from 'components/InputTransparent';
 import Input from './Input';
 
 type Props = {
@@ -31,21 +31,8 @@ function AmountInput(props: Props) {
   ) {
     let value = e!.target.value;
     const index = value.indexOf('.');
-    switch (true) {
-      case index === 0: {
-        value = '0.';
-        break;
-      }
-      case Number.isInteger(Number.parseFloat(value)): {
-        break;
-      }
-      case index >= 0 && index < value.length - 1: {
-        value = toFixedDecimals(value, 8);
-        break;
-      }
-      default: {
-        break;
-      }
+    if (index > 0 && value.length - index - 8 > 0) {
+      value = toFixedDecimals(value, 8);
     }
 
     props.handleAmountChange(value);
