@@ -10,6 +10,7 @@ export type RouteData = {
   providedBy: string;
   link: string;
   icon: () => JSX.Element;
+  pendingMessage: string;
 };
 
 export const ROUTES: {
@@ -21,6 +22,7 @@ export const ROUTES: {
     providedBy: 'Wormhole',
     link: 'https://wormhole.com/',
     icon: WormholeIcon,
+    pendingMessage: 'Waiting for Wormhole network consensus . . .',
   },
   [Route.RELAY]: {
     route: Route.RELAY,
@@ -28,6 +30,7 @@ export const ROUTES: {
     providedBy: 'xLabs',
     link: 'https://xlabs.xyz',
     icon: XLabsIcon,
+    pendingMessage: 'Waiting for Wormhole network consensus . . .',
   },
   [Route.HASHFLOW]: {
     route: Route.HASHFLOW,
@@ -35,6 +38,7 @@ export const ROUTES: {
     providedBy: 'Hashflow',
     link: 'https://www.hashflow.com/',
     icon: HashflowIcon,
+    pendingMessage: 'Waiting for Wormhole network consensus . . .',
   },
   [Route.CCTPManual]: {
     route: Route.CCTPManual,
@@ -42,6 +46,7 @@ export const ROUTES: {
     providedBy: 'Circle',
     link: 'https://www.circle.com/en/cross-chain-transfer-protocol',
     icon: CCTPIcon,
+    pendingMessage: 'Waiting for Circle attestation . . .',
   },
   [Route.CCTPRelay]: {
     route: Route.CCTPRelay,
@@ -49,6 +54,7 @@ export const ROUTES: {
     providedBy: 'Circle',
     link: 'https://www.circle.com/en/cross-chain-transfer-protocol',
     icon: CCTPIcon,
+    pendingMessage: 'Waiting for Circle attestation . . .',
   },
   [Route.COSMOS_GATEWAY]: {
     route: Route.COSMOS_GATEWAY,
@@ -56,5 +62,6 @@ export const ROUTES: {
     providedBy: 'Wormhole',
     link: 'https://wormhole.com/',
     icon: WormholeIcon,
+    pendingMessage: 'Waiting for Wormhole network consensus . . .',
   },
 };

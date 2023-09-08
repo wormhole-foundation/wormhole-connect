@@ -20,7 +20,6 @@ import TokenIcon from '../../icons/TokenIcons';
 import ArrowRightIcon from '../../icons/ArrowRight';
 import Options from '../../components/Options';
 import { isCosmWasmChain } from '../../utils/cosmos';
-import { BigNumber } from 'ethers';
 
 const useStyles = makeStyles()((theme: any) => ({
   link: {

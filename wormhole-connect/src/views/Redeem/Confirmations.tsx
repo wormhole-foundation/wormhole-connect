@@ -2,10 +2,13 @@ import { LinearProgress, linearProgressClasses } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 
 import { CHAINS } from '../../config';
 import { getCurrentBlock } from '../../utils/sdk';
+import { ROUTES } from '../../config/routes';
+import { RootState } from '../../store';
 
 const BorderLinearProgress = styled(LinearProgress)(({ theme }: any) => ({
   borderRadius: 5,
@@ -42,6 +45,9 @@ function Confirmations(props: Props) {
   const chainConfig = CHAINS[chain]!;
   const requiredHeight = blockHeight + chainConfig.finalityThreshold;
   const [currentBlock, setCurrentBlock] = useState(0);
+
+  const { route } = useSelector((state: RootState) => state.redeem);
+  console.log(`ROUTE: ${route}`);
 
   useEffect(() => {
     if (chainConfig.finalityThreshold === 0) {
@@ -84,7 +90,7 @@ function Confirmations(props: Props) {
             {confirmations} / {chainConfig.finalityThreshold} Confirmations
           </>
         ) : (
-          'Waiting for Wormhole Network consensus . . .'
+          ROUTES[route].pendingMessage
         )}
       </div>
     </div>
