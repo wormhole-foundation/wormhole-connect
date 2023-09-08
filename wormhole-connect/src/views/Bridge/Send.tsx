@@ -88,7 +88,7 @@ function Send(props: { valid: boolean }) {
     setSendError('');
     await validate(dispatch);
     const valid = isTransferValid(validations);
-    if (!valid) return;
+    if (!valid || !route) return;
     dispatch(setIsTransactionInProgress(true));
 
     try {
@@ -145,7 +145,7 @@ function Send(props: { valid: boolean }) {
 
   const setSendingGas = useCallback(async () => {
     const tokenConfig = TOKENS[token]!;
-    if (!tokenConfig) return;
+    if (!route || !tokenConfig) return;
     const sendToken = tokenConfig.tokenId;
 
     const gasFee = await estimateSendGas(
@@ -173,9 +173,9 @@ function Send(props: { valid: boolean }) {
   ]);
 
   const setDestGas = useCallback(async () => {
-    if (!toChain) return;
+    if (!route || !toChain) return;
     // don't have vaa yet, so set that to undefined and it will get the fallback estimate
-    const gasFee = await estimateClaimGas(route, toChain!, undefined);
+    const gasFee = await estimateClaimGas(route, toChain, undefined);
     dispatch(setClaimGasEst(gasFee));
   }, [toChain, route, dispatch]);
 
@@ -206,6 +206,7 @@ function Send(props: { valid: boolean }) {
   }, [sending]);
 
   const showWarning = useMemo(() => {
+    if (!route) return false;
     const r = RouteOperator.getRoute(route);
     return !(r.AUTOMATIC_DEPOSIT || (toChain && isCosmWasmChain(toChain)));
   }, [route, toChain]);

@@ -7,10 +7,11 @@ import {
   setAssociatedTokenAddress,
   setForeignAsset,
 } from 'store/transferInput';
+import { ATTEST_URL, TOKENS } from 'config';
+import { Route } from 'config/types';
 import { getWrappedTokenId } from 'utils';
 import { TransferWallet, signSolanaTransaction } from 'utils/wallet';
 import { joinClass } from 'utils/style';
-import { ATTEST_URL, TOKENS } from 'config';
 import { solanaContext } from 'utils/sdk';
 import RouteOperator from 'utils/routes/operator';
 
@@ -115,11 +116,9 @@ function TokenWarnings() {
         throw new Error('Could not retrieve target token info');
       }
 
-      const address = await RouteOperator.getForeignAsset(
-        route,
-        tokenId,
-        toChain,
-      );
+      // TODO:
+      const r = route || Route.Bridge;
+      const address = await RouteOperator.getForeignAsset(r, tokenId, toChain);
       if (address) {
         dispatch(setForeignAsset(address));
         setShowErrors(false);

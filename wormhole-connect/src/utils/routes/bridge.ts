@@ -245,21 +245,6 @@ export class BridgeRoute extends BaseRoute {
     ];
   }
 
-  getNativeBalance(
-    address: string,
-    chain: ChainName | ChainId,
-  ): Promise<BigNumber | null> {
-    return wh.getNativeBalance(address, chain);
-  }
-
-  getTokenBalance(
-    address: string,
-    tokenId: TokenId,
-    chain: ChainName | ChainId,
-  ): Promise<BigNumber | null> {
-    return wh.getTokenBalance(address, tokenId, chain);
-  }
-
   async getRelayerFee(
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,

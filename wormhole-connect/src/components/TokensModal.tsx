@@ -17,9 +17,9 @@ import { CHAINS, TOKENS_ARR } from 'config';
 import { TokenConfig } from 'config/types';
 import { setBalance, formatBalance, clearBalances } from 'store/transferInput';
 import { displayAddress } from 'utils';
+import { wh } from 'utils/sdk';
 import { CENTER, NO_INPUT } from 'utils/style';
 import { isCosmWasmChain } from 'utils/cosmos';
-import RouteOperator from 'utils/routes/operator';
 
 import Header from './Header';
 import Modal from './Modal';
@@ -29,6 +29,7 @@ import Scroll from './Scroll';
 import TokenIcon from '../icons/TokenIcons';
 import CircularProgress from '@mui/material/CircularProgress';
 import Tabs from './Tabs';
+import { CosmosGatewayRoute } from 'utils/routes';
 
 const useStyles = makeStyles()((theme: any) => ({
   tokensContainer: {
@@ -337,20 +338,36 @@ function TokensModal(props: Props) {
   }, [chain, walletAddress]);
 
   const getBalances = useCallback(async () => {
-    if (!walletAddress || !chain || !route) return;
+    if (!walletAddress || !chain) return;
     // fetch all N tokens and trigger a single update action
     const balancesArr = await Promise.all(
       allTokens.map(async (t) => {
         let balance: BigNumber | null = null;
         try {
-          balance = t.tokenId
-            ? await RouteOperator.getTokenBalance(
-                route,
+          if (t.tokenId) {
+            // TODO: going to do some refactoring of gateway/cosmos contexts
+            if (isCosmWasmChain(wh.toChainId(chain))) {
+              const denom = await new CosmosGatewayRoute().getForeignAsset(
+                t.tokenId,
+                chain,
+              );
+              if (denom) {
+                balance = await wh.getNativeBalance(
+                  walletAddress,
+                  chain,
+                  denom,
+                );
+              }
+            } else {
+              balance = await wh.getTokenBalance(
                 walletAddress,
                 t.tokenId,
                 chain,
-              )
-            : await RouteOperator.getNativeBalance(route, walletAddress, chain);
+              );
+            }
+          } else {
+            balance = await wh.getNativeBalance(walletAddress, chain);
+          }
         } catch (e) {
           console.warn('Failed to fetch balance', e);
         }

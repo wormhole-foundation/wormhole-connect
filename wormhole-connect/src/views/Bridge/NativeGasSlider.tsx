@@ -289,7 +289,7 @@ function GasSlider(props: { disabled: boolean }) {
     route,
   ]);
 
-  const banner = !props.disabled && (
+  const banner = !props.disabled && !!route && (
     <Banner text="This feature provided by" route={RoutesConfig[route]} />
   );
 

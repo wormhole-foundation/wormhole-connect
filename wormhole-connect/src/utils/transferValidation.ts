@@ -89,7 +89,6 @@ export const validateDestToken = (
 export const validateAmount = (
   amount: string,
   balance: string | null,
-  route: Route,
   minAmt: number | undefined,
 ): ValidationErr => {
   const numAmount = Number.parseFloat(amount);
@@ -138,10 +137,10 @@ export const validateToNativeAmt = (
 };
 
 export const validateRoute = (
-  route: Route,
+  route: Route | undefined,
   availableRoutes: string[],
 ): ValidationErr => {
-  if (!availableRoutes || !availableRoutes.includes(route)) {
+  if (!route || !availableRoutes || !availableRoutes.includes(route)) {
     return 'No bridge or swap route available for selected tokens';
   }
   return '';
@@ -169,6 +168,18 @@ export const validateSolanaTokenAccount = (
   return '';
 };
 
+export const getMinAmt = (route: Route | undefined, relayData: any): number => {
+  if (!route) return 0;
+  const r = RouteOperator.getRoute(route);
+  return r.getMinSendAmount(relayData);
+};
+
+export const getIsAutomatic = (route: Route | undefined): boolean => {
+  if (!route) return false;
+  const r = RouteOperator.getRoute(route);
+  return r.AUTOMATIC_DEPOSIT;
+};
+
 export const validateAll = async (
   transferData: TransferInputState,
   relayData: RelayState,
@@ -188,10 +199,9 @@ export const validateAll = async (
   } = transferData;
   const { maxSwapAmt, toNativeToken } = relayData;
   const { sending, receiving } = walletData;
-  if (!route) throw new Error('no route selected');
-  const r = RouteOperator.getRoute(route);
-  const isAutomatic = r.AUTOMATIC_DEPOSIT;
-  const minAmt = r.getMinSendAmount(relayData);
+  const isAutomatic = getIsAutomatic(route);
+  const minAmt = getMinAmt(route, relayData);
+
   const baseValidations = {
     sendingWallet: await validateWallet(sending, fromChain),
     receivingWallet: await validateWallet(receiving, toChain),
@@ -199,7 +209,7 @@ export const validateAll = async (
     toChain: validateToChain(toChain, fromChain),
     token: validateToken(token, fromChain),
     destToken: validateDestToken(destToken, toChain),
-    amount: validateAmount(amount, balances[token], route, minAmt),
+    amount: validateAmount(amount, balances[token], minAmt),
     route: validateRoute(route, availableRoutes),
     toNativeToken: '',
     foreignAsset: validateForeignAsset(foreignAsset),
@@ -212,7 +222,7 @@ export const validateAll = async (
   if (!isAutomatic) return baseValidations;
   return {
     ...baseValidations,
-    amount: validateAmount(amount, balances[token], route, minAmt),
+    amount: validateAmount(amount, balances[token], minAmt),
     toNativeToken: validateToNativeAmt(toNativeToken, maxSwapAmt),
   };
 };

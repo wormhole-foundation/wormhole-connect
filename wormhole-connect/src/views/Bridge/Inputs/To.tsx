@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 
@@ -78,23 +78,34 @@ function ToInputs() {
     />
   );
 
-  const handleAmountChange = useCallback(
-    async (value: number | string) => {
-      if (typeof value === 'number') {
-        dispatch(setReceiveAmount(`${value}`));
-      } else {
-        dispatch(setReceiveAmount(value));
-      }
-      const number =
-        typeof value === 'number' ? value : Number.parseFloat(value);
-      dispatch(setReceiveAmount(`${number}`));
-      const sendAmount = await RouteOperator.computeSendAmount(route, number, {
-        toNativeToken,
-      });
-      dispatch(setAmount(`${sendAmount}`));
-    },
-    [route, toNativeToken, dispatch],
-  );
+  const computeSendAmount = async (value: number | string) => {
+    if (typeof value === 'number') {
+      dispatch(setReceiveAmount(`${value}`));
+    } else {
+      dispatch(setReceiveAmount(value));
+    }
+    const number = typeof value === 'number' ? value : Number.parseFloat(value);
+    dispatch(setReceiveAmount(`${number}`));
+    if (!route) {
+      dispatch(setReceiveAmount(`${value}`));
+      return;
+    }
+    const sendAmount = await RouteOperator.computeSendAmount(route, number, {
+      toNativeToken,
+    });
+    dispatch(setAmount(`${sendAmount}`));
+  };
+
+  const handleAmountChange = useCallback(computeSendAmount, [
+    route,
+    toNativeToken,
+    dispatch,
+  ]);
+  // if route changes, re-calculate the amount
+  useEffect(() => {
+    if (!route) return;
+    computeSendAmount(receiveAmount);
+  }, [route, receiveAmount]);
   const amountInput = (
     <AmountInput
       handleAmountChange={handleAmountChange}

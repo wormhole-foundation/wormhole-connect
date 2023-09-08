@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { BigNumber } from 'ethers';
-import { ROUTES, TOKENS, config } from 'config';
+import { TOKENS, config } from 'config';
 import { Route, TokenConfig } from 'config/types';
 import { getTokenDecimals } from 'utils';
 import { toDecimals } from 'utils/balance';
@@ -48,7 +48,7 @@ export interface TransferInputState {
   destToken: string;
   amount: string;
   receiveAmount: string;
-  route: Route;
+  route: Route | undefined;
   sourceBalances: Balances;
   destBalances: Balances;
   foreignAsset: string;
@@ -78,14 +78,14 @@ const initialState: TransferInputState = {
     foreignAsset: '',
     associatedTokenAccount: '',
   },
-  availableRoutes: ROUTES,
+  availableRoutes: [],
   fromChain: config?.bridgeDefaults?.fromNetwork || undefined,
   toChain: config?.bridgeDefaults?.toNetwork || undefined,
   token: config?.bridgeDefaults?.token || '',
   destToken: '',
   amount: '',
   receiveAmount: '',
-  route: ROUTES[0] as Route,
+  route: undefined,
   sourceBalances: {},
   destBalances: {},
   foreignAsset: '',
@@ -218,9 +218,17 @@ export const transferInputSlice = createSlice({
     },
     setTransferRoute: (
       state: TransferInputState,
-      { payload }: PayloadAction<Route>,
+      { payload }: PayloadAction<Route | undefined>,
     ) => {
-      state.route = payload;
+      if (!payload) {
+        state.route = undefined;
+        return;
+      }
+      if (state.availableRoutes.includes(payload)) {
+        state.route = payload;
+      } else {
+        state.route = undefined;
+      }
     },
     // gas estimates
     setSendingGasEst: (
