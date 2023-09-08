@@ -1,17 +1,11 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 
 import { RootState } from 'store';
-import {
-  selectToChain,
-  setAmount,
-  setDestToken,
-  setReceiveAmount,
-} from 'store/transferInput';
+import { selectToChain, setDestToken } from 'store/transferInput';
 import { TransferWallet, walletAcceptedChains } from 'utils/wallet';
 import { getWrappedToken } from 'utils';
-import RouteOperator from 'utils/routes/operator';
 import { CHAINS, CHAINS_ARR, TOKENS } from 'config';
 
 import Inputs from './Inputs';
@@ -29,7 +23,7 @@ function ToInputs() {
   const {
     validate: showErrors,
     validations,
-    route,
+    // route,
     fromChain,
     toChain,
     destBalances,
@@ -37,7 +31,6 @@ function ToInputs() {
     receiveAmount,
     isTransactionInProgress,
   } = useSelector((state: RootState) => state.transferInput);
-  const { toNativeToken } = useSelector((state: RootState) => state.relay);
   const { receiving } = useSelector((state: RootState) => state.wallet);
   const balance = destBalances[destToken] || undefined;
 
@@ -78,38 +71,41 @@ function ToInputs() {
     />
   );
 
-  const computeSendAmount = async (value: number | string) => {
-    if (typeof value === 'number') {
-      dispatch(setReceiveAmount(`${value}`));
-    } else {
-      dispatch(setReceiveAmount(value));
-    }
-    const number = typeof value === 'number' ? value : Number.parseFloat(value);
-    dispatch(setReceiveAmount(`${number}`));
-    if (!route) {
-      dispatch(setReceiveAmount(`${value}`));
-      return;
-    }
-    const sendAmount = await RouteOperator.computeSendAmount(route, number, {
-      toNativeToken,
-    });
-    dispatch(setAmount(`${sendAmount}`));
-  };
+  // const computeSendAmount = async (value: number | string) => {
+  //   if (typeof value === 'number') {
+  //     dispatch(setReceiveAmount(`${value}`));
+  //   } else {
+  //     dispatch(setReceiveAmount(value));
+  //   }
+  //   const number = typeof value === 'number' ? value : Number.parseFloat(value);
+  //   dispatch(setReceiveAmount(`${number}`));
+  //   if (!route) {
+  //     dispatch(setReceiveAmount(`${value}`));
+  //     return;
+  //   }
+  //   const sendAmount = await RouteOperator.computeSendAmount(route, number, {
+  //     toNativeToken,
+  //   });
+  //   dispatch(setAmount(`${sendAmount}`));
+  // };
 
-  const handleAmountChange = useCallback(computeSendAmount, [
-    route,
-    toNativeToken,
-    dispatch,
-  ]);
-  // if route changes, re-calculate the amount
-  useEffect(() => {
-    if (!route) return;
-    computeSendAmount(receiveAmount);
-  }, [route, receiveAmount]);
+  // const handleAmountChange = useCallback(computeSendAmount, [
+  //   route,
+  //   toNativeToken,
+  //   dispatch,
+  // ]);
+  // // if route changes, re-calculate the amount
+  // useEffect(() => {
+  //   if (!route) return;
+  //   computeSendAmount(receiveAmount);
+  // }, [route, receiveAmount]);
+  // TODO: get compute send amount working correctly again
+  const handleAmountChange = () => {};
   const amountInput = (
     <AmountInput
       handleAmountChange={handleAmountChange}
       value={receiveAmount}
+      disabled
     />
   );
 

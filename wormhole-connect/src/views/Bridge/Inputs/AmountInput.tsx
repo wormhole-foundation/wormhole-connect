@@ -12,6 +12,7 @@ import Input from './Input';
 type Props = {
   handleAmountChange: (value: number | string) => void;
   value: string;
+  disabled?: boolean;
 };
 function AmountInput(props: Props) {
   const dispatch = useDispatch();
@@ -51,6 +52,7 @@ function AmountInput(props: Props) {
       error={!!(showErrors && validations.amount)}
       editable
       onClick={focus}
+      cursor="text"
     >
       {token ? (
         <InputTransparent
@@ -61,7 +63,7 @@ function AmountInput(props: Props) {
           step={0.1}
           onChange={handleAmountChange}
           onPause={validateAmount}
-          disabled={isTransactionInProgress}
+          disabled={isTransactionInProgress || props.disabled}
           value={props.value}
         />
       ) : (

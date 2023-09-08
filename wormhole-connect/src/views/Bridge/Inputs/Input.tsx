@@ -2,7 +2,8 @@ import React from 'react';
 import { makeStyles } from 'tss-react/mui';
 import { ERROR_BORDER, joinClass } from 'utils/style';
 
-const useStyles = makeStyles()((theme: any) => ({
+type StyleProps = { cursorStyle?: string };
+const useStyles = makeStyles<StyleProps>()((theme: any, { cursorStyle }) => ({
   inputField: {
     display: 'flex',
     flexDirection: 'column',
@@ -13,7 +14,7 @@ const useStyles = makeStyles()((theme: any) => ({
   },
   editable: {
     backgroundColor: theme.palette.card.secondary,
-    cursor: 'pointer',
+    cursor: cursorStyle || 'pointer',
   },
   label: {
     fontSize: '14px',
@@ -32,10 +33,11 @@ type Props = {
   editable?: boolean;
   onClick?: any;
   children: any;
+  cursor?: string;
 };
 
 function Input(props: Props) {
-  const { classes } = useStyles();
+  const { classes } = useStyles({ cursorStyle: props.cursor });
 
   const inputClasses = [
     classes.inputField,

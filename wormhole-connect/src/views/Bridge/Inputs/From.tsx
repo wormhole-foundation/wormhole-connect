@@ -24,7 +24,9 @@ function FromInputs() {
   const [showTokensModal, setShowTokensModal] = useState(false);
   const [showChainsModal, setShowChainsModal] = useState(false);
 
-  const { toNativeToken } = useSelector((state: RootState) => state.relay);
+  const { toNativeToken, relayerFee } = useSelector(
+    (state: RootState) => state.relay,
+  );
   const wallet = useSelector((state: RootState) => state.wallet.sending);
   const {
     validate: showErrors,
@@ -90,6 +92,7 @@ function FromInputs() {
       number,
       {
         toNativeToken,
+        relayerFee,
       },
     );
     dispatch(setReceiveAmount(`${receiveAmount}`));
@@ -99,6 +102,7 @@ function FromInputs() {
   const handleAmountChange = useCallback(computeReceiveAmount, [
     route,
     toNativeToken,
+    relayerFee,
     dispatch,
   ]);
   // if route changes, re-calculate the amount
