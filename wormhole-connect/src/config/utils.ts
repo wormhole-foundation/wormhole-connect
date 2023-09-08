@@ -7,6 +7,14 @@ const error = (msg: string) => {
   console.error(`Wormhole Connect:\n${msg}`);
 };
 
+export const populateRpcField = (
+  chainName: string,
+  rpc: string | undefined,
+) => {
+  if (!rpc) return {};
+  return { [chainName]: rpc };
+};
+
 export const validateResourceMap = (field: 'rpcs' | 'rest') => {
   if (!config || !config[field]) {
     error(
