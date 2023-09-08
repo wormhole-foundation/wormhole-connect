@@ -5,12 +5,12 @@ export interface SenderConfig {
   owner: PublicKey;
   bump: number;
   tokenBridge: any;
-  finality: number;
   relayerFeePrecision: number;
-  swapRatePrecision: number;
   paused: boolean;
 }
 
-export function deriveSenderConfigAddress(programId: PublicKeyInitData): PublicKey {
+export function deriveSenderConfigAddress(
+  programId: PublicKeyInitData,
+): PublicKey {
   return deriveAddress([Buffer.from('sender')], programId);
 }

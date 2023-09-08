@@ -641,6 +641,19 @@ export class SolanaContext<
     return arrayify(zeroPad(new PublicKey(addr).toBytes(), 32));
   }
 
+  async estimateSendWithRelayGas(
+    token: TokenId | typeof NATIVE,
+    amount: string,
+    sendingChain: ChainName | ChainId,
+    senderAddress: string,
+    recipientChain: ChainName | ChainId,
+    recipientAddress: string,
+    relayerFee: any,
+    toNativeToken: string,
+  ): Promise<BigNumber> {
+    throw new Error('not implemented');
+  }
+
   parseAddress(address: string): string {
     const addr =
       typeof address === 'string' && address.startsWith('0x')

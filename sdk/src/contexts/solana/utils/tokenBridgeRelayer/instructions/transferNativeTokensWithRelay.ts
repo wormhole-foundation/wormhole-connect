@@ -11,13 +11,12 @@ import {
   deriveSenderConfigAddress,
   deriveTokenTransferMessageAddress,
   deriveRegisteredTokenAddress,
-  deriveRelayerFeeAddress,
   deriveTmpTokenAccountAddress,
 } from '../accounts';
-import { getProgramSequenceTracker } from '../../wormhole';
 import { getAssociatedTokenAddressSync } from '@solana/spl-token';
 import { BN } from '@project-serum/anchor';
 import { ChainId } from 'types';
+import { deriveSignerSequenceAddress } from '../accounts/signerSequence';
 
 export async function createTransferNativeTokensWithRelayInstruction(
   connection: Connection,
@@ -35,13 +34,20 @@ export async function createTransferNativeTokensWithRelayInstruction(
 ): Promise<TransactionInstruction> {
   const {
     methods: { transferNativeTokensWithRelay },
+    account: { signerSequence },
   } = createTokenBridgeRelayerProgramInterface(programId, connection);
-  const { sequence } = await getProgramSequenceTracker(
-    connection,
-    tokenBridgeProgramId,
-    wormholeProgramId,
-  );
-  const message = deriveTokenTransferMessageAddress(programId, sequence);
+  const signerSequenceAddress = deriveSignerSequenceAddress(programId, payer);
+  const sequence = await signerSequence
+    .fetch(signerSequenceAddress)
+    .then(({ value }) => value)
+    .catch((e) => {
+      if (e.message?.includes('Account does not exist')) {
+        // first time transferring
+        return new BN(0);
+      }
+      throw e;
+    });
+  const message = deriveTokenTransferMessageAddress(programId, payer, sequence);
   const fromTokenAccount = getAssociatedTokenAddressSync(
     new PublicKey(mint),
     new PublicKey(payer),
@@ -66,9 +72,9 @@ export async function createTransferNativeTokensWithRelayInstruction(
   )
     .accounts({
       config: deriveSenderConfigAddress(programId),
+      payerSequence: signerSequenceAddress,
       foreignContract: deriveForeignContractAddress(programId, recipientChain),
       registeredToken: deriveRegisteredTokenAddress(programId, mint),
-      relayerFee: deriveRelayerFeeAddress(programId, recipientChain),
       tmpTokenAccount,
       tokenBridgeProgram: new PublicKey(tokenBridgeProgramId),
       ...tokenBridgeAccounts,

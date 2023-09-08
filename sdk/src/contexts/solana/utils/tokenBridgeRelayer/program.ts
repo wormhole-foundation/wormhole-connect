@@ -6,10 +6,5 @@ export function createTokenBridgeRelayerProgramInterface(
   programId: PublicKeyInitData,
   connection: Connection,
 ): Program<TokenBridgeRelayer> {
-  return new Program(
-    IDL,
-    new PublicKey(programId),
-    { connection },
-    // TODO: pass coder?
-  );
+  return new Program(IDL, new PublicKey(programId), { connection });
 }

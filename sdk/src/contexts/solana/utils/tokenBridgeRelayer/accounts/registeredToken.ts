@@ -5,7 +5,6 @@ import { deriveAddress } from '../../utils';
 export interface RegisteredToken {
   swapRate: BN;
   maxNativeSwapAmount: BN;
-  isRegistered: boolean;
 }
 
 export function deriveRegisteredTokenAddress(

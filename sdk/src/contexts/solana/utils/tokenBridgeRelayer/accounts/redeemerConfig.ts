@@ -5,7 +5,6 @@ export interface RedeemerConfig {
   owner: PublicKey;
   bump: number;
   relayerFeePrecision: number;
-  swapRatePrecision: number;
   feeRecipient: PublicKey;
 }
 

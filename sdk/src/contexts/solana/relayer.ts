@@ -5,16 +5,17 @@ import { BN, Program } from '@project-serum/anchor';
 import { ChainId } from 'types';
 import { NATIVE_MINT } from '@solana/spl-token';
 import {
-  RelayerFee,
-  deriveRelayerFeeAddress,
   RegisteredToken,
   deriveRegisteredTokenAddress,
   RedeemerConfig,
   deriveRedeemerConfigAddress,
+  ForeignContract,
+  deriveForeignContractAddress,
 } from './utils/tokenBridgeRelayer/accounts';
 
 const SOL_DECIMALS = 9;
 const TEN = new BN(10);
+const SWAP_RATE_PRECISION = new BN(100_000_000);
 
 export interface SwapEvent {
   recipient: string;
@@ -36,12 +37,10 @@ export class SolanaRelayer {
 
   async isAcceptedToken(mint: string): Promise<boolean> {
     try {
-      const { isRegistered } = await this.getRegisteredToken(
-        new PublicKey(mint),
-      );
-      return isRegistered;
-    } catch (e) {
-      if (e instanceof Error && e.message?.includes('Account does not exist')) {
+      await this.getRegisteredToken(new PublicKey(mint));
+      return true;
+    } catch (e: any) {
+      if (e.message?.includes('Account does not exist')) {
         // the token is not registered
         return false;
       }
@@ -54,15 +53,14 @@ export class SolanaRelayer {
     mint: PublicKey,
     decimals: number,
   ): Promise<bigint> {
-    const [{ fee }, { swapRate }, { relayerFeePrecision, swapRatePrecision }] =
-      await Promise.all([
-        this.getRelayerFee(targetChain),
-        this.getRegisteredToken(mint),
-        this.getRedeemerConfig(),
-      ]);
+    const [{ fee }, { swapRate }, { relayerFeePrecision }] = await Promise.all([
+      this.getForeignContract(targetChain),
+      this.getRegisteredToken(mint),
+      this.getRedeemerConfig(),
+    ]);
     const relayerFee = TEN.pow(new BN(decimals))
       .mul(fee)
-      .mul(new BN(swapRatePrecision))
+      .mul(SWAP_RATE_PRECISION)
       .div(new BN(relayerFeePrecision).mul(swapRate));
 
     return BigInt(relayerFee.toString());
@@ -72,31 +70,22 @@ export class SolanaRelayer {
     mint: PublicKey,
     decimals: number,
   ): Promise<bigint> {
-    const [
-      { swapRate, maxNativeSwapAmount },
-      { swapRate: solSwapRate },
-      { swapRatePrecision },
-    ] = await Promise.all([
-      this.getRegisteredToken(mint),
-      this.getRegisteredToken(NATIVE_MINT),
-      this.getRedeemerConfig(),
-    ]);
-    const swapRatePrecisionBN = new BN(swapRatePrecision);
-    const nativeSwapRate = this.calculateNativeSwapRate(
-      swapRatePrecisionBN,
-      solSwapRate,
-      swapRate,
-    );
+    const [{ swapRate, maxNativeSwapAmount }, { swapRate: solSwapRate }] =
+      await Promise.all([
+        this.getRegisteredToken(mint),
+        this.getRegisteredToken(NATIVE_MINT),
+      ]);
+    const nativeSwapRate = this.calculateNativeSwapRate(solSwapRate, swapRate);
     const maxSwapAmountIn =
       decimals > SOL_DECIMALS
         ? maxNativeSwapAmount
             .mul(nativeSwapRate)
             .mul(TEN.pow(new BN(decimals - SOL_DECIMALS)))
-            .div(swapRatePrecisionBN)
+            .div(SWAP_RATE_PRECISION)
         : maxNativeSwapAmount
             .mul(nativeSwapRate)
             .div(
-              TEN.pow(new BN(SOL_DECIMALS - decimals)).mul(swapRatePrecisionBN),
+              TEN.pow(new BN(SOL_DECIMALS - decimals)).mul(SWAP_RATE_PRECISION),
             );
 
     return BigInt(maxSwapAmountIn.toString());
@@ -110,25 +99,17 @@ export class SolanaRelayer {
     if (toNativeAmount === 0n) {
       return 0n;
     }
-    const [{ swapRate }, { swapRate: solSwapRate }, { swapRatePrecision }] =
-      await Promise.all([
-        this.getRegisteredToken(mint),
-        this.getRegisteredToken(NATIVE_MINT),
-        this.getRedeemerConfig(),
-      ]);
-    const swapRatePrecisionBN = new BN(swapRatePrecision);
-    const nativeSwapRate = this.calculateNativeSwapRate(
-      swapRatePrecisionBN,
-      solSwapRate,
-      swapRate,
-    );
+    const [{ swapRate }, { swapRate: solSwapRate }] = await Promise.all([
+      this.getRegisteredToken(mint),
+      this.getRegisteredToken(NATIVE_MINT),
+    ]);
+    const nativeSwapRate = this.calculateNativeSwapRate(solSwapRate, swapRate);
     const swapAmountOut =
       decimals > SOL_DECIMALS
-        ? swapRatePrecisionBN
-            .mul(new BN(toNativeAmount.toString()))
-            .div(nativeSwapRate.mul(TEN.pow(new BN(decimals - SOL_DECIMALS))))
-        : swapRatePrecisionBN
-            .mul(new BN(toNativeAmount.toString()))
+        ? SWAP_RATE_PRECISION.mul(new BN(toNativeAmount.toString())).div(
+            nativeSwapRate.mul(TEN.pow(new BN(decimals - SOL_DECIMALS))),
+          )
+        : SWAP_RATE_PRECISION.mul(new BN(toNativeAmount.toString()))
             .mul(TEN.pow(new BN(SOL_DECIMALS - decimals)))
             .div(nativeSwapRate);
 
@@ -158,17 +139,13 @@ export class SolanaRelayer {
     return null;
   }
 
-  private calculateNativeSwapRate(
-    swapRatePrecision: BN,
-    solSwapRate: BN,
-    swapRate: BN,
-  ): BN {
-    return swapRatePrecision.mul(solSwapRate).div(swapRate);
+  private calculateNativeSwapRate(solSwapRate: BN, swapRate: BN): BN {
+    return SWAP_RATE_PRECISION.mul(solSwapRate).div(swapRate);
   }
 
-  private async getRelayerFee(chain: ChainId): Promise<RelayerFee> {
-    return await this.program.account.relayerFee.fetch(
-      deriveRelayerFeeAddress(this.program.programId, chain),
+  private async getForeignContract(chain: ChainId): Promise<ForeignContract> {
+    return await this.program.account.foreignContract.fetch(
+      deriveForeignContractAddress(this.program.programId, chain),
     );
   }
 

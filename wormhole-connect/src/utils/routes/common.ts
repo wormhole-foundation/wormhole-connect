@@ -38,7 +38,7 @@ export const adaptParsedMessage = async (
   const toChainId = wh.toChainId(parsed.toChain);
   if (
     toChainId === MAINNET_CHAINS.solana &&
-    parsed.payloadID === PayloadType.MANUAL
+    parsed.payloadID === PayloadType.Manual
   ) {
     const accountOwner = await solanaContext().getTokenAccountOwner(
       parsed.recipient,
