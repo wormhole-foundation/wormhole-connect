@@ -95,11 +95,13 @@ export class RelayRoute extends BridgeRoute {
   async isSupportedSourceToken(
     token: TokenConfig | undefined,
     destToken: TokenConfig | undefined,
+    sourceChain?: ChainName | ChainId,
   ): Promise<boolean> {
     if (!token) return false;
     const isSupportedBridgeToken = await super.isSupportedSourceToken(
       token,
       destToken,
+      sourceChain,
     );
     if (!isSupportedBridgeToken) return false;
     const tokenId = getWrappedTokenId(token);
@@ -123,9 +125,12 @@ export class RelayRoute extends BridgeRoute {
   async supportedSourceTokens(
     tokens: TokenConfig[],
     destToken?: TokenConfig,
+    sourceChain?: ChainName | ChainId,
   ): Promise<TokenConfig[]> {
     const shouldAdd = await Promise.allSettled(
-      tokens.map((token) => this.isSupportedSourceToken(token, destToken)),
+      tokens.map((token) =>
+        this.isSupportedSourceToken(token, destToken, sourceChain),
+      ),
     );
     return tokens.filter((_token, i) => {
       const res = shouldAdd[i];
