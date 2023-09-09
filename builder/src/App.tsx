@@ -253,12 +253,29 @@ function App() {
         );
   }, [networkIndexes, env]);
   // END ENV
+  // START BRIDGE COMPLETE
+  const [_ctaText, setCtaText] = useState<string>("");
+  const [ctaText] = useDebounce(_ctaText, 1000);
+  const handleCtaTextChange = useCallback((e: any) => {
+    setCtaText(e.target.value);
+  }, []);
+  const [_ctaLink, setCtaLink] = useState<string>("");
+  const [ctaLink] = useDebounce(_ctaLink, 1000);
+  const handleCtaLinkChange = useCallback((e: any) => {
+    setCtaLink(e.target.value);
+  }, []);
+  // END BRIDGE COMPLETE
   const handleResetAll = useCallback(() => {
     setMode("dark");
     setCustomTheme(undefined);
     setCustomThemeText(defaultThemeJSON);
     setCustomThemeError(false);
     setFontHref("");
+    setNetworkIndexes(undefined);
+    setTokens(undefined);
+    setEnv("testnet");
+    setCtaText("");
+    setCtaLink("");
   }, []);
   // START CODE
   const [codeType, setCodeType] = useState(0);
@@ -277,8 +294,15 @@ function App() {
       tokens: testnetTokens, // always testnet for the builder
       mode,
       customTheme,
+      cta:
+        ctaText && ctaLink
+          ? {
+              text: ctaText,
+              link: ctaLink,
+            }
+          : undefined,
     }),
-    [mode, customTheme, testnetNetworks, testnetTokens]
+    [testnetNetworks, testnetTokens, mode, customTheme, ctaText, ctaLink]
   );
   // TODO: pull latest version from npm / offer pinning, tag, or latest
   const version = "0.0.12";
@@ -368,11 +392,10 @@ function App() {
                   setScreen={setScreen}
                 />
                 <ScreenButton
-                  text="Bridge Complete (Coming Soon)"
+                  text="Bridge Complete"
                   number={4}
                   optional
                   setScreen={setScreen}
-                  disabled
                 />
                 <Typography variant="h5" component="h2" mt={1.5} mb={2}>
                   Deploy
@@ -599,6 +622,41 @@ function App() {
               >
                 Bridge Complete
               </Button>
+              <Box mx={2}>
+                <Typography variant="h5" component="h2" mt={1.5} mb={1}>
+                  Call To Action
+                </Typography>
+                <Typography variant="body2" mb={2}>
+                  A button will be displayed after the bridge is completed to
+                  redirect users to the designated page.
+                </Typography>
+                <TextField
+                  label="Text"
+                  fullWidth
+                  value={_ctaText}
+                  onChange={handleCtaTextChange}
+                  error={!!_ctaLink && !_ctaText}
+                  helperText={
+                    !!_ctaLink && !_ctaText
+                      ? "Both text and link must be set"
+                      : undefined
+                  }
+                  sx={{ mb: 2 }}
+                />
+                <TextField
+                  label="Link"
+                  fullWidth
+                  value={_ctaLink}
+                  onChange={handleCtaLinkChange}
+                  error={!!_ctaText && !_ctaLink}
+                  helperText={
+                    !!_ctaText && !_ctaLink
+                      ? "Both text and link must be set"
+                      : undefined
+                  }
+                  sx={{ mb: 2 }}
+                />
+              </Box>
             </>
           ) : screen === 5 ? (
             <>
