@@ -32,7 +32,6 @@ import {
 } from "@mui/material";
 import WormholeBridge, {
   ChainName,
-  MainnetChainName,
   TestnetChainName,
   Theme,
   WormholeConnectConfig,
@@ -42,76 +41,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDebounce } from "use-debounce";
 import Background from "./Background";
 import { copyTextToClipboard } from "./utils";
-
-type Network = {
-  name: string;
-  testnet: TestnetChainName;
-  mainnet: MainnetChainName;
-};
-
-const NETWORKS: Network[] = [
-  {
-    name: "Solana",
-    testnet: "solana",
-    mainnet: "solana",
-  },
-  {
-    name: "Ethereum",
-
-    testnet: "goerli",
-    mainnet: "ethereum",
-  },
-  {
-    name: "BSC",
-    testnet: "bsc",
-    mainnet: "bsc",
-  },
-  {
-    name: "Polygon",
-    testnet: "mumbai",
-    mainnet: "polygon",
-  },
-  {
-    name: "Avalanche",
-    testnet: "fuji",
-    mainnet: "avalanche",
-  },
-  {
-    name: "Fantom",
-    testnet: "fantom",
-    mainnet: "fantom",
-  },
-  {
-    name: "Celo",
-    testnet: "alfajores",
-    mainnet: "celo",
-  },
-  {
-    name: "Moonbeam",
-    testnet: "moonbasealpha",
-    mainnet: "moonbeam",
-  },
-  {
-    name: "Sui",
-    testnet: "sui",
-    mainnet: "sui",
-  },
-  {
-    name: "Aptos",
-    testnet: "aptos",
-    mainnet: "aptos",
-  },
-  {
-    name: "Base",
-    testnet: "basegoerli",
-    mainnet: "base",
-  },
-  {
-    name: "Osmosis",
-    testnet: "osmosis",
-    mainnet: "osmosis",
-  },
-];
+import { MAINNET_TOKEN_KEYS, NETWORKS, TESTNET_TOKEN_KEYS } from "./consts";
 
 const StepCard = ({
   number,
@@ -270,6 +200,9 @@ function App() {
   const handleClearNetworks = useCallback(() => {
     setNetworkIndexes(undefined);
   }, []);
+  const handleNoneNetworks = useCallback(() => {
+    setNetworkIndexes([]);
+  }, []);
   const handleNetworksChange = useCallback((e: any) => {
     setNetworkIndexes(
       typeof e.target.value === "string"
@@ -280,8 +213,29 @@ function App() {
         : e.target.value.sort((a: number, b: number) => a - b)
     );
   }, []);
+  const [_tokens, setTokens] = useState<string[] | undefined>(undefined);
+  const [tokens] = useDebounce(_tokens, 1000);
+  const handleClearTokens = useCallback(() => {
+    setTokens(undefined);
+  }, []);
+  const handleNoneTokens = useCallback(() => {
+    setTokens([]);
+  }, []);
+  const handleTokensChange = useCallback((e: any) => {
+    setTokens(
+      typeof e.target.value === "string"
+        ? e.target.value.split(",").sort()
+        : e.target.value.sort()
+    );
+  }, []);
+  const testnetTokens = useMemo(
+    () => tokens && TESTNET_TOKEN_KEYS.filter((t) => tokens?.includes(t)),
+    [tokens]
+  );
   const handleEnvChange = useCallback((e: any, value: string) => {
     if (value === "testnet" || value === "mainnet") {
+      // TODO: keep tokens that exist in both envs, for now clear it before it doesn't match the options
+      setTokens(undefined);
       setEnv(value);
     }
   }, []);
@@ -320,15 +274,16 @@ function App() {
     () => ({
       env: "testnet", // always testnet for the builder
       networks: testnetNetworks, // always testnet for the builder
+      tokens: testnetTokens, // always testnet for the builder
       mode,
       customTheme,
     }),
-    [mode, customTheme, testnetNetworks]
+    [mode, customTheme, testnetNetworks, testnetTokens]
   );
   // TODO: pull latest version from npm / offer pinning, tag, or latest
   const version = "0.0.12";
   const [htmlCode, jsxCode] = useMemo(() => {
-    const realConfig = { ...config, env, networks };
+    const realConfig = { ...config, env, networks, tokens };
     const realConfigString = JSON.stringify(realConfig);
     return [
       `<div id="wormhole-connect" config='${realConfigString}' /></div>
@@ -341,7 +296,7 @@ function App() {
   );
 }`,
     ];
-  }, [config, env, networks]);
+  }, [config, env, networks, tokens]);
   const [openCopySnack, setOpenCopySnack] = useState<boolean>(false);
   const handleCopySnackClose = useCallback(() => {
     setOpenCopySnack(false);
@@ -571,9 +526,66 @@ function App() {
                   variant="contained"
                   color="inherit"
                   size="small"
-                  sx={{ mt: 1 }}
+                  sx={{ mt: 1, mr: 1 }}
                 >
                   Select All
+                </Button>
+                <Button
+                  onClick={handleNoneNetworks}
+                  variant="contained"
+                  color="inherit"
+                  size="small"
+                  sx={{ mt: 1, mr: 1 }}
+                >
+                  Select None
+                </Button>
+                <Typography variant="h5" component="h2" mt={4} mb={2}>
+                  Tokens
+                </Typography>
+                <TextField
+                  select
+                  fullWidth
+                  value={
+                    _tokens
+                      ? _tokens
+                      : env === "mainnet"
+                      ? MAINNET_TOKEN_KEYS
+                      : TESTNET_TOKEN_KEYS
+                  }
+                  onChange={handleTokensChange}
+                  SelectProps={{
+                    multiple: true,
+                    renderValue: (selected: any) =>
+                      !_tokens ? "All Tokens" : selected.join(", "),
+                  }}
+                >
+                  {(env === "mainnet"
+                    ? MAINNET_TOKEN_KEYS
+                    : TESTNET_TOKEN_KEYS
+                  ).map((t) => (
+                    <MenuItem key={t} value={t}>
+                      <Checkbox checked={!_tokens || _tokens.includes(t)} />
+                      <ListItemText primary={t} />
+                    </MenuItem>
+                  ))}
+                </TextField>
+                <Button
+                  onClick={handleClearTokens}
+                  variant="contained"
+                  color="inherit"
+                  size="small"
+                  sx={{ mt: 1, mr: 1 }}
+                >
+                  Select All
+                </Button>
+                <Button
+                  onClick={handleNoneTokens}
+                  variant="contained"
+                  color="inherit"
+                  size="small"
+                  sx={{ mt: 1, mr: 1 }}
+                >
+                  Select None
                 </Button>
               </Box>
             </>
