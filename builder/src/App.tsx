@@ -142,6 +142,8 @@ function App() {
   const backScreen = useCallback(() => {
     setScreen(0);
   }, []);
+  // TODO: should probably move all of this config state to a reducer so we can switch multiple pieces out with one action
+  // https://react.dev/reference/react/useReducer
   // BEGIN THEME
   const [mode, setMode] = useState<"dark" | "light" | undefined>("dark");
   const [fontHref, setFontHref] = useState<string>("");
@@ -197,13 +199,60 @@ function App() {
     undefined
   );
   const [networkIndexes] = useDebounce(_networkIndexes, 1000);
+  const [_tokens, setTokens] = useState<string[] | undefined>(undefined);
+  const [tokens] = useDebounce(_tokens, 1000);
+  const testnetTokens = useMemo(
+    () => tokens && TESTNET_TOKEN_KEYS.filter((t) => tokens?.includes(t)),
+    [tokens]
+  );
+  const [defaultFromNetwork, setDefaultFromNetwork] = useState<
+    ChainName | undefined
+  >(undefined);
+  const handleDefaultFromNetworkChange = useCallback((e: any) => {
+    e.target.value
+      ? setDefaultFromNetwork(e.target.value)
+      : setDefaultFromNetwork(undefined);
+  }, []);
+  const [defaultToNetwork, setDefaultToNetwork] = useState<
+    ChainName | undefined
+  >(undefined);
+  const handleDefaultToNetworkChange = useCallback((e: any) => {
+    e.target.value
+      ? setDefaultToNetwork(e.target.value)
+      : setDefaultToNetwork(undefined);
+  }, []);
+  const [defaultToken, setDefaultToken] = useState<string | undefined>(
+    undefined
+  );
+  const handleDefaultTokenChange = useCallback((e: any) => {
+    e.target.value
+      ? setDefaultToken(e.target.value)
+      : setDefaultToken(undefined);
+  }, []);
+  const [requiredNetwork, setRequiredNetwork] = useState<ChainName | undefined>(
+    undefined
+  );
+  const handleRequiredNetworkChange = useCallback((e: any) => {
+    e.target.value
+      ? setRequiredNetwork(e.target.value)
+      : setRequiredNetwork(undefined);
+  }, []);
+  // networks and tokens handlers come after defaults so they can appropriately reset them
   const handleClearNetworks = useCallback(() => {
     setNetworkIndexes(undefined);
   }, []);
   const handleNoneNetworks = useCallback(() => {
+    // clear defaults to avoid bugs (could be smarter)
+    setDefaultFromNetwork(undefined);
+    setDefaultToNetwork(undefined);
+    setRequiredNetwork(undefined);
     setNetworkIndexes([]);
   }, []);
   const handleNetworksChange = useCallback((e: any) => {
+    // clear defaults to avoid bugs (could be smarter)
+    setDefaultFromNetwork(undefined);
+    setDefaultToNetwork(undefined);
+    setRequiredNetwork(undefined);
     setNetworkIndexes(
       typeof e.target.value === "string"
         ? e.target.value
@@ -213,29 +262,33 @@ function App() {
         : e.target.value.sort((a: number, b: number) => a - b)
     );
   }, []);
-  const [_tokens, setTokens] = useState<string[] | undefined>(undefined);
-  const [tokens] = useDebounce(_tokens, 1000);
   const handleClearTokens = useCallback(() => {
     setTokens(undefined);
   }, []);
   const handleNoneTokens = useCallback(() => {
+    // clear defaults to avoid bugs (could be smarter)
+    setDefaultToken(undefined);
     setTokens([]);
   }, []);
   const handleTokensChange = useCallback((e: any) => {
+    // clear defaults to avoid bugs (could be smarter)
+    setDefaultToken(undefined);
     setTokens(
       typeof e.target.value === "string"
         ? e.target.value.split(",").sort()
         : e.target.value.sort()
     );
   }, []);
-  const testnetTokens = useMemo(
-    () => tokens && TESTNET_TOKEN_KEYS.filter((t) => tokens?.includes(t)),
-    [tokens]
-  );
   const handleEnvChange = useCallback((e: any, value: string) => {
     if (value === "testnet" || value === "mainnet") {
       // TODO: keep tokens that exist in both envs, for now clear it before it doesn't match the options
       setTokens(undefined);
+      // clear defaults to avoid bugs (could be smarter)
+      setDefaultFromNetwork(undefined);
+      setDefaultToNetwork(undefined);
+      setDefaultToken(undefined);
+      setRequiredNetwork(undefined);
+      // set env last
       setEnv(value);
     }
   }, []);
@@ -271,6 +324,10 @@ function App() {
     setCustomThemeText(defaultThemeJSON);
     setCustomThemeError(false);
     setFontHref("");
+    setDefaultFromNetwork(undefined);
+    setDefaultToNetwork(undefined);
+    setDefaultToken(undefined);
+    setRequiredNetwork(undefined);
     setNetworkIndexes(undefined);
     setTokens(undefined);
     setEnv("testnet");
@@ -301,8 +358,31 @@ function App() {
               link: ctaLink,
             }
           : undefined,
+      bridgeDefaults:
+        defaultFromNetwork ||
+        defaultToNetwork ||
+        defaultToken ||
+        requiredNetwork
+          ? {
+              fromNetwork: defaultFromNetwork,
+              toNetwork: defaultToNetwork,
+              token: defaultToken,
+              requiredNetwork: requiredNetwork,
+            }
+          : undefined,
     }),
-    [testnetNetworks, testnetTokens, mode, customTheme, ctaText, ctaLink]
+    [
+      testnetNetworks,
+      testnetTokens,
+      mode,
+      customTheme,
+      ctaText,
+      ctaLink,
+      defaultFromNetwork,
+      defaultToNetwork,
+      defaultToken,
+      requiredNetwork,
+    ]
   );
   // TODO: pull latest version from npm / offer pinning, tag, or latest
   const version = "0.0.12";
@@ -610,6 +690,126 @@ function App() {
                 >
                   Select None
                 </Button>
+                <Typography variant="h5" component="h2" mt={4} mb={2}>
+                  Defaults
+                </Typography>
+                <TextField
+                  label="From Network"
+                  select
+                  fullWidth
+                  value={defaultFromNetwork || ""}
+                  onChange={handleDefaultFromNetworkChange}
+                  sx={{ mb: 2 }}
+                >
+                  <MenuItem value={""}>
+                    <ListItemText primary="(None)" />
+                  </MenuItem>
+                  {_networkIndexes
+                    ? _networkIndexes.map((nIdx) => (
+                        <MenuItem key={nIdx} value={NETWORKS[nIdx][env]}>
+                          <ListItemText primary={NETWORKS[nIdx].name} />
+                        </MenuItem>
+                      ))
+                    : NETWORKS.map((n) => (
+                        <MenuItem key={n.name} value={n[env]}>
+                          <ListItemText primary={n.name} />
+                        </MenuItem>
+                      ))}
+                </TextField>
+                <TextField
+                  label="To Network"
+                  select
+                  fullWidth
+                  value={defaultToNetwork || ""}
+                  onChange={handleDefaultToNetworkChange}
+                  error={
+                    defaultFromNetwork &&
+                    defaultToNetwork &&
+                    defaultFromNetwork === defaultToNetwork
+                  }
+                  helperText={
+                    defaultFromNetwork &&
+                    defaultToNetwork &&
+                    defaultFromNetwork === defaultToNetwork
+                      ? "Source and destination chain cannot be the same"
+                      : undefined
+                  }
+                  sx={{ mb: 2 }}
+                >
+                  <MenuItem value={""}>
+                    <ListItemText primary="(None)" />
+                  </MenuItem>
+                  {_networkIndexes
+                    ? _networkIndexes.map((nIdx) => (
+                        <MenuItem key={nIdx} value={NETWORKS[nIdx][env]}>
+                          <ListItemText primary={NETWORKS[nIdx].name} />
+                        </MenuItem>
+                      ))
+                    : NETWORKS.map((n) => (
+                        <MenuItem key={n.name} value={n[env]}>
+                          <ListItemText primary={n.name} />
+                        </MenuItem>
+                      ))}
+                </TextField>
+                <TextField
+                  label="Token"
+                  select
+                  fullWidth
+                  value={defaultToken || ""}
+                  onChange={handleDefaultTokenChange}
+                  sx={{ mb: 2 }}
+                >
+                  <MenuItem value={""}>
+                    <ListItemText primary="(None)" />
+                  </MenuItem>
+                  {(env === "mainnet"
+                    ? MAINNET_TOKEN_KEYS
+                    : TESTNET_TOKEN_KEYS
+                  ).map((t) => (
+                    <MenuItem key={t} value={t}>
+                      <ListItemText primary={t} />
+                    </MenuItem>
+                  ))}
+                </TextField>
+                <TextField
+                  label="Required Network"
+                  select
+                  fullWidth
+                  value={requiredNetwork || ""}
+                  onChange={handleRequiredNetworkChange}
+                  error={
+                    defaultToNetwork &&
+                    defaultFromNetwork &&
+                    requiredNetwork &&
+                    defaultFromNetwork !== requiredNetwork &&
+                    defaultToNetwork !== requiredNetwork
+                  }
+                  helperText={
+                    defaultToNetwork &&
+                    defaultFromNetwork &&
+                    requiredNetwork &&
+                    defaultFromNetwork !== requiredNetwork &&
+                    defaultToNetwork !== requiredNetwork
+                      ? "Source chain or destination chain must equal the required network"
+                      : "Enforces that this chain must be either the source or destination chain."
+                  }
+                  sx={{ mb: 2 }}
+                >
+                  <MenuItem value={""}>
+                    <ListItemText primary="(None)" />
+                  </MenuItem>
+                  {_networkIndexes
+                    ? _networkIndexes.map((nIdx) => (
+                        <MenuItem key={nIdx} value={NETWORKS[nIdx][env]}>
+                          <ListItemText primary={NETWORKS[nIdx].name} />
+                        </MenuItem>
+                      ))
+                    : NETWORKS.map((n) => (
+                        <MenuItem key={n.name} value={n[env]}>
+                          <ListItemText primary={n.name} />
+                        </MenuItem>
+                      ))}
+                </TextField>
               </Box>
             </>
           ) : screen === 4 ? (
