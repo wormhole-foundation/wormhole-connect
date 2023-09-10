@@ -14,6 +14,10 @@ import {
   Checkbox,
   Chip,
   Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Divider,
   Drawer,
   FormControlLabel,
@@ -32,6 +36,10 @@ import {
 } from "@mui/material";
 import WormholeBridge, {
   ChainName,
+  MAINNET_CHAINS,
+  MainnetChainName,
+  Rpcs,
+  TESTNET_CHAINS,
   TestnetChainName,
   Theme,
   WormholeConnectConfig,
@@ -41,7 +49,21 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDebounce } from "use-debounce";
 import Background from "./Background";
 import { copyTextToClipboard } from "./utils";
-import { MAINNET_TOKEN_KEYS, NETWORKS, TESTNET_TOKEN_KEYS } from "./consts";
+import {
+  DEFAULT_MAINNET_RPCS,
+  DEFAULT_TESTNET_RPCS,
+  MAINNET_TOKEN_KEYS,
+  NETWORKS,
+  TESTNET_TOKEN_KEYS,
+} from "./consts";
+
+// registerRpcProvider throws on invalid RPCs
+const isValidRpc = (rpc?: string) =>
+  rpc &&
+  (rpc.startsWith("http://") ||
+    rpc.startsWith("https://") ||
+    rpc.startsWith("ws://") ||
+    rpc.startsWith("wss://"));
 
 const StepCard = ({
   number,
@@ -279,6 +301,47 @@ function App() {
         : e.target.value.sort()
     );
   }, []);
+  const [_rpcs, setRpcs] = useState<Rpcs | undefined>(undefined);
+  const [deRpcs] = useDebounce(_rpcs, 1000);
+  const handleRpcChange = useCallback((e: any) => {
+    setRpcs((prevState) => ({
+      ...prevState,
+      [e.target.name]: e.target.value,
+    }));
+  }, []);
+  const [rpcsOpen, setRpcsOpen] = useState<boolean>(false);
+  const handleRpcsOpen = useCallback(() => {
+    setRpcsOpen(true);
+  }, []);
+  const handleRpcsClose = useCallback(() => {
+    setRpcsOpen(false);
+  }, []);
+  const [rpcs, testnetRpcs] = useMemo(() => {
+    // Connect doesn't like if you specify an rpc for a chain name that isn't in the env
+    // For now, filter the config so it doesn't cause an error
+    // TODO: change Connect so that the chain names are the same for testnet and mainnet
+    return !deRpcs
+      ? [undefined, undefined]
+      : Object.entries(deRpcs).reduce<
+          [
+            { [chain in ChainName]?: string } | undefined,
+            { [chain in TestnetChainName]?: string } | undefined
+          ]
+        >(
+          ([rpcs, testnetRpcs], [n, rpc]) => [
+            isValidRpc(rpc) &&
+            (env === "mainnet"
+              ? MAINNET_CHAINS[n as MainnetChainName]
+              : TESTNET_CHAINS[n as TestnetChainName])
+              ? { ...rpcs, [n]: rpc }
+              : rpcs,
+            isValidRpc(rpc) && TESTNET_CHAINS[n as TestnetChainName]
+              ? { ...testnetRpcs, [n]: rpc }
+              : testnetRpcs,
+          ],
+          [undefined, undefined]
+        );
+  }, [deRpcs, env]);
   const handleEnvChange = useCallback((e: any, value: string) => {
     if (value === "testnet" || value === "mainnet") {
       // TODO: keep tokens that exist in both envs, for now clear it before it doesn't match the options
@@ -330,6 +393,7 @@ function App() {
     setRequiredNetwork(undefined);
     setNetworkIndexes(undefined);
     setTokens(undefined);
+    setRpcs(undefined);
     setEnv("testnet");
     setCtaText("");
     setCtaLink("");
@@ -347,6 +411,7 @@ function App() {
   const config: WormholeConnectConfig = useMemo(
     () => ({
       env: "testnet", // always testnet for the builder
+      rpcs: testnetRpcs,
       networks: testnetNetworks, // always testnet for the builder
       tokens: testnetTokens, // always testnet for the builder
       mode,
@@ -372,6 +437,7 @@ function App() {
           : undefined,
     }),
     [
+      testnetRpcs,
       testnetNetworks,
       testnetTokens,
       mode,
@@ -387,7 +453,7 @@ function App() {
   // TODO: pull latest version from npm / offer pinning, tag, or latest
   const version = "0.0.12";
   const [htmlCode, jsxCode] = useMemo(() => {
-    const realConfig = { ...config, env, networks, tokens };
+    const realConfig = { ...config, env, rpcs, networks, tokens };
     const realConfigString = JSON.stringify(realConfig);
     return [
       `<div id="wormhole-connect" config='${realConfigString}' /></div>
@@ -400,7 +466,7 @@ function App() {
   );
 }`,
     ];
-  }, [config, env, networks, tokens]);
+  }, [config, env, rpcs, networks, tokens]);
   const [openCopySnack, setOpenCopySnack] = useState<boolean>(false);
   const handleCopySnackClose = useCallback(() => {
     setOpenCopySnack(false);
@@ -591,6 +657,62 @@ function App() {
                 <Alert severity="info">
                   Note: The preview always displays Testnet.
                 </Alert>
+                <Divider sx={{ mt: 2 }} />
+                <Typography variant="h5" component="h2" mt={4} mb={1}>
+                  RPCs
+                </Typography>
+                <Typography variant="body2" mb={2}>
+                  It is strongly recommended that you provide your own RPCs for
+                  the best performance and functionality.
+                </Typography>
+                <Button
+                  variant="contained"
+                  color="inherit"
+                  onClick={handleRpcsOpen}
+                >
+                  Configure
+                </Button>
+                <Dialog
+                  open={rpcsOpen}
+                  onClose={handleRpcsClose}
+                  fullWidth
+                  maxWidth="md"
+                >
+                  <DialogTitle>Configure RPCs</DialogTitle>
+                  <DialogContent>
+                    {NETWORKS.map((n) => (
+                      <TextField
+                        key={n[env]}
+                        label={n[env]}
+                        name={n[env]}
+                        value={_rpcs?.[n[env]] || ""}
+                        onChange={handleRpcChange}
+                        error={
+                          _rpcs?.[n[env]] && !isValidRpc(_rpcs[n[env]])
+                            ? true
+                            : false
+                        }
+                        fullWidth
+                        sx={{ mb: 2 }}
+                        helperText={
+                          _rpcs?.[n[env]] && !isValidRpc(_rpcs[n[env]])
+                            ? "Unknown RPC string scheme. Expected an http or websocket URI."
+                            : `Default: ${
+                                (env === "mainnet"
+                                  ? DEFAULT_MAINNET_RPCS[n[env]]
+                                  : DEFAULT_TESTNET_RPCS[n[env]]) || "None"
+                              }`
+                        }
+                      />
+                    ))}
+                  </DialogContent>
+                  <DialogActions>
+                    <Button variant="contained" onClick={handleRpcsClose}>
+                      Close
+                    </Button>
+                  </DialogActions>
+                </Dialog>
+                <Divider sx={{ mt: 2 }} />
                 <Typography variant="h5" component="h2" mt={4} mb={2}>
                   Networks
                 </Typography>
@@ -642,6 +764,7 @@ function App() {
                 >
                   Select None
                 </Button>
+                <Divider sx={{ mt: 2 }} />
                 <Typography variant="h5" component="h2" mt={4} mb={2}>
                   Tokens
                 </Typography>
@@ -690,6 +813,7 @@ function App() {
                 >
                   Select None
                 </Button>
+                <Divider sx={{ mt: 2 }} />
                 <Typography variant="h5" component="h2" mt={4} mb={2}>
                   Defaults
                 </Typography>
