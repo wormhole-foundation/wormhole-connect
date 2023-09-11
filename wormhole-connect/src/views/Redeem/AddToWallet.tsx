@@ -7,15 +7,9 @@ import {
   ChainName,
   SuiContext,
   WormholeContext,
-  TestnetChainName,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 
-import {
-  CHAINS,
-  TESTNET_TO_MAINNET_CHAIN_NAMES,
-  TOKENS,
-  isMainnet,
-} from 'config';
+import { CHAINS, TOKENS } from 'config';
 import { MAINNET_CHAINS } from 'config/mainnet';
 import { TokenConfig } from 'config/types';
 import { RootState } from 'store';
@@ -185,10 +179,7 @@ function AddToWallet() {
     );
   }, [txData, route]);
 
-  const chainName = isMainnet
-    ? (txData.toChain as ChainName)
-    : TESTNET_TO_MAINNET_CHAIN_NAMES[txData.toChain as TestnetChainName];
-  const chainId = wh.toChainId(chainName);
+  const chainId = wh.toChainId(txData.toChain as ChainName);
 
   if (!targetToken || !targetAddress) return <></>;
 
