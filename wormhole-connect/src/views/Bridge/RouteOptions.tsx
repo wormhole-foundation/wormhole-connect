@@ -4,11 +4,8 @@ import { makeStyles } from 'tss-react/mui';
 import { Chip, useMediaQuery, useTheme } from '@mui/material';
 
 import { RootState } from 'store';
-import { setTransferRoute, setAvailableRoutes } from 'store/transferInput';
-import { getTokenDecimals } from 'utils';
-import { toDecimals } from 'utils/balance';
+import { setAvailableRoutes, setTransferRoute } from 'store/transferInput';
 import { LINK, joinClass } from 'utils/style';
-import { toChainId } from 'utils/sdk';
 import { toFixedDecimals } from 'utils/balance';
 import RouteOperator from 'utils/routes/operator';
 import { TOKENS, ROUTES } from 'config';
@@ -142,47 +139,29 @@ function Tag(props: TagProps) {
   );
 }
 
-function RouteOption(props: { route: RouteData; active: boolean }) {
+function RouteOption(props: { route: RouteData }) {
   const { classes } = useStyles();
   const theme = useTheme();
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const { token, destToken, amount, fromChain, toChain } = useSelector(
+  const { token, destToken, amount, toChain } = useSelector(
     (state: RootState) => state.transferInput,
   );
-  const { toNativeToken } = useSelector((state: RootState) => state.relay);
+  const { toNativeToken, relayerFee } = useSelector(
+    (state: RootState) => state.relay,
+  );
   const [receiveAmt, setReceiveAmt] = useState<number | undefined>(undefined);
-  const [relayerFee, setRelayerFee] = useState<number>(0);
-  useEffect(() => {
-    async function getFee() {
-      if (!fromChain || !toChain) return;
-      try {
-        const fee = await RouteOperator.getRelayerFee(
-          props.route.route,
-          fromChain,
-          toChain,
-          token,
-        );
-        const decimals = getTokenDecimals(
-          toChainId(fromChain),
-          TOKENS[token].tokenId || 'native',
-        );
-        const formattedFee = Number.parseFloat(toDecimals(fee, decimals, 6));
-        setRelayerFee(formattedFee);
-      } catch {}
-    }
-    getFee();
-  }, [fromChain, toChain, token, props.route.route]);
+
   useEffect(() => {
     async function load() {
       const receiveAmt = await RouteOperator.computeReceiveAmount(
         props.route.route,
         Number.parseFloat(amount),
-        { toNativeToken: props.active ? toNativeToken : 0, relayerFee },
+        { toNativeToken, relayerFee },
       );
       setReceiveAmt(Number.parseFloat(toFixedDecimals(`${receiveAmt}`, 6)));
     }
     load();
-  }, [props.route, amount, toNativeToken, relayerFee, props.active]);
+  }, [props.route, amount, toNativeToken, relayerFee]);
   const fromTokenConfig = TOKENS[token];
   const fromTokenIcon = fromTokenConfig && (
     <TokenIcon name={fromTokenConfig.icon} height={20} />
@@ -324,7 +303,7 @@ function RouteOptions() {
         {availableRoutes.map((route_) => {
           return {
             key: route_,
-            child: <RouteOption route={RoutesConfig[route as Route]} active={route_ === route} />,
+            child: <RouteOption route={RoutesConfig[route_ as Route]} />,
           };
         })}
       </Options>
