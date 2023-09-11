@@ -99,7 +99,17 @@ export class SolanaContext<
     txId: string,
     chain: ChainName | ChainId,
   ): Promise<BigNumber | undefined> {
-    throw new Error('not implemented');
+    if (!this.connection) throw new Error('no connection');
+    const transaction = await this.connection.getParsedTransaction(txId);
+    const parsedInstr = transaction?.meta?.innerInstructions![0].instructions;
+    const gasFee = parsedInstr
+      ? parsedInstr.reduce((acc, c: any) => {
+          if (!c.parsed || !c.parsed.info || !c.parsed.info.lamports)
+            return acc;
+          return acc + c.parsed.info.lamports;
+        }, 0)
+      : 0;
+    return BigNumber.from(gasFee);
   }
 
   /**
