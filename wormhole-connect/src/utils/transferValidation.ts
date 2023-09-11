@@ -3,7 +3,7 @@ import { AnyAction } from '@reduxjs/toolkit';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 
 import { BRIDGE_DEFAULTS, CHAINS, TOKENS } from 'config';
-import { Route } from 'config/types';
+import { Route, TokenConfig } from 'config/types';
 import { SANCTIONED_WALLETS } from 'consts/wallet';
 import { store } from 'store';
 import {
@@ -74,6 +74,7 @@ export const validateToken = (
 export const validateDestToken = (
   token: string,
   chain: ChainName | undefined,
+  supportedTokens: TokenConfig[],
 ): ValidationErr => {
   if (!token) return 'Select an asset';
   const tokenConfig = TOKENS[token];
@@ -83,6 +84,9 @@ export const validateDestToken = (
     if (!chainConfig || !!tokenConfig.tokenId) return '';
     if (!tokenConfig.tokenId && tokenConfig.nativeChain !== chain)
       return `${token} not available on ${chain}, select a different token`;
+  }
+  if (!supportedTokens.some((t) => t.key === token)) {
+    return 'No route available for this token, please select another';
   }
   return '';
 };
@@ -196,6 +200,7 @@ export const validateAll = async (
     foreignAsset,
     associatedTokenAddress,
     route,
+    supportedDestTokens,
     availableRoutes,
   } = transferData;
   const { maxSwapAmt, toNativeToken } = relayData;
@@ -210,7 +215,7 @@ export const validateAll = async (
     fromChain: validateFromChain(fromChain),
     toChain: validateToChain(toChain, fromChain),
     token: validateToken(token, fromChain),
-    destToken: validateDestToken(destToken, toChain),
+    destToken: validateDestToken(destToken, toChain, supportedDestTokens),
     amount: validateAmount(amount, sendingTokenBalance, minAmt),
     route: validateRoute(route, availableRoutes),
     toNativeToken: '',
