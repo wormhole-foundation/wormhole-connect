@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { makeStyles } from 'tss-react/mui';
-import { joinClass } from '../../utils/style';
+import { joinClass } from 'utils/style';
 
 const useStyles = makeStyles()((theme: any) => ({
   content: {

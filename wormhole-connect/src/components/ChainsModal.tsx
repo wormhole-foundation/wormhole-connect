@@ -5,15 +5,15 @@ import {
   ChainConfig,
   ChainName,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { CHAINS_ARR, CHAINS } from '../config';
-import { CENTER, joinClass } from '../utils/style';
+import { CHAINS_ARR, CHAINS } from 'config';
+import { CENTER, joinClass } from 'utils/style';
 
 import Header from './Header';
 import Modal from './Modal';
 import Spacer from './Spacer';
 import Search from './Search';
 import Scroll from './Scroll';
-import TokenIcon from '../icons/TokenIcons';
+import TokenIcon from 'icons/TokenIcons';
 import RouteOperator from 'utils/routes/operator';
 
 const useStyles = makeStyles()((theme: any) => ({

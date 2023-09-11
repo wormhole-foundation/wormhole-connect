@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { makeStyles } from 'tss-react/mui';
 import Tooltip from '@mui/material/Tooltip';
-import InfoIcon from '../icons/Info';
-import { CENTER } from '../utils/style';
+import InfoIcon from 'icons/Info';
+import { CENTER } from 'utils/style';
 
 type Position =
   | 'top-start'

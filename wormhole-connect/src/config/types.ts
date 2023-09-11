@@ -5,7 +5,7 @@ import {
   ChainResourceMap,
   Context,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { ExtendedTheme } from '../theme';
+import { ExtendedTheme } from 'theme';
 
 export enum Icon {
   'AVAX' = 1,

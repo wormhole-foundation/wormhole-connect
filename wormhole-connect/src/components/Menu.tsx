@@ -4,9 +4,9 @@ import Popover from '@mui/material/Popover';
 import PopupState, { bindTrigger, bindPopover } from 'material-ui-popup-state';
 import { makeStyles } from 'tss-react/mui';
 
-import { ICON } from '../utils/style';
-import { Route, setRoute } from '../store/router';
-import MenuIcon from '../icons/Menu';
+import { ICON } from 'utils/style';
+import { Route, setRoute } from 'store/router';
+import MenuIcon from 'icons/Menu';
 
 const useStyles = makeStyles()((theme: any) => ({
   menuIcon: ICON,

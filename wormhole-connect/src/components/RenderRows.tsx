@@ -1,9 +1,9 @@
 import React from 'react';
 import { makeStyles } from 'tss-react/mui';
-import Down from '../icons/Down';
+import Down from 'icons/Down';
 import { Collapse } from '@mui/material';
-import { joinClass } from '../utils/style';
-import { NestedRow } from '../utils/routes/types';
+import { joinClass } from 'utils/style';
+import { NestedRow } from 'utils/routes/types';
 
 const useStyles = makeStyles()((theme) => ({
   row: {

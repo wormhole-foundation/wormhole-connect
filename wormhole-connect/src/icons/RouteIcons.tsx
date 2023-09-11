@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { makeStyles } from 'tss-react/mui';
 
-import { CENTER } from '../utils/style';
+import { CENTER } from 'utils/style';
 import noIcon from './Tokens/noIcon';
 
 import WormholeIcon from './Routes/Wormhole';

@@ -39,14 +39,6 @@ import {
   Transaction,
   ConfirmOptions,
 } from '@solana/web3.js';
-import { TransactionBlock } from '@mysten/sui.js';
-import { SolanaWallet } from '@xlabs-libs/wallet-aggregator-solana';
-import { SeiTransaction, SeiWallet } from '@xlabs-libs/wallet-aggregator-sei';
-import { wh } from './sdk';
-import { CHAINS, CHAINS_ARR, ENV, RPCS, isMainnet } from '../config';
-import { getChainByChainId } from 'utils';
-import { AptosWallet } from '@xlabs-libs/wallet-aggregator-aptos';
-import { Types } from 'aptos';
 import {
   AptosSnapAdapter,
   AptosWalletAdapter,
@@ -59,6 +51,15 @@ import {
   SpikaWalletAdapter,
   WalletAdapterNetwork,
 } from '@manahippo/aptos-wallet-adapter';
+import { TransactionBlock } from '@mysten/sui.js';
+import { SolanaWallet } from '@xlabs-libs/wallet-aggregator-solana';
+import { SeiTransaction, SeiWallet } from '@xlabs-libs/wallet-aggregator-sei';
+import { AptosWallet } from '@xlabs-libs/wallet-aggregator-aptos';
+import { Types } from 'aptos';
+
+import { wh } from './sdk';
+import { CHAINS, CHAINS_ARR, ENV, RPCS, isMainnet } from 'config';
+import { getChainByChainId } from 'utils';
 
 export enum TransferWallet {
   SENDING = 'sending',

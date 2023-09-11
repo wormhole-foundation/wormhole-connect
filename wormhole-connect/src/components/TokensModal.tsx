@@ -26,7 +26,7 @@ import Modal from './Modal';
 import Spacer from './Spacer';
 import Search from './Search';
 import Scroll from './Scroll';
-import TokenIcon from '../icons/TokenIcons';
+import TokenIcon from 'icons/TokenIcons';
 import CircularProgress from '@mui/material/CircularProgress';
 import Tabs from './Tabs';
 

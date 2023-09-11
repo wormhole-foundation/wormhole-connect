@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { useTheme } from '@mui/material/styles';
 import { makeStyles } from 'tss-react/mui';
+import { joinClass, OPACITY } from 'utils/style';
 import Check from '@mui/icons-material/Check';
-import { joinClass, OPACITY } from '../../utils/style';
 
 const useStyles = makeStyles()((theme: any) => ({
   label: {

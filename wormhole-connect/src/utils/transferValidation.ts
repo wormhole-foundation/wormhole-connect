@@ -13,10 +13,10 @@ import {
   ValidationErr,
   TransferValidations,
   accessBalance,
-} from '../store/transferInput';
-import { WalletData, WalletState } from '../store/wallet';
-import { walletAcceptedChains } from './wallet';
+} from 'store/transferInput';
+import { WalletData, WalletState } from 'store/wallet';
 import { RelayState } from 'store/relay';
+import { walletAcceptedChains } from './wallet';
 import RouteOperator from './routes/operator';
 
 export const validateFromChain = (

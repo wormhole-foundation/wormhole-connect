@@ -1,5 +1,5 @@
 import React from 'react';
-import { joinClass } from '../utils/style';
+import { joinClass } from 'utils/style';
 import { makeStyles } from 'tss-react/mui';
 
 type StyleProps = { bg?: string };
