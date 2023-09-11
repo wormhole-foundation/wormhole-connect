@@ -1,10 +1,4 @@
-import {
-  CHAIN_ID_OSMOSIS,
-  CHAIN_ID_SEI,
-  CHAIN_ID_SOLANA,
-  CHAIN_ID_WORMCHAIN,
-  cosmos,
-} from '@certusone/wormhole-sdk';
+import { CHAIN_ID_SOLANA, CHAIN_ID_WORMCHAIN } from '@certusone/wormhole-sdk';
 import {
   CosmWasmClient,
   MsgExecuteContractEncodeObject,
@@ -35,7 +29,7 @@ import {
   TendermintClient,
 } from '@cosmjs/tendermint-rpc';
 import { BigNumber, utils } from 'ethers';
-import { arrayify, base58, hexlify } from 'ethers/lib/utils.js';
+import { arrayify, hexlify } from 'ethers/lib/utils.js';
 import { toChainId, wh } from 'utils/sdk';
 import { isCosmWasmChain } from 'utils/cosmos';
 import { CHAINS, RPCS, ROUTES, TOKENS } from 'config';
@@ -297,6 +291,13 @@ export class CosmosGatewayRoute extends BaseRoute {
     );
   }
 
+  getForeignAsset(
+    token: TokenId,
+    chain: ChainId | ChainName,
+  ): Promise<string | null> {
+    return wh.getForeignAsset(token, chain);
+  }
+
   getMinSendAmount(routeOptions: any): number {
     return 0;
   }
@@ -415,25 +416,6 @@ export class CosmosGatewayRoute extends BaseRoute {
     ];
   }
 
-  private isNativeDenom(denom: string, chain: ChainName | ChainId): boolean {
-    const chainId = wh.toChainId(chain);
-    switch (chainId) {
-      case CHAIN_ID_SEI:
-        return denom === 'usei';
-      case CHAIN_ID_WORMCHAIN:
-        return denom === 'uworm';
-      case CHAIN_ID_OSMOSIS:
-        return denom === 'uosmo';
-      default:
-        return false;
-    }
-  }
-
-  private CW20AddressToFactory(address: string): string {
-    const encodedAddress = base58.encode(cosmos.canonicalAddress(address));
-    return `factory/${this.getTranslatorAddress()}/${encodedAddress}`;
-  }
-
   getTranslatorAddress(): string {
     const addr = CHAINS['wormchain']?.contracts.ibcShimContract;
     if (!addr) throw new Error('IBC Shim contract not configured');
@@ -446,35 +428,6 @@ export class CosmosGatewayRoute extends BaseRoute {
     token: string,
   ): Promise<BigNumber> {
     return BigNumber.from(0);
-  }
-
-  async getForeignAsset(
-    tokenId: TokenId,
-    chain: ChainId | ChainName,
-  ): Promise<string | null> {
-    // fall back to original implementation if not cosmos chain
-    if (!isCosmWasmChain(wh.toChainId(chain))) {
-      return wh.getForeignAsset(tokenId, chain);
-    }
-
-    // add check here in case the token is a native cosmos denom
-    // in such cases there's no need to look for in the wormchain network
-    if (tokenId.chain === chain) return tokenId.address;
-    const wrappedAsset = await wh.getForeignAsset(tokenId, CHAIN_ID_WORMCHAIN);
-    if (!wrappedAsset) return null;
-    return this.isNativeDenom(wrappedAsset, chain)
-      ? wrappedAsset
-      : this.deriveIBCDenom(this.CW20AddressToFactory(wrappedAsset), chain);
-  }
-
-  async deriveIBCDenom(
-    denom: string,
-    chain: ChainId | ChainName,
-  ): Promise<string | null> {
-    const channel = await this.getIbcDestinationChannel(chain);
-    const hashData = utils.hexlify(Buffer.from(`transfer/${channel}/${denom}`));
-    const hash = utils.sha256(hashData).substring(2);
-    return `ibc/${hash.toUpperCase()}`;
   }
 
   async getIbcDestinationChannel(chain: ChainId | ChainName): Promise<string> {

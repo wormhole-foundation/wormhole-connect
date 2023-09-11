@@ -1,4 +1,11 @@
+import {
+  CHAIN_ID_OSMOSIS,
+  CHAIN_ID_TERRA2,
+  CHAIN_ID_WORMCHAIN,
+  isCosmWasmChain as isBaseCosmWasmChain,
+} from '@certusone/wormhole-sdk';
 import { logs as cosmosLogs } from '@cosmjs/stargate';
+import { ChainId } from '../../types';
 
 /**
  * Search for a specific piece of information emitted by the contracts during the transaction
@@ -20,3 +27,13 @@ export const searchCosmosLogs = (
   }
   return null;
 };
+
+const COSMOS_CHAINS: ChainId[] = [
+  CHAIN_ID_WORMCHAIN,
+  CHAIN_ID_OSMOSIS,
+  CHAIN_ID_TERRA2,
+];
+
+export function isCosmWasmChain(chainId: ChainId): boolean {
+  return isBaseCosmWasmChain(chainId) || COSMOS_CHAINS.includes(chainId);
+}

@@ -29,7 +29,6 @@ import Scroll from './Scroll';
 import TokenIcon from '../icons/TokenIcons';
 import CircularProgress from '@mui/material/CircularProgress';
 import Tabs from './Tabs';
-import { CosmosGatewayRoute } from 'utils/routes';
 
 const useStyles = makeStyles()((theme: any) => ({
   tokensContainer: {
@@ -271,7 +270,6 @@ function TokensModal(props: Props) {
     supportedSourceTokens,
     supportedDestTokens,
     allSupportedDestTokens,
-    route,
   } = useSelector((state: RootState) => state.transferInput);
 
   const supportedTokens = useMemo(() => {
@@ -346,30 +344,9 @@ function TokensModal(props: Props) {
       queryTokens.map(async (t) => {
         let balance: BigNumber | null = null;
         try {
-          if (t.tokenId) {
-            // TODO: going to do some refactoring of gateway/cosmos contexts
-            if (isCosmWasmChain(wh.toChainId(chain))) {
-              const denom = await new CosmosGatewayRoute().getForeignAsset(
-                t.tokenId,
-                chain,
-              );
-              if (denom) {
-                balance = await wh.getNativeBalance(
-                  walletAddress,
-                  chain,
-                  denom,
-                );
-              }
-            } else {
-              balance = await wh.getTokenBalance(
-                walletAddress,
-                t.tokenId,
-                chain,
-              );
-            }
-          } else {
-            balance = await wh.getNativeBalance(walletAddress, chain);
-          }
+          balance = t.tokenId
+            ? await wh.getTokenBalance(walletAddress, t.tokenId, chain)
+            : await wh.getNativeBalance(walletAddress, chain);
         } catch (e) {
           console.warn('Failed to fetch balance', e);
         }
@@ -388,7 +365,15 @@ function TokensModal(props: Props) {
         balances,
       }),
     );
-  }, [walletAddress, chain, dispatch, type, supportedTokens, route, open]);
+  }, [
+    walletAddress,
+    chain,
+    dispatch,
+    type,
+    supportedTokens,
+    chainBalancesCache,
+    allSupportedDestTokens,
+  ]);
 
   // fetch token balances and set in store
   useEffect(() => {
