@@ -15,7 +15,6 @@ import {
   registerWalletSigner,
   switchChain,
 } from 'utils/wallet';
-import { PayloadType } from 'utils/sdk';
 
 import AlertBanner from 'components/AlertBanner';
 import Button from 'components/Button';
@@ -168,7 +167,7 @@ function SendTo() {
       </InputContainer>
 
       {/* Claim button for manual transfers */}
-      {txData.payloadID === PayloadType.Manual && !transferComplete && (
+      {!AUTOMATIC_DEPOSIT && !transferComplete && (
         <>
           <Spacer height={8} />
           <AlertBanner
