@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - main
-      - evan/builder
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
