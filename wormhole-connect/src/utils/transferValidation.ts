@@ -12,6 +12,7 @@ import {
   touchValidations,
   ValidationErr,
   TransferValidations,
+  accessBalance,
 } from '../store/transferInput';
 import { WalletData, WalletState } from '../store/wallet';
 import { walletAcceptedChains } from './wallet';
@@ -191,7 +192,7 @@ export const validateAll = async (
     token,
     destToken,
     amount,
-    sourceBalances: balances,
+    balances,
     foreignAsset,
     associatedTokenAddress,
     route,
@@ -201,6 +202,7 @@ export const validateAll = async (
   const { sending, receiving } = walletData;
   const isAutomatic = getIsAutomatic(route);
   const minAmt = getMinAmt(route, relayData);
+  const sendingTokenBalance = accessBalance(balances, fromChain, token);
 
   const baseValidations = {
     sendingWallet: await validateWallet(sending, fromChain),
@@ -209,7 +211,7 @@ export const validateAll = async (
     toChain: validateToChain(toChain, fromChain),
     token: validateToken(token, fromChain),
     destToken: validateDestToken(destToken, toChain),
-    amount: validateAmount(amount, balances[token], minAmt),
+    amount: validateAmount(amount, sendingTokenBalance, minAmt),
     route: validateRoute(route, availableRoutes),
     toNativeToken: '',
     foreignAsset: validateForeignAsset(foreignAsset),
@@ -222,7 +224,7 @@ export const validateAll = async (
   if (!isAutomatic) return baseValidations;
   return {
     ...baseValidations,
-    amount: validateAmount(amount, balances[token], minAmt),
+    amount: validateAmount(amount, sendingTokenBalance, minAmt),
     toNativeToken: validateToNativeAmt(toNativeToken, maxSwapAmt),
   };
 };

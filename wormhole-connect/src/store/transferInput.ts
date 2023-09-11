@@ -10,6 +10,11 @@ import { TransferWallet, walletAcceptedChains } from 'utils/wallet';
 import { clearWallet, setWalletError, WalletData } from './wallet';
 
 export type Balances = { [key: string]: string | null };
+export type ChainBalances = {
+  lastUpdated: number | undefined;
+  balances: Balances;
+};
+export type BalancesCache = { [key in ChainName]?: ChainBalances };
 
 export const formatBalance = (
   chain: ChainName,
@@ -20,6 +25,17 @@ export const formatBalance = (
   const formattedBalance =
     balance !== null ? toDecimals(balance, decimals, 6) : null;
   return { [token.key]: formattedBalance };
+};
+
+export const accessBalance = (
+  balances: BalancesCache | undefined,
+  chain: ChainName | undefined,
+  token: string,
+): string | null => {
+  if (!chain || !balances) return null;
+  const chainBalances = balances[chain];
+  if (!chainBalances) return null;
+  return chainBalances.balances[token];
 };
 
 export type ValidationErr = string;
@@ -49,8 +65,7 @@ export interface TransferInputState {
   amount: string;
   receiveAmount: string;
   route: Route | undefined;
-  sourceBalances: Balances;
-  destBalances: Balances;
+  balances: BalancesCache;
   foreignAsset: string;
   associatedTokenAddress: string;
   gasEst: {
@@ -86,8 +101,7 @@ const initialState: TransferInputState = {
   amount: '',
   receiveAmount: '',
   route: undefined,
-  sourceBalances: {},
-  destBalances: {},
+  balances: {},
   foreignAsset: '',
   associatedTokenAddress: '',
   gasEst: {
@@ -141,8 +155,6 @@ export const transferInputSlice = createSlice({
       { payload }: PayloadAction<ChainName>,
     ) => {
       state.fromChain = payload;
-      // clear balances if the chain changes;
-      state.sourceBalances = {};
 
       const { fromChain, token } = state;
 
@@ -173,36 +185,26 @@ export const transferInputSlice = createSlice({
     ) => {
       state.receiveAmount = payload;
     },
-    setBalance: (
+    setBalances: (
       state: TransferInputState,
-      {
-        payload,
-      }: PayloadAction<{ type: 'source' | 'dest'; balances: Balances }>,
+      { payload }: PayloadAction<{ chain: ChainName; balances: Balances }>,
     ) => {
-      const { type, balances } = payload;
-      if (type === 'source') {
-        state.sourceBalances = { ...state.sourceBalances, ...balances };
-      } else {
-        state.destBalances = { ...state.destBalances, ...balances };
-      }
+      const { chain, balances } = payload;
+      state.balances = {
+        ...state.balances,
+        ...{
+          [chain]: {
+            lastUpdated: Date.now(),
+            balances: { ...state.balances[chain], ...balances },
+          },
+        },
+      };
     },
     setReceiverNativeBalance: (
       state: TransferInputState,
       { payload }: PayloadAction<string>,
     ) => {
       state.receiverNativeBalance = payload;
-    },
-    clearBalances: (
-      state: TransferInputState,
-      { payload }: PayloadAction<'source' | 'dest' | 'all'>,
-    ) => {
-      if (payload === 'source' || payload === 'all') {
-        state.sourceBalances = {};
-      }
-
-      if (payload === 'dest' || payload === 'all') {
-        state.destBalances = {};
-      }
     },
     setForeignAsset: (
       state: TransferInputState,
@@ -323,13 +325,12 @@ export const {
   setToChain,
   setAmount,
   setReceiveAmount,
-  setBalance,
-  clearBalances,
   setForeignAsset,
   setAssociatedTokenAddress,
   setTransferRoute,
   setSendingGasEst,
   setClaimGasEst,
+  setBalances,
   clearTransfer,
   setIsTransactionInProgress,
   setReceiverNativeBalance,

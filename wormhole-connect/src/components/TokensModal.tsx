@@ -15,7 +15,7 @@ import { BigNumber } from 'ethers';
 import { RootState } from 'store';
 import { CHAINS } from 'config';
 import { TokenConfig } from 'config/types';
-import { setBalance, formatBalance, clearBalances } from 'store/transferInput';
+import { setBalances, formatBalance, ChainBalances } from 'store/transferInput';
 import { displayAddress } from 'utils';
 import { wh } from 'utils/sdk';
 import { CENTER, NO_INPUT } from 'utils/style';
@@ -266,13 +266,8 @@ function TokensModal(props: Props) {
   const [tokens, setTokens] = useState<TokenConfig[]>([]);
   const [search, setSearch] = useState('');
 
-  const {
-    sourceBalances,
-    destBalances,
-    supportedSourceTokens,
-    supportedDestTokens,
-    route,
-  } = useSelector((state: RootState) => state.transferInput);
+  const { balances, supportedSourceTokens, supportedDestTokens, route } =
+    useSelector((state: RootState) => state.transferInput);
 
   const supportedTokens = useMemo(() => {
     const supported =
@@ -280,10 +275,10 @@ function TokensModal(props: Props) {
     return supported.filter((t) => !isCosmosNativeToken(t));
   }, [type, supportedSourceTokens, supportedDestTokens]);
 
-  const tokenBalances = useMemo(
-    () => (type === 'source' ? sourceBalances : destBalances),
-    [type, sourceBalances, destBalances],
-  );
+  const chainBalancesCache: ChainBalances | undefined = useMemo(() => {
+    if (!chain || !balances[chain]) return undefined;
+    return balances[chain];
+  }, [chain, balances]);
 
   // search tokens
   const handleSearch = (
@@ -329,6 +324,15 @@ function TokensModal(props: Props) {
 
   const getBalances = useCallback(async () => {
     if (!walletAddress || !chain) return;
+    const fiveMinutesAgo = Date.now() - 60 * 1000 * 5;
+    if (
+      chainBalancesCache &&
+      chainBalancesCache.balances &&
+      chainBalancesCache.lastUpdated! > fiveMinutesAgo
+    ) {
+      setBalancesLoaded(true);
+      return;
+    }
     // fetch all N tokens and trigger a single update action
     const balancesArr = await Promise.all(
       supportedTokens.map(async (t) => {
@@ -371,12 +375,12 @@ function TokensModal(props: Props) {
     }, {});
 
     dispatch(
-      setBalance({
-        type,
+      setBalances({
+        chain,
         balances,
       }),
     );
-  }, [walletAddress, chain, dispatch, type, supportedTokens, route]);
+  }, [walletAddress, chain, dispatch, type, supportedTokens, route, open]);
 
   // fetch token balances and set in store
   useEffect(() => {
@@ -387,7 +391,6 @@ function TokensModal(props: Props) {
     }
 
     if (!balancesLoaded) {
-      dispatch(clearBalances(type));
       setLoading(true);
       getBalances().finally(() => {
         if (active) {
@@ -417,12 +420,13 @@ function TokensModal(props: Props) {
       if (!t.tokenId && t.nativeChain !== chain) return false;
       if (t.symbol === 'USDC' && t.nativeChain !== chain) return false;
       if (type === 'dest') return true;
-      const b = tokenBalances[t.key];
+      if (!chainBalancesCache) return true;
+      const b = chainBalancesCache.balances[t.key];
       const isNullBalance = b !== null && b !== '0';
       return isNullBalance;
     });
     setTokens(filtered);
-  }, [tokenBalances, chain, supportedTokens, type]);
+  }, [chainBalancesCache, chain, supportedTokens, type]);
 
   const tabs = [
     {
@@ -430,7 +434,7 @@ function TokensModal(props: Props) {
       panel: (
         <DisplayTokens
           tokens={displayedTokens}
-          balances={tokenBalances}
+          balances={chainBalancesCache?.balances}
           walletAddress={walletAddress}
           chain={chain}
           selectToken={selectToken}
@@ -444,7 +448,7 @@ function TokensModal(props: Props) {
       panel: (
         <DisplayTokens
           tokens={supportedTokens}
-          balances={tokenBalances}
+          balances={chainBalancesCache?.balances}
           walletAddress={walletAddress}
           chain={chain}
           selectToken={selectToken}

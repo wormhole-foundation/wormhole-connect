@@ -3,7 +3,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 
 import { RootState } from 'store';
-import { selectToChain, setDestToken } from 'store/transferInput';
+import {
+  accessBalance,
+  selectToChain,
+  setDestToken,
+} from 'store/transferInput';
 import { TransferWallet, walletAcceptedChains } from 'utils/wallet';
 import { getWrappedToken } from 'utils';
 import { CHAINS, CHAINS_ARR, TOKENS } from 'config';
@@ -23,16 +27,15 @@ function ToInputs() {
   const {
     validate: showErrors,
     validations,
-    // route,
     fromChain,
     toChain,
-    destBalances,
+    balances,
     destToken,
     receiveAmount,
     isTransactionInProgress,
   } = useSelector((state: RootState) => state.transferInput);
   const { receiving } = useSelector((state: RootState) => state.wallet);
-  const balance = destBalances[destToken] || undefined;
+  const balance = accessBalance(balances, toChain, destToken) || undefined;
 
   const tokenConfig = TOKENS[destToken];
 
