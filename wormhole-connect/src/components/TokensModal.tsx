@@ -207,7 +207,7 @@ function DisplayTokens(props: {
                 <div className={classes.tokenRowRight}>
                   <div className={classes.tokenRowBalanceText}>Balance</div>
                   <div className={classes.tokenRowBalance}>
-                    {balances[token.key] && walletAddress ? (
+                    {balances && balances[token.key] && walletAddress ? (
                       <div>{balances[token.key]}</div>
                     ) : chain &&
                       walletAddress &&
@@ -269,8 +269,13 @@ function TokensModal(props: Props) {
   const [allTokensFiltered, setAllTokensFiltered] = useState<TokenConfig[]>([]);
   const [search, setSearch] = useState('');
 
-  const { balances, supportedSourceTokens, supportedDestTokens, route } =
-    useSelector((state: RootState) => state.transferInput);
+  const {
+    balances,
+    supportedSourceTokens,
+    supportedDestTokens,
+    allSupportedDestTokens,
+    route,
+  } = useSelector((state: RootState) => state.transferInput);
 
   const supportedTokens = useMemo(() => {
     const supported =
@@ -336,9 +341,12 @@ function TokensModal(props: Props) {
       setBalancesLoaded(true);
       return;
     }
+
+    const queryTokens =
+      type === 'dest' ? allSupportedDestTokens : supportedTokens;
     // fetch all N tokens and trigger a single update action
     const balancesArr = await Promise.all(
-      supportedTokens.map(async (t) => {
+      queryTokens.map(async (t) => {
         let balance: BigNumber | null = null;
         try {
           if (t.tokenId) {
@@ -459,7 +467,7 @@ function TokensModal(props: Props) {
       label: 'All Tokens',
       panel: (
         <DisplayTokens
-          tokens={supportedTokens}
+          tokens={type === 'dest' ? allSupportedDestTokens : supportedTokens}
           balances={chainBalancesCache?.balances}
           walletAddress={walletAddress}
           chain={chain}

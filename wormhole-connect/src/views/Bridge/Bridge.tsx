@@ -11,6 +11,7 @@ import {
   setToken,
   setSupportedSourceTokens,
   setSupportedDestTokens,
+  setAllSupportedDestTokens,
   setTransferRoute,
   TransferInputState,
 } from 'store/transferInput';
@@ -135,6 +136,12 @@ function Bridge() {
         toChain,
       );
       dispatch(setSupportedDestTokens(supported));
+      const allSupported = await RouteOperator.allSupportedDestTokens(
+        undefined,
+        fromChain,
+        toChain,
+      );
+      dispatch(setAllSupportedDestTokens(allSupported));
       const selectedIsSupported = isSupportedToken(destToken, supported);
       if (!selectedIsSupported) {
         dispatch(setDestToken(''));

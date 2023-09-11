@@ -11,10 +11,10 @@ export abstract class BaseRoute extends RouteAbstract {
     sourceChain?: ChainName | ChainId,
   ): Promise<boolean> {
     if (!token) return false;
-    if (destToken) {
-      const wrapped = getWrappedToken(token);
-      return wrapped.key === destToken.key;
-    }
+    // if (destToken) {
+    //   const wrapped = getWrappedToken(token);
+    //   return wrapped.key === destToken.key;
+    // }
 
     if (!sourceChain) return true;
     const chainName = wh.toChainName(sourceChain);
