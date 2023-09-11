@@ -8,12 +8,10 @@ import {
   setForeignAsset,
 } from 'store/transferInput';
 import { ATTEST_URL, TOKENS } from 'config';
-import { Route } from 'config/types';
 import { getWrappedTokenId } from 'utils';
 import { TransferWallet, signSolanaTransaction } from 'utils/wallet';
 import { joinClass } from 'utils/style';
 import { solanaContext, wh } from 'utils/sdk';
-import RouteOperator from 'utils/routes/operator';
 
 import { CircularProgress, Link, Typography } from '@mui/material';
 import AlertBanner from 'components/AlertBanner';
@@ -103,8 +101,6 @@ function TokenWarnings() {
 
   // check if the destination token contract is deployed
   useEffect(() => {
-    // Avoid race conditions
-    let active = true;
     const checkWrappedTokenExists = async () => {
       if (!toChain || !tokenConfig) {
         dispatch(setForeignAsset(''));
@@ -128,9 +124,6 @@ function TokenWarnings() {
       }
     };
     checkWrappedTokenExists();
-    return () => {
-      active = false;
-    };
   }, [toChain, tokenConfig, route, dispatch]);
 
   // the associated token account address is deterministic, so we still

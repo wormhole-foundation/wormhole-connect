@@ -364,7 +364,7 @@ export const TESTNET_TOKENS: TokensConfig = {
   ETHarbitrum: {
     key: 'ETHarbitrum',
     symbol: 'ETH',
-    nativeNetwork: 'arbitrumgoerli',
+    nativeChain: 'arbitrumgoerli',
     icon: Icon.ETH,
     coinGeckoId: 'ethereum',
     color: '#5794EC',
@@ -377,7 +377,7 @@ export const TESTNET_TOKENS: TokensConfig = {
   WETHarbitrum: {
     key: 'WETHarbitrum',
     symbol: 'WETH',
-    nativeNetwork: 'arbitrumgoerli',
+    nativeChain: 'arbitrumgoerli',
     icon: Icon.ETH,
     tokenId: {
       chain: 'arbitrumgoerli',
@@ -393,7 +393,7 @@ export const TESTNET_TOKENS: TokensConfig = {
   USDCarbitrum: {
     key: 'USDCarbitrum',
     symbol: 'USDC',
-    nativeNetwork: 'arbitrumgoerli',
+    nativeChain: 'arbitrumgoerli',
     icon: Icon.USDC,
     tokenId: {
       chain: 'arbitrumgoerli',
@@ -408,7 +408,7 @@ export const TESTNET_TOKENS: TokensConfig = {
   ETHoptimism: {
     key: 'ETHoptimism',
     symbol: 'ETH',
-    nativeNetwork: 'optimismgoerli',
+    nativeChain: 'optimismgoerli',
     icon: Icon.ETH,
     coinGeckoId: 'ethereum',
     color: '#D53424',
@@ -421,7 +421,7 @@ export const TESTNET_TOKENS: TokensConfig = {
   WETHoptimism: {
     key: 'WETHoptimism',
     symbol: 'WETH',
-    nativeNetwork: 'optimismgoerli',
+    nativeChain: 'optimismgoerli',
     icon: Icon.ETH,
     tokenId: {
       chain: 'optimismgoerli',
@@ -437,7 +437,7 @@ export const TESTNET_TOKENS: TokensConfig = {
   USDCoptimism: {
     key: 'USDCoptimism',
     symbol: 'USDC',
-    nativeNetwork: 'optimismgoerli',
+    nativeChain: 'optimismgoerli',
     icon: Icon.USDC,
     tokenId: {
       chain: 'optimismgoerli',

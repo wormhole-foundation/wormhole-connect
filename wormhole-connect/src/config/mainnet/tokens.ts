@@ -396,7 +396,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   ETHarbitrum: {
     key: 'ETHarbitrum',
     symbol: 'ETH',
-    nativeNetwork: 'arbitrum',
+    nativeChain: 'arbitrum',
     icon: Icon.ETH,
     coinGeckoId: 'ethereum',
     color: '#5794EC',
@@ -409,7 +409,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   WETHarbitrum: {
     key: 'WETHarbitrum',
     symbol: 'WETH',
-    nativeNetwork: 'arbitrum',
+    nativeChain: 'arbitrum',
     icon: Icon.ETH,
     tokenId: {
       chain: 'arbitrum',
@@ -425,7 +425,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   USDCarbitrum: {
     key: 'USDCarbitrum',
     symbol: 'USDC',
-    nativeNetwork: 'arbitrum',
+    nativeChain: 'arbitrum',
     icon: Icon.USDC,
     tokenId: {
       chain: 'arbitrum',
@@ -440,7 +440,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   ETHoptimism: {
     key: 'ETHoptimism',
     symbol: 'ETH',
-    nativeNetwork: 'optimism',
+    nativeChain: 'optimism',
     icon: Icon.ETH,
     coinGeckoId: 'ethereum',
     color: '#D53424',
@@ -453,7 +453,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   WETHoptimism: {
     key: 'WETHoptimism',
     symbol: 'WETH',
-    nativeNetwork: 'optimism',
+    nativeChain: 'optimism',
     icon: Icon.ETH,
     tokenId: {
       chain: 'optimism',
@@ -469,7 +469,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   USDCoptimism: {
     key: 'USDCoptimism',
     symbol: 'USDC',
-    nativeNetwork: 'optimism',
+    nativeChain: 'optimism',
     icon: Icon.USDC,
     tokenId: {
       chain: 'optimism',
@@ -484,7 +484,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   // SEI: {
   //   key: 'SEI',
   //   symbol: 'SEI',
-  //   nativeNetwork: 'sei',
+  //   nativeChain: 'sei',
   //   tokenId: {
   //     chain: 'sei',
   //     address: 'usei',

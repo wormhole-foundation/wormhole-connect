@@ -180,6 +180,14 @@ function DisplayTokens(props: {
     loading,
     search,
   } = props;
+
+  const showCircularProgress = (token: string): boolean => {
+    if (!chain || !walletAddress) return true;
+    if (!balances) return true;
+    if (balances && balances[token] !== null) return true;
+    return false;
+  };
+
   return (
     <Scroll
       height="calc(100vh - 375px)"
@@ -208,9 +216,7 @@ function DisplayTokens(props: {
                   <div className={classes.tokenRowBalance}>
                     {balances && balances[token.key] && walletAddress ? (
                       <div>{balances[token.key]}</div>
-                    ) : chain &&
-                      walletAddress &&
-                      balances[token.key] !== null ? (
+                    ) : showCircularProgress(token.key) ? (
                       <CircularProgress size={14} />
                     ) : (
                       <div>{NO_INPUT}</div>
@@ -265,7 +271,6 @@ function TokensModal(props: Props) {
   const [loading, setLoading] = useState(false);
   const [balancesLoaded, setBalancesLoaded] = useState(false);
   const [tokens, setTokens] = useState<TokenConfig[]>([]);
-  const [allTokensFiltered, setAllTokensFiltered] = useState<TokenConfig[]>([]);
   const [search, setSearch] = useState('');
 
   const {
@@ -418,20 +423,11 @@ function TokensModal(props: Props) {
       if (type === 'dest') return true;
       if (!chainBalancesCache) return true;
       const b = chainBalancesCache.balances[t.key];
-      const isNonzeroBalance = b !== '0';
+      const isNonzeroBalance = b !== null && b !== '0';
       return isNonzeroBalance;
     });
     setTokens(filtered);
   }, [chainBalancesCache, chain, supportedTokens, type]);
-
-  useEffect(() => {
-    const allFiltered = allTokens.filter((t) => {
-      if (type === 'dest') return true;
-      const b = tokenBalances[t.key];
-      return !(b === null);
-    });
-    setAllTokensFiltered(allFiltered);
-  }, [tokenBalances, allTokens, type]);
 
   const tabs = [
     {

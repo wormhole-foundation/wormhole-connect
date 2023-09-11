@@ -146,17 +146,29 @@ export const TESTNET_GAS_ESTIMATES: GasEstimates = {
     },
   },
   arbitrumgoerli: {
-    claim: 150000,
-    sendNative: 100000,
-    sendToken: 150000,
-    sendCCTPManual: 150000,
-    sendCCTPWithRelay: 300000,
+    [Route.Bridge]: {
+      sendNative: 100000,
+      sendToken: 150000,
+      claim: 150000,
+    },
+    [Route.CCTPManual]: {
+      sendToken: 150000,
+    },
+    [Route.CCTPRelay]: {
+      sendToken: 300000,
+    },
   },
   optimismgoerli: {
-    claim: 100000,
-    sendNative: 100000,
-    sendToken: 100000,
-    sendCCTPManual: 150000,
-    sendCCTPWithRelay: 300000,
+    [Route.Bridge]: {
+      sendNative: 100000,
+      sendToken: 100000,
+      claim: 100000,
+    },
+    [Route.CCTPManual]: {
+      sendToken: 150000,
+    },
+    [Route.CCTPRelay]: {
+      sendToken: 300000,
+    },
   },
 };

@@ -146,17 +146,31 @@ export const MAINNET_GAS_ESTIMATES: GasEstimates = {
     },
   },
   arbitrum: {
-    claim: 4000000,
-    sendNative: 1000000,
-    sendToken: 1000000,
-    sendCCTPWithRelay: 1500000,
-    sendCCTPManual: 800000,
+    [Route.Bridge]: {
+      sendNative: 1000000,
+      sendToken: 1000000,
+      claim: 4000000,
+    },
+    [Route.CCTPManual]: {
+      sendToken: 800000,
+      claim: 4000000,
+    },
+    [Route.CCTPRelay]: {
+      sendToken: 1500000,
+    },
   },
   optimism: {
-    claim: 300000,
-    sendNative: 100000,
-    sendToken: 100000,
-    sendCCTPManual: 100000,
-    sendCCTPWithRelay: 150000,
+    [Route.Bridge]: {
+      sendNative: 100000,
+      sendToken: 100000,
+      claim: 300000,
+    },
+    [Route.CCTPManual]: {
+      sendToken: 100000,
+      claim: 300000,
+    },
+    [Route.CCTPRelay]: {
+      sendToken: 150000,
+    },
   },
 };

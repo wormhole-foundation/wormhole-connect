@@ -7,7 +7,7 @@ import { makeStyles } from 'tss-react/mui';
 
 import { CHAINS } from 'config';
 import { getCurrentBlock } from 'utils/sdk';
-import { ROUTES } from 'config/routes';
+import { RoutesConfig } from 'config/routes';
 import { RootState } from 'store';
 
 const BorderLinearProgress = styled(LinearProgress)(({ theme }: any) => ({
@@ -88,8 +88,10 @@ function Confirmations(props: Props) {
           <>
             {confirmations} / {chainConfig.finalityThreshold} Confirmations
           </>
+        ) : route ? (
+          RoutesConfig[route].pendingMessage
         ) : (
-          ROUTES[route].pendingMessage
+          ''
         )}
       </div>
     </div>

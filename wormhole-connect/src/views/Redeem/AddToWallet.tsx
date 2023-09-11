@@ -154,11 +154,7 @@ function AddToWallet() {
       const tokenInfo = TOKENS[txData.tokenKey];
       const wrapped = getWrappedToken(tokenInfo);
       if (!wrapped.tokenId) return;
-      const address = await new Operator().getForeignAsset(
-        route,
-        wrapped.tokenId,
-        txData.toChain,
-      );
+      const address = await wh.getForeignAsset(wrapped.tokenId, txData.toChain);
 
       if (txData.toChain === 'sui' && address) {
         const context = wh.getContext('sui') as SuiContext<WormholeContext>;
