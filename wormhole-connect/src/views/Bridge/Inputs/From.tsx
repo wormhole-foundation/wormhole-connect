@@ -8,6 +8,7 @@ import {
   selectFromChain,
   setAmount,
   setReceiveAmount,
+  accessBalance,
 } from 'store/transferInput';
 import { CHAINS, CHAINS_ARR, TOKENS } from 'config';
 import { TransferWallet, walletAcceptedChains } from 'utils/wallet';
@@ -34,13 +35,13 @@ function FromInputs() {
     route,
     fromChain,
     toChain,
-    sourceBalances: balances,
+    balances,
     token,
     amount,
     isTransactionInProgress,
   } = useSelector((state: RootState) => state.transferInput);
   const tokenConfig = token && TOKENS[token];
-  const balance = balances[token] || undefined;
+  const balance = accessBalance(balances, fromChain, token) || undefined;
 
   const isDisabled = (chain: ChainName) => {
     // Check if the wallet type (i.e. Metamask, Phantom...) is supported for the given chain

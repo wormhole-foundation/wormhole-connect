@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 
 import { swapWallets } from 'store/wallet';
-import { swapChains, clearBalances } from 'store/transferInput';
+import { swapChains } from 'store/transferInput';
 
 const useStyles = makeStyles()((theme: any) => ({
   button: {
@@ -28,7 +28,6 @@ function SwapChains() {
   const swap = () => {
     dispatch(swapChains());
     dispatch(swapWallets());
-    dispatch(clearBalances('all'));
   };
 
   return (
