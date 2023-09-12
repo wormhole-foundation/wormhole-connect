@@ -205,7 +205,6 @@ function Bridge() {
     destToken,
     amount,
     dispatch,
-    route,
   ]);
 
   useEffect(() => {
