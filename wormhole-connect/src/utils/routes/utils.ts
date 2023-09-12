@@ -4,11 +4,7 @@ import {
   parseTokenTransferPayload,
   parseVaa,
 } from '@certusone/wormhole-sdk';
-import {
-  ChainName,
-  ChainId,
-  Context,
-} from '@wormhole-foundation/wormhole-connect-sdk';
+import { ChainName, ChainId } from '@wormhole-foundation/wormhole-connect-sdk';
 import { CHAINS } from 'config';
 import { Route } from 'config/types';
 import { BigNumber, utils } from 'ethers';
@@ -40,8 +36,5 @@ export const formatGasFee = (chain: ChainName | ChainId, gasFee: BigNumber) => {
   const chainName = wh.toChainName(chain);
   const chainConfig = CHAINS[chainName]!;
   const nativeDecimals = chainConfig.nativeTokenDecimals;
-  if (chainConfig.context === Context.ETH) {
-    return toFixedDecimals(utils.formatUnits(gasFee, 9), 6);
-  }
   return toFixedDecimals(utils.formatUnits(gasFee, nativeDecimals), 6);
 };

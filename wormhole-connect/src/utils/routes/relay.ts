@@ -89,7 +89,22 @@ export class RelayRoute extends BridgeRoute {
     const tokenConfig = TOKENS[sourceToken]!;
     const tokenId = getWrappedTokenId(tokenConfig);
     const accepted = await isAcceptedToken(tokenId);
-    return accepted;
+
+    if (!accepted) return false;
+
+    let relayerFee;
+    try {
+      relayerFee = await this.getRelayerFee(
+        sourceChain,
+        destChain,
+        sourceToken,
+      );
+    } catch {}
+    const decimals = getTokenDecimals(wh.toChainId(sourceChain), tokenId);
+    return !(
+      relayerFee === undefined ||
+      parseFloat(amount) < parseFloat(toDecimals(relayerFee, decimals))
+    );
   }
 
   async isSupportedSourceToken(
