@@ -13,6 +13,7 @@ import AppRouter from './AppRouter';
 import { getDesignTokens } from './theme';
 import { THEME_MODE } from './config';
 import BackgroundImage from './components/Background/BackgroundImage';
+import ErrorBoundary from './components/ErrorBoundary';
 
 const ColorModeContext = React.createContext({ toggleColorMode: () => {} });
 
@@ -37,9 +38,11 @@ function App() {
       <ColorModeContext.Provider value={colorMode}>
         <ThemeProvider theme={theme}>
           <ScopedCssBaseline enableColorScheme>
-            <BackgroundImage>
-              <AppRouter />
-            </BackgroundImage>
+            <ErrorBoundary>
+              <BackgroundImage>
+                <AppRouter />
+              </BackgroundImage>
+            </ErrorBoundary>
           </ScopedCssBaseline>
         </ThemeProvider>
       </ColorModeContext.Provider>
