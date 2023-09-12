@@ -213,12 +213,12 @@ function Bridge() {
       const newReceiveAmount = await RouteOperator.computeReceiveAmount(
         route,
         Number.parseFloat(amount),
-        { toNativeToken },
+        { toNativeToken, relayerFee },
       );
       dispatch(setReceiveAmount(newReceiveAmount.toString()));
     };
     recomputeReceive();
-  }, [amount, toNativeToken, route, dispatch]);
+  }, [amount, toNativeToken, relayerFee, route, dispatch]);
 
   // validate transfer inputs
   useEffect(() => {

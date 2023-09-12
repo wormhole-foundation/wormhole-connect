@@ -105,7 +105,7 @@ function GasSlider(props: { disabled: boolean }) {
     (state: RootState) => state.relay,
   );
   const amountNum = useMemo(() => {
-    return Number.parseFloat(amount) - (toNativeToken || 0) - (relayerFee || 0);
+    return Number.parseFloat(amount) - (relayerFee || 0);
   }, [amount, relayerFee, toNativeToken]);
   const { receiving: receivingWallet } = useSelector(
     (state: RootState) => state.wallet,
@@ -129,23 +129,20 @@ function GasSlider(props: { disabled: boolean }) {
     )
       return;
 
-    const r = RouteOperator.getRoute(route);
-    const min = r.getMinSendAmount({ relayerFee, toNativeToken: 0 });
-    const amountWithoutRelayerFee = amountNum - min;
+    //const r = RouteOperator.getRoute(route);
+    //const min = r.getMinSendAmount({ relayerFee, toNativeToken: 0 });
+    //const amountWithoutRelayerFee = amountNum - min;
     const actualMaxSwap =
-      amountNum &&
-      maxSwapAmt &&
-      Math.max(Math.min(maxSwapAmt, amountWithoutRelayerFee), 0);
+      amountNum && maxSwapAmt && Math.max(Math.min(maxSwapAmt, amountNum), 0);
 
-    const newTokenAmount = amountNum - state.swapAmt - (relayerFee || 0);
-
+    const newTokenAmount = amountNum - state.swapAmt;
     setState((prevState) => ({
       ...prevState,
-      disabled: amountNum <= min,
+      disabled: amountNum <= 0,
       token: formatAmount(newTokenAmount),
       max: formatAmount(actualMaxSwap),
     }));
-  }, [maxSwapAmt, amountNum, route, state.swapAmt, relayerFee]);
+  }, [maxSwapAmt, amountNum, route, state.swapAmt]);
 
   useEffect(() => {
     if (
@@ -222,7 +219,7 @@ function GasSlider(props: { disabled: boolean }) {
         ...prevState,
         swapAmt: 0,
         nativeGas: 0,
-        token: formatAmount(Number.parseFloat(amount)),
+        token: formatAmount(amountNum),
       }));
       dispatch(setReceiveNativeAmt(0));
     }
@@ -230,9 +227,9 @@ function GasSlider(props: { disabled: boolean }) {
 
   // compute amounts on change
   const handleChange = (e: any) => {
-    if (!amount || !state.conversionRate) return;
+    if (!amountNum || !state.conversionRate) return;
     const newGasAmount = e.target.value * state.conversionRate;
-    const newTokenAmount = Number.parseFloat(amount) - e.target.value;
+    const newTokenAmount = amountNum - e.target.value;
     const swapAmount = e.target.value;
     const conversion = {
       nativeGas: formatAmount(newGasAmount),
@@ -276,7 +273,7 @@ function GasSlider(props: { disabled: boolean }) {
       setState((prevState) => ({
         ...prevState,
         nativeGas: formattedNativeAmt,
-        token: formatAmount(Number.parseFloat(amount) - debouncedSwapAmt),
+        token: formatAmount(amountNum - debouncedSwapAmt),
       }));
     })();
     return () => {
@@ -291,7 +288,7 @@ function GasSlider(props: { disabled: boolean }) {
     receivingToken,
     toChain,
     route,
-    amount,
+    amountNum,
   ]);
 
   const banner = !props.disabled && !!route && (
