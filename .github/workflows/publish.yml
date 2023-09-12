@@ -1,0 +1,34 @@
+name: Publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "The tagged version to release."
+        required: true
+        type: "string"
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.tag }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          cache: "npm"
+          registry-url: "https://registry.npmjs.org"
+      - run: npm ci
+      - run: npm run lint:ci
+      - run: npm run build
+      - run: |
+          cd wormhole-connect-loader
+          IFS='@' read -a strarr <<< $(git describe --tags)
+          sed  -i "s/\"version\": .*/\"version\": \"${strarr[1]}$(echo $([ ${strarr[0]} == "production" ] && echo "" || echo "-${strarr[0]}"))\",/" package.json
+          npm publish --tag $(echo $([ ${strarr[0]} == "production" ] && echo "latest" || echo ${strarr[0]})) --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          # https://docs.github.com/en/actions/publishing-packages/publishing-nodejs-packages#publishing-packages-to-the-npm-registry
