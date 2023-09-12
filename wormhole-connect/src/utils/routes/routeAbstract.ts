@@ -92,7 +92,7 @@ export default abstract class RouteAbstract {
   // estimate claim gas fees, return 0 if none
   public abstract estimateClaimGas(
     destChain: ChainName | ChainId,
-    VAA?: Uint8Array,
+    signedMessage?: SignedMessage,
   ): Promise<BigNumber>;
 
   /**

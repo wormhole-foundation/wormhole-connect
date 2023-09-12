@@ -9,7 +9,7 @@ import { GAS_ESTIMATES } from 'config';
 import { GasEstimateOptions, Route } from 'config/types';
 import { wh } from './sdk';
 import RouteOperator from './routes/operator';
-import { formatGasFee } from './routes';
+import { SignedMessage, formatGasFee } from './routes';
 
 export const simulateRelayAmount = (
   route: Route,
@@ -73,12 +73,12 @@ export const estimateSendGas = async (
 export const estimateClaimGas = async (
   route: Route,
   destChain: ChainName | ChainId,
-  VAA?: Uint8Array,
+  signedMessage?: SignedMessage,
 ): Promise<string> => {
   let gas: BigNumber;
   try {
     const r = RouteOperator.getRoute(route);
-    gas = await r.estimateClaimGas(destChain, VAA);
+    gas = await r.estimateClaimGas(destChain, signedMessage);
   } catch (_) {
     gas = getGasFallback(destChain, route, 'claim');
   }

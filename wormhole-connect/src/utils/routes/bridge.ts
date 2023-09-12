@@ -117,10 +117,14 @@ export class BridgeRoute extends BaseRoute {
 
   async estimateClaimGas(
     destChain: ChainName | ChainId,
-    VAA?: Uint8Array,
+    signedMessage?: SignedMessage,
   ): Promise<BigNumber> {
-    if (!VAA) throw new Error('Cannot estimate gas without signedVAA');
-    return await wh.estimateClaimGas(destChain, VAA);
+    if (!signedMessage)
+      throw new Error('Cannot estimate gas without signedVAA');
+    if (!isSignedWormholeMessage(signedMessage)) {
+      throw new Error('Invalid signed message');
+    }
+    return await wh.estimateClaimGas(destChain, arrayify(signedMessage.vaa));
   }
 
   /**
