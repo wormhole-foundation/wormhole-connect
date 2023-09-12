@@ -2,10 +2,11 @@ import { BigNumber, utils } from 'ethers';
 import {
   ChainName,
   ChainId,
+  Context,
   TokenId,
   NATIVE,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { GAS_ESTIMATES } from 'config';
+import { CHAINS, GAS_ESTIMATES } from 'config';
 import { GasEstimateOptions, Route } from 'config/types';
 import { wh } from './sdk';
 import RouteOperator from './routes/operator';
@@ -81,6 +82,12 @@ export const estimateClaimGas = async (
     gas = await r.estimateClaimGas(destChain, VAA);
   } catch (_) {
     gas = getGasFallback(destChain, route, 'claim');
+
+    // gas estimates for evm come in gwei
+    const config = CHAINS[wh.toChainName(destChain)];
+    if (config?.context === Context.ETH) {
+      gas = utils.parseUnits(gas.toString(), 'gwei');
+    }
   }
   if (!gas) throw new Error('could not estimate send gas');
   return formatGasFee(destChain, gas);
