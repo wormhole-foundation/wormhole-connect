@@ -187,14 +187,11 @@ export class CCTPRelayRoute extends CCTPManualRoute {
         sourceToken,
       );
     } catch {}
-    const decimals = 6;
-    if (
-      relayerFee === undefined ||
-      parseFloat(amount) < parseFloat(toDecimals(relayerFee, decimals))
-    )
-      return false;
 
-    return true;
+    return !(
+      relayerFee === undefined ||
+      parseFloat(amount) < parseFloat(toDecimals(relayerFee, 6))
+    );
   }
 
   async computeReceiveAmount(

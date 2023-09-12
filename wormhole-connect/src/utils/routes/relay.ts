@@ -101,13 +101,10 @@ export class RelayRoute extends BridgeRoute {
       );
     } catch {}
     const decimals = getTokenDecimals(wh.toChainId(sourceChain), tokenId);
-    if (
+    return !(
       relayerFee === undefined ||
       parseFloat(amount) < parseFloat(toDecimals(relayerFee, decimals))
-    )
-      return false;
-
-    return true;
+    );
   }
 
   async isSupportedSourceToken(
