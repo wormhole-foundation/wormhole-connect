@@ -129,9 +129,6 @@ function GasSlider(props: { disabled: boolean }) {
     )
       return;
 
-    //const r = RouteOperator.getRoute(route);
-    //const min = r.getMinSendAmount({ relayerFee, toNativeToken: 0 });
-    //const amountWithoutRelayerFee = amountNum - min;
     const actualMaxSwap =
       amountNum && maxSwapAmt && Math.max(Math.min(maxSwapAmt, amountNum), 0);
 
