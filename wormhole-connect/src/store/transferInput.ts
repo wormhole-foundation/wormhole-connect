@@ -33,10 +33,12 @@ export const getNativeVersionOfToken = (
   tokenSymbol: string,
   chain: ChainName,
 ): string => {
-  return Object.entries(TOKENS)
-    .map(([key, t]) => t)
-    .find((t) => t.symbol === tokenSymbol && t.nativeChain === chain)?.key ||
-  '';
+  return (
+    Object.entries(TOKENS)
+      .map(([key, t]) => t)
+      .find((t) => t.symbol === tokenSymbol && t.nativeChain === chain)?.key ||
+    ''
+  );
 };
 
 export const accessBalance = (
@@ -128,9 +130,7 @@ const initialState: TransferInputState = {
   supportedDestTokens: [],
 };
 
-const performModificationsIfFromChainChanged = (
-  state: TransferInputState,
-) => {
+const performModificationsIfFromChainChanged = (state: TransferInputState) => {
   const { fromChain, token } = state;
   if (token) {
     const tokenConfig = TOKENS[token];
@@ -159,10 +159,7 @@ const performModificationsIfToChainChanged = (state: TransferInputState) => {
     if (!toChain) {
       state.destToken = '';
     }
-    if (
-      tokenConfig.symbol === 'USDC' &&
-      tokenConfig.nativeChain !== toChain
-    ) {
+    if (tokenConfig.symbol === 'USDC' && tokenConfig.nativeChain !== toChain) {
       state.destToken = getNativeVersionOfToken('USDC', toChain!);
     }
   }

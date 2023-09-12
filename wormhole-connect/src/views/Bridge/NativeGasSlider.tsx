@@ -106,7 +106,7 @@ function GasSlider(props: { disabled: boolean }) {
   );
   const amountNum = useMemo(() => {
     return Number.parseFloat(amount) - (toNativeToken || 0) - (relayerFee || 0);
-  }, [amount]);
+  }, [amount, relayerFee, toNativeToken]);
   const { receiving: receivingWallet } = useSelector(
     (state: RootState) => state.wallet,
   );

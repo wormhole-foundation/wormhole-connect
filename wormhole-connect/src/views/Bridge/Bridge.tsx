@@ -153,7 +153,11 @@ function Bridge() {
       // If all the supported tokens are the same token
       // select the native version
       const symbols = supported.map((t) => t.symbol);
-      if (destToken === '' && toChain && symbols.every((s) => s === symbols[0])) {
+      if (
+        destToken === '' &&
+        toChain &&
+        symbols.every((s) => s === symbols[0])
+      ) {
         const key = supported.find(
           (t) =>
             t.symbol === symbols[0] &&
