@@ -180,6 +180,7 @@ function Bridge() {
         dispatch(setTransferRoute(undefined));
         return;
       }
+      if (route && availableRoutes.includes(route)) return;
       const routeOrderOfPreference = [
         Route.CosmosGateway,
         Route.CCTPRelay,
@@ -205,6 +206,7 @@ function Bridge() {
     destToken,
     amount,
     dispatch,
+    route,
   ]);
 
   useEffect(() => {
