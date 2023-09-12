@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { MouseEvent, MouseEventHandler } from 'react';
 import { makeStyles } from 'tss-react/mui';
-import { joinClass } from '../utils/style';
+import { joinClass } from 'utils/style';
 
 const useStyles = makeStyles()((theme: any) => ({
   button: {
@@ -35,12 +35,12 @@ type Props = {
   elevated?: boolean;
   disabled?: boolean;
   children: React.ReactNode;
-  onClick?: React.MouseEventHandler<HTMLDivElement>;
+  onClick?: MouseEventHandler<HTMLDivElement>;
 };
 
 function Button(props: Props) {
   const { classes } = useStyles();
-  const click = (e) => {
+  const click = (e: MouseEvent<HTMLDivElement>) => {
     if (props.onClick && !props.disabled) {
       props.onClick(e);
     }

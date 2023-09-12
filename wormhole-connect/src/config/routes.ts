@@ -1,8 +1,8 @@
-import { Route } from '../store/transferInput';
 import WormholeIcon from '../icons/Routes/Wormhole';
 import XLabsIcon from '../icons/Routes/XLabs';
-import HashflowIcon from '../icons/Routes/Hashflow';
+// import HashflowIcon from '../icons/Routes/Hashflow';
 import CCTPIcon from '../icons/Routes/CCTP';
+import { Route } from './types';
 
 export type RouteData = {
   route: Route;
@@ -13,33 +13,33 @@ export type RouteData = {
   pendingMessage: string;
 };
 
-export const ROUTES: {
+export const RoutesConfig: {
   [route in Route]: RouteData;
 } = {
-  [Route.BRIDGE]: {
-    route: Route.BRIDGE,
+  [Route.Bridge]: {
+    route: Route.Bridge,
     name: 'Bridge',
     providedBy: 'Wormhole',
     link: 'https://wormhole.com/',
     icon: WormholeIcon,
     pendingMessage: 'Waiting for Wormhole network consensus . . .',
   },
-  [Route.RELAY]: {
-    route: Route.RELAY,
+  [Route.Relay]: {
+    route: Route.Relay,
     name: 'Automatic Deposit',
     providedBy: 'xLabs',
     link: 'https://xlabs.xyz',
     icon: XLabsIcon,
     pendingMessage: 'Waiting for Wormhole network consensus . . .',
   },
-  [Route.HASHFLOW]: {
-    route: Route.HASHFLOW,
-    name: 'Hashflow',
-    providedBy: 'Hashflow',
-    link: 'https://www.hashflow.com/',
-    icon: HashflowIcon,
-    pendingMessage: 'Waiting for Wormhole network consensus . . .',
-  },
+  // [Route.Hashflow]: {
+  //   route: Route.Hashflow,
+  //   name: 'Hashflow',
+  //   providedBy: 'Hashflow',
+  //   link: 'https://www.hashflow.com/',
+  //   icon: HashflowIcon,
+  //   pendingMessage: 'Waiting for Wormhole network consensus . . .',
+  // },
   [Route.CCTPManual]: {
     route: Route.CCTPManual,
     name: 'Circle CCTP',
@@ -56,8 +56,8 @@ export const ROUTES: {
     icon: CCTPIcon,
     pendingMessage: 'Waiting for Circle attestation . . .',
   },
-  [Route.COSMOS_GATEWAY]: {
-    route: Route.COSMOS_GATEWAY,
+  [Route.CosmosGateway]: {
+    route: Route.CosmosGateway,
     name: 'Cosmos Gateway',
     providedBy: 'Wormhole',
     link: 'https://wormhole.com/',

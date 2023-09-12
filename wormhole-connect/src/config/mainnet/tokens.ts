@@ -1,178 +1,10 @@
-import { CONFIG } from '@wormhole-foundation/wormhole-connect-sdk';
-import { NetworksConfig, TokenConfig, Icon, GasEstimates } from './types';
+import { Icon, TokensConfig } from '../types';
 
-const { chains } = CONFIG.MAINNET;
-
-export const MAINNET_NETWORKS: NetworksConfig = {
-  ethereum: {
-    ...chains.ethereum!,
-    displayName: 'Ethereum',
-    explorerUrl: 'https://etherscan.io/',
-    explorerName: 'Etherscan',
-    gasToken: 'ETH',
-    chainId: 1,
-    icon: Icon.ETH,
-    automaticRelayer: true,
-    maxBlockSearch: 2000,
-  },
-  bsc: {
-    ...chains.bsc!,
-    displayName: 'BSC',
-    explorerUrl: 'https://bscscan.com/',
-    explorerName: 'BscScan',
-    gasToken: 'BNB',
-    chainId: 56,
-    icon: Icon.BSC,
-    automaticRelayer: true,
-    maxBlockSearch: 2000,
-  },
-  polygon: {
-    ...chains.polygon!,
-    displayName: 'Polygon',
-    explorerUrl: 'https://polygonscan.com/',
-    explorerName: 'PolygonScan',
-    gasToken: 'MATIC',
-    chainId: 137,
-    icon: Icon.POLYGON,
-    automaticRelayer: true,
-    maxBlockSearch: 1000,
-  },
-  avalanche: {
-    ...chains.avalanche!,
-    displayName: 'Avalanche',
-    explorerUrl: 'https://snowtrace.io/',
-    explorerName: 'Snowtrace',
-    gasToken: 'AVAX',
-    chainId: 43114,
-    icon: Icon.AVAX,
-    automaticRelayer: true,
-    maxBlockSearch: 2000,
-  },
-  fantom: {
-    ...chains.fantom!,
-    displayName: 'Fantom',
-    explorerUrl: 'https://ftmscan.com/',
-    explorerName: 'FTMscan',
-    gasToken: 'FTM',
-    chainId: 250,
-    icon: Icon.FANTOM,
-    automaticRelayer: true,
-    maxBlockSearch: 2000,
-  },
-  celo: {
-    ...chains.celo!,
-    displayName: 'Celo',
-    explorerUrl: 'https://explorer.celo.org/mainnet/',
-    explorerName: 'Celo Explorer',
-    gasToken: 'CELO',
-    chainId: 42220,
-    icon: Icon.CELO,
-    automaticRelayer: true,
-    maxBlockSearch: 2000,
-  },
-  moonbeam: {
-    ...chains.moonbeam!,
-    displayName: 'Moonbeam',
-    explorerUrl: 'https://moonscan.io/',
-    explorerName: 'Moonscan',
-    gasToken: 'GLMR',
-    chainId: 1284,
-    icon: Icon.GLMR,
-    automaticRelayer: true,
-    maxBlockSearch: 2000,
-  },
-  solana: {
-    ...chains.solana!,
-    displayName: 'Solana',
-    explorerUrl: 'https://explorer.solana.com/',
-    explorerName: 'Solana Explorer',
-    gasToken: 'SOL',
-    chainId: 0,
-    icon: Icon.SOLANA,
-    automaticRelayer: false,
-    maxBlockSearch: 2000,
-  },
-  sui: {
-    ...chains.sui!,
-    displayName: 'Sui',
-    explorerUrl: 'https://explorer.sui.io/',
-    explorerName: 'Sui Explorer',
-    gasToken: 'SUI',
-    chainId: 0,
-    icon: Icon.SUI,
-    automaticRelayer: true,
-    maxBlockSearch: 0,
-  },
-  aptos: {
-    ...chains.aptos!,
-    displayName: 'Aptos',
-    explorerUrl: 'https://explorer.aptoslabs.com/',
-    explorerName: 'Aptos Explorer',
-    gasToken: 'APT',
-    chainId: 0,
-    icon: Icon.APT,
-    automaticRelayer: false,
-    maxBlockSearch: 0,
-  },
-  arbitrum: {
-    ...chains.arbitrum!,
-    displayName: 'Arbitrum',
-    explorerUrl: 'https://arbiscan.io/',
-    explorerName: 'Arbitrum Explorer',
-    gasToken: 'ETHarbitrum',
-    chainId: 42161,
-    icon: Icon.ARBITRUM,
-    maxBlockSearch: 2000,
-  },
-  optimism: {
-    ...chains.optimism!,
-    displayName: 'Optimism',
-    explorerUrl: 'https://optimistic.etherscan.io/',
-    explorerName: 'Optimistic Etherscan',
-    gasToken: 'ETHoptimism',
-    chainId: 10,
-    icon: Icon.OPTIMISM,
-    maxBlockSearch: 2000,
-  },
-  base: {
-    ...chains.base!,
-    displayName: 'Base',
-    explorerUrl: 'https://basescan.org/',
-    explorerName: 'BaseScan',
-    gasToken: 'ETHbase',
-    chainId: 8453,
-    icon: Icon.BASE,
-    maxBlockSearch: 2000,
-  },
-  osmosis: {
-    ...chains.osmosis!,
-    displayName: 'Osmosis',
-    explorerUrl: 'https://mintscan.io/osmosis/',
-    explorerName: 'MintScan',
-    gasToken: 'OSMO',
-    chainId: 'osmosis-1',
-    icon: Icon.OSMO,
-    automaticRelayer: false,
-    maxBlockSearch: 0,
-  },
-  wormchain: {
-    ...chains.wormchain!,
-    displayName: 'Wormchain',
-    explorerUrl: '',
-    explorerName: '',
-    gasToken: 'WORM',
-    chainId: '',
-    icon: Icon.OSMO,
-    automaticRelayer: false,
-    maxBlockSearch: 0,
-  },
-};
-
-export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
+export const MAINNET_TOKENS: TokensConfig = {
   ETH: {
     key: 'ETH',
     symbol: 'ETH',
-    nativeNetwork: 'ethereum',
+    nativeChain: 'ethereum',
     icon: Icon.ETH,
     coinGeckoId: 'ethereum',
     color: '#62688F',
@@ -185,7 +17,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   WETH: {
     key: 'WETH',
     symbol: 'WETH',
-    nativeNetwork: 'ethereum',
+    nativeChain: 'ethereum',
     icon: Icon.ETH,
     tokenId: {
       chain: 'ethereum',
@@ -201,7 +33,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   USDCeth: {
     key: 'USDCeth',
     symbol: 'USDC',
-    nativeNetwork: 'ethereum',
+    nativeChain: 'ethereum',
     icon: Icon.USDC,
     tokenId: {
       chain: 'ethereum',
@@ -216,7 +48,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   WBTC: {
     key: 'WBTC',
     symbol: 'WBTC',
-    nativeNetwork: 'ethereum',
+    nativeChain: 'ethereum',
     icon: Icon.WBTC,
     tokenId: {
       chain: 'ethereum',
@@ -231,7 +63,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   USDT: {
     key: 'USDT',
     symbol: 'USDT',
-    nativeNetwork: 'ethereum',
+    nativeChain: 'ethereum',
     icon: Icon.USDT,
     tokenId: {
       chain: 'ethereum',
@@ -246,7 +78,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   DAI: {
     key: 'DAI',
     symbol: 'DAI',
-    nativeNetwork: 'ethereum',
+    nativeChain: 'ethereum',
     icon: Icon.DAI,
     tokenId: {
       chain: 'ethereum',
@@ -262,7 +94,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   BUSD: {
     key: 'BUSD',
     symbol: 'BUSD',
-    nativeNetwork: 'ethereum',
+    nativeChain: 'ethereum',
     icon: Icon.BUSD,
     tokenId: {
       chain: 'ethereum',
@@ -278,7 +110,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   MATIC: {
     key: 'MATIC',
     symbol: 'MATIC',
-    nativeNetwork: 'polygon',
+    nativeChain: 'polygon',
     icon: Icon.POLYGON,
     coinGeckoId: 'matic-network',
     color: '#8247E5',
@@ -291,7 +123,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   WMATIC: {
     key: 'WMATIC',
     symbol: 'WMATIC',
-    nativeNetwork: 'polygon',
+    nativeChain: 'polygon',
     icon: Icon.POLYGON,
     tokenId: {
       chain: 'polygon',
@@ -307,7 +139,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   USDCpolygon: {
     key: 'USDCpolygon',
     symbol: 'USDC',
-    nativeNetwork: 'polygon',
+    nativeChain: 'polygon',
     icon: Icon.USDC,
     tokenId: {
       chain: 'polygon',
@@ -322,7 +154,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   BNB: {
     key: 'BNB',
     symbol: 'BNB',
-    nativeNetwork: 'bsc',
+    nativeChain: 'bsc',
     icon: Icon.BNB,
     coinGeckoId: 'binancecoin',
     color: '#F3BA30',
@@ -335,7 +167,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   WBNB: {
     key: 'WBNB',
     symbol: 'WBNB',
-    nativeNetwork: 'bsc',
+    nativeChain: 'bsc',
     icon: Icon.BNB,
     tokenId: {
       chain: 'bsc',
@@ -351,7 +183,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   USDCbnb: {
     key: 'USDCbnb',
     symbol: 'USDC',
-    nativeNetwork: 'bsc',
+    nativeChain: 'bsc',
     icon: Icon.USDC,
     tokenId: {
       chain: 'bsc',
@@ -367,7 +199,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   AVAX: {
     key: 'AVAX',
     symbol: 'AVAX',
-    nativeNetwork: 'avalanche',
+    nativeChain: 'avalanche',
     icon: Icon.AVAX,
     coinGeckoId: 'avalanche-2',
     color: '#E84141',
@@ -380,7 +212,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   WAVAX: {
     key: 'WAVAX',
     symbol: 'WAVAX',
-    nativeNetwork: 'avalanche',
+    nativeChain: 'avalanche',
     icon: Icon.AVAX,
     tokenId: {
       chain: 'avalanche',
@@ -396,7 +228,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   USDCavax: {
     key: 'USDCavax',
     symbol: 'USDC',
-    nativeNetwork: 'avalanche',
+    nativeChain: 'avalanche',
     icon: Icon.USDC,
     tokenId: {
       chain: 'avalanche',
@@ -411,7 +243,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   FTM: {
     key: 'FTM',
     symbol: 'FTM',
-    nativeNetwork: 'fantom',
+    nativeChain: 'fantom',
     icon: Icon.FANTOM,
     coinGeckoId: 'fantom',
     color: '#12B4EC',
@@ -424,7 +256,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   WFTM: {
     key: 'WFTM',
     symbol: 'WFTM',
-    nativeNetwork: 'fantom',
+    nativeChain: 'fantom',
     icon: Icon.FANTOM,
     tokenId: {
       chain: 'fantom',
@@ -440,7 +272,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   CELO: {
     key: 'CELO',
     symbol: 'CELO',
-    nativeNetwork: 'celo',
+    nativeChain: 'celo',
     icon: Icon.CELO,
     tokenId: {
       chain: 'celo',
@@ -456,7 +288,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   GLMR: {
     key: 'GLMR',
     symbol: 'GLMR',
-    nativeNetwork: 'moonbeam',
+    nativeChain: 'moonbeam',
     icon: Icon.GLMR,
     coinGeckoId: 'moonbeam',
     color: '#e1147b',
@@ -469,7 +301,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   WGLMR: {
     key: 'WGLMR',
     symbol: 'WGLMR',
-    nativeNetwork: 'moonbeam',
+    nativeChain: 'moonbeam',
     icon: Icon.GLMR,
     tokenId: {
       chain: 'moonbeam',
@@ -485,7 +317,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   SOL: {
     key: 'SOL',
     symbol: 'SOL',
-    nativeNetwork: 'solana',
+    nativeChain: 'solana',
     icon: Icon.SOLANA,
     coinGeckoId: 'solana',
     color: '#8457EF',
@@ -499,7 +331,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   WSOL: {
     key: 'WSOL',
     symbol: 'WSOL',
-    nativeNetwork: 'solana',
+    nativeChain: 'solana',
     tokenId: {
       chain: 'solana',
       address: 'So11111111111111111111111111111111111111112',
@@ -516,7 +348,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   USDCsol: {
     key: 'USDCsol',
     symbol: 'USDC',
-    nativeNetwork: 'solana',
+    nativeChain: 'solana',
     tokenId: {
       chain: 'solana',
       address: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
@@ -531,7 +363,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   SUI: {
     key: 'SUI',
     symbol: 'SUI',
-    nativeNetwork: 'sui',
+    nativeChain: 'sui',
     tokenId: {
       chain: 'sui',
       address: '0x2::sui::SUI',
@@ -548,7 +380,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   APT: {
     key: 'APT',
     symbol: 'APT',
-    nativeNetwork: 'aptos',
+    nativeChain: 'aptos',
     tokenId: {
       chain: 'aptos',
       address: '0x1::aptos_coin::AptosCoin',
@@ -564,7 +396,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   ETHarbitrum: {
     key: 'ETHarbitrum',
     symbol: 'ETH',
-    nativeNetwork: 'arbitrum',
+    nativeChain: 'arbitrum',
     icon: Icon.ETH,
     coinGeckoId: 'ethereum',
     color: '#5794EC',
@@ -577,7 +409,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   WETHarbitrum: {
     key: 'WETHarbitrum',
     symbol: 'WETH',
-    nativeNetwork: 'arbitrum',
+    nativeChain: 'arbitrum',
     icon: Icon.ETH,
     tokenId: {
       chain: 'arbitrum',
@@ -593,7 +425,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   USDCarbitrum: {
     key: 'USDCarbitrum',
     symbol: 'USDC',
-    nativeNetwork: 'arbitrum',
+    nativeChain: 'arbitrum',
     icon: Icon.USDC,
     tokenId: {
       chain: 'arbitrum',
@@ -608,7 +440,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   ETHoptimism: {
     key: 'ETHoptimism',
     symbol: 'ETH',
-    nativeNetwork: 'optimism',
+    nativeChain: 'optimism',
     icon: Icon.ETH,
     coinGeckoId: 'ethereum',
     color: '#D53424',
@@ -621,7 +453,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   WETHoptimism: {
     key: 'WETHoptimism',
     symbol: 'WETH',
-    nativeNetwork: 'optimism',
+    nativeChain: 'optimism',
     icon: Icon.ETH,
     tokenId: {
       chain: 'optimism',
@@ -637,7 +469,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   USDCoptimism: {
     key: 'USDCoptimism',
     symbol: 'USDC',
-    nativeNetwork: 'optimism',
+    nativeChain: 'optimism',
     icon: Icon.USDC,
     tokenId: {
       chain: 'optimism',
@@ -652,7 +484,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   // SEI: {
   //   key: 'SEI',
   //   symbol: 'SEI',
-  //   nativeNetwork: 'sei',
+  //   nativeChain: 'sei',
   //   tokenId: {
   //     chain: 'sei',
   //     address: 'usei',
@@ -668,7 +500,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   ETHbase: {
     key: 'ETHbase',
     symbol: 'ETH',
-    nativeNetwork: 'base',
+    nativeChain: 'base',
     icon: Icon.ETH,
     coinGeckoId: 'ethereum',
     color: '#62688F',
@@ -681,7 +513,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   WETHbase: {
     key: 'WETHbase',
     symbol: 'WETH',
-    nativeNetwork: 'base',
+    nativeChain: 'base',
     icon: Icon.ETH,
     tokenId: {
       chain: 'base',
@@ -697,7 +529,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   OSMO: {
     key: 'OSMO',
     symbol: 'OSMO',
-    nativeNetwork: 'osmosis',
+    nativeChain: 'osmosis',
     tokenId: {
       chain: 'osmosis',
       address: 'uosmo',
@@ -712,7 +544,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   tBTC: {
     key: 'tBTC',
     symbol: 'tBTC',
-    nativeNetwork: 'ethereum',
+    nativeChain: 'ethereum',
     tokenId: {
       chain: 'ethereum',
       address: '0x18084fbA666a33d37592fA2633fD49a74DD93a88',
@@ -728,7 +560,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   wstETH: {
     key: 'wstETH',
     symbol: 'wstETH',
-    nativeNetwork: 'ethereum',
+    nativeChain: 'ethereum',
     tokenId: {
       chain: 'ethereum',
       address: '0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0',
@@ -744,7 +576,7 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
   BONK: {
     key: 'BONK',
     symbol: 'BONK',
-    nativeNetwork: 'solana',
+    nativeChain: 'solana',
     tokenId: {
       chain: 'solana',
       address: 'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263',
@@ -755,112 +587,5 @@ export const MAINNET_TOKENS: { [key: string]: TokenConfig } = {
     decimals: {
       default: 5,
     },
-  },
-};
-
-export const MAINNET_GAS_ESTIMATES: GasEstimates = {
-  ethereum: {
-    sendNative: 100000,
-    sendToken: 150000,
-    sendNativeWithRelay: 200000,
-    sendTokenWithRelay: 300000,
-    sendCCTPWithRelay: 300000,
-    sendCCTPManual: 150000,
-    claim: 300000,
-  },
-  polygon: {
-    sendNative: 100000,
-    sendToken: 150000,
-    sendNativeWithRelay: 200000,
-    sendTokenWithRelay: 250000,
-    claim: 300000,
-  },
-  bsc: {
-    sendNative: 100000,
-    sendToken: 200000,
-    sendNativeWithRelay: 200000,
-    sendTokenWithRelay: 300000,
-    claim: 300000,
-  },
-  avalanche: {
-    sendNative: 100000,
-    sendToken: 150000,
-    sendNativeWithRelay: 200000,
-    sendTokenWithRelay: 300000,
-    sendCCTPWithRelay: 300000,
-    sendCCTPManual: 150000,
-    claim: 300000,
-  },
-  fantom: {
-    sendNative: 100000,
-    sendToken: 150000,
-    sendNativeWithRelay: 250000,
-    sendTokenWithRelay: 300000,
-    claim: 300000,
-  },
-  celo: {
-    sendNative: 150000,
-    sendToken: 150000,
-    sendNativeWithRelay: 300000,
-    sendTokenWithRelay: 300000,
-    claim: 300000,
-  },
-  moonbeam: {
-    sendNative: 100000,
-    sendToken: 150000,
-    sendNativeWithRelay: 200000,
-    sendTokenWithRelay: 300000,
-    claim: 300000,
-  },
-  solana: {
-    sendNative: 15000,
-    sendToken: 15000,
-    claim: 25000,
-  },
-  sui: {
-    sendNative: 5000000,
-    sendToken: 5000000,
-    sendNativeWithRelay: 5000000,
-    sendTokenWithRelay: 5000000,
-    claim: 200000000,
-  },
-  aptos: {
-    sendNative: 40,
-    sendToken: 40,
-    claim: 1250,
-  },
-  arbitrum: {
-    claim: 4000000,
-    sendNative: 1000000,
-    sendToken: 1000000,
-    sendCCTPWithRelay: 1500000,
-    sendCCTPManual: 800000,
-  },
-  optimism: {
-    claim: 300000,
-    sendNative: 100000,
-    sendToken: 100000,
-    sendCCTPManual: 100000,
-    sendCCTPWithRelay: 150000,
-  },
-  sei: {
-    claim: 1000000,
-    sendToken: 1000000,
-    sendNative: 1000000,
-  },
-  base: {
-    claim: 1000000,
-    sendNative: 1000000,
-    sendToken: 1000000,
-  },
-  wormchain: {
-    sendNative: 0,
-    sendToken: 0,
-    claim: 0,
-  },
-  osmosis: {
-    sendNative: 0,
-    sendToken: 0,
-    claim: 0,
   },
 };

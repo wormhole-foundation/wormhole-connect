@@ -45,6 +45,7 @@ export interface TransferInfoBaseParams {
 export interface TransferDestInfoBaseParams {
   txData: ParsedMessage | ParsedRelayerMessage;
   receiveTx?: string;
+  gasEstimate?: string;
 }
 
 export type Row = {

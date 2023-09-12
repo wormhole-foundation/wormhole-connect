@@ -12,27 +12,23 @@ import { makeStyles } from 'tss-react/mui';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { BigNumber } from 'ethers';
 
-import { RootState } from '../store';
-import { CHAINS, TOKENS_ARR } from '../config';
-import { TokenConfig } from '../config/types';
-import {
-  setBalance,
-  formatBalance,
-  clearBalances,
-} from '../store/transferInput';
-import { displayAddress } from '../utils';
-import { CENTER, NO_INPUT } from '../utils/style';
-import Operator from '../utils/routes';
+import { RootState } from 'store';
+import { CHAINS } from 'config';
+import { TokenConfig } from 'config/types';
+import { setBalances, formatBalance, ChainBalances } from 'store/transferInput';
+import { displayAddress } from 'utils';
+import { wh } from 'utils/sdk';
+import { CENTER, NO_INPUT } from 'utils/style';
+import { isCosmWasmChain } from 'utils/cosmos';
 
 import Header from './Header';
 import Modal from './Modal';
 import Spacer from './Spacer';
 import Search from './Search';
 import Scroll from './Scroll';
-import TokenIcon from '../icons/TokenIcons';
+import TokenIcon from 'icons/TokenIcons';
 import CircularProgress from '@mui/material/CircularProgress';
 import Tabs from './Tabs';
-import { isCosmWasmChain } from '../utils/cosmos';
 
 const useStyles = makeStyles()((theme: any) => ({
   tokensContainer: {
@@ -132,7 +128,7 @@ const useStyles = makeStyles()((theme: any) => ({
   advancedContent: {
     marginBottom: '16px',
   },
-  nativeNetwork: {
+  nativeChain: {
     opacity: '60%',
   },
   register: {
@@ -158,8 +154,8 @@ const useStyles = makeStyles()((theme: any) => ({
   },
 }));
 
-const displayNativeNetwork = (token: TokenConfig): string => {
-  const chainConfig = CHAINS[token.nativeNetwork];
+const displayNativeChain = (token: TokenConfig): string => {
+  const chainConfig = CHAINS[token.nativeChain];
   if (!chainConfig) return '';
   return chainConfig.displayName;
 };
@@ -168,7 +164,7 @@ function DisplayTokens(props: {
   tokens: TokenConfig[];
   balances: any;
   walletAddress: string | undefined;
-  network: any;
+  chain: any;
   selectToken: any;
   loading: boolean;
   search: string;
@@ -179,11 +175,19 @@ function DisplayTokens(props: {
     tokens,
     balances,
     walletAddress,
-    network,
+    chain,
     selectToken,
     loading,
     search,
   } = props;
+
+  const showCircularProgress = (token: string): boolean => {
+    if (!chain || !walletAddress) return true;
+    if (!balances) return true;
+    if (balances && balances[token] !== null) return true;
+    return false;
+  };
+
   return (
     <Scroll
       height="calc(100vh - 375px)"
@@ -202,19 +206,17 @@ function DisplayTokens(props: {
                   <TokenIcon name={token.icon} height={32} />
                   <div>
                     <div>{token.symbol}</div>
-                    <div className={classes.nativeNetwork}>
-                      {displayNativeNetwork(token)}
+                    <div className={classes.nativeChain}>
+                      {displayNativeChain(token)}
                     </div>
                   </div>
                 </div>
                 <div className={classes.tokenRowRight}>
                   <div className={classes.tokenRowBalanceText}>Balance</div>
                   <div className={classes.tokenRowBalance}>
-                    {balances[token.key] && walletAddress ? (
+                    {balances && balances[token.key] && walletAddress ? (
                       <div>{balances[token.key]}</div>
-                    ) : network &&
-                      walletAddress &&
-                      balances[token.key] !== null ? (
+                    ) : showCircularProgress(token.key) ? (
                       <CircularProgress size={14} />
                     ) : (
                       <div>{NO_INPUT}</div>
@@ -250,9 +252,9 @@ function DisplayTokens(props: {
 
 type Props = {
   open: boolean;
-  network: ChainName | undefined;
+  chain: ChainName | undefined;
   walletAddress: string | undefined;
-  onSelect: (string) => any;
+  onSelect: (token: string) => any;
   onClose: any;
   type: 'source' | 'dest';
 };
@@ -264,31 +266,19 @@ function isCosmosNativeToken(token: TokenConfig) {
 function TokensModal(props: Props) {
   const theme = useTheme();
   const dispatch = useDispatch();
-  const { open, network, walletAddress, type } = props;
+  const { open, chain, walletAddress, type } = props;
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [loading, setLoading] = useState(false);
   const [balancesLoaded, setBalancesLoaded] = useState(false);
   const [tokens, setTokens] = useState<TokenConfig[]>([]);
-  const [allTokensFiltered, setAllTokensFiltered] = useState<TokenConfig[]>([]);
   const [search, setSearch] = useState('');
 
   const {
-    sourceBalances,
-    destBalances,
+    balances,
     supportedSourceTokens,
     supportedDestTokens,
-    route,
+    allSupportedDestTokens,
   } = useSelector((state: RootState) => state.transferInput);
-
-  const allTokens = useMemo(() => {
-    const arr =
-      type === 'source'
-        ? TOKENS_ARR
-        : TOKENS_ARR.filter((t) => {
-            return !!t.tokenId;
-          });
-    return arr.filter((t) => !isCosmosNativeToken(t));
-  }, [type]);
 
   const supportedTokens = useMemo(() => {
     const supported =
@@ -296,10 +286,10 @@ function TokensModal(props: Props) {
     return supported.filter((t) => !isCosmosNativeToken(t));
   }, [type, supportedSourceTokens, supportedDestTokens]);
 
-  const tokenBalances = useMemo(
-    () => (type === 'source' ? sourceBalances : destBalances),
-    [type, sourceBalances, destBalances],
-  );
+  const chainBalancesCache: ChainBalances | undefined = useMemo(() => {
+    if (!chain || !balances[chain]) return undefined;
+    return balances[chain];
+  }, [chain, balances]);
 
   // search tokens
   const handleSearch = (
@@ -341,31 +331,35 @@ function TokensModal(props: Props) {
 
   useEffect(() => {
     setBalancesLoaded(false);
-  }, [network, walletAddress]);
+  }, [chain, walletAddress]);
 
   const getBalances = useCallback(async () => {
-    if (!walletAddress || !network) return;
-    const operator = new Operator();
+    if (!walletAddress || !chain) return;
+    const fiveMinutesAgo = Date.now() - 60 * 1000 * 5;
+    if (
+      chainBalancesCache &&
+      chainBalancesCache.balances &&
+      chainBalancesCache.lastUpdated! > fiveMinutesAgo
+    ) {
+      setBalancesLoaded(true);
+      return;
+    }
+
+    const queryTokens =
+      type === 'dest' ? allSupportedDestTokens : supportedTokens;
     // fetch all N tokens and trigger a single update action
     const balancesArr = await Promise.all(
-      allTokens.map(async (t) => {
+      queryTokens.map(async (t) => {
         let balance: BigNumber | null = null;
         try {
           balance = t.tokenId
-            ? await operator.getTokenBalance(
-                route,
-                walletAddress,
-                t.tokenId,
-                network,
-              )
-            : t.nativeNetwork === network
-            ? await operator.getNativeBalance(route, walletAddress, network)
-            : null;
+            ? await wh.getTokenBalance(walletAddress, t.tokenId, chain)
+            : await wh.getNativeBalance(walletAddress, chain);
         } catch (e) {
           console.warn('Failed to fetch balance', e);
         }
 
-        return formatBalance(network, t, balance);
+        return formatBalance(chain, t, balance);
       }),
     );
 
@@ -374,23 +368,30 @@ function TokensModal(props: Props) {
     }, {});
 
     dispatch(
-      setBalance({
-        type,
+      setBalances({
+        chain,
         balances,
       }),
     );
-  }, [walletAddress, network, dispatch, type, allTokens, route]);
+  }, [
+    walletAddress,
+    chain,
+    dispatch,
+    type,
+    supportedTokens,
+    chainBalancesCache,
+    allSupportedDestTokens,
+  ]);
 
   // fetch token balances and set in store
   useEffect(() => {
     let active = true;
-    if (!walletAddress || !network) {
+    if (!walletAddress || !chain) {
       setTokens(supportedTokens);
       return;
     }
 
     if (!balancesLoaded) {
-      dispatch(clearBalances(type));
       setLoading(true);
       getBalances().finally(() => {
         if (active) {
@@ -405,7 +406,7 @@ function TokensModal(props: Props) {
   }, [
     walletAddress,
     supportedTokens,
-    network,
+    chain,
     dispatch,
     getBalances,
     type,
@@ -417,26 +418,16 @@ function TokensModal(props: Props) {
     // get tokens that exist on the chain and have a balance greater than 0
     // if token is USDC, only show native ones
     const filtered = supportedTokens.filter((t) => {
-      if (!t.tokenId && t.nativeNetwork !== network) return false;
-      const b = tokenBalances[t.key];
-      if (t.symbol === 'USDC' && t.nativeNetwork !== network && b === '0')
-        return false;
-      if (b === null) return false;
+      if (!t.tokenId && t.nativeChain !== chain) return false;
+      if (t.symbol === 'USDC' && t.nativeChain !== chain) return false;
       if (type === 'dest') return true;
-      const isNonzeroBalance = b !== '0';
+      if (!chainBalancesCache) return true;
+      const b = chainBalancesCache.balances[t.key];
+      const isNonzeroBalance = b !== null && b !== '0';
       return isNonzeroBalance;
     });
     setTokens(filtered);
-  }, [tokenBalances, network, supportedTokens, type]);
-
-  useEffect(() => {
-    const allFiltered = allTokens.filter((t) => {
-      if (type === 'dest') return true;
-      const b = tokenBalances[t.key];
-      return !(b === null);
-    });
-    setAllTokensFiltered(allFiltered);
-  }, [tokenBalances, allTokens, type]);
+  }, [chainBalancesCache, chain, supportedTokens, type]);
 
   const tabs = [
     {
@@ -444,9 +435,9 @@ function TokensModal(props: Props) {
       panel: (
         <DisplayTokens
           tokens={displayedTokens}
-          balances={tokenBalances}
+          balances={chainBalancesCache?.balances}
           walletAddress={walletAddress}
-          network={network}
+          chain={chain}
           selectToken={selectToken}
           loading={loading}
           search={search}
@@ -457,10 +448,10 @@ function TokensModal(props: Props) {
       label: 'All Tokens',
       panel: (
         <DisplayTokens
-          tokens={allTokensFiltered}
-          balances={tokenBalances}
+          tokens={type === 'dest' ? allSupportedDestTokens : supportedTokens}
+          balances={chainBalancesCache?.balances}
           walletAddress={walletAddress}
-          network={network}
+          chain={chain}
           selectToken={selectToken}
           loading={loading}
           search={search}

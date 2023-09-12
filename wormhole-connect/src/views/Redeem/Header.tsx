@@ -2,11 +2,11 @@ import React from 'react';
 import { makeStyles } from 'tss-react/mui';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 
-import { CHAINS } from '../../config';
-import { displayAddress } from '../../utils';
+import { CHAINS } from 'config';
+import { displayAddress } from 'utils';
 
-import WalletIcon from '../../icons/Wallet';
-import TokenIcon from '../../icons/TokenIcons';
+import WalletIcon from 'icons/Wallet';
+import TokenIcon from 'icons/TokenIcons';
 import CircularProgress from '@mui/material/CircularProgress';
 import ExplorerLink from './ExplorerLink';
 
@@ -27,14 +27,14 @@ const useStyles = makeStyles()((theme) => ({
     fontSize: '16px',
     gap: '8px',
   },
-  networkIcon: {
+  chainIcon: {
     height: '32px',
     width: '32px',
   },
 }));
 
 type Props = {
-  network: ChainName;
+  chain: ChainName;
   address: string;
   txHash?: string;
   loading?: boolean;
@@ -43,12 +43,12 @@ type Props = {
 
 function Header(props: Props) {
   const { classes } = useStyles();
-  const networkConfig = CHAINS[props.network]!;
+  const chainConfig = CHAINS[props.chain]!;
   return (
     <div className={classes.header}>
       <div className={classes.left}>
-        <TokenIcon name={networkConfig.icon!} height={32} />
-        <div>{displayAddress(props.network, props.address)}</div>
+        <TokenIcon name={chainConfig.icon!} height={32} />
+        <div>{displayAddress(props.chain, props.address)}</div>
         <WalletIcon />
       </div>
       {props.loading ? (
@@ -57,11 +57,7 @@ function Header(props: Props) {
         <div>{props.text}</div>
       ) : (
         props.txHash && (
-          <ExplorerLink
-            network={props.network}
-            type={'tx'}
-            txHash={props.txHash}
-          />
+          <ExplorerLink chain={props.chain} type={'tx'} txHash={props.txHash} />
         )
       )}
     </div>

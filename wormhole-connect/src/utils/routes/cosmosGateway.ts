@@ -1,10 +1,4 @@
-import {
-  CHAIN_ID_OSMOSIS,
-  CHAIN_ID_SEI,
-  CHAIN_ID_SOLANA,
-  CHAIN_ID_WORMCHAIN,
-  cosmos,
-} from '@certusone/wormhole-sdk';
+import { CHAIN_ID_SOLANA, CHAIN_ID_WORMCHAIN } from '@certusone/wormhole-sdk';
 import {
   CosmWasmClient,
   MsgExecuteContractEncodeObject,
@@ -29,15 +23,19 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { MsgTransfer } from 'cosmjs-types/ibc/applications/transfer/v1/tx';
 import { MsgExecuteContract } from 'cosmjs-types/cosmwasm/wasm/v1/tx';
+import {
+  Tendermint34Client,
+  Tendermint37Client,
+  TendermintClient,
+} from '@cosmjs/tendermint-rpc';
 import { BigNumber, utils } from 'ethers';
-import { arrayify, base58, hexlify } from 'ethers/lib/utils.js';
+import { arrayify, hexlify } from 'ethers/lib/utils.js';
 import { toChainId, wh } from 'utils/sdk';
+import { isCosmWasmChain } from 'utils/cosmos';
+import { CHAINS, RPCS, ROUTES, TOKENS } from 'config';
+import { Route, TokenConfig } from 'config/types';
 import { MAX_DECIMALS, getTokenDecimals, toNormalizedDecimals } from '..';
-import { CHAINS, CONFIG, TOKENS } from '../../config';
-import { Route } from '../../store/transferInput';
-import { isCosmWasmChain } from '../../utils/cosmos';
 import { toDecimals, toFixedDecimals } from '../balance';
-import { estimateSendGasFees } from '../gasEstimates';
 import { TransferWallet, signAndSendTransaction } from '../wallet';
 import { BaseRoute } from './baseRoute';
 import { adaptParsedMessage } from './common';
@@ -55,15 +53,9 @@ import {
   TransferDestInfoBaseParams,
   TransferInfoBaseParams,
 } from './types';
-import { calculateGas } from '../gas';
-import {
-  Tendermint34Client,
-  Tendermint37Client,
-  TendermintClient,
-} from '@cosmjs/tendermint-rpc';
 import { BridgeRoute } from './bridge';
-import { TokenConfig } from '../../config/types';
 import { fetchVaa } from '../vaa';
+import { formatGasFee } from './utils';
 
 interface GatewayTransferMsg {
   gateway_transfer: {
@@ -90,34 +82,42 @@ export class CosmosGatewayRoute extends BaseRoute {
 
   private static CLIENT_MAP: Record<string, TendermintClient> = {};
 
-  public async isRouteAvailable(
+  isSupportedChain(chain: ChainName): boolean {
+    return isCosmWasmChain(chain);
+  }
+
+  async isRouteAvailable(
     sourceToken: string,
     destToken: string,
     amount: string,
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
   ): Promise<boolean> {
+    if (!ROUTES.includes(Route.CosmosGateway)) {
+      return false;
+    }
+
     return (
       isCosmWasmChain(wh.toChainId(sourceChain)) ||
       isCosmWasmChain(wh.toChainId(destChain))
     );
   }
 
-  public async computeReceiveAmount(
+  async computeReceiveAmount(
     sendAmount: number | undefined,
     routeOptions: any,
   ): Promise<number> {
     return sendAmount || 0;
   }
 
-  public async computeSendAmount(
+  async computeSendAmount(
     receiveAmount: number | undefined,
     routeOptions: any,
   ): Promise<number> {
     return receiveAmount || 0;
   }
 
-  public async validate(
+  async validate(
     token: TokenId | 'native',
     amount: string,
     sendingChain: ChainName | ChainId,
@@ -129,37 +129,35 @@ export class CosmosGatewayRoute extends BaseRoute {
     throw new Error('not implemented');
   }
 
-  public async estimateSendGas(
+  async estimateSendGas(
     token: TokenId | 'native',
     amount: string,
     sendingChain: ChainName | ChainId,
     senderAddress: string,
     recipientChain: ChainName | ChainId,
     recipientAddress: string,
-    routeOptions: any,
-  ): Promise<string> {
-    // const recipientChainId = wh.toChainId(recipientChain);
-    // const payload = this.buildToCosmosPayload(recipientChainId, recipientAddress);
-
-    // the transfer begins as a bridge transfer
-    return estimateSendGasFees(
+    routeOptions?: any,
+  ): Promise<BigNumber> {
+    const gasFee = await wh.estimateSendGas(
       token,
-      Number.parseFloat(amount),
+      amount,
       sendingChain,
       senderAddress,
       CHAIN_ID_WORMCHAIN,
       this.getTranslatorAddress(),
-      Route.BRIDGE,
-      undefined,
-      undefined,
-      // payload,
     );
+
+    if (!gasFee) throw new Error('could not estimate gas fee');
+
+    return gasFee;
   }
 
-  public async estimateClaimGas(
+  async estimateClaimGas(
     destChain: ChainName | ChainId,
-  ): Promise<string> {
-    return '0';
+    VAA?: Uint8Array,
+  ): Promise<BigNumber> {
+    if (!VAA) throw new Error('Cannot estimate gas without signedVAA');
+    throw new Error('not implemented');
   }
 
   private buildToCosmosPayload(
@@ -181,7 +179,7 @@ export class CosmosGatewayRoute extends BaseRoute {
     return Buffer.from(JSON.stringify(payloadObject));
   }
 
-  public async toCosmos(
+  async toCosmos(
     token: TokenId | 'native',
     amount: string,
     sendingChainId: ChainId,
@@ -238,7 +236,7 @@ export class CosmosGatewayRoute extends BaseRoute {
     return JSON.stringify(payloadObject);
   }
 
-  public async fromCosmos(
+  async fromCosmos(
     token: TokenId | 'native',
     amount: string,
     sendingChainId: ChainId,
@@ -293,7 +291,18 @@ export class CosmosGatewayRoute extends BaseRoute {
     );
   }
 
-  public async send(
+  getForeignAsset(
+    token: TokenId,
+    chain: ChainId | ChainName,
+  ): Promise<string | null> {
+    return wh.getForeignAsset(token, chain);
+  }
+
+  getMinSendAmount(routeOptions: any): number {
+    return 0;
+  }
+
+  async send(
     token: TokenId | 'native',
     amount: string,
     sendingChain: ChainName | ChainId,
@@ -361,7 +370,7 @@ export class CosmosGatewayRoute extends BaseRoute {
     );
   }
 
-  public async redeem(
+  async redeem(
     destChain: ChainName | ChainId,
     messageInfo: SignedMessage,
     recipient: string,
@@ -376,7 +385,7 @@ export class CosmosGatewayRoute extends BaseRoute {
     return new BridgeRoute().redeem(destChain, messageInfo, recipient);
   }
 
-  public async getPreview(
+  async getPreview(
     token: TokenConfig,
     destToken: TokenConfig,
     amount: number,
@@ -411,46 +420,6 @@ export class CosmosGatewayRoute extends BaseRoute {
     ];
   }
 
-  public async getNativeBalance(
-    address: string,
-    network: ChainName | ChainId,
-  ): Promise<BigNumber | null> {
-    return wh.getNativeBalance(address, network);
-  }
-
-  public async getTokenBalance(
-    address: string,
-    tokenId: TokenId,
-    network: ChainName | ChainId,
-  ): Promise<BigNumber | null> {
-    if (isCosmWasmChain(wh.toChainId(network))) {
-      const denom = await this.getForeignAsset(tokenId, network);
-      if (!denom) return null;
-      return wh.getNativeBalance(address, network, denom);
-    }
-
-    return wh.getTokenBalance(address, tokenId, network);
-  }
-
-  private isNativeDenom(denom: string, network: ChainName | ChainId): boolean {
-    const chainId = wh.toChainId(network);
-    switch (chainId) {
-      case CHAIN_ID_SEI:
-        return denom === 'usei';
-      case CHAIN_ID_WORMCHAIN:
-        return denom === 'uworm';
-      case CHAIN_ID_OSMOSIS:
-        return denom === 'uosmo';
-      default:
-        return false;
-    }
-  }
-
-  private CW20AddressToFactory(address: string): string {
-    const encodedAddress = base58.encode(cosmos.canonicalAddress(address));
-    return `factory/${this.getTranslatorAddress()}/${encodedAddress}`;
-  }
-
   getTranslatorAddress(): string {
     const addr = CHAINS['wormchain']?.contracts.ibcShimContract;
     if (!addr) throw new Error('IBC Shim contract not configured');
@@ -463,35 +432,6 @@ export class CosmosGatewayRoute extends BaseRoute {
     token: string,
   ): Promise<BigNumber> {
     return BigNumber.from(0);
-  }
-
-  async getForeignAsset(
-    tokenId: TokenId,
-    chain: ChainId | ChainName,
-  ): Promise<string | null> {
-    // fall back to original implementation if not cosmos chain
-    if (!isCosmWasmChain(wh.toChainId(chain))) {
-      return wh.getForeignAsset(tokenId, chain);
-    }
-
-    // add check here in case the token is a native cosmos denom
-    // in such cases there's no need to look for in the wormchain network
-    if (tokenId.chain === chain) return tokenId.address;
-    const wrappedAsset = await wh.getForeignAsset(tokenId, CHAIN_ID_WORMCHAIN);
-    if (!wrappedAsset) return null;
-    return this.isNativeDenom(wrappedAsset, chain)
-      ? wrappedAsset
-      : this.deriveIBCDenom(this.CW20AddressToFactory(wrappedAsset), chain);
-  }
-
-  async deriveIBCDenom(
-    denom: string,
-    chain: ChainId | ChainName,
-  ): Promise<string | null> {
-    const channel = await this.getIbcDestinationChannel(chain);
-    const hashData = utils.hexlify(Buffer.from(`transfer/${channel}/${denom}`));
-    const hash = utils.sha256(hashData).substring(2);
-    return `ibc/${hash.toUpperCase()}`;
   }
 
   async getIbcDestinationChannel(chain: ChainId | ChainName): Promise<string> {
@@ -537,7 +477,7 @@ export class CosmosGatewayRoute extends BaseRoute {
       return CosmosGatewayRoute.CLIENT_MAP[name];
     }
 
-    const rpc = CONFIG.rpcs[wh.toChainName(chain)];
+    const rpc = RPCS[wh.toChainName(chain)];
     if (!rpc) throw new Error(`${chain} RPC not configured`);
 
     // from cosmjs: https://github.com/cosmos/cosmjs/blob/358260bff71c9d3e7ad6644fcf64dc00325cdfb9/packages/stargate/src/stargateclient.ts#L218
@@ -712,7 +652,7 @@ export class CosmosGatewayRoute extends BaseRoute {
     const { gasToken: sourceGasTokenSymbol } = CHAINS[txData.fromChain]!;
     const sourceGasToken = TOKENS[sourceGasTokenSymbol];
     const decimals = getTokenDecimals(
-      toChainId(sourceGasToken.nativeNetwork),
+      toChainId(sourceGasToken.nativeChain),
       sourceGasToken.tokenId,
     );
     const formattedGas =
@@ -734,21 +674,25 @@ export class CosmosGatewayRoute extends BaseRoute {
   async getTransferDestInfo({
     txData,
     receiveTx,
+    gasEstimate,
   }: TransferDestInfoBaseParams): Promise<TransferDisplayData> {
     const token = TOKENS[txData.tokenKey];
     const { gasToken } = CHAINS[txData.toChain]!;
 
-    const gas = await calculateGas(
-      txData.toChain,
-      Route.COSMOS_GATEWAY,
-      receiveTx,
-    );
+    let gas = gasEstimate;
+    if (receiveTx) {
+      const gasUsed = await wh.getTxGasUsed(txData.toChain, receiveTx);
+      if (gasUsed) {
+        gas = formatGasFee(txData.toChain, gasUsed);
+      }
+    }
 
     const formattedAmt = toNormalizedDecimals(
       txData.amount,
       txData.tokenDecimals,
       MAX_DECIMALS,
     );
+
     return [
       {
         title: 'Amount',

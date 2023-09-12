@@ -3,21 +3,23 @@ import { AnyAction } from '@reduxjs/toolkit';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 
 import { BRIDGE_DEFAULTS, CHAINS, TOKENS } from 'config';
+import { Route, TokenConfig } from 'config/types';
 import { SANCTIONED_WALLETS } from 'consts/wallet';
 import { store } from 'store';
 import {
   TransferInputState,
   setValidations,
   touchValidations,
-  Route,
   ValidationErr,
   TransferValidations,
-} from '../store/transferInput';
-import { WalletData, WalletState } from '../store/wallet';
-import { walletAcceptedNetworks } from './wallet';
+  accessBalance,
+} from 'store/transferInput';
+import { WalletData, WalletState } from 'store/wallet';
 import { RelayState } from 'store/relay';
+import { walletAcceptedChains } from './wallet';
+import RouteOperator from './routes/operator';
 
-export const validateFromNetwork = (
+export const validateFromChain = (
   chain: ChainName | undefined,
 ): ValidationErr => {
   if (!chain) return 'Select a source chain';
@@ -26,7 +28,7 @@ export const validateFromNetwork = (
   return '';
 };
 
-export const validateToNetwork = (
+export const validateToChain = (
   chain: ChainName | undefined,
   fromChain: ChainName | undefined,
 ): ValidationErr => {
@@ -63,7 +65,7 @@ export const validateToken = (
   if (chain) {
     const chainConfig = CHAINS[chain];
     if (!chainConfig || !!tokenConfig.tokenId) return '';
-    if (!tokenConfig.tokenId && tokenConfig.nativeNetwork !== chain)
+    if (!tokenConfig.tokenId && tokenConfig.nativeChain !== chain)
       return `${token} not available on ${chain}, select a different token`;
   }
   return '';
@@ -72,6 +74,7 @@ export const validateToken = (
 export const validateDestToken = (
   token: string,
   chain: ChainName | undefined,
+  supportedTokens: TokenConfig[],
 ): ValidationErr => {
   if (!token) return 'Select an asset';
   const tokenConfig = TOKENS[token];
@@ -79,8 +82,11 @@ export const validateDestToken = (
   if (chain) {
     const chainConfig = CHAINS[chain];
     if (!chainConfig || !!tokenConfig.tokenId) return '';
-    if (!tokenConfig.tokenId && tokenConfig.nativeNetwork !== chain)
+    if (!tokenConfig.tokenId && tokenConfig.nativeChain !== chain)
       return `${token} not available on ${chain}, select a different token`;
+  }
+  if (!supportedTokens.some((t) => t.key === token)) {
+    return 'No route available for this token, please select another';
   }
   return '';
 };
@@ -88,7 +94,6 @@ export const validateDestToken = (
 export const validateAmount = (
   amount: string,
   balance: string | null,
-  route: Route,
   minAmt: number | undefined,
 ): ValidationErr => {
   const numAmount = Number.parseFloat(amount);
@@ -98,7 +103,6 @@ export const validateAmount = (
     const b = Number.parseFloat(balance);
     if (numAmount > b) return 'Amount cannot exceed balance';
   }
-  if (route === Route.BRIDGE) return '';
   if (!minAmt) return '';
   if (numAmount < minAmt) return `Minimum amount is ${minAmt}`;
   return '';
@@ -122,8 +126,8 @@ export const validateWallet = async (
   }
   if (wallet.currentAddress && wallet.currentAddress !== wallet.address)
     return 'Switch to connected wallet';
-  const acceptedNetworks = walletAcceptedNetworks(wallet.type);
-  if (chain && !acceptedNetworks.includes(chain))
+  const acceptedChains = walletAcceptedChains(wallet.type);
+  if (chain && !acceptedChains.includes(chain))
     return `Connected wallet is not supported for ${chain}`;
   return '';
 };
@@ -137,8 +141,13 @@ export const validateToNativeAmt = (
   return '';
 };
 
-export const validateRoute = (route: Route): ValidationErr => {
-  // TODO: better validation
+export const validateRoute = (
+  route: Route | undefined,
+  availableRoutes: string[],
+): ValidationErr => {
+  if (!route || !availableRoutes || !availableRoutes.includes(route)) {
+    return 'No bridge or swap route available for selected tokens';
+  }
   return '';
 };
 
@@ -164,18 +173,16 @@ export const validateSolanaTokenAccount = (
   return '';
 };
 
-export const getMinAmount = (
-  isAutomatic: boolean,
-  relayerFee: number = 0,
-  toNativeToken: number = 0,
-) => {
-  // no minimum amount for manual transfers
-  if (!isAutomatic) return 0;
+export const getMinAmt = (route: Route | undefined, relayData: any): number => {
+  if (!route) return 0;
+  const r = RouteOperator.getRoute(route);
+  return r.getMinSendAmount(relayData);
+};
 
-  // has to be slightly higher than the minimum or else tx will revert
-  const fees = relayerFee + toNativeToken;
-  const min = (fees * 1.05).toFixed(6);
-  return Number.parseFloat(min);
+export const getIsAutomatic = (route: Route | undefined): boolean => {
+  if (!route) return false;
+  const r = RouteOperator.getRoute(route);
+  return r.AUTOMATIC_DEPOSIT;
 };
 
 export const validateAll = async (
@@ -184,33 +191,37 @@ export const validateAll = async (
   walletData: WalletState,
 ): Promise<TransferValidations> => {
   const {
-    fromNetwork,
-    toNetwork,
+    fromChain,
+    toChain,
     token,
     destToken,
     amount,
-    sourceBalances: balances,
+    balances,
     foreignAsset,
     associatedTokenAddress,
     route,
+    supportedDestTokens,
+    availableRoutes,
   } = transferData;
-  const { maxSwapAmt, toNativeToken, relayerFee } = relayData;
+  const { maxSwapAmt, toNativeToken } = relayData;
   const { sending, receiving } = walletData;
-  const isAutomatic = route === Route.RELAY || route === Route.CCTPRelay;
-  const minAmt = getMinAmount(isAutomatic, toNativeToken, relayerFee);
+  const isAutomatic = getIsAutomatic(route);
+  const minAmt = getMinAmt(route, relayData);
+  const sendingTokenBalance = accessBalance(balances, fromChain, token);
+
   const baseValidations = {
-    sendingWallet: await validateWallet(sending, fromNetwork),
-    receivingWallet: await validateWallet(receiving, toNetwork),
-    fromNetwork: validateFromNetwork(fromNetwork),
-    toNetwork: validateToNetwork(toNetwork, fromNetwork),
-    token: validateToken(token, fromNetwork),
-    destToken: validateDestToken(destToken, toNetwork),
-    amount: validateAmount(amount, balances[token], route, minAmt),
-    route: validateRoute(route),
+    sendingWallet: await validateWallet(sending, fromChain),
+    receivingWallet: await validateWallet(receiving, toChain),
+    fromChain: validateFromChain(fromChain),
+    toChain: validateToChain(toChain, fromChain),
+    token: validateToken(token, fromChain),
+    destToken: validateDestToken(destToken, toChain, supportedDestTokens),
+    amount: validateAmount(amount, sendingTokenBalance, minAmt),
+    route: validateRoute(route, availableRoutes),
     toNativeToken: '',
     foreignAsset: validateForeignAsset(foreignAsset),
     associatedTokenAccount: validateSolanaTokenAccount(
-      toNetwork,
+      toChain,
       foreignAsset,
       associatedTokenAddress,
     ),
@@ -218,8 +229,7 @@ export const validateAll = async (
   if (!isAutomatic) return baseValidations;
   return {
     ...baseValidations,
-    amount: validateAmount(amount, balances[token], route, minAmt),
-    route: validateRoute(route),
+    amount: validateAmount(amount, sendingTokenBalance, minAmt),
     toNativeToken: validateToNativeAmt(toNativeToken, maxSwapAmt),
   };
 };
@@ -240,8 +250,8 @@ export const validate = async (dispatch: Dispatch<AnyAction>) => {
   if (
     wallet.sending.address &&
     wallet.receiving.address &&
-    transferInput.fromNetwork &&
-    transferInput.toNetwork &&
+    transferInput.fromChain &&
+    transferInput.toChain &&
     transferInput.token &&
     transferInput.destToken &&
     transferInput.amount &&

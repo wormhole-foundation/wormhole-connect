@@ -1,8 +1,8 @@
 import React from 'react';
 import { makeStyles } from 'tss-react/mui';
 import Collapse from '@mui/material/Collapse';
-import Down from '../icons/Down';
-import { joinClass } from '../utils/style';
+import Down from 'icons/Down';
+import { joinClass } from 'utils/style';
 
 const useStyles = makeStyles()((theme: any) => ({
   container: {

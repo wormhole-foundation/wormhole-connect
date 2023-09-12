@@ -19,7 +19,7 @@ export default abstract class RouteAbstract {
   // protected abstract sendGasFallback: { [key: ChainName]: TokenConfig };
   // protected abstract claimGasFallback: { [key: ChainName]: TokenConfig };
 
-  // Is this route available for the given network, token and amount specifications?
+  // Is this route available for the given chain, token and amount specifications?
   public abstract isRouteAvailable(
     sourceToken: string,
     destToken: string,
@@ -27,6 +27,8 @@ export default abstract class RouteAbstract {
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
   ): Promise<boolean>;
+
+  public abstract isSupportedChain(chain: ChainName): boolean;
 
   public abstract isSupportedSourceToken(
     token: TokenConfig | undefined,
@@ -84,17 +86,20 @@ export default abstract class RouteAbstract {
     senderAddress: string,
     recipientChain: ChainName | ChainId,
     recipientAddress: string,
-    routeOptions: any,
-  ): Promise<string>;
+    routeOptions?: any,
+  ): Promise<BigNumber>;
 
   // estimate claim gas fees, return 0 if none
   public abstract estimateClaimGas(
     destChain: ChainName | ChainId,
-  ): Promise<string>;
+    VAA?: Uint8Array,
+  ): Promise<BigNumber>;
 
   /**
    * These operations have to be implemented in subclasses.
    */
+  public abstract getMinSendAmount(routeOptions: any): number;
+
   public abstract send(
     token: TokenId | 'native',
     amount: string,
@@ -129,17 +134,6 @@ export default abstract class RouteAbstract {
   ): Promise<TransferDisplayData>;
 
   // send, validate, estimate gas, isRouteAvailable, parse data from VAA/fetch data, claim
-
-  abstract getNativeBalance(
-    address: string,
-    network: ChainName | ChainId,
-  ): Promise<BigNumber | null>;
-  abstract getTokenBalance(
-    address: string,
-    tokenId: TokenId,
-    network: ChainName | ChainId,
-  ): Promise<BigNumber | null>;
-
   abstract getRelayerFee(
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,

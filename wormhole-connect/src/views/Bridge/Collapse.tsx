@@ -1,9 +1,9 @@
 import React, { useCallback } from 'react';
 import { makeStyles } from 'tss-react/mui';
 import Collapse from '@mui/material/Collapse';
-import Down from '../../icons/Down';
-import { LINK, joinClass } from '../../utils/style';
-import Switch from '../../components/Switch';
+import Down from 'icons/Down';
+import { LINK, joinClass } from 'utils/style';
+import Switch from 'components/Switch';
 
 const useStyles = makeStyles()((theme: any) => ({
   container: {

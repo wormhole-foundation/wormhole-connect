@@ -2,22 +2,21 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 
-import { RootState } from '../../../store';
+import { RootState } from 'store';
 import {
   setAssociatedTokenAddress,
   setForeignAsset,
-} from '../../../store/transferInput';
-import { getWrappedTokenId } from '../../../utils';
-import { TransferWallet, signSolanaTransaction } from '../../../utils/wallet';
-import { joinClass } from '../../../utils/style';
-import { ATTEST_URL, TOKENS } from '../../../config';
-import { solanaContext } from '../../../utils/sdk';
-import Operator from '../../../utils/routes';
+} from 'store/transferInput';
+import { ATTEST_URL, TOKENS } from 'config';
+import { getWrappedTokenId } from 'utils';
+import { TransferWallet, signSolanaTransaction } from 'utils/wallet';
+import { joinClass } from 'utils/style';
+import { solanaContext, wh } from 'utils/sdk';
 
 import { CircularProgress, Link, Typography } from '@mui/material';
-import AlertBanner from '../../../components/AlertBanner';
+import AlertBanner from 'components/AlertBanner';
 
-const useStyles = makeStyles()((theme) => ({
+const useStyles = makeStyles()((theme: any) => ({
   associatedTokenWarning: {
     display: 'flex',
     flexDirection: 'column',
@@ -93,7 +92,7 @@ function AssociatedTokenWarning(props: Props) {
 function TokenWarnings() {
   const dispatch = useDispatch();
 
-  const { toNetwork, token, foreignAsset, associatedTokenAddress, route } =
+  const { toChain, token, foreignAsset, associatedTokenAddress, route } =
     useSelector((state: RootState) => state.transferInput);
   const { receiving } = useSelector((state: RootState) => state.wallet);
   const [showErrors, setShowErrors] = useState(false);
@@ -102,10 +101,8 @@ function TokenWarnings() {
 
   // check if the destination token contract is deployed
   useEffect(() => {
-    // Avoid race conditions
-    let active = true;
     const checkWrappedTokenExists = async () => {
-      if (!toNetwork || !tokenConfig) {
+      if (!toChain || !tokenConfig) {
         dispatch(setForeignAsset(''));
         setShowErrors(false);
         return;
@@ -116,13 +113,8 @@ function TokenWarnings() {
       if (!tokenId) {
         throw new Error('Could not retrieve target token info');
       }
-      const address = await new Operator().getForeignAsset(
-        route,
-        tokenId,
-        toNetwork,
-      );
 
-      if (!active) return;
+      const address = await wh.getForeignAsset(tokenId, toChain);
       if (address) {
         dispatch(setForeignAsset(address));
         setShowErrors(false);
@@ -132,10 +124,7 @@ function TokenWarnings() {
       }
     };
     checkWrappedTokenExists();
-    return () => {
-      active = false;
-    };
-  }, [toNetwork, tokenConfig, route, dispatch]);
+  }, [toChain, tokenConfig, route, dispatch]);
 
   // the associated token account address is deterministic, so we still
   // need to check if there is an account created for that address
@@ -203,12 +192,12 @@ function TokenWarnings() {
   ]);
 
   useEffect(() => {
-    if (!toNetwork || !token || !receiving.address) return;
-    if (toNetwork === 'solana' && foreignAsset) {
+    if (!toChain || !token || !receiving.address) return;
+    if (toChain === 'solana' && foreignAsset) {
       checkSolanaAssociatedTokenAccount();
     }
   }, [
-    toNetwork,
+    toChain,
     token,
     foreignAsset,
     receiving,
@@ -234,7 +223,7 @@ function TokenWarnings() {
 
   const content = !foreignAsset
     ? noForeignAssetWarning
-    : toNetwork === 'solana' && noAssociatedTokenAccount;
+    : toChain === 'solana' && noAssociatedTokenAccount;
 
   return (
     <AlertBanner

@@ -1,8 +1,8 @@
 import React from 'react';
 import { makeStyles } from 'tss-react/mui';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
-import { CHAINS } from '../../config';
-import AlertBanner from '../../components/AlertBanner';
+import { CHAINS } from 'config';
+import AlertBanner from 'components/AlertBanner';
 
 const useStyles = makeStyles()((theme) => ({
   link: {

@@ -1,22 +1,23 @@
-import React, { ChangeEvent, useState } from 'react';
+import React, { ChangeEvent, useMemo, useState } from 'react';
 import { useTheme } from '@mui/material/styles';
 import { makeStyles } from 'tss-react/mui';
 import {
   ChainConfig,
   ChainName,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { CHAINS_ARR, CHAINS } from '../config';
-import { CENTER, joinClass } from '../utils/style';
+import { CHAINS_ARR, CHAINS } from 'config';
+import { CENTER, joinClass } from 'utils/style';
 
 import Header from './Header';
 import Modal from './Modal';
 import Spacer from './Spacer';
 import Search from './Search';
 import Scroll from './Scroll';
-import TokenIcon from '../icons/TokenIcons';
+import TokenIcon from 'icons/TokenIcons';
+import RouteOperator from 'utils/routes/operator';
 
 const useStyles = makeStyles()((theme: any) => ({
-  networksContainer: {
+  chainsContainer: {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fill, 150px)',
     justifyContent: 'space-between',
@@ -25,7 +26,7 @@ const useStyles = makeStyles()((theme: any) => ({
     ...CENTER,
     minHeight: '130px',
   },
-  networkTile: {
+  chainTile: {
     width: '117px',
     display: 'flex',
     flexDirection: 'column',
@@ -40,11 +41,11 @@ const useStyles = makeStyles()((theme: any) => ({
       backgroundColor: theme.palette.options.select,
     },
   },
-  networkIcon: {
+  chainIcon: {
     width: '48px',
     height: '48px',
   },
-  networkText: {
+  chainText: {
     fontSize: '14px',
     marginTop: '16px',
   },
@@ -72,12 +73,19 @@ type Props = {
   onSelect: (chain: ChainName) => any;
 };
 
-function NetworksModal(props: Props) {
+function ChainsModal(props: Props) {
   const { classes } = useStyles();
   const theme: any = useTheme();
 
   const chains = props.chains || CHAINS_ARR;
   const [search, setSearch] = useState<string | undefined>();
+
+  const supportedChains = useMemo(() => {
+    const supported = RouteOperator.allSupportedChains();
+    return chains.filter((chain) => {
+      return supported.includes(chain.key);
+    });
+  }, [chains]);
 
   const searchChains = (
     e:
@@ -122,9 +130,9 @@ function NetworksModal(props: Props) {
         height="calc(100vh - 300px)"
         blendColor={theme.palette.modal.background}
       >
-        {chains.length > 0 ? (
-          <div className={classes.networksContainer}>
-            {chains.map((chain: any, i) => {
+        {supportedChains.length > 0 ? (
+          <div className={classes.chainsContainer}>
+            {supportedChains.map((chain: any, i) => {
               const disabled = !!props.isDisabled
                 ? props.isDisabled(chain.key)
                 : false;
@@ -133,15 +141,13 @@ function NetworksModal(props: Props) {
                   <div
                     key={i}
                     className={joinClass([
-                      classes.networkTile,
+                      classes.chainTile,
                       !!disabled && classes.disabled,
                     ])}
                     onClick={() => handleSelect(chain.key)}
                   >
                     <TokenIcon name={chain.icon} height={48} />
-                    <div className={classes.networkText}>
-                      {chain.displayName}
-                    </div>
+                    <div className={classes.chainText}>{chain.displayName}</div>
                   </div>
                 )
               );
@@ -155,4 +161,4 @@ function NetworksModal(props: Props) {
   );
 }
 
-export default NetworksModal;
+export default ChainsModal;

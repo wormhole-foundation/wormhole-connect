@@ -4,36 +4,36 @@ import { Context } from '@wormhole-foundation/wormhole-connect-sdk';
 import { useTheme } from '@mui/material/styles';
 import { makeStyles } from 'tss-react/mui';
 
-import { CHAINS, TOKENS } from '../../config';
-import { RootState } from '../../store';
-import { setRoute as setAppRoute } from '../../store/router';
+import { CHAINS, TOKENS } from 'config';
+import { RootState } from 'store';
+import { setRoute as setAppRoute } from 'store/router';
 import {
   setTxDetails,
   setSendTx,
   setRoute as setRedeemRoute,
-} from '../../store/redeem';
-import { displayWalletAddress, sleep } from '../../utils';
-import { LINK } from '../../utils/style';
+} from 'store/redeem';
+import { displayWalletAddress, sleep } from 'utils';
+import { LINK } from 'utils/style';
 import {
   registerWalletSigner,
-  switchNetwork,
+  switchChain,
   TransferWallet,
-} from '../../utils/wallet';
-import { estimateClaimGasFees } from '../../utils/gasEstimates';
-import Operator, { UnsignedMessage } from '../../utils/routes';
-import { validate, isTransferValid } from '../../utils/transferValidation';
+} from 'utils/wallet';
+import { UnsignedMessage } from 'utils/routes';
+import RouteOperator from 'utils/routes/operator';
+import { validate, isTransferValid } from 'utils/transferValidation';
 import {
-  setManualGasEst,
-  setAutomaticGasEst,
+  setSendingGasEst,
   setClaimGasEst,
   setIsTransactionInProgress,
-} from '../../store/transferInput';
+} from 'store/transferInput';
 
-import Button from '../../components/Button';
+import Button from 'components/Button';
 import CircularProgress from '@mui/material/CircularProgress';
-import AlertBanner from '../../components/AlertBanner';
-import PoweredByIcon from '../../icons/PoweredBy';
-import { isCosmWasmChain } from '../../utils/cosmos';
+import AlertBanner from 'components/AlertBanner';
+import PoweredByIcon from 'icons/PoweredBy';
+import { isCosmWasmChain } from 'utils/cosmos';
+import { estimateClaimGas, estimateSendGas } from 'utils/gas';
 
 const useStyles = makeStyles()((theme) => ({
   body: {
@@ -72,8 +72,8 @@ function Send(props: { valid: boolean }) {
   const {
     validate: showValidationState,
     validations,
-    fromNetwork,
-    toNetwork,
+    fromChain,
+    toChain,
     token,
     amount,
     route,
@@ -88,28 +88,30 @@ function Send(props: { valid: boolean }) {
     setSendError('');
     await validate(dispatch);
     const valid = isTransferValid(validations);
-    if (!valid) return;
+    if (!valid || !route) return;
     dispatch(setIsTransactionInProgress(true));
 
     try {
-      const fromConfig = CHAINS[fromNetwork!];
+      const fromConfig = CHAINS[fromChain!];
       if (fromConfig?.context === Context.ETH) {
-        registerWalletSigner(fromNetwork!, TransferWallet.SENDING);
-        const { chainId } = CHAINS[fromNetwork!]!;
-        await switchNetwork(chainId, TransferWallet.SENDING);
+        registerWalletSigner(fromChain!, TransferWallet.SENDING);
+        const chainId = CHAINS[fromChain!]!.chainId;
+        if (typeof chainId !== 'number') {
+          throw new Error('invalid evm chain ID');
+        }
+        await switchChain(chainId, TransferWallet.SENDING);
       }
 
       const tokenConfig = TOKENS[token]!;
       const sendToken = tokenConfig.tokenId;
 
-      const operator = new Operator();
-      const txId = await operator.send(
+      const txId = await RouteOperator.send(
         route,
         sendToken || 'native',
         `${amount}`,
-        fromNetwork!,
+        fromChain!,
         sending.address,
-        toNetwork!,
+        toChain!,
         receiving.address,
         { toNativeToken },
       );
@@ -117,7 +119,12 @@ function Send(props: { valid: boolean }) {
       let message: UnsignedMessage | undefined;
       while (message === undefined) {
         try {
-          message = await operator.getMessage(route, txId, fromNetwork!);
+          message = await RouteOperator.getMessage(
+            route,
+            txId,
+            fromChain!,
+            true, // don't need to get the signed attestation
+          );
         } catch (e) {}
         if (message === undefined) {
           await sleep(3000);
@@ -138,31 +145,26 @@ function Send(props: { valid: boolean }) {
 
   const setSendingGas = useCallback(async () => {
     const tokenConfig = TOKENS[token]!;
-    if (!tokenConfig) return;
+    if (!route || !tokenConfig) return;
     const sendToken = tokenConfig.tokenId;
 
-    const gasFee = await new Operator().estimateSendGas(
+    const gasFee = await estimateSendGas(
       route,
       sendToken || 'native',
       (amount || 0).toString(),
-      fromNetwork!,
+      fromChain!,
       sending.address,
-      toNetwork!,
+      toChain!,
       receiving.address,
       { relayerFee, toNativeToken },
     );
-    const isAutomatic = new Operator().getRoute(route).AUTOMATIC_DEPOSIT;
-    if (isAutomatic) {
-      dispatch(setAutomaticGasEst(gasFee));
-    } else {
-      dispatch(setManualGasEst(gasFee));
-    }
+    dispatch(setSendingGasEst(gasFee));
   }, [
     token,
     amount,
-    fromNetwork,
+    fromChain,
     sending,
-    toNetwork,
+    toChain,
     receiving,
     toNativeToken,
     relayerFee,
@@ -171,10 +173,11 @@ function Send(props: { valid: boolean }) {
   ]);
 
   const setDestGas = useCallback(async () => {
-    if (!toNetwork) return;
-    const gasFee = await estimateClaimGasFees(toNetwork!);
+    if (!route || !toChain) return;
+    // don't have vaa yet, so set that to undefined and it will get the fallback estimate
+    const gasFee = await estimateClaimGas(route, toChain, undefined);
     dispatch(setClaimGasEst(gasFee));
-  }, [toNetwork, dispatch]);
+  }, [toChain, route, dispatch]);
 
   useEffect(() => {
     const valid = isTransferValid(validations);
@@ -186,8 +189,8 @@ function Send(props: { valid: boolean }) {
     validations,
     sending,
     receiving,
-    fromNetwork,
-    toNetwork,
+    fromChain,
+    toChain,
     token,
     route,
     toNativeToken,
@@ -203,9 +206,10 @@ function Send(props: { valid: boolean }) {
   }, [sending]);
 
   const showWarning = useMemo(() => {
-    const r = new Operator().getRoute(route);
-    return !(r.AUTOMATIC_DEPOSIT || (toNetwork && isCosmWasmChain(toNetwork)));
-  }, [route, toNetwork]);
+    if (!route) return false;
+    const r = RouteOperator.getRoute(route);
+    return !(r.AUTOMATIC_DEPOSIT || (toChain && isCosmWasmChain(toChain)));
+  }, [route, toChain]);
 
   return (
     <div className={classes.body}>

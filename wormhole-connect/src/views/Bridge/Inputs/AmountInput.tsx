@@ -1,17 +1,18 @@
 import React, { useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { RootState } from '../../../store';
-import { validate } from '../../../utils/transferValidation';
-import { toFixedDecimals } from '../../../utils/balance';
-import { NO_INPUT } from '../../../utils/style';
+import { RootState } from 'store';
+import { validate } from 'utils/transferValidation';
+import { toFixedDecimals } from 'utils/balance';
+import { NO_INPUT } from 'utils/style';
 
-import InputTransparent from '../../../components/InputTransparent';
+import InputTransparent from 'components/InputTransparent';
 import Input from './Input';
 
 type Props = {
-  handleAmountChange: (number) => void;
+  handleAmountChange: (value: number | string) => void;
   value: string;
+  disabled?: boolean;
 };
 function AmountInput(props: Props) {
   const dispatch = useDispatch();
@@ -23,24 +24,16 @@ function AmountInput(props: Props) {
     isTransactionInProgress,
   } = useSelector((state: RootState) => state.transferInput);
 
-  function handleAmountChange(event) {
-    let value = event.target.value;
+  function handleAmountChange(
+    e:
+      | React.ChangeEvent<HTMLInputElement>
+      | React.ChangeEvent<HTMLTextAreaElement>
+      | undefined,
+  ) {
+    let value = e!.target.value;
     const index = value.indexOf('.');
-    switch (true) {
-      case index === 0: {
-        value = '0.';
-        break;
-      }
-      case Number.isInteger(Number.parseFloat(value)): {
-        break;
-      }
-      case index >= 0 && index < value.length - 1: {
-        value = toFixedDecimals(value, 8);
-        break;
-      }
-      default: {
-        break;
-      }
+    if (index > 0 && value.length - index - 8 > 0) {
+      value = toFixedDecimals(value, 8);
     }
 
     props.handleAmountChange(value);
@@ -59,6 +52,7 @@ function AmountInput(props: Props) {
       error={!!(showErrors && validations.amount)}
       editable
       onClick={focus}
+      cursor="text"
     >
       {token ? (
         <InputTransparent
@@ -69,7 +63,7 @@ function AmountInput(props: Props) {
           step={0.1}
           onChange={handleAmountChange}
           onPause={validateAmount}
-          disabled={isTransactionInProgress}
+          disabled={isTransactionInProgress || props.disabled}
           value={props.value}
         />
       ) : (

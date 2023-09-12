@@ -1,52 +1,55 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 
-import { RootState } from '../../../store';
+import { RootState } from 'store';
 import {
   setToken,
-  selectFromNetwork,
+  selectFromChain,
   setAmount,
   setReceiveAmount,
-} from '../../../store/transferInput';
-import { CHAINS, CHAINS_ARR, TOKENS } from '../../../config';
-import { TransferWallet, walletAcceptedNetworks } from '../../../utils/wallet';
-import Operator from '../../../utils/routes';
+  accessBalance,
+} from 'store/transferInput';
+import { CHAINS, CHAINS_ARR, TOKENS } from 'config';
+import { TransferWallet, walletAcceptedChains } from 'utils/wallet';
+import RouteOperator from 'utils/routes/operator';
 
 import Inputs from './Inputs';
 import Select from './Select';
 import AmountInput from './AmountInput';
-import TokensModal from '../../../components/TokensModal';
-import NetworksModal from '../../../components/NetworksModal';
+import TokensModal from 'components/TokensModal';
+import ChainsModal from 'components/ChainsModal';
 
 function FromInputs() {
   const dispatch = useDispatch();
   const [showTokensModal, setShowTokensModal] = useState(false);
-  const [showNetworksModal, setShowNetworksModal] = useState(false);
+  const [showChainsModal, setShowChainsModal] = useState(false);
 
-  const { toNativeToken } = useSelector((state: RootState) => state.relay);
+  const { toNativeToken, relayerFee } = useSelector(
+    (state: RootState) => state.relay,
+  );
   const wallet = useSelector((state: RootState) => state.wallet.sending);
   const {
     validate: showErrors,
     validations,
     route,
-    fromNetwork,
-    toNetwork,
-    sourceBalances: balances,
+    fromChain,
+    toChain,
+    balances,
     token,
     amount,
     isTransactionInProgress,
   } = useSelector((state: RootState) => state.transferInput);
   const tokenConfig = token && TOKENS[token];
-  const balance = balances[token] || undefined;
+  const balance = accessBalance(balances, fromChain, token) || undefined;
 
   const isDisabled = (chain: ChainName) => {
     // Check if the wallet type (i.e. Metamask, Phantom...) is supported for the given chain
-    return !walletAcceptedNetworks(wallet.type).includes(chain);
+    return !walletAcceptedChains(wallet.type).includes(chain);
   };
 
-  const selectNetwork = async (network: ChainName) => {
-    selectFromNetwork(dispatch, network, wallet);
+  const selectChain = async (chain: ChainName) => {
+    selectFromChain(dispatch, chain, wallet);
   };
 
   const selectToken = (token: string) => {
@@ -56,11 +59,11 @@ function FromInputs() {
   // token input jsx
   const selectedToken = useMemo(() => {
     if (!tokenConfig) return undefined;
-    const network = CHAINS[tokenConfig.nativeNetwork]?.displayName;
+    const chain = CHAINS[tokenConfig.nativeChain as ChainName]?.displayName;
     return {
       icon: tokenConfig.icon,
       text: tokenConfig.symbol,
-      secondaryText: `(${network})`,
+      secondaryText: `(${chain})`,
     };
   }, [tokenConfig]);
   const tokenInput = (
@@ -69,25 +72,50 @@ function FromInputs() {
       selected={selectedToken}
       error={!!(showErrors && validations.token)}
       onClick={() => setShowTokensModal(true)}
-      disabled={!fromNetwork || !wallet.address || isTransactionInProgress}
+      disabled={!fromChain || !wallet.address || isTransactionInProgress}
       editable
     />
   );
 
-  // TODO: clean up the send/receive amount set logic
-  const handleAmountChange = useCallback(
-    async (amount: string) => {
-      dispatch(setAmount(amount));
-      const r = new Operator();
-      const receiveAmount = await r.computeReceiveAmount(
+  const computeReceiveAmount = useCallback(
+    async (value: number | string) => {
+      if (typeof value === 'number') {
+        dispatch(setAmount(`${value}`));
+      } else {
+        dispatch(setAmount(value));
+      }
+      const number =
+        typeof value === 'number' ? value : Number.parseFloat(value);
+      if (!route) {
+        dispatch(setReceiveAmount(`${value}`));
+        return;
+      }
+      const receiveAmount = await RouteOperator.computeReceiveAmount(
         route,
-        Number.parseFloat(amount),
-        { toNativeToken },
+        number,
+        {
+          toNativeToken,
+          relayerFee,
+        },
       );
       dispatch(setReceiveAmount(`${receiveAmount}`));
     },
-    [route, toNativeToken, dispatch],
+    [dispatch, toNativeToken, relayerFee, route],
   );
+
+  // TODO: clean up the send/receive amount set logic
+  const handleAmountChange = useCallback(computeReceiveAmount, [
+    route,
+    toNativeToken,
+    relayerFee,
+    dispatch,
+    computeReceiveAmount,
+  ]);
+  // if route changes, re-calculate the amount
+  useEffect(() => {
+    if (!route) return;
+    computeReceiveAmount(amount);
+  }, [route, amount, computeReceiveAmount]);
   const amountInput = (
     <AmountInput handleAmountChange={handleAmountChange} value={amount} />
   );
@@ -100,31 +128,31 @@ function FromInputs() {
         walletValidations={[validations.sendingWallet]}
         walletError={wallet.error}
         inputValidations={[
-          validations.fromNetwork,
+          validations.fromChain,
           validations.token,
           validations.amount,
         ]}
-        network={fromNetwork}
-        networkValidation={validations.fromNetwork}
-        onNetworkClick={() => setShowNetworksModal(true)}
+        chain={fromChain}
+        chainValidation={validations.fromChain}
+        onChainClick={() => setShowChainsModal(true)}
         tokenInput={tokenInput}
         amountInput={amountInput}
         balance={balance}
       />
       <TokensModal
         open={showTokensModal}
-        network={fromNetwork}
+        chain={fromChain}
         walletAddress={wallet.address}
         type="source"
         onSelect={selectToken}
         onClose={() => setShowTokensModal(false)}
       />
-      <NetworksModal
-        open={showNetworksModal}
+      <ChainsModal
+        open={showChainsModal}
         title="Sending from"
-        chains={CHAINS_ARR.filter((c) => c.key !== toNetwork)}
-        onSelect={selectNetwork}
-        onClose={() => setShowNetworksModal(false)}
+        chains={CHAINS_ARR.filter((c) => c.key !== toChain)}
+        onSelect={selectChain}
+        onClose={() => setShowChainsModal(false)}
         isDisabled={isDisabled}
       />
     </>

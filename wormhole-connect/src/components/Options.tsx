@@ -1,6 +1,6 @@
 import React from 'react';
 import { makeStyles } from 'tss-react/mui';
-import { joinClass } from '../utils/style';
+import { joinClass } from 'utils/style';
 import { Collapse } from '@mui/material';
 
 const useStyles = makeStyles()((theme: any) => ({
@@ -49,7 +49,7 @@ export type Option = {
 type Props = {
   children: Option[];
   onSelect: (value: any) => void;
-  active?: number;
+  active?: number | string;
   collapsable?: boolean;
   collapsed?: boolean;
 };

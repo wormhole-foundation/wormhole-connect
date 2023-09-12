@@ -1,5 +1,5 @@
 import { BigNumber } from 'ethers';
-import { AnyContracts, TokenId, ChainName, ChainId } from '../../types';
+import { AnyContracts, TokenId, ChainName, ChainId, NATIVE } from '../../types';
 import { WormholeContext } from 'wormhole';
 
 /**
@@ -65,6 +65,19 @@ export abstract class TokenBridgeAbstract<TransactionResult> {
     recipientAddress: string,
     payload: any,
   ): Promise<TransactionResult>;
+
+  protected abstract estimateSendGas(
+    token: TokenId | typeof NATIVE,
+    amount: string,
+    sendingChain: ChainName | ChainId,
+    senderAddress: string,
+    recipientChain: ChainName | ChainId,
+    recipientAddress: string,
+  ): Promise<BigNumber>;
+  protected abstract estimateClaimGas(
+    destChain: ChainName | ChainId,
+    VAA: Uint8Array,
+  ): Promise<BigNumber>;
 
   /**
    * Format an address to a 32-byte universal address, which can be utilized by the Wormhole contracts
@@ -148,6 +161,11 @@ export abstract class TokenBridgeAbstract<TransactionResult> {
     tokenId: TokenId,
     chain: ChainName | ChainId,
   ): Promise<BigNumber | null>;
+
+  protected abstract getTxGasUsed(
+    txId: string,
+    chain: ChainName | ChainId,
+  ): Promise<BigNumber | undefined>;
 
   /**
    * Redeems funds for a token bridge transfer on the destination chain

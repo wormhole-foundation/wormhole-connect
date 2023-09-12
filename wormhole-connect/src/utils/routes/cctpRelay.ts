@@ -7,8 +7,8 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { BigNumber, utils } from 'ethers';
 
-import { CHAINS, TOKENS } from 'config';
-import { TokenConfig } from 'config/types';
+import { CHAINS, ROUTES, TOKENS, sdkConfig } from 'config';
+import { TokenConfig, Route } from 'config/types';
 import {
   MAX_DECIMALS,
   getTokenDecimals,
@@ -20,22 +20,21 @@ import {
 import {
   ParsedMessage,
   ParsedRelayerMessage,
+  PayloadType,
   toChainId,
   wh,
-  PayloadType,
 } from 'utils/sdk';
 import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
 import { NO_INPUT } from 'utils/style';
-import { Route } from 'store/transferInput';
 import {
   TransferDisplayData,
   TransferInfoBaseParams,
   SignedMessage,
   RelayCCTPMessage,
+  TransferDestInfoBaseParams,
 } from './types';
 import { toDecimals, toFixedDecimals } from '../balance';
 import { RelayOptions } from './relay';
-import { getGasFeeFallback } from '../gasEstimates';
 import {
   CCTPTokenSymbol,
   CCTPManual_CHAINS as CCTPRelay_CHAINS,
@@ -47,15 +46,15 @@ import {
 } from './cctpManual';
 import { getUnsignedVaaEvm } from 'utils/vaa';
 
-interface TransferDestInfoParams {
-  txData: ParsedMessage | ParsedRelayerMessage;
-  receiveTx?: string;
-  transferComplete?: boolean;
-}
-
 export class CCTPRelayRoute extends CCTPManualRoute {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED = true;
   readonly AUTOMATIC_DEPOSIT = true;
+
+  isSupportedChain(chain: ChainName): boolean {
+    return !!sdkConfig.chains[chain]?.contracts.cctpContracts
+      ?.wormholeCircleRelayer;
+  }
+
   async isSupportedSourceToken(
     token: TokenConfig | undefined,
     destToken: TokenConfig | undefined,
@@ -63,13 +62,13 @@ export class CCTPRelayRoute extends CCTPManualRoute {
     destChain?: ChainName | ChainId,
   ): Promise<boolean> {
     if (!token) return false;
-    const sourceChainName = token.nativeNetwork;
+    const sourceChainName = token.nativeChain;
     const sourceChainCCTP =
       CCTPRelay_CHAINS.includes(sourceChainName) &&
       (!sourceChain || wh.toChainName(sourceChain) === sourceChainName);
 
     if (destToken) {
-      const destChainName = destToken.nativeNetwork;
+      const destChainName = destToken.nativeChain;
       const destChainCCTP =
         CCTPRelay_CHAINS.includes(destChainName) &&
         (!destChain || wh.toChainName(destChain) === destChainName);
@@ -91,12 +90,12 @@ export class CCTPRelayRoute extends CCTPManualRoute {
     destChain?: ChainName | ChainId,
   ): Promise<boolean> {
     if (!token) return false;
-    const destChainName = token.nativeNetwork;
+    const destChainName = token.nativeChain;
     const destChainCCTP =
       CCTPRelay_CHAINS.includes(destChainName) &&
       (!destChain || wh.toChainName(destChain) === destChainName);
     if (sourceToken) {
-      const sourceChainName = sourceToken.nativeNetwork;
+      const sourceChainName = sourceToken.nativeChain;
       const sourceChainCCTP =
         CCTPRelay_CHAINS.includes(sourceChainName) &&
         (!sourceChain || wh.toChainName(sourceChain) === sourceChainName);
@@ -154,6 +153,10 @@ export class CCTPRelayRoute extends CCTPManualRoute {
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
   ): Promise<boolean> {
+    if (!ROUTES.includes(Route.CCTPRelay)) {
+      return false;
+    }
+
     const sourceTokenConfig = TOKENS[sourceToken];
     const destTokenConfig = TOKENS[destToken];
 
@@ -167,8 +170,8 @@ export class CCTPRelayRoute extends CCTPManualRoute {
 
     if (sourceTokenConfig.symbol !== CCTPTokenSymbol) return false;
     if (destTokenConfig.symbol !== CCTPTokenSymbol) return false;
-    if (sourceTokenConfig.nativeNetwork !== sourceChainName) return false;
-    if (destTokenConfig.nativeNetwork !== destChainName) return false;
+    if (sourceTokenConfig.nativeChain !== sourceChainName) return false;
+    if (destTokenConfig.nativeChain !== destChainName) return false;
 
     return (
       CCTPRelay_CHAINS.includes(sourceChainName) &&
@@ -201,7 +204,7 @@ export class CCTPRelayRoute extends CCTPManualRoute {
     recipientChain: ChainName | ChainId,
     recipientAddress: string,
     routeOptions: any,
-  ): Promise<string> {
+  ): Promise<BigNumber> {
     const provider = wh.mustGetProvider(sendingChain);
     const { gasPrice } = await provider.getFeeData();
     if (!gasPrice)
@@ -213,37 +216,44 @@ export class CCTPRelayRoute extends CCTPManualRoute {
     ) as EthContext<WormholeContext>;
     const circleRelayer =
       chainContext.contracts.mustGetWormholeCircleRelayer(sendingChain);
-    const tokenAddr = (token as TokenId).address;
+    const tokenAddr = await wh.mustGetForeignAsset(
+      token as TokenId,
+      sendingChain,
+    );
     const fromChainId = wh.toChainId(sendingChain);
     const decimals = getTokenDecimals(fromChainId, token);
     const parsedAmt = utils.parseUnits(`${amount}`, decimals);
 
-    try {
-      const tx =
-        await circleRelayer.populateTransaction.transferTokensWithRelay(
-          chainContext.context.parseAddress(tokenAddr, sendingChain),
-          parsedAmt,
-          BigNumber.from(routeOptions.toNativeToken),
-          wh.toChainId(recipientChain),
-          chainContext.context.formatAddress(recipientAddress, recipientChain),
-        );
-      const est = await provider.estimateGas(tx);
-      const gasFee = est.mul(gasPrice);
-      return toFixedDecimals(utils.formatEther(gasFee), 6);
-    } catch (Error) {
-      return getGasFeeFallback(token, sendingChain, Route.CCTPRelay);
-    }
-
-    // maybe put this in a try catch and add fallback!
+    const tx = await circleRelayer.populateTransaction.transferTokensWithRelay(
+      chainContext.context.parseAddress(tokenAddr, sendingChain),
+      parsedAmt,
+      BigNumber.from(routeOptions.toNativeToken),
+      wh.toChainId(recipientChain),
+      chainContext.context.formatAddress(recipientAddress, recipientChain),
+    );
+    const est = await provider.estimateGas(tx);
+    return est.mul(gasPrice);
   }
 
-  async estimateClaimGas(destChain: ChainName | ChainId): Promise<string> {
+  async estimateClaimGas(
+    destChain: ChainName | ChainId,
+    VAA?: Uint8Array,
+  ): Promise<BigNumber> {
     throw new Error('No claiming for this route!');
   }
 
   /**
    * These operations have to be implemented in subclasses.
    */
+  getMinSendAmount(routeOptions: any): number {
+    const { relayerFee, toNativeToken } = routeOptions;
+
+    // has to be slightly higher than the minimum or else tx will revert
+    const fees = relayerFee + toNativeToken;
+    const min = (fees * 1.05).toFixed(6);
+    return Number.parseFloat(min);
+  }
+
   async send(
     token: TokenId | 'native',
     amount: string,
@@ -321,36 +331,31 @@ export class CCTPRelayRoute extends CCTPManualRoute {
     const sourceGasTokenSymbol = sourceGasToken
       ? TOKENS[sourceGasToken].symbol
       : '';
-    const destinationGasTokenSymbol = destinationGasToken
-      ? TOKENS[destinationGasToken].symbol
-      : '';
-    const isNative = token.symbol === sourceGasToken;
 
     let totalFeesText = '';
-    if (sendingGasEst && relayerFee !== undefined) {
-      const fee = toFixedDecimals(
-        `${relayerFee + (isNative ? sendingGasEst : 0)}`,
-        6,
-      );
-      totalFeesText = isNative
-        ? `${fee} ${token.symbol}`
-        : `${sendingGasEst} ${sourceGasTokenSymbol} & ${fee} ${token.symbol}`;
+    if (sendingGasEst && relayerFee) {
+      const fee = toFixedDecimals(`${relayerFee}`, 6);
+      totalFeesText = `${sendingGasEst} ${sourceGasToken} & ${fee} ${token.symbol}`;
     }
 
     const receiveAmt = await this.computeReceiveAmount(amount, routeOptions);
+
+    const nativeGasDisplay =
+      receiveNativeAmt > 0
+        ? [
+            {
+              title: 'Native gas on destination',
+              value: `${receiveNativeAmt} ${destinationGasToken}`,
+            },
+          ]
+        : [];
 
     return [
       {
         title: 'Amount',
         value: `${toFixedDecimals(`${receiveAmt}`, 6)} ${destToken.symbol}`,
       },
-      {
-        title: 'Native gas on destination',
-        value:
-          receiveNativeAmt !== undefined
-            ? `${receiveNativeAmt} ${destinationGasTokenSymbol}`
-            : NO_INPUT,
-      },
+      ...nativeGasDisplay,
       {
         title: 'Total fee estimates',
         value: totalFeesText,
@@ -438,7 +443,7 @@ export class CCTPRelayRoute extends CCTPManualRoute {
       sendTx: receipt.transactionHash,
       sender: receipt.from,
       amount: parsedCCTPLog.args.amount.toString(),
-      payloadID: PayloadType.AUTOMATIC,
+      payloadID: PayloadType.Automatic,
       recipient: recipient,
       toChain: getChainNameCCTP(parsedCCTPLog.args.destinationDomain),
       fromChain: fromChain,
@@ -476,7 +481,7 @@ export class CCTPRelayRoute extends CCTPManualRoute {
     const { gasToken: sourceGasTokenSymbol } = CHAINS[txData.fromChain]!;
     const sourceGasToken = TOKENS[sourceGasTokenSymbol];
     const decimals = getTokenDecimals(
-      toChainId(sourceGasToken.nativeNetwork),
+      toChainId(sourceGasToken.nativeChain),
       sourceGasToken.tokenId,
     );
     const formattedGas =
@@ -520,8 +525,7 @@ export class CCTPRelayRoute extends CCTPManualRoute {
   async getTransferDestInfo({
     txData: data,
     receiveTx,
-    transferComplete,
-  }: TransferDestInfoParams): Promise<TransferDisplayData> {
+  }: TransferDestInfoBaseParams): Promise<TransferDisplayData> {
     const txData: ParsedRelayerMessage = data as ParsedRelayerMessage;
 
     const token = TOKENS[txData.tokenKey];

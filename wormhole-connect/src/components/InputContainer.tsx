@@ -1,9 +1,9 @@
 import React from 'react';
-import { joinClass } from '../utils/style';
+import { joinClass } from 'utils/style';
 import { makeStyles } from 'tss-react/mui';
 
 type StyleProps = { bg?: string };
-const useStyles = makeStyles<StyleProps>()((theme, { bg }) => ({
+const useStyles = makeStyles<StyleProps>()((theme: any, { bg }) => ({
   input: {
     width: '100%',
     padding: '16px',

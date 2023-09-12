@@ -2,11 +2,11 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 
-import { RootState } from '../../store';
-import { Route, setTransferRoute } from '../../store/transferInput';
-import { ValidationErr, getMinAmount } from '../../utils/transferValidation';
-import Operator from '../../utils/routes';
-import AlertBanner from '../../components/AlertBanner';
+import { RootState } from 'store';
+import { ValidationErr, setTransferRoute } from 'store/transferInput';
+import { Route } from 'config/types';
+import RouteOperator from 'utils/routes/operator';
+import AlertBanner from 'components/AlertBanner';
 
 const useStyles = makeStyles()((theme) => ({
   minAmtError: {
@@ -49,16 +49,17 @@ function ValidationError(props: Props) {
     if (route === Route.CCTPRelay || route === Route.CCTPManual) {
       dispatch(setTransferRoute(Route.CCTPManual));
     } else {
-      dispatch(setTransferRoute(Route.BRIDGE));
+      dispatch(setTransferRoute(Route.Bridge));
     }
   };
 
   if (
+    route &&
     validationErrors[0] &&
     validationErrors[0].includes('Minimum amount is')
   ) {
-    const isAutomatic = new Operator().getRoute(route).AUTOMATIC_DEPOSIT;
-    const min = getMinAmount(isAutomatic, toNativeToken, relayerFee);
+    const r = RouteOperator.getRoute(route);
+    const min = r.getMinSendAmount({ toNativeToken, relayerFee });
     content = (
       <div className={classes.minAmtError}>
         <div>

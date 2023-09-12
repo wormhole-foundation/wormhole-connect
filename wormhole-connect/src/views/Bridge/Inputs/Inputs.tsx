@@ -5,19 +5,19 @@ import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 
-import { NO_INPUT } from '../../../utils/style';
+import { CHAINS } from 'config';
+import { RootState } from 'store';
+import { ValidationErr } from 'store/transferInput';
+import { NO_INPUT } from 'utils/style';
+import { TransferWallet } from 'utils/wallet';
 
-import ConnectWallet from '../../../components/ConnectWallet';
-import InputContainer from '../../../components/InputContainer';
-import { CHAINS } from '../../../config';
-import { RootState } from '../../../store';
-import { ValidationErr } from '../../../utils/transferValidation';
-import { TransferWallet } from '../../../utils/wallet';
-import NetworkTile from '../NetworkTile';
+import ConnectWallet from 'components/ConnectWallet';
+import InputContainer from 'components/InputContainer';
+import AlertBanner from 'components/AlertBanner';
+import ChainTile from '../ChainTile';
 import ValidationError from '../ValidationError';
 import Input from './Input';
 import Select from './Select';
-import AlertBanner from '../../../components/AlertBanner';
 
 const useStyles = makeStyles()((theme) => ({
   outerContainer: {
@@ -50,7 +50,7 @@ const useStyles = makeStyles()((theme) => ({
     display: 'grid',
     gridTemplateColumns: '158px 1fr',
     gridTemplateRows: '1fr',
-    gridTemplateAreas: `"network inputs"`,
+    gridTemplateAreas: `"chain inputs"`,
     width: '100%',
     maxWidth: '100%',
     [theme.breakpoints.down('sm')]: {
@@ -58,8 +58,8 @@ const useStyles = makeStyles()((theme) => ({
       gridTemplateAreas: `"inputs" !important`,
     },
   },
-  network: {
-    gridArea: 'network',
+  chain: {
+    gridArea: 'chain',
   },
   inputs: {
     gridArea: 'inputs',
@@ -72,12 +72,12 @@ const useStyles = makeStyles()((theme) => ({
       paddingLeft: '0',
     },
   },
-  networkRow: {
+  chainRow: {
     display: 'flex',
     flexDirection: 'row',
     gap: '8px',
   },
-  networkSmall: {
+  chainSmall: {
     display: 'block',
     width: '40%',
   },
@@ -111,9 +111,9 @@ type Props = {
   walletValidations: string[];
   inputValidations: string[];
   warning?: React.ReactNode | null;
-  network: ChainName | undefined;
-  networkValidation: ValidationErr;
-  onNetworkClick: any;
+  chain: ChainName | undefined;
+  chainValidation: ValidationErr;
+  onChainClick: any;
   tokenInput: any;
   amountInput: any;
   balance: string | undefined;
@@ -126,9 +126,9 @@ function Inputs(props: Props) {
     (state: RootState) => state.transferInput,
   );
 
-  const networkConfig = props.network && CHAINS[props.network];
-  const selectedNetwork = networkConfig
-    ? { icon: networkConfig.icon, text: networkConfig.displayName }
+  const chainConfig = props.chain && CHAINS[props.chain];
+  const selectedChain = chainConfig
+    ? { icon: chainConfig.icon, text: chainConfig.displayName }
     : undefined;
 
   const theme = useTheme();
@@ -165,28 +165,28 @@ function Inputs(props: Props) {
       <InputContainer>
         <div className={classes.outerContainer}>
           <div className={classes.content}>
-            {/* network tile */}
+            {/* chain tile */}
             {!mobile && (
-              <div className={classes.network}>
-                <NetworkTile
-                  network={networkConfig}
-                  error={!!(showErrors && props.networkValidation)}
-                  onClick={props.onNetworkClick}
+              <div className={classes.chain}>
+                <ChainTile
+                  chain={chainConfig}
+                  error={!!(showErrors && props.chainValidation)}
+                  onClick={props.onChainClick}
                   disabled={isTransactionInProgress}
                 />
               </div>
             )}
 
             <div className={classes.inputs}>
-              <div className={classes.networkRow}>
+              <div className={classes.chainRow}>
                 {/* network select (mobile) */}
                 {mobile && (
-                  <div className={classes.networkSmall}>
+                  <div className={classes.chainSmall}>
                     <Select
                       label="Network"
-                      selected={selectedNetwork}
-                      error={!!(showErrors && props.networkValidation)}
-                      onClick={props.onNetworkClick}
+                      selected={selectedChain}
+                      error={!!(showErrors && props.chainValidation)}
+                      onClick={props.onChainClick}
                       editable
                       disabled={isTransactionInProgress}
                     />

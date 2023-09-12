@@ -4,17 +4,17 @@ import { useDispatch } from 'react-redux';
 import { Select, MenuItem, CircularProgress } from '@mui/material';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 
-import { CHAINS_ARR } from '../config';
-import { isValidTxId } from '../utils';
-import Operator from '../utils/routes';
-import { setRoute as setRedeemRoute, setTxDetails } from '../store/redeem';
-import { setRoute as setAppRoute } from '../store/router';
-import PageHeader from '../components/PageHeader';
-import Search from '../components/Search';
-import Button from '../components/Button';
-import Spacer from '../components/Spacer';
-import AlertBanner from '../components/AlertBanner';
-import { setToNetwork } from '../store/transferInput';
+import { CHAINS_ARR } from 'config';
+import { isValidTxId } from 'utils';
+import RouteOperator from 'utils/routes/operator';
+import { setTxDetails, setRoute as setRedeemRoute } from 'store/redeem';
+import { setRoute as setAppRoute } from 'store/router';
+import PageHeader from 'components/PageHeader';
+import Search from 'components/Search';
+import Button from 'components/Button';
+import Spacer from 'components/Spacer';
+import AlertBanner from 'components/AlertBanner';
+import { setToChain } from 'store/transferInput';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -66,12 +66,11 @@ function TxSearch() {
     }
     try {
       setLoading(true);
-      const operator = new Operator();
-      const route = await operator.getRouteFromTx(
+      const route = await RouteOperator.getRouteFromTx(
         state.tx,
         state.chain as ChainName,
       );
-      const message = await operator.getMessage(
+      const message = await RouteOperator.getMessage(
         route,
         state.tx,
         state.chain as ChainName,
@@ -80,7 +79,7 @@ function TxSearch() {
       dispatch(setTxDetails(message));
       dispatch(setRedeemRoute(route));
       dispatch(setAppRoute('redeem'));
-      dispatch(setToNetwork(message.toChain));
+      dispatch(setToChain(message.toChain));
     } catch (e) {
       console.error(e);
       setError(

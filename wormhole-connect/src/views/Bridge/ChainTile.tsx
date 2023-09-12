@@ -1,11 +1,11 @@
 import React from 'react';
 import { makeStyles } from 'tss-react/mui';
-import TokenIcon from '../../icons/TokenIcons';
-import { ERROR_BORDER, joinClass } from '../../utils/style';
-import { NetworkConfig } from '../../config/types';
+import TokenIcon from 'icons/TokenIcons';
+import { ERROR_BORDER, joinClass } from 'utils/style';
+import { ChainConfig } from 'config/types';
 
 const useStyles = makeStyles()((theme: any) => ({
-  networkTile: {
+  chainTile: {
     backgroundColor: theme.palette.card.secondary,
     borderRadius: '8px',
     padding: '16px',
@@ -19,32 +19,32 @@ const useStyles = makeStyles()((theme: any) => ({
     marginRight: '8px',
     textAlign: 'center',
   },
-  networkNone: {
+  chainNone: {
     justifyContent: 'center',
     gap: '16px',
   },
-  networkIcon: {
+  chainIcon: {
     width: '56px',
     height: '56px',
   },
-  networkHeader: {
+  chainHeader: {
     fontSize: '16px',
     opacity: '60%',
   },
-  networkName: {
+  chainName: {
     fontSize: '16px',
   },
   error: ERROR_BORDER(theme),
 }));
 
 type Props = {
-  network?: NetworkConfig;
+  chain?: ChainConfig;
   onClick: React.MouseEventHandler<HTMLDivElement>;
   error?: boolean;
   disabled?: boolean;
 };
 
-function NetworkTile(props: Props) {
+function ChainTile(props: Props) {
   const { disabled = false } = props;
   const { classes } = useStyles();
 
@@ -53,31 +53,28 @@ function NetworkTile(props: Props) {
     props.onClick(e);
   };
 
-  return props.network ? (
+  return props.chain ? (
     <div
-      className={joinClass([
-        classes.networkTile,
-        !!props.error && classes.error,
-      ])}
+      className={joinClass([classes.chainTile, !!props.error && classes.error])}
       onClick={onClick}
     >
-      <div className={classes.networkHeader}>Network</div>
-      <TokenIcon name={props.network.icon} height={56} />
-      <div className={classes.networkName}>{props.network.displayName}</div>
+      <div className={classes.chainHeader}>Network</div>
+      <TokenIcon name={props.chain.icon} height={56} />
+      <div className={classes.chainName}>{props.chain.displayName}</div>
     </div>
   ) : (
     <div
       className={joinClass([
-        classes.networkTile,
-        classes.networkNone,
+        classes.chainTile,
+        classes.chainNone,
         !!props.error && classes.error,
       ])}
       onClick={onClick}
     >
       <TokenIcon height={56} />
-      <div className={classes.networkName}>Select network</div>
+      <div className={classes.chainName}>Select network</div>
     </div>
   );
 }
 
-export default NetworkTile;
+export default ChainTile;

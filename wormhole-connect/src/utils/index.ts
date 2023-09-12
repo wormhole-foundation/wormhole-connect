@@ -10,7 +10,7 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 
 import { CHAINS, CHAINS_ARR, TOKENS, TOKENS_ARR } from 'config';
-import { NetworkConfig, TokenConfig } from 'config/types';
+import { ChainConfig, TokenConfig } from 'config/types';
 import { isEvmChain, wh } from 'utils/sdk';
 import { toDecimals } from './balance';
 import { isCosmWasmChain } from './cosmos';
@@ -59,7 +59,7 @@ export function displayWalletAddress(
   return trimAddress(address);
 }
 
-export function getNetworkByChainId(chainId: number): NetworkConfig | void {
+export function getChainByChainId(chainId: number): ChainConfig | void {
   return CHAINS_ARR.filter((c) => chainId === c.chainId)[0];
 }
 

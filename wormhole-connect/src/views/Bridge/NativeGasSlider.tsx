@@ -6,28 +6,23 @@ import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { useDebounce } from 'use-debounce';
 
-import { CHAINS, TOKENS } from '../../config';
-import { TokenConfig } from '../../config/types';
-import { ROUTES } from '../../config/routes';
-import { getTokenDecimals, getWrappedTokenId } from '../../utils';
-import { wh } from '../../utils/sdk';
-import {
-  getConversion,
-  toDecimals,
-  toFixedDecimals,
-} from '../../utils/balance';
-import { getMinAmount } from '../../utils/transferValidation';
-import Operator from '../../utils/routes';
-import { RootState } from '../../store';
-import { setTransferRoute, Route } from '../../store/transferInput';
+import { CHAINS, TOKENS } from 'config';
+import { TokenConfig, Route } from 'config/types';
+import { RoutesConfig } from 'config/routes';
+import { getTokenDecimals, getWrappedTokenId } from 'utils';
+import { wh } from 'utils/sdk';
+import { getConversion, toDecimals, toFixedDecimals } from 'utils/balance';
+import RouteOperator from 'utils/routes/operator';
+import { RootState } from 'store';
+import { setTransferRoute } from 'store/transferInput';
 import {
   setMaxSwapAmt,
   setReceiveNativeAmt,
   setToNativeToken,
-} from '../../store/relay';
+} from 'store/relay';
 
-import InputContainer from '../../components/InputContainer';
-import TokenIcon from '../../icons/TokenIcons';
+import InputContainer from 'components/InputContainer';
+import TokenIcon from 'icons/TokenIcons';
 import BridgeCollapse, { CollapseControlStyle } from './Collapse';
 import { Banner } from './RouteOptions';
 
@@ -103,17 +98,19 @@ const INITIAL_STATE = {
 function GasSlider(props: { disabled: boolean }) {
   const { classes } = useStyles();
   const dispatch = useDispatch();
-  const { token, toNetwork, amount, route, destToken } = useSelector(
+  const { token, toChain, amount, route, destToken } = useSelector(
     (state: RootState) => state.transferInput,
   );
-  const amountNum = useMemo(() => Number.parseFloat(amount), [amount]);
-  const { maxSwapAmt, relayerFee } = useSelector(
+  const { maxSwapAmt, relayerFee, toNativeToken } = useSelector(
     (state: RootState) => state.relay,
   );
+  const amountNum = useMemo(() => {
+    return Number.parseFloat(amount) - (toNativeToken || 0) - (relayerFee || 0);
+  }, [amount, relayerFee, toNativeToken]);
   const { receiving: receivingWallet } = useSelector(
     (state: RootState) => state.wallet,
   );
-  const destConfig = CHAINS[toNetwork!];
+  const destConfig = CHAINS[toChain!];
   const sendingToken = TOKENS[token];
   const receivingToken = TOKENS[destToken];
   const nativeGasToken = TOKENS[destConfig?.gasToken!];
@@ -127,18 +124,20 @@ function GasSlider(props: { disabled: boolean }) {
       !amountNum ||
       amountNum === 0 ||
       !maxSwapAmt ||
-      !new Operator().getRoute(route).NATIVE_GAS_DROPOFF_SUPPORTED
+      !route ||
+      !RouteOperator.getRoute(route).NATIVE_GAS_DROPOFF_SUPPORTED
     )
       return;
 
-    const min = getMinAmount(true, relayerFee, 0);
+    const r = RouteOperator.getRoute(route);
+    const min = r.getMinSendAmount({ relayerFee, toNativeToken: 0 });
     const amountWithoutRelayerFee = amountNum - min;
     const actualMaxSwap =
       amountNum &&
       maxSwapAmt &&
       Math.max(Math.min(maxSwapAmt, amountWithoutRelayerFee), 0);
 
-    const newTokenAmount = amountNum - state.swapAmt;
+    const newTokenAmount = amountNum - state.swapAmt - (relayerFee || 0);
 
     setState((prevState) => ({
       ...prevState,
@@ -150,27 +149,32 @@ function GasSlider(props: { disabled: boolean }) {
 
   useEffect(() => {
     if (
-      !toNetwork ||
+      !toChain ||
       !sendingToken ||
-      !new Operator().getRoute(route).NATIVE_GAS_DROPOFF_SUPPORTED ||
+      !route ||
+      !RouteOperator.getRoute(route).NATIVE_GAS_DROPOFF_SUPPORTED ||
       !receivingWallet.address ||
       !receivingToken
     )
       return;
 
     const tokenId = receivingToken.tokenId!;
-    new Operator()
-      .maxSwapAmount(route, toNetwork, tokenId, receivingWallet.address)
+    RouteOperator.maxSwapAmount(
+      route,
+      toChain,
+      tokenId,
+      receivingWallet.address,
+    )
       .then((res: BigNumber) => {
         if (!res) {
           dispatch(setMaxSwapAmt(undefined));
           return;
         }
-        const toNetworkDecimals = getTokenDecimals(
-          wh.toChainId(toNetwork),
+        const toChainDecimals = getTokenDecimals(
+          wh.toChainId(toChain),
           tokenId,
         );
-        const amt = toDecimals(res, toNetworkDecimals, 6);
+        const amt = toDecimals(res, toChainDecimals, 6);
         dispatch(setMaxSwapAmt(Number.parseFloat(amt)));
       })
       .catch((e) => {
@@ -178,7 +182,7 @@ function GasSlider(props: { disabled: boolean }) {
           if (route === Route.CCTPRelay) {
             dispatch(setTransferRoute(Route.CCTPManual));
           } else {
-            dispatch(setTransferRoute(Route.BRIDGE));
+            dispatch(setTransferRoute(Route.Bridge));
           }
         } else {
           throw e;
@@ -186,7 +190,7 @@ function GasSlider(props: { disabled: boolean }) {
       });
 
     // get conversion rate of token
-    const { gasToken } = CHAINS[toNetwork]!;
+    const { gasToken } = CHAINS[toChain]!;
     getConversion(token, gasToken).then((res: number) => {
       setState((prevState) => ({ ...prevState, conversionRate: res }));
     });
@@ -194,7 +198,7 @@ function GasSlider(props: { disabled: boolean }) {
     sendingToken,
     receivingToken,
     receivingWallet,
-    toNetwork,
+    toChain,
     route,
     token,
     destToken,
@@ -241,20 +245,20 @@ function GasSlider(props: { disabled: boolean }) {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      if (!receivingToken || !sendingToken) return;
+      if (!receivingToken || !sendingToken || !route) return;
       dispatch(setToNativeToken(debouncedSwapAmt));
       const tokenId = receivingToken.tokenId!;
       const tokenToChainDecimals = getTokenDecimals(
-        wh.toChainId(toNetwork!),
+        wh.toChainId(toChain!),
         tokenId,
       );
       const formattedAmt = utils.parseUnits(
         `${debouncedSwapAmt}`,
         tokenToChainDecimals,
       );
-      const nativeGasAmt = await new Operator().nativeTokenAmount(
+      const nativeGasAmt = await RouteOperator.nativeTokenAmount(
         route,
-        toNetwork!,
+        toChain!,
         tokenId,
         formattedAmt,
         receivingWallet.address,
@@ -262,7 +266,7 @@ function GasSlider(props: { disabled: boolean }) {
       if (cancelled) return;
       const nativeGasTokenId = getWrappedTokenId(nativeGasToken);
       const nativeGasTokenToChainDecimals = getTokenDecimals(
-        wh.toChainId(toNetwork!),
+        wh.toChainId(toChain!),
         nativeGasTokenId,
       );
       const formattedNativeAmt = Number.parseFloat(
@@ -285,13 +289,13 @@ function GasSlider(props: { disabled: boolean }) {
     receivingWallet.address,
     sendingToken,
     receivingToken,
-    toNetwork,
+    toChain,
     route,
     amount,
   ]);
 
-  const banner = !props.disabled && (
-    <Banner text="This feature provided by" route={ROUTES[Route.RELAY]} />
+  const banner = !props.disabled && !!route && (
+    <Banner text="This feature provided by" route={RoutesConfig[route]} />
   );
 
   return (

@@ -84,6 +84,17 @@ Tokens (`tokens`):
 
 <br>
 
+Routes (`routes`)
+| Mainnet | Testnet |
+| -------- | ---------|
+| bridge | bridge |
+| relay | relay |
+| cctpManual | cctpManual |
+| cctpRelay | cctpRelay |
+| cosmosGateway | cosmosGateway |
+
+<br>
+
 Mode (`mode`):
 | | |
 | ---- | ----- |

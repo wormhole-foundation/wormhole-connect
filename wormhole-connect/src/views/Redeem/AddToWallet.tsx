@@ -1,8 +1,5 @@
 import { Link, Typography } from '@mui/material';
-import {
-  coalesceChainId,
-  isEVMChain,
-} from '@xlabs-libs/wallet-aggregator-core';
+import { isEVMChain } from '@xlabs-libs/wallet-aggregator-core';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
@@ -12,23 +9,18 @@ import {
   WormholeContext,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 
-import {
-  CHAINS,
-  TESTNET_TO_MAINNET_CHAIN_NAMES,
-  TOKENS,
-  isMainnet,
-} from '../../config';
-import { MAINNET_NETWORKS } from '../../config/mainnet';
-import { TokenConfig } from '../../config/types';
-import { RootState } from '../../store';
-import { setWalletModal } from '../../store/router';
-import { getWrappedToken } from '../../utils';
-import { wh } from '../../utils/sdk';
-import { TransferWallet, switchNetwork, watchAsset } from '../../utils/wallet';
-import Operator from '../../utils/routes';
-import TokenIcon from '../../icons/TokenIcons';
+import { CHAINS, TOKENS } from 'config';
+import { MAINNET_CHAINS } from 'config/mainnet';
+import { TokenConfig } from 'config/types';
+import { RootState } from 'store';
+import { setWalletModal } from 'store/router';
+import { getWrappedToken } from 'utils';
+import { wh } from 'utils/sdk';
+import { TransferWallet, switchChain, watchAsset } from 'utils/wallet';
+
+import TokenIcon from 'icons/TokenIcons';
 import ExplorerLink from './ExplorerLink';
-import { isCosmWasmChain } from '../../utils/cosmos';
+import { isCosmWasmChain } from 'utils/cosmos';
 
 const useStyles = makeStyles()((theme) => ({
   addToken: {
@@ -68,8 +60,8 @@ function AddToEVMWallet({ token, address }: AddTokenProps) {
     // when using the automatic relay method the user may still have their wallet
     // configured to the source chain instead of the destination chain
     const evmChainId = CHAINS[txData.toChain]?.chainId;
-    if (!evmChainId) return;
-    await switchNetwork(evmChainId, TransferWallet.RECEIVING);
+    if (!evmChainId || typeof evmChainId === 'string') return;
+    await switchChain(evmChainId, TransferWallet.RECEIVING);
 
     await watchAsset(
       {
@@ -77,7 +69,7 @@ function AddToEVMWallet({ token, address }: AddTokenProps) {
         symbol: token.symbol,
         decimals: token.decimals.default,
         // evm chain id
-        chainId: CHAINS[token.nativeNetwork]?.chainId,
+        chainId: evmChainId,
       },
       TransferWallet.RECEIVING,
     );
@@ -102,7 +94,7 @@ function AddToSolanaWallet({ token, address }: AddTokenProps) {
       <span className={classes.addTokenText}>See {token.symbol} token on</span>
       <ExplorerLink
         styles={{ marginLeft: -4 }}
-        network={'solana'}
+        chain={'solana'}
         type={'address'}
         address={address}
       />
@@ -120,7 +112,7 @@ function AddToSuiWallet({ token, address }: AddTokenProps) {
       <span className={classes.addTokenText}>See {token.symbol} token on</span>
       <ExplorerLink
         styles={{ marginLeft: -4 }}
-        network={'sui'}
+        chain={'sui'}
         type={'object'}
         object={address}
       />
@@ -138,7 +130,7 @@ function AddToAptosWallet({ token, address }: AddTokenProps) {
       <span className={classes.addTokenText}>See {token.symbol} token on</span>
       <ExplorerLink
         styles={{ marginLeft: -4 }}
-        network={'aptos'}
+        chain={'aptos'}
         type={'address'}
         address={tokenAccount}
       />
@@ -162,11 +154,7 @@ function AddToWallet() {
       const tokenInfo = TOKENS[txData.tokenKey];
       const wrapped = getWrappedToken(tokenInfo);
       if (!wrapped.tokenId) return;
-      const address = await new Operator().getForeignAsset(
-        route,
-        wrapped.tokenId,
-        txData.toChain,
-      );
+      const address = await wh.getForeignAsset(wrapped.tokenId, txData.toChain);
 
       if (txData.toChain === 'sui' && address) {
         const context = wh.getContext('sui') as SuiContext<WormholeContext>;
@@ -187,24 +175,21 @@ function AddToWallet() {
     );
   }, [txData, route]);
 
-  const chainName = isMainnet
-    ? (txData.toChain as ChainName)
-    : TESTNET_TO_MAINNET_CHAIN_NAMES[txData.toChain];
-  const chainId = coalesceChainId(chainName);
+  const chainId = wh.toChainId(txData.toChain as ChainName);
 
   if (!targetToken || !targetAddress) return <></>;
 
   if (isEVMChain(chainId)) {
     return <AddToEVMWallet address={targetAddress} token={targetToken} />;
   } else if (
-    chainId === MAINNET_NETWORKS.solana?.id &&
+    chainId === MAINNET_CHAINS.solana?.id &&
     targetToken.symbol !== 'WSOL'
   ) {
     return <AddToSolanaWallet address={targetAddress} token={targetToken} />;
-  } else if (chainId === MAINNET_NETWORKS.sui?.id) {
+  } else if (chainId === MAINNET_CHAINS.sui?.id) {
     return <AddToSuiWallet address={targetAddress} token={targetToken} />;
   } else if (
-    chainId === MAINNET_NETWORKS.aptos?.id &&
+    chainId === MAINNET_CHAINS.aptos?.id &&
     targetToken.symbol !== 'APT'
   ) {
     return <AddToAptosWallet address={targetAddress} token={targetToken} />;

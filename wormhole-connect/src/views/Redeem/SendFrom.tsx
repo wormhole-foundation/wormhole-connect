@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 
-import InputContainer from '../../components/InputContainer';
-import { RenderRows } from '../../components/RenderRows';
-import { RootState } from '../../store';
-import Operator, { TransferDisplayData } from '../../utils/routes';
+import InputContainer from 'components/InputContainer';
+import { RenderRows } from 'components/RenderRows';
+import { RootState } from 'store';
+import { TransferDisplayData } from 'utils/routes';
+import RouteOperator from 'utils/routes/operator';
 
 import Confirmations from './Confirmations';
 import Header from './Header';
@@ -20,17 +21,17 @@ function SendFrom() {
   const [rows, setRows] = useState([] as TransferDisplayData);
 
   useEffect(() => {
-    if (!txData) return;
-    new Operator()
-      .getTransferSourceInfo(route, { txData })
-      .then((rows) => setRows(rows));
+    if (!txData || !route) return;
+    RouteOperator.getTransferSourceInfo(route, { txData }).then((rows) =>
+      setRows(rows),
+    );
   }, [txData, route]);
 
   return (
     <div>
       <InputContainer>
         <Header
-          network={txData!.fromChain}
+          chain={txData!.fromChain}
           address={txData!.sender}
           txHash={txData!.sendTx}
         />

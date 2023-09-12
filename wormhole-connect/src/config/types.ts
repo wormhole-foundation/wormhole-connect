@@ -1,5 +1,5 @@
 import {
-  ChainConfig,
+  ChainConfig as BaseChainConfig,
   ChainName,
   TokenId,
   ChainResourceMap,
@@ -7,6 +7,45 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { ExtendedTheme } from 'theme';
 
+export enum Icon {
+  'AVAX' = 1,
+  'BNB',
+  'BSC',
+  'CELO',
+  'ETH',
+  'FANTOM',
+  'POLYGON',
+  'SOLANA',
+  'USDC',
+  'GLMR',
+  'DAI',
+  'USDT',
+  'BUSD',
+  'WBTC',
+  'SUI',
+  'APT',
+  'SEI',
+  'BASE',
+  'OSMO',
+  'BONK',
+  'TBTC',
+  'WSTETH',
+  'ARBITRUM',
+  'OPTIMISM',
+}
+
+export enum Route {
+  Bridge = 'bridge',
+  Relay = 'relay',
+  // Hashflow = 'hashflow',
+  CosmosGateway = 'cosmosGateway',
+  CCTPManual = 'cctpManual',
+  CCTPRelay = 'cctpRelay',
+}
+
+export type SupportedRoutes = keyof typeof Route;
+
+// TODO: preference is fromChain/toChain, but want to keep backwards compatibility
 export interface BridgeDefaults {
   fromNetwork?: ChainName;
   toNetwork?: ChainName;
@@ -27,6 +66,7 @@ export interface WormholeConnectConfig {
     link: string;
   };
   bridgeDefaults?: BridgeDefaults;
+  routes?: string[];
 }
 
 type DecimalsMap = Partial<Record<Context, number>> & {
@@ -36,7 +76,7 @@ type DecimalsMap = Partial<Record<Context, number>> & {
 export type TokenConfig = {
   key: string;
   symbol: string;
-  nativeNetwork: ChainName;
+  nativeChain: ChainName;
   icon: Icon;
   tokenId?: TokenId; // if no token id, it is the native token
   coinGeckoId: string;
@@ -45,7 +85,9 @@ export type TokenConfig = {
   wrappedAsset?: string;
 };
 
-export interface NetworkConfig extends ChainConfig {
+export type TokensConfig = { [key: string]: TokenConfig };
+
+export interface ChainConfig extends BaseChainConfig {
   displayName: string;
   explorerUrl: string;
   explorerName: string;
@@ -56,46 +98,30 @@ export interface NetworkConfig extends ChainConfig {
   automaticRelayer?: boolean;
 }
 
-export type NetworksConfig = {
-  [chain in ChainName]?: NetworkConfig;
+export type ChainsConfig = {
+  [chain in ChainName]?: ChainConfig;
 };
 
-export enum Icon {
-  'AVAX' = 1,
-  'BNB',
-  'BSC',
-  'CELO',
-  'ETH',
-  'FANTOM',
-  'POLYGON',
-  'SOLANA',
-  'USDC',
-  'GLMR',
-  'DAI',
-  'USDT',
-  'BUSD',
-  'WBTC',
-  'SUI',
-  'APT',
-  'ARBITRUM',
-  'OPTIMISM',
-  'SEI',
-  'BASE',
-  'OSMO',
-  'BONK',
-  'TBTC',
-  'WSTETH',
-}
+export type GasEstimatesByOperation = {
+  sendToken?: number;
+  sendNative?: number;
+  claim?: number;
+};
+
+export type GasEstimateOptions = keyof GasEstimatesByOperation;
 
 export type GasEstimates = {
   [chain in ChainName]?: {
-    send?: number;
-    sendNative: number;
-    sendToken: number;
-    claim: number;
-    sendNativeWithRelay?: number;
-    sendTokenWithRelay?: number;
-    sendCCTPWithRelay?: number;
-    sendCCTPManual?: number;
+    [route in Route]?: GasEstimatesByOperation;
   };
+};
+
+export type RpcMapping = { [chain in ChainName]?: string };
+
+export type NetworkData = {
+  chains: ChainsConfig;
+  tokens: TokensConfig;
+  gasEstimates: GasEstimates;
+  rpcs: RpcMapping;
+  rest: RpcMapping;
 };

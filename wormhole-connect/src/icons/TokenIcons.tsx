@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { makeStyles } from 'tss-react/mui';
 
-import { CENTER } from '../utils/style';
-import { Icon } from '../config/types';
+import { CENTER } from 'utils/style';
+import { Icon } from 'config/types';
 import WBTC from './Tokens/WBTC';
 import BUSD from './Tokens/BUSD';
 import USDT from './Tokens/USDT';

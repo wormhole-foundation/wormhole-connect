@@ -1,6 +1,6 @@
 import React from 'react';
 import { makeStyles } from 'tss-react/mui';
-import { OPACITY } from '../utils/style';
+import { OPACITY } from 'utils/style';
 
 const useStyles = makeStyles<{ blendColor: string }>()(
   (theme, { blendColor }) => ({

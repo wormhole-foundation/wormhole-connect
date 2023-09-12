@@ -5,8 +5,8 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { BigNumber, utils } from 'ethers';
 
-import { CHAINS, TOKENS } from 'config';
-import { TokenConfig } from 'config/types';
+import { CHAINS, ROUTES, TOKENS, sdkConfig } from 'config';
+import { TokenConfig, Route } from 'config/types';
 import {
   MAX_DECIMALS,
   fromNormalizedDecimals,
@@ -14,20 +14,18 @@ import {
   getWrappedTokenId,
   toNormalizedDecimals,
 } from 'utils';
-import { estimateClaimGasFees, estimateSendGasFees } from 'utils/gasEstimates';
 import {
   ParsedMessage,
-  PayloadType,
   wh,
   isAcceptedToken,
   ParsedRelayerMessage,
   toChainId,
   calculateNativeTokenAmt,
   calculateMaxSwapAmount,
+  PayloadType,
 } from 'utils/sdk';
 import { NO_INPUT } from 'utils/style';
 import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
-import { Route } from 'store/transferInput';
 import { BridgeRoute } from './bridge';
 import { toDecimals, toFixedDecimals } from '../balance';
 import {
@@ -60,6 +58,10 @@ export class RelayRoute extends BridgeRoute {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED = true;
   readonly AUTOMATIC_DEPOSIT = true;
 
+  isSupportedChain(chain: ChainName): boolean {
+    return !!sdkConfig.chains[chain]?.contracts.relayer;
+  }
+
   async isRouteAvailable(
     sourceToken: string,
     destToken: string,
@@ -67,6 +69,10 @@ export class RelayRoute extends BridgeRoute {
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
   ): Promise<boolean> {
+    if (!ROUTES.includes(Route.Relay)) {
+      return false;
+    }
+
     const isBridgeRouteAvailable = await super.isRouteAvailable(
       sourceToken,
       destToken,
@@ -80,17 +86,22 @@ export class RelayRoute extends BridgeRoute {
     if (!sourceContracts.relayer || !destContracts.relayer) {
       return false;
     }
-    return true;
+    const tokenConfig = TOKENS[sourceToken]!;
+    const tokenId = getWrappedTokenId(tokenConfig);
+    const accepted = await isAcceptedToken(tokenId);
+    return accepted;
   }
 
   async isSupportedSourceToken(
     token: TokenConfig | undefined,
     destToken: TokenConfig | undefined,
+    sourceChain?: ChainName | ChainId,
   ): Promise<boolean> {
     if (!token) return false;
     const isSupportedBridgeToken = await super.isSupportedSourceToken(
       token,
       destToken,
+      sourceChain,
     );
     if (!isSupportedBridgeToken) return false;
     const tokenId = getWrappedTokenId(token);
@@ -114,9 +125,12 @@ export class RelayRoute extends BridgeRoute {
   async supportedSourceTokens(
     tokens: TokenConfig[],
     destToken?: TokenConfig,
+    sourceChain?: ChainName | ChainId,
   ): Promise<TokenConfig[]> {
     const shouldAdd = await Promise.allSettled(
-      tokens.map((token) => this.isSupportedSourceToken(token, destToken)),
+      tokens.map((token) =>
+        this.isSupportedSourceToken(token, destToken, sourceChain),
+      ),
     );
     return tokens.filter((_token, i) => {
       const res = shouldAdd[i];
@@ -193,27 +207,43 @@ export class RelayRoute extends BridgeRoute {
     recipientChain: ChainName | ChainId,
     recipientAddress: string,
     routeOptions: RelayOptions,
-  ): Promise<string> {
-    return await estimateSendGasFees(
+  ): Promise<BigNumber> {
+    const { relayerFee, toNativeToken } = routeOptions;
+    const sendGas = await wh.estimateSendWithRelayGas(
       token,
-      Number.parseFloat(amount),
+      amount,
       sendingChain,
       senderAddress,
       recipientChain,
       recipientAddress,
-      Route.RELAY,
-      routeOptions.relayerFee,
-      routeOptions.toNativeToken,
+      relayerFee,
+      toNativeToken ? `${routeOptions.toNativeToken}` : '0',
     );
+    if (!sendGas) throw new Error('could not estimate gas');
+    return sendGas;
   }
 
-  async estimateClaimGas(destChain: ChainName | ChainId): Promise<string> {
-    return await estimateClaimGasFees(destChain);
+  async estimateClaimGas(
+    destChain: ChainName | ChainId,
+    VAA?: Uint8Array,
+  ): Promise<BigNumber> {
+    if (!VAA) throw new Error('Cannot estimate gas without signedVAA');
+    throw new Error(
+      'manual claim not implemented for automatic token bridge relays',
+    );
   }
 
   /**
    * These operations have to be implemented in subclasses.
    */
+  getMinSendAmount(routeOptions: any): number {
+    const { relayerFee, toNativeToken } = routeOptions;
+
+    // has to be slightly higher than the minimum or else tx will revert
+    const fees = relayerFee + toNativeToken;
+    const min = (fees * 1.05).toFixed(6);
+    return Number.parseFloat(min);
+  }
   async send(
     token: TokenId | 'native',
     amount: string,
@@ -268,7 +298,7 @@ export class RelayRoute extends BridgeRoute {
   ): Promise<UnsignedMessage> {
     const message = await wh.getMessage(tx, chain);
     const parsed = (await adaptParsedMessage(message)) as ParsedRelayerMessage;
-    if (parsed.payloadID !== PayloadType.AUTOMATIC) {
+    if (parsed.payloadID !== PayloadType.Automatic) {
       throw new Error('wrong payload, not a token bridge relay transfer');
     }
     return {
@@ -293,7 +323,7 @@ export class RelayRoute extends BridgeRoute {
     };
   }
 
-  public async getPreview(
+  async getPreview(
     token: TokenConfig,
     destToken: TokenConfig,
     amount: number,
@@ -309,9 +339,6 @@ export class RelayRoute extends BridgeRoute {
     const destinationGasToken = CHAINS[receipientChainName]?.gasToken;
     const sourceGasTokenSymbol = sourceGasToken
       ? TOKENS[sourceGasToken].symbol
-      : '';
-    const destinationGasTokenSymbol = destinationGasToken
-      ? TOKENS[destinationGasToken].symbol
       : '';
     const { relayerFee, receiveNativeAmt } = routeOptions;
     const isNative = token.symbol === sourceGasToken;
@@ -329,18 +356,22 @@ export class RelayRoute extends BridgeRoute {
 
     const receiveAmt = await this.computeReceiveAmount(amount, routeOptions);
 
+    const nativeGasDisplay =
+      receiveNativeAmt > 0
+        ? [
+            {
+              title: 'Native gas on destination',
+              value: `${receiveNativeAmt} ${destinationGasToken}`,
+            },
+          ]
+        : [];
+
     return [
       {
         title: 'Amount',
         value: `${toFixedDecimals(`${receiveAmt}`, 6)} ${destToken.symbol}`,
       },
-      {
-        title: 'Native gas on destination',
-        value:
-          receiveNativeAmt !== undefined
-            ? `${receiveNativeAmt} ${destinationGasTokenSymbol}`
-            : NO_INPUT,
-      },
+      ...nativeGasDisplay,
       {
         title: 'Total fee estimates',
         value: totalFeesText,
@@ -388,7 +419,7 @@ export class RelayRoute extends BridgeRoute {
     const { gasToken: sourceGasTokenSymbol } = CHAINS[txData.fromChain]!;
     const sourceGasToken = TOKENS[sourceGasTokenSymbol];
     const decimals = getTokenDecimals(
-      toChainId(sourceGasToken.nativeNetwork),
+      toChainId(sourceGasToken.nativeChain),
       sourceGasToken.tokenId,
     );
     const formattedGas =

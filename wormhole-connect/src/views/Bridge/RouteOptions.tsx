@@ -3,23 +3,20 @@ import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { Chip, useMediaQuery, useTheme } from '@mui/material';
 
-import { RootState } from '../../store';
-import { setTransferRoute, Route } from '../../store/transferInput';
-import { LINK, joinClass } from '../../utils/style';
-import Operator from '../../utils/routes';
-import { listOfRoutes } from '../../utils/routes/operator';
-import { isTransferValid } from '../../utils/transferValidation';
-import { toFixedDecimals } from '../../utils/balance';
-import { TOKENS } from '../../config';
-import { ROUTES, RouteData } from '../../config/routes';
-import { getTokenDecimals } from '../../utils';
-import { toDecimals } from '../../utils/balance';
-import { toChainId } from '../../utils/sdk';
+import { RootState } from 'store';
+import { setAvailableRoutes, setTransferRoute } from 'store/transferInput';
+import { LINK, joinClass } from 'utils/style';
+import { toFixedDecimals } from 'utils/balance';
+import RouteOperator from 'utils/routes/operator';
+import { TOKENS, ROUTES } from 'config';
+import { Route } from 'config/types';
+import { RoutesConfig, RouteData } from 'config/routes';
+
 import BridgeCollapse, { CollapseControlStyle } from './Collapse';
-import TokenIcon from '../../icons/TokenIcons';
-import ArrowRightIcon from '../../icons/ArrowRight';
-import Options from '../../components/Options';
-import { isCosmWasmChain } from '../../utils/cosmos';
+import TokenIcon from 'icons/TokenIcons';
+import ArrowRightIcon from 'icons/ArrowRight';
+import Options from 'components/Options';
+import { isCosmWasmChain } from 'utils/cosmos';
 
 const useStyles = makeStyles()((theme: any) => ({
   link: {
@@ -93,9 +90,9 @@ const useStyles = makeStyles()((theme: any) => ({
 export function Banner(props: { text?: string; route?: RouteData }) {
   const { classes } = useStyles();
   const text = props.text || 'This route provided by';
-  const { route } = useSelector((state: RootState) => state.transferInput);
+  const route = useSelector((state: RootState) => state.transferInput.route);
 
-  const displayRoute = props.route || ROUTES[route];
+  const displayRoute = route && (props.route || RoutesConfig[route]);
 
   return displayRoute ? (
     <>
@@ -142,48 +139,29 @@ function Tag(props: TagProps) {
   );
 }
 
-function RouteOption(props: { route: RouteData; active: boolean }) {
+function RouteOption(props: { route: RouteData }) {
   const { classes } = useStyles();
   const theme = useTheme();
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const { token, destToken, amount, fromNetwork, toNetwork } = useSelector(
+  const { token, destToken, amount, toChain } = useSelector(
     (state: RootState) => state.transferInput,
   );
-  const { toNativeToken } = useSelector((state: RootState) => state.relay);
+  const { toNativeToken, relayerFee } = useSelector(
+    (state: RootState) => state.relay,
+  );
   const [receiveAmt, setReceiveAmt] = useState<number | undefined>(undefined);
-  const [relayerFee, setRelayerFee] = useState<number>(0);
-  useEffect(() => {
-    async function getFee() {
-      if (!fromNetwork || !toNetwork) return;
-      try {
-        const fee = await new Operator().getRelayerFee(
-          props.route.route,
-          fromNetwork,
-          toNetwork,
-          token,
-        );
-        const decimals = getTokenDecimals(
-          toChainId(fromNetwork),
-          TOKENS[token].tokenId || 'native',
-        );
-        const formattedFee = Number.parseFloat(toDecimals(fee, decimals, 6));
-        setRelayerFee(formattedFee);
-      } catch {}
-    }
-    getFee();
-  }, [fromNetwork, toNetwork, token, props.route.route]);
+
   useEffect(() => {
     async function load() {
-      const operator = new Operator();
-      const receiveAmt = await operator.computeReceiveAmount(
+      const receiveAmt = await RouteOperator.computeReceiveAmount(
         props.route.route,
         Number.parseFloat(amount),
-        { toNativeToken: props.active ? toNativeToken : 0, relayerFee },
+        { toNativeToken, relayerFee },
       );
       setReceiveAmt(Number.parseFloat(toFixedDecimals(`${receiveAmt}`, 6)));
     }
     load();
-  }, [props.route, amount, toNativeToken, relayerFee, props.active]);
+  }, [props.route, amount, toNativeToken, relayerFee]);
   const fromTokenConfig = TOKENS[token];
   const fromTokenIcon = fromTokenConfig && (
     <TokenIcon name={fromTokenConfig.icon} height={20} />
@@ -195,7 +173,7 @@ function RouteOption(props: { route: RouteData; active: boolean }) {
   const routeName = props.route.route;
 
   const route = useMemo(() => {
-    return new Operator().getRoute(routeName);
+    return RouteOperator.getRoute(routeName);
   }, [routeName]);
 
   return (
@@ -207,7 +185,7 @@ function RouteOption(props: { route: RouteData; active: boolean }) {
             {props.route.name}
             {/* TODO: isAutomatic to route and use transfer parameters to decide */}
             {route.AUTOMATIC_DEPOSIT ||
-            (toNetwork && isCosmWasmChain(toNetwork)) ? (
+            (toChain && isCosmWasmChain(toChain)) ? (
               <Chip
                 label="One transaction"
                 color="success"
@@ -252,76 +230,86 @@ function RouteOptions() {
   const {
     isTransactionInProgress,
     route,
+    availableRoutes,
     token,
     destToken,
-    fromNetwork,
-    toNetwork,
+    fromChain,
+    toChain,
     amount,
     validate,
     validations,
-    // toNativeToken,
   } = useSelector((state: RootState) => state.transferInput);
   const onSelect = (value: Route) => {
     dispatch(setTransferRoute(value));
   };
 
-  const availableRoutes = useMemo(() => {
-    if (!validate) return listOfRoutes;
-    const valid = isTransferValid(validations);
-    if (!valid || !fromNetwork || !toNetwork) return listOfRoutes;
-    let available: Route[] = [];
-    listOfRoutes.forEach(async (r) => {
-      const route = new Operator().getRoute(r);
-      const isSupported = await route.isRouteAvailable(
-        token,
-        destToken,
-        amount,
-        fromNetwork,
-        toNetwork,
-      );
-      if (isSupported) {
-        available.push(r);
+  useEffect(() => {
+    if (!validate) return;
+    if (!fromChain || !toChain) return;
+    const getAvailable = async () => {
+      let available: string[] = [];
+      for (const value of ROUTES) {
+        const r = value as Route;
+        const isSupported = await RouteOperator.isRouteAvailable(
+          r,
+          token,
+          destToken,
+          amount,
+          fromChain,
+          toChain,
+        );
+        if (isSupported) {
+          available.push(r);
+        }
       }
-    });
-    return available;
-  }, [token, destToken, amount, fromNetwork, toNetwork, validate, validations]);
+      dispatch(setAvailableRoutes(available));
+    };
+    getAvailable();
+  }, [
+    dispatch,
+    token,
+    destToken,
+    amount,
+    fromChain,
+    toChain,
+    validate,
+    validations,
+  ]);
 
   const onCollapseChange = (collapsed: boolean) => {
     setCollapsed(collapsed);
   };
 
-  return (
-    <>
-      <BridgeCollapse
-        title="Route"
-        disabled={isTransactionInProgress}
-        banner={<Banner />}
-        disableCollapse
-        startClosed
-        onCollapseChange={onCollapseChange}
-        controlStyle={
-          availableRoutes.length > 1
-            ? CollapseControlStyle.Arrow
-            : CollapseControlStyle.None
-        }
+  return availableRoutes ? (
+    <BridgeCollapse
+      title="Route"
+      disabled={isTransactionInProgress}
+      banner={<Banner />}
+      disableCollapse
+      startClosed
+      onCollapseChange={onCollapseChange}
+      controlStyle={
+        availableRoutes && availableRoutes.length > 1
+          ? CollapseControlStyle.Arrow
+          : CollapseControlStyle.None
+      }
+    >
+      <Options
+        active={route}
+        onSelect={onSelect}
+        collapsable
+        collapsed={collapsed}
       >
-        <Options
-          active={route}
-          onSelect={onSelect}
-          collapsable
-          collapsed={collapsed}
-        >
-          {availableRoutes.map((route_) => {
-            return {
-              key: route_,
-              child: (
-                <RouteOption route={ROUTES[route_]} active={route_ === route} />
-              ),
-            };
-          })}
-        </Options>
-      </BridgeCollapse>
-    </>
+        {availableRoutes.map((route_) => {
+          return {
+            key: route_,
+            child: <RouteOption route={RoutesConfig[route_ as Route]} />,
+          };
+        })}
+      </Options>
+    </BridgeCollapse>
+  ) : (
+    <></>
   );
 }
 

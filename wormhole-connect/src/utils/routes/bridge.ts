@@ -4,12 +4,11 @@ import {
   MAINNET_CHAINS,
   TokenId,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { CHAINS, TOKENS } from 'config';
-import { TokenConfig } from 'config/types';
-import { BigNumber, utils } from 'ethers';
-import { Route } from 'store/transferInput';
+import { BigNumber } from 'ethers';
+import { hexlify, parseUnits, arrayify } from 'ethers/lib/utils.js';
+import { CHAINS, ROUTES, TOKENS } from 'config';
+import { TokenConfig, Route } from 'config/types';
 import { MAX_DECIMALS, getTokenDecimals, toNormalizedDecimals } from 'utils';
-import { estimateClaimGasFees, estimateSendGasFees } from 'utils/gasEstimates';
 import { toChainId, wh } from 'utils/sdk';
 import { TransferWallet, postVaa, signAndSendTransaction } from 'utils/wallet';
 import { NO_INPUT } from 'utils/style';
@@ -23,15 +22,14 @@ import {
 import { BaseRoute } from './baseRoute';
 import { adaptParsedMessage } from './common';
 import { toDecimals } from '../balance';
-import { calculateGas } from '../gas';
 import {
   SignedMessage,
   TransferDestInfoBaseParams,
   TransferInfoBaseParams,
 } from './types';
-import { hexlify } from 'ethers/lib/utils.js';
 import { isCosmWasmChain } from '../cosmos';
 import { fetchVaa } from '../vaa';
+import { formatGasFee } from './utils';
 
 export class BridgeRoute extends BaseRoute {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean = false;
@@ -44,6 +42,10 @@ export class BridgeRoute extends BaseRoute {
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
   ): Promise<boolean> {
+    if (!ROUTES.includes(Route.Bridge)) {
+      return false;
+    }
+
     const sourceTokenConfig = TOKENS[sourceToken];
     const destTokenConfig = TOKENS[destToken];
     if (!sourceChain || !destChain || !sourceTokenConfig || !destTokenConfig)
@@ -60,6 +62,11 @@ export class BridgeRoute extends BaseRoute {
     )
       return true;
     return false;
+  }
+
+  isSupportedChain(chain: ChainName): boolean {
+    // all chains are supported for manual
+    return true;
   }
 
   async computeReceiveAmount(
@@ -96,26 +103,33 @@ export class BridgeRoute extends BaseRoute {
     senderAddress: string,
     recipientChain: ChainName | ChainId,
     recipientAddress: string,
-    routeOptions: any,
-  ): Promise<string> {
-    return await estimateSendGasFees(
+    routeOptions?: any,
+  ): Promise<BigNumber> {
+    return await wh.estimateSendGas(
       token,
-      Number.parseFloat(amount),
+      amount,
       sendingChain,
       senderAddress,
       recipientChain,
       recipientAddress,
-      Route.BRIDGE,
     );
   }
 
-  async estimateClaimGas(destChain: ChainName | ChainId): Promise<string> {
-    return await estimateClaimGasFees(destChain);
+  async estimateClaimGas(
+    destChain: ChainName | ChainId,
+    VAA?: Uint8Array,
+  ): Promise<BigNumber> {
+    if (!VAA) throw new Error('Cannot estimate gas without signedVAA');
+    return await wh.estimateClaimGas(destChain, VAA);
   }
 
   /**
    * These operations have to be implemented in subclasses.
    */
+  getMinSendAmount(routeOptions: any): number {
+    return 0;
+  }
+
   async send(
     token: TokenId | 'native',
     amount: string,
@@ -128,7 +142,7 @@ export class BridgeRoute extends BaseRoute {
     const fromChainId = wh.toChainId(sendingChain);
     const fromChainName = wh.toChainName(sendingChain);
     const decimals = getTokenDecimals(fromChainId, token);
-    const parsedAmt = utils.parseUnits(amount, decimals);
+    const parsedAmt = parseUnits(amount, decimals);
     const tx = await wh.send(
       token,
       parsedAmt.toString(),
@@ -169,15 +183,13 @@ export class BridgeRoute extends BaseRoute {
       await postVaa(
         connection,
         contracts.core,
-        Buffer.from(
-          utils.arrayify(signedMessage.vaa, { allowMissingPrefix: true }),
-        ),
+        Buffer.from(arrayify(signedMessage.vaa, { allowMissingPrefix: true })),
       );
     }
 
     const tx = await wh.redeem(
       destChain,
-      utils.arrayify(signedMessage.vaa),
+      arrayify(signedMessage.vaa),
       undefined,
       payer,
     );
@@ -239,21 +251,6 @@ export class BridgeRoute extends BaseRoute {
     ];
   }
 
-  getNativeBalance(
-    address: string,
-    network: ChainName | ChainId,
-  ): Promise<BigNumber | null> {
-    return wh.getNativeBalance(address, network);
-  }
-
-  getTokenBalance(
-    address: string,
-    tokenId: TokenId,
-    network: ChainName | ChainId,
-  ): Promise<BigNumber | null> {
-    return wh.getTokenBalance(address, tokenId, network);
-  }
-
   async getRelayerFee(
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
@@ -288,7 +285,7 @@ export class BridgeRoute extends BaseRoute {
 
     return {
       ...message,
-      vaa: utils.hexlify(vaa.bytes),
+      vaa: hexlify(vaa.bytes),
     };
   }
 
@@ -303,7 +300,7 @@ export class BridgeRoute extends BaseRoute {
     const { gasToken: sourceGasTokenSymbol } = CHAINS[txData.fromChain]!;
     const sourceGasToken = TOKENS[sourceGasTokenSymbol];
     const decimals = getTokenDecimals(
-      toChainId(sourceGasToken.nativeNetwork),
+      toChainId(sourceGasToken.nativeChain),
       sourceGasToken.tokenId,
     );
     const formattedGas =
@@ -327,17 +324,25 @@ export class BridgeRoute extends BaseRoute {
   async getTransferDestInfo({
     txData,
     receiveTx,
+    gasEstimate,
   }: TransferDestInfoBaseParams): Promise<TransferDisplayData> {
     const token = TOKENS[txData.tokenKey];
     const { gasToken } = CHAINS[txData.toChain]!;
 
-    const gas = await calculateGas(txData.toChain, Route.BRIDGE, receiveTx);
+    let gas = gasEstimate;
+    if (receiveTx) {
+      const gasUsed = await wh.getTxGasUsed(txData.toChain, receiveTx);
+      if (gasUsed) {
+        gas = formatGasFee(txData.toChain, gasUsed);
+      }
+    }
 
     const formattedAmt = toNormalizedDecimals(
       txData.amount,
       txData.tokenDecimals,
       MAX_DECIMALS,
     );
+
     return [
       {
         title: 'Amount',

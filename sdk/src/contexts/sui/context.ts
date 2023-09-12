@@ -58,6 +58,17 @@ export class SuiContext<
     this.foreignAssetCache = foreignAssetCache;
   }
 
+  async getTxGasUsed(
+    txId: string,
+    chain: ChainName | ChainId,
+  ): Promise<BigNumber | undefined> {
+    const txBlock = await this.provider.getTransactionBlock({
+      digest: txId,
+      options: { showEvents: true, showEffects: true, showInput: true },
+    });
+    return BigNumber.from(getTotalGasUsed(txBlock) || 0);
+  }
+
   async getCoins(coinType: string, owner: string) {
     let coins: { coinType: string; coinObjectId: string }[] = [];
     let cursor: string | null = null;
@@ -176,6 +187,72 @@ export class SuiContext<
       undefined,
       payload,
     );
+  }
+
+  async estimateSendGas(
+    token: TokenId | typeof NATIVE,
+    amount: string,
+    sendingChain: ChainName | ChainId,
+    senderAddress: string,
+    recipientChain: ChainName | ChainId,
+    recipientAddress: string,
+  ): Promise<BigNumber> {
+    const provider = this.provider as JsonRpcProvider;
+    if (!provider) throw new Error('no provider');
+    const tx = await this.send(
+      token,
+      amount,
+      sendingChain,
+      senderAddress,
+      recipientChain,
+      recipientAddress,
+      undefined,
+    );
+    tx.setSenderIfNotSet(senderAddress);
+    const dryRunTxBytes = await tx.build({
+      provider,
+    });
+    const response = await provider.dryRunTransactionBlock({
+      transactionBlock: dryRunTxBytes,
+    });
+    const gasFee = getTotalGasUsed(response.effects);
+    if (!gasFee) throw new Error('cannot estimate gas fee');
+    return BigNumber.from(gasFee);
+  }
+  async estimateClaimGas(destChain: ChainName | ChainId): Promise<BigNumber> {
+    throw new Error('not implemented');
+  }
+  async estimateSendWithRelayGas(
+    token: TokenId | typeof NATIVE,
+    amount: string,
+    sendingChain: ChainName | ChainId,
+    senderAddress: string,
+    recipientChain: ChainName | ChainId,
+    recipientAddress: string,
+    relayerFee: any,
+    toNativeToken: string,
+  ): Promise<BigNumber> {
+    const provider = this.provider as JsonRpcProvider;
+    if (!provider) throw new Error('no provider');
+    const tx = await this.sendWithRelay(
+      token,
+      amount.toString(), // must be > min amount to succeed
+      toNativeToken,
+      sendingChain,
+      senderAddress,
+      recipientChain,
+      recipientAddress,
+    );
+    tx.setSenderIfNotSet(senderAddress);
+    const dryRunTxBytes = await tx.build({
+      provider,
+    });
+    const response = await provider.dryRunTransactionBlock({
+      transactionBlock: dryRunTxBytes,
+    });
+    const gasFee = getTotalGasUsed(response.effects);
+    if (!gasFee) throw new Error('cannot estimate gas fee');
+    return BigNumber.from(gasFee);
   }
 
   formatAddress(address: string): Uint8Array {

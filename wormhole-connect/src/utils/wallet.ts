@@ -39,15 +39,6 @@ import {
   Transaction,
   ConfirmOptions,
 } from '@solana/web3.js';
-import { TransactionBlock } from '@mysten/sui.js';
-import { SolanaWallet } from '@xlabs-libs/wallet-aggregator-solana';
-import { SeiTransaction, SeiWallet } from '@xlabs-libs/wallet-aggregator-sei';
-import { wh } from './sdk';
-import { CHAINS, CHAINS_ARR, CONFIG } from '../config';
-import { getNetworkByChainId } from 'utils';
-import { WH_CONFIG } from '../config';
-import { AptosWallet } from '@xlabs-libs/wallet-aggregator-aptos';
-import { Types } from 'aptos';
 import {
   AptosSnapAdapter,
   AptosWalletAdapter,
@@ -60,6 +51,15 @@ import {
   SpikaWalletAdapter,
   WalletAdapterNetwork,
 } from '@manahippo/aptos-wallet-adapter';
+import { TransactionBlock } from '@mysten/sui.js';
+import { SolanaWallet } from '@xlabs-libs/wallet-aggregator-solana';
+import { SeiTransaction, SeiWallet } from '@xlabs-libs/wallet-aggregator-sei';
+import { AptosWallet } from '@xlabs-libs/wallet-aggregator-aptos';
+import { Types } from 'aptos';
+
+import { wh } from './sdk';
+import { CHAINS, CHAINS_ARR, ENV, RPCS, isMainnet } from 'config';
+import { getChainByChainId } from 'utils';
 
 export enum TransferWallet {
   SENDING = 'sending',
@@ -78,16 +78,14 @@ let walletConnection = {
   receiving: undefined as Wallet | undefined,
 };
 
-const tag = WH_CONFIG.env === 'MAINNET' ? 'mainnet-beta' : 'devnet';
-const connection = new SolanaConnection(
-  WH_CONFIG.rpcs.solana || clusterApiUrl(tag),
-);
+const tag = ENV === 'MAINNET' ? 'mainnet-beta' : 'devnet';
+const connection = new SolanaConnection(RPCS.solana || clusterApiUrl(tag));
 
 const buildCosmosWallets = () => {
-  const rpcs = Object.keys(CONFIG.rpcs).reduce((acc, k) => {
+  const rpcs = Object.keys(RPCS).reduce((acc, k) => {
     const conf = CHAINS[k as ChainName];
     if (conf?.chainId && conf?.context === Context.COSMOS) {
-      acc[conf.chainId] = CONFIG.rpcs[k as ChainName]!;
+      acc[conf.chainId] = RPCS[k as ChainName]!;
     }
     return acc;
   }, {} as Record<string, string>);
@@ -127,10 +125,9 @@ export const wallets = {
     spika: new AptosWallet(new SpikaWalletAdapter()),
     snap: new AptosWallet(
       new AptosSnapAdapter({
-        network:
-          WH_CONFIG.env === 'MAINNET'
-            ? WalletAdapterNetwork.Mainnet
-            : WalletAdapterNetwork.Testnet,
+        network: isMainnet
+          ? WalletAdapterNetwork.Mainnet
+          : WalletAdapterNetwork.Testnet,
       }),
     ),
     bitkeep: new AptosWallet(new BitkeepWalletAdapter()),
@@ -138,7 +135,7 @@ export const wallets = {
   cosmos: buildCosmosWallets(),
 };
 
-export const walletAcceptedNetworks = (
+export const walletAcceptedChains = (
   context: Context | undefined,
 ): ChainName[] => {
   if (!context) {
@@ -166,11 +163,11 @@ export const registerWalletSigner = (
   wh.registerSigner(chain, signer);
 };
 
-export const switchNetwork = async (chainId: number, type: TransferWallet) => {
+export const switchChain = async (chainId: number, type: TransferWallet) => {
   const w: Wallet = walletConnection[type]! as any;
   if (!w) throw new Error('must connect wallet');
 
-  const config = getNetworkByChainId(chainId)!;
+  const config = getChainByChainId(chainId)!;
   const currentChain = w.getNetworkInfo().chainId;
   if (currentChain === chainId) return;
   if (config.context === Context.ETH) {
@@ -297,8 +294,8 @@ export const signAndSendTransaction = async (
   walletType: TransferWallet,
   options?: ConfirmOptions,
 ): Promise<string> => {
-  const network = CHAINS[chain]!;
-  switch (network.context) {
+  const chainConfig = CHAINS[chain]!;
+  switch (chainConfig.context) {
     case Context.ETH: {
       return (transaction as ContractReceipt).transactionHash;
     }
@@ -343,7 +340,7 @@ export const signAndSendTransaction = async (
       return tx.id;
     }
     default:
-      throw new Error(`Invalid context ${network.context}`);
+      throw new Error(`Invalid context ${chainConfig.context}`);
   }
 };
 

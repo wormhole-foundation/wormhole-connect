@@ -2,14 +2,14 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 
-import { RootState } from '../../store';
-import { LINK } from '../../utils/style';
-import { CHAINS, WORMSCAN, isMainnet } from '../../config';
+import { RootState } from 'store';
+import { LINK } from 'utils/style';
+import { CHAINS, WORMSCAN, isMainnet } from 'config';
 
-import InputContainer from '../../components/InputContainer';
-import ArrowRight from '../../icons/ArrowRight';
+import InputContainer from 'components/InputContainer';
+import ArrowRight from 'icons/ArrowRight';
 import LaunchIcon from '@mui/icons-material/Launch';
-import TokenIcon from '../../icons/TokenIcons';
+import TokenIcon from 'icons/TokenIcons';
 
 const useStyles = makeStyles()((theme) => ({
   row: {
@@ -21,7 +21,7 @@ const useStyles = makeStyles()((theme) => ({
     width: '24px',
     height: '24px',
   },
-  network: {
+  chain: {
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
@@ -32,11 +32,11 @@ const useStyles = makeStyles()((theme) => ({
   },
 }));
 
-function NetworksTag() {
+function ChainsTag() {
   const { classes } = useStyles();
   const txData = useSelector((state: RootState) => state.redeem.txData)!;
-  const fromNetworkConfig = CHAINS[txData.fromChain]!;
-  const toNetworkConfig = CHAINS[txData.toChain]!;
+  const fromChainConfig = CHAINS[txData.fromChain]!;
+  const toChainConfig = CHAINS[txData.toChain]!;
 
   const emitterAddress = txData.emitterAddress
     ? txData.emitterAddress.startsWith('0x')
@@ -47,22 +47,22 @@ function NetworksTag() {
     txData &&
     txData.emitterAddress &&
     txData.sequence &&
-    `${WORMSCAN}tx/${fromNetworkConfig.id}/${emitterAddress}/${
-      txData.sequence
-    }${isMainnet ? '' : '?network=TESTNET'}`;
+    `${WORMSCAN}tx/${fromChainConfig.id}/${emitterAddress}/${txData.sequence}${
+      isMainnet ? '' : '?network=TESTNET'
+    }`;
 
   return (
     <div>
       <InputContainer>
         <div className={classes.row}>
-          <div className={classes.network}>
-            <TokenIcon name={fromNetworkConfig.icon!} height={24} />
-            <div>{fromNetworkConfig.displayName}</div>
+          <div className={classes.chain}>
+            <TokenIcon name={fromChainConfig.icon!} height={24} />
+            <div>{fromChainConfig.displayName}</div>
           </div>
           <ArrowRight />
-          <div className={classes.network}>
-            <TokenIcon name={toNetworkConfig.icon!} height={24} />
-            <div>{toNetworkConfig.displayName}</div>
+          <div className={classes.chain}>
+            <TokenIcon name={toChainConfig.icon!} height={24} />
+            <div>{toChainConfig.displayName}</div>
           </div>
         </div>
       </InputContainer>
@@ -81,4 +81,4 @@ function NetworksTag() {
   );
 }
 
-export default NetworksTag;
+export default ChainsTag;

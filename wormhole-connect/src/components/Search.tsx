@@ -1,8 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 import { makeStyles } from 'tss-react/mui';
 import InputTransparent from './InputTransparent';
-import SearchIcon from '../icons/Search';
-import { changeOpacity } from '../utils/style';
+import SearchIcon from 'icons/Search';
+import { changeOpacity } from 'utils/style';
 
 const useStyles = makeStyles()((theme: any) => ({
   searchContent: {
@@ -37,7 +37,7 @@ type Props = {
       | React.ChangeEvent<HTMLInputElement>
       | React.ChangeEvent<HTMLTextAreaElement>,
   ) => void;
-  onSearch?: React.MouseEventHandler<HTMLDivElement>;
+  onSearch?: () => void;
 };
 
 function Search(props: Props) {

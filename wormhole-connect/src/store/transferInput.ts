@@ -2,23 +2,19 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { BigNumber } from 'ethers';
 import { TOKENS, config } from 'config';
-import { TokenConfig } from 'config/types';
+import { Route, TokenConfig } from 'config/types';
 import { getTokenDecimals } from 'utils';
 import { toDecimals } from 'utils/balance';
-import { toChainId, PayloadType } from 'utils/sdk';
-import { TransferWallet, walletAcceptedNetworks } from 'utils/wallet';
+import { toChainId } from 'utils/sdk';
+import { TransferWallet, walletAcceptedChains } from 'utils/wallet';
 import { clearWallet, setWalletError, WalletData } from './wallet';
 
-export enum Route {
-  BRIDGE = PayloadType.MANUAL, // 1
-  RELAY = PayloadType.AUTOMATIC, // 3
-  HASHFLOW = 10,
-  COSMOS_GATEWAY = 11,
-  CCTPManual = 12,
-  CCTPRelay = 13,
-}
-
 export type Balances = { [key: string]: string | null };
+export type ChainBalances = {
+  lastUpdated: number | undefined;
+  balances: Balances;
+};
+export type BalancesCache = { [key in ChainName]?: ChainBalances };
 
 export const formatBalance = (
   chain: ChainName,
@@ -36,19 +32,33 @@ export const formatBalance = (
 export const getNativeVersionOfToken = (
   tokenSymbol: string,
   chain: ChainName,
-): string =>
-  Object.entries(TOKENS)
-    .map(([key, t]) => t)
-    .find((t) => t.symbol === tokenSymbol && t.nativeNetwork === chain)?.key ||
-  '';
+): string => {
+  return (
+    Object.entries(TOKENS)
+      .map(([key, t]) => t)
+      .find((t) => t.symbol === tokenSymbol && t.nativeChain === chain)?.key ||
+    ''
+  );
+};
+
+export const accessBalance = (
+  balances: BalancesCache | undefined,
+  chain: ChainName | undefined,
+  token: string,
+): string | null => {
+  if (!chain || !balances) return null;
+  const chainBalances = balances[chain];
+  if (!chainBalances) return null;
+  return chainBalances.balances[token];
+};
 
 export type ValidationErr = string;
 
 export type TransferValidations = {
   sendingWallet: ValidationErr;
   receivingWallet: ValidationErr;
-  fromNetwork: ValidationErr;
-  toNetwork: ValidationErr;
+  fromChain: ValidationErr;
+  toChain: ValidationErr;
   token: ValidationErr;
   destToken: ValidationErr;
   amount: ValidationErr;
@@ -61,33 +71,33 @@ export type TransferValidations = {
 export interface TransferInputState {
   validate: boolean;
   validations: TransferValidations;
-  fromNetwork: ChainName | undefined;
-  toNetwork: ChainName | undefined;
+  availableRoutes: string[];
+  fromChain: ChainName | undefined;
+  toChain: ChainName | undefined;
   token: string;
   destToken: string;
   amount: string;
   receiveAmount: string;
-  route: Route;
-  sourceBalances: Balances;
-  destBalances: Balances;
+  route: Route | undefined;
+  balances: BalancesCache;
   foreignAsset: string;
   associatedTokenAddress: string;
   gasEst: {
-    manual: string;
-    automatic: string;
+    send: string;
     claim: string;
   };
   isTransactionInProgress: boolean;
   receiverNativeBalance: string | undefined;
   supportedSourceTokens: TokenConfig[];
+  allSupportedDestTokens: TokenConfig[];
   supportedDestTokens: TokenConfig[];
 }
 
 const initialState: TransferInputState = {
   validate: false,
   validations: {
-    fromNetwork: '',
-    toNetwork: '',
+    fromChain: '',
+    toChain: '',
     token: '',
     destToken: '',
     amount: '',
@@ -98,64 +108,59 @@ const initialState: TransferInputState = {
     foreignAsset: '',
     associatedTokenAccount: '',
   },
-  fromNetwork: config?.bridgeDefaults?.fromNetwork || undefined,
-  toNetwork: config?.bridgeDefaults?.toNetwork || undefined,
+  availableRoutes: [],
+  fromChain: config?.bridgeDefaults?.fromNetwork || undefined,
+  toChain: config?.bridgeDefaults?.toNetwork || undefined,
   token: config?.bridgeDefaults?.token || '',
   destToken: '',
   amount: '',
   receiveAmount: '',
-  route: Route.BRIDGE,
-  sourceBalances: {},
-  destBalances: {},
+  route: undefined,
+  balances: {},
   foreignAsset: '',
   associatedTokenAddress: '',
   gasEst: {
-    manual: '',
-    automatic: '',
+    send: '',
     claim: '',
   },
   isTransactionInProgress: false,
   receiverNativeBalance: '',
   supportedSourceTokens: [],
+  allSupportedDestTokens: [],
   supportedDestTokens: [],
 };
 
-const performModificationsIfFromNetworkChanged = (
-  state: TransferInputState,
-) => {
-  const { fromNetwork, token } = state;
+const performModificationsIfFromChainChanged = (state: TransferInputState) => {
+  const { fromChain, token } = state;
   if (token) {
     const tokenConfig = TOKENS[token];
     // clear token and amount if not supported on the selected network
     if (
-      !fromNetwork ||
-      (!tokenConfig.tokenId && tokenConfig.nativeNetwork !== fromNetwork)
+      !fromChain ||
+      (!tokenConfig.tokenId && tokenConfig.nativeChain !== fromChain)
     ) {
       state.token = '';
       state.amount = '';
     }
     if (
       tokenConfig.symbol === 'USDC' &&
-      tokenConfig.nativeNetwork !== fromNetwork
+      tokenConfig.nativeChain !== fromChain
     ) {
-      state.token = getNativeVersionOfToken('USDC', fromNetwork!);
+      state.token = getNativeVersionOfToken('USDC', fromChain!);
     }
   }
 };
 
-const performModificationsIfToNetworkChanged = (state: TransferInputState) => {
-  const { toNetwork, destToken } = state;
+const performModificationsIfToChainChanged = (state: TransferInputState) => {
+  const { toChain, destToken } = state;
 
   if (destToken) {
     const tokenConfig = TOKENS[destToken];
-    if (!toNetwork) {
+    if (!toChain) {
       state.destToken = '';
     }
-    if (
-      tokenConfig.symbol === 'USDC' &&
-      tokenConfig.nativeNetwork !== toNetwork
-    ) {
-      state.destToken = getNativeVersionOfToken('USDC', toNetwork!);
+    if (tokenConfig.symbol === 'USDC' && tokenConfig.nativeChain !== toChain) {
+      state.destToken = getNativeVersionOfToken('USDC', toChain!);
     }
   }
 };
@@ -177,6 +182,12 @@ export const transferInputSlice = createSlice({
         state.validations[key] = payload[key];
       });
     },
+    setAvailableRoutes: (
+      state: TransferInputState,
+      { payload }: PayloadAction<string[]>,
+    ) => {
+      state.availableRoutes = payload;
+    },
     // user input
     setToken: (
       state: TransferInputState,
@@ -190,22 +201,20 @@ export const transferInputSlice = createSlice({
     ) => {
       state.destToken = payload;
     },
-    setFromNetwork: (
+    setFromChain: (
       state: TransferInputState,
       { payload }: PayloadAction<ChainName>,
     ) => {
-      state.fromNetwork = payload;
-      // clear balances if the network changes;
-      state.sourceBalances = {};
+      state.fromChain = payload;
 
-      performModificationsIfFromNetworkChanged(state);
+      performModificationsIfFromChainChanged(state);
     },
-    setToNetwork: (
+    setToChain: (
       state: TransferInputState,
       { payload }: PayloadAction<ChainName>,
     ) => {
-      state.toNetwork = payload;
-      performModificationsIfToNetworkChanged(state);
+      state.toChain = payload;
+      performModificationsIfToChainChanged(state);
     },
     setAmount: (
       state: TransferInputState,
@@ -219,36 +228,26 @@ export const transferInputSlice = createSlice({
     ) => {
       state.receiveAmount = payload;
     },
-    setBalance: (
+    setBalances: (
       state: TransferInputState,
-      {
-        payload,
-      }: PayloadAction<{ type: 'source' | 'dest'; balances: Balances }>,
+      { payload }: PayloadAction<{ chain: ChainName; balances: Balances }>,
     ) => {
-      const { type, balances } = payload;
-      if (type === 'source') {
-        state.sourceBalances = { ...state.sourceBalances, ...balances };
-      } else {
-        state.destBalances = { ...state.destBalances, ...balances };
-      }
+      const { chain, balances } = payload;
+      state.balances = {
+        ...state.balances,
+        ...{
+          [chain]: {
+            lastUpdated: Date.now(),
+            balances: { ...state.balances[chain], ...balances },
+          },
+        },
+      };
     },
     setReceiverNativeBalance: (
       state: TransferInputState,
       { payload }: PayloadAction<string>,
     ) => {
       state.receiverNativeBalance = payload;
-    },
-    clearBalances: (
-      state: TransferInputState,
-      { payload }: PayloadAction<'source' | 'dest' | 'all'>,
-    ) => {
-      if (payload === 'source' || payload === 'all') {
-        state.sourceBalances = {};
-      }
-
-      if (payload === 'dest' || payload === 'all') {
-        state.destBalances = {};
-      }
     },
     setForeignAsset: (
       state: TransferInputState,
@@ -264,22 +263,24 @@ export const transferInputSlice = createSlice({
     },
     setTransferRoute: (
       state: TransferInputState,
-      { payload }: PayloadAction<Route>,
+      { payload }: PayloadAction<Route | undefined>,
     ) => {
-      state.route = payload;
+      if (!payload) {
+        state.route = undefined;
+        return;
+      }
+      if (state.availableRoutes.includes(payload)) {
+        state.route = payload;
+      } else {
+        state.route = undefined;
+      }
     },
     // gas estimates
-    setManualGasEst: (
+    setSendingGasEst: (
       state: TransferInputState,
       { payload }: PayloadAction<string>,
     ) => {
-      state.gasEst.manual = payload;
-    },
-    setAutomaticGasEst: (
-      state: TransferInputState,
-      { payload }: PayloadAction<string>,
-    ) => {
-      state.gasEst.automatic = payload;
+      state.gasEst.send = payload;
     },
     setClaimGasEst: (
       state: TransferInputState,
@@ -312,27 +313,33 @@ export const transferInputSlice = createSlice({
     ) => {
       state.supportedDestTokens = payload;
     },
-    swapNetworks: (state: TransferInputState) => {
-      const tmp = state.fromNetwork;
-      state.fromNetwork = state.toNetwork;
-      state.toNetwork = tmp;
-      performModificationsIfFromNetworkChanged(state);
-      performModificationsIfToNetworkChanged(state);
+    setAllSupportedDestTokens: (
+      state: TransferInputState,
+      { payload }: PayloadAction<TokenConfig[]>,
+    ) => {
+      state.allSupportedDestTokens = payload;
+    },
+    swapChains: (state: TransferInputState) => {
+      const tmp = state.fromChain;
+      state.fromChain = state.toChain;
+      state.toChain = tmp;
+      performModificationsIfFromChainChanged(state);
+      performModificationsIfToChainChanged(state);
     },
   },
 });
 
-export const isDisabledNetwork = (chain: ChainName, wallet: WalletData) => {
+export const isDisabledChain = (chain: ChainName, wallet: WalletData) => {
   // Check if the wallet type (i.e. Metamask, Phantom...) is supported for the given chain
-  return !walletAcceptedNetworks(wallet.type).includes(chain);
+  return !walletAcceptedChains(wallet.type).includes(chain);
 };
 
-export const selectFromNetwork = async (
+export const selectFromChain = async (
   dispatch: any,
-  network: ChainName,
+  chain: ChainName,
   wallet: WalletData,
 ) => {
-  if (isDisabledNetwork(network, wallet)) {
+  if (isDisabledChain(chain, wallet)) {
     dispatch(clearWallet(TransferWallet.SENDING));
     const payload = {
       type: TransferWallet.SENDING,
@@ -340,15 +347,15 @@ export const selectFromNetwork = async (
     };
     dispatch(setWalletError(payload));
   }
-  dispatch(setFromNetwork(network));
+  dispatch(setFromChain(chain));
 };
 
-export const selectToNetwork = async (
+export const selectToChain = async (
   dispatch: any,
-  network: ChainName,
+  chain: ChainName,
   wallet: WalletData,
 ) => {
-  if (isDisabledNetwork(network, wallet)) {
+  if (isDisabledChain(chain, wallet)) {
     dispatch(clearWallet(TransferWallet.RECEIVING));
     const payload = {
       type: TransferWallet.RECEIVING,
@@ -356,32 +363,32 @@ export const selectToNetwork = async (
     };
     dispatch(setWalletError(payload));
   }
-  dispatch(setToNetwork(network));
+  dispatch(setToChain(chain));
 };
 
 export const {
   touchValidations,
   setValidations,
+  setAvailableRoutes,
   setToken,
   setDestToken,
-  setFromNetwork,
-  setToNetwork,
+  setFromChain,
+  setToChain,
   setAmount,
   setReceiveAmount,
-  setBalance,
-  clearBalances,
   setForeignAsset,
   setAssociatedTokenAddress,
   setTransferRoute,
-  setManualGasEst,
-  setAutomaticGasEst,
+  setSendingGasEst,
   setClaimGasEst,
+  setBalances,
   clearTransfer,
   setIsTransactionInProgress,
   setReceiverNativeBalance,
   setSupportedDestTokens,
+  setAllSupportedDestTokens,
   setSupportedSourceTokens,
-  swapNetworks,
+  swapChains,
 } = transferInputSlice.actions;
 
 export default transferInputSlice.reducer;

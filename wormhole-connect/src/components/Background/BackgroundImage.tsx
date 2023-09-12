@@ -2,8 +2,8 @@ import React from 'react';
 import { makeStyles } from 'tss-react/mui';
 
 import bg from './bg.svg';
-import { OPACITY } from '../../utils/style';
-import { THEME } from '../../config';
+import { OPACITY } from 'utils/style';
+import { THEME } from 'config';
 
 const colors = {
   bg: '#030712',

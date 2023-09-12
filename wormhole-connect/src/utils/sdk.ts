@@ -10,17 +10,17 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 
 import { getWrappedTokenId } from '.';
-import { ENV, TOKENS, WH_CONFIG } from '../config';
+import { ENV, RPCS, TOKENS, sdkConfig } from 'config';
 
 export enum PayloadType {
-  MANUAL = 1,
-  AUTOMATIC = 3,
+  Manual = 1,
+  Automatic = 3,
 }
 
-export const wh: WormholeContext = new WormholeContext(
-  ENV as Environment,
-  WH_CONFIG,
-);
+export const wh: WormholeContext = new WormholeContext(ENV as Environment, {
+  ...sdkConfig,
+  ...{ rpcs: RPCS },
+});
 
 export interface ParsedMessage {
   sendTx: string;

@@ -3,11 +3,11 @@ import React from 'react';
 import { Dialog, ScopedCssBaseline } from '@mui/material';
 // import { useTheme } from '@mui/material/styles';
 // import useMediaQuery from '@mui/material/useMediaQuery';
-import CloseIcon from '../icons/Close';
+import CloseIcon from 'icons/Close';
 
 // type StyleProps = { align: Alignment };
 // const useStyles = makeStyles<StyleProps>()((theme, { align }) => ({
-const useStyles = makeStyles<{ width: number }>()((theme, { width }) => ({
+const useStyles = makeStyles<{ width: number }>()((theme: any, { width }) => ({
   container: {
     position: 'relative',
     width: '100%',

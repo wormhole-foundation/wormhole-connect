@@ -1,6 +1,6 @@
 import React from 'react';
 import { makeStyles } from 'tss-react/mui';
-import PageHeader from '../components/PageHeader';
+import PageHeader from 'components/PageHeader';
 
 const useStyles = makeStyles()(() => ({
   terms: {

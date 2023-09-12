@@ -3,39 +3,38 @@ import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { BigNumber } from 'ethers';
 
-import { RootState } from '../../store';
+import { RootState } from 'store';
 import {
   setReceiverNativeBalance,
-  Route,
   setReceiveAmount,
   setDestToken,
   setToken,
   setSupportedSourceTokens,
   setSupportedDestTokens,
+  setAllSupportedDestTokens,
   setTransferRoute,
   TransferInputState,
-} from '../../store/transferInput';
-import { CHAINS, TOKENS, TOKENS_ARR } from '../../config';
-import { TokenConfig } from '../../config/types';
-import { getTokenDecimals, getWrappedTokenId } from '../../utils';
-import { wh, isAcceptedToken, toChainId } from '../../utils/sdk';
-import { joinClass } from '../../utils/style';
-import { toDecimals } from '../../utils/balance';
-import Operator from '../../utils/routes';
-import { listOfRoutes } from '../../utils/routes/operator';
-import { isTransferValid, validate } from '../../utils/transferValidation';
+} from 'store/transferInput';
+import { CHAINS, TOKENS } from 'config';
+import { TokenConfig, Route } from 'config/types';
+import { getTokenDecimals } from 'utils';
+import { wh, toChainId } from 'utils/sdk';
+import { joinClass } from 'utils/style';
+import { toDecimals } from 'utils/balance';
+import { isTransferValid, validate } from 'utils/transferValidation';
+import RouteOperator from 'utils/routes/operator';
 
 import GasSlider from './NativeGasSlider';
 import Preview from './Preview';
 import Send from './Send';
 import { Collapse } from '@mui/material';
-import PageHeader from '../../components/PageHeader';
+import PageHeader from 'components/PageHeader';
 import FromInputs from './Inputs/From';
 import ToInputs from './Inputs/To';
 import TransferLimitedWarning from './TransferLimitedWarning';
-import SwapNetworks from './SwapNetworks';
+import SwapChains from './SwapChains';
 import RouteOptions from './RouteOptions';
-import { isCosmWasmChain } from '../../utils/cosmos';
+import ValidationError from './ValidationError';
 
 const useStyles = makeStyles()((theme) => ({
   spacer: {
@@ -58,10 +57,6 @@ const useStyles = makeStyles()((theme) => ({
   },
 }));
 
-function getUniqueTokens(arr: TokenConfig[]) {
-  return arr.filter((t, i) => arr.findIndex((_t) => _t.key === t.key) === i);
-}
-
 function isSupportedToken(
   token: string,
   supportedTokens: TokenConfig[],
@@ -76,8 +71,8 @@ function Bridge() {
   const {
     validate: showValidationState,
     validations,
-    fromNetwork,
-    toNetwork,
+    fromChain,
+    toChain,
     token,
     destToken,
     route,
@@ -85,6 +80,7 @@ function Bridge() {
     associatedTokenAddress,
     isTransactionInProgress,
     amount,
+    availableRoutes,
   }: TransferInputState = useSelector(
     (state: RootState) => state.transferInput,
   );
@@ -97,39 +93,26 @@ function Bridge() {
 
   // check destination native balance
   useEffect(() => {
-    if (!fromNetwork || !toNetwork || !receiving.address) return;
-    const networkConfig = CHAINS[toNetwork]!;
-    wh.getNativeBalance(receiving.address, toNetwork).then((res: BigNumber) => {
-      const tokenConfig = TOKENS[networkConfig.gasToken];
+    if (!fromChain || !toChain || !receiving.address) return;
+    const chainConfig = CHAINS[toChain]!;
+    wh.getNativeBalance(receiving.address, toChain).then((res: BigNumber) => {
+      const tokenConfig = TOKENS[chainConfig.gasToken];
       if (!tokenConfig)
         throw new Error('Could not get native gas token config');
       const decimals = getTokenDecimals(
-        toChainId(tokenConfig.nativeNetwork),
+        toChainId(tokenConfig.nativeChain),
         tokenConfig.tokenId,
       );
       dispatch(setReceiverNativeBalance(toDecimals(res, decimals, 6)));
     });
-  }, [fromNetwork, toNetwork, receiving.address, dispatch]);
+  }, [fromChain, toChain, receiving.address, dispatch]);
 
   useEffect(() => {
     const computeSrcTokens = async () => {
-      const operator = new Operator();
-
-      // Get all possible source tokens over all routes
-      const supported = getUniqueTokens(
-        (
-          await Promise.all(
-            listOfRoutes.map(async (r) => {
-              const returnedTokens = await operator.supportedSourceTokens(
-                r,
-                TOKENS_ARR,
-                undefined,
-                fromNetwork,
-              );
-              return returnedTokens;
-            }),
-          )
-        ).reduce((a, b) => a.concat(b), []),
+      const supported = await RouteOperator.allSupportedSourceTokens(
+        TOKENS[destToken],
+        fromChain,
+        toChain,
       );
       dispatch(setSupportedSourceTokens(supported));
       const selectedIsSupported = isSupportedToken(token, supported);
@@ -143,29 +126,22 @@ function Bridge() {
     computeSrcTokens();
     // IMPORTANT: do not include token in dependency array
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [route, fromNetwork, destToken, dispatch]);
+  }, [route, fromChain, destToken, dispatch]);
 
   useEffect(() => {
     const computeDestTokens = async () => {
-      const operator = new Operator();
-
-      // Get all possible destination tokens over all routes, given the source token
-      const supported = getUniqueTokens(
-        (
-          await Promise.all(
-            listOfRoutes.map((r) =>
-              operator.supportedDestTokens(
-                r,
-                TOKENS_ARR,
-                TOKENS[token],
-                fromNetwork,
-                toNetwork,
-              ),
-            ),
-          )
-        ).reduce((a, b) => a.concat(b)),
+      const supported = await RouteOperator.allSupportedDestTokens(
+        TOKENS[token],
+        fromChain,
+        toChain,
       );
       dispatch(setSupportedDestTokens(supported));
+      const allSupported = await RouteOperator.allSupportedDestTokens(
+        undefined,
+        fromChain,
+        toChain,
+      );
+      dispatch(setAllSupportedDestTokens(allSupported));
       const selectedIsSupported = isSupportedToken(destToken, supported);
       if (!selectedIsSupported) {
         dispatch(setDestToken(''));
@@ -179,14 +155,14 @@ function Bridge() {
       const symbols = supported.map((t) => t.symbol);
       if (
         destToken === '' &&
-        toNetwork &&
+        toChain &&
         symbols.every((s) => s === symbols[0])
       ) {
         const key = supported.find(
           (t) =>
             t.symbol === symbols[0] &&
-            t.nativeNetwork === t.tokenId?.chain &&
-            t.nativeNetwork === toNetwork,
+            t.nativeChain === t.tokenId?.chain &&
+            t.nativeChain === toChain,
         )?.key;
         if (key) {
           dispatch(setDestToken(key));
@@ -196,74 +172,45 @@ function Bridge() {
     computeDestTokens();
     // IMPORTANT: do not include destToken in dependency array
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [route, token, fromNetwork, toNetwork, dispatch]);
+  }, [route, token, fromChain, toChain, dispatch]);
 
-  // check if automatic relay option is available
   useEffect(() => {
     const establishRoute = async () => {
-      if (fromNetwork && isCosmWasmChain(wh.toChainId(fromNetwork))) {
-        dispatch(setTransferRoute(Route.COSMOS_GATEWAY));
+      if (!showValidationState || !availableRoutes) {
+        dispatch(setTransferRoute(undefined));
         return;
       }
-
-      if (toNetwork && isCosmWasmChain(wh.toChainId(toNetwork))) {
-        dispatch(setTransferRoute(Route.COSMOS_GATEWAY));
-        return;
-      }
-
-      if (!fromNetwork || !toNetwork || !token || !destToken) return;
-      const cctpAvailable = await new Operator().isRouteAvailable(
+      const routeOrderOfPreference = [
+        Route.CosmosGateway,
         Route.CCTPRelay,
-        token,
-        destToken,
-        amount,
-        fromNetwork,
-        toNetwork,
-      );
-      if (cctpAvailable) {
-        dispatch(setTransferRoute(Route.CCTPRelay));
-        return;
-      }
-
-      const cctpManualAvailable = await new Operator().isRouteAvailable(
         Route.CCTPManual,
-        token,
-        destToken,
-        amount,
-        fromNetwork,
-        toNetwork,
-      );
-      if (cctpManualAvailable) {
-        dispatch(setTransferRoute(Route.CCTPManual));
-        return;
+        Route.Relay,
+        Route.Bridge,
+      ];
+      for (const r of routeOrderOfPreference) {
+        if (availableRoutes.includes(r)) {
+          dispatch(setTransferRoute(r));
+          return;
+        }
       }
-
-      // The code below should maybe be rewritten to use isRouteAvailable!
-      const fromConfig = CHAINS[fromNetwork]!;
-      const toConfig = CHAINS[toNetwork]!;
-      if (fromConfig.automaticRelayer && toConfig.automaticRelayer) {
-        const isTokenAcceptedForRelay = async () => {
-          const tokenConfig = TOKENS[token]!;
-          const tokenId = getWrappedTokenId(tokenConfig);
-          const accepted = await isAcceptedToken(tokenId);
-          if (accepted) {
-            dispatch(setTransferRoute(Route.RELAY));
-          } else {
-            dispatch(setTransferRoute(Route.BRIDGE));
-          }
-        };
-        isTokenAcceptedForRelay();
-      } else {
-        dispatch(setTransferRoute(Route.BRIDGE));
-      }
+      dispatch(setTransferRoute(undefined));
     };
     establishRoute();
-  }, [fromNetwork, toNetwork, token, destToken, amount, dispatch]);
+  }, [
+    showValidationState,
+    availableRoutes,
+    fromChain,
+    toChain,
+    token,
+    destToken,
+    amount,
+    dispatch,
+  ]);
 
   useEffect(() => {
     const recomputeReceive = async () => {
-      const operator = new Operator();
-      const newReceiveAmount = await operator.computeReceiveAmount(
+      if (!route) return;
+      const newReceiveAmount = await RouteOperator.computeReceiveAmount(
         route,
         Number.parseFloat(amount),
         { toNativeToken },
@@ -279,8 +226,8 @@ function Bridge() {
   }, [
     sending,
     receiving,
-    fromNetwork,
-    toNetwork,
+    fromChain,
+    toChain,
     token,
     destToken,
     route,
@@ -292,17 +239,18 @@ function Bridge() {
   ]);
   const valid = isTransferValid(validations);
   const disabled = !valid || isTransactionInProgress;
-  const showGasSlider = new Operator().getRoute(
-    route,
-  ).NATIVE_GAS_DROPOFF_SUPPORTED;
+  const showGasSlider =
+    route && RouteOperator.getRoute(route).NATIVE_GAS_DROPOFF_SUPPORTED;
 
   return (
     <div className={joinClass([classes.bridgeContent, classes.spacer])}>
       <PageHeader title="Bridge" />
 
       <FromInputs />
-      <SwapNetworks />
+      <SwapChains />
       <ToInputs />
+
+      <ValidationError validations={[validations.route]} margin="8px 0 0 0" />
 
       <Collapse in={valid && showValidationState}>
         <div className={classes.spacer}>

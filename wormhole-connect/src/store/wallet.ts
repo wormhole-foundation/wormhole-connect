@@ -4,7 +4,7 @@ import {
   disconnect,
   swapWalletConnections,
   TransferWallet,
-} from '../utils/wallet';
+} from 'utils/wallet';
 
 export type WalletData = {
   type: Context | undefined;

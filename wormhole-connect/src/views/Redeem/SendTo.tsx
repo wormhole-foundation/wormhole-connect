@@ -3,26 +3,28 @@ import { Context } from '@wormhole-foundation/wormhole-connect-sdk';
 import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { CHAINS } from '../../config';
-import { RootState } from '../../store';
-import { setRedeemTx, setTransferComplete } from '../../store/redeem';
-import { Route } from '../../store/transferInput';
-import { displayAddress } from '../../utils';
-import { fetchRedeemTx } from '../../utils/events';
-import Operator, { TransferDisplayData } from '../../utils/routes';
+import { CHAINS } from 'config';
+import { RootState } from 'store';
+import { setRedeemTx, setTransferComplete } from 'store/redeem';
+import { displayAddress } from 'utils';
+import { fetchRedeemTx } from 'utils/events';
+import { TransferDisplayData } from 'utils/routes';
+import RouteOperator from 'utils/routes/operator';
 import {
   TransferWallet,
   registerWalletSigner,
-  switchNetwork,
-} from '../../utils/wallet';
+  switchChain,
+} from 'utils/wallet';
 
-import AlertBanner from '../../components/AlertBanner';
-import Button from '../../components/Button';
-import InputContainer from '../../components/InputContainer';
-import { RenderRows } from '../../components/RenderRows';
-import Spacer from '../../components/Spacer';
+import AlertBanner from 'components/AlertBanner';
+import Button from 'components/Button';
+import InputContainer from 'components/InputContainer';
+import { RenderRows } from 'components/RenderRows';
+import Spacer from 'components/Spacer';
 import WalletsModal from '../WalletModal';
 import Header from './Header';
+import { estimateClaimGas } from 'utils/gas';
+import { arrayify } from 'ethers/lib/utils.js';
 
 function SendTo() {
   const dispatch = useDispatch();
@@ -66,7 +68,7 @@ function SendTo() {
   }, [redeemTx, signedMessage, dispatch]);
 
   useEffect(() => {
-    if (!txData) return;
+    if (!txData || !routeName) return;
     const populate = async () => {
       let receiveTx: string | undefined;
       try {
@@ -74,45 +76,61 @@ function SendTo() {
       } catch (e) {
         console.error(`could not fetch redeem event:\n${e}`);
       }
-      const rows = await new Operator().getTransferDestInfo(routeName, {
+      let gasEstimate;
+      if (!receiveTx) {
+        const vaa = signedMessage && arrayify((signedMessage as any).vaa);
+        gasEstimate = await estimateClaimGas(routeName, txData.toChain, vaa);
+      }
+      const rows = await RouteOperator.getTransferDestInfo(routeName, {
         txData,
         receiveTx,
         transferComplete,
+        gasEstimate,
       });
       setRows(rows);
     };
     populate();
-  }, [transferComplete, getRedeemTx, txData, routeName]);
+  }, [transferComplete, getRedeemTx, txData, routeName, signedMessage]);
 
   useEffect(() => {
     setIsConnected(checkConnection());
   }, [wallet, checkConnection]);
 
-  const route = useMemo(() => {
-    return new Operator().getRoute(routeName);
+  const AUTOMATIC_DEPOSIT = useMemo(() => {
+    if (!routeName) return false;
+    return RouteOperator.getRoute(routeName).AUTOMATIC_DEPOSIT;
   }, [routeName]);
 
   const claim = async () => {
     setInProgress(true);
     setClaimError('');
+    if (!routeName) {
+      throw new Error('Unknown route, cannot claim');
+    }
     if (!wallet || !isConnected) {
       setClaimError('Connect to receiving wallet');
       throw new Error('Connect to receiving wallet');
     }
-    const networkConfig = CHAINS[txData.toChain]!;
-    if (!networkConfig) {
+    const chainConfig = CHAINS[txData.toChain]!;
+    if (!chainConfig) {
       setClaimError('Your claim has failed, please try again');
       throw new Error('invalid destination chain');
     }
     try {
-      if (networkConfig!.context === Context.ETH) {
+      if (
+        chainConfig!.context === Context.ETH &&
+        typeof chainConfig.chainId === 'number'
+      ) {
         registerWalletSigner(txData.toChain, TransferWallet.RECEIVING);
-        await switchNetwork(networkConfig.chainId, TransferWallet.RECEIVING);
+        await switchChain(chainConfig.chainId, TransferWallet.RECEIVING);
       }
-      const txId = await new Operator().redeem(
+      if (!signedMessage) {
+        throw new Error('failed to get vaa, cannot redeem');
+      }
+      const txId = await RouteOperator.redeem(
         routeName,
         txData.toChain,
-        signedMessage!,
+        signedMessage,
         wallet.address,
       );
       dispatch(setRedeemTx(txId));
@@ -126,11 +144,11 @@ function SendTo() {
     }
   };
 
-  const loading = !route.AUTOMATIC_DEPOSIT
+  const loading = !AUTOMATIC_DEPOSIT
     ? inProgress && !transferComplete
     : !transferComplete;
   const manualClaimText =
-    transferComplete || route.AUTOMATIC_DEPOSIT // todo: should be the other enum, should be named better than payload id
+    transferComplete || AUTOMATIC_DEPOSIT // todo: should be the other enum, should be named better than payload id
       ? ''
       : claimError
       ? 'Error please retry . . .'
@@ -139,7 +157,7 @@ function SendTo() {
     <div>
       <InputContainer>
         <Header
-          network={txData.toChain}
+          chain={txData.toChain}
           address={txData.recipient}
           loading={loading}
           txHash={redeemTx}
@@ -149,7 +167,7 @@ function SendTo() {
       </InputContainer>
 
       {/* Claim button for manual transfers */}
-      {txData.payloadID === Route.BRIDGE && !transferComplete && (
+      {!AUTOMATIC_DEPOSIT && !transferComplete && (
         <>
           <Spacer height={8} />
           <AlertBanner

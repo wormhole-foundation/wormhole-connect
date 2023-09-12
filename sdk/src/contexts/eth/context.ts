@@ -50,6 +50,17 @@ export class EthContext<
     this.foreignAssetCache = foreignAssetCache;
   }
 
+  async getTxGasUsed(
+    txId: string,
+    chain: ChainName | ChainId,
+  ): Promise<BigNumber | undefined> {
+    const provider = this.context.mustGetProvider(chain);
+    const receipt = await provider.getTransactionReceipt(txId);
+    const { gasUsed, effectiveGasPrice } = receipt;
+    if (!gasUsed || !effectiveGasPrice) return;
+    return gasUsed.mul(effectiveGasPrice);
+  }
+
   async getForeignAsset(
     tokenId: TokenId,
     chain: ChainName | ChainId,
@@ -450,6 +461,69 @@ export class EthContext<
     // const v = await bridge.completeTransferAndUnwrapETH(signedVAA, overrides);
     // const receipt = await v.wait();
     // return receipt;
+  }
+
+  async estimateSendGas(
+    token: TokenId | typeof NATIVE,
+    amount: string,
+    sendingChain: ChainName | ChainId,
+    senderAddress: string,
+    recipientChain: ChainName | ChainId,
+    recipientAddress: string,
+  ): Promise<BigNumber> {
+    const provider = this.context.mustGetProvider(sendingChain);
+    const { gasPrice } = await provider.getFeeData();
+    if (!gasPrice)
+      throw new Error('gas price not available, cannot estimate fees');
+    const tx = await this.prepareSend(
+      token,
+      amount,
+      sendingChain,
+      senderAddress,
+      recipientChain,
+      recipientAddress,
+      undefined,
+    );
+    const est = await provider.estimateGas(tx);
+    return est.mul(gasPrice);
+  }
+  async estimateClaimGas(
+    destChain: ChainName | ChainId,
+    VAA: Uint8Array,
+  ): Promise<BigNumber> {
+    const provider = this.context.mustGetProvider(destChain);
+    const { gasPrice } = await provider.getFeeData();
+    if (!gasPrice)
+      throw new Error('gas price not available, cannot estimate fees');
+    const tx = await this.prepareRedeem(destChain, VAA);
+    const est = await provider.estimateGas(tx);
+    return est.mul(gasPrice);
+  }
+  async estimateSendWithRelayGas(
+    token: TokenId | typeof NATIVE,
+    amount: string,
+    sendingChain: ChainName | ChainId,
+    senderAddress: string,
+    recipientChain: ChainName | ChainId,
+    recipientAddress: string,
+    relayerFee: any,
+    toNativeToken: string,
+  ): Promise<BigNumber> {
+    const provider = this.context.mustGetProvider(sendingChain);
+    const { gasPrice } = await provider.getFeeData();
+    if (!gasPrice)
+      throw new Error('gas price not available, cannot estimate fees');
+    const tx = await this.prepareSendWithRelay(
+      token,
+      amount,
+      toNativeToken,
+      sendingChain,
+      senderAddress,
+      recipientChain,
+      recipientAddress,
+    );
+    const est = await provider.estimateGas(tx);
+    return est.mul(gasPrice);
   }
 
   async calculateMaxSwapAmount(

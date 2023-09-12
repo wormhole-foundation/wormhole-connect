@@ -56,7 +56,7 @@ const useIsTransferLimited = (): IsTransferLimitedResult => {
     undefined,
   );
 
-  const { fromNetwork, token, amount } = useSelector(
+  const { fromChain, token, amount } = useSelector(
     (state: RootState) => state.transferInput,
   );
 
@@ -65,7 +65,7 @@ const useIsTransferLimited = (): IsTransferLimitedResult => {
   useEffect(() => {
     let cancelled = false;
     const formatAddress = async () => {
-      if (!token || !fromNetwork) {
+      if (!token || !fromChain) {
         setAssetAddress(undefined);
         return;
       }
@@ -73,7 +73,7 @@ const useIsTransferLimited = (): IsTransferLimitedResult => {
         const tokenConfig = TOKENS[token];
         const tokenId = getWrappedTokenId(tokenConfig);
         const formatted = hexlify(
-          await formatAssetAddress(fromNetwork, tokenId.address),
+          await formatAssetAddress(fromChain, tokenId.address),
         );
         if (!cancelled) {
           setAssetAddress(formatted);
@@ -88,7 +88,7 @@ const useIsTransferLimited = (): IsTransferLimitedResult => {
     return () => {
       cancelled = true;
     };
-  }, [token, fromNetwork]);
+  }, [token, fromChain]);
 
   useEffect(() => {
     if (!fetchedTokenList.current) {
@@ -127,18 +127,12 @@ const useIsTransferLimited = (): IsTransferLimitedResult => {
   }, []);
 
   const result = useMemo<IsTransferLimitedResult>(() => {
-    if (!fromNetwork || !token || !amount || !assetAddress)
+    if (!fromChain || !token || !amount || !assetAddress)
       return { isLimited: false };
 
-    const fromChainId = wh.toChainId(fromNetwork);
+    const fromChainId = wh.toChainId(fromChain);
 
-    if (
-      token &&
-      fromNetwork &&
-      amount &&
-      tokenList &&
-      availableNotionalByChain
-    ) {
+    if (token && fromChain && amount && tokenList && availableNotionalByChain) {
       const token = tokenList.entries.find(
         (entry) =>
           entry.originChainId === fromChainId &&
@@ -178,7 +172,7 @@ const useIsTransferLimited = (): IsTransferLimitedResult => {
       isLimited: false,
     };
   }, [
-    fromNetwork,
+    fromChain,
     token,
     assetAddress,
     amount,

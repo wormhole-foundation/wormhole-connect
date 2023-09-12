@@ -1,23 +1,24 @@
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 
-import { fetchIsVAAEnqueued } from '../../utils/vaa';
+import { Route } from 'config/types';
+import { RootState } from 'store';
 import {
   setIsVaaEnqueued,
   setSignedMessage,
   setTransferComplete,
-} from '../../store/redeem';
-import { RootState } from '../../store';
-import { Route } from '../../store/transferInput';
-import { ParsedMessage, ParsedRelayerMessage } from '../../utils/sdk';
-import Operator, { SignedMessage } from '../../utils/routes';
+} from 'store/redeem';
+import { sleep } from 'utils';
+import { fetchIsVAAEnqueued } from 'utils/vaa';
+import { SignedMessage } from 'utils/routes';
+import RouteOperator from 'utils/routes/operator';
+import { ParsedMessage, ParsedRelayerMessage } from 'utils/sdk';
 
-import PageHeader from '../../components/PageHeader';
-import Spacer from '../../components/Spacer';
-import NetworksTag from './Tag';
+import PageHeader from 'components/PageHeader';
+import Spacer from 'components/Spacer';
+import ChainsTag from './Tag';
 import Stepper from './Stepper';
 import GovernorEnqueuedWarning from './GovernorEnqueuedWarning';
-import { sleep } from '../../utils';
 
 function Redeem({
   setSignedMessage,
@@ -32,16 +33,16 @@ function Redeem({
   setSignedMessage: (signed: SignedMessage) => any;
   setIsVaaEnqueued: (isVaaEnqueued: boolean) => any;
   setTransferComplete: any;
-  txData: ParsedMessage | ParsedRelayerMessage;
+  txData: ParsedMessage | ParsedRelayerMessage | undefined;
   transferComplete: boolean;
   isVaaEnqueued: boolean;
-  route: Route;
-  signedMessage: SignedMessage;
+  route: Route | undefined;
+  signedMessage: SignedMessage | undefined;
 }) {
   // check if VAA is enqueued
   useEffect(() => {
     if (
-      !txData.sendTx ||
+      !txData?.sendTx ||
       !txData.emitterAddress // no VAA exists, e.g. CCTP route
     ) {
       return;
@@ -61,7 +62,7 @@ function Redeem({
 
   // fetch the VAA
   useEffect(() => {
-    if (!txData.sendTx || transferComplete) {
+    if (!route || !txData?.sendTx || transferComplete) {
       return;
     }
     let cancelled = false;
@@ -70,7 +71,7 @@ function Redeem({
       let signed: SignedMessage | undefined;
       while (signed === undefined && !cancelled) {
         try {
-          signed = await new Operator().getSignedMessage(route, txData);
+          signed = await RouteOperator.getSignedMessage(route, txData);
         } catch {}
         if (cancelled) {
           return;
@@ -90,7 +91,7 @@ function Redeem({
 
   // check if VAA has been redeemed
   useEffect(() => {
-    if (!txData.toChain || !signedMessage || transferComplete) {
+    if (!route || !txData?.toChain || !signedMessage || transferComplete) {
       return;
     }
     let cancelled = false;
@@ -99,7 +100,7 @@ function Redeem({
       let isComplete = false;
       while (!isComplete && !cancelled) {
         try {
-          isComplete = await new Operator().isTransferCompleted(
+          isComplete = await RouteOperator.isTransferCompleted(
             route,
             txData.toChain,
             signedMessage,
@@ -119,9 +120,9 @@ function Redeem({
     return () => {
       cancelled = true;
     };
-  }, [txData, transferComplete, route, setTransferComplete, signedMessage]);
+  }, [route, txData, transferComplete, setTransferComplete, signedMessage]);
 
-  return (
+  return txData?.fromChain ? (
     <div
       style={{
         width: '100%',
@@ -133,7 +134,7 @@ function Redeem({
     >
       <PageHeader title="Bridge" back />
 
-      <NetworksTag />
+      <ChainsTag />
       <Spacer />
       <GovernorEnqueuedWarning
         show={!txData && isVaaEnqueued}
@@ -141,6 +142,8 @@ function Redeem({
       />
       <Stepper />
     </div>
+  ) : (
+    <></>
   );
 }
 
@@ -151,7 +154,7 @@ function mapStateToProps(state: RootState) {
   return { txData, transferComplete, isVaaEnqueued, route, signedMessage };
 }
 
-const mapDispatchToProps = (dispatch) => {
+const mapDispatchToProps = (dispatch: any) => {
   return {
     setSignedMessage: (signed: SignedMessage) =>
       dispatch(setSignedMessage(signed)),
