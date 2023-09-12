@@ -24,7 +24,6 @@ import Spacer from 'components/Spacer';
 import WalletsModal from '../WalletModal';
 import Header from './Header';
 import { estimateClaimGas } from 'utils/gas';
-import { arrayify } from 'ethers/lib/utils.js';
 
 function SendTo() {
   const dispatch = useDispatch();
@@ -78,8 +77,11 @@ function SendTo() {
       }
       let gasEstimate;
       if (!receiveTx) {
-        const vaa = signedMessage && arrayify((signedMessage as any).vaa);
-        gasEstimate = await estimateClaimGas(routeName, txData.toChain, vaa);
+        gasEstimate = await estimateClaimGas(
+          routeName,
+          txData.toChain,
+          signedMessage,
+        );
       }
       const rows = await RouteOperator.getTransferDestInfo(routeName, {
         txData,

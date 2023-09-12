@@ -225,9 +225,10 @@ export class RelayRoute extends BridgeRoute {
 
   async estimateClaimGas(
     destChain: ChainName | ChainId,
-    VAA?: Uint8Array,
+    signedMessage?: SignedMessage,
   ): Promise<BigNumber> {
-    if (!VAA) throw new Error('Cannot estimate gas without signedVAA');
+    if (!signedMessage)
+      throw new Error('Cannot estimate gas without a signed message');
     throw new Error(
       'manual claim not implemented for automatic token bridge relays',
     );

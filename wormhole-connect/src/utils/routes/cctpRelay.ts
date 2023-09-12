@@ -237,7 +237,7 @@ export class CCTPRelayRoute extends CCTPManualRoute {
 
   async estimateClaimGas(
     destChain: ChainName | ChainId,
-    VAA?: Uint8Array,
+    signedMessage?: SignedMessage,
   ): Promise<BigNumber> {
     throw new Error('No claiming for this route!');
   }

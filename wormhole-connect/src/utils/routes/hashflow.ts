@@ -83,7 +83,7 @@ export class HashflowRoute extends RouteAbstract {
   }
   estimateClaimGas(
     destChain: ChainName | ChainId,
-    VAA: Uint8Array,
+    signedMessage?: SignedMessage,
   ): Promise<BigNumber> {
     throw new Error('Method not implemented.');
   }

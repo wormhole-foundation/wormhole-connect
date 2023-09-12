@@ -154,9 +154,10 @@ export class CosmosGatewayRoute extends BaseRoute {
 
   async estimateClaimGas(
     destChain: ChainName | ChainId,
-    VAA?: Uint8Array,
+    signedMessage?: SignedMessage,
   ): Promise<BigNumber> {
-    if (!VAA) throw new Error('Cannot estimate gas without signedVAA');
+    if (!signedMessage)
+      throw new Error('Cannot estimate gas without a signed message');
     throw new Error('not implemented');
   }
 

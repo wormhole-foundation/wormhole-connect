@@ -336,11 +336,12 @@ export class Operator {
   async estimateClaimGas(
     route: Route,
     destChain: ChainName | ChainId,
-    VAA?: Uint8Array,
+    signedMessage?: SignedMessage,
   ): Promise<BigNumber> {
-    if (!VAA) throw new Error('Cannot estimate gas without signedVAA');
+    if (!signedMessage)
+      throw new Error('Cannot estimate gas without a signed message');
     const r = this.getRoute(route);
-    return await r.estimateClaimGas(destChain, VAA);
+    return await r.estimateClaimGas(destChain, signedMessage);
   }
 
   async send(
