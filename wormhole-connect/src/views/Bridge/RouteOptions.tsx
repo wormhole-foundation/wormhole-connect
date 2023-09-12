@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { Chip, useMediaQuery, useTheme } from '@mui/material';
-
+import { useDebounce } from 'use-debounce';
 import { RootState } from 'store';
 import { setAvailableRoutes, setTransferRoute } from 'store/transferInput';
 import { LINK, joinClass } from 'utils/style';
@@ -242,6 +242,7 @@ function RouteOptions() {
   const onSelect = (value: Route) => {
     dispatch(setTransferRoute(value));
   };
+  const [debouncedAmount] = useDebounce(amount, 250);
 
   useEffect(() => {
     if (!validate) return;
@@ -254,7 +255,7 @@ function RouteOptions() {
           r,
           token,
           destToken,
-          amount,
+          debouncedAmount,
           fromChain,
           toChain,
         );
@@ -269,7 +270,7 @@ function RouteOptions() {
     dispatch,
     token,
     destToken,
-    amount,
+    debouncedAmount,
     fromChain,
     toChain,
     validate,

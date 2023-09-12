@@ -173,10 +173,28 @@ export class CCTPRelayRoute extends CCTPManualRoute {
     if (sourceTokenConfig.nativeChain !== sourceChainName) return false;
     if (destTokenConfig.nativeChain !== destChainName) return false;
 
-    return (
+    const chainsAreValid =
       CCTPRelay_CHAINS.includes(sourceChainName) &&
-      CCTPRelay_CHAINS.includes(destChainName)
-    );
+      CCTPRelay_CHAINS.includes(destChainName);
+
+    if (!chainsAreValid) return false;
+
+    let relayerFee;
+    try {
+      relayerFee = await this.getRelayerFee(
+        sourceChain,
+        destChain,
+        sourceToken,
+      );
+    } catch {}
+    const decimals = 6;
+    if (
+      relayerFee === undefined ||
+      parseFloat(amount) < parseFloat(toDecimals(relayerFee, decimals))
+    )
+      return false;
+
+    return true;
   }
 
   async computeReceiveAmount(
