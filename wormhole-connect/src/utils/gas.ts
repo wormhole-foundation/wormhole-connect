@@ -35,7 +35,14 @@ export const getGasFallback = (
   const routeGasFallbacks = GAS_ESTIMATES[chainName]?.[route];
   if (!routeGasFallbacks || !routeGasFallbacks[operation])
     return BigNumber.from(0);
-  return BigNumber.from(routeGasFallbacks[operation]);
+  const gas = BigNumber.from(routeGasFallbacks[operation]);
+
+  // gas estimates for evm come in gwei
+  const chainConfig = CHAINS[chainName]!;
+  if (chainConfig.context === Context.ETH) {
+    return utils.parseUnits(gas.toString(), 'gwei');
+  }
+  return gas;
 };
 
 export const estimateSendGas = async (
@@ -82,12 +89,6 @@ export const estimateClaimGas = async (
     gas = await r.estimateClaimGas(destChain, signedMessage);
   } catch (_) {
     gas = getGasFallback(destChain, route, 'claim');
-
-    // gas estimates for evm come in gwei
-    const config = CHAINS[wh.toChainName(destChain)];
-    if (config?.context === Context.ETH) {
-      gas = utils.parseUnits(gas.toString(), 'gwei');
-    }
   }
   if (!gas) throw new Error('could not estimate send gas');
   return formatGasFee(destChain, gas);
