@@ -45,6 +45,7 @@ import {
   getForeignUSDCAddress,
 } from './cctpManual';
 import { getUnsignedVaaEvm } from 'utils/vaa';
+import { getNativeVersionOfToken } from 'store/transferInput';
 
 export class CCTPRelayRoute extends CCTPManualRoute {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED = true;
@@ -187,10 +188,16 @@ export class CCTPRelayRoute extends CCTPManualRoute {
         sourceToken,
       );
     } catch {}
+    console.log(`Relayer fee: ${relayerFee}`);
 
     return !(
       relayerFee === undefined ||
-      parseFloat(amount) < parseFloat(toDecimals(relayerFee, 6))
+      parseFloat(amount) <
+        this.getMinSendAmount({
+          amount,
+          relayerFee: toDecimals(relayerFee, 6),
+          toNativeToken: 0,
+        })
     );
   }
 
@@ -453,20 +460,21 @@ export class CCTPRelayRoute extends CCTPManualRoute {
     };
     const token = getTokenById(tokenId);
     const decimals = await wh.fetchTokenDecimals(tokenId, fromChain);
-
+    const toChain = getChainNameCCTP(parsedCCTPLog.args.destinationDomain);
     return {
       sendTx: receipt.transactionHash,
       sender: receipt.from,
       amount: parsedCCTPLog.args.amount.toString(),
       payloadID: PayloadType.Automatic,
       recipient: recipient,
-      toChain: getChainNameCCTP(parsedCCTPLog.args.destinationDomain),
       fromChain: fromChain,
       tokenAddress: parsedCCTPLog.args.burnToken,
       tokenChain: fromChain,
       tokenId: tokenId,
+      toChain,
       tokenDecimals: decimals,
       tokenKey: token?.key || '',
+      receivedTokenKey: getNativeVersionOfToken('USDC', toChain),
       gasFee: receipt.gasUsed.mul(receipt.effectiveGasPrice).toString(),
       block: receipt.blockNumber,
       message,
