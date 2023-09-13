@@ -128,11 +128,6 @@ export class HashflowRoute extends RouteAbstract {
   ): Promise<string> {
     throw new Error('Method not implemented.');
   }
-  async parseMessage(
-    messageInfo: MessageInfo,
-  ): Promise<ParsedMessage | ParsedRelayerMessage> {
-    throw new Error('Method not implemented.');
-  }
   async getPreview<P>(params: P): Promise<TransferDisplayData> {
     throw new Error('Method not implemented.');
   }
