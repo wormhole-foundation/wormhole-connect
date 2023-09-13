@@ -105,7 +105,6 @@ export class RelayRoute extends BridgeRoute {
       relayerFee === undefined ||
       parseFloat(amount) <
         this.getMinSendAmount({
-          amount,
           relayerFee: toDecimals(relayerFee, decimals),
           toNativeToken: 0,
         })
@@ -261,7 +260,7 @@ export class RelayRoute extends BridgeRoute {
     const { relayerFee, toNativeToken } = routeOptions;
 
     // has to be slightly higher than the minimum or else tx will revert
-    const fees = relayerFee + toNativeToken;
+    const fees = parseFloat(relayerFee) + parseFloat(toNativeToken);
     const min = (fees * 1.05).toFixed(6);
     return Number.parseFloat(min);
   }

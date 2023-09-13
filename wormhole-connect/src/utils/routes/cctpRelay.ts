@@ -188,13 +188,10 @@ export class CCTPRelayRoute extends CCTPManualRoute {
         sourceToken,
       );
     } catch {}
-    console.log(`Relayer fee: ${relayerFee}`);
-
     return !(
       relayerFee === undefined ||
       parseFloat(amount) <
         this.getMinSendAmount({
-          amount,
           relayerFee: toDecimals(relayerFee, 6),
           toNativeToken: 0,
         })
@@ -269,9 +266,8 @@ export class CCTPRelayRoute extends CCTPManualRoute {
    */
   getMinSendAmount(routeOptions: any): number {
     const { relayerFee, toNativeToken } = routeOptions;
-
     // has to be slightly higher than the minimum or else tx will revert
-    const fees = relayerFee + toNativeToken;
+    const fees = parseFloat(relayerFee) + parseFloat(toNativeToken);
     const min = (fees * 1.05).toFixed(6);
     return Number.parseFloat(min);
   }
