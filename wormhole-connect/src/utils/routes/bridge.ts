@@ -55,6 +55,14 @@ export class BridgeRoute extends BaseRoute {
       return false;
     // TODO: probably not true for Solana
     if (destToken === 'native') return false;
+
+    // Special case: Native eth cannot be sent on arbitrum
+    if (
+      (sourceToken === 'ETHarbitrum' || sourceToken === 'native') &&
+      (sourceChain === 'arbitrum' || sourceChain === 'arbitrumgoerli')
+    )
+      return false;
+
     if (!!sourceTokenConfig.tokenId && sourceToken === destToken) return true;
     if (
       !sourceTokenConfig.tokenId &&
