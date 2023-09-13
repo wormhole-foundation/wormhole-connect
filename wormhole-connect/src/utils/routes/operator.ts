@@ -9,7 +9,7 @@ import { CHAINS, ROUTES, TOKENS } from 'config';
 import { TokenConfig, Route } from 'config/types';
 import { BridgeRoute } from './bridge';
 import { RelayRoute } from './relay';
-// import { HashflowRoute } from './hashflow';
+import { HashflowRoute } from './hashflow';
 import { CCTPRelayRoute } from './cctpRelay';
 import { CosmosGatewayRoute } from './cosmosGateway';
 import { ParsedMessage, PayloadType, getMessage, isEvmChain, wh } from '../sdk';
@@ -41,9 +41,9 @@ export class Operator {
       case Route.CCTPRelay: {
         return new CCTPRelayRoute();
       }
-      // case Route.Hashflow: {
-      //   return new HashflowRoute();
-      // }
+      case Route.Hashflow: {
+        return new HashflowRoute();
+      }
       case Route.CosmosGateway: {
         return new CosmosGatewayRoute();
       }
@@ -408,15 +408,6 @@ export class Operator {
   ): Promise<BigNumber> {
     const r = this.getRoute(route);
     return r.getRelayerFee(sourceChain, destChain, token);
-  }
-
-  async getForeignAsset(
-    route: Route,
-    tokenId: TokenId,
-    chain: ChainName | ChainId,
-  ): Promise<string | null> {
-    const r = this.getRoute(route);
-    return r.getForeignAsset(tokenId, chain);
   }
 
   async isTransferCompleted(

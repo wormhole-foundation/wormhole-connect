@@ -488,21 +488,6 @@ export class CCTPManualRoute extends BaseRoute {
     return BigNumber.from(0);
   }
 
-  async getForeignAsset(
-    token: TokenId,
-    chain: ChainName | ChainId,
-  ): Promise<string | null> {
-    // assumes USDC
-    const addr = TOKENS_ARR.find(
-      (t) =>
-        t.symbol === CCTPTokenSymbol &&
-        t.nativeChain === chain &&
-        t.tokenId?.chain === chain,
-    )?.tokenId?.address;
-    if (!addr) throw new Error('USDC not found');
-    return addr;
-  }
-
   async getMessage(
     tx: string,
     chain: ChainName | ChainId,

@@ -10,7 +10,7 @@ export async function fetchRFQ(
   sendingToken: TokenId,
   receivingToken: TokenId,
   sendingChain: ChainId,
-  receivingChain: ChainId,
+  receivingChain: any,
   amount: BigNumber | undefined,
   receiveAmount: number | undefined,
   walletAddress: string,

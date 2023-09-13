@@ -36,7 +36,7 @@ function App() {
     TOKENS['USDCeth'].tokenId!,
     TOKENS['USDCpolygon'].tokenId!,
     1,
-    5,
+    137,
     BigNumber.from('100000000000000000'),
     undefined,
     '0x7D414a4223A5145d60Ce4c587d23f2b1a4Db50e4',

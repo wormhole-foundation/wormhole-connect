@@ -260,7 +260,7 @@ export class CosmosGatewayRoute extends BaseRoute {
 
     const memo = this.buildFromCosmosPayloadMemo(recipientChainId, recipient);
 
-    const denom = await this.getForeignAsset(token, sendingChainId);
+    const denom = await wh.getForeignAsset(token, sendingChainId);
     if (!denom) throw new Error('Could not derive IBC asset denom');
     const coin: Coin = {
       denom,
@@ -293,12 +293,12 @@ export class CosmosGatewayRoute extends BaseRoute {
     );
   }
 
-  getForeignAsset(
-    token: TokenId,
-    chain: ChainId | ChainName,
-  ): Promise<string | null> {
-    return wh.getForeignAsset(token, chain);
-  }
+  // getForeignAsset(
+  //   token: TokenId,
+  //   chain: ChainId | ChainName,
+  // ): Promise<string | null> {
+  //   return wh.getForeignAsset(token, chain);
+  // }
 
   getMinSendAmount(routeOptions: any): number {
     return 0;

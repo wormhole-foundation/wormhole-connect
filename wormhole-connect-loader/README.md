@@ -92,6 +92,7 @@ Routes (`routes`)
 | cctpManual | cctpManual |
 | cctpRelay | cctpRelay |
 | cosmosGateway | cosmosGateway |
+| hashflow | hashflow |
 
 <br>
 

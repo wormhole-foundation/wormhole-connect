@@ -276,13 +276,6 @@ export class BridgeRoute extends BaseRoute {
     return BigNumber.from(0);
   }
 
-  async getForeignAsset(
-    token: TokenId,
-    chain: ChainName | ChainId,
-  ): Promise<string | null> {
-    return wh.getForeignAsset(token, chain);
-  }
-
   async getMessage(
     tx: string,
     chain: ChainName | ChainId,

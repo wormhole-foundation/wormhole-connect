@@ -37,7 +37,7 @@ export enum Icon {
 export enum Route {
   Bridge = 'bridge',
   Relay = 'relay',
-  // Hashflow = 'hashflow',
+  Hashflow = 'hashflow',
   CosmosGateway = 'cosmosGateway',
   CCTPManual = 'cctpManual',
   CCTPRelay = 'cctpRelay',

@@ -184,6 +184,7 @@ function Bridge() {
         Route.CosmosGateway,
         Route.CCTPRelay,
         Route.CCTPManual,
+        Route.Hashflow,
         Route.Relay,
         Route.Bridge,
       ];

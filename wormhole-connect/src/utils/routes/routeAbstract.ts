@@ -141,10 +141,10 @@ export default abstract class RouteAbstract {
     token: string,
   ): Promise<BigNumber>;
 
-  abstract getForeignAsset(
-    token: TokenId,
-    chain: ChainName | ChainId,
-  ): Promise<string | null>;
+  // abstract getForeignAsset(
+  //   token: TokenId,
+  //   chain: ChainName | ChainId,
+  // ): Promise<string | null>;
 
   abstract getMessage(
     tx: string,
