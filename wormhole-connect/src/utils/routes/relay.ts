@@ -103,7 +103,12 @@ export class RelayRoute extends BridgeRoute {
     const decimals = getTokenDecimals(wh.toChainId(sourceChain), tokenId);
     return !(
       relayerFee === undefined ||
-      parseFloat(amount) < parseFloat(toDecimals(relayerFee, decimals))
+      parseFloat(amount) <
+        this.getMinSendAmount({
+          amount,
+          relayerFee: toDecimals(relayerFee, decimals),
+          toNativeToken: 0,
+        })
     );
   }
 

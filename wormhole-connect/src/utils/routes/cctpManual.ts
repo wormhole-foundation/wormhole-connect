@@ -42,6 +42,7 @@ import {
 import { BaseRoute } from './baseRoute';
 import { toDecimals } from '../balance';
 import { formatGasFee } from './utils';
+import { getNativeVersionOfToken } from 'store/transferInput';
 
 export const CCTPTokenSymbol = 'USDC';
 export const CCTPManual_CHAINS: ChainName[] = [
@@ -533,20 +534,21 @@ export class CCTPManualRoute extends BaseRoute {
     };
     const token = getTokenById(tokenId);
     const decimals = await wh.fetchTokenDecimals(tokenId, fromChain);
-
+    const toChain = getChainNameCCTP(parsedCCTPLog.args.destinationDomain);
     return {
       sendTx: receipt.transactionHash,
       sender: receipt.from,
       amount: parsedCCTPLog.args.amount.toString(),
       payloadID: PayloadType.Manual,
       recipient: recipient,
-      toChain: getChainNameCCTP(parsedCCTPLog.args.destinationDomain),
+      toChain,
       fromChain: fromChain,
       tokenAddress: parsedCCTPLog.args.burnToken,
       tokenChain: fromChain,
       tokenId: tokenId,
       tokenDecimals: decimals,
       tokenKey: token?.key || '',
+      receivedTokenKey: getNativeVersionOfToken('USDC', toChain),
       gasFee: receipt.gasUsed.mul(receipt.effectiveGasPrice).toString(),
       block: receipt.blockNumber,
       message,

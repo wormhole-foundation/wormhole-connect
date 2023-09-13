@@ -28,6 +28,7 @@ export const adaptParsedMessage = async (
     amount: parsed.amount.toString(),
     tokenKey: token?.key || '',
     tokenDecimals: decimals,
+    receivedTokenKey: token?.key || '',
     sequence: parsed.sequence.toString(),
     gasFee: parsed.gasFee ? parsed.gasFee.toString() : undefined,
   };

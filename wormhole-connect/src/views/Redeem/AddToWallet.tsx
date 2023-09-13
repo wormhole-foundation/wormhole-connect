@@ -14,7 +14,7 @@ import { MAINNET_CHAINS } from 'config/mainnet';
 import { TokenConfig } from 'config/types';
 import { RootState } from 'store';
 import { setWalletModal } from 'store/router';
-import { getWrappedToken } from 'utils';
+import { getTokenDecimals, getWrappedToken } from 'utils';
 import { wh } from 'utils/sdk';
 import { TransferWallet, switchChain, watchAsset } from 'utils/wallet';
 
@@ -67,7 +67,10 @@ function AddToEVMWallet({ token, address }: AddTokenProps) {
       {
         address: address,
         symbol: token.symbol,
-        decimals: token.decimals.default,
+        decimals: getTokenDecimals(
+          wh.toChainId(txData.toChain),
+          token.tokenId || 'native',
+        ),
         // evm chain id
         chainId: evmChainId,
       },
@@ -151,7 +154,7 @@ function AddToWallet() {
   useEffect(() => {
     const fetchTokenInfo = async () => {
       if (isCosmWasmChain(txData.toChain)) return;
-      const tokenInfo = TOKENS[txData.tokenKey];
+      const tokenInfo = TOKENS[txData.receivedTokenKey];
       const wrapped = getWrappedToken(tokenInfo);
       if (!wrapped.tokenId) return;
       const address = await wh.getForeignAsset(wrapped.tokenId, txData.toChain);
