@@ -507,7 +507,8 @@ export class RelayRoute extends BridgeRoute {
         );
         nativeGasAmt = toDecimals(nativeSwapAmount, decimals, MAX_DECIMALS);
       }
-    } else if (!transferComplete) {
+    }
+    if (!nativeGasAmt) {
       // get the decimals on the target chain
       const destinationTokenDecimals = getTokenDecimals(
         wh.toChainId(txData.toChain),
