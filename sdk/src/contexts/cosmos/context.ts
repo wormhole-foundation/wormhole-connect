@@ -12,7 +12,6 @@ import {
   Coin,
   IbcExtension,
   QueryClient,
-  StargateClient,
   StdFee,
   calculateFee,
   logs as cosmosLogs,
@@ -117,13 +116,9 @@ export class CosmosContext<
     txId: string,
     chain: ChainName | ChainId,
   ): Promise<BigNumber | undefined> {
-    const chainName = this.context.toChainName(chain);
-    const rpc = this.context.conf.rpcs[chainName];
-    if (rpc) {
-      const client = await StargateClient.connect(rpc);
-      const transaction = await client.getTx(txId);
-      return BigNumber.from(transaction?.gasUsed || 0);
-    }
+    const client = await this.getCosmWasmClient(chain);
+    const transaction = await client.getTx(txId);
+    return BigNumber.from(transaction?.gasUsed || 0);
   }
 
   send(
