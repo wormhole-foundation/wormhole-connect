@@ -101,7 +101,7 @@ function Bridge() {
         throw new Error('Could not get native gas token config');
       const decimals = getTokenDecimals(
         toChainId(tokenConfig.nativeChain),
-        tokenConfig.tokenId,
+        'native',
       );
       dispatch(setReceiverNativeBalance(toDecimals(res, decimals, 6)));
     });
