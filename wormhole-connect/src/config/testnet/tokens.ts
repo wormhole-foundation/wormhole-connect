@@ -363,7 +363,7 @@ export const TESTNET_TOKENS: TokensConfig = {
   },
   ETHarbitrum: {
     key: 'ETHarbitrum',
-    symbol: 'ETH',
+    symbol: 'ETH (Arbitrum)',
     nativeChain: 'arbitrumgoerli',
     icon: Icon.ETH,
     coinGeckoId: 'ethereum',
@@ -376,7 +376,7 @@ export const TESTNET_TOKENS: TokensConfig = {
   },
   WETHarbitrum: {
     key: 'WETHarbitrum',
-    symbol: 'WETH',
+    symbol: 'WETH (Arbitrum)',
     nativeChain: 'arbitrumgoerli',
     icon: Icon.ETH,
     tokenId: {
@@ -407,7 +407,7 @@ export const TESTNET_TOKENS: TokensConfig = {
   },
   ETHoptimism: {
     key: 'ETHoptimism',
-    symbol: 'ETH',
+    symbol: 'ETH (Optimism)',
     nativeChain: 'optimismgoerli',
     icon: Icon.ETH,
     coinGeckoId: 'ethereum',
@@ -420,7 +420,7 @@ export const TESTNET_TOKENS: TokensConfig = {
   },
   WETHoptimism: {
     key: 'WETHoptimism',
-    symbol: 'WETH',
+    symbol: 'WETH (Optimism)',
     nativeChain: 'optimismgoerli',
     icon: Icon.ETH,
     tokenId: {
@@ -451,7 +451,7 @@ export const TESTNET_TOKENS: TokensConfig = {
   },
   ETHbase: {
     key: 'ETHbase',
-    symbol: 'ETH',
+    symbol: 'ETH (Base)',
     nativeChain: 'basegoerli',
     icon: Icon.ETH,
     coinGeckoId: 'ethereum',
@@ -464,7 +464,7 @@ export const TESTNET_TOKENS: TokensConfig = {
   },
   WETHbase: {
     key: 'WETHbase',
-    symbol: 'WETH',
+    symbol: 'WETH (Base)',
     nativeChain: 'basegoerli',
     icon: Icon.ETH,
     tokenId: {
