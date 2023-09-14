@@ -268,7 +268,7 @@ function WalletsModal(props: Props) {
     const sorted = wallets.sort((w) => (w.isReady ? -1 : 1));
     const filtered = !search
       ? sorted
-      : sorted.filter((w) => w.name.toLowerCase().includes(search));
+      : sorted.filter((w) => w.name && w.name.toLowerCase().includes(search));
     return filtered.map((wallet, i) => {
       const ready = wallet.isReady;
       const select = ready
