@@ -9,7 +9,7 @@ import {
   setDestToken,
 } from 'store/transferInput';
 import { TransferWallet, walletAcceptedChains } from 'utils/wallet';
-import { getWrappedToken } from 'utils';
+import { getWrappedToken, getDisplayName } from 'utils';
 import { CHAINS, CHAINS_ARR, TOKENS } from 'config';
 
 import Inputs from './Inputs';
@@ -55,7 +55,7 @@ function ToInputs() {
   // token display jsx
   const selectedToken = useMemo(() => {
     if (!tokenConfig) return undefined;
-    const symbol = getWrappedToken(tokenConfig).symbol;
+    const symbol = getDisplayName(getWrappedToken(tokenConfig));
     const chain = CHAINS[tokenConfig.nativeChain]?.displayName;
     return {
       icon: tokenConfig.icon,

@@ -93,6 +93,10 @@ export function getTokenById(tokenId: TokenId): TokenConfig | void {
   )[0];
 }
 
+export function getDisplayName(token: TokenConfig) {
+  return token.displayName || token.symbol;
+}
+
 export function getTokenDecimals(
   chain: ChainId,
   tokenId: TokenId | 'native' = 'native',
@@ -106,7 +110,9 @@ export function getTokenDecimals(
   }
 
   const tokenConfig = getTokenById(tokenId);
-  if (!tokenConfig) throw new Error('token config not found');
+  if (!tokenConfig) {
+    throw new Error('token config not found');
+  }
 
   const decimals = tokenConfig.decimals;
   return decimals[chainConfig.context] || decimals.default;

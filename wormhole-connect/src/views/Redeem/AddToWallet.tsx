@@ -14,7 +14,7 @@ import { MAINNET_CHAINS } from 'config/mainnet';
 import { TokenConfig } from 'config/types';
 import { RootState } from 'store';
 import { setWalletModal } from 'store/router';
-import { getTokenDecimals, getWrappedToken } from 'utils';
+import { getTokenDecimals, getWrappedToken, getDisplayName } from 'utils';
 import { wh } from 'utils/sdk';
 import { TransferWallet, switchChain, watchAsset } from 'utils/wallet';
 
@@ -82,7 +82,7 @@ function AddToEVMWallet({ token, address }: AddTokenProps) {
     <Link onClick={addToWallet} href="#" className={classes.addTokenLink}>
       <Typography component={'span'} gap={1} className={classes.addToken}>
         <TokenIcon height={20} name={token.icon} />
-        Add {token.symbol} to your wallet
+        Add {getDisplayName(token)} to your wallet
       </Typography>
     </Link>
   );
@@ -94,7 +94,9 @@ function AddToSolanaWallet({ token, address }: AddTokenProps) {
   return (
     <Typography component={'span'} className={classes.addToken}>
       <TokenIcon height={20} name={token.icon} />
-      <span className={classes.addTokenText}>See {token.symbol} token on</span>
+      <span className={classes.addTokenText}>
+        See {getDisplayName(token)} token on
+      </span>
       <ExplorerLink
         styles={{ marginLeft: -4 }}
         chain={'solana'}
@@ -112,7 +114,9 @@ function AddToSuiWallet({ token, address }: AddTokenProps) {
   return (
     <Typography component={'span'} className={classes.addToken}>
       <TokenIcon height={20} name={token.icon} />
-      <span className={classes.addTokenText}>See {token.symbol} token on</span>
+      <span className={classes.addTokenText}>
+        See {getDisplayName(token)} token on
+      </span>
       <ExplorerLink
         styles={{ marginLeft: -4 }}
         chain={'sui'}
@@ -130,7 +134,9 @@ function AddToAptosWallet({ token, address }: AddTokenProps) {
   return (
     <Typography component={'span'} className={classes.addToken}>
       <TokenIcon height={20} name={token.icon} />
-      <span className={classes.addTokenText}>See {token.symbol} token on</span>
+      <span className={classes.addTokenText}>
+        See {getDisplayName(token)} token on
+      </span>
       <ExplorerLink
         styles={{ marginLeft: -4 }}
         chain={'aptos'}

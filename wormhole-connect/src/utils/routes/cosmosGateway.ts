@@ -31,6 +31,7 @@ import {
 import { BigNumber, utils } from 'ethers';
 import { arrayify, hexlify } from 'ethers/lib/utils.js';
 import { toChainId, wh } from 'utils/sdk';
+import { getDisplayName } from 'utils';
 import { isCosmWasmChain } from 'utils/cosmos';
 import { CHAINS, RPCS, ROUTES, TOKENS } from 'config';
 import { Route, TokenConfig } from 'config/types';
@@ -399,12 +400,14 @@ export class CosmosGatewayRoute extends BaseRoute {
     const sendingChainName = wh.toChainName(sendingChain);
     const sourceGasToken = CHAINS[sendingChainName]?.gasToken;
     const sourceGasTokenSymbol = sourceGasToken
-      ? TOKENS[sourceGasToken].symbol
+      ? getDisplayName(TOKENS[sourceGasToken])
       : '';
     return [
       {
         title: 'Amount',
-        value: `${toFixedDecimals(`${amount}`, 6)} ${destToken.symbol}`,
+        value: `${toFixedDecimals(`${amount}`, 6)} ${getDisplayName(
+          destToken,
+        )}`,
       },
       {
         title: 'Total fee estimates',
@@ -650,11 +653,11 @@ export class CosmosGatewayRoute extends BaseRoute {
       txData.tokenDecimals,
       MAX_DECIMALS,
     );
-    const { gasToken: sourceGasTokenSymbol } = CHAINS[txData.fromChain]!;
-    const sourceGasToken = TOKENS[sourceGasTokenSymbol];
+    const { gasToken: sourceGasTokenKey } = CHAINS[txData.fromChain]!;
+    const sourceGasToken = TOKENS[sourceGasTokenKey];
     const decimals = getTokenDecimals(
       toChainId(sourceGasToken.nativeChain),
-      sourceGasToken.tokenId,
+      'native',
     );
     const formattedGas =
       txData.gasFee && toDecimals(txData.gasFee, decimals, MAX_DECIMALS);
@@ -663,11 +666,13 @@ export class CosmosGatewayRoute extends BaseRoute {
     return [
       {
         title: 'Amount',
-        value: `${formattedAmt} ${token.symbol}`,
+        value: `${formattedAmt} ${getDisplayName(token)}`,
       },
       {
         title: 'Gas fee',
-        value: formattedGas ? `${formattedGas} ${sourceGasTokenSymbol}` : '—',
+        value: formattedGas
+          ? `${formattedGas} ${getDisplayName(sourceGasToken)}`
+          : '—',
       },
     ];
   }
@@ -697,11 +702,11 @@ export class CosmosGatewayRoute extends BaseRoute {
     return [
       {
         title: 'Amount',
-        value: `${formattedAmt} ${token.symbol}`,
+        value: `${formattedAmt} ${getDisplayName(token)}`,
       },
       {
         title: receiveTx ? 'Gas fee' : 'Gas estimate',
-        value: gas ? `${gas} ${gasToken}` : '—',
+        value: gas ? `${gas} ${getDisplayName(TOKENS[gasToken])}` : '—',
       },
     ];
   }

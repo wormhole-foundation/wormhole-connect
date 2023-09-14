@@ -16,7 +16,7 @@ import { RootState } from 'store';
 import { CHAINS } from 'config';
 import { TokenConfig } from 'config/types';
 import { setBalances, formatBalance, ChainBalances } from 'store/transferInput';
-import { displayAddress } from 'utils';
+import { displayAddress, getDisplayName } from 'utils';
 import { wh } from 'utils/sdk';
 import { CENTER, NO_INPUT } from 'utils/style';
 import { isCosmWasmChain } from 'utils/cosmos';
@@ -205,7 +205,7 @@ function DisplayTokens(props: {
                 <div className={classes.tokenRowLeft}>
                   <TokenIcon name={token.icon} height={32} />
                   <div>
-                    <div>{token.symbol}</div>
+                    <div>{getDisplayName(token)}</div>
                     <div className={classes.nativeChain}>
                       {displayNativeChain(token)}
                     </div>
