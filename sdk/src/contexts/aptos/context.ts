@@ -52,7 +52,7 @@ export class AptosContext<
     this.foreignAssetCache = foreignAssetCache;
   }
 
-  protected async getTxGasUsed(
+  protected async getTxGasFee(
     txId: string,
     chain: ChainName | ChainId,
   ): Promise<BigNumber | undefined> {

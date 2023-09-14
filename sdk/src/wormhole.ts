@@ -314,12 +314,12 @@ export class WormholeContext extends MultiProvider<Domain> {
     );
   }
 
-  async getTxGasUsed(
+  async getTxGasFee(
     chain: ChainName | ChainId,
     txId: string,
   ): Promise<BigNumber | undefined> {
     const context: any = this.getContext(chain);
-    return await context.getTxGasUsed(txId, chain);
+    return await context.getTxGasFee(txId, chain);
   }
 
   async estimateSendGas(

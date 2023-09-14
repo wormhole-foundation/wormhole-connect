@@ -58,7 +58,7 @@ export class SuiContext<
     this.foreignAssetCache = foreignAssetCache;
   }
 
-  async getTxGasUsed(
+  async getTxGasFee(
     txId: string,
     chain: ChainName | ChainId,
   ): Promise<BigNumber | undefined> {

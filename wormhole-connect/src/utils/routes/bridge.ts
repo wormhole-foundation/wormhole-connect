@@ -343,9 +343,9 @@ export class BridgeRoute extends BaseRoute {
 
     let gas = gasEstimate;
     if (receiveTx) {
-      const gasUsed = await wh.getTxGasUsed(txData.toChain, receiveTx);
-      if (gasUsed) {
-        gas = formatGasFee(txData.toChain, gasUsed);
+      const gasFee = await wh.getTxGasFee(txData.toChain, receiveTx);
+      if (gasFee) {
+        gas = formatGasFee(txData.toChain, gasFee);
       }
     }
 

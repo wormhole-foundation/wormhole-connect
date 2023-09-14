@@ -162,7 +162,7 @@ export abstract class TokenBridgeAbstract<TransactionResult> {
     chain: ChainName | ChainId,
   ): Promise<BigNumber | null>;
 
-  protected abstract getTxGasUsed(
+  protected abstract getTxGasFee(
     txId: string,
     chain: ChainName | ChainId,
   ): Promise<BigNumber | undefined>;
