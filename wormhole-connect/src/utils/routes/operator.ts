@@ -483,6 +483,14 @@ export class Operator {
     const r = this.getRoute(route);
     return r.maxSwapAmount(destChain, token, walletAddress);
   }
+
+  tryFetchRedeemTx(
+    route: Route,
+    txData: UnsignedMessage,
+  ): Promise<string | undefined> {
+    const r = this.getRoute(route);
+    return r.tryFetchRedeemTx(txData);
+  }
 }
 
 const RouteOperator = new Operator();

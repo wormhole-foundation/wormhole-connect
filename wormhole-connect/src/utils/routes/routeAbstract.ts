@@ -12,6 +12,7 @@ import {
   TransferDisplayData,
   TransferInfoBaseParams,
 } from './types';
+import { ParsedRelayerMessage, ParsedMessage } from 'utils/sdk';
 
 export default abstract class RouteAbstract {
   abstract readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean;
@@ -169,4 +170,8 @@ export default abstract class RouteAbstract {
     token: TokenId,
     walletAddress: string,
   ): Promise<BigNumber>;
+
+  abstract tryFetchRedeemTx(
+    txData: ParsedMessage | ParsedRelayerMessage,
+  ): Promise<string | undefined>;
 }

@@ -7,27 +7,26 @@ import {
   SeiContext,
   WormholeContext,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { ParsedMessage, ParsedRelayerMessage, PayloadType, wh } from './sdk';
+import { ParsedMessage, ParsedRelayerMessage, wh } from './sdk';
 import { fromNormalizedDecimals } from '.';
 import { CHAINS } from 'config';
 import { fetchGlobalTx, getEmitterAndSequence } from './vaa';
 import { isEvmChain } from 'utils/sdk';
+import RouteOperator from './routes/operator';
+import { Route } from 'config/types';
 
 export const fetchRedeemTx = async (
+  route: Route,
   txData: ParsedMessage | ParsedRelayerMessage,
 ): Promise<{ transactionHash: string } | null> => {
   let transactionHash: string | undefined;
-  try {
-    transactionHash = await fetchGlobalTx(txData);
-  } catch {}
-  // if this is an automatic transfer and the transaction hash was not found,
-  // then try to fetch the redeemed event
-  if (!transactionHash && txData.payloadID === PayloadType.Automatic) {
+  if (txData.emitterAddress && txData.sequence) {
     try {
-      const res = await fetchRedeemedEvent(txData);
-      transactionHash = res?.transactionHash;
+      transactionHash = await fetchGlobalTx(txData);
     } catch {}
   }
+
+  transactionHash = await RouteOperator.tryFetchRedeemTx(route, txData);
   if (transactionHash) {
     return { transactionHash };
   }

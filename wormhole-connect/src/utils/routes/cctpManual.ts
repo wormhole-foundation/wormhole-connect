@@ -126,6 +126,10 @@ export function getChainNameCCTP(domain: number): ChainName {
   throw new Error('Invalid CCTP domain');
 }
 
+export function getNonce(message: string): number {
+  return BigNumber.from('0x' + message.substring(26, 42)).toNumber();
+}
+
 export class CCTPManualRoute extends BaseRoute {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean = false;
   readonly AUTOMATIC_DEPOSIT: boolean = false;
@@ -646,9 +650,7 @@ export class CCTPManualRoute extends BaseRoute {
   ): Promise<boolean> {
     if (!isSignedCCTPMessage(messageInfo))
       throw new Error('Signed message is not for CCTP');
-    const nonce = BigNumber.from(
-      '0x' + messageInfo.message.substring(26, 42),
-    ).toNumber();
+    const nonce = getNonce(messageInfo.message);
     const context: any = wh.getContext(destChain);
     const circleMessageTransmitter =
       context.contracts.mustGetContracts(destChain).cctpContracts
@@ -689,5 +691,11 @@ export class CCTPManualRoute extends BaseRoute {
     walletAddress: string,
   ): Promise<BigNumber> {
     throw new Error('Not supported');
+  }
+
+  async tryFetchRedeemTx(
+    txData: UnsignedCCTPMessage,
+  ): Promise<string | undefined> {
+    return undefined; // only for automatic routes
   }
 }

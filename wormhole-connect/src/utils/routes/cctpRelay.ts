@@ -4,6 +4,7 @@ import {
   TokenId,
   EthContext,
   WormholeContext,
+  MessageTransmitter__factory,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { BigNumber, utils } from 'ethers';
 
@@ -43,6 +44,7 @@ import {
   CCTPManualRoute,
   getChainNameCCTP,
   getForeignUSDCAddress,
+  getNonce,
 } from './cctpManual';
 import { getUnsignedVaaEvm } from 'utils/vaa';
 import { getNativeVersionOfToken } from 'store/transferInput';
@@ -652,6 +654,46 @@ export class CCTPRelayRoute extends CCTPManualRoute {
     const tokenAddress = getForeignUSDCAddress(destChain);
     return relayer.calculateMaxSwapAmountIn(tokenAddress);
   }
+
+  async tryFetchRedeemTx(
+    txData: RelayCCTPMessage,
+  ): Promise<string | undefined> {
+    let redeemTx: string | undefined = undefined;
+    try {
+      redeemTx = await fetchRedeemedEvent(txData);
+    } catch (e) {
+      console.log(e);
+    }
+
+    return redeemTx;
+  }
+}
+
+async function fetchRedeemedEvent(
+  txData: RelayCCTPMessage,
+): Promise<string | undefined> {
+  const provider = wh.mustGetProvider(txData.toChain);
+  const context: any = wh.getContext(txData.toChain);
+  const chainName = wh.toChainName(txData.toChain) as ChainName;
+  const chainConfig = CHAINS[chainName]!;
+  const circleMessageTransmitter = context.contracts.mustGetContracts(
+    txData.toChain,
+  ).cctpContracts?.cctpMessageTransmitter;
+  const contract = MessageTransmitter__factory.connect(
+    circleMessageTransmitter,
+    provider,
+  );
+  const eventFilter = contract.filters.MessageReceived(
+    undefined,
+    undefined,
+    getNonce(txData.message),
+  );
+  const currentBlock = await provider.getBlockNumber();
+  const events = await contract.queryFilter(
+    eventFilter,
+    currentBlock - chainConfig.maxBlockSearch,
+  );
+  return events ? events[0].transactionHash : undefined;
 }
 
 async function fetchSwapEvent(txData: ParsedMessage | ParsedRelayerMessage) {
