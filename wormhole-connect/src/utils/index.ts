@@ -111,14 +111,6 @@ export function getTokenDecimals(
 
   const tokenConfig = getTokenById(tokenId);
   if (!tokenConfig) {
-    console.log(
-      `Looking up token ${
-        tokenId ? tokenId.address : 'native'
-      } on chain ${chain} - the token's native chain is ${
-        tokenId ? tokenId.chain : 'native'
-      }`,
-    );
-    console.log(JSON.stringify(tokenId));
     throw new Error('token config not found');
   }
 
