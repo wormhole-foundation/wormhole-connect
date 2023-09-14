@@ -502,7 +502,6 @@ export class RelayRoute extends BridgeRoute {
 
     // calculate the amount of native gas received
     let nativeGasAmt: string | undefined;
-    const nativeGasToken = TOKENS[gasToken];
     if (receiveTx) {
       let nativeSwapAmount: any;
       try {
@@ -513,7 +512,7 @@ export class RelayRoute extends BridgeRoute {
       if (nativeSwapAmount) {
         const decimals = getTokenDecimals(
           wh.toChainId(txData.toChain),
-          nativeGasToken.tokenId,
+          'native',
         );
         nativeGasAmt = toDecimals(nativeSwapAmount, decimals, MAX_DECIMALS);
       }
@@ -536,7 +535,7 @@ export class RelayRoute extends BridgeRoute {
       // get the decimals on the target chain
       const nativeGasTokenDecimals = getTokenDecimals(
         wh.toChainId(txData.toChain),
-        getWrappedTokenId(nativeGasToken),
+        'native',
       );
       nativeGasAmt = toDecimals(
         amount.toString(),
