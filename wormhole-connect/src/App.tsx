@@ -11,11 +11,11 @@ import './App.css';
 import { store } from './store';
 import AppRouter from './AppRouter';
 import { getDesignTokens } from './theme';
-import { THEME_MODE, TOKENS } from './config';
+import { THEME_MODE } from './config';
 import BackgroundImage from './components/Background/BackgroundImage';
 import ErrorBoundary from './components/ErrorBoundary';
-import { fetchRFQ } from './utils/hashflow';
-import { BigNumber } from 'ethers';
+// import { fetchRFQ } from './utils/hashflow';
+// import { BigNumber } from 'ethers';
 
 const ColorModeContext = React.createContext({ toggleColorMode: () => {} });
 
@@ -32,15 +32,15 @@ function App() {
     }),
     [],
   );
-  fetchRFQ(
-    TOKENS['USDCeth'].tokenId!,
-    TOKENS['USDCpolygon'].tokenId!,
-    1,
-    137,
-    BigNumber.from('100000000000000000'),
-    undefined,
-    '0x7D414a4223A5145d60Ce4c587d23f2b1a4Db50e4',
-  );
+  // fetchRFQ(
+  //   TOKENS['USDCmumbai'].tokenId!,
+  //   TOKENS['USDTmumbai'].tokenId!,
+  //   'mumbai',
+  //   'mumbai',
+  //   BigNumber.from('1000000'),
+  //   // undefined,
+  //   '0x7D414a4223A5145d60Ce4c587d23f2b1a4Db50e4',
+  // );
   // Update the theme only if the mode changes
   const theme = React.useMemo(() => createTheme(getDesignTokens(mode)), [mode]);
 

@@ -18,6 +18,7 @@ import AmountInput from './AmountInput';
 import TokenWarnings from './TokenWarnings';
 import TokensModal from 'components/TokensModal';
 import ChainsModal from 'components/ChainsModal';
+import { HashflowRoute } from 'utils/routes';
 
 function ToInputs() {
   const dispatch = useDispatch();
@@ -113,6 +114,16 @@ function ToInputs() {
     />
   );
 
+  // if using hashflow, can select the same network
+  // TODO: add this to Route?
+  const destChainOptions = useMemo(() => {
+    return CHAINS_ARR.filter((c) => {
+      const hf = new HashflowRoute();
+      if (hf.isSupportedChain(c.key)) return true;
+      return c.key !== fromChain;
+    });
+  }, []);
+
   return (
     <>
       <Inputs
@@ -140,7 +151,7 @@ function ToInputs() {
       <ChainsModal
         open={showChainsModal}
         title="Sending to"
-        chains={CHAINS_ARR.filter((c) => c.key !== fromChain)}
+        chains={destChainOptions}
         onSelect={selectChain}
         onClose={() => setShowChainsModal(false)}
         isDisabled={isDisabled}

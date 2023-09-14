@@ -1,6 +1,7 @@
 import axios from 'axios';
-import { ChainId, TokenId } from '@wormhole-foundation/wormhole-connect-sdk';
-import { BigNumber, ethers } from 'ethers';
+import { ChainName, TokenId } from '@wormhole-foundation/wormhole-connect-sdk';
+import { BigNumber } from 'ethers';
+import { CHAINS } from 'config';
 
 const { REACT_APP_HASHFLOW_API, REACT_APP_HASHFLOW_SOURCE } = process.env;
 const API = REACT_APP_HASHFLOW_API;
@@ -9,44 +10,36 @@ const SOURCE = REACT_APP_HASHFLOW_SOURCE;
 export async function fetchRFQ(
   sendingToken: TokenId,
   receivingToken: TokenId,
-  sendingChain: ChainId,
-  receivingChain: any,
+  sendingChain: ChainName,
+  receivingChain: ChainName,
   amount: BigNumber | undefined,
-  receiveAmount: number | undefined,
   walletAddress: string,
 ): Promise<any> {
-  console.log(
-    sendingToken,
-    receivingToken,
-    sendingChain,
-    receivingChain,
-    amount,
-    receiveAmount,
-    walletAddress,
-  );
   if (!API || !SOURCE) {
     throw new Error('Must provide an API url and source');
   }
   const url = `${API}rfq`;
 
+  const sendingChainId = CHAINS[sendingChain]?.chainId;
+  const receivingChainId = CHAINS[receivingChain]?.chainId;
+
+  // if sending to the same chain, don't need to specify dstNetworkId
+  const destNetworkId =
+    sendingChainId !== receivingChainId
+      ? { dsNetworkId: receivingChainId }
+      : {};
+
   const data = {
-    networkId: sendingChain,
-    dstNetworkId: receivingChain,
+    networkId: sendingChainId,
+    ...destNetworkId,
     source: SOURCE,
 
-    rfqType: 0, // RFQ type (e.g. who has the last look). 0: RFQ-t(aker) and 1: RFQ-m(aker)
+    rfqType: 0,
 
-    // Base token (the token the trader sells).
-    baseToken: ethers.constants.AddressZero, // contract address (e.g. "0x123a...789")
-    baseTokenAmount: amount?.toString(), // decimal amount (e.g. "1000000" for 1 USDT)
+    baseToken: sendingToken.address,
+    baseTokenAmount: amount?.toString(),
 
-    // Quote token (the token the trader buys).
-    quoteToken: ethers.constants.AddressZero, // contract address (e.g. "0x123a...789")
-    // quoteTokenAmount: ?string,  // decimal amount (e.g. "1000000" for 1 USDT)
-
-    /* NOTE: Exactly one of base/quote tokenAmount must be present. */
-
-    // The trader wallet address that will swap with our contract. This can be a proxy
+    quoteToken: receivingToken.address,
     trader: walletAddress,
   };
 
@@ -62,10 +55,49 @@ export async function fetchRFQ(
   return axios
     .request(options)
     .then(function (response: any) {
-      console.log('RESPONSE', response);
+      console.log('RFQ RESPONSE', response);
+      if (response.status !== 200) {
+        throw new Error('error fetching Hashflow RFQ');
+      }
       if (response.data.status === 'fail') {
         throw new Error(response.data.error.message);
       }
+      if (response.data.status === 'success') {
+        return response.data;
+      }
+      throw new Error('error fetching Hashflow RFQ');
+    })
+    .catch(function (error) {
+      console.error(error);
+      throw new Error(error);
+    });
+}
+
+export async function estimateFees(
+  sendingChain: ChainName,
+  receivingChain: ChainName,
+): Promise<any> {
+  if (!API || !SOURCE) {
+    throw new Error('Must provide an API url and source');
+  }
+  const sendingChainId = CHAINS[sendingChain]?.chainId;
+  const receivingChainId = CHAINS[receivingChain]?.chainId;
+  const url = `${API}xchain-fee-estimate?source=${SOURCE}&protocol=0&srcNetworkId=${sendingChainId}&dstNetworkId=${receivingChainId}`;
+
+  return axios
+    .get(url)
+    .then(function (response: any) {
+      console.log('FEE ESTIMATE RESPONSE', response);
+      if (response.status !== 200) {
+        throw new Error('error fetching Hashflow fee estimates');
+      }
+      if (response.data.status === 'fail') {
+        throw new Error(response.data.error.message);
+      }
+      if (response.data.status === 'success') {
+        return response.data;
+      }
+      throw new Error('error fetching Hashflow RFQ');
     })
     .catch(function (error) {
       console.error(error);

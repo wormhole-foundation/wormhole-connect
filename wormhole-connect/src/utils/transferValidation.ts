@@ -18,6 +18,7 @@ import { WalletData, WalletState } from 'store/wallet';
 import { RelayState } from 'store/relay';
 import { walletAcceptedChains } from './wallet';
 import RouteOperator from './routes/operator';
+import { HashflowRoute } from './routes';
 
 export const validateFromChain = (
   chain: ChainName | undefined,
@@ -35,8 +36,15 @@ export const validateToChain = (
   if (!chain) return 'Select a destination chain';
   const chainConfig = CHAINS[chain];
   if (!chainConfig) return 'Select a destination chain';
-  if (fromChain && chain === fromChain)
-    return 'Source chain and destination chain cannot be the same';
+  const hf = new HashflowRoute();
+  // only hashflow routes can send to the same chain
+  if (fromChain && chain === fromChain) {
+    if (!hf.isSupportedChain(chain)) {
+      return 'Source chain and destination chain cannot be the same';
+    }
+  }
+
+  // if requiredNetwork is set, ensure that either the source or destination chain meets requirement
   if (
     BRIDGE_DEFAULTS &&
     BRIDGE_DEFAULTS.requiredNetwork &&

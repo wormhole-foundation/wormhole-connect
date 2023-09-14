@@ -75,6 +75,21 @@ export const TESTNET_TOKENS: TokensConfig = {
       default: 6,
     },
   },
+  USDTmumbai: {
+    key: 'USDTmumbai',
+    symbol: 'USDT',
+    nativeChain: 'mumbai',
+    icon: Icon.USDT,
+    tokenId: {
+      chain: 'mumbai',
+      address: '0x9a87ed07cfa58339073745996945853f5289ea43',
+    },
+    coinGeckoId: 'tether',
+    color: '#ffffff',
+    decimals: {
+      default: 6,
+    },
+  },
   DAI: {
     key: 'DAI',
     symbol: 'DAI',
@@ -128,6 +143,22 @@ export const TESTNET_TOKENS: TokensConfig = {
     tokenId: {
       chain: 'mumbai',
       address: '0x0FA8781a83E46826621b3BC094Ea2A0212e71B23',
+    },
+    coinGeckoId: 'usd-coin',
+    color: '#2774CA',
+    decimals: {
+      default: 6,
+    },
+  },
+  USDCmumbai: {
+    // USDC used by hashflow
+    key: 'USDCmumbai',
+    symbol: 'USDC',
+    nativeChain: 'mumbai',
+    icon: Icon.USDC,
+    tokenId: {
+      chain: 'mumbai',
+      address: '0x36c543b8bb76b330ecb66a13c1c1377f889f1919',
     },
     coinGeckoId: 'usd-coin',
     color: '#2774CA',

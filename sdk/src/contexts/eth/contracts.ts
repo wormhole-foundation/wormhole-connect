@@ -12,6 +12,8 @@ import { CircleRelayer__factory } from '../../abis/CircleRelayer__factory';
 import { ContractsAbstract } from '../abstracts/contracts';
 import { WormholeContext } from '../../wormhole';
 import { filterByContext } from '../../utils';
+import { Contract } from 'ethers';
+import { HashflowAbi } from '../../abis/Hashflow_abi';
 
 /**
  * @category EVM
@@ -169,5 +171,29 @@ export class EthContracts<
         `Wormhole Circle relayer contract for domain ${chain} not found`,
       );
     return circleRelayer;
+  }
+
+  /**
+   * Returns Hashflow contract for the chain
+   *
+   * @returns An interface for the Hashflow contract, undefined if not found
+   */
+  getHashflow(chain: ChainName | ChainId): any {
+    const connection = this.context.mustGetConnection(chain);
+    const address = this.mustGetContracts(chain).hashflow;
+    if (!address) return undefined;
+    return new Contract(address, JSON.stringify(HashflowAbi), connection);
+  }
+
+  /**
+   * Returns Hashflow contract for the chain
+   *
+   * @returns An interface for the Hashflow contract, errors if not found
+   */
+  mustGetHashflow(chain: ChainName | ChainId): any {
+    const hashflow = this.getHashflow(chain);
+    if (!hashflow)
+      throw new Error(`Hashflow contract for domain ${chain} not found`);
+    return hashflow;
   }
 }

@@ -13,7 +13,7 @@ import {
 } from './types';
 import { TransferDisplayData } from './types';
 import RouteAbstract from './routeAbstract';
-import { CHAINS, ROUTES, TOKENS, isMainnet } from 'config';
+import { CHAINS, ROUTES, TOKENS } from 'config';
 import { wh } from 'utils/sdk';
 import { toFixedDecimals } from 'utils/balance';
 import { NO_INPUT } from 'utils/style';
@@ -23,22 +23,9 @@ export class HashflowRoute extends RouteAbstract {
   readonly AUTOMATIC_DEPOSIT = true;
 
   isSupportedChain(chain: ChainName): boolean {
-    const supportedTestnet: ChainName[] = [
-      'goerli',
-      'arbitrumgoerli',
-      'fuji',
-      'mumbai',
-      'optimismgoerli',
-    ];
-    const supportedMainnet: ChainName[] = [
-      'ethereum',
-      'arbitrum',
-      'avalanche',
-      'polygon',
-      'optimism',
-    ];
-    const supportedChains = isMainnet ? supportedMainnet : supportedTestnet;
-    return supportedChains.some((c) => c === chain);
+    // TODO: delete and use line below
+    return chain === 'mumbai';
+    // return !!sdkConfig.chains[chain]?.contracts.hashflow;
   }
 
   async isRouteAvailable(
@@ -52,27 +39,39 @@ export class HashflowRoute extends RouteAbstract {
       return false;
     }
 
+    if (
+      !this.isSupportedChain(wh.toChainName(sourceChain)) ||
+      !this.isSupportedChain(wh.toChainName(destChain))
+    ) {
+      return false;
+    }
+
+    // TODO: actually determine route availability instead of hard coding tokens
+    return (
+      (sourceToken === 'USDCmumbai' || destToken === 'USDCmumbai') &&
+      (sourceToken === 'USDTmumbai' || destToken === 'USDTmumbai') &&
+      sourceToken !== destToken
+    );
+
     // source token is native to source chain
     // dest token is native to dest chain
 
     // cctp > hashflow > relay > bridge
     // maker must have liquidity to support
-    return true;
   }
   async isSupportedSourceToken(
     token: TokenConfig | undefined,
     destToken: TokenConfig | undefined,
     sourceChain: ChainName,
   ): Promise<boolean> {
-    // only allow native tokens
     // TODO: query enpoint for supported tokens and check list
     if (!token) return false;
-    if (sourceChain) {
-      if (token?.nativeChain !== sourceChain) {
-        return false;
-      }
+    if (token.key !== 'USDCmumbai' && token.key !== 'USDTmumbai') return false;
+    if (destToken) {
+      return token.key !== destToken?.key;
+    } else {
+      return true;
     }
-    return true;
   }
   async isSupportedDestToken(
     token: TokenConfig | undefined,
@@ -80,15 +79,14 @@ export class HashflowRoute extends RouteAbstract {
     sourceChain: ChainName,
     destChain: ChainName,
   ): Promise<boolean> {
-    // only allow native tokens
     // TODO: query enpoint for supported tokens and check list
     if (!token) return false;
-    if (destChain) {
-      if (token?.nativeChain !== destChain) {
-        return false;
-      }
+    if (token.key !== 'USDCmumbai' && token.key !== 'USDTmumbai') return false;
+    if (sourceToken) {
+      return token.key !== sourceToken?.key;
+    } else {
+      return true;
     }
-    return true;
   }
   async supportedSourceTokens(
     tokens: TokenConfig[],

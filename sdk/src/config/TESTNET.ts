@@ -52,6 +52,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
         wormholeCircleRelayer: '0x17da1ff5386d044c63f00747b5b8ad1e3806448d',
         wormholeCCTP: '0x0a69146716b3a21622287efa1607424c663069a4',
       },
+      hashflow: '0x7D916a5b5A23A9FB583Cd9B227B0a0b9C01eAA85',
     },
     finalityThreshold: 64,
     nativeTokenDecimals: 18,
@@ -75,6 +76,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     contracts: {
       ...CONTRACTS.TESTNET.polygon,
       relayer: '0x9563a59c15842a6f322b10f69d1dd88b41f2e97b',
+      hashflow: '0x2524923e88Cc8356B35753C270214a2e2d70745F',
     },
     finalityThreshold: 64,
     nativeTokenDecimals: 18,
@@ -86,6 +88,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     contracts: {
       ...CONTRACTS.TESTNET.bsc,
       relayer: '0x9563a59c15842a6f322b10f69d1dd88b41f2e97b',
+      hashflow: '0x2524923e88Cc8356B35753C270214a2e2d70745F',
     },
     finalityThreshold: 15,
     nativeTokenDecimals: 18,
