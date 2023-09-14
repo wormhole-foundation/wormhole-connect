@@ -582,11 +582,11 @@ export class CCTPManualRoute extends BaseRoute {
       txData.tokenDecimals,
       MAX_DECIMALS,
     );
-    const { gasToken: sourceGasTokenSymbol } = CHAINS[txData.fromChain]!;
-    const sourceGasToken = TOKENS[sourceGasTokenSymbol];
+    const { gasToken: sourceGasTokenKey } = CHAINS[txData.fromChain]!;
+    const sourceGasToken = TOKENS[sourceGasTokenKey];
     const decimals = getTokenDecimals(
       toChainId(sourceGasToken.nativeChain),
-      sourceGasToken.tokenId,
+      'native',
     );
     const formattedGas =
       txData.gasFee && toDecimals(txData.gasFee, decimals, MAX_DECIMALS);
@@ -600,7 +600,7 @@ export class CCTPManualRoute extends BaseRoute {
       {
         title: 'Gas fee',
         value: formattedGas
-          ? `${formattedGas} ${sourceGasTokenSymbol}`
+          ? `${formattedGas} ${sourceGasToken.symbol}`
           : NO_INPUT,
       },
     ];

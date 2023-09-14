@@ -14,7 +14,6 @@ import {
   getTokenDecimals,
   toNormalizedDecimals,
   fromNormalizedDecimals,
-  getWrappedTokenId,
   getTokenById,
 } from 'utils';
 import {
@@ -501,7 +500,7 @@ export class CCTPRelayRoute extends CCTPManualRoute {
     const sourceGasToken = TOKENS[sourceGasTokenSymbol];
     const decimals = getTokenDecimals(
       toChainId(sourceGasToken.nativeChain),
-      sourceGasToken.tokenId,
+      'native',
     );
     const formattedGas =
       txData.gasFee && toDecimals(txData.gasFee, decimals, MAX_DECIMALS);
@@ -536,7 +535,7 @@ export class CCTPRelayRoute extends CCTPManualRoute {
       },
       {
         title: 'Convert to native gas token',
-        value: `≈ ${formattedToNative} ${token.symbol} \u2192 ${gasToken}`,
+        value: `≈ ${formattedToNative} ${token.symbol} \u2192 ${TOKENS[gasToken].symbol}`,
       },
     ];
   }
@@ -552,7 +551,6 @@ export class CCTPRelayRoute extends CCTPManualRoute {
 
     // calculate the amount of native gas received
     let nativeGasAmt: string | undefined;
-    const nativeGasToken = TOKENS[gasToken];
     if (receiveTx) {
       let nativeSwapAmount: any;
       try {
@@ -563,7 +561,7 @@ export class CCTPRelayRoute extends CCTPManualRoute {
       if (nativeSwapAmount) {
         const decimals = getTokenDecimals(
           wh.toChainId(txData.toChain),
-          nativeGasToken.tokenId,
+          'native',
         );
         nativeGasAmt = toDecimals(nativeSwapAmount, decimals, MAX_DECIMALS);
       }
@@ -588,7 +586,7 @@ export class CCTPRelayRoute extends CCTPManualRoute {
       // get the decimals on the target chain
       const nativeGasTokenDecimals = getTokenDecimals(
         wh.toChainId(txData.toChain),
-        getWrappedTokenId(nativeGasToken),
+        'native',
       );
       nativeGasAmt = toDecimals(
         amount.toString(),
