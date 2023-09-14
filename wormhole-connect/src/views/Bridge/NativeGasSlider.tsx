@@ -9,7 +9,7 @@ import { useDebounce } from 'use-debounce';
 import { CHAINS, TOKENS } from 'config';
 import { TokenConfig, Route } from 'config/types';
 import { RoutesConfig } from 'config/routes';
-import { getTokenDecimals, getWrappedTokenId } from 'utils';
+import { getTokenDecimals } from 'utils';
 import { wh } from 'utils/sdk';
 import { getConversion, toDecimals, toFixedDecimals } from 'utils/balance';
 import RouteOperator from 'utils/routes/operator';
@@ -258,10 +258,9 @@ function GasSlider(props: { disabled: boolean }) {
         receivingWallet.address,
       );
       if (cancelled) return;
-      const nativeGasTokenId = getWrappedTokenId(nativeGasToken);
       const nativeGasTokenToChainDecimals = getTokenDecimals(
         wh.toChainId(toChain!),
-        nativeGasTokenId,
+        'native',
       );
       const formattedNativeAmt = Number.parseFloat(
         toDecimals(nativeGasAmt.toString(), nativeGasTokenToChainDecimals, 6),
