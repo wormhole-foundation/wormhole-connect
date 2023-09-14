@@ -567,7 +567,8 @@ export class CCTPRelayRoute extends CCTPManualRoute {
         );
         nativeGasAmt = toDecimals(nativeSwapAmount, decimals, MAX_DECIMALS);
       }
-    } else {
+    }
+    if (!nativeGasAmt) {
       // get the decimals on the target chain
       const destinationTokenDecimals = getTokenDecimals(
         wh.toChainId(txData.toChain),

@@ -11,10 +11,11 @@ import { ATTEST_URL, TOKENS } from 'config';
 import { getWrappedTokenId } from 'utils';
 import { TransferWallet, signSolanaTransaction } from 'utils/wallet';
 import { joinClass } from 'utils/style';
-import { solanaContext, wh } from 'utils/sdk';
+import { solanaContext } from 'utils/sdk';
 
 import { CircularProgress, Link, Typography } from '@mui/material';
 import AlertBanner from 'components/AlertBanner';
+import RouteOperator from 'utils/routes/operator';
 
 const useStyles = makeStyles()((theme: any) => ({
   associatedTokenWarning: {
@@ -101,8 +102,10 @@ function TokenWarnings() {
 
   // check if the destination token contract is deployed
   useEffect(() => {
+    // Avoid race conditions
+    let active = true;
     const checkWrappedTokenExists = async () => {
-      if (!toChain || !tokenConfig) {
+      if (!toChain || !tokenConfig || !route) {
         dispatch(setForeignAsset(''));
         setShowErrors(false);
         return;
@@ -114,7 +117,13 @@ function TokenWarnings() {
         throw new Error('Could not retrieve target token info');
       }
 
-      const address = await wh.getForeignAsset(tokenId, toChain);
+      const address = await RouteOperator.getForeignAsset(
+        route,
+        tokenId,
+        toChain,
+      );
+
+      if (!active) return;
       if (address) {
         dispatch(setForeignAsset(address));
         setShowErrors(false);
@@ -124,6 +133,9 @@ function TokenWarnings() {
       }
     };
     checkWrappedTokenExists();
+    return () => {
+      active = false;
+    };
   }, [toChain, tokenConfig, route, dispatch]);
 
   // the associated token account address is deterministic, so we still
