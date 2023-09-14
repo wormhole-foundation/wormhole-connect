@@ -650,11 +650,11 @@ export class CosmosGatewayRoute extends BaseRoute {
       txData.tokenDecimals,
       MAX_DECIMALS,
     );
-    const { gasToken: sourceGasTokenSymbol } = CHAINS[txData.fromChain]!;
-    const sourceGasToken = TOKENS[sourceGasTokenSymbol];
+    const { gasToken: sourceGasTokenKey } = CHAINS[txData.fromChain]!;
+    const sourceGasToken = TOKENS[sourceGasTokenKey];
     const decimals = getTokenDecimals(
       toChainId(sourceGasToken.nativeChain),
-      sourceGasToken.tokenId,
+      'native',
     );
     const formattedGas =
       txData.gasFee && toDecimals(txData.gasFee, decimals, MAX_DECIMALS);
@@ -667,7 +667,7 @@ export class CosmosGatewayRoute extends BaseRoute {
       },
       {
         title: 'Gas fee',
-        value: formattedGas ? `${formattedGas} ${sourceGasTokenSymbol}` : '—',
+        value: formattedGas ? `${formattedGas} ${sourceGasToken.symbol}` : '—',
       },
     ];
   }

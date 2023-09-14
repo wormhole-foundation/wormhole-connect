@@ -436,11 +436,11 @@ export class RelayRoute extends BridgeRoute {
       txData.tokenDecimals,
       MAX_DECIMALS,
     );
-    const { gasToken: sourceGasTokenSymbol } = CHAINS[txData.fromChain]!;
-    const sourceGasToken = TOKENS[sourceGasTokenSymbol];
+    const { gasToken: sourceGasTokenKey } = CHAINS[txData.fromChain]!;
+    const sourceGasToken = TOKENS[sourceGasTokenKey];
     const decimals = getTokenDecimals(
       toChainId(sourceGasToken.nativeChain),
-      sourceGasToken.tokenId,
+      'native',
     );
     const formattedGas =
       txData.gasFee && toDecimals(txData.gasFee, decimals, MAX_DECIMALS);
@@ -466,7 +466,7 @@ export class RelayRoute extends BridgeRoute {
       {
         title: 'Gas fee',
         value: formattedGas
-          ? `${formattedGas} ${sourceGasTokenSymbol}`
+          ? `${formattedGas} ${sourceGasToken.symbol}`
           : NO_INPUT,
       },
       {
@@ -475,7 +475,7 @@ export class RelayRoute extends BridgeRoute {
       },
       {
         title: 'Convert to native gas token',
-        value: `≈ ${formattedToNative} ${token.symbol} \u2192 ${gasToken}`,
+        value: `≈ ${formattedToNative} ${token.symbol} \u2192 ${TOKENS[gasToken].symbol}`,
       },
     ];
   }

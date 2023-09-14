@@ -42,7 +42,7 @@ export const MAINNET_CHAINS: ChainsConfig = {
     displayName: 'Avalanche',
     explorerUrl: 'https://snowtrace.io/',
     explorerName: 'Snowtrace',
-    gasToken: 'WAVAX',
+    gasToken: 'AVAX',
     chainId: 43114,
     icon: Icon.AVAX,
     automaticRelayer: true,
