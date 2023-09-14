@@ -332,11 +332,7 @@ export class BridgeRoute extends BaseRoute {
       {
         title: 'Gas fee',
         value: formattedGas
-<<<<<<< HEAD
           ? `${formattedGas} ${getDisplayName(sourceGasToken)}`
-=======
-          ? `${formattedGas} ${sourceGasToken.symbol}`
->>>>>>> f340b20 (Remove queries to decimals of gas token)
           : NO_INPUT,
       },
     ];
