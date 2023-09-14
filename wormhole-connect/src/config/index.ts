@@ -31,7 +31,8 @@ const getEnv = () => {
 export const ENV = getEnv();
 export const isMainnet = ENV === 'MAINNET';
 export const sdkConfig = WormholeContext.getConfig(ENV);
-export const pageHeader = config.pageHeader || 'Bridge';
+export const pageHeader =
+  config.pageHeader === undefined ? 'Bridge' : config.pageHeader;
 
 export const WORMSCAN = 'https://wormholescan.io/#/';
 export const WORMHOLE_API =
