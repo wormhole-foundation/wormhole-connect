@@ -83,6 +83,7 @@ export type TokenConfig = {
   color: string;
   decimals: DecimalsMap;
   wrappedAsset?: string;
+  displayName?: string;
 };
 
 export type TokensConfig = { [key: string]: TokenConfig };

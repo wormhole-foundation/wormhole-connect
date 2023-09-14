@@ -8,7 +8,12 @@ import { BigNumber } from 'ethers';
 import { hexlify, parseUnits, arrayify } from 'ethers/lib/utils.js';
 import { CHAINS, ROUTES, TOKENS } from 'config';
 import { TokenConfig, Route } from 'config/types';
-import { MAX_DECIMALS, getTokenDecimals, toNormalizedDecimals } from 'utils';
+import {
+  MAX_DECIMALS,
+  getTokenDecimals,
+  toNormalizedDecimals,
+  getDisplayName,
+} from 'utils';
 import { toChainId, wh } from 'utils/sdk';
 import { TransferWallet, postVaa, signAndSendTransaction } from 'utils/wallet';
 import { NO_INPUT } from 'utils/style';
@@ -229,15 +234,15 @@ export class BridgeRoute extends BaseRoute {
     const sourceGasToken = CHAINS[sendingChainName]?.gasToken;
     const destinationGasToken = CHAINS[receipientChainName]?.gasToken;
     const sourceGasTokenSymbol = sourceGasToken
-      ? TOKENS[sourceGasToken].symbol
+      ? getDisplayName(TOKENS[sourceGasToken])
       : '';
     const destinationGasTokenSymbol = destinationGasToken
-      ? TOKENS[destinationGasToken].symbol
+      ? getDisplayName(TOKENS[destinationGasToken])
       : '';
     return [
       {
         title: 'Amount',
-        value: `${amount} ${destToken.symbol}`,
+        value: `${amount} ${getDisplayName(destToken)}`,
       },
       {
         title: 'Total fee estimates',
@@ -322,12 +327,12 @@ export class BridgeRoute extends BaseRoute {
     return [
       {
         title: 'Amount',
-        value: `${formattedAmt} ${token.symbol}`,
+        value: `${formattedAmt} ${getDisplayName(token)}`,
       },
       {
         title: 'Gas fee',
         value: formattedGas
-          ? `${formattedGas} ${sourceGasToken.symbol}`
+          ? `${formattedGas} ${getDisplayName(sourceGasToken)}`
           : NO_INPUT,
       },
     ];
@@ -358,11 +363,11 @@ export class BridgeRoute extends BaseRoute {
     return [
       {
         title: 'Amount',
-        value: `${formattedAmt} ${token.symbol}`,
+        value: `${formattedAmt} ${getDisplayName(token)}`,
       },
       {
         title: receiveTx ? 'Gas fee' : 'Gas estimate',
-        value: gas ? `${gas} ${gasToken}` : NO_INPUT,
+        value: gas ? `${gas} ${getDisplayName(TOKENS[gasToken])}` : NO_INPUT,
       },
     ];
   }

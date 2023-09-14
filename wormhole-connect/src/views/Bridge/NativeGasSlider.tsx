@@ -9,7 +9,7 @@ import { useDebounce } from 'use-debounce';
 import { CHAINS, TOKENS } from 'config';
 import { TokenConfig, Route } from 'config/types';
 import { RoutesConfig } from 'config/routes';
-import { getTokenDecimals } from 'utils';
+import { getTokenDecimals, getDisplayName } from 'utils';
 import { wh } from 'utils/sdk';
 import { getConversion, toDecimals, toFixedDecimals } from 'utils/balance';
 import RouteOperator from 'utils/routes/operator';
@@ -312,7 +312,7 @@ function GasSlider(props: { disabled: boolean }) {
           <div className={classes.container}>
             <div>
               Would you like to receive some native gas token (
-              {nativeGasToken.symbol})?
+              {getDisplayName(nativeGasToken)})?
             </div>
 
             <div>
@@ -329,9 +329,9 @@ function GasSlider(props: { disabled: boolean }) {
                 valueLabelFormat={() =>
                   label(
                     state.nativeGas,
-                    nativeGasToken.symbol,
+                    getDisplayName(nativeGasToken),
                     state.token,
-                    TOKENS[token].symbol,
+                    getDisplayName(TOKENS[token]),
                   )
                 }
                 valueLabelDisplay="auto"
@@ -340,14 +340,14 @@ function GasSlider(props: { disabled: boolean }) {
               <div className={classes.amounts}>
                 <div className={classes.amountDisplay}>
                   <TokenIcon name={nativeGasToken.icon} height={16} />
-                  {state.nativeGas} {nativeGasToken.symbol}
+                  {state.nativeGas} {getDisplayName(nativeGasToken)}
                 </div>
                 <div className={classes.amountDisplay}>
                   <TokenIcon
                     name={(sendingToken as TokenConfig)!.icon}
                     height={16}
                   />
-                  {state.token} {(sendingToken as TokenConfig)!.symbol}
+                  {state.token} {getDisplayName((sendingToken as TokenConfig)!)}
                 </div>
               </div>
             </div>

@@ -25,6 +25,7 @@ import {
   getTokenDecimals,
   sleep,
   toNormalizedDecimals,
+  getDisplayName,
 } from 'utils';
 import { isEvmChain, toChainId, wh, PayloadType } from 'utils/sdk';
 import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
@@ -441,15 +442,15 @@ export class CCTPManualRoute extends BaseRoute {
     const sourceGasToken = CHAINS[sendingChainName]?.gasToken;
     const destinationGasToken = CHAINS[receipientChainName]?.gasToken;
     const sourceGasTokenSymbol = sourceGasToken
-      ? TOKENS[sourceGasToken].symbol
+      ? getDisplayName(TOKENS[sourceGasToken])
       : '';
     const destinationGasTokenSymbol = destinationGasToken
-      ? TOKENS[destinationGasToken].symbol
+      ? getDisplayName(TOKENS[destinationGasToken])
       : '';
     return [
       {
         title: 'Amount',
-        value: `${amount} ${destToken.symbol}`,
+        value: `${amount} ${getDisplayName(destToken)}`,
       },
       {
         title: 'Total fee estimates',
@@ -595,12 +596,12 @@ export class CCTPManualRoute extends BaseRoute {
     return [
       {
         title: 'Amount',
-        value: `${formattedAmt} ${token.symbol}`,
+        value: `${formattedAmt} ${getDisplayName(token)}`,
       },
       {
         title: 'Gas fee',
         value: formattedGas
-          ? `${formattedGas} ${sourceGasToken.symbol}`
+          ? `${formattedGas} ${getDisplayName(sourceGasToken)}`
           : NO_INPUT,
       },
     ];
@@ -630,11 +631,11 @@ export class CCTPManualRoute extends BaseRoute {
     return [
       {
         title: 'Amount',
-        value: `${formattedAmt} ${token.symbol}`,
+        value: `${formattedAmt} ${getDisplayName(token)}`,
       },
       {
         title: receiveTx ? 'Gas fee' : 'Gas estimate',
-        value: gas ? `${gas} ${gasToken}` : NO_INPUT,
+        value: gas ? `${gas} ${getDisplayName(TOKENS[gasToken])}` : NO_INPUT,
       },
     ];
   }

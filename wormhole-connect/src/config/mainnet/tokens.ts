@@ -396,6 +396,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   ETHarbitrum: {
     key: 'ETHarbitrum',
     symbol: 'ETH',
+    displayName: 'ETH (Arbitrum)',
     nativeChain: 'arbitrum',
     icon: Icon.ETH,
     coinGeckoId: 'ethereum',
@@ -409,6 +410,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   WETHarbitrum: {
     key: 'WETHarbitrum',
     symbol: 'WETH',
+    displayName: 'WETH (Arbitrum)',
     nativeChain: 'arbitrum',
     icon: Icon.ETH,
     tokenId: {
@@ -440,6 +442,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   ETHoptimism: {
     key: 'ETHoptimism',
     symbol: 'ETH',
+    displayName: 'ETH (Optimism)',
     nativeChain: 'optimism',
     icon: Icon.ETH,
     coinGeckoId: 'ethereum',
@@ -453,6 +456,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   WETHoptimism: {
     key: 'WETHoptimism',
     symbol: 'WETH',
+    displayName: 'WETH (Optimism)',
     nativeChain: 'optimism',
     icon: Icon.ETH,
     tokenId: {
@@ -500,6 +504,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   ETHbase: {
     key: 'ETHbase',
     symbol: 'ETH',
+    displayName: 'ETH (Base)',
     nativeChain: 'base',
     icon: Icon.ETH,
     coinGeckoId: 'ethereum',
@@ -513,6 +518,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   WETHbase: {
     key: 'WETHbase',
     symbol: 'WETH',
+    displayName: 'WETH (Base)',
     nativeChain: 'base',
     icon: Icon.ETH,
     tokenId: {

@@ -13,7 +13,7 @@ import {
 import { CHAINS, CHAINS_ARR, TOKENS } from 'config';
 import { TransferWallet, walletAcceptedChains } from 'utils/wallet';
 import RouteOperator from 'utils/routes/operator';
-
+import { getDisplayName } from 'utils';
 import Inputs from './Inputs';
 import Select from './Select';
 import AmountInput from './AmountInput';
@@ -62,7 +62,7 @@ function FromInputs() {
     const chain = CHAINS[tokenConfig.nativeChain as ChainName]?.displayName;
     return {
       icon: tokenConfig.icon,
-      text: tokenConfig.symbol,
+      text: getDisplayName(tokenConfig),
       secondaryText: `(${chain})`,
     };
   }, [tokenConfig]);

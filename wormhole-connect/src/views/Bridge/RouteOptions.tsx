@@ -8,6 +8,7 @@ import { setAvailableRoutes, setTransferRoute } from 'store/transferInput';
 import { LINK, joinClass } from 'utils/style';
 import { toFixedDecimals } from 'utils/balance';
 import RouteOperator from 'utils/routes/operator';
+import { getDisplayName } from 'utils';
 import { TOKENS, ROUTES } from 'config';
 import { Route } from 'config/types';
 import { RoutesConfig, RouteData } from 'config/routes';
@@ -204,18 +205,22 @@ function RouteOption(props: { route: RouteData }) {
           <div className={classes.routePath}>
             <Tag
               icon={fromTokenIcon}
-              text={fromTokenConfig.symbol}
+              text={getDisplayName(fromTokenConfig)}
               colorFilled
             />
             <ArrowRightIcon fontSize={mobile ? 'inherit' : undefined} />
             <Tag icon={props.route.icon()} text={props.route.providedBy} />
             <ArrowRightIcon fontSize={mobile ? 'inherit' : undefined} />
-            <Tag icon={toTokenIcon} text={toTokenConfig.symbol} colorFilled />
+            <Tag
+              icon={toTokenIcon}
+              text={getDisplayName(toTokenConfig)}
+              colorFilled
+            />
           </div>
         </div>
         <div className={classes.routeRight}>
           <div>
-            {receiveAmt} {TOKENS[destToken].symbol}
+            {receiveAmt} {getDisplayName(TOKENS[destToken])}
           </div>
           <div className={classes.routeAmt}>after fees</div>
         </div>

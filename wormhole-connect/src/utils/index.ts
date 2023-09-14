@@ -93,6 +93,10 @@ export function getTokenById(tokenId: TokenId): TokenConfig | void {
   )[0];
 }
 
+export function getDisplayName(token: TokenConfig) {
+  return token.displayName || token.symbol;
+}
+
 export function getTokenDecimals(
   chain: ChainId,
   tokenId: TokenId | 'native' = 'native',
