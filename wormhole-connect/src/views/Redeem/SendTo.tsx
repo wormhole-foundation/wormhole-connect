@@ -56,6 +56,7 @@ function SendTo() {
 
   // get the redeem tx, for automatic transfers only
   const getRedeemTx = useCallback(async () => {
+    if (!routeName) return;
     if (redeemTx) return redeemTx;
     if (signedMessage && routeName) {
       const redeemedTransactionHash = await RouteOperator.tryFetchRedeemTx(
@@ -67,7 +68,7 @@ function SendTo() {
         return redeemedTransactionHash;
       }
     }
-  }, [routeName, redeemTx, signedMessage, dispatch]);
+  }, [redeemTx, routeName, signedMessage, dispatch]);
 
   useEffect(() => {
     if (!txData || !routeName) return;

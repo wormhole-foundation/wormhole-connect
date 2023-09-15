@@ -15,7 +15,7 @@ import { fetchGlobalTx, getEmitterAndSequence } from './vaa';
 import { isEvmChain } from 'utils/sdk';
 import RouteOperator from './routes/operator';
 import { Route } from 'config/types';
-import { SignedMessage } from './routes';
+import { SignedMessage } from './routes/types';
 
 export const fetchRedeemTx = async (
   route: Route,

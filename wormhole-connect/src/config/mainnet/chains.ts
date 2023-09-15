@@ -166,4 +166,15 @@ export const MAINNET_CHAINS: ChainsConfig = {
     icon: Icon.OPTIMISM,
     maxBlockSearch: 2000,
   },
+  evmos: {
+    ...chains.evmos!,
+    displayName: 'Evmos',
+    explorerUrl: 'https://www.mintscan.io/evmos/',
+    explorerName: 'MintScan',
+    gasToken: 'EVMOS',
+    chainId: 'evmos_9001-2',
+    icon: Icon.EVMOS,
+    automaticRelayer: false,
+    maxBlockSearch: 0,
+  },
 };
