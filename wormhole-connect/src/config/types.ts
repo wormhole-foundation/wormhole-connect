@@ -32,6 +32,8 @@ export enum Icon {
   'WSTETH',
   'ARBITRUM',
   'OPTIMISM',
+  'ATOM',
+  'EVMOS',
 }
 
 export enum Route {

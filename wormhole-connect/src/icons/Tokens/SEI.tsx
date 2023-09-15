@@ -3,6 +3,7 @@ import React from 'react';
 function SEI() {
   return (
     <svg
+      style={{ maxHeight: '100%', maxWidth: '100%' }}
       width="256"
       height="256"
       viewBox="0 0 256 256"

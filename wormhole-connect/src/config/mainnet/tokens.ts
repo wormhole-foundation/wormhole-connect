@@ -1789,4 +1789,19 @@ export const MAINNET_TOKENS: TokensConfig = {
       },
     },
   },
+  EVMOS: {
+    key: 'EVMOS',
+    symbol: 'EVMOS',
+    nativeChain: 'evmos',
+    tokenId: {
+      chain: 'evmos',
+      address: 'atevmos',
+    },
+    icon: Icon.EVMOS,
+    coinGeckoId: 'evmos',
+    color: '#ed4e33',
+    decimals: {
+      default: 6,
+    },
+  },
 };

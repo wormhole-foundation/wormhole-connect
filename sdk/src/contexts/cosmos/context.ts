@@ -1,6 +1,10 @@
 import {
   CHAIN_ID_WORMCHAIN,
+  CosmWasmChainId,
+  WormholeWrappedInfo,
   cosmos,
+  hexToUint8Array,
+  isNativeCosmWasmDenom,
   parseTokenTransferPayload,
   parseVaa,
 } from '@certusone/wormhole-sdk';
@@ -48,8 +52,6 @@ import {
   TendermintClient,
 } from '@cosmjs/tendermint-rpc';
 import {
-  NATIVE_DENOMS,
-  PREFIXES,
   getNativeDenom,
   getPrefix,
   isNativeDenom,
@@ -153,8 +155,7 @@ export class CosmosContext<
   }
 
   parseAddress(address: any): string {
-    const prefix = PREFIXES[this.chain];
-    if (!prefix) throw new Error(`Prefix not found for chain ${this.chain}`);
+    const prefix = getPrefix(this.chain);
 
     const addr =
       typeof address === 'string' && address.startsWith('0x')
@@ -167,17 +168,17 @@ export class CosmosContext<
     return Buffer.from(this.buildTokenId(address), 'hex');
   }
 
-  private buildTokenId(address: string): string {
-    const isNative = !!NATIVE_DENOMS[address];
+  private buildTokenId(asset: string): string {
+    const chainId = this.context.toChainId(this.chain) as CosmWasmChainId;
+    const isNative = isNativeCosmWasmDenom(chainId, asset);
     return (
       (isNative ? '01' : '00') +
-      keccak256(Buffer.from(address, 'utf-8')).substring(4)
+      keccak256(Buffer.from(asset, 'utf-8')).substring(4)
     );
   }
 
   async parseAssetAddress(address: any): Promise<string> {
-    const prefix = PREFIXES[this.chain];
-    if (!prefix) throw new Error(`Prefix not found for chain ${this.chain}`);
+    const prefix = getPrefix(this.chain);
 
     const addr =
       typeof address === 'string' && address.startsWith('0x')
@@ -338,7 +339,7 @@ export class CosmosContext<
     const client = await this.getCosmWasmClient(name);
     const { amount } = await client.getBalance(
       walletAddress,
-      asset || NATIVE_DENOMS[name],
+      asset || this.getNativeDenom(name),
     );
     return BigNumber.from(amount);
   }
@@ -373,7 +374,7 @@ export class CosmosContext<
 
   private getNativeDenom(chain: ChainName | ChainId): string {
     const name = this.context.toChainName(chain);
-    return getNativeDenom(name);
+    return getNativeDenom(name, this.context.conf.env);
   }
 
   private getPrefix(chain: ChainName | ChainId): string {
@@ -458,15 +459,15 @@ export class CosmosContext<
     const logs = cosmosLogs.parseRawLog(tx.rawLog);
 
     // extract information wormhole contract logs
-    // - message.message: the vaa payload (i.e. the transfer information)
-    // - message.sequence: the vaa's sequence number
-    // - message.sender: the vaa's emitter address
-    const tokenTransferPayload = searchCosmosLogs('message.message', logs);
+    // - wasm.message.message: the vaa payload (i.e. the transfer information)
+    // - wasm.message.sequence: the vaa's sequence number
+    // - wasm.message.sender: the vaa's emitter address
+    const tokenTransferPayload = searchCosmosLogs('wasm.message.message', logs);
     if (!tokenTransferPayload)
       throw new Error('message/transfer payload not found');
-    const sequence = searchCosmosLogs('message.sequence', logs);
+    const sequence = searchCosmosLogs('wasm.message.sequence', logs);
     if (!sequence) throw new Error('sequence not found');
-    const emitterAddress = searchCosmosLogs('message.sender', logs);
+    const emitterAddress = searchCosmosLogs('wasm.message.sender', logs);
     if (!emitterAddress) throw new Error('emitter not found');
 
     const parsed = parseTokenTransferPayload(
@@ -580,5 +581,41 @@ export class CosmosContext<
   async getCurrentBlock(): Promise<number> {
     const client = await this.getCosmWasmClient(this.chain);
     return client.getHeight();
+  }
+
+  async getOriginalAsset(
+    chain: ChainName | ChainId,
+    wrappedAddress: string,
+  ): Promise<WormholeWrappedInfo> {
+    const chainId = this.context.toChainId(chain) as CosmWasmChainId;
+    // need to cast to ChainId since Terra (chain id 3) is not on wh connect
+    if (!isGatewayChain(chainId as ChainId)) {
+      throw new Error(`${chain} is not a cosmos chain`);
+    }
+    if (isNativeCosmWasmDenom(chainId, wrappedAddress)) {
+      return {
+        isWrapped: false,
+        chainId,
+        assetAddress: hexToUint8Array(this.buildTokenId(wrappedAddress)),
+      };
+    }
+    try {
+      const client = await this.getCosmWasmClient(chain);
+      const response = await client.queryContractSmart(wrappedAddress, {
+        wrapped_asset_info: {},
+      });
+      return {
+        isWrapped: true,
+        chainId: response.asset_chain,
+        assetAddress: new Uint8Array(
+          Buffer.from(response.asset_address, 'base64'),
+        ),
+      };
+    } catch {}
+    return {
+      isWrapped: false,
+      chainId: chainId,
+      assetAddress: hexToUint8Array(this.buildTokenId(wrappedAddress)),
+    };
   }
 }
