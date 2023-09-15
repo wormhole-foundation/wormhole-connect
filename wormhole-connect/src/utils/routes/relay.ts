@@ -180,11 +180,11 @@ export class RelayRoute extends BridgeRoute {
     const { toNativeToken, relayerFee } = routeOptions;
 
     // floating point math
-    const DECIMALS = 10 ** 18;
+    const DECIMALS = 10 ** 8;
     return (
-      (sendAmount * DECIMALS -
-        (toNativeToken || 0) * DECIMALS -
-        (relayerFee || 0) * DECIMALS) /
+      (Math.round(sendAmount * DECIMALS) -
+        Math.round((toNativeToken || 0) * DECIMALS) -
+        Math.round((relayerFee || 0) * DECIMALS)) /
       DECIMALS
     );
   }
