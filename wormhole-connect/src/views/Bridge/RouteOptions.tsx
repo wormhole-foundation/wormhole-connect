@@ -241,8 +241,6 @@ function RouteOptions() {
     fromChain,
     toChain,
     amount,
-    validate,
-    validations,
   } = useSelector((state: RootState) => state.transferInput);
   const onSelect = (value: Route) => {
     dispatch(setTransferRoute(value));
@@ -250,8 +248,8 @@ function RouteOptions() {
   const [debouncedAmount] = useDebounce(amount, 250);
 
   useEffect(() => {
-    if (!validate) return;
-    if (!fromChain || !toChain) return;
+    if (!fromChain || !toChain || !token || !destToken || !debouncedAmount)
+      return;
     const getAvailable = async () => {
       let available: string[] = [];
       for (const value of ROUTES) {
@@ -271,16 +269,7 @@ function RouteOptions() {
       dispatch(setAvailableRoutes(available));
     };
     getAvailable();
-  }, [
-    dispatch,
-    token,
-    destToken,
-    debouncedAmount,
-    fromChain,
-    toChain,
-    validate,
-    validations,
-  ]);
+  }, [dispatch, token, destToken, debouncedAmount, fromChain, toChain]);
 
   const onCollapseChange = (collapsed: boolean) => {
     setCollapsed(collapsed);

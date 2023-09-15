@@ -38,7 +38,9 @@ function AmountInput(props: Props) {
 
     props.handleAmountChange(value);
   }
-  const validateAmount = () => validate(dispatch);
+  const validateAmount = () => {
+    validate(dispatch);
+  };
 
   const focus = () => {
     if (amountEl.current) {

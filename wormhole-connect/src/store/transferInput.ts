@@ -71,7 +71,7 @@ export type TransferValidations = {
 export interface TransferInputState {
   validate: boolean;
   validations: TransferValidations;
-  availableRoutes: string[];
+  availableRoutes: string[] | undefined;
   fromChain: ChainName | undefined;
   toChain: ChainName | undefined;
   token: string;
@@ -108,7 +108,7 @@ const initialState: TransferInputState = {
     foreignAsset: '',
     associatedTokenAccount: '',
   },
-  availableRoutes: [],
+  availableRoutes: undefined,
   fromChain: config?.bridgeDefaults?.fromNetwork || undefined,
   toChain: config?.bridgeDefaults?.toNetwork || undefined,
   token: config?.bridgeDefaults?.token || '',
@@ -269,7 +269,7 @@ export const transferInputSlice = createSlice({
         state.route = undefined;
         return;
       }
-      if (state.availableRoutes.includes(payload)) {
+      if (state.availableRoutes && state.availableRoutes.includes(payload)) {
         state.route = payload;
       } else {
         state.route = undefined;
