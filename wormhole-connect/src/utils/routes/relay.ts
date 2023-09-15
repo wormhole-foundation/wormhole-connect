@@ -176,10 +176,16 @@ export class RelayRoute extends BridgeRoute {
     routeOptions: RelayOptions,
   ): Promise<number> {
     if (!sendAmount) return 0;
+
+    const { toNativeToken, relayerFee } = routeOptions;
+
+    // floating point math
+    const DECIMALS = 10 ** 18;
     return (
-      sendAmount -
-      (routeOptions?.toNativeToken || 0) -
-      (routeOptions?.relayerFee || 0)
+      (sendAmount * DECIMALS -
+        (toNativeToken || 0) * DECIMALS -
+        (relayerFee || 0) * DECIMALS) /
+      DECIMALS
     );
   }
   async computeSendAmount(
