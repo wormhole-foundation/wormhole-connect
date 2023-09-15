@@ -163,4 +163,8 @@ export class HashflowRoute extends RouteAbstract {
   ): Promise<BigNumber> {
     throw new Error('Not implemented');
   }
+
+  async tryFetchRedeemTx(txData: UnsignedMessage): Promise<string | undefined> {
+    return undefined; // only for automatic routes
+  }
 }

@@ -7,7 +7,6 @@ import { CHAINS } from 'config';
 import { RootState } from 'store';
 import { setRedeemTx, setTransferComplete } from 'store/redeem';
 import { displayAddress } from 'utils';
-import { fetchRedeemTx } from 'utils/events';
 import { TransferDisplayData } from 'utils/routes';
 import RouteOperator from 'utils/routes/operator';
 import {
@@ -57,14 +56,17 @@ function SendTo() {
   // get the redeem tx, for automatic transfers only
   const getRedeemTx = useCallback(async () => {
     if (redeemTx) return redeemTx;
-    if (signedMessage) {
-      const redeemed = await fetchRedeemTx(signedMessage);
-      if (redeemed) {
-        dispatch(setRedeemTx(redeemed.transactionHash));
-        return redeemed.transactionHash;
+    if (signedMessage && routeName) {
+      const redeemedTransactionHash = await RouteOperator.tryFetchRedeemTx(
+        routeName,
+        signedMessage,
+      );
+      if (redeemedTransactionHash) {
+        dispatch(setRedeemTx(redeemedTransactionHash));
+        return redeemedTransactionHash;
       }
     }
-  }, [redeemTx, signedMessage, dispatch]);
+  }, [routeName, redeemTx, signedMessage, dispatch]);
 
   useEffect(() => {
     if (!txData || !routeName) return;

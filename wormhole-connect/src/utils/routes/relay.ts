@@ -15,6 +15,7 @@ import {
   toNormalizedDecimals,
   getDisplayName,
 } from 'utils';
+import { fetchRedeemedEvent } from '../events';
 import {
   ParsedMessage,
   wh,
@@ -566,5 +567,17 @@ export class RelayRoute extends BridgeRoute {
           : NO_INPUT,
       },
     ];
+  }
+
+  async tryFetchRedeemTx(txData: UnsignedMessage): Promise<string | undefined> {
+    // if this is an automatic transfer and the transaction hash was not found,
+    // then try to fetch the redeemed event
+    let redeemTx: string | undefined = undefined;
+    try {
+      const res = await fetchRedeemedEvent(txData);
+      redeemTx = res?.transactionHash;
+    } catch {}
+
+    return redeemTx;
   }
 }
