@@ -143,7 +143,7 @@ export const validateToNativeAmt = (
 
 export const validateRoute = (
   route: Route | undefined,
-  availableRoutes: string[],
+  availableRoutes: string[] | undefined,
 ): ValidationErr => {
   if (!route || !availableRoutes || !availableRoutes.includes(route)) {
     return 'No bridge or swap route available for selected tokens';
@@ -246,6 +246,7 @@ export const isTransferValid = (validations: TransferValidations) => {
 export const validate = async (dispatch: Dispatch<AnyAction>) => {
   const { transferInput, relay, wallet } = store.getState();
   const validations = await validateAll(transferInput, relay, wallet);
+
   // if all fields are filled out, show validations
   if (
     wallet.sending.address &&
@@ -255,7 +256,8 @@ export const validate = async (dispatch: Dispatch<AnyAction>) => {
     transferInput.token &&
     transferInput.destToken &&
     transferInput.amount &&
-    Number.parseFloat(transferInput.amount) >= 0
+    Number.parseFloat(transferInput.amount) >= 0 &&
+    transferInput.availableRoutes !== undefined
   ) {
     dispatch(touchValidations());
   }
