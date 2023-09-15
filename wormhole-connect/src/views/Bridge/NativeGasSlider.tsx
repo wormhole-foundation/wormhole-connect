@@ -129,8 +129,22 @@ function GasSlider(props: { disabled: boolean }) {
     )
       return;
 
-    const actualMaxSwap =
+    let actualMaxSwap =
       amountNum && maxSwapAmt && Math.max(Math.min(maxSwapAmt, amountNum), 0);
+
+    // address the bug that the swapAmount='maxSwapAmount' results in a 'minimumSendAmount'
+    // that could be higher than 'amount' (due to the buffer packed into minimumSendAmount)
+    // not a perfect fix for all posible 'getMinSendAmount' functions - but valid for linear ones
+    const buffer = Math.max(
+      RouteOperator.getRoute(route).getMinSendAmount({
+        toNativeToken: actualMaxSwap,
+        relayerFee,
+      }) -
+        amountNum -
+        (relayerFee || 0),
+      0,
+    );
+    actualMaxSwap = Math.max(0, actualMaxSwap - buffer);
 
     const newTokenAmount = amountNum - state.swapAmt;
     setState((prevState) => ({
@@ -139,7 +153,7 @@ function GasSlider(props: { disabled: boolean }) {
       token: formatAmount(newTokenAmount),
       max: formatAmount(actualMaxSwap),
     }));
-  }, [maxSwapAmt, amountNum, route, state.swapAmt]);
+  }, [relayerFee, maxSwapAmt, amountNum, route, state.swapAmt]);
 
   useEffect(() => {
     if (
