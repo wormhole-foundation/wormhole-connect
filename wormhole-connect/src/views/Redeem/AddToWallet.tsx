@@ -1,5 +1,5 @@
 import { Link, Typography } from '@mui/material';
-import { isEVMChain } from '@xlabs-libs/wallet-aggregator-core';
+import { isEVMChain } from '@certusone/wormhole-sdk';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';

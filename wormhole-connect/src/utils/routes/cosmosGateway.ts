@@ -1,4 +1,8 @@
-import { CHAIN_ID_SOLANA, CHAIN_ID_WORMCHAIN } from '@certusone/wormhole-sdk';
+import {
+  CHAIN_ID_SOLANA,
+  CHAIN_ID_WORMCHAIN,
+  cosmos,
+} from '@certusone/wormhole-sdk';
 import {
   CosmWasmClient,
   MsgExecuteContractEncodeObject,
@@ -21,6 +25,7 @@ import {
   searchCosmosLogs,
   SolanaContext,
   WormholeContext,
+  CosmosContext,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { MsgTransfer } from 'cosmjs-types/ibc/applications/transfer/v1/tx';
 import { MsgExecuteContract } from 'cosmjs-types/cosmwasm/wasm/v1/tx';
@@ -30,9 +35,9 @@ import {
   TendermintClient,
 } from '@cosmjs/tendermint-rpc';
 import { BigNumber, utils } from 'ethers';
-import { arrayify } from 'ethers/lib/utils.js';
-import { toChainId, wh } from 'utils/sdk';
 import { getDisplayName } from 'utils';
+import { arrayify, base58 } from 'ethers/lib/utils.js';
+import { ParsedMessage, toChainId, wh } from 'utils/sdk';
 import { isCosmWasmChain } from 'utils/cosmos';
 import { CHAINS, RPCS, ROUTES, TOKENS } from 'config';
 import { Route, TokenConfig } from 'config/types';
@@ -77,6 +82,15 @@ interface IBCTransferInfo {
   timeout: string;
   srcChannel: string;
   dstChannel: string;
+  data: string;
+}
+
+interface IBCTransferData {
+  amount: string;
+  denom: string;
+  memo: string;
+  receiver: string;
+  sender: string;
 }
 
 const IBC_MSG_TYPE = '/ibc.applications.transfer.v1.MsgTransfer';
@@ -229,7 +243,9 @@ export class CosmosGatewayRoute extends BaseRoute {
 
     const destContext = wh.getContext(recipientChainId);
     const recipient = Buffer.from(
-      destContext.formatAddress(recipientAddress),
+      isCosmWasmChain(recipientChainId)
+        ? recipientAddress
+        : destContext.formatAddress(recipientAddress),
     ).toString('base64');
 
     const payloadObject: FromCosmosPayload = {
@@ -526,7 +542,7 @@ export class CosmosGatewayRoute extends BaseRoute {
       return new BridgeRoute().isTransferCompleted(destChain, message);
     }
 
-    const destTx = await this.fetchRedeemedEvent(message);
+    const destTx = await this.fetchRedeemTx(message);
     return !!destTx;
   }
 
@@ -543,6 +559,17 @@ export class CosmosGatewayRoute extends BaseRoute {
   async getSignedMessage(
     message: TokenTransferMessage | RelayTransferMessage,
   ): Promise<SignedTokenTransferMessage | SignedRelayTransferMessage> {
+    // if both chains are cosmos gateway chains, no vaa is emitted
+    if (
+      isCosmWasmChain(message.fromChain) &&
+      isCosmWasmChain(message.toChain)
+    ) {
+      return {
+        ...message,
+        vaa: '',
+      };
+    }
+
     const vaa = await fetchVaa({
       ...message,
       // transfers from cosmos vaas are emitted by wormchain and not by the source chain
@@ -609,7 +636,7 @@ export class CosmosGatewayRoute extends BaseRoute {
     if (!sender) throw new Error('Missing sender in transaction logs');
 
     // Extract IBC transfer info initiated on the source chain
-    const ibcInfo = this.getIBCTransferInfoFromLogs(tx);
+    const ibcInfo = this.getIBCTransferInfoFromLogs(tx, 'send_packet');
 
     // Look for the matching IBC receive on wormchain
     // The IBC hooks middleware will execute the translator contract
@@ -625,8 +652,14 @@ export class CosmosGatewayRoute extends BaseRoute {
       );
     }
 
-    const message = await wh.getMessage(destTx.hash, CHAIN_ID_WORMCHAIN);
-    const parsed = await adaptParsedMessage(message);
+    // TODO: refactor these two lines (repeated in parseWormchainIBCForwardMessage)
+    const data: IBCTransferData = JSON.parse(ibcInfo.data);
+    const payload: FromCosmosPayload = JSON.parse(data.memo);
+    const parsed = await (isCosmWasmChain(
+      payload.gateway_ibc_token_bridge_payload.gateway_transfer.chain,
+    )
+      ? this.parseWormchainIBCForwardMessage(destTx)
+      : this.parseWormchainBridgeMessage(destTx));
 
     return {
       ...parsed,
@@ -638,14 +671,96 @@ export class CosmosGatewayRoute extends BaseRoute {
     };
   }
 
-  async fetchRedeemedEvent(message: SignedMessage): Promise<string | null> {
+  private async parseWormchainBridgeMessage(
+    wormchainTx: IndexedTx,
+  ): Promise<ParsedMessage> {
+    const message = await wh.getMessage(wormchainTx.hash, CHAIN_ID_WORMCHAIN);
+    return adaptParsedMessage(message);
+  }
+
+  private async parseWormchainIBCForwardMessage(
+    wormchainTx: IndexedTx,
+  ): Promise<ParsedMessage> {
+    // get the information of the ibc transfer relayed by the packet forwarding middleware
+    const ibcFromSourceInfo = this.getIBCTransferInfoFromLogs(
+      wormchainTx,
+      'recv_packet',
+    );
+
+    const data: IBCTransferData = JSON.parse(ibcFromSourceInfo.data);
+    const payload: FromCosmosPayload = JSON.parse(data.memo);
+
+    const destChain = wh.toChainName(
+      payload.gateway_ibc_token_bridge_payload.gateway_transfer.chain,
+    );
+    const ibcToDestInfo = this.getIBCTransferInfoFromLogs(
+      wormchainTx,
+      'send_packet',
+    );
+    const destTx = await this.findDestinationIBCTransferTx(
+      destChain,
+      ibcToDestInfo,
+    );
+    if (!destTx) {
+      throw new Error(`Transaction on destination ${destChain} not found`);
+    }
+
+    // transfer ibc denom follows the scheme {port}/{channel}/{denom}
+    // with denom as {tokenfactory}/{ibc shim}/{bas58 cw20 address}
+    // so 5 elements total
+    const parts = data.denom.split('/');
+    if (parts.length !== 5) {
+      throw new Error(`Unexpected transfer denom ${data.denom}`);
+    }
+    const denom = parts.slice(2).join('/');
+    const cw20 = this.factoryToCW20(denom);
+    const context = wh.getContext(
+      CHAIN_ID_WORMCHAIN,
+    ) as CosmosContext<WormholeContext>;
+    const { chainId, assetAddress: tokenAddressBytes } =
+      await context.getOriginalAsset(CHAIN_ID_WORMCHAIN, cw20);
+    const tokenChain = wh.toChainName(chainId as ChainId); // wormhole-sdk adds 0 (unset) as a chainId
+    const tokenContext = wh.getContext(tokenChain);
+    const tokenAddress = await tokenContext.parseAssetAddress(
+      utils.hexlify(tokenAddressBytes),
+    );
+
+    return adaptParsedMessage({
+      fromChain: wh.toChainName(CHAIN_ID_WORMCHAIN), // gets replaced later
+      sendTx: wormchainTx.hash, // gets replaced later
+      toChain: destChain,
+      amount: BigNumber.from(data.amount),
+      recipient: data.receiver,
+      block: destTx.height,
+      sender: data.sender,
+      gasFee: BigNumber.from(destTx.gasUsed.toString()),
+      payloadID: 3, // should not be required for this case
+      tokenChain,
+      tokenAddress,
+      tokenId: {
+        address: tokenAddress,
+        chain: tokenChain,
+      },
+      emitterAddress: '',
+      sequence: BigNumber.from(0),
+    });
+  }
+
+  private factoryToCW20(denom: string): string {
+    if (!denom.startsWith('factory/')) return '';
+    const encoded = denom.split('/')[2];
+    if (!encoded) return '';
+    return cosmos.humanAddress('wormhole', base58.decode(encoded));
+  }
+
+  async fetchRedeemTx(message: SignedMessage): Promise<string | null> {
     if (!isSignedWormholeMessage(message)) {
       throw new Error('Signed message is not for gateway');
     }
 
     return isCosmWasmChain(message.fromChain)
-      ? this.fetchRedeemedEventCosmosSource(message)
-      : this.fetchRedeemedEventNonCosmosSource(message);
+      ? await this.fetchRedeemedEventCosmosSource(message)
+      : await this.fetchRedeemedEventNonCosmosSource(message);
   }
 
   private async fetchRedeemedEventNonCosmosSource(
@@ -674,7 +789,7 @@ export class CosmosGatewayRoute extends BaseRoute {
     }
 
     // extract the ibc transfer info from the transaction logs
-    const ibcInfo = this.getIBCTransferInfoFromLogs(txs[0]);
+    const ibcInfo = this.getIBCTransferInfoFromLogs(txs[0], 'send_packet');
 
     // find the transaction on the target chain based on the ibc transfer info
     const destTx = await this.findDestinationIBCTransferTx(
@@ -689,26 +804,40 @@ export class CosmosGatewayRoute extends BaseRoute {
     return destTx.hash;
   }
 
-  private getIBCTransferInfoFromLogs(tx: IndexedTx): IBCTransferInfo {
+  private getIBCTransferInfoFromLogs(
+    tx: IndexedTx,
+    event: 'send_packet' | 'recv_packet',
+  ): IBCTransferInfo {
     const logs = cosmosLogs.parseRawLog(tx.rawLog);
-    const packetSeq = searchCosmosLogs('packet_sequence', logs);
-    const packetTimeout = searchCosmosLogs('packet_timeout_timestamp', logs);
-    const packetSrcChannel = searchCosmosLogs('packet_src_channel', logs);
-    const packetDstChannel = searchCosmosLogs('packet_dst_channel', logs);
+    const packetSeq = searchCosmosLogs(`${event}.packet_sequence`, logs);
+    const packetTimeout = searchCosmosLogs(
+      `${event}.packet_timeout_timestamp`,
+      logs,
+    );
+    const packetSrcChannel = searchCosmosLogs(
+      `${event}.packet_src_channel`,
+      logs,
+    );
+    const packetDstChannel = searchCosmosLogs(
+      `${event}.packet_dst_channel`,
+      logs,
+    );
+    const packetData = searchCosmosLogs(`${event}.packet_data`, logs);
     if (
       !packetSeq ||
       !packetTimeout ||
       !packetSrcChannel ||
-      !packetDstChannel
+      !packetDstChannel ||
+      !packetData
     ) {
       throw new Error('Missing packet information in transaction logs');
     }
-
     return {
       sequence: packetSeq,
       timeout: packetTimeout,
       srcChannel: packetSrcChannel,
       dstChannel: packetDstChannel,
+      data: packetData,
     };
   }
 
@@ -737,7 +866,36 @@ export class CosmosGatewayRoute extends BaseRoute {
   private async fetchRedeemedEventCosmosSource(
     message: SignedTokenTransferMessage | SignedRelayTransferMessage,
   ): Promise<string | null> {
-    throw new Error('Not implemented');
+    if (!isCosmWasmChain(message.toChain)) {
+      throw new Error(
+        `Fetch redeem tx not supported by this route for chain ${message.toChain}`,
+      );
+    }
+
+    // find tx in the source chain and extract the ibc transfer to wormchain
+    const sourceClient = await this.getCosmWasmClient(message.fromChain);
+    const tx = await sourceClient.getTx(message.sendTx);
+    if (!tx) return null;
+    const sourceIbcInfo = this.getIBCTransferInfoFromLogs(tx, 'send_packet');
+
+    // find tx in the ibc receive in wormchain and extract the ibc transfer to the dest tx
+    const wormchainTx = await this.findDestinationIBCTransferTx(
+      CHAIN_ID_WORMCHAIN,
+      sourceIbcInfo,
+    );
+    if (!wormchainTx) return null;
+    const wormchainToDestIbcInfo = this.getIBCTransferInfoFromLogs(
+      wormchainTx,
+      'send_packet',
+    );
+
+    // find the tx that deposits the funds in the final recipient
+    const destTx = await this.findDestinationIBCTransferTx(
+      message.toChain,
+      wormchainToDestIbcInfo,
+    );
+    if (!destTx) return null;
+    return destTx.hash;
   }
 
   async getTransferSourceInfo({
