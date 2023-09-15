@@ -61,10 +61,16 @@ function Modal({ open, width, closable, children, onClose }: Props) {
   return (
     <Dialog
       open={open}
-      onClose={onClose}
+      onClose={(event, reason) => {
+        console.log(reason);
+        if (reason === 'backdropClick') {
+          onClose();
+        }
+      }}
       sx={{ borderRadius: 8 }}
       fullWidth
       fullScreen
+      onClick={onClose}
       // maxWidth={width}
       // fullScreen={fullScreen}
     >
