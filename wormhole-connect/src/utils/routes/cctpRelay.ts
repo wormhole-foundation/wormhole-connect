@@ -661,9 +661,7 @@ export class CCTPRelayRoute extends CCTPManualRoute {
     let redeemTx: string | undefined = undefined;
     try {
       redeemTx = await fetchRedeemedEvent(txData);
-    } catch (e) {
-      console.log(e);
-    }
+    } catch {}
 
     return redeemTx;
   }
