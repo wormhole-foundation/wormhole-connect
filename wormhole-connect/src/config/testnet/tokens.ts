@@ -1464,4 +1464,34 @@ export const TESTNET_TOKENS: TokensConfig = {
       },
     },
   },
+  ATOM: {
+    key: 'ATOM',
+    symbol: 'ATOM',
+    nativeChain: 'cosmoshub',
+    tokenId: {
+      chain: 'cosmoshub',
+      address: 'uatom',
+    },
+    icon: Icon.ATOM,
+    coinGeckoId: 'cosmos-hub',
+    color: '#6f7390',
+    decimals: {
+      default: 6,
+    },
+  },
+  EVMOS: {
+    key: 'EVMOS',
+    symbol: 'EVMOS',
+    nativeChain: 'evmos',
+    tokenId: {
+      chain: 'evmos',
+      address: 'atevmos',
+    },
+    icon: Icon.EVMOS,
+    coinGeckoId: 'evmos',
+    color: '#ed4e33',
+    decimals: {
+      default: 6,
+    },
+  },
 };

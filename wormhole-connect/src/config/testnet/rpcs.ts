@@ -14,6 +14,7 @@ const {
   REACT_APP_BASE_GOERLI_RPC,
   REACT_APP_OSMOSIS_TESTNET_RPC,
   REACT_APP_WORMCHAIN_TESTNET_RPC,
+  REACT_APP_EVMOS_TESTNET_RPC,
   REACT_APP_SEI_REST,
 } = process.env;
 
@@ -40,6 +41,7 @@ export const TESTNET_RPC_MAPPING = {
     'optimismgoerli',
     process.env.REACT_APP_OPTIMISM_GOERLI_RPC,
   ),
+  ...populateRpcField('evmos', REACT_APP_EVMOS_TESTNET_RPC),
 };
 
 export const TESTNET_REST_MAPPING = {

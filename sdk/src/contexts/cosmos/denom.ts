@@ -1,21 +1,32 @@
+import { Network } from '@certusone/wormhole-sdk';
 import { ChainName } from '../../types';
 
-export const NATIVE_DENOMS: Record<string, string> = {
+const MAINNET_NATIVE_DENOMS: Record<string, string> = {
   osmosis: 'uosmo',
   wormchain: 'uworm',
   terra2: 'uluna',
-  sei: 'usei',
+  cosmoshub: 'uatom',
+  evmos: 'aevmos',
+};
+const TESTNET_NATIVE_DENOMS: Record<string, string> = {
+  ...MAINNET_NATIVE_DENOMS,
+  evmos: 'atevmos',
 };
 
-export const PREFIXES: Record<string, string> = {
+const PREFIXES: Record<string, string> = {
   osmosis: 'osmo',
-  wormchain: 'wormchain',
+  wormchain: 'wormhole',
   terra2: 'terra',
-  sei: 'sei',
+  cosmoshub: 'cosmos',
+  evmos: 'evmos',
+  sei: 'sei'
 };
 
-export function getNativeDenom(chain: ChainName): string {
-  const denom = NATIVE_DENOMS[chain];
+export function getNativeDenom(chain: ChainName, env: Network = 'MAINNET'): string {
+  const denom =
+    env === 'TESTNET'
+      ? TESTNET_NATIVE_DENOMS[chain]
+      : MAINNET_NATIVE_DENOMS[chain];
   if (!denom)
     throw new Error(`Native denomination not found for chain ${chain}`);
   return denom;
