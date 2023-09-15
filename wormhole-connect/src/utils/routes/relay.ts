@@ -254,8 +254,6 @@ export class RelayRoute extends BridgeRoute {
     destChain: ChainName | ChainId,
     signedMessage?: SignedMessage,
   ): Promise<BigNumber> {
-    if (!signedMessage)
-      throw new Error('Cannot estimate gas without a signed message');
     throw new Error(
       'manual claim not implemented for automatic token bridge relays',
     );

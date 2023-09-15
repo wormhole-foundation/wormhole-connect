@@ -2,6 +2,8 @@ import {
   ChainName,
   ChainId,
   TokenId,
+  // EthContext,
+  // WormholeContext,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { BigNumber } from 'ethers';
 
@@ -17,6 +19,8 @@ import { CHAINS, ROUTES, TOKENS } from 'config';
 import { wh } from 'utils/sdk';
 import { toFixedDecimals } from 'utils/balance';
 import { NO_INPUT } from 'utils/style';
+import { RFQ } from 'store/hashflow';
+import { estimateHashflowFees } from 'utils/hashflow';
 
 export class HashflowRoute extends RouteAbstract {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED = false;
@@ -145,17 +149,19 @@ export class HashflowRoute extends RouteAbstract {
     senderAddress: string,
     recipientChain: ChainName | ChainId,
     recipientAddress: string,
-    routeOptions: any,
+    routeOptions: { rfq: RFQ },
   ): Promise<BigNumber> {
-    // throw new Error('Method not implemented.');
-    return BigNumber.from('0');
+    const { rfq } = routeOptions;
+    if (!rfq) throw new Error('no rfq available');
+    return BigNumber.from(rfq.gasEstimate);
   }
   estimateClaimGas(
     destChain: ChainName | ChainId,
     signedMessage?: SignedMessage,
   ): Promise<BigNumber> {
-    // throw new Error('Method not implemented.');
-    return BigNumber.from('0');
+    throw new Error(
+      'manual claim not supported for automatic hashflow transfers',
+    );
   }
   getMinSendAmount(routeOptions: any): number {
     return 0;
@@ -167,16 +173,23 @@ export class HashflowRoute extends RouteAbstract {
     senderAddress: string,
     recipientChain: ChainName | ChainId,
     recipientAddress: string,
-    routeOptions: any,
+    routeOptions: { rfq: RFQ },
   ): Promise<any> {
+    const { rfq } = routeOptions;
+    if (!rfq || rfq.status !== 'success')
+      throw new Error('Cannot send without a valid RFQ');
+    if (rfq.quoteData.quoteExpiry < Date.now())
+      throw new Error('Quote expired');
     throw new Error('Method not implemented.');
+    // const hf = (wh.getContext(sendingChain) as EthContext<WormholeContext>).contracts.mustGetHashflow(sendingChain);
+    // hf.
   }
   async redeem(
     destChain: ChainName | ChainId,
     messageInfo: SignedMessage,
     recipient: string,
   ): Promise<string> {
-    throw new Error('Method not implemented.');
+    throw new Error('Method not supported.');
   }
   public async getPreview(
     token: TokenConfig,
@@ -212,7 +225,7 @@ export class HashflowRoute extends RouteAbstract {
       },
       {
         title: 'Total fee estimates',
-        value: `$$$$$`,
+        value: ``,
         rows: [
           {
             title: `${sendingChainConfig?.displayName} gas`,
@@ -236,15 +249,14 @@ export class HashflowRoute extends RouteAbstract {
     destChain: ChainName | ChainId,
     token: string,
   ): Promise<BigNumber> {
-    // throw new Error('Method not implemented.');
+    // TODO: best way to get fee estimates?
+    const fee = await estimateHashflowFees(
+      wh.toChainName(sourceChain),
+      wh.toChainName(destChain),
+    );
+    console.log(fee);
     return BigNumber.from('0');
   }
-  // getForeignAsset(
-  //   token: TokenId,
-  //   chain: ChainName | ChainId,
-  // ): Promise<string | null> {
-  //   throw new Error('Method not implemented.');
-  // }
   isTransferCompleted(
     destChain: ChainName | ChainId,
     message: SignedMessage,

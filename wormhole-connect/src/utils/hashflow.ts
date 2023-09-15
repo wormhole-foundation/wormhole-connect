@@ -73,7 +73,7 @@ export async function fetchRFQ(
     });
 }
 
-export async function estimateFees(
+export async function estimateHashflowFees(
   sendingChain: ChainName,
   receivingChain: ChainName,
 ): Promise<any> {
@@ -81,8 +81,9 @@ export async function estimateFees(
     throw new Error('Must provide an API url and source');
   }
   const sendingChainId = CHAINS[sendingChain]?.chainId;
-  const receivingChainId = CHAINS[receivingChain]?.chainId;
-  const url = `${API}xchain-fee-estimate?source=${SOURCE}&protocol=0&srcNetworkId=${sendingChainId}&dstNetworkId=${receivingChainId}`;
+  // const receivingChainId = CHAINS[receivingChain]?.chainId;
+  // const url = `${API}xchain-fee-estimate?source=${SOURCE}&protocol=0&srcNetworkId=${sendingChainId}${sendingChainId === receivingChainId ? '' : `&dstNetworkId=${receivingChainId}`}`;
+  const url = `${API}xchain-fee-estimate?source=${SOURCE}&protocol=0&srcNetworkId=${sendingChainId}&dstNetworkId=5`;
 
   return axios
     .get(url)

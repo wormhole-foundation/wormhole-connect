@@ -17,7 +17,7 @@ const initialState: RelayState = {
 };
 
 export const relaySlice = createSlice({
-  name: 'transfer',
+  name: 'relay',
   initialState,
   reducers: {
     // validations

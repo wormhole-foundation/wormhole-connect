@@ -107,12 +107,12 @@ export const validateAmount = (
   const numAmount = Number.parseFloat(amount);
   if (!numAmount) return 'Enter an amount';
   if (numAmount <= 0) return 'Amount must be greater than 0';
-  if (balance) {
-    const b = Number.parseFloat(balance);
-    if (numAmount > b) return 'Amount cannot exceed balance';
-  }
-  if (!minAmt) return '';
-  if (numAmount < minAmt) return `Minimum amount is ${minAmt}`;
+  // if (balance) {
+  //   const b = Number.parseFloat(balance);
+  //   if (numAmount > b) return 'Amount cannot exceed balance';
+  // }
+  // if (!minAmt) return '';
+  // if (numAmount < minAmt) return `Minimum amount is ${minAmt}`;
   return '';
 };
 
