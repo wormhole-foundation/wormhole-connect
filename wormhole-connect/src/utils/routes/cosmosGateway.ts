@@ -981,7 +981,8 @@ export class CosmosGatewayRoute extends BaseRoute {
     throw new Error('Native gas drop-off not supported by this route');
   }
 
-  async tryFetchRedeemTx(txData: UnsignedMessage): Promise<string | undefined> {
-    return undefined; // only for automatic routes
+  async tryFetchRedeemTx(message: SignedMessage): Promise<string | undefined> {
+    const res = await this.fetchRedeemTx(message);
+    return res || undefined;
   }
 }
