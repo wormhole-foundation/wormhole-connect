@@ -132,19 +132,31 @@ function GasSlider(props: { disabled: boolean }) {
     let actualMaxSwap =
       amountNum && maxSwapAmt && Math.max(Math.min(maxSwapAmt, amountNum), 0);
 
-    // address the bug that the swapAmount='maxSwapAmount' results in a 'minimumSendAmount'
-    // that could be higher than 'amount' (due to the buffer packed into minimumSendAmount)
-    // not a perfect fix for all posible 'getMinSendAmount' functions - but valid for linear ones
-    const buffer = Math.max(
-      RouteOperator.getRoute(route).getMinSendAmount({
+    if (actualMaxSwap) {
+      // address the bug that the swapAmount='maxSwapAmount' results in a 'minimumSendAmount'
+      // that could be higher than 'amount' (due to the buffer packed into minimumSendAmount)
+      // not a perfect fix for all posible 'getMinSendAmount' functions - but valid for linear ones
+      //
+      // For example, if 'amount' is 1.1, and relayerFee is 1, then 'amountNum' (the receive amount) is
+      // 0.1, and 'actualMaxSwap' is 0.1.
+      // Now suppose the user sets swapAmt to be 0.1 - so now toNativeToken = 0.1,
+      // meaning the 'minSendAmount' is getMinSendAmount({toNativeToken: 0.1, relayerFee: 1}) which
+      // currently is (0.1 + 1)*1.05 = 1.155
+      // This is greater than what the current send amount (1.1) is!
+      // The next two lines remedy this issue by subtracting the difference (1.155-1.1) from
+      // actualMaxSwap (i.e. bringing it from 0.1 to 0.045)
+      const theoreticalMinSendAmount = RouteOperator.getRoute(
+        route,
+      ).getMinSendAmount({
         toNativeToken: actualMaxSwap,
         relayerFee,
-      }) -
-        amountNum -
-        (relayerFee || 0),
-      0,
-    );
-    actualMaxSwap = Math.max(0, actualMaxSwap - buffer);
+      });
+      const buffer = Math.max(
+        theoreticalMinSendAmount - amountNum - (relayerFee || 0),
+        0,
+      );
+      actualMaxSwap = Math.max(Math.min(maxSwapAmt, amountNum - buffer), 0);
+    }
 
     const newTokenAmount = amountNum - state.swapAmt;
     setState((prevState) => ({
