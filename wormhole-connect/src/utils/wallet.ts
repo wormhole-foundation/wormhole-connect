@@ -163,7 +163,10 @@ export const registerWalletSigner = (
   wh.registerSigner(chain, signer);
 };
 
-export const switchChain = async (chainId: number, type: TransferWallet) => {
+export const switchChain = async (
+  chainId: number | string,
+  type: TransferWallet,
+) => {
   const w: Wallet = walletConnection[type]! as any;
   if (!w) throw new Error('must connect wallet');
 
@@ -173,11 +176,14 @@ export const switchChain = async (chainId: number, type: TransferWallet) => {
   if (config.context === Context.ETH) {
     try {
       // some wallets may not support chain switching
-      await (w as EVMWallet).switchChain(chainId);
+      await (w as EVMWallet).switchChain(chainId as number);
     } catch (e) {
       if (e instanceof NotSupported) return;
       throw e;
     }
+  }
+  if (config.context === Context.COSMOS) {
+    await (w as CosmosWallet).switchChain(chainId as string);
   }
 };
 
