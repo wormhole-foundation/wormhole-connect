@@ -59,7 +59,9 @@ export function displayWalletAddress(
   return trimAddress(address);
 }
 
-export function getChainByChainId(chainId: number): ChainConfig | void {
+export function getChainByChainId(
+  chainId: number | string,
+): ChainConfig | void {
   return CHAINS_ARR.filter((c) => chainId === c.chainId)[0];
 }
 
