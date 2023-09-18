@@ -17,7 +17,7 @@ import {
 } from 'store/transferInput';
 import { CHAINS, TOKENS, pageHeader } from 'config';
 import { TokenConfig, Route } from 'config/types';
-import { getTokenDecimals } from 'utils';
+import { getTokenDecimals, getWrappedToken } from 'utils';
 import { wh, toChainId } from 'utils/sdk';
 import { joinClass } from 'utils/style';
 import { toDecimals } from 'utils/balance';
@@ -239,8 +239,22 @@ function Bridge() {
   ]);
   const valid = isTransferValid(validations);
   const disabled = !valid || isTransactionInProgress;
+  // if the dest token is the wrapped gas token, then disable the gas slider,
+  // because it will be unwrapped by the relayer contract
+  const toChainConfig = toChain ? CHAINS[toChain] : undefined;
+  const gasTokenConfig = toChainConfig
+    ? TOKENS[toChainConfig.gasToken]
+    : undefined;
+  const wrappedGasTokenConfig = gasTokenConfig
+    ? getWrappedToken(gasTokenConfig)
+    : undefined;
+  const willReceiveGasToken =
+    wrappedGasTokenConfig && destToken === wrappedGasTokenConfig.key;
+
   const showGasSlider =
-    route && RouteOperator.getRoute(route).NATIVE_GAS_DROPOFF_SUPPORTED;
+    route &&
+    RouteOperator.getRoute(route).NATIVE_GAS_DROPOFF_SUPPORTED &&
+    !willReceiveGasToken;
 
   return (
     <div className={joinClass([classes.bridgeContent, classes.spacer])}>
