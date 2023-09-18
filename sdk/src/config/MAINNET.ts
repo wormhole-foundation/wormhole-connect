@@ -64,7 +64,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     context: Context.SOLANA,
     contracts: {
       ...CONTRACTS.MAINNET.solana,
-      relayer: undefined, // TODO: add
+      relayer: '3vxKRPwUTiEkeUVyoZ9MXFe1V71sRLbLqu1gRYaWmehQ',
     },
     finalityThreshold: 32,
     nativeTokenDecimals: 9,
