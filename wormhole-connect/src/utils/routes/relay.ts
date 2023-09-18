@@ -43,7 +43,7 @@ import {
   SignedMessage,
   TransferInfoBaseParams,
 } from './types';
-import { fetchVaa } from '../vaa';
+import { fetchRelayGlobalTx, fetchVaa } from '../vaa';
 
 export type RelayOptions = {
   relayerFee?: number;
@@ -577,19 +577,39 @@ export class RelayRoute extends BridgeRoute {
     ];
   }
 
+  // async tryFetchRedeemTx(message: SignedMessage): Promise<string | undefined> {
+  //   if (!isSignedWormholeMessage(message)) {
+  //     throw new Error('Signed message is not for relay');
+  //   }
+
+  //   // if this is an automatic transfer and the transaction hash was not found,
+  //   // then try to fetch the redeemed event
+  //   let redeemTx: string | undefined = undefined;
+  //   try {
+  //     const res = await fetchRedeemedEvent(message);
+  //     redeemTx = res?.transactionHash;
+  //   } catch {}
+  async tryFetchRedeemEvent(
+    txData: SignedMessage,
+  ): Promise<string | undefined> {
+    try {
+      const res = await fetchRedeemedEvent(txData);
+      return res?.transactionHash;
+    } catch (_) {
+      return undefined;
+    }
+  }
+
   async tryFetchRedeemTx(message: SignedMessage): Promise<string | undefined> {
     if (!isSignedWormholeMessage(message)) {
       throw new Error('Signed message is not for relay');
     }
-
-    // if this is an automatic transfer and the transaction hash was not found,
-    // then try to fetch the redeemed event
-    let redeemTx: string | undefined = undefined;
     try {
-      const res = await fetchRedeemedEvent(message);
-      redeemTx = res?.transactionHash;
-    } catch {}
-
-    return redeemTx;
+      const tx = await fetchGlobalTx(txData);
+      if (!tx) throw new Error('Could not fetch global tx');
+      return tx;
+    } catch (_) {
+      return await this.tryFetchRedeemEvent(txData);
+    }
   }
 }

@@ -33,7 +33,7 @@ import {
   TransferInfoBaseParams,
 } from './types';
 import { isCosmWasmChain } from '../cosmos';
-import { fetchVaa } from '../vaa';
+import { fetchGlobalTx, fetchVaa } from '../vaa';
 import { formatGasFee } from './utils';
 
 export class BridgeRoute extends BaseRoute {
@@ -400,6 +400,11 @@ export class BridgeRoute extends BaseRoute {
   }
 
   async tryFetchRedeemTx(txData: UnsignedMessage): Promise<string | undefined> {
-    return undefined; // only for automatic routes
+    try {
+      return await fetchGlobalTx(txData);
+    } catch (_) {
+      // There is no redeem event emitted for Token Bridge transfers, so return undefined
+      return undefined;
+    }
   }
 }

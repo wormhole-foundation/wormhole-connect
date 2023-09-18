@@ -666,12 +666,11 @@ export class CCTPRelayRoute extends CCTPManualRoute {
   async tryFetchRedeemTx(
     txData: RelayCCTPMessage,
   ): Promise<string | undefined> {
-    let redeemTx: string | undefined = undefined;
     try {
-      redeemTx = await fetchRedeemedEvent(txData);
-    } catch {}
-
-    return redeemTx;
+      return await fetchRedeemedEvent(txData);
+    } catch (_) {
+      return undefined;
+    }
   }
 }
 
