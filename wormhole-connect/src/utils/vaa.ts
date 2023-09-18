@@ -254,23 +254,3 @@ export const fetchGlobalTx = async (
       throw error;
     });
 };
-
-export const fetchRelayGlobalTx = async (
-  txData: ParsedMessage | ParsedRelayerMessage,
-): Promise<string | undefined> => {
-  const messageId = getEmitterAndSequence(txData);
-  const { emitterChain, emitterAddress, sequence } = messageId;
-
-  const url = `${WORMHOLE_API}api/v1/relays/${emitterChain}/${emitterAddress}/${sequence}`;
-  return axios
-    .get(url)
-    .then(function (response: any) {
-      const data = response.data;
-      console.log(response.data);
-      if (!data || !data.toTxHash) return undefined;
-      return data.toTxHash;
-    })
-    .catch(function (error) {
-      throw error;
-    });
-};

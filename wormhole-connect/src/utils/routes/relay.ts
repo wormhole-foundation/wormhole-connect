@@ -43,7 +43,7 @@ import {
   SignedMessage,
   TransferInfoBaseParams,
 } from './types';
-import { fetchRelayGlobalTx, fetchVaa } from '../vaa';
+import { fetchGlobalTx, fetchVaa } from '../vaa';
 
 export type RelayOptions = {
   relayerFee?: number;
