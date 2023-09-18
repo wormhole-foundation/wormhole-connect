@@ -98,6 +98,10 @@ export const TESTNET_GAS_ESTIMATES: GasEstimates = {
       sendToken: 15000,
       claim: 25000,
     },
+    [Route.Relay]: {
+      sendNative: 15000,
+      sendToken: 15000,
+    },
   },
   sui: {
     [Route.Bridge]: {

@@ -63,6 +63,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     context: Context.SOLANA,
     contracts: {
       ...CONTRACTS.TESTNET.solana,
+      relayer: '3bPRWXqtSfUaCw3S4wdgvypQtsSzcmvDeaqSqPDkncrg',
     },
     finalityThreshold: 32,
     nativeTokenDecimals: 9,

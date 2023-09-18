@@ -5,6 +5,7 @@ import {
   EthContext,
   SuiContext,
   SeiContext,
+  SolanaContext,
   WormholeContext,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { ParsedMessage, ParsedRelayerMessage, wh } from './sdk';
@@ -40,7 +41,17 @@ export const fetchRedeemedEvent = async (
   const { emitterChain, emitterAddress, sequence } = messageId;
   const emitter = `0x${emitterAddress}`;
 
-  if (txData.toChain === 'sui') {
+  if (txData.toChain === 'solana') {
+    const context = wh.getContext(
+      txData.toChain,
+    ) as SolanaContext<WormholeContext>;
+    const signature = await context.fetchRedeemedSignature(
+      emitterChain,
+      emitterAddress,
+      sequence,
+    );
+    return signature ? { transactionHash: signature } : null;
+  } else if (txData.toChain === 'sui') {
     const context = wh.getContext(
       txData.toChain,
     ) as SuiContext<WormholeContext>;
@@ -100,11 +111,27 @@ export const fetchRedeemedEvent = async (
   }
 };
 
-export const fetchSwapEvent = async (
-  txData: ParsedMessage | ParsedRelayerMessage,
-) => {
-  const { tokenId, recipient, amount, tokenDecimals } = txData;
-  if (txData.toChain === 'sui') {
+export const fetchSwapEvent = async (txData: ParsedRelayerMessage) => {
+  const { tokenId, recipient, toNativeTokenAmount, tokenDecimals } = txData;
+  if (txData.toChain === 'solana') {
+    const context = wh.getContext(
+      txData.toChain,
+    ) as SolanaContext<WormholeContext>;
+    const messageId = getEmitterAndSequence(txData);
+    const { emitterChain, emitterAddress, sequence } = messageId;
+    const signature = await context.fetchRedeemedSignature(
+      emitterChain,
+      emitterAddress,
+      sequence,
+    );
+    if (signature) {
+      const relayer = context.contracts.mustGetTokenBridgeRelayer(
+        txData.toChain,
+      );
+      const swapEvent = await relayer.fetchSwapEvent(signature);
+      return swapEvent ? BigNumber.from(swapEvent.nativeAmount) : null;
+    }
+  } else if (txData.toChain === 'sui') {
     const context = wh.getContext(
       txData.toChain,
     ) as SuiContext<WormholeContext>;
@@ -125,7 +152,7 @@ export const fetchSwapEvent = async (
     for (const event of events.data) {
       if (
         event.parsedJson?.recipient === recipient &&
-        event.parsedJson?.coin_amount === amount &&
+        event.parsedJson?.coin_amount === toNativeTokenAmount &&
         event.parsedJson?.coin ===
           `0x${Buffer.from(tokenAddress).toString('hex')}`
       ) {
@@ -152,14 +179,16 @@ export const fetchSwapEvent = async (
       eventFilter,
       currentBlock - chainConfig.maxBlockSearch,
     );
-    const match = events.filter((e: any) => {
-      const normalized = fromNormalizedDecimals(
-        BigNumber.from(amount),
-        tokenDecimals,
-      );
-      return normalized.eq(e.args[3]);
-    });
-    return match ? match[0]?.args?.[4] : null;
+    const normalized = fromNormalizedDecimals(
+      BigNumber.from(toNativeTokenAmount),
+      tokenDecimals,
+    );
+    const matches = events
+      .sort((a: any, b: any) => b.blockNumber - a.blockNumber)
+      .filter((e: any) => {
+        return normalized.eq(e.args[3]);
+      });
+    return matches ? matches[0]?.args?.[4] : null;
   }
   return null;
 };

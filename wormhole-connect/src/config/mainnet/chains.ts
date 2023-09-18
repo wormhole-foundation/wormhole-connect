@@ -89,7 +89,7 @@ export const MAINNET_CHAINS: ChainsConfig = {
     gasToken: 'SOL',
     chainId: 0,
     icon: Icon.SOLANA,
-    automaticRelayer: false,
+    automaticRelayer: true,
     maxBlockSearch: 2000,
   },
   sui: {
