@@ -206,7 +206,15 @@ export class CCTPRelayRoute extends CCTPManualRoute {
   ): Promise<number> {
     if (!sendAmount) return 0;
     const { toNativeToken, relayerFee } = routeOptions;
-    return sendAmount - (toNativeToken || 0) - (relayerFee || 0);
+
+    // floating point math
+    const DECIMALS = 10 ** 6;
+    return (
+      (Math.round(sendAmount * DECIMALS) -
+        Math.round((toNativeToken || 0) * DECIMALS) -
+        Math.round((relayerFee || 0) * DECIMALS)) /
+      DECIMALS
+    );
   }
   async computeSendAmount(
     receiveAmount: number | undefined,
