@@ -104,11 +104,14 @@ function Send(props: { valid: boolean }) {
       const fromConfig = CHAINS[fromChain!];
       if (fromConfig?.context === Context.ETH) {
         registerWalletSigner(fromChain!, TransferWallet.SENDING);
-        const chainId = CHAINS[fromChain!]!.chainId;
+        const chainId = fromConfig.chainId;
         if (typeof chainId !== 'number') {
           throw new Error('invalid evm chain ID');
         }
         await switchChain(chainId, TransferWallet.SENDING);
+      }
+      if (fromConfig?.context === Context.COSMOS) {
+        await switchChain(fromConfig.chainId, TransferWallet.SENDING);
       }
 
       const tokenConfig = TOKENS[token]!;
