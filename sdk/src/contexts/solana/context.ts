@@ -17,6 +17,8 @@ import {
   getAccount,
   createAssociatedTokenAccountInstruction,
   Account,
+  getAssociatedTokenAddressSync,
+  TokenAccountNotFoundError,
 } from '@solana/spl-token';
 import {
   clusterApiUrl,
@@ -729,7 +731,12 @@ export class SolanaContext<
       throw new Error('transaction not found');
     const transaction = await this.connection.getParsedTransaction(tx);
 
-    const instructions = response.meta?.innerInstructions![0].instructions;
+    // the first instruction may be creating the associated token account
+    // for an automatic transfer of the native token
+    const wormholeInstructionIndex =
+      response.meta?.innerInstructions.length - 1;
+    const instructions =
+      response.meta?.innerInstructions![wormholeInstructionIndex].instructions;
     const accounts = response.transaction.message.accountKeys;
 
     // find the instruction where the programId equals the Wormhole ProgramId and the emitter equals the Token Bridge
@@ -740,6 +747,7 @@ export class SolanaContext<
       const tokenBridge = deriveWormholeEmitterKey(contracts.token_bridge!);
       return programId === wormholeCore && emitterId.equals(tokenBridge);
     });
+
     const { message } = await getPostedMessage(
       this.connection,
       accounts[bridgeInstructions[0].accounts[1]],
@@ -928,10 +936,33 @@ export class SolanaContext<
     );
     const recipientChainId = this.context.toChainId(recipientChain);
     const nonce = createNonce().readUint32LE();
+    const transaction = new Transaction();
     let transferIx: TransactionInstruction;
     if (token === NATIVE || token.chain === SOLANA_CHAIN_NAME) {
       const mint = token === NATIVE ? NATIVE_MINT : token.address;
       const wrapToken = token === NATIVE;
+      if (wrapToken) {
+        const ata = getAssociatedTokenAddressSync(
+          NATIVE_MINT,
+          new PublicKey(senderAddress),
+        );
+        try {
+          await getAccount(this.connection, ata);
+        } catch (e: any) {
+          if (e instanceof TokenAccountNotFoundError) {
+            // the relayer expects the WSOL associated token account to exist
+            const createAccountInst = createAssociatedTokenAccountInstruction(
+              new PublicKey(senderAddress),
+              new PublicKey(ata),
+              new PublicKey(senderAddress),
+              new PublicKey(NATIVE_MINT),
+            );
+            transaction.add(createAccountInst);
+          } else {
+            throw e;
+          }
+        }
+      }
       transferIx = await createTransferNativeTokensWithRelayInstruction(
         this.connection,
         relayer,
@@ -962,7 +993,7 @@ export class SolanaContext<
         nonce,
       );
     }
-    const transaction = new Transaction().add(transferIx);
+    transaction.add(transferIx);
     const { blockhash } = await this.connection.getLatestBlockhash('finalized');
     transaction.recentBlockhash = blockhash;
     transaction.feePayer = new PublicKey(senderAddress);
