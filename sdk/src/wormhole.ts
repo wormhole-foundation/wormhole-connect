@@ -1,11 +1,14 @@
 import { Network as Environment } from '@certusone/wormhole-sdk';
 import { Domain, MultiProvider } from '@nomad-xyz/multi-provider';
-import { BigNumber } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 
+import DEVNET_CONFIG, { DEVNET_CHAINS } from './config/DEVNET';
 import MAINNET_CONFIG, { MAINNET_CHAINS } from './config/MAINNET';
 import TESTNET_CONFIG, { TESTNET_CHAINS } from './config/TESTNET';
 import { AptosContext } from './contexts/aptos';
+import { CosmosContext } from './contexts/cosmos';
 import { EthContext } from './contexts/eth';
+import { SeiContext } from './contexts/sei';
 import { SolanaContext } from './contexts/solana/context';
 import { SuiContext } from './contexts/sui';
 import {
@@ -22,9 +25,6 @@ import {
   TokenId,
   WormholeConfig,
 } from './types';
-import { SeiContext } from './contexts/sei';
-import DEVNET_CONFIG, { DEVNET_CHAINS } from './config/DEVNET';
-import { CosmosContext } from './contexts/cosmos';
 import { ForeignAssetCache } from './utils';
 
 /**
@@ -97,7 +97,17 @@ export class WormholeContext extends MultiProvider<Domain> {
       });
       // register RPC provider
       if (this.conf.rpcs[n]) {
-        this.registerRpcProvider(network, this.conf.rpcs[n]!);
+        const rpc = this.conf.rpcs[n]!;
+        if (
+          this.conf.chains[n]?.context === Context.ETH &&
+          (rpc.startsWith('http://') || rpc.startsWith('https://'))
+        ) {
+          const domain = this.resolveDomain(network);
+          const provider = new ethers.providers.JsonRpcBatchProvider(rpc);
+          this.registerProvider(domain, provider);
+        } else {
+          this.registerRpcProvider(network, this.conf.rpcs[n]!);
+        }
       }
     }
   }
