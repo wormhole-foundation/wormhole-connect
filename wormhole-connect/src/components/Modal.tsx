@@ -1,5 +1,5 @@
 import { makeStyles } from 'tss-react/mui';
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Dialog, ScopedCssBaseline } from '@mui/material';
 // import { useTheme } from '@mui/material/styles';
 // import useMediaQuery from '@mui/material/useMediaQuery';
@@ -26,6 +26,8 @@ const useStyles = makeStyles<{ width: number }>()((theme: any, { width }) => ({
       margin: '20px auto',
       padding: '24px 12px',
     },
+    background: 'rgba(255,255,255,.02)',
+    maxHeight: 'calc( 100vh - 80px )',
   },
   close: {
     position: 'absolute',
@@ -55,27 +57,14 @@ type Props = {
 function Modal({ open, width, closable, children, onClose }: Props) {
   const { classes } = useStyles({ width });
   // TODO: have user pass in full-screen param?
-  // const theme = useTheme();
-  // const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
+  const handleClickInModal = useCallback((event: any) => {
+    event.stopPropagation();
+  }, []);
 
   return (
-    <Dialog
-      open={open}
-      onClose={(event, reason) => {
-        console.log(reason);
-        if (reason === 'backdropClick') {
-          onClose();
-        }
-      }}
-      sx={{ borderRadius: 8 }}
-      fullWidth
-      fullScreen
-      onClick={onClose}
-      // maxWidth={width}
-      // fullScreen={fullScreen}
-    >
+    <Dialog open={open} sx={{ borderRadius: 8 }} fullWidth fullScreen>
       <ScopedCssBaseline enableColorScheme>
-        <div className={classes.container}>
+        <div className={classes.container} onClick={onClose}>
           {closable && (
             <CloseIcon
               sx={{ fontSize: 32 }}
@@ -83,7 +72,9 @@ function Modal({ open, width, closable, children, onClose }: Props) {
               onClick={onClose}
             />
           )}
-          <div className={classes.modal}>{children}</div>
+          <div className={classes.modal} onClick={handleClickInModal}>
+            {children}
+          </div>
         </div>
       </ScopedCssBaseline>
     </Dialog>
