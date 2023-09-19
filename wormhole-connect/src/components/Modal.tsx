@@ -26,7 +26,6 @@ const useStyles = makeStyles<{ width: number }>()((theme: any, { width }) => ({
       margin: '20px auto',
       padding: '24px 12px',
     },
-    background: 'rgba(255,255,255,.02)',
     maxHeight: 'calc( 100vh - 80px )',
   },
   close: {
