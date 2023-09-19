@@ -103,7 +103,9 @@ export interface ParsedMessage {
   payloadID: number;
   recipient: string;
   toChain: ChainName;
+  toChainId: ChainId;
   fromChain: ChainName;
+  fromChainId: ChainId;
   tokenAddress: string;
   tokenChain: ChainName;
   tokenId: TokenId;
@@ -132,3 +134,9 @@ export type TokenDetails = {
 
 export type SendResult = Awaited<ReturnType<AnyContext['send']>>;
 export type RedeemResult = Awaited<ReturnType<AnyContext['redeem']>>;
+
+export type MessageIdentifier = {
+  emitterChain: ChainId;
+  emitterAddress: string;
+  sequence: string;
+};

@@ -494,6 +494,28 @@ export class WormholeContext extends MultiProvider<Domain> {
     return await context.getMessage(tx, chain);
   }
 
+  async fetchRedeemEvent(
+    destChain: ChainName | ChainId,
+    emitterChain: ChainId,
+    emitterAddress: string,
+    sequence: string,
+    maxBlockSearch?: number,
+  ): Promise<string | undefined> {
+    const context: any = this.getContext(destChain);
+    if (!context.fetchRedeemEvent) {
+      throw new Error(
+        'Cannot fetch redeem event, relays not supported on this chain',
+      );
+    }
+    return await context.fetchRedeemEvent(
+      destChain,
+      emitterChain,
+      emitterAddress,
+      sequence,
+      maxBlockSearch,
+    );
+  }
+
   /**
    * Get the default config for Mainnet or Testnet
    *

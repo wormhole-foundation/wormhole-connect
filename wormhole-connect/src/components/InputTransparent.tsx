@@ -1,6 +1,6 @@
 import { makeStyles } from 'tss-react/mui';
 import React from 'react';
-import { debounce } from 'utils';
+import { debounce } from 'utils/utils';
 
 type StyleProps = {
   align?: 'center' | 'right';

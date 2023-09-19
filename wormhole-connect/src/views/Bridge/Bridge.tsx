@@ -17,12 +17,17 @@ import {
 } from 'store/transferInput';
 import { CHAINS, TOKENS, pageHeader } from 'config';
 import { TokenConfig, Route } from 'config/types';
-import { getTokenDecimals, getWrappedToken } from 'utils';
-import { wh, toChainId } from 'utils/sdk';
-import { joinClass } from 'utils/style';
-import { toDecimals } from 'utils/balance';
-import { isTransferValid, validate } from 'utils/transferValidation';
-import RouteOperator from 'utils/routes/operator';
+import {
+  wh,
+  toChainId,
+  getTokenDecimals,
+  getWrappedToken,
+  toDecimals,
+  joinClass,
+  isTransferValid,
+  validate,
+} from 'utils';
+import RouteOperator from 'routes/operator';
 
 import GasSlider from './NativeGasSlider';
 import Preview from './Preview';
@@ -76,7 +81,6 @@ function Bridge() {
     token,
     destToken,
     route,
-    foreignAsset,
     associatedTokenAddress,
     isTransactionInProgress,
     amount,
@@ -234,7 +238,6 @@ function Bridge() {
     route,
     toNativeToken,
     relayerFee,
-    foreignAsset,
     associatedTokenAddress,
     dispatch,
   ]);

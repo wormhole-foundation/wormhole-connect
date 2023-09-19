@@ -57,6 +57,16 @@ export default abstract class RouteAbstract {
     destChain?: ChainName | ChainId,
   ): Promise<TokenConfig[]>;
 
+  public abstract validateSourceToken(
+    sourceToken: TokenId,
+    destChain: ChainName | ChainId,
+  ): Promise<boolean>;
+
+  public abstract getReceiveToken(
+    sourceToken: TokenId,
+    destChain: ChainName | ChainId,
+  ): Promise<string | undefined>;
+
   // Calculate the amount a user would receive if sending a certain amount
   public abstract computeReceiveAmount(
     sendAmount: number | undefined,
@@ -157,6 +167,12 @@ export default abstract class RouteAbstract {
     messageInfo: SignedMessage,
   ): Promise<boolean>;
 
+  abstract tryFetchRedeemTx(
+    txData: ParsedMessage | ParsedRelayerMessage,
+  ): Promise<string | undefined>;
+}
+
+export abstract class RelayAbstract extends RouteAbstract {
   // swap information (native gas slider)
   abstract nativeTokenAmount(
     destChain: ChainName | ChainId,
@@ -170,8 +186,4 @@ export default abstract class RouteAbstract {
     token: TokenId,
     walletAddress: string,
   ): Promise<BigNumber>;
-
-  abstract tryFetchRedeemTx(
-    txData: ParsedMessage | ParsedRelayerMessage,
-  ): Promise<string | undefined>;
 }

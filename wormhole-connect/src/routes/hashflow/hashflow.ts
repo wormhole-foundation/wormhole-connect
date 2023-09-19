@@ -2,8 +2,6 @@ import {
   ChainName,
   ChainId,
   TokenId,
-  // EthContext,
-  // WormholeContext,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { BigNumber } from 'ethers';
 
@@ -12,15 +10,13 @@ import {
   TransferInfoBaseParams,
   UnsignedMessage,
   SignedMessage,
-} from './types';
-import { TransferDisplayData } from './types';
-import RouteAbstract from './routeAbstract';
+} from '../types';
+import { TransferDisplayData } from '../types';
+import RouteAbstract from '../routeAbstract';
 import { CHAINS, ROUTES, TOKENS } from 'config';
-import { wh } from 'utils/sdk';
-import { toFixedDecimals } from 'utils/balance';
-import { NO_INPUT } from 'utils/style';
+import { wh, toFixedDecimals, NO_INPUT } from 'utils';
 import { RFQ } from 'store/hashflow';
-import { estimateHashflowFees } from 'utils/hashflow';
+import { estimateHashflowFees } from './api';
 
 export class HashflowRoute extends RouteAbstract {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED = false;
@@ -123,13 +119,27 @@ export class HashflowRoute extends RouteAbstract {
       return res.status === 'fulfilled' && res.value;
     });
   }
+  async validateSourceToken(
+    sourceToken: TokenId,
+    destChain: ChainName | ChainId,
+  ): Promise<boolean> {
+    // Don't need to check that wormhole wrapped asset exists, just return true
+    return true;
+  }
+  async getReceiveToken(
+    sourceToken: TokenId,
+    destChain: ChainName | ChainId,
+  ): Promise<string | undefined> {
+    // The receive token is selected by the user
+    return undefined;
+  }
   async computeReceiveAmount(sendAmount: number | undefined): Promise<number> {
-    // throw new Error('Method not implemented');
-    return 1;
+    // TODO:
+    return sendAmount || 0;
   }
   async computeSendAmount(receiveAmount: number | undefined): Promise<number> {
-    // throw new Error('Method not implemented');
-    return 1;
+    // TODO:
+    return receiveAmount || 0;
   }
   async validate(
     token: TokenId | 'native',

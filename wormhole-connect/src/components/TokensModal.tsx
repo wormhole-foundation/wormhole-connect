@@ -15,16 +15,15 @@ import { BigNumber } from 'ethers';
 import { RootState } from 'store';
 import { CHAINS } from 'config';
 import { TokenConfig } from 'config/types';
+import { setBalances, formatBalance, ChainBalances, accessChainBalances } from 'store/transferInput';
 import {
-  setBalances,
-  formatBalance,
-  ChainBalances,
-  accessChainBalances,
-} from 'store/transferInput';
-import { displayAddress, getDisplayName } from 'utils';
-import { wh } from 'utils/sdk';
-import { CENTER, NO_INPUT } from 'utils/style';
-import { isCosmWasmChain } from 'utils/cosmos';
+  wh,
+  displayAddress,
+  getDisplayName,
+  CENTER,
+  NO_INPUT,
+  isCosmWasmChain,
+} from 'utils';
 
 import Header from './Header';
 import Modal from './Modal';

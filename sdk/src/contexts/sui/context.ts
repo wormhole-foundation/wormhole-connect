@@ -24,6 +24,7 @@ import {
   ChainId,
   ChainName,
   Context,
+  MessageIdentifier,
   NATIVE,
   ParsedMessage,
   ParsedRelayerMessage,
@@ -35,7 +36,7 @@ import { RelayerAbstract } from '../abstracts/relayer';
 import { SolanaContext } from '../solana';
 import { SuiContracts } from './contracts';
 import { SuiRelayer } from './relayer';
-import { ForeignAssetCache } from '../../utils';
+import { ForeignAssetCache, ensureHexPrefix } from '../../utils';
 
 export class SuiContext<
   T extends WormholeContext,
@@ -416,7 +417,9 @@ export class SuiContext<
       payloadID: parsed.payloadType,
       recipient: destContext.parseAddress(hexlify(parsed.to)),
       toChain: this.context.toChainName(parsed.toChain),
+      toChainId: parsed.toChain as ChainId,
       fromChain: this.context.toChainName(chain),
+      fromChainId: this.context.toChainId(chain),
       tokenAddress,
       tokenChain,
       tokenId: {
@@ -668,5 +671,66 @@ export class SuiContext<
     if (!this.provider) throw new Error('no provider');
     const sequence = await this.provider.getLatestCheckpointSequenceNumber();
     return Number(sequence);
+  }
+
+  async fetchRedeemEvent(
+    destChain: ChainName | ChainId,
+    messageId: MessageIdentifier,
+  ): Promise<string | undefined> {
+    const { emitterAddress, emitterChain, sequence } = messageId;
+    const emitter = ensureHexPrefix(emitterAddress);
+    const { suiOriginalTokenBridgePackageId } =
+      this.context.mustGetContracts('sui');
+    if (!suiOriginalTokenBridgePackageId)
+      throw new Error('suiOriginalTokenBridgePackageId not set');
+    const provider = this.provider;
+    // full nodes don't let us filter by `MoveEventField`
+    const events = await provider.queryEvents({
+      query: {
+        MoveEventType: `${suiOriginalTokenBridgePackageId}::complete_transfer::TransferRedeemed`,
+      },
+      order: 'descending',
+    });
+    for (const event of events.data) {
+      if (
+        `0x${Buffer.from(event.parsedJson?.emitter_address.value.data).toString(
+          'hex',
+        )}` === emitter &&
+        Number(event.parsedJson?.emitter_chain) === emitterChain &&
+        event.parsedJson?.sequence === sequence
+      ) {
+        return event.id.txDigest;
+      }
+    }
+    return undefined;
+  }
+
+  async fetchSwapEvent(destChain: ChainName | ChainId, txData: ParsedRelayerMessage, maxBlockSearch?: number | undefined): Promise<BigNumber | null> {
+    const { tokenId, recipient, toNativeTokenAmount } = txData;
+    const { suiRelayerPackageId } = this.context.mustGetContracts('sui');
+    if (!suiRelayerPackageId) throw new Error('suiRelayerPackageId not set');
+    const provider = this.provider;
+    // full nodes don't let us query by `MoveEventField`
+    const events = await provider.queryEvents({
+      query: {
+        MoveEventType: `${suiRelayerPackageId}::redeem::SwapExecuted`,
+      },
+      order: 'descending',
+    });
+    const tokenContext = this.context.getContext(tokenId.chain);
+    const tokenAddress = arrayify(
+      await tokenContext.formatAssetAddress(tokenId.address),
+    );
+    for (const event of events.data) {
+      if (
+        event.parsedJson?.recipient === recipient &&
+        event.parsedJson?.coin_amount === toNativeTokenAmount &&
+        event.parsedJson?.coin ===
+          `0x${Buffer.from(tokenAddress).toString('hex')}`
+      ) {
+        return BigNumber.from(event.parsedJson?.sui_amount);
+      }
+    }
+    return null;
   }
 }

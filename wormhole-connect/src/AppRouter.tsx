@@ -5,7 +5,7 @@ import './App.css';
 import { RootState } from './store';
 import { clearRedeem } from './store/redeem';
 import { clearTransfer } from './store/transferInput';
-import { usePrevious } from './utils';
+import { usePrevious } from './utils/utils';
 
 import Bridge from './views/Bridge/Bridge';
 import FAQ from './views/FAQ';

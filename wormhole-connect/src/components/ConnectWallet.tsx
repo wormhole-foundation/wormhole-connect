@@ -7,8 +7,11 @@ import { ScopedCssBaseline, useMediaQuery } from '@mui/material';
 import { RootState } from 'store';
 import { setWalletModal } from 'store/router';
 import { disconnectWallet as disconnectFromStore } from 'store/wallet';
-import { TransferWallet } from 'utils/wallet';
-import { copyTextToClipboard, displayWalletAddress } from 'utils';
+import {
+  TransferWallet,
+  copyTextToClipboard,
+  displayWalletAddress,
+} from 'utils';
 
 import DownIcon from 'icons/Down';
 import WalletIcon from 'icons/Wallet';

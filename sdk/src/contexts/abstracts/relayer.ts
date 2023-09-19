@@ -5,6 +5,8 @@ import {
   ChainId,
   ParsedRelayerPayload,
   NATIVE,
+  ParsedRelayerMessage,
+  MessageIdentifier,
 } from '../../types';
 import { TokenBridgeAbstract } from './tokenBridge';
 
@@ -112,6 +114,18 @@ export abstract class RelayerAbstract<
     destChain: ChainName | ChainId,
     tokenId: TokenId,
   ): Promise<BigNumber>;
+
+  protected abstract fetchRedeemEvent(
+    destChain: ChainName | ChainId,
+    messageId: MessageIdentifier,
+    maxBlockSearch?: number,
+  ): Promise<string | undefined>;
+
+  protected abstract fetchSwapEvent(
+    destChain: ChainName | ChainId,
+    txData: ParsedRelayerMessage,
+    maxBlockSearch?: number,
+  ): Promise<BigNumber | null>;
 
   parseRelayerPayload(transferPayload: Buffer): ParsedRelayerPayload {
     return {

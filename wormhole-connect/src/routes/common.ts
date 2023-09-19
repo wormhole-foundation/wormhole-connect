@@ -1,14 +1,26 @@
+import { BigNumber, utils } from 'ethers';
 import {
+  CHAIN_ID_SEI,
+  SignedVaa,
+  parseTokenTransferPayload,
+  parseVaa,
+} from '@certusone/wormhole-sdk';
+import {
+  ChainName,
+  ChainId,
   MAINNET_CHAINS,
   ParsedMessage as SdkParsedMessage,
   ParsedRelayerMessage as SdkParsedRelayerMessage,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { getTokenById } from 'utils';
+import { CHAINS } from 'config';
+import { Route } from 'config/types';
+import { getTokenById } from 'utils/utils';
+import { toFixedDecimals } from 'utils/balance';
 import {
   ParsedMessage,
   ParsedRelayerMessage,
-  PayloadType,
   solanaContext,
+  PayloadType,
   wh,
 } from 'utils/sdk';
 
@@ -46,4 +58,32 @@ export const adaptParsedMessage = async (
     base.recipient = accountOwner;
   }
   return base;
+};
+
+export const getRouteForVaa = (vaa: SignedVaa): Route => {
+  const message = parseVaa(vaa);
+
+  // if (parsed.emitterAddress === HASHFLOW_CONTRACT_ADDRESS) {
+  //    return Route.Hashflow;
+  // }
+
+  const transfer = parseTokenTransferPayload(message.payload);
+  if (transfer.toChain === CHAIN_ID_SEI) {
+    return Route.Relay;
+  }
+
+  if (message.payload) {
+    console.log('message payload', message.payload, message.payload[0]);
+  }
+
+  return message.payload && message.payload[0] === PayloadType.Automatic
+    ? Route.Relay
+    : Route.Bridge;
+};
+
+export const formatGasFee = (chain: ChainName | ChainId, gasFee: BigNumber) => {
+  const chainName = wh.toChainName(chain);
+  const chainConfig = CHAINS[chainName]!;
+  const nativeDecimals = chainConfig.nativeTokenDecimals;
+  return toFixedDecimals(utils.formatUnits(gasFee, nativeDecimals), 6);
 };

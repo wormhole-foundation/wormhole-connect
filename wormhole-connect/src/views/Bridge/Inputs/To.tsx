@@ -8,8 +8,12 @@ import {
   selectToChain,
   setDestToken,
 } from 'store/transferInput';
-import { TransferWallet, walletAcceptedChains } from 'utils/wallet';
-import { getWrappedToken, getDisplayName } from 'utils';
+import {
+  TransferWallet,
+  walletAcceptedChains,
+  getWrappedToken,
+  getDisplayName,
+} from 'utils';
 import { CHAINS, CHAINS_ARR, TOKENS } from 'config';
 
 import Inputs from './Inputs';
@@ -18,7 +22,7 @@ import AmountInput from './AmountInput';
 import TokenWarnings from './TokenWarnings';
 import TokensModal from 'components/TokensModal';
 import ChainsModal from 'components/ChainsModal';
-import { HashflowRoute } from 'utils/routes';
+import { HashflowRoute } from 'routes';
 
 function ToInputs() {
   const dispatch = useDispatch();
@@ -122,7 +126,7 @@ function ToInputs() {
       if (hf.isSupportedChain(c.key)) return true;
       return c.key !== fromChain;
     });
-  }, []);
+  }, [fromChain]);
 
   return (
     <>

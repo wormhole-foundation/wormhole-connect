@@ -8,33 +8,30 @@ import { BigNumber } from 'ethers';
 import { hexlify, parseUnits, arrayify } from 'ethers/lib/utils.js';
 import { CHAINS, ROUTES, TOKENS } from 'config';
 import { TokenConfig, Route } from 'config/types';
+import { BaseRoute } from './baseRoute';
+import { adaptParsedMessage, formatGasFee } from '../common';
 import {
   MAX_DECIMALS,
   getTokenDecimals,
-  toNormalizedDecimals,
+  toFixedNormalizedDecimals,
   getDisplayName,
-} from 'utils';
+} from 'utils/utils';
 import { toChainId, wh } from 'utils/sdk';
 import { TransferWallet, postVaa, signAndSendTransaction } from 'utils/wallet';
 import { NO_INPUT } from 'utils/style';
+import { toDecimals } from 'utils/balance';
+import { isCosmWasmChain } from 'utils/cosmos';
+import { fetchVaa } from 'utils/vaa';
 import {
   UnsignedMessage,
   TransferDisplayData,
   isSignedWormholeMessage,
   TokenTransferMessage,
   SignedTokenTransferMessage,
-} from './types';
-import { BaseRoute } from './baseRoute';
-import { adaptParsedMessage } from './common';
-import { toDecimals } from '../balance';
-import {
   SignedMessage,
   TransferDestInfoBaseParams,
   TransferInfoBaseParams,
-} from './types';
-import { isCosmWasmChain } from '../cosmos';
-import { fetchVaa } from '../vaa';
-import { formatGasFee } from './utils';
+} from '../types';
 
 export class BridgeRoute extends BaseRoute {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean = false;
@@ -302,7 +299,7 @@ export class BridgeRoute extends BaseRoute {
   async getTransferSourceInfo({
     txData,
   }: TransferInfoBaseParams): Promise<TransferDisplayData> {
-    const formattedAmt = toNormalizedDecimals(
+    const formattedAmt = toFixedNormalizedDecimals(
       txData.amount,
       txData.tokenDecimals,
       MAX_DECIMALS,
@@ -347,7 +344,7 @@ export class BridgeRoute extends BaseRoute {
       }
     }
 
-    const formattedAmt = toNormalizedDecimals(
+    const formattedAmt = toFixedNormalizedDecimals(
       txData.amount,
       txData.tokenDecimals,
       MAX_DECIMALS,

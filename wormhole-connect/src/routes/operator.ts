@@ -7,13 +7,19 @@ import { BigNumber } from 'ethers';
 
 import { CHAINS, ROUTES, TOKENS } from 'config';
 import { TokenConfig, Route } from 'config/types';
-import { BridgeRoute } from './bridge';
-import { RelayRoute } from './relay';
-import { HashflowRoute } from './hashflow';
-import { CCTPRelayRoute } from './cctpRelay';
-import { CosmosGatewayRoute } from './cosmosGateway';
-import { ParsedMessage, PayloadType, getMessage, isEvmChain, wh } from '../sdk';
-import { isCosmWasmChain } from '../cosmos';
+import { BridgeRoute } from './bridge/bridge';
+import { RelayRoute } from './relay/relay';
+import { HashflowRoute } from './hashflow/hashflow';
+import { CCTPRelayRoute } from './cctpRelay/cctpRelay';
+import { CosmosGatewayRoute } from './cosmosGateway/cosmosGateway';
+import {
+  ParsedMessage,
+  PayloadType,
+  getMessage,
+  isEvmChain,
+  wh,
+} from '../utils/sdk';
+import { isCosmWasmChain } from '../utils/cosmos';
 import RouteAbstract from './routeAbstract';
 import {
   UnsignedMessage,
@@ -272,6 +278,24 @@ export class Operator {
     );
   }
 
+  async validateSourceToken(
+    route: Route,
+    sourceToken: TokenId,
+    destChain: ChainName | ChainId,
+  ): Promise<boolean> {
+    const r = this.getRoute(route);
+    return await r.validateSourceToken(sourceToken, destChain);
+  }
+
+  async getReceiveToken(
+    route: Route,
+    sourceToken: TokenId,
+    destChain: ChainName | ChainId,
+  ): Promise<string | undefined> {
+    const r = this.getRoute(route);
+    return await r.getReceiveToken(sourceToken, destChain);
+  }
+
   async computeReceiveAmount(
     route: Route,
     sendAmount: number | undefined,
@@ -462,7 +486,15 @@ export class Operator {
     walletAddress: string,
   ): Promise<BigNumber> {
     const r = this.getRoute(route);
-    return r.nativeTokenAmount(destChain, token, amount, walletAddress);
+    if (!r.NATIVE_GAS_DROPOFF_SUPPORTED) {
+      throw new Error('swap for native gas token not supported');
+    }
+    return (r as RelayRoute).nativeTokenAmount(
+      destChain,
+      token,
+      amount,
+      walletAddress,
+    );
   }
 
   maxSwapAmount(
@@ -472,7 +504,10 @@ export class Operator {
     walletAddress: string,
   ): Promise<BigNumber> {
     const r = this.getRoute(route);
-    return r.maxSwapAmount(destChain, token, walletAddress);
+    if (!r.NATIVE_GAS_DROPOFF_SUPPORTED) {
+      throw new Error('swap for native gas token not supported');
+    }
+    return (r as RelayRoute).maxSwapAmount(destChain, token, walletAddress);
   }
 
   tryFetchRedeemTx(

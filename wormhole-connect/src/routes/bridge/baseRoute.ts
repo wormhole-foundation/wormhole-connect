@@ -1,7 +1,11 @@
-import { ChainId, ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+import {
+  ChainId,
+  ChainName,
+  TokenId,
+} from '@wormhole-foundation/wormhole-connect-sdk';
 import { TokenConfig } from 'config/types';
-import { getWrappedToken } from 'utils';
-import RouteAbstract from './routeAbstract';
+import { getWrappedToken } from 'utils/utils';
+import RouteAbstract from '../routeAbstract';
 import { wh } from 'utils/sdk';
 
 export abstract class BaseRoute extends RouteAbstract {
@@ -66,5 +70,27 @@ export abstract class BaseRoute extends RouteAbstract {
       const res = shouldAdd[i];
       return res.status === 'fulfilled' && res.value;
     });
+  }
+
+  async validateSourceToken(
+    sourceToken: TokenId,
+    destChain: ChainName | ChainId,
+  ): Promise<boolean> {
+    try {
+      const repr = await this.getReceiveToken(sourceToken, destChain);
+      return !!repr;
+    } catch {
+      return false;
+    }
+  }
+
+  async getReceiveToken(
+    sourceToken: TokenId,
+    destChain: ChainName | ChainId,
+  ): Promise<string | undefined> {
+    const repr = await wh.getForeignAsset(sourceToken, destChain);
+    if (!repr)
+      throw new Error(`no token representation exists on ${destChain}`);
+    return repr;
   }
 }

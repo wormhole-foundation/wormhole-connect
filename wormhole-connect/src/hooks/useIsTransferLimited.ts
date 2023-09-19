@@ -4,10 +4,13 @@ import { TOKENS } from 'config';
 import { hexlify } from 'ethers/lib/utils.js';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { formatAssetAddress, wh } from 'utils/sdk';
 import { RootState } from 'store';
-import { getWrappedTokenId } from 'utils';
-import { WORMHOLE_RPC_HOSTS } from 'utils/vaa';
+import {
+  wh,
+  formatAssetAddress,
+  getWrappedTokenId,
+  WORMHOLE_RPC_HOSTS,
+} from 'utils';
 
 const REMAINING_NOTIONAL_TOLERANCE = 0.98;
 interface TokenListEntry {

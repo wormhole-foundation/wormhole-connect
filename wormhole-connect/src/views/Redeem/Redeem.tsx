@@ -8,11 +8,14 @@ import {
   setSignedMessage,
   setTransferComplete,
 } from 'store/redeem';
-import { sleep } from 'utils';
-import { fetchIsVAAEnqueued } from 'utils/vaa';
-import { SignedMessage } from 'utils/routes';
-import RouteOperator from 'utils/routes/operator';
-import { ParsedMessage, ParsedRelayerMessage } from 'utils/sdk';
+import {
+  sleep,
+  fetchIsVAAEnqueued,
+  ParsedMessage,
+  ParsedRelayerMessage,
+} from 'utils';
+import { SignedMessage } from 'routes';
+import RouteOperator from 'routes/operator';
 
 import PageHeader from 'components/PageHeader';
 import Spacer from 'components/Spacer';

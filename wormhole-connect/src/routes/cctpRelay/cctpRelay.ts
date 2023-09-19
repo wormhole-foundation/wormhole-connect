@@ -5,51 +5,52 @@ import {
   EthContext,
   WormholeContext,
   MessageTransmitter__factory,
+  fromNormalizedDecimals,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { BigNumber, utils } from 'ethers';
 
 import { CHAINS, ROUTES, TOKENS, sdkConfig } from 'config';
 import { TokenConfig, Route } from 'config/types';
 import {
+  wh,
   MAX_DECIMALS,
   getTokenDecimals,
-  toNormalizedDecimals,
-  fromNormalizedDecimals,
+  toFixedNormalizedDecimals,
   getTokenById,
   getDisplayName,
-} from 'utils';
-import {
   ParsedMessage,
   ParsedRelayerMessage,
   PayloadType,
   toChainId,
-  wh,
-} from 'utils/sdk';
-import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
-import { NO_INPUT } from 'utils/style';
+  TransferWallet,
+  signAndSendTransaction,
+  NO_INPUT,
+  toDecimals,
+  toFixedDecimals,
+  getUnsignedVaaEvm,
+} from 'utils';
 import {
   TransferDisplayData,
   TransferInfoBaseParams,
   SignedMessage,
   RelayCCTPMessage,
   TransferDestInfoBaseParams,
-} from './types';
-import { toDecimals, toFixedDecimals } from '../balance';
-import { RelayOptions } from './relay';
+} from '../types';
 import {
+  CCTPManualRoute,
   CCTPTokenSymbol,
   CCTPManual_CHAINS as CCTPRelay_CHAINS,
   CCTP_LOG_MessageSent,
   CCTP_LOG_TokenMessenger_DepositForBurn,
-  CCTPManualRoute,
   getChainNameCCTP,
   getForeignUSDCAddress,
   getNonce,
-} from './cctpManual';
-import { getUnsignedVaaEvm } from 'utils/vaa';
+} from '../cctpManual';
 import { getNativeVersionOfToken } from 'store/transferInput';
+import { RelayOptions } from 'routes/relay';
+import { RelayAbstract } from 'routes/routeAbstract';
 
-export class CCTPRelayRoute extends CCTPManualRoute {
+export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED = true;
   readonly AUTOMATIC_DEPOSIT = true;
 
@@ -509,7 +510,7 @@ export class CCTPRelayRoute extends CCTPManualRoute {
   }: TransferInfoBaseParams): Promise<TransferDisplayData> {
     const txData = data as ParsedRelayerMessage;
 
-    const formattedAmt = toNormalizedDecimals(
+    const formattedAmt = toFixedNormalizedDecimals(
       txData.amount,
       txData.tokenDecimals,
       MAX_DECIMALS,
@@ -525,12 +526,12 @@ export class CCTPRelayRoute extends CCTPManualRoute {
     const token = TOKENS[txData.tokenKey];
 
     // automatic transfers
-    const formattedFee = toNormalizedDecimals(
+    const formattedFee = toFixedNormalizedDecimals(
       txData.relayerFee,
       txData.tokenDecimals,
       MAX_DECIMALS,
     );
-    const formattedToNative = toNormalizedDecimals(
+    const formattedToNative = toFixedNormalizedDecimals(
       txData.toNativeTokenAmount,
       txData.tokenDecimals,
       MAX_DECIMALS,
@@ -619,8 +620,8 @@ export class CCTPRelayRoute extends CCTPManualRoute {
     const receiveAmt = BigNumber.from(txData.amount)
       .sub(BigNumber.from(txData.relayerFee))
       .sub(BigNumber.from(txData.toNativeTokenAmount || 0));
-    const formattedAmt = toNormalizedDecimals(
-      receiveAmt,
+    const formattedAmt = toFixedNormalizedDecimals(
+      receiveAmt.toString(),
       txData.tokenDecimals,
       MAX_DECIMALS,
     );

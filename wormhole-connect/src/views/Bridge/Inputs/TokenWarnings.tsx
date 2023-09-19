@@ -3,19 +3,19 @@ import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 
 import { RootState } from 'store';
-import {
-  setAssociatedTokenAddress,
-  setForeignAsset,
-} from 'store/transferInput';
+import { setAssociatedTokenAddress } from 'store/transferInput';
 import { ATTEST_URL, TOKENS } from 'config';
-import { getWrappedTokenId } from 'utils';
-import { TransferWallet, signSolanaTransaction } from 'utils/wallet';
-import { joinClass } from 'utils/style';
-import { solanaContext } from 'utils/sdk';
+import {
+  getWrappedTokenId,
+  TransferWallet,
+  signSolanaTransaction,
+  joinClass,
+  solanaContext,
+} from 'utils';
+import RouteOperator from 'routes/operator';
 
 import { CircularProgress, Link, Typography } from '@mui/material';
 import AlertBanner from 'components/AlertBanner';
-import RouteOperator from 'utils/routes/operator';
 
 const useStyles = makeStyles()((theme: any) => ({
   associatedTokenWarning: {
@@ -93,7 +93,7 @@ function AssociatedTokenWarning(props: Props) {
 function TokenWarnings() {
   const dispatch = useDispatch();
 
-  const { toChain, token, foreignAsset, associatedTokenAddress, route } =
+  const { toChain, token, destToken, associatedTokenAddress, route } =
     useSelector((state: RootState) => state.transferInput);
   const { receiving } = useSelector((state: RootState) => state.wallet);
   const [showErrors, setShowErrors] = useState(false);
@@ -104,9 +104,8 @@ function TokenWarnings() {
   useEffect(() => {
     // Avoid race conditions
     let active = true;
-    const checkWrappedTokenExists = async () => {
+    const validateReceiveToken = async () => {
       if (!toChain || !tokenConfig || !route) {
-        dispatch(setForeignAsset(''));
         setShowErrors(false);
         return;
       }
@@ -117,22 +116,16 @@ function TokenWarnings() {
         throw new Error('Could not retrieve target token info');
       }
 
-      const address = await RouteOperator.getForeignAsset(
+      const valid = await RouteOperator.validateSourceToken(
         route,
         tokenId,
         toChain,
       );
 
       if (!active) return;
-      if (address) {
-        dispatch(setForeignAsset(address));
-        setShowErrors(false);
-      } else {
-        dispatch(setForeignAsset(''));
-        setShowErrors(true);
-      }
+      setShowErrors(!valid);
     };
-    checkWrappedTokenExists();
+    validateReceiveToken();
     return () => {
       active = false;
     };
@@ -142,7 +135,7 @@ function TokenWarnings() {
   // need to check if there is an account created for that address
   const checkSolanaAssociatedTokenAccount =
     useCallback(async (): Promise<boolean> => {
-      if (!foreignAsset || !tokenConfig) {
+      if (!destToken || !tokenConfig) {
         setShowErrors(false);
         return false;
       }
@@ -161,14 +154,14 @@ function TokenWarnings() {
         setShowErrors(true);
         return false;
       }
-    }, [foreignAsset, tokenConfig, receiving, dispatch]);
+    }, [destToken, tokenConfig, receiving, dispatch]);
 
   const createAssociatedTokenAccount = useCallback(async () => {
     if (!receiving.address || !token)
       throw new Error(
         'Must fill in all fields before you can create a token account',
       );
-    if (!foreignAsset)
+    if (!destToken)
       throw new Error(
         'The token must be registered on Solana before an associated token account can be created',
       );
@@ -198,20 +191,20 @@ function TokenWarnings() {
   }, [
     token,
     receiving,
-    foreignAsset,
+    destToken,
     tokenConfig,
     checkSolanaAssociatedTokenAccount,
   ]);
 
   useEffect(() => {
     if (!toChain || !token || !receiving.address) return;
-    if (toChain === 'solana' && foreignAsset) {
+    if (toChain === 'solana' && destToken) {
       checkSolanaAssociatedTokenAccount();
     }
   }, [
     toChain,
     token,
-    foreignAsset,
+    destToken,
     receiving,
     associatedTokenAddress,
     checkSolanaAssociatedTokenAccount,
@@ -233,7 +226,7 @@ function TokenWarnings() {
     />
   );
 
-  const content = !foreignAsset
+  const content = !destToken
     ? noForeignAssetWarning
     : toChain === 'solana' && noAssociatedTokenAccount;
 

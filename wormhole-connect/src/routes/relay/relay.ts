@@ -2,22 +2,20 @@ import {
   TokenId,
   ChainName,
   ChainId,
+  fromNormalizedDecimals,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { BigNumber, utils } from 'ethers';
 
-import { CHAINS, ROUTES, TOKENS, sdkConfig } from 'config';
+import { CHAINS, ROUTES, TOKENS, TOKENS_ARR, sdkConfig } from 'config';
 import { TokenConfig, Route } from 'config/types';
 import {
   MAX_DECIMALS,
-  fromNormalizedDecimals,
   getTokenDecimals,
   getWrappedTokenId,
-  toNormalizedDecimals,
+  toFixedNormalizedDecimals,
   getDisplayName,
-} from 'utils';
-import { fetchRedeemedEvent } from '../events';
+} from 'utils/utils';
 import {
-  ParsedMessage,
   wh,
   isAcceptedToken,
   ParsedRelayerMessage,
@@ -28,35 +26,25 @@ import {
 } from 'utils/sdk';
 import { NO_INPUT } from 'utils/style';
 import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
-import { BridgeRoute } from './bridge';
-import { toDecimals, toFixedDecimals } from '../balance';
+import { BridgeRoute } from '../bridge/bridge';
+import { toDecimals, toFixedDecimals } from '../../utils/balance';
 import {
   RelayTransferMessage,
   SignedRelayTransferMessage,
   TransferDisplayData,
-} from './types';
-import { adaptParsedMessage } from './common';
-import { fetchSwapEvent } from '../events';
-import {
   UnsignedMessage,
   SignedMessage,
   TransferInfoBaseParams,
-} from './types';
-import { fetchVaa } from '../vaa';
+} from '../types';
+import { adaptParsedMessage } from '../common';
+import { TransferDestInfoParams } from './types';
+import { fetchVaa, getEmitterAndSequence } from '../../utils/vaa';
+import { RelayOptions } from './types';
+import { fetchSwapEvent } from './events';
+import { RelayAbstract } from 'routes/routeAbstract';
+import { CCTPTokenSymbol } from 'routes/cctpManual';
 
-export type RelayOptions = {
-  relayerFee?: number;
-  toNativeToken?: number;
-  receiveNativeAmt: number;
-};
-
-interface TransferDestInfoParams {
-  txData: ParsedMessage | ParsedRelayerMessage;
-  receiveTx?: string;
-  transferComplete?: boolean;
-}
-
-export class RelayRoute extends BridgeRoute {
+export class RelayRoute extends BridgeRoute implements RelayAbstract {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED = true;
   readonly AUTOMATIC_DEPOSIT = true;
 
@@ -170,6 +158,20 @@ export class RelayRoute extends BridgeRoute {
       const res = shouldAdd[i];
       return res.status === 'fulfilled' && res.value;
     });
+  }
+
+  async getReceiveToken(
+    sourceToken: TokenId,
+    destChain: ChainName | ChainId,
+  ): Promise<string | undefined> {
+    const addr = TOKENS_ARR.find(
+      (t) =>
+        t.symbol === CCTPTokenSymbol &&
+        t.nativeChain === destChain &&
+        t.tokenId?.chain === destChain,
+    )?.tokenId?.address;
+    if (!addr) throw new Error('USDC not found');
+    return addr;
   }
 
   async computeReceiveAmount(
@@ -444,7 +446,7 @@ export class RelayRoute extends BridgeRoute {
   }: TransferInfoBaseParams): Promise<TransferDisplayData> {
     const txData = data as ParsedRelayerMessage;
 
-    const formattedAmt = toNormalizedDecimals(
+    const formattedAmt = toFixedNormalizedDecimals(
       txData.amount,
       txData.tokenDecimals,
       MAX_DECIMALS,
@@ -460,12 +462,12 @@ export class RelayRoute extends BridgeRoute {
     const token = TOKENS[txData.tokenKey];
 
     // automatic transfers
-    const formattedFee = toNormalizedDecimals(
+    const formattedFee = toFixedNormalizedDecimals(
       txData.relayerFee,
       txData.tokenDecimals,
       MAX_DECIMALS,
     );
-    const formattedToNative = toNormalizedDecimals(
+    const formattedToNative = toFixedNormalizedDecimals(
       txData.toNativeTokenAmount,
       txData.tokenDecimals,
       MAX_DECIMALS,
@@ -553,7 +555,7 @@ export class RelayRoute extends BridgeRoute {
     const receiveAmt = BigNumber.from(txData.amount)
       .sub(BigNumber.from(txData.relayerFee))
       .sub(BigNumber.from(txData.toNativeTokenAmount || 0));
-    const formattedAmt = toNormalizedDecimals(
+    const formattedAmt = toFixedNormalizedDecimals(
       receiveAmt,
       txData.tokenDecimals,
       MAX_DECIMALS,
@@ -576,12 +578,17 @@ export class RelayRoute extends BridgeRoute {
   async tryFetchRedeemTx(txData: UnsignedMessage): Promise<string | undefined> {
     // if this is an automatic transfer and the transaction hash was not found,
     // then try to fetch the redeemed event
-    let redeemTx: string | undefined = undefined;
     try {
-      const res = await fetchRedeemedEvent(txData);
-      redeemTx = res?.transactionHash;
-    } catch {}
-
-    return redeemTx;
+      const { emitterChain, emitterAddress, sequence } =
+        getEmitterAndSequence(txData);
+      return await wh.fetchRedeemEvent(
+        txData.toChain,
+        emitterChain,
+        emitterAddress,
+        sequence,
+      );
+    } catch {
+      return undefined;
+    }
   }
 }

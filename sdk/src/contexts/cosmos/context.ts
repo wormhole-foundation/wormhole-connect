@@ -503,7 +503,9 @@ export class CosmosContext<
       payloadID: parsed.payloadType,
       recipient: destContext.parseAddress(hexlify(parsed.to)),
       toChain: this.context.toChainName(parsed.toChain),
+      toChainId: parsed.toChain as ChainId,
       fromChain: this.context.toChainName(chain),
+      fromChainId: this.context.toChainId(chain),
       tokenAddress,
       tokenChain,
       tokenId: {

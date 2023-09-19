@@ -14,7 +14,7 @@ import Spacer from './Spacer';
 import Search from './Search';
 import Scroll from './Scroll';
 import TokenIcon from 'icons/TokenIcons';
-import RouteOperator from 'utils/routes/operator';
+import RouteOperator from 'routes/operator';
 
 const useStyles = makeStyles()((theme: any) => ({
   chainsContainer: {

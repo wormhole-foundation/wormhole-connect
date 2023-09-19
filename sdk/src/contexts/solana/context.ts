@@ -48,6 +48,7 @@ import {
   ParsedMessage,
   Context,
   ParsedRelayerMessage,
+  MessageIdentifier,
 } from '../../types';
 import { SolContracts } from './contracts';
 import { WormholeContext } from '../../wormhole';
@@ -64,7 +65,7 @@ import {
   getClaim,
   getPostedMessage,
 } from './utils/wormhole';
-import { ForeignAssetCache } from '../../utils';
+import { ForeignAssetCache, getEmitterAndSequence } from '../../utils';
 import { RelayerAbstract } from '../abstracts/relayer';
 import {
   createTransferNativeTokensWithRelayInstruction,
@@ -786,6 +787,7 @@ export class SolanaContext<
     const tokenChain = this.context.toChainName(transfer.tokenChain);
 
     const fromChain = this.context.toChainName(chain);
+    const fromChainId = this.context.toChainId(chain);
     const toChain = this.context.toChainName(transfer.toChain);
     const toAddress = destContext.parseAddress(hexlify(transfer.to));
 
@@ -796,7 +798,9 @@ export class SolanaContext<
       payloadID: transfer.payloadType,
       recipient: toAddress,
       toChain,
+      toChainId: transfer.toChain as ChainId,
       fromChain,
+      fromChainId,
       tokenAddress,
       tokenChain,
       tokenId: {
@@ -888,25 +892,6 @@ export class SolanaContext<
       parsed.sequence,
       'finalized',
     ).catch((e) => false);
-  }
-
-  async fetchRedeemedSignature(
-    emitterChainId: ChainId,
-    emitterAddress: string,
-    sequence: string,
-  ): Promise<string | null> {
-    if (!this.connection) throw new Error('no connection');
-    const tokenBridge = this.contracts.mustGetBridge(SOLANA_CHAIN_NAME);
-    const claimKey = deriveClaimKey(
-      tokenBridge.programId,
-      emitterAddress,
-      emitterChainId,
-      BigInt(sequence),
-    );
-    const signatures = await this.connection.getSignaturesForAddress(claimKey, {
-      limit: 1,
-    });
-    return signatures ? signatures[0].signature : null;
   }
 
   async getCurrentBlock(): Promise<number> {
@@ -1047,5 +1032,38 @@ export class SolanaContext<
       decimals,
     );
     return BigNumber.from(fee);
+  }
+
+  async fetchRedeemEvent(destChain: ChainName | ChainId, messageId: MessageIdentifier, maxBlockSearch?: number | undefined): Promise<string | undefined> {
+    if (!this.connection) throw new Error('no connection');
+    const tokenBridge = this.contracts.mustGetBridge(SOLANA_CHAIN_NAME);
+    const { emitterChain, emitterAddress, sequence } = messageId;
+    const claimKey = deriveClaimKey(
+      tokenBridge.programId,
+      emitterAddress,
+      emitterChain,
+      BigInt(sequence),
+    );
+    const signatures = await this.connection.getSignaturesForAddress(claimKey, {
+      limit: 1,
+    });
+    return signatures ? signatures[0].signature : undefined;
+  }
+
+  async fetchSwapEvent(destChain: ChainName | ChainId, txData: ParsedRelayerMessage, maxBlockSearch?: number | undefined): Promise<BigNumber | null> {
+    const messageId = getEmitterAndSequence(txData);
+    const signature = await this.fetchRedeemEvent(
+      'solana',
+      messageId,
+      maxBlockSearch,
+    );
+    if (signature) {
+      const relayer = this.contracts.mustGetTokenBridgeRelayer(
+        destChain,
+      );
+      const swapEvent = await relayer.fetchSwapEvent(signature);
+      return swapEvent ? BigNumber.from(swapEvent.nativeAmount) : null;
+    }
+    return null;
   }
 }

@@ -1,4 +1,4 @@
-import { ParsedMessage, ParsedRelayerMessage } from '../sdk';
+import { ParsedMessage, ParsedRelayerMessage } from '../utils/sdk';
 
 export type TokenTransferMessage = ParsedMessage;
 export type RelayTransferMessage = ParsedRelayerMessage;

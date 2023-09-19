@@ -712,7 +712,9 @@ export class SeiContext<
       payloadID: parsed.payloadType,
       recipient: destContext.parseAddress(hexlify(parsed.to)),
       toChain: this.context.toChainName(parsed.toChain),
+      toChainId: parsed.toChain as ChainId,
       fromChain: this.context.toChainName(chain),
+      fromChainId: this.context.toChainId(chain),
       tokenAddress,
       tokenChain,
       tokenId: {
@@ -830,11 +832,12 @@ export class SeiContext<
     };
   }
 
-  async fetchRedeemedEvent(
+  async fetchRedeemEvent(
+    destChain: ChainName | ChainId,
     emitterChainId: ChainId,
     emitterAddress: string,
     sequence: string,
-  ) {
+  ): Promise<string | undefined> {
     // search a max of blocks backwards, amplify the search only if nothing was found
     let res = await this.fetchRedeemedEventInner(
       emitterChainId,
@@ -859,7 +862,7 @@ export class SeiContext<
     emitterAddress: string,
     sequence: string,
     maxBlocks?: number,
-  ) {
+  ): Promise<string | undefined> {
     const client = await this.getCosmWasmClient();
 
     // there is no direct way to find the transaction through the chain/emitter/sequence identificator
@@ -891,7 +894,7 @@ export class SeiContext<
         }
       }
     }
-    return null;
+    return undefined;
   }
 
   async isTransferCompleted(

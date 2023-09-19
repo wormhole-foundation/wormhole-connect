@@ -9,7 +9,7 @@ import {
   WormholeContext,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 
-import { getWrappedTokenId } from '.';
+import { getWrappedTokenId } from './utils';
 import { ENV, RPCS, TOKENS, sdkConfig } from 'config';
 
 export enum PayloadType {

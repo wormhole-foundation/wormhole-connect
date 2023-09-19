@@ -11,9 +11,8 @@ import {
   accessBalance,
 } from 'store/transferInput';
 import { CHAINS, CHAINS_ARR, TOKENS } from 'config';
-import { TransferWallet, walletAcceptedChains } from 'utils/wallet';
-import RouteOperator from 'utils/routes/operator';
-import { getDisplayName } from 'utils';
+import { TransferWallet, walletAcceptedChains, getDisplayName } from 'utils';
+import RouteOperator from 'routes/operator';
 import Inputs from './Inputs';
 import Select from './Select';
 import AmountInput from './AmountInput';

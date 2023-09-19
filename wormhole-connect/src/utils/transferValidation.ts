@@ -17,8 +17,8 @@ import {
 import { WalletData, WalletState } from 'store/wallet';
 import { RelayState } from 'store/relay';
 import { walletAcceptedChains } from './wallet';
-import RouteOperator from './routes/operator';
-import { HashflowRoute } from './routes';
+import RouteOperator from 'routes/operator';
+import { HashflowRoute } from 'routes';
 
 export const validateFromChain = (
   chain: ChainName | undefined,
@@ -205,7 +205,6 @@ export const validateAll = async (
     destToken,
     amount,
     balances,
-    foreignAsset,
     associatedTokenAddress,
     route,
     supportedDestTokens,
@@ -232,10 +231,9 @@ export const validateAll = async (
     amount: validateAmount(amount, sendingTokenBalance, minAmt),
     route: validateRoute(route, availableRoutes),
     toNativeToken: '',
-    foreignAsset: validateForeignAsset(foreignAsset),
     associatedTokenAccount: validateSolanaTokenAccount(
       toChain,
-      foreignAsset,
+      destToken,
       associatedTokenAddress,
     ),
   };

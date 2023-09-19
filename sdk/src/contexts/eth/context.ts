@@ -24,6 +24,7 @@ import {
   ParsedMessage,
   Context,
   ParsedRelayerPayload,
+  MessageIdentifier,
 } from '../../types';
 import { WormholeContext } from '../../wormhole';
 import { EthContracts } from './contracts';
@@ -31,7 +32,7 @@ import { parseVaa } from '../../vaa';
 import { RelayerAbstract } from '../abstracts/relayer';
 import { SolanaContext } from '../solana';
 import { arrayify } from 'ethers/lib/utils';
-import { ForeignAssetCache } from '../../utils';
+import { ForeignAssetCache, ensureHexPrefix, fromNormalizedDecimals } from '../../utils';
 
 export const NO_VAA_FOUND = 'No message publish found in logs';
 
@@ -603,7 +604,9 @@ export class EthContext<
         payloadID: transfer.payloadID,
         recipient: destContext.parseAddress(transfer.to),
         toChain: this.context.toChainName(transfer.toChain),
+        toChainId: transfer.toChain as ChainId,
         fromChain,
+        fromChainId: this.context.toChainId(chain),
         tokenAddress,
         tokenChain,
         tokenId: {
@@ -642,7 +645,9 @@ export class EthContext<
       amount: transferWithPayload.amount,
       payloadID: transferWithPayload.payloadID,
       toChain: this.context.toChainName(transferWithPayload.toChain),
+      toChainId: transferWithPayload.toChain as ChainId,
       fromChain,
+      fromChainId: this.context.toChainId(chain),
       tokenAddress,
       tokenChain,
       tokenId: {
@@ -714,5 +719,65 @@ export class EthContext<
   async getCurrentBlock(chain: ChainName | ChainId): Promise<number> {
     const provider = this.context.mustGetProvider(chain);
     return await provider.getBlockNumber();
+  }
+
+  async fetchRedeemEvent(
+    destChain: ChainName | ChainId,
+    messageId: MessageIdentifier,
+    maxBlockSearch?: number,
+  ): Promise<string | undefined> {
+    const { emitterAddress, emitterChain, sequence } = messageId;
+    const emitter = ensureHexPrefix(emitterAddress);
+    const provider = this.context.mustGetProvider(emitterChain);
+    const context: any = this.context.getContext(
+      destChain,
+    ) as EthContext<WormholeContext>;
+    const relayer = context.contracts.mustGetTokenBridgeRelayer(destChain);
+    const eventFilter = relayer.filters.TransferRedeemed(
+      emitterChain,
+      emitter,
+      sequence,
+    );
+    const currentBlock = await provider.getBlockNumber();
+    const events = await relayer.queryFilter(
+      eventFilter,
+      maxBlockSearch ? currentBlock - maxBlockSearch : undefined,
+    );
+    return events ? events[0] : null;
+  }
+
+  async fetchSwapEvent(destChain: ChainName | ChainId, txData: ParsedRelayerMessage, maxBlockSearch?: number | undefined): Promise<BigNumber | null> {
+    const { tokenId, recipient, toNativeTokenAmount } = txData;
+    const tokenAddress = await this.context.getForeignAsset(txData.tokenId, txData.toChain);
+    let tokenDecimals = 0;
+    if (tokenAddress) {
+      tokenDecimals = await this.fetchTokenDecimals(tokenAddress, txData.toChain);
+    }
+    const provider = this.context.mustGetProvider(txData.toChain);
+    const context: any = this.context.getContext(txData.toChain);
+    const relayerContract = context.contracts.mustGetTokenBridgeRelayer(
+      txData.toChain,
+    );
+    const foreignAsset = await context.getForeignAsset(tokenId, txData.toChain);
+    const eventFilter = relayerContract.filters.SwapExecuted(
+      recipient,
+      undefined,
+      foreignAsset,
+    );
+    const currentBlock = await provider.getBlockNumber();
+    const events = await relayerContract.queryFilter(
+      eventFilter,
+      maxBlockSearch ? (currentBlock - maxBlockSearch) : undefined,
+    );
+    const normalized = fromNormalizedDecimals(
+      BigNumber.from(toNativeTokenAmount),
+      tokenDecimals,
+    );
+    const matches = events
+      .sort((a: any, b: any) => b.blockNumber - a.blockNumber)
+      .filter((e: any) => {
+        return normalized.eq(e.args[3]);
+      });
+    return matches ? matches[0]?.args?.[4] : null;
   }
 }

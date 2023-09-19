@@ -7,11 +7,9 @@ import { setTransferRoute } from 'store/transferInput';
 import { setRelayerFee } from 'store/relay';
 import { CHAINS, TOKENS } from 'config';
 import { Route } from 'config/types';
-import { getTokenDecimals } from 'utils';
-import { toDecimals } from 'utils/balance';
-import { toChainId } from 'utils/sdk';
-import { TransferDisplayData } from 'utils/routes';
-import RouteOperator from 'utils/routes/operator';
+import { toChainId, getTokenDecimals, toDecimals } from 'utils';
+import { TransferDisplayData } from 'routes';
+import RouteOperator from 'routes/operator';
 
 import { RenderRows } from 'components/RenderRows';
 import BridgeCollapse, { CollapseControlStyle } from './Collapse';

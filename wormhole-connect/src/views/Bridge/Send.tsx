@@ -12,16 +12,18 @@ import {
   setSendTx,
   setRoute as setRedeemRoute,
 } from 'store/redeem';
-import { displayWalletAddress, sleep } from 'utils';
-import { LINK } from 'utils/style';
 import {
+  displayWalletAddress,
+  sleep,
+  LINK,
   registerWalletSigner,
   switchChain,
   TransferWallet,
-} from 'utils/wallet';
-import { UnsignedMessage } from 'utils/routes';
-import RouteOperator from 'utils/routes/operator';
-import { validate, isTransferValid } from 'utils/transferValidation';
+  validate,
+  isTransferValid,
+} from 'utils';
+import { UnsignedMessage } from 'routes';
+import RouteOperator from 'routes/operator';
 import {
   setSendingGasEst,
   setClaimGasEst,

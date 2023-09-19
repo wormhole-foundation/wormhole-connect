@@ -5,8 +5,8 @@ import { Select, MenuItem, CircularProgress } from '@mui/material';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 
 import { CHAINS_ARR } from 'config';
-import { isValidTxId } from 'utils';
-import RouteOperator from 'utils/routes/operator';
+import { isValidTxId } from 'utils/utils';
+import RouteOperator from 'routes/operator';
 import { setTxDetails, setRoute as setRedeemRoute } from 'store/redeem';
 import { setRoute as setAppRoute } from 'store/router';
 import PageHeader from 'components/PageHeader';

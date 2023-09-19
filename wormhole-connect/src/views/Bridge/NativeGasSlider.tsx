@@ -9,10 +9,15 @@ import { useDebounce } from 'use-debounce';
 import { CHAINS, TOKENS } from 'config';
 import { TokenConfig, Route } from 'config/types';
 import { RoutesConfig } from 'config/routes';
-import { getTokenDecimals, getDisplayName } from 'utils';
-import { wh } from 'utils/sdk';
-import { getConversion, toDecimals, toFixedDecimals } from 'utils/balance';
-import RouteOperator from 'utils/routes/operator';
+import {
+  wh,
+  getTokenDecimals,
+  getDisplayName,
+  getConversion,
+  toDecimals,
+  toFixedDecimals,
+} from 'utils';
+import RouteOperator from 'routes/operator';
 import { RootState } from 'store';
 import { setTransferRoute } from 'store/transferInput';
 import {

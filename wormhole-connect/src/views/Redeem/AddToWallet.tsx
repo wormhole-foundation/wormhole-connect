@@ -14,8 +14,7 @@ import { MAINNET_CHAINS } from 'config/mainnet';
 import { TokenConfig } from 'config/types';
 import { RootState } from 'store';
 import { setWalletModal } from 'store/router';
-import { getTokenDecimals, getWrappedToken, getDisplayName } from 'utils';
-import { wh } from 'utils/sdk';
+import { wh, getTokenDecimals, getWrappedToken, getDisplayName } from 'utils';
 import { TransferWallet, switchChain, watchAsset } from 'utils/wallet';
 
 import TokenIcon from 'icons/TokenIcons';

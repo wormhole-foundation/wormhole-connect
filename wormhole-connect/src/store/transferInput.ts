@@ -3,10 +3,13 @@ import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { BigNumber } from 'ethers';
 import { TOKENS, config } from 'config';
 import { Route, TokenConfig } from 'config/types';
-import { getTokenDecimals } from 'utils';
-import { toDecimals } from 'utils/balance';
-import { toChainId } from 'utils/sdk';
-import { TransferWallet, walletAcceptedChains } from 'utils/wallet';
+import {
+  getTokenDecimals,
+  toDecimals,
+  toChainId,
+  TransferWallet,
+  walletAcceptedChains,
+} from 'utils';
 import { clearWallet, setWalletError, WalletData } from './wallet';
 
 export type Balances = { [key: string]: string | null };
@@ -79,7 +82,6 @@ export type TransferValidations = {
   amount: ValidationErr;
   route: ValidationErr;
   toNativeToken: ValidationErr;
-  foreignAsset: ValidationErr;
   associatedTokenAccount: ValidationErr;
 };
 
@@ -95,7 +97,6 @@ export interface TransferInputState {
   receiveAmount: string;
   route: Route | undefined;
   balances: WalletBalances;
-  foreignAsset: string;
   associatedTokenAddress: string;
   gasEst: {
     send: string;
@@ -120,7 +121,6 @@ const initialState: TransferInputState = {
     toNativeToken: '',
     sendingWallet: '',
     receivingWallet: '',
-    foreignAsset: '',
     associatedTokenAccount: '',
   },
   availableRoutes: undefined,
@@ -132,7 +132,6 @@ const initialState: TransferInputState = {
   receiveAmount: '',
   route: undefined,
   balances: {},
-  foreignAsset: '',
   associatedTokenAddress: '',
   gasEst: {
     send: '',
@@ -273,12 +272,6 @@ export const transferInputSlice = createSlice({
     ) => {
       state.receiverNativeBalance = payload;
     },
-    setForeignAsset: (
-      state: TransferInputState,
-      { payload }: PayloadAction<string>,
-    ) => {
-      state.foreignAsset = payload;
-    },
     setAssociatedTokenAddress: (
       state: TransferInputState,
       { payload }: PayloadAction<string>,
@@ -400,7 +393,6 @@ export const {
   setToChain,
   setAmount,
   setReceiveAmount,
-  setForeignAsset,
   setAssociatedTokenAddress,
   setTransferRoute,
   setSendingGasEst,
