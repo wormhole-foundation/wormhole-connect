@@ -130,6 +130,7 @@ export const TESTNET_TO_MAINNET_CHAIN_NAMES: {
   osmosis: 'osmosis',
   cosmoshub: 'cosmoshub',
   evmos: 'evmos',
+  kujira: 'kujira',
 };
 
 validateConfigs();

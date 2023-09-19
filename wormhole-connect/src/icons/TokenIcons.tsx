@@ -30,6 +30,7 @@ import TBTC from './Tokens/TBTC';
 import WSTETH from './Tokens/WSTETH';
 import EVMOS from './Tokens/EVMOS';
 import ATOM from './Tokens/ATOM';
+import KUJI from './Tokens/KUJI';
 
 const useStyles = makeStyles<{ size: number }>()((theme, { size }) => ({
   container: {
@@ -122,6 +123,9 @@ export const getIcon = (icon: Icon) => {
     }
     case Icon.EVMOS: {
       return EVMOS;
+    }
+    case Icon.KUJI: {
+      return KUJI;
     }
     default: {
       return noIcon;
