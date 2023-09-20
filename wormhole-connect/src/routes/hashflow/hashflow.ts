@@ -13,7 +13,7 @@ import {
 } from '../types';
 import { TransferDisplayData } from '../types';
 import RouteAbstract from '../routeAbstract';
-import { CHAINS, ROUTES, TOKENS } from 'config';
+import { CHAINS, ROUTES, TOKENS, sdkConfig } from 'config';
 import { wh, toFixedDecimals, NO_INPUT } from 'utils';
 import { RFQ } from 'store/hashflow';
 import { estimateHashflowFees } from './api';
@@ -23,9 +23,7 @@ export class HashflowRoute extends RouteAbstract {
   readonly AUTOMATIC_DEPOSIT = true;
 
   isSupportedChain(chain: ChainName): boolean {
-    // TODO: delete and use line below
-    return chain === 'mumbai';
-    // return !!sdkConfig.chains[chain]?.contracts.hashflow;
+    return !!sdkConfig.chains[chain]?.contracts.hashflow;
   }
 
   async isRouteAvailable(
@@ -46,12 +44,15 @@ export class HashflowRoute extends RouteAbstract {
       return false;
     }
 
+    // TODO: check token availability
+    return true;
+
     // TODO: actually determine route availability instead of hard coding tokens
-    return (
-      (sourceToken === 'USDCmumbai' || destToken === 'USDCmumbai') &&
-      (sourceToken === 'USDTmumbai' || destToken === 'USDTmumbai') &&
-      sourceToken !== destToken
-    );
+    // return (
+    //   (sourceToken === 'USDCmumbai' || destToken === 'USDCmumbai') &&
+    //   (sourceToken === 'USDTmumbai' || destToken === 'USDTmumbai') &&
+    //   sourceToken !== destToken
+    // );
 
     // source token is native to source chain
     // dest token is native to dest chain

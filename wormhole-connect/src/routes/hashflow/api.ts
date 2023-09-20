@@ -98,7 +98,36 @@ export async function estimateHashflowFees(
       if (response.data.status === 'success') {
         return response.data;
       }
-      throw new Error('error fetching Hashflow RFQ');
+      throw new Error('error fetching Hashflow fee estimates');
+    })
+    .catch(function (error) {
+      console.error(error);
+    });
+}
+
+export async function getHashflowTokensByChain(chain: ChainName): Promise<any> {
+  if (!API || !SOURCE) {
+    throw new Error('Must provide an API url and source');
+  }
+  const chainId = CHAINS[chain]?.chainId;
+  const url = `${API}tokens?networkId=${chainId}&source=${SOURCE}`;
+
+  return axios
+    .get(url)
+    .then(function (response: any) {
+      console.log('TOKENS', response);
+      if (response.status !== 200) {
+        throw new Error(
+          `error fetching Hashflow supported tokens for ${chain}`,
+        );
+      }
+      if (response.data.status === 'fail') {
+        throw new Error(response.data.error.message);
+      }
+      if (response.data.status === 'success') {
+        return response.data;
+      }
+      throw new Error(`error fetching Hashflow supported tokens for ${chain}`);
     })
     .catch(function (error) {
       console.error(error);

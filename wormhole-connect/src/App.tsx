@@ -15,6 +15,7 @@ import { getDesignTokens } from './theme';
 import { THEME_MODE } from './config';
 import BackgroundImage from './components/Background/BackgroundImage';
 import ErrorBoundary from './components/ErrorBoundary';
+import { getHashflowTokensByChain } from 'routes/hashflow/api';
 // import { fetchRFQ } from 'routes/hashflow/api';
 
 const ColorModeContext = React.createContext({ toggleColorMode: () => {} });
@@ -32,6 +33,7 @@ function App() {
     }),
     [],
   );
+  getHashflowTokensByChain('goerli');
   // fetchRFQ(
   //   TOKENS['USDCmumbai'].tokenId!,
   //   TOKENS['USDTmumbai'].tokenId!,
