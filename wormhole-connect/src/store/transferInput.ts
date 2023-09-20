@@ -255,19 +255,17 @@ export const transferInputSlice = createSlice({
     ) => {
       const { chain, balances, address } = payload;
       if (!address) return;
-      // create new field for address
-      if (!state.balances[address]) {
-        state.balances = {
-          ...state.balances,
-          ...{ [address]: { [chain]: {} } },
-        };
-      }
-      state.balances[address] = {
+      const chainBalances = {
         [chain]: {
           lastUpdated: Date.now(),
-          balances: { ...(state.balances[address][chain] || {}), ...balances },
+          balances,
         },
       };
+      const currentWalletBallances = state.balances[address] || {};
+      state.balances[address] = Object.assign(
+        currentWalletBallances,
+        chainBalances,
+      );
     },
     setReceiverNativeBalance: (
       state: TransferInputState,
