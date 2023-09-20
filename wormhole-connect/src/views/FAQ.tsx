@@ -93,7 +93,7 @@ function FAQ() {
           chains and assets in the future, see the full list of Connect
           supported chains on the{' '}
           <a
-            href="https://github.com/wormhole-foundation/wormhole-connect/blob/development/wormhole-connect/src/config/mainnet.ts"
+            href="https://github.com/wormhole-foundation/wormhole-connect/blob/development/wormhole-connect/src/config/mainnet/chains.ts"
             target="_blank"
             rel="noreferrer"
             className={classes.link}
