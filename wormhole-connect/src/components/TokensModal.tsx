@@ -15,7 +15,12 @@ import { BigNumber } from 'ethers';
 import { RootState } from 'store';
 import { CHAINS } from 'config';
 import { TokenConfig } from 'config/types';
-import { setBalances, formatBalance, ChainBalances } from 'store/transferInput';
+import {
+  setBalances,
+  formatBalance,
+  ChainBalances,
+  accessChainBalances,
+} from 'store/transferInput';
 import { displayAddress, getDisplayName } from 'utils';
 import { wh } from 'utils/sdk';
 import { CENTER, NO_INPUT } from 'utils/style';
@@ -287,9 +292,8 @@ function TokensModal(props: Props) {
   }, [type, supportedSourceTokens, supportedDestTokens]);
 
   const chainBalancesCache: ChainBalances | undefined = useMemo(() => {
-    if (!chain || !balances[chain]) return undefined;
-    return balances[chain];
-  }, [chain, balances]);
+    return accessChainBalances(balances, walletAddress, chain);
+  }, [chain, balances, walletAddress]);
 
   // search tokens
   const handleSearch = (
@@ -352,9 +356,14 @@ function TokensModal(props: Props) {
       queryTokens.map(async (t) => {
         let balance: BigNumber | null = null;
         try {
-          balance = t.tokenId
-            ? await wh.getTokenBalance(walletAddress, t.tokenId, chain)
-            : await wh.getNativeBalance(walletAddress, chain);
+          if (t.tokenId) {
+            balance = await wh.getTokenBalance(walletAddress, t.tokenId, chain);
+          } else {
+            // only get balance for native token for this chain
+            if (t.nativeChain === chain) {
+              balance = await wh.getNativeBalance(walletAddress, chain);
+            }
+          }
         } catch (e) {
           console.warn('Failed to fetch balance', e);
         }
@@ -369,6 +378,7 @@ function TokensModal(props: Props) {
 
     dispatch(
       setBalances({
+        address: walletAddress,
         chain,
         balances,
       }),

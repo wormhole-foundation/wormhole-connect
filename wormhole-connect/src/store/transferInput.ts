@@ -15,6 +15,8 @@ export type ChainBalances = {
   balances: Balances;
 };
 export type BalancesCache = { [key in ChainName]?: ChainBalances };
+type WalletAddress = string;
+export type WalletBalances = { [key: WalletAddress]: BalancesCache };
 
 export const formatBalance = (
   chain: ChainName,
@@ -41,13 +43,26 @@ export const getNativeVersionOfToken = (
   );
 };
 
+export const accessChainBalances = (
+  balances: WalletBalances | undefined,
+  walletAddress: WalletAddress | undefined,
+  chain: ChainName | undefined,
+): ChainBalances | undefined => {
+  if (!chain || !balances || !walletAddress) return undefined;
+  const walletBalances = balances[walletAddress];
+  if (!walletBalances) return undefined;
+  const chainBalances = walletBalances[chain];
+  if (!chainBalances) return undefined;
+  return chainBalances;
+};
+
 export const accessBalance = (
-  balances: BalancesCache | undefined,
+  balances: WalletBalances | undefined,
+  walletAddress: WalletAddress | undefined,
   chain: ChainName | undefined,
   token: string,
 ): string | null => {
-  if (!chain || !balances) return null;
-  const chainBalances = balances[chain];
+  const chainBalances = accessChainBalances(balances, walletAddress, chain);
   if (!chainBalances) return null;
   return chainBalances.balances[token];
 };
@@ -79,7 +94,7 @@ export interface TransferInputState {
   amount: string;
   receiveAmount: string;
   route: Route | undefined;
-  balances: BalancesCache;
+  balances: WalletBalances;
   foreignAsset: string;
   associatedTokenAddress: string;
   gasEst: {
@@ -230,18 +245,27 @@ export const transferInputSlice = createSlice({
     },
     setBalances: (
       state: TransferInputState,
-      { payload }: PayloadAction<{ chain: ChainName; balances: Balances }>,
+      {
+        payload,
+      }: PayloadAction<{
+        address: WalletAddress;
+        chain: ChainName;
+        balances: Balances;
+      }>,
     ) => {
-      const { chain, balances } = payload;
-      state.balances = {
-        ...state.balances,
-        ...{
-          [chain]: {
-            lastUpdated: Date.now(),
-            balances: { ...state.balances[chain], ...balances },
-          },
+      const { chain, balances, address } = payload;
+      if (!address) return;
+      const chainBalances = {
+        [chain]: {
+          lastUpdated: Date.now(),
+          balances,
         },
       };
+      const currentWalletBallances = state.balances[address] || {};
+      state.balances[address] = Object.assign(
+        currentWalletBallances,
+        chainBalances,
+      );
     },
     setReceiverNativeBalance: (
       state: TransferInputState,

@@ -207,7 +207,12 @@ export const validateAll = async (
   const { sending, receiving } = walletData;
   const isAutomatic = getIsAutomatic(route);
   const minAmt = getMinAmt(route, relayData);
-  const sendingTokenBalance = accessBalance(balances, fromChain, token);
+  const sendingTokenBalance = accessBalance(
+    balances,
+    sending.address,
+    fromChain,
+    token,
+  );
 
   const baseValidations = {
     sendingWallet: await validateWallet(sending, fromChain),
