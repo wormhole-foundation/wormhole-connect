@@ -35,7 +35,8 @@ function ToInputs() {
     isTransactionInProgress,
   } = useSelector((state: RootState) => state.transferInput);
   const { receiving } = useSelector((state: RootState) => state.wallet);
-  const balance = accessBalance(balances, toChain, destToken) || undefined;
+  const balance =
+    accessBalance(balances, receiving.address, toChain, destToken) || undefined;
 
   const tokenConfig = TOKENS[destToken];
 

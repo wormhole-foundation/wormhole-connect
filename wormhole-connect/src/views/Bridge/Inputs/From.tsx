@@ -41,7 +41,8 @@ function FromInputs() {
     isTransactionInProgress,
   } = useSelector((state: RootState) => state.transferInput);
   const tokenConfig = token && TOKENS[token];
-  const balance = accessBalance(balances, fromChain, token) || undefined;
+  const balance =
+    accessBalance(balances, wallet.address, fromChain, token) || undefined;
 
   const isDisabled = (chain: ChainName) => {
     // Check if the wallet type (i.e. Metamask, Phantom...) is supported for the given chain
