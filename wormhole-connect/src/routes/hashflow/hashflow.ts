@@ -16,7 +16,8 @@ import RouteAbstract from '../routeAbstract';
 import { CHAINS, ROUTES, TOKENS, sdkConfig } from 'config';
 import { wh, toFixedDecimals, NO_INPUT } from 'utils';
 import { RFQ } from 'store/hashflow';
-import { estimateHashflowFees } from './api';
+import { estimateHashflowFees, getHashflowTokensByChain } from './api';
+import { filterTokens, findTokenInList } from './utils';
 
 export class HashflowRoute extends RouteAbstract {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED = false;
@@ -65,9 +66,10 @@ export class HashflowRoute extends RouteAbstract {
     destToken: TokenConfig | undefined,
     sourceChain: ChainName,
   ): Promise<boolean> {
-    // TODO: query enpoint for supported tokens and check list
-    if (!token) return false;
-    if (token.key !== 'USDCmumbai' && token.key !== 'USDTmumbai') return false;
+    if (!token || !sourceChain) return false;
+    const supported = await getHashflowTokensByChain(sourceChain);
+    console.log('ssss', supported);
+    if (!findTokenInList(token.tokenId, supported)) return false;
     if (destToken) {
       return token.key !== destToken?.key;
     } else {
@@ -81,8 +83,9 @@ export class HashflowRoute extends RouteAbstract {
     destChain: ChainName,
   ): Promise<boolean> {
     // TODO: query enpoint for supported tokens and check list
-    if (!token) return false;
-    if (token.key !== 'USDCmumbai' && token.key !== 'USDTmumbai') return false;
+    if (!token || !destChain) return false;
+    const supported = await getHashflowTokensByChain(destChain);
+    if (!findTokenInList(token.tokenId, supported)) return false;
     if (sourceToken) {
       return token.key !== sourceToken?.key;
     } else {
@@ -94,15 +97,8 @@ export class HashflowRoute extends RouteAbstract {
     destToken: TokenConfig,
     sourceChain: ChainName,
   ): Promise<TokenConfig[]> {
-    const shouldAdd = await Promise.allSettled(
-      tokens.map((token) =>
-        this.isSupportedSourceToken(token, destToken, sourceChain),
-      ),
-    );
-    return tokens.filter((_token, i) => {
-      const res = shouldAdd[i];
-      return res.status === 'fulfilled' && res.value;
-    });
+    const supported = await getHashflowTokensByChain(sourceChain);
+    return filterTokens(sourceChain, supported);
   }
   async supportedDestTokens(
     tokens: TokenConfig[],
@@ -110,15 +106,8 @@ export class HashflowRoute extends RouteAbstract {
     sourceChain: ChainName,
     destChain: ChainName,
   ): Promise<TokenConfig[]> {
-    const shouldAdd = await Promise.allSettled(
-      tokens.map((token) =>
-        this.isSupportedDestToken(token, sourceToken, sourceChain, destChain),
-      ),
-    );
-    return tokens.filter((_token, i) => {
-      const res = shouldAdd[i];
-      return res.status === 'fulfilled' && res.value;
-    });
+    const supported = await getHashflowTokensByChain(destChain);
+    return filterTokens(destChain, supported);
   }
   async validateSourceToken(
     sourceToken: TokenId,

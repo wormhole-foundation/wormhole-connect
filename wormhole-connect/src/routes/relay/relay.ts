@@ -556,7 +556,7 @@ export class RelayRoute extends BridgeRoute implements RelayAbstract {
       .sub(BigNumber.from(txData.relayerFee))
       .sub(BigNumber.from(txData.toNativeTokenAmount || 0));
     const formattedAmt = toFixedNormalizedDecimals(
-      receiveAmt,
+      receiveAmt.toString(),
       txData.tokenDecimals,
       MAX_DECIMALS,
     );

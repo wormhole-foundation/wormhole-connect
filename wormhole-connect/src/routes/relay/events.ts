@@ -4,8 +4,8 @@ import {
   ChainName,
   SuiContext,
   WormholeContext,
+  fromNormalizedDecimals,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { fromNormalizedDecimals } from 'utils/utils';
 import { ParsedMessage, ParsedRelayerMessage, isEvmChain, wh } from 'utils/sdk';
 import { CHAINS } from 'config';
 

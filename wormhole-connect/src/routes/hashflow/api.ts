@@ -125,7 +125,7 @@ export async function getHashflowTokensByChain(chain: ChainName): Promise<any> {
         throw new Error(response.data.error.message);
       }
       if (response.data.status === 'success') {
-        return response.data;
+        return response.data.tokens || [];
       }
       throw new Error(`error fetching Hashflow supported tokens for ${chain}`);
     })
