@@ -1,4 +1,4 @@
-import { SANCTIONED_WALLETS } from 'src/consts/wallet';
+import { SANCTIONED_WALLETS } from '../../src/consts/wallet';
 import { getSanctionedAddresses } from './utils';
 
 const checkSdnListForUpdates = async () => {
