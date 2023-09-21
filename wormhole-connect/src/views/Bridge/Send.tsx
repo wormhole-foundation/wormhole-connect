@@ -32,7 +32,6 @@ import Button from 'components/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 import AlertBanner from 'components/AlertBanner';
 import PoweredByIcon from 'icons/PoweredBy';
-import { isCosmWasmChain } from 'utils/cosmos';
 import { estimateClaimGas, estimateSendGas } from 'utils/gas';
 
 const useStyles = makeStyles()((theme) => ({
@@ -211,8 +210,8 @@ function Send(props: { valid: boolean }) {
   const showWarning = useMemo(() => {
     if (!route) return false;
     const r = RouteOperator.getRoute(route);
-    return !(r.AUTOMATIC_DEPOSIT || (toChain && isCosmWasmChain(toChain)));
-  }, [route, toChain]);
+    return !r.isAutomatic(fromChain, toChain);
+  }, [route, fromChain, toChain]);
 
   return (
     <div className={classes.body}>

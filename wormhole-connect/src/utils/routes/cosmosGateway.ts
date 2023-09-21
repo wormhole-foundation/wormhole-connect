@@ -101,7 +101,6 @@ const millisToNano = (seconds: number) => seconds * 1_000_000;
 
 export class CosmosGatewayRoute extends BaseRoute {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean = false;
-  readonly AUTOMATIC_DEPOSIT: boolean = false;
 
   private static CLIENT_MAP: Record<string, TendermintClient> = {};
 
@@ -984,5 +983,13 @@ export class CosmosGatewayRoute extends BaseRoute {
   async tryFetchRedeemTx(message: SignedMessage): Promise<string | undefined> {
     const res = await this.fetchRedeemTx(message);
     return res || undefined;
+  }
+
+  isAutomatic(
+    sourceChain: ChainName | ChainId | undefined,
+    destChain: ChainName | ChainId | undefined,
+  ): boolean {
+    if (!sourceChain || !destChain) return false;
+    return isCosmWasmChain(destChain);
   }
 }

@@ -132,7 +132,6 @@ export function getNonce(message: string): number {
 
 export class CCTPManualRoute extends BaseRoute {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean = false;
-  readonly AUTOMATIC_DEPOSIT: boolean = false;
 
   isSupportedChain(chain: ChainName): boolean {
     return !!sdkConfig.chains[chain]?.contracts.cctpContracts;
@@ -697,5 +696,12 @@ export class CCTPManualRoute extends BaseRoute {
     txData: UnsignedCCTPMessage,
   ): Promise<string | undefined> {
     return undefined; // only for automatic routes
+  }
+
+  isAutomatic(
+    sourceChain: ChainName | ChainId | undefined,
+    destChain: ChainName | ChainId | undefined,
+  ): boolean {
+    return false;
   }
 }

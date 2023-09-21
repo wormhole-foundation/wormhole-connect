@@ -86,7 +86,7 @@ function Preview(props: { collapsed: boolean }) {
       if (!token || !fromChain || !toChain || !route) return;
       // don't bother if it's not an automatic route
       const r = RouteOperator.getRoute(route);
-      if (!r.AUTOMATIC_DEPOSIT) return;
+      if (!r.isAutomatic(fromChain, toChain)) return;
 
       try {
         const tokenConfig = token && TOKENS[token];

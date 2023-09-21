@@ -16,7 +16,6 @@ import RouteAbstract from './routeAbstract';
 
 export class HashflowRoute extends RouteAbstract {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED = false;
-  readonly AUTOMATIC_DEPOSIT = true;
 
   isSupportedChain(chain: ChainName): boolean {
     return false;
@@ -166,5 +165,12 @@ export class HashflowRoute extends RouteAbstract {
 
   async tryFetchRedeemTx(txData: UnsignedMessage): Promise<string | undefined> {
     return undefined; // only for automatic routes
+  }
+
+  isAutomatic(
+    sourceChain: ChainName | ChainId | undefined,
+    destChain: ChainName | ChainId | undefined,
+  ): boolean {
+    return true;
   }
 }
