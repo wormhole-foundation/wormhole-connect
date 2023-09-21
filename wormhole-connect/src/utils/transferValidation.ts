@@ -164,8 +164,10 @@ export const validateSolanaTokenAccount = (
   destChain: string | undefined,
   destTokenAddr: string,
   solanaTokenAccount: string,
+  route: Route | undefined,
 ): ValidationErr => {
   if (destChain !== 'solana') return '';
+  if (route === Route.Relay) return '';
   if (!destTokenAddr) return '';
   if (destTokenAddr && !solanaTokenAccount) {
     return 'The associated token account for this asset does not exist on Solana, you must create it first';
@@ -198,7 +200,6 @@ export const validateAll = async (
     amount,
     balances,
     foreignAsset,
-    associatedTokenAddress,
     route,
     supportedDestTokens,
     availableRoutes,
@@ -225,11 +226,6 @@ export const validateAll = async (
     route: validateRoute(route, availableRoutes),
     toNativeToken: '',
     foreignAsset: validateForeignAsset(foreignAsset),
-    associatedTokenAccount: validateSolanaTokenAccount(
-      toChain,
-      foreignAsset,
-      associatedTokenAddress,
-    ),
   };
   if (!isAutomatic) return baseValidations;
   return {
