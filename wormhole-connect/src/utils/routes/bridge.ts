@@ -38,7 +38,6 @@ import { formatGasFee } from './utils';
 
 export class BridgeRoute extends BaseRoute {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean = false;
-  readonly AUTOMATIC_DEPOSIT: boolean = false;
 
   async isRouteAvailable(
     sourceToken: string,
@@ -401,5 +400,12 @@ export class BridgeRoute extends BaseRoute {
 
   async tryFetchRedeemTx(txData: UnsignedMessage): Promise<string | undefined> {
     return undefined; // only for automatic routes
+  }
+
+  isAutomatic(
+    sourceChain: ChainName | ChainId | undefined,
+    destChain: ChainName | ChainId | undefined,
+  ): boolean {
+    return false;
   }
 }

@@ -1,6 +1,6 @@
 import { Dispatch } from 'react';
 import { AnyAction } from '@reduxjs/toolkit';
-import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+import { ChainName, ChainId } from '@wormhole-foundation/wormhole-connect-sdk';
 
 import { BRIDGE_DEFAULTS, CHAINS, TOKENS } from 'config';
 import { Route, TokenConfig } from 'config/types';
@@ -181,10 +181,14 @@ export const getMinAmt = (route: Route | undefined, relayData: any): number => {
   return r.getMinSendAmount(relayData);
 };
 
-export const getIsAutomatic = (route: Route | undefined): boolean => {
+export const getIsAutomatic = (
+  route: Route | undefined,
+  sourceChain: ChainName | ChainId | undefined,
+  destChain: ChainName | ChainId | undefined,
+): boolean => {
   if (!route) return false;
   const r = RouteOperator.getRoute(route);
-  return r.AUTOMATIC_DEPOSIT;
+  return r.isAutomatic(sourceChain, destChain);
 };
 
 export const validateAll = async (
@@ -206,7 +210,7 @@ export const validateAll = async (
   } = transferData;
   const { maxSwapAmt, toNativeToken } = relayData;
   const { sending, receiving } = walletData;
-  const isAutomatic = getIsAutomatic(route);
+  const isAutomatic = getIsAutomatic(route, fromChain, toChain);
   const minAmt = getMinAmt(route, relayData);
   const sendingTokenBalance = accessBalance(
     balances,

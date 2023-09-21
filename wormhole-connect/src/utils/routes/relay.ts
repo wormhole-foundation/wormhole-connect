@@ -59,7 +59,6 @@ interface TransferDestInfoParams {
 
 export class RelayRoute extends BridgeRoute {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED = true;
-  readonly AUTOMATIC_DEPOSIT = true;
 
   isSupportedChain(chain: ChainName): boolean {
     return !!sdkConfig.chains[chain]?.contracts.relayer;
@@ -591,5 +590,12 @@ export class RelayRoute extends BridgeRoute {
     } catch {}
 
     return redeemTx;
+  }
+
+  isAutomatic(
+    sourceChain: ChainName | ChainId | undefined,
+    destChain: ChainName | ChainId | undefined,
+  ): boolean {
+    return true;
   }
 }

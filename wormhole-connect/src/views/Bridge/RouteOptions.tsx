@@ -17,7 +17,6 @@ import BridgeCollapse, { CollapseControlStyle } from './Collapse';
 import TokenIcon from 'icons/TokenIcons';
 import ArrowRightIcon from 'icons/ArrowRight';
 import Options from 'components/Options';
-import { isCosmWasmChain } from 'utils/cosmos';
 
 const useStyles = makeStyles()((theme: any) => ({
   link: {
@@ -144,7 +143,7 @@ function RouteOption(props: { route: RouteData }) {
   const { classes } = useStyles();
   const theme = useTheme();
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const { token, destToken, amount, toChain } = useSelector(
+  const { token, destToken, amount, fromChain, toChain } = useSelector(
     (state: RootState) => state.transferInput,
   );
   const { toNativeToken, relayerFee } = useSelector(
@@ -185,8 +184,7 @@ function RouteOption(props: { route: RouteData }) {
           <div className={classes.routeTitle}>
             {props.route.name}
             {/* TODO: isAutomatic to route and use transfer parameters to decide */}
-            {route.AUTOMATIC_DEPOSIT ||
-            (toChain && isCosmWasmChain(toChain)) ? (
+            {route.isAutomatic(fromChain, toChain) ? (
               <Chip
                 label="One transaction"
                 color="success"

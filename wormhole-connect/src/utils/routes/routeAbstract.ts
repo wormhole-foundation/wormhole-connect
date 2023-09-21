@@ -16,9 +16,6 @@ import { ParsedRelayerMessage, ParsedMessage } from 'utils/sdk';
 
 export default abstract class RouteAbstract {
   abstract readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean;
-  abstract readonly AUTOMATIC_DEPOSIT: boolean;
-  // protected abstract sendGasFallback: { [key: ChainName]: TokenConfig };
-  // protected abstract claimGasFallback: { [key: ChainName]: TokenConfig };
 
   // Is this route available for the given chain, token and amount specifications?
   public abstract isRouteAvailable(
@@ -174,4 +171,9 @@ export default abstract class RouteAbstract {
   abstract tryFetchRedeemTx(
     txData: ParsedMessage | ParsedRelayerMessage,
   ): Promise<string | undefined>;
+
+  abstract isAutomatic(
+    sourceChain: ChainName | ChainId | undefined,
+    destChain: ChainName | ChainId | undefined,
+  ): boolean;
 }

@@ -51,7 +51,6 @@ import { getNativeVersionOfToken } from 'store/transferInput';
 
 export class CCTPRelayRoute extends CCTPManualRoute {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED = true;
-  readonly AUTOMATIC_DEPOSIT = true;
 
   isSupportedChain(chain: ChainName): boolean {
     return !!sdkConfig.chains[chain]?.contracts.cctpContracts
@@ -672,6 +671,13 @@ export class CCTPRelayRoute extends CCTPManualRoute {
     } catch {}
 
     return redeemTx;
+  }
+
+  isAutomatic(
+    sourceChain: ChainName | ChainId | undefined,
+    destChain: ChainName | ChainId | undefined,
+  ): boolean {
+    return true;
   }
 }
 
