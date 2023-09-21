@@ -80,7 +80,6 @@ export type TransferValidations = {
   route: ValidationErr;
   toNativeToken: ValidationErr;
   foreignAsset: ValidationErr;
-  associatedTokenAccount: ValidationErr;
 };
 
 export interface TransferInputState {
@@ -121,7 +120,6 @@ const initialState: TransferInputState = {
     sendingWallet: '',
     receivingWallet: '',
     foreignAsset: '',
-    associatedTokenAccount: '',
   },
   availableRoutes: undefined,
   fromChain: config?.bridgeDefaults?.fromNetwork || undefined,

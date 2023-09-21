@@ -34,6 +34,7 @@ import AlertBanner from 'components/AlertBanner';
 import PoweredByIcon from 'icons/PoweredBy';
 import { isCosmWasmChain } from 'utils/cosmos';
 import { estimateClaimGas, estimateSendGas } from 'utils/gas';
+import { validateSolanaTokenAccount } from '../../utils/transferValidation';
 
 const useStyles = makeStyles()((theme) => ({
   body: {
@@ -78,11 +79,19 @@ function Send(props: { valid: boolean }) {
     amount,
     route,
     isTransactionInProgress,
+    foreignAsset,
+    associatedTokenAddress,
   } = transfer;
   const [isConnected, setIsConnected] = useState(
     sending.currentAddress.toLowerCase() === sending.address.toLowerCase(),
   );
   const [sendError, setSendError] = useState('');
+  const solanaTokenAccountError = validateSolanaTokenAccount(
+    toChain,
+    foreignAsset,
+    associatedTokenAddress,
+    route,
+  );
 
   async function send() {
     setSendError('');
@@ -247,7 +256,7 @@ function Send(props: { valid: boolean }) {
           <Button
             onClick={send}
             action={props.valid}
-            disabled={isTransactionInProgress}
+            disabled={isTransactionInProgress || !!solanaTokenAccountError}
             elevated
           >
             {isTransactionInProgress ? (

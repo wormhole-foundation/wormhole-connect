@@ -16,6 +16,7 @@ import { solanaContext } from 'utils/sdk';
 import { CircularProgress, Link, Typography } from '@mui/material';
 import AlertBanner from 'components/AlertBanner';
 import RouteOperator from 'utils/routes/operator';
+import { Route } from '../../../config/types';
 
 const useStyles = makeStyles()((theme: any) => ({
   associatedTokenWarning: {
@@ -215,6 +216,7 @@ function TokenWarnings() {
     receiving,
     associatedTokenAddress,
     checkSolanaAssociatedTokenAccount,
+    route,
   ]);
 
   const noForeignAssetWarning = (
@@ -235,7 +237,7 @@ function TokenWarnings() {
 
   const content = !foreignAsset
     ? noForeignAssetWarning
-    : toChain === 'solana' && noAssociatedTokenAccount;
+    : toChain === 'solana' && route !== Route.Relay && noAssociatedTokenAccount;
 
   return (
     <AlertBanner
