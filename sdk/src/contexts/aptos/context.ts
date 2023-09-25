@@ -347,6 +347,26 @@ export class AptosContext<
     return balance ? BigNumber.from(balance) : null;
   }
 
+  async getTokenBalances(
+    walletAddress: string,
+    tokenIds: TokenId[],
+    chain: ChainName | ChainId,
+  ): Promise<(BigNumber | null)[]> {
+    const addresses = await Promise.all(
+      tokenIds.map((tokenId) => this.getForeignAsset(tokenId, chain)),
+    );
+    const balances = await Promise.all(
+      addresses.map((address) =>
+        !address
+          ? Promise.resolve(null)
+          : this.checkBalance(walletAddress, address),
+      ),
+    );
+    return balances.map((balance) =>
+      balance ? BigNumber.from(balance) : null,
+    );
+  }
+
   async checkBalance(
     walletAddress: string,
     coinType: string,
