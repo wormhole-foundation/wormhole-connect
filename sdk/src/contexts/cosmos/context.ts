@@ -376,6 +376,23 @@ export class CosmosContext<
     return this.getNativeBalance(walletAddress, chain, assetAddress);
   }
 
+  async getTokenBalances(
+    walletAddress: string,
+    tokenIds: TokenId[],
+    chain: ChainName | ChainId,
+  ): Promise<(BigNumber | null)[]> {
+    const assetAddresses = await Promise.all(
+      tokenIds.map((tokenId) => this.getForeignAsset(tokenId, chain)),
+    );
+    return await Promise.all(
+      assetAddresses.map((assetAddress) =>
+        !assetAddress
+          ? Promise.resolve(null)
+          : this.getNativeBalance(walletAddress, chain, assetAddress),
+      ),
+    );
+  }
+
   private getNativeDenom(chain: ChainName | ChainId): string {
     const name = this.context.toChainName(chain);
     const denom = NATIVE_DENOMS[name];

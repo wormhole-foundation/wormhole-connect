@@ -257,6 +257,23 @@ export class WormholeContext extends MultiProvider<Domain> {
   }
 
   /**
+   * Fetches the balance of the given tokens for a wallet
+   *
+   * @param walletAddress The wallet address
+   * @param tokenIds The token IDs (their home chain and address on the home chain)
+   * @param chain The chain name or id
+   * @returns The token balance of the wormhole asset as a BigNumber
+   */
+  async getTokenBalances(
+    walletAddress: string,
+    tokenIds: TokenId[],
+    chain: ChainName | ChainId,
+  ): Promise<(BigNumber | null)[]> {
+    const context = this.getContext(chain);
+    return await context.getTokenBalances(walletAddress, tokenIds, chain);
+  }
+
+  /**
    * Send a Token Bridge transfer
    *
    * @dev This _must_ be claimed on the destination chain, see {@link WormholeContext#redeem | redeem}

@@ -139,6 +139,27 @@ export class EthContext<
     return balance;
   }
 
+  async getTokenBalances(
+    walletAddr: string,
+    tokenIds: TokenId[],
+    chain: ChainName | ChainId,
+  ): Promise<(BigNumber | null)[]> {
+    const addresses = await Promise.all(
+      tokenIds.map((tokenId) => this.getForeignAsset(tokenId, chain)),
+    );
+    const provider = this.context.mustGetProvider(chain);
+    const balances = await Promise.all(
+      addresses.map((address) =>
+        !address
+          ? Promise.resolve(null)
+          : TokenImplementation__factory.connect(address, provider).balanceOf(
+              walletAddr,
+            ),
+      ),
+    );
+    return balances;
+  }
+
   /**
    * Approves amount for bridge transfer. If no amount is specified, the max amount is approved
    *

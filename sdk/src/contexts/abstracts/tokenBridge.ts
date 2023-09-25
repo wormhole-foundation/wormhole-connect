@@ -148,6 +148,7 @@ export abstract class TokenBridgeAbstract<TransactionResult> {
     walletAddress: string,
     chain: ChainName | ChainId,
   ): Promise<BigNumber>;
+
   /**
    * Fetches the balance of a given token for a wallet
    *
@@ -161,6 +162,20 @@ export abstract class TokenBridgeAbstract<TransactionResult> {
     tokenId: TokenId,
     chain: ChainName | ChainId,
   ): Promise<BigNumber | null>;
+
+  /**
+   * Fetches the balance of the given tokens for a wallet
+   *
+   * @param walletAddress The wallet address
+   * @param tokenIds The token IDs (their home chain and address on the home chain)
+   * @param chain The chain name or id
+   * @returns The token balance of the wormhole asset as a BigNumber
+   */
+  protected abstract getTokenBalances(
+    walletAddress: string,
+    tokenIds: TokenId[],
+    chain: ChainName | ChainId,
+  ): Promise<(BigNumber | null)[]>;
 
   protected abstract getTxGasFee(
     txId: string,

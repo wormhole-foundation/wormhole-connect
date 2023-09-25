@@ -1,3 +1,11 @@
+import { useMediaQuery } from '@mui/material';
+import CircularProgress from '@mui/material/CircularProgress';
+import { useTheme } from '@mui/material/styles';
+import { ChainName, TokenId } from '@wormhole-foundation/wormhole-connect-sdk';
+import { CHAINS } from 'config';
+import { TokenConfig } from 'config/types';
+import { BigNumber } from 'ethers';
+import TokenIcon from 'icons/TokenIcons';
 import React, {
   ChangeEvent,
   useCallback,
@@ -6,33 +14,24 @@ import React, {
   useState,
 } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useTheme } from '@mui/material/styles';
-import { useMediaQuery } from '@mui/material';
-import { makeStyles } from 'tss-react/mui';
-import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
-import { BigNumber } from 'ethers';
-
 import { RootState } from 'store';
-import { CHAINS } from 'config';
-import { TokenConfig } from 'config/types';
 import {
-  setBalances,
-  formatBalance,
+  Balances,
   ChainBalances,
   accessChainBalances,
+  formatBalance,
+  setBalances,
 } from 'store/transferInput';
+import { makeStyles } from 'tss-react/mui';
 import { displayAddress, getDisplayName } from 'utils';
+import { isCosmWasmChain } from 'utils/cosmos';
 import { wh } from 'utils/sdk';
 import { CENTER, NO_INPUT } from 'utils/style';
-import { isCosmWasmChain } from 'utils/cosmos';
-
 import Header from './Header';
 import Modal from './Modal';
-import Spacer from './Spacer';
-import Search from './Search';
 import Scroll from './Scroll';
-import TokenIcon from 'icons/TokenIcons';
-import CircularProgress from '@mui/material/CircularProgress';
+import Search from './Search';
+import Spacer from './Spacer';
 import Tabs from './Tabs';
 
 const useStyles = makeStyles()((theme: any) => ({
@@ -351,30 +350,43 @@ function TokensModal(props: Props) {
 
     const queryTokens =
       type === 'dest' ? allSupportedDestTokens : supportedTokens;
-    // fetch all N tokens and trigger a single update action
-    const balancesArr = await Promise.all(
-      queryTokens.map(async (t) => {
-        let balance: BigNumber | null = null;
-        try {
-          if (t.tokenId) {
-            balance = await wh.getTokenBalance(walletAddress, t.tokenId, chain);
-          } else {
-            // only get balance for native token for this chain
-            if (t.nativeChain === chain) {
-              balance = await wh.getNativeBalance(walletAddress, chain);
-            }
-          }
-        } catch (e) {
-          console.warn('Failed to fetch balance', e);
-        }
-
-        return formatBalance(chain, t, balance);
-      }),
+    const nativeQueryToken = queryTokens.find(
+      (t) => !t.tokenId && t.nativeChain === chain,
     );
-
-    const balances = balancesArr.reduceRight((acc, tokenBalance) => {
-      return Object.assign(acc, tokenBalance);
-    }, {});
+    const queryTokensWithIds = queryTokens.filter((t) => !!t.tokenId); // pre-filter so indexes line up
+    const tokenIds = queryTokensWithIds.reduce<TokenId[]>(
+      (tIds, t) => (t.tokenId ? [...tIds, t.tokenId] : tIds),
+      [],
+    );
+    let balances: Balances = {};
+    if (nativeQueryToken) {
+      let nativeBalance: BigNumber | null = null;
+      try {
+        nativeBalance = await wh.getNativeBalance(walletAddress, chain);
+        balances = {
+          ...balances,
+          ...formatBalance(chain, nativeQueryToken, nativeBalance),
+        };
+      } catch (e) {
+        console.warn('Failed to fetch native balance', e);
+      }
+    }
+    try {
+      const tokenBalances = await wh.getTokenBalances(
+        walletAddress,
+        tokenIds,
+        chain,
+      );
+      balances = tokenIds.reduce<Balances>(
+        (balances, tId, idx) => ({
+          ...balances,
+          ...formatBalance(chain, queryTokensWithIds[idx], tokenBalances[idx]),
+        }),
+        balances,
+      );
+    } catch (e) {
+      console.warn('Failed to fetch balances', e);
+    }
 
     dispatch(
       setBalances({

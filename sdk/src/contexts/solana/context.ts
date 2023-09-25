@@ -183,6 +183,32 @@ export class SolanaContext<
     return BigNumber.from(balance.value.amount);
   }
 
+  async getTokenBalances(
+    walletAddress: string,
+    tokenIds: TokenId[],
+    chain: ChainName | ChainId,
+  ): Promise<(BigNumber | null)[]> {
+    if (!this.connection) throw new Error('no connection');
+    const addresses = await Promise.all(
+      tokenIds.map((tokenId) => this.getForeignAsset(tokenId, chain)),
+    );
+    const splParsedTokenAccounts =
+      await this.connection.getParsedTokenAccountsByOwner(
+        new PublicKey(walletAddress),
+        {
+          programId: new PublicKey(TOKEN_PROGRAM_ID),
+        },
+      );
+    return addresses.map((address) => {
+      if (!address) return null;
+      const amount = splParsedTokenAccounts.value.find(
+        (v) => v?.account.data.parsed?.info?.mint === address,
+      )?.account.data.parsed?.info?.tokenAmount?.amount;
+      if (!amount) return null;
+      return BigNumber.from(amount);
+    });
+  }
+
   /**
    * Gets the Associate Token Address
    *

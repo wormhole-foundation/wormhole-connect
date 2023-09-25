@@ -471,6 +471,18 @@ export class SuiContext<
     return BigNumber.from(totalBalance);
   }
 
+  async getTokenBalances(
+    walletAddr: string,
+    tokenIds: TokenId[],
+    chain: ChainName | ChainId,
+  ): Promise<(BigNumber | null)[]> {
+    return await Promise.all(
+      tokenIds.map((tokenId) =>
+        this.getTokenBalance(walletAddr, tokenId, chain),
+      ),
+    );
+  }
+
   async redeem(
     destChain: ChainName | ChainId,
     signedVAA: Uint8Array,
