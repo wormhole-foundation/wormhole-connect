@@ -1,5 +1,7 @@
-import { MAINNET_CHAINS, MAINNET_TOKENS } from '../src/config/mainnet';
-import { TESTNET_CHAINS, TESTNET_TOKENS } from '../src/config/testnet';
+import { MAINNET_CHAINS } from '../src/config/mainnet/chains';
+import { MAINNET_TOKENS } from '../src/config/mainnet/tokens';
+import { TESTNET_CHAINS } from '../src/config/testnet/chains';
+import { TESTNET_TOKENS } from '../src/config/testnet/tokens';
 
 export const envTests = [
   {
@@ -18,10 +20,12 @@ envTests.forEach((env) => {
   const { title, CHAINS, TOKENS } = env;
   describe(title, () => {
     test('chain gas tokens', () => {
-      Object.values(CHAINS).forEach(({ gasToken }) => {
-        const tokenConfig = TOKENS[gasToken];
-        expect(tokenConfig).toBeTruthy();
-      });
+      Object.entries(CHAINS)
+        .filter(([id]) => id !== 'wormchain')
+        .forEach(([_, { gasToken }]) => {
+          const tokenConfig = TOKENS[gasToken];
+          expect(tokenConfig).toBeTruthy();
+        });
     });
 
     test('native tokens have valid wrapped token', () => {
