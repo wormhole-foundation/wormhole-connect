@@ -122,6 +122,7 @@ export const MAINNET_CHAINS: ChainsConfig = {
     gasToken: 'ETHbase',
     chainId: 8453,
     icon: Icon.BASE,
+    automaticRelayer: true,
     maxBlockSearch: 2000,
   },
   osmosis: {

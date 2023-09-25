@@ -206,7 +206,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     context: Context.ETH,
     contracts: {
       ...CONTRACTS.MAINNET.base,
-      relayer: undefined,
+      relayer: '0xaE8dc4a7438801Ec4edC0B035EcCCcF3807F4CC1',
     },
     finalityThreshold: 0,
     nativeTokenDecimals: 18,
