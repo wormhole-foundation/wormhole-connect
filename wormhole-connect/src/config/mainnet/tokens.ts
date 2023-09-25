@@ -600,13 +600,14 @@ export const MAINNET_TOKENS: TokensConfig = {
     nativeChain: 'evmos',
     tokenId: {
       chain: 'evmos',
-      address: 'atevmos',
+      address: 'aevmos',
     },
     icon: Icon.EVMOS,
     coinGeckoId: 'evmos',
     color: '#ed4e33',
     decimals: {
-      default: 6,
+      Cosmos: 18,
+      default: 8,
     },
   },
 };
