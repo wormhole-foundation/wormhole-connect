@@ -1,4 +1,4 @@
-import { populateRpcField } from 'config/utils';
+import { populateRpcField } from '../utils';
 const {
   REACT_APP_ETHEREUM_RPC,
   REACT_APP_SOLANA_RPC,

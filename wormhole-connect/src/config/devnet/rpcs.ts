@@ -1,4 +1,4 @@
-import { populateRpcField } from 'config/utils';
+import { populateRpcField } from '../utils';
 const {
   REACT_APP_ETHEREUM_DEVNET_RPC,
   REACT_APP_OSMOSIS_DEVNET_RPC,
