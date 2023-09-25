@@ -1491,7 +1491,9 @@ export const TESTNET_TOKENS: TokensConfig = {
     coinGeckoId: 'evmos',
     color: '#ed4e33',
     decimals: {
-      default: 6,
+      Cosmos: 18,
+      Ethereum: 18,
+      default: 8,
     },
   },
 };
