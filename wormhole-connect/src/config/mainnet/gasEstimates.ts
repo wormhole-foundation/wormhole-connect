@@ -134,6 +134,10 @@ export const MAINNET_GAS_ESTIMATES: GasEstimates = {
       sendToken: 1000000,
       claim: 1000000,
     },
+    [Route.Relay]: {
+      sendNative: 300000,
+      sendToken: 300000,
+    },
   },
   wormchain: {
     [Route.Bridge]: {
