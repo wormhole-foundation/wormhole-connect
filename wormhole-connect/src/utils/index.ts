@@ -85,12 +85,13 @@ export function getWrappedTokenId(token: TokenConfig): TokenId {
   return wrapped.tokenId!;
 }
 
-export function getTokenById(tokenId: TokenId): TokenConfig | void {
-  return TOKENS_ARR.filter(
+export function getTokenById(tokenId: TokenId): TokenConfig | undefined {
+  return TOKENS_ARR.find(
     (t) =>
       t.tokenId &&
+      tokenId.chain === t.tokenId.chain &&
       tokenId.address.toLowerCase() === t.tokenId!.address.toLowerCase(),
-  )[0];
+  );
 }
 
 export function getDisplayName(token: TokenConfig) {
