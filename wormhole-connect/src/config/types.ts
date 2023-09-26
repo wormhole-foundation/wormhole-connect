@@ -85,6 +85,12 @@ export type TokenConfig = {
   decimals: DecimalsMap;
   wrappedAsset?: string;
   displayName?: string;
+  foreignAssets?: {
+    [chainName in ChainName]?: {
+      address: string;
+      decimals: number;
+    };
+  };
 };
 
 export type TokensConfig = { [key: string]: TokenConfig };

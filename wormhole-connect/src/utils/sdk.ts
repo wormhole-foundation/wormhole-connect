@@ -3,12 +3,12 @@ import { BigNumber } from 'ethers';
 import {
   ChainId,
   ChainName,
+  ForeignAssetCache,
   MAINNET_CHAINS,
   SolanaContext,
   TokenId,
   WormholeContext,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-
 import { getWrappedTokenId } from '.';
 import { ENV, RPCS, TOKENS, sdkConfig } from 'config';
 
@@ -17,10 +17,29 @@ export enum PayloadType {
   Automatic = 3,
 }
 
-export const wh: WormholeContext = new WormholeContext(ENV as Environment, {
-  ...sdkConfig,
-  ...{ rpcs: RPCS },
-});
+// pre-populate foreign asset cache
+const foreignAssetCache = new ForeignAssetCache();
+for (const { tokenId, foreignAssets } of Object.values(TOKENS)) {
+  if (tokenId && foreignAssets) {
+    for (const [foreignChain, { address }] of Object.entries(foreignAssets)) {
+      foreignAssetCache.set(
+        tokenId.chain,
+        tokenId.address,
+        foreignChain as ChainName,
+        address,
+      );
+    }
+  }
+}
+
+export const wh: WormholeContext = new WormholeContext(
+  ENV as Environment,
+  {
+    ...sdkConfig,
+    ...{ rpcs: RPCS },
+  },
+  foreignAssetCache,
+);
 
 export interface ParsedMessage {
   sendTx: string;

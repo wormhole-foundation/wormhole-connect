@@ -19,6 +19,7 @@ export * from './contexts/aptos';
 export * from './contexts/sei';
 export * from './contexts/cosmos';
 export * from './abis';
+export * from './utils';
 
 export const CONFIG = {
   MAINNET: MAINNET_CONFIG,

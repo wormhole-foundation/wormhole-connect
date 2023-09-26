@@ -37,5 +37,13 @@ envTests.forEach((env) => {
         }
       });
     });
+
+    test('tokens with tokenIds match nativeChain', () => {
+      Object.values(TOKENS).forEach((token) => {
+        if (token.tokenId) {
+          expect(token.tokenId.chain).toBe(token.nativeChain);
+        }
+      });
+    });
   });
 });
