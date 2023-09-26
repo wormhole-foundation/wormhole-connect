@@ -11,6 +11,7 @@ import {
   calculateFee,
   logs as cosmosLogs,
   setupIbcExtension,
+  IndexedTx,
 } from '@cosmjs/stargate';
 import {
   ChainId,
@@ -29,7 +30,7 @@ import {
   TendermintClient,
 } from '@cosmjs/tendermint-rpc';
 import { BigNumber, utils } from 'ethers';
-import { arrayify, hexlify } from 'ethers/lib/utils.js';
+import { arrayify } from 'ethers/lib/utils.js';
 import { toChainId, wh } from 'utils/sdk';
 import { getDisplayName } from 'utils';
 import { isCosmWasmChain } from 'utils/cosmos';
@@ -69,6 +70,13 @@ interface GatewayTransferMsg {
 
 interface FromCosmosPayload {
   gateway_ibc_token_bridge_payload: GatewayTransferMsg;
+}
+
+interface IBCTransferInfo {
+  sequence: string;
+  timeout: string;
+  srcChannel: string;
+  dstChannel: string;
 }
 
 const IBC_MSG_TYPE = '/ibc.applications.transfer.v1.MsgTransfer';
@@ -507,15 +515,19 @@ export class CosmosGatewayRoute extends BaseRoute {
     return CosmWasmClient.create(tmClient);
   }
 
-  isTransferCompleted(
+  async isTransferCompleted(
     destChain: ChainName | ChainId,
     message: SignedMessage,
   ): Promise<boolean> {
     if (!isSignedWormholeMessage(message))
       throw new Error('Signed message is not for gateway');
-    return isCosmWasmChain(destChain)
-      ? wh.isTransferCompleted(CHAIN_ID_WORMCHAIN, hexlify(message.vaa))
-      : new BridgeRoute().isTransferCompleted(destChain, message);
+
+    if (!isCosmWasmChain(destChain)) {
+      return new BridgeRoute().isTransferCompleted(destChain, message);
+    }
+
+    const destTx = await this.fetchRedeemedEvent(message);
+    return !!destTx;
   }
 
   async getMessage(
@@ -592,7 +604,92 @@ export class CosmosGatewayRoute extends BaseRoute {
       throw new Error(`Transaction ${hash} not found on chain ${chain}`);
     }
 
+    const logs = cosmosLogs.parseRawLog(tx.rawLog);
+    const sender = searchCosmosLogs('sender', logs);
+    if (!sender) throw new Error('Missing sender in transaction logs');
+
     // Extract IBC transfer info initiated on the source chain
+    const ibcInfo = this.getIBCTransferInfoFromLogs(tx);
+
+    // Look for the matching IBC receive on wormchain
+    // The IBC hooks middleware will execute the translator contract
+    // and include the execution logs on the transaction
+    // which can be used to extract the VAA
+    const destTx = await this.findDestinationIBCTransferTx(
+      CHAIN_ID_WORMCHAIN,
+      ibcInfo,
+    );
+    if (!destTx) {
+      throw new Error(
+        `No wormchain transaction found for packet on chain ${chain}`,
+      );
+    }
+
+    const message = await wh.getMessage(destTx.hash, CHAIN_ID_WORMCHAIN);
+    const parsed = await adaptParsedMessage(message);
+
+    return {
+      ...parsed,
+      // add the original source chain and tx hash to the info
+      // the vaa contains only the wormchain information
+      fromChain: wh.toChainName(chain),
+      sendTx: hash,
+      sender,
+    };
+  }
+
+  async fetchRedeemedEvent(message: SignedMessage): Promise<string | null> {
+    if (!isSignedWormholeMessage(message)) {
+      throw new Error('Signed message is not for gateway');
+    }
+
+    return isCosmWasmChain(message.fromChain)
+      ? this.fetchRedeemedEventCosmosSource(message)
+      : this.fetchRedeemedEventNonCosmosSource(message);
+  }
+
+  private async fetchRedeemedEventNonCosmosSource(
+    message: SignedTokenTransferMessage | SignedRelayTransferMessage,
+  ): Promise<string | null> {
+    const wormchainClient = await this.getCosmWasmClient(CHAIN_ID_WORMCHAIN);
+    if (!message.payload) {
+      throw new Error('Missing payload from transfer');
+    }
+
+    // find the transaction on wormchain based on the gateway transfer payload
+    // since it has a nonce, we can assume it will be unique
+    const txs = await wormchainClient.searchTx([
+      { key: 'wasm.action', value: 'complete_transfer_with_payload' },
+      { key: 'wasm.recipient', value: this.getTranslatorAddress() },
+      {
+        key: 'wasm.transfer_payload',
+        value: Buffer.from(utils.arrayify(message.payload)).toString('base64'),
+      },
+    ]);
+    if (txs.length === 0) {
+      return null;
+    }
+    if (txs.length > 1) {
+      throw new Error('Multiple transactions found');
+    }
+
+    // extract the ibc transfer info from the transaction logs
+    const ibcInfo = this.getIBCTransferInfoFromLogs(txs[0]);
+
+    // find the transaction on the target chain based on the ibc transfer info
+    const destTx = await this.findDestinationIBCTransferTx(
+      message.toChain,
+      ibcInfo,
+    );
+    if (!destTx) {
+      throw new Error(
+        `No redeem transaction found on chain ${message.toChain}`,
+      );
+    }
+    return destTx.hash;
+  }
+
+  private getIBCTransferInfoFromLogs(tx: IndexedTx): IBCTransferInfo {
     const logs = cosmosLogs.parseRawLog(tx.rawLog);
     const packetSeq = searchCosmosLogs('packet_sequence', logs);
     const packetTimeout = searchCosmosLogs('packet_timeout_timestamp', logs);
@@ -607,42 +704,40 @@ export class CosmosGatewayRoute extends BaseRoute {
       throw new Error('Missing packet information in transaction logs');
     }
 
-    // Look for the matching IBC receive on wormchain
-    // The IBC hooks middleware will execute the translator contract
-    // and include the execution logs on the transaction
-    // which can be used to extract the VAA
-    const wormchainClient = await this.getCosmWasmClient(CHAIN_ID_WORMCHAIN);
+    return {
+      sequence: packetSeq,
+      timeout: packetTimeout,
+      srcChannel: packetSrcChannel,
+      dstChannel: packetDstChannel,
+    };
+  }
+
+  private async findDestinationIBCTransferTx(
+    destChain: ChainName | ChainId,
+    ibcInfo: IBCTransferInfo,
+  ): Promise<IndexedTx | undefined> {
+    const wormchainClient = await this.getCosmWasmClient(destChain);
     const destTx = await wormchainClient.searchTx([
-      { key: 'recv_packet.packet_sequence', value: packetSeq },
-      { key: 'recv_packet.packet_timeout_timestamp', value: packetTimeout },
-      { key: 'recv_packet.packet_src_channel', value: packetSrcChannel },
-      { key: 'recv_packet.packet_dst_channel', value: packetDstChannel },
+      { key: 'recv_packet.packet_sequence', value: ibcInfo.sequence },
+      { key: 'recv_packet.packet_timeout_timestamp', value: ibcInfo.timeout },
+      { key: 'recv_packet.packet_src_channel', value: ibcInfo.srcChannel },
+      { key: 'recv_packet.packet_dst_channel', value: ibcInfo.dstChannel },
     ]);
     if (destTx.length === 0) {
-      throw new Error(
-        `No wormchain transaction found for packet by ${hash} on chain ${chain}`,
-      );
+      return undefined;
     }
     if (destTx.length > 1) {
       throw new Error(
-        `Multiple transactions found for the same packet by ${hash} on chain ${chain}`,
+        `Multiple transactions found for the same packet on chain ${destChain}`,
       );
     }
+    return destTx[0];
+  }
 
-    const sender = searchCosmosLogs('sender', logs);
-    if (!sender) throw new Error('Missing sender in transaction logs');
-
-    const message = await wh.getMessage(destTx[0].hash, CHAIN_ID_WORMCHAIN);
-    const parsed = await adaptParsedMessage(message);
-
-    return {
-      ...parsed,
-      // add the original source chain and tx hash to the info
-      // the vaa contains only the wormchain information
-      fromChain: wh.toChainName(chain),
-      sendTx: hash,
-      sender,
-    };
+  private async fetchRedeemedEventCosmosSource(
+    message: SignedTokenTransferMessage | SignedRelayTransferMessage,
+  ): Promise<string | null> {
+    throw new Error('Not implemented');
   }
 
   async getTransferSourceInfo({
@@ -728,7 +823,8 @@ export class CosmosGatewayRoute extends BaseRoute {
     throw new Error('Native gas drop-off not supported by this route');
   }
 
-  async tryFetchRedeemTx(txData: UnsignedMessage): Promise<string | undefined> {
-    return undefined; // only for automatic routes
+  async tryFetchRedeemTx(txData: SignedMessage): Promise<string | undefined> {
+    const hash = await this.fetchRedeemedEvent(txData);
+    return hash || undefined;
   }
 }
