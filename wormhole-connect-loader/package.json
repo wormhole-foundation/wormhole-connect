@@ -57,7 +57,7 @@
     ".": {
       "require": "./lib/cjs/index.js",
       "import": "./lib/esm/index.js",
-      "types": "./lib/index.d.ts"
+      "types": "./lib/types/index.d.ts"
     }
   },
   "files": [
