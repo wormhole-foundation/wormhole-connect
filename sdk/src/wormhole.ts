@@ -56,10 +56,14 @@ import { ForeignAssetCache } from './utils';
  * )
  */
 export class WormholeContext extends MultiProvider<Domain> {
-  private foreignAssetCache: ForeignAssetCache = new ForeignAssetCache();
+  private foreignAssetCache: ForeignAssetCache;
   readonly conf: WormholeConfig;
 
-  constructor(env: Environment, conf?: WormholeConfig) {
+  constructor(
+    env: Environment,
+    conf?: WormholeConfig,
+    foreignAssetCache?: ForeignAssetCache,
+  ) {
     super();
 
     if (conf) {
@@ -67,6 +71,8 @@ export class WormholeContext extends MultiProvider<Domain> {
     } else {
       this.conf = WormholeContext.getConfig(env);
     }
+
+    this.foreignAssetCache = foreignAssetCache || new ForeignAssetCache();
 
     this.registerProviders();
   }

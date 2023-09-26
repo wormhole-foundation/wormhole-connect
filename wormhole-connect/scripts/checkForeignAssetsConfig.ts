@@ -1,0 +1,123 @@
+// patch out annoying logs
+const info = console.info;
+console.info = function (x: any, ...rest: any) {
+  if (x !== 'secp256k1 unavailable, reverting to browser version') {
+    info(x, ...rest);
+  }
+};
+const warn = console.warn;
+console.warn = function (x: any, ...rest: any) {
+  if (
+    !x
+      .toString()
+      .startsWith(
+        'Error: Error: RPC Validation Error: The response returned from RPC server does not match the TypeScript definition. This is likely because the SDK version is not compatible with the RPC server.',
+      )
+  ) {
+    warn(x, ...rest);
+  }
+};
+
+import {
+  ChainName,
+  WormholeContext,
+} from '@wormhole-foundation/wormhole-connect-sdk';
+import { MAINNET_CHAINS } from '../src/config/mainnet/chains';
+import { MAINNET_TOKENS } from '../src/config/mainnet/tokens';
+import { TESTNET_CHAINS } from '../src/config/testnet/chains';
+import { TESTNET_TOKENS } from '../src/config/testnet/tokens';
+import { ChainsConfig, TokensConfig } from '../src/config/types';
+import { Network } from '@certusone/wormhole-sdk';
+
+// warning: be careful optimizing the RPC calls in this script, you may 429 yourself
+// slow and steady, or something like that
+const checkEnvConfig = async (
+  env: Network,
+  tokensConfig: TokensConfig,
+  chainsConfig: ChainsConfig,
+) => {
+  let recommendedUpdates: TokensConfig = {};
+  const wh = new WormholeContext(env);
+  for (const [tokenKey, tokenConfig] of Object.entries(tokensConfig)) {
+    for (const unTypedChain of Object.keys(chainsConfig)) {
+      const chain = unTypedChain as ChainName;
+      const configForeignAddress = tokenConfig.foreignAssets?.[chain];
+      if (chain === tokenConfig.nativeChain) {
+        if (configForeignAddress) {
+          throw new Error(
+            `❌ Invalid native chain in foreign assets detected! Env: ${env}, Key ${tokenKey}, Chain: ${chain}`,
+          );
+        }
+      } else if (tokenConfig.tokenId) {
+        let foreignAddress: string | null = null;
+        try {
+          foreignAddress = await wh.getForeignAsset(tokenConfig.tokenId, chain);
+        } catch (e: any) {
+          if (
+            e?.message === '3104 RPC not configured' ||
+            e?.message === 'wormchain RPC not configured'
+          ) {
+            // do not throw on wormchain errors
+          } else {
+            throw e;
+          }
+        }
+        if (foreignAddress) {
+          const foreignDecimals = await wh.fetchTokenDecimals(
+            tokenConfig.tokenId,
+            chain,
+          );
+          if (configForeignAddress) {
+            if (configForeignAddress.address !== foreignAddress) {
+              throw new Error(
+                `❌ Invalid foreign address detected! Env: ${env}, Key: ${tokenKey}, Chain: ${chain}, Expected: ${foreignAddress}, Received: ${configForeignAddress.address}`,
+              );
+            } else if (configForeignAddress.decimals !== foreignDecimals) {
+              throw new Error(
+                `❌ Invalid foreign decimals detected! Env: ${env}, Key: ${tokenKey}, Chain: ${chain}, Expected: ${foreignDecimals}, Received: ${configForeignAddress.decimals}`,
+              );
+            } else {
+              // console.log('✅ Config matches');
+            }
+          } else {
+            recommendedUpdates = {
+              ...recommendedUpdates,
+              [tokenKey]: {
+                ...(recommendedUpdates[tokenKey] || {}),
+                foreignAssets: {
+                  ...(recommendedUpdates[tokenKey]?.foreignAssets || {}),
+                  [chain]: {
+                    address: foreignAddress,
+                    decimals: foreignDecimals,
+                  },
+                },
+              },
+            };
+            // console.warn(
+            //   '⚠️ Update available:',
+            //   tokenKey,
+            //   chain,
+            //   foreignAddress,
+            // );
+          }
+        }
+      }
+    }
+  }
+  const numUpdatesAvaialable = Object.keys(recommendedUpdates).length;
+  if (numUpdatesAvaialable > 0) {
+    console.log(JSON.stringify(recommendedUpdates, undefined, 2));
+    console.warn(
+      `⚠️ ${numUpdatesAvaialable} update${
+        numUpdatesAvaialable > 1 ? 's' : ''
+      } available!`,
+    );
+  } else {
+    console.log(`✅ ${env} config matches`);
+  }
+};
+
+(async () => {
+  await checkEnvConfig('TESTNET', TESTNET_TOKENS, TESTNET_CHAINS);
+  await checkEnvConfig('MAINNET', MAINNET_TOKENS, MAINNET_CHAINS);
+})();
