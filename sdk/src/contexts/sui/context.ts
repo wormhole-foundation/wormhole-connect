@@ -511,23 +511,8 @@ export class SuiContext<
     const amountBigInt = BigNumber.from(amount).toBigInt();
     const toNativeTokenBigInt = BigNumber.from(toNativeToken).toBigInt();
 
-    let recipientAccount = recipientAddress;
-    // get token account for solana
-    if (recipientChainId === 1) {
-      let tokenId = token;
-      if (token === NATIVE) {
-        tokenId = {
-          address: SUI_TYPE_ARG,
-          chain: 'sui',
-        };
-      }
-      const account = await (
-        destContext as SolanaContext<WormholeContext>
-      ).getAssociatedTokenAddress(tokenId as TokenId, recipientAddress);
-      recipientAccount = account.toString();
-    }
     const formattedRecipientAccount = `0x${Buffer.from(
-      arrayify(destContext.formatAddress(recipientAccount)),
+      arrayify(destContext.formatAddress(recipientAddress)),
     ).toString('hex')}`;
 
     let coinType: string;
