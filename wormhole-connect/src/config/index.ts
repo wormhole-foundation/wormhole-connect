@@ -22,9 +22,9 @@ const configJson = el.getAttribute('config');
 export const config: WormholeConnectConfig = JSON.parse(configJson!) || {};
 
 const getEnv = () => {
-  if (!config) return 'TESTNET';
-  if (config.env === 'mainnet') return 'MAINNET';
-  if (config.env === 'devnet') return 'DEVNET';
+  const processEnv = process.env.REACT_APP_CONNECT_ENV?.toLowerCase();
+  if (config.env === 'mainnet' || processEnv === 'mainnet') return 'MAINNET';
+  if (config.env === 'devnet' || processEnv === 'devnet') return 'DEVNET';
   return 'TESTNET';
 };
 
