@@ -264,7 +264,7 @@ function Bridge() {
       <SwapChains />
       <ToInputs />
 
-      <ValidationError validations={[validations.route]} margin="8px 0 0 0" />
+      <ValidationError validations={[validations.route]} margin="12px 0 0 0" />
 
       <Collapse in={valid && showValidationState}>
         <div className={classes.spacer}>

@@ -6,7 +6,7 @@ type StyleProps = { bg?: string };
 const useStyles = makeStyles<StyleProps>()((theme: any, { bg }) => ({
   input: {
     width: '100%',
-    padding: '16px',
+    padding: theme.spacing(1.5),
     borderRadius: '8px',
     backgroundColor: bg || theme.palette.card.background,
     boxShadow: theme.palette.card.elevation,

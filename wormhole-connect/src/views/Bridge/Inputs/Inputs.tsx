@@ -28,7 +28,7 @@ const useStyles = makeStyles()((theme) => ({
     width: '100%',
     display: 'flex',
     flexDirection: 'column',
-    gap: '8px',
+    gap: theme.spacing(1.5),
   },
   errorContainer: {
     width: '100%',
@@ -37,7 +37,7 @@ const useStyles = makeStyles()((theme) => ({
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: '0 16px',
+    padding: theme.spacing(0, 1.5),
     [theme.breakpoints.down('sm')]: {
       padding: '0',
     },
@@ -65,9 +65,9 @@ const useStyles = makeStyles()((theme) => ({
     gridArea: 'inputs',
     display: 'flex',
     flexDirection: 'column',
-    gap: '8px',
+    gap: theme.spacing(1.5),
     width: '100%',
-    paddingLeft: '8px',
+    paddingLeft: theme.spacing(1.5),
     [theme.breakpoints.down('sm')]: {
       paddingLeft: '0',
     },
@@ -75,7 +75,7 @@ const useStyles = makeStyles()((theme) => ({
   chainRow: {
     display: 'flex',
     flexDirection: 'row',
-    gap: '8px',
+    gap: theme.spacing(1.5),
   },
   chainSmall: {
     display: 'block',
@@ -152,12 +152,12 @@ function Inputs(props: Props) {
             show={!!props.walletError}
             content={props.walletError}
             error
-            margin="8px 0 0 0"
+            margin="12px 0 0 0"
           />
         ) : (
           <ValidationError
             validations={props.walletValidations}
-            margin="8px 0 0 0"
+            margin="12px 0 0 0"
           />
         )}
       </div>
@@ -213,7 +213,7 @@ function Inputs(props: Props) {
           {/* validation error banner */}
           <ValidationError
             validations={props.inputValidations}
-            margin="8px 0 0 0"
+            margin="12px 0 0 0"
           />
 
           {props.warning && props.warning}
