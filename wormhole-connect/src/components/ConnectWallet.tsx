@@ -23,7 +23,7 @@ const useStyles = makeStyles()((theme: any) => ({
     justifyContent: 'end',
     gap: '8px',
     padding: '8px 16px',
-    borderRadius: '20px',
+    borderRadius: '8px',
     backgroundColor: theme.palette.button.primary,
     cursor: 'pointer',
   },

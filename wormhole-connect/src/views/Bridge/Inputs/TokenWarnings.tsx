@@ -244,7 +244,7 @@ function TokenWarnings() {
       show={showErrors}
       content={content}
       warning
-      margin="8px 0 0 0"
+      margin="12px 0 0 0"
     />
   );
 }

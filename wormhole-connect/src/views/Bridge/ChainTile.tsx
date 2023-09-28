@@ -8,20 +8,16 @@ const useStyles = makeStyles()((theme: any) => ({
   chainTile: {
     backgroundColor: theme.palette.card.secondary,
     borderRadius: '8px',
-    padding: '16px',
+    padding: theme.spacing(1.5),
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     width: '100%',
     height: '100%',
     cursor: 'pointer',
-    marginRight: '8px',
     textAlign: 'center',
-  },
-  chainNone: {
-    justifyContent: 'center',
-    gap: '16px',
+    gap: theme.spacing(1.5),
   },
   chainIcon: {
     width: '56px',
@@ -53,26 +49,16 @@ function ChainTile(props: Props) {
     props.onClick(e);
   };
 
-  return props.chain ? (
+  return (
     <div
       className={joinClass([classes.chainTile, !!props.error && classes.error])}
       onClick={onClick}
     >
-      <div className={classes.chainHeader}>Network</div>
-      <TokenIcon name={props.chain.icon} height={56} />
-      <div className={classes.chainName}>{props.chain.displayName}</div>
-    </div>
-  ) : (
-    <div
-      className={joinClass([
-        classes.chainTile,
-        classes.chainNone,
-        !!props.error && classes.error,
-      ])}
-      onClick={onClick}
-    >
-      <TokenIcon height={56} />
-      <div className={classes.chainName}>Select network</div>
+      {props.chain ? <div className={classes.chainHeader}>Network</div> : null}
+      <TokenIcon name={props.chain?.icon} height={56} />
+      <div className={classes.chainName}>
+        {props.chain?.displayName || 'Select network'}
+      </div>
     </div>
   );
 }
