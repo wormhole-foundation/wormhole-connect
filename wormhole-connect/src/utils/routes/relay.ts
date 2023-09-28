@@ -577,23 +577,11 @@ export class RelayRoute extends BridgeRoute {
     ];
   }
 
-  // async tryFetchRedeemTx(message: SignedMessage): Promise<string | undefined> {
-  //   if (!isSignedWormholeMessage(message)) {
-  //     throw new Error('Signed message is not for relay');
-  //   }
-
-  //   // if this is an automatic transfer and the transaction hash was not found,
-  //   // then try to fetch the redeemed event
-  //   let redeemTx: string | undefined = undefined;
-  //   try {
-  //     const res = await fetchRedeemedEvent(message);
-  //     redeemTx = res?.transactionHash;
-  //   } catch {}
   async tryFetchRedeemEvent(
-    txData: SignedMessage,
+    message: SignedMessage,
   ): Promise<string | undefined> {
     try {
-      const res = await fetchRedeemedEvent(txData);
+      const res = await fetchRedeemedEvent(message);
       return res?.transactionHash;
     } catch (_) {
       return undefined;
@@ -605,11 +593,11 @@ export class RelayRoute extends BridgeRoute {
       throw new Error('Signed message is not for relay');
     }
     try {
-      const tx = await fetchGlobalTx(txData);
+      const tx = await fetchGlobalTx(message);
       if (!tx) throw new Error('Could not fetch global tx');
       return tx;
     } catch (_) {
-      return await this.tryFetchRedeemEvent(txData);
+      return await this.tryFetchRedeemEvent(message);
     }
   }
 }

@@ -12,6 +12,7 @@ import {
   isEvmChain,
   wh,
 } from './sdk';
+import { SignedMessage, UnsignedMessage } from './routes';
 
 export const WORMHOLE_RPC_HOSTS =
   ENV === 'MAINNET'
@@ -237,9 +238,9 @@ export const fetchIsVAAEnqueued = async (
 };
 
 export const fetchGlobalTx = async (
-  txData: ParsedMessage | ParsedRelayerMessage,
+  message: UnsignedMessage | SignedMessage,
 ): Promise<string | undefined> => {
-  const messageId = getEmitterAndSequence(txData);
+  const messageId = getEmitterAndSequence(message);
   const { emitterChain, emitterAddress, sequence } = messageId;
 
   const url = `${WORMHOLE_API}api/v1/global-tx/${emitterChain}/${emitterAddress}/${sequence}`;
