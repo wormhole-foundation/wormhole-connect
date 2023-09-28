@@ -118,6 +118,8 @@ function GasSlider(props: { disabled: boolean }) {
   const [state, setState] = useState(INITIAL_STATE);
   const [debouncedSwapAmt] = useDebounce(state.swapAmt, 250);
 
+  const [gasSliderCollapsed, setGasSliderCollapsed] = useState(props.disabled);
+
   // set the actual max swap amount (checks if max swap amount is greater than the sending amount)
   useEffect(() => {
     if (
@@ -159,9 +161,10 @@ function GasSlider(props: { disabled: boolean }) {
     }
 
     const newTokenAmount = amountNum - state.swapAmt;
+    if (actualMaxSwap === 0) setGasSliderCollapsed(true);
     setState((prevState) => ({
       ...prevState,
-      disabled: amountNum <= 0,
+      disabled: amountNum <= 0 || actualMaxSwap === 0,
       token: formatAmount(newTokenAmount),
       max: formatAmount(actualMaxSwap),
     }));
@@ -236,6 +239,7 @@ function GasSlider(props: { disabled: boolean }) {
   }
 
   const onCollapseChange = (collapsed: boolean) => {
+    setGasSliderCollapsed(collapsed);
     // user switched off conversion to native gas, so reset values
     if (collapsed) {
       setState((prevState) => ({
@@ -324,6 +328,8 @@ function GasSlider(props: { disabled: boolean }) {
       disabled={props.disabled || state.disabled}
       startClosed={props.disabled}
       controlStyle={CollapseControlStyle.Switch}
+      controlled={true}
+      value={gasSliderCollapsed}
       onCollapseChange={onCollapseChange}
     >
       <InputContainer
