@@ -265,7 +265,7 @@ const MAINNET_CONFIG: WormholeConfig = {
     aptos: 'https://fullnode.mainnet.aptoslabs.com/v1',
     arbitrum: 'https://arb1.arbitrum.io/rpc',
     optimism: 'https://mainnet.optimism.io',
-    base: 'https://mainnet.base.org',
+    base: 'https://base.publicnode.com',
     sei: '', // TODO: fill in
     wormchain: '',
     osmosis: 'https://osmosis-rpc.polkachu.com',
