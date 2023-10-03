@@ -307,7 +307,9 @@ export class WormholeContext extends MultiProvider<Domain> {
   ): Promise<SendResult> {
     const context = this.getContext(sendingChain);
 
-    if (!payload && recipientChain === 'sei') {
+    if (recipientChain === 'sei') {
+      if (payload) throw new Error('Custom payload is not supported for Sei');
+
       const { payload: seiPayload, receiver } = await (
         this.getContext('sei') as SeiContext<WormholeContext>
       ).buildSendPayload(token, recipientAddress);
