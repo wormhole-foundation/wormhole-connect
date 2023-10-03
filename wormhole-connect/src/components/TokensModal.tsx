@@ -43,20 +43,6 @@ const useStyles = makeStyles()((theme: any) => ({
     ...CENTER,
     minHeight: '72px',
   },
-  checkboxRow: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontFamily: theme.palette.font.primary,
-    fontWeight: 400,
-    fontSize: '14px',
-  },
-  subheader: {
-    margin: '0 8px',
-    fontSize: '18px',
-    textAlign: 'left',
-    fontFamily: theme.palette.font.header,
-  },
   tokenRow: {
     position: 'relative',
     display: 'flex',
@@ -80,11 +66,6 @@ const useStyles = makeStyles()((theme: any) => ({
     fontSize: '14px',
     gap: '8px',
     textAlign: 'left',
-  },
-  tokenRowIcon: {
-    width: '32px',
-    height: '32px',
-    marginRight: '12px',
   },
   tokenRowRight: {
     display: 'flex',
@@ -112,43 +93,8 @@ const useStyles = makeStyles()((theme: any) => ({
     textAlign: 'left',
     opacity: '60%',
   },
-  advanced: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    margin: '16px 0',
-    cursor: 'pointer',
-  },
-  arrow: {
-    transition: 'transform 0.4s',
-  },
-  invert: {
-    transform: 'rotate(180deg)',
-  },
-  sectionHeader: {
-    display: 'flex',
-    alignItems: 'center',
-  },
-  advancedContent: {
-    marginBottom: '16px',
-  },
   nativeChain: {
     opacity: '60%',
-  },
-  register: {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    marginTop: '16px',
-  },
-  registerText: {
-    opacity: '60%',
-    fontSize: '16px',
-  },
-  registerLink: {
-    color: theme.palette.success[500],
-    textDecoration: 'underline',
-    fontSize: '14px',
   },
   loading: {
     display: 'flex',
@@ -199,7 +145,7 @@ function DisplayTokens(props: {
     >
       <div className={classes.tokensContainer}>
         {tokens.length > 0 ? (
-          <div>
+          <>
             {tokens.map((token, i) => (
               <div
                 className={classes.tokenRow}
@@ -239,7 +185,7 @@ function DisplayTokens(props: {
                 </div>
               </div>
             ))}
-          </div>
+          </>
         ) : loading ? (
           <div className={classes.loading}>
             <CircularProgress size={24} />
