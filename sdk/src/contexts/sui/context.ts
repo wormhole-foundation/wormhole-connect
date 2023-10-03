@@ -409,12 +409,13 @@ export class SuiContext<
     );
     const tokenChain = this.context.toChainName(parsed.tokenChain);
     const gasFee = getTotalGasUsed(txBlock);
+    const to = destContext.parseAddress(hexlify(parsed.to));
     const parsedMessage: ParsedMessage = {
       sendTx: txBlock.digest,
       sender: getTransactionSender(txBlock) || '',
       amount: BigNumber.from(parsed.amount),
       payloadID: parsed.payloadType,
-      recipient: destContext.parseAddress(hexlify(parsed.to)),
+      recipient: to,
       toChain: this.context.toChainName(parsed.toChain),
       fromChain: this.context.toChainName(chain),
       tokenAddress,
@@ -436,7 +437,8 @@ export class SuiContext<
         ...parsedMessage,
         relayerFee: relayerPayload.relayerFee,
         relayerPayloadId: parsed.payloadType as number,
-        to: relayerPayload.to,
+        to,
+        recipient: destContext.parseAddress(hexlify(relayerPayload.to)),
         toNativeTokenAmount: relayerPayload.toNativeTokenAmount,
         payload: parsed.tokenTransferPayload.length
           ? hexlify(parsed.tokenTransferPayload)
