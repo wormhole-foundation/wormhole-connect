@@ -26,8 +26,7 @@ jobs:
       - run: |
           IFS='@' read -a strarr <<< $(git describe --tags)
           sed  -i "s/\"version\": .*/\"version\": \"${strarr[1]}$(echo $([ ${strarr[0]} == "production" ] && echo "" || echo "-${strarr[0]}"))\",/" wormhole-connect-loader/package.json
-      - run: npm run build
-      - run: |
+          npm run build
           cd wormhole-connect-loader
           npm publish --tag $(echo $([ ${strarr[0]} == "production" ] && echo "latest" || echo ${strarr[0]})) --access public
         env:
