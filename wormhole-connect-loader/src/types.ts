@@ -51,9 +51,12 @@ export interface BridgeDefaults {
   requiredNetwork?: ChainName;
 }
 
+// Keep this in sync with wormhole-connect/src/config/types.ts!
+// TODO: move to a shared package
 export interface WormholeConnectConfig {
-  env?: "mainnet" | "testnet";
+  env?: "mainnet" | "testnet" | "devnet";
   rpcs?: Rpcs;
+  rest?: Rpcs;
   networks?: ChainName[];
   tokens?: string[];
   mode?: "dark" | "light";
@@ -63,4 +66,6 @@ export interface WormholeConnectConfig {
     link: string;
   };
   bridgeDefaults?: BridgeDefaults;
+  routes?: string[];
+  pageHeader?: string;
 }
