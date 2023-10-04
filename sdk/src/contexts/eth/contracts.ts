@@ -12,6 +12,7 @@ import { CircleRelayer__factory } from '../../abis/CircleRelayer__factory';
 import { ContractsAbstract } from '../abstracts/contracts';
 import { WormholeContext } from '../../wormhole';
 import { filterByContext } from '../../utils';
+import { ethers } from 'ethers';
 
 /**
  * @category EVM
@@ -73,8 +74,11 @@ export class EthContracts<
    *
    * @returns An interface for the bridge contract, undefined if not found
    */
-  getBridge(chain: ChainName | ChainId): Bridge | undefined {
-    const connection = this.context.mustGetConnection(chain);
+  getBridge(
+    chain: ChainName | ChainId,
+    provider?: ethers.providers.Provider,
+  ): Bridge | undefined {
+    const connection = provider || this.context.mustGetConnection(chain);
     const address = this.mustGetContracts(chain).token_bridge;
     if (!address) return undefined;
     return ethers_contracts.Bridge__factory.connect(address, connection);
@@ -85,8 +89,11 @@ export class EthContracts<
    *
    * @returns An interface for the bridge contract, errors if not found
    */
-  mustGetBridge(chain: ChainName | ChainId): Bridge {
-    const bridge = this.getBridge(chain);
+  mustGetBridge(
+    chain: ChainName | ChainId,
+    provider?: ethers.providers.Provider,
+  ): Bridge {
+    const bridge = this.getBridge(chain, provider);
     if (!bridge)
       throw new Error(`Bridge contract for domain ${chain} not found`);
     return bridge;
