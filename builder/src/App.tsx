@@ -54,6 +54,7 @@ import {
   DEFAULT_TESTNET_RPCS,
   MAINNET_TOKEN_KEYS,
   NETWORKS,
+  ROUTES,
   TESTNET_TOKEN_KEYS,
 } from "./consts";
 
@@ -166,6 +167,13 @@ function App() {
   }, []);
   // TODO: should probably move all of this config state to a reducer so we can switch multiple pieces out with one action
   // https://react.dev/reference/react/useReducer
+  // BEGIN STYLING
+  const [_pageHeader, setPageHeader] = useState<string | undefined>(undefined);
+  const handlePageHeaderChange = useCallback((e: any) => {
+    setPageHeader(e.target.value || undefined);
+  }, []);
+  const [pageHeader] = useDebounce(_pageHeader, 500);
+  // END STYLING
   // BEGIN THEME
   const [mode, setMode] = useState<"dark" | "light" | undefined>("dark");
   const [fontHref, setFontHref] = useState<string>("");
@@ -215,6 +223,23 @@ function App() {
     }
   }, []);
   // END THEME
+  // BEGIN ROUTES
+  const [_routes, setRoutes] = useState<string[] | undefined>(undefined);
+  const [routes] = useDebounce(_routes, 1000);
+  const handleClearRoutes = useCallback(() => {
+    setRoutes(undefined);
+  }, []);
+  const handleNoneRoutes = useCallback(() => {
+    setRoutes([]);
+  }, []);
+  const handleRoutesChange = useCallback((e: any) => {
+    setRoutes(
+      typeof e.target.value === "string"
+        ? e.target.value.split(",").sort()
+        : e.target.value.sort()
+    );
+  }, []);
+  // END ROUTES
   // BEGIN ENV
   const [env, setEnv] = useState<"testnet" | "mainnet">("testnet");
   const [_networkIndexes, setNetworkIndexes] = useState<number[] | undefined>(
@@ -397,6 +422,8 @@ function App() {
     setEnv("testnet");
     setCtaText("");
     setCtaLink("");
+    setPageHeader("");
+    setRoutes(undefined);
   }, []);
   // START CODE
   const [codeType, setCodeType] = useState(0);
@@ -435,6 +462,8 @@ function App() {
               requiredNetwork: requiredNetwork,
             }
           : undefined,
+      routes,
+      pageHeader,
     }),
     [
       testnetRpcs,
@@ -448,10 +477,12 @@ function App() {
       defaultToNetwork,
       defaultToken,
       requiredNetwork,
+      routes,
+      pageHeader,
     ]
   );
   // TODO: pull latest version from npm / offer pinning, tag, or latest
-  const version = "0.0.12";
+  const version = "0.1.1";
   const [htmlCode, jsxCode] = useMemo(() => {
     const realConfig = { ...config, env, rpcs, networks, tokens };
     const realConfigString = JSON.stringify(realConfig);
@@ -526,20 +557,21 @@ function App() {
                   Customize
                 </Typography>
                 <ScreenButton
-                  text="Styling (Coming Soon)"
+                  text="Styling"
                   number={1}
                   setScreen={setScreen}
-                  disabled
+                  optional
                 />
                 <ScreenButton text="Palette" number={2} setScreen={setScreen} />
+                <ScreenButton text="Routes" number={3} setScreen={setScreen} />
                 <ScreenButton
                   text="Networks & Assets"
-                  number={3}
+                  number={4}
                   setScreen={setScreen}
                 />
                 <ScreenButton
                   text="Bridge Complete"
-                  number={4}
+                  number={5}
                   optional
                   setScreen={setScreen}
                 />
@@ -548,7 +580,7 @@ function App() {
                 </Typography>
                 <ScreenButton
                   text="Get Code"
-                  number={5}
+                  number={6}
                   setScreen={setScreen}
                 />
               </Box>
@@ -563,6 +595,15 @@ function App() {
               >
                 Styling
               </Button>
+              <Box mx={2}>
+                <TextField
+                  label="Page Header"
+                  fullWidth
+                  value={_pageHeader || ""}
+                  onChange={handlePageHeaderChange}
+                  sx={{ mb: 2 }}
+                />
+              </Box>
             </>
           ) : screen === 2 ? (
             <>
@@ -624,6 +665,55 @@ function App() {
               </Box>
             </>
           ) : screen === 3 ? (
+            <>
+              <Button
+                color="inherit"
+                startIcon={<KeyboardArrowLeft />}
+                onClick={backScreen}
+                sx={{ mb: 1, justifyContent: "flex-start", pl: 2 }}
+              >
+                Routes
+              </Button>
+              <Box mx={2}>
+                <TextField
+                  select
+                  fullWidth
+                  value={_routes ? _routes : ROUTES}
+                  onChange={handleRoutesChange}
+                  SelectProps={{
+                    multiple: true,
+                    renderValue: (selected: any) =>
+                      !_routes ? "All Routes" : selected.join(", "),
+                  }}
+                >
+                  {ROUTES.map((r) => (
+                    <MenuItem key={r} value={r}>
+                      <Checkbox checked={!_routes || _routes.includes(r)} />
+                      <ListItemText primary={r} />
+                    </MenuItem>
+                  ))}
+                </TextField>
+                <Button
+                  onClick={handleClearRoutes}
+                  variant="contained"
+                  color="inherit"
+                  size="small"
+                  sx={{ mt: 1, mr: 1 }}
+                >
+                  Select All
+                </Button>
+                <Button
+                  onClick={handleNoneRoutes}
+                  variant="contained"
+                  color="inherit"
+                  size="small"
+                  sx={{ mt: 1, mr: 1 }}
+                >
+                  Select None
+                </Button>
+              </Box>
+            </>
+          ) : screen === 4 ? (
             <>
               <Button
                 color="inherit"
@@ -936,7 +1026,7 @@ function App() {
                 </TextField>
               </Box>
             </>
-          ) : screen === 4 ? (
+          ) : screen === 5 ? (
             <>
               <Button
                 color="inherit"
@@ -982,7 +1072,7 @@ function App() {
                 />
               </Box>
             </>
-          ) : screen === 5 ? (
+          ) : screen === 6 ? (
             <>
               <Button
                 color="inherit"
@@ -1128,7 +1218,11 @@ function App() {
           <Typography variant="h4" component="h2" gutterBottom>
             Preview
           </Typography>
-          <WormholeBridge config={config} key={JSON.stringify(config)} />
+          <WormholeBridge
+            versionOrTag={version}
+            config={config}
+            key={JSON.stringify(config)}
+          />
         </Container>
       </Box>
     </Background>
