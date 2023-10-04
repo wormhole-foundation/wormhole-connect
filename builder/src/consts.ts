@@ -175,7 +175,7 @@ export const DEFAULT_MAINNET_RPCS = {
   aptos: "https://fullnode.mainnet.aptoslabs.com/v1",
   arbitrum: "https://arb1.arbitrum.io/rpc",
   optimism: "https://mainnet.optimism.io",
-  base: "https://base.publicnode.com",
+  base: "https://mainnet.base.org",
   sei: "", // TODO: fill in
   wormchain: "",
   osmosis: "https://osmosis-rpc.polkachu.com",
@@ -194,7 +194,7 @@ export const DEFAULT_TESTNET_RPCS = {
   aptos: "https://fullnode.testnet.aptoslabs.com/v1",
   arbitrumgoerli: "https://arbitrum-goerli.publicnode.com",
   optimismgoerli: "https://optimism-goerli.publicnode.com",
-  basegoerli: "https://base-goerli.publicnode.com",
+  basegoerli: "https://goerli.base.org",
   sei: "https://rpc.atlantic-2.seinetwork.io",
   wormchain: "",
   osmosis: "https://rpc.osmotest5.osmosis.zone",
