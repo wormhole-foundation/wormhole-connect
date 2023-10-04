@@ -1,13 +1,17 @@
 import { NetworkData } from 'config/types';
 import { MAINNET_CHAINS } from './chains';
-import { MAINNET_TOKENS } from './tokens';
 import { MAINNET_GAS_ESTIMATES } from './gasEstimates';
-import { MAINNET_RPC_MAPPING, MAINNET_REST_MAPPING } from './rpcs';
+import {
+  MAINNET_GRAPHQL_MAPPING,
+  MAINNET_REST_MAPPING,
+  MAINNET_RPC_MAPPING,
+} from './rpcs';
+import { MAINNET_TOKENS } from './tokens';
 
 export * from './chains';
+export * from './gasEstimates';
 export * from './rpcs';
 export * from './tokens';
-export * from './gasEstimates';
 
 const MAINNET: NetworkData = {
   chains: MAINNET_CHAINS,
@@ -15,6 +19,7 @@ const MAINNET: NetworkData = {
   gasEstimates: MAINNET_GAS_ESTIMATES,
   rpcs: MAINNET_RPC_MAPPING,
   rest: MAINNET_REST_MAPPING,
+  graphql: MAINNET_GRAPHQL_MAPPING,
 };
 
 export default MAINNET;

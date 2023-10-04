@@ -91,6 +91,11 @@ export const REST =
     ? Object.assign({}, NETWORK_DATA.rest, config.rest)
     : NETWORK_DATA.rest;
 
+export const GRAPHQL =
+  config && config.graphql
+    ? Object.assign({}, NETWORK_DATA.graphql, config.graphql)
+    : NETWORK_DATA.graphql;
+
 export const GAS_ESTIMATES = NETWORK_DATA.gasEstimates;
 
 export const THEME_MODE = config && config.mode ? config.mode : 'dark';

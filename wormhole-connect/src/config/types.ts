@@ -59,6 +59,7 @@ export interface WormholeConnectConfig {
   env?: 'mainnet' | 'testnet' | 'devnet';
   rpcs?: ChainResourceMap;
   rest?: ChainResourceMap;
+  graphql?: ChainResourceMap;
   networks?: ChainName[];
   tokens?: string[];
   mode?: 'dark' | 'light';
@@ -134,4 +135,5 @@ export type NetworkData = {
   gasEstimates: GasEstimates;
   rpcs: RpcMapping;
   rest: RpcMapping;
+  graphql: RpcMapping;
 };

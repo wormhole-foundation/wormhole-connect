@@ -45,3 +45,7 @@ export const TESTNET_RPC_MAPPING = {
 export const TESTNET_REST_MAPPING = {
   ...populateRpcField('sei', REACT_APP_SEI_REST),
 };
+
+export const TESTNET_GRAPHQL_MAPPING = {
+  ...populateRpcField('aptos', process.env.REACT_APP_APTOS_TESTNET_GRAPHQL),
+};

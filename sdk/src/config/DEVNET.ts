@@ -88,6 +88,7 @@ const DEVNET_CONFIG: WormholeConfig = {
     terra2: 'http://localhost:26658',
   },
   rest: {},
+  graphql: {},
   chains: DEVNET,
   wormholeHosts: ['http://localhost:7071'],
 };

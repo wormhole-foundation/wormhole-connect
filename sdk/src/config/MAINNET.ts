@@ -273,6 +273,9 @@ const MAINNET_CONFIG: WormholeConfig = {
   rest: {
     sei: '',
   },
+  graphql: {
+    aptos: 'https://indexer.mainnet.aptoslabs.com/v1/graphql',
+  },
   chains: MAINNET,
   wormholeHosts: [
     'https://wormhole-v2-mainnet-api.certus.one',
