@@ -154,6 +154,14 @@ export const MAINNET_TOKEN_KEYS: string[] = [
   "BONK",
 ].sort();
 
+export const ROUTES = [
+  "bridge",
+  "relay",
+  "cosmosGateway",
+  "cctpManual",
+  "cctpRelay",
+].sort();
+
 export const DEFAULT_MAINNET_RPCS = {
   ethereum: "https://rpc.ankr.com/eth",
   solana: "https://api.mainnet-beta.solana.com",
