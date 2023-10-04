@@ -1,3 +1,4 @@
+import { PublicKey } from '@solana/web3.js';
 import {
   ChainId,
   ChainName,
@@ -12,7 +13,14 @@ import { RelayRoute } from './relay';
 // import { HashflowRoute } from './hashflow';
 import { CCTPRelayRoute } from './cctpRelay';
 import { CosmosGatewayRoute } from './cosmosGateway';
-import { ParsedMessage, PayloadType, getMessage, isEvmChain, wh } from '../sdk';
+import {
+  ParsedMessage,
+  PayloadType,
+  getMessage,
+  isEvmChain,
+  solanaContext,
+  wh,
+} from '../sdk';
 import { isCosmWasmChain } from '../cosmos';
 import RouteAbstract from './routeAbstract';
 import {
@@ -482,6 +490,29 @@ export class Operator {
   ): Promise<BigNumber> {
     const r = this.getRoute(route);
     return r.maxSwapAmount(destChain, token, walletAddress);
+  }
+
+  async minSwapAmountNative(
+    route: Route,
+    destChain: ChainName | ChainId,
+    token: TokenId,
+    walletAddress: string,
+  ): Promise<BigNumber> {
+    const chainName = wh.toChainName(destChain);
+    if (chainName === 'solana') {
+      const context = solanaContext();
+      // an non-existent account cannot be sent less than the rent exempt amount
+      // in order to create the wallet, it must be sent at least the rent exemption minimum
+      const acctExists =
+        (await context.connection!.getAccountInfo(
+          new PublicKey(walletAddress),
+        )) !== null;
+      if (acctExists) return BigNumber.from(0);
+      const minBalance =
+        await context.connection!.getMinimumBalanceForRentExemption(0);
+      return BigNumber.from(minBalance);
+    }
+    return BigNumber.from(0);
   }
 
   tryFetchRedeemTx(
