@@ -39,3 +39,7 @@ export const MAINNET_RPC_MAPPING = {
 export const MAINNET_REST_MAPPING = {
   ...populateRpcField('sei', REACT_APP_SEI_REST),
 };
+
+export const MAINNET_GRAPHQL_MAPPING = {
+  ...populateRpcField('aptos', process.env.REACT_APP_APTOS_GRAPHQL),
+};

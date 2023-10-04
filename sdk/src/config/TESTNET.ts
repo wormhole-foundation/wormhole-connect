@@ -278,6 +278,9 @@ const TESTNET_CONFIG: WormholeConfig = {
   rest: {
     sei: 'https://rest.atlantic-2.seinetwork.io',
   },
+  graphql: {
+    aptos: 'https://indexer-testnet.staging.gcp.aptosdev.com/v1/graphql',
+  },
   chains: TESTNET,
   wormholeHosts: ['https://wormhole-v2-testnet-api.certus.one'],
 };

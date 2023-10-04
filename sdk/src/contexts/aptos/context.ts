@@ -28,9 +28,18 @@ import { sha3_256 } from 'js-sha3';
 import { MAINNET_CHAINS } from '../../config/MAINNET';
 import { SolanaContext } from '../solana';
 import { ForeignAssetCache } from '../../utils';
+import axios from 'axios';
 
 export const APTOS_COIN = '0x1::aptos_coin::AptosCoin';
 
+export type CurrentCoinBalancesResponse = {
+  data: { current_coin_balances: CoinBalance[] };
+};
+
+export type CoinBalance = {
+  coin_type: string;
+  amount: number;
+};
 export class AptosContext<
   T extends WormholeContext,
 > extends TokenBridgeAbstract<Types.EntryFunctionPayload> {
@@ -355,15 +364,24 @@ export class AptosContext<
     const addresses = await Promise.all(
       tokenIds.map((tokenId) => this.getForeignAsset(tokenId, chain)),
     );
-    const balances = await Promise.all(
-      addresses.map((address) =>
-        !address
-          ? Promise.resolve(null)
-          : this.checkBalance(walletAddress, address),
-      ),
-    );
-    return balances.map((balance) =>
-      balance ? BigNumber.from(balance) : null,
+    let coinBalances: CoinBalance[] = [];
+    let offset = 0;
+    const limit = 100;
+    while (true) {
+      const result = await this.fetchCurrentCoins(walletAddress, offset, limit);
+      coinBalances = [...coinBalances, ...result.data.current_coin_balances];
+      if (result.data.current_coin_balances.length < limit) {
+        break;
+      }
+      offset += result.data.current_coin_balances.length;
+    }
+
+    return addresses.map((address) =>
+      !address
+        ? null
+        : BigNumber.from(
+            coinBalances.find((bal) => bal.coin_type === address)?.amount || 0,
+          ),
     );
   }
 
@@ -385,6 +403,28 @@ export class AptosContext<
       }
       throw e;
     }
+  }
+
+  async fetchCurrentCoins(ownerAddress: string, offset: number, limit: number) {
+    if (!this.context.conf.graphql.aptos)
+      throw new Error('Aptos graphql not configured');
+    const response = await axios.post<CurrentCoinBalancesResponse>(
+      this.context.conf.graphql.aptos,
+      {
+        query: `query CurrentCoinBalances($owner_address: String, $offset: Int, $limit: Int) {
+        current_coin_balances(
+          where: {owner_address: {_eq: $owner_address}} 
+          offset: $offset
+          limit: $limit
+        ) {
+          coin_type
+          amount
+        }
+      }`,
+        variables: { owner_address: ownerAddress, offset, limit },
+      },
+    );
+    return response.data;
   }
 
   async redeem(
