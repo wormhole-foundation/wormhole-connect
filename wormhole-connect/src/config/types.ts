@@ -53,6 +53,8 @@ export interface BridgeDefaults {
   requiredNetwork?: ChainName;
 }
 
+// Keep this in sync with wormhole-connect-loader/src/types.ts!
+// TODO: move to a shared package
 export interface WormholeConnectConfig {
   env?: 'mainnet' | 'testnet' | 'devnet';
   rpcs?: ChainResourceMap;
