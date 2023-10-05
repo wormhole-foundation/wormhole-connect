@@ -9,12 +9,14 @@ import {
 import { CosmWasmClient } from '@cosmjs/cosmwasm-stargate';
 import { EncodeObject, decodeTxRaw } from '@cosmjs/proto-signing';
 import {
+  BankExtension,
   Coin,
   IbcExtension,
   QueryClient,
   StdFee,
   calculateFee,
   logs as cosmosLogs,
+  setupBankExtension,
   setupIbcExtension,
 } from '@cosmjs/stargate';
 import { MsgExecuteContract } from 'cosmjs-types/cosmwasm/wasm/v1/tx';
@@ -379,13 +381,14 @@ export class CosmosContext<
     const assetAddresses = await Promise.all(
       tokenIds.map((tokenId) => this.getForeignAsset(tokenId, chain)),
     );
-    return await Promise.all(
-      assetAddresses.map((assetAddress) =>
-        !assetAddress
-          ? Promise.resolve(null)
-          : this.getNativeBalance(walletAddress, chain, assetAddress),
-      ),
-    );
+    const client = await this.getQueryClient(chain);
+    const balances = await client.bank.allBalances(walletAddress);
+    return assetAddresses.map((assetAddress) => {
+      const balance = balances.find(
+        (balance) => balance.denom === assetAddress,
+      );
+      return balance ? BigNumber.from(balance.amount) : null;
+    });
   }
 
   private getNativeDenom(chain: ChainName | ChainId): string {
@@ -543,9 +546,13 @@ export class CosmosContext<
 
   private async getQueryClient(
     chain: ChainId | ChainName,
-  ): Promise<QueryClient & IbcExtension> {
+  ): Promise<QueryClient & BankExtension & IbcExtension> {
     const tmClient = await this.getTmClient(chain);
-    return QueryClient.withExtensions(tmClient, setupIbcExtension);
+    return QueryClient.withExtensions(
+      tmClient,
+      setupBankExtension,
+      setupIbcExtension,
+    );
   }
 
   private async getTmClient(
