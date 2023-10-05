@@ -61,6 +61,11 @@ import {
 } from "./consts";
 
 const version = "0.1.2";
+// generated with https://www.srihash.org/
+const versionScriptIntegrity =
+  "sha384-nhHnv/RrHd814OnnzSvh+jikOAPOcTYqEjnEMfmXMqivORZ6pXEOQu1zY1tX+AjX";
+const versionLinkIntegrity =
+  "sha384-KGZI5sQxWDSIe8Xzhvu4eO0fi8KYtEmDnYS2Qn5xrtw667xfxFINL3uN48d/djuY";
 const nonBreakingTag = "latest-v0.1";
 const latestTag = "latest";
 
@@ -496,12 +501,22 @@ function App() {
     const realConfigString = JSON.stringify(realConfig);
     return [
       `<div id="wormhole-connect" config='${realConfigString}' /></div>
-<script src="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@${versionOrTag}/dist/main.js"></script>
-<link src="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@${versionOrTag}/dist/main.css"/>`,
+<script src="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@${versionOrTag}/dist/main.js"${
+        versionOrTag === version
+          ? ` integrity="${versionScriptIntegrity}" crossorigin="anonymous"`
+          : ""
+      }></script>
+<link rel="stylesheet" href="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@${versionOrTag}/dist/main.css"${
+        versionOrTag === version
+          ? ` integrity="${versionLinkIntegrity}" crossorigin="anonymous"`
+          : ""
+      }/>`,
       `import WormholeBridge from '@wormhole-foundation/wormhole-connect';
 function App() {
   return (
-    <WormholeBridge config={${realConfigString}} />
+    <WormholeBridge config={${realConfigString}} ${
+        versionOrTag === version ? "" : ` versionOrTag="${versionOrTag}"`
+      }/>
   );
 }`,
     ];
