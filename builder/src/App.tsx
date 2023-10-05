@@ -20,7 +20,9 @@ import {
   DialogTitle,
   Divider,
   Drawer,
+  FormControl,
   FormControlLabel,
+  FormLabel,
   Grid,
   IconButton,
   ListItemText,
@@ -57,6 +59,10 @@ import {
   ROUTES,
   TESTNET_TOKEN_KEYS,
 } from "./consts";
+
+const version = "0.1.2";
+const nonBreakingTag = "latest-v0.1";
+const latestTag = "latest";
 
 // registerRpcProvider throws on invalid RPCs
 const isValidRpc = (rpc?: string) =>
@@ -481,15 +487,17 @@ function App() {
       pageHeader,
     ]
   );
-  // TODO: pull latest version from npm / offer pinning, tag, or latest
-  const version = "0.1.2";
+  const [versionOrTag, setVersionOrTag] = useState<string>(version);
+  const handleVersionOrTagChange = useCallback((e: any, value: string) => {
+    setVersionOrTag(value);
+  }, []);
   const [htmlCode, jsxCode] = useMemo(() => {
     const realConfig = { ...config, env, rpcs, networks, tokens };
     const realConfigString = JSON.stringify(realConfig);
     return [
       `<div id="wormhole-connect" config='${realConfigString}' /></div>
-<script src="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@${version}/dist/main.js"></script>
-<link src="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@${version}/dist/main.css"/>`,
+<script src="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@${versionOrTag}/dist/main.js"></script>
+<link src="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@${versionOrTag}/dist/main.css"/>`,
       `import WormholeBridge from '@wormhole-foundation/wormhole-connect';
 function App() {
   return (
@@ -497,7 +505,7 @@ function App() {
   );
 }`,
     ];
-  }, [config, env, rpcs, networks, tokens]);
+  }, [config, env, rpcs, networks, tokens, versionOrTag]);
   const [openCopySnack, setOpenCopySnack] = useState<boolean>(false);
   const handleCopySnackClose = useCallback(() => {
     setOpenCopySnack(false);
@@ -1083,6 +1091,30 @@ function App() {
                 Get Code
               </Button>
               <Box mx={2}>
+                <FormControl sx={{ mt: 1.5, mb: 2 }}>
+                  <FormLabel>Automatic Updates</FormLabel>
+                  <RadioGroup
+                    value={versionOrTag}
+                    onChange={handleVersionOrTagChange}
+                    sx={{ mb: 0.5 }}
+                  >
+                    <FormControlLabel
+                      value={version}
+                      control={<Radio />}
+                      label="Disabled (Pinned)"
+                    />
+                    <FormControlLabel
+                      value={nonBreakingTag}
+                      control={<Radio />}
+                      label="Non-Breaking"
+                    />
+                    <FormControlLabel
+                      value={latestTag}
+                      control={<Radio />}
+                      label="Latest"
+                    />
+                  </RadioGroup>
+                </FormControl>
                 <Tabs
                   value={codeType}
                   onChange={handleCodeTypeChange}
