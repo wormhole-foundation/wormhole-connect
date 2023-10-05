@@ -44,7 +44,7 @@ import { WormholeContext } from '../../wormhole';
 import { TokenBridgeAbstract } from '../abstracts/tokenBridge';
 import { CosmosContracts } from './contracts';
 import { isCosmWasmChain, searchCosmosLogs } from './utils';
-import { ForeignAssetCache } from '../../utils';
+import { ForeignAssetCache, waitFor } from '../../utils';
 import {
   Tendermint34Client,
   Tendermint37Client,
@@ -99,6 +99,7 @@ export class CosmosContext<
   readonly context: T;
   readonly chain: ChainName;
 
+  private static FETCHING_TM_CLIENT = false;
   private static CLIENT_MAP: Record<string, TendermintClient> = {};
   private foreignAssetCache: ForeignAssetCache;
 
@@ -562,6 +563,8 @@ export class CosmosContext<
   private async getTmClient(
     chain: ChainId | ChainName,
   ): Promise<Tendermint34Client | Tendermint37Client> {
+    await waitFor(async () => CosmosContext.FETCHING_TM_CLIENT === false);
+
     const name = this.context.toChainName(chain);
     if (CosmosContext.CLIENT_MAP[name]) {
       return CosmosContext.CLIENT_MAP[name];
@@ -569,6 +572,8 @@ export class CosmosContext<
 
     const rpc = this.context.conf.rpcs[name];
     if (!rpc) throw new Error(`${chain} RPC not configured`);
+
+    CosmosContext.FETCHING_TM_CLIENT = true;
 
     // from cosmjs: https://github.com/cosmos/cosmjs/blob/358260bff71c9d3e7ad6644fcf64dc00325cdfb9/packages/stargate/src/stargateclient.ts#L218
     let tmClient: TendermintClient;
@@ -582,6 +587,7 @@ export class CosmosContext<
     }
 
     CosmosContext.CLIENT_MAP[name] = tmClient;
+    CosmosContext.FETCHING_TM_CLIENT = false;
 
     return tmClient;
   }

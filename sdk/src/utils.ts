@@ -38,3 +38,23 @@ export class ForeignAssetCache {
     this.cache[assetChain]![assetAddress]![foreignChain] = address;
   }
 }
+
+export const waitFor = (
+  condition: () => Promise<boolean>,
+  ms: number = 1000,
+  tries: number = 100,
+): Promise<void> => {
+  let count = 0;
+  return new Promise((resolve) => {
+    const interval = setInterval(async () => {
+      try {
+        if ((await condition()) || tries <= count) {
+          clearInterval(interval);
+          resolve();
+        }
+      } catch (e) {}
+
+      count++;
+    }, ms);
+  });
+};
