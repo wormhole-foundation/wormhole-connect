@@ -1040,7 +1040,18 @@ export class SolanaContext<
       BigNumber.from(amount).toBigInt(),
       decimals,
     );
-    return BigNumber.from(nativeTokenAmount);
+    // an non-existent account cannot be sent less than the rent exempt amount
+    // in order to create the wallet, it must be sent at least the rent exemption minimum
+    const acctExists =
+      (await this.connection!.getAccountInfo(new PublicKey(walletAddress))) !==
+      null;
+    if (acctExists) return BigNumber.from(nativeTokenAmount);
+    const minBalance = await this.connection!.getMinimumBalanceForRentExemption(
+      0,
+    );
+    return nativeTokenAmount > minBalance
+      ? BigNumber.from(nativeTokenAmount)
+      : BigNumber.from(0);
   }
 
   async calculateMaxSwapAmount(
