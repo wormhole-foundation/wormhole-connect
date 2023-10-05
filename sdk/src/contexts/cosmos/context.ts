@@ -206,9 +206,29 @@ export class CosmosContext<
     tokenId: TokenId,
     chain: ChainId | ChainName,
   ): Promise<string | null> {
-    return this.context.toChainId(chain) === CHAIN_ID_WORMCHAIN
-      ? this.getWhForeignAsset(tokenId, chain)
-      : this.getGatewayForeignAsset(tokenId, chain);
+    const chainName = this.context.toChainName(chain);
+    if (this.foreignAssetCache.get(tokenId.chain, tokenId.address, chainName)) {
+      return this.foreignAssetCache.get(
+        tokenId.chain,
+        tokenId.address,
+        chainName,
+      )!;
+    }
+
+    const address =
+      this.context.toChainId(chain) === CHAIN_ID_WORMCHAIN
+        ? await this.getWhForeignAsset(tokenId, chain)
+        : await this.getGatewayForeignAsset(tokenId, chain);
+
+    if (!address) return null;
+    this.foreignAssetCache.set(
+      tokenId.chain,
+      tokenId.address,
+      chainName,
+      address,
+    );
+
+    return address;
   }
 
   async getGatewayForeignAsset(
@@ -296,15 +316,6 @@ export class CosmosContext<
     tokenId: TokenId,
     chain: ChainName | ChainId,
   ): Promise<string | null> {
-    const chainName = this.context.toChainName(chain);
-    if (this.foreignAssetCache.get(tokenId.chain, tokenId.address, chainName)) {
-      return this.foreignAssetCache.get(
-        tokenId.chain,
-        tokenId.address,
-        chainName,
-      )!;
-    }
-
     const toChainId = this.context.toChainId(chain);
     const chainId = this.context.toChainId(tokenId.chain);
     if (toChainId === chainId) return tokenId.address;
@@ -326,13 +337,6 @@ export class CosmosContext<
             address: base64Addr,
           },
         });
-
-      this.foreignAssetCache.set(
-        tokenId.chain,
-        tokenId.address,
-        chainName,
-        address,
-      );
 
       return address;
     } catch (e) {
