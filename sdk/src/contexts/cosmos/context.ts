@@ -9,12 +9,14 @@ import {
 import { CosmWasmClient } from '@cosmjs/cosmwasm-stargate';
 import { EncodeObject, decodeTxRaw } from '@cosmjs/proto-signing';
 import {
+  BankExtension,
   Coin,
   IbcExtension,
   QueryClient,
   StdFee,
   calculateFee,
   logs as cosmosLogs,
+  setupBankExtension,
   setupIbcExtension,
 } from '@cosmjs/stargate';
 import { MsgExecuteContract } from 'cosmjs-types/cosmwasm/wasm/v1/tx';
@@ -42,7 +44,7 @@ import { WormholeContext } from '../../wormhole';
 import { TokenBridgeAbstract } from '../abstracts/tokenBridge';
 import { CosmosContracts } from './contracts';
 import { isCosmWasmChain, searchCosmosLogs } from './utils';
-import { ForeignAssetCache } from '../../utils';
+import { ForeignAssetCache, waitFor } from '../../utils';
 import {
   Tendermint34Client,
   Tendermint37Client,
@@ -97,6 +99,7 @@ export class CosmosContext<
   readonly context: T;
   readonly chain: ChainName;
 
+  private static FETCHING_TM_CLIENT = false;
   private static CLIENT_MAP: Record<string, TendermintClient> = {};
   private foreignAssetCache: ForeignAssetCache;
 
@@ -204,9 +207,29 @@ export class CosmosContext<
     tokenId: TokenId,
     chain: ChainId | ChainName,
   ): Promise<string | null> {
-    return this.context.toChainId(chain) === CHAIN_ID_WORMCHAIN
-      ? this.getWhForeignAsset(tokenId, chain)
-      : this.getGatewayForeignAsset(tokenId, chain);
+    const chainName = this.context.toChainName(chain);
+    if (this.foreignAssetCache.get(tokenId.chain, tokenId.address, chainName)) {
+      return this.foreignAssetCache.get(
+        tokenId.chain,
+        tokenId.address,
+        chainName,
+      )!;
+    }
+
+    const address =
+      this.context.toChainId(chain) === CHAIN_ID_WORMCHAIN
+        ? await this.getWhForeignAsset(tokenId, chain)
+        : await this.getGatewayForeignAsset(tokenId, chain);
+
+    if (!address) return null;
+    this.foreignAssetCache.set(
+      tokenId.chain,
+      tokenId.address,
+      chainName,
+      address,
+    );
+
+    return address;
   }
 
   async getGatewayForeignAsset(
@@ -294,15 +317,6 @@ export class CosmosContext<
     tokenId: TokenId,
     chain: ChainName | ChainId,
   ): Promise<string | null> {
-    const chainName = this.context.toChainName(chain);
-    if (this.foreignAssetCache.get(tokenId.chain, tokenId.address, chainName)) {
-      return this.foreignAssetCache.get(
-        tokenId.chain,
-        tokenId.address,
-        chainName,
-      )!;
-    }
-
     const toChainId = this.context.toChainId(chain);
     const chainId = this.context.toChainId(tokenId.chain);
     if (toChainId === chainId) return tokenId.address;
@@ -324,13 +338,6 @@ export class CosmosContext<
             address: base64Addr,
           },
         });
-
-      this.foreignAssetCache.set(
-        tokenId.chain,
-        tokenId.address,
-        chainName,
-        address,
-      );
 
       return address;
     } catch (e) {
@@ -379,13 +386,14 @@ export class CosmosContext<
     const assetAddresses = await Promise.all(
       tokenIds.map((tokenId) => this.getForeignAsset(tokenId, chain)),
     );
-    return await Promise.all(
-      assetAddresses.map((assetAddress) =>
-        !assetAddress
-          ? Promise.resolve(null)
-          : this.getNativeBalance(walletAddress, chain, assetAddress),
-      ),
-    );
+    const client = await this.getQueryClient(chain);
+    const balances = await client.bank.allBalances(walletAddress);
+    return assetAddresses.map((assetAddress) => {
+      const balance = balances.find(
+        (balance) => balance.denom === assetAddress,
+      );
+      return balance ? BigNumber.from(balance.amount) : null;
+    });
   }
 
   private getNativeDenom(chain: ChainName | ChainId): string {
@@ -543,14 +551,20 @@ export class CosmosContext<
 
   private async getQueryClient(
     chain: ChainId | ChainName,
-  ): Promise<QueryClient & IbcExtension> {
+  ): Promise<QueryClient & BankExtension & IbcExtension> {
     const tmClient = await this.getTmClient(chain);
-    return QueryClient.withExtensions(tmClient, setupIbcExtension);
+    return QueryClient.withExtensions(
+      tmClient,
+      setupBankExtension,
+      setupIbcExtension,
+    );
   }
 
   private async getTmClient(
     chain: ChainId | ChainName,
   ): Promise<Tendermint34Client | Tendermint37Client> {
+    await waitFor(async () => CosmosContext.FETCHING_TM_CLIENT === false);
+
     const name = this.context.toChainName(chain);
     if (CosmosContext.CLIENT_MAP[name]) {
       return CosmosContext.CLIENT_MAP[name];
@@ -558,6 +572,8 @@ export class CosmosContext<
 
     const rpc = this.context.conf.rpcs[name];
     if (!rpc) throw new Error(`${chain} RPC not configured`);
+
+    CosmosContext.FETCHING_TM_CLIENT = true;
 
     // from cosmjs: https://github.com/cosmos/cosmjs/blob/358260bff71c9d3e7ad6644fcf64dc00325cdfb9/packages/stargate/src/stargateclient.ts#L218
     let tmClient: TendermintClient;
@@ -571,6 +587,7 @@ export class CosmosContext<
     }
 
     CosmosContext.CLIENT_MAP[name] = tmClient;
+    CosmosContext.FETCHING_TM_CLIENT = false;
 
     return tmClient;
   }
