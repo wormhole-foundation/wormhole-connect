@@ -482,7 +482,7 @@ function App() {
     ]
   );
   // TODO: pull latest version from npm / offer pinning, tag, or latest
-  const version = "0.1.1";
+  const version = "0.1.2";
   const [htmlCode, jsxCode] = useMemo(() => {
     const realConfig = { ...config, env, rpcs, networks, tokens };
     const realConfigString = JSON.stringify(realConfig);
@@ -1218,11 +1218,7 @@ function App() {
           <Typography variant="h4" component="h2" gutterBottom>
             Preview
           </Typography>
-          <WormholeBridge
-            versionOrTag={version}
-            config={config}
-            key={JSON.stringify(config)}
-          />
+          <WormholeBridge config={config} key={JSON.stringify(config)} />
         </Container>
       </Box>
     </Background>
