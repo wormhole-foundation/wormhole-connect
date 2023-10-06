@@ -103,7 +103,9 @@ export class WormholeContext extends MultiProvider<Domain> {
       });
       // register RPC provider
       if (this.conf.rpcs[n]) {
-        this.registerRpcProvider(network, this.conf.rpcs[n]!);
+        if (this.conf.chains[n]?.context === Context.ETH) {
+          this.registerRpcProvider(network, this.conf.rpcs[n]!);
+        }
       }
     }
   }
