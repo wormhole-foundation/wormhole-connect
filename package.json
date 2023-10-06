@@ -24,7 +24,8 @@
   "devDependencies": {
     "husky": "^8.0.3",
     "lint-staged": "^13.2.3",
-    "prettier": "^2.8.2"
+    "prettier": "^2.8.2",
+    "webpack-bundle-analyzer": "^4.9.1"
   },
   "lint-staged": {
     "**/*": "prettier --workspaces --if-present --write --ignore-unknown"
