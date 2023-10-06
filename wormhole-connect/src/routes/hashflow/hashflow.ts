@@ -10,9 +10,9 @@ import {
   TransferInfoBaseParams,
   UnsignedMessage,
   SignedMessage,
-} from './types';
-import { TransferDisplayData } from './types';
-import RouteAbstract from './routeAbstract';
+} from '../types';
+import { TransferDisplayData } from '../types';
+import { RouteAbstract } from 'routes/abstracts';
 
 export class HashflowRoute extends RouteAbstract {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED = false;

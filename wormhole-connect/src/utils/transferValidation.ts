@@ -17,7 +17,7 @@ import {
 import { WalletData, WalletState } from 'store/wallet';
 import { RelayState } from 'store/relay';
 import { walletAcceptedChains } from './wallet';
-import RouteOperator from './routes/operator';
+import RouteOperator from '../routes/operator';
 
 export const validateFromChain = (
   chain: ChainName | undefined,

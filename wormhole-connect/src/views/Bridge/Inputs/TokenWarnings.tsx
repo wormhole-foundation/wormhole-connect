@@ -15,7 +15,7 @@ import { solanaContext } from 'utils/sdk';
 
 import { CircularProgress, Link, Typography } from '@mui/material';
 import AlertBanner from 'components/AlertBanner';
-import RouteOperator from 'utils/routes/operator';
+import RouteOperator from 'routes/operator';
 import { Route } from '../../../config/types';
 
 const useStyles = makeStyles()((theme: any) => ({

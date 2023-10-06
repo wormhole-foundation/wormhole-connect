@@ -8,11 +8,6 @@ import { BigNumber } from 'ethers';
 
 import { CHAINS, ROUTES, TOKENS } from 'config';
 import { TokenConfig, Route } from 'config/types';
-import { BridgeRoute } from './bridge';
-import { RelayRoute } from './relay';
-// import { HashflowRoute } from './hashflow';
-import { CCTPRelayRoute } from './cctpRelay';
-import { CosmosGatewayRoute } from './cosmosGateway';
 import {
   ParsedMessage,
   PayloadType,
@@ -20,9 +15,14 @@ import {
   isEvmChain,
   solanaContext,
   wh,
-} from '../sdk';
-import { isCosmWasmChain } from '../cosmos';
-import RouteAbstract from './routeAbstract';
+} from 'utils/sdk';
+import { isCosmWasmChain } from 'utils/cosmos';
+import { BridgeRoute } from './bridge';
+import { RelayRoute } from './relay';
+// import { HashflowRoute } from './hashflow';
+import { CCTPRelayRoute } from './cctpRelay';
+import { CosmosGatewayRoute } from './cosmosGateway';
+import { RouteAbstract } from './abstracts/routeAbstract';
 import {
   UnsignedMessage,
   SignedMessage,
@@ -479,7 +479,16 @@ export class Operator {
     walletAddress: string,
   ): Promise<BigNumber> {
     const r = this.getRoute(route);
-    return r.nativeTokenAmount(destChain, token, amount, walletAddress);
+    if (r.AUTOMATIC_DEPOSIT) {
+      return (r as RelayRoute).nativeTokenAmount(
+        destChain,
+        token,
+        amount,
+        walletAddress,
+      );
+    } else {
+      throw new Error('route does not support native gas dropoff');
+    }
   }
 
   maxSwapAmount(
@@ -489,7 +498,11 @@ export class Operator {
     walletAddress: string,
   ): Promise<BigNumber> {
     const r = this.getRoute(route);
-    return r.maxSwapAmount(destChain, token, walletAddress);
+    if (r.AUTOMATIC_DEPOSIT) {
+      return (r as RelayRoute).maxSwapAmount(destChain, token, walletAddress);
+    } else {
+      throw new Error('route does not support swap for native gas dropoff');
+    }
   }
 
   async minSwapAmountNative(

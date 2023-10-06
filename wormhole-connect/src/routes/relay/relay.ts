@@ -15,9 +15,8 @@ import {
   toNormalizedDecimals,
   getDisplayName,
 } from 'utils';
-import { fetchRedeemedEvent } from '../events';
+import { fetchRedeemedEvent } from '../../utils/events';
 import {
-  ParsedMessage,
   wh,
   isAcceptedToken,
   ParsedRelayerMessage,
@@ -28,36 +27,26 @@ import {
 } from 'utils/sdk';
 import { NO_INPUT } from 'utils/style';
 import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
-import { BridgeRoute } from './bridge';
-import { toDecimals, toFixedDecimals } from '../balance';
+import { BridgeRoute } from '../bridge/bridge';
+import { toDecimals, toFixedDecimals } from '../../utils/balance';
 import {
   RelayTransferMessage,
   SignedRelayTransferMessage,
   TransferDisplayData,
   isSignedWormholeMessage,
-} from './types';
-import { adaptParsedMessage } from './common';
-import { fetchSwapEvent } from '../events';
+} from '../types';
+import { adaptParsedMessage } from '../utils';
+import { fetchSwapEvent } from '../../utils/events';
 import {
   UnsignedMessage,
   SignedMessage,
   TransferInfoBaseParams,
-} from './types';
-import { fetchVaa } from '../vaa';
+} from '../types';
+import { fetchVaa } from '../../utils/vaa';
+import { RelayOptions, TransferDestInfoParams } from './types';
+import { RelayAbstract } from 'routes/abstracts';
 
-export type RelayOptions = {
-  relayerFee?: number;
-  toNativeToken?: number;
-  receiveNativeAmt: number;
-};
-
-interface TransferDestInfoParams {
-  txData: ParsedMessage | ParsedRelayerMessage;
-  receiveTx?: string;
-  transferComplete?: boolean;
-}
-
-export class RelayRoute extends BridgeRoute {
+export class RelayRoute extends BridgeRoute implements RelayAbstract {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED = true;
   readonly AUTOMATIC_DEPOSIT = true;
 

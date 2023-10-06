@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { ParsedMessage, ParsedRelayerMessage } from 'utils/sdk';
-import { SignedMessage } from 'utils/routes';
+import { SignedMessage } from 'routes';
 import { Route } from 'config/types';
 
 export enum MessageType {

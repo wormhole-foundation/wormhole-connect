@@ -22,7 +22,7 @@ import { wh, toChainId } from 'utils/sdk';
 import { joinClass } from 'utils/style';
 import { toDecimals } from 'utils/balance';
 import { isTransferValid, validate } from 'utils/transferValidation';
-import RouteOperator from 'utils/routes/operator';
+import RouteOperator from 'routes/operator';
 
 import GasSlider from './NativeGasSlider';
 import Preview from './Preview';
