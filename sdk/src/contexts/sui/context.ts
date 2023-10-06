@@ -18,7 +18,7 @@ import {
   redeemOnSui,
   transferFromSui,
 } from '@certusone/wormhole-sdk';
-import { getPackageId } from '@certusone/wormhole-sdk/lib/cjs/sui';
+import { getPackageId } from '@certusone/wormhole-sdk/lib/esm/sui';
 import { arrayify, hexlify } from 'ethers/lib/utils';
 import {
   ChainId,
