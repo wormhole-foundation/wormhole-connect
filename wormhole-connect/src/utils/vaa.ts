@@ -1,5 +1,5 @@
 import { getSignedVAA, parseTokenTransferVaa } from '@certusone/wormhole-sdk';
-import { Implementation__factory } from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
+import { Implementation__factory } from '@certusone/wormhole-sdk/lib/esm/ethers-contracts';
 import { utils, providers, BigNumberish } from 'ethers';
 import axios from 'axios';
 import { ChainId, ChainName } from '@wormhole-foundation/wormhole-connect-sdk';

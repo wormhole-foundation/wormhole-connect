@@ -25,7 +25,7 @@ import {
   getPackageId,
   getTableKeyType,
   trimSuiType,
-} from '@certusone/wormhole-sdk/lib/cjs/sui';
+} from '@certusone/wormhole-sdk/lib/esm/sui';
 import { arrayify, hexlify } from 'ethers/lib/utils';
 import {
   ChainId,

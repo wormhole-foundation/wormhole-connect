@@ -1,9 +1,9 @@
-import { ethers_contracts } from '@certusone/wormhole-sdk';
+import { ethers_contracts } from '@certusone/wormhole-sdk/lib/esm';
 import {
   Wormhole,
   Bridge,
   NFTBridge,
-} from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
+} from '@certusone/wormhole-sdk/lib/esm/ethers-contracts';
 
 import { ChainName, ChainId, Contracts, Context } from '../../types';
 import { TokenBridgeRelayer } from '../../abis/TokenBridgeRelayer';
