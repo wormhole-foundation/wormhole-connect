@@ -1,6 +1,6 @@
 import { JsonRpcProvider, TransactionBlock } from '@mysten/sui.js';
 import { BigNumber, BigNumberish } from 'ethers';
-import { getObjectFields } from '@certusone/wormhole-sdk/lib/cjs/sui';
+import { getObjectFields } from '@certusone/wormhole-sdk/lib/esm/sui';
 
 export interface TokenInfo {
   max_native_swap_amount: string;

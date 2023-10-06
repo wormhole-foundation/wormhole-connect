@@ -1,7 +1,7 @@
 import {
   Implementation__factory,
   TokenImplementation__factory,
-} from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
+} from '@certusone/wormhole-sdk/lib/esm/ethers-contracts';
 import { createNonce } from '@certusone/wormhole-sdk';
 import {
   BigNumber,
