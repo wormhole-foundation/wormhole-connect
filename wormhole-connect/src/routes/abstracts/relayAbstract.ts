@@ -4,7 +4,6 @@ import {
   TokenId,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { BigNumber } from 'ethers';
-import { ParsedRelayerMessage, ParsedMessage } from 'utils/sdk';
 
 export abstract class RelayAbstract {
   // swap information (native gas slider)

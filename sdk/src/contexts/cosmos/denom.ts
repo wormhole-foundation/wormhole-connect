@@ -11,6 +11,7 @@ export const PREFIXES: Record<string, string> = {
   osmosis: 'osmo',
   wormchain: 'wormchain',
   terra2: 'terra',
+  sei: 'sei',
 };
 
 export function getNativeDenom(chain: ChainName): string {
