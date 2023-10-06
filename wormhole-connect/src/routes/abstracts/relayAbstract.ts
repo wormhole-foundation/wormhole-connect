@@ -20,8 +20,4 @@ export abstract class RelayAbstract {
     token: TokenId,
     walletAddress: string,
   ): Promise<BigNumber>;
-
-  abstract tryFetchRedeemTx(
-    txData: ParsedMessage | ParsedRelayerMessage,
-  ): Promise<string | undefined>;
 }

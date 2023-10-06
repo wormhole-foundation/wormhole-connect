@@ -6,6 +6,7 @@ import {
   ChainName,
   CosmosTransaction,
   TokenId,
+  getNativeDenom,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { MsgExecuteContract } from 'cosmjs-types/cosmwasm/wasm/v1/tx';
 import { BigNumber, utils } from 'ethers';
@@ -198,8 +199,11 @@ export class CosmosGatewayRoute extends BaseRoute {
       }),
     };
 
+    const destChainName = wh.toChainName(destChain);
+    const denom = getNativeDenom(destChainName);
+
     const tx: CosmosTransaction = {
-      fee: calculateFee(1000000, '1.0uosmo'),
+      fee: calculateFee(1000000, `1.0${denom}`),
       msgs: [msg],
       memo: '',
     };

@@ -7,6 +7,7 @@ import {
   TokenId,
   SolanaContext,
   WormholeContext,
+  getNativeDenom,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { wh } from 'utils/sdk';
 import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
@@ -82,8 +83,11 @@ export async function fromCosmos(
     }),
   };
 
+  const sourceChainName = wh.toChainName(sendingChainId);
+  const sourceChainDenom = getNativeDenom(sourceChainName);
+
   const tx: CosmosTransaction = {
-    fee: calculateFee(1000000, '1.0uosmo'),
+    fee: calculateFee(1000000, `1.0${sourceChainDenom}`),
     msgs: [ibcMessage],
     memo: '',
   };

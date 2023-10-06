@@ -1,6 +1,4 @@
 import {
-  CHAIN_ID_OSMOSIS,
-  CHAIN_ID_SEI,
   CHAIN_ID_WORMCHAIN,
   cosmos,
   parseTokenTransferPayload,
@@ -13,7 +11,6 @@ import {
   Coin,
   IbcExtension,
   QueryClient,
-  StdFee,
   calculateFee,
   logs as cosmosLogs,
   setupBankExtension,
@@ -50,28 +47,14 @@ import {
   Tendermint37Client,
   TendermintClient,
 } from '@cosmjs/tendermint-rpc';
-
-export interface CosmosTransaction {
-  fee: StdFee | 'auto' | number;
-  msgs: EncodeObject[];
-  memo: string;
-}
-
-interface WrappedRegistryResponse {
-  address: string;
-}
-
-const NATIVE_DENOMS: Record<string, string> = {
-  osmosis: 'uosmo',
-  wormchain: 'uworm',
-  terra2: 'uluna',
-};
-
-const PREFIXES: Record<string, string> = {
-  osmosis: 'osmo',
-  wormchain: 'wormchain',
-  terra2: 'terra',
-};
+import {
+  NATIVE_DENOMS,
+  PREFIXES,
+  getNativeDenom,
+  getPrefix,
+  isNativeDenom,
+} from './denom';
+import { CosmosTransaction, WrappedRegistryResponse } from './types';
 
 const MSG_EXECUTE_CONTRACT_TYPE_URL = '/cosmwasm.wasm.v1.MsgExecuteContract';
 const buildExecuteMsg = (
@@ -300,17 +283,8 @@ export class CosmosContext<
   }
 
   private isNativeDenom(denom: string, chain: ChainName | ChainId): boolean {
-    const chainId = this.context.toChainId(chain);
-    switch (chainId) {
-      case CHAIN_ID_SEI:
-        return denom === 'usei';
-      case CHAIN_ID_WORMCHAIN:
-        return denom === 'uworm';
-      case CHAIN_ID_OSMOSIS:
-        return denom === 'uosmo';
-      default:
-        return false;
-    }
+    const chainName = this.context.toChainName(chain);
+    return isNativeDenom(denom, chainName);
   }
 
   async getWhForeignAsset(
@@ -398,17 +372,12 @@ export class CosmosContext<
 
   private getNativeDenom(chain: ChainName | ChainId): string {
     const name = this.context.toChainName(chain);
-    const denom = NATIVE_DENOMS[name];
-    if (!denom)
-      throw new Error(`Native denomination not found for chain ${chain}`);
-    return denom;
+    return getNativeDenom(name);
   }
 
   private getPrefix(chain: ChainName | ChainId): string {
     const name = this.context.toChainName(chain);
-    const prefix = PREFIXES[name];
-    if (!prefix) throw new Error(`Prefix not found for chain ${chain}`);
-    return prefix;
+    return getPrefix(name);
   }
 
   async redeem(

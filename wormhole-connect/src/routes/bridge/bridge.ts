@@ -382,23 +382,6 @@ export class BridgeRoute extends BaseRoute {
     return wh.isTransferCompleted(destChain, hexlify(signedMessage.vaa));
   }
 
-  // async nativeTokenAmount(
-  //   destChain: ChainName | ChainId,
-  //   token: TokenId,
-  //   amount: BigNumber,
-  //   walletAddress: string,
-  // ): Promise<BigNumber> {
-  //   throw new Error('Not implemented');
-  // }
-
-  // async maxSwapAmount(
-  //   destChain: ChainName | ChainId,
-  //   token: TokenId,
-  //   walletAddress: string,
-  // ): Promise<BigNumber> {
-  //   throw new Error('Not implemented');
-  // }
-
   async tryFetchRedeemTx(txData: UnsignedMessage): Promise<string | undefined> {
     return undefined; // only for automatic routes
   }
