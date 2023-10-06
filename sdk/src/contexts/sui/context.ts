@@ -49,7 +49,7 @@ export class SuiContext<
   constructor(context: T, foreignAssetCache: ForeignAssetCache) {
     super();
     this.context = context;
-    const connection = context.conf.rpcs.sui;
+    const connection = context.conf.rpc.sui;
     if (connection === undefined) throw new Error('no connection');
     this.provider = new JsonRpcProvider(
       new Connection({ fullnode: connection }),

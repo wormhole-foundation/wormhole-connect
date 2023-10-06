@@ -85,7 +85,7 @@ export class WormholeContext extends MultiProvider<Domain> {
    * Registers evm providers
    */
   registerProviders() {
-    for (const network of Object.keys(this.conf.rpcs)) {
+    for (const network of Object.keys(this.conf.rpc)) {
       const n = network as ChainName;
       const chains =
         this.conf.env === 'MAINNET'
@@ -102,8 +102,8 @@ export class WormholeContext extends MultiProvider<Domain> {
         name: network,
       });
       // register RPC provider
-      if (this.conf.rpcs[n]) {
-        this.registerRpcProvider(network, this.conf.rpcs[n]!);
+      if (this.conf.rpc[n]) {
+        this.registerRpcProvider(network, this.conf.rpc[n]!);
       }
     }
   }

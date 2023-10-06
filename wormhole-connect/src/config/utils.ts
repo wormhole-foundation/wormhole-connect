@@ -4,7 +4,11 @@ import { BridgeDefaults } from './types';
 import { config, NETWORK_DATA, CHAINS, ROUTES } from '.';
 
 const error = (msg: string) => {
-  console.error(`Wormhole Connect:\n${msg}`);
+  console.error(`Wormhole Connect: ${msg}`);
+};
+
+const info = (msg: string) => {
+  console.info(`Wormhole Connect: ${msg}`);
 };
 
 export const populateRpcField = (
@@ -15,10 +19,10 @@ export const populateRpcField = (
   return { [chainName]: rpc };
 };
 
-export const validateResourceMap = (field: 'rpcs' | 'rest') => {
+export const validateResourceMap = (field: 'rpc' | 'rest') => {
   if (!config || !config[field]) {
-    error(
-      `WARNING! No custom ${field} provided. It is strongly recommended that you provide your own ${field} for the best performance and functionality`,
+    info(
+      `No custom ${field} endpoints provided. We recommended that you configure your own ${field} endpoints for the best performance.`,
     );
     return;
   }
@@ -27,15 +31,15 @@ export const validateResourceMap = (field: 'rpcs' | 'rest') => {
   const chains = Object.keys(CHAINS) as ChainName[];
   for (let chain of chains) {
     if (resourceMap[chain] === defaultResourceMap[chain]) {
-      error(
-        `WARNING! No custom ${field} provided for ${chain}. It is strongly recommended that you provide your own ${field} for the best performance and functionality`,
+      info(
+        `No custom ${field} endpoint provided for ${chain}. We recommended that you provide your own ${field} endpoint for the best performance.`,
       );
     }
   }
 };
 
 export const validateChainResources = () => {
-  validateResourceMap('rpcs');
+  validateResourceMap('rpc');
   validateResourceMap('rest');
 };
 

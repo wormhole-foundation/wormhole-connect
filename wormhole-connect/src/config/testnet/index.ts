@@ -13,7 +13,7 @@ const TESTNET: NetworkData = {
   chains: TESTNET_CHAINS,
   tokens: TESTNET_TOKENS,
   gasEstimates: TESTNET_GAS_ESTIMATES,
-  rpcs: TESTNET_RPC_MAPPING,
+  rpc: TESTNET_RPC_MAPPING,
   rest: TESTNET_REST_MAPPING,
 };
 

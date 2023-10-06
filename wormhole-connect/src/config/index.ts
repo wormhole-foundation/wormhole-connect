@@ -82,9 +82,9 @@ export const ROUTES =
   config && config.routes ? config.routes : Object.values(Route);
 
 export const RPCS =
-  config && config.rpcs
-    ? Object.assign({}, sdkConfig.rpcs, NETWORK_DATA.rpcs, config.rpcs)
-    : Object.assign({}, sdkConfig.rpcs, NETWORK_DATA.rpcs);
+  config && config.rpc
+    ? Object.assign({}, sdkConfig.rpc, NETWORK_DATA.rpc, config.rpc)
+    : Object.assign({}, sdkConfig.rpc, NETWORK_DATA.rpc);
 
 export const REST =
   config && config.rest

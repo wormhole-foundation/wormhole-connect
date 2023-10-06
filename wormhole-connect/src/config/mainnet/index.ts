@@ -13,7 +13,7 @@ const MAINNET: NetworkData = {
   chains: MAINNET_CHAINS,
   tokens: MAINNET_TOKENS,
   gasEstimates: MAINNET_GAS_ESTIMATES,
-  rpcs: MAINNET_RPC_MAPPING,
+  rpc: MAINNET_RPC_MAPPING,
   rest: MAINNET_REST_MAPPING,
 };
 

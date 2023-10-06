@@ -13,7 +13,7 @@ const DEVNET: NetworkData = {
   chains: DEVNET_CHAINS,
   tokens: DEVNET_TOKENS,
   gasEstimates: DEVNET_GAS_ESTIMATES,
-  rpcs: DEVNET_RPC_MAPPING,
+  rpc: DEVNET_RPC_MAPPING,
   rest: DEVNET_REST_MAPPING,
 };
 

@@ -570,7 +570,7 @@ export class CosmosContext<
       return CosmosContext.CLIENT_MAP[name];
     }
 
-    const rpc = this.context.conf.rpcs[name];
+    const rpc = this.context.conf.rpc[name];
     if (!rpc) throw new Error(`${chain} RPC not configured`);
 
     CosmosContext.FETCHING_TM_CLIENT = true;

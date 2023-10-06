@@ -438,7 +438,7 @@ function App() {
   const config: WormholeConnectConfig = useMemo(
     () => ({
       env: "testnet", // always testnet for the builder
-      rpcs: testnetRpcs,
+      rpc: testnetRpcs,
       networks: testnetNetworks, // always testnet for the builder
       tokens: testnetTokens, // always testnet for the builder
       mode,

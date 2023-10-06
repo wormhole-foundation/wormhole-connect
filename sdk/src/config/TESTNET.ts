@@ -257,7 +257,7 @@ const env: Environment = 'TESTNET';
  */
 const TESTNET_CONFIG: WormholeConfig = {
   env,
-  rpcs: {
+  rpc: {
     goerli: 'https://rpc.ankr.com/eth_goerli',
     mumbai: 'https://polygon-mumbai.blockpi.network/v1/rpc/public',
     bsc: 'https://data-seed-prebsc-1-s3.binance.org:8545',

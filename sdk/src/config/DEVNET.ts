@@ -81,7 +81,7 @@ const env: Environment = 'DEVNET';
  */
 const DEVNET_CONFIG: WormholeConfig = {
   env,
-  rpcs: {
+  rpc: {
     ethereum: 'http://localhost:8545',
     wormchain: 'http://localhost:26659',
     osmosis: 'http://localhost:33043',

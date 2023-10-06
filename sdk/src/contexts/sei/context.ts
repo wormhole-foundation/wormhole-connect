@@ -936,11 +936,8 @@ export class SeiContext<
 
   private async getCosmWasmClient(): Promise<CosmWasmClient> {
     if (!this.wasmClient) {
-      if (!this.context.conf.rpcs.sei)
-        throw new Error('Sei RPC not configured');
-      this.wasmClient = await CosmWasmClient.connect(
-        this.context.conf.rpcs.sei,
-      );
+      if (!this.context.conf.rpc.sei) throw new Error('Sei RPC not configured');
+      this.wasmClient = await CosmWasmClient.connect(this.context.conf.rpc.sei);
     }
     return this.wasmClient;
   }

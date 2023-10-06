@@ -36,7 +36,7 @@ export const wh: WormholeContext = new WormholeContext(
   ENV as Environment,
   {
     ...sdkConfig,
-    ...{ rpcs: RPCS },
+    ...{ rpc: RPCS },
   },
   foreignAssetCache,
 );

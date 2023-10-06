@@ -44,7 +44,7 @@ export class AptosContext<
   constructor(context: T, foreignAssetCache: ForeignAssetCache) {
     super();
     this.context = context;
-    const rpc = context.conf.rpcs.aptos;
+    const rpc = context.conf.rpc.aptos;
     if (rpc === undefined) throw new Error('No Aptos rpc configured');
     this.aptosClient = new AptosClient(rpc);
     this.coinClient = new CoinClient(this.aptosClient);

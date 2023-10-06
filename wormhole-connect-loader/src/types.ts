@@ -55,7 +55,7 @@ export interface BridgeDefaults {
 // TODO: move to a shared package
 export interface WormholeConnectConfig {
   env?: "mainnet" | "testnet" | "devnet";
-  rpcs?: Rpcs;
+  rpc?: Rpcs;
   rest?: Rpcs;
   networks?: ChainName[];
   tokens?: string[];

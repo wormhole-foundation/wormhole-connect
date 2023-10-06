@@ -23,7 +23,7 @@
 //     senderAddr: string,
 //   ): Promise<Account> {
 //     const networkName = this.context.resolveDomainName(chain) as ChainName;
-//     const rpc = this.context.conf.rpcs[networkName];
+//     const rpc = this.context.conf.rpc[networkName];
 //     if (!rpc) throw new Error(`No connection available for ${networkName}`);
 //     const provider = (
 //       await connect({
