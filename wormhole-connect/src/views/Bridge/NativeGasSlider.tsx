@@ -12,7 +12,7 @@ import { RoutesConfig } from 'config/routes';
 import { getTokenDecimals, getDisplayName } from 'utils';
 import { wh } from 'utils/sdk';
 import { getConversion, toDecimals, toFixedDecimals } from 'utils/balance';
-import RouteOperator from 'utils/routes/operator';
+import RouteOperator from 'routes/operator';
 import { RootState } from 'store';
 import { setTransferRoute } from 'store/transferInput';
 import {

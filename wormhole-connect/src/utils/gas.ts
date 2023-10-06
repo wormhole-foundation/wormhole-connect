@@ -9,8 +9,8 @@ import {
 import { CHAINS, GAS_ESTIMATES } from 'config';
 import { GasEstimateOptions, Route } from 'config/types';
 import { wh } from './sdk';
-import RouteOperator from './routes/operator';
-import { SignedMessage, formatGasFee } from './routes';
+import RouteOperator from '../routes/operator';
+import { SignedMessage, formatGasFee } from '../routes';
 
 export const simulateRelayAmount = (
   route: Route,

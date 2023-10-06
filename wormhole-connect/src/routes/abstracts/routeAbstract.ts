@@ -11,10 +11,10 @@ import {
   TransferDestInfoBaseParams,
   TransferDisplayData,
   TransferInfoBaseParams,
-} from './types';
+} from '../types';
 import { ParsedRelayerMessage, ParsedMessage } from 'utils/sdk';
 
-export default abstract class RouteAbstract {
+export abstract class RouteAbstract {
   abstract readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean;
   abstract readonly AUTOMATIC_DEPOSIT: boolean;
   // protected abstract sendGasFallback: { [key: ChainName]: TokenConfig };
@@ -156,20 +156,6 @@ export default abstract class RouteAbstract {
     destChain: ChainName | ChainId,
     messageInfo: SignedMessage,
   ): Promise<boolean>;
-
-  // swap information (native gas slider)
-  abstract nativeTokenAmount(
-    destChain: ChainName | ChainId,
-    token: TokenId,
-    amount: BigNumber,
-    walletAddress: string,
-  ): Promise<BigNumber>;
-
-  abstract maxSwapAmount(
-    destChain: ChainName | ChainId,
-    token: TokenId,
-    walletAddress: string,
-  ): Promise<BigNumber>;
 
   abstract tryFetchRedeemTx(
     txData: ParsedMessage | ParsedRelayerMessage,

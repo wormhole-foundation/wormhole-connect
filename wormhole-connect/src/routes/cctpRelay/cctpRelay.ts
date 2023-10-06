@@ -33,9 +33,9 @@ import {
   SignedMessage,
   RelayCCTPMessage,
   TransferDestInfoBaseParams,
-} from './types';
-import { toDecimals, toFixedDecimals } from '../balance';
-import { RelayOptions } from './relay';
+} from '../types';
+import { toDecimals, toFixedDecimals } from '../../utils/balance';
+import { RelayOptions } from '../relay';
 import {
   CCTPTokenSymbol,
   CCTPManual_CHAINS as CCTPRelay_CHAINS,
@@ -45,11 +45,12 @@ import {
   getChainNameCCTP,
   getForeignUSDCAddress,
   getNonce,
-} from './cctpManual';
+} from '../cctpManual';
 import { getUnsignedVaaEvm } from 'utils/vaa';
 import { getNativeVersionOfToken } from 'store/transferInput';
+import { RelayAbstract } from 'routes/abstracts';
 
-export class CCTPRelayRoute extends CCTPManualRoute {
+export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED = true;
   readonly AUTOMATIC_DEPOSIT = true;
 

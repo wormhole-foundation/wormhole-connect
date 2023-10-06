@@ -12,7 +12,7 @@ import {
 } from 'store/transferInput';
 import { CHAINS, CHAINS_ARR, TOKENS } from 'config';
 import { TransferWallet, walletAcceptedChains } from 'utils/wallet';
-import RouteOperator from 'utils/routes/operator';
+import RouteOperator from 'routes/operator';
 import { getDisplayName } from 'utils';
 import Inputs from './Inputs';
 import Select from './Select';

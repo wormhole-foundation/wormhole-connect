@@ -8,11 +8,11 @@ import { BigNumber } from 'ethers';
 
 import { CHAINS, ROUTES, TOKENS } from 'config';
 import { TokenConfig, Route } from 'config/types';
-import { BridgeRoute } from './bridge';
-import { RelayRoute } from './relay';
+import { BridgeRoute } from './bridge/bridge';
+import { RelayRoute } from './relay/relay';
 // import { HashflowRoute } from './hashflow';
-import { CCTPRelayRoute } from './cctpRelay';
-import { CosmosGatewayRoute } from './cosmosGateway';
+import { CCTPRelayRoute } from './cctpRelay/cctpRelay';
+import { CosmosGatewayRoute } from './cosmosGateway/cosmosGateway';
 import {
   ParsedMessage,
   PayloadType,
@@ -20,9 +20,9 @@ import {
   isEvmChain,
   solanaContext,
   wh,
-} from '../sdk';
-import { isCosmWasmChain } from '../cosmos';
-import RouteAbstract from './routeAbstract';
+} from '../utils/sdk';
+import { isCosmWasmChain } from '../utils/cosmos';
+import RouteAbstract from './abstracts/routeAbstract';
 import {
   UnsignedMessage,
   SignedMessage,
@@ -32,7 +32,7 @@ import {
 import {
   CCTPManualRoute,
   CCTP_LOG_TokenMessenger_DepositForBurn,
-} from './cctpManual';
+} from './cctpManual/cctpManual';
 
 export class Operator {
   getRoute(route: Route): RouteAbstract {

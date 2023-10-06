@@ -7,7 +7,7 @@ import { RootState } from 'store';
 import { setAvailableRoutes, setTransferRoute } from 'store/transferInput';
 import { LINK, joinClass } from 'utils/style';
 import { toFixedDecimals } from 'utils/balance';
-import RouteOperator from 'utils/routes/operator';
+import RouteOperator from 'routes/operator';
 import { getDisplayName } from 'utils';
 import { TOKENS, ROUTES } from 'config';
 import { Route } from 'config/types';

@@ -23,18 +23,18 @@ import {
   isSignedWormholeMessage,
   TokenTransferMessage,
   SignedTokenTransferMessage,
-} from './types';
+} from '../types';
 import { BaseRoute } from './baseRoute';
-import { adaptParsedMessage } from './common';
-import { toDecimals } from '../balance';
+import { adaptParsedMessage } from '../utils';
+import { toDecimals } from '../../utils/balance';
 import {
   SignedMessage,
   TransferDestInfoBaseParams,
   TransferInfoBaseParams,
-} from './types';
-import { isCosmWasmChain } from '../cosmos';
-import { fetchVaa } from '../vaa';
-import { formatGasFee } from './utils';
+} from '../types';
+import { isCosmWasmChain } from '../../utils/cosmos';
+import { fetchVaa } from '../../utils/vaa';
+import { formatGasFee } from '../utils';
 
 export class BridgeRoute extends BaseRoute {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean = false;
@@ -382,22 +382,22 @@ export class BridgeRoute extends BaseRoute {
     return wh.isTransferCompleted(destChain, hexlify(signedMessage.vaa));
   }
 
-  async nativeTokenAmount(
-    destChain: ChainName | ChainId,
-    token: TokenId,
-    amount: BigNumber,
-    walletAddress: string,
-  ): Promise<BigNumber> {
-    throw new Error('Not implemented');
-  }
+  // async nativeTokenAmount(
+  //   destChain: ChainName | ChainId,
+  //   token: TokenId,
+  //   amount: BigNumber,
+  //   walletAddress: string,
+  // ): Promise<BigNumber> {
+  //   throw new Error('Not implemented');
+  // }
 
-  async maxSwapAmount(
-    destChain: ChainName | ChainId,
-    token: TokenId,
-    walletAddress: string,
-  ): Promise<BigNumber> {
-    throw new Error('Not implemented');
-  }
+  // async maxSwapAmount(
+  //   destChain: ChainName | ChainId,
+  //   token: TokenId,
+  //   walletAddress: string,
+  // ): Promise<BigNumber> {
+  //   throw new Error('Not implemented');
+  // }
 
   async tryFetchRedeemTx(txData: UnsignedMessage): Promise<string | undefined> {
     return undefined; // only for automatic routes

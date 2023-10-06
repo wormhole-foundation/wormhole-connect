@@ -7,8 +7,8 @@ import { CHAINS } from 'config';
 import { RootState } from 'store';
 import { setRedeemTx, setTransferComplete } from 'store/redeem';
 import { displayAddress } from 'utils';
-import { TransferDisplayData } from 'utils/routes';
-import RouteOperator from 'utils/routes/operator';
+import { TransferDisplayData } from 'routes';
+import RouteOperator from 'routes/operator';
 import {
   TransferWallet,
   registerWalletSigner,

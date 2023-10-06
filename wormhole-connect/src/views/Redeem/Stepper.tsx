@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useSelector } from 'react-redux';
 
 import { RootState } from 'store';
-import { UnsignedMessage } from 'utils/routes';
+import { UnsignedMessage } from 'routes';
 
 import Stepper from 'components/Stepper/Stepper';
 import SendFrom from './SendFrom';
