@@ -35,6 +35,7 @@ import {
 import { isCosmWasmChain } from '../cosmos';
 import { fetchVaa } from '../vaa';
 import { formatGasFee } from './utils';
+import { CHAIN_ID_SEI } from '@certusone/wormhole-sdk';
 
 export class BridgeRoute extends BaseRoute {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean = false;
@@ -51,13 +52,21 @@ export class BridgeRoute extends BaseRoute {
       return false;
     }
 
+    const sourceChainId = wh.toChainId(sourceChain);
+    const destChainId = wh.toChainId(destChain);
+
     const sourceTokenConfig = TOKENS[sourceToken];
     const destTokenConfig = TOKENS[destToken];
     if (!sourceChain || !destChain || !sourceTokenConfig || !destTokenConfig)
       return false;
     if (sourceChain === destChain) return false;
-    if (isCosmWasmChain(sourceChain) || isCosmWasmChain(destChain))
+    if (
+      (isCosmWasmChain(sourceChain) && sourceChainId !== CHAIN_ID_SEI) ||
+      (isCosmWasmChain(destChain) && destChainId !== CHAIN_ID_SEI)
+    ) {
       return false;
+    }
+
     // TODO: probably not true for Solana
     if (destToken === 'native') return false;
 

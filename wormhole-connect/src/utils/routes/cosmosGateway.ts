@@ -1,4 +1,8 @@
-import { CHAIN_ID_SOLANA, CHAIN_ID_WORMCHAIN } from '@certusone/wormhole-sdk';
+import {
+  CHAIN_ID_SEI,
+  CHAIN_ID_SOLANA,
+  CHAIN_ID_WORMCHAIN,
+} from '@certusone/wormhole-sdk';
 import {
   CosmWasmClient,
   MsgExecuteContractEncodeObject,
@@ -106,10 +110,14 @@ export class CosmosGatewayRoute extends BaseRoute {
       return false;
     }
 
-    return (
-      isCosmWasmChain(wh.toChainId(sourceChain)) ||
-      isCosmWasmChain(wh.toChainId(destChain))
-    );
+    const sourceChainId = wh.toChainId(sourceChain);
+    const destChainId = wh.toChainId(destChain);
+
+    if (sourceChainId === CHAIN_ID_SEI || destChainId === CHAIN_ID_SEI) {
+      return false;
+    }
+
+    return isCosmWasmChain(sourceChainId) || isCosmWasmChain(destChainId);
   }
 
   async computeReceiveAmount(
