@@ -1,4 +1,4 @@
-function fallbackCopyTextToClipboard(text) {
+function fallbackCopyTextToClipboard(text: string) {
   const textArea = document.createElement("textarea");
   textArea.value = text;
 
@@ -24,7 +24,7 @@ function fallbackCopyTextToClipboard(text) {
   }
 }
 
-export async function copyTextToClipboard(text) {
+export async function copyTextToClipboard(text: string) {
   if (navigator.clipboard) {
     return await navigator.clipboard.writeText(text).then(
       function () {
@@ -38,4 +38,17 @@ export async function copyTextToClipboard(text) {
     );
   }
   return fallbackCopyTextToClipboard(text);
+}
+
+export const getObjectPath = (obj: object | undefined, path: string) =>
+  path.split(".").reduce((value, p) => value?.[p], obj as any);
+
+export function setObjectPathImmutable<T>(obj: T, path: string, value: any): T {
+  const ret: T = { ...obj };
+  let intermediate: any = ret;
+  path.split(".").forEach((p, idx, arr) => {
+    intermediate[p] = arr.length - 1 === idx ? value : { ...intermediate[p] };
+    intermediate = intermediate[p];
+  });
+  return ret;
 }

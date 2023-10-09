@@ -50,7 +50,7 @@ import WormholeBridge, {
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDebounce } from "use-debounce";
 import Background from "./Background";
-import { copyTextToClipboard } from "./utils";
+import ColorPicker from "./components/ColorPicker";
 import {
   DEFAULT_MAINNET_RPCS,
   DEFAULT_TESTNET_RPCS,
@@ -59,6 +59,11 @@ import {
   ROUTES,
   TESTNET_TOKEN_KEYS,
 } from "./consts";
+import {
+  copyTextToClipboard,
+  getObjectPath,
+  setObjectPathImmutable,
+} from "./utils";
 
 const version = "0.1.2";
 // generated with https://www.srihash.org/
@@ -208,7 +213,7 @@ function App() {
   const customTheme =
     _customTheme === undefined ? undefined : debouncedCustomTheme;
   const [customThemeText, setCustomThemeText] = useState(defaultThemeJSON);
-  const [customThemeError, setCustomThemeError] = useState<boolean>(false);
+  // const [customThemeError, setCustomThemeError] = useState<boolean>(false);
   const handleModeChange = useCallback(
     (e: any, value: string) => {
       if (value === "dark" || value === "light") {
@@ -223,15 +228,24 @@ function App() {
     },
     [customThemeText]
   );
-  const handleThemeChange = useCallback((e: any) => {
-    try {
-      const str = e.target.value;
-      setCustomThemeText(str);
-      setCustomTheme(JSON.parse(str));
-      setCustomThemeError(false);
-    } catch (e) {
-      setCustomThemeError(true);
-    }
+  // const handleThemeChange = useCallback((e: any) => {
+  //   try {
+  //     const str = e.target.value;
+  //     setCustomThemeText(str);
+  //     setCustomTheme(JSON.parse(str));
+  //     setCustomThemeError(false);
+  //   } catch (e) {
+  //     setCustomThemeError(true);
+  //   }
+  // }, []);
+  const handleFontChange = useCallback((e: any) => {
+    setCustomTheme((prevState) =>
+      setObjectPathImmutable(
+        prevState || customized,
+        `font.${e.target.name}`,
+        e.target.value
+      )
+    );
   }, []);
   // END THEME
   // BEGIN ROUTES
@@ -421,7 +435,7 @@ function App() {
     setMode("dark");
     setCustomTheme(undefined);
     setCustomThemeText(defaultThemeJSON);
-    setCustomThemeError(false);
+    // setCustomThemeError(false);
     setFontHref("");
     setDefaultFromNetwork(undefined);
     setDefaultToNetwork(undefined);
@@ -666,13 +680,164 @@ function App() {
                 </RadioGroup>
                 {mode === undefined ? (
                   <>
-                    <TextField
+                    <Typography variant="h5" component="h2" mt={1.5} mb={2}>
+                      Backgrounds
+                    </Typography>
+                    <Box display="flex" alignItems="center">
+                      <Typography
+                        sx={{ width: 80, marginRight: 1 }}
+                        gutterBottom
+                      >
+                        Widget
+                      </Typography>
+                      <ColorPicker
+                        customTheme={_customTheme}
+                        setCustomTheme={setCustomTheme}
+                        path="background.default"
+                        defaultTheme={customized}
+                      />
+                    </Box>
+                    <Box display="flex" alignItems="center">
+                      <Typography
+                        sx={{ width: 80, marginRight: 1 }}
+                        gutterBottom
+                      >
+                        Modal
+                      </Typography>
+                      <ColorPicker
+                        customTheme={_customTheme}
+                        setCustomTheme={setCustomTheme}
+                        path="modal.background"
+                        defaultTheme={customized}
+                      />
+                    </Box>
+                    <Box display="flex" alignItems="center">
+                      <Typography
+                        sx={{ width: 80, marginRight: 1 }}
+                        gutterBottom
+                      >
+                        Card
+                      </Typography>
+                      <ColorPicker
+                        customTheme={_customTheme}
+                        setCustomTheme={setCustomTheme}
+                        path="card.background"
+                        defaultTheme={customized}
+                      />
+                    </Box>
+                    <Box display="flex" alignItems="center">
+                      <Typography
+                        sx={{ width: 80, marginRight: 1 }}
+                        gutterBottom
+                      >
+                        Button
+                      </Typography>
+                      <ColorPicker
+                        customTheme={_customTheme}
+                        setCustomTheme={setCustomTheme}
+                        path="button.primary"
+                        defaultTheme={customized}
+                      />
+                    </Box>
+                    <Box display="flex" alignItems="center">
+                      <Typography
+                        sx={{ width: 80, marginRight: 1 }}
+                        gutterBottom
+                      >
+                        Action
+                      </Typography>
+                      <ColorPicker
+                        customTheme={_customTheme}
+                        setCustomTheme={setCustomTheme}
+                        path="button.action"
+                        defaultTheme={customized}
+                      />
+                    </Box>
+                    <Typography variant="h5" component="h2" mt={1.5} mb={2}>
+                      Text
+                    </Typography>
+                    <Box display="flex" alignItems="center">
+                      <Typography
+                        sx={{ width: 80, marginRight: 1 }}
+                        gutterBottom
+                      >
+                        Primary
+                      </Typography>
+                      <ColorPicker
+                        customTheme={_customTheme}
+                        setCustomTheme={setCustomTheme}
+                        path="text.primary"
+                        defaultTheme={customized}
+                      />
+                    </Box>
+                    <Box display="flex" alignItems="center">
+                      <Typography
+                        sx={{ width: 80, marginRight: 1 }}
+                        gutterBottom
+                      >
+                        Secondary
+                      </Typography>
+                      <ColorPicker
+                        customTheme={_customTheme}
+                        setCustomTheme={setCustomTheme}
+                        path="text.secondary"
+                        defaultTheme={customized}
+                      />
+                    </Box>
+                    {/* Button Primary Text doesn't seem to have an effect */}
+                    {/* <Box display="flex" alignItems="center">
+                      <Typography sx={{ width: 80, marginRight: 1 }} gutterBottom>
+                        Button
+                      </Typography>
+                      <ColorPicker
+                        customTheme={_customTheme}
+                        setCustomTheme={setCustomTheme}
+                        path="button.primaryText"
+                      />
+                    </Box> */}
+                    <Box display="flex" alignItems="center">
+                      <Typography
+                        sx={{ width: 80, marginRight: 1 }}
+                        gutterBottom
+                      >
+                        Action
+                      </Typography>
+                      <ColorPicker
+                        customTheme={_customTheme}
+                        setCustomTheme={setCustomTheme}
+                        path="button.actionText"
+                        defaultTheme={customized}
+                      />
+                    </Box>
+                    {/* This JSON text field is super advanced */}
+                    {/* <TextField
                       label="Custom Theme JSON"
                       fullWidth
                       multiline
                       value={customThemeText}
                       onChange={handleThemeChange}
                       error={customThemeError}
+                    /> */}
+                    <Typography variant="h5" component="h2" mt={1.5}>
+                      Font
+                    </Typography>
+                    <TextField
+                      label="Primary"
+                      name="primary"
+                      fullWidth
+                      value={getObjectPath(_customTheme, "font.primary")}
+                      onChange={handleFontChange}
+                      size="small"
+                      sx={{ mt: 2 }}
+                    />
+                    <TextField
+                      label="Header"
+                      name="header"
+                      fullWidth
+                      value={getObjectPath(_customTheme, "font.header")}
+                      onChange={handleFontChange}
+                      size="small"
+                      sx={{ mt: 2 }}
                     />
                     <TextField
                       label="Custom Font URL"
