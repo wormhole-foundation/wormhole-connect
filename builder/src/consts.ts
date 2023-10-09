@@ -154,13 +154,48 @@ export const MAINNET_TOKEN_KEYS: string[] = [
   "BONK",
 ].sort();
 
-export const ROUTES = [
-  "bridge",
-  "relay",
-  "cosmosGateway",
-  "cctpManual",
-  "cctpRelay",
-].sort();
+export type RouteInfo = {
+  key: string;
+  title: string;
+  description: string;
+  link?: string;
+};
+
+export const ROUTE_INFOS: RouteInfo[] = [
+  {
+    key: "bridge",
+    title: "Token Bridge",
+    description:
+      "Lock-and-Mint bridging between all Wormhole supported chains.",
+  },
+  {
+    key: "relay",
+    title: "Token Bridge Automatic Redeems",
+    description:
+      "Automatic redeems and native gas drop-off for the Token Bridge powered by xLabs.",
+  },
+  {
+    key: "cctpManual",
+    title: "Circle CCTP",
+    description:
+      "Permissionlessly transfer native USDC cross-chain with CCTP + Wormhole.",
+    link: "https://www.circle.com/en/cross-chain-transfer-protocol",
+  },
+  {
+    key: "cctpRelay",
+    title: "CCTP Automatic Redeems",
+    description:
+      "Automatic redeems and native gas drop-off for CCTP powered by xLabs.",
+  },
+  {
+    key: "cosmosGateway",
+    title: "Gateway",
+    description:
+      "Gateway connects liquidity and users from Ethereum and beyond to Cosmos chains and apps, all with an IBC-based liquidity router.",
+    link: "https://wormhole.com/gateway/",
+  },
+];
+export const ROUTES = ROUTE_INFOS.map((r) => r.key);
 
 export const DEFAULT_MAINNET_RPCS = {
   ethereum: "https://rpc.ankr.com/eth",

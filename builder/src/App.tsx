@@ -51,12 +51,13 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDebounce } from "use-debounce";
 import Background from "./Background";
 import ColorPicker from "./components/ColorPicker";
+import RouteCard from "./components/RouteCard";
 import {
   DEFAULT_MAINNET_RPCS,
   DEFAULT_TESTNET_RPCS,
   MAINNET_TOKEN_KEYS,
   NETWORKS,
-  ROUTES,
+  ROUTE_INFOS,
   TESTNET_TOKEN_KEYS,
 } from "./consts";
 import {
@@ -256,13 +257,6 @@ function App() {
   }, []);
   const handleNoneRoutes = useCallback(() => {
     setRoutes([]);
-  }, []);
-  const handleRoutesChange = useCallback((e: any) => {
-    setRoutes(
-      typeof e.target.value === "string"
-        ? e.target.value.split(",").sort()
-        : e.target.value.sort()
-    );
   }, []);
   // END ROUTES
   // BEGIN ENV
@@ -863,30 +857,23 @@ function App() {
                 Routes
               </Button>
               <Box mx={2}>
-                <TextField
-                  select
-                  fullWidth
-                  value={_routes ? _routes : ROUTES}
-                  onChange={handleRoutesChange}
-                  SelectProps={{
-                    multiple: true,
-                    renderValue: (selected: any) =>
-                      !_routes ? "All Routes" : selected.join(", "),
-                  }}
-                >
-                  {ROUTES.map((r) => (
-                    <MenuItem key={r} value={r}>
-                      <Checkbox checked={!_routes || _routes.includes(r)} />
-                      <ListItemText primary={r} />
-                    </MenuItem>
+                <Grid container spacing={2}>
+                  {ROUTE_INFOS.map((r) => (
+                    <Grid item key={r.key} sm={6}>
+                      <RouteCard
+                        route={r}
+                        selected={!_routes || _routes.includes(r.key)}
+                        setRoutes={setRoutes}
+                      />
+                    </Grid>
                   ))}
-                </TextField>
+                </Grid>
                 <Button
                   onClick={handleClearRoutes}
                   variant="contained"
                   color="inherit"
                   size="small"
-                  sx={{ mt: 1, mr: 1 }}
+                  sx={{ mt: 2, mr: 1 }}
                 >
                   Select All
                 </Button>
@@ -895,7 +882,7 @@ function App() {
                   variant="contained"
                   color="inherit"
                   size="small"
-                  sx={{ mt: 1, mr: 1 }}
+                  sx={{ mt: 2, mr: 1 }}
                 >
                   Select None
                 </Button>
