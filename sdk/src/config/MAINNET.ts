@@ -263,8 +263,8 @@ const MAINNET_CONFIG: WormholeConfig = {
     moonbeam: 'https://rpc.ankr.com/moonbeam',
     sui: 'https://rpc.mainnet.sui.io',
     aptos: 'https://fullnode.mainnet.aptoslabs.com/v1',
-    arbitrum: 'https://arb1.arbitrum.io/rpc',
-    optimism: 'https://mainnet.optimism.io',
+    arbitrum: 'https://rpc.ankr.com/arbitrum',
+    optimism: 'https://rpc.ankr.com/optimism',
     base: 'https://base.publicnode.com',
     sei: '', // TODO: fill in
     wormchain: '',
