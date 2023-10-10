@@ -88,8 +88,8 @@ export const RPCS =
 
 export const REST =
   config && config.rest
-    ? Object.assign({}, NETWORK_DATA.rest, config.rest)
-    : NETWORK_DATA.rest;
+    ? Object.assign({}, sdkConfig.rest, NETWORK_DATA.rest, config.rest)
+    : Object.assign({}, sdkConfig.rest, NETWORK_DATA.rest);
 
 export const GRAPHQL =
   config && config.graphql

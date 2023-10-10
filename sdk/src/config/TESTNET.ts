@@ -303,6 +303,7 @@ const TESTNET_CONFIG: WormholeConfig = {
   },
   rest: {
     sei: 'https://rest.atlantic-2.seinetwork.io',
+    evmos: 'https://evmos-testnet-api.polkachu.com',
   },
   graphql: {
     aptos: 'https://indexer-testnet.staging.gcp.aptosdev.com/v1/graphql',

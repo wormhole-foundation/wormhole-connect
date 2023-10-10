@@ -17,6 +17,7 @@ const {
   REACT_APP_EVMOS_TESTNET_RPC,
   REACT_APP_COSMOSHUB_TESTNET_RPC,
   REACT_APP_SEI_REST,
+  REACT_APP_EVMOS_REST,
 } = process.env;
 
 export const TESTNET_RPC_MAPPING = {
@@ -48,6 +49,7 @@ export const TESTNET_RPC_MAPPING = {
 
 export const TESTNET_REST_MAPPING = {
   ...populateRpcField('sei', REACT_APP_SEI_REST),
+  ...populateRpcField('evmos', REACT_APP_EVMOS_REST),
 };
 
 export const TESTNET_GRAPHQL_MAPPING = {
