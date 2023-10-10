@@ -292,6 +292,7 @@ const MAINNET_CONFIG: WormholeConfig = {
   },
   rest: {
     sei: '',
+    evmos: 'https://evmos-api.polkachu.com',
   },
   graphql: {
     aptos: 'https://indexer.mainnet.aptoslabs.com/v1/graphql',

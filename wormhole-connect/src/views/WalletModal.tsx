@@ -17,6 +17,7 @@ import {
   ChainName,
   Context,
 } from '@wormhole-foundation/wormhole-connect-sdk';
+import { CHAIN_ID_EVMOS } from '@certusone/wormhole-sdk';
 
 import { CHAINS, ENV, RPCS } from 'config';
 import { RootState } from 'store';
@@ -163,8 +164,16 @@ const getWalletOptions = async (
   } else if (config.context === Context.SEI) {
     const suiOptions = await fetchSeiOptions();
     return Object.values(mapWallets(suiOptions, Context.SEI));
-  } else if (config.context === Context.COSMOS) {
+  } else if (
+    config.context === Context.COSMOS &&
+    config.id !== CHAIN_ID_EVMOS
+  ) {
     return Object.values(mapWallets(wallets.cosmos, Context.COSMOS));
+  } else if (
+    config.context === Context.COSMOS &&
+    config.id === CHAIN_ID_EVMOS
+  ) {
+    return Object.values(mapWallets(wallets.cosmosEvm, Context.COSMOS));
   }
   return [];
 };
