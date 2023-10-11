@@ -26,6 +26,7 @@ import {
   SolanaContext,
   WormholeContext,
   CosmosContext,
+  getNativeDenom,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { MsgTransfer } from 'cosmjs-types/ibc/applications/transfer/v1/tx';
 import { MsgExecuteContract } from 'cosmjs-types/cosmwasm/wasm/v1/tx';
@@ -39,7 +40,7 @@ import { getDisplayName } from 'utils';
 import { arrayify, base58 } from 'ethers/lib/utils.js';
 import { ParsedMessage, toChainId, wh } from 'utils/sdk';
 import { isGatewayChain } from 'utils/cosmos';
-import { CHAINS, RPCS, ROUTES, TOKENS } from 'config';
+import { CHAINS, ENV, RPCS, ROUTES, TOKENS } from 'config';
 import { Route, TokenConfig } from 'config/types';
 import {
   MAX_DECIMALS,
@@ -306,17 +307,16 @@ export class CosmosGatewayRoute extends BaseRoute {
       }),
     };
 
+    const sendingChainName = wh.toChainName(sendingChainId);
+    const gasDenom = getNativeDenom(sendingChainName, ENV);
+
     const tx: CosmosTransaction = {
-      fee: calculateFee(1000000, '1.0uosmo'),
+      fee: calculateFee(1000000, `1.0${gasDenom}`),
       msgs: [ibcMessage],
       memo: '',
     };
 
-    return signAndSendTransaction(
-      wh.toChainName(sendingChainId),
-      tx,
-      TransferWallet.SENDING,
-    );
+    return signAndSendTransaction(sendingChainName, tx, TransferWallet.SENDING);
   }
 
   getForeignAsset(
@@ -385,17 +385,16 @@ export class CosmosGatewayRoute extends BaseRoute {
       }),
     };
 
+    const destChainName = wh.toChainName(destChain);
+    const gasDenom = getNativeDenom(destChainName, ENV);
+
     const tx: CosmosTransaction = {
-      fee: calculateFee(1000000, '1.0uosmo'),
+      fee: calculateFee(1000000, `1.0${gasDenom}`),
       msgs: [msg],
       memo: '',
     };
 
-    return signAndSendTransaction(
-      wh.toChainName(destChain),
-      tx,
-      TransferWallet.RECEIVING,
-    );
+    return signAndSendTransaction(destChainName, tx, TransferWallet.RECEIVING);
   }
 
   async redeem(
