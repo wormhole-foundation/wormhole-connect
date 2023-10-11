@@ -19,10 +19,13 @@ const PREFIXES: Record<string, string> = {
   terra2: 'terra',
   cosmoshub: 'cosmos',
   evmos: 'evmos',
-  sei: 'sei'
+  sei: 'sei',
 };
 
-export function getNativeDenom(chain: ChainName, env: Network = 'MAINNET'): string {
+export function getNativeDenom(
+  chain: ChainName,
+  env: Network = 'MAINNET',
+): string {
   const denom =
     env === 'TESTNET'
       ? TESTNET_NATIVE_DENOMS[chain]

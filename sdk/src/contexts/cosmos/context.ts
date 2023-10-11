@@ -51,11 +51,7 @@ import {
   Tendermint37Client,
   TendermintClient,
 } from '@cosmjs/tendermint-rpc';
-import {
-  getNativeDenom,
-  getPrefix,
-  isNativeDenom,
-} from './denom';
+import { getNativeDenom, getPrefix, isNativeDenom } from './denom';
 import { CosmosTransaction, WrappedRegistryResponse } from './types';
 
 const MSG_EXECUTE_CONTRACT_TYPE_URL = '/cosmwasm.wasm.v1.MsgExecuteContract';
