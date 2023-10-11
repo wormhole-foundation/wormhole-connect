@@ -867,9 +867,7 @@ export class CosmosGatewayRoute extends BaseRoute {
     message: SignedTokenTransferMessage | SignedRelayTransferMessage,
   ): Promise<string | null> {
     if (!isGatewayChain(message.toChain)) {
-      throw new Error(
-        `Fetch redeem tx not supported by this route for chain ${message.toChain}`,
-      );
+      return (await new BridgeRoute().tryFetchRedeemTx(message)) || null;
     }
 
     // find tx in the source chain and extract the ibc transfer to wormchain
