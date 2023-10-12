@@ -10,6 +10,8 @@ import {
   findDestinationIBCTransferTx,
   getIBCTransferInfoFromLogs,
 } from './transaction';
+import { BridgeRoute } from '../../bridge';
+import { isGatewayChain } from '../../../utils/cosmos';
 
 export async function fetchRedeemedEventNonCosmosSource(
   message: SignedTokenTransferMessage | SignedRelayTransferMessage,
@@ -37,7 +39,7 @@ export async function fetchRedeemedEventNonCosmosSource(
   }
 
   // extract the ibc transfer info from the transaction logs
-  const ibcInfo = getIBCTransferInfoFromLogs(txs[0]);
+  const ibcInfo = getIBCTransferInfoFromLogs(txs[0], 'send_packet');
 
   // find the transaction on the target chain based on the ibc transfer info
   const destTx = await findDestinationIBCTransferTx(message.toChain, ibcInfo);
@@ -50,5 +52,32 @@ export async function fetchRedeemedEventNonCosmosSource(
 export async function fetchRedeemedEventCosmosSource(
   message: SignedTokenTransferMessage | SignedRelayTransferMessage,
 ): Promise<string | null> {
-  throw new Error('Not implemented');
+  if (!isGatewayChain(message.toChain)) {
+    return (await new BridgeRoute().tryFetchRedeemTx(message)) || null;
+  }
+
+  // find tx in the source chain and extract the ibc transfer to wormchain
+  const sourceClient = await getCosmWasmClient(message.fromChain);
+  const tx = await sourceClient.getTx(message.sendTx);
+  if (!tx) return null;
+  const sourceIbcInfo = getIBCTransferInfoFromLogs(tx, 'send_packet');
+
+  // find tx in the ibc receive in wormchain and extract the ibc transfer to the dest tx
+  const wormchainTx = await findDestinationIBCTransferTx(
+    CHAIN_ID_WORMCHAIN,
+    sourceIbcInfo,
+  );
+  if (!wormchainTx) return null;
+  const wormchainToDestIbcInfo = getIBCTransferInfoFromLogs(
+    wormchainTx,
+    'send_packet',
+  );
+
+  // find the tx that deposits the funds in the final recipient
+  const destTx = await findDestinationIBCTransferTx(
+    message.toChain,
+    wormchainToDestIbcInfo,
+  );
+  if (!destTx) return null;
+  return destTx.hash;
 }
