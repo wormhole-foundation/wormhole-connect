@@ -7,21 +7,40 @@ import {
 import { getCosmWasmClient } from '../utils';
 import { IBCTransferInfo } from '../types';
 
-export function getIBCTransferInfoFromLogs(tx: IndexedTx): IBCTransferInfo {
+export function getIBCTransferInfoFromLogs(
+  tx: IndexedTx,
+  event: 'send_packet' | 'recv_packet',
+): IBCTransferInfo {
   const logs = cosmosLogs.parseRawLog(tx.rawLog);
-  const packetSeq = searchCosmosLogs('packet_sequence', logs);
-  const packetTimeout = searchCosmosLogs('packet_timeout_timestamp', logs);
-  const packetSrcChannel = searchCosmosLogs('packet_src_channel', logs);
-  const packetDstChannel = searchCosmosLogs('packet_dst_channel', logs);
-  if (!packetSeq || !packetTimeout || !packetSrcChannel || !packetDstChannel) {
+  const packetSeq = searchCosmosLogs(`${event}.packet_sequence`, logs);
+  const packetTimeout = searchCosmosLogs(
+    `${event}.packet_timeout_timestamp`,
+    logs,
+  );
+  const packetSrcChannel = searchCosmosLogs(
+    `${event}.packet_src_channel`,
+    logs,
+  );
+  const packetDstChannel = searchCosmosLogs(
+    `${event}.packet_dst_channel`,
+    logs,
+  );
+  const packetData = searchCosmosLogs(`${event}.packet_data`, logs);
+  if (
+    !packetSeq ||
+    !packetTimeout ||
+    !packetSrcChannel ||
+    !packetDstChannel ||
+    !packetData
+  ) {
     throw new Error('Missing packet information in transaction logs');
   }
-
   return {
     sequence: packetSeq,
     timeout: packetTimeout,
     srcChannel: packetSrcChannel,
     dstChannel: packetDstChannel,
+    data: packetData,
   };
 }
 

@@ -18,4 +18,13 @@ export interface IBCTransferInfo {
   timeout: string;
   srcChannel: string;
   dstChannel: string;
+  data: string;
+}
+
+export interface IBCTransferData {
+  amount: string;
+  denom: string;
+  memo: string;
+  receiver: string;
+  sender: string;
 }
