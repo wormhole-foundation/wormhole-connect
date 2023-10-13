@@ -12,7 +12,7 @@ import { MsgExecuteContract } from 'cosmjs-types/cosmwasm/wasm/v1/tx';
 import { BigNumber, utils } from 'ethers';
 import { toChainId, wh } from 'utils/sdk';
 import { getDisplayName } from 'utils';
-import { isCosmWasmChain } from 'utils/cosmos';
+import { isGatewayChain } from 'utils/cosmos';
 import { CHAINS, ROUTES, TOKENS } from 'config';
 import { Route, TokenConfig } from 'config/types';
 import {
@@ -55,7 +55,7 @@ export class CosmosGatewayRoute extends BaseRoute {
   readonly AUTOMATIC_DEPOSIT: boolean = false;
 
   isSupportedChain(chain: ChainName): boolean {
-    return isCosmWasmChain(chain);
+    return isGatewayChain(chain);
   }
 
   async isRouteAvailable(
@@ -70,8 +70,8 @@ export class CosmosGatewayRoute extends BaseRoute {
     }
 
     return (
-      isCosmWasmChain(wh.toChainId(sourceChain)) ||
-      isCosmWasmChain(wh.toChainId(destChain))
+      isGatewayChain(wh.toChainId(sourceChain)) ||
+      isGatewayChain(wh.toChainId(destChain))
     );
   }
 
@@ -158,7 +158,7 @@ export class CosmosGatewayRoute extends BaseRoute {
     const decimals = getTokenDecimals(sendingChainId, token);
     const parsedAmt = utils.parseUnits(amount, decimals);
 
-    if (isCosmWasmChain(sendingChainId)) {
+    if (isGatewayChain(sendingChainId)) {
       return fromCosmos(
         token,
         parsedAmt.toString(),
@@ -222,7 +222,7 @@ export class CosmosGatewayRoute extends BaseRoute {
   ): Promise<string> {
     const chain = wh.toChainId(destChain);
 
-    if (isCosmWasmChain(chain)) {
+    if (isGatewayChain(chain)) {
       return this.manualRedeem(CHAIN_ID_WORMCHAIN, messageInfo, recipient);
     }
 
@@ -282,7 +282,7 @@ export class CosmosGatewayRoute extends BaseRoute {
     if (!isSignedWormholeMessage(message))
       throw new Error('Signed message is not for gateway');
 
-    if (!isCosmWasmChain(destChain)) {
+    if (!isGatewayChain(destChain)) {
       return new BridgeRoute().isTransferCompleted(destChain, message);
     }
 
@@ -295,7 +295,7 @@ export class CosmosGatewayRoute extends BaseRoute {
     chain: ChainName | ChainId,
   ): Promise<UnsignedMessage> {
     const name = wh.toChainName(chain);
-    return isCosmWasmChain(name)
+    return isGatewayChain(name)
       ? getMessageFromCosmos(hash, name)
       : getMessageFromNonCosmos(hash, name);
   }
@@ -306,7 +306,7 @@ export class CosmosGatewayRoute extends BaseRoute {
     const vaa = await fetchVaa({
       ...message,
       // transfers from cosmos vaas are emitted by wormchain and not by the source chain
-      fromChain: isCosmWasmChain(message.fromChain)
+      fromChain: isGatewayChain(message.fromChain)
         ? 'wormchain'
         : message.fromChain,
     });
@@ -326,7 +326,7 @@ export class CosmosGatewayRoute extends BaseRoute {
       throw new Error('Signed message is not for gateway');
     }
 
-    return isCosmWasmChain(message.fromChain)
+    return isGatewayChain(message.fromChain)
       ? fetchRedeemedEventCosmosSource(message)
       : fetchRedeemedEventNonCosmosSource(message);
   }

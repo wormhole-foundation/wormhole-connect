@@ -16,7 +16,7 @@ import {
   solanaContext,
   wh,
 } from 'utils/sdk';
-import { isCosmWasmChain } from 'utils/cosmos';
+import { isGatewayChain } from 'utils/cosmos';
 import { BridgeRoute } from './bridge';
 import { RelayRoute } from './relay';
 // import { HashflowRoute } from './hashflow';
@@ -62,7 +62,7 @@ export class Operator {
   }
 
   async getRouteFromTx(txHash: string, chain: ChainName): Promise<Route> {
-    if (isCosmWasmChain(chain)) {
+    if (isGatewayChain(chain)) {
       return Route.CosmosGateway;
     }
 
@@ -93,10 +93,7 @@ export class Operator {
       return Route.Relay;
     }
 
-    if (
-      isCosmWasmChain(message.fromChain) ||
-      isCosmWasmChain(message.toChain)
-    ) {
+    if (isGatewayChain(message.fromChain) || isGatewayChain(message.toChain)) {
       return Route.CosmosGateway;
     }
 

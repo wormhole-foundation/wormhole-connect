@@ -32,7 +32,7 @@ import {
   TransferDestInfoBaseParams,
   TransferInfoBaseParams,
 } from '../types';
-import { isCosmWasmChain } from '../../utils/cosmos';
+import { isGatewayChain } from '../../utils/cosmos';
 import { fetchVaa } from '../../utils/vaa';
 import { formatGasFee } from '../utils';
 
@@ -56,8 +56,7 @@ export class BridgeRoute extends BaseRoute {
     if (!sourceChain || !destChain || !sourceTokenConfig || !destTokenConfig)
       return false;
     if (sourceChain === destChain) return false;
-    if (isCosmWasmChain(sourceChain) || isCosmWasmChain(destChain))
-      return false;
+    if (isGatewayChain(sourceChain) || isGatewayChain(destChain)) return false;
     // TODO: probably not true for Solana
     if (destToken === 'native') return false;
 

@@ -4,7 +4,7 @@ import { CHAINS } from 'config';
 import { wh } from 'utils/sdk';
 import { getCosmWasmClient, getQueryClient } from './client';
 import { IBC_PORT } from './consts';
-import { isCosmWasmChain } from 'utils/cosmos';
+import { isGatewayChain } from 'utils/cosmos';
 
 export function getTranslatorAddress(): string {
   const addr = CHAINS['wormchain']?.contracts.ibcShimContract;
@@ -31,7 +31,8 @@ export async function getIbcSourceChannel(
   chain: ChainId | ChainName,
 ): Promise<string> {
   const id = wh.toChainId(chain);
-  if (!isCosmWasmChain(id)) throw new Error('Chain is not cosmos chain');
+  if (!isGatewayChain(id))
+    throw new Error(`Chain ${chain} is not a gateway chain`);
   const client = await getCosmWasmClient(CHAIN_ID_WORMCHAIN);
   const { channel } = await client.queryContractSmart(getTranslatorAddress(), {
     ibc_channel: {

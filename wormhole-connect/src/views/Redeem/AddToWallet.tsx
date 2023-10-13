@@ -20,7 +20,7 @@ import { TransferWallet, switchChain, watchAsset } from 'utils/wallet';
 
 import TokenIcon from 'icons/TokenIcons';
 import ExplorerLink from './ExplorerLink';
-import { isCosmWasmChain } from 'utils/cosmos';
+import { isGatewayChain } from 'utils/cosmos';
 
 const useStyles = makeStyles()((theme) => ({
   addToken: {
@@ -159,7 +159,7 @@ function AddToWallet() {
 
   useEffect(() => {
     const fetchTokenInfo = async () => {
-      if (isCosmWasmChain(txData.toChain)) return;
+      if (isGatewayChain(txData.toChain)) return;
       const tokenInfo = TOKENS[txData.receivedTokenKey];
       const wrapped = getWrappedToken(tokenInfo);
       if (!wrapped.tokenId) return;

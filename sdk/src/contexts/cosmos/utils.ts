@@ -1,9 +1,4 @@
-import {
-  CHAIN_ID_OSMOSIS,
-  CHAIN_ID_TERRA2,
-  CHAIN_ID_WORMCHAIN,
-  isCosmWasmChain as isBaseCosmWasmChain,
-} from '@certusone/wormhole-sdk';
+import { CHAIN_ID_OSMOSIS } from '@certusone/wormhole-sdk';
 import { logs as cosmosLogs } from '@cosmjs/stargate';
 import { ChainId } from '../../types';
 
@@ -28,12 +23,8 @@ export const searchCosmosLogs = (
   return null;
 };
 
-const COSMOS_CHAINS: ChainId[] = [
-  CHAIN_ID_WORMCHAIN,
-  CHAIN_ID_OSMOSIS,
-  CHAIN_ID_TERRA2,
-];
+const GATEWAY_CHAINS: ChainId[] = [CHAIN_ID_OSMOSIS];
 
-export function isCosmWasmChain(chainId: ChainId): boolean {
-  return isBaseCosmWasmChain(chainId) || COSMOS_CHAINS.includes(chainId);
+export function isGatewayChain(chainId: ChainId): boolean {
+  return GATEWAY_CHAINS.includes(chainId);
 }

@@ -40,7 +40,7 @@ import {
 import { WormholeContext } from '../../wormhole';
 import { TokenBridgeAbstract } from '../abstracts/tokenBridge';
 import { CosmosContracts } from './contracts';
-import { isCosmWasmChain, searchCosmosLogs } from './utils';
+import { isGatewayChain, searchCosmosLogs } from './utils';
 import { ForeignAssetCache, waitFor } from '../../utils';
 import {
   Tendermint34Client,
@@ -269,7 +269,8 @@ export class CosmosContext<
 
   async getIbcSourceChannel(chain: ChainId | ChainName): Promise<string> {
     const id = this.context.toChainId(chain);
-    if (!isCosmWasmChain(id)) throw new Error('Chain is not cosmos chain');
+    if (!isGatewayChain(id))
+      throw new Error(`Chain ${chain} is not a gateway chain`);
     const client = await this.getCosmWasmClient(CHAIN_ID_WORMCHAIN);
     const { channel } = await client.queryContractSmart(
       this.getTranslatorAddress(),
