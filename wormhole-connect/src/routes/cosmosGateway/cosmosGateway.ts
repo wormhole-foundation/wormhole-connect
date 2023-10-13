@@ -298,10 +298,7 @@ export class CosmosGatewayRoute extends BaseRoute {
     message: TokenTransferMessage | RelayTransferMessage,
   ): Promise<SignedTokenTransferMessage | SignedRelayTransferMessage> {
     // if both chains are cosmos gateway chains, no vaa is emitted
-    if (
-      isGatewayChain(message.fromChain) &&
-      isGatewayChain(message.toChain)
-    ) {
+    if (isGatewayChain(message.fromChain) && isGatewayChain(message.toChain)) {
       return {
         ...message,
         vaa: '',
