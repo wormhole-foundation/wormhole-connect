@@ -1,11 +1,11 @@
 import {
   ChainName,
   ChainId,
-  isCosmWasmChain as isCosmWasmChainSdk,
+  isGatewayChain as isGatewayChainSdk,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { wh } from './sdk';
 
-export function isCosmWasmChain(chainId: ChainId | ChainName): boolean {
+export function isGatewayChain(chainId: ChainId | ChainName): boolean {
   const id = wh.toChainId(chainId);
-  return isCosmWasmChainSdk(id);
+  return isGatewayChainSdk(id);
 }

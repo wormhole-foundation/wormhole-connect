@@ -13,7 +13,7 @@ import { CHAINS, CHAINS_ARR, TOKENS, TOKENS_ARR } from 'config';
 import { ChainConfig, TokenConfig } from 'config/types';
 import { isEvmChain, wh } from 'utils/sdk';
 import { toDecimals } from './balance';
-import { isCosmWasmChain } from './cosmos';
+import { isGatewayChain } from './cosmos';
 
 export const MAX_DECIMALS = 6;
 export const NORMALIZED_DECIMALS = 8;
@@ -163,7 +163,7 @@ export function hexPrefix(hex: string) {
 export function isValidTxId(chain: string, tx: string) {
   if (chain === 'sui') {
     return isValidTransactionDigest(tx);
-  } else if (isCosmWasmChain(chain as any)) {
+  } else if (isGatewayChain(chain as any)) {
     return isHexString(hexPrefix(tx), 32);
   } else {
     if (tx.startsWith('0x') && tx.length === 66) return true;

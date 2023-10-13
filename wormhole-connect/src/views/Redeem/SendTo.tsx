@@ -23,7 +23,7 @@ import Spacer from 'components/Spacer';
 import WalletsModal from '../WalletModal';
 import Header from './Header';
 import { estimateClaimGas } from 'utils/gas';
-import { isCosmWasmChain } from '../../utils/cosmos';
+import { isGatewayChain } from '../../utils/cosmos';
 
 function SendTo() {
   const dispatch = useDispatch();
@@ -105,7 +105,8 @@ function SendTo() {
     if (!routeName) return false;
     return (
       RouteOperator.getRoute(routeName).AUTOMATIC_DEPOSIT ||
-      isCosmWasmChain(txData.toChain)
+      isGatewayChain(txData.toChain) ||
+      txData.toChain === 'sei'
     );
   }, [routeName, txData]);
 

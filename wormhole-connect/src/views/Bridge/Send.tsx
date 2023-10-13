@@ -30,7 +30,7 @@ import {
 import Button from 'components/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 import AlertBanner from 'components/AlertBanner';
-import { isCosmWasmChain } from 'utils/cosmos';
+import { isGatewayChain } from 'utils/cosmos';
 import { estimateClaimGas, estimateSendGas } from 'utils/gas';
 import { validateSolanaTokenAccount } from '../../utils/transferValidation';
 
@@ -207,7 +207,11 @@ function Send(props: { valid: boolean }) {
   const showWarning = useMemo(() => {
     if (!route) return false;
     const r = RouteOperator.getRoute(route);
-    return !(r.AUTOMATIC_DEPOSIT || (toChain && isCosmWasmChain(toChain)));
+    return !(
+      r.AUTOMATIC_DEPOSIT ||
+      (toChain && isGatewayChain(toChain)) ||
+      toChain === 'sei'
+    );
   }, [route, toChain]);
 
   return (

@@ -24,7 +24,7 @@ import {
 } from 'store/transferInput';
 import { makeStyles } from 'tss-react/mui';
 import { displayAddress, getDisplayName } from 'utils';
-import { isCosmWasmChain } from 'utils/cosmos';
+import { isGatewayChain } from 'utils/cosmos';
 import { wh } from 'utils/sdk';
 import { CENTER, NO_INPUT } from 'utils/style';
 import Header from './Header';
@@ -209,8 +209,8 @@ type Props = {
   type: 'source' | 'dest';
 };
 
-function isCosmosNativeToken(token: TokenConfig) {
-  return token.tokenId && isCosmWasmChain(token.tokenId.chain);
+function isGatewayNativeToken(token: TokenConfig) {
+  return token.tokenId && isGatewayChain(token.tokenId.chain);
 }
 
 function TokensModal(props: Props) {
@@ -233,7 +233,7 @@ function TokensModal(props: Props) {
   const supportedTokens = useMemo(() => {
     const supported =
       type === 'source' ? supportedSourceTokens : supportedDestTokens;
-    return supported.filter((t) => !isCosmosNativeToken(t));
+    return supported.filter((t) => !isGatewayNativeToken(t));
   }, [type, supportedSourceTokens, supportedDestTokens]);
 
   const chainBalancesCache: ChainBalances | undefined = useMemo(() => {
