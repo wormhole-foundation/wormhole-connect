@@ -335,7 +335,7 @@ export class CosmosContext<
     const client = await this.getCosmWasmClient(name);
     const { amount } = await client.getBalance(
       walletAddress,
-      asset || this.getNativeDenom(name),
+      asset || getNativeDenom(name, this.context.conf.env),
     );
     return BigNumber.from(amount);
   }
@@ -368,16 +368,6 @@ export class CosmosContext<
     });
   }
 
-  private getNativeDenom(chain: ChainName | ChainId): string {
-    const name = this.context.toChainName(chain);
-    return getNativeDenom(name, this.context.conf.env);
-  }
-
-  private getPrefix(chain: ChainName | ChainId): string {
-    const name = this.context.toChainName(chain);
-    return getPrefix(name);
-  }
-
   async redeem(
     destChain: ChainName | ChainId,
     signedVAA: Uint8Array,
@@ -388,8 +378,8 @@ export class CosmosContext<
     const vaa = parseVaa(signedVAA);
     const transfer = parseTokenTransferPayload(vaa.payload);
 
-    const denom = this.getNativeDenom(chainName);
-    const prefix = this.getPrefix(chainName);
+    const denom = getNativeDenom(chainName, this.context.conf.env);
+    const prefix = getPrefix(chainName);
 
     // transfer to comes as a 32 byte array, but cosmos addresses are 20 bytes
     const recipient = cosmos.humanAddress(prefix, transfer.to.slice(12));
@@ -435,7 +425,11 @@ export class CosmosContext<
     tokenAddr: string,
     chain: ChainName | ChainId,
   ): Promise<number> {
-    if (tokenAddr === this.getNativeDenom(chain)) return 6;
+    if (
+      tokenAddr ===
+      getNativeDenom(this.context.toChainName(chain), this.context.conf.env)
+    )
+      return 6;
     const client = await this.getCosmWasmClient(chain);
     const { decimals } = await client.queryContractSmart(tokenAddr, {
       token_info: {},
