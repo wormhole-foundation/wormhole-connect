@@ -6,10 +6,12 @@ export const CCTPManual_CHAINS: ChainName[] = [
   'avalanche',
   'fuji',
   'goerli',
+  'base',
   'optimism',
   'arbitrum',
   'optimismgoerli',
   'arbitrumgoerli',
+  'basegoerli',
 ];
 
 export function getChainNameCCTP(domain: number): ChainName {
@@ -22,6 +24,8 @@ export function getChainNameCCTP(domain: number): ChainName {
       return isMainnet ? 'optimism' : 'optimismgoerli';
     case 3:
       return isMainnet ? 'arbitrum' : 'arbitrumgoerli';
+    case 6:
+      return isMainnet ? 'base' : 'basegoerli';
   }
   throw new Error('Invalid CCTP domain');
 }
