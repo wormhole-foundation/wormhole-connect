@@ -211,6 +211,12 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     contracts: {
       ...CONTRACTS.TESTNET.base,
       relayer: '0xae8dc4a7438801ec4edc0b035eccccf3807f4cc1',
+      cctpContracts: {
+        cctpTokenMessenger: '0x877b8e8c9e2383077809787ed6f279ce01cb4cc8',
+        cctpMessageTransmitter: '0x9ff9a4da6f2157a9c82ce756f8fd7e0d75be8895',
+        wormholeCircleRelayer: '0x0000000000000000000000000000000000000000', // TODO: Replace with correct address
+        wormholeCCTP: '0x0000000000000000000000000000000000000000', // TODO: Replace with correct address
+      },
     },
     finalityThreshold: 0,
     nativeTokenDecimals: 18,

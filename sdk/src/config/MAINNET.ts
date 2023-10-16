@@ -210,6 +210,12 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     contracts: {
       ...CONTRACTS.MAINNET.base,
       relayer: '0xaE8dc4a7438801Ec4edC0B035EcCCcF3807F4CC1',
+      cctpContracts: {
+        cctpTokenMessenger: '0x0000000000000000000000000000000000000000', // TODO: Replace with correct address
+        cctpMessageTransmitter: '0x0000000000000000000000000000000000000000', // TODO: Replace with correct address
+        wormholeCircleRelayer: '0x0000000000000000000000000000000000000000', // TODO: Replace with correct address
+        wormholeCCTP: '0x0000000000000000000000000000000000000000', // TODO: Replace with correct address
+      },
     },
     finalityThreshold: 0,
     nativeTokenDecimals: 18,
