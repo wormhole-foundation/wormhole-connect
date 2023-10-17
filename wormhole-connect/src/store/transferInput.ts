@@ -1,13 +1,17 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+import { ChainName, Context } from '@wormhole-foundation/wormhole-connect-sdk';
 import { BigNumber } from 'ethers';
-import { TOKENS, config } from 'config';
+import { CHAINS, TOKENS, config } from 'config';
 import { Route, TokenConfig } from 'config/types';
 import { getTokenDecimals } from 'utils';
 import { toDecimals } from 'utils/balance';
 import { toChainId } from 'utils/sdk';
-import { TransferWallet, walletAcceptedChains } from 'utils/wallet';
-import { clearWallet, setWalletError, WalletData } from './wallet';
+import {
+  switchChain,
+  TransferWallet,
+  walletAcceptedChains,
+} from 'utils/wallet';
+import { clearWallet, setAddress, setWalletError, WalletData } from './wallet';
 
 export type Balances = { [key: string]: string | null };
 export type ChainBalances = {
@@ -361,15 +365,7 @@ export const selectFromChain = async (
   chain: ChainName,
   wallet: WalletData,
 ) => {
-  if (isDisabledChain(chain, wallet)) {
-    dispatch(clearWallet(TransferWallet.SENDING));
-    const payload = {
-      type: TransferWallet.SENDING,
-      error: 'Wallet disconnected, please connect a supported wallet',
-    };
-    dispatch(setWalletError(payload));
-  }
-  dispatch(setFromChain(chain));
+  selectChain(TransferWallet.SENDING, dispatch, chain, wallet);
 };
 
 export const selectToChain = async (
@@ -377,15 +373,39 @@ export const selectToChain = async (
   chain: ChainName,
   wallet: WalletData,
 ) => {
+  selectChain(TransferWallet.RECEIVING, dispatch, chain, wallet);
+};
+
+export const selectChain = async (
+  type: TransferWallet,
+  dispatch: any,
+  chain: ChainName,
+  wallet: WalletData,
+) => {
   if (isDisabledChain(chain, wallet)) {
-    dispatch(clearWallet(TransferWallet.RECEIVING));
+    dispatch(clearWallet(type));
     const payload = {
-      type: TransferWallet.RECEIVING,
+      type,
       error: 'Wallet disconnected, please connect a supported wallet',
     };
     dispatch(setWalletError(payload));
   }
-  dispatch(setToChain(chain));
+
+  // Call wallet switchChain if the new chain is of the same type
+  // and a cosmos chain (while the wallet is the same the address will
+  // vary depending on the chain)
+  const config = CHAINS[chain];
+  if (!config) return;
+  if (config.context === wallet.type && wallet.type === Context.COSMOS) {
+    const address = await switchChain(config.chainId, type);
+    if (address) {
+      dispatch(setAddress({ type, address }));
+    }
+  }
+
+  dispatch(
+    type === TransferWallet.SENDING ? setFromChain(chain) : setToChain(chain),
+  );
 };
 
 export const {

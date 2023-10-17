@@ -177,7 +177,7 @@ export const registerWalletSigner = (
 export const switchChain = async (
   chainId: number | string,
   type: TransferWallet,
-) => {
+): Promise<string | undefined> => {
   const w: Wallet = walletConnection[type]! as any;
   if (!w) throw new Error('must connect wallet');
 
@@ -196,6 +196,7 @@ export const switchChain = async (
   if (config.context === Context.COSMOS) {
     await (w as CosmosWallet).switchChain(chainId as string);
   }
+  return w.getAddress();
 };
 
 export const disconnect = async (type: TransferWallet) => {
