@@ -199,7 +199,7 @@ export const ROUTES = ROUTE_INFOS.map((r) => r.key);
 
 export const DEFAULT_MAINNET_RPCS = {
   ethereum: "https://rpc.ankr.com/eth",
-  solana: "https://api.mainnet-beta.solana.com",
+  solana: "https://solana-mainnet.rpc.extrnode.com",
   polygon: "https://rpc.ankr.com/polygon",
   bsc: "https://bscrpc.com",
   avalanche: "https://rpc.ankr.com/avalanche",
