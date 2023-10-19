@@ -202,8 +202,8 @@ export const TESTNET_CHAINS: ChainsConfig = {
   kujira: {
     ...chains.kujira!,
     displayName: 'Kujira',
-    explorerUrl: 'https://kujira.explorers.guru',
-    explorerName: 'Guru',
+    explorerUrl: 'https://finder.kujira.app/harpoon-4/',
+    explorerName: 'Kujira Finder',
     gasToken: 'KUJI',
     chainId: 'harpoon-4',
     icon: Icon.KUJI,
