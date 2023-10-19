@@ -266,7 +266,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     context: Context.COSMOS,
     contracts: {},
     finalityThreshold: 0,
-    nativeTokenDecimals: 6,
+    nativeTokenDecimals: 18,
   },
   kujira: {
     key: 'kujira',
