@@ -1,6 +1,7 @@
 import {
   CHAIN_ID_COSMOSHUB,
   CHAIN_ID_EVMOS,
+  CHAIN_ID_KUJIRA,
   CHAIN_ID_OSMOSIS,
   CHAIN_ID_WORMCHAIN,
 } from '@certusone/wormhole-sdk';
@@ -42,6 +43,7 @@ const GATEWAY_CHAINS: ChainId[] = [
   CHAIN_ID_EVMOS,
   CHAIN_ID_OSMOSIS,
   CHAIN_ID_WORMCHAIN,
+  CHAIN_ID_KUJIRA,
 ];
 
 export function isGatewayChain(chainId: ChainId): boolean {

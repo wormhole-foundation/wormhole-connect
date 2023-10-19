@@ -178,4 +178,15 @@ export const MAINNET_CHAINS: ChainsConfig = {
     automaticRelayer: false,
     maxBlockSearch: 0,
   },
+  kujira: {
+    ...chains.kujira!,
+    displayName: 'Kujira',
+    explorerUrl: 'https://finder.kujira.app/kaiyo-1/',
+    explorerName: 'Kujira Finder',
+    gasToken: 'KUJI',
+    chainId: 'kaiyo-1',
+    icon: Icon.KUJI,
+    automaticRelayer: false,
+    maxBlockSearch: 0,
+  },
 };

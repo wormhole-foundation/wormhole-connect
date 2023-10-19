@@ -199,4 +199,15 @@ export const TESTNET_CHAINS: ChainsConfig = {
     automaticRelayer: false,
     maxBlockSearch: 0,
   },
+  kujira: {
+    ...chains.kujira!,
+    displayName: 'Kujira',
+    explorerUrl: 'https://finder.kujira.app/harpoon-4/',
+    explorerName: 'Kujira Finder',
+    gasToken: 'KUJI',
+    chainId: 'harpoon-4',
+    icon: Icon.KUJI,
+    automaticRelayer: false,
+    maxBlockSearch: 0,
+  },
 };

@@ -43,6 +43,8 @@ Networks (`networks`):
 | aptos | aptos |
 | base | basegoerli |
 | osmosis | osmosis |
+| evmos | evmos |
+| kujira | kujira |
 
 <br>
 

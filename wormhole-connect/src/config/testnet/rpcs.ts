@@ -16,6 +16,7 @@ const {
   REACT_APP_WORMCHAIN_TESTNET_RPC,
   REACT_APP_EVMOS_TESTNET_RPC,
   REACT_APP_COSMOSHUB_TESTNET_RPC,
+  REACT_APP_KUJIRA_TESTNET_RPC,
   REACT_APP_SEI_REST,
   REACT_APP_EVMOS_REST,
 } = process.env;
@@ -45,6 +46,7 @@ export const TESTNET_RPC_MAPPING = {
   ),
   ...populateRpcField('cosmoshub', REACT_APP_COSMOSHUB_TESTNET_RPC),
   ...populateRpcField('evmos', REACT_APP_EVMOS_TESTNET_RPC),
+  ...populateRpcField('kujira', REACT_APP_KUJIRA_TESTNET_RPC),
 };
 
 export const TESTNET_REST_MAPPING = {

@@ -34,6 +34,7 @@ export enum Icon {
   'OPTIMISM',
   'ATOM',
   'EVMOS',
+  'KUJI',
 }
 
 export enum Route {
