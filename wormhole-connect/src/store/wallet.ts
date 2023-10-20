@@ -87,11 +87,12 @@ export const walletSlice = createSlice({
       const { type, error } = payload;
       state[type].error = error;
     },
-    setCurrentAddress: (
+    setAddress: (
       state: WalletState,
       { payload }: PayloadAction<{ type: TransferWallet; address: string }>,
     ) => {
       const { type, address } = payload;
+      state[type].address = address;
       state[type].currentAddress = address;
     },
     clearWallets: (state: WalletState) => {
@@ -121,7 +122,7 @@ export const {
   connectWallet,
   connectReceivingWallet,
   clearWallet,
-  setCurrentAddress,
+  setAddress,
   setWalletError,
   clearWallets,
   disconnectWallet,
