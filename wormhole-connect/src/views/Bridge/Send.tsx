@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Context } from '@wormhole-foundation/wormhole-connect-sdk';
-import { useTheme } from '@mui/material/styles';
 import { makeStyles } from 'tss-react/mui';
 
 import { CHAINS, TOKENS } from 'config';
@@ -19,8 +18,8 @@ import {
   switchChain,
   TransferWallet,
 } from 'utils/wallet';
-import { UnsignedMessage } from 'utils/routes';
-import RouteOperator from 'utils/routes/operator';
+import { UnsignedMessage } from 'routes';
+import RouteOperator from 'routes/operator';
 import { validate, isTransferValid } from 'utils/transferValidation';
 import {
   setSendingGasEst,
@@ -31,21 +30,13 @@ import {
 import Button from 'components/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 import AlertBanner from 'components/AlertBanner';
-import PoweredByIcon from 'icons/PoweredBy';
-import { isCosmWasmChain } from 'utils/cosmos';
+import { isGatewayChain } from 'utils/cosmos';
 import { estimateClaimGas, estimateSendGas } from 'utils/gas';
 import { validateSolanaTokenAccount } from '../../utils/transferValidation';
 
 const useStyles = makeStyles()((theme) => ({
   body: {
     width: '100%',
-  },
-  poweredBy: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: '8px',
-    marginTop: '24px',
   },
   tosDisclaimer: {
     display: 'flex',
@@ -62,7 +53,6 @@ const useStyles = makeStyles()((theme) => ({
 
 function Send(props: { valid: boolean }) {
   const { classes } = useStyles();
-  const theme = useTheme();
   const dispatch = useDispatch();
   const wallets = useSelector((state: RootState) => state.wallet);
   const { sending, receiving } = wallets;
@@ -104,11 +94,14 @@ function Send(props: { valid: boolean }) {
       const fromConfig = CHAINS[fromChain!];
       if (fromConfig?.context === Context.ETH) {
         registerWalletSigner(fromChain!, TransferWallet.SENDING);
-        const chainId = CHAINS[fromChain!]!.chainId;
+        const chainId = fromConfig.chainId;
         if (typeof chainId !== 'number') {
           throw new Error('invalid evm chain ID');
         }
         await switchChain(chainId, TransferWallet.SENDING);
+      }
+      if (fromConfig?.context === Context.COSMOS) {
+        await switchChain(fromConfig.chainId, TransferWallet.SENDING);
       }
 
       const tokenConfig = TOKENS[token]!;
@@ -217,7 +210,11 @@ function Send(props: { valid: boolean }) {
   const showWarning = useMemo(() => {
     if (!route) return false;
     const r = RouteOperator.getRoute(route);
-    return !(r.AUTOMATIC_DEPOSIT || (toChain && isCosmWasmChain(toChain)));
+    return !(
+      r.AUTOMATIC_DEPOSIT ||
+      (toChain && isGatewayChain(toChain)) ||
+      toChain === 'sei'
+    );
   }, [route, toChain]);
 
   return (
@@ -267,10 +264,6 @@ function Send(props: { valid: boolean }) {
           </Button>
         </>
       )}
-
-      <div className={classes.poweredBy}>
-        <PoweredByIcon color={theme.palette.text.primary} />
-      </div>
     </div>
   );
 }

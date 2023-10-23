@@ -8,6 +8,14 @@ export function stripHexPrefix(val: string) {
   return val.startsWith('0x') ? val.slice(2) : val;
 }
 
+export function chunkArray<T>(arr: T[], size: number): T[][] {
+  const chunks = [];
+  for (let i = 0; i < arr.length; i += size) {
+    chunks.push(arr.slice(i, i + size));
+  }
+  return chunks;
+}
+
 // (asset chain, asset address, foreign chain) => address
 type ForeignAssetCacheMap = Partial<
   Record<ChainName, Partial<Record<string, Partial<Record<ChainName, string>>>>>
@@ -38,3 +46,23 @@ export class ForeignAssetCache {
     this.cache[assetChain]![assetAddress]![foreignChain] = address;
   }
 }
+
+export const waitFor = (
+  condition: () => Promise<boolean>,
+  ms: number = 1000,
+  tries: number = 100,
+): Promise<void> => {
+  let count = 0;
+  return new Promise((resolve) => {
+    const interval = setInterval(async () => {
+      try {
+        if ((await condition()) || tries <= count) {
+          clearInterval(interval);
+          resolve();
+        }
+      } catch (e) {}
+
+      count++;
+    }, ms);
+  });
+};

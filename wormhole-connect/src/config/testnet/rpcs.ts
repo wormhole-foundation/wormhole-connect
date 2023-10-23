@@ -14,7 +14,11 @@ const {
   REACT_APP_BASE_GOERLI_RPC,
   REACT_APP_OSMOSIS_TESTNET_RPC,
   REACT_APP_WORMCHAIN_TESTNET_RPC,
+  REACT_APP_EVMOS_TESTNET_RPC,
+  REACT_APP_COSMOSHUB_TESTNET_RPC,
+  REACT_APP_KUJIRA_TESTNET_RPC,
   REACT_APP_SEI_REST,
+  REACT_APP_EVMOS_REST,
 } = process.env;
 
 export const TESTNET_RPC_MAPPING = {
@@ -40,8 +44,16 @@ export const TESTNET_RPC_MAPPING = {
     'optimismgoerli',
     process.env.REACT_APP_OPTIMISM_GOERLI_RPC,
   ),
+  ...populateRpcField('cosmoshub', REACT_APP_COSMOSHUB_TESTNET_RPC),
+  ...populateRpcField('evmos', REACT_APP_EVMOS_TESTNET_RPC),
+  ...populateRpcField('kujira', REACT_APP_KUJIRA_TESTNET_RPC),
 };
 
 export const TESTNET_REST_MAPPING = {
   ...populateRpcField('sei', REACT_APP_SEI_REST),
+  ...populateRpcField('evmos', REACT_APP_EVMOS_REST),
+};
+
+export const TESTNET_GRAPHQL_MAPPING = {
+  ...populateRpcField('aptos', process.env.REACT_APP_APTOS_TESTNET_GRAPHQL),
 };

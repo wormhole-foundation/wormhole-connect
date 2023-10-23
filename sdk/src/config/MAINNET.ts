@@ -21,6 +21,9 @@ export const MAINNET_CHAINS = {
   sei: 32,
   wormchain: 3104,
   osmosis: 20,
+  cosmoshub: 4000,
+  evmos: 4001,
+  kujira: 4002,
 } as const;
 
 /**
@@ -244,6 +247,30 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     finalityThreshold: 0,
     nativeTokenDecimals: 6,
   },
+  cosmoshub: {
+    key: 'cosmoshub',
+    id: 4000,
+    context: Context.COSMOS,
+    contracts: {},
+    finalityThreshold: 0,
+    nativeTokenDecimals: 6,
+  },
+  evmos: {
+    key: 'evmos',
+    id: 4001,
+    context: Context.COSMOS,
+    contracts: {},
+    finalityThreshold: 0,
+    nativeTokenDecimals: 18,
+  },
+  kujira: {
+    key: 'kujira',
+    id: 4002,
+    context: Context.COSMOS,
+    contracts: {},
+    finalityThreshold: 0,
+    nativeTokenDecimals: 6,
+  },
 };
 
 const env: Environment = 'MAINNET';
@@ -254,7 +281,7 @@ const MAINNET_CONFIG: WormholeConfig = {
   env,
   rpcs: {
     ethereum: 'https://rpc.ankr.com/eth',
-    solana: 'https://api.mainnet-beta.solana.com',
+    solana: 'https://solana-mainnet.rpc.extrnode.com',
     polygon: 'https://rpc.ankr.com/polygon',
     bsc: 'https://bscrpc.com',
     avalanche: 'https://rpc.ankr.com/avalanche',
@@ -263,15 +290,22 @@ const MAINNET_CONFIG: WormholeConfig = {
     moonbeam: 'https://rpc.ankr.com/moonbeam',
     sui: 'https://rpc.mainnet.sui.io',
     aptos: 'https://fullnode.mainnet.aptoslabs.com/v1',
-    arbitrum: 'https://arb1.arbitrum.io/rpc',
-    optimism: 'https://mainnet.optimism.io',
-    base: 'https://mainnet.base.org',
+    arbitrum: 'https://rpc.ankr.com/arbitrum',
+    optimism: 'https://rpc.ankr.com/optimism',
+    base: 'https://base.publicnode.com',
     sei: '', // TODO: fill in
     wormchain: '',
     osmosis: 'https://osmosis-rpc.polkachu.com',
+    cosmoshub: 'https://cosmos-rpc.polkachu.com',
+    evmos: 'https://evmos-rpc.polkachu.com',
+    kujira: 'https://kujira-rpc.polkachu.com',
   },
   rest: {
     sei: '',
+    evmos: 'https://evmos-api.polkachu.com',
+  },
+  graphql: {
+    aptos: 'https://indexer.mainnet.aptoslabs.com/v1/graphql',
   },
   chains: MAINNET,
   wormholeHosts: [

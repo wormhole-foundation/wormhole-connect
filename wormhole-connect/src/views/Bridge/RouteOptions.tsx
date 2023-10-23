@@ -7,7 +7,7 @@ import { RootState } from 'store';
 import { setAvailableRoutes, setTransferRoute } from 'store/transferInput';
 import { LINK, joinClass } from 'utils/style';
 import { toFixedDecimals } from 'utils/balance';
-import RouteOperator from 'utils/routes/operator';
+import RouteOperator from 'routes/operator';
 import { getDisplayName } from 'utils';
 import { TOKENS, ROUTES } from 'config';
 import { Route } from 'config/types';
@@ -17,7 +17,7 @@ import BridgeCollapse, { CollapseControlStyle } from './Collapse';
 import TokenIcon from 'icons/TokenIcons';
 import ArrowRightIcon from 'icons/ArrowRight';
 import Options from 'components/Options';
-import { isCosmWasmChain } from 'utils/cosmos';
+import { isGatewayChain } from 'utils/cosmos';
 
 const useStyles = makeStyles()((theme: any) => ({
   link: {
@@ -177,6 +177,13 @@ function RouteOption(props: { route: RouteData }) {
     return RouteOperator.getRoute(routeName);
   }, [routeName]);
 
+  const isAutomatic = useMemo(
+    () =>
+      route.AUTOMATIC_DEPOSIT ||
+      (toChain && (isGatewayChain(toChain) || toChain === 'sei')),
+    [route, toChain],
+  );
+
   return (
     fromTokenConfig &&
     toTokenConfig && (
@@ -185,8 +192,7 @@ function RouteOption(props: { route: RouteData }) {
           <div className={classes.routeTitle}>
             {props.route.name}
             {/* TODO: isAutomatic to route and use transfer parameters to decide */}
-            {route.AUTOMATIC_DEPOSIT ||
-            (toChain && isCosmWasmChain(toChain)) ? (
+            {isAutomatic ? (
               <Chip
                 label="One transaction"
                 color="success"

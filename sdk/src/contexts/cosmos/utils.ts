@@ -1,8 +1,9 @@
 import {
+  CHAIN_ID_COSMOSHUB,
+  CHAIN_ID_EVMOS,
+  CHAIN_ID_KUJIRA,
   CHAIN_ID_OSMOSIS,
-  CHAIN_ID_TERRA2,
   CHAIN_ID_WORMCHAIN,
-  isCosmWasmChain as isBaseCosmWasmChain,
 } from '@certusone/wormhole-sdk';
 import { logs as cosmosLogs } from '@cosmjs/stargate';
 import { ChainId } from '../../types';
@@ -16,10 +17,19 @@ export const searchCosmosLogs = (
   key: string,
   logs: readonly cosmosLogs.Log[],
 ): string | null => {
+  const parts = key.split('.');
+
+  // if event, search for the first attribute with the given key
+  const [event, attribute] =
+    parts.length > 1
+      ? [parts[0], parts.slice(1).join('.')]
+      : [undefined, parts[0]];
+
   for (const log of logs) {
     for (const ev of log.events) {
+      if (event && ev.type !== event) continue;
       for (const attr of ev.attributes) {
-        if (attr.key === key) {
+        if (attr.key === attribute) {
           return attr.value;
         }
       }
@@ -28,12 +38,14 @@ export const searchCosmosLogs = (
   return null;
 };
 
-const COSMOS_CHAINS: ChainId[] = [
-  CHAIN_ID_WORMCHAIN,
+const GATEWAY_CHAINS: ChainId[] = [
+  CHAIN_ID_COSMOSHUB,
+  CHAIN_ID_EVMOS,
   CHAIN_ID_OSMOSIS,
-  CHAIN_ID_TERRA2,
+  CHAIN_ID_WORMCHAIN,
+  CHAIN_ID_KUJIRA,
 ];
 
-export function isCosmWasmChain(chainId: ChainId): boolean {
-  return isBaseCosmWasmChain(chainId) || COSMOS_CHAINS.includes(chainId);
+export function isGatewayChain(chainId: ChainId): boolean {
+  return GATEWAY_CHAINS.includes(chainId);
 }

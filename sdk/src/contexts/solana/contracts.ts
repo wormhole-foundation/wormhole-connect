@@ -1,8 +1,8 @@
 import { Connection, clusterApiUrl } from '@solana/web3.js';
 import { Program } from '@project-serum/anchor';
-import { TokenBridge } from '@certusone/wormhole-sdk/lib/cjs/solana/types/tokenBridge';
-import { NftBridge } from '@certusone/wormhole-sdk/lib/cjs/solana/types/nftBridge';
-import { Wormhole } from '@certusone/wormhole-sdk/lib/cjs/solana/types/wormhole';
+import { TokenBridge } from '@certusone/wormhole-sdk/lib/esm/solana/types/tokenBridge';
+import { NftBridge } from '@certusone/wormhole-sdk/lib/esm/solana/types/nftBridge';
+import { Wormhole } from '@certusone/wormhole-sdk/lib/esm/solana/types/wormhole';
 
 import { ChainName, ChainId, Contracts, Context } from '../../types';
 import { ContractsAbstract } from '../abstracts/contracts';

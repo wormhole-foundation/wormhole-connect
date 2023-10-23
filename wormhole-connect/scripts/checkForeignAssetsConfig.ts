@@ -39,70 +39,78 @@ const checkEnvConfig = async (
   let recommendedUpdates: TokensConfig = {};
   const wh = new WormholeContext(env);
   for (const [tokenKey, tokenConfig] of Object.entries(tokensConfig)) {
-    for (const unTypedChain of Object.keys(chainsConfig)) {
-      const chain = unTypedChain as ChainName;
-      const configForeignAddress = tokenConfig.foreignAssets?.[chain];
-      if (chain === tokenConfig.nativeChain) {
-        if (configForeignAddress) {
-          throw new Error(
-            `❌ Invalid native chain in foreign assets detected! Env: ${env}, Key ${tokenKey}, Chain: ${chain}`,
-          );
-        }
-      } else if (tokenConfig.tokenId) {
-        let foreignAddress: string | null = null;
-        try {
-          foreignAddress = await wh.getForeignAsset(tokenConfig.tokenId, chain);
-        } catch (e: any) {
-          if (
-            e?.message === '3104 RPC not configured' ||
-            e?.message === 'wormchain RPC not configured'
-          ) {
-            // do not throw on wormchain errors
-          } else {
-            throw e;
-          }
-        }
-        if (foreignAddress) {
-          const foreignDecimals = await wh.fetchTokenDecimals(
-            tokenConfig.tokenId,
-            chain,
-          );
-          if (configForeignAddress) {
-            if (configForeignAddress.address !== foreignAddress) {
+    await Promise.all(
+      Object.keys(chainsConfig).map((unTypedChain) => {
+        return (async () => {
+          const chain = unTypedChain as ChainName;
+          const configForeignAddress = tokenConfig.foreignAssets?.[chain];
+          if (chain === tokenConfig.nativeChain) {
+            if (configForeignAddress) {
               throw new Error(
-                `❌ Invalid foreign address detected! Env: ${env}, Key: ${tokenKey}, Chain: ${chain}, Expected: ${foreignAddress}, Received: ${configForeignAddress.address}`,
+                `❌ Invalid native chain in foreign assets detected! Env: ${env}, Key ${tokenKey}, Chain: ${chain}`,
               );
-            } else if (configForeignAddress.decimals !== foreignDecimals) {
-              throw new Error(
-                `❌ Invalid foreign decimals detected! Env: ${env}, Key: ${tokenKey}, Chain: ${chain}, Expected: ${foreignDecimals}, Received: ${configForeignAddress.decimals}`,
-              );
-            } else {
-              // console.log('✅ Config matches');
             }
-          } else {
-            recommendedUpdates = {
-              ...recommendedUpdates,
-              [tokenKey]: {
-                ...(recommendedUpdates[tokenKey] || {}),
-                foreignAssets: {
-                  ...(recommendedUpdates[tokenKey]?.foreignAssets || {}),
-                  [chain]: {
-                    address: foreignAddress,
-                    decimals: foreignDecimals,
+          } else if (tokenConfig.tokenId) {
+            let foreignAddress: string | null = null;
+            try {
+              foreignAddress = await wh.getForeignAsset(
+                tokenConfig.tokenId,
+                chain,
+              );
+            } catch (e: any) {
+              if (
+                e?.message === '3104 RPC not configured' ||
+                e?.message === 'wormchain RPC not configured'
+              ) {
+                // do not throw on wormchain errors
+              } else {
+                throw e;
+              }
+            }
+            if (foreignAddress) {
+              const foreignDecimals = await wh.fetchTokenDecimals(
+                tokenConfig.tokenId,
+                chain,
+              );
+              if (configForeignAddress) {
+                if (configForeignAddress.address !== foreignAddress) {
+                  throw new Error(
+                    `❌ Invalid foreign address detected! Env: ${env}, Key: ${tokenKey}, Chain: ${chain}, Expected: ${foreignAddress}, Received: ${configForeignAddress.address}`,
+                  );
+                } else if (configForeignAddress.decimals !== foreignDecimals) {
+                  throw new Error(
+                    `❌ Invalid foreign decimals detected! Env: ${env}, Key: ${tokenKey}, Chain: ${chain}, Expected: ${foreignDecimals}, Received: ${configForeignAddress.decimals}`,
+                  );
+                } else {
+                  // console.log('✅ Config matches');
+                }
+              } else {
+                recommendedUpdates = {
+                  ...recommendedUpdates,
+                  [tokenKey]: {
+                    ...(recommendedUpdates[tokenKey] || {}),
+                    foreignAssets: {
+                      ...(recommendedUpdates[tokenKey]?.foreignAssets || {}),
+                      [chain]: {
+                        address: foreignAddress,
+                        decimals: foreignDecimals,
+                      },
+                    },
                   },
-                },
-              },
-            };
-            // console.warn(
-            //   '⚠️ Update available:',
-            //   tokenKey,
-            //   chain,
-            //   foreignAddress,
-            // );
+                };
+                // console.warn(
+                //   '⚠️ Update available:',
+                //   tokenKey,
+                //   chain,
+                //   foreignAddress,
+                // );
+              }
+            }
           }
-        }
-      }
-    }
+        })();
+      }),
+    );
+    await new Promise((resolve) => setTimeout(resolve, 100));
   }
   const numUpdatesAvaialable = Object.keys(recommendedUpdates).length;
   if (numUpdatesAvaialable > 0) {

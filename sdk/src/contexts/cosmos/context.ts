@@ -1,20 +1,23 @@
 import {
-  CHAIN_ID_OSMOSIS,
-  CHAIN_ID_SEI,
   CHAIN_ID_WORMCHAIN,
+  CosmWasmChainId,
+  WormholeWrappedInfo,
   cosmos,
+  hexToUint8Array,
+  isNativeCosmWasmDenom,
   parseTokenTransferPayload,
   parseVaa,
 } from '@certusone/wormhole-sdk';
 import { CosmWasmClient } from '@cosmjs/cosmwasm-stargate';
 import { EncodeObject, decodeTxRaw } from '@cosmjs/proto-signing';
 import {
+  BankExtension,
   Coin,
   IbcExtension,
   QueryClient,
-  StdFee,
   calculateFee,
   logs as cosmosLogs,
+  setupBankExtension,
   setupIbcExtension,
 } from '@cosmjs/stargate';
 import { MsgExecuteContract } from 'cosmjs-types/cosmwasm/wasm/v1/tx';
@@ -41,35 +44,15 @@ import {
 import { WormholeContext } from '../../wormhole';
 import { TokenBridgeAbstract } from '../abstracts/tokenBridge';
 import { CosmosContracts } from './contracts';
-import { isCosmWasmChain, searchCosmosLogs } from './utils';
-import { ForeignAssetCache } from '../../utils';
+import { isGatewayChain, searchCosmosLogs } from './utils';
+import { ForeignAssetCache, waitFor } from '../../utils';
 import {
   Tendermint34Client,
   Tendermint37Client,
   TendermintClient,
 } from '@cosmjs/tendermint-rpc';
-
-export interface CosmosTransaction {
-  fee: StdFee | 'auto' | number;
-  msgs: EncodeObject[];
-  memo: string;
-}
-
-interface WrappedRegistryResponse {
-  address: string;
-}
-
-const NATIVE_DENOMS: Record<string, string> = {
-  osmosis: 'uosmo',
-  wormchain: 'uworm',
-  terra2: 'uluna',
-};
-
-const PREFIXES: Record<string, string> = {
-  osmosis: 'osmo',
-  wormchain: 'wormchain',
-  terra2: 'terra',
-};
+import { getNativeDenom, getPrefix, isNativeDenom } from './denom';
+import { CosmosTransaction, WrappedRegistryResponse } from './types';
 
 const MSG_EXECUTE_CONTRACT_TYPE_URL = '/cosmwasm.wasm.v1.MsgExecuteContract';
 const buildExecuteMsg = (
@@ -97,6 +80,7 @@ export class CosmosContext<
   readonly context: T;
   readonly chain: ChainName;
 
+  private static FETCHING_TM_CLIENT = false;
   private static CLIENT_MAP: Record<string, TendermintClient> = {};
   private foreignAssetCache: ForeignAssetCache;
 
@@ -167,8 +151,7 @@ export class CosmosContext<
   }
 
   parseAddress(address: any): string {
-    const prefix = PREFIXES[this.chain];
-    if (!prefix) throw new Error(`Prefix not found for chain ${this.chain}`);
+    const prefix = getPrefix(this.chain);
 
     const addr =
       typeof address === 'string' && address.startsWith('0x')
@@ -181,17 +164,17 @@ export class CosmosContext<
     return Buffer.from(this.buildTokenId(address), 'hex');
   }
 
-  private buildTokenId(address: string): string {
-    const isNative = !!NATIVE_DENOMS[address];
+  private buildTokenId(asset: string): string {
+    const chainId = this.context.toChainId(this.chain) as CosmWasmChainId;
+    const isNative = isNativeCosmWasmDenom(chainId, asset);
     return (
       (isNative ? '01' : '00') +
-      keccak256(Buffer.from(address, 'utf-8')).substring(4)
+      keccak256(Buffer.from(asset, 'utf-8')).substring(4)
     );
   }
 
   async parseAssetAddress(address: any): Promise<string> {
-    const prefix = PREFIXES[this.chain];
-    if (!prefix) throw new Error(`Prefix not found for chain ${this.chain}`);
+    const prefix = getPrefix(this.chain);
 
     const addr =
       typeof address === 'string' && address.startsWith('0x')
@@ -204,9 +187,29 @@ export class CosmosContext<
     tokenId: TokenId,
     chain: ChainId | ChainName,
   ): Promise<string | null> {
-    return this.context.toChainId(chain) === CHAIN_ID_WORMCHAIN
-      ? this.getWhForeignAsset(tokenId, chain)
-      : this.getGatewayForeignAsset(tokenId, chain);
+    const chainName = this.context.toChainName(chain);
+    if (this.foreignAssetCache.get(tokenId.chain, tokenId.address, chainName)) {
+      return this.foreignAssetCache.get(
+        tokenId.chain,
+        tokenId.address,
+        chainName,
+      )!;
+    }
+
+    const address =
+      this.context.toChainId(chain) === CHAIN_ID_WORMCHAIN
+        ? await this.getWhForeignAsset(tokenId, chain)
+        : await this.getGatewayForeignAsset(tokenId, chain);
+
+    if (!address) return null;
+    this.foreignAssetCache.set(
+      tokenId.chain,
+      tokenId.address,
+      chainName,
+      address,
+    );
+
+    return address;
   }
 
   async getGatewayForeignAsset(
@@ -263,7 +266,8 @@ export class CosmosContext<
 
   async getIbcSourceChannel(chain: ChainId | ChainName): Promise<string> {
     const id = this.context.toChainId(chain);
-    if (!isCosmWasmChain(id)) throw new Error('Chain is not cosmos chain');
+    if (!isGatewayChain(id))
+      throw new Error(`Chain ${chain} is not a gateway chain`);
     const client = await this.getCosmWasmClient(CHAIN_ID_WORMCHAIN);
     const { channel } = await client.queryContractSmart(
       this.getTranslatorAddress(),
@@ -277,32 +281,14 @@ export class CosmosContext<
   }
 
   private isNativeDenom(denom: string, chain: ChainName | ChainId): boolean {
-    const chainId = this.context.toChainId(chain);
-    switch (chainId) {
-      case CHAIN_ID_SEI:
-        return denom === 'usei';
-      case CHAIN_ID_WORMCHAIN:
-        return denom === 'uworm';
-      case CHAIN_ID_OSMOSIS:
-        return denom === 'uosmo';
-      default:
-        return false;
-    }
+    const chainName = this.context.toChainName(chain);
+    return isNativeDenom(denom, chainName);
   }
 
   async getWhForeignAsset(
     tokenId: TokenId,
     chain: ChainName | ChainId,
   ): Promise<string | null> {
-    const chainName = this.context.toChainName(chain);
-    if (this.foreignAssetCache.get(tokenId.chain, tokenId.address, chainName)) {
-      return this.foreignAssetCache.get(
-        tokenId.chain,
-        tokenId.address,
-        chainName,
-      )!;
-    }
-
     const toChainId = this.context.toChainId(chain);
     const chainId = this.context.toChainId(tokenId.chain);
     if (toChainId === chainId) return tokenId.address;
@@ -324,13 +310,6 @@ export class CosmosContext<
             address: base64Addr,
           },
         });
-
-      this.foreignAssetCache.set(
-        tokenId.chain,
-        tokenId.address,
-        chainName,
-        address,
-      );
 
       return address;
     } catch (e) {
@@ -356,7 +335,7 @@ export class CosmosContext<
     const client = await this.getCosmWasmClient(name);
     const { amount } = await client.getBalance(
       walletAddress,
-      asset || NATIVE_DENOMS[name],
+      asset || getNativeDenom(name, this.context.conf.env),
     );
     return BigNumber.from(amount);
   }
@@ -379,28 +358,14 @@ export class CosmosContext<
     const assetAddresses = await Promise.all(
       tokenIds.map((tokenId) => this.getForeignAsset(tokenId, chain)),
     );
-    return await Promise.all(
-      assetAddresses.map((assetAddress) =>
-        !assetAddress
-          ? Promise.resolve(null)
-          : this.getNativeBalance(walletAddress, chain, assetAddress),
-      ),
-    );
-  }
-
-  private getNativeDenom(chain: ChainName | ChainId): string {
-    const name = this.context.toChainName(chain);
-    const denom = NATIVE_DENOMS[name];
-    if (!denom)
-      throw new Error(`Native denomination not found for chain ${chain}`);
-    return denom;
-  }
-
-  private getPrefix(chain: ChainName | ChainId): string {
-    const name = this.context.toChainName(chain);
-    const prefix = PREFIXES[name];
-    if (!prefix) throw new Error(`Prefix not found for chain ${chain}`);
-    return prefix;
+    const client = await this.getQueryClient(chain);
+    const balances = await client.bank.allBalances(walletAddress);
+    return assetAddresses.map((assetAddress) => {
+      const balance = balances.find(
+        (balance) => balance.denom === assetAddress,
+      );
+      return balance ? BigNumber.from(balance.amount) : null;
+    });
   }
 
   async redeem(
@@ -413,8 +378,8 @@ export class CosmosContext<
     const vaa = parseVaa(signedVAA);
     const transfer = parseTokenTransferPayload(vaa.payload);
 
-    const denom = this.getNativeDenom(chainName);
-    const prefix = this.getPrefix(chainName);
+    const denom = getNativeDenom(chainName, this.context.conf.env);
+    const prefix = getPrefix(chainName);
 
     // transfer to comes as a 32 byte array, but cosmos addresses are 20 bytes
     const recipient = cosmos.humanAddress(prefix, transfer.to.slice(12));
@@ -460,7 +425,11 @@ export class CosmosContext<
     tokenAddr: string,
     chain: ChainName | ChainId,
   ): Promise<number> {
-    if (tokenAddr === this.getNativeDenom(chain)) return 6;
+    if (
+      tokenAddr ===
+      getNativeDenom(this.context.toChainName(chain), this.context.conf.env)
+    )
+      return 6;
     const client = await this.getCosmWasmClient(chain);
     const { decimals } = await client.queryContractSmart(tokenAddr, {
       token_info: {},
@@ -480,15 +449,15 @@ export class CosmosContext<
     const logs = cosmosLogs.parseRawLog(tx.rawLog);
 
     // extract information wormhole contract logs
-    // - message.message: the vaa payload (i.e. the transfer information)
-    // - message.sequence: the vaa's sequence number
-    // - message.sender: the vaa's emitter address
-    const tokenTransferPayload = searchCosmosLogs('message.message', logs);
+    // - wasm.message.message: the vaa payload (i.e. the transfer information)
+    // - wasm.message.sequence: the vaa's sequence number
+    // - wasm.message.sender: the vaa's emitter address
+    const tokenTransferPayload = searchCosmosLogs('wasm.message.message', logs);
     if (!tokenTransferPayload)
       throw new Error('message/transfer payload not found');
-    const sequence = searchCosmosLogs('message.sequence', logs);
+    const sequence = searchCosmosLogs('wasm.message.sequence', logs);
     if (!sequence) throw new Error('sequence not found');
-    const emitterAddress = searchCosmosLogs('message.sender', logs);
+    const emitterAddress = searchCosmosLogs('wasm.message.sender', logs);
     if (!emitterAddress) throw new Error('emitter not found');
 
     const parsed = parseTokenTransferPayload(
@@ -543,14 +512,20 @@ export class CosmosContext<
 
   private async getQueryClient(
     chain: ChainId | ChainName,
-  ): Promise<QueryClient & IbcExtension> {
+  ): Promise<QueryClient & BankExtension & IbcExtension> {
     const tmClient = await this.getTmClient(chain);
-    return QueryClient.withExtensions(tmClient, setupIbcExtension);
+    return QueryClient.withExtensions(
+      tmClient,
+      setupBankExtension,
+      setupIbcExtension,
+    );
   }
 
   private async getTmClient(
     chain: ChainId | ChainName,
   ): Promise<Tendermint34Client | Tendermint37Client> {
+    await waitFor(async () => CosmosContext.FETCHING_TM_CLIENT === false);
+
     const name = this.context.toChainName(chain);
     if (CosmosContext.CLIENT_MAP[name]) {
       return CosmosContext.CLIENT_MAP[name];
@@ -558,6 +533,8 @@ export class CosmosContext<
 
     const rpc = this.context.conf.rpcs[name];
     if (!rpc) throw new Error(`${chain} RPC not configured`);
+
+    CosmosContext.FETCHING_TM_CLIENT = true;
 
     // from cosmjs: https://github.com/cosmos/cosmjs/blob/358260bff71c9d3e7ad6644fcf64dc00325cdfb9/packages/stargate/src/stargateclient.ts#L218
     let tmClient: TendermintClient;
@@ -571,6 +548,7 @@ export class CosmosContext<
     }
 
     CosmosContext.CLIENT_MAP[name] = tmClient;
+    CosmosContext.FETCHING_TM_CLIENT = false;
 
     return tmClient;
   }
@@ -593,5 +571,41 @@ export class CosmosContext<
   async getCurrentBlock(): Promise<number> {
     const client = await this.getCosmWasmClient(this.chain);
     return client.getHeight();
+  }
+
+  async getOriginalAsset(
+    chain: ChainName | ChainId,
+    wrappedAddress: string,
+  ): Promise<WormholeWrappedInfo> {
+    const chainId = this.context.toChainId(chain) as CosmWasmChainId;
+    // need to cast to ChainId since Terra (chain id 3) is not on wh connect
+    if (!isGatewayChain(chainId as ChainId)) {
+      throw new Error(`${chain} is not a cosmos chain`);
+    }
+    if (isNativeCosmWasmDenom(chainId, wrappedAddress)) {
+      return {
+        isWrapped: false,
+        chainId,
+        assetAddress: hexToUint8Array(this.buildTokenId(wrappedAddress)),
+      };
+    }
+    try {
+      const client = await this.getCosmWasmClient(chain);
+      const response = await client.queryContractSmart(wrappedAddress, {
+        wrapped_asset_info: {},
+      });
+      return {
+        isWrapped: true,
+        chainId: response.asset_chain,
+        assetAddress: new Uint8Array(
+          Buffer.from(response.asset_address, 'base64'),
+        ),
+      };
+    } catch {}
+    return {
+      isWrapped: false,
+      chainId: chainId,
+      assetAddress: hexToUint8Array(this.buildTokenId(wrappedAddress)),
+    };
   }
 }

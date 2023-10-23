@@ -4,7 +4,8 @@ Integration does not get easier than this. Wormhole Connect is an easy seamless 
 
 ## Integrate with script/link tags
 
-> IMPORTANT! For the best performance and functionality, you should provide your own custom rpc endpoints for each supported network.
+> We recommend that you configure your own custom RPC endpoints for each used network for the best performance. The default public RPCs may be throttled or rate limited.  
+
 > Osmosis support is in beta, reach out to a Wormhole contributor for early access.
 
 ### 1. (Optional) Create a JSON config with customized values:
@@ -42,6 +43,8 @@ Networks (`networks`):
 | aptos | aptos |
 | base | basegoerli |
 | osmosis | osmosis |
+| evmos | evmos |
+| kujira | kujira |
 
 <br>
 
@@ -170,7 +173,7 @@ const config: WormholeConnectConfig = {
   env: "mainnet",
   networks: ["ethereum", "polygon", "solana"],
   tokens: ["ETH", "WETH", "MATIC", "WMATIC"],
-  rpc: {
+  rpcs: {
     ethereum: "https://rpc.ankr.com/eth",
     solana: "https://rpc.ankr.com/solana",
   },

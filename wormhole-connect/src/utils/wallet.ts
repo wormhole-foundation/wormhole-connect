@@ -2,6 +2,7 @@ import {
   AptosContext,
   ChainId,
   ChainName,
+  ChainResourceMap,
   Context,
   WormholeContext,
   SendResult,
@@ -19,6 +20,7 @@ import {
   CosmosWallet,
   getWallets as getCosmosWallets,
 } from '@xlabs-libs/wallet-aggregator-cosmos';
+import { getWallets as getCosmosEvmWallets } from '@xlabs-libs/wallet-aggregator-cosmos-evm';
 import {
   PhantomWalletAdapter,
   SolflareWalletAdapter,
@@ -58,7 +60,7 @@ import { AptosWallet } from '@xlabs-libs/wallet-aggregator-aptos';
 import { Types } from 'aptos';
 
 import { wh } from './sdk';
-import { CHAINS, CHAINS_ARR, ENV, RPCS, isMainnet } from 'config';
+import { CHAINS, CHAINS_ARR, ENV, REST, RPCS, isMainnet } from 'config';
 import { getChainByChainId } from 'utils';
 
 export enum TransferWallet {
@@ -81,16 +83,24 @@ let walletConnection = {
 const tag = ENV === 'MAINNET' ? 'mainnet-beta' : 'devnet';
 const connection = new SolanaConnection(RPCS.solana || clusterApiUrl(tag));
 
-const buildCosmosWallets = () => {
-  const rpcs = Object.keys(RPCS).reduce((acc, k) => {
-    const conf = CHAINS[k as ChainName];
-    if (conf?.chainId && conf?.context === Context.COSMOS) {
-      acc[conf.chainId] = RPCS[k as ChainName]!;
-    }
-    return acc;
-  }, {} as Record<string, string>);
+const buildCosmosWallets = (evm?: boolean) => {
+  const prepareMap = (map: ChainResourceMap) =>
+    Object.keys(map).reduce((acc, k) => {
+      const conf = CHAINS[k as ChainName];
+      if (conf?.chainId && conf?.context === Context.COSMOS) {
+        acc[conf.chainId] = map[k as ChainName]!;
+      }
+      return acc;
+    }, {} as Record<string, string>);
 
-  return getCosmosWallets(rpcs).reduce((acc, w) => {
+  const rpcs = prepareMap(RPCS);
+  const rests = prepareMap(REST);
+
+  const wallets: CosmosWallet[] = evm
+    ? (getCosmosEvmWallets(rpcs, rests) as any[] as CosmosWallet[])
+    : getCosmosWallets(rpcs, rests);
+
+  return wallets.reduce((acc, w: CosmosWallet) => {
     acc[w.getName()] = w;
     return acc;
   }, {} as Record<string, Wallet>);
@@ -133,6 +143,7 @@ export const wallets = {
     bitkeep: new AptosWallet(new BitkeepWalletAdapter()),
   },
   cosmos: buildCosmosWallets(),
+  cosmosEvm: buildCosmosWallets(true),
 };
 
 export const walletAcceptedChains = (
@@ -163,7 +174,10 @@ export const registerWalletSigner = (
   wh.registerSigner(chain, signer);
 };
 
-export const switchChain = async (chainId: number, type: TransferWallet) => {
+export const switchChain = async (
+  chainId: number | string,
+  type: TransferWallet,
+): Promise<string | undefined> => {
   const w: Wallet = walletConnection[type]! as any;
   if (!w) throw new Error('must connect wallet');
 
@@ -173,12 +187,16 @@ export const switchChain = async (chainId: number, type: TransferWallet) => {
   if (config.context === Context.ETH) {
     try {
       // some wallets may not support chain switching
-      await (w as EVMWallet).switchChain(chainId);
+      await (w as EVMWallet).switchChain(chainId as number);
     } catch (e) {
       if (e instanceof NotSupported) return;
       throw e;
     }
   }
+  if (config.context === Context.COSMOS) {
+    await (w as CosmosWallet).switchChain(chainId as string);
+  }
+  return w.getAddress();
 };
 
 export const disconnect = async (type: TransferWallet) => {

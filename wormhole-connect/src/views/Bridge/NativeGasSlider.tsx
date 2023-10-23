@@ -1,6 +1,6 @@
 import Slider, { SliderThumb } from '@mui/material/Slider';
 import { styled } from '@mui/material/styles';
-import { BigNumber, utils } from 'ethers';
+import { utils } from 'ethers';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
@@ -12,7 +12,7 @@ import { RoutesConfig } from 'config/routes';
 import { getTokenDecimals, getDisplayName } from 'utils';
 import { wh } from 'utils/sdk';
 import { getConversion, toDecimals, toFixedDecimals } from 'utils/balance';
-import RouteOperator from 'utils/routes/operator';
+import RouteOperator from 'routes/operator';
 import { RootState } from 'store';
 import { setTransferRoute } from 'store/transferInput';
 import {
@@ -88,6 +88,7 @@ function formatAmount(amount?: number): number {
 
 const INITIAL_STATE = {
   disabled: false,
+  min: 0,
   max: 0,
   nativeGas: 0,
   token: formatAmount(),
@@ -137,7 +138,7 @@ function GasSlider(props: { disabled: boolean }) {
     if (actualMaxSwap) {
       // address the bug that the swapAmount='maxSwapAmount' results in a 'minimumSendAmount'
       // that could be higher than 'amount' (due to the buffer packed into minimumSendAmount)
-      // not a perfect fix for all posible 'getMinSendAmount' functions - but valid for linear ones
+      // not a perfect fix for all possible 'getMinSendAmount' functions - but valid for linear ones
       //
       // For example, if 'amount' is 1.1, and relayerFee is 1, then 'amountNum' (the receive amount) is
       // 0.1, and 'actualMaxSwap' is 0.1.
@@ -178,18 +179,23 @@ function GasSlider(props: { disabled: boolean }) {
       !RouteOperator.getRoute(route).NATIVE_GAS_DROPOFF_SUPPORTED ||
       !receivingWallet.address ||
       !receivingToken
-    )
+    ) {
       return;
+    }
 
-    const tokenId = receivingToken.tokenId!;
-    RouteOperator.maxSwapAmount(
-      route,
-      toChain,
-      tokenId,
-      receivingWallet.address,
-    )
-      .then((res: BigNumber) => {
-        if (!res) {
+    let cancelled = false;
+    (async () => {
+      const tokenId = receivingToken.tokenId!;
+
+      try {
+        const maxSwapAmount = await RouteOperator.maxSwapAmount(
+          route,
+          toChain,
+          tokenId,
+          receivingWallet.address,
+        );
+        if (cancelled) return;
+        if (!maxSwapAmount) {
           dispatch(setMaxSwapAmt(undefined));
           return;
         }
@@ -197,11 +203,11 @@ function GasSlider(props: { disabled: boolean }) {
           wh.toChainId(toChain),
           tokenId,
         );
-        const amt = toDecimals(res, toChainDecimals, 6);
+        const amt = toDecimals(maxSwapAmount, toChainDecimals, 6);
         dispatch(setMaxSwapAmt(Number.parseFloat(amt)));
-      })
-      .catch((e) => {
-        if (e.message.includes('swap rate not set')) {
+      } catch (e: any) {
+        if (cancelled) return;
+        if (e.message?.includes('swap rate not set')) {
           if (route === Route.CCTPRelay) {
             dispatch(setTransferRoute(Route.CCTPManual));
           } else {
@@ -210,13 +216,32 @@ function GasSlider(props: { disabled: boolean }) {
         } else {
           throw e;
         }
-      });
+      }
 
-    // get conversion rate of token
-    const { gasToken } = CHAINS[toChain]!;
-    getConversion(token, gasToken).then((res: number) => {
-      setState((prevState) => ({ ...prevState, conversionRate: res }));
-    });
+      // get conversion rate of token
+      const { gasToken } = CHAINS[toChain]!;
+      const conversionRate = await getConversion(token, gasToken);
+      if (cancelled) return;
+      const minNative = await RouteOperator.minSwapAmountNative(
+        route,
+        toChain,
+        tokenId,
+        receivingWallet.address,
+      );
+      const minNativeAdjusted = Number.parseFloat(
+        toDecimals(
+          minNative,
+          getTokenDecimals(wh.toChainId(toChain), 'native'),
+        ),
+      );
+      if (cancelled) return;
+      const min = conversionRate ? minNativeAdjusted / conversionRate : 0;
+      setState((prevState) => ({ ...prevState, conversionRate, min }));
+    })();
+
+    return () => {
+      cancelled = true;
+    };
   }, [
     sendingToken,
     receivingToken,
@@ -255,9 +280,10 @@ function GasSlider(props: { disabled: boolean }) {
   // compute amounts on change
   const handleChange = (e: any) => {
     if (!amountNum || !state.conversionRate) return;
-    const newGasAmount = e.target.value * state.conversionRate;
-    const newTokenAmount = amountNum - e.target.value;
-    const swapAmount = e.target.value;
+    const value = e.target.value < state.min ? 0 : e.target.value;
+    const newGasAmount = value * state.conversionRate;
+    const newTokenAmount = amountNum - value;
+    const swapAmount = value;
     const conversion = {
       nativeGas: formatAmount(newGasAmount),
       token: formatAmount(newTokenAmount),
@@ -368,6 +394,9 @@ function GasSlider(props: { disabled: boolean }) {
                 }
                 valueLabelDisplay="auto"
                 onChange={handleChange}
+                marks={
+                  state.min ? [{ value: state.min, label: 'Min' }] : undefined
+                }
               />
               <div className={classes.amounts}>
                 <div className={classes.amountDisplay}>

@@ -20,7 +20,9 @@ import {
   DialogTitle,
   Divider,
   Drawer,
+  FormControl,
   FormControlLabel,
+  FormLabel,
   Grid,
   IconButton,
   ListItemText,
@@ -48,15 +50,30 @@ import WormholeBridge, {
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDebounce } from "use-debounce";
 import Background from "./Background";
-import { copyTextToClipboard } from "./utils";
+import ColorPicker from "./components/ColorPicker";
+import RouteCard from "./components/RouteCard";
 import {
   DEFAULT_MAINNET_RPCS,
   DEFAULT_TESTNET_RPCS,
   MAINNET_TOKEN_KEYS,
   NETWORKS,
-  ROUTES,
+  ROUTE_INFOS,
   TESTNET_TOKEN_KEYS,
 } from "./consts";
+import {
+  copyTextToClipboard,
+  getObjectPath,
+  setObjectPathImmutable,
+} from "./utils";
+
+const version = "0.1.2";
+// generated with https://www.srihash.org/
+const versionScriptIntegrity =
+  "sha384-nhHnv/RrHd814OnnzSvh+jikOAPOcTYqEjnEMfmXMqivORZ6pXEOQu1zY1tX+AjX";
+const versionLinkIntegrity =
+  "sha384-KGZI5sQxWDSIe8Xzhvu4eO0fi8KYtEmDnYS2Qn5xrtw667xfxFINL3uN48d/djuY";
+const nonBreakingTag = "latest-v0.1";
+const latestTag = "latest";
 
 // registerRpcProvider throws on invalid RPCs
 const isValidRpc = (rpc?: string) =>
@@ -197,7 +214,7 @@ function App() {
   const customTheme =
     _customTheme === undefined ? undefined : debouncedCustomTheme;
   const [customThemeText, setCustomThemeText] = useState(defaultThemeJSON);
-  const [customThemeError, setCustomThemeError] = useState<boolean>(false);
+  // const [customThemeError, setCustomThemeError] = useState<boolean>(false);
   const handleModeChange = useCallback(
     (e: any, value: string) => {
       if (value === "dark" || value === "light") {
@@ -212,15 +229,24 @@ function App() {
     },
     [customThemeText]
   );
-  const handleThemeChange = useCallback((e: any) => {
-    try {
-      const str = e.target.value;
-      setCustomThemeText(str);
-      setCustomTheme(JSON.parse(str));
-      setCustomThemeError(false);
-    } catch (e) {
-      setCustomThemeError(true);
-    }
+  // const handleThemeChange = useCallback((e: any) => {
+  //   try {
+  //     const str = e.target.value;
+  //     setCustomThemeText(str);
+  //     setCustomTheme(JSON.parse(str));
+  //     setCustomThemeError(false);
+  //   } catch (e) {
+  //     setCustomThemeError(true);
+  //   }
+  // }, []);
+  const handleFontChange = useCallback((e: any) => {
+    setCustomTheme((prevState) =>
+      setObjectPathImmutable(
+        prevState || customized,
+        `font.${e.target.name}`,
+        e.target.value
+      )
+    );
   }, []);
   // END THEME
   // BEGIN ROUTES
@@ -231,13 +257,6 @@ function App() {
   }, []);
   const handleNoneRoutes = useCallback(() => {
     setRoutes([]);
-  }, []);
-  const handleRoutesChange = useCallback((e: any) => {
-    setRoutes(
-      typeof e.target.value === "string"
-        ? e.target.value.split(",").sort()
-        : e.target.value.sort()
-    );
   }, []);
   // END ROUTES
   // BEGIN ENV
@@ -410,7 +429,7 @@ function App() {
     setMode("dark");
     setCustomTheme(undefined);
     setCustomThemeText(defaultThemeJSON);
-    setCustomThemeError(false);
+    // setCustomThemeError(false);
     setFontHref("");
     setDefaultFromNetwork(undefined);
     setDefaultToNetwork(undefined);
@@ -481,23 +500,35 @@ function App() {
       pageHeader,
     ]
   );
-  // TODO: pull latest version from npm / offer pinning, tag, or latest
-  const version = "0.1.1";
+  const [versionOrTag, setVersionOrTag] = useState<string>(version);
+  const handleVersionOrTagChange = useCallback((e: any, value: string) => {
+    setVersionOrTag(value);
+  }, []);
   const [htmlCode, jsxCode] = useMemo(() => {
     const realConfig = { ...config, env, rpcs, networks, tokens };
     const realConfigString = JSON.stringify(realConfig);
     return [
       `<div id="wormhole-connect" config='${realConfigString}' /></div>
-<script src="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@${version}/dist/main.js"></script>
-<link src="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@${version}/dist/main.css"/>`,
+<script src="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@${versionOrTag}/dist/main.js"${
+        versionOrTag === version
+          ? ` integrity="${versionScriptIntegrity}" crossorigin="anonymous"`
+          : ""
+      }></script>
+<link rel="stylesheet" href="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@${versionOrTag}/dist/main.css"${
+        versionOrTag === version
+          ? ` integrity="${versionLinkIntegrity}" crossorigin="anonymous"`
+          : ""
+      }/>`,
       `import WormholeBridge from '@wormhole-foundation/wormhole-connect';
 function App() {
   return (
-    <WormholeBridge config={${realConfigString}} />
+    <WormholeBridge config={${realConfigString}} ${
+        versionOrTag === version ? "" : ` versionOrTag="${versionOrTag}"`
+      }/>
   );
 }`,
     ];
-  }, [config, env, rpcs, networks, tokens]);
+  }, [config, env, rpcs, networks, tokens, versionOrTag]);
   const [openCopySnack, setOpenCopySnack] = useState<boolean>(false);
   const handleCopySnackClose = useCallback(() => {
     setOpenCopySnack(false);
@@ -643,13 +674,164 @@ function App() {
                 </RadioGroup>
                 {mode === undefined ? (
                   <>
-                    <TextField
+                    <Typography variant="h5" component="h2" mt={1.5} mb={2}>
+                      Backgrounds
+                    </Typography>
+                    <Box display="flex" alignItems="center">
+                      <Typography
+                        sx={{ width: 80, marginRight: 1 }}
+                        gutterBottom
+                      >
+                        Widget
+                      </Typography>
+                      <ColorPicker
+                        customTheme={_customTheme}
+                        setCustomTheme={setCustomTheme}
+                        path="background.default"
+                        defaultTheme={customized}
+                      />
+                    </Box>
+                    <Box display="flex" alignItems="center">
+                      <Typography
+                        sx={{ width: 80, marginRight: 1 }}
+                        gutterBottom
+                      >
+                        Modal
+                      </Typography>
+                      <ColorPicker
+                        customTheme={_customTheme}
+                        setCustomTheme={setCustomTheme}
+                        path="modal.background"
+                        defaultTheme={customized}
+                      />
+                    </Box>
+                    <Box display="flex" alignItems="center">
+                      <Typography
+                        sx={{ width: 80, marginRight: 1 }}
+                        gutterBottom
+                      >
+                        Card
+                      </Typography>
+                      <ColorPicker
+                        customTheme={_customTheme}
+                        setCustomTheme={setCustomTheme}
+                        path="card.background"
+                        defaultTheme={customized}
+                      />
+                    </Box>
+                    <Box display="flex" alignItems="center">
+                      <Typography
+                        sx={{ width: 80, marginRight: 1 }}
+                        gutterBottom
+                      >
+                        Button
+                      </Typography>
+                      <ColorPicker
+                        customTheme={_customTheme}
+                        setCustomTheme={setCustomTheme}
+                        path="button.primary"
+                        defaultTheme={customized}
+                      />
+                    </Box>
+                    <Box display="flex" alignItems="center">
+                      <Typography
+                        sx={{ width: 80, marginRight: 1 }}
+                        gutterBottom
+                      >
+                        Action
+                      </Typography>
+                      <ColorPicker
+                        customTheme={_customTheme}
+                        setCustomTheme={setCustomTheme}
+                        path="button.action"
+                        defaultTheme={customized}
+                      />
+                    </Box>
+                    <Typography variant="h5" component="h2" mt={1.5} mb={2}>
+                      Text
+                    </Typography>
+                    <Box display="flex" alignItems="center">
+                      <Typography
+                        sx={{ width: 80, marginRight: 1 }}
+                        gutterBottom
+                      >
+                        Primary
+                      </Typography>
+                      <ColorPicker
+                        customTheme={_customTheme}
+                        setCustomTheme={setCustomTheme}
+                        path="text.primary"
+                        defaultTheme={customized}
+                      />
+                    </Box>
+                    <Box display="flex" alignItems="center">
+                      <Typography
+                        sx={{ width: 80, marginRight: 1 }}
+                        gutterBottom
+                      >
+                        Secondary
+                      </Typography>
+                      <ColorPicker
+                        customTheme={_customTheme}
+                        setCustomTheme={setCustomTheme}
+                        path="text.secondary"
+                        defaultTheme={customized}
+                      />
+                    </Box>
+                    {/* Button Primary Text doesn't seem to have an effect */}
+                    {/* <Box display="flex" alignItems="center">
+                      <Typography sx={{ width: 80, marginRight: 1 }} gutterBottom>
+                        Button
+                      </Typography>
+                      <ColorPicker
+                        customTheme={_customTheme}
+                        setCustomTheme={setCustomTheme}
+                        path="button.primaryText"
+                      />
+                    </Box> */}
+                    <Box display="flex" alignItems="center">
+                      <Typography
+                        sx={{ width: 80, marginRight: 1 }}
+                        gutterBottom
+                      >
+                        Action
+                      </Typography>
+                      <ColorPicker
+                        customTheme={_customTheme}
+                        setCustomTheme={setCustomTheme}
+                        path="button.actionText"
+                        defaultTheme={customized}
+                      />
+                    </Box>
+                    {/* This JSON text field is super advanced */}
+                    {/* <TextField
                       label="Custom Theme JSON"
                       fullWidth
                       multiline
                       value={customThemeText}
                       onChange={handleThemeChange}
                       error={customThemeError}
+                    /> */}
+                    <Typography variant="h5" component="h2" mt={1.5}>
+                      Font
+                    </Typography>
+                    <TextField
+                      label="Primary"
+                      name="primary"
+                      fullWidth
+                      value={getObjectPath(_customTheme, "font.primary")}
+                      onChange={handleFontChange}
+                      size="small"
+                      sx={{ mt: 2 }}
+                    />
+                    <TextField
+                      label="Header"
+                      name="header"
+                      fullWidth
+                      value={getObjectPath(_customTheme, "font.header")}
+                      onChange={handleFontChange}
+                      size="small"
+                      sx={{ mt: 2 }}
                     />
                     <TextField
                       label="Custom Font URL"
@@ -675,30 +857,23 @@ function App() {
                 Routes
               </Button>
               <Box mx={2}>
-                <TextField
-                  select
-                  fullWidth
-                  value={_routes ? _routes : ROUTES}
-                  onChange={handleRoutesChange}
-                  SelectProps={{
-                    multiple: true,
-                    renderValue: (selected: any) =>
-                      !_routes ? "All Routes" : selected.join(", "),
-                  }}
-                >
-                  {ROUTES.map((r) => (
-                    <MenuItem key={r} value={r}>
-                      <Checkbox checked={!_routes || _routes.includes(r)} />
-                      <ListItemText primary={r} />
-                    </MenuItem>
+                <Grid container spacing={2}>
+                  {ROUTE_INFOS.map((r) => (
+                    <Grid item key={r.key} sm={6}>
+                      <RouteCard
+                        route={r}
+                        selected={!_routes || _routes.includes(r.key)}
+                        setRoutes={setRoutes}
+                      />
+                    </Grid>
                   ))}
-                </TextField>
+                </Grid>
                 <Button
                   onClick={handleClearRoutes}
                   variant="contained"
                   color="inherit"
                   size="small"
-                  sx={{ mt: 1, mr: 1 }}
+                  sx={{ mt: 2, mr: 1 }}
                 >
                   Select All
                 </Button>
@@ -707,7 +882,7 @@ function App() {
                   variant="contained"
                   color="inherit"
                   size="small"
-                  sx={{ mt: 1, mr: 1 }}
+                  sx={{ mt: 2, mr: 1 }}
                 >
                   Select None
                 </Button>
@@ -1083,6 +1258,30 @@ function App() {
                 Get Code
               </Button>
               <Box mx={2}>
+                <FormControl sx={{ mt: 1.5, mb: 2 }}>
+                  <FormLabel>Automatic Updates</FormLabel>
+                  <RadioGroup
+                    value={versionOrTag}
+                    onChange={handleVersionOrTagChange}
+                    sx={{ mb: 0.5 }}
+                  >
+                    <FormControlLabel
+                      value={version}
+                      control={<Radio />}
+                      label="Disabled (Pinned)"
+                    />
+                    <FormControlLabel
+                      value={nonBreakingTag}
+                      control={<Radio />}
+                      label="Non-Breaking"
+                    />
+                    <FormControlLabel
+                      value={latestTag}
+                      control={<Radio />}
+                      label="Latest"
+                    />
+                  </RadioGroup>
+                </FormControl>
                 <Tabs
                   value={codeType}
                   onChange={handleCodeTypeChange}
@@ -1218,11 +1417,7 @@ function App() {
           <Typography variant="h4" component="h2" gutterBottom>
             Preview
           </Typography>
-          <WormholeBridge
-            versionOrTag={version}
-            config={config}
-            key={JSON.stringify(config)}
-          />
+          <WormholeBridge config={config} key={JSON.stringify(config)} />
         </Container>
       </Box>
     </Background>

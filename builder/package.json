@@ -14,8 +14,9 @@
     "@types/node": "^16.18.25",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.1",
-    "@wormhole-foundation/wormhole-connect": "^0.1.1",
+    "@wormhole-foundation/wormhole-connect": "^0.1.2",
     "react": "^18.2.0",
+    "react-color": "^2.19.3",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
     "tss-react": "^4.8.2",
@@ -47,5 +48,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@types/react-color": "^3.0.7"
   }
 }

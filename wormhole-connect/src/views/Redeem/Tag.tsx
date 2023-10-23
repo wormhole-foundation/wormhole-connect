@@ -1,15 +1,16 @@
+import { CHAIN_ID_WORMCHAIN } from '@certusone/wormhole-sdk';
+import LaunchIcon from '@mui/icons-material/Launch';
+import InputContainer from 'components/InputContainer';
+import { CHAINS, WORMSCAN, isMainnet } from 'config';
+import ArrowRight from 'icons/ArrowRight';
+import TokenIcon from 'icons/TokenIcons';
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { makeStyles } from 'tss-react/mui';
-
 import { RootState } from 'store';
+import { makeStyles } from 'tss-react/mui';
+import { isGatewayChain } from 'utils/cosmos';
+import { isEvmChain } from 'utils/sdk';
 import { LINK } from 'utils/style';
-import { CHAINS, WORMSCAN, isMainnet } from 'config';
-
-import InputContainer from 'components/InputContainer';
-import ArrowRight from 'icons/ArrowRight';
-import LaunchIcon from '@mui/icons-material/Launch';
-import TokenIcon from 'icons/TokenIcons';
 
 const useStyles = makeStyles()((theme) => ({
   row: {
@@ -43,14 +44,21 @@ function ChainsTag() {
       ? txData.emitterAddress.slice(2)
       : txData.emitterAddress
     : undefined;
+  // As of 2023-10-12, wormscan only supports tx lookup on EVM chains (before a VAA is generated)
   const link =
     txData &&
-    txData.emitterAddress &&
-    txData.sequence &&
-    `${WORMSCAN}tx/${fromChainConfig.id}/${emitterAddress}/${txData.sequence}${
-      isMainnet ? '' : '?network=TESTNET'
-    }`;
-
+    (isEvmChain(fromChainConfig.id) && txData.sendTx
+      ? `${WORMSCAN}tx/${txData.sendTx}${isMainnet ? '' : '?network=TESTNET'}`
+      : txData.emitterAddress &&
+        txData.sequence &&
+        // Gateway-connected chain VAAs come from gateway
+        `${WORMSCAN}tx/${
+          isGatewayChain(fromChainConfig.id)
+            ? CHAIN_ID_WORMCHAIN
+            : fromChainConfig.id
+        }/${emitterAddress}/${txData.sequence}${
+          isMainnet ? '' : '?network=TESTNET'
+        }`);
   return (
     <div>
       <InputContainer>

@@ -22,12 +22,12 @@ import { wh, toChainId } from 'utils/sdk';
 import { joinClass } from 'utils/style';
 import { toDecimals } from 'utils/balance';
 import { isTransferValid, validate } from 'utils/transferValidation';
-import RouteOperator from 'utils/routes/operator';
+import RouteOperator from 'routes/operator';
 
 import GasSlider from './NativeGasSlider';
 import Preview from './Preview';
 import Send from './Send';
-import { Collapse } from '@mui/material';
+import { Collapse, useTheme } from '@mui/material';
 import PageHeader from 'components/PageHeader';
 import FromInputs from './Inputs/From';
 import ToInputs from './Inputs/To';
@@ -35,6 +35,7 @@ import TransferLimitedWarning from './TransferLimitedWarning';
 import SwapChains from './SwapChains';
 import RouteOptions from './RouteOptions';
 import ValidationError from './ValidationError';
+import PoweredByIcon from 'icons/PoweredBy';
 
 const useStyles = makeStyles()((theme) => ({
   spacer: {
@@ -55,6 +56,13 @@ const useStyles = makeStyles()((theme) => ({
     alignItems: 'center',
     width: '100%',
   },
+  poweredBy: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '8px',
+    marginTop: '24px',
+  },
 }));
 
 function isSupportedToken(
@@ -67,6 +75,7 @@ function isSupportedToken(
 
 function Bridge() {
   const { classes } = useStyles();
+  const theme = useTheme();
   const dispatch = useDispatch();
   const {
     validate: showValidationState,
@@ -290,6 +299,10 @@ function Bridge() {
           <Send valid={!!valid} />
         </div>
       </Collapse>
+
+      <div className={classes.poweredBy}>
+        <PoweredByIcon color={theme.palette.text.primary} />
+      </div>
     </div>
   );
 }

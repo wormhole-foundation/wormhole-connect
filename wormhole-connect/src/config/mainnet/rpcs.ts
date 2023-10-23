@@ -14,7 +14,10 @@ const {
   REACT_APP_BASE_RPC,
   REACT_APP_OSMOSIS_RPC,
   REACT_APP_WORMCHAIN_RPC,
+  REACT_APP_EVMOS_RPC,
+  REACT_APP_KUJIRA_RPC,
   REACT_APP_SEI_REST,
+  REACT_APP_EVMOS_REST,
 } = process.env;
 
 export const MAINNET_RPC_MAPPING = {
@@ -34,8 +37,15 @@ export const MAINNET_RPC_MAPPING = {
   ...populateRpcField('wormchain', REACT_APP_WORMCHAIN_RPC),
   ...populateRpcField('arbitrum', process.env.REACT_APP_ARBITRUM_RPC),
   ...populateRpcField('optimism', process.env.REACT_APP_OPTIMISM_RPC),
+  ...populateRpcField('evmos', REACT_APP_EVMOS_RPC),
+  ...populateRpcField('kujira', REACT_APP_KUJIRA_RPC),
 };
 
 export const MAINNET_REST_MAPPING = {
   ...populateRpcField('sei', REACT_APP_SEI_REST),
+  ...populateRpcField('evmos', REACT_APP_EVMOS_REST),
+};
+
+export const MAINNET_GRAPHQL_MAPPING = {
+  ...populateRpcField('aptos', process.env.REACT_APP_APTOS_GRAPHQL),
 };

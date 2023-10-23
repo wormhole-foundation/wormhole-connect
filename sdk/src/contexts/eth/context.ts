@@ -1,7 +1,7 @@
 import {
   Implementation__factory,
   TokenImplementation__factory,
-} from '@certusone/wormhole-sdk/lib/cjs/ethers-contracts';
+} from '@certusone/wormhole-sdk/lib/esm/ethers-contracts';
 import { createNonce } from '@certusone/wormhole-sdk';
 import {
   BigNumber,
@@ -31,7 +31,7 @@ import { parseVaa } from '../../vaa';
 import { RelayerAbstract } from '../abstracts/relayer';
 import { SolanaContext } from '../solana';
 import { arrayify } from 'ethers/lib/utils';
-import { ForeignAssetCache } from '../../utils';
+import { ForeignAssetCache, chunkArray } from '../../utils';
 
 export const NO_VAA_FOUND = 'No message publish found in logs';
 
@@ -61,10 +61,12 @@ export class EthContext<
     return gasUsed.mul(effectiveGasPrice);
   }
 
-  async getForeignAsset(
+  // This helper is needed so that the `wrappedAsset` calls can be batched efficiently
+  async getForeignAssetPartiallyUnresolved(
     tokenId: TokenId,
     chain: ChainName | ChainId,
-  ): Promise<string | null> {
+    provider?: ethers.providers.Provider,
+  ): Promise<string | (() => Promise<string | null>)> {
     const chainName = this.context.toChainName(chain);
     if (this.foreignAssetCache.get(tokenId.chain, tokenId.address, chainName)) {
       return this.foreignAssetCache.get(
@@ -79,21 +81,34 @@ export class EthContext<
     // if the token is already native, return the token address
     if (toChainId === chainId) return tokenId.address;
     // else fetch the representation
-    const tokenBridge = this.contracts.mustGetBridge(chain);
+    const tokenBridge = this.contracts.mustGetBridge(chain, provider);
     const sourceContext = this.context.getContext(tokenId.chain);
     const tokenAddr = await sourceContext.formatAssetAddress(tokenId.address);
-    const foreignAddr = await tokenBridge.wrappedAsset(
-      chainId,
-      utils.arrayify(tokenAddr),
+    return async () => {
+      const foreignAddr = await tokenBridge.wrappedAsset(
+        chainId,
+        utils.arrayify(tokenAddr),
+      );
+      if (foreignAddr === constants.AddressZero) return null;
+      this.foreignAssetCache.set(
+        tokenId.chain,
+        tokenId.address,
+        chainName,
+        foreignAddr,
+      );
+      return foreignAddr;
+    };
+  }
+
+  async getForeignAsset(
+    tokenId: TokenId,
+    chain: ChainName | ChainId,
+  ): Promise<string | null> {
+    const result = await this.getForeignAssetPartiallyUnresolved(
+      tokenId,
+      chain,
     );
-    if (foreignAddr === constants.AddressZero) return null;
-    this.foreignAssetCache.set(
-      tokenId.chain,
-      tokenId.address,
-      chainName,
-      foreignAddr,
-    );
-    return foreignAddr;
+    return typeof result === 'function' ? await result() : result;
   }
 
   async mustGetForeignAsset(
@@ -144,19 +159,95 @@ export class EthContext<
     tokenIds: TokenId[],
     chain: ChainName | ChainId,
   ): Promise<(BigNumber | null)[]> {
-    const addresses = await Promise.all(
-      tokenIds.map((tokenId) => this.getForeignAsset(tokenId, chain)),
-    );
-    const provider = this.context.mustGetProvider(chain);
-    const balances = await Promise.all(
-      addresses.map((address) =>
-        !address
-          ? Promise.resolve(null)
-          : TokenImplementation__factory.connect(address, provider).balanceOf(
-              walletAddr,
-            ),
-      ),
-    );
+    // The complex chunking into maxBatchSize and reconstituting
+    // should not be required when using ethers v6 batch provider
+    const contextProvider = this.context.mustGetProvider(chain);
+    // attempt to batch the balance calls
+    // @ts-ignore connection definitely exists on provider
+    const rpc: string = contextProvider.connection?.url || '';
+    const provider =
+      rpc.startsWith('http://') || rpc.startsWith('https://')
+        ? new ethers.providers.JsonRpcBatchProvider(rpc)
+        : contextProvider;
+    const maxBatchSize = 100; // 100 is the default used by ethers v6
+
+    let addresses: (string | null)[] = [];
+    {
+      const partiallyUnresolvedAddresses = await Promise.all(
+        tokenIds.map((tokenId) =>
+          this.getForeignAssetPartiallyUnresolved(tokenId, chain, provider),
+        ),
+      );
+      // we don't want to include resolved addresses in our chunks, as we want to pack in the most per-query
+      const unresolvedIndexes = partiallyUnresolvedAddresses
+        .map((_, idx) => idx)
+        .filter(
+          (aIdx) => typeof partiallyUnresolvedAddresses[aIdx] === 'function',
+        );
+      const idxChunks = chunkArray(unresolvedIndexes, maxBatchSize);
+      let queriedAddresses: (string | null)[] = [];
+      // batch request each chunk
+      for (const chunk of idxChunks) {
+        queriedAddresses = [
+          ...queriedAddresses,
+          ...(await Promise.all(
+            chunk.map((idx) => {
+              const result = partiallyUnresolvedAddresses[idx];
+              return typeof result === 'function'
+                ? result()
+                : Promise.resolve(result);
+            }),
+          )),
+        ];
+      }
+      // re-assemble the balances array to match the input order
+      let queriedIdx = 0;
+      for (let i = 0; i < partiallyUnresolvedAddresses.length; i++) {
+        const maybeResult = partiallyUnresolvedAddresses[i];
+        if (typeof maybeResult === 'string') {
+          addresses.push(maybeResult);
+        } else {
+          addresses.push(queriedAddresses[queriedIdx++]);
+        }
+      }
+    }
+
+    let balances: (BigNumber | null)[] = [];
+    {
+      // we don't want to include nulls in our chunks, as we want to pack in the most per-query
+      const nonNullIndexes = addresses
+        .map((_, idx) => idx)
+        .filter((aIdx) => !!addresses[aIdx]);
+      const idxChunks = chunkArray(nonNullIndexes, maxBatchSize);
+      let queriedBalances: (BigNumber | null)[] = [];
+      // batch request each chunk
+      for (const chunk of idxChunks) {
+        queriedBalances = [
+          ...queriedBalances,
+          ...(await Promise.all(
+            chunk.map((idx) => {
+              const address = addresses[idx];
+              return !address
+                ? Promise.resolve(null)
+                : // TODO: this connect may trigger extra requests
+                  TokenImplementation__factory.connect(
+                    address,
+                    provider,
+                  ).balanceOf(walletAddr);
+            }),
+          )),
+        ];
+      }
+      // re-assemble the balances array to match the input order
+      let queriedIdx = 0;
+      for (let i = 0; i < addresses.length; i++) {
+        if (i === nonNullIndexes[queriedIdx]) {
+          balances.push(queriedBalances[queriedIdx++]);
+        } else {
+          balances.push(null);
+        }
+      }
+    }
     return balances;
   }
 

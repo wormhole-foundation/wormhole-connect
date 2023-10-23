@@ -7,8 +7,8 @@ import { CHAINS } from 'config';
 import { RootState } from 'store';
 import { setRedeemTx, setTransferComplete } from 'store/redeem';
 import { displayAddress } from 'utils';
-import { TransferDisplayData } from 'utils/routes';
-import RouteOperator from 'utils/routes/operator';
+import { TransferDisplayData } from 'routes';
+import RouteOperator from 'routes/operator';
 import {
   TransferWallet,
   registerWalletSigner,
@@ -23,7 +23,7 @@ import Spacer from 'components/Spacer';
 import WalletsModal from '../WalletModal';
 import Header from './Header';
 import { estimateClaimGas } from 'utils/gas';
-import { isCosmWasmChain } from '../../utils/cosmos';
+import { isGatewayChain } from '../../utils/cosmos';
 
 function SendTo() {
   const dispatch = useDispatch();
@@ -56,6 +56,7 @@ function SendTo() {
 
   // get the redeem tx, for automatic transfers only
   const getRedeemTx = useCallback(async () => {
+    if (!routeName) return;
     if (redeemTx) return redeemTx;
     if (signedMessage && routeName) {
       const redeemedTransactionHash = await RouteOperator.tryFetchRedeemTx(
@@ -67,7 +68,7 @@ function SendTo() {
         return redeemedTransactionHash;
       }
     }
-  }, [routeName, redeemTx, signedMessage, dispatch]);
+  }, [redeemTx, routeName, signedMessage, dispatch]);
 
   useEffect(() => {
     if (!txData || !routeName) return;
@@ -105,7 +106,8 @@ function SendTo() {
     if (!routeName) return false;
     return (
       RouteOperator.getRoute(routeName).AUTOMATIC_DEPOSIT ||
-      isCosmWasmChain(txData.toChain)
+      isGatewayChain(txData.toChain) ||
+      txData.toChain === 'sei'
     );
   }, [routeName, txData]);
 

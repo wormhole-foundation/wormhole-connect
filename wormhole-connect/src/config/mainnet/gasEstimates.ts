@@ -181,4 +181,18 @@ export const MAINNET_GAS_ESTIMATES: GasEstimates = {
       sendToken: 150000,
     },
   },
+  evmos: {
+    [Route.Bridge]: {
+      sendNative: 0,
+      sendToken: 0,
+      claim: 0,
+    },
+  },
+  kujira: {
+    [Route.Bridge]: {
+      sendNative: 0,
+      sendToken: 0,
+      claim: 0,
+    },
+  },
 };

@@ -12,13 +12,20 @@ import {
 import { BigNumber, BigNumberish } from 'ethers';
 
 import {
+  ensureHexPrefix,
   getForeignAssetSui,
   getIsTransferCompletedSui,
   getOriginalAssetSui,
   redeemOnSui,
   transferFromSui,
 } from '@certusone/wormhole-sdk';
-import { getPackageId } from '@certusone/wormhole-sdk/lib/cjs/sui';
+import {
+  getFieldsFromObjectResponse,
+  getObjectFields,
+  getPackageId,
+  getTableKeyType,
+  trimSuiType,
+} from '@certusone/wormhole-sdk/lib/esm/sui';
 import { arrayify, hexlify } from 'ethers/lib/utils';
 import {
   ChainId,
@@ -319,6 +326,7 @@ export class SuiContext<
   async getForeignAsset(
     tokenId: TokenId,
     chain: ChainName | ChainId,
+    tokenBridgeStateFields?: Record<string, any> | null,
   ): Promise<string | null> {
     const chainName = this.context.toChainName(chain);
     if (this.foreignAssetCache.get(tokenId.chain, tokenId.address, chainName)) {
@@ -340,11 +348,12 @@ export class SuiContext<
       const formattedAddr = await tokenContext.formatAssetAddress(
         tokenId.address,
       );
-      const coinType = await getForeignAssetSui(
+      const coinType = await this.getForeignAssetSui(
         this.provider,
         token_bridge,
         chainId,
         arrayify(formattedAddr),
+        tokenBridgeStateFields,
       );
 
       if (!coinType) return null;
@@ -478,10 +487,33 @@ export class SuiContext<
     tokenIds: TokenId[],
     chain: ChainName | ChainId,
   ): Promise<(BigNumber | null)[]> {
-    return await Promise.all(
+    const { token_bridge } = this.contracts.mustGetContracts('sui');
+    if (!token_bridge) throw new Error('token bridge contract not found');
+    const tokenBridgeStateFields = await getObjectFields(
+      this.provider,
+      token_bridge,
+    );
+    if (!tokenBridgeStateFields) {
+      throw new Error('Unable to fetch object fields from token bridge state');
+    }
+    // making all the potential requests at once may not
+    // be the best idea, but it was happening before
+    // and is n/2 with pre-fetching `tokenBridgeStateFields`
+    const coinTypes = await Promise.all(
       tokenIds.map((tokenId) =>
-        this.getTokenBalance(walletAddr, tokenId, chain),
+        this.getForeignAsset(tokenId, chain, tokenBridgeStateFields),
       ),
+    );
+    const tokenBalances = await this.provider.getAllBalances({
+      owner: walletAddr,
+    });
+    return coinTypes.map((coinType) =>
+      !coinType
+        ? null
+        : BigNumber.from(
+            tokenBalances.find((b) => b.coinType === coinType)?.totalBalance ||
+              '0', // match getTokenBalances as this.provider.getBalance returns 0 if none of `coinType` are owned
+          ),
     );
   }
 
@@ -667,5 +699,71 @@ export class SuiContext<
     if (!this.provider) throw new Error('no provider');
     const sequence = await this.provider.getLatestCheckpointSequenceNumber();
     return Number(sequence);
+  }
+
+  // MODIFIED FROM @certusone/wormhole-sdk
+  // These differ in that they include an additional parameter to allow for caching of the `tokenBridgeStateFields`
+  async getTokenCoinType(
+    provider: JsonRpcProvider,
+    tokenBridgeStateObjectId: string,
+    tokenAddress: Uint8Array,
+    tokenChain: number,
+    tokenBridgeStateFields?: Record<string, any> | null,
+  ): Promise<string | null> {
+    tokenBridgeStateFields =
+      tokenBridgeStateFields ||
+      (await getObjectFields(provider, tokenBridgeStateObjectId));
+    if (!tokenBridgeStateFields) {
+      throw new Error('Unable to fetch object fields from token bridge state');
+    }
+
+    const coinTypes =
+      tokenBridgeStateFields?.token_registry?.fields?.coin_types;
+    const coinTypesObjectId = coinTypes?.fields?.id?.id;
+    if (!coinTypesObjectId) {
+      throw new Error('Unable to fetch coin types');
+    }
+
+    const keyType = getTableKeyType(coinTypes?.type);
+    if (!keyType) {
+      throw new Error('Unable to get key type');
+    }
+
+    const response = await provider.getDynamicFieldObject({
+      parentId: coinTypesObjectId,
+      name: {
+        type: keyType,
+        value: {
+          addr: [...tokenAddress],
+          chain: tokenChain,
+        },
+      },
+    });
+    if (response.error) {
+      if (response.error.code === 'dynamicFieldNotFound') {
+        return null;
+      }
+      throw new Error(
+        `Unexpected getDynamicFieldObject response ${response.error}`,
+      );
+    }
+    const fields = getFieldsFromObjectResponse(response);
+    return fields?.value ? trimSuiType(ensureHexPrefix(fields.value)) : null;
+  }
+
+  async getForeignAssetSui(
+    provider: JsonRpcProvider,
+    tokenBridgeStateObjectId: string,
+    originChainId: ChainId,
+    originAddress: Uint8Array,
+    tokenBridgeStateFields?: Record<string, any> | null,
+  ): Promise<string | null> {
+    return this.getTokenCoinType(
+      provider,
+      tokenBridgeStateObjectId,
+      originAddress,
+      originChainId,
+      tokenBridgeStateFields,
+    );
   }
 }

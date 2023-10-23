@@ -1849,4 +1849,36 @@ export const MAINNET_TOKENS: TokensConfig = {
       },
     },
   },
+  EVMOS: {
+    key: 'EVMOS',
+    symbol: 'EVMOS',
+    nativeChain: 'evmos',
+    tokenId: {
+      chain: 'evmos',
+      address: 'aevmos',
+    },
+    icon: Icon.EVMOS,
+    coinGeckoId: 'evmos',
+    color: '#ed4e33',
+    decimals: {
+      Cosmos: 18,
+      Ethereum: 18,
+      default: 8,
+    },
+  },
+  KUJI: {
+    key: 'KUJI',
+    symbol: 'KUJI',
+    nativeChain: 'kujira',
+    tokenId: {
+      chain: 'kujira',
+      address: 'ukuji',
+    },
+    icon: Icon.KUJI,
+    coinGeckoId: 'kujira',
+    color: '#f51f1e',
+    decimals: {
+      default: 6,
+    },
+  },
 };

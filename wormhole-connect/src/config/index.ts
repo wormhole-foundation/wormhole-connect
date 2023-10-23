@@ -88,8 +88,13 @@ export const RPCS =
 
 export const REST =
   config && config.rest
-    ? Object.assign({}, NETWORK_DATA.rest, config.rest)
-    : NETWORK_DATA.rest;
+    ? Object.assign({}, sdkConfig.rest, NETWORK_DATA.rest, config.rest)
+    : Object.assign({}, sdkConfig.rest, NETWORK_DATA.rest);
+
+export const GRAPHQL =
+  config && config.graphql
+    ? Object.assign({}, NETWORK_DATA.graphql, config.graphql)
+    : NETWORK_DATA.graphql;
 
 export const GAS_ESTIMATES = NETWORK_DATA.gasEstimates;
 
@@ -123,6 +128,9 @@ export const TESTNET_TO_MAINNET_CHAIN_NAMES: {
   sei: 'sei',
   wormchain: 'wormchain',
   osmosis: 'osmosis',
+  cosmoshub: 'cosmoshub',
+  evmos: 'evmos',
+  kujira: 'kujira',
 };
 
 validateConfigs();

@@ -14,6 +14,8 @@ export const MAINNET_CHAINS = {
   arbitrum: 23,
   optimism: 24,
   base: 30,
+  evmos: 4001,
+  kujira: 4002,
 } as const;
 export type MainnetChainName = keyof typeof MAINNET_CHAINS;
 export type MainnetChainId = (typeof MAINNET_CHAINS)[MainnetChainName];
@@ -33,6 +35,8 @@ export const TESTNET_CHAINS = {
   arbitrumgoerli: 23,
   optimismgoerli: 24,
   basegoerli: 30,
+  evmos: 4001,
+  kujira: 4002,
 } as const;
 export type TestnetChainName = keyof typeof TESTNET_CHAINS;
 export type TestnetChainId = (typeof TESTNET_CHAINS)[TestnetChainName];

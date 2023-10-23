@@ -21,6 +21,9 @@ export const TESTNET_CHAINS = {
   sei: 32,
   wormchain: 3104,
   osmosis: 20,
+  cosmoshub: 4000,
+  evmos: 4001,
+  kujira: 4002,
 } as const;
 
 /**
@@ -249,6 +252,30 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     finalityThreshold: 0,
     nativeTokenDecimals: 6,
   },
+  cosmoshub: {
+    key: 'cosmoshub',
+    id: 4000,
+    context: Context.COSMOS,
+    contracts: {},
+    finalityThreshold: 0,
+    nativeTokenDecimals: 6,
+  },
+  evmos: {
+    key: 'evmos',
+    id: 4001,
+    context: Context.COSMOS,
+    contracts: {},
+    finalityThreshold: 0,
+    nativeTokenDecimals: 18,
+  },
+  kujira: {
+    key: 'kujira',
+    id: 4002,
+    context: Context.COSMOS,
+    contracts: {},
+    finalityThreshold: 0,
+    nativeTokenDecimals: 6,
+  },
 };
 
 const env: Environment = 'TESTNET';
@@ -259,7 +286,7 @@ const TESTNET_CONFIG: WormholeConfig = {
   env,
   rpcs: {
     goerli: 'https://rpc.ankr.com/eth_goerli',
-    mumbai: 'https://polygon-mumbai.blockpi.network/v1/rpc/public',
+    mumbai: 'https://rpc.ankr.com/polygon_mumbai',
     bsc: 'https://data-seed-prebsc-1-s3.binance.org:8545',
     fuji: 'https://api.avax-test.network/ext/bc/C/rpc',
     fantom: 'https://rpc.ankr.com/fantom_testnet',
@@ -270,13 +297,20 @@ const TESTNET_CONFIG: WormholeConfig = {
     aptos: 'https://fullnode.testnet.aptoslabs.com/v1',
     arbitrumgoerli: 'https://arbitrum-goerli.publicnode.com',
     optimismgoerli: 'https://optimism-goerli.publicnode.com',
-    basegoerli: 'https://goerli.base.org',
+    basegoerli: 'https://base-goerli.publicnode.com',
     sei: 'https://rpc.atlantic-2.seinetwork.io',
     wormchain: '',
     osmosis: 'https://rpc.osmotest5.osmosis.zone',
+    cosmoshub: 'https://rpc.sentry-02.theta-testnet.polypore.xyz',
+    evmos: 'https://evmos-testnet-rpc.polkachu.com',
+    kujira: 'https://kujira-testnet-rpc.polkachu.com',
   },
   rest: {
     sei: 'https://rest.atlantic-2.seinetwork.io',
+    evmos: 'https://evmos-testnet-api.polkachu.com',
+  },
+  graphql: {
+    aptos: 'https://indexer-testnet.staging.gcp.aptosdev.com/v1/graphql',
   },
   chains: TESTNET,
   wormholeHosts: ['https://wormhole-v2-testnet-api.certus.one'],

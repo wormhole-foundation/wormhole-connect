@@ -25,8 +25,12 @@ import noIcon from './Tokens/noIcon';
 import ARBITRUM from './Tokens/ARBITRUM';
 import OPTIMISM from './Tokens/OPTIMISM';
 import OSMO from './Tokens/OSMO';
+import BONK from './Tokens/BONK';
 import TBTC from './Tokens/TBTC';
 import WSTETH from './Tokens/WSTETH';
+import EVMOS from './Tokens/EVMOS';
+import ATOM from './Tokens/ATOM';
+import KUJI from './Tokens/KUJI';
 
 const useStyles = makeStyles<{ size: number }>()((theme, { size }) => ({
   container: {
@@ -106,19 +110,22 @@ export const getIcon = (icon: Icon) => {
       return OSMO;
     }
     case Icon.BONK: {
-      return (
-        <img
-          style={{ maxHeight: '100%', maxWidth: '100%', borderRadius: '100%' }}
-          alt="BONK token"
-          src="https://quei6zhlcfsxdfyes577gy7bkxmuz7qqakyt72xlbkyh7fysmoza.arweave.net/hQiPZOsRZXGXBJd_82PhVdlM_hACsT_q6wqwf5cSY7I"
-        />
-      );
+      return BONK;
     }
     case Icon.TBTC: {
       return TBTC;
     }
     case Icon.WSTETH: {
       return WSTETH;
+    }
+    case Icon.ATOM: {
+      return ATOM;
+    }
+    case Icon.EVMOS: {
+      return EVMOS;
+    }
+    case Icon.KUJI: {
+      return KUJI;
     }
     default: {
       return noIcon;
