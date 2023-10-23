@@ -194,6 +194,11 @@ export const ROUTE_INFOS: RouteInfo[] = [
       "Gateway connects liquidity and users from Ethereum and beyond to Cosmos chains and apps, all with an IBC-based liquidity router.",
     link: "https://wormhole.com/gateway/",
   },
+  {
+    key: "tbtc",
+    title: "tBtc",
+    description: "tBtc", // TODO update description
+  },
 ];
 export const ROUTES = [
   "bridge",
