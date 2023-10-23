@@ -195,7 +195,14 @@ export const ROUTE_INFOS: RouteInfo[] = [
     link: "https://wormhole.com/gateway/",
   },
 ];
-export const ROUTES = ROUTE_INFOS.map((r) => r.key);
+export const ROUTES = [
+  "bridge",
+  "relay",
+  "cosmosGateway",
+  "cctpManual",
+  "cctpRelay",
+  "tbtc",
+].sort();
 
 export const DEFAULT_MAINNET_RPCS = {
   ethereum: "https://rpc.ankr.com/eth",
