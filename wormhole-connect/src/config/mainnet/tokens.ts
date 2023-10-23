@@ -1716,6 +1716,66 @@ export const MAINNET_TOKENS: TokensConfig = {
       },
     },
   },
+  tBTCpolygon: {
+    key: 'tBTCpolygon',
+    symbol: 'tBTC',
+    nativeChain: 'polygon',
+    tokenId: {
+      chain: 'polygon',
+      address: '0x236aa50979D5f3De3Bd1Eeb40E81137F22ab794b',
+    },
+    icon: Icon.TBTC,
+    coinGeckoId: 'tbtc',
+    color: '#000000',
+    decimals: {
+      default: 18,
+    },
+  },
+  tBTCoptimism: {
+    key: 'tBTCoptimism',
+    symbol: 'tBTC',
+    nativeChain: 'optimism',
+    tokenId: {
+      chain: 'optimism',
+      address: '0x6c84a8f1c29108F47a79964b5Fe888D4f4D0dE40',
+    },
+    icon: Icon.TBTC,
+    coinGeckoId: 'tbtc',
+    color: '#000000',
+    decimals: {
+      default: 18,
+    },
+  },
+  tBTCarbitrum: {
+    key: 'tBTCarbitrum',
+    symbol: 'tBTC',
+    nativeChain: 'arbitrum',
+    tokenId: {
+      chain: 'arbitrum',
+      address: '0x6c84a8f1c29108F47a79964b5Fe888D4f4D0dE40',
+    },
+    icon: Icon.TBTC,
+    coinGeckoId: 'tbtc',
+    color: '#000000',
+    decimals: {
+      default: 18,
+    },
+  },
+  tBTCbase: {
+    key: 'tBTCbase',
+    symbol: 'tBTC',
+    nativeChain: 'base',
+    tokenId: {
+      chain: 'base',
+      address: '0x236aa50979D5f3De3Bd1Eeb40E81137F22ab794b',
+    },
+    icon: Icon.TBTC,
+    coinGeckoId: 'tbtc',
+    color: '#000000',
+    decimals: {
+      default: 18,
+    },
+  },
   wstETH: {
     key: 'wstETH',
     symbol: 'wstETH',

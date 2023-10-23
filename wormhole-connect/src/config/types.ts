@@ -41,6 +41,7 @@ export enum Route {
   CosmosGateway = 'cosmosGateway',
   CCTPManual = 'cctpManual',
   CCTPRelay = 'cctpRelay',
+  TBTC = 'tbtc',
 }
 
 export type SupportedRoutes = keyof typeof Route;

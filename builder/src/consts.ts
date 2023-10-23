@@ -160,6 +160,7 @@ export const ROUTES = [
   "cosmosGateway",
   "cctpManual",
   "cctpRelay",
+  "tbtc",
 ].sort();
 
 export const DEFAULT_MAINNET_RPCS = {

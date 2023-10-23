@@ -25,6 +25,7 @@ import {
   CCTPManualRoute,
   CCTP_LOG_TokenMessenger_DepositForBurn,
 } from './cctpManual';
+import { TBTCRoute } from './tbtc';
 
 export class Operator {
   getRoute(route: Route): RouteAbstract {
@@ -46,6 +47,9 @@ export class Operator {
       // }
       case Route.CosmosGateway: {
         return new CosmosGatewayRoute();
+      }
+      case Route.TBTC: {
+        return new TBTCRoute();
       }
       default: {
         throw new Error(`${route} is not a valid route`);
