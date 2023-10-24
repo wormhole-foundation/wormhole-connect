@@ -227,8 +227,12 @@ function TokensModal(props: Props) {
     balances,
     supportedSourceTokens,
     supportedDestTokens,
-    allSupportedDestTokens,
+    allSupportedDestTokens: allSupportedDestTokensBase,
   } = useSelector((state: RootState) => state.transferInput);
+
+  const allSupportedDestTokens = useMemo(() => {
+    return allSupportedDestTokensBase.filter((t) => !isGatewayNativeToken(t));
+  }, [allSupportedDestTokensBase]);
 
   const supportedTokens = useMemo(() => {
     const supported =
