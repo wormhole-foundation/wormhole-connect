@@ -1,6 +1,9 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Context } from '@wormhole-foundation/wormhole-connect-sdk';
+import {
+  Context,
+  INSUFFICIENT_ALLOWANCE,
+} from '@wormhole-foundation/wormhole-connect-sdk';
 import { makeStyles } from 'tss-react/mui';
 
 import { CHAINS, TOKENS } from 'config';
@@ -138,9 +141,13 @@ function Send(props: { valid: boolean }) {
       dispatch(setRedeemRoute(route));
       dispatch(setAppRoute('redeem'));
       setSendError('');
-    } catch (e) {
+    } catch (e: any) {
       dispatch(setIsTransactionInProgress(false));
-      setSendError('Error sending transfer, please try again');
+      setSendError(
+        e?.message === INSUFFICIENT_ALLOWANCE
+          ? 'Error due to insufficient token allowance, please try again'
+          : 'Error with transfer, please try again',
+      );
       console.error(e);
     }
   }
