@@ -1,9 +1,10 @@
 import React from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 
 import { swapWallets } from 'store/wallet';
-import { swapChains } from 'store/transferInput';
+import { TransferInputState, swapChains } from 'store/transferInput';
+import { RootState } from '../../store';
 
 const useStyles = makeStyles()((theme: any) => ({
   button: {
@@ -25,7 +26,12 @@ function SwapChains() {
   const { classes } = useStyles();
   const dispatch = useDispatch();
 
+  const { isTransactionInProgress }: TransferInputState = useSelector(
+    (state: RootState) => state.transferInput,
+  );
+
   const swap = () => {
+    if (isTransactionInProgress) return;
     dispatch(swapChains());
     dispatch(swapWallets());
   };
