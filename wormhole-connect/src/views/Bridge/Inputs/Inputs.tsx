@@ -122,9 +122,8 @@ type Props = {
 function Inputs(props: Props) {
   const { classes } = useStyles();
 
-  const { validate: showErrors, isTransactionInProgress } = useSelector(
-    (state: RootState) => state.transferInput,
-  );
+  const { showValidationState: showErrors, isTransactionInProgress } =
+    useSelector((state: RootState) => state.transferInput);
 
   const chainConfig = props.chain && CHAINS[props.chain];
   const selectedChain = chainConfig

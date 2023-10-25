@@ -87,7 +87,7 @@ export type TransferValidations = {
 };
 
 export interface TransferInputState {
-  validate: boolean;
+  showValidationState: boolean;
   validations: TransferValidations;
   availableRoutes: string[] | undefined;
   fromChain: ChainName | undefined;
@@ -112,7 +112,7 @@ export interface TransferInputState {
 }
 
 const initialState: TransferInputState = {
-  validate: false,
+  showValidationState: false,
   validations: {
     fromChain: '',
     toChain: '',
@@ -182,28 +182,62 @@ const performModificationsIfToChainChanged = (state: TransferInputState) => {
   }
 };
 
+// This function was relocated from a useEffect in the Bridge component to avoid
+// the visual delay of two store updates.
+// At the time, the dependency array included:
+// [showValidationState, availableRoutes, fromChain, toChain, token, destToken, amount]
+// However, the only dependency appears to be `availableRoutes`.
+const establishRoute = (state: TransferInputState) => {
+  const { availableRoutes } = state;
+  if (!availableRoutes) {
+    state.route = undefined;
+    return;
+  }
+  const routeOrderOfPreference = [
+    Route.CosmosGateway,
+    Route.CCTPRelay,
+    Route.CCTPManual,
+    Route.Relay,
+    Route.Bridge,
+  ];
+  for (const r of routeOrderOfPreference) {
+    if (availableRoutes.includes(r)) {
+      state.route = r;
+      return;
+    }
+  }
+  state.route = undefined;
+};
+
 export const transferInputSlice = createSlice({
   name: 'transfer',
   initialState,
   reducers: {
     // validations
-    touchValidations: (state: TransferInputState) => {
-      state.validate = true;
-    },
     setValidations: (
       state: TransferInputState,
-      { payload }: PayloadAction<TransferValidations>,
+      {
+        payload: { showValidationState, validations },
+      }: PayloadAction<{
+        showValidationState: boolean;
+        validations: TransferValidations;
+      }>,
     ) => {
-      Object.keys(payload).forEach((key) => {
+      Object.keys(validations).forEach((key) => {
         // @ts-ignore
-        state.validations[key] = payload[key];
+        state.validations[key] = validations[key];
       });
+      // this one-time sets the errors to show, only after the form has been filled out (see `validate`)
+      if (!state.showValidationState && showValidationState) {
+        state.showValidationState = showValidationState;
+      }
     },
     setAvailableRoutes: (
       state: TransferInputState,
       { payload }: PayloadAction<string[]>,
     ) => {
       state.availableRoutes = payload;
+      establishRoute(state);
     },
     // user input
     setToken: (
@@ -223,7 +257,6 @@ export const transferInputSlice = createSlice({
       { payload }: PayloadAction<ChainName>,
     ) => {
       state.fromChain = payload;
-
       performModificationsIfFromChainChanged(state);
     },
     setToChain: (
@@ -409,7 +442,6 @@ export const selectChain = async (
 };
 
 export const {
-  touchValidations,
   setValidations,
   setAvailableRoutes,
   setToken,

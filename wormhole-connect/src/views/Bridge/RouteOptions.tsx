@@ -251,7 +251,7 @@ function RouteOptions() {
   const onSelect = (value: Route) => {
     dispatch(setTransferRoute(value));
   };
-  const [debouncedAmount] = useDebounce(amount, 250);
+  const [debouncedAmount] = useDebounce(amount, 500);
 
   useEffect(() => {
     if (!fromChain || !toChain || !token || !destToken || !debouncedAmount)

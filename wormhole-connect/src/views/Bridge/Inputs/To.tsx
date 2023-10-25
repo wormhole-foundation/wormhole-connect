@@ -25,7 +25,7 @@ function ToInputs() {
   const [showChainsModal, setShowChainsModal] = useState(false);
 
   const {
-    validate: showErrors,
+    showValidationState: showErrors,
     validations,
     fromChain,
     toChain,

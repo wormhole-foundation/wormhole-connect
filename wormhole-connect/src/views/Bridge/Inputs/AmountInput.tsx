@@ -1,8 +1,7 @@
 import React, { useRef } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 import { RootState } from 'store';
-import { validate } from 'utils/transferValidation';
 import { toFixedDecimals } from 'utils/balance';
 import { NO_INPUT } from 'utils/style';
 
@@ -15,10 +14,9 @@ type Props = {
   disabled?: boolean;
 };
 function AmountInput(props: Props) {
-  const dispatch = useDispatch();
   const amountEl = useRef(null);
   const {
-    validate: showErrors,
+    showValidationState: showErrors,
     validations,
     token,
     isTransactionInProgress,
@@ -38,9 +36,6 @@ function AmountInput(props: Props) {
 
     props.handleAmountChange(value);
   }
-  const validateAmount = () => {
-    validate(dispatch);
-  };
 
   const focus = () => {
     if (amountEl.current) {
@@ -64,7 +59,6 @@ function AmountInput(props: Props) {
           min={0}
           step={0.1}
           onChange={handleAmountChange}
-          onPause={validateAmount}
           disabled={isTransactionInProgress || props.disabled}
           value={props.value}
         />
