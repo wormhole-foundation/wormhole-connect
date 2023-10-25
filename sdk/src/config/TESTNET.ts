@@ -220,6 +220,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     },
     finalityThreshold: 0,
     nativeTokenDecimals: 18,
+    cctpDomain: 6,
   },
   sei: {
     key: 'sei',
