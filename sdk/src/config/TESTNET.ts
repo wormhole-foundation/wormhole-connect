@@ -214,7 +214,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
       cctpContracts: {
         cctpTokenMessenger: '0x877b8e8c9e2383077809787ed6f279ce01cb4cc8',
         cctpMessageTransmitter: '0x9ff9a4da6f2157a9c82ce756f8fd7e0d75be8895',
-        wormholeCircleRelayer: '0x0000000000000000000000000000000000000000', // TODO: Replace with correct address
+        wormholeCircleRelayer: '0x4cb69FaE7e7Af841e44E1A1c30Af640739378bb2',
         wormholeCCTP: '0x2703483B1a5a7c577e8680de9Df8Be03c6f30e3c',
       },
     },
