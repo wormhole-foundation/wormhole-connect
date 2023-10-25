@@ -1,6 +1,5 @@
 import { makeStyles } from 'tss-react/mui';
 import React from 'react';
-import { debounce } from 'utils';
 
 type StyleProps = {
   align?: 'center' | 'right';
@@ -38,11 +37,6 @@ type Props = {
       | React.ChangeEvent<HTMLTextAreaElement>,
   ) => void;
   onEnter?: React.KeyboardEventHandler;
-  onPause?: (
-    e?:
-      | React.ChangeEvent<HTMLInputElement>
-      | React.ChangeEvent<HTMLTextAreaElement>,
-  ) => void;
   disabled?: boolean;
   value?: string | number;
 };
@@ -69,12 +63,6 @@ function InputTransparent(props: Props) {
     }
   };
 
-  const handleKeyUp = debounce(() => {
-    if (props.onPause) {
-      props.onPause();
-    }
-  }, 1000);
-
   return (
     <input
       ref={props.inputRef}
@@ -86,7 +74,6 @@ function InputTransparent(props: Props) {
       step={props.step}
       onChange={onChange}
       onKeyDown={handleKeyDown}
-      onKeyUp={handleKeyUp}
       readOnly={props.disabled}
       value={props.value}
     />

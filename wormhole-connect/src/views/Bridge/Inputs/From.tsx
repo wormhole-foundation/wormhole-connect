@@ -30,7 +30,7 @@ function FromInputs() {
   );
   const wallet = useSelector((state: RootState) => state.wallet.sending);
   const {
-    validate: showErrors,
+    showValidationState: showErrors,
     validations,
     route,
     fromChain,

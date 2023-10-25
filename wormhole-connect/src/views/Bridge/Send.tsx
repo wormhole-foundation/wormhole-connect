@@ -36,6 +36,7 @@ import AlertBanner from 'components/AlertBanner';
 import { isGatewayChain } from 'utils/cosmos';
 import { estimateClaimGas, estimateSendGas } from 'utils/gas';
 import { validateSolanaTokenAccount } from '../../utils/transferValidation';
+import { useDebounce } from 'use-debounce';
 
 const useStyles = makeStyles()((theme) => ({
   body: {
@@ -57,14 +58,9 @@ const useStyles = makeStyles()((theme) => ({
 function Send(props: { valid: boolean }) {
   const { classes } = useStyles();
   const dispatch = useDispatch();
-  const wallets = useSelector((state: RootState) => state.wallet);
-  const { sending, receiving } = wallets;
-  const transfer = useSelector((state: RootState) => state.transferInput);
-  const { toNativeToken, relayerFee } = useSelector(
-    (state: RootState) => state.relay,
-  );
+  const transferInput = useSelector((state: RootState) => state.transferInput);
   const {
-    validate: showValidationState,
+    showValidationState,
     validations,
     fromChain,
     toChain,
@@ -74,7 +70,13 @@ function Send(props: { valid: boolean }) {
     isTransactionInProgress,
     foreignAsset,
     associatedTokenAddress,
-  } = transfer;
+  } = transferInput;
+  const [debouncedAmount] = useDebounce(amount, 500);
+
+  const wallet = useSelector((state: RootState) => state.wallet);
+  const { sending, receiving } = wallet;
+  const relay = useSelector((state: RootState) => state.relay);
+  const { toNativeToken, relayerFee } = relay;
   const [isConnected, setIsConnected] = useState(
     sending.currentAddress.toLowerCase() === sending.address.toLowerCase(),
   );
@@ -88,7 +90,7 @@ function Send(props: { valid: boolean }) {
 
   async function send() {
     setSendError('');
-    await validate(dispatch);
+    await validate({ transferInput, relay, wallet }, dispatch);
     const valid = isTransferValid(validations);
     if (!valid || !route) return;
     dispatch(setIsTransactionInProgress(true));
@@ -153,6 +155,7 @@ function Send(props: { valid: boolean }) {
   }
 
   const setSendingGas = useCallback(async () => {
+    // this gas calculation uses the debounced amount to avoid spamming the rpc
     const tokenConfig = TOKENS[token]!;
     if (!route || !tokenConfig) return;
     const sendToken = tokenConfig.tokenId;
@@ -160,7 +163,7 @@ function Send(props: { valid: boolean }) {
     const gasFee = await estimateSendGas(
       route,
       sendToken || 'native',
-      (amount || 0).toString(),
+      (debouncedAmount || 0).toString(),
       fromChain!,
       sending.address,
       toChain!,
@@ -170,7 +173,7 @@ function Send(props: { valid: boolean }) {
     dispatch(setSendingGasEst(gasFee));
   }, [
     token,
-    amount,
+    debouncedAmount,
     fromChain,
     sending,
     toChain,
@@ -194,19 +197,7 @@ function Send(props: { valid: boolean }) {
 
     setSendingGas();
     setDestGas();
-  }, [
-    validations,
-    sending,
-    receiving,
-    fromChain,
-    toChain,
-    token,
-    route,
-    toNativeToken,
-    relayerFee,
-    setDestGas,
-    setSendingGas,
-  ]);
+  }, [validations, setDestGas, setSendingGas]);
 
   useEffect(() => {
     setIsConnected(

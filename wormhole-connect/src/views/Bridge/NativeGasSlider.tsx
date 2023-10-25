@@ -102,12 +102,13 @@ function GasSlider(props: { disabled: boolean }) {
   const { token, toChain, amount, route, destToken } = useSelector(
     (state: RootState) => state.transferInput,
   );
+  const [debouncedAmount] = useDebounce(amount, 500);
   const { maxSwapAmt, relayerFee } = useSelector(
     (state: RootState) => state.relay,
   );
   const amountNum = useMemo(() => {
-    return Number.parseFloat(amount) - (relayerFee || 0);
-  }, [amount, relayerFee]);
+    return Number.parseFloat(debouncedAmount) - (relayerFee || 0);
+  }, [debouncedAmount, relayerFee]);
   const { receiving: receivingWallet } = useSelector(
     (state: RootState) => state.wallet,
   );
@@ -117,7 +118,7 @@ function GasSlider(props: { disabled: boolean }) {
   const nativeGasToken = TOKENS[destConfig?.gasToken!];
 
   const [state, setState] = useState(INITIAL_STATE);
-  const [debouncedSwapAmt] = useDebounce(state.swapAmt, 250);
+  const [debouncedSwapAmt] = useDebounce(state.swapAmt, 500);
 
   const [gasSliderCollapsed, setGasSliderCollapsed] = useState(props.disabled);
 

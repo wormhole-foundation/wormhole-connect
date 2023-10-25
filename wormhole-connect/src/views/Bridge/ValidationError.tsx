@@ -34,7 +34,7 @@ function ValidationError(props: Props) {
   const { classes } = useStyles();
   const dispatch = useDispatch();
   const showErrors = useSelector(
-    (state: RootState) => state.transferInput.validate,
+    (state: RootState) => state.transferInput.showValidationState,
   );
   const { route } = useSelector((state: RootState) => state.transferInput);
   const { toNativeToken, relayerFee } = useSelector(
