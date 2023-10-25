@@ -3,9 +3,11 @@ import {
   ChainId,
   ChainName,
   TokenId,
+  EthContext,
+  WormholeContext,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 
-import { CHAINS, ROUTES, TOKENS, isMainnet } from 'config';
+import { CHAINS, ROUTES, TOKENS, isMainnet, sdkConfig } from 'config';
 import { TokenConfig, Route } from 'config/types';
 import {
   MAX_DECIMALS,
@@ -26,9 +28,7 @@ import {
   SignedTokenTransferMessage,
   isSignedWormholeMessage,
 } from './types';
-import { BaseRoute } from './baseRoute';
-import { toDecimals } from '../balance';
-import { formatGasFee } from './utils';
+import { adaptParsedMessage, formatGasFee } from './utils';
 import {
   CHAIN_ID_POLYGON,
   CHAIN_ID_OPTIMISM,
@@ -36,12 +36,13 @@ import {
   CHAIN_ID_BASE,
   CHAIN_ID_SOLANA,
   CHAIN_ID_ETH,
-  hexToUint8Array,
 } from '@certusone/wormhole-sdk';
 import { ThresholdL2WormholeGateway } from 'utils/ThresholdL2WormholeGateway';
-import { adaptParsedMessage } from './common';
 import { fetchVaa } from 'utils/vaa';
-import { hexlify, hexZeroPad, parseUnits } from 'ethers/lib/utils.js';
+import { hexlify, parseUnits } from 'ethers/lib/utils.js';
+import { BaseRoute } from './bridge';
+import { toDecimals } from 'utils/balance';
+import { signAndSendTransaction, TransferWallet } from 'utils/wallet';
 
 export const THRESHOLD_ARBITER_FEE = 0;
 export const THRESHOLD_NONCE = 0;
@@ -125,7 +126,7 @@ export class TBTCRoute extends BaseRoute {
   readonly AUTOMATIC_DEPOSIT: boolean = false;
 
   isSupportedChain(chain: ChainName): boolean {
-    return !!THRESHOLD_TBTC_CONTRACTS[wh.toChainId(chain)];
+    return !!sdkConfig.chains[chain]?.contracts;
   }
 
   async isRouteAvailable(
@@ -155,8 +156,8 @@ export class TBTCRoute extends BaseRoute {
     const destChainName = wh.toChainName(destChain);
     if (sourceTokenConfig.symbol !== TBTCTokenSymbol) return false;
     if (destTokenConfig.symbol !== TBTCTokenSymbol) return false;
-    if (sourceTokenConfig.nativeChain !== sourceChainName) return false;
-    if (destTokenConfig.nativeChain !== destChainName) return false;
+    /*if (sourceTokenConfig.nativeChain !== sourceChainName) return false;
+    if (destTokenConfig.nativeChain !== destChainName) return false;*/
 
     return (
       TBTC_CHAINS.includes(sourceChainName) &&
@@ -252,6 +253,10 @@ export class TBTCRoute extends BaseRoute {
           ThresholdL2WormholeGateway,
           wh.getSigner(sendingChain)!,
         );
+
+        const chainContext = wh.getContext(
+          sendingChain,
+        ) as EthContext<WormholeContext>;
         const L2WormholeGateway = new Contract(
           sourceAddress,
           ThresholdL2WormholeGateway,
@@ -262,17 +267,17 @@ export class TBTCRoute extends BaseRoute {
           normalizeAmount(transferAmountParsed, decimals),
           decimals,
         );
-        //error Error sending: Error: invalid BigNumber string (argument="value", value="mumbai", code=INVALID_ARGUMENT, version=bignumber/5.7.0)
 
-        const emitterAddress = hexZeroPad(
-          recipientAddress,
-          32,
-        ); /*.substring(2)*/
-        const address = hexToUint8Array(emitterAddress);
+        await chainContext.approve(
+          sendingChain,
+          THRESHOLD_GATEWAYS[fromChainId],
+          typeof token === 'string' ? token : token.address,
+          amountNormalizeAmount,
+        );
         const estimateGas = await L2WormholeGateway.estimateGas.sendTbtc(
           amountNormalizeAmount,
           toChainId,
-          address,
+          chainContext.context.formatAddress(recipientAddress, recipientChain),
           THRESHOLD_ARBITER_FEE,
           THRESHOLD_NONCE,
         );
@@ -287,18 +292,33 @@ export class TBTCRoute extends BaseRoute {
           // like ethers when choosing fees automatically.
           ...(fromChainId === CHAIN_ID_POLYGON && { type: 0 }),
         };
-
-        const tx = await L2WormholeGateway.sendTbtc(
+        console.log(
+          'L2WormholeGateway.sendTbtc',
           amountNormalizeAmount,
           recipientChain,
-          recipientAddress,
+          chainContext.context.formatAddress(recipientAddress, recipientChain),
           THRESHOLD_ARBITER_FEE,
           THRESHOLD_NONCE,
           overrides,
         );
-
+        const tx = await L2WormholeGateway.sendTbtc(
+          amountNormalizeAmount,
+          toChainId,
+          chainContext.context.formatAddress(recipientAddress, recipientChain),
+          THRESHOLD_ARBITER_FEE,
+          THRESHOLD_NONCE,
+          overrides,
+        );
+        debugger;
         receipt = await tx.wait();
-        return receipt.transactionHash;
+
+        const txId = await signAndSendTransaction(
+          wh.toChainName(sendingChain),
+          receipt,
+          TransferWallet.SENDING,
+        );
+        wh.registerProviders();
+        return txId;
       } else {
         //solana case
         throw new Error(`Not implemented yet`);
@@ -410,8 +430,12 @@ export class TBTCRoute extends BaseRoute {
     tx: string,
     chain: ChainName | ChainId,
   ): Promise<UnsignedMessage> {
-    const message = await wh.getMessage(tx, chain);
-    return adaptParsedMessage(message);
+    try {
+      const message = await wh.getMessage(tx, chain);
+      return adaptParsedMessage(message);
+    } catch (e) {
+      throw new Error(`Error getting message: ${e}`);
+    }
   }
 
   async getSignedMessage(
