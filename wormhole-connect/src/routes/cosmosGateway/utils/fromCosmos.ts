@@ -15,6 +15,7 @@ import { FromCosmosPayload } from '../types';
 import { IBC_PORT } from '../utils/consts';
 import { IBC_MSG_TYPE, IBC_TIMEOUT_MILLIS, millisToNano } from './consts';
 import { getIbcDestinationChannel, getTranslatorAddress } from './contracts';
+import { isGatewayChain } from '../../../utils/cosmos';
 
 export function buildFromCosmosPayloadMemo(
   recipientChainId: ChainId,
@@ -24,7 +25,9 @@ export function buildFromCosmosPayloadMemo(
 
   const destContext = wh.getContext(recipientChainId);
   const recipient = Buffer.from(
-    destContext.formatAddress(recipientAddress),
+    isGatewayChain(recipientChainId)
+      ? recipientAddress
+      : destContext.formatAddress(recipientAddress),
   ).toString('base64');
 
   const payloadObject: FromCosmosPayload = {
