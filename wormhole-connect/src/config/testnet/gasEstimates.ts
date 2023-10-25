@@ -139,11 +139,11 @@ export const TESTNET_GAS_ESTIMATES: GasEstimates = {
       sendToken: 300000,
     },
     [Route.CCTPManual]: {
-      sendToken: 0, // TODO: FILL IN WITH REASONABLE GAS ESTIMATE
-      claim: 0, // TODO: FILL IN WITH REASONABLE GAS ESTIMATE
+      sendToken: 300000,
+      claim: 500000,
     },
     [Route.CCTPRelay]: {
-      sendToken: 0, // TODO: FILL IN WITH REASONABLE GAS ESTIMATE
+      sendToken: 300000,
     },
   },
   wormchain: {
