@@ -42,10 +42,11 @@ import {
   fetchRedeemedEventCosmosSource,
   fetchRedeemedEventNonCosmosSource,
   fromCosmos,
-  getMessageFromCosmos,
-  getMessageFromNonCosmos,
+  getMessageFromWormchain,
+  getUnsignedMessageFromNonCosmos,
   getTranslatorAddress,
   toCosmos,
+  getUnsignedMessageFromCosmos,
 } from './utils';
 
 export class CosmosGatewayRoute extends BaseRoute {
@@ -290,27 +291,40 @@ export class CosmosGatewayRoute extends BaseRoute {
   ): Promise<UnsignedMessage> {
     const name = wh.toChainName(chain);
     return isGatewayChain(name)
-      ? getMessageFromCosmos(hash, name)
-      : getMessageFromNonCosmos(hash, name);
+      ? getUnsignedMessageFromCosmos(hash, name)
+      : getUnsignedMessageFromNonCosmos(hash, name);
   }
 
   async getSignedMessage(
-    message: TokenTransferMessage | RelayTransferMessage,
+    unsignedMessage: TokenTransferMessage | RelayTransferMessage,
   ): Promise<SignedTokenTransferMessage | SignedRelayTransferMessage> {
     // if both chains are cosmos gateway chains, no vaa is emitted
-    if (isGatewayChain(message.fromChain) && isGatewayChain(message.toChain)) {
+    if (
+      isGatewayChain(unsignedMessage.fromChain) &&
+      isGatewayChain(unsignedMessage.toChain)
+    ) {
       return {
-        ...message,
+        ...unsignedMessage,
         vaa: '',
       };
     }
 
+    // If the message comes from an external chain, it will already have the info to fetch the VAA
+    // If it comes from a gateway chain, it will not, since the unsigned message is generated
+    // for the first ibc transfer, before it reaches wormchain, so at that time there is no VAA info available
+    // so at this point we have to query wormchain to check if the IBC transfer was relayed and the contract was called
+    const signedMessage = isGatewayChain(unsignedMessage.fromChain)
+      ? await getMessageFromWormchain(
+          unsignedMessage.sendTx,
+          unsignedMessage.fromChain,
+        )
+      : unsignedMessage;
     const vaa = await fetchVaa({
-      ...message,
+      ...signedMessage,
       // transfers from cosmos vaas are emitted by wormchain and not by the source chain
-      fromChain: isGatewayChain(message.fromChain)
+      fromChain: isGatewayChain(signedMessage.fromChain)
         ? 'wormchain'
-        : message.fromChain,
+        : signedMessage.fromChain,
     });
 
     if (!vaa) {
@@ -318,7 +332,7 @@ export class CosmosGatewayRoute extends BaseRoute {
     }
 
     return {
-      ...message,
+      ...signedMessage,
       vaa: utils.hexlify(vaa.bytes),
     };
   }
