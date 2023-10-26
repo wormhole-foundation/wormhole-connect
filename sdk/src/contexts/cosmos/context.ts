@@ -425,16 +425,48 @@ export class CosmosContext<
     tokenAddr: string,
     chain: ChainName | ChainId,
   ): Promise<number> {
-    if (
-      tokenAddr ===
-      getNativeDenom(this.context.toChainName(chain), this.context.conf.env)
-    )
-      return 6;
-    const client = await this.getCosmWasmClient(chain);
-    const { decimals } = await client.queryContractSmart(tokenAddr, {
+    const name = this.context.toChainName(chain);
+    if (tokenAddr === getNativeDenom(name, this.context.conf.env)) {
+      const config = this.context.conf.chains[name];
+      if (!config) throw new Error(`Config not found for chain ${chain}`);
+      return config.nativeTokenDecimals;
+    }
+
+    // extract the cw20 from the ibc denom if the target chain is not wormchain
+    const cw20 =
+      name === 'wormchain'
+        ? tokenAddr
+        : await this.ibcDenomToCW20(tokenAddr, chain);
+    const client = await this.getCosmWasmClient(CHAIN_ID_WORMCHAIN);
+    const { decimals } = await client.queryContractSmart(cw20, {
       token_info: {},
     });
     return decimals;
+  }
+
+  private async ibcDenomToCW20(
+    denom: string,
+    chain: ChainName | ChainId,
+  ): Promise<string> {
+    const client = await this.getQueryClient(chain);
+
+    let res;
+    try {
+      res = await client.ibc.transfer.denomTrace(denom);
+    } catch (e: any) {
+      if (e.message.includes('denomination trace not found')) {
+        throw new Error(`denom trace for ${denom} not found`);
+      }
+      throw e;
+    }
+
+    if (!res.denomTrace) throw new Error(`denom trace for ${denom} not found`);
+    const { baseDenom } = res.denomTrace;
+    const parts = baseDenom.split('/');
+    if (parts.length !== 3)
+      throw new Error(`Can't convert ${denom} to cw20 address`);
+    const [, , address] = parts;
+    return cosmos.humanAddress('wormhole', base58.decode(address));
   }
 
   async getMessage(

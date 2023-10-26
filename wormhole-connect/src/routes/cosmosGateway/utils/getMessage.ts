@@ -64,10 +64,7 @@ export async function getUnsignedMessageFromCosmos(
   );
 
   const base = await adaptParsedMessage({
-    // TODO: this is here so that adaptParsedMessage doesn't throw when fetching the decimals, we should properly implement decimal fetching
-    // for the Cosmos context when the chain is not wormchain
-    // (this would require decoding the IBC denom to retrieve the tokenfactory and then get the CW20) gets replaced later
-    fromChain: wh.toChainName(CHAIN_ID_WORMCHAIN),
+    fromChain: chain,
     sendTx: tx.hash,
     toChain: destChain,
     amount: BigNumber.from(data.amount),
