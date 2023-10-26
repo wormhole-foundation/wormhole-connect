@@ -60,7 +60,9 @@ const checkEnvConfig = async (
             } catch (e: any) {
               if (
                 e?.message === '3104 RPC not configured' ||
-                e?.message === 'wormchain RPC not configured'
+                e?.message === 'wormchain RPC not configured' ||
+                e?.message ===
+                  'Query failed with (18): alloc::string::String not found: query wasm contract failed: invalid request'
               ) {
                 // do not throw on wormchain errors
               } else {
@@ -68,10 +70,20 @@ const checkEnvConfig = async (
               }
             }
             if (foreignAddress) {
-              const foreignDecimals = await wh.fetchTokenDecimals(
-                tokenConfig.tokenId,
-                chain,
-              );
+              let foreignDecimals;
+              try {
+                foreignDecimals = await wh.fetchTokenDecimals(
+                  tokenConfig.tokenId,
+                  chain,
+                );
+              } catch (e: any) {
+                if (/denom trace for ibc\/\w+ not found/gi.test(e?.message)) {
+                  // denom trace not found means the asset has not yet been bridged to the target chain
+                  // so it should be skipped
+                } else {
+                  throw e;
+                }
+              }
               if (configForeignAddress) {
                 if (configForeignAddress.address !== foreignAddress) {
                   throw new Error(
