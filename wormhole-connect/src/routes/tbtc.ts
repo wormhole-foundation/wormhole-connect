@@ -5,18 +5,33 @@ import {
   TokenId,
   EthContext,
   WormholeContext,
+  EthContracts,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 
-import { CHAINS, ROUTES, TOKENS, isMainnet, sdkConfig } from 'config';
+import {
+  CHAINS,
+  ROUTES,
+  TOKENS,
+  isMainnet,
+  sdkConfig,
+  TOKENS_ARR,
+} from 'config';
 import { TokenConfig, Route } from 'config/types';
 import {
   MAX_DECIMALS,
   getTokenDecimals,
   toNormalizedDecimals,
   getDisplayName,
+  getTokenById,
 } from 'utils';
-import { isEvmChain, toChainId, wh } from 'utils/sdk';
-//import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
+import {
+  formatAddress,
+  isEvmChain,
+  ParsedMessage,
+  ParsedRelayerMessage,
+  toChainId,
+  wh,
+} from 'utils/sdk';
 import { NO_INPUT } from 'utils/style';
 import {
   SignedMessage,
@@ -28,7 +43,7 @@ import {
   SignedTokenTransferMessage,
   isSignedWormholeMessage,
 } from './types';
-import { adaptParsedMessage, formatGasFee } from './utils';
+import { formatGasFee } from './utils';
 import {
   CHAIN_ID_POLYGON,
   CHAIN_ID_OPTIMISM,
@@ -38,11 +53,13 @@ import {
   CHAIN_ID_ETH,
 } from '@certusone/wormhole-sdk';
 import { ThresholdL2WormholeGateway } from 'utils/ThresholdL2WormholeGateway';
-import { fetchVaa } from 'utils/vaa';
-import { hexlify, parseUnits } from 'ethers/lib/utils.js';
+import { fetchVaa, getUnsignedVaaEvm, NO_VAA_FOUND } from 'utils/vaa';
+import { getAddress, hexlify, parseUnits } from 'ethers/lib/utils.js';
 import { BaseRoute } from './bridge';
 import { toDecimals } from 'utils/balance';
 import { signAndSendTransaction, TransferWallet } from 'utils/wallet';
+import { getNativeVersionOfToken } from 'store/transferInput';
+import { Implementation__factory } from '@certusone/wormhole-sdk/lib/esm/ethers-contracts';
 
 export const THRESHOLD_ARBITER_FEE = 0;
 export const THRESHOLD_NONCE = 0;
@@ -139,25 +156,23 @@ export class TBTCRoute extends BaseRoute {
     if (!ROUTES.includes(Route.TBTC)) {
       return false;
     }
-
     const sourceTokenConfig = TOKENS[sourceToken];
     const destTokenConfig = TOKENS[destToken];
 
     if (!sourceChain || !destChain || !sourceTokenConfig || !destTokenConfig)
       return false;
+
     /*
      * if THRESHOLD_GATEWAYS[chainId] has something
      * we have a gateway contract on the target chain to use
      */
-    const isCanonicalTarget = !!THRESHOLD_GATEWAYS[sourceChain];
-    if (isCanonicalTarget) return false;
+    const isCanonicalTarget = !!THRESHOLD_GATEWAYS[wh.toChainId(sourceChain)];
+    if (!isCanonicalTarget) return false;
 
     const sourceChainName = wh.toChainName(sourceChain);
     const destChainName = wh.toChainName(destChain);
     if (sourceTokenConfig.symbol !== TBTCTokenSymbol) return false;
     if (destTokenConfig.symbol !== TBTCTokenSymbol) return false;
-    /*if (sourceTokenConfig.nativeChain !== sourceChainName) return false;
-    if (destTokenConfig.nativeChain !== destChainName) return false;*/
 
     return (
       TBTC_CHAINS.includes(sourceChainName) &&
@@ -243,16 +258,11 @@ export class TBTCRoute extends BaseRoute {
         const feeParsed = parseUnits(
           /*(await this.getRelayerFee(recipientChain, sendingChain, typeof token === "string" ? token : token.chain)).toString() ||*/ '0',
           decimals,
-        );
+        ); // preguntar
         const transferAmountParsed = baseAmountParsed.add(feeParsed);
 
         let receipt: ContractReceipt;
         const sourceAddress = THRESHOLD_GATEWAYS[fromChainId].toLowerCase();
-        console.log(
-          sourceAddress,
-          ThresholdL2WormholeGateway,
-          wh.getSigner(sendingChain)!,
-        );
 
         const chainContext = wh.getContext(
           sendingChain,
@@ -292,15 +302,7 @@ export class TBTCRoute extends BaseRoute {
           // like ethers when choosing fees automatically.
           ...(fromChainId === CHAIN_ID_POLYGON && { type: 0 }),
         };
-        console.log(
-          'L2WormholeGateway.sendTbtc',
-          amountNormalizeAmount,
-          recipientChain,
-          chainContext.context.formatAddress(recipientAddress, recipientChain),
-          THRESHOLD_ARBITER_FEE,
-          THRESHOLD_NONCE,
-          overrides,
-        );
+
         const tx = await L2WormholeGateway.sendTbtc(
           amountNormalizeAmount,
           toChainId,
@@ -309,7 +311,7 @@ export class TBTCRoute extends BaseRoute {
           THRESHOLD_NONCE,
           overrides,
         );
-        debugger;
+
         receipt = await tx.wait();
 
         const txId = await signAndSendTransaction(
@@ -319,10 +321,9 @@ export class TBTCRoute extends BaseRoute {
         );
         wh.registerProviders();
         return txId;
-      } else {
-        //solana case
-        throw new Error(`Not implemented yet`);
       }
+      //solana case
+      throw new Error('Solana case not implemented yet');
     } catch (e) {
       throw new Error(`Error sending: ${e}`);
     }
@@ -330,34 +331,39 @@ export class TBTCRoute extends BaseRoute {
 
   async redeem(
     destChain: ChainName | ChainId,
-    message: SignedMessage, // vaa?
+    message: SignedTokenTransferMessage,
     payer: string,
   ): Promise<string> {
-    let receipt;
-    const targetAddress = THRESHOLD_GATEWAYS[destChain];
-    const L2WormholeGateway = new Contract(
-      targetAddress,
-      ThresholdL2WormholeGateway,
-      wh.getSigner(destChain)!,
-    );
+    if (isEvmChain(destChain)) {
+      let receipt;
+      const targetAddress = THRESHOLD_GATEWAYS[wh.toChainId(destChain)];
+      const L2WormholeGateway = new Contract(
+        targetAddress,
+        ThresholdL2WormholeGateway,
+        wh.getSigner(destChain)!,
+      );
 
-    const estimateGas = await L2WormholeGateway.estimateGas.receiveTbtc(
-      message,
-    );
+      const estimateGas = await L2WormholeGateway.estimateGas.receiveTbtc(
+        message.vaa,
+      );
 
-    // We increase the gas limit estimation here by a factor of 10% to account for some faulty public JSON-RPC endpoints.
-    const gasLimit = estimateGas.mul(1100).div(1000);
-    const overrides = {
-      gasLimit,
-      // We use the legacy tx envelope here to avoid triggering gas price autodetection using EIP1559 for polygon.
-      // EIP1559 is not actually implemented in polygon. The node is only API compatible but this breaks some clients
-      // like ethers when choosing fees automatically.
-      ...(destChain === CHAIN_ID_POLYGON && { type: 0 }),
-    };
+      // We increase the gas limit estimation here by a factor of 10% to account for some faulty public JSON-RPC endpoints.
+      const gasLimit = estimateGas.mul(1100).div(1000);
+      const overrides = {
+        gasLimit,
+        // We use the legacy tx envelope here to avoid triggering gas price autodetection using EIP1559 for polygon.
+        // EIP1559 is not actually implemented in polygon. The node is only API compatible but this breaks some clients
+        // like ethers when choosing fees automatically.
+        ...(destChain === CHAIN_ID_POLYGON && { type: 0 }),
+      };
 
-    const tx = await L2WormholeGateway.receiveTbtc(message, overrides);
-    receipt = await tx.wait();
-    return receipt.transactionHash;
+      const tx = await L2WormholeGateway.receiveTbtc(message.vaa, overrides);
+      receipt = await tx.wait();
+
+      return receipt.transactionHash;
+    }
+    // solana case
+    throw new Error('Solana case not implemented yet');
   }
 
   public async getPreview(
@@ -421,9 +427,14 @@ export class TBTCRoute extends BaseRoute {
     token: TokenId,
     chain: ChainName | ChainId,
   ): Promise<string | null> {
-    const asset = await wh.getForeignAsset(token, chain);
-    console.log('getForeignAsset', asset, token, chain);
-    return asset;
+    const addr = TOKENS_ARR.find(
+      (t) =>
+        t.symbol === TBTCTokenSymbol &&
+        t.nativeChain === chain &&
+        t.tokenId?.chain === chain,
+    )?.tokenId?.address;
+    if (!addr) throw new Error('TBTC not found');
+    return addr;
   }
 
   async getMessage(
@@ -431,8 +442,130 @@ export class TBTCRoute extends BaseRoute {
     chain: ChainName | ChainId,
   ): Promise<UnsignedMessage> {
     try {
-      const message = await wh.getMessage(tx, chain);
-      return adaptParsedMessage(message);
+      if (isEvmChain(chain)) {
+        const provider = wh.mustGetProvider(chain);
+        const receipt = await provider.getTransactionReceipt(tx);
+        if (!receipt) throw new Error(`No receipt for ${tx} on ${chain}`);
+        const vaaInfo = await getUnsignedVaaEvm(chain, receipt);
+        if (!vaaInfo) throw new Error(`No VAA found for ${tx} on ${chain}`);
+
+        const contracts = new EthContracts(wh);
+        const bridge = contracts.mustGetBridge(chain);
+        const core = contracts.mustGetCore(chain);
+        const bridgeLogs = receipt.logs.filter((l: any) => {
+          return l.address === core.address;
+        });
+
+        if (bridgeLogs.length === 0) {
+          throw new Error(NO_VAA_FOUND);
+        }
+
+        let gasFee: BigNumber = BigNumber.from(0);
+        if (receipt.gasUsed && receipt.effectiveGasPrice) {
+          gasFee = receipt.gasUsed.mul(receipt.effectiveGasPrice);
+        }
+
+        const parsed = Implementation__factory.createInterface().parseLog(
+          bridgeLogs[0],
+        );
+
+        const fromChain = wh.toChainName(chain);
+        if (vaaInfo.payload.startsWith('0x01')) {
+          const transfer = await bridge.parseTransfer(parsed.args.payload);
+          // uncaught (in promise) Error: Error getting message: Error: call revert exception; VM Exception while processing transaction: reverted with reason string "invalid Transfer" [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method="parseTransfer(bytes)", data="0x08c379a000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000010696e76616c6964205472616e7366657200000000000000000000000000000000", errorArgs=["invalid Transfer"], errorName="Error", errorSignature="Error(string)", reason="invalid Transfer", code=CALL_EXCEPTION, version=abi/5.7.0)
+          const toChain = wh.toChainName(transfer.toChain);
+          const tokenChain = wh.toChainName(transfer.tokenChain);
+          const tokenContext = wh.getContext(tokenChain);
+          const tokenAddress = await tokenContext.parseAssetAddress(
+            hexlify(transfer.tokenAddress),
+          );
+
+          const tokenId: TokenId = {
+            chain: fromChain,
+            address: tokenAddress,
+          };
+          const token = getTokenById(tokenId);
+          const decimals = await wh.fetchTokenDecimals(tokenId, fromChain);
+          const destContext = wh.getContext(toChain);
+          const message: ParsedMessage = {
+            sendTx: tx,
+            sender: receipt.from,
+            amount: transfer.amount.toString(),
+            payloadID: transfer.payloadID,
+            recipient: destContext.parseAddress(transfer.to), //
+            toChain: wh.toChainName(transfer.toChain),
+            fromChain,
+            tokenAddress,
+            tokenChain,
+            tokenId: {
+              chain: tokenChain,
+              address: tokenAddress,
+            },
+            sequence: vaaInfo.sequence.toString(),
+            emitterAddress: hexlify(formatAddress(chain, bridge.address)),
+            block: receipt.blockNumber,
+            gasFee: gasFee.toString(),
+            tokenKey: token?.key || '',
+            tokenDecimals: decimals,
+            receivedTokenKey: getNativeVersionOfToken(TBTCTokenSymbol, toChain),
+          };
+          return message;
+        }
+        // starts with 0x03
+        const transferWithPayload = await bridge.parseTransferWithPayload(
+          vaaInfo.payload,
+        );
+        const destContext = wh.getContext(chain);
+        const tokenChain = wh.toChainName(transferWithPayload.tokenChain);
+        const tokenContext = wh.getContext(tokenChain);
+        const tokenAddress = await tokenContext.parseAssetAddress(
+          hexlify(transferWithPayload.tokenAddress),
+        );
+
+        const tokenId: TokenId = {
+          chain: wh.toChainName(transferWithPayload.tokenChain),
+          address: tokenAddress,
+        };
+        const token = getTokenById(tokenId);
+        const decimals = getTokenDecimals(
+          wh.toChainId(transferWithPayload.tokenChain),
+          tokenId,
+        );
+        const recipient = getAddress(
+          '0x' + vaaInfo.payload.substring(292, vaaInfo.payload.length),
+        );
+        const toChain = wh.toChainName(transferWithPayload.toChain);
+        debugger;
+        const relayerMessage: ParsedRelayerMessage = {
+          sendTx: tx,
+          sender: receipt.from,
+          amount: transferWithPayload.amount.toString(),
+          payloadID: transferWithPayload.payloadID,
+          toChain: wh.toChainName(transferWithPayload.toChain),
+          fromChain: wh.toChainName(chain),
+          tokenAddress,
+          tokenChain,
+          tokenId: tokenId,
+          sequence: vaaInfo.sequence.toString() || '',
+          emitterAddress: hexlify(formatAddress(chain, bridge.address)),
+          block: receipt.blockNumber,
+          gasFee: gasFee.toString(),
+          relayerPayloadId: 3,
+          recipient: recipient,
+          relayerFee: BigNumber.from(
+            '0x' + vaaInfo.payload.substring(298, 298 + 64),
+          ).toString(),
+          toNativeTokenAmount: transferWithPayload.amount.toString(), // ??
+          to: destContext.parseAddress(hexlify(transferWithPayload.to)),
+          payload: transferWithPayload.payload,
+          tokenKey: token?.key || '',
+          tokenDecimals: decimals,
+          receivedTokenKey: getNativeVersionOfToken(TBTCTokenSymbol, toChain),
+        };
+        return relayerMessage;
+      }
+      // solana case
+      throw new Error('Solana case not implemented yet');
     } catch (e) {
       throw new Error(`Error getting message: ${e}`);
     }
