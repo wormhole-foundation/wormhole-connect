@@ -41,6 +41,7 @@ export async function getUnsignedMessageFromCosmos(
   // get the information of the ibc transfer started by the source chain
   const ibcPacketInfo = getIBCTransferInfoFromLogs(tx, 'send_packet');
 
+  // extract the IBC transfer data payload from the packet
   const data: IBCTransferData = JSON.parse(ibcPacketInfo.data);
   const payload: FromCosmosPayload = JSON.parse(data.memo);
 
@@ -58,24 +59,8 @@ export async function getUnsignedMessageFromCosmos(
         '0x' + Buffer.from(payloadRecipient, 'base64').toString('hex'),
       );
 
-  // transfer ibc denom follows the scheme {port}/{channel}/{denom}
-  // with denom as {tokenfactory}/{ibc shim}/{bas58 cw20 address}
-  // so 5 elements total
-  const parts = data.denom.split('/');
-  if (parts.length !== 5) {
-    throw new Error(`Unexpected transfer denom ${data.denom}`);
-  }
-  const denom = parts.slice(2).join('/');
-  const cw20 = factoryToCW20(denom);
-  const context = wh.getContext(
-    CHAIN_ID_WORMCHAIN,
-  ) as CosmosContext<WormholeContext>;
-  const { chainId, assetAddress: tokenAddressBytes } =
-    await context.getOriginalAsset(CHAIN_ID_WORMCHAIN, cw20);
-  const tokenChain = wh.toChainName(chainId as ChainId); // wormhole-sdk adds 0 (unset) as a chainId
-  const tokenContext = wh.getContext(tokenChain);
-  const tokenAddress = await tokenContext.parseAssetAddress(
-    utils.hexlify(tokenAddressBytes),
+  const { tokenAddress, tokenChain } = await getOriginalIbcDenomInfo(
+    data.denom,
   );
 
   const base = await adaptParsedMessage({
@@ -105,6 +90,35 @@ export async function getUnsignedMessageFromCosmos(
     ...base,
     fromChain: chain,
     sender,
+  };
+}
+
+async function getOriginalIbcDenomInfo(
+  denom: string,
+): Promise<{ tokenAddress: string; tokenChain: ChainName }> {
+  // transfer ibc denom follows the scheme {port}/{channel}/{denom}
+  // with denom as {tokenfactory}/{ibc shim}/{bas58 cw20 address}
+  // so 5 elements total
+  const parts = denom.split('/');
+  if (parts.length !== 5) {
+    throw new Error(`Unexpected transfer denom ${denom}`);
+  }
+  const factoryDenom = parts.slice(2).join('/');
+  const cw20 = factoryToCW20(factoryDenom);
+  const context = wh.getContext(
+    CHAIN_ID_WORMCHAIN,
+  ) as CosmosContext<WormholeContext>;
+  const { chainId, assetAddress: tokenAddressBytes } =
+    await context.getOriginalAsset(CHAIN_ID_WORMCHAIN, cw20);
+  const tokenChain = wh.toChainName(chainId as ChainId); // wormhole-sdk adds 0 (unset) as a chainId
+  const tokenContext = wh.getContext(tokenChain);
+  const tokenAddress = await tokenContext.parseAssetAddress(
+    utils.hexlify(tokenAddressBytes),
+  );
+
+  return {
+    tokenAddress,
+    tokenChain,
   };
 }
 
