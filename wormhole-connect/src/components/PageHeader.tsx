@@ -40,16 +40,22 @@ const useStyles = makeStyles()((theme) => ({
   },
 }));
 
-type Props = {
+type PageHeaderProps = {
   title: string;
   description?: string;
   back?: boolean;
+  showHamburgerMenu?: boolean;
 };
 
-function PageHeader(props: Props) {
+function PageHeader({
+  back,
+  title,
+  description,
+  showHamburgerMenu = true,
+}: PageHeaderProps) {
   const { classes } = useStyles();
   const dispatch = useDispatch();
-  function back() {
+  function goBack() {
     dispatch(setRoute('bridge'));
   }
 
@@ -57,20 +63,18 @@ function PageHeader(props: Props) {
     <div className={classes.container}>
       <div className={classes.header}>
         <div className={classes.left}>
-          {props.back && (
+          {back && (
             <DownIcon
               className={classes.arrowBack}
               fontSize="large"
-              onClick={back}
+              onClick={goBack}
             />
           )}
-          <Header text={props.title} align="left" />
+          <Header text={title} align="left" />
         </div>
-        <MenuFull />
+        {showHamburgerMenu ? <MenuFull /> : null}
       </div>
-      {props.description && (
-        <div className={classes.description}>{props.description}</div>
-      )}
+      {description && <div className={classes.description}>{description}</div>}
     </div>
   );
 }

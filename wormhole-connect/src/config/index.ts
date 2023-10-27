@@ -19,7 +19,9 @@ const el = document.getElementById('wormhole-connect');
 if (!el)
   throw new Error('must specify an anchor element with id wormhole-connect');
 const configJson = el.getAttribute('config');
-export const config: WormholeConnectConfig = JSON.parse(configJson!) || {};
+export const config: WormholeConnectConfig = JSON.parse(configJson!) || {
+  showHamburgerMenu: false,
+};
 
 const getEnv = () => {
   const processEnv = process.env.REACT_APP_CONNECT_ENV?.toLowerCase();
@@ -31,6 +33,7 @@ const getEnv = () => {
 export const ENV = getEnv();
 export const isMainnet = ENV === 'MAINNET';
 export const sdkConfig = WormholeContext.getConfig(ENV);
+export const showHamburgerMenu = config.showHamburgerMenu === true;
 export const pageHeader =
   config.pageHeader === undefined ? '' : config.pageHeader;
 

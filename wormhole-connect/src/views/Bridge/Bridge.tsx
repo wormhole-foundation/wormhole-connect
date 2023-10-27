@@ -14,7 +14,7 @@ import {
   setAllSupportedDestTokens,
   TransferInputState,
 } from 'store/transferInput';
-import { CHAINS, TOKENS, pageHeader } from 'config';
+import { CHAINS, TOKENS, pageHeader, showHamburgerMenu } from 'config';
 import { TokenConfig } from 'config/types';
 import { getTokenDecimals, getWrappedToken } from 'utils';
 import { wh, toChainId } from 'utils/sdk';
@@ -35,6 +35,7 @@ import SwapChains from './SwapChains';
 import RouteOptions from './RouteOptions';
 import ValidationError from './ValidationError';
 import PoweredByIcon from 'icons/PoweredBy';
+import FooterNavBar from 'components/FooterNavBar';
 
 const useStyles = makeStyles()((theme) => ({
   spacer: {
@@ -213,7 +214,7 @@ function Bridge() {
 
   return (
     <div className={joinClass([classes.bridgeContent, classes.spacer])}>
-      <PageHeader title={pageHeader} />
+      <PageHeader title={pageHeader} showHamburgerMenu={showHamburgerMenu} />
 
       <FromInputs />
       <SwapChains />
@@ -243,6 +244,7 @@ function Bridge() {
           <Send valid={!!valid} />
         </div>
       </Collapse>
+      {showHamburgerMenu ? null : <FooterNavBar />}
 
       <div className={classes.poweredBy}>
         <PoweredByIcon color={theme.palette.text.primary} />
