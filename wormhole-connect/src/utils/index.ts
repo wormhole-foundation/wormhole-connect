@@ -173,16 +173,6 @@ export function isValidTxId(chain: string, tx: string) {
   }
 }
 
-export function debounce(callback: any, wait: number) {
-  let timeout: any;
-  return (...args: any) => {
-    clearTimeout(timeout);
-    timeout = setTimeout(function (this: any) {
-      callback.apply(this, args);
-    }, wait);
-  };
-}
-
 export function usePrevious(value: any) {
   const ref = useRef();
   useEffect(() => {

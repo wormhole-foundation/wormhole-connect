@@ -138,6 +138,13 @@ export const TESTNET_GAS_ESTIMATES: GasEstimates = {
       sendNative: 300000,
       sendToken: 300000,
     },
+    [Route.CCTPManual]: {
+      sendToken: 300000,
+      claim: 500000,
+    },
+    [Route.CCTPRelay]: {
+      sendToken: 300000,
+    },
   },
   wormchain: {
     [Route.Bridge]: {

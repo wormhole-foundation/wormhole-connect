@@ -136,6 +136,13 @@ export const MAINNET_GAS_ESTIMATES: GasEstimates = {
     },
     [Route.Relay]: {
       sendNative: 300000,
+      sendToken: 500000,
+    },
+    [Route.CCTPManual]: {
+      sendToken: 300000,
+      claim: 500000,
+    },
+    [Route.CCTPRelay]: {
       sendToken: 300000,
     },
   },

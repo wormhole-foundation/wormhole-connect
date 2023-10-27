@@ -34,6 +34,7 @@ import { arrayify } from 'ethers/lib/utils';
 import { ForeignAssetCache, chunkArray } from '../../utils';
 
 export const NO_VAA_FOUND = 'No message publish found in logs';
+export const INSUFFICIENT_ALLOWANCE = 'Insufficient token allowance';
 
 export class EthContext<
   T extends WormholeContext,
@@ -288,6 +289,15 @@ export class EthContext<
         overrides,
       );
       await tx.wait();
+      // Metamask allows users to set a different amount than specified above
+      // Check to make sure that the amount set was at least the requested amount
+      const nowApproved = await tokenImplementation.allowance(
+        senderAddress,
+        contractAddress,
+      );
+      if (nowApproved.lt(approveAmount)) {
+        throw new Error(INSUFFICIENT_ALLOWANCE);
+      }
     }
   }
 

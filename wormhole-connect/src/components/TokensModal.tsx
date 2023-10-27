@@ -33,6 +33,7 @@ import Scroll from './Scroll';
 import Search from './Search';
 import Spacer from './Spacer';
 import Tabs from './Tabs';
+import { CCTPManual_CHAINS } from '../routes/cctpManual';
 
 const useStyles = makeStyles()((theme: any) => ({
   tokensContainer: {
@@ -227,8 +228,12 @@ function TokensModal(props: Props) {
     balances,
     supportedSourceTokens,
     supportedDestTokens,
-    allSupportedDestTokens,
+    allSupportedDestTokens: allSupportedDestTokensBase,
   } = useSelector((state: RootState) => state.transferInput);
+
+  const allSupportedDestTokens = useMemo(() => {
+    return allSupportedDestTokensBase.filter((t) => !isGatewayNativeToken(t));
+  }, [allSupportedDestTokensBase]);
 
   const supportedTokens = useMemo(() => {
     const supported =
@@ -384,10 +389,14 @@ function TokensModal(props: Props) {
 
   useEffect(() => {
     // get tokens that exist on the chain and have a balance greater than 0
-    // if token is USDC, only show native ones
     const filtered = supportedTokens.filter((t) => {
       if (!t.tokenId && t.nativeChain !== chain) return false;
-      if (t.symbol === 'USDC' && t.nativeChain !== chain) return false;
+
+      // if token is USDC and the chain is cctp enabled, only show native ones
+      const isCctpChain = chain && CCTPManual_CHAINS.includes(chain);
+      if (t.symbol === 'USDC' && t.nativeChain !== chain && isCctpChain)
+        return false;
+
       if (type === 'dest') return true;
       if (!chainBalancesCache) return true;
       const b = chainBalancesCache.balances[t.key];

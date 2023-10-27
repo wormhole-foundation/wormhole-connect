@@ -1650,6 +1650,21 @@ export const MAINNET_TOKENS: TokensConfig = {
       },
     },
   },
+  USDCbase: {
+    key: 'USDCbase',
+    symbol: 'USDC',
+    nativeChain: 'base',
+    icon: Icon.USDC,
+    tokenId: {
+      chain: 'base',
+      address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+    },
+    coinGeckoId: 'usd-coin',
+    color: '#2774CA',
+    decimals: {
+      default: 6,
+    },
+  },
   OSMO: {
     key: 'OSMO',
     symbol: 'OSMO',

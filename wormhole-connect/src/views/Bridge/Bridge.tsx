@@ -12,16 +12,15 @@ import {
   setSupportedSourceTokens,
   setSupportedDestTokens,
   setAllSupportedDestTokens,
-  setTransferRoute,
   TransferInputState,
 } from 'store/transferInput';
 import { CHAINS, TOKENS, pageHeader } from 'config';
-import { TokenConfig, Route } from 'config/types';
+import { TokenConfig } from 'config/types';
 import { getTokenDecimals, getWrappedToken } from 'utils';
 import { wh, toChainId } from 'utils/sdk';
 import { joinClass } from 'utils/style';
 import { toDecimals } from 'utils/balance';
-import { isTransferValid, validate } from 'utils/transferValidation';
+import { isTransferValid, useValidate } from 'utils/transferValidation';
 import RouteOperator from 'routes/operator';
 
 import GasSlider from './NativeGasSlider';
@@ -78,27 +77,22 @@ function Bridge() {
   const theme = useTheme();
   const dispatch = useDispatch();
   const {
-    validate: showValidationState,
+    showValidationState,
     validations,
     fromChain,
     toChain,
     token,
     destToken,
     route,
-    foreignAsset,
-    associatedTokenAddress,
     isTransactionInProgress,
     amount,
-    availableRoutes,
   }: TransferInputState = useSelector(
     (state: RootState) => state.transferInput,
   );
   const { toNativeToken, relayerFee } = useSelector(
     (state: RootState) => state.relay,
   );
-  const { sending, receiving } = useSelector(
-    (state: RootState) => state.wallet,
-  );
+  const { receiving } = useSelector((state: RootState) => state.wallet);
 
   // check destination native balance
   useEffect(() => {
@@ -184,41 +178,6 @@ function Bridge() {
   }, [route, token, fromChain, toChain, dispatch]);
 
   useEffect(() => {
-    const establishRoute = async () => {
-      if (!showValidationState || !availableRoutes) {
-        dispatch(setTransferRoute(undefined));
-        return;
-      }
-
-      const routeOrderOfPreference = [
-        Route.CosmosGateway,
-        Route.CCTPRelay,
-        Route.CCTPManual,
-        Route.Relay,
-        Route.TBTC,
-        Route.Bridge,
-      ];
-      for (const r of routeOrderOfPreference) {
-        if (availableRoutes.includes(r)) {
-          dispatch(setTransferRoute(r));
-          return;
-        }
-      }
-      dispatch(setTransferRoute(undefined));
-    };
-    establishRoute();
-  }, [
-    showValidationState,
-    availableRoutes,
-    fromChain,
-    toChain,
-    token,
-    destToken,
-    amount,
-    dispatch,
-  ]);
-
-  useEffect(() => {
     const recomputeReceive = async () => {
       if (!route) return;
       const newReceiveAmount = await RouteOperator.computeReceiveAmount(
@@ -232,22 +191,7 @@ function Bridge() {
   }, [amount, toNativeToken, relayerFee, route, dispatch]);
 
   // validate transfer inputs
-  useEffect(() => {
-    validate(dispatch);
-  }, [
-    sending,
-    receiving,
-    fromChain,
-    toChain,
-    token,
-    destToken,
-    route,
-    toNativeToken,
-    relayerFee,
-    foreignAsset,
-    associatedTokenAddress,
-    dispatch,
-  ]);
+  useValidate();
   const valid = isTransferValid(validations);
   const disabled = !valid || isTransactionInProgress;
   // if the dest token is the wrapped gas token, then disable the gas slider,

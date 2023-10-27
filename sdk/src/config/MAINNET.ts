@@ -210,9 +210,16 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     contracts: {
       ...CONTRACTS.MAINNET.base,
       relayer: '0xaE8dc4a7438801Ec4edC0B035EcCCcF3807F4CC1',
+      cctpContracts: {
+        cctpTokenMessenger: '0x1682Ae6375C4E4A97e4B583BC394c861A46D8962',
+        cctpMessageTransmitter: '0xAD09780d193884d503182aD4588450C416D6F9D4',
+        wormholeCircleRelayer: '0x4cb69fae7e7af841e44e1a1c30af640739378bb2',
+        wormholeCCTP: '0x03faBB06Fa052557143dC28eFCFc63FC12843f1D',
+      },
     },
     finalityThreshold: 0,
     nativeTokenDecimals: 18,
+    cctpDomain: 6,
   },
   sei: {
     key: 'sei',

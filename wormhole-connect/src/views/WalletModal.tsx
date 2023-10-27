@@ -143,7 +143,7 @@ const getWalletOptions = async (
       [Context.SUI]: suiOptions,
       [Context.APTOS]: wallets.aptos,
       [Context.SEI]: seiOptions,
-      [Context.COSMOS]: seiOptions,
+      [Context.COSMOS]: wallets.cosmos,
     };
 
     return Object.keys(allWallets)

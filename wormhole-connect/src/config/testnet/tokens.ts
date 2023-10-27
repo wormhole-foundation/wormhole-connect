@@ -1294,6 +1294,21 @@ export const TESTNET_TOKENS: TokensConfig = {
       },
     },
   },
+  USDCbase: {
+    key: 'USDCbase',
+    symbol: 'USDC',
+    nativeChain: 'basegoerli',
+    icon: Icon.USDC,
+    tokenId: {
+      chain: 'basegoerli',
+      address: '0xf175520c52418dfe19c8098071a252da48cd1c19',
+    },
+    coinGeckoId: 'usd-coin',
+    color: '#2774CA',
+    decimals: {
+      default: 6,
+    },
+  },
   OSMO: {
     key: 'OSMO',
     symbol: 'OSMO',

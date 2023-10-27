@@ -1,15 +1,14 @@
-import { Dispatch } from 'react';
+import { Dispatch, useEffect, useMemo } from 'react';
 import { AnyAction } from '@reduxjs/toolkit';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 
 import { BRIDGE_DEFAULTS, CHAINS, TOKENS } from 'config';
 import { Route, TokenConfig } from 'config/types';
 import { SANCTIONED_WALLETS } from 'consts/wallet';
-import { store } from 'store';
+import { RootState } from 'store';
 import {
   TransferInputState,
   setValidations,
-  touchValidations,
   ValidationErr,
   TransferValidations,
   accessBalance,
@@ -18,6 +17,8 @@ import { WalletData, WalletState } from 'store/wallet';
 import { RelayState } from 'store/relay';
 import { walletAcceptedChains } from './wallet';
 import RouteOperator from '../routes/operator';
+import { useDispatch, useSelector } from 'react-redux';
+import { useDebounce } from 'use-debounce';
 
 export const validateFromChain = (
   chain: ChainName | undefined,
@@ -244,12 +245,22 @@ export const isTransferValid = (validations: TransferValidations) => {
   return true;
 };
 
-export const validate = async (dispatch: Dispatch<AnyAction>) => {
-  const { transferInput, relay, wallet } = store.getState();
+export const validate = async (
+  {
+    transferInput,
+    relay,
+    wallet,
+  }: {
+    transferInput: TransferInputState;
+    relay: RelayState;
+    wallet: WalletState;
+  },
+  dispatch: Dispatch<AnyAction>,
+) => {
   const validations = await validateAll(transferInput, relay, wallet);
 
   // if all fields are filled out, show validations
-  if (
+  const showValidationState =
     wallet.sending.address &&
     wallet.receiving.address &&
     transferInput.fromChain &&
@@ -259,8 +270,27 @@ export const validate = async (dispatch: Dispatch<AnyAction>) => {
     transferInput.amount &&
     Number.parseFloat(transferInput.amount) >= 0 &&
     transferInput.availableRoutes !== undefined
-  ) {
-    dispatch(touchValidations());
-  }
-  dispatch(setValidations(validations));
+      ? true
+      : false;
+  dispatch(setValidations({ validations, showValidationState }));
+};
+
+const VALIDATION_DELAY_MS = 250;
+
+export const useValidate = () => {
+  const dispatch = useDispatch();
+  const transferInput = useSelector((state: RootState) => state.transferInput);
+  const relay = useSelector((state: RootState) => state.relay);
+  const wallet = useSelector((state: RootState) => state.wallet);
+  const stateForValidation = useMemo(
+    () => ({ transferInput, relay, wallet }),
+    [transferInput, relay, wallet],
+  );
+  const [debouncedStateForValidation] = useDebounce(
+    stateForValidation,
+    VALIDATION_DELAY_MS,
+  );
+  useEffect(() => {
+    validate(debouncedStateForValidation, dispatch);
+  }, [debouncedStateForValidation, dispatch]);
 };
