@@ -472,7 +472,6 @@ export class TBTCRoute extends BaseRoute {
         const fromChain = wh.toChainName(chain);
         if (vaaInfo.payload.startsWith('0x01')) {
           const transfer = await bridge.parseTransfer(parsed.args.payload);
-          // uncaught (in promise) Error: Error getting message: Error: call revert exception; VM Exception while processing transaction: reverted with reason string "invalid Transfer" [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (method="parseTransfer(bytes)", data="0x08c379a000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000010696e76616c6964205472616e7366657200000000000000000000000000000000", errorArgs=["invalid Transfer"], errorName="Error", errorSignature="Error(string)", reason="invalid Transfer", code=CALL_EXCEPTION, version=abi/5.7.0)
           const toChain = wh.toChainName(transfer.toChain);
           const tokenChain = wh.toChainName(transfer.tokenChain);
           const tokenContext = wh.getContext(tokenChain);

@@ -198,6 +198,7 @@ const establishRoute = (state: TransferInputState) => {
     Route.CCTPRelay,
     Route.CCTPManual,
     Route.Relay,
+    Route.TBTC,
     Route.Bridge,
   ];
   for (const r of routeOrderOfPreference) {
