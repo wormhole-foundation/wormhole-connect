@@ -4,12 +4,14 @@ import Collapse from '@mui/material/Collapse';
 import Down from 'icons/Down';
 import { LINK, joinClass } from 'utils/style';
 import Switch from 'components/Switch';
+import { Box, CircularProgress } from '@mui/material';
 
 const useStyles = makeStyles()((theme: any) => ({
   container: {
     width: '100%',
-    borderRadius: '8px',
+    borderRadius: theme.spacing(1),
     boxShadow: theme.palette.card.elevation,
+    position: 'relative',
   },
   header: {
     width: '100%',
@@ -115,6 +117,7 @@ type Props = {
   value?: boolean; // open/closed value
   onCollapseChange?: (value: boolean) => void;
   disableCollapse?: boolean;
+  loading?: boolean;
 };
 
 function BridgeCollapse(props: Props) {
@@ -170,6 +173,26 @@ function BridgeCollapse(props: Props) {
       <Collapse in={props.disableCollapse || !collapsedState} unmountOnExit>
         {props.children}
       </Collapse>
+      {props.loading ? (
+        <Box
+          position="absolute"
+          top={0}
+          left={0}
+          height="100%"
+          width="100%"
+          borderRadius={1}
+          sx={{ backgroundColor: 'rgba(255,255,255,0.2)' }}
+        >
+          <CircularProgress
+            sx={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%,-50%)',
+            }}
+          />
+        </Box>
+      ) : null}
     </div>
   );
 }

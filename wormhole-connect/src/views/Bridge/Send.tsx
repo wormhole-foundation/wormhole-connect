@@ -28,6 +28,7 @@ import {
   setSendingGasEst,
   setClaimGasEst,
   setIsTransactionInProgress,
+  setIsCalculating,
 } from 'store/transferInput';
 
 import Button from 'components/Button';
@@ -159,7 +160,8 @@ function Send(props: { valid: boolean }) {
     const tokenConfig = TOKENS[token]!;
     if (!route || !tokenConfig) return;
     const sendToken = tokenConfig.tokenId;
-
+    let cancelled = false;
+    dispatch(setIsCalculating('sendingGas'));
     const gasFee = await estimateSendGas(
       route,
       sendToken || 'native',
@@ -170,7 +172,11 @@ function Send(props: { valid: boolean }) {
       receiving.address,
       { relayerFee, toNativeToken },
     );
+    if (cancelled) return;
     dispatch(setSendingGasEst(gasFee));
+    return () => {
+      cancelled = true;
+    };
   }, [
     token,
     debouncedAmount,

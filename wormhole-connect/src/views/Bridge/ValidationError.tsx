@@ -7,6 +7,7 @@ import { ValidationErr, setTransferRoute } from 'store/transferInput';
 import { Route } from 'config/types';
 import RouteOperator from 'routes/operator';
 import AlertBanner from 'components/AlertBanner';
+import { useIsStateSettled } from 'hooks/useIsCalculating';
 
 const useStyles = makeStyles()((theme) => ({
   minAmtError: {
@@ -36,6 +37,7 @@ function ValidationError(props: Props) {
   const showErrors = useSelector(
     (state: RootState) => state.transferInput.showValidationState,
   );
+  const isSettled = useIsStateSettled();
   const { route } = useSelector((state: RootState) => state.transferInput);
   const { toNativeToken, relayerFee } = useSelector(
     (state: RootState) => state.relay,
@@ -74,7 +76,7 @@ function ValidationError(props: Props) {
 
   return (
     <AlertBanner
-      show={showErrors && showError}
+      show={showErrors && showError && isSettled}
       content={content}
       error
       margin={props.margin}

@@ -86,9 +86,17 @@ export type TransferValidations = {
   foreignAsset: ValidationErr;
 };
 
+// This piece of state is for tracking outstanding network calls
+export type TransferCalculations = {
+  availableRoutes: boolean;
+  sendingGas: boolean;
+  validation: boolean;
+};
+
 export interface TransferInputState {
   showValidationState: boolean;
   validations: TransferValidations;
+  isCalculating: TransferCalculations;
   availableRoutes: string[] | undefined;
   fromChain: ChainName | undefined;
   toChain: ChainName | undefined;
@@ -124,6 +132,11 @@ const initialState: TransferInputState = {
     sendingWallet: '',
     receivingWallet: '',
     foreignAsset: '',
+  },
+  isCalculating: {
+    availableRoutes: false,
+    sendingGas: false,
+    validation: false,
   },
   availableRoutes: undefined,
   fromChain: config?.bridgeDefaults?.fromNetwork || undefined,
@@ -213,6 +226,12 @@ export const transferInputSlice = createSlice({
   name: 'transfer',
   initialState,
   reducers: {
+    setIsCalculating: (
+      state: TransferInputState,
+      { payload }: PayloadAction<keyof TransferCalculations>,
+    ) => {
+      state.isCalculating[payload] = true;
+    },
     // validations
     setValidations: (
       state: TransferInputState,
@@ -231,6 +250,7 @@ export const transferInputSlice = createSlice({
       if (!state.showValidationState && showValidationState) {
         state.showValidationState = showValidationState;
       }
+      state.isCalculating.validation = false;
     },
     setAvailableRoutes: (
       state: TransferInputState,
@@ -238,6 +258,7 @@ export const transferInputSlice = createSlice({
     ) => {
       state.availableRoutes = payload;
       establishRoute(state);
+      state.isCalculating.availableRoutes = false;
     },
     // user input
     setToken: (
@@ -340,6 +361,7 @@ export const transferInputSlice = createSlice({
       { payload }: PayloadAction<string>,
     ) => {
       state.gasEst.send = payload;
+      state.isCalculating.sendingGas = false;
     },
     setClaimGasEst: (
       state: TransferInputState,
@@ -442,6 +464,7 @@ export const selectChain = async (
 };
 
 export const {
+  setIsCalculating,
   setValidations,
   setAvailableRoutes,
   setToken,

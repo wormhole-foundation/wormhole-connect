@@ -46,7 +46,7 @@ function AmountInput(props: Props) {
   return (
     <Input
       label="Amount"
-      error={!!(showErrors && validations.amount)}
+      error={!!(showErrors && validations.amount && !props.disabled)}
       editable
       onClick={focus}
       cursor="text"

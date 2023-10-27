@@ -7,11 +7,12 @@ import { Route, TokenConfig } from 'config/types';
 import { SANCTIONED_WALLETS } from 'consts/wallet';
 import { RootState } from 'store';
 import {
-  TransferInputState,
   setValidations,
   ValidationErr,
   TransferValidations,
   accessBalance,
+  setIsCalculating,
+  WalletBalances,
 } from 'store/transferInput';
 import { WalletData, WalletState } from 'store/wallet';
 import { RelayState } from 'store/relay';
@@ -188,8 +189,54 @@ export const getIsAutomatic = (route: Route | undefined): boolean => {
   return r.AUTOMATIC_DEPOSIT;
 };
 
+export type TransferInputStateForValidation = {
+  fromChain: ChainName | undefined;
+  toChain: ChainName | undefined;
+  token: string;
+  destToken: string;
+  amount: string;
+  balances: WalletBalances;
+  foreignAsset: string;
+  route: Route | undefined;
+  supportedDestTokens: TokenConfig[];
+  availableRoutes: string[] | undefined;
+};
+
+// This hook avoids triggering validation on any transfer input change, saving it for only those changes which affect validation
+export const useSelectTransferInputStateForValidation = () => {
+  const transferInput = useSelector((state: RootState) => state.transferInput);
+  const transferInputForValidation = useMemo(
+    () =>
+      ({
+        fromChain: transferInput.fromChain,
+        toChain: transferInput.toChain,
+        token: transferInput.token,
+        destToken: transferInput.destToken,
+        amount: transferInput.amount,
+        balances: transferInput.balances,
+        foreignAsset: transferInput.foreignAsset,
+        route: transferInput.route,
+        supportedDestTokens: transferInput.supportedDestTokens,
+        availableRoutes: transferInput.availableRoutes,
+      } as TransferInputStateForValidation),
+    [
+      transferInput.fromChain,
+      transferInput.toChain,
+      transferInput.token,
+      transferInput.destToken,
+      transferInput.amount,
+      transferInput.balances,
+      transferInput.foreignAsset,
+      transferInput.route,
+      transferInput.supportedDestTokens,
+      transferInput.availableRoutes,
+    ],
+  );
+  return transferInputForValidation;
+};
+
 export const validateAll = async (
-  transferData: TransferInputState,
+  transferData: TransferInputStateForValidation,
   relayData: RelayState,
   walletData: WalletState,
 ): Promise<TransferValidations> => {
@@ -251,7 +298,7 @@ export const validate = async (
     relay,
     wallet,
   }: {
-    transferInput: TransferInputState;
+    transferInput: TransferInputStateForValidation;
     relay: RelayState;
     wallet: WalletState;
   },
@@ -279,18 +326,23 @@ const VALIDATION_DELAY_MS = 250;
 
 export const useValidate = () => {
   const dispatch = useDispatch();
-  const transferInput = useSelector((state: RootState) => state.transferInput);
+  const transferInput = useSelectTransferInputStateForValidation();
   const relay = useSelector((state: RootState) => state.relay);
   const wallet = useSelector((state: RootState) => state.wallet);
   const stateForValidation = useMemo(
     () => ({ transferInput, relay, wallet }),
     [transferInput, relay, wallet],
   );
+  useEffect(() => {
+    // any time the validation state changes, there will eventually be a validation below
+    dispatch(setIsCalculating('validation'));
+  }, [stateForValidation, dispatch]);
   const [debouncedStateForValidation] = useDebounce(
     stateForValidation,
     VALIDATION_DELAY_MS,
   );
   useEffect(() => {
+    // this effect uses the debounced state to only trigger validation after the state has settled
     validate(debouncedStateForValidation, dispatch);
   }, [debouncedStateForValidation, dispatch]);
 };

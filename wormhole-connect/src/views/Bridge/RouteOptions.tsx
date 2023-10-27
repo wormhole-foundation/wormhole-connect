@@ -4,7 +4,11 @@ import { makeStyles } from 'tss-react/mui';
 import { Chip, useMediaQuery, useTheme } from '@mui/material';
 import { useDebounce } from 'use-debounce';
 import { RootState } from 'store';
-import { setAvailableRoutes, setTransferRoute } from 'store/transferInput';
+import {
+  setAvailableRoutes,
+  setIsCalculating,
+  setTransferRoute,
+} from 'store/transferInput';
 import { LINK, joinClass } from 'utils/style';
 import { toFixedDecimals } from 'utils/balance';
 import RouteOperator from 'routes/operator';
@@ -18,6 +22,7 @@ import TokenIcon from 'icons/TokenIcons';
 import ArrowRightIcon from 'icons/ArrowRight';
 import Options from 'components/Options';
 import { isGatewayChain } from 'utils/cosmos';
+import { useIsStateSettled } from 'hooks/useIsCalculating';
 
 const useStyles = makeStyles()((theme: any) => ({
   link: {
@@ -256,9 +261,12 @@ function RouteOptions() {
   useEffect(() => {
     if (!fromChain || !toChain || !token || !destToken || !debouncedAmount)
       return;
+    let cancelled = false;
+    dispatch(setIsCalculating('availableRoutes'));
     const getAvailable = async () => {
       let available: string[] = [];
       for (const value of ROUTES) {
+        if (cancelled) return;
         const r = value as Route;
         const isSupported = await RouteOperator.isRouteAvailable(
           r,
@@ -272,14 +280,20 @@ function RouteOptions() {
           available.push(r);
         }
       }
+      if (cancelled) return;
       dispatch(setAvailableRoutes(available));
     };
     getAvailable();
+    return () => {
+      cancelled = true;
+    };
   }, [dispatch, token, destToken, debouncedAmount, fromChain, toChain]);
 
   const onCollapseChange = (collapsed: boolean) => {
     setCollapsed(collapsed);
   };
+
+  const isStateSettled = useIsStateSettled();
 
   return availableRoutes ? (
     <BridgeCollapse
@@ -294,6 +308,7 @@ function RouteOptions() {
           ? CollapseControlStyle.Arrow
           : CollapseControlStyle.None
       }
+      loading={!isStateSettled}
     >
       <Options
         active={route}
