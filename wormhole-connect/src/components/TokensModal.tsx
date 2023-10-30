@@ -1,8 +1,11 @@
 import { useMediaQuery } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
+import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { useTheme } from '@mui/material/styles';
 import { ChainName, TokenId } from '@wormhole-foundation/wormhole-connect-sdk';
-import { CHAINS } from 'config';
+import { CHAINS, MORE_TOKENS } from 'config';
 import { TokenConfig } from 'config/types';
 import { BigNumber } from 'ethers';
 import TokenIcon from 'icons/TokenIcons';
@@ -61,6 +64,10 @@ const useStyles = makeStyles()((theme: any) => ({
       borderBottom: `0.5px solid ${theme.palette.divider}`,
     },
   },
+  moreTokensRow: {
+    textDecoration: 'none',
+    color: 'inherit',
+  },
   tokenRowLeft: {
     display: 'flex',
     alignItems: 'center',
@@ -103,6 +110,30 @@ const useStyles = makeStyles()((theme: any) => ({
     alignItems: 'center',
     height: '72px',
   },
+  moreTokens: {
+    textTransform: 'none',
+    marginTop: '66px',
+    minHeight: '64px',
+    minWidth: '193px',
+    backgroundColor: theme.palette.button.primary,
+  },
+  iconButton: {
+    width: '32px',
+    height: '32px',
+    color: theme.palette.modal.background,
+    backgroundColor: theme.palette.button.primaryText,
+    '&:hover': {
+      backgroundColor: theme.palette.button.primaryText,
+    },
+    borderRadius: '100%',
+  },
+  iconOpenInNew: {
+    width: '19px',
+    height: '19px',
+  },
+  moreTokensLabel: {
+    marginRight: '16px',
+  },
 }));
 
 const displayNativeChain = (token: TokenConfig): string => {
@@ -111,15 +142,18 @@ const displayNativeChain = (token: TokenConfig): string => {
   return chainConfig.displayName;
 };
 
-function DisplayTokens(props: {
+type DisplayTokensProps = {
   tokens: TokenConfig[];
   balances: any;
   walletAddress: string | undefined;
   chain: any;
-  selectToken: any;
+  selectToken: (tokenKey: string) => void;
   loading: boolean;
   search: string;
-}) {
+  moreTokens?: (href: string, target?: string) => void;
+};
+
+function DisplayTokens(props: DisplayTokensProps) {
   const { classes } = useStyles();
   const theme: any = useTheme();
   const {
@@ -130,6 +164,7 @@ function DisplayTokens(props: {
     selectToken,
     loading,
     search,
+    moreTokens = () => {},
   } = props;
 
   const showCircularProgress = (token: string): boolean => {
@@ -186,6 +221,24 @@ function DisplayTokens(props: {
                 </div>
               </div>
             ))}
+            {MORE_TOKENS ? (
+              <>
+                <div>
+                  <Button
+                    disableRipple
+                    className={classes.moreTokens}
+                    onClick={() => MORE_TOKENS && moreTokens(MORE_TOKENS.href)}
+                  >
+                    <span className={classes.moreTokensLabel}>
+                      {MORE_TOKENS.label}
+                    </span>
+                    <IconButton className={classes.iconButton}>
+                      <OpenInNewIcon className={classes.iconOpenInNew} />
+                    </IconButton>
+                  </Button>
+                </div>
+              </>
+            ) : null}
           </>
         ) : loading ? (
           <div className={classes.loading}>
@@ -229,6 +282,8 @@ function TokensModal(props: Props) {
     supportedSourceTokens,
     supportedDestTokens,
     allSupportedDestTokens: allSupportedDestTokensBase,
+    fromChain,
+    toChain,
   } = useSelector((state: RootState) => state.transferInput);
 
   const allSupportedDestTokens = useMemo(() => {
@@ -258,6 +313,20 @@ function TokensModal(props: Props) {
     } else {
       setSearch('');
     }
+  };
+
+  const handleMoreTokens = (href: string, target: string = '_self') => {
+    let hydratedHref = href;
+    if (fromChain) {
+      hydratedHref = hydratedHref.replace('{:sourceChain}', fromChain);
+    }
+    if (toChain) {
+      hydratedHref = hydratedHref.replace('{:targetChain}', toChain);
+    }
+    window.open(
+      hydratedHref.replace('&targetChain={:targetChain}', ''),
+      target,
+    );
   };
 
   const displayedTokens = useMemo(() => {
@@ -416,6 +485,7 @@ function TokensModal(props: Props) {
           walletAddress={walletAddress}
           chain={chain}
           selectToken={selectToken}
+          moreTokens={handleMoreTokens}
           loading={loading}
           search={search}
         />
@@ -430,6 +500,7 @@ function TokensModal(props: Props) {
           walletAddress={walletAddress}
           chain={chain}
           selectToken={selectToken}
+          moreTokens={handleMoreTokens}
           loading={loading}
           search={search}
         />

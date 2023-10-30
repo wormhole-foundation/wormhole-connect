@@ -5,7 +5,7 @@ import {
   ChainConfig,
   ChainName,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { CHAINS_ARR, CHAINS } from 'config';
+import { CHAINS_ARR, CHAINS, EXTRA_NETWOKS } from 'config';
 import { CENTER, joinClass } from 'utils/style';
 
 import Header from './Header';
@@ -15,6 +15,7 @@ import Search from './Search';
 import Scroll from './Scroll';
 import TokenIcon from 'icons/TokenIcons';
 import RouteOperator from 'routes/operator';
+import ExtraNetworkIcon from 'icons/ExtraNetworkIcon';
 
 const useStyles = makeStyles()((theme: any) => ({
   chainsContainer: {
@@ -40,6 +41,10 @@ const useStyles = makeStyles()((theme: any) => ({
     '&:hover': {
       backgroundColor: theme.palette.options.select,
     },
+  },
+  extraChainTile: {
+    textDecoration: 'none',
+    color: 'inherit',
   },
   chainIcon: {
     width: '48px',
@@ -71,6 +76,11 @@ type Props = {
   isDisabled?: (chain: ChainName) => boolean;
   onClose: () => any;
   onSelect: (chain: ChainName) => any;
+  onExtraNetworkSelect?: (
+    href: string,
+    chainName: string,
+    target?: string,
+  ) => any;
 };
 
 function ChainsModal(props: Props) {
@@ -79,7 +89,16 @@ function ChainsModal(props: Props) {
 
   const chains = props.chains || CHAINS_ARR;
   const [search, setSearch] = useState<string | undefined>();
-
+  const handleExtraNetwork = (
+    href: string,
+    chainName: string,
+    target?: string,
+  ) => {
+    if (href) {
+      props.onExtraNetworkSelect?.(href, chainName, target);
+    }
+    props.onExtraNetworkSelect?.(EXTRA_NETWOKS?.href!, chainName, target);
+  };
   const supportedChains = useMemo(() => {
     const supported = RouteOperator.allSupportedChains();
     return chains.filter((chain) => {
@@ -150,6 +169,35 @@ function ChainsModal(props: Props) {
                     <div className={classes.chainText}>{chain.displayName}</div>
                   </div>
                 )
+              );
+            })}
+            {EXTRA_NETWOKS?.networks.map((chain, i) => {
+              return (
+                <div
+                  key={i}
+                  className={joinClass([
+                    classes.chainTile,
+                    classes.extraChainTile,
+                  ])}
+                  onClick={() =>
+                    handleExtraNetwork(
+                      chain.href || EXTRA_NETWOKS!.href,
+                      chain.name,
+                      chain.target || EXTRA_NETWOKS?.target,
+                    )
+                  }
+                >
+                  <ExtraNetworkIcon
+                    icon={chain.icon}
+                    alt={chain.label}
+                    height={48}
+                    showOpenInNewIcon={chain.showOpenInNewIcon}
+                    description={
+                      chain.description || EXTRA_NETWOKS?.description
+                    }
+                  />
+                  <div className={classes.chainText}>{chain.label}</div>
+                </div>
               );
             })}
           </div>

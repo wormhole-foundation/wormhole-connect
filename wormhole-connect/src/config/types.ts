@@ -76,13 +76,38 @@ export interface WormholeConnectConfig {
   routes?: string[];
   pageHeader?: string;
   pageSubHeader?: string;
-  searchTx?: SearchTxConfig;
   menu?: MenuEntry[];
+  searchTx?: SearchTxConfig;
+  moreTokens?: MoreTokenConfig;
+  extraNetworks?: ExtraChainConfig;
 }
 
 export type SearchTxConfig = {
   txHash?: string;
   chainName?: ChainName;
+
+}
+
+export type MoreTokenConfig = {
+  label: string;
+  href: string;
+};
+
+export type ExtraChainConfig = {
+  href: string;
+  target?: '_blank' | '_self';
+  description: string;
+  networks: ExtraChainDefintion[];
+};
+
+export type ExtraChainDefintion = {
+  icon: string;
+  href?: string;
+  label: string;
+  name: string;
+  description?: string;
+  target?: '_blank' | '_self';
+  showOpenInNewIcon?: boolean;
 };
 
 type DecimalsMap = Partial<Record<Context, number>> & {
