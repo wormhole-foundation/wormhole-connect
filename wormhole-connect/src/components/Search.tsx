@@ -32,6 +32,7 @@ const useStyles = makeStyles()((theme: any) => ({
 
 type Props = {
   placeholder?: string;
+  value?: string;
   onChange: (
     e?:
       | React.ChangeEvent<HTMLInputElement>
@@ -60,6 +61,7 @@ function Search(props: Props) {
         <div className={classes.searchContent}>
           <div className={classes.input}>
             <InputTransparent
+              value={props.value}
               inputRef={searchEl}
               placeholder={props.placeholder}
               onChange={props.onChange}
