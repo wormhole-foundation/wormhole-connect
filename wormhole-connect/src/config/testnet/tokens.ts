@@ -90,6 +90,16 @@ export const TESTNET_TOKENS: TokensConfig = {
           'wormhole1vguuxez2h5ekltfj9gjd62fs5k4rl2zy5hfrncasykzw08rezpfs63pmq2',
         decimals: 8,
       },
+      osmosis: {
+        address:
+          'ibc/A4A8B6AE885DACD75B228031C0D18AD7EE1B914CED30C9F6F4230DDBD4A1CF2B',
+        decimals: 8,
+      },
+      cosmoshub: {
+        address:
+          'ibc/77FE9153FA76C3107CB9F6633AC33509A58529E9622327F216BA8107C79C2DE3',
+        decimals: 8,
+      },
     },
   },
   USDCeth: {
@@ -157,6 +167,16 @@ export const TESTNET_TOKENS: TokensConfig = {
           'wormhole1rl8su3hadqqq2v86lscpuklsh2mh84cxqvjdew4jt9yd07dzekyqkmcy3p',
         decimals: 6,
       },
+      cosmoshub: {
+        address:
+          'ibc/D0EC31D1176BB69EA1A7CF7172CA0380B7AF488AFC6D55B101B8363C2141CD4F',
+        decimals: 6,
+      },
+      osmosis: {
+        address:
+          'ibc/3BB8C4BD1C90599B2FA5B5839DD0813EF7B94B0BD0904C4C5A61498AE81E0EE9',
+        decimals: 6,
+      },
     },
   },
   WBTC: {
@@ -219,6 +239,11 @@ export const TESTNET_TOKENS: TokensConfig = {
           'ibc/755FBC53FFB46FB505B5269F9BEDF47041F2A0EF2FF8D0520315403E5925C80A',
         decimals: 6,
       },
+      osmosis: {
+        address:
+          'ibc/1941ED1147121BA7DF35559597B6EB3251844DBBBE4557337D957CB95E0978C2',
+        decimals: 6,
+      },
     },
   },
   DAI: {
@@ -277,6 +302,16 @@ export const TESTNET_TOKENS: TokensConfig = {
       wormchain: {
         address:
           'wormhole1uuwad4khwek2h05gmkktzmh8l4t0ep54yydlsqg0l4y2uh3tqfyq3an9k6',
+        decimals: 8,
+      },
+      cosmoshub: {
+        address:
+          'ibc/5F21E975410DA22AF565B1772DC45AD0BD5F6DA004981EBE291763F3D2C72A96',
+        decimals: 8,
+      },
+      osmosis: {
+        address:
+          'ibc/2864B3418775DDB90EE1410EFF822FDA94E9F0FF77FC8771644761C79EDFE7A3',
         decimals: 8,
       },
     },
@@ -375,6 +410,11 @@ export const TESTNET_TOKENS: TokensConfig = {
           'ibc/37FB599287C6963C413E915FDE83EFA69A3CE8147675DD5A7F974B45F39C8A31',
         decimals: 8,
       },
+      osmosis: {
+        address:
+          'ibc/43F15553F8598186394E81E18604B8B4532B2D7E855D9FFE68A2EF6802C18BE4',
+        decimals: 8,
+      },
     },
   },
   USDCpolygon: {
@@ -429,6 +469,16 @@ export const TESTNET_TOKENS: TokensConfig = {
       wormchain: {
         address:
           'wormhole1qmk0v725sdg5ecu6xfh5pt0fv0nfzrstarue2maum3snzk2zrt5qcm4w3g',
+        decimals: 6,
+      },
+      cosmoshub: {
+        address:
+          'ibc/ED0651B0141CA50326B1FFA2E9207F42BE616DE2712356CF8DA4B8CAC4A6A5B6',
+        decimals: 6,
+      },
+      osmosis: {
+        address:
+          'ibc/FDEEB950A2538F30EBA949B9F8D0D28DAC9D26D0B138445BF0DF9FC4B800E1F9',
         decimals: 6,
       },
     },
@@ -521,6 +571,11 @@ export const TESTNET_TOKENS: TokensConfig = {
       cosmoshub: {
         address:
           'ibc/5B0D5974A56332468DD4B2D07C96A7386FCF8FE7303FF41234F90E410EF51937',
+        decimals: 8,
+      },
+      osmosis: {
+        address:
+          'ibc/65A67BA10DE2378B32AC5A822321E370966D3D4E180DEFB4C3C5245B21088DDF',
         decimals: 8,
       },
     },
@@ -691,6 +746,16 @@ export const TESTNET_TOKENS: TokensConfig = {
       wormchain: {
         address:
           'wormhole1qum2tr7hh4y7ruzew68c64myjec0dq2s2njf6waja5t0w879lutqv2exs9',
+        decimals: 6,
+      },
+      cosmoshub: {
+        address:
+          'ibc/F09E98FA8682FF39130F171E9D89A948B0C3A452F2A31F22B6CC54A3AAE1CD4A',
+        decimals: 6,
+      },
+      osmosis: {
+        address:
+          'ibc/EC9FA5074F34F0644A025BB0263FDAE8F364C5E08523F6464465EF1010FF5A3A',
         decimals: 6,
       },
     },
@@ -966,6 +1031,11 @@ export const TESTNET_TOKENS: TokensConfig = {
           'ibc/1EEDF447A6B046B20C00B1497BED5947219AEEBE0D9A85235C85133A554DF7A4',
         decimals: 8,
       },
+      osmosis: {
+        address:
+          'ibc/7DB06BB67428510AFC3967DC90F5632C679D55D8C487A951A0EEC3160AF492A6',
+        decimals: 8,
+      },
     },
   },
   SOL: {
@@ -1060,6 +1130,11 @@ export const TESTNET_TOKENS: TokensConfig = {
           'ibc/D3EA463A51E31B2B30BED1978575CAC145DBAB354B8A0EA5D4CFB12D737AF790',
         decimals: 8,
       },
+      osmosis: {
+        address:
+          'ibc/B5D53105A7AA2BEC4DA4B3304228F3856219AE7CF84A9023043C481629E3E319',
+        decimals: 8,
+      },
     },
   },
   USDCsol: {
@@ -1084,6 +1159,16 @@ export const TESTNET_TOKENS: TokensConfig = {
       wormchain: {
         address:
           'wormhole1ced9v4plkf25q8c6k9gz0guq6l4xyjujpjlvxfg8lpaqywkmamashswq7p',
+        decimals: 6,
+      },
+      cosmoshub: {
+        address:
+          'ibc/26D8D6C63C8D37A5127591DDA905E04CC69CBD3A64F9DA3B1DA3FB0B6A7D9FA5',
+        decimals: 6,
+      },
+      osmosis: {
+        address:
+          'ibc/35A0467DE5744662078DE8B36CBBE0CF0EAA022565A3E6630CB375DDEBB96E05',
         decimals: 6,
       },
     },
@@ -1163,6 +1248,11 @@ export const TESTNET_TOKENS: TokensConfig = {
       cosmoshub: {
         address:
           'ibc/129EC6B8A41BE07F94DD267F552F4AE1D5EAEBB51634A1468556AF06C10C2692',
+        decimals: 8,
+      },
+      osmosis: {
+        address:
+          'ibc/30778BA41ADF2D8A70B90DB53C2E0251731A40276EF6737215BB1A6ED9E90078',
         decimals: 8,
       },
     },
@@ -1306,6 +1396,16 @@ export const TESTNET_TOKENS: TokensConfig = {
           'wormhole186k0cp83c3wyvapgh8fxf66ededemzrfujvjfsx0xw3vr0u9g8sq2y30vx',
         decimals: 8,
       },
+      cosmoshub: {
+        address:
+          'ibc/AB4046AF5B6F146C006DE4DECAD929D24F762A701E09EC8B29000EC63A6E649B',
+        decimals: 8,
+      },
+      osmosis: {
+        address:
+          'ibc/221A4AADF7972F3BB8F48A6CA984FF0AE65B5D973FF1A695B9642AD702F51789',
+        decimals: 8,
+      },
     },
   },
   USDCarbitrum: {
@@ -1344,6 +1444,11 @@ export const TESTNET_TOKENS: TokensConfig = {
       aptos: {
         address:
           '0x3f0fdd44d96dae888d6c576218cf655458316a27c7bdc46537f61e531b10d3df::coin::T',
+        decimals: 6,
+      },
+      osmosis: {
+        address:
+          'ibc/06ED2700071B5A9C582F51A556537DA94E69EF547E7E6CCD8BFA3D95C818A525',
         decimals: 6,
       },
     },
@@ -1409,6 +1514,11 @@ export const TESTNET_TOKENS: TokensConfig = {
           'ibc/A0298483510D803A045AA7F49CCBD0F9D01010FE0B1A346EBDFFF4BA820C3D21',
         decimals: 8,
       },
+      osmosis: {
+        address:
+          'ibc/80B3FECB24A4CE94537444E5BF937AC4C08A39BF90D59620D278FA185BD2B148',
+        decimals: 8,
+      },
     },
   },
   USDCoptimism: {
@@ -1437,6 +1547,16 @@ export const TESTNET_TOKENS: TokensConfig = {
       wormchain: {
         address:
           'wormhole1u5z7097gm57zvun9wqsx6jxej2gpdjhg9l9xfe58rhpm29rtjmfqfnl4yv',
+        decimals: 6,
+      },
+      cosmoshub: {
+        address:
+          'ibc/CE3F2FE630DA6A1187F085CDC8D59BA8B20DA48F4866F2D71C5AB7A1D5859933',
+        decimals: 6,
+      },
+      osmosis: {
+        address:
+          'ibc/0A98A3947189D7C368170C76C3EF49486DDBE095F34B72A3C7F92AEBE1013A1D',
         decimals: 6,
       },
     },
@@ -1523,6 +1643,11 @@ export const TESTNET_TOKENS: TokensConfig = {
       cosmoshub: {
         address:
           'ibc/97035986A4BD0AF555713355A02EA31A4526616B6543E019E0D750007FABE06C',
+        decimals: 8,
+      },
+      osmosis: {
+        address:
+          'ibc/A45069EA82C933945973E66E4222EEE4624498D4483508FE9BEBF9D519F2132F',
         decimals: 8,
       },
     },
@@ -1644,6 +1769,16 @@ export const TESTNET_TOKENS: TokensConfig = {
       wormchain: {
         address:
           'wormhole1u2zdjcczjrenwmf57fmrpensk4the84azdm05m3unm387rm8asdsxqwfeu',
+        decimals: 8,
+      },
+      cosmoshub: {
+        address:
+          'ibc/5BB02667F9F0C8284FCF7716065C2779039817FBCB91E937F5149FE89FD8F202',
+        decimals: 8,
+      },
+      osmosis: {
+        address:
+          'ibc/C66B7DB3ED665D2F5FE8ED15E88B5913A37D80601E161C5E53A743DE12C0FB85',
         decimals: 8,
       },
     },

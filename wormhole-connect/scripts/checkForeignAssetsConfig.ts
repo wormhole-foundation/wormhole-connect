@@ -70,7 +70,7 @@ const checkEnvConfig = async (
               }
             }
             if (foreignAddress) {
-              let foreignDecimals;
+              let foreignDecimals: number | undefined;
               try {
                 foreignDecimals = await wh.fetchTokenDecimals(
                   tokenConfig.tokenId,
@@ -89,7 +89,10 @@ const checkEnvConfig = async (
                   throw new Error(
                     `❌ Invalid foreign address detected! Env: ${env}, Key: ${tokenKey}, Chain: ${chain}, Expected: ${foreignAddress}, Received: ${configForeignAddress.address}`,
                   );
-                } else if (configForeignAddress.decimals !== foreignDecimals) {
+                } else if (
+                  foreignDecimals &&
+                  configForeignAddress.decimals !== foreignDecimals
+                ) {
                   throw new Error(
                     `❌ Invalid foreign decimals detected! Env: ${env}, Key: ${tokenKey}, Chain: ${chain}, Expected: ${foreignDecimals}, Received: ${configForeignAddress.decimals}`,
                   );
