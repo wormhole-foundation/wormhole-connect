@@ -19,13 +19,7 @@ const el = document.getElementById('wormhole-connect');
 if (!el)
   throw new Error('must specify an anchor element with id wormhole-connect');
 const configJson = el.getAttribute('config');
-export const config: WormholeConnectConfig = JSON.parse(configJson!) || {
-  searchTx: {
-    txHash:
-      '0xb896a6509d6d39ebdcc8413288751d5503feba6b04539ce3d5fbc1e1b3450ea4',
-    chainName: 'goerli',
-  },
-};
+export const config: WormholeConnectConfig = JSON.parse(configJson!) || {};
 
 const getEnv = () => {
   const processEnv = process.env.REACT_APP_CONNECT_ENV?.toLowerCase();
