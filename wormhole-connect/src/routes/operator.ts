@@ -6,7 +6,7 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { BigNumber } from 'ethers';
 
-import { CHAINS, ROUTES, TOKENS } from 'config';
+import { CHAINS, ROUTES, TOKENS, TOKENS_ARR } from 'config';
 import { TokenConfig, Route } from 'config/types';
 import {
   ParsedMessage,
@@ -147,7 +147,8 @@ export class Operator {
   ): Promise<TokenConfig[]> {
     const supported: { [key: string]: TokenConfig } = {};
     for (const route of ROUTES) {
-      for (const key in TOKENS) {
+      for (const token of TOKENS_ARR) {
+        const { key } = token;
         const alreadySupported = supported[key];
         if (!alreadySupported) {
           const isSupported = await this.isSupportedSourceToken(
@@ -173,7 +174,8 @@ export class Operator {
   ): Promise<TokenConfig[]> {
     const supported: { [key: string]: TokenConfig } = {};
     for (const route of ROUTES) {
-      for (const key in TOKENS) {
+      for (const token of TOKENS_ARR) {
+        const { key } = token;
         const alreadySupported = supported[key];
         if (!alreadySupported) {
           const isSupported = await this.isSupportedDestToken(
