@@ -296,7 +296,13 @@ function GasSlider(props: { disabled: boolean }) {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      if (!receivingToken || !sendingToken || !route) return;
+      if (
+        !receivingToken ||
+        !sendingToken ||
+        !route ||
+        !receivingWallet.address
+      )
+        return;
       dispatch(setToNativeToken(debouncedSwapAmt));
       const tokenId = receivingToken.tokenId!;
       const tokenToChainDecimals = getTokenDecimals(
