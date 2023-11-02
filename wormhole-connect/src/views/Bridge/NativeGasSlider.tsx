@@ -282,11 +282,9 @@ function GasSlider(props: { disabled: boolean }) {
   const handleChange = (e: any) => {
     if (!amountNum || !state.conversionRate) return;
     const value = e.target.value < state.min ? 0 : e.target.value;
-    const newGasAmount = value * state.conversionRate;
     const newTokenAmount = amountNum - value;
     const swapAmount = value;
     const conversion = {
-      nativeGas: formatAmount(newGasAmount),
       token: formatAmount(newTokenAmount),
       swapAmt: formatAmount(swapAmount),
     };
