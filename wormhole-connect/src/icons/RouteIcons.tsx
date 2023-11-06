@@ -39,6 +39,7 @@ export const getIcon = (route: Route) => {
     case Route.CCTPRelay: {
       return CCTPIcon;
     }
+    // TODO: tBTC?
     default: {
       return noIcon;
     }
