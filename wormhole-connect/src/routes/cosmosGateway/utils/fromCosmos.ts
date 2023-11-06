@@ -16,6 +16,7 @@ import { IBC_PORT } from '../utils/consts';
 import { IBC_MSG_TYPE, IBC_TIMEOUT_MILLIS, millisToNano } from './consts';
 import { getIbcDestinationChannel, getTranslatorAddress } from './contracts';
 import { isGatewayChain } from '../../../utils/cosmos';
+import Long from 'long';
 
 export function buildFromCosmosPayloadMemo(
   recipientChainId: ChainId,
@@ -73,17 +74,31 @@ export async function fromCosmos(
     amount,
   };
   const channel = await getIbcDestinationChannel(sendingChainId);
+  const baseMsg = MsgTransfer.fromPartial({
+    sourcePort: IBC_PORT,
+    sourceChannel: channel,
+    sender: senderAddress,
+    receiver: getTranslatorAddress(),
+    token: coin,
+    timeoutTimestamp: BigInt(millisToNano(Date.now() + IBC_TIMEOUT_MILLIS)),
+    memo,
+  });
   const ibcMessage: MsgTransferEncodeObject = {
     typeUrl: IBC_MSG_TYPE,
-    value: MsgTransfer.fromPartial({
-      sourcePort: IBC_PORT,
-      sourceChannel: channel,
-      sender: senderAddress,
-      receiver: getTranslatorAddress(),
-      token: coin,
-      timeoutTimestamp: millisToNano(Date.now() + IBC_TIMEOUT_MILLIS),
-      memo,
-    }),
+    value: {
+      ...baseMsg,
+      timeoutHeight: baseMsg.timeoutHeight
+        ? {
+            revisionHeight: Long.fromNumber(
+              Number(baseMsg.timeoutHeight.revisionHeight),
+            ),
+            revisionNumber: Long.fromNumber(
+              Number(baseMsg.timeoutHeight.revisionNumber),
+            ),
+          }
+        : undefined,
+      timeoutTimestamp: Long.fromNumber(Number(baseMsg.timeoutTimestamp)),
+    },
   };
 
   const sourceChainName = wh.toChainName(sendingChainId);
