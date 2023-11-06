@@ -2,6 +2,10 @@
 
 Integration does not get easier than this. Wormhole Connect is an easy seamless experience that will help to bring all the functionality of the Wormhole Token Bridge right into your application.
 
+## Customizer
+
+Customize and integrate via our no-code solution: https://connect-in-style.wormhole.com/
+
 ## Integration instructions
 
 1. (optional) Create a JSON config with customized values:
