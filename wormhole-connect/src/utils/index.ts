@@ -200,6 +200,26 @@ export function toNormalizedDecimals(
   return toDecimals(amount, normalizedDecimals, numDecimals);
 }
 
+export function normalizeAmount(
+  amount: BigNumber,
+  decimals: number,
+): BigNumber {
+  if (decimals > NORMALIZED_DECIMALS) {
+    return amount.div(BigNumber.from(10).pow(decimals - NORMALIZED_DECIMALS));
+  }
+  return amount;
+}
+
+export function deNormalizeAmount(
+  amount: BigNumber,
+  decimals: number,
+): BigNumber {
+  if (decimals > NORMALIZED_DECIMALS) {
+    return amount.mul(BigNumber.from(10).pow(decimals - NORMALIZED_DECIMALS));
+  }
+  return amount;
+}
+
 export async function sleep(timeout: number) {
   return new Promise((resolve) => setTimeout(resolve, timeout));
 }

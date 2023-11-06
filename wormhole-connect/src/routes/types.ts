@@ -8,10 +8,12 @@ export interface CCTPMessage {
 export type ManualCCTPMessage = CCTPMessage & ParsedMessage;
 export type RelayCCTPMessage = CCTPMessage & ParsedRelayerMessage;
 export type UnsignedCCTPMessage = ManualCCTPMessage | RelayCCTPMessage;
+export type TBTCMessage = TokenTransferMessage & { to: string };
 export type UnsignedMessage =
   | TokenTransferMessage
   | RelayTransferMessage
-  | UnsignedCCTPMessage;
+  | UnsignedCCTPMessage
+  | TBTCMessage;
 
 export type SignedTokenTransferMessage = TokenTransferMessage & { vaa: string }; // hex encoded vaa bytes
 export type SignedRelayTransferMessage = RelayTransferMessage & { vaa: string }; // hex encoded vaa bytes

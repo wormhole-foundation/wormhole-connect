@@ -70,11 +70,12 @@ export class Operator {
       return Route.CosmosGateway;
     }
 
-    // Check if is CCTP Route (CCTPRelay or CCTPManual)
     if (isEvmChain(chain)) {
       const provider = wh.mustGetProvider(chain);
       const receipt = await provider.getTransactionReceipt(txHash);
       if (!receipt) throw new Error(`No receipt for ${txHash} on ${chain}`);
+
+      // Check if is CCTP Route (CCTPRelay or CCTPManual)
       const cctpDepositForBurnLog = receipt.logs.find(
         (log) => log.topics[0] === CCTP_LOG_TokenMessenger_DepositForBurn,
       );
@@ -89,6 +90,11 @@ export class Operator {
           return Route.CCTPRelay;
         else return Route.CCTPManual;
       }
+    }
+
+    const isTBTCRoute = await TBTCRoute.isTxForThisRoute(txHash, chain);
+    if (isTBTCRoute) {
+      return Route.TBTC;
     }
 
     let message = await getMessage(txHash, chain);

@@ -58,11 +58,11 @@ export const RoutesConfig: {
   },
   [Route.TBTC]: {
     route: Route.TBTC,
-    name: 'tBtc',
+    name: 'tBTC',
     providedBy: 'Wormhole',
     link: 'https://threshold.network',
     icon: WormholeIcon,
-    pendingMessage: 'Waiting for Threshold network consensus . . .',
+    pendingMessage: 'Waiting for Wormhole network consensus . . .',
   },
   [Route.CosmosGateway]: {
     route: Route.CosmosGateway,

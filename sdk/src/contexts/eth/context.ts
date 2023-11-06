@@ -315,6 +315,7 @@ export class EthContext<
     const recipientChainId = this.context.toChainId(recipientChain);
     const sendingChainName = this.context.toChainName(sendingChain);
     const amountBN = ethers.BigNumber.from(amount);
+    console.log(amount);
     const bridge = this.contracts.mustGetBridge(sendingChain);
 
     let recipientAccount = recipientAddress;
