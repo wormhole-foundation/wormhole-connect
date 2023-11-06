@@ -2,13 +2,17 @@
 
 Wormhole Connect is a project to facilitate integration with the Wormhole protocol. It is thus far comprised of 3 components: wormhole-connect, sdk and builder. Below is a brief introduction on each, see the corresponding READMEs for more information.
 
-### wormhole-connect
+### Wormhole Connect
 
 An app that brings all the functionality and utility of the Wormhole token bridge right into your application and removes all of the complexity. It is built to be embedded within any application, simply copy a script tag or install the [npm package](https://www.npmjs.com/package/@wormhole-foundation/wormhole-connect). 
 
 Optionally, configure a number of parameters such as supported chains/tokens and theme.
 
 Read more [here](./wormhole-connect/README.md)
+
+### Customizer
+
+Customize and integrate via our no-code solution: https://connect-in-style.wormhole.com/
 
 ### SDK
 
