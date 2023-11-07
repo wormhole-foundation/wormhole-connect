@@ -1835,6 +1835,21 @@ export const TESTNET_TOKENS: TokensConfig = {
       default: 18,
     },
   },
+  tBTCsol: {
+    key: 'tBTCsol',
+    symbol: 'tBTC',
+    nativeChain: 'solana',
+    tokenId: {
+      chain: 'solana',
+      address: '6DNSN2BJsaPFdFFc1zP37kkeNe4Usc1Sqkzr9C9vPWcU',
+    },
+    icon: Icon.TBTC,
+    coinGeckoId: 'tbtc',
+    color: '#000000',
+    decimals: {
+      default: 8,
+    },
+  },
   wstETH: {
     key: 'wstETH',
     symbol: 'wstETH',

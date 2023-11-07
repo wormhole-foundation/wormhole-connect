@@ -59,8 +59,8 @@ export const RoutesConfig: {
   [Route.TBTC]: {
     route: Route.TBTC,
     name: 'tBTC',
-    providedBy: 'Wormhole',
-    link: 'https://threshold.network',
+    providedBy: 'Threshold',
+    link: 'https://threshold.network/earn/btc',
     icon: WormholeIcon,
     pendingMessage: 'Waiting for Wormhole network consensus . . .',
   },

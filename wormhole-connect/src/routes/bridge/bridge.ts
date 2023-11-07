@@ -35,7 +35,7 @@ import {
 import { isGatewayChain } from '../../utils/cosmos';
 import { fetchVaa } from '../../utils/vaa';
 import { formatGasFee } from '../utils';
-import { isTBTCGatewayChain } from 'routes/tbtc';
+import { isTBTCCanonicalChain } from 'routes/tbtc';
 
 export class BridgeRoute extends BaseRoute {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean = false;
@@ -58,7 +58,7 @@ export class BridgeRoute extends BaseRoute {
       return false;
     if (sourceChain === destChain) return false;
     if (isGatewayChain(sourceChain) || isGatewayChain(destChain)) return false;
-    if (isTBTCGatewayChain(sourceChain) || isTBTCGatewayChain(destChain))
+    if (isTBTCCanonicalChain(sourceChain) || isTBTCCanonicalChain(destChain))
       return false;
     // TODO: probably not true for Solana
     if (destToken === 'native') return false;

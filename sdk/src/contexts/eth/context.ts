@@ -2,7 +2,7 @@ import {
   Implementation__factory,
   TokenImplementation__factory,
 } from '@certusone/wormhole-sdk/lib/esm/ethers-contracts';
-import { createNonce } from '@certusone/wormhole-sdk';
+import { createNonce, keccak256 } from '@certusone/wormhole-sdk';
 import {
   BigNumber,
   BigNumberish,
@@ -811,10 +811,10 @@ export class EthContext<
     signedVaa: string,
   ): Promise<boolean> {
     const tokenBridge = this.contracts.mustGetBridge(destChain);
-    const hash = parseVaa(
-      utils.arrayify(signedVaa, { allowMissingPrefix: true }),
-    ).hash;
-    return await tokenBridge.isTransferCompleted(hash);
+    const doubleHash = keccak256(
+      parseVaa(utils.arrayify(signedVaa, { allowMissingPrefix: true })).hash,
+    );
+    return await tokenBridge.isTransferCompleted(doubleHash);
   }
 
   formatAddress(address: string): Uint8Array {
