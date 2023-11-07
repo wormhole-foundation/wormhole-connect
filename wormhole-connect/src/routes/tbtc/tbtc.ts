@@ -4,6 +4,7 @@ import {
   ChainName,
   TokenId,
   EthContext,
+  SolanaContext,
   WormholeContext,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { CHAINS, ROUTES, TOKENS, isMainnet, TOKENS_ARR } from 'config';
@@ -38,12 +39,13 @@ import {
   CHAIN_ID_BASE,
   CHAIN_ID_SOLANA,
 } from '@certusone/wormhole-sdk';
-import { ThresholdL2WormholeGateway } from 'utils/ThresholdL2WormholeGateway';
+import { ThresholdL2WormholeGateway as EVMGateway } from './abi/evm/ThresholdL2WormholeGateway';
+import { receiveTbtc, sendTbtc } from './abi/solana/WormholeGateway';
 import { fetchVaa, getUnsignedVaaEvm } from 'utils/vaa';
 import { arrayify, hexlify, parseUnits } from 'ethers/lib/utils.js';
 import { BaseRoute } from '../bridge';
 import { toDecimals } from 'utils/balance';
-import { signAndSendTransaction, TransferWallet } from 'utils/wallet';
+import { postVaa, signAndSendTransaction, TransferWallet } from 'utils/wallet';
 import { getNativeVersionOfToken } from 'store/transferInput';
 import { CHAIN_ID_ETH } from '@xlabs-libs/wallet-aggregator-core';
 
@@ -51,7 +53,7 @@ export const THRESHOLD_ARBITER_FEE = 0;
 export const THRESHOLD_NONCE = 0;
 export const TBTC_TOKEN_SYMBOL = 'tBTC';
 
-export const isTBTCGatewayChain = (chain: ChainId | ChainName): boolean =>
+export const isTBTCCanonicalChain = (chain: ChainId | ChainName): boolean =>
   !!THRESHOLD_GATEWAYS[wh.toChainId(chain)];
 
 const THRESHOLD_GATEWAYS_MAINNET: { [key in ChainId]?: string } = {
@@ -102,7 +104,67 @@ export class TBTCRoute extends BaseRoute {
     return !!wh.getContracts(chain)?.token_bridge;
   }
 
-  // The route is available if the token is tBTC a gateway contract exists
+  async isSupportedSourceToken(
+    token: TokenConfig | undefined,
+    destToken: TokenConfig | undefined,
+    sourceChain?: ChainName | ChainId,
+    destChain?: ChainName | ChainId,
+  ): Promise<boolean> {
+    console.log('foo');
+    if (!token) return false;
+    return token.symbol === TBTC_TOKEN_SYMBOL;
+  }
+
+  async isSupportedDestToken(
+    token: TokenConfig | undefined,
+    sourceToken: TokenConfig | undefined,
+    sourceChain?: ChainName | ChainId,
+    destChain?: ChainName | ChainId,
+  ): Promise<boolean> {
+    console.log('foo');
+    if (!token) return false;
+    return token.symbol === TBTC_TOKEN_SYMBOL;
+  }
+
+  /*
+  async supportedSourceTokens(
+    tokens: TokenConfig[],
+    destToken?: TokenConfig,
+    sourceChain?: ChainName | ChainId,
+    destChain?: ChainName | ChainId,
+  ): Promise<TokenConfig[]> {
+    if (!destToken) return tokens;
+    const shouldAdd = await Promise.allSettled(
+      tokens.map((token) =>
+        this.isSupportedSourceToken(token, destToken, sourceChain, destChain),
+      ),
+    );
+    return tokens.filter((_token, i) => {
+      const res = shouldAdd[i];
+      return res.status === 'fulfilled' && res.value;
+    });
+  }
+
+  async supportedDestTokens(
+    tokens: TokenConfig[],
+    sourceToken?: TokenConfig,
+    sourceChain?: ChainName | ChainId,
+    destChain?: ChainName | ChainId,
+  ): Promise<TokenConfig[]> {
+    if (!sourceToken) return tokens;
+    const shouldAdd = await Promise.allSettled(
+      tokens.map((token) =>
+        this.isSupportedDestToken(token, sourceToken, sourceChain, destChain),
+      ),
+    );
+    return tokens.filter((_token, i) => {
+      const res = shouldAdd[i];
+      return res.status === 'fulfilled' && res.value;
+    });
+  }
+  */
+
+  // The route is available if the token is tBTC and the gateway contract exists
   // on either the source or target chain
   async isRouteAvailable(
     sourceToken: string,
@@ -120,7 +182,7 @@ export class TBTCRoute extends BaseRoute {
     ) {
       return false;
     }
-    return isTBTCGatewayChain(sourceChain) || isTBTCGatewayChain(destChain);
+    return isTBTCCanonicalChain(sourceChain) || isTBTCCanonicalChain(destChain);
   }
 
   async computeReceiveAmount(
@@ -171,10 +233,10 @@ export class TBTCRoute extends BaseRoute {
         const signer = wh.mustGetSigner(sendingChain);
         const L2WormholeGateway = new Contract(
           gatewayAddress,
-          ThresholdL2WormholeGateway,
+          EVMGateway,
           signer,
         );
-        // We need to remove any dust from the amount so the token bridge
+        // We need to truncate any dust from the amount so the token bridge
         // doesn't send it to the gateway contract
         const denormalizedAmount = deNormalizeAmount(
           normalizeAmount(transferAmountParsed, decimals),
@@ -242,19 +304,17 @@ export class TBTCRoute extends BaseRoute {
     }
     const fromChainId = wh.toChainId(sendingChain);
     const fromChainName = wh.toChainName(sendingChain);
+    const toChainId = wh.toChainId(recipientChain);
+    const formattedRecipient = wh.formatAddress(
+      recipientAddress,
+      recipientChain,
+    );
+    const decimals = getTokenDecimals(fromChainId, token);
+    const baseAmountParsed = parseUnits(amount, decimals);
+    const feeParsed = parseUnits('0', decimals);
+    const transferAmountParsed = baseAmountParsed.add(feeParsed);
     if (isEvmChain(sendingChain)) {
       const signer = wh.mustGetSigner(sendingChain);
-      const toChainId = wh.toChainId(recipientChain);
-      const decimals = getTokenDecimals(fromChainId, token);
-      const baseAmountParsed = parseUnits(amount, decimals);
-      const feeParsed = parseUnits('0', decimals);
-      const transferAmountParsed = baseAmountParsed.add(feeParsed);
-      // TODO: make sure this works for solana
-      const formattedRecipient = wh.formatAddress(
-        recipientAddress,
-        recipientChain,
-      );
-      // const sourceAddress = THRESHOLD_GATEWAYS[fromChainId]?.toLowerCase();
       const sourceGatewayAddress = THRESHOLD_GATEWAYS[fromChainId];
       // Use the gateway contract to send if it exists
       if (sourceGatewayAddress) {
@@ -263,10 +323,10 @@ export class TBTCRoute extends BaseRoute {
         ) as EthContext<WormholeContext>;
         const L2WormholeGateway = new Contract(
           sourceGatewayAddress,
-          ThresholdL2WormholeGateway,
+          EVMGateway,
           signer,
         );
-        // We need to remove any dust from the amount so the token bridge
+        // We need to truncate any dust from the amount so the token bridge
         // doesn't send it to the gateway contract
         const denormalizedAmount = deNormalizeAmount(
           normalizeAmount(transferAmountParsed, decimals),
@@ -323,7 +383,7 @@ export class TBTCRoute extends BaseRoute {
         // on the target chain with the recipient address as the payload.
         const tx = await wh.send(
           token,
-          baseAmountParsed.toString(),
+          transferAmountParsed.toString(),
           sendingChain,
           senderAddress,
           recipientChain,
@@ -339,7 +399,27 @@ export class TBTCRoute extends BaseRoute {
         return txId;
       }
     } else if (fromChainId === CHAIN_ID_SOLANA) {
-      throw new Error('Solana case not implemented yet');
+      const context = wh.getContext(
+        fromChainId,
+      ) as SolanaContext<WormholeContext>;
+      const connection = context.connection;
+      if (!connection) {
+        throw new Error('Connection not found');
+      }
+      const tx = await sendTbtc(
+        transferAmountParsed.toString(),
+        toChainId,
+        formattedRecipient,
+        senderAddress,
+        isTBTCCanonicalChain(toChainId),
+        connection,
+      );
+      const txId = await signAndSendTransaction(
+        fromChainName,
+        tx,
+        TransferWallet.SENDING,
+      );
+      return txId;
     } else {
       throw new Error(`Chain ${fromChainName} not supported`);
     }
@@ -359,7 +439,7 @@ export class TBTCRoute extends BaseRoute {
         const signer = wh.mustGetSigner(destChain);
         const L2WormholeGateway = new Contract(
           destGatewayAddress,
-          ThresholdL2WormholeGateway,
+          EVMGateway,
           signer,
         );
         const estimateGas = await L2WormholeGateway.estimateGas.receiveTbtc(
@@ -393,7 +473,29 @@ export class TBTCRoute extends BaseRoute {
         return txId;
       }
     } else if (destChainId === CHAIN_ID_SOLANA) {
-      throw new Error('Solana case not implemented yet');
+      console.log(`vaa: ${message.vaa}`);
+      const signedVaa = Buffer.from(
+        arrayify(message.vaa, { allowMissingPrefix: true }),
+      );
+      const context = wh.getContext(
+        destChain,
+      ) as SolanaContext<WormholeContext>;
+      const connection = context.connection;
+      if (!connection) {
+        throw new Error('Connection not found');
+      }
+      const core = wh.mustGetContracts(destChain).core;
+      if (!core) {
+        throw new Error('Core not found');
+      }
+      await postVaa(connection, core, signedVaa);
+      const tx = await receiveTbtc(signedVaa, payer, connection);
+      const txId = await signAndSendTransaction(
+        destChainName,
+        tx,
+        TransferWallet.RECEIVING,
+      );
+      return txId;
     } else {
       throw new Error(`Chain ${destChainName} not supported`);
     }
@@ -461,7 +563,7 @@ export class TBTCRoute extends BaseRoute {
     chain: ChainName | ChainId,
   ): Promise<string | null> {
     const chainId = wh.toChainId(chain);
-    if (chainId === CHAIN_ID_ETH || isTBTCGatewayChain(chainId)) {
+    if (chainId === CHAIN_ID_ETH || isTBTCCanonicalChain(chainId)) {
       // The gateway contracts mint canonical tBTC
       // Find the canonical tBTC token for the chain
       const addr = TOKENS_ARR.find(
@@ -665,6 +767,7 @@ export class TBTCRoute extends BaseRoute {
     txHash: string,
     chain: ChainName | ChainId,
   ): Promise<boolean> {
+    const chainId = wh.toChainId(chain);
     if (isEvmChain(chain)) {
       const provider = wh.mustGetProvider(chain);
       const receipt = await provider.getTransactionReceipt(txHash);
@@ -696,7 +799,20 @@ export class TBTCRoute extends BaseRoute {
       const fromChain = wh.toChainId(chain);
       const toChain = wh.toChainId(transfer.toChain);
       // This must be a transfer to or from a tBTC gateway chain
-      return isTBTCGatewayChain(fromChain) || isTBTCGatewayChain(toChain);
+      return isTBTCCanonicalChain(fromChain) || isTBTCCanonicalChain(toChain);
+    } else if (chainId === CHAIN_ID_SOLANA) {
+      const context = wh.getContext(chain) as SolanaContext<WormholeContext>;
+      const connection = context.connection;
+      if (!connection) {
+        throw new Error('Connection not found');
+      }
+      const response = await connection.getParsedTransaction(txHash);
+      if (!response) {
+        return false;
+      }
+      console.log(JSON.stringify(response, null, 2));
+      // TODO: implement
+      return false;
     } else {
       throw new Error('Not implemented');
     }
