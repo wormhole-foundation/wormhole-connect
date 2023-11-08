@@ -58,7 +58,10 @@ export class BridgeRoute extends BaseRoute {
       return false;
     if (sourceChain === destChain) return false;
     if (isGatewayChain(sourceChain) || isGatewayChain(destChain)) return false;
-    if (isTBTCCanonicalChain(sourceChain) || isTBTCCanonicalChain(destChain))
+    if (
+      (isTBTCCanonicalChain(sourceChain) || isTBTCCanonicalChain(destChain)) &&
+      sourceTokenConfig.symbol === 'tBTC'
+    )
       return false;
     // TODO: probably not true for Solana
     if (destToken === 'native') return false;

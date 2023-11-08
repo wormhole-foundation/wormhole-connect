@@ -6,6 +6,10 @@ import {
   EthContext,
   SolanaContext,
   WormholeContext,
+  parseTokenTransferPayload,
+  SOLANA_SEQ_LOG,
+  SOLANA_MAINNET_EMMITER_ID,
+  SOLANA_TESTNET_EMITTER_ID,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { CHAINS, ROUTES, TOKENS, isMainnet, TOKENS_ARR } from 'config';
 import { TokenConfig, Route } from 'config/types';
@@ -48,13 +52,14 @@ import { toDecimals } from 'utils/balance';
 import { postVaa, signAndSendTransaction, TransferWallet } from 'utils/wallet';
 import { getNativeVersionOfToken } from 'store/transferInput';
 import { CHAIN_ID_ETH } from '@xlabs-libs/wallet-aggregator-core';
+import {
+  deriveWormholeEmitterKey,
+  getPostedMessage,
+} from '@certusone/wormhole-sdk/lib/esm/solana/wormhole';
 
-export const THRESHOLD_ARBITER_FEE = 0;
-export const THRESHOLD_NONCE = 0;
-export const TBTC_TOKEN_SYMBOL = 'tBTC';
-
-export const isTBTCCanonicalChain = (chain: ChainId | ChainName): boolean =>
-  !!THRESHOLD_GATEWAYS[wh.toChainId(chain)];
+const THRESHOLD_ARBITER_FEE = 0;
+const THRESHOLD_NONCE = 0;
+const TBTC_TOKEN_SYMBOL = 'tBTC';
 
 const THRESHOLD_GATEWAYS_MAINNET: { [key in ChainId]?: string } = {
   [CHAIN_ID_POLYGON]: '0x09959798B95d00a3183d20FaC298E4594E599eab',
@@ -76,25 +81,8 @@ const THRESHOLD_GATEWAYS = isMainnet
   ? THRESHOLD_GATEWAYS_MAINNET
   : THRESHOLD_GATEWAYS_TESTNET;
 
-/*
-const THRESHOLD_TBTC_CONTRACTS_MAINNET: { [key in ChainId]?: string } = {
-  [CHAIN_ID_ETH]: '0x18084fbA666a33d37592fA2633fD49a74DD93a88',
-  [CHAIN_ID_POLYGON]: '0x236aa50979D5f3De3Bd1Eeb40E81137F22ab794b',
-  [CHAIN_ID_OPTIMISM]: '0x6c84a8f1c29108F47a79964b5Fe888D4f4D0dE40',
-  [CHAIN_ID_ARBITRUM]: '0x6c84a8f1c29108F47a79964b5Fe888D4f4D0dE40',
-  [CHAIN_ID_BASE]: '0x236aa50979D5f3De3Bd1Eeb40E81137F22ab794b',
-  [CHAIN_ID_SOLANA]: '6DNSN2BJsaPFdFFc1zP37kkeNe4Usc1Sqkzr9C9vPWcU', // Solana TBTC Mint
-};
-
-const THRESHOLD_TBTC_CONTRACTS_TESTNET: { [key in ChainId]?: string } = {
-  [CHAIN_ID_ETH]: '0x679874fBE6D4E7Cc54A59e315FF1eB266686a937',
-  [CHAIN_ID_POLYGON]: '0xBcD7917282E529BAA6f232DdDc75F3901245A492',
-  [CHAIN_ID_OPTIMISM]: '0x1a53759DE2eADf73bd0b05c07a4F1F5B7912dA3d',
-  [CHAIN_ID_ARBITRUM]: '0x85727F4725A4B2834e00Db1AA8e1b843a188162F',
-  [CHAIN_ID_BASE]: '0x783349cd20f26CE12e747b1a17bC38D252c9e119',
-  [CHAIN_ID_SOLANA]: '6DNSN2BJsaPFdFFc1zP37kkeNe4Usc1Sqkzr9C9vPWcU', // Solana TBTC Mint
-};
-*/
+export const isTBTCCanonicalChain = (chain: ChainId | ChainName): boolean =>
+  !!THRESHOLD_GATEWAYS[wh.toChainId(chain)];
 
 export class TBTCRoute extends BaseRoute {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean = false;
@@ -110,9 +98,39 @@ export class TBTCRoute extends BaseRoute {
     sourceChain?: ChainName | ChainId,
     destChain?: ChainName | ChainId,
   ): Promise<boolean> {
-    console.log('foo');
     if (!token) return false;
-    return token.symbol === TBTC_TOKEN_SYMBOL;
+    if (!sourceChain) return false;
+    /*
+    const sourceChainName = token.nativeChain;
+    const sourceChainCanonical =
+      isTBTCCanonicalChain(sourceChainName) &&
+      (!sourceChain || wh.toChainName(sourceChain) === sourceChainName);
+
+    if (destToken) {
+      const destChainName = destToken.nativeChain;
+      const destChainCanonical =
+        isTBTCCanonicalChain(destChainName) &&
+        (!destChain || wh.toChainName(destChain) === destChainName);
+
+      return (
+        destToken.symbol === TBTC_TOKEN_SYMBOL &&
+        token.symbol === TBTC_TOKEN_SYMBOL &&
+        sourceChainCanonical &&
+        destChainCanonical
+      );
+    }
+    return token.symbol === TBTC_TOKEN_SYMBOL && sourceChainCanonical;
+    */
+    if (token.symbol !== TBTC_TOKEN_SYMBOL) {
+      return false;
+    }
+    if (
+      isTBTCCanonicalChain(sourceChain) &&
+      token.nativeChain === wh.toChainName(sourceChain)
+    ) {
+      return true;
+    }
+    return wh.toChainId(token.nativeChain) === CHAIN_ID_ETH;
   }
 
   async isSupportedDestToken(
@@ -121,48 +139,39 @@ export class TBTCRoute extends BaseRoute {
     sourceChain?: ChainName | ChainId,
     destChain?: ChainName | ChainId,
   ): Promise<boolean> {
-    console.log('foo');
     if (!token) return false;
-    return token.symbol === TBTC_TOKEN_SYMBOL;
+    if (!destChain) return false;
+    /*
+    console.log(token);
+    const destChainName = token.nativeChain;
+    const destChainCanonical =
+      isTBTCCanonicalChain(destChainName) &&
+      (!destChain || wh.toChainName(destChain) === destChainName);
+    if (sourceToken) {
+      const sourceChainName = sourceToken.nativeChain;
+      const sourceChainCanonical =
+        isTBTCCanonicalChain(sourceChainName) &&
+        (!sourceChain || wh.toChainName(sourceChain) === sourceChainName);
+      return (
+        sourceToken.symbol === TBTC_TOKEN_SYMBOL &&
+        token.symbol === TBTC_TOKEN_SYMBOL &&
+        sourceChainCanonical &&
+        destChainCanonical
+      );
+    }
+    return token.symbol === TBTC_TOKEN_SYMBOL && destChainCanonical;
+    */
+    if (token.symbol !== TBTC_TOKEN_SYMBOL) {
+      return false;
+    }
+    if (
+      isTBTCCanonicalChain(destChain) &&
+      token.nativeChain === wh.toChainName(destChain)
+    ) {
+      return true;
+    }
+    return wh.toChainId(token.nativeChain) === CHAIN_ID_ETH;
   }
-
-  /*
-  async supportedSourceTokens(
-    tokens: TokenConfig[],
-    destToken?: TokenConfig,
-    sourceChain?: ChainName | ChainId,
-    destChain?: ChainName | ChainId,
-  ): Promise<TokenConfig[]> {
-    if (!destToken) return tokens;
-    const shouldAdd = await Promise.allSettled(
-      tokens.map((token) =>
-        this.isSupportedSourceToken(token, destToken, sourceChain, destChain),
-      ),
-    );
-    return tokens.filter((_token, i) => {
-      const res = shouldAdd[i];
-      return res.status === 'fulfilled' && res.value;
-    });
-  }
-
-  async supportedDestTokens(
-    tokens: TokenConfig[],
-    sourceToken?: TokenConfig,
-    sourceChain?: ChainName | ChainId,
-    destChain?: ChainName | ChainId,
-  ): Promise<TokenConfig[]> {
-    if (!sourceToken) return tokens;
-    const shouldAdd = await Promise.allSettled(
-      tokens.map((token) =>
-        this.isSupportedDestToken(token, sourceToken, sourceChain, destChain),
-      ),
-    );
-    return tokens.filter((_token, i) => {
-      const res = shouldAdd[i];
-      return res.status === 'fulfilled' && res.value;
-    });
-  }
-  */
 
   // The route is available if the token is tBTC and the gateway contract exists
   // on either the source or target chain
@@ -221,56 +230,6 @@ export class TBTCRoute extends BaseRoute {
     recipientAddress: string,
     routeOptions?: any,
   ): Promise<BigNumber> {
-    console.log('estimateSendGas');
-    const chainId = wh.toChainId(sendingChain);
-    const decimals = getTokenDecimals(chainId, token);
-    const baseAmountParsed = parseUnits(amount, decimals);
-    const feeParsed = parseUnits('0', decimals);
-    const transferAmountParsed = baseAmountParsed.add(feeParsed);
-    if (isEvmChain(chainId)) {
-      const gatewayAddress = THRESHOLD_GATEWAYS[chainId];
-      if (gatewayAddress) {
-        const signer = wh.mustGetSigner(sendingChain);
-        const L2WormholeGateway = new Contract(
-          gatewayAddress,
-          EVMGateway,
-          signer,
-        );
-        // We need to truncate any dust from the amount so the token bridge
-        // doesn't send it to the gateway contract
-        const denormalizedAmount = deNormalizeAmount(
-          normalizeAmount(transferAmountParsed, decimals),
-          decimals,
-        );
-        // TODO: make sure this works for solana
-        const formattedRecipient = wh.formatAddress(
-          recipientAddress,
-          recipientChain,
-        );
-        return await L2WormholeGateway.estimateGas.sendTbtc(
-          denormalizedAmount,
-          wh.toChainId(recipientChain),
-          formattedRecipient,
-          THRESHOLD_ARBITER_FEE,
-          THRESHOLD_NONCE,
-        );
-      } else {
-        const context = wh.getContext(
-          sendingChain,
-        ) as EthContext<WormholeContext>;
-        // TODO: we should be estimating send with payload here
-        const est = await context.estimateSendGas(
-          token,
-          transferAmountParsed.toString(),
-          sendingChain,
-          senderAddress,
-          recipientChain,
-          recipientAddress,
-        );
-        console.log(`estimateSendGas: ${est.toString()}`);
-        return est;
-      }
-    }
     throw new Error('not implemented');
   }
 
@@ -399,6 +358,10 @@ export class TBTCRoute extends BaseRoute {
         return txId;
       }
     } else if (fromChainId === CHAIN_ID_SOLANA) {
+      const { core, token_bridge } = wh.mustGetContracts(fromChainId);
+      if (!core || !token_bridge) {
+        throw new Error('Core or token bridge not found');
+      }
       const context = wh.getContext(
         fromChainId,
       ) as SolanaContext<WormholeContext>;
@@ -413,6 +376,9 @@ export class TBTCRoute extends BaseRoute {
         senderAddress,
         isTBTCCanonicalChain(toChainId),
         connection,
+        THRESHOLD_GATEWAYS[fromChainId]!,
+        token_bridge,
+        core,
       );
       const txId = await signAndSendTransaction(
         fromChainName,
@@ -473,7 +439,6 @@ export class TBTCRoute extends BaseRoute {
         return txId;
       }
     } else if (destChainId === CHAIN_ID_SOLANA) {
-      console.log(`vaa: ${message.vaa}`);
       const signedVaa = Buffer.from(
         arrayify(message.vaa, { allowMissingPrefix: true }),
       );
@@ -484,12 +449,19 @@ export class TBTCRoute extends BaseRoute {
       if (!connection) {
         throw new Error('Connection not found');
       }
-      const core = wh.mustGetContracts(destChain).core;
-      if (!core) {
-        throw new Error('Core not found');
+      const { core, token_bridge } = wh.mustGetContracts(destChain);
+      if (!core || !token_bridge) {
+        throw new Error('Core or token bridge not found');
       }
       await postVaa(connection, core, signedVaa);
-      const tx = await receiveTbtc(signedVaa, payer, connection);
+      const tx = await receiveTbtc(
+        signedVaa,
+        payer,
+        connection,
+        THRESHOLD_GATEWAYS[destChainId]!,
+        token_bridge,
+        core,
+      );
       const txId = await signAndSendTransaction(
         destChainName,
         tx,
@@ -563,7 +535,7 @@ export class TBTCRoute extends BaseRoute {
     chain: ChainName | ChainId,
   ): Promise<string | null> {
     const chainId = wh.toChainId(chain);
-    if (chainId === CHAIN_ID_ETH || isTBTCCanonicalChain(chainId)) {
+    if (isTBTCCanonicalChain(chainId)) {
       // The gateway contracts mint canonical tBTC
       // Find the canonical tBTC token for the chain
       const addr = TOKENS_ARR.find(
@@ -575,11 +547,13 @@ export class TBTCRoute extends BaseRoute {
       if (!addr) throw new Error(`${TBTC_TOKEN_SYMBOL} not found for ${chain}`);
       return addr;
     } else {
-      // If there's no gateway contract then wormhole-wrapped tBTC is canonical
-      return await wh.getForeignAsset(token, chain);
+      // If there's no gateway contract then Ethereum tBTC is canonical
+      return await wh.getForeignAsset(TOKENS['tBTC'].tokenId!, chain);
     }
   }
 
+  // TODO: this should be refactored to use `wh.getMessage(tx, chain)`
+  // and adapt the return type to the `TBTCMessage` type
   async getMessage(
     tx: string,
     chain: ChainName | ChainId,
@@ -623,7 +597,7 @@ export class TBTCRoute extends BaseRoute {
       const recipient = destContext.parseAddress(
         'payload' in transfer ? transfer.payload : transfer.to,
       );
-      const message: TBTCMessage = {
+      return {
         sendTx: tx,
         sender: receipt.from,
         amount: transfer.amount.toString(),
@@ -644,9 +618,108 @@ export class TBTCRoute extends BaseRoute {
         to: destContext.parseAddress(hexlify(transfer.to)),
         payload: 'payload' in transfer ? transfer.payload : undefined,
       };
-      return message;
     } else if (chainId === CHAIN_ID_SOLANA) {
-      throw new Error('Solana case not implemented yet');
+      const context = wh.getContext(chain) as SolanaContext<WormholeContext>;
+      const { core, token_bridge } = wh.mustGetContracts(chain);
+      if (!core || !token_bridge) {
+        throw new Error('Core or token bridge not found');
+      }
+      const connection = context.connection;
+      if (!connection) {
+        throw new Error('Connection not found');
+      }
+      const response = await connection.getTransaction(tx);
+      if (!response || !response.meta?.innerInstructions![0].instructions)
+        throw new Error('transaction not found');
+      const transaction = await connection.getParsedTransaction(tx);
+      const wormholeInstructionIndex =
+        response.meta?.innerInstructions.length - 1;
+      const instructions =
+        response.meta?.innerInstructions![wormholeInstructionIndex]
+          .instructions;
+      const accounts = response.transaction.message.accountKeys;
+      // find the instruction where the programId equals the Wormhole ProgramId and the emitter equals the Token Bridge
+      const bridgeInstructions = instructions.filter((i) => {
+        const programId = accounts[i.programIdIndex].toString();
+        const emitterId = accounts[i.accounts[2]];
+        const tokenBridge = deriveWormholeEmitterKey(token_bridge!);
+        return programId === core && emitterId.equals(tokenBridge);
+      });
+      const { message } = await getPostedMessage(
+        connection,
+        accounts[bridgeInstructions[0].accounts[1]],
+        'finalized',
+      );
+      const parsedInstr = transaction?.meta?.innerInstructions![0].instructions;
+      const gasFee = parsedInstr
+        ? parsedInstr.reduce((acc, c: any) => {
+            if (!c.parsed || !c.parsed.info || !c.parsed.info.lamports)
+              return acc;
+            return acc + c.parsed.info.lamports;
+          }, 0)
+        : 0;
+      // parse message payload
+      const transfer = parseTokenTransferPayload(message.payload);
+      // get sequence
+      const sequence = response.meta?.logMessages
+        ?.filter((msg) => msg.startsWith(SOLANA_SEQ_LOG))?.[0]
+        ?.replace(SOLANA_SEQ_LOG, '');
+      if (!sequence) {
+        throw new Error('sequence not found');
+      }
+      // format response
+      const tokenContext = wh.getContext(transfer.tokenChain as ChainId);
+      const destContext = wh.getContext(transfer.toChain as ChainId);
+
+      const tokenAddress = await tokenContext.parseAssetAddress(
+        hexlify(transfer.tokenAddress),
+      );
+      const tokenChain = wh.toChainName(transfer.tokenChain);
+      const tokenId: TokenId = {
+        chain: tokenChain,
+        address: tokenAddress,
+      };
+      const token = getTokenById(tokenId);
+      if (!token) {
+        throw new Error(`Token ${tokenId} not found`);
+      }
+      const decimals = getTokenDecimals(wh.toChainId(chain), tokenId);
+      const toChain = wh.toChainName(transfer.toChain);
+      const recipient = destContext.parseAddress(
+        hexlify(
+          transfer.tokenTransferPayload.length > 0
+            ? transfer.tokenTransferPayload
+            : transfer.to,
+        ),
+      );
+      return {
+        sendTx: tx,
+        sender: accounts[0].toString(),
+        amount: transfer.amount.toString(),
+        payloadID: transfer.payloadType,
+        recipient,
+        toChain,
+        fromChain: wh.toChainName(chain),
+        tokenAddress,
+        tokenChain,
+        tokenId,
+        sequence: BigNumber.from(sequence).toString(),
+        emitterAddress:
+          wh.conf.env === 'MAINNET'
+            ? SOLANA_MAINNET_EMMITER_ID
+            : SOLANA_TESTNET_EMITTER_ID,
+
+        block: response.slot,
+        gasFee: gasFee.toString(),
+        tokenKey: token.key,
+        tokenDecimals: decimals,
+        receivedTokenKey: getNativeVersionOfToken(token.symbol, toChain),
+        to: destContext.parseAddress(hexlify(transfer.to)),
+        payload:
+          transfer.tokenTransferPayload.length > 0
+            ? hexlify(transfer.tokenTransferPayload)
+            : undefined,
+      };
     } else {
       throw new Error(`Chain ${chain} not supported`);
     }
@@ -763,22 +836,21 @@ export class TBTCRoute extends BaseRoute {
     return undefined; // only for automatic routes
   }
 
+  // TODO: this should be refactored to use `wh.getMessage(tx, chain)`
   static async isTxForThisRoute(
-    txHash: string,
+    tx: string,
     chain: ChainName | ChainId,
   ): Promise<boolean> {
     const chainId = wh.toChainId(chain);
     if (isEvmChain(chain)) {
       const provider = wh.mustGetProvider(chain);
-      const receipt = await provider.getTransactionReceipt(txHash);
+      const receipt = await provider.getTransactionReceipt(tx);
       const vaaInfo = await getUnsignedVaaEvm(chain, receipt);
-      const context = wh.getContext(chain) as EthContext<WormholeContext>;
-      const tokenBridge = context.contracts.mustGetBridge(chain);
       let transfer;
       try {
-        transfer = vaaInfo.payload.startsWith('0x01')
-          ? await tokenBridge.parseTransfer(vaaInfo.payload)
-          : await tokenBridge.parseTransferWithPayload(vaaInfo.payload);
+        transfer = parseTokenTransferPayload(
+          Buffer.from(vaaInfo.payload.slice(2), 'hex'),
+        );
       } catch {
         return false;
       }
@@ -802,17 +874,60 @@ export class TBTCRoute extends BaseRoute {
       return isTBTCCanonicalChain(fromChain) || isTBTCCanonicalChain(toChain);
     } else if (chainId === CHAIN_ID_SOLANA) {
       const context = wh.getContext(chain) as SolanaContext<WormholeContext>;
+      const { core, token_bridge } = wh.mustGetContracts(chain);
+      if (!core || !token_bridge) {
+        throw new Error('Core or token bridge not found');
+      }
       const connection = context.connection;
       if (!connection) {
         throw new Error('Connection not found');
       }
-      const response = await connection.getParsedTransaction(txHash);
-      if (!response) {
+      const response = await connection.getTransaction(tx);
+      if (!response || !response.meta?.innerInstructions![0].instructions) {
+        throw new Error('transaction not found');
+      }
+      const wormholeInstructionIndex =
+        response.meta?.innerInstructions.length - 1;
+      const instructions =
+        response.meta?.innerInstructions![wormholeInstructionIndex]
+          .instructions;
+      const accounts = response.transaction.message.accountKeys;
+      // find the instruction where the programId equals the Wormhole ProgramId and the emitter equals the Token Bridge
+      const bridgeInstructions = instructions.filter((i) => {
+        const programId = accounts[i.programIdIndex].toString();
+        const emitterId = accounts[i.accounts[2]];
+        const tokenBridge = deriveWormholeEmitterKey(token_bridge!);
+        return programId === core && emitterId.equals(tokenBridge);
+      });
+      try {
+        const { message } = await getPostedMessage(
+          connection,
+          accounts[bridgeInstructions[0].accounts[1]],
+          'finalized',
+        );
+        const transfer = parseTokenTransferPayload(message.payload);
+        const tokenChain = wh.toChainName(transfer.tokenChain);
+        const tokenContext = wh.getContext(tokenChain);
+        const tokenAddress = await tokenContext.parseAssetAddress(
+          hexlify(transfer.tokenAddress),
+        );
+        const tokenId: TokenId = {
+          chain: tokenChain,
+          address: tokenAddress,
+        };
+        // This must be a tBTC transfer
+        const token = getTokenById(tokenId);
+        if (!token || token.symbol !== TBTC_TOKEN_SYMBOL) {
+          return false;
+        }
+        const fromChain = wh.toChainId(chain);
+        const toChain = wh.toChainId(transfer.toChain);
+        // This must be a transfer to or from a tBTC gateway chain
+        return isTBTCCanonicalChain(fromChain) || isTBTCCanonicalChain(toChain);
+      } catch (e) {
+        console.error(`Error parsing Solana tBTC transfer: ${e}`);
         return false;
       }
-      console.log(JSON.stringify(response, null, 2));
-      // TODO: implement
-      return false;
     } else {
       throw new Error('Not implemented');
     }

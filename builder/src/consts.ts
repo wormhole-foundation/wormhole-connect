@@ -196,8 +196,10 @@ export const ROUTE_INFOS: RouteInfo[] = [
   },
   {
     key: "tbtc",
-    title: "tBtc",
-    description: "tBtc", // TODO update description
+    title: "Threshold BTC",
+    description:
+      "Permissionlessly transfer tBTC cross-chain with Threshold + Wormhole.",
+    link: "https://threshold.network/earn/btc",
   },
 ];
 export const ROUTES = [

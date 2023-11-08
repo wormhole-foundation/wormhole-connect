@@ -34,19 +34,15 @@ import {
   ChainId,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 
-// TODO: testnet address, change this
-const WORMHOLE_GATEWAY_PROGRAM_ID =
-  '87MEvHZCXE3ML5rrmh5uX1FbShHmRXXS32xJDGbQ7h5t';
-const TOKEN_BRIDGE_PROGRAM_ID = 'DZnkkTmCiFWfYTfT41X3Rd1kDgozqzxWaHqsw6W4x2oe';
-const CORE_BRIDGE_PROGRAM_ID = '3u8hJUVTA4jH1wYAyUur7FFZVQ8H635K3tSHHF4ssjQ5';
+// same address in mainnet and testnet
 const TBTC_PROGRAM_ID = new PublicKey(
   'Gj93RRt6QB7FjmyokAD5rcMAku7pq3Fk2Aa8y6nNbwsV',
 );
 
-function getCustodianPDA(): PublicKey {
+function getCustodianPDA(gatewayProgramId: PublicKeyInitData): PublicKey {
   return PublicKey.findProgramAddressSync(
     [Buffer.from('redeemer')],
-    new PublicKey(WORMHOLE_GATEWAY_PROGRAM_ID),
+    new PublicKey(gatewayProgramId),
   )[0];
 }
 
@@ -64,78 +60,95 @@ function getMinterInfoPDA(minter: PublicKey): PublicKey {
   )[0];
 }
 
-function getCoreMessagePDA(sequence: bigint): PublicKey {
+function getCoreMessagePDA(
+  sequence: bigint,
+  gatewayProgramId: PublicKeyInitData,
+): PublicKey {
   const encodedSequence = Buffer.alloc(8);
   encodedSequence.writeBigUInt64LE(sequence);
   return PublicKey.findProgramAddressSync(
     [Buffer.from('msg'), encodedSequence],
-    new PublicKey(WORMHOLE_GATEWAY_PROGRAM_ID),
+    new PublicKey(gatewayProgramId),
   )[0];
 }
 
-function getGatewayInfoPDA(targetChain: number): PublicKey {
+function getGatewayInfoPDA(
+  targetChain: number,
+  gatewayProgramId: PublicKeyInitData,
+): PublicKey {
   const encodedChain = Buffer.alloc(2);
   encodedChain.writeUInt16LE(targetChain);
   return PublicKey.findProgramAddressSync(
     [Buffer.from('gateway-info'), encodedChain],
-    new PublicKey(WORMHOLE_GATEWAY_PROGRAM_ID),
+    new PublicKey(gatewayProgramId),
   )[0];
 }
 
-function getTokenBridgeCoreEmitter() {
+function getTokenBridgeCoreEmitter(tokenBridgeProgramId: PublicKeyInitData) {
   const [tokenBridgeCoreEmitter] = PublicKey.findProgramAddressSync(
     [Buffer.from('emitter')],
-    new PublicKey(TOKEN_BRIDGE_PROGRAM_ID),
+    new PublicKey(tokenBridgeProgramId),
   );
   return tokenBridgeCoreEmitter;
 }
 
-async function getTokenBridgeSequence(connection: Connection) {
-  const emitter = getTokenBridgeCoreEmitter();
-  return getSequenceTracker(connection, emitter, CORE_BRIDGE_PROGRAM_ID).then(
+async function getTokenBridgeSequence(
+  connection: Connection,
+  coreBridgeProgramId: PublicKeyInitData,
+  tokenBridgeProgramId: PublicKeyInitData,
+) {
+  const emitter = getTokenBridgeCoreEmitter(tokenBridgeProgramId);
+  return getSequenceTracker(connection, emitter, coreBridgeProgramId).then(
     (tracker) => tracker.sequence,
   );
 }
 
-export const sendTbtc = async (
+export async function sendTbtc(
   amount: string,
   recipientChain: ChainId,
   recipientAddress: Uint8Array,
   sender: string,
   isCanonicalChain: boolean,
   connection: Connection,
-): Promise<Transaction> => {
-  const program = new Program(WormholeGatewayIdl, WORMHOLE_GATEWAY_PROGRAM_ID, {
+  gatewayProgramId: string,
+  tokenBridgeProgramId: string,
+  coreBridgeProgramId: string,
+): Promise<Transaction> {
+  const program = new Program(WormholeGatewayIdl, gatewayProgramId, {
     connection,
   });
-  const custodian = getCustodianPDA();
+  const custodian = getCustodianPDA(gatewayProgramId);
   const custodianData = await program.account.custodian.fetch(custodian);
-  const tbtcMint = new PublicKey(custodianData.tbtcMint as string);
+  const tbtcMint = new PublicKey(custodianData.tbtcMint as PublicKeyInitData);
   const wrappedTbtcToken = new PublicKey(
-    custodianData.wrappedTbtcToken as string,
+    custodianData.wrappedTbtcToken as PublicKeyInitData,
   );
   const wrappedTbtcMint = new PublicKey(
-    custodianData.wrappedTbtcMint as string,
+    custodianData.wrappedTbtcMint as PublicKeyInitData,
   );
   const tokenBridgeWrappedAsset = deriveWrappedMetaKey(
-    TOKEN_BRIDGE_PROGRAM_ID,
+    tokenBridgeProgramId,
     wrappedTbtcMint,
   );
-  const tokenBridgeConfig = deriveTokenBridgeConfigKey(TOKEN_BRIDGE_PROGRAM_ID);
-  const tokenBridgeTransferAuthority = deriveAuthoritySignerKey(
-    TOKEN_BRIDGE_PROGRAM_ID,
+  const tokenBridgeConfig = deriveTokenBridgeConfigKey(tokenBridgeProgramId);
+  const tokenBridgeTransferAuthority =
+    deriveAuthoritySignerKey(tokenBridgeProgramId);
+  const coreFeeCollector = deriveFeeCollectorKey(coreBridgeProgramId);
+  const sequence = await getTokenBridgeSequence(
+    connection,
+    coreBridgeProgramId,
+    tokenBridgeProgramId,
   );
-  const coreFeeCollector = deriveFeeCollectorKey(CORE_BRIDGE_PROGRAM_ID);
-  const sequence = await getTokenBridgeSequence(connection);
-  const coreMessage = getCoreMessagePDA(sequence);
-  const coreBridgeData = deriveWormholeBridgeDataKey(CORE_BRIDGE_PROGRAM_ID);
-  const tokenBridgeCoreEmitter = getTokenBridgeCoreEmitter();
+  const coreMessage = getCoreMessagePDA(sequence, gatewayProgramId);
+  const coreBridgeData = deriveWormholeBridgeDataKey(coreBridgeProgramId);
+  const tokenBridgeCoreEmitter =
+    getTokenBridgeCoreEmitter(tokenBridgeProgramId);
   const coreEmitterSequence = deriveEmitterSequenceKey(
     tokenBridgeCoreEmitter,
-    CORE_BRIDGE_PROGRAM_ID,
+    coreBridgeProgramId,
   );
-  const gatewayInfo = getGatewayInfoPDA(recipientChain);
-  const tokenBridgeSender = deriveSenderAccountKey(WORMHOLE_GATEWAY_PROGRAM_ID);
+  const gatewayInfo = getGatewayInfoPDA(recipientChain, gatewayProgramId);
+  const tokenBridgeSender = deriveSenderAccountKey(gatewayProgramId);
   const args = {
     amount: new BN(amount),
     recipientChain,
@@ -143,7 +156,6 @@ export const sendTbtc = async (
     nonce: 0,
   };
   const associatedTokenAccount = await getAssociatedTokenAddress(
-    // new PublicKey(senderToken),
     tbtcMint,
     new PublicKey(sender),
   );
@@ -153,8 +165,8 @@ export const sendTbtc = async (
       wrappedTbtcToken,
       wrappedTbtcMint,
       tbtcMint,
-      senderToken: associatedTokenAccount, // associated token account
-      sender: new PublicKey(sender), //sender, associated token account owner,
+      senderToken: associatedTokenAccount,
+      sender: new PublicKey(sender),
       tokenBridgeConfig,
       tokenBridgeWrappedAsset,
       tokenBridgeTransferAuthority,
@@ -165,8 +177,8 @@ export const sendTbtc = async (
       coreFeeCollector,
       clock: SYSVAR_CLOCK_PUBKEY,
       rent: SYSVAR_RENT_PUBKEY,
-      tokenBridgeProgram: TOKEN_BRIDGE_PROGRAM_ID,
-      coreBridgeProgram: CORE_BRIDGE_PROGRAM_ID,
+      tokenBridgeProgram: tokenBridgeProgramId,
+      coreBridgeProgram: coreBridgeProgramId,
     };
     return program.methods
       .sendTbtcWrapped({
@@ -182,8 +194,8 @@ export const sendTbtc = async (
       wrappedTbtcToken,
       wrappedTbtcMint,
       tbtcMint,
-      senderToken: associatedTokenAccount, // associated token account
-      sender: new PublicKey(sender), //sender, associated token account owner,
+      senderToken: associatedTokenAccount,
+      sender: new PublicKey(sender),
       tokenBridgeConfig,
       tokenBridgeWrappedAsset,
       tokenBridgeTransferAuthority,
@@ -195,35 +207,38 @@ export const sendTbtc = async (
       clock: SYSVAR_CLOCK_PUBKEY,
       tokenBridgeSender,
       rent: SYSVAR_RENT_PUBKEY,
-      tokenBridgeProgram: TOKEN_BRIDGE_PROGRAM_ID,
-      coreBridgeProgram: CORE_BRIDGE_PROGRAM_ID,
+      tokenBridgeProgram: tokenBridgeProgramId,
+      coreBridgeProgram: coreBridgeProgramId,
     };
     return program.methods
       .sendTbtcGateway({ ...args, arbiterFee: new BN(0) })
       .accounts(accounts)
       .transaction();
   }
-};
+}
 
-export const receiveTbtc = async (
+export async function receiveTbtc(
   signedVAA: SignedVaa,
   payer: PublicKeyInitData,
   connection: Connection,
-): Promise<Transaction> => {
-  const parsed = parseTokenTransferVaa(signedVAA);
+  gatewayProgramId: string,
+  tokenBridgeProgramId: string,
+  coreBridgeProgramId: string,
+): Promise<Transaction> {
+  const { hash, emitterAddress, emitterChain, sequence } =
+    parseTokenTransferVaa(signedVAA);
   const recipient = new PublicKey(payer);
-  const custodian = getCustodianPDA();
-  const program = new Program(WormholeGatewayIdl, WORMHOLE_GATEWAY_PROGRAM_ID, {
+  const custodian = getCustodianPDA(gatewayProgramId);
+  const program = new Program(WormholeGatewayIdl, gatewayProgramId, {
     connection,
   });
   const custodianData = await program.account.custodian.fetch(custodian);
-  const tbtcMint = new PublicKey(custodianData.tbtcMint as string);
-  console.log(`tbtcMint: ${tbtcMint.toBase58()}`);
+  const tbtcMint = new PublicKey(custodianData.tbtcMint as PublicKeyInitData);
   const wrappedTbtcToken = new PublicKey(
-    custodianData.wrappedTbtcToken as string,
+    custodianData.wrappedTbtcToken as PublicKeyInitData,
   );
   const wrappedTbtcMint = new PublicKey(
-    custodianData.wrappedTbtcMint as string,
+    custodianData.wrappedTbtcMint as PublicKeyInitData,
   );
   const recipientTokenKey = await getAssociatedTokenAddress(
     tbtcMint,
@@ -231,8 +246,8 @@ export const receiveTbtc = async (
   );
   const transaction = new Transaction();
   const recipientToken = await connection.getAccountInfo(recipientTokenKey);
-  console.log('recipientToken', recipientToken, recipientTokenKey.toBase58());
   if (!recipientToken) {
+    // Create the tBTC token account if it doesn't exist yet
     const recipientTokenAtaIx = createAssociatedTokenAccountInstruction(
       recipient,
       recipientTokenKey,
@@ -242,7 +257,7 @@ export const receiveTbtc = async (
     transaction.add(recipientTokenAtaIx);
   }
   const tokenBridgeWrappedAsset = deriveWrappedMetaKey(
-    TOKEN_BRIDGE_PROGRAM_ID,
+    tokenBridgeProgramId,
     wrappedTbtcMint,
   );
   const recipientWrappedToken = await getAssociatedTokenAddress(
@@ -252,12 +267,12 @@ export const receiveTbtc = async (
   const accounts = {
     payer: recipient,
     custodian,
-    postedVaa: derivePostedVaaKey(CORE_BRIDGE_PROGRAM_ID, parsed.hash),
+    postedVaa: derivePostedVaaKey(coreBridgeProgramId, hash),
     tokenBridgeClaim: deriveClaimKey(
-      TOKEN_BRIDGE_PROGRAM_ID,
-      parsed.emitterAddress,
-      parsed.emitterChain,
-      parsed.sequence,
+      tokenBridgeProgramId,
+      emitterAddress,
+      emitterChain,
+      sequence,
     ),
     wrappedTbtcToken,
     wrappedTbtcMint,
@@ -267,22 +282,22 @@ export const receiveTbtc = async (
     recipientWrappedToken,
     tbtcConfig: getConfigPDA(),
     tbtcMinterInfo: getMinterInfoPDA(custodian),
-    tokenBridgeConfig: deriveTokenBridgeConfigKey(TOKEN_BRIDGE_PROGRAM_ID),
+    tokenBridgeConfig: deriveTokenBridgeConfigKey(tokenBridgeProgramId),
     tokenBridgeRegisteredEmitter: deriveEndpointKey(
-      TOKEN_BRIDGE_PROGRAM_ID,
-      parsed.emitterChain,
-      parsed.emitterAddress,
+      tokenBridgeProgramId,
+      emitterChain,
+      emitterAddress,
     ),
     tokenBridgeWrappedAsset,
-    tokenBridgeMintAuthority: deriveMintAuthorityKey(TOKEN_BRIDGE_PROGRAM_ID),
+    tokenBridgeMintAuthority: deriveMintAuthorityKey(tokenBridgeProgramId),
     rent: SYSVAR_RENT_PUBKEY,
     tbtcProgram: TBTC_PROGRAM_ID,
-    tokenBridgeProgram: TOKEN_BRIDGE_PROGRAM_ID,
-    coreBridgeProgram: CORE_BRIDGE_PROGRAM_ID,
+    tokenBridgeProgram: tokenBridgeProgramId,
+    coreBridgeProgram: coreBridgeProgramId,
   };
   const receiveTbtcIx = await program.methods
-    .receiveTbtc(parsed.hash)
+    .receiveTbtc(hash)
     .accounts(accounts)
     .instruction();
   return transaction.add(receiveTbtcIx);
-};
+}

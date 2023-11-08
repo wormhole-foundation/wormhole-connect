@@ -206,7 +206,8 @@ function TokenWarnings() {
 
   useEffect(() => {
     if (!toChain || !token || !receiving.address) return;
-    if (toChain === 'solana' && foreignAsset) {
+    // The tBTC associated token account will be created if it doesn't exist in the redeem tx
+    if (toChain === 'solana' && foreignAsset && route !== Route.TBTC) {
       checkSolanaAssociatedTokenAccount();
     }
   }, [
