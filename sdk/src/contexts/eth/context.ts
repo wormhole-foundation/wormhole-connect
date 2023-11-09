@@ -313,7 +313,6 @@ export class EthContext<
     const destContext = this.context.getContext(recipientChain);
     const recipientChainId = this.context.toChainId(recipientChain);
     const amountBN = ethers.BigNumber.from(amount);
-    console.log(amount);
     const bridge = this.contracts.mustGetBridge(sendingChain);
 
     if (token === NATIVE) {

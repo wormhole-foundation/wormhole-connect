@@ -202,14 +202,7 @@ export const ROUTE_INFOS: RouteInfo[] = [
     link: "https://threshold.network/earn/btc",
   },
 ];
-export const ROUTES = [
-  "bridge",
-  "relay",
-  "cosmosGateway",
-  "cctpManual",
-  "cctpRelay",
-  "tbtc",
-].sort();
+export const ROUTES = ROUTE_INFOS.map((r) => r.key);
 
 export const DEFAULT_MAINNET_RPCS = {
   ethereum: "https://rpc.ankr.com/eth",

@@ -67,8 +67,7 @@ export const estimateSendGas = async (
       recipientAddress,
       routeOptions,
     );
-  } catch (e) {
-    console.error(e);
+  } catch (_) {
     if (token === NATIVE) {
       gas = getGasFallback(sendingChain, route, 'sendNative');
     } else {

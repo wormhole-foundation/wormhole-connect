@@ -224,11 +224,10 @@ export const signSolanaTransaction = async (
   if (!wallet || !wallet.signAndSendTransaction) {
     throw new Error('wallet.signAndSendTransaction is undefined');
   }
-  console.log(wallet.getAddress());
 
   return await (wallet as SolanaWallet).signAndSendTransaction({
     transaction,
-    options: { skipPreflight: true },
+    options,
   });
 };
 

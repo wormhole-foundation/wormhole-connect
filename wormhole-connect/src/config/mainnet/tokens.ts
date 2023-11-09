@@ -2224,7 +2224,6 @@ export const MAINNET_TOKENS: TokensConfig = {
     icon: Icon.TBTC,
     coinGeckoId: 'tbtc',
     color: '#000000',
-    // TODO: I think the decimals is right but double check
     decimals: {
       default: 8,
     },
