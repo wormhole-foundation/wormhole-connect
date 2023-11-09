@@ -46,10 +46,10 @@ Copy the outputted list and paste it into `src/consts/wallet.ts` as the value of
 
 1. Make a GitHub pre-release
 2. Tag it `development@0.1.3-beta.0`
-3. Trigger the 'publish' GitHub action, which will publish to NPM
+3. Trigger the 'publish' GitHub action and fill in the tag when prompted, which will publish to NPM
 
 ## Publishing a production package to NPM
 
 1. Make a GitHub release
 2. Tag it `production@0.1.3`
-3. Trigger the 'publish' GitHub action, which will publish to NPM
+3. Trigger the 'publish' GitHub action and fill in the tag when prompted, which will publish to NPM
