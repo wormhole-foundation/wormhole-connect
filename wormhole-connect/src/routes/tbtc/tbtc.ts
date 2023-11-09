@@ -98,32 +98,9 @@ export class TBTCRoute extends BaseRoute {
     sourceChain?: ChainName | ChainId,
     destChain?: ChainName | ChainId,
   ): Promise<boolean> {
-    if (!token) return false;
     if (!sourceChain) return false;
-    /*
-    const sourceChainName = token.nativeChain;
-    const sourceChainCanonical =
-      isTBTCCanonicalChain(sourceChainName) &&
-      (!sourceChain || wh.toChainName(sourceChain) === sourceChainName);
-
-    if (destToken) {
-      const destChainName = destToken.nativeChain;
-      const destChainCanonical =
-        isTBTCCanonicalChain(destChainName) &&
-        (!destChain || wh.toChainName(destChain) === destChainName);
-
-      return (
-        destToken.symbol === TBTC_TOKEN_SYMBOL &&
-        token.symbol === TBTC_TOKEN_SYMBOL &&
-        sourceChainCanonical &&
-        destChainCanonical
-      );
-    }
-    return token.symbol === TBTC_TOKEN_SYMBOL && sourceChainCanonical;
-    */
-    if (token.symbol !== TBTC_TOKEN_SYMBOL) {
-      return false;
-    }
+    if (!token || token.symbol !== TBTC_TOKEN_SYMBOL) return false;
+    if (destToken && destToken.symbol !== TBTC_TOKEN_SYMBOL) return false;
     if (
       isTBTCCanonicalChain(sourceChain) &&
       token.nativeChain === wh.toChainName(sourceChain)
@@ -139,31 +116,9 @@ export class TBTCRoute extends BaseRoute {
     sourceChain?: ChainName | ChainId,
     destChain?: ChainName | ChainId,
   ): Promise<boolean> {
-    if (!token) return false;
     if (!destChain) return false;
-    /*
-    console.log(token);
-    const destChainName = token.nativeChain;
-    const destChainCanonical =
-      isTBTCCanonicalChain(destChainName) &&
-      (!destChain || wh.toChainName(destChain) === destChainName);
-    if (sourceToken) {
-      const sourceChainName = sourceToken.nativeChain;
-      const sourceChainCanonical =
-        isTBTCCanonicalChain(sourceChainName) &&
-        (!sourceChain || wh.toChainName(sourceChain) === sourceChainName);
-      return (
-        sourceToken.symbol === TBTC_TOKEN_SYMBOL &&
-        token.symbol === TBTC_TOKEN_SYMBOL &&
-        sourceChainCanonical &&
-        destChainCanonical
-      );
-    }
-    return token.symbol === TBTC_TOKEN_SYMBOL && destChainCanonical;
-    */
-    if (token.symbol !== TBTC_TOKEN_SYMBOL) {
-      return false;
-    }
+    if (!token || token.symbol !== TBTC_TOKEN_SYMBOL) return false;
+    if (sourceToken && sourceToken.symbol !== TBTC_TOKEN_SYMBOL) return false;
     if (
       isTBTCCanonicalChain(destChain) &&
       token.nativeChain === wh.toChainName(destChain)
