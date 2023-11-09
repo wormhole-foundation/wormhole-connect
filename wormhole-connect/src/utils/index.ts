@@ -165,7 +165,7 @@ export function hexPrefix(hex: string) {
 export function isValidTxId(chain: string, tx: string) {
   if (chain === 'sui') {
     return isValidTransactionDigest(tx);
-  } else if (isGatewayChain(chain as any)) {
+  } else if (isGatewayChain(chain as any) || chain === 'sei') {
     return isHexString(hexPrefix(tx), 32);
   } else {
     if (tx.startsWith('0x') && tx.length === 66) return true;
