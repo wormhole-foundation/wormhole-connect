@@ -27,7 +27,16 @@ export function toFixedDecimals(number: string, numDecimals: number) {
   return `${Number.parseFloat(number.slice(0, end))}`;
 }
 
+// Cache that stores calls to the coingecko API
+// state stored in the bundle, so it will be lost on refresh
+const usdPriceCache = new Map<string, number>();
+
 export async function getUsdVal(token: string) {
+  const cacheResult = usdPriceCache.get(token);
+  if (cacheResult) {
+    return cacheResult;
+  }
+
   const tokenConfig = TOKENS[token];
   if (!tokenConfig) throw new Error(`invalid token: ${token}`);
   const { coinGeckoId } = tokenConfig;
@@ -37,6 +46,7 @@ export async function getUsdVal(token: string) {
   const data = await res.json();
   if (data[coinGeckoId]) {
     const { usd } = data[coinGeckoId];
+    usdPriceCache.set(token, usd);
     return usd;
   }
 }
@@ -44,5 +54,6 @@ export async function getUsdVal(token: string) {
 export async function getConversion(token1: string, token2: string) {
   const token1Val = await getUsdVal(token1);
   const token2Val = await getUsdVal(token2);
-  return token1Val / token2Val;
+  const result = token1Val / token2Val;
+  return result;
 }
