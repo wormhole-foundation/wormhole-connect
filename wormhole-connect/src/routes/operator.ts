@@ -33,7 +33,8 @@ import {
   CCTPManualRoute,
   CCTP_LOG_TokenMessenger_DepositForBurn,
 } from './cctpManual';
-import { TBTCRoute } from './tbtc';
+import { TBTCRoute, isTBTCCanonicalChain } from './tbtc';
+import { getTokenById } from 'utils';
 
 export class Operator {
   getRoute(route: Route): RouteAbstract {
@@ -92,12 +93,7 @@ export class Operator {
       }
     }
 
-    const isTBTCRoute = await TBTCRoute.isTxForThisRoute(txHash, chain);
-    if (isTBTCRoute) {
-      return Route.TBTC;
-    }
-
-    let message = await getMessage(txHash, chain);
+    const message = await getMessage(txHash, chain);
 
     if (message.toChain === 'sei') {
       return Route.Relay;
@@ -105,6 +101,16 @@ export class Operator {
 
     if (isGatewayChain(message.fromChain) || isGatewayChain(message.toChain)) {
       return Route.CosmosGateway;
+    }
+
+    if (
+      isTBTCCanonicalChain(wh.toChainId(chain)) ||
+      isTBTCCanonicalChain(wh.toChainId(message.toChain))
+    ) {
+      const token = getTokenById(message.tokenId);
+      if (token?.symbol === 'tBTC') {
+        return Route.TBTC;
+      }
     }
 
     return (message as ParsedMessage).payloadID === PayloadType.Automatic

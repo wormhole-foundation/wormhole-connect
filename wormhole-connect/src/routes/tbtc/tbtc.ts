@@ -6,10 +6,6 @@ import {
   EthContext,
   SolanaContext,
   WormholeContext,
-  parseTokenTransferPayload,
-  SOLANA_SEQ_LOG,
-  SOLANA_MAINNET_EMMITER_ID,
-  SOLANA_TESTNET_EMITTER_ID,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { CHAINS, ROUTES, TOKENS, isMainnet, TOKENS_ARR } from 'config';
 import { TokenConfig, Route } from 'config/types';
@@ -22,7 +18,7 @@ import {
   deNormalizeAmount,
   normalizeAmount,
 } from 'utils';
-import { formatAddress, isEvmChain, toChainId, wh } from 'utils/sdk';
+import { isEvmChain, toChainId, wh } from 'utils/sdk';
 import { NO_INPUT } from 'utils/style';
 import {
   SignedMessage,
@@ -35,7 +31,7 @@ import {
   isSignedWormholeMessage,
   TBTCMessage,
 } from '../types';
-import { formatGasFee } from '../utils';
+import { adaptParsedMessage, formatGasFee } from '../utils';
 import {
   CHAIN_ID_POLYGON,
   CHAIN_ID_OPTIMISM,
@@ -45,17 +41,12 @@ import {
 } from '@certusone/wormhole-sdk';
 import { ThresholdL2WormholeGateway as EVMGateway } from './abi/evm/ThresholdL2WormholeGateway';
 import { receiveTbtc, sendTbtc } from './abi/solana/WormholeGateway';
-import { fetchVaa, getUnsignedVaaEvm } from 'utils/vaa';
+import { fetchVaa } from 'utils/vaa';
 import { arrayify, hexlify, parseUnits } from 'ethers/lib/utils.js';
 import { BaseRoute } from '../bridge';
 import { toDecimals } from 'utils/balance';
 import { postVaa, signAndSendTransaction, TransferWallet } from 'utils/wallet';
-import { getNativeVersionOfToken } from 'store/transferInput';
 import { CHAIN_ID_ETH } from '@xlabs-libs/wallet-aggregator-core';
-import {
-  deriveWormholeEmitterKey,
-  getPostedMessage,
-} from '@certusone/wormhole-sdk/lib/esm/solana/wormhole';
 
 const THRESHOLD_ARBITER_FEE = 0;
 const THRESHOLD_NONCE = 0;
@@ -342,7 +333,29 @@ export class TBTCRoute extends BaseRoute {
       );
       return txId;
     } else {
-      throw new Error(`Chain ${fromChainName} not supported`);
+      // The gateway contract must exist on the target chain
+      const targetGatewayAddress = THRESHOLD_GATEWAYS[toChainId];
+      if (!targetGatewayAddress) {
+        throw new Error(
+          `No gateway contract found on target chain ${toChainId}`,
+        );
+      }
+      const context = wh.getContext(fromChainId);
+      const tx = await context.sendWithPayload(
+        token,
+        transferAmountParsed.toString(),
+        fromChainId,
+        senderAddress,
+        recipientChain,
+        targetGatewayAddress,
+        formattedRecipient,
+      );
+      const txId = await signAndSendTransaction(
+        fromChainName,
+        tx,
+        TransferWallet.SENDING,
+      );
+      return txId;
     }
   }
 
@@ -424,7 +437,19 @@ export class TBTCRoute extends BaseRoute {
       );
       return txId;
     } else {
-      throw new Error(`Chain ${destChainName} not supported`);
+      const context = wh.getContext(destChainId);
+      const tx = await context.redeem(
+        destChain,
+        arrayify(message.vaa),
+        undefined,
+        payer,
+      );
+      const txId = await signAndSendTransaction(
+        destChainName,
+        tx,
+        TransferWallet.RECEIVING,
+      );
+      return txId;
     }
   }
 
@@ -491,7 +516,7 @@ export class TBTCRoute extends BaseRoute {
   ): Promise<string | null> {
     const chainId = wh.toChainId(chain);
     if (isTBTCCanonicalChain(chainId)) {
-      // The gateway contracts mint canonical tBTC
+      // The gateway contract mints canonical tBTC
       // Find the canonical tBTC token for the chain
       const addr = TOKENS_ARR.find(
         (t) =>
@@ -507,177 +532,22 @@ export class TBTCRoute extends BaseRoute {
     }
   }
 
-  // TODO: this should be refactored to use `wh.getMessage(tx, chain)`
-  // and adapt the return type to the `TBTCMessage` type
   async getMessage(
     tx: string,
     chain: ChainName | ChainId,
   ): Promise<TBTCMessage> {
-    const chainId = wh.toChainId(chain);
-    if (isEvmChain(chain)) {
-      const provider = wh.mustGetProvider(chain);
-      const receipt = await provider.getTransactionReceipt(tx);
-      if (!receipt) {
-        throw new Error(`No receipt for ${tx} on ${chain}`);
-      }
-      const vaaInfo = await getUnsignedVaaEvm(chain, receipt);
-      if (!vaaInfo) {
-        throw new Error(`No VAA found for ${tx} on ${chain}`);
-      }
-      const context = wh.getContext(chain) as EthContext<WormholeContext>;
-      const tokenBridge = context.contracts.mustGetBridge(chain);
-      const transfer = vaaInfo.payload.startsWith('0x01')
-        ? await tokenBridge.parseTransfer(vaaInfo.payload)
-        : await tokenBridge.parseTransferWithPayload(vaaInfo.payload);
-      const toChain = wh.toChainName(transfer.toChain);
-      const tokenChain = wh.toChainName(transfer.tokenChain);
-      const tokenContext = wh.getContext(tokenChain);
-      const tokenAddress = await tokenContext.parseAssetAddress(
-        hexlify(transfer.tokenAddress),
-      );
-      const tokenId: TokenId = {
-        chain: tokenChain,
-        address: tokenAddress,
-      };
-      const token = getTokenById(tokenId);
-      if (!token) {
-        throw new Error(`Token ${tokenId} not found`);
-      }
-      const decimals = getTokenDecimals(wh.toChainId(chain), tokenId);
-      const destContext = wh.getContext(toChain);
-      const gasFee =
-        receipt.gasUsed && receipt.effectiveGasPrice
-          ? receipt.gasUsed.mul(receipt.effectiveGasPrice)
-          : BigNumber.from(0);
-      const recipient = destContext.parseAddress(
-        'payload' in transfer ? transfer.payload : transfer.to,
-      );
-      return {
-        sendTx: tx,
-        sender: receipt.from,
-        amount: transfer.amount.toString(),
-        payloadID: transfer.payloadID,
-        recipient,
-        toChain,
-        fromChain: wh.toChainName(chain),
-        tokenAddress,
-        tokenChain,
-        tokenId,
-        sequence: vaaInfo.sequence.toString(),
-        emitterAddress: hexlify(formatAddress(chain, tokenBridge.address)),
-        block: receipt.blockNumber,
-        gasFee: gasFee.toString(),
-        tokenKey: token.key,
-        tokenDecimals: decimals,
-        receivedTokenKey: getNativeVersionOfToken(token.symbol, toChain),
-        to: destContext.parseAddress(hexlify(transfer.to)),
-        payload: 'payload' in transfer ? transfer.payload : undefined,
-      };
-    } else if (chainId === CHAIN_ID_SOLANA) {
-      const context = wh.getContext(chain) as SolanaContext<WormholeContext>;
-      const { core, token_bridge } = wh.mustGetContracts(chain);
-      if (!core || !token_bridge) {
-        throw new Error('Core or token bridge not found');
-      }
-      const connection = context.connection;
-      if (!connection) {
-        throw new Error('Connection not found');
-      }
-      const response = await connection.getTransaction(tx);
-      if (!response || !response.meta?.innerInstructions![0].instructions)
-        throw new Error('transaction not found');
-      const transaction = await connection.getParsedTransaction(tx);
-      const wormholeInstructionIndex =
-        response.meta?.innerInstructions.length - 1;
-      const instructions =
-        response.meta?.innerInstructions![wormholeInstructionIndex]
-          .instructions;
-      const accounts = response.transaction.message.accountKeys;
-      // find the instruction where the programId equals the Wormhole ProgramId and the emitter equals the Token Bridge
-      const bridgeInstructions = instructions.filter((i) => {
-        const programId = accounts[i.programIdIndex].toString();
-        const emitterId = accounts[i.accounts[2]];
-        const tokenBridge = deriveWormholeEmitterKey(token_bridge!);
-        return programId === core && emitterId.equals(tokenBridge);
-      });
-      const { message } = await getPostedMessage(
-        connection,
-        accounts[bridgeInstructions[0].accounts[1]],
-        'finalized',
-      );
-      const parsedInstr = transaction?.meta?.innerInstructions![0].instructions;
-      const gasFee = parsedInstr
-        ? parsedInstr.reduce((acc, c: any) => {
-            if (!c.parsed || !c.parsed.info || !c.parsed.info.lamports)
-              return acc;
-            return acc + c.parsed.info.lamports;
-          }, 0)
-        : 0;
-      // parse message payload
-      const transfer = parseTokenTransferPayload(message.payload);
-      // get sequence
-      const sequence = response.meta?.logMessages
-        ?.filter((msg) => msg.startsWith(SOLANA_SEQ_LOG))?.[0]
-        ?.replace(SOLANA_SEQ_LOG, '');
-      if (!sequence) {
-        throw new Error('sequence not found');
-      }
-      // format response
-      const tokenContext = wh.getContext(transfer.tokenChain as ChainId);
-      const destContext = wh.getContext(transfer.toChain as ChainId);
-
-      const tokenAddress = await tokenContext.parseAssetAddress(
-        hexlify(transfer.tokenAddress),
-      );
-      const tokenChain = wh.toChainName(transfer.tokenChain);
-      const tokenId: TokenId = {
-        chain: tokenChain,
-        address: tokenAddress,
-      };
-      const token = getTokenById(tokenId);
-      if (!token) {
-        throw new Error(`Token ${tokenId} not found`);
-      }
-      const decimals = getTokenDecimals(wh.toChainId(chain), tokenId);
-      const toChain = wh.toChainName(transfer.toChain);
-      const recipient = destContext.parseAddress(
-        hexlify(
-          transfer.tokenTransferPayload.length > 0
-            ? transfer.tokenTransferPayload
-            : transfer.to,
-        ),
-      );
-      return {
-        sendTx: tx,
-        sender: accounts[0].toString(),
-        amount: transfer.amount.toString(),
-        payloadID: transfer.payloadType,
-        recipient,
-        toChain,
-        fromChain: wh.toChainName(chain),
-        tokenAddress,
-        tokenChain,
-        tokenId,
-        sequence: BigNumber.from(sequence).toString(),
-        emitterAddress:
-          wh.conf.env === 'MAINNET'
-            ? SOLANA_MAINNET_EMMITER_ID
-            : SOLANA_TESTNET_EMITTER_ID,
-
-        block: response.slot,
-        gasFee: gasFee.toString(),
-        tokenKey: token.key,
-        tokenDecimals: decimals,
-        receivedTokenKey: getNativeVersionOfToken(token.symbol, toChain),
-        to: destContext.parseAddress(hexlify(transfer.to)),
-        payload:
-          transfer.tokenTransferPayload.length > 0
-            ? hexlify(transfer.tokenTransferPayload)
-            : undefined,
-      };
-    } else {
-      throw new Error(`Chain ${chain} not supported`);
-    }
+    const message = await wh.getMessage(tx, chain, false);
+    const adapted = await adaptParsedMessage(message);
+    const destContext = wh.getContext(message.toChain);
+    const recipient =
+      message.payload && message.payload.length > 0
+        ? destContext.parseAddress(message.payload)
+        : message.recipient;
+    return {
+      ...adapted,
+      to: message.recipient,
+      recipient,
+    };
   }
 
   async getSignedMessage(
@@ -789,102 +659,5 @@ export class TBTCRoute extends BaseRoute {
 
   async tryFetchRedeemTx(txData: UnsignedMessage): Promise<string | undefined> {
     return undefined; // only for automatic routes
-  }
-
-  // TODO: this should be refactored to use `wh.getMessage(tx, chain)`
-  static async isTxForThisRoute(
-    tx: string,
-    chain: ChainName | ChainId,
-  ): Promise<boolean> {
-    const chainId = wh.toChainId(chain);
-    if (isEvmChain(chain)) {
-      const provider = wh.mustGetProvider(chain);
-      const receipt = await provider.getTransactionReceipt(tx);
-      const vaaInfo = await getUnsignedVaaEvm(chain, receipt);
-      let transfer;
-      try {
-        transfer = parseTokenTransferPayload(
-          Buffer.from(vaaInfo.payload.slice(2), 'hex'),
-        );
-      } catch {
-        return false;
-      }
-      const tokenChain = wh.toChainName(transfer.tokenChain);
-      const tokenContext = wh.getContext(tokenChain);
-      const tokenAddress = await tokenContext.parseAssetAddress(
-        hexlify(transfer.tokenAddress),
-      );
-      const tokenId: TokenId = {
-        chain: tokenChain,
-        address: tokenAddress,
-      };
-      // This must be a tBTC transfer
-      const token = getTokenById(tokenId);
-      if (!token || token.symbol !== TBTC_TOKEN_SYMBOL) {
-        return false;
-      }
-      const fromChain = wh.toChainId(chain);
-      const toChain = wh.toChainId(transfer.toChain);
-      // This must be a transfer to or from a tBTC gateway chain
-      return isTBTCCanonicalChain(fromChain) || isTBTCCanonicalChain(toChain);
-    } else if (chainId === CHAIN_ID_SOLANA) {
-      const context = wh.getContext(chain) as SolanaContext<WormholeContext>;
-      const { core, token_bridge } = wh.mustGetContracts(chain);
-      if (!core || !token_bridge) {
-        throw new Error('Core or token bridge not found');
-      }
-      const connection = context.connection;
-      if (!connection) {
-        throw new Error('Connection not found');
-      }
-      const response = await connection.getTransaction(tx);
-      if (!response || !response.meta?.innerInstructions![0].instructions) {
-        throw new Error('transaction not found');
-      }
-      const wormholeInstructionIndex =
-        response.meta?.innerInstructions.length - 1;
-      const instructions =
-        response.meta?.innerInstructions![wormholeInstructionIndex]
-          .instructions;
-      const accounts = response.transaction.message.accountKeys;
-      // find the instruction where the programId equals the Wormhole ProgramId and the emitter equals the Token Bridge
-      const bridgeInstructions = instructions.filter((i) => {
-        const programId = accounts[i.programIdIndex].toString();
-        const emitterId = accounts[i.accounts[2]];
-        const tokenBridge = deriveWormholeEmitterKey(token_bridge!);
-        return programId === core && emitterId.equals(tokenBridge);
-      });
-      try {
-        const { message } = await getPostedMessage(
-          connection,
-          accounts[bridgeInstructions[0].accounts[1]],
-          'finalized',
-        );
-        const transfer = parseTokenTransferPayload(message.payload);
-        const tokenChain = wh.toChainName(transfer.tokenChain);
-        const tokenContext = wh.getContext(tokenChain);
-        const tokenAddress = await tokenContext.parseAssetAddress(
-          hexlify(transfer.tokenAddress),
-        );
-        const tokenId: TokenId = {
-          chain: tokenChain,
-          address: tokenAddress,
-        };
-        // This must be a tBTC transfer
-        const token = getTokenById(tokenId);
-        if (!token || token.symbol !== TBTC_TOKEN_SYMBOL) {
-          return false;
-        }
-        const fromChain = wh.toChainId(chain);
-        const toChain = wh.toChainId(transfer.toChain);
-        // This must be a transfer to or from a tBTC gateway chain
-        return isTBTCCanonicalChain(fromChain) || isTBTCCanonicalChain(toChain);
-      } catch (e) {
-        console.error(`Error parsing Solana tBTC transfer: ${e}`);
-        return false;
-      }
-    } else {
-      throw new Error('Not implemented');
-    }
   }
 }

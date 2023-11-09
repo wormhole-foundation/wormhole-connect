@@ -283,6 +283,7 @@ export class RelayRoute extends BridgeRoute implements RelayAbstract {
           .parseUnits(routeOptions.toNativeToken.toString(), decimals)
           .toString()
       : '0';
+
     const tx = await wh.sendWithRelay(
       token,
       parsedAmt.toString(),

@@ -179,41 +179,6 @@ function Bridge() {
   }, [route, token, fromChain, toChain, dispatch]);
 
   useEffect(() => {
-    const establishRoute = async () => {
-      if (!showValidationState || !availableRoutes) {
-        dispatch(setTransferRoute(undefined));
-        return;
-      }
-
-      const routeOrderOfPreference = [
-        Route.CosmosGateway,
-        Route.CCTPRelay,
-        Route.CCTPManual,
-        Route.Relay,
-        Route.TBTC,
-        Route.Bridge,
-      ];
-      for (const r of routeOrderOfPreference) {
-        if (availableRoutes.includes(r)) {
-          dispatch(setTransferRoute(r));
-          return;
-        }
-      }
-      dispatch(setTransferRoute(undefined));
-    };
-    establishRoute();
-  }, [
-    showValidationState,
-    availableRoutes,
-    fromChain,
-    toChain,
-    token,
-    destToken,
-    amount,
-    dispatch,
-  ]);
-
-  useEffect(() => {
     const recomputeReceive = async () => {
       if (!route) return;
       const newReceiveAmount = await RouteOperator.computeReceiveAmount(

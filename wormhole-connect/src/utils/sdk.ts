@@ -157,5 +157,5 @@ export const toChainId = (chain: ChainName | ChainId) => {
 
 export const getMessage = (tx: string, chain: ChainName | ChainId) => {
   const context: any = wh.getContext(chain);
-  return context.getMessage(tx, chain);
+  return context.getMessage(tx, chain, false);
 };

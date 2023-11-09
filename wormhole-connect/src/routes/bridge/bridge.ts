@@ -36,6 +36,7 @@ import { isGatewayChain } from '../../utils/cosmos';
 import { fetchVaa } from '../../utils/vaa';
 import { formatGasFee } from '../utils';
 import { isTBTCCanonicalChain } from 'routes/tbtc';
+import { getSolanaAssociatedTokenAccount } from 'utils/solana';
 
 export class BridgeRoute extends BaseRoute {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean = false;
@@ -123,13 +124,21 @@ export class BridgeRoute extends BaseRoute {
     recipientAddress: string,
     routeOptions?: any,
   ): Promise<BigNumber> {
+    const recipientAccount =
+      wh.toChainId(recipientChain) === MAINNET_CHAINS.solana
+        ? await getSolanaAssociatedTokenAccount(
+            token,
+            sendingChain,
+            recipientAddress,
+          )
+        : recipientAddress;
     return await wh.estimateSendGas(
       token,
       amount,
       sendingChain,
       senderAddress,
       recipientChain,
-      recipientAddress,
+      recipientAccount,
     );
   }
 
@@ -165,13 +174,21 @@ export class BridgeRoute extends BaseRoute {
     const fromChainName = wh.toChainName(sendingChain);
     const decimals = getTokenDecimals(fromChainId, token);
     const parsedAmt = parseUnits(amount, decimals);
+    const recipientAccount =
+      wh.toChainId(recipientChain) === MAINNET_CHAINS.solana
+        ? await getSolanaAssociatedTokenAccount(
+            token,
+            sendingChain,
+            recipientAddress,
+          )
+        : recipientAddress;
     const tx = await wh.send(
       token,
       parsedAmt.toString(),
       sendingChain,
       senderAddress,
       recipientChain,
-      recipientAddress,
+      recipientAccount,
       undefined,
     );
     const txId = await signAndSendTransaction(
