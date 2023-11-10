@@ -76,7 +76,7 @@ export const CHAINS_ARR =
 
 export const SEARCH_TX = config && config.searchTx;
 
-export const EXTRA_NETWOKS = config && config.extraNetworks;
+export const MORE_NETWORKS = config && config.moreNetworks;
 export const MORE_TOKENS = config && config.moreTokens;
 export const TOKENS = NETWORK_DATA.tokens;
 export const TOKENS_ARR =

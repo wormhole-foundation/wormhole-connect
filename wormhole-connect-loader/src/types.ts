@@ -77,7 +77,7 @@ export interface WormholeConnectConfig {
   pageSubHeader?: string;
   searchTx?: SearchTxConfig;
   moreTokens?: MoreTokenConfig;
-  extraNetworks?: ExtraChainConfig;
+  moreNetworks?: MoreChainConfig;
 }
 
 export type SearchTxConfig = {
@@ -89,16 +89,17 @@ export type SearchTxConfig = {
 export type MoreTokenConfig = {
   label: string;
   href: string;
+  target?: "_blank" | "_self";
 };
 
-export type ExtraChainConfig = {
+export type MoreChainConfig = {
   href: string;
   target?: "_blank" | "_self";
   description: string;
-  networks: ExtraChainDefintion[];
+  networks: MoreChainDefinition[];
 };
 
-export type ExtraChainDefintion = {
+export type MoreChainDefinition = {
   icon: string;
   href?: string;
   label: string;

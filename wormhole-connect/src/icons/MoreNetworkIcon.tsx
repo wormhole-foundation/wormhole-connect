@@ -36,7 +36,7 @@ type Props = {
   description?: string;
 };
 
-function ExtraNetworkIcon({
+function MoreNetworkIcon({
   height,
   alt,
   icon,
@@ -72,4 +72,4 @@ function ExtraNetworkIcon({
   );
 }
 
-export default ExtraNetworkIcon;
+export default MoreNetworkIcon;

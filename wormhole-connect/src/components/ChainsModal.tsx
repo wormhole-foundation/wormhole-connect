@@ -5,7 +5,7 @@ import {
   ChainConfig,
   ChainName,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { CHAINS_ARR, CHAINS, EXTRA_NETWOKS } from 'config';
+import { CHAINS_ARR, CHAINS, MORE_NETWORKS } from 'config';
 import { CENTER, joinClass } from 'utils/style';
 
 import Header from './Header';
@@ -15,7 +15,7 @@ import Search from './Search';
 import Scroll from './Scroll';
 import TokenIcon from 'icons/TokenIcons';
 import RouteOperator from 'routes/operator';
-import ExtraNetworkIcon from 'icons/ExtraNetworkIcon';
+import MoreNetworkIcon from 'icons/MoreNetworkIcon';
 
 const useStyles = makeStyles()((theme: any) => ({
   chainsContainer: {
@@ -76,7 +76,7 @@ type Props = {
   isDisabled?: (chain: ChainName) => boolean;
   onClose: () => any;
   onSelect: (chain: ChainName) => any;
-  onExtraNetworkSelect?: (
+  onMoreNetworkSelect?: (
     href: string,
     chainName: string,
     target?: string,
@@ -95,9 +95,9 @@ function ChainsModal(props: Props) {
     target?: string,
   ) => {
     if (href) {
-      props.onExtraNetworkSelect?.(href, chainName, target);
+      props.onMoreNetworkSelect?.(href, chainName, target);
     }
-    props.onExtraNetworkSelect?.(EXTRA_NETWOKS?.href!, chainName, target);
+    props.onMoreNetworkSelect?.(MORE_NETWORKS?.href!, chainName, target);
   };
   const supportedChains = useMemo(() => {
     const supported = RouteOperator.allSupportedChains();
@@ -171,7 +171,7 @@ function ChainsModal(props: Props) {
                 )
               );
             })}
-            {EXTRA_NETWOKS?.networks.map((chain, i) => {
+            {MORE_NETWORKS?.networks.map((chain, i) => {
               return (
                 <div
                   key={i}
@@ -181,19 +181,19 @@ function ChainsModal(props: Props) {
                   ])}
                   onClick={() =>
                     handleExtraNetwork(
-                      chain.href || EXTRA_NETWOKS!.href,
+                      chain.href || MORE_NETWORKS!.href,
                       chain.name,
-                      chain.target || EXTRA_NETWOKS?.target,
+                      chain.target || MORE_NETWORKS?.target,
                     )
                   }
                 >
-                  <ExtraNetworkIcon
+                  <MoreNetworkIcon
                     icon={chain.icon}
                     alt={chain.label}
                     height={48}
                     showOpenInNewIcon={chain.showOpenInNewIcon}
                     description={
-                      chain.description || EXTRA_NETWOKS?.description
+                      chain.description || MORE_NETWORKS?.description
                     }
                   />
                   <div className={classes.chainText}>{chain.label}</div>

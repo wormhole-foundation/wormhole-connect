@@ -227,7 +227,10 @@ function DisplayTokens(props: DisplayTokensProps) {
                   <Button
                     disableRipple
                     className={classes.moreTokens}
-                    onClick={() => MORE_TOKENS && moreTokens(MORE_TOKENS.href)}
+                    onClick={() =>
+                      MORE_TOKENS &&
+                      moreTokens(MORE_TOKENS.href, MORE_TOKENS.target)
+                    }
                   >
                     <span className={classes.moreTokensLabel}>
                       {MORE_TOKENS.label}

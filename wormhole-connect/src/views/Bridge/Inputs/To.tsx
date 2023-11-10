@@ -155,7 +155,7 @@ function ToInputs() {
         chains={CHAINS_ARR.filter((c) => c.key !== fromChain)}
         onSelect={selectChain}
         onClose={() => setShowChainsModal(false)}
-        onExtraNetworkSelect={(href, chainName, target) =>
+        onMoreNetworkSelect={(href, chainName, target) =>
           handleExtraNetwork(href, chainName, target)
         }
         isDisabled={isDisabled}
