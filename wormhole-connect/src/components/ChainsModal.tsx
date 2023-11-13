@@ -182,7 +182,8 @@ function ChainsModal(props: Props) {
                   onClick={() =>
                     handleExtraNetwork(
                       chain.href || MORE_NETWORKS!.href,
-                      chain.name,
+                      chain.name ||
+                        chain.label.toLocaleLowerCase().split(' ').join('_'),
                       chain.target || MORE_NETWORKS?.target,
                     )
                   }

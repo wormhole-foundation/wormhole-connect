@@ -105,7 +105,7 @@ export type MoreChainDefinition = {
   icon: string;
   href?: string;
   label: string;
-  name: string;
+  name?: string;
   description?: string;
   target?: '_blank' | '_self';
   showOpenInNewIcon?: boolean;
