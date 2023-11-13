@@ -6,35 +6,22 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { BigNumber } from 'ethers';
 import { hexlify, parseUnits, arrayify } from 'ethers/lib/utils.js';
-import { CHAINS, ROUTES, TOKENS } from 'config';
-import { TokenConfig, Route } from 'config/types';
-import {
-  MAX_DECIMALS,
-  getTokenDecimals,
-  toNormalizedDecimals,
-  getDisplayName,
-} from 'utils';
-import { toChainId, wh } from 'utils/sdk';
+import { ROUTES, TOKENS } from 'config';
+import { Route } from 'config/types';
+import { getTokenDecimals } from 'utils';
+import { wh } from 'utils/sdk';
 import { TransferWallet, postVaa, signAndSendTransaction } from 'utils/wallet';
-import { NO_INPUT } from 'utils/style';
 import {
   UnsignedMessage,
-  TransferDisplayData,
   isSignedWormholeMessage,
   TokenTransferMessage,
   SignedTokenTransferMessage,
 } from '../types';
 import { BaseRoute } from './baseRoute';
 import { adaptParsedMessage } from '../utils';
-import { toDecimals } from '../../utils/balance';
-import {
-  SignedMessage,
-  TransferDestInfoBaseParams,
-  TransferInfoBaseParams,
-} from '../types';
+import { SignedMessage } from '../types';
 import { isGatewayChain } from '../../utils/cosmos';
 import { fetchVaa } from '../../utils/vaa';
-import { formatGasFee } from '../utils';
 import { isTBTCCanonicalChain } from 'routes/tbtc';
 import { getSolanaAssociatedTokenAccount } from 'utils/solana';
 
@@ -60,8 +47,10 @@ export class BridgeRoute extends BaseRoute {
     if (sourceChain === destChain) return false;
     if (isGatewayChain(sourceChain) || isGatewayChain(destChain)) return false;
     if (
-      (isTBTCCanonicalChain(sourceChain) || isTBTCCanonicalChain(destChain)) &&
-      sourceTokenConfig.symbol === 'tBTC'
+      isTBTCCanonicalChain(sourceChain) ||
+      (isTBTCCanonicalChain(destChain) &&
+        (sourceTokenConfig.symbol === 'tBTC' ||
+          destTokenConfig.symbol === 'tBTC'))
     )
       return false;
     // TODO: probably not true for Solana
@@ -241,55 +230,6 @@ export class BridgeRoute extends BaseRoute {
     return txId;
   }
 
-  async getPreview(
-    token: TokenConfig,
-    destToken: TokenConfig,
-    amount: number,
-    sendingChain: ChainName | ChainId,
-    receipientChain: ChainName | ChainId,
-    sendingGasEst: string,
-    claimingGasEst: string,
-    routeOptions?: any,
-  ): Promise<TransferDisplayData> {
-    const sendingChainName = wh.toChainName(sendingChain);
-    const receipientChainName = wh.toChainName(receipientChain);
-    const sourceGasToken = CHAINS[sendingChainName]?.gasToken;
-    const destinationGasToken = CHAINS[receipientChainName]?.gasToken;
-    const sourceGasTokenSymbol = sourceGasToken
-      ? getDisplayName(TOKENS[sourceGasToken])
-      : '';
-    const destinationGasTokenSymbol = destinationGasToken
-      ? getDisplayName(TOKENS[destinationGasToken])
-      : '';
-    return [
-      {
-        title: 'Amount',
-        value: `${amount} ${getDisplayName(destToken)}`,
-      },
-      {
-        title: 'Total fee estimates',
-        value:
-          sendingGasEst && claimingGasEst
-            ? `${sendingGasEst} ${sourceGasTokenSymbol} & ${claimingGasEst} ${destinationGasTokenSymbol}`
-            : '',
-        rows: [
-          {
-            title: 'Source chain gas estimate',
-            value: sendingGasEst
-              ? `~ ${sendingGasEst} ${sourceGasTokenSymbol}`
-              : 'Not available',
-          },
-          {
-            title: 'Destination chain gas estimate',
-            value: claimingGasEst
-              ? `~ ${claimingGasEst} ${destinationGasTokenSymbol}`
-              : 'Not available',
-          },
-        ],
-      },
-    ];
-  }
-
   async getRelayerFee(
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
@@ -326,82 +266,6 @@ export class BridgeRoute extends BaseRoute {
       ...message,
       vaa: hexlify(vaa.bytes),
     };
-  }
-
-  async getTransferSourceInfo({
-    txData,
-  }: TransferInfoBaseParams): Promise<TransferDisplayData> {
-    const formattedAmt = toNormalizedDecimals(
-      txData.amount,
-      txData.tokenDecimals,
-      MAX_DECIMALS,
-    );
-    const { gasToken: sourceGasTokenKey } = CHAINS[txData.fromChain]!;
-    const sourceGasToken = TOKENS[sourceGasTokenKey];
-    const decimals = getTokenDecimals(
-      toChainId(sourceGasToken.nativeChain),
-      'native',
-    );
-    const formattedGas =
-      txData.gasFee && toDecimals(txData.gasFee, decimals, MAX_DECIMALS);
-    const token = TOKENS[txData.tokenKey];
-
-    return [
-      {
-        title: 'Amount',
-        value: `${formattedAmt} ${getDisplayName(token)}`,
-      },
-      {
-        title: 'Gas fee',
-        value: formattedGas
-          ? `${formattedGas} ${getDisplayName(sourceGasToken)}`
-          : NO_INPUT,
-      },
-    ];
-  }
-
-  async getTransferDestInfo({
-    txData,
-    receiveTx,
-    gasEstimate,
-  }: TransferDestInfoBaseParams): Promise<TransferDisplayData> {
-    const token = TOKENS[txData.tokenKey];
-    const { gasToken } = CHAINS[txData.toChain]!;
-
-    let gas = gasEstimate;
-    if (receiveTx) {
-      const gasFee = await wh.getTxGasFee(txData.toChain, receiveTx);
-      if (gasFee) {
-        gas = formatGasFee(txData.toChain, gasFee);
-      }
-    }
-
-    const formattedAmt = toNormalizedDecimals(
-      txData.amount,
-      txData.tokenDecimals,
-      MAX_DECIMALS,
-    );
-
-    return [
-      {
-        title: 'Amount',
-        value: `${formattedAmt} ${getDisplayName(token)}`,
-      },
-      {
-        title: receiveTx ? 'Gas fee' : 'Gas estimate',
-        value: gas ? `${gas} ${getDisplayName(TOKENS[gasToken])}` : NO_INPUT,
-      },
-    ];
-  }
-
-  async isTransferCompleted(
-    destChain: ChainName | ChainId,
-    signedMessage: SignedMessage,
-  ): Promise<boolean> {
-    if (!isSignedWormholeMessage(signedMessage)) {
-      throw new Error('Invalid signed message');
-    }
-    return wh.isTransferCompleted(destChain, hexlify(signedMessage.vaa));
   }
 
   async tryFetchRedeemTx(txData: UnsignedMessage): Promise<string | undefined> {

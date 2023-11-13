@@ -7,73 +7,39 @@ import {
   SolanaContext,
   WormholeContext,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { CHAINS, ROUTES, TOKENS, isMainnet, TOKENS_ARR } from 'config';
+import { ROUTES, TOKENS, TOKENS_ARR } from 'config';
 import { TokenConfig, Route } from 'config/types';
 import {
-  MAX_DECIMALS,
   getTokenDecimals,
-  toNormalizedDecimals,
-  getDisplayName,
   getTokenById,
   deNormalizeAmount,
   normalizeAmount,
 } from 'utils';
-import { isEvmChain, toChainId, wh } from 'utils/sdk';
-import { NO_INPUT } from 'utils/style';
+import { isEvmChain, wh } from 'utils/sdk';
 import {
   SignedMessage,
-  TransferDisplayData,
-  TransferInfoBaseParams,
-  TransferDestInfoBaseParams,
   UnsignedMessage,
   TokenTransferMessage,
   SignedTokenTransferMessage,
-  isSignedWormholeMessage,
   TBTCMessage,
 } from '../types';
-import { adaptParsedMessage, formatGasFee } from '../utils';
+import { adaptParsedMessage } from '../utils';
 import {
+  CHAIN_ID_ETH,
   CHAIN_ID_POLYGON,
-  CHAIN_ID_OPTIMISM,
-  CHAIN_ID_ARBITRUM,
-  CHAIN_ID_BASE,
   CHAIN_ID_SOLANA,
 } from '@certusone/wormhole-sdk';
 import { ThresholdL2WormholeGateway as EVMGateway } from './abi/evm/ThresholdL2WormholeGateway';
-import { receiveTbtc, sendTbtc } from './abi/solana/WormholeGateway';
+import * as SolanaGateway from './abi/solana/WormholeGateway';
 import { fetchVaa } from 'utils/vaa';
 import { arrayify, hexlify, parseUnits } from 'ethers/lib/utils.js';
 import { BaseRoute } from '../bridge';
-import { toDecimals } from 'utils/balance';
 import { postVaa, signAndSendTransaction, TransferWallet } from 'utils/wallet';
-import { CHAIN_ID_ETH } from '@xlabs-libs/wallet-aggregator-core';
+import { isTBTCCanonicalChain } from './utils';
 
 const THRESHOLD_ARBITER_FEE = 0;
 const THRESHOLD_NONCE = 0;
 const TBTC_TOKEN_SYMBOL = 'tBTC';
-
-const THRESHOLD_GATEWAYS_MAINNET: { [key in ChainId]?: string } = {
-  [CHAIN_ID_POLYGON]: '0x09959798B95d00a3183d20FaC298E4594E599eab',
-  [CHAIN_ID_OPTIMISM]: '0x1293a54e160D1cd7075487898d65266081A15458',
-  [CHAIN_ID_ARBITRUM]: '0x1293a54e160D1cd7075487898d65266081A15458',
-  [CHAIN_ID_BASE]: '0x09959798B95d00a3183d20FaC298E4594E599eab',
-  [CHAIN_ID_SOLANA]: '87MEvHZCXE3ML5rrmh5uX1FbShHmRXXS32xJDGbQ7h5t', // Solana TBTC Gateway Program
-};
-
-const THRESHOLD_GATEWAYS_TESTNET: { [key in ChainId]?: string } = {
-  [CHAIN_ID_POLYGON]: '0x91fe7128f74dbd4f031ea3d90fc5ea4dcfd81818',
-  [CHAIN_ID_OPTIMISM]: '0x6449F4381f3d63bDfb36B3bDc375724aD3cD4621',
-  [CHAIN_ID_ARBITRUM]: '0x31A15e213B59E230b45e8c5c99dAFAc3d1236Ee2',
-  [CHAIN_ID_BASE]: '0xe3e0511EEbD87F08FbaE4486419cb5dFB06e1343',
-  [CHAIN_ID_SOLANA]: '87MEvHZCXE3ML5rrmh5uX1FbShHmRXXS32xJDGbQ7h5t', // Solana TBTC Gateway Program
-};
-
-const THRESHOLD_GATEWAYS = isMainnet
-  ? THRESHOLD_GATEWAYS_MAINNET
-  : THRESHOLD_GATEWAYS_TESTNET;
-
-export const isTBTCCanonicalChain = (chain: ChainId | ChainName): boolean =>
-  !!THRESHOLD_GATEWAYS[wh.toChainId(chain)];
 
 export class TBTCRoute extends BaseRoute {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean = false;
@@ -176,6 +142,47 @@ export class TBTCRoute extends BaseRoute {
     recipientAddress: string,
     routeOptions?: any,
   ): Promise<BigNumber> {
+    if (isEvmChain(sendingChain)) {
+      const gatewayAddress = wh.getContracts(sendingChain)?.tbtcGateway;
+      if (gatewayAddress) {
+        const provider = wh.mustGetProvider(sendingChain);
+        const gateway = new Contract(gatewayAddress, EVMGateway, provider);
+        const decimals = getTokenDecimals(wh.toChainId(sendingChain), token);
+        const baseAmountParsed = parseUnits(amount, decimals);
+        const feeParsed = parseUnits('0', decimals);
+        const transferAmountParsed = baseAmountParsed.add(feeParsed);
+        // We need to truncate any dust from the amount so the token bridge
+        // doesn't send it to the gateway contract
+        const denormalizedAmount = deNormalizeAmount(
+          normalizeAmount(transferAmountParsed, decimals),
+          decimals,
+        );
+        const formattedRecipient = wh.formatAddress(
+          recipientAddress,
+          recipientChain,
+        );
+        // We increase the gas limit estimation here by a factor of 10% to account for
+        // some faulty public JSON-RPC endpoints.
+        const gasEstimate = await gateway.estimateGas.sendTbtc(
+          denormalizedAmount,
+          wh.toChainId(recipientChain),
+          formattedRecipient,
+          THRESHOLD_ARBITER_FEE,
+          THRESHOLD_NONCE,
+        );
+        const gasLimit = gasEstimate.mul(1100).div(1000);
+        return gasLimit;
+      } else {
+        return await wh.estimateSendGas(
+          token,
+          amount,
+          sendingChain,
+          senderAddress,
+          recipientChain,
+          recipientAddress,
+        );
+      }
+    }
     throw new Error('not implemented');
   }
 
@@ -183,6 +190,20 @@ export class TBTCRoute extends BaseRoute {
     destChain: ChainName | ChainId,
     signedMessage?: SignedMessage,
   ): Promise<BigNumber> {
+    if (isEvmChain(destChain) && signedMessage) {
+      const gatewayAddress = wh.getContracts(destChain)?.tbtcGateway;
+      if (gatewayAddress) {
+        const provider = wh.mustGetProvider(destChain);
+        const gateway = new Contract(gatewayAddress, EVMGateway, provider);
+        const estimateGas = await gateway.estimateGas.receiveTbtc(
+          signedMessage.amount,
+        );
+        // We increase the gas limit estimation here by a factor of 10% to account for
+        // some faulty public JSON-RPC endpoints.
+        const gasLimit = estimateGas.mul(1100).div(1000);
+        return gasLimit;
+      }
+    }
     throw new Error('not implemented');
   }
 
@@ -220,17 +241,13 @@ export class TBTCRoute extends BaseRoute {
     const transferAmountParsed = baseAmountParsed.add(feeParsed);
     if (isEvmChain(sendingChain)) {
       const signer = wh.mustGetSigner(sendingChain);
-      const sourceGatewayAddress = THRESHOLD_GATEWAYS[fromChainId];
+      const sourceGatewayAddress = wh.getContracts(fromChainId)?.tbtcGateway;
       // Use the gateway contract to send if it exists
       if (sourceGatewayAddress) {
         const chainContext = wh.getContext(
           sendingChain,
         ) as EthContext<WormholeContext>;
-        const L2WormholeGateway = new Contract(
-          sourceGatewayAddress,
-          EVMGateway,
-          signer,
-        );
+        const gateway = new Contract(sourceGatewayAddress, EVMGateway, signer);
         // We need to truncate any dust from the amount so the token bridge
         // doesn't send it to the gateway contract
         const denormalizedAmount = deNormalizeAmount(
@@ -243,24 +260,16 @@ export class TBTCRoute extends BaseRoute {
           token.address,
           denormalizedAmount,
         );
-        const estimateGas = await L2WormholeGateway.estimateGas.sendTbtc(
-          denormalizedAmount,
-          toChainId,
-          formattedRecipient,
-          THRESHOLD_ARBITER_FEE,
-          THRESHOLD_NONCE,
+        const gasLimit = await this.estimateSendGas(
+          token,
+          amount,
+          sendingChain,
+          senderAddress,
+          recipientChain,
+          recipientAddress,
         );
-        // We increase the gas limit estimation here by a factor of 10% to account for
-        // some faulty public JSON-RPC endpoints.
-        const gasLimit = estimateGas.mul(1100).div(1000);
-        const overrides = {
-          gasLimit,
-          // We use the legacy tx envelope here to avoid triggering gas price autodetection using EIP1559 for polygon.
-          // EIP1559 is not actually implemented in polygon. The node is only API compatible but this breaks some clients
-          // like ethers when choosing fees automatically.
-          ...(fromChainId === CHAIN_ID_POLYGON && { type: 0 }),
-        };
-        const tx = await L2WormholeGateway.sendTbtc(
+        const overrides = this.getOverrides(fromChainId, gasLimit);
+        const tx = await gateway.sendTbtc(
           denormalizedAmount,
           toChainId,
           formattedRecipient,
@@ -277,7 +286,7 @@ export class TBTCRoute extends BaseRoute {
         return txId;
       } else {
         // The gateway contract must exist on the target chain
-        const targetGatewayAddress = THRESHOLD_GATEWAYS[toChainId];
+        const targetGatewayAddress = wh.getContracts(toChainId)?.tbtcGateway;
         if (!targetGatewayAddress) {
           throw new Error(
             `No gateway contract found on target chain ${toChainId}`,
@@ -304,9 +313,10 @@ export class TBTCRoute extends BaseRoute {
         return txId;
       }
     } else if (fromChainId === CHAIN_ID_SOLANA) {
-      const { core, token_bridge } = wh.mustGetContracts(fromChainId);
-      if (!core || !token_bridge) {
-        throw new Error('Core or token bridge not found');
+      const { core, token_bridge, tbtcGateway } =
+        wh.mustGetContracts(fromChainId);
+      if (!core || !token_bridge || !tbtcGateway) {
+        throw new Error('Core, token bridge, or gateway not found');
       }
       const context = wh.getContext(
         fromChainId,
@@ -315,14 +325,14 @@ export class TBTCRoute extends BaseRoute {
       if (!connection) {
         throw new Error('Connection not found');
       }
-      const tx = await sendTbtc(
+      const tx = await SolanaGateway.sendTbtc(
         transferAmountParsed.toString(),
         toChainId,
         formattedRecipient,
         senderAddress,
         isTBTCCanonicalChain(toChainId),
         connection,
-        THRESHOLD_GATEWAYS[fromChainId]!,
+        tbtcGateway,
         token_bridge,
         core,
       );
@@ -334,7 +344,7 @@ export class TBTCRoute extends BaseRoute {
       return txId;
     } else {
       // The gateway contract must exist on the target chain
-      const targetGatewayAddress = THRESHOLD_GATEWAYS[toChainId];
+      const targetGatewayAddress = wh.getContracts(toChainId)?.tbtcGateway;
       if (!targetGatewayAddress) {
         throw new Error(
           `No gateway contract found on target chain ${toChainId}`,
@@ -367,28 +377,14 @@ export class TBTCRoute extends BaseRoute {
     const destChainId = wh.toChainId(destChain);
     const destChainName = wh.toChainName(destChain);
     if (isEvmChain(destChain)) {
-      const destGatewayAddress = THRESHOLD_GATEWAYS[destChainId];
+      const destGatewayAddress = wh.getContracts(destChain)?.tbtcGateway;
       // Use the gateway contract to receive if it exists
       if (destGatewayAddress) {
         const signer = wh.mustGetSigner(destChain);
-        const L2WormholeGateway = new Contract(
-          destGatewayAddress,
-          EVMGateway,
-          signer,
-        );
-        const estimateGas = await L2WormholeGateway.estimateGas.receiveTbtc(
-          message.vaa,
-        );
-        // We increase the gas limit estimation here by a factor of 10% to account for some faulty public JSON-RPC endpoints.
-        const gasLimit = estimateGas.mul(1100).div(1000);
-        const overrides = {
-          gasLimit,
-          // We use the legacy tx envelope here to avoid triggering gas price autodetection using EIP1559 for polygon.
-          // EIP1559 is not actually implemented in polygon. The node is only API compatible but this breaks some clients
-          // like ethers when choosing fees automatically.
-          ...(destChain === CHAIN_ID_POLYGON && { type: 0 }),
-        };
-        const tx = await L2WormholeGateway.receiveTbtc(message.vaa, overrides);
+        const gateway = new Contract(destGatewayAddress, EVMGateway, signer);
+        const gasLimit = await this.estimateClaimGas(destChain, message);
+        const overrides = this.getOverrides(destChainId, gasLimit);
+        const tx = await gateway.receiveTbtc(message.vaa, overrides);
         const receipt = await tx.wait();
         const txId = await signAndSendTransaction(
           destChainName,
@@ -417,16 +413,17 @@ export class TBTCRoute extends BaseRoute {
       if (!connection) {
         throw new Error('Connection not found');
       }
-      const { core, token_bridge } = wh.mustGetContracts(destChain);
-      if (!core || !token_bridge) {
-        throw new Error('Core or token bridge not found');
+      const { core, token_bridge, tbtcGateway } =
+        wh.mustGetContracts(destChain);
+      if (!core || !token_bridge || !tbtcGateway) {
+        throw new Error('Core, token bridge, or gateway not found');
       }
       await postVaa(connection, core, signedVaa);
-      const tx = await receiveTbtc(
+      const tx = await SolanaGateway.receiveTbtc(
         signedVaa,
         payer,
         connection,
-        THRESHOLD_GATEWAYS[destChainId]!,
+        tbtcGateway,
         token_bridge,
         core,
       );
@@ -451,55 +448,6 @@ export class TBTCRoute extends BaseRoute {
       );
       return txId;
     }
-  }
-
-  public async getPreview(
-    token: TokenConfig,
-    destToken: TokenConfig,
-    amount: number,
-    sendingChain: ChainName | ChainId,
-    receipientChain: ChainName | ChainId,
-    sendingGasEst: string,
-    claimingGasEst: string,
-    routeOptions?: any,
-  ): Promise<TransferDisplayData> {
-    const sendingChainName = wh.toChainName(sendingChain);
-    const receipientChainName = wh.toChainName(receipientChain);
-    const sourceGasToken = CHAINS[sendingChainName]?.gasToken;
-    const destinationGasToken = CHAINS[receipientChainName]?.gasToken;
-    const sourceGasTokenSymbol = sourceGasToken
-      ? getDisplayName(TOKENS[sourceGasToken])
-      : '';
-    const destinationGasTokenSymbol = destinationGasToken
-      ? getDisplayName(TOKENS[destinationGasToken])
-      : '';
-    return [
-      {
-        title: 'Amount',
-        value: `${amount} ${getDisplayName(destToken)}`,
-      },
-      {
-        title: 'Total fee estimates',
-        value:
-          sendingGasEst && claimingGasEst
-            ? `${sendingGasEst} ${sourceGasTokenSymbol} & ${claimingGasEst} ${destinationGasTokenSymbol}`
-            : '',
-        rows: [
-          {
-            title: 'Source chain gas estimate',
-            value: sendingGasEst
-              ? `~ ${sendingGasEst} ${sourceGasTokenSymbol}`
-              : 'Not available',
-          },
-          {
-            title: 'Destination chain gas estimate',
-            value: claimingGasEst
-              ? `~ ${claimingGasEst} ${destinationGasTokenSymbol}`
-              : 'Not available',
-          },
-        ],
-      },
-    ];
   }
 
   async getRelayerFee(
@@ -528,7 +476,10 @@ export class TBTCRoute extends BaseRoute {
       return addr;
     } else {
       // If there's no gateway contract then Ethereum tBTC is canonical
-      return await wh.getForeignAsset(TOKENS['tBTC'].tokenId!, chain);
+      return await wh.getForeignAsset(
+        TOKENS[TBTC_TOKEN_SYMBOL].tokenId!,
+        chain,
+      );
     }
   }
 
@@ -538,6 +489,8 @@ export class TBTCRoute extends BaseRoute {
   ): Promise<TBTCMessage> {
     const message = await wh.getMessage(tx, chain, false);
     const adapted = await adaptParsedMessage(message);
+    const receivedTokenKey =
+      (await this.getForeignAsset(adapted.tokenId, adapted.toChain)) || '';
     const destContext = wh.getContext(message.toChain);
     const recipient =
       message.payload && message.payload.length > 0
@@ -547,6 +500,7 @@ export class TBTCRoute extends BaseRoute {
       ...adapted,
       to: message.recipient,
       recipient,
+      receivedTokenKey,
     };
   }
 
@@ -563,81 +517,6 @@ export class TBTCRoute extends BaseRoute {
       ...message,
       vaa: hexlify(vaa.bytes),
     };
-  }
-
-  async getTransferSourceInfo({
-    txData,
-  }: TransferInfoBaseParams): Promise<TransferDisplayData> {
-    const formattedAmt = toNormalizedDecimals(
-      txData.amount,
-      txData.tokenDecimals,
-      MAX_DECIMALS,
-    );
-    const { gasToken: sourceGasTokenKey } = CHAINS[txData.fromChain]!;
-    const sourceGasToken = TOKENS[sourceGasTokenKey];
-    const decimals = getTokenDecimals(
-      toChainId(sourceGasToken.nativeChain),
-      'native',
-    );
-    const formattedGas =
-      txData.gasFee && toDecimals(txData.gasFee, decimals, MAX_DECIMALS);
-    const token = TOKENS[txData.tokenKey];
-
-    return [
-      {
-        title: 'Amount',
-        value: `${formattedAmt} ${getDisplayName(token)}`,
-      },
-      {
-        title: 'Gas fee',
-        value: formattedGas
-          ? `${formattedGas} ${getDisplayName(sourceGasToken)}`
-          : NO_INPUT,
-      },
-    ];
-  }
-
-  async getTransferDestInfo({
-    txData,
-    receiveTx,
-    gasEstimate,
-  }: TransferDestInfoBaseParams): Promise<TransferDisplayData> {
-    const token = TOKENS[txData.tokenKey];
-    const { gasToken } = CHAINS[txData.toChain]!;
-
-    let gas = gasEstimate;
-    if (receiveTx) {
-      const gasFee = await wh.getTxGasFee(txData.toChain, receiveTx);
-      if (gasFee) {
-        gas = formatGasFee(txData.toChain, gasFee);
-      }
-    }
-
-    const formattedAmt = toNormalizedDecimals(
-      txData.amount,
-      txData.tokenDecimals,
-      MAX_DECIMALS,
-    );
-    return [
-      {
-        title: 'Amount',
-        value: `${formattedAmt} ${getDisplayName(token)}`,
-      },
-      {
-        title: receiveTx ? 'Gas fee' : 'Gas estimate',
-        value: gas ? `${gas} ${getDisplayName(TOKENS[gasToken])}` : NO_INPUT,
-      },
-    ];
-  }
-
-  async isTransferCompleted(
-    destChain: ChainName | ChainId,
-    signedMessage: SignedMessage,
-  ): Promise<boolean> {
-    if (!isSignedWormholeMessage(signedMessage)) {
-      throw new Error('Invalid signed message');
-    }
-    return wh.isTransferCompleted(destChain, hexlify(signedMessage.vaa));
   }
 
   async nativeTokenAmount(
@@ -659,5 +538,16 @@ export class TBTCRoute extends BaseRoute {
 
   async tryFetchRedeemTx(txData: UnsignedMessage): Promise<string | undefined> {
     return undefined; // only for automatic routes
+  }
+
+  getOverrides(destChain: ChainId, gasLimit: BigNumber) {
+    const overrides = {
+      gasLimit,
+      // We use the legacy tx envelope here to avoid triggering gas price autodetection using EIP1559 for polygon.
+      // EIP1559 is not actually implemented in polygon. The node is only API compatible but this breaks some clients
+      // like ethers when choosing fees automatically.
+      ...(destChain === CHAIN_ID_POLYGON && { type: 0 }),
+    };
+    return overrides;
   }
 }

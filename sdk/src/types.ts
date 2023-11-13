@@ -50,6 +50,7 @@ export type Contracts = {
   suiRelayerPackageId?: string;
   seiTokenTranslator?: string;
   ibcShimContract?: string;
+  tbtcGateway?: string;
 };
 
 export type ChainConfig = {

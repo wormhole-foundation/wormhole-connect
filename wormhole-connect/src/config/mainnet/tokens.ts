@@ -2165,7 +2165,8 @@ export const MAINNET_TOKENS: TokensConfig = {
     coinGeckoId: 'tbtc',
     color: '#000000',
     decimals: {
-      default: 18,
+      default: 8,
+      Ethereum: 18,
     },
   },
   tBTCoptimism: {
@@ -2180,7 +2181,8 @@ export const MAINNET_TOKENS: TokensConfig = {
     coinGeckoId: 'tbtc',
     color: '#000000',
     decimals: {
-      default: 18,
+      default: 8,
+      Ethereum: 18,
     },
   },
   tBTCarbitrum: {
@@ -2195,7 +2197,8 @@ export const MAINNET_TOKENS: TokensConfig = {
     coinGeckoId: 'tbtc',
     color: '#000000',
     decimals: {
-      default: 18,
+      default: 8,
+      Ethereum: 18,
     },
   },
   tBTCbase: {
@@ -2210,7 +2213,8 @@ export const MAINNET_TOKENS: TokensConfig = {
     coinGeckoId: 'tbtc',
     color: '#000000',
     decimals: {
-      default: 18,
+      default: 8,
+      Ethereum: 18,
     },
   },
   tBTCsol: {
@@ -2226,6 +2230,7 @@ export const MAINNET_TOKENS: TokensConfig = {
     color: '#000000',
     decimals: {
       default: 8,
+      Ethereum: 18,
     },
   },
   wstETH: {

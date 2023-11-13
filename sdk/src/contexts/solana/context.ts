@@ -71,12 +71,12 @@ import {
   createTransferWrappedTokensWithRelayInstruction,
 } from './utils/tokenBridgeRelayer';
 
-export const SOLANA_SEQ_LOG = 'Program log: Sequence: ';
-export const SOLANA_CHAIN_NAME = MAINNET_CONFIG.chains.solana!.key;
+const SOLANA_SEQ_LOG = 'Program log: Sequence: ';
+const SOLANA_CHAIN_NAME = MAINNET_CONFIG.chains.solana!.key;
 
-export const SOLANA_MAINNET_EMMITER_ID =
+const SOLANA_MAINNET_EMMITER_ID =
   'ec7372995d5cc8732397fb0ad35c0121e0eaa90d26f828a534cab54391b3a4f5';
-export const SOLANA_TESTNET_EMITTER_ID =
+const SOLANA_TESTNET_EMITTER_ID =
   '3b26409f8aaded3f5ddca184695aa6a0fa829b0c85caf84856324896d214ca98';
 
 /**

@@ -37,6 +37,7 @@ import Search from './Search';
 import Spacer from './Spacer';
 import Tabs from './Tabs';
 import { CCTPManual_CHAINS } from '../routes/cctpManual';
+import { isTBTCCanonicalChain } from 'routes/tbtc';
 
 const useStyles = makeStyles()((theme: any) => ({
   tokensContainer: {
@@ -467,6 +468,15 @@ function TokensModal(props: Props) {
       // if token is USDC and the chain is cctp enabled, only show native ones
       const isCctpChain = chain && CCTPManual_CHAINS.includes(chain);
       if (t.symbol === 'USDC' && t.nativeChain !== chain && isCctpChain)
+        return false;
+
+      // if token is tBTC and the chain is canonical then only show native ones
+      if (
+        t.symbol === 'tBTC' &&
+        t.nativeChain !== chain &&
+        chain &&
+        isTBTCCanonicalChain(chain)
+      )
         return false;
 
       if (type === 'dest') return true;
