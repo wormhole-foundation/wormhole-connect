@@ -82,3 +82,34 @@ class WormholeConnect extends React.Component {
   }
 }
 ```
+
+## Toggle Hamburguer Menu
+
+By setting the `showHamburgerMenu` option to **false**, you can deactivate the hamburger menu, causing the links to be positioned at the bottom.
+
+### Add extra menu entry
+
+By setting the `showHamburgerMenu` option to **false**, you can use the `menu` array to add extra links.
+
+|property|description|
+|--|--|
+|`menu[].label`|link name to show up|
+|`menu[].href`|target url or urn|
+|`menu[].target`|anchor standard target, by default `_blank`|
+|`menu[].order`|order where the new item should be injected|
+
+### Sample configuration
+
+```json
+{
+  "showHamburgerMenu": false,
+  "menu": [
+    {
+      "label": "Advance Tools",
+      "href": "https://portalbridge.com",
+      "target": "_self",
+      "order": 1
+    }
+  ]
+}
+```

@@ -82,6 +82,8 @@ export const TOKENS_ARR =
     ? Object.values(TOKENS).filter((c) => config.tokens!.includes(c.key))
     : (Object.values(TOKENS) as TokenConfig[]);
 
+export const MENU_ENTRIES = config.menu || [];
+
 export const ROUTES =
   config && config.routes ? config.routes : Object.values(Route);
 
