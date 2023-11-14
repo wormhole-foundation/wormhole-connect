@@ -22,6 +22,7 @@ import {
   TokenTransferMessage,
   SignedTokenTransferMessage,
   TBTCMessage,
+  isSignedWormholeMessage,
 } from '../types';
 import { adaptParsedMessage } from '../utils';
 import {
@@ -190,18 +191,22 @@ export class TBTCRoute extends BaseRoute {
     destChain: ChainName | ChainId,
     signedMessage?: SignedMessage,
   ): Promise<BigNumber> {
-    if (isEvmChain(destChain) && signedMessage) {
-      const gatewayAddress = wh.getContracts(destChain)?.tbtcGateway;
-      if (gatewayAddress) {
-        const provider = wh.mustGetProvider(destChain);
-        const gateway = new Contract(gatewayAddress, EVMGateway, provider);
-        const estimateGas = await gateway.estimateGas.receiveTbtc(
-          signedMessage.amount,
-        );
-        // We increase the gas limit estimation here by a factor of 10% to account for
-        // some faulty public JSON-RPC endpoints.
-        const gasLimit = estimateGas.mul(1100).div(1000);
-        return gasLimit;
+    if (signedMessage && isSignedWormholeMessage(signedMessage)) {
+      if (isEvmChain(destChain)) {
+        const gatewayAddress = wh.getContracts(destChain)?.tbtcGateway;
+        if (gatewayAddress) {
+          const provider = wh.mustGetProvider(destChain);
+          const gateway = new Contract(gatewayAddress, EVMGateway, provider);
+          const estimateGas = await gateway.estimateGas.receiveTbtc(
+            signedMessage.vaa,
+          );
+          // We increase the gas limit estimation here by a factor of 10% to account for
+          // some faulty public JSON-RPC endpoints.
+          const gasLimit = estimateGas.mul(1100).div(1000);
+          return gasLimit;
+        } else {
+          return wh.estimateClaimGas(destChain, arrayify(signedMessage.vaa));
+        }
       }
     }
     throw new Error('not implemented');
@@ -489,8 +494,15 @@ export class TBTCRoute extends BaseRoute {
   ): Promise<TBTCMessage> {
     const message = await wh.getMessage(tx, chain, false);
     const adapted = await adaptParsedMessage(message);
-    const receivedTokenKey =
+    const foreignAsset =
       (await this.getForeignAsset(adapted.tokenId, adapted.toChain)) || '';
+    const tokenId = {
+      address: foreignAsset,
+      chain: isTBTCCanonicalChain(adapted.toChain)
+        ? adapted.toChain
+        : adapted.tokenChain,
+    };
+    const token = getTokenById(tokenId);
     const destContext = wh.getContext(message.toChain);
     const recipient =
       message.payload && message.payload.length > 0
@@ -500,7 +512,7 @@ export class TBTCRoute extends BaseRoute {
       ...adapted,
       to: message.recipient,
       recipient,
-      receivedTokenKey,
+      receivedTokenKey: token ? token.key : TBTC_TOKEN_SYMBOL,
     };
   }
 
