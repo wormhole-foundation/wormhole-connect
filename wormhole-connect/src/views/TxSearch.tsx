@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { makeStyles } from 'tss-react/mui';
 import { useDispatch } from 'react-redux';
 import { Select, MenuItem, CircularProgress } from '@mui/material';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 
-import { CHAINS_ARR } from 'config';
+import { CHAINS_ARR, SEARCH_TX } from 'config';
 import { isValidTxId } from 'utils';
 import RouteOperator from 'routes/operator';
 import { setTxDetails, setRoute as setRedeemRoute } from 'store/redeem';
@@ -90,6 +90,18 @@ function TxSearch() {
     }
   }
 
+  const doSearch = useCallback(search, [state.tx, state.chain, dispatch]);
+
+  useEffect(() => {
+    if (SEARCH_TX?.chainName && SEARCH_TX?.txHash) {
+      setTx({ target: { value: SEARCH_TX?.txHash } });
+      setChain({ target: { value: SEARCH_TX?.chainName } });
+      doSearch();
+      SEARCH_TX!.txHash = undefined;
+      SEARCH_TX!.chainName = undefined;
+    }
+  }, [doSearch]);
+
   return (
     <div className={classes.container}>
       <PageHeader
@@ -126,6 +138,7 @@ function TxSearch() {
             placeholder="Source chain transaction hash"
             onChange={setTx}
             onSearch={search}
+            value={state.tx}
           />
         </div>
       </div>

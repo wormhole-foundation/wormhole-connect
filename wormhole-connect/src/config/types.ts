@@ -74,7 +74,14 @@ export interface WormholeConnectConfig {
   bridgeDefaults?: BridgeDefaults;
   routes?: string[];
   pageHeader?: string;
+  pageSubHeader?: string;
+  searchTx?: SearchTxConfig;
 }
+
+export type SearchTxConfig = {
+  txHash?: string;
+  chainName?: ChainName;
+};
 
 type DecimalsMap = Partial<Record<Context, number>> & {
   default: number;
