@@ -80,6 +80,21 @@ export const MAINNET_TOKENS: TokensConfig = {
         address: '0xb47bC3ed6D70F04fe759b2529c9bc7377889678f',
         decimals: 18,
       },
+      wormchain: {
+        address:
+          'wormhole18csycs4vm6varkp00apuqlsm7v4twg8jsljk8wfdd7cghr7g4rtslwqndm',
+        decimals: 8,
+      },
+      osmosis: {
+        address:
+          'ibc/62F82550D0B96522361C89B0DA1119DE262FBDFB25E5502BC5101B5C0D0DBAAC',
+        decimals: 8,
+      },
+      evmos: {
+        address:
+          'ibc/4442A8E0D487A49E76EA6606F5DADCF8D0DBDD8499112340C964970DB745EDA2',
+        decimals: 8,
+      },
     },
   },
   USDCeth: {
@@ -145,6 +160,21 @@ export const MAINNET_TOKENS: TokensConfig = {
       },
       optimism: {
         address: '0x711e53D031ea9B0bb0C24dD506df11b41AEA419e',
+        decimals: 6,
+      },
+      wormchain: {
+        address:
+          'wormhole1utjx3594tlvfw4375esgu72wa4sdgf0q7x4ye27husf5kvuzp5rsr72gdq',
+        decimals: 6,
+      },
+      evmos: {
+        address:
+          'ibc/0C19171CDC59451F91D2749CDEA63355532DCD5D8904CCBAC4953290E16AB8FD',
+        decimals: 6,
+      },
+      osmosis: {
+        address:
+          'ibc/6B99DB46AA9FF47162148C1726866919E44A6A5E0274B90912FD17E19A337695',
         decimals: 6,
       },
     },
@@ -214,6 +244,21 @@ export const MAINNET_TOKENS: TokensConfig = {
         address: '0xB214C19d81c99E75e84706a3aa0A757319023e26',
         decimals: 8,
       },
+      wormchain: {
+        address:
+          'wormhole1nz0r0au8aj6dc00wmm3ufy4g4k86rjzlr8wkf92cktdlps5lgfcqxnx9yk',
+        decimals: 8,
+      },
+      evmos: {
+        address:
+          'ibc/46C5DA1CB61C5BAA8730ABA467ADD58DE0333B075CACE28BC87E64AE8C9CA051',
+        decimals: 8,
+      },
+      osmosis: {
+        address:
+          'ibc/E4CD61E1FA3EB04EF1BF924D676AB9FD55E84A0DCF4E78C11CCA0E14E5B42672',
+        decimals: 8,
+      },
     },
   },
   USDT: {
@@ -275,6 +320,25 @@ export const MAINNET_TOKENS: TokensConfig = {
       },
       arbitrum: {
         address: '0xE4728F3E48E94C6DA2B53610E677cc241DAFB134',
+        decimals: 6,
+      },
+      optimism: {
+        address: '0xf6B4185FCf8aF291c0E3927fbEab7046b4f6A8CA',
+        decimals: 6,
+      },
+      wormchain: {
+        address:
+          'wormhole1w27ekqvvtzfanfxnkw4jx2f8gdfeqwd3drkee3e64xat6phwjg0savgmhw',
+        decimals: 6,
+      },
+      osmosis: {
+        address:
+          'ibc/2108F2D81CBE328F371AD0CEF56691B18A86E08C3651504E42487D9EE92DDE9C',
+        decimals: 6,
+      },
+      evmos: {
+        address:
+          'ibc/C9072A294F5649D64E87A6998DD750576881E454CACCDAF7376EFC0FA243808D',
         decimals: 6,
       },
     },
@@ -340,6 +404,21 @@ export const MAINNET_TOKENS: TokensConfig = {
         address: '0x098EA47D630b46df1E08e389e5e4466119c7dd30',
         decimals: 18,
       },
+      wormchain: {
+        address:
+          'wormhole1chejx4qqtvwxy6684yrsmf6pylancxqhk3vsmtleg5ta3zrffljqfscg87',
+        decimals: 8,
+      },
+      osmosis: {
+        address:
+          'ibc/898ACF6F5DEBF535103BBD52E3E5B70A311AD097B198A152483F69290B4210C0',
+        decimals: 8,
+      },
+      kujira: {
+        address:
+          'ibc/3CE8A3DE4AE5AE2B4B8C03B2B227CC284732EDC849E506615FF2AA3D8EB1BAFC',
+        decimals: 8,
+      },
     },
   },
   BUSD: {
@@ -381,6 +460,11 @@ export const MAINNET_TOKENS: TokensConfig = {
       aptos: {
         address:
           '0x77400d2f56a01bad2d7c8c6fa282f62647ce3c03f43f2a8742e47ea01a91e24a::coin::T',
+        decimals: 8,
+      },
+      wormchain: {
+        address:
+          'wormhole1msyushf6d76u9wupuvm6jdvc0x4trmv5w5kxr0hyt7n9npp233usg7pkhm',
         decimals: 8,
       },
     },
@@ -460,6 +544,20 @@ export const MAINNET_TOKENS: TokensConfig = {
         address: '0x3ab0E28C3F56616aD7061b4db38aE337E3809AEA',
         decimals: 18,
       },
+      optimism: {
+        address: '0x8f02B6a32cebcAe44D2Fd17d87966f5B5dD14c6d',
+        decimals: 18,
+      },
+      wormchain: {
+        address:
+          'wormhole1xmpenz0ykxfy8rxr3yc3d4dtqq4dpas4zz3xl6sh873us3vajlpszn4ph7',
+        decimals: 8,
+      },
+      osmosis: {
+        address:
+          'ibc/03B6D1925A09B3033AA6FA8772202719ABDC51F8CC2A5C26D0A9B19832F2C023',
+        decimals: 8,
+      },
     },
   },
   USDCpolygon: {
@@ -521,6 +619,25 @@ export const MAINNET_TOKENS: TokensConfig = {
       },
       optimism: {
         address: '0x8ab72605E48C1f70A20BdD2B3A217FEc24d777f9',
+        decimals: 6,
+      },
+      wormchain: {
+        address:
+          'wormhole19wut8ssulwasjquxpspfeq097kwj2n86fk3vq0g9c8eml2rqtprq97zy3e',
+        decimals: 6,
+      },
+      evmos: {
+        address:
+          'ibc/CA80A29F0D7C5CDCFE97607594E5F8B37AEF5CFB75E260CD321A0A8370C15378',
+        decimals: 6,
+      },
+      osmosis: {
+        address:
+          'ibc/B8381EAF6D22EB6FDA639A94CF67DAF25159D5B96AAAABE8AF7EA3E18A0533E3',
+        decimals: 6,
+      },
+      base: {
+        address: '0x59f4f969dd3A91A943651C9625E96822DC84Ef94',
         decimals: 6,
       },
     },
@@ -600,6 +717,20 @@ export const MAINNET_TOKENS: TokensConfig = {
         address: '0x7AF00405916D823eDb1121546EfA6F4972B51b84',
         decimals: 18,
       },
+      wormchain: {
+        address:
+          'wormhole169nr66h9gcsfljvsnxnqfjakskcjt6ac8f58wqjuagu79m540teqfvaal4',
+        decimals: 8,
+      },
+      osmosis: {
+        address:
+          'ibc/5394BB30B3C9BD1EE84C9531E5094DDE2490964F518CBE8A4C91F748CE559AF5',
+        decimals: 8,
+      },
+      optimism: {
+        address: '0x6A09fE65ACa27C12573F04aAFa290bD75497E1BC',
+        decimals: 18,
+      },
     },
   },
   USDCbnb: {
@@ -667,6 +798,21 @@ export const MAINNET_TOKENS: TokensConfig = {
       optimism: {
         address: '0x1C15057d1F3794C934a6cBC1f7EceE934050F219',
         decimals: 18,
+      },
+      wormchain: {
+        address:
+          'wormhole1g3acw7aumaj3r348cqn4kazrehlmn822w9p46sqwztnke27h3lysxj4ddr',
+        decimals: 8,
+      },
+      evmos: {
+        address:
+          'ibc/8E08C01546EF346F7E9A3600DDBC88943ADF3B20A67F1F2DD7B83D85613BCCAB',
+        decimals: 8,
+      },
+      osmosis: {
+        address:
+          'ibc/B28ACEF11D063FA8B1DA73C2F7DA3A1CFCCBC13E96B671698D4860E9367B55BB',
+        decimals: 8,
       },
     },
   },
@@ -749,6 +895,26 @@ export const MAINNET_TOKENS: TokensConfig = {
         address: '0x8418C1d909842f458c9394886b83F19d62bF1A0D',
         decimals: 18,
       },
+      wormchain: {
+        address:
+          'wormhole1ml922hnp59jtq9a87arekvx60ezehwlg2v3j5pduplwkenfa68ksgmzxwr',
+        decimals: 8,
+      },
+      kujira: {
+        address:
+          'ibc/28E7241F6508EB4692C721E91201377323796EF2758CCD83D220A40EAD32601E',
+        decimals: 8,
+      },
+      evmos: {
+        address:
+          'ibc/2EA2FE172078576E62DA20F14EEED12B26611D93150FE1D68E1AAE00479AC335',
+        decimals: 8,
+      },
+      osmosis: {
+        address:
+          'ibc/22B44C7369EED16089B9840ADE399B80D9483B4E459E67643C96C681D7C463D0',
+        decimals: 8,
+      },
     },
   },
   USDCavax: {
@@ -810,6 +976,30 @@ export const MAINNET_TOKENS: TokensConfig = {
       },
       optimism: {
         address: '0x355f0a8a7ecAeD971b8Fbd50994558291ff2413a',
+        decimals: 6,
+      },
+      wormchain: {
+        address:
+          'wormhole1gwm6mrnse9atzf4mer4dnrz64mp6pa75wpsxywu8gymt9fwsk46sfr372u',
+        decimals: 6,
+      },
+      kujira: {
+        address:
+          'ibc/F9F41DB8DA49EA6AB9EB4B2C9E0ECDC2502ABDA2FE728B85994BF31240CBC163',
+        decimals: 6,
+      },
+      evmos: {
+        address:
+          'ibc/39913E647C3549D663B1ED7F0745E1779515170C5215B98B2C8410B4C073AD30',
+        decimals: 6,
+      },
+      osmosis: {
+        address:
+          'ibc/0B3C3D06228578334B66B57FBFBA4033216CEB8119B27ACDEE18D92DA5B28D43',
+        decimals: 6,
+      },
+      base: {
+        address: '0xD83385fE100E20c269a5975D4Bf92525BcE09F87',
         decimals: 6,
       },
     },
@@ -893,6 +1083,21 @@ export const MAINNET_TOKENS: TokensConfig = {
         address: '0x0b0ecbe5C3995541876d27633B63296570FB34Af',
         decimals: 18,
       },
+      wormchain: {
+        address:
+          'wormhole1e0cwfmla7exa578xddl87paxexw9ymwrzysfjms8c2mstxjkldlqn45jqa',
+        decimals: 8,
+      },
+      evmos: {
+        address:
+          'ibc/9EFE5F5D75A87197DD257BA7A96A3BCCEC9DB59D257C742FB5AA9D3DF612D476',
+        decimals: 8,
+      },
+      osmosis: {
+        address:
+          'ibc/397DFE63D87F6940ECA583DFF5461E48BF0BA6554CBBE70278E307DDFDC8E9D5',
+        decimals: 8,
+      },
     },
   },
   CELO: {
@@ -960,6 +1165,21 @@ export const MAINNET_TOKENS: TokensConfig = {
       optimism: {
         address: '0x9b88D293b7a791E40d36A39765FFd5A1B9b5c349',
         decimals: 18,
+      },
+      wormchain: {
+        address:
+          'wormhole1kqey3a6k26kyensq7elcpx229tlj4d3qlshwhjq5xjm8dcdvu60qtef8k9',
+        decimals: 8,
+      },
+      osmosis: {
+        address:
+          'ibc/83300733052AB5F6E0F0C221E24189B6DF26CC94C73D2F44627627F9DEF4A9C8',
+        decimals: 8,
+      },
+      kujira: {
+        address:
+          'ibc/4ACD155D71182398277CBD2C630A7C8C5F0F16FFF77965FDE4C845A4CDE2D60C',
+        decimals: 8,
       },
     },
   },
@@ -1041,6 +1261,21 @@ export const MAINNET_TOKENS: TokensConfig = {
       optimism: {
         address: '0xbffD46DFDb8d3a02b8D2E0F864a2cD712090a4D3',
         decimals: 18,
+      },
+      wormchain: {
+        address:
+          'wormhole1gzuv84xrwwhxhf0f62av279vfyrfrm7x58fcnadlr5m90gnx223ses2st0',
+        decimals: 8,
+      },
+      osmosis: {
+        address:
+          'ibc/0F2941B0168D8DB77DA1B6A2D3A95EC04026D3C97FA3BFE8FD1D5D3F983AA518',
+        decimals: 8,
+      },
+      kujira: {
+        address:
+          'ibc/3D337ECC89A8421DD6F33C4B7DDE9D4A18D728A4A688BA30E41F466EC8DD3869',
+        decimals: 8,
       },
     },
   },
@@ -1125,6 +1360,26 @@ export const MAINNET_TOKENS: TokensConfig = {
         address: '0xba1Cf949c382A32a09A17B2AdF3587fc7fA664f1',
         decimals: 9,
       },
+      wormchain: {
+        address:
+          'wormhole1wn625s4jcmvk0szpl85rj5azkfc6suyvf75q6vrddscjdphtve8sca0pvl',
+        decimals: 8,
+      },
+      kujira: {
+        address:
+          'ibc/E5CA126979E2FFB4C70C072F8094D07ECF27773B37623AD2BF7582AD0726F0F3',
+        decimals: 8,
+      },
+      osmosis: {
+        address:
+          'ibc/1E43D59E565D41FB4E54CA639B838FFD5BCFC20003D330A56CB1396231AA1CBA',
+        decimals: 8,
+      },
+      evmos: {
+        address:
+          'ibc/4443218F584A7AB2DFBCF93872D6E5B6967A11C53515DDF45A2CF387C54BD73A',
+        decimals: 8,
+      },
     },
   },
   USDCsol: {
@@ -1186,6 +1441,20 @@ export const MAINNET_TOKENS: TokensConfig = {
       },
       optimism: {
         address: '0x6F974A6dfD5B166731704Be226795901c45Bb815',
+        decimals: 6,
+      },
+      base: {
+        address: '0xe8CE40EBBB844142400D21558a2F1c9683d69139',
+        decimals: 6,
+      },
+      wormchain: {
+        address:
+          'wormhole17fr8awnysyv3nt5je4strczdupssl8u9jqam890jfv72sh32yyqqhtg3ry',
+        decimals: 6,
+      },
+      osmosis: {
+        address:
+          'ibc/F08DE332018E8070CC4C68FE06E04E254F527556A614F5F8F9A68AF38D367E45',
         decimals: 6,
       },
     },
@@ -1256,6 +1525,21 @@ export const MAINNET_TOKENS: TokensConfig = {
         address: '0x27A533e438892DA192725b4C9AcA51447F457212',
         decimals: 9,
       },
+      wormchain: {
+        address:
+          'wormhole19hlynxzedrlqv99v6qscww7d3crhl86qtd0vprpltg5g9xx6jk9q6ya33y',
+        decimals: 8,
+      },
+      kujira: {
+        address:
+          'ibc/EBA52E7239CC1BC7F8ECF4F41523B6DD477FF067FD953315704A9A4FD2131B48',
+        decimals: 8,
+      },
+      osmosis: {
+        address:
+          'ibc/B1C287C2701774522570010EEBCD864BCB7AB714711B3AA218699FDD75E832F5',
+        decimals: 8,
+      },
     },
   },
   APT: {
@@ -1321,6 +1605,16 @@ export const MAINNET_TOKENS: TokensConfig = {
       },
       optimism: {
         address: '0xC5B3AC2DF8D8D7AC851F763a5b3Ff23B4A696d59',
+        decimals: 8,
+      },
+      wormchain: {
+        address:
+          'wormhole1f9sxjn0qu8xylcpzlvnhrefnatndqxnrajfrnr5h97hegnmsdqhsh6juc0',
+        decimals: 8,
+      },
+      osmosis: {
+        address:
+          'ibc/A4D176906C1646949574B48C1928D475F2DF56DE0AC04E1C99B08F90BC21ABDE',
         decimals: 8,
       },
     },
@@ -1402,6 +1696,20 @@ export const MAINNET_TOKENS: TokensConfig = {
         address: '0x825206E1D29456337769e6f1384101E997C6A732',
         decimals: 18,
       },
+      moonbeam: {
+        address: '0x18872b45c603eD2EbC508b9C5514a85c2e2791FB',
+        decimals: 18,
+      },
+      wormchain: {
+        address:
+          'wormhole18nlwscr7290j463vcptqlgqudycry2rdnw2ysltpc2nqefk3353s808rl9',
+        decimals: 8,
+      },
+      evmos: {
+        address:
+          'ibc/9E2E7B4A53409267CD686F4EB67969C2602A0F5FF9BDB1082B00E71CC4815DDE',
+        decimals: 8,
+      },
     },
   },
   USDCarbitrum: {
@@ -1455,6 +1763,10 @@ export const MAINNET_TOKENS: TokensConfig = {
       },
       optimism: {
         address: '0xa6252F56cc6eEA21165d56744C795F91c8a3Cf68',
+        decimals: 6,
+      },
+      base: {
+        address: '0xb96B82Cd6D45d98Fb6897D16A5E4EE888329C513',
         decimals: 6,
       },
     },
@@ -1516,6 +1828,31 @@ export const MAINNET_TOKENS: TokensConfig = {
         address: '0xB1fC645a86fB5085e12D8BDDb77702F728D2A26F',
         decimals: 18,
       },
+      avalanche: {
+        address: '0xDf11535274c0FD2Fe41A88bd1bBF802D72296037',
+        decimals: 18,
+      },
+      bsc: {
+        address: '0x94AEc09B5e2CE591e39DC6aa58A3A6E85Ed45265',
+        decimals: 18,
+      },
+      ethereum: {
+        address: '0x8B5653Ae095529155462eDa8CF664eD96773F557',
+        decimals: 18,
+      },
+      polygon: {
+        address: '0x8182De59485Bb646542Db8C7E5958148Dc699319',
+        decimals: 18,
+      },
+      base: {
+        address: '0xCb725aC8d9985D3bE306Dd9e1517d3702929176c',
+        decimals: 18,
+      },
+      wormchain: {
+        address:
+          'wormhole1ev8rhdflmlq6de5g7ttj585fhuv3jfhnuhfzyh7qrswhzaq2tkqswxz6y3',
+        decimals: 8,
+      },
     },
   },
   USDCoptimism: {
@@ -1547,6 +1884,20 @@ export const MAINNET_TOKENS: TokensConfig = {
       },
       base: {
         address: '0xc6bfBeb3002aD563D2d1f72614C61C83Bf147Acd',
+        decimals: 6,
+      },
+      arbitrum: {
+        address: '0x3A5C2Da9E30741cb59a5e9446A23A86886fC9DC2',
+        decimals: 6,
+      },
+      wormchain: {
+        address:
+          'wormhole1snw0qugpjcxwtxzzkqt5guwavq85eumxzeagql2u2m662xrtnjuqyj3pkj',
+        decimals: 6,
+      },
+      aptos: {
+        address:
+          '0x4f6ecb05a797902d472abc2f5804bde93a53d8b75f14f767824cdb1623a4ee83::coin::T',
         decimals: 6,
       },
     },
@@ -1664,6 +2015,59 @@ export const MAINNET_TOKENS: TokensConfig = {
     decimals: {
       default: 6,
     },
+    foreignAssets: {
+      solana: {
+        address: 'EfqRM8ZGWhDTKJ7BHmFvNagKVu3AxQRDQs8WMMaoBCu6',
+        decimals: 6,
+      },
+      moonbeam: {
+        address: '0xE6d02a875CcC153c076fe418f33De3A5C420f505',
+        decimals: 6,
+      },
+      celo: {
+        address: '0x2e2acb1782Aad0490f8446b6fD4626C467987bD6',
+        decimals: 6,
+      },
+      wormchain: {
+        address:
+          'wormhole1edkult6zudk6ld23fesjfrehux35q86engsq5jlycl0e4upkz8mqkgcprf',
+        decimals: 6,
+      },
+      osmosis: {
+        address:
+          'ibc/8AC0F990290BBEF3AEBFCBF70F902AD954781BB40D07EB76341272800D48D05F',
+        decimals: 6,
+      },
+      bsc: {
+        address: '0x55CaD531c8E303Cab8B3BE4bB4744Db4f896ac81',
+        decimals: 6,
+      },
+      optimism: {
+        address: '0xb931c7BbD87A6e249EaA7355B13927F9c99Bce87',
+        decimals: 6,
+      },
+      arbitrum: {
+        address: '0x8619F97D4d08382548F536E5CE1D3e0D9bA40326',
+        decimals: 6,
+      },
+      polygon: {
+        address: '0x1eeCaB0F75fE93abbFa0cDFfb4fB13d1dC8706c8',
+        decimals: 6,
+      },
+      avalanche: {
+        address: '0xab933e939a9236BD439F7d29b87CE712f42bAC06',
+        decimals: 6,
+      },
+      fantom: {
+        address: '0xd9E4C283d8A49Dc3767A6F5a4dFdc1d0cEf21604',
+        decimals: 6,
+      },
+      sui: {
+        address:
+          '0x7e3e74afcc1913aa9491c8cee89b02131a6e5519b090f16b54321835c1241cfb::coin::COIN',
+        decimals: 6,
+      },
+    },
   },
   OSMO: {
     key: 'OSMO',
@@ -1729,6 +2133,24 @@ export const MAINNET_TOKENS: TokensConfig = {
         address: '0xeC0a755664271b87002dDa33CA2484B24aF68912',
         decimals: 18,
       },
+      wormchain: {
+        address:
+          'wormhole1nu9wf9dw384attnpu0pwfet5fajn05w2ex4r07mghvk3xcwrt2yq5uutp5',
+        decimals: 8,
+      },
+      osmosis: {
+        address:
+          'ibc/6207D35D2C08F2162575C3C4BFD524226E50639121A273045F1B393AF67DCEB3',
+        decimals: 8,
+      },
+      avalanche: {
+        address: '0x3F531c038A0D2d9c7D19FC3554cd0439791526c4',
+        decimals: 18,
+      },
+      bsc: {
+        address: '0x94c97dd3Bde5bC1406BCe82E7941A6365968521D',
+        decimals: 18,
+      },
     },
   },
   wstETH: {
@@ -1753,6 +2175,24 @@ export const MAINNET_TOKENS: TokensConfig = {
       },
       solana: {
         address: 'ZScHuTtqZukUrtZS43teTKGs2VqkKL8k4QCouR2n6Uo',
+        decimals: 8,
+      },
+      arbitrum: {
+        address: '0xf2717122Dfdbe988ae811E7eFB157aAa07Ff9D0F',
+        decimals: 18,
+      },
+      optimism: {
+        address: '0x855CFcEEe998c8ca34F9c914F584AbF72dC88B87',
+        decimals: 18,
+      },
+      wormchain: {
+        address:
+          'wormhole1gg6f95cymcfrfzhpek7cf5wl53t5kng52cd2m0krgdlu8k58vd8qezy8pt',
+        decimals: 8,
+      },
+      osmosis: {
+        address:
+          'ibc/BF75AE1500CB7EC458E91A11731F1B6AC1F1FE1FA937A88564955ED6A83CA2FB',
         decimals: 8,
       },
     },
@@ -1800,6 +2240,20 @@ export const MAINNET_TOKENS: TokensConfig = {
       },
       arbitrum: {
         address: '0x09199d9A5F4448D0848e4395D065e1ad9c4a1F74',
+        decimals: 5,
+      },
+      wormchain: {
+        address:
+          'wormhole10qt8wg0n7z740ssvf3urmvgtjhxpyp74hxqvqt7z226gykuus7eq9mpu8u',
+        decimals: 5,
+      },
+      osmosis: {
+        address:
+          'ibc/CA3733CB0071F480FAE8EF0D9C3D47A49C6589144620A642BBE0D59A293D110E',
+        decimals: 5,
+      },
+      fantom: {
+        address: '0x3fEcdF1248fe7642d29f879a75CFC0339659ab93',
         decimals: 5,
       },
     },
