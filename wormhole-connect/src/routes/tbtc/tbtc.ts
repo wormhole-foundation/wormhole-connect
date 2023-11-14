@@ -22,7 +22,6 @@ import {
   TokenTransferMessage,
   SignedTokenTransferMessage,
   TBTCMessage,
-  isSignedWormholeMessage,
 } from '../types';
 import { adaptParsedMessage } from '../utils';
 import {
@@ -143,47 +142,6 @@ export class TBTCRoute extends BaseRoute {
     recipientAddress: string,
     routeOptions?: any,
   ): Promise<BigNumber> {
-    if (isEvmChain(sendingChain)) {
-      const gatewayAddress = wh.getContracts(sendingChain)?.tbtcGateway;
-      if (gatewayAddress) {
-        const provider = wh.mustGetProvider(sendingChain);
-        const gateway = new Contract(gatewayAddress, EVMGateway, provider);
-        const decimals = getTokenDecimals(wh.toChainId(sendingChain), token);
-        const baseAmountParsed = parseUnits(amount, decimals);
-        const feeParsed = parseUnits('0', decimals);
-        const transferAmountParsed = baseAmountParsed.add(feeParsed);
-        // We need to truncate any dust from the amount so the token bridge
-        // doesn't send it to the gateway contract
-        const denormalizedAmount = deNormalizeAmount(
-          normalizeAmount(transferAmountParsed, decimals),
-          decimals,
-        );
-        const formattedRecipient = wh.formatAddress(
-          recipientAddress,
-          recipientChain,
-        );
-        // We increase the gas limit estimation here by a factor of 10% to account for
-        // some faulty public JSON-RPC endpoints.
-        const gasEstimate = await gateway.estimateGas.sendTbtc(
-          denormalizedAmount,
-          wh.toChainId(recipientChain),
-          formattedRecipient,
-          THRESHOLD_ARBITER_FEE,
-          THRESHOLD_NONCE,
-        );
-        const gasLimit = gasEstimate.mul(1100).div(1000);
-        return gasLimit;
-      } else {
-        return await wh.estimateSendGas(
-          token,
-          amount,
-          sendingChain,
-          senderAddress,
-          recipientChain,
-          recipientAddress,
-        );
-      }
-    }
     throw new Error('not implemented');
   }
 
@@ -191,24 +149,6 @@ export class TBTCRoute extends BaseRoute {
     destChain: ChainName | ChainId,
     signedMessage?: SignedMessage,
   ): Promise<BigNumber> {
-    if (signedMessage && isSignedWormholeMessage(signedMessage)) {
-      if (isEvmChain(destChain)) {
-        const gatewayAddress = wh.getContracts(destChain)?.tbtcGateway;
-        if (gatewayAddress) {
-          const provider = wh.mustGetProvider(destChain);
-          const gateway = new Contract(gatewayAddress, EVMGateway, provider);
-          const estimateGas = await gateway.estimateGas.receiveTbtc(
-            signedMessage.vaa,
-          );
-          // We increase the gas limit estimation here by a factor of 10% to account for
-          // some faulty public JSON-RPC endpoints.
-          const gasLimit = estimateGas.mul(1100).div(1000);
-          return gasLimit;
-        } else {
-          return wh.estimateClaimGas(destChain, arrayify(signedMessage.vaa));
-        }
-      }
-    }
     throw new Error('not implemented');
   }
 
@@ -265,14 +205,16 @@ export class TBTCRoute extends BaseRoute {
           token.address,
           denormalizedAmount,
         );
-        const gasLimit = await this.estimateSendGas(
-          token,
-          amount,
-          sendingChain,
-          senderAddress,
-          recipientChain,
-          recipientAddress,
+        // We increase the gas limit estimation here by a factor of 10% to account for
+        // some faulty public JSON-RPC endpoints.
+        const gasEstimate = await gateway.estimateGas.sendTbtc(
+          denormalizedAmount,
+          wh.toChainId(recipientChain),
+          formattedRecipient,
+          THRESHOLD_ARBITER_FEE,
+          THRESHOLD_NONCE,
         );
+        const gasLimit = gasEstimate.mul(1100).div(1000);
         const overrides = this.getOverrides(fromChainId, gasLimit);
         const tx = await gateway.sendTbtc(
           denormalizedAmount,
@@ -387,7 +329,11 @@ export class TBTCRoute extends BaseRoute {
       if (destGatewayAddress) {
         const signer = wh.mustGetSigner(destChain);
         const gateway = new Contract(destGatewayAddress, EVMGateway, signer);
-        const gasLimit = await this.estimateClaimGas(destChain, message);
+        const estimateGas = await gateway.estimateGas.receiveTbtc(message.vaa);
+        // We increase the gas limit estimation here by a factor of 10% to account for
+        // some faulty public JSON-RPC endpoints.
+        const gasLimit = estimateGas.mul(1100).div(1000);
+
         const overrides = this.getOverrides(destChainId, gasLimit);
         const tx = await gateway.receiveTbtc(message.vaa, overrides);
         const receipt = await tx.wait();
