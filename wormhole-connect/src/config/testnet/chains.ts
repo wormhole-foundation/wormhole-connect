@@ -127,7 +127,7 @@ export const TESTNET_CHAINS: ChainsConfig = {
   sei: {
     ...chains.sei!,
     displayName: 'Sei',
-    explorerUrl: 'https://sei.explorers.guru/',
+    explorerUrl: 'https://testnet.sei.explorers.guru/',
     explorerName: 'Sei Explorer',
     gasToken: 'SEI',
     chainId: 0,
