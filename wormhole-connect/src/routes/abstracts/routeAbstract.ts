@@ -11,20 +11,8 @@ import {
   TransferDestInfoBaseParams,
   TransferDisplayData,
   TransferInfoBaseParams,
-  isSignedWormholeMessage,
 } from '../types';
-import { CHAINS, TOKENS } from 'config';
-import { ParsedRelayerMessage, ParsedMessage, wh, toChainId } from 'utils/sdk';
-import {
-  MAX_DECIMALS,
-  getDisplayName,
-  getTokenDecimals,
-  toNormalizedDecimals,
-} from 'utils';
-import { toDecimals } from 'utils/balance';
-import { NO_INPUT } from 'utils/style';
-import { formatGasFee } from 'routes/utils';
-import { hexlify } from 'ethers/lib/utils.js';
+import { ParsedRelayerMessage, ParsedMessage } from 'utils/sdk';
 
 export abstract class RouteAbstract {
   abstract readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean;
@@ -129,7 +117,7 @@ export abstract class RouteAbstract {
     recipient: string,
   ): Promise<string>;
 
-  public async getPreview(
+  public abstract getPreview(
     token: TokenConfig,
     destToken: TokenConfig,
     amount: number,
@@ -138,115 +126,13 @@ export abstract class RouteAbstract {
     sendingGasEst: string,
     claimingGasEst: string,
     routeOptions?: any,
-  ): Promise<TransferDisplayData> {
-    const sendingChainName = wh.toChainName(sendingChain);
-    const receipientChainName = wh.toChainName(receipientChain);
-    const sourceGasToken = CHAINS[sendingChainName]?.gasToken;
-    const destinationGasToken = CHAINS[receipientChainName]?.gasToken;
-    const sourceGasTokenSymbol = sourceGasToken
-      ? getDisplayName(TOKENS[sourceGasToken])
-      : '';
-    const destinationGasTokenSymbol = destinationGasToken
-      ? getDisplayName(TOKENS[destinationGasToken])
-      : '';
-    return [
-      {
-        title: 'Amount',
-        value: `${amount} ${getDisplayName(destToken)}`,
-      },
-      {
-        title: 'Total fee estimates',
-        value:
-          sendingGasEst && claimingGasEst
-            ? `${sendingGasEst} ${sourceGasTokenSymbol} & ${claimingGasEst} ${destinationGasTokenSymbol}`
-            : '',
-        rows: [
-          {
-            title: 'Source chain gas estimate',
-            value: sendingGasEst
-              ? `~ ${sendingGasEst} ${sourceGasTokenSymbol}`
-              : 'Not available',
-          },
-          {
-            title: 'Destination chain gas estimate',
-            value: claimingGasEst
-              ? `~ ${claimingGasEst} ${destinationGasTokenSymbol}`
-              : 'Not available',
-          },
-        ],
-      },
-    ];
-  }
-
-  public async getTransferSourceInfo<T extends TransferInfoBaseParams>(
+  ): Promise<TransferDisplayData>;
+  public abstract getTransferSourceInfo<T extends TransferInfoBaseParams>(
     params: T,
-  ): Promise<TransferDisplayData> {
-    const { tokenKey, amount, tokenDecimals, fromChain, gasFee } =
-      params.txData;
-    const formattedAmt = toNormalizedDecimals(
-      amount,
-      tokenDecimals,
-      MAX_DECIMALS,
-    );
-    const { gasToken: sourceGasTokenKey } = CHAINS[fromChain]!;
-    const sourceGasToken = TOKENS[sourceGasTokenKey];
-    const decimals = getTokenDecimals(
-      toChainId(sourceGasToken.nativeChain),
-      'native',
-    );
-    const formattedGas = gasFee && toDecimals(gasFee, decimals, MAX_DECIMALS);
-    const token = TOKENS[tokenKey];
-
-    return [
-      {
-        title: 'Amount',
-        value: `${formattedAmt} ${getDisplayName(token)}`,
-      },
-      {
-        title: 'Gas fee',
-        value: formattedGas
-          ? `${formattedGas} ${getDisplayName(sourceGasToken)}`
-          : NO_INPUT,
-      },
-    ];
-  }
-
-  public async getTransferDestInfo<T extends TransferDestInfoBaseParams>(
+  ): Promise<TransferDisplayData>;
+  public abstract getTransferDestInfo<T extends TransferDestInfoBaseParams>(
     params: T,
-  ): Promise<TransferDisplayData> {
-    const {
-      txData: { tokenKey, amount, tokenDecimals, toChain },
-      receiveTx,
-      gasEstimate,
-    } = params;
-    const token = TOKENS[tokenKey];
-    const { gasToken } = CHAINS[toChain]!;
-
-    let gas = gasEstimate;
-    if (receiveTx) {
-      const gasFee = await wh.getTxGasFee(toChain, receiveTx);
-      if (gasFee) {
-        gas = formatGasFee(toChain, gasFee);
-      }
-    }
-
-    const formattedAmt = toNormalizedDecimals(
-      amount,
-      tokenDecimals,
-      MAX_DECIMALS,
-    );
-
-    return [
-      {
-        title: 'Amount',
-        value: `${formattedAmt} ${getDisplayName(token)}`,
-      },
-      {
-        title: receiveTx ? 'Gas fee' : 'Gas estimate',
-        value: gas ? `${gas} ${getDisplayName(TOKENS[gasToken])}` : NO_INPUT,
-      },
-    ];
-  }
+  ): Promise<TransferDisplayData>;
 
   // send, validate, estimate gas, isRouteAvailable, parse data from VAA/fetch data, claim
   abstract getRelayerFee(
@@ -266,15 +152,10 @@ export abstract class RouteAbstract {
   ): Promise<UnsignedMessage>;
   abstract getSignedMessage(message: UnsignedMessage): Promise<SignedMessage>;
 
-  async isTransferCompleted(
+  abstract isTransferCompleted(
     destChain: ChainName | ChainId,
     messageInfo: SignedMessage,
-  ): Promise<boolean> {
-    if (!isSignedWormholeMessage(messageInfo)) {
-      throw new Error('Invalid signed message');
-    }
-    return wh.isTransferCompleted(destChain, hexlify(messageInfo.vaa));
-  }
+  ): Promise<boolean>;
 
   abstract tryFetchRedeemTx(
     txData: ParsedMessage | ParsedRelayerMessage,
