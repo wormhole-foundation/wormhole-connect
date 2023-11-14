@@ -85,13 +85,11 @@ class WormholeConnect extends React.Component {
 
 ## Togle Hamburguer Menu
 
-by setting `showHamburgerMenu` to **false**, you can toggle hamburguer menu off
-and that makes the links to be placed at bottom
+By setting the `showHamburgerMenu` option to false, you can deactivate the hamburger menu, causing the links to be positioned at the bottom.
 
 ### Add extra menu entry
 
-by setting `showHumburgerMenu` to **false**, you can use `menu` array to add
-extra links
+By setting the `showHumburgerMenu` option to false, you can use the menu array to add extra links.
 
 |property|description|
 |--|--|
