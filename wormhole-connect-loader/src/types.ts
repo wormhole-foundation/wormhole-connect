@@ -58,6 +58,7 @@ export interface BridgeDefaults {
 // Keep this in sync with wormhole-connect/src/config/types.ts!
 // TODO: move to a shared package
 export interface WormholeConnectConfig {
+  showHamburgerMenu?: boolean;
   env?: "mainnet" | "testnet" | "devnet";
   rpcs?: Rpcs;
   rest?: Rpcs;

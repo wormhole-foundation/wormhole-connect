@@ -31,6 +31,8 @@ const getEnv = () => {
 export const ENV = getEnv();
 export const isMainnet = ENV === 'MAINNET';
 export const sdkConfig = WormholeContext.getConfig(ENV);
+export const showHamburgerMenu =
+  config.showHamburgerMenu === undefined || config.showHamburgerMenu === true;
 export const pageHeader =
   config.pageHeader === undefined ? '' : config.pageHeader;
 

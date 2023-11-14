@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { showHamburgerMenu } from 'config';
 import { makeStyles } from 'tss-react/mui';
 import Dropdown from 'components/Dropdown';
 import PageHeader from 'components/PageHeader';
 import AlertBanner from 'components/AlertBanner';
+import FooterNavBar from 'components/FooterNavBar';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -198,6 +200,7 @@ function FAQ() {
       <PageHeader
         title="FAQ"
         description="This page collects and answers the most commonly asked questions."
+        showHamburgerMenu={showHamburgerMenu}
         back
       />
 
@@ -216,6 +219,7 @@ function FAQ() {
           );
         })}
       </div>
+      {showHamburgerMenu ? null : <FooterNavBar />}
     </div>
   );
 }

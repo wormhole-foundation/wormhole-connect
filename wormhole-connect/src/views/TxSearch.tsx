@@ -4,7 +4,7 @@ import { useDispatch } from 'react-redux';
 import { Select, MenuItem, CircularProgress } from '@mui/material';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 
-import { CHAINS_ARR, SEARCH_TX } from 'config';
+import { CHAINS_ARR, SEARCH_TX, showHamburgerMenu } from 'config';
 import { isValidTxId } from 'utils';
 import RouteOperator from 'routes/operator';
 import { setTxDetails, setRoute as setRedeemRoute } from 'store/redeem';
@@ -15,6 +15,7 @@ import Button from 'components/Button';
 import Spacer from 'components/Spacer';
 import AlertBanner from 'components/AlertBanner';
 import { setToChain } from 'store/transferInput';
+import FooterNavBar from 'components/FooterNavBar';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -36,6 +37,14 @@ const useStyles = makeStyles()((theme) => ({
   },
   search: {
     flexGrow: 1,
+  },
+  footerNavBar: {
+    width: '100%',
+    maxWidth: '700px',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    marginTop: '20px',
   },
 }));
 
@@ -107,6 +116,7 @@ function TxSearch() {
       <PageHeader
         title="Resume transaction"
         description="Bridging can require a manual redemption process on the designation chain. If you did not complete the redemption during your initial transaction, you may do so here."
+        showHamburgerMenu={showHamburgerMenu}
         back
       />
 
@@ -150,6 +160,11 @@ function TxSearch() {
       <Button disabled={!state.chain || !state.tx} elevated onClick={search}>
         {loading ? <CircularProgress size={24} /> : 'Search'}
       </Button>
+      {showHamburgerMenu ? null : (
+        <div className={classes.footerNavBar}>
+          <FooterNavBar />
+        </div>
+      )}
     </div>
   );
 }
