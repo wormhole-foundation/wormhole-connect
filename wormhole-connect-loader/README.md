@@ -293,6 +293,7 @@ Specify a set of extra networks to be displayed on the network selection modal, 
 |`moreNetworks.target`| Default value for missing network link targets | optional, defaults to `_self`
 |`moreNetworks.description` | Brief description that should be displayed as tooltip when the user hover an more network icon. Used as default for missing network descriptions | optional |
 |`moreNetworks.networks[].icon` | URL data encoded icon to display | mandatory|
+|`moreNetworks.networks[].href` | Network href to redirect to. If present, the values `{:sourceChain}` and `{:targetChain}` are replaced with the selected currently selected chains before redirecting | optional |
 |`moreNetworks.networks[].label` | Display text | mandatory |
 |`moreNetworks.networks[].name` | Unique network key | optional, defaults to a snake_case version of the label |
 |`moreNetworks.networks[].description` | Description value | optional, defaults to `moreNetworks.description`|
@@ -327,5 +328,5 @@ Show a special entry on the select tokens modal which redirects the user to a di
 |Property|description||
 |:--|:--|:--:|
 |`moreTokens.label`| Display text | mandatory|
-|`moreTokens.href`| URL to redirect to | mandatory|
+|`moreTokens.href`| URL to redirect to. If present, the values `{:sourceChain}` and `{:targetChain}` are replaced with the selected currently selected chains before redirecting | mandatory|
 |`moreTokens.target`| href target | optional, defaults to `_self`
