@@ -81,7 +81,7 @@ function ChainsTag() {
           target="_blank"
           rel="noreferrer"
         >
-          <div>View on Wormhole Explorer</div>
+          <div>View on Wormholescan</div>
           <LaunchIcon />
         </a>
       )}
