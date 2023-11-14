@@ -70,6 +70,7 @@ export interface WormholeConnectConfig {
     text: string;
     link: string;
   };
+  menu?: MenuEntry[];
   bridgeDefaults?: BridgeDefaults;
   routes?: string[];
   pageHeader?: string;
@@ -81,3 +82,10 @@ export type SearchTxConfig = {
   txHash?: string;
   chainName?: ChainName;
 };
+
+export interface MenuEntry {
+  label: string;
+  href: string;
+  target?: string;
+  order?: number;
+}

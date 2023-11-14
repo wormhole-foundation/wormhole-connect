@@ -77,6 +77,7 @@ export interface WormholeConnectConfig {
   pageHeader?: string;
   pageSubHeader?: string;
   searchTx?: SearchTxConfig;
+  menu?: MenuEntry[];
 }
 
 export type SearchTxConfig = {
@@ -148,3 +149,10 @@ export type NetworkData = {
   rest: RpcMapping;
   graphql: RpcMapping;
 };
+
+export interface MenuEntry {
+  label: string;
+  href: string;
+  target?: string;
+  order?: number;
+}
