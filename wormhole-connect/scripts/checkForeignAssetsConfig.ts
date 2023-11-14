@@ -29,6 +29,12 @@ import { TESTNET_TOKENS } from '../src/config/testnet/tokens';
 import { ChainsConfig, TokensConfig } from '../src/config/types';
 import { Network } from '@certusone/wormhole-sdk';
 
+const WORMCHAIN_ERROR_MESSAGES = [
+  '3104 RPC not configured',
+  'wormchain RPC not configured',
+  'Query failed with (18): alloc::string::String not found: query wasm contract failed: invalid request',
+];
+
 // warning: be careful optimizing the RPC calls in this script, you may 429 yourself
 // slow and steady, or something like that
 const checkEnvConfig = async (
@@ -58,12 +64,7 @@ const checkEnvConfig = async (
                 chain,
               );
             } catch (e: any) {
-              if (
-                e?.message === '3104 RPC not configured' ||
-                e?.message === 'wormchain RPC not configured' ||
-                e?.message ===
-                  'Query failed with (18): alloc::string::String not found: query wasm contract failed: invalid request'
-              ) {
+              if (WORMCHAIN_ERROR_MESSAGES.includes(e?.message)) {
                 // do not throw on wormchain errors
               } else {
                 throw e;

@@ -1666,6 +1666,31 @@ export const TESTNET_TOKENS: TokensConfig = {
     decimals: {
       default: 6,
     },
+    foreignAssets: {
+      moonbasealpha: {
+        address: '0x7480641F5B00b4Fc39d6AaeC4Cd851EdEA7f31CF',
+        decimals: 6,
+      },
+      goerli: {
+        address: '0x5aA392243437dDC8b4d86bfC90DF296908740A41',
+        decimals: 6,
+      },
+      wormchain: {
+        address:
+          'wormhole1ja4txt6m0jjq0gmjtmv442f8wk0r5f5apaya0z55wwlrpg3p5xaq3qxw7h',
+        decimals: 6,
+      },
+      cosmoshub: {
+        address:
+          'ibc/8560BA5F45C95AE716C05978E364F50C98347ACBEC745840C30F91611FA36698',
+        decimals: 6,
+      },
+      osmosis: {
+        address:
+          'ibc/2E4F8BC7F7AF33752CF7E290CAD4417EE67CD18FFC0D099E6519A440E588E0CE',
+        decimals: 6,
+      },
+    },
   },
   OSMO: {
     key: 'OSMO',

@@ -636,6 +636,10 @@ export const MAINNET_TOKENS: TokensConfig = {
           'ibc/B8381EAF6D22EB6FDA639A94CF67DAF25159D5B96AAAABE8AF7EA3E18A0533E3',
         decimals: 6,
       },
+      base: {
+        address: '0x59f4f969dd3A91A943651C9625E96822DC84Ef94',
+        decimals: 6,
+      },
     },
   },
   BNB: {
@@ -992,6 +996,10 @@ export const MAINNET_TOKENS: TokensConfig = {
       osmosis: {
         address:
           'ibc/0B3C3D06228578334B66B57FBFBA4033216CEB8119B27ACDEE18D92DA5B28D43',
+        decimals: 6,
+      },
+      base: {
+        address: '0xD83385fE100E20c269a5975D4Bf92525BcE09F87',
         decimals: 6,
       },
     },
@@ -1757,6 +1765,10 @@ export const MAINNET_TOKENS: TokensConfig = {
         address: '0xa6252F56cc6eEA21165d56744C795F91c8a3Cf68',
         decimals: 6,
       },
+      base: {
+        address: '0xb96B82Cd6D45d98Fb6897D16A5E4EE888329C513',
+        decimals: 6,
+      },
     },
   },
   ETHoptimism: {
@@ -2030,6 +2042,31 @@ export const MAINNET_TOKENS: TokensConfig = {
         address: '0x55CaD531c8E303Cab8B3BE4bB4744Db4f896ac81',
         decimals: 6,
       },
+      optimism: {
+        address: '0xb931c7BbD87A6e249EaA7355B13927F9c99Bce87',
+        decimals: 6,
+      },
+      arbitrum: {
+        address: '0x8619F97D4d08382548F536E5CE1D3e0D9bA40326',
+        decimals: 6,
+      },
+      polygon: {
+        address: '0x1eeCaB0F75fE93abbFa0cDFfb4fB13d1dC8706c8',
+        decimals: 6,
+      },
+      avalanche: {
+        address: '0xab933e939a9236BD439F7d29b87CE712f42bAC06',
+        decimals: 6,
+      },
+      fantom: {
+        address: '0xd9E4C283d8A49Dc3767A6F5a4dFdc1d0cEf21604',
+        decimals: 6,
+      },
+      sui: {
+        address:
+          '0x7e3e74afcc1913aa9491c8cee89b02131a6e5519b090f16b54321835c1241cfb::coin::COIN',
+        decimals: 6,
+      },
     },
   },
   OSMO: {
@@ -2105,6 +2142,14 @@ export const MAINNET_TOKENS: TokensConfig = {
         address:
           'ibc/6207D35D2C08F2162575C3C4BFD524226E50639121A273045F1B393AF67DCEB3',
         decimals: 8,
+      },
+      avalanche: {
+        address: '0x3F531c038A0D2d9c7D19FC3554cd0439791526c4',
+        decimals: 18,
+      },
+      bsc: {
+        address: '0x94c97dd3Bde5bC1406BCe82E7941A6365968521D',
+        decimals: 18,
       },
     },
   },
@@ -2205,6 +2250,10 @@ export const MAINNET_TOKENS: TokensConfig = {
       osmosis: {
         address:
           'ibc/CA3733CB0071F480FAE8EF0D9C3D47A49C6589144620A642BBE0D59A293D110E',
+        decimals: 5,
+      },
+      fantom: {
+        address: '0x3fEcdF1248fe7642d29f879a75CFC0339659ab93',
         decimals: 5,
       },
     },
