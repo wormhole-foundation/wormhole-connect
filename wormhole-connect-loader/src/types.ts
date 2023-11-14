@@ -83,8 +83,7 @@ export interface WormholeConnectConfig {
 export type SearchTxConfig = {
   txHash?: string;
   chainName?: ChainName;
-
-}
+};
 
 export type MoreTokenConfig = {
   label: string;
