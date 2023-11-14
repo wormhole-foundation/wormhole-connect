@@ -39,7 +39,9 @@ export const getIcon = (route: Route) => {
     case Route.CCTPRelay: {
       return CCTPIcon;
     }
-    // TODO: tBTC?
+    case Route.TBTC: {
+      return WormholeIcon;
+    }
     default: {
       return noIcon;
     }
