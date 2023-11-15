@@ -110,6 +110,11 @@ export const TESTNET_TOKEN_KEYS: string[] = [
   "WETHbase",
   "OSMO",
   "tBTC",
+  "tBTCpolygon",
+  "tBTCoptimism",
+  "tBTCarbitrum",
+  "tBTCbase",
+  "tBTCsol",
   "wstETH",
 ].sort();
 
@@ -150,6 +155,11 @@ export const MAINNET_TOKEN_KEYS: string[] = [
   "WETHbase",
   "OSMO",
   "tBTC",
+  "tBTCpolygon",
+  "tBTCoptimism",
+  "tBTCarbitrum",
+  "tBTCbase",
+  "tBTCsol",
   "wstETH",
   "BONK",
 ].sort();
