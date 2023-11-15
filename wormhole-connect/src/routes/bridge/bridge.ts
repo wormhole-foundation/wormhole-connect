@@ -22,7 +22,6 @@ import { adaptParsedMessage } from '../utils';
 import { SignedMessage } from '../types';
 import { isGatewayChain } from '../../utils/cosmos';
 import { fetchVaa } from '../../utils/vaa';
-import { isTBTCCanonicalChain } from 'routes/tbtc';
 import { getSolanaAssociatedTokenAccount } from 'utils/solana';
 
 export class BridgeRoute extends BaseRoute {
@@ -47,8 +46,8 @@ export class BridgeRoute extends BaseRoute {
     if (sourceChain === destChain) return false;
     if (isGatewayChain(sourceChain) || isGatewayChain(destChain)) return false;
     if (
-      (isTBTCCanonicalChain(sourceChain) || isTBTCCanonicalChain(destChain)) &&
-      (sourceTokenConfig.symbol === 'tBTC' || destTokenConfig.symbol === 'tBTC')
+      sourceTokenConfig.symbol === 'tBTC' ||
+      destTokenConfig.symbol === 'tBTC'
     )
       return false;
     // TODO: probably not true for Solana

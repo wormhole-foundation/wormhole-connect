@@ -85,8 +85,6 @@ export class TBTCRoute extends BaseRoute {
     return wh.toChainId(token.nativeChain) === CHAIN_ID_ETH;
   }
 
-  // The route is available if the token is tBTC and the gateway contract exists
-  // on either the source or target chain
   async isRouteAvailable(
     sourceToken: string,
     destToken: string,
@@ -103,7 +101,7 @@ export class TBTCRoute extends BaseRoute {
     ) {
       return false;
     }
-    return isTBTCCanonicalChain(sourceChain) || isTBTCCanonicalChain(destChain);
+    return true;
   }
 
   async computeReceiveAmount(
@@ -232,26 +230,29 @@ export class TBTCRoute extends BaseRoute {
         );
         return txId;
       } else {
-        // The gateway contract must exist on the target chain
         const targetGatewayAddress = wh.getContracts(toChainId)?.tbtcGateway;
-        if (!targetGatewayAddress) {
-          throw new Error(
-            `No gateway contract found on target chain ${toChainId}`,
+        let tx;
+        if (targetGatewayAddress) {
+          tx = await wh.send(
+            token,
+            transferAmountParsed.toString(),
+            sendingChain,
+            senderAddress,
+            recipientChain,
+            targetGatewayAddress,
+            undefined,
+            formattedRecipient,
+          );
+        } else {
+          tx = await wh.send(
+            token,
+            transferAmountParsed.toString(),
+            sendingChain,
+            senderAddress,
+            recipientChain,
+            recipientAddress,
           );
         }
-        // If the gateway contract on the source chain doesn't exist (e.g. on ethereum),
-        // we use the token bridge contract to send a transfer with payload to the gateway contract
-        // on the target chain with the recipient address as the payload.
-        const tx = await wh.send(
-          token,
-          transferAmountParsed.toString(),
-          sendingChain,
-          senderAddress,
-          recipientChain,
-          targetGatewayAddress,
-          undefined,
-          formattedRecipient,
-        );
         const txId = await signAndSendTransaction(
           fromChainName,
           tx,
@@ -290,23 +291,29 @@ export class TBTCRoute extends BaseRoute {
       );
       return txId;
     } else {
-      // The gateway contract must exist on the target chain
       const targetGatewayAddress = wh.getContracts(toChainId)?.tbtcGateway;
-      if (!targetGatewayAddress) {
-        throw new Error(
-          `No gateway contract found on target chain ${toChainId}`,
+      let tx;
+      if (targetGatewayAddress) {
+        tx = await wh.send(
+          token,
+          transferAmountParsed.toString(),
+          sendingChain,
+          senderAddress,
+          recipientChain,
+          targetGatewayAddress,
+          undefined,
+          formattedRecipient,
+        );
+      } else {
+        tx = await wh.send(
+          token,
+          transferAmountParsed.toString(),
+          sendingChain,
+          senderAddress,
+          recipientChain,
+          recipientAddress,
         );
       }
-      const context = wh.getContext(fromChainId);
-      const tx = await context.sendWithPayload(
-        token,
-        transferAmountParsed.toString(),
-        fromChainId,
-        senderAddress,
-        recipientChain,
-        targetGatewayAddress,
-        formattedRecipient,
-      );
       const txId = await signAndSendTransaction(
         fromChainName,
         tx,
@@ -323,36 +330,24 @@ export class TBTCRoute extends BaseRoute {
   ): Promise<string> {
     const destChainId = wh.toChainId(destChain);
     const destChainName = wh.toChainName(destChain);
-    if (isEvmChain(destChain)) {
-      const destGatewayAddress = wh.getContracts(destChain)?.tbtcGateway;
+    const destGatewayAddress = wh.getContracts(destChain)?.tbtcGateway;
+    if (isEvmChain(destChain) && destGatewayAddress) {
       // Use the gateway contract to receive if it exists
-      if (destGatewayAddress) {
-        const signer = wh.mustGetSigner(destChain);
-        const gateway = new Contract(destGatewayAddress, EVMGateway, signer);
-        const estimateGas = await gateway.estimateGas.receiveTbtc(message.vaa);
-        // We increase the gas limit estimation here by a factor of 10% to account for
-        // some faulty public JSON-RPC endpoints.
-        const gasLimit = estimateGas.mul(1100).div(1000);
-
-        const overrides = this.getOverrides(destChainId, gasLimit);
-        const tx = await gateway.receiveTbtc(message.vaa, overrides);
-        const receipt = await tx.wait();
-        const txId = await signAndSendTransaction(
-          destChainName,
-          receipt,
-          TransferWallet.RECEIVING,
-        );
-        return txId;
-      } else {
-        // If the gateway contract doesn't exist, then redeem with the token bridge
-        const tx = await wh.redeem(destChain, arrayify(message.vaa), undefined);
-        const txId = await signAndSendTransaction(
-          destChainName,
-          tx,
-          TransferWallet.RECEIVING,
-        );
-        return txId;
-      }
+      const signer = wh.mustGetSigner(destChain);
+      const gateway = new Contract(destGatewayAddress, EVMGateway, signer);
+      const estimateGas = await gateway.estimateGas.receiveTbtc(message.vaa);
+      // We increase the gas limit estimation here by a factor of 10% to account for
+      // some faulty public JSON-RPC endpoints.
+      const gasLimit = estimateGas.mul(1100).div(1000);
+      const overrides = this.getOverrides(destChainId, gasLimit);
+      const tx = await gateway.receiveTbtc(message.vaa, overrides);
+      const receipt = await tx.wait();
+      const txId = await signAndSendTransaction(
+        destChainName,
+        receipt,
+        TransferWallet.RECEIVING,
+      );
+      return txId;
     } else if (destChainId === CHAIN_ID_SOLANA) {
       const signedVaa = Buffer.from(
         arrayify(message.vaa, { allowMissingPrefix: true }),
@@ -427,10 +422,11 @@ export class TBTCRoute extends BaseRoute {
       return addr;
     } else {
       // If there's no gateway contract then Ethereum tBTC is canonical
-      return await wh.getForeignAsset(
-        TOKENS[TBTC_TOKEN_SYMBOL].tokenId!,
-        chain,
-      );
+      const tbtcToken = TOKENS[TBTC_TOKEN_SYMBOL];
+      if (!tbtcToken?.tokenId) {
+        throw new Error(`${TBTC_TOKEN_SYMBOL} tokenId not found`);
+      }
+      return await wh.getForeignAsset(tbtcToken.tokenId, chain);
     }
   }
 
