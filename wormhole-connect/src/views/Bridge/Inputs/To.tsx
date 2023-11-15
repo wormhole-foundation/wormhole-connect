@@ -113,6 +113,18 @@ function ToInputs() {
     />
   );
 
+  const handleExtraNetwork = (
+    href: string,
+    name: string,
+    target: string = '_self',
+  ) => {
+    let hydratedHref = href;
+    if (fromChain) {
+      hydratedHref = href.replace('{:sourceChain}', fromChain);
+    }
+    window.open(hydratedHref.replace('{:targetChain}', name), target);
+  };
+
   return (
     <>
       <Inputs
@@ -143,6 +155,9 @@ function ToInputs() {
         chains={CHAINS_ARR.filter((c) => c.key !== fromChain)}
         onSelect={selectChain}
         onClose={() => setShowChainsModal(false)}
+        onMoreNetworkSelect={(href, chainName, target) =>
+          handleExtraNetwork(href, chainName, target)
+        }
         isDisabled={isDisabled}
       />
     </>
