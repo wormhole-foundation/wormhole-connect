@@ -72,7 +72,7 @@ export async function getUnsignedMessageFromCosmos(
     block: tx.height,
     sender: data.sender,
     gasFee: BigNumber.from(tx.gasUsed.toString()),
-    payloadID: 3, // should not be required for this case
+    payloadID: 1, // no vaa, but wormchain will eventually emit a normal transfer
     tokenChain,
     tokenAddress,
     tokenId: {
