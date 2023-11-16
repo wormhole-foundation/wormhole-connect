@@ -474,7 +474,9 @@ export class CosmosContext<
     // see the gateway route for the implementation
     // we might not have all information available in the parameters
     // to do it here
-    throw new Error('Not implemented');
+    throw new Error(
+      'Not implemented. Something went wrong, this method implementation should never be called',
+    );
   }
 
   parseRelayerPayload(payload: Buffer): ParsedRelayerPayload {
