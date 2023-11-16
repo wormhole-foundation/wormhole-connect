@@ -1,13 +1,21 @@
-import { CHAIN_ID_WORMCHAIN, ChainId, cosmos } from '@certusone/wormhole-sdk';
+import {
+  CHAIN_ID_WORMCHAIN,
+  cosmos,
+  parseTokenTransferPayload,
+} from '@certusone/wormhole-sdk';
+import { decodeTxRaw } from '@cosmjs/proto-signing';
 import { logs as cosmosLogs } from '@cosmjs/stargate';
 import {
+  ChainId,
   ChainName,
   CosmosContext,
   WormholeContext,
   searchCosmosLogs,
+  ParsedMessage as SdkParsedMessage,
+  ParsedRelayerMessage as SdkParsedRelayerMessage,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { BigNumber, utils } from 'ethers';
-import { arrayify, base58 } from 'ethers/lib/utils.js';
+import { arrayify, base58, hexlify } from 'ethers/lib/utils.js';
 import { ParsedMessage, wh } from 'utils/sdk';
 import { isGatewayChain } from '../../../utils/cosmos';
 import { UnsignedMessage } from '../../types';
@@ -16,13 +24,24 @@ import {
   FromCosmosPayload,
   GatewayTransferMsg,
   IBCTransferData,
+  IBCTransferInfo,
 } from '../types';
 import { getCosmWasmClient } from '../utils';
 import {
   findDestinationIBCTransferTx,
   getIBCTransferInfoFromLogs,
+  getTransactionIBCTransferInfo,
 } from './transaction';
+import { MsgExecuteContract } from 'cosmjs-types/cosmwasm/wasm/v1/tx';
 
+/**
+ * Extract the transfer information from a gateway chain transfer without
+ * looking for an attestation/vaa
+ *
+ * @param hash Transaction id/hash
+ * @param chain Source chain
+ * @returns An unsigned message (transfer information without an attestation/VAA)
+ */
 export async function getUnsignedMessageFromCosmos(
   hash: string,
   chain: ChainName,
@@ -39,7 +58,7 @@ export async function getUnsignedMessageFromCosmos(
   if (!sender) throw new Error('Missing sender in transaction logs');
 
   // get the information of the ibc transfer started by the source chain
-  const ibcPacketInfo = getIBCTransferInfoFromLogs(tx, 'send_packet');
+  const ibcPacketInfo = getTransactionIBCTransferInfo(tx, 'send_packet');
 
   // extract the IBC transfer data payload from the packet
   const data: IBCTransferData = JSON.parse(ibcPacketInfo.data);
@@ -90,6 +109,10 @@ export async function getUnsignedMessageFromCosmos(
   };
 }
 
+/**
+ * Given an IBC denom (e.g. ibc/397DFE63D87F694...) find the asset's token id
+ * (source chain and address)
+ */
 async function getOriginalIbcDenomInfo(
   denom: string,
 ): Promise<{ tokenAddress: string; tokenChain: ChainName }> {
@@ -119,6 +142,14 @@ async function getOriginalIbcDenomInfo(
   };
 }
 
+/**
+ * Extract the transfer information from a non-gateway chain transfer without
+ * looking for an attestation/vaa
+ *
+ * @param hash Transaction id/hash
+ * @param chain Source chain
+ * @returns An unsigned message (transfer information without an attestation/VAA)
+ */
 export async function getUnsignedMessageFromNonCosmos(
   hash: string,
   chain: ChainName,
@@ -149,6 +180,9 @@ export async function getUnsignedMessageFromNonCosmos(
   };
 }
 
+/**
+ * Get the CW20 contract address given a tokenfactory denom
+ */
 function factoryToCW20(denom: string): string {
   if (!denom.startsWith('factory/')) return '';
   const encoded = denom.split('/')[2];
@@ -172,7 +206,7 @@ export async function getMessageFromWormchain(
   if (!sender) throw new Error('Missing sender in transaction logs');
 
   // Extract IBC transfer info initiated on the source chain
-  const ibcInfo = getIBCTransferInfoFromLogs(tx, 'send_packet');
+  const ibcInfo = getTransactionIBCTransferInfo(tx, 'send_packet');
 
   // Look for the matching IBC receive on wormchain
   // The IBC hooks middleware will execute the translator contract
@@ -188,7 +222,7 @@ export async function getMessageFromWormchain(
     );
   }
 
-  const message = await wh.getMessage(destTx.hash, CHAIN_ID_WORMCHAIN);
+  const message = await getWormchainEmittedMessage(destTx.hash, ibcInfo);
   const parsed = await adaptParsedMessage(message);
 
   return {
@@ -199,4 +233,113 @@ export async function getMessageFromWormchain(
     sendTx: hash,
     sender,
   };
+}
+
+/**
+ * Parse a wormchain tx to extract the VAA information
+ *
+ * @param id Wormchain transaction id
+ * @param sourceTxIbcInfo IBC packet information of the source transaction
+ * @returns
+ */
+async function getWormchainEmittedMessage(
+  id: string,
+  sourceTxIbcInfo: IBCTransferInfo,
+): Promise<SdkParsedMessage | SdkParsedRelayerMessage> {
+  const client = await getCosmWasmClient(CHAIN_ID_WORMCHAIN);
+  const tx = await client.getTx(id);
+  if (!tx) throw new Error('tx not found');
+
+  // parse logs emitted for the tx execution
+  // and find the log for the specific ibc transfer
+  const logs = cosmosLogs.parseRawLog(tx.rawLog);
+  const msgLog = getIbcTransferLog(logs, sourceTxIbcInfo);
+
+  // now look for the vaa information in the message logs
+  const tokenTransferPayload = searchCosmosLogs('wasm.message.message', [
+    msgLog,
+  ]);
+  if (!tokenTransferPayload)
+    throw new Error('message/transfer payload not found');
+  const sequence = searchCosmosLogs('wasm.message.sequence', [msgLog]);
+  if (!sequence) throw new Error('sequence not found');
+  const emitterAddress = searchCosmosLogs('wasm.message.sender', [msgLog]);
+  if (!emitterAddress) throw new Error('emitter not found');
+
+  const parsed = parseTokenTransferPayload(
+    Buffer.from(tokenTransferPayload, 'hex'),
+  );
+
+  const decoded = decodeTxRaw(tx.tx);
+  const { sender } = MsgExecuteContract.decode(decoded.body.messages[0].value);
+
+  const destContext = wh.getContext(parsed.toChain as ChainId);
+  const tokenContext = wh.getContext(parsed.tokenChain as ChainId);
+
+  const tokenAddress = await tokenContext.parseAssetAddress(
+    hexlify(parsed.tokenAddress),
+  );
+  const tokenChain = wh.toChainName(parsed.tokenChain);
+
+  return {
+    sendTx: tx.hash,
+    sender,
+    amount: BigNumber.from(parsed.amount),
+    payloadID: parsed.payloadType,
+    recipient: destContext.parseAddress(hexlify(parsed.to)),
+    toChain: wh.toChainName(parsed.toChain),
+    fromChain: 'wormchain',
+    tokenAddress,
+    tokenChain,
+    tokenId: {
+      address: tokenAddress,
+      chain: tokenChain,
+    },
+    sequence: BigNumber.from(sequence),
+    emitterAddress,
+    block: tx.height,
+    gasFee: BigNumber.from(tx.gasUsed),
+    payload: parsed.tokenTransferPayload.length
+      ? hexlify(parsed.tokenTransferPayload)
+      : undefined,
+  };
+}
+
+/**
+ * Find the log entry in the transaction logs for a given IBC transfer
+ * (sometimes an ibc relayer can deliver multiple ibc packets
+ * in the same transaction, so we need to find the one that matches)
+ *
+ * @param logs The transaction logs
+ * @param ibcTransfer The IBC transfer to look a receive message for
+ * @returns The Log entry for the IBC transfer receive message
+ */
+function getIbcTransferLog(
+  logs: readonly cosmosLogs.Log[],
+  ibcTransfer: IBCTransferInfo,
+): cosmosLogs.Log {
+  // the log list consists in one per msg, which contains multiple events
+  // we're interested in a single ibc acknolwedgement/receive msg
+  for (const log of logs) {
+    for (const ev of log.events) {
+      // find an ibc received packet event
+      if (ev.type !== 'recv_packet') continue;
+
+      // check that this packet is the one that matches the source ibc transfer
+      // if not, skip this msg log entirely and proceed to the next one
+      const logIbcInfo = getIBCTransferInfoFromLogs([log], 'recv_packet');
+
+      if (
+        logIbcInfo.sequence !== ibcTransfer.sequence ||
+        logIbcInfo.srcChannel !== ibcTransfer.srcChannel ||
+        logIbcInfo.dstChannel !== ibcTransfer.dstChannel
+      )
+        break;
+
+      return log;
+    }
+  }
+  throw new Error(
+    `No log found for IBC transfer sequence ${ibcTransfer.sequence}`,
+  );
 }
