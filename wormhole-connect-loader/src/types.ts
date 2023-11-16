@@ -14,6 +14,7 @@ export const MAINNET_CHAINS = {
   arbitrum: 23,
   optimism: 24,
   base: 30,
+  wormchain: 3104,
   evmos: 4001,
   kujira: 4002,
 } as const;
@@ -35,6 +36,7 @@ export const TESTNET_CHAINS = {
   arbitrumgoerli: 23,
   optimismgoerli: 24,
   basegoerli: 30,
+  wormchain: 3104,
   evmos: 4001,
   kujira: 4002,
 } as const;
