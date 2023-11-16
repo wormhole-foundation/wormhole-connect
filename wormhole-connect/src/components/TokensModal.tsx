@@ -37,6 +37,8 @@ import Search from './Search';
 import Spacer from './Spacer';
 import Tabs from './Tabs';
 import { CCTPManual_CHAINS } from '../routes/cctpManual';
+import { isTBTCCanonicalChain } from 'routes/tbtc';
+import { CHAIN_ID_ETH } from '@certusone/wormhole-sdk/lib/esm/utils';
 
 const useStyles = makeStyles()((theme: any) => ({
   tokensContainer: {
@@ -468,6 +470,21 @@ function TokensModal(props: Props) {
       const isCctpChain = chain && CCTPManual_CHAINS.includes(chain);
       if (t.symbol === 'USDC' && t.nativeChain !== chain && isCctpChain)
         return false;
+
+      if (t.symbol === 'tBTC' && chain) {
+        // if the chain is canonical then only show the native tBTC token
+        if (isTBTCCanonicalChain(chain)) {
+          if (t.nativeChain !== chain) {
+            return false;
+          }
+        } else {
+          // if the chain is not canonical then only show the ethereum tBTC token
+          // which is considered the canonical tBTC token
+          if (wh.toChainId(t.nativeChain) !== CHAIN_ID_ETH) {
+            return false;
+          }
+        }
+      }
 
       if (type === 'dest') return true;
       if (!chainBalancesCache) return true;

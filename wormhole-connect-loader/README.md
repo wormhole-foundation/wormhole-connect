@@ -89,6 +89,13 @@ Tokens (`tokens`):
 | USDCoptimism | USDCoptimism|
 | ETHbase | ETHbase |
 | WETHbase | WETHbase |
+| tBTC | tBTC |
+| tBTCpolygon | tBTCpolygon |
+| tBTCoptimism | tBTCoptimism |
+| tBTCarbitrum | tBTCarbitrum |
+| tBTCbase | tBTCbase |
+| tBTCsol | tBTCsol |
+
 
 <br>
 
@@ -100,6 +107,7 @@ Routes (`routes`)
 | cctpManual | cctpManual |
 | cctpRelay | cctpRelay |
 | cosmosGateway | cosmosGateway |
+| tbtc | tbtc |
 
 <br>
 

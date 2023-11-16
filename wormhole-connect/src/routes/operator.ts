@@ -33,6 +33,8 @@ import {
   CCTPManualRoute,
   CCTP_LOG_TokenMessenger_DepositForBurn,
 } from './cctpManual';
+import { TBTCRoute } from './tbtc';
+import { getTokenById } from 'utils';
 
 export class Operator {
   getRoute(route: Route): RouteAbstract {
@@ -55,6 +57,9 @@ export class Operator {
       case Route.CosmosGateway: {
         return new CosmosGatewayRoute();
       }
+      case Route.TBTC: {
+        return new TBTCRoute();
+      }
       default: {
         throw new Error(`${route} is not a valid route`);
       }
@@ -66,11 +71,12 @@ export class Operator {
       return Route.CosmosGateway;
     }
 
-    // Check if is CCTP Route (CCTPRelay or CCTPManual)
     if (isEvmChain(chain)) {
       const provider = wh.mustGetProvider(chain);
       const receipt = await provider.getTransactionReceipt(txHash);
       if (!receipt) throw new Error(`No receipt for ${txHash} on ${chain}`);
+
+      // Check if is CCTP Route (CCTPRelay or CCTPManual)
       const cctpDepositForBurnLog = receipt.logs.find(
         (log) => log.topics[0] === CCTP_LOG_TokenMessenger_DepositForBurn,
       );
@@ -87,7 +93,7 @@ export class Operator {
       }
     }
 
-    let message = await getMessage(txHash, chain);
+    const message = await getMessage(txHash, chain);
 
     if (message.toChain === 'sei') {
       return Route.Relay;
@@ -95,6 +101,11 @@ export class Operator {
 
     if (isGatewayChain(message.fromChain) || isGatewayChain(message.toChain)) {
       return Route.CosmosGateway;
+    }
+
+    const token = getTokenById(message.tokenId);
+    if (token?.symbol === 'tBTC') {
+      return Route.TBTC;
     }
 
     return (message as ParsedMessage).payloadID === PayloadType.Automatic

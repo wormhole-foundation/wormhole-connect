@@ -110,6 +110,11 @@ export const TESTNET_TOKEN_KEYS: string[] = [
   "WETHbase",
   "OSMO",
   "tBTC",
+  "tBTCpolygon",
+  "tBTCoptimism",
+  "tBTCarbitrum",
+  "tBTCbase",
+  "tBTCsol",
   "wstETH",
 ].sort();
 
@@ -150,6 +155,11 @@ export const MAINNET_TOKEN_KEYS: string[] = [
   "WETHbase",
   "OSMO",
   "tBTC",
+  "tBTCpolygon",
+  "tBTCoptimism",
+  "tBTCarbitrum",
+  "tBTCbase",
+  "tBTCsol",
   "wstETH",
   "BONK",
 ].sort();
@@ -193,6 +203,13 @@ export const ROUTE_INFOS: RouteInfo[] = [
     description:
       "Gateway connects liquidity and users from Ethereum and beyond to Cosmos chains and apps, all with an IBC-based liquidity router.",
     link: "https://wormhole.com/gateway/",
+  },
+  {
+    key: "tbtc",
+    title: "Threshold BTC",
+    description:
+      "Permissionlessly transfer tBTC cross-chain with Threshold + Wormhole.",
+    link: "https://threshold.network/earn/btc",
   },
 ];
 export const ROUTES = ROUTE_INFOS.map((r) => r.key);

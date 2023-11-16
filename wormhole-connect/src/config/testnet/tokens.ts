@@ -1775,6 +1775,86 @@ export const TESTNET_TOKENS: TokensConfig = {
       },
     },
   },
+  tBTCpolygon: {
+    key: 'tBTCpolygon',
+    symbol: 'tBTC',
+    nativeChain: 'mumbai',
+    tokenId: {
+      chain: 'mumbai',
+      address: '0xBcD7917282E529BAA6f232DdDc75F3901245A492',
+    },
+    icon: Icon.TBTC,
+    coinGeckoId: 'tbtc',
+    color: '#000000',
+    decimals: {
+      default: 8,
+      Ethereum: 18,
+    },
+  },
+  tBTCoptimism: {
+    key: 'tBTCoptimism',
+    symbol: 'tBTC',
+    nativeChain: 'optimismgoerli',
+    tokenId: {
+      chain: 'optimismgoerli',
+      address: '0x1a53759DE2eADf73bd0b05c07a4F1F5B7912dA3d',
+    },
+    icon: Icon.TBTC,
+    coinGeckoId: 'tbtc',
+    color: '#000000',
+    decimals: {
+      default: 8,
+      Ethereum: 18,
+    },
+  },
+  tBTCarbitrum: {
+    key: 'tBTCarbitrum',
+    symbol: 'tBTC',
+    nativeChain: 'arbitrumgoerli',
+    tokenId: {
+      chain: 'arbitrumgoerli',
+      address: '0x85727F4725A4B2834e00Db1AA8e1b843a188162F',
+    },
+    icon: Icon.TBTC,
+    coinGeckoId: 'tbtc',
+    color: '#000000',
+    decimals: {
+      default: 8,
+      Ethereum: 18,
+    },
+  },
+  tBTCbase: {
+    key: 'tBTCbase',
+    symbol: 'tBTC',
+    nativeChain: 'basegoerli',
+    tokenId: {
+      chain: 'basegoerli',
+      address: '0x783349cd20f26CE12e747b1a17bC38D252c9e119',
+    },
+    icon: Icon.TBTC,
+    coinGeckoId: 'tbtc',
+    color: '#000000',
+    decimals: {
+      default: 8,
+      Ethereum: 18,
+    },
+  },
+  tBTCsol: {
+    key: 'tBTCsol',
+    symbol: 'tBTC',
+    nativeChain: 'solana',
+    tokenId: {
+      chain: 'solana',
+      address: '6DNSN2BJsaPFdFFc1zP37kkeNe4Usc1Sqkzr9C9vPWcU',
+    },
+    icon: Icon.TBTC,
+    coinGeckoId: 'tbtc',
+    color: '#000000',
+    decimals: {
+      default: 8,
+      Ethereum: 18,
+    },
+  },
   wstETH: {
     key: 'wstETH',
     symbol: 'wstETH',

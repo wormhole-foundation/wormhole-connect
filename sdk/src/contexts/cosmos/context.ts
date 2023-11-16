@@ -472,6 +472,7 @@ export class CosmosContext<
   async getMessage(
     id: string,
     chain: ChainName | ChainId,
+    parseRelayerPayload: boolean = true,
   ): Promise<ParsedMessage | ParsedRelayerMessage> {
     const client = await this.getCosmWasmClient(chain);
     const tx = await client.getTx(id);
@@ -639,5 +640,9 @@ export class CosmosContext<
       chainId: chainId,
       assetAddress: hexToUint8Array(this.buildTokenId(wrappedAddress)),
     };
+  }
+
+  async getWrappedNativeTokenId(chain: ChainName | ChainId): Promise<TokenId> {
+    throw new Error('Method not implemented.');
   }
 }

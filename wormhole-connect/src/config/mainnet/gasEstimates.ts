@@ -18,6 +18,10 @@ export const MAINNET_GAS_ESTIMATES: GasEstimates = {
     [Route.CCTPRelay]: {
       sendToken: 300000,
     },
+    [Route.TBTC]: {
+      sendToken: 150000,
+      claim: 300000,
+    },
   },
   polygon: {
     [Route.Bridge]: {
@@ -28,6 +32,10 @@ export const MAINNET_GAS_ESTIMATES: GasEstimates = {
     [Route.Relay]: {
       sendNative: 200000,
       sendToken: 250000,
+    },
+    [Route.TBTC]: {
+      sendToken: 150000,
+      claim: 300000,
     },
   },
   bsc: {
@@ -102,6 +110,10 @@ export const MAINNET_GAS_ESTIMATES: GasEstimates = {
       sendNative: 15000,
       sendToken: 15000,
     },
+    [Route.TBTC]: {
+      sendToken: 150000,
+      claim: 300000,
+    },
   },
   sui: {
     [Route.Bridge]: {
@@ -145,6 +157,10 @@ export const MAINNET_GAS_ESTIMATES: GasEstimates = {
     [Route.CCTPRelay]: {
       sendToken: 300000,
     },
+    [Route.TBTC]: {
+      sendToken: 150000,
+      claim: 300000,
+    },
   },
   wormchain: {
     [Route.Bridge]: {
@@ -173,6 +189,10 @@ export const MAINNET_GAS_ESTIMATES: GasEstimates = {
     [Route.CCTPRelay]: {
       sendToken: 1500000,
     },
+    [Route.TBTC]: {
+      sendToken: 1000000,
+      claim: 4000000,
+    },
   },
   optimism: {
     [Route.Bridge]: {
@@ -186,6 +206,10 @@ export const MAINNET_GAS_ESTIMATES: GasEstimates = {
     },
     [Route.CCTPRelay]: {
       sendToken: 150000,
+    },
+    [Route.TBTC]: {
+      sendToken: 100000,
+      claim: 300000,
     },
   },
   evmos: {

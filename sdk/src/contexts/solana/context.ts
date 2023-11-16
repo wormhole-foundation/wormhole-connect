@@ -747,6 +747,7 @@ export class SolanaContext<
   async getMessage(
     tx: string,
     chain: ChainName | ChainId,
+    parseRelayerPayload: boolean = true,
   ): Promise<ParsedMessage | ParsedRelayerMessage> {
     if (!this.connection) throw new Error('no connection');
     const contracts = this.contracts.mustGetContracts(SOLANA_CHAIN_NAME);
@@ -836,9 +837,12 @@ export class SolanaContext<
           : SOLANA_TESTNET_EMITTER_ID,
       gasFee: BigNumber.from(gasFee),
       block: response.slot,
+      payload: transfer.tokenTransferPayload.length
+        ? hexlify(transfer.tokenTransferPayload)
+        : undefined,
     };
 
-    if (parsedMessage.payloadID === 3) {
+    if (parseRelayerPayload && parsedMessage.payloadID === 3) {
       const destContext = this.context.getContext(transfer.toChain as ChainId);
       const parsedPayload = destContext.parseRelayerPayload(
         transfer.tokenTransferPayload,
@@ -1084,5 +1088,12 @@ export class SolanaContext<
       decimals,
     );
     return BigNumber.from(fee);
+  }
+
+  async getWrappedNativeTokenId(chain: ChainName | ChainId): Promise<TokenId> {
+    return {
+      address: NATIVE_MINT.toString(),
+      chain: 'solana',
+    };
   }
 }

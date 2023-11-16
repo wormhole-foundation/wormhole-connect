@@ -39,6 +39,9 @@ export const getIcon = (route: Route) => {
     case Route.CCTPRelay: {
       return CCTPIcon;
     }
+    case Route.TBTC: {
+      return WormholeIcon;
+    }
     default: {
       return noIcon;
     }

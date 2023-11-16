@@ -168,7 +168,7 @@ export const validateSolanaTokenAccount = (
   route: Route | undefined,
 ): ValidationErr => {
   if (destChain !== 'solana') return '';
-  if (route === Route.Relay) return '';
+  if (route === Route.Relay || route === Route.TBTC) return '';
   if (!destTokenAddr) return '';
   if (destTokenAddr && !solanaTokenAccount) {
     return 'The associated token account for this asset does not exist on Solana, you must create it first';
