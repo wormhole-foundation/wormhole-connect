@@ -40,8 +40,8 @@ export const MAINNET_CHAINS: ChainsConfig = {
   avalanche: {
     ...chains.avalanche!,
     displayName: 'Avalanche',
-    explorerUrl: 'https://snowtrace.io/',
-    explorerName: 'Snowtrace',
+    explorerUrl: 'https://avascan.info/blockchain/c/',
+    explorerName: 'Avascan',
     gasToken: 'AVAX',
     chainId: 43114,
     icon: Icon.AVAX,

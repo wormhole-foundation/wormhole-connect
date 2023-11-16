@@ -40,8 +40,8 @@ export const TESTNET_CHAINS: ChainsConfig = {
   fuji: {
     ...chains.fuji!,
     displayName: 'Fuji',
-    explorerUrl: 'https://testnet.snowtrace.io/',
-    explorerName: 'Snowtrace',
+    explorerUrl: 'https://testnet.avascan.info/blockchain/c/',
+    explorerName: 'Avascan',
     gasToken: 'AVAX',
     chainId: 43113,
     icon: Icon.AVAX,
