@@ -1,10 +1,11 @@
 import { CHAIN_ID_WORMCHAIN } from '@certusone/wormhole-sdk';
+import { stripHexPrefix } from '@wormhole-foundation/wormhole-connect-sdk';
 import LaunchIcon from '@mui/icons-material/Launch';
 import InputContainer from 'components/InputContainer';
 import { CHAINS, WORMSCAN, isMainnet } from 'config';
 import ArrowRight from 'icons/ArrowRight';
 import TokenIcon from 'icons/TokenIcons';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from 'store';
 import { makeStyles } from 'tss-react/mui';
@@ -36,29 +37,33 @@ const useStyles = makeStyles()((theme) => ({
 function ChainsTag() {
   const { classes } = useStyles();
   const txData = useSelector((state: RootState) => state.redeem.txData)!;
+  const signedMessage = useSelector(
+    (state: RootState) => state.redeem.signedMessage,
+  );
   const fromChainConfig = CHAINS[txData.fromChain]!;
   const toChainConfig = CHAINS[txData.toChain]!;
 
-  const emitterAddress = txData.emitterAddress
-    ? txData.emitterAddress.startsWith('0x')
-      ? txData.emitterAddress.slice(2)
-      : txData.emitterAddress
-    : undefined;
-  // As of 2023-10-12, wormscan only supports tx lookup on EVM chains (before a VAA is generated)
-  const link =
-    txData &&
-    (isEvmChain(fromChainConfig.id) && txData.sendTx
-      ? `${WORMSCAN}tx/${txData.sendTx}${isMainnet ? '' : '?network=TESTNET'}`
-      : txData.emitterAddress &&
-        txData.sequence &&
-        // Gateway-connected chain VAAs come from gateway
-        `${WORMSCAN}tx/${
-          isGatewayChain(fromChainConfig.id)
-            ? CHAIN_ID_WORMCHAIN
-            : fromChainConfig.id
-        }/${emitterAddress}/${txData.sequence}${
-          isMainnet ? '' : '?network=TESTNET'
-        }`);
+  const sendTx = txData.sendTx || signedMessage?.sendTx;
+  const sequence = txData.sequence || signedMessage?.sequence;
+  const baseEmitter = txData.emitterAddress || signedMessage?.emitterAddress;
+
+  const emitter = baseEmitter ? stripHexPrefix(baseEmitter) : undefined;
+
+  const link = useMemo(() => {
+    if (!txData) return;
+    // As of 2023-10-12, wormscan only supports tx lookup on EVM chains (before a VAA is generated)
+    if (isEvmChain(fromChainConfig.id) && sendTx) {
+      return `${WORMSCAN}tx/${sendTx}${isMainnet ? '' : '?network=TESTNET'}`;
+    }
+    if (!emitter || !sequence) return;
+
+    const chainId = isGatewayChain(fromChainConfig.id)
+      ? CHAIN_ID_WORMCHAIN
+      : fromChainConfig.id;
+    return `${WORMSCAN}tx/${chainId}/${emitter}/${sequence}${
+      isMainnet ? '' : '?network=TESTNET'
+    }`;
+  }, [txData, sendTx, emitter, sequence, fromChainConfig.id]);
   return (
     <div>
       <InputContainer>

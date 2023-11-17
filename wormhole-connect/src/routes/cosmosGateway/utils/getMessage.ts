@@ -98,8 +98,6 @@ export async function getUnsignedMessageFromCosmos(
       address: tokenAddress,
       chain: tokenChain,
     },
-    emitterAddress: '',
-    sequence: BigNumber.from(0),
   });
 
   return {
