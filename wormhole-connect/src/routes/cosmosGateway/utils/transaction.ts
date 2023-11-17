@@ -7,11 +7,18 @@ import {
 import { getCosmWasmClient } from '../utils';
 import { IBCTransferInfo } from '../types';
 
-export function getIBCTransferInfoFromLogs(
+export function getTransactionIBCTransferInfo(
   tx: IndexedTx,
   event: 'send_packet' | 'recv_packet',
 ): IBCTransferInfo {
   const logs = cosmosLogs.parseRawLog(tx.rawLog);
+  return getIBCTransferInfoFromLogs(logs, event);
+}
+
+export function getIBCTransferInfoFromLogs(
+  logs: readonly cosmosLogs.Log[],
+  event: 'send_packet' | 'recv_packet',
+): IBCTransferInfo {
   const packetSeq = searchCosmosLogs(`${event}.packet_sequence`, logs);
   const packetTimeout = searchCosmosLogs(
     `${event}.packet_timeout_timestamp`,

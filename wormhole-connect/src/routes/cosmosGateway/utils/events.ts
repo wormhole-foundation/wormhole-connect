@@ -8,7 +8,7 @@ import { getCosmWasmClient } from './client';
 import { getTranslatorAddress } from './contracts';
 import {
   findDestinationIBCTransferTx,
-  getIBCTransferInfoFromLogs,
+  getTransactionIBCTransferInfo,
 } from './transaction';
 import { BridgeRoute } from '../../bridge';
 import { isGatewayChain } from '../../../utils/cosmos';
@@ -39,7 +39,7 @@ export async function fetchRedeemedEventNonCosmosSource(
   }
 
   // extract the ibc transfer info from the transaction logs
-  const ibcInfo = getIBCTransferInfoFromLogs(txs[0], 'send_packet');
+  const ibcInfo = getTransactionIBCTransferInfo(txs[0], 'send_packet');
 
   // find the transaction on the target chain based on the ibc transfer info
   const destTx = await findDestinationIBCTransferTx(message.toChain, ibcInfo);
@@ -60,7 +60,7 @@ export async function fetchRedeemedEventCosmosSource(
   const sourceClient = await getCosmWasmClient(message.fromChain);
   const tx = await sourceClient.getTx(message.sendTx);
   if (!tx) return null;
-  const sourceIbcInfo = getIBCTransferInfoFromLogs(tx, 'send_packet');
+  const sourceIbcInfo = getTransactionIBCTransferInfo(tx, 'send_packet');
 
   // find tx in the ibc receive in wormchain and extract the ibc transfer to the dest tx
   const wormchainTx = await findDestinationIBCTransferTx(
@@ -68,7 +68,7 @@ export async function fetchRedeemedEventCosmosSource(
     sourceIbcInfo,
   );
   if (!wormchainTx) return null;
-  const wormchainToDestIbcInfo = getIBCTransferInfoFromLogs(
+  const wormchainToDestIbcInfo = getTransactionIBCTransferInfo(
     wormchainTx,
     'send_packet',
   );
