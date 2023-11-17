@@ -35,7 +35,7 @@ export const adaptParsedMessage = async (
     tokenKey: token?.key || '',
     tokenDecimals: decimals,
     receivedTokenKey: token?.key || '',
-    sequence: parsed.sequence.toString(),
+    sequence: parsed.sequence?.toString(),
     gasFee: parsed.gasFee ? parsed.gasFee.toString() : undefined,
   };
   // get wallet address of associated token account for Solana
