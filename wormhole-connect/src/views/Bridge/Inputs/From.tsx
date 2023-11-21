@@ -165,10 +165,9 @@ function FromInputs() {
         chains={CHAINS_ARR.filter((c) => c.key !== toChain)}
         onSelect={selectChain}
         onClose={() => setShowChainsModal(false)}
-        onMoreNetworkSelect={(href, chainName, target) => {
-          console.log(href, chainName, target);
-          handleExtraNetwork(href, chainName, target);
-        }}
+        onMoreNetworkSelect={(href, chainName, target) =>
+          handleExtraNetwork(href, chainName, target)
+        }
         isDisabled={isDisabled}
       />
     </>
