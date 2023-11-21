@@ -293,7 +293,7 @@ const MAINNET_CONFIG: WormholeConfig = {
   env,
   rpcs: {
     ethereum: 'https://rpc.ankr.com/eth',
-    solana: 'https://solana-mainnet.rpc.extrnode.com',
+    solana: 'https://api.mainnet-beta.solana.com',
     polygon: 'https://rpc.ankr.com/polygon',
     bsc: 'https://bscrpc.com',
     avalanche: 'https://rpc.ankr.com/avalanche',
