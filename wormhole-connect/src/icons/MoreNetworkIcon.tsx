@@ -6,6 +6,7 @@ import Tooltip from '@mui/material/Tooltip';
 
 const useStyles = makeStyles<{ size: number }>()((theme: any, { size }) => ({
   container: {
+    position: 'relative',
     height: size,
     width: size,
     ...CENTER,
@@ -15,8 +16,11 @@ const useStyles = makeStyles<{ size: number }>()((theme: any, { size }) => ({
     maxWidth: '100%',
   },
   subIcon: {
-    marginBottom: '100%',
+    position: 'absolute',
+    bottom: `calc(${size}px - ${theme.spacing(1)})`,
+    left: `calc(${size}px - ${theme.spacing(1)})`,
     width: theme.spacing(2),
+    height: theme.spacing(2),
   },
   tooltip: {
     maxWidth: '270px',

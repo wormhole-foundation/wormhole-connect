@@ -223,3 +223,30 @@ export function deNormalizeAmount(
 export async function sleep(timeout: number) {
   return new Promise((resolve) => setTimeout(resolve, timeout));
 }
+
+export function hydrateHrefTemplate(
+  href: string,
+  fromChain?: string,
+  toChain?: string,
+) {
+  const queryParam = href.split('?').pop();
+  const templateParts = queryParam?.split('&');
+  const sourceTemplate = templateParts?.find((p) =>
+    p.includes('{:sourceChain}'),
+  );
+  const targetTemplate = templateParts?.find((p) =>
+    p.includes('{:targetChain}'),
+  );
+  const hydratedParts = [];
+  if (fromChain && sourceTemplate) {
+    const source = sourceTemplate.replace('{:sourceChain}', fromChain);
+    hydratedParts.push(source);
+  }
+  if (toChain && targetTemplate) {
+    const target = targetTemplate.replace('{:targetChain}', toChain);
+    hydratedParts.push(target);
+  }
+  if (queryParam) {
+    return `${href.replace(queryParam, '')}${hydratedParts.join('&')}`;
+  }
+}

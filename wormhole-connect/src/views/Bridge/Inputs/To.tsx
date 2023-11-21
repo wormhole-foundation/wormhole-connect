@@ -9,7 +9,7 @@ import {
   setDestToken,
 } from 'store/transferInput';
 import { TransferWallet, walletAcceptedChains } from 'utils/wallet';
-import { getWrappedToken, getDisplayName } from 'utils';
+import { getWrappedToken, getDisplayName, hydrateHrefTemplate } from 'utils';
 import { CHAINS, CHAINS_ARR, TOKENS } from 'config';
 
 import Inputs from './Inputs';
@@ -115,14 +115,13 @@ function ToInputs() {
 
   const handleExtraNetwork = (
     href: string,
-    name: string,
+    chainName: string,
     target: string = '_self',
   ) => {
-    let hydratedHref = href;
-    if (fromChain) {
-      hydratedHref = href.replace('{:sourceChain}', fromChain);
+    const hydratedHref = hydrateHrefTemplate(href, fromChain, chainName);
+    if (hydratedHref) {
+      window.open(hydratedHref, target);
     }
-    window.open(hydratedHref.replace('{:targetChain}', name), target);
   };
 
   return (
