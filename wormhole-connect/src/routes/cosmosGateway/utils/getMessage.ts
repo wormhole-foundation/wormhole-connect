@@ -152,7 +152,7 @@ export async function getUnsignedMessageFromNonCosmos(
   hash: string,
   chain: ChainName,
 ): Promise<UnsignedMessage> {
-  const message = await wh.getMessage(hash, chain);
+  const message = await wh.getMessage(hash, chain, false);
   if (!message.payload)
     throw new Error(`Missing payload from message ${hash} on chain ${chain}`);
   const decoded: GatewayTransferMsg = JSON.parse(
