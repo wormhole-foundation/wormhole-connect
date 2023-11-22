@@ -38,6 +38,7 @@ const useStyles = makeStyles<{ showHamburgerMenu: boolean }>()(
       fontWeight: '300',
       fontSize: '14px',
       opacity: '0.6',
+      marginBottom: showHamburgerMenu ? '0px' : '40px',
     },
   }),
 );
