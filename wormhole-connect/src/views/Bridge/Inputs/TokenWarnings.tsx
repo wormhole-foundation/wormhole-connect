@@ -173,23 +173,6 @@ function TokenWarnings() {
         return false;
       }
     }, [foreignAsset, tokenConfig, receiving, dispatch]);
-  /*const checkUsdcTxNoCCTP = 
-    useCallback(async (): Promise<boolean> => {
-      if (!foreignAsset || !tokenConfig) {
-        setShowErrors(false);
-        return false;
-      }
-      
-      if (toChain && CCTPManual_CHAINS.includes(toChain)) {
-        setShowErrors(true);
-        return true;
-      }
-      // comprobe the account exist and has usdc
-      tokenConfig.symbol === 'USDC' ? setShowErrors(true) : setShowErrors(false);
-      foreignAsset.toString().includes('USDC') ? setShowErrors(true) : setShowErrors(false);
-      return false;
-
-    }, [foreignAsset, tokenConfig, toChain]);*/
 
   const createAssociatedTokenAccount = useCallback(async () => {
     if (!receiving.address || !token)
