@@ -17,7 +17,9 @@ const useStyles = makeStyles()((theme: any) => ({
     backgroundColor: theme.palette.card.background,
     boxShadow: theme.palette.card.elevation,
     cursor: 'pointer',
-    marginBottom: '-40px',
+    [theme.breakpoints.up('md')]: {
+      marginBottom: '-40px',
+    },
     zIndex: 2,
   },
 }));
