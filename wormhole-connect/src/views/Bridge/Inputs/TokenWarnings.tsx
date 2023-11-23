@@ -17,7 +17,7 @@ import { CircularProgress, Link, Typography } from '@mui/material';
 import AlertBanner from 'components/AlertBanner';
 import RouteOperator from 'routes/operator';
 import { Route } from '../../../config/types';
-import { CCTPManual_CHAINS } from 'routes/cctpManual';
+import { CCTPManual_CHAINS as CCTP_CHAINS } from 'routes/cctpManual';
 
 const useStyles = makeStyles()((theme: any) => ({
   associatedTokenWarning: {
@@ -215,12 +215,15 @@ function TokenWarnings() {
   ]);
 
   useEffect(() => {
+    // if the url it's empty that means the user doesn't want this feature
+    const cctpWarningFlag = !!PORTAL_USDC_BRIDGE_URL;
     // check if the token is USDC and the chains involved are not CCTP
     const usdcAndNoCCTP =
+      cctpWarningFlag &&
       tokenConfig?.symbol === 'USDC' &&
       destTokenConfig?.symbol === 'USDC' &&
-      (!(toChain && CCTPManual_CHAINS.includes(toChain)) ||
-        !(fromChain && CCTPManual_CHAINS.includes(fromChain)));
+      (!(toChain && CCTP_CHAINS.includes(toChain)) ||
+        !(fromChain && CCTP_CHAINS.includes(fromChain)));
 
     if (!toChain || !token || !receiving.address) return;
     if (toChain === 'solana' && foreignAsset) {
