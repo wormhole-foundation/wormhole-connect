@@ -280,12 +280,12 @@ function TokenWarnings() {
   );
 
   let content;
-  if (usdcAndNoCCTP) {
-    content = warningNoCCTPOption;
-  } else if (!foreignAsset) {
+  if (!foreignAsset) {
     content = noForeignAssetWarning;
   } else if (toChain === 'solana' && route !== Route.Relay) {
     content = noAssociatedTokenAccount;
+  } else if (usdcAndNoCCTP) {
+    content = warningNoCCTPOption;
   }
 
   return (
