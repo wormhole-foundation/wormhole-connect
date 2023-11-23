@@ -5,6 +5,7 @@ import {
   ChainResourceMap,
   Context,
 } from '@wormhole-foundation/wormhole-connect-sdk';
+import { Alignment } from 'components/Header';
 import { ExtendedTheme } from 'theme';
 
 export enum Icon {
@@ -75,16 +76,22 @@ export interface WormholeConnectConfig {
   };
   bridgeDefaults?: BridgeDefaults;
   routes?: string[];
-  pageHeader?: string;
   cctpWarning?: {
     href: string;
   };
+  pageHeader?: string | PageHeader;
   pageSubHeader?: string;
   menu?: MenuEntry[];
   searchTx?: SearchTxConfig;
   moreTokens?: MoreTokenConfig;
   moreNetworks?: MoreChainConfig;
+  partnerLogo?: string;
 }
+
+export type PageHeader = {
+  text: string;
+  align: Alignment;
+};
 
 export type SearchTxConfig = {
   txHash?: string;

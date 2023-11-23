@@ -1,7 +1,7 @@
 import React from 'react';
 import { makeStyles } from 'tss-react/mui';
 
-type Alignment = 'center' | 'left' | 'right';
+export type Alignment = 'center' | 'left' | 'right';
 
 type StyleProps = { align: Alignment; fontSize: number };
 const useStyles = makeStyles<StyleProps>()(

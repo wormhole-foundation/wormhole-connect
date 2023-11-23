@@ -3,18 +3,21 @@ import { useDispatch } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { setRoute } from 'store/router';
 
-import Header from './Header';
+import Header, { Alignment } from './Header';
 import MenuFull from './MenuFull';
 import DownIcon from 'icons/Down';
 
-const useStyles = makeStyles<{ showHamburgerMenu: boolean }>()(
-  (theme, { showHamburgerMenu }) => ({
+const useStyles = makeStyles<{
+  showHamburgerMenu: boolean;
+  align: Alignment;
+}>()(
+  (theme, { showHamburgerMenu, align }) => ({
     container: {
       width: '100%',
       display: 'flex',
       flexDirection: 'column',
       gap: '8px',
-      marginBottom: showHamburgerMenu ? '40px' : '0px',
+      marginBottom: showHamburgerMenu ? showHamburgerMenu ? '40px' : '0px' : '0px',
       [theme.breakpoints.down('sm')]: {
         marginBottom: '20px',
       },
@@ -27,7 +30,9 @@ const useStyles = makeStyles<{ showHamburgerMenu: boolean }>()(
     },
     left: {
       display: 'flex',
+    flexGrow: 1,
       alignItems: 'center',
+    textAlign: align,
     },
     arrowBack: {
       transform: 'rotate(90deg)',
@@ -45,6 +50,7 @@ const useStyles = makeStyles<{ showHamburgerMenu: boolean }>()(
 
 type PageHeaderProps = {
   title: string;
+  align?: Alignment;
   description?: string;
   back?: boolean;
   showHamburgerMenu?: boolean;
@@ -53,10 +59,11 @@ type PageHeaderProps = {
 function PageHeader({
   back,
   title,
+  align = 'left',
   description,
   showHamburgerMenu = true,
 }: PageHeaderProps) {
-  const { classes } = useStyles({ showHamburgerMenu });
+  const { classes } = useStyles({ showHamburgerMenu, align });
   const dispatch = useDispatch();
   function goBack() {
     dispatch(setRoute('bridge'));
@@ -73,7 +80,7 @@ function PageHeader({
               onClick={goBack}
             />
           )}
-          <Header text={title} align="left" />
+          <Header text={title} align={align} />
         </div>
         {showHamburgerMenu ? <MenuFull /> : null}
       </div>
