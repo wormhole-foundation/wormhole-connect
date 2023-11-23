@@ -7,7 +7,7 @@ import {
   setAssociatedTokenAddress,
   setForeignAsset,
 } from 'store/transferInput';
-import { ATTEST_URL, PORTAL_USDC_BRIDGE_URL, TOKENS } from 'config';
+import { ATTEST_URL, USDC_BRIDGE_URL, TOKENS } from 'config';
 import { getWrappedTokenId } from 'utils';
 import { TransferWallet, signSolanaTransaction } from 'utils/wallet';
 import { joinClass } from 'utils/style';
@@ -216,7 +216,7 @@ function TokenWarnings() {
 
   useEffect(() => {
     // if the url it's empty that means the user doesn't want this feature
-    const cctpWarningFlag = !!PORTAL_USDC_BRIDGE_URL;
+    const cctpWarningFlag = !!USDC_BRIDGE_URL;
     // check if the token is USDC and the chains involved are not CCTP
     const usdcAndNoCCTP =
       cctpWarningFlag &&
@@ -272,7 +272,7 @@ function TokenWarnings() {
       This transaction will transfer wrapped USDC (wUSDC) to the destination
       chain. If you want to transfer native USDC on chains supported by Circle's
       CCTP, use the{' '}
-      <Link target={'_blank'} variant="inherit" href={PORTAL_USDC_BRIDGE_URL}>
+      <Link target={'_blank'} variant="inherit" href={USDC_BRIDGE_URL}>
         USDC Bridge
       </Link>
       .
