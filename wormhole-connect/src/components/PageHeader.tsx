@@ -10,43 +10,41 @@ import DownIcon from 'icons/Down';
 const useStyles = makeStyles<{
   showHamburgerMenu: boolean;
   align: Alignment;
-}>()(
-  (theme, { showHamburgerMenu, align }) => ({
-    container: {
-      width: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '8px',
-      marginBottom: showHamburgerMenu ? showHamburgerMenu ? '40px' : '0px' : '0px',
-      [theme.breakpoints.down('sm')]: {
-        marginBottom: '20px',
-      },
+}>()((theme, { showHamburgerMenu, align }) => ({
+  container: {
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '8px',
+    marginBottom: showHamburgerMenu ? '40px' : '0px',
+    [theme.breakpoints.down('sm')]: {
+      marginBottom: '20px',
     },
-    header: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      width: '100%',
-    },
-    left: {
-      display: 'flex',
+  },
+  header: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
+  },
+  left: {
+    display: 'flex',
     flexGrow: 1,
-      alignItems: 'center',
+    alignItems: 'center',
     textAlign: align,
-    },
-    arrowBack: {
-      transform: 'rotate(90deg)',
-      marginRight: '16px',
-      cursor: 'pointer',
-    },
-    description: {
-      fontWeight: '300',
-      fontSize: '14px',
-      opacity: '0.6',
-      marginBottom: showHamburgerMenu ? '0px' : '40px',
-    },
-  }),
-);
+  },
+  arrowBack: {
+    transform: 'rotate(90deg)',
+    marginRight: '16px',
+    cursor: 'pointer',
+  },
+  description: {
+    fontWeight: '300',
+    fontSize: '14px',
+    opacity: '0.6',
+    marginBottom: showHamburgerMenu ? '0px' : '40px',
+  },
+}));
 
 type PageHeaderProps = {
   title: string;
