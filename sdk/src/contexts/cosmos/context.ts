@@ -9,17 +9,21 @@ import {
   parseVaa,
 } from '@certusone/wormhole-sdk';
 import { CosmWasmClient } from '@cosmjs/cosmwasm-stargate';
-import { EncodeObject, decodeTxRaw } from '@cosmjs/proto-signing';
+import { EncodeObject } from '@cosmjs/proto-signing';
 import {
   BankExtension,
   Coin,
   IbcExtension,
   QueryClient,
   calculateFee,
-  logs as cosmosLogs,
   setupBankExtension,
   setupIbcExtension,
 } from '@cosmjs/stargate';
+import {
+  Tendermint34Client,
+  Tendermint37Client,
+  TendermintClient,
+} from '@cosmjs/tendermint-rpc';
 import { MsgExecuteContract } from 'cosmjs-types/cosmwasm/wasm/v1/tx';
 import { BigNumber, utils } from 'ethers';
 import {
@@ -27,7 +31,6 @@ import {
   base58,
   base64,
   hexStripZeros,
-  hexlify,
   keccak256,
   zeroPad,
 } from 'ethers/lib/utils';
@@ -41,18 +44,13 @@ import {
   ParsedRelayerPayload,
   TokenId,
 } from '../../types';
+import { ForeignAssetCache, waitFor } from '../../utils';
 import { WormholeContext } from '../../wormhole';
 import { TokenBridgeAbstract } from '../abstracts/tokenBridge';
 import { CosmosContracts } from './contracts';
-import { isGatewayChain, searchCosmosLogs } from './utils';
-import { ForeignAssetCache, waitFor } from '../../utils';
-import {
-  Tendermint34Client,
-  Tendermint37Client,
-  TendermintClient,
-} from '@cosmjs/tendermint-rpc';
 import { getNativeDenom, getPrefix, isNativeDenom } from './denom';
 import { CosmosTransaction, WrappedRegistryResponse } from './types';
+import { isGatewayChain } from './utils';
 
 const MSG_EXECUTE_CONTRACT_TYPE_URL = '/cosmwasm.wasm.v1.MsgExecuteContract';
 const buildExecuteMsg = (
@@ -472,65 +470,14 @@ export class CosmosContext<
   async getMessage(
     id: string,
     chain: ChainName | ChainId,
+    parseRelayerPayload: boolean = true,
   ): Promise<ParsedMessage | ParsedRelayerMessage> {
-    const client = await this.getCosmWasmClient(chain);
-    const tx = await client.getTx(id);
-    if (!tx) throw new Error('tx not found');
-
-    // parse logs emitted for the tx execution
-    const logs = cosmosLogs.parseRawLog(tx.rawLog);
-
-    // extract information wormhole contract logs
-    // - wasm.message.message: the vaa payload (i.e. the transfer information)
-    // - wasm.message.sequence: the vaa's sequence number
-    // - wasm.message.sender: the vaa's emitter address
-    const tokenTransferPayload = searchCosmosLogs('wasm.message.message', logs);
-    if (!tokenTransferPayload)
-      throw new Error('message/transfer payload not found');
-    const sequence = searchCosmosLogs('wasm.message.sequence', logs);
-    if (!sequence) throw new Error('sequence not found');
-    const emitterAddress = searchCosmosLogs('wasm.message.sender', logs);
-    if (!emitterAddress) throw new Error('emitter not found');
-
-    const parsed = parseTokenTransferPayload(
-      Buffer.from(tokenTransferPayload, 'hex'),
+    // see the gateway route for the implementation
+    // we might not have all information available in the parameters
+    // to do it here
+    throw new Error(
+      'Not implemented. Something went wrong, this method implementation should never be called',
     );
-
-    const decoded = decodeTxRaw(tx.tx);
-    const { sender } = MsgExecuteContract.decode(
-      decoded.body.messages[0].value,
-    );
-
-    const destContext = this.context.getContext(parsed.toChain as ChainId);
-    const tokenContext = this.context.getContext(parsed.tokenChain as ChainId);
-
-    const tokenAddress = await tokenContext.parseAssetAddress(
-      hexlify(parsed.tokenAddress),
-    );
-    const tokenChain = this.context.toChainName(parsed.tokenChain);
-
-    return {
-      sendTx: tx.hash,
-      sender,
-      amount: BigNumber.from(parsed.amount),
-      payloadID: parsed.payloadType,
-      recipient: destContext.parseAddress(hexlify(parsed.to)),
-      toChain: this.context.toChainName(parsed.toChain),
-      fromChain: this.context.toChainName(chain),
-      tokenAddress,
-      tokenChain,
-      tokenId: {
-        address: tokenAddress,
-        chain: tokenChain,
-      },
-      sequence: BigNumber.from(sequence),
-      emitterAddress,
-      block: tx.height,
-      gasFee: BigNumber.from(tx.gasUsed),
-      payload: parsed.tokenTransferPayload.length
-        ? hexlify(parsed.tokenTransferPayload)
-        : undefined,
-    };
   }
 
   parseRelayerPayload(payload: Buffer): ParsedRelayerPayload {
@@ -639,5 +586,9 @@ export class CosmosContext<
       chainId: chainId,
       assetAddress: hexToUint8Array(this.buildTokenId(wrappedAddress)),
     };
+  }
+
+  async getWrappedNativeTokenId(chain: ChainName | ChainId): Promise<TokenId> {
+    throw new Error('Method not implemented.');
   }
 }

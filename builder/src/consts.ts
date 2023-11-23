@@ -17,7 +17,6 @@ export const NETWORKS: Network[] = [
   },
   {
     name: "Ethereum",
-
     testnet: "goerli",
     mainnet: "ethereum",
   },
@@ -60,6 +59,16 @@ export const NETWORKS: Network[] = [
     name: "Aptos",
     testnet: "aptos",
     mainnet: "aptos",
+  },
+  {
+    name: "Arbitrum",
+    testnet: "arbitrumgoerli",
+    mainnet: "arbitrum",
+  },
+  {
+    name: "Optimism",
+    testnet: "optimismgoerli",
+    mainnet: "optimism",
   },
   {
     name: "Base",
@@ -105,12 +114,21 @@ export const TESTNET_TOKEN_KEYS: string[] = [
   "ETHoptimism",
   "WETHoptimism",
   "USDCoptimism",
-  "SEI",
   "ETHbase",
   "WETHbase",
+  "USDCbase",
   "OSMO",
   "tBTC",
+  "tBTCpolygon",
+  "tBTCoptimism",
+  "tBTCarbitrum",
+  "tBTCbase",
+  "tBTCsol",
   "wstETH",
+  "SEI",
+  "ATOM",
+  "EVMOS",
+  "KUJI",
 ].sort();
 
 export const MAINNET_TOKEN_KEYS: string[] = [
@@ -148,10 +166,18 @@ export const MAINNET_TOKEN_KEYS: string[] = [
   "USDCoptimism",
   "ETHbase",
   "WETHbase",
+  "USDCbase",
   "OSMO",
   "tBTC",
+  "tBTCpolygon",
+  "tBTCoptimism",
+  "tBTCarbitrum",
+  "tBTCbase",
+  "tBTCsol",
   "wstETH",
   "BONK",
+  "EVMOS",
+  "KUJI",
 ].sort();
 
 export type RouteInfo = {
@@ -194,6 +220,13 @@ export const ROUTE_INFOS: RouteInfo[] = [
       "Gateway connects liquidity and users from Ethereum and beyond to Cosmos chains and apps, all with an IBC-based liquidity router.",
     link: "https://wormhole.com/gateway/",
   },
+  {
+    key: "tbtc",
+    title: "Threshold BTC",
+    description:
+      "Permissionlessly transfer tBTC cross-chain with Threshold + Wormhole.",
+    link: "https://threshold.network/earn/btc",
+  },
 ];
 export const ROUTES = ROUTE_INFOS.map((r) => r.key);
 
@@ -214,6 +247,9 @@ export const DEFAULT_MAINNET_RPCS = {
   sei: "", // TODO: fill in
   wormchain: "",
   osmosis: "https://osmosis-rpc.polkachu.com",
+  cosmoshub: "https://cosmos-rpc.polkachu.com",
+  evmos: "https://evmos-rpc.polkachu.com",
+  kujira: "https://kujira-rpc.polkachu.com",
 };
 
 export const DEFAULT_TESTNET_RPCS = {
@@ -233,4 +269,7 @@ export const DEFAULT_TESTNET_RPCS = {
   sei: "https://rpc.atlantic-2.seinetwork.io",
   wormchain: "",
   osmosis: "https://rpc.osmotest5.osmosis.zone",
+  cosmoshub: "https://rpc.sentry-02.theta-testnet.polypore.xyz",
+  evmos: "https://evmos-testnet-rpc.polkachu.com",
+  kujira: "https://kujira-testnet-rpc.polkachu.com",
 };

@@ -31,6 +31,8 @@ const getEnv = () => {
 export const ENV = getEnv();
 export const isMainnet = ENV === 'MAINNET';
 export const sdkConfig = WormholeContext.getConfig(ENV);
+export const showHamburgerMenu =
+  config.showHamburgerMenu === undefined || config.showHamburgerMenu === true;
 export const pageHeader =
   config.pageHeader === undefined ? '' : config.pageHeader;
 
@@ -74,11 +76,17 @@ export const CHAINS_ARR =
     ? Object.values(CHAINS).filter((c) => config.networks!.includes(c.key))
     : (Object.values(CHAINS) as ChainConfig[]);
 
+export const SEARCH_TX = config && config.searchTx;
+
+export const MORE_NETWORKS = config && config.moreNetworks;
+export const MORE_TOKENS = config && config.moreTokens;
 export const TOKENS = NETWORK_DATA.tokens;
 export const TOKENS_ARR =
   config && config.tokens
     ? Object.values(TOKENS).filter((c) => config.tokens!.includes(c.key))
     : (Object.values(TOKENS) as TokenConfig[]);
+
+export const MENU_ENTRIES = config.menu || [];
 
 export const ROUTES =
   config && config.routes ? config.routes : Object.values(Route);

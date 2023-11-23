@@ -41,7 +41,6 @@ import {
 import { ForeignAssetCache, stripHexPrefix } from '../../utils';
 import { WormholeContext } from '../../wormhole';
 import { TokenBridgeAbstract } from '../abstracts/tokenBridge';
-import { SolanaContext } from '../solana';
 import { SeiContracts } from './contracts';
 
 interface WrappedRegistryResponse {
@@ -178,19 +177,8 @@ export class SeiContext<
     const destContext = this.context.getContext(recipientChain);
     const targetChain = this.context.toChainId(recipientChain);
 
-    let recipientAccount = recipientAddress;
-    // get token account for solana
-    if (targetChain === 1) {
-      let tokenId = token;
-      // todo: fix for native sui when implemented
-      const account = await (
-        destContext as SolanaContext<WormholeContext>
-      ).getAssociatedTokenAddress(tokenId as TokenId, recipientAddress);
-      recipientAccount = account.toString();
-    }
-
     const targetAddress = Buffer.from(
-      destContext.formatAddress(recipientAccount),
+      destContext.formatAddress(recipientAddress),
     ).toString('base64');
 
     const wrappedAssetAddress = await this.mustGetForeignAsset(
@@ -668,6 +656,7 @@ export class SeiContext<
   async getMessage(
     id: string,
     chain: ChainName | ChainId,
+    parseRelayerPayload: boolean = true,
   ): Promise<ParsedMessage | ParsedRelayerMessage> {
     const client = await this.getCosmWasmClient();
     const tx = await client.getTx(id);
@@ -957,5 +946,9 @@ export class SeiContext<
   async getCurrentBlock(): Promise<number> {
     const client = await this.getCosmWasmClient();
     return client.getHeight();
+  }
+
+  async getWrappedNativeTokenId(chain: ChainName | ChainId): Promise<TokenId> {
+    throw new Error('not implemented');
   }
 }

@@ -39,7 +39,6 @@ import {
 import { parseTokenTransferPayload } from '../../vaa';
 import { WormholeContext } from '../../wormhole';
 import { RelayerAbstract } from '../abstracts/relayer';
-import { SolanaContext } from '../solana';
 import { SuiContracts } from './contracts';
 import { SuiRelayer } from './relayer';
 import { ForeignAssetCache } from '../../utils';
@@ -106,23 +105,8 @@ export class SuiContext<
     const relayerFeeBigInt = relayerFee ? BigInt(relayerFee) : undefined;
     const amountBigInt = BigNumber.from(amount).toBigInt();
 
-    let recipientAccount = recipientAddress;
-    // get token account for solana
-    if (recipientChainId === 1) {
-      let tokenId = token;
-      if (token === NATIVE) {
-        tokenId = {
-          address: SUI_TYPE_ARG,
-          chain: 'sui',
-        };
-      }
-      const account = await (
-        destContext as SolanaContext<WormholeContext>
-      ).getAssociatedTokenAddress(tokenId as TokenId, recipientAddress);
-      recipientAccount = account.toString();
-    }
     const formattedRecipientAccount = arrayify(
-      destContext.formatAddress(recipientAccount),
+      destContext.formatAddress(recipientAddress),
     );
 
     let coinType;
@@ -396,6 +380,7 @@ export class SuiContext<
   async getMessage(
     tx: string,
     chain: ChainName | ChainId,
+    parseRelayerPayload: boolean = true,
   ): Promise<ParsedMessage | ParsedRelayerMessage> {
     const txBlock = await this.provider.getTransactionBlock({
       digest: tx,
@@ -437,8 +422,11 @@ export class SuiContext<
       emitterAddress: hexlify(emitterAddress),
       block: Number(txBlock.checkpoint || ''),
       gasFee: gasFee ? BigNumber.from(gasFee) : undefined,
+      payload: parsed.tokenTransferPayload.length
+        ? hexlify(parsed.tokenTransferPayload)
+        : undefined,
     };
-    if (parsed.payloadType === 3) {
+    if (parseRelayerPayload && parsed.payloadType === 3) {
       const relayerPayload = destContext.parseRelayerPayload(
         Buffer.from(parsed.tokenTransferPayload),
       );
@@ -449,9 +437,6 @@ export class SuiContext<
         to,
         recipient: destContext.parseAddress(hexlify(relayerPayload.to)),
         toNativeTokenAmount: relayerPayload.toNativeTokenAmount,
-        payload: parsed.tokenTransferPayload.length
-          ? hexlify(parsed.tokenTransferPayload)
-          : undefined,
       };
       return relayerMessage;
     }
@@ -765,5 +750,12 @@ export class SuiContext<
       originChainId,
       tokenBridgeStateFields,
     );
+  }
+
+  async getWrappedNativeTokenId(chain: ChainName | ChainId): Promise<TokenId> {
+    return {
+      address: SUI_TYPE_ARG,
+      chain: 'sui',
+    };
   }
 }

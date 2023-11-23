@@ -164,6 +164,14 @@ const performModificationsIfFromChainChanged = (state: TransferInputState) => {
       tokenConfig.nativeChain !== fromChain
     ) {
       state.token = getNativeVersionOfToken('USDC', fromChain!);
+    } else if (
+      tokenConfig.symbol === 'tBTC' &&
+      tokenConfig.nativeChain !== fromChain
+    ) {
+      state.token =
+        getNativeVersionOfToken('tBTC', fromChain!) ||
+        TOKENS['tBTC']?.key ||
+        '';
     }
   }
 };
@@ -178,6 +186,12 @@ const performModificationsIfToChainChanged = (state: TransferInputState) => {
     }
     if (tokenConfig.symbol === 'USDC' && tokenConfig.nativeChain !== toChain) {
       state.destToken = getNativeVersionOfToken('USDC', toChain!);
+    } else if (
+      tokenConfig.symbol === 'tBTC' &&
+      tokenConfig.nativeChain !== toChain
+    ) {
+      state.destToken =
+        getNativeVersionOfToken('tBTC', toChain!) || TOKENS['tBTC']?.key || '';
     }
   }
 };
@@ -197,6 +211,7 @@ const establishRoute = (state: TransferInputState) => {
     Route.CosmosGateway,
     Route.CCTPRelay,
     Route.CCTPManual,
+    Route.TBTC,
     Route.Relay,
     Route.Bridge,
   ];

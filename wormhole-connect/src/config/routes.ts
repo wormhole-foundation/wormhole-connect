@@ -56,6 +56,14 @@ export const RoutesConfig: {
     icon: CCTPIcon,
     pendingMessage: 'Waiting for Circle attestation . . .',
   },
+  [Route.TBTC]: {
+    route: Route.TBTC,
+    name: 'tBTC',
+    providedBy: 'Threshold',
+    link: 'https://threshold.network/earn/btc',
+    icon: WormholeIcon,
+    pendingMessage: 'Waiting for Wormhole network consensus . . .',
+  },
   [Route.CosmosGateway]: {
     route: Route.CosmosGateway,
     name: 'Cosmos Gateway',

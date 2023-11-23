@@ -1,8 +1,26 @@
 import { ChainId, ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { TokenConfig } from 'config/types';
-import { getWrappedToken } from 'utils';
+import {
+  MAX_DECIMALS,
+  getDisplayName,
+  getTokenDecimals,
+  getWrappedToken,
+  toNormalizedDecimals,
+} from 'utils';
 import { RouteAbstract } from '../abstracts';
-import { wh } from 'utils/sdk';
+import { toChainId, wh } from 'utils/sdk';
+import { CHAINS, TOKENS } from 'config';
+import {
+  TransferDisplayData,
+  TransferInfoBaseParams,
+  TransferDestInfoBaseParams,
+  SignedMessage,
+  isSignedWormholeMessage,
+} from 'routes/types';
+import { formatGasFee } from 'routes/utils';
+import { toDecimals } from 'utils/balance';
+import { NO_INPUT } from 'utils/style';
+import { hexlify } from 'ethers/lib/utils.js';
 
 export abstract class BaseRoute extends RouteAbstract {
   async isSupportedSourceToken(
@@ -66,5 +84,134 @@ export abstract class BaseRoute extends RouteAbstract {
       const res = shouldAdd[i];
       return res.status === 'fulfilled' && res.value;
     });
+  }
+
+  async getPreview(
+    token: TokenConfig,
+    destToken: TokenConfig,
+    amount: number,
+    sendingChain: ChainName | ChainId,
+    receipientChain: ChainName | ChainId,
+    sendingGasEst: string,
+    claimingGasEst: string,
+    routeOptions?: any,
+  ): Promise<TransferDisplayData> {
+    const sendingChainName = wh.toChainName(sendingChain);
+    const receipientChainName = wh.toChainName(receipientChain);
+    const sourceGasToken = CHAINS[sendingChainName]?.gasToken;
+    const destinationGasToken = CHAINS[receipientChainName]?.gasToken;
+    const sourceGasTokenSymbol = sourceGasToken
+      ? getDisplayName(TOKENS[sourceGasToken])
+      : '';
+    const destinationGasTokenSymbol = destinationGasToken
+      ? getDisplayName(TOKENS[destinationGasToken])
+      : '';
+    return [
+      {
+        title: 'Amount',
+        value: `${amount} ${getDisplayName(destToken)}`,
+      },
+      {
+        title: 'Total fee estimates',
+        value:
+          sendingGasEst && claimingGasEst
+            ? `${sendingGasEst} ${sourceGasTokenSymbol} & ${claimingGasEst} ${destinationGasTokenSymbol}`
+            : '',
+        rows: [
+          {
+            title: 'Source chain gas estimate',
+            value: sendingGasEst
+              ? `~ ${sendingGasEst} ${sourceGasTokenSymbol}`
+              : 'Not available',
+          },
+          {
+            title: 'Destination chain gas estimate',
+            value: claimingGasEst
+              ? `~ ${claimingGasEst} ${destinationGasTokenSymbol}`
+              : 'Not available',
+          },
+        ],
+      },
+    ];
+  }
+
+  async getTransferSourceInfo<T extends TransferInfoBaseParams>(
+    params: T,
+  ): Promise<TransferDisplayData> {
+    const { tokenKey, amount, tokenDecimals, fromChain, gasFee } =
+      params.txData;
+    const formattedAmt = toNormalizedDecimals(
+      amount,
+      tokenDecimals,
+      MAX_DECIMALS,
+    );
+    const { gasToken: sourceGasTokenKey } = CHAINS[fromChain]!;
+    const sourceGasToken = TOKENS[sourceGasTokenKey];
+    const decimals = getTokenDecimals(
+      toChainId(sourceGasToken.nativeChain),
+      'native',
+    );
+    const formattedGas = gasFee && toDecimals(gasFee, decimals, MAX_DECIMALS);
+    const token = TOKENS[tokenKey];
+
+    return [
+      {
+        title: 'Amount',
+        value: `${formattedAmt} ${getDisplayName(token)}`,
+      },
+      {
+        title: 'Gas fee',
+        value: formattedGas
+          ? `${formattedGas} ${getDisplayName(sourceGasToken)}`
+          : NO_INPUT,
+      },
+    ];
+  }
+
+  async getTransferDestInfo<T extends TransferDestInfoBaseParams>(
+    params: T,
+  ): Promise<TransferDisplayData> {
+    const {
+      txData: { tokenKey, amount, tokenDecimals, toChain },
+      receiveTx,
+      gasEstimate,
+    } = params;
+    const token = TOKENS[tokenKey];
+    const { gasToken } = CHAINS[toChain]!;
+
+    let gas = gasEstimate;
+    if (receiveTx) {
+      const gasFee = await wh.getTxGasFee(toChain, receiveTx);
+      if (gasFee) {
+        gas = formatGasFee(toChain, gasFee);
+      }
+    }
+
+    const formattedAmt = toNormalizedDecimals(
+      amount,
+      tokenDecimals,
+      MAX_DECIMALS,
+    );
+
+    return [
+      {
+        title: 'Amount',
+        value: `${formattedAmt} ${getDisplayName(token)}`,
+      },
+      {
+        title: receiveTx ? 'Gas fee' : 'Gas estimate',
+        value: gas ? `${gas} ${getDisplayName(TOKENS[gasToken])}` : NO_INPUT,
+      },
+    ];
+  }
+
+  async isTransferCompleted(
+    destChain: ChainName | ChainId,
+    messageInfo: SignedMessage,
+  ): Promise<boolean> {
+    if (!isSignedWormholeMessage(messageInfo)) {
+      throw new Error('Invalid signed message');
+    }
+    return wh.isTransferCompleted(destChain, hexlify(messageInfo.vaa));
   }
 }

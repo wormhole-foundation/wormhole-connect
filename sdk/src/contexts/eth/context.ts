@@ -2,7 +2,7 @@ import {
   Implementation__factory,
   TokenImplementation__factory,
 } from '@certusone/wormhole-sdk/lib/esm/ethers-contracts';
-import { createNonce } from '@certusone/wormhole-sdk';
+import { createNonce, keccak256 } from '@certusone/wormhole-sdk';
 import {
   BigNumber,
   BigNumberish,
@@ -29,7 +29,6 @@ import { WormholeContext } from '../../wormhole';
 import { EthContracts } from './contracts';
 import { parseVaa } from '../../vaa';
 import { RelayerAbstract } from '../abstracts/relayer';
-import { SolanaContext } from '../solana';
 import { arrayify } from 'ethers/lib/utils';
 import { ForeignAssetCache, chunkArray } from '../../utils';
 
@@ -313,31 +312,14 @@ export class EthContext<
   ): Promise<ethers.PopulatedTransaction> {
     const destContext = this.context.getContext(recipientChain);
     const recipientChainId = this.context.toChainId(recipientChain);
-    const sendingChainName = this.context.toChainName(sendingChain);
     const amountBN = ethers.BigNumber.from(amount);
     const bridge = this.contracts.mustGetBridge(sendingChain);
-
-    let recipientAccount = recipientAddress;
-    // get token account for solana
-    if (recipientChainId === 1) {
-      let tokenId = token;
-      if (token === NATIVE) {
-        tokenId = {
-          address: await bridge.WETH(),
-          chain: sendingChainName,
-        };
-      }
-      const account = await (
-        destContext as SolanaContext<WormholeContext>
-      ).getAssociatedTokenAddress(tokenId as TokenId, recipientAddress);
-      recipientAccount = account.toString();
-    }
 
     if (token === NATIVE) {
       // sending native ETH
       await bridge.callStatic.wrapAndTransferETH(
         recipientChainId,
-        destContext.formatAddress(recipientAccount),
+        destContext.formatAddress(recipientAddress),
         relayerFee,
         createNonce(),
         {
@@ -348,7 +330,7 @@ export class EthContext<
       );
       return bridge.populateTransaction.wrapAndTransferETH(
         recipientChainId,
-        destContext.formatAddress(recipientAccount),
+        destContext.formatAddress(recipientAddress),
         relayerFee,
         createNonce(),
         {
@@ -365,7 +347,7 @@ export class EthContext<
         tokenAddr,
         amountBN,
         recipientChainId,
-        destContext.formatAddress(recipientAccount),
+        destContext.formatAddress(recipientAddress),
         relayerFee,
         createNonce(),
         {
@@ -377,7 +359,7 @@ export class EthContext<
         tokenAddr,
         amountBN,
         recipientChainId,
-        destContext.formatAddress(recipientAccount),
+        destContext.formatAddress(recipientAddress),
         relayerFee,
         createNonce(),
         overrides,
@@ -682,6 +664,7 @@ export class EthContext<
   async getMessage(
     tx: string,
     chain: ChainName | ChainId,
+    parseRelayerPayload: boolean = true,
   ): Promise<ParsedMessage | ParsedRelayerMessage> {
     const provider = this.context.mustGetProvider(chain);
     const receipt = await provider.getTransactionReceipt(tx);
@@ -749,6 +732,28 @@ export class EthContext<
     const tokenAddress = await tokenContext.parseAssetAddress(
       utils.hexlify(transferWithPayload.tokenAddress),
     );
+    if (!parseRelayerPayload) {
+      return {
+        sendTx: tx,
+        sender: receipt.from,
+        amount: transferWithPayload.amount,
+        payloadID: transferWithPayload.payloadID,
+        recipient: destContext.parseAddress(transferWithPayload.to),
+        toChain: this.context.toChainName(transferWithPayload.toChain),
+        fromChain,
+        tokenAddress,
+        tokenChain,
+        tokenId: {
+          chain: tokenChain,
+          address: tokenAddress,
+        },
+        sequence: parsed.args.sequence,
+        emitterAddress: utils.hexlify(this.formatAddress(bridge.address)),
+        block: receipt.blockNumber,
+        gasFee,
+        payload: transferWithPayload.payload,
+      };
+    }
     /**
      * Not all relayers follow the same payload structure (i.e. sei)
      * so we request the destination context to parse the payload
@@ -810,10 +815,10 @@ export class EthContext<
     signedVaa: string,
   ): Promise<boolean> {
     const tokenBridge = this.contracts.mustGetBridge(destChain);
-    const hash = parseVaa(
-      utils.arrayify(signedVaa, { allowMissingPrefix: true }),
-    ).hash;
-    return await tokenBridge.isTransferCompleted(hash);
+    const doubleHash = keccak256(
+      parseVaa(utils.arrayify(signedVaa, { allowMissingPrefix: true })).hash,
+    );
+    return await tokenBridge.isTransferCompleted(doubleHash);
   }
 
   formatAddress(address: string): Uint8Array {
@@ -836,5 +841,13 @@ export class EthContext<
   async getCurrentBlock(chain: ChainName | ChainId): Promise<number> {
     const provider = this.context.mustGetProvider(chain);
     return await provider.getBlockNumber();
+  }
+
+  async getWrappedNativeTokenId(chain: ChainName | ChainId): Promise<TokenId> {
+    const bridge = this.contracts.mustGetBridge(chain);
+    return {
+      address: await bridge.WETH(),
+      chain: this.context.toChainName(chain),
+    };
   }
 }

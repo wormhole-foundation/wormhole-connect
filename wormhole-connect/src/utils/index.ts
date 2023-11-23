@@ -165,7 +165,7 @@ export function hexPrefix(hex: string) {
 export function isValidTxId(chain: string, tx: string) {
   if (chain === 'sui') {
     return isValidTransactionDigest(tx);
-  } else if (isGatewayChain(chain as any)) {
+  } else if (isGatewayChain(chain as any) || chain === 'sei') {
     return isHexString(hexPrefix(tx), 32);
   } else {
     if (tx.startsWith('0x') && tx.length === 66) return true;
@@ -198,6 +198,26 @@ export function toNormalizedDecimals(
   const normalizedDecimals =
     decimals > NORMALIZED_DECIMALS ? NORMALIZED_DECIMALS : decimals;
   return toDecimals(amount, normalizedDecimals, numDecimals);
+}
+
+export function normalizeAmount(
+  amount: BigNumber,
+  decimals: number,
+): BigNumber {
+  if (decimals > NORMALIZED_DECIMALS) {
+    return amount.div(BigNumber.from(10).pow(decimals - NORMALIZED_DECIMALS));
+  }
+  return amount;
+}
+
+export function deNormalizeAmount(
+  amount: BigNumber,
+  decimals: number,
+): BigNumber {
+  if (decimals > NORMALIZED_DECIMALS) {
+    return amount.mul(BigNumber.from(10).pow(decimals - NORMALIZED_DECIMALS));
+  }
+  return amount;
 }
 
 export async function sleep(timeout: number) {

@@ -66,10 +66,10 @@ import {
   setObjectPathImmutable,
 } from "./utils";
 
-const version = "0.1.2";
+const version = "0.1.4";
 // generated with https://www.srihash.org/
 const versionScriptIntegrity =
-  "sha384-nhHnv/RrHd814OnnzSvh+jikOAPOcTYqEjnEMfmXMqivORZ6pXEOQu1zY1tX+AjX";
+  "sha384-NUeZzmcZSVf4i3sUHD1rhtihig08WkCKu42too+Na8ll/2Sxr8v8D1i9IuVrF70A";
 const versionLinkIntegrity =
   "sha384-KGZI5sQxWDSIe8Xzhvu4eO0fi8KYtEmDnYS2Qn5xrtw667xfxFINL3uN48d/djuY";
 const nonBreakingTag = "latest-v0.1";
@@ -190,6 +190,12 @@ function App() {
     setPageHeader(e.target.value || undefined);
   }, []);
   const [pageHeader] = useDebounce(_pageHeader, 500);
+  const [showHamburgerMenu, setShowHamburgerMenu] = useState<
+    boolean | undefined
+  >(undefined);
+  const handleToggleShowHamburgerMenu = useCallback((e: any) => {
+    setShowHamburgerMenu((prev) => !(prev === undefined || prev));
+  }, []);
   // END STYLING
   // BEGIN THEME
   const [mode, setMode] = useState<"dark" | "light" | undefined>("dark");
@@ -483,6 +489,7 @@ function App() {
           : undefined,
       routes,
       pageHeader,
+      showHamburgerMenu,
     }),
     [
       testnetRpcs,
@@ -498,6 +505,7 @@ function App() {
       requiredNetwork,
       routes,
       pageHeader,
+      showHamburgerMenu,
     ]
   );
   const [versionOrTag, setVersionOrTag] = useState<string>(version);
@@ -633,6 +641,19 @@ function App() {
                   value={_pageHeader || ""}
                   onChange={handlePageHeaderChange}
                   sx={{ mb: 2 }}
+                />
+              </Box>
+              <Box mx={2}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={
+                        showHamburgerMenu === undefined || showHamburgerMenu
+                      }
+                      onChange={handleToggleShowHamburgerMenu}
+                    />
+                  }
+                  label="Show Hamburger Menu"
                 />
               </Box>
             </>

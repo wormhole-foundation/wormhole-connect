@@ -50,6 +50,7 @@ export type Contracts = {
   suiRelayerPackageId?: string;
   seiTokenTranslator?: string;
   ibcShimContract?: string;
+  tbtcGateway?: string;
 };
 
 export type ChainConfig = {
@@ -107,8 +108,8 @@ export interface ParsedMessage {
   tokenAddress: string;
   tokenChain: ChainName;
   tokenId: TokenId;
-  sequence: BigNumber;
-  emitterAddress: string;
+  sequence?: BigNumber;
+  emitterAddress?: string;
   block: number;
   gasFee?: BigNumber;
   payload?: string;

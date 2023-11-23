@@ -516,9 +516,21 @@ export class WormholeContext extends MultiProvider<Domain> {
   async getMessage(
     tx: string,
     chain: ChainName | ChainId,
+    parseRelayerPayload: boolean = true,
   ): Promise<ParsedMessage | ParsedRelayerMessage> {
     const context = this.getContext(chain);
-    return await context.getMessage(tx, chain);
+    return await context.getMessage(tx, chain, parseRelayerPayload);
+  }
+
+  /**
+   * Fetches the wrapped native token ID for a given chain
+   *
+   * @param chain The chain name or id
+   * @returns The native token ID
+   */
+  async getWrappedNativeTokenId(chain: ChainName | ChainId): Promise<TokenId> {
+    const context = this.getContext(chain);
+    return await context.getWrappedNativeTokenId(chain);
   }
 
   /**

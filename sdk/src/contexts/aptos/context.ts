@@ -25,8 +25,6 @@ import {
 } from '@certusone/wormhole-sdk';
 import { arrayify, hexlify, stripZeros, zeroPad } from 'ethers/lib/utils';
 import { sha3_256 } from 'js-sha3';
-import { MAINNET_CHAINS } from '../../config/MAINNET';
-import { SolanaContext } from '../solana';
 import { ForeignAssetCache } from '../../utils';
 import axios from 'axios';
 
@@ -147,23 +145,8 @@ export class AptosContext<
     const destContext = this.context.getContext(recipientChain);
     const recipientChainId = this.context.toChainId(recipientChain);
 
-    let recipientAccount = recipientAddress;
-    // get token account for solana
-    if (recipientChainId === MAINNET_CHAINS.solana) {
-      let tokenId = token;
-      if (token === NATIVE) {
-        tokenId = {
-          address: APTOS_COIN,
-          chain: 'aptos',
-        };
-      }
-      const account = await (
-        destContext as SolanaContext<WormholeContext>
-      ).getAssociatedTokenAddress(tokenId as TokenId, recipientAddress);
-      recipientAccount = account.toString();
-    }
     const formattedRecipientAccount = arrayify(
-      destContext.formatAddress(recipientAccount),
+      destContext.formatAddress(recipientAddress),
     );
 
     let coinType;
@@ -281,6 +264,7 @@ export class AptosContext<
   async getMessage(
     tx: string,
     chain: ChainName | ChainId,
+    parseRelayerPayload: boolean = true,
   ): Promise<ParsedMessage | ParsedRelayerMessage> {
     const transaction = await this.aptosClient.getTransactionByHash(tx);
     if (transaction.type !== 'user_transaction') {
@@ -462,5 +446,12 @@ export class AptosContext<
 
   async getCurrentBlock(): Promise<number> {
     throw new Error('Aptos getCurrentBlock not implemented');
+  }
+
+  async getWrappedNativeTokenId(chain: ChainName | ChainId): Promise<TokenId> {
+    return {
+      address: APTOS_COIN,
+      chain: 'aptos',
+    };
   }
 }

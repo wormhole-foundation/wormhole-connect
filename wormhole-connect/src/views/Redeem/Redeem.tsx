@@ -19,6 +19,7 @@ import Spacer from 'components/Spacer';
 import ChainsTag from './Tag';
 import Stepper from './Stepper';
 import GovernorEnqueuedWarning from './GovernorEnqueuedWarning';
+import { showHamburgerMenu } from 'config';
 
 function Redeem({
   setSignedMessage,
@@ -132,7 +133,7 @@ function Redeem({
         alignItems: 'center',
       }}
     >
-      <PageHeader title="Bridge" back />
+      <PageHeader title="Bridge" back showHamburgerMenu={showHamburgerMenu} />
 
       <ChainsTag />
       <Spacer />

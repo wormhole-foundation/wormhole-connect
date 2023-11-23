@@ -44,6 +44,7 @@ export enum Route {
   CosmosGateway = 'cosmosGateway',
   CCTPManual = 'cctpManual',
   CCTPRelay = 'cctpRelay',
+  TBTC = 'tbtc',
 }
 
 export type SupportedRoutes = keyof typeof Route;
@@ -59,6 +60,7 @@ export interface BridgeDefaults {
 // Keep this in sync with wormhole-connect-loader/src/types.ts!
 // TODO: move to a shared package
 export interface WormholeConnectConfig {
+  showHamburgerMenu?: boolean;
   env?: 'mainnet' | 'testnet' | 'devnet';
   rpcs?: ChainResourceMap;
   rest?: ChainResourceMap;
@@ -77,7 +79,40 @@ export interface WormholeConnectConfig {
   cctpWarning?: {
     href: string;
   };
+  pageSubHeader?: string;
+  menu?: MenuEntry[];
+  searchTx?: SearchTxConfig;
+  moreTokens?: MoreTokenConfig;
+  moreNetworks?: MoreChainConfig;
 }
+
+export type SearchTxConfig = {
+  txHash?: string;
+  chainName?: ChainName;
+};
+
+export type MoreTokenConfig = {
+  label: string;
+  href: string;
+  target?: '_blank' | '_self';
+};
+
+export type MoreChainConfig = {
+  href: string;
+  target?: '_blank' | '_self';
+  description: string;
+  networks: MoreChainDefinition[];
+};
+
+export type MoreChainDefinition = {
+  icon: string;
+  href?: string;
+  label: string;
+  name?: string;
+  description?: string;
+  target?: '_blank' | '_self';
+  showOpenInNewIcon?: boolean;
+};
 
 type DecimalsMap = Partial<Record<Context, number>> & {
   default: number;
@@ -143,3 +178,10 @@ export type NetworkData = {
   rest: RpcMapping;
   graphql: RpcMapping;
 };
+
+export interface MenuEntry {
+  label: string;
+  href: string;
+  target?: string;
+  order?: number;
+}

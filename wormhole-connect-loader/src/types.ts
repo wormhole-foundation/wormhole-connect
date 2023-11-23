@@ -14,6 +14,7 @@ export const MAINNET_CHAINS = {
   arbitrum: 23,
   optimism: 24,
   base: 30,
+  wormchain: 3104,
   evmos: 4001,
   kujira: 4002,
 } as const;
@@ -35,6 +36,7 @@ export const TESTNET_CHAINS = {
   arbitrumgoerli: 23,
   optimismgoerli: 24,
   basegoerli: 30,
+  wormchain: 3104,
   evmos: 4001,
   kujira: 4002,
 } as const;
@@ -58,6 +60,7 @@ export interface BridgeDefaults {
 // Keep this in sync with wormhole-connect/src/config/types.ts!
 // TODO: move to a shared package
 export interface WormholeConnectConfig {
+  showHamburgerMenu?: boolean;
   env?: "mainnet" | "testnet" | "devnet";
   rpcs?: Rpcs;
   rest?: Rpcs;
@@ -69,10 +72,50 @@ export interface WormholeConnectConfig {
     text: string;
     link: string;
   };
+  menu?: MenuEntry[];
   bridgeDefaults?: BridgeDefaults;
   routes?: string[];
   pageHeader?: string;
   cctpWarning?: {
     href: string;
   };
+  pageSubHeader?: string;
+  searchTx?: SearchTxConfig;
+  moreTokens?: MoreTokenConfig;
+  moreNetworks?: MoreChainConfig;
+}
+
+export type SearchTxConfig = {
+  txHash?: string;
+  chainName?: ChainName;
+};
+
+export type MoreTokenConfig = {
+  label: string;
+  href: string;
+  target?: "_blank" | "_self";
+};
+
+export type MoreChainConfig = {
+  href: string;
+  target?: "_blank" | "_self";
+  description: string;
+  networks: MoreChainDefinition[];
+};
+
+export type MoreChainDefinition = {
+  icon: string;
+  href?: string;
+  label: string;
+  name?: string;
+  description?: string;
+  target?: "_blank" | "_self";
+  showOpenInNewIcon?: boolean;
+};
+
+export interface MenuEntry {
+  label: string;
+  href: string;
+  target?: string;
+  order?: number;
 }

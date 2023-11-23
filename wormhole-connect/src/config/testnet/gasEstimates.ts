@@ -18,6 +18,10 @@ export const TESTNET_GAS_ESTIMATES: GasEstimates = {
     [Route.CCTPRelay]: {
       sendToken: 300000,
     },
+    [Route.TBTC]: {
+      sendToken: 150000,
+      claim: 200000,
+    },
   },
   mumbai: {
     [Route.Bridge]: {
@@ -28,6 +32,10 @@ export const TESTNET_GAS_ESTIMATES: GasEstimates = {
     [Route.Relay]: {
       sendNative: 200000,
       sendToken: 250000,
+    },
+    [Route.TBTC]: {
+      sendToken: 200000,
+      claim: 300000,
     },
   },
   bsc: {
@@ -102,6 +110,10 @@ export const TESTNET_GAS_ESTIMATES: GasEstimates = {
       sendNative: 15000,
       sendToken: 15000,
     },
+    [Route.TBTC]: {
+      sendToken: 15000,
+      claim: 25000,
+    },
   },
   sui: {
     [Route.Bridge]: {
@@ -145,6 +157,10 @@ export const TESTNET_GAS_ESTIMATES: GasEstimates = {
     [Route.CCTPRelay]: {
       sendToken: 300000,
     },
+    [Route.TBTC]: {
+      sendToken: 300000,
+      claim: 500000,
+    },
   },
   wormchain: {
     [Route.Bridge]: {
@@ -172,6 +188,10 @@ export const TESTNET_GAS_ESTIMATES: GasEstimates = {
     [Route.CCTPRelay]: {
       sendToken: 300000,
     },
+    [Route.TBTC]: {
+      sendToken: 150000,
+      claim: 300000,
+    },
   },
   optimismgoerli: {
     [Route.Bridge]: {
@@ -184,6 +204,10 @@ export const TESTNET_GAS_ESTIMATES: GasEstimates = {
     },
     [Route.CCTPRelay]: {
       sendToken: 300000,
+    },
+    [Route.TBTC]: {
+      sendToken: 150000,
+      claim: 300000,
     },
   },
   cosmoshub: {

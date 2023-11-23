@@ -1,10 +1,4 @@
 import {
-  CHAIN_ID_SEI,
-  SignedVaa,
-  parseTokenTransferPayload,
-  parseVaa,
-} from '@certusone/wormhole-sdk';
-import {
   ChainName,
   ChainId,
   MAINNET_CHAINS,
@@ -13,7 +7,6 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { BigNumber, utils } from 'ethers';
 import { CHAINS } from 'config';
-import { Route } from 'config/types';
 import { toFixedDecimals } from 'utils/balance';
 import {
   ParsedMessage,
@@ -42,7 +35,7 @@ export const adaptParsedMessage = async (
     tokenKey: token?.key || '',
     tokenDecimals: decimals,
     receivedTokenKey: token?.key || '',
-    sequence: parsed.sequence.toString(),
+    sequence: parsed.sequence?.toString(),
     gasFee: parsed.gasFee ? parsed.gasFee.toString() : undefined,
   };
   // get wallet address of associated token account for Solana
@@ -58,27 +51,6 @@ export const adaptParsedMessage = async (
     base.recipient = accountOwner;
   }
   return base;
-};
-
-export const getRouteForVaa = (vaa: SignedVaa): Route => {
-  const message = parseVaa(vaa);
-
-  // if (parsed.emitterAddress === HASHFLOW_CONTRACT_ADDRESS) {
-  //    return Route.Hashflow;
-  // }
-
-  const transfer = parseTokenTransferPayload(message.payload);
-  if (transfer.toChain === CHAIN_ID_SEI) {
-    return Route.Relay;
-  }
-
-  if (message.payload) {
-    console.log('message payload', message.payload, message.payload[0]);
-  }
-
-  return message.payload && message.payload[0] === PayloadType.Automatic
-    ? Route.Relay
-    : Route.Bridge;
 };
 
 export const formatGasFee = (chain: ChainName | ChainId, gasFee: BigNumber) => {
