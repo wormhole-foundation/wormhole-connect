@@ -4,6 +4,7 @@ import transferInputReducer from './transferInput';
 import relayReducer from './relay';
 import routerReducer from './router';
 import walletReducer from './wallet';
+import porticoBridgeReducer from './porticoBridge';
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ export const store = configureStore({
     router: routerReducer,
     wallet: walletReducer,
     relay: relayReducer,
+    porticoBridge: porticoBridgeReducer,
   },
 });
 

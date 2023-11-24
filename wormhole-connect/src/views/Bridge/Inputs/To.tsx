@@ -9,7 +9,7 @@ import {
   setDestToken,
 } from 'store/transferInput';
 import { TransferWallet, walletAcceptedChains } from 'utils/wallet';
-import { getWrappedToken, getDisplayName, hydrateHrefTemplate } from 'utils';
+import { getDisplayName, hydrateHrefTemplate } from 'utils';
 import { CHAINS, CHAINS_ARR, TOKENS } from 'config';
 
 import Inputs from './Inputs';
@@ -18,6 +18,7 @@ import AmountInput from './AmountInput';
 import TokenWarnings from './TokenWarnings';
 import TokensModal from 'components/TokensModal';
 import ChainsModal from 'components/ChainsModal';
+import { isPorticoRoute } from 'routes/porticoBridge/utils';
 
 function ToInputs() {
   const dispatch = useDispatch();
@@ -32,6 +33,7 @@ function ToInputs() {
     balances,
     destToken,
     receiveAmount,
+    route,
     isTransactionInProgress,
   } = useSelector((state: RootState) => state.transferInput);
   const { receiving } = useSelector((state: RootState) => state.wallet);
@@ -56,7 +58,7 @@ function ToInputs() {
   // token display jsx
   const selectedToken = useMemo(() => {
     if (!tokenConfig) return undefined;
-    const symbol = getDisplayName(getWrappedToken(tokenConfig));
+    const symbol = getDisplayName(tokenConfig);
     const chain = CHAINS[tokenConfig.nativeChain]?.displayName;
     return {
       icon: tokenConfig.icon,
@@ -105,11 +107,13 @@ function ToInputs() {
   // }, [route, receiveAmount]);
   // TODO: get compute send amount working correctly again
   const handleAmountChange = () => {};
+  const label = route && isPorticoRoute(route) ? 'Min Amount' : 'Amount';
   const amountInput = (
     <AmountInput
       handleAmountChange={handleAmountChange}
-      value={receiveAmount}
+      value={receiveAmount.data || ''}
       disabled
+      label={label}
     />
   );
 
@@ -131,7 +135,12 @@ function ToInputs() {
         wallet={TransferWallet.RECEIVING}
         walletValidations={[validations.receivingWallet]}
         walletError={receiving.error}
-        inputValidations={[validations.toChain, validations.destToken]}
+        inputValidations={[
+          validations.toChain,
+          validations.destToken,
+          validations.relayerFee,
+          validations.receiveAmount,
+        ]}
         chain={toChain}
         chainValidation={validations.toChain}
         onChainClick={() => setShowChainsModal(true)}

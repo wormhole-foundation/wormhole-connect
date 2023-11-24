@@ -45,6 +45,7 @@ const TBTC_TOKEN_SYMBOL = 'tBTC';
 export class TBTCRoute extends BaseRoute {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean = false;
   readonly AUTOMATIC_DEPOSIT: boolean = false;
+  readonly TYPE: Route = Route.TBTC;
 
   isSupportedChain(chain: ChainName): boolean {
     return !!wh.getContracts(chain)?.token_bridge;
@@ -118,7 +119,11 @@ export class TBTCRoute extends BaseRoute {
   }
 
   async computeReceiveAmount(
-    sendAmount: number | undefined,
+    sendAmount: number,
+    token: string,
+    destToken: string,
+    sendingChain: ChainName | undefined,
+    recipientChain: ChainName | undefined,
     routeOptions: any,
   ): Promise<number> {
     if (!sendAmount) return 0;
@@ -163,7 +168,11 @@ export class TBTCRoute extends BaseRoute {
     throw new Error('not implemented');
   }
 
-  getMinSendAmount(routeOptions: any): number {
+  getMinSendAmount(
+    routeOptions: any,
+    destToken: string,
+    recipientChain?: ChainName | ChainId,
+  ): number {
     return 0;
   }
 
@@ -174,6 +183,7 @@ export class TBTCRoute extends BaseRoute {
     senderAddress: string,
     recipientChain: ChainName | ChainId,
     recipientAddress: string,
+    destToken: string,
     routeOptions: any,
   ): Promise<string> {
     // Can only send tBTC
@@ -413,6 +423,7 @@ export class TBTCRoute extends BaseRoute {
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
     token: string,
+    destToken: string,
   ): Promise<BigNumber> {
     return BigNumber.from(0);
   }

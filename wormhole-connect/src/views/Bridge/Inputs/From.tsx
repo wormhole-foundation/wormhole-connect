@@ -9,6 +9,8 @@ import {
   setAmount,
   setReceiveAmount,
   accessBalance,
+  setFetchingReceiveAmount,
+  setReceiveAmountError,
 } from 'store/transferInput';
 import { CHAINS, CHAINS_ARR, TOKENS } from 'config';
 import { TransferWallet, walletAcceptedChains } from 'utils/wallet';
@@ -19,6 +21,7 @@ import Select from './Select';
 import AmountInput from './AmountInput';
 import TokensModal from 'components/TokensModal';
 import ChainsModal from 'components/ChainsModal';
+import { isPorticoRoute } from 'routes/porticoBridge/utils';
 
 function FromInputs() {
   const dispatch = useDispatch();
@@ -28,6 +31,7 @@ function FromInputs() {
   const { toNativeToken, relayerFee } = useSelector(
     (state: RootState) => state.relay,
   );
+  const portico = useSelector((state: RootState) => state.porticoBridge);
   const wallet = useSelector((state: RootState) => state.wallet.sending);
   const {
     showValidationState: showErrors,
@@ -39,6 +43,7 @@ function FromInputs() {
     token,
     amount,
     isTransactionInProgress,
+    destToken,
   } = useSelector((state: RootState) => state.transferInput);
   const tokenConfig = token && TOKENS[token];
   const balance =
@@ -91,17 +96,36 @@ function FromInputs() {
         dispatch(setReceiveAmount(`${value}`));
         return;
       }
-      const receiveAmount = await RouteOperator.computeReceiveAmount(
-        route,
-        number,
-        {
-          toNativeToken,
-          relayerFee,
-        },
-      );
-      dispatch(setReceiveAmount(`${receiveAmount}`));
+      try {
+        const routeOptions = isPorticoRoute(route)
+          ? portico
+          : { toNativeToken, relayerFee };
+        dispatch(setFetchingReceiveAmount());
+        const receiveAmount = await RouteOperator.computeReceiveAmount(
+          route,
+          number,
+          token,
+          destToken,
+          fromChain,
+          toChain,
+          routeOptions,
+        );
+        dispatch(setReceiveAmount(`${receiveAmount}`));
+      } catch {
+        dispatch(setReceiveAmountError('Error computing receive amount'));
+      }
     },
-    [dispatch, toNativeToken, relayerFee, route],
+    [
+      dispatch,
+      toNativeToken,
+      relayerFee,
+      route,
+      token,
+      destToken,
+      toChain,
+      fromChain,
+      portico,
+    ],
   );
 
   // TODO: clean up the send/receive amount set logic

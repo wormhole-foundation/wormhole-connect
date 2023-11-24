@@ -12,6 +12,7 @@ type Props = {
   handleAmountChange: (value: number | string) => void;
   value: string;
   disabled?: boolean;
+  label?: string;
 };
 function AmountInput(props: Props) {
   const amountEl = useRef(null);
@@ -45,7 +46,7 @@ function AmountInput(props: Props) {
 
   return (
     <Input
-      label="Amount"
+      label={props.label ?? 'Amount'}
       error={!!(showErrors && validations.amount)}
       editable
       onClick={focus}

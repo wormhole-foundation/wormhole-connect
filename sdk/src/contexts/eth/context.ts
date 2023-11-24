@@ -769,6 +769,9 @@ export class EthContext<
         block: receipt.blockNumber,
         gasFee,
         payload: transferWithPayload.payload,
+        fromAddress: utils.hexlify(
+          this.parseAddress(transferWithPayload.fromAddress),
+        ),
       };
     }
     /**

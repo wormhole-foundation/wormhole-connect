@@ -20,6 +20,7 @@ import {
   TokenNotSupportedForRelayError,
   TokenNotRegisteredError,
 } from '@wormhole-foundation/wormhole-connect-sdk';
+import { isPorticoRoute } from 'routes/porticoBridge/utils';
 
 function Preview(props: { collapsed: boolean }) {
   const dispatch = useDispatch();
@@ -38,6 +39,7 @@ function Preview(props: { collapsed: boolean }) {
   const { toNativeToken, receiveNativeAmt, relayerFee } = useSelector(
     (state: RootState) => state.relay,
   );
+  const portico = useSelector((state: RootState) => state.porticoBridge);
 
   useEffect(() => {
     const buildPreview = async () => {
@@ -49,11 +51,13 @@ function Preview(props: { collapsed: boolean }) {
       if (!tokenConfig || !destTokenConfig || !sourceConfig || !destConfig)
         return;
 
-      const routeOptions = {
-        toNativeToken,
-        receiveNativeAmt,
-        relayerFee,
-      };
+      const routeOptions = isPorticoRoute(route)
+        ? portico
+        : {
+            toNativeToken,
+            receiveNativeAmt,
+            relayerFee,
+          };
       const rows = await RouteOperator.getPreview(
         route,
         tokenConfig,
@@ -63,6 +67,7 @@ function Preview(props: { collapsed: boolean }) {
         toChain,
         gasEst.send,
         gasEst.claim,
+        receiveAmount.data || '',
         routeOptions,
       );
 
@@ -80,6 +85,7 @@ function Preview(props: { collapsed: boolean }) {
     receiveAmount,
     toNativeToken,
     receiveNativeAmt,
+    portico,
     gasEst,
     dispatch,
     relayerFee,
@@ -101,6 +107,7 @@ function Preview(props: { collapsed: boolean }) {
           fromChain,
           toChain,
           token,
+          destToken,
         );
         const decimals = getTokenDecimals(
           toChainId(fromChain),
@@ -126,7 +133,7 @@ function Preview(props: { collapsed: boolean }) {
       }
     };
     computeRelayerFee();
-  }, [route, token, toChain, fromChain, dispatch]);
+  }, [route, token, destToken, toChain, fromChain, dispatch]);
 
   return (
     <BridgeCollapse

@@ -1,8 +1,8 @@
 import { ethers_contracts } from '@certusone/wormhole-sdk/lib/esm';
 import {
-  Wormhole,
   Bridge,
   NFTBridge,
+  Implementation,
 } from '@certusone/wormhole-sdk/lib/esm/ethers-contracts';
 
 import { ChainName, ChainId, Contracts, Context } from '../../types';
@@ -51,11 +51,14 @@ export class EthContracts<
    *
    * @returns An interface for the core contract, undefined if not found
    */
-  getCore(chain: ChainName | ChainId): Wormhole | undefined {
+  getCore(chain: ChainName | ChainId): Implementation | undefined {
     const connection = this.context.mustGetConnection(chain);
     const address = this.mustGetContracts(chain).core;
     if (!address) return undefined;
-    return ethers_contracts.Wormhole__factory.connect(address, connection);
+    return ethers_contracts.Implementation__factory.connect(
+      address,
+      connection,
+    );
   }
 
   /**
@@ -63,7 +66,7 @@ export class EthContracts<
    *
    * @returns An interface for the core contract, errors if not found
    */
-  mustGetCore(chain: ChainName | ChainId): Wormhole {
+  mustGetCore(chain: ChainName | ChainId): Implementation {
     const core = this.getCore(chain);
     if (!core) throw new Error(`Core contract for domain ${chain} not found`);
     return core;

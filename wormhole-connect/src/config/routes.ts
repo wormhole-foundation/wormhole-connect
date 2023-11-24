@@ -72,4 +72,20 @@ export const RoutesConfig: {
     icon: WormholeIcon,
     pendingMessage: 'Waiting for Wormhole network consensus . . .',
   },
+  [Route.ETHBridge]: {
+    route: Route.ETHBridge,
+    name: 'ETH Bridge',
+    providedBy: 'xLabs',
+    link: 'https://xlabs.xyz',
+    icon: XLabsIcon,
+    pendingMessage: 'Waiting for Wormhole network consensus . . .',
+  },
+  [Route.wstETHBridge]: {
+    route: Route.wstETHBridge,
+    name: 'wstETH Bridge',
+    providedBy: 'xLabs',
+    link: 'https://xlabs.xyz',
+    icon: XLabsIcon,
+    pendingMessage: 'Waiting for Wormhole network consensus . . .',
+  },
 };

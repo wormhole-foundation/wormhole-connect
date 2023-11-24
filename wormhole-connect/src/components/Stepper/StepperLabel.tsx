@@ -3,6 +3,7 @@ import { useTheme } from '@mui/material/styles';
 import { makeStyles } from 'tss-react/mui';
 import { joinClass, OPACITY } from 'utils/style';
 import Check from '@mui/icons-material/Check';
+import Warning from '@mui/icons-material/Warning';
 
 const useStyles = makeStyles()((theme: any) => ({
   label: {
@@ -33,6 +34,9 @@ const useStyles = makeStyles()((theme: any) => ({
   iconActive: {
     border: `1px solid ${theme.palette.success[400]} !important`,
   },
+  iconWarning: {
+    border: `1px solid ${theme.palette.warning[400]} !important`,
+  },
 }));
 
 function StepIcon(props: {
@@ -40,12 +44,25 @@ function StepIcon(props: {
   active?: boolean;
   filled?: boolean;
   completed?: boolean;
+  warning?: boolean;
 }) {
-  const { active, completed, filled } = props;
+  const { active, completed, filled, warning } = props;
   const { classes } = useStyles();
   const theme: any = useTheme();
 
-  if (completed) {
+  if (warning) {
+    return (
+      <div
+        className={joinClass([
+          classes.icon,
+          classes.iconWarning,
+          !!filled && classes.filled,
+        ])}
+      >
+        <Warning htmlColor={theme.palette.warning[500]} />
+      </div>
+    );
+  } else if (completed) {
     return (
       <div
         className={joinClass([
@@ -72,11 +89,12 @@ type Props = {
   activeStep: number;
   filled?: boolean;
   children: JSX.Element | JSX.Element[];
+  warning?: boolean;
 };
 
 export default function StepperLabel(props: Props) {
   const { classes } = useStyles();
-  const { index, activeStep, filled, children } = props;
+  const { index, activeStep, filled, children, warning } = props;
 
   return (
     <div
@@ -90,6 +108,7 @@ export default function StepperLabel(props: Props) {
         active={index === activeStep}
         completed={index < activeStep}
         filled={filled}
+        warning={warning}
       />
       {children}
     </div>

@@ -3,7 +3,7 @@ import {
   ChainName,
   TokenId,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { TokenConfig } from 'config/types';
+import { Route, TokenConfig } from 'config/types';
 import { BigNumber } from 'ethers';
 import {
   UnsignedMessage,
@@ -11,12 +11,14 @@ import {
   TransferDestInfoBaseParams,
   TransferDisplayData,
   TransferInfoBaseParams,
+  TransferDestInfo,
 } from '../types';
 import { ParsedRelayerMessage, ParsedMessage } from 'utils/sdk';
 
 export abstract class RouteAbstract {
   abstract readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean;
   abstract readonly AUTOMATIC_DEPOSIT: boolean;
+  abstract readonly TYPE: Route;
   // protected abstract sendGasFallback: { [key: ChainName]: TokenConfig };
   // protected abstract claimGasFallback: { [key: ChainName]: TokenConfig };
 
@@ -68,7 +70,11 @@ export abstract class RouteAbstract {
 
   // Calculate the amount a user would receive if sending a certain amount
   public abstract computeReceiveAmount(
-    sendAmount: number | undefined,
+    sendAmount: number,
+    token: string,
+    destToken: string,
+    sendingChain: ChainName | undefined,
+    recipientChain: ChainName | undefined,
     routeOptions: any,
   ): Promise<number>;
   // Calculate the amount a user would need to send in order to receive a certain amount
@@ -108,7 +114,11 @@ export abstract class RouteAbstract {
   /**
    * These operations have to be implemented in subclasses.
    */
-  public abstract getMinSendAmount(routeOptions: any): number;
+  public abstract getMinSendAmount(
+    routeOptions: any,
+    destToken: string,
+    recipientChain?: ChainName | ChainId,
+  ): number;
 
   public abstract send(
     token: TokenId | 'native',
@@ -117,6 +127,7 @@ export abstract class RouteAbstract {
     senderAddress: string,
     recipientChain: ChainName | ChainId,
     recipientAddress: string,
+    destToken: string,
     routeOptions: any,
   ): Promise<any>;
 
@@ -134,6 +145,7 @@ export abstract class RouteAbstract {
     receipientChain: ChainName | ChainId,
     sendingGasEst: string,
     claimingGasEst: string,
+    receiveAmount: string,
     routeOptions?: any,
   ): Promise<TransferDisplayData>;
   public abstract getTransferSourceInfo<T extends TransferInfoBaseParams>(
@@ -141,13 +153,14 @@ export abstract class RouteAbstract {
   ): Promise<TransferDisplayData>;
   public abstract getTransferDestInfo<T extends TransferDestInfoBaseParams>(
     params: T,
-  ): Promise<TransferDisplayData>;
+  ): Promise<TransferDestInfo>;
 
   // send, validate, estimate gas, isRouteAvailable, parse data from VAA/fetch data, claim
   abstract getRelayerFee(
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
     token: string,
+    destToken: string,
   ): Promise<BigNumber>;
 
   abstract getForeignAsset(

@@ -20,10 +20,12 @@ function SwitchToManualClaim({
   checked,
   onChange,
   disabled,
+  title,
 }: {
   checked: boolean;
   onChange: (checked: boolean) => void;
   disabled: boolean;
+  title: string;
 }) {
   const { classes } = useStyles();
   return (
@@ -31,10 +33,7 @@ function SwitchToManualClaim({
       {!checked && <span>Waiting for relayer. . .</span>}
       <div className={classes.flex}>
         <span>Switch to manual claim</span>
-        <Tooltip
-          title="This option avoids the relayer fee but requires you to pay the gas fee on the destination chain. You will not receive any native gas."
-          arrow
-        >
+        <Tooltip title={title} arrow>
           <InfoIcon className={classes.icon} />
         </Tooltip>
         <Switch

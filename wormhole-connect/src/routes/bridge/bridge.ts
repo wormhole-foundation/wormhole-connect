@@ -27,6 +27,7 @@ import { getSolanaAssociatedTokenAccount } from 'utils/solana';
 export class BridgeRoute extends BaseRoute {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean = false;
   readonly AUTOMATIC_DEPOSIT: boolean = false;
+  readonly TYPE: Route = Route.Bridge;
 
   async isRouteSupported(
     sourceToken: string,
@@ -75,7 +76,11 @@ export class BridgeRoute extends BaseRoute {
   }
 
   async computeReceiveAmount(
-    sendAmount: number | undefined,
+    sendAmount: number,
+    token: string,
+    destToken: string,
+    sendingChain: ChainName | undefined,
+    recipientChain: ChainName | undefined,
     routeOptions: any,
   ): Promise<number> {
     if (!sendAmount) return 0;
@@ -143,7 +148,11 @@ export class BridgeRoute extends BaseRoute {
   /**
    * These operations have to be implemented in subclasses.
    */
-  getMinSendAmount(routeOptions: any): number {
+  getMinSendAmount(
+    routeOptions: any,
+    destToken: string,
+    recipientChain?: ChainName | ChainId,
+  ): number {
     return 0;
   }
 
@@ -154,6 +163,7 @@ export class BridgeRoute extends BaseRoute {
     senderAddress: string,
     recipientChain: ChainName | ChainId,
     recipientAddress: string,
+    destToken: string,
     routeOptions: any,
   ): Promise<string> {
     const fromChainId = wh.toChainId(sendingChain);
@@ -231,6 +241,7 @@ export class BridgeRoute extends BaseRoute {
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
     token: string,
+    destToken: string,
   ): Promise<BigNumber> {
     return BigNumber.from(0);
   }

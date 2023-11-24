@@ -16,6 +16,7 @@ import {
   TransferDestInfoBaseParams,
   SignedMessage,
   isSignedWormholeMessage,
+  TransferDestInfo,
 } from 'routes/types';
 import { formatGasFee } from 'routes/utils';
 import { toDecimals } from 'utils/balance';
@@ -104,6 +105,7 @@ export abstract class BaseRoute extends RouteAbstract {
     receipientChain: ChainName | ChainId,
     sendingGasEst: string,
     claimingGasEst: string,
+    receiveAmount: string,
     routeOptions?: any,
   ): Promise<TransferDisplayData> {
     const sendingChainName = wh.toChainName(sendingChain);
@@ -180,7 +182,7 @@ export abstract class BaseRoute extends RouteAbstract {
 
   async getTransferDestInfo<T extends TransferDestInfoBaseParams>(
     params: T,
-  ): Promise<TransferDisplayData> {
+  ): Promise<TransferDestInfo> {
     const {
       txData: { tokenKey, amount, tokenDecimals, toChain },
       receiveTx,
@@ -203,16 +205,19 @@ export abstract class BaseRoute extends RouteAbstract {
       MAX_DECIMALS,
     );
 
-    return [
-      {
-        title: 'Amount',
-        value: `${formattedAmt} ${getDisplayName(token)}`,
-      },
-      {
-        title: receiveTx ? 'Gas fee' : 'Gas estimate',
-        value: gas ? `${gas} ${getDisplayName(TOKENS[gasToken])}` : NO_INPUT,
-      },
-    ];
+    return {
+      route: this.TYPE,
+      displayData: [
+        {
+          title: 'Amount',
+          value: `${formattedAmt} ${getDisplayName(token)}`,
+        },
+        {
+          title: receiveTx ? 'Gas fee' : 'Gas estimate',
+          value: gas ? `${gas} ${getDisplayName(TOKENS[gasToken])}` : NO_INPUT,
+        },
+      ],
+    };
   }
 
   async isTransferCompleted(
