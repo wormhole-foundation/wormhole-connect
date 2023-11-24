@@ -7,7 +7,7 @@ import {
   setAssociatedTokenAddress,
   setForeignAsset,
 } from 'store/transferInput';
-import { ATTEST_URL, TOKENS } from 'config';
+import { ATTEST_URL, USDC_BRIDGE_URL, TOKENS } from 'config';
 import { getWrappedTokenId } from 'utils';
 import { TransferWallet, signSolanaTransaction } from 'utils/wallet';
 import { joinClass } from 'utils/style';
@@ -17,6 +17,7 @@ import { CircularProgress, Link, Typography } from '@mui/material';
 import AlertBanner from 'components/AlertBanner';
 import RouteOperator from 'routes/operator';
 import { Route } from '../../../config/types';
+import { CCTPManual_CHAINS as CCTP_CHAINS } from 'routes/cctpManual';
 
 const useStyles = makeStyles()((theme: any) => ({
   associatedTokenWarning: {
@@ -94,12 +95,21 @@ function AssociatedTokenWarning(props: Props) {
 function TokenWarnings() {
   const dispatch = useDispatch();
 
-  const { toChain, token, foreignAsset, associatedTokenAddress, route } =
-    useSelector((state: RootState) => state.transferInput);
+  const {
+    toChain,
+    fromChain,
+    token,
+    destToken,
+    foreignAsset,
+    associatedTokenAddress,
+    route,
+  } = useSelector((state: RootState) => state.transferInput);
   const { receiving } = useSelector((state: RootState) => state.wallet);
   const [showErrors, setShowErrors] = useState(false);
+  const [usdcAndNoCCTP, setUsdcAndNoCCTP] = useState(false);
 
   const tokenConfig = TOKENS[token];
+  const destTokenConfig = TOKENS[destToken];
 
   // check if the destination token contract is deployed
   useEffect(() => {
@@ -205,10 +215,27 @@ function TokenWarnings() {
   ]);
 
   useEffect(() => {
+    // if the url it's empty that means the user doesn't want this feature
+    const cctpWarningFlag = !!USDC_BRIDGE_URL;
+    // check if the token is USDC and the chains involved are not CCTP
+    const usdcAndNoCCTP =
+      cctpWarningFlag &&
+      tokenConfig?.symbol === 'USDC' &&
+      destTokenConfig?.symbol === 'USDC' &&
+      (!(toChain && CCTP_CHAINS.includes(toChain)) ||
+        !(fromChain && CCTP_CHAINS.includes(fromChain)));
+
     if (!toChain || !token || !receiving.address) return;
     // The tBTC associated token account will be created if it doesn't exist in the redeem tx
     if (toChain === 'solana' && foreignAsset && route !== Route.TBTC) {
       checkSolanaAssociatedTokenAccount();
+    }
+    if (usdcAndNoCCTP) {
+      setShowErrors(true);
+      setUsdcAndNoCCTP(true);
+    } else {
+      setShowErrors(false);
+      setUsdcAndNoCCTP(false);
     }
   }, [
     toChain,
@@ -218,6 +245,9 @@ function TokenWarnings() {
     associatedTokenAddress,
     checkSolanaAssociatedTokenAccount,
     route,
+    tokenConfig?.symbol,
+    destTokenConfig?.symbol,
+    fromChain,
   ]);
 
   const noForeignAssetWarning = (
@@ -236,9 +266,27 @@ function TokenWarnings() {
     />
   );
 
-  const content = !foreignAsset
-    ? noForeignAssetWarning
-    : toChain === 'solana' && route !== Route.Relay && noAssociatedTokenAccount;
+  // warning message for users that attempt to transfer USDC using a different corridor than CCTP
+  const warningNoCCTPOption = (
+    <Typography>
+      This transaction will transfer wrapped USDC (wUSDC) to the destination
+      chain. If you want to transfer native USDC on chains supported by Circle's
+      CCTP, use the{' '}
+      <Link target={'_blank'} variant="inherit" href={USDC_BRIDGE_URL}>
+        USDC Bridge
+      </Link>
+      .
+    </Typography>
+  );
+
+  let content;
+  if (!foreignAsset) {
+    content = noForeignAssetWarning;
+  } else if (toChain === 'solana' && route !== Route.Relay) {
+    content = noAssociatedTokenAccount;
+  } else if (usdcAndNoCCTP) {
+    content = warningNoCCTPOption;
+  }
 
   return (
     <AlertBanner

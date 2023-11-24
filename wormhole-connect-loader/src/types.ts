@@ -76,6 +76,9 @@ export interface WormholeConnectConfig {
   bridgeDefaults?: BridgeDefaults;
   routes?: string[];
   pageHeader?: string;
+  cctpWarning?: {
+    href: string;
+  };
   pageSubHeader?: string;
   searchTx?: SearchTxConfig;
   moreTokens?: MoreTokenConfig;

@@ -51,6 +51,8 @@ export const ATTEST_URL =
     ? ''
     : 'https://wormhole-foundation.github.io/example-token-bridge-ui/#/register';
 
+export const USDC_BRIDGE_URL = config.cctpWarning?.href || '';
+
 export const WORMHOLE_RPC_HOSTS =
   ENV === 'MAINNET'
     ? [
