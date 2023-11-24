@@ -575,6 +575,22 @@ export const MAINNET_TOKENS: TokensConfig = {
       },
     },
   },
+  WETHpolygon: {
+    key: 'WETHpolygon',
+    symbol: 'WETH',
+    nativeChain: 'polygon',
+    icon: Icon.ETH,
+    tokenId: {
+      chain: 'polygon',
+      address: '0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619',
+    },
+    coinGeckoId: 'ethereum',
+    color: '#D53424',
+    decimals: {
+      Ethereum: 18,
+      default: 8,
+    },
+  },
   USDCpolygon: {
     key: 'USDCpolygon',
     symbol: 'USDC',
@@ -1614,7 +1630,6 @@ export const MAINNET_TOKENS: TokensConfig = {
   ETHarbitrum: {
     key: 'ETHarbitrum',
     symbol: 'ETH',
-    displayName: 'ETH (Arbitrum)',
     nativeChain: 'arbitrum',
     icon: Icon.ETH,
     coinGeckoId: 'ethereum',
@@ -1628,7 +1643,6 @@ export const MAINNET_TOKENS: TokensConfig = {
   WETHarbitrum: {
     key: 'WETHarbitrum',
     symbol: 'WETH',
-    displayName: 'WETH (Arbitrum)',
     nativeChain: 'arbitrum',
     icon: Icon.ETH,
     tokenId: {
@@ -1770,7 +1784,6 @@ export const MAINNET_TOKENS: TokensConfig = {
   ETHoptimism: {
     key: 'ETHoptimism',
     symbol: 'ETH',
-    displayName: 'ETH (Optimism)',
     nativeChain: 'optimism',
     icon: Icon.ETH,
     coinGeckoId: 'ethereum',
@@ -1784,7 +1797,6 @@ export const MAINNET_TOKENS: TokensConfig = {
   WETHoptimism: {
     key: 'WETHoptimism',
     symbol: 'WETH',
-    displayName: 'WETH (Optimism)',
     nativeChain: 'optimism',
     icon: Icon.ETH,
     tokenId: {
@@ -1934,11 +1946,41 @@ export const MAINNET_TOKENS: TokensConfig = {
   //     default: 6,
   //   },
   // },
-
+  WETHbsc: {
+    key: 'WETHbsc',
+    symbol: 'WETH',
+    nativeChain: 'bsc',
+    icon: Icon.ETH,
+    tokenId: {
+      chain: 'bsc',
+      address: '0x2170Ed0880ac9A755fd29B2688956BD959F933F8',
+    },
+    coinGeckoId: 'ethereum',
+    color: '#62688F',
+    decimals: {
+      Ethereum: 18,
+      default: 8,
+    },
+  },
+  wstETHbsc: {
+    key: 'wstETHbsc',
+    symbol: 'wstETH',
+    nativeChain: 'bsc',
+    tokenId: {
+      chain: 'bsc',
+      address: '0x2Bbbdf97295F73175b12CC087cF446765931e1C3',
+    },
+    icon: Icon.WSTETH,
+    coinGeckoId: 'wrapped-steth',
+    color: '#3AA3FF',
+    decimals: {
+      default: 8,
+      Ethereum: 18,
+    },
+  },
   ETHbase: {
     key: 'ETHbase',
     symbol: 'ETH',
-    displayName: 'ETH (Base)',
     nativeChain: 'base',
     icon: Icon.ETH,
     coinGeckoId: 'ethereum',
@@ -1952,7 +1994,6 @@ export const MAINNET_TOKENS: TokensConfig = {
   WETHbase: {
     key: 'WETHbase',
     symbol: 'WETH',
-    displayName: 'WETH (Base)',
     nativeChain: 'base',
     icon: Icon.ETH,
     tokenId: {
@@ -2089,6 +2130,22 @@ export const MAINNET_TOKENS: TokensConfig = {
           '0xfcc4fcd734d5b8578fb629d238d15264a49eca6165c7444c21feec3b4962eb88::coin::T',
         decimals: 6,
       },
+    },
+  },
+  wstETHbase: {
+    key: 'wstETHbase',
+    symbol: 'wstETH',
+    nativeChain: 'base',
+    tokenId: {
+      chain: 'base',
+      address: '0xc1CBa3fCea344f92D9239c08C0568f6F2F0ee452',
+    },
+    icon: Icon.WSTETH,
+    coinGeckoId: 'wrapped-steth',
+    color: '#3AA3FF',
+    decimals: {
+      default: 8,
+      Ethereum: 18,
     },
   },
   OSMO: {
@@ -2372,6 +2429,62 @@ export const MAINNET_TOKENS: TokensConfig = {
           'ibc/BF75AE1500CB7EC458E91A11731F1B6AC1F1FE1FA937A88564955ED6A83CA2FB',
         decimals: 8,
       },
+      base: {
+        address: '0xEd4e2FD35161c3c0e33cA187fce64C70d44Ce32b',
+        decimals: 18,
+      },
+      bsc: {
+        address: '0xad80e1a9b5824234afa9de1f3bbdb8a994796169',
+        decimals: 18,
+      },
+    },
+  },
+  wstETHarbitrum: {
+    key: 'wstETHarbitrum',
+    symbol: 'wstETH',
+    nativeChain: 'arbitrum',
+    tokenId: {
+      chain: 'arbitrum',
+      address: '0x5979D7b546E38E414F7E9822514be443A4800529',
+    },
+    icon: Icon.WSTETH,
+    coinGeckoId: 'wrapped-steth',
+    color: '#3AA3FF',
+    decimals: {
+      default: 8,
+      Ethereum: 18,
+    },
+  },
+  wstETHoptimism: {
+    key: 'wstETHoptimism',
+    symbol: 'wstETH',
+    nativeChain: 'optimism',
+    tokenId: {
+      chain: 'optimism',
+      address: '0x1F32b1c2345538c0c6f582fCB022739c4A194Ebb',
+    },
+    icon: Icon.WSTETH,
+    coinGeckoId: 'wrapped-steth',
+    color: '#3AA3FF',
+    decimals: {
+      default: 8,
+      Ethereum: 18,
+    },
+  },
+  wstETHpolygon: {
+    key: 'wstETHpolygon',
+    symbol: 'wstETH',
+    nativeChain: 'polygon',
+    tokenId: {
+      chain: 'polygon',
+      address: '0x03b54A6e9a984069379fae1a4fC4dBAE93B3bCCD',
+    },
+    icon: Icon.WSTETH,
+    coinGeckoId: 'wrapped-steth',
+    color: '#3AA3FF',
+    decimals: {
+      default: 8,
+      Ethereum: 18,
     },
   },
   BONK: {

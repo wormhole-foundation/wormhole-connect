@@ -30,6 +30,7 @@ import {
   UnsignedCCTPMessage,
   TransferInfoBaseParams,
   TransferDestInfoBaseParams,
+  TransferDestInfo,
 } from '../types';
 import { BaseRoute } from '../bridge/baseRoute';
 import { toDecimals } from '../../utils/balance';
@@ -48,6 +49,7 @@ import {
 export class CCTPManualRoute extends BaseRoute {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean = false;
   readonly AUTOMATIC_DEPOSIT: boolean = false;
+  readonly TYPE: Route = Route.CCTPManual;
 
   isSupportedChain(chain: ChainName): boolean {
     return !!sdkConfig.chains[chain]?.contracts.cctpContracts;
@@ -176,7 +178,11 @@ export class CCTPManualRoute extends BaseRoute {
   }
 
   async computeReceiveAmount(
-    sendAmount: number | undefined,
+    sendAmount: number,
+    token: string,
+    destToken: string,
+    sendingChain: ChainName | undefined,
+    recipientChain: ChainName | undefined,
     routeOptions: any,
   ): Promise<number> {
     if (!sendAmount) return 0;
@@ -258,7 +264,11 @@ export class CCTPManualRoute extends BaseRoute {
   /**
    * These operations have to be implemented in subclasses.
    */
-  getMinSendAmount(routeOptions: any): number {
+  getMinSendAmount(
+    routeOptions: any,
+    destToken: string,
+    recipientChain?: ChainName | ChainId,
+  ): number {
     return 0;
   }
   async send(
@@ -268,6 +278,7 @@ export class CCTPManualRoute extends BaseRoute {
     senderAddress: string,
     recipientChain: ChainName | ChainId,
     recipientAddress: string,
+    destToken: string,
     routeOptions: any,
   ): Promise<string> {
     const fromChainId = wh.toChainId(sendingChain);
@@ -354,6 +365,7 @@ export class CCTPManualRoute extends BaseRoute {
     receipientChain: ChainName | ChainId,
     sendingGasEst: string,
     claimingGasEst: string,
+    receiveAmount: string,
     routeOptions?: any,
   ): Promise<TransferDisplayData> {
     const sendingChainName = wh.toChainName(sendingChain);
@@ -399,6 +411,7 @@ export class CCTPManualRoute extends BaseRoute {
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
     token: string,
+    destToken: string,
   ): Promise<BigNumber> {
     return BigNumber.from(0);
   }
@@ -530,7 +543,7 @@ export class CCTPManualRoute extends BaseRoute {
     txData,
     receiveTx,
     gasEstimate,
-  }: TransferDestInfoBaseParams): Promise<TransferDisplayData> {
+  }: TransferDestInfoBaseParams): Promise<TransferDestInfo> {
     const token = TOKENS[txData.tokenKey];
     const { gasToken } = CHAINS[txData.toChain]!;
 
@@ -547,16 +560,19 @@ export class CCTPManualRoute extends BaseRoute {
       txData.tokenDecimals,
       MAX_DECIMALS,
     );
-    return [
-      {
-        title: 'Amount',
-        value: `${formattedAmt} ${getDisplayName(token)}`,
-      },
-      {
-        title: receiveTx ? 'Gas fee' : 'Gas estimate',
-        value: gas ? `${gas} ${getDisplayName(TOKENS[gasToken])}` : NO_INPUT,
-      },
-    ];
+    return {
+      route: this.TYPE,
+      displayData: [
+        {
+          title: 'Amount',
+          value: `${formattedAmt} ${getDisplayName(token)}`,
+        },
+        {
+          title: receiveTx ? 'Gas fee' : 'Gas estimate',
+          value: gas ? `${gas} ${getDisplayName(TOKENS[gasToken])}` : NO_INPUT,
+        },
+      ],
+    };
   }
 
   async isTransferCompleted(

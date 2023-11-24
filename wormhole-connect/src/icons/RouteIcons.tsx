@@ -42,6 +42,12 @@ export const getIcon = (route: Route) => {
     case Route.TBTC: {
       return WormholeIcon;
     }
+    case Route.ETHBridge: {
+      return XLabsIcon;
+    }
+    case Route.wstETHBridge: {
+      return XLabsIcon;
+    }
     default: {
       return noIcon;
     }

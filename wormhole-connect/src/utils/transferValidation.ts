@@ -19,6 +19,9 @@ import { walletAcceptedChains } from './wallet';
 import RouteOperator from '../routes/operator';
 import { useDispatch, useSelector } from 'react-redux';
 import { useDebounce } from 'use-debounce';
+import { isPorticoRoute } from 'routes/porticoBridge/utils';
+import { PorticoBridgeState } from 'store/porticoBridge';
+import { DataWrapper } from 'store/helpers';
 
 export const validateFromChain = (
   chain: ChainName | undefined,
@@ -176,10 +179,42 @@ export const validateSolanaTokenAccount = (
   return '';
 };
 
-export const getMinAmt = (route: Route | undefined, relayData: any): number => {
+export const validateRelayerFee = (
+  route: Route | undefined,
+  routeOptions: any,
+): ValidationErr => {
+  if (!route) return '';
+  if (isPorticoRoute(route) && routeOptions.relayerFee.error) {
+    return 'Error fetching relayer fee';
+  }
+  return '';
+};
+
+export const validateReceiveAmount = (
+  route: Route | undefined,
+  receiveAmount: DataWrapper<string>,
+  routeOptions: any,
+): ValidationErr => {
+  if (!route) return '';
+  if (
+    isPorticoRoute(route) &&
+    routeOptions.relayerFee.data &&
+    receiveAmount.error
+  ) {
+    return receiveAmount.error;
+  }
+  return '';
+};
+
+export const getMinAmt = (
+  route: Route | undefined,
+  routeOptions: any,
+  destToken: string,
+  recipientChain?: ChainName,
+): number => {
   if (!route) return 0;
   const r = RouteOperator.getRoute(route);
-  return r.getMinSendAmount(relayData);
+  return r.getMinSendAmount(routeOptions, destToken, recipientChain);
 };
 
 export const getIsAutomatic = (route: Route | undefined): boolean => {
@@ -192,6 +227,7 @@ export const validateAll = async (
   transferData: TransferInputState,
   relayData: RelayState,
   walletData: WalletState,
+  porticoData: PorticoBridgeState,
 ): Promise<TransferValidations> => {
   const {
     fromChain,
@@ -204,11 +240,13 @@ export const validateAll = async (
     route,
     supportedDestTokens,
     routeStates,
+    receiveAmount,
   } = transferData;
   const { maxSwapAmt, toNativeToken } = relayData;
   const { sending, receiving } = walletData;
   const isAutomatic = getIsAutomatic(route);
-  const minAmt = getMinAmt(route, relayData);
+  const routeOptions = route && isPorticoRoute(route) ? porticoData : relayData;
+  const minAmt = getMinAmt(route, routeOptions, destToken, toChain);
   const sendingTokenBalance = accessBalance(
     balances,
     sending.address,
@@ -229,6 +267,8 @@ export const validateAll = async (
     route: validateRoute(route, availableRoutes),
     toNativeToken: '',
     foreignAsset: validateForeignAsset(foreignAsset),
+    relayerFee: validateRelayerFee(route, routeOptions),
+    receiveAmount: validateReceiveAmount(route, receiveAmount, routeOptions),
   };
   if (!isAutomatic) return baseValidations;
   return {
@@ -252,14 +292,16 @@ export const validate = async (
     transferInput,
     relay,
     wallet,
+    portico,
   }: {
     transferInput: TransferInputState;
     relay: RelayState;
     wallet: WalletState;
+    portico: PorticoBridgeState;
   },
   dispatch: Dispatch<AnyAction>,
 ) => {
-  const validations = await validateAll(transferInput, relay, wallet);
+  const validations = await validateAll(transferInput, relay, wallet, portico);
 
   // if all fields are filled out, show validations
   const showValidationState =
@@ -284,9 +326,10 @@ export const useValidate = () => {
   const transferInput = useSelector((state: RootState) => state.transferInput);
   const relay = useSelector((state: RootState) => state.relay);
   const wallet = useSelector((state: RootState) => state.wallet);
+  const portico = useSelector((state: RootState) => state.porticoBridge);
   const stateForValidation = useMemo(
-    () => ({ transferInput, relay, wallet }),
-    [transferInput, relay, wallet],
+    () => ({ transferInput, relay, wallet, portico }),
+    [transferInput, relay, wallet, portico],
   );
   const [debouncedStateForValidation] = useDebounce(
     stateForValidation,

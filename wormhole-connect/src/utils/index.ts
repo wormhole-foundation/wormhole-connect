@@ -61,8 +61,14 @@ export function displayWalletAddress(
 
 export function getChainByChainId(
   chainId: number | string,
-): ChainConfig | void {
+): ChainConfig | undefined {
   return CHAINS_ARR.filter((c) => chainId === c.chainId)[0];
+}
+
+export function getChainConfig(chain: ChainName | ChainId): ChainConfig {
+  const chainConfig = CHAINS[wh.toChainName(chain)];
+  if (!chainConfig) throw new Error(`chain config for ${chain} not found`);
+  return chainConfig;
 }
 
 export function getWrappedToken(token: TokenConfig): TokenConfig {
@@ -96,8 +102,24 @@ export function getTokenById(tokenId: TokenId): TokenConfig | undefined {
   );
 }
 
-export function getDisplayName(token: TokenConfig) {
-  return token.displayName || token.symbol;
+export function getDisplayName(
+  token: TokenConfig,
+  includeChainName: boolean = false,
+) {
+  let displayName = token.displayName || token.symbol;
+  if (includeChainName) {
+    const chainDisplayName = getChainConfig(token.nativeChain).displayName;
+    if (chainDisplayName) {
+      displayName += ` (${chainDisplayName})`;
+    }
+  }
+  return displayName;
+}
+
+export function getGasToken(chain: ChainName | ChainId): TokenConfig {
+  const gasToken = TOKENS[getChainConfig(chain).gasToken];
+  if (!gasToken) throw new Error(`gas token not found for ${chain}`);
+  return gasToken;
 }
 
 export function getTokenDecimals(
@@ -250,4 +272,8 @@ export function hydrateHrefTemplate(
     return `${href.replace(queryParam, '')}${hydratedParts.join('&')}`;
   }
   return href;
+}
+
+export function isEqualCaseInsensitive(a: string, b: string) {
+  return a.toLowerCase() === b.toLowerCase();
 }

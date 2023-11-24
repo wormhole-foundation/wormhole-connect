@@ -33,6 +33,7 @@ import {
   SignedMessage,
   RelayCCTPMessage,
   TransferDestInfoBaseParams,
+  TransferDestInfo,
 } from '../types';
 import { toDecimals, toFixedDecimals } from '../../utils/balance';
 import { RelayOptions } from '../relay';
@@ -53,6 +54,7 @@ import { RelayAbstract } from 'routes/abstracts';
 export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED = true;
   readonly AUTOMATIC_DEPOSIT = true;
+  readonly TYPE: Route = Route.CCTPRelay;
 
   isSupportedChain(chain: ChainName): boolean {
     return !!sdkConfig.chains[chain]?.contracts.cctpContracts
@@ -203,20 +205,28 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
         sourceChain,
         destChain,
         sourceToken,
+        destToken,
       );
     } catch {}
     return !(
       relayerFee === undefined ||
       parseFloat(amount) <
-        this.getMinSendAmount({
-          relayerFee: toDecimals(relayerFee, 6),
-          toNativeToken: 0,
-        })
+        this.getMinSendAmount(
+          {
+            relayerFee: toDecimals(relayerFee, 6),
+            toNativeToken: 0,
+          },
+          destToken,
+        )
     );
   }
 
   async computeReceiveAmount(
-    sendAmount: number | undefined,
+    sendAmount: number,
+    token: string,
+    destToken: string,
+    sendingChain: ChainName | undefined,
+    recipientChain: ChainName | undefined,
     routeOptions: RelayOptions,
   ): Promise<number> {
     if (!sendAmount) return 0;
@@ -289,7 +299,11 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
   /**
    * These operations have to be implemented in subclasses.
    */
-  getMinSendAmount(routeOptions: any): number {
+  getMinSendAmount(
+    routeOptions: any,
+    destToken: string,
+    recipientChain?: ChainName | ChainId,
+  ): number {
     const { relayerFee, toNativeToken } = routeOptions;
     // has to be slightly higher than the minimum or else tx will revert
     const fees = parseFloat(relayerFee) + parseFloat(toNativeToken);
@@ -304,6 +318,7 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
     senderAddress: string,
     recipientChain: ChainName | ChainId,
     recipientAddress: string,
+    destToken: string,
     routeOptions: any,
   ): Promise<string> {
     const fromChainId = wh.toChainId(sendingChain);
@@ -364,6 +379,7 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
     receipientChain: ChainName | ChainId,
     sendingGasEst: string,
     claimingGasEst: string,
+    receiveAmount: string,
     routeOptions?: any,
   ): Promise<TransferDisplayData> {
     const sendingChainName = wh.toChainName(sendingChain);
@@ -386,7 +402,14 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
       )}`;
     }
 
-    const receiveAmt = await this.computeReceiveAmount(amount, routeOptions);
+    const receiveAmt = await this.computeReceiveAmount(
+      amount,
+      token.key,
+      destToken.key,
+      sendingChainName,
+      receipientChainName,
+      routeOptions,
+    );
 
     const nativeGasDisplay =
       receiveNativeAmt > 0
@@ -432,6 +455,7 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
     token: string,
+    destToken: string,
   ): Promise<BigNumber> {
     const tokenConfig = TOKENS[token];
     if (!tokenConfig) throw new Error('could not get token config');
@@ -583,7 +607,7 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
   async getTransferDestInfo({
     txData: data,
     receiveTx,
-  }: TransferDestInfoBaseParams): Promise<TransferDisplayData> {
+  }: TransferDestInfoBaseParams): Promise<TransferDestInfo> {
     const txData: ParsedRelayerMessage = data as ParsedRelayerMessage;
 
     const token = TOKENS[txData.tokenKey];
@@ -645,18 +669,21 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
       MAX_DECIMALS,
     );
 
-    return [
-      {
-        title: 'Amount',
-        value: `${formattedAmt} ${getDisplayName(token)}`,
-      },
-      {
-        title: 'Native gas token',
-        value: nativeGasAmt
-          ? `${nativeGasAmt} ${getDisplayName(TOKENS[gasToken])}`
-          : NO_INPUT,
-      },
-    ];
+    return {
+      route: this.TYPE,
+      displayData: [
+        {
+          title: 'Amount',
+          value: `${formattedAmt} ${getDisplayName(token)}`,
+        },
+        {
+          title: 'Native gas token',
+          value: nativeGasAmt
+            ? `${nativeGasAmt} ${getDisplayName(TOKENS[gasToken])}`
+            : NO_INPUT,
+        },
+      ],
+    };
   }
 
   async nativeTokenAmount(

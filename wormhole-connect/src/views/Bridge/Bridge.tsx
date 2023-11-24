@@ -13,6 +13,9 @@ import {
   setSupportedDestTokens,
   setAllSupportedDestTokens,
   TransferInputState,
+  getNativeVersionOfToken,
+  setFetchingReceiveAmount,
+  setReceiveAmountError,
 } from 'store/transferInput';
 import { CHAINS, TOKENS, pageHeader, showHamburgerMenu } from 'config';
 import { TokenConfig } from 'config/types';
@@ -36,6 +39,11 @@ import RouteOptions from './RouteOptions';
 import ValidationError from './ValidationError';
 import PoweredByIcon from 'icons/PoweredBy';
 import FooterNavBar from 'components/FooterNavBar';
+import { isPorticoRoute } from 'routes/porticoBridge/utils';
+import { ETHBridge } from 'routes/porticoBridge/ethBridge';
+import { wstETHBridge } from 'routes/porticoBridge/wstETHBridge';
+import { usePorticoSwapInfo } from 'hooks/usePorticoSwapInfo';
+import { usePorticoRelayerFee } from 'hooks/usePorticoRelayerFee';
 
 const useStyles = makeStyles()((theme) => ({
   spacer: {
@@ -93,6 +101,7 @@ function Bridge() {
   const { toNativeToken, relayerFee } = useSelector(
     (state: RootState) => state.relay,
   );
+  const portico = useSelector((state: RootState) => state.porticoBridge);
   const { receiving } = useSelector((state: RootState) => state.wallet);
 
   // check destination native balance
@@ -151,9 +160,13 @@ function Bridge() {
       }
 
       // If all the supported tokens are the same token
-      // select the native version
+      // select the native version for applicable tokens
       const symbols = supported.map((t) => t.symbol);
-      if (toChain && symbols.every((s) => s === symbols[0])) {
+      if (
+        toChain &&
+        symbols.every((s) => s === symbols[0]) &&
+        ['USDC', 'tBTC'].includes(symbols[0])
+      ) {
         const key = supported.find(
           (t) =>
             t.symbol === symbols[0] &&
@@ -162,6 +175,31 @@ function Bridge() {
         )?.key;
         if (key) {
           dispatch(setDestToken(key));
+        }
+      }
+
+      // If the source token is supported by a Portico bridge route,
+      // then select the native version on the dest chain
+      if (
+        token &&
+        destToken === '' &&
+        toChain &&
+        (!route || isPorticoRoute(route))
+      ) {
+        const tokenSymbol = TOKENS[token]?.symbol;
+        const porticoTokens = [
+          ...ETHBridge.SUPPORTED_TOKENS,
+          ...wstETHBridge.SUPPORTED_TOKENS,
+        ];
+        if (porticoTokens.includes(tokenSymbol)) {
+          let key = getNativeVersionOfToken(tokenSymbol, toChain);
+          if (!key) {
+            const wrapped = getWrappedToken(TOKENS[token]);
+            key = getNativeVersionOfToken(wrapped.symbol, toChain);
+          }
+          if (key && isSupportedToken(key, supported)) {
+            dispatch(setDestToken(key));
+          }
         }
       }
     };
@@ -173,15 +211,42 @@ function Bridge() {
   useEffect(() => {
     const recomputeReceive = async () => {
       if (!route) return;
-      const newReceiveAmount = await RouteOperator.computeReceiveAmount(
-        route,
-        Number.parseFloat(amount),
-        { toNativeToken, relayerFee },
-      );
-      dispatch(setReceiveAmount(newReceiveAmount.toString()));
+      try {
+        const routeOptions = isPorticoRoute(route)
+          ? portico
+          : { toNativeToken, relayerFee };
+        dispatch(setFetchingReceiveAmount());
+        const newReceiveAmount = await RouteOperator.computeReceiveAmount(
+          route,
+          Number.parseFloat(amount),
+          token,
+          destToken,
+          fromChain,
+          toChain,
+          routeOptions,
+        );
+        dispatch(setReceiveAmount(newReceiveAmount.toString()));
+      } catch (e: any) {
+        dispatch(setReceiveAmountError(e.message));
+      }
     };
     recomputeReceive();
-  }, [amount, toNativeToken, relayerFee, route, dispatch]);
+  }, [
+    amount,
+    toNativeToken,
+    relayerFee,
+    route,
+    token,
+    destToken,
+    toChain,
+    fromChain,
+    portico,
+    dispatch,
+  ]);
+
+  // Route specific hooks
+  usePorticoSwapInfo();
+  usePorticoRelayerFee();
 
   // validate transfer inputs
   useValidate();

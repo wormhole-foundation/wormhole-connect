@@ -7,6 +7,7 @@ import { ValidationErr, setTransferRoute } from 'store/transferInput';
 import { Route } from 'config/types';
 import RouteOperator from 'routes/operator';
 import AlertBanner from 'components/AlertBanner';
+import { isPorticoRoute } from 'routes/porticoBridge/utils';
 
 const useStyles = makeStyles()((theme) => ({
   minAmtError: {
@@ -37,10 +38,13 @@ function ValidationError(props: Props) {
   const showErrors = useSelector(
     (state: RootState) => state.transferInput.showValidationState,
   );
-  const { route } = useSelector((state: RootState) => state.transferInput);
+  const { route, destToken, toChain } = useSelector(
+    (state: RootState) => state.transferInput,
+  );
   const { toNativeToken, relayerFee } = useSelector(
     (state: RootState) => state.relay,
   );
+  const portico = useSelector((state: RootState) => state.porticoBridge);
   const validationErrors = props.validations.filter((v) => !!v) as string[];
   const showError = validationErrors.length > 0;
   let content: React.ReactNode = validationErrors[0];
@@ -60,17 +64,30 @@ function ValidationError(props: Props) {
     validationErrors[0].includes('Minimum amount is')
   ) {
     const r = RouteOperator.getRoute(route);
-    const min = r.getMinSendAmount({ toNativeToken, relayerFee });
-    content = (
-      <div className={classes.minAmtError}>
-        <div>
-          Minimum amount is {min} for single transaction automatic transfers
+    if (!isPorticoRoute(route)) {
+      const min = r.getMinSendAmount(
+        { toNativeToken, relayerFee },
+        destToken,
+        toChain,
+      );
+      content = (
+        <div className={classes.minAmtError}>
+          <div>
+            Minimum amount is {min} for single transaction automatic transfers.
+          </div>
+          <div className={classes.link} onClick={selectManual}>
+            Switch to a manual claim transfer?
+          </div>
         </div>
-        <div className={classes.link} onClick={selectManual}>
-          Switch to a manual claim transfer?
+      );
+    } else {
+      const min = r.getMinSendAmount(portico, destToken, toChain);
+      content = (
+        <div className={classes.minAmtError}>
+          <div>Minimum amount is {min}.</div>
         </div>
-      </div>
-    );
+      );
+    }
   }
 
   const show = (props.forceShow || showErrors) && showError;

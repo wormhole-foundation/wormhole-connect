@@ -179,6 +179,10 @@ export const MAINNET_TOKEN_KEYS: string[] = [
   "EVMOS",
   "KUJI",
   "PYTH",
+  "WETHpolygon",
+  "wstETHarbitrum",
+  "wstETHoptimism",
+  "wstETHpolygon",
 ].sort();
 
 export type RouteInfo = {
@@ -227,6 +231,16 @@ export const ROUTE_INFOS: RouteInfo[] = [
     description:
       "Permissionlessly transfer tBTC cross-chain with Threshold + Wormhole.",
     link: "https://threshold.network/earn/btc",
+  },
+  {
+    key: "ethBridge",
+    title: "ETH Bridge",
+    description: "Permissionlessly transfer ETH cross-chain with Wormhole.",
+  },
+  {
+    key: "wstETHBridge",
+    title: "wstETH Bridge",
+    description: "Permissionlessly transfer wstETH cross-chain with Wormhole.",
   },
 ];
 export const ROUTES = ROUTE_INFOS.map((r) => r.key);

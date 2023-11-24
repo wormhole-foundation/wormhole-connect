@@ -7,6 +7,8 @@ import StepperLabel from './StepperLabel';
 type Step = {
   label: string;
   component: JSX.Element | JSX.Element[];
+  warningLabel?: boolean;
+  warningLine?: boolean;
 };
 
 type Props = {
@@ -26,6 +28,7 @@ export default function Stepper(props: Props) {
             index={index + 1}
             activeStep={activeStep}
             filled={theme.palette.mode === 'light'}
+            warning={step.warningLabel}
           >
             <div>{step.label}</div>
           </StepperLabel>
@@ -33,6 +36,7 @@ export default function Stepper(props: Props) {
             index={index + 1}
             activeStep={activeStep}
             last={index + 1 === steps.length}
+            warning={step.warningLine}
           >
             {step.component}
           </StepperContent>

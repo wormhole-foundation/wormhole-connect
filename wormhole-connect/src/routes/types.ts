@@ -1,3 +1,4 @@
+import { Route } from 'config/types';
 import { ParsedMessage, ParsedRelayerMessage } from '../utils/sdk';
 
 export type TokenTransferMessage = ParsedMessage;
@@ -58,5 +59,10 @@ export type Row = {
 export interface NestedRow extends Row {
   rows?: Row[];
 }
+
+export type TransferDestInfo = {
+  route: Route;
+  displayData: TransferDisplayData;
+};
 
 export type TransferDisplayData = NestedRow[];

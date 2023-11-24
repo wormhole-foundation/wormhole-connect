@@ -18,6 +18,7 @@ import TokenIcon from 'icons/TokenIcons';
 import ArrowRightIcon from 'icons/ArrowRight';
 import Options from 'components/Options';
 import { isGatewayChain } from 'utils/cosmos';
+import { isPorticoRoute } from 'routes/porticoBridge/utils';
 
 const useStyles = makeStyles()((theme: any) => ({
   link: {
@@ -173,26 +174,56 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
   const { classes } = useStyles();
   const theme = useTheme();
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const { token, destToken, amount, toChain } = useSelector(
+  const { token, destToken, amount, toChain, fromChain } = useSelector(
     (state: RootState) => state.transferInput,
   );
 
   const { toNativeToken, relayerFee } = useSelector(
     (state: RootState) => state.relay,
   );
+  const portico = useSelector((state: RootState) => state.porticoBridge);
   const [receiveAmt, setReceiveAmt] = useState<number | undefined>(undefined);
 
   useEffect(() => {
+    let cancelled = false;
     async function load() {
-      const receiveAmt = await RouteOperator.computeReceiveAmount(
-        props.route.route,
-        Number.parseFloat(amount),
-        { toNativeToken, relayerFee },
-      );
-      setReceiveAmt(Number.parseFloat(toFixedDecimals(`${receiveAmt}`, 6)));
+      try {
+        const routeOptions = isPorticoRoute(props.route.route)
+          ? portico
+          : { toNativeToken, relayerFee };
+        const receiveAmt = await RouteOperator.computeReceiveAmount(
+          props.route.route,
+          Number.parseFloat(amount),
+          token,
+          destToken,
+          fromChain,
+          toChain,
+          routeOptions,
+        );
+        if (!cancelled) {
+          setReceiveAmt(Number.parseFloat(toFixedDecimals(`${receiveAmt}`, 6)));
+        }
+      } catch (e) {
+        if (!cancelled) {
+          setReceiveAmt(0);
+        }
+      }
     }
     load();
-  }, [props.route, amount, toNativeToken, relayerFee]);
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    props.route,
+    amount,
+    toNativeToken,
+    relayerFee,
+    token,
+    destToken,
+    toChain,
+    fromChain,
+    portico,
+  ]);
   const fromTokenConfig = TOKENS[token];
   const fromTokenIcon = fromTokenConfig && (
     <TokenIcon name={fromTokenConfig.icon} height={20} />
@@ -210,7 +241,8 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
   const isAutomatic = useMemo(
     () =>
       route.AUTOMATIC_DEPOSIT ||
-      (toChain && (isGatewayChain(toChain) || toChain === 'sei')),
+      (toChain && (isGatewayChain(toChain) || toChain === 'sei')) ||
+      isPorticoRoute(route.TYPE),
     [route, toChain],
   );
 
