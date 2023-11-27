@@ -16,12 +16,13 @@ const useStyles = makeStyles()((theme) => ({
     flexDirection: 'row',
     gap: '8px',
     padding: '8px',
-    width: '85%',
+    width: '100%',
   },
   menuItem: {
     padding: '16px 0',
     textAlign: 'center',
-    flex: 1,
+    fontSize: '14px',
+    margin: 'auto',
     cursor: 'pointer',
     '&:hover': {
       textDecoration: 'underline',
