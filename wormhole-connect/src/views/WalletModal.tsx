@@ -19,7 +19,7 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { CHAIN_ID_EVMOS } from '@certusone/wormhole-sdk';
 
-import { CHAINS, ENV, RPCS } from 'config';
+import { CHAINS, CHAINS_ARR, ENV, RPCS } from 'config';
 import { RootState } from 'store';
 import { setWalletModal } from 'store/router';
 import {
@@ -145,6 +145,15 @@ const getWalletOptions = async (
       [Context.SEI]: seiOptions,
       [Context.COSMOS]: wallets.cosmos,
     };
+    // filter allWallets that are not supported by network list config
+    const networkContext = CHAINS_ARR.map((chain) => chain.context);
+    const set = new Set(networkContext);
+    console.log(set, Object.keys(allWallets));
+    Object.keys(allWallets).forEach((context) => {
+      if (!set.has(context as Context)) {
+        delete allWallets[context as Context];
+      }
+    });
 
     return Object.keys(allWallets)
       .map((value: string) =>
