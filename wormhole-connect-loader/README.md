@@ -78,6 +78,7 @@ Tokens (`tokens`):
 | GLMR | GLMR |
 | WGLMR | WGLMR |
 | SOL | WSOL |
+| PYTH | |
 | SUI | SUI |
 | USDCsol | |
 | APT | APT |
