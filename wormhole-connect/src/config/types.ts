@@ -35,6 +35,7 @@ export enum Icon {
   'ATOM',
   'EVMOS',
   'KUJI',
+  'PYTH',
 }
 
 export enum Route {

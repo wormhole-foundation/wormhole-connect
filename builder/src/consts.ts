@@ -178,6 +178,7 @@ export const MAINNET_TOKEN_KEYS: string[] = [
   "BONK",
   "EVMOS",
   "KUJI",
+  "PYTH",
 ].sort();
 
 export type RouteInfo = {
