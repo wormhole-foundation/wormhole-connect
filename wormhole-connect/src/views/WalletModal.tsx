@@ -223,7 +223,8 @@ function WalletsModal(props: Props) {
     return () => {
       cancelled = true;
     };
-  }, [fromChain, toChain, props.chain, chainProp, type]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fromChain, toChain, props.chain, chainProp, type, CHAINS_ARR]);
 
   const handleSearch = (
     e:
