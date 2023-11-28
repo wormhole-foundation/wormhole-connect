@@ -696,7 +696,7 @@ export class SolanaContext<
     throw new Error('not implemented');
   }
 
-  parseAddress(address: string): string {
+  parseAddress(address: PublicKeyInitData): string {
     const addr =
       typeof address === 'string' && address.startsWith('0x')
         ? arrayify(address)

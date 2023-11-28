@@ -184,7 +184,6 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
     const chainsAreValid =
       CCTPRelay_CHAINS.includes(sourceChainName) &&
       CCTPRelay_CHAINS.includes(destChainName);
-
     if (!chainsAreValid) return false;
 
     const bothHaveRelayer =

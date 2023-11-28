@@ -74,9 +74,14 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
       ...CONTRACTS.TESTNET.solana,
       relayer: '3bPRWXqtSfUaCw3S4wdgvypQtsSzcmvDeaqSqPDkncrg',
       tbtcGateway: '87MEvHZCXE3ML5rrmh5uX1FbShHmRXXS32xJDGbQ7h5t',
+      cctpContracts: {
+        cctpTokenMessenger: 'CCTPiPYPc6AsJuwueEnWgSgucamXDZwBd53dQ11YiKX3',
+        cctpMessageTransmitter: 'CCTPmbSD7gX1bxKPAmg77w8oFzNFpaQiQUWD43TKaecd',
+      },
     },
     finalityThreshold: 32,
     nativeTokenDecimals: 9,
+    cctpDomain: 5,
   },
   mumbai: {
     key: 'mumbai',
