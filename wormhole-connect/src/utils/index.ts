@@ -229,7 +229,7 @@ export function hydrateHrefTemplate(
   fromChain?: string,
   toChain?: string,
 ) {
-  const queryParam = href.split('?').pop();
+  const queryParam = href.split('?')[1];
   const templateParts = queryParam?.split('&');
   const sourceTemplate = templateParts?.find((p) =>
     p.includes('{:sourceChain}'),
@@ -249,4 +249,5 @@ export function hydrateHrefTemplate(
   if (queryParam) {
     return `${href.replace(queryParam, '')}${hydratedParts.join('&')}`;
   }
+  return href;
 }
