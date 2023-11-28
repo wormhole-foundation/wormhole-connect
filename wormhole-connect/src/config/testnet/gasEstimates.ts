@@ -114,6 +114,10 @@ export const TESTNET_GAS_ESTIMATES: GasEstimates = {
       sendToken: 15000,
       claim: 25000,
     },
+    [Route.CCTPManual]: {
+      sendToken: 5000,
+      claim: 5000,
+    },
   },
   sui: {
     [Route.Bridge]: {
