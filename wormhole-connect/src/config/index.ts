@@ -69,7 +69,7 @@ export const WORMHOLE_RPC_HOSTS =
 
 export const NETWORK_DATA =
   ENV === 'MAINNET' ? MAINNET : ENV === 'DEVNET' ? DEVNET : TESTNET;
-console.log('config', config);
+
 export const CHAINS = NETWORK_DATA.chains;
 export const CHAINS_ARR =
   config && config.networks

@@ -148,7 +148,6 @@ const getWalletOptions = async (
     // filter allWallets that are not supported by network list config
     const networkContext = CHAINS_ARR.map((chain) => chain.context);
     const set = new Set(networkContext);
-    console.log('getWallets', set, Object.keys(allWallets));
     Object.keys(allWallets).forEach((context) => {
       if (!set.has(context as Context)) {
         delete allWallets[context as Context];
@@ -223,8 +222,7 @@ function WalletsModal(props: Props) {
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fromChain, toChain, props.chain, chainProp, type, CHAINS_ARR]);
+  }, [fromChain, toChain, props.chain, chainProp, type]);
 
   const handleSearch = (
     e:
