@@ -37,6 +37,7 @@ import Spacer from 'components/Spacer';
 import Scroll from 'components/Scroll';
 import WalletIcon from 'icons/WalletIcons';
 import Search from 'components/Search';
+import RouteOperator from 'routes/operator';
 
 const useStyles = makeStyles()((theme: any) => ({
   walletRow: {
@@ -146,7 +147,11 @@ const getWalletOptions = async (
       [Context.COSMOS]: wallets.cosmos,
     };
     // filter allWallets that are not supported by network list config
-    const networkContext = CHAINS_ARR.map((chain) => chain.context);
+    const supported = RouteOperator.allSupportedChains();
+    const supportedChains = CHAINS_ARR.filter((chain) =>
+      supported.includes(chain.key),
+    );
+    const networkContext = supportedChains.map((chain) => chain.context);
     const set = new Set(networkContext);
     console.log(set, Object.keys(allWallets));
     Object.keys(allWallets).forEach((context) => {
