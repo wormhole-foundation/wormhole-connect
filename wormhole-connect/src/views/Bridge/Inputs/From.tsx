@@ -13,7 +13,7 @@ import {
 import { CHAINS, CHAINS_ARR, TOKENS } from 'config';
 import { TransferWallet, walletAcceptedChains } from 'utils/wallet';
 import RouteOperator from 'routes/operator';
-import { getDisplayName } from 'utils';
+import { getDisplayName, hydrateHrefTemplate } from 'utils';
 import Inputs from './Inputs';
 import Select from './Select';
 import AmountInput from './AmountInput';
@@ -126,9 +126,10 @@ function FromInputs() {
     chainName: string,
     target: string = '_self',
   ) => {
-    let hydratedHref = href.replace('{:sourceChain}', chainName);
-    hydratedHref = href.replace('&targetChain={:targetChain}', '');
-    window.open(hydratedHref, target);
+    const hydratedHref = hydrateHrefTemplate(href, chainName);
+    if (hydratedHref) {
+      window.open(hydratedHref, target);
+    }
   };
 
   return (
