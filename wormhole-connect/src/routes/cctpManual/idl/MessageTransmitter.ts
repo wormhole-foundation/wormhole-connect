@@ -500,7 +500,7 @@ export type MessageTransmitter = {
       };
     },
     {
-      name: 'UsedNonces';
+      name: 'usedNonces';
       docs: [
         'UsedNonces account holds an array of bits that indicate which nonces were already used',
         "so they can't be resused to receive new messages. Array starts with the first_nonce and",
@@ -1595,7 +1595,7 @@ export const MessageTransmitterIdl: MessageTransmitter = {
       },
     },
     {
-      name: 'UsedNonces',
+      name: 'usedNonces',
       docs: [
         'UsedNonces account holds an array of bits that indicate which nonces were already used',
         "so they can't be resused to receive new messages. Array starts with the first_nonce and",

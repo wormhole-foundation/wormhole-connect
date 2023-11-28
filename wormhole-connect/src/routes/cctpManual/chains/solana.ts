@@ -33,6 +33,7 @@ import ManualCCTP from './abstract';
 import { getChainNameCCTP, getDomainCCTP } from '../utils/chains';
 
 const CCTP_NONCE_OFFSET = 12;
+const NONCES_PER_ACCOUNT = 6400;
 
 interface FindProgramAddressResponse {
   publicKey: PublicKey;
@@ -267,10 +268,9 @@ export class ManualCCTPSolanaImpl implements ManualCCTP<Transaction> {
     ).publicKey;
 
     // Calculate the nonce PDA.
-    const maxNoncesPerAccount = 6400;
     const firstNonce =
-      ((nonce - BigInt(1)) / BigInt(maxNoncesPerAccount)) *
-        BigInt(maxNoncesPerAccount) +
+      ((nonce - BigInt(1)) / BigInt(NONCES_PER_ACCOUNT)) *
+        BigInt(NONCES_PER_ACCOUNT) +
       BigInt(1);
     const usedNonces = findProgramAddress(
       'used_nonces',
@@ -453,8 +453,48 @@ export class ManualCCTPSolanaImpl implements ManualCCTP<Transaction> {
 
   async isTransferCompleted(
     destChain: ChainName | ChainId,
-    messageInfo: SignedMessage,
+    message: SignedMessage,
   ): Promise<boolean> {
-    return false;
+    if (!isSignedCCTPMessage(message))
+      throw new Error('Signed message is not for CCTP');
+
+    const messageTransmitterProgram = getMessageTransmitter();
+
+    const messageBytes = Buffer.from(message.message.replace('0x', ''), 'hex');
+    const nonce = messageBytes.readBigInt64BE(CCTP_NONCE_OFFSET);
+    const remoteDomain = getDomainCCTP(message.fromChain);
+
+    // Calculate the nonce PDA.
+    const firstNonce =
+      ((nonce - BigInt(1)) / BigInt(NONCES_PER_ACCOUNT)) *
+        BigInt(NONCES_PER_ACCOUNT) +
+      BigInt(1);
+    const usedNoncesAddress = findProgramAddress(
+      'used_nonces',
+      messageTransmitterProgram.programId,
+      [remoteDomain.toString(), firstNonce.toString()],
+    ).publicKey;
+
+    // usedNonces is an u64 100 elements array, where each bit acts a flag
+    // to know whether a nonce has been used or not
+    const { usedNonces } =
+      await messageTransmitterProgram.account.usedNonces.fetch(
+        usedNoncesAddress,
+      );
+
+    // get the nonce index based on the account's first nonce
+    const nonceIndex = Number(nonce - firstNonce);
+
+    // get the index of the u64 the nonce's flag is in
+    const nonceElementIndex = Math.floor(nonceIndex / 64);
+
+    // get the nonce flag index and build a bitmask
+    const nonceBitIndex = nonceIndex % 64;
+    const mask = new BN(1 << nonceBitIndex);
+
+    const nonceByte = usedNonces[nonceElementIndex];
+    if (!nonceByte) throw new Error('Invalid nonce byte index');
+    const nonceBit = nonceByte.and(mask);
+    return !nonceBit.isZero();
   }
 }
