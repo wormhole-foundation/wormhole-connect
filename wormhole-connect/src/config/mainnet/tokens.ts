@@ -2370,4 +2370,19 @@ export const MAINNET_TOKENS: TokensConfig = {
       default: 6,
     },
   },
+  PYTH: {
+    key: 'PYTH',
+    symbol: 'PYTH',
+    nativeChain: 'solana',
+    tokenId: {
+      chain: 'solana',
+      address: 'HZ1JovNiVvGrGNiiYvEozEVgZ58xaU3RKwX8eACQBCt3',
+    },
+    icon: Icon.PYTH,
+    coinGeckoId: 'pyth-network',
+    color: '#E6DAFE',
+    decimals: {
+      default: 6,
+    },
+  },
 };
