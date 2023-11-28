@@ -256,7 +256,7 @@ export async function getMessageFromSolana(
     tokenKey: token?.key || '',
     receivedTokenKey: getNativeVersionOfToken('USDC', toChain),
     gasFee: tx.meta.fee.toString(),
-    block: tx.slot, //receipt.blockNumber,
+    block: tx.slot,
     message,
 
     // manual CCTP does not use wormhole

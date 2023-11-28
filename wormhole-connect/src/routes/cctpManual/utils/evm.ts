@@ -77,7 +77,6 @@ export async function getMessageFromEvm(
   tx: string,
   chain: ChainName | ChainId,
 ): Promise<ManualCCTPMessage> {
-  // only EVM
   // use this as reference
   // https://goerli.etherscan.io/tx/0xe4984775c76b8fe7c2b09cd56fb26830f6e5c5c6b540eb97d37d41f47f33faca#eventlog
   const provider = wh.mustGetProvider(chain);

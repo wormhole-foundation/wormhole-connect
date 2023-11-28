@@ -115,7 +115,7 @@ export class Operator {
         );
       });
       // TODO: change when cctp relayer for solana is up
-      return isCctp ? Route.CCTPManual : Route.Bridge;
+      if (isCctp) return Route.CCTPManual;
     }
 
     const message = await getMessage(txHash, chain);
