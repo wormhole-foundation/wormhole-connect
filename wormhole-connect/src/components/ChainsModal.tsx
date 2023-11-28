@@ -96,8 +96,9 @@ function ChainsModal(props: Props) {
   ) => {
     if (href) {
       props.onMoreNetworkSelect?.(href, chainName, target);
+    } else {
+      props.onMoreNetworkSelect?.(MORE_NETWORKS?.href!, chainName, target);
     }
-    props.onMoreNetworkSelect?.(MORE_NETWORKS?.href!, chainName, target);
   };
   const supportedChains = useMemo(() => {
     const supported = RouteOperator.allSupportedChains();
