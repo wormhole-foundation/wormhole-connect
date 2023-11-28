@@ -14,6 +14,7 @@ import {
 } from './types';
 import { dark, light } from 'theme';
 import { validateConfigs, validateDefaults } from './utils';
+import { Alignment } from 'components/Header';
 
 const el = document.getElementById('wormhole-connect');
 if (!el)
@@ -28,13 +29,25 @@ const getEnv = () => {
   return 'TESTNET';
 };
 
+const getPageHeader = (): { text: string; align: Alignment } => {
+  const defaults: { text: string; align: Alignment } = {
+    text: '',
+    align: 'left',
+  };
+  if (typeof config.pageHeader === 'string') {
+    return { ...defaults, text: config.pageHeader };
+  } else {
+    return { ...defaults, ...config.pageHeader };
+  }
+};
+
 export const ENV = getEnv();
 export const isMainnet = ENV === 'MAINNET';
 export const sdkConfig = WormholeContext.getConfig(ENV);
 export const showHamburgerMenu =
   config.showHamburgerMenu === undefined || config.showHamburgerMenu === true;
-export const pageHeader =
-  config.pageHeader === undefined ? '' : config.pageHeader;
+export const pageHeader = getPageHeader();
+export const partnerLogo = config.partnerLogo;
 
 export const WORMSCAN = 'https://wormholescan.io/#/';
 export const WORMHOLE_API =

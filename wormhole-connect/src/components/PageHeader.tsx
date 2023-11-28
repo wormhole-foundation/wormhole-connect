@@ -3,48 +3,52 @@ import { useDispatch } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { setRoute } from 'store/router';
 
-import Header from './Header';
+import Header, { Alignment } from './Header';
 import MenuFull from './MenuFull';
 import DownIcon from 'icons/Down';
 
-const useStyles = makeStyles<{ showHamburgerMenu: boolean }>()(
-  (theme, { showHamburgerMenu }) => ({
-    container: {
-      width: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '8px',
-      marginBottom: showHamburgerMenu ? '40px' : '0px',
-      [theme.breakpoints.down('sm')]: {
-        marginBottom: '20px',
-      },
+const useStyles = makeStyles<{
+  showHamburgerMenu: boolean;
+  align: Alignment;
+}>()((theme, { showHamburgerMenu, align }) => ({
+  container: {
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '8px',
+    marginBottom: showHamburgerMenu ? '40px' : '0px',
+    [theme.breakpoints.down('sm')]: {
+      marginBottom: '20px',
     },
-    header: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      width: '100%',
-    },
-    left: {
-      display: 'flex',
-      alignItems: 'center',
-    },
-    arrowBack: {
-      transform: 'rotate(90deg)',
-      marginRight: '16px',
-      cursor: 'pointer',
-    },
-    description: {
-      fontWeight: '300',
-      fontSize: '14px',
-      opacity: '0.6',
-      marginBottom: showHamburgerMenu ? '0px' : '40px',
-    },
-  }),
-);
+  },
+  header: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
+  },
+  left: {
+    display: 'flex',
+    flexGrow: 1,
+    alignItems: 'center',
+    textAlign: align,
+  },
+  arrowBack: {
+    transform: 'rotate(90deg)',
+    marginRight: '16px',
+    cursor: 'pointer',
+  },
+  description: {
+    fontWeight: '300',
+    fontSize: '14px',
+    opacity: '0.6',
+    marginBottom: showHamburgerMenu ? '0px' : '40px',
+  },
+}));
 
 type PageHeaderProps = {
   title: string;
+  align?: Alignment;
   description?: string;
   back?: boolean;
   showHamburgerMenu?: boolean;
@@ -53,10 +57,11 @@ type PageHeaderProps = {
 function PageHeader({
   back,
   title,
+  align = 'left',
   description,
   showHamburgerMenu = true,
 }: PageHeaderProps) {
-  const { classes } = useStyles({ showHamburgerMenu });
+  const { classes } = useStyles({ showHamburgerMenu, align });
   const dispatch = useDispatch();
   function goBack() {
     dispatch(setRoute('bridge'));
@@ -73,7 +78,7 @@ function PageHeader({
               onClick={goBack}
             />
           )}
-          <Header text={title} align="left" />
+          <Header text={title} align={align} />
         </div>
         {showHamburgerMenu ? <MenuFull /> : null}
       </div>

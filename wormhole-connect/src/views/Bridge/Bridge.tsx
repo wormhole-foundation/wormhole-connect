@@ -214,8 +214,11 @@ function Bridge() {
 
   return (
     <div className={joinClass([classes.bridgeContent, classes.spacer])}>
-      <PageHeader title={pageHeader} showHamburgerMenu={showHamburgerMenu} />
-
+      <PageHeader
+        title={pageHeader.text}
+        align={pageHeader.align}
+        showHamburgerMenu={showHamburgerMenu}
+      />
       <FromInputs />
       <SwapChains />
       <ToInputs />

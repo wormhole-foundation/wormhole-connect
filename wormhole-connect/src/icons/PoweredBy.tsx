@@ -1,6 +1,10 @@
 import React from 'react';
+import { partnerLogo as partnerLogoImg } from 'config';
+import Box from '@mui/material/Box';
+import { makeStyles } from 'tss-react/mui';
+import { Typography } from '@mui/material';
 
-function PoweredByIcon(props: { color: string }) {
+function WormholeLogo(props: { color: string }) {
   return (
     <svg
       width="227"
@@ -63,6 +67,43 @@ function PoweredByIcon(props: { color: string }) {
         fill={props.color}
       />
     </svg>
+  );
+}
+
+const useStyles = makeStyles()((theme) => ({
+  container: {
+    display: 'flex',
+    justifyContent: 'center',
+    flexDirection: 'row',
+  },
+  partnerLogo: {
+    maxHeight: theme.spacing(3),
+  },
+  separator: {
+    paddingLeft: theme.spacing(1),
+    paddingRight: theme.spacing(1),
+  },
+}));
+
+function PartnerLogo() {
+  const { classes } = useStyles();
+  return (
+    <img src={partnerLogoImg} alt="partner" className={classes.partnerLogo} />
+  );
+}
+
+function PoweredByIcon(props: { color: string }) {
+  const { classes } = useStyles();
+  return partnerLogoImg ? (
+    <Box className={classes.container}>
+      <WormholeLogo color={props.color} />
+      <Typography component="span" className={classes.separator}>
+        &
+      </Typography>
+      <PartnerLogo />
+    </Box>
+  ) : (
+    <WormholeLogo color={props.color} />
   );
 }
 

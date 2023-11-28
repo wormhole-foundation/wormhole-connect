@@ -83,6 +83,7 @@ export interface WormholeConnectConfig {
   searchTx?: SearchTxConfig;
   moreTokens?: MoreTokenConfig;
   moreNetworks?: MoreChainConfig;
+  partnerLogo?: string;
 }
 
 export type SearchTxConfig = {
