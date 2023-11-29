@@ -137,20 +137,23 @@ const getWalletOptions = async (
     const suiOptions = await fetchSuiOptions();
     const seiOptions = await fetchSeiOptions();
 
-    const allWallets: Partial<Record<Context, Record<string, Wallet>>> = {
-      [Context.ETH]: wallets.evm,
-      [Context.SOLANA]: wallets.solana,
-      [Context.SUI]: suiOptions,
-      [Context.APTOS]: wallets.aptos,
-      [Context.SEI]: seiOptions,
-      [Context.COSMOS]: wallets.cosmos,
-    };
-    // filter allWallets that are not supported by network list config
     const networkContext = CHAINS_ARR.map((chain) => chain.context);
     const set = new Set(networkContext);
-    Object.keys(allWallets).forEach((context) => {
-      if (!set.has(context as Context)) {
-        delete allWallets[context as Context];
+    // filter allWallets that are not supported by network list config
+    let allWallets: Partial<Record<Context, Record<string, Wallet>>> = {};
+    set.forEach((value) => {
+      if (value === Context.ETH) {
+        allWallets[value] = wallets.evm;
+      } else if (value === Context.SOLANA) {
+        allWallets[value] = wallets.solana;
+      } else if (value === Context.SUI) {
+        allWallets[value] = suiOptions;
+      } else if (value === Context.APTOS) {
+        allWallets[value] = wallets.aptos;
+      } else if (value === Context.SEI) {
+        allWallets[value] = seiOptions;
+      } else if (value === Context.COSMOS) {
+        allWallets[value] = wallets.cosmos;
       }
     });
 
