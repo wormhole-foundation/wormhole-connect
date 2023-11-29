@@ -322,7 +322,7 @@ function WalletsModal(props: Props) {
 
   return (
     <Modal open={!!props.type} closable width={500} onClose={closeWalletModal}>
-      <Header text="Connect wallet" size={28} />
+      <Header text="Connect wallett" size={28} />
       <Spacer height={16} />
       <Search placeholder="Search" onChange={handleSearch} />
       <Spacer height={16} />
