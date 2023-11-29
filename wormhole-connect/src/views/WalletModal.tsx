@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useEffect, useState } from 'react';
+import React, { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import { makeStyles } from 'tss-react/mui';
 import { useTheme } from '@mui/material/styles';
 import { useDispatch, useSelector } from 'react-redux';
@@ -132,17 +132,15 @@ const mapWallets = (
 
 const getWalletOptions = async (
   config: ChainConfig | undefined,
-  chains: ChainConfig[],
+  chains: Set<Context>,
 ): Promise<WalletData[]> => {
   if (!config) {
     const suiOptions = await fetchSuiOptions();
     const seiOptions = await fetchSeiOptions();
 
-    const networkContext = chains.map((chain) => chain.context);
-    const set = new Set(networkContext);
     // filter allWallets that are not supported by network list config
     let allWallets: Partial<Record<Context, Record<string, Wallet>>> = {};
-    set.forEach((value) => {
+    chains.forEach((value) => {
       if (value === Context.ETH) {
         allWallets[value] = wallets.evm;
       } else if (value === Context.SOLANA) {
@@ -193,7 +191,7 @@ const getWalletOptions = async (
 type Props = {
   type: TransferWallet;
   chain?: ChainName;
-  chains?: ChainConfig[];
+  supportedChains?: ChainConfig[];
   onClose?: () => any;
 };
 
@@ -201,7 +199,7 @@ function WalletsModal(props: Props) {
   const { classes } = useStyles();
   const theme: any = useTheme();
   const { chain: chainProp, type } = props;
-  const chains = props.chains || CHAINS_ARR;
+  const chains = props.supportedChains || CHAINS_ARR;
   const dispatch = useDispatch();
   const { fromChain, toChain } = useSelector(
     (state: RootState) => state.transferInput,
@@ -209,6 +207,10 @@ function WalletsModal(props: Props) {
 
   const [walletOptions, setWalletOptions] = useState<WalletData[]>([]);
   const [search, setSearch] = useState('');
+  const supportedChains = useMemo(() => {
+    const networkContext = chains.map((chain) => chain.context);
+    return new Set(networkContext);
+  }, [chains]);
 
   useEffect(() => {
     let cancelled = false;
@@ -217,7 +219,7 @@ function WalletsModal(props: Props) {
         chainProp || (type === TransferWallet.SENDING ? fromChain : toChain);
 
       const config = CHAINS[chain!];
-      return await getWalletOptions(config, chains);
+      return await getWalletOptions(config, supportedChains);
     }
     (async () => {
       const options = await getAvailableWallets();
@@ -228,7 +230,7 @@ function WalletsModal(props: Props) {
     return () => {
       cancelled = true;
     };
-  }, [fromChain, toChain, props.chain, chainProp, type, chains]);
+  }, [fromChain, toChain, props.chain, chainProp, type, supportedChains]);
 
   const handleSearch = (
     e:

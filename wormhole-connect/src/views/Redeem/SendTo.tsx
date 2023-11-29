@@ -207,7 +207,7 @@ function SendTo() {
         <WalletsModal
           type={TransferWallet.RECEIVING}
           chain={txData.toChain}
-          chains={CHAINS_ARR}
+          supportedChains={CHAINS_ARR}
           onClose={() => setWalletModal(false)}
         />
       )}
