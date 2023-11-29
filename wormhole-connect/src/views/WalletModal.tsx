@@ -132,12 +132,13 @@ const mapWallets = (
 
 const getWalletOptions = async (
   config: ChainConfig | undefined,
+  chains: ChainConfig[],
 ): Promise<WalletData[]> => {
   if (!config) {
     const suiOptions = await fetchSuiOptions();
     const seiOptions = await fetchSeiOptions();
 
-    const networkContext = CHAINS_ARR.map((chain) => chain.context);
+    const networkContext = chains.map((chain) => chain.context);
     const set = new Set(networkContext);
     // filter allWallets that are not supported by network list config
     let allWallets: Partial<Record<Context, Record<string, Wallet>>> = {};
@@ -192,6 +193,7 @@ const getWalletOptions = async (
 type Props = {
   type: TransferWallet;
   chain?: ChainName;
+  chains?: ChainConfig[];
   onClose?: () => any;
 };
 
@@ -199,6 +201,7 @@ function WalletsModal(props: Props) {
   const { classes } = useStyles();
   const theme: any = useTheme();
   const { chain: chainProp, type } = props;
+  const chains = props.chains || CHAINS_ARR;
   const dispatch = useDispatch();
   const { fromChain, toChain } = useSelector(
     (state: RootState) => state.transferInput,
@@ -214,7 +217,7 @@ function WalletsModal(props: Props) {
         chainProp || (type === TransferWallet.SENDING ? fromChain : toChain);
 
       const config = CHAINS[chain!];
-      return await getWalletOptions(config);
+      return await getWalletOptions(config, chains);
     }
     (async () => {
       const options = await getAvailableWallets();
@@ -225,7 +228,7 @@ function WalletsModal(props: Props) {
     return () => {
       cancelled = true;
     };
-  }, [fromChain, toChain, props.chain, chainProp, type]);
+  }, [fromChain, toChain, props.chain, chainProp, type, chains]);
 
   const handleSearch = (
     e:
