@@ -138,27 +138,25 @@ const getWalletOptions = async (
     const suiOptions = await fetchSuiOptions();
     const seiOptions = await fetchSeiOptions();
 
+    const allWallets: Partial<Record<Context, Record<string, Wallet>>> = {
+      [Context.ETH]: wallets.evm,
+      [Context.SOLANA]: wallets.solana,
+      [Context.SUI]: suiOptions,
+      [Context.APTOS]: wallets.aptos,
+      [Context.SEI]: seiOptions,
+      [Context.COSMOS]: wallets.cosmos,
+    };
     // filter allWallets that are not supported by network list config
-    let allWallets: Partial<Record<Context, Record<string, Wallet>>> = {};
-    chains.forEach((value) => {
-      if (value === Context.ETH) {
-        allWallets[value] = wallets.evm;
-      } else if (value === Context.SOLANA) {
-        allWallets[value] = wallets.solana;
-      } else if (value === Context.SUI) {
-        allWallets[value] = suiOptions;
-      } else if (value === Context.APTOS) {
-        allWallets[value] = wallets.aptos;
-      } else if (value === Context.SEI) {
-        allWallets[value] = seiOptions;
-      } else if (value === Context.COSMOS) {
-        allWallets[value] = wallets.cosmos;
-      }
-    });
+    const availableWallets: Partial<Record<Context, Record<string, Wallet>>> = [
+      ...chains,
+    ].reduce(
+      (acc, context) => ({ ...acc, [context]: allWallets[context] }),
+      {},
+    );
 
-    return Object.keys(allWallets)
+    return Object.keys(availableWallets)
       .map((value: string) =>
-        mapWallets(allWallets[value as Context]!, value as Context),
+        mapWallets(availableWallets[value as Context]!, value as Context),
       )
       .reduce((acc, arr) => acc.concat(arr), []);
   }
