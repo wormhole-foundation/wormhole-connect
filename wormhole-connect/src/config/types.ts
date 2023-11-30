@@ -87,6 +87,7 @@ export interface WormholeConnectConfig {
   moreTokens?: MoreTokenConfig;
   moreNetworks?: MoreChainConfig;
   partnerLogo?: string;
+  walletConnectProjectId?: string;
 }
 
 export type PageHeader = {

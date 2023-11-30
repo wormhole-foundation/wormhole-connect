@@ -292,12 +292,15 @@ function App() {
 
 ## Configuration Options
 
+### Wallet Connect Project ID
 
-## Toggle Hamburguer Menu
+Required in order to display Wallet Connect as a wallet option. You can get a project ID on https://cloud.walletconnect.com/. Refer to the wallet connect [documentation](https://docs.walletconnect.com/advanced/migration-from-v1.x/overview) for more information on v2.
+
+### Toggle Hamburguer Menu
 
 By setting the `showHamburgerMenu` option to **false**, you can deactivate the hamburger menu, causing the links to be positioned at the bottom.
 
-### Add extra menu entry
+#### Add extra menu entry
 
 By setting the `showHamburgerMenu` option to **false**, you can use the `menu` array to add extra links.
 
@@ -308,7 +311,7 @@ By setting the `showHamburgerMenu` option to **false**, you can use the `menu` a
 |`menu[].target`|anchor standard target, by default `_blank`|
 |`menu[].order`|order where the new item should be injected|
 
-### Sample configuration
+#### Sample configuration
 
 ```json
 {
