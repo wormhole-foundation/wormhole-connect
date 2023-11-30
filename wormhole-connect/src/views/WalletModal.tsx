@@ -191,7 +191,6 @@ const getWalletOptions = async (
 type Props = {
   type: TransferWallet;
   chain?: ChainName;
-  supportedChains?: ChainConfig[];
   onClose?: () => any;
 };
 
@@ -199,7 +198,6 @@ function WalletsModal(props: Props) {
   const { classes } = useStyles();
   const theme: any = useTheme();
   const { chain: chainProp, type } = props;
-  const chains = props.supportedChains || CHAINS_ARR;
   const dispatch = useDispatch();
   const { fromChain, toChain } = useSelector(
     (state: RootState) => state.transferInput,
@@ -208,9 +206,9 @@ function WalletsModal(props: Props) {
   const [walletOptions, setWalletOptions] = useState<WalletData[]>([]);
   const [search, setSearch] = useState('');
   const supportedChains = useMemo(() => {
-    const networkContext = chains.map((chain) => chain.context);
+    const networkContext = CHAINS_ARR.map((chain) => chain.context);
     return new Set(networkContext);
-  }, [chains]);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;

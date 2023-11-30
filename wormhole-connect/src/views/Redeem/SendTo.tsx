@@ -3,7 +3,7 @@ import { Context } from '@wormhole-foundation/wormhole-connect-sdk';
 import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { CHAINS, CHAINS_ARR } from 'config';
+import { CHAINS } from 'config';
 import { RootState } from 'store';
 import { setRedeemTx, setTransferComplete } from 'store/redeem';
 import { displayAddress } from 'utils';
@@ -207,7 +207,6 @@ function SendTo() {
         <WalletsModal
           type={TransferWallet.RECEIVING}
           chain={txData.toChain}
-          supportedChains={CHAINS_ARR}
           onClose={() => setWalletModal(false)}
         />
       )}
