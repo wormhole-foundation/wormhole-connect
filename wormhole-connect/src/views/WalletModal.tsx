@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useEffect, useState } from 'react';
+import React, { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import { makeStyles } from 'tss-react/mui';
 import { useTheme } from '@mui/material/styles';
 import { useDispatch, useSelector } from 'react-redux';
@@ -19,7 +19,7 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { CHAIN_ID_EVMOS } from '@certusone/wormhole-sdk';
 
-import { CHAINS, ENV, RPCS } from 'config';
+import { CHAINS, CHAINS_ARR, ENV, RPCS } from 'config';
 import { RootState } from 'store';
 import { setWalletModal } from 'store/router';
 import {
@@ -132,6 +132,7 @@ const mapWallets = (
 
 const getWalletOptions = async (
   config: ChainConfig | undefined,
+  chains: Set<Context>,
 ): Promise<WalletData[]> => {
   if (!config) {
     const suiOptions = await fetchSuiOptions();
@@ -147,6 +148,7 @@ const getWalletOptions = async (
     };
 
     return Object.keys(allWallets)
+      .filter((value) => chains.has(value as Context))
       .map((value: string) =>
         mapWallets(allWallets[value as Context]!, value as Context),
       )
@@ -195,6 +197,10 @@ function WalletsModal(props: Props) {
 
   const [walletOptions, setWalletOptions] = useState<WalletData[]>([]);
   const [search, setSearch] = useState('');
+  const supportedChains = useMemo(() => {
+    const networkContext = CHAINS_ARR.map((chain) => chain.context);
+    return new Set(networkContext);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -203,7 +209,7 @@ function WalletsModal(props: Props) {
         chainProp || (type === TransferWallet.SENDING ? fromChain : toChain);
 
       const config = CHAINS[chain!];
-      return await getWalletOptions(config);
+      return await getWalletOptions(config, supportedChains);
     }
     (async () => {
       const options = await getAvailableWallets();
@@ -214,7 +220,7 @@ function WalletsModal(props: Props) {
     return () => {
       cancelled = true;
     };
-  }, [fromChain, toChain, props.chain, chainProp, type]);
+  }, [fromChain, toChain, props.chain, chainProp, type, supportedChains]);
 
   const handleSearch = (
     e:
