@@ -424,64 +424,14 @@ export const TESTNET_TOKENS: TokensConfig = {
     icon: Icon.USDC,
     tokenId: {
       chain: 'mumbai',
-      address: '0x0FA8781a83E46826621b3BC094Ea2A0212e71B23',
+      address: '0x9999f7fea5938fd3b1e26a12c3f2fb024e194f97',
     },
     coinGeckoId: 'usd-coin',
     color: '#2774CA',
     decimals: {
       default: 6,
     },
-    foreignAssets: {
-      goerli: {
-        address: '0xB3658B4C6704356F155c369F4583aF68424128e9',
-        decimals: 6,
-      },
-      bsc: {
-        address: '0x88B8b85ED6d39E613d2d1449e1c1B808d505D561',
-        decimals: 6,
-      },
-      fuji: {
-        address: '0xFB2C24197A92598C633Ed8eE60ee90b104d7B145',
-        decimals: 6,
-      },
-      fantom: {
-        address: '0x450dC724a1793b0E2182d09Eb883ad76f7F4C0Aa',
-        decimals: 6,
-      },
-      alfajores: {
-        address: '0x4364bb251a0F33914AAb2088ed435122694Ce2BD',
-        decimals: 6,
-      },
-      moonbasealpha: {
-        address: '0x5366c7204A49D6CdD6A99e647aE695Cb0866FD5e',
-        decimals: 6,
-      },
-      sui: {
-        address:
-          '0xe1deb395283034cbfc81c5acb4c89d3223e5165b5384282c73963aa5262a4993::coin::COIN',
-        decimals: 6,
-      },
-      sei: {
-        address:
-          'sei1vccw9g60mphsaj9t96vru53mjje3vmxcl49lg8lfqdh0zgmq6zsqf03y9n',
-        decimals: 6,
-      },
-      wormchain: {
-        address:
-          'wormhole1qmk0v725sdg5ecu6xfh5pt0fv0nfzrstarue2maum3snzk2zrt5qcm4w3g',
-        decimals: 6,
-      },
-      cosmoshub: {
-        address:
-          'ibc/ED0651B0141CA50326B1FFA2E9207F42BE616DE2712356CF8DA4B8CAC4A6A5B6',
-        decimals: 6,
-      },
-      osmosis: {
-        address:
-          'ibc/FDEEB950A2538F30EBA949B9F8D0D28DAC9D26D0B138445BF0DF9FC4B800E1F9',
-        decimals: 6,
-      },
-    },
+    foreignAssets: {},
   },
   BNB: {
     key: 'BNB',
