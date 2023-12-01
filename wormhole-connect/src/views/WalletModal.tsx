@@ -146,17 +146,11 @@ const getWalletOptions = async (
       [Context.SEI]: seiOptions,
       [Context.COSMOS]: wallets.cosmos,
     };
-    // filter allWallets that are not supported by network list config
-    const availableWallets: Partial<Record<Context, Record<string, Wallet>>> = [
-      ...chains,
-    ].reduce(
-      (acc, context) => ({ ...acc, [context]: allWallets[context] }),
-      {},
-    );
 
-    return Object.keys(availableWallets)
+    return Object.keys(allWallets)
+      .filter((value) => chains.has(value as Context))
       .map((value: string) =>
-        mapWallets(availableWallets[value as Context]!, value as Context),
+        mapWallets(allWallets[value as Context]!, value as Context),
       )
       .reduce((acc, arr) => acc.concat(arr), []);
   }
