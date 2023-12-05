@@ -10,6 +10,12 @@ const useStyles = makeStyles()((theme) => ({
     ...LINK(theme),
     transform: 'translateX(10px)',
   },
+  linkText: {
+    [theme.breakpoints.down('sm')]: {
+      wordBreak: 'break-word',
+      textAlign: 'right',
+    },
+  },
 }));
 
 type ExplorerLinkProps = {
@@ -75,7 +81,7 @@ function ExplorerLink(props: ExplorerLinkProps) {
       target="_blank"
       rel="noreferrer"
     >
-      <div>{chainConfig.explorerName}</div>
+      <div className={classes.linkText}>{chainConfig.explorerName}</div>
       <LaunchIcon />
     </a>
   );

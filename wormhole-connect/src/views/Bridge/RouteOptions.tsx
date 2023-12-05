@@ -81,6 +81,7 @@ const useStyles = makeStyles()((theme: any) => ({
     alignItems: 'flex-end',
     padding: '4px 0',
     height: '100%',
+    textAlign: 'right',
   },
   routeAmt: {
     opacity: '0.6',
