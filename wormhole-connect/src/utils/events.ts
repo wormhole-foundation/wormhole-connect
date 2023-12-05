@@ -1,21 +1,18 @@
-import { BigNumber } from 'ethers';
-import { arrayify } from 'ethers/lib/utils.js';
 import {
   ChainName,
   EthContext,
-  SuiContext,
-  SeiContext,
   SolanaContext,
   WormholeContext,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { ParsedRelayerMessage, wh } from './sdk';
-import { fromNormalizedDecimals } from '.';
 import { CHAINS } from 'config';
-import { fetchGlobalTx, getEmitterAndSequence } from './vaa';
-import { isEvmChain } from 'utils/sdk';
-import RouteOperator from '../routes/operator';
 import { Route } from 'config/types';
+import { BigNumber } from 'ethers';
+import { isEvmChain } from 'utils/sdk';
+import { fromNormalizedDecimals } from '.';
 import { SignedMessage } from '../routes';
+import RouteOperator from '../routes/operator';
+import { ParsedRelayerMessage, wh } from './sdk';
+import { fetchGlobalTx, getEmitterAndSequence } from './vaa';
 
 export const fetchRedeemTx = async (
   route: Route,
@@ -52,44 +49,6 @@ export const fetchRedeemedEvent = async (
       sequence,
     );
     return signature ? { transactionHash: signature } : null;
-  } else if (txData.toChain === 'sui') {
-    const context = wh.getContext(
-      txData.toChain,
-    ) as SuiContext<WormholeContext>;
-    const { suiOriginalTokenBridgePackageId } =
-      context.context.mustGetContracts('sui');
-    if (!suiOriginalTokenBridgePackageId)
-      throw new Error('suiOriginalTokenBridgePackageId not set');
-    const provider = context.provider;
-    // full nodes don't let us filter by `MoveEventField`
-    const events = await provider.queryEvents({
-      query: {
-        MoveEventType: `${suiOriginalTokenBridgePackageId}::complete_transfer::TransferRedeemed`,
-      },
-      order: 'descending',
-    });
-    for (const event of events.data) {
-      if (
-        `0x${Buffer.from(event.parsedJson?.emitter_address.value.data).toString(
-          'hex',
-        )}` === emitter &&
-        Number(event.parsedJson?.emitter_chain) === emitterChain &&
-        event.parsedJson?.sequence === sequence
-      ) {
-        return { transactionHash: event.id.txDigest };
-      }
-    }
-    return null;
-  } else if (txData.toChain === 'sei') {
-    const context = wh.getContext(
-      txData.toChain,
-    ) as SeiContext<WormholeContext>;
-    const transactionHash = await context.fetchRedeemedEvent(
-      emitterChain,
-      emitter,
-      sequence,
-    );
-    return transactionHash ? { transactionHash } : null;
   } else {
     const provider = wh.mustGetProvider(txData.toChain);
     const context: any = wh.getContext(
@@ -132,35 +91,6 @@ export const fetchSwapEvent = async (txData: ParsedRelayerMessage) => {
       const swapEvent = await relayer.fetchSwapEvent(signature);
       return swapEvent ? BigNumber.from(swapEvent.nativeAmount) : null;
     }
-  } else if (txData.toChain === 'sui') {
-    const context = wh.getContext(
-      txData.toChain,
-    ) as SuiContext<WormholeContext>;
-    const { suiRelayerPackageId } = context.context.mustGetContracts('sui');
-    if (!suiRelayerPackageId) throw new Error('suiRelayerPackageId not set');
-    const provider = context.provider;
-    // full nodes don't let us query by `MoveEventField`
-    const events = await provider.queryEvents({
-      query: {
-        MoveEventType: `${suiRelayerPackageId}::redeem::SwapExecuted`,
-      },
-      order: 'descending',
-    });
-    const tokenContext = wh.getContext(tokenId.chain);
-    const tokenAddress = arrayify(
-      await tokenContext.formatAssetAddress(tokenId.address),
-    );
-    for (const event of events.data) {
-      if (
-        event.parsedJson?.recipient === recipient &&
-        event.parsedJson?.coin_amount === toNativeTokenAmount &&
-        event.parsedJson?.coin ===
-          `0x${Buffer.from(tokenAddress).toString('hex')}`
-      ) {
-        return BigNumber.from(event.parsedJson?.sui_amount);
-      }
-    }
-    return null;
   } else if (isEvmChain(wh.toChainId(txData.toChain))) {
     const provider = wh.mustGetProvider(txData.toChain);
     const context: any = wh.getContext(txData.toChain);

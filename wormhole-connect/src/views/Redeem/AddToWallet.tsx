@@ -1,26 +1,22 @@
-import { Link, Typography } from '@mui/material';
 import { isEVMChain } from '@certusone/wormhole-sdk';
+import { Link, Typography } from '@mui/material';
+import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
-import {
-  ChainName,
-  SuiContext,
-  WormholeContext,
-} from '@wormhole-foundation/wormhole-connect-sdk';
 
 import { CHAINS, TOKENS } from 'config';
 import { MAINNET_CHAINS } from 'config/mainnet';
 import { TokenConfig } from 'config/types';
 import { RootState } from 'store';
 import { setWalletModal } from 'store/router';
-import { getTokenDecimals, getWrappedToken, getDisplayName } from 'utils';
+import { getDisplayName, getTokenDecimals, getWrappedToken } from 'utils';
 import { wh } from 'utils/sdk';
 import { TransferWallet, switchChain, watchAsset } from 'utils/wallet';
 
 import TokenIcon from 'icons/TokenIcons';
-import ExplorerLink from './ExplorerLink';
 import { isGatewayChain } from 'utils/cosmos';
+import ExplorerLink from './ExplorerLink';
 
 const useStyles = makeStyles()((theme) => ({
   addToken: {
@@ -164,16 +160,6 @@ function AddToWallet() {
       const wrapped = getWrappedToken(tokenInfo);
       if (!wrapped.tokenId) return;
       const address = await wh.getForeignAsset(wrapped.tokenId, txData.toChain);
-
-      if (txData.toChain === 'sui' && address) {
-        const context = wh.getContext('sui') as SuiContext<WormholeContext>;
-        const metadata = await context.provider.getCoinMetadata({
-          coinType: address,
-        });
-        setTargetAddress(metadata?.id);
-        setTargetToken(wrapped);
-        return;
-      }
 
       setTargetAddress(address);
       setTargetToken(wrapped);

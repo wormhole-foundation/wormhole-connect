@@ -21,7 +21,6 @@ import { BridgeRoute } from './bridge';
 import { RelayRoute } from './relay';
 // import { HashflowRoute } from './hashflow';
 import { CCTPRelayRoute } from './cctpRelay';
-import { CosmosGatewayRoute } from './cosmosGateway';
 import { RouteAbstract } from './abstracts/routeAbstract';
 import {
   UnsignedMessage,
@@ -54,9 +53,6 @@ export class Operator {
       // case Route.Hashflow: {
       //   return new HashflowRoute();
       // }
-      case Route.CosmosGateway: {
-        return new CosmosGatewayRoute();
-      }
       case Route.TBTC: {
         return new TBTCRoute();
       }

@@ -1,8 +1,8 @@
-import { getSignedVAA, parseTokenTransferVaa } from '@certusone/wormhole-sdk';
+import { parseTokenTransferVaa } from '@certusone/wormhole-sdk';
 import { Implementation__factory } from '@certusone/wormhole-sdk/lib/esm/ethers-contracts';
-import { utils, providers, BigNumberish } from 'ethers';
-import axios from 'axios';
 import { ChainId, ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+import axios from 'axios';
+import { BigNumberish, providers, utils } from 'ethers';
 
 import { CHAINS, ENV, WORMHOLE_API } from 'config';
 import {
@@ -184,12 +184,10 @@ export async function fetchVaaGuardian(
   const messageId = getEmitterAndSequence(txData);
   const { emitterChain, emitterAddress, sequence } = messageId;
 
-  const { vaaBytes: vaa } = await getSignedVAA(
-    WORMHOLE_RPC_HOSTS[0],
-    emitterChain,
-    emitterAddress,
-    sequence,
+  const response = await axios.get(
+    `${WORMHOLE_RPC_HOSTS[0]}/v1/signed_vaa/${emitterChain}/${emitterAddress}/${sequence}`,
   );
+  const vaa = Buffer.from(response.data.vaaBytes, 'base64');
 
   const parsed = parseTokenTransferVaa(vaa);
 

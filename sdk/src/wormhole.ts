@@ -4,10 +4,8 @@ import { BigNumber } from 'ethers';
 
 import MAINNET_CONFIG, { MAINNET_CHAINS } from './config/MAINNET';
 import TESTNET_CONFIG, { TESTNET_CHAINS } from './config/TESTNET';
-import { AptosContext } from './contexts/aptos';
 import { EthContext } from './contexts/eth';
 import { SolanaContext } from './contexts/solana/context';
-import { SuiContext } from './contexts/sui';
 import {
   AnyContext,
   ChainId,
@@ -22,9 +20,7 @@ import {
   TokenId,
   WormholeConfig,
 } from './types';
-import { SeiContext } from './contexts/sei';
 import DEVNET_CONFIG, { DEVNET_CHAINS } from './config/DEVNET';
-import { CosmosContext } from './contexts/cosmos';
 import { ForeignAssetCache } from './utils';
 
 /**
@@ -166,18 +162,6 @@ export class WormholeContext extends MultiProvider<Domain> {
       case Context.SOLANA: {
         return new SolanaContext(this, this.foreignAssetCache);
       }
-      case Context.SUI: {
-        return new SuiContext(this, this.foreignAssetCache);
-      }
-      case Context.APTOS: {
-        return new AptosContext(this, this.foreignAssetCache);
-      }
-      case Context.SEI: {
-        return new SeiContext(this, this.foreignAssetCache);
-      }
-      case Context.COSMOS: {
-        return new CosmosContext(this, chainName, this.foreignAssetCache);
-      }
       default: {
         throw new Error('Not able to retrieve context');
       }
@@ -244,7 +228,7 @@ export class WormholeContext extends MultiProvider<Domain> {
     asset?: string,
   ): Promise<BigNumber> {
     const context = this.getContext(chain);
-    return await context.getNativeBalance(walletAddress, chain, asset);
+    return await context.getNativeBalance(walletAddress, chain);
   }
 
   /**
@@ -308,16 +292,6 @@ export class WormholeContext extends MultiProvider<Domain> {
     payload?: Uint8Array,
   ): Promise<SendResult> {
     const context = this.getContext(sendingChain);
-
-    if (recipientChain === 'sei') {
-      if (payload) throw new Error('Custom payload is not supported for Sei');
-
-      const { payload: seiPayload, receiver } = await (
-        this.getContext('sei') as SeiContext<WormholeContext>
-      ).buildSendPayload(token, recipientAddress);
-      recipientAddress = receiver || recipientAddress;
-      payload = seiPayload || payload;
-    }
 
     if (payload) {
       return context.sendWithPayload(
