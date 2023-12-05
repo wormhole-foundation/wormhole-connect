@@ -64,12 +64,4 @@ export const RoutesConfig: {
     icon: WormholeIcon,
     pendingMessage: 'Waiting for Wormhole network consensus . . .',
   },
-  [Route.CosmosGateway]: {
-    route: Route.CosmosGateway,
-    name: 'Cosmos Gateway',
-    providedBy: 'Wormhole',
-    link: 'https://wormhole.com/',
-    icon: WormholeIcon,
-    pendingMessage: 'Waiting for Wormhole network consensus . . .',
-  },
 };

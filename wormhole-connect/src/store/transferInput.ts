@@ -208,7 +208,6 @@ const establishRoute = (state: TransferInputState) => {
     return;
   }
   const routeOrderOfPreference = [
-    Route.CosmosGateway,
     Route.CCTPRelay,
     Route.CCTPManual,
     Route.TBTC,

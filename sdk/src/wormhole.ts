@@ -163,6 +163,7 @@ export class WormholeContext extends MultiProvider<Domain> {
         return new SolanaContext(this, this.foreignAssetCache);
       }
       default: {
+        console.log('err', chain);
         throw new Error('Not able to retrieve context');
       }
     }

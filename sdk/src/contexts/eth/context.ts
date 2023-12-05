@@ -82,6 +82,7 @@ export class EthContext<
     if (toChainId === chainId) return tokenId.address;
     // else fetch the representation
     const tokenBridge = this.contracts.mustGetBridge(chain, provider);
+    console.log(tokenId.chain);
     const sourceContext = this.context.getContext(tokenId.chain);
     const tokenAddr = await sourceContext.formatAssetAddress(tokenId.address);
     return async () => {

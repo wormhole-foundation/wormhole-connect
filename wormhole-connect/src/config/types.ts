@@ -43,7 +43,6 @@ export enum Route {
   Bridge = 'bridge',
   Relay = 'relay',
   // Hashflow = 'hashflow',
-  CosmosGateway = 'cosmosGateway',
   CCTPManual = 'cctpManual',
   CCTPRelay = 'cctpRelay',
   TBTC = 'tbtc',

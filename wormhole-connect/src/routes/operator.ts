@@ -7,7 +7,7 @@ import {
 import { BigNumber } from 'ethers';
 
 import { CHAINS, ROUTES, TOKENS, TOKENS_ARR } from 'config';
-import { TokenConfig, Route } from 'config/types';
+import { Route, TokenConfig } from 'config/types';
 import {
   ParsedMessage,
   PayloadType,
@@ -16,24 +16,23 @@ import {
   solanaContext,
   wh,
 } from 'utils/sdk';
-import { isGatewayChain } from 'utils/cosmos';
 import { BridgeRoute } from './bridge';
 import { RelayRoute } from './relay';
 // import { HashflowRoute } from './hashflow';
-import { CCTPRelayRoute } from './cctpRelay';
+import { getTokenById } from 'utils';
 import { RouteAbstract } from './abstracts/routeAbstract';
-import {
-  UnsignedMessage,
-  SignedMessage,
-  TransferDisplayData,
-  TransferInfoBaseParams,
-} from './types';
 import {
   CCTPManualRoute,
   CCTP_LOG_TokenMessenger_DepositForBurn,
 } from './cctpManual';
+import { CCTPRelayRoute } from './cctpRelay';
 import { TBTCRoute } from './tbtc';
-import { getTokenById } from 'utils';
+import {
+  SignedMessage,
+  TransferDisplayData,
+  TransferInfoBaseParams,
+  UnsignedMessage,
+} from './types';
 
 export class Operator {
   getRoute(route: Route): RouteAbstract {
@@ -63,10 +62,6 @@ export class Operator {
   }
 
   async getRouteFromTx(txHash: string, chain: ChainName): Promise<Route> {
-    if (isGatewayChain(chain)) {
-      return Route.CosmosGateway;
-    }
-
     if (isEvmChain(chain)) {
       const provider = wh.mustGetProvider(chain);
       const receipt = await provider.getTransactionReceipt(txHash);
@@ -93,10 +88,6 @@ export class Operator {
 
     if (message.toChain === 'sei') {
       return Route.Relay;
-    }
-
-    if (isGatewayChain(message.fromChain) || isGatewayChain(message.toChain)) {
-      return Route.CosmosGateway;
     }
 
     const token = getTokenById(message.tokenId);

@@ -1692,21 +1692,6 @@ export const TESTNET_TOKENS: TokensConfig = {
       },
     },
   },
-  OSMO: {
-    key: 'OSMO',
-    symbol: 'OSMO',
-    nativeChain: 'osmosis',
-    tokenId: {
-      chain: 'osmosis',
-      address: 'uosmo',
-    },
-    icon: Icon.OSMO,
-    coinGeckoId: 'osmosis',
-    color: '#FFFFFF',
-    decimals: {
-      default: 6,
-    },
-  },
   tBTC: {
     key: 'tBTC',
     symbol: 'tBTC',
@@ -1957,53 +1942,6 @@ export const TESTNET_TOKENS: TokensConfig = {
         address: '0xE12be3D96fE101246bF2d290184B0eC6D35d02CA',
         decimals: 6,
       },
-    },
-  },
-  ATOM: {
-    key: 'ATOM',
-    symbol: 'ATOM',
-    nativeChain: 'cosmoshub',
-    tokenId: {
-      chain: 'cosmoshub',
-      address: 'uatom',
-    },
-    icon: Icon.ATOM,
-    coinGeckoId: 'cosmos-hub',
-    color: '#6f7390',
-    decimals: {
-      default: 6,
-    },
-  },
-  EVMOS: {
-    key: 'EVMOS',
-    symbol: 'EVMOS',
-    nativeChain: 'evmos',
-    tokenId: {
-      chain: 'evmos',
-      address: 'atevmos',
-    },
-    icon: Icon.EVMOS,
-    coinGeckoId: 'evmos',
-    color: '#ed4e33',
-    decimals: {
-      Cosmos: 18,
-      Ethereum: 18,
-      default: 8,
-    },
-  },
-  KUJI: {
-    key: 'KUJI',
-    symbol: 'KUJI',
-    nativeChain: 'kujira',
-    tokenId: {
-      chain: 'kujira',
-      address: 'ukuji',
-    },
-    icon: Icon.KUJI,
-    coinGeckoId: 'kujira',
-    color: '#f51f1e',
-    decimals: {
-      default: 6,
     },
   },
 };
