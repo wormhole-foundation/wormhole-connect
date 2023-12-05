@@ -132,6 +132,11 @@ export const CTA = config && config.cta;
 export const BRIDGE_DEFAULTS =
   config && validateDefaults(config.bridgeDefaults);
 
+export const WALLET_CONNECT_PROJECT_ID =
+  config && config.walletConnectProjectId
+    ? config.walletConnectProjectId
+    : process.env.REACT_APP_WALLET_CONNECT_PROJECT_ID;
+
 export const TESTNET_TO_MAINNET_CHAIN_NAMES: {
   [k in TestnetChainName]: MainnetChainName;
 } = {

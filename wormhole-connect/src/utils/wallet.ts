@@ -13,7 +13,7 @@ import { NotSupported, Wallet } from '@xlabs-libs/wallet-aggregator-core';
 import {
   EVMWallet,
   MetamaskWallet,
-  WalletConnectLegacyWallet,
+  WalletConnectWallet,
 } from '@xlabs-libs/wallet-aggregator-evm';
 import {
   CosmosTransaction,
@@ -60,7 +60,15 @@ import { AptosWallet } from '@xlabs-libs/wallet-aggregator-aptos';
 import { Types } from 'aptos';
 
 import { wh } from './sdk';
-import { CHAINS, CHAINS_ARR, ENV, REST, RPCS, isMainnet } from 'config';
+import {
+  CHAINS,
+  CHAINS_ARR,
+  ENV,
+  REST,
+  RPCS,
+  WALLET_CONNECT_PROJECT_ID,
+  isMainnet,
+} from 'config';
 import { getChainByChainId } from 'utils';
 
 export enum TransferWallet {
@@ -109,7 +117,15 @@ const buildCosmosWallets = (evm?: boolean) => {
 export const wallets = {
   evm: {
     metamask: new MetamaskWallet(),
-    walletConnect: new WalletConnectLegacyWallet(),
+    ...(WALLET_CONNECT_PROJECT_ID
+      ? {
+          walletConnect: new WalletConnectWallet({
+            connectorOptions: {
+              projectId: WALLET_CONNECT_PROJECT_ID,
+            },
+          }),
+        }
+      : {}),
   },
   solana: {
     phantom: new SolanaWallet(new PhantomWalletAdapter(), connection),
