@@ -775,9 +775,10 @@ export class SolanaContext<
       return programId === wormholeCore && emitterId.equals(tokenBridge);
     });
 
+    const messageAccount = accounts[bridgeInstructions[0].accounts[1]];
     const { message } = await getPostedMessage(
       this.connection,
-      accounts[bridgeInstructions[0].accounts[1]],
+      messageAccount,
       'finalized',
     );
 
@@ -794,11 +795,18 @@ export class SolanaContext<
     const transfer = parseTokenTransferPayload(message.payload);
 
     // get sequence
-    const sequence = response.meta?.logMessages
+    let sequence = response.meta?.logMessages
       ?.filter((msg) => msg.startsWith(SOLANA_SEQ_LOG))?.[0]
       ?.replace(SOLANA_SEQ_LOG, '');
+
     if (!sequence) {
-      throw new Error('sequence not found');
+      // fallback to message account data
+      const info = await this.connection.getAccountInfo(messageAccount);
+      sequence = info?.data.readBigUInt64LE(49).toString();
+
+      if (!sequence) {
+        throw new Error('sequence not found');
+      }
     }
 
     // format response
