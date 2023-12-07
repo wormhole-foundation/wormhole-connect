@@ -81,6 +81,10 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
       ...CONTRACTS.MAINNET.polygon,
       relayer: '0xcafd2f0a35a4459fa40c0517e17e6fa2939441ca',
       tbtcGateway: '0x09959798B95d00a3183d20FaC298E4594E599eab',
+      cctpContracts: {
+        cctpMessageTransmitter: '0xF3be9355363857F3e001be68856A2f96b4C39Ba9',
+        cctpTokenMessenger: '0x9daF8c91AEFAE50b9c0E69629D3F6Ca40cA3B3FE',
+      },
     },
     finalityThreshold: 512,
     nativeTokenDecimals: 18,

@@ -12,6 +12,7 @@ export const CCTPManual_CHAINS: ChainName[] = [
   'optimismgoerli',
   'arbitrumgoerli',
   'basegoerli',
+  'polygon',
   'mumbai',
 ];
 

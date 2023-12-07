@@ -567,7 +567,7 @@ export const MAINNET_TOKENS: TokensConfig = {
     icon: Icon.USDC,
     tokenId: {
       chain: 'polygon',
-      address: '0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
+      address: '0x3c499c542cef5e3811e1192ce70d8cc03d5c3359',
     },
     coinGeckoId: 'usd-coin',
     color: '#2774CA',
