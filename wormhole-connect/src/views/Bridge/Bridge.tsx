@@ -225,10 +225,9 @@ function Bridge() {
 
       <ValidationError validations={[validations.route]} margin="12px 0 0 0" />
 
+      <RouteOptions />
       <Collapse in={valid && showValidationState}>
         <div className={classes.spacer}>
-          <RouteOptions />
-
           <Collapse
             in={showGasSlider}
             sx={

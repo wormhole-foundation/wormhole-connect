@@ -73,7 +73,7 @@ function FromInputs() {
       selected={selectedToken}
       error={!!(showErrors && validations.token)}
       onClick={() => setShowTokensModal(true)}
-      disabled={!fromChain || !wallet.address || isTransactionInProgress}
+      disabled={!fromChain || isTransactionInProgress}
       editable
     />
   );
