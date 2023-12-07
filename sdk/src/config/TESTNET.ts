@@ -83,6 +83,8 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
       cctpContracts: {
         cctpTokenMessenger: '0x9f3B8679c73C2Fef8b59B4f3444d4e156fb70AA5',
         cctpMessageTransmitter: '0xe09A679F56207EF33F5b9d8fb4499Ec00792eA73',
+        wormholeCCTP: '0x2703483B1a5a7c577e8680de9Df8Be03c6f30e3c',
+        wormholeCircleRelayer: '0x4cb69FaE7e7Af841e44E1A1c30Af640739378bb2',
       },
     },
     finalityThreshold: 64,
