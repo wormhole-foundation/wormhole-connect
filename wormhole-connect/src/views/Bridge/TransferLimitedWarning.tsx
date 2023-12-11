@@ -1,25 +1,202 @@
 import React from 'react';
 import useIsTransferLimited from 'hooks/useIsTransferLimited';
-import AlertBanner from 'components/AlertBanner';
 import { wh } from 'utils/sdk';
+import { Dialog, ScopedCssBaseline } from '@mui/material';
+import CloseIcon from 'icons/Close';
+import Button from 'components/Button';
+import ClockIcon from 'icons/Clock';
+import { makeStyles } from 'tss-react/mui';
+
+const useStyles = makeStyles()((theme: any) => ({
+  dialog: {
+    zIndex: 10,
+  },
+  paper: {
+    borderRadius: 24,
+    [theme.breakpoints.down('sm')]: {
+      maxWidth: '100%',
+      maxHeight: '100%',
+      margin: 0,
+      borderRadius: 0,
+    },
+  },
+  container: {
+    position: 'relative',
+    width: '100%',
+    margin: '0 auto',
+    display: 'flex',
+    justifyContent: 'center',
+  },
+  modal: {
+    width: '100%',
+    padding: 32,
+    position: 'relative',
+    maxHeight: 'calc( 100vh - 80px )',
+    [theme.breakpoints.down('sm')]: {
+      padding: '24px 12px',
+      maxHeight: '100%',
+    },
+  },
+  close: {
+    color: '#3C3D77',
+    position: 'absolute',
+    top: '28px',
+    right: '28px',
+    cursor: 'pointer',
+    opacity: '70%',
+    zIndex: '10',
+    [theme.breakpoints.down('sm')]: {
+      top: '12px',
+      right: '20px',
+    },
+  },
+  background: {
+    background: theme.palette.modal.background,
+  },
+  icon: {
+    textAlign: 'center',
+    paddingTop: 24,
+    paddingBottom: 24,
+  },
+  title: {
+    textAlign: 'center',
+    fontSize: 24,
+    fontWeight: 600,
+    lineHeight: '32px',
+    paddingTop: 24,
+    paddingBottom: 24,
+    borderBottom: '1px solid #313266',
+  },
+  text: {
+    fontSize: '16px',
+    fontWeight: 400,
+    lineHeight: '24px',
+    color: '#9495D6',
+    paddingTop: 24,
+    paddingBottom: 24,
+  },
+  link: {
+    color: '#D5D5EB',
+    textDecorationLine: 'underline',
+  },
+  orange: {
+    color: '#E48329',
+  },
+  clock: {
+    width: 64,
+    height: 64,
+  },
+  buttonContainer: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    marginTop: '24px',
+    gap: 10,
+    [theme.breakpoints.down('sm')]: {
+      flexDirection: 'column',
+    },
+  },
+}));
+// TODO: Put the link to the learn more page
+const learnMoreLink = '';
 
 const TransferLimitedWarning = () => {
+  const { classes } = useStyles();
+  const [open, setOpen] = React.useState(true);
   const isTransferLimited = useIsTransferLimited();
+
+  const onClose = () => {
+    setOpen(false);
+  };
+
   if (
     isTransferLimited.isLimited &&
     isTransferLimited.reason &&
     isTransferLimited.limits
   ) {
     const chainName = wh.toChainName(isTransferLimited.limits.chainId);
-    const message =
-      isTransferLimited.reason === 'EXCEEDS_MAX_NOTIONAL'
-        ? `This transfer's estimated notional value would exceed the notional value limit for transfers on ${chainName} (${isTransferLimited.limits.chainNotionalLimit}) and may be subject to a 24 hour delay.`
-        : isTransferLimited.reason === 'EXCEEDS_LARGE_TRANSFER_LIMIT'
-        ? `This transfer's estimated notional value may exceed the notional value for large transfers on ${chainName} (${isTransferLimited.limits.chainBigTransactionSize}) and may be subject to a 24 hour delay.`
-        : isTransferLimited.reason === 'EXCEEDS_REMAINING_NOTIONAL'
-        ? `This transfer's estimated notional value may exceed the remaining notional value available for transfers on ${chainName} (${isTransferLimited.limits.chainRemainingAvailableNotional}) and may be subject to a delay.`
-        : '';
-    return <AlertBanner show={!!message} content={message} error />;
+
+    let message, title;
+    if (isTransferLimited.reason === 'EXCEEDS_MAX_NOTIONAL') {
+      title = (
+        <>
+          This transaction will take up to{' '}
+          <span className={classes.orange}>24 hours</span> to complete
+        </>
+      );
+      message = (
+        <>
+          This transaction will take up to 24 hours to process as Wormhole has
+          reached the daily limit for source Blockchain.
+          <br />
+          <br />
+          This is a normal and temporary security feature by the Wormhole
+          network.
+          <br />
+          <br />
+          <a href={learnMoreLink}>Learn more</a> about this temporary security
+          measure.
+        </>
+      );
+    } else if (isTransferLimited.reason === 'EXCEEDS_LARGE_TRANSFER_LIMIT') {
+      title = (
+        <>
+          This transaction requires{' '}
+          <span className={classes.orange}>24 hours</span> to complete
+        </>
+      );
+      message = (
+        <>
+          This transaction will take 24 hours to process, as it exceeds the
+          Wormhole network's temporary transaction limit of {chainName}(
+          {isTransferLimited.limits.chainBigTransactionSize}) for security
+          reasons.
+          <br />
+          <br />
+          You may also split the transaction into smaller transactions less than{' '}
+          {chainName} ({isTransferLimited.limits.chainBigTransactionSize}) each
+          to avoid the 24 hour security delay.
+          <br />
+          <br />
+          <a href={learnMoreLink}>Learn more</a> about this temporary mesure.
+        </>
+      );
+    } else if (isTransferLimited.reason === 'EXCEEDS_REMAINING_NOTIONAL') {
+      // TODO: ask about this case design
+      title = <>This transaction will may be subject to a delay</>;
+      message = `This transfer's estimated notional value may exceed the remaining notional value available for transfers on ${chainName} (${isTransferLimited.limits.chainRemainingAvailableNotional}) and may be subject to a delay.`;
+    }
+    if (message && title) {
+      return (
+        <Dialog
+          open={open}
+          sx={{ borderRadius: 8 }}
+          className={classes.dialog}
+          classes={{ paper: classes.paper }}
+        >
+          <ScopedCssBaseline enableColorScheme>
+            <div className={classes.container} onClick={onClose}>
+              <CloseIcon
+                sx={{ fontSize: 32 }}
+                className={classes.close}
+                onClick={onClose}
+              />
+              <div className={classes.modal}>
+                <div className={classes.icon}>
+                  <ClockIcon />
+                </div>
+                <div className={classes.title}>{title}</div>
+                <div className={classes.text}>{message}</div>
+                <div className={classes.buttonContainer}>
+                  <Button text>Cancel</Button>
+                  <Button>Continue</Button>
+                </div>
+              </div>
+            </div>
+          </ScopedCssBaseline>
+        </Dialog>
+      );
+    }
+    return null;
   }
   return null;
 };
