@@ -457,13 +457,8 @@ export class RelayRoute extends BridgeRoute implements RelayAbstract {
       txData.tokenDecimals,
       MAX_DECIMALS,
     );
-    const formattedToNative = toNormalizedDecimals(
-      txData.toNativeTokenAmount,
-      txData.tokenDecimals,
-      MAX_DECIMALS,
-    );
     const { gasToken } = CHAINS[txData.toChain]!;
-    return [
+    let rows = [
       {
         title: 'Amount',
         value: `${formattedAmt} ${getDisplayName(token)}`,
@@ -478,13 +473,24 @@ export class RelayRoute extends BridgeRoute implements RelayAbstract {
         title: 'Relayer fee',
         value: `${formattedFee} ${getDisplayName(token)}`,
       },
-      {
+    ];
+
+    if (!BigNumber.from(txData.toNativeTokenAmount).isZero()) {
+      const formattedToNative = toNormalizedDecimals(
+        txData.toNativeTokenAmount,
+        txData.tokenDecimals,
+        MAX_DECIMALS,
+      );
+
+      rows.push({
         title: 'Convert to native gas token',
         value: `≈ ${formattedToNative} ${getDisplayName(
           token,
         )} \u2192 ${getDisplayName(TOKENS[gasToken])}`,
-      },
-    ];
+      });
+    }
+
+    return rows;
   }
 
   async getTransferDestInfo({
