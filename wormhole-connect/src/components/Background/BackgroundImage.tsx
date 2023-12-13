@@ -1,7 +1,6 @@
 import React from 'react';
 import { makeStyles } from 'tss-react/mui';
 
-import bg from './bg.svg';
 import { OPACITY } from '../../utils/style';
 import { THEME } from 'config';
 
@@ -38,7 +37,7 @@ const useStyles = makeStyles()(() => ({
     left: 0,
     right: 0,
     overscrollBehaviorY: 'none',
-    backgroundImage: `url(${bg})`,
+    backgroundImage: `url(circles.svg)`,
     backgroundPosition: 'top center',
     backgroundRepeat: 'repeat-y',
     backgroundSize: '120%',
