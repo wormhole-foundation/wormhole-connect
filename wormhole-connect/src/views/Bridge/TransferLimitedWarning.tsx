@@ -96,8 +96,9 @@ const useStyles = makeStyles()((theme: any) => ({
     },
   },
 }));
-// TODO: Put the link to the learn more page
-const learnMoreLink = '';
+
+const learnMoreLink =
+  'https://github.com/wormhole-foundation/wormhole/blob/main/whitepapers/0007_governor.md';
 
 const TransferLimitedWarning = () => {
   const { classes } = useStyles();
@@ -108,6 +109,13 @@ const TransferLimitedWarning = () => {
     setOpen(false);
   };
 
+  const onContinue = () => {
+    setOpen(false);
+    setTimeout(() => {
+      window.scrollTo(0, document.body.scrollHeight);
+    }, 500);
+  };
+
   if (
     isTransferLimited.isLimited &&
     isTransferLimited.reason &&
@@ -116,7 +124,11 @@ const TransferLimitedWarning = () => {
     const chainName = wh.toChainName(isTransferLimited.limits.chainId);
 
     let message, title;
-    if (isTransferLimited.reason === 'EXCEEDS_MAX_NOTIONAL') {
+    if (
+      isTransferLimited.reason === 'EXCEEDS_MAX_NOTIONAL' ||
+      isTransferLimited.reason === 'EXCEEDS_REMAINING_NOTIONAL'
+    ) {
+      // TODO: See if its necessary a different message for EXCEEDS_REMAINING_NOTIONAL case
       title = (
         <>
           This transaction will take up to{' '}
@@ -133,8 +145,10 @@ const TransferLimitedWarning = () => {
           network.
           <br />
           <br />
-          <a href={learnMoreLink}>Learn more</a> about this temporary security
-          measure.
+          <a href={learnMoreLink} target="_blank" rel="noreferrer">
+            Learn more
+          </a>{' '}
+          about this temporary security measure.
         </>
       );
     } else if (isTransferLimited.reason === 'EXCEEDS_LARGE_TRANSFER_LIMIT') {
@@ -147,7 +161,7 @@ const TransferLimitedWarning = () => {
       message = (
         <>
           This transaction will take 24 hours to process, as it exceeds the
-          Wormhole network's temporary transaction limit of {chainName}(
+          Wormhole network's temporary transaction limit of {chainName} (
           {isTransferLimited.limits.chainBigTransactionSize}) for security
           reasons.
           <br />
@@ -157,13 +171,12 @@ const TransferLimitedWarning = () => {
           to avoid the 24 hour security delay.
           <br />
           <br />
-          <a href={learnMoreLink}>Learn more</a> about this temporary mesure.
+          <a href={learnMoreLink} target="_blank" rel="noreferrer">
+            Learn more
+          </a>{' '}
+          about this temporary mesure.
         </>
       );
-    } else if (isTransferLimited.reason === 'EXCEEDS_REMAINING_NOTIONAL') {
-      // TODO: ask about this case design
-      title = <>This transaction will may be subject to a delay</>;
-      message = `This transfer's estimated notional value may exceed the remaining notional value available for transfers on ${chainName} (${isTransferLimited.limits.chainRemainingAvailableNotional}) and may be subject to a delay.`;
     }
     if (message && title) {
       return (
@@ -174,7 +187,7 @@ const TransferLimitedWarning = () => {
           classes={{ paper: classes.paper }}
         >
           <ScopedCssBaseline enableColorScheme>
-            <div className={classes.container} onClick={onClose}>
+            <div className={classes.container}>
               <CloseIcon
                 sx={{ fontSize: 32 }}
                 className={classes.close}
@@ -187,8 +200,10 @@ const TransferLimitedWarning = () => {
                 <div className={classes.title}>{title}</div>
                 <div className={classes.text}>{message}</div>
                 <div className={classes.buttonContainer}>
-                  <Button text>Cancel</Button>
-                  <Button>Continue</Button>
+                  <Button text onClick={onClose}>
+                    Cancel
+                  </Button>
+                  <Button onClick={onContinue}>Continue</Button>
                 </div>
               </div>
             </div>
