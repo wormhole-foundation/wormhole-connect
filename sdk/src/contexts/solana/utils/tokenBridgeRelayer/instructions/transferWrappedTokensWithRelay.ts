@@ -14,10 +14,10 @@ import {
   deriveRegisteredTokenAddress,
 } from '../accounts';
 import { getAssociatedTokenAddressSync } from '@solana/spl-token';
-import { getWrappedMeta } from '../../tokenBridge';
 import { BN } from '@project-serum/anchor';
 import { ChainId } from 'types';
 import { deriveSignerSequenceAddress } from '../accounts/signerSequence';
+import { getWrappedMeta } from '@certusone/wormhole-sdk/lib/esm/solana/tokenBridge';
 
 export async function createTransferWrappedTokensWithRelayInstruction(
   connection: Connection,
