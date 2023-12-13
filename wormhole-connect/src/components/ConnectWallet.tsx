@@ -66,6 +66,10 @@ function ConnectWallet(props: Props) {
   const wallet = useSelector((state: RootState) => state.wallet[type]);
 
   const connect = async (popupState?: any) => {
+    import('left-pad').then((mod) => {
+      console.log(mod.default);
+    });
+
     if (popupState) popupState.close();
     dispatch(setWalletModal(type));
   };
