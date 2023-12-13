@@ -11,9 +11,12 @@ const useStyles = makeStyles<StyleProps>()((theme: any, { cursorStyle }) => ({
     borderRadius: '8px',
     width: '100%',
     padding: '12px',
+    cursor: 'default',
   },
   editable: {
     backgroundColor: theme.palette.card.secondary,
+  },
+  enabled: {
     cursor: cursorStyle || 'pointer',
   },
   label: {
@@ -31,6 +34,7 @@ type Props = {
   label: string;
   error?: boolean;
   editable?: boolean;
+  disabled?: boolean;
   onClick?: any;
   children: any;
   cursor?: string;
@@ -43,6 +47,7 @@ function Input(props: Props) {
     classes.inputField,
     !!props.error && classes.error,
     !!props.editable && classes.editable,
+    !props.disabled && classes.enabled,
   ];
 
   return (

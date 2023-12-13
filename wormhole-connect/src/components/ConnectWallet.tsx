@@ -18,7 +18,8 @@ import Popover from '@mui/material/Popover';
 import { EXPLORER } from 'config';
 import { ExplorerConfig } from 'config/types';
 
-const useStyles = makeStyles()((theme: any) => ({
+type StyleProps = { disabled?: boolean };
+const useStyles = makeStyles<StyleProps>()((theme: any, { disabled }) => ({
   connectWallet: {
     display: 'flex',
     alignItems: 'center',
@@ -27,7 +28,8 @@ const useStyles = makeStyles()((theme: any) => ({
     padding: '8px 16px',
     borderRadius: '8px',
     backgroundColor: theme.palette.button.primary,
-    cursor: 'pointer',
+    cursor: disabled ? 'not-allowed' : 'pointer',
+    opacity: disabled ? 0.7 : 1.0,
   },
   walletIcon: {
     width: '24px',
@@ -69,7 +71,7 @@ function ExplorerLink({
   target = '_blank',
   label = 'Transactions',
 }: ExplorerLinkProps) {
-  const { classes } = useStyles();
+  const { classes } = useStyles({ disabled: false });
   const handleOpenExplorer = () =>
     window.open(href.replace('{:address}', address), target);
   return (
@@ -81,13 +83,14 @@ function ExplorerLink({
 
 function ConnectWallet(props: Props) {
   const { disabled = false, type } = props;
-  const { classes } = useStyles();
+  const { classes } = useStyles({ disabled });
   const theme = useTheme();
   const dispatch = useDispatch();
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
   const wallet = useSelector((state: RootState) => state.wallet[type]);
 
   const connect = async (popupState?: any) => {
+    if (disabled) return;
     if (popupState) popupState.close();
     dispatch(setWalletModal(type));
   };
