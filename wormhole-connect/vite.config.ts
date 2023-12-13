@@ -18,6 +18,9 @@ export default defineConfig({
       public: path.resolve(__dirname, './public'),
     },
   },
+  build: {
+    outDir: './build',
+  },
   plugins: [
     react(),
     nodePolyfills({
