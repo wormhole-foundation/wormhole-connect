@@ -146,22 +146,14 @@ function Bridge() {
         toChain,
       );
       dispatch(setAllSupportedDestTokens(allSupported));
-      const selectedIsSupported = isSupportedToken(destToken, supported);
-      if (!selectedIsSupported) {
-        dispatch(setDestToken(''));
-      }
-      if (supported.length === 1 && destToken === '') {
+      if (supported.length === 1) {
         dispatch(setDestToken(supported[0].key));
       }
 
       // If all the supported tokens are the same token
       // select the native version
       const symbols = supported.map((t) => t.symbol);
-      if (
-        destToken === '' &&
-        toChain &&
-        symbols.every((s) => s === symbols[0])
-      ) {
+      if (toChain && symbols.every((s) => s === symbols[0])) {
         const key = supported.find(
           (t) =>
             t.symbol === symbols[0] &&

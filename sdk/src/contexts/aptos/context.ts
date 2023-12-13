@@ -236,15 +236,6 @@ export class AptosContext<
     return asset;
   }
 
-  async mustGetForeignAsset(
-    tokenId: TokenId,
-    chain: ChainName | ChainId,
-  ): Promise<string> {
-    const addr = await this.getForeignAsset(tokenId, chain);
-    if (!addr) throw new Error('token not registered');
-    return addr;
-  }
-
   async fetchTokenDecimals(
     tokenAddr: string,
     chain: ChainName | ChainId,

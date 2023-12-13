@@ -735,15 +735,6 @@ export class SolanaContext<
     return addr;
   }
 
-  async mustGetForeignAsset(
-    tokenId: TokenId,
-    chain: ChainName | ChainId,
-  ): Promise<string> {
-    const addr = await this.getForeignAsset(tokenId, chain);
-    if (!addr) throw new Error('token not registered');
-    return addr;
-  }
-
   async getMessage(
     tx: string,
     chain: ChainName | ChainId,

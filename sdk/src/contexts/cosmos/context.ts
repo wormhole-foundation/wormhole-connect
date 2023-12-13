@@ -315,15 +315,6 @@ export class CosmosContext<
     }
   }
 
-  async mustGetForeignAsset(
-    tokenId: TokenId,
-    chain: ChainName | ChainId,
-  ): Promise<string> {
-    const assetAdddress = await this.getForeignAsset(tokenId, chain);
-    if (!assetAdddress) throw new Error('token not registered');
-    return assetAdddress;
-  }
-
   async getNativeBalance(
     walletAddress: string,
     chain: ChainName | ChainId,

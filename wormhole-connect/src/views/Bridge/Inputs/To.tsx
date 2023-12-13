@@ -70,7 +70,7 @@ function ToInputs() {
       selected={selectedToken}
       error={!!(showErrors && validations.token)}
       onClick={() => setShowTokensModal(true)}
-      disabled={!toChain || !receiving.address || isTransactionInProgress}
+      disabled={!toChain || isTransactionInProgress}
       editable
     />
   );
