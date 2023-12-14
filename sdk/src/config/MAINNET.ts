@@ -91,6 +91,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     },
     finalityThreshold: 512,
     nativeTokenDecimals: 18,
+    cctpDomain: 7,
   },
   bsc: {
     key: 'bsc',
