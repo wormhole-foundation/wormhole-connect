@@ -65,7 +65,7 @@
     "prettier": "prettier --write ./src",
     "start": "vite",
     "build": "NODE_ENV=production NODE_OPTIONS=--max-old-space-size=6144 vite build",
-    "analyze": "NODE_ENV=production NODE_OPTIONS=--max-old-space-size=6144 vite-bundle-analyzer",
+    "analyze": "NODE_ENV=production NODE_OPTIONS=--max-old-space-size=6144 vite-bundle-visualizer",
     "test": "jest ./tests/*.test.ts --detectOpenHandles"
   },
   "eslintConfig": {
