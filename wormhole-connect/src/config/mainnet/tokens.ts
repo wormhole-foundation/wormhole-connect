@@ -95,6 +95,11 @@ export const MAINNET_TOKENS: TokensConfig = {
           'ibc/4442A8E0D487A49E76EA6606F5DADCF8D0DBDD8499112340C964970DB745EDA2',
         decimals: 8,
       },
+      kujira: {
+        address:
+          'ibc/7D9D28CABB49A4BB1A50C3B7E4544BFDBC5DDFAEB84A7787755A34CE7196CE15',
+        decimals: 8,
+      },
     },
   },
   USDCeth: {
@@ -177,6 +182,11 @@ export const MAINNET_TOKENS: TokensConfig = {
           'ibc/6B99DB46AA9FF47162148C1726866919E44A6A5E0274B90912FD17E19A337695',
         decimals: 6,
       },
+      kujira: {
+        address:
+          'ibc/C5EADE2C526B9629D230AC02A97644984ACB7C2F9A6C85126D1025CB0DA42588',
+        decimals: 6,
+      },
     },
   },
   WBTC: {
@@ -257,6 +267,11 @@ export const MAINNET_TOKENS: TokensConfig = {
       osmosis: {
         address:
           'ibc/E4CD61E1FA3EB04EF1BF924D676AB9FD55E84A0DCF4E78C11CCA0E14E5B42672',
+        decimals: 8,
+      },
+      kujira: {
+        address:
+          'ibc/B2C7F21B604E3974A7DA5DAA9395905F2F3C85392F8A221CFDF62E4A9F4E48E4',
         decimals: 8,
       },
     },
@@ -575,69 +590,46 @@ export const MAINNET_TOKENS: TokensConfig = {
       default: 6,
     },
     foreignAssets: {
-      ethereum: {
-        address: '0x566957eF80F9fd5526CD2BEF8BE67035C0b81130',
+      aptos: {
+        address:
+          '0xc5fd7820e9f053e6dd8e7dd8ca3ce8e9b10d200ba1692bdeb7a035217180ad4a::coin::T',
         decimals: 6,
       },
-      bsc: {
-        address: '0x672147dD47674757C457eB155BAA382cc10705Dd',
-        decimals: 6,
-      },
-      avalanche: {
-        address: '0x543672E9CBEC728CBBa9C3Ccd99ed80aC3607FA8',
-        decimals: 6,
-      },
-      fantom: {
-        address: '0x6e0e8cf6Ad151e1260A4D398faaEDFC450A9f00a',
-        decimals: 6,
-      },
-      celo: {
-        address: '0x0E21B5BdFb6eDBa7d903a610d4DE2F8c72586017',
+      base: {
+        address: '0xFe1579BAc60363c8572CB30Bf4DD1Fd85811BBF8',
         decimals: 6,
       },
       moonbeam: {
-        address: '0x530E29eD727800e04bCd28B588775D50DE59097C',
-        decimals: 6,
-      },
-      solana: {
-        address: 'E2VmbootbVCBkMNNxKQgCLMS1X3NoGMaYAsufaAsf7M',
+        address: '0x4415BfBDee669446550d55c749007EF60B520FC8',
         decimals: 6,
       },
       sui: {
         address:
-          '0xcf72ec52c0f8ddead746252481fb44ff6e8485a39b803825bde6b00d77cdb0bb::coin::COIN',
+          '0x5c8c9082401982e8c2519a5c12883a5475295bf5cec4a0a13c26d35dd9a20d73::coin::COIN',
         decimals: 6,
       },
-      aptos: {
-        address:
-          '0xc7160b1c2415d19a88add188ec726e62aab0045f0aed798106a2ef2994a9101e::coin::T',
+      bsc: {
+        address: '0xe6d82Bbe75041E42E51d755e922cE1BA91af9c4d',
+        decimals: 6,
+      },
+      celo: {
+        address: '0x42c76808f3179A091Ee007A2955aF2522978ADE7',
+        decimals: 6,
+      },
+      fantom: {
+        address: '0xB4DcfD221048a1Dad989D39456BBd87762c26F06',
+        decimals: 6,
+      },
+      avalanche: {
+        address: '0xDb2d08f5A9C9ADBBA0DE5a69bbB1E9Ca03411692',
         decimals: 6,
       },
       arbitrum: {
-        address: '0x9A3Fba8a0870Fb9765023681DAa5390C7919C916',
+        address: '0x599ADB10E6A012dF34935D47407450f6D7170e3C',
         decimals: 6,
       },
       optimism: {
-        address: '0x8ab72605E48C1f70A20BdD2B3A217FEc24d777f9',
-        decimals: 6,
-      },
-      wormchain: {
-        address:
-          'wormhole19wut8ssulwasjquxpspfeq097kwj2n86fk3vq0g9c8eml2rqtprq97zy3e',
-        decimals: 6,
-      },
-      evmos: {
-        address:
-          'ibc/CA80A29F0D7C5CDCFE97607594E5F8B37AEF5CFB75E260CD321A0A8370C15378',
-        decimals: 6,
-      },
-      osmosis: {
-        address:
-          'ibc/B8381EAF6D22EB6FDA639A94CF67DAF25159D5B96AAAABE8AF7EA3E18A0533E3',
-        decimals: 6,
-      },
-      base: {
-        address: '0x59f4f969dd3A91A943651C9625E96822DC84Ef94',
+        address: '0xbB1EaB9Eb8fDf65F0E291D013DA07B4b65a27a01',
         decimals: 6,
       },
     },
@@ -1769,6 +1761,10 @@ export const MAINNET_TOKENS: TokensConfig = {
         address: '0xb96B82Cd6D45d98Fb6897D16A5E4EE888329C513',
         decimals: 6,
       },
+      fantom: {
+        address: '0x2228703672906fEe5eD681Ec28e42B4506b8c336',
+        decimals: 6,
+      },
     },
   },
   ETHoptimism: {
@@ -1853,6 +1849,10 @@ export const MAINNET_TOKENS: TokensConfig = {
           'wormhole1ev8rhdflmlq6de5g7ttj585fhuv3jfhnuhfzyh7qrswhzaq2tkqswxz6y3',
         decimals: 8,
       },
+      moonbeam: {
+        address: '0xd4870F7F5AD8Ae5139E1a5D8AD4ac55204aE4490',
+        decimals: 18,
+      },
     },
   },
   USDCoptimism: {
@@ -1898,6 +1898,23 @@ export const MAINNET_TOKENS: TokensConfig = {
       aptos: {
         address:
           '0x4f6ecb05a797902d472abc2f5804bde93a53d8b75f14f767824cdb1623a4ee83::coin::T',
+        decimals: 6,
+      },
+      bsc: {
+        address: '0xa41ae127D04F7ee73B5058E2C60Fb7c7A2D21F79',
+        decimals: 6,
+      },
+      avalanche: {
+        address: '0xBe04f76A0ba2100c3F2d6Aa1FD8484F415469573',
+        decimals: 6,
+      },
+      polygon: {
+        address: '0x31F12aCb60C3c32EE884F3894a873347C097D925',
+        decimals: 6,
+      },
+      sui: {
+        address:
+          '0x6037801f060f0f54b3817bca05e3c8b9b9ffaa2da8e93fd5b80fa662aa3c9e55::coin::COIN',
         decimals: 6,
       },
     },
@@ -2067,6 +2084,11 @@ export const MAINNET_TOKENS: TokensConfig = {
           '0x7e3e74afcc1913aa9491c8cee89b02131a6e5519b090f16b54321835c1241cfb::coin::COIN',
         decimals: 6,
       },
+      aptos: {
+        address:
+          '0xfcc4fcd734d5b8578fb629d238d15264a49eca6165c7444c21feec3b4962eb88::coin::T',
+        decimals: 6,
+      },
     },
   },
   OSMO: {
@@ -2151,6 +2173,15 @@ export const MAINNET_TOKENS: TokensConfig = {
         address: '0x94c97dd3Bde5bC1406BCe82E7941A6365968521D',
         decimals: 18,
       },
+      aptos: {
+        address:
+          '0x9d5a0f8215301fa8096df332b1533f6328f18c32fbac2a7089cfbea73b3068a7::coin::T',
+        decimals: 8,
+      },
+      celo: {
+        address: '0xFaED7314060FCEc652ED91D9eac6c980DCA9D3B8',
+        decimals: 18,
+      },
     },
   },
   tBTCpolygon: {
@@ -2168,6 +2199,25 @@ export const MAINNET_TOKENS: TokensConfig = {
       default: 8,
       Ethereum: 18,
     },
+    foreignAssets: {
+      ethereum: {
+        address: '0xb4c624dBC50804dA086cf2380cD55dEBC0d22E96',
+        decimals: 18,
+      },
+      optimism: {
+        address: '0xE4C32B9eA749fa0342B1C42C01E80028B97c3917',
+        decimals: 18,
+      },
+      arbitrum: {
+        address: '0x3bab04bDFd2Dc3640c2B9390A2Da05bC1192D482',
+        decimals: 18,
+      },
+      wormchain: {
+        address:
+          'wormhole1uj24zecnaxz7ftz0sh6dsayfene4w3yptwg0422kves9duel67vsr7hlyz',
+        decimals: 8,
+      },
+    },
   },
   tBTCoptimism: {
     key: 'tBTCoptimism',
@@ -2183,6 +2233,20 @@ export const MAINNET_TOKENS: TokensConfig = {
     decimals: {
       default: 8,
       Ethereum: 18,
+    },
+    foreignAssets: {
+      ethereum: {
+        address: '0xB8d1E0642bFD3744CaBd2ca8830cFabE19b2Ca54',
+        decimals: 18,
+      },
+      polygon: {
+        address: '0x68A8797da1c8ED592600d70A5151886A92D2183C',
+        decimals: 18,
+      },
+      arbitrum: {
+        address: '0x2519010b6585247BcDC8BcDa5C8730Be754b8c76',
+        decimals: 18,
+      },
     },
   },
   tBTCarbitrum: {
@@ -2200,6 +2264,33 @@ export const MAINNET_TOKENS: TokensConfig = {
       default: 8,
       Ethereum: 18,
     },
+    foreignAssets: {
+      base: {
+        address: '0x56D0873e0eCA4a56063e1BF945788365666CFBFC',
+        decimals: 18,
+      },
+      celo: {
+        address: '0x72878E7d3A8746e0c91b9F16F0b8ee4fDE9DDc06',
+        decimals: 18,
+      },
+      optimism: {
+        address: '0x2390a5131fcba6e47f702172cF4876589E4161c6',
+        decimals: 18,
+      },
+      ethereum: {
+        address: '0x4F3819A6cfF717BFfE801a75c73A984141c76589',
+        decimals: 18,
+      },
+      polygon: {
+        address: '0x045D8c62D5326aa51a31518ECF3aF80C17421Aba',
+        decimals: 18,
+      },
+      wormchain: {
+        address:
+          'wormhole1q8ynvqvtw49ln73mn70v4me4q03fvvmhkf2lh4ueam5w4362s2asjmvxtd',
+        decimals: 8,
+      },
+    },
   },
   tBTCbase: {
     key: 'tBTCbase',
@@ -2215,6 +2306,12 @@ export const MAINNET_TOKENS: TokensConfig = {
     decimals: {
       default: 8,
       Ethereum: 18,
+    },
+    foreignAssets: {
+      ethereum: {
+        address: '0x733F28B3e315046Db01dAbC292D6F0F7F26C4551',
+        decimals: 18,
+      },
     },
   },
   tBTCsol: {
@@ -2336,6 +2433,14 @@ export const MAINNET_TOKENS: TokensConfig = {
         address: '0x3fEcdF1248fe7642d29f879a75CFC0339659ab93',
         decimals: 5,
       },
+      base: {
+        address: '0xDF1Cf211D38E7762c9691Be4D779A441a17A6cFC',
+        decimals: 5,
+      },
+      celo: {
+        address: '0x3fc50bc066aE2ee280876EeefADfdAbF6cA02894',
+        decimals: 5,
+      },
     },
   },
   EVMOS: {
@@ -2383,6 +2488,54 @@ export const MAINNET_TOKENS: TokensConfig = {
     color: '#E6DAFE',
     decimals: {
       default: 6,
+    },
+    foreignAssets: {
+      aptos: {
+        address:
+          '0x770211b47954e15bec1a4271bf33bacebc2d2adb43b7dc1ca45efa787615dd4c::coin::T',
+        decimals: 6,
+      },
+      bsc: {
+        address: '0xb0188B0bb2cD4a6D2744637fC83C94a284B247Da',
+        decimals: 6,
+      },
+      base: {
+        address: '0x4c5d8A75F3762c1561D96f177694f67378705E98',
+        decimals: 6,
+      },
+      celo: {
+        address: '0x985aa4814419ba338379A634785216301e51113D',
+        decimals: 6,
+      },
+      avalanche: {
+        address: '0x8A0691e602B7a5FCc51a27E4a08376dE50889B42',
+        decimals: 6,
+      },
+      polygon: {
+        address: '0xFa4B761A1e07909Ba31331a5dfa12390E3ff5583',
+        decimals: 6,
+      },
+      fantom: {
+        address: '0x77ad3B2dA29FBd208F12c3C701E969F4422aAD79',
+        decimals: 6,
+      },
+      optimism: {
+        address: '0x99C59ACeBFEF3BBFB7129DC90D1a11DB0E91187f',
+        decimals: 6,
+      },
+      ethereum: {
+        address: '0xeFc0CED4B3D536103e76a1c4c74F0385C8F4Bdd3',
+        decimals: 6,
+      },
+      arbitrum: {
+        address: '0xE4D5c6aE46ADFAF04313081e8C0052A30b6Dd724',
+        decimals: 6,
+      },
+      sui: {
+        address:
+          '0x9c6d76eb273e6b5ba2ec8d708b7fa336a5531f6be59f326b5be8d4d8b12348a4::coin::COIN',
+        decimals: 6,
+      },
     },
   },
 };

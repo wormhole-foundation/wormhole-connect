@@ -313,7 +313,7 @@ const MAINNET_CONFIG: WormholeConfig = {
     optimism: 'https://rpc.ankr.com/optimism',
     base: 'https://base.publicnode.com',
     sei: '', // TODO: fill in
-    wormchain: '',
+    wormchain: 'https://wormchain-rpc.quickapi.com',
     osmosis: 'https://osmosis-rpc.polkachu.com',
     cosmoshub: 'https://cosmos-rpc.polkachu.com',
     evmos: 'https://evmos-rpc.polkachu.com',
