@@ -97,7 +97,9 @@ export class TBTCRoute extends BaseRoute {
       !sourceChain ||
       !destChain ||
       TOKENS[sourceToken]?.symbol !== TBTC_TOKEN_SYMBOL ||
-      TOKENS[destToken]?.symbol !== TBTC_TOKEN_SYMBOL
+      TOKENS[destToken]?.symbol !== TBTC_TOKEN_SYMBOL ||
+      !isTBTCCanonicalChain(sourceChain) ||
+      !isTBTCCanonicalChain(destChain)
     ) {
       return false;
     }
