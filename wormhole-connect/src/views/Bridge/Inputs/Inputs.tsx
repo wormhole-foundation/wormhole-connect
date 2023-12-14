@@ -141,7 +141,7 @@ function Inputs(props: Props) {
           {/* connect wallet button */}
           <ConnectWallet
             type={props.wallet}
-            disabled={isTransactionInProgress}
+            disabled={isTransactionInProgress || !selectedChain}
           />
         </div>
 

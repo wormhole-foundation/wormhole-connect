@@ -27,6 +27,11 @@ const useStyles = makeStyles()((theme: any) => ({
     backgroundColor: theme.palette.button.primary,
     cursor: 'pointer',
   },
+  connectWalletDisabled: {
+    cursor: 'default',
+    pointerEvents: 'none',
+    opacity: '0.75',
+  },
   walletIcon: {
     width: '24px',
     height: '24px',
@@ -66,6 +71,7 @@ function ConnectWallet(props: Props) {
   const wallet = useSelector((state: RootState) => state.wallet[type]);
 
   const connect = async (popupState?: any) => {
+    if (disabled) return;
     if (popupState) popupState.close();
     dispatch(setWalletModal(type));
   };
@@ -141,7 +147,12 @@ function ConnectWallet(props: Props) {
       }}
     </PopupState>
   ) : (
-    <div className={classes.connectWallet} onClick={() => connect()}>
+    <div
+      className={`${classes.connectWallet} ${
+        disabled ? classes.connectWalletDisabled : ''
+      }`}
+      onClick={() => connect()}
+    >
       <WalletIcon />
       <div>{mobile ? 'Connect' : 'Connect wallet'}</div>
     </div>
