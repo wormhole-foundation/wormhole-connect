@@ -4,7 +4,7 @@ import { utils, providers, BigNumberish } from 'ethers';
 import axios from 'axios';
 import { ChainId, ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 
-import { CHAINS, ENV, WORMHOLE_API } from 'config';
+import { CHAINS, WORMHOLE_API, WORMHOLE_RPC_HOSTS } from 'config';
 import {
   ParsedMessage,
   ParsedRelayerMessage,
@@ -12,20 +12,6 @@ import {
   isEvmChain,
   wh,
 } from './sdk';
-
-export const WORMHOLE_RPC_HOSTS =
-  ENV === 'MAINNET'
-    ? [
-        'https://wormhole-v2-mainnet-api.certus.one',
-        'https://wormhole.inotel.ro',
-        'https://wormhole-v2-mainnet-api.mcf.rocks',
-        'https://wormhole-v2-mainnet-api.chainlayer.network',
-        'https://wormhole-v2-mainnet-api.staking.fund',
-        'https://wormhole-v2-mainnet.01node.com',
-      ]
-    : ENV === 'TESTNET'
-    ? ['https://wormhole-v2-testnet-api.certus.one']
-    : ['http://localhost:7071'];
 
 export type ParsedVaa = {
   bytes: string;
@@ -184,12 +170,25 @@ export async function fetchVaaGuardian(
   const messageId = getEmitterAndSequence(txData);
   const { emitterChain, emitterAddress, sequence } = messageId;
 
-  const { vaaBytes: vaa } = await getSignedVAA(
-    WORMHOLE_RPC_HOSTS[0],
-    emitterChain,
-    emitterAddress,
-    sequence,
-  );
+  // round-robin through the RPC hosts
+  let vaa: Uint8Array | undefined;
+  for (const host of WORMHOLE_RPC_HOSTS) {
+    try {
+      const { vaaBytes } = await getSignedVAA(
+        host,
+        emitterChain,
+        emitterAddress,
+        sequence,
+      );
+      vaa = vaaBytes;
+      break;
+    } catch (e) {
+      console.warn(`Failed to fetch VAA from ${host}: ${e}`);
+    }
+  }
+  if (!vaa) {
+    throw new Error('Failed to fetch VAA from all hosts');
+  }
 
   const parsed = parseTokenTransferVaa(vaa);
 

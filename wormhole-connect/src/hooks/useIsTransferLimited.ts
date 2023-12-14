@@ -7,7 +7,7 @@ import { useSelector } from 'react-redux';
 import { formatAssetAddress, wh } from 'utils/sdk';
 import { RootState } from 'store';
 import { getWrappedTokenId } from 'utils';
-import { WORMHOLE_RPC_HOSTS } from 'utils/vaa';
+import { WORMHOLE_RPC_HOSTS } from 'config';
 
 const REMAINING_NOTIONAL_TOLERANCE = 0.98;
 interface TokenListEntry {
