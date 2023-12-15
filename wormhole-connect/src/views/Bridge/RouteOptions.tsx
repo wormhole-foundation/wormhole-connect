@@ -1,10 +1,10 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { Chip, useMediaQuery, useTheme } from '@mui/material';
 import { useDebounce } from 'use-debounce';
 import { RootState } from 'store';
-import { setAvailableRoutes, setTransferRoute } from 'store/transferInput';
+import { RouteState, setRoutes, setTransferRoute } from 'store/transferInput';
 import { LINK, joinClass } from 'utils/style';
 import { toFixedDecimals } from 'utils/balance';
 import RouteOperator from 'routes/operator';
@@ -51,6 +51,9 @@ const useStyles = makeStyles()((theme: any) => ({
     width: '100%',
     maxWidth: '100%',
     fontSize: '14px',
+  },
+  disabled: {
+    color: 'grey',
   },
   routeLeft: {
     gridArea: 'path',
@@ -140,7 +143,7 @@ function Tag(props: TagProps) {
   );
 }
 
-function RouteOption(props: { route: RouteData }) {
+function RouteOption(props: { route: RouteData; disabled: boolean }) {
   const { classes } = useStyles();
   const theme = useTheme();
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -187,7 +190,9 @@ function RouteOption(props: { route: RouteData }) {
   return (
     fromTokenConfig &&
     toTokenConfig && (
-      <div className={classes.route}>
+      <div
+        className={`${classes.route} ${props.disabled ? classes.disabled : ''}`}
+      >
         <div className={classes.routeLeft}>
           <div className={classes.routeTitle}>
             {props.route.name}
@@ -225,10 +230,18 @@ function RouteOption(props: { route: RouteData }) {
           </div>
         </div>
         <div className={classes.routeRight}>
-          <div>
-            {receiveAmt} {getDisplayName(TOKENS[destToken])}
-          </div>
-          <div className={classes.routeAmt}>after fees</div>
+          {props.disabled ? (
+            <>
+              <div>Not available</div>
+            </>
+          ) : (
+            <>
+              <div>
+                {receiveAmt} {getDisplayName(TOKENS[destToken])}
+              </div>
+              <div className={classes.routeAmt}>after fees</div>
+            </>
+          )}
         </div>
       </div>
     )
@@ -241,26 +254,30 @@ function RouteOptions() {
   const {
     isTransactionInProgress,
     route,
-    availableRoutes,
+    routeStates,
     token,
     destToken,
     fromChain,
     toChain,
     amount,
   } = useSelector((state: RootState) => state.transferInput);
-  const onSelect = (value: Route) => {
-    dispatch(setTransferRoute(value));
-  };
+  const onSelect = useCallback(
+    (value: Route) => {
+      if (routeStates && routeStates.some((rs) => rs.name === value)) {
+        dispatch(setTransferRoute(value));
+      }
+    },
+    [routeStates, dispatch],
+  );
   const [debouncedAmount] = useDebounce(amount, 500);
 
   useEffect(() => {
-    if (!fromChain || !toChain || !token || !destToken || !debouncedAmount)
-      return;
+    if (!fromChain || !toChain || !token || !destToken) return;
     const getAvailable = async () => {
-      let available: string[] = [];
+      let routes: RouteState[] = [];
       for (const value of ROUTES) {
         const r = value as Route;
-        const isSupported = await RouteOperator.isRouteAvailable(
+        const available = await RouteOperator.isRouteAvailable(
           r,
           token,
           destToken,
@@ -268,11 +285,12 @@ function RouteOptions() {
           fromChain,
           toChain,
         );
-        if (isSupported) {
-          available.push(r);
-        }
+        // TODO: Implement it's supported
+        //const supported = await RouteOperator.isRouteSupported(r, token, destToken, fromChain, toChain);
+        routes.push({ name: r, supported: available, available });
       }
-      dispatch(setAvailableRoutes(available));
+
+      dispatch(setRoutes(routes));
     };
     getAvailable();
   }, [dispatch, token, destToken, debouncedAmount, fromChain, toChain]);
@@ -281,7 +299,16 @@ function RouteOptions() {
     setCollapsed(collapsed);
   };
 
-  return availableRoutes && availableRoutes.length > 0 ? (
+  const allRoutes = useMemo(() => {
+    if (!routeStates) return [];
+    const available = routeStates.filter((rs) => rs.available);
+    const unavailable = routeStates.filter(
+      (rs) => !rs.available && rs.supported,
+    );
+    return available.concat(unavailable);
+  }, [routeStates]);
+
+  return allRoutes ? (
     <BridgeCollapse
       title="Route"
       disabled={isTransactionInProgress}
@@ -290,7 +317,7 @@ function RouteOptions() {
       startClosed
       onCollapseChange={onCollapseChange}
       controlStyle={
-        availableRoutes && availableRoutes.length > 1
+        allRoutes.length > 1
           ? CollapseControlStyle.Arrow
           : CollapseControlStyle.None
       }
@@ -301,10 +328,15 @@ function RouteOptions() {
         collapsable
         collapsed={collapsed}
       >
-        {availableRoutes.map((route_) => {
+        {allRoutes.map(({ name, available }) => {
           return {
-            key: route_,
-            child: <RouteOption route={RoutesConfig[route_ as Route]} />,
+            key: name,
+            child: (
+              <RouteOption
+                disabled={!available}
+                route={RoutesConfig[name as Route]}
+              />
+            ),
           };
         })}
       </Options>

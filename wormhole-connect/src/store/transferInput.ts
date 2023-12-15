@@ -86,10 +86,16 @@ export type TransferValidations = {
   foreignAsset: ValidationErr;
 };
 
+export type RouteState = {
+  name: string;
+  supported: boolean;
+  available: boolean;
+};
+
 export interface TransferInputState {
   showValidationState: boolean;
   validations: TransferValidations;
-  availableRoutes: string[] | undefined;
+  routeStates: RouteState[] | undefined;
   fromChain: ChainName | undefined;
   toChain: ChainName | undefined;
   token: string;
@@ -125,7 +131,7 @@ const initialState: TransferInputState = {
     receivingWallet: '',
     foreignAsset: '',
   },
-  availableRoutes: undefined,
+  routeStates: undefined,
   fromChain: config?.bridgeDefaults?.fromNetwork || undefined,
   toChain: config?.bridgeDefaults?.toNetwork || undefined,
   token: config?.bridgeDefaults?.token || '',
@@ -202,8 +208,8 @@ const performModificationsIfToChainChanged = (state: TransferInputState) => {
 // [showValidationState, availableRoutes, fromChain, toChain, token, destToken, amount]
 // However, the only dependency appears to be `availableRoutes`.
 const establishRoute = (state: TransferInputState) => {
-  const { availableRoutes } = state;
-  if (!availableRoutes) {
+  const { routeStates } = state;
+  if (!routeStates) {
     state.route = undefined;
     return;
   }
@@ -216,7 +222,9 @@ const establishRoute = (state: TransferInputState) => {
     Route.Bridge,
   ];
   for (const r of routeOrderOfPreference) {
-    if (availableRoutes.includes(r)) {
+    const routeState = routeStates.find((rs) => rs.name === r);
+    if (routeState && routeState.available) {
+      console.log('routeState', routeState, r);
       state.route = r;
       return;
     }
@@ -247,11 +255,11 @@ export const transferInputSlice = createSlice({
         state.showValidationState = showValidationState;
       }
     },
-    setAvailableRoutes: (
+    setRoutes: (
       state: TransferInputState,
-      { payload }: PayloadAction<string[]>,
+      { payload }: PayloadAction<RouteState[]>,
     ) => {
-      state.availableRoutes = payload;
+      state.routeStates = payload;
       establishRoute(state);
     },
     // user input
@@ -343,7 +351,10 @@ export const transferInputSlice = createSlice({
         state.route = undefined;
         return;
       }
-      if (state.availableRoutes && state.availableRoutes.includes(payload)) {
+      if (
+        state.routeStates &&
+        state.routeStates.some((rs) => rs.name === payload && rs.available)
+      ) {
         state.route = payload;
       } else {
         state.route = undefined;
@@ -458,7 +469,7 @@ export const selectChain = async (
 
 export const {
   setValidations,
-  setAvailableRoutes,
+  setRoutes,
   setToken,
   setDestToken,
   setFromChain,

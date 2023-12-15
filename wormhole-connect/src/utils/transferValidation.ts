@@ -203,7 +203,7 @@ export const validateAll = async (
     foreignAsset,
     route,
     supportedDestTokens,
-    availableRoutes,
+    routeStates,
   } = transferData;
   const { maxSwapAmt, toNativeToken } = relayData;
   const { sending, receiving } = walletData;
@@ -215,7 +215,9 @@ export const validateAll = async (
     fromChain,
     token,
   );
-
+  const availableRoutes = routeStates
+    ?.filter((rs) => rs.available)
+    .map((val) => val.name);
   const baseValidations = {
     sendingWallet: await validateWallet(sending, fromChain),
     receivingWallet: await validateWallet(receiving, toChain),
@@ -269,7 +271,7 @@ export const validate = async (
     transferInput.destToken &&
     transferInput.amount &&
     Number.parseFloat(transferInput.amount) >= 0 &&
-    transferInput.availableRoutes !== undefined
+    transferInput.routeStates?.filter((rs) => rs.available) !== undefined
       ? true
       : false;
   dispatch(setValidations({ validations, showValidationState }));
