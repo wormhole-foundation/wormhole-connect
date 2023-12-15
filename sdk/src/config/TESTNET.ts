@@ -80,9 +80,16 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
       ...CONTRACTS.TESTNET.polygon,
       relayer: '0x9563a59c15842a6f322b10f69d1dd88b41f2e97b',
       tbtcGateway: '0x91fe7128f74dbd4f031ea3d90fc5ea4dcfd81818',
+      cctpContracts: {
+        cctpTokenMessenger: '0x9f3B8679c73C2Fef8b59B4f3444d4e156fb70AA5',
+        cctpMessageTransmitter: '0xe09A679F56207EF33F5b9d8fb4499Ec00792eA73',
+        wormholeCCTP: '0x2703483B1a5a7c577e8680de9Df8Be03c6f30e3c',
+        wormholeCircleRelayer: '0x4cb69FaE7e7Af841e44E1A1c30Af640739378bb2',
+      },
     },
     finalityThreshold: 64,
     nativeTokenDecimals: 18,
+    cctpDomain: 7,
   },
   bsc: {
     key: 'bsc',

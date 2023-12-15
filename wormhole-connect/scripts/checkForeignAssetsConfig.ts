@@ -67,7 +67,9 @@ const checkEnvConfig = async (
               if (WORMCHAIN_ERROR_MESSAGES.includes(e?.message)) {
                 // do not throw on wormchain errors
               } else {
-                throw e;
+                console.error(
+                  `❌ Failed to fetch foreign address. Env: ${env}, Key: ${tokenKey}, Chain: ${chain} ${e?.message}`,
+                );
               }
             }
             if (foreignAddress) {

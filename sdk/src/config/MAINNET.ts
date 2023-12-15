@@ -81,9 +81,16 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
       ...CONTRACTS.MAINNET.polygon,
       relayer: '0xcafd2f0a35a4459fa40c0517e17e6fa2939441ca',
       tbtcGateway: '0x09959798B95d00a3183d20FaC298E4594E599eab',
+      cctpContracts: {
+        cctpMessageTransmitter: '0xF3be9355363857F3e001be68856A2f96b4C39Ba9',
+        cctpTokenMessenger: '0x9daF8c91AEFAE50b9c0E69629D3F6Ca40cA3B3FE',
+        wormholeCCTP: '0x0FF28217dCc90372345954563486528aa865cDd6',
+        wormholeCircleRelayer: '0x4cb69FaE7e7Af841e44E1A1c30Af640739378bb2',
+      },
     },
     finalityThreshold: 512,
     nativeTokenDecimals: 18,
+    cctpDomain: 7,
   },
   bsc: {
     key: 'bsc',
@@ -306,7 +313,7 @@ const MAINNET_CONFIG: WormholeConfig = {
     optimism: 'https://rpc.ankr.com/optimism',
     base: 'https://base.publicnode.com',
     sei: '', // TODO: fill in
-    wormchain: '',
+    wormchain: 'https://wormchain-rpc.quickapi.com',
     osmosis: 'https://osmosis-rpc.polkachu.com',
     cosmoshub: 'https://cosmos-rpc.polkachu.com',
     evmos: 'https://evmos-rpc.polkachu.com',

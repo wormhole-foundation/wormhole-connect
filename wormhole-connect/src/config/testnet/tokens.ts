@@ -177,6 +177,11 @@ export const TESTNET_TOKENS: TokensConfig = {
           'ibc/3BB8C4BD1C90599B2FA5B5839DD0813EF7B94B0BD0904C4C5A61498AE81E0EE9',
         decimals: 6,
       },
+      sui: {
+        address:
+          '0x9e4396c19ec1c5f2214c79d3af3f31e59869640305560f8f2499c36fa9c8e0f2::coin::COIN',
+        decimals: 6,
+      },
     },
   },
   WBTC: {
@@ -424,64 +429,14 @@ export const TESTNET_TOKENS: TokensConfig = {
     icon: Icon.USDC,
     tokenId: {
       chain: 'mumbai',
-      address: '0x0FA8781a83E46826621b3BC094Ea2A0212e71B23',
+      address: '0x9999f7fea5938fd3b1e26a12c3f2fb024e194f97',
     },
     coinGeckoId: 'usd-coin',
     color: '#2774CA',
     decimals: {
       default: 6,
     },
-    foreignAssets: {
-      goerli: {
-        address: '0xB3658B4C6704356F155c369F4583aF68424128e9',
-        decimals: 6,
-      },
-      bsc: {
-        address: '0x88B8b85ED6d39E613d2d1449e1c1B808d505D561',
-        decimals: 6,
-      },
-      fuji: {
-        address: '0xFB2C24197A92598C633Ed8eE60ee90b104d7B145',
-        decimals: 6,
-      },
-      fantom: {
-        address: '0x450dC724a1793b0E2182d09Eb883ad76f7F4C0Aa',
-        decimals: 6,
-      },
-      alfajores: {
-        address: '0x4364bb251a0F33914AAb2088ed435122694Ce2BD',
-        decimals: 6,
-      },
-      moonbasealpha: {
-        address: '0x5366c7204A49D6CdD6A99e647aE695Cb0866FD5e',
-        decimals: 6,
-      },
-      sui: {
-        address:
-          '0xe1deb395283034cbfc81c5acb4c89d3223e5165b5384282c73963aa5262a4993::coin::COIN',
-        decimals: 6,
-      },
-      sei: {
-        address:
-          'sei1vccw9g60mphsaj9t96vru53mjje3vmxcl49lg8lfqdh0zgmq6zsqf03y9n',
-        decimals: 6,
-      },
-      wormchain: {
-        address:
-          'wormhole1qmk0v725sdg5ecu6xfh5pt0fv0nfzrstarue2maum3snzk2zrt5qcm4w3g',
-        decimals: 6,
-      },
-      cosmoshub: {
-        address:
-          'ibc/ED0651B0141CA50326B1FFA2E9207F42BE616DE2712356CF8DA4B8CAC4A6A5B6',
-        decimals: 6,
-      },
-      osmosis: {
-        address:
-          'ibc/FDEEB950A2538F30EBA949B9F8D0D28DAC9D26D0B138445BF0DF9FC4B800E1F9',
-        decimals: 6,
-      },
-    },
+    foreignAssets: {},
   },
   BNB: {
     key: 'BNB',
@@ -854,6 +809,10 @@ export const TESTNET_TOKENS: TokensConfig = {
         address:
           'ibc/919D8F138B7E71BB067C7301AB5C2D48415E8C3A2D9187861245CEC668F88E3C',
         decimals: 8,
+      },
+      optimismgoerli: {
+        address: '0x81BA80f5820273AA965086e710042d737993f12c',
+        decimals: 18,
       },
     },
   },
@@ -1333,6 +1292,11 @@ export const TESTNET_TOKENS: TokensConfig = {
           'ibc/7C495BD95757ED662A897C139F1C9F18275A86EE7203A0B073E2DB12B1E19D63',
         decimals: 8,
       },
+      sui: {
+        address:
+          '0x812d6feb8b84e55d47a0bfcae9fb6a4e7e09be5ec86ce0a729e0f67d5f59f477::coin::COIN',
+        decimals: 8,
+      },
     },
   },
   ETHarbitrum: {
@@ -1451,6 +1415,10 @@ export const TESTNET_TOKENS: TokensConfig = {
           'ibc/06ED2700071B5A9C582F51A556537DA94E69EF547E7E6CCD8BFA3D95C818A525',
         decimals: 6,
       },
+      bsc: {
+        address: '0xe3aA397cb6d93Cce4fAd9Cc9E796CCa5E50FB5ED',
+        decimals: 6,
+      },
     },
   },
   ETHoptimism: {
@@ -1559,6 +1527,16 @@ export const TESTNET_TOKENS: TokensConfig = {
           'ibc/0A98A3947189D7C368170C76C3EF49486DDBE095F34B72A3C7F92AEBE1013A1D',
         decimals: 6,
       },
+      aptos: {
+        address:
+          '0xcff1d9820851201436ad225dcc4374a2d15f52a74109283eb9881be799677e92::coin::T',
+        decimals: 6,
+      },
+      sui: {
+        address:
+          '0xbbc39df58a11072ceeac1f685393ca912d1a1bfd6e772053ec5a544f36124da::coin::COIN',
+        decimals: 6,
+      },
     },
   },
   ETHbase: {
@@ -1650,6 +1628,10 @@ export const TESTNET_TOKENS: TokensConfig = {
           'ibc/A45069EA82C933945973E66E4222EEE4624498D4483508FE9BEBF9D519F2132F',
         decimals: 8,
       },
+      optimismgoerli: {
+        address: '0x04b559971c90Dfb12D9795E95883e55f2fcf34Ed',
+        decimals: 18,
+      },
     },
   },
   USDCbase: {
@@ -1688,6 +1670,21 @@ export const TESTNET_TOKENS: TokensConfig = {
       osmosis: {
         address:
           'ibc/2E4F8BC7F7AF33752CF7E290CAD4417EE67CD18FFC0D099E6519A440E588E0CE',
+        decimals: 6,
+      },
+      aptos: {
+        address:
+          '0xcfaabb3cb08ad612905dd6b2593d044ce857dfe5360148333b4635fb57d4d13f::coin::T',
+        decimals: 6,
+      },
+      sui: {
+        address:
+          '0x4125940814a0ca87465a1a59092a7344633ad03b48ad7cda36d799d8558012c1::coin::COIN',
+        decimals: 6,
+      },
+      sei: {
+        address:
+          'sei1lf6ghmrkd7gn5jlj6xw64suycpjy7g4s5q92fc2gef4f8q3znanq95mmgv',
         decimals: 6,
       },
     },
@@ -1790,6 +1787,12 @@ export const TESTNET_TOKENS: TokensConfig = {
       default: 8,
       Ethereum: 18,
     },
+    foreignAssets: {
+      optimismgoerli: {
+        address: '0xE04e0F5f2C6ce45A40482C3AB92CA91D6741D717',
+        decimals: 18,
+      },
+    },
   },
   tBTCoptimism: {
     key: 'tBTCoptimism',
@@ -1806,6 +1809,12 @@ export const TESTNET_TOKENS: TokensConfig = {
       default: 8,
       Ethereum: 18,
     },
+    foreignAssets: {
+      solana: {
+        address: 'HsPvRT3J7kuitNvNHogyZeSEagcqAqwwq2FPgrGfgApy',
+        decimals: 8,
+      },
+    },
   },
   tBTCarbitrum: {
     key: 'tBTCarbitrum',
@@ -1821,6 +1830,21 @@ export const TESTNET_TOKENS: TokensConfig = {
     decimals: {
       default: 8,
       Ethereum: 18,
+    },
+    foreignAssets: {
+      fuji: {
+        address: '0x4beDc7471374d7479120E44ea9593eBB85f48AD9',
+        decimals: 18,
+      },
+      goerli: {
+        address: '0x575D93A2278FbF4E8Bd3d51B539a6E237C3F17c5',
+        decimals: 18,
+      },
+      wormchain: {
+        address:
+          'wormhole1rm8ztmk20lrd6ex8uqq3yu7a6eyfjwvg53pcuuj22ffe2y8r3yzqr8j4v9',
+        decimals: 8,
+      },
     },
   },
   tBTCbase: {
@@ -1853,6 +1877,25 @@ export const TESTNET_TOKENS: TokensConfig = {
     decimals: {
       default: 8,
       Ethereum: 18,
+    },
+    foreignAssets: {
+      goerli: {
+        address: '0x57A52B6F0b393AF7d36116183cA83E584e636eA4',
+        decimals: 8,
+      },
+      arbitrumgoerli: {
+        address: '0x227115F659f7c2939D23FedE68583F5291c395A6',
+        decimals: 8,
+      },
+      basegoerli: {
+        address: '0x9dA16Ae62De05bcb4606c4BFbB54046872501Bd0',
+        decimals: 8,
+      },
+      sei: {
+        address:
+          'sei1aj3uu9ejt8fk6rpjfhzluqnzqmv3enlndjmt8llkr7dn2dtz55xst4s3mn',
+        decimals: 8,
+      },
     },
   },
   wstETH: {
