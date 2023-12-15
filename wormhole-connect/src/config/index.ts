@@ -14,7 +14,7 @@ import {
 } from './types';
 import { dark, light } from '../theme';
 import { validateConfigs, validateDefaults } from './utils';
-import { Alignment } from './components/Header';
+import { Alignment } from 'components/Header';
 
 const el = document.getElementById('wormhole-connect');
 if (!el)
