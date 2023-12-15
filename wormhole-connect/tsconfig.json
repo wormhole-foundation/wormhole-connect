@@ -24,6 +24,7 @@
     "preserveWatchOutput": true,
     "pretty": false,
     "resolveJsonModule": true,
+    "skipLibCheck": true,
     "sourceMap": true,
     "target": "es2021",
     "strict": true,
