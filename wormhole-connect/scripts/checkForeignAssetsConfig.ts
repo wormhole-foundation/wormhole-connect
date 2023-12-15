@@ -80,10 +80,7 @@ const checkEnvConfig = async (
                   chain,
                 );
               } catch (e: any) {
-                if (
-                  /denom trace for ibc\/\w+ not found/gi.test(e?.message) ||
-                  e?.message.includes('')
-                ) {
+                if (/denom trace for ibc\/\w+ not found/gi.test(e?.message)) {
                   // denom trace not found means the asset has not yet been bridged to the target chain
                   // so it should be skipped
                 } else {
@@ -147,6 +144,6 @@ const checkEnvConfig = async (
 };
 
 (async () => {
-  // await checkEnvConfig('TESTNET', TESTNET_TOKENS, TESTNET_CHAINS);
+  await checkEnvConfig('TESTNET', TESTNET_TOKENS, TESTNET_CHAINS);
   await checkEnvConfig('MAINNET', MAINNET_TOKENS, MAINNET_CHAINS);
 })();
