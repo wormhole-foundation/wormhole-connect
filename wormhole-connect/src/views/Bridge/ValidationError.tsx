@@ -28,6 +28,7 @@ const useStyles = makeStyles()((theme) => ({
 type Props = {
   validations: ValidationErr[];
   margin?: string;
+  forceShow?: boolean;
 };
 
 function ValidationError(props: Props) {
@@ -72,13 +73,10 @@ function ValidationError(props: Props) {
     );
   }
 
+  const show = (props.forceShow || showErrors) && showError;
+
   return (
-    <AlertBanner
-      show={showErrors && showError}
-      content={content}
-      error
-      margin={props.margin}
-    />
+    <AlertBanner show={show} content={content} error margin={props.margin} />
   );
 }
 

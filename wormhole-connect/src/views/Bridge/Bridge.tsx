@@ -204,6 +204,9 @@ function Bridge() {
     RouteOperator.getRoute(route).NATIVE_GAS_DROPOFF_SUPPORTED &&
     !willReceiveGasToken;
 
+  const showRouteValidation =
+    !!fromChain && !!toChain && !!token && !!destToken && !!amount;
+
   return (
     <div className={joinClass([classes.bridgeContent, classes.spacer])}>
       <PageHeader
@@ -215,7 +218,11 @@ function Bridge() {
       <SwapChains />
       <ToInputs />
 
-      <ValidationError validations={[validations.route]} margin="12px 0 0 0" />
+      <ValidationError
+        forceShow={showRouteValidation}
+        validations={[validations.route]}
+        margin="12px 0 0 0"
+      />
 
       <RouteOptions />
       <Collapse in={valid && showValidationState}>
