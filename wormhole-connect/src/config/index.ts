@@ -57,6 +57,8 @@ export const WORMHOLE_API =
     ? ''
     : 'https://api.testnet.wormholescan.io/';
 
+export const EXPLORER = config.explorer;
+
 export const ATTEST_URL =
   ENV === 'MAINNET'
     ? 'https://www.portalbridge.com/#/register'

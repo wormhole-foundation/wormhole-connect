@@ -72,6 +72,11 @@ export interface WormholeConnectConfig {
     text: string;
     link: string;
   };
+  explorer?: {
+    label: string;
+    href: string;
+    target: "_blank" | "_self";
+  };
   menu?: MenuEntry[];
   bridgeDefaults?: BridgeDefaults;
   routes?: string[];
