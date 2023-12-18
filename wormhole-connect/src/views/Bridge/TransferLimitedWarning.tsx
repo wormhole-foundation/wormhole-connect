@@ -138,7 +138,7 @@ const TransferLimitedWarning = () => {
       message = (
         <>
           This transaction will take up to 24 hours to process as Wormhole has
-          reached the daily limit for source Blockchain.
+          reached the daily limit for {chainName}.
           <br />
           <br />
           This is a normal and temporary security feature by the Wormhole
