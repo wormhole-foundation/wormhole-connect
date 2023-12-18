@@ -72,11 +72,7 @@ export interface WormholeConnectConfig {
     text: string;
     link: string;
   };
-  explorer?: {
-    label: string;
-    href: string;
-    target: "_blank" | "_self";
-  };
+  explorer?: ExplorerConfig;
   menu?: MenuEntry[];
   bridgeDefaults?: BridgeDefaults;
   routes?: string[];
@@ -91,6 +87,12 @@ export interface WormholeConnectConfig {
   partnerLogo?: string;
   walletConnectProjectId?: string;
 }
+
+export type ExplorerConfig = {
+  href: string;
+  label?: string;
+  target?: "_blank" | "_self";
+};
 
 export type SearchTxConfig = {
   txHash?: string;
