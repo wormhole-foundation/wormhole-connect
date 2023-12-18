@@ -322,11 +322,7 @@ function RouteOptions() {
   const allRoutes = useMemo(() => {
     if (!routeStates) return [];
     const available = routeStates.filter((rs) => rs.available);
-    const unavailable = routeStates.filter(
-      (rs) => rs.available && !rs.supported,
-    );
-    console.log('allRoutes', available.concat(unavailable));
-    return available.concat(unavailable);
+    return available;
   }, [routeStates]);
 
   return allRoutes ? (
