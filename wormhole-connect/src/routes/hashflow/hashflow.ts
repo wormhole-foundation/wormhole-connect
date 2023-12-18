@@ -35,6 +35,16 @@ export class HashflowRoute extends RouteAbstract {
 
     throw new Error('Method not implemented.');
   }
+
+  public isRouteSupported(
+    sourceToken: string,
+    destToken: string,
+    amount: string,
+    sourceChain: ChainName | ChainId,
+    destChain: ChainName | ChainId,
+  ): Promise<boolean> {
+    throw new Error('Method not implemented.');
+  }
   isSupportedSourceToken(
     token: TokenConfig | undefined,
     destToken: TokenConfig | undefined,

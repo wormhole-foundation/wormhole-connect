@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
-import { Chip, useMediaQuery, useTheme } from '@mui/material';
+import { Chip, Tooltip, useMediaQuery, useTheme } from '@mui/material';
 import { useDebounce } from 'use-debounce';
 import { RootState } from 'store';
 import { RouteState, setRoutes, setTransferRoute } from 'store/transferInput';
@@ -54,6 +54,7 @@ const useStyles = makeStyles()((theme: any) => ({
   },
   disabled: {
     color: 'grey',
+    cursor: 'default',
   },
   routeLeft: {
     gridArea: 'path',
@@ -150,6 +151,7 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
   const { token, destToken, amount, toChain } = useSelector(
     (state: RootState) => state.transferInput,
   );
+
   const { toNativeToken, relayerFee } = useSelector(
     (state: RootState) => state.relay,
   );
@@ -190,60 +192,70 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
   return (
     fromTokenConfig &&
     toTokenConfig && (
-      <div
-        className={`${classes.route} ${props.disabled ? classes.disabled : ''}`}
+      <Tooltip
+        title={
+          props.disabled
+            ? 'Not enough funds on the source chain for automatic redemption'
+            : ''
+        }
       >
-        <div className={classes.routeLeft}>
-          <div className={classes.routeTitle}>
-            {props.route.name}
-            {/* TODO: isAutomatic to route and use transfer parameters to decide */}
-            {isAutomatic ? (
-              <Chip
-                label="One transaction"
-                color="success"
-                variant="outlined"
-                size="small"
+        <div
+          className={`${classes.route} ${
+            props.disabled ? classes.disabled : ''
+          }`}
+        >
+          <div className={classes.routeLeft}>
+            <div className={classes.routeTitle}>
+              {props.route.name}
+              {/* TODO: isAutomatic to route and use transfer parameters to decide */}
+              {isAutomatic ? (
+                <Chip
+                  label="One transaction"
+                  color="success"
+                  variant="outlined"
+                  size="small"
+                />
+              ) : (
+                <Chip
+                  label="Two transactions"
+                  color="warning"
+                  variant="outlined"
+                  size="small"
+                />
+              )}
+            </div>
+            <div className={classes.routePath}>
+              <Tag
+                icon={fromTokenIcon}
+                text={getDisplayName(fromTokenConfig)}
+                colorFilled
               />
+              <ArrowRightIcon fontSize={mobile ? 'inherit' : undefined} />
+              <Tag icon={props.route.icon()} text={props.route.providedBy} />
+              <ArrowRightIcon fontSize={mobile ? 'inherit' : undefined} />
+              <Tag
+                icon={toTokenIcon}
+                text={getDisplayName(toTokenConfig)}
+                colorFilled
+              />
+            </div>
+          </div>
+          <div className={classes.routeRight}>
+            {props.disabled ? (
+              <>
+                <div>Not available</div>
+              </>
             ) : (
-              <Chip
-                label="Two transactions"
-                color="warning"
-                variant="outlined"
-                size="small"
-              />
+              <>
+                <div>
+                  {receiveAmt} {getDisplayName(TOKENS[destToken])}
+                </div>
+                <div className={classes.routeAmt}>after fees</div>
+              </>
             )}
           </div>
-          <div className={classes.routePath}>
-            <Tag
-              icon={fromTokenIcon}
-              text={getDisplayName(fromTokenConfig)}
-              colorFilled
-            />
-            <ArrowRightIcon fontSize={mobile ? 'inherit' : undefined} />
-            <Tag icon={props.route.icon()} text={props.route.providedBy} />
-            <ArrowRightIcon fontSize={mobile ? 'inherit' : undefined} />
-            <Tag
-              icon={toTokenIcon}
-              text={getDisplayName(toTokenConfig)}
-              colorFilled
-            />
-          </div>
         </div>
-        <div className={classes.routeRight}>
-          {props.disabled ? (
-            <>
-              <div>Not available</div>
-            </>
-          ) : (
-            <>
-              <div>
-                {receiveAmt} {getDisplayName(TOKENS[destToken])}
-              </div>
-              <div className={classes.routeAmt}>after fees</div>
-            </>
-          )}
-        </div>
-      </div>
+      </Tooltip>
     )
   );
 }
@@ -264,7 +276,8 @@ function RouteOptions() {
   const onSelect = useCallback(
     (value: Route) => {
       if (routeStates && routeStates.some((rs) => rs.name === value)) {
-        dispatch(setTransferRoute(value));
+        const route = routeStates.find((rs) => rs.name === value);
+        if (route?.supported) dispatch(setTransferRoute(value));
       }
     },
     [routeStates, dispatch],
@@ -285,9 +298,16 @@ function RouteOptions() {
           fromChain,
           toChain,
         );
-        // TODO: Implement it's supported
-        //const supported = await RouteOperator.isRouteSupported(r, token, destToken, fromChain, toChain);
-        routes.push({ name: r, supported: available, available });
+
+        const supported = await RouteOperator.isRouteSupported(
+          r,
+          token,
+          destToken,
+          debouncedAmount,
+          fromChain,
+          toChain,
+        );
+        routes.push({ name: r, supported, available });
       }
 
       dispatch(setRoutes(routes));
@@ -303,8 +323,9 @@ function RouteOptions() {
     if (!routeStates) return [];
     const available = routeStates.filter((rs) => rs.available);
     const unavailable = routeStates.filter(
-      (rs) => !rs.available && rs.supported,
+      (rs) => rs.available && !rs.supported,
     );
+    console.log('allRoutes', available.concat(unavailable));
     return available.concat(unavailable);
   }, [routeStates]);
 
@@ -328,12 +349,12 @@ function RouteOptions() {
         collapsable
         collapsed={collapsed}
       >
-        {allRoutes.map(({ name, available }) => {
+        {allRoutes.map(({ name, supported }) => {
           return {
             key: name,
             child: (
               <RouteOption
-                disabled={!available}
+                disabled={!supported}
                 route={RoutesConfig[name as Route]}
               />
             ),

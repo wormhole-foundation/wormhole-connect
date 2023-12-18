@@ -134,7 +134,27 @@ export class Operator {
       destChain,
     );
   }
+  async isRouteSupported(
+    route: Route,
+    sourceToken: string,
+    destToken: string,
+    amount: string,
+    sourceChain: ChainName | ChainId,
+    destChain: ChainName | ChainId,
+  ): Promise<boolean> {
+    if (!ROUTES.includes(route)) {
+      return false;
+    }
 
+    const r = this.getRoute(route);
+    return await r.isRouteSupported(
+      sourceToken,
+      destToken,
+      amount,
+      sourceChain,
+      destChain,
+    );
+  }
   allSupportedChains(): ChainName[] {
     const supported = new Set<ChainName>();
     for (const key in CHAINS) {

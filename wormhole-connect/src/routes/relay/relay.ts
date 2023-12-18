@@ -88,7 +88,18 @@ export class RelayRoute extends BridgeRoute implements RelayAbstract {
     const accepted = await isAcceptedToken(tokenId);
 
     if (!accepted) return false;
+    return true;
+  }
 
+  async isRouteSupported(
+    sourceToken: string,
+    destToken: string,
+    amount: string,
+    sourceChain: ChainName | ChainId,
+    destChain: ChainName | ChainId,
+  ): Promise<boolean> {
+    const tokenConfig = TOKENS[sourceToken]!;
+    const tokenId = getWrappedTokenId(tokenConfig);
     let relayerFee;
     try {
       relayerFee = await this.getRelayerFee(

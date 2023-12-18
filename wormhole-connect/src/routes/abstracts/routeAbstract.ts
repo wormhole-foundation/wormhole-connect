@@ -29,6 +29,15 @@ export abstract class RouteAbstract {
     destChain: ChainName | ChainId,
   ): Promise<boolean>;
 
+  // Is this route supported for the given chain, fee and amount specifications?
+  public abstract isRouteSupported(
+    sourceToken: string,
+    destToken: string,
+    amount: string,
+    sourceChain: ChainName | ChainId,
+    destChain: ChainName | ChainId,
+  ): Promise<boolean>;
+
   public abstract isSupportedChain(chain: ChainName): boolean;
 
   public abstract isSupportedSourceToken(
