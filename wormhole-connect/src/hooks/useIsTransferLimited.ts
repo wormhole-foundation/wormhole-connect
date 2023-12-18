@@ -1,4 +1,4 @@
-import { ChainId } from '@certusone/wormhole-sdk';
+import { ChainId } from '@wormhole-foundation/wormhole-connect-sdk';
 import axios from 'axios';
 import { TOKENS } from 'config';
 import { hexlify } from 'ethers/lib/utils.js';
@@ -55,6 +55,7 @@ const useIsTransferLimited = (): IsTransferLimitedResult => {
   const [assetAddress, setAssetAddress] = useState<string | undefined>(
     undefined,
   );
+  const [assetChain, setAssetChain] = useState<ChainId | undefined>(undefined);
 
   const { fromChain, token, amount } = useSelector(
     (state: RootState) => state.transferInput,
@@ -77,6 +78,7 @@ const useIsTransferLimited = (): IsTransferLimitedResult => {
         );
         if (!cancelled) {
           setAssetAddress(formatted);
+          setAssetChain(wh.toChainId(tokenId.chain));
         }
       } catch (e) {
         if (!cancelled) {
@@ -127,7 +129,7 @@ const useIsTransferLimited = (): IsTransferLimitedResult => {
   }, []);
 
   const result = useMemo<IsTransferLimitedResult>(() => {
-    if (!fromChain || !token || !amount || !assetAddress)
+    if (!fromChain || !token || !amount || !assetAddress || !assetChain)
       return { isLimited: false };
 
     const fromChainId = wh.toChainId(fromChain);
@@ -135,7 +137,7 @@ const useIsTransferLimited = (): IsTransferLimitedResult => {
     if (token && fromChain && amount && tokenList && availableNotionalByChain) {
       const token = tokenList.entries.find(
         (entry) =>
-          entry.originChainId === fromChainId &&
+          entry.originChainId === assetChain &&
           entry.originAddress === assetAddress,
       );
       if (token) {
@@ -175,6 +177,7 @@ const useIsTransferLimited = (): IsTransferLimitedResult => {
     fromChain,
     token,
     assetAddress,
+    assetChain,
     amount,
     tokenList,
     availableNotionalByChain,
