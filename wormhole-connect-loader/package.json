@@ -16,7 +16,7 @@
   },
   "scripts": {
     "lint:ci": "prettier -c ./src && eslint --max-warnings=0 ./src",
-    "build:deps": "rm -rf dist && mkdir dist && cp -r ../wormhole-connect/build/* dist/",
+    "build:deps": "rm -rf dist && mkdir dist && cp -r ../wormhole-connect/build/* dist/ && mv dist/wormhole-connect.umd.js dist/main.js && mv dist/style.css dist/main.css",
     "build:cjs": "tsc -p tsconfig.cjs.json",
     "build:esm": "tsc -p tsconfig.esm.json",
     "build": "npm run build:deps && rm -rf lib && npm run build:cjs && npm run build:esm && node scripts/replaceEnvWithCurrentVersion"
