@@ -15,6 +15,7 @@ function WormholeBridge({
   useEffect(() => {
     const script = document.createElement("script");
     script.src = `https://www.unpkg.com/${PACKAGE_NAME}@${versionOrTag}/dist/main.js`;
+    script.type = "module";
     script.async = true;
 
     const link = document.createElement("link");

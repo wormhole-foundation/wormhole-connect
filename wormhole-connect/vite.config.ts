@@ -47,6 +47,9 @@ export default defineConfig({
         'os',
         'zlib',
       ],
+      globals: {
+        Buffer: true,
+      },
     }),
   ],
 });
