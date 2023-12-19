@@ -162,13 +162,15 @@ const TransferLimitedWarning = () => {
         <>
           This transaction will take 24 hours to process, as it exceeds the
           Wormhole network's temporary transaction limit of $
-          {isTransferLimited.limits.chainBigTransactionSize}
-          on {chainName} for security reasons.
+          {isTransferLimited.limits.chainBigTransactionSize} on {chainName} for
+          security reasons.
           <br />
           <br />
-          You may also split the transaction into smaller transactions of less than{' '}
-          of ${isTransferLimited.limits.chainBigTransactionSize} on {chainName}{' '}
-          each to avoid the 24 hour security delay.
+          You may also split the transaction into smaller transactions of less
+          than of less than ${
+            isTransferLimited.limits.chainBigTransactionSize
+          }{' '}
+          each on {chainName} to avoid the 24 hour security delay.
           <br />
           <br />
           <a href={learnMoreLink} target="_blank" rel="noreferrer">
