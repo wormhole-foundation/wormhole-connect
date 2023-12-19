@@ -200,7 +200,7 @@ const TransferLimitedWarning = () => {
                 <div className={classes.title}>{title}</div>
                 <div className={classes.text}>{message}</div>
                 <div className={classes.buttonContainer}>
-                  <Button text onClick={onClose}>
+                  <Button link onClick={onClose}>
                     Cancel
                   </Button>
                   <Button onClick={onContinue}>Continue</Button>
