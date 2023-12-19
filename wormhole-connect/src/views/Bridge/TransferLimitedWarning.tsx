@@ -174,7 +174,7 @@ const TransferLimitedWarning = () => {
           <a href={learnMoreLink} target="_blank" rel="noreferrer">
             Learn more
           </a>{' '}
-          about this temporary mesure.
+          about this temporary measure.
         </>
       );
     }
