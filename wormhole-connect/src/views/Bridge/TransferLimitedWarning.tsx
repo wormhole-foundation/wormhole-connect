@@ -137,12 +137,12 @@ const TransferLimitedWarning = () => {
       );
       message = (
         <>
-          This transaction will take up to 24 hours to complete. This
-          transaction will take up to 24 hours to process as Wormhole has
+          This transaction will take up to 24 hours to complete. This{' '}
+          transaction will take up to 24 hours to process as Wormhole has{' '}
           reached the daily limit for {chainName}.
           <br />
           <br />
-          This is a normal and temporary security feature by the Wormhole
+          This is a normal and temporary security feature by the Wormhole{' '}
           network.
           <br />
           <br />
@@ -161,15 +161,15 @@ const TransferLimitedWarning = () => {
       );
       message = (
         <>
-          This transaction requires 24 hours to complete. This transaction will
-          take 24 hours to process, as it exceeds the Wormhole network's
+          This transaction requires 24 hours to complete. This transaction will{' '}
+          take 24 hours to process, as it exceeds the Wormhole network's{' '}
           temporary transaction limit of $
-          {isTransferLimited.limits.chainBigTransactionSize} on {chainName} for
+          {isTransferLimited.limits.chainBigTransactionSize} on {chainName} for{' '}
           security reasons.
           <br />
           <br />
           You may also split the transaction into smaller transactions less than{' '}
-          ${isTransferLimited.limits.chainBigTransactionSize} each to avoid the
+          ${isTransferLimited.limits.chainBigTransactionSize} each to avoid the{' '}
           24 hour security delay.
           <br />
           <br />
