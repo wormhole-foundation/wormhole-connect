@@ -20,12 +20,16 @@ export default defineConfig({
     },
   },
   build: {
-    lib: {
-      entry: path.resolve(__dirname, './src/main.tsx'),
-      name: 'WormholeConnect',
-      fileName: 'wormhole-connect',
-    },
     outDir: './build',
+    rollupOptions: {
+      input: {
+        main: 'src/main.tsx',
+      },
+      output: {
+        entryFileNames: '[name].js',
+        assetFileNames: '[name]-[hash][extname]',
+      },
+    },
   },
   plugins: [
     checker({
