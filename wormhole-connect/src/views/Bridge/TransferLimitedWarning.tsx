@@ -166,7 +166,7 @@ const TransferLimitedWarning = () => {
           on {chainName} for security reasons.
           <br />
           <br />
-          You may also split the transaction into smaller transactions less than{' '}
+          You may also split the transaction into smaller transactions of less than{' '}
           of ${isTransferLimited.limits.chainBigTransactionSize} on {chainName}{' '}
           each to avoid the 24 hour security delay.
           <br />
