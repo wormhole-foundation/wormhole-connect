@@ -167,10 +167,8 @@ const TransferLimitedWarning = () => {
           <br />
           <br />
           You may also split the transaction into smaller transactions of less
-          than of less than ${
-            isTransferLimited.limits.chainBigTransactionSize
-          }{' '}
-          each on {chainName} to avoid the 24 hour security delay.
+          than ${isTransferLimited.limits.chainBigTransactionSize} each on{' '}
+          {chainName} to avoid the 24 hour security delay.
           <br />
           <br />
           <a href={learnMoreLink} target="_blank" rel="noreferrer">
