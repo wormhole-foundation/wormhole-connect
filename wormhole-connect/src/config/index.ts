@@ -69,15 +69,16 @@ export const USDC_BRIDGE_URL = config.cctpWarning?.href || '';
 export const WORMHOLE_RPC_HOSTS =
   ENV === 'MAINNET'
     ? [
-        'https://wormhole-v2-mainnet-api.certus.one',
-        'https://wormhole.inotel.ro',
         'https://wormhole-v2-mainnet-api.mcf.rocks',
         'https://wormhole-v2-mainnet-api.chainlayer.network',
         'https://wormhole-v2-mainnet-api.staking.fund',
-        'https://wormhole-v2-mainnet.01node.com',
       ]
     : ENV === 'TESTNET'
-    ? ['https://wormhole-v2-testnet-api.certus.one']
+    ? [
+        'https://guardian.testnet.xlabs.xyz',
+        'https://guardian-01.testnet.xlabs.xyz',
+        'https://guardian-02.testnet.xlabs.xyz',
+      ]
     : ['http://localhost:7071'];
 
 export const NETWORK_DATA =
