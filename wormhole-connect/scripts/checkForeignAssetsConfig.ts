@@ -80,9 +80,12 @@ const checkEnvConfig = async (
                   chain,
                 );
               } catch (e: any) {
-                if (/denom trace for ibc\/\w+ not found/gi.test(e?.message)) {
+                if (
+                  /denom trace for ibc\/\w+ not found/gi.test(e?.message) ||
+                  e?.message.includes('Bad status on response: 429')
+                ) {
                   // denom trace not found means the asset has not yet been bridged to the target chain
-                  // so it should be skipped
+                  // so it should be skipped. Same for hitting request limits
                 } else {
                   throw e;
                 }
