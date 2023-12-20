@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import useIsTransferLimited from 'hooks/useIsTransferLimited';
 import { wh } from 'utils/sdk';
 import { Dialog, ScopedCssBaseline } from '@mui/material';
@@ -100,8 +101,14 @@ const useStyles = makeStyles()((theme: any) => ({
 const learnMoreLink =
   'https://github.com/wormhole-foundation/wormhole/blob/main/whitepapers/0007_governor.md';
 
-const TransferLimitedWarning = () => {
+interface TransferLimitedWarningProps {
+  fromChain: ChainName | undefined;
+  token: string;
+}
+
+const TransferLimitedWarning = (props: TransferLimitedWarningProps) => {
   const { classes } = useStyles();
+  const { fromChain, token } = props;
   const [open, setOpen] = React.useState(true);
   const isTransferLimited = useIsTransferLimited();
 
@@ -115,6 +122,10 @@ const TransferLimitedWarning = () => {
       window.scrollTo(0, document.body.scrollHeight);
     }, 500);
   };
+
+  useEffect(() => {
+    setOpen(true);
+  }, [fromChain, token]);
 
   if (
     isTransferLimited.isLimited &&
@@ -137,8 +148,7 @@ const TransferLimitedWarning = () => {
       );
       message = (
         <>
-          This transaction will take up to 24 hours to complete. This{' '}
-          transaction will take up to 24 hours to process as Wormhole has{' '}
+          This transaction will take up to 24 hours to process as Wormhole has{' '}
           reached the daily limit for {chainName}.
           <br />
           <br />
@@ -161,9 +171,8 @@ const TransferLimitedWarning = () => {
       );
       message = (
         <>
-          This transaction requires 24 hours to complete. This transaction will{' '}
-          take 24 hours to process, as it exceeds the Wormhole network's{' '}
-          temporary transaction limit of $
+          This transaction will take 24 hours to process, as it exceeds the
+          Wormhole network's temporary transaction limit of $
           {isTransferLimited.limits.chainBigTransactionSize} on {chainName} for{' '}
           security reasons.
           <br />

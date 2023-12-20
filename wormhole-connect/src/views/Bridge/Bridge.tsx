@@ -242,7 +242,7 @@ function Bridge() {
 
           <Preview collapsed={!showValidationState ? true : !valid} />
 
-          <TransferLimitedWarning />
+          <TransferLimitedWarning fromChain={fromChain} token={token} />
 
           <Send valid={!!valid} />
         </div>
