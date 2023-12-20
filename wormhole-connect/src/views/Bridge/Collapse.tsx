@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { makeStyles } from 'tss-react/mui';
 import Collapse from '@mui/material/Collapse';
 import Down from 'icons/Down';
@@ -119,8 +119,8 @@ type Props = {
 
 function BridgeCollapse(props: Props) {
   const { classes } = useStyles();
-  const { onCollapseChange, disabled } = props;
-  const [collapsed, setCollapsed] = React.useState(props.startClosed || false);
+  const { onCollapseChange, disabled, startClosed } = props;
+  const [collapsed, setCollapsed] = React.useState(startClosed || false);
 
   const toggleCollapsed = useCallback(() => {
     if (disabled) return;
@@ -131,6 +131,10 @@ function BridgeCollapse(props: Props) {
       return !prev;
     });
   }, [disabled, onCollapseChange]);
+
+  useEffect(() => {
+    setCollapsed(startClosed || false);
+  }, [startClosed]);
 
   const controlStyle = props.controlStyle || CollapseControlStyle.Arrow;
   const collapsedState = props.controlled ? props.value || false : collapsed;
