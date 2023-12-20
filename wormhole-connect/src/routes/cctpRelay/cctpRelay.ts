@@ -188,6 +188,16 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
       CHAINS[destChainName]?.contracts.cctpContracts?.wormholeCircleRelayer;
     if (!bothHaveRelayer) return false;
 
+    return true;
+  }
+
+  async isRouteSupported(
+    sourceToken: string,
+    destToken: string,
+    amount: string,
+    sourceChain: ChainName | ChainId,
+    destChain: ChainName | ChainId,
+  ): Promise<boolean> {
     let relayerFee;
     try {
       relayerFee = await this.getRelayerFee(
