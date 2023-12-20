@@ -2,7 +2,8 @@ import React, { useEffect } from 'react';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import useIsTransferLimited from 'hooks/useIsTransferLimited';
 import { wh } from 'utils/sdk';
-import { Dialog, ScopedCssBaseline } from '@mui/material';
+import Dialog from '@mui/material/Dialog';
+import ScopedCssBaseline from '@mui/material/ScopedCssBaseline';
 import CloseIcon from 'icons/Close';
 import Button from 'components/Button';
 import ClockIcon from 'icons/Clock';
@@ -112,11 +113,11 @@ const TransferLimitedWarning = (props: TransferLimitedWarningProps) => {
   const [open, setOpen] = React.useState(true);
   const isTransferLimited = useIsTransferLimited();
 
-  const onClose = () => {
+  const handleClose = () => {
     setOpen(false);
   };
 
-  const onContinue = () => {
+  const handleContinue = () => {
     setOpen(false);
     setTimeout(() => {
       window.scrollTo(0, document.body.scrollHeight);
@@ -202,7 +203,7 @@ const TransferLimitedWarning = (props: TransferLimitedWarningProps) => {
               <CloseIcon
                 sx={{ fontSize: 32 }}
                 className={classes.close}
-                onClick={onClose}
+                onClick={handleClose}
               />
               <div className={classes.modal}>
                 <div className={classes.icon}>
@@ -211,10 +212,10 @@ const TransferLimitedWarning = (props: TransferLimitedWarningProps) => {
                 <div className={classes.title}>{title}</div>
                 <div className={classes.text}>{message}</div>
                 <div className={classes.buttonContainer}>
-                  <Button link onClick={onClose}>
+                  <Button link onClick={handleClose}>
                     Cancel
                   </Button>
-                  <Button onClick={onContinue}>Continue</Button>
+                  <Button onClick={handleContinue}>Continue</Button>
                 </div>
               </div>
             </div>
