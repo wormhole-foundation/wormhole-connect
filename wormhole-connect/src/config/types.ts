@@ -75,6 +75,7 @@ export interface WormholeConnectConfig {
     text: string;
     link: string;
   };
+  explorer?: ExplorerConfig;
   bridgeDefaults?: BridgeDefaults;
   routes?: string[];
   cctpWarning?: {
@@ -89,6 +90,12 @@ export interface WormholeConnectConfig {
   partnerLogo?: string;
   walletConnectProjectId?: string;
 }
+
+export type ExplorerConfig = {
+  href: string;
+  label?: string;
+  target?: '_blank' | '_self';
+};
 
 export type PageHeader = {
   text: string;

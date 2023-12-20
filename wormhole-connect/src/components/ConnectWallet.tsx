@@ -15,6 +15,8 @@ import WalletIcon from 'icons/Wallet';
 import WalletIcons from 'icons/WalletIcons';
 import PopupState, { bindTrigger, bindPopover } from 'material-ui-popup-state';
 import Popover from '@mui/material/Popover';
+import { EXPLORER } from 'config';
+import { ExplorerConfig } from 'config/types';
 
 const useStyles = makeStyles()((theme: any) => ({
   connectWallet: {
@@ -56,6 +58,26 @@ type Props = {
   type: TransferWallet;
   disabled?: boolean;
 };
+
+type ExplorerLinkProps = {
+  address: string;
+} & ExplorerConfig;
+
+function ExplorerLink({
+  address,
+  href,
+  target = '_blank',
+  label = 'Transactions',
+}: ExplorerLinkProps) {
+  const { classes } = useStyles();
+  const handleOpenExplorer = () =>
+    window.open(href.replace('{:address}', address), target);
+  return (
+    <div className={classes.dropdownItem} onClick={handleOpenExplorer}>
+      {label}
+    </div>
+  );
+}
 
 function ConnectWallet(props: Props) {
   const { disabled = false, type } = props;
@@ -121,6 +143,14 @@ function ConnectWallet(props: Props) {
                   >
                     Copy address
                   </div>
+                  {EXPLORER ? (
+                    <ExplorerLink
+                      address={wallet.address}
+                      href={EXPLORER.href}
+                      target={EXPLORER.target}
+                      label={EXPLORER.label}
+                    />
+                  ) : null}
                   <div
                     className={classes.dropdownItem}
                     onClick={() => connect(popupState)}

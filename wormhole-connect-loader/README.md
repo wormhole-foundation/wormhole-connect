@@ -374,3 +374,14 @@ Show a special entry on the select tokens modal which redirects the user to a di
 |`moreTokens.label`| Display text | mandatory|
 |`moreTokens.href`| URL to redirect to. If present, the values `{:sourceChain}` and `{:targetChain}` are replaced with the selected currently selected chains before redirecting | mandatory|
 |`moreTokens.target`| href target | optional, defaults to `_self`
+
+
+### Explorer 
+
+Enable explorer button to allow users to search for his transactions on a given explorer filtering by his wallet address
+
+|Property|description||
+|:--|:--|:--:|
+|`explorer.label`| Display text | optional, defaults to `Transactions`|
+|`explorer.href`| URL of the explorer, for instance https://wormholescan.com/. If present, the values `{:address}` is replaced with the connected wallet address| mandatory|
+|`explorer.target`| href target | optional, defaults to `_blank`
