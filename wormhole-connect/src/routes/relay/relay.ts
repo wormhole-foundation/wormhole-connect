@@ -2,6 +2,7 @@ import {
   TokenId,
   ChainName,
   ChainId,
+  MAINNET_CHAINS,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { BigNumber, utils } from 'ethers';
 
@@ -26,7 +27,7 @@ import {
   PayloadType,
 } from 'utils/sdk';
 import { NO_INPUT } from 'utils/style';
-import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
+import { TransferWallet, postVaa, signAndSendTransaction } from 'utils/wallet';
 import { BridgeRoute } from '../bridge/bridge';
 import { toDecimals, toFixedDecimals } from '../../utils/balance';
 import {
@@ -45,6 +46,7 @@ import {
 import { fetchVaa } from '../../utils/vaa';
 import { RelayOptions, TransferDestInfoParams } from './types';
 import { RelayAbstract } from 'routes/abstracts';
+import { arrayify } from 'ethers/lib/utils.js';
 
 export class RelayRoute extends BridgeRoute implements RelayAbstract {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED = true;
@@ -303,11 +305,39 @@ export class RelayRoute extends BridgeRoute implements RelayAbstract {
 
   async redeem(
     destChain: ChainName | ChainId,
-    messageInfo: SignedMessage,
+    signedMessage: SignedMessage,
     payer: string,
   ): Promise<string> {
-    // TODO: implement redeemRelay in the WormholeContext for self redemptions
-    throw new Error('not implemented');
+    if (!isSignedWormholeMessage(signedMessage)) {
+      throw new Error('Invalid signed message');
+    }
+    const destChainId = wh.toChainId(destChain);
+    const destChainName = wh.toChainName(destChain);
+    if (destChainId === MAINNET_CHAINS.solana) {
+      const destContext = wh.getContext(destChain) as any;
+      const connection = destContext.connection;
+      if (!connection) throw new Error('no connection');
+      const contracts = wh.mustGetContracts(destChain);
+      if (!contracts.core) throw new Error('contract not found');
+      await postVaa(
+        connection,
+        contracts.core,
+        Buffer.from(arrayify(signedMessage.vaa, { allowMissingPrefix: true })),
+      );
+    }
+    const tx = await wh.redeemRelay(
+      destChain,
+      arrayify(signedMessage.vaa),
+      undefined,
+      payer,
+    );
+    const txId = await signAndSendTransaction(
+      destChainName,
+      tx,
+      TransferWallet.RECEIVING,
+    );
+    wh.registerProviders();
+    return txId;
   }
 
   async getMessage(

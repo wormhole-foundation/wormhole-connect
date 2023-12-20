@@ -117,7 +117,9 @@ export class SolanaRelayer {
   }
 
   async fetchSwapEvent(signature: string): Promise<SwapEvent | null> {
-    const transaction = await this.connection.getParsedTransaction(signature);
+    const transaction = await this.connection.getParsedTransaction(signature, {
+      maxSupportedTransactionVersion: 0,
+    });
     if (transaction) {
       const logMessages = transaction.meta?.logMessages || [];
       for (const msg of logMessages) {

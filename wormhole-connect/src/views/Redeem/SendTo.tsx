@@ -27,6 +27,8 @@ import { estimateClaimGas } from 'utils/gas';
 import { isGatewayChain } from '../../utils/cosmos';
 import { PayloadType, solanaContext } from '../../utils/sdk';
 import { AssociatedTokenWarning } from '../Bridge/Inputs/TokenWarnings';
+import { Route } from 'config/types';
+import SwitchToManualClaim from './SwitchToManualClaim';
 
 function AssociatedTokenAlert() {
   const dispatch = useDispatch();
@@ -68,6 +70,7 @@ function SendTo() {
   const txData = useSelector((state: RootState) => state.redeem.txData)!;
   const wallet = useSelector((state: RootState) => state.wallet.receiving);
   const [claimError, setClaimError] = useState('');
+  const [manualClaim, setManualClaim] = useState(false);
 
   const connect = () => {
     setWalletModal(true);
@@ -80,6 +83,10 @@ function SendTo() {
     const reqAddr = txData.recipient.toLowerCase();
     return addr === curAddr && addr === reqAddr;
   }, [wallet, txData]);
+
+  const onSwitchToManualClaim = useCallback((checked: boolean) => {
+    setManualClaim(checked);
+  }, []);
 
   const [inProgress, setInProgress] = useState(false);
   const [isConnected, setIsConnected] = useState(checkConnection());
@@ -194,13 +201,15 @@ function SendTo() {
 
   const loading = !AUTOMATIC_DEPOSIT
     ? inProgress && !transferComplete
-    : !transferComplete;
+    : !transferComplete && !manualClaim;
   const manualClaimText =
     transferComplete || AUTOMATIC_DEPOSIT // todo: should be the other enum, should be named better than payload id
       ? ''
       : claimError
       ? 'Error please retry . . .'
       : 'Claim below';
+  const showSwitchToManualClaim =
+    !transferComplete && routeName === Route.Relay;
   return (
     <div>
       <InputContainer>
@@ -211,6 +220,15 @@ function SendTo() {
           txHash={redeemTx}
           text={manualClaimText}
         />
+        <>
+          {showSwitchToManualClaim && (
+            <SwitchToManualClaim
+              checked={manualClaim}
+              onChange={onSwitchToManualClaim}
+              disabled={inProgress}
+            />
+          )}
+        </>
         <RenderRows rows={rows} />
       </InputContainer>
 
@@ -222,7 +240,7 @@ function SendTo() {
       )}
 
       {/* Claim button for manual transfers */}
-      {!AUTOMATIC_DEPOSIT && !transferComplete && (
+      {!transferComplete && (!AUTOMATIC_DEPOSIT || manualClaim) && (
         <>
           <Spacer height={8} />
           <AlertBanner

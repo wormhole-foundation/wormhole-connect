@@ -457,6 +457,24 @@ export class WormholeContext extends MultiProvider<Domain> {
     );
   }
 
+  async redeemRelay(
+    destChain: ChainName | ChainId,
+    signedVAA: Uint8Array,
+    overrides: any,
+    receivingAddr?: string,
+  ): Promise<SendResult> {
+    const context = this.getContext(destChain);
+    if (!('redeemRelay' in context)) {
+      throw new Error('redeemRelay function not found');
+    }
+    return await context.redeemRelay(
+      destChain,
+      signedVAA,
+      overrides,
+      receivingAddr,
+    );
+  }
+
   /**
    * Redeems funds for a token bridge transfer on the destination chain
    *

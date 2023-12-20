@@ -60,6 +60,13 @@ export abstract class RelayerAbstract<
     overrides?: any,
   ): Promise<TransactionResult>;
 
+  protected abstract redeemRelay(
+    destChain: ChainName | ChainId,
+    signedVAA: Uint8Array,
+    overrides: any,
+    receivingAddr?: string,
+  ): Promise<TransactionResult>;
+
   protected abstract estimateSendWithRelayGas(
     token: TokenId | typeof NATIVE,
     amount: string,

@@ -24,7 +24,9 @@ import {
   getObjectFields,
   getPackageId,
   getTableKeyType,
+  getTokenCoinType,
   trimSuiType,
+  uint8ArrayToBCS,
 } from '@certusone/wormhole-sdk/lib/esm/sui';
 import { arrayify, hexlify } from 'ethers/lib/utils';
 import {
@@ -36,7 +38,7 @@ import {
   ParsedRelayerMessage,
   TokenId,
 } from '../../types';
-import { parseTokenTransferPayload } from '../../vaa';
+import { parseTokenTransferPayload, parseTokenTransferVaa } from '../../vaa';
 import { WormholeContext } from '../../wormhole';
 import { RelayerAbstract } from '../abstracts/relayer';
 import { SuiContracts } from './contracts';
@@ -501,6 +503,61 @@ export class SuiContext<
     const { core, token_bridge } = this.contracts.mustGetContracts('sui');
     if (!core || !token_bridge) throw new Error('contracts not found');
     const tx = await redeemOnSui(this.provider, core, token_bridge, signedVAA);
+    return tx;
+  }
+
+  async redeemRelay(
+    destChain: ChainName | ChainId,
+    signedVAA: Uint8Array,
+    overrides: any,
+    payerAddr?: string,
+  ) {
+    const { core, token_bridge, relayer, suiRelayerPackageId } =
+      this.context.mustGetContracts('sui');
+    if (!core || !token_bridge || !relayer || !suiRelayerPackageId)
+      throw new Error('contracts not found');
+    const coreBridgePackageId = await getPackageId(this.provider, core);
+    if (!coreBridgePackageId)
+      throw new Error('unable to get core bridge package id');
+    const tokenBridgePackageId = await getPackageId(
+      this.provider,
+      token_bridge,
+    );
+    if (!tokenBridgePackageId)
+      throw new Error('unable to get token bridge package id');
+    const { tokenAddress, tokenChain } = parseTokenTransferVaa(signedVAA);
+    const coinType = await getTokenCoinType(
+      this.provider,
+      token_bridge,
+      tokenAddress,
+      tokenChain,
+    );
+    if (!coinType) {
+      throw new Error('Unable to fetch token coinType');
+    }
+    const tx = new TransactionBlock();
+    const [verifiedVAA] = tx.moveCall({
+      target: `${coreBridgePackageId}::vaa::parse_and_verify`,
+      arguments: [
+        tx.object(core),
+        tx.pure(uint8ArrayToBCS(signedVAA)),
+        tx.object(SUI_CLOCK_OBJECT_ID),
+      ],
+    });
+    const [tokenBridgeMessage] = tx.moveCall({
+      target: `${tokenBridgePackageId}::vaa::verify_only_once`,
+      arguments: [tx.object(token_bridge), verifiedVAA],
+    });
+    const [redeemerReceipt] = tx.moveCall({
+      target: `${tokenBridgePackageId}::complete_transfer_with_payload::authorize_transfer`,
+      arguments: [tx.object(token_bridge), tokenBridgeMessage],
+      typeArguments: [coinType],
+    });
+    tx.moveCall({
+      target: `${suiRelayerPackageId}::redeem::complete_transfer`,
+      arguments: [tx.object(relayer), redeemerReceipt],
+      typeArguments: [coinType],
+    });
     return tx;
   }
 
