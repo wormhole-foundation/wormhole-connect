@@ -28,11 +28,15 @@ const useStyles = makeStyles()((theme: any) => ({
     backgroundColor: theme.palette.button.action,
     color: theme.palette.button.actionText,
   },
+  link: {
+    backgroundColor: 'transparent',
+  },
 }));
 
 type Props = {
   action?: boolean;
   elevated?: boolean;
+  link?: boolean;
   disabled?: boolean;
   children: React.ReactNode;
   onClick?: MouseEventHandler<HTMLDivElement>;
@@ -51,6 +55,7 @@ function Button(props: Props) {
         classes.button,
         !!props.elevated && classes.elevated,
         !!props.action && classes.action,
+        !!props.link && classes.link,
         !!props.disabled && classes.disabled,
       ])}
       onClick={click}
