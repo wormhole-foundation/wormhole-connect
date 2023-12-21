@@ -45,10 +45,19 @@ export const adaptParsedMessage = async (
     toChainId === MAINNET_CHAINS.solana &&
     parsed.payloadID === PayloadType.Manual
   ) {
-    const accountOwner = await solanaContext().getTokenAccountOwner(
-      parsed.recipient,
-    );
-    base.recipient = accountOwner;
+    try {
+      const accountOwner = await solanaContext().getTokenAccountOwner(
+        parsed.recipient,
+      );
+      base.recipient = accountOwner;
+    } catch (e: any) {
+      if (e.name === 'TokenAccountNotFoundError') {
+        // we'll promp them to create it before claiming it
+        base.recipient = '';
+      } else {
+        throw e;
+      }
+    }
   }
   return base;
 };

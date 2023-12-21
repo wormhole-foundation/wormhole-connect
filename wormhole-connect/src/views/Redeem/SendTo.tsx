@@ -5,13 +5,14 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { CHAINS } from 'config';
 import { RootState } from 'store';
-import { setRedeemTx, setTransferComplete } from 'store/redeem';
-import { displayAddress } from 'utils';
+import { setRedeemTx, setTransferComplete, setTxDetails } from 'store/redeem';
+import { displayAddress, getTokenById, getWrappedTokenId } from 'utils';
 import { TransferDisplayData } from 'routes';
 import RouteOperator from 'routes/operator';
 import {
   TransferWallet,
   registerWalletSigner,
+  signSolanaTransaction,
   switchChain,
 } from 'utils/wallet';
 
@@ -24,6 +25,37 @@ import WalletsModal from '../WalletModal';
 import Header from './Header';
 import { estimateClaimGas } from 'utils/gas';
 import { isGatewayChain } from '../../utils/cosmos';
+import { PayloadType, solanaContext } from '../../utils/sdk';
+import { AssociatedTokenWarning } from '../Bridge/Inputs/TokenWarnings';
+
+function AssociatedTokenAlert() {
+  const dispatch = useDispatch();
+  const txData = useSelector((state: RootState) => state.redeem.txData)!;
+  const wallet = useSelector((state: RootState) => state.wallet.receiving);
+
+  const createAssociatedTokenAccount = useCallback(async () => {
+    const token = getTokenById(txData.tokenId);
+    if (!token) return;
+    const tokenId = getWrappedTokenId(token);
+    const tx = await solanaContext().createAssociatedTokenAccount(
+      tokenId,
+      wallet.address,
+      'finalized',
+    );
+    // if `tx` is null it means the account already exists
+    if (!tx) return;
+    await signSolanaTransaction(tx, TransferWallet.RECEIVING);
+    dispatch(setTxDetails({ ...txData, recipient: wallet.address }));
+  }, [txData, wallet.address, dispatch]);
+
+  const content = (
+    <AssociatedTokenWarning
+      createAssociatedTokenAccount={createAssociatedTokenAccount}
+    />
+  );
+
+  return <AlertBanner warning show={!!wallet.address} content={content} />;
+}
 
 function SendTo() {
   const dispatch = useDispatch();
@@ -154,6 +186,12 @@ function SendTo() {
     }
   };
 
+  // sometimes the ATA might be closed even after the transfer began
+  const missingATA =
+    txData.recipient === '' &&
+    txData.toChain === 'solana' &&
+    txData.payloadID === PayloadType.Manual;
+
   const loading = !AUTOMATIC_DEPOSIT
     ? inProgress && !transferComplete
     : !transferComplete;
@@ -175,6 +213,13 @@ function SendTo() {
         />
         <RenderRows rows={rows} />
       </InputContainer>
+
+      {missingATA && (
+        <>
+          <Spacer height={8} />
+          <AssociatedTokenAlert />
+        </>
+      )}
 
       {/* Claim button for manual transfers */}
       {!AUTOMATIC_DEPOSIT && !transferComplete && (

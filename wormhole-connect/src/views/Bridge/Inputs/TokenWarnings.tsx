@@ -53,7 +53,7 @@ const useStyles = makeStyles()((theme: any) => ({
 type Props = {
   createAssociatedTokenAccount: any;
 };
-function AssociatedTokenWarning(props: Props) {
+export function AssociatedTokenWarning(props: Props) {
   const { classes } = useStyles();
   const [inProgress, setInProgress] = useState(false);
   const [error, setError] = useState('');
