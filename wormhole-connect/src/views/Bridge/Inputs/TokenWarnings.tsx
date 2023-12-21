@@ -217,13 +217,26 @@ function TokenWarnings() {
   useEffect(() => {
     // if the url it's empty that means the user doesn't want this feature
     const cctpWarningFlag = !!USDC_BRIDGE_URL;
-    // check if the token is USDC and the chains involved are not CCTP
-    const usdcAndNoCCTP =
-      cctpWarningFlag &&
+    // check if the tokens will be wrapped USDC
+    const isResultWrappedUSDC =
       tokenConfig?.symbol === 'USDC' &&
       destTokenConfig?.symbol === 'USDC' &&
-      (!(toChain && CCTP_CHAINS.includes(toChain)) ||
-        !(fromChain && CCTP_CHAINS.includes(fromChain)));
+      destTokenConfig?.nativeChain !== toChain;
+    // check if the chains support CCTP
+    const bothChainsSupportCCTP =
+      toChain &&
+      CCTP_CHAINS.includes(toChain) &&
+      fromChain &&
+      CCTP_CHAINS.includes(fromChain);
+    // check if the result is wrapped USDC and the chains involved support CCTP
+    // rationale:
+    // - transferring wrapped USDC back home (unwrapping) shouldn't be a warning
+    // - CCTP would show as USDC on both ends, but the result would be native (the same check as above)
+    // - if both chains don't support CCTP, it doesn't make sense to suggest using it,
+    //   (at least not with this warning) as the user doesn't have a clear alternative
+    //   and using the USDC (CCTP) only bridge wouldn't help
+    const usdcAndNoCCTP =
+      cctpWarningFlag && isResultWrappedUSDC && bothChainsSupportCCTP;
 
     if (!toChain || !token || !receiving.address) return;
     // The tBTC associated token account will be created if it doesn't exist in the redeem tx
@@ -246,7 +259,9 @@ function TokenWarnings() {
     checkSolanaAssociatedTokenAccount,
     route,
     tokenConfig?.symbol,
+    tokenConfig?.nativeChain,
     destTokenConfig?.symbol,
+    destTokenConfig?.nativeChain,
     fromChain,
   ]);
 
