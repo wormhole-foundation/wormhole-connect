@@ -271,7 +271,7 @@ export const validate = async (
     transferInput.destToken &&
     transferInput.amount &&
     Number.parseFloat(transferInput.amount) >= 0 &&
-    transferInput.routeStates?.filter((rs) => rs.supported) !== undefined
+    transferInput.routeStates?.some((rs) => rs.supported) !== undefined
       ? true
       : false;
   dispatch(setValidations({ validations, showValidationState }));
