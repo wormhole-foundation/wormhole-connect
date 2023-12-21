@@ -223,7 +223,7 @@ const establishRoute = (state: TransferInputState) => {
   ];
   for (const r of routeOrderOfPreference) {
     const routeState = routeStates.find((rs) => rs.name === r);
-    if (routeState && routeState.supported) {
+    if (routeState && routeState.supported && routeState.available) {
       state.route = r;
       return;
     }
