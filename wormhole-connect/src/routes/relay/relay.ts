@@ -16,7 +16,10 @@ import {
   toNormalizedDecimals,
   getDisplayName,
 } from 'utils';
-import { fetchRedeemedEvent } from '../../utils/events';
+import {
+  fetchRedeemedEvent,
+  fetchRedeemedEventSender,
+} from '../../utils/events';
 import {
   wh,
   isAcceptedToken,
@@ -554,6 +557,32 @@ export class RelayRoute extends BridgeRoute implements RelayAbstract {
       }
     }
     if (!nativeGasAmt) {
+      let sender;
+      try {
+        sender = await fetchRedeemedEventSender(txData);
+      } catch (e) {}
+      // if the sender is the recipient, then this was a manual claim
+      // and no native gas was received or relayer fee paid
+      if (sender && sender === txData.recipient) {
+        return [
+          {
+            title: 'Amount',
+            value: `${toNormalizedDecimals(
+              txData.amount,
+              txData.tokenDecimals,
+              MAX_DECIMALS,
+            )} ${getDisplayName(token)}`,
+          },
+          {
+            title: 'Native gas token',
+            value: `${NO_INPUT}`,
+          },
+          {
+            title: 'Relayer fee',
+            value: `${NO_INPUT}`,
+          },
+        ];
+      }
       // get the decimals on the target chain
       const destinationTokenDecimals = getTokenDecimals(
         wh.toChainId(txData.toChain),

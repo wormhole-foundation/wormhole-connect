@@ -112,6 +112,47 @@ export const fetchRedeemedEvent = async (
   }
 };
 
+export const fetchRedeemedEventSender = async (
+  txData: SignedMessage,
+): Promise<string | null> => {
+  const redeemedEvent = await fetchRedeemedEvent(txData);
+  if (!redeemedEvent) {
+    return null;
+  }
+  if (txData.toChain === 'solana') {
+    const context = wh.getContext(
+      txData.toChain,
+    ) as SolanaContext<WormholeContext>;
+    const tx = await context.connection?.getParsedTransaction(
+      redeemedEvent.transactionHash,
+      {
+        maxSupportedTransactionVersion: 0,
+      },
+    );
+    const accounts = tx?.transaction.message.accountKeys;
+    return accounts ? accounts[0].pubkey.toBase58() : null;
+  } else if (txData.toChain === 'sui') {
+    const context = wh.getContext(
+      txData.toChain,
+    ) as SuiContext<WormholeContext>;
+    const tx = await context.provider.getTransactionBlock({
+      digest: redeemedEvent.transactionHash,
+    });
+    return tx.transaction?.data.sender || null;
+  } else if (isEvmChain(wh.toChainId(txData.toChain))) {
+    const context = wh.getContext(
+      txData.toChain,
+    ) as EthContext<WormholeContext>;
+    const tx = await context.getReceipt(
+      redeemedEvent.transactionHash,
+      txData.toChain,
+    );
+    return tx.from;
+  }
+
+  return null;
+};
+
 export const fetchSwapEvent = async (txData: ParsedRelayerMessage) => {
   const { tokenId, recipient, toNativeTokenAmount, tokenDecimals } = txData;
   if (txData.toChain === 'solana') {
