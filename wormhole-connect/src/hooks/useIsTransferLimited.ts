@@ -107,9 +107,9 @@ const useIsTransferLimited = (): IsTransferLimitedResult => {
                 ),
               ]);
             if (!cancelled) {
-              setTokenList(tokenListResponse.data);
+              setTokenList(tokenListResponse?.data || null);
               setAvailableNotionalByChain(
-                availableNotionalByChainResponse.data,
+                availableNotionalByChainResponse?.data || null,
               );
               break;
             }
