@@ -22,7 +22,7 @@ export class HashflowRoute extends RouteAbstract {
     return false;
   }
 
-  async isRouteAvailable(
+  async isRouteSupported(
     sourceToken: string,
     destToken: string,
     amount: string,
@@ -36,7 +36,7 @@ export class HashflowRoute extends RouteAbstract {
     throw new Error('Method not implemented.');
   }
 
-  public isRouteSupported(
+  public isRouteAvailable(
     sourceToken: string,
     destToken: string,
     amount: string,

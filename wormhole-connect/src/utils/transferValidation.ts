@@ -216,7 +216,7 @@ export const validateAll = async (
     token,
   );
   const availableRoutes = routeStates
-    ?.filter((rs) => rs.available)
+    ?.filter((rs) => rs.supported)
     .map((val) => val.name);
   const baseValidations = {
     sendingWallet: await validateWallet(sending, fromChain),
@@ -271,7 +271,7 @@ export const validate = async (
     transferInput.destToken &&
     transferInput.amount &&
     Number.parseFloat(transferInput.amount) >= 0 &&
-    transferInput.routeStates?.filter((rs) => rs.available) !== undefined
+    transferInput.routeStates?.filter((rs) => rs.supported) !== undefined
       ? true
       : false;
   dispatch(setValidations({ validations, showValidationState }));

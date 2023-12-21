@@ -150,7 +150,7 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
     });
   }
 
-  async isRouteAvailable(
+  async isRouteSupported(
     sourceToken: string,
     destToken: string,
     amount: string,
@@ -186,12 +186,11 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
     const bothHaveRelayer =
       CHAINS[sourceChainName]?.contracts.cctpContracts?.wormholeCircleRelayer &&
       CHAINS[destChainName]?.contracts.cctpContracts?.wormholeCircleRelayer;
-    if (!bothHaveRelayer) return false;
 
-    return true;
+    return !!bothHaveRelayer;
   }
 
-  async isRouteSupported(
+  async isRouteAvailable(
     sourceToken: string,
     destToken: string,
     amount: string,

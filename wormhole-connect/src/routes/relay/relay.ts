@@ -59,7 +59,7 @@ export class RelayRoute extends BridgeRoute implements RelayAbstract {
     return !!sdkConfig.chains[chain]?.contracts.relayer;
   }
 
-  async isRouteAvailable(
+  async isRouteSupported(
     sourceToken: string,
     destToken: string,
     amount: string,
@@ -70,7 +70,7 @@ export class RelayRoute extends BridgeRoute implements RelayAbstract {
       return false;
     }
 
-    const isBridgeRouteAvailable = await super.isRouteAvailable(
+    const isBridgeRouteAvailable = await super.isRouteSupported(
       sourceToken,
       destToken,
       amount,
@@ -85,13 +85,10 @@ export class RelayRoute extends BridgeRoute implements RelayAbstract {
     }
     const tokenConfig = TOKENS[sourceToken]!;
     const tokenId = getWrappedTokenId(tokenConfig);
-    const accepted = await isAcceptedToken(tokenId);
-
-    if (!accepted) return false;
-    return true;
+    return isAcceptedToken(tokenId);
   }
 
-  async isRouteSupported(
+  async isRouteAvailable(
     sourceToken: string,
     destToken: string,
     amount: string,

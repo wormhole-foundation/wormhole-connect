@@ -223,7 +223,7 @@ const establishRoute = (state: TransferInputState) => {
   ];
   for (const r of routeOrderOfPreference) {
     const routeState = routeStates.find((rs) => rs.name === r);
-    if (routeState && routeState.available) {
+    if (routeState && routeState.supported) {
       state.route = r;
       return;
     }
@@ -352,7 +352,7 @@ export const transferInputSlice = createSlice({
       }
       if (
         state.routeStates &&
-        state.routeStates.some((rs) => rs.name === payload && rs.available)
+        state.routeStates.some((rs) => rs.name === payload && rs.supported)
       ) {
         state.route = payload;
       } else {

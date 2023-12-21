@@ -113,27 +113,6 @@ export class Operator {
       : Route.Bridge;
   }
 
-  async isRouteAvailable(
-    route: Route,
-    sourceToken: string,
-    destToken: string,
-    amount: string,
-    sourceChain: ChainName | ChainId,
-    destChain: ChainName | ChainId,
-  ): Promise<boolean> {
-    if (!ROUTES.includes(route)) {
-      return false;
-    }
-
-    const r = this.getRoute(route);
-    return await r.isRouteAvailable(
-      sourceToken,
-      destToken,
-      amount,
-      sourceChain,
-      destChain,
-    );
-  }
   async isRouteSupported(
     route: Route,
     sourceToken: string,
@@ -148,6 +127,27 @@ export class Operator {
 
     const r = this.getRoute(route);
     return await r.isRouteSupported(
+      sourceToken,
+      destToken,
+      amount,
+      sourceChain,
+      destChain,
+    );
+  }
+  async isRouteAvailable(
+    route: Route,
+    sourceToken: string,
+    destToken: string,
+    amount: string,
+    sourceChain: ChainName | ChainId,
+    destChain: ChainName | ChainId,
+  ): Promise<boolean> {
+    if (!ROUTES.includes(route)) {
+      return false;
+    }
+
+    const r = this.getRoute(route);
+    return await r.isRouteAvailable(
       sourceToken,
       destToken,
       amount,

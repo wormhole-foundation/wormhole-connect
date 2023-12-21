@@ -86,7 +86,7 @@ export abstract class BaseRoute extends RouteAbstract {
     });
   }
 
-  async isRouteSupported(
+  async isRouteAvailable(
     sourceToken: string,
     destToken: string,
     amount: string,

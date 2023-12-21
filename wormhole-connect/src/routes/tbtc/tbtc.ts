@@ -85,7 +85,7 @@ export class TBTCRoute extends BaseRoute {
     return wh.toChainId(token.nativeChain) === CHAIN_ID_ETH;
   }
 
-  async isRouteAvailable(
+  async isRouteSupported(
     sourceToken: string,
     destToken: string,
     amount: string,

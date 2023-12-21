@@ -263,7 +263,7 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
 function RouteOptions() {
   const dispatch = useDispatch();
   const [collapsed, setCollapsed] = useState(true);
-  const [unsupportedRoute, setUnsupportedRoute] = useState(false);
+  const [unavailableRoute, setUnavailableRoute] = useState(false);
   const {
     isTransactionInProgress,
     route,
@@ -278,7 +278,7 @@ function RouteOptions() {
     (value: Route) => {
       if (routeStates && routeStates.some((rs) => rs.name === value)) {
         const route = routeStates.find((rs) => rs.name === value);
-        if (route?.supported) dispatch(setTransferRoute(value));
+        if (route?.available) dispatch(setTransferRoute(value));
       }
     },
     [routeStates, dispatch],
@@ -322,14 +322,14 @@ function RouteOptions() {
 
   const allRoutes = useMemo(() => {
     if (!routeStates) return [];
-    const available = routeStates.filter((rs) => rs.available);
-    setUnsupportedRoute(available.some((rs) => !rs.supported));
-    return available;
+    const routes = routeStates.filter((rs) => rs.supported);
+    setUnavailableRoute(routes.some((rs) => !rs.available));
+    return routes;
   }, [routeStates]);
 
   useEffect(() => {
-    setCollapsed(!unsupportedRoute);
-  }, [unsupportedRoute]);
+    setCollapsed(!unavailableRoute);
+  }, [unavailableRoute]);
 
   return allRoutes ? (
     <BridgeCollapse
@@ -337,7 +337,7 @@ function RouteOptions() {
       disabled={isTransactionInProgress}
       banner={<Banner />}
       disableCollapse
-      startClosed={!unsupportedRoute}
+      startClosed={!unavailableRoute}
       onCollapseChange={onCollapseChange}
       controlStyle={
         allRoutes.length > 1
@@ -351,12 +351,12 @@ function RouteOptions() {
         collapsable
         collapsed={collapsed}
       >
-        {allRoutes.map(({ name, supported }) => {
+        {allRoutes.map(({ name, available }) => {
           return {
             key: name,
             child: (
               <RouteOption
-                disabled={!supported}
+                disabled={!available}
                 route={RoutesConfig[name as Route]}
               />
             ),
