@@ -281,7 +281,7 @@ function RouteOptions() {
     setCollapsed(collapsed);
   };
 
-  return availableRoutes ? (
+  return availableRoutes && availableRoutes.length > 0 ? (
     <BridgeCollapse
       title="Route"
       disabled={isTransactionInProgress}

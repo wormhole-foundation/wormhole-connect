@@ -146,22 +146,14 @@ function Bridge() {
         toChain,
       );
       dispatch(setAllSupportedDestTokens(allSupported));
-      const selectedIsSupported = isSupportedToken(destToken, supported);
-      if (!selectedIsSupported) {
-        dispatch(setDestToken(''));
-      }
-      if (supported.length === 1 && destToken === '') {
+      if (supported.length === 1) {
         dispatch(setDestToken(supported[0].key));
       }
 
       // If all the supported tokens are the same token
       // select the native version
       const symbols = supported.map((t) => t.symbol);
-      if (
-        destToken === '' &&
-        toChain &&
-        symbols.every((s) => s === symbols[0])
-      ) {
+      if (toChain && symbols.every((s) => s === symbols[0])) {
         const key = supported.find(
           (t) =>
             t.symbol === symbols[0] &&
@@ -212,6 +204,9 @@ function Bridge() {
     RouteOperator.getRoute(route).NATIVE_GAS_DROPOFF_SUPPORTED &&
     !willReceiveGasToken;
 
+  const showRouteValidation =
+    !!fromChain && !!toChain && !!token && !!destToken && !!amount;
+
   return (
     <div className={joinClass([classes.bridgeContent, classes.spacer])}>
       <PageHeader
@@ -223,12 +218,15 @@ function Bridge() {
       <SwapChains />
       <ToInputs />
 
-      <ValidationError validations={[validations.route]} margin="12px 0 0 0" />
+      <ValidationError
+        forceShow={showRouteValidation}
+        validations={[validations.route]}
+        margin="12px 0 0 0"
+      />
 
+      <RouteOptions />
       <Collapse in={valid && showValidationState}>
         <div className={classes.spacer}>
-          <RouteOptions />
-
           <Collapse
             in={showGasSlider}
             sx={

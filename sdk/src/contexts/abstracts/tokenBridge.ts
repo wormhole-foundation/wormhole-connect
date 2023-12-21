@@ -1,6 +1,7 @@
 import { BigNumber } from 'ethers';
 import { AnyContracts, TokenId, ChainName, ChainId, NATIVE } from '../../types';
 import { WormholeContext } from 'wormhole';
+import { TokenNotRegisteredError } from '../../errors';
 
 /**
  * @abstract
@@ -120,7 +121,7 @@ export abstract class TokenBridgeAbstract<TransactionResult> {
    * @param chain The chain name or id
    * @returns The Wormhole address on the given chain, null if it does not exist
    */
-  protected abstract getForeignAsset(
+  abstract getForeignAsset(
     tokenId: TokenId,
     chain: ChainName | ChainId,
   ): Promise<string | null>;
@@ -132,10 +133,14 @@ export abstract class TokenBridgeAbstract<TransactionResult> {
    * @returns The Wormhole address on the given chain
    * @throws Throws if the token does not exist
    */
-  protected abstract mustGetForeignAsset(
+  async mustGetForeignAsset(
     tokenId: TokenId,
     chain: ChainName | ChainId,
-  ): Promise<string>;
+  ): Promise<string> {
+    const foreignAsset = await this.getForeignAsset(tokenId, chain);
+    if (!foreignAsset) throw new TokenNotRegisteredError();
+    return foreignAsset;
+  }
 
   /**
    * Fetches the native token balance for a wallet

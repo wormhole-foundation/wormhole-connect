@@ -428,7 +428,9 @@ export class RelayRoute extends BridgeRoute implements RelayAbstract {
     const tokenConfig = TOKENS[token];
     if (!tokenConfig) throw new Error('could not get token config');
     const tokenId = tokenConfig.tokenId || getWrappedTokenId(tokenConfig);
-    return await context.getRelayerFee(sourceChain, destChain, tokenId);
+    return context.getRelayerFee
+      ? await context.getRelayerFee(sourceChain, destChain, tokenId)
+      : BigNumber.from(0);
   }
 
   async getTransferSourceInfo({

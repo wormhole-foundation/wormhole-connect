@@ -31,6 +31,7 @@ import { parseVaa } from '../../vaa';
 import { RelayerAbstract } from '../abstracts/relayer';
 import { arrayify } from 'ethers/lib/utils';
 import { ForeignAssetCache, chunkArray } from '../../utils';
+import { TokenNotSupportedForRelayError } from '../../errors';
 
 export const NO_VAA_FOUND = 'No message publish found in logs';
 export const INSUFFICIENT_ALLOWANCE = 'Insufficient token allowance';
@@ -109,15 +110,6 @@ export class EthContext<
       chain,
     );
     return typeof result === 'function' ? await result() : result;
-  }
-
-  async mustGetForeignAsset(
-    tokenId: TokenId,
-    chain: ChainName | ChainId,
-  ): Promise<string> {
-    const addr = await this.getForeignAsset(tokenId, chain);
-    if (!addr) throw new Error('token not registered');
-    return addr;
   }
 
   async fetchTokenDecimals(
@@ -807,7 +799,15 @@ export class EthContext<
     const decimals = await tokenContract.decimals();
     // get relayer fee as token amt
     const destChainId = this.context.toChainId(destChain);
-    return await relayer.calculateRelayerFee(destChainId, address, decimals);
+    try {
+      return await relayer.calculateRelayerFee(destChainId, address, decimals);
+    } catch (e: any) {
+      if (e.message.includes('swap rate not set')) {
+        throw new TokenNotSupportedForRelayError();
+      } else {
+        throw e;
+      }
+    }
   }
 
   async isTransferCompleted(

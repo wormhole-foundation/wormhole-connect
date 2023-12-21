@@ -623,15 +623,6 @@ export class SeiContext<
     }
   }
 
-  async mustGetForeignAsset(
-    tokenId: TokenId,
-    chain: ChainName | ChainId,
-  ): Promise<string> {
-    const assetAdddress = await this.getForeignAsset(tokenId, chain);
-    if (!assetAdddress) throw new Error('token not registered');
-    return assetAdddress;
-  }
-
   /**
    * Search for a specific piece of information emitted by the contracts during the transaction
    * For example: to retrieve the bridge transfer recipient, we would have to look

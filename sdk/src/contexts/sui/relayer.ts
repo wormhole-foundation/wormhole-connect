@@ -1,6 +1,7 @@
 import { JsonRpcProvider, TransactionBlock } from '@mysten/sui.js';
 import { BigNumber, BigNumberish } from 'ethers';
 import { getObjectFields } from '@certusone/wormhole-sdk/lib/esm/sui';
+import { TokenNotSupportedForRelayError } from '../../errors';
 
 export interface TokenInfo {
   max_native_swap_amount: string;
@@ -82,7 +83,7 @@ export class SuiRelayer {
   ): Promise<BigNumber> {
     const tokenInfo = await this.getTokenInfo(coinType);
     if (tokenInfo === null) {
-      throw new Error('Unable to get token info for relayer fee');
+      throw new TokenNotSupportedForRelayError();
     }
     const relayerFees = await this.provider.getDynamicFieldObject({
       parentId: this.objectId,

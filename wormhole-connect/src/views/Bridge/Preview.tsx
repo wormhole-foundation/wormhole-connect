@@ -16,6 +16,10 @@ import RouteOperator from 'routes/operator';
 import { RenderRows } from 'components/RenderRows';
 import BridgeCollapse, { CollapseControlStyle } from './Collapse';
 import InputContainer from 'components/InputContainer';
+import {
+  TokenNotSupportedForRelayError,
+  TokenNotRegisteredError,
+} from '@wormhole-foundation/wormhole-connect-sdk';
 
 function Preview(props: { collapsed: boolean }) {
   const dispatch = useDispatch();
@@ -105,7 +109,12 @@ function Preview(props: { collapsed: boolean }) {
         const formattedFee = Number.parseFloat(toDecimals(fee, decimals, 6));
         dispatch(setRelayerFee(formattedFee));
       } catch (e: any) {
-        if (e.message.includes('swap rate not set')) {
+        // change to manual if the token is not available either on the relayer
+        // or the wormhole bridge
+        if (
+          e.message === TokenNotSupportedForRelayError.MESSAGE ||
+          e.message === TokenNotRegisteredError.MESSAGE
+        ) {
           if (route === Route.CCTPRelay) {
             dispatch(setTransferRoute(Route.CCTPManual));
           } else {

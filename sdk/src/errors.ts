@@ -1,3 +1,13 @@
-export function NoProviderError(chain: string | number) {
-  return `Missing provider for domain: ${chain}.\nHint: Have you called \`context.registerProvider(${chain}, provider)\` yet?`;
+export class TokenNotSupportedForRelayError extends Error {
+  static MESSAGE = 'Token not supported for relay';
+  constructor() {
+    super(TokenNotSupportedForRelayError.MESSAGE);
+  }
+}
+
+export class TokenNotRegisteredError extends Error {
+  static MESSAGE = 'Token not registered';
+  constructor() {
+    super(TokenNotRegisteredError.MESSAGE);
+  }
 }

@@ -278,7 +278,6 @@ export class SuiContext<
       );
       return assetAddress;
     } catch (e) {
-      console.error(`formatAssetAddress - error: ${e}`);
       throw e;
     }
   }
@@ -353,15 +352,6 @@ export class SuiContext<
       console.log(`getForeignAsset - error: ${e}`);
       throw e;
     }
-  }
-
-  async mustGetForeignAsset(
-    tokenId: TokenId,
-    chain: ChainName | ChainId,
-  ): Promise<string> {
-    const coinType = await this.getForeignAsset(tokenId, chain);
-    if (!coinType) throw new Error('token not registered');
-    return coinType;
   }
 
   async fetchTokenDecimals(
