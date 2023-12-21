@@ -94,6 +94,9 @@ export const CHAINS_ARR =
 
 export const SEARCH_TX = config && config.searchTx;
 
+export const AVAILABLE_MARKETS_URL =
+  'https://portalbridge.com/docs/faqs/liquid-markets/';
+
 export const MORE_NETWORKS = config && config.moreNetworks;
 export const MORE_TOKENS = config && config.moreTokens;
 export const TOKENS = NETWORK_DATA.tokens;

@@ -1,11 +1,11 @@
-import { useMediaQuery } from '@mui/material';
+import { Alert, Link, useMediaQuery } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { useTheme } from '@mui/material/styles';
 import { ChainName, TokenId } from '@wormhole-foundation/wormhole-connect-sdk';
-import { CHAINS, MORE_TOKENS } from 'config';
+import { AVAILABLE_MARKETS_URL, CHAINS, MORE_TOKENS } from 'config';
 import { TokenConfig } from 'config/types';
 import { BigNumber } from 'ethers';
 import TokenIcon from 'icons/TokenIcons';
@@ -531,6 +531,17 @@ function TokensModal(props: Props) {
   return (
     <Modal open={open} closable width={500} onClose={closeTokensModal}>
       <Header text="Select asset" size={28} />
+      <Spacer height={16} />
+      <Alert variant="outlined" severity="info">
+        You should always check for markets and liquidity before sending tokens.{' '}
+        <Link
+          href={AVAILABLE_MARKETS_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Click here to see available markets for wrapped tokens.
+        </Link>
+      </Alert>
       <Spacer height={16} />
       <Search
         placeholder={
