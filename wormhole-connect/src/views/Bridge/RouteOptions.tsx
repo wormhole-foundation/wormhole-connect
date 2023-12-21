@@ -44,10 +44,16 @@ const useStyles = makeStyles()((theme: any) => ({
     },
   },
   route: {
-    display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
-    gridTemplateRows: '1fr',
-    gridTemplateAreas: `"path fees"`,
+    [theme.breakpoints.up('sm')]: {
+      display: 'grid',
+      gridTemplateColumns: '1fr 1fr',
+      gridTemplateRows: '1fr',
+      gridTemplateAreas: `"path fees"`,
+    },
+    [theme.breakpoints.down('sm')]: {
+      display: 'flex',
+      flexDirection: 'column',
+    },
     width: '100%',
     maxWidth: '100%',
     fontSize: '14px',
@@ -63,11 +69,18 @@ const useStyles = makeStyles()((theme: any) => ({
   },
   routeTitle: {
     display: 'flex',
+    [theme.breakpoints.down('sm')]: {
+      flexDirection: 'column',
+    },
+    [theme.breakpoints.up('sm')]: {
+      flexDirection: 'row',
+    },
     alignItems: 'center',
     gap: '8px',
     fontSize: '14px',
     fontWeight: '600',
     marginBottom: '8px',
+    whiteSpace: 'nowrap',
   },
   routePath: {
     display: 'flex',
@@ -210,14 +223,14 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
               {/* TODO: isAutomatic to route and use transfer parameters to decide */}
               {isAutomatic ? (
                 <Chip
-                  label="One transaction"
+                  label="Receive tokens automatically"
                   color="success"
                   variant="outlined"
                   size="small"
                 />
               ) : (
                 <Chip
-                  label="Two transactions"
+                  label="Approve a txn from your destination chain wallet"
                   color="warning"
                   variant="outlined"
                   size="small"
