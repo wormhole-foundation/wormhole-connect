@@ -150,6 +150,7 @@ function FromInputs() {
         tokenInput={tokenInput}
         amountInput={amountInput}
         balance={balance}
+        onBalanceClick={handleAmountChange}
       />
       <TokensModal
         open={showTokensModal}

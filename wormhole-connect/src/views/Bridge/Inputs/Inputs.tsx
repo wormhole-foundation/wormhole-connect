@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { useTheme } from '@mui/material/styles';
@@ -117,9 +117,11 @@ type Props = {
   tokenInput: any;
   amountInput: any;
   balance: string | undefined;
+  onBalanceClick?: (balance: string) => void;
 };
 
 function Inputs(props: Props) {
+  const { onBalanceClick } = props;
   const { classes } = useStyles();
 
   const { showValidationState: showErrors, isTransactionInProgress } =
@@ -132,6 +134,12 @@ function Inputs(props: Props) {
 
   const theme = useTheme();
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const handleBalanceClick = useCallback(() => {
+    console.log('handleBalanceClick', onBalanceClick, props.balance);
+    if (onBalanceClick && props.balance) {
+      onBalanceClick(props.balance);
+    }
+  }, [onBalanceClick, props.balance]);
 
   return (
     <div className={classes.container}>
@@ -202,7 +210,12 @@ function Inputs(props: Props) {
                 {/* balance */}
                 <div className={classes.balance}>
                   <Input label="Balance">
-                    <div>{props.balance || NO_INPUT}</div>
+                    <div
+                      style={{ cursor: 'pointer' }}
+                      onClick={() => handleBalanceClick()}
+                    >
+                      {props.balance || NO_INPUT}
+                    </div>
                   </Input>
                 </div>
               </div>
