@@ -18,7 +18,7 @@ export const RoutesConfig: {
 } = {
   [Route.Bridge]: {
     route: Route.Bridge,
-    name: 'Bridge',
+    name: 'Manual Bridge',
     providedBy: 'Wormhole',
     link: 'https://wormhole.com/',
     icon: WormholeIcon,
@@ -26,7 +26,7 @@ export const RoutesConfig: {
   },
   [Route.Relay]: {
     route: Route.Relay,
-    name: 'Automatic Deposit',
+    name: 'Automatic Bridge',
     providedBy: 'xLabs',
     link: 'https://xlabs.xyz',
     icon: XLabsIcon,
