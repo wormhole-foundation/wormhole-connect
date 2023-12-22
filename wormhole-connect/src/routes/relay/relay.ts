@@ -2,6 +2,7 @@ import {
   TokenId,
   ChainName,
   ChainId,
+  MAINNET_CHAINS,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { BigNumber, utils } from 'ethers';
 
@@ -15,7 +16,10 @@ import {
   toNormalizedDecimals,
   getDisplayName,
 } from 'utils';
-import { fetchRedeemedEvent } from '../../utils/events';
+import {
+  fetchRedeemedEvent,
+  fetchRedeemedEventSender,
+} from '../../utils/events';
 import {
   wh,
   isAcceptedToken,
@@ -26,7 +30,7 @@ import {
   PayloadType,
 } from 'utils/sdk';
 import { NO_INPUT } from 'utils/style';
-import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
+import { TransferWallet, postVaa, signAndSendTransaction } from 'utils/wallet';
 import { BridgeRoute } from '../bridge/bridge';
 import { toDecimals, toFixedDecimals } from '../../utils/balance';
 import {
@@ -45,6 +49,7 @@ import {
 import { fetchVaa } from '../../utils/vaa';
 import { RelayOptions, TransferDestInfoParams } from './types';
 import { RelayAbstract } from 'routes/abstracts';
+import { arrayify } from 'ethers/lib/utils.js';
 
 export class RelayRoute extends BridgeRoute implements RelayAbstract {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED = true;
@@ -303,11 +308,39 @@ export class RelayRoute extends BridgeRoute implements RelayAbstract {
 
   async redeem(
     destChain: ChainName | ChainId,
-    messageInfo: SignedMessage,
+    signedMessage: SignedMessage,
     payer: string,
   ): Promise<string> {
-    // TODO: implement redeemRelay in the WormholeContext for self redemptions
-    throw new Error('not implemented');
+    if (!isSignedWormholeMessage(signedMessage)) {
+      throw new Error('Invalid signed message');
+    }
+    const destChainId = wh.toChainId(destChain);
+    const destChainName = wh.toChainName(destChain);
+    if (destChainId === MAINNET_CHAINS.solana) {
+      const destContext = wh.getContext(destChain) as any;
+      const connection = destContext.connection;
+      if (!connection) throw new Error('no connection');
+      const contracts = wh.mustGetContracts(destChain);
+      if (!contracts.core) throw new Error('contract not found');
+      await postVaa(
+        connection,
+        contracts.core,
+        Buffer.from(arrayify(signedMessage.vaa, { allowMissingPrefix: true })),
+      );
+    }
+    const tx = await wh.redeemRelay(
+      destChain,
+      arrayify(signedMessage.vaa),
+      undefined,
+      payer,
+    );
+    const txId = await signAndSendTransaction(
+      destChainName,
+      tx,
+      TransferWallet.RECEIVING,
+    );
+    wh.registerProviders();
+    return txId;
   }
 
   async getMessage(
@@ -524,6 +557,32 @@ export class RelayRoute extends BridgeRoute implements RelayAbstract {
       }
     }
     if (!nativeGasAmt) {
+      let sender;
+      try {
+        sender = await fetchRedeemedEventSender(txData);
+      } catch (e) {}
+      // if the sender is the recipient, then this was a manual claim
+      // and no native gas was received or relayer fee paid
+      if (sender && sender === txData.recipient) {
+        return [
+          {
+            title: 'Amount',
+            value: `${toNormalizedDecimals(
+              txData.amount,
+              txData.tokenDecimals,
+              MAX_DECIMALS,
+            )} ${getDisplayName(token)}`,
+          },
+          {
+            title: 'Native gas token',
+            value: `${NO_INPUT}`,
+          },
+          {
+            title: 'Relayer fee',
+            value: `${NO_INPUT}`,
+          },
+        ];
+      }
       // get the decimals on the target chain
       const destinationTokenDecimals = getTokenDecimals(
         wh.toChainId(txData.toChain),

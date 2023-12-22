@@ -57,6 +57,7 @@ import {
   createTransferNativeWithPayloadInstruction,
   createApproveAuthoritySignerInstruction,
   createTransferWrappedWithPayloadInstruction,
+  deriveWrappedMintKey,
 } from './utils/tokenBridge';
 import {
   deriveClaimKey,
@@ -67,8 +68,10 @@ import {
 import { ForeignAssetCache } from '../../utils';
 import { RelayerAbstract } from '../abstracts/relayer';
 import {
+  createCompleteWrappedTransferWithRelayInstruction,
   createTransferNativeTokensWithRelayInstruction,
   createTransferWrappedTokensWithRelayInstruction,
+  createCompleteNativeTransferWithRelayInstruction,
 } from './utils/tokenBridgeRelayer';
 
 const SOLANA_SEQ_LOG = 'Program log: Sequence: ';
@@ -900,6 +903,84 @@ export class SolanaContext<
         signedVAA,
       );
     }
+  }
+
+  async redeemRelay(
+    destChain: ChainName | ChainId,
+    signedVAA: Uint8Array,
+    overrides: any,
+    payerAddr?: string,
+  ): Promise<Transaction> {
+    if (!payerAddr)
+      throw new Error(
+        'receiving wallet address required for redeeming on Solana',
+      );
+    if (!this.connection) throw new Error('no connection');
+    const { core, token_bridge, relayer } =
+      this.contracts.mustGetContracts(SOLANA_CHAIN_NAME);
+    if (!core || !token_bridge || !relayer) {
+      throw new Error('contracts not found');
+    }
+    const parsed = parseTokenTransferVaa(signedVAA);
+    const { to } = this.parseRelayerPayload(parsed.tokenTransferPayload);
+    const recipient = new PublicKey(arrayify(to));
+    if (!recipient.equals(new PublicKey(payerAddr))) {
+      throw new Error('recipient address does not match payer address');
+    }
+    const isNative = parsed.tokenChain === MAINNET_CHAINS.solana;
+    const mint = isNative
+      ? new PublicKey(parsed.tokenAddress)
+      : deriveWrappedMintKey(
+          token_bridge,
+          parsed.tokenChain,
+          parsed.tokenAddress,
+        );
+    const transaction = new Transaction();
+    const recipientTokenAccount = getAssociatedTokenAddressSync(
+      mint,
+      recipient,
+    );
+    const recipientTokenAccountInfo = await this.connection.getAccountInfo(
+      recipientTokenAccount,
+    );
+    // Create the associated token account if it doesn't exist
+    if (!recipientTokenAccountInfo) {
+      transaction.add(
+        createAssociatedTokenAccountInstruction(
+          recipient,
+          recipientTokenAccount,
+          recipient,
+          mint,
+        ),
+      );
+    }
+    let redeemIx: TransactionInstruction;
+    if (isNative) {
+      redeemIx = await createCompleteNativeTransferWithRelayInstruction(
+        this.connection,
+        relayer,
+        recipient,
+        token_bridge,
+        core,
+        signedVAA,
+        recipient,
+      );
+    } else {
+      redeemIx = await createCompleteWrappedTransferWithRelayInstruction(
+        this.connection,
+        relayer,
+        recipient,
+        token_bridge,
+        core,
+        signedVAA,
+        recipient,
+      );
+    }
+    transaction.add(redeemIx);
+    const { blockhash } = await this.connection.getLatestBlockhash('finalized');
+    transaction.recentBlockhash = blockhash;
+    transaction.feePayer = new PublicKey(recipient);
+    return transaction;
   }
 
   async isTransferCompleted(

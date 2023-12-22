@@ -559,6 +559,31 @@ export class EthContext<
     // return receipt;
   }
 
+  async prepareRedeemRelay(
+    destChain: ChainName | ChainId,
+    signedVAA: Uint8Array,
+    overrides: Overrides & { from?: string | Promise<string> } = {},
+  ): Promise<PopulatedTransaction> {
+    const relayer = this.contracts.mustGetTokenBridgeRelayer(destChain);
+    await relayer.callStatic.completeTransferWithRelay(signedVAA, overrides);
+    return relayer.populateTransaction.completeTransferWithRelay(
+      signedVAA,
+      overrides,
+    );
+  }
+
+  async redeemRelay(
+    destChain: ChainName | ChainId,
+    signedVAA: Uint8Array,
+    overrides: Overrides & { from?: string | Promise<string> } = {},
+  ): Promise<ContractReceipt> {
+    const signer = this.context.getSigner(destChain);
+    if (!signer) throw new Error(`No signer for ${destChain}`);
+    const tx = await this.prepareRedeemRelay(destChain, signedVAA, overrides);
+    const v = await signer.sendTransaction(tx);
+    return await v.wait();
+  }
+
   async estimateSendGas(
     token: TokenId | typeof NATIVE,
     amount: string,
