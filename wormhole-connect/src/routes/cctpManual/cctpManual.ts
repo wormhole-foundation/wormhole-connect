@@ -143,7 +143,7 @@ export class CCTPManualRoute extends BaseRoute {
     });
   }
 
-  async isRouteAvailable(
+  async isRouteSupported(
     sourceToken: string,
     destToken: string,
     amount: string,

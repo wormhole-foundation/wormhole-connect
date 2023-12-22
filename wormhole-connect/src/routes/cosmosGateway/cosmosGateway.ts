@@ -57,7 +57,7 @@ export class CosmosGatewayRoute extends BaseRoute {
     return isGatewayChain(chain);
   }
 
-  async isRouteAvailable(
+  async isRouteSupported(
     sourceToken: string,
     destToken: string,
     amount: string,

@@ -20,7 +20,16 @@ export abstract class RouteAbstract {
   // protected abstract sendGasFallback: { [key: ChainName]: TokenConfig };
   // protected abstract claimGasFallback: { [key: ChainName]: TokenConfig };
 
-  // Is this route available for the given chain, token and amount specifications?
+  // Is this route supported for the given chain, token and amount specifications?
+  public abstract isRouteSupported(
+    sourceToken: string,
+    destToken: string,
+    amount: string,
+    sourceChain: ChainName | ChainId,
+    destChain: ChainName | ChainId,
+  ): Promise<boolean>;
+
+  // Is this route available for the given chain, fee and amount specifications?
   public abstract isRouteAvailable(
     sourceToken: string,
     destToken: string,

@@ -86,6 +86,16 @@ export abstract class BaseRoute extends RouteAbstract {
     });
   }
 
+  async isRouteAvailable(
+    sourceToken: string,
+    destToken: string,
+    amount: string,
+    sourceChain: ChainName | ChainId,
+    destChain: ChainName | ChainId,
+  ): Promise<boolean> {
+    return true;
+  }
+
   async getPreview(
     token: TokenConfig,
     destToken: TokenConfig,
