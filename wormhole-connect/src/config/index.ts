@@ -12,7 +12,7 @@ import {
   WormholeConnectConfig,
   Route,
 } from './types';
-import { dark, light } from 'theme';
+import { dark, light } from '../theme';
 import { validateConfigs, validateDefaults } from './utils';
 import { Alignment } from 'components/Header';
 

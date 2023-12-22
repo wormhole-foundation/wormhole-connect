@@ -13,8 +13,8 @@ import Redeem from './views/Redeem/Redeem';
 import Terms from './views/Terms';
 import TxSearch from './views/TxSearch';
 import WalletModal from './views/WalletModal';
-import { SEARCH_TX } from 'config';
-import { setRoute } from 'store/router';
+import { SEARCH_TX } from './config';
+import { setRoute } from './store/router';
 
 const useStyles = makeStyles()((theme: any) => ({
   appContent: {
