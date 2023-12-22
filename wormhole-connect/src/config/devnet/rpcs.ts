@@ -5,7 +5,8 @@ const {
   REACT_APP_WORMCHAIN_DEVNET_RPC,
   REACT_APP_TERRA2_DEVNET_RPC,
   REACT_APP_SEI_REST,
-} = process.env;
+  REACT_APP_APTOS_DEVNET_REST,
+} = import.meta.env;
 
 export const DEVNET_RPC_MAPPING = {
   ...populateRpcField('ethereum', REACT_APP_ETHEREUM_DEVNET_RPC),
@@ -19,5 +20,5 @@ export const DEVNET_REST_MAPPING = {
 };
 
 export const DEVNET_GRAPHQL_MAPPING = {
-  ...populateRpcField('aptos', process.env.REACT_APP_APTOS_DEVNET_REST),
+  ...populateRpcField('aptos', REACT_APP_APTOS_DEVNET_REST),
 };

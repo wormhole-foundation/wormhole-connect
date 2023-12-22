@@ -1,0 +1,65 @@
+/// <reference types="vite/client" />
+
+interface ImportMetaEnv {
+  // env
+  REACT_APP_CONNECT_ENV: string;
+
+  // wallet connect
+  REACT_APP_WALLET_CONNECT_PROJECT_ID: string;
+
+  // mainnet
+  REACT_APP_ETHEREUM_RPC: string;
+  REACT_APP_SOLANA_RPC: string;
+  REACT_APP_POLYGON_RPC: string;
+  REACT_APP_BSC_RPC: string;
+  REACT_APP_AVALANCHE_RPC: string;
+  REACT_APP_FANTOM_RPC: string;
+  REACT_APP_CELO_RPC: string;
+  REACT_APP_MOONBEAM_RPC: string;
+  REACT_APP_SUI_RPC: string;
+  REACT_APP_APTOS_RPC: string;
+  REACT_APP_SEI_RPC: string;
+  REACT_APP_BASE_RPC: string;
+  REACT_APP_OSMOSIS_RPC: string;
+  REACT_APP_WORMCHAIN_RPC: string;
+  REACT_APP_EVMOS_RPC: string;
+  REACT_APP_KUJIRA_RPC: string;
+  REACT_APP_SEI_REST: string;
+  REACT_APP_EVMOS_REST: string;
+  REACT_APP_ARBITRUM_RPC: string;
+  REACT_APP_OPTIMISM_RPC: string;
+  REACT_APP_APTOS_GRAPHQL: string;
+
+  // testnet
+  REACT_APP_GOERLI_RPC: string;
+  REACT_APP_MUMBAI_RPC: string;
+  REACT_APP_BSC_TESTNET_RPC: string;
+  REACT_APP_FUJI_RPC: string;
+  REACT_APP_FANTOM_TESTNET_RPC: string;
+  REACT_APP_ALFAJORES_RPC: string;
+  REACT_APP_SOLANA_DEVNET_RPC: string;
+  REACT_APP_MOONBASE_RPC: string;
+  REACT_APP_SUI_TESTNET_RPC: string;
+  REACT_APP_APTOS_TESTNET_RPC: string;
+  REACT_APP_SEI_TESTNET_RPC: string;
+  REACT_APP_BASE_GOERLI_RPC: string;
+  REACT_APP_OSMOSIS_TESTNET_RPC: string;
+  REACT_APP_WORMCHAIN_TESTNET_RPC: string;
+  REACT_APP_EVMOS_TESTNET_RPC: string;
+  REACT_APP_COSMOSHUB_TESTNET_RPC: string;
+  REACT_APP_KUJIRA_TESTNET_RPC: string;
+  REACT_APP_ARBITRUM_GOERLI_RPC: string;
+  REACT_APP_OPTIMISM_GOERLI_RPC: string;
+  REACT_APP_APTOS_TESTNET_GRAPHQL: string;
+
+  // devnet
+  REACT_APP_ETHEREUM_DEVNET_RPC: string;
+  REACT_APP_OSMOSIS_DEVNET_RPC: string;
+  REACT_APP_WORMCHAIN_DEVNET_RPC: string;
+  REACT_APP_TERRA2_DEVNET_RPC: string;
+  REACT_APP_APTOS_DEVNET_REST: string;
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv;
+}

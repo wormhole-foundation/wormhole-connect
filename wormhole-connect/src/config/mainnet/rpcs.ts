@@ -18,7 +18,10 @@ const {
   REACT_APP_KUJIRA_RPC,
   REACT_APP_SEI_REST,
   REACT_APP_EVMOS_REST,
-} = process.env;
+  REACT_APP_ARBITRUM_RPC,
+  REACT_APP_OPTIMISM_RPC,
+  REACT_APP_APTOS_GRAPHQL,
+} = import.meta.env;
 
 export const MAINNET_RPC_MAPPING = {
   ...populateRpcField('ethereum', REACT_APP_ETHEREUM_RPC),
@@ -35,8 +38,8 @@ export const MAINNET_RPC_MAPPING = {
   ...populateRpcField('base', REACT_APP_BASE_RPC),
   ...populateRpcField('osmosis', REACT_APP_OSMOSIS_RPC),
   ...populateRpcField('wormchain', REACT_APP_WORMCHAIN_RPC),
-  ...populateRpcField('arbitrum', process.env.REACT_APP_ARBITRUM_RPC),
-  ...populateRpcField('optimism', process.env.REACT_APP_OPTIMISM_RPC),
+  ...populateRpcField('arbitrum', REACT_APP_ARBITRUM_RPC),
+  ...populateRpcField('optimism', REACT_APP_OPTIMISM_RPC),
   ...populateRpcField('evmos', REACT_APP_EVMOS_RPC),
   ...populateRpcField('kujira', REACT_APP_KUJIRA_RPC),
 };
@@ -47,5 +50,5 @@ export const MAINNET_REST_MAPPING = {
 };
 
 export const MAINNET_GRAPHQL_MAPPING = {
-  ...populateRpcField('aptos', process.env.REACT_APP_APTOS_GRAPHQL),
+  ...populateRpcField('aptos', REACT_APP_APTOS_GRAPHQL),
 };
