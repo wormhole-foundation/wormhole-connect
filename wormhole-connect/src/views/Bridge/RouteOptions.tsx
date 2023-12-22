@@ -88,6 +88,7 @@ const useStyles = makeStyles()((theme: any) => ({
     gap: '8px',
     [theme.breakpoints.down('sm')]: {
       gap: '4px',
+      alignContent: 'center',
     },
   },
   routeRight: {
@@ -102,6 +103,17 @@ const useStyles = makeStyles()((theme: any) => ({
   routeAmt: {
     opacity: '0.6',
     fontSize: '12px',
+  },
+  multiLineChip: {
+    [theme.breakpoints.down('sm')]: {
+      height: 'auto',
+      '& .MuiChip-label': {
+        display: 'block',
+        whiteSpace: 'normal',
+        textAlign: 'center',
+        maxWidth: '256px',
+      },
+    },
   },
 }));
 
@@ -227,6 +239,7 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
                   color="success"
                   variant="outlined"
                   size="small"
+                  className={classes.multiLineChip}
                 />
               ) : (
                 <Chip
@@ -234,6 +247,7 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
                   color="warning"
                   variant="outlined"
                   size="small"
+                  className={classes.multiLineChip}
                 />
               )}
             </div>
