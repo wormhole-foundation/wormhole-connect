@@ -37,6 +37,7 @@ export enum Icon {
   'EVMOS',
   'KUJI',
   'PYTH',
+  'ZOOMER',
 }
 
 export enum Route {

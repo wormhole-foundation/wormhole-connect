@@ -2538,4 +2538,26 @@ export const MAINNET_TOKENS: TokensConfig = {
       },
     },
   },
+  ZOOMER: {
+    key: 'ZOOMER',
+    symbol: 'ZOOMER',
+    nativeChain: 'ethereum',
+    icon: Icon.ZOOMER,
+    tokenId: {
+      chain: 'ethereum',
+      address: '0x0D505C03d30e65f6e9b4Ef88855a47a89e4b7676',
+    },
+    coinGeckoId: 'ethereum',
+    color: '#FEFC52',
+    decimals: {
+      Ethereum: 18,
+      default: 8,
+    },
+    foreignAssets: {
+      solana: {
+        address: 'nBZEcHSG771mRbi4y2sSgKjfDUH8jsM2Eo5fNcASLeU',
+        decimals: 8,
+      },
+    },
+  },
 };
