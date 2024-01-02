@@ -6,6 +6,8 @@ import path from 'path';
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  // TODO: consider using the "VITE_APP_" prefix which is the default for Vite
+  envPrefix: 'REACT_APP_',
   resolve: {
     alias: {
       utils: path.resolve(__dirname, './src/utils'),

@@ -23,7 +23,7 @@ const configJson = el.getAttribute('config');
 export const config: WormholeConnectConfig = JSON.parse(configJson!) || {};
 
 const getEnv = () => {
-  const processEnv = process.env.REACT_APP_CONNECT_ENV?.toLowerCase();
+  const processEnv = import.meta.env.REACT_APP_CONNECT_ENV?.toLowerCase();
   if (config.env === 'mainnet' || processEnv === 'mainnet') return 'MAINNET';
   if (config.env === 'devnet' || processEnv === 'devnet') return 'DEVNET';
   return 'TESTNET';
@@ -141,7 +141,7 @@ export const BRIDGE_DEFAULTS =
 export const WALLET_CONNECT_PROJECT_ID =
   config && config.walletConnectProjectId
     ? config.walletConnectProjectId
-    : process.env.REACT_APP_WALLET_CONNECT_PROJECT_ID;
+    : import.meta.env.REACT_APP_WALLET_CONNECT_PROJECT_ID;
 
 export const TESTNET_TO_MAINNET_CHAIN_NAMES: {
   [k in TestnetChainName]: MainnetChainName;
