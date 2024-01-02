@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
 import checker from 'vite-plugin-checker';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
+import EnvironmentPlugin from 'vite-plugin-environment';
 import path from 'path';
 
 // https://vitejs.dev/config/
@@ -52,5 +53,6 @@ export default defineConfig({
         Buffer: true,
       },
     }),
+    EnvironmentPlugin('all', { prefix: 'REACT_APP_' }),
   ],
 });
