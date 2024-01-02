@@ -1,6 +1,6 @@
 import { ChainId } from '@wormhole-foundation/wormhole-connect-sdk';
 import axios from 'axios';
-import { TOKENS } from 'config';
+import { TOKENS, WORMHOLE_API } from 'config';
 import { hexlify } from 'ethers/lib/utils.js';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
@@ -10,6 +10,13 @@ import { getWrappedTokenId } from 'utils';
 import { WORMHOLE_RPC_HOSTS } from 'config';
 
 const REMAINING_NOTIONAL_TOLERANCE = 0.98;
+
+const GOVERNOR_API_BASE_URLS = [
+  // prefer to use the wormholescan api first
+  WORMHOLE_API,
+  ...WORMHOLE_RPC_HOSTS,
+];
+
 interface TokenListEntry {
   originAddress: string;
   originChainId: number;
@@ -73,12 +80,13 @@ const useIsTransferLimited = (): IsTransferLimitedResult => {
       try {
         const tokenConfig = TOKENS[token];
         const tokenId = getWrappedTokenId(tokenConfig);
+        const tokenChain = wh.toChainId(tokenId.chain);
         const formatted = hexlify(
-          await formatAssetAddress(fromChain, tokenId.address),
+          await formatAssetAddress(tokenChain, tokenId.address),
         );
         if (!cancelled) {
           setAssetAddress(formatted);
-          setAssetChain(wh.toChainId(tokenId.chain));
+          setAssetChain(tokenChain);
         }
       } catch (e) {
         if (!cancelled) {
@@ -96,9 +104,11 @@ const useIsTransferLimited = (): IsTransferLimitedResult => {
     if (!fetchedTokenList.current) {
       let cancelled = false;
       (async () => {
-        for (const rpcHost of WORMHOLE_RPC_HOSTS) {
+        for (const rpcHost of GOVERNOR_API_BASE_URLS) {
           try {
-            const baseUrl = `${rpcHost}/v1/governor`;
+            const baseUrl = `${rpcHost}${
+              rpcHost.endsWith('/') ? '' : '/'
+            }v1/governor`;
             const [tokenListResponse, availableNotionalByChainResponse] =
               await Promise.all([
                 axios.get<TokenList>(`${baseUrl}/token_list`),
