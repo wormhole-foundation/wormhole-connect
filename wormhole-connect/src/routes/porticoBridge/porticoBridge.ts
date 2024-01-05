@@ -240,7 +240,7 @@ export abstract class PorticoBridge extends BaseRoute {
     ) {
       throw new Error('Error computing receive amount');
     }
-    const finishToken = getWrappedToken(TOKENS[destToken]);
+    const finishToken = TOKENS[destToken];
     const minAmountFinish = BigNumber.from(
       routeOptions.swapAmounts.data.minAmountFinish,
     );
@@ -668,21 +668,21 @@ export abstract class PorticoBridge extends BaseRoute {
     return [
       {
         title: 'Amount',
-        value: `${formattedAmount} ${getDisplayName(tokenSent, true)}`,
+        value: `${formattedAmount} ${getDisplayName(tokenSent)}`,
       },
       {
         title: 'Gas fee',
         value: formattedGasFee
-          ? `${formattedGasFee} ${getDisplayName(gasToken, true)}`
+          ? `${formattedGasFee} ${getDisplayName(gasToken)}`
           : NO_INPUT,
       },
       {
         title: 'Min amount received',
-        value: `${formattedMinAmount} ${getDisplayName(finalToken, true)}`,
+        value: `${formattedMinAmount} ${getDisplayName(finalToken)}`,
       },
       {
         title: 'Relayer fee',
-        value: `${formattedFee} ${getDisplayName(finalToken, true)}`,
+        value: `${formattedFee} ${getDisplayName(finalToken)}`,
       },
     ];
   }
@@ -730,7 +730,6 @@ export abstract class PorticoBridge extends BaseRoute {
       );
       const receivedTokenDisplayName = getDisplayName(
         TOKENS[txData.receivedTokenKey],
-        true,
       );
       const canonicalTokenAddress = await wh.getForeignAsset(
         txData.tokenId,
@@ -789,7 +788,7 @@ export abstract class PorticoBridge extends BaseRoute {
       decimals,
       MAX_DECIMALS,
     );
-    const finalTokenDisplayName = getDisplayName(finalToken, true);
+    const finalTokenDisplayName = getDisplayName(finalToken);
     const destTxInfo: PorticoDestTxInfo = {
       receivedTokenKey: finalToken.key,
     };
@@ -824,9 +823,9 @@ export abstract class PorticoBridge extends BaseRoute {
     const sendingChainName = toChainName(sendingChain);
     const sourceGasToken = getGasToken(sendingChainName);
     const sourceGasTokenDisplayName = sourceGasToken
-      ? getDisplayName(sourceGasToken, true)
+      ? getDisplayName(sourceGasToken)
       : '';
-    const destTokenDisplayName = getDisplayName(destToken, true);
+    const destTokenDisplayName = getDisplayName(destToken);
     const destChainConfig = getChainConfig(receipientChain);
     const destTokenDecimals =
       destToken.key === destChainConfig.gasToken
