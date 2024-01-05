@@ -180,9 +180,11 @@ export const MAINNET_TOKEN_KEYS: string[] = [
   "KUJI",
   "PYTH",
   "WETHpolygon",
+  "WETHbsc",
   "wstETHarbitrum",
   "wstETHoptimism",
   "wstETHpolygon",
+  "wstETHbsc",
 ].sort();
 
 export type RouteInfo = {
