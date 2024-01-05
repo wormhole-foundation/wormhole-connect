@@ -578,6 +578,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   WETHpolygon: {
     key: 'WETHpolygon',
     symbol: 'WETH',
+    displayName: 'WETH (Polygon)',
     nativeChain: 'polygon',
     icon: Icon.ETH,
     tokenId: {
@@ -1630,6 +1631,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   ETHarbitrum: {
     key: 'ETHarbitrum',
     symbol: 'ETH',
+    displayName: 'ETH (Arbitrum)',
     nativeChain: 'arbitrum',
     icon: Icon.ETH,
     coinGeckoId: 'ethereum',
@@ -1643,6 +1645,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   WETHarbitrum: {
     key: 'WETHarbitrum',
     symbol: 'WETH',
+    displayName: 'WETH (Arbitrum)',
     nativeChain: 'arbitrum',
     icon: Icon.ETH,
     tokenId: {
@@ -1784,6 +1787,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   ETHoptimism: {
     key: 'ETHoptimism',
     symbol: 'ETH',
+    displayName: 'ETH (Optimism)',
     nativeChain: 'optimism',
     icon: Icon.ETH,
     coinGeckoId: 'ethereum',
@@ -1797,6 +1801,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   WETHoptimism: {
     key: 'WETHoptimism',
     symbol: 'WETH',
+    displayName: 'WETH (Optimism)',
     nativeChain: 'optimism',
     icon: Icon.ETH,
     tokenId: {
@@ -1949,6 +1954,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   WETHbsc: {
     key: 'WETHbsc',
     symbol: 'WETH',
+    displayName: 'WETH (BSC)',
     nativeChain: 'bsc',
     icon: Icon.ETH,
     tokenId: {
@@ -1965,6 +1971,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   wstETHbsc: {
     key: 'wstETHbsc',
     symbol: 'wstETH',
+    displayName: 'wstETH (BSC)',
     nativeChain: 'bsc',
     tokenId: {
       chain: 'bsc',
@@ -1981,6 +1988,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   ETHbase: {
     key: 'ETHbase',
     symbol: 'ETH',
+    displayName: 'ETH (Base)',
     nativeChain: 'base',
     icon: Icon.ETH,
     coinGeckoId: 'ethereum',
@@ -1994,6 +2002,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   WETHbase: {
     key: 'WETHbase',
     symbol: 'WETH',
+    displayName: 'WETH (Base)',
     nativeChain: 'base',
     icon: Icon.ETH,
     tokenId: {
@@ -2135,6 +2144,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   wstETHbase: {
     key: 'wstETHbase',
     symbol: 'wstETH',
+    displayName: 'wstETH (Base)',
     nativeChain: 'base',
     tokenId: {
       chain: 'base',
@@ -2442,6 +2452,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   wstETHarbitrum: {
     key: 'wstETHarbitrum',
     symbol: 'wstETH',
+    displayName: 'wstETH (Arbitrum)',
     nativeChain: 'arbitrum',
     tokenId: {
       chain: 'arbitrum',
@@ -2458,6 +2469,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   wstETHoptimism: {
     key: 'wstETHoptimism',
     symbol: 'wstETH',
+    displayName: 'wstETH (Optimism)',
     nativeChain: 'optimism',
     tokenId: {
       chain: 'optimism',
@@ -2474,6 +2486,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   wstETHpolygon: {
     key: 'wstETHpolygon',
     symbol: 'wstETH',
+    displayName: 'wstETH (Polygon)',
     nativeChain: 'polygon',
     tokenId: {
       chain: 'polygon',

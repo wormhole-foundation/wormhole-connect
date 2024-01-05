@@ -9,7 +9,7 @@ import {
   setDestToken,
 } from 'store/transferInput';
 import { TransferWallet, walletAcceptedChains } from 'utils/wallet';
-import { getDisplayName, hydrateHrefTemplate } from 'utils';
+import { hydrateHrefTemplate } from 'utils';
 import { CHAINS, CHAINS_ARR, TOKENS } from 'config';
 
 import Inputs from './Inputs';
@@ -58,7 +58,7 @@ function ToInputs() {
   // token display jsx
   const selectedToken = useMemo(() => {
     if (!tokenConfig) return undefined;
-    const symbol = getDisplayName(tokenConfig);
+    const symbol = tokenConfig.symbol;
     const chain = CHAINS[tokenConfig.nativeChain]?.displayName;
     return {
       icon: tokenConfig.icon,

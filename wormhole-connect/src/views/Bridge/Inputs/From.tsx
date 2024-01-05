@@ -15,7 +15,7 @@ import {
 import { CHAINS, CHAINS_ARR, TOKENS } from 'config';
 import { TransferWallet, walletAcceptedChains } from 'utils/wallet';
 import RouteOperator from 'routes/operator';
-import { getDisplayName, hydrateHrefTemplate } from 'utils';
+import { hydrateHrefTemplate } from 'utils';
 import Inputs from './Inputs';
 import Select from './Select';
 import AmountInput from './AmountInput';
@@ -68,7 +68,7 @@ function FromInputs() {
     const chain = CHAINS[tokenConfig.nativeChain as ChainName]?.displayName;
     return {
       icon: tokenConfig.icon,
-      text: getDisplayName(tokenConfig),
+      text: tokenConfig.symbol,
       secondaryText: `(${chain})`,
     };
   }, [tokenConfig]);

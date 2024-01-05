@@ -102,18 +102,8 @@ export function getTokenById(tokenId: TokenId): TokenConfig | undefined {
   );
 }
 
-export function getDisplayName(
-  token: TokenConfig,
-  includeChainName: boolean = false,
-) {
-  let displayName = token.displayName || token.symbol;
-  if (includeChainName) {
-    const chainDisplayName = getChainConfig(token.nativeChain).displayName;
-    if (chainDisplayName) {
-      displayName += ` (${chainDisplayName})`;
-    }
-  }
-  return displayName;
+export function getDisplayName(token: TokenConfig) {
+  return token.displayName || token.symbol;
 }
 
 export function getGasToken(chain: ChainName | ChainId): TokenConfig {
