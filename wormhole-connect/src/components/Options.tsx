@@ -23,6 +23,8 @@ const useStyles = makeStyles()((theme: any) => ({
   },
   optionContent: {
     padding: '16px',
+  },
+  optionContentEnabled: {
     '&:hover': {
       backgroundColor: theme.palette.options.hover,
     },
@@ -45,6 +47,7 @@ const useStyles = makeStyles()((theme: any) => ({
 export type Option = {
   key: any;
   child: any;
+  disabled?: boolean;
 };
 type Props = {
   children: Option[];
@@ -75,7 +78,10 @@ function Options(props: Props) {
             unmountOnExit
           >
             <div
-              className={classes.optionContent}
+              className={joinClass([
+                classes.optionContent,
+                !option.disabled && classes.optionContentEnabled,
+              ])}
               onClick={() => props.onSelect(option.key)}
               style={{
                 cursor: props.children.length > 0 ? 'pointer' : 'default',

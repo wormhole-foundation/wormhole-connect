@@ -243,7 +243,7 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
                 />
               ) : (
                 <Chip
-                  label="Approve a txn from your destination chain wallet"
+                  label="Approve transfer with destination wallet"
                   color="warning"
                   variant="outlined"
                   size="small"
@@ -270,7 +270,7 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
           <div className={classes.routeRight}>
             {props.disabled ? (
               <>
-                <div>Not available</div>
+                <div>Transfer amount too low</div>
               </>
             ) : (
               <>
@@ -361,6 +361,7 @@ function RouteOptions() {
         {allRoutes.map(({ name, available }) => {
           return {
             key: name,
+            disabled: !available,
             child: (
               <RouteOption
                 disabled={!available}
