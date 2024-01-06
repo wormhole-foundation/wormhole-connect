@@ -226,17 +226,23 @@ export const validateAll = async (
     toChain: validateToChain(toChain, fromChain),
     token: validateToken(token, fromChain),
     destToken: validateDestToken(destToken, toChain, supportedDestTokens),
-    amount: validateAmount(amount, sendingTokenBalance, minAmt),
     route: validateRoute(route, availableRoutes),
+    amount: '',
     toNativeToken: '',
     foreignAsset: validateForeignAsset(foreignAsset),
   };
-  if (!isAutomatic) return baseValidations;
-  return {
-    ...baseValidations,
-    amount: validateAmount(amount, sendingTokenBalance, minAmt),
-    toNativeToken: validateToNativeAmt(toNativeToken, maxSwapAmt),
-  };
+
+  if (isAutomatic) {
+    return {
+      ...baseValidations,
+      toNativeToken: validateToNativeAmt(toNativeToken, maxSwapAmt),
+    };
+  } else {
+    return {
+      ...baseValidations,
+      amount: validateAmount(amount, sendingTokenBalance, minAmt),
+    };
+  }
 };
 
 export const isTransferValid = (validations: TransferValidations) => {
