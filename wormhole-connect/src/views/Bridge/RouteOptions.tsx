@@ -289,8 +289,6 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
 
 function RouteOptions() {
   const dispatch = useDispatch();
-  const [collapsed, setCollapsed] = useState(true);
-  const [unavailableRoute, setUnavailableRoute] = useState(false);
   const {
     isTransactionInProgress,
     route,
@@ -343,20 +341,11 @@ function RouteOptions() {
     getAvailable();
   }, [dispatch, token, destToken, debouncedAmount, fromChain, toChain]);
 
-  const onCollapseChange = (collapsed: boolean) => {
-    setCollapsed(collapsed);
-  };
-
   const allRoutes = useMemo(() => {
     if (!routeStates) return [];
     const routes = routeStates.filter((rs) => rs.supported);
-    setUnavailableRoute(routes.some((rs) => !rs.available));
     return routes;
   }, [routeStates]);
-
-  useEffect(() => {
-    setCollapsed(!unavailableRoute);
-  }, [unavailableRoute]);
 
   return allRoutes && allRoutes.length > 0 ? (
     <BridgeCollapse
@@ -364,20 +353,11 @@ function RouteOptions() {
       disabled={isTransactionInProgress}
       banner={<Banner />}
       disableCollapse
-      startClosed={!unavailableRoute}
-      onCollapseChange={onCollapseChange}
-      controlStyle={
-        allRoutes.length > 1
-          ? CollapseControlStyle.Arrow
-          : CollapseControlStyle.None
-      }
+      startClosed={false}
+      onCollapseChange={() => {}}
+      controlStyle={CollapseControlStyle.None}
     >
-      <Options
-        active={route}
-        onSelect={onSelect}
-        collapsable
-        collapsed={collapsed}
-      >
+      <Options active={route} onSelect={onSelect} collapsable collapsed={false}>
         {allRoutes.map(({ name, available }) => {
           return {
             key: name,
