@@ -97,6 +97,7 @@ export const validateAmount = (
   balance: string | null,
   minAmt: number | undefined,
 ): ValidationErr => {
+  if (amount === '') return '';
   const numAmount = Number.parseFloat(amount);
   if (!numAmount) return 'Enter an amount';
   if (numAmount <= 0) return 'Amount must be greater than 0';
