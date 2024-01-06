@@ -95,17 +95,15 @@ export const validateDestToken = (
 export const validateAmount = (
   amount: string,
   balance: string | null,
-  minAmt: number | undefined,
 ): ValidationErr => {
   if (amount === '') return '';
+
   const numAmount = Number.parseFloat(amount);
   if (numAmount <= 0) return 'Amount must be greater than 0';
   if (balance) {
     const b = Number.parseFloat(balance);
     if (numAmount > b) return 'Amount cannot exceed balance';
   }
-  if (!minAmt) return '';
-  if (numAmount < minAmt) return `Minimum amount is ${minAmt}`;
   return '';
 };
 
@@ -208,7 +206,6 @@ export const validateAll = async (
   const { maxSwapAmt, toNativeToken } = relayData;
   const { sending, receiving } = walletData;
   const isAutomatic = getIsAutomatic(route);
-  const minAmt = getMinAmt(route, relayData);
   const sendingTokenBalance = accessBalance(
     balances,
     sending.address,
@@ -225,8 +222,8 @@ export const validateAll = async (
     toChain: validateToChain(toChain, fromChain),
     token: validateToken(token, fromChain),
     destToken: validateDestToken(destToken, toChain, supportedDestTokens),
+    amount: validateAmount(amount, sendingTokenBalance),
     route: validateRoute(route, availableRoutes),
-    amount: '',
     toNativeToken: '',
     foreignAsset: validateForeignAsset(foreignAsset),
   };
@@ -237,10 +234,7 @@ export const validateAll = async (
       toNativeToken: validateToNativeAmt(toNativeToken, maxSwapAmt),
     };
   } else {
-    return {
-      ...baseValidations,
-      amount: validateAmount(amount, sendingTokenBalance, minAmt),
-    };
+    return baseValidations;
   }
 };
 
