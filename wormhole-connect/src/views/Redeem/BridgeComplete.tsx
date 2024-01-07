@@ -36,9 +36,7 @@ function BridgeComplete() {
     transferDestInfo.destTxInfo.swapFailed
   ) {
     containerBg = theme.palette.warning[500] + OPACITY[25];
-    component = (
-      <PorticoSwapFailed info={transferDestInfo.destTxInfo.swapFailed} />
-    );
+    component = <PorticoSwapFailed info={transferDestInfo.destTxInfo} />;
   }
 
   return (

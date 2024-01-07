@@ -1,5 +1,11 @@
 import React from 'react';
+import { OKU_TRADE_BASE_URL } from 'routes/porticoBridge/consts';
+import { PorticoDestTxInfo } from 'routes/porticoBridge/types';
 import { makeStyles } from 'tss-react/mui';
+import { getChainConfig, getDisplayName } from 'utils';
+import { TOKENS } from 'config';
+import { useSelector } from 'react-redux';
+import { RootState } from 'store';
 
 const useStyles = makeStyles()((theme: any) => ({
   link: {
@@ -17,12 +23,16 @@ const useStyles = makeStyles()((theme: any) => ({
   },
 }));
 
-const PorticoSwapFailed = ({
-  info: { message, swapUrl, swapUrlText },
-}: {
-  info: { message: string; swapUrl: string; swapUrlText: string };
-}) => {
+const PorticoSwapFailed = ({ info }: { info: PorticoDestTxInfo }) => {
   const { classes } = useStyles();
+  const txData = useSelector((state: RootState) => state.redeem.txData)!;
+  if (!info.swapFailed || !txData) return null;
+  const { canonicalTokenAddress, finalTokenAddress } = info.swapFailed;
+  const displayName = getDisplayName(TOKENS[info.receivedTokenKey]);
+  const message = `The swap reverted on ${
+    getChainConfig(txData.toChain).displayName
+  } and you received Wormhole-wrapped ${displayName} instead. You can retry the swap here:`;
+  const swapUrl = `${OKU_TRADE_BASE_URL}/${txData.toChain}/swap/${canonicalTokenAddress}/${finalTokenAddress}`;
   return (
     <div className={classes.root}>
       <div>
@@ -33,7 +43,7 @@ const PorticoSwapFailed = ({
           rel="noreferrer"
           className={classes.link}
         >
-          {swapUrlText}
+          Oku Trade
         </a>
       </div>
     </div>
