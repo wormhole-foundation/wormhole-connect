@@ -38,9 +38,7 @@ function ValidationError(props: Props) {
   const showErrors = useSelector(
     (state: RootState) => state.transferInput.showValidationState,
   );
-  const { route, destToken, toChain } = useSelector(
-    (state: RootState) => state.transferInput,
-  );
+  const { route } = useSelector((state: RootState) => state.transferInput);
   const { toNativeToken, relayerFee } = useSelector(
     (state: RootState) => state.relay,
   );
@@ -65,11 +63,7 @@ function ValidationError(props: Props) {
   ) {
     const r = RouteOperator.getRoute(route);
     if (!isPorticoRoute(route)) {
-      const min = r.getMinSendAmount(
-        { toNativeToken, relayerFee },
-        destToken,
-        toChain,
-      );
+      const min = r.getMinSendAmount({ toNativeToken, relayerFee });
       content = (
         <div className={classes.minAmtError}>
           <div>
@@ -81,7 +75,7 @@ function ValidationError(props: Props) {
         </div>
       );
     } else {
-      const min = r.getMinSendAmount(portico, destToken, toChain);
+      const min = r.getMinSendAmount(portico);
       content = (
         <div className={classes.minAmtError}>
           <div>Minimum amount is {min}.</div>

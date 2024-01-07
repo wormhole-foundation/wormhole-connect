@@ -112,13 +112,10 @@ export class RelayRoute extends BridgeRoute implements RelayAbstract {
     return !(
       relayerFee === undefined ||
       parseFloat(amount) <
-        this.getMinSendAmount(
-          {
-            relayerFee: toDecimals(relayerFee, decimals),
-            toNativeToken: 0,
-          },
-          destToken,
-        )
+        this.getMinSendAmount({
+          relayerFee: toDecimals(relayerFee, decimals),
+          toNativeToken: 0,
+        })
     );
   }
 
@@ -277,11 +274,7 @@ export class RelayRoute extends BridgeRoute implements RelayAbstract {
   /**
    * These operations have to be implemented in subclasses.
    */
-  getMinSendAmount(
-    routeOptions: any,
-    destToken: string,
-    recipientChain?: ChainName | ChainId,
-  ): number {
+  getMinSendAmount(routeOptions: any): number {
     const { relayerFee, toNativeToken } = routeOptions;
 
     // has to be slightly higher than the minimum or else tx will revert

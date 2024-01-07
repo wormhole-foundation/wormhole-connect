@@ -151,13 +151,10 @@ function GasSlider(props: { disabled: boolean }) {
       // actualMaxSwap (i.e. bringing it from 0.1 to 0.045)
       const theoreticalMinSendAmount = RouteOperator.getRoute(
         route,
-      ).getMinSendAmount(
-        {
-          toNativeToken: actualMaxSwap,
-          relayerFee,
-        },
-        '',
-      );
+      ).getMinSendAmount({
+        toNativeToken: actualMaxSwap,
+        relayerFee,
+      });
       const buffer = Math.max(
         theoreticalMinSendAmount - amountNum - (relayerFee || 0),
         0,

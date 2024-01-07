@@ -148,11 +148,7 @@ export class BridgeRoute extends BaseRoute {
   /**
    * These operations have to be implemented in subclasses.
    */
-  getMinSendAmount(
-    routeOptions: any,
-    destToken: string,
-    recipientChain?: ChainName | ChainId,
-  ): number {
+  getMinSendAmount(routeOptions: any): number {
     return 0;
   }
 

@@ -296,11 +296,7 @@ export abstract class PorticoBridge extends BaseRoute {
     throw new Error('not implemented');
   }
 
-  getMinSendAmount(
-    routeOptions: PorticoBridgeState,
-    destToken: string,
-    recipientChain?: ChainName | ChainId,
-  ): number {
+  getMinSendAmount(routeOptions: PorticoBridgeState): number {
     return 0;
   }
 

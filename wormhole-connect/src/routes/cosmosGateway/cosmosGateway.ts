@@ -145,11 +145,7 @@ export class CosmosGatewayRoute extends BaseRoute {
     return wh.getForeignAsset(token, chain);
   }
 
-  getMinSendAmount(
-    routeOptions: any,
-    destToken: string,
-    recipientChain?: ChainName | ChainId,
-  ): number {
+  getMinSendAmount(routeOptions: any): number {
     return 0;
   }
 

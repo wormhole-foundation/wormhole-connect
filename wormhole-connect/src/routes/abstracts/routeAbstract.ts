@@ -114,11 +114,7 @@ export abstract class RouteAbstract {
   /**
    * These operations have to be implemented in subclasses.
    */
-  public abstract getMinSendAmount(
-    routeOptions: any,
-    destToken: string,
-    recipientChain?: ChainName | ChainId,
-  ): number;
+  public abstract getMinSendAmount(routeOptions: any): number;
 
   public abstract send(
     token: TokenId | 'native',

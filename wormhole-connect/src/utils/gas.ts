@@ -21,7 +21,7 @@ export const simulateRelayAmount = (
   destToken: string,
 ): BigNumber => {
   const r = RouteOperator.getRoute(route);
-  const min = r.getMinSendAmount({ relayerFee, toNativeToken }, destToken);
+  const min = r.getMinSendAmount({ relayerFee, toNativeToken });
   if (min === 0) return BigNumber.from(0);
   const amountOrMin = Math.max(amount, min);
   return utils.parseUnits(`${amountOrMin}`, tokenDecimals);

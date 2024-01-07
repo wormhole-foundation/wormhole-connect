@@ -209,12 +209,10 @@ export const validateReceiveAmount = (
 export const getMinAmt = (
   route: Route | undefined,
   routeOptions: any,
-  destToken: string,
-  recipientChain?: ChainName,
 ): number => {
   if (!route) return 0;
   const r = RouteOperator.getRoute(route);
-  return r.getMinSendAmount(routeOptions, destToken, recipientChain);
+  return r.getMinSendAmount(routeOptions);
 };
 
 export const getIsAutomatic = (route: Route | undefined): boolean => {
@@ -246,7 +244,7 @@ export const validateAll = async (
   const { sending, receiving } = walletData;
   const isAutomatic = getIsAutomatic(route);
   const routeOptions = route && isPorticoRoute(route) ? porticoData : relayData;
-  const minAmt = getMinAmt(route, routeOptions, destToken, toChain);
+  const minAmt = getMinAmt(route, routeOptions);
   const sendingTokenBalance = accessBalance(
     balances,
     sending.address,

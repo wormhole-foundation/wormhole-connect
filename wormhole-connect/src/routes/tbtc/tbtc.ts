@@ -157,11 +157,7 @@ export class TBTCRoute extends BaseRoute {
     throw new Error('not implemented');
   }
 
-  getMinSendAmount(
-    routeOptions: any,
-    destToken: string,
-    recipientChain?: ChainName | ChainId,
-  ): number {
+  getMinSendAmount(routeOptions: any): number {
     return 0;
   }
 
