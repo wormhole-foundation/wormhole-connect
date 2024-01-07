@@ -426,14 +426,8 @@ export abstract class PorticoBridge extends BaseRoute {
       );
       return txId;
     } catch (e: any) {
-      // TODO: test that this works
       let reason = '';
-      let error = e;
-      while (error) {
-        reason = error.reason ?? error.message ?? reason;
-        error = error.error ?? error.data?.originalError;
-      }
-      if (reason?.startsWith('execution reverted: ')) {
+      if (e.reason?.startsWith('execution reverted: ')) {
         reason = reason.substr('execution reverted: '.length);
       }
       const swapErrors = [
@@ -446,7 +440,7 @@ export abstract class PorticoBridge extends BaseRoute {
       if (swapErrors.includes(reason)) {
         throw new Error(SWAP_ERROR);
       }
-      throw error;
+      throw e;
     }
   }
 
