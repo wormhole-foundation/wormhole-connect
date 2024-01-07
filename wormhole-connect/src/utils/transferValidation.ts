@@ -207,12 +207,10 @@ export const validateReceiveAmount = (
 export const getMinAmt = (
   route: Route | undefined,
   routeOptions: any,
-  destToken: string,
-  recipientChain?: ChainName,
 ): number => {
   if (!route) return 0;
   const r = RouteOperator.getRoute(route);
-  return r.getMinSendAmount(routeOptions, destToken, recipientChain);
+  return r.getMinSendAmount(routeOptions);
 };
 
 export const getIsAutomatic = (route: Route | undefined): boolean => {
