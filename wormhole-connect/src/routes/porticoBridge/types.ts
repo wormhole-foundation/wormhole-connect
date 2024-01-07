@@ -77,8 +77,7 @@ export type PorticoTransferDestInfo = TransferDestInfo & {
 export interface PorticoDestTxInfo {
   receivedTokenKey: string; // this is the key of the token that was received (e.g. the token that was swapped for)
   swapFailed?: {
-    message: string;
-    swapUrl: string;
-    swapUrlText: string;
+    canonicalTokenAddress: string;
+    finalTokenAddress: string;
   };
 }

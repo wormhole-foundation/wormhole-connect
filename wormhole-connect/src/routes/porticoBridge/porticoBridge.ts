@@ -48,7 +48,6 @@ import {
   BPS_PER_HUNDRED_PERCENT,
   CREATE_ORDER_API_URL,
   FEE_TIER,
-  OKU_TRADE_BASE_URL,
   RELAYER_FEE_API_URL,
   SLIPPAGE_BPS,
   SWAP_ERROR,
@@ -691,7 +690,6 @@ export abstract class PorticoBridge extends BaseRoute {
     receiveTx,
     transferComplete,
   }: TransferDestInfoParams): Promise<PorticoTransferDestInfo> {
-    console.log(receiveTx);
     if (!receiveTx) {
       return {
         route: this.TYPE,
@@ -740,11 +738,8 @@ export abstract class PorticoBridge extends BaseRoute {
       const destTxInfo: PorticoDestTxInfo = {
         receivedTokenKey: txData.receivedTokenKey,
         swapFailed: {
-          message: `The swap reverted on ${
-            getChainConfig(txData.toChain).displayName
-          } and you received Wormhole-wrapped ${receivedTokenDisplayName} instead. You can retry the swap here:`,
-          swapUrl: `${OKU_TRADE_BASE_URL}/${txData.toChain}/swap/${canonicalTokenAddress}/${finalTokenAddress}`,
-          swapUrlText: 'Oku Trade',
+          canonicalTokenAddress,
+          finalTokenAddress,
         },
       };
       return {
