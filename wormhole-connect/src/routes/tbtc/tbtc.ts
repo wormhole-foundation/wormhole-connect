@@ -36,6 +36,7 @@ import { arrayify, hexlify, parseUnits } from 'ethers/lib/utils.js';
 import { BaseRoute } from '../bridge';
 import { postVaa, signAndSendTransaction, TransferWallet } from 'utils/wallet';
 import { isTBTCCanonicalChain } from './utils';
+import { isGatewayChain } from 'utils/cosmos';
 
 const THRESHOLD_ARBITER_FEE = 0;
 const THRESHOLD_NONCE = 0;
@@ -96,10 +97,20 @@ export class TBTCRoute extends BaseRoute {
       !ROUTES.includes(Route.TBTC) ||
       !sourceChain ||
       !destChain ||
-      TOKENS[sourceToken]?.symbol !== TBTC_TOKEN_SYMBOL ||
-      TOKENS[destToken]?.symbol !== TBTC_TOKEN_SYMBOL ||
-      !isTBTCCanonicalChain(sourceChain) ||
-      !isTBTCCanonicalChain(destChain)
+      !this.isSupportedSourceToken(
+        TOKENS[sourceToken],
+        TOKENS[destToken],
+        sourceChain,
+        destChain,
+      ) ||
+      !this.isSupportedDestToken(
+        TOKENS[destToken],
+        TOKENS[sourceToken],
+        sourceChain,
+        destChain,
+      ) ||
+      isGatewayChain(sourceChain) ||
+      isGatewayChain(destChain)
     ) {
       return false;
     }
