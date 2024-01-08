@@ -220,7 +220,7 @@ function Send(props: { valid: boolean }) {
       {!!props.valid && (
         <AlertBanner
           show={showValidationState && !!props.valid && showWarning}
-          content="This transfer will require two transactions - one on the source chain and one on the destination chain."
+          content="This transfer requires two transactions: one on the source chain and one on the destination chain. You will need gas on the destination chain."
           warning
           margin="0 0 16px 0"
         />
