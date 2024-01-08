@@ -97,8 +97,8 @@ export const validateAmount = (
   balance: string | null,
 ): ValidationErr => {
   if (amount === '') return '';
-
   const numAmount = Number.parseFloat(amount);
+  if (isNaN(numAmount)) return 'Amount must be a number';
   if (numAmount <= 0) return 'Amount must be greater than 0';
   if (balance) {
     const b = Number.parseFloat(balance);
