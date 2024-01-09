@@ -97,18 +97,18 @@ export class TBTCRoute extends BaseRoute {
       !ROUTES.includes(Route.TBTC) ||
       !sourceChain ||
       !destChain ||
-      !this.isSupportedSourceToken(
+      !(await this.isSupportedSourceToken(
         TOKENS[sourceToken],
         TOKENS[destToken],
         sourceChain,
         destChain,
-      ) ||
-      !this.isSupportedDestToken(
+      )) ||
+      !(await this.isSupportedDestToken(
         TOKENS[destToken],
         TOKENS[sourceToken],
         sourceChain,
         destChain,
-      ) ||
+      )) ||
       isGatewayChain(sourceChain) ||
       isGatewayChain(destChain)
     ) {
