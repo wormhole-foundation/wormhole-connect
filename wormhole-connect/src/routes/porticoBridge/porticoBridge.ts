@@ -243,7 +243,6 @@ export abstract class PorticoBridge extends BaseRoute {
     const minAmountFinish = BigNumber.from(
       routeOptions.swapAmounts.data.minAmountFinish,
     );
-    console.log('receive amount');
     // the relayer fee is paid out in the finish token
     const relayerFee = BigNumber.from(routeOptions.relayerFee.data);
     const receiveAmount = minAmountFinish.sub(relayerFee);
@@ -666,7 +665,7 @@ export abstract class PorticoBridge extends BaseRoute {
           : NO_INPUT,
       },
       {
-        title: 'Min amount received',
+        title: 'Min receive amount',
         value: `${formattedMinAmount} ${getDisplayName(finalToken)}`,
       },
       {
@@ -806,10 +805,8 @@ export abstract class PorticoBridge extends BaseRoute {
   ): Promise<TransferDisplayData> {
     const { relayerFee } = routeOptions;
     const sendingChainName = toChainName(sendingChain);
-    const sourceGasToken = getGasToken(sendingChainName);
-    const sourceGasTokenDisplayName = sourceGasToken
-      ? getDisplayName(sourceGasToken)
-      : '';
+    const gasToken = getGasToken(sendingChainName);
+    const gasTokenDisplayName = getDisplayName(gasToken);
     const destTokenDisplayName = getDisplayName(destToken);
     const destChainConfig = getChainConfig(receipientChain);
     const destTokenDecimals =
@@ -820,11 +817,11 @@ export abstract class PorticoBridge extends BaseRoute {
     let fee = '';
     if (sendingGasEst && relayerFee.data) {
       fee = toDecimals(relayerFee.data, destTokenDecimals, MAX_DECIMALS);
-      totalFeesText = `${sendingGasEst} ${sourceGasTokenDisplayName} & ${fee} ${destTokenDisplayName}`;
+      totalFeesText = `${sendingGasEst} ${gasTokenDisplayName} & ${fee} ${destTokenDisplayName}`;
     }
     return [
       {
-        title: 'Min amount received',
+        title: 'Min receive amount',
         value: `${receiveAmount} ${destTokenDisplayName}`,
       },
       {
@@ -834,7 +831,7 @@ export abstract class PorticoBridge extends BaseRoute {
           {
             title: 'Source chain gas estimate',
             value: sendingGasEst
-              ? `~ ${sendingGasEst} ${sourceGasTokenDisplayName}`
+              ? `~ ${sendingGasEst} ${gasTokenDisplayName}`
               : NO_INPUT,
           },
           {

@@ -52,7 +52,7 @@ export const usePorticoSwapInfo = () => {
         return;
       }
       dispatch(setFetchingSwapAmounts());
-      while (!cancelled && !isTransactionInProgress) {
+      while (!cancelled) {
         try {
           const porticoBridge = RouteOperator.getRoute(route) as PorticoBridge;
           const swapAmounts = await porticoBridge.computeSwapAmounts(

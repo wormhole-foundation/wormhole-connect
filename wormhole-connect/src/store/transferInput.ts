@@ -313,10 +313,7 @@ export const transferInputSlice = createSlice({
     ) => {
       state.receiveAmount = receiveDataWrapper(payload);
     },
-    setFetchingReceiveAmount: (
-      state: TransferInputState,
-      { payload }: PayloadAction<void>,
-    ) => {
+    setFetchingReceiveAmount: (state: TransferInputState) => {
       state.receiveAmount = fetchDataWrapper();
     },
     setReceiveAmountError: (

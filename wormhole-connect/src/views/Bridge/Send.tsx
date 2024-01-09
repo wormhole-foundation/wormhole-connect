@@ -151,7 +151,6 @@ function Send(props: { valid: boolean }) {
       setSendError('');
     } catch (e: any) {
       dispatch(setIsTransactionInProgress(false));
-      console.log(e);
       setSendError(
         e?.message === INSUFFICIENT_ALLOWANCE
           ? 'Error due to insufficient token allowance, please try again'

@@ -23,16 +23,20 @@ const useStyles = makeStyles()((theme: any) => ({
   },
 }));
 
-const PorticoSwapFailed = ({ info }: { info: PorticoDestTxInfo }) => {
+const PorticoSwapFailed = ({
+  info: { swapFailed, receivedTokenKey },
+}: {
+  info: PorticoDestTxInfo;
+}) => {
   const { classes } = useStyles();
   const txData = useSelector((state: RootState) => state.redeem.txData)!;
-  if (!info.swapFailed || !txData) return null;
-  const { canonicalTokenAddress, finalTokenAddress } = info.swapFailed;
-  const displayName = getDisplayName(TOKENS[info.receivedTokenKey]);
-  const message = `The swap reverted on ${
-    getChainConfig(txData.toChain).displayName
-  } and you received Wormhole-wrapped ${displayName} instead. You can retry the swap here:`;
-  const swapUrl = `${OKU_TRADE_BASE_URL}/${txData.toChain}/swap/${canonicalTokenAddress}/${finalTokenAddress}`;
+  if (!swapFailed || !txData) return null;
+  const { canonicalTokenAddress, finalTokenAddress } = swapFailed;
+  const { toChain } = txData;
+  const displayName = getDisplayName(TOKENS[receivedTokenKey]);
+  const toChainName = getChainConfig(toChain).displayName;
+  const message = `The swap reverted on ${toChainName} and you received Wormhole-wrapped ${displayName} instead. You can retry the swap here:`;
+  const swapUrl = `${OKU_TRADE_BASE_URL}/${toChain}/swap/${canonicalTokenAddress}/${finalTokenAddress}`;
   return (
     <div className={classes.root}>
       <div>

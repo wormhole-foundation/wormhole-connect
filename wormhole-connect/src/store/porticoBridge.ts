@@ -62,7 +62,7 @@ export const porticoBridgeSlice = createSlice({
     resetSwapAmounts: (state: PorticoBridgeState) => {
       state.swapAmounts = getEmptyDataWrapper();
     },
-    clearPorticoBridgeState: () => initialState,
+    clearPorticoBridge: () => initialState,
   },
 });
 
@@ -75,7 +75,7 @@ export const {
   setFetchingSwapAmounts,
   setSwapAmountsError,
   resetSwapAmounts,
-  clearPorticoBridgeState,
+  clearPorticoBridge,
 } = porticoBridgeSlice.actions;
 
 export default porticoBridgeSlice.reducer;
