@@ -3,7 +3,6 @@
   "version": "0.0.1-beta.0",
   "private": true,
   "main": "dist/main.js",
-  "type": "module",
   "publishConfig": {
     "access": "restricted"
   },
