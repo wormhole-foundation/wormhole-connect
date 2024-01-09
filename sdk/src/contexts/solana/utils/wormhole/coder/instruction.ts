@@ -86,10 +86,7 @@ export class WormholeInstructionCoder implements InstructionCoder {
     encoding: 'hex' | 'base58' = 'hex',
   ): Instruction | null {
     if (typeof ix === 'string') {
-      ix =
-        encoding === 'hex'
-          ? Buffer.from(ix, 'hex')
-          : Buffer.from(bs58.decode(ix));
+      ix = encoding === 'hex' ? Buffer.from(ix, 'hex') : bs58.decode(ix);
     }
     let discriminator = ix.slice(0, 1).readInt8();
     let data = ix.slice(1);
