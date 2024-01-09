@@ -12,7 +12,7 @@ import { ContractReceipt } from 'ethers';
 import { NotSupported, Wallet } from '@xlabs-libs/wallet-aggregator-core';
 import {
   EVMWallet,
-  MetamaskWallet,
+  InjectedWallet,
   WalletConnectWallet,
 } from '@xlabs-libs/wallet-aggregator-evm';
 import {
@@ -22,8 +22,6 @@ import {
 } from '@xlabs-libs/wallet-aggregator-cosmos';
 import { getWallets as getCosmosEvmWallets } from '@xlabs-libs/wallet-aggregator-cosmos-evm';
 import {
-  PhantomWalletAdapter,
-  SolflareWalletAdapter,
   CloverWalletAdapter,
   Coin98WalletAdapter,
   SlopeWalletAdapter,
@@ -54,7 +52,10 @@ import {
   WalletAdapterNetwork,
 } from '@manahippo/aptos-wallet-adapter';
 import { TransactionBlock } from '@mysten/sui.js';
-import { SolanaWallet } from '@xlabs-libs/wallet-aggregator-solana';
+import {
+  SolanaWallet,
+  getSolanaStandardWallets,
+} from '@xlabs-libs/wallet-aggregator-solana';
 import { SeiTransaction, SeiWallet } from '@xlabs-libs/wallet-aggregator-sei';
 import { AptosWallet } from '@xlabs-libs/wallet-aggregator-aptos';
 import { Types } from 'aptos';
@@ -116,7 +117,7 @@ const buildCosmosWallets = (evm?: boolean) => {
 
 export const wallets = {
   evm: {
-    metamask: new MetamaskWallet(),
+    injected: new InjectedWallet(),
     ...(WALLET_CONNECT_PROJECT_ID
       ? {
           walletConnect: new WalletConnectWallet({
@@ -128,8 +129,10 @@ export const wallets = {
       : {}),
   },
   solana: {
-    phantom: new SolanaWallet(new PhantomWalletAdapter(), connection),
-    solflare: new SolanaWallet(new SolflareWalletAdapter(), connection),
+    ...getSolanaStandardWallets(connection).reduce((acc, w) => {
+      acc[w.getName().toLowerCase()] = w;
+      return acc;
+    }, {} as Record<string, Wallet>),
     clover: new SolanaWallet(new CloverWalletAdapter(), connection),
     coin98: new SolanaWallet(new Coin98WalletAdapter(), connection),
     slope: new SolanaWallet(new SlopeWalletAdapter(), connection),
