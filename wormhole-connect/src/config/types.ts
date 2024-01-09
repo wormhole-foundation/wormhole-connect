@@ -49,6 +49,7 @@ export enum Route {
   TBTC = 'tbtc',
   ETHBridge = 'ethBridge',
   wstETHBridge = 'wstETHBridge',
+  mayanSwap = 'mayanSwap',
 }
 
 export type SupportedRoutes = keyof typeof Route;

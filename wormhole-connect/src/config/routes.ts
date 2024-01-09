@@ -88,4 +88,12 @@ export const RoutesConfig: {
     icon: XLabsIcon,
     pendingMessage: 'Waiting for Wormhole network consensus . . .',
   },
+  [Route.mayanSwap]: {
+    route: Route.mayanSwap,
+    name: 'Mayan Swap',
+    providedBy: 'Mayan Finance',
+    link: 'https://mayan.finance/',
+    icon: XLabsIcon,
+    pendingMessage: 'Waiting for Mayan attestation . . .',
+  },
 };
