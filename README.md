@@ -35,8 +35,8 @@ Include the wormhole connect
 
 ```html
 <!-- include in <head> -->
-<script type="module" src="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.1.8/dist/main.js" defer></script>
-<link rel="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.1.8/dist/main.css" />
+<script type="module" src="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.2.0/dist/main.js" defer></script>
+<link rel="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@0.2.0/dist/main.css" />
 
 <!-- include in <body> -->
 <div id="wormhole-connect"></div>
