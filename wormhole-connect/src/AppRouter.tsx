@@ -15,7 +15,7 @@ import TxSearch from './views/TxSearch';
 import WalletModal from './views/WalletModal';
 import { SEARCH_TX } from './config';
 import { setRoute } from './store/router';
-import { clearPorticoBridgeState } from 'store/porticoBridge';
+import { clearPorticoBridge } from 'store/porticoBridge';
 
 const useStyles = makeStyles()((theme: any) => ({
   appContent: {
@@ -55,7 +55,7 @@ function AppRouter() {
     // reset transfer state on leave
     if (prevRoute === bridgeRoute && route !== bridgeRoute) {
       dispatch(clearTransfer());
-      dispatch(clearPorticoBridgeState());
+      dispatch(clearPorticoBridge());
     }
   }, [route, prevRoute, dispatch]);
 

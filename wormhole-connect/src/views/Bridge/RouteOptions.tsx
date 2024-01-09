@@ -203,7 +203,7 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
         if (!cancelled) {
           setReceiveAmt(Number.parseFloat(toFixedDecimals(`${receiveAmt}`, 6)));
         }
-      } catch (e) {
+      } catch {
         if (!cancelled) {
           setReceiveAmt(0);
         }

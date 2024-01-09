@@ -134,16 +134,15 @@ function SendTo() {
         );
       }
       dispatch(setTransferDestInfo(undefined));
-      await RouteOperator.getTransferDestInfo(routeName, {
-        txData,
-        receiveTx,
-        transferComplete,
-        gasEstimate,
-      })
-        .then((info) => {
-          dispatch(setTransferDestInfo(info));
-        })
-        .catch((e) => console.error(e));
+      try {
+        const info = await RouteOperator.getTransferDestInfo(routeName, {
+          txData,
+          receiveTx,
+          transferComplete,
+          gasEstimate,
+        });
+        dispatch(setTransferDestInfo(info));
+      } catch {}
     };
     populate();
   }, [
@@ -159,7 +158,7 @@ function SendTo() {
     setIsConnected(checkConnection());
   }, [wallet, checkConnection]);
 
-  const isRelayerRoute = useMemo(() => {
+  const AUTOMATIC_DEPOSIT = useMemo(() => {
     if (!routeName) return false;
     const route = RouteOperator.getRoute(routeName);
     return (
@@ -219,11 +218,11 @@ function SendTo() {
     txData.toChain === 'solana' &&
     txData.payloadID === PayloadType.Manual;
 
-  const loading = !isRelayerRoute
+  const loading = !AUTOMATIC_DEPOSIT
     ? inProgress && !transferComplete
     : !transferComplete && !manualClaim;
   const manualClaimText =
-    transferComplete || isRelayerRoute // todo: should be the other enum, should be named better than payload id
+    transferComplete || AUTOMATIC_DEPOSIT // todo: should be the other enum, should be named better than payload id
       ? ''
       : claimError
       ? 'Error please retry . . .'
@@ -270,7 +269,7 @@ function SendTo() {
       )}
 
       {/* Claim button for manual transfers */}
-      {!transferComplete && (!isRelayerRoute || manualClaim) && (
+      {!transferComplete && (!AUTOMATIC_DEPOSIT || manualClaim) && (
         <>
           <Spacer height={8} />
           <AlertBanner

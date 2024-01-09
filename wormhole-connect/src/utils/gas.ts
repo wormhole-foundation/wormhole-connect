@@ -18,7 +18,6 @@ export const simulateRelayAmount = (
   relayerFee: number,
   toNativeToken: number,
   tokenDecimals: number,
-  destToken: string,
 ): BigNumber => {
   const r = RouteOperator.getRoute(route);
   const min = r.getMinSendAmount({ relayerFee, toNativeToken });

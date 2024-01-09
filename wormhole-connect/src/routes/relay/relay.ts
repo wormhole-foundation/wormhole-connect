@@ -431,8 +431,8 @@ export class RelayRoute extends BridgeRoute implements RelayAbstract {
       amount,
       token.key,
       destToken.key,
-      wh.toChainName(sendingChain),
-      wh.toChainName(receipientChain),
+      sendingChainName,
+      receipientChainName,
       routeOptions,
     );
 

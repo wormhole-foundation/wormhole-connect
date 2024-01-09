@@ -185,6 +185,7 @@ export const MAINNET_TOKEN_KEYS: string[] = [
   "wstETHoptimism",
   "wstETHpolygon",
   "wstETHbsc",
+  "wstETHbase",
 ].sort();
 
 export type RouteInfo = {

@@ -54,7 +54,7 @@ export const usePorticoRelayerFee = () => {
         return;
       }
       dispatch(setFetchingRelayerFee());
-      while (!cancelled && !isTransactionInProgress) {
+      while (!cancelled) {
         try {
           const fee = await RouteOperator.getRelayerFee(
             route,
