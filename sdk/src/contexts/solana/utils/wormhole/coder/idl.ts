@@ -54,9 +54,11 @@ export class IdlCoder {
       case 'i128': {
         return borsh.i128(fieldName);
       }
+      // @ts-ignore
       case 'u256': {
         return borsh.u256(fieldName);
       }
+      // @ts-ignore
       case 'i256': {
         return borsh.i256(fieldName);
       }
