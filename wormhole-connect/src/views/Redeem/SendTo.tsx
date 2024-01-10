@@ -5,9 +5,13 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { CHAINS } from 'config';
 import { RootState } from 'store';
-import { setRedeemTx, setTransferComplete, setTxDetails } from 'store/redeem';
+import {
+  setTransferDestInfo,
+  setRedeemTx,
+  setTransferComplete,
+  setTxDetails,
+} from 'store/redeem';
 import { displayAddress, getTokenById, getWrappedTokenId } from 'utils';
-import { TransferDisplayData } from 'routes';
 import RouteOperator from 'routes/operator';
 import {
   TransferWallet,
@@ -29,6 +33,7 @@ import { PayloadType, solanaContext } from '../../utils/sdk';
 import { AssociatedTokenWarning } from '../Bridge/Inputs/TokenWarnings';
 import { Route } from 'config/types';
 import SwitchToManualClaim from './SwitchToManualClaim';
+import { isPorticoRoute } from 'routes/porticoBridge/utils';
 
 function AssociatedTokenAlert() {
   const dispatch = useDispatch();
@@ -69,6 +74,9 @@ function SendTo() {
   } = useSelector((state: RootState) => state.redeem);
   const txData = useSelector((state: RootState) => state.redeem.txData)!;
   const wallet = useSelector((state: RootState) => state.wallet.receiving);
+  const transferDestInfo = useSelector(
+    (state: RootState) => state.redeem.transferDestInfo,
+  );
   const [claimError, setClaimError] = useState('');
   const [manualClaim, setManualClaim] = useState(false);
 
@@ -90,7 +98,6 @@ function SendTo() {
 
   const [inProgress, setInProgress] = useState(false);
   const [isConnected, setIsConnected] = useState(checkConnection());
-  const [rows, setRows] = useState([] as TransferDisplayData);
   const [openWalletModal, setWalletModal] = useState(false);
 
   // get the redeem tx, for automatic transfers only
@@ -126,16 +133,26 @@ function SendTo() {
           signedMessage,
         );
       }
-      const rows = await RouteOperator.getTransferDestInfo(routeName, {
-        txData,
-        receiveTx,
-        transferComplete,
-        gasEstimate,
-      });
-      setRows(rows);
+      dispatch(setTransferDestInfo(undefined));
+      try {
+        const info = await RouteOperator.getTransferDestInfo(routeName, {
+          txData,
+          receiveTx,
+          transferComplete,
+          gasEstimate,
+        });
+        dispatch(setTransferDestInfo(info));
+      } catch {}
     };
     populate();
-  }, [transferComplete, getRedeemTx, txData, routeName, signedMessage]);
+  }, [
+    transferComplete,
+    getRedeemTx,
+    txData,
+    routeName,
+    signedMessage,
+    dispatch,
+  ]);
 
   useEffect(() => {
     setIsConnected(checkConnection());
@@ -143,10 +160,12 @@ function SendTo() {
 
   const AUTOMATIC_DEPOSIT = useMemo(() => {
     if (!routeName) return false;
+    const route = RouteOperator.getRoute(routeName);
     return (
-      RouteOperator.getRoute(routeName).AUTOMATIC_DEPOSIT ||
+      route.AUTOMATIC_DEPOSIT ||
       isGatewayChain(txData.toChain) ||
-      txData.toChain === 'sei'
+      txData.toChain === 'sei' ||
+      isPorticoRoute(route.TYPE)
     );
   }, [routeName, txData]);
 
@@ -209,7 +228,16 @@ function SendTo() {
       ? 'Error please retry . . .'
       : 'Claim below';
   const showSwitchToManualClaim =
-    !transferComplete && routeName === Route.Relay;
+    !transferComplete &&
+    (routeName === Route.Relay || isPorticoRoute(routeName as Route));
+  let manualClaimTitle = '';
+  if (showSwitchToManualClaim) {
+    manualClaimTitle =
+      'This option avoids the relayer fee but requires you to pay the gas fee on the destination chain.';
+    if (routeName === Route.Relay) {
+      manualClaimTitle += ' You will not receive any native gas.';
+    }
+  }
   return (
     <div>
       <InputContainer>
@@ -226,10 +254,11 @@ function SendTo() {
               checked={manualClaim}
               onChange={onSwitchToManualClaim}
               disabled={inProgress}
+              title={manualClaimTitle}
             />
           )}
         </>
-        <RenderRows rows={rows} />
+        <RenderRows rows={transferDestInfo?.displayData || []} />
       </InputContainer>
 
       {missingATA && (

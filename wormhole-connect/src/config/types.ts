@@ -47,6 +47,8 @@ export enum Route {
   CCTPManual = 'cctpManual',
   CCTPRelay = 'cctpRelay',
   TBTC = 'tbtc',
+  ETHBridge = 'ethBridge',
+  wstETHBridge = 'wstETHBridge',
 }
 
 export type SupportedRoutes = keyof typeof Route;

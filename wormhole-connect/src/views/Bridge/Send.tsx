@@ -37,6 +37,8 @@ import { isGatewayChain } from 'utils/cosmos';
 import { estimateClaimGas, estimateSendGas } from 'utils/gas';
 import { validateSolanaTokenAccount } from '../../utils/transferValidation';
 import { useDebounce } from 'use-debounce';
+import { isPorticoRoute } from 'routes/porticoBridge/utils';
+import { SWAP_ERROR } from 'routes/porticoBridge/consts';
 
 const useStyles = makeStyles()((theme) => ({
   body: {
@@ -65,6 +67,7 @@ function Send(props: { valid: boolean }) {
     fromChain,
     toChain,
     token,
+    destToken,
     amount,
     route,
     isTransactionInProgress,
@@ -77,6 +80,7 @@ function Send(props: { valid: boolean }) {
   const { sending, receiving } = wallet;
   const relay = useSelector((state: RootState) => state.relay);
   const { toNativeToken, relayerFee } = relay;
+  const portico = useSelector((state: RootState) => state.porticoBridge);
   const [isConnected, setIsConnected] = useState(
     sending.currentAddress.toLowerCase() === sending.address.toLowerCase(),
   );
@@ -90,7 +94,7 @@ function Send(props: { valid: boolean }) {
 
   async function send() {
     setSendError('');
-    await validate({ transferInput, relay, wallet }, dispatch);
+    await validate({ transferInput, relay, wallet, portico }, dispatch);
     const valid = isTransferValid(validations);
     if (!valid || !route) return;
     dispatch(setIsTransactionInProgress(true));
@@ -111,6 +115,7 @@ function Send(props: { valid: boolean }) {
 
       const tokenConfig = TOKENS[token]!;
       const sendToken = tokenConfig.tokenId;
+      const routeOptions = isPorticoRoute(route) ? portico : { toNativeToken };
 
       const txId = await RouteOperator.send(
         route,
@@ -120,7 +125,8 @@ function Send(props: { valid: boolean }) {
         sending.address,
         toChain!,
         receiving.address,
-        { toNativeToken },
+        destToken,
+        routeOptions,
       );
 
       let message: UnsignedMessage | undefined;
@@ -144,13 +150,15 @@ function Send(props: { valid: boolean }) {
       dispatch(setAppRoute('redeem'));
       setSendError('');
     } catch (e: any) {
+      console.error(e);
       dispatch(setIsTransactionInProgress(false));
       setSendError(
         e?.message === INSUFFICIENT_ALLOWANCE
           ? 'Error due to insufficient token allowance, please try again'
+          : e?.message === SWAP_ERROR
+          ? SWAP_ERROR
           : 'Error with transfer, please try again',
       );
-      console.error(e);
     }
   }
 
@@ -211,7 +219,8 @@ function Send(props: { valid: boolean }) {
     return !(
       r.AUTOMATIC_DEPOSIT ||
       (toChain && isGatewayChain(toChain)) ||
-      toChain === 'sei'
+      toChain === 'sei' ||
+      isPorticoRoute(r.TYPE)
     );
   }, [route, toChain]);
 

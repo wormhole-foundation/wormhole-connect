@@ -5,11 +5,12 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { BigNumber } from 'ethers';
 
-import { TokenConfig } from 'config/types';
+import { Route, TokenConfig } from 'config/types';
 import {
   TransferInfoBaseParams,
   UnsignedMessage,
   SignedMessage,
+  TransferDestInfo,
 } from '../types';
 import { TransferDisplayData } from '../types';
 import { RouteAbstract } from 'routes/abstracts';
@@ -17,6 +18,9 @@ import { RouteAbstract } from 'routes/abstracts';
 export class HashflowRoute extends RouteAbstract {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED = false;
   readonly AUTOMATIC_DEPOSIT = true;
+  // TODO: when the hashflow route is added, add it to the ROUTES array in config/types.ts
+  // @ts-ignore
+  readonly TYPE: Route = 'hashflow';
 
   isSupportedChain(chain: ChainName): boolean {
     return false;
@@ -153,7 +157,7 @@ export class HashflowRoute extends RouteAbstract {
   }
   getTransferDestInfo<T extends TransferInfoBaseParams>(
     params: T,
-  ): Promise<TransferDisplayData> {
+  ): Promise<TransferDestInfo> {
     throw new Error('Method not implemented.');
   }
 

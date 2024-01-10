@@ -21,6 +21,7 @@ import { TransferWallet, switchChain, watchAsset } from 'utils/wallet';
 import TokenIcon from 'icons/TokenIcons';
 import ExplorerLink from './ExplorerLink';
 import { isGatewayChain } from 'utils/cosmos';
+import { isPorticoTransferDestInfo } from 'routes/porticoBridge/utils';
 
 const useStyles = makeStyles()((theme) => ({
   addToken: {
@@ -150,6 +151,9 @@ function AddToAptosWallet({ token, address }: AddTokenProps) {
 function AddToWallet() {
   const txData = useSelector((state: RootState) => state.redeem.txData)!;
   const route = useSelector((state: RootState) => state.redeem.route);
+  const transferDestInfo = useSelector(
+    (state: RootState) => state.redeem.transferDestInfo,
+  );
   const [targetToken, setTargetToken] = useState<TokenConfig | undefined>(
     undefined,
   );
@@ -160,7 +164,11 @@ function AddToWallet() {
   useEffect(() => {
     const fetchTokenInfo = async () => {
       if (isGatewayChain(txData.toChain)) return;
-      const tokenInfo = TOKENS[txData.receivedTokenKey];
+      const receivedTokenKey = isPorticoTransferDestInfo(transferDestInfo)
+        ? transferDestInfo.destTxInfo.receivedTokenKey
+        : txData.receivedTokenKey;
+      const tokenInfo = TOKENS[receivedTokenKey];
+      if (!tokenInfo) return;
       const wrapped = getWrappedToken(tokenInfo);
       if (!wrapped.tokenId) return;
       const address = await wh.getForeignAsset(wrapped.tokenId, txData.toChain);
@@ -182,7 +190,7 @@ function AddToWallet() {
     fetchTokenInfo().catch((err) =>
       console.error('Failed to fetch token info', err),
     );
-  }, [txData, route]);
+  }, [txData, route, transferDestInfo]);
 
   const chainId = wh.toChainId(txData.toChain as ChainName);
 

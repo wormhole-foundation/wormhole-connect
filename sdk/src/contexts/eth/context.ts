@@ -769,6 +769,9 @@ export class EthContext<
         block: receipt.blockNumber,
         gasFee,
         payload: transferWithPayload.payload,
+        fromAddress: utils.hexlify(
+          this.parseAddress(transferWithPayload.fromAddress),
+        ),
       };
     }
     /**
@@ -803,6 +806,9 @@ export class EthContext<
       toNativeTokenAmount: relayerPayload.toNativeTokenAmount,
       to: destContext.parseAddress(utils.hexlify(transferWithPayload.to)),
       payload: transferWithPayload.payload,
+      fromAddress: utils.hexlify(
+        this.parseAddress(transferWithPayload.fromAddress),
+      ),
     };
     return relayerMessage;
   }

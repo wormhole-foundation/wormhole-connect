@@ -12,6 +12,14 @@ import {
   walletAcceptedChains,
 } from 'utils/wallet';
 import { clearWallet, setAddress, setWalletError, WalletData } from './wallet';
+import {
+  DataWrapper,
+  errorDataWrapper,
+  fetchDataWrapper,
+  getEmptyDataWrapper,
+  receiveDataWrapper,
+} from './helpers';
+import { isPorticoRoute } from 'routes/porticoBridge/utils';
 
 export type Balances = { [key: string]: string | null };
 export type ChainBalances = {
@@ -84,6 +92,8 @@ export type TransferValidations = {
   route: ValidationErr;
   toNativeToken: ValidationErr;
   foreignAsset: ValidationErr;
+  relayerFee: ValidationErr;
+  receiveAmount: ValidationErr;
 };
 
 export type RouteState = {
@@ -101,7 +111,7 @@ export interface TransferInputState {
   token: string;
   destToken: string;
   amount: string;
-  receiveAmount: string;
+  receiveAmount: DataWrapper<string>;
   route: Route | undefined;
   balances: WalletBalances;
   foreignAsset: string;
@@ -130,6 +140,8 @@ const initialState: TransferInputState = {
     sendingWallet: '',
     receivingWallet: '',
     foreignAsset: '',
+    relayerFee: '',
+    receiveAmount: '',
   },
   routeStates: undefined,
   fromChain: config?.bridgeDefaults?.fromNetwork || undefined,
@@ -137,7 +149,7 @@ const initialState: TransferInputState = {
   token: config?.bridgeDefaults?.token || '',
   destToken: '',
   amount: '',
-  receiveAmount: '',
+  receiveAmount: getEmptyDataWrapper(),
   route: undefined,
   balances: {},
   foreignAsset: '',
@@ -154,7 +166,7 @@ const initialState: TransferInputState = {
 };
 
 const performModificationsIfFromChainChanged = (state: TransferInputState) => {
-  const { fromChain, token } = state;
+  const { fromChain, token, route } = state;
   if (token) {
     const tokenConfig = TOKENS[token];
     // clear token and amount if not supported on the selected network
@@ -163,7 +175,9 @@ const performModificationsIfFromChainChanged = (state: TransferInputState) => {
       (!tokenConfig.tokenId && tokenConfig.nativeChain !== fromChain)
     ) {
       state.token = '';
-      state.amount = '';
+      if (!route || !isPorticoRoute(route)) {
+        state.amount = '';
+      }
     }
     if (
       tokenConfig.symbol === 'USDC' &&
@@ -178,12 +192,16 @@ const performModificationsIfFromChainChanged = (state: TransferInputState) => {
         getNativeVersionOfToken('tBTC', fromChain!) ||
         TOKENS['tBTC']?.key ||
         '';
+    } else if (route && isPorticoRoute(route)) {
+      if (tokenConfig.nativeChain !== fromChain) {
+        state.token = getNativeVersionOfToken(tokenConfig.symbol, fromChain!);
+      }
     }
   }
 };
 
 const performModificationsIfToChainChanged = (state: TransferInputState) => {
-  const { toChain, destToken } = state;
+  const { toChain, destToken, route } = state;
 
   if (destToken) {
     const tokenConfig = TOKENS[destToken];
@@ -198,6 +216,10 @@ const performModificationsIfToChainChanged = (state: TransferInputState) => {
     ) {
       state.destToken =
         getNativeVersionOfToken('tBTC', toChain!) || TOKENS['tBTC']?.key || '';
+    } else if (route && isPorticoRoute(route)) {
+      if (tokenConfig.nativeChain !== toChain) {
+        state.destToken = getNativeVersionOfToken(tokenConfig.symbol, toChain!);
+      }
     }
   }
 };
@@ -218,6 +240,8 @@ const establishRoute = (state: TransferInputState) => {
     Route.CCTPRelay,
     Route.CCTPManual,
     Route.TBTC,
+    Route.ETHBridge,
+    Route.wstETHBridge,
     Route.Relay,
     Route.Bridge,
   ];
@@ -298,7 +322,16 @@ export const transferInputSlice = createSlice({
       state: TransferInputState,
       { payload }: PayloadAction<string>,
     ) => {
-      state.receiveAmount = payload;
+      state.receiveAmount = receiveDataWrapper(payload);
+    },
+    setFetchingReceiveAmount: (state: TransferInputState) => {
+      state.receiveAmount = fetchDataWrapper();
+    },
+    setReceiveAmountError: (
+      state: TransferInputState,
+      { payload }: PayloadAction<string>,
+    ) => {
+      state.receiveAmount = errorDataWrapper(payload);
     },
     setBalances: (
       state: TransferInputState,
@@ -475,6 +508,8 @@ export const {
   setToChain,
   setAmount,
   setReceiveAmount,
+  setFetchingReceiveAmount,
+  setReceiveAmountError,
   setForeignAsset,
   setAssociatedTokenAddress,
   setTransferRoute,

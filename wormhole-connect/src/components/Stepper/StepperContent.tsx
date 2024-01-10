@@ -17,6 +17,9 @@ const useStyles = makeStyles()((theme: any) => ({
   lineActive: {
     borderColor: theme.palette.success[400],
   },
+  lineWarning: {
+    borderColor: theme.palette.warning[400],
+  },
   lineNone: {
     border: 'none !important',
   },
@@ -27,17 +30,19 @@ type Props = {
   activeStep: number;
   last?: boolean;
   children: JSX.Element | JSX.Element[];
+  warning?: boolean;
 };
 
 export default function StepperLabel(props: Props) {
   const { classes } = useStyles();
-  const { index, activeStep, last, children } = props;
+  const { index, activeStep, last, children, warning } = props;
 
   return (
     <div
       className={joinClass([
         classes.content,
-        activeStep > index && classes.lineActive,
+        activeStep > index &&
+          (!!warning ? classes.lineWarning : classes.lineActive),
         !!last && classes.lineNone,
       ])}
     >

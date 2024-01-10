@@ -34,6 +34,7 @@ import {
   SignedMessage,
   TransferDestInfoBaseParams,
   TransferInfoBaseParams,
+  TransferDestInfo,
 } from '../types';
 import { BridgeRoute } from '../bridge/bridge';
 import { fetchVaa } from '../../utils/vaa';
@@ -52,6 +53,7 @@ import {
 export class CosmosGatewayRoute extends BaseRoute {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean = false;
   readonly AUTOMATIC_DEPOSIT: boolean = false;
+  readonly TYPE: Route = Route.CosmosGateway;
 
   isSupportedChain(chain: ChainName): boolean {
     return isGatewayChain(chain);
@@ -75,7 +77,11 @@ export class CosmosGatewayRoute extends BaseRoute {
   }
 
   async computeReceiveAmount(
-    sendAmount: number | undefined,
+    sendAmount: number,
+    token: string,
+    destToken: string,
+    sendingChain: ChainName | undefined,
+    recipientChain: ChainName | undefined,
     routeOptions: any,
   ): Promise<number> {
     return sendAmount || 0;
@@ -150,6 +156,7 @@ export class CosmosGatewayRoute extends BaseRoute {
     senderAddress: string,
     recipientChain: ChainName | ChainId,
     recipientAddress: string,
+    destToken: string,
     routeOptions: any,
   ): Promise<any> {
     const sendingChainId = wh.toChainId(sendingChain);
@@ -233,6 +240,7 @@ export class CosmosGatewayRoute extends BaseRoute {
     receipientChain: ChainName | ChainId,
     sendingGasEst: string,
     claimingGasEst: string,
+    receiveAmount: string,
     routeOptions?: any,
   ): Promise<TransferDisplayData> {
     const sendingChainName = wh.toChainName(sendingChain);
@@ -266,6 +274,7 @@ export class CosmosGatewayRoute extends BaseRoute {
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
     token: string,
+    destToken: string,
   ): Promise<BigNumber> {
     return BigNumber.from(0);
   }
@@ -383,7 +392,7 @@ export class CosmosGatewayRoute extends BaseRoute {
     txData,
     receiveTx,
     gasEstimate,
-  }: TransferDestInfoBaseParams): Promise<TransferDisplayData> {
+  }: TransferDestInfoBaseParams): Promise<TransferDestInfo> {
     const token = TOKENS[txData.tokenKey];
     const { gasToken } = CHAINS[txData.toChain]!;
 
@@ -401,16 +410,19 @@ export class CosmosGatewayRoute extends BaseRoute {
       MAX_DECIMALS,
     );
 
-    return [
-      {
-        title: 'Amount',
-        value: `${formattedAmt} ${getDisplayName(token)}`,
-      },
-      {
-        title: receiveTx ? 'Gas fee' : 'Gas estimate',
-        value: gas ? `${gas} ${getDisplayName(TOKENS[gasToken])}` : '—',
-      },
-    ];
+    return {
+      route: this.TYPE,
+      displayData: [
+        {
+          title: 'Amount',
+          value: `${formattedAmt} ${getDisplayName(token)}`,
+        },
+        {
+          title: receiveTx ? 'Gas fee' : 'Gas estimate',
+          value: gas ? `${gas} ${getDisplayName(TOKENS[gasToken])}` : '—',
+        },
+      ],
+    };
   }
 
   nativeTokenAmount(

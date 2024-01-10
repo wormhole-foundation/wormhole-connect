@@ -51,6 +51,8 @@ export type Contracts = {
   seiTokenTranslator?: string;
   ibcShimContract?: string;
   tbtcGateway?: string;
+  portico?: string;
+  uniswapQuoterV2?: string;
 };
 
 export type ChainConfig = {
@@ -113,6 +115,7 @@ export interface ParsedMessage {
   block: number;
   gasFee?: BigNumber;
   payload?: string;
+  fromAddress?: string;
 }
 
 export interface ParsedRelayerPayload {
