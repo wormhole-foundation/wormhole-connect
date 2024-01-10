@@ -19,6 +19,7 @@ import {
   getEmptyDataWrapper,
   receiveDataWrapper,
 } from './helpers';
+import { isPorticoRoute } from 'routes/porticoBridge/utils';
 
 export type Balances = { [key: string]: string | null };
 export type ChainBalances = {
@@ -165,7 +166,7 @@ const initialState: TransferInputState = {
 };
 
 const performModificationsIfFromChainChanged = (state: TransferInputState) => {
-  const { fromChain, token } = state;
+  const { fromChain, token, route } = state;
   if (token) {
     const tokenConfig = TOKENS[token];
     // clear token and amount if not supported on the selected network
@@ -174,7 +175,9 @@ const performModificationsIfFromChainChanged = (state: TransferInputState) => {
       (!tokenConfig.tokenId && tokenConfig.nativeChain !== fromChain)
     ) {
       state.token = '';
-      state.amount = '';
+      if (!route || !isPorticoRoute(route)) {
+        state.amount = '';
+      }
     }
     if (
       tokenConfig.symbol === 'USDC' &&
@@ -189,12 +192,16 @@ const performModificationsIfFromChainChanged = (state: TransferInputState) => {
         getNativeVersionOfToken('tBTC', fromChain!) ||
         TOKENS['tBTC']?.key ||
         '';
+    } else if (route && isPorticoRoute(route)) {
+      if (tokenConfig.nativeChain !== fromChain) {
+        state.token = getNativeVersionOfToken(tokenConfig.symbol, fromChain!);
+      }
     }
   }
 };
 
 const performModificationsIfToChainChanged = (state: TransferInputState) => {
-  const { toChain, destToken } = state;
+  const { toChain, destToken, route } = state;
 
   if (destToken) {
     const tokenConfig = TOKENS[destToken];
@@ -209,6 +216,10 @@ const performModificationsIfToChainChanged = (state: TransferInputState) => {
     ) {
       state.destToken =
         getNativeVersionOfToken('tBTC', toChain!) || TOKENS['tBTC']?.key || '';
+    } else if (route && isPorticoRoute(route)) {
+      if (tokenConfig.nativeChain !== toChain) {
+        state.destToken = getNativeVersionOfToken(tokenConfig.symbol, toChain!);
+      }
     }
   }
 };
