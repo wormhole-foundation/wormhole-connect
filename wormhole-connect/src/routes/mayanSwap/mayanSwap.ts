@@ -8,6 +8,7 @@ import { BigNumber } from 'ethers';
 import { SignedMessage, UnsignedMessage } from 'routes/types';
 import { Route, TokenConfig } from 'config/types';
 import { ParsedMessage, ParsedRelayerMessage } from 'utils/sdk';
+import { SUPPORTED_CHAINS, isTokenSupported } from './utils';
 
 export class MayanSwap extends BaseRoute {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean = false;
@@ -25,15 +26,17 @@ export class MayanSwap extends BaseRoute {
   }
 
   isSupportedChain(chain: ChainName): boolean {
-    return true;
+    return SUPPORTED_CHAINS.includes(chain);
   }
 
   async isSupportedSourceToken(
     token: TokenConfig | undefined,
     destToken: TokenConfig | undefined,
-    sourceChain?: ChainName | ChainId | undefined,
+    sourceChain: ChainName | ChainId | undefined,
   ): Promise<boolean> {
-    return true;
+    if (!token || !destToken || !sourceChain) return false;
+
+    return isTokenSupported(sourceChain, token);
   }
 
   async isSupportedDestToken(

@@ -37,6 +37,7 @@ import { TBTCRoute } from './tbtc';
 import { getTokenById, isEqualCaseInsensitive } from 'utils';
 import { ETHBridge } from './porticoBridge/ethBridge';
 import { wstETHBridge } from './porticoBridge/wstETHBridge';
+import { MayanSwap } from './mayanSwap/mayanSwap';
 
 export class Operator {
   getRoute(route: Route): RouteAbstract {
@@ -67,6 +68,9 @@ export class Operator {
       }
       case Route.wstETHBridge: {
         return new wstETHBridge();
+      }
+      case Route.mayanSwap: {
+        return new MayanSwap();
       }
       default: {
         throw new Error(`${route} is not a valid route`);

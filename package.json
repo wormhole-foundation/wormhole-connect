@@ -19,6 +19,7 @@
     "prepare": "husky install"
   },
   "dependencies": {
+    "@mayanfinance/swap-sdk": "^4.5.1",
     "tss-react": "^4.7.7"
   },
   "devDependencies": {
