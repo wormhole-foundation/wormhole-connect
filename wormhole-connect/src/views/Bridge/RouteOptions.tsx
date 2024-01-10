@@ -311,6 +311,8 @@ function RouteOptions() {
   const [debouncedAmount] = useDebounce(amount, 500);
 
   useEffect(() => {
+    let isActive = true;
+
     if (!fromChain || !toChain || !token || !destToken) return;
     const getAvailable = async () => {
       let routes: RouteState[] = [];
@@ -336,9 +338,15 @@ function RouteOptions() {
         routes.push({ name: r, supported, available });
       }
 
-      dispatch(setRoutes(routes));
+      if (isActive) {
+        dispatch(setRoutes(routes));
+      }
     };
     getAvailable();
+
+    return () => {
+      isActive = false;
+    };
   }, [dispatch, token, destToken, debouncedAmount, fromChain, toChain]);
 
   const allRoutes = useMemo(() => {
