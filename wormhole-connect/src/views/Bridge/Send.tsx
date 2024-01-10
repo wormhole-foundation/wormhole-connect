@@ -150,6 +150,7 @@ function Send(props: { valid: boolean }) {
       dispatch(setAppRoute('redeem'));
       setSendError('');
     } catch (e: any) {
+      console.error(e);
       dispatch(setIsTransactionInProgress(false));
       setSendError(
         e?.message === INSUFFICIENT_ALLOWANCE

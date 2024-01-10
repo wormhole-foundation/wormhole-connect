@@ -155,7 +155,7 @@ function Bridge() {
         toChain,
       );
       dispatch(setAllSupportedDestTokens(allSupported));
-      if (supported.length === 1) {
+      if (toChain && supported.length === 1) {
         dispatch(setDestToken(supported[0].key));
       }
 
