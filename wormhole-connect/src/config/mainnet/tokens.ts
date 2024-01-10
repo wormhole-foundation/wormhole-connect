@@ -2444,7 +2444,7 @@ export const MAINNET_TOKENS: TokensConfig = {
         decimals: 18,
       },
       bsc: {
-        address: '0xad80e1a9b5824234afa9de1f3bbdb8a994796169',
+        address: '0xad80E1A9B5824234afA9dE1F3bbDb8a994796169',
         decimals: 18,
       },
     },
