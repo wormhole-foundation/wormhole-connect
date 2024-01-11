@@ -1968,23 +1968,6 @@ export const MAINNET_TOKENS: TokensConfig = {
       default: 8,
     },
   },
-  wstETHbsc: {
-    key: 'wstETHbsc',
-    symbol: 'wstETH',
-    displayName: 'wstETH (BSC)',
-    nativeChain: 'bsc',
-    tokenId: {
-      chain: 'bsc',
-      address: '0x2Bbbdf97295F73175b12CC087cF446765931e1C3',
-    },
-    icon: Icon.WSTETH,
-    coinGeckoId: 'wrapped-steth',
-    color: '#3AA3FF',
-    decimals: {
-      default: 8,
-      Ethereum: 18,
-    },
-  },
   ETHbase: {
     key: 'ETHbase',
     symbol: 'ETH',

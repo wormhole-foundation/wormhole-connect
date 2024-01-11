@@ -184,7 +184,6 @@ export const MAINNET_TOKEN_KEYS: string[] = [
   "wstETHarbitrum",
   "wstETHoptimism",
   "wstETHpolygon",
-  "wstETHbsc",
   "wstETHbase",
 ].sort();
 

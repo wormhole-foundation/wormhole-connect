@@ -103,7 +103,6 @@ Tokens (`tokens`):
 | wstETHoptimism | |
 | wstETHpolygon | |
 | wstETHbase | |
-| wstETHbsc | |
 
 
 <br>
