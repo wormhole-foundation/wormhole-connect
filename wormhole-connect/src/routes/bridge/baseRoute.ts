@@ -229,4 +229,22 @@ export abstract class BaseRoute extends RouteAbstract {
     }
     return wh.isTransferCompleted(destChain, hexlify(messageInfo.vaa));
   }
+
+  async computeReceiveAmountWithFees(
+    sendAmount: number,
+    token: string,
+    destToken: string,
+    sendingChain: ChainName | undefined,
+    recipientChain: ChainName | undefined,
+    routeOptions: any,
+  ): Promise<number> {
+    return this.computeReceiveAmount(
+      sendAmount,
+      token,
+      destToken,
+      sendingChain,
+      recipientChain,
+      routeOptions,
+    );
+  }
 }

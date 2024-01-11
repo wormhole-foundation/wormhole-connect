@@ -198,6 +198,7 @@ export const validateReceiveAmount = (
     isPorticoRoute(route) &&
     // the portico receive amount depends on the relayer fee
     routeOptions.relayerFee.data &&
+    !routeOptions.swapAmounts.isFetching &&
     receiveAmount.error
   ) {
     return receiveAmount.error;

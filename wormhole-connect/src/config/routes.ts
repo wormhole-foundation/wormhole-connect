@@ -8,6 +8,7 @@ export type RouteData = {
   route: Route;
   name: string;
   providedBy: string;
+  routePath?: string;
   link: string;
   icon: () => JSX.Element;
   pendingMessage: string;
@@ -76,16 +77,18 @@ export const RoutesConfig: {
     route: Route.ETHBridge,
     name: 'ETH Bridge',
     providedBy: 'xLabs',
+    routePath: 'Wormhole',
     link: 'https://xlabs.xyz',
-    icon: XLabsIcon,
+    icon: WormholeIcon,
     pendingMessage: 'Waiting for Wormhole network consensus . . .',
   },
   [Route.wstETHBridge]: {
     route: Route.wstETHBridge,
     name: 'wstETH Bridge',
     providedBy: 'xLabs',
+    routePath: 'Wormhole',
     link: 'https://xlabs.xyz',
-    icon: XLabsIcon,
+    icon: WormholeIcon,
     pendingMessage: 'Waiting for Wormhole network consensus . . .',
   },
 };

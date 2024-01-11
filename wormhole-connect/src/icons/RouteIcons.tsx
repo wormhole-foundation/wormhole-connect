@@ -43,10 +43,10 @@ export const getIcon = (route: Route) => {
       return WormholeIcon;
     }
     case Route.ETHBridge: {
-      return XLabsIcon;
+      return WormholeIcon;
     }
     case Route.wstETHBridge: {
-      return XLabsIcon;
+      return WormholeIcon;
     }
     default: {
       return noIcon;

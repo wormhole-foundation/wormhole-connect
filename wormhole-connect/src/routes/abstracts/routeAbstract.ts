@@ -68,7 +68,8 @@ export abstract class RouteAbstract {
     destChain?: ChainName | ChainId,
   ): Promise<TokenConfig[]>;
 
-  // Calculate the amount a user would receive if sending a certain amount
+  // Calculate the amount a user would expect to receive if sending a certain amount
+  // This may or may not include fees depending on the route
   public abstract computeReceiveAmount(
     sendAmount: number,
     token: string,
@@ -77,6 +78,18 @@ export abstract class RouteAbstract {
     recipientChain: ChainName | undefined,
     routeOptions: any,
   ): Promise<number>;
+
+  // Calculate the amount a user would expect to receive if sending a certain amount
+  // This always includes fees
+  public abstract computeReceiveAmountWithFees(
+    sendAmount: number,
+    token: string,
+    destToken: string,
+    sendingChain: ChainName | undefined,
+    recipientChain: ChainName | undefined,
+    routeOptions: any,
+  ): Promise<number>;
+
   // Calculate the amount a user would need to send in order to receive a certain amount
   public abstract computeSendAmount(
     receiveAmount: number | undefined,
