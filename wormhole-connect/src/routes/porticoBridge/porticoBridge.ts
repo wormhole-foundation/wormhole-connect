@@ -710,11 +710,6 @@ export abstract class PorticoBridge extends BaseRoute {
       destTokenDecimals,
       MAX_DECIMALS,
     );
-    const formattedFee = toDecimals(
-      relayerFee,
-      destTokenDecimals,
-      MAX_DECIMALS,
-    );
     const formattedGasFee =
       txData.gasFee &&
       toDecimals(txData.gasFee, gasTokenDecimals, MAX_DECIMALS);
@@ -732,10 +727,6 @@ export abstract class PorticoBridge extends BaseRoute {
       {
         title: 'Min receive amount',
         value: `${formattedMinAmount} ${getDisplayName(finalToken)}`,
-      },
-      {
-        title: 'Relayer fee',
-        value: `${formattedFee} ${getDisplayName(finalToken)}`,
       },
     ];
   }
