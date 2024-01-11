@@ -1,4 +1,4 @@
-import { hexStripZeros } from 'ethers/lib/utils.js';
+import { hexStripZeros, hexZeroPad } from 'ethers/lib/utils.js';
 import {
   CreateOrderRequest,
   CreateOrderResponse,
@@ -20,16 +20,20 @@ import { CHAIN_ID_ETH } from '@certusone/wormhole-sdk/lib/esm/utils/consts';
 import { toChainId, wh } from 'utils/sdk';
 import { TransferDestInfo } from 'routes/types';
 
+export const parseAddress = (buffer: Buffer): string => {
+  return hexZeroPad(hexStripZeros(buffer), 20);
+};
+
 export const parseTradeParameters = (
   buffer: Buffer,
 ): PorticoTradeParameters => {
   return {
     flagSet: parseFlagSet(buffer),
-    startTokenAddress: hexStripZeros(buffer.slice(32, 64)),
-    canonAssetAddress: hexStripZeros(buffer.slice(64, 96)),
-    finalTokenAddress: hexStripZeros(buffer.slice(96, 128)),
-    recipientAddress: hexStripZeros(buffer.slice(128, 160)),
-    destinationPorticoAddress: hexStripZeros(buffer.slice(160, 192)),
+    startTokenAddress: parseAddress(buffer.slice(32, 64)),
+    canonAssetAddress: parseAddress(buffer.slice(64, 96)),
+    finalTokenAddress: parseAddress(buffer.slice(96, 128)),
+    recipientAddress: parseAddress(buffer.slice(128, 160)),
+    destinationPorticoAddress: parseAddress(buffer.slice(160, 192)),
     amountSpecified: BigNumber.from(buffer.slice(192, 224)),
     minAmountStart: BigNumber.from(buffer.slice(224, 256)),
     minAmountFinish: BigNumber.from(buffer.slice(256, 288)),
@@ -40,8 +44,8 @@ export const parseTradeParameters = (
 export const parsePorticoPayload = (buffer: Buffer): PorticoPayload => {
   return {
     flagSet: parseFlagSet(buffer),
-    finalTokenAddress: hexStripZeros(buffer.slice(32, 64)),
-    recipientAddress: hexStripZeros(buffer.slice(64, 96)),
+    finalTokenAddress: parseAddress(buffer.slice(32, 64)),
+    recipientAddress: parseAddress(buffer.slice(64, 96)),
     canonAssetAmount: BigNumber.from(buffer.slice(96, 128)),
     minAmountFinish: BigNumber.from(buffer.slice(128, 160)),
     relayerFee: BigNumber.from(buffer.slice(160, 192)),
