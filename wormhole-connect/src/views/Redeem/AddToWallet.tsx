@@ -14,7 +14,12 @@ import { MAINNET_CHAINS } from 'config/mainnet';
 import { TokenConfig } from 'config/types';
 import { RootState } from 'store';
 import { setWalletModal } from 'store/router';
-import { getTokenDecimals, getWrappedToken, getDisplayName } from 'utils';
+import {
+  getTokenDecimals,
+  getWrappedToken,
+  getDisplayName,
+  getChainConfig,
+} from 'utils';
 import { wh } from 'utils/sdk';
 import { TransferWallet, switchChain, watchAsset } from 'utils/wallet';
 
@@ -169,6 +174,9 @@ function AddToWallet() {
         : txData.receivedTokenKey;
       const tokenInfo = TOKENS[receivedTokenKey];
       if (!tokenInfo) return;
+      try {
+        if (getChainConfig(txData.toChain).gasToken === tokenInfo.key) return;
+      } catch {}
       const wrapped = getWrappedToken(tokenInfo);
       if (!wrapped.tokenId) return;
       const address = await wh.getForeignAsset(wrapped.tokenId, txData.toChain);

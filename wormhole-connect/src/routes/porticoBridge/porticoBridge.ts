@@ -688,6 +688,7 @@ export abstract class PorticoBridge extends BaseRoute {
     const finalToken = shouldUnwrapNative
       ? getGasToken(txData.toChain)
       : getTokenById({ chain: txData.toChain, address: finalTokenAddress });
+    console.log(txData.toChain, finalTokenAddress);
     if (!finalToken) {
       throw new Error('Unable to find dest token');
     }
