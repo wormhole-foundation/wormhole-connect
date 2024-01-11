@@ -80,7 +80,7 @@ export abstract class RouteAbstract {
   ): Promise<number>;
 
   // Calculate the amount a user would expect to receive if sending a certain amount
-  // This always includes fees
+  // This always includes fees (if relevant to the route)
   public abstract computeReceiveAmountWithFees(
     sendAmount: number,
     token: string,
