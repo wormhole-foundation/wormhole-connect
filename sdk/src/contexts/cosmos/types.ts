@@ -10,3 +10,8 @@ export interface CosmosTransaction {
 export interface WrappedRegistryResponse {
   address: string;
 }
+
+export interface IBCConnection {
+  srcChannel: string;
+  destChannel: string;
+}

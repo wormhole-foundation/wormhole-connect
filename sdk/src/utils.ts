@@ -66,3 +66,16 @@ export const waitFor = (
     }, ms);
   });
 };
+
+export class Lock {
+  private locked: boolean = false;
+
+  async acquire() {
+    await waitFor(() => Promise.resolve(!this.locked));
+    this.locked = true;
+  }
+
+  release() {
+    this.locked = false;
+  }
+}
