@@ -351,6 +351,27 @@ export class Operator {
       routeOptions,
     );
   }
+
+  async computeReceiveAmountWithFees(
+    route: Route,
+    sendAmount: number,
+    token: string,
+    destToken: string,
+    sendingChain: ChainName | undefined,
+    recipientChain: ChainName | undefined,
+    routeOptions: any,
+  ): Promise<number> {
+    const r = this.getRoute(route);
+    return await r.computeReceiveAmountWithFees(
+      sendAmount,
+      token,
+      destToken,
+      sendingChain,
+      recipientChain,
+      routeOptions,
+    );
+  }
+
   async computeSendAmount(
     route: Route,
     receiveAmount: number | undefined,

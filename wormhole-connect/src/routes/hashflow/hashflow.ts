@@ -70,6 +70,11 @@ export class HashflowRoute extends RouteAbstract {
   computeReceiveAmount(sendAmount: number | undefined): Promise<number> {
     throw new Error('Method not implemented');
   }
+  computeReceiveAmountWithFees(
+    sendAmount: number | undefined,
+  ): Promise<number> {
+    throw new Error('Method not implemented.');
+  }
   computeSendAmount(receiveAmount: number | undefined): Promise<number> {
     throw new Error('Method not implemented');
   }

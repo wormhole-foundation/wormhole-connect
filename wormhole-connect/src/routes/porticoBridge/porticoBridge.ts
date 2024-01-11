@@ -207,10 +207,29 @@ export abstract class PorticoBridge extends BaseRoute {
       throw new Error('Finish slippage too high');
     }
     const minAmountFinish = finishQuote.amountOut.sub(finishSlippage);
-    console.log(`computed min amount finish: ${minAmountFinish.toString()}`);
+    const amountFinishQuote = await getQuote(
+      recipientChain,
+      finishCanonicalToken,
+      finishToken.tokenId.address,
+      startQuote.amountOut, // no slippage
+      FEE_TIER,
+    );
+    // the expected receive amount is the amount out from the swap
+    // minus 5bps slippage
+    const amountFinishSlippage = amountFinishQuote.amountOut
+      .mul(5)
+      .div(BPS_PER_HUNDRED_PERCENT);
+    if (amountFinishSlippage.gte(amountFinishQuote.amountOut)) {
+      throw new Error('Amount finish slippage too high');
+    }
+    const amountFinish = amountFinishQuote.amountOut.sub(amountFinishSlippage);
+    if (amountFinish.lte(minAmountFinish)) {
+      throw new Error('Amount finish too low');
+    }
     return {
       minAmountStart: minAmountStart.toString(),
       minAmountFinish: minAmountFinish.toString(),
+      amountFinish: amountFinish.toString(),
     };
   }
 
@@ -221,6 +240,26 @@ export abstract class PorticoBridge extends BaseRoute {
     sendingChain: ChainName | undefined,
     recipientChain: ChainName | undefined,
     routeOptions: PorticoBridgeState,
+  ): Promise<number> {
+    return this.computeReceiveAmountInternal(
+      sendAmount,
+      token,
+      destToken,
+      sendingChain,
+      recipientChain,
+      routeOptions,
+      false,
+    );
+  }
+
+  async computeReceiveAmountInternal(
+    sendAmount: number,
+    token: string,
+    destToken: string,
+    sendingChain: ChainName | undefined,
+    recipientChain: ChainName | undefined,
+    routeOptions: PorticoBridgeState,
+    includeFees = false,
   ): Promise<number> {
     if (
       !sendAmount ||
@@ -244,16 +283,42 @@ export abstract class PorticoBridge extends BaseRoute {
       routeOptions.swapAmounts.data.minAmountFinish,
     );
     // the relayer fee is paid out in the finish token
+    // the min amount finish must be greater than the relayer fee
+    // to pay it out
     const relayerFee = BigNumber.from(routeOptions.relayerFee.data);
     if (minAmountFinish.lte(relayerFee)) {
       throw new Error(`Min amount too low, try increasing the send amount`);
     }
-    const receiveAmount = minAmountFinish.sub(relayerFee);
     const finishTokenDecimals = getTokenDecimals(
       toChainId(recipientChain),
       finishToken.tokenId,
     );
-    return Number(toDecimals(receiveAmount, finishTokenDecimals, MAX_DECIMALS));
+    let amountFinish = BigNumber.from(
+      routeOptions.swapAmounts.data.amountFinish,
+    );
+    if (includeFees) {
+      amountFinish = amountFinish.sub(relayerFee);
+    }
+    return Number(toDecimals(amountFinish, finishTokenDecimals, MAX_DECIMALS));
+  }
+
+  async computeReceiveAmountWithFees(
+    sendAmount: number,
+    token: string,
+    destToken: string,
+    sendingChain: ChainName | undefined,
+    recipientChain: ChainName | undefined,
+    routeOptions: PorticoBridgeState,
+  ): Promise<number> {
+    return this.computeReceiveAmountInternal(
+      sendAmount,
+      token,
+      destToken,
+      sendingChain,
+      recipientChain,
+      routeOptions,
+      true,
+    );
   }
 
   async computeSendAmount(
@@ -645,11 +710,6 @@ export abstract class PorticoBridge extends BaseRoute {
       destTokenDecimals,
       MAX_DECIMALS,
     );
-    const formattedFee = toDecimals(
-      relayerFee,
-      destTokenDecimals,
-      MAX_DECIMALS,
-    );
     const formattedGasFee =
       txData.gasFee &&
       toDecimals(txData.gasFee, gasTokenDecimals, MAX_DECIMALS);
@@ -667,10 +727,6 @@ export abstract class PorticoBridge extends BaseRoute {
       {
         title: 'Min receive amount',
         value: `${formattedMinAmount} ${getDisplayName(finalToken)}`,
-      },
-      {
-        title: 'Relayer fee',
-        value: `${formattedFee} ${getDisplayName(finalToken)}`,
       },
     ];
   }
@@ -803,7 +859,7 @@ export abstract class PorticoBridge extends BaseRoute {
     receiveAmount: string,
     routeOptions: PorticoBridgeState,
   ): Promise<TransferDisplayData> {
-    const { relayerFee } = routeOptions;
+    const { relayerFee, swapAmounts } = routeOptions;
     const sendingChainName = toChainName(sendingChain);
     const gasToken = getGasToken(sendingChainName);
     const gasTokenDisplayName = getDisplayName(gasToken);
@@ -819,10 +875,28 @@ export abstract class PorticoBridge extends BaseRoute {
       fee = toDecimals(relayerFee.data, destTokenDecimals, MAX_DECIMALS);
       totalFeesText = `${sendingGasEst} ${gasTokenDisplayName} & ${fee} ${destTokenDisplayName}`;
     }
+    let expectedAmount = '';
+    let minimumAmount = '';
+    if (relayerFee.data && swapAmounts.data) {
+      expectedAmount = toDecimals(
+        BigNumber.from(swapAmounts.data.amountFinish).sub(relayerFee.data),
+        destTokenDecimals,
+        MAX_DECIMALS,
+      );
+      minimumAmount = toDecimals(
+        BigNumber.from(swapAmounts.data.minAmountFinish).sub(relayerFee.data),
+        destTokenDecimals,
+        MAX_DECIMALS,
+      );
+    }
     return [
       {
-        title: 'Min receive amount',
-        value: `${receiveAmount} ${destTokenDisplayName}`,
+        title: 'Expected to receive',
+        value: `${expectedAmount} ${destTokenDisplayName}`,
+      },
+      {
+        title: 'Minimum to receive',
+        value: `${minimumAmount} ${destTokenDisplayName}`,
       },
       {
         title: 'Total fee estimates',

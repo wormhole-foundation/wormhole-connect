@@ -107,7 +107,8 @@ function ToInputs() {
   // }, [route, receiveAmount]);
   // TODO: get compute send amount working correctly again
   const handleAmountChange = () => {};
-  const label = route && isPorticoRoute(route) ? 'Min Amount' : 'Amount';
+  const label =
+    route && isPorticoRoute(route) ? 'Expected Amount (-0.05%)' : 'Amount';
   const amountInput = (
     <AmountInput
       handleAmountChange={handleAmountChange}

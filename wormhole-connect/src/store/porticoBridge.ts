@@ -10,6 +10,7 @@ import {
 export interface PorticoSwapAmounts {
   minAmountStart: string;
   minAmountFinish: string;
+  amountFinish: string;
 }
 
 export interface PorticoBridgeState {

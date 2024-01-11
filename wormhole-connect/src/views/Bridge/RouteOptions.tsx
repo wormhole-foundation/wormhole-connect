@@ -191,7 +191,7 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
         const routeOptions = isPorticoRoute(props.route.route)
           ? portico
           : { toNativeToken, relayerFee };
-        const receiveAmt = await RouteOperator.computeReceiveAmount(
+        const receiveAmt = await RouteOperator.computeReceiveAmountWithFees(
           props.route.route,
           Number.parseFloat(amount),
           token,
@@ -290,7 +290,10 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
                 colorFilled
               />
               <ArrowRightIcon fontSize={mobile ? 'inherit' : undefined} />
-              <Tag icon={props.route.icon()} text={props.route.providedBy} />
+              <Tag
+                icon={props.route.icon()}
+                text={props.route.routePath || props.route.providedBy}
+              />
               <ArrowRightIcon fontSize={mobile ? 'inherit' : undefined} />
               <Tag
                 icon={toTokenIcon}
