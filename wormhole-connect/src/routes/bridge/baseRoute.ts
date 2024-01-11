@@ -247,4 +247,8 @@ export abstract class BaseRoute extends RouteAbstract {
       routeOptions,
     );
   }
+
+  getMaxSendAmount(): number | undefined {
+    return undefined;
+  }
 }

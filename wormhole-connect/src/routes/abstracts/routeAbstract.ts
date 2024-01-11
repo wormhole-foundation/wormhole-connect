@@ -128,6 +128,7 @@ export abstract class RouteAbstract {
    * These operations have to be implemented in subclasses.
    */
   public abstract getMinSendAmount(routeOptions: any): number;
+  public abstract getMaxSendAmount(): number | undefined;
 
   public abstract send(
     token: TokenId | 'native',

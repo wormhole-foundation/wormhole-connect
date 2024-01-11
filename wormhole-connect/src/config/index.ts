@@ -143,6 +143,9 @@ export const WALLET_CONNECT_PROJECT_ID =
     ? config.walletConnectProjectId
     : import.meta.env.REACT_APP_WALLET_CONNECT_PROJECT_ID;
 
+export const ethBridgeMaxAmount = config?.ethBridgeMaxAmount ?? 5;
+export const wstETHBridgeMaxAmount = config?.wstETHBridgeMaxAmount ?? 2.5;
+
 export const TESTNET_TO_MAINNET_CHAIN_NAMES: {
   [k in TestnetChainName]: MainnetChainName;
 } = {

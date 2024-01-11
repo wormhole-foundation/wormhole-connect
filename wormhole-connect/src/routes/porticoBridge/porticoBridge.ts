@@ -67,7 +67,10 @@ export abstract class PorticoBridge extends BaseRoute {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean = false;
   readonly AUTOMATIC_DEPOSIT: boolean = false;
 
-  constructor(protected supportedTokenSymbols: string[]) {
+  constructor(
+    protected supportedTokenSymbols: string[],
+    protected maxAmount: number,
+  ) {
     super();
   }
 
@@ -362,6 +365,10 @@ export abstract class PorticoBridge extends BaseRoute {
 
   getMinSendAmount(routeOptions: PorticoBridgeState): number {
     return 0;
+  }
+
+  getMaxSendAmount(): number | undefined {
+    return this.maxAmount;
   }
 
   async send(
