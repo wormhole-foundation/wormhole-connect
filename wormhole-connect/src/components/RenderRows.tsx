@@ -10,11 +10,30 @@ const useStyles = makeStyles()((theme) => ({
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    margin: '4px 0',
+    margin: '4px 0 8px',
+    gap: '10px',
+  },
+  rowTitleContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    [theme.breakpoints.down('sm')]: {
+      flex: 1,
+    },
   },
   rowTitle: {
     fontSize: '14px',
     opacity: '70%',
+  },
+  rowTitleMinContent: {
+    [theme.breakpoints.down('sm')]: {
+      maxWidth: 'min-content',
+    },
+  },
+  rowText: {
+    [theme.breakpoints.down('sm')]: {
+      textAlign: 'right',
+      flex: 1,
+    },
   },
   arrow: {
     height: '24px',
@@ -50,8 +69,14 @@ export function RenderRows(props: RenderRowsProps) {
             style={{ cursor: row.rows ? 'pointer' : 'default' }}
             onClick={() => row.rows && toggleCollapsed()}
           >
-            <div className={classes.row}>
-              <span className={classes.rowTitle}>{row.title}</span>
+            <div className={classes.rowTitleContainer}>
+              <span
+                className={`${classes.rowTitle} ${
+                  row.rows ? classes.rowTitleMinContent : ''
+                }`}
+              >
+                {row.title}
+              </span>
               {row.rows && (
                 <Down
                   className={joinClass([
@@ -61,7 +86,11 @@ export function RenderRows(props: RenderRowsProps) {
                 />
               )}
             </div>
-            <div className={`${props.small && classes.subrowText}`}>
+            <div
+              className={`${classes.rowText} ${
+                props.small ? classes.subrowText : ''
+              }`}
+            >
               {row.value}
             </div>
           </div>
