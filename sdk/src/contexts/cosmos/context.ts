@@ -68,6 +68,11 @@ const buildExecuteMsg = (
   }),
 });
 
+interface IBCConnection {
+  srcChannel: string;
+  destChannel: string;
+}
+
 const IBC_PORT = 'transfer';
 
 export class CosmosContext<
@@ -79,7 +84,9 @@ export class CosmosContext<
   readonly chain: ChainName;
 
   private static FETCHING_TM_CLIENT = false;
-  private static CLIENT_MAP: Record<string, TendermintClient> = {};
+  private static CLIENT_MAP: Partial<Record<string, TendermintClient>> = {};
+  private static FETCHING_CONNECTION = false;
+  private static CHANNEL_MAP: Partial<Record<ChainName, IBCConnection>> = {};
   private foreignAssetCache: ForeignAssetCache;
 
   constructor(
@@ -249,20 +256,51 @@ export class CosmosContext<
     return `ibc/${hash.toUpperCase()}`;
   }
 
-  async getIbcDestinationChannel(chain: ChainId | ChainName): Promise<string> {
-    const sourceChannel = await this.getIbcSourceChannel(chain);
-    const queryClient = await this.getQueryClient(CHAIN_ID_WORMCHAIN);
-    const conn = await queryClient.ibc.channel.channel(IBC_PORT, sourceChannel);
+  async getConnection(chain: ChainId | ChainName): Promise<IBCConnection> {
+    await waitFor(async () => CosmosContext.FETCHING_CONNECTION === false);
 
-    const destChannel = conn.channel?.counterparty?.channelId;
-    if (!destChannel) {
-      throw new Error(`No destination channel found on chain ${chain}`);
+    const chainName = this.context.toChainName(chain);
+    if (CosmosContext.CHANNEL_MAP[chainName]) {
+      return CosmosContext.CHANNEL_MAP[chainName]!;
     }
 
+    try {
+      CosmosContext.FETCHING_CONNECTION = true;
+
+      const srcChannel = await this.queryIbcSourceChannel(chain);
+      const queryClient = await this.getQueryClient(CHAIN_ID_WORMCHAIN);
+      const conn = await queryClient.ibc.channel.channel(IBC_PORT, srcChannel);
+
+      const destChannel = conn.channel?.counterparty?.channelId;
+      if (!destChannel) {
+        throw new Error(`No destination channel found on chain ${chain}`);
+      }
+
+      const connection: IBCConnection = {
+        srcChannel: srcChannel,
+        destChannel: destChannel,
+      };
+      CosmosContext.CHANNEL_MAP[chainName] = connection;
+
+      return connection;
+    } finally {
+      CosmosContext.FETCHING_CONNECTION = false;
+    }
+  }
+
+  async getIbcDestinationChannel(chain: ChainId | ChainName): Promise<string> {
+    const { destChannel } = await this.getConnection(chain);
     return destChannel;
   }
 
   async getIbcSourceChannel(chain: ChainId | ChainName): Promise<string> {
+    const { srcChannel } = await this.getConnection(chain);
+    return srcChannel;
+  }
+
+  private async queryIbcSourceChannel(
+    chain: ChainId | ChainName,
+  ): Promise<string> {
     const id = this.context.toChainId(chain);
     if (!isGatewayChain(id))
       throw new Error(`Chain ${chain} is not a gateway chain`);
@@ -498,29 +536,32 @@ export class CosmosContext<
 
     const name = this.context.toChainName(chain);
     if (CosmosContext.CLIENT_MAP[name]) {
-      return CosmosContext.CLIENT_MAP[name];
+      return CosmosContext.CLIENT_MAP[name]!;
     }
 
     const rpc = this.context.conf.rpcs[name];
     if (!rpc) throw new Error(`${chain} RPC not configured`);
 
-    CosmosContext.FETCHING_TM_CLIENT = true;
+    try {
+      CosmosContext.FETCHING_TM_CLIENT = true;
 
-    // from cosmjs: https://github.com/cosmos/cosmjs/blob/358260bff71c9d3e7ad6644fcf64dc00325cdfb9/packages/stargate/src/stargateclient.ts#L218
-    let tmClient: TendermintClient;
-    const tm37Client = await Tendermint37Client.connect(rpc);
-    const version = (await tm37Client.status()).nodeInfo.version;
-    if (version.startsWith('0.37.')) {
-      tmClient = tm37Client;
-    } else {
-      tm37Client.disconnect();
-      tmClient = await Tendermint34Client.connect(rpc);
+      // from cosmjs: https://github.com/cosmos/cosmjs/blob/358260bff71c9d3e7ad6644fcf64dc00325cdfb9/packages/stargate/src/stargateclient.ts#L218
+      let tmClient: TendermintClient;
+      const tm37Client = await Tendermint37Client.connect(rpc);
+      const version = (await tm37Client.status()).nodeInfo.version;
+      if (version.startsWith('0.37.')) {
+        tmClient = tm37Client;
+      } else {
+        tm37Client.disconnect();
+        tmClient = await Tendermint34Client.connect(rpc);
+      }
+
+      CosmosContext.CLIENT_MAP[name] = tmClient;
+
+      return tmClient;
+    } finally {
+      CosmosContext.FETCHING_TM_CLIENT = false;
     }
-
-    CosmosContext.CLIENT_MAP[name] = tmClient;
-    CosmosContext.FETCHING_TM_CLIENT = false;
-
-    return tmClient;
   }
 
   private async getCosmWasmClient(
