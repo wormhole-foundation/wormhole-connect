@@ -30,6 +30,7 @@ import {
   NightlyWalletAdapter,
   WalletConnectWalletAdapter,
 } from '@solana/wallet-adapter-wallets';
+import { WalletAdapterNetwork as SolanaNetwork } from '@solana/wallet-adapter-base';
 import {
   clusterApiUrl,
   Connection as SolanaConnection,
@@ -46,7 +47,7 @@ import {
   PontemWalletAdapter,
   RiseWalletAdapter,
   SpikaWalletAdapter,
-  WalletAdapterNetwork,
+  WalletAdapterNetwork as AptosNetwork,
 } from '@manahippo/aptos-wallet-adapter';
 import { TransactionBlock } from '@mysten/sui.js';
 import {
@@ -140,7 +141,7 @@ export const wallets = {
       ? {
           walletConnect: new SolanaWallet(
             new WalletConnectWalletAdapter({
-              network: isMainnet ? 'mainnet-beta' : 'devnet',
+              network: isMainnet ? SolanaNetwork.Mainnet : SolanaNetwork.Devnet,
               options: {
                 projectId: WALLET_CONNECT_PROJECT_ID,
               },
@@ -160,9 +161,7 @@ export const wallets = {
     spika: new AptosWallet(new SpikaWalletAdapter()),
     snap: new AptosWallet(
       new AptosSnapAdapter({
-        network: isMainnet
-          ? WalletAdapterNetwork.Mainnet
-          : WalletAdapterNetwork.Testnet,
+        network: isMainnet ? AptosNetwork.Mainnet : AptosNetwork.Testnet,
       }),
     ),
     bitkeep: new AptosWallet(new BitkeepWalletAdapter()),
