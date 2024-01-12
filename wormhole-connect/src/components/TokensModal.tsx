@@ -26,7 +26,7 @@ import {
   setBalances,
 } from 'store/transferInput';
 import { makeStyles } from 'tss-react/mui';
-import { displayAddress } from 'utils';
+import { displayAddress, getGasToken, getWrappedToken } from 'utils';
 import { isGatewayChain } from 'utils/cosmos';
 import { wh } from 'utils/sdk';
 import { CENTER, NO_INPUT } from 'utils/style';
@@ -179,6 +179,9 @@ function DisplayTokens(props: DisplayTokensProps) {
     return false;
   };
 
+  const gasToken = getGasToken(chain);
+  const wrappedGasToken = getWrappedToken(gasToken);
+
   return (
     <Scroll
       height="calc(100vh - 375px)"
@@ -189,9 +192,17 @@ function DisplayTokens(props: DisplayTokensProps) {
           <>
             {tokens
               // native tokens first
-              .sort((a, b) =>
-                a.nativeChain === chain ? -1 : b.nativeChain === chain ? 1 : 0,
-              )
+              .sort((a, b) => {
+                if (a.key === gasToken.key) return -1; // Sort gasToken first
+                if (b.key === gasToken.key) return 1; // Sort gasToken first
+                if (a.key === wrappedGasToken.key) return -1; // Sort wrappedGasToken second
+                if (b.key === wrappedGasToken.key) return 1; // Sort wrappedGasToken second
+                if (a.nativeChain === chain && b.nativeChain !== chain)
+                  return -1; // Sort nativeChain tokens third
+                if (b.nativeChain === chain && a.nativeChain !== chain)
+                  return 1; // Sort nativeChain tokens third
+                return 0; // Sort the rest
+              })
               .map((token, i) => (
                 <div
                   className={classes.tokenRow}
