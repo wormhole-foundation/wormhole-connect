@@ -26,7 +26,7 @@ import {
   setBalances,
 } from 'store/transferInput';
 import { makeStyles } from 'tss-react/mui';
-import { displayAddress, getDisplayName } from 'utils';
+import { displayAddress } from 'utils';
 import { isGatewayChain } from 'utils/cosmos';
 import { wh } from 'utils/sdk';
 import { CENTER, NO_INPUT } from 'utils/style';
@@ -136,6 +136,9 @@ const useStyles = makeStyles()((theme: any) => ({
   moreTokensLabel: {
     marginRight: '16px',
   },
+  noWrap: {
+    whiteSpace: 'nowrap',
+  },
 }));
 
 const displayNativeChain = (token: TokenConfig): string => {
@@ -184,45 +187,57 @@ function DisplayTokens(props: DisplayTokensProps) {
       <div className={classes.tokensContainer}>
         {tokens.length > 0 ? (
           <>
-            {tokens.map((token, i) => (
-              <div
-                className={classes.tokenRow}
-                key={i}
-                onClick={() => selectToken(token.key)}
-              >
-                <div className={classes.tokenRowLeft}>
-                  <TokenIcon name={token.icon} height={32} />
-                  <div>
-                    <div>{getDisplayName(token)}</div>
-                    <div className={classes.nativeChain}>
-                      {displayNativeChain(token)}
+            {tokens
+              // native tokens first
+              .sort((a, b) =>
+                a.nativeChain === chain ? -1 : b.nativeChain === chain ? 1 : 0,
+              )
+              .map((token, i) => (
+                <div
+                  className={classes.tokenRow}
+                  key={i}
+                  onClick={() => selectToken(token.key)}
+                >
+                  <div className={classes.tokenRowLeft}>
+                    <TokenIcon name={token.icon} height={32} />
+                    <div>
+                      <div>{token.symbol}</div>
+                      <div className={classes.nativeChain}>
+                        {displayNativeChain(token)}
+                      </div>
+                    </div>
+                  </div>
+                  <div className={classes.tokenRowRight}>
+                    <div className={classes.tokenRowBalanceText}>Balance</div>
+                    <div className={classes.tokenRowBalance}>
+                      {balances && balances[token.key] && walletAddress ? (
+                        <div>{balances[token.key]}</div>
+                      ) : showCircularProgress(token.key) ? (
+                        <CircularProgress size={14} />
+                      ) : (
+                        <div>{NO_INPUT}</div>
+                      )}
+                    </div>
+                  </div>
+                  <div className={classes.tokenRowAddressContainer}>
+                    <div className={classes.tokenRowAddress}>
+                      <div className={classes.noWrap}>
+                        {token.nativeChain === chain
+                          ? 'Native'
+                          : 'Wormhole Wrapped'}
+                      </div>
+                      {token.tokenId && (
+                        <div>
+                          {displayAddress(
+                            token.tokenId.chain,
+                            token.tokenId.address,
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
-                <div className={classes.tokenRowRight}>
-                  <div className={classes.tokenRowBalanceText}>Balance</div>
-                  <div className={classes.tokenRowBalance}>
-                    {balances && balances[token.key] && walletAddress ? (
-                      <div>{balances[token.key]}</div>
-                    ) : showCircularProgress(token.key) ? (
-                      <CircularProgress size={14} />
-                    ) : (
-                      <div>{NO_INPUT}</div>
-                    )}
-                  </div>
-                </div>
-                <div className={classes.tokenRowAddressContainer}>
-                  <div className={classes.tokenRowAddress}>
-                    {token.tokenId
-                      ? displayAddress(
-                          token.tokenId.chain,
-                          token.tokenId.address,
-                        )
-                      : 'Native'}
-                  </div>
-                </div>
-              </div>
-            ))}
+              ))}
             {MORE_TOKENS ? (
               <>
                 <div>
