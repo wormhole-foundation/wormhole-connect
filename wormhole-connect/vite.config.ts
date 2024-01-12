@@ -32,6 +32,7 @@ export default defineConfig({
         entryFileNames: '[name].js',
         assetFileNames: '[name]-[hash][extname]',
       },
+      external: ['@particle-network/solana-wallet', '@particle-network/auth'],
     },
   },
   plugins: [
