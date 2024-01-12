@@ -22,16 +22,13 @@ import {
 } from '@xlabs-libs/wallet-aggregator-cosmos';
 import { getWallets as getCosmosEvmWallets } from '@xlabs-libs/wallet-aggregator-cosmos-evm';
 import {
+  BitgetWalletAdapter,
   CloverWalletAdapter,
   Coin98WalletAdapter,
-  SlopeWalletAdapter,
   SolongWalletAdapter,
   TorusWalletAdapter,
-  ExodusWalletAdapter,
-  BackpackWalletAdapter,
   NightlyWalletAdapter,
-  BloctoWalletAdapter,
-  BraveWalletAdapter,
+  WalletConnectWalletAdapter,
 } from '@solana/wallet-adapter-wallets';
 import {
   clusterApiUrl,
@@ -133,16 +130,25 @@ export const wallets = {
       acc[w.getName().toLowerCase()] = w;
       return acc;
     }, {} as Record<string, Wallet>),
+    bitget: new SolanaWallet(new BitgetWalletAdapter(), connection),
     clover: new SolanaWallet(new CloverWalletAdapter(), connection),
     coin98: new SolanaWallet(new Coin98WalletAdapter(), connection),
-    slope: new SolanaWallet(new SlopeWalletAdapter(), connection),
     solong: new SolanaWallet(new SolongWalletAdapter(), connection),
     torus: new SolanaWallet(new TorusWalletAdapter(), connection),
-    exodus: new SolanaWallet(new ExodusWalletAdapter(), connection),
-    backpack: new SolanaWallet(new BackpackWalletAdapter(), connection),
     nightly: new SolanaWallet(new NightlyWalletAdapter(), connection),
-    blocto: new SolanaWallet(new BloctoWalletAdapter(), connection),
-    brave: new SolanaWallet(new BraveWalletAdapter(), connection),
+    ...(WALLET_CONNECT_PROJECT_ID
+      ? {
+          walletConnect: new SolanaWallet(
+            new WalletConnectWalletAdapter({
+              network: isMainnet ? 'mainnet-beta' : 'devnet',
+              options: {
+                projectId: WALLET_CONNECT_PROJECT_ID,
+              },
+            }),
+            connection,
+          ),
+        }
+      : {}),
   },
   aptos: {
     aptos: new AptosWallet(new AptosWalletAdapter()),
