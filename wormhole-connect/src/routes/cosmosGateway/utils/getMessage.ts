@@ -58,7 +58,7 @@ export async function getUnsignedMessageFromCosmos(
   if (!sender) throw new Error('Missing sender in transaction logs');
 
   // get the information of the ibc transfer started by the source chain
-  const ibcPacketInfo = getTransactionIBCTransferInfo(tx, 'send_packet');
+  const ibcPacketInfo = getTransactionIBCTransferInfo(tx, 'acknowledge_packet');
 
   // extract the IBC transfer data payload from the packet
   const data: IBCTransferData = JSON.parse(ibcPacketInfo.data);
@@ -204,7 +204,7 @@ export async function getMessageFromWormchain(
   if (!sender) throw new Error('Missing sender in transaction logs');
 
   // Extract IBC transfer info initiated on the source chain
-  const ibcInfo = getTransactionIBCTransferInfo(tx, 'send_packet');
+  const ibcInfo = getTransactionIBCTransferInfo(tx, 'acknowledge_packet');
 
   // Look for the matching IBC receive on wormchain
   // The IBC hooks middleware will execute the translator contract

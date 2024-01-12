@@ -9,7 +9,7 @@ import { IBCTransferInfo } from '../types';
 
 export function getTransactionIBCTransferInfo(
   tx: IndexedTx,
-  event: 'send_packet' | 'recv_packet',
+  event: 'send_packet' | 'recv_packet' | 'acknowledge_packet',
 ): IBCTransferInfo {
   const logs = cosmosLogs.parseRawLog(tx.rawLog);
   return getIBCTransferInfoFromLogs(logs, event);
@@ -17,7 +17,7 @@ export function getTransactionIBCTransferInfo(
 
 export function getIBCTransferInfoFromLogs(
   logs: readonly cosmosLogs.Log[],
-  event: 'send_packet' | 'recv_packet',
+  event: 'send_packet' | 'recv_packet' | 'acknowledge_packet',
 ): IBCTransferInfo {
   const packetSeq = searchCosmosLogs(`${event}.packet_sequence`, logs);
   const packetTimeout = searchCosmosLogs(
@@ -32,7 +32,17 @@ export function getIBCTransferInfoFromLogs(
     `${event}.packet_dst_channel`,
     logs,
   );
-  const packetData = searchCosmosLogs(`${event}.packet_data`, logs);
+  const packetDenom = searchCosmosLogs(`denom`, logs);
+  const packetMemo = searchCosmosLogs(`memo`, logs);
+  const packetAmount = searchCosmosLogs(`amount`, logs);
+  const packetSender = searchCosmosLogs(`sender`, logs);
+
+  const packetData = JSON.stringify({
+    denom: packetDenom,
+    memo: packetMemo,
+    amount: packetAmount,
+    sender: packetSender,
+  });
   if (
     !packetSeq ||
     !packetTimeout ||
