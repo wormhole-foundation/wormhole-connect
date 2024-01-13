@@ -179,18 +179,22 @@ function DisplayTokens(props: DisplayTokensProps) {
     return false;
   };
 
+  const sortedTokens = useMemo(() => {
+    return sortTokens(tokens, chain);
+  }, [tokens, chain]);
+
   return (
     <Scroll
       height="calc(100vh - 375px)"
       blendColor={theme.palette.modal.background}
     >
       <div className={classes.tokensContainer}>
-        {tokens.length > 0 ? (
+        {sortedTokens.length > 0 ? (
           <>
-            {sortTokens(tokens, chain).map((token, i) => (
+            {sortedTokens.map((token) => (
               <div
                 className={classes.tokenRow}
-                key={i}
+                key={token.key}
                 onClick={() => selectToken(token.key)}
               >
                 <div className={classes.tokenRowLeft}>
