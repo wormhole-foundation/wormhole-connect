@@ -109,8 +109,8 @@ export class HashflowRoute extends RouteAbstract {
   getMinSendAmount(routeOptions: any): number {
     return 0;
   }
-  getMaxSendAmount(): number | undefined {
-    return undefined;
+  getMaxSendAmount(): number {
+    return Infinity;
   }
   send(
     token: TokenId | 'native',

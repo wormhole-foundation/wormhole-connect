@@ -26,7 +26,7 @@ import {
   setBalances,
 } from 'store/transferInput';
 import { makeStyles } from 'tss-react/mui';
-import { displayAddress, getGasToken, getWrappedToken } from 'utils';
+import { displayAddress, sortTokens } from 'utils';
 import { isGatewayChain } from 'utils/cosmos';
 import { wh } from 'utils/sdk';
 import { CENTER, NO_INPUT } from 'utils/style';
@@ -179,9 +179,6 @@ function DisplayTokens(props: DisplayTokensProps) {
     return false;
   };
 
-  const gasToken = getGasToken(chain);
-  const wrappedGasToken = getWrappedToken(gasToken);
-
   return (
     <Scroll
       height="calc(100vh - 375px)"
@@ -190,65 +187,52 @@ function DisplayTokens(props: DisplayTokensProps) {
       <div className={classes.tokensContainer}>
         {tokens.length > 0 ? (
           <>
-            {tokens
-              // native tokens first
-              .sort((a, b) => {
-                if (a.key === gasToken.key) return -1; // Sort gasToken first
-                if (b.key === gasToken.key) return 1; // Sort gasToken first
-                if (a.key === wrappedGasToken.key) return -1; // Sort wrappedGasToken second
-                if (b.key === wrappedGasToken.key) return 1; // Sort wrappedGasToken second
-                if (a.nativeChain === chain && b.nativeChain !== chain)
-                  return -1; // Sort nativeChain tokens third
-                if (b.nativeChain === chain && a.nativeChain !== chain)
-                  return 1; // Sort nativeChain tokens third
-                return 0; // Sort the rest
-              })
-              .map((token, i) => (
-                <div
-                  className={classes.tokenRow}
-                  key={i}
-                  onClick={() => selectToken(token.key)}
-                >
-                  <div className={classes.tokenRowLeft}>
-                    <TokenIcon name={token.icon} height={32} />
-                    <div>
-                      <div>{token.symbol}</div>
-                      <div className={classes.nativeChain}>
-                        {displayNativeChain(token)}
-                      </div>
-                    </div>
-                  </div>
-                  <div className={classes.tokenRowRight}>
-                    <div className={classes.tokenRowBalanceText}>Balance</div>
-                    <div className={classes.tokenRowBalance}>
-                      {balances && balances[token.key] && walletAddress ? (
-                        <div>{balances[token.key]}</div>
-                      ) : showCircularProgress(token.key) ? (
-                        <CircularProgress size={14} />
-                      ) : (
-                        <div>{NO_INPUT}</div>
-                      )}
-                    </div>
-                  </div>
-                  <div className={classes.tokenRowAddressContainer}>
-                    <div className={classes.tokenRowAddress}>
-                      <div className={classes.noWrap}>
-                        {token.nativeChain === chain
-                          ? 'Native'
-                          : 'Wormhole Wrapped'}
-                      </div>
-                      {token.tokenId && (
-                        <div>
-                          {displayAddress(
-                            token.tokenId.chain,
-                            token.tokenId.address,
-                          )}
-                        </div>
-                      )}
+            {sortTokens(tokens, chain).map((token, i) => (
+              <div
+                className={classes.tokenRow}
+                key={i}
+                onClick={() => selectToken(token.key)}
+              >
+                <div className={classes.tokenRowLeft}>
+                  <TokenIcon name={token.icon} height={32} />
+                  <div>
+                    <div>{token.symbol}</div>
+                    <div className={classes.nativeChain}>
+                      {displayNativeChain(token)}
                     </div>
                   </div>
                 </div>
-              ))}
+                <div className={classes.tokenRowRight}>
+                  <div className={classes.tokenRowBalanceText}>Balance</div>
+                  <div className={classes.tokenRowBalance}>
+                    {balances && balances[token.key] && walletAddress ? (
+                      <div>{balances[token.key]}</div>
+                    ) : showCircularProgress(token.key) ? (
+                      <CircularProgress size={14} />
+                    ) : (
+                      <div>{NO_INPUT}</div>
+                    )}
+                  </div>
+                </div>
+                <div className={classes.tokenRowAddressContainer}>
+                  <div className={classes.tokenRowAddress}>
+                    <div className={classes.noWrap}>
+                      {token.nativeChain === chain
+                        ? 'Native'
+                        : 'Wormhole Wrapped'}
+                    </div>
+                    {token.tokenId && (
+                      <div>
+                        {displayAddress(
+                          token.tokenId.chain,
+                          token.tokenId.address,
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
             {MORE_TOKENS ? (
               <>
                 <div>

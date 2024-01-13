@@ -98,7 +98,7 @@ export const validateDestToken = (
 export const validateAmount = (
   amount: string,
   balance: string | null,
-  maxAmount: number | undefined,
+  maxAmount: number,
 ): ValidationErr => {
   if (amount === '') return '';
   const numAmount = Number.parseFloat(amount);
@@ -108,8 +108,8 @@ export const validateAmount = (
     const b = Number.parseFloat(balance);
     if (numAmount > b) return 'Amount cannot exceed balance';
   }
-  if (maxAmount !== undefined && numAmount > maxAmount) {
-    return `At the moment max amount cannot exceed ${maxAmount}`;
+  if (numAmount > maxAmount) {
+    return `At the moment amount cannot exceed ${maxAmount}`;
   }
   return '';
 };
@@ -219,8 +219,8 @@ export const getMinAmt = (
   return r.getMinSendAmount(routeOptions);
 };
 
-export const getMaxAmt = (route: Route | undefined): number | undefined => {
-  if (!route) return undefined;
+export const getMaxAmt = (route: Route | undefined): number => {
+  if (!route) return Infinity;
   const r = RouteOperator.getRoute(route);
   return r.getMaxSendAmount();
 };

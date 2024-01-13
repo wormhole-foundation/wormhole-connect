@@ -367,7 +367,7 @@ export abstract class PorticoBridge extends BaseRoute {
     return 0;
   }
 
-  getMaxSendAmount(): number | undefined {
+  getMaxSendAmount(): number {
     return this.maxAmount;
   }
 
