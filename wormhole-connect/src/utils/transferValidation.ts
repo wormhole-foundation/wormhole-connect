@@ -98,6 +98,7 @@ export const validateDestToken = (
 export const validateAmount = (
   amount: string,
   balance: string | null,
+  maxAmount: number,
 ): ValidationErr => {
   if (amount === '') return '';
   const numAmount = Number.parseFloat(amount);
@@ -106,6 +107,9 @@ export const validateAmount = (
   if (balance) {
     const b = Number.parseFloat(balance);
     if (numAmount > b) return 'Amount cannot exceed balance';
+  }
+  if (numAmount > maxAmount) {
+    return `At the moment amount cannot exceed ${maxAmount}`;
   }
   return '';
 };
@@ -215,6 +219,12 @@ export const getMinAmt = (
   return r.getMinSendAmount(routeOptions);
 };
 
+export const getMaxAmt = (route: Route | undefined): number => {
+  if (!route) return Infinity;
+  const r = RouteOperator.getRoute(route);
+  return r.getMaxSendAmount();
+};
+
 export const getIsAutomatic = (route: Route | undefined): boolean => {
   if (!route) return false;
   const r = RouteOperator.getRoute(route);
@@ -249,6 +259,7 @@ export const validateAll = async (
     fromChain,
     token,
   );
+  const maxSendAmount = getMaxAmt(route);
   const availableRoutes = routeStates
     ?.filter((rs) => rs.supported)
     .map((val) => val.name);
@@ -259,7 +270,7 @@ export const validateAll = async (
     toChain: validateToChain(toChain, fromChain),
     token: validateToken(token, fromChain),
     destToken: validateDestToken(destToken, toChain, supportedDestTokens),
-    amount: validateAmount(amount, sendingTokenBalance),
+    amount: validateAmount(amount, sendingTokenBalance, maxSendAmount),
     route: validateRoute(route, availableRoutes),
     toNativeToken: '',
     foreignAsset: validateForeignAsset(foreignAsset),

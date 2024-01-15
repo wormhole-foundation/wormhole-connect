@@ -86,6 +86,8 @@ export interface WormholeConnectConfig {
   moreNetworks?: MoreChainConfig;
   partnerLogo?: string;
   walletConnectProjectId?: string;
+  ethBridgeMaxAmount?: number;
+  wstETHBridgeMaxAmount?: number;
 }
 
 export type ExplorerConfig = {

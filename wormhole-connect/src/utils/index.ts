@@ -267,3 +267,21 @@ export function hydrateHrefTemplate(
 export function isEqualCaseInsensitive(a: string, b: string) {
   return a.toLowerCase() === b.toLowerCase();
 }
+
+export const sortTokens = (
+  tokens: TokenConfig[],
+  chain: ChainName | ChainId,
+) => {
+  const gasToken = getGasToken(chain);
+  const wrappedGasToken = getWrappedToken(gasToken);
+  return [...tokens].sort((a, b) => {
+    // native tokens first
+    if (a.key === gasToken.key) return -1; // Sort gasToken first
+    if (b.key === gasToken.key) return 1; // Sort gasToken first
+    if (a.key === wrappedGasToken.key) return -1; // Sort wrappedGasToken second
+    if (b.key === wrappedGasToken.key) return 1; // Sort wrappedGasToken second
+    if (a.nativeChain === chain && b.nativeChain !== chain) return -1; // Sort nativeChain tokens third
+    if (b.nativeChain === chain && a.nativeChain !== chain) return 1; // Sort nativeChain tokens third
+    return 0; // Sort the rest
+  });
+};

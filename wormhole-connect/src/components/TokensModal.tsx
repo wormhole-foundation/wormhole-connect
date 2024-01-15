@@ -26,7 +26,7 @@ import {
   setBalances,
 } from 'store/transferInput';
 import { makeStyles } from 'tss-react/mui';
-import { displayAddress, getDisplayName } from 'utils';
+import { displayAddress, sortTokens } from 'utils';
 import { isGatewayChain } from 'utils/cosmos';
 import { wh } from 'utils/sdk';
 import { CENTER, NO_INPUT } from 'utils/style';
@@ -136,6 +136,9 @@ const useStyles = makeStyles()((theme: any) => ({
   moreTokensLabel: {
     marginRight: '16px',
   },
+  noWrap: {
+    whiteSpace: 'nowrap',
+  },
 }));
 
 const displayNativeChain = (token: TokenConfig): string => {
@@ -176,24 +179,28 @@ function DisplayTokens(props: DisplayTokensProps) {
     return false;
   };
 
+  const sortedTokens = useMemo(() => {
+    return sortTokens(tokens, chain);
+  }, [tokens, chain]);
+
   return (
     <Scroll
       height="calc(100vh - 375px)"
       blendColor={theme.palette.modal.background}
     >
       <div className={classes.tokensContainer}>
-        {tokens.length > 0 ? (
+        {sortedTokens.length > 0 ? (
           <>
-            {tokens.map((token, i) => (
+            {sortedTokens.map((token) => (
               <div
                 className={classes.tokenRow}
-                key={i}
+                key={token.key}
                 onClick={() => selectToken(token.key)}
               >
                 <div className={classes.tokenRowLeft}>
                   <TokenIcon name={token.icon} height={32} />
                   <div>
-                    <div>{getDisplayName(token)}</div>
+                    <div>{token.symbol}</div>
                     <div className={classes.nativeChain}>
                       {displayNativeChain(token)}
                     </div>
@@ -213,12 +220,19 @@ function DisplayTokens(props: DisplayTokensProps) {
                 </div>
                 <div className={classes.tokenRowAddressContainer}>
                   <div className={classes.tokenRowAddress}>
-                    {token.tokenId
-                      ? displayAddress(
+                    <div className={classes.noWrap}>
+                      {token.nativeChain === chain
+                        ? 'Native'
+                        : 'Wormhole Wrapped'}
+                    </div>
+                    {token.tokenId && (
+                      <div>
+                        {displayAddress(
                           token.tokenId.chain,
                           token.tokenId.address,
-                        )
-                      : 'Native'}
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
