@@ -1013,6 +1013,23 @@ export const MAINNET_TOKENS: TokensConfig = {
       },
     },
   },
+  WETHavax: {
+    key: 'WETHavax',
+    symbol: 'WETH',
+    displayName: 'WETH (Avalanche)',
+    nativeChain: 'avalanche',
+    icon: Icon.ETH,
+    tokenId: {
+      chain: 'avalanche',
+      address: '0x49d5c2bdffac6ce2bfdb6640f4f80f226bc10bab',
+    },
+    coinGeckoId: 'ethereum',
+    color: '#62688F',
+    decimals: {
+      Ethereum: 18,
+      default: 8,
+    },
+  },
   FTM: {
     key: 'FTM',
     symbol: 'FTM',

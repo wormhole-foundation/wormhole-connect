@@ -26,7 +26,10 @@ import { TransferWallet, switchChain, watchAsset } from 'utils/wallet';
 import TokenIcon from 'icons/TokenIcons';
 import ExplorerLink from './ExplorerLink';
 import { isGatewayChain } from 'utils/cosmos';
-import { isPorticoTransferDestInfo } from 'routes/porticoBridge/utils';
+import {
+  isPorticoRoute,
+  isPorticoTransferDestInfo,
+} from 'routes/porticoBridge/utils';
 
 const useStyles = makeStyles()((theme) => ({
   addToken: {
@@ -169,7 +172,10 @@ function AddToWallet() {
   useEffect(() => {
     const fetchTokenInfo = async () => {
       if (isGatewayChain(txData.toChain)) return;
-      const receivedTokenKey = isPorticoTransferDestInfo(transferDestInfo)
+      const isPorticoTransfer = isPorticoTransferDestInfo(transferDestInfo);
+      // we need the transfer dest info to get the received token key for portico
+      if (route && isPorticoRoute(route) && !isPorticoTransfer) return;
+      const receivedTokenKey = isPorticoTransfer
         ? transferDestInfo.destTxInfo.receivedTokenKey
         : txData.receivedTokenKey;
       const tokenInfo = TOKENS[receivedTokenKey];

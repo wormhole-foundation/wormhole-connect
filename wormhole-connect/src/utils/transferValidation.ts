@@ -109,7 +109,7 @@ export const validateAmount = (
     if (numAmount > b) return 'Amount cannot exceed balance';
   }
   if (numAmount > maxAmount) {
-    return `At the moment amount cannot exceed ${maxAmount}`;
+    return `At the moment, amount cannot exceed ${maxAmount}`;
   }
   return '';
 };

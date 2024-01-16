@@ -122,6 +122,8 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
         wormholeCircleRelayer: '0x4cb69FaE7e7Af841e44E1A1c30Af640739378bb2',
         wormholeCCTP: '0x09Fb06A271faFf70A651047395AaEb6265265F13',
       },
+      portico: '0xE565E118e75304dD3cF83dff409c90034b7EA18a',
+      uniswapQuoterV2: '0xbe0F5544EC67e9B3b2D979aaA43f18Fd87E6257F',
     },
     finalityThreshold: 1,
     nativeTokenDecimals: 18,

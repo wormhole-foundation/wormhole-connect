@@ -35,7 +35,7 @@ const PorticoSwapFailed = ({
   const { toChain } = txData;
   const displayName = getDisplayName(TOKENS[receivedTokenKey]);
   const toChainName = getChainConfig(toChain).displayName;
-  const message = `The swap reverted on ${toChainName} and you received Wormhole-wrapped ${displayName} instead. You can retry the swap here:`;
+  const message = `The swap reverted on ${toChainName} and you received Wormhole Wrapped ${displayName} instead. You can retry the swap here:`;
   const swapUrl = `${OKU_TRADE_BASE_URL}/${toChain}/swap/${canonicalTokenAddress}/${finalTokenAddress}`;
   return (
     <div className={classes.root}>
