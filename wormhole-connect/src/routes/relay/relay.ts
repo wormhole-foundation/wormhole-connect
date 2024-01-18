@@ -138,11 +138,15 @@ export class RelayRoute extends BridgeRoute implements RelayAbstract {
   async isSupportedDestToken(
     token: TokenConfig | undefined,
     sourceToken: TokenConfig | undefined,
+    sourceChain?: ChainName | ChainId,
+    destChain?: ChainName | ChainId,
   ): Promise<boolean> {
     if (!token) return false;
     const isSupportedBridgeToken = await super.isSupportedDestToken(
       token,
       sourceToken,
+      sourceChain,
+      destChain,
     );
     if (!isSupportedBridgeToken) return false;
     const tokenId = getWrappedTokenId(token);

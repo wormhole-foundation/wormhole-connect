@@ -18,7 +18,7 @@ import {
   isSignedWormholeMessage,
   TransferDestInfo,
 } from 'routes/types';
-import { formatGasFee } from 'routes/utils';
+import { formatGasFee, isIlliquidDestToken } from 'routes/utils';
 import { toDecimals } from 'utils/balance';
 import { NO_INPUT } from 'utils/style';
 import { hexlify } from 'ethers/lib/utils.js';
@@ -46,9 +46,12 @@ export abstract class BaseRoute extends RouteAbstract {
   async isSupportedDestToken(
     token: TokenConfig | undefined,
     sourceToken: TokenConfig | undefined,
+    sourceChain?: ChainName | ChainId,
+    destChain?: ChainName | ChainId,
   ): Promise<boolean> {
     if (!token) return false;
     if (!token.tokenId) return false;
+    if (destChain && isIlliquidDestToken(token, destChain)) return false;
     if (sourceToken) {
       const wrapped = getWrappedToken(sourceToken);
       return wrapped.key === token.key;
