@@ -12,7 +12,7 @@ import { ContractReceipt } from 'ethers';
 import { NotSupported, Wallet } from '@xlabs-libs/wallet-aggregator-core';
 import {
   EVMWallet,
-  MetamaskWallet,
+  InjectedWallet,
   WalletConnectWallet,
 } from '@xlabs-libs/wallet-aggregator-evm';
 import {
@@ -22,19 +22,15 @@ import {
 } from '@xlabs-libs/wallet-aggregator-cosmos';
 import { getWallets as getCosmosEvmWallets } from '@xlabs-libs/wallet-aggregator-cosmos-evm';
 import {
-  PhantomWalletAdapter,
-  SolflareWalletAdapter,
+  BitgetWalletAdapter,
   CloverWalletAdapter,
   Coin98WalletAdapter,
-  SlopeWalletAdapter,
   SolongWalletAdapter,
   TorusWalletAdapter,
-  ExodusWalletAdapter,
-  BackpackWalletAdapter,
   NightlyWalletAdapter,
-  BloctoWalletAdapter,
-  BraveWalletAdapter,
+  WalletConnectWalletAdapter,
 } from '@solana/wallet-adapter-wallets';
+import { WalletAdapterNetwork as SolanaNetwork } from '@solana/wallet-adapter-base';
 import {
   clusterApiUrl,
   Connection as SolanaConnection,
@@ -51,10 +47,13 @@ import {
   PontemWalletAdapter,
   RiseWalletAdapter,
   SpikaWalletAdapter,
-  WalletAdapterNetwork,
+  WalletAdapterNetwork as AptosNetwork,
 } from '@manahippo/aptos-wallet-adapter';
 import { TransactionBlock } from '@mysten/sui.js';
-import { SolanaWallet } from '@xlabs-libs/wallet-aggregator-solana';
+import {
+  SolanaWallet,
+  getSolanaStandardWallets,
+} from '@xlabs-libs/wallet-aggregator-solana';
 import { SeiTransaction, SeiWallet } from '@xlabs-libs/wallet-aggregator-sei';
 import { AptosWallet } from '@xlabs-libs/wallet-aggregator-aptos';
 import { Types } from 'aptos';
@@ -116,7 +115,7 @@ const buildCosmosWallets = (evm?: boolean) => {
 
 export const wallets = {
   evm: {
-    metamask: new MetamaskWallet(),
+    injected: new InjectedWallet(),
     ...(WALLET_CONNECT_PROJECT_ID
       ? {
           walletConnect: new WalletConnectWallet({
@@ -128,18 +127,29 @@ export const wallets = {
       : {}),
   },
   solana: {
-    phantom: new SolanaWallet(new PhantomWalletAdapter(), connection),
-    solflare: new SolanaWallet(new SolflareWalletAdapter(), connection),
+    ...getSolanaStandardWallets(connection).reduce((acc, w) => {
+      acc[w.getName().toLowerCase()] = w;
+      return acc;
+    }, {} as Record<string, Wallet>),
+    bitget: new SolanaWallet(new BitgetWalletAdapter(), connection),
     clover: new SolanaWallet(new CloverWalletAdapter(), connection),
     coin98: new SolanaWallet(new Coin98WalletAdapter(), connection),
-    slope: new SolanaWallet(new SlopeWalletAdapter(), connection),
     solong: new SolanaWallet(new SolongWalletAdapter(), connection),
     torus: new SolanaWallet(new TorusWalletAdapter(), connection),
-    exodus: new SolanaWallet(new ExodusWalletAdapter(), connection),
-    backpack: new SolanaWallet(new BackpackWalletAdapter(), connection),
     nightly: new SolanaWallet(new NightlyWalletAdapter(), connection),
-    blocto: new SolanaWallet(new BloctoWalletAdapter(), connection),
-    brave: new SolanaWallet(new BraveWalletAdapter(), connection),
+    ...(WALLET_CONNECT_PROJECT_ID
+      ? {
+          walletConnect: new SolanaWallet(
+            new WalletConnectWalletAdapter({
+              network: isMainnet ? SolanaNetwork.Mainnet : SolanaNetwork.Devnet,
+              options: {
+                projectId: WALLET_CONNECT_PROJECT_ID,
+              },
+            }),
+            connection,
+          ),
+        }
+      : {}),
   },
   aptos: {
     aptos: new AptosWallet(new AptosWalletAdapter()),
@@ -151,9 +161,7 @@ export const wallets = {
     spika: new AptosWallet(new SpikaWalletAdapter()),
     snap: new AptosWallet(
       new AptosSnapAdapter({
-        network: isMainnet
-          ? WalletAdapterNetwork.Mainnet
-          : WalletAdapterNetwork.Testnet,
+        network: isMainnet ? AptosNetwork.Mainnet : AptosNetwork.Testnet,
       }),
     ),
     bitkeep: new AptosWallet(new BitkeepWalletAdapter()),
