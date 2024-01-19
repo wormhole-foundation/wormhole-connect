@@ -7,11 +7,14 @@ import { RootState } from 'store';
 import { RouteState, setRoutes, setTransferRoute } from 'store/transferInput';
 import { LINK, joinClass } from 'utils/style';
 import { toFixedDecimals } from 'utils/balance';
+import { millisToMinutesAndSeconds } from 'utils/transferValidation';
 import RouteOperator from 'routes/operator';
 import { getDisplayName } from 'utils';
 import { TOKENS, ROUTES } from 'config';
 import { Route } from 'config/types';
 import { RoutesConfig, RouteData } from 'config/routes';
+import { wh } from 'utils/sdk';
+import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 
 import BridgeCollapse, { CollapseControlStyle } from './Collapse';
 import TokenIcon from 'icons/TokenIcons';
@@ -19,6 +22,11 @@ import ArrowRightIcon from 'icons/ArrowRight';
 import Options from 'components/Options';
 import { isGatewayChain } from 'utils/cosmos';
 import { isPorticoRoute } from 'routes/porticoBridge/utils';
+import {
+  blockTime,
+  finalityThreshold,
+} from '@wormhole-foundation/sdk-base/dist/esm/constants/finality';
+import { chainIdToChain } from '@wormhole-foundation/sdk-base';
 
 const useStyles = makeStyles()((theme: any) => ({
   link: {
@@ -170,6 +178,21 @@ function Tag(props: TagProps) {
   );
 }
 
+const getEstimatedTime = (chain?: ChainName) => {
+  if (!chain) return undefined;
+  const chainName = chainIdToChain(wh.toChainId(chain));
+  const chainFinality = finalityThreshold.get(chainName);
+  if (!!chainFinality) {
+    console.log(
+      'blockTime(chainName) * chainFinality',
+      blockTime(chainName) * chainFinality,
+    );
+    return millisToMinutesAndSeconds(blockTime(chainName) * chainFinality);
+  }
+
+  return millisToMinutesAndSeconds(blockTime(chainName));
+};
+
 function RouteOption(props: { route: RouteData; disabled: boolean }) {
   const { classes } = useStyles();
   const theme = useTheme();
@@ -183,7 +206,9 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
   );
   const portico = useSelector((state: RootState) => state.porticoBridge);
   const [receiveAmt, setReceiveAmt] = useState<number | undefined>(undefined);
-
+  const [estimatedTime, setEstimatedTime] = useState<string | undefined>(
+    undefined,
+  );
   useEffect(() => {
     let cancelled = false;
     async function load() {
@@ -202,10 +227,12 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
         );
         if (!cancelled) {
           setReceiveAmt(Number.parseFloat(toFixedDecimals(`${receiveAmt}`, 6)));
+          setEstimatedTime(getEstimatedTime(toChain));
         }
       } catch {
         if (!cancelled) {
           setReceiveAmt(0);
+          setEstimatedTime(getEstimatedTime(toChain));
         }
       }
     }
@@ -313,6 +340,7 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
                   {receiveAmt} {getDisplayName(TOKENS[destToken])}
                 </div>
                 <div className={classes.routeAmt}>after fees</div>
+                <div>{estimatedTime}</div>
               </>
             )}
           </div>
