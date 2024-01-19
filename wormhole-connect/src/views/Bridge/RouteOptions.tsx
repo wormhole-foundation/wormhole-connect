@@ -22,11 +22,7 @@ import ArrowRightIcon from 'icons/ArrowRight';
 import Options from 'components/Options';
 import { isGatewayChain } from 'utils/cosmos';
 import { isPorticoRoute } from 'routes/porticoBridge/utils';
-import {
-  blockTime,
-  finalityThreshold,
-} from '@wormhole-foundation/sdk-base/dist/esm/constants/finality';
-import { chainIdToChain } from '@wormhole-foundation/sdk-base';
+import { finality, chainIdToChain } from '@wormhole-foundation/sdk-base';
 
 const useStyles = makeStyles()((theme: any) => ({
   link: {
@@ -181,16 +177,11 @@ function Tag(props: TagProps) {
 const getEstimatedTime = (chain?: ChainName) => {
   if (!chain) return undefined;
   const chainName = chainIdToChain(wh.toChainId(chain));
-  const chainFinality = finalityThreshold.get(chainName);
-  if (!!chainFinality) {
-    console.log(
-      'blockTime(chainName) * chainFinality',
-      blockTime(chainName) * chainFinality,
-    );
-    return millisToMinutesAndSeconds(blockTime(chainName) * chainFinality);
-  }
-
-  return millisToMinutesAndSeconds(blockTime(chainName));
+  const chainFinality = finality.finalityThreshold.get(chainName);
+  if (!chainFinality) return undefined;
+  return millisToMinutesAndSeconds(
+    finality.blockTime(chainName) * chainFinality,
+  );
 };
 
 function RouteOption(props: { route: RouteData; disabled: boolean }) {
