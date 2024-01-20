@@ -24,6 +24,7 @@ import { wh, toChainId } from 'utils/sdk';
 import { joinClass } from 'utils/style';
 import { toDecimals } from 'utils/balance';
 import { isTransferValid, useValidate } from 'utils/transferValidation';
+import useConfirmBeforeLeaving from 'utils/confirmBeforeLeaving';
 import RouteOperator from 'routes/operator';
 
 import GasSlider from './NativeGasSlider';
@@ -104,6 +105,9 @@ function Bridge() {
   );
   const portico = useSelector((state: RootState) => state.porticoBridge);
   const { receiving } = useSelector((state: RootState) => state.wallet);
+
+  // Warn user before closing tab if transaction has begun
+  useConfirmBeforeLeaving(isTransactionInProgress);
 
   // check destination native balance
   useEffect(() => {

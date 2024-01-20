@@ -21,6 +21,8 @@ import Stepper from './Stepper';
 import GovernorEnqueuedWarning from './GovernorEnqueuedWarning';
 import { showHamburgerMenu } from 'config';
 
+import useConfirmBeforeLeaving from 'utils/confirmBeforeLeaving';
+
 function Redeem({
   setSignedMessage,
   setIsVaaEnqueued,
@@ -40,6 +42,9 @@ function Redeem({
   route: Route | undefined;
   signedMessage: SignedMessage | undefined;
 }) {
+  // Warn user before closing tab if transaction is unredeemed
+  useConfirmBeforeLeaving(!transferComplete);
+
   // check if VAA is enqueued
   useEffect(() => {
     if (
