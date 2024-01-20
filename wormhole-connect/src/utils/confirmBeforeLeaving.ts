@@ -1,12 +1,12 @@
 import { useEffect } from 'react';
 
-const useConfirmBeforeLeaving = (shouldConfirm: boolean) => {
-  let unloadHandler = (e: Event) => {
-    e = e ?? window.event;
-    if (e) e.returnValue = true;
-    return true;
-  };
+const unloadHandler = (e: Event) => {
+  e = e ?? window.event;
+  if (e) e.returnValue = true;
+  return true;
+};
 
+const useConfirmBeforeLeaving = (shouldConfirm: boolean) => {
   useEffect(() => {
     let cancel = () => {
       window.removeEventListener('beforeunload', unloadHandler);
