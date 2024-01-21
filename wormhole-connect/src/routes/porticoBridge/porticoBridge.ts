@@ -80,8 +80,8 @@ export abstract class PorticoBridge extends BaseRoute {
   }
 
   async isSupportedSourceToken(
-    token: TokenConfig | undefined,
-    destToken: TokenConfig | undefined,
+    token?: TokenConfig,
+    destToken?: TokenConfig,
     sourceChain?: ChainName | ChainId,
     destChain?: ChainName | ChainId,
   ): Promise<boolean> {
@@ -99,8 +99,8 @@ export abstract class PorticoBridge extends BaseRoute {
   }
 
   async isSupportedDestToken(
-    token: TokenConfig | undefined,
-    sourceToken: TokenConfig | undefined,
+    token?: TokenConfig,
+    sourceToken?: TokenConfig,
     sourceChain?: ChainName | ChainId,
     destChain?: ChainName | ChainId,
   ): Promise<boolean> {

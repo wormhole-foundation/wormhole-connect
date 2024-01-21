@@ -254,8 +254,8 @@ export class Operator {
 
   async isSupportedSourceToken(
     route: Route,
-    token: TokenConfig | undefined,
-    destToken: TokenConfig | undefined,
+    token?: TokenConfig,
+    destToken?: TokenConfig,
     sourceChain?: ChainName | ChainId,
     destChain?: ChainName | ChainId,
   ): Promise<boolean> {
@@ -274,8 +274,8 @@ export class Operator {
 
   async isSupportedDestToken(
     route: Route,
-    token: TokenConfig | undefined,
-    sourceToken: TokenConfig | undefined,
+    token?: TokenConfig,
+    sourceToken?: TokenConfig,
     sourceChain?: ChainName | ChainId,
     destChain?: ChainName | ChainId,
   ): Promise<boolean> {

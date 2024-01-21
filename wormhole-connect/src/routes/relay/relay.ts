@@ -120,8 +120,8 @@ export class RelayRoute extends BridgeRoute implements RelayAbstract {
   }
 
   async isSupportedSourceToken(
-    token: TokenConfig | undefined,
-    destToken: TokenConfig | undefined,
+    token?: TokenConfig,
+    destToken?: TokenConfig,
     sourceChain?: ChainName | ChainId,
   ): Promise<boolean> {
     if (!token) return false;
@@ -136,8 +136,8 @@ export class RelayRoute extends BridgeRoute implements RelayAbstract {
   }
 
   async isSupportedDestToken(
-    token: TokenConfig | undefined,
-    sourceToken: TokenConfig | undefined,
+    token?: TokenConfig,
+    sourceToken?: TokenConfig,
     sourceChain?: ChainName | ChainId,
     destChain?: ChainName | ChainId,
   ): Promise<boolean> {
