@@ -178,10 +178,10 @@ const getEstimatedTime = (chain?: ChainName) => {
   if (!chain) return undefined;
   const chainName = chainIdToChain(wh.toChainId(chain));
   const chainFinality = finality.finalityThreshold.get(chainName);
-  if (!chainFinality) return undefined;
-  return millisToMinutesAndSeconds(
-    finality.blockTime(chainName) * chainFinality,
-  );
+  if (typeof chainFinality === 'undefined') return undefined;
+  return chainFinality === 0
+    ? 'Instantly'
+    : millisToMinutesAndSeconds(finality.blockTime(chainName) * chainFinality);
 };
 
 function RouteOption(props: { route: RouteData; disabled: boolean }) {
@@ -218,12 +218,12 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
         );
         if (!cancelled) {
           setReceiveAmt(Number.parseFloat(toFixedDecimals(`${receiveAmt}`, 6)));
-          setEstimatedTime(getEstimatedTime(toChain));
+          setEstimatedTime(getEstimatedTime(fromChain));
         }
       } catch {
         if (!cancelled) {
           setReceiveAmt(0);
-          setEstimatedTime(getEstimatedTime(toChain));
+          setEstimatedTime(getEstimatedTime(fromChain));
         }
       }
     }
@@ -331,7 +331,11 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
                   {receiveAmt} {getDisplayName(TOKENS[destToken])}
                 </div>
                 <div className={classes.routeAmt}>after fees</div>
-                <div>{estimatedTime}</div>
+                {typeof estimatedTime !== 'undefined' && (
+                  <div className={classes.routeAmt}>
+                    Estimated time: {estimatedTime}
+                  </div>
+                )}
               </>
             )}
           </div>
