@@ -36,6 +36,8 @@ import { TokenNotSupportedForRelayError } from '../../errors';
 export const NO_VAA_FOUND = 'No message publish found in logs';
 export const INSUFFICIENT_ALLOWANCE = 'Insufficient token allowance';
 
+const ADDR_BYTE_LEN = 20;
+
 export class EthContext<
   T extends WormholeContext,
 > extends RelayerAbstract<ethers.ContractReceipt> {
@@ -857,7 +859,8 @@ export class EthContext<
   }
 
   parseAddress(address: ethers.utils.BytesLike): string {
-    const parsed = utils.hexlify(utils.stripZeros(address));
+    const trimmed = utils.zeroPad(utils.stripZeros(address), ADDR_BYTE_LEN);
+    const parsed = utils.hexlify(trimmed);
     return utils.getAddress(parsed);
   }
 
