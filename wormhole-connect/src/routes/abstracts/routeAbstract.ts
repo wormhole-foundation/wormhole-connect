@@ -43,14 +43,14 @@ export abstract class RouteAbstract {
   public abstract isSupportedChain(chain: ChainName): boolean;
 
   public abstract isSupportedSourceToken(
-    token: TokenConfig | undefined,
-    destToken: TokenConfig | undefined,
+    token?: TokenConfig,
+    destToken?: TokenConfig,
     sourceChain?: ChainName | ChainId,
     destChain?: ChainName | ChainId,
   ): Promise<boolean>;
   public abstract isSupportedDestToken(
-    token: TokenConfig | undefined,
-    sourceToken: TokenConfig | undefined,
+    token?: TokenConfig,
+    sourceToken?: TokenConfig,
     sourceChain?: ChainName | ChainId,
     destChain?: ChainName | ChainId,
   ): Promise<boolean>;
