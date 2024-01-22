@@ -8,6 +8,7 @@ import CloseIcon from 'icons/Close';
 import Button from 'components/Button';
 import ClockIcon from 'icons/Clock';
 import { makeStyles } from 'tss-react/mui';
+import { GOVERNOR_WHITEPAPER_URL } from 'consts';
 
 const useStyles = makeStyles()((theme: any) => ({
   dialog: {
@@ -99,9 +100,6 @@ const useStyles = makeStyles()((theme: any) => ({
   },
 }));
 
-const learnMoreLink =
-  'https://github.com/wormhole-foundation/wormhole/blob/main/whitepapers/0007_governor.md';
-
 interface TransferLimitedWarningProps {
   fromChain: ChainName | undefined;
   token: string;
@@ -157,7 +155,7 @@ const TransferLimitedWarning = (props: TransferLimitedWarningProps) => {
           network.
           <br />
           <br />
-          <a href={learnMoreLink} target="_blank" rel="noreferrer">
+          <a href={GOVERNOR_WHITEPAPER_URL} target="_blank" rel="noreferrer">
             Learn more
           </a>{' '}
           about this temporary security measure.
@@ -183,7 +181,7 @@ const TransferLimitedWarning = (props: TransferLimitedWarningProps) => {
           24 hour security delay.
           <br />
           <br />
-          <a href={learnMoreLink} target="_blank" rel="noreferrer">
+          <a href={GOVERNOR_WHITEPAPER_URL} target="_blank" rel="noreferrer">
             Learn more
           </a>{' '}
           about this temporary measure.
