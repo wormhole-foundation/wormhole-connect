@@ -22,6 +22,7 @@ import { formatGasFee, isIlliquidDestToken } from 'routes/utils';
 import { toDecimals } from 'utils/balance';
 import { NO_INPUT } from 'utils/style';
 import { hexlify } from 'ethers/lib/utils.js';
+import { isTBTCToken } from 'routes/tbtc/utils';
 
 export abstract class BaseRoute extends RouteAbstract {
   async isSupportedSourceToken(
@@ -41,6 +42,9 @@ export abstract class BaseRoute extends RouteAbstract {
     if (!token.tokenId && token.nativeChain !== chainName) {
       return false;
     }
+    if (isTBTCToken(token) && token.nativeChain !== chainName) {
+      return false;
+    }
     return true;
   }
 
@@ -53,6 +57,7 @@ export abstract class BaseRoute extends RouteAbstract {
     if (!token) return false;
     if (!token.tokenId) return false;
     if (destChain && isIlliquidDestToken(token, destChain)) return false;
+    if (isTBTCToken(token)) return false;
     if (sourceToken) {
       const wrapped = getWrappedToken(sourceToken);
       return wrapped.key === token.key;
