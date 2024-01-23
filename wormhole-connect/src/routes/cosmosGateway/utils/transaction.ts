@@ -9,7 +9,7 @@ import { IBCTransferInfo } from '../types';
 
 export function getTransactionIBCTransferInfo(
   tx: IndexedTx,
-  event: 'send_packet' | 'recv_packet',
+  event: 'send_packet' | 'write_acknowledgement',
 ): IBCTransferInfo {
   const logs = cosmosLogs.parseRawLog(tx.rawLog);
   return getIBCTransferInfoFromLogs(logs, event);
@@ -17,7 +17,7 @@ export function getTransactionIBCTransferInfo(
 
 export function getIBCTransferInfoFromLogs(
   logs: readonly cosmosLogs.Log[],
-  event: 'send_packet' | 'recv_packet',
+  event: 'send_packet' | 'write_acknowledgement',
 ): IBCTransferInfo {
   const packetSeq = searchCosmosLogs(`${event}.packet_sequence`, logs);
   const packetTimeout = searchCosmosLogs(
@@ -57,10 +57,19 @@ export async function findDestinationIBCTransferTx(
 ): Promise<IndexedTx | undefined> {
   const wormchainClient = await getCosmWasmClient(destChain);
   const destTx = await wormchainClient.searchTx([
-    { key: 'recv_packet.packet_sequence', value: ibcInfo.sequence },
-    { key: 'recv_packet.packet_timeout_timestamp', value: ibcInfo.timeout },
-    { key: 'recv_packet.packet_src_channel', value: ibcInfo.srcChannel },
-    { key: 'recv_packet.packet_dst_channel', value: ibcInfo.dstChannel },
+    { key: 'write_acknowledgement.packet_sequence', value: ibcInfo.sequence },
+    {
+      key: 'write_acknowledgement.packet_timeout_timestamp',
+      value: ibcInfo.timeout,
+    },
+    {
+      key: 'write_acknowledgement.packet_src_channel',
+      value: ibcInfo.srcChannel,
+    },
+    {
+      key: 'write_acknowledgement.packet_dst_channel',
+      value: ibcInfo.dstChannel,
+    },
   ]);
   if (destTx.length === 0) {
     return undefined;

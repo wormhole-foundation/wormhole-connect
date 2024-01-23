@@ -321,11 +321,14 @@ function getIbcTransferLog(
   for (const log of logs) {
     for (const ev of log.events) {
       // find an ibc received packet event
-      if (ev.type !== 'recv_packet') continue;
+      if (ev.type !== 'write_acknowledgement') continue;
 
       // check that this packet is the one that matches the source ibc transfer
       // if not, skip this msg log entirely and proceed to the next one
-      const logIbcInfo = getIBCTransferInfoFromLogs([log], 'recv_packet');
+      const logIbcInfo = getIBCTransferInfoFromLogs(
+        [log],
+        'write_acknowledgement',
+      );
 
       if (
         logIbcInfo.sequence !== ibcTransfer.sequence ||
