@@ -25,6 +25,7 @@
     "husky": "^8.0.3",
     "lint-staged": "^13.2.3",
     "prettier": "^2.8.2",
+    "typescript": "^5.3.3",
     "webpack-bundle-analyzer": "^4.9.1"
   },
   "lint-staged": {
