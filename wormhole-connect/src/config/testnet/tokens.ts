@@ -2077,5 +2077,19 @@ export const TESTNET_TOKENS: TokensConfig = {
       Ethereum: 18,
       default: 8,
     },
+    foreignAssets: {
+      mumbai: {
+        address: '0x5fa6e64A58cb0ff4314443fC70259dAC1004EE7b',
+        decimals: 18,
+      },
+      goerli: {
+        address: '0x88788247bB97D4Ed74024f12dAB680f12Fd3125e',
+        decimals: 18,
+      },
+      bsc: {
+        address: '0xc9A68C1a4487a04D6a48310cE2233cae360CA455',
+        decimals: 18,
+      },
+    },
   },
 };
