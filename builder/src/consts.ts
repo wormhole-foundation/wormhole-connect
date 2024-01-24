@@ -80,11 +80,11 @@ export const NETWORKS: Network[] = [
     testnet: "osmosis",
     mainnet: "osmosis",
   },
-  {
+  /*{
     name: "Klaytn",
     testnet: "klaytn",
     mainnet: "klaytn",
-  },
+  },*/
 ];
 
 // TODO: move the connect config to a shared sdk
