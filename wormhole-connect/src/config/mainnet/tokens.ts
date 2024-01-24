@@ -2629,60 +2629,6 @@ export const MAINNET_TOKENS: TokensConfig = {
       Ethereum: 18,
       default: 8,
     },
-    foreignAssets: {
-      fantom: {
-        address: '',
-        decimals: 18,
-      },
-      celo: {
-        address: '',
-        decimals: 18,
-      },
-      solana: {
-        address: '',
-        decimals: 8,
-      },
-      sui: {
-        address: '',
-        decimals: 8,
-      },
-      aptos: {
-        address: '',
-        decimals: 8,
-      },
-      arbitrum: {
-        address: '',
-        decimals: 18,
-      },
-      avalanche: {
-        address: '',
-        decimals: 18,
-      },
-      bsc: {
-        address: '',
-        decimals: 18,
-      },
-      ethereum: {
-        address: '',
-        decimals: 18,
-      },
-      polygon: {
-        address: '',
-        decimals: 18,
-      },
-      base: {
-        address: '',
-        decimals: 18,
-      },
-      wormchain: {
-        address: '',
-        decimals: 8,
-      },
-      moonbeam: {
-        address: '',
-        decimals: 18,
-      },
-    },
   },
   PYTH: {
     key: 'PYTH',

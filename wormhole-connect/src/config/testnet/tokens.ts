@@ -2077,39 +2077,5 @@ export const TESTNET_TOKENS: TokensConfig = {
       Ethereum: 18,
       default: 8,
     },
-    foreignAssets: {
-      mumbai: {
-        address: '',
-        decimals: 18,
-      },
-      fuji: {
-        address: '',
-        decimals: 18,
-      },
-      alfajores: {
-        address: '',
-        decimals: 18,
-      },
-      basegoerli: {
-        address: '',
-        decimals: 18,
-      },
-      arbitrumgoerli: {
-        address: '',
-        decimals: 18,
-      },
-      wormchain: {
-        address: '',
-        decimals: 8,
-      },
-      cosmoshub: {
-        address: '',
-        decimals: 8,
-      },
-      osmosis: {
-        address: '',
-        decimals: 8,
-      },
-    },
   },
 };
