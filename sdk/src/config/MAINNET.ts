@@ -11,6 +11,7 @@ export const MAINNET_CHAINS = {
   polygon: 5,
   avalanche: 6,
   fantom: 10,
+  klaytn: 13,
   celo: 14,
   moonbeam: 16,
   sui: 21,
@@ -247,6 +248,17 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     nativeTokenDecimals: 18,
     cctpDomain: 6,
   },
+  klaytn: {
+    key: 'klaytn',
+    id: 13,
+    context: Context.ETH,
+    contracts: {
+      ...CONTRACTS.MAINNET.klaytn,
+      relayer: '0x27428DD2d3DD32A4D7f7C497eAaa23130d894911',
+    },
+    finalityThreshold: 0,
+    nativeTokenDecimals: 18,
+  },
   sei: {
     key: 'sei',
     id: 32,
@@ -332,6 +344,7 @@ const MAINNET_CONFIG: WormholeConfig = {
     cosmoshub: 'https://cosmos-rpc.polkachu.com',
     evmos: 'https://evmos-rpc.polkachu.com',
     kujira: 'https://kujira-rpc.polkachu.com',
+    klaytn: 'https://rpc.ankr.com/klaytn',
   },
   rest: {
     sei: '',

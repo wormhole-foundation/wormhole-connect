@@ -11,6 +11,7 @@ export const TESTNET_CHAINS = {
   mumbai: 5,
   fuji: 6,
   fantom: 10,
+  klaytn: 13,
   alfajores: 14,
   moonbasealpha: 16,
   sui: 21,
@@ -234,6 +235,16 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     nativeTokenDecimals: 18,
     cctpDomain: 6,
   },
+  klaytn: {
+    key: 'klaytn',
+    id: 13,
+    context: Context.ETH,
+    contracts: {
+      ...CONTRACTS.TESTNET.klaytn,
+    },
+    finalityThreshold: 0,
+    nativeTokenDecimals: 18,
+  },
   sei: {
     key: 'sei',
     id: 32,
@@ -323,6 +334,7 @@ const TESTNET_CONFIG: WormholeConfig = {
     cosmoshub: 'https://rpc.sentry-02.theta-testnet.polypore.xyz',
     evmos: 'https://evmos-testnet-rpc.polkachu.com',
     kujira: 'https://kujira-testnet-rpc.polkachu.com',
+    klaytn: 'https://rpc.ankr.com/klaytn_testnet',
   },
   rest: {
     sei: 'https://rest.atlantic-2.seinetwork.io',

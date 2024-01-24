@@ -2601,6 +2601,89 @@ export const MAINNET_TOKENS: TokensConfig = {
       default: 6,
     },
   },
+  KLAY: {
+    key: 'KLAY',
+    symbol: 'KLAY',
+    decimals: {
+      default: 18,
+    },
+    nativeChain: 'klaytn',
+    icon: Icon.KLAY,
+    coinGeckoId: 'klay-token',
+    color: '#ed4e33',
+    wrappedAsset: 'WKLAY',
+  },
+  WKLAY: {
+    key: 'WKLAY',
+    symbol: 'WKLAY',
+    displayName: 'Wrapped Klay',
+    nativeChain: 'klaytn',
+    icon: Icon.ETH,
+    tokenId: {
+      chain: 'klaytn',
+      address: '0xe4f05a66ec68b54a58b17c22107b02e0232cc817',
+    },
+    coinGeckoId: 'wrapped-klay',
+    color: '',
+    decimals: {
+      Ethereum: 18,
+      default: 8,
+    },
+    foreignAssets: {
+      fantom: {
+        address: '',
+        decimals: 18,
+      },
+      celo: {
+        address: '',
+        decimals: 18,
+      },
+      solana: {
+        address: '',
+        decimals: 8,
+      },
+      sui: {
+        address: '',
+        decimals: 8,
+      },
+      aptos: {
+        address: '',
+        decimals: 8,
+      },
+      arbitrum: {
+        address: '',
+        decimals: 18,
+      },
+      avalanche: {
+        address: '',
+        decimals: 18,
+      },
+      bsc: {
+        address: '',
+        decimals: 18,
+      },
+      ethereum: {
+        address: '',
+        decimals: 18,
+      },
+      polygon: {
+        address: '',
+        decimals: 18,
+      },
+      base: {
+        address: '',
+        decimals: 18,
+      },
+      wormchain: {
+        address: '',
+        decimals: 8,
+      },
+      moonbeam: {
+        address: '',
+        decimals: 18,
+      },
+    },
+  },
   PYTH: {
     key: 'PYTH',
     symbol: 'PYTH',

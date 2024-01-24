@@ -2049,4 +2049,67 @@ export const TESTNET_TOKENS: TokensConfig = {
       default: 6,
     },
   },
+  KLAY: {
+    key: 'KLAY',
+    symbol: 'KLAY',
+    decimals: {
+      default: 18,
+    },
+    nativeChain: 'klaytn',
+    icon: Icon.KLAY,
+    coinGeckoId: 'klay-token',
+    color: '#ed4e33',
+    wrappedAsset: 'WKLAY',
+  },
+  WKLAY: {
+    key: 'WKLAY',
+    symbol: 'WKLAY',
+    displayName: 'Wrapped Klay',
+    nativeChain: 'klaytn',
+    icon: Icon.KLAY,
+    tokenId: {
+      chain: 'klaytn',
+      address: '0x762ac6e8183db5a8e912a66fcc1a09f5a7ac96a9',
+    },
+    coinGeckoId: 'wrapped-klay',
+    color: '',
+    decimals: {
+      Ethereum: 18,
+      default: 8,
+    },
+    foreignAssets: {
+      mumbai: {
+        address: '',
+        decimals: 18,
+      },
+      fuji: {
+        address: '',
+        decimals: 18,
+      },
+      alfajores: {
+        address: '',
+        decimals: 18,
+      },
+      basegoerli: {
+        address: '',
+        decimals: 18,
+      },
+      arbitrumgoerli: {
+        address: '',
+        decimals: 18,
+      },
+      wormchain: {
+        address: '',
+        decimals: 8,
+      },
+      cosmoshub: {
+        address: '',
+        decimals: 8,
+      },
+      osmosis: {
+        address: '',
+        decimals: 8,
+      },
+    },
+  },
 };

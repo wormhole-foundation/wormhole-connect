@@ -272,6 +272,13 @@ export const MAINNET_GAS_ESTIMATES: GasEstimates = {
       claim: 450000,
     },
   },
+  klaytn: {
+    [Route.Bridge]: {
+      sendNative: 100000,
+      sendToken: 150000,
+      claim: 300000,
+    },
+  },
   evmos: {
     [Route.Bridge]: {
       sendNative: 0,
