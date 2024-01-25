@@ -2053,7 +2053,8 @@ export const TESTNET_TOKENS: TokensConfig = {
     key: 'KLAY',
     symbol: 'KLAY',
     decimals: {
-      default: 18,
+      Ethereum: 18,
+      default: 8,
     },
     nativeChain: 'klaytn',
     icon: Icon.KLAY,
@@ -2072,14 +2073,14 @@ export const TESTNET_TOKENS: TokensConfig = {
       address: '0x762ac6e8183db5a8e912a66fcc1a09f5a7ac96a9',
     },
     coinGeckoId: 'wrapped-klay',
-    color: '',
+    color: '#ed4e33',
     decimals: {
       Ethereum: 18,
       default: 8,
     },
     foreignAssets: {
       mumbai: {
-        address: '0x5fa6e64A58cb0ff4314443fC70259dAC1004EE7b',
+        address: '0x7b34f3711705eB2963fB856cda063C979de4749e',
         decimals: 18,
       },
       goerli: {

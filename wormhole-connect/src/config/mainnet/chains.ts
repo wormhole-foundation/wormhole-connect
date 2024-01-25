@@ -173,7 +173,7 @@ export const MAINNET_CHAINS: ChainsConfig = {
     explorerUrl: 'https://klaytnscope.com',
     explorerName: 'Klaytn Scope',
     gasToken: 'KLAY',
-    chainId: 10,
+    chainId: 8217,
     icon: Icon.KLAY,
     maxBlockSearch: 2000,
   },

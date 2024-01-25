@@ -2605,7 +2605,8 @@ export const MAINNET_TOKENS: TokensConfig = {
     key: 'KLAY',
     symbol: 'KLAY',
     decimals: {
-      default: 18,
+      Ethereum: 18,
+      default: 8,
     },
     nativeChain: 'klaytn',
     icon: Icon.KLAY,

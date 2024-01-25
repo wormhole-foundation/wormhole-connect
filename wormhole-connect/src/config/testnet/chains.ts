@@ -130,7 +130,7 @@ export const TESTNET_CHAINS: ChainsConfig = {
     explorerUrl: 'https://klaytnscope.com',
     explorerName: 'Klaytn Scope',
     gasToken: 'KLAY',
-    chainId: 10,
+    chainId: 1001,
     icon: Icon.KLAY,
     maxBlockSearch: 2000,
   },
