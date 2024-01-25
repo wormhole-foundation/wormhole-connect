@@ -127,7 +127,7 @@ export const TESTNET_CHAINS: ChainsConfig = {
   klaytn: {
     ...chains.klaytn!,
     displayName: 'Klaytn',
-    explorerUrl: 'https://klaytnscope.com',
+    explorerUrl: 'https://baobab.klaytnscope.com/',
     explorerName: 'Klaytn Scope',
     gasToken: 'KLAY',
     chainId: 1001,

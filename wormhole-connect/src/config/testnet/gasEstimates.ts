@@ -164,9 +164,9 @@ export const TESTNET_GAS_ESTIMATES: GasEstimates = {
   },
   klaytn: {
     [Route.Bridge]: {
-      sendNative: 100000,
-      sendToken: 150000,
-      claim: 300000,
+      sendNative: 50,
+      sendToken: 50,
+      claim: 50,
     },
   },
   wormchain: {
