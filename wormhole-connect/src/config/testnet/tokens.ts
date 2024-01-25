@@ -2070,7 +2070,7 @@ export const TESTNET_TOKENS: TokensConfig = {
     icon: Icon.KLAY,
     tokenId: {
       chain: 'klaytn',
-      address: '0x762ac6e8183db5a8e912a66fcc1a09f5a7ac96a9',
+      address: '0x0339d5Eb6D195Ba90B13ed1BCeAa97EbD198b106',
     },
     coinGeckoId: 'wrapped-klay',
     color: '#ed4e33',

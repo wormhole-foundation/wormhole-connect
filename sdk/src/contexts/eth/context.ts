@@ -309,15 +309,6 @@ export class EthContext<
     const amountBN = ethers.BigNumber.from(amount);
     const bridge = this.contracts.mustGetBridge(sendingChain);
 
-    const signer = this.context.getSigner(sendingChain);
-    const completeOverrides =
-      this.context.toChainName(sendingChain) === 'klaytn'
-        ? {
-            ...overrides,
-            gasPrice: await signer?.getGasPrice(),
-          }
-        : { ...overrides };
-
     if (token === NATIVE) {
       // sending native ETH
       await bridge.callStatic.wrapAndTransferETH(
@@ -326,7 +317,7 @@ export class EthContext<
         relayerFee,
         createNonce(),
         {
-          ...completeOverrides,
+          ...overrides,
           value: amountBN,
           from: senderAddress,
         },
@@ -337,7 +328,7 @@ export class EthContext<
         relayerFee,
         createNonce(),
         {
-          ...completeOverrides,
+          ...overrides,
           value: amountBN,
         },
       );
