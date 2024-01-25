@@ -80,6 +80,7 @@ export const NETWORKS: Network[] = [
     testnet: "osmosis",
     mainnet: "osmosis",
   },
+  // TO DO uncomment Klaytn lines when Klaytn is on npm version of wormhole-connect
   /*{
     name: "Klaytn",
     testnet: "klaytn",
@@ -134,8 +135,8 @@ export const TESTNET_TOKEN_KEYS: string[] = [
   "ATOM",
   "EVMOS",
   "KUJI",
-  "KLAY",
-  "WKLAY",
+  /*"KLAY",
+  "WKLAY",*/
 ].sort();
 
 export const MAINNET_TOKEN_KEYS: string[] = [
@@ -192,8 +193,8 @@ export const MAINNET_TOKEN_KEYS: string[] = [
   "wstETHoptimism",
   "wstETHpolygon",
   "wstETHbase",
-  "KLAY",
-  "WKLAY",
+  /*"KLAY",
+  "WKLAY",*/
 ].sort();
 
 export type RouteInfo = {
@@ -276,7 +277,7 @@ export const DEFAULT_MAINNET_RPCS = {
   cosmoshub: "https://cosmos-rpc.polkachu.com",
   evmos: "https://evmos-rpc.polkachu.com",
   kujira: "https://kujira-rpc.polkachu.com",
-  klaytn: "https://rpc.ankr.com/klaytn",
+  // klaytn: "https://rpc.ankr.com/klaytn",
 };
 
 export const DEFAULT_TESTNET_RPCS = {
@@ -299,5 +300,5 @@ export const DEFAULT_TESTNET_RPCS = {
   cosmoshub: "https://rpc.sentry-02.theta-testnet.polypore.xyz",
   evmos: "https://evmos-testnet-rpc.polkachu.com",
   kujira: "https://kujira-testnet-rpc.polkachu.com",
-  klaytn: "https://rpc.ankr.com/klaytn_testnet",
+  // klaytn: "https://rpc.ankr.com/klaytn_testnet",
 };
