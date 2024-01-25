@@ -21,7 +21,7 @@
     "@reduxjs/toolkit": "^1.9.1",
     "@solana/wallet-adapter-wallets": "^0.19.25",
     "@solana/web3.js": "^1.73.0",
-    "@wormhole-foundation/sdk-base": "^0.3.0-beta.16",
+    "@wormhole-foundation/sdk-base": "^0.3.2",
     "@xlabs-libs/wallet-aggregator-aptos": "^0.0.1-alpha.12",
     "@xlabs-libs/wallet-aggregator-core": "^0.0.1-alpha.18",
     "@xlabs-libs/wallet-aggregator-cosmos": "^0.0.1-alpha.12",
