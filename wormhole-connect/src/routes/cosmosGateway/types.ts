@@ -18,7 +18,7 @@ export interface IBCTransferInfo {
   timeout: string;
   srcChannel: string;
   dstChannel: string;
-  data: string;
+  data: string | null;
 }
 
 export interface IBCTransferData {

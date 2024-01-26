@@ -61,6 +61,7 @@ export async function getUnsignedMessageFromCosmos(
   const ibcPacketInfo = getTransactionIBCTransferInfo(tx, 'send_packet');
 
   // extract the IBC transfer data payload from the packet
+  if (!ibcPacketInfo.data) throw new Error('Missing packet data');
   const data: IBCTransferData = JSON.parse(ibcPacketInfo.data);
   const payload: FromCosmosPayload = JSON.parse(data.memo);
 
