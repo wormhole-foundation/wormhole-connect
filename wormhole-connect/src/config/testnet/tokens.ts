@@ -2084,11 +2084,11 @@ export const TESTNET_TOKENS: TokensConfig = {
         decimals: 18,
       },
       goerli: {
-        address: '0x88788247bB97D4Ed74024f12dAB680f12Fd3125e',
+        address: '0x327e0c7D5cFa65d4f9E358dC9fA4446C49dBcB6C',
         decimals: 18,
       },
       bsc: {
-        address: '0xc9A68C1a4487a04D6a48310cE2233cae360CA455',
+        address: '0x79D34FDb686B5D139949E4F92D83EEe376489176',
         decimals: 18,
       },
     },
