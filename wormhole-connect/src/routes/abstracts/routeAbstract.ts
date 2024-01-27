@@ -12,6 +12,7 @@ import {
   TransferDisplayData,
   TransferInfoBaseParams,
   TransferDestInfo,
+  RelayerFee,
 } from '../types';
 import { ParsedRelayerMessage, ParsedMessage } from 'utils/sdk';
 import { TokenPrices } from 'store/tokenPrices';
@@ -173,7 +174,7 @@ export abstract class RouteAbstract {
     destChain: ChainName | ChainId,
     token: string,
     destToken: string,
-  ): Promise<BigNumber>;
+  ): Promise<RelayerFee | null>;
 
   abstract getForeignAsset(
     token: TokenId,

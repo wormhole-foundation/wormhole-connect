@@ -18,6 +18,7 @@ import AlertBanner from 'components/AlertBanner';
 import RouteOperator from 'routes/operator';
 import { Route } from '../../../config/types';
 import { CCTPManual_CHAINS as CCTP_CHAINS } from 'routes/cctpManual';
+import { isNttRoute } from 'routes';
 
 const useStyles = makeStyles()((theme: any) => ({
   associatedTokenWarning: {
@@ -244,7 +245,13 @@ function TokenWarnings() {
 
     if (!toChain || !token || !receiving.address) return;
     // The tBTC associated token account will be created if it doesn't exist in the redeem tx
-    if (toChain === 'solana' && foreignAsset && route !== Route.TBTC) {
+    // The NTT ATA will be created if it doesn't exist in the redeem tx
+    if (
+      toChain === 'solana' &&
+      foreignAsset &&
+      route !== Route.TBTC &&
+      !isNttRoute(route)
+    ) {
       checkSolanaAssociatedTokenAccount();
     }
     if (usdcAndNoCCTP) {
