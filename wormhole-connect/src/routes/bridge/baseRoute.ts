@@ -47,6 +47,9 @@ export abstract class BaseRoute extends RouteAbstract {
     if (isTBTCToken(token) && token.nativeChain !== chainName) {
       return false;
     }
+    if (token.nttManagerAddress) {
+      return false;
+    }
     return true;
   }
 
@@ -60,6 +63,9 @@ export abstract class BaseRoute extends RouteAbstract {
     if (!token.tokenId) return false;
     if (destChain && isIlliquidDestToken(token, destChain)) return false;
     if (isTBTCToken(token)) return false;
+    if (token.nttManagerAddress) {
+      return false;
+    }
     if (sourceToken) {
       const wrapped = getWrappedToken(sourceToken);
       return wrapped.key === token.key;
@@ -296,5 +302,9 @@ export abstract class BaseRoute extends RouteAbstract {
 
   getMaxSendAmount(): number {
     return Infinity;
+  }
+
+  getMinSendAmount(routeOptions: any): number {
+    return 0;
   }
 }

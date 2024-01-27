@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { BigNumber, BigNumberish, utils } from 'ethers';
+import { BigNumber, BigNumberish, ethers, utils } from 'ethers';
 import { isHexString } from 'ethers/lib/utils.js';
 import { isValidTransactionDigest, SUI_TYPE_ARG } from '@mysten/sui.js';
 import {
@@ -320,4 +320,27 @@ export const calculateUSDPrice = (
     return getUSDFormat(price);
   }
   return '';
+};
+
+export const formatSecondsToHoursAndMinutes = (seconds: number): string => {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+
+  const hoursDisplay = hours > 0 ? `${hours} hour` : '';
+  const minutesDisplay = minutes > 0 ? `${minutes} minute` : '';
+
+  return `${hoursDisplay} ${minutesDisplay}`.trim();
+};
+
+export const tryParseErrorMessage = (
+  iface: ethers.utils.Interface,
+  error: any,
+): string => {
+  const errorData = error?.error?.data?.originalError?.data;
+  if (!errorData) return '';
+  try {
+    return iface.parseError(errorData)?.name || '';
+  } catch {
+    return '';
+  }
 };

@@ -32,6 +32,8 @@ import { getTokenById, isEqualCaseInsensitive } from 'utils';
 import { ETHBridge } from './porticoBridge/ethBridge';
 import { wstETHBridge } from './porticoBridge/wstETHBridge';
 import { TokenPrices } from 'store/tokenPrices';
+import { NTTManual, NTTRelay } from './ntt';
+import { getUnsignedVaaEvm } from 'utils/vaa';
 
 export class Operator {
   getRoute(route: Route): RouteAbstract {
@@ -62,6 +64,12 @@ export class Operator {
       }
       case Route.wstETHBridge: {
         return new wstETHBridge();
+      }
+      case Route.NTTManual: {
+        return new NTTManual();
+      }
+      case Route.NTTRelay: {
+        return new NTTRelay();
       }
       default: {
         throw new Error(`${route} is not a valid route`);
@@ -94,7 +102,19 @@ export class Operator {
           return Route.CCTPRelay;
         else return Route.CCTPManual;
       }
+
+      // Check if is Native Token Transfer Route
+      for (const token of TOKENS_ARR) {
+        if (token.nttManagerAddress === receipt.to) {
+          const { emitterAddress } = await getUnsignedVaaEvm(chain, receipt);
+          return emitterAddress === receipt.to
+            ? Route.NTTManual
+            : Route.NTTRelay;
+        }
+      }
     }
+
+    // TODO: Solana NTT
 
     const message = await getMessage(txHash, chain);
 

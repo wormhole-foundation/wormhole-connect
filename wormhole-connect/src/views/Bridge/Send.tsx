@@ -39,6 +39,11 @@ import { validateSolanaTokenAccount } from '../../utils/transferValidation';
 import { useDebounce } from 'use-debounce';
 import { isPorticoRoute } from 'routes/porticoBridge/utils';
 import { SWAP_ERROR } from 'routes/porticoBridge/consts';
+import {
+  DestContractIsPausedError,
+  NotEnoughCapacityError,
+  RequireContractIsNotPausedError,
+} from 'routes/ntt/errors';
 
 const useStyles = makeStyles()((theme) => ({
   body: {
@@ -159,6 +164,15 @@ function Send(props: { valid: boolean }) {
           ? 'Error due to insufficient token allowance, please try again'
           : e?.message === SWAP_ERROR
           ? SWAP_ERROR
+          : e?.message === NotEnoughCapacityError.MESSAGE
+          ? `This transfer would be rate-limited due to high volume on ${
+              CHAINS[transferInput.fromChain!]?.displayName
+            }, please try again later`
+          : e?.message === RequireContractIsNotPausedError.MESSAGE ||
+            e?.message === DestContractIsPausedError.MESSAGE
+          ? `Transfers of ${
+              TOKENS[transferInput.token].displayName
+            } are currently paused`
           : 'Error with transfer, please try again',
       );
     }

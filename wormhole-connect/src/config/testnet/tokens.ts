@@ -2231,5 +2231,38 @@ export const TESTNET_TOKENS: TokensConfig = {
     decimals: {
       default: 18,
     },
+  TEST_NTTsepolia: {
+    key: 'TEST_NTTsepolia',
+    symbol: 'TEST_NTT',
+    nativeChain: 'sepolia',
+    icon: Icon.ETH, // TODO: change icon
+    tokenId: {
+      chain: 'sepolia',
+      address: '0xa88085E6370a551Cc046fB6B1E3fB9BE23Ac3a21',
+    },
+    coinGeckoId: '',
+    color: '#2774CA',
+    decimals: {
+      Ethereum: 18,
+      default: 8,
+    },
+    nttManagerAddress: '0x79689ce600d3fD3524ec2B4bedcC70131eDA67b6',
+  },
+  TEST_NTTarbitrum_sepolia: {
+    key: 'TEST_NTTarbitrum_sepolia',
+    symbol: 'TEST_NTT',
+    nativeChain: 'arbitrum_sepolia',
+    icon: Icon.ETH, // TODO: change icon
+    tokenId: {
+      chain: 'arbitrum_sepolia',
+      address: '0xa88085E6370a551Cc046fB6B1E3fB9BE23Ac3a21',
+    },
+    coinGeckoId: '',
+    color: '#2774CA',
+    decimals: {
+      Ethereum: 18,
+      default: 8,
+    },
+    nttManagerAddress: '0xE493Cc4F069821404d272B994bB80B1Ba1631914',
   },
 };

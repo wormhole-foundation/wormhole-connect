@@ -47,6 +47,8 @@ import { wstETHBridge } from 'routes/porticoBridge/wstETHBridge';
 import { usePorticoSwapInfo } from 'hooks/usePorticoSwapInfo';
 import { usePorticoRelayerFee } from 'hooks/usePorticoRelayerFee';
 import { useFetchTokenPrices } from 'hooks/useFetchTokenPrices';
+import NTTCapacityWarning from './NTTCapacityWarning';
+import { isNTTRoute } from 'routes/utils';
 
 const useStyles = makeStyles()((_theme) => ({
   spacer: {
@@ -98,6 +100,7 @@ function Bridge() {
     route,
     isTransactionInProgress,
     amount,
+    receiveAmount,
   }: TransferInputState = useSelector(
     (state: RootState) => state.transferInput,
   );
@@ -315,7 +318,22 @@ function Bridge() {
           <Preview collapsed={!showValidationState ? true : !valid} />
 
           <TransferLimitedWarning fromChain={fromChain} token={token} />
-
+          {route && isNTTRoute(route) && toChain && fromChain && (
+            <>
+              <NTTCapacityWarning
+                token={token}
+                amount={amount}
+                chain={fromChain}
+                fromChain={fromChain}
+              />
+              <NTTCapacityWarning
+                token={destToken}
+                amount={receiveAmount.data || '0'}
+                chain={toChain}
+                fromChain={fromChain}
+              />
+            </>
+          )}
           <Send valid={!!valid} />
         </div>
       </Collapse>

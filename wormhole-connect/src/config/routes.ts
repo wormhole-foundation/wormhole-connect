@@ -91,4 +91,20 @@ export const RoutesConfig: {
     icon: WormholeIcon,
     pendingMessage: 'Waiting for Wormhole network consensus . . .',
   },
+  [Route.NTTManual]: {
+    route: Route.NTTManual,
+    name: 'Native Token Transfer',
+    providedBy: 'Wormhole',
+    link: 'https://wormhole.com/',
+    icon: WormholeIcon,
+    pendingMessage: 'Waiting for Wormhole network consensus . . .',
+  },
+  [Route.NTTRelay]: {
+    route: Route.NTTRelay,
+    name: 'Native Token Transfer',
+    providedBy: 'xLabs',
+    link: 'https://xlabs.xyz',
+    icon: XLabsIcon,
+    pendingMessage: 'Waiting for Wormhole network consensus . . .',
+  },
 };

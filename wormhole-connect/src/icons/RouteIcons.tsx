@@ -48,6 +48,12 @@ export const getIcon = (route: Route) => {
     case Route.wstETHBridge: {
       return WormholeIcon;
     }
+    case Route.NTTManual: {
+      return WormholeIcon;
+    }
+    case Route.NTTRelay: {
+      return WormholeIcon;
+    }
     default: {
       return noIcon;
     }

@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { ParsedMessage, ParsedRelayerMessage } from 'utils/sdk';
-import { SignedMessage, TransferDestInfo } from 'routes';
+import { UnsignedNTTMessage, SignedMessage, TransferDestInfo } from 'routes';
 import { Route } from 'config/types';
 
 export enum MessageType {
@@ -8,8 +8,15 @@ export enum MessageType {
   RELAY = 3,
 }
 
+export enum RelayStatus {
+  Redeemed = 'redeemed',
+  Failed = 'failed',
+  Waiting = 'waiting',
+  Active = 'inprogress',
+}
+
 export interface RedeemState {
-  txData: ParsedMessage | ParsedRelayerMessage | undefined;
+  txData: ParsedMessage | ParsedRelayerMessage | UnsignedNTTMessage | undefined;
   signedMessage: SignedMessage | undefined;
   sendTx: string;
   redeemTx: string;
@@ -17,6 +24,7 @@ export interface RedeemState {
   isVaaEnqueued: boolean;
   route: Route | undefined;
   transferDestInfo: TransferDestInfo | undefined;
+  relayStatus: RelayStatus | undefined;
 }
 
 const initialState: RedeemState = {
@@ -28,6 +36,7 @@ const initialState: RedeemState = {
   isVaaEnqueued: false,
   route: undefined,
   transferDestInfo: undefined,
+  relayStatus: undefined,
 };
 
 export const redeemSlice = createSlice({
@@ -36,7 +45,11 @@ export const redeemSlice = createSlice({
   reducers: {
     setTxDetails: (
       state: RedeemState,
-      { payload }: PayloadAction<ParsedMessage | ParsedRelayerMessage>,
+      {
+        payload,
+      }: PayloadAction<
+        ParsedMessage | ParsedRelayerMessage | UnsignedNTTMessage
+      >,
     ) => {
       state.txData = payload;
     },
@@ -79,6 +92,12 @@ export const redeemSlice = createSlice({
     ) => {
       state.signedMessage = payload;
     },
+    setRelayStatus: (
+      state: RedeemState,
+      { payload }: PayloadAction<RelayStatus>,
+    ) => {
+      state.relayStatus = payload;
+    },
   },
 });
 
@@ -92,6 +111,7 @@ export const {
   clearRedeem,
   setRoute,
   setSignedMessage,
+  setRelayStatus,
 } = redeemSlice.actions;
 
 export default redeemSlice.reducer;

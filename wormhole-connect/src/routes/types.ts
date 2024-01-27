@@ -11,17 +11,37 @@ export type ManualCCTPMessage = CCTPMessage & ParsedMessage;
 export type RelayCCTPMessage = CCTPMessage & ParsedRelayerMessage;
 export type UnsignedCCTPMessage = ManualCCTPMessage | RelayCCTPMessage;
 export type TBTCMessage = TokenTransferMessage & { to: string };
+export type UnsignedNTTMessage = ParsedMessage & {
+  sourceManagerAddress: string;
+  destManagerAddress: string;
+  messageDigest: string;
+  relayerFee: string;
+};
 export type UnsignedMessage =
   | TokenTransferMessage
   | RelayTransferMessage
   | UnsignedCCTPMessage
-  | TBTCMessage;
+  | TBTCMessage
+  | UnsignedNTTMessage;
+
+export const isUnsignedNTTMessage = (
+  message: UnsignedMessage,
+): message is UnsignedNTTMessage =>
+  typeof message === 'object' &&
+  'sourceManagerAddress' in message &&
+  'destManagerAddress' in message &&
+  'messageDigest' in message &&
+  'relayerFee' in message;
 
 export type SignedTokenTransferMessage = TokenTransferMessage & { vaa: string }; // hex encoded vaa bytes
 export type SignedRelayTransferMessage = RelayTransferMessage & { vaa: string }; // hex encoded vaa bytes
+export type SignedNTTMessage = UnsignedNTTMessage & {
+  vaa: string;
+}; // hex encoded vaa bytes
 export type SignedWormholeMessage =
   | SignedTokenTransferMessage
-  | SignedRelayTransferMessage;
+  | SignedRelayTransferMessage
+  | SignedNTTMessage;
 export type SignedManualCCTPMessage = ManualCCTPMessage & {
   attestation: string;
 };
@@ -41,14 +61,18 @@ export const isSignedCCTPMessage = (
   typeof message === 'object' &&
   'message' in message &&
   'attestation' in message;
+export const isSignedNTTMessage = (
+  message: SignedMessage,
+): message is SignedNTTMessage =>
+  isSignedWormholeMessage(message) && isUnsignedNTTMessage(message);
 
 export interface TransferInfoBaseParams {
-  txData: ParsedMessage | ParsedRelayerMessage;
+  txData: ParsedMessage | ParsedRelayerMessage | UnsignedNTTMessage;
   tokenPrices: TokenPrices;
 }
 
 export interface TransferDestInfoBaseParams {
-  txData: ParsedMessage | ParsedRelayerMessage;
+  txData: ParsedMessage | ParsedRelayerMessage | UnsignedNTTMessage;
   tokenPrices: TokenPrices;
   receiveTx?: string;
   gasEstimate?: string;

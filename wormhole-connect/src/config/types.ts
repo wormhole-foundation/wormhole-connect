@@ -53,6 +53,8 @@ export enum Route {
   TBTC = 'tbtc',
   ETHBridge = 'ethBridge',
   wstETHBridge = 'wstETHBridge',
+  NTTManual = 'nttManual',
+  NTTRelay = 'nttRelay',
 }
 
 export type SupportedRoutes = keyof typeof Route;
@@ -230,6 +232,7 @@ export type TokenConfig = {
       decimals: number;
     };
   };
+  nttManagerAddress?: string;
 };
 
 export type TokensConfig = { [key: string]: TokenConfig };

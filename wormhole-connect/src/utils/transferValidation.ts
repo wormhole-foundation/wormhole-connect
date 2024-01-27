@@ -311,7 +311,7 @@ export const validateAll = async (
     receiveAmount: '',
   };
 
-  if (isAutomatic) {
+  if (isAutomatic && route !== Route.NTTRelay) {
     return {
       ...baseValidations,
       toNativeToken: validateToNativeAmt(toNativeToken, maxSwapAmt),
