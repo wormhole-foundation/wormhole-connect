@@ -41,6 +41,7 @@ export enum Icon {
   'PYTH',
   'INJ',
   'KLAY',
+  'NTT',
 }
 
 export enum Route {
@@ -53,6 +54,8 @@ export enum Route {
   TBTC = 'tbtc',
   ETHBridge = 'ethBridge',
   wstETHBridge = 'wstETHBridge',
+  NttManual = 'nttManual',
+  NttRelay = 'nttRelay',
 }
 
 // Used in bridging components
@@ -232,6 +235,12 @@ export type TokenConfig = {
       address: string;
       decimals: number;
     };
+  };
+  ntt?: {
+    groupId: string;
+    nttManager: string;
+    wormholeTransceiver: string;
+    solanaQuoter?: string;
   };
 };
 

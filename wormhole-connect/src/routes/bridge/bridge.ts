@@ -15,6 +15,7 @@ import {
   isSignedWormholeMessage,
   TokenTransferMessage,
   SignedTokenTransferMessage,
+  RelayerFee,
 } from '../types';
 import { BaseRoute } from './baseRoute';
 import { adaptParsedMessage } from '../utils';
@@ -59,6 +60,8 @@ export class BridgeRoute extends BaseRoute {
       (sourceChain === 'arbitrum' || sourceChain === 'arbitrumgoerli')
     )
       return false;
+
+    if (sourceTokenConfig.ntt) return false;
 
     if (!!sourceTokenConfig.tokenId && sourceToken === destToken) return true;
     if (
@@ -150,9 +153,6 @@ export class BridgeRoute extends BaseRoute {
   /**
    * These operations have to be implemented in subclasses.
    */
-  getMinSendAmount(routeOptions: any): number {
-    return 0;
-  }
 
   async send(
     token: TokenId | 'native',
@@ -240,8 +240,8 @@ export class BridgeRoute extends BaseRoute {
     destChain: ChainName | ChainId,
     token: string,
     destToken: string,
-  ): Promise<BigNumber> {
-    return BigNumber.from(0);
+  ): Promise<RelayerFee | null> {
+    return null;
   }
 
   async getForeignAsset(

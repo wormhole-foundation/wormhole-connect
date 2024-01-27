@@ -22,6 +22,7 @@ import { getAssociatedTokenAddress } from '@solana/spl-token';
 import { BaseRoute } from '../bridge/baseRoute';
 import {
   ManualCCTPMessage,
+  RelayerFee,
   SignedCCTPMessage,
   SignedMessage,
   TransferDestInfo,
@@ -236,9 +237,6 @@ export class CCTPManualRoute extends BaseRoute {
   /**
    * These operations have to be implemented in subclasses.
    */
-  getMinSendAmount(routeOptions: any): number {
-    return 0;
-  }
 
   async send(
     token: TokenId | 'native',
@@ -377,8 +375,8 @@ export class CCTPManualRoute extends BaseRoute {
     destChain: ChainName | ChainId,
     token: string,
     destToken: string,
-  ): Promise<BigNumber> {
-    return BigNumber.from(0);
+  ): Promise<RelayerFee | null> {
+    return null;
   }
 
   async getForeignAsset(
