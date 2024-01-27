@@ -1,5 +1,9 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { ChainName, Context } from '@wormhole-foundation/wormhole-connect-sdk';
+import {
+  ChainName,
+  ChainId,
+  Context,
+} from '@wormhole-foundation/wormhole-connect-sdk';
 import { BigNumber } from 'ethers';
 import config from 'config';
 import { Route, TokenConfig } from 'config/types';
@@ -52,6 +56,19 @@ export const getNativeVersionOfToken = (
       .map(([key, t]) => t)
       .find((t) => t.symbol === tokenSymbol && t.nativeChain === chain)?.key ||
     ''
+  );
+};
+
+// get the token key for the NTT token for a given group and chain
+export const getNttToken = (
+  groupId: string,
+  chain: ChainName | ChainId,
+): string => {
+  return (
+    Object.entries(config.tokens)
+      .map(([key, t]) => t)
+      .find((t) => t.ntt?.groupId === groupId && t.nativeChain === chain)
+      ?.key || ''
   );
 };
 
@@ -199,6 +216,8 @@ const performModificationsIfFromChainChanged = (state: TransferInputState) => {
       if (tokenConfig.nativeChain !== fromChain) {
         state.token = getNativeVersionOfToken(tokenConfig.symbol, fromChain!);
       }
+    } else if (tokenConfig.ntt && tokenConfig.nativeChain !== fromChain) {
+      state.token = getNttToken(tokenConfig.ntt.groupId, fromChain!);
     }
   }
 };
@@ -225,6 +244,8 @@ const performModificationsIfToChainChanged = (state: TransferInputState) => {
       if (tokenConfig.nativeChain !== toChain) {
         state.destToken = getNativeVersionOfToken(tokenConfig.symbol, toChain!);
       }
+    } else if (tokenConfig.ntt && tokenConfig.nativeChain !== toChain) {
+      state.destToken = getNttToken(tokenConfig.ntt.groupId, toChain!);
     }
   }
 };
@@ -247,6 +268,8 @@ const establishRoute = (state: TransferInputState) => {
     Route.TBTC,
     Route.ETHBridge,
     Route.wstETHBridge,
+    Route.NttRelay,
+    Route.NttManual,
     Route.Relay,
     Route.Bridge,
   ];

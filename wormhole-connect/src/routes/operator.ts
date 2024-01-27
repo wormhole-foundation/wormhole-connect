@@ -24,6 +24,8 @@ import {
   TransferDisplayData,
   TransferInfoBaseParams,
   TransferDestInfo,
+  NttRelayingType,
+  RelayerFee,
 } from './types';
 import {
   CCTPManualRoute,
@@ -34,6 +36,9 @@ import { getTokenById, isEqualCaseInsensitive } from 'utils';
 import { ETHBridge } from './porticoBridge/ethBridge';
 import { wstETHBridge } from './porticoBridge/wstETHBridge';
 import { TokenPrices } from 'store/tokenPrices';
+import { NttManual, NttRelay } from './ntt';
+import { getMessageEvm as getNttMessageEvm } from './ntt/platforms/evm';
+import { getMessageSolana as getNttMessageSolana } from './ntt/platforms/solana';
 
 export class Operator {
   getRoute(route: Route): RouteAbstract {
@@ -65,6 +70,12 @@ export class Operator {
       case Route.wstETHBridge: {
         return new wstETHBridge();
       }
+      case Route.NttManual: {
+        return new NttManual();
+      }
+      case Route.NttRelay: {
+        return new NttRelay();
+      }
       default: {
         throw new Error(`${route} is not a valid route`);
       }
@@ -95,6 +106,36 @@ export class Operator {
         )
           return Route.CCTPRelay;
         else return Route.CCTPManual;
+      }
+
+      // Check if is Ntt Route (NttRelay or NttManual)
+      if (
+        config.tokensArr.some(({ ntt }) => ntt && ntt.nttManager === receipt.to)
+      ) {
+        const { relayingType } = await getNttMessageEvm(txHash, chain, receipt);
+        return relayingType === NttRelayingType.Manual
+          ? Route.NttManual
+          : Route.NttRelay;
+      }
+    }
+
+    if (chain === 'solana') {
+      // Check if is Ntt Route (NttRelay or NttManual)
+      const connection = solanaContext().connection;
+      if (!connection) throw new Error('Connection not found');
+      const tx = await connection.getParsedTransaction(txHash);
+      if (!tx) throw new Error('Transaction not found');
+      if (
+        tx.transaction.message.instructions.some((ix) =>
+          config.tokensArr.some(
+            ({ ntt }) => ntt && ntt.nttManager === ix.programId.toString(),
+          ),
+        )
+      ) {
+        const { relayingType } = await getNttMessageSolana(txHash);
+        return relayingType === NttRelayingType.Manual
+          ? Route.NttManual
+          : Route.NttRelay;
       }
     }
 
@@ -521,7 +562,7 @@ export class Operator {
     destChain: ChainName | ChainId,
     token: string,
     destToken: string,
-  ): Promise<BigNumber> {
+  ): Promise<RelayerFee | null> {
     const r = this.getRoute(route);
     return r.getRelayerFee(sourceChain, destChain, token, destToken);
   }

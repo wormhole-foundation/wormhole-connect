@@ -397,7 +397,7 @@ const TESTNET_CONFIG: WormholeConfig = {
     klaytn: 'https://rpc.ankr.com/klaytn_testnet',
     sepolia: 'https://rpc.ankr.com/eth_sepolia',
     arbitrum_sepolia: 'https://sepolia-rollup.arbitrum.io/rpc',
-    base_sepolia: 'https://sepolia.base.org',
+    base_sepolia: 'https://base-sepolia-rpc.publicnode.com',
     optimism_sepolia: 'https://sepolia.optimism.io',
   },
   rest: {

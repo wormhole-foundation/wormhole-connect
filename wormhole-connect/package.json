@@ -18,6 +18,7 @@
   ],
   "dependencies": {
     "@certusone/wormhole-sdk": "^0.10.10",
+    "@coral-xyz/anchor": "^0.29.0",
     "@cosmjs/cosmwasm-stargate": "^0.31.3",
     "@cosmjs/stargate": "^0.31.3",
     "@cosmjs/tendermint-rpc": "^0.31.3",
@@ -62,7 +63,8 @@
     "prettier": "prettier --write ./src",
     "analyze": "NODE_ENV=production NODE_OPTIONS=--max-old-space-size=6144 vite-bundle-visualizer",
     "test": "jest ./tests/*.test.ts --detectOpenHandles",
-    "checksdn": "npx tsx scripts/ofac/checkSdnListForUpdates.ts"
+    "checksdn": "npx tsx scripts/ofac/checkSdnListForUpdates.ts",
+    "preview": "vite preview"
   },
   "eslintConfig": {
     "extends": [
