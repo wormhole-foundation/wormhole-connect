@@ -254,7 +254,6 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     context: Context.ETH,
     contracts: {
       ...CONTRACTS.MAINNET.klaytn,
-      relayer: '0x27428DD2d3DD32A4D7f7C497eAaa23130d894911',
     },
     finalityThreshold: 0,
     nativeTokenDecimals: 18,
