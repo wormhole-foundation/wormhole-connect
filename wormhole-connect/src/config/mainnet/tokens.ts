@@ -2611,7 +2611,7 @@ export const MAINNET_TOKENS: TokensConfig = {
     nativeChain: 'klaytn',
     icon: Icon.KLAY,
     coinGeckoId: 'klay-token',
-    color: '#ed4e33',
+    color: '#fa4212',
     wrappedAsset: 'WKLAY',
   },
   WKLAY: {
@@ -2625,7 +2625,7 @@ export const MAINNET_TOKENS: TokensConfig = {
       address: '0xe4f05a66ec68b54a58b17c22107b02e0232cc817',
     },
     coinGeckoId: 'wrapped-klay',
-    color: '',
+    color: '#fa4212',
     decimals: {
       Ethereum: 18,
       default: 8,
