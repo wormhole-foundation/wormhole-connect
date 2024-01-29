@@ -120,14 +120,17 @@ const fetchSeiOptions = async () => {
 const mapWallets = (
   wallets: Record<string, Wallet>,
   type: Context,
+  skip: string[] = [],
 ): WalletData[] => {
-  return Object.values(wallets).map((wallet) => ({
-    wallet,
-    type,
-    name: wallet.getName(),
-    icon: wallet.getIcon(),
-    isReady: getReady(wallet),
-  }));
+  return Object.values(wallets)
+    .filter((wallet) => !skip.includes(wallet.getName()))
+    .map((wallet) => ({
+      wallet,
+      type,
+      name: wallet.getName(),
+      icon: wallet.getIcon(),
+      isReady: getReady(wallet),
+    }));
 };
 
 const getWalletOptions = async (
@@ -175,7 +178,9 @@ const getWalletOptions = async (
     config.context === Context.COSMOS &&
     config.id === CHAIN_ID_EVMOS
   ) {
-    return Object.values(mapWallets(wallets.cosmosEvm, Context.COSMOS));
+    return Object.values(
+      mapWallets(wallets.cosmosEvm, Context.COSMOS, ['OKX Wallet']),
+    );
   }
   return [];
 };
