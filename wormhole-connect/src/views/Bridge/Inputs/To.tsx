@@ -1,14 +1,15 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 
 import { RootState } from 'store';
 import {
   accessBalance,
+  isDisabledChain,
   selectToChain,
   setDestToken,
 } from 'store/transferInput';
-import { TransferWallet, walletAcceptedChains } from 'utils/wallet';
+import { TransferWallet } from 'utils/wallet';
 import { hydrateHrefTemplate } from 'utils';
 import { CHAINS, CHAINS_ARR, TOKENS } from 'config';
 
@@ -36,7 +37,7 @@ function ToInputs() {
     route,
     isTransactionInProgress,
   } = useSelector((state: RootState) => state.transferInput);
-  const { receiving } = useSelector((state: RootState) => state.wallet);
+  const receiving = useSelector((state: RootState) => state.wallet.receiving);
   const balance =
     accessBalance(balances, receiving.address, toChain, destToken) || undefined;
 
@@ -46,10 +47,10 @@ function ToInputs() {
     dispatch(setDestToken(token));
   };
 
-  const isDisabled = (chain: ChainName) => {
-    // Check if the wallet type (i.e. Metamask, Phantom...) is supported for the given chain
-    return !walletAcceptedChains(receiving.type).includes(chain);
-  };
+  const isDisabled = useCallback(
+    (chain: ChainName) => isDisabledChain(chain, receiving),
+    [receiving],
+  );
 
   const selectChain = async (chain: ChainName) => {
     selectToChain(dispatch, chain, receiving);
