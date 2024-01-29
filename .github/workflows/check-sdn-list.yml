@@ -13,4 +13,4 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Run script
-        run: cd wormhole-connect && npx ts-node scripts/ofac/checkSdnListForUpdates.ts
+        run: cd wormhole-connect && npm run checksdn
