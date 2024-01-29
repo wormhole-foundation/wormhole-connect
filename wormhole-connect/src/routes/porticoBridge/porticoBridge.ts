@@ -433,6 +433,18 @@ export abstract class PorticoBridge extends BaseRoute {
     const decimals = getTokenDecimals(toChainId(sendingChain), token);
     const parsedAmount = parseUnits(amount, decimals);
 
+    // Prevent user from transferring if the output amount is too low
+    const minThresholdAmountOutSlippage = parsedAmount
+      .mul(50)
+      .div(BPS_PER_HUNDRED_PERCENT);
+    if (
+      BigNumber.from(minAmountFinish).lt(
+        parsedAmount.sub(minThresholdAmountOutSlippage),
+      )
+    ) {
+      throw new Error('Output amount too low, please try again later.');
+    }
+
     const context = wh.getContext(sendingChain) as EthContext<WormholeContext>;
     const core = context.contracts.mustGetCore(sendingChain);
     const messageFee = await core.messageFee();
