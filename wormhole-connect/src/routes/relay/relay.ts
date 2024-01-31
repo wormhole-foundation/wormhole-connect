@@ -15,6 +15,7 @@ import {
   getWrappedTokenId,
   toNormalizedDecimals,
   getDisplayName,
+  calculateUSDValue,
 } from 'utils';
 import {
   fetchRedeemedEvent,
@@ -51,6 +52,7 @@ import { fetchVaa } from '../../utils/vaa';
 import { RelayOptions, TransferDestInfoParams } from './types';
 import { RelayAbstract } from 'routes/abstracts';
 import { arrayify } from 'ethers/lib/utils.js';
+import { TokenPrices } from 'store/tokenPrices';
 
 export class RelayRoute extends BridgeRoute implements RelayAbstract {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED = true;
@@ -403,6 +405,7 @@ export class RelayRoute extends BridgeRoute implements RelayAbstract {
     sendingGasEst: string,
     claimingGasEst: string,
     receiveAmount: string,
+    tokenPrices: TokenPrices,
     routeOptions: RelayOptions,
   ): Promise<TransferDisplayData> {
     const sendingChainName = wh.toChainName(sendingChain);
@@ -446,6 +449,10 @@ export class RelayRoute extends BridgeRoute implements RelayAbstract {
             {
               title: 'Native gas on destination',
               value: `${receiveNativeAmt} ${destinationGasTokenSymbol}`,
+              valueUSD: calculateUSDValue(
+                receiveNativeAmt,
+                tokenPrices[destinationGasTokenSymbol],
+              ),
             },
           ]
         : [];
@@ -467,6 +474,10 @@ export class RelayRoute extends BridgeRoute implements RelayAbstract {
             value: sendingGasEst
               ? `~ ${sendingGasEst} ${sourceGasTokenSymbol}`
               : NO_INPUT,
+            valueUSD: calculateUSDValue(
+              sendingGasEst,
+              tokenPrices[sourceGasTokenSymbol],
+            ),
           },
           {
             title: 'Relayer fee',
@@ -474,6 +485,7 @@ export class RelayRoute extends BridgeRoute implements RelayAbstract {
               relayerFee !== undefined
                 ? `${relayerFee} ${getDisplayName(token)}`
                 : NO_INPUT,
+            valueUSD: calculateUSDValue(relayerFee, tokenPrices[token.symbol]),
           },
         ],
       },

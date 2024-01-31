@@ -10,7 +10,7 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { MsgExecuteContract } from 'cosmjs-types/cosmwasm/wasm/v1/tx';
 import { BigNumber, utils } from 'ethers';
-import { getDisplayName } from 'utils';
+import { calculateUSDValue, getDisplayName } from 'utils';
 import { toChainId, wh } from 'utils/sdk';
 import { isGatewayChain } from 'utils/cosmos';
 import { CHAINS, ENV, ROUTES, TOKENS } from 'config';
@@ -49,6 +49,7 @@ import {
   toCosmos,
   getUnsignedMessageFromCosmos,
 } from './utils';
+import { TokenPrices } from 'store/tokenPrices';
 
 export class CosmosGatewayRoute extends BaseRoute {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean = false;
@@ -241,6 +242,7 @@ export class CosmosGatewayRoute extends BaseRoute {
     sendingGasEst: string,
     claimingGasEst: string,
     receiveAmount: string,
+    tokenPrices: TokenPrices,
     routeOptions?: any,
   ): Promise<TransferDisplayData> {
     const sendingChainName = wh.toChainName(sendingChain);
@@ -264,6 +266,10 @@ export class CosmosGatewayRoute extends BaseRoute {
             value: sendingGasEst
               ? `~ ${sendingGasEst} ${sourceGasTokenSymbol}`
               : '—',
+            valueUSD: calculateUSDValue(
+              sendingGasEst,
+              tokenPrices[sourceGasTokenSymbol],
+            ),
           },
         ],
       },

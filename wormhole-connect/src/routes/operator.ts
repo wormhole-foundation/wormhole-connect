@@ -37,6 +37,7 @@ import { TBTCRoute } from './tbtc';
 import { getTokenById, isEqualCaseInsensitive } from 'utils';
 import { ETHBridge } from './porticoBridge/ethBridge';
 import { wstETHBridge } from './porticoBridge/wstETHBridge';
+import { TokenPrices } from 'store/tokenPrices';
 
 export class Operator {
   getRoute(route: Route): RouteAbstract {
@@ -480,6 +481,7 @@ export class Operator {
     sendingGasEst: string,
     claimingGasEst: string,
     receiveAmount: string,
+    tokenPrices: TokenPrices,
     routeOptions?: any,
   ): Promise<TransferDisplayData> {
     const r = this.getRoute(route);
@@ -492,6 +494,7 @@ export class Operator {
       sendingGasEst,
       claimingGasEst,
       receiveAmount,
+      tokenPrices,
       routeOptions,
     );
   }

@@ -1962,7 +1962,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   //     address: 'usei',
   //   },
   //   icon: Icon.SEI,
-  //   coinGeckoId: 'sei',
+  //   coinGeckoId: 'sei-network',
   //   color: '#FFFFFF',
   //   decimals: {
   //     default: 6,

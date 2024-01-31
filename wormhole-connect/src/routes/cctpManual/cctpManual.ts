@@ -17,6 +17,7 @@ import {
   getTokenDecimals,
   toNormalizedDecimals,
   getDisplayName,
+  calculateUSDValue,
 } from 'utils';
 import { isEvmChain, toChainId, wh, PayloadType } from 'utils/sdk';
 import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
@@ -45,6 +46,7 @@ import {
   getNonce,
   tryGetCircleAttestation,
 } from './utils';
+import { TokenPrices } from 'store/tokenPrices';
 
 export class CCTPManualRoute extends BaseRoute {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean = false;
@@ -362,6 +364,7 @@ export class CCTPManualRoute extends BaseRoute {
     sendingGasEst: string,
     claimingGasEst: string,
     receiveAmount: string,
+    tokenPrices: TokenPrices,
     routeOptions?: any,
   ): Promise<TransferDisplayData> {
     const sendingChainName = wh.toChainName(sendingChain);
@@ -391,12 +394,20 @@ export class CCTPManualRoute extends BaseRoute {
             value: sendingGasEst
               ? `~ ${sendingGasEst} ${sourceGasTokenSymbol}`
               : 'Not available',
+            valueUSD: calculateUSDValue(
+              sendingGasEst,
+              tokenPrices[sourceGasTokenSymbol],
+            ),
           },
           {
             title: 'Destination chain gas estimate',
             value: claimingGasEst
               ? `~ ${claimingGasEst} ${destinationGasTokenSymbol}`
               : 'Not available',
+            valueUSD: calculateUSDValue(
+              claimingGasEst,
+              tokenPrices[destinationGasTokenSymbol],
+            ),
           },
         ],
       },

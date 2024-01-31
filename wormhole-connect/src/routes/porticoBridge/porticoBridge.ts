@@ -22,6 +22,7 @@ import { PayloadType, isEvmChain, toChainId, toChainName, wh } from 'utils/sdk';
 import { CHAINS, ROUTES, TOKENS, isMainnet } from 'config';
 import {
   MAX_DECIMALS,
+  calculateUSDValue,
   getChainConfig,
   getDisplayName,
   getGasToken,
@@ -62,6 +63,7 @@ import {
   validateCreateOrderResponse,
 } from './utils';
 import { PorticoBridgeState, PorticoSwapAmounts } from 'store/porticoBridge';
+import { TokenPrices } from 'store/tokenPrices';
 
 export abstract class PorticoBridge extends BaseRoute {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean = false;
@@ -876,6 +878,7 @@ export abstract class PorticoBridge extends BaseRoute {
     sendingGasEst: string,
     claimingGasEst: string,
     receiveAmount: string,
+    tokenPrices: TokenPrices,
     routeOptions: PorticoBridgeState,
   ): Promise<TransferDisplayData> {
     const { relayerFee, swapAmounts } = routeOptions;
@@ -926,10 +929,15 @@ export abstract class PorticoBridge extends BaseRoute {
             value: sendingGasEst
               ? `~ ${sendingGasEst} ${gasTokenDisplayName}`
               : NO_INPUT,
+            valueUSD: calculateUSDValue(
+              sendingGasEst,
+              tokenPrices[gasToken.symbol],
+            ),
           },
           {
             title: 'Relayer fee',
             value: fee ? `${fee} ${destTokenDisplayName}` : NO_INPUT,
+            valueUSD: calculateUSDValue(fee, tokenPrices[destToken.symbol]),
           },
         ],
       },

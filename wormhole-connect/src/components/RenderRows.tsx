@@ -62,7 +62,7 @@ export function RenderRows(props: RenderRowsProps) {
               )}
             </div>
             <div className={`${props.small && classes.subrowText}`}>
-              {row.value}
+              {row.value} {!!row.valueUSD ? row.valueUSD : ''}
             </div>
           </div>
           <div>

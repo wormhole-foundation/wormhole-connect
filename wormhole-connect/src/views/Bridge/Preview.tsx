@@ -40,6 +40,7 @@ function Preview(props: { collapsed: boolean }) {
     (state: RootState) => state.relay,
   );
   const portico = useSelector((state: RootState) => state.porticoBridge);
+  const { usdPrices } = useSelector((state: RootState) => state.tokenPrices);
 
   useEffect(() => {
     const buildPreview = async () => {
@@ -68,6 +69,7 @@ function Preview(props: { collapsed: boolean }) {
         gasEst.send,
         gasEst.claim,
         receiveAmount.data || '',
+        usdPrices?.data || {},
         routeOptions,
       );
 
@@ -89,6 +91,7 @@ function Preview(props: { collapsed: boolean }) {
     gasEst,
     dispatch,
     relayerFee,
+    usdPrices,
   ]);
 
   useEffect(() => {

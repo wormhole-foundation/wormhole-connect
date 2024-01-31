@@ -17,6 +17,7 @@ import {
   fromNormalizedDecimals,
   getTokenById,
   getDisplayName,
+  calculateUSDValue,
 } from 'utils';
 import {
   ParsedMessage,
@@ -50,6 +51,8 @@ import {
 import { getUnsignedVaaEvm } from 'utils/vaa';
 import { getNativeVersionOfToken } from 'store/transferInput';
 import { RelayAbstract } from 'routes/abstracts';
+import { useSelector } from 'react-redux';
+import { TokenPrices } from 'store/tokenPrices';
 
 export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED = true;
@@ -373,6 +376,7 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
     sendingGasEst: string,
     claimingGasEst: string,
     receiveAmount: string,
+    tokenPrices: TokenPrices,
     routeOptions?: any,
   ): Promise<TransferDisplayData> {
     const sendingChainName = wh.toChainName(sendingChain);
@@ -431,6 +435,10 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
             value: sendingGasEst
               ? `~ ${sendingGasEst} ${sourceGasTokenSymbol}`
               : NO_INPUT,
+            valueUSD: calculateUSDValue(
+              sendingGasEst,
+              tokenPrices[sourceGasTokenSymbol],
+            ),
           },
           {
             title: 'Relayer fee',
@@ -438,6 +446,7 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
               relayerFee !== undefined
                 ? `${relayerFee} ${getDisplayName(token)}`
                 : NO_INPUT,
+            valueUSD: calculateUSDValue(relayerFee, tokenPrices[token.key]),
           },
         ],
       },

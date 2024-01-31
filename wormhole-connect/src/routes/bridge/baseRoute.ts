@@ -2,6 +2,7 @@ import { ChainId, ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { TokenConfig } from 'config/types';
 import {
   MAX_DECIMALS,
+  calculateUSDValue,
   getDisplayName,
   getTokenDecimals,
   getWrappedToken,
@@ -23,6 +24,7 @@ import { toDecimals } from 'utils/balance';
 import { NO_INPUT } from 'utils/style';
 import { hexlify } from 'ethers/lib/utils.js';
 import { isTBTCToken } from 'routes/tbtc/utils';
+import { TokenPrices } from 'store/tokenPrices';
 
 export abstract class BaseRoute extends RouteAbstract {
   async isSupportedSourceToken(
@@ -115,6 +117,7 @@ export abstract class BaseRoute extends RouteAbstract {
     sendingGasEst: string,
     claimingGasEst: string,
     receiveAmount: string,
+    tokenPrices: TokenPrices,
     routeOptions?: any,
   ): Promise<TransferDisplayData> {
     const sendingChainName = wh.toChainName(sendingChain);
@@ -144,12 +147,20 @@ export abstract class BaseRoute extends RouteAbstract {
             value: sendingGasEst
               ? `~ ${sendingGasEst} ${sourceGasTokenSymbol}`
               : 'Not available',
+            valueUSD: calculateUSDValue(
+              sendingGasEst,
+              tokenPrices[sourceGasTokenSymbol],
+            ),
           },
           {
             title: 'Destination chain gas estimate',
             value: claimingGasEst
               ? `~ ${claimingGasEst} ${destinationGasTokenSymbol}`
               : 'Not available',
+            valueUSD: calculateUSDValue(
+              claimingGasEst,
+              tokenPrices[destinationGasTokenSymbol],
+            ),
           },
         ],
       },

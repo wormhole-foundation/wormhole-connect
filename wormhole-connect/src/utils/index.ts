@@ -285,3 +285,14 @@ export const sortTokens = (
     return 0; // Sort the rest
   });
 };
+
+export const calculateUSDValue = (
+  value?: string | number,
+  usdPrice?: number,
+): string => {
+  if (value && usdPrice) {
+    const amount = typeof value === 'string' ? parseFloat(value) : value;
+    return `($${amount * usdPrice})`;
+  }
+  return '';
+};

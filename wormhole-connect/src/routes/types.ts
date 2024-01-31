@@ -54,6 +54,7 @@ export interface TransferDestInfoBaseParams {
 export type Row = {
   title: string;
   value: string;
+  valueUSD?: string;
 };
 
 export interface NestedRow extends Row {
