@@ -13,6 +13,7 @@ export const MAINNET_CHAINS = {
   fantom: 10,
   celo: 14,
   moonbeam: 16,
+  injective: 19,
   sui: 21,
   aptos: 22,
   arbitrum: 23,
@@ -304,6 +305,14 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     finalityThreshold: 0,
     nativeTokenDecimals: 6,
   },
+  injective: {
+    key: 'injective',
+    id: 19,
+    context: Context.INJECTIVE,
+    contracts: {},
+    finalityThreshold: 0,
+    nativeTokenDecimals: 18,
+  },
 };
 
 const env: Environment = 'MAINNET';
@@ -332,10 +341,12 @@ const MAINNET_CONFIG: WormholeConfig = {
     cosmoshub: 'https://cosmos-rpc.polkachu.com',
     evmos: 'https://evmos-rpc.polkachu.com',
     kujira: 'https://kujira-rpc.polkachu.com',
+    injective: 'https://injective-rpc.polkachu.com',
   },
   rest: {
     sei: '',
     evmos: 'https://evmos-api.polkachu.com',
+    injective: 'https://injective-api.polkachu.com',
   },
   graphql: {
     aptos: 'https://indexer.mainnet.aptoslabs.com/v1/graphql',

@@ -168,6 +168,7 @@ export const TESTNET_TO_MAINNET_CHAIN_NAMES: {
   cosmoshub: 'cosmoshub',
   evmos: 'evmos',
   kujira: 'kujira',
+  injective: 'injective',
 };
 
 validateConfigs();

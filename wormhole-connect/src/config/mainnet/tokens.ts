@@ -2664,4 +2664,19 @@ export const MAINNET_TOKENS: TokensConfig = {
       },
     },
   },
+  INJ: {
+    key: 'INJ',
+    symbol: 'INJ',
+    nativeChain: 'inj',
+    tokenId: {
+      chain: 'inj',
+      address: 'ukuji',
+    },
+    icon: Icon.INJ,
+    coinGeckoId: 'injective-protocol',
+    color: '#24DAC6',
+    decimals: {
+      default: 18,
+    },
+  },
 };

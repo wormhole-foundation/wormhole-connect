@@ -8,6 +8,7 @@ const MAINNET_NATIVE_DENOMS: Record<string, string> = {
   cosmoshub: 'uatom',
   evmos: 'aevmos',
   kujira: 'ukuji',
+  injective: 'inj',
 };
 const TESTNET_NATIVE_DENOMS: Record<string, string> = {
   ...MAINNET_NATIVE_DENOMS,
@@ -22,6 +23,7 @@ const PREFIXES: Record<string, string> = {
   evmos: 'evmos',
   sei: 'sei',
   kujira: 'kujira',
+  injective: 'inj',
 };
 
 export function getNativeDenom(

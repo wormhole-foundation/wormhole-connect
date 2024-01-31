@@ -210,4 +210,15 @@ export const TESTNET_CHAINS: ChainsConfig = {
     automaticRelayer: false,
     maxBlockSearch: 0,
   },
+  injective: {
+    ...chains.injective!,
+    displayName: 'Injective',
+    explorerUrl: 'https://testnet.explorer.injective.network',
+    explorerName: 'Injective Explorer',
+    gasToken: 'INJ',
+    chainId: 'injective-888',
+    icon: Icon.INJ,
+    automaticRelayer: false,
+    maxBlockSearch: 0,
+  },
 };

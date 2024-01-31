@@ -32,6 +32,7 @@ import EVMOS from './Tokens/EVMOS';
 import ATOM from './Tokens/ATOM';
 import KUJI from './Tokens/KUJI';
 import PYTH from './Tokens/PYTH';
+import INJ from './Tokens/INJ';
 
 const useStyles = makeStyles<{ size: number }>()((theme, { size }) => ({
   container: {
@@ -130,6 +131,9 @@ export const getIcon = (icon: Icon) => {
     }
     case Icon.PYTH: {
       return PYTH;
+    }
+    case Icon.INJ: {
+      return INJ;
     }
     default: {
       return noIcon;
