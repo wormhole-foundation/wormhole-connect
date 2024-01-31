@@ -2054,8 +2054,8 @@ export const TESTNET_TOKENS: TokensConfig = {
     symbol: 'INJ',
     nativeChain: 'inj',
     tokenId: {
-      chain: 'inj',
-      address: 'ukuji',
+      chain: 'injective',
+      address: 'inj',
     },
     icon: Icon.INJ,
     coinGeckoId: 'injective-protocol',
