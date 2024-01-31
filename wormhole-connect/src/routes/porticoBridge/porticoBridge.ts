@@ -891,12 +891,24 @@ export abstract class PorticoBridge extends BaseRoute {
       destToken.key === destChainConfig.gasToken
         ? destChainConfig.nativeTokenDecimals
         : getTokenDecimals(toChainId(receipientChain), destToken.tokenId);
+
     let totalFeesText = '';
+    let totalFeesPrice = '';
     let fee = '';
     if (sendingGasEst && relayerFee.data) {
       fee = toDecimals(relayerFee.data, destTokenDecimals, MAX_DECIMALS);
       totalFeesText = `${sendingGasEst} ${gasTokenDisplayName} & ${fee} ${destTokenDisplayName}`;
+      totalFeesPrice = `${calculateUSDValue(
+        sendingGasEst,
+        tokenPrices[gasToken.symbol],
+      )} & ${calculateUSDValue(fee, tokenPrices[destToken.symbol])}`;
     }
+
+    const feePrice = calculateUSDValue(fee, tokenPrices[destToken.symbol]);
+    const sendingGasEstPrice = calculateUSDValue(
+      sendingGasEst,
+      tokenPrices[gasToken.symbol],
+    );
     let expectedAmount = '';
     let minimumAmount = '';
     if (relayerFee.data && swapAmounts.data) {
@@ -923,21 +935,19 @@ export abstract class PorticoBridge extends BaseRoute {
       {
         title: 'Total fee estimates',
         value: totalFeesText,
+        valueUSD: totalFeesPrice,
         rows: [
           {
             title: 'Source chain gas estimate',
             value: sendingGasEst
               ? `~ ${sendingGasEst} ${gasTokenDisplayName}`
               : NO_INPUT,
-            valueUSD: calculateUSDValue(
-              sendingGasEst,
-              tokenPrices[gasToken.symbol],
-            ),
+            valueUSD: sendingGasEstPrice,
           },
           {
             title: 'Relayer fee',
             value: fee ? `${fee} ${destTokenDisplayName}` : NO_INPUT,
-            valueUSD: calculateUSDValue(fee, tokenPrices[destToken.symbol]),
+            valueUSD: feePrice,
           },
         ],
       },

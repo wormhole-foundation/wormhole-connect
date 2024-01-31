@@ -250,6 +250,12 @@ export class CosmosGatewayRoute extends BaseRoute {
     const sourceGasTokenSymbol = sourceGasToken
       ? getDisplayName(TOKENS[sourceGasToken])
       : '';
+    // Calculate the USD value of the gas
+    const sendingGasEstPrice = calculateUSDValue(
+      sendingGasEst,
+      tokenPrices[sourceGasTokenSymbol],
+    );
+
     return [
       {
         title: 'Amount',
@@ -260,16 +266,14 @@ export class CosmosGatewayRoute extends BaseRoute {
       {
         title: 'Total fee estimates',
         value: `${sendingGasEst} ${sourceGasTokenSymbol}`,
+        valueUSD: sendingGasEstPrice,
         rows: [
           {
             title: 'Source chain gas estimate',
             value: sendingGasEst
               ? `~ ${sendingGasEst} ${sourceGasTokenSymbol}`
               : '—',
-            valueUSD: calculateUSDValue(
-              sendingGasEst,
-              tokenPrices[sourceGasTokenSymbol],
-            ),
+            valueUSD: sendingGasEstPrice,
           },
         ],
       },

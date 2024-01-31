@@ -51,7 +51,6 @@ import {
 import { getUnsignedVaaEvm } from 'utils/vaa';
 import { getNativeVersionOfToken } from 'store/transferInput';
 import { RelayAbstract } from 'routes/abstracts';
-import { useSelector } from 'react-redux';
 import { TokenPrices } from 'store/tokenPrices';
 
 export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
@@ -391,11 +390,21 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
       ? getDisplayName(TOKENS[sourceGasToken])
       : '';
 
+    const sendingGasEstPrice = calculateUSDValue(
+      sendingGasEst,
+      tokenPrices[sourceGasTokenSymbol],
+    );
+
     let totalFeesText = '';
+    let totalFeesPrice = '';
     if (sendingGasEst && relayerFee) {
       const fee = toFixedDecimals(`${relayerFee}`, 6);
       totalFeesText = `${sendingGasEst} ${sourceGasTokenSymbol} & ${fee} ${getDisplayName(
         token,
+      )}`;
+      totalFeesPrice = `${sendingGasEstPrice} & ${calculateUSDValue(
+        fee,
+        tokenPrices[token.symbol],
       )}`;
     }
 
@@ -429,16 +438,14 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
       {
         title: 'Total fee estimates',
         value: totalFeesText,
+        valueUSD: totalFeesPrice,
         rows: [
           {
             title: 'Source chain gas estimate',
             value: sendingGasEst
               ? `~ ${sendingGasEst} ${sourceGasTokenSymbol}`
               : NO_INPUT,
-            valueUSD: calculateUSDValue(
-              sendingGasEst,
-              tokenPrices[sourceGasTokenSymbol],
-            ),
+            valueUSD: sendingGasEstPrice,
           },
           {
             title: 'Relayer fee',

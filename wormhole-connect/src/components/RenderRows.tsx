@@ -4,6 +4,7 @@ import Down from 'icons/Down';
 import { Collapse } from '@mui/material';
 import { joinClass } from 'utils/style';
 import { NestedRow } from 'routes/types';
+import Price from './Price';
 
 const useStyles = makeStyles()((theme) => ({
   row: {
@@ -61,8 +62,11 @@ export function RenderRows(props: RenderRowsProps) {
                 />
               )}
             </div>
-            <div className={`${props.small && classes.subrowText}`}>
-              {row.value} {!!row.valueUSD ? row.valueUSD : ''}
+            <div>
+              <div className={`${props.small && classes.subrowText}`}>
+                {row.value}
+              </div>
+              <Price textAlign="right">{row.valueUSD}</Price>
             </div>
           </div>
           <div>

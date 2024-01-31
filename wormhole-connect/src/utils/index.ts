@@ -292,7 +292,7 @@ export const calculateUSDValue = (
 ): string => {
   if (value && usdPrice) {
     const amount = typeof value === 'string' ? parseFloat(value) : value;
-    return `($${amount * usdPrice})`;
+    return `($${(amount * usdPrice).toFixed(6)})`;
   }
   return '';
 };

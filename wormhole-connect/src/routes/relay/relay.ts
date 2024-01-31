@@ -422,16 +422,22 @@ export class RelayRoute extends BridgeRoute implements RelayAbstract {
     const isNative = token.key === sourceGasToken;
 
     let totalFeesText = '';
+    let totalFeesPrice = '';
     if (sendingGasEst && relayerFee !== undefined) {
-      const fee = toFixedDecimals(
-        `${relayerFee + (isNative ? Number.parseFloat(sendingGasEst) : 0)}`,
-        6,
-      );
+      const feeValue =
+        relayerFee + (isNative ? Number.parseFloat(sendingGasEst) : 0);
+      const fee = toFixedDecimals(`${feeValue}`, 6);
       totalFeesText = isNative
         ? `${fee} ${getDisplayName(token)}`
         : `${sendingGasEst} ${sourceGasTokenSymbol} & ${fee} ${getDisplayName(
             token,
           )}`;
+      totalFeesPrice = isNative
+        ? calculateUSDValue(feeValue, tokenPrices[token.symbol])
+        : `${calculateUSDValue(
+            sendingGasEst,
+            tokenPrices[sourceGasTokenSymbol],
+          )} & ${calculateUSDValue(feeValue, tokenPrices[token.symbol])}`;
     }
 
     const receiveAmt = await this.computeReceiveAmount(
@@ -468,6 +474,7 @@ export class RelayRoute extends BridgeRoute implements RelayAbstract {
       {
         title: 'Total fee estimates',
         value: totalFeesText,
+        valueUSD: totalFeesPrice,
         rows: [
           {
             title: 'Source chain gas estimate',

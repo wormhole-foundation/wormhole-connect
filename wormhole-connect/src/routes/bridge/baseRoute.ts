@@ -130,6 +130,17 @@ export abstract class BaseRoute extends RouteAbstract {
     const destinationGasTokenSymbol = destinationGasToken
       ? getDisplayName(TOKENS[destinationGasToken])
       : '';
+
+    // Calculate the USD value of the gas
+    const sendingGasEstPrice = calculateUSDValue(
+      sendingGasEst,
+      tokenPrices[sourceGasTokenSymbol],
+    );
+    const claimingGasEstPrice = calculateUSDValue(
+      claimingGasEst,
+      tokenPrices[destinationGasTokenSymbol],
+    );
+
     return [
       {
         title: 'Amount',
@@ -141,26 +152,24 @@ export abstract class BaseRoute extends RouteAbstract {
           sendingGasEst && claimingGasEst
             ? `${sendingGasEst} ${sourceGasTokenSymbol} & ${claimingGasEst} ${destinationGasTokenSymbol}`
             : '',
+        valueUSD:
+          sendingGasEst && claimingGasEst
+            ? `${sendingGasEstPrice} & ${claimingGasEstPrice}`
+            : '',
         rows: [
           {
             title: 'Source chain gas estimate',
             value: sendingGasEst
               ? `~ ${sendingGasEst} ${sourceGasTokenSymbol}`
               : 'Not available',
-            valueUSD: calculateUSDValue(
-              sendingGasEst,
-              tokenPrices[sourceGasTokenSymbol],
-            ),
+            valueUSD: sendingGasEstPrice,
           },
           {
             title: 'Destination chain gas estimate',
             value: claimingGasEst
               ? `~ ${claimingGasEst} ${destinationGasTokenSymbol}`
               : 'Not available',
-            valueUSD: calculateUSDValue(
-              claimingGasEst,
-              tokenPrices[destinationGasTokenSymbol],
-            ),
+            valueUSD: claimingGasEstPrice,
           },
         ],
       },
