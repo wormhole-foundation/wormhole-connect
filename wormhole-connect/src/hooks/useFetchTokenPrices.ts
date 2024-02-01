@@ -32,7 +32,7 @@ export const useFetchTokenPrices = () => {
             for (const [, tokenConfig] of Object.entries(TOKENS)) {
               if (tokenConfig.coinGeckoId && data[tokenConfig.coinGeckoId]) {
                 const price: number = data[tokenConfig.coinGeckoId]?.usd;
-                usdPrices[tokenConfig.key] = price;
+                usdPrices[tokenConfig.symbol] = price;
               }
             }
             dispatch(setPrices(usdPrices));

@@ -453,7 +453,7 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
               relayerFee !== undefined
                 ? `${relayerFee} ${getDisplayName(token)}`
                 : NO_INPUT,
-            valueUSD: calculateUSDValue(relayerFee, tokenPrices[token.key]),
+            valueUSD: calculateUSDValue(relayerFee, tokenPrices[token.symbol]),
           },
         ],
       },
