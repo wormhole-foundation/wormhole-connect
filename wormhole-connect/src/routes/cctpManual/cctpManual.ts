@@ -377,7 +377,7 @@ export class CCTPManualRoute extends BaseRoute {
     return [
       {
         title: 'Amount',
-        value: `${amount} ${getDisplayName(destToken)}`,
+        value: `${!isNaN(amount) ? amount : '0'} ${getDisplayName(destToken)}`,
       },
       {
         title: 'Total fee estimates',
