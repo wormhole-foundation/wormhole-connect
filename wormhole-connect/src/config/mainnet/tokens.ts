@@ -2619,10 +2619,10 @@ export const MAINNET_TOKENS: TokensConfig = {
     symbol: 'WKLAY',
     displayName: 'wKLAY',
     nativeChain: 'klaytn',
-    icon: Icon.ETH,
+    icon: Icon.KLAY,
     tokenId: {
       chain: 'klaytn',
-      address: '0xe4f05a66ec68b54a58b17c22107b02e0232cc817',
+      address: '0xe4f05A66Ec68B54A58B17c22107b02e0232cC817',
     },
     coinGeckoId: 'wrapped-klay',
     color: '#fa4212',
