@@ -2617,7 +2617,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   WKLAY: {
     key: 'WKLAY',
     symbol: 'WKLAY',
-    displayName: 'Wrapped Klay',
+    displayName: 'wKLAY',
     nativeChain: 'klaytn',
     icon: Icon.ETH,
     tokenId: {
