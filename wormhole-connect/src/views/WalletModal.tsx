@@ -286,9 +286,10 @@ function WalletsModal(props: Props) {
 
   const displayWalletOptions = (wallets: WalletData[]): JSX.Element[] => {
     const sorted = wallets.sort((w) => (w.isReady ? -1 : 1));
-    const filtered = !search
-      ? sorted
-      : sorted.filter((w) => w.name && w.name.toLowerCase().includes(search));
+    const predicate = ({ name, type }: WalletData) =>
+      name.toLowerCase().includes(search) ||
+      type.toLowerCase().includes(search);
+    const filtered = !search ? sorted : sorted.filter(predicate);
     return filtered.map((wallet, i) => {
       const ready = wallet.isReady;
       const select = ready
