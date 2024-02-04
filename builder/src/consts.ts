@@ -179,6 +179,7 @@ export const MAINNET_TOKEN_KEYS: string[] = [
   "EVMOS",
   "KUJI",
   "PYTH",
+  "BSKT",
   "WETHpolygon",
   "WETHbsc",
   "wstETHarbitrum",
