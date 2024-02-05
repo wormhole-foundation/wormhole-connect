@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { useTheme } from '@mui/material/styles';
@@ -18,6 +18,8 @@ import ChainTile from '../ChainTile';
 import ValidationError from '../ValidationError';
 import Input from './Input';
 import Select from './Select';
+import { calculateUSDValue } from 'utils';
+import Price from 'components/Price';
 
 const useStyles = makeStyles()((theme) => ({
   outerContainer: {
@@ -117,6 +119,7 @@ type Props = {
   tokenInput: any;
   amountInput: any;
   balance: string | undefined;
+  tokenPrice: number | undefined;
 };
 
 function Inputs(props: Props) {
@@ -132,6 +135,10 @@ function Inputs(props: Props) {
 
   const theme = useTheme();
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+  const usdPrice = useMemo(() => {
+    return calculateUSDValue(props.balance, props.tokenPrice);
+  }, [props.tokenPrice, props.balance]);
 
   return (
     <div className={classes.container}>
@@ -202,7 +209,16 @@ function Inputs(props: Props) {
                 {/* balance */}
                 <div className={classes.balance}>
                   <Input label="Balance">
-                    <div>{props.balance || NO_INPUT}</div>
+                    <div>
+                      {props.balance && props.tokenPrice ? (
+                        <div>
+                          <div>{props.balance}</div>
+                          <Price>{usdPrice}</Price>
+                        </div>
+                      ) : (
+                        NO_INPUT
+                      )}
+                    </div>
                   </Input>
                 </div>
               </div>

@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useMemo, useRef } from 'react';
 import { useSelector } from 'react-redux';
 
 import { RootState } from 'store';
@@ -7,6 +7,8 @@ import { NO_INPUT } from 'utils/style';
 
 import InputTransparent from 'components/InputTransparent';
 import Input from './Input';
+import { TOKENS } from 'config';
+import Price from 'components/Price';
 
 type Props = {
   handleAmountChange: (value: number | string) => void;
@@ -22,7 +24,7 @@ function AmountInput(props: Props) {
     token,
     isTransactionInProgress,
   } = useSelector((state: RootState) => state.transferInput);
-
+  const { usdPrices } = useSelector((state: RootState) => state.tokenPrices);
   function handleAmountChange(
     e:
       | React.ChangeEvent<HTMLInputElement>
@@ -44,6 +46,11 @@ function AmountInput(props: Props) {
     }
   };
 
+  const price = useMemo(() => {
+    if (!usdPrices.data) return undefined;
+    return usdPrices.data[TOKENS[token]?.symbol];
+  }, [token, usdPrices]);
+
   return (
     <Input
       label={props.label ?? 'Amount'}
@@ -53,16 +60,21 @@ function AmountInput(props: Props) {
       cursor="text"
     >
       {token ? (
-        <InputTransparent
-          inputRef={amountEl}
-          placeholder="0.00"
-          type="number"
-          min={0}
-          step={0.1}
-          onChange={handleAmountChange}
-          disabled={isTransactionInProgress || props.disabled}
-          value={props.value}
-        />
+        <>
+          <InputTransparent
+            inputRef={amountEl}
+            placeholder="0.00"
+            type="number"
+            min={0}
+            step={0.1}
+            onChange={handleAmountChange}
+            disabled={isTransactionInProgress || props.disabled}
+            value={props.value}
+          />
+          {price && props.value && (
+            <Price>{`$${Number(props.value) * price}`}</Price>
+          )}
+        </>
       ) : (
         <div>{NO_INPUT}</div>
       )}

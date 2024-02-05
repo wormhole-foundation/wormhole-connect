@@ -8,7 +8,7 @@ import { RouteState, setRoutes, setTransferRoute } from 'store/transferInput';
 import { LINK, joinClass } from 'utils/style';
 import { toFixedDecimals } from 'utils/balance';
 import RouteOperator from 'routes/operator';
-import { getDisplayName } from 'utils';
+import { calculateUSDValue, getDisplayName } from 'utils';
 import { TOKENS, ROUTES } from 'config';
 import { Route } from 'config/types';
 import { RoutesConfig, RouteData } from 'config/routes';
@@ -19,6 +19,7 @@ import ArrowRightIcon from 'icons/ArrowRight';
 import Options from 'components/Options';
 import { isGatewayChain } from 'utils/cosmos';
 import { isPorticoRoute } from 'routes/porticoBridge/utils';
+import Price from 'components/Price';
 
 const useStyles = makeStyles()((theme: any) => ({
   link: {
@@ -181,8 +182,12 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
   const { toNativeToken, relayerFee } = useSelector(
     (state: RootState) => state.relay,
   );
+  const { usdPrices } = useSelector((state: RootState) => state.tokenPrices);
   const portico = useSelector((state: RootState) => state.porticoBridge);
   const [receiveAmt, setReceiveAmt] = useState<number | undefined>(undefined);
+  const [receiveAmtUSD, setReceiveAmtUSD] = useState<string | undefined>(
+    undefined,
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -202,10 +207,17 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
         );
         if (!cancelled) {
           setReceiveAmt(Number.parseFloat(toFixedDecimals(`${receiveAmt}`, 6)));
+          setReceiveAmtUSD(
+            calculateUSDValue(
+              receiveAmt,
+              usdPrices.data ? usdPrices.data[destToken] : undefined,
+            ),
+          );
         }
       } catch {
         if (!cancelled) {
           setReceiveAmt(0);
+          setReceiveAmtUSD('');
         }
       }
     }
@@ -223,6 +235,7 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
     toChain,
     fromChain,
     portico,
+    usdPrices,
   ]);
   const fromTokenConfig = TOKENS[token];
   const fromTokenIcon = fromTokenConfig && (
@@ -311,6 +324,7 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
               <>
                 <div>
                   {receiveAmt} {getDisplayName(TOKENS[destToken])}
+                  <Price textAlign="right">{receiveAmtUSD}</Price>
                 </div>
                 <div className={classes.routeAmt}>after fees</div>
               </>
