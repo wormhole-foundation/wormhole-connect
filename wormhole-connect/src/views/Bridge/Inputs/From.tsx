@@ -11,9 +11,10 @@ import {
   accessBalance,
   setFetchingReceiveAmount,
   setReceiveAmountError,
+  isDisabledChain,
 } from 'store/transferInput';
 import { CHAINS, CHAINS_ARR, TOKENS } from 'config';
-import { TransferWallet, walletAcceptedChains } from 'utils/wallet';
+import { TransferWallet } from 'utils/wallet';
 import RouteOperator from 'routes/operator';
 import { hydrateHrefTemplate } from 'utils';
 import Inputs from './Inputs';
@@ -49,10 +50,10 @@ function FromInputs() {
   const balance =
     accessBalance(balances, wallet.address, fromChain, token) || undefined;
 
-  const isDisabled = (chain: ChainName) => {
-    // Check if the wallet type (i.e. Metamask, Phantom...) is supported for the given chain
-    return !walletAcceptedChains(wallet.type).includes(chain);
-  };
+  const isDisabled = useCallback(
+    (chain: ChainName) => isDisabledChain(chain, wallet),
+    [wallet],
+  );
 
   const selectChain = async (chain: ChainName) => {
     selectFromChain(dispatch, chain, wallet);

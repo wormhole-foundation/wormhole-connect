@@ -62,8 +62,8 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
   }
 
   async isSupportedSourceToken(
-    token: TokenConfig | undefined,
-    destToken: TokenConfig | undefined,
+    token?: TokenConfig,
+    destToken?: TokenConfig,
     sourceChain?: ChainName | ChainId,
     destChain?: ChainName | ChainId,
   ): Promise<boolean> {
@@ -90,8 +90,8 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
   }
 
   async isSupportedDestToken(
-    token: TokenConfig | undefined,
-    sourceToken: TokenConfig | undefined,
+    token?: TokenConfig,
+    sourceToken?: TokenConfig,
     sourceChain?: ChainName | ChainId,
     destChain?: ChainName | ChainId,
   ): Promise<boolean> {

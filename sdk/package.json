@@ -12,7 +12,7 @@
   },
   "sideEffects": false,
   "dependencies": {
-    "@certusone/wormhole-sdk": "^0.10.6",
+    "@certusone/wormhole-sdk": "^0.10.10",
     "@cosmjs/cosmwasm-stargate": "^0.31.3",
     "@cosmjs/proto-signing": "^0.31.3",
     "@cosmjs/stargate": "^0.31.3",

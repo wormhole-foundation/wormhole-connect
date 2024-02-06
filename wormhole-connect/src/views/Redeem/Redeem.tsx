@@ -44,22 +44,30 @@ function Redeem({
   useEffect(() => {
     if (
       !txData?.sendTx ||
-      !txData.emitterAddress // no VAA exists, e.g. CCTP route
+      !txData.emitterAddress || // no VAA exists, e.g. CCTP route
+      !!signedMessage // if we have the VAA, then it's not enqueued
     ) {
       return;
     }
+    let cancelled = false;
     (async () => {
-      let isVaaEnqueued = false;
-      try {
-        isVaaEnqueued = await fetchIsVAAEnqueued(txData);
-      } catch (e) {
-        // log error and continue
-        console.error(e);
-      } finally {
-        setIsVaaEnqueued(isVaaEnqueued);
+      while (!cancelled) {
+        let isVaaEnqueued = false;
+        try {
+          isVaaEnqueued = await fetchIsVAAEnqueued(txData);
+        } catch (e) {
+          console.error(e);
+        }
+        if (!cancelled) {
+          setIsVaaEnqueued(isVaaEnqueued);
+          await sleep(30000);
+        }
       }
     })();
-  }, [txData, setIsVaaEnqueued]);
+    return () => {
+      cancelled = true;
+    };
+  }, [txData, signedMessage, setIsVaaEnqueued]);
 
   // fetch the VAA
   useEffect(() => {
@@ -138,7 +146,7 @@ function Redeem({
       <ChainsTag />
       <Spacer />
       <GovernorEnqueuedWarning
-        show={!txData && isVaaEnqueued}
+        show={!signedMessage && isVaaEnqueued}
         chain={txData.fromChain}
       />
       <Stepper />

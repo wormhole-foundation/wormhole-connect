@@ -52,37 +52,31 @@ export class TBTCRoute extends BaseRoute {
   }
 
   async isSupportedSourceToken(
-    token: TokenConfig | undefined,
-    destToken: TokenConfig | undefined,
+    token?: TokenConfig,
+    destToken?: TokenConfig,
     sourceChain?: ChainName | ChainId,
     destChain?: ChainName | ChainId,
   ): Promise<boolean> {
     if (!sourceChain) return false;
     if (!token || token.symbol !== TBTC_TOKEN_SYMBOL) return false;
     if (destToken && destToken.symbol !== TBTC_TOKEN_SYMBOL) return false;
-    if (
-      isTBTCCanonicalChain(sourceChain) &&
-      token.nativeChain === wh.toChainName(sourceChain)
-    ) {
-      return true;
+    if (isTBTCCanonicalChain(sourceChain)) {
+      return token.nativeChain === wh.toChainName(sourceChain);
     }
     return wh.toChainId(token.nativeChain) === CHAIN_ID_ETH;
   }
 
   async isSupportedDestToken(
-    token: TokenConfig | undefined,
-    sourceToken: TokenConfig | undefined,
+    token?: TokenConfig,
+    sourceToken?: TokenConfig,
     sourceChain?: ChainName | ChainId,
     destChain?: ChainName | ChainId,
   ): Promise<boolean> {
     if (!destChain) return false;
     if (!token || token.symbol !== TBTC_TOKEN_SYMBOL) return false;
     if (sourceToken && sourceToken.symbol !== TBTC_TOKEN_SYMBOL) return false;
-    if (
-      isTBTCCanonicalChain(destChain) &&
-      token.nativeChain === wh.toChainName(destChain)
-    ) {
-      return true;
+    if (isTBTCCanonicalChain(destChain)) {
+      return token.nativeChain === wh.toChainName(destChain);
     }
     return wh.toChainId(token.nativeChain) === CHAIN_ID_ETH;
   }

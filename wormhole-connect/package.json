@@ -7,7 +7,7 @@
     "access": "restricted"
   },
   "dependencies": {
-    "@certusone/wormhole-sdk": "^0.10.6",
+    "@certusone/wormhole-sdk": "^0.10.10",
     "@cosmjs/cosmwasm-stargate": "^0.31.3",
     "@cosmjs/stargate": "^0.31.3",
     "@cosmjs/tendermint-rpc": "^0.31.3",
@@ -22,15 +22,15 @@
     "@solana/wallet-adapter-wallets": "^0.19.25",
     "@solana/web3.js": "^1.73.0",
     "@wormhole-foundation/connect-sdk": "^0.3.3",
-    "@xlabs-libs/wallet-aggregator-aptos": "^0.0.1-alpha.12",
+    "@xlabs-libs/wallet-aggregator-aptos": "^0.0.1-alpha.14",
     "@xlabs-libs/wallet-aggregator-core": "^0.0.1-alpha.18",
-    "@xlabs-libs/wallet-aggregator-cosmos": "^0.0.1-alpha.12",
+    "@xlabs-libs/wallet-aggregator-cosmos": "^0.0.1-alpha.13",
     "@xlabs-libs/wallet-aggregator-cosmos-evm": "^0.0.1-alpha.6",
     "@xlabs-libs/wallet-aggregator-evm": "^0.0.1-alpha.35",
     "@xlabs-libs/wallet-aggregator-react": "^0.0.1-alpha.14",
     "@xlabs-libs/wallet-aggregator-sei": "^0.0.1-alpha.12",
-    "@xlabs-libs/wallet-aggregator-solana": "^0.0.1-alpha.14",
-    "@xlabs-libs/wallet-aggregator-sui": "^0.0.1-alpha.9",
+    "@xlabs-libs/wallet-aggregator-solana": "^0.0.1-alpha.15",
+    "@xlabs-libs/wallet-aggregator-sui": "^0.0.1-alpha.10",
     "aptos": "1.5.0",
     "axios": "^1.2.4",
     "bn.js": "^5.2.1",
@@ -51,7 +51,8 @@
     "start": "vite",
     "build": "NODE_ENV=production NODE_OPTIONS=--max-old-space-size=6144 vite build",
     "analyze": "NODE_ENV=production NODE_OPTIONS=--max-old-space-size=6144 vite-bundle-visualizer",
-    "test": "jest ./tests/*.test.ts --detectOpenHandles"
+    "test": "jest ./tests/*.test.ts --detectOpenHandles",
+    "checksdn": "npx tsx scripts/ofac/checkSdnListForUpdates.ts"
   },
   "eslintConfig": {
     "extends": [
@@ -93,7 +94,6 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "ts-jest": "^29.1.1",
-    "ts-node": "^10.9.2",
     "typescript": "^5.3.3",
     "vite": "^5.0.8",
     "vite-bundle-visualizer": "^0.11.0",

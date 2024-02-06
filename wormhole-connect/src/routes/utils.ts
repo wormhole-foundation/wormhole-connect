@@ -16,6 +16,8 @@ import {
   wh,
 } from 'utils/sdk';
 import { getTokenById } from 'utils';
+import { CHAIN_ID_ETH } from '@certusone/wormhole-sdk/lib/esm/utils';
+import { TokenConfig } from 'config/types';
 
 // adapts the sdk returned parsed message to the type that
 // wh connect uses
@@ -67,4 +69,21 @@ export const formatGasFee = (chain: ChainName | ChainId, gasFee: BigNumber) => {
   const chainConfig = CHAINS[chainName]!;
   const nativeDecimals = chainConfig.nativeTokenDecimals;
   return toFixedDecimals(utils.formatUnits(gasFee, nativeDecimals), 6);
+};
+
+export const isIlliquidDestToken = (
+  { symbol, nativeChain }: TokenConfig,
+  destChain: ChainName | ChainId,
+): boolean => {
+  // we want to prevent users from receiving non-native or non-Ethereum origin WETH or wstETH
+  // which may lack liquid markets and cause confusion for users
+  if (['WETH', 'wstETH'].includes(symbol)) {
+    if (
+      nativeChain !== wh.toChainName(destChain) &&
+      wh.toChainId(nativeChain) !== CHAIN_ID_ETH
+    ) {
+      return true;
+    }
+  }
+  return false;
 };
