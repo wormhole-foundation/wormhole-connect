@@ -26,7 +26,6 @@ import TokenIcon from 'icons/TokenIcons';
 import BridgeCollapse, { CollapseControlStyle } from './Collapse';
 import { Banner } from './RouteOptions';
 import Price from 'components/Price';
-import { TokenPrices } from 'store/tokenPrices';
 
 const useStyles = makeStyles()(() => ({
   container: {
@@ -47,30 +46,12 @@ const useStyles = makeStyles()(() => ({
   },
 }));
 
-function label(
-  amt1: number,
-  token1: string,
-  amt2: number,
-  token2: string,
-  usdPrices?: TokenPrices,
-) {
-  let price1, price2;
-  if (!!usdPrices) {
-    price1 = calculateUSDPrice(amt1, usdPrices[token1]);
-    price2 = calculateUSDPrice(amt2, usdPrices[token2]);
-  }
-
+function label(amt1: number, token1: string, amt2: number, token2: string) {
   return (
     <div>
-      <div>
-        {toFixedDecimals(`${amt1}`, 4)} {token1}
-      </div>
-      <Price>{price1}</Price>
+      {toFixedDecimals(`${amt1}`, 4)} {token1}
       <br />
-      <div>
-        {toFixedDecimals(`${amt2}`, 4)} {token2}
-      </div>
-      <Price>{price2}</Price>
+      {toFixedDecimals(`${amt2}`, 4)} {token2}
     </div>
   );
 }
@@ -459,7 +440,6 @@ function GasSlider(props: { disabled: boolean }) {
                     getDisplayName(nativeGasToken),
                     state.token,
                     getDisplayName(TOKENS[token]),
-                    data || undefined,
                   )
                 }
                 valueLabelDisplay="auto"

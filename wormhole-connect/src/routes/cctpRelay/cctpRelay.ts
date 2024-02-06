@@ -423,6 +423,10 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
             {
               title: 'Native gas on destination',
               value: `${receiveNativeAmt} ${destinationGasTokenSymbol}`,
+              valueUSD: calculateUSDPrice(
+                receiveNativeAmt,
+                tokenPrices[destinationGasTokenSymbol],
+              ),
             },
           ]
         : [];
