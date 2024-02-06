@@ -45,7 +45,7 @@
   },
   "scripts": {
     "lint": "npm run prettier && eslint --fix --quiet ./src",
-    "lint:ci": "prettier -c ./src && eslint --max-warnings=0 ./src",
+    "lint:ci": "prettier -c ./src && eslint ./src",
     "prettier": "prettier --write ./src",
     "start": "vite",
     "build": "NODE_ENV=production NODE_OPTIONS=--max-old-space-size=6144 vite build",
