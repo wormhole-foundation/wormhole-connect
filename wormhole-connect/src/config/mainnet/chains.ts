@@ -167,6 +167,16 @@ export const MAINNET_CHAINS: ChainsConfig = {
     icon: Icon.OPTIMISM,
     maxBlockSearch: 2000,
   },
+  klaytn: {
+    ...chains.klaytn!,
+    displayName: 'Klaytn',
+    explorerUrl: 'https://klaytnscope.com/',
+    explorerName: 'Klaytn Scope',
+    gasToken: 'KLAY',
+    chainId: 8217,
+    icon: Icon.KLAY,
+    maxBlockSearch: 2000,
+  },
   evmos: {
     ...chains.evmos!,
     displayName: 'Evmos',

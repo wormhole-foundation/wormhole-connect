@@ -2049,4 +2049,48 @@ export const TESTNET_TOKENS: TokensConfig = {
       default: 6,
     },
   },
+  KLAY: {
+    key: 'KLAY',
+    symbol: 'KLAY',
+    decimals: {
+      Ethereum: 18,
+      default: 8,
+    },
+    nativeChain: 'klaytn',
+    icon: Icon.KLAY,
+    coinGeckoId: 'klay-token',
+    color: '#fa4212',
+    wrappedAsset: 'WKLAY',
+  },
+  WKLAY: {
+    key: 'WKLAY',
+    symbol: 'WKLAY',
+    displayName: 'wKLAY',
+    nativeChain: 'klaytn',
+    icon: Icon.KLAY,
+    tokenId: {
+      chain: 'klaytn',
+      address: '0x0339d5Eb6D195Ba90B13ed1BCeAa97EbD198b106',
+    },
+    coinGeckoId: 'wrapped-klay',
+    color: '#fa4212',
+    decimals: {
+      Ethereum: 18,
+      default: 8,
+    },
+    foreignAssets: {
+      mumbai: {
+        address: '0x7b34f3711705eB2963fB856cda063C979de4749e',
+        decimals: 18,
+      },
+      goerli: {
+        address: '0x327e0c7D5cFa65d4f9E358dC9fA4446C49dBcB6C',
+        decimals: 18,
+      },
+      bsc: {
+        address: '0x79D34FDb686B5D139949E4F92D83EEe376489176',
+        decimals: 18,
+      },
+    },
+  },
 };

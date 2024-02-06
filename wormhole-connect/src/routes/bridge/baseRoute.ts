@@ -144,7 +144,7 @@ export abstract class BaseRoute extends RouteAbstract {
     return [
       {
         title: 'Amount',
-        value: `${amount} ${getDisplayName(destToken)}`,
+        value: `${!isNaN(amount) ? amount : '0'} ${getDisplayName(destToken)}`,
         valueUSD: calculateUSDPrice(amount, tokenPrices[destToken.symbol]),
       },
       {

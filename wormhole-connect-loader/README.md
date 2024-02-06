@@ -50,6 +50,7 @@ Networks (`networks`):
 | osmosis | osmosis |
 | evmos | evmos |
 | kujira | kujira |
+| klaytn | klaytn |
 
 <br>
 
