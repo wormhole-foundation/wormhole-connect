@@ -31,6 +31,7 @@ import WSTETH from './Tokens/WSTETH';
 import EVMOS from './Tokens/EVMOS';
 import ATOM from './Tokens/ATOM';
 import KUJI from './Tokens/KUJI';
+import KLAY from './Tokens/KLAY';
 import PYTH from './Tokens/PYTH';
 
 const useStyles = makeStyles<{ size: number }>()((theme, { size }) => ({
@@ -130,6 +131,9 @@ export const getIcon = (icon: Icon) => {
     }
     case Icon.PYTH: {
       return PYTH;
+    }
+    case Icon.KLAY: {
+      return KLAY;
     }
     default: {
       return noIcon;

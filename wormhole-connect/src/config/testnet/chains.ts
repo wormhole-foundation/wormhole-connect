@@ -124,6 +124,16 @@ export const TESTNET_CHAINS: ChainsConfig = {
     automaticRelayer: true,
     maxBlockSearch: 2000,
   },
+  klaytn: {
+    ...chains.klaytn!,
+    displayName: 'Klaytn',
+    explorerUrl: 'https://baobab.klaytnscope.com/',
+    explorerName: 'Klaytn Scope',
+    gasToken: 'KLAY',
+    chainId: 1001,
+    icon: Icon.KLAY,
+    maxBlockSearch: 2000,
+  },
   sei: {
     ...chains.sei!,
     displayName: 'Sei',
