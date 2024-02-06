@@ -18,7 +18,7 @@ import ChainTile from '../ChainTile';
 import ValidationError from '../ValidationError';
 import Input from './Input';
 import Select from './Select';
-import { calculateUSDValue } from 'utils';
+import { calculateUSDPrice } from 'utils';
 import Price from 'components/Price';
 
 const useStyles = makeStyles()((theme) => ({
@@ -137,7 +137,7 @@ function Inputs(props: Props) {
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const usdPrice = useMemo(() => {
-    return calculateUSDValue(props.balance, props.tokenPrice);
+    return calculateUSDPrice(props.balance, props.tokenPrice);
   }, [props.tokenPrice, props.balance]);
 
   return (
@@ -210,7 +210,7 @@ function Inputs(props: Props) {
                 <div className={classes.balance}>
                   <Input label="Balance">
                     <div>
-                      {props.balance && props.tokenPrice ? (
+                      {props.balance ? (
                         <div>
                           <div>{props.balance}</div>
                           <Price>{usdPrice}</Price>

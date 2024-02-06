@@ -8,7 +8,7 @@ import { RouteState, setRoutes, setTransferRoute } from 'store/transferInput';
 import { LINK, joinClass } from 'utils/style';
 import { toFixedDecimals } from 'utils/balance';
 import RouteOperator from 'routes/operator';
-import { calculateUSDValue, getDisplayName } from 'utils';
+import { calculateUSDPrice, getDisplayName } from 'utils';
 import { TOKENS, ROUTES } from 'config';
 import { Route } from 'config/types';
 import { RoutesConfig, RouteData } from 'config/routes';
@@ -207,10 +207,11 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
         );
         if (!cancelled) {
           setReceiveAmt(Number.parseFloat(toFixedDecimals(`${receiveAmt}`, 6)));
+          const symbol = TOKENS[destToken].symbol;
           setReceiveAmtUSD(
-            calculateUSDValue(
+            calculateUSDPrice(
               receiveAmt,
-              usdPrices.data ? usdPrices.data[destToken] : undefined,
+              usdPrices.data ? usdPrices.data[symbol] : undefined,
             ),
           );
         }

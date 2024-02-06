@@ -286,13 +286,13 @@ export const sortTokens = (
   });
 };
 
-export const calculateUSDValue = (
-  value?: string | number,
+export const calculateUSDPrice = (
+  amount?: number | string,
   usdPrice?: number,
 ): string => {
-  if (value && usdPrice) {
-    const amount = typeof value === 'string' ? parseFloat(value) : value;
-    return `($${(amount * usdPrice).toFixed(6)})`;
+  if (amount && usdPrice) {
+    const price = (Number.parseFloat(`${amount}`) * usdPrice).toFixed(6);
+    return `($${price})`;
   }
   return '';
 };

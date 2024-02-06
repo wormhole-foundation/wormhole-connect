@@ -2,7 +2,7 @@ import { ChainId, ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { TokenConfig } from 'config/types';
 import {
   MAX_DECIMALS,
-  calculateUSDValue,
+  calculateUSDPrice,
   getDisplayName,
   getTokenDecimals,
   getWrappedToken,
@@ -132,11 +132,11 @@ export abstract class BaseRoute extends RouteAbstract {
       : '';
 
     // Calculate the USD value of the gas
-    const sendingGasEstPrice = calculateUSDValue(
+    const sendingGasEstPrice = calculateUSDPrice(
       sendingGasEst,
       tokenPrices[sourceGasTokenSymbol],
     );
-    const claimingGasEstPrice = calculateUSDValue(
+    const claimingGasEstPrice = calculateUSDPrice(
       claimingGasEst,
       tokenPrices[destinationGasTokenSymbol],
     );
@@ -145,6 +145,7 @@ export abstract class BaseRoute extends RouteAbstract {
       {
         title: 'Amount',
         value: `${amount} ${getDisplayName(destToken)}`,
+        valueUSD: calculateUSDPrice(amount, tokenPrices[destToken.symbol]),
       },
       {
         title: 'Total fee estimates',
@@ -181,6 +182,7 @@ export abstract class BaseRoute extends RouteAbstract {
   ): Promise<TransferDisplayData> {
     const { tokenKey, amount, tokenDecimals, fromChain, gasFee } =
       params.txData;
+    const tokenPrices = params.tokenPrices;
     const formattedAmt = toNormalizedDecimals(
       amount,
       tokenDecimals,
@@ -199,12 +201,17 @@ export abstract class BaseRoute extends RouteAbstract {
       {
         title: 'Amount',
         value: `${formattedAmt} ${getDisplayName(token)}`,
+        valueUSD: calculateUSDPrice(formattedAmt, tokenPrices[token.symbol]),
       },
       {
         title: 'Gas fee',
         value: formattedGas
           ? `${formattedGas} ${getDisplayName(sourceGasToken)}`
           : NO_INPUT,
+        valueUSD: calculateUSDPrice(
+          formattedGas,
+          tokenPrices[sourceGasToken.symbol],
+        ),
       },
     ];
   }
@@ -214,6 +221,7 @@ export abstract class BaseRoute extends RouteAbstract {
   ): Promise<TransferDestInfo> {
     const {
       txData: { tokenKey, amount, tokenDecimals, toChain },
+      tokenPrices,
       receiveTx,
       gasEstimate,
     } = params;
@@ -240,10 +248,15 @@ export abstract class BaseRoute extends RouteAbstract {
         {
           title: 'Amount',
           value: `${formattedAmt} ${getDisplayName(token)}`,
+          valueUSD: calculateUSDPrice(formattedAmt, tokenPrices[token.symbol]),
         },
         {
           title: receiveTx ? 'Gas fee' : 'Gas estimate',
           value: gas ? `${gas} ${getDisplayName(TOKENS[gasToken])}` : NO_INPUT,
+          valueUSD: calculateUSDPrice(
+            gas,
+            tokenPrices[TOKENS[gasToken].symbol],
+          ),
         },
       ],
     };

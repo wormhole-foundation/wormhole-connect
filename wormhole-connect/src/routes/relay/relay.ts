@@ -15,7 +15,7 @@ import {
   getWrappedTokenId,
   toNormalizedDecimals,
   getDisplayName,
-  calculateUSDValue,
+  calculateUSDPrice,
 } from 'utils';
 import {
   fetchRedeemedEvent,
@@ -433,11 +433,11 @@ export class RelayRoute extends BridgeRoute implements RelayAbstract {
             token,
           )}`;
       totalFeesPrice = isNative
-        ? calculateUSDValue(feeValue, tokenPrices[token.symbol])
-        : `${calculateUSDValue(
+        ? calculateUSDPrice(feeValue, tokenPrices[token.symbol])
+        : `${calculateUSDPrice(
             sendingGasEst,
             tokenPrices[sourceGasTokenSymbol],
-          )} & ${calculateUSDValue(feeValue, tokenPrices[token.symbol])}`;
+          )} & ${calculateUSDPrice(feeValue, tokenPrices[token.symbol])}`;
     }
 
     const receiveAmt = await this.computeReceiveAmount(
@@ -455,7 +455,7 @@ export class RelayRoute extends BridgeRoute implements RelayAbstract {
             {
               title: 'Native gas on destination',
               value: `${receiveNativeAmt} ${destinationGasTokenSymbol}`,
-              valueUSD: calculateUSDValue(
+              valueUSD: calculateUSDPrice(
                 receiveNativeAmt,
                 tokenPrices[destinationGasTokenSymbol],
               ),
@@ -469,6 +469,7 @@ export class RelayRoute extends BridgeRoute implements RelayAbstract {
         value: `${toFixedDecimals(`${receiveAmt}`, 6)} ${getDisplayName(
           destToken,
         )}`,
+        valueUSD: calculateUSDPrice(receiveAmt, tokenPrices[destToken.symbol]),
       },
       ...nativeGasDisplay,
       {
@@ -481,7 +482,7 @@ export class RelayRoute extends BridgeRoute implements RelayAbstract {
             value: sendingGasEst
               ? `~ ${sendingGasEst} ${sourceGasTokenSymbol}`
               : NO_INPUT,
-            valueUSD: calculateUSDValue(
+            valueUSD: calculateUSDPrice(
               sendingGasEst,
               tokenPrices[sourceGasTokenSymbol],
             ),
@@ -492,7 +493,7 @@ export class RelayRoute extends BridgeRoute implements RelayAbstract {
               relayerFee !== undefined
                 ? `${relayerFee} ${getDisplayName(token)}`
                 : NO_INPUT,
-            valueUSD: calculateUSDValue(relayerFee, tokenPrices[token.symbol]),
+            valueUSD: calculateUSDPrice(relayerFee, tokenPrices[token.symbol]),
           },
         ],
       },
@@ -516,6 +517,7 @@ export class RelayRoute extends BridgeRoute implements RelayAbstract {
 
   async getTransferSourceInfo({
     txData: data,
+    tokenPrices,
   }: TransferInfoBaseParams): Promise<TransferDisplayData> {
     const txData = data as ParsedRelayerMessage;
 
@@ -545,16 +547,22 @@ export class RelayRoute extends BridgeRoute implements RelayAbstract {
       {
         title: 'Amount',
         value: `${formattedAmt} ${getDisplayName(token)}`,
+        valueUSD: calculateUSDPrice(formattedAmt, tokenPrices[token.symbol]),
       },
       {
         title: 'Gas fee',
         value: formattedGas
           ? `${formattedGas} ${getDisplayName(sourceGasToken)}`
           : NO_INPUT,
+        valueUSD: calculateUSDPrice(
+          formattedGas,
+          tokenPrices[sourceGasToken.symbol],
+        ),
       },
       {
         title: 'Relayer fee',
         value: `${formattedFee} ${getDisplayName(token)}`,
+        valueUSD: calculateUSDPrice(formattedFee, tokenPrices[token.symbol]),
       },
     ];
 
@@ -570,6 +578,10 @@ export class RelayRoute extends BridgeRoute implements RelayAbstract {
         value: `≈ ${formattedToNative} ${getDisplayName(
           token,
         )} \u2192 ${getDisplayName(TOKENS[gasToken])}`,
+        valueUSD: calculateUSDPrice(
+          formattedToNative,
+          tokenPrices[token.symbol],
+        ),
       });
     }
 
@@ -578,6 +590,7 @@ export class RelayRoute extends BridgeRoute implements RelayAbstract {
 
   async getTransferDestInfo({
     txData: data,
+    tokenPrices,
     receiveTx,
     transferComplete,
   }: TransferDestInfoParams): Promise<TransferDestInfo> {
@@ -612,16 +625,18 @@ export class RelayRoute extends BridgeRoute implements RelayAbstract {
       // if the sender is the recipient, then this was a manual claim
       // and no native gas was received or relayer fee paid
       if (sender && sender === txData.recipient) {
+        const amount = toNormalizedDecimals(
+          txData.amount,
+          txData.tokenDecimals,
+          MAX_DECIMALS,
+        );
         return {
           route: this.TYPE,
           displayData: [
             {
               title: 'Amount',
-              value: `${toNormalizedDecimals(
-                txData.amount,
-                txData.tokenDecimals,
-                MAX_DECIMALS,
-              )} ${getDisplayName(token)}`,
+              value: `${amount} ${getDisplayName(token)}`,
+              valueUSD: calculateUSDPrice(amount, tokenPrices[token.symbol]),
             },
             {
               title: 'Native gas token',
@@ -676,12 +691,17 @@ export class RelayRoute extends BridgeRoute implements RelayAbstract {
         {
           title: 'Amount',
           value: `${formattedAmt} ${getDisplayName(token)}`,
+          valueUSD: calculateUSDPrice(formattedAmt, tokenPrices[token.symbol]),
         },
         {
           title: 'Native gas token',
           value: nativeGasAmt
             ? `${nativeGasAmt} ${getDisplayName(TOKENS[gasToken])}`
             : NO_INPUT,
+          valueUSD: calculateUSDPrice(
+            nativeGasAmt,
+            tokenPrices[TOKENS[gasToken].symbol],
+          ),
         },
       ],
     };

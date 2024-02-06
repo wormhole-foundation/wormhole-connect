@@ -17,7 +17,7 @@ import {
   getTokenDecimals,
   toNormalizedDecimals,
   getDisplayName,
-  calculateUSDValue,
+  calculateUSDPrice,
 } from 'utils';
 import { isEvmChain, toChainId, wh, PayloadType } from 'utils/sdk';
 import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
@@ -378,11 +378,11 @@ export class CCTPManualRoute extends BaseRoute {
       ? getDisplayName(TOKENS[destinationGasToken])
       : '';
     // Calculate the USD value of the gas
-    const sendingGasEstPrice = calculateUSDValue(
+    const sendingGasEstPrice = calculateUSDPrice(
       sendingGasEst,
       tokenPrices[sourceGasTokenSymbol],
     );
-    const claimingGasEstPrice = calculateUSDValue(
+    const claimingGasEstPrice = calculateUSDPrice(
       claimingGasEst,
       tokenPrices[destinationGasTokenSymbol],
     );
@@ -391,6 +391,7 @@ export class CCTPManualRoute extends BaseRoute {
       {
         title: 'Amount',
         value: `${amount} ${getDisplayName(destToken)}`,
+        valueUSD: calculateUSDPrice(amount, tokenPrices[destToken.symbol]),
       },
       {
         title: 'Total fee estimates',
@@ -524,6 +525,7 @@ export class CCTPManualRoute extends BaseRoute {
 
   async getTransferSourceInfo({
     txData,
+    tokenPrices,
   }: TransferInfoBaseParams): Promise<TransferDisplayData> {
     const formattedAmt = toNormalizedDecimals(
       txData.amount,
@@ -544,18 +546,23 @@ export class CCTPManualRoute extends BaseRoute {
       {
         title: 'Amount',
         value: `${formattedAmt} ${getDisplayName(token)}`,
+        valueUSD: calculateUSDPrice(formattedAmt, tokenPrices[token.symbol]),
       },
       {
         title: 'Gas fee',
         value: formattedGas
           ? `${formattedGas} ${getDisplayName(sourceGasToken)}`
           : NO_INPUT,
+        valueUSD: formattedGas
+          ? calculateUSDPrice(formattedGas, tokenPrices[sourceGasToken.symbol])
+          : '',
       },
     ];
   }
 
   async getTransferDestInfo({
     txData,
+    tokenPrices,
     receiveTx,
     gasEstimate,
   }: TransferDestInfoBaseParams): Promise<TransferDestInfo> {
@@ -581,10 +588,14 @@ export class CCTPManualRoute extends BaseRoute {
         {
           title: 'Amount',
           value: `${formattedAmt} ${getDisplayName(token)}`,
+          valueUSD: calculateUSDPrice(formattedAmt, tokenPrices[token.symbol]),
         },
         {
           title: receiveTx ? 'Gas fee' : 'Gas estimate',
           value: gas ? `${gas} ${getDisplayName(TOKENS[gasToken])}` : NO_INPUT,
+          valueUSD: gas
+            ? calculateUSDPrice(gas, tokenPrices[TOKENS[gasToken].symbol])
+            : '',
         },
       ],
     };

@@ -22,7 +22,7 @@ import { PayloadType, isEvmChain, toChainId, toChainName, wh } from 'utils/sdk';
 import { CHAINS, ROUTES, TOKENS, isMainnet } from 'config';
 import {
   MAX_DECIMALS,
-  calculateUSDValue,
+  calculateUSDPrice,
   getChainConfig,
   getDisplayName,
   getGasToken,
@@ -681,6 +681,7 @@ export abstract class PorticoBridge extends BaseRoute {
 
   async getTransferSourceInfo({
     txData,
+    tokenPrices,
   }: TransferInfoBaseParams): Promise<TransferDisplayData> {
     // skip 0x prefix and the function selector (2 + 8 = 10 bytes)
     const inputDataBuffer = Buffer.from(txData.inputData!.slice(10), 'hex');
@@ -738,22 +739,35 @@ export abstract class PorticoBridge extends BaseRoute {
       {
         title: 'Amount',
         value: `${formattedAmount} ${getDisplayName(tokenSent)}`,
+        valueUSD: calculateUSDPrice(
+          formattedAmount,
+          tokenPrices[tokenSent.symbol],
+        ),
       },
       {
         title: 'Gas fee',
         value: formattedGasFee
           ? `${formattedGasFee} ${getDisplayName(gasToken)}`
           : NO_INPUT,
+        valueUSD: calculateUSDPrice(
+          formattedGasFee,
+          tokenPrices[gasToken.symbol],
+        ),
       },
       {
         title: 'Min receive amount',
         value: `${formattedMinAmount} ${getDisplayName(finalToken)}`,
+        valueUSD: calculateUSDPrice(
+          formattedMinAmount,
+          tokenPrices[finalToken.symbol],
+        ),
       },
     ];
   }
 
   async getTransferDestInfo({
     txData,
+    tokenPrices,
     receiveTx,
     transferComplete,
   }: TransferDestInfoParams): Promise<PorticoTransferDestInfo> {
@@ -815,6 +829,10 @@ export abstract class PorticoBridge extends BaseRoute {
           {
             title: 'Amount',
             value: `${formattedAmount} ${receivedTokenDisplayName}`,
+            valueUSD: calculateUSDPrice(
+              formattedAmount,
+              tokenPrices[TOKENS[txData.receivedTokenKey].symbol],
+            ),
           },
           {
             title: 'Relayer fee',
@@ -859,10 +877,18 @@ export abstract class PorticoBridge extends BaseRoute {
         {
           title: 'Amount received',
           value: `${formattedFinalUserAmount} ${finalTokenDisplayName}`,
+          valueUSD: calculateUSDPrice(
+            formattedFinalUserAmount,
+            tokenPrices[finalToken.symbol],
+          ),
         },
         {
           title: 'Relayer fee',
           value: `${formattedRelayerFee} ${finalTokenDisplayName}`,
+          valueUSD: calculateUSDPrice(
+            formattedRelayerFee,
+            tokenPrices[finalToken.symbol],
+          ),
         },
       ],
       destTxInfo,
@@ -898,14 +924,14 @@ export abstract class PorticoBridge extends BaseRoute {
     if (sendingGasEst && relayerFee.data) {
       fee = toDecimals(relayerFee.data, destTokenDecimals, MAX_DECIMALS);
       totalFeesText = `${sendingGasEst} ${gasTokenDisplayName} & ${fee} ${destTokenDisplayName}`;
-      totalFeesPrice = `${calculateUSDValue(
+      totalFeesPrice = `${calculateUSDPrice(
         sendingGasEst,
         tokenPrices[gasToken.symbol],
-      )} & ${calculateUSDValue(fee, tokenPrices[destToken.symbol])}`;
+      )} & ${calculateUSDPrice(fee, tokenPrices[destToken.symbol])}`;
     }
 
-    const feePrice = calculateUSDValue(fee, tokenPrices[destToken.symbol]);
-    const sendingGasEstPrice = calculateUSDValue(
+    const feePrice = calculateUSDPrice(fee, tokenPrices[destToken.symbol]);
+    const sendingGasEstPrice = calculateUSDPrice(
       sendingGasEst,
       tokenPrices[gasToken.symbol],
     );
@@ -927,10 +953,18 @@ export abstract class PorticoBridge extends BaseRoute {
       {
         title: 'Expected to receive',
         value: `${expectedAmount} ${destTokenDisplayName}`,
+        valueUSD: calculateUSDPrice(
+          expectedAmount,
+          tokenPrices[destToken.symbol],
+        ),
       },
       {
         title: 'Minimum to receive',
         value: `${minimumAmount} ${destTokenDisplayName}`,
+        valueUSD: calculateUSDPrice(
+          minimumAmount,
+          tokenPrices[destToken.symbol],
+        ),
       },
       {
         title: 'Total fee estimates',

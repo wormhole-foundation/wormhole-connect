@@ -48,8 +48,10 @@ function AmountInput(props: Props) {
 
   const price = useMemo(() => {
     if (!usdPrices.data) return undefined;
-    return usdPrices.data[TOKENS[token]?.symbol];
-  }, [token, usdPrices]);
+    return (
+      Number(props.value) * usdPrices.data[TOKENS[token]?.symbol]
+    ).toFixed(6);
+  }, [props.value, token, usdPrices]);
 
   return (
     <Input
@@ -71,9 +73,7 @@ function AmountInput(props: Props) {
             disabled={isTransactionInProgress || props.disabled}
             value={props.value}
           />
-          {price && props.value && (
-            <Price>{`$${Number(props.value) * price}`}</Price>
-          )}
+          {price && <Price>{`$${price}`}</Price>}
         </>
       ) : (
         <div>{NO_INPUT}</div>

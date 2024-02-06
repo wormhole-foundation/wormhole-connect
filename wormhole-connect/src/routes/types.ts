@@ -1,5 +1,6 @@
 import { Route } from 'config/types';
 import { ParsedMessage, ParsedRelayerMessage } from '../utils/sdk';
+import { TokenPrices } from 'store/tokenPrices';
 
 export type TokenTransferMessage = ParsedMessage;
 export type RelayTransferMessage = ParsedRelayerMessage;
@@ -43,10 +44,12 @@ export const isSignedCCTPMessage = (
 
 export interface TransferInfoBaseParams {
   txData: ParsedMessage | ParsedRelayerMessage;
+  tokenPrices: TokenPrices;
 }
 
 export interface TransferDestInfoBaseParams {
   txData: ParsedMessage | ParsedRelayerMessage;
+  tokenPrices: TokenPrices;
   receiveTx?: string;
   gasEstimate?: string;
 }

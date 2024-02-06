@@ -1,3 +1,4 @@
+import { TokenPrices } from 'store/tokenPrices';
 import { ParsedMessage, ParsedRelayerMessage } from 'utils/sdk';
 
 export type RelayOptions = {
@@ -8,6 +9,7 @@ export type RelayOptions = {
 
 export interface TransferDestInfoParams {
   txData: ParsedMessage | ParsedRelayerMessage;
+  tokenPrices: TokenPrices;
   receiveTx?: string;
   transferComplete?: boolean;
 }
