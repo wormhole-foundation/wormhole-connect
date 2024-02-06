@@ -97,7 +97,7 @@ function ChainsModal(props: Props) {
     if (href) {
       props.onMoreNetworkSelect?.(href, chainName, target);
     } else {
-      props.onMoreNetworkSelect?.(MORE_NETWORKS?.href!, chainName, target);
+      props.onMoreNetworkSelect?.(MORE_NETWORKS!.href, chainName, target);
     }
   };
   const supportedChains = useMemo(() => {
@@ -153,7 +153,7 @@ function ChainsModal(props: Props) {
         {supportedChains.length > 0 ? (
           <div className={classes.chainsContainer}>
             {supportedChains.map((chain: any, i) => {
-              const disabled = !!props.isDisabled
+              const disabled = props.isDisabled
                 ? props.isDisabled(chain.key)
                 : false;
               return (

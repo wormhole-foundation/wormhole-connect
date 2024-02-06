@@ -29,7 +29,7 @@ export const validateResourceMap = (field: 'rpcs' | 'rest') => {
   const defaultResourceMap = NETWORK_DATA[field];
   const resourceMap = config[field]!;
   const chains = Object.keys(CHAINS) as ChainName[];
-  for (let chain of chains) {
+  for (const chain of chains) {
     if (resourceMap[chain] === defaultResourceMap[chain]) {
       info(
         `No custom ${field} endpoint provided for ${chain}. We recommended that you provide your own ${field} endpoint for the best performance.`,

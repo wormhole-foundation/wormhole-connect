@@ -54,7 +54,7 @@ function Confirmations(props: Props) {
     }
     let cancelled = false;
     (async () => {
-      let currentBlock = 0;
+      const currentBlock = 0;
       while (currentBlock < requiredHeight && !cancelled) {
         const currentBlock = await getCurrentBlock(props.chain);
         if (!cancelled) {

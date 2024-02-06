@@ -82,7 +82,7 @@ interface AssetInfo {
   chainId?: number;
 }
 
-let walletConnection = {
+const walletConnection = {
   sending: undefined as Wallet | undefined,
   receiving: undefined as Wallet | undefined,
 };

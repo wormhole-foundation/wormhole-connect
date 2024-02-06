@@ -107,7 +107,9 @@ function ToInputs() {
   //   computeSendAmount(receiveAmount);
   // }, [route, receiveAmount]);
   // TODO: get compute send amount working correctly again
-  const handleAmountChange = () => {};
+  const handleAmountChange = () => {
+    /* noop */
+  };
   const label =
     route && isPorticoRoute(route) ? 'Expected Amount (-0.05%)' : 'Amount';
   const amountInput = (
@@ -122,7 +124,7 @@ function ToInputs() {
   const handleExtraNetwork = (
     href: string,
     chainName: string,
-    target: string = '_self',
+    target = '_self',
   ) => {
     const hydratedHref = hydrateHrefTemplate(href, fromChain, chainName);
     if (hydratedHref) {

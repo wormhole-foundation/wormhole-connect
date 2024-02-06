@@ -44,7 +44,7 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "lint": "npm run prettier && eslint --fix ./src",
+    "lint": "npm run prettier && eslint --fix --quiet ./src",
     "lint:ci": "prettier -c ./src && eslint --max-warnings=0 ./src",
     "prettier": "prettier --write ./src",
     "start": "vite",

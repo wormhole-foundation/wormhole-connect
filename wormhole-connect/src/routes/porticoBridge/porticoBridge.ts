@@ -673,7 +673,9 @@ export abstract class PorticoBridge extends BaseRoute {
       if (events.length > 0) {
         return events[0].transactionHash;
       }
-    } catch {}
+    } catch (e) {
+      console.error(e);
+    }
     return undefined;
   }
 

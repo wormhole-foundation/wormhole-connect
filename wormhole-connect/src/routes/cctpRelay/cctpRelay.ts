@@ -207,7 +207,9 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
         sourceToken,
         destToken,
       );
-    } catch {}
+    } catch (e) {
+      console.error(e);
+    }
     return !(
       relayerFee === undefined ||
       parseFloat(amount) <
@@ -568,7 +570,7 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
       MAX_DECIMALS,
     );
     const { gasToken } = CHAINS[txData.toChain]!;
-    let rows = [
+    const rows = [
       {
         title: 'Amount',
         value: `${formattedAmt} ${getDisplayName(token)}`,
@@ -709,7 +711,9 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
     let redeemTx: string | undefined = undefined;
     try {
       redeemTx = await fetchRedeemedEvent(txData);
-    } catch {}
+    } catch (e) {
+      console.error(e);
+    }
 
     return redeemTx;
   }

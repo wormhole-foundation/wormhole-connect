@@ -182,7 +182,9 @@ function AddToWallet() {
       if (!tokenInfo) return;
       try {
         if (getChainConfig(txData.toChain).gasToken === tokenInfo.key) return;
-      } catch {}
+      } catch (e) {
+        console.error(e);
+      }
       const wrapped = getWrappedToken(tokenInfo);
       if (!wrapped.tokenId) return;
       const address = await wh.getForeignAsset(wrapped.tokenId, txData.toChain);
