@@ -22,7 +22,7 @@ import ArrowRightIcon from 'icons/ArrowRight';
 import Options from 'components/Options';
 import { isGatewayChain } from 'utils/cosmos';
 import { isPorticoRoute } from 'routes/porticoBridge/utils';
-import { finality, chainIdToChain } from '@wormhole-foundation/sdk-base';
+import { finality, chainIdToChain } from '@wormhole-foundation/connect-sdk';
 
 const useStyles = makeStyles()((theme: any) => ({
   link: {
