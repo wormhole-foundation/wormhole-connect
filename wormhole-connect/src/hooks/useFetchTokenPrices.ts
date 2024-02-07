@@ -11,20 +11,20 @@ export const useFetchTokenPrices = () => {
   const usdPrices: TokenPrices = {};
   useEffect(() => {
     let cancelled = false;
+    const controller = new AbortController();
+    const signal = controller.signal;
+
     const fetchTokenPrices = async () => {
       while (!cancelled) {
         try {
-          // Make API call to fetch token prices
-          const idsList = [];
-          for (const [, tokenConfig] of Object.entries(TOKENS)) {
-            if (tokenConfig.coinGeckoId) {
-              idsList.push(tokenConfig.coinGeckoId);
-            }
-          }
-          const ids = idsList.join(',');
+          // Since TOKENS is constant we assign this controlled value with the coingecko ids
+          const coingeckoIds =
+            'ethereum,usd-coin,wrapped-bitcoin,tether,dai,matic-network,binancecoin,avalanche-2,fantom,celo,moonbeam,solana,sui,aptos,osmosis,tbtc,wrapped-steth,sei-network,cosmos-hub,evmos,kujira,klay-token,wrapped-klay';
 
+          // Make API call to fetch token prices
           const res = await fetch(
-            `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd`,
+            `https://api.coingecko.com/api/v3/simple/price?ids=${coingeckoIds}&vs_currencies=usd`,
+            { signal },
           );
           const data = await res.json();
           if (!cancelled) {
@@ -49,6 +49,7 @@ export const useFetchTokenPrices = () => {
     fetchTokenPrices();
     return () => {
       cancelled = true;
+      controller.abort();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
