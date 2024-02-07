@@ -1,7 +1,7 @@
 import { makeStyles } from 'tss-react/mui';
 import React from 'react';
 
-const useStyles = makeStyles()((theme: any) => ({
+const useStyles = makeStyles()(() => ({
   price: {
     fontSize: '10px',
   },
@@ -18,7 +18,7 @@ const Price = ({ children, textAlign = 'left' }: priceProps) => {
   const { classes } = useStyles();
   return (
     <>
-      {!!children ? (
+      {children?.length ? (
         <div className={`${classes.price}`} style={{ textAlign: textAlign }}>
           {children}
         </div>
