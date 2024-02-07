@@ -2,7 +2,7 @@ import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useTheme } from '@mui/material/styles';
 import { makeStyles } from 'tss-react/mui';
-import { ScopedCssBaseline, useMediaQuery } from '@mui/material';
+import { ScopedCssBaseline, Tooltip, useMediaQuery } from '@mui/material';
 
 import { RootState } from 'store';
 import { setWalletModal } from 'store/router';
@@ -104,81 +104,97 @@ function ConnectWallet(props: Props) {
     dispatch(disconnectFromStore(type));
   };
 
-  return wallet && wallet.address ? (
-    <PopupState variant="popover" popupId="demo-popup-popover">
-      {(popupState) => {
-        const { onClick: triggerPopup, ...boundProps } =
-          bindTrigger(popupState);
+  if (wallet && wallet.address) {
+    return (
+      <PopupState variant="popover" popupId="demo-popup-popover">
+        {(popupState) => {
+          const { onClick: triggerPopup, ...boundProps } =
+            bindTrigger(popupState);
 
-        const onClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-          if (disabled) return;
-          triggerPopup(e);
-        };
+          const onClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+            if (disabled) return;
+            triggerPopup(e);
+          };
 
-        return (
-          <div>
-            <div
-              className={classes.connectWallet}
-              onClick={onClick}
-              {...boundProps}
-            >
-              <WalletIcons name={wallet.name} icon={wallet.icon} height={24} />
-              {displayWalletAddress(wallet.type, wallet.address)}
-              {!disabled && <DownIcon className={classes.down} />}
+          return (
+            <div>
+              <div
+                className={classes.connectWallet}
+                onClick={onClick}
+                {...boundProps}
+              >
+                <WalletIcons
+                  name={wallet.name}
+                  icon={wallet.icon}
+                  height={24}
+                />
+                {displayWalletAddress(wallet.type, wallet.address)}
+                {!disabled && <DownIcon className={classes.down} />}
+              </div>
+              <Popover
+                {...bindPopover(popupState)}
+                sx={{ marginTop: 1 }}
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'right',
+                }}
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+              >
+                <ScopedCssBaseline enableColorScheme>
+                  <div className={classes.dropdown}>
+                    <div
+                      className={classes.dropdownItem}
+                      onClick={() => copy(popupState)}
+                    >
+                      Copy address
+                    </div>
+                    {EXPLORER ? (
+                      <ExplorerLink
+                        address={wallet.address}
+                        href={EXPLORER.href}
+                        target={EXPLORER.target}
+                        label={EXPLORER.label}
+                      />
+                    ) : null}
+                    <div
+                      className={classes.dropdownItem}
+                      onClick={() => connect(popupState)}
+                    >
+                      Change wallet
+                    </div>
+                    <div
+                      className={classes.dropdownItem}
+                      onClick={disconnectWallet}
+                    >
+                      Disconnect
+                    </div>
+                  </div>
+                </ScopedCssBaseline>
+              </Popover>
             </div>
-            <Popover
-              {...bindPopover(popupState)}
-              sx={{ marginTop: 1 }}
-              anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'right',
-              }}
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-            >
-              <ScopedCssBaseline enableColorScheme>
-                <div className={classes.dropdown}>
-                  <div
-                    className={classes.dropdownItem}
-                    onClick={() => copy(popupState)}
-                  >
-                    Copy address
-                  </div>
-                  {EXPLORER ? (
-                    <ExplorerLink
-                      address={wallet.address}
-                      href={EXPLORER.href}
-                      target={EXPLORER.target}
-                      label={EXPLORER.label}
-                    />
-                  ) : null}
-                  <div
-                    className={classes.dropdownItem}
-                    onClick={() => connect(popupState)}
-                  >
-                    Change wallet
-                  </div>
-                  <div
-                    className={classes.dropdownItem}
-                    onClick={disconnectWallet}
-                  >
-                    Disconnect
-                  </div>
-                </div>
-              </ScopedCssBaseline>
-            </Popover>
-          </div>
-        );
-      }}
-    </PopupState>
-  ) : (
-    <div className={classes.connectWallet} onClick={() => connect()}>
-      <WalletIcon />
-      <div>{mobile ? 'Connect' : 'Connect wallet'}</div>
-    </div>
-  );
+          );
+        }}
+      </PopupState>
+    );
+  } else {
+    let button = (
+      <div className={classes.connectWallet} onClick={() => connect()}>
+        <WalletIcon />
+        <div>{mobile ? 'Connect' : 'Connect wallet'}</div>
+      </div>
+    );
+
+    if (disabled) {
+      return (
+        <Tooltip title={'Please select a network first'}>{button}</Tooltip>
+      );
+    } else {
+      return button;
+    }
+  }
 }
 
 export default ConnectWallet;
