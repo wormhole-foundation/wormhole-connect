@@ -169,7 +169,9 @@ function DisplayTokens(props: DisplayTokensProps) {
     selectToken,
     loading,
     search,
-    moreTokens = () => {},
+    moreTokens = () => {
+      /* noop */
+    },
   } = props;
 
   const showCircularProgress = (token: string): boolean => {
@@ -334,7 +336,7 @@ function TokensModal(props: Props) {
     }
   };
 
-  const handleMoreTokens = (href: string, target: string = '_self') => {
+  const handleMoreTokens = (href: string, target = '_self') => {
     let hydratedHref = href;
     if (fromChain) {
       hydratedHref = hydratedHref.replace('{:sourceChain}', fromChain);

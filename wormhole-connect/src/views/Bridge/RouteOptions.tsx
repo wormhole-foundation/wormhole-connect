@@ -350,7 +350,7 @@ function RouteOptions() {
 
     if (!fromChain || !toChain || !token || !destToken) return;
     const getAvailable = async () => {
-      let routes: RouteState[] = [];
+      const routes: RouteState[] = [];
       for (const value of ROUTES) {
         const r = value as Route;
         const available = await RouteOperator.isRouteAvailable(
@@ -397,7 +397,9 @@ function RouteOptions() {
       banner={<Banner />}
       disableCollapse
       startClosed={false}
-      onCollapseChange={() => {}}
+      onCollapseChange={() => {
+        /* noop */
+      }}
       controlStyle={CollapseControlStyle.None}
     >
       <Options active={route} onSelect={onSelect} collapsable collapsed={false}>

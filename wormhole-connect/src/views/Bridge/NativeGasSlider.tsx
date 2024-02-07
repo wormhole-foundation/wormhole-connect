@@ -77,7 +77,7 @@ const PrettoSlider = styled(Slider)<SliderProps>(({ color1, color2 }) => ({
   },
 }));
 
-interface ThumbProps extends React.HTMLAttributes<unknown> {}
+type ThumbProps = React.HTMLAttributes<unknown>;
 
 function formatAmount(amount?: number): number {
   if (!amount) return 0;
@@ -115,7 +115,7 @@ function GasSlider(props: { disabled: boolean }) {
   const destConfig = CHAINS[toChain!];
   const sendingToken = TOKENS[token];
   const receivingToken = TOKENS[destToken];
-  const nativeGasToken = TOKENS[destConfig?.gasToken!];
+  const nativeGasToken = TOKENS[destConfig!.gasToken];
 
   const [state, setState] = useState(INITIAL_STATE);
   const [debouncedSwapAmt] = useDebounce(state.swapAmt, 500);

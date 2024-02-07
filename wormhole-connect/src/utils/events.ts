@@ -25,7 +25,9 @@ export const fetchRedeemTx = async (
   if (txData.emitterAddress && txData.sequence) {
     try {
       transactionHash = await fetchGlobalTx(txData);
-    } catch {}
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   transactionHash = await RouteOperator.tryFetchRedeemTx(route, txData);

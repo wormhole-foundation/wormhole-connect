@@ -33,7 +33,7 @@ function InputContainer(props: Props) {
       onClick={props.onClick}
       style={{
         ...props.styles,
-        cursor: !!props.onClick ? 'pointer' : 'default',
+        cursor: props.onClick ? 'pointer' : 'default',
       }}
     >
       {props.children}

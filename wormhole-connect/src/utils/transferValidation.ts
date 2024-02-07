@@ -296,7 +296,7 @@ export const validateAll = async (
 
 export const isTransferValid = (validations: TransferValidations) => {
   for (const validationErr of Object.values(validations)) {
-    if (!!validationErr) {
+    if (validationErr) {
       return false;
     }
   }

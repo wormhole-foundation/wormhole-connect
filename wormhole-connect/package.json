@@ -44,8 +44,8 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "lint": "npm run prettier && eslint --fix ./src",
-    "lint:ci": "prettier -c ./src && eslint --max-warnings=0 ./src",
+    "lint": "scripts/lint.sh",
+    "lint:ci": "scripts/lint_ci.sh",
     "prettier": "prettier --write ./src",
     "start": "vite",
     "build": "NODE_ENV=production NODE_OPTIONS=--max-old-space-size=6144 vite build",

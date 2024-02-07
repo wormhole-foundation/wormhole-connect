@@ -45,7 +45,7 @@ import { wstETHBridge } from 'routes/porticoBridge/wstETHBridge';
 import { usePorticoSwapInfo } from 'hooks/usePorticoSwapInfo';
 import { usePorticoRelayerFee } from 'hooks/usePorticoRelayerFee';
 
-const useStyles = makeStyles()((theme) => ({
+const useStyles = makeStyles()((_theme) => ({
   spacer: {
     display: 'flex',
     flexDirection: 'column',
@@ -138,7 +138,6 @@ function Bridge() {
     };
     computeSrcTokens();
     // IMPORTANT: do not include token in dependency array
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [route, fromChain, destToken, dispatch]);
 
   useEffect(() => {
@@ -205,7 +204,6 @@ function Bridge() {
     };
     computeDestTokens();
     // IMPORTANT: do not include destToken in dependency array
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [route, token, fromChain, toChain, dispatch]);
 
   useEffect(() => {
