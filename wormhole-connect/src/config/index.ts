@@ -169,6 +169,10 @@ export const TESTNET_TO_MAINNET_CHAIN_NAMES: {
   evmos: 'evmos',
   kujira: 'kujira',
   klaytn: 'klaytn',
+  sepolia: 'ethereum',
+  arbitrum_sepolia: 'arbitrum',
+  base_sepolia: 'base',
+  optimism_sepolia: 'optimism',
 };
 
 validateConfigs();

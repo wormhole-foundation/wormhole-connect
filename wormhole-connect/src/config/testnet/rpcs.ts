@@ -1,6 +1,7 @@
 import { populateRpcField } from '../utils';
 const {
   REACT_APP_GOERLI_RPC,
+  REACT_APP_SEPOLIA_RPC,
   REACT_APP_MUMBAI_RPC,
   REACT_APP_BSC_TESTNET_RPC,
   REACT_APP_FUJI_RPC,
@@ -12,6 +13,7 @@ const {
   REACT_APP_APTOS_TESTNET_RPC,
   REACT_APP_SEI_TESTNET_RPC,
   REACT_APP_BASE_GOERLI_RPC,
+  REACT_APP_BASE_SEPOLIA_RPC,
   REACT_APP_OSMOSIS_TESTNET_RPC,
   REACT_APP_WORMCHAIN_TESTNET_RPC,
   REACT_APP_EVMOS_TESTNET_RPC,
@@ -21,12 +23,15 @@ const {
   REACT_APP_SEI_REST,
   REACT_APP_EVMOS_REST,
   REACT_APP_ARBITRUM_GOERLI_RPC,
+  REACT_APP_ARBITRUM_SEPOLIA_RPC,
   REACT_APP_OPTIMISM_GOERLI_RPC,
+  REACT_APP_OPTIMISM_SEPOLIA_RPC,
   REACT_APP_APTOS_TESTNET_GRAPHQL,
 } = import.meta.env;
 
 export const TESTNET_RPC_MAPPING = {
   ...populateRpcField('goerli', REACT_APP_GOERLI_RPC),
+  ...populateRpcField('sepolia', REACT_APP_SEPOLIA_RPC),
   ...populateRpcField('mumbai', REACT_APP_MUMBAI_RPC),
   ...populateRpcField('bsc', REACT_APP_BSC_TESTNET_RPC),
   ...populateRpcField('fuji', REACT_APP_FUJI_RPC),
@@ -38,10 +43,13 @@ export const TESTNET_RPC_MAPPING = {
   ...populateRpcField('aptos', REACT_APP_APTOS_TESTNET_RPC),
   ...populateRpcField('sei', REACT_APP_SEI_TESTNET_RPC),
   ...populateRpcField('basegoerli', REACT_APP_BASE_GOERLI_RPC),
+  ...populateRpcField('base_sepolia', REACT_APP_BASE_SEPOLIA_RPC),
   ...populateRpcField('osmosis', REACT_APP_OSMOSIS_TESTNET_RPC),
   ...populateRpcField('wormchain', REACT_APP_WORMCHAIN_TESTNET_RPC),
   ...populateRpcField('arbitrumgoerli', REACT_APP_ARBITRUM_GOERLI_RPC),
+  ...populateRpcField('arbitrum_sepolia', REACT_APP_ARBITRUM_SEPOLIA_RPC),
   ...populateRpcField('optimismgoerli', REACT_APP_OPTIMISM_GOERLI_RPC),
+  ...populateRpcField('optimism_sepolia', REACT_APP_OPTIMISM_SEPOLIA_RPC),
   ...populateRpcField('cosmoshub', REACT_APP_COSMOSHUB_TESTNET_RPC),
   ...populateRpcField('evmos', REACT_APP_EVMOS_TESTNET_RPC),
   ...populateRpcField('kujira', REACT_APP_KUJIRA_TESTNET_RPC),

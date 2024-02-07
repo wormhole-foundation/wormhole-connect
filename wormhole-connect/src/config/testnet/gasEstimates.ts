@@ -238,4 +238,32 @@ export const TESTNET_GAS_ESTIMATES: GasEstimates = {
       claim: 0,
     },
   },
+  sepolia: {
+    [Route.Bridge]: {
+      sendNative: 100000,
+      sendToken: 150000,
+      claim: 200000,
+    },
+  },
+  arbitrum_sepolia: {
+    [Route.Bridge]: {
+      sendNative: 100000,
+      sendToken: 150000,
+      claim: 200000,
+    },
+  },
+  base_sepolia: {
+    [Route.Bridge]: {
+      sendNative: 100000,
+      sendToken: 150000,
+      claim: 200000,
+    },
+  },
+  optimism_sepolia: {
+    [Route.Bridge]: {
+      sendNative: 100000,
+      sendToken: 150000,
+      claim: 200000,
+    },
+  },
 };
