@@ -151,7 +151,9 @@ function ToInputs() {
         amountInput={amountInput}
         balance={balance}
         warning={<TokenWarnings />}
-        tokenPrice={usdPrices.data ? usdPrices.data[destToken] : undefined}
+        tokenPrice={
+          usdPrices.data ? usdPrices.data[TOKENS[destToken]?.symbol] : undefined
+        }
       />
       <TokensModal
         open={showTokensModal}

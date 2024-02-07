@@ -176,7 +176,9 @@ function FromInputs() {
         tokenInput={tokenInput}
         amountInput={amountInput}
         balance={balance}
-        tokenPrice={usdPrices.data ? usdPrices.data[token] : undefined}
+        tokenPrice={
+          usdPrices.data ? usdPrices.data[TOKENS[token]?.symbol] : undefined
+        }
       />
       <TokensModal
         open={showTokensModal}
