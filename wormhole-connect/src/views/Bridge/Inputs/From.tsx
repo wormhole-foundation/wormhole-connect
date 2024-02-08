@@ -16,7 +16,7 @@ import {
 import { CHAINS, CHAINS_ARR, TOKENS } from 'config';
 import { TransferWallet } from 'utils/wallet';
 import RouteOperator from 'routes/operator';
-import { hydrateHrefTemplate } from 'utils';
+import { getTokenPrice, hydrateHrefTemplate } from 'utils';
 import Inputs from './Inputs';
 import Select from './Select';
 import AmountInput from './AmountInput';
@@ -176,9 +176,7 @@ function FromInputs() {
         tokenInput={tokenInput}
         amountInput={amountInput}
         balance={balance}
-        tokenPrice={
-          usdPrices.data ? usdPrices.data[TOKENS[token]?.symbol] : undefined
-        }
+        tokenPrice={getTokenPrice(usdPrices.data || {}, TOKENS[token])}
       />
       <TokensModal
         open={showTokensModal}

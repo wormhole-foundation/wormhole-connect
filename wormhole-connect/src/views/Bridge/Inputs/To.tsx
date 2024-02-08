@@ -10,7 +10,7 @@ import {
   setDestToken,
 } from 'store/transferInput';
 import { TransferWallet } from 'utils/wallet';
-import { hydrateHrefTemplate } from 'utils';
+import { getTokenPrice, hydrateHrefTemplate } from 'utils';
 import { CHAINS, CHAINS_ARR, TOKENS } from 'config';
 
 import Inputs from './Inputs';
@@ -151,9 +151,7 @@ function ToInputs() {
         amountInput={amountInput}
         balance={balance}
         warning={<TokenWarnings />}
-        tokenPrice={
-          usdPrices.data ? usdPrices.data[TOKENS[destToken]?.symbol] : undefined
-        }
+        tokenPrice={getTokenPrice(usdPrices.data || {}, TOKENS[destToken])}
       />
       <TokensModal
         open={showTokensModal}

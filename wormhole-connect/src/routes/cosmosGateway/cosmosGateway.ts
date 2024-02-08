@@ -253,7 +253,8 @@ export class CosmosGatewayRoute extends BaseRoute {
     // Calculate the USD value of the gas
     const sendingGasEstPrice = calculateUSDPrice(
       sendingGasEst,
-      tokenPrices[sourceGasTokenSymbol],
+      tokenPrices,
+      TOKENS[sourceGasToken || ''],
     );
 
     return [
@@ -262,7 +263,7 @@ export class CosmosGatewayRoute extends BaseRoute {
         value: `${toFixedDecimals(`${amount}`, 6)} ${getDisplayName(
           destToken,
         )}`,
-        valueUSD: calculateUSDPrice(amount, tokenPrices[destToken.symbol]),
+        valueUSD: calculateUSDPrice(amount, tokenPrices, destToken),
       },
       {
         title: 'Total fee estimates',
@@ -390,17 +391,14 @@ export class CosmosGatewayRoute extends BaseRoute {
       {
         title: 'Amount',
         value: `${formattedAmt} ${getDisplayName(token)}`,
-        valueUSD: calculateUSDPrice(formattedAmt, tokenPrices[token.symbol]),
+        valueUSD: calculateUSDPrice(formattedAmt, tokenPrices, token),
       },
       {
         title: 'Gas fee',
         value: formattedGas
           ? `${formattedGas} ${getDisplayName(sourceGasToken)}`
           : '—',
-        valueUSD: calculateUSDPrice(
-          formattedGas,
-          tokenPrices[sourceGasToken.symbol],
-        ),
+        valueUSD: calculateUSDPrice(formattedGas, tokenPrices, sourceGasToken),
       },
     ];
   }
@@ -434,15 +432,12 @@ export class CosmosGatewayRoute extends BaseRoute {
         {
           title: 'Amount',
           value: `${formattedAmt} ${getDisplayName(token)}`,
-          valueUSD: calculateUSDPrice(formattedAmt, tokenPrices[token.symbol]),
+          valueUSD: calculateUSDPrice(formattedAmt, tokenPrices, token),
         },
         {
           title: receiveTx ? 'Gas fee' : 'Gas estimate',
           value: gas ? `${gas} ${getDisplayName(TOKENS[gasToken])}` : '—',
-          valueUSD: calculateUSDPrice(
-            gas,
-            tokenPrices[TOKENS[gasToken].symbol],
-          ),
+          valueUSD: calculateUSDPrice(gas, tokenPrices, TOKENS[gasToken]),
         },
       ],
     };

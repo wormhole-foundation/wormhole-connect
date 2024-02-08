@@ -14,6 +14,7 @@ import { ChainConfig, TokenConfig } from 'config/types';
 import { isEvmChain, wh } from 'utils/sdk';
 import { toDecimals } from './balance';
 import { isGatewayChain } from './cosmos';
+import { TokenPrices } from 'store/tokenPrices';
 
 export const MAX_DECIMALS = 6;
 export const NORMALIZED_DECIMALS = 8;
@@ -286,11 +287,25 @@ export const sortTokens = (
   });
 };
 
+export const getTokenPrice = (
+  tokenPrices: TokenPrices,
+  token: TokenConfig,
+): number | undefined => {
+  if (tokenPrices && token) {
+    const price = tokenPrices[token.coinGeckoId]?.usd;
+    return price;
+  }
+  return undefined;
+};
+
 export const calculateUSDPrice = (
   amount?: number | string,
-  usdPrice?: number,
+  tokenPrices?: TokenPrices,
+  token?: TokenConfig,
 ): string => {
-  if (amount && usdPrice) {
+  if (!amount || !tokenPrices || !token) return '';
+  const usdPrice = getTokenPrice(tokenPrices || {}, token) || 0;
+  if (usdPrice > 0) {
     const price = (Number.parseFloat(`${amount}`) * usdPrice).toFixed(6);
     return `($${price})`;
   }

@@ -739,27 +739,22 @@ export abstract class PorticoBridge extends BaseRoute {
       {
         title: 'Amount',
         value: `${formattedAmount} ${getDisplayName(tokenSent)}`,
-        valueUSD: calculateUSDPrice(
-          formattedAmount,
-          tokenPrices[tokenSent.symbol],
-        ),
+        valueUSD: calculateUSDPrice(formattedAmount, tokenPrices, tokenSent),
       },
       {
         title: 'Gas fee',
         value: formattedGasFee
           ? `${formattedGasFee} ${getDisplayName(gasToken)}`
           : NO_INPUT,
-        valueUSD: calculateUSDPrice(
-          formattedGasFee,
-          tokenPrices[gasToken.symbol],
-        ),
+        valueUSD: calculateUSDPrice(formattedGasFee, tokenPrices, gasToken),
       },
       {
         title: 'Min receive amount',
         value: `${formattedMinAmount} ${getDisplayName(finalToken)}`,
         valueUSD: calculateUSDPrice(
           formattedMinAmount,
-          tokenPrices[finalToken.symbol],
+          tokenPrices,
+          finalToken,
         ),
       },
     ];
@@ -831,7 +826,8 @@ export abstract class PorticoBridge extends BaseRoute {
             value: `${formattedAmount} ${receivedTokenDisplayName}`,
             valueUSD: calculateUSDPrice(
               formattedAmount,
-              tokenPrices[TOKENS[txData.receivedTokenKey].symbol],
+              tokenPrices,
+              TOKENS[txData.receivedTokenKey],
             ),
           },
           {
@@ -879,7 +875,8 @@ export abstract class PorticoBridge extends BaseRoute {
           value: `${formattedFinalUserAmount} ${finalTokenDisplayName}`,
           valueUSD: calculateUSDPrice(
             formattedFinalUserAmount,
-            tokenPrices[finalToken.symbol],
+            tokenPrices,
+            finalToken,
           ),
         },
         {
@@ -887,7 +884,8 @@ export abstract class PorticoBridge extends BaseRoute {
           value: `${formattedRelayerFee} ${finalTokenDisplayName}`,
           valueUSD: calculateUSDPrice(
             formattedRelayerFee,
-            tokenPrices[finalToken.symbol],
+            tokenPrices,
+            finalToken,
           ),
         },
       ],
@@ -924,16 +922,16 @@ export abstract class PorticoBridge extends BaseRoute {
     if (sendingGasEst && relayerFee.data) {
       fee = toDecimals(relayerFee.data, destTokenDecimals, MAX_DECIMALS);
       totalFeesText = `${sendingGasEst} ${gasTokenDisplayName} & ${fee} ${destTokenDisplayName}`;
-      totalFeesPrice = `${calculateUSDPrice(
-        sendingGasEst,
-        tokenPrices[gasToken.symbol],
-      )} & ${calculateUSDPrice(fee, tokenPrices[destToken.symbol])}`;
+      totalFeesPrice = `${
+        calculateUSDPrice(sendingGasEst, tokenPrices, gasToken) || NO_INPUT
+      } & ${calculateUSDPrice(fee, tokenPrices, destToken) || NO_INPUT}`;
     }
 
-    const feePrice = calculateUSDPrice(fee, tokenPrices[destToken.symbol]);
+    const feePrice = calculateUSDPrice(fee, tokenPrices, destToken);
     const sendingGasEstPrice = calculateUSDPrice(
       sendingGasEst,
-      tokenPrices[gasToken.symbol],
+      tokenPrices,
+      gasToken,
     );
     let expectedAmount = '';
     let minimumAmount = '';
@@ -953,18 +951,12 @@ export abstract class PorticoBridge extends BaseRoute {
       {
         title: 'Expected to receive',
         value: `${expectedAmount} ${destTokenDisplayName}`,
-        valueUSD: calculateUSDPrice(
-          expectedAmount,
-          tokenPrices[destToken.symbol],
-        ),
+        valueUSD: calculateUSDPrice(expectedAmount, tokenPrices, destToken),
       },
       {
         title: 'Minimum to receive',
         value: `${minimumAmount} ${destTokenDisplayName}`,
-        valueUSD: calculateUSDPrice(
-          minimumAmount,
-          tokenPrices[destToken.symbol],
-        ),
+        valueUSD: calculateUSDPrice(minimumAmount, tokenPrices, destToken),
       },
       {
         title: 'Total fee estimates',

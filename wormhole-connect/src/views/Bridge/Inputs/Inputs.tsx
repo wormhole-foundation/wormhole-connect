@@ -18,7 +18,6 @@ import ChainTile from '../ChainTile';
 import ValidationError from '../ValidationError';
 import Input from './Input';
 import Select from './Select';
-import { calculateUSDPrice } from 'utils';
 import Price from 'components/Price';
 
 const useStyles = makeStyles()((theme) => ({
@@ -137,7 +136,12 @@ function Inputs(props: Props) {
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const usdPrice = useMemo(() => {
-    return calculateUSDPrice(props.balance, props.tokenPrice);
+    if (props.balance && props.tokenPrice) {
+      return `($${(
+        Number.parseFloat(`${props.balance}`) * props.tokenPrice
+      ).toFixed(6)})`;
+    }
+    return '';
   }, [props.tokenPrice, props.balance]);
 
   return (

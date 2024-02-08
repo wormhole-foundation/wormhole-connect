@@ -207,11 +207,11 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
         );
         if (!cancelled) {
           setReceiveAmt(Number.parseFloat(toFixedDecimals(`${receiveAmt}`, 6)));
-          const symbol = TOKENS[destToken].symbol;
           setReceiveAmtUSD(
             calculateUSDPrice(
               receiveAmt,
-              usdPrices.data ? usdPrices.data[symbol] : undefined,
+              usdPrices?.data || {},
+              TOKENS[destToken],
             ),
           );
         }

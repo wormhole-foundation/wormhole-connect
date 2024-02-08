@@ -6,7 +6,7 @@ import {
   getEmptyDataWrapper,
   receiveDataWrapper,
 } from './helpers';
-export type TokenPrices = { [key: string]: number };
+export type TokenPrices = { [key: string]: { usd: number } };
 
 export interface TokenPricesState {
   usdPrices: DataWrapper<TokenPrices>;

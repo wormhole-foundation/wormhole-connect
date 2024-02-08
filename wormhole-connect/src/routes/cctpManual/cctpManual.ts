@@ -380,18 +380,20 @@ export class CCTPManualRoute extends BaseRoute {
     // Calculate the USD value of the gas
     const sendingGasEstPrice = calculateUSDPrice(
       sendingGasEst,
-      tokenPrices[sourceGasTokenSymbol],
+      tokenPrices,
+      TOKENS[sourceGasToken || ''],
     );
     const claimingGasEstPrice = calculateUSDPrice(
       claimingGasEst,
-      tokenPrices[destinationGasTokenSymbol],
+      tokenPrices,
+      TOKENS[destinationGasToken || ''],
     );
 
     return [
       {
         title: 'Amount',
         value: `${!isNaN(amount) ? amount : '0'} ${getDisplayName(destToken)}`,
-        valueUSD: calculateUSDPrice(amount, tokenPrices[destToken.symbol]),
+        valueUSD: calculateUSDPrice(amount, tokenPrices, destToken),
       },
       {
         title: 'Total fee estimates',
@@ -401,7 +403,9 @@ export class CCTPManualRoute extends BaseRoute {
             : '',
         valueUSD:
           sendingGasEst && claimingGasEst
-            ? `${sendingGasEstPrice} & ${claimingGasEstPrice}`
+            ? `${sendingGasEstPrice || NO_INPUT} & ${
+                claimingGasEstPrice || NO_INPUT
+              }`
             : '',
         rows: [
           {
@@ -546,16 +550,14 @@ export class CCTPManualRoute extends BaseRoute {
       {
         title: 'Amount',
         value: `${formattedAmt} ${getDisplayName(token)}`,
-        valueUSD: calculateUSDPrice(formattedAmt, tokenPrices[token.symbol]),
+        valueUSD: calculateUSDPrice(formattedAmt, tokenPrices, token),
       },
       {
         title: 'Gas fee',
         value: formattedGas
           ? `${formattedGas} ${getDisplayName(sourceGasToken)}`
           : NO_INPUT,
-        valueUSD: formattedGas
-          ? calculateUSDPrice(formattedGas, tokenPrices[sourceGasToken.symbol])
-          : '',
+        valueUSD: calculateUSDPrice(formattedGas, tokenPrices, sourceGasToken),
       },
     ];
   }
@@ -588,14 +590,12 @@ export class CCTPManualRoute extends BaseRoute {
         {
           title: 'Amount',
           value: `${formattedAmt} ${getDisplayName(token)}`,
-          valueUSD: calculateUSDPrice(formattedAmt, tokenPrices[token.symbol]),
+          valueUSD: calculateUSDPrice(formattedAmt, tokenPrices, token),
         },
         {
           title: receiveTx ? 'Gas fee' : 'Gas estimate',
           value: gas ? `${gas} ${getDisplayName(TOKENS[gasToken])}` : NO_INPUT,
-          valueUSD: gas
-            ? calculateUSDPrice(gas, tokenPrices[TOKENS[gasToken].symbol])
-            : '',
+          valueUSD: calculateUSDPrice(gas, tokenPrices, TOKENS[gasToken]),
         },
       ],
     };

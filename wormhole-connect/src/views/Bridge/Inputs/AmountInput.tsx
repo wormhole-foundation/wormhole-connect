@@ -9,6 +9,7 @@ import InputTransparent from 'components/InputTransparent';
 import Input from './Input';
 import { TOKENS } from 'config';
 import Price from 'components/Price';
+import { getTokenPrice } from 'utils';
 
 type Props = {
   handleAmountChange: (value: number | string) => void;
@@ -25,6 +26,7 @@ function AmountInput(props: Props) {
     isTransactionInProgress,
   } = useSelector((state: RootState) => state.transferInput);
   const { usdPrices } = useSelector((state: RootState) => state.tokenPrices);
+
   function handleAmountChange(
     e:
       | React.ChangeEvent<HTMLInputElement>
@@ -47,10 +49,9 @@ function AmountInput(props: Props) {
   };
 
   const price = useMemo(() => {
-    if (!usdPrices.data) return undefined;
-    return (
-      Number(props.value) * usdPrices.data[TOKENS[token]?.symbol]
-    ).toFixed(6);
+    const tokenPrice = getTokenPrice(usdPrices.data || {}, TOKENS[token]) || 0;
+    if (!tokenPrice) return undefined;
+    return (Number(props.value) * tokenPrice).toFixed(6);
   }, [props.value, token, usdPrices]);
 
   return (

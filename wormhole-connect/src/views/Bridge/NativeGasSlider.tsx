@@ -175,12 +175,11 @@ function GasSlider(props: { disabled: boolean }) {
       ...prevState,
       disabled: amountNum <= 0 || actualMaxSwap === 0,
       token: formatAmount(newTokenAmount),
-      tokenPrice: data
-        ? calculateUSDPrice(
-            formatAmount(newTokenAmount),
-            data[TOKENS[token].symbol],
-          )
-        : '',
+      tokenPrice: calculateUSDPrice(
+        formatAmount(newTokenAmount),
+        data || {},
+        TOKENS[token],
+      ),
       max: formatAmount(actualMaxSwap),
     }));
   }, [relayerFee, maxSwapAmt, amountNum, route, state.swapAmt, data, token]);
@@ -287,12 +286,11 @@ function GasSlider(props: { disabled: boolean }) {
         nativeGas: 0,
         nativeGasPrice: '',
         token: formatAmount(amountNum),
-        tokenPrice: data
-          ? calculateUSDPrice(
-              formatAmount(amountNum),
-              data[TOKENS[token].symbol],
-            )
-          : '',
+        tokenPrice: calculateUSDPrice(
+          formatAmount(amountNum),
+          data || {},
+          TOKENS[token],
+        ),
       }));
       dispatch(setReceiveNativeAmt(0));
     }
@@ -307,19 +305,17 @@ function GasSlider(props: { disabled: boolean }) {
     const swapAmount = value;
     const conversion = {
       nativeGas: formatAmount(newGasAmount),
-      nativeGasPrice: data
-        ? calculateUSDPrice(
-            formatAmount(newGasAmount),
-            data[nativeGasToken.symbol],
-          )
-        : '',
+      nativeGasPrice: calculateUSDPrice(
+        formatAmount(newGasAmount),
+        data || {},
+        nativeGasToken,
+      ),
       token: formatAmount(newTokenAmount),
-      tokenPrice: data
-        ? calculateUSDPrice(
-            formatAmount(newTokenAmount),
-            data[TOKENS[token].symbol],
-          )
-        : '',
+      tokenPrice: calculateUSDPrice(
+        formatAmount(newTokenAmount),
+        data || {},
+        TOKENS[token],
+      ),
       swapAmt: formatAmount(swapAmount),
     };
     setState((prevState) => ({ ...prevState, ...conversion }));
@@ -364,16 +360,17 @@ function GasSlider(props: { disabled: boolean }) {
       setState((prevState) => ({
         ...prevState,
         nativeGas: formattedNativeAmt,
-        nativeGasPrice: data
-          ? calculateUSDPrice(formattedNativeAmt, data[nativeGasToken.symbol])
-          : '',
+        nativeGasPrice: calculateUSDPrice(
+          formattedNativeAmt,
+          data || {},
+          nativeGasToken,
+        ),
         token: formatAmount(amountNum - debouncedSwapAmt),
-        tokenPrice: data
-          ? calculateUSDPrice(
-              formatAmount(amountNum - debouncedSwapAmt),
-              data[TOKENS[token].symbol],
-            )
-          : '',
+        tokenPrice: calculateUSDPrice(
+          formatAmount(amountNum - debouncedSwapAmt),
+          data || {},
+          TOKENS[token],
+        ),
       }));
     })();
     return () => {

@@ -94,6 +94,7 @@ export interface WormholeConnectConfig {
   walletConnectProjectId?: string;
   ethBridgeMaxAmount?: number;
   wstETHBridgeMaxAmount?: number;
+  coinGeckoApiKey?: string;
 }
 
 export type ExplorerConfig = {
