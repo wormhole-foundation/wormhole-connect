@@ -196,7 +196,10 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
   const { toNativeToken, relayerFee } = useSelector(
     (state: RootState) => state.relay,
   );
-  const { usdPrices } = useSelector((state: RootState) => state.tokenPrices);
+  const {
+    usdPrices: { data },
+  } = useSelector((state: RootState) => state.tokenPrices);
+  const prices = data || {};
   const portico = useSelector((state: RootState) => state.porticoBridge);
   const [receiveAmt, setReceiveAmt] = useState<number | undefined>(undefined);
   const [receiveAmtUSD, setReceiveAmtUSD] = useState<string | undefined>(
@@ -225,11 +228,7 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
         if (!cancelled) {
           setReceiveAmt(Number.parseFloat(toFixedDecimals(`${receiveAmt}`, 6)));
           setReceiveAmtUSD(
-            calculateUSDPrice(
-              receiveAmt,
-              usdPrices?.data || {},
-              TOKENS[destToken],
-            ),
+            calculateUSDPrice(receiveAmt, prices, TOKENS[destToken]),
           );
           setEstimatedTime(getEstimatedTime(fromChain));
         }
@@ -255,7 +254,7 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
     toChain,
     fromChain,
     portico,
-    usdPrices,
+    data,
   ]);
   const fromTokenConfig = TOKENS[token];
   const fromTokenIcon = fromTokenConfig && (

@@ -38,7 +38,10 @@ function ToInputs() {
     isTransactionInProgress,
   } = useSelector((state: RootState) => state.transferInput);
   const receiving = useSelector((state: RootState) => state.wallet.receiving);
-  const { usdPrices } = useSelector((state: RootState) => state.tokenPrices);
+  const {
+    usdPrices: { data },
+  } = useSelector((state: RootState) => state.tokenPrices);
+  const prices = data || {};
   const balance =
     accessBalance(balances, receiving.address, toChain, destToken) || undefined;
 
@@ -153,7 +156,7 @@ function ToInputs() {
         amountInput={amountInput}
         balance={balance}
         warning={<TokenWarnings />}
-        tokenPrice={getTokenPrice(usdPrices.data || {}, TOKENS[destToken])}
+        tokenPrice={getTokenPrice(prices, TOKENS[destToken])}
       />
       <TokensModal
         open={showTokensModal}

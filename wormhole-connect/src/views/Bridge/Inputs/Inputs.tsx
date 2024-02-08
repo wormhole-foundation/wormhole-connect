@@ -19,6 +19,7 @@ import ValidationError from '../ValidationError';
 import Input from './Input';
 import Select from './Select';
 import Price from 'components/Price';
+import { getUSDFormat } from 'utils';
 
 const useStyles = makeStyles()((theme) => ({
   outerContainer: {
@@ -137,9 +138,9 @@ function Inputs(props: Props) {
 
   const usdPrice = useMemo(() => {
     if (props.balance && props.tokenPrice) {
-      return `($${(
-        Number.parseFloat(`${props.balance}`) * props.tokenPrice
-      ).toFixed(6)})`;
+      return getUSDFormat(
+        Number.parseFloat(`${props.balance}`) * props.tokenPrice,
+      );
     }
     return '';
   }, [props.tokenPrice, props.balance]);

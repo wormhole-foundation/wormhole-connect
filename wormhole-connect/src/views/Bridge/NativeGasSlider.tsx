@@ -118,7 +118,7 @@ function GasSlider(props: { disabled: boolean }) {
   const {
     usdPrices: { data },
   } = useSelector((state: RootState) => state.tokenPrices);
-
+  const prices = data || {};
   const destConfig = CHAINS[toChain!];
   const sendingToken = TOKENS[token];
   const receivingToken = TOKENS[destToken];
@@ -177,7 +177,7 @@ function GasSlider(props: { disabled: boolean }) {
       token: formatAmount(newTokenAmount),
       tokenPrice: calculateUSDPrice(
         formatAmount(newTokenAmount),
-        data || {},
+        prices,
         TOKENS[token],
       ),
       max: formatAmount(actualMaxSwap),
@@ -288,7 +288,7 @@ function GasSlider(props: { disabled: boolean }) {
         token: formatAmount(amountNum),
         tokenPrice: calculateUSDPrice(
           formatAmount(amountNum),
-          data || {},
+          prices,
           TOKENS[token],
         ),
       }));
@@ -307,13 +307,13 @@ function GasSlider(props: { disabled: boolean }) {
       nativeGas: formatAmount(newGasAmount),
       nativeGasPrice: calculateUSDPrice(
         formatAmount(newGasAmount),
-        data || {},
+        prices,
         nativeGasToken,
       ),
       token: formatAmount(newTokenAmount),
       tokenPrice: calculateUSDPrice(
         formatAmount(newTokenAmount),
-        data || {},
+        prices,
         TOKENS[token],
       ),
       swapAmt: formatAmount(swapAmount),
@@ -362,13 +362,13 @@ function GasSlider(props: { disabled: boolean }) {
         nativeGas: formattedNativeAmt,
         nativeGasPrice: calculateUSDPrice(
           formattedNativeAmt,
-          data || {},
+          prices,
           nativeGasToken,
         ),
         token: formatAmount(amountNum - debouncedSwapAmt),
         tokenPrice: calculateUSDPrice(
           formatAmount(amountNum - debouncedSwapAmt),
-          data || {},
+          prices,
           TOKENS[token],
         ),
       }));

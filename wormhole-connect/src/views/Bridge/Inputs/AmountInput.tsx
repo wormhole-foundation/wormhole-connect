@@ -9,7 +9,7 @@ import InputTransparent from 'components/InputTransparent';
 import Input from './Input';
 import { TOKENS } from 'config';
 import Price from 'components/Price';
-import { getTokenPrice } from 'utils';
+import { getTokenPrice, getUSDFormat } from 'utils';
 
 type Props = {
   handleAmountChange: (value: number | string) => void;
@@ -25,7 +25,10 @@ function AmountInput(props: Props) {
     token,
     isTransactionInProgress,
   } = useSelector((state: RootState) => state.transferInput);
-  const { usdPrices } = useSelector((state: RootState) => state.tokenPrices);
+  const {
+    usdPrices: { data },
+  } = useSelector((state: RootState) => state.tokenPrices);
+  const prices = data || {};
 
   function handleAmountChange(
     e:
@@ -49,10 +52,10 @@ function AmountInput(props: Props) {
   };
 
   const price = useMemo(() => {
-    const tokenPrice = getTokenPrice(usdPrices.data || {}, TOKENS[token]) || 0;
+    const tokenPrice = getTokenPrice(prices, TOKENS[token]) || 0;
     if (!tokenPrice) return undefined;
-    return (Number(props.value) * tokenPrice).toFixed(6);
-  }, [props.value, token, usdPrices]);
+    return getUSDFormat(Number(props.value) * tokenPrice);
+  }, [props.value, token, prices]);
 
   return (
     <Input
@@ -74,7 +77,7 @@ function AmountInput(props: Props) {
             disabled={isTransactionInProgress || props.disabled}
             value={props.value}
           />
-          {price && <Price>{`$${price}`}</Price>}
+          {price && <Price>{price}</Price>}
         </>
       ) : (
         <div>{NO_INPUT}</div>

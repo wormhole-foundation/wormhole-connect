@@ -298,6 +298,16 @@ export const getTokenPrice = (
   return undefined;
 };
 
+export const getUSDFormat = (price: number | undefined): string => {
+  if (typeof price !== 'undefined') {
+    return `(${price > 0 ? '~' : ''}${Intl.NumberFormat('en-EN', {
+      style: 'currency',
+      currency: 'USD',
+    }).format(price)})`;
+  }
+  return '';
+};
+
 export const calculateUSDPrice = (
   amount?: number | string,
   tokenPrices?: TokenPrices,
@@ -306,8 +316,8 @@ export const calculateUSDPrice = (
   if (!amount || !tokenPrices || !token) return '';
   const usdPrice = getTokenPrice(tokenPrices || {}, token) || 0;
   if (usdPrice > 0) {
-    const price = (Number.parseFloat(`${amount}`) * usdPrice).toFixed(6);
-    return `($${price})`;
+    const price = Number.parseFloat(`${amount}`) * usdPrice;
+    return getUSDFormat(price);
   }
   return '';
 };

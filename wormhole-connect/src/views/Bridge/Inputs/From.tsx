@@ -34,7 +34,10 @@ function FromInputs() {
   );
   const portico = useSelector((state: RootState) => state.porticoBridge);
   const wallet = useSelector((state: RootState) => state.wallet.sending);
-  const { usdPrices } = useSelector((state: RootState) => state.tokenPrices);
+  const {
+    usdPrices: { data },
+  } = useSelector((state: RootState) => state.tokenPrices);
+  const prices = data || {};
   const {
     showValidationState: showErrors,
     validations,
@@ -176,7 +179,7 @@ function FromInputs() {
         tokenInput={tokenInput}
         amountInput={amountInput}
         balance={balance}
-        tokenPrice={getTokenPrice(usdPrices.data || {}, TOKENS[token])}
+        tokenPrice={getTokenPrice(prices, TOKENS[token])}
       />
       <TokensModal
         open={showTokensModal}
