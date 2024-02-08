@@ -37,7 +37,9 @@ export default defineConfig({
   },
   plugins: [
     checker({
-      typescript: true,
+      eslint: {
+        lintCommand: 'eslint "./src/**/*.{ts,tsx}"',
+      },
     }),
     react(),
     nodePolyfills({

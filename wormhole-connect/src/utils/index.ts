@@ -28,7 +28,7 @@ function isNative(address: string) {
   return address === SUI_TYPE_ARG || address === '0x1::aptos_coin::AptosCoin';
 }
 
-export function trimAddress(address: string, max: number = 6): string {
+export function trimAddress(address: string, max = 6): string {
   if (isNative(address)) return address;
   return (
     address.slice(0, max) +

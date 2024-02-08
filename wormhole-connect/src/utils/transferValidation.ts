@@ -296,7 +296,7 @@ export const validateAll = async (
 
 export const isTransferValid = (validations: TransferValidations) => {
   for (const validationErr of Object.values(validations)) {
-    if (!!validationErr) {
+    if (validationErr) {
       return false;
     }
   }
@@ -354,4 +354,10 @@ export const useValidate = () => {
   useEffect(() => {
     validate(debouncedStateForValidation, dispatch);
   }, [debouncedStateForValidation, dispatch]);
+};
+
+export const millisToMinutesAndSeconds = (millis: number) => {
+  const minutes = Math.floor(millis / 60000);
+  const seconds = Math.floor((millis % 60000) / 1000);
+  return `${minutes}m ${seconds}s`;
 };

@@ -24,7 +24,7 @@ export default function MilestoneStepper() {
   if (isPorticoTransferDestInfo(transferDestInfo)) {
     showWarning = !!transferDestInfo.destTxInfo.swapFailed;
   }
-  const activeStep = transferComplete ? 4 : !!signedMessage ? 2 : 1;
+  const activeStep = transferComplete ? 4 : signedMessage ? 2 : 1;
 
   const steps = [
     {

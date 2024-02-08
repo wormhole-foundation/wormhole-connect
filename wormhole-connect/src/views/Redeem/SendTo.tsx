@@ -144,7 +144,9 @@ function SendTo() {
           gasEstimate,
         });
         dispatch(setTransferDestInfo(info));
-      } catch {}
+      } catch (e) {
+        console.error(e);
+      }
     };
     populate();
   }, [

@@ -157,7 +157,7 @@ function TokenWarnings() {
         setShowErrors(false);
         return false;
       }
-      let tokenId = getWrappedTokenId(tokenConfig);
+      const tokenId = getWrappedTokenId(tokenConfig);
       const account = await solanaContext().getAssociatedTokenAccount(
         tokenId,
         receiving.address,

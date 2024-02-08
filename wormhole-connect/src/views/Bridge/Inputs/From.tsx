@@ -150,7 +150,7 @@ function FromInputs() {
   const handleExtraNetwork = (
     href: string,
     chainName: string,
-    target: string = '_self',
+    target = '_self',
   ) => {
     const hydratedHref = hydrateHrefTemplate(href, chainName);
     if (hydratedHref) {

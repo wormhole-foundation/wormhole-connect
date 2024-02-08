@@ -81,7 +81,9 @@ function Redeem({
       while (signed === undefined && !cancelled) {
         try {
           signed = await RouteOperator.getSignedMessage(route, txData);
-        } catch {}
+        } catch {
+          signed = undefined;
+        }
         if (cancelled) {
           return;
         }
@@ -114,7 +116,9 @@ function Redeem({
             txData.toChain,
             signedMessage,
           );
-        } catch {}
+        } catch (e) {
+          console.error(e);
+        }
         if (cancelled) {
           return;
         }

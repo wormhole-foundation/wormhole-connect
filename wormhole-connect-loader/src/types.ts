@@ -41,6 +41,10 @@ export const TESTNET_CHAINS = {
   wormchain: 3104,
   evmos: 4001,
   kujira: 4002,
+  sepolia: 10002,
+  arbitrum_sepolia: 10003,
+  base_sepolia: 10004,
+  optimism_sepolia: 10005,
 } as const;
 export type TestnetChainName = keyof typeof TESTNET_CHAINS;
 export type TestnetChainId = (typeof TESTNET_CHAINS)[TestnetChainName];

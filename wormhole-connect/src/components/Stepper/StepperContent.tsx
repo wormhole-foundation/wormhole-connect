@@ -42,7 +42,7 @@ export default function StepperLabel(props: Props) {
       className={joinClass([
         classes.content,
         activeStep > index &&
-          (!!warning ? classes.lineWarning : classes.lineActive),
+          (warning ? classes.lineWarning : classes.lineActive),
         !!last && classes.lineNone,
       ])}
     >

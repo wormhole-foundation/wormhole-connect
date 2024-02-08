@@ -37,7 +37,7 @@ Environment (`env`):
 Networks (`networks`):
 | Mainnet | Testnet |
 | ---------- | ------------- |
-| ethereum | goerli |
+| ethereum | goerli, sepolia |
 | polygon | mumbai |
 | bsc | bsc |
 | avalanche | fuji |
@@ -46,19 +46,21 @@ Networks (`networks`):
 | solana | solana |
 | sui | sui |
 | aptos | aptos |
-| base | basegoerli |
+| base | basegoerli, base_sepolia |
 | osmosis | osmosis |
 | evmos | evmos |
 | kujira | kujira |
 | klaytn | klaytn |
+| arbitrum | arbitrumgoerli, arbitrum_sepolia |
+| optimism | optimismgoerli, optimism_sepolia |
 
 <br>
 
 Tokens (`tokens`):
 | Mainnet | Testnet |
 | ----------- | -------- |
-| ETH | ETH |
-| WETH | WETH |
+| ETH | ETH, ETHsepolia |
+| WETH | WETH, WETHsepolia |
 | USDCeth | USDCeth |
 | WBTC | |
 | USDT | |
@@ -83,14 +85,14 @@ Tokens (`tokens`):
 | SUI | SUI |
 | USDCsol | |
 | APT | APT |
-| ETHarbitrum | ETHarbitrum|
-| WETHarbitrum | WETHarbitrum|
+| ETHarbitrum | ETHarbitrum, ETHarbitrum_sepolia |
+| WETHarbitrum | WETHarbitrum, WETHarbitrum_sepolia |
 | USDCarbitrum | USDCarbitrum|
-| ETHoptimism | ETHoptimism|
-| WETHoptimism | WETHoptimism|
+| ETHoptimism | ETHoptimism, ETHoptimism_sepolia |
+| WETHoptimism | WETHoptimism, WETHoptimism_sepolia |
 | USDCoptimism | USDCoptimism|
-| ETHbase | ETHbase |
-| WETHbase | WETHbase |
+| ETHbase | ETHbase, ETHbase_sepolia |
+| WETHbase | WETHbase, WETHbase_sepolia |
 | tBTC | tBTC |
 | tBTCpolygon | tBTCpolygon |
 | tBTCoptimism | tBTCoptimism |

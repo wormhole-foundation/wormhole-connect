@@ -7,11 +7,14 @@ import { RootState } from 'store';
 import { RouteState, setRoutes, setTransferRoute } from 'store/transferInput';
 import { LINK, joinClass } from 'utils/style';
 import { toFixedDecimals } from 'utils/balance';
+import { millisToMinutesAndSeconds } from 'utils/transferValidation';
 import RouteOperator from 'routes/operator';
 import { calculateUSDPrice, getDisplayName } from 'utils';
 import { TOKENS, ROUTES } from 'config';
 import { Route } from 'config/types';
 import { RoutesConfig, RouteData } from 'config/routes';
+import { wh } from 'utils/sdk';
+import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 
 import BridgeCollapse, { CollapseControlStyle } from './Collapse';
 import TokenIcon from 'icons/TokenIcons';
@@ -20,6 +23,7 @@ import Options from 'components/Options';
 import { isGatewayChain } from 'utils/cosmos';
 import { isPorticoRoute } from 'routes/porticoBridge/utils';
 import Price from 'components/Price';
+import { finality, chainIdToChain } from '@wormhole-foundation/connect-sdk';
 
 const useStyles = makeStyles()((theme: any) => ({
   link: {
@@ -171,6 +175,16 @@ function Tag(props: TagProps) {
   );
 }
 
+const getEstimatedTime = (chain?: ChainName) => {
+  if (!chain) return undefined;
+  const chainName = chainIdToChain(wh.toChainId(chain));
+  const chainFinality = finality.finalityThreshold.get(chainName);
+  if (typeof chainFinality === 'undefined') return undefined;
+  return chainFinality === 0
+    ? 'Instantly'
+    : millisToMinutesAndSeconds(finality.blockTime(chainName) * chainFinality);
+};
+
 function RouteOption(props: { route: RouteData; disabled: boolean }) {
   const { classes } = useStyles();
   const theme = useTheme();
@@ -189,6 +203,9 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
     undefined,
   );
 
+  const [estimatedTime, setEstimatedTime] = useState<string | undefined>(
+    undefined,
+  );
   useEffect(() => {
     let cancelled = false;
     async function load() {
@@ -214,11 +231,13 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
               TOKENS[destToken],
             ),
           );
+          setEstimatedTime(getEstimatedTime(fromChain));
         }
       } catch {
         if (!cancelled) {
           setReceiveAmt(0);
           setReceiveAmtUSD('');
+          setEstimatedTime(getEstimatedTime(fromChain));
         }
       }
     }
@@ -328,6 +347,11 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
                   <Price textAlign="right">{receiveAmtUSD}</Price>
                 </div>
                 <div className={classes.routeAmt}>after fees</div>
+                {typeof estimatedTime !== 'undefined' && (
+                  <div className={classes.routeAmt}>
+                    Estimated time: {estimatedTime}
+                  </div>
+                )}
               </>
             )}
           </div>
@@ -365,7 +389,7 @@ function RouteOptions() {
 
     if (!fromChain || !toChain || !token || !destToken) return;
     const getAvailable = async () => {
-      let routes: RouteState[] = [];
+      const routes: RouteState[] = [];
       for (const value of ROUTES) {
         const r = value as Route;
         const available = await RouteOperator.isRouteAvailable(
@@ -412,7 +436,9 @@ function RouteOptions() {
       banner={<Banner />}
       disableCollapse
       startClosed={false}
-      onCollapseChange={() => {}}
+      onCollapseChange={() => {
+        /* noop */
+      }}
       controlStyle={CollapseControlStyle.None}
     >
       <Options active={route} onSelect={onSelect} collapsable collapsed={false}>

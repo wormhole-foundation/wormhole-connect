@@ -109,7 +109,9 @@ export class RelayRoute extends BridgeRoute implements RelayAbstract {
         sourceToken,
         destToken,
       );
-    } catch {}
+    } catch (e) {
+      console.error(e);
+    }
     const decimals = getTokenDecimals(wh.toChainId(sourceChain), tokenId);
     return !(
       relayerFee === undefined ||
@@ -548,7 +550,7 @@ export class RelayRoute extends BridgeRoute implements RelayAbstract {
       MAX_DECIMALS,
     );
     const { gasToken } = CHAINS[txData.toChain]!;
-    let rows = [
+    const rows = [
       {
         title: 'Amount',
         value: `${formattedAmt} ${getDisplayName(token)}`,
@@ -620,7 +622,9 @@ export class RelayRoute extends BridgeRoute implements RelayAbstract {
       let sender;
       try {
         sender = await fetchRedeemedEventSender(txData);
-      } catch (e) {}
+      } catch (e) {
+        console.error(e);
+      }
       // if the sender is the recipient, then this was a manual claim
       // and no native gas was received or relayer fee paid
       if (sender && sender === txData.recipient) {
@@ -718,7 +722,9 @@ export class RelayRoute extends BridgeRoute implements RelayAbstract {
     try {
       const res = await fetchRedeemedEvent(message);
       redeemTx = res?.transactionHash;
-    } catch {}
+    } catch (e) {
+      console.error(e);
+    }
 
     return redeemTx;
   }
