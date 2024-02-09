@@ -22,7 +22,6 @@ import {
 } from '@xlabs-libs/wallet-aggregator-cosmos';
 import { getWallets as getCosmosEvmWallets } from '@xlabs-libs/wallet-aggregator-cosmos-evm';
 import {
-  BitgetWalletAdapter,
   CloverWalletAdapter,
   Coin98WalletAdapter,
   SolongWalletAdapter,
@@ -131,7 +130,6 @@ export const wallets = {
       acc[w.getName().toLowerCase()] = w;
       return acc;
     }, {} as Record<string, Wallet>),
-    bitget: new SolanaWallet(new BitgetWalletAdapter(), connection),
     clover: new SolanaWallet(new CloverWalletAdapter(), connection),
     coin98: new SolanaWallet(new Coin98WalletAdapter(), connection),
     solong: new SolanaWallet(new SolongWalletAdapter(), connection),
