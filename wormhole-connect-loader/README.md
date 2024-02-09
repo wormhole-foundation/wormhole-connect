@@ -340,6 +340,10 @@ By setting the `showHamburgerMenu` option to **false**, you can use the `menu` a
 }
 ```
 
+### CoinGecko API Key
+
+If you have a CoinGecko API Plan, you can include the API key in the configuration. In case you do not have the API key, [follow this steps](https://apiguide.coingecko.com/getting-started/getting-started).
+
 ### More Networks
 
 Specify a set of extra networks to be displayed on the network selection modal, each of them linking to a different page/dApp/mobile app the user will be redirected to.
