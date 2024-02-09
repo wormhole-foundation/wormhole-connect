@@ -114,7 +114,7 @@ const buildCosmosWallets = (evm?: boolean) => {
 };
 
 const getWalletName = (wallet: Wallet) =>
-  wallet.getName().toLowerCase().replace('wallet', '').trim();
+  wallet.getName().toLowerCase().replaceAll('wallet', '').trim();
 
 export const wallets = {
   evm: {
