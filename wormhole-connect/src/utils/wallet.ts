@@ -22,13 +22,13 @@ import {
 } from '@xlabs-libs/wallet-aggregator-cosmos';
 import { getWallets as getCosmosEvmWallets } from '@xlabs-libs/wallet-aggregator-cosmos-evm';
 import {
-  BitgetWalletAdapter,
   CloverWalletAdapter,
   Coin98WalletAdapter,
   SolongWalletAdapter,
   TorusWalletAdapter,
   NightlyWalletAdapter,
   WalletConnectWalletAdapter,
+  BitgetWalletAdapter,
 } from '@solana/wallet-adapter-wallets';
 import { WalletAdapterNetwork as SolanaNetwork } from '@solana/wallet-adapter-base';
 import {
@@ -113,6 +113,9 @@ const buildCosmosWallets = (evm?: boolean) => {
   }, {} as Record<string, Wallet>);
 };
 
+const getWalletName = (wallet: Wallet) =>
+  wallet.getName().toLowerCase().replaceAll('wallet', '').trim();
+
 export const wallets = {
   evm: {
     injected: new InjectedWallet(),
@@ -128,9 +131,10 @@ export const wallets = {
   },
   solana: {
     ...getSolanaStandardWallets(connection).reduce((acc, w) => {
-      acc[w.getName().toLowerCase()] = w;
+      acc[getWalletName(w)] = w;
       return acc;
     }, {} as Record<string, Wallet>),
+    //Override standard wallets with custom ones
     bitget: new SolanaWallet(new BitgetWalletAdapter(), connection),
     clover: new SolanaWallet(new CloverWalletAdapter(), connection),
     coin98: new SolanaWallet(new Coin98WalletAdapter(), connection),
