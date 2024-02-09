@@ -107,7 +107,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
       portico: '0x05498574BD0Fa99eeCB01e1241661E7eE58F8a85',
       uniswapQuoterV2: '0x78D78E420Da98ad378D7799bE8f4AF69033EB077',
     },
-    finalityThreshold: 15,
+    finalityThreshold: 3,
     nativeTokenDecimals: 18,
   },
   avalanche: {
