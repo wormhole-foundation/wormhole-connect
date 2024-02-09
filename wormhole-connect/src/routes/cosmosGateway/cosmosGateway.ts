@@ -10,7 +10,7 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { MsgExecuteContract } from 'cosmjs-types/cosmwasm/wasm/v1/tx';
 import { BigNumber, utils } from 'ethers';
-import { getDisplayName } from 'utils';
+import { calculateUSDPrice, getDisplayName } from 'utils';
 import { toChainId, wh } from 'utils/sdk';
 import { isGatewayChain } from 'utils/cosmos';
 import { CHAINS, ENV, ROUTES, TOKENS } from 'config';
@@ -49,6 +49,7 @@ import {
   toCosmos,
   getUnsignedMessageFromCosmos,
 } from './utils';
+import { TokenPrices } from 'store/tokenPrices';
 
 export class CosmosGatewayRoute extends BaseRoute {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean = false;
@@ -241,6 +242,7 @@ export class CosmosGatewayRoute extends BaseRoute {
     sendingGasEst: string,
     claimingGasEst: string,
     receiveAmount: string,
+    tokenPrices: TokenPrices,
     routeOptions?: any,
   ): Promise<TransferDisplayData> {
     const sendingChainName = wh.toChainName(sendingChain);
@@ -248,22 +250,32 @@ export class CosmosGatewayRoute extends BaseRoute {
     const sourceGasTokenSymbol = sourceGasToken
       ? getDisplayName(TOKENS[sourceGasToken])
       : '';
+    // Calculate the USD value of the gas
+    const sendingGasEstPrice = calculateUSDPrice(
+      sendingGasEst,
+      tokenPrices,
+      TOKENS[sourceGasToken || ''],
+    );
+
     return [
       {
         title: 'Amount',
         value: `${toFixedDecimals(`${amount}`, 6)} ${getDisplayName(
           destToken,
         )}`,
+        valueUSD: calculateUSDPrice(amount, tokenPrices, destToken),
       },
       {
         title: 'Total fee estimates',
         value: `${sendingGasEst} ${sourceGasTokenSymbol}`,
+        valueUSD: sendingGasEstPrice,
         rows: [
           {
             title: 'Source chain gas estimate',
             value: sendingGasEst
               ? `~ ${sendingGasEst} ${sourceGasTokenSymbol}`
               : '—',
+            valueUSD: sendingGasEstPrice,
           },
         ],
       },
@@ -358,6 +370,7 @@ export class CosmosGatewayRoute extends BaseRoute {
 
   async getTransferSourceInfo({
     txData,
+    tokenPrices,
   }: TransferInfoBaseParams): Promise<TransferDisplayData> {
     const formattedAmt = toNormalizedDecimals(
       txData.amount,
@@ -378,18 +391,21 @@ export class CosmosGatewayRoute extends BaseRoute {
       {
         title: 'Amount',
         value: `${formattedAmt} ${getDisplayName(token)}`,
+        valueUSD: calculateUSDPrice(formattedAmt, tokenPrices, token),
       },
       {
         title: 'Gas fee',
         value: formattedGas
           ? `${formattedGas} ${getDisplayName(sourceGasToken)}`
           : '—',
+        valueUSD: calculateUSDPrice(formattedGas, tokenPrices, sourceGasToken),
       },
     ];
   }
 
   async getTransferDestInfo({
     txData,
+    tokenPrices,
     receiveTx,
     gasEstimate,
   }: TransferDestInfoBaseParams): Promise<TransferDestInfo> {
@@ -416,10 +432,12 @@ export class CosmosGatewayRoute extends BaseRoute {
         {
           title: 'Amount',
           value: `${formattedAmt} ${getDisplayName(token)}`,
+          valueUSD: calculateUSDPrice(formattedAmt, tokenPrices, token),
         },
         {
           title: receiveTx ? 'Gas fee' : 'Gas estimate',
           value: gas ? `${gas} ${getDisplayName(TOKENS[gasToken])}` : '—',
+          valueUSD: calculateUSDPrice(gas, tokenPrices, TOKENS[gasToken]),
         },
       ],
     };

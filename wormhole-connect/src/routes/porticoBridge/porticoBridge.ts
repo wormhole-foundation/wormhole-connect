@@ -22,6 +22,7 @@ import { PayloadType, isEvmChain, toChainId, toChainName, wh } from 'utils/sdk';
 import { CHAINS, ROUTES, TOKENS, isMainnet } from 'config';
 import {
   MAX_DECIMALS,
+  calculateUSDPrice,
   getChainConfig,
   getDisplayName,
   getGasToken,
@@ -62,6 +63,7 @@ import {
   validateCreateOrderResponse,
 } from './utils';
 import { PorticoBridgeState, PorticoSwapAmounts } from 'store/porticoBridge';
+import { TokenPrices } from 'store/tokenPrices';
 
 export abstract class PorticoBridge extends BaseRoute {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean = false;
@@ -681,6 +683,7 @@ export abstract class PorticoBridge extends BaseRoute {
 
   async getTransferSourceInfo({
     txData,
+    tokenPrices,
   }: TransferInfoBaseParams): Promise<TransferDisplayData> {
     // skip 0x prefix and the function selector (2 + 8 = 10 bytes)
     const inputDataBuffer = Buffer.from(txData.inputData!.slice(10), 'hex');
@@ -738,22 +741,30 @@ export abstract class PorticoBridge extends BaseRoute {
       {
         title: 'Amount',
         value: `${formattedAmount} ${getDisplayName(tokenSent)}`,
+        valueUSD: calculateUSDPrice(formattedAmount, tokenPrices, tokenSent),
       },
       {
         title: 'Gas fee',
         value: formattedGasFee
           ? `${formattedGasFee} ${getDisplayName(gasToken)}`
           : NO_INPUT,
+        valueUSD: calculateUSDPrice(formattedGasFee, tokenPrices, gasToken),
       },
       {
         title: 'Min receive amount',
         value: `${formattedMinAmount} ${getDisplayName(finalToken)}`,
+        valueUSD: calculateUSDPrice(
+          formattedMinAmount,
+          tokenPrices,
+          finalToken,
+        ),
       },
     ];
   }
 
   async getTransferDestInfo({
     txData,
+    tokenPrices,
     receiveTx,
     transferComplete,
   }: TransferDestInfoParams): Promise<PorticoTransferDestInfo> {
@@ -815,6 +826,11 @@ export abstract class PorticoBridge extends BaseRoute {
           {
             title: 'Amount',
             value: `${formattedAmount} ${receivedTokenDisplayName}`,
+            valueUSD: calculateUSDPrice(
+              formattedAmount,
+              tokenPrices,
+              TOKENS[txData.receivedTokenKey],
+            ),
           },
           {
             title: 'Relayer fee',
@@ -859,10 +875,20 @@ export abstract class PorticoBridge extends BaseRoute {
         {
           title: 'Amount received',
           value: `${formattedFinalUserAmount} ${finalTokenDisplayName}`,
+          valueUSD: calculateUSDPrice(
+            formattedFinalUserAmount,
+            tokenPrices,
+            finalToken,
+          ),
         },
         {
           title: 'Relayer fee',
           value: `${formattedRelayerFee} ${finalTokenDisplayName}`,
+          valueUSD: calculateUSDPrice(
+            formattedRelayerFee,
+            tokenPrices,
+            finalToken,
+          ),
         },
       ],
       destTxInfo,
@@ -878,6 +904,7 @@ export abstract class PorticoBridge extends BaseRoute {
     sendingGasEst: string,
     claimingGasEst: string,
     receiveAmount: string,
+    tokenPrices: TokenPrices,
     routeOptions: PorticoBridgeState,
   ): Promise<TransferDisplayData> {
     const { relayerFee, swapAmounts } = routeOptions;
@@ -890,12 +917,24 @@ export abstract class PorticoBridge extends BaseRoute {
       destToken.key === destChainConfig.gasToken
         ? destChainConfig.nativeTokenDecimals
         : getTokenDecimals(toChainId(receipientChain), destToken.tokenId);
+
     let totalFeesText = '';
+    let totalFeesPrice = '';
     let fee = '';
     if (sendingGasEst && relayerFee.data) {
       fee = toDecimals(relayerFee.data, destTokenDecimals, MAX_DECIMALS);
       totalFeesText = `${sendingGasEst} ${gasTokenDisplayName} & ${fee} ${destTokenDisplayName}`;
+      totalFeesPrice = `${
+        calculateUSDPrice(sendingGasEst, tokenPrices, gasToken) || NO_INPUT
+      } & ${calculateUSDPrice(fee, tokenPrices, destToken) || NO_INPUT}`;
     }
+
+    const feePrice = calculateUSDPrice(fee, tokenPrices, destToken);
+    const sendingGasEstPrice = calculateUSDPrice(
+      sendingGasEst,
+      tokenPrices,
+      gasToken,
+    );
     let expectedAmount = '';
     let minimumAmount = '';
     if (relayerFee.data && swapAmounts.data) {
@@ -914,24 +953,29 @@ export abstract class PorticoBridge extends BaseRoute {
       {
         title: 'Expected to receive',
         value: `${expectedAmount} ${destTokenDisplayName}`,
+        valueUSD: calculateUSDPrice(expectedAmount, tokenPrices, destToken),
       },
       {
         title: 'Minimum to receive',
         value: `${minimumAmount} ${destTokenDisplayName}`,
+        valueUSD: calculateUSDPrice(minimumAmount, tokenPrices, destToken),
       },
       {
         title: 'Total fee estimates',
         value: totalFeesText,
+        valueUSD: totalFeesPrice,
         rows: [
           {
             title: 'Source chain gas estimate',
             value: sendingGasEst
               ? `~ ${sendingGasEst} ${gasTokenDisplayName}`
               : NO_INPUT,
+            valueUSD: sendingGasEstPrice,
           },
           {
             title: 'Relayer fee',
             value: fee ? `${fee} ${destTokenDisplayName}` : NO_INPUT,
+            valueUSD: feePrice,
           },
         ],
       },

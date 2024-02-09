@@ -77,6 +77,10 @@ function SendTo() {
   const transferDestInfo = useSelector(
     (state: RootState) => state.redeem.transferDestInfo,
   );
+  const {
+    usdPrices: { data },
+  } = useSelector((state: RootState) => state.tokenPrices);
+  const prices = data || {};
   const [claimError, setClaimError] = useState('');
   const [manualClaim, setManualClaim] = useState(false);
 
@@ -137,6 +141,7 @@ function SendTo() {
       try {
         const info = await RouteOperator.getTransferDestInfo(routeName, {
           txData,
+          tokenPrices: prices,
           receiveTx,
           transferComplete,
           gasEstimate,
@@ -154,6 +159,7 @@ function SendTo() {
     routeName,
     signedMessage,
     dispatch,
+    data,
   ]);
 
   useEffect(() => {

@@ -44,6 +44,7 @@ import { ETHBridge } from 'routes/porticoBridge/ethBridge';
 import { wstETHBridge } from 'routes/porticoBridge/wstETHBridge';
 import { usePorticoSwapInfo } from 'hooks/usePorticoSwapInfo';
 import { usePorticoRelayerFee } from 'hooks/usePorticoRelayerFee';
+import { useFetchTokenPrices } from 'hooks/useFetchTokenPrices';
 
 const useStyles = makeStyles()((_theme) => ({
   spacer: {
@@ -245,6 +246,7 @@ function Bridge() {
   // Route specific hooks
   usePorticoSwapInfo();
   usePorticoRelayerFee();
+  useFetchTokenPrices();
 
   // validate transfer inputs
   useValidate();

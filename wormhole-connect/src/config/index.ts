@@ -68,6 +68,8 @@ export const ATTEST_URL =
 
 export const USDC_BRIDGE_URL = config.cctpWarning?.href || '';
 
+export const COINGECKO_API_KEY = config.coinGeckoApiKey;
+
 export const WORMHOLE_RPC_HOSTS =
   ENV === 'MAINNET'
     ? [

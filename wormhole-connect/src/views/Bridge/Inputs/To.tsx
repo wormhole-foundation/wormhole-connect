@@ -10,7 +10,7 @@ import {
   setDestToken,
 } from 'store/transferInput';
 import { TransferWallet } from 'utils/wallet';
-import { hydrateHrefTemplate } from 'utils';
+import { getTokenPrice, hydrateHrefTemplate } from 'utils';
 import { CHAINS, CHAINS_ARR, TOKENS } from 'config';
 
 import Inputs from './Inputs';
@@ -38,6 +38,10 @@ function ToInputs() {
     isTransactionInProgress,
   } = useSelector((state: RootState) => state.transferInput);
   const receiving = useSelector((state: RootState) => state.wallet.receiving);
+  const {
+    usdPrices: { data },
+  } = useSelector((state: RootState) => state.tokenPrices);
+  const prices = data || {};
   const balance =
     accessBalance(balances, receiving.address, toChain, destToken) || undefined;
 
@@ -152,6 +156,7 @@ function ToInputs() {
         amountInput={amountInput}
         balance={balance}
         warning={<TokenWarnings />}
+        tokenPrice={getTokenPrice(prices, TOKENS[destToken])}
       />
       <TokensModal
         open={showTokensModal}

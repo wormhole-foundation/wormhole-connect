@@ -17,6 +17,7 @@ import {
   fromNormalizedDecimals,
   getTokenById,
   getDisplayName,
+  calculateUSDPrice,
 } from 'utils';
 import {
   ParsedMessage,
@@ -50,6 +51,7 @@ import {
 import { getUnsignedVaaEvm } from 'utils/vaa';
 import { getNativeVersionOfToken } from 'store/transferInput';
 import { RelayAbstract } from 'routes/abstracts';
+import { TokenPrices } from 'store/tokenPrices';
 
 export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED = true;
@@ -375,6 +377,7 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
     sendingGasEst: string,
     claimingGasEst: string,
     receiveAmount: string,
+    tokenPrices: TokenPrices,
     routeOptions?: any,
   ): Promise<TransferDisplayData> {
     const sendingChainName = wh.toChainName(sendingChain);
@@ -389,12 +392,22 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
       ? getDisplayName(TOKENS[sourceGasToken])
       : '';
 
+    const sendingGasEstPrice = calculateUSDPrice(
+      sendingGasEst,
+      tokenPrices,
+      TOKENS[sourceGasToken || ''],
+    );
+
     let totalFeesText = '';
+    let totalFeesPrice = '';
     if (sendingGasEst && relayerFee) {
       const fee = toFixedDecimals(`${relayerFee}`, 6);
       totalFeesText = `${sendingGasEst} ${sourceGasTokenSymbol} & ${fee} ${getDisplayName(
         token,
       )}`;
+      totalFeesPrice = `${sendingGasEstPrice || NO_INPUT} & ${
+        calculateUSDPrice(fee, tokenPrices, token) || NO_INPUT
+      }`;
     }
 
     const receiveAmt = await this.computeReceiveAmount(
@@ -412,6 +425,11 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
             {
               title: 'Native gas on destination',
               value: `${receiveNativeAmt} ${destinationGasTokenSymbol}`,
+              valueUSD: calculateUSDPrice(
+                receiveNativeAmt,
+                tokenPrices,
+                TOKENS[destinationGasToken || ''],
+              ),
             },
           ]
         : [];
@@ -422,17 +440,20 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
         value: `${toFixedDecimals(`${receiveAmt}`, 6)} ${getDisplayName(
           destToken,
         )}`,
+        valueUSD: calculateUSDPrice(receiveAmt, tokenPrices, destToken),
       },
       ...nativeGasDisplay,
       {
         title: 'Total fee estimates',
         value: totalFeesText,
+        valueUSD: totalFeesPrice,
         rows: [
           {
             title: 'Source chain gas estimate',
             value: sendingGasEst
               ? `~ ${sendingGasEst} ${sourceGasTokenSymbol}`
               : NO_INPUT,
+            valueUSD: sendingGasEstPrice,
           },
           {
             title: 'Relayer fee',
@@ -440,6 +461,7 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
               relayerFee !== undefined
                 ? `${relayerFee} ${getDisplayName(token)}`
                 : NO_INPUT,
+            valueUSD: calculateUSDPrice(relayerFee, tokenPrices, token),
           },
         ],
       },
@@ -540,6 +562,7 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
 
   async getTransferSourceInfo({
     txData: data,
+    tokenPrices,
   }: TransferInfoBaseParams): Promise<TransferDisplayData> {
     const txData = data as ParsedRelayerMessage;
 
@@ -574,16 +597,19 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
       {
         title: 'Amount',
         value: `${formattedAmt} ${getDisplayName(token)}`,
+        valueUSD: calculateUSDPrice(formattedAmt, tokenPrices, token),
       },
       {
         title: 'Gas fee',
         value: formattedGas
           ? `${formattedGas} ${getDisplayName(sourceGasToken)}`
           : NO_INPUT,
+        valueUSD: calculateUSDPrice(formattedGas, tokenPrices, sourceGasToken),
       },
       {
         title: 'Relayer fee',
         value: `${formattedFee} ${getDisplayName(token)}`,
+        valueUSD: calculateUSDPrice(formattedFee, tokenPrices, token),
       },
     ];
 
@@ -593,6 +619,7 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
         value: `≈ ${formattedToNative} ${getDisplayName(
           token,
         )} \u2192 ${getDisplayName(TOKENS[gasToken])}`,
+        valueUSD: calculateUSDPrice(formattedToNative, tokenPrices, token),
       });
     }
 
@@ -601,6 +628,7 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
 
   async getTransferDestInfo({
     txData: data,
+    tokenPrices,
     receiveTx,
   }: TransferDestInfoBaseParams): Promise<TransferDestInfo> {
     const txData: ParsedRelayerMessage = data as ParsedRelayerMessage;
@@ -670,12 +698,18 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
         {
           title: 'Amount',
           value: `${formattedAmt} ${getDisplayName(token)}`,
+          valueUSD: calculateUSDPrice(formattedAmt, tokenPrices, token),
         },
         {
           title: 'Native gas token',
           value: nativeGasAmt
             ? `${nativeGasAmt} ${getDisplayName(TOKENS[gasToken])}`
             : NO_INPUT,
+          valueUSD: calculateUSDPrice(
+            nativeGasAmt,
+            tokenPrices,
+            TOKENS[gasToken],
+          ),
         },
       ],
     };

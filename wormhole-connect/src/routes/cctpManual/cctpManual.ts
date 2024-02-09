@@ -17,6 +17,7 @@ import {
   getTokenDecimals,
   toNormalizedDecimals,
   getDisplayName,
+  calculateUSDPrice,
 } from 'utils';
 import { isEvmChain, toChainId, wh, PayloadType } from 'utils/sdk';
 import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
@@ -45,6 +46,7 @@ import {
   getNonce,
   tryGetCircleAttestation,
 } from './utils';
+import { TokenPrices } from 'store/tokenPrices';
 
 export class CCTPManualRoute extends BaseRoute {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean = false;
@@ -362,6 +364,7 @@ export class CCTPManualRoute extends BaseRoute {
     sendingGasEst: string,
     claimingGasEst: string,
     receiveAmount: string,
+    tokenPrices: TokenPrices,
     routeOptions?: any,
   ): Promise<TransferDisplayData> {
     const sendingChainName = wh.toChainName(sendingChain);
@@ -374,10 +377,23 @@ export class CCTPManualRoute extends BaseRoute {
     const destinationGasTokenSymbol = destinationGasToken
       ? getDisplayName(TOKENS[destinationGasToken])
       : '';
+    // Calculate the USD value of the gas
+    const sendingGasEstPrice = calculateUSDPrice(
+      sendingGasEst,
+      tokenPrices,
+      TOKENS[sourceGasToken || ''],
+    );
+    const claimingGasEstPrice = calculateUSDPrice(
+      claimingGasEst,
+      tokenPrices,
+      TOKENS[destinationGasToken || ''],
+    );
+
     return [
       {
         title: 'Amount',
         value: `${!isNaN(amount) ? amount : '0'} ${getDisplayName(destToken)}`,
+        valueUSD: calculateUSDPrice(amount, tokenPrices, destToken),
       },
       {
         title: 'Total fee estimates',
@@ -385,18 +401,26 @@ export class CCTPManualRoute extends BaseRoute {
           sendingGasEst && claimingGasEst
             ? `${sendingGasEst} ${sourceGasTokenSymbol} & ${claimingGasEst} ${destinationGasTokenSymbol}`
             : '',
+        valueUSD:
+          sendingGasEst && claimingGasEst
+            ? `${sendingGasEstPrice || NO_INPUT} & ${
+                claimingGasEstPrice || NO_INPUT
+              }`
+            : '',
         rows: [
           {
             title: 'Source chain gas estimate',
             value: sendingGasEst
               ? `~ ${sendingGasEst} ${sourceGasTokenSymbol}`
               : 'Not available',
+            valueUSD: sendingGasEstPrice,
           },
           {
             title: 'Destination chain gas estimate',
             value: claimingGasEst
               ? `~ ${claimingGasEst} ${destinationGasTokenSymbol}`
               : 'Not available',
+            valueUSD: claimingGasEstPrice,
           },
         ],
       },
@@ -505,6 +529,7 @@ export class CCTPManualRoute extends BaseRoute {
 
   async getTransferSourceInfo({
     txData,
+    tokenPrices,
   }: TransferInfoBaseParams): Promise<TransferDisplayData> {
     const formattedAmt = toNormalizedDecimals(
       txData.amount,
@@ -525,18 +550,21 @@ export class CCTPManualRoute extends BaseRoute {
       {
         title: 'Amount',
         value: `${formattedAmt} ${getDisplayName(token)}`,
+        valueUSD: calculateUSDPrice(formattedAmt, tokenPrices, token),
       },
       {
         title: 'Gas fee',
         value: formattedGas
           ? `${formattedGas} ${getDisplayName(sourceGasToken)}`
           : NO_INPUT,
+        valueUSD: calculateUSDPrice(formattedGas, tokenPrices, sourceGasToken),
       },
     ];
   }
 
   async getTransferDestInfo({
     txData,
+    tokenPrices,
     receiveTx,
     gasEstimate,
   }: TransferDestInfoBaseParams): Promise<TransferDestInfo> {
@@ -562,10 +590,12 @@ export class CCTPManualRoute extends BaseRoute {
         {
           title: 'Amount',
           value: `${formattedAmt} ${getDisplayName(token)}`,
+          valueUSD: calculateUSDPrice(formattedAmt, tokenPrices, token),
         },
         {
           title: receiveTx ? 'Gas fee' : 'Gas estimate',
           value: gas ? `${gas} ${getDisplayName(TOKENS[gasToken])}` : NO_INPUT,
+          valueUSD: calculateUSDPrice(gas, tokenPrices, TOKENS[gasToken]),
         },
       ],
     };

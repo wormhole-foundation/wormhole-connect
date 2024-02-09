@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useMemo, useRef } from 'react';
 import { useSelector } from 'react-redux';
 
 import { RootState } from 'store';
@@ -7,6 +7,9 @@ import { NO_INPUT } from 'utils/style';
 
 import InputTransparent from 'components/InputTransparent';
 import Input from './Input';
+import { TOKENS } from 'config';
+import Price from 'components/Price';
+import { getTokenPrice, getUSDFormat } from 'utils';
 
 type Props = {
   handleAmountChange: (value: number | string) => void;
@@ -22,6 +25,10 @@ function AmountInput(props: Props) {
     token,
     isTransactionInProgress,
   } = useSelector((state: RootState) => state.transferInput);
+  const {
+    usdPrices: { data },
+  } = useSelector((state: RootState) => state.tokenPrices);
+  const prices = data || {};
 
   function handleAmountChange(
     e:
@@ -44,6 +51,12 @@ function AmountInput(props: Props) {
     }
   };
 
+  const price = useMemo(() => {
+    const tokenPrice = getTokenPrice(prices, TOKENS[token]) || 0;
+    if (!tokenPrice) return undefined;
+    return getUSDFormat(Number(props.value) * tokenPrice);
+  }, [props.value, token, prices]);
+
   return (
     <Input
       label={props.label ?? 'Amount'}
@@ -53,16 +66,19 @@ function AmountInput(props: Props) {
       cursor="text"
     >
       {token ? (
-        <InputTransparent
-          inputRef={amountEl}
-          placeholder="0.00"
-          type="number"
-          min={0}
-          step={0.1}
-          onChange={handleAmountChange}
-          disabled={isTransactionInProgress || props.disabled}
-          value={props.value}
-        />
+        <>
+          <InputTransparent
+            inputRef={amountEl}
+            placeholder="0.00"
+            type="number"
+            min={0}
+            step={0.1}
+            onChange={handleAmountChange}
+            disabled={isTransactionInProgress || props.disabled}
+            value={props.value}
+          />
+          {price && <Price>{price}</Price>}
+        </>
       ) : (
         <div>{NO_INPUT}</div>
       )}

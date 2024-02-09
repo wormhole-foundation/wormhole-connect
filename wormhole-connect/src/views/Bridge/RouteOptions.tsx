@@ -9,7 +9,7 @@ import { LINK, joinClass } from 'utils/style';
 import { toFixedDecimals } from 'utils/balance';
 import { millisToMinutesAndSeconds } from 'utils/transferValidation';
 import RouteOperator from 'routes/operator';
-import { getDisplayName } from 'utils';
+import { calculateUSDPrice, getDisplayName } from 'utils';
 import { TOKENS, ROUTES } from 'config';
 import { Route } from 'config/types';
 import { RoutesConfig, RouteData } from 'config/routes';
@@ -22,6 +22,7 @@ import ArrowRightIcon from 'icons/ArrowRight';
 import Options from 'components/Options';
 import { isGatewayChain } from 'utils/cosmos';
 import { isPorticoRoute } from 'routes/porticoBridge/utils';
+import Price from 'components/Price';
 import { finality, chainIdToChain } from '@wormhole-foundation/connect-sdk';
 
 const useStyles = makeStyles()((theme: any) => ({
@@ -195,8 +196,16 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
   const { toNativeToken, relayerFee } = useSelector(
     (state: RootState) => state.relay,
   );
+  const {
+    usdPrices: { data },
+  } = useSelector((state: RootState) => state.tokenPrices);
+  const prices = data || {};
   const portico = useSelector((state: RootState) => state.porticoBridge);
   const [receiveAmt, setReceiveAmt] = useState<number | undefined>(undefined);
+  const [receiveAmtUSD, setReceiveAmtUSD] = useState<string | undefined>(
+    undefined,
+  );
+
   const [estimatedTime, setEstimatedTime] = useState<string | undefined>(
     undefined,
   );
@@ -218,11 +227,15 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
         );
         if (!cancelled) {
           setReceiveAmt(Number.parseFloat(toFixedDecimals(`${receiveAmt}`, 6)));
+          setReceiveAmtUSD(
+            calculateUSDPrice(receiveAmt, prices, TOKENS[destToken]),
+          );
           setEstimatedTime(getEstimatedTime(fromChain));
         }
       } catch {
         if (!cancelled) {
           setReceiveAmt(0);
+          setReceiveAmtUSD('');
           setEstimatedTime(getEstimatedTime(fromChain));
         }
       }
@@ -241,6 +254,7 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
     toChain,
     fromChain,
     portico,
+    data,
   ]);
   const fromTokenConfig = TOKENS[token];
   const fromTokenIcon = fromTokenConfig && (
@@ -329,6 +343,7 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
               <>
                 <div>
                   {receiveAmt} {getDisplayName(TOKENS[destToken])}
+                  <Price textAlign="right">{receiveAmtUSD}</Price>
                 </div>
                 <div className={classes.routeAmt}>after fees</div>
                 {typeof estimatedTime !== 'undefined' && (

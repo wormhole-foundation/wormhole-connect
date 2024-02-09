@@ -14,6 +14,7 @@ import { ChainConfig, TokenConfig } from 'config/types';
 import { isEvmChain, wh } from 'utils/sdk';
 import { toDecimals } from './balance';
 import { isGatewayChain } from './cosmos';
+import { TokenPrices } from 'store/tokenPrices';
 
 export const MAX_DECIMALS = 6;
 export const NORMALIZED_DECIMALS = 8;
@@ -284,4 +285,39 @@ export const sortTokens = (
     if (b.nativeChain === chain && a.nativeChain !== chain) return 1; // Sort nativeChain tokens third
     return 0; // Sort the rest
   });
+};
+
+export const getTokenPrice = (
+  tokenPrices: TokenPrices,
+  token: TokenConfig,
+): number | undefined => {
+  if (tokenPrices && token) {
+    const price = tokenPrices[token.coinGeckoId]?.usd;
+    return price;
+  }
+  return undefined;
+};
+
+export const getUSDFormat = (price: number | undefined): string => {
+  if (typeof price !== 'undefined') {
+    return `(${price > 0 ? '~' : ''}${Intl.NumberFormat('en-EN', {
+      style: 'currency',
+      currency: 'USD',
+    }).format(price)})`;
+  }
+  return '';
+};
+
+export const calculateUSDPrice = (
+  amount?: number | string,
+  tokenPrices?: TokenPrices,
+  token?: TokenConfig,
+): string => {
+  if (!amount || !tokenPrices || !token) return '';
+  const usdPrice = getTokenPrice(tokenPrices || {}, token) || 0;
+  if (usdPrice > 0) {
+    const price = Number.parseFloat(`${amount}`) * usdPrice;
+    return getUSDFormat(price);
+  }
+  return '';
 };
