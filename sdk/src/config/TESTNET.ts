@@ -104,7 +104,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
       ...CONTRACTS.TESTNET.bsc,
       relayer: '0x9563a59c15842a6f322b10f69d1dd88b41f2e97b',
     },
-    finalityThreshold: 15,
+    finalityThreshold: 3,
     nativeTokenDecimals: 18,
   },
   fuji: {
