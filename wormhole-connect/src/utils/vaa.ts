@@ -152,7 +152,7 @@ export async function fetchVaaWormscan(
       return vaaData;
     })
     .catch(function (error) {
-      if (error.response?.code === 404) {
+      if (error.response?.status === 404) {
         return undefined;
       } else {
         throw error;
