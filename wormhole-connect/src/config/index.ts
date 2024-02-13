@@ -85,8 +85,7 @@ export const WORMHOLE_RPC_HOSTS =
       ]
     : ['http://localhost:7071'];
 
-export const NETWORK_DATA =
-  ENV === 'MAINNET' ? MAINNET : ENV === 'DEVNET' ? DEVNET : TESTNET;
+export const NETWORK_DATA = { MAINNET, DEVNET, TESTNET }[ENV];
 
 export const CHAINS = NETWORK_DATA.chains;
 export const CHAINS_ARR =
