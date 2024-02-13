@@ -147,7 +147,7 @@ export type TokenConfig = {
   icon: Icon;
   tokenId?: TokenId; // if no token id, it is the native token
   coinGeckoId: string;
-  color: string;
+  color?: string;
   decimals: DecimalsMap;
   wrappedAsset?: string;
   displayName?: string;

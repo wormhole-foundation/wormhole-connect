@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { useDebounce } from 'use-debounce';
 
-import { CHAINS, TOKENS } from 'config';
+import { CHAINS, TOKENS, THEME } from 'config';
 import { TokenConfig, Route } from 'config/types';
 import { RoutesConfig } from 'config/routes';
 import { getTokenDecimals, getDisplayName, calculateUSDPrice } from 'utils';
@@ -390,6 +390,8 @@ function GasSlider(props: { disabled: boolean }) {
     token,
   ]);
 
+  const defaultSliderColor = THEME.success[100];
+
   const banner = !props.disabled && !!route && (
     <Banner text="This feature provided by" route={RoutesConfig[route]} />
   );
@@ -426,8 +428,8 @@ function GasSlider(props: { disabled: boolean }) {
                 aria-label="Native gas conversion amount"
                 defaultValue={0}
                 value={state.swapAmt}
-                color1={nativeGasToken.color}
-                color2={sendingToken.color}
+                color1={nativeGasToken.color ?? defaultSliderColor}
+                color2={sendingToken.color ?? defaultSliderColor}
                 step={0.000001}
                 min={0}
                 max={state.max}
