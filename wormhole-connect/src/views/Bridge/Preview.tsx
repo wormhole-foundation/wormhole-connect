@@ -22,6 +22,8 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { isPorticoRoute } from 'routes/porticoBridge/utils';
 
+const defaultPrices = {};
+
 function Preview(props: { collapsed: boolean }) {
   const dispatch = useDispatch();
   const theme: any = useTheme();
@@ -43,7 +45,7 @@ function Preview(props: { collapsed: boolean }) {
   const {
     usdPrices: { data },
   } = useSelector((state: RootState) => state.tokenPrices);
-  const prices = data || {};
+  const prices = data || defaultPrices;
   useEffect(() => {
     const buildPreview = async () => {
       if (!fromChain || !route) return;
