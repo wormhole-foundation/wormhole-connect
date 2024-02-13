@@ -59,31 +59,30 @@ export const WORMHOLE_API =
 
 export const EXPLORER = config.explorer;
 
-export const ATTEST_URL =
-  ENV === 'MAINNET'
-    ? 'https://www.portalbridge.com/#/register'
-    : ENV === 'DEVNET'
-    ? ''
-    : 'https://wormhole-foundation.github.io/example-token-bridge-ui/#/register';
+export const ATTEST_URL = {
+  MAINNET: 'https://www.portalbridge.com/#/register',
+  DEVNET: '',
+  TESTNET:
+    'https://wormhole-foundation.github.io/example-token-bridge-ui/#/register',
+}[ENV];
 
 export const USDC_BRIDGE_URL = config.cctpWarning?.href || '';
 
 export const COINGECKO_API_KEY = config.coinGeckoApiKey;
 
-export const WORMHOLE_RPC_HOSTS =
-  ENV === 'MAINNET'
-    ? [
-        'https://wormhole-v2-mainnet-api.mcf.rocks',
-        'https://wormhole-v2-mainnet-api.chainlayer.network',
-        'https://wormhole-v2-mainnet-api.staking.fund',
-      ]
-    : ENV === 'TESTNET'
-    ? [
-        'https://guardian.testnet.xlabs.xyz',
-        'https://guardian-01.testnet.xlabs.xyz',
-        'https://guardian-02.testnet.xlabs.xyz',
-      ]
-    : ['http://localhost:7071'];
+export const WORMHOLE_RPC_HOSTS = {
+  MAINNET: [
+    'https://wormhole-v2-mainnet-api.mcf.rocks',
+    'https://wormhole-v2-mainnet-api.chainlayer.network',
+    'https://wormhole-v2-mainnet-api.staking.fund',
+  ],
+  TESTNET: [
+    'https://guardian.testnet.xlabs.xyz',
+    'https://guardian-01.testnet.xlabs.xyz',
+    'https://guardian-02.testnet.xlabs.xyz',
+  ],
+  DEVNET: ['http://localhost:7071'],
+}[ENV];
 
 export const NETWORK_DATA = { MAINNET, DEVNET, TESTNET }[ENV];
 
