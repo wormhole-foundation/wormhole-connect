@@ -72,6 +72,7 @@ export interface WormholeConnectConfig {
   graphql?: ChainResourceMap;
   networks?: ChainName[];
   tokens?: string[];
+  tokensConfig?: TokensConfig;
   mode?: 'dark' | 'light';
   customTheme?: ExtendedTheme;
   cta?: {

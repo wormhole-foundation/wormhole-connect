@@ -104,7 +104,10 @@ export const AVAILABLE_MARKETS_URL =
 
 export const MORE_NETWORKS = config && config.moreNetworks;
 export const MORE_TOKENS = config && config.moreTokens;
-export const TOKENS = NETWORK_DATA.tokens;
+export const TOKENS = mergeCustomTokensConfig(
+  NETWORK_DATA.tokens,
+  config.tokensConfig,
+);
 export const TOKENS_ARR =
   config && config.tokens
     ? Object.values(TOKENS).filter((c) => config.tokens!.includes(c.key))
