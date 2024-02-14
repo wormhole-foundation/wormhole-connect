@@ -40,6 +40,10 @@ const useStyles = makeStyles<{ size: number }>()((theme, { size }) => ({
     width: size,
     ...CENTER,
   },
+  iconImage: {
+    width: '100%',
+    height: '100%',
+  },
   icon: {
     maxHeight: '100%',
     maxWidth: '100%',
@@ -159,7 +163,7 @@ function TokenIcon(props: Props) {
   } else {
     return (
       <div className={classes.container}>
-        <img src={props.icon} />
+        <img className={classes.iconImage} src={props.icon} />
       </div>
     );
   }
