@@ -47,7 +47,7 @@ function Header(props: Props) {
   return (
     <div className={classes.header}>
       <div className={classes.left}>
-        <TokenIcon name={chainConfig.icon!} height={32} />
+        <TokenIcon icon={chainConfig.icon!} height={32} />
         <div>{displayAddress(props.chain, props.address)}</div>
         <WalletIcon />
       </div>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { makeStyles } from 'tss-react/mui';
 
 import { CENTER } from 'utils/style';
@@ -46,7 +46,7 @@ const useStyles = makeStyles<{ size: number }>()((theme, { size }) => ({
   },
 }));
 
-export const getIcon = (icon: Icon) => {
+export const getIcon = (icon: Icon): (() => React.JSX.Element) => {
   switch (icon) {
     case Icon.WBTC: {
       return WBTC;
@@ -136,13 +136,17 @@ export const getIcon = (icon: Icon) => {
       return KLAY;
     }
     default: {
-      return noIcon;
+      return () => noIcon;
     }
   }
 };
 
+function isBuiltinIcon(icon?: Icon | string): icon is Icon {
+  return Object.values(Icon).includes(icon as Icon);
+}
+
 type Props = {
-  name?: Icon;
+  icon?: Icon | string;
   height?: number;
 };
 
@@ -150,17 +154,15 @@ function TokenIcon(props: Props) {
   const size = props.height || 32;
   const { classes } = useStyles({ size });
 
-  const [icon, setIcon] = useState(noIcon);
-
-  useEffect(() => {
-    if (props.name) {
-      setIcon(getIcon(props.name!)!);
-    } else {
-      setIcon(noIcon);
-    }
-  }, [props.name]);
-
-  return <div className={classes.container}>{icon}</div>;
+  if (isBuiltinIcon(props.icon)) {
+    return <div className={classes.container}>{getIcon(props.icon)()}</div>;
+  } else {
+    return (
+      <div className={classes.container}>
+        <img src={props.icon} />
+      </div>
+    );
+  }
 }
 
 export default TokenIcon;

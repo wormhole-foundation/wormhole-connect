@@ -271,7 +271,7 @@ function GasSlider(props: { disabled: boolean }) {
     return (
       <SliderThumb {...other}>
         {children}
-        <TokenIcon name={nativeGasToken.icon} height={16} />
+        <TokenIcon icon={nativeGasToken.icon} height={16} />
       </SliderThumb>
     );
   }
@@ -450,7 +450,7 @@ function GasSlider(props: { disabled: boolean }) {
               <div className={classes.amounts}>
                 <div>
                   <div className={classes.amountDisplay}>
-                    <TokenIcon name={nativeGasToken.icon} height={16} />
+                    <TokenIcon icon={nativeGasToken.icon} height={16} />
                     <div>
                       {state.nativeGas} {getDisplayName(nativeGasToken)}
                     </div>
@@ -460,7 +460,7 @@ function GasSlider(props: { disabled: boolean }) {
                 <div>
                   <div className={classes.amountDisplay}>
                     <TokenIcon
-                      name={(sendingToken as TokenConfig)!.icon}
+                      icon={(sendingToken as TokenConfig)!.icon}
                       height={16}
                     />
                     {state.token}{' '}

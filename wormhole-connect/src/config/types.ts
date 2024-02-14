@@ -144,7 +144,7 @@ export type TokenConfig = {
   key: string;
   symbol: string;
   nativeChain: ChainName;
-  icon: Icon;
+  icon: Icon | string;
   tokenId?: TokenId; // if no token id, it is the native token
   coinGeckoId: string;
   color?: string;

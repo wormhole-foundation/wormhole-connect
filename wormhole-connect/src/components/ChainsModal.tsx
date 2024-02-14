@@ -166,7 +166,7 @@ function ChainsModal(props: Props) {
                     ])}
                     onClick={() => handleSelect(chain.key)}
                   >
-                    <TokenIcon name={chain.icon} height={48} />
+                    <TokenIcon icon={chain.icon} height={48} />
                     <div className={classes.chainText}>{chain.displayName}</div>
                   </div>
                 )
