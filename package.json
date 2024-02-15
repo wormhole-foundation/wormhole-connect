@@ -2,7 +2,6 @@
   "name": "wormhole-foundation",
   "private": true,
   "workspaces": [
-    "sdk",
     "wormhole-connect",
     "wormhole-connect-loader",
     "builder"

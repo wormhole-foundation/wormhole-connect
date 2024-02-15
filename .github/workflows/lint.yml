@@ -31,7 +31,6 @@ jobs:
           node-version: 20
           cache: "npm"
       - run: npm ci
-      - run: npm run build -w sdk
       - run: npm test -w wormhole-connect
   check-token-list:
     runs-on: ubuntu-latest
@@ -43,7 +42,6 @@ jobs:
           node-version: 20
           cache: "npm"
       - run: npm ci
-      - run: npm run build -w sdk
       - run: cd wormhole-connect && npx tsx scripts/checkForeignAssetsConfig.ts
   build:
     runs-on: ubuntu-latest
