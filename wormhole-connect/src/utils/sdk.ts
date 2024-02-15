@@ -8,7 +8,7 @@ import {
   SolanaContext,
   TokenId,
   WormholeContext,
-} from '@wormhole-foundation/wormhole-connect-sdk';
+} from 'sdk';
 import { getWrappedTokenId } from '.';
 import { ENV, RPCS, TOKENS, sdkConfig } from 'config';
 

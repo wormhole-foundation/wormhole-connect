@@ -1,4 +1,4 @@
-import { ChainId } from 'types';
+import { ChainId } from 'sdk/types';
 import { deriveAddress } from '../../utils';
 import { PublicKey, PublicKeyInitData } from '@solana/web3.js';
 import { BN } from '@project-serum/anchor';

@@ -4,7 +4,7 @@ import {
   TokenId,
   ChainResourceMap,
   Context,
-} from '@wormhole-foundation/wormhole-connect-sdk';
+} from 'sdk';
 import { Alignment } from 'components/Header';
 import { ExtendedTheme } from 'theme';
 

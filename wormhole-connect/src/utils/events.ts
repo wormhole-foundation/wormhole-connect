@@ -7,7 +7,7 @@ import {
   SeiContext,
   SolanaContext,
   WormholeContext,
-} from '@wormhole-foundation/wormhole-connect-sdk';
+} from 'sdk';
 import { ParsedRelayerMessage, wh } from './sdk';
 import { fromNormalizedDecimals } from '.';
 import { CHAINS } from 'config';

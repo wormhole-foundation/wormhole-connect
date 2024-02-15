@@ -4,7 +4,7 @@ import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { useTheme } from '@mui/material/styles';
-import { ChainName, TokenId } from '@wormhole-foundation/wormhole-connect-sdk';
+import { ChainName, TokenId } from 'sdk';
 import { AVAILABLE_MARKETS_URL, CHAINS, MORE_TOKENS } from 'config';
 import { TokenConfig } from 'config/types';
 import { BigNumber } from 'ethers';

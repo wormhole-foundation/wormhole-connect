@@ -1,4 +1,4 @@
-import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+import { ChainName } from 'sdk';
 import { isMainnet } from 'config';
 
 export const CCTPManual_CHAINS: ChainName[] = [

@@ -13,7 +13,7 @@ import {
   searchCosmosLogs,
   ParsedMessage as SdkParsedMessage,
   ParsedRelayerMessage as SdkParsedRelayerMessage,
-} from '@wormhole-foundation/wormhole-connect-sdk';
+} from 'sdk';
 import { BigNumber, utils } from 'ethers';
 import { arrayify, base58, hexlify } from 'ethers/lib/utils.js';
 import { ParsedMessage, wh } from 'utils/sdk';

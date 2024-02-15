@@ -1,11 +1,5 @@
 import { BigNumber, ethers } from 'ethers';
-import {
-  ChainId,
-  ChainName,
-  EthContext,
-  TokenId,
-  WormholeContext,
-} from '@wormhole-foundation/wormhole-connect-sdk';
+import { ChainId, ChainName, EthContext, TokenId, WormholeContext } from 'sdk';
 import { TokenConfig } from 'config/types';
 import {
   SignedMessage,

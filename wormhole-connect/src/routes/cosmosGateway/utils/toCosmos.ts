@@ -1,5 +1,5 @@
 import { CHAIN_ID_WORMCHAIN } from '@certusone/wormhole-sdk';
-import { ChainId, TokenId } from '@wormhole-foundation/wormhole-connect-sdk';
+import { ChainId, TokenId } from 'sdk';
 import { wh } from 'utils/sdk';
 import { TransferWallet, signAndSendTransaction } from '../../../utils/wallet';
 import { GatewayTransferMsg } from '../types';

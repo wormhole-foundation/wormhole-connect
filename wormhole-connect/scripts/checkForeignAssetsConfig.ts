@@ -18,10 +18,7 @@ console.warn = function (x: any, ...rest: any) {
   }
 };
 
-import {
-  ChainName,
-  WormholeContext,
-} from '@wormhole-foundation/wormhole-connect-sdk';
+import { ChainName, WormholeContext } from 'sdk';
 import { MAINNET_CHAINS } from '../src/config/mainnet/chains';
 import { MAINNET_TOKENS } from '../src/config/mainnet/tokens';
 import { TESTNET_CHAINS } from '../src/config/testnet/chains';

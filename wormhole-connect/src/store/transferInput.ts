@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { ChainName, Context } from '@wormhole-foundation/wormhole-connect-sdk';
+import { ChainName, Context } from 'sdk';
 import { BigNumber } from 'ethers';
 import { CHAINS, TOKENS, config } from 'config';
 import { Route, TokenConfig } from 'config/types';

@@ -4,22 +4,21 @@ import {
   PublicKeyInitData,
   TransactionInstruction,
 } from '@solana/web3.js';
-import { getTransferWrappedWithPayloadCpiAccounts } from '../../tokenBridge/cpi';
+import { getTransferNativeWithPayloadCpiAccounts } from '../../tokenBridge/cpi';
 import { createTokenBridgeRelayerProgramInterface } from '../program';
 import {
   deriveForeignContractAddress,
   deriveSenderConfigAddress,
   deriveTokenTransferMessageAddress,
-  deriveTmpTokenAccountAddress,
   deriveRegisteredTokenAddress,
+  deriveTmpTokenAccountAddress,
 } from '../accounts';
 import { getAssociatedTokenAddressSync } from '@solana/spl-token';
 import { BN } from '@project-serum/anchor';
-import { ChainId } from 'types';
+import { ChainId } from 'sdk/types';
 import { deriveSignerSequenceAddress } from '../accounts/signerSequence';
-import { getWrappedMeta } from '@certusone/wormhole-sdk/lib/esm/solana/tokenBridge';
 
-export async function createTransferWrappedTokensWithRelayInstruction(
+export async function createTransferNativeTokensWithRelayInstruction(
   connection: Connection,
   programId: PublicKeyInitData,
   payer: PublicKeyInitData,
@@ -31,9 +30,10 @@ export async function createTransferWrappedTokensWithRelayInstruction(
   recipientAddress: Uint8Array,
   recipientChain: ChainId,
   batchId: number,
+  wrapNative: boolean,
 ): Promise<TransactionInstruction> {
   const {
-    methods: { transferWrappedTokensWithRelay },
+    methods: { transferNativeTokensWithRelay },
     account: { signerSequence },
   } = createTokenBridgeRelayerProgramInterface(programId, connection);
   const signerSequenceAddress = deriveSignerSequenceAddress(programId, payer);
@@ -47,44 +47,34 @@ export async function createTransferWrappedTokensWithRelayInstruction(
       }
       throw e;
     });
-
   const message = deriveTokenTransferMessageAddress(programId, payer, sequence);
   const fromTokenAccount = getAssociatedTokenAddressSync(
     new PublicKey(mint),
     new PublicKey(payer),
   );
-  const { chain, tokenAddress } = await getWrappedMeta(
-    connection,
-    tokenBridgeProgramId,
-    mint,
-  );
   const tmpTokenAccount = deriveTmpTokenAccountAddress(programId, mint);
-  const tokenBridgeAccounts = getTransferWrappedWithPayloadCpiAccounts(
+  const tokenBridgeAccounts = getTransferNativeWithPayloadCpiAccounts(
     programId,
     tokenBridgeProgramId,
     wormholeProgramId,
     payer,
     message,
     fromTokenAccount,
-    chain,
-    tokenAddress,
+    mint,
   );
-
-  return transferWrappedTokensWithRelay(
+  return transferNativeTokensWithRelay(
     new BN(amount.toString()),
     new BN(toNativeTokenAmount.toString()),
     recipientChain,
     [...recipientAddress],
     batchId,
+    wrapNative,
   )
     .accounts({
       config: deriveSenderConfigAddress(programId),
       payerSequence: signerSequenceAddress,
       foreignContract: deriveForeignContractAddress(programId, recipientChain),
-      registeredToken: deriveRegisteredTokenAddress(
-        programId,
-        new PublicKey(mint),
-      ),
+      registeredToken: deriveRegisteredTokenAddress(programId, mint),
       tmpTokenAccount,
       tokenBridgeProgram: new PublicKey(tokenBridgeProgramId),
       ...tokenBridgeAccounts,

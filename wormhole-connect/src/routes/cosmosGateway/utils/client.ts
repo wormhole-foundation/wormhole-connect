@@ -1,6 +1,6 @@
 import { CosmWasmClient } from '@cosmjs/cosmwasm-stargate';
 import { IbcExtension, QueryClient, setupIbcExtension } from '@cosmjs/stargate';
-import { ChainId, ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+import { ChainId, ChainName } from 'sdk';
 import {
   Tendermint34Client,
   Tendermint37Client,

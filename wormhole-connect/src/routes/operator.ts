@@ -1,9 +1,5 @@
 import { PublicKey } from '@solana/web3.js';
-import {
-  ChainId,
-  ChainName,
-  TokenId,
-} from '@wormhole-foundation/wormhole-connect-sdk';
+import { ChainId, ChainName, TokenId } from 'sdk';
 import { BigNumber } from 'ethers';
 
 import { CHAINS, ROUTES, TOKENS, TOKENS_ARR } from 'config';

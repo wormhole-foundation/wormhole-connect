@@ -1,4 +1,4 @@
-import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+import { ChainName } from 'sdk';
 import { TOKENS } from '.';
 import { BridgeDefaults } from './types';
 import { config, NETWORK_DATA, CHAINS, ROUTES } from '.';

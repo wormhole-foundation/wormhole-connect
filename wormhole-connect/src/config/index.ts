@@ -1,8 +1,4 @@
-import {
-  WormholeContext,
-  MainnetChainName,
-  TestnetChainName,
-} from '@wormhole-foundation/wormhole-connect-sdk';
+import { WormholeContext, MainnetChainName, TestnetChainName } from 'sdk';
 import MAINNET from './mainnet';
 import TESTNET from './testnet';
 import DEVNET from './devnet';

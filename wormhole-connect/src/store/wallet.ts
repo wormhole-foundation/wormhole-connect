@@ -1,4 +1,4 @@
-import { Context } from '@wormhole-foundation/wormhole-connect-sdk';
+import { Context } from 'sdk';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import {
   disconnect,

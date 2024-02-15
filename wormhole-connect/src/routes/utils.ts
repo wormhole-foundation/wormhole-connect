@@ -4,7 +4,7 @@ import {
   MAINNET_CHAINS,
   ParsedMessage as SdkParsedMessage,
   ParsedRelayerMessage as SdkParsedRelayerMessage,
-} from '@wormhole-foundation/wormhole-connect-sdk';
+} from 'sdk';
 import { BigNumber, utils } from 'ethers';
 import { CHAINS } from 'config';
 import { toFixedDecimals } from 'utils/balance';

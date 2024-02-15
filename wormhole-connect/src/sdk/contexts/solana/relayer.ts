@@ -2,7 +2,7 @@ import { Connection, PublicKey, PublicKeyInitData } from '@solana/web3.js';
 import { TokenBridgeRelayer } from './utils/types/tokenBridgeRelayer';
 import { createTokenBridgeRelayerProgramInterface } from './utils/tokenBridgeRelayer';
 import { BN, Program } from '@project-serum/anchor';
-import { ChainId } from 'types';
+import { ChainId } from 'sdk/types';
 import { NATIVE_MINT } from '@solana/spl-token';
 import {
   RegisteredToken,

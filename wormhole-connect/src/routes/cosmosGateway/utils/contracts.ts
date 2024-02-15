@@ -1,4 +1,4 @@
-import { ChainId, ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+import { ChainId, ChainName } from 'sdk';
 import { CHAIN_ID_WORMCHAIN } from '@certusone/wormhole-sdk';
 import { CHAINS } from 'config';
 import { wh } from 'utils/sdk';

@@ -1,4 +1,4 @@
-import { ChainId, ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+import { ChainId, ChainName } from 'sdk';
 import { TokenConfig } from 'config/types';
 import {
   MAX_DECIMALS,

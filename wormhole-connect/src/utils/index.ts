@@ -2,12 +2,7 @@ import { useEffect, useRef } from 'react';
 import { BigNumber, BigNumberish, utils } from 'ethers';
 import { isHexString } from 'ethers/lib/utils.js';
 import { isValidTransactionDigest, SUI_TYPE_ARG } from '@mysten/sui.js';
-import {
-  TokenId,
-  ChainName,
-  ChainId,
-  Context,
-} from '@wormhole-foundation/wormhole-connect-sdk';
+import { TokenId, ChainName, ChainId, Context } from 'sdk';
 
 import { CHAINS, CHAINS_ARR, TOKENS, TOKENS_ARR } from 'config';
 import { ChainConfig, TokenConfig } from 'config/types';

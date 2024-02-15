@@ -1,8 +1,4 @@
-import {
-  ChainName,
-  ChainId,
-  isGatewayChain as isGatewayChainSdk,
-} from '@wormhole-foundation/wormhole-connect-sdk';
+import { ChainName, ChainId, isGatewayChain as isGatewayChainSdk } from 'sdk';
 import { wh } from './sdk';
 
 export function isGatewayChain(chainId: ChainId | ChainName): boolean {

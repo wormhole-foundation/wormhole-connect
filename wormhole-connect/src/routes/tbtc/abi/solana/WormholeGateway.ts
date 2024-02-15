@@ -28,11 +28,7 @@ import {
   deriveWormholeBridgeDataKey,
   getSequenceTracker,
 } from '@certusone/wormhole-sdk/lib/esm/solana/wormhole';
-import {
-  parseTokenTransferVaa,
-  SignedVaa,
-  ChainId,
-} from '@wormhole-foundation/wormhole-connect-sdk';
+import { parseTokenTransferVaa, SignedVaa, ChainId } from 'sdk';
 
 // same address in mainnet and testnet
 const TBTC_PROGRAM_ID = new PublicKey(

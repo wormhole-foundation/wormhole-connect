@@ -1,8 +1,4 @@
-import {
-  ChainId,
-  ChainName,
-  TokenId,
-} from '@wormhole-foundation/wormhole-connect-sdk';
+import { ChainId, ChainName, TokenId } from 'sdk';
 import { BigNumber } from 'ethers';
 
 export abstract class RelayAbstract {

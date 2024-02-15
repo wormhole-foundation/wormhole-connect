@@ -7,7 +7,7 @@ import {
   WormholeContext,
   TokenMessenger__factory,
   MessageTransmitter__factory,
-} from '@wormhole-foundation/wormhole-connect-sdk';
+} from 'sdk';
 
 import { CHAINS, ROUTES, TOKENS, TOKENS_ARR, sdkConfig } from 'config';
 import { TokenConfig, Route } from 'config/types';

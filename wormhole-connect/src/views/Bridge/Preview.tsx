@@ -16,10 +16,7 @@ import RouteOperator from 'routes/operator';
 import { RenderRows } from 'components/RenderRows';
 import BridgeCollapse, { CollapseControlStyle } from './Collapse';
 import InputContainer from 'components/InputContainer';
-import {
-  TokenNotSupportedForRelayError,
-  TokenNotRegisteredError,
-} from '@wormhole-foundation/wormhole-connect-sdk';
+import { TokenNotSupportedForRelayError, TokenNotRegisteredError } from 'sdk';
 import { isPorticoRoute } from 'routes/porticoBridge/utils';
 
 const defaultPrices = {};

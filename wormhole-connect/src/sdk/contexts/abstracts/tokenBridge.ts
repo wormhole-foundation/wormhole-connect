@@ -1,6 +1,6 @@
 import { BigNumber } from 'ethers';
 import { AnyContracts, TokenId, ChainName, ChainId, NATIVE } from '../../types';
-import { WormholeContext } from 'wormhole';
+import { WormholeContext } from 'sdk/wormhole';
 import { TokenNotRegisteredError } from '../../errors';
 
 /**

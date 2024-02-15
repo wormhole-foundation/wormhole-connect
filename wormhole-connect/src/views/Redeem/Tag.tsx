@@ -1,5 +1,5 @@
 import { CHAIN_ID_WORMCHAIN } from '@certusone/wormhole-sdk';
-import { stripHexPrefix } from '@wormhole-foundation/wormhole-connect-sdk';
+import { stripHexPrefix } from 'sdk';
 import LaunchIcon from '@mui/icons-material/Launch';
 import InputContainer from 'components/InputContainer';
 import { CHAINS, WORMSCAN, isMainnet } from 'config';

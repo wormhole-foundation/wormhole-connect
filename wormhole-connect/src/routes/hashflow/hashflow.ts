@@ -1,8 +1,4 @@
-import {
-  ChainName,
-  ChainId,
-  TokenId,
-} from '@wormhole-foundation/wormhole-connect-sdk';
+import { ChainName, ChainId, TokenId } from 'sdk';
 import { BigNumber } from 'ethers';
 
 import { Route, TokenConfig } from 'config/types';

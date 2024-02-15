@@ -1,9 +1,5 @@
 import { logs as cosmosLogs, IndexedTx } from '@cosmjs/stargate';
-import {
-  ChainId,
-  ChainName,
-  searchCosmosLogs,
-} from '@wormhole-foundation/wormhole-connect-sdk';
+import { ChainId, ChainName, searchCosmosLogs } from 'sdk';
 import { getCosmWasmClient } from '../utils';
 import { IBCTransferInfo } from '../types';
 

@@ -1,9 +1,4 @@
-import {
-  ChainId,
-  ChainName,
-  NATIVE,
-  TokenId,
-} from '@wormhole-foundation/wormhole-connect-sdk';
+import { ChainId, ChainName, NATIVE, TokenId } from 'sdk';
 import { solanaContext, wh } from './sdk';
 
 export const getSolanaAssociatedTokenAccount = async (

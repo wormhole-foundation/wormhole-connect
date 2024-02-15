@@ -1,9 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import {
-  Context,
-  INSUFFICIENT_ALLOWANCE,
-} from '@wormhole-foundation/wormhole-connect-sdk';
+import { Context, INSUFFICIENT_ALLOWANCE } from 'sdk';
 import { makeStyles } from 'tss-react/mui';
 
 import { CHAINS, TOKENS } from 'config';

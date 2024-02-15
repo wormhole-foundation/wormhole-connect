@@ -5,7 +5,7 @@ import {
   EthContext,
   WormholeContext,
   MessageTransmitter__factory,
-} from '@wormhole-foundation/wormhole-connect-sdk';
+} from 'sdk';
 import { BigNumber, utils } from 'ethers';
 
 import { CHAINS, ROUTES, TOKENS, sdkConfig } from 'config';

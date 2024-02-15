@@ -8,7 +8,7 @@ import {
   SolanaContext,
   WormholeContext,
   getNativeDenom,
-} from '@wormhole-foundation/wormhole-connect-sdk';
+} from 'sdk';
 import { wh } from 'utils/sdk';
 import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
 import { FromCosmosPayload } from '../types';

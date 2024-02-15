@@ -7,7 +7,7 @@ import {
   CosmosTransaction,
   TokenId,
   getNativeDenom,
-} from '@wormhole-foundation/wormhole-connect-sdk';
+} from 'sdk';
 import { MsgExecuteContract } from 'cosmjs-types/cosmwasm/wasm/v1/tx';
 import { BigNumber, utils } from 'ethers';
 import { calculateUSDPrice, getDisplayName } from 'utils';

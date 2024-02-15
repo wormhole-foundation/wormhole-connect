@@ -3,11 +3,7 @@ import { isEVMChain } from '@certusone/wormhole-sdk';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
-import {
-  ChainName,
-  SuiContext,
-  WormholeContext,
-} from '@wormhole-foundation/wormhole-connect-sdk';
+import { ChainName, SuiContext, WormholeContext } from 'sdk';
 
 import { CHAINS, TOKENS } from 'config';
 import { MAINNET_CHAINS } from 'config/mainnet';

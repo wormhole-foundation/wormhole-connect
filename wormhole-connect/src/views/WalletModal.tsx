@@ -12,11 +12,7 @@ import {
   SeiWallet,
   getSupportedWallets as getSeiWallets,
 } from '@xlabs-libs/wallet-aggregator-sei';
-import {
-  ChainConfig,
-  ChainName,
-  Context,
-} from '@wormhole-foundation/wormhole-connect-sdk';
+import { ChainConfig, ChainName, Context } from 'sdk';
 import { CHAIN_ID_EVMOS } from '@certusone/wormhole-sdk';
 
 import { CHAINS, CHAINS_ARR, ENV, RPCS } from 'config';

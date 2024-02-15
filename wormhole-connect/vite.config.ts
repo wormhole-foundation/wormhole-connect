@@ -18,6 +18,7 @@ export default defineConfig({
       icons: path.resolve(__dirname, './src/icons'),
       hooks: path.resolve(__dirname, './src/hooks'),
       consts: path.resolve(__dirname, './src/consts'),
+      sdk: path.resolve(__dirname, './src/sdk'),
       public: path.resolve(__dirname, './public'),
     },
   },

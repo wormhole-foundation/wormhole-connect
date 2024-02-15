@@ -1,4 +1,4 @@
-import { ChainId } from '@wormhole-foundation/wormhole-connect-sdk';
+import { ChainId } from 'sdk';
 
 export interface GatewayTransferMsg {
   gateway_transfer: {

@@ -6,7 +6,7 @@ import {
   EthContext,
   SolanaContext,
   WormholeContext,
-} from '@wormhole-foundation/wormhole-connect-sdk';
+} from 'sdk';
 import { ROUTES, TOKENS, TOKENS_ARR } from 'config';
 import { TokenConfig, Route } from 'config/types';
 import {

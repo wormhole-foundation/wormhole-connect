@@ -1,4 +1,4 @@
-import { ChainName, ChainId } from '@wormhole-foundation/wormhole-connect-sdk';
+import { ChainName, ChainId } from 'sdk';
 import { TOKENS_ARR } from 'config';
 import { wh } from 'utils/sdk';
 

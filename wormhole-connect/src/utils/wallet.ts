@@ -6,7 +6,7 @@ import {
   Context,
   WormholeContext,
   SendResult,
-} from '@wormhole-foundation/wormhole-connect-sdk';
+} from 'sdk';
 import { CHAIN_ID_SEI, postVaaSolanaWithRetry } from '@certusone/wormhole-sdk';
 import { ContractReceipt } from 'ethers';
 import { NotSupported, Wallet } from '@xlabs-libs/wallet-aggregator-core';

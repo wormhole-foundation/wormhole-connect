@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+import { ChainName } from 'sdk';
 import useIsTransferLimited from 'hooks/useIsTransferLimited';
 import { wh } from 'utils/sdk';
 import Dialog from '@mui/material/Dialog';
