@@ -319,20 +319,12 @@ function Bridge() {
 
           <TransferLimitedWarning fromChain={fromChain} token={token} />
           {route && isNTTRoute(route) && toChain && fromChain && (
-            <>
-              <NTTCapacityWarning
-                token={token}
-                amount={amount}
-                chain={fromChain}
-                fromChain={fromChain}
-              />
-              <NTTCapacityWarning
-                token={destToken}
-                amount={receiveAmount.data || '0'}
-                chain={toChain}
-                fromChain={fromChain}
-              />
-            </>
+            <NTTCapacityWarning
+              token={destToken}
+              amount={receiveAmount.data || '0'}
+              chain={toChain}
+              fromChain={fromChain}
+            />
           )}
           <Send valid={!!valid} />
         </div>
