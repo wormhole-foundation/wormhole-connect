@@ -153,7 +153,7 @@ function Inputs(props: Props) {
           {/* connect wallet button */}
           <ConnectWallet
             type={props.wallet}
-            disabled={isTransactionInProgress}
+            disabled={isTransactionInProgress || !selectedChain}
           />
         </div>
 
@@ -213,7 +213,7 @@ function Inputs(props: Props) {
 
                 {/* balance */}
                 <div className={classes.balance}>
-                  <Input label="Balance">
+                  <Input label="Balance" disabled>
                     <div>
                       {props.balance ? (
                         <div>

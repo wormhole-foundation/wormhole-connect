@@ -15,6 +15,7 @@ import TxSearch from './views/TxSearch';
 import WalletModal from './views/WalletModal';
 import { SEARCH_TX } from './config';
 import { setRoute } from './store/router';
+import { clearWallets } from './store/wallet';
 import { clearPorticoBridge } from 'store/porticoBridge';
 
 const useStyles = makeStyles()((theme: any) => ({
@@ -51,6 +52,7 @@ function AppRouter() {
     // reset redeem state on leave
     if (prevRoute === redeemRoute && route !== redeemRoute) {
       dispatch(clearRedeem());
+      dispatch(clearWallets());
     }
     // reset transfer state on leave
     if (prevRoute === bridgeRoute && route !== bridgeRoute) {

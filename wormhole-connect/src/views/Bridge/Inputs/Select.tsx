@@ -50,6 +50,7 @@ function Select(props: Props) {
       label={props.label}
       error={props.error}
       editable={props.editable}
+      disabled={props.disabled}
       onClick={handleClick}
     >
       {selected ? (
