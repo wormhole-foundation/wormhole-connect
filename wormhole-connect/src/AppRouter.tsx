@@ -52,11 +52,11 @@ function AppRouter() {
     // reset redeem state on leave
     if (prevRoute === redeemRoute && route !== redeemRoute) {
       dispatch(clearRedeem());
+      dispatch(clearWallets());
     }
     // reset transfer state on leave
     if (prevRoute === bridgeRoute && route !== bridgeRoute) {
       dispatch(clearTransfer());
-      dispatch(clearWallets());
       dispatch(clearPorticoBridge());
     }
   }, [route, prevRoute, dispatch]);
