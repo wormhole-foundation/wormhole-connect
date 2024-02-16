@@ -229,11 +229,9 @@ export const getWalletOptions = async (
     } = await import('utils/wallet/cosmos');
 
     if (config.id === CHAIN_ID_EVMOS) {
-      return Object.values(mapWallets(cosmos, Context.COSMOS));
+      return Object.values(mapWallets(cosmos, Context.COSMOS, ['OKX Wallet']));
     } else {
-      return Object.values(
-        mapWallets(cosmosEvm, Context.COSMOS, ['OKX Wallet']),
-      );
+      return Object.values(mapWallets(cosmosEvm, Context.COSMOS));
     }
   }
   return [];
