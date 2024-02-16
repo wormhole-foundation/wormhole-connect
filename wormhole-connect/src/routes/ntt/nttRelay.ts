@@ -93,6 +93,11 @@ export class NTTRelay extends NTTBase {
       tokenPrices,
       TOKENS[sourceGasToken || ''],
     );
+    const relayerFeePrice = calculateUSDPrice(
+      routeOptions.relayerFee,
+      tokenPrices,
+      TOKENS[sourceGasToken || ''],
+    );
     return [
       {
         title: 'Amount',
@@ -116,7 +121,7 @@ export class NTTRelay extends NTTBase {
             value: routeOptions.relayerFee
               ? `${routeOptions.relayerFee} ${sourceGasTokenSymbol}`
               : NO_INPUT,
-            valueUSD: sendingGasEstPrice,
+            valueUSD: relayerFeePrice,
           },
         ],
       },

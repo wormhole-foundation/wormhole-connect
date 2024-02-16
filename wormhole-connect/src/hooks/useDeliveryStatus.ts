@@ -4,7 +4,7 @@ import { Route } from 'config/types';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from 'store';
-import { setRelayStatus } from 'store/redeem';
+import { setRedeemTx, setDeliveryStatus } from 'store/redeem';
 import { sleep } from 'utils';
 import { getEmitterAndSequence } from 'utils/vaa';
 
@@ -14,7 +14,8 @@ const BASE_URL = `https://api.${
 
 const RETRY_DELAY = 15_000;
 
-const useRelayerStatus = () => {
+// Polls for the delivery status of a standard relay
+const useDeliveryStatus = () => {
   const dispatch = useDispatch();
   const route = useSelector((state: RootState) => state.redeem.route);
   const transferComplete = useSelector(
@@ -30,14 +31,20 @@ const useRelayerStatus = () => {
       getEmitterAndSequence(signedMessage);
     let active = true;
     const fetchData = async () => {
-      // keep polling for the latest status
       while (active) {
         try {
           const response = await axios.get(
             `${BASE_URL}/${emitterChain}/${emitterAddress}/${sequence}`,
           );
-          if (active && response.data) {
-            dispatch(setRelayStatus(response.data.status));
+          if (active) {
+            const { delivery, toTxHash } = response.data?.data || {};
+            if (delivery?.execution) {
+              dispatch(setDeliveryStatus(delivery.status));
+            }
+            if (toTxHash) {
+              dispatch(setRedeemTx(toTxHash));
+            }
+            break;
           }
         } catch (e: any) {
           if (e.response?.status !== 404) {
@@ -56,4 +63,4 @@ const useRelayerStatus = () => {
   }, [signedMessage, route]);
 };
 
-export default useRelayerStatus;
+export default useDeliveryStatus;

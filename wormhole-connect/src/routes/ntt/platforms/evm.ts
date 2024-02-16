@@ -31,6 +31,7 @@ import {
   InboundQueuedTransferNotFoundError,
   InboundQueuedTransferStillQueuedError,
   NotEnoughCapacityError,
+  RequireContractIsNotPausedError,
 } from '../errors';
 
 export class NTTEvm {
@@ -103,11 +104,7 @@ export class NTTEvm {
     try {
       return await this.signAndSendTransaction(tx, TransferWallet.SENDING);
     } catch (e: any) {
-      const message = tryParseErrorMessage(manager.interface, e);
-      if (message === NotEnoughCapacityError.MESSAGE) {
-        throw new NotEnoughCapacityError();
-      }
-      throw e;
+      this.throwParsedError(e);
     }
   }
 
@@ -255,14 +252,7 @@ export class NTTEvm {
         );
       return await this.signAndSendTransaction(tx, TransferWallet.RECEIVING);
     } catch (e) {
-      const message = tryParseErrorMessage(manager.interface, e);
-      if (message === InboundQueuedTransferNotFoundError.MESSAGE) {
-        throw new InboundQueuedTransferNotFoundError();
-      }
-      if (message === InboundQueuedTransferStillQueuedError.MESSAGE) {
-        throw new InboundQueuedTransferStillQueuedError();
-      }
-      throw e;
+      this.throwParsedError(e);
     }
   }
 
@@ -272,5 +262,22 @@ export class NTTEvm {
 
   async isPaused(): Promise<boolean> {
     return this.getManager().isPaused();
+  }
+
+  throwParsedError(e: any): never {
+    const message = tryParseErrorMessage(this.getManager().interface, e);
+    if (message === InboundQueuedTransferNotFoundError.MESSAGE) {
+      throw new InboundQueuedTransferNotFoundError();
+    }
+    if (message === InboundQueuedTransferStillQueuedError.MESSAGE) {
+      throw new InboundQueuedTransferStillQueuedError();
+    }
+    if (message === RequireContractIsNotPausedError.MESSAGE) {
+      throw new RequireContractIsNotPausedError();
+    }
+    if (message === NotEnoughCapacityError.MESSAGE) {
+      throw new NotEnoughCapacityError();
+    }
+    throw e;
   }
 }

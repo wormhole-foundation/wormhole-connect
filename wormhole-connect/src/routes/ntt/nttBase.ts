@@ -290,11 +290,11 @@ export abstract class NTTBase extends BaseRoute {
   }
 
   async tryFetchRedeemTx(txData: UnsignedMessage): Promise<string | undefined> {
-    throw new Error('Not supported');
+    return undefined;
   }
 
   // The transfer is considered completed when the message is executed
-  // and there is no inbound queued transfer
+  // and not inbound queued
   async isTransferCompleted(
     chain: ChainName | ChainId,
     signedMessage: SignedNTTMessage,

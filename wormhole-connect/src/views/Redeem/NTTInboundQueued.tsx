@@ -23,6 +23,7 @@ import { Route } from 'config/types';
 import {
   InboundQueuedTransferNotFoundError,
   InboundQueuedTransferStillQueuedError,
+  RequireContractIsNotPausedError,
 } from 'routes/ntt/errors';
 import { setRedeemTx } from 'store/redeem';
 
@@ -78,6 +79,8 @@ const NTTInboundQueued = () => {
         setSendError('Transfer not found');
       } else if (e.message === InboundQueuedTransferStillQueuedError.MESSAGE) {
         setSendError('Transfer is still queued');
+      } else if (e.message === RequireContractIsNotPausedError.MESSAGE) {
+        setSendError('Contract is paused');
       } else {
         setSendError('Error with transfer, please try again');
       }

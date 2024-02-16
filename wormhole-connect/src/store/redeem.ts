@@ -2,17 +2,11 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { ParsedMessage, ParsedRelayerMessage } from 'utils/sdk';
 import { UnsignedNTTMessage, SignedMessage, TransferDestInfo } from 'routes';
 import { Route } from 'config/types';
+import { DeliveryStatus } from '@certusone/wormhole-sdk/lib/esm/relayer';
 
 export enum MessageType {
   BRIDGE = 1,
   RELAY = 3,
-}
-
-export enum RelayStatus {
-  Redeemed = 'redeemed',
-  Failed = 'failed',
-  Waiting = 'waiting',
-  Active = 'inprogress',
 }
 
 export interface RedeemState {
@@ -24,7 +18,7 @@ export interface RedeemState {
   isVaaEnqueued: boolean;
   route: Route | undefined;
   transferDestInfo: TransferDestInfo | undefined;
-  relayStatus: RelayStatus | undefined;
+  deliveryStatus: DeliveryStatus | undefined;
 }
 
 const initialState: RedeemState = {
@@ -36,7 +30,7 @@ const initialState: RedeemState = {
   isVaaEnqueued: false,
   route: undefined,
   transferDestInfo: undefined,
-  relayStatus: undefined,
+  deliveryStatus: undefined,
 };
 
 export const redeemSlice = createSlice({
@@ -92,11 +86,11 @@ export const redeemSlice = createSlice({
     ) => {
       state.signedMessage = payload;
     },
-    setRelayStatus: (
+    setDeliveryStatus: (
       state: RedeemState,
-      { payload }: PayloadAction<RelayStatus>,
+      { payload }: PayloadAction<DeliveryStatus>,
     ) => {
-      state.relayStatus = payload;
+      state.deliveryStatus = payload;
     },
   },
 });
@@ -111,7 +105,7 @@ export const {
   clearRedeem,
   setRoute,
   setSignedMessage,
-  setRelayStatus,
+  setDeliveryStatus,
 } = redeemSlice.actions;
 
 export default redeemSlice.reducer;
