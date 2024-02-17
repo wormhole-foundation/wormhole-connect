@@ -11,7 +11,7 @@ import { isNTTRoute } from 'routes';
 import RouteOperator from 'routes/operator';
 import { NTTBase } from 'routes/ntt/nttBase';
 
-const RETRY_DELAY = 30 * 1000;
+const RETRY_DELAY = 15_000;
 
 const useCheckInboundQueuedTransfer = () => {
   const dispatch = useDispatch();
@@ -34,10 +34,10 @@ const useCheckInboundQueuedTransfer = () => {
     ) {
       return;
     }
+    const { toChain, destManagerAddress, messageDigest } = signedMessage;
+    const ntt = RouteOperator.getRoute(route) as NTTBase;
     let active = true;
-    (async () => {
-      const { toChain, destManagerAddress, messageDigest } = signedMessage;
-      const ntt = RouteOperator.getRoute(route) as NTTBase;
+    const fetchData = async () => {
       while (active) {
         try {
           const queuedTransfer = await ntt.getInboundQueuedTransfer(
@@ -48,10 +48,6 @@ const useCheckInboundQueuedTransfer = () => {
           if (active) {
             dispatch(setInboundQueuedTransfer(queuedTransfer));
           }
-          if (!queuedTransfer) {
-            // If the transfer is not queued, we can stop checking
-            break;
-          }
         } catch (e) {
           console.error(e);
         }
@@ -59,7 +55,8 @@ const useCheckInboundQueuedTransfer = () => {
           await sleep(RETRY_DELAY);
         }
       }
-    })();
+    };
+    fetchData();
     return () => {
       active = false;
     };

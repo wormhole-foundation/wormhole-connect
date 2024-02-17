@@ -86,13 +86,13 @@ const NTTCapacityWarning = ({ token, amount, chain, fromChain }: Props) => {
   const chainConfig = CHAINS[chain];
   const content = (
     <>
-      {`WARNING: Due to high volume on ${
+      {`Due to high volume on ${
         chainConfig?.displayName
-      }, this transfer may be rate-limited, causing a${
+      }, your transfer may be delayed for ${
         rateLimitDuration ? ' ' + rateLimitDuration : ''
-      } delay. After the limit expires, you'll need to resume this transfer in a new transaction${
+      }. Once the delay ends, you'll need to submit a new transaction${
         chain !== fromChain ? ` on ${chainConfig?.displayName}` : ''
-      }. Please take this into consideration before proceeding.`}
+      } to resume the transfer. Please consider this before proceeding.`}
     </>
   );
   return <AlertBanner show content={content} warning />;

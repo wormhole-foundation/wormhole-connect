@@ -1,9 +1,9 @@
 import InputContainer from 'components/InputContainer';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from 'store';
 import { isSignedNTTMessage } from 'routes';
-import { NTTManual, NTTRelay } from 'routes/ntt';
+import { NTTManual, NTTRelay, RATE_LIMIT_DURATION } from 'routes/ntt';
 import Header from './Header';
 import { useDispatch } from 'react-redux';
 import Button from 'components/Button';
@@ -26,14 +26,20 @@ import {
   RequireContractIsNotPausedError,
 } from 'routes/ntt/errors';
 import { setRedeemTx } from 'store/redeem';
+import { OPACITY } from 'utils/style';
+import { useTheme } from '@mui/material';
 
 const NTTInboundQueued = () => {
   const dispatch = useDispatch();
+  const theme: any = useTheme();
   const route = useSelector((state: RootState) => state.redeem.route);
   const wallet = useSelector((state: RootState) => state.wallet.receiving);
   const signedMessage = useSelector(
     (state: RootState) => state.redeem.signedMessage,
   )!;
+  const inboundQueuedTransfer = useSelector(
+    (state: RootState) => state.ntt.inboundQueuedTransfer,
+  );
 
   const checkConnection = useCallback(() => {
     if (!isSignedNTTMessage(signedMessage)) return;
@@ -48,6 +54,13 @@ const NTTInboundQueued = () => {
   const [isConnected, setIsConnected] = useState(checkConnection());
   const [openWalletModal, setWalletModal] = useState(false);
 
+  const rateLimitExpiry = useMemo(() => {
+    if (!inboundQueuedTransfer.data) return '';
+    return new Date(
+      (inboundQueuedTransfer.data?.txTimestamp + RATE_LIMIT_DURATION) * 1000,
+    ).toLocaleString();
+  }, [inboundQueuedTransfer]);
+
   const connect = () => {
     setWalletModal(true);
   };
@@ -58,7 +71,7 @@ const NTTInboundQueued = () => {
 
   const handleClick = useCallback(async () => {
     if (!isSignedNTTMessage(signedMessage)) return;
-    const { toChain, recipient, messageDigest } = signedMessage;
+    const { toChain, messageDigest, destManagerAddress } = signedMessage;
     setInProgress(true);
     try {
       const toConfig = CHAINS[toChain];
@@ -69,7 +82,7 @@ const NTTInboundQueued = () => {
       const ntt = route === Route.NTTManual ? new NTTManual() : new NTTRelay();
       const tx = await ntt.completeInboundQueuedTransfer(
         toChain,
-        recipient,
+        destManagerAddress,
         messageDigest,
       );
       dispatch(setInboundQueuedTransfer(undefined));
@@ -78,7 +91,7 @@ const NTTInboundQueued = () => {
       if (e.message === InboundQueuedTransferNotFoundError.MESSAGE) {
         setSendError('Transfer not found');
       } else if (e.message === InboundQueuedTransferStillQueuedError.MESSAGE) {
-        setSendError('Transfer is still queued');
+        setSendError('Transfer still queued');
       } else if (e.message === RequireContractIsNotPausedError.MESSAGE) {
         setSendError('Contract is paused');
       } else {
@@ -91,16 +104,18 @@ const NTTInboundQueued = () => {
 
   return (
     <>
-      <InputContainer>
+      <InputContainer bg={theme.palette.warning[500] + OPACITY[25]}>
         <Header
           chain={signedMessage.fromChain}
           address={signedMessage.sender}
           txHash={signedMessage.sendTx}
         />
         <div>
-          {`WARNING: This transfer has been queued due to rate limits on ${
+          {`Your transfer to ${
             CHAINS[signedMessage.fromChain]?.displayName || 'UNKNOWN'
-          }. You will need to submit a new transaction to resume this transfer after the rate limits expire.`}
+          } is delayed due to rate limits. After the delay expires${
+            rateLimitExpiry ? ' on ' + rateLimitExpiry : ''
+          }, you'll need resume the transfer.`}
         </div>
       </InputContainer>
       <Spacer height={8} />

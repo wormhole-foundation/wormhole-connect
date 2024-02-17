@@ -326,8 +326,9 @@ export const formatSecondsToHoursAndMinutes = (seconds: number): string => {
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
 
-  const hoursDisplay = hours > 0 ? `${hours} hour` : '';
-  const minutesDisplay = minutes > 0 ? `${minutes} minute` : '';
+  const hoursDisplay = hours > 0 ? `${hours} hour${hours > 1 ? 's' : ''}` : '';
+  const minutesDisplay =
+    minutes > 0 ? `${minutes} minute${minutes > 1 ? 's' : ''}` : '';
 
   return `${hoursDisplay} ${minutesDisplay}`.trim();
 };
@@ -343,4 +344,8 @@ export const tryParseErrorMessage = (
   } catch {
     return '';
   }
+};
+
+export const removeDust = (amount: BigNumber, decimals: number): BigNumber => {
+  return deNormalizeAmount(normalizeAmount(amount, decimals), decimals);
 };

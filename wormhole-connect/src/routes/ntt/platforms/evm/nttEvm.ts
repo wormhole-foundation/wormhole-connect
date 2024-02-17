@@ -4,8 +4,8 @@ import {
   EthContext,
   TokenId,
   WormholeContext,
-  WormholeEndpointAndManager__factory,
 } from '@wormhole-foundation/wormhole-connect-sdk';
+import { WormholeEndpointAndManager__factory } from './abis';
 import { hexlify, keccak256 } from 'ethers/lib/utils';
 import { UnsignedNTTMessage } from 'routes/types';
 import { getNativeVersionOfToken } from 'store/transferInput';
@@ -16,11 +16,11 @@ import {
   parseEndpointMessage,
   parseManagerMessage,
   parseNativeTokenTransfer,
-} from '../utils';
+} from '../../utils';
 import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
 import { BigNumber, PopulatedTransaction, ethers } from 'ethers';
 import { TOKENS } from 'config';
-import { InboundQueuedTransfer } from '../types';
+import { InboundQueuedTransfer } from '../../types';
 import { Implementation__factory } from '@certusone/wormhole-sdk/lib/esm/ethers-contracts';
 import {
   DeliveryInstruction,
@@ -32,7 +32,7 @@ import {
   InboundQueuedTransferStillQueuedError,
   NotEnoughCapacityError,
   RequireContractIsNotPausedError,
-} from '../errors';
+} from '../../errors';
 
 export class NTTEvm {
   constructor(

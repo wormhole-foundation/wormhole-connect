@@ -17,7 +17,7 @@ import { hexlify, parseUnits } from 'ethers/lib/utils.js';
 import { BaseRoute } from '../bridge';
 import { isEvmChain, toChainName, wh } from 'utils/sdk';
 import { TOKENS } from 'config';
-import { getTokenById, getTokenDecimals } from 'utils';
+import { getTokenById, getTokenDecimals, removeDust } from 'utils';
 import { getNativeVersionOfToken } from 'store/transferInput';
 import { getPlatform } from './platforms';
 import { InboundQueuedTransfer } from './types';
@@ -184,11 +184,12 @@ export abstract class NTTBase extends BaseRoute {
       wh.toChainId(sendingChain),
       tokenConfig.tokenId,
     );
-    const parsedAmount = parseUnits(amount, decimals).toBigInt();
+    // remove any dust before sending
+    const sendAmount = removeDust(parseUnits(amount, decimals), decimals);
     return getPlatform(sendingChain, tokenConfig.nttManagerAddress).send(
       token,
       recipientAddress,
-      parsedAmount,
+      sendAmount.toBigInt(),
       recipientChain,
       this.TYPE === Route.NTTRelay,
     );
@@ -305,7 +306,6 @@ export abstract class NTTBase extends BaseRoute {
     const { destManagerAddress, messageDigest } = signedMessage;
     const platform = getPlatform(chain, destManagerAddress);
     const isMessageExecuted = await platform.isMessageExecuted(messageDigest);
-    console.log(isMessageExecuted);
     if (isMessageExecuted) {
       const queuedTransfer = await platform.getInboundQueuedTransfer(
         messageDigest,

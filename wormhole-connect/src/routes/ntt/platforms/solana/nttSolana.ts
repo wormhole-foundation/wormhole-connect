@@ -4,7 +4,7 @@ import {
   TokenId,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { UnsignedNTTMessage } from 'routes/types';
-import { InboundQueuedTransfer } from '../types';
+import { InboundQueuedTransfer } from '../../types';
 
 export class NTTSolana {
   constructor(readonly managerAddress: string) {}
@@ -12,7 +12,7 @@ export class NTTSolana {
   async isWormholeRelayingEnabled(
     destChain: ChainName | ChainId,
   ): Promise<boolean> {
-    // Standard Relaying not supported on Solana
+    // TODO: implement
     return false;
   }
 
@@ -25,7 +25,7 @@ export class NTTSolana {
     recipient: string,
     amount: bigint,
     toChain: ChainName | ChainId,
-    useRelayer: boolean,
+    useRelay: boolean,
   ): Promise<string> {
     throw new Error('Not implemented');
   }
