@@ -140,8 +140,6 @@ export const WALLET_CONNECT_PROJECT_ID =
 export const ethBridgeMaxAmount = config?.ethBridgeMaxAmount ?? 5;
 export const wstETHBridgeMaxAmount = config?.wstETHBridgeMaxAmount ?? 2.5;
 
-export type NetworkType = 'MAINNET' | 'DEVNET' | 'TESTNET';
-
 export const TESTNET_TO_MAINNET_CHAIN_NAMES: {
   [k in TestnetChainName]: MainnetChainName;
 } = {

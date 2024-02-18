@@ -8,6 +8,27 @@ import {
 import { Alignment } from 'components/Header';
 import { ExtendedTheme } from 'theme';
 
+export enum WidgetNetworks {
+  MAINNET = 'MAINNET',
+  TESTNET = 'TESTNET',
+  DEVNET = 'DEVNET',
+}
+
+export enum Networks {
+  mainnet = 'mainnet',
+  testnet = 'testnet',
+  devnet = 'devnet',
+}
+
+export const envMapping = {
+  [Networks.mainnet]: WidgetNetworks.MAINNET,
+  [Networks.devnet]: WidgetNetworks.DEVNET,
+  [Networks.testnet]: WidgetNetworks.TESTNET,
+};
+
+export type ConfigNetwork = keyof typeof Networks;
+export type WidgetNetwork = keyof typeof WidgetNetworks;
+
 export enum Icon {
   'AVAX' = 1,
   'BNB',

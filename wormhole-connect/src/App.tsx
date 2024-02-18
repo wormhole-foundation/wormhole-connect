@@ -8,12 +8,11 @@ import AppRouter from './AppRouter';
 import { getDesignTokens } from './theme';
 import BackgroundImage from './components/Background/BackgroundImage';
 import ErrorBoundary from './components/ErrorBoundary';
-import { useConfig } from 'config/GlobalConfig';
+import { useWidgetStateManager } from 'config/configStateManager';
 
 export default function App() {
-  const { themeState } = useConfig();
+  const { themeState } = useWidgetStateManager();
 
-  // Update the theme only if the mode changes
   const theme = React.useMemo(
     () =>
       createTheme(getDesignTokens(themeState.mode, themeState.defaultTheme)),

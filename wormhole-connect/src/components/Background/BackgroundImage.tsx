@@ -2,7 +2,7 @@ import React from 'react';
 import { makeStyles } from 'tss-react/mui';
 
 import { OPACITY } from '../../utils/style';
-import { useConfig } from 'config/GlobalConfig';
+import { useWidgetStateManager } from 'config/configStateManager';
 
 const colors = {
   bg: '#030712',
@@ -116,7 +116,7 @@ type Props = {
 };
 
 function Background({ children }: Props) {
-  const { themeState } = useConfig();
+  const { themeState } = useWidgetStateManager();
   const { classes } = useStyles();
 
   return themeState.defaultTheme.background.default === 'wormhole' ? (

@@ -2,12 +2,12 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import { config } from 'config';
-import { ConfigProvider } from 'config/GlobalConfig';
+import { WidgetStateManagerProvider } from 'config/configStateManager';
 
 ReactDOM.createRoot(document.getElementById('wormhole-connect')!).render(
   <React.StrictMode>
-    <ConfigProvider config={config}>
+    <WidgetStateManagerProvider config={config}>
       <App />
-    </ConfigProvider>
+    </WidgetStateManagerProvider>
   </React.StrictMode>,
 );
