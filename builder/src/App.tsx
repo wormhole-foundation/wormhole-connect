@@ -44,7 +44,6 @@ import WormholeBridge, {
   TESTNET_CHAINS,
   TestnetChainName,
   Theme,
-  WormholeConnectConfig,
   defaultTheme,
 } from "@wormhole-foundation/wormhole-connect";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -458,9 +457,8 @@ function App() {
     },
     []
   );
-  // NOTE: the WormholeBridge component is keyed by the stringified version of config
-  // because otherwise the component did not update on changes
-  const config: WormholeConnectConfig = useMemo(
+
+  const config = useMemo(
     () => ({
       env: "testnet", // always testnet for the builder
       rpcs: testnetRpcs,
@@ -508,6 +506,17 @@ function App() {
       showHamburgerMenu,
     ]
   );
+
+  // the widget is unable to update. we can update with custom event handler
+  // can be useful for other callbacks outside of just theme changes
+  useEffect(() => {
+    // Dispatch the custom event whenever the config changes
+    const event = new CustomEvent("configChange", { detail: config });
+    const el = document.getElementById("wormhole-connect");
+    console.log(event);
+    if (el) el.dispatchEvent(event);
+  }, [config]);
+
   const [versionOrTag, setVersionOrTag] = useState<string>(version);
   const handleVersionOrTagChange = useCallback((e: any, value: string) => {
     setVersionOrTag(value);

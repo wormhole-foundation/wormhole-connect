@@ -14,6 +14,7 @@ import {
 } from './types';
 import { validateConfigs, validateDefaults } from './utils';
 import { Alignment } from 'components/Header';
+import { dark, light } from '../theme';
 
 export const el = document.getElementById('wormhole-connect');
 if (!el)
@@ -38,6 +39,13 @@ const getPageHeader = (): { text: string; align: Alignment } => {
   } else {
     return { ...defaults, ...config.pageHeader };
   }
+};
+
+export const getThemeFromConfig = (config: WormholeConnectConfig) => {
+  const baseTheme = config?.mode === 'dark' ? dark : light;
+  return config?.customTheme
+    ? Object.assign({}, baseTheme, config.customTheme)
+    : baseTheme;
 };
 
 export const ENV = getEnv();

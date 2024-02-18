@@ -285,7 +285,7 @@ export const dark: ExtendedTheme = {
   },
 };
 
-export const getDesignTokens = (mode: PaletteMode, theme: any) =>
+export const getDesignTokens = (mode: PaletteMode, theme: ExtendedTheme) =>
   createTheme({
     components: {
       MuiPaper: {

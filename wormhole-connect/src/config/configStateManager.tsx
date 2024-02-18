@@ -1,5 +1,13 @@
-import React, { ReactNode, createContext, useContext, useMemo } from 'react';
-import { ExtendedTheme, dark, light } from '../theme';
+import { Theme, createTheme } from '@mui/material';
+import React, {
+  ReactNode,
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
+import { getDesignTokens } from '../theme';
 import {
   ConfigNetwork,
   Networks,
@@ -7,7 +15,9 @@ import {
   WormholeConnectConfig,
   envMapping,
 } from './types';
-import { PaletteMode } from '@mui/material';
+import { getThemeFromConfig } from 'config';
+
+const processEnv = import.meta.env.REACT_APP_CONNECT_ENV?.toLowerCase();
 
 // creating global conext for the theme solves the
 // rerender issue when changing widget theme
@@ -18,11 +28,7 @@ import { PaletteMode } from '@mui/material';
 // as state because when config changes its important these items update
 // more so than the optional/extra config items that dont really change
 interface WidgetStateManagerContext {
-  themeState: {
-    mode: PaletteMode;
-    customTheme: ExtendedTheme | undefined;
-    defaultTheme: ExtendedTheme;
-  };
+  themeState: Theme;
   networkState: WidgetNetworks;
   config: WormholeConnectConfig;
 }
@@ -33,22 +39,37 @@ export const WidgetStateManagerProvider: React.FC<{
   config: WormholeConnectConfig;
   children: ReactNode;
 }> = ({ config, children }) => {
-  const networkState = useMemo(() => {
-    const processEnv = import.meta.env.REACT_APP_CONNECT_ENV?.toLowerCase();
+  const [networkState, setNeworkState] = useState(config.env as WidgetNetworks);
+
+  const createThemeFromConfig = useCallback(
+    (config: WormholeConnectConfig) => {
+      const mode = config?.mode ?? 'dark';
+      const defaultTheme = getThemeFromConfig(config);
+      return createTheme(getDesignTokens(mode, defaultTheme));
+    },
+    [createTheme, getDesignTokens],
+  );
+
+  const [themeState, setThemeState] = useState<Theme>(() => {
+    return createThemeFromConfig(config);
+  });
+
+  const toggleTheme = React.useCallback(
+    (config: WormholeConnectConfig) => {
+      setThemeState(() => {
+        return createThemeFromConfig(config);
+      });
+    },
+    [setThemeState],
+  );
+  useEffect(() => {
+    toggleTheme(config);
+  }, [config, toggleTheme]);
+
+  useEffect(() => {
     const env = (config.env || processEnv || Networks.testnet) as ConfigNetwork;
-    return envMapping[env] || WidgetNetworks.TESTNET;
+    setNeworkState(envMapping[env] || WidgetNetworks.TESTNET);
   }, [config.env]);
-
-  const themeState = useMemo(() => {
-    const mode = config && config.mode ? config.mode : 'dark';
-    const customTheme = config && config.customTheme;
-    const baseTheme = mode === 'dark' ? dark : light;
-    const defaultTheme = customTheme
-      ? Object.assign({}, baseTheme, customTheme)
-      : baseTheme;
-
-    return { mode, customTheme, defaultTheme };
-  }, [config.mode, config.customTheme]);
 
   return (
     <WidgetStateManager.Provider

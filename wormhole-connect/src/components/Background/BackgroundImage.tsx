@@ -119,7 +119,7 @@ function Background({ children }: Props) {
   const { themeState } = useWidgetStateManager();
   const { classes } = useStyles();
 
-  return themeState.defaultTheme.background.default === 'wormhole' ? (
+  return themeState.palette.background.default === 'wormhole' ? (
     <div className="container">
       <div className={classes.bg}>
         {children}
