@@ -3,17 +3,22 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import ErrorBoundary from './components/ErrorBoundary';
-
+import { ConfigProvider } from 'config/GlobalConfig';
+import { el, config } from 'config';
 export * from './theme';
 
-const root = ReactDOM.createRoot(
-  document.getElementById('wormhole-connect') as HTMLElement,
-);
+if (!el)
+  throw new Error('must specify an anchor element with id wormhole-connect');
+// Create a root with ReactDOM.createRoot
+const root = ReactDOM.createRoot(el as HTMLElement);
 root.render(
   <React.StrictMode>
-    <ErrorBoundary>
-      <App />
-    </ErrorBoundary>
+    {/* Wrap your App component with ConfigProvider and pass the configuration */}
+    <ConfigProvider config={config}>
+      <ErrorBoundary>
+        <App />
+      </ErrorBoundary>
+    </ConfigProvider>
   </React.StrictMode>,
 );
 

@@ -12,11 +12,10 @@ import {
   WormholeConnectConfig,
   Route,
 } from './types';
-import { dark, light } from '../theme';
 import { validateConfigs, validateDefaults } from './utils';
 import { Alignment } from 'components/Header';
 
-const el = document.getElementById('wormhole-connect');
+export const el = document.getElementById('wormhole-connect');
 if (!el)
   throw new Error('must specify an anchor element with id wormhole-connect');
 const configJson = el.getAttribute('config');
@@ -129,13 +128,6 @@ export const GRAPHQL =
 
 export const GAS_ESTIMATES = NETWORK_DATA.gasEstimates;
 
-export const THEME_MODE = config && config.mode ? config.mode : 'dark';
-export const CUSTOM_THEME = config && config.customTheme;
-const BASE_THEME = THEME_MODE === 'dark' ? dark : light;
-export const THEME = CUSTOM_THEME
-  ? Object.assign({}, BASE_THEME, CUSTOM_THEME)
-  : BASE_THEME;
-
 export const CTA = config && config.cta;
 export const BRIDGE_DEFAULTS =
   config && validateDefaults(config.bridgeDefaults);
@@ -147,6 +139,8 @@ export const WALLET_CONNECT_PROJECT_ID =
 
 export const ethBridgeMaxAmount = config?.ethBridgeMaxAmount ?? 5;
 export const wstETHBridgeMaxAmount = config?.wstETHBridgeMaxAmount ?? 2.5;
+
+export type NetworkType = 'MAINNET' | 'DEVNET' | 'TESTNET';
 
 export const TESTNET_TO_MAINNET_CHAIN_NAMES: {
   [k in TestnetChainName]: MainnetChainName;

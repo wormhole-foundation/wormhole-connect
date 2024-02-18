@@ -2,7 +2,7 @@ import React from 'react';
 import { makeStyles } from 'tss-react/mui';
 
 import { OPACITY } from '../../utils/style';
-import { THEME } from 'config';
+import { useConfig } from 'config/GlobalConfig';
 
 const colors = {
   bg: '#030712',
@@ -116,9 +116,10 @@ type Props = {
 };
 
 function Background({ children }: Props) {
+  const { themeState } = useConfig();
   const { classes } = useStyles();
 
-  return THEME.background.default === 'wormhole' ? (
+  return themeState.defaultTheme.background.default === 'wormhole' ? (
     <div className="container">
       <div className={classes.bg}>
         {children}

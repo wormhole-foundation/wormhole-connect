@@ -5,7 +5,6 @@ import orange from '@mui/material/colors/orange';
 import red from '@mui/material/colors/red';
 import { PaletteMode } from '@mui/material';
 import { OPACITY } from './utils/style';
-import { THEME } from './config';
 
 export type PaletteColor = {
   50: string;
@@ -286,13 +285,13 @@ export const dark: ExtendedTheme = {
   },
 };
 
-export const getDesignTokens = (mode: PaletteMode) =>
+export const getDesignTokens = (mode: PaletteMode, theme: any) =>
   createTheme({
     components: {
       MuiPaper: {
         styleOverrides: {
           root: {
-            background: THEME.modal.background + ' !important',
+            background: theme.modal.background + ' !important',
           },
         },
       },
@@ -315,6 +314,6 @@ export const getDesignTokens = (mode: PaletteMode) =>
     },
     palette: {
       mode,
-      ...THEME,
+      ...theme,
     },
   });
