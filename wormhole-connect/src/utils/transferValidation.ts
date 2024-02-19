@@ -112,7 +112,7 @@ export const validateAmount = (
     if (numAmount > b) return 'Amount cannot exceed balance';
   }
   if (isCctp && numAmount >= CCTP_MAX_TRANSFER_LIMIT)
-    return 'Burn amount exceeds per transaction limit';
+    return 'Your transaction exceeds the maximum transfer limit of 1,000,000 USDC. Please use a different amount.';
   if (numAmount > maxAmount) {
     return `At the moment, amount cannot exceed ${maxAmount}`;
   }
