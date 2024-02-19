@@ -7,7 +7,14 @@ const VALID_CHAINS = CHAINS_ARR.filter(
   (chain) => chain.key !== 'wormchain',
 ).map((chain) => chain.key);
 
-export function useExternalSearch() {
+type ExternalSearch = {
+  hasExternalSearch: boolean;
+  txHash?: string;
+  chainName?: ChainName;
+  clear: () => void;
+};
+
+export function useExternalSearch(): ExternalSearch {
   const [hasExternalSearch, setHasExternalSearchtate] =
     useState<boolean>(false);
   const [txHash, setTxHash] = useState<string>();
@@ -15,6 +22,7 @@ export function useExternalSearch() {
   useEffect(() => {
     if (SEARCH_TX?.chainName && SEARCH_TX?.txHash) {
       const chainName = coalesceChainName(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         SEARCH_TX.chainName as any,
       ) as ChainName;
       if (VALID_CHAINS.includes(chainName)) {
