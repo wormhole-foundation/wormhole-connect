@@ -22,6 +22,8 @@ import { useDebounce } from 'use-debounce';
 import { isPorticoRoute } from 'routes/porticoBridge/utils';
 import { PorticoBridgeState } from 'store/porticoBridge';
 import { DataWrapper } from 'store/helpers';
+import { CCTPManual_CHAINS as CCTP_CHAINS } from 'routes/cctpManual';
+import { CCTP_MAX_TRANSFER_LIMIT } from 'consts';
 
 export const validateFromChain = (
   chain: ChainName | undefined,
@@ -99,6 +101,7 @@ export const validateAmount = (
   amount: string,
   balance: string | null,
   maxAmount: number,
+  isCctp?: boolean,
 ): ValidationErr => {
   if (amount === '') return '';
   const numAmount = Number.parseFloat(amount);
@@ -108,6 +111,8 @@ export const validateAmount = (
     const b = Number.parseFloat(balance);
     if (numAmount > b) return 'Amount cannot exceed balance';
   }
+  if (isCctp && numAmount >= CCTP_MAX_TRANSFER_LIMIT)
+    return 'Burn amount exceeds per transaction limit';
   if (numAmount > maxAmount) {
     return `At the moment, amount cannot exceed ${maxAmount}`;
   }
@@ -231,6 +236,26 @@ export const getIsAutomatic = (route: Route | undefined): boolean => {
   return r.AUTOMATIC_DEPOSIT;
 };
 
+export const isCctp = (
+  token: string,
+  destToken: string,
+  toChain: ChainName | undefined,
+  fromChain: ChainName | undefined,
+): boolean => {
+  const isUSDCToken =
+    TOKENS[token]?.symbol === 'USDC' &&
+    TOKENS[destToken]?.symbol === 'USDC' &&
+    TOKENS[token]?.nativeChain === fromChain &&
+    TOKENS[destToken]?.nativeChain === toChain;
+  const bothChainsSupportCCTP =
+    !!toChain &&
+    CCTP_CHAINS.includes(toChain) &&
+    !!fromChain &&
+    CCTP_CHAINS.includes(fromChain);
+
+  return isUSDCToken && bothChainsSupportCCTP;
+};
+
 export const validateAll = async (
   transferData: TransferInputState,
   relayData: RelayState,
@@ -263,6 +288,7 @@ export const validateAll = async (
   const availableRoutes = routeStates
     ?.filter((rs) => rs.supported)
     .map((val) => val.name);
+  const isCctpTx = isCctp(token, destToken, toChain, fromChain);
   const baseValidations = {
     sendingWallet: await validateWallet(sending, fromChain),
     receivingWallet: await validateWallet(receiving, toChain),
@@ -270,7 +296,12 @@ export const validateAll = async (
     toChain: validateToChain(toChain, fromChain),
     token: validateToken(token, fromChain),
     destToken: validateDestToken(destToken, toChain, supportedDestTokens),
-    amount: validateAmount(amount, sendingTokenBalance, maxSendAmount),
+    amount: validateAmount(
+      amount,
+      sendingTokenBalance,
+      maxSendAmount,
+      isCctpTx,
+    ),
     route: validateRoute(route, availableRoutes),
     toNativeToken: '',
     foreignAsset: validateForeignAsset(foreignAsset),
