@@ -6,12 +6,7 @@ Integration does not get easier than this. Wormhole Connect is an easy seamless 
 
 Customize and integrate via our no-code solution: https://connect-in-style.wormhole.com/
 
-
 ## Integrate with script/link tags
-
-> We recommend that you configure your own custom RPC endpoints for each used network for the best performance. The default public RPCs may be throttled or rate limited.  
-
-> Osmosis support is in beta, reach out to a Wormhole contributor for early access.
 
 ### 1. (Optional) Create a JSON config with customized values:
 
@@ -20,17 +15,6 @@ for a full view of the supported config parameters.
 
 See [src/config/examples.md](https://github.com/wormhole-foundation/wormhole-connect/blob/development/wormhole-connect-loader/src/config/examples.md)
 for working examples of different config values.
-
-```ts
-{
-  "env": "testnet",
-  "networks": ["goerli", "mumbai"],
-  "tokens": ["ETH", "WETH", "MATIC", "WMATIC"],
-  "tokensConfig": {}, // see src/config/types.ts
-  "mode": "light",
-  "customTheme": {} // see src/theme.ts
-}
-```
 
 **Environment** (`env`):
 | Mainnet | Testnet |
@@ -58,6 +42,15 @@ for working examples of different config values.
 | klaytn | klaytn |
 | arbitrum | arbitrumgoerli, arbitrum_sepolia |
 | optimism | optimismgoerli, optimism_sepolia |
+
+> Osmosis support is in beta, reach out to a Wormhole contributor for early access.
+
+<br>
+
+**RPCs** (`rpcs`):
+
+We recommend that you configure your own custom RPC endpoints for each used network for the best performance. The default public RPCs may be throttled or rate limited.
+See [src/config/examples.md](https://github.com/wormhole-foundation/wormhole-connect/blob/development/wormhole-connect-loader/src/config/examples.md).
 
 <br>
 

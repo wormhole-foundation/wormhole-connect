@@ -1,6 +1,16 @@
 
 # Wormhole Connect - `config` examples
 
+## Environment
+
+This shows how to run Connect on mainnet.
+
+```json
+{
+  "env": "mainnet"
+}
+```
+
 ## Custom RPC Endpoint
 
 This shows how to change which RPC provider Connect uses for a particular network.
