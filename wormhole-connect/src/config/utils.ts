@@ -76,7 +76,7 @@ export const mergeCustomTokensConfig = (
     }
 
     // Accept custom token config
-    console.warn(`Accepted custom token config for "${key}"`);
+    console.info(`Accepted custom token config for "${key}"`);
     builtin[key] = customToken;
   }
 
