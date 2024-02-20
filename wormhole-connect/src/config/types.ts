@@ -110,7 +110,7 @@ export type PageHeader = {
 
 export type SearchTxConfig = {
   txHash?: string;
-  chainName?: ChainName;
+  chainName?: string;
 };
 
 export type MoreTokenConfig = {
