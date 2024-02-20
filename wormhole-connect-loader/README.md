@@ -15,26 +15,31 @@ Customize and integrate via our no-code solution: https://connect-in-style.wormh
 
 ### 1. (Optional) Create a JSON config with customized values:
 
+See `WormholeConnectConfig` in [src/config/index.ts](https://github.com/wormhole-foundation/wormhole-connect/blob/development/wormhole-connect-loader/src/config/index.ts)
+for a full view of the supported config parameters.
+
+See [src/config/examples.md](https://github.com/wormhole-foundation/wormhole-connect/blob/development/wormhole-connect-loader/src/config/examples.md)
+for working examples of different config values.
+
 ```ts
 {
   "env": "testnet",
   "networks": ["goerli", "mumbai"],
   "tokens": ["ETH", "WETH", "MATIC", "WMATIC"],
+  "tokensConfig": {}, // see src/config/types.ts
   "mode": "light",
   "customTheme": {} // see src/theme.ts
 }
 ```
 
-#### Accepted values
-
-Environment (`env`):
+**Environment** (`env`):
 | Mainnet | Testnet |
 | ---------- | --------- |
 | mainnet | testnet |
 
 <br>
 
-Networks (`networks`):
+**Networks** (`networks`):
 | Mainnet | Testnet |
 | ---------- | ------------- |
 | ethereum | goerli, sepolia |
@@ -56,7 +61,7 @@ Networks (`networks`):
 
 <br>
 
-Tokens (`tokens`):
+**Tokens** (`tokens`):
 | Mainnet | Testnet |
 | ----------- | -------- |
 | ETH | ETH, ETHsepolia |
@@ -107,10 +112,17 @@ Tokens (`tokens`):
 | wstETHpolygon | |
 | wstETHbase | |
 
+<br>
+
+**Adding Tokens** (`tokensConfig`)
+
+You can add arbitrary tokens to the Connect tokens menu by providing a `tokensConfig` key.
+See the "Arbitrary Token" example in [src/config/examples.md](https://github.com/wormhole-foundation/wormhole-connect/blob/development/wormhole-connect-loader/src/config/examples.md).
+
 
 <br>
 
-Routes (`routes`)
+**Routes** (`routes`)
 | Mainnet | Testnet |
 | -------- | ---------|
 | bridge | bridge |
@@ -124,14 +136,14 @@ Routes (`routes`)
 
 <br>
 
-Mode (`mode`):
+**Mode** (`mode`):
 | | |
 | ---- | ----- |
 | dark | light |
 
 <br>
 
-Theme (`customTheme`)
+**Theme** (`customTheme`)
 
 See [theme.ts](https://github.com/wormhole-foundation/wormhole-connect/blob/development/wormhole-connect-loader/src/theme.ts) for examples
 

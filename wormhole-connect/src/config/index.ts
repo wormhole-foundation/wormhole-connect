@@ -65,7 +65,7 @@ export const WORMHOLE_API =
 export const EXPLORER = config.explorer;
 
 export const ATTEST_URL = {
-  MAINNET: 'https://www.portalbridge.com/#/register',
+  MAINNET: 'https://portalbridge.com/advanced-tools/#/register',
   DEVNET: '',
   TESTNET:
     'https://wormhole-foundation.github.io/example-token-bridge-ui/#/register',
