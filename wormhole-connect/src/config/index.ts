@@ -24,7 +24,6 @@ const el = document.getElementById('wormhole-connect');
 if (!el)
   throw new Error('must specify an anchor element with id wormhole-connect');
 const configJson = el.getAttribute('config');
-console.log(el, configJson);
 export const config: WormholeConnectConfig = JSON.parse(configJson!) || {};
 
 const getEnv = () => {
