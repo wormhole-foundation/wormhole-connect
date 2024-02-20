@@ -1,6 +1,18 @@
 
 # Wormhole Connect - `config` examples
 
+## Custom RPC Endpoint
+
+This shows how to change which RPC provider Connect uses for a particular network.
+
+```json
+{
+  "rpcs": {
+    "solana": "https://rpc.ankr.com/solana/ee827255553bb0fa9e0aaeab27e988707e60ea06ae36be0658b778072e94979e"
+  }
+}
+```
+
 ## Arbitrary Token
 
 This shows how to add an arbitrary token to your deployment of Connect.
