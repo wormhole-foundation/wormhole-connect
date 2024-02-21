@@ -200,7 +200,7 @@ function DisplayTokens(props: DisplayTokensProps) {
                 onClick={() => selectToken(token.key)}
               >
                 <div className={classes.tokenRowLeft}>
-                  <TokenIcon name={token.icon} height={32} />
+                  <TokenIcon icon={token.icon} height={32} />
                   <div>
                     <div>{token.symbol}</div>
                     <div className={classes.nativeChain}>

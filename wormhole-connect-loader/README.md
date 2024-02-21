@@ -6,35 +6,24 @@ Integration does not get easier than this. Wormhole Connect is an easy seamless 
 
 Customize and integrate via our no-code solution: https://connect-in-style.wormhole.com/
 
-
 ## Integrate with script/link tags
-
-> We recommend that you configure your own custom RPC endpoints for each used network for the best performance. The default public RPCs may be throttled or rate limited.  
-
-> Osmosis support is in beta, reach out to a Wormhole contributor for early access.
 
 ### 1. (Optional) Create a JSON config with customized values:
 
-```ts
-{
-  "env": "testnet",
-  "networks": ["goerli", "mumbai"],
-  "tokens": ["ETH", "WETH", "MATIC", "WMATIC"],
-  "mode": "light",
-  "customTheme": {} // see src/theme.ts
-}
-```
+See `WormholeConnectConfig` in [src/config/index.ts](../wormhole-connect/src/config/index.ts)
+for a full view of the supported config parameters.
 
-#### Accepted values
+See [src/config/examples.md](../wormhole-connect/src/config/examples.md)
+for working examples of different config values.
 
-Environment (`env`):
+**Environment** (`env`):
 | Mainnet | Testnet |
 | ---------- | --------- |
 | mainnet | testnet |
 
 <br>
 
-Networks (`networks`):
+**Networks** (`networks`):
 | Mainnet | Testnet |
 | ---------- | ------------- |
 | ethereum | goerli, sepolia |
@@ -54,9 +43,18 @@ Networks (`networks`):
 | arbitrum | arbitrumgoerli, arbitrum_sepolia |
 | optimism | optimismgoerli, optimism_sepolia |
 
+> Osmosis support is in beta, reach out to a Wormhole contributor for early access.
+
 <br>
 
-Tokens (`tokens`):
+**RPCs** (`rpcs`):
+
+We recommend that you configure your own custom RPC endpoints for each used network for the best performance. The default public RPCs may be throttled or rate limited.
+See [src/config/examples.md](../wormhole-connect/src/config/examples.md).
+
+<br>
+
+**Tokens** (`tokens`):
 | Mainnet | Testnet |
 | ----------- | -------- |
 | ETH | ETH, ETHsepolia |
@@ -107,10 +105,17 @@ Tokens (`tokens`):
 | wstETHpolygon | |
 | wstETHbase | |
 
+<br>
+
+**Adding Tokens** (`tokensConfig`)
+
+You can add arbitrary tokens to the Connect tokens menu by providing a `tokensConfig` key.
+See the "Arbitrary Token" example in [src/config/examples.md](../wormhole-connect/src/config/examples.md).
+
 
 <br>
 
-Routes (`routes`)
+**Routes** (`routes`)
 | Mainnet | Testnet |
 | -------- | ---------|
 | bridge | bridge |
@@ -124,16 +129,16 @@ Routes (`routes`)
 
 <br>
 
-Mode (`mode`):
+**Mode** (`mode`):
 | | |
 | ---- | ----- |
 | dark | light |
 
 <br>
 
-Theme (`customTheme`)
+**Theme** (`customTheme`)
 
-See [theme.ts](https://github.com/wormhole-foundation/wormhole-connect/blob/development/wormhole-connect-loader/src/theme.ts) for examples
+See [theme.ts](../wormhole-connect/src/theme.ts) for examples
 
 ### 2. Add your config
 

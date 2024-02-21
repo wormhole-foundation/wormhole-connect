@@ -258,11 +258,11 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
   ]);
   const fromTokenConfig = TOKENS[token];
   const fromTokenIcon = fromTokenConfig && (
-    <TokenIcon name={fromTokenConfig.icon} height={20} />
+    <TokenIcon icon={fromTokenConfig.icon} height={20} />
   );
   const toTokenConfig = TOKENS[destToken];
   const toTokenIcon = toTokenConfig && (
-    <TokenIcon name={toTokenConfig.icon} height={20} />
+    <TokenIcon icon={toTokenConfig.icon} height={20} />
   );
   const routeName = props.route.route;
 

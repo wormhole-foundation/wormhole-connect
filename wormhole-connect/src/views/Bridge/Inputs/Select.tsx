@@ -22,7 +22,7 @@ const useStyles = makeStyles()((theme) => ({
 }));
 
 type Selected = {
-  icon: Icon;
+  icon: Icon | string;
   text: string;
   secondaryText?: string;
 };
@@ -55,7 +55,7 @@ function Select(props: Props) {
     >
       {selected ? (
         <div className={classes.select}>
-          <TokenIcon name={selected.icon} height={24} />
+          <TokenIcon icon={selected.icon} height={24} />
           {selected.text}
           {selected.secondaryText && (
             <div className={classes.secondaryText}>

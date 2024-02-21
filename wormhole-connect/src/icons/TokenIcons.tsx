@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { makeStyles } from 'tss-react/mui';
 
 import { CENTER } from 'utils/style';
@@ -40,109 +40,54 @@ const useStyles = makeStyles<{ size: number }>()((theme, { size }) => ({
     width: size,
     ...CENTER,
   },
+  iconImage: {
+    width: size,
+    height: size,
+  },
   icon: {
     maxHeight: '100%',
     maxWidth: '100%',
   },
 }));
 
-export const getIcon = (icon: Icon) => {
-  switch (icon) {
-    case Icon.WBTC: {
-      return WBTC;
-    }
-    case Icon.BUSD: {
-      return BUSD;
-    }
-    case Icon.USDT: {
-      return USDT;
-    }
-    case Icon.DAI: {
-      return DAI;
-    }
-    case Icon.GLMR: {
-      return GLMR;
-    }
-    case Icon.AVAX: {
-      return AVAX;
-    }
-    case Icon.BNB: {
-      return BNB;
-    }
-    case Icon.BSC: {
-      return BSC;
-    }
-    case Icon.CELO: {
-      return CELO;
-    }
-    case Icon.ETH: {
-      return ETH;
-    }
-    case Icon.FANTOM: {
-      return FTM;
-    }
-    case Icon.POLYGON: {
-      return MATIC;
-    }
-    case Icon.SOLANA: {
-      return SOL;
-    }
-    case Icon.USDC: {
-      return USDC;
-    }
-    case Icon.SUI: {
-      return SUI;
-    }
-    case Icon.APT: {
-      return APT;
-    }
-    case Icon.ARBITRUM: {
-      return ARBITRUM;
-    }
-    case Icon.OPTIMISM: {
-      return OPTIMISM;
-    }
-    case Icon.SEI: {
-      return SEI;
-    }
-    case Icon.BASE: {
-      return BASE;
-    }
-    case Icon.OSMO: {
-      return OSMO;
-    }
-    case Icon.BONK: {
-      return BONK;
-    }
-    case Icon.TBTC: {
-      return TBTC;
-    }
-    case Icon.WSTETH: {
-      return WSTETH;
-    }
-    case Icon.ATOM: {
-      return ATOM;
-    }
-    case Icon.EVMOS: {
-      return EVMOS;
-    }
-    case Icon.KUJI: {
-      return KUJI;
-    }
-    case Icon.PYTH: {
-      return PYTH;
-    }
-    case Icon.KLAY: {
-      return KLAY;
-    }
-    default: {
-      return noIcon;
-    }
-  }
+const iconMap: { [key in Icon]: React.JSX.Element } = {
+  [Icon.WBTC]: WBTC(),
+  [Icon.BUSD]: BUSD(),
+  [Icon.USDT]: USDT(),
+  [Icon.DAI]: DAI(),
+  [Icon.GLMR]: GLMR(),
+  [Icon.AVAX]: AVAX(),
+  [Icon.BNB]: BNB(),
+  [Icon.BSC]: BSC(),
+  [Icon.CELO]: CELO(),
+  [Icon.ETH]: ETH(),
+  [Icon.FANTOM]: FTM(),
+  [Icon.POLYGON]: MATIC(),
+  [Icon.SOLANA]: SOL(),
+  [Icon.USDC]: USDC(),
+  [Icon.SUI]: SUI(),
+  [Icon.APT]: APT(),
+  [Icon.ARBITRUM]: ARBITRUM(),
+  [Icon.OPTIMISM]: OPTIMISM(),
+  [Icon.SEI]: SEI(),
+  [Icon.BASE]: BASE(),
+  [Icon.OSMO]: OSMO(),
+  [Icon.BONK]: BONK(),
+  [Icon.TBTC]: TBTC(),
+  [Icon.WSTETH]: WSTETH(),
+  [Icon.ATOM]: ATOM(),
+  [Icon.EVMOS]: EVMOS(),
+  [Icon.KUJI]: KUJI(),
+  [Icon.PYTH]: PYTH(),
+  [Icon.KLAY]: KLAY(),
 };
 
+function isBuiltinIcon(icon?: Icon | string): icon is Icon {
+  return Object.values(Icon).includes(icon as Icon);
+}
+
 type Props = {
-  name?: Icon;
+  icon?: Icon | string;
   height?: number;
 };
 
@@ -150,15 +95,14 @@ function TokenIcon(props: Props) {
   const size = props.height || 32;
   const { classes } = useStyles({ size });
 
-  const [icon, setIcon] = useState(noIcon);
+  // Default, if icon is undefined
+  let icon = noIcon;
 
-  useEffect(() => {
-    if (props.name) {
-      setIcon(getIcon(props.name!)!);
-    } else {
-      setIcon(noIcon);
-    }
-  }, [props.name]);
+  if (isBuiltinIcon(props.icon)) {
+    icon = iconMap[props.icon] || noIcon;
+  } else if (typeof props.icon === 'string') {
+    icon = <img className={classes.iconImage} src={props.icon} />;
+  }
 
   return <div className={classes.container}>{icon}</div>;
 }

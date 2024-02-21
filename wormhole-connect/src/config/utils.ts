@@ -1,6 +1,6 @@
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { TOKENS } from '.';
-import { BridgeDefaults } from './types';
+import { BridgeDefaults, TokensConfig } from './types';
 import { config, NETWORK_DATA, CHAINS, ROUTES } from '.';
 
 const error = (msg: string) => {
@@ -41,6 +41,46 @@ export const validateResourceMap = (field: 'rpcs' | 'rest') => {
 export const validateChainResources = () => {
   validateResourceMap('rpcs');
   validateResourceMap('rest');
+};
+
+export const mergeCustomTokensConfig = (
+  builtin: TokensConfig,
+  custom?: TokensConfig,
+): TokensConfig => {
+  if (!custom) return builtin;
+
+  const builtinTokens = Object.values(builtin);
+  const builtinSymbols = builtinTokens.map((tk) => tk.symbol);
+  const builtinKeys = builtinTokens.map((tk) => tk.key);
+
+  for (let key in custom) {
+    // Verify that custom token config does not conflict with any built-in tokens
+    const customToken = custom[key];
+    if (key in builtin) {
+      console.warn(
+        `Skipping custom token config for "${key}" because it conflicts with a built-in`,
+      );
+      continue;
+    }
+    if (builtinSymbols.includes(customToken.symbol)) {
+      console.warn(
+        `Skipping custom token config for "${key}" because its symbol "${customToken.symbol}" conflicts with a built-in`,
+      );
+      continue;
+    }
+    if (builtinKeys.includes(customToken.key)) {
+      console.warn(
+        `Skipping custom token config for "${key}" because its key "${customToken.key}" conflicts with a built-in`,
+      );
+      continue;
+    }
+
+    // Accept custom token config
+    console.info(`Accepted custom token config for "${key}"`);
+    builtin[key] = customToken;
+  }
+
+  return builtin;
 };
 
 export const validateDefaults = (defaults: BridgeDefaults | undefined) => {
