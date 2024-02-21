@@ -7,7 +7,7 @@ import {
   setAssociatedTokenAddress,
   setForeignAsset,
 } from 'store/transferInput';
-import { ATTEST_URL, USDC_BRIDGE_URL, TOKENS } from 'config';
+import config from 'config';
 import { getWrappedTokenId } from 'utils';
 import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
 import { joinClass } from 'utils/style';
@@ -108,8 +108,8 @@ function TokenWarnings() {
   const [showErrors, setShowErrors] = useState(false);
   const [usdcAndNoCCTP, setUsdcAndNoCCTP] = useState(false);
 
-  const tokenConfig = TOKENS[token];
-  const destTokenConfig = TOKENS[destToken];
+  const tokenConfig = config.tokens[token];
+  const destTokenConfig = config.tokens[destToken];
 
   // check if the destination token contract is deployed
   useEffect(() => {
@@ -216,7 +216,7 @@ function TokenWarnings() {
 
   useEffect(() => {
     // if the url it's empty that means the user doesn't want this feature
-    const cctpWarningFlag = !!USDC_BRIDGE_URL;
+    const cctpWarningFlag = !!config.cctpWarning;
     // check if the tokens will be wrapped USDC
     const isResultWrappedUSDC =
       tokenConfig?.symbol === 'USDC' &&
@@ -268,7 +268,7 @@ function TokenWarnings() {
   const noForeignAssetWarning = (
     <Typography>
       This token is not registered, you must{' '}
-      <Link target={'_blank'} variant="inherit" href={ATTEST_URL}>
+      <Link target={'_blank'} variant="inherit" href={config.attestUrl}>
         register
       </Link>{' '}
       it before you continue. Newly registered tokens will not have liquid
@@ -287,7 +287,7 @@ function TokenWarnings() {
       This transaction will transfer wrapped USDC (wUSDC) to the destination
       chain. If you want to transfer native USDC on chains supported by Circle's
       CCTP, use the{' '}
-      <Link target={'_blank'} variant="inherit" href={USDC_BRIDGE_URL}>
+      <Link target={'_blank'} variant="inherit" href={config.cctpWarning}>
         USDC Bridge
       </Link>
       .

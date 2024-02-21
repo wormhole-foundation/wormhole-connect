@@ -1,4 +1,4 @@
-import { wstETHBridgeMaxAmount } from 'config';
+import config from 'config';
 import { PorticoBridge } from './porticoBridge';
 import { Route } from 'config/types';
 
@@ -7,6 +7,6 @@ export class wstETHBridge extends PorticoBridge {
   static readonly SUPPORTED_TOKENS: string[] = ['wstETH'];
 
   constructor() {
-    super(wstETHBridge.SUPPORTED_TOKENS, wstETHBridgeMaxAmount);
+    super(wstETHBridge.SUPPORTED_TOKENS, config.wstETHBridgeMaxAmount);
   }
 }

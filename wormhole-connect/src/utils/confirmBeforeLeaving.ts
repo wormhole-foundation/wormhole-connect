@@ -8,7 +8,7 @@ const unloadHandler = (e: Event) => {
 
 const useConfirmBeforeLeaving = (shouldConfirm: boolean) => {
   useEffect(() => {
-    let cancel = () => {
+    const cancel = () => {
       window.removeEventListener('beforeunload', unloadHandler);
     };
 

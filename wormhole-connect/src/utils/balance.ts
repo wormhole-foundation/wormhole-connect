@@ -1,5 +1,5 @@
 import { BigNumberish, utils } from 'ethers';
-import { TOKENS } from 'config';
+import config from 'config';
 
 /**
  * Makes a BigNumber have # of decimals
@@ -37,7 +37,7 @@ export async function getUsdVal(token: string) {
     return cacheResult;
   }
 
-  const tokenConfig = TOKENS[token];
+  const tokenConfig = config.tokens[token];
   if (!tokenConfig) throw new Error(`invalid token: ${token}`);
   const { coinGeckoId } = tokenConfig;
   const res = await fetch(

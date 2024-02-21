@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { showHamburgerMenu } from 'config';
+import config from 'config';
 import { makeStyles } from 'tss-react/mui';
 import Dropdown from 'components/Dropdown';
 import PageHeader from 'components/PageHeader';
@@ -200,7 +200,7 @@ function FAQ() {
       <PageHeader
         title="FAQ"
         description="This page collects and answers the most commonly asked questions."
-        showHamburgerMenu={showHamburgerMenu}
+        showHamburgerMenu={config.showHamburgerMenu}
         back
       />
 
@@ -219,7 +219,7 @@ function FAQ() {
           );
         })}
       </div>
-      {showHamburgerMenu ? null : <FooterNavBar />}
+      {config.showHamburgerMenu ? null : <FooterNavBar />}
     </div>
   );
 }

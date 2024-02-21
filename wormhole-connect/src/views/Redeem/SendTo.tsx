@@ -3,7 +3,7 @@ import { Context } from '@wormhole-foundation/wormhole-connect-sdk';
 import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { CHAINS } from 'config';
+import config from 'config';
 import { RootState } from 'store';
 import {
   setTransferDestInfo,
@@ -187,7 +187,7 @@ function SendTo() {
       setClaimError('Connect to receiving wallet');
       throw new Error('Connect to receiving wallet');
     }
-    const chainConfig = CHAINS[txData.toChain]!;
+    const chainConfig = config.chains[txData.toChain]!;
     if (!chainConfig) {
       setClaimError('Your claim has failed, please try again');
       throw new Error('invalid destination chain');

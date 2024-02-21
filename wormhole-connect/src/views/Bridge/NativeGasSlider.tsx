@@ -6,11 +6,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { useDebounce } from 'use-debounce';
 
-import { CHAINS, TOKENS, THEME } from 'config';
+import config from 'config';
 import { TokenConfig, Route } from 'config/types';
 import { RoutesConfig } from 'config/routes';
 import { getTokenDecimals, getDisplayName, calculateUSDPrice } from 'utils';
-import { wh } from 'utils/sdk';
 import { getConversion, toDecimals, toFixedDecimals } from 'utils/balance';
 import RouteOperator from 'routes/operator';
 import { RootState } from 'store';
@@ -119,10 +118,10 @@ function GasSlider(props: { disabled: boolean }) {
     usdPrices: { data },
   } = useSelector((state: RootState) => state.tokenPrices);
   const prices = data || {};
-  const destConfig = CHAINS[toChain!];
-  const sendingToken = TOKENS[token];
-  const receivingToken = TOKENS[destToken];
-  const nativeGasToken = TOKENS[destConfig!.gasToken];
+  const destConfig = config.chains[toChain!];
+  const sendingToken = config.tokens[token];
+  const receivingToken = config.tokens[destToken];
+  const nativeGasToken = config.tokens[destConfig!.gasToken];
 
   const [state, setState] = useState(INITIAL_STATE);
   const [debouncedSwapAmt] = useDebounce(state.swapAmt, 500);
@@ -178,7 +177,7 @@ function GasSlider(props: { disabled: boolean }) {
       tokenPrice: calculateUSDPrice(
         formatAmount(newTokenAmount),
         prices,
-        TOKENS[token],
+        config.tokens[token],
       ),
       max: formatAmount(actualMaxSwap),
     }));
@@ -213,7 +212,7 @@ function GasSlider(props: { disabled: boolean }) {
           return;
         }
         const toChainDecimals = getTokenDecimals(
-          wh.toChainId(toChain),
+          config.wh.toChainId(toChain),
           tokenId,
         );
         const amt = toDecimals(maxSwapAmount, toChainDecimals, 6);
@@ -232,7 +231,7 @@ function GasSlider(props: { disabled: boolean }) {
       }
 
       // get conversion rate of token
-      const { gasToken } = CHAINS[toChain]!;
+      const { gasToken } = config.chains[toChain]!;
       const conversionRate = await getConversion(token, gasToken);
       if (cancelled) return;
       const minNative = await RouteOperator.minSwapAmountNative(
@@ -244,7 +243,7 @@ function GasSlider(props: { disabled: boolean }) {
       const minNativeAdjusted = Number.parseFloat(
         toDecimals(
           minNative,
-          getTokenDecimals(wh.toChainId(toChain), 'native'),
+          getTokenDecimals(config.wh.toChainId(toChain), 'native'),
         ),
       );
       if (cancelled) return;
@@ -289,7 +288,7 @@ function GasSlider(props: { disabled: boolean }) {
         tokenPrice: calculateUSDPrice(
           formatAmount(amountNum),
           prices,
-          TOKENS[token],
+          config.tokens[token],
         ),
       }));
       dispatch(setReceiveNativeAmt(0));
@@ -314,7 +313,7 @@ function GasSlider(props: { disabled: boolean }) {
       tokenPrice: calculateUSDPrice(
         formatAmount(newTokenAmount),
         prices,
-        TOKENS[token],
+        config.tokens[token],
       ),
       swapAmt: formatAmount(swapAmount),
     };
@@ -334,7 +333,7 @@ function GasSlider(props: { disabled: boolean }) {
       dispatch(setToNativeToken(debouncedSwapAmt));
       const tokenId = receivingToken.tokenId!;
       const tokenToChainDecimals = getTokenDecimals(
-        wh.toChainId(toChain!),
+        config.wh.toChainId(toChain!),
         tokenId,
       );
       const formattedAmt = utils.parseUnits(
@@ -350,7 +349,7 @@ function GasSlider(props: { disabled: boolean }) {
       );
       if (cancelled) return;
       const nativeGasTokenToChainDecimals = getTokenDecimals(
-        wh.toChainId(toChain!),
+        config.wh.toChainId(toChain!),
         'native',
       );
       const formattedNativeAmt = Number.parseFloat(
@@ -369,7 +368,7 @@ function GasSlider(props: { disabled: boolean }) {
         tokenPrice: calculateUSDPrice(
           formatAmount(amountNum - debouncedSwapAmt),
           prices,
-          TOKENS[token],
+          config.tokens[token],
         ),
       }));
     })();
@@ -390,7 +389,7 @@ function GasSlider(props: { disabled: boolean }) {
     token,
   ]);
 
-  const defaultSliderColor = THEME.success[100];
+  const defaultSliderColor = 'white'; // TODO connect to theme
 
   const banner = !props.disabled && !!route && (
     <Banner text="This feature provided by" route={RoutesConfig[route]} />
@@ -438,7 +437,7 @@ function GasSlider(props: { disabled: boolean }) {
                     state.nativeGas,
                     getDisplayName(nativeGasToken),
                     state.token,
-                    getDisplayName(TOKENS[token]),
+                    getDisplayName(config.tokens[token]),
                   )
                 }
                 valueLabelDisplay="auto"

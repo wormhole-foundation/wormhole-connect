@@ -66,12 +66,12 @@ import {
   setObjectPathImmutable,
 } from "./utils";
 
-const version = "0.1.4";
+const version = "0.2.6";
 // generated with https://www.srihash.org/
 const versionScriptIntegrity =
-  "sha384-NUeZzmcZSVf4i3sUHD1rhtihig08WkCKu42too+Na8ll/2Sxr8v8D1i9IuVrF70A";
+  "sha384-QOTWWlgPEcpWnzakQRaUW71dYatQWsRJYtCjz+y94hwZxjxg9jU7X+sE6pDmo6Ao";
 const versionLinkIntegrity =
-  "sha384-KGZI5sQxWDSIe8Xzhvu4eO0fi8KYtEmDnYS2Qn5xrtw667xfxFINL3uN48d/djuY";
+  "sha384-BTkX2AhTeIfxDRFsJbLtR26TQ9QKKpi7EMe807JdfQQBTAkUT9a2mSGwf/5CJ4bF";
 const nonBreakingTag = "latest-v0.1";
 const latestTag = "latest";
 
@@ -517,7 +517,7 @@ function App() {
     const realConfigString = JSON.stringify(realConfig);
     return [
       `<div id="wormhole-connect" config='${realConfigString}' /></div>
-<script src="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@${versionOrTag}/dist/main.js"${
+<script type="module" src="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@${versionOrTag}/dist/main.js"${
         versionOrTag === version
           ? ` integrity="${versionScriptIntegrity}" crossorigin="anonymous"`
           : ""

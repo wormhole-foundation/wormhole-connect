@@ -4,13 +4,12 @@ import { utils, providers, BigNumberish } from 'ethers';
 import axios from 'axios';
 import { ChainId, ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 
-import { CHAINS, WORMHOLE_API, WORMHOLE_RPC_HOSTS } from 'config';
+import config from 'config';
 import {
   ParsedMessage,
   ParsedRelayerMessage,
   getCurrentBlock,
   isEvmChain,
-  wh,
 } from './sdk';
 
 export type ParsedVaa = {
@@ -49,7 +48,7 @@ export async function getUnsignedVaaEvm(
   if (!isEvmChain(chain)) {
     throw new Error('Not an evm chain');
   }
-  const core = wh.getContracts(chain)?.core;
+  const core = config.wh.getContracts(chain)?.core;
   const bridgeLogs = receipt.logs.filter((l: any) => {
     return l.address === core;
   });
@@ -72,7 +71,7 @@ export async function getUnsignedVaaEvm(
 export function getEmitterAndSequence(
   txData: ParsedMessage | ParsedRelayerMessage,
 ): MessageIdentifier {
-  const emitterChain = CHAINS[txData.fromChain];
+  const emitterChain = config.chains[txData.fromChain];
   if (!emitterChain || !emitterChain.id) {
     throw new Error('invalid emitter chain');
   }
@@ -111,8 +110,8 @@ export async function fetchVaaWormscan(
   txData: ParsedMessage | ParsedRelayerMessage,
 ): Promise<ParsedVaa | undefined> {
   // return if the number of block confirmations hasn't been met
-  const chainName = wh.toChainName(txData.fromChain);
-  const { finalityThreshold } = CHAINS[chainName]! as any;
+  const chainName = config.wh.toChainName(txData.fromChain);
+  const { finalityThreshold } = config.chains[chainName]! as any;
   if (finalityThreshold > 0) {
     const currentBlock = await getCurrentBlock(txData.fromChain);
     if (currentBlock < txData.block + finalityThreshold) return;
@@ -120,7 +119,7 @@ export async function fetchVaaWormscan(
 
   const messageId = getEmitterAndSequence(txData);
   const { emitterChain, emitterAddress, sequence } = messageId;
-  const url = `${WORMHOLE_API}api/v1/vaas/${emitterChain}/${emitterAddress}/${sequence}`;
+  const url = `${config.wormholeApi}api/v1/vaas/${emitterChain}/${emitterAddress}/${sequence}`;
 
   return axios
     .get(url)
@@ -164,8 +163,8 @@ export async function fetchVaaGuardian(
   txData: ParsedMessage | ParsedRelayerMessage,
 ): Promise<ParsedVaa | undefined> {
   // return if the number of block confirmations hasn't been met
-  const chainName = wh.toChainName(txData.fromChain);
-  const { finalityThreshold } = CHAINS[chainName]! as any;
+  const chainName = config.wh.toChainName(txData.fromChain);
+  const { finalityThreshold } = config.chains[chainName]! as any;
   if (finalityThreshold > 0) {
     const currentBlock = await getCurrentBlock(txData.fromChain);
     if (currentBlock < txData.block + finalityThreshold) return;
@@ -176,7 +175,7 @@ export async function fetchVaaGuardian(
 
   // round-robin through the RPC hosts
   let vaa: Uint8Array | undefined;
-  for (const host of WORMHOLE_RPC_HOSTS) {
+  for (const host of config.wormholeRpcHosts) {
     try {
       const { vaaBytes } = await getSignedVAA(
         host,
@@ -225,7 +224,7 @@ export const fetchIsVAAEnqueued = async (
   const messageId = getEmitterAndSequence(txData);
   const { emitterChain, emitterAddress, sequence } = messageId;
 
-  const url = `${WORMHOLE_API}v1/governor/is_vaa_enqueued/${emitterChain}/${emitterAddress}/${sequence}`;
+  const url = `${config.wormholeApi}v1/governor/is_vaa_enqueued/${emitterChain}/${emitterAddress}/${sequence}`;
 
   return axios
     .get(url)
@@ -245,7 +244,7 @@ export const fetchGlobalTx = async (
   const messageId = getEmitterAndSequence(txData);
   const { emitterChain, emitterAddress, sequence } = messageId;
 
-  const url = `${WORMHOLE_API}api/v1/global-tx/${emitterChain}/${emitterAddress}/${sequence}`;
+  const url = `${config.wormholeApi}api/v1/global-tx/${emitterChain}/${emitterAddress}/${sequence}`;
   return axios
     .get(url)
     .then(function (response: any) {

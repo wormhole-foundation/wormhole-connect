@@ -1,14 +1,8 @@
-import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
-import { TOKENS } from '.';
+import config from '.';
 import { BridgeDefaults, TokensConfig } from './types';
-import { config, NETWORK_DATA, CHAINS, ROUTES } from '.';
 
 const error = (msg: string) => {
   console.error(`Wormhole Connect: ${msg}`);
-};
-
-const info = (msg: string) => {
-  console.info(`Wormhole Connect: ${msg}`);
 };
 
 export const populateRpcField = (
@@ -19,16 +13,21 @@ export const populateRpcField = (
   return { [chainName]: rpc };
 };
 
-export const validateResourceMap = (field: 'rpcs' | 'rest') => {
+/*
+const info = (msg: string) => {
+  console.info(`Wormhole Connect: ${msg}`);
+};
+
+export const validateResourceMap = (map: ChainResourceMap) => {
   if (!config || !config[field]) {
     info(
       `No custom ${field} endpoints provided. We recommended that you configure your own ${field} endpoints for the best performance.`,
     );
     return;
   }
-  const defaultResourceMap = NETWORK_DATA[field];
+  const defaultResourceMap = config.networkData[field];
   const resourceMap = config[field]!;
-  const chains = Object.keys(CHAINS) as ChainName[];
+  const chains = Object.keys(config.chains) as ChainName[];
   for (const chain of chains) {
     if (resourceMap[chain] === defaultResourceMap[chain]) {
       info(
@@ -37,11 +36,14 @@ export const validateResourceMap = (field: 'rpcs' | 'rest') => {
     }
   }
 };
+*/
 
+/*
 export const validateChainResources = () => {
   validateResourceMap('rpcs');
   validateResourceMap('rest');
 };
+*/
 
 export const mergeCustomTokensConfig = (
   builtin: TokensConfig,
@@ -53,7 +55,7 @@ export const mergeCustomTokensConfig = (
   const builtinSymbols = builtinTokens.map((tk) => tk.symbol);
   const builtinKeys = builtinTokens.map((tk) => tk.key);
 
-  for (let key in custom) {
+  for (const key in custom) {
     // Verify that custom token config does not conflict with any built-in tokens
     const customToken = custom[key];
     if (key in builtin) {
@@ -92,7 +94,7 @@ export const validateDefaults = (defaults: BridgeDefaults | undefined) => {
     requiredNetwork,
   } = defaults;
   if (fromChain) {
-    const chain = CHAINS[fromChain];
+    const chain = config.chains[fromChain];
     if (!chain) {
       error(
         `Invalid chain name "${fromChain}" specified for bridgeDefaults.fromNetwork`,
@@ -100,7 +102,7 @@ export const validateDefaults = (defaults: BridgeDefaults | undefined) => {
     }
   }
   if (toChain) {
-    const chain = CHAINS[toChain];
+    const chain = config.chains[toChain];
     if (!chain) {
       error(
         `Invalid chain name "${toChain}" specified for bridgeDefaults.toNetwork`,
@@ -115,7 +117,7 @@ export const validateDefaults = (defaults: BridgeDefaults | undefined) => {
     }
   }
   if (toChain && fromChain && requiredNetwork) {
-    const requiredConfig = CHAINS[requiredNetwork];
+    const requiredConfig = config.chains[requiredNetwork];
     if (!requiredConfig) {
       error(
         `Invalid network value "${requiredNetwork}" specified for bridgeDefaults.requiredNetwork`,
@@ -128,14 +130,14 @@ export const validateDefaults = (defaults: BridgeDefaults | undefined) => {
     }
   }
   if (token) {
-    const tokenConfig = TOKENS[token];
+    const tokenConfig = config.tokens[token];
     if (!tokenConfig) {
       error(`Invalid token "${token}" specified for bridgeDefaults.token`);
     }
   }
   if (fromChain && token) {
-    const chain = CHAINS[fromChain]!;
-    const { tokenId, nativeChain } = TOKENS[token]!;
+    const chain = config.chains[fromChain]!;
+    const { tokenId, nativeChain } = config.tokens[token]!;
     if (!tokenId && nativeChain !== chain.key) {
       error(
         `Invalid token "${token}" specified for bridgeDefaults.token. It does not exist on "${fromChain}"`,
@@ -145,8 +147,9 @@ export const validateDefaults = (defaults: BridgeDefaults | undefined) => {
   return defaults;
 };
 
+/*
 export const validateRoutes = () => {
-  if (ROUTES.length === 0) {
+  if (config.routes.length === 0) {
     error('You must enable at least 1 transfer route');
   }
 };
@@ -155,3 +158,4 @@ export const validateConfigs = () => {
   validateRoutes();
   validateChainResources();
 };
+*/

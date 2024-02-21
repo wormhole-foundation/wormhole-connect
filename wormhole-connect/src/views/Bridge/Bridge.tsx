@@ -17,10 +17,10 @@ import {
   setFetchingReceiveAmount,
   setReceiveAmountError,
 } from 'store/transferInput';
-import { CHAINS, TOKENS, pageHeader, showHamburgerMenu } from 'config';
+import config from 'config';
 import { TokenConfig } from 'config/types';
 import { getTokenDecimals, getWrappedToken } from 'utils';
-import { wh, toChainId } from 'utils/sdk';
+import { toChainId } from 'utils/sdk';
 import { joinClass } from 'utils/style';
 import { toDecimals } from 'utils/balance';
 import { isTransferValid, useValidate } from 'utils/transferValidation';
@@ -39,6 +39,7 @@ import SwapChains from './SwapChains';
 import RouteOptions from './RouteOptions';
 import ValidationError from './ValidationError';
 import PoweredByIcon from 'icons/PoweredBy';
+import { Alignment } from 'components/Header';
 import FooterNavBar from 'components/FooterNavBar';
 import { isPorticoRoute } from 'routes/porticoBridge/utils';
 import { ETHBridge } from 'routes/porticoBridge/ethBridge';
@@ -112,23 +113,25 @@ function Bridge() {
   // check destination native balance
   useEffect(() => {
     if (!fromChain || !toChain || !receiving.address) return;
-    const chainConfig = CHAINS[toChain]!;
-    wh.getNativeBalance(receiving.address, toChain).then((res: BigNumber) => {
-      const tokenConfig = TOKENS[chainConfig.gasToken];
-      if (!tokenConfig)
-        throw new Error('Could not get native gas token config');
-      const decimals = getTokenDecimals(
-        toChainId(tokenConfig.nativeChain),
-        'native',
-      );
-      dispatch(setReceiverNativeBalance(toDecimals(res, decimals, 6)));
-    });
+    const chainConfig = config.chains[toChain]!;
+    config.wh
+      .getNativeBalance(receiving.address, toChain)
+      .then((res: BigNumber) => {
+        const tokenConfig = config.tokens[chainConfig.gasToken];
+        if (!tokenConfig)
+          throw new Error('Could not get native gas token config');
+        const decimals = getTokenDecimals(
+          toChainId(tokenConfig.nativeChain),
+          'native',
+        );
+        dispatch(setReceiverNativeBalance(toDecimals(res, decimals, 6)));
+      });
   }, [fromChain, toChain, receiving.address, dispatch]);
 
   useEffect(() => {
     const computeSrcTokens = async () => {
       const supported = await RouteOperator.allSupportedSourceTokens(
-        TOKENS[destToken],
+        config.tokens[destToken],
         fromChain,
         toChain,
       );
@@ -148,7 +151,7 @@ function Bridge() {
   useEffect(() => {
     const computeDestTokens = async () => {
       const supported = await RouteOperator.allSupportedDestTokens(
-        TOKENS[token],
+        config.tokens[token],
         fromChain,
         toChain,
       );
@@ -190,7 +193,7 @@ function Bridge() {
         toChain &&
         (!route || isPorticoRoute(route))
       ) {
-        const tokenSymbol = TOKENS[token]?.symbol;
+        const tokenSymbol = config.tokens[token]?.symbol;
         const porticoTokens = [
           ...ETHBridge.SUPPORTED_TOKENS,
           ...wstETHBridge.SUPPORTED_TOKENS,
@@ -198,7 +201,7 @@ function Bridge() {
         if (porticoTokens.includes(tokenSymbol)) {
           let key = getNativeVersionOfToken(tokenSymbol, toChain);
           if (!key) {
-            const wrapped = getWrappedToken(TOKENS[token]);
+            const wrapped = getWrappedToken(config.tokens[token]);
             key = getNativeVersionOfToken(wrapped.symbol, toChain);
           }
           if (key && isSupportedToken(key, supported)) {
@@ -258,9 +261,9 @@ function Bridge() {
   const disabled = !valid || isTransactionInProgress;
   // if the dest token is the wrapped gas token, then disable the gas slider,
   // because it will be unwrapped by the relayer contract
-  const toChainConfig = toChain ? CHAINS[toChain] : undefined;
+  const toChainConfig = toChain ? config.chains[toChain] : undefined;
   const gasTokenConfig = toChainConfig
-    ? TOKENS[toChainConfig.gasToken]
+    ? config.tokens[toChainConfig.gasToken]
     : undefined;
   const wrappedGasTokenConfig = gasTokenConfig
     ? getWrappedToken(gasTokenConfig)
@@ -276,12 +279,14 @@ function Bridge() {
   const showRouteValidation =
     !!fromChain && !!toChain && !!token && !!destToken && !!amount;
 
+  const pageHeader = getPageHeader();
+
   return (
     <div className={joinClass([classes.bridgeContent, classes.spacer])}>
       <PageHeader
         title={pageHeader.text}
         align={pageHeader.align}
-        showHamburgerMenu={showHamburgerMenu}
+        showHamburgerMenu={config.showHamburgerMenu}
       />
       <FromInputs />
       <SwapChains />
@@ -314,7 +319,7 @@ function Bridge() {
           <Send valid={!!valid} />
         </div>
       </Collapse>
-      {showHamburgerMenu ? null : <FooterNavBar />}
+      {config.showHamburgerMenu ? null : <FooterNavBar />}
 
       <div className={classes.poweredBy}>
         <PoweredByIcon color={theme.palette.text.primary} />
@@ -322,5 +327,17 @@ function Bridge() {
     </div>
   );
 }
+
+const getPageHeader = (): { text: string; align: Alignment } => {
+  const defaults: { text: string; align: Alignment } = {
+    text: '',
+    align: 'left',
+  };
+  if (typeof config.pageHeader === 'string') {
+    return { ...defaults, text: config.pageHeader };
+  } else {
+    return { ...defaults, ...config.pageHeader };
+  }
+};
 
 export default Bridge;

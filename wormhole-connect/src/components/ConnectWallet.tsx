@@ -15,7 +15,7 @@ import WalletIcon from 'icons/Wallet';
 import WalletIcons from 'icons/WalletIcons';
 import PopupState, { bindTrigger, bindPopover } from 'material-ui-popup-state';
 import Popover from '@mui/material/Popover';
-import { EXPLORER } from 'config';
+import config from 'config';
 import { ExplorerConfig } from 'config/types';
 
 type StyleProps = { disabled?: boolean };
@@ -151,12 +151,12 @@ function ConnectWallet(props: Props) {
                     >
                       Copy address
                     </div>
-                    {EXPLORER ? (
+                    {config.explorer ? (
                       <ExplorerLink
                         address={wallet.address}
-                        href={EXPLORER.href}
-                        target={EXPLORER.target}
-                        label={EXPLORER.label}
+                        href={config.explorer.href}
+                        target={config.explorer.target}
+                        label={config.explorer.label}
                       />
                     ) : null}
                     <div
@@ -180,7 +180,7 @@ function ConnectWallet(props: Props) {
       </PopupState>
     );
   } else {
-    let button = (
+    const button = (
       <div className={classes.connectWallet} onClick={() => connect()}>
         <WalletIcon />
         <div>{mobile ? 'Connect' : 'Connect wallet'}</div>

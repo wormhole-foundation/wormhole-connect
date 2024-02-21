@@ -2,7 +2,8 @@ import { CHAIN_ID_WORMCHAIN } from '@certusone/wormhole-sdk';
 import { stripHexPrefix } from '@wormhole-foundation/wormhole-connect-sdk';
 import LaunchIcon from '@mui/icons-material/Launch';
 import InputContainer from 'components/InputContainer';
-import { CHAINS, WORMSCAN, isMainnet } from 'config';
+import config from 'config';
+import { WORMSCAN } from 'config/constants';
 import ArrowRight from 'icons/ArrowRight';
 import TokenIcon from 'icons/TokenIcons';
 import React, { useMemo } from 'react';
@@ -40,8 +41,8 @@ function ChainsTag() {
   const signedMessage = useSelector(
     (state: RootState) => state.redeem.signedMessage,
   );
-  const fromChainConfig = CHAINS[txData.fromChain]!;
-  const toChainConfig = CHAINS[txData.toChain]!;
+  const fromChainConfig = config.chains[txData.fromChain]!;
+  const toChainConfig = config.chains[txData.toChain]!;
 
   const sendTx = txData.sendTx || signedMessage?.sendTx;
   const sequence = txData.sequence || signedMessage?.sequence;
@@ -53,7 +54,9 @@ function ChainsTag() {
     if (!txData) return;
     // As of 2023-10-12, wormscan only supports tx lookup on EVM chains (before a VAA is generated)
     if (isEvmChain(fromChainConfig.id) && sendTx) {
-      return `${WORMSCAN}tx/${sendTx}${isMainnet ? '' : '?network=TESTNET'}`;
+      return `${WORMSCAN}tx/${sendTx}${
+        config.isMainnet ? '' : '?network=TESTNET'
+      }`;
     }
     if (!emitter || !sequence) return;
 
@@ -61,7 +64,7 @@ function ChainsTag() {
       ? CHAIN_ID_WORMCHAIN
       : fromChainConfig.id;
     return `${WORMSCAN}tx/${chainId}/${emitter}/${sequence}${
-      isMainnet ? '' : '?network=TESTNET'
+      config.isMainnet ? '' : '?network=TESTNET'
     }`;
   }, [txData, sendTx, emitter, sequence, fromChainConfig.id]);
   return (

@@ -2,7 +2,6 @@ import React from 'react';
 import { makeStyles } from 'tss-react/mui';
 
 import { OPACITY } from '../../utils/style';
-import { THEME } from 'config';
 
 const colors = {
   bg: '#030712',
@@ -118,21 +117,8 @@ type Props = {
 function Background({ children }: Props) {
   const { classes } = useStyles();
 
-  return THEME.background.default === 'wormhole' ? (
-    <div className="container">
-      <div className={classes.bg}>
-        {children}
-        <div className={classes.circles}></div>
-        <div className={classes.background}></div>
-        <div className={classes.gradientRight}></div>
-        <div className={classes.gradientRight2}></div>
-        <div className={classes.gradientLeft}></div>
-        <div className={classes.gradientLeft2}></div>
-      </div>
-    </div>
-  ) : (
-    <div className={classes.children}>{children}</div>
-  );
+  // TODO remove this component
+  return <div className={classes.children}>{children}</div>;
 }
 
 export default Background;

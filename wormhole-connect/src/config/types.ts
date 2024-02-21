@@ -1,9 +1,12 @@
+import { Network } from '@certusone/wormhole-sdk';
 import {
   ChainConfig as BaseChainConfig,
   ChainName,
   TokenId,
   ChainResourceMap,
   Context,
+  WormholeContext,
+  WormholeConfig,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { Alignment } from 'components/Header';
 import { ExtendedTheme } from 'theme';
@@ -54,6 +57,8 @@ export enum Route {
 
 export type SupportedRoutes = keyof typeof Route;
 
+export type Environment = 'mainnet' | 'testnet' | 'devnet';
+
 // TODO: preference is fromChain/toChain, but want to keep backwards compatibility
 export interface BridgeDefaults {
   fromNetwork?: ChainName;
@@ -62,23 +67,36 @@ export interface BridgeDefaults {
   requiredNetwork?: ChainName;
 }
 
-// Keep this in sync with wormhole-connect-loader/src/types.ts!
-// TODO: move to a shared package
+// This is the integrator-provided JSON config
 export interface WormholeConnectConfig {
-  showHamburgerMenu?: boolean;
-  env?: 'mainnet' | 'testnet' | 'devnet';
+  env?: Environment;
+
+  // External resources
   rpcs?: ChainResourceMap;
   rest?: ChainResourceMap;
   graphql?: ChainResourceMap;
+  coinGeckoApiKey?: string;
+
+  // White lists
+  chains?: any;
   networks?: ChainName[];
   tokens?: string[];
+
+  // Custom tokens
   tokensConfig?: TokensConfig;
-  mode?: 'dark' | 'light';
+
+  // Legacy support: allow theme to be in this config object
+  // This should be removed in a future version after people have switched
+  // to providing the theme as a separate prop
   customTheme?: ExtendedTheme;
+  mode: 'dark' | 'light';
+
+  // UI details
   cta?: {
     text: string;
     link: string;
   };
+  showHamburgerMenu?: boolean;
   explorer?: ExplorerConfig;
   bridgeDefaults?: BridgeDefaults;
   routes?: string[];
@@ -93,9 +111,59 @@ export interface WormholeConnectConfig {
   moreNetworks?: MoreChainConfig;
   partnerLogo?: string;
   walletConnectProjectId?: string;
+
+  // Route settings
   ethBridgeMaxAmount?: number;
   wstETHBridgeMaxAmount?: number;
+}
+
+// This is the exported config value used throughout the code base
+export interface InternalConfig {
+  wh: WormholeContext;
+  sdkConfig: WormholeConfig;
+
+  env: Environment;
+  network: Network; // TODO reduce these to just one...
+  isMainnet: boolean;
+
+  // External resources
+  rpcs: ChainResourceMap;
+  rest: ChainResourceMap;
+  graphql: ChainResourceMap;
+  wormholeApi: string;
+  wormholeRpcHosts: string[];
   coinGeckoApiKey?: string;
+
+  // White lists
+  chains: ChainsConfig;
+  chainsArr: ChainConfig[];
+  tokens: TokensConfig;
+  tokensArr: TokenConfig[];
+  gasEstimates: GasEstimates;
+  routes: string[];
+
+  // UI details
+  cta?: {
+    text: string;
+    link: string;
+  };
+  explorer?: ExplorerConfig;
+  attestUrl: string;
+  bridgeDefaults?: BridgeDefaults;
+  cctpWarning: string;
+  pageHeader?: string | PageHeader;
+  pageSubHeader?: string;
+  menu: MenuEntry[];
+  searchTx?: SearchTxConfig;
+  moreTokens?: MoreTokenConfig;
+  moreNetworks?: MoreChainConfig;
+  partnerLogo?: string;
+  walletConnectProjectId?: string;
+  showHamburgerMenu: boolean;
+
+  // Route settings
+  ethBridgeMaxAmount: number;
+  wstETHBridgeMaxAmount: number;
 }
 
 export type ExplorerConfig = {
