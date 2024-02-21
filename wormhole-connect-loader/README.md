@@ -10,10 +10,10 @@ Customize and integrate via our no-code solution: https://connect-in-style.wormh
 
 ### 1. (Optional) Create a JSON config with customized values:
 
-See `WormholeConnectConfig` in [src/config/index.ts](https://github.com/wormhole-foundation/wormhole-connect/blob/development/wormhole-connect-loader/src/config/index.ts)
+See `WormholeConnectConfig` in [src/config/index.ts](../wormhole-connect/src/config/index.ts)
 for a full view of the supported config parameters.
 
-See [src/config/examples.md](https://github.com/wormhole-foundation/wormhole-connect/blob/development/wormhole-connect-loader/src/config/examples.md)
+See [src/config/examples.md](../wormhole-connect/src/config/examples.md)
 for working examples of different config values.
 
 **Environment** (`env`):
@@ -50,7 +50,7 @@ for working examples of different config values.
 **RPCs** (`rpcs`):
 
 We recommend that you configure your own custom RPC endpoints for each used network for the best performance. The default public RPCs may be throttled or rate limited.
-See [src/config/examples.md](https://github.com/wormhole-foundation/wormhole-connect/blob/development/wormhole-connect-loader/src/config/examples.md).
+See [src/config/examples.md](../wormhole-connect/src/config/examples.md).
 
 <br>
 
@@ -110,7 +110,7 @@ See [src/config/examples.md](https://github.com/wormhole-foundation/wormhole-con
 **Adding Tokens** (`tokensConfig`)
 
 You can add arbitrary tokens to the Connect tokens menu by providing a `tokensConfig` key.
-See the "Arbitrary Token" example in [src/config/examples.md](https://github.com/wormhole-foundation/wormhole-connect/blob/development/wormhole-connect-loader/src/config/examples.md).
+See the "Arbitrary Token" example in [src/config/examples.md](../wormhole-connect/src/config/examples.md).
 
 
 <br>
@@ -138,7 +138,7 @@ See the "Arbitrary Token" example in [src/config/examples.md](https://github.com
 
 **Theme** (`customTheme`)
 
-See [theme.ts](https://github.com/wormhole-foundation/wormhole-connect/blob/development/wormhole-connect-loader/src/theme.ts) for examples
+See [theme.ts](../wormhole-connect/src/theme.ts) for examples
 
 ### 2. Add your config
 
