@@ -42,10 +42,10 @@ const getPageHeader = (): { text: string; align: Alignment } => {
 };
 
 export const getThemeFromConfig = (config: WormholeConnectConfig) => {
-  const baseTheme = config?.mode === 'dark' ? dark : light;
-  return config?.customTheme
-    ? Object.assign({}, baseTheme, config.customTheme)
-    : baseTheme;
+  const mode = config && config.mode ? config.mode : 'dark';
+  const baseTheme = mode === 'dark' ? dark : light;
+  const customTheme = config && config?.customTheme;
+  return customTheme ? Object.assign({}, baseTheme, customTheme) : baseTheme;
 };
 
 export const ENV = getEnv();

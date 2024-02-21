@@ -43,7 +43,7 @@ export const WidgetStateManagerProvider: React.FC<{
 
   const createThemeFromConfig = useCallback(
     (config: WormholeConnectConfig) => {
-      const mode = config?.mode ?? 'dark';
+      const mode = config && config.mode ? config.mode : 'dark';
       const defaultTheme = getThemeFromConfig(config);
       return createTheme(getDesignTokens(mode, defaultTheme));
     },

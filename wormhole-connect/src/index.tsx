@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import App from './App';
 import { WidgetStateManagerProvider } from 'config/configStateManager';
 import ErrorBoundary from 'components/ErrorBoundary';
@@ -22,17 +22,27 @@ const IndexPage = () => {
       setConfig(newConfig);
     };
 
-    // Initial config setup
     updateConfig();
 
-    // Add event listener to update config when it changes
-    el.addEventListener('configChange', updateConfig);
+    // Create a MutationObserver to watch for changes in the attributes of el
+    const observer = new MutationObserver((mutationsList) => {
+      for (const mutation of mutationsList) {
+        if (
+          mutation.type === 'attributes' &&
+          mutation.attributeName === 'config'
+        ) {
+          updateConfig();
+        }
+      }
+    });
 
-    // Cleanup function to remove event listener
+    observer.observe(el, { attributes: true });
+
     return () => {
-      el.removeEventListener('configChange', updateConfig);
+      observer.disconnect();
     };
   }, [setConfig]);
+
   return (
     <React.StrictMode>
       <ErrorBoundary>
@@ -44,5 +54,6 @@ const IndexPage = () => {
   );
 };
 
-//@ts-ignore
-ReactDOM.createRoot(el as HTMLElement).render(<IndexPage />);
+createRoot(document.getElementById('wormhole-connect')! as HTMLElement).render(
+  <IndexPage />,
+);

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import App from './App';
 import { WidgetStateManagerProvider } from 'config/configStateManager';
 import { WormholeConnectConfig } from 'config/types';
@@ -24,11 +24,22 @@ const MainPage = () => {
 
     updateConfig();
 
-    // Add event listener to update config when it changes
-    el.addEventListener('configChange', updateConfig);
+    // Create a MutationObserver to watch for changes in the attributes of el
+    const observer = new MutationObserver((mutationsList) => {
+      for (const mutation of mutationsList) {
+        if (
+          mutation.type === 'attributes' &&
+          mutation.attributeName === 'config'
+        ) {
+          updateConfig();
+        }
+      }
+    });
+
+    observer.observe(el, { attributes: true });
 
     return () => {
-      el.removeEventListener('configChange', updateConfig);
+      observer.disconnect();
     };
   }, [setConfig]);
 
@@ -41,7 +52,4 @@ const MainPage = () => {
   );
 };
 
-//@ts-ignore
-ReactDOM.createRoot(document.getElementById('wormhole-connect')).render(
-  <MainPage />,
-);
+createRoot(document.getElementById('wormhole-connect')!).render(<MainPage />);
