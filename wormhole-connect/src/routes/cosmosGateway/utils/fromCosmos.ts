@@ -9,12 +9,12 @@ import {
   WormholeContext,
   getNativeDenom,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { wh } from 'utils/sdk';
 import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
 import { FromCosmosPayload } from '../types';
 import { IBC_PORT } from '../utils/consts';
 import { IBC_MSG_TYPE, IBC_TIMEOUT_MILLIS, millisToNano } from './consts';
 import { getIbcDestinationChannel, getTranslatorAddress } from './contracts';
+import config from 'config';
 import { isGatewayChain } from '../../../utils/cosmos';
 import Long from 'long';
 
@@ -24,7 +24,7 @@ export function buildFromCosmosPayloadMemo(
 ): string {
   const nonce = Math.round(Math.random() * 10000);
 
-  const destContext = wh.getContext(recipientChainId);
+  const destContext = config.wh.getContext(recipientChainId);
   const recipient = Buffer.from(
     isGatewayChain(recipientChainId)
       ? recipientAddress
@@ -60,14 +60,14 @@ export async function fromCosmos(
   // get token account for solana
   if (recipientChainId === CHAIN_ID_SOLANA) {
     const account = await (
-      wh.getContext(CHAIN_ID_SOLANA) as SolanaContext<WormholeContext>
+      config.wh.getContext(CHAIN_ID_SOLANA) as SolanaContext<WormholeContext>
     ).getAssociatedTokenAddress(token, recipientAddress);
     recipient = account.toString();
   }
 
   const memo = buildFromCosmosPayloadMemo(recipientChainId, recipient);
 
-  const denom = await wh.getForeignAsset(token, sendingChainId);
+  const denom = await config.wh.getForeignAsset(token, sendingChainId);
   if (!denom) throw new Error('Could not derive IBC asset denom');
   const coin: Coin = {
     denom,
@@ -101,7 +101,7 @@ export async function fromCosmos(
     },
   };
 
-  const sourceChainName = wh.toChainName(sendingChainId);
+  const sourceChainName = config.wh.toChainName(sendingChainId);
   const sourceChainDenom = getNativeDenom(sourceChainName);
 
   const tx: CosmosTransaction = {
@@ -111,7 +111,7 @@ export async function fromCosmos(
   };
 
   return signAndSendTransaction(
-    wh.toChainName(sendingChainId),
+    config.wh.toChainName(sendingChainId),
     tx,
     TransferWallet.SENDING,
   );

@@ -1,45 +1,20 @@
-import { Network as Environment, isEVMChain } from '@certusone/wormhole-sdk';
+import { isEVMChain } from '@certusone/wormhole-sdk';
 import { BigNumber } from 'ethers';
 import {
   ChainId,
   ChainName,
-  ForeignAssetCache,
   MAINNET_CHAINS,
   SolanaContext,
   TokenId,
   WormholeContext,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { getWrappedTokenId } from '.';
-import { ENV, RPCS, TOKENS, sdkConfig } from 'config';
+import config from 'config';
 
 export enum PayloadType {
   Manual = 1,
   Automatic = 3,
 }
-
-// pre-populate foreign asset cache
-const foreignAssetCache = new ForeignAssetCache();
-for (const { tokenId, foreignAssets } of Object.values(TOKENS)) {
-  if (tokenId && foreignAssets) {
-    for (const [foreignChain, { address }] of Object.entries(foreignAssets)) {
-      foreignAssetCache.set(
-        tokenId.chain,
-        tokenId.address,
-        foreignChain as ChainName,
-        address,
-      );
-    }
-  }
-}
-
-export const wh: WormholeContext = new WormholeContext(
-  ENV as Environment,
-  {
-    ...sdkConfig,
-    ...{ rpcs: RPCS },
-  },
-  foreignAssetCache,
-);
 
 export interface ParsedMessage {
   sendTx: string;
@@ -71,11 +46,13 @@ export interface ParsedRelayerMessage extends ParsedMessage {
 }
 
 export const solanaContext = (): SolanaContext<WormholeContext> => {
-  return wh.getContext(MAINNET_CHAINS.solana) as SolanaContext<WormholeContext>;
+  return config.wh.getContext(
+    MAINNET_CHAINS.solana,
+  ) as SolanaContext<WormholeContext>;
 };
 
 export const formatAddress = (chain: ChainName | ChainId, address: string) => {
-  const context = wh.getContext(chain);
+  const context = config.wh.getContext(chain);
   return context.formatAddress(address);
 };
 
@@ -83,12 +60,12 @@ export const formatAssetAddress = (
   chain: ChainName | ChainId,
   address: string,
 ) => {
-  const context = wh.getContext(chain);
+  const context = config.wh.getContext(chain);
   return context.formatAssetAddress(address);
 };
 
 export const parseAddress = (chain: ChainName | ChainId, address: string) => {
-  const context = wh.getContext(chain);
+  const context = config.wh.getContext(chain);
   return context.parseAddress(address);
 };
 
@@ -97,8 +74,8 @@ export const getRelayerFee = async (
   destChain: ChainName | ChainId,
   token: string,
 ) => {
-  const context: any = wh.getContext(sourceChain);
-  const tokenConfig = TOKENS[token];
+  const context: any = config.wh.getContext(sourceChain);
+  const tokenConfig = config.tokens[token];
   if (!tokenConfig) throw new Error('could not get token config');
   const tokenId = tokenConfig.tokenId || getWrappedTokenId(tokenConfig);
   return await context.getRelayerFee(sourceChain, destChain, tokenId);
@@ -109,9 +86,9 @@ export const calculateMaxSwapAmount = async (
   token: TokenId,
   walletAddress: string,
 ) => {
-  const contracts = wh.getContracts(destChain);
+  const contracts = config.wh.getContracts(destChain);
   if (!contracts?.relayer) return;
-  const context: any = wh.getContext(destChain);
+  const context: any = config.wh.getContext(destChain);
   return await context.calculateMaxSwapAmount(destChain, token, walletAddress);
 };
 
@@ -121,7 +98,7 @@ export const calculateNativeTokenAmt = async (
   amount: BigNumber,
   walletAddress: string,
 ) => {
-  const context: any = wh.getContext(destChain);
+  const context: any = config.wh.getContext(destChain);
   return await context.calculateNativeTokenAmt(
     destChain,
     token,
@@ -133,13 +110,13 @@ export const calculateNativeTokenAmt = async (
 export const getCurrentBlock = async (
   chain: ChainName | ChainId,
 ): Promise<number> => {
-  const chainId = wh.toChainId(chain);
-  const context: any = wh.getContext(chain);
+  const chainId = config.wh.toChainId(chain);
+  const context: any = config.wh.getContext(chain);
   return context.getCurrentBlock(chainId);
 };
 
 export const isAcceptedToken = async (tokenId: TokenId): Promise<boolean> => {
-  const context: any = wh.getContext(tokenId.chain);
+  const context: any = config.wh.getContext(tokenId.chain);
   const relayer = context.contracts.getTokenBridgeRelayer(tokenId.chain);
   if (!relayer) return false;
   const accepted = await relayer
@@ -149,18 +126,18 @@ export const isAcceptedToken = async (tokenId: TokenId): Promise<boolean> => {
 };
 
 export const isEvmChain = (chain: ChainName | ChainId) => {
-  return isEVMChain(wh.toChainId(chain));
+  return isEVMChain(config.wh.toChainId(chain));
 };
 
 export const toChainId = (chain: ChainName | ChainId) => {
-  return wh.toChainId(chain);
+  return config.wh.toChainId(chain);
 };
 
 export const toChainName = (chain: ChainName | ChainId) => {
-  return wh.toChainName(chain);
+  return config.wh.toChainName(chain);
 };
 
 export const getMessage = (tx: string, chain: ChainName | ChainId) => {
-  const context = wh.getContext(chain);
+  const context = config.wh.getContext(chain);
   return context.getMessage(tx, chain, false);
 };

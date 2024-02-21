@@ -5,7 +5,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { useDispatch, useSelector } from 'react-redux';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 
-import { CHAINS, CHAINS_ARR } from 'config';
+import config from 'config';
 import { RootState } from 'store';
 import { setWalletModal } from 'store/router';
 import {
@@ -112,7 +112,7 @@ function WalletsModal(props: Props) {
   });
   const [search, setSearch] = useState('');
   const supportedChains = useMemo(() => {
-    const networkContext = CHAINS_ARR.map((chain) => chain.context);
+    const networkContext = config.chainsArr.map((chain) => chain.context);
     return new Set(networkContext);
   }, []);
 
@@ -122,10 +122,10 @@ function WalletsModal(props: Props) {
       const chain =
         chainProp || (type === TransferWallet.SENDING ? fromChain : toChain);
 
-      const config = CHAINS[chain!]!;
+      const chainConfig = config.chains[chain!]!;
 
-      if (supportedChains.has(config.context)) {
-        return await getWalletOptions(config);
+      if (supportedChains.has(chainConfig.context)) {
+        return await getWalletOptions(chainConfig);
       } else {
         return [];
       }
@@ -163,7 +163,7 @@ function WalletsModal(props: Props) {
     const { wallet } = walletInfo;
 
     const chain = type === TransferWallet.SENDING ? fromChain : toChain;
-    const chainId = chain ? CHAINS[chain]?.chainId : undefined;
+    const chainId = chain ? config.chains[chain]?.chainId : undefined;
     await wallet.connect({ chainId });
 
     setWalletConnection(props.type, wallet);

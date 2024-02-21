@@ -4,15 +4,15 @@ import {
   InjectedWallet,
   WalletConnectWallet,
 } from '@xlabs-libs/wallet-aggregator-evm';
-import { WALLET_CONNECT_PROJECT_ID } from 'config';
+import config from 'config';
 
 export const wallets = {
   injected: new InjectedWallet(),
-  ...(WALLET_CONNECT_PROJECT_ID
+  ...(config.walletConnectProjectId
     ? {
         walletConnect: new WalletConnectWallet({
           connectorOptions: {
-            projectId: WALLET_CONNECT_PROJECT_ID,
+            projectId: config.walletConnectProjectId,
           },
         }),
       }

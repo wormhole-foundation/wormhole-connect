@@ -1,11 +1,11 @@
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { coalesceChainName } from '@certusone/wormhole-sdk';
-import { CHAINS_ARR, SEARCH_TX } from 'config';
+import config from 'config';
 import { useEffect, useState } from 'react';
 
-const VALID_CHAINS = CHAINS_ARR.filter(
-  (chain) => chain.key !== 'wormchain',
-).map((chain) => chain.key);
+const VALID_CHAINS = config.chainsArr
+  .filter((chain) => chain.key !== 'wormchain')
+  .map((chain) => chain.key);
 
 type ExternalSearch = {
   hasExternalSearch: boolean;
@@ -20,14 +20,14 @@ export function useExternalSearch(): ExternalSearch {
   const [txHash, setTxHash] = useState<string>();
   const [chainName, setChainName] = useState<ChainName>();
   useEffect(() => {
-    if (SEARCH_TX?.chainName && SEARCH_TX?.txHash) {
+    if (config.searchTx?.chainName && config.searchTx?.txHash) {
       const chainName = coalesceChainName(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        SEARCH_TX.chainName as any,
+        config.searchTx.chainName as any,
       ) as ChainName;
       if (VALID_CHAINS.includes(chainName)) {
         setHasExternalSearchtate(true);
-        setTxHash(SEARCH_TX.txHash);
+        setTxHash(config.searchTx.txHash);
         setChainName(chainName);
       }
     }
@@ -41,9 +41,9 @@ export function useExternalSearch(): ExternalSearch {
       setHasExternalSearchtate(false);
       setTxHash(undefined);
       setChainName(undefined);
-      if (SEARCH_TX) {
-        SEARCH_TX.chainName = undefined;
-        SEARCH_TX.txHash = undefined;
+      if (config.searchTx) {
+        config.searchTx.chainName = undefined;
+        config.searchTx.txHash = undefined;
       }
     },
   };

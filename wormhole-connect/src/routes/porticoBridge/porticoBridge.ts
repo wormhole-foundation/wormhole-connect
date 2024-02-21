@@ -18,8 +18,8 @@ import {
 import { fetchGlobalTx, fetchVaa, getEmitterAndSequence } from 'utils/vaa';
 import { hexZeroPad, hexlify, parseUnits } from 'ethers/lib/utils.js';
 import { BaseRoute } from '../bridge';
-import { PayloadType, isEvmChain, toChainId, toChainName, wh } from 'utils/sdk';
-import { CHAINS, ROUTES, TOKENS, isMainnet } from 'config';
+import { PayloadType, isEvmChain, toChainId, toChainName } from 'utils/sdk';
+import config from 'config';
 import {
   MAX_DECIMALS,
   calculateUSDPrice,
@@ -77,7 +77,7 @@ export abstract class PorticoBridge extends BaseRoute {
   }
 
   isSupportedChain(chain: ChainName): boolean {
-    const { portico, uniswapQuoterV2 } = wh.getContracts(chain) || {};
+    const { portico, uniswapQuoterV2 } = config.wh.getContracts(chain) || {};
     return !!(portico && uniswapQuoterV2);
   }
 
@@ -134,17 +134,17 @@ export abstract class PorticoBridge extends BaseRoute {
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
   ): Promise<boolean> {
-    if (!isMainnet || !ROUTES.includes(this.TYPE)) {
+    if (!config.isMainnet || !config.routes.includes(this.TYPE)) {
       return false;
     }
-    const sourceTokenConfig = TOKENS[sourceToken];
+    const sourceTokenConfig = config.tokens[sourceToken];
     if (
       !sourceTokenConfig ||
       !this.isSupportedToken(sourceTokenConfig, sourceChain)
     ) {
       return false;
     }
-    const destTokenConfig = TOKENS[destToken];
+    const destTokenConfig = config.tokens[destToken];
     if (
       !destTokenConfig ||
       !this.isSupportedToken(destTokenConfig, destChain)
@@ -164,11 +164,11 @@ export abstract class PorticoBridge extends BaseRoute {
     if (!sendAmount || !destToken || !sendingChain || !recipientChain) {
       throw new Error('Invalid params');
     }
-    const startToken = getWrappedToken(TOKENS[token]);
+    const startToken = getWrappedToken(config.tokens[token]);
     if (!startToken.tokenId) {
       throw new Error('Unable to get start token');
     }
-    const finishToken = getWrappedToken(TOKENS[destToken]);
+    const finishToken = getWrappedToken(config.tokens[destToken]);
     if (!finishToken.tokenId) {
       throw new Error('Unable to get finish token');
     }
@@ -283,7 +283,7 @@ export abstract class PorticoBridge extends BaseRoute {
     ) {
       throw new Error('Error computing receive amount');
     }
-    const finishToken = TOKENS[destToken];
+    const finishToken = config.tokens[destToken];
     const minAmountFinish = BigNumber.from(
       routeOptions.swapAmounts.data.minAmountFinish,
     );
@@ -419,16 +419,16 @@ export abstract class PorticoBridge extends BaseRoute {
       destToken === 'native' || destToken === destGasToken.key;
     const finalToken = isDestTokenNative
       ? getWrappedToken(destGasToken)
-      : TOKENS[destToken];
+      : config.tokens[destToken];
     if (!finalToken?.tokenId) {
       throw new Error('Unsupported dest token');
     }
-    const porticoAddress = wh.mustGetContracts(sendingChain).portico;
+    const porticoAddress = config.wh.mustGetContracts(sendingChain).portico;
     if (!porticoAddress) {
       throw new Error('Portico address not found');
     }
     const destinationPorticoAddress =
-      wh.mustGetContracts(recipientChain).portico;
+      config.wh.mustGetContracts(recipientChain).portico;
     if (!destinationPorticoAddress) {
       throw new Error('Destination portico address not found');
     }
@@ -447,7 +447,9 @@ export abstract class PorticoBridge extends BaseRoute {
       throw new Error('Output amount too low, please try again later.');
     }
 
-    const context = wh.getContext(sendingChain) as EthContext<WormholeContext>;
+    const context = config.wh.getContext(
+      sendingChain,
+    ) as EthContext<WormholeContext>;
     const core = context.contracts.mustGetCore(sendingChain);
     const messageFee = await core.messageFee();
 
@@ -483,7 +485,7 @@ export abstract class PorticoBridge extends BaseRoute {
 
     // Approve the token if necessary
     if (!isStartTokenNative) {
-      const sendingContext = wh.getContext(
+      const sendingContext = config.wh.getContext(
         sendingChain,
       ) as EthContext<WormholeContext>;
       await sendingContext.approve(
@@ -495,7 +497,7 @@ export abstract class PorticoBridge extends BaseRoute {
     }
 
     // Sign and send the transaction
-    const signer = wh.mustGetSigner(sendingChain);
+    const signer = config.wh.mustGetSigner(sendingChain);
     const transaction = {
       to: porticoAddress,
       data: response.data.transactionData,
@@ -535,8 +537,8 @@ export abstract class PorticoBridge extends BaseRoute {
     payer: string,
   ): Promise<string> {
     // allow manual redeems in case it wasn't relayed
-    const signer = wh.mustGetSigner(destChain);
-    const { portico } = wh.mustGetContracts(destChain);
+    const signer = config.wh.mustGetSigner(destChain);
+    const { portico } = config.wh.mustGetContracts(destChain);
     if (!portico) {
       throw new Error('Portico address not found');
     }
@@ -566,11 +568,11 @@ export abstract class PorticoBridge extends BaseRoute {
     if (!destToken) {
       throw new Error('destToken is required');
     }
-    const startToken = getWrappedToken(TOKENS[token]);
+    const startToken = getWrappedToken(config.tokens[token]);
     if (!startToken.tokenId) {
       throw new Error('Unable to get start token');
     }
-    const finalToken = getWrappedToken(TOKENS[destToken]);
+    const finalToken = getWrappedToken(config.tokens[destToken]);
     if (!finalToken.tokenId) {
       throw new Error('Unable to get final token');
     }
@@ -596,14 +598,14 @@ export abstract class PorticoBridge extends BaseRoute {
     token: TokenId,
     chain: ChainName | ChainId,
   ): Promise<string | null> {
-    return await wh.getForeignAsset(token, chain);
+    return await config.wh.getForeignAsset(token, chain);
   }
 
   async getMessage(
     tx: string,
     chain: ChainName | ChainId,
   ): Promise<UnsignedMessage> {
-    const message = await wh.getMessage(tx, chain, false);
+    const message = await config.wh.getMessage(tx, chain, false);
     const adaptedMessage = await adaptParsedMessage(message);
     if (adaptedMessage.payloadID !== PayloadType.Automatic) {
       throw new Error('Invalid payload type');
@@ -611,7 +613,7 @@ export abstract class PorticoBridge extends BaseRoute {
     const payloadBuffer = Buffer.from(adaptedMessage.payload!.slice(2), 'hex');
     const { recipientAddress } = parsePorticoPayload(payloadBuffer);
     adaptedMessage.recipient = recipientAddress;
-    const provider = wh.mustGetProvider(chain);
+    const provider = config.wh.mustGetProvider(chain);
     const { data } = await provider.getTransaction(tx);
     adaptedMessage.inputData = data;
     return adaptedMessage;
@@ -656,11 +658,11 @@ export abstract class PorticoBridge extends BaseRoute {
     }
     const { emitterChain, emitterAddress, sequence } =
       getEmitterAndSequence(txData);
-    const context = wh.getContext(
+    const context = config.wh.getContext(
       txData.toChain,
     ) as EthContext<WormholeContext>;
     const tokenBridge = context.contracts.mustGetBridge(txData.toChain);
-    const { maxBlockSearch } = CHAINS[txData.toChain]!;
+    const { maxBlockSearch } = config.chains[txData.toChain]!;
     const filter = tokenBridge.filters.TransferRedeemed(
       emitterChain,
       `0x${emitterAddress}`,
@@ -775,7 +777,7 @@ export abstract class PorticoBridge extends BaseRoute {
         destTxInfo: { receivedTokenKey: '' },
       };
     }
-    const provider = wh.mustGetProvider(txData.toChain);
+    const provider = config.wh.mustGetProvider(txData.toChain);
     const receipt = await provider.getTransactionReceipt(receiveTx);
     const payloadBuffer = Buffer.from(txData.payload!.slice(2), 'hex');
     const {
@@ -804,9 +806,9 @@ export abstract class PorticoBridge extends BaseRoute {
         MAX_DECIMALS,
       );
       const receivedTokenDisplayName = getDisplayName(
-        TOKENS[txData.receivedTokenKey],
+        config.tokens[txData.receivedTokenKey],
       );
-      const canonicalTokenAddress = await wh.getForeignAsset(
+      const canonicalTokenAddress = await config.wh.getForeignAsset(
         txData.tokenId,
         txData.toChain,
       );
@@ -829,7 +831,7 @@ export abstract class PorticoBridge extends BaseRoute {
             valueUSD: calculateUSDPrice(
               formattedAmount,
               tokenPrices,
-              TOKENS[txData.receivedTokenKey],
+              config.tokens[txData.receivedTokenKey],
             ),
           },
           {

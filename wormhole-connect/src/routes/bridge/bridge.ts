@@ -6,10 +6,9 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { BigNumber } from 'ethers';
 import { hexlify, parseUnits, arrayify } from 'ethers/lib/utils.js';
-import { ROUTES, TOKENS } from 'config';
+import config from 'config';
 import { Route } from 'config/types';
 import { getTokenDecimals } from 'utils';
-import { wh } from 'utils/sdk';
 import { TransferWallet, postVaa, signAndSendTransaction } from 'utils/wallet';
 import {
   UnsignedMessage,
@@ -36,12 +35,12 @@ export class BridgeRoute extends BaseRoute {
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
   ): Promise<boolean> {
-    if (!ROUTES.includes(Route.Bridge)) {
+    if (!config.routes.includes(Route.Bridge)) {
       return false;
     }
 
-    const sourceTokenConfig = TOKENS[sourceToken];
-    const destTokenConfig = TOKENS[destToken];
+    const sourceTokenConfig = config.tokens[sourceToken];
+    const destTokenConfig = config.tokens[destToken];
     if (!sourceChain || !destChain || !sourceTokenConfig || !destTokenConfig)
       return false;
     if (sourceChain === destChain) return false;
@@ -116,14 +115,14 @@ export class BridgeRoute extends BaseRoute {
     routeOptions?: any,
   ): Promise<BigNumber> {
     const recipientAccount =
-      wh.toChainId(recipientChain) === MAINNET_CHAINS.solana
+      config.wh.toChainId(recipientChain) === MAINNET_CHAINS.solana
         ? await getSolanaAssociatedTokenAccount(
             token,
             sendingChain,
             recipientAddress,
           )
         : recipientAddress;
-    return await wh.estimateSendGas(
+    return await config.wh.estimateSendGas(
       token,
       amount,
       sendingChain,
@@ -142,7 +141,10 @@ export class BridgeRoute extends BaseRoute {
     if (!isSignedWormholeMessage(signedMessage)) {
       throw new Error('Invalid signed message');
     }
-    return await wh.estimateClaimGas(destChain, arrayify(signedMessage.vaa));
+    return await config.wh.estimateClaimGas(
+      destChain,
+      arrayify(signedMessage.vaa),
+    );
   }
 
   /**
@@ -162,19 +164,19 @@ export class BridgeRoute extends BaseRoute {
     destToken: string,
     routeOptions: any,
   ): Promise<string> {
-    const fromChainId = wh.toChainId(sendingChain);
-    const fromChainName = wh.toChainName(sendingChain);
+    const fromChainId = config.wh.toChainId(sendingChain);
+    const fromChainName = config.wh.toChainName(sendingChain);
     const decimals = getTokenDecimals(fromChainId, token);
     const parsedAmt = parseUnits(amount, decimals);
     const recipientAccount =
-      wh.toChainId(recipientChain) === MAINNET_CHAINS.solana
+      config.wh.toChainId(recipientChain) === MAINNET_CHAINS.solana
         ? await getSolanaAssociatedTokenAccount(
             token,
             sendingChain,
             recipientAddress,
           )
         : recipientAddress;
-    const tx = await wh.send(
+    const tx = await config.wh.send(
       token,
       parsedAmt.toString(),
       sendingChain,
@@ -188,7 +190,7 @@ export class BridgeRoute extends BaseRoute {
       tx,
       TransferWallet.SENDING,
     );
-    wh.registerProviders();
+    config.wh.registerProviders();
     return txId;
   }
 
@@ -203,13 +205,13 @@ export class BridgeRoute extends BaseRoute {
     // post vaa (solana)
     // TODO: move to context
 
-    const destChainId = wh.toChainId(destChain);
-    const destChainName = wh.toChainName(destChain);
+    const destChainId = config.wh.toChainId(destChain);
+    const destChainName = config.wh.toChainName(destChain);
     if (destChainId === MAINNET_CHAINS.solana) {
-      const destContext = wh.getContext(destChain) as any;
+      const destContext = config.wh.getContext(destChain) as any;
       const connection = destContext.connection;
       if (!connection) throw new Error('no connection');
-      const contracts = wh.mustGetContracts(destChain);
+      const contracts = config.wh.mustGetContracts(destChain);
       if (!contracts.core) throw new Error('contract not found');
       await postVaa(
         connection,
@@ -218,7 +220,7 @@ export class BridgeRoute extends BaseRoute {
       );
     }
 
-    const tx = await wh.redeem(
+    const tx = await config.wh.redeem(
       destChain,
       arrayify(signedMessage.vaa),
       undefined,
@@ -229,7 +231,7 @@ export class BridgeRoute extends BaseRoute {
       tx,
       TransferWallet.RECEIVING,
     );
-    wh.registerProviders();
+    config.wh.registerProviders();
     return txId;
   }
 
@@ -246,14 +248,14 @@ export class BridgeRoute extends BaseRoute {
     token: TokenId,
     chain: ChainName | ChainId,
   ): Promise<string | null> {
-    return wh.getForeignAsset(token, chain);
+    return config.wh.getForeignAsset(token, chain);
   }
 
   async getMessage(
     tx: string,
     chain: ChainName | ChainId,
   ): Promise<UnsignedMessage> {
-    const message = await wh.getMessage(tx, chain);
+    const message = await config.wh.getMessage(tx, chain);
     return adaptParsedMessage(message);
   }
 

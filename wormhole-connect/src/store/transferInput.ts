@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { ChainName, Context } from '@wormhole-foundation/wormhole-connect-sdk';
 import { BigNumber } from 'ethers';
-import { CHAINS, TOKENS, config } from 'config';
+import config from 'config';
 import { Route, TokenConfig } from 'config/types';
 import { getTokenDecimals } from 'utils';
 import { toDecimals } from 'utils/balance';
@@ -48,7 +48,7 @@ export const getNativeVersionOfToken = (
   chain: ChainName,
 ): string => {
   return (
-    Object.entries(TOKENS)
+    Object.entries(config.tokens)
       .map(([key, t]) => t)
       .find((t) => t.symbol === tokenSymbol && t.nativeChain === chain)?.key ||
     ''
@@ -144,9 +144,9 @@ const initialState: TransferInputState = {
     receiveAmount: '',
   },
   routeStates: undefined,
-  fromChain: config?.bridgeDefaults?.fromNetwork || undefined,
-  toChain: config?.bridgeDefaults?.toNetwork || undefined,
-  token: config?.bridgeDefaults?.token || '',
+  fromChain: config.bridgeDefaults?.fromNetwork || undefined,
+  toChain: config.bridgeDefaults?.toNetwork || undefined,
+  token: config.bridgeDefaults?.token || '',
   destToken: '',
   amount: '',
   receiveAmount: getEmptyDataWrapper(),
@@ -168,7 +168,7 @@ const initialState: TransferInputState = {
 const performModificationsIfFromChainChanged = (state: TransferInputState) => {
   const { fromChain, token, route } = state;
   if (token) {
-    const tokenConfig = TOKENS[token];
+    const tokenConfig = config.tokens[token];
     // clear token and amount if not supported on the selected network
     if (
       !fromChain ||
@@ -190,7 +190,7 @@ const performModificationsIfFromChainChanged = (state: TransferInputState) => {
     ) {
       state.token =
         getNativeVersionOfToken('tBTC', fromChain!) ||
-        TOKENS['tBTC']?.key ||
+        config.tokens['tBTC']?.key ||
         '';
     } else if (route && isPorticoRoute(route)) {
       if (tokenConfig.nativeChain !== fromChain) {
@@ -204,7 +204,7 @@ const performModificationsIfToChainChanged = (state: TransferInputState) => {
   const { toChain, destToken, route } = state;
 
   if (destToken) {
-    const tokenConfig = TOKENS[destToken];
+    const tokenConfig = config.tokens[destToken];
     if (!toChain) {
       state.destToken = '';
     }
@@ -215,7 +215,9 @@ const performModificationsIfToChainChanged = (state: TransferInputState) => {
       tokenConfig.nativeChain !== toChain
     ) {
       state.destToken =
-        getNativeVersionOfToken('tBTC', toChain!) || TOKENS['tBTC']?.key || '';
+        getNativeVersionOfToken('tBTC', toChain!) ||
+        config.tokens['tBTC']?.key ||
+        '';
     } else if (route && isPorticoRoute(route)) {
       if (tokenConfig.nativeChain !== toChain) {
         state.destToken = getNativeVersionOfToken(tokenConfig.symbol, toChain!);
@@ -489,10 +491,10 @@ export const selectChain = async (
   // Call wallet switchChain if the new chain is of the same type
   // and a cosmos chain (while the wallet is the same the address will
   // vary depending on the chain)
-  const config = CHAINS[chain];
-  if (!config) return;
-  if (config.context === wallet.type && wallet.type === Context.COSMOS) {
-    const address = await switchChain(config.chainId, type);
+  const chainConfig = config.chains[chain];
+  if (!chainConfig) return;
+  if (chainConfig.context === wallet.type && wallet.type === Context.COSMOS) {
+    const address = await switchChain(chainConfig.chainId, type);
     if (address) {
       dispatch(setAddress({ type, address }));
     }

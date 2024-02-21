@@ -9,7 +9,7 @@ import {
   WormholeContext,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 
-import { CHAINS, TOKENS } from 'config';
+import config from 'config';
 import { MAINNET_CHAINS } from 'config/mainnet';
 import { TokenConfig } from 'config/types';
 import { RootState } from 'store';
@@ -20,7 +20,6 @@ import {
   getDisplayName,
   getChainConfig,
 } from 'utils';
-import { wh } from 'utils/sdk';
 import { TransferWallet, switchChain, watchAsset } from 'utils/wallet';
 
 import TokenIcon from 'icons/TokenIcons';
@@ -68,7 +67,7 @@ function AddToEVMWallet({ token, address }: AddTokenProps) {
 
     // when using the automatic relay method the user may still have their wallet
     // configured to the source chain instead of the destination chain
-    const evmChainId = CHAINS[txData.toChain]?.chainId;
+    const evmChainId = config.chains[txData.toChain]?.chainId;
     if (!evmChainId || typeof evmChainId === 'string') return;
     await switchChain(evmChainId, TransferWallet.RECEIVING);
 
@@ -77,7 +76,7 @@ function AddToEVMWallet({ token, address }: AddTokenProps) {
         address: address,
         symbol: token.symbol,
         decimals: getTokenDecimals(
-          wh.toChainId(txData.toChain),
+          config.wh.toChainId(txData.toChain),
           token.tokenId || 'native',
         ),
         // evm chain id
@@ -178,7 +177,7 @@ function AddToWallet() {
       const receivedTokenKey = isPorticoTransfer
         ? transferDestInfo.destTxInfo.receivedTokenKey
         : txData.receivedTokenKey;
-      const tokenInfo = TOKENS[receivedTokenKey];
+      const tokenInfo = config.tokens[receivedTokenKey];
       if (!tokenInfo) return;
       try {
         if (getChainConfig(txData.toChain).gasToken === tokenInfo.key) return;
@@ -187,10 +186,15 @@ function AddToWallet() {
       }
       const wrapped = getWrappedToken(tokenInfo);
       if (!wrapped.tokenId) return;
-      const address = await wh.getForeignAsset(wrapped.tokenId, txData.toChain);
+      const address = await config.wh.getForeignAsset(
+        wrapped.tokenId,
+        txData.toChain,
+      );
 
       if (txData.toChain === 'sui' && address) {
-        const context = wh.getContext('sui') as SuiContext<WormholeContext>;
+        const context = config.wh.getContext(
+          'sui',
+        ) as SuiContext<WormholeContext>;
         const metadata = await context.provider.getCoinMetadata({
           coinType: address,
         });
@@ -208,7 +212,7 @@ function AddToWallet() {
     );
   }, [txData, route, transferDestInfo]);
 
-  const chainId = wh.toChainId(txData.toChain as ChainName);
+  const chainId = config.wh.toChainId(txData.toChain as ChainName);
 
   if (!targetToken || !targetAddress) return <></>;
 

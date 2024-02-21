@@ -1,7 +1,7 @@
 // This module is only to be included in other modules using import()
 // so that it loads dynamically as a separate bundle
 import { Network, CHAIN_ID_SEI } from '@certusone/wormhole-sdk';
-import { ENV, RPCS } from 'config';
+import config from 'config';
 import { SendResult } from '@wormhole-foundation/wormhole-connect-sdk';
 import {
   SeiChainId,
@@ -16,8 +16,8 @@ export const getSeiChainId = (env: Network) =>
 
 export async function fetchOptions() {
   const seiWallets = getSupportedWallets({
-    chainId: getSeiChainId(ENV) as SeiChainId,
-    rpcUrl: RPCS.sei || '',
+    chainId: getSeiChainId(config.network) as SeiChainId,
+    rpcUrl: config.rpcs.sei || '',
   });
 
   return seiWallets.reduce((obj: { [key: string]: SeiWallet }, value) => {

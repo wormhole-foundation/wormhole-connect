@@ -8,9 +8,9 @@ import {
   SolanaContext,
   WormholeContext,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { ParsedRelayerMessage, wh } from './sdk';
+import { ParsedRelayerMessage } from './sdk';
 import { fromNormalizedDecimals } from '.';
-import { CHAINS } from 'config';
+import config from 'config';
 import { fetchGlobalTx, getEmitterAndSequence } from './vaa';
 import { isEvmChain } from 'utils/sdk';
 import RouteOperator from '../routes/operator';
@@ -45,7 +45,7 @@ export const fetchRedeemedEvent = async (
   const emitter = `0x${emitterAddress}`;
 
   if (txData.toChain === 'solana') {
-    const context = wh.getContext(
+    const context = config.wh.getContext(
       txData.toChain,
     ) as SolanaContext<WormholeContext>;
     const signature = await context.fetchRedeemedSignature(
@@ -55,7 +55,7 @@ export const fetchRedeemedEvent = async (
     );
     return signature ? { transactionHash: signature } : null;
   } else if (txData.toChain === 'sui') {
-    const context = wh.getContext(
+    const context = config.wh.getContext(
       txData.toChain,
     ) as SuiContext<WormholeContext>;
     const { suiOriginalTokenBridgePackageId } =
@@ -83,7 +83,7 @@ export const fetchRedeemedEvent = async (
     }
     return null;
   } else if (txData.toChain === 'sei') {
-    const context = wh.getContext(
+    const context = config.wh.getContext(
       txData.toChain,
     ) as SeiContext<WormholeContext>;
     const transactionHash = await context.fetchRedeemedEvent(
@@ -93,12 +93,12 @@ export const fetchRedeemedEvent = async (
     );
     return transactionHash ? { transactionHash } : null;
   } else {
-    const provider = wh.mustGetProvider(txData.toChain);
-    const context: any = wh.getContext(
+    const provider = config.wh.mustGetProvider(txData.toChain);
+    const context: any = config.wh.getContext(
       txData.toChain,
     ) as EthContext<WormholeContext>;
-    const chainName = wh.toChainName(txData.toChain) as ChainName;
-    const chainConfig = CHAINS[chainName]!;
+    const chainName = config.wh.toChainName(txData.toChain) as ChainName;
+    const chainConfig = config.chains[chainName]!;
     const relayer = context.contracts.mustGetTokenBridgeRelayer(txData.toChain);
     const eventFilter = relayer.filters.TransferRedeemed(
       emitterChain,
@@ -122,7 +122,7 @@ export const fetchRedeemedEventSender = async (
     return null;
   }
   if (txData.toChain === 'solana') {
-    const context = wh.getContext(
+    const context = config.wh.getContext(
       txData.toChain,
     ) as SolanaContext<WormholeContext>;
     const tx = await context.connection?.getParsedTransaction(
@@ -134,15 +134,15 @@ export const fetchRedeemedEventSender = async (
     const accounts = tx?.transaction.message.accountKeys;
     return accounts ? accounts[0].pubkey.toBase58() : null;
   } else if (txData.toChain === 'sui') {
-    const context = wh.getContext(
+    const context = config.wh.getContext(
       txData.toChain,
     ) as SuiContext<WormholeContext>;
     const tx = await context.provider.getTransactionBlock({
       digest: redeemedEvent.transactionHash,
     });
     return tx.transaction?.data.sender || null;
-  } else if (isEvmChain(wh.toChainId(txData.toChain))) {
-    const context = wh.getContext(
+  } else if (isEvmChain(config.wh.toChainId(txData.toChain))) {
+    const context = config.wh.getContext(
       txData.toChain,
     ) as EthContext<WormholeContext>;
     const tx = await context.getReceipt(
@@ -158,7 +158,7 @@ export const fetchRedeemedEventSender = async (
 export const fetchSwapEvent = async (txData: ParsedRelayerMessage) => {
   const { tokenId, recipient, toNativeTokenAmount, tokenDecimals } = txData;
   if (txData.toChain === 'solana') {
-    const context = wh.getContext(
+    const context = config.wh.getContext(
       txData.toChain,
     ) as SolanaContext<WormholeContext>;
     const messageId = getEmitterAndSequence(txData);
@@ -176,7 +176,7 @@ export const fetchSwapEvent = async (txData: ParsedRelayerMessage) => {
       return swapEvent ? BigNumber.from(swapEvent.nativeAmount) : null;
     }
   } else if (txData.toChain === 'sui') {
-    const context = wh.getContext(
+    const context = config.wh.getContext(
       txData.toChain,
     ) as SuiContext<WormholeContext>;
     const { suiRelayerPackageId } = context.context.mustGetContracts('sui');
@@ -189,7 +189,7 @@ export const fetchSwapEvent = async (txData: ParsedRelayerMessage) => {
       },
       order: 'descending',
     });
-    const tokenContext = wh.getContext(tokenId.chain);
+    const tokenContext = config.wh.getContext(tokenId.chain);
     const tokenAddress = arrayify(
       await tokenContext.formatAssetAddress(tokenId.address),
     );
@@ -204,11 +204,11 @@ export const fetchSwapEvent = async (txData: ParsedRelayerMessage) => {
       }
     }
     return null;
-  } else if (isEvmChain(wh.toChainId(txData.toChain))) {
-    const provider = wh.mustGetProvider(txData.toChain);
-    const context: any = wh.getContext(txData.toChain);
-    const chainName = wh.toChainName(txData.toChain) as ChainName;
-    const chainConfig = CHAINS[chainName]!;
+  } else if (isEvmChain(config.wh.toChainId(txData.toChain))) {
+    const provider = config.wh.mustGetProvider(txData.toChain);
+    const context: any = config.wh.getContext(txData.toChain);
+    const chainName = config.wh.toChainName(txData.toChain) as ChainName;
+    const chainConfig = config.chains[chainName]!;
     const relayerContract = context.contracts.mustGetTokenBridgeRelayer(
       txData.toChain,
     );

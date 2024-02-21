@@ -11,9 +11,9 @@ import {
 import { MsgExecuteContract } from 'cosmjs-types/cosmwasm/wasm/v1/tx';
 import { BigNumber, utils } from 'ethers';
 import { calculateUSDPrice, getDisplayName } from 'utils';
-import { toChainId, wh } from 'utils/sdk';
+import { toChainId } from 'utils/sdk';
 import { isGatewayChain } from 'utils/cosmos';
-import { CHAINS, ENV, ROUTES, TOKENS } from 'config';
+import config from 'config';
 import { Route, TokenConfig } from 'config/types';
 import {
   MAX_DECIMALS,
@@ -67,13 +67,13 @@ export class CosmosGatewayRoute extends BaseRoute {
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
   ): Promise<boolean> {
-    if (!ROUTES.includes(Route.CosmosGateway)) {
+    if (!config.routes.includes(Route.CosmosGateway)) {
       return false;
     }
 
     return (
-      isGatewayChain(wh.toChainId(sourceChain)) ||
-      isGatewayChain(wh.toChainId(destChain))
+      isGatewayChain(config.wh.toChainId(sourceChain)) ||
+      isGatewayChain(config.wh.toChainId(destChain))
     );
   }
 
@@ -116,7 +116,7 @@ export class CosmosGatewayRoute extends BaseRoute {
     recipientAddress: string,
     routeOptions?: any,
   ): Promise<BigNumber> {
-    const gasFee = await wh.estimateSendGas(
+    const gasFee = await config.wh.estimateSendGas(
       token,
       amount,
       sendingChain,
@@ -143,7 +143,7 @@ export class CosmosGatewayRoute extends BaseRoute {
     token: TokenId,
     chain: ChainId | ChainName,
   ): Promise<string | null> {
-    return wh.getForeignAsset(token, chain);
+    return config.wh.getForeignAsset(token, chain);
   }
 
   getMinSendAmount(routeOptions: any): number {
@@ -160,8 +160,8 @@ export class CosmosGatewayRoute extends BaseRoute {
     destToken: string,
     routeOptions: any,
   ): Promise<any> {
-    const sendingChainId = wh.toChainId(sendingChain);
-    const recipientChainId = wh.toChainId(recipientChain);
+    const sendingChainId = config.wh.toChainId(sendingChain);
+    const recipientChainId = config.wh.toChainId(recipientChain);
     const decimals = getTokenDecimals(sendingChainId, token);
     const parsedAmt = utils.parseUnits(amount, decimals);
 
@@ -206,8 +206,8 @@ export class CosmosGatewayRoute extends BaseRoute {
       }),
     };
 
-    const destChainName = wh.toChainName(destChain);
-    const gasDenom = getNativeDenom(destChainName, ENV);
+    const destChainName = config.wh.toChainName(destChain);
+    const gasDenom = getNativeDenom(destChainName, config.network);
 
     const tx: CosmosTransaction = {
       fee: calculateFee(1000000, `1.0${gasDenom}`),
@@ -223,7 +223,7 @@ export class CosmosGatewayRoute extends BaseRoute {
     messageInfo: SignedMessage,
     recipient: string,
   ): Promise<string> {
-    const chain = wh.toChainId(destChain);
+    const chain = config.wh.toChainId(destChain);
 
     if (isGatewayChain(chain)) {
       return this.manualRedeem(CHAIN_ID_WORMCHAIN, messageInfo, recipient);
@@ -245,16 +245,16 @@ export class CosmosGatewayRoute extends BaseRoute {
     tokenPrices: TokenPrices,
     routeOptions?: any,
   ): Promise<TransferDisplayData> {
-    const sendingChainName = wh.toChainName(sendingChain);
-    const sourceGasToken = CHAINS[sendingChainName]?.gasToken;
+    const sendingChainName = config.wh.toChainName(sendingChain);
+    const sourceGasToken = config.chains[sendingChainName]?.gasToken;
     const sourceGasTokenSymbol = sourceGasToken
-      ? getDisplayName(TOKENS[sourceGasToken])
+      ? getDisplayName(config.tokens[sourceGasToken])
       : '';
     // Calculate the USD value of the gas
     const sendingGasEstPrice = calculateUSDPrice(
       sendingGasEst,
       tokenPrices,
-      TOKENS[sourceGasToken || ''],
+      config.tokens[sourceGasToken || ''],
     );
 
     return [
@@ -310,7 +310,7 @@ export class CosmosGatewayRoute extends BaseRoute {
     hash: string,
     chain: ChainName | ChainId,
   ): Promise<UnsignedMessage> {
-    const name = wh.toChainName(chain);
+    const name = config.wh.toChainName(chain);
     return isGatewayChain(name)
       ? getUnsignedMessageFromCosmos(hash, name)
       : getUnsignedMessageFromNonCosmos(hash, name);
@@ -377,15 +377,15 @@ export class CosmosGatewayRoute extends BaseRoute {
       txData.tokenDecimals,
       MAX_DECIMALS,
     );
-    const { gasToken: sourceGasTokenKey } = CHAINS[txData.fromChain]!;
-    const sourceGasToken = TOKENS[sourceGasTokenKey];
+    const { gasToken: sourceGasTokenKey } = config.chains[txData.fromChain]!;
+    const sourceGasToken = config.tokens[sourceGasTokenKey];
     const decimals = getTokenDecimals(
       toChainId(sourceGasToken.nativeChain),
       'native',
     );
     const formattedGas =
       txData.gasFee && toDecimals(txData.gasFee, decimals, MAX_DECIMALS);
-    const token = TOKENS[txData.tokenKey];
+    const token = config.tokens[txData.tokenKey];
 
     return [
       {
@@ -409,12 +409,12 @@ export class CosmosGatewayRoute extends BaseRoute {
     receiveTx,
     gasEstimate,
   }: TransferDestInfoBaseParams): Promise<TransferDestInfo> {
-    const token = TOKENS[txData.tokenKey];
-    const { gasToken } = CHAINS[txData.toChain]!;
+    const token = config.tokens[txData.tokenKey];
+    const { gasToken } = config.chains[txData.toChain]!;
 
     let gas = gasEstimate;
     if (receiveTx) {
-      const gasFee = await wh.getTxGasFee(txData.toChain, receiveTx);
+      const gasFee = await config.wh.getTxGasFee(txData.toChain, receiveTx);
       if (gasFee) {
         gas = formatGasFee(txData.toChain, gasFee);
       }
@@ -436,8 +436,14 @@ export class CosmosGatewayRoute extends BaseRoute {
         },
         {
           title: receiveTx ? 'Gas fee' : 'Gas estimate',
-          value: gas ? `${gas} ${getDisplayName(TOKENS[gasToken])}` : '—',
-          valueUSD: calculateUSDPrice(gas, tokenPrices, TOKENS[gasToken]),
+          value: gas
+            ? `${gas} ${getDisplayName(config.tokens[gasToken])}`
+            : '—',
+          valueUSD: calculateUSDPrice(
+            gas,
+            tokenPrices,
+            config.tokens[gasToken],
+          ),
         },
       ],
     };

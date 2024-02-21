@@ -7,7 +7,7 @@ import { NO_INPUT } from 'utils/style';
 
 import InputTransparent from 'components/InputTransparent';
 import Input from './Input';
-import { TOKENS } from 'config';
+import config from 'config';
 import Price from 'components/Price';
 import { getTokenPrice, getUSDFormat } from 'utils';
 
@@ -52,7 +52,7 @@ function AmountInput(props: Props) {
   };
 
   const price = useMemo(() => {
-    const tokenPrice = getTokenPrice(prices, TOKENS[token]) || 0;
+    const tokenPrice = getTokenPrice(prices, config.tokens[token]) || 0;
     if (!tokenPrice) return undefined;
     return getUSDFormat(Number(props.value) * tokenPrice);
   }, [props.value, token, prices]);

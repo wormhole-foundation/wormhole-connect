@@ -6,8 +6,7 @@ import {
   Tendermint37Client,
   TendermintClient,
 } from '@cosmjs/tendermint-rpc';
-import { wh } from 'utils/sdk';
-import { RPCS } from 'config';
+import config from 'config';
 
 const CLIENT_MAP: Record<string, TendermintClient> = {};
 
@@ -21,12 +20,12 @@ export async function getQueryClient(
 export async function getTmClient(
   chain: ChainId | ChainName,
 ): Promise<Tendermint34Client | Tendermint37Client> {
-  const name = wh.toChainName(chain);
+  const name = config.wh.toChainName(chain);
   if (CLIENT_MAP[name]) {
     return CLIENT_MAP[name];
   }
 
-  const rpc = RPCS[wh.toChainName(chain)];
+  const rpc = config.rpcs[config.wh.toChainName(chain)];
   if (!rpc) throw new Error(`${chain} RPC not configured`);
 
   // from cosmjs: https://github.com/cosmos/cosmjs/blob/358260bff71c9d3e7ad6644fcf64dc00325cdfb9/packages/stargate/src/stargateclient.ts#L218

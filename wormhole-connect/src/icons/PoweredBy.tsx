@@ -1,5 +1,5 @@
 import React from 'react';
-import { partnerLogo as partnerLogoImg } from 'config';
+import config from 'config';
 import Box from '@mui/material/Box';
 import { makeStyles } from 'tss-react/mui';
 import { Typography } from '@mui/material';
@@ -85,22 +85,20 @@ const useStyles = makeStyles()((theme) => ({
   },
 }));
 
-function PartnerLogo() {
+function PartnerLogo(props: { src: string }) {
   const { classes } = useStyles();
-  return (
-    <img src={partnerLogoImg} alt="partner" className={classes.partnerLogo} />
-  );
+  return <img src={props.src} alt="partner" className={classes.partnerLogo} />;
 }
 
 function PoweredByIcon(props: { color: string }) {
   const { classes } = useStyles();
-  return partnerLogoImg ? (
+  return config.partnerLogo ? (
     <Box className={classes.container}>
       <WormholeLogo color={props.color} />
       <Typography component="span" className={classes.separator}>
         &
       </Typography>
-      <PartnerLogo />
+      <PartnerLogo src={config.partnerLogo} />
     </Box>
   ) : (
     <WormholeLogo color={props.color} />

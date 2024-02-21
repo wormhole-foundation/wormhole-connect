@@ -2,7 +2,7 @@ import React from 'react';
 import { makeStyles } from 'tss-react/mui';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 
-import { CHAINS } from 'config';
+import config from 'config';
 import { displayAddress } from 'utils';
 
 import WalletIcon from 'icons/Wallet';
@@ -43,7 +43,7 @@ type Props = {
 
 function Header(props: Props) {
   const { classes } = useStyles();
-  const chainConfig = CHAINS[props.chain]!;
+  const chainConfig = config.chains[props.chain]!;
   return (
     <div className={classes.header}>
       <div className={classes.left}>

@@ -6,9 +6,8 @@ import {
   TokenId,
   NATIVE,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { CHAINS, GAS_ESTIMATES } from 'config';
+import config from 'config';
 import { GasEstimateOptions, Route } from 'config/types';
-import { wh } from './sdk';
 import RouteOperator from '../routes/operator';
 import { SignedMessage, formatGasFee } from '../routes';
 
@@ -31,14 +30,14 @@ export const getGasFallback = (
   route: Route,
   operation: GasEstimateOptions,
 ): BigNumber => {
-  const chainName = wh.toChainName(chain);
-  const routeGasFallbacks = GAS_ESTIMATES[chainName]?.[route];
+  const chainName = config.wh.toChainName(chain);
+  const routeGasFallbacks = config.gasEstimates[chainName]?.[route];
   if (!routeGasFallbacks || !routeGasFallbacks[operation])
     return BigNumber.from(0);
   const gas = BigNumber.from(routeGasFallbacks[operation]);
 
   // gas estimates for evm come in gwei
-  const chainConfig = CHAINS[chainName]!;
+  const chainConfig = config.chains[chainName]!;
   if (chainConfig.context === Context.ETH) {
     return utils.parseUnits(gas.toString(), 'gwei');
   }

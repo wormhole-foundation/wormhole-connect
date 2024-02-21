@@ -11,7 +11,7 @@ import {
 } from 'store/transferInput';
 import { TransferWallet } from 'utils/wallet';
 import { getTokenPrice, hydrateHrefTemplate } from 'utils';
-import { CHAINS, CHAINS_ARR, TOKENS } from 'config';
+import config from 'config';
 
 import Inputs from './Inputs';
 import Select from './Select';
@@ -45,7 +45,7 @@ function ToInputs() {
   const balance =
     accessBalance(balances, receiving.address, toChain, destToken) || undefined;
 
-  const tokenConfig = TOKENS[destToken];
+  const tokenConfig = config.tokens[destToken];
 
   const selectToken = (token: string) => {
     dispatch(setDestToken(token));
@@ -64,7 +64,7 @@ function ToInputs() {
   const selectedToken = useMemo(() => {
     if (!tokenConfig) return undefined;
     const symbol = tokenConfig.symbol;
-    const chain = CHAINS[tokenConfig.nativeChain]?.displayName;
+    const chain = config.chains[tokenConfig.nativeChain]?.displayName;
     return {
       icon: tokenConfig.icon,
       text: symbol,
@@ -156,7 +156,7 @@ function ToInputs() {
         amountInput={amountInput}
         balance={balance}
         warning={<TokenWarnings />}
-        tokenPrice={getTokenPrice(prices, TOKENS[destToken])}
+        tokenPrice={getTokenPrice(prices, config.tokens[destToken])}
       />
       <TokensModal
         open={showTokensModal}
@@ -169,9 +169,7 @@ function ToInputs() {
       <ChainsModal
         open={showChainsModal}
         title="Sending to"
-        chains={CHAINS_ARR.filter(
-          (c) => c.key !== fromChain && !c.disabledAsDestination,
-        )}
+        chains={config.chainsArr.filter((c) => c.key !== fromChain && !c.disabledAsDestination)}
         onSelect={selectChain}
         onClose={() => setShowChainsModal(false)}
         onMoreNetworkSelect={(href, chainName, target) =>
