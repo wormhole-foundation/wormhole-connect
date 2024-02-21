@@ -8,7 +8,7 @@ import {
   CosmosEvmWallet,
   getWallets as getEvmWallets,
 } from '@xlabs-libs/wallet-aggregator-cosmos-evm';
-import { REST, RPCS, CHAINS } from 'config';
+import config from 'config';
 
 import {
   ChainName,
@@ -20,15 +20,15 @@ import {
 const buildCosmosWallets = (evm?: boolean) => {
   const prepareMap = (map: ChainResourceMap) =>
     Object.keys(map).reduce((acc, k) => {
-      const conf = CHAINS[k as ChainName];
+      const conf = config.chains[k as ChainName];
       if (conf?.chainId && conf?.context === Context.COSMOS) {
         acc[conf.chainId] = map[k as ChainName]!;
       }
       return acc;
     }, {} as Record<string, string>);
 
-  const rpcs = prepareMap(RPCS);
-  const rests = prepareMap(REST);
+  const rpcs = prepareMap(config.rpcs);
+  const rests = prepareMap(config.rest);
 
   const wallets: CosmosWallet[] | CosmosEvmWallet[] = evm
     ? (getEvmWallets(rpcs, rests) as any[] as CosmosWallet[])

@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 
-import { CHAINS } from 'config';
+import config from 'config';
 import { getCurrentBlock } from 'utils/sdk';
 import { RoutesConfig } from 'config/routes';
 import { RootState } from 'store';
@@ -42,7 +42,7 @@ type Props = {
 function Confirmations(props: Props) {
   const { classes } = useStyles();
   const { chain, blockHeight } = props;
-  const chainConfig = CHAINS[chain]!;
+  const chainConfig = config.chains[chain]!;
   const requiredHeight = blockHeight + chainConfig.finalityThreshold;
   const [currentBlock, setCurrentBlock] = useState(0);
 

@@ -1,4 +1,4 @@
-import { COINGECKO_API_KEY, TOKENS } from 'config';
+import config from 'config';
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { setPrices, setPricesError } from 'store/tokenPrices';
@@ -8,7 +8,7 @@ const PRICES_FETCH_INTERVAL = 60000 * 5; // 5 mins
 const COINGECKO_URL = 'https://api.coingecko.com/';
 const COINGECKO_URL_PRO = 'https://pro-api.coingecko.com/';
 
-const COINGECKO_IDS = Object.values(TOKENS)
+const COINGECKO_IDS = Object.values(config.tokens)
   .filter((config) => !!config.coinGeckoId)
   .map(({ coinGeckoId }) => coinGeckoId)
   .join(',');
@@ -21,8 +21,8 @@ export const useFetchTokenPrices = (): void => {
     const signal = controller.signal;
     const headers = new Headers({
       'Content-Type': 'application/json',
-      ...(COINGECKO_API_KEY
-        ? { 'x-cg-pro-api-key': COINGECKO_API_KEY || '' }
+      ...(config.coinGeckoApiKey
+        ? { 'x-cg-pro-api-key': config.coinGeckoApiKey }
         : {}),
     });
     const fetchTokenPrices = async () => {
@@ -32,9 +32,11 @@ export const useFetchTokenPrices = (): void => {
           // In the case the user https://apiguide.coingecko.com/getting-started/getting-started#id-2.-making-api-request
           const res = await fetch(
             `${
-              !COINGECKO_API_KEY ? COINGECKO_URL : COINGECKO_URL_PRO
+              !config.coinGeckoApiKey ? COINGECKO_URL : COINGECKO_URL_PRO
             }api/v3/simple/price?ids=${COINGECKO_IDS}&vs_currencies=usd${
-              !COINGECKO_API_KEY ? '' : `?x_cg_pro_api_key=${COINGECKO_API_KEY}`
+              !config.coinGeckoApiKey
+                ? ''
+                : `?x_cg_pro_api_key=${config.coinGeckoApiKey}`
             }`,
             { signal, headers },
           );

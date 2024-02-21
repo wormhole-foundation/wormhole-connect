@@ -1,9 +1,9 @@
 import axios, { AxiosResponse } from 'axios';
-import { isMainnet } from 'config';
+import config from 'config';
 import { BytesLike } from 'ethers';
 import { sleep } from 'utils';
 
-const CIRCLE_ATTESTATION = isMainnet
+const CIRCLE_ATTESTATION = config.isMainnet
   ? 'https://iris-api.circle.com/attestations/'
   : 'https://iris-api-sandbox.circle.com/attestations/';
 

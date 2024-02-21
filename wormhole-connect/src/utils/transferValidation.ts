@@ -2,7 +2,7 @@ import { Dispatch, useEffect, useMemo } from 'react';
 import { AnyAction } from '@reduxjs/toolkit';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 
-import { BRIDGE_DEFAULTS, CHAINS, TOKENS } from 'config';
+import config from 'config';
 import { Route, TokenConfig } from 'config/types';
 import { SANCTIONED_WALLETS } from 'consts/wallet';
 import { RootState } from 'store';
@@ -29,7 +29,7 @@ export const validateFromChain = (
   chain: ChainName | undefined,
 ): ValidationErr => {
   if (!chain) return 'Select a source chain';
-  const chainConfig = CHAINS[chain];
+  const chainConfig = config.chains[chain];
   if (!chainConfig) return 'Select a source chain';
   return '';
 };
@@ -39,18 +39,18 @@ export const validateToChain = (
   fromChain: ChainName | undefined,
 ): ValidationErr => {
   if (!chain) return 'Select a destination chain';
-  const chainConfig = CHAINS[chain];
+  const chainConfig = config.chains[chain];
   if (!chainConfig) return 'Select a destination chain';
   if (fromChain && chain === fromChain)
     return 'Source chain and destination chain cannot be the same';
   if (
-    BRIDGE_DEFAULTS &&
-    BRIDGE_DEFAULTS.requiredNetwork &&
+    config.bridgeDefaults &&
+    config.bridgeDefaults.requiredNetwork &&
     chain &&
     fromChain
   ) {
-    const { requiredNetwork } = BRIDGE_DEFAULTS;
-    const requiredConfig = CHAINS[requiredNetwork];
+    const { requiredNetwork } = config.bridgeDefaults;
+    const requiredConfig = config.chains[requiredNetwork];
     if (
       requiredConfig &&
       chain !== requiredNetwork &&
@@ -66,10 +66,10 @@ export const validateToken = (
   chain: ChainName | undefined,
 ): ValidationErr => {
   if (!token) return 'Select an asset';
-  const tokenConfig = TOKENS[token];
+  const tokenConfig = config.tokens[token];
   if (!tokenConfig) return 'Select an asset';
   if (chain) {
-    const chainConfig = CHAINS[chain];
+    const chainConfig = config.chains[chain];
     if (!chainConfig || !!tokenConfig.tokenId) return '';
     if (!tokenConfig.tokenId && tokenConfig.nativeChain !== chain)
       return `${token} not available on ${chain}, select a different token`;
@@ -83,10 +83,10 @@ export const validateDestToken = (
   supportedTokens: TokenConfig[],
 ): ValidationErr => {
   if (!token) return 'Select an asset';
-  const tokenConfig = TOKENS[token];
+  const tokenConfig = config.tokens[token];
   if (!tokenConfig) return 'Select an asset';
   if (chain) {
-    const chainConfig = CHAINS[chain];
+    const chainConfig = config.chains[chain];
     if (!chainConfig || !!tokenConfig.tokenId) return '';
     if (!tokenConfig.tokenId && tokenConfig.nativeChain !== chain)
       return `${token} not available on ${chain}, select a different token`;

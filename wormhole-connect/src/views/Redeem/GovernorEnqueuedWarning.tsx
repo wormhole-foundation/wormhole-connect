@@ -1,7 +1,7 @@
 import React from 'react';
 import { makeStyles } from 'tss-react/mui';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
-import { CHAINS } from 'config';
+import config from 'config';
 import { GOVERNOR_WHITEPAPER_URL } from 'consts';
 import AlertBanner from 'components/AlertBanner';
 
@@ -20,7 +20,7 @@ type Props = {
 
 const GovernorEnqueuedWarning = (props: Props) => {
   const { classes } = useStyles();
-  const chainConfig = CHAINS[props.chain];
+  const chainConfig = config.chains[props.chain];
   const alertContent = (
     <div>
       {`This transfer will take 24 hours to complete as Wormhole has reached the

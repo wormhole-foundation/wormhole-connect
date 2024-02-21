@@ -15,9 +15,9 @@ import {
   getWrappedToken,
   isEqualCaseInsensitive,
 } from 'utils';
-import { TOKENS } from 'config';
+import config from 'config';
 import { CHAIN_ID_ETH } from '@certusone/wormhole-sdk/lib/esm/utils/consts';
-import { toChainId, wh } from 'utils/sdk';
+import { toChainId } from 'utils/sdk';
 import { TransferDestInfo } from 'routes/types';
 
 export const parseAddress = (buffer: Buffer): string => {
@@ -183,7 +183,7 @@ export const validateCreateOrderResponse = async (
 export const getCanonicalTokenAddress = async (
   token: TokenConfig,
 ): Promise<string> => {
-  const tokenOnEthereum = Object.values(TOKENS).find(
+  const tokenOnEthereum = Object.values(config.tokens).find(
     (t) =>
       t.symbol === token.symbol && toChainId(t.nativeChain) === CHAIN_ID_ETH,
   );
@@ -194,7 +194,7 @@ export const getCanonicalTokenAddress = async (
   if (!tokenId) {
     throw new Error('Canonical token not found');
   }
-  return await wh.mustGetForeignAsset(tokenId, token.nativeChain);
+  return await config.wh.mustGetForeignAsset(tokenId, token.nativeChain);
 };
 
 export const isPorticoRoute = (route: Route): boolean => {

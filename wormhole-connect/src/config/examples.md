@@ -1,4 +1,3 @@
-
 # Wormhole Connect - `config` examples
 
 ## Environment

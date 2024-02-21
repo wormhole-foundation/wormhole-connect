@@ -1,9 +1,12 @@
+import { Network } from '@certusone/wormhole-sdk';
 import {
   ChainConfig as BaseChainConfig,
   ChainName,
   TokenId,
   ChainResourceMap,
   Context,
+  WormholeContext,
+  WormholeConfig,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { Alignment } from 'components/Header';
 import { ExtendedTheme } from 'theme';
@@ -53,6 +56,8 @@ export enum Route {
 
 export type SupportedRoutes = keyof typeof Route;
 
+export type Environment = 'mainnet' | 'testnet' | 'devnet';
+
 // TODO: preference is fromChain/toChain, but want to keep backwards compatibility
 export interface BridgeDefaults {
   fromNetwork?: ChainName;
@@ -63,9 +68,10 @@ export interface BridgeDefaults {
 
 // Keep this in sync with wormhole-connect-loader/src/types.ts!
 // TODO: move to a shared package
-export interface WormholeConnectConfig {
+export interface IntegrationConfig {
+  chains?: any;
   showHamburgerMenu?: boolean;
-  env?: 'mainnet' | 'testnet' | 'devnet';
+  env?: Environment;
   rpcs?: ChainResourceMap;
   rest?: ChainResourceMap;
   graphql?: ChainResourceMap;
@@ -73,7 +79,7 @@ export interface WormholeConnectConfig {
   tokens?: string[];
   tokensConfig?: TokensConfig;
   mode?: 'dark' | 'light';
-  customTheme?: ExtendedTheme;
+  theme?: ExtendedTheme;
   cta?: {
     text: string;
     link: string;
@@ -95,6 +101,55 @@ export interface WormholeConnectConfig {
   ethBridgeMaxAmount?: number;
   wstETHBridgeMaxAmount?: number;
   coinGeckoApiKey?: string;
+}
+
+// This is the exported config value used throughout the code base
+export interface WormholeConnectConfig {
+  wh: WormholeContext;
+  sdkConfig: WormholeConfig;
+
+  env: Environment;
+  network: Network; // TODO reduce these to just one...
+  isMainnet: boolean;
+
+  // External resources
+  rpcs: ChainResourceMap;
+  rest: ChainResourceMap;
+  graphql: ChainResourceMap;
+  wormholeApi: string;
+  wormholeRpcHosts: string[];
+  coinGeckoApiKey?: string;
+
+  // White lists
+  chains: ChainsConfig;
+  chainsArr: ChainConfig[];
+  tokens: TokensConfig;
+  tokensArr: TokenConfig[];
+  gasEstimates: GasEstimates;
+  routes: string[];
+
+  // UI details
+  cta?: {
+    text: string;
+    link: string;
+  };
+  explorer?: ExplorerConfig;
+  attestUrl: string;
+  bridgeDefaults?: BridgeDefaults;
+  cctpWarning: string;
+  pageHeader?: string | PageHeader;
+  pageSubHeader?: string;
+  menu: MenuEntry[];
+  searchTx?: SearchTxConfig;
+  moreTokens?: MoreTokenConfig;
+  moreNetworks?: MoreChainConfig;
+  partnerLogo?: string;
+  walletConnectProjectId?: string;
+  showHamburgerMenu: boolean;
+
+  // Route settings
+  ethBridgeMaxAmount: number;
+  wstETHBridgeMaxAmount: number;
 }
 
 export type ExplorerConfig = {

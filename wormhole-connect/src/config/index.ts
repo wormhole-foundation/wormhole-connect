@@ -1,185 +1,185 @@
 import {
+  ChainName,
   WormholeContext,
-  MainnetChainName,
-  TestnetChainName,
+  WormholeConfig,
+  ForeignAssetCache,
+  ChainResourceMap,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import MAINNET from './mainnet';
 import TESTNET from './testnet';
 import DEVNET from './devnet';
 import {
-  TokenConfig,
-  ChainConfig,
+  Environment,
   WormholeConnectConfig,
   Route,
+  IntegrationConfig,
+  TokensConfig,
 } from './types';
-import { dark, light } from '../theme';
-import {
-  mergeCustomTokensConfig,
-  validateConfigs,
-  validateDefaults,
-} from './utils';
-import { Alignment } from 'components/Header';
+import { mergeCustomTokensConfig, validateDefaults } from './utils';
 
-const el = document.getElementById('wormhole-connect');
-if (!el)
-  throw new Error('must specify an anchor element with id wormhole-connect');
-const configJson = el.getAttribute('config');
-export const config: WormholeConnectConfig = JSON.parse(configJson!) || {};
+type Network = 'MAINNET' | 'TESTNET' | 'DEVNET';
 
-const getEnv = () => {
-  const processEnv = import.meta.env.REACT_APP_CONNECT_ENV?.toLowerCase();
-  if (config.env === 'mainnet' || processEnv === 'mainnet') return 'MAINNET';
-  if (config.env === 'devnet' || processEnv === 'devnet') return 'DEVNET';
-  return 'TESTNET';
-};
+export function buildConfig(
+  customConfig?: IntegrationConfig,
+): WormholeConnectConfig {
+  const env = (customConfig?.env ||
+    import.meta.env.REACT_APP_CONNECT_ENV?.toLowerCase() ||
+    'testnet') as Environment;
 
-const getPageHeader = (): { text: string; align: Alignment } => {
-  const defaults: { text: string; align: Alignment } = {
-    text: '',
-    align: 'left',
+  if (!['mainnet', 'testnet', 'devnet'].includes(env))
+    throw new Error(`Invalid env "${env}"`);
+
+  const network: Network = env.toUpperCase() as Network;
+
+  const networkData = { MAINNET, DEVNET, TESTNET }[network];
+
+  const tokens = mergeCustomTokensConfig(
+    networkData.tokens,
+    customConfig?.tokensConfig,
+  );
+
+  const sdkConfig = WormholeContext.getConfig(network);
+
+  const rpcs = Object.assign(
+    {},
+    sdkConfig.rpcs,
+    networkData.rpcs,
+    customConfig?.rpcs,
+  );
+
+  const wh = getWormholeContext(network, sdkConfig, tokens, rpcs);
+
+  return {
+    wh,
+    sdkConfig,
+
+    // TODO remove either env or network from this
+    // some code uses lowercase, some uppercase... :(
+    env,
+    network,
+    isMainnet: env === 'mainnet',
+    // External resources
+    rpcs,
+    rest: Object.assign(
+      {},
+      sdkConfig.rest,
+      networkData.rest,
+      customConfig?.rest,
+    ),
+    graphql: Object.assign({}, networkData.graphql, customConfig?.graphql),
+    wormholeApi: {
+      mainnet: 'https://api.wormholescan.io/',
+      testnet: 'https://api.testnet.wormholescan.io/',
+      devnet: '',
+    }[env],
+    wormholeRpcHosts: {
+      mainnet: [
+        'https://wormhole-v2-mainnet-api.mcf.rocks',
+        'https://wormhole-v2-mainnet-api.chainlayer.network',
+        'https://wormhole-v2-mainnet-api.staking.fund',
+      ],
+      testnet: [
+        'https://guardian.testnet.xlabs.xyz',
+        'https://guardian-01.testnet.xlabs.xyz',
+        'https://guardian-02.testnet.xlabs.xyz',
+      ],
+      devnet: ['http://localhost:7071'],
+    }[env],
+    coinGeckoApiKey: customConfig?.coinGeckoApiKey,
+
+    // White lists
+    chains: networkData.chains,
+    chainsArr: Object.values(networkData.chains).filter((chain) => {
+      return customConfig?.networks
+        ? customConfig.networks!.includes(chain.key)
+        : true;
+    }),
+    tokens,
+    tokensArr: Object.values(tokens).filter((token) => {
+      return customConfig?.tokens
+        ? customConfig.tokens!.includes(token.key)
+        : true;
+    }),
+    gasEstimates: networkData.gasEstimates,
+    routes: customConfig?.routes ?? Object.values(Route),
+
+    // UI details
+    cta: customConfig?.cta,
+    explorer: customConfig?.explorer,
+    attestUrl: {
+      mainnet: 'https://portalbridge.com/advanced-tools/#/register',
+      devnet: '',
+      testnet:
+        'https://wormhole-foundation.github.io/example-token-bridge-ui/#/register',
+    }[env],
+    bridgeDefaults: validateDefaults(customConfig?.bridgeDefaults),
+    cctpWarning: customConfig?.cctpWarning?.href || '',
+    pageHeader: customConfig?.pageHeader,
+    pageSubHeader: customConfig?.pageSubHeader,
+    menu: customConfig?.menu ?? [],
+    searchTx: customConfig?.searchTx,
+    moreTokens: customConfig?.moreTokens,
+    moreNetworks: customConfig?.moreNetworks,
+    partnerLogo: customConfig?.partnerLogo,
+    walletConnectProjectId:
+      customConfig?.walletConnectProjectId ??
+      import.meta.env.REACT_APP_WALLET_CONNECT_PROJECT_ID,
+    showHamburgerMenu: customConfig?.showHamburgerMenu ?? false,
+
+    // Route options
+    ethBridgeMaxAmount: customConfig?.ethBridgeMaxAmount ?? 5,
+    wstETHBridgeMaxAmount: customConfig?.wstETHBridgeMaxAmount ?? 5,
   };
-  if (typeof config.pageHeader === 'string') {
-    return { ...defaults, text: config.pageHeader };
-  } else {
-    return { ...defaults, ...config.pageHeader };
+}
+
+// Running buildConfig with no argument generates the default configuration
+const config = buildConfig();
+export default config;
+
+function getWormholeContext(
+  network: Network,
+  sdkConfig: WormholeConfig,
+  tokens: TokensConfig,
+  rpcs: ChainResourceMap,
+): WormholeContext {
+  const foreignAssetCache = new ForeignAssetCache();
+  for (const { tokenId, foreignAssets } of Object.values(tokens)) {
+    if (tokenId && foreignAssets) {
+      for (const [foreignChain, { address }] of Object.entries(foreignAssets)) {
+        foreignAssetCache.set(
+          tokenId.chain,
+          tokenId.address,
+          foreignChain as ChainName,
+          address,
+        );
+      }
+    }
   }
-};
 
-export const ENV = getEnv();
-export const isMainnet = ENV === 'MAINNET';
-export const sdkConfig = WormholeContext.getConfig(ENV);
-export const showHamburgerMenu =
-  config.showHamburgerMenu === undefined || config.showHamburgerMenu === true;
-export const pageHeader = getPageHeader();
-export const partnerLogo = config.partnerLogo;
+  const wh: WormholeContext = new WormholeContext(
+    network,
+    {
+      ...sdkConfig,
+      ...{ rpcs },
+    },
+    foreignAssetCache,
+  );
 
-export const WORMSCAN = 'https://wormholescan.io/#/';
-export const WORMHOLE_API =
-  ENV === 'MAINNET'
-    ? 'https://api.wormholescan.io/'
-    : ENV === 'DEVNET'
-    ? ''
-    : 'https://api.testnet.wormholescan.io/';
+  return wh;
+}
 
-export const EXPLORER = config.explorer;
+// setConfig can be called afterwards to override the default config with integrator-provided config
 
-export const ATTEST_URL = {
-  MAINNET: 'https://portalbridge.com/advanced-tools/#/register',
-  DEVNET: '',
-  TESTNET:
-    'https://wormhole-foundation.github.io/example-token-bridge-ui/#/register',
-}[ENV];
+export function setConfig(customConfig?: IntegrationConfig) {
+  const newConfig: WormholeConnectConfig = buildConfig(customConfig);
 
-export const USDC_BRIDGE_URL = config.cctpWarning?.href || '';
+  // We overwrite keys in the existing object so the references to the config
+  // imported elsewhere point to the new values
+  for (const key in newConfig) {
+    /* @ts-ignore */
+    config[key] = newConfig[key];
+  }
+}
 
-export const COINGECKO_API_KEY = config.coinGeckoApiKey;
-
-export const WORMHOLE_RPC_HOSTS = {
-  MAINNET: [
-    'https://wormhole-v2-mainnet-api.mcf.rocks',
-    'https://wormhole-v2-mainnet-api.chainlayer.network',
-    'https://wormhole-v2-mainnet-api.staking.fund',
-  ],
-  TESTNET: [
-    'https://guardian.testnet.xlabs.xyz',
-    'https://guardian-01.testnet.xlabs.xyz',
-    'https://guardian-02.testnet.xlabs.xyz',
-  ],
-  DEVNET: ['http://localhost:7071'],
-}[ENV];
-
-export const NETWORK_DATA = { MAINNET, DEVNET, TESTNET }[ENV];
-
-export const CHAINS = NETWORK_DATA.chains;
-export const CHAINS_ARR =
-  config && config.networks
-    ? Object.values(CHAINS).filter((c) => config.networks!.includes(c.key))
-    : (Object.values(CHAINS) as ChainConfig[]);
-
-export const SEARCH_TX = config && config.searchTx;
-
-export const AVAILABLE_MARKETS_URL =
-  'https://portalbridge.com/docs/faqs/liquid-markets/';
-
-export const MORE_NETWORKS = config && config.moreNetworks;
-export const MORE_TOKENS = config && config.moreTokens;
-export const TOKENS = mergeCustomTokensConfig(
-  NETWORK_DATA.tokens,
-  config.tokensConfig,
-);
-export const TOKENS_ARR =
-  config && config.tokens
-    ? Object.values(TOKENS).filter((c) => config.tokens!.includes(c.key))
-    : (Object.values(TOKENS) as TokenConfig[]);
-
-export const MENU_ENTRIES = config.menu || [];
-
-export const ROUTES =
-  config && config.routes ? config.routes : Object.values(Route);
-
-export const RPCS =
-  config && config.rpcs
-    ? Object.assign({}, sdkConfig.rpcs, NETWORK_DATA.rpcs, config.rpcs)
-    : Object.assign({}, sdkConfig.rpcs, NETWORK_DATA.rpcs);
-
-export const REST =
-  config && config.rest
-    ? Object.assign({}, sdkConfig.rest, NETWORK_DATA.rest, config.rest)
-    : Object.assign({}, sdkConfig.rest, NETWORK_DATA.rest);
-
-export const GRAPHQL =
-  config && config.graphql
-    ? Object.assign({}, NETWORK_DATA.graphql, config.graphql)
-    : NETWORK_DATA.graphql;
-
-export const GAS_ESTIMATES = NETWORK_DATA.gasEstimates;
-
-export const THEME_MODE = config && config.mode ? config.mode : 'dark';
-export const CUSTOM_THEME = config && config.customTheme;
-const BASE_THEME = THEME_MODE === 'dark' ? dark : light;
-export const THEME = CUSTOM_THEME
-  ? Object.assign({}, BASE_THEME, CUSTOM_THEME)
-  : BASE_THEME;
-
-export const CTA = config && config.cta;
-export const BRIDGE_DEFAULTS =
-  config && validateDefaults(config.bridgeDefaults);
-
-export const WALLET_CONNECT_PROJECT_ID =
-  config && config.walletConnectProjectId
-    ? config.walletConnectProjectId
-    : import.meta.env.REACT_APP_WALLET_CONNECT_PROJECT_ID;
-
-export const ethBridgeMaxAmount = config?.ethBridgeMaxAmount ?? 5;
-export const wstETHBridgeMaxAmount = config?.wstETHBridgeMaxAmount ?? 2.5;
-
-export const TESTNET_TO_MAINNET_CHAIN_NAMES: {
-  [k in TestnetChainName]: MainnetChainName;
-} = {
-  goerli: 'ethereum',
-  fuji: 'avalanche',
-  mumbai: 'polygon',
-  alfajores: 'celo',
-  moonbasealpha: 'moonbeam',
-  solana: 'solana',
-  bsc: 'bsc',
-  fantom: 'fantom',
-  sui: 'sui',
-  aptos: 'aptos',
-  arbitrumgoerli: 'arbitrum',
-  optimismgoerli: 'optimism',
-  basegoerli: 'base',
-  sei: 'sei',
-  wormchain: 'wormchain',
-  osmosis: 'osmosis',
-  cosmoshub: 'cosmoshub',
-  evmos: 'evmos',
-  kujira: 'kujira',
-  klaytn: 'klaytn',
-  sepolia: 'ethereum',
-  arbitrum_sepolia: 'arbitrum',
-  base_sepolia: 'base',
-  optimism_sepolia: 'optimism',
-};
-
-validateConfigs();
+// TODO: add config validation step to buildConfig
+//validateConfigs();

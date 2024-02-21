@@ -1,13 +1,12 @@
 import { ChainId, ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { CHAIN_ID_WORMCHAIN } from '@certusone/wormhole-sdk';
-import { CHAINS } from 'config';
-import { wh } from 'utils/sdk';
+import config from 'config';
 import { getCosmWasmClient, getQueryClient } from './client';
 import { IBC_PORT } from './consts';
 import { isGatewayChain } from 'utils/cosmos';
 
 export function getTranslatorAddress(): string {
-  const addr = CHAINS['wormchain']?.contracts.ibcShimContract;
+  const addr = config.chains['wormchain']?.contracts.ibcShimContract;
   if (!addr) throw new Error('IBC Shim contract not configured');
   return addr;
 }
@@ -30,7 +29,7 @@ export async function getIbcDestinationChannel(
 export async function getIbcSourceChannel(
   chain: ChainId | ChainName,
 ): Promise<string> {
-  const id = wh.toChainId(chain);
+  const id = config.wh.toChainId(chain);
   if (!isGatewayChain(id))
     throw new Error(`Chain ${chain} is not a gateway chain`);
   const client = await getCosmWasmClient(CHAIN_ID_WORMCHAIN);

@@ -7,7 +7,7 @@ import {
   SolanaContext,
   WormholeContext,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { ROUTES, TOKENS, TOKENS_ARR } from 'config';
+import config from 'config';
 import { TokenConfig, Route } from 'config/types';
 import {
   getTokenDecimals,
@@ -15,7 +15,7 @@ import {
   deNormalizeAmount,
   normalizeAmount,
 } from 'utils';
-import { isEvmChain, wh } from 'utils/sdk';
+import { isEvmChain } from 'utils/sdk';
 import {
   SignedMessage,
   UnsignedMessage,
@@ -48,7 +48,7 @@ export class TBTCRoute extends BaseRoute {
   readonly TYPE: Route = Route.TBTC;
 
   isSupportedChain(chain: ChainName): boolean {
-    return !!wh.getContracts(chain)?.token_bridge;
+    return !!config.wh.getContracts(chain)?.token_bridge;
   }
 
   async isSupportedSourceToken(
@@ -61,9 +61,9 @@ export class TBTCRoute extends BaseRoute {
     if (!token || token.symbol !== TBTC_TOKEN_SYMBOL) return false;
     if (destToken && destToken.symbol !== TBTC_TOKEN_SYMBOL) return false;
     if (isTBTCCanonicalChain(sourceChain)) {
-      return token.nativeChain === wh.toChainName(sourceChain);
+      return token.nativeChain === config.wh.toChainName(sourceChain);
     }
-    return wh.toChainId(token.nativeChain) === CHAIN_ID_ETH;
+    return config.wh.toChainId(token.nativeChain) === CHAIN_ID_ETH;
   }
 
   async isSupportedDestToken(
@@ -76,9 +76,9 @@ export class TBTCRoute extends BaseRoute {
     if (!token || token.symbol !== TBTC_TOKEN_SYMBOL) return false;
     if (sourceToken && sourceToken.symbol !== TBTC_TOKEN_SYMBOL) return false;
     if (isTBTCCanonicalChain(destChain)) {
-      return token.nativeChain === wh.toChainName(destChain);
+      return token.nativeChain === config.wh.toChainName(destChain);
     }
-    return wh.toChainId(token.nativeChain) === CHAIN_ID_ETH;
+    return config.wh.toChainId(token.nativeChain) === CHAIN_ID_ETH;
   }
 
   async isRouteSupported(
@@ -89,18 +89,18 @@ export class TBTCRoute extends BaseRoute {
     destChain: ChainName | ChainId,
   ): Promise<boolean> {
     if (
-      !ROUTES.includes(Route.TBTC) ||
+      !config.routes.includes(Route.TBTC) ||
       !sourceChain ||
       !destChain ||
       !(await this.isSupportedSourceToken(
-        TOKENS[sourceToken],
-        TOKENS[destToken],
+        config.tokens[sourceToken],
+        config.tokens[destToken],
         sourceChain,
         destChain,
       )) ||
       !(await this.isSupportedDestToken(
-        TOKENS[destToken],
-        TOKENS[sourceToken],
+        config.tokens[destToken],
+        config.tokens[sourceToken],
         sourceChain,
         destChain,
       )) ||
@@ -184,10 +184,10 @@ export class TBTCRoute extends BaseRoute {
     if (!tokenConfig || tokenConfig.symbol !== TBTC_TOKEN_SYMBOL) {
       throw new Error(`Token ${token} not supported`);
     }
-    const fromChainId = wh.toChainId(sendingChain);
-    const fromChainName = wh.toChainName(sendingChain);
-    const toChainId = wh.toChainId(recipientChain);
-    const formattedRecipient = wh.formatAddress(
+    const fromChainId = config.wh.toChainId(sendingChain);
+    const fromChainName = config.wh.toChainName(sendingChain);
+    const toChainId = config.wh.toChainId(recipientChain);
+    const formattedRecipient = config.wh.formatAddress(
       recipientAddress,
       recipientChain,
     );
@@ -196,11 +196,12 @@ export class TBTCRoute extends BaseRoute {
     const feeParsed = parseUnits('0', decimals);
     const transferAmountParsed = baseAmountParsed.add(feeParsed);
     if (isEvmChain(sendingChain)) {
-      const signer = wh.mustGetSigner(sendingChain);
-      const sourceGatewayAddress = wh.getContracts(fromChainId)?.tbtcGateway;
+      const signer = config.wh.mustGetSigner(sendingChain);
+      const sourceGatewayAddress =
+        config.wh.getContracts(fromChainId)?.tbtcGateway;
       // Use the gateway contract to send if it exists
       if (sourceGatewayAddress) {
-        const chainContext = wh.getContext(
+        const chainContext = config.wh.getContext(
           sendingChain,
         ) as EthContext<WormholeContext>;
         const gateway = new Contract(sourceGatewayAddress, EVMGateway, signer);
@@ -220,7 +221,7 @@ export class TBTCRoute extends BaseRoute {
         // some faulty public JSON-RPC endpoints.
         const gasEstimate = await gateway.estimateGas.sendTbtc(
           denormalizedAmount,
-          wh.toChainId(recipientChain),
+          config.wh.toChainId(recipientChain),
           formattedRecipient,
           THRESHOLD_ARBITER_FEE,
           THRESHOLD_NONCE,
@@ -243,10 +244,11 @@ export class TBTCRoute extends BaseRoute {
         );
         return txId;
       } else {
-        const targetGatewayAddress = wh.getContracts(toChainId)?.tbtcGateway;
+        const targetGatewayAddress =
+          config.wh.getContracts(toChainId)?.tbtcGateway;
         let tx;
         if (targetGatewayAddress) {
-          tx = await wh.send(
+          tx = await config.wh.send(
             token,
             transferAmountParsed.toString(),
             sendingChain,
@@ -257,7 +259,7 @@ export class TBTCRoute extends BaseRoute {
             formattedRecipient,
           );
         } else {
-          tx = await wh.send(
+          tx = await config.wh.send(
             token,
             transferAmountParsed.toString(),
             sendingChain,
@@ -275,11 +277,11 @@ export class TBTCRoute extends BaseRoute {
       }
     } else if (fromChainId === CHAIN_ID_SOLANA) {
       const { core, token_bridge, tbtcGateway } =
-        wh.mustGetContracts(fromChainId);
+        config.wh.mustGetContracts(fromChainId);
       if (!core || !token_bridge || !tbtcGateway) {
         throw new Error('Core, token bridge, or gateway not found');
       }
-      const context = wh.getContext(
+      const context = config.wh.getContext(
         fromChainId,
       ) as SolanaContext<WormholeContext>;
       const connection = context.connection;
@@ -304,10 +306,11 @@ export class TBTCRoute extends BaseRoute {
       );
       return txId;
     } else {
-      const targetGatewayAddress = wh.getContracts(toChainId)?.tbtcGateway;
+      const targetGatewayAddress =
+        config.wh.getContracts(toChainId)?.tbtcGateway;
       let tx;
       if (targetGatewayAddress) {
-        tx = await wh.send(
+        tx = await config.wh.send(
           token,
           transferAmountParsed.toString(),
           sendingChain,
@@ -318,7 +321,7 @@ export class TBTCRoute extends BaseRoute {
           formattedRecipient,
         );
       } else {
-        tx = await wh.send(
+        tx = await config.wh.send(
           token,
           transferAmountParsed.toString(),
           sendingChain,
@@ -341,12 +344,12 @@ export class TBTCRoute extends BaseRoute {
     message: SignedTokenTransferMessage,
     payer: string,
   ): Promise<string> {
-    const destChainId = wh.toChainId(destChain);
-    const destChainName = wh.toChainName(destChain);
-    const destGatewayAddress = wh.getContracts(destChain)?.tbtcGateway;
+    const destChainId = config.wh.toChainId(destChain);
+    const destChainName = config.wh.toChainName(destChain);
+    const destGatewayAddress = config.wh.getContracts(destChain)?.tbtcGateway;
     if (isEvmChain(destChain) && destGatewayAddress) {
       // Use the gateway contract to receive if it exists
-      const signer = wh.mustGetSigner(destChain);
+      const signer = config.wh.mustGetSigner(destChain);
       const gateway = new Contract(destGatewayAddress, EVMGateway, signer);
       const estimateGas = await gateway.estimateGas.receiveTbtc(message.vaa);
       // We increase the gas limit estimation here by a factor of 10% to account for
@@ -365,7 +368,7 @@ export class TBTCRoute extends BaseRoute {
       const signedVaa = Buffer.from(
         arrayify(message.vaa, { allowMissingPrefix: true }),
       );
-      const context = wh.getContext(
+      const context = config.wh.getContext(
         destChain,
       ) as SolanaContext<WormholeContext>;
       const connection = context.connection;
@@ -373,7 +376,7 @@ export class TBTCRoute extends BaseRoute {
         throw new Error('Connection not found');
       }
       const { core, token_bridge, tbtcGateway } =
-        wh.mustGetContracts(destChain);
+        config.wh.mustGetContracts(destChain);
       if (!core || !token_bridge || !tbtcGateway) {
         throw new Error('Core, token bridge, or gateway not found');
       }
@@ -393,7 +396,7 @@ export class TBTCRoute extends BaseRoute {
       );
       return txId;
     } else {
-      const context = wh.getContext(destChainId);
+      const context = config.wh.getContext(destChainId);
       const tx = await context.redeem(
         destChain,
         arrayify(message.vaa),
@@ -422,11 +425,11 @@ export class TBTCRoute extends BaseRoute {
     token: TokenId,
     chain: ChainName | ChainId,
   ): Promise<string | null> {
-    const chainId = wh.toChainId(chain);
+    const chainId = config.wh.toChainId(chain);
     if (isTBTCCanonicalChain(chainId)) {
       // The gateway contract mints canonical tBTC
       // Find the canonical tBTC token for the chain
-      const addr = TOKENS_ARR.find(
+      const addr = config.tokensArr.find(
         (t) =>
           t.symbol === TBTC_TOKEN_SYMBOL &&
           t.nativeChain === chain &&
@@ -436,11 +439,11 @@ export class TBTCRoute extends BaseRoute {
       return addr;
     } else {
       // If there's no gateway contract then Ethereum tBTC is canonical
-      const tbtcToken = TOKENS[TBTC_TOKEN_SYMBOL];
+      const tbtcToken = config.tokens[TBTC_TOKEN_SYMBOL];
       if (!tbtcToken?.tokenId) {
         throw new Error(`${TBTC_TOKEN_SYMBOL} tokenId not found`);
       }
-      return await wh.getForeignAsset(tbtcToken.tokenId, chain);
+      return await config.wh.getForeignAsset(tbtcToken.tokenId, chain);
     }
   }
 
@@ -448,7 +451,7 @@ export class TBTCRoute extends BaseRoute {
     tx: string,
     chain: ChainName | ChainId,
   ): Promise<TBTCMessage> {
-    const message = await wh.getMessage(tx, chain, false);
+    const message = await config.wh.getMessage(tx, chain, false);
     const adapted = await adaptParsedMessage(message);
     const foreignAsset =
       (await this.getForeignAsset(adapted.tokenId, adapted.toChain)) || '';
@@ -459,7 +462,7 @@ export class TBTCRoute extends BaseRoute {
         : adapted.tokenChain,
     };
     const token = getTokenById(tokenId);
-    const destContext = wh.getContext(message.toChain);
+    const destContext = config.wh.getContext(message.toChain);
     const recipient =
       message.payload && message.payload.length > 0
         ? destContext.parseAddress(message.payload)

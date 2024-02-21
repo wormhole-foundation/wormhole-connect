@@ -5,7 +5,7 @@ import {
   ChainConfig,
   ChainName,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { CHAINS_ARR, CHAINS, MORE_NETWORKS } from 'config';
+import config from 'config';
 import { CENTER, joinClass } from 'utils/style';
 
 import Header from './Header';
@@ -87,7 +87,7 @@ function ChainsModal(props: Props) {
   const { classes } = useStyles();
   const theme: any = useTheme();
 
-  const chains = props.chains || CHAINS_ARR;
+  const chains = props.chains || config.chainsArr;
   const [search, setSearch] = useState<string | undefined>();
   const handleExtraNetwork = (
     href: string,
@@ -97,7 +97,7 @@ function ChainsModal(props: Props) {
     if (href) {
       props.onMoreNetworkSelect?.(href, chainName, target);
     } else {
-      props.onMoreNetworkSelect?.(MORE_NETWORKS!.href, chainName, target);
+      props.onMoreNetworkSelect?.(config.moreNetworks!.href, chainName, target);
     }
   };
   const supportedChains = useMemo(() => {
@@ -119,7 +119,7 @@ function ChainsModal(props: Props) {
   const showChain = (chain: ChainName) => {
     if (chain === 'wormchain') return false;
     if (!search) return true;
-    const chainConfig = CHAINS[chain]!;
+    const chainConfig = config.chains[chain]!;
     const name = chainConfig.displayName.toLowerCase();
     return name.includes(search);
   };
@@ -138,7 +138,7 @@ function ChainsModal(props: Props) {
     <Modal
       open={props.open}
       closable
-      width={CHAINS_ARR.length > 6 ? 650 : 500}
+      width={config.chainsArr.length > 6 ? 650 : 500}
       onClose={handleClose}
     >
       <Header text={props.title} size={28} />
@@ -172,7 +172,7 @@ function ChainsModal(props: Props) {
                 )
               );
             })}
-            {MORE_NETWORKS?.networks.map((chain, i) => {
+            {config.moreNetworks?.networks.map((chain, i) => {
               return (
                 <div
                   key={i}
@@ -182,10 +182,10 @@ function ChainsModal(props: Props) {
                   ])}
                   onClick={() =>
                     handleExtraNetwork(
-                      chain.href || MORE_NETWORKS!.href,
+                      chain.href || config.moreNetworks!.href,
                       chain.name ||
                         chain.label.toLocaleLowerCase().split(' ').join('_'),
-                      chain.target || MORE_NETWORKS?.target,
+                      chain.target || config.moreNetworks?.target,
                     )
                   }
                 >
@@ -195,7 +195,7 @@ function ChainsModal(props: Props) {
                     height={48}
                     showOpenInNewIcon={chain.showOpenInNewIcon}
                     description={
-                      chain.description || MORE_NETWORKS?.description
+                      chain.description || config.moreNetworks?.description
                     }
                   />
                   <div className={classes.chainText}>{chain.label}</div>

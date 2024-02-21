@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import useIsTransferLimited from 'hooks/useIsTransferLimited';
-import { wh } from 'utils/sdk';
 import Dialog from '@mui/material/Dialog';
 import ScopedCssBaseline from '@mui/material/ScopedCssBaseline';
 import CloseIcon from 'icons/Close';
@@ -9,6 +8,7 @@ import Button from 'components/Button';
 import ClockIcon from 'icons/Clock';
 import { makeStyles } from 'tss-react/mui';
 import { GOVERNOR_WHITEPAPER_URL } from 'consts';
+import config from 'config';
 
 const useStyles = makeStyles()((theme: any) => ({
   dialog: {
@@ -131,7 +131,7 @@ const TransferLimitedWarning = (props: TransferLimitedWarningProps) => {
     isTransferLimited.reason &&
     isTransferLimited.limits
   ) {
-    const chainName = wh.toChainName(isTransferLimited.limits.chainId);
+    const chainName = config.wh.toChainName(isTransferLimited.limits.chainId);
 
     let message, title;
     if (

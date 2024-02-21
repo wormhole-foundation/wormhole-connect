@@ -4,7 +4,7 @@ import { useDispatch } from 'react-redux';
 import { Select, MenuItem, CircularProgress } from '@mui/material';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 
-import { CHAINS_ARR, showHamburgerMenu } from 'config';
+import config from 'config';
 import { isValidTxId } from 'utils';
 import RouteOperator from 'routes/operator';
 import { setTxDetails, setRoute as setRedeemRoute } from 'store/redeem';
@@ -130,7 +130,7 @@ function TxSearch() {
       <PageHeader
         title="Resume transaction"
         description="Bridging can require a manual redemption process on the designation chain. If you did not complete the redemption during your initial transaction, you may do so here."
-        showHamburgerMenu={showHamburgerMenu}
+        showHamburgerMenu={config.showHamburgerMenu}
         back
       />
 
@@ -146,15 +146,15 @@ function TxSearch() {
             <MenuItem disabled value="" key={0}>
               Select network
             </MenuItem>
-            {CHAINS_ARR.filter((chain) => chain.key !== 'wormchain').map(
-              (chain, i) => {
+            {config.chainsArr
+              .filter((chain) => chain.key !== 'wormchain')
+              .map((chain, i) => {
                 return (
                   <MenuItem value={chain.key} key={i + 1}>
                     {chain.displayName}
                   </MenuItem>
                 );
-              },
-            )}
+              })}
           </Select>
         </div>
         <div className={classes.search}>
@@ -174,7 +174,7 @@ function TxSearch() {
       <Button disabled={!state.chain || !state.tx} elevated onClick={search}>
         {loading ? <CircularProgress size={24} /> : 'Search'}
       </Button>
-      {showHamburgerMenu ? null : (
+      {config.showHamburgerMenu ? null : (
         <div className={classes.footerNavBar}>
           <FooterNavBar />
         </div>

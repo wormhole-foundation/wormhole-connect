@@ -16,7 +16,8 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { BigNumber, utils } from 'ethers';
 import { arrayify, base58, hexlify } from 'ethers/lib/utils.js';
-import { ParsedMessage, wh } from 'utils/sdk';
+import config from 'config';
+import { ParsedMessage } from 'utils/sdk';
 import { isGatewayChain } from '../../../utils/cosmos';
 import { UnsignedMessage } from '../../types';
 import { adaptParsedMessage } from '../../utils';
@@ -65,10 +66,10 @@ export async function getUnsignedMessageFromCosmos(
   const data: IBCTransferData = JSON.parse(ibcPacketInfo.data);
   const payload: FromCosmosPayload = JSON.parse(data.memo);
 
-  const destChain = wh.toChainName(
+  const destChain = config.wh.toChainName(
     payload.gateway_ibc_token_bridge_payload.gateway_transfer.chain,
   );
-  const destContext = wh.getContext(destChain);
+  const destContext = config.wh.getContext(destChain);
   const payloadRecipient =
     payload.gateway_ibc_token_bridge_payload.gateway_transfer.recipient;
   const recipient = isGatewayChain(destChain)
@@ -124,13 +125,13 @@ async function getOriginalIbcDenomInfo(
   }
   const factoryDenom = parts.slice(2).join('/');
   const cw20 = factoryToCW20(factoryDenom);
-  const context = wh.getContext(
+  const context = config.wh.getContext(
     CHAIN_ID_WORMCHAIN,
   ) as CosmosContext<WormholeContext>;
   const { chainId, assetAddress: tokenAddressBytes } =
     await context.getOriginalAsset(CHAIN_ID_WORMCHAIN, cw20);
-  const tokenChain = wh.toChainName(chainId as ChainId); // wormhole-sdk adds 0 (unset) as a chainId
-  const tokenContext = wh.getContext(tokenChain);
+  const tokenChain = config.wh.toChainName(chainId as ChainId); // wormhole-sdk adds 0 (unset) as a chainId
+  const tokenContext = config.wh.getContext(tokenChain);
   const tokenAddress = await tokenContext.parseAssetAddress(
     utils.hexlify(tokenAddressBytes),
   );
@@ -153,7 +154,7 @@ export async function getUnsignedMessageFromNonCosmos(
   hash: string,
   chain: ChainName,
 ): Promise<UnsignedMessage> {
-  const message = await wh.getMessage(hash, chain, false);
+  const message = await config.wh.getMessage(hash, chain, false);
   if (!message.payload)
     throw new Error(`Missing payload from message ${hash} on chain ${chain}`);
   const decoded: GatewayTransferMsg = JSON.parse(
@@ -167,7 +168,7 @@ export async function getUnsignedMessageFromNonCosmos(
       decoded.gateway_transfer.recipient,
       'base64',
     ).toString(),
-    toChain: wh.toChainName(decoded.gateway_transfer.chain),
+    toChain: config.wh.toChainName(decoded.gateway_transfer.chain),
   });
 
   return {
@@ -228,7 +229,7 @@ export async function getMessageFromWormchain(
     ...parsed,
     // add the original source chain and tx hash to the info
     // the vaa contains only the wormchain information
-    fromChain: wh.toChainName(chain),
+    fromChain: config.wh.toChainName(chain),
     sendTx: hash,
     sender,
   };
@@ -272,13 +273,13 @@ async function getWormchainEmittedMessage(
   const decoded = decodeTxRaw(tx.tx);
   const { sender } = MsgExecuteContract.decode(decoded.body.messages[0].value);
 
-  const destContext = wh.getContext(parsed.toChain as ChainId);
-  const tokenContext = wh.getContext(parsed.tokenChain as ChainId);
+  const destContext = config.wh.getContext(parsed.toChain as ChainId);
+  const tokenContext = config.wh.getContext(parsed.tokenChain as ChainId);
 
   const tokenAddress = await tokenContext.parseAssetAddress(
     hexlify(parsed.tokenAddress),
   );
-  const tokenChain = wh.toChainName(parsed.tokenChain);
+  const tokenChain = config.wh.toChainName(parsed.tokenChain);
 
   return {
     sendTx: tx.hash,
@@ -286,7 +287,7 @@ async function getWormchainEmittedMessage(
     amount: BigNumber.from(parsed.amount),
     payloadID: parsed.payloadType,
     recipient: destContext.parseAddress(hexlify(parsed.to)),
-    toChain: wh.toChainName(parsed.toChain),
+    toChain: config.wh.toChainName(parsed.toChain),
     fromChain: 'wormchain',
     tokenAddress,
     tokenChain,

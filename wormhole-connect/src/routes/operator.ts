@@ -6,15 +6,9 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { BigNumber } from 'ethers';
 
-import { CHAINS, ROUTES, TOKENS, TOKENS_ARR } from 'config';
+import config from 'config';
 import { TokenConfig, Route } from 'config/types';
-import {
-  PayloadType,
-  getMessage,
-  isEvmChain,
-  solanaContext,
-  wh,
-} from 'utils/sdk';
+import { PayloadType, getMessage, isEvmChain, solanaContext } from 'utils/sdk';
 import { isGatewayChain } from 'utils/cosmos';
 import { BridgeRoute } from './bridge';
 import { RelayRoute } from './relay';
@@ -81,7 +75,7 @@ export class Operator {
     }
 
     if (isEvmChain(chain)) {
-      const provider = wh.mustGetProvider(chain);
+      const provider = config.wh.mustGetProvider(chain);
       const receipt = await provider.getTransactionReceipt(txHash);
       if (!receipt) throw new Error(`No receipt for ${txHash} on ${chain}`);
 
@@ -92,7 +86,7 @@ export class Operator {
       if (cctpDepositForBurnLog) {
         if (
           cctpDepositForBurnLog.topics[3].substring(26).toLowerCase() ===
-          wh
+          config.wh
             .getContracts(chain)
             ?.cctpContracts?.wormholeCCTP?.substring(2)
             .toLowerCase()
@@ -118,7 +112,7 @@ export class Operator {
       return Route.TBTC;
     }
 
-    const portico = wh.getContracts(chain)?.portico;
+    const portico = config.wh.getContracts(chain)?.portico;
     if (portico && message.fromAddress) {
       if (isEqualCaseInsensitive(message.fromAddress, portico)) {
         if (tokenSymbol === 'ETH' || tokenSymbol === 'WETH') {
@@ -144,7 +138,7 @@ export class Operator {
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
   ): Promise<boolean> {
-    if (!ROUTES.includes(route)) {
+    if (!config.routes.includes(route)) {
       return false;
     }
 
@@ -165,7 +159,7 @@ export class Operator {
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
   ): Promise<boolean> {
-    if (!ROUTES.includes(route)) {
+    if (!config.routes.includes(route)) {
       return false;
     }
 
@@ -180,9 +174,9 @@ export class Operator {
   }
   allSupportedChains(): ChainName[] {
     const supported = new Set<ChainName>();
-    for (const key in CHAINS) {
+    for (const key in config.chains) {
       const chainName = key as ChainName;
-      for (const route of ROUTES) {
+      for (const route of config.routes) {
         if (!supported.has(chainName)) {
           const isSupported = this.isSupportedChain(route as Route, chainName);
           if (isSupported) {
@@ -200,20 +194,20 @@ export class Operator {
     destChain?: ChainName | ChainId,
   ): Promise<TokenConfig[]> {
     const supported: { [key: string]: TokenConfig } = {};
-    for (const route of ROUTES) {
-      for (const token of TOKENS_ARR) {
+    for (const route of config.routes) {
+      for (const token of config.tokensArr) {
         const { key } = token;
         const alreadySupported = supported[key];
         if (!alreadySupported) {
           const isSupported = await this.isSupportedSourceToken(
             route as Route,
-            TOKENS[key],
+            config.tokens[key],
             destToken,
             sourceChain,
             destChain,
           );
           if (isSupported) {
-            supported[key] = TOKENS[key];
+            supported[key] = config.tokens[key];
           }
         }
       }
@@ -227,20 +221,20 @@ export class Operator {
     destChain?: ChainName | ChainId,
   ): Promise<TokenConfig[]> {
     const supported: { [key: string]: TokenConfig } = {};
-    for (const route of ROUTES) {
-      for (const token of TOKENS_ARR) {
+    for (const route of config.routes) {
+      for (const token of config.tokensArr) {
         const { key } = token;
         const alreadySupported = supported[key];
         if (!alreadySupported) {
           const isSupported = await this.isSupportedDestToken(
             route as Route,
-            TOKENS[key],
+            config.tokens[key],
             sourceToken,
             sourceChain,
             destChain,
           );
           if (isSupported) {
-            supported[key] = TOKENS[key];
+            supported[key] = config.tokens[key];
           }
         }
       }
@@ -260,7 +254,7 @@ export class Operator {
     sourceChain?: ChainName | ChainId,
     destChain?: ChainName | ChainId,
   ): Promise<boolean> {
-    if (!ROUTES.includes(route)) {
+    if (!config.routes.includes(route)) {
       return false;
     }
 
@@ -280,7 +274,7 @@ export class Operator {
     sourceChain?: ChainName | ChainId,
     destChain?: ChainName | ChainId,
   ): Promise<boolean> {
-    if (!ROUTES.includes(route)) {
+    if (!config.routes.includes(route)) {
       return false;
     }
 
@@ -300,7 +294,7 @@ export class Operator {
     sourceChain?: ChainName | ChainId,
     destChain?: ChainName | ChainId,
   ): Promise<TokenConfig[]> {
-    if (!ROUTES.includes(route)) {
+    if (!config.routes.includes(route)) {
       return [];
     }
 
@@ -320,7 +314,7 @@ export class Operator {
     sourceChain?: ChainName | ChainId,
     destChain?: ChainName | ChainId,
   ): Promise<TokenConfig[]> {
-    if (!ROUTES.includes(route)) {
+    if (!config.routes.includes(route)) {
       return [];
     }
 
@@ -603,7 +597,7 @@ export class Operator {
     token: TokenId,
     walletAddress: string,
   ): Promise<BigNumber> {
-    const chainName = wh.toChainName(destChain);
+    const chainName = config.wh.toChainName(destChain);
     if (chainName === 'solana') {
       const context = solanaContext();
       // an non-existent account cannot be sent less than the rent exempt amount

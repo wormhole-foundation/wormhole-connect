@@ -5,7 +5,7 @@ import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 
-import { CHAINS } from 'config';
+import config from 'config';
 import { RootState } from 'store';
 import { ValidationErr } from 'store/transferInput';
 import { NO_INPUT } from 'utils/style';
@@ -128,7 +128,7 @@ function Inputs(props: Props) {
   const { showValidationState: showErrors, isTransactionInProgress } =
     useSelector((state: RootState) => state.transferInput);
 
-  const chainConfig = props.chain && CHAINS[props.chain];
+  const chainConfig = props.chain && config.chains[props.chain];
   const selectedChain = chainConfig
     ? { icon: chainConfig.icon, text: chainConfig.displayName }
     : undefined;

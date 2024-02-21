@@ -9,8 +9,8 @@ import {
   toNormalizedDecimals,
 } from 'utils';
 import { RouteAbstract } from '../abstracts';
-import { toChainId, wh } from 'utils/sdk';
-import { CHAINS, TOKENS } from 'config';
+import { toChainId } from 'utils/sdk';
+import config from 'config';
 import {
   TransferDisplayData,
   TransferInfoBaseParams,
@@ -40,7 +40,7 @@ export abstract class BaseRoute extends RouteAbstract {
     // }
 
     if (!sourceChain) return true;
-    const chainName = wh.toChainName(sourceChain);
+    const chainName = config.wh.toChainName(sourceChain);
     if (!token.tokenId && token.nativeChain !== chainName) {
       return false;
     }
@@ -120,27 +120,27 @@ export abstract class BaseRoute extends RouteAbstract {
     tokenPrices: TokenPrices,
     routeOptions?: any,
   ): Promise<TransferDisplayData> {
-    const sendingChainName = wh.toChainName(sendingChain);
-    const receipientChainName = wh.toChainName(receipientChain);
-    const sourceGasToken = CHAINS[sendingChainName]?.gasToken;
-    const destinationGasToken = CHAINS[receipientChainName]?.gasToken;
+    const sendingChainName = config.wh.toChainName(sendingChain);
+    const receipientChainName = config.wh.toChainName(receipientChain);
+    const sourceGasToken = config.chains[sendingChainName]?.gasToken;
+    const destinationGasToken = config.chains[receipientChainName]?.gasToken;
     const sourceGasTokenSymbol = sourceGasToken
-      ? getDisplayName(TOKENS[sourceGasToken])
+      ? getDisplayName(config.tokens[sourceGasToken])
       : '';
     const destinationGasTokenSymbol = destinationGasToken
-      ? getDisplayName(TOKENS[destinationGasToken])
+      ? getDisplayName(config.tokens[destinationGasToken])
       : '';
 
     // Calculate the USD value of the gas
     const sendingGasEstPrice = calculateUSDPrice(
       sendingGasEst,
       tokenPrices,
-      TOKENS[sourceGasToken || ''],
+      config.tokens[sourceGasToken || ''],
     );
     const claimingGasEstPrice = calculateUSDPrice(
       claimingGasEst,
       tokenPrices,
-      TOKENS[destinationGasToken || ''],
+      config.tokens[destinationGasToken || ''],
     );
 
     return [
@@ -192,14 +192,14 @@ export abstract class BaseRoute extends RouteAbstract {
       tokenDecimals,
       MAX_DECIMALS,
     );
-    const { gasToken: sourceGasTokenKey } = CHAINS[fromChain]!;
-    const sourceGasToken = TOKENS[sourceGasTokenKey];
+    const { gasToken: sourceGasTokenKey } = config.chains[fromChain]!;
+    const sourceGasToken = config.tokens[sourceGasTokenKey];
     const decimals = getTokenDecimals(
       toChainId(sourceGasToken.nativeChain),
       'native',
     );
     const formattedGas = gasFee && toDecimals(gasFee, decimals, MAX_DECIMALS);
-    const token = TOKENS[tokenKey];
+    const token = config.tokens[tokenKey];
 
     return [
       {
@@ -226,12 +226,12 @@ export abstract class BaseRoute extends RouteAbstract {
       receiveTx,
       gasEstimate,
     } = params;
-    const token = TOKENS[tokenKey];
-    const { gasToken } = CHAINS[toChain]!;
+    const token = config.tokens[tokenKey];
+    const { gasToken } = config.chains[toChain]!;
 
     let gas = gasEstimate;
     if (receiveTx) {
-      const gasFee = await wh.getTxGasFee(toChain, receiveTx);
+      const gasFee = await config.wh.getTxGasFee(toChain, receiveTx);
       if (gasFee) {
         gas = formatGasFee(toChain, gasFee);
       }
@@ -253,8 +253,14 @@ export abstract class BaseRoute extends RouteAbstract {
         },
         {
           title: receiveTx ? 'Gas fee' : 'Gas estimate',
-          value: gas ? `${gas} ${getDisplayName(TOKENS[gasToken])}` : NO_INPUT,
-          valueUSD: calculateUSDPrice(gas, tokenPrices, TOKENS[gasToken]),
+          value: gas
+            ? `${gas} ${getDisplayName(config.tokens[gasToken])}`
+            : NO_INPUT,
+          valueUSD: calculateUSDPrice(
+            gas,
+            tokenPrices,
+            config.tokens[gasToken],
+          ),
         },
       ],
     };
@@ -267,7 +273,7 @@ export abstract class BaseRoute extends RouteAbstract {
     if (!isSignedWormholeMessage(messageInfo)) {
       throw new Error('Invalid signed message');
     }
-    return wh.isTransferCompleted(destChain, hexlify(messageInfo.vaa));
+    return config.wh.isTransferCompleted(destChain, hexlify(messageInfo.vaa));
   }
 
   async computeReceiveAmountWithFees(

@@ -24,10 +24,10 @@ import {
   getSolanaStandardWallets,
 } from '@xlabs-libs/wallet-aggregator-solana';
 
-import { ENV, RPCS, WALLET_CONNECT_PROJECT_ID, isMainnet } from 'config';
+import config from 'config';
 
-const tag = ENV === 'MAINNET' ? 'mainnet-beta' : 'devnet';
-const connection = new Connection(RPCS.solana || clusterApiUrl(tag));
+const tag = config.isMainnet ? 'mainnet-beta' : 'devnet';
+const connection = new Connection(config.rpcs.solana || clusterApiUrl(tag));
 
 const getWalletName = (wallet: Wallet) =>
   wallet.getName().toLowerCase().replaceAll('wallet', '').trim();
@@ -43,13 +43,15 @@ const solanaWallets = {
   solong: new SolanaWallet(new SolongWalletAdapter(), connection),
   torus: new SolanaWallet(new TorusWalletAdapter(), connection),
   nightly: new SolanaWallet(new NightlyWalletAdapter(), connection),
-  ...(WALLET_CONNECT_PROJECT_ID
+  ...(config.walletConnectProjectId
     ? {
         walletConnect: new SolanaWallet(
           new WalletConnectWalletAdapter({
-            network: isMainnet ? SolanaNetwork.Mainnet : SolanaNetwork.Devnet,
+            network: config.isMainnet
+              ? SolanaNetwork.Mainnet
+              : SolanaNetwork.Devnet,
             options: {
-              projectId: WALLET_CONNECT_PROJECT_ID,
+              projectId: config.walletConnectProjectId,
             },
           }),
           connection,
