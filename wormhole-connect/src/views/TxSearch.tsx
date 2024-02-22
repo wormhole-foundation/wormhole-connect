@@ -57,6 +57,7 @@ function TxSearch() {
   const [state, setState] = useState({
     chain: EMPTY,
     tx: EMPTY,
+    autoSearch: false,
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -106,8 +107,9 @@ function TxSearch() {
 
   // set the txHash and chainName from configs and reset it to undefined
   useEffect(() => {
-    if (hasExternalSearch && txHash && chainName) {
-      setState({ chain: chainName, tx: txHash });
+    const autoSearch = !!(hasExternalSearch && txHash && chainName);
+    if (autoSearch) {
+      setState({ chain: chainName, tx: txHash, autoSearch });
       clear();
     }
   }, [hasExternalSearch, txHash, chainName, clear]);
@@ -116,7 +118,9 @@ function TxSearch() {
 
   // search on load if txHash and chainName are set
   useEffect(() => {
-    if (state.chain !== EMPTY && state.tx !== EMPTY && !loading) {
+    const { chain, tx, autoSearch } = state;
+    if (autoSearch && chain !== EMPTY && tx !== EMPTY && !loading) {
+      setState((prev) => ({ ...prev, autoSearch: false }));
       doSearch();
     }
   }, [doSearch, state, loading]);
