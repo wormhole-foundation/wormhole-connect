@@ -116,9 +116,9 @@ const NTTInboundQueued = () => {
         <div>
           {`Your transfer to ${
             CHAINS[signedMessage.fromChain]?.displayName || 'UNKNOWN'
-          } is delayed due to rate limits. After the delay expires${
+          } is delayed due to rate limits. After the delay ends${
             rateLimitExpiry ? ' on ' + rateLimitExpiry : ''
-          }, you'll need resume the transfer.`}
+          }, you'll need complete the transfer.`}
         </div>
       </InputContainer>
       <Spacer height={8} />
@@ -131,7 +131,7 @@ const NTTInboundQueued = () => {
       {wallet.address ? (
         isConnected ? (
           <Button onClick={handleClick} action disabled={inProgress}>
-            {inProgress ? <CircularProgress size={22} /> : 'Resume transfer'}
+            {inProgress ? <CircularProgress size={22} /> : 'Complete transfer'}
           </Button>
         ) : (
           <Button onClick={connect} elevated>

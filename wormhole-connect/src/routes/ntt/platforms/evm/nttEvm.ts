@@ -234,7 +234,6 @@ export class NTTEvm {
       return {
         recipient: wh.parseAddress(recipient, this.chain),
         amount: amount.toString(),
-        txTimestamp: txTimestamp.toNumber(),
         rateLimitExpiryTimestamp: txTimestamp
           .add(RATE_LIMIT_DURATION)
           .toNumber(),
@@ -246,7 +245,6 @@ export class NTTEvm {
   async completeInboundQueuedTransfer(
     emitterChain: ChainName | ChainId,
     managerMessage: ManagerMessage<NativeTokenTransfer>,
-    payer: string,
   ): Promise<string> {
     const manager = this.getManager();
     const digest = getNTTManagerMessageDigest(emitterChain, managerMessage);

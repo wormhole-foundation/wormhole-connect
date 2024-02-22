@@ -92,7 +92,7 @@ const NTTCapacityWarning = ({ token, amount, chain, fromChain }: Props) => {
         rateLimitDuration ? ' ' + rateLimitDuration : ''
       }. Once the delay ends, you'll need to submit a new transaction${
         chain !== fromChain ? ` on ${chainConfig?.displayName}` : ''
-      } to resume the transfer. Please consider this before proceeding.`}
+      } to complete the transfer. Please consider this before proceeding.`}
     </>
   );
   return <AlertBanner show content={content} warning />;

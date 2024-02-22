@@ -29,6 +29,9 @@ import { PostedMessageData } from '@certusone/wormhole-sdk/lib/esm/solana/wormho
 import { RATE_LIMIT_DURATION } from 'routes/ntt/consts';
 import { parseVaa } from '@certusone/wormhole-sdk/lib/esm';
 import { utils } from 'ethers';
+import { hexlify } from 'ethers/lib/utils';
+import { getTokenById, getTokenDecimals } from 'utils';
+import { getNativeVersionOfToken } from 'store/transferInput';
 
 export class NTTSolana {
   constructor(readonly managerAddress: string) {}
@@ -47,6 +50,22 @@ export class NTTSolana {
     });
     const ntt = new NTT({ program, wormholeId: this.managerAddress });
     return ntt;
+  }
+
+  async signAndSendTransaction(
+    tx: Transaction,
+    walletType: TransferWallet,
+  ): Promise<string> {
+    const connection = this.getConnection();
+    const { blockhash } = await connection.getLatestBlockhash('finalized');
+    tx.recentBlockhash = blockhash;
+    const txId = await signAndSendTransaction(
+      'solana',
+      tx,
+      TransferWallet.SENDING,
+      // { commitment: 'confirmed' }, // TODO: what to set to?
+    );
+    return txId;
   }
 
   async isWormholeRelayingEnabled(
@@ -106,20 +125,9 @@ export class NTTSolana {
     const tx = new Transaction();
     tx.add(transferIx);
     tx.add(releaseIx);
-    // TODO: confirmed or finalized?
-    const connection = this.getConnection();
-    const { blockhash } = await connection.getLatestBlockhash('finalized');
-    tx.recentBlockhash = blockhash;
-    tx.feePayer = payer;
-    // TODO: partialSign?
-    // const signers = [args.payer, args.fromAuthority, outboxItem];
-    //  tx.partialSign(message);
     tx.partialSign(outboxItem);
-    const txId = await signAndSendTransaction(
-      'solana',
-      tx,
-      TransferWallet.SENDING,
-    );
+    tx.feePayer = payer;
+    const txId = await this.signAndSendTransaction(tx, TransferWallet.SENDING);
     return txId;
   }
 
@@ -128,24 +136,17 @@ export class NTTSolana {
     const config = await ntt.getConfig();
     const vaaArray = utils.arrayify(vaa, { allowMissingPrefix: true });
     const payerPublicKey = new PublicKey(payer);
-
     const redeemArgs = {
       payer: payerPublicKey,
       vaa: vaaArray,
       config,
     };
-
-    // TODO: how is vaa formatted?
-    // const parsedVaa = parseVaa(vaa);
     const parsedVaa = parseVaa(vaaArray);
-
     const managerMessage = WormholeEndpointMessage.deserialize(
       parsedVaa.payload,
       (a) => ManagerMessage.deserialize(a, NativeTokenTransfer.deserialize),
     ).managerPayload;
-    // TODO: explain why this is fine here
     const chainId = parsedVaa.emitterChain as ChainId;
-
     // Here we create a transaction with three instructions:
     // 1. receive wormhole messsage (vaa)
     // 1. redeem
@@ -160,11 +161,9 @@ export class NTTSolana {
     // be able to release the transfer yet.
     // To make sure the transaction still succeeds, we set revertOnDelay to false, which will
     // just make the second instruction a no-op in case the transfer is delayed.
-
     const tx = new Transaction();
     tx.add(await ntt.createReceiveWormholeMessageInstruction(redeemArgs));
     tx.add(await ntt.createRedeemInstruction(redeemArgs));
-
     const releaseArgs = {
       ...redeemArgs,
       managerMessage,
@@ -172,25 +171,13 @@ export class NTTSolana {
       chain: chainId,
       revertOnDelay: false,
     };
-
     if (config.mode.locking != null) {
       tx.add(await ntt.createReleaseInboundUnlockInstruction(releaseArgs));
     } else {
       tx.add(await ntt.createReleaseInboundMintInstruction(releaseArgs));
     }
-
-    // Let's check if the transfer was released
-    // const inboxItem = await ntt.getInboxItem(chainId, managerMessage);
-    // return inboxItem.releaseStatus.released !== null;
-    const connection = this.getConnection();
-    const { blockhash } = await connection.getLatestBlockhash('finalized');
-    tx.recentBlockhash = blockhash;
     tx.feePayer = payerPublicKey;
-    // TODO: partialSign?
-    // const signers = [args.payer, args.fromAuthority, outboxItem];
-    //  tx.partialSign(message);
-    const txId = await signAndSendTransaction(
-      'solana',
+    const txId = await this.signAndSendTransaction(
       tx,
       TransferWallet.RECEIVING,
     );
@@ -201,41 +188,72 @@ export class NTTSolana {
     tx: string,
     chain: ChainName | ChainId,
   ): Promise<UnsignedNTTMessage> {
+    const connection = this.getConnection();
+    const response = await connection.getParsedTransaction(tx);
+    if (!response) throw new Error('Transaction not found');
     // TODO: how to get this? should be an account passed in?
     const outboxItem = new PublicKey('');
-    const connection = this.getConnection();
-    const program = new Program(IDL as any, this.managerAddress, {
-      connection,
-    });
-    const { core } = wh.mustGetContracts('solana');
-    if (!core) throw new Error('Solana core contract not found');
-    const ntt = new NTT({ program, wormholeId: core });
+    const ntt = this.getManager();
     const wormholeMessage = ntt.wormholeMessageAccountAddress(outboxItem);
-
-    const wormholeMessageAccount =
-      await program.provider.connection.getAccountInfo(wormholeMessage);
+    const wormholeMessageAccount = await connection.getAccountInfo(
+      wormholeMessage,
+    );
     if (wormholeMessageAccount === null) {
       throw new Error('wormhole message account not found');
     }
-
     const messageData = PostedMessageData.deserialize(
       wormholeMessageAccount.data,
     );
-    const endpointMessage = WormholeEndpointMessage.deserialize(
+    const managerMessage = WormholeEndpointMessage.deserialize(
       messageData.message.payload,
       (a) => ManagerMessage.deserialize(a, NativeTokenTransfer.deserialize),
+    ).managerPayload;
+    const fromChain = wh.toChainName(chain);
+    const toChain = wh.toChainName(managerMessage.payload.recipientChain);
+    const tokenAddress = wh.formatAddress(
+      hexlify(managerMessage.payload.sourceToken),
+      fromChain,
     );
-    throw new Error("don't work");
-
-    //// assert theat amount is what we expect
-    //expect(
-    //  endpointMessage.managerPayload.payload.normalizedAmount,
-    //).to.deep.equal(new NormalizedAmount(BigInt(10000), 8));
-    //// get from balance
-    //const balance = await program.provider.connection.getTokenAccountBalance(
-    //  tokenAccount,
-    //);
-    //expect(balance.value.amount).to.equal('9900000');
+    const tokenId: TokenId = {
+      chain: fromChain,
+      address: tokenAddress,
+    };
+    const token = getTokenById(tokenId);
+    if (!token) {
+      throw new Error(`Token ${tokenId} not found`);
+    }
+    return {
+      sendTx: tx,
+      sender: wh.formatAddress(hexlify(managerMessage.sender), fromChain),
+      amount: managerMessage.payload.normalizedAmount.amount.toString(),
+      payloadID: 1,
+      recipient: wh.parseAddress(
+        hexlify(managerMessage.payload.recipientAddress),
+        chain,
+      ),
+      toChain,
+      fromChain,
+      tokenAddress: wh.formatAddress(
+        hexlify(managerMessage.payload.sourceToken),
+        fromChain,
+      ),
+      tokenChain: token.nativeChain,
+      tokenId,
+      tokenKey: token.key,
+      tokenDecimals: getTokenDecimals(wh.toChainId(fromChain), tokenId),
+      receivedTokenKey: getNativeVersionOfToken(token.symbol, toChain),
+      emitterAddress: wh.formatAddress(
+        hexlify(messageData.message.emitterAddress),
+        fromChain,
+      ),
+      sequence: messageData.message.sequence.toString(),
+      block: response.slot,
+      gasFee: '0',
+      sourceManagerAddress: this.managerAddress,
+      toManagerAddress: '',
+      endpointMessage: hexlify(messageData.message.payload),
+      relayerFee: '',
+    };
   }
 
   async getCurrentOutboundCapacity(): Promise<string> {
@@ -282,7 +300,6 @@ export class NTTSolana {
       return {
         recipient: inboxItem.recipientAddress.toString(),
         amount: inboxItem.amount.toString(),
-        txTimestamp: 0, // TODO: how to get this?
         rateLimitExpiryTimestamp:
           inboxItem.releaseStatus.releaseAfter[0].toNumber(),
       };
@@ -296,29 +313,24 @@ export class NTTSolana {
     payer: string,
   ): Promise<string> {
     const payerPublicKey = new PublicKey(payer);
-    const tx = new Transaction();
-
     const releaseArgs = {
       payer: payerPublicKey,
       managerMessage,
+      // TODO: need to format?
       recipient: new PublicKey(managerMessage.payload.recipientAddress),
       chain: emitterChain,
       revertOnDelay: false,
     };
-
     const ntt = this.getManager();
     const config = await ntt.getConfig();
+    const tx = new Transaction();
     if (config.mode.locking != null) {
       tx.add(await ntt.createReleaseInboundUnlockInstruction(releaseArgs));
     } else {
       tx.add(await ntt.createReleaseInboundMintInstruction(releaseArgs));
     }
-    const connection = this.getConnection();
-    const { blockhash } = await connection.getLatestBlockhash('finalized');
-    tx.recentBlockhash = blockhash;
     tx.feePayer = payerPublicKey;
-    const txId = await signAndSendTransaction(
-      'solana',
+    const txId = await this.signAndSendTransaction(
       tx,
       TransferWallet.RECEIVING,
     );

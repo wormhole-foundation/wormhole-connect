@@ -20,6 +20,5 @@ export interface NativeTokenTransferMessage {
 export type InboundQueuedTransfer = {
   recipient: string;
   amount: string;
-  txTimestamp: number;
   rateLimitExpiryTimestamp: number;
 };

@@ -245,7 +245,6 @@ export abstract class NTTBase extends BaseRoute {
     endpointMessage: string,
     fromChain: ChainName | ChainId,
   ): Promise<InboundQueuedTransfer | undefined> {
-    console.log(endpointMessage);
     const managerMessage = WormholeEndpointMessage.deserialize(
       Buffer.from(endpointMessage.slice(2), 'hex'),
       (a) => ManagerMessage.deserialize(a, NativeTokenTransfer.deserialize),
@@ -300,6 +299,7 @@ export abstract class NTTBase extends BaseRoute {
     unsigned: UnsignedNTTMessage,
   ): Promise<SignedNTTMessage> {
     const vaa = await fetchVaa(unsigned, true);
+    console.log(vaa);
 
     if (!vaa) {
       throw new Error('VAA not found');
