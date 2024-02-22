@@ -11,9 +11,14 @@ export type ExampleNativeTokenTransfers = {
           isSigner: true;
         },
         {
-          name: 'owner';
+          name: 'deployer';
           isMut: false;
           isSigner: true;
+        },
+        {
+          name: 'programData';
+          isMut: false;
+          isSigner: false;
         },
         {
           name: 'config';
@@ -62,6 +67,11 @@ export type ExampleNativeTokenTransfers = {
           isSigner: false;
         },
         {
+          name: 'bpfLoaderUpgradeableProgram';
+          isMut: false;
+          isSigner: false;
+        },
+        {
           name: 'systemProgram';
           isMut: false;
           isSigner: false;
@@ -98,6 +108,12 @@ export type ExampleNativeTokenTransfers = {
               ];
             },
             {
+              name: 'sender';
+              isMut: false;
+              isSigner: true;
+              docs: ['This signer will be encoded in the outbox.'];
+            },
+            {
               name: 'mint';
               isMut: true;
               isSigner: false;
@@ -106,12 +122,6 @@ export type ExampleNativeTokenTransfers = {
               name: 'from';
               isMut: true;
               isSigner: false;
-            },
-            {
-              name: 'fromAuthority';
-              isMut: false;
-              isSigner: true;
-              docs: ['authority to burn the tokens (owner)'];
             },
             {
               name: 'tokenProgram';
@@ -132,6 +142,14 @@ export type ExampleNativeTokenTransfers = {
               name: 'outboxRateLimit';
               isMut: true;
               isSigner: false;
+            },
+            {
+              name: 'tokenAuthority';
+              isMut: false;
+              isSigner: false;
+              docs: [
+                'transfer or burn tokens in the [from](Self::from) account.',
+              ];
             },
             {
               name: 'systemProgram';
@@ -177,6 +195,12 @@ export type ExampleNativeTokenTransfers = {
               ];
             },
             {
+              name: 'sender';
+              isMut: false;
+              isSigner: true;
+              docs: ['This signer will be encoded in the outbox.'];
+            },
+            {
               name: 'mint';
               isMut: true;
               isSigner: false;
@@ -185,12 +209,6 @@ export type ExampleNativeTokenTransfers = {
               name: 'from';
               isMut: true;
               isSigner: false;
-            },
-            {
-              name: 'fromAuthority';
-              isMut: false;
-              isSigner: true;
-              docs: ['authority to burn the tokens (owner)'];
             },
             {
               name: 'tokenProgram';
@@ -213,6 +231,14 @@ export type ExampleNativeTokenTransfers = {
               isSigner: false;
             },
             {
+              name: 'tokenAuthority';
+              isMut: false;
+              isSigner: false;
+              docs: [
+                'transfer or burn tokens in the [from](Self::from) account.',
+              ];
+            },
+            {
               name: 'systemProgram';
               isMut: false;
               isSigner: false;
@@ -222,11 +248,6 @@ export type ExampleNativeTokenTransfers = {
         {
           name: 'inboxRateLimit';
           isMut: true;
-          isSigner: false;
-        },
-        {
-          name: 'tokenAuthority';
-          isMut: false;
           isSigner: false;
         },
         {
@@ -269,13 +290,8 @@ export type ExampleNativeTokenTransfers = {
         },
         {
           name: 'endpoint';
-          accounts: [
-            {
-              name: 'endpoint';
-              isMut: false;
-              isSigner: false;
-            },
-          ];
+          isMut: false;
+          isSigner: false;
         },
         {
           name: 'wormholeMessage';
@@ -357,13 +373,13 @@ export type ExampleNativeTokenTransfers = {
         },
         {
           name: 'endpoint';
-          accounts: [
-            {
-              name: 'endpoint';
-              isMut: false;
-              isSigner: false;
-            },
-          ];
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'mint';
+          isMut: false;
+          isSigner: false;
         },
         {
           name: 'inboxItem';
@@ -528,7 +544,7 @@ export type ExampleNativeTokenTransfers = {
       accounts: [
         {
           name: 'config';
-          isMut: false;
+          isMut: true;
           isSigner: false;
         },
         {
@@ -536,15 +552,28 @@ export type ExampleNativeTokenTransfers = {
           isMut: false;
           isSigner: true;
         },
-      ];
-      args: [
         {
-          name: 'args';
-          type: {
-            defined: 'TransferOwnershipArgs';
-          };
+          name: 'newOwner';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'upgradeLock';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'programData';
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: 'bpfLoaderUpgradeableProgram';
+          isMut: false;
+          isSigner: false;
         },
       ];
+      args: [];
     },
     {
       name: 'claimOwnership';
@@ -555,9 +584,24 @@ export type ExampleNativeTokenTransfers = {
           isSigner: false;
         },
         {
+          name: 'upgradeLock';
+          isMut: false;
+          isSigner: false;
+        },
+        {
           name: 'newOwner';
           isMut: false;
           isSigner: true;
+        },
+        {
+          name: 'programData';
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: 'bpfLoaderUpgradeableProgram';
+          isMut: false;
+          isSigner: false;
         },
       ];
       args: [];
@@ -566,14 +610,14 @@ export type ExampleNativeTokenTransfers = {
       name: 'setPaused';
       accounts: [
         {
-          name: 'config';
-          isMut: true;
-          isSigner: false;
-        },
-        {
           name: 'owner';
           isMut: false;
           isSigner: true;
+        },
+        {
+          name: 'config';
+          isMut: true;
+          isSigner: false;
         },
       ];
       args: [
@@ -587,9 +631,9 @@ export type ExampleNativeTokenTransfers = {
       name: 'setSibling';
       accounts: [
         {
-          name: 'config';
-          isMut: false;
-          isSigner: false;
+          name: 'payer';
+          isMut: true;
+          isSigner: true;
         },
         {
           name: 'owner';
@@ -597,9 +641,9 @@ export type ExampleNativeTokenTransfers = {
           isSigner: true;
         },
         {
-          name: 'payer';
-          isMut: true;
-          isSigner: true;
+          name: 'config';
+          isMut: false;
+          isSigner: false;
         },
         {
           name: 'sibling';
@@ -609,11 +653,6 @@ export type ExampleNativeTokenTransfers = {
         {
           name: 'inboxRateLimit';
           isMut: true;
-          isSigner: false;
-        },
-        {
-          name: 'mint';
-          isMut: false;
           isSigner: false;
         },
         {
@@ -685,11 +724,6 @@ export type ExampleNativeTokenTransfers = {
           isMut: true;
           isSigner: false;
         },
-        {
-          name: 'mint';
-          isMut: false;
-          isSigner: false;
-        },
       ];
       args: [
         {
@@ -716,11 +750,6 @@ export type ExampleNativeTokenTransfers = {
         {
           name: 'rateLimit';
           isMut: true;
-          isSigner: false;
-        },
-        {
-          name: 'mint';
-          isMut: false;
           isSigner: false;
         },
       ];
@@ -961,9 +990,7 @@ export type ExampleNativeTokenTransfers = {
           },
           {
             name: 'amount';
-            type: {
-              defined: 'NormalizedAmount';
-            };
+            type: 'u64';
           },
           {
             name: 'recipientAddress';
@@ -1080,16 +1107,6 @@ export type ExampleNativeTokenTransfers = {
           {
             name: 'endpointAddress';
             type: 'publicKey';
-          },
-          {
-            name: 'enabled';
-            docs: [
-              'Whether the endpoint is enabled.',
-              'NOTE: there is a bitmap in the config account which must be kept in sync',
-              'with this. If endpoint disabling is implemented, the bitmap must be updated',
-              'in the same transaction as the endpoint account.',
-            ];
-            type: 'bool';
           },
         ];
       };
@@ -1275,18 +1292,6 @@ export type ExampleNativeTokenTransfers = {
       };
     },
     {
-      name: 'TransferOwnershipArgs';
-      type: {
-        kind: 'struct';
-        fields: [
-          {
-            name: 'newOwner';
-            type: 'publicKey';
-          },
-        ];
-      };
-    },
-    {
       name: 'InitializeArgs';
       type: {
         kind: 'struct';
@@ -1464,9 +1469,7 @@ export type ExampleNativeTokenTransfers = {
           {
             name: 'limit';
             docs: ['The maximum capacity of the rate limiter.'];
-            type: {
-              defined: 'NormalizedAmount';
-            };
+            type: 'u64';
           },
           {
             name: 'capacityAtLastTx';
@@ -1476,9 +1479,7 @@ export type ExampleNativeTokenTransfers = {
               'accounting for the time that has passed since `last_tx_timestamp` and',
               'the refill rate.',
             ];
-            type: {
-              defined: 'NormalizedAmount';
-            };
+            type: 'u64';
           },
           {
             name: 'lastTxTimestamp';
@@ -1525,63 +1526,73 @@ export type ExampleNativeTokenTransfers = {
     },
     {
       code: 6001;
+      name: 'InvalidPendingOwner';
+      msg: 'InvalidPendingOwner';
+    },
+    {
+      code: 6002;
       name: 'InvalidChainId';
       msg: 'InvalidChainId';
     },
     {
-      code: 6002;
+      code: 6003;
       name: 'InvalidRecipientAddress';
       msg: 'InvalidRecipientAddress';
     },
     {
-      code: 6003;
+      code: 6004;
       name: 'InvalidEndpointSibling';
       msg: 'InvalidEndpointSibling';
     },
     {
-      code: 6004;
+      code: 6005;
       name: 'InvalidManagerSibling';
       msg: 'InvalidManagerSibling';
     },
     {
-      code: 6005;
+      code: 6006;
       name: 'TransferAlreadyRedeemed';
       msg: 'TransferAlreadyRedeemed';
     },
     {
-      code: 6006;
+      code: 6007;
       name: 'TransferNotApproved';
       msg: 'TransferNotApproved';
     },
     {
-      code: 6007;
+      code: 6008;
       name: 'MessageAlreadySent';
       msg: 'MessageAlreadySent';
     },
     {
-      code: 6008;
+      code: 6009;
       name: 'InvalidMode';
       msg: 'InvalidMode';
     },
     {
-      code: 6009;
+      code: 6010;
       name: 'InvalidMintAuthority';
       msg: 'InvalidMintAuthority';
     },
     {
-      code: 6010;
+      code: 6011;
       name: 'TransferExceedsRateLimit';
       msg: 'TransferExceedsRateLimit';
     },
     {
-      code: 6011;
+      code: 6012;
       name: 'Paused';
       msg: 'Paused';
     },
     {
-      code: 6012;
+      code: 6013;
       name: 'DisabledEndpoint';
       msg: 'DisabledEndpoint';
+    },
+    {
+      code: 6014;
+      name: 'InvalidDeployer';
+      msg: 'InvalidDeployer';
     },
   ];
 };
@@ -1599,9 +1610,14 @@ export const IDL: ExampleNativeTokenTransfers = {
           isSigner: true,
         },
         {
-          name: 'owner',
+          name: 'deployer',
           isMut: false,
           isSigner: true,
+        },
+        {
+          name: 'programData',
+          isMut: false,
+          isSigner: false,
         },
         {
           name: 'config',
@@ -1650,6 +1666,11 @@ export const IDL: ExampleNativeTokenTransfers = {
           isSigner: false,
         },
         {
+          name: 'bpfLoaderUpgradeableProgram',
+          isMut: false,
+          isSigner: false,
+        },
+        {
           name: 'systemProgram',
           isMut: false,
           isSigner: false,
@@ -1686,6 +1707,12 @@ export const IDL: ExampleNativeTokenTransfers = {
               ],
             },
             {
+              name: 'sender',
+              isMut: false,
+              isSigner: true,
+              docs: ['This signer will be encoded in the outbox.'],
+            },
+            {
               name: 'mint',
               isMut: true,
               isSigner: false,
@@ -1694,12 +1721,6 @@ export const IDL: ExampleNativeTokenTransfers = {
               name: 'from',
               isMut: true,
               isSigner: false,
-            },
-            {
-              name: 'fromAuthority',
-              isMut: false,
-              isSigner: true,
-              docs: ['authority to burn the tokens (owner)'],
             },
             {
               name: 'tokenProgram',
@@ -1720,6 +1741,14 @@ export const IDL: ExampleNativeTokenTransfers = {
               name: 'outboxRateLimit',
               isMut: true,
               isSigner: false,
+            },
+            {
+              name: 'tokenAuthority',
+              isMut: false,
+              isSigner: false,
+              docs: [
+                'transfer or burn tokens in the [from](Self::from) account.',
+              ],
             },
             {
               name: 'systemProgram',
@@ -1765,6 +1794,12 @@ export const IDL: ExampleNativeTokenTransfers = {
               ],
             },
             {
+              name: 'sender',
+              isMut: false,
+              isSigner: true,
+              docs: ['This signer will be encoded in the outbox.'],
+            },
+            {
               name: 'mint',
               isMut: true,
               isSigner: false,
@@ -1773,12 +1808,6 @@ export const IDL: ExampleNativeTokenTransfers = {
               name: 'from',
               isMut: true,
               isSigner: false,
-            },
-            {
-              name: 'fromAuthority',
-              isMut: false,
-              isSigner: true,
-              docs: ['authority to burn the tokens (owner)'],
             },
             {
               name: 'tokenProgram',
@@ -1801,6 +1830,14 @@ export const IDL: ExampleNativeTokenTransfers = {
               isSigner: false,
             },
             {
+              name: 'tokenAuthority',
+              isMut: false,
+              isSigner: false,
+              docs: [
+                'transfer or burn tokens in the [from](Self::from) account.',
+              ],
+            },
+            {
               name: 'systemProgram',
               isMut: false,
               isSigner: false,
@@ -1810,11 +1847,6 @@ export const IDL: ExampleNativeTokenTransfers = {
         {
           name: 'inboxRateLimit',
           isMut: true,
-          isSigner: false,
-        },
-        {
-          name: 'tokenAuthority',
-          isMut: false,
           isSigner: false,
         },
         {
@@ -1857,13 +1889,8 @@ export const IDL: ExampleNativeTokenTransfers = {
         },
         {
           name: 'endpoint',
-          accounts: [
-            {
-              name: 'endpoint',
-              isMut: false,
-              isSigner: false,
-            },
-          ],
+          isMut: false,
+          isSigner: false,
         },
         {
           name: 'wormholeMessage',
@@ -1945,13 +1972,13 @@ export const IDL: ExampleNativeTokenTransfers = {
         },
         {
           name: 'endpoint',
-          accounts: [
-            {
-              name: 'endpoint',
-              isMut: false,
-              isSigner: false,
-            },
-          ],
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'mint',
+          isMut: false,
+          isSigner: false,
         },
         {
           name: 'inboxItem',
@@ -2116,7 +2143,7 @@ export const IDL: ExampleNativeTokenTransfers = {
       accounts: [
         {
           name: 'config',
-          isMut: false,
+          isMut: true,
           isSigner: false,
         },
         {
@@ -2124,15 +2151,28 @@ export const IDL: ExampleNativeTokenTransfers = {
           isMut: false,
           isSigner: true,
         },
-      ],
-      args: [
         {
-          name: 'args',
-          type: {
-            defined: 'TransferOwnershipArgs',
-          },
+          name: 'newOwner',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'upgradeLock',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'programData',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'bpfLoaderUpgradeableProgram',
+          isMut: false,
+          isSigner: false,
         },
       ],
+      args: [],
     },
     {
       name: 'claimOwnership',
@@ -2143,9 +2183,24 @@ export const IDL: ExampleNativeTokenTransfers = {
           isSigner: false,
         },
         {
+          name: 'upgradeLock',
+          isMut: false,
+          isSigner: false,
+        },
+        {
           name: 'newOwner',
           isMut: false,
           isSigner: true,
+        },
+        {
+          name: 'programData',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'bpfLoaderUpgradeableProgram',
+          isMut: false,
+          isSigner: false,
         },
       ],
       args: [],
@@ -2154,14 +2209,14 @@ export const IDL: ExampleNativeTokenTransfers = {
       name: 'setPaused',
       accounts: [
         {
-          name: 'config',
-          isMut: true,
-          isSigner: false,
-        },
-        {
           name: 'owner',
           isMut: false,
           isSigner: true,
+        },
+        {
+          name: 'config',
+          isMut: true,
+          isSigner: false,
         },
       ],
       args: [
@@ -2175,9 +2230,9 @@ export const IDL: ExampleNativeTokenTransfers = {
       name: 'setSibling',
       accounts: [
         {
-          name: 'config',
-          isMut: false,
-          isSigner: false,
+          name: 'payer',
+          isMut: true,
+          isSigner: true,
         },
         {
           name: 'owner',
@@ -2185,9 +2240,9 @@ export const IDL: ExampleNativeTokenTransfers = {
           isSigner: true,
         },
         {
-          name: 'payer',
-          isMut: true,
-          isSigner: true,
+          name: 'config',
+          isMut: false,
+          isSigner: false,
         },
         {
           name: 'sibling',
@@ -2197,11 +2252,6 @@ export const IDL: ExampleNativeTokenTransfers = {
         {
           name: 'inboxRateLimit',
           isMut: true,
-          isSigner: false,
-        },
-        {
-          name: 'mint',
-          isMut: false,
           isSigner: false,
         },
         {
@@ -2273,11 +2323,6 @@ export const IDL: ExampleNativeTokenTransfers = {
           isMut: true,
           isSigner: false,
         },
-        {
-          name: 'mint',
-          isMut: false,
-          isSigner: false,
-        },
       ],
       args: [
         {
@@ -2304,11 +2349,6 @@ export const IDL: ExampleNativeTokenTransfers = {
         {
           name: 'rateLimit',
           isMut: true,
-          isSigner: false,
-        },
-        {
-          name: 'mint',
-          isMut: false,
           isSigner: false,
         },
       ],
@@ -2549,9 +2589,7 @@ export const IDL: ExampleNativeTokenTransfers = {
           },
           {
             name: 'amount',
-            type: {
-              defined: 'NormalizedAmount',
-            },
+            type: 'u64',
           },
           {
             name: 'recipientAddress',
@@ -2668,16 +2706,6 @@ export const IDL: ExampleNativeTokenTransfers = {
           {
             name: 'endpointAddress',
             type: 'publicKey',
-          },
-          {
-            name: 'enabled',
-            docs: [
-              'Whether the endpoint is enabled.',
-              'NOTE: there is a bitmap in the config account which must be kept in sync',
-              'with this. If endpoint disabling is implemented, the bitmap must be updated',
-              'in the same transaction as the endpoint account.',
-            ],
-            type: 'bool',
           },
         ],
       },
@@ -2863,18 +2891,6 @@ export const IDL: ExampleNativeTokenTransfers = {
       },
     },
     {
-      name: 'TransferOwnershipArgs',
-      type: {
-        kind: 'struct',
-        fields: [
-          {
-            name: 'newOwner',
-            type: 'publicKey',
-          },
-        ],
-      },
-    },
-    {
       name: 'InitializeArgs',
       type: {
         kind: 'struct',
@@ -3052,9 +3068,7 @@ export const IDL: ExampleNativeTokenTransfers = {
           {
             name: 'limit',
             docs: ['The maximum capacity of the rate limiter.'],
-            type: {
-              defined: 'NormalizedAmount',
-            },
+            type: 'u64',
           },
           {
             name: 'capacityAtLastTx',
@@ -3064,9 +3078,7 @@ export const IDL: ExampleNativeTokenTransfers = {
               'accounting for the time that has passed since `last_tx_timestamp` and',
               'the refill rate.',
             ],
-            type: {
-              defined: 'NormalizedAmount',
-            },
+            type: 'u64',
           },
           {
             name: 'lastTxTimestamp',
@@ -3113,63 +3125,73 @@ export const IDL: ExampleNativeTokenTransfers = {
     },
     {
       code: 6001,
+      name: 'InvalidPendingOwner',
+      msg: 'InvalidPendingOwner',
+    },
+    {
+      code: 6002,
       name: 'InvalidChainId',
       msg: 'InvalidChainId',
     },
     {
-      code: 6002,
+      code: 6003,
       name: 'InvalidRecipientAddress',
       msg: 'InvalidRecipientAddress',
     },
     {
-      code: 6003,
+      code: 6004,
       name: 'InvalidEndpointSibling',
       msg: 'InvalidEndpointSibling',
     },
     {
-      code: 6004,
+      code: 6005,
       name: 'InvalidManagerSibling',
       msg: 'InvalidManagerSibling',
     },
     {
-      code: 6005,
+      code: 6006,
       name: 'TransferAlreadyRedeemed',
       msg: 'TransferAlreadyRedeemed',
     },
     {
-      code: 6006,
+      code: 6007,
       name: 'TransferNotApproved',
       msg: 'TransferNotApproved',
     },
     {
-      code: 6007,
+      code: 6008,
       name: 'MessageAlreadySent',
       msg: 'MessageAlreadySent',
     },
     {
-      code: 6008,
+      code: 6009,
       name: 'InvalidMode',
       msg: 'InvalidMode',
     },
     {
-      code: 6009,
+      code: 6010,
       name: 'InvalidMintAuthority',
       msg: 'InvalidMintAuthority',
     },
     {
-      code: 6010,
+      code: 6011,
       name: 'TransferExceedsRateLimit',
       msg: 'TransferExceedsRateLimit',
     },
     {
-      code: 6011,
+      code: 6012,
       name: 'Paused',
       msg: 'Paused',
     },
     {
-      code: 6012,
+      code: 6013,
       name: 'DisabledEndpoint',
       msg: 'DisabledEndpoint',
+    },
+    {
+      code: 6014,
+      name: 'InvalidDeployer',
+      msg: 'InvalidDeployer',
     },
   ],
 };

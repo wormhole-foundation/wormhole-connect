@@ -13,8 +13,8 @@ export type UnsignedCCTPMessage = ManualCCTPMessage | RelayCCTPMessage;
 export type TBTCMessage = TokenTransferMessage & { to: string };
 export type UnsignedNTTMessage = ParsedMessage & {
   sourceManagerAddress: string;
-  destManagerAddress: string;
-  messageDigest: string;
+  toManagerAddress: string;
+  endpointMessage: string;
   relayerFee: string;
 };
 export type UnsignedMessage =
@@ -29,8 +29,8 @@ export const isUnsignedNTTMessage = (
 ): message is UnsignedNTTMessage =>
   typeof message === 'object' &&
   'sourceManagerAddress' in message &&
-  'destManagerAddress' in message &&
-  'messageDigest' in message &&
+  'toManagerAddress' in message &&
+  'endpointMessage' in message &&
   'relayerFee' in message;
 
 export type SignedTokenTransferMessage = TokenTransferMessage & { vaa: string }; // hex encoded vaa bytes

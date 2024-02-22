@@ -39,7 +39,7 @@ const useDeliveryStatus = () => {
           if (active) {
             const { delivery, toTxHash } = response.data?.data || {};
             if (delivery?.execution) {
-              dispatch(setDeliveryStatus(delivery.status));
+              dispatch(setDeliveryStatus(delivery.execution.status));
             }
             if (toTxHash) {
               dispatch(setRedeemTx(toTxHash));

@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from 'store';
 import { isSignedNTTMessage } from 'routes';
-import { NTTManual, NTTRelay, RATE_LIMIT_DURATION } from 'routes/ntt';
+import { NTTManual, NTTRelay } from 'routes/ntt';
 import Header from './Header';
 import { useDispatch } from 'react-redux';
 import Button from 'components/Button';
@@ -57,7 +57,7 @@ const NTTInboundQueued = () => {
   const rateLimitExpiry = useMemo(() => {
     if (!inboundQueuedTransfer.data) return '';
     return new Date(
-      (inboundQueuedTransfer.data?.txTimestamp + RATE_LIMIT_DURATION) * 1000,
+      inboundQueuedTransfer.data?.rateLimitExpiryTimestamp * 1000,
     ).toLocaleString();
   }, [inboundQueuedTransfer]);
 
@@ -71,7 +71,8 @@ const NTTInboundQueued = () => {
 
   const handleClick = useCallback(async () => {
     if (!isSignedNTTMessage(signedMessage)) return;
-    const { toChain, messageDigest, destManagerAddress } = signedMessage;
+    const { toChain, fromChain, endpointMessage, toManagerAddress } =
+      signedMessage;
     setInProgress(true);
     try {
       const toConfig = CHAINS[toChain];
@@ -82,8 +83,10 @@ const NTTInboundQueued = () => {
       const ntt = route === Route.NTTManual ? new NTTManual() : new NTTRelay();
       const tx = await ntt.completeInboundQueuedTransfer(
         toChain,
-        destManagerAddress,
-        messageDigest,
+        toManagerAddress,
+        endpointMessage,
+        fromChain,
+        wallet.address,
       );
       dispatch(setInboundQueuedTransfer(undefined));
       dispatch(setRedeemTx(tx));

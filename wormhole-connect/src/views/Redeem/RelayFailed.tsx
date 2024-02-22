@@ -29,11 +29,15 @@ const RelayFailed = () => {
   const { classes } = useStyles();
   const theme: any = useTheme();
   const txData = useSelector((state: RootState) => state.redeem.txData)!;
+  const redeemTx = useSelector((state: RootState) => state.redeem.redeemTx);
   const chainDisplayName = getChainConfig(txData.toChain).displayName;
-
   return (
     <InputContainer bg={theme.palette.warning[500] + OPACITY[25]}>
-      <Header chain={txData.toChain} address={txData.recipient} />
+      <Header
+        chain={txData.toChain}
+        address={txData.recipient}
+        txHash={redeemTx}
+      />
       <div className={classes.root}>
         <Typography>
           {`The relayer failed to complete your transfer on ${chainDisplayName}.`}

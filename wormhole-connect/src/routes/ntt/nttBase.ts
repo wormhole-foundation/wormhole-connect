@@ -22,6 +22,11 @@ import { getNativeVersionOfToken } from 'store/transferInput';
 import { getPlatform } from './platforms';
 import { InboundQueuedTransfer } from './types';
 import { DestContractIsPausedError } from './errors';
+import {
+  ManagerMessage,
+  NativeTokenTransfer,
+  WormholeEndpointMessage,
+} from './platforms/solana/sdk';
 
 export abstract class NTTBase extends BaseRoute {
   isSupportedChain(chain: ChainName): boolean {
@@ -188,6 +193,7 @@ export abstract class NTTBase extends BaseRoute {
     const sendAmount = removeDust(parseUnits(amount, decimals), decimals);
     return getPlatform(sendingChain, tokenConfig.nttManagerAddress).send(
       token,
+      senderAddress,
       recipientAddress,
       sendAmount.toBigInt(),
       recipientChain,
@@ -203,8 +209,8 @@ export abstract class NTTBase extends BaseRoute {
     if (!isSignedNTTMessage(signedMessage)) {
       throw new Error('Invalid message');
     }
-    const { destManagerAddress, vaa } = signedMessage;
-    return getPlatform(chain, destManagerAddress).receiveMessage(vaa);
+    const { toManagerAddress, vaa } = signedMessage;
+    return getPlatform(chain, toManagerAddress).receiveMessage(vaa, payer);
   }
 
   async getRelayerFee(
@@ -236,20 +242,35 @@ export abstract class NTTBase extends BaseRoute {
   async getInboundQueuedTransfer(
     chain: ChainName | ChainId,
     managerAddress: string,
-    messageDigest: string,
+    endpointMessage: string,
+    fromChain: ChainName | ChainId,
   ): Promise<InboundQueuedTransfer | undefined> {
+    console.log(endpointMessage);
+    const managerMessage = WormholeEndpointMessage.deserialize(
+      Buffer.from(endpointMessage.slice(2), 'hex'),
+      (a) => ManagerMessage.deserialize(a, NativeTokenTransfer.deserialize),
+    ).managerPayload;
     return getPlatform(chain, managerAddress).getInboundQueuedTransfer(
-      messageDigest,
+      fromChain,
+      managerMessage,
     );
   }
 
   async completeInboundQueuedTransfer(
     chain: ChainName | ChainId,
     managerAddress: string,
-    messageDigest: string,
+    endpointMessage: string,
+    fromChain: ChainName | ChainId,
+    payer: string,
   ): Promise<string> {
+    const managerMessage = WormholeEndpointMessage.deserialize(
+      Buffer.from(endpointMessage.slice(2), 'hex'),
+      (a) => ManagerMessage.deserialize(a, NativeTokenTransfer.deserialize),
+    ).managerPayload;
     return getPlatform(chain, managerAddress).completeInboundQueuedTransfer(
-      messageDigest,
+      fromChain,
+      managerMessage,
+      payer,
     );
   }
 
@@ -303,12 +324,20 @@ export abstract class NTTBase extends BaseRoute {
     if (!isSignedNTTMessage(signedMessage)) {
       throw new Error('Invalid signed message');
     }
-    const { destManagerAddress, messageDigest } = signedMessage;
-    const platform = getPlatform(chain, destManagerAddress);
-    const isMessageExecuted = await platform.isMessageExecuted(messageDigest);
+    const { fromChain, toManagerAddress, endpointMessage } = signedMessage;
+    const managerMessage = WormholeEndpointMessage.deserialize(
+      Buffer.from(endpointMessage.slice(2), 'hex'),
+      (a) => ManagerMessage.deserialize(a, NativeTokenTransfer.deserialize),
+    ).managerPayload;
+    const platform = getPlatform(chain, toManagerAddress);
+    const isMessageExecuted = await platform.isMessageExecuted(
+      fromChain,
+      managerMessage,
+    );
     if (isMessageExecuted) {
       const queuedTransfer = await platform.getInboundQueuedTransfer(
-        messageDigest,
+        signedMessage.fromChain,
+        managerMessage,
       );
       return !queuedTransfer;
     }
