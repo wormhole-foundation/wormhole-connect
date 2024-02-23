@@ -20,7 +20,7 @@ import {
 } from '../solana/sdk';
 import { Manager__factory } from './abis';
 
-export const getMessageEvm = async (
+export const getMessageEVM = async (
   tx: string,
   chain: ChainName | ChainId,
 ): Promise<UnsignedNTTMessage> => {
@@ -46,8 +46,12 @@ export const getMessageEvm = async (
   let payload: Buffer;
   let relayerFee = '';
   if (parsedWormholeLog.args.sender === token.ntt?.wormholeEndpointAddress) {
+    // The wormhole endpoint emitted the message
+    // This is either a manual send or a relayer send depending on the destination chain
     payload = Buffer.from(parsedWormholeLog.args.payload.slice(2), 'hex');
   } else {
+    // The standard relayer emitted the message
+    // This is a standard relayer send
     const { type, parsed } = parseWormholeLog(wormholeLog);
     if (type !== RelayerPayloadId.Delivery) {
       throw new Error(`Unexpected payload type ${type}`);
@@ -78,7 +82,7 @@ export const getMessageEvm = async (
   if (!destToken) {
     throw new Error(`Token ${receivedTokenKey} not found`);
   }
-  // TODO: use recipient token to get sibling?
+  // TODO: this should be on the payload
   const toManager = await manager.getSibling(
     managerMessage.payload.recipientChain,
   );
@@ -109,7 +113,7 @@ export const getMessageEvm = async (
     block: receipt.blockNumber,
     gasFee: receipt.gasUsed.mul(receipt.effectiveGasPrice).toString(),
     sourceManagerAddress: manager.address,
-    toManagerAddress: wh.parseAddress(toManager, toChain),
+    toManagerAddress: wh.parseAddress(toManager, toChain), // TODO: will be on payload
     endpointMessage: hexlify(payload),
     relayerFee,
   };

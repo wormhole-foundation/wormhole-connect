@@ -1,6 +1,6 @@
 import { Route, TokenConfig } from 'config/types';
 import { BigNumber } from 'ethers';
-import { getPlatform, getWormholeEndpoint } from './platforms';
+import { getManager, getWormholeEndpoint } from './platforms';
 import { ChainName, ChainId } from '@wormhole-foundation/wormhole-connect-sdk';
 import { NTTBase } from './nttBase';
 import { CHAINS, TOKENS } from 'config';
@@ -60,13 +60,13 @@ export class NTTRelay extends NTTBase {
     destToken: string,
   ): Promise<BigNumber> {
     const tokenConfig = TOKENS[token];
-    if (!tokenConfig.ntt) {
+    if (!tokenConfig.ntt?.wormholeEndpointAddress) {
       throw new Error('invalid token');
     }
-    const deliveryPrice = await getPlatform(
+    const deliveryPrice = await getManager(
       sourceChain,
       tokenConfig.ntt.managerAddress,
-    ).quoteDeliveryPrice(destChain);
+    ).quoteDeliveryPrice(destChain, tokenConfig.ntt.wormholeEndpointAddress);
     return BigNumber.from(deliveryPrice);
   }
 

@@ -5,7 +5,7 @@ import {
   TokenId,
   WormholeContext,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { tryParseErrorMessage } from 'utils';
+import { getTokenById, tryParseErrorMessage } from 'utils';
 import { wh } from 'utils/sdk';
 import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
 import { BigNumber, PopulatedTransaction } from 'ethers';
@@ -24,10 +24,10 @@ import {
   getNTTManagerMessageDigest,
 } from 'routes/ntt/utils';
 import { Manager__factory } from './abis/Manager__factory';
-import { Manager } from './abis/Manager';
+import { Manager as ManagerAbi } from './abis/Manager';
 
-export class NTTEvm {
-  readonly manager: Manager;
+export class ManagerEVM {
+  readonly manager: ManagerAbi;
 
   constructor(readonly chain: ChainName | ChainId, managerAddress: string) {
     this.manager = Manager__factory.connect(
@@ -51,12 +51,24 @@ export class NTTEvm {
     return txId;
   }
 
-  async quoteDeliveryPrice(destChain: ChainName | ChainId): Promise<string> {
-    return '0'; // TODO: implement
-    //const deliveryPrice = (
-    //  await this.getManager().quoteDeliveryPrice(wh.toChainId(destChain))
-    //).reduce((a, b) => a.add(b), BigNumber.from(0));
-    //return deliveryPrice.toString();
+  async quoteDeliveryPrice(
+    destChain: ChainName | ChainId,
+    wormholeEndpoint: string,
+  ): Promise<string> {
+    const endpointIxs = [
+      {
+        index: 0,
+        payload: encodeWormholeEndpointInstruction({
+          shouldSkipRelayerSend: false,
+        }),
+      },
+    ];
+    const [, deliveryPrice] = await this.manager.quoteDeliveryPrice(
+      wh.toChainId(destChain),
+      endpointIxs,
+      [wormholeEndpoint],
+    );
+    return deliveryPrice.toString();
   }
 
   async send(
@@ -67,9 +79,17 @@ export class NTTEvm {
     toChain: ChainName | ChainId,
     shouldSkipRelayerSend: boolean,
   ): Promise<string> {
-    const deliveryPrice = shouldSkipRelayerSend
-      ? undefined
-      : BigNumber.from(await this.quoteDeliveryPrice(toChain));
+    const tokenConfig = getTokenById(token);
+    if (!tokenConfig?.ntt?.wormholeEndpointAddress)
+      throw new Error('invalid token');
+    const deliveryPrice = !shouldSkipRelayerSend
+      ? BigNumber.from(
+          await this.quoteDeliveryPrice(
+            toChain,
+            tokenConfig.ntt.wormholeEndpointAddress,
+          ),
+        )
+      : undefined;
     const endpointIxs = encodeEndpointInstructions([
       {
         index: 0,

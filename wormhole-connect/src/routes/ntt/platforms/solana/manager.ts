@@ -13,6 +13,7 @@ import {
 import { solanaContext, wh } from 'utils/sdk';
 import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
 import {
+  Connection,
   Keypair,
   PublicKey,
   Transaction,
@@ -20,38 +21,23 @@ import {
 } from '@solana/web3.js';
 import { BN, Program } from '@coral-xyz/anchor';
 import { IDL } from './abis';
-import { getAssociatedTokenAddress } from '@solana/spl-token';
+import { getAssociatedTokenAddressSync } from '@solana/spl-token';
 import { RATE_LIMIT_DURATION } from 'routes/ntt/consts';
 import { parseVaa } from '@certusone/wormhole-sdk/lib/esm';
 import { utils } from 'ethers';
 
-export class NTTSolana {
+export class ManagerSolana {
   readonly ntt: NTT;
+  readonly connection: Connection;
 
   constructor(readonly managerAddress: string) {
     const connection = solanaContext().connection;
     if (!connection) throw new Error('Connection not found');
+    this.connection = connection;
     const program = new Program(IDL as any, this.managerAddress, {
       connection,
     });
     this.ntt = new NTT({ program, wormholeId: this.managerAddress });
-  }
-
-  async signAndSendTransaction(
-    tx: Transaction,
-    walletType: TransferWallet,
-  ): Promise<string> {
-    const connection = solanaContext().connection;
-    if (!connection) throw new Error('Connection not found');
-    const { blockhash } = await connection.getLatestBlockhash('finalized');
-    tx.recentBlockhash = blockhash;
-    const txId = await signAndSendTransaction(
-      'solana',
-      tx,
-      TransferWallet.SENDING,
-      // { commitment: 'confirmed' }, // TODO: what to set to?
-    );
-    return txId;
   }
 
   async isWormholeRelayingEnabled(
@@ -68,7 +54,10 @@ export class NTTSolana {
     return false;
   }
 
-  async quoteDeliveryPrice(destChain: ChainName | ChainId): Promise<string> {
+  async quoteDeliveryPrice(
+    destChain: ChainName | ChainId,
+    wormholeEndpoint: string,
+  ): Promise<string> {
     throw new Error('Not implemented');
   }
 
@@ -84,7 +73,7 @@ export class NTTSolana {
     const outboxItem = Keypair.generate();
     const destContext = wh.getContext(toChain);
     const payer = new PublicKey(sender);
-    const tokenAccount = await getAssociatedTokenAddress(
+    const tokenAccount = getAssociatedTokenAddressSync(
       new PublicKey(token.address),
       payer,
     );
@@ -101,9 +90,10 @@ export class NTTSolana {
     };
     let transferIx: TransactionInstruction;
     console.log(config.mode);
-    if (config.mode.locking != null) {
+    if (config.mode.locking) {
+      console.log('locking');
       transferIx = await this.ntt.createTransferLockInstruction(txArgs);
-    } else if (config.mode.burning != null) {
+    } else if (config.mode.burning) {
       transferIx = await this.ntt.createTransferBurnInstruction(txArgs);
     } else {
       throw new Error('Invalid mode');
@@ -115,11 +105,18 @@ export class NTTSolana {
         revertOnDelay: !txArgs.shouldQueue,
       });
     const tx = new Transaction();
-    tx.add(transferIx);
-    tx.add(releaseIx);
-    tx.partialSign(outboxItem);
+    tx.add(transferIx, releaseIx);
     tx.feePayer = payer;
-    const txId = await this.signAndSendTransaction(tx, TransferWallet.SENDING);
+    const { blockhash } = await this.connection.getLatestBlockhash('finalized');
+    tx.recentBlockhash = blockhash;
+    tx.partialSign(outboxItem); // TODO: needed?
+    const txId = await signAndSendTransaction(
+      'solana',
+      tx,
+      TransferWallet.SENDING,
+      { skipPreflight: true },
+      // { commitment: 'confirmed' }, // TODO: what to set to?
+    );
     return txId;
   }
 
@@ -168,9 +165,13 @@ export class NTTSolana {
       tx.add(await this.ntt.createReleaseInboundMintInstruction(releaseArgs));
     }
     tx.feePayer = payerPublicKey;
-    const txId = await this.signAndSendTransaction(
+    const { blockhash } = await this.connection.getLatestBlockhash('finalized');
+    tx.recentBlockhash = blockhash;
+    const txId = await signAndSendTransaction(
+      'solana',
       tx,
       TransferWallet.RECEIVING,
+      // { commitment: 'confirmed' }, // TODO: what to set to?
     );
     return txId;
   }
@@ -247,9 +248,13 @@ export class NTTSolana {
       tx.add(await this.ntt.createReleaseInboundMintInstruction(releaseArgs));
     }
     tx.feePayer = payerPublicKey;
-    const txId = await this.signAndSendTransaction(
+    const { blockhash } = await this.connection.getLatestBlockhash('finalized');
+    tx.recentBlockhash = blockhash;
+    const txId = await signAndSendTransaction(
+      'solana',
       tx,
       TransferWallet.RECEIVING,
+      // { commitment: 'confirmed' }, // TODO: what to set to?
     );
     return txId;
   }

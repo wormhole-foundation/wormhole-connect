@@ -19,7 +19,7 @@ import { isEvmChain, toChainName, wh } from 'utils/sdk';
 import { TOKENS } from 'config';
 import { getTokenById, getTokenDecimals, removeDust } from 'utils';
 import { getNativeVersionOfToken } from 'store/transferInput';
-import { getPlatform, getWormholeEndpoint } from './platforms';
+import { getManager, getWormholeEndpoint } from './platforms';
 import { InboundQueuedTransfer } from './types';
 import { DestContractIsPausedError } from './errors';
 import {
@@ -27,7 +27,7 @@ import {
   NativeTokenTransfer,
   WormholeEndpointMessage,
 } from './platforms/solana/sdk';
-import { getMessageEvm } from './platforms/evm';
+import { getMessageEVM } from './platforms/evm';
 import { getMessageSolana } from './platforms/solana';
 
 export abstract class NTTBase extends BaseRoute {
@@ -180,7 +180,7 @@ export abstract class NTTBase extends BaseRoute {
     }
     // prevent sending to a paused chain
     if (
-      await getPlatform(
+      await getManager(
         recipientChain,
         destTokenConfig.ntt.managerAddress,
       ).isPaused()
@@ -194,7 +194,7 @@ export abstract class NTTBase extends BaseRoute {
     // remove any dust before sending
     const sendAmount = removeDust(parseUnits(amount, decimals), decimals);
     const shouldSkipRelayerSend = this.TYPE !== Route.Relay;
-    return getPlatform(sendingChain, tokenConfig.ntt.managerAddress).send(
+    return getManager(sendingChain, tokenConfig.ntt.managerAddress).send(
       token,
       senderAddress,
       recipientAddress,
@@ -232,7 +232,7 @@ export abstract class NTTBase extends BaseRoute {
     chain: ChainId | ChainName,
     managerAddress: string,
   ): Promise<string> {
-    return getPlatform(chain, managerAddress).getCurrentOutboundCapacity();
+    return getManager(chain, managerAddress).getCurrentOutboundCapacity();
   }
 
   async getCurrentInboundCapacity(
@@ -240,7 +240,7 @@ export abstract class NTTBase extends BaseRoute {
     managerAddress: string,
     fromChain: ChainId | ChainName,
   ): Promise<string> {
-    return getPlatform(chain, managerAddress).getCurrentInboundCapacity(
+    return getManager(chain, managerAddress).getCurrentInboundCapacity(
       fromChain,
     );
   }
@@ -255,7 +255,7 @@ export abstract class NTTBase extends BaseRoute {
       Buffer.from(endpointMessage.slice(2), 'hex'),
       (a) => ManagerMessage.deserialize(a, NativeTokenTransfer.deserialize),
     ).managerPayload;
-    return getPlatform(chain, managerAddress).getInboundQueuedTransfer(
+    return getManager(chain, managerAddress).getInboundQueuedTransfer(
       fromChain,
       managerMessage,
     );
@@ -272,7 +272,7 @@ export abstract class NTTBase extends BaseRoute {
       Buffer.from(endpointMessage.slice(2), 'hex'),
       (a) => ManagerMessage.deserialize(a, NativeTokenTransfer.deserialize),
     ).managerPayload;
-    return getPlatform(chain, managerAddress).completeInboundQueuedTransfer(
+    return getManager(chain, managerAddress).completeInboundQueuedTransfer(
       fromChain,
       managerMessage,
       payer,
@@ -299,7 +299,7 @@ export abstract class NTTBase extends BaseRoute {
     chain: ChainName | ChainId,
   ): Promise<UnsignedNTTMessage> {
     if (isEvmChain(chain)) {
-      return getMessageEvm(tx, chain);
+      return getMessageEVM(tx, chain);
     }
     if (wh.toChainName(chain) === 'solana') {
       return getMessageSolana(tx);
@@ -340,13 +340,13 @@ export abstract class NTTBase extends BaseRoute {
       Buffer.from(endpointMessage.slice(2), 'hex'),
       (a) => ManagerMessage.deserialize(a, NativeTokenTransfer.deserialize),
     ).managerPayload;
-    const platform = getPlatform(chain, toManagerAddress);
-    const isMessageExecuted = await platform.isMessageExecuted(
+    const manager = getManager(chain, toManagerAddress);
+    const isMessageExecuted = await manager.isMessageExecuted(
       fromChain,
       managerMessage,
     );
     if (isMessageExecuted) {
-      const queuedTransfer = await platform.getInboundQueuedTransfer(
+      const queuedTransfer = await manager.getInboundQueuedTransfer(
         signedMessage.fromChain,
         managerMessage,
       );

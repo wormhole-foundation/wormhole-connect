@@ -1,6 +1,5 @@
 import { solanaContext } from 'utils/sdk';
 import { PostedMessageData } from '@certusone/wormhole-sdk/lib/esm/solana/wormhole';
-import { PublicKey } from '@solana/web3.js';
 import { hexlify } from 'ethers/lib/utils';
 import { UnsignedNTTMessage } from 'routes/types';
 import { getNativeVersionOfToken } from 'store/transferInput';
@@ -23,15 +22,14 @@ export const getMessageSolana = async (
   if (!connection) throw new Error('Connection not found');
   const response = await connection.getParsedTransaction(tx);
   if (!response) throw new Error('Transaction not found');
-  // TODO: how to get this? should be an account passed in?
-  const outboxItem = new PublicKey('');
-  const managerAddress = response.transaction.message.instructions[0].programId; // TODO: is this right?
+  const core = wh.mustGetContracts('solana').core;
+  if (!core) throw new Error('Core not found');
+  const managerAddress = response.transaction.message.instructions[0].programId;
   const program = new Program(IDL as any, managerAddress, {
     connection,
   });
-  const core = wh.mustGetContracts('solana').core;
-  if (!core) throw new Error('Core not found');
   const ntt = new NTT({ program, wormholeId: core });
+  const outboxItem = response.transaction.message.accountKeys[7].pubkey;
   const wormholeMessage = ntt.wormholeMessageAccountAddress(outboxItem);
   const wormholeMessageAccount = await connection.getAccountInfo(
     wormholeMessage,
@@ -88,7 +86,7 @@ export const getMessageSolana = async (
     block: response.slot,
     gasFee: '0',
     sourceManagerAddress: managerAddress.toString(),
-    toManagerAddress: '',
+    toManagerAddress: '', // TODO: will be on payload
     endpointMessage: hexlify(messageData.message.payload),
     relayerFee: '',
   };

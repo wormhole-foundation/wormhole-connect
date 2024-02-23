@@ -7,6 +7,7 @@ import { parseUnits } from 'ethers/lib/utils';
 import { formatSecondsToHoursAndMinutes, getTokenDecimals } from 'utils';
 import { wh } from 'utils/sdk';
 import { BigNumber } from 'ethers';
+import { getNativeVersionOfToken } from 'store/transferInput';
 
 type Props = {
   token: string;
@@ -20,7 +21,7 @@ const NTTCapacityWarning = ({ token, amount, chain, fromChain }: Props) => {
   const managerAddress = TOKENS[token]?.ntt?.managerAddress;
 
   useEffect(() => {
-    if (!chain || !token || !managerAddress || !fromChain) return;
+    if (!chain || !managerAddress || !fromChain) return;
     let active = true;
     const fetchCapacity = async () => {
       try {
@@ -47,12 +48,16 @@ const NTTCapacityWarning = ({ token, amount, chain, fromChain }: Props) => {
     return () => {
       active = false;
     };
-  }, [chain, token, managerAddress, fromChain]);
+  }, [chain, managerAddress, fromChain]);
 
   const showWarning = useMemo(() => {
     if (!token || !amount || !chain || !capacity) return;
-    const tokenId = TOKENS[token].tokenId;
-    const decimals = getTokenDecimals(wh.toChainId(chain), tokenId);
+    const destTokenKey = getNativeVersionOfToken(TOKENS[token].symbol, chain);
+    const destToken = TOKENS[destTokenKey];
+    if (!destToken) return;
+    // capacity is in destination token decimals, so we need to convert the amount to the same decimals
+    // TODO: test inbound capacity from solana
+    const decimals = getTokenDecimals(wh.toChainId(chain), destToken.tokenId);
     const parsedAmount = parseUnits(amount, decimals);
     const fivePercentOfCapacity = capacity.mul(5).div(100);
     return parsedAmount.gt(capacity.add(fivePercentOfCapacity));

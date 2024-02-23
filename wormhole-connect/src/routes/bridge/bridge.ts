@@ -60,6 +60,8 @@ export class BridgeRoute extends BaseRoute {
     )
       return false;
 
+    if (sourceTokenConfig.ntt) return false;
+
     if (!!sourceTokenConfig.tokenId && sourceToken === destToken) return true;
     if (
       !sourceTokenConfig.tokenId &&

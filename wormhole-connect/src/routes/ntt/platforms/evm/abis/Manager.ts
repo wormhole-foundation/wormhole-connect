@@ -172,7 +172,7 @@ export interface ManagerInterface extends utils.Interface {
     'owner()': FunctionFragment;
     'pause()': FunctionFragment;
     'pauser()': FunctionFragment;
-    'quoteDeliveryPrice(uint16,(uint8,bytes)[])': FunctionFragment;
+    'quoteDeliveryPrice(uint16,(uint8,bytes)[],address[])': FunctionFragment;
     'rateLimitDuration()': FunctionFragment;
     'removeEndpoint(address)': FunctionFragment;
     'renounceOwnership()': FunctionFragment;
@@ -438,7 +438,11 @@ export interface ManagerInterface extends utils.Interface {
   encodeFunctionData(functionFragment: 'pauser', values?: undefined): string;
   encodeFunctionData(
     functionFragment: 'quoteDeliveryPrice',
-    values: [BigNumberish, EndpointStructs.EndpointInstructionStruct[]],
+    values: [
+      BigNumberish,
+      EndpointStructs.EndpointInstructionStruct[],
+      string[],
+    ],
   ): string;
   encodeFunctionData(
     functionFragment: 'rateLimitDuration',
@@ -728,6 +732,7 @@ export interface ManagerInterface extends utils.Interface {
     'PauserTransferred(address,address)': EventFragment;
     'SiblingUpdated(uint16,bytes32,bytes32)': EventFragment;
     'ThresholdChanged(uint8,uint8)': EventFragment;
+    'TransferRedeemed(bytes32)': EventFragment;
     'TransferSent(bytes32,uint256,uint16,uint64)': EventFragment;
     'Upgraded(address)': EventFragment;
   };
@@ -756,6 +761,7 @@ export interface ManagerInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: 'PauserTransferred'): EventFragment;
   getEvent(nameOrSignatureOrTopic: 'SiblingUpdated'): EventFragment;
   getEvent(nameOrSignatureOrTopic: 'ThresholdChanged'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'TransferRedeemed'): EventFragment;
   getEvent(nameOrSignatureOrTopic: 'TransferSent'): EventFragment;
   getEvent(nameOrSignatureOrTopic: 'Upgraded'): EventFragment;
 }
@@ -957,6 +963,17 @@ export type ThresholdChangedEvent = TypedEvent<
 
 export type ThresholdChangedEventFilter =
   TypedEventFilter<ThresholdChangedEvent>;
+
+export interface TransferRedeemedEventObject {
+  digest: string;
+}
+export type TransferRedeemedEvent = TypedEvent<
+  [string],
+  TransferRedeemedEventObject
+>;
+
+export type TransferRedeemedEventFilter =
+  TypedEventFilter<TransferRedeemedEvent>;
 
 export interface TransferSentEventObject {
   recipient: string;
@@ -1174,8 +1191,9 @@ export interface Manager extends BaseContract {
     quoteDeliveryPrice(
       recipientChain: BigNumberish,
       endpointInstructions: EndpointStructs.EndpointInstructionStruct[],
+      enabledEndpoints: string[],
       overrides?: CallOverrides,
-    ): Promise<[BigNumber[]]>;
+    ): Promise<[BigNumber[], BigNumber]>;
 
     rateLimitDuration(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -1415,8 +1433,9 @@ export interface Manager extends BaseContract {
   quoteDeliveryPrice(
     recipientChain: BigNumberish,
     endpointInstructions: EndpointStructs.EndpointInstructionStruct[],
+    enabledEndpoints: string[],
     overrides?: CallOverrides,
-  ): Promise<BigNumber[]>;
+  ): Promise<[BigNumber[], BigNumber]>;
 
   rateLimitDuration(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1650,8 +1669,9 @@ export interface Manager extends BaseContract {
     quoteDeliveryPrice(
       recipientChain: BigNumberish,
       endpointInstructions: EndpointStructs.EndpointInstructionStruct[],
+      enabledEndpoints: string[],
       overrides?: CallOverrides,
-    ): Promise<BigNumber[]>;
+    ): Promise<[BigNumber[], BigNumber]>;
 
     rateLimitDuration(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1842,6 +1862,9 @@ export interface Manager extends BaseContract {
       threshold?: null,
     ): ThresholdChangedEventFilter;
 
+    'TransferRedeemed(bytes32)'(digest?: null): TransferRedeemedEventFilter;
+    TransferRedeemed(digest?: null): TransferRedeemedEventFilter;
+
     'TransferSent(bytes32,uint256,uint16,uint64)'(
       recipient?: null,
       amount?: null,
@@ -2021,6 +2044,7 @@ export interface Manager extends BaseContract {
     quoteDeliveryPrice(
       recipientChain: BigNumberish,
       endpointInstructions: EndpointStructs.EndpointInstructionStruct[],
+      enabledEndpoints: string[],
       overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
@@ -2296,6 +2320,7 @@ export interface Manager extends BaseContract {
     quoteDeliveryPrice(
       recipientChain: BigNumberish,
       endpointInstructions: EndpointStructs.EndpointInstructionStruct[],
+      enabledEndpoints: string[],
       overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 

@@ -1,3 +1,5 @@
+// NOTE: The generics in the IDL are not yet supported by the IDL parser (anchor 0.29.0)
+// They have been removed from the IDL, otherwise the IDL parser will throw an error at runtime.
 export type ExampleNativeTokenTransfers = {
   version: '0.1.0';
   name: 'example_native_token_transfers';
@@ -946,36 +948,6 @@ export type ExampleNativeTokenTransfers = {
       };
     },
     {
-      name: 'validatedEndpointMessage';
-      generics: ['A'];
-      type: {
-        kind: 'struct';
-        fields: [
-          {
-            name: 'fromChain';
-            type: {
-              defined: 'ChainId';
-            };
-          },
-          {
-            name: 'message';
-            type: {
-              definedWithTypeArgs: {
-                name: 'EndpointMessageData';
-                args: [
-                  {
-                    type: {
-                      generic: 'A';
-                    };
-                  },
-                ];
-              };
-            };
-          },
-        ];
-      };
-    },
-    {
       name: 'inboxItem';
       type: {
         kind: 'struct';
@@ -1368,61 +1340,6 @@ export type ExampleNativeTokenTransfers = {
           {
             name: 'shouldQueue';
             type: 'bool';
-          },
-        ];
-      };
-    },
-    {
-      name: 'EndpointMessageData';
-      generics: ['A'];
-      type: {
-        kind: 'struct';
-        fields: [
-          {
-            name: 'sourceManager';
-            type: {
-              array: ['u8', 32];
-            };
-          },
-          {
-            name: 'managerPayload';
-            type: {
-              definedWithTypeArgs: {
-                name: 'ManagerMessage';
-                args: [
-                  {
-                    type: {
-                      generic: 'A';
-                    };
-                  },
-                ];
-              };
-            };
-          },
-        ];
-      };
-    },
-    {
-      name: 'ManagerMessage';
-      generics: ['A'];
-      type: {
-        kind: 'struct';
-        fields: [
-          {
-            name: 'sequence';
-            type: 'u64';
-          },
-          {
-            name: 'sender';
-            type: {
-              array: ['u8', 32];
-            };
-          },
-          {
-            name: 'payload';
-            type: {
-              generic: 'A';
-            };
           },
         ];
       };
@@ -2545,36 +2462,6 @@ export const IDL: ExampleNativeTokenTransfers = {
       },
     },
     {
-      name: 'validatedEndpointMessage',
-      generics: ['A'],
-      type: {
-        kind: 'struct',
-        fields: [
-          {
-            name: 'fromChain',
-            type: {
-              defined: 'ChainId',
-            },
-          },
-          {
-            name: 'message',
-            type: {
-              definedWithTypeArgs: {
-                name: 'EndpointMessageData',
-                args: [
-                  {
-                    type: {
-                      generic: 'A',
-                    },
-                  },
-                ],
-              },
-            },
-          },
-        ],
-      },
-    },
-    {
       name: 'inboxItem',
       type: {
         kind: 'struct',
@@ -2967,61 +2854,6 @@ export const IDL: ExampleNativeTokenTransfers = {
           {
             name: 'shouldQueue',
             type: 'bool',
-          },
-        ],
-      },
-    },
-    {
-      name: 'EndpointMessageData',
-      generics: ['A'],
-      type: {
-        kind: 'struct',
-        fields: [
-          {
-            name: 'sourceManager',
-            type: {
-              array: ['u8', 32],
-            },
-          },
-          {
-            name: 'managerPayload',
-            type: {
-              definedWithTypeArgs: {
-                name: 'ManagerMessage',
-                args: [
-                  {
-                    type: {
-                      generic: 'A',
-                    },
-                  },
-                ],
-              },
-            },
-          },
-        ],
-      },
-    },
-    {
-      name: 'ManagerMessage',
-      generics: ['A'],
-      type: {
-        kind: 'struct',
-        fields: [
-          {
-            name: 'sequence',
-            type: 'u64',
-          },
-          {
-            name: 'sender',
-            type: {
-              array: ['u8', 32],
-            },
-          },
-          {
-            name: 'payload',
-            type: {
-              generic: 'A',
-            },
           },
         ],
       },

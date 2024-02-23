@@ -4,7 +4,7 @@ import { WormholeEndpoint__factory } from './abis';
 import { WormholeEndpoint as Endpoint } from './abis/WormholeEndpoint';
 import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
 
-export class WormholeEndpoint {
+export class WormholeEndpointEVM {
   readonly endpoint: Endpoint;
 
   constructor(readonly chain: ChainName | ChainId, endpointAddress: string) {

@@ -30,12 +30,14 @@ import type {
 export declare namespace EndpointStructs {
   export type EndpointMessageStruct = {
     sourceManagerAddress: BytesLike;
+    recipientManagerAddress: BytesLike;
     managerPayload: BytesLike;
     endpointPayload: BytesLike;
   };
 
-  export type EndpointMessageStructOutput = [string, string, string] & {
+  export type EndpointMessageStructOutput = [string, string, string, string] & {
     sourceManagerAddress: string;
+    recipientManagerAddress: string;
     managerPayload: string;
     endpointPayload: string;
   };
@@ -63,7 +65,6 @@ export declare namespace WormholeEndpoint {
 
 export interface WormholeEndpointInterface extends utils.Interface {
   functions: {
-    'CONSISTENCY_LEVEL()': FunctionFragment;
     'GAS_LIMIT()': FunctionFragment;
     'MIGRATES_IMMUTABLES_SLOT()': FunctionFragment;
     'MIGRATING_SLOT()': FunctionFragment;
@@ -74,6 +75,7 @@ export interface WormholeEndpointInterface extends utils.Interface {
     'WORMHOLE_EVM_CHAIN_IDS()': FunctionFragment;
     'WORMHOLE_RELAYING_ENABLED_CHAINS_SLOT()': FunctionFragment;
     'WORMHOLE_SIBLINGS_SLOT()': FunctionFragment;
+    'consistencyLevel()': FunctionFragment;
     'encodeWormholeEndpointInstruction((bool))': FunctionFragment;
     'getManagerOwner()': FunctionFragment;
     'getManagerToken()': FunctionFragment;
@@ -96,7 +98,7 @@ export interface WormholeEndpointInterface extends utils.Interface {
     'receiveWormholeMessages(bytes,bytes[],bytes32,uint16,bytes32)': FunctionFragment;
     'renounceOwnership()': FunctionFragment;
     'renouncePauser()': FunctionFragment;
-    'sendMessage(uint16,(uint8,bytes),bytes)': FunctionFragment;
+    'sendMessage(uint16,(uint8,bytes),bytes,bytes32)': FunctionFragment;
     'setIsWormholeEvmChain(uint16)': FunctionFragment;
     'setIsWormholeRelayingEnabled(uint16,bool)': FunctionFragment;
     'setWormholeSibling(uint16,bytes32)': FunctionFragment;
@@ -112,7 +114,6 @@ export interface WormholeEndpointInterface extends utils.Interface {
 
   getFunction(
     nameOrSignatureOrTopic:
-      | 'CONSISTENCY_LEVEL'
       | 'GAS_LIMIT'
       | 'MIGRATES_IMMUTABLES_SLOT'
       | 'MIGRATING_SLOT'
@@ -123,6 +124,7 @@ export interface WormholeEndpointInterface extends utils.Interface {
       | 'WORMHOLE_EVM_CHAIN_IDS'
       | 'WORMHOLE_RELAYING_ENABLED_CHAINS_SLOT'
       | 'WORMHOLE_SIBLINGS_SLOT'
+      | 'consistencyLevel'
       | 'encodeWormholeEndpointInstruction'
       | 'getManagerOwner'
       | 'getManagerToken'
@@ -159,10 +161,6 @@ export interface WormholeEndpointInterface extends utils.Interface {
       | 'wormholeRelayer',
   ): FunctionFragment;
 
-  encodeFunctionData(
-    functionFragment: 'CONSISTENCY_LEVEL',
-    values?: undefined,
-  ): string;
   encodeFunctionData(functionFragment: 'GAS_LIMIT', values?: undefined): string;
   encodeFunctionData(
     functionFragment: 'MIGRATES_IMMUTABLES_SLOT',
@@ -198,6 +196,10 @@ export interface WormholeEndpointInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: 'WORMHOLE_SIBLINGS_SLOT',
+    values?: undefined,
+  ): string;
+  encodeFunctionData(
+    functionFragment: 'consistencyLevel',
     values?: undefined,
   ): string;
   encodeFunctionData(
@@ -279,6 +281,7 @@ export interface WormholeEndpointInterface extends utils.Interface {
       BigNumberish,
       EndpointStructs.EndpointInstructionStruct,
       BytesLike,
+      BytesLike,
     ],
   ): string;
   encodeFunctionData(
@@ -320,10 +323,6 @@ export interface WormholeEndpointInterface extends utils.Interface {
     values?: undefined,
   ): string;
 
-  decodeFunctionResult(
-    functionFragment: 'CONSISTENCY_LEVEL',
-    data: BytesLike,
-  ): Result;
   decodeFunctionResult(functionFragment: 'GAS_LIMIT', data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: 'MIGRATES_IMMUTABLES_SLOT',
@@ -356,6 +355,10 @@ export interface WormholeEndpointInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: 'WORMHOLE_SIBLINGS_SLOT',
+    data: BytesLike,
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: 'consistencyLevel',
     data: BytesLike,
   ): Result;
   decodeFunctionResult(
@@ -481,7 +484,7 @@ export interface WormholeEndpointInterface extends utils.Interface {
     'PauserTransferred(address,address)': EventFragment;
     'ReceivedMessage(bytes32,uint16,bytes32,uint64)': EventFragment;
     'ReceivedRelayedMessage(bytes32,uint16,bytes32)': EventFragment;
-    'SendEndpointMessage(uint16,(bytes32,bytes,bytes))': EventFragment;
+    'SendEndpointMessage(uint16,(bytes32,bytes32,bytes,bytes))': EventFragment;
     'SetIsSpecialRelayingEnabled(uint16,bool)': EventFragment;
     'SetIsWormholeEvmChain(uint16)': EventFragment;
     'SetIsWormholeRelayingEnabled(uint16,bool)': EventFragment;
@@ -696,8 +699,6 @@ export interface WormholeEndpoint extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    CONSISTENCY_LEVEL(overrides?: CallOverrides): Promise<[number]>;
-
     GAS_LIMIT(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     MIGRATES_IMMUTABLES_SLOT(overrides?: CallOverrides): Promise<[string]>;
@@ -721,6 +722,8 @@ export interface WormholeEndpoint extends BaseContract {
     ): Promise<[string]>;
 
     WORMHOLE_SIBLINGS_SLOT(overrides?: CallOverrides): Promise<[string]>;
+
+    consistencyLevel(overrides?: CallOverrides): Promise<[number]>;
 
     encodeWormholeEndpointInstruction(
       instruction: WormholeEndpoint.WormholeEndpointInstructionStruct,
@@ -817,6 +820,7 @@ export interface WormholeEndpoint extends BaseContract {
       recipientChain: BigNumberish,
       instruction: EndpointStructs.EndpointInstructionStruct,
       managerMessage: BytesLike,
+      recipientManagerAddress: BytesLike,
       overrides?: PayableOverrides & { from?: string },
     ): Promise<ContractTransaction>;
 
@@ -868,8 +872,6 @@ export interface WormholeEndpoint extends BaseContract {
     wormholeRelayer(overrides?: CallOverrides): Promise<[string]>;
   };
 
-  CONSISTENCY_LEVEL(overrides?: CallOverrides): Promise<number>;
-
   GAS_LIMIT(overrides?: CallOverrides): Promise<BigNumber>;
 
   MIGRATES_IMMUTABLES_SLOT(overrides?: CallOverrides): Promise<string>;
@@ -893,6 +895,8 @@ export interface WormholeEndpoint extends BaseContract {
   ): Promise<string>;
 
   WORMHOLE_SIBLINGS_SLOT(overrides?: CallOverrides): Promise<string>;
+
+  consistencyLevel(overrides?: CallOverrides): Promise<number>;
 
   encodeWormholeEndpointInstruction(
     instruction: WormholeEndpoint.WormholeEndpointInstructionStruct,
@@ -982,6 +986,7 @@ export interface WormholeEndpoint extends BaseContract {
     recipientChain: BigNumberish,
     instruction: EndpointStructs.EndpointInstructionStruct,
     managerMessage: BytesLike,
+    recipientManagerAddress: BytesLike,
     overrides?: PayableOverrides & { from?: string },
   ): Promise<ContractTransaction>;
 
@@ -1031,8 +1036,6 @@ export interface WormholeEndpoint extends BaseContract {
   wormholeRelayer(overrides?: CallOverrides): Promise<string>;
 
   callStatic: {
-    CONSISTENCY_LEVEL(overrides?: CallOverrides): Promise<number>;
-
     GAS_LIMIT(overrides?: CallOverrides): Promise<BigNumber>;
 
     MIGRATES_IMMUTABLES_SLOT(overrides?: CallOverrides): Promise<string>;
@@ -1056,6 +1059,8 @@ export interface WormholeEndpoint extends BaseContract {
     ): Promise<string>;
 
     WORMHOLE_SIBLINGS_SLOT(overrides?: CallOverrides): Promise<string>;
+
+    consistencyLevel(overrides?: CallOverrides): Promise<number>;
 
     encodeWormholeEndpointInstruction(
       instruction: WormholeEndpoint.WormholeEndpointInstructionStruct,
@@ -1137,6 +1142,7 @@ export interface WormholeEndpoint extends BaseContract {
       recipientChain: BigNumberish,
       instruction: EndpointStructs.EndpointInstructionStruct,
       managerMessage: BytesLike,
+      recipientManagerAddress: BytesLike,
       overrides?: CallOverrides,
     ): Promise<void>;
 
@@ -1252,7 +1258,7 @@ export interface WormholeEndpoint extends BaseContract {
       emitterAddress?: null,
     ): ReceivedRelayedMessageEventFilter;
 
-    'SendEndpointMessage(uint16,(bytes32,bytes,bytes))'(
+    'SendEndpointMessage(uint16,(bytes32,bytes32,bytes,bytes))'(
       recipientChain?: null,
       message?: null,
     ): SendEndpointMessageEventFilter;
@@ -1300,8 +1306,6 @@ export interface WormholeEndpoint extends BaseContract {
   };
 
   estimateGas: {
-    CONSISTENCY_LEVEL(overrides?: CallOverrides): Promise<BigNumber>;
-
     GAS_LIMIT(overrides?: CallOverrides): Promise<BigNumber>;
 
     MIGRATES_IMMUTABLES_SLOT(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1325,6 +1329,8 @@ export interface WormholeEndpoint extends BaseContract {
     ): Promise<BigNumber>;
 
     WORMHOLE_SIBLINGS_SLOT(overrides?: CallOverrides): Promise<BigNumber>;
+
+    consistencyLevel(overrides?: CallOverrides): Promise<BigNumber>;
 
     encodeWormholeEndpointInstruction(
       instruction: WormholeEndpoint.WormholeEndpointInstructionStruct,
@@ -1413,6 +1419,7 @@ export interface WormholeEndpoint extends BaseContract {
       recipientChain: BigNumberish,
       instruction: EndpointStructs.EndpointInstructionStruct,
       managerMessage: BytesLike,
+      recipientManagerAddress: BytesLike,
       overrides?: PayableOverrides & { from?: string },
     ): Promise<BigNumber>;
 
@@ -1463,8 +1470,6 @@ export interface WormholeEndpoint extends BaseContract {
   };
 
   populateTransaction: {
-    CONSISTENCY_LEVEL(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     GAS_LIMIT(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     MIGRATES_IMMUTABLES_SLOT(
@@ -1496,6 +1501,8 @@ export interface WormholeEndpoint extends BaseContract {
     WORMHOLE_SIBLINGS_SLOT(
       overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
+
+    consistencyLevel(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     encodeWormholeEndpointInstruction(
       instruction: WormholeEndpoint.WormholeEndpointInstructionStruct,
@@ -1590,6 +1597,7 @@ export interface WormholeEndpoint extends BaseContract {
       recipientChain: BigNumberish,
       instruction: EndpointStructs.EndpointInstructionStruct,
       managerMessage: BytesLike,
+      recipientManagerAddress: BytesLike,
       overrides?: PayableOverrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
