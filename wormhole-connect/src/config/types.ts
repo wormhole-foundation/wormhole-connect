@@ -28,7 +28,6 @@ export enum Icon {
   'SEI',
   'BASE',
   'OSMO',
-  'BONK',
   'TBTC',
   'WSTETH',
   'ARBITRUM',

@@ -25,7 +25,6 @@ import noIcon from './Tokens/noIcon';
 import ARBITRUM from './Tokens/ARBITRUM';
 import OPTIMISM from './Tokens/OPTIMISM';
 import OSMO from './Tokens/OSMO';
-import BONK from './Tokens/BONK';
 import TBTC from './Tokens/TBTC';
 import WSTETH from './Tokens/WSTETH';
 import EVMOS from './Tokens/EVMOS';
@@ -72,7 +71,6 @@ const iconMap: { [key in Icon]: React.JSX.Element } = {
   [Icon.SEI]: SEI(),
   [Icon.BASE]: BASE(),
   [Icon.OSMO]: OSMO(),
-  [Icon.BONK]: BONK(),
   [Icon.TBTC]: TBTC(),
   [Icon.WSTETH]: WSTETH(),
   [Icon.ATOM]: ATOM(),
