@@ -118,7 +118,7 @@ const NTTInboundQueued = () => {
             CHAINS[signedMessage.fromChain]?.displayName || 'UNKNOWN'
           } is delayed due to rate limits. After the delay ends${
             rateLimitExpiry ? ' on ' + rateLimitExpiry : ''
-          }, you'll need complete the transfer.`}
+          }, you'll need to submit a new transaction to complete the transfer.`}
         </div>
       </InputContainer>
       <Spacer height={8} />

@@ -5,48 +5,34 @@ import {
   TokenId,
   WormholeContext,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { WormholeEndpointAndManager__factory } from './abis';
-import { hexlify } from 'ethers/lib/utils';
-import { UnsignedNTTMessage } from 'routes/types';
-import { getNativeVersionOfToken } from 'store/transferInput';
-import { getTokenById, getTokenDecimals, tryParseErrorMessage } from 'utils';
+import { tryParseErrorMessage } from 'utils';
 import { wh } from 'utils/sdk';
-import { getWormholeLogEvm } from 'utils/vaa';
 import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
-import { BigNumber, PopulatedTransaction, ethers } from 'ethers';
-import { TOKENS } from 'config';
+import { BigNumber, PopulatedTransaction } from 'ethers';
 import { InboundQueuedTransfer } from '../../types';
-import { Implementation__factory } from '@certusone/wormhole-sdk/lib/esm/ethers-contracts';
-import {
-  DeliveryInstruction,
-  RelayerPayloadId,
-  parseWormholeLog,
-} from '@certusone/wormhole-sdk/lib/esm/relayer';
 import {
   InboundQueuedTransferNotFoundError,
   InboundQueuedTransferStillQueuedError,
   NotEnoughCapacityError,
   RequireContractIsNotPausedError,
 } from '../../errors';
-import {
-  ManagerMessage,
-  NativeTokenTransfer,
-  WormholeEndpointMessage,
-} from '../solana/sdk';
+import { ManagerMessage, NativeTokenTransfer } from '../solana/sdk';
 import { RATE_LIMIT_DURATION } from 'routes/ntt/consts';
-import { getNTTManagerMessageDigest } from 'routes/ntt/utils';
+import {
+  encodeEndpointInstructions,
+  encodeWormholeEndpointInstruction,
+  getNTTManagerMessageDigest,
+} from 'routes/ntt/utils';
+import { Manager__factory } from './abis/Manager__factory';
+import { Manager } from './abis/Manager';
 
 export class NTTEvm {
-  constructor(
-    readonly chain: ChainName | ChainId,
-    readonly managerAddress: string,
-  ) {}
+  readonly manager: Manager;
 
-  getManager(address?: string) {
-    const provider = wh.mustGetProvider(this.chain);
-    return WormholeEndpointAndManager__factory.connect(
-      address || this.managerAddress,
-      provider,
+  constructor(readonly chain: ChainName | ChainId, managerAddress: string) {
+    this.manager = Manager__factory.connect(
+      managerAddress,
+      wh.mustGetProvider(chain),
     );
   }
 
@@ -65,17 +51,12 @@ export class NTTEvm {
     return txId;
   }
 
-  async isWormholeRelayingEnabled(
-    destChain: ChainName | ChainId,
-  ): Promise<boolean> {
-    return this.getManager().isWormholeRelayingEnabled(wh.toChainId(destChain));
-  }
-
   async quoteDeliveryPrice(destChain: ChainName | ChainId): Promise<string> {
-    const deliveryPrice = (
-      await this.getManager().quoteDeliveryPrice(wh.toChainId(destChain))
-    ).reduce((a, b) => a.add(b), BigNumber.from(0));
-    return deliveryPrice.toString();
+    return '0'; // TODO: implement
+    //const deliveryPrice = (
+    //  await this.getManager().quoteDeliveryPrice(wh.toChainId(destChain))
+    //).reduce((a, b) => a.add(b), BigNumber.from(0));
+    //return deliveryPrice.toString();
   }
 
   async send(
@@ -84,23 +65,31 @@ export class NTTEvm {
     recipient: string,
     amount: bigint,
     toChain: ChainName | ChainId,
-    useRelay: boolean,
+    shouldSkipRelayerSend: boolean,
   ): Promise<string> {
-    const manager = this.getManager();
-    const deliveryPrice = useRelay
-      ? BigNumber.from(await this.quoteDeliveryPrice(toChain))
-      : undefined;
-    const tx = await manager.populateTransaction.transfer(
+    const deliveryPrice = shouldSkipRelayerSend
+      ? undefined
+      : BigNumber.from(await this.quoteDeliveryPrice(toChain));
+    const endpointIxs = encodeEndpointInstructions([
+      {
+        index: 0,
+        payload: encodeWormholeEndpointInstruction({ shouldSkipRelayerSend }),
+      },
+    ]);
+    const tx = await this.manager.populateTransaction[
+      'transfer(uint256,uint16,bytes32,bool,bytes)'
+    ](
       amount,
       wh.toChainId(toChain),
       wh.formatAddress(recipient, toChain),
       false, // revert instead of getting outbound queued
+      endpointIxs,
       { value: deliveryPrice },
     );
     const context = wh.getContext(this.chain) as EthContext<WormholeContext>;
     await context.approve(
       this.chain,
-      this.managerAddress,
+      this.manager.address,
       token.address,
       amount,
     );
@@ -111,114 +100,15 @@ export class NTTEvm {
     }
   }
 
-  async receiveMessage(vaa: string, payer: string): Promise<string> {
-    const tx = await this.getManager().populateTransaction.receiveMessage(vaa);
-    return this.signAndSendTransaction(tx, TransferWallet.RECEIVING);
-  }
-
-  async getMessage(
-    tx: string,
-    chain: ChainName | ChainId,
-  ): Promise<UnsignedNTTMessage> {
-    const provider = wh.mustGetProvider(chain);
-    const receipt = await provider.getTransactionReceipt(tx);
-    if (!receipt) {
-      throw new Error(`No receipt for tx ${tx} on ${chain}`);
-    }
-    const manager = this.getManager(receipt.to);
-    const tokenAddress = await manager.token();
-    const fromChain = wh.toChainName(chain);
-    const tokenId = {
-      chain: fromChain,
-      address: tokenAddress,
-    };
-    const token = getTokenById(tokenId);
-    if (!token) {
-      throw new Error(`Token ${tokenId} not found`);
-    }
-    const wormholeLog = await getWormholeLogEvm(fromChain, receipt);
-    const parsedWormholeLog =
-      Implementation__factory.createInterface().parseLog(wormholeLog);
-    let payload: Buffer;
-    let relayerFee = '';
-    if (parsedWormholeLog.args.sender === manager.address) {
-      payload = Buffer.from(parsedWormholeLog.args.payload.slice(2), 'hex');
-    } else {
-      const { type, parsed } = parseWormholeLog(wormholeLog);
-      if (type !== RelayerPayloadId.Delivery) {
-        throw new Error(`Unexpected payload type ${type}`);
-      }
-      payload = (parsed as DeliveryInstruction).payload;
-      // Find the SendEvent log to get the relayer fee
-      const RELAYER_SEND_EVENT_TOPIC =
-        '0xda8540426b64ece7b164a9dce95448765f0a7263ef3ff85091c9c7361e485364';
-      const sendEvent = receipt.logs.find(
-        (log) =>
-          log.address === parsedWormholeLog.args.sender &&
-          log.topics[0] === RELAYER_SEND_EVENT_TOPIC,
-      );
-      if (sendEvent) {
-        const sendEventIface = new ethers.utils.Interface([
-          'event SendEvent(uint64 indexed sequence, uint256 deliveryQuote, uint256 paymentForExtraReceiverValue)',
-        ]);
-        const parsed = sendEventIface.parseLog(sendEvent);
-        relayerFee = parsed.args.deliveryQuote.toString();
-      }
-    }
-    const managerMessage = WormholeEndpointMessage.deserialize(payload, (a) =>
-      ManagerMessage.deserialize(a, NativeTokenTransfer.deserialize),
-    ).managerPayload;
-    const toChain = wh.toChainName(managerMessage.payload.recipientChain);
-    const receivedTokenKey = getNativeVersionOfToken(token.symbol, toChain);
-    const destToken = TOKENS[receivedTokenKey];
-    if (!destToken) {
-      throw new Error(`Token ${receivedTokenKey} not found`);
-    }
-    const toManager = await manager.getSibling(
-      managerMessage.payload.recipientChain,
-    );
-    return {
-      sendTx: receipt.transactionHash,
-      sender: receipt.from,
-      amount: managerMessage.payload.normalizedAmount.amount.toString(),
-      payloadID: 1,
-      recipient: wh.parseAddress(
-        managerMessage.payload.recipientAddress,
-        toChain,
-      ),
-      toChain,
-      fromChain,
-      tokenAddress,
-      tokenChain: fromChain,
-      tokenId,
-      tokenKey: token.key,
-      tokenDecimals: getTokenDecimals(
-        wh.toChainId(managerMessage.payload.recipientChain),
-        tokenId,
-      ),
-      receivedTokenKey: destToken.key,
-      emitterAddress: hexlify(
-        wh.formatAddress(parsedWormholeLog.args.sender, fromChain),
-      ),
-      sequence: parsedWormholeLog.args.sequence.toString(),
-      block: receipt.blockNumber,
-      gasFee: receipt.gasUsed.mul(receipt.effectiveGasPrice).toString(),
-      sourceManagerAddress: manager.address,
-      toManagerAddress: wh.parseAddress(toManager, toChain),
-      endpointMessage: hexlify(payload),
-      relayerFee,
-    };
-  }
-
   async getCurrentOutboundCapacity(): Promise<string> {
-    return (await this.getManager().getCurrentOutboundCapacity()).toString();
+    return (await this.manager.getCurrentOutboundCapacity()).toString();
   }
 
   async getCurrentInboundCapacity(
     fromChain: ChainName | ChainId,
   ): Promise<string> {
     return (
-      await this.getManager().getCurrentInboundCapacity(wh.toChainId(fromChain))
+      await this.manager.getCurrentInboundCapacity(wh.toChainId(fromChain))
     ).toString();
   }
 
@@ -226,9 +116,8 @@ export class NTTEvm {
     emitterChain: ChainName | ChainId,
     managerMessage: ManagerMessage<NativeTokenTransfer>,
   ): Promise<InboundQueuedTransfer | undefined> {
-    const manager = this.getManager();
     const digest = getNTTManagerMessageDigest(emitterChain, managerMessage);
-    const queuedTransfer = await manager.getInboundQueuedTransfer(digest);
+    const queuedTransfer = await this.manager.getInboundQueuedTransfer(digest);
     if (queuedTransfer.txTimestamp.gt(0)) {
       const { recipient, amount, txTimestamp } = queuedTransfer;
       return {
@@ -246,11 +135,12 @@ export class NTTEvm {
     emitterChain: ChainName | ChainId,
     managerMessage: ManagerMessage<NativeTokenTransfer>,
   ): Promise<string> {
-    const manager = this.getManager();
     const digest = getNTTManagerMessageDigest(emitterChain, managerMessage);
     try {
       const tx =
-        await manager.populateTransaction.completeInboundQueuedTransfer(digest);
+        await this.manager.populateTransaction.completeInboundQueuedTransfer(
+          digest,
+        );
       return await this.signAndSendTransaction(tx, TransferWallet.RECEIVING);
     } catch (e) {
       this.throwParsedError(e);
@@ -262,15 +152,15 @@ export class NTTEvm {
     managerMessage: ManagerMessage<NativeTokenTransfer>,
   ): Promise<boolean> {
     const digest = getNTTManagerMessageDigest(emitterChain, managerMessage);
-    return this.getManager().isMessageExecuted(digest);
+    return this.manager.isMessageExecuted(digest);
   }
 
   async isPaused(): Promise<boolean> {
-    return this.getManager().isPaused();
+    return this.manager.isPaused();
   }
 
   throwParsedError(e: any): never {
-    const message = tryParseErrorMessage(this.getManager().interface, e);
+    const message = tryParseErrorMessage(this.manager.interface, e);
     if (message === InboundQueuedTransferNotFoundError.MESSAGE) {
       throw new InboundQueuedTransferNotFoundError();
     }

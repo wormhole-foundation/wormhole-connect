@@ -105,7 +105,7 @@ export class Operator {
 
       // Check if is Native Token Transfer Route
       for (const token of TOKENS_ARR) {
-        if (token.nttManagerAddress === receipt.to) {
+        if (token.ntt?.managerAddress === receipt.to) {
           const { emitterAddress } = await getUnsignedVaaEvm(chain, receipt);
           return emitterAddress === receipt.to
             ? Route.NTTManual

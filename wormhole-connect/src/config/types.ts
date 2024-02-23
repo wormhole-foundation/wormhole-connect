@@ -232,7 +232,10 @@ export type TokenConfig = {
       decimals: number;
     };
   };
-  nttManagerAddress?: string;
+  ntt?: {
+    managerAddress: string;
+    wormholeEndpointAddress: string;
+  };
 };
 
 export type TokensConfig = { [key: string]: TokenConfig };

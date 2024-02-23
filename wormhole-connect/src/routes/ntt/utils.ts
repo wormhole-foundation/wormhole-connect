@@ -16,3 +16,49 @@ export const getNTTManagerMessageDigest = (
   const digest = keccak256(Buffer.concat([chainIdBuffer, serialized]));
   return digest;
 };
+
+export interface WormholeEndpointInstruction {
+  shouldSkipRelayerSend: boolean;
+}
+
+export const encodeWormholeEndpointInstruction = (
+  instruction: WormholeEndpointInstruction,
+): Buffer => {
+  const buffer = Buffer.alloc(1);
+  buffer.writeUInt8(instruction.shouldSkipRelayerSend ? 1 : 0);
+  return buffer;
+};
+
+export interface EndpointInstruction {
+  index: number;
+  payload: Buffer;
+}
+
+export const encodeEndpointInstruction = (
+  instruction: EndpointInstruction,
+): Buffer => {
+  if (instruction.payload.length > 255) {
+    throw new Error(`PayloadTooLong: ${instruction.payload.length}`);
+  }
+  const payloadLength = Buffer.from([instruction.payload.length]);
+  const indexBuffer = Buffer.from([instruction.index]);
+  return Buffer.concat([indexBuffer, payloadLength, instruction.payload]);
+};
+
+export const encodeEndpointInstructions = (
+  instructions: EndpointInstruction[],
+): Buffer => {
+  if (instructions.length > 255) {
+    throw new Error(`PayloadTooLong: ${instructions.length}`);
+  }
+
+  const instructionsLength = Buffer.from([instructions.length]);
+  let encoded = Buffer.alloc(0);
+
+  for (let i = 0; i < instructions.length; i++) {
+    const innerEncoded = encodeEndpointInstruction(instructions[i]);
+    encoded = Buffer.concat([encoded, innerEncoded]);
+  }
+
+  return Buffer.concat([instructionsLength, encoded]);
+};

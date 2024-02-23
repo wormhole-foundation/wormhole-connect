@@ -17,8 +17,7 @@ type Props = {
 
 const NTTCapacityWarning = ({ token, amount, chain, fromChain }: Props) => {
   const [capacity, setCapacity] = useState<BigNumber | undefined>(undefined);
-  const [rateLimitDuration, setRateLimitDuration] = useState('');
-  const managerAddress = TOKENS[token]?.nttManagerAddress;
+  const managerAddress = TOKENS[token]?.ntt?.managerAddress;
 
   useEffect(() => {
     if (!chain || !token || !managerAddress || !fromChain) return;
@@ -50,28 +49,6 @@ const NTTCapacityWarning = ({ token, amount, chain, fromChain }: Props) => {
     };
   }, [chain, token, managerAddress, fromChain]);
 
-  useEffect(() => {
-    if (!chain || !managerAddress) return;
-    let active = true;
-    const fetchRateLimitDuration = async () => {
-      try {
-        if (active) {
-          const formatted = formatSecondsToHoursAndMinutes(RATE_LIMIT_DURATION);
-          setRateLimitDuration(formatted);
-        }
-      } catch (error) {
-        console.error('Failed to fetch rate limit duration:', error);
-        if (active) {
-          setRateLimitDuration('');
-        }
-      }
-    };
-    fetchRateLimitDuration();
-    return () => {
-      active = false;
-    };
-  }, [chain, managerAddress]);
-
   const showWarning = useMemo(() => {
     if (!token || !amount || !chain || !capacity) return;
     const tokenId = TOKENS[token].tokenId;
@@ -88,9 +65,10 @@ const NTTCapacityWarning = ({ token, amount, chain, fromChain }: Props) => {
     <>
       {`Due to high volume on ${
         chainConfig?.displayName
-      }, your transfer may be delayed for ${
-        rateLimitDuration ? ' ' + rateLimitDuration : ''
-      }. Once the delay ends, you'll need to submit a new transaction${
+      }, your transfer may be delayed for ${formatSecondsToHoursAndMinutes(
+        RATE_LIMIT_DURATION,
+      )}
+      . Once the delay ends, you'll need to submit a new transaction${
         chain !== fromChain ? ` on ${chainConfig?.displayName}` : ''
       } to complete the transfer. Please consider this before proceeding.`}
     </>

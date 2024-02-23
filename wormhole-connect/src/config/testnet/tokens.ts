@@ -2246,7 +2246,10 @@ export const TESTNET_TOKENS: TokensConfig = {
       Ethereum: 18,
       default: 8,
     },
-    nttManagerAddress: '0x79689ce600d3fD3524ec2B4bedcC70131eDA67b6',
+    ntt: {
+      managerAddress: '0x79689ce600d3fD3524ec2B4bedcC70131eDA67b6',
+      wormholeEndpointAddress: '',
+    },
   },
   TEST_NTTarbitrum_sepolia: {
     key: 'TEST_NTTarbitrum_sepolia',
@@ -2263,6 +2266,32 @@ export const TESTNET_TOKENS: TokensConfig = {
       Ethereum: 18,
       default: 8,
     },
-    nttManagerAddress: '0xE493Cc4F069821404d272B994bB80B1Ba1631914',
+    ntt: {
+      managerAddress: '0xE493Cc4F069821404d272B994bB80B1Ba1631914',
+      wormholeEndpointAddress: '',
+    },
+  },
+  TEST_NTTsolana: {
+    key: 'TEST_NTTsolana',
+    symbol: 'TEST_NTT',
+    nativeChain: 'solana',
+    icon: Icon.ETH, // TODO: change icon
+    tokenId: {
+      chain: 'solana',
+      address: 'SCAmk7zfNKXemDjap14aGJJyQXZXXhq9X2Fs8oVSsdr',
+    },
+    coinGeckoId: '',
+    color: '#2774CA',
+    decimals: {
+      Solana: 9,
+      default: 8,
+    },
+    ntt: {
+      managerAddress: 'nttiK1SepaQt6sZ4WGW5whvc9tEnGXGxuKeptcQPCcS',
+      // wormhole endpoint is baked into the manager contract
+      // if the endpoint is split into a separate contract, this should be updated
+      // and code should be updated to support the new structure
+      wormholeEndpointAddress: 'nttiK1SepaQt6sZ4WGW5whvc9tEnGXGxuKeptcQPCcS',
+    },
   },
 };

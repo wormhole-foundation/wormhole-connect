@@ -1,6 +1,6 @@
 import { Route, TokenConfig } from 'config/types';
 import { BigNumber } from 'ethers';
-import { getPlatform } from './platforms';
+import { getPlatform, getWormholeEndpoint } from './platforms';
 import { ChainName, ChainId } from '@wormhole-foundation/wormhole-connect-sdk';
 import { NTTBase } from './nttBase';
 import { CHAINS, TOKENS } from 'config';
@@ -35,11 +35,12 @@ export class NTTRelay extends NTTBase {
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
   ): Promise<boolean> {
-    const managerAddress = TOKENS[sourceToken]?.nttManagerAddress;
-    if (!managerAddress) {
+    const endpointAddress = TOKENS[sourceToken]?.ntt?.wormholeEndpointAddress;
+    if (!endpointAddress) {
       return false;
     }
-    return Promise.all([
+    const endpoint = getWormholeEndpoint(sourceChain, endpointAddress);
+    return await Promise.all([
       super.isRouteSupported(
         sourceToken,
         destToken,
@@ -47,10 +48,9 @@ export class NTTRelay extends NTTBase {
         sourceChain,
         destChain,
       ),
-      getPlatform(sourceChain, managerAddress).isWormholeRelayingEnabled(
-        destChain,
-      ),
-    ]).then((results) => results.every((result) => result));
+      endpoint.isWormholeRelayingEnabled(destChain),
+      endpoint.isSpecialRelayingEnabled(destChain),
+    ]).then((results) => results[0] && (results[1] || results[2]));
   }
 
   async getRelayerFee(
@@ -60,12 +60,12 @@ export class NTTRelay extends NTTBase {
     destToken: string,
   ): Promise<BigNumber> {
     const tokenConfig = TOKENS[token];
-    if (!tokenConfig.nttManagerAddress) {
+    if (!tokenConfig.ntt) {
       throw new Error('invalid token');
     }
     const deliveryPrice = await getPlatform(
       sourceChain,
-      tokenConfig.nttManagerAddress,
+      tokenConfig.ntt.managerAddress,
     ).quoteDeliveryPrice(destChain);
     return BigNumber.from(deliveryPrice);
   }

@@ -19,7 +19,7 @@ import { isEvmChain, toChainName, wh } from 'utils/sdk';
 import { TOKENS } from 'config';
 import { getTokenById, getTokenDecimals, removeDust } from 'utils';
 import { getNativeVersionOfToken } from 'store/transferInput';
-import { getPlatform } from './platforms';
+import { getPlatform, getWormholeEndpoint } from './platforms';
 import { InboundQueuedTransfer } from './types';
 import { DestContractIsPausedError } from './errors';
 import {
@@ -27,6 +27,8 @@ import {
   NativeTokenTransfer,
   WormholeEndpointMessage,
 } from './platforms/solana/sdk';
+import { getMessageEvm } from './platforms/evm';
+import { getMessageSolana } from './platforms/solana';
 
 export abstract class NTTBase extends BaseRoute {
   isSupportedChain(chain: ChainName): boolean {
@@ -74,7 +76,7 @@ export abstract class NTTBase extends BaseRoute {
   isSupportedToken(token: TokenConfig, chain: ChainName | ChainId): boolean {
     return (
       this.isSupportedChain(token.nativeChain) &&
-      !!token.nttManagerAddress &&
+      !!token.ntt &&
       toChainName(chain) === token.nativeChain
     );
   }
@@ -169,18 +171,18 @@ export abstract class NTTBase extends BaseRoute {
       throw new Error('invalid token');
     }
     const tokenConfig = getTokenById(token);
-    if (!tokenConfig?.nttManagerAddress) {
+    if (!tokenConfig?.ntt) {
       throw new Error('invalid token');
     }
     const destTokenConfig = TOKENS[destToken];
-    if (!destTokenConfig?.nttManagerAddress) {
+    if (!destTokenConfig?.ntt) {
       throw new Error('invalid dest token');
     }
     // prevent sending to a paused chain
     if (
       await getPlatform(
         recipientChain,
-        destTokenConfig.nttManagerAddress,
+        destTokenConfig.ntt.managerAddress,
       ).isPaused()
     ) {
       throw new DestContractIsPausedError();
@@ -191,13 +193,14 @@ export abstract class NTTBase extends BaseRoute {
     );
     // remove any dust before sending
     const sendAmount = removeDust(parseUnits(amount, decimals), decimals);
-    return getPlatform(sendingChain, tokenConfig.nttManagerAddress).send(
+    const shouldSkipRelayerSend = this.TYPE !== Route.Relay;
+    return getPlatform(sendingChain, tokenConfig.ntt.managerAddress).send(
       token,
       senderAddress,
       recipientAddress,
       sendAmount.toBigInt(),
       recipientChain,
-      this.TYPE === Route.NTTRelay,
+      shouldSkipRelayerSend,
     );
   }
 
@@ -209,8 +212,11 @@ export abstract class NTTBase extends BaseRoute {
     if (!isSignedNTTMessage(signedMessage)) {
       throw new Error('Invalid message');
     }
-    const { toManagerAddress, vaa } = signedMessage;
-    return getPlatform(chain, toManagerAddress).receiveMessage(vaa, payer);
+    const { receivedTokenKey, vaa } = signedMessage;
+    return getWormholeEndpoint(
+      chain,
+      TOKENS[receivedTokenKey].ntt!.wormholeEndpointAddress,
+    ).receiveMessage(vaa, payer);
   }
 
   async getRelayerFee(
@@ -292,14 +298,19 @@ export abstract class NTTBase extends BaseRoute {
     tx: string,
     chain: ChainName | ChainId,
   ): Promise<UnsignedNTTMessage> {
-    return getPlatform(chain, '').getMessage(tx, chain);
+    if (isEvmChain(chain)) {
+      return getMessageEvm(tx, chain);
+    }
+    if (wh.toChainName(chain) === 'solana') {
+      return getMessageSolana(tx);
+    }
+    throw new Error('Unsupported chain');
   }
 
   async getSignedMessage(
     unsigned: UnsignedNTTMessage,
   ): Promise<SignedNTTMessage> {
     const vaa = await fetchVaa(unsigned, true);
-    console.log(vaa);
 
     if (!vaa) {
       throw new Error('VAA not found');
