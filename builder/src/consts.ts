@@ -183,7 +183,6 @@ export const MAINNET_TOKEN_KEYS: string[] = [
   "tBTCbase",
   "tBTCsol",
   "wstETH",
-  "BONK",
   "EVMOS",
   "KUJI",
   "PYTH",
