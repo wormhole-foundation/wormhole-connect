@@ -4,12 +4,7 @@ import {
   TokenId,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { InboundQueuedTransfer } from '../../types';
-import {
-  ManagerMessage,
-  NTT,
-  NativeTokenTransfer,
-  WormholeEndpointMessage,
-} from './sdk';
+import { NTT } from './sdk';
 import { solanaContext, wh } from 'utils/sdk';
 import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
 import {
@@ -25,8 +20,11 @@ import { getAssociatedTokenAddressSync } from '@solana/spl-token';
 import { RATE_LIMIT_DURATION } from 'routes/ntt/consts';
 import { parseVaa } from '@certusone/wormhole-sdk/lib/esm';
 import { utils } from 'ethers';
+import { WormholeTransceiverMessage } from '../../payloads/wormhole';
+import { NttManagerMessage } from '../../payloads/common';
+import { NativeTokenTransfer } from '../../payloads/transfers';
 
-export class SolanaManager {
+export class NttManagerSolana {
   readonly ntt: NTT;
   readonly connection: Connection;
 
@@ -136,10 +134,11 @@ export class SolanaManager {
       config,
     };
     const parsedVaa = parseVaa(vaaArray);
-    const managerMessage = WormholeEndpointMessage.deserialize(
+    const managerMessage = WormholeTransceiverMessage.deserialize(
       parsedVaa.payload,
-      (a) => ManagerMessage.deserialize(a, NativeTokenTransfer.deserialize),
-    ).managerPayload;
+      (a) => NttManagerMessage.deserialize(a, NativeTokenTransfer.deserialize),
+    ).ntt_managerPayload;
+
     const chainId = parsedVaa.emitterChain as ChainId;
     // Here we create a transaction with three instructions:
     // 1. receive wormhole messsage (vaa)
@@ -160,7 +159,7 @@ export class SolanaManager {
     tx.add(await this.ntt.createRedeemInstruction(redeemArgs));
     const releaseArgs = {
       ...redeemArgs,
-      managerMessage,
+      ntt_managerMessage: managerMessage,
       recipient: new PublicKey(managerMessage.payload.recipientAddress),
       chain: chainId,
       revertOnDelay: false,
@@ -213,7 +212,7 @@ export class SolanaManager {
 
   async getInboundQueuedTransfer(
     emitterChain: ChainName | ChainId,
-    managerMessage: ManagerMessage<NativeTokenTransfer>,
+    managerMessage: NttManagerMessage<NativeTokenTransfer>,
   ): Promise<InboundQueuedTransfer | undefined> {
     // TODO: does this throw if the account doesn't exist?
     const inboxItem = await this.ntt.getInboxItem(emitterChain, managerMessage);
@@ -234,13 +233,13 @@ export class SolanaManager {
 
   async completeInboundQueuedTransfer(
     emitterChain: ChainName | ChainId,
-    managerMessage: ManagerMessage<NativeTokenTransfer>,
+    managerMessage: NttManagerMessage<NativeTokenTransfer>,
     payer: string,
   ): Promise<string> {
     const payerPublicKey = new PublicKey(payer);
     const releaseArgs = {
       payer: payerPublicKey,
-      managerMessage,
+      ntt_managerMessage: managerMessage,
       // TODO: need to format?
       recipient: new PublicKey(managerMessage.payload.recipientAddress),
       chain: emitterChain,
@@ -267,7 +266,7 @@ export class SolanaManager {
 
   async isMessageExecuted(
     emitterChain: ChainName | ChainId,
-    managerMessage: ManagerMessage<NativeTokenTransfer>,
+    managerMessage: NttManagerMessage<NativeTokenTransfer>,
   ): Promise<boolean> {
     const inboxItem = await this.ntt.getInboxItem(emitterChain, managerMessage);
     // TODO: will this be undefined ever?

@@ -37,47 +37,31 @@ export type NormalizedAmountStructOutput = [BigNumber, number] & {
   decimals: number;
 };
 
-export declare namespace EndpointStructs {
-  export type ManagerMessageStruct = {
+export declare namespace TransceiverStructs {
+  export type NttManagerMessageStruct = {
     sequence: BigNumberish;
     sender: BytesLike;
     payload: BytesLike;
   };
 
-  export type ManagerMessageStructOutput = [BigNumber, string, string] & {
+  export type NttManagerMessageStructOutput = [BigNumber, string, string] & {
     sequence: BigNumber;
     sender: string;
     payload: string;
   };
 
-  export type EndpointInstructionStruct = {
+  export type TransceiverInstructionStruct = {
     index: BigNumberish;
     payload: BytesLike;
   };
 
-  export type EndpointInstructionStructOutput = [number, string] & {
+  export type TransceiverInstructionStructOutput = [number, string] & {
     index: number;
     payload: string;
   };
 }
 
 export declare namespace IRateLimiter {
-  export type RateLimitParamsStruct = {
-    limit: NormalizedAmountStruct;
-    currentCapacity: NormalizedAmountStruct;
-    lastTxTimestamp: BigNumberish;
-  };
-
-  export type RateLimitParamsStructOutput = [
-    NormalizedAmountStructOutput,
-    NormalizedAmountStructOutput,
-    BigNumber,
-  ] & {
-    limit: NormalizedAmountStructOutput;
-    currentCapacity: NormalizedAmountStructOutput;
-    lastTxTimestamp: BigNumber;
-  };
-
   export type InboundQueuedTransferStruct = {
     amount: NormalizedAmountStruct;
     txTimestamp: BigNumberish;
@@ -100,7 +84,7 @@ export declare namespace IRateLimiter {
     txTimestamp: BigNumberish;
     recipientChain: BigNumberish;
     sender: string;
-    endpointInstructions: BytesLike;
+    transceiverInstructions: BytesLike;
   };
 
   export type OutboundQueuedTransferStructOutput = [
@@ -116,48 +100,26 @@ export declare namespace IRateLimiter {
     txTimestamp: BigNumber;
     recipientChain: number;
     sender: string;
-    endpointInstructions: string;
+    transceiverInstructions: string;
   };
 }
 
-export interface ManagerInterface extends utils.Interface {
+export interface NttManagerInterface extends utils.Interface {
   functions: {
-    'ENABLED_ENDPOINTS_SLOT()': FunctionFragment;
-    'ENDPOINT_BITMAP_SLOT()': FunctionFragment;
-    'ENDPOINT_INFOS_SLOT()': FunctionFragment;
-    'INBOUND_LIMIT_PARAMS_SLOT()': FunctionFragment;
-    'INBOUND_QUEUE_SLOT()': FunctionFragment;
-    'MESSAGE_ATTESTATIONS_SLOT()': FunctionFragment;
-    'MESSAGE_SEQUENCE_SLOT()': FunctionFragment;
-    'MIGRATES_IMMUTABLES_SLOT()': FunctionFragment;
-    'MIGRATING_SLOT()': FunctionFragment;
-    'NUM_REGISTERED_ENDPOINTS_SLOT()': FunctionFragment;
-    'OUTBOUND_LIMIT_PARAMS_SLOT()': FunctionFragment;
-    'OUTBOUND_QUEUE_SLOT()': FunctionFragment;
-    'PAUSER_ROLE_SLOT()': FunctionFragment;
-    'PAUSE_SLOT()': FunctionFragment;
-    'REGISTERED_ENDPOINTS_SLOT()': FunctionFragment;
-    'SIBLINGS_SLOT()': FunctionFragment;
-    'THRESHOLD_SLOT()': FunctionFragment;
     'attestationReceived(uint16,bytes32,(uint64,bytes32,bytes))': FunctionFragment;
     'chainId()': FunctionFragment;
     'completeInboundQueuedTransfer(bytes32)': FunctionFragment;
     'completeOutboundQueuedTransfer(uint64)': FunctionFragment;
-    'countSetBits(uint64)': FunctionFragment;
-    'deployer()': FunctionFragment;
-    'endpointAttestedToMessage(bytes32,uint8)': FunctionFragment;
-    'evmChainId()': FunctionFragment;
     'executeMsg(uint16,bytes32,(uint64,bytes32,bytes))': FunctionFragment;
     'getCurrentInboundCapacity(uint16)': FunctionFragment;
     'getCurrentOutboundCapacity()': FunctionFragment;
-    'getEndpoints()': FunctionFragment;
-    'getInboundLimitParams(uint16)': FunctionFragment;
     'getInboundQueuedTransfer(bytes32)': FunctionFragment;
     'getMigratesImmutables()': FunctionFragment;
-    'getOutboundLimitParams()': FunctionFragment;
+    'getMode()': FunctionFragment;
     'getOutboundQueuedTransfer(uint64)': FunctionFragment;
-    'getSibling(uint16)': FunctionFragment;
+    'getPeer(uint16)': FunctionFragment;
     'getThreshold()': FunctionFragment;
+    'getTransceivers()': FunctionFragment;
     'initialize()': FunctionFragment;
     'isMessageApproved(bytes32)': FunctionFragment;
     'isMessageExecuted(bytes32)': FunctionFragment;
@@ -166,23 +128,20 @@ export interface ManagerInterface extends utils.Interface {
     'migrate()': FunctionFragment;
     'mode()': FunctionFragment;
     'nextMessageSequence()': FunctionFragment;
-    'nttDenormalize((uint64,uint8))': FunctionFragment;
-    'nttFixDecimals((uint64,uint8))': FunctionFragment;
-    'nttNormalize(uint256)': FunctionFragment;
     'owner()': FunctionFragment;
     'pause()': FunctionFragment;
     'pauser()': FunctionFragment;
     'quoteDeliveryPrice(uint16,(uint8,bytes)[],address[])': FunctionFragment;
     'rateLimitDuration()': FunctionFragment;
-    'removeEndpoint(address)': FunctionFragment;
-    'renounceOwnership()': FunctionFragment;
-    'renouncePauser()': FunctionFragment;
-    'setEndpoint(address)': FunctionFragment;
+    'removeTransceiver(address)': FunctionFragment;
     'setInboundLimit(uint256,uint16)': FunctionFragment;
     'setOutboundLimit(uint256)': FunctionFragment;
-    'setSibling(uint16,bytes32)': FunctionFragment;
+    'setPeer(uint16,bytes32)': FunctionFragment;
     'setThreshold(uint8)': FunctionFragment;
+    'setTransceiver(address)': FunctionFragment;
     'token()': FunctionFragment;
+    'tokenDecimals()': FunctionFragment;
+    'transceiverAttestedToMessage(bytes32,uint8)': FunctionFragment;
     'transfer(uint256,uint16,bytes32)': FunctionFragment;
     'transfer(uint256,uint16,bytes32,bool,bytes)': FunctionFragment;
     'transferOwnership(address)': FunctionFragment;
@@ -192,42 +151,20 @@ export interface ManagerInterface extends utils.Interface {
 
   getFunction(
     nameOrSignatureOrTopic:
-      | 'ENABLED_ENDPOINTS_SLOT'
-      | 'ENDPOINT_BITMAP_SLOT'
-      | 'ENDPOINT_INFOS_SLOT'
-      | 'INBOUND_LIMIT_PARAMS_SLOT'
-      | 'INBOUND_QUEUE_SLOT'
-      | 'MESSAGE_ATTESTATIONS_SLOT'
-      | 'MESSAGE_SEQUENCE_SLOT'
-      | 'MIGRATES_IMMUTABLES_SLOT'
-      | 'MIGRATING_SLOT'
-      | 'NUM_REGISTERED_ENDPOINTS_SLOT'
-      | 'OUTBOUND_LIMIT_PARAMS_SLOT'
-      | 'OUTBOUND_QUEUE_SLOT'
-      | 'PAUSER_ROLE_SLOT'
-      | 'PAUSE_SLOT'
-      | 'REGISTERED_ENDPOINTS_SLOT'
-      | 'SIBLINGS_SLOT'
-      | 'THRESHOLD_SLOT'
       | 'attestationReceived'
       | 'chainId'
       | 'completeInboundQueuedTransfer'
       | 'completeOutboundQueuedTransfer'
-      | 'countSetBits'
-      | 'deployer'
-      | 'endpointAttestedToMessage'
-      | 'evmChainId'
       | 'executeMsg'
       | 'getCurrentInboundCapacity'
       | 'getCurrentOutboundCapacity'
-      | 'getEndpoints'
-      | 'getInboundLimitParams'
       | 'getInboundQueuedTransfer'
       | 'getMigratesImmutables'
-      | 'getOutboundLimitParams'
+      | 'getMode'
       | 'getOutboundQueuedTransfer'
-      | 'getSibling'
+      | 'getPeer'
       | 'getThreshold'
+      | 'getTransceivers'
       | 'initialize'
       | 'isMessageApproved'
       | 'isMessageExecuted'
@@ -236,23 +173,20 @@ export interface ManagerInterface extends utils.Interface {
       | 'migrate'
       | 'mode'
       | 'nextMessageSequence'
-      | 'nttDenormalize'
-      | 'nttFixDecimals'
-      | 'nttNormalize'
       | 'owner'
       | 'pause'
       | 'pauser'
       | 'quoteDeliveryPrice'
       | 'rateLimitDuration'
-      | 'removeEndpoint'
-      | 'renounceOwnership'
-      | 'renouncePauser'
-      | 'setEndpoint'
+      | 'removeTransceiver'
       | 'setInboundLimit'
       | 'setOutboundLimit'
-      | 'setSibling'
+      | 'setPeer'
       | 'setThreshold'
+      | 'setTransceiver'
       | 'token'
+      | 'tokenDecimals'
+      | 'transceiverAttestedToMessage'
       | 'transfer(uint256,uint16,bytes32)'
       | 'transfer(uint256,uint16,bytes32,bool,bytes)'
       | 'transferOwnership'
@@ -261,76 +195,12 @@ export interface ManagerInterface extends utils.Interface {
   ): FunctionFragment;
 
   encodeFunctionData(
-    functionFragment: 'ENABLED_ENDPOINTS_SLOT',
-    values?: undefined,
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'ENDPOINT_BITMAP_SLOT',
-    values?: undefined,
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'ENDPOINT_INFOS_SLOT',
-    values?: undefined,
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'INBOUND_LIMIT_PARAMS_SLOT',
-    values?: undefined,
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'INBOUND_QUEUE_SLOT',
-    values?: undefined,
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'MESSAGE_ATTESTATIONS_SLOT',
-    values?: undefined,
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'MESSAGE_SEQUENCE_SLOT',
-    values?: undefined,
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'MIGRATES_IMMUTABLES_SLOT',
-    values?: undefined,
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'MIGRATING_SLOT',
-    values?: undefined,
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'NUM_REGISTERED_ENDPOINTS_SLOT',
-    values?: undefined,
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'OUTBOUND_LIMIT_PARAMS_SLOT',
-    values?: undefined,
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'OUTBOUND_QUEUE_SLOT',
-    values?: undefined,
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'PAUSER_ROLE_SLOT',
-    values?: undefined,
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'PAUSE_SLOT',
-    values?: undefined,
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'REGISTERED_ENDPOINTS_SLOT',
-    values?: undefined,
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'SIBLINGS_SLOT',
-    values?: undefined,
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'THRESHOLD_SLOT',
-    values?: undefined,
-  ): string;
-  encodeFunctionData(
     functionFragment: 'attestationReceived',
-    values: [BigNumberish, BytesLike, EndpointStructs.ManagerMessageStruct],
+    values: [
+      BigNumberish,
+      BytesLike,
+      TransceiverStructs.NttManagerMessageStruct,
+    ],
   ): string;
   encodeFunctionData(functionFragment: 'chainId', values?: undefined): string;
   encodeFunctionData(
@@ -342,21 +212,12 @@ export interface ManagerInterface extends utils.Interface {
     values: [BigNumberish],
   ): string;
   encodeFunctionData(
-    functionFragment: 'countSetBits',
-    values: [BigNumberish],
-  ): string;
-  encodeFunctionData(functionFragment: 'deployer', values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: 'endpointAttestedToMessage',
-    values: [BytesLike, BigNumberish],
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'evmChainId',
-    values?: undefined,
-  ): string;
-  encodeFunctionData(
     functionFragment: 'executeMsg',
-    values: [BigNumberish, BytesLike, EndpointStructs.ManagerMessageStruct],
+    values: [
+      BigNumberish,
+      BytesLike,
+      TransceiverStructs.NttManagerMessageStruct,
+    ],
   ): string;
   encodeFunctionData(
     functionFragment: 'getCurrentInboundCapacity',
@@ -367,14 +228,6 @@ export interface ManagerInterface extends utils.Interface {
     values?: undefined,
   ): string;
   encodeFunctionData(
-    functionFragment: 'getEndpoints',
-    values?: undefined,
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'getInboundLimitParams',
-    values: [BigNumberish],
-  ): string;
-  encodeFunctionData(
     functionFragment: 'getInboundQueuedTransfer',
     values: [BytesLike],
   ): string;
@@ -382,20 +235,21 @@ export interface ManagerInterface extends utils.Interface {
     functionFragment: 'getMigratesImmutables',
     values?: undefined,
   ): string;
-  encodeFunctionData(
-    functionFragment: 'getOutboundLimitParams',
-    values?: undefined,
-  ): string;
+  encodeFunctionData(functionFragment: 'getMode', values?: undefined): string;
   encodeFunctionData(
     functionFragment: 'getOutboundQueuedTransfer',
     values: [BigNumberish],
   ): string;
   encodeFunctionData(
-    functionFragment: 'getSibling',
+    functionFragment: 'getPeer',
     values: [BigNumberish],
   ): string;
   encodeFunctionData(
     functionFragment: 'getThreshold',
+    values?: undefined,
+  ): string;
+  encodeFunctionData(
+    functionFragment: 'getTransceivers',
     values?: undefined,
   ): string;
   encodeFunctionData(
@@ -421,18 +275,6 @@ export interface ManagerInterface extends utils.Interface {
     functionFragment: 'nextMessageSequence',
     values?: undefined,
   ): string;
-  encodeFunctionData(
-    functionFragment: 'nttDenormalize',
-    values: [NormalizedAmountStruct],
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'nttFixDecimals',
-    values: [NormalizedAmountStruct],
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'nttNormalize',
-    values: [BigNumberish],
-  ): string;
   encodeFunctionData(functionFragment: 'owner', values?: undefined): string;
   encodeFunctionData(functionFragment: 'pause', values?: undefined): string;
   encodeFunctionData(functionFragment: 'pauser', values?: undefined): string;
@@ -440,7 +282,7 @@ export interface ManagerInterface extends utils.Interface {
     functionFragment: 'quoteDeliveryPrice',
     values: [
       BigNumberish,
-      EndpointStructs.EndpointInstructionStruct[],
+      TransceiverStructs.TransceiverInstructionStruct[],
       string[],
     ],
   ): string;
@@ -449,18 +291,9 @@ export interface ManagerInterface extends utils.Interface {
     values?: undefined,
   ): string;
   encodeFunctionData(
-    functionFragment: 'removeEndpoint',
+    functionFragment: 'removeTransceiver',
     values: [string],
   ): string;
-  encodeFunctionData(
-    functionFragment: 'renounceOwnership',
-    values?: undefined,
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'renouncePauser',
-    values?: undefined,
-  ): string;
-  encodeFunctionData(functionFragment: 'setEndpoint', values: [string]): string;
   encodeFunctionData(
     functionFragment: 'setInboundLimit',
     values: [BigNumberish, BigNumberish],
@@ -470,14 +303,26 @@ export interface ManagerInterface extends utils.Interface {
     values: [BigNumberish],
   ): string;
   encodeFunctionData(
-    functionFragment: 'setSibling',
+    functionFragment: 'setPeer',
     values: [BigNumberish, BytesLike],
   ): string;
   encodeFunctionData(
     functionFragment: 'setThreshold',
     values: [BigNumberish],
   ): string;
+  encodeFunctionData(
+    functionFragment: 'setTransceiver',
+    values: [string],
+  ): string;
   encodeFunctionData(functionFragment: 'token', values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: 'tokenDecimals',
+    values?: undefined,
+  ): string;
+  encodeFunctionData(
+    functionFragment: 'transceiverAttestedToMessage',
+    values: [BytesLike, BigNumberish],
+  ): string;
   encodeFunctionData(
     functionFragment: 'transfer(uint256,uint16,bytes32)',
     values: [BigNumberish, BigNumberish, BytesLike],
@@ -497,71 +342,6 @@ export interface ManagerInterface extends utils.Interface {
   encodeFunctionData(functionFragment: 'upgrade', values: [string]): string;
 
   decodeFunctionResult(
-    functionFragment: 'ENABLED_ENDPOINTS_SLOT',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: 'ENDPOINT_BITMAP_SLOT',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: 'ENDPOINT_INFOS_SLOT',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: 'INBOUND_LIMIT_PARAMS_SLOT',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: 'INBOUND_QUEUE_SLOT',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: 'MESSAGE_ATTESTATIONS_SLOT',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: 'MESSAGE_SEQUENCE_SLOT',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: 'MIGRATES_IMMUTABLES_SLOT',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: 'MIGRATING_SLOT',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: 'NUM_REGISTERED_ENDPOINTS_SLOT',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: 'OUTBOUND_LIMIT_PARAMS_SLOT',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: 'OUTBOUND_QUEUE_SLOT',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: 'PAUSER_ROLE_SLOT',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(functionFragment: 'PAUSE_SLOT', data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: 'REGISTERED_ENDPOINTS_SLOT',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: 'SIBLINGS_SLOT',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: 'THRESHOLD_SLOT',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
     functionFragment: 'attestationReceived',
     data: BytesLike,
   ): Result;
@@ -574,16 +354,6 @@ export interface ManagerInterface extends utils.Interface {
     functionFragment: 'completeOutboundQueuedTransfer',
     data: BytesLike,
   ): Result;
-  decodeFunctionResult(
-    functionFragment: 'countSetBits',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(functionFragment: 'deployer', data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: 'endpointAttestedToMessage',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(functionFragment: 'evmChainId', data: BytesLike): Result;
   decodeFunctionResult(functionFragment: 'executeMsg', data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: 'getCurrentInboundCapacity',
@@ -594,14 +364,6 @@ export interface ManagerInterface extends utils.Interface {
     data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: 'getEndpoints',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: 'getInboundLimitParams',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
     functionFragment: 'getInboundQueuedTransfer',
     data: BytesLike,
   ): Result;
@@ -609,17 +371,18 @@ export interface ManagerInterface extends utils.Interface {
     functionFragment: 'getMigratesImmutables',
     data: BytesLike,
   ): Result;
-  decodeFunctionResult(
-    functionFragment: 'getOutboundLimitParams',
-    data: BytesLike,
-  ): Result;
+  decodeFunctionResult(functionFragment: 'getMode', data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: 'getOutboundQueuedTransfer',
     data: BytesLike,
   ): Result;
-  decodeFunctionResult(functionFragment: 'getSibling', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getPeer', data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: 'getThreshold',
+    data: BytesLike,
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: 'getTransceivers',
     data: BytesLike,
   ): Result;
   decodeFunctionResult(functionFragment: 'initialize', data: BytesLike): Result;
@@ -642,18 +405,6 @@ export interface ManagerInterface extends utils.Interface {
     functionFragment: 'nextMessageSequence',
     data: BytesLike,
   ): Result;
-  decodeFunctionResult(
-    functionFragment: 'nttDenormalize',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: 'nttFixDecimals',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: 'nttNormalize',
-    data: BytesLike,
-  ): Result;
   decodeFunctionResult(functionFragment: 'owner', data: BytesLike): Result;
   decodeFunctionResult(functionFragment: 'pause', data: BytesLike): Result;
   decodeFunctionResult(functionFragment: 'pauser', data: BytesLike): Result;
@@ -666,19 +417,7 @@ export interface ManagerInterface extends utils.Interface {
     data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: 'removeEndpoint',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: 'renounceOwnership',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: 'renouncePauser',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: 'setEndpoint',
+    functionFragment: 'removeTransceiver',
     data: BytesLike,
   ): Result;
   decodeFunctionResult(
@@ -689,12 +428,24 @@ export interface ManagerInterface extends utils.Interface {
     functionFragment: 'setOutboundLimit',
     data: BytesLike,
   ): Result;
-  decodeFunctionResult(functionFragment: 'setSibling', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'setPeer', data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: 'setThreshold',
     data: BytesLike,
   ): Result;
+  decodeFunctionResult(
+    functionFragment: 'setTransceiver',
+    data: BytesLike,
+  ): Result;
   decodeFunctionResult(functionFragment: 'token', data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: 'tokenDecimals',
+    data: BytesLike,
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: 'transceiverAttestedToMessage',
+    data: BytesLike,
+  ): Result;
   decodeFunctionResult(
     functionFragment: 'transfer(uint256,uint16,bytes32)',
     data: BytesLike,
@@ -716,10 +467,6 @@ export interface ManagerInterface extends utils.Interface {
   events: {
     'AdminChanged(address,address)': EventFragment;
     'BeaconUpgraded(address)': EventFragment;
-    'EndpointAdded(address)': EventFragment;
-    'EndpointAdded(address,uint256,uint8)': EventFragment;
-    'EndpointRemoved(address)': EventFragment;
-    'EndpointRemoved(address,uint8)': EventFragment;
     'InboundTransferQueued(bytes32)': EventFragment;
     'Initialized(uint64)': EventFragment;
     'MessageAlreadyExecuted(bytes32,bytes32)': EventFragment;
@@ -730,8 +477,12 @@ export interface ManagerInterface extends utils.Interface {
     'OwnershipTransferred(address,address)': EventFragment;
     'Paused(bool)': EventFragment;
     'PauserTransferred(address,address)': EventFragment;
-    'SiblingUpdated(uint16,bytes32,bytes32)': EventFragment;
+    'PeerUpdated(uint16,bytes32,bytes32)': EventFragment;
     'ThresholdChanged(uint8,uint8)': EventFragment;
+    'TransceiverAdded(address)': EventFragment;
+    'TransceiverAdded(address,uint256,uint8)': EventFragment;
+    'TransceiverRemoved(address)': EventFragment;
+    'TransceiverRemoved(address,uint8)': EventFragment;
     'TransferRedeemed(bytes32)': EventFragment;
     'TransferSent(bytes32,uint256,uint16,uint64)': EventFragment;
     'Upgraded(address)': EventFragment;
@@ -739,14 +490,6 @@ export interface ManagerInterface extends utils.Interface {
 
   getEvent(nameOrSignatureOrTopic: 'AdminChanged'): EventFragment;
   getEvent(nameOrSignatureOrTopic: 'BeaconUpgraded'): EventFragment;
-  getEvent(nameOrSignatureOrTopic: 'EndpointAdded(address)'): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: 'EndpointAdded(address,uint256,uint8)',
-  ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: 'EndpointRemoved(address)'): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: 'EndpointRemoved(address,uint8)',
-  ): EventFragment;
   getEvent(nameOrSignatureOrTopic: 'InboundTransferQueued'): EventFragment;
   getEvent(nameOrSignatureOrTopic: 'Initialized'): EventFragment;
   getEvent(nameOrSignatureOrTopic: 'MessageAlreadyExecuted'): EventFragment;
@@ -759,8 +502,18 @@ export interface ManagerInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: 'OwnershipTransferred'): EventFragment;
   getEvent(nameOrSignatureOrTopic: 'Paused'): EventFragment;
   getEvent(nameOrSignatureOrTopic: 'PauserTransferred'): EventFragment;
-  getEvent(nameOrSignatureOrTopic: 'SiblingUpdated'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'PeerUpdated'): EventFragment;
   getEvent(nameOrSignatureOrTopic: 'ThresholdChanged'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'TransceiverAdded(address)'): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: 'TransceiverAdded(address,uint256,uint8)',
+  ): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: 'TransceiverRemoved(address)',
+  ): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: 'TransceiverRemoved(address,uint8)',
+  ): EventFragment;
   getEvent(nameOrSignatureOrTopic: 'TransferRedeemed'): EventFragment;
   getEvent(nameOrSignatureOrTopic: 'TransferSent'): EventFragment;
   getEvent(nameOrSignatureOrTopic: 'Upgraded'): EventFragment;
@@ -787,53 +540,6 @@ export type BeaconUpgradedEvent = TypedEvent<
 
 export type BeaconUpgradedEventFilter = TypedEventFilter<BeaconUpgradedEvent>;
 
-export interface EndpointAdded_address_EventObject {
-  endpoint: string;
-}
-export type EndpointAdded_address_Event = TypedEvent<
-  [string],
-  EndpointAdded_address_EventObject
->;
-
-export type EndpointAdded_address_EventFilter =
-  TypedEventFilter<EndpointAdded_address_Event>;
-
-export interface EndpointAdded_address_uint256_uint8_EventObject {
-  endpoint: string;
-  endpointsNum: BigNumber;
-  threshold: number;
-}
-export type EndpointAdded_address_uint256_uint8_Event = TypedEvent<
-  [string, BigNumber, number],
-  EndpointAdded_address_uint256_uint8_EventObject
->;
-
-export type EndpointAdded_address_uint256_uint8_EventFilter =
-  TypedEventFilter<EndpointAdded_address_uint256_uint8_Event>;
-
-export interface EndpointRemoved_address_EventObject {
-  endpoint: string;
-}
-export type EndpointRemoved_address_Event = TypedEvent<
-  [string],
-  EndpointRemoved_address_EventObject
->;
-
-export type EndpointRemoved_address_EventFilter =
-  TypedEventFilter<EndpointRemoved_address_Event>;
-
-export interface EndpointRemoved_address_uint8_EventObject {
-  endpoint: string;
-  threshold: number;
-}
-export type EndpointRemoved_address_uint8_Event = TypedEvent<
-  [string, number],
-  EndpointRemoved_address_uint8_EventObject
->;
-
-export type EndpointRemoved_address_uint8_EventFilter =
-  TypedEventFilter<EndpointRemoved_address_uint8_Event>;
-
 export interface InboundTransferQueuedEventObject {
   digest: string;
 }
@@ -853,7 +559,7 @@ export type InitializedEvent = TypedEvent<[BigNumber], InitializedEventObject>;
 export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
 
 export interface MessageAlreadyExecutedEventObject {
-  sourceManager: string;
+  sourceNttManager: string;
   msgHash: string;
 }
 export type MessageAlreadyExecutedEvent = TypedEvent<
@@ -866,7 +572,7 @@ export type MessageAlreadyExecutedEventFilter =
 
 export interface MessageAttestedToEventObject {
   digest: string;
-  endpoint: string;
+  transceiver: string;
   index: number;
 }
 export type MessageAttestedToEvent = TypedEvent<
@@ -940,17 +646,17 @@ export type PauserTransferredEvent = TypedEvent<
 export type PauserTransferredEventFilter =
   TypedEventFilter<PauserTransferredEvent>;
 
-export interface SiblingUpdatedEventObject {
+export interface PeerUpdatedEventObject {
   chainId_: number;
-  oldSiblingContract: string;
-  siblingContract: string;
+  oldPeerContract: string;
+  peerContract: string;
 }
-export type SiblingUpdatedEvent = TypedEvent<
+export type PeerUpdatedEvent = TypedEvent<
   [number, string, string],
-  SiblingUpdatedEventObject
+  PeerUpdatedEventObject
 >;
 
-export type SiblingUpdatedEventFilter = TypedEventFilter<SiblingUpdatedEvent>;
+export type PeerUpdatedEventFilter = TypedEventFilter<PeerUpdatedEvent>;
 
 export interface ThresholdChangedEventObject {
   oldThreshold: number;
@@ -963,6 +669,53 @@ export type ThresholdChangedEvent = TypedEvent<
 
 export type ThresholdChangedEventFilter =
   TypedEventFilter<ThresholdChangedEvent>;
+
+export interface TransceiverAdded_address_EventObject {
+  transceiver: string;
+}
+export type TransceiverAdded_address_Event = TypedEvent<
+  [string],
+  TransceiverAdded_address_EventObject
+>;
+
+export type TransceiverAdded_address_EventFilter =
+  TypedEventFilter<TransceiverAdded_address_Event>;
+
+export interface TransceiverAdded_address_uint256_uint8_EventObject {
+  transceiver: string;
+  transceiversNum: BigNumber;
+  threshold: number;
+}
+export type TransceiverAdded_address_uint256_uint8_Event = TypedEvent<
+  [string, BigNumber, number],
+  TransceiverAdded_address_uint256_uint8_EventObject
+>;
+
+export type TransceiverAdded_address_uint256_uint8_EventFilter =
+  TypedEventFilter<TransceiverAdded_address_uint256_uint8_Event>;
+
+export interface TransceiverRemoved_address_EventObject {
+  transceiver: string;
+}
+export type TransceiverRemoved_address_Event = TypedEvent<
+  [string],
+  TransceiverRemoved_address_EventObject
+>;
+
+export type TransceiverRemoved_address_EventFilter =
+  TypedEventFilter<TransceiverRemoved_address_Event>;
+
+export interface TransceiverRemoved_address_uint8_EventObject {
+  transceiver: string;
+  threshold: number;
+}
+export type TransceiverRemoved_address_uint8_Event = TypedEvent<
+  [string, number],
+  TransceiverRemoved_address_uint8_EventObject
+>;
+
+export type TransceiverRemoved_address_uint8_EventFilter =
+  TypedEventFilter<TransceiverRemoved_address_uint8_Event>;
 
 export interface TransferRedeemedEventObject {
   digest: string;
@@ -995,12 +748,12 @@ export type UpgradedEvent = TypedEvent<[string], UpgradedEventObject>;
 
 export type UpgradedEventFilter = TypedEventFilter<UpgradedEvent>;
 
-export interface Manager extends BaseContract {
+export interface NttManager extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: ManagerInterface;
+  interface: NttManagerInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
@@ -1022,44 +775,10 @@ export interface Manager extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    ENABLED_ENDPOINTS_SLOT(overrides?: CallOverrides): Promise<[string]>;
-
-    ENDPOINT_BITMAP_SLOT(overrides?: CallOverrides): Promise<[string]>;
-
-    ENDPOINT_INFOS_SLOT(overrides?: CallOverrides): Promise<[string]>;
-
-    INBOUND_LIMIT_PARAMS_SLOT(overrides?: CallOverrides): Promise<[string]>;
-
-    INBOUND_QUEUE_SLOT(overrides?: CallOverrides): Promise<[string]>;
-
-    MESSAGE_ATTESTATIONS_SLOT(overrides?: CallOverrides): Promise<[string]>;
-
-    MESSAGE_SEQUENCE_SLOT(overrides?: CallOverrides): Promise<[string]>;
-
-    MIGRATES_IMMUTABLES_SLOT(overrides?: CallOverrides): Promise<[string]>;
-
-    MIGRATING_SLOT(overrides?: CallOverrides): Promise<[string]>;
-
-    NUM_REGISTERED_ENDPOINTS_SLOT(overrides?: CallOverrides): Promise<[string]>;
-
-    OUTBOUND_LIMIT_PARAMS_SLOT(overrides?: CallOverrides): Promise<[string]>;
-
-    OUTBOUND_QUEUE_SLOT(overrides?: CallOverrides): Promise<[string]>;
-
-    PAUSER_ROLE_SLOT(overrides?: CallOverrides): Promise<[string]>;
-
-    PAUSE_SLOT(overrides?: CallOverrides): Promise<[string]>;
-
-    REGISTERED_ENDPOINTS_SLOT(overrides?: CallOverrides): Promise<[string]>;
-
-    SIBLINGS_SLOT(overrides?: CallOverrides): Promise<[string]>;
-
-    THRESHOLD_SLOT(overrides?: CallOverrides): Promise<[string]>;
-
     attestationReceived(
       sourceChainId: BigNumberish,
-      sourceManagerAddress: BytesLike,
-      payload: EndpointStructs.ManagerMessageStruct,
+      sourceNttManagerAddress: BytesLike,
+      payload: TransceiverStructs.NttManagerMessageStruct,
       overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
@@ -1075,25 +794,10 @@ export interface Manager extends BaseContract {
       overrides?: PayableOverrides & { from?: string },
     ): Promise<ContractTransaction>;
 
-    countSetBits(
-      x: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<[number] & { count: number }>;
-
-    deployer(overrides?: CallOverrides): Promise<[string]>;
-
-    endpointAttestedToMessage(
-      digest: BytesLike,
-      index: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<[boolean]>;
-
-    evmChainId(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     executeMsg(
       sourceChainId: BigNumberish,
-      sourceManagerAddress: BytesLike,
-      message: EndpointStructs.ManagerMessageStruct,
+      sourceNttManagerAddress: BytesLike,
+      message: TransceiverStructs.NttManagerMessageStruct,
       overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
@@ -1104,15 +808,6 @@ export interface Manager extends BaseContract {
 
     getCurrentOutboundCapacity(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    getEndpoints(
-      overrides?: CallOverrides,
-    ): Promise<[string[]] & { result: string[] }>;
-
-    getInboundLimitParams(
-      chainId_: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<[IRateLimiter.RateLimitParamsStructOutput]>;
-
     getInboundQueuedTransfer(
       digest: BytesLike,
       overrides?: CallOverrides,
@@ -1120,21 +815,23 @@ export interface Manager extends BaseContract {
 
     getMigratesImmutables(overrides?: CallOverrides): Promise<[boolean]>;
 
-    getOutboundLimitParams(
-      overrides?: CallOverrides,
-    ): Promise<[IRateLimiter.RateLimitParamsStructOutput]>;
+    getMode(overrides?: CallOverrides): Promise<[number]>;
 
     getOutboundQueuedTransfer(
       queueSequence: BigNumberish,
       overrides?: CallOverrides,
     ): Promise<[IRateLimiter.OutboundQueuedTransferStructOutput]>;
 
-    getSibling(
+    getPeer(
       chainId_: BigNumberish,
       overrides?: CallOverrides,
     ): Promise<[string]>;
 
     getThreshold(overrides?: CallOverrides): Promise<[number]>;
+
+    getTransceivers(
+      overrides?: CallOverrides,
+    ): Promise<[string[]] & { result: string[] }>;
 
     initialize(
       overrides?: Overrides & { from?: string },
@@ -1165,21 +862,6 @@ export interface Manager extends BaseContract {
 
     nextMessageSequence(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    nttDenormalize(
-      amount: NormalizedAmountStruct,
-      overrides?: CallOverrides,
-    ): Promise<[BigNumber]>;
-
-    nttFixDecimals(
-      amount: NormalizedAmountStruct,
-      overrides?: CallOverrides,
-    ): Promise<[NormalizedAmountStructOutput]>;
-
-    nttNormalize(
-      amount: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<[NormalizedAmountStructOutput]>;
-
     owner(overrides?: CallOverrides): Promise<[string]>;
 
     pause(
@@ -1190,26 +872,15 @@ export interface Manager extends BaseContract {
 
     quoteDeliveryPrice(
       recipientChain: BigNumberish,
-      endpointInstructions: EndpointStructs.EndpointInstructionStruct[],
-      enabledEndpoints: string[],
+      transceiverInstructions: TransceiverStructs.TransceiverInstructionStruct[],
+      enabledTransceivers: string[],
       overrides?: CallOverrides,
     ): Promise<[BigNumber[], BigNumber]>;
 
     rateLimitDuration(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    removeEndpoint(
-      endpoint: string,
-      overrides?: Overrides & { from?: string },
-    ): Promise<ContractTransaction>;
-
-    renounceOwnership(overrides?: CallOverrides): Promise<[void]>;
-
-    renouncePauser(
-      overrides?: Overrides & { from?: string },
-    ): Promise<ContractTransaction>;
-
-    setEndpoint(
-      endpoint: string,
+    removeTransceiver(
+      transceiver: string,
       overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
@@ -1224,9 +895,9 @@ export interface Manager extends BaseContract {
       overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
-    setSibling(
-      siblingChainId: BigNumberish,
-      siblingContract: BytesLike,
+    setPeer(
+      peerChainId: BigNumberish,
+      peerContract: BytesLike,
       overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
@@ -1235,7 +906,20 @@ export interface Manager extends BaseContract {
       overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
+    setTransceiver(
+      transceiver: string,
+      overrides?: Overrides & { from?: string },
+    ): Promise<ContractTransaction>;
+
     token(overrides?: CallOverrides): Promise<[string]>;
+
+    tokenDecimals(overrides?: CallOverrides): Promise<[number]>;
+
+    transceiverAttestedToMessage(
+      digest: BytesLike,
+      index: BigNumberish,
+      overrides?: CallOverrides,
+    ): Promise<[boolean]>;
 
     'transfer(uint256,uint16,bytes32)'(
       amount: BigNumberish,
@@ -1249,7 +933,7 @@ export interface Manager extends BaseContract {
       recipientChain: BigNumberish,
       recipient: BytesLike,
       shouldQueue: boolean,
-      endpointInstructions: BytesLike,
+      transceiverInstructions: BytesLike,
       overrides?: PayableOverrides & { from?: string },
     ): Promise<ContractTransaction>;
 
@@ -1269,44 +953,10 @@ export interface Manager extends BaseContract {
     ): Promise<ContractTransaction>;
   };
 
-  ENABLED_ENDPOINTS_SLOT(overrides?: CallOverrides): Promise<string>;
-
-  ENDPOINT_BITMAP_SLOT(overrides?: CallOverrides): Promise<string>;
-
-  ENDPOINT_INFOS_SLOT(overrides?: CallOverrides): Promise<string>;
-
-  INBOUND_LIMIT_PARAMS_SLOT(overrides?: CallOverrides): Promise<string>;
-
-  INBOUND_QUEUE_SLOT(overrides?: CallOverrides): Promise<string>;
-
-  MESSAGE_ATTESTATIONS_SLOT(overrides?: CallOverrides): Promise<string>;
-
-  MESSAGE_SEQUENCE_SLOT(overrides?: CallOverrides): Promise<string>;
-
-  MIGRATES_IMMUTABLES_SLOT(overrides?: CallOverrides): Promise<string>;
-
-  MIGRATING_SLOT(overrides?: CallOverrides): Promise<string>;
-
-  NUM_REGISTERED_ENDPOINTS_SLOT(overrides?: CallOverrides): Promise<string>;
-
-  OUTBOUND_LIMIT_PARAMS_SLOT(overrides?: CallOverrides): Promise<string>;
-
-  OUTBOUND_QUEUE_SLOT(overrides?: CallOverrides): Promise<string>;
-
-  PAUSER_ROLE_SLOT(overrides?: CallOverrides): Promise<string>;
-
-  PAUSE_SLOT(overrides?: CallOverrides): Promise<string>;
-
-  REGISTERED_ENDPOINTS_SLOT(overrides?: CallOverrides): Promise<string>;
-
-  SIBLINGS_SLOT(overrides?: CallOverrides): Promise<string>;
-
-  THRESHOLD_SLOT(overrides?: CallOverrides): Promise<string>;
-
   attestationReceived(
     sourceChainId: BigNumberish,
-    sourceManagerAddress: BytesLike,
-    payload: EndpointStructs.ManagerMessageStruct,
+    sourceNttManagerAddress: BytesLike,
+    payload: TransceiverStructs.NttManagerMessageStruct,
     overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
@@ -1322,22 +972,10 @@ export interface Manager extends BaseContract {
     overrides?: PayableOverrides & { from?: string },
   ): Promise<ContractTransaction>;
 
-  countSetBits(x: BigNumberish, overrides?: CallOverrides): Promise<number>;
-
-  deployer(overrides?: CallOverrides): Promise<string>;
-
-  endpointAttestedToMessage(
-    digest: BytesLike,
-    index: BigNumberish,
-    overrides?: CallOverrides,
-  ): Promise<boolean>;
-
-  evmChainId(overrides?: CallOverrides): Promise<BigNumber>;
-
   executeMsg(
     sourceChainId: BigNumberish,
-    sourceManagerAddress: BytesLike,
-    message: EndpointStructs.ManagerMessageStruct,
+    sourceNttManagerAddress: BytesLike,
+    message: TransceiverStructs.NttManagerMessageStruct,
     overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
@@ -1348,13 +986,6 @@ export interface Manager extends BaseContract {
 
   getCurrentOutboundCapacity(overrides?: CallOverrides): Promise<BigNumber>;
 
-  getEndpoints(overrides?: CallOverrides): Promise<string[]>;
-
-  getInboundLimitParams(
-    chainId_: BigNumberish,
-    overrides?: CallOverrides,
-  ): Promise<IRateLimiter.RateLimitParamsStructOutput>;
-
   getInboundQueuedTransfer(
     digest: BytesLike,
     overrides?: CallOverrides,
@@ -1362,21 +993,18 @@ export interface Manager extends BaseContract {
 
   getMigratesImmutables(overrides?: CallOverrides): Promise<boolean>;
 
-  getOutboundLimitParams(
-    overrides?: CallOverrides,
-  ): Promise<IRateLimiter.RateLimitParamsStructOutput>;
+  getMode(overrides?: CallOverrides): Promise<number>;
 
   getOutboundQueuedTransfer(
     queueSequence: BigNumberish,
     overrides?: CallOverrides,
   ): Promise<IRateLimiter.OutboundQueuedTransferStructOutput>;
 
-  getSibling(
-    chainId_: BigNumberish,
-    overrides?: CallOverrides,
-  ): Promise<string>;
+  getPeer(chainId_: BigNumberish, overrides?: CallOverrides): Promise<string>;
 
   getThreshold(overrides?: CallOverrides): Promise<number>;
+
+  getTransceivers(overrides?: CallOverrides): Promise<string[]>;
 
   initialize(
     overrides?: Overrides & { from?: string },
@@ -1407,21 +1035,6 @@ export interface Manager extends BaseContract {
 
   nextMessageSequence(overrides?: CallOverrides): Promise<BigNumber>;
 
-  nttDenormalize(
-    amount: NormalizedAmountStruct,
-    overrides?: CallOverrides,
-  ): Promise<BigNumber>;
-
-  nttFixDecimals(
-    amount: NormalizedAmountStruct,
-    overrides?: CallOverrides,
-  ): Promise<NormalizedAmountStructOutput>;
-
-  nttNormalize(
-    amount: BigNumberish,
-    overrides?: CallOverrides,
-  ): Promise<NormalizedAmountStructOutput>;
-
   owner(overrides?: CallOverrides): Promise<string>;
 
   pause(
@@ -1432,26 +1045,15 @@ export interface Manager extends BaseContract {
 
   quoteDeliveryPrice(
     recipientChain: BigNumberish,
-    endpointInstructions: EndpointStructs.EndpointInstructionStruct[],
-    enabledEndpoints: string[],
+    transceiverInstructions: TransceiverStructs.TransceiverInstructionStruct[],
+    enabledTransceivers: string[],
     overrides?: CallOverrides,
   ): Promise<[BigNumber[], BigNumber]>;
 
   rateLimitDuration(overrides?: CallOverrides): Promise<BigNumber>;
 
-  removeEndpoint(
-    endpoint: string,
-    overrides?: Overrides & { from?: string },
-  ): Promise<ContractTransaction>;
-
-  renounceOwnership(overrides?: CallOverrides): Promise<void>;
-
-  renouncePauser(
-    overrides?: Overrides & { from?: string },
-  ): Promise<ContractTransaction>;
-
-  setEndpoint(
-    endpoint: string,
+  removeTransceiver(
+    transceiver: string,
     overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
@@ -1466,9 +1068,9 @@ export interface Manager extends BaseContract {
     overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
-  setSibling(
-    siblingChainId: BigNumberish,
-    siblingContract: BytesLike,
+  setPeer(
+    peerChainId: BigNumberish,
+    peerContract: BytesLike,
     overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
@@ -1477,7 +1079,20 @@ export interface Manager extends BaseContract {
     overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
+  setTransceiver(
+    transceiver: string,
+    overrides?: Overrides & { from?: string },
+  ): Promise<ContractTransaction>;
+
   token(overrides?: CallOverrides): Promise<string>;
+
+  tokenDecimals(overrides?: CallOverrides): Promise<number>;
+
+  transceiverAttestedToMessage(
+    digest: BytesLike,
+    index: BigNumberish,
+    overrides?: CallOverrides,
+  ): Promise<boolean>;
 
   'transfer(uint256,uint16,bytes32)'(
     amount: BigNumberish,
@@ -1491,7 +1106,7 @@ export interface Manager extends BaseContract {
     recipientChain: BigNumberish,
     recipient: BytesLike,
     shouldQueue: boolean,
-    endpointInstructions: BytesLike,
+    transceiverInstructions: BytesLike,
     overrides?: PayableOverrides & { from?: string },
   ): Promise<ContractTransaction>;
 
@@ -1511,44 +1126,10 @@ export interface Manager extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    ENABLED_ENDPOINTS_SLOT(overrides?: CallOverrides): Promise<string>;
-
-    ENDPOINT_BITMAP_SLOT(overrides?: CallOverrides): Promise<string>;
-
-    ENDPOINT_INFOS_SLOT(overrides?: CallOverrides): Promise<string>;
-
-    INBOUND_LIMIT_PARAMS_SLOT(overrides?: CallOverrides): Promise<string>;
-
-    INBOUND_QUEUE_SLOT(overrides?: CallOverrides): Promise<string>;
-
-    MESSAGE_ATTESTATIONS_SLOT(overrides?: CallOverrides): Promise<string>;
-
-    MESSAGE_SEQUENCE_SLOT(overrides?: CallOverrides): Promise<string>;
-
-    MIGRATES_IMMUTABLES_SLOT(overrides?: CallOverrides): Promise<string>;
-
-    MIGRATING_SLOT(overrides?: CallOverrides): Promise<string>;
-
-    NUM_REGISTERED_ENDPOINTS_SLOT(overrides?: CallOverrides): Promise<string>;
-
-    OUTBOUND_LIMIT_PARAMS_SLOT(overrides?: CallOverrides): Promise<string>;
-
-    OUTBOUND_QUEUE_SLOT(overrides?: CallOverrides): Promise<string>;
-
-    PAUSER_ROLE_SLOT(overrides?: CallOverrides): Promise<string>;
-
-    PAUSE_SLOT(overrides?: CallOverrides): Promise<string>;
-
-    REGISTERED_ENDPOINTS_SLOT(overrides?: CallOverrides): Promise<string>;
-
-    SIBLINGS_SLOT(overrides?: CallOverrides): Promise<string>;
-
-    THRESHOLD_SLOT(overrides?: CallOverrides): Promise<string>;
-
     attestationReceived(
       sourceChainId: BigNumberish,
-      sourceManagerAddress: BytesLike,
-      payload: EndpointStructs.ManagerMessageStruct,
+      sourceNttManagerAddress: BytesLike,
+      payload: TransceiverStructs.NttManagerMessageStruct,
       overrides?: CallOverrides,
     ): Promise<void>;
 
@@ -1564,22 +1145,10 @@ export interface Manager extends BaseContract {
       overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
-    countSetBits(x: BigNumberish, overrides?: CallOverrides): Promise<number>;
-
-    deployer(overrides?: CallOverrides): Promise<string>;
-
-    endpointAttestedToMessage(
-      digest: BytesLike,
-      index: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<boolean>;
-
-    evmChainId(overrides?: CallOverrides): Promise<BigNumber>;
-
     executeMsg(
       sourceChainId: BigNumberish,
-      sourceManagerAddress: BytesLike,
-      message: EndpointStructs.ManagerMessageStruct,
+      sourceNttManagerAddress: BytesLike,
+      message: TransceiverStructs.NttManagerMessageStruct,
       overrides?: CallOverrides,
     ): Promise<void>;
 
@@ -1590,13 +1159,6 @@ export interface Manager extends BaseContract {
 
     getCurrentOutboundCapacity(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getEndpoints(overrides?: CallOverrides): Promise<string[]>;
-
-    getInboundLimitParams(
-      chainId_: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<IRateLimiter.RateLimitParamsStructOutput>;
-
     getInboundQueuedTransfer(
       digest: BytesLike,
       overrides?: CallOverrides,
@@ -1604,21 +1166,18 @@ export interface Manager extends BaseContract {
 
     getMigratesImmutables(overrides?: CallOverrides): Promise<boolean>;
 
-    getOutboundLimitParams(
-      overrides?: CallOverrides,
-    ): Promise<IRateLimiter.RateLimitParamsStructOutput>;
+    getMode(overrides?: CallOverrides): Promise<number>;
 
     getOutboundQueuedTransfer(
       queueSequence: BigNumberish,
       overrides?: CallOverrides,
     ): Promise<IRateLimiter.OutboundQueuedTransferStructOutput>;
 
-    getSibling(
-      chainId_: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<string>;
+    getPeer(chainId_: BigNumberish, overrides?: CallOverrides): Promise<string>;
 
     getThreshold(overrides?: CallOverrides): Promise<number>;
+
+    getTransceivers(overrides?: CallOverrides): Promise<string[]>;
 
     initialize(overrides?: CallOverrides): Promise<void>;
 
@@ -1645,21 +1204,6 @@ export interface Manager extends BaseContract {
 
     nextMessageSequence(overrides?: CallOverrides): Promise<BigNumber>;
 
-    nttDenormalize(
-      amount: NormalizedAmountStruct,
-      overrides?: CallOverrides,
-    ): Promise<BigNumber>;
-
-    nttFixDecimals(
-      amount: NormalizedAmountStruct,
-      overrides?: CallOverrides,
-    ): Promise<NormalizedAmountStructOutput>;
-
-    nttNormalize(
-      amount: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<NormalizedAmountStructOutput>;
-
     owner(overrides?: CallOverrides): Promise<string>;
 
     pause(overrides?: CallOverrides): Promise<void>;
@@ -1668,20 +1212,17 @@ export interface Manager extends BaseContract {
 
     quoteDeliveryPrice(
       recipientChain: BigNumberish,
-      endpointInstructions: EndpointStructs.EndpointInstructionStruct[],
-      enabledEndpoints: string[],
+      transceiverInstructions: TransceiverStructs.TransceiverInstructionStruct[],
+      enabledTransceivers: string[],
       overrides?: CallOverrides,
     ): Promise<[BigNumber[], BigNumber]>;
 
     rateLimitDuration(overrides?: CallOverrides): Promise<BigNumber>;
 
-    removeEndpoint(endpoint: string, overrides?: CallOverrides): Promise<void>;
-
-    renounceOwnership(overrides?: CallOverrides): Promise<void>;
-
-    renouncePauser(overrides?: CallOverrides): Promise<void>;
-
-    setEndpoint(endpoint: string, overrides?: CallOverrides): Promise<void>;
+    removeTransceiver(
+      transceiver: string,
+      overrides?: CallOverrides,
+    ): Promise<void>;
 
     setInboundLimit(
       limit: BigNumberish,
@@ -1694,9 +1235,9 @@ export interface Manager extends BaseContract {
       overrides?: CallOverrides,
     ): Promise<void>;
 
-    setSibling(
-      siblingChainId: BigNumberish,
-      siblingContract: BytesLike,
+    setPeer(
+      peerChainId: BigNumberish,
+      peerContract: BytesLike,
       overrides?: CallOverrides,
     ): Promise<void>;
 
@@ -1705,7 +1246,20 @@ export interface Manager extends BaseContract {
       overrides?: CallOverrides,
     ): Promise<void>;
 
+    setTransceiver(
+      transceiver: string,
+      overrides?: CallOverrides,
+    ): Promise<void>;
+
     token(overrides?: CallOverrides): Promise<string>;
+
+    tokenDecimals(overrides?: CallOverrides): Promise<number>;
+
+    transceiverAttestedToMessage(
+      digest: BytesLike,
+      index: BigNumberish,
+      overrides?: CallOverrides,
+    ): Promise<boolean>;
 
     'transfer(uint256,uint16,bytes32)'(
       amount: BigNumberish,
@@ -1719,7 +1273,7 @@ export interface Manager extends BaseContract {
       recipientChain: BigNumberish,
       recipient: BytesLike,
       shouldQueue: boolean,
-      endpointInstructions: BytesLike,
+      transceiverInstructions: BytesLike,
       overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
@@ -1754,22 +1308,6 @@ export interface Manager extends BaseContract {
     ): BeaconUpgradedEventFilter;
     BeaconUpgraded(beacon?: string | null): BeaconUpgradedEventFilter;
 
-    'EndpointAdded(address)'(
-      endpoint?: null,
-    ): EndpointAdded_address_EventFilter;
-    'EndpointAdded(address,uint256,uint8)'(
-      endpoint?: null,
-      endpointsNum?: null,
-      threshold?: null,
-    ): EndpointAdded_address_uint256_uint8_EventFilter;
-    'EndpointRemoved(address)'(
-      endpoint?: null,
-    ): EndpointRemoved_address_EventFilter;
-    'EndpointRemoved(address,uint8)'(
-      endpoint?: null,
-      threshold?: null,
-    ): EndpointRemoved_address_uint8_EventFilter;
-
     'InboundTransferQueued(bytes32)'(
       digest?: null,
     ): InboundTransferQueuedEventFilter;
@@ -1779,22 +1317,22 @@ export interface Manager extends BaseContract {
     Initialized(version?: null): InitializedEventFilter;
 
     'MessageAlreadyExecuted(bytes32,bytes32)'(
-      sourceManager?: BytesLike | null,
+      sourceNttManager?: BytesLike | null,
       msgHash?: BytesLike | null,
     ): MessageAlreadyExecutedEventFilter;
     MessageAlreadyExecuted(
-      sourceManager?: BytesLike | null,
+      sourceNttManager?: BytesLike | null,
       msgHash?: BytesLike | null,
     ): MessageAlreadyExecutedEventFilter;
 
     'MessageAttestedTo(bytes32,address,uint8)'(
       digest?: null,
-      endpoint?: null,
+      transceiver?: null,
       index?: null,
     ): MessageAttestedToEventFilter;
     MessageAttestedTo(
       digest?: null,
-      endpoint?: null,
+      transceiver?: null,
       index?: null,
     ): MessageAttestedToEventFilter;
 
@@ -1842,16 +1380,16 @@ export interface Manager extends BaseContract {
       newPauser?: string | null,
     ): PauserTransferredEventFilter;
 
-    'SiblingUpdated(uint16,bytes32,bytes32)'(
+    'PeerUpdated(uint16,bytes32,bytes32)'(
       chainId_?: BigNumberish | null,
-      oldSiblingContract?: null,
-      siblingContract?: null,
-    ): SiblingUpdatedEventFilter;
-    SiblingUpdated(
+      oldPeerContract?: null,
+      peerContract?: null,
+    ): PeerUpdatedEventFilter;
+    PeerUpdated(
       chainId_?: BigNumberish | null,
-      oldSiblingContract?: null,
-      siblingContract?: null,
-    ): SiblingUpdatedEventFilter;
+      oldPeerContract?: null,
+      peerContract?: null,
+    ): PeerUpdatedEventFilter;
 
     'ThresholdChanged(uint8,uint8)'(
       oldThreshold?: null,
@@ -1861,6 +1399,22 @@ export interface Manager extends BaseContract {
       oldThreshold?: null,
       threshold?: null,
     ): ThresholdChangedEventFilter;
+
+    'TransceiverAdded(address)'(
+      transceiver?: null,
+    ): TransceiverAdded_address_EventFilter;
+    'TransceiverAdded(address,uint256,uint8)'(
+      transceiver?: null,
+      transceiversNum?: null,
+      threshold?: null,
+    ): TransceiverAdded_address_uint256_uint8_EventFilter;
+    'TransceiverRemoved(address)'(
+      transceiver?: null,
+    ): TransceiverRemoved_address_EventFilter;
+    'TransceiverRemoved(address,uint8)'(
+      transceiver?: null,
+      threshold?: null,
+    ): TransceiverRemoved_address_uint8_EventFilter;
 
     'TransferRedeemed(bytes32)'(digest?: null): TransferRedeemedEventFilter;
     TransferRedeemed(digest?: null): TransferRedeemedEventFilter;
@@ -1883,46 +1437,10 @@ export interface Manager extends BaseContract {
   };
 
   estimateGas: {
-    ENABLED_ENDPOINTS_SLOT(overrides?: CallOverrides): Promise<BigNumber>;
-
-    ENDPOINT_BITMAP_SLOT(overrides?: CallOverrides): Promise<BigNumber>;
-
-    ENDPOINT_INFOS_SLOT(overrides?: CallOverrides): Promise<BigNumber>;
-
-    INBOUND_LIMIT_PARAMS_SLOT(overrides?: CallOverrides): Promise<BigNumber>;
-
-    INBOUND_QUEUE_SLOT(overrides?: CallOverrides): Promise<BigNumber>;
-
-    MESSAGE_ATTESTATIONS_SLOT(overrides?: CallOverrides): Promise<BigNumber>;
-
-    MESSAGE_SEQUENCE_SLOT(overrides?: CallOverrides): Promise<BigNumber>;
-
-    MIGRATES_IMMUTABLES_SLOT(overrides?: CallOverrides): Promise<BigNumber>;
-
-    MIGRATING_SLOT(overrides?: CallOverrides): Promise<BigNumber>;
-
-    NUM_REGISTERED_ENDPOINTS_SLOT(
-      overrides?: CallOverrides,
-    ): Promise<BigNumber>;
-
-    OUTBOUND_LIMIT_PARAMS_SLOT(overrides?: CallOverrides): Promise<BigNumber>;
-
-    OUTBOUND_QUEUE_SLOT(overrides?: CallOverrides): Promise<BigNumber>;
-
-    PAUSER_ROLE_SLOT(overrides?: CallOverrides): Promise<BigNumber>;
-
-    PAUSE_SLOT(overrides?: CallOverrides): Promise<BigNumber>;
-
-    REGISTERED_ENDPOINTS_SLOT(overrides?: CallOverrides): Promise<BigNumber>;
-
-    SIBLINGS_SLOT(overrides?: CallOverrides): Promise<BigNumber>;
-
-    THRESHOLD_SLOT(overrides?: CallOverrides): Promise<BigNumber>;
-
     attestationReceived(
       sourceChainId: BigNumberish,
-      sourceManagerAddress: BytesLike,
-      payload: EndpointStructs.ManagerMessageStruct,
+      sourceNttManagerAddress: BytesLike,
+      payload: TransceiverStructs.NttManagerMessageStruct,
       overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
@@ -1938,25 +1456,10 @@ export interface Manager extends BaseContract {
       overrides?: PayableOverrides & { from?: string },
     ): Promise<BigNumber>;
 
-    countSetBits(
-      x: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<BigNumber>;
-
-    deployer(overrides?: CallOverrides): Promise<BigNumber>;
-
-    endpointAttestedToMessage(
-      digest: BytesLike,
-      index: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<BigNumber>;
-
-    evmChainId(overrides?: CallOverrides): Promise<BigNumber>;
-
     executeMsg(
       sourceChainId: BigNumberish,
-      sourceManagerAddress: BytesLike,
-      message: EndpointStructs.ManagerMessageStruct,
+      sourceNttManagerAddress: BytesLike,
+      message: TransceiverStructs.NttManagerMessageStruct,
       overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
@@ -1967,13 +1470,6 @@ export interface Manager extends BaseContract {
 
     getCurrentOutboundCapacity(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getEndpoints(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getInboundLimitParams(
-      chainId_: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<BigNumber>;
-
     getInboundQueuedTransfer(
       digest: BytesLike,
       overrides?: CallOverrides,
@@ -1981,19 +1477,21 @@ export interface Manager extends BaseContract {
 
     getMigratesImmutables(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getOutboundLimitParams(overrides?: CallOverrides): Promise<BigNumber>;
+    getMode(overrides?: CallOverrides): Promise<BigNumber>;
 
     getOutboundQueuedTransfer(
       queueSequence: BigNumberish,
       overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
-    getSibling(
+    getPeer(
       chainId_: BigNumberish,
       overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     getThreshold(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getTransceivers(overrides?: CallOverrides): Promise<BigNumber>;
 
     initialize(overrides?: Overrides & { from?: string }): Promise<BigNumber>;
 
@@ -2020,21 +1518,6 @@ export interface Manager extends BaseContract {
 
     nextMessageSequence(overrides?: CallOverrides): Promise<BigNumber>;
 
-    nttDenormalize(
-      amount: NormalizedAmountStruct,
-      overrides?: CallOverrides,
-    ): Promise<BigNumber>;
-
-    nttFixDecimals(
-      amount: NormalizedAmountStruct,
-      overrides?: CallOverrides,
-    ): Promise<BigNumber>;
-
-    nttNormalize(
-      amount: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<BigNumber>;
-
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
     pause(overrides?: Overrides & { from?: string }): Promise<BigNumber>;
@@ -2043,26 +1526,15 @@ export interface Manager extends BaseContract {
 
     quoteDeliveryPrice(
       recipientChain: BigNumberish,
-      endpointInstructions: EndpointStructs.EndpointInstructionStruct[],
-      enabledEndpoints: string[],
+      transceiverInstructions: TransceiverStructs.TransceiverInstructionStruct[],
+      enabledTransceivers: string[],
       overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     rateLimitDuration(overrides?: CallOverrides): Promise<BigNumber>;
 
-    removeEndpoint(
-      endpoint: string,
-      overrides?: Overrides & { from?: string },
-    ): Promise<BigNumber>;
-
-    renounceOwnership(overrides?: CallOverrides): Promise<BigNumber>;
-
-    renouncePauser(
-      overrides?: Overrides & { from?: string },
-    ): Promise<BigNumber>;
-
-    setEndpoint(
-      endpoint: string,
+    removeTransceiver(
+      transceiver: string,
       overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
@@ -2077,9 +1549,9 @@ export interface Manager extends BaseContract {
       overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
-    setSibling(
-      siblingChainId: BigNumberish,
-      siblingContract: BytesLike,
+    setPeer(
+      peerChainId: BigNumberish,
+      peerContract: BytesLike,
       overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
@@ -2088,7 +1560,20 @@ export interface Manager extends BaseContract {
       overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
+    setTransceiver(
+      transceiver: string,
+      overrides?: Overrides & { from?: string },
+    ): Promise<BigNumber>;
+
     token(overrides?: CallOverrides): Promise<BigNumber>;
+
+    tokenDecimals(overrides?: CallOverrides): Promise<BigNumber>;
+
+    transceiverAttestedToMessage(
+      digest: BytesLike,
+      index: BigNumberish,
+      overrides?: CallOverrides,
+    ): Promise<BigNumber>;
 
     'transfer(uint256,uint16,bytes32)'(
       amount: BigNumberish,
@@ -2102,7 +1587,7 @@ export interface Manager extends BaseContract {
       recipientChain: BigNumberish,
       recipient: BytesLike,
       shouldQueue: boolean,
-      endpointInstructions: BytesLike,
+      transceiverInstructions: BytesLike,
       overrides?: PayableOverrides & { from?: string },
     ): Promise<BigNumber>;
 
@@ -2123,68 +1608,10 @@ export interface Manager extends BaseContract {
   };
 
   populateTransaction: {
-    ENABLED_ENDPOINTS_SLOT(
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
-    ENDPOINT_BITMAP_SLOT(
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
-    ENDPOINT_INFOS_SLOT(
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
-    INBOUND_LIMIT_PARAMS_SLOT(
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
-    INBOUND_QUEUE_SLOT(
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
-    MESSAGE_ATTESTATIONS_SLOT(
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
-    MESSAGE_SEQUENCE_SLOT(
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
-    MIGRATES_IMMUTABLES_SLOT(
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
-    MIGRATING_SLOT(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    NUM_REGISTERED_ENDPOINTS_SLOT(
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
-    OUTBOUND_LIMIT_PARAMS_SLOT(
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
-    OUTBOUND_QUEUE_SLOT(
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
-    PAUSER_ROLE_SLOT(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    PAUSE_SLOT(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    REGISTERED_ENDPOINTS_SLOT(
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
-    SIBLINGS_SLOT(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    THRESHOLD_SLOT(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     attestationReceived(
       sourceChainId: BigNumberish,
-      sourceManagerAddress: BytesLike,
-      payload: EndpointStructs.ManagerMessageStruct,
+      sourceNttManagerAddress: BytesLike,
+      payload: TransceiverStructs.NttManagerMessageStruct,
       overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
@@ -2200,25 +1627,10 @@ export interface Manager extends BaseContract {
       overrides?: PayableOverrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
-    countSetBits(
-      x: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
-    deployer(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    endpointAttestedToMessage(
-      digest: BytesLike,
-      index: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
-    evmChainId(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     executeMsg(
       sourceChainId: BigNumberish,
-      sourceManagerAddress: BytesLike,
-      message: EndpointStructs.ManagerMessageStruct,
+      sourceNttManagerAddress: BytesLike,
+      message: TransceiverStructs.NttManagerMessageStruct,
       overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
@@ -2231,13 +1643,6 @@ export interface Manager extends BaseContract {
       overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
-    getEndpoints(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    getInboundLimitParams(
-      chainId_: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
     getInboundQueuedTransfer(
       digest: BytesLike,
       overrides?: CallOverrides,
@@ -2247,21 +1652,21 @@ export interface Manager extends BaseContract {
       overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
-    getOutboundLimitParams(
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
+    getMode(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getOutboundQueuedTransfer(
       queueSequence: BigNumberish,
       overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
-    getSibling(
+    getPeer(
       chainId_: BigNumberish,
       overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     getThreshold(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    getTransceivers(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     initialize(
       overrides?: Overrides & { from?: string },
@@ -2294,21 +1699,6 @@ export interface Manager extends BaseContract {
       overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
-    nttDenormalize(
-      amount: NormalizedAmountStruct,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
-    nttFixDecimals(
-      amount: NormalizedAmountStruct,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
-    nttNormalize(
-      amount: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     pause(
@@ -2319,26 +1709,15 @@ export interface Manager extends BaseContract {
 
     quoteDeliveryPrice(
       recipientChain: BigNumberish,
-      endpointInstructions: EndpointStructs.EndpointInstructionStruct[],
-      enabledEndpoints: string[],
+      transceiverInstructions: TransceiverStructs.TransceiverInstructionStruct[],
+      enabledTransceivers: string[],
       overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     rateLimitDuration(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    removeEndpoint(
-      endpoint: string,
-      overrides?: Overrides & { from?: string },
-    ): Promise<PopulatedTransaction>;
-
-    renounceOwnership(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    renouncePauser(
-      overrides?: Overrides & { from?: string },
-    ): Promise<PopulatedTransaction>;
-
-    setEndpoint(
-      endpoint: string,
+    removeTransceiver(
+      transceiver: string,
       overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
@@ -2353,9 +1732,9 @@ export interface Manager extends BaseContract {
       overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
-    setSibling(
-      siblingChainId: BigNumberish,
-      siblingContract: BytesLike,
+    setPeer(
+      peerChainId: BigNumberish,
+      peerContract: BytesLike,
       overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
@@ -2364,7 +1743,20 @@ export interface Manager extends BaseContract {
       overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
+    setTransceiver(
+      transceiver: string,
+      overrides?: Overrides & { from?: string },
+    ): Promise<PopulatedTransaction>;
+
     token(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    tokenDecimals(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    transceiverAttestedToMessage(
+      digest: BytesLike,
+      index: BigNumberish,
+      overrides?: CallOverrides,
+    ): Promise<PopulatedTransaction>;
 
     'transfer(uint256,uint16,bytes32)'(
       amount: BigNumberish,
@@ -2378,7 +1770,7 @@ export interface Manager extends BaseContract {
       recipientChain: BigNumberish,
       recipient: BytesLike,
       shouldQueue: boolean,
-      endpointInstructions: BytesLike,
+      transceiverInstructions: BytesLike,
       overrides?: PayableOverrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 

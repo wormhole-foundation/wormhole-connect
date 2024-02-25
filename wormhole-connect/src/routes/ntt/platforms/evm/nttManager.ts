@@ -16,21 +16,22 @@ import {
   NotEnoughCapacityError,
   RequireContractIsNotPausedError,
 } from '../../errors';
-import { ManagerMessage, NativeTokenTransfer } from '../solana/sdk';
 import { RATE_LIMIT_DURATION } from 'routes/ntt/consts';
 import {
   encodeEndpointInstructions,
   encodeWormholeEndpointInstruction,
-  getManagerMessageDigest,
+  getNttManagerMessageDigest,
 } from 'routes/ntt/utils';
-import { Manager__factory } from './abis/Manager__factory';
-import { Manager as ManagerAbi } from './abis/Manager';
+import { NttManager__factory } from './abis/NttManager__factory';
+import { NttManager as NttManagerAbi } from './abis/NttManager';
+import { NttManagerMessage } from '../../payloads/common';
+import { NativeTokenTransfer } from '../../payloads/transfers';
 
-export class EVMManager {
-  readonly manager: ManagerAbi;
+export class NttManagerEvm {
+  readonly manager: NttManagerAbi;
 
   constructor(readonly chain: ChainName | ChainId, managerAddress: string) {
-    this.manager = Manager__factory.connect(
+    this.manager = NttManager__factory.connect(
       managerAddress,
       wh.mustGetProvider(chain),
     );
@@ -134,9 +135,9 @@ export class EVMManager {
 
   async getInboundQueuedTransfer(
     emitterChain: ChainName | ChainId,
-    managerMessage: ManagerMessage<NativeTokenTransfer>,
+    managerMessage: NttManagerMessage<NativeTokenTransfer>,
   ): Promise<InboundQueuedTransfer | undefined> {
-    const digest = getManagerMessageDigest(emitterChain, managerMessage);
+    const digest = getNttManagerMessageDigest(emitterChain, managerMessage);
     const queuedTransfer = await this.manager.getInboundQueuedTransfer(digest);
     if (queuedTransfer.txTimestamp.gt(0)) {
       const { recipient, amount, txTimestamp } = queuedTransfer;
@@ -153,9 +154,9 @@ export class EVMManager {
 
   async completeInboundQueuedTransfer(
     emitterChain: ChainName | ChainId,
-    managerMessage: ManagerMessage<NativeTokenTransfer>,
+    managerMessage: NttManagerMessage<NativeTokenTransfer>,
   ): Promise<string> {
-    const digest = getManagerMessageDigest(emitterChain, managerMessage);
+    const digest = getNttManagerMessageDigest(emitterChain, managerMessage);
     try {
       const tx =
         await this.manager.populateTransaction.completeInboundQueuedTransfer(
@@ -169,9 +170,9 @@ export class EVMManager {
 
   async isMessageExecuted(
     emitterChain: ChainName | ChainId,
-    managerMessage: ManagerMessage<NativeTokenTransfer>,
+    managerMessage: NttManagerMessage<NativeTokenTransfer>,
   ): Promise<boolean> {
-    const digest = getManagerMessageDigest(emitterChain, managerMessage);
+    const digest = getNttManagerMessageDigest(emitterChain, managerMessage);
     return this.manager.isMessageExecuted(digest);
   }
 

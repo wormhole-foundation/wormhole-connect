@@ -1,3 +1,3 @@
-export * from './Manager__factory';
-export * from './Manager';
-export * from './WormholeEndpoint__factory';
+export * from './NttManager__factory';
+export * from './NttManager';
+export * from './WormholeTransceiver__factory';

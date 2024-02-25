@@ -5,12 +5,10 @@ import { UnsignedNTTMessage } from 'routes/types';
 import { getNativeVersionOfToken } from 'store/transferInput';
 import { getTokenById, getTokenDecimals } from 'utils';
 import { wh } from 'utils/sdk';
-import {
-  WormholeEndpointMessage,
-  ManagerMessage,
-  NativeTokenTransfer,
-} from './sdk';
 import { TokenId } from '@wormhole-foundation/wormhole-connect-sdk';
+import { WormholeTransceiverMessage } from '../../payloads/wormhole';
+import { NttManagerMessage } from '../../payloads/common';
+import { NativeTokenTransfer } from '../../payloads/transfers';
 
 export const getMessageSolana = async (
   tx: string,
@@ -32,10 +30,11 @@ export const getMessageSolana = async (
   const messageData = PostedMessageData.deserialize(
     wormholeMessageAccount.data,
   );
-  const managerMessage = WormholeEndpointMessage.deserialize(
+  const transceiverMessage = WormholeTransceiverMessage.deserialize(
     messageData.message.payload,
-    (a) => ManagerMessage.deserialize(a, NativeTokenTransfer.deserialize),
-  ).managerPayload;
+    (a) => NttManagerMessage.deserialize(a, NativeTokenTransfer.deserialize),
+  );
+  const managerMessage = transceiverMessage.ntt_managerPayload;
   const fromChain = wh.toChainName('solana');
   const toChain = wh.toChainName(managerMessage.payload.recipientChain);
   const tokenAddress = wh.parseAddress(
@@ -78,7 +77,10 @@ export const getMessageSolana = async (
     block: response.slot,
     gasFee: '0',
     sourceManagerAddress: managerAddress.toString(),
-    toManagerAddress: '', // TODO: will be on payload
+    toManagerAddress: wh.parseAddress(
+      hexlify(transceiverMessage.recipientNttManager),
+      toChain,
+    ),
     endpointMessage: hexlify(messageData.message.payload),
     relayerFee: '',
   };

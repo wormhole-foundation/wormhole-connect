@@ -22,13 +22,11 @@ import { getNativeVersionOfToken } from 'store/transferInput';
 import { getManager, getWormholeEndpoint } from './platforms';
 import { InboundQueuedTransfer } from './types';
 import { DestContractIsPausedError } from './errors';
-import {
-  ManagerMessage,
-  NativeTokenTransfer,
-  WormholeEndpointMessage,
-} from './platforms/solana/sdk';
 import { getMessageEVM } from './platforms/evm';
 import { getMessageSolana } from './platforms/solana';
+import { WormholeTransceiverMessage } from './payloads/wormhole';
+import { NttManagerMessage } from './payloads/common';
+import { NativeTokenTransfer } from './payloads/transfers';
 
 export abstract class NTTBase extends BaseRoute {
   isSupportedChain(chain: ChainName): boolean {
@@ -252,10 +250,10 @@ export abstract class NTTBase extends BaseRoute {
     endpointMessage: string,
     fromChain: ChainName | ChainId,
   ): Promise<InboundQueuedTransfer | undefined> {
-    const managerMessage = WormholeEndpointMessage.deserialize(
+    const managerMessage = WormholeTransceiverMessage.deserialize(
       Buffer.from(endpointMessage.slice(2), 'hex'),
-      (a) => ManagerMessage.deserialize(a, NativeTokenTransfer.deserialize),
-    ).managerPayload;
+      (a) => NttManagerMessage.deserialize(a, NativeTokenTransfer.deserialize),
+    ).ntt_managerPayload;
     return getManager(chain, managerAddress).getInboundQueuedTransfer(
       fromChain,
       managerMessage,
@@ -269,10 +267,10 @@ export abstract class NTTBase extends BaseRoute {
     fromChain: ChainName | ChainId,
     payer: string,
   ): Promise<string> {
-    const managerMessage = WormholeEndpointMessage.deserialize(
+    const managerMessage = WormholeTransceiverMessage.deserialize(
       Buffer.from(endpointMessage.slice(2), 'hex'),
-      (a) => ManagerMessage.deserialize(a, NativeTokenTransfer.deserialize),
-    ).managerPayload;
+      (a) => NttManagerMessage.deserialize(a, NativeTokenTransfer.deserialize),
+    ).ntt_managerPayload;
     return getManager(chain, managerAddress).completeInboundQueuedTransfer(
       fromChain,
       managerMessage,
@@ -337,10 +335,10 @@ export abstract class NTTBase extends BaseRoute {
       throw new Error('Invalid signed message');
     }
     const { fromChain, toManagerAddress, endpointMessage } = signedMessage;
-    const managerMessage = WormholeEndpointMessage.deserialize(
+    const managerMessage = WormholeTransceiverMessage.deserialize(
       Buffer.from(endpointMessage.slice(2), 'hex'),
-      (a) => ManagerMessage.deserialize(a, NativeTokenTransfer.deserialize),
-    ).managerPayload;
+      (a) => NttManagerMessage.deserialize(a, NativeTokenTransfer.deserialize),
+    ).ntt_managerPayload;
     const manager = getManager(chain, toManagerAddress);
     const isMessageExecuted = await manager.isMessageExecuted(
       fromChain,

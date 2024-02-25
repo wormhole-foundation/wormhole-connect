@@ -1,4 +1,4 @@
-import { NormalizedAmount } from '../normalized_amount';
+import { NormalizedAmount } from '../normalizedAmount';
 
 export class NativeTokenTransfer {
   static prefix = Buffer.from([0x99, 0x4e, 0x54, 0x54]);

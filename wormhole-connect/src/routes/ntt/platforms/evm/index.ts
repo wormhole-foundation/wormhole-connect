@@ -1,3 +1,3 @@
-export * from './manager';
+export * from './nttManager';
 export * from './getMessage';
-export * from './wormholeEndpoint';
+export * from './wormholeTransceiver';

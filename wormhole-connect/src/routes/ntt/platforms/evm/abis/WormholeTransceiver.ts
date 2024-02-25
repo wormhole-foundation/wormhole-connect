@@ -27,199 +27,146 @@ import type {
   OnEvent,
 } from './common';
 
-export declare namespace EndpointStructs {
-  export type EndpointMessageStruct = {
-    sourceManagerAddress: BytesLike;
-    recipientManagerAddress: BytesLike;
-    managerPayload: BytesLike;
-    endpointPayload: BytesLike;
+export declare namespace TransceiverStructs {
+  export type TransceiverMessageStruct = {
+    sourceNttManagerAddress: BytesLike;
+    recipientNttManagerAddress: BytesLike;
+    nttManagerPayload: BytesLike;
+    transceiverPayload: BytesLike;
   };
 
-  export type EndpointMessageStructOutput = [string, string, string, string] & {
-    sourceManagerAddress: string;
-    recipientManagerAddress: string;
-    managerPayload: string;
-    endpointPayload: string;
+  export type TransceiverMessageStructOutput = [
+    string,
+    string,
+    string,
+    string,
+  ] & {
+    sourceNttManagerAddress: string;
+    recipientNttManagerAddress: string;
+    nttManagerPayload: string;
+    transceiverPayload: string;
   };
 
-  export type EndpointInstructionStruct = {
+  export type TransceiverInstructionStruct = {
     index: BigNumberish;
     payload: BytesLike;
   };
 
-  export type EndpointInstructionStructOutput = [number, string] & {
+  export type TransceiverInstructionStructOutput = [number, string] & {
     index: number;
     payload: string;
   };
 }
 
-export declare namespace WormholeEndpoint {
-  export type WormholeEndpointInstructionStruct = {
+export declare namespace WormholeTransceiver {
+  export type WormholeTransceiverInstructionStruct = {
     shouldSkipRelayerSend: boolean;
   };
 
-  export type WormholeEndpointInstructionStructOutput = [boolean] & {
+  export type WormholeTransceiverInstructionStructOutput = [boolean] & {
     shouldSkipRelayerSend: boolean;
   };
 }
 
-export interface WormholeEndpointInterface extends utils.Interface {
+export interface WormholeTransceiverInterface extends utils.Interface {
   functions: {
     'GAS_LIMIT()': FunctionFragment;
-    'MIGRATES_IMMUTABLES_SLOT()': FunctionFragment;
-    'MIGRATING_SLOT()': FunctionFragment;
-    'PAUSER_ROLE_SLOT()': FunctionFragment;
-    'PAUSE_SLOT()': FunctionFragment;
-    'SPECIAL_RELAYING_ENABLED_CHAINS_SLOT()': FunctionFragment;
-    'WORMHOLE_CONSUMED_VAAS_SLOT()': FunctionFragment;
-    'WORMHOLE_EVM_CHAIN_IDS()': FunctionFragment;
-    'WORMHOLE_RELAYING_ENABLED_CHAINS_SLOT()': FunctionFragment;
-    'WORMHOLE_SIBLINGS_SLOT()': FunctionFragment;
     'consistencyLevel()': FunctionFragment;
-    'encodeWormholeEndpointInstruction((bool))': FunctionFragment;
-    'getManagerOwner()': FunctionFragment;
-    'getManagerToken()': FunctionFragment;
+    'encodeWormholeTransceiverInstruction((bool))': FunctionFragment;
     'getMigratesImmutables()': FunctionFragment;
-    'getWormholeSibling(uint16)': FunctionFragment;
+    'getNttManagerOwner()': FunctionFragment;
+    'getNttManagerToken()': FunctionFragment;
+    'getWormholePeer(uint16)': FunctionFragment;
     'initialize()': FunctionFragment;
     'isPaused()': FunctionFragment;
     'isSpecialRelayingEnabled(uint16)': FunctionFragment;
     'isVAAConsumed(bytes32)': FunctionFragment;
     'isWormholeEvmChain(uint16)': FunctionFragment;
     'isWormholeRelayingEnabled(uint16)': FunctionFragment;
-    'manager()': FunctionFragment;
-    'managerToken()': FunctionFragment;
     'migrate()': FunctionFragment;
+    'nttManager()': FunctionFragment;
+    'nttManagerToken()': FunctionFragment;
     'owner()': FunctionFragment;
-    'parseWormholeEndpointInstruction(bytes)': FunctionFragment;
+    'parseWormholeTransceiverInstruction(bytes)': FunctionFragment;
     'pauser()': FunctionFragment;
     'quoteDeliveryPrice(uint16,(uint8,bytes))': FunctionFragment;
     'receiveMessage(bytes)': FunctionFragment;
     'receiveWormholeMessages(bytes,bytes[],bytes32,uint16,bytes32)': FunctionFragment;
-    'renounceOwnership()': FunctionFragment;
-    'renouncePauser()': FunctionFragment;
     'sendMessage(uint16,(uint8,bytes),bytes,bytes32)': FunctionFragment;
     'setIsWormholeEvmChain(uint16)': FunctionFragment;
     'setIsWormholeRelayingEnabled(uint16,bool)': FunctionFragment;
-    'setWormholeSibling(uint16,bytes32)': FunctionFragment;
+    'setWormholePeer(uint16,bytes32)': FunctionFragment;
     'specialRelayer()': FunctionFragment;
-    'transferEndpointOwnership(address)': FunctionFragment;
     'transferOwnership(address)': FunctionFragment;
     'transferPauserCapability(address)': FunctionFragment;
+    'transferTransceiverOwnership(address)': FunctionFragment;
     'upgrade(address)': FunctionFragment;
     'wormhole()': FunctionFragment;
-    'wormholeEndpoint_evmChainId()': FunctionFragment;
     'wormholeRelayer()': FunctionFragment;
+    'wormholeTransceiver_evmChainId()': FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
       | 'GAS_LIMIT'
-      | 'MIGRATES_IMMUTABLES_SLOT'
-      | 'MIGRATING_SLOT'
-      | 'PAUSER_ROLE_SLOT'
-      | 'PAUSE_SLOT'
-      | 'SPECIAL_RELAYING_ENABLED_CHAINS_SLOT'
-      | 'WORMHOLE_CONSUMED_VAAS_SLOT'
-      | 'WORMHOLE_EVM_CHAIN_IDS'
-      | 'WORMHOLE_RELAYING_ENABLED_CHAINS_SLOT'
-      | 'WORMHOLE_SIBLINGS_SLOT'
       | 'consistencyLevel'
-      | 'encodeWormholeEndpointInstruction'
-      | 'getManagerOwner'
-      | 'getManagerToken'
+      | 'encodeWormholeTransceiverInstruction'
       | 'getMigratesImmutables'
-      | 'getWormholeSibling'
+      | 'getNttManagerOwner'
+      | 'getNttManagerToken'
+      | 'getWormholePeer'
       | 'initialize'
       | 'isPaused'
       | 'isSpecialRelayingEnabled'
       | 'isVAAConsumed'
       | 'isWormholeEvmChain'
       | 'isWormholeRelayingEnabled'
-      | 'manager'
-      | 'managerToken'
       | 'migrate'
+      | 'nttManager'
+      | 'nttManagerToken'
       | 'owner'
-      | 'parseWormholeEndpointInstruction'
+      | 'parseWormholeTransceiverInstruction'
       | 'pauser'
       | 'quoteDeliveryPrice'
       | 'receiveMessage'
       | 'receiveWormholeMessages'
-      | 'renounceOwnership'
-      | 'renouncePauser'
       | 'sendMessage'
       | 'setIsWormholeEvmChain'
       | 'setIsWormholeRelayingEnabled'
-      | 'setWormholeSibling'
+      | 'setWormholePeer'
       | 'specialRelayer'
-      | 'transferEndpointOwnership'
       | 'transferOwnership'
       | 'transferPauserCapability'
+      | 'transferTransceiverOwnership'
       | 'upgrade'
       | 'wormhole'
-      | 'wormholeEndpoint_evmChainId'
-      | 'wormholeRelayer',
+      | 'wormholeRelayer'
+      | 'wormholeTransceiver_evmChainId',
   ): FunctionFragment;
 
   encodeFunctionData(functionFragment: 'GAS_LIMIT', values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: 'MIGRATES_IMMUTABLES_SLOT',
-    values?: undefined,
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'MIGRATING_SLOT',
-    values?: undefined,
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'PAUSER_ROLE_SLOT',
-    values?: undefined,
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'PAUSE_SLOT',
-    values?: undefined,
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'SPECIAL_RELAYING_ENABLED_CHAINS_SLOT',
-    values?: undefined,
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'WORMHOLE_CONSUMED_VAAS_SLOT',
-    values?: undefined,
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'WORMHOLE_EVM_CHAIN_IDS',
-    values?: undefined,
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'WORMHOLE_RELAYING_ENABLED_CHAINS_SLOT',
-    values?: undefined,
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'WORMHOLE_SIBLINGS_SLOT',
-    values?: undefined,
-  ): string;
   encodeFunctionData(
     functionFragment: 'consistencyLevel',
     values?: undefined,
   ): string;
   encodeFunctionData(
-    functionFragment: 'encodeWormholeEndpointInstruction',
-    values: [WormholeEndpoint.WormholeEndpointInstructionStruct],
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'getManagerOwner',
-    values?: undefined,
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'getManagerToken',
-    values?: undefined,
+    functionFragment: 'encodeWormholeTransceiverInstruction',
+    values: [WormholeTransceiver.WormholeTransceiverInstructionStruct],
   ): string;
   encodeFunctionData(
     functionFragment: 'getMigratesImmutables',
     values?: undefined,
   ): string;
   encodeFunctionData(
-    functionFragment: 'getWormholeSibling',
+    functionFragment: 'getNttManagerOwner',
+    values?: undefined,
+  ): string;
+  encodeFunctionData(
+    functionFragment: 'getNttManagerToken',
+    values?: undefined,
+  ): string;
+  encodeFunctionData(
+    functionFragment: 'getWormholePeer',
     values: [BigNumberish],
   ): string;
   encodeFunctionData(
@@ -243,21 +190,24 @@ export interface WormholeEndpointInterface extends utils.Interface {
     functionFragment: 'isWormholeRelayingEnabled',
     values: [BigNumberish],
   ): string;
-  encodeFunctionData(functionFragment: 'manager', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'migrate', values?: undefined): string;
   encodeFunctionData(
-    functionFragment: 'managerToken',
+    functionFragment: 'nttManager',
     values?: undefined,
   ): string;
-  encodeFunctionData(functionFragment: 'migrate', values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: 'nttManagerToken',
+    values?: undefined,
+  ): string;
   encodeFunctionData(functionFragment: 'owner', values?: undefined): string;
   encodeFunctionData(
-    functionFragment: 'parseWormholeEndpointInstruction',
+    functionFragment: 'parseWormholeTransceiverInstruction',
     values: [BytesLike],
   ): string;
   encodeFunctionData(functionFragment: 'pauser', values?: undefined): string;
   encodeFunctionData(
     functionFragment: 'quoteDeliveryPrice',
-    values: [BigNumberish, EndpointStructs.EndpointInstructionStruct],
+    values: [BigNumberish, TransceiverStructs.TransceiverInstructionStruct],
   ): string;
   encodeFunctionData(
     functionFragment: 'receiveMessage',
@@ -268,18 +218,10 @@ export interface WormholeEndpointInterface extends utils.Interface {
     values: [BytesLike, BytesLike[], BytesLike, BigNumberish, BytesLike],
   ): string;
   encodeFunctionData(
-    functionFragment: 'renounceOwnership',
-    values?: undefined,
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'renouncePauser',
-    values?: undefined,
-  ): string;
-  encodeFunctionData(
     functionFragment: 'sendMessage',
     values: [
       BigNumberish,
-      EndpointStructs.EndpointInstructionStruct,
+      TransceiverStructs.TransceiverInstructionStruct,
       BytesLike,
       BytesLike,
     ],
@@ -293,16 +235,12 @@ export interface WormholeEndpointInterface extends utils.Interface {
     values: [BigNumberish, boolean],
   ): string;
   encodeFunctionData(
-    functionFragment: 'setWormholeSibling',
+    functionFragment: 'setWormholePeer',
     values: [BigNumberish, BytesLike],
   ): string;
   encodeFunctionData(
     functionFragment: 'specialRelayer',
     values?: undefined,
-  ): string;
-  encodeFunctionData(
-    functionFragment: 'transferEndpointOwnership',
-    values: [string],
   ): string;
   encodeFunctionData(
     functionFragment: 'transferOwnership',
@@ -312,65 +250,28 @@ export interface WormholeEndpointInterface extends utils.Interface {
     functionFragment: 'transferPauserCapability',
     values: [string],
   ): string;
+  encodeFunctionData(
+    functionFragment: 'transferTransceiverOwnership',
+    values: [string],
+  ): string;
   encodeFunctionData(functionFragment: 'upgrade', values: [string]): string;
   encodeFunctionData(functionFragment: 'wormhole', values?: undefined): string;
   encodeFunctionData(
-    functionFragment: 'wormholeEndpoint_evmChainId',
+    functionFragment: 'wormholeRelayer',
     values?: undefined,
   ): string;
   encodeFunctionData(
-    functionFragment: 'wormholeRelayer',
+    functionFragment: 'wormholeTransceiver_evmChainId',
     values?: undefined,
   ): string;
 
   decodeFunctionResult(functionFragment: 'GAS_LIMIT', data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: 'MIGRATES_IMMUTABLES_SLOT',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: 'MIGRATING_SLOT',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: 'PAUSER_ROLE_SLOT',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(functionFragment: 'PAUSE_SLOT', data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: 'SPECIAL_RELAYING_ENABLED_CHAINS_SLOT',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: 'WORMHOLE_CONSUMED_VAAS_SLOT',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: 'WORMHOLE_EVM_CHAIN_IDS',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: 'WORMHOLE_RELAYING_ENABLED_CHAINS_SLOT',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: 'WORMHOLE_SIBLINGS_SLOT',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
     functionFragment: 'consistencyLevel',
     data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: 'encodeWormholeEndpointInstruction',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: 'getManagerOwner',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: 'getManagerToken',
+    functionFragment: 'encodeWormholeTransceiverInstruction',
     data: BytesLike,
   ): Result;
   decodeFunctionResult(
@@ -378,7 +279,15 @@ export interface WormholeEndpointInterface extends utils.Interface {
     data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: 'getWormholeSibling',
+    functionFragment: 'getNttManagerOwner',
+    data: BytesLike,
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: 'getNttManagerToken',
+    data: BytesLike,
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: 'getWormholePeer',
     data: BytesLike,
   ): Result;
   decodeFunctionResult(functionFragment: 'initialize', data: BytesLike): Result;
@@ -399,15 +308,15 @@ export interface WormholeEndpointInterface extends utils.Interface {
     functionFragment: 'isWormholeRelayingEnabled',
     data: BytesLike,
   ): Result;
-  decodeFunctionResult(functionFragment: 'manager', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'migrate', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'nttManager', data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: 'managerToken',
+    functionFragment: 'nttManagerToken',
     data: BytesLike,
   ): Result;
-  decodeFunctionResult(functionFragment: 'migrate', data: BytesLike): Result;
   decodeFunctionResult(functionFragment: 'owner', data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: 'parseWormholeEndpointInstruction',
+    functionFragment: 'parseWormholeTransceiverInstruction',
     data: BytesLike,
   ): Result;
   decodeFunctionResult(functionFragment: 'pauser', data: BytesLike): Result;
@@ -424,14 +333,6 @@ export interface WormholeEndpointInterface extends utils.Interface {
     data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: 'renounceOwnership',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: 'renouncePauser',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
     functionFragment: 'sendMessage',
     data: BytesLike,
   ): Result;
@@ -444,15 +345,11 @@ export interface WormholeEndpointInterface extends utils.Interface {
     data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: 'setWormholeSibling',
+    functionFragment: 'setWormholePeer',
     data: BytesLike,
   ): Result;
   decodeFunctionResult(
     functionFragment: 'specialRelayer',
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: 'transferEndpointOwnership',
     data: BytesLike,
   ): Result;
   decodeFunctionResult(
@@ -463,14 +360,18 @@ export interface WormholeEndpointInterface extends utils.Interface {
     functionFragment: 'transferPauserCapability',
     data: BytesLike,
   ): Result;
+  decodeFunctionResult(
+    functionFragment: 'transferTransceiverOwnership',
+    data: BytesLike,
+  ): Result;
   decodeFunctionResult(functionFragment: 'upgrade', data: BytesLike): Result;
   decodeFunctionResult(functionFragment: 'wormhole', data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: 'wormholeEndpoint_evmChainId',
+    functionFragment: 'wormholeRelayer',
     data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: 'wormholeRelayer',
+    functionFragment: 'wormholeTransceiver_evmChainId',
     data: BytesLike,
   ): Result;
 
@@ -484,11 +385,11 @@ export interface WormholeEndpointInterface extends utils.Interface {
     'PauserTransferred(address,address)': EventFragment;
     'ReceivedMessage(bytes32,uint16,bytes32,uint64)': EventFragment;
     'ReceivedRelayedMessage(bytes32,uint16,bytes32)': EventFragment;
-    'SendEndpointMessage(uint16,(bytes32,bytes32,bytes,bytes))': EventFragment;
+    'SendTransceiverMessage(uint16,(bytes32,bytes32,bytes,bytes))': EventFragment;
     'SetIsSpecialRelayingEnabled(uint16,bool)': EventFragment;
     'SetIsWormholeEvmChain(uint16)': EventFragment;
     'SetIsWormholeRelayingEnabled(uint16,bool)': EventFragment;
-    'SetWormholeSibling(uint16,bytes32,bytes32)': EventFragment;
+    'SetWormholePeer(uint16,bytes32)': EventFragment;
     'Upgraded(address)': EventFragment;
   };
 
@@ -501,7 +402,7 @@ export interface WormholeEndpointInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: 'PauserTransferred'): EventFragment;
   getEvent(nameOrSignatureOrTopic: 'ReceivedMessage'): EventFragment;
   getEvent(nameOrSignatureOrTopic: 'ReceivedRelayedMessage'): EventFragment;
-  getEvent(nameOrSignatureOrTopic: 'SendEndpointMessage'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'SendTransceiverMessage'): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: 'SetIsSpecialRelayingEnabled',
   ): EventFragment;
@@ -509,7 +410,7 @@ export interface WormholeEndpointInterface extends utils.Interface {
   getEvent(
     nameOrSignatureOrTopic: 'SetIsWormholeRelayingEnabled',
   ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: 'SetWormholeSibling'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'SetWormholePeer'): EventFragment;
   getEvent(nameOrSignatureOrTopic: 'Upgraded'): EventFragment;
 }
 
@@ -605,17 +506,17 @@ export type ReceivedRelayedMessageEvent = TypedEvent<
 export type ReceivedRelayedMessageEventFilter =
   TypedEventFilter<ReceivedRelayedMessageEvent>;
 
-export interface SendEndpointMessageEventObject {
+export interface SendTransceiverMessageEventObject {
   recipientChain: number;
-  message: EndpointStructs.EndpointMessageStructOutput;
+  message: TransceiverStructs.TransceiverMessageStructOutput;
 }
-export type SendEndpointMessageEvent = TypedEvent<
-  [number, EndpointStructs.EndpointMessageStructOutput],
-  SendEndpointMessageEventObject
+export type SendTransceiverMessageEvent = TypedEvent<
+  [number, TransceiverStructs.TransceiverMessageStructOutput],
+  SendTransceiverMessageEventObject
 >;
 
-export type SendEndpointMessageEventFilter =
-  TypedEventFilter<SendEndpointMessageEvent>;
+export type SendTransceiverMessageEventFilter =
+  TypedEventFilter<SendTransceiverMessageEvent>;
 
 export interface SetIsSpecialRelayingEnabledEventObject {
   chainId: number;
@@ -652,18 +553,16 @@ export type SetIsWormholeRelayingEnabledEvent = TypedEvent<
 export type SetIsWormholeRelayingEnabledEventFilter =
   TypedEventFilter<SetIsWormholeRelayingEnabledEvent>;
 
-export interface SetWormholeSiblingEventObject {
+export interface SetWormholePeerEventObject {
   chainId: number;
-  oldSiblingContract: string;
-  siblingContract: string;
+  peerContract: string;
 }
-export type SetWormholeSiblingEvent = TypedEvent<
-  [number, string, string],
-  SetWormholeSiblingEventObject
+export type SetWormholePeerEvent = TypedEvent<
+  [number, string],
+  SetWormholePeerEventObject
 >;
 
-export type SetWormholeSiblingEventFilter =
-  TypedEventFilter<SetWormholeSiblingEvent>;
+export type SetWormholePeerEventFilter = TypedEventFilter<SetWormholePeerEvent>;
 
 export interface UpgradedEventObject {
   implementation: string;
@@ -672,12 +571,12 @@ export type UpgradedEvent = TypedEvent<[string], UpgradedEventObject>;
 
 export type UpgradedEventFilter = TypedEventFilter<UpgradedEvent>;
 
-export interface WormholeEndpoint extends BaseContract {
+export interface WormholeTransceiver extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: WormholeEndpointInterface;
+  interface: WormholeTransceiverInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
@@ -701,42 +600,20 @@ export interface WormholeEndpoint extends BaseContract {
   functions: {
     GAS_LIMIT(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    MIGRATES_IMMUTABLES_SLOT(overrides?: CallOverrides): Promise<[string]>;
-
-    MIGRATING_SLOT(overrides?: CallOverrides): Promise<[string]>;
-
-    PAUSER_ROLE_SLOT(overrides?: CallOverrides): Promise<[string]>;
-
-    PAUSE_SLOT(overrides?: CallOverrides): Promise<[string]>;
-
-    SPECIAL_RELAYING_ENABLED_CHAINS_SLOT(
-      overrides?: CallOverrides,
-    ): Promise<[string]>;
-
-    WORMHOLE_CONSUMED_VAAS_SLOT(overrides?: CallOverrides): Promise<[string]>;
-
-    WORMHOLE_EVM_CHAIN_IDS(overrides?: CallOverrides): Promise<[string]>;
-
-    WORMHOLE_RELAYING_ENABLED_CHAINS_SLOT(
-      overrides?: CallOverrides,
-    ): Promise<[string]>;
-
-    WORMHOLE_SIBLINGS_SLOT(overrides?: CallOverrides): Promise<[string]>;
-
     consistencyLevel(overrides?: CallOverrides): Promise<[number]>;
 
-    encodeWormholeEndpointInstruction(
-      instruction: WormholeEndpoint.WormholeEndpointInstructionStruct,
+    encodeWormholeTransceiverInstruction(
+      instruction: WormholeTransceiver.WormholeTransceiverInstructionStruct,
       overrides?: CallOverrides,
     ): Promise<[string]>;
-
-    getManagerOwner(overrides?: CallOverrides): Promise<[string]>;
-
-    getManagerToken(overrides?: CallOverrides): Promise<[string]>;
 
     getMigratesImmutables(overrides?: CallOverrides): Promise<[boolean]>;
 
-    getWormholeSibling(
+    getNttManagerOwner(overrides?: CallOverrides): Promise<[string]>;
+
+    getNttManagerToken(overrides?: CallOverrides): Promise<[string]>;
+
+    getWormholePeer(
       chainId: BigNumberish,
       overrides?: CallOverrides,
     ): Promise<[string]>;
@@ -767,22 +644,22 @@ export interface WormholeEndpoint extends BaseContract {
       overrides?: CallOverrides,
     ): Promise<[boolean]>;
 
-    manager(overrides?: CallOverrides): Promise<[string]>;
-
-    managerToken(overrides?: CallOverrides): Promise<[string]>;
-
     migrate(
       overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
+    nttManager(overrides?: CallOverrides): Promise<[string]>;
+
+    nttManagerToken(overrides?: CallOverrides): Promise<[string]>;
+
     owner(overrides?: CallOverrides): Promise<[string]>;
 
-    parseWormholeEndpointInstruction(
+    parseWormholeTransceiverInstruction(
       encoded: BytesLike,
       overrides?: CallOverrides,
     ): Promise<
-      [WormholeEndpoint.WormholeEndpointInstructionStructOutput] & {
-        instruction: WormholeEndpoint.WormholeEndpointInstructionStructOutput;
+      [WormholeTransceiver.WormholeTransceiverInstructionStructOutput] & {
+        instruction: WormholeTransceiver.WormholeTransceiverInstructionStructOutput;
       }
     >;
 
@@ -790,7 +667,7 @@ export interface WormholeEndpoint extends BaseContract {
 
     quoteDeliveryPrice(
       targetChain: BigNumberish,
-      instruction: EndpointStructs.EndpointInstructionStruct,
+      instruction: TransceiverStructs.TransceiverInstructionStruct,
       overrides?: CallOverrides,
     ): Promise<[BigNumber]>;
 
@@ -808,19 +685,11 @@ export interface WormholeEndpoint extends BaseContract {
       overrides?: PayableOverrides & { from?: string },
     ): Promise<ContractTransaction>;
 
-    renounceOwnership(
-      overrides?: Overrides & { from?: string },
-    ): Promise<ContractTransaction>;
-
-    renouncePauser(
-      overrides?: Overrides & { from?: string },
-    ): Promise<ContractTransaction>;
-
     sendMessage(
       recipientChain: BigNumberish,
-      instruction: EndpointStructs.EndpointInstructionStruct,
-      managerMessage: BytesLike,
-      recipientManagerAddress: BytesLike,
+      instruction: TransceiverStructs.TransceiverInstructionStruct,
+      nttManagerMessage: BytesLike,
+      recipientNttManagerAddress: BytesLike,
       overrides?: PayableOverrides & { from?: string },
     ): Promise<ContractTransaction>;
 
@@ -835,18 +704,13 @@ export interface WormholeEndpoint extends BaseContract {
       overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
-    setWormholeSibling(
-      siblingChainId: BigNumberish,
-      siblingContract: BytesLike,
+    setWormholePeer(
+      peerChainId: BigNumberish,
+      peerContract: BytesLike,
       overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
     specialRelayer(overrides?: CallOverrides): Promise<[string]>;
-
-    transferEndpointOwnership(
-      newOwner: string,
-      overrides?: Overrides & { from?: string },
-    ): Promise<ContractTransaction>;
 
     transferOwnership(
       newOwner: string,
@@ -858,6 +722,11 @@ export interface WormholeEndpoint extends BaseContract {
       overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
+    transferTransceiverOwnership(
+      newOwner: string,
+      overrides?: Overrides & { from?: string },
+    ): Promise<ContractTransaction>;
+
     upgrade(
       newImplementation: string,
       overrides?: Overrides & { from?: string },
@@ -865,51 +734,29 @@ export interface WormholeEndpoint extends BaseContract {
 
     wormhole(overrides?: CallOverrides): Promise<[string]>;
 
-    wormholeEndpoint_evmChainId(
+    wormholeRelayer(overrides?: CallOverrides): Promise<[string]>;
+
+    wormholeTransceiver_evmChainId(
       overrides?: CallOverrides,
     ): Promise<[BigNumber]>;
-
-    wormholeRelayer(overrides?: CallOverrides): Promise<[string]>;
   };
 
   GAS_LIMIT(overrides?: CallOverrides): Promise<BigNumber>;
 
-  MIGRATES_IMMUTABLES_SLOT(overrides?: CallOverrides): Promise<string>;
-
-  MIGRATING_SLOT(overrides?: CallOverrides): Promise<string>;
-
-  PAUSER_ROLE_SLOT(overrides?: CallOverrides): Promise<string>;
-
-  PAUSE_SLOT(overrides?: CallOverrides): Promise<string>;
-
-  SPECIAL_RELAYING_ENABLED_CHAINS_SLOT(
-    overrides?: CallOverrides,
-  ): Promise<string>;
-
-  WORMHOLE_CONSUMED_VAAS_SLOT(overrides?: CallOverrides): Promise<string>;
-
-  WORMHOLE_EVM_CHAIN_IDS(overrides?: CallOverrides): Promise<string>;
-
-  WORMHOLE_RELAYING_ENABLED_CHAINS_SLOT(
-    overrides?: CallOverrides,
-  ): Promise<string>;
-
-  WORMHOLE_SIBLINGS_SLOT(overrides?: CallOverrides): Promise<string>;
-
   consistencyLevel(overrides?: CallOverrides): Promise<number>;
 
-  encodeWormholeEndpointInstruction(
-    instruction: WormholeEndpoint.WormholeEndpointInstructionStruct,
+  encodeWormholeTransceiverInstruction(
+    instruction: WormholeTransceiver.WormholeTransceiverInstructionStruct,
     overrides?: CallOverrides,
   ): Promise<string>;
-
-  getManagerOwner(overrides?: CallOverrides): Promise<string>;
-
-  getManagerToken(overrides?: CallOverrides): Promise<string>;
 
   getMigratesImmutables(overrides?: CallOverrides): Promise<boolean>;
 
-  getWormholeSibling(
+  getNttManagerOwner(overrides?: CallOverrides): Promise<string>;
+
+  getNttManagerToken(overrides?: CallOverrides): Promise<string>;
+
+  getWormholePeer(
     chainId: BigNumberish,
     overrides?: CallOverrides,
   ): Promise<string>;
@@ -937,26 +784,26 @@ export interface WormholeEndpoint extends BaseContract {
     overrides?: CallOverrides,
   ): Promise<boolean>;
 
-  manager(overrides?: CallOverrides): Promise<string>;
-
-  managerToken(overrides?: CallOverrides): Promise<string>;
-
   migrate(
     overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
+  nttManager(overrides?: CallOverrides): Promise<string>;
+
+  nttManagerToken(overrides?: CallOverrides): Promise<string>;
+
   owner(overrides?: CallOverrides): Promise<string>;
 
-  parseWormholeEndpointInstruction(
+  parseWormholeTransceiverInstruction(
     encoded: BytesLike,
     overrides?: CallOverrides,
-  ): Promise<WormholeEndpoint.WormholeEndpointInstructionStructOutput>;
+  ): Promise<WormholeTransceiver.WormholeTransceiverInstructionStructOutput>;
 
   pauser(overrides?: CallOverrides): Promise<string>;
 
   quoteDeliveryPrice(
     targetChain: BigNumberish,
-    instruction: EndpointStructs.EndpointInstructionStruct,
+    instruction: TransceiverStructs.TransceiverInstructionStruct,
     overrides?: CallOverrides,
   ): Promise<BigNumber>;
 
@@ -974,19 +821,11 @@ export interface WormholeEndpoint extends BaseContract {
     overrides?: PayableOverrides & { from?: string },
   ): Promise<ContractTransaction>;
 
-  renounceOwnership(
-    overrides?: Overrides & { from?: string },
-  ): Promise<ContractTransaction>;
-
-  renouncePauser(
-    overrides?: Overrides & { from?: string },
-  ): Promise<ContractTransaction>;
-
   sendMessage(
     recipientChain: BigNumberish,
-    instruction: EndpointStructs.EndpointInstructionStruct,
-    managerMessage: BytesLike,
-    recipientManagerAddress: BytesLike,
+    instruction: TransceiverStructs.TransceiverInstructionStruct,
+    nttManagerMessage: BytesLike,
+    recipientNttManagerAddress: BytesLike,
     overrides?: PayableOverrides & { from?: string },
   ): Promise<ContractTransaction>;
 
@@ -1001,18 +840,13 @@ export interface WormholeEndpoint extends BaseContract {
     overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
-  setWormholeSibling(
-    siblingChainId: BigNumberish,
-    siblingContract: BytesLike,
+  setWormholePeer(
+    peerChainId: BigNumberish,
+    peerContract: BytesLike,
     overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
   specialRelayer(overrides?: CallOverrides): Promise<string>;
-
-  transferEndpointOwnership(
-    newOwner: string,
-    overrides?: Overrides & { from?: string },
-  ): Promise<ContractTransaction>;
 
   transferOwnership(
     newOwner: string,
@@ -1024,6 +858,11 @@ export interface WormholeEndpoint extends BaseContract {
     overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
+  transferTransceiverOwnership(
+    newOwner: string,
+    overrides?: Overrides & { from?: string },
+  ): Promise<ContractTransaction>;
+
   upgrade(
     newImplementation: string,
     overrides?: Overrides & { from?: string },
@@ -1031,49 +870,27 @@ export interface WormholeEndpoint extends BaseContract {
 
   wormhole(overrides?: CallOverrides): Promise<string>;
 
-  wormholeEndpoint_evmChainId(overrides?: CallOverrides): Promise<BigNumber>;
-
   wormholeRelayer(overrides?: CallOverrides): Promise<string>;
+
+  wormholeTransceiver_evmChainId(overrides?: CallOverrides): Promise<BigNumber>;
 
   callStatic: {
     GAS_LIMIT(overrides?: CallOverrides): Promise<BigNumber>;
 
-    MIGRATES_IMMUTABLES_SLOT(overrides?: CallOverrides): Promise<string>;
-
-    MIGRATING_SLOT(overrides?: CallOverrides): Promise<string>;
-
-    PAUSER_ROLE_SLOT(overrides?: CallOverrides): Promise<string>;
-
-    PAUSE_SLOT(overrides?: CallOverrides): Promise<string>;
-
-    SPECIAL_RELAYING_ENABLED_CHAINS_SLOT(
-      overrides?: CallOverrides,
-    ): Promise<string>;
-
-    WORMHOLE_CONSUMED_VAAS_SLOT(overrides?: CallOverrides): Promise<string>;
-
-    WORMHOLE_EVM_CHAIN_IDS(overrides?: CallOverrides): Promise<string>;
-
-    WORMHOLE_RELAYING_ENABLED_CHAINS_SLOT(
-      overrides?: CallOverrides,
-    ): Promise<string>;
-
-    WORMHOLE_SIBLINGS_SLOT(overrides?: CallOverrides): Promise<string>;
-
     consistencyLevel(overrides?: CallOverrides): Promise<number>;
 
-    encodeWormholeEndpointInstruction(
-      instruction: WormholeEndpoint.WormholeEndpointInstructionStruct,
+    encodeWormholeTransceiverInstruction(
+      instruction: WormholeTransceiver.WormholeTransceiverInstructionStruct,
       overrides?: CallOverrides,
     ): Promise<string>;
-
-    getManagerOwner(overrides?: CallOverrides): Promise<string>;
-
-    getManagerToken(overrides?: CallOverrides): Promise<string>;
 
     getMigratesImmutables(overrides?: CallOverrides): Promise<boolean>;
 
-    getWormholeSibling(
+    getNttManagerOwner(overrides?: CallOverrides): Promise<string>;
+
+    getNttManagerToken(overrides?: CallOverrides): Promise<string>;
+
+    getWormholePeer(
       chainId: BigNumberish,
       overrides?: CallOverrides,
     ): Promise<string>;
@@ -1099,24 +916,24 @@ export interface WormholeEndpoint extends BaseContract {
       overrides?: CallOverrides,
     ): Promise<boolean>;
 
-    manager(overrides?: CallOverrides): Promise<string>;
-
-    managerToken(overrides?: CallOverrides): Promise<string>;
-
     migrate(overrides?: CallOverrides): Promise<void>;
+
+    nttManager(overrides?: CallOverrides): Promise<string>;
+
+    nttManagerToken(overrides?: CallOverrides): Promise<string>;
 
     owner(overrides?: CallOverrides): Promise<string>;
 
-    parseWormholeEndpointInstruction(
+    parseWormholeTransceiverInstruction(
       encoded: BytesLike,
       overrides?: CallOverrides,
-    ): Promise<WormholeEndpoint.WormholeEndpointInstructionStructOutput>;
+    ): Promise<WormholeTransceiver.WormholeTransceiverInstructionStructOutput>;
 
     pauser(overrides?: CallOverrides): Promise<string>;
 
     quoteDeliveryPrice(
       targetChain: BigNumberish,
-      instruction: EndpointStructs.EndpointInstructionStruct,
+      instruction: TransceiverStructs.TransceiverInstructionStruct,
       overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
@@ -1134,15 +951,11 @@ export interface WormholeEndpoint extends BaseContract {
       overrides?: CallOverrides,
     ): Promise<void>;
 
-    renounceOwnership(overrides?: CallOverrides): Promise<void>;
-
-    renouncePauser(overrides?: CallOverrides): Promise<void>;
-
     sendMessage(
       recipientChain: BigNumberish,
-      instruction: EndpointStructs.EndpointInstructionStruct,
-      managerMessage: BytesLike,
-      recipientManagerAddress: BytesLike,
+      instruction: TransceiverStructs.TransceiverInstructionStruct,
+      nttManagerMessage: BytesLike,
+      recipientNttManagerAddress: BytesLike,
       overrides?: CallOverrides,
     ): Promise<void>;
 
@@ -1157,18 +970,13 @@ export interface WormholeEndpoint extends BaseContract {
       overrides?: CallOverrides,
     ): Promise<void>;
 
-    setWormholeSibling(
-      siblingChainId: BigNumberish,
-      siblingContract: BytesLike,
+    setWormholePeer(
+      peerChainId: BigNumberish,
+      peerContract: BytesLike,
       overrides?: CallOverrides,
     ): Promise<void>;
 
     specialRelayer(overrides?: CallOverrides): Promise<string>;
-
-    transferEndpointOwnership(
-      newOwner: string,
-      overrides?: CallOverrides,
-    ): Promise<void>;
 
     transferOwnership(
       newOwner: string,
@@ -1180,6 +988,11 @@ export interface WormholeEndpoint extends BaseContract {
       overrides?: CallOverrides,
     ): Promise<void>;
 
+    transferTransceiverOwnership(
+      newOwner: string,
+      overrides?: CallOverrides,
+    ): Promise<void>;
+
     upgrade(
       newImplementation: string,
       overrides?: CallOverrides,
@@ -1187,9 +1000,11 @@ export interface WormholeEndpoint extends BaseContract {
 
     wormhole(overrides?: CallOverrides): Promise<string>;
 
-    wormholeEndpoint_evmChainId(overrides?: CallOverrides): Promise<BigNumber>;
-
     wormholeRelayer(overrides?: CallOverrides): Promise<string>;
+
+    wormholeTransceiver_evmChainId(
+      overrides?: CallOverrides,
+    ): Promise<BigNumber>;
   };
 
   filters: {
@@ -1258,14 +1073,14 @@ export interface WormholeEndpoint extends BaseContract {
       emitterAddress?: null,
     ): ReceivedRelayedMessageEventFilter;
 
-    'SendEndpointMessage(uint16,(bytes32,bytes32,bytes,bytes))'(
+    'SendTransceiverMessage(uint16,(bytes32,bytes32,bytes,bytes))'(
       recipientChain?: null,
       message?: null,
-    ): SendEndpointMessageEventFilter;
-    SendEndpointMessage(
+    ): SendTransceiverMessageEventFilter;
+    SendTransceiverMessage(
       recipientChain?: null,
       message?: null,
-    ): SendEndpointMessageEventFilter;
+    ): SendTransceiverMessageEventFilter;
 
     'SetIsSpecialRelayingEnabled(uint16,bool)'(
       chainId?: null,
@@ -1290,16 +1105,14 @@ export interface WormholeEndpoint extends BaseContract {
       isRelayingEnabled?: null,
     ): SetIsWormholeRelayingEnabledEventFilter;
 
-    'SetWormholeSibling(uint16,bytes32,bytes32)'(
+    'SetWormholePeer(uint16,bytes32)'(
       chainId?: null,
-      oldSiblingContract?: null,
-      siblingContract?: null,
-    ): SetWormholeSiblingEventFilter;
-    SetWormholeSibling(
+      peerContract?: null,
+    ): SetWormholePeerEventFilter;
+    SetWormholePeer(
       chainId?: null,
-      oldSiblingContract?: null,
-      siblingContract?: null,
-    ): SetWormholeSiblingEventFilter;
+      peerContract?: null,
+    ): SetWormholePeerEventFilter;
 
     'Upgraded(address)'(implementation?: string | null): UpgradedEventFilter;
     Upgraded(implementation?: string | null): UpgradedEventFilter;
@@ -1308,42 +1121,20 @@ export interface WormholeEndpoint extends BaseContract {
   estimateGas: {
     GAS_LIMIT(overrides?: CallOverrides): Promise<BigNumber>;
 
-    MIGRATES_IMMUTABLES_SLOT(overrides?: CallOverrides): Promise<BigNumber>;
-
-    MIGRATING_SLOT(overrides?: CallOverrides): Promise<BigNumber>;
-
-    PAUSER_ROLE_SLOT(overrides?: CallOverrides): Promise<BigNumber>;
-
-    PAUSE_SLOT(overrides?: CallOverrides): Promise<BigNumber>;
-
-    SPECIAL_RELAYING_ENABLED_CHAINS_SLOT(
-      overrides?: CallOverrides,
-    ): Promise<BigNumber>;
-
-    WORMHOLE_CONSUMED_VAAS_SLOT(overrides?: CallOverrides): Promise<BigNumber>;
-
-    WORMHOLE_EVM_CHAIN_IDS(overrides?: CallOverrides): Promise<BigNumber>;
-
-    WORMHOLE_RELAYING_ENABLED_CHAINS_SLOT(
-      overrides?: CallOverrides,
-    ): Promise<BigNumber>;
-
-    WORMHOLE_SIBLINGS_SLOT(overrides?: CallOverrides): Promise<BigNumber>;
-
     consistencyLevel(overrides?: CallOverrides): Promise<BigNumber>;
 
-    encodeWormholeEndpointInstruction(
-      instruction: WormholeEndpoint.WormholeEndpointInstructionStruct,
+    encodeWormholeTransceiverInstruction(
+      instruction: WormholeTransceiver.WormholeTransceiverInstructionStruct,
       overrides?: CallOverrides,
     ): Promise<BigNumber>;
-
-    getManagerOwner(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getManagerToken(overrides?: CallOverrides): Promise<BigNumber>;
 
     getMigratesImmutables(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getWormholeSibling(
+    getNttManagerOwner(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getNttManagerToken(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getWormholePeer(
       chainId: BigNumberish,
       overrides?: CallOverrides,
     ): Promise<BigNumber>;
@@ -1372,15 +1163,15 @@ export interface WormholeEndpoint extends BaseContract {
       overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
-    manager(overrides?: CallOverrides): Promise<BigNumber>;
-
-    managerToken(overrides?: CallOverrides): Promise<BigNumber>;
-
     migrate(overrides?: Overrides & { from?: string }): Promise<BigNumber>;
+
+    nttManager(overrides?: CallOverrides): Promise<BigNumber>;
+
+    nttManagerToken(overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
-    parseWormholeEndpointInstruction(
+    parseWormholeTransceiverInstruction(
       encoded: BytesLike,
       overrides?: CallOverrides,
     ): Promise<BigNumber>;
@@ -1389,7 +1180,7 @@ export interface WormholeEndpoint extends BaseContract {
 
     quoteDeliveryPrice(
       targetChain: BigNumberish,
-      instruction: EndpointStructs.EndpointInstructionStruct,
+      instruction: TransceiverStructs.TransceiverInstructionStruct,
       overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
@@ -1407,19 +1198,11 @@ export interface WormholeEndpoint extends BaseContract {
       overrides?: PayableOverrides & { from?: string },
     ): Promise<BigNumber>;
 
-    renounceOwnership(
-      overrides?: Overrides & { from?: string },
-    ): Promise<BigNumber>;
-
-    renouncePauser(
-      overrides?: Overrides & { from?: string },
-    ): Promise<BigNumber>;
-
     sendMessage(
       recipientChain: BigNumberish,
-      instruction: EndpointStructs.EndpointInstructionStruct,
-      managerMessage: BytesLike,
-      recipientManagerAddress: BytesLike,
+      instruction: TransceiverStructs.TransceiverInstructionStruct,
+      nttManagerMessage: BytesLike,
+      recipientNttManagerAddress: BytesLike,
       overrides?: PayableOverrides & { from?: string },
     ): Promise<BigNumber>;
 
@@ -1434,18 +1217,13 @@ export interface WormholeEndpoint extends BaseContract {
       overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
-    setWormholeSibling(
-      siblingChainId: BigNumberish,
-      siblingContract: BytesLike,
+    setWormholePeer(
+      peerChainId: BigNumberish,
+      peerContract: BytesLike,
       overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
     specialRelayer(overrides?: CallOverrides): Promise<BigNumber>;
-
-    transferEndpointOwnership(
-      newOwner: string,
-      overrides?: Overrides & { from?: string },
-    ): Promise<BigNumber>;
 
     transferOwnership(
       newOwner: string,
@@ -1457,6 +1235,11 @@ export interface WormholeEndpoint extends BaseContract {
       overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
+    transferTransceiverOwnership(
+      newOwner: string,
+      overrides?: Overrides & { from?: string },
+    ): Promise<BigNumber>;
+
     upgrade(
       newImplementation: string,
       overrides?: Overrides & { from?: string },
@@ -1464,60 +1247,36 @@ export interface WormholeEndpoint extends BaseContract {
 
     wormhole(overrides?: CallOverrides): Promise<BigNumber>;
 
-    wormholeEndpoint_evmChainId(overrides?: CallOverrides): Promise<BigNumber>;
-
     wormholeRelayer(overrides?: CallOverrides): Promise<BigNumber>;
+
+    wormholeTransceiver_evmChainId(
+      overrides?: CallOverrides,
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     GAS_LIMIT(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    MIGRATES_IMMUTABLES_SLOT(
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
-    MIGRATING_SLOT(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    PAUSER_ROLE_SLOT(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    PAUSE_SLOT(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    SPECIAL_RELAYING_ENABLED_CHAINS_SLOT(
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
-    WORMHOLE_CONSUMED_VAAS_SLOT(
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
-    WORMHOLE_EVM_CHAIN_IDS(
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
-    WORMHOLE_RELAYING_ENABLED_CHAINS_SLOT(
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
-    WORMHOLE_SIBLINGS_SLOT(
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
     consistencyLevel(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    encodeWormholeEndpointInstruction(
-      instruction: WormholeEndpoint.WormholeEndpointInstructionStruct,
+    encodeWormholeTransceiverInstruction(
+      instruction: WormholeTransceiver.WormholeTransceiverInstructionStruct,
       overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
-
-    getManagerOwner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    getManagerToken(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getMigratesImmutables(
       overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
-    getWormholeSibling(
+    getNttManagerOwner(
+      overrides?: CallOverrides,
+    ): Promise<PopulatedTransaction>;
+
+    getNttManagerToken(
+      overrides?: CallOverrides,
+    ): Promise<PopulatedTransaction>;
+
+    getWormholePeer(
       chainId: BigNumberish,
       overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
@@ -1548,17 +1307,17 @@ export interface WormholeEndpoint extends BaseContract {
       overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
-    manager(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    managerToken(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     migrate(
       overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
+    nttManager(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    nttManagerToken(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    parseWormholeEndpointInstruction(
+    parseWormholeTransceiverInstruction(
       encoded: BytesLike,
       overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
@@ -1567,7 +1326,7 @@ export interface WormholeEndpoint extends BaseContract {
 
     quoteDeliveryPrice(
       targetChain: BigNumberish,
-      instruction: EndpointStructs.EndpointInstructionStruct,
+      instruction: TransceiverStructs.TransceiverInstructionStruct,
       overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
@@ -1585,19 +1344,11 @@ export interface WormholeEndpoint extends BaseContract {
       overrides?: PayableOverrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
-    renounceOwnership(
-      overrides?: Overrides & { from?: string },
-    ): Promise<PopulatedTransaction>;
-
-    renouncePauser(
-      overrides?: Overrides & { from?: string },
-    ): Promise<PopulatedTransaction>;
-
     sendMessage(
       recipientChain: BigNumberish,
-      instruction: EndpointStructs.EndpointInstructionStruct,
-      managerMessage: BytesLike,
-      recipientManagerAddress: BytesLike,
+      instruction: TransceiverStructs.TransceiverInstructionStruct,
+      nttManagerMessage: BytesLike,
+      recipientNttManagerAddress: BytesLike,
       overrides?: PayableOverrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
@@ -1612,18 +1363,13 @@ export interface WormholeEndpoint extends BaseContract {
       overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
-    setWormholeSibling(
-      siblingChainId: BigNumberish,
-      siblingContract: BytesLike,
+    setWormholePeer(
+      peerChainId: BigNumberish,
+      peerContract: BytesLike,
       overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
     specialRelayer(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    transferEndpointOwnership(
-      newOwner: string,
-      overrides?: Overrides & { from?: string },
-    ): Promise<PopulatedTransaction>;
 
     transferOwnership(
       newOwner: string,
@@ -1635,6 +1381,11 @@ export interface WormholeEndpoint extends BaseContract {
       overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
+    transferTransceiverOwnership(
+      newOwner: string,
+      overrides?: Overrides & { from?: string },
+    ): Promise<PopulatedTransaction>;
+
     upgrade(
       newImplementation: string,
       overrides?: Overrides & { from?: string },
@@ -1642,10 +1393,10 @@ export interface WormholeEndpoint extends BaseContract {
 
     wormhole(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    wormholeEndpoint_evmChainId(
+    wormholeRelayer(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    wormholeTransceiver_evmChainId(
       overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
-
-    wormholeRelayer(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

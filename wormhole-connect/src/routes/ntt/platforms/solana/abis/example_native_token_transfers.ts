@@ -164,7 +164,7 @@ export type ExampleNativeTokenTransfers = {
           isSigner: false;
         },
         {
-          name: 'sibling';
+          name: 'peer';
           isMut: false;
           isSigner: false;
         },
@@ -256,7 +256,7 @@ export type ExampleNativeTokenTransfers = {
           isSigner: false;
         },
         {
-          name: 'sibling';
+          name: 'peer';
           isMut: false;
           isSigner: false;
         },
@@ -289,17 +289,17 @@ export type ExampleNativeTokenTransfers = {
           isSigner: false;
         },
         {
-          name: 'sibling';
+          name: 'peer';
           isMut: false;
           isSigner: false;
         },
         {
-          name: 'endpointMessage';
+          name: 'transceiverMessage';
           isMut: false;
           isSigner: false;
         },
         {
-          name: 'endpoint';
+          name: 'transceiver';
           isMut: false;
           isSigner: false;
         },
@@ -314,8 +314,8 @@ export type ExampleNativeTokenTransfers = {
           isSigner: false;
           docs: [
             'NOTE: This account is content-addressed (PDA seeded by the message hash).',
-            'This is because in a multi-endpoint configuration, the different',
-            'endpoints "vote" on messages (by delivering them). By making the inbox',
+            'This is because in a multi-transceiver configuration, the different',
+            'transceivers "vote" on messages (by delivering them). By making the inbox',
             "items content-addressed, we can ensure that disagreeing votes don't",
             'interfere with each other.',
           ];
@@ -555,7 +555,7 @@ export type ExampleNativeTokenTransfers = {
       ];
     },
     {
-      name: 'setSibling';
+      name: 'setPeer';
       accounts: [
         {
           name: 'payer';
@@ -573,7 +573,7 @@ export type ExampleNativeTokenTransfers = {
           isSigner: false;
         },
         {
-          name: 'sibling';
+          name: 'peer';
           isMut: true;
           isSigner: false;
         },
@@ -592,13 +592,13 @@ export type ExampleNativeTokenTransfers = {
         {
           name: 'args';
           type: {
-            defined: 'SetSiblingArgs';
+            defined: 'SetPeerArgs';
           };
         },
       ];
     },
     {
-      name: 'registerEndpoint';
+      name: 'registerTransceiver';
       accounts: [
         {
           name: 'config';
@@ -616,12 +616,12 @@ export type ExampleNativeTokenTransfers = {
           isSigner: true;
         },
         {
-          name: 'endpoint';
+          name: 'transceiver';
           isMut: false;
           isSigner: false;
         },
         {
-          name: 'registeredEndpoint';
+          name: 'registeredTransceiver';
           isMut: true;
           isSigner: false;
         },
@@ -690,7 +690,7 @@ export type ExampleNativeTokenTransfers = {
       ];
     },
     {
-      name: 'setWormholeSibling';
+      name: 'setWormholePeer';
       accounts: [
         {
           name: 'config';
@@ -708,7 +708,7 @@ export type ExampleNativeTokenTransfers = {
           isSigner: true;
         },
         {
-          name: 'sibling';
+          name: 'peer';
           isMut: true;
           isSigner: false;
         },
@@ -722,7 +722,7 @@ export type ExampleNativeTokenTransfers = {
         {
           name: 'args';
           type: {
-            defined: 'SetEndpointSiblingArgs';
+            defined: 'SetTransceiverPeerArgs';
           };
         },
       ];
@@ -741,7 +741,7 @@ export type ExampleNativeTokenTransfers = {
           isSigner: false;
         },
         {
-          name: 'sibling';
+          name: 'peer';
           isMut: false;
           isSigner: false;
         },
@@ -751,7 +751,7 @@ export type ExampleNativeTokenTransfers = {
           isSigner: false;
         },
         {
-          name: 'endpointMessage';
+          name: 'transceiverMessage';
           isMut: true;
           isSigner: false;
         },
@@ -787,7 +787,7 @@ export type ExampleNativeTokenTransfers = {
           isSigner: false;
         },
         {
-          name: 'endpoint';
+          name: 'transceiver';
           isMut: false;
           isSigner: false;
         },
@@ -905,21 +905,23 @@ export type ExampleNativeTokenTransfers = {
             };
           },
           {
-            name: 'nextEndpointId';
-            docs: ['The next endpoint id to use when registering an endpoint.'];
+            name: 'nextTransceiverId';
+            docs: [
+              'The next transceiver id to use when registering an transceiver.',
+            ];
             type: 'u8';
           },
           {
             name: 'threshold';
             docs: [
-              'The number of endpoints that must attest to a transfer before it is',
+              'The number of transceivers that must attest to a transfer before it is',
               'accepted.',
             ];
             type: 'u8';
           },
           {
-            name: 'enabledEndpoints';
-            docs: ['Bitmap of enabled endpoints'];
+            name: 'enabledTransceivers';
+            docs: ['Bitmap of enabled transceivers'];
             type: {
               defined: 'Bitmap';
             };
@@ -935,9 +937,9 @@ export type ExampleNativeTokenTransfers = {
       };
     },
     {
-      name: 'endpointSibling';
+      name: 'nttManagerPeer';
       docs: [
-        'A sibling on another chain. Stored in a PDA seeded by the chain id.',
+        'A peer on another chain. Stored in a PDA seeded by the chain id.',
       ];
       type: {
         kind: 'struct';
@@ -1039,7 +1041,7 @@ export type ExampleNativeTokenTransfers = {
             };
           },
           {
-            name: 'recipientManager';
+            name: 'recipientNttManager';
             type: {
               array: ['u8', 32];
             };
@@ -1078,7 +1080,7 @@ export type ExampleNativeTokenTransfers = {
       };
     },
     {
-      name: 'registeredEndpoint';
+      name: 'registeredTransceiver';
       type: {
         kind: 'struct';
         fields: [
@@ -1091,7 +1093,7 @@ export type ExampleNativeTokenTransfers = {
             type: 'u8';
           },
           {
-            name: 'endpointAddress';
+            name: 'transceiverAddress';
             type: 'publicKey';
           },
         ];
@@ -1114,9 +1116,9 @@ export type ExampleNativeTokenTransfers = {
       };
     },
     {
-      name: 'managerSibling';
+      name: 'transceiverPeer';
       docs: [
-        'A sibling on another chain. Stored in a PDA seeded by the chain id.',
+        'A peer on another chain. Stored in a PDA seeded by the chain id.',
       ];
       type: {
         kind: 'struct';
@@ -1192,38 +1194,6 @@ export type ExampleNativeTokenTransfers = {
       };
     },
     {
-      name: 'SetEndpointSiblingArgs';
-      type: {
-        kind: 'struct';
-        fields: [
-          {
-            name: 'chainId';
-            type: {
-              defined: 'ChainId';
-            };
-          },
-          {
-            name: 'address';
-            type: {
-              array: ['u8', 32];
-            };
-          },
-        ];
-      };
-    },
-    {
-      name: 'ReleaseOutboundArgs';
-      type: {
-        kind: 'struct';
-        fields: [
-          {
-            name: 'revertOnDelay';
-            type: 'bool';
-          },
-        ];
-      };
-    },
-    {
       name: 'SetInboundLimitArgs';
       type: {
         kind: 'struct';
@@ -1254,7 +1224,7 @@ export type ExampleNativeTokenTransfers = {
       };
     },
     {
-      name: 'SetSiblingArgs';
+      name: 'SetPeerArgs';
       type: {
         kind: 'struct';
         fields: [
@@ -1397,6 +1367,38 @@ export type ExampleNativeTokenTransfers = {
       };
     },
     {
+      name: 'SetTransceiverPeerArgs';
+      type: {
+        kind: 'struct';
+        fields: [
+          {
+            name: 'chainId';
+            type: {
+              defined: 'ChainId';
+            };
+          },
+          {
+            name: 'address';
+            type: {
+              array: ['u8', 32];
+            };
+          },
+        ];
+      };
+    },
+    {
+      name: 'ReleaseOutboundArgs';
+      type: {
+        kind: 'struct';
+        fields: [
+          {
+            name: 'revertOnDelay';
+            type: 'bool';
+          },
+        ];
+      };
+    },
+    {
       name: 'ChainId';
       type: {
         kind: 'struct';
@@ -1472,18 +1474,18 @@ export type ExampleNativeTokenTransfers = {
     },
     {
       code: 6004;
-      name: 'InvalidEndpointSibling';
-      msg: 'InvalidEndpointSibling';
+      name: 'InvalidTransceiverPeer';
+      msg: 'InvalidTransceiverPeer';
     },
     {
       code: 6005;
-      name: 'InvalidManagerSibling';
-      msg: 'InvalidManagerSibling';
+      name: 'InvalidNttManagerPeer';
+      msg: 'InvalidNttManagerPeer';
     },
     {
       code: 6006;
-      name: 'InvalidRecipientManager';
-      msg: 'InvalidRecipientManager';
+      name: 'InvalidRecipientNttManager';
+      msg: 'InvalidRecipientNttManager';
     },
     {
       code: 6007;
@@ -1522,8 +1524,8 @@ export type ExampleNativeTokenTransfers = {
     },
     {
       code: 6014;
-      name: 'DisabledEndpoint';
-      msg: 'DisabledEndpoint';
+      name: 'DisabledTransceiver';
+      msg: 'DisabledTransceiver';
     },
     {
       code: 6015;
@@ -1699,7 +1701,7 @@ export const IDL: ExampleNativeTokenTransfers = {
           isSigner: false,
         },
         {
-          name: 'sibling',
+          name: 'peer',
           isMut: false,
           isSigner: false,
         },
@@ -1791,7 +1793,7 @@ export const IDL: ExampleNativeTokenTransfers = {
           isSigner: false,
         },
         {
-          name: 'sibling',
+          name: 'peer',
           isMut: false,
           isSigner: false,
         },
@@ -1824,17 +1826,17 @@ export const IDL: ExampleNativeTokenTransfers = {
           isSigner: false,
         },
         {
-          name: 'sibling',
+          name: 'peer',
           isMut: false,
           isSigner: false,
         },
         {
-          name: 'endpointMessage',
+          name: 'transceiverMessage',
           isMut: false,
           isSigner: false,
         },
         {
-          name: 'endpoint',
+          name: 'transceiver',
           isMut: false,
           isSigner: false,
         },
@@ -1849,8 +1851,8 @@ export const IDL: ExampleNativeTokenTransfers = {
           isSigner: false,
           docs: [
             'NOTE: This account is content-addressed (PDA seeded by the message hash).',
-            'This is because in a multi-endpoint configuration, the different',
-            'endpoints "vote" on messages (by delivering them). By making the inbox',
+            'This is because in a multi-transceiver configuration, the different',
+            'transceivers "vote" on messages (by delivering them). By making the inbox',
             "items content-addressed, we can ensure that disagreeing votes don't",
             'interfere with each other.',
           ],
@@ -2090,7 +2092,7 @@ export const IDL: ExampleNativeTokenTransfers = {
       ],
     },
     {
-      name: 'setSibling',
+      name: 'setPeer',
       accounts: [
         {
           name: 'payer',
@@ -2108,7 +2110,7 @@ export const IDL: ExampleNativeTokenTransfers = {
           isSigner: false,
         },
         {
-          name: 'sibling',
+          name: 'peer',
           isMut: true,
           isSigner: false,
         },
@@ -2127,13 +2129,13 @@ export const IDL: ExampleNativeTokenTransfers = {
         {
           name: 'args',
           type: {
-            defined: 'SetSiblingArgs',
+            defined: 'SetPeerArgs',
           },
         },
       ],
     },
     {
-      name: 'registerEndpoint',
+      name: 'registerTransceiver',
       accounts: [
         {
           name: 'config',
@@ -2151,12 +2153,12 @@ export const IDL: ExampleNativeTokenTransfers = {
           isSigner: true,
         },
         {
-          name: 'endpoint',
+          name: 'transceiver',
           isMut: false,
           isSigner: false,
         },
         {
-          name: 'registeredEndpoint',
+          name: 'registeredTransceiver',
           isMut: true,
           isSigner: false,
         },
@@ -2225,7 +2227,7 @@ export const IDL: ExampleNativeTokenTransfers = {
       ],
     },
     {
-      name: 'setWormholeSibling',
+      name: 'setWormholePeer',
       accounts: [
         {
           name: 'config',
@@ -2243,7 +2245,7 @@ export const IDL: ExampleNativeTokenTransfers = {
           isSigner: true,
         },
         {
-          name: 'sibling',
+          name: 'peer',
           isMut: true,
           isSigner: false,
         },
@@ -2257,7 +2259,7 @@ export const IDL: ExampleNativeTokenTransfers = {
         {
           name: 'args',
           type: {
-            defined: 'SetEndpointSiblingArgs',
+            defined: 'SetTransceiverPeerArgs',
           },
         },
       ],
@@ -2276,7 +2278,7 @@ export const IDL: ExampleNativeTokenTransfers = {
           isSigner: false,
         },
         {
-          name: 'sibling',
+          name: 'peer',
           isMut: false,
           isSigner: false,
         },
@@ -2286,7 +2288,7 @@ export const IDL: ExampleNativeTokenTransfers = {
           isSigner: false,
         },
         {
-          name: 'endpointMessage',
+          name: 'transceiverMessage',
           isMut: true,
           isSigner: false,
         },
@@ -2322,7 +2324,7 @@ export const IDL: ExampleNativeTokenTransfers = {
           isSigner: false,
         },
         {
-          name: 'endpoint',
+          name: 'transceiver',
           isMut: false,
           isSigner: false,
         },
@@ -2440,21 +2442,23 @@ export const IDL: ExampleNativeTokenTransfers = {
             },
           },
           {
-            name: 'nextEndpointId',
-            docs: ['The next endpoint id to use when registering an endpoint.'],
+            name: 'nextTransceiverId',
+            docs: [
+              'The next transceiver id to use when registering an transceiver.',
+            ],
             type: 'u8',
           },
           {
             name: 'threshold',
             docs: [
-              'The number of endpoints that must attest to a transfer before it is',
+              'The number of transceivers that must attest to a transfer before it is',
               'accepted.',
             ],
             type: 'u8',
           },
           {
-            name: 'enabledEndpoints',
-            docs: ['Bitmap of enabled endpoints'],
+            name: 'enabledTransceivers',
+            docs: ['Bitmap of enabled transceivers'],
             type: {
               defined: 'Bitmap',
             },
@@ -2470,9 +2474,9 @@ export const IDL: ExampleNativeTokenTransfers = {
       },
     },
     {
-      name: 'endpointSibling',
+      name: 'nttManagerPeer',
       docs: [
-        'A sibling on another chain. Stored in a PDA seeded by the chain id.',
+        'A peer on another chain. Stored in a PDA seeded by the chain id.',
       ],
       type: {
         kind: 'struct',
@@ -2574,7 +2578,7 @@ export const IDL: ExampleNativeTokenTransfers = {
             },
           },
           {
-            name: 'recipientManager',
+            name: 'recipientNttManager',
             type: {
               array: ['u8', 32],
             },
@@ -2613,7 +2617,7 @@ export const IDL: ExampleNativeTokenTransfers = {
       },
     },
     {
-      name: 'registeredEndpoint',
+      name: 'registeredTransceiver',
       type: {
         kind: 'struct',
         fields: [
@@ -2626,7 +2630,7 @@ export const IDL: ExampleNativeTokenTransfers = {
             type: 'u8',
           },
           {
-            name: 'endpointAddress',
+            name: 'transceiverAddress',
             type: 'publicKey',
           },
         ],
@@ -2649,9 +2653,9 @@ export const IDL: ExampleNativeTokenTransfers = {
       },
     },
     {
-      name: 'managerSibling',
+      name: 'transceiverPeer',
       docs: [
-        'A sibling on another chain. Stored in a PDA seeded by the chain id.',
+        'A peer on another chain. Stored in a PDA seeded by the chain id.',
       ],
       type: {
         kind: 'struct',
@@ -2727,38 +2731,6 @@ export const IDL: ExampleNativeTokenTransfers = {
       },
     },
     {
-      name: 'SetEndpointSiblingArgs',
-      type: {
-        kind: 'struct',
-        fields: [
-          {
-            name: 'chainId',
-            type: {
-              defined: 'ChainId',
-            },
-          },
-          {
-            name: 'address',
-            type: {
-              array: ['u8', 32],
-            },
-          },
-        ],
-      },
-    },
-    {
-      name: 'ReleaseOutboundArgs',
-      type: {
-        kind: 'struct',
-        fields: [
-          {
-            name: 'revertOnDelay',
-            type: 'bool',
-          },
-        ],
-      },
-    },
-    {
       name: 'SetInboundLimitArgs',
       type: {
         kind: 'struct',
@@ -2789,7 +2761,7 @@ export const IDL: ExampleNativeTokenTransfers = {
       },
     },
     {
-      name: 'SetSiblingArgs',
+      name: 'SetPeerArgs',
       type: {
         kind: 'struct',
         fields: [
@@ -2932,6 +2904,38 @@ export const IDL: ExampleNativeTokenTransfers = {
       },
     },
     {
+      name: 'SetTransceiverPeerArgs',
+      type: {
+        kind: 'struct',
+        fields: [
+          {
+            name: 'chainId',
+            type: {
+              defined: 'ChainId',
+            },
+          },
+          {
+            name: 'address',
+            type: {
+              array: ['u8', 32],
+            },
+          },
+        ],
+      },
+    },
+    {
+      name: 'ReleaseOutboundArgs',
+      type: {
+        kind: 'struct',
+        fields: [
+          {
+            name: 'revertOnDelay',
+            type: 'bool',
+          },
+        ],
+      },
+    },
+    {
       name: 'ChainId',
       type: {
         kind: 'struct',
@@ -3007,18 +3011,18 @@ export const IDL: ExampleNativeTokenTransfers = {
     },
     {
       code: 6004,
-      name: 'InvalidEndpointSibling',
-      msg: 'InvalidEndpointSibling',
+      name: 'InvalidTransceiverPeer',
+      msg: 'InvalidTransceiverPeer',
     },
     {
       code: 6005,
-      name: 'InvalidManagerSibling',
-      msg: 'InvalidManagerSibling',
+      name: 'InvalidNttManagerPeer',
+      msg: 'InvalidNttManagerPeer',
     },
     {
       code: 6006,
-      name: 'InvalidRecipientManager',
-      msg: 'InvalidRecipientManager',
+      name: 'InvalidRecipientNttManager',
+      msg: 'InvalidRecipientNttManager',
     },
     {
       code: 6007,
@@ -3057,8 +3061,8 @@ export const IDL: ExampleNativeTokenTransfers = {
     },
     {
       code: 6014,
-      name: 'DisabledEndpoint',
-      msg: 'DisabledEndpoint',
+      name: 'DisabledTransceiver',
+      msg: 'DisabledTransceiver',
     },
     {
       code: 6015,

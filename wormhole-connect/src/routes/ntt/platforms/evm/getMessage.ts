@@ -13,12 +13,10 @@ import { getNativeVersionOfToken } from 'store/transferInput';
 import { getTokenById, getTokenDecimals } from 'utils';
 import { wh } from 'utils/sdk';
 import { getWormholeLogEvm } from 'utils/vaa';
-import {
-  WormholeEndpointMessage,
-  ManagerMessage,
-  NativeTokenTransfer,
-} from '../solana/sdk';
-import { Manager__factory } from './abis';
+import { NttManager__factory } from './abis';
+import { NttManagerMessage } from '../../payloads/common';
+import { WormholeTransceiverMessage } from '../../payloads/wormhole';
+import { NativeTokenTransfer } from '../../payloads/transfers';
 
 export const getMessageEVM = async (
   tx: string,
@@ -29,7 +27,7 @@ export const getMessageEVM = async (
   if (!receipt) {
     throw new Error(`No receipt for tx ${tx} on ${chain}`);
   }
-  const manager = Manager__factory.connect(receipt.to, provider);
+  const manager = NttManager__factory.connect(receipt.to, provider);
   const tokenAddress = await manager.token();
   const fromChain = wh.toChainName(chain);
   const tokenId = {
@@ -73,19 +71,17 @@ export const getMessageEVM = async (
       relayerFee = parsed.args.deliveryQuote.toString();
     }
   }
-  const managerMessage = WormholeEndpointMessage.deserialize(payload, (a) =>
-    ManagerMessage.deserialize(a, NativeTokenTransfer.deserialize),
-  ).managerPayload;
+  const transceiverMessage = WormholeTransceiverMessage.deserialize(
+    payload,
+    (a) => NttManagerMessage.deserialize(a, NativeTokenTransfer.deserialize),
+  );
+  const managerMessage = transceiverMessage.ntt_managerPayload;
   const toChain = wh.toChainName(managerMessage.payload.recipientChain);
   const receivedTokenKey = getNativeVersionOfToken(token.symbol, toChain);
   const destToken = TOKENS[receivedTokenKey];
   if (!destToken) {
     throw new Error(`Token ${receivedTokenKey} not found`);
   }
-  // TODO: this should be on the payload
-  const toManager = await manager.getSibling(
-    managerMessage.payload.recipientChain,
-  );
   return {
     sendTx: receipt.transactionHash,
     sender: receipt.from,
@@ -113,7 +109,10 @@ export const getMessageEVM = async (
     block: receipt.blockNumber,
     gasFee: receipt.gasUsed.mul(receipt.effectiveGasPrice).toString(),
     sourceManagerAddress: manager.address,
-    toManagerAddress: wh.parseAddress(toManager, toChain), // TODO: will be on payload
+    toManagerAddress: wh.parseAddress(
+      transceiverMessage.recipientNttManager,
+      toChain,
+    ),
     endpointMessage: hexlify(payload),
     relayerFee,
   };

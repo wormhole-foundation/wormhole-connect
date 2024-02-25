@@ -1,2 +1,2 @@
-export * from './manager';
+export * from './nttManager';
 export * from './getMessage';
