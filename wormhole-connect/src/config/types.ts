@@ -233,8 +233,8 @@ export type TokenConfig = {
     };
   };
   ntt?: {
-    managerAddress: string;
-    wormholeEndpointAddress: string;
+    nttManager: string;
+    wormholeTransceiver: string;
   };
 };
 

@@ -1,6 +1,6 @@
 import { Route, TokenConfig } from 'config/types';
 import { BigNumber } from 'ethers';
-import { getManager, getWormholeEndpoint } from './platforms';
+import { getNttManager, getWormholeTransceiver } from './platforms';
 import { ChainName, ChainId } from '@wormhole-foundation/wormhole-connect-sdk';
 import { NTTBase } from './nttBase';
 import { CHAINS, TOKENS } from 'config';
@@ -21,7 +21,7 @@ import {
 import { toChainId, wh } from 'utils/sdk';
 import { NO_INPUT } from 'utils/style';
 import { TokenPrices } from 'store/tokenPrices';
-import { toDecimals } from 'utils/balance';
+import { toDecimals, toFixedDecimals } from 'utils/balance';
 
 export class NTTRelay extends NTTBase {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean = false;
@@ -35,11 +35,11 @@ export class NTTRelay extends NTTBase {
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
   ): Promise<boolean> {
-    const endpointAddress = TOKENS[sourceToken]?.ntt?.wormholeEndpointAddress;
+    const endpointAddress = TOKENS[sourceToken]?.ntt?.wormholeTransceiver;
     if (!endpointAddress) {
       return false;
     }
-    const endpoint = getWormholeEndpoint(sourceChain, endpointAddress);
+    const endpoint = getWormholeTransceiver(sourceChain, endpointAddress);
     return await Promise.all([
       super.isRouteSupported(
         sourceToken,
@@ -60,13 +60,13 @@ export class NTTRelay extends NTTBase {
     destToken: string,
   ): Promise<BigNumber> {
     const tokenConfig = TOKENS[token];
-    if (!tokenConfig.ntt?.wormholeEndpointAddress) {
+    if (!tokenConfig.ntt?.wormholeTransceiver) {
       throw new Error('invalid token');
     }
-    const deliveryPrice = await getManager(
+    const deliveryPrice = await getNttManager(
       sourceChain,
-      tokenConfig.ntt.managerAddress,
-    ).quoteDeliveryPrice(destChain, tokenConfig.ntt.wormholeEndpointAddress);
+      tokenConfig.ntt.nttManager,
+    ).quoteDeliveryPrice(destChain, tokenConfig.ntt.wormholeTransceiver);
     return BigNumber.from(deliveryPrice);
   }
 
@@ -80,7 +80,7 @@ export class NTTRelay extends NTTBase {
     claimingGasEst: string,
     receiveAmount: string,
     tokenPrices: TokenPrices,
-    routeOptions: { relayerFee: string },
+    routeOptions: { relayerFee: number },
   ): Promise<TransferDisplayData> {
     const sendingChainName = wh.toChainName(sendingChain);
     const sourceGasToken = CHAINS[sendingChainName]?.gasToken;
@@ -98,6 +98,14 @@ export class NTTRelay extends NTTBase {
       tokenPrices,
       TOKENS[sourceGasToken || ''],
     );
+    let totalFeesText = '';
+    let totalFeesPrice = '';
+    if (sendingGasEst && routeOptions.relayerFee !== undefined) {
+      const feeValue =
+        routeOptions.relayerFee + Number.parseFloat(sendingGasEst);
+      totalFeesText = toFixedDecimals(feeValue.toString(), 6);
+      totalFeesPrice = calculateUSDPrice(feeValue, tokenPrices, token);
+    }
     return [
       {
         title: 'Amount',
@@ -106,8 +114,8 @@ export class NTTRelay extends NTTBase {
       },
       {
         title: 'Total fee estimates',
-        value: sendingGasEst ? `${sendingGasEst} ${sourceGasTokenSymbol}` : '',
-        valueUSD: sendingGasEst ? `${sendingGasEstPrice || NO_INPUT}` : '',
+        value: totalFeesText ? `${totalFeesText} ${sourceGasTokenSymbol}` : '',
+        valueUSD: totalFeesPrice ? `${totalFeesPrice || NO_INPUT}` : '',
         rows: [
           {
             title: 'Source chain gas estimate',

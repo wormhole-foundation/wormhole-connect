@@ -18,7 +18,7 @@ type Props = {
 
 const NTTCapacityWarning = ({ token, amount, chain, fromChain }: Props) => {
   const [capacity, setCapacity] = useState<BigNumber | undefined>(undefined);
-  const managerAddress = TOKENS[token]?.ntt?.managerAddress;
+  const managerAddress = TOKENS[token]?.ntt?.nttManager;
 
   useEffect(() => {
     if (!chain || !managerAddress || !fromChain) return;
@@ -73,8 +73,7 @@ const NTTCapacityWarning = ({ token, amount, chain, fromChain }: Props) => {
         chainConfig?.displayName
       }, your transfer may be delayed for ${formatSecondsToHoursAndMinutes(
         RATE_LIMIT_DURATION,
-      )}
-      . Once the delay ends, you'll need to submit a new transaction${
+      )}. Once the delay ends, you'll need to submit a new transaction${
         chain !== fromChain ? ` on ${chainConfig?.displayName}` : ''
       } to complete the transfer. Please consider this before proceeding.`}
     </>

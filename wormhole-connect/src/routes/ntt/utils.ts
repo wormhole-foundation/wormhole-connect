@@ -18,25 +18,25 @@ export const getNttManagerMessageDigest = (
   return digest;
 };
 
-export interface WormholeEndpointInstruction {
+export interface WormholeTransceiverInstruction {
   shouldSkipRelayerSend: boolean;
 }
 
-export const encodeWormholeEndpointInstruction = (
-  instruction: WormholeEndpointInstruction,
+export const encodeWormholeTransceiverInstruction = (
+  instruction: WormholeTransceiverInstruction,
 ): Buffer => {
   const buffer = Buffer.alloc(1);
   buffer.writeUInt8(instruction.shouldSkipRelayerSend ? 1 : 0);
   return buffer;
 };
 
-export interface EndpointInstruction {
+export interface TransceiverInstruction {
   index: number;
   payload: Buffer;
 }
 
-export const encodeEndpointInstruction = (
-  instruction: EndpointInstruction,
+export const encodeTransceiverInstruction = (
+  instruction: TransceiverInstruction,
 ): Buffer => {
   if (instruction.payload.length > 255) {
     throw new Error(`PayloadTooLong: ${instruction.payload.length}`);
@@ -46,8 +46,8 @@ export const encodeEndpointInstruction = (
   return Buffer.concat([indexBuffer, payloadLength, instruction.payload]);
 };
 
-export const encodeEndpointInstructions = (
-  instructions: EndpointInstruction[],
+export const encodeTransceiverInstructions = (
+  instructions: TransceiverInstruction[],
 ): Buffer => {
   if (instructions.length > 255) {
     throw new Error(`PayloadTooLong: ${instructions.length}`);
@@ -57,7 +57,7 @@ export const encodeEndpointInstructions = (
   let encoded = Buffer.alloc(0);
 
   for (let i = 0; i < instructions.length; i++) {
-    const innerEncoded = encodeEndpointInstruction(instructions[i]);
+    const innerEncoded = encodeTransceiverInstruction(instructions[i]);
     encoded = Buffer.concat([encoded, innerEncoded]);
   }
 

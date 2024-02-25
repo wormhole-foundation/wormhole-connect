@@ -33,7 +33,6 @@ import { ETHBridge } from './porticoBridge/ethBridge';
 import { wstETHBridge } from './porticoBridge/wstETHBridge';
 import { TokenPrices } from 'store/tokenPrices';
 import { NTTManual, NTTRelay } from './ntt';
-import { getUnsignedVaaEvm } from 'utils/vaa';
 
 export class Operator {
   getRoute(route: Route): RouteAbstract {
@@ -105,11 +104,9 @@ export class Operator {
 
       // Check if is Native Token Transfer Route
       for (const token of TOKENS_ARR) {
-        if (token.ntt?.managerAddress === receipt.to) {
-          const { emitterAddress } = await getUnsignedVaaEvm(chain, receipt);
-          return emitterAddress === receipt.to
-            ? Route.NTTManual
-            : Route.NTTRelay;
+        if (token.ntt?.nttManager === receipt.to) {
+          // const { emitterAddress } = await getUnsignedVaaEvm(chain, receipt);
+          return Route.NTTManual;
         }
       }
     }

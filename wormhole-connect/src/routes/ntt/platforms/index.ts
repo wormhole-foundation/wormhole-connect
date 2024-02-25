@@ -4,30 +4,29 @@ import { NttManagerEvm } from './evm';
 import { NttManagerSolana } from './solana';
 import { WormholeTransceiverEvm } from './evm';
 
-export const getManager = (
+export const getNttManager = (
   chain: ChainName | ChainId,
-  managerAddress: string,
+  nttManagerAddress: string,
 ) => {
   if (isEvmChain(chain)) {
-    return new NttManagerEvm(chain, managerAddress);
+    return new NttManagerEvm(chain, nttManagerAddress);
   }
   if (wh.toChainName(chain) === 'solana') {
-    return new NttManagerSolana(managerAddress);
+    return new NttManagerSolana(nttManagerAddress);
   }
   throw new Error(`Unsupported chain: ${chain}`);
 };
 
-export const getWormholeEndpoint = (
+export const getWormholeTransceiver = (
   chain: ChainName | ChainId,
-  endpointAddress: string,
+  transceiverAddress: string,
 ) => {
   if (isEvmChain(chain)) {
-    return new WormholeTransceiverEvm(chain, endpointAddress);
+    return new WormholeTransceiverEvm(chain, transceiverAddress);
   }
   if (wh.toChainName(chain) === 'solana') {
-    // NOTE: The Solana contract has the WormholeEndpoint baked in
-    // This will need to change if it's moved into a separate contract
-    return new NttManagerSolana(endpointAddress);
+    // NOTE: The Solana contract has the "WormholeTransceiver" baked in
+    return new NttManagerSolana(transceiverAddress);
   }
   throw new Error(`Unsupported chain: ${chain}`);
 };

@@ -2238,7 +2238,7 @@ export const TESTNET_TOKENS: TokensConfig = {
     icon: Icon.ETH, // TODO: change icon
     tokenId: {
       chain: 'sepolia',
-      address: '0xa88085E6370a551Cc046fB6B1E3fB9BE23Ac3a21',
+      address: '0xcE0bD78B496bc8DDd25c8a192771e4537f0794c8',
     },
     coinGeckoId: '',
     color: '#2774CA',
@@ -2247,8 +2247,8 @@ export const TESTNET_TOKENS: TokensConfig = {
       default: 8,
     },
     ntt: {
-      managerAddress: '0x79689ce600d3fD3524ec2B4bedcC70131eDA67b6',
-      wormholeEndpointAddress: '',
+      nttManager: '0x826D756044c0b5Edd32eD33a2A4B2963d81D8F85',
+      wormholeTransceiver: '0x3a8233b3A9b968B3f3b0e77AeE2c820ee8821A49',
     },
   },
   TEST_NTTarbitrum_sepolia: {
@@ -2258,7 +2258,7 @@ export const TESTNET_TOKENS: TokensConfig = {
     icon: Icon.ETH, // TODO: change icon
     tokenId: {
       chain: 'arbitrum_sepolia',
-      address: '0xa88085E6370a551Cc046fB6B1E3fB9BE23Ac3a21',
+      address: '0xb12C77938c09d81F1e9797d48501b5c4E338B45B',
     },
     coinGeckoId: '',
     color: '#2774CA',
@@ -2267,8 +2267,8 @@ export const TESTNET_TOKENS: TokensConfig = {
       default: 8,
     },
     ntt: {
-      managerAddress: '0xE493Cc4F069821404d272B994bB80B1Ba1631914',
-      wormholeEndpointAddress: '',
+      nttManager: '0x85B0Ab2d14210c03F790d17a7e6C7829C05F2157',
+      wormholeTransceiver: '0x2ED826c72BAf816096bB48195220de42220D3750',
     },
   },
   TEST_NTTsolana: {
@@ -2287,11 +2287,11 @@ export const TESTNET_TOKENS: TokensConfig = {
       default: 8,
     },
     ntt: {
-      managerAddress: 'nttiK1SepaQt6sZ4WGW5whvc9tEnGXGxuKeptcQPCcS',
+      nttManager: 'nttiK1SepaQt6sZ4WGW5whvc9tEnGXGxuKeptcQPCcS',
       // wormhole endpoint is baked into the manager contract
       // if the endpoint is split into a separate contract, this should be updated
       // and code should be updated to support the new structure
-      wormholeEndpointAddress: 'nttiK1SepaQt6sZ4WGW5whvc9tEnGXGxuKeptcQPCcS',
+      wormholeTransceiver: 'nttiK1SepaQt6sZ4WGW5whvc9tEnGXGxuKeptcQPCcS',
     },
   },
 };

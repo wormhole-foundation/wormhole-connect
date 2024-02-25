@@ -18,8 +18,8 @@ import {
 } from '../../errors';
 import { RATE_LIMIT_DURATION } from 'routes/ntt/consts';
 import {
-  encodeEndpointInstructions,
-  encodeWormholeEndpointInstruction,
+  encodeTransceiverInstructions,
+  encodeWormholeTransceiverInstruction,
   getNttManagerMessageDigest,
 } from 'routes/ntt/utils';
 import { NttManager__factory } from './abis/NttManager__factory';
@@ -28,11 +28,11 @@ import { NttManagerMessage } from '../../payloads/common';
 import { NativeTokenTransfer } from '../../payloads/transfers';
 
 export class NttManagerEvm {
-  readonly manager: NttManagerAbi;
+  readonly nttManager: NttManagerAbi;
 
-  constructor(readonly chain: ChainName | ChainId, managerAddress: string) {
-    this.manager = NttManager__factory.connect(
-      managerAddress,
+  constructor(readonly chain: ChainName | ChainId, nttManager: string) {
+    this.nttManager = NttManager__factory.connect(
+      nttManager,
       wh.mustGetProvider(chain),
     );
   }
@@ -52,22 +52,23 @@ export class NttManagerEvm {
     return txId;
   }
 
+  // Quotes the delivery price using the wormhole transceiver
   async quoteDeliveryPrice(
     destChain: ChainName | ChainId,
-    wormholeEndpoint: string,
+    wormholeTransceiver: string,
   ): Promise<string> {
     const endpointIxs = [
       {
         index: 0,
-        payload: encodeWormholeEndpointInstruction({
+        payload: encodeWormholeTransceiverInstruction({
           shouldSkipRelayerSend: false,
         }),
       },
     ];
-    const [, deliveryPrice] = await this.manager.quoteDeliveryPrice(
+    const [, deliveryPrice] = await this.nttManager.quoteDeliveryPrice(
       wh.toChainId(destChain),
       endpointIxs,
-      [wormholeEndpoint],
+      [wormholeTransceiver],
     );
     return deliveryPrice.toString();
   }
@@ -81,23 +82,25 @@ export class NttManagerEvm {
     shouldSkipRelayerSend: boolean,
   ): Promise<string> {
     const tokenConfig = getTokenById(token);
-    if (!tokenConfig?.ntt?.wormholeEndpointAddress)
+    if (!tokenConfig?.ntt?.wormholeTransceiver)
       throw new Error('invalid token');
     const deliveryPrice = !shouldSkipRelayerSend
       ? BigNumber.from(
           await this.quoteDeliveryPrice(
             toChain,
-            tokenConfig.ntt.wormholeEndpointAddress,
+            tokenConfig.ntt.wormholeTransceiver,
           ),
         )
       : undefined;
-    const endpointIxs = encodeEndpointInstructions([
+    const endpointIxs = encodeTransceiverInstructions([
       {
         index: 0,
-        payload: encodeWormholeEndpointInstruction({ shouldSkipRelayerSend }),
+        payload: encodeWormholeTransceiverInstruction({
+          shouldSkipRelayerSend,
+        }),
       },
     ]);
-    const tx = await this.manager.populateTransaction[
+    const tx = await this.nttManager.populateTransaction[
       'transfer(uint256,uint16,bytes32,bool,bytes)'
     ](
       amount,
@@ -110,7 +113,7 @@ export class NttManagerEvm {
     const context = wh.getContext(this.chain) as EthContext<WormholeContext>;
     await context.approve(
       this.chain,
-      this.manager.address,
+      this.nttManager.address,
       token.address,
       amount,
     );
@@ -122,23 +125,25 @@ export class NttManagerEvm {
   }
 
   async getCurrentOutboundCapacity(): Promise<string> {
-    return (await this.manager.getCurrentOutboundCapacity()).toString();
+    return (await this.nttManager.getCurrentOutboundCapacity()).toString();
   }
 
   async getCurrentInboundCapacity(
     fromChain: ChainName | ChainId,
   ): Promise<string> {
     return (
-      await this.manager.getCurrentInboundCapacity(wh.toChainId(fromChain))
+      await this.nttManager.getCurrentInboundCapacity(wh.toChainId(fromChain))
     ).toString();
   }
 
   async getInboundQueuedTransfer(
     emitterChain: ChainName | ChainId,
-    managerMessage: NttManagerMessage<NativeTokenTransfer>,
+    nttManagerMessage: NttManagerMessage<NativeTokenTransfer>,
   ): Promise<InboundQueuedTransfer | undefined> {
-    const digest = getNttManagerMessageDigest(emitterChain, managerMessage);
-    const queuedTransfer = await this.manager.getInboundQueuedTransfer(digest);
+    const digest = getNttManagerMessageDigest(emitterChain, nttManagerMessage);
+    const queuedTransfer = await this.nttManager.getInboundQueuedTransfer(
+      digest,
+    );
     if (queuedTransfer.txTimestamp.gt(0)) {
       const { recipient, amount, txTimestamp } = queuedTransfer;
       return {
@@ -154,12 +159,12 @@ export class NttManagerEvm {
 
   async completeInboundQueuedTransfer(
     emitterChain: ChainName | ChainId,
-    managerMessage: NttManagerMessage<NativeTokenTransfer>,
+    nttManagerMessage: NttManagerMessage<NativeTokenTransfer>,
   ): Promise<string> {
-    const digest = getNttManagerMessageDigest(emitterChain, managerMessage);
+    const digest = getNttManagerMessageDigest(emitterChain, nttManagerMessage);
     try {
       const tx =
-        await this.manager.populateTransaction.completeInboundQueuedTransfer(
+        await this.nttManager.populateTransaction.completeInboundQueuedTransfer(
           digest,
         );
       return await this.signAndSendTransaction(tx, TransferWallet.RECEIVING);
@@ -170,18 +175,18 @@ export class NttManagerEvm {
 
   async isMessageExecuted(
     emitterChain: ChainName | ChainId,
-    managerMessage: NttManagerMessage<NativeTokenTransfer>,
+    nttManagerMessage: NttManagerMessage<NativeTokenTransfer>,
   ): Promise<boolean> {
-    const digest = getNttManagerMessageDigest(emitterChain, managerMessage);
-    return this.manager.isMessageExecuted(digest);
+    const digest = getNttManagerMessageDigest(emitterChain, nttManagerMessage);
+    return this.nttManager.isMessageExecuted(digest);
   }
 
   async isPaused(): Promise<boolean> {
-    return this.manager.isPaused();
+    return this.nttManager.isPaused();
   }
 
   throwParsedError(e: any): never {
-    const message = tryParseErrorMessage(this.manager.interface, e);
+    const message = tryParseErrorMessage(this.nttManager.interface, e);
     if (message === InboundQueuedTransferNotFoundError.MESSAGE) {
       throw new InboundQueuedTransferNotFoundError();
     }

@@ -28,13 +28,16 @@ export class NttManagerSolana {
   readonly ntt: NTT;
   readonly connection: Connection;
 
-  constructor(readonly managerAddress: string) {
+  constructor(readonly nttId: string) {
     const connection = solanaContext().connection;
     if (!connection) throw new Error('Connection not found');
     this.connection = connection;
     const core = wh.mustGetContracts('solana').core;
     if (!core) throw new Error('Core not found');
-    this.ntt = new NTT(connection, { nttId: managerAddress, wormholeId: core });
+    this.ntt = new NTT(connection, {
+      nttId,
+      wormholeId: core,
+    });
   }
 
   async isWormholeRelayingEnabled(
@@ -53,7 +56,7 @@ export class NttManagerSolana {
 
   async quoteDeliveryPrice(
     destChain: ChainName | ChainId,
-    wormholeEndpoint: string,
+    wormholeTransceiver: string,
   ): Promise<string> {
     throw new Error('Not implemented');
   }
@@ -134,7 +137,7 @@ export class NttManagerSolana {
       config,
     };
     const parsedVaa = parseVaa(vaaArray);
-    const managerMessage = WormholeTransceiverMessage.deserialize(
+    const nttManagerMessage = WormholeTransceiverMessage.deserialize(
       parsedVaa.payload,
       (a) => NttManagerMessage.deserialize(a, NativeTokenTransfer.deserialize),
     ).ntt_managerPayload;
@@ -159,8 +162,8 @@ export class NttManagerSolana {
     tx.add(await this.ntt.createRedeemInstruction(redeemArgs));
     const releaseArgs = {
       ...redeemArgs,
-      ntt_managerMessage: managerMessage,
-      recipient: new PublicKey(managerMessage.payload.recipientAddress),
+      ntt_managerMessage: nttManagerMessage,
+      recipient: new PublicKey(nttManagerMessage.payload.recipientAddress),
       chain: chainId,
       revertOnDelay: false,
     };
@@ -233,15 +236,15 @@ export class NttManagerSolana {
 
   async completeInboundQueuedTransfer(
     emitterChain: ChainName | ChainId,
-    managerMessage: NttManagerMessage<NativeTokenTransfer>,
+    nttManagerMessage: NttManagerMessage<NativeTokenTransfer>,
     payer: string,
   ): Promise<string> {
     const payerPublicKey = new PublicKey(payer);
     const releaseArgs = {
       payer: payerPublicKey,
-      ntt_managerMessage: managerMessage,
+      ntt_managerMessage: nttManagerMessage,
       // TODO: need to format?
-      recipient: new PublicKey(managerMessage.payload.recipientAddress),
+      recipient: new PublicKey(nttManagerMessage.payload.recipientAddress),
       chain: emitterChain,
       revertOnDelay: false,
     };
@@ -266,9 +269,12 @@ export class NttManagerSolana {
 
   async isMessageExecuted(
     emitterChain: ChainName | ChainId,
-    managerMessage: NttManagerMessage<NativeTokenTransfer>,
+    nttManagerMessage: NttManagerMessage<NativeTokenTransfer>,
   ): Promise<boolean> {
-    const inboxItem = await this.ntt.getInboxItem(emitterChain, managerMessage);
+    const inboxItem = await this.ntt.getInboxItem(
+      emitterChain,
+      nttManagerMessage,
+    );
     // TODO: will this be undefined ever?
     return inboxItem.releaseStatus.released !== null;
   }

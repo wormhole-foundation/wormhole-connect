@@ -18,7 +18,6 @@ export const getMessageSolana = async (
   if (!connection) throw new Error('Connection not found');
   const response = await connection.getParsedTransaction(tx);
   if (!response) throw new Error('Transaction not found');
-  const managerAddress = response.transaction.message.instructions[0].programId;
   // TODO: this is scary indexing into this, can we rely on this index?
   const wormholeMessage = response.transaction.message.accountKeys[6].pubkey;
   const wormholeMessageAccount = await connection.getAccountInfo(
@@ -34,11 +33,11 @@ export const getMessageSolana = async (
     messageData.message.payload,
     (a) => NttManagerMessage.deserialize(a, NativeTokenTransfer.deserialize),
   );
-  const managerMessage = transceiverMessage.ntt_managerPayload;
+  const nttManagerMessage = transceiverMessage.ntt_managerPayload;
   const fromChain = wh.toChainName('solana');
-  const toChain = wh.toChainName(managerMessage.payload.recipientChain);
+  const toChain = wh.toChainName(nttManagerMessage.payload.recipientChain);
   const tokenAddress = wh.parseAddress(
-    hexlify(managerMessage.payload.sourceToken),
+    hexlify(nttManagerMessage.payload.sourceToken),
     fromChain,
   );
   const tokenId: TokenId = {
@@ -49,20 +48,19 @@ export const getMessageSolana = async (
   if (!token) {
     throw new Error(`Token ${tokenId} not found`);
   }
-  console.log(messageData.message.emitterAddress.toString('hex'));
   return {
     sendTx: tx,
-    sender: wh.parseAddress(hexlify(managerMessage.sender), fromChain),
-    amount: managerMessage.payload.normalizedAmount.amount.toString(),
+    sender: wh.parseAddress(hexlify(nttManagerMessage.sender), fromChain),
+    amount: nttManagerMessage.payload.normalizedAmount.amount.toString(),
     payloadID: 1,
     recipient: wh.parseAddress(
-      hexlify(managerMessage.payload.recipientAddress),
+      hexlify(nttManagerMessage.payload.recipientAddress),
       toChain,
     ),
     toChain,
     fromChain,
     tokenAddress: wh.parseAddress(
-      hexlify(managerMessage.payload.sourceToken),
+      hexlify(nttManagerMessage.payload.sourceToken),
       fromChain,
     ),
     tokenChain: token.nativeChain,
@@ -76,12 +74,11 @@ export const getMessageSolana = async (
     sequence: messageData.message.sequence.toString(),
     block: response.slot,
     gasFee: '0',
-    sourceManagerAddress: managerAddress.toString(),
-    toManagerAddress: wh.parseAddress(
+    recipientNttManager: wh.parseAddress(
       hexlify(transceiverMessage.recipientNttManager),
       toChain,
     ),
-    endpointMessage: hexlify(messageData.message.payload),
+    transceiverMessage: hexlify(messageData.message.payload),
     relayerFee: '',
   };
 };

@@ -71,7 +71,7 @@ const NTTInboundQueued = () => {
 
   const handleClick = useCallback(async () => {
     if (!isSignedNTTMessage(signedMessage)) return;
-    const { toChain, fromChain, endpointMessage, toManagerAddress } =
+    const { toChain, fromChain, transceiverMessage, recipientNttManager } =
       signedMessage;
     setInProgress(true);
     try {
@@ -80,11 +80,12 @@ const NTTInboundQueued = () => {
         registerWalletSigner(toChain, TransferWallet.RECEIVING);
         await switchChain(toConfig.chainId, TransferWallet.RECEIVING);
       }
-      const ntt = route === Route.NTTManual ? new NTTManual() : new NTTRelay();
-      const tx = await ntt.completeInboundQueuedTransfer(
+      const nttRoute =
+        route === Route.NTTManual ? new NTTManual() : new NTTRelay();
+      const tx = await nttRoute.completeInboundQueuedTransfer(
         toChain,
-        toManagerAddress,
-        endpointMessage,
+        recipientNttManager,
+        transceiverMessage,
         fromChain,
         wallet.address,
       );

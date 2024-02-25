@@ -324,6 +324,7 @@ export class NTT {
 
     const chainId = wh.toChainId(args.recipientChain);
     const mint = await this.mintAccountAddress(config);
+    console.log(this.peerAccountAddress(args.recipientChain).toString());
 
     return await this.program.methods
       .transferLock({

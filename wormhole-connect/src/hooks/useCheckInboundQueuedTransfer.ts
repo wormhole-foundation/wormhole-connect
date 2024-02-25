@@ -34,7 +34,7 @@ const useCheckInboundQueuedTransfer = () => {
     ) {
       return;
     }
-    const { toChain, toManagerAddress, endpointMessage, fromChain } =
+    const { toChain, recipientNttManager, transceiverMessage, fromChain } =
       signedMessage;
     const ntt = RouteOperator.getRoute(route) as NTTBase;
     let active = true;
@@ -43,8 +43,8 @@ const useCheckInboundQueuedTransfer = () => {
         try {
           const queuedTransfer = await ntt.getInboundQueuedTransfer(
             toChain,
-            toManagerAddress,
-            endpointMessage,
+            recipientNttManager,
+            transceiverMessage,
             fromChain,
           );
           if (active) {

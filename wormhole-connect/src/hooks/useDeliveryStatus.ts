@@ -14,19 +14,15 @@ const BASE_URL = `https://api.${
 
 const RETRY_DELAY = 15_000;
 
-// Polls for the delivery status of a standard relay
+// Polls for standard relayer delivery status
 const useDeliveryStatus = () => {
   const dispatch = useDispatch();
   const route = useSelector((state: RootState) => state.redeem.route);
-  const transferComplete = useSelector(
-    (state: RootState) => state.redeem.transferComplete,
-  );
   const signedMessage = useSelector(
     (state: RootState) => state.redeem.signedMessage,
   );
-
   useEffect(() => {
-    if (!signedMessage || route !== Route.NTTRelay || transferComplete) return;
+    if (!signedMessage || route !== Route.NTTRelay) return;
     const { emitterChain, emitterAddress, sequence } =
       getEmitterAndSequence(signedMessage);
     let active = true;
