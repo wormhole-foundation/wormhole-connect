@@ -19,14 +19,14 @@ import {
   Transaction,
   TransactionInstruction,
 } from '@solana/web3.js';
-import { BN, Program } from '@coral-xyz/anchor';
-import { IDL } from './abis';
+import { createApproveInstruction } from '@solana/spl-token';
+import { BN } from '@coral-xyz/anchor';
 import { getAssociatedTokenAddressSync } from '@solana/spl-token';
 import { RATE_LIMIT_DURATION } from 'routes/ntt/consts';
 import { parseVaa } from '@certusone/wormhole-sdk/lib/esm';
 import { utils } from 'ethers';
 
-export class ManagerSolana {
+export class SolanaManager {
   readonly ntt: NTT;
   readonly connection: Connection;
 
@@ -34,10 +34,9 @@ export class ManagerSolana {
     const connection = solanaContext().connection;
     if (!connection) throw new Error('Connection not found');
     this.connection = connection;
-    const program = new Program(IDL as any, this.managerAddress, {
-      connection,
-    });
-    this.ntt = new NTT({ program, wormholeId: this.managerAddress });
+    const core = wh.mustGetContracts('solana').core;
+    if (!core) throw new Error('Core not found');
+    this.ntt = new NTT(connection, { nttId: managerAddress, wormholeId: core });
   }
 
   async isWormholeRelayingEnabled(
@@ -71,12 +70,15 @@ export class ManagerSolana {
   ): Promise<string> {
     const config = await this.ntt.getConfig();
     const outboxItem = Keypair.generate();
+    console.log('send outboxItem', outboxItem.publicKey.toString());
     const destContext = wh.getContext(toChain);
     const payer = new PublicKey(sender);
     const tokenAccount = getAssociatedTokenAddressSync(
       new PublicKey(token.address),
       payer,
     );
+    const limit = await this.getCurrentOutboundCapacity();
+    console.log('limit', limit);
     const txArgs = {
       payer,
       from: tokenAccount,
@@ -86,12 +88,10 @@ export class ManagerSolana {
       fromAuthority: payer,
       outboxItem: outboxItem.publicKey,
       config,
-      shouldQueue: false,
+      shouldQueue: false, // revert instead of getting queued
     };
     let transferIx: TransactionInstruction;
-    console.log(config.mode);
     if (config.mode.locking) {
-      console.log('locking');
       transferIx = await this.ntt.createTransferLockInstruction(txArgs);
     } else if (config.mode.burning) {
       transferIx = await this.ntt.createTransferBurnInstruction(txArgs);
@@ -104,8 +104,14 @@ export class ManagerSolana {
         outboxItem: outboxItem.publicKey,
         revertOnDelay: !txArgs.shouldQueue,
       });
+    const approveIx = createApproveInstruction(
+      tokenAccount,
+      this.ntt.tokenAuthorityAddress(),
+      payer,
+      BigInt(amount.toString()),
+    );
     const tx = new Transaction();
-    tx.add(transferIx, releaseIx);
+    tx.add(approveIx, transferIx, releaseIx);
     tx.feePayer = payer;
     const { blockhash } = await this.connection.getLatestBlockhash('finalized');
     tx.recentBlockhash = blockhash;

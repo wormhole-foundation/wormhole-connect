@@ -1,5 +1,3 @@
-// NOTE: The generics in the IDL are not yet supported by the IDL parser (anchor 0.29.0)
-// They have been removed from the IDL, otherwise the IDL parser will throw an error at runtime.
 export type ExampleNativeTokenTransfers = {
   version: '0.1.0';
   name: 'example_native_token_transfers';
@@ -165,6 +163,11 @@ export type ExampleNativeTokenTransfers = {
           isMut: true;
           isSigner: false;
         },
+        {
+          name: 'sibling';
+          isMut: false;
+          isSigner: false;
+        },
       ];
       args: [
         {
@@ -253,6 +256,11 @@ export type ExampleNativeTokenTransfers = {
           isSigner: false;
         },
         {
+          name: 'sibling';
+          isMut: false;
+          isSigner: false;
+        },
+        {
           name: 'custody';
           isMut: true;
           isSigner: false;
@@ -263,89 +271,6 @@ export type ExampleNativeTokenTransfers = {
           name: 'args';
           type: {
             defined: 'TransferArgs';
-          };
-        },
-      ];
-    },
-    {
-      name: 'releaseOutbound';
-      accounts: [
-        {
-          name: 'payer';
-          isMut: true;
-          isSigner: true;
-        },
-        {
-          name: 'config';
-          accounts: [
-            {
-              name: 'config';
-              isMut: false;
-              isSigner: false;
-            },
-          ];
-        },
-        {
-          name: 'outboxItem';
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: 'endpoint';
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: 'wormholeMessage';
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: 'emitter';
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: 'wormholeBridge';
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: 'wormholeFeeCollector';
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: 'wormholeSequence';
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: 'wormholeProgram';
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: 'systemProgram';
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: 'clock';
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: 'rent';
-          isMut: false;
-          isSigner: false;
-        },
-      ];
-      args: [
-        {
-          name: 'args';
-          type: {
-            defined: 'ReleaseOutboundArgs';
           };
         },
       ];
@@ -838,6 +763,89 @@ export type ExampleNativeTokenTransfers = {
       ];
       args: [];
     },
+    {
+      name: 'releaseWormholeOutbound';
+      accounts: [
+        {
+          name: 'payer';
+          isMut: true;
+          isSigner: true;
+        },
+        {
+          name: 'config';
+          accounts: [
+            {
+              name: 'config';
+              isMut: false;
+              isSigner: false;
+            },
+          ];
+        },
+        {
+          name: 'outboxItem';
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: 'endpoint';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'wormholeMessage';
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: 'emitter';
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: 'wormholeBridge';
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: 'wormholeFeeCollector';
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: 'wormholeSequence';
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: 'wormholeProgram';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'systemProgram';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'clock';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'rent';
+          isMut: false;
+          isSigner: false;
+        },
+      ];
+      args: [
+        {
+          name: 'args';
+          type: {
+            defined: 'ReleaseOutboundArgs';
+          };
+        },
+      ];
+    },
   ];
   accounts: [
     {
@@ -1031,6 +1039,12 @@ export type ExampleNativeTokenTransfers = {
             };
           },
           {
+            name: 'recipientManager';
+            type: {
+              array: ['u8', 32];
+            };
+          },
+          {
             name: 'recipientAddress';
             type: {
               array: ['u8', 32];
@@ -1164,18 +1178,6 @@ export type ExampleNativeTokenTransfers = {
       };
     },
     {
-      name: 'ChainId';
-      type: {
-        kind: 'struct';
-        fields: [
-          {
-            name: 'id';
-            type: 'u16';
-          },
-        ];
-      };
-    },
-    {
       name: 'Mode';
       type: {
         kind: 'enum';
@@ -1205,6 +1207,18 @@ export type ExampleNativeTokenTransfers = {
             type: {
               array: ['u8', 32];
             };
+          },
+        ];
+      };
+    },
+    {
+      name: 'ReleaseOutboundArgs';
+      type: {
+        kind: 'struct';
+        fields: [
+          {
+            name: 'revertOnDelay';
+            type: 'bool';
           },
         ];
       };
@@ -1305,18 +1319,6 @@ export type ExampleNativeTokenTransfers = {
       };
     },
     {
-      name: 'ReleaseOutboundArgs';
-      type: {
-        kind: 'struct';
-        fields: [
-          {
-            name: 'revertOnDelay';
-            type: 'bool';
-          },
-        ];
-      };
-    },
-    {
       name: 'TransferArgs';
       type: {
         kind: 'struct';
@@ -1340,22 +1342,6 @@ export type ExampleNativeTokenTransfers = {
           {
             name: 'shouldQueue';
             type: 'bool';
-          },
-        ];
-      };
-    },
-    {
-      name: 'NormalizedAmount';
-      type: {
-        kind: 'struct';
-        fields: [
-          {
-            name: 'amount';
-            type: 'u64';
-          },
-          {
-            name: 'decimals';
-            type: 'u8';
           },
         ];
       };
@@ -1406,6 +1392,34 @@ export type ExampleNativeTokenTransfers = {
               'just delayed.',
             ];
             type: 'i64';
+          },
+        ];
+      };
+    },
+    {
+      name: 'ChainId';
+      type: {
+        kind: 'struct';
+        fields: [
+          {
+            name: 'id';
+            type: 'u16';
+          },
+        ];
+      };
+    },
+    {
+      name: 'NormalizedAmount';
+      type: {
+        kind: 'struct';
+        fields: [
+          {
+            name: 'amount';
+            type: 'u64';
+          },
+          {
+            name: 'decimals';
+            type: 'u8';
           },
         ];
       };
@@ -1468,46 +1482,51 @@ export type ExampleNativeTokenTransfers = {
     },
     {
       code: 6006;
+      name: 'InvalidRecipientManager';
+      msg: 'InvalidRecipientManager';
+    },
+    {
+      code: 6007;
       name: 'TransferAlreadyRedeemed';
       msg: 'TransferAlreadyRedeemed';
     },
     {
-      code: 6007;
+      code: 6008;
       name: 'TransferNotApproved';
       msg: 'TransferNotApproved';
     },
     {
-      code: 6008;
+      code: 6009;
       name: 'MessageAlreadySent';
       msg: 'MessageAlreadySent';
     },
     {
-      code: 6009;
+      code: 6010;
       name: 'InvalidMode';
       msg: 'InvalidMode';
     },
     {
-      code: 6010;
+      code: 6011;
       name: 'InvalidMintAuthority';
       msg: 'InvalidMintAuthority';
     },
     {
-      code: 6011;
+      code: 6012;
       name: 'TransferExceedsRateLimit';
       msg: 'TransferExceedsRateLimit';
     },
     {
-      code: 6012;
+      code: 6013;
       name: 'Paused';
       msg: 'Paused';
     },
     {
-      code: 6013;
+      code: 6014;
       name: 'DisabledEndpoint';
       msg: 'DisabledEndpoint';
     },
     {
-      code: 6014;
+      code: 6015;
       name: 'InvalidDeployer';
       msg: 'InvalidDeployer';
     },
@@ -1679,6 +1698,11 @@ export const IDL: ExampleNativeTokenTransfers = {
           isMut: true,
           isSigner: false,
         },
+        {
+          name: 'sibling',
+          isMut: false,
+          isSigner: false,
+        },
       ],
       args: [
         {
@@ -1767,6 +1791,11 @@ export const IDL: ExampleNativeTokenTransfers = {
           isSigner: false,
         },
         {
+          name: 'sibling',
+          isMut: false,
+          isSigner: false,
+        },
+        {
           name: 'custody',
           isMut: true,
           isSigner: false,
@@ -1777,89 +1806,6 @@ export const IDL: ExampleNativeTokenTransfers = {
           name: 'args',
           type: {
             defined: 'TransferArgs',
-          },
-        },
-      ],
-    },
-    {
-      name: 'releaseOutbound',
-      accounts: [
-        {
-          name: 'payer',
-          isMut: true,
-          isSigner: true,
-        },
-        {
-          name: 'config',
-          accounts: [
-            {
-              name: 'config',
-              isMut: false,
-              isSigner: false,
-            },
-          ],
-        },
-        {
-          name: 'outboxItem',
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: 'endpoint',
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: 'wormholeMessage',
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: 'emitter',
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: 'wormholeBridge',
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: 'wormholeFeeCollector',
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: 'wormholeSequence',
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: 'wormholeProgram',
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: 'systemProgram',
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: 'clock',
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: 'rent',
-          isMut: false,
-          isSigner: false,
-        },
-      ],
-      args: [
-        {
-          name: 'args',
-          type: {
-            defined: 'ReleaseOutboundArgs',
           },
         },
       ],
@@ -2352,6 +2298,89 @@ export const IDL: ExampleNativeTokenTransfers = {
       ],
       args: [],
     },
+    {
+      name: 'releaseWormholeOutbound',
+      accounts: [
+        {
+          name: 'payer',
+          isMut: true,
+          isSigner: true,
+        },
+        {
+          name: 'config',
+          accounts: [
+            {
+              name: 'config',
+              isMut: false,
+              isSigner: false,
+            },
+          ],
+        },
+        {
+          name: 'outboxItem',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'endpoint',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'wormholeMessage',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'emitter',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'wormholeBridge',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'wormholeFeeCollector',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'wormholeSequence',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'wormholeProgram',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'systemProgram',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'clock',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'rent',
+          isMut: false,
+          isSigner: false,
+        },
+      ],
+      args: [
+        {
+          name: 'args',
+          type: {
+            defined: 'ReleaseOutboundArgs',
+          },
+        },
+      ],
+    },
   ],
   accounts: [
     {
@@ -2545,6 +2574,12 @@ export const IDL: ExampleNativeTokenTransfers = {
             },
           },
           {
+            name: 'recipientManager',
+            type: {
+              array: ['u8', 32],
+            },
+          },
+          {
             name: 'recipientAddress',
             type: {
               array: ['u8', 32],
@@ -2678,18 +2713,6 @@ export const IDL: ExampleNativeTokenTransfers = {
       },
     },
     {
-      name: 'ChainId',
-      type: {
-        kind: 'struct',
-        fields: [
-          {
-            name: 'id',
-            type: 'u16',
-          },
-        ],
-      },
-    },
-    {
       name: 'Mode',
       type: {
         kind: 'enum',
@@ -2719,6 +2742,18 @@ export const IDL: ExampleNativeTokenTransfers = {
             type: {
               array: ['u8', 32],
             },
+          },
+        ],
+      },
+    },
+    {
+      name: 'ReleaseOutboundArgs',
+      type: {
+        kind: 'struct',
+        fields: [
+          {
+            name: 'revertOnDelay',
+            type: 'bool',
           },
         ],
       },
@@ -2819,18 +2854,6 @@ export const IDL: ExampleNativeTokenTransfers = {
       },
     },
     {
-      name: 'ReleaseOutboundArgs',
-      type: {
-        kind: 'struct',
-        fields: [
-          {
-            name: 'revertOnDelay',
-            type: 'bool',
-          },
-        ],
-      },
-    },
-    {
       name: 'TransferArgs',
       type: {
         kind: 'struct',
@@ -2854,22 +2877,6 @@ export const IDL: ExampleNativeTokenTransfers = {
           {
             name: 'shouldQueue',
             type: 'bool',
-          },
-        ],
-      },
-    },
-    {
-      name: 'NormalizedAmount',
-      type: {
-        kind: 'struct',
-        fields: [
-          {
-            name: 'amount',
-            type: 'u64',
-          },
-          {
-            name: 'decimals',
-            type: 'u8',
           },
         ],
       },
@@ -2920,6 +2927,34 @@ export const IDL: ExampleNativeTokenTransfers = {
               'just delayed.',
             ],
             type: 'i64',
+          },
+        ],
+      },
+    },
+    {
+      name: 'ChainId',
+      type: {
+        kind: 'struct',
+        fields: [
+          {
+            name: 'id',
+            type: 'u16',
+          },
+        ],
+      },
+    },
+    {
+      name: 'NormalizedAmount',
+      type: {
+        kind: 'struct',
+        fields: [
+          {
+            name: 'amount',
+            type: 'u64',
+          },
+          {
+            name: 'decimals',
+            type: 'u8',
           },
         ],
       },
@@ -2982,46 +3017,51 @@ export const IDL: ExampleNativeTokenTransfers = {
     },
     {
       code: 6006,
+      name: 'InvalidRecipientManager',
+      msg: 'InvalidRecipientManager',
+    },
+    {
+      code: 6007,
       name: 'TransferAlreadyRedeemed',
       msg: 'TransferAlreadyRedeemed',
     },
     {
-      code: 6007,
+      code: 6008,
       name: 'TransferNotApproved',
       msg: 'TransferNotApproved',
     },
     {
-      code: 6008,
+      code: 6009,
       name: 'MessageAlreadySent',
       msg: 'MessageAlreadySent',
     },
     {
-      code: 6009,
+      code: 6010,
       name: 'InvalidMode',
       msg: 'InvalidMode',
     },
     {
-      code: 6010,
+      code: 6011,
       name: 'InvalidMintAuthority',
       msg: 'InvalidMintAuthority',
     },
     {
-      code: 6011,
+      code: 6012,
       name: 'TransferExceedsRateLimit',
       msg: 'TransferExceedsRateLimit',
     },
     {
-      code: 6012,
+      code: 6013,
       name: 'Paused',
       msg: 'Paused',
     },
     {
-      code: 6013,
+      code: 6014,
       name: 'DisabledEndpoint',
       msg: 'DisabledEndpoint',
     },
     {
-      code: 6014,
+      code: 6015,
       name: 'InvalidDeployer',
       msg: 'InvalidDeployer',
     },

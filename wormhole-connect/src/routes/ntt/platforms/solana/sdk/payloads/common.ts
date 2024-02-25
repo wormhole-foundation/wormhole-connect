@@ -3,11 +3,20 @@ import { BN } from '@coral-xyz/anchor';
 export class EndpointMessage<A> {
   static prefix: Buffer;
   sourceManager: Buffer;
+  recipientManager: Buffer;
   managerPayload: ManagerMessage<A>;
+  endpointPayload: Buffer;
 
-  constructor(sourceManager: Buffer, managerPayload: ManagerMessage<A>) {
+  constructor(
+    sourceManager: Buffer,
+    recipientManager: Buffer,
+    managerPayload: ManagerMessage<A>,
+    endpointPayload: Buffer,
+  ) {
     this.sourceManager = sourceManager;
+    this.recipientManager = recipientManager;
     this.managerPayload = managerPayload;
+    this.endpointPayload = endpointPayload;
   }
 
   static deserialize<A>(
@@ -22,11 +31,22 @@ export class EndpointMessage<A> {
       throw new Error('Invalid prefix');
     }
     const sourceManager = data.subarray(4, 36);
-    const managerPayloadLen = data.readUInt16BE(36);
+    const recipientManager = data.subarray(36, 68);
+    const managerPayloadLen = data.readUInt16BE(68);
     const managerPayload = deserializer(
-      data.subarray(38, 38 + managerPayloadLen),
+      data.subarray(70, 70 + managerPayloadLen),
     );
-    return new EndpointMessage(sourceManager, managerPayload);
+    const endpointPayloadLen = data.readUInt16BE(70 + managerPayloadLen);
+    const endpointPayload = data.subarray(
+      72 + managerPayloadLen,
+      72 + managerPayloadLen + endpointPayloadLen,
+    );
+    return new EndpointMessage(
+      sourceManager,
+      recipientManager,
+      managerPayload,
+      endpointPayload,
+    );
   }
 
   static serialize<A>(
@@ -34,12 +54,19 @@ export class EndpointMessage<A> {
     serializer: (payload: ManagerMessage<A>) => Buffer,
   ): Buffer {
     const payload = serializer(msg.managerPayload);
-    // assert(msg.sourceManager.length == 32, 'sourceManager must be 32 bytes');
+    const payloadLen = new BN(payload.length).toBuffer('be', 2);
+    const endpointPayloadLen = new BN(msg.endpointPayload.length).toBuffer(
+      'be',
+      2,
+    );
     const buffer = Buffer.concat([
       this.prefix,
       msg.sourceManager,
-      new BN(payload.length).toBuffer('be', 2),
+      msg.recipientManager,
+      payloadLen,
       payload,
+      endpointPayloadLen,
+      msg.endpointPayload,
     ]);
     return buffer;
   }

@@ -9,28 +9,20 @@ import {
   WormholeEndpointMessage,
   ManagerMessage,
   NativeTokenTransfer,
-  NTT,
 } from './sdk';
-import { Program } from '@coral-xyz/anchor';
-import { IDL } from './abis';
 import { TokenId } from '@wormhole-foundation/wormhole-connect-sdk';
 
 export const getMessageSolana = async (
   tx: string,
 ): Promise<UnsignedNTTMessage> => {
-  const connection = solanaContext().connection;
+  const context = solanaContext();
+  const connection = context.connection;
   if (!connection) throw new Error('Connection not found');
   const response = await connection.getParsedTransaction(tx);
   if (!response) throw new Error('Transaction not found');
-  const core = wh.mustGetContracts('solana').core;
-  if (!core) throw new Error('Core not found');
   const managerAddress = response.transaction.message.instructions[0].programId;
-  const program = new Program(IDL as any, managerAddress, {
-    connection,
-  });
-  const ntt = new NTT({ program, wormholeId: core });
-  const outboxItem = response.transaction.message.accountKeys[7].pubkey;
-  const wormholeMessage = ntt.wormholeMessageAccountAddress(outboxItem);
+  // TODO: this is scary indexing into this, can we rely on this index?
+  const wormholeMessage = response.transaction.message.accountKeys[6].pubkey;
   const wormholeMessageAccount = await connection.getAccountInfo(
     wormholeMessage,
   );
@@ -46,7 +38,7 @@ export const getMessageSolana = async (
   ).managerPayload;
   const fromChain = wh.toChainName('solana');
   const toChain = wh.toChainName(managerMessage.payload.recipientChain);
-  const tokenAddress = wh.formatAddress(
+  const tokenAddress = wh.parseAddress(
     hexlify(managerMessage.payload.sourceToken),
     fromChain,
   );
@@ -58,9 +50,10 @@ export const getMessageSolana = async (
   if (!token) {
     throw new Error(`Token ${tokenId} not found`);
   }
+  console.log(messageData.message.emitterAddress.toString('hex'));
   return {
     sendTx: tx,
-    sender: wh.formatAddress(hexlify(managerMessage.sender), fromChain),
+    sender: wh.parseAddress(hexlify(managerMessage.sender), fromChain),
     amount: managerMessage.payload.normalizedAmount.amount.toString(),
     payloadID: 1,
     recipient: wh.parseAddress(
@@ -69,7 +62,7 @@ export const getMessageSolana = async (
     ),
     toChain,
     fromChain,
-    tokenAddress: wh.formatAddress(
+    tokenAddress: wh.parseAddress(
       hexlify(managerMessage.payload.sourceToken),
       fromChain,
     ),
@@ -78,9 +71,8 @@ export const getMessageSolana = async (
     tokenKey: token.key,
     tokenDecimals: getTokenDecimals(wh.toChainId(fromChain), tokenId),
     receivedTokenKey: getNativeVersionOfToken(token.symbol, toChain),
-    emitterAddress: wh.formatAddress(
-      hexlify(messageData.message.emitterAddress),
-      fromChain,
+    emitterAddress: hexlify(
+      context.formatAddress(messageData.message.emitterAddress),
     ),
     sequence: messageData.message.sequence.toString(),
     block: response.slot,

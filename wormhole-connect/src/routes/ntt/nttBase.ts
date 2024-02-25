@@ -193,6 +193,7 @@ export abstract class NTTBase extends BaseRoute {
     );
     // remove any dust before sending
     const sendAmount = removeDust(parseUnits(amount, decimals), decimals);
+    console.log('sendAmount', sendAmount.toString());
     const shouldSkipRelayerSend = this.TYPE !== Route.Relay;
     return getManager(sendingChain, tokenConfig.ntt.managerAddress).send(
       token,

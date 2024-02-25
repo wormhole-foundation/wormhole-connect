@@ -8,31 +8,36 @@ import {
   BN,
   translateError,
   type IdlAccounts,
-  type Program,
+  Program,
 } from '@coral-xyz/anchor';
 import { associatedAddress } from '@coral-xyz/anchor/dist/cjs/utils/token';
 import { getAssociatedTokenAddressSync } from '@solana/spl-token';
 import {
-  type PublicKeyInitData,
   PublicKey,
   Keypair,
   type TransactionInstruction,
   Transaction,
   sendAndConfirmTransaction,
   type TransactionSignature,
+  Connection,
 } from '@solana/web3.js';
 import { Keccak } from 'sha3';
-import { type ExampleNativeTokenTransfers as Idl } from '../abis/example_native_token_transfers';
 import { ManagerMessage } from './payloads/common';
 import { NativeTokenTransfer } from './payloads/transfers';
 import { WormholeEndpointMessage } from './payloads/wormhole';
 import * as splToken from '@solana/spl-token';
+import {
+  IDL,
+  type ExampleNativeTokenTransfers as RawExampleNativeTokenTransfers,
+} from '../abis/example_native_token_transfers';
 import { wh } from 'utils/sdk';
 
 export { NormalizedAmount } from './normalized_amount';
 export { EndpointMessage, ManagerMessage } from './payloads/common';
 export { NativeTokenTransfer } from './payloads/transfers';
 export { WormholeEndpointMessage } from './payloads/wormhole';
+
+export * from './utils/wormhole';
 
 // This is a workaround for the fact that the anchor idl doesn't support generics
 // yet. This type is used to remove the generics from the idl types.
@@ -44,7 +49,8 @@ type OmitGenerics<T> = {
     : T[P];
 };
 
-export type ExampleNativeTokenTransfers = OmitGenerics<Idl>;
+export type ExampleNativeTokenTransfers =
+  OmitGenerics<RawExampleNativeTokenTransfers>;
 
 export type Config = IdlAccounts<ExampleNativeTokenTransfers>['config'];
 export type InboxItem = IdlAccounts<ExampleNativeTokenTransfers>['inboxItem'];
@@ -59,12 +65,14 @@ export class NTT {
   // mapping from error code to error message. Used for prettifying error messages
   private readonly errors: Map<number, string>;
 
-  constructor(args: {
-    program: Program<ExampleNativeTokenTransfers>;
-    wormholeId: PublicKeyInitData;
-  }) {
+  constructor(
+    connection: Connection,
+    args: { nttId: string; wormholeId: string },
+  ) {
     // TODO: initialise a new Program here with a passed in Connection
-    this.program = args.program;
+    this.program = new Program(IDL as any, new PublicKey(args.nttId), {
+      connection,
+    });
     this.wormholeId = new PublicKey(args.wormholeId);
     this.errors = this.processErrors();
   }
@@ -294,6 +302,7 @@ export class NTT {
           outboxRateLimit: this.outboxRateLimitAccountAddress(),
           tokenAuthority: this.tokenAuthorityAddress(),
         },
+        sibling: this.siblingAccountAddress(args.recipientChain),
         inboxRateLimit: this.inboxRateLimitAccountAddress(args.recipientChain),
       })
       .instruction();
@@ -343,6 +352,7 @@ export class NTT {
           outboxRateLimit: this.outboxRateLimitAccountAddress(),
           tokenAuthority: this.tokenAuthorityAddress(),
         },
+        sibling: this.siblingAccountAddress(args.recipientChain),
         inboxRateLimit: this.inboxRateLimitAccountAddress(args.recipientChain),
         custody: await this.custodyAccountAddress(config),
       })
@@ -361,9 +371,14 @@ export class NTT {
       this.program.programId,
       this.wormholeId,
     );
+    console.log(whAccs.wormholeBridge.toString());
+    console.log(
+      'whmsg',
+      this.wormholeMessageAccountAddress(args.outboxItem).toString(),
+    );
 
     return await this.program.methods
-      .releaseOutbound({
+      .releaseWormholeOutbound({
         revertOnDelay: args.revertOnDelay,
       })
       .accounts({
@@ -386,7 +401,7 @@ export class NTT {
     outboxItem: PublicKey;
     revertOnDelay: boolean;
     config?: Config;
-  }): Promise<void> {
+  }) {
     if (await this.isPaused()) {
       throw new Error('Contract is paused');
     }
@@ -400,7 +415,7 @@ export class NTT {
     tx.add(await this.createReleaseOutboundInstruction(txArgs));
 
     const signers = [args.payer];
-    await sendAndConfirmTransaction(
+    return await sendAndConfirmTransaction(
       this.program.provider.connection,
       tx,
       signers,
@@ -545,8 +560,8 @@ export class NTT {
     address: ArrayLike<number>;
     limit: BN;
     config?: Config;
-  }): Promise<void> {
-    await this.program.methods
+  }) {
+    const ix = await this.program.methods
       .setSibling({
         chainId: { id: wh.toChainId(args.chain) },
         address: Array.from(args.address),
@@ -559,8 +574,12 @@ export class NTT {
         sibling: this.siblingAccountAddress(args.chain),
         inboxRateLimit: this.inboxRateLimitAccountAddress(args.chain),
       })
-      .signers([args.payer, args.owner])
-      .rpc();
+      .instruction();
+    return sendAndConfirmTransaction(
+      this.program.provider.connection,
+      new Transaction().add(ix),
+      [args.payer, args.owner],
+    );
   }
 
   async setWormholeEndpointSibling(args: {
@@ -570,7 +589,7 @@ export class NTT {
     address: ArrayLike<number>;
     config?: Config;
   }) {
-    await this.program.methods
+    const ix = await this.program.methods
       .setWormholeSibling({
         chainId: { id: wh.toChainId(args.chain) },
         address: Array.from(args.address),
@@ -581,16 +600,20 @@ export class NTT {
         config: this.configAccountAddress(),
         sibling: this.endpointSiblingAccountAddress(args.chain),
       })
-      .signers([args.payer, args.owner])
-      .rpc();
+      .instruction();
+    return sendAndConfirmTransaction(
+      this.program.provider.connection,
+      new Transaction().add(ix),
+      [args.payer, args.owner],
+    );
   }
 
   async registerEndpoint(args: {
     payer: Keypair;
     owner: Keypair;
     endpoint: PublicKey;
-  }): Promise<void> {
-    await this.program.methods
+  }) {
+    const ix = await this.program.methods
       .registerEndpoint()
       .accounts({
         payer: args.payer.publicKey,
@@ -599,8 +622,12 @@ export class NTT {
         endpoint: args.endpoint,
         registeredEndpoint: this.registeredEndpointAddress(args.endpoint),
       })
-      .signers([args.payer, args.owner])
-      .rpc();
+      .instruction();
+    return sendAndConfirmTransaction(
+      this.program.provider.connection,
+      new Transaction().add(ix),
+      [args.payer, args.owner],
+    );
   }
 
   async createReceiveWormholeMessageInstruction(args: {

@@ -21,12 +21,12 @@ import { RATE_LIMIT_DURATION } from 'routes/ntt/consts';
 import {
   encodeEndpointInstructions,
   encodeWormholeEndpointInstruction,
-  getNTTManagerMessageDigest,
+  getManagerMessageDigest,
 } from 'routes/ntt/utils';
 import { Manager__factory } from './abis/Manager__factory';
 import { Manager as ManagerAbi } from './abis/Manager';
 
-export class ManagerEVM {
+export class EVMManager {
   readonly manager: ManagerAbi;
 
   constructor(readonly chain: ChainName | ChainId, managerAddress: string) {
@@ -136,7 +136,7 @@ export class ManagerEVM {
     emitterChain: ChainName | ChainId,
     managerMessage: ManagerMessage<NativeTokenTransfer>,
   ): Promise<InboundQueuedTransfer | undefined> {
-    const digest = getNTTManagerMessageDigest(emitterChain, managerMessage);
+    const digest = getManagerMessageDigest(emitterChain, managerMessage);
     const queuedTransfer = await this.manager.getInboundQueuedTransfer(digest);
     if (queuedTransfer.txTimestamp.gt(0)) {
       const { recipient, amount, txTimestamp } = queuedTransfer;
@@ -155,7 +155,7 @@ export class ManagerEVM {
     emitterChain: ChainName | ChainId,
     managerMessage: ManagerMessage<NativeTokenTransfer>,
   ): Promise<string> {
-    const digest = getNTTManagerMessageDigest(emitterChain, managerMessage);
+    const digest = getManagerMessageDigest(emitterChain, managerMessage);
     try {
       const tx =
         await this.manager.populateTransaction.completeInboundQueuedTransfer(
@@ -171,7 +171,7 @@ export class ManagerEVM {
     emitterChain: ChainName | ChainId,
     managerMessage: ManagerMessage<NativeTokenTransfer>,
   ): Promise<boolean> {
-    const digest = getNTTManagerMessageDigest(emitterChain, managerMessage);
+    const digest = getManagerMessageDigest(emitterChain, managerMessage);
     return this.manager.isMessageExecuted(digest);
   }
 

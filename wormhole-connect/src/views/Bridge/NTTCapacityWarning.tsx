@@ -52,13 +52,14 @@ const NTTCapacityWarning = ({ token, amount, chain, fromChain }: Props) => {
 
   const showWarning = useMemo(() => {
     if (!token || !amount || !chain || !capacity) return;
+    console.log(amount);
     const destTokenKey = getNativeVersionOfToken(TOKENS[token].symbol, chain);
     const destToken = TOKENS[destTokenKey];
     if (!destToken) return;
     // capacity is in destination token decimals, so we need to convert the amount to the same decimals
     // TODO: test inbound capacity from solana
     const decimals = getTokenDecimals(wh.toChainId(chain), destToken.tokenId);
-    const parsedAmount = parseUnits(amount, decimals);
+    const parsedAmount = parseUnits(Number(amount).toFixed(decimals), decimals);
     const fivePercentOfCapacity = capacity.mul(5).div(100);
     return parsedAmount.gt(capacity.add(fivePercentOfCapacity));
   }, [token, amount, chain]);

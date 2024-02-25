@@ -115,6 +115,7 @@ export class Operator {
     }
 
     // TODO: Solana NTT
+    return Route.NTTManual;
 
     const message = await getMessage(txHash, chain);
 

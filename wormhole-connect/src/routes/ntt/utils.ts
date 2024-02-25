@@ -3,7 +3,7 @@ import { wh } from 'utils/sdk';
 import { ChainId, ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { keccak256 } from 'ethers/lib/utils';
 
-export const getNTTManagerMessageDigest = (
+export const getManagerMessageDigest = (
   emitterChain: ChainName | ChainId,
   managerMessage: ManagerMessage<NativeTokenTransfer>,
 ): string => {
