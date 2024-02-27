@@ -34,6 +34,7 @@ import { AssociatedTokenWarning } from '../Bridge/Inputs/TokenWarnings';
 import { Route } from 'config/types';
 import SwitchToManualClaim from './SwitchToManualClaim';
 import { isPorticoRoute } from 'routes/porticoBridge/utils';
+import { isNttRoute } from 'routes';
 
 function AssociatedTokenAlert() {
   const dispatch = useDispatch();
@@ -209,8 +210,22 @@ function SendTo() {
         signedMessage,
         wallet.address,
       );
-      dispatch(setRedeemTx(txId));
-      dispatch(setTransferComplete(true));
+      const route = RouteOperator.getRoute(routeName);
+      if (isNttRoute(route.TYPE)) {
+        // The redeem may have resulted in the transfer being inbound queued
+        // so we need to check that before we set the transfer as complete
+        const isTransferCompleted = await route.isTransferCompleted(
+          txData.toChain,
+          signedMessage,
+        );
+        if (isTransferCompleted) {
+          dispatch(setRedeemTx(txId));
+          dispatch(setTransferComplete(true));
+        }
+      } else {
+        dispatch(setRedeemTx(txId));
+        dispatch(setTransferComplete(true));
+      }
       setInProgress(false);
       setClaimError('');
     } catch (e) {

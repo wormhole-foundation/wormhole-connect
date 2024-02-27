@@ -7,9 +7,9 @@ import {
   setInboundQueuedTransfer,
 } from 'store/ntt';
 import { isSignedNTTMessage } from 'routes/types';
-import { isNTTRoute } from 'routes';
+import { isNttRoute } from 'routes';
 import RouteOperator from 'routes/operator';
-import { NTTBase } from 'routes/ntt/nttBase';
+import { NttBase } from 'routes/ntt/nttBase';
 
 const RETRY_DELAY = 15_000;
 
@@ -27,7 +27,7 @@ const useCheckInboundQueuedTransfer = () => {
     dispatch(resetInboundQueuedTransfer());
     if (
       !route ||
-      !isNTTRoute(route) ||
+      !isNttRoute(route) ||
       !signedMessage ||
       !isSignedNTTMessage(signedMessage) ||
       transferComplete
@@ -36,7 +36,7 @@ const useCheckInboundQueuedTransfer = () => {
     }
     const { toChain, recipientNttManager, transceiverMessage, fromChain } =
       signedMessage;
-    const ntt = RouteOperator.getRoute(route) as NTTBase;
+    const ntt = RouteOperator.getRoute(route) as NttBase;
     let active = true;
     const fetchData = async () => {
       while (active) {

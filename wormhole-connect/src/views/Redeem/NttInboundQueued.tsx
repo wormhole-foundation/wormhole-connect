@@ -2,8 +2,8 @@ import InputContainer from 'components/InputContainer';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from 'store';
-import { isSignedNTTMessage } from 'routes';
-import { NTTManual, NTTRelay } from 'routes/ntt';
+import { isSignedNTTMessage as isSignedNttMessage } from 'routes';
+import { NttManual, NttRelay } from 'routes/ntt';
 import Header from './Header';
 import { useDispatch } from 'react-redux';
 import Button from 'components/Button';
@@ -14,7 +14,7 @@ import {
   registerWalletSigner,
   switchChain,
 } from 'utils/wallet';
-import { CHAINS } from 'config';
+import { CHAINS, TOKENS } from 'config';
 import { Context } from '@wormhole-foundation/wormhole-connect-sdk';
 import WalletsModal from '../WalletModal';
 import AlertBanner from 'components/AlertBanner';
@@ -29,7 +29,7 @@ import { setRedeemTx } from 'store/redeem';
 import { OPACITY } from 'utils/style';
 import { useTheme } from '@mui/material';
 
-const NTTInboundQueued = () => {
+const NttInboundQueued = () => {
   const dispatch = useDispatch();
   const theme: any = useTheme();
   const route = useSelector((state: RootState) => state.redeem.route);
@@ -42,11 +42,10 @@ const NTTInboundQueued = () => {
   );
 
   const checkConnection = useCallback(() => {
-    if (!isSignedNTTMessage(signedMessage)) return;
+    if (!isSignedNttMessage(signedMessage)) return;
     const addr = wallet.address.toLowerCase();
     const curAddr = wallet.currentAddress.toLowerCase();
-    const reqAddr = signedMessage.sender.toLowerCase();
-    return addr === curAddr && addr === reqAddr;
+    return addr === curAddr;
   }, [wallet, signedMessage]);
 
   const [inProgress, setInProgress] = useState(false);
@@ -70,7 +69,7 @@ const NTTInboundQueued = () => {
   }, [wallet, checkConnection]);
 
   const handleClick = useCallback(async () => {
-    if (!isSignedNTTMessage(signedMessage)) return;
+    if (!isSignedNttMessage(signedMessage)) return;
     const { toChain, fromChain, transceiverMessage, recipientNttManager } =
       signedMessage;
     setInProgress(true);
@@ -81,7 +80,7 @@ const NTTInboundQueued = () => {
         await switchChain(toConfig.chainId, TransferWallet.RECEIVING);
       }
       const nttRoute =
-        route === Route.NTTManual ? new NTTManual() : new NTTRelay();
+        route === Route.NttManual ? new NttManual() : new NttRelay();
       const tx = await nttRoute.completeInboundQueuedTransfer(
         toChain,
         recipientNttManager,
@@ -89,8 +88,25 @@ const NTTInboundQueued = () => {
         fromChain,
         wallet.address,
       );
-      dispatch(setInboundQueuedTransfer(undefined));
-      dispatch(setRedeemTx(tx));
+      if (toChain === 'solana') {
+        // Solana will not throw an error if the transfer is still queued
+        // so we need to check if the transfer is still queued
+        const inboundQueuedTransfer = await nttRoute.getInboundQueuedTransfer(
+          toChain,
+          recipientNttManager,
+          transceiverMessage,
+          fromChain,
+        );
+        dispatch(setInboundQueuedTransfer(inboundQueuedTransfer));
+        if (inboundQueuedTransfer) {
+          setSendError('Transfer still queued');
+        } else {
+          dispatch(setRedeemTx(tx));
+        }
+      } else {
+        dispatch(setInboundQueuedTransfer(undefined));
+        dispatch(setRedeemTx(tx));
+      }
     } catch (e: any) {
       if (e.message === InboundQueuedTransferNotFoundError.MESSAGE) {
         setSendError('Transfer not found');
@@ -110,16 +126,16 @@ const NTTInboundQueued = () => {
     <>
       <InputContainer bg={theme.palette.warning[500] + OPACITY[25]}>
         <Header
-          chain={signedMessage.fromChain}
-          address={signedMessage.sender}
+          chain={signedMessage.toChain}
+          address={signedMessage.recipient}
           txHash={signedMessage.sendTx}
         />
         <div>
           {`Your transfer to ${
-            CHAINS[signedMessage.fromChain]?.displayName || 'UNKNOWN'
-          } is delayed due to rate limits. After the delay ends${
-            rateLimitExpiry ? ' on ' + rateLimitExpiry : ''
-          }, you'll need to submit a new transaction to complete the transfer.`}
+            CHAINS[signedMessage.toChain]?.displayName || 'UNKNOWN'
+          } is delayed due to rate limits that were configured by the ${
+            TOKENS[signedMessage.receivedTokenKey]?.symbol || 'UNKNOWN'
+          } token DAO. After the delay ends on ${rateLimitExpiry}, you will need to return to submit another transaction to complete the transfer and receive your tokens.`}
         </div>
       </InputContainer>
       <Spacer height={8} />
@@ -155,4 +171,4 @@ const NTTInboundQueued = () => {
   );
 };
 
-export default NTTInboundQueued;
+export default NttInboundQueued;

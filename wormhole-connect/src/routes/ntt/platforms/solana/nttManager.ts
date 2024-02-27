@@ -6,23 +6,20 @@ import {
 import { InboundQueuedTransfer } from '../../types';
 import { NTT } from './sdk';
 import { solanaContext, wh } from 'utils/sdk';
-import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
+import { TransferWallet, postVaa, signAndSendTransaction } from 'utils/wallet';
+import { Connection, Keypair, PublicKey, Transaction } from '@solana/web3.js';
 import {
-  Connection,
-  Keypair,
-  PublicKey,
-  Transaction,
-  TransactionInstruction,
-} from '@solana/web3.js';
-import { createApproveInstruction } from '@solana/spl-token';
+  createApproveInstruction,
+  getAssociatedTokenAddressSync,
+} from '@solana/spl-token';
 import { BN } from '@coral-xyz/anchor';
-import { getAssociatedTokenAddressSync } from '@solana/spl-token';
 import { RATE_LIMIT_DURATION } from 'routes/ntt/consts';
 import { parseVaa } from '@certusone/wormhole-sdk/lib/esm';
 import { utils } from 'ethers';
 import { WormholeTransceiverMessage } from '../../payloads/wormhole';
 import { NttManagerMessage } from '../../payloads/common';
 import { NativeTokenTransfer } from '../../payloads/transfers';
+import { RequireContractIsNotPausedError } from 'routes/ntt/errors';
 
 export class NttManagerSolana {
   readonly ntt: NTT;
@@ -71,13 +68,13 @@ export class NttManagerSolana {
   ): Promise<string> {
     const config = await this.ntt.getConfig();
     const outboxItem = Keypair.generate();
-    console.log('send outboxItem', outboxItem.publicKey.toString());
     const destContext = wh.getContext(toChain);
     const payer = new PublicKey(sender);
     const tokenAccount = getAssociatedTokenAddressSync(
       new PublicKey(token.address),
       payer,
     );
+    // TODO: make sure limits change
     const limit = await this.getCurrentOutboundCapacity();
     console.log('limit', limit);
     const txArgs = {
@@ -91,7 +88,7 @@ export class NttManagerSolana {
       config,
       shouldQueue: false, // revert instead of getting queued
     };
-    let transferIx: TransactionInstruction;
+    let transferIx;
     if (config.mode.locking) {
       transferIx = await this.ntt.createTransferLockInstruction(txArgs);
     } else if (config.mode.burning) {
@@ -99,12 +96,11 @@ export class NttManagerSolana {
     } else {
       throw new Error('Invalid mode');
     }
-    const releaseIx: TransactionInstruction =
-      await this.ntt.createReleaseOutboundInstruction({
-        payer,
-        outboxItem: outboxItem.publicKey,
-        revertOnDelay: !txArgs.shouldQueue,
-      });
+    const releaseIx = await this.ntt.createReleaseOutboundInstruction({
+      payer,
+      outboxItem: outboxItem.publicKey,
+      revertOnDelay: !txArgs.shouldQueue,
+    });
     const approveIx = createApproveInstruction(
       tokenAccount,
       this.ntt.tokenAuthorityAddress(),
@@ -116,18 +112,21 @@ export class NttManagerSolana {
     tx.feePayer = payer;
     const { blockhash } = await this.connection.getLatestBlockhash('finalized');
     tx.recentBlockhash = blockhash;
-    tx.partialSign(outboxItem); // TODO: needed?
+    tx.partialSign(outboxItem);
     const txId = await signAndSendTransaction(
       'solana',
       tx,
       TransferWallet.SENDING,
-      { skipPreflight: true },
-      // { commitment: 'confirmed' }, // TODO: what to set to?
+      { commitment: 'finalized' },
     );
     return txId;
   }
 
+  // TODO: create the ATA if it doesn't exist
   async receiveMessage(vaa: string, payer: string): Promise<string> {
+    if (await this.isPaused()) {
+      throw new RequireContractIsNotPausedError();
+    }
     const config = await this.ntt.getConfig();
     const vaaArray = utils.arrayify(vaa, { allowMissingPrefix: true });
     const payerPublicKey = new PublicKey(payer);
@@ -137,16 +136,14 @@ export class NttManagerSolana {
       config,
     };
     const parsedVaa = parseVaa(vaaArray);
-    const nttManagerMessage = WormholeTransceiverMessage.deserialize(
-      parsedVaa.payload,
-      (a) => NttManagerMessage.deserialize(a, NativeTokenTransfer.deserialize),
-    ).ntt_managerPayload;
-
     const chainId = parsedVaa.emitterChain as ChainId;
+    const core = wh.mustGetContracts('solana').core;
+    if (!core) throw new Error('Core not found');
+    await postVaa(this.connection, core, Buffer.from(vaaArray));
     // Here we create a transaction with three instructions:
-    // 1. receive wormhole messsage (vaa)
-    // 1. redeem
-    // 2. releaseInboundMint or releaseInboundUnlock (depending on mode)
+    // 1. receive wormhole message (vaa)
+    // 2. redeem
+    // 3. releaseInboundMint or releaseInboundUnlock (depending on mode)
     //
     // The first instruction verifies the VAA.
     // The second instruction places the transfer in the inbox, then the third instruction
@@ -160,6 +157,10 @@ export class NttManagerSolana {
     const tx = new Transaction();
     tx.add(await this.ntt.createReceiveWormholeMessageInstruction(redeemArgs));
     tx.add(await this.ntt.createRedeemInstruction(redeemArgs));
+    const nttManagerMessage = WormholeTransceiverMessage.deserialize(
+      parsedVaa.payload,
+      (a) => NttManagerMessage.deserialize(a, NativeTokenTransfer.deserialize),
+    ).ntt_managerPayload;
     const releaseArgs = {
       ...redeemArgs,
       ntt_managerMessage: nttManagerMessage,
@@ -179,7 +180,7 @@ export class NttManagerSolana {
       'solana',
       tx,
       TransferWallet.RECEIVING,
-      // { commitment: 'confirmed' }, // TODO: what to set to?
+      { commitment: 'finalized' },
     );
     return txId;
   }
@@ -217,12 +218,15 @@ export class NttManagerSolana {
     emitterChain: ChainName | ChainId,
     managerMessage: NttManagerMessage<NativeTokenTransfer>,
   ): Promise<InboundQueuedTransfer | undefined> {
-    // TODO: does this throw if the account doesn't exist?
-    const inboxItem = await this.ntt.getInboxItem(emitterChain, managerMessage);
-    // TODO: what if it's released or not found,
-    // race condition calling this immediately after tx confirmed?
-    // TODO: not approved - hasn't been fully attested yet
-    // inbox item will exist when we call redeem
+    let inboxItem;
+    try {
+      inboxItem = await this.ntt.getInboxItem(emitterChain, managerMessage);
+    } catch (e: any) {
+      if (e.message?.includes('Account does not exist')) {
+        return undefined;
+      }
+      throw e;
+    }
     if (inboxItem.releaseStatus.releaseAfter) {
       return {
         recipient: inboxItem.recipientAddress.toString(),
@@ -234,23 +238,26 @@ export class NttManagerSolana {
     return undefined;
   }
 
+  // TODO: create the ATA if it doesn't exist
   async completeInboundQueuedTransfer(
     emitterChain: ChainName | ChainId,
     nttManagerMessage: NttManagerMessage<NativeTokenTransfer>,
     payer: string,
   ): Promise<string> {
+    if (await this.isPaused()) {
+      throw new RequireContractIsNotPausedError();
+    }
     const payerPublicKey = new PublicKey(payer);
     const releaseArgs = {
       payer: payerPublicKey,
       ntt_managerMessage: nttManagerMessage,
-      // TODO: need to format?
       recipient: new PublicKey(nttManagerMessage.payload.recipientAddress),
       chain: emitterChain,
       revertOnDelay: false,
     };
     const config = await this.ntt.getConfig();
     const tx = new Transaction();
-    if (config.mode.locking != null) {
+    if (config.mode.locking) {
       tx.add(await this.ntt.createReleaseInboundUnlockInstruction(releaseArgs));
     } else {
       tx.add(await this.ntt.createReleaseInboundMintInstruction(releaseArgs));
@@ -262,7 +269,7 @@ export class NttManagerSolana {
       'solana',
       tx,
       TransferWallet.RECEIVING,
-      // { commitment: 'confirmed' }, // TODO: what to set to?
+      { commitment: 'finalized' },
     );
     return txId;
   }
@@ -271,15 +278,40 @@ export class NttManagerSolana {
     emitterChain: ChainName | ChainId,
     nttManagerMessage: NttManagerMessage<NativeTokenTransfer>,
   ): Promise<boolean> {
-    const inboxItem = await this.ntt.getInboxItem(
-      emitterChain,
-      nttManagerMessage,
-    );
-    // TODO: will this be undefined ever?
-    return inboxItem.releaseStatus.released !== null;
+    try {
+      const inboxItem = await this.ntt.getInboxItem(
+        emitterChain,
+        nttManagerMessage,
+      );
+      return (
+        inboxItem.releaseStatus.released !== null &&
+        inboxItem.releaseStatus.released !== undefined
+      );
+    } catch (e: any) {
+      if (e.message?.includes('Account does not exist')) {
+        return false;
+      }
+      throw e;
+    }
   }
 
   async isPaused(): Promise<boolean> {
     return this.ntt.isPaused();
+  }
+
+  async fetchRedeemTx(
+    emitterChain: ChainName | ChainId,
+    nttManagerMessage: NttManagerMessage<NativeTokenTransfer>,
+  ): Promise<string | undefined> {
+    const address = await this.ntt.inboxItemAccountAddress(
+      emitterChain,
+      nttManagerMessage,
+    );
+    // fetch the most recent signature
+    const signatures = await this.connection.getSignaturesForAddress(address, {
+      limit: 1,
+    });
+    console.log(`fetchRedeemTx: ${signatures[0].signature}`);
+    return signatures ? signatures[0].signature : undefined;
   }
 }

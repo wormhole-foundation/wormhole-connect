@@ -1,4 +1,4 @@
-export class NormalizedAmount {
+export class TrimmedAmount {
   amount: bigint;
   decimals: number;
 
@@ -7,13 +7,13 @@ export class NormalizedAmount {
     this.decimals = decimals;
   }
 
-  static deserialize(data: Buffer): NormalizedAmount {
+  static deserialize(data: Buffer): TrimmedAmount {
     const decimals = data.readUInt8(0);
     const amount = data.readBigUInt64BE(1);
-    return new NormalizedAmount(amount, decimals);
+    return new TrimmedAmount(amount, decimals);
   }
 
-  static serialize(amount: NormalizedAmount): Buffer {
+  static serialize(amount: TrimmedAmount): Buffer {
     const buffer = Buffer.alloc(9);
     buffer.writeUInt8(amount.decimals, 0);
     buffer.writeBigUInt64BE(amount.amount, 1);

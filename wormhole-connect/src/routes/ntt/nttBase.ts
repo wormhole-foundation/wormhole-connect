@@ -21,14 +21,17 @@ import { getTokenById, getTokenDecimals, removeDust } from 'utils';
 import { getNativeVersionOfToken } from 'store/transferInput';
 import { getNttManager, getWormholeTransceiver } from './platforms';
 import { InboundQueuedTransfer } from './types';
-import { DestContractIsPausedError } from './errors';
+import {
+  DestContractIsPausedError,
+  RequireContractIsNotPausedError,
+} from './errors';
 import { getMessageEvm } from './platforms/evm';
 import { getMessageSolana } from './platforms/solana';
 import { WormholeTransceiverMessage } from './payloads/wormhole';
 import { NttManagerMessage } from './payloads/common';
 import { NativeTokenTransfer } from './payloads/transfers';
 
-export abstract class NTTBase extends BaseRoute {
+export abstract class NttBase extends BaseRoute {
   isSupportedChain(chain: ChainName): boolean {
     return isEvmChain(chain) || chain === 'solana';
   }
@@ -185,6 +188,10 @@ export abstract class NTTBase extends BaseRoute {
     ) {
       throw new DestContractIsPausedError();
     }
+    const nttManager = getNttManager(sendingChain, tokenConfig.ntt.nttManager);
+    if (await nttManager.isPaused()) {
+      throw new RequireContractIsNotPausedError();
+    }
     const decimals = getTokenDecimals(
       wh.toChainId(sendingChain),
       tokenConfig.tokenId,
@@ -192,8 +199,8 @@ export abstract class NTTBase extends BaseRoute {
     // remove any dust before sending
     const sendAmount = removeDust(parseUnits(amount, decimals), decimals);
     console.log('sendAmount', sendAmount.toString());
-    const shouldSkipRelayerSend = this.TYPE !== Route.NTTRelay;
-    return await getNttManager(sendingChain, tokenConfig.ntt.nttManager).send(
+    const shouldSkipRelayerSend = this.TYPE !== Route.NttRelay;
+    return await nttManager.send(
       token,
       senderAddress,
       recipientAddress,
@@ -212,9 +219,14 @@ export abstract class NTTBase extends BaseRoute {
       throw new Error('Invalid message');
     }
     const { receivedTokenKey, vaa } = signedMessage;
-    return getWormholeTransceiver(
+    const wormholeTransceiver =
+      TOKENS[receivedTokenKey].ntt?.wormholeTransceiver;
+    if (!wormholeTransceiver) {
+      throw new Error('invalid token');
+    }
+    return await getWormholeTransceiver(
       chain,
-      TOKENS[receivedTokenKey].ntt!.wormholeTransceiver,
+      wormholeTransceiver,
     ).receiveMessage(vaa, payer);
   }
 
@@ -275,7 +287,7 @@ export abstract class NTTBase extends BaseRoute {
       Buffer.from(transceiverMessage.slice(2), 'hex'),
       (a) => NttManagerMessage.deserialize(a, NativeTokenTransfer.deserialize),
     ).ntt_managerPayload;
-    return getNttManager(
+    return await getNttManager(
       chain,
       nttManagerAddress,
     ).completeInboundQueuedTransfer(fromChain, nttManagerMessage, payer);
@@ -350,7 +362,7 @@ export abstract class NTTBase extends BaseRoute {
     );
     if (isMessageExecuted) {
       const queuedTransfer = await nttManager.getInboundQueuedTransfer(
-        signedMessage.fromChain,
+        fromChain,
         nttManagerMessage,
       );
       return !queuedTransfer;

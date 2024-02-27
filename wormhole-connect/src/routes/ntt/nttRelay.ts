@@ -2,13 +2,14 @@ import { Route, TokenConfig } from 'config/types';
 import { BigNumber } from 'ethers';
 import { getNttManager, getWormholeTransceiver } from './platforms';
 import { ChainName, ChainId } from '@wormhole-foundation/wormhole-connect-sdk';
-import { NTTBase } from './nttBase';
+import { NttBase } from './nttBase';
 import { CHAINS, TOKENS } from 'config';
 import {
   TransferDestInfo,
   TransferDestInfoBaseParams,
   TransferDisplayData,
   TransferInfoBaseParams,
+  UnsignedMessage,
   isUnsignedNTTMessage,
 } from 'routes/types';
 import {
@@ -22,11 +23,14 @@ import { toChainId, wh } from 'utils/sdk';
 import { NO_INPUT } from 'utils/style';
 import { TokenPrices } from 'store/tokenPrices';
 import { toDecimals, toFixedDecimals } from 'utils/balance';
+import { NttManagerMessage } from './payloads/common';
+import { NativeTokenTransfer } from './payloads/transfers';
+import { WormholeTransceiverMessage } from './payloads/wormhole';
 
-export class NTTRelay extends NTTBase {
+export class NttRelay extends NttBase {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean = false;
   readonly AUTOMATIC_DEPOSIT: boolean = true;
-  readonly TYPE: Route = Route.NTTRelay;
+  readonly TYPE: Route = Route.NttRelay;
 
   async isRouteSupported(
     sourceToken: string,
@@ -207,5 +211,23 @@ export class NTTRelay extends NTTBase {
         },
       ],
     };
+  }
+
+  async tryFetchRedeemTx(txData: UnsignedMessage): Promise<string | undefined> {
+    if (!isUnsignedNTTMessage(txData)) {
+      throw new Error('invalid txData');
+    }
+    const { transceiverMessage, toChain, fromChain, recipientNttManager } =
+      txData;
+    const nttManagerMessage = WormholeTransceiverMessage.deserialize(
+      Buffer.from(transceiverMessage.slice(2), 'hex'),
+      (a) => NttManagerMessage.deserialize(a, NativeTokenTransfer.deserialize),
+    ).ntt_managerPayload;
+    const nttManager = getNttManager(toChain, recipientNttManager);
+    try {
+      return await nttManager.fetchRedeemTx(fromChain, nttManagerMessage);
+    } catch (e) {
+      console.error(e);
+    }
   }
 }

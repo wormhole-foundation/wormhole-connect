@@ -22,7 +22,7 @@ const useDeliveryStatus = () => {
     (state: RootState) => state.redeem.signedMessage,
   );
   useEffect(() => {
-    if (!signedMessage || route !== Route.NTTRelay) return;
+    if (!signedMessage || route !== Route.NttRelay) return;
     const { emitterChain, emitterAddress, sequence } =
       getEmitterAndSequence(signedMessage);
     let active = true;

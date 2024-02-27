@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { CHAINS, TOKENS } from 'config';
 import AlertBanner from 'components/AlertBanner';
-import { NTTManual, RATE_LIMIT_DURATION } from 'routes/ntt';
+import { NttManual, RATE_LIMIT_DURATION } from 'routes/ntt';
 import { parseUnits } from 'ethers/lib/utils';
 import { formatSecondsToHoursAndMinutes, getTokenDecimals } from 'utils';
 import { wh } from 'utils/sdk';
@@ -16,7 +16,7 @@ type Props = {
   fromChain: ChainName;
 };
 
-const NTTCapacityWarning = ({ token, amount, chain, fromChain }: Props) => {
+const NttCapacityWarning = ({ token, amount, chain, fromChain }: Props) => {
   const [capacity, setCapacity] = useState<BigNumber | undefined>(undefined);
   const managerAddress = TOKENS[token]?.ntt?.nttManager;
 
@@ -25,7 +25,7 @@ const NTTCapacityWarning = ({ token, amount, chain, fromChain }: Props) => {
     let active = true;
     const fetchCapacity = async () => {
       try {
-        const ntt = new NTTManual();
+        const ntt = new NttManual();
         const capacity =
           chain === fromChain
             ? await ntt.getCurrentOutboundCapacity(chain, managerAddress)
@@ -52,12 +52,12 @@ const NTTCapacityWarning = ({ token, amount, chain, fromChain }: Props) => {
 
   const showWarning = useMemo(() => {
     if (!token || !amount || !chain || !capacity) return;
-    console.log(amount);
     const destTokenKey = getNativeVersionOfToken(TOKENS[token].symbol, chain);
     const destToken = TOKENS[destTokenKey];
     if (!destToken) return;
     // capacity is in destination token decimals, so we need to convert the amount to the same decimals
     // TODO: test inbound capacity from solana
+    console.log('capacity', capacity.toString());
     const decimals = getTokenDecimals(wh.toChainId(chain), destToken.tokenId);
     const parsedAmount = parseUnits(Number(amount).toFixed(decimals), decimals);
     const fivePercentOfCapacity = capacity.mul(5).div(100);
@@ -81,4 +81,4 @@ const NTTCapacityWarning = ({ token, amount, chain, fromChain }: Props) => {
   return <AlertBanner show content={content} warning />;
 };
 
-export default NTTCapacityWarning;
+export default NttCapacityWarning;

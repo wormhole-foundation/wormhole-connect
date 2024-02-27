@@ -86,7 +86,7 @@ export const getMessageEvm = async (
   return {
     sendTx: receipt.transactionHash,
     sender: receipt.from,
-    amount: nttManagerMessage.payload.normalizedAmount.amount.toString(),
+    amount: nttManagerMessage.payload.trimmedAmount.amount.toString(),
     payloadID: 1,
     recipient: wh.parseAddress(
       nttManagerMessage.payload.recipientAddress,

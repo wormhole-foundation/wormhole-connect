@@ -10,7 +10,7 @@ import {
 } from 'store/redeem';
 import { sleep } from 'utils';
 import { fetchIsVAAEnqueued } from 'utils/vaa';
-import { SignedMessage, isNTTRoute } from 'routes';
+import { SignedMessage, isNttRoute } from 'routes';
 import RouteOperator from 'routes/operator';
 import { ParsedMessage, ParsedRelayerMessage } from 'utils/sdk';
 
@@ -18,7 +18,7 @@ import PageHeader from 'components/PageHeader';
 import Spacer from 'components/Spacer';
 import ChainsTag from './Tag';
 import Stepper from './Stepper';
-import NTTStepper from './NTTStepper';
+import NttStepper from './NttStepper';
 import GovernorEnqueuedWarning from './GovernorEnqueuedWarning';
 import config from 'config';
 import useDeliveryStatus from 'hooks/useRelayStatus';
@@ -54,7 +54,7 @@ function Redeem({
       !txData?.sendTx ||
       !txData.emitterAddress || // no VAA exists, e.g. CCTP route
       !!signedMessage || // if we have the VAA, then it's not enqueued
-      (route && isNTTRoute(route)) // NTT route doesn't use token bridge / governor
+      (route && isNttRoute(route)) // NTT route doesn't use token bridge / governor
     ) {
       return;
     }
@@ -170,7 +170,7 @@ function Redeem({
         show={!signedMessage && isVaaEnqueued}
         chain={txData.fromChain}
       />
-      {route && isNTTRoute(route) ? <NTTStepper /> : <Stepper />}
+      {route && isNttRoute(route) ? <NttStepper /> : <Stepper />}
     </div>
   ) : (
     <></>

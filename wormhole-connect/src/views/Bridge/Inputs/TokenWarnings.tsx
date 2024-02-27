@@ -240,7 +240,14 @@ function TokenWarnings() {
 
     if (!toChain || !token || !receiving.address) return;
     // The tBTC associated token account will be created if it doesn't exist in the redeem tx
-    if (toChain === 'solana' && foreignAsset && route !== Route.TBTC) {
+    // The NTT ATA will be created if it doesn't exist in the redeem tx
+    if (
+      toChain === 'solana' &&
+      foreignAsset &&
+      route !== Route.TBTC &&
+      route !== Route.NttManual &&
+      route !== Route.NttRelay
+    ) {
       checkSolanaAssociatedTokenAccount();
     }
     if (usdcAndNoCCTP) {

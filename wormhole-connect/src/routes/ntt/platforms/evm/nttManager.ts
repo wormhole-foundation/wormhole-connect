@@ -26,6 +26,7 @@ import { NttManager__factory } from './abis/NttManager__factory';
 import { NttManager as NttManagerAbi } from './abis/NttManager';
 import { NttManagerMessage } from '../../payloads/common';
 import { NativeTokenTransfer } from '../../payloads/transfers';
+import { CHAINS } from 'config';
 
 export class NttManagerEvm {
   readonly nttManager: NttManagerAbi;
@@ -183,6 +184,26 @@ export class NttManagerEvm {
 
   async isPaused(): Promise<boolean> {
     return this.nttManager.isPaused();
+  }
+
+  async fetchRedeemTx(
+    emitterChain: ChainName | ChainId,
+    nttManagerMessage: NttManagerMessage<NativeTokenTransfer>,
+  ): Promise<string | undefined> {
+    const digest = getNttManagerMessageDigest(emitterChain, nttManagerMessage);
+    // @ts-ignore
+    // TODO: why does the abi expect null for the digest?
+    const eventFilter = this.nttManager.filters.TransferRedeemed(digest);
+    const provider = wh.mustGetProvider(this.chain);
+    const currentBlock = await provider.getBlockNumber();
+    const chainName = wh.toChainName(nttManagerMessage.payload.recipientChain);
+    const chainConfig = CHAINS[chainName]!;
+    const events = await this.nttManager.queryFilter(
+      eventFilter,
+      currentBlock - chainConfig.maxBlockSearch,
+    );
+    console.log(`fetchRedeemTx: ${events[0].transactionHash}`);
+    return events ? events[0].transactionHash : undefined;
   }
 
   throwParsedError(e: any): never {

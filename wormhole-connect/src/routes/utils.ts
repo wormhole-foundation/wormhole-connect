@@ -90,6 +90,6 @@ export const isIlliquidDestToken = (
   return false;
 };
 
-export const isNTTRoute = (route: Route) => {
-  return route === Route.NTTManual || route === Route.NTTRelay;
+export const isNttRoute = (route: Route) => {
+  return route === Route.NttManual || route === Route.NttRelay;
 };

@@ -180,7 +180,13 @@ export const validateSolanaTokenAccount = (
   route: Route | undefined,
 ): ValidationErr => {
   if (destChain !== 'solana') return '';
-  if (route === Route.Relay || route === Route.TBTC) return '';
+  if (
+    route === Route.Relay ||
+    route === Route.TBTC ||
+    route === Route.NttManual ||
+    route === Route.NttRelay
+  )
+    return '';
   if (!destTokenAddr) return '';
   if (destTokenAddr && !solanaTokenAccount) {
     return 'The associated token account for this asset does not exist on Solana, you must create it first';
@@ -311,7 +317,7 @@ export const validateAll = async (
     receiveAmount: '',
   };
 
-  if (isAutomatic && route !== Route.NTTRelay) {
+  if (isAutomatic && route !== Route.NttRelay) {
     return {
       ...baseValidations,
       toNativeToken: validateToNativeAmt(toNativeToken, maxSwapAmt),

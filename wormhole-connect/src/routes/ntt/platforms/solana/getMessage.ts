@@ -9,6 +9,7 @@ import { TokenId } from '@wormhole-foundation/wormhole-connect-sdk';
 import { WormholeTransceiverMessage } from '../../payloads/wormhole';
 import { NttManagerMessage } from '../../payloads/common';
 import { NativeTokenTransfer } from '../../payloads/transfers';
+import { PartiallyDecodedInstruction } from '@solana/web3.js';
 
 export const getMessageSolana = async (
   tx: string,
@@ -18,10 +19,13 @@ export const getMessageSolana = async (
   if (!connection) throw new Error('Connection not found');
   const response = await connection.getParsedTransaction(tx);
   if (!response) throw new Error('Transaction not found');
-  // TODO: this is scary indexing into this, can we rely on this index?
-  const wormholeMessage = response.transaction.message.accountKeys[6].pubkey;
+  const core = wh.mustGetContracts('solana').core;
+  const wormholeIx = (response.meta?.innerInstructions || [])
+    .flatMap((ix) => ix.instructions)
+    .find((ix) => ix.programId.toString() === core);
+  if (!wormholeIx) throw new Error('Wormhole instruction not found');
   const wormholeMessageAccount = await connection.getAccountInfo(
-    wormholeMessage,
+    (wormholeIx as PartiallyDecodedInstruction).accounts[1], // wormhole message account
   );
   if (wormholeMessageAccount === null) {
     throw new Error('wormhole message account not found');
@@ -29,6 +33,7 @@ export const getMessageSolana = async (
   const messageData = PostedMessageData.deserialize(
     wormholeMessageAccount.data,
   );
+  console.log(messageData);
   const transceiverMessage = WormholeTransceiverMessage.deserialize(
     messageData.message.payload,
     (a) => NttManagerMessage.deserialize(a, NativeTokenTransfer.deserialize),
@@ -51,7 +56,7 @@ export const getMessageSolana = async (
   return {
     sendTx: tx,
     sender: wh.parseAddress(hexlify(nttManagerMessage.sender), fromChain),
-    amount: nttManagerMessage.payload.normalizedAmount.amount.toString(),
+    amount: nttManagerMessage.payload.trimmedAmount.amount.toString(),
     payloadID: 1,
     recipient: wh.parseAddress(
       hexlify(nttManagerMessage.payload.recipientAddress),

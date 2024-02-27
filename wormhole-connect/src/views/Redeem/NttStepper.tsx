@@ -5,7 +5,7 @@ import Stepper from 'components/Stepper/Stepper';
 import SendFrom from './SendFrom';
 import SendTo from './SendTo';
 import BridgeComplete from './BridgeComplete';
-import NTTInboundQueued from './NTTInboundQueued';
+import NttInboundQueued from './NttInboundQueued';
 import RelayFailed from './RelayFailed';
 import { DeliveryStatus } from '@certusone/wormhole-sdk/lib/esm/relayer';
 
@@ -13,7 +13,7 @@ const SEND_FROM_STEP = 1;
 const SEND_TO_STEP = 2;
 const TRANSACTION_COMPLETE_STEP = 4;
 
-export default function NTTStepper() {
+export default function NttStepper() {
   const signedMessage = useSelector(
     (state: RootState) => state.redeem.signedMessage,
   );
@@ -48,7 +48,7 @@ export default function NTTStepper() {
       component: deliveryFailed ? (
         <RelayFailed />
       ) : isInboundQueued ? (
-        <NTTInboundQueued />
+        <NttInboundQueued />
       ) : (
         <SendTo />
       ),

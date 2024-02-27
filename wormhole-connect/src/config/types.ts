@@ -53,8 +53,8 @@ export enum Route {
   TBTC = 'tbtc',
   ETHBridge = 'ethBridge',
   wstETHBridge = 'wstETHBridge',
-  NTTManual = 'nttManual',
-  NTTRelay = 'nttRelay',
+  NttManual = 'nttManual',
+  NttRelay = 'nttRelay',
 }
 
 export type SupportedRoutes = keyof typeof Route;

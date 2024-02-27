@@ -3,6 +3,7 @@ import { wh } from 'utils/sdk';
 import { WormholeTransceiver__factory } from './abis';
 import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
 import { WormholeTransceiver } from './abis/WormholeTransceiver';
+import { BigNumber } from 'ethers';
 
 export class WormholeTransceiverEvm {
   readonly transceiver: WormholeTransceiver;
@@ -28,6 +29,7 @@ export class WormholeTransceiverEvm {
 
   async receiveMessage(vaa: string, payer: string): Promise<string> {
     const tx = await this.transceiver.populateTransaction.receiveMessage(vaa);
+    tx.gasLimit = BigNumber.from(5000000);
     const signer = await wh.mustGetSigner(this.chain);
     const response = await signer.sendTransaction(tx);
     const receipt = await response.wait();

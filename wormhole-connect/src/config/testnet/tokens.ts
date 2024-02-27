@@ -2234,6 +2234,7 @@ export const TESTNET_TOKENS: TokensConfig = {
   TEST_NTTsepolia: {
     key: 'TEST_NTTsepolia',
     symbol: 'TEST_NTT',
+    displayName: 'TEST_NTT (Sepolia)',
     nativeChain: 'sepolia',
     icon: Icon.ETH, // TODO: change icon
     tokenId: {
@@ -2254,6 +2255,7 @@ export const TESTNET_TOKENS: TokensConfig = {
   TEST_NTTarbitrum_sepolia: {
     key: 'TEST_NTTarbitrum_sepolia',
     symbol: 'TEST_NTT',
+    displayName: 'TEST_NTT (Arbitrum Sepolia)',
     nativeChain: 'arbitrum_sepolia',
     icon: Icon.ETH, // TODO: change icon
     tokenId: {
@@ -2274,6 +2276,7 @@ export const TESTNET_TOKENS: TokensConfig = {
   TEST_NTTsolana: {
     key: 'TEST_NTTsolana',
     symbol: 'TEST_NTT',
+    displayName: 'TEST_NTT (Solana)',
     nativeChain: 'solana',
     icon: Icon.ETH, // TODO: change icon
     tokenId: {

@@ -32,7 +32,7 @@ import { getTokenById, isEqualCaseInsensitive } from 'utils';
 import { ETHBridge } from './porticoBridge/ethBridge';
 import { wstETHBridge } from './porticoBridge/wstETHBridge';
 import { TokenPrices } from 'store/tokenPrices';
-import { NTTManual, NTTRelay } from './ntt';
+import { NttManual, NttRelay } from './ntt';
 
 export class Operator {
   getRoute(route: Route): RouteAbstract {
@@ -64,11 +64,11 @@ export class Operator {
       case Route.wstETHBridge: {
         return new wstETHBridge();
       }
-      case Route.NTTManual: {
-        return new NTTManual();
+      case Route.NttManual: {
+        return new NttManual();
       }
-      case Route.NTTRelay: {
-        return new NTTRelay();
+      case Route.NttRelay: {
+        return new NttRelay();
       }
       default: {
         throw new Error(`${route} is not a valid route`);
@@ -103,10 +103,33 @@ export class Operator {
       }
 
       // Check if is Native Token Transfer Route
-      for (const token of TOKENS_ARR) {
-        if (token.ntt?.nttManager === receipt.to) {
-          // const { emitterAddress } = await getUnsignedVaaEvm(chain, receipt);
-          return Route.NTTManual;
+      const evmNttManagers = TOKENS_ARR.reduce<string[]>((arr, t) => {
+        if (t.ntt?.nttManager) {
+          arr.push(t.ntt.nttManager);
+        }
+        return arr;
+      }, []);
+      if (evmNttManagers.includes(receipt.to)) {
+        return Route.NttManual;
+      }
+    }
+
+    // Check if is Native Token Transfer Route
+    if (chain === 'solana') {
+      const connection = solanaContext().connection;
+      if (!connection) throw new Error('Connection not found');
+      const tx = await connection.getParsedTransaction(txHash);
+      if (!tx) throw new Error('Transaction not found');
+      const solanaNttManagers = TOKENS_ARR.reduce<string[]>((arr, t) => {
+        if (t.ntt?.nttManager) {
+          arr.push(t.ntt.nttManager);
+        }
+        return arr;
+      }, []);
+      for (const ix of tx.transaction.message.instructions) {
+        if (solanaNttManagers.includes(ix.programId.toString())) {
+          // TODO: how to figure out if relay?
+          return Route.NttManual;
         }
       }
     }

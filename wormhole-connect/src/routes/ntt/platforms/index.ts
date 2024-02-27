@@ -25,7 +25,7 @@ export const getWormholeTransceiver = (
     return new WormholeTransceiverEvm(chain, transceiverAddress);
   }
   if (wh.toChainName(chain) === 'solana') {
-    // NOTE: The Solana contract has the "WormholeTransceiver" baked in
+    // NOTE: The Solana contract *is* the WormholeTransceiver
     return new NttManagerSolana(transceiverAddress);
   }
   throw new Error(`Unsupported chain: ${chain}`);
