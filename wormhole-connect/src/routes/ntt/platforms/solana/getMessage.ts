@@ -9,7 +9,6 @@ import { TokenId } from '@wormhole-foundation/wormhole-connect-sdk';
 import { WormholeTransceiverMessage } from '../../payloads/wormhole';
 import { NttManagerMessage } from '../../payloads/common';
 import { NativeTokenTransfer } from '../../payloads/transfers';
-import { PartiallyDecodedInstruction } from '@solana/web3.js';
 
 export const getMessageSolana = async (
   tx: string,
@@ -17,15 +16,20 @@ export const getMessageSolana = async (
   const context = solanaContext();
   const connection = context.connection;
   if (!connection) throw new Error('Connection not found');
-  const response = await connection.getParsedTransaction(tx);
+  const response = await connection.getTransaction(tx, {
+    maxSupportedTransactionVersion: 0,
+  });
   if (!response) throw new Error('Transaction not found');
   const core = wh.mustGetContracts('solana').core;
-  const wormholeIx = (response.meta?.innerInstructions || [])
-    .flatMap((ix) => ix.instructions)
-    .find((ix) => ix.programId.toString() === core);
+  const accounts = response?.transaction.message.getAccountKeys();
+  const wormholeIx = response?.meta?.innerInstructions
+    ?.flatMap((ix) => ix.instructions)
+    .find((ix) => accounts?.get(ix.programIdIndex)?.toString() === core);
   if (!wormholeIx) throw new Error('Wormhole instruction not found');
+  const wormholeMessageAccountKey = accounts?.get(wormholeIx.accounts[1]);
+  if (!wormholeMessageAccountKey) throw new Error('Message account not found');
   const wormholeMessageAccount = await connection.getAccountInfo(
-    (wormholeIx as PartiallyDecodedInstruction).accounts[1], // wormhole message account
+    wormholeMessageAccountKey,
   );
   if (wormholeMessageAccount === null) {
     throw new Error('wormhole message account not found');
@@ -33,7 +37,6 @@ export const getMessageSolana = async (
   const messageData = PostedMessageData.deserialize(
     wormholeMessageAccount.data,
   );
-  console.log(messageData);
   const transceiverMessage = WormholeTransceiverMessage.deserialize(
     messageData.message.payload,
     (a) => NttManagerMessage.deserialize(a, NativeTokenTransfer.deserialize),
@@ -78,7 +81,7 @@ export const getMessageSolana = async (
     ),
     sequence: messageData.message.sequence.toString(),
     block: response.slot,
-    gasFee: '0',
+    gasFee: response.meta?.fee.toString(),
     recipientNttManager: wh.parseAddress(
       hexlify(transceiverMessage.recipientNttManager),
       toChain,

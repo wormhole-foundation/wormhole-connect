@@ -160,14 +160,30 @@ export abstract class NttBase extends BaseRoute {
     recipientAddress: string,
     routeOptions?: any,
   ): Promise<BigNumber> {
-    throw new Error('not implemented');
+    if (isEvmChain(sendingChain)) {
+      const provider = wh.mustGetProvider(sendingChain);
+      const gasPrice = await provider.getGasPrice();
+      return gasPrice.mul(200000);
+    } else {
+      return BigNumber.from(100000);
+    }
   }
 
   async estimateClaimGas(
     destChain: ChainName | ChainId,
     signedMessage?: SignedMessage,
   ): Promise<BigNumber> {
-    throw new Error('not implemented');
+    if (this.TYPE === Route.NttRelay) {
+      // relayer pays claim gas
+      return BigNumber.from(0);
+    }
+    if (isEvmChain(destChain)) {
+      const provider = wh.mustGetProvider(destChain);
+      const gasPrice = await provider.getGasPrice();
+      return gasPrice.mul(300000);
+    } else {
+      return BigNumber.from(100000);
+    }
   }
 
   async send(
@@ -191,7 +207,6 @@ export abstract class NttBase extends BaseRoute {
     if (!destTokenConfig?.ntt) {
       throw new Error('invalid dest token');
     }
-    // prevent sending to a paused chain
     if (
       await getNttManager(
         recipientChain,
@@ -210,7 +225,6 @@ export abstract class NttBase extends BaseRoute {
     );
     // remove any dust before sending
     const sendAmount = removeDust(parseUnits(amount, decimals), decimals);
-    console.log('sendAmount', sendAmount.toString());
     const shouldSkipRelayerSend = this.TYPE !== Route.NttRelay;
     return await nttManager.send(
       token,
