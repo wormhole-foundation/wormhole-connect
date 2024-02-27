@@ -1,5 +1,5 @@
 import InputContainer from 'components/InputContainer';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from 'store';
 import { isSignedNttMessage as isSignedNttMessage } from 'routes';
@@ -52,12 +52,30 @@ const NttInboundQueued = () => {
   const [sendError, setSendError] = useState('');
   const [isConnected, setIsConnected] = useState(checkConnection());
   const [openWalletModal, setWalletModal] = useState(false);
+  const [expired, setExpired] = useState(false);
+  const [rateLimitExpiry, setRateLimitExpiry] = useState('');
 
-  const rateLimitExpiry = useMemo(() => {
-    if (!inboundQueuedTransfer.data) return '';
-    return new Date(
-      inboundQueuedTransfer.data?.rateLimitExpiryTimestamp * 1000,
-    ).toLocaleString();
+  useEffect(() => {
+    if (!inboundQueuedTransfer.data) {
+      setExpired(true);
+      setRateLimitExpiry('');
+      return;
+    }
+    const expiry = new Date(
+      inboundQueuedTransfer.data.rateLimitExpiryTimestamp * 1000,
+    );
+    setRateLimitExpiry(expiry.toLocaleString());
+    const now = new Date();
+    if (now < expiry) {
+      setExpired(false);
+      const timeoutId = setTimeout(
+        () => setExpired(true),
+        expiry.getTime() - now.getTime(),
+      );
+      return () => clearTimeout(timeoutId);
+    } else {
+      setExpired(true);
+    }
   }, [inboundQueuedTransfer]);
 
   const connect = () => {
@@ -147,16 +165,20 @@ const NttInboundQueued = () => {
       />
       {wallet.address ? (
         isConnected ? (
-          <Button onClick={handleClick} action disabled={inProgress}>
+          <Button
+            onClick={handleClick}
+            action
+            disabled={inProgress || !expired}
+          >
             {inProgress ? <CircularProgress size={22} /> : 'Complete transfer'}
           </Button>
         ) : (
-          <Button onClick={connect} elevated>
+          <Button onClick={connect} elevated disabled={!expired}>
             Connect wallet
           </Button>
         )
       ) : (
-        <Button onClick={connect} action>
+        <Button onClick={connect} action disabled={!expired}>
           Connect wallet
         </Button>
       )}
