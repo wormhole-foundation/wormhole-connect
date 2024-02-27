@@ -142,19 +142,27 @@ const NttInboundQueued = () => {
 
   return (
     <>
-      <InputContainer bg={theme.palette.warning[500] + OPACITY[25]}>
-        <Header
-          chain={signedMessage.toChain}
-          address={signedMessage.recipient}
-          txHash={signedMessage.sendTx}
-        />
-        <div>
-          {`Your transfer to ${
-            CHAINS[signedMessage.toChain]?.displayName || 'UNKNOWN'
-          } is delayed due to rate limits that were configured by the ${
-            TOKENS[signedMessage.receivedTokenKey]?.symbol || 'UNKNOWN'
-          } token DAO. After the delay ends on ${rateLimitExpiry}, you will need to return to submit another transaction to complete the transfer and receive your tokens.`}
-        </div>
+      <InputContainer
+        bg={!expired ? theme.palette.warning[500] + OPACITY[25] : ''}
+      >
+        <>
+          <Header
+            chain={signedMessage.toChain}
+            address={signedMessage.recipient}
+            txHash={signedMessage.sendTx}
+          />
+          {!expired && (
+            <div>
+              {`Your transfer to ${
+                CHAINS[signedMessage.toChain]?.displayName || 'UNKNOWN'
+              } is delayed due to rate limits that were configured by the ${
+                TOKENS[signedMessage.receivedTokenKey]?.symbol || 'UNKNOWN'
+              } token DAO. After the delay ends on ${
+                rateLimitExpiry || 'N/A'
+              }, you will need to return to submit another transaction to complete the transfer and receive your tokens.`}
+            </div>
+          )}
+        </>
       </InputContainer>
       <Spacer height={8} />
       <AlertBanner

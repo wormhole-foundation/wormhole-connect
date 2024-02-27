@@ -47,7 +47,7 @@ import { wstETHBridge } from 'routes/porticoBridge/wstETHBridge';
 import { usePorticoSwapInfo } from 'hooks/usePorticoSwapInfo';
 import { usePorticoRelayerFee } from 'hooks/usePorticoRelayerFee';
 import { useFetchTokenPrices } from 'hooks/useFetchTokenPrices';
-import NttCapacityWarning from './NttCapacityWarning';
+import NttInboundCapacityWarning from './NttInboundCapacityWarning';
 import { isNttRoute } from 'routes/utils';
 
 const useStyles = makeStyles()((_theme) => ({
@@ -319,7 +319,7 @@ function Bridge() {
 
           <TransferLimitedWarning fromChain={fromChain} token={token} />
           {route && isNttRoute(route) && toChain && fromChain && (
-            <NttCapacityWarning
+            <NttInboundCapacityWarning
               token={destToken}
               amount={receiveAmount.data || '0'}
               chain={toChain}

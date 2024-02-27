@@ -322,17 +322,6 @@ export const calculateUSDPrice = (
   return '';
 };
 
-export const formatSecondsToHoursAndMinutes = (seconds: number): string => {
-  const hours = Math.floor(seconds / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
-
-  const hoursDisplay = hours > 0 ? `${hours} hour${hours > 1 ? 's' : ''}` : '';
-  const minutesDisplay =
-    minutes > 0 ? `${minutes} minute${minutes > 1 ? 's' : ''}` : '';
-
-  return `${hoursDisplay} ${minutesDisplay}`.trim();
-};
-
 export const tryParseErrorMessage = (
   iface: ethers.utils.Interface,
   error: any,

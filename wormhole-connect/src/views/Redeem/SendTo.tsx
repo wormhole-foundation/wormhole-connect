@@ -36,6 +36,7 @@ import SwitchToManualClaim from './SwitchToManualClaim';
 import { isPorticoRoute } from 'routes/porticoBridge/utils';
 import { isNttRoute, isSignedNttMessage } from 'routes';
 import { ContractIsPausedError, NttBase } from 'routes/ntt';
+import { setInboundQueuedTransfer } from 'store/ntt';
 
 function AssociatedTokenAlert() {
   const dispatch = useDispatch();
@@ -223,7 +224,9 @@ function SendTo() {
           signedMessage.transceiverMessage,
           txData.fromChain,
         );
-        if (!inboundQueuedTransfer) {
+        if (inboundQueuedTransfer) {
+          dispatch(setInboundQueuedTransfer(inboundQueuedTransfer));
+        } else {
           dispatch(setRedeemTx(txId));
           dispatch(setTransferComplete(true));
         }

@@ -247,7 +247,6 @@ export class NttManagerSolana {
     return undefined;
   }
 
-  // TODO: create the ATA if it doesn't exist
   async completeInboundQueuedTransfer(
     emitterChain: ChainName | ChainId,
     nttManagerMessage: NttManagerMessage<NativeTokenTransfer>,
@@ -263,6 +262,18 @@ export class NttManagerSolana {
     };
     const config = await this.ntt.getConfig();
     const tx = new Transaction();
+    // Create the ATA if it doesn't exist
+    const mint = await this.ntt.mintAccountAddress(config);
+    const ata = getAssociatedTokenAddressSync(mint, payerPublicKey);
+    if (!(await this.connection.getAccountInfo(ata))) {
+      const createAtaIx = createAssociatedTokenAccountInstruction(
+        payerPublicKey,
+        ata,
+        payerPublicKey,
+        mint,
+      );
+      tx.add(createAtaIx);
+    }
     if (config.mode.locking) {
       tx.add(await this.ntt.createReleaseInboundUnlockInstruction(releaseArgs));
     } else {

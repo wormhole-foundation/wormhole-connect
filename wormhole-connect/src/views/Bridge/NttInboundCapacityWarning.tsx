@@ -2,9 +2,9 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { CHAINS, TOKENS } from 'config';
 import AlertBanner from 'components/AlertBanner';
-import { NttManual, RATE_LIMIT_DURATION } from 'routes/ntt';
+import { NttManual } from 'routes/ntt';
 import { parseUnits } from 'ethers/lib/utils';
-import { formatSecondsToHoursAndMinutes, getTokenDecimals } from 'utils';
+import { getTokenDecimals } from 'utils';
 import { wh } from 'utils/sdk';
 import { BigNumber } from 'ethers';
 import { getNativeVersionOfToken } from 'store/transferInput';
@@ -16,7 +16,12 @@ type Props = {
   fromChain: ChainName;
 };
 
-const NttCapacityWarning = ({ token, amount, chain, fromChain }: Props) => {
+const NttInboundCapacityWarning = ({
+  token,
+  amount,
+  chain,
+  fromChain,
+}: Props) => {
   const [capacity, setCapacity] = useState<BigNumber | undefined>(undefined);
   const managerAddress = TOKENS[token]?.ntt?.nttManager;
 
@@ -26,14 +31,11 @@ const NttCapacityWarning = ({ token, amount, chain, fromChain }: Props) => {
     const fetchCapacity = async () => {
       try {
         const ntt = new NttManual();
-        const capacity =
-          chain === fromChain
-            ? await ntt.getCurrentOutboundCapacity(chain, managerAddress)
-            : await ntt.getCurrentInboundCapacity(
-                chain,
-                managerAddress,
-                fromChain,
-              );
+        const capacity = await ntt.getCurrentInboundCapacity(
+          chain,
+          managerAddress,
+          fromChain,
+        );
         if (active) {
           setCapacity(capacity ? BigNumber.from(capacity) : undefined);
         }
@@ -66,19 +68,16 @@ const NttCapacityWarning = ({ token, amount, chain, fromChain }: Props) => {
 
   if (!showWarning) return null;
 
-  const chainConfig = CHAINS[chain];
   const content = (
     <>
-      {`Due to high volume on ${
-        chainConfig?.displayName
-      }, your transfer may be delayed for ${formatSecondsToHoursAndMinutes(
-        RATE_LIMIT_DURATION,
-      )}. Once the delay ends, you'll need to submit a new transaction${
-        chain !== fromChain ? ` on ${chainConfig?.displayName}` : ''
-      } to complete the transfer. Please consider this before proceeding.`}
+      {`Your transfer to ${
+        CHAINS[chain]?.displayName || 'UNKNOWN'
+      } may be delayed due to rate limits configured by ${
+        TOKENS[token]?.symbol || 'UNKNOWN'
+      }. If your transfer is delayed, you will need to return after 24 hours to complete the transfer. Please consider this before proceeding.`}
     </>
   );
   return <AlertBanner show content={content} warning />;
 };
 
-export default NttCapacityWarning;
+export default NttInboundCapacityWarning;
