@@ -67,7 +67,8 @@
     "prettier": "prettier --write ./src",
     "analyze": "NODE_ENV=production NODE_OPTIONS=--max-old-space-size=6144 vite-bundle-visualizer",
     "test": "jest ./tests/*.test.ts --detectOpenHandles",
-    "checksdn": "npx tsx scripts/ofac/checkSdnListForUpdates.ts"
+    "checksdn": "npx tsx scripts/ofac/checkSdnListForUpdates.ts",
+    "preview": "vite preview"
   },
   "eslintConfig": {
     "extends": [
