@@ -6,7 +6,7 @@ import {
   resetInboundQueuedTransfer,
   setInboundQueuedTransfer,
 } from 'store/ntt';
-import { isSignedNTTMessage } from 'routes/types';
+import { isSignedNttMessage } from 'routes/types';
 import { isNttRoute } from 'routes';
 import RouteOperator from 'routes/operator';
 import { NttBase } from 'routes/ntt/nttBase';
@@ -29,7 +29,7 @@ const useCheckInboundQueuedTransfer = () => {
       !route ||
       !isNttRoute(route) ||
       !signedMessage ||
-      !isSignedNTTMessage(signedMessage) ||
+      !isSignedNttMessage(signedMessage) ||
       transferComplete
     ) {
       return;

@@ -23,7 +23,7 @@ export type UnsignedMessage =
   | TBTCMessage
   | UnsignedNTTMessage;
 
-export const isUnsignedNTTMessage = (
+export const isUnsignedNttMessage = (
   message: UnsignedMessage,
 ): message is UnsignedNTTMessage =>
   typeof message === 'object' &&
@@ -59,10 +59,10 @@ export const isSignedCCTPMessage = (
   typeof message === 'object' &&
   'message' in message &&
   'attestation' in message;
-export const isSignedNTTMessage = (
+export const isSignedNttMessage = (
   message: SignedMessage,
 ): message is SignedNTTMessage =>
-  isSignedWormholeMessage(message) && isUnsignedNTTMessage(message);
+  isSignedWormholeMessage(message) && isUnsignedNttMessage(message);
 
 export interface TransferInfoBaseParams {
   txData: ParsedMessage | ParsedRelayerMessage | UnsignedNTTMessage;

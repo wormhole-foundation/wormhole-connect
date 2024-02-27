@@ -11,6 +11,7 @@ import { Connection, Keypair, PublicKey, Transaction } from '@solana/web3.js';
 import {
   createApproveInstruction,
   getAssociatedTokenAddressSync,
+  createAssociatedTokenAccountInstruction,
 } from '@solana/spl-token';
 import { BN } from '@coral-xyz/anchor';
 import { RATE_LIMIT_DURATION } from 'routes/ntt/consts';
@@ -19,7 +20,6 @@ import { utils } from 'ethers';
 import { WormholeTransceiverMessage } from '../../payloads/wormhole';
 import { NttManagerMessage } from '../../payloads/common';
 import { NativeTokenTransfer } from '../../payloads/transfers';
-import { RequireContractIsNotPausedError } from 'routes/ntt/errors';
 
 export class NttManagerSolana {
   readonly ntt: NTT;
@@ -40,7 +40,7 @@ export class NttManagerSolana {
   async isWormholeRelayingEnabled(
     destChain: ChainName | ChainId,
   ): Promise<boolean> {
-    // TODO: implement
+    // Solana does not support standard relaying yet
     return false;
   }
 
@@ -122,11 +122,9 @@ export class NttManagerSolana {
     return txId;
   }
 
-  // TODO: create the ATA if it doesn't exist
   async receiveMessage(vaa: string, payer: string): Promise<string> {
-    if (await this.isPaused()) {
-      throw new RequireContractIsNotPausedError();
-    }
+    const core = wh.mustGetContracts('solana').core;
+    if (!core) throw new Error('Core not found');
     const config = await this.ntt.getConfig();
     const vaaArray = utils.arrayify(vaa, { allowMissingPrefix: true });
     const payerPublicKey = new PublicKey(payer);
@@ -137,9 +135,21 @@ export class NttManagerSolana {
     };
     const parsedVaa = parseVaa(vaaArray);
     const chainId = parsedVaa.emitterChain as ChainId;
-    const core = wh.mustGetContracts('solana').core;
-    if (!core) throw new Error('Core not found');
+    // First post the VAA
     await postVaa(this.connection, core, Buffer.from(vaaArray));
+    const tx = new Transaction();
+    // Create the ATA if it doesn't exist
+    const mint = await this.ntt.mintAccountAddress(config);
+    const ata = getAssociatedTokenAddressSync(mint, payerPublicKey);
+    if (!(await this.connection.getAccountInfo(ata))) {
+      const createAtaIx = createAssociatedTokenAccountInstruction(
+        payerPublicKey,
+        ata,
+        payerPublicKey,
+        mint,
+      );
+      tx.add(createAtaIx);
+    }
     // Here we create a transaction with three instructions:
     // 1. receive wormhole message (vaa)
     // 2. redeem
@@ -154,7 +164,6 @@ export class NttManagerSolana {
     // be able to release the transfer yet.
     // To make sure the transaction still succeeds, we set revertOnDelay to false, which will
     // just make the second instruction a no-op in case the transfer is delayed.
-    const tx = new Transaction();
     tx.add(await this.ntt.createReceiveWormholeMessageInstruction(redeemArgs));
     tx.add(await this.ntt.createRedeemInstruction(redeemArgs));
     const nttManagerMessage = WormholeTransceiverMessage.deserialize(
@@ -244,9 +253,6 @@ export class NttManagerSolana {
     nttManagerMessage: NttManagerMessage<NativeTokenTransfer>,
     payer: string,
   ): Promise<string> {
-    if (await this.isPaused()) {
-      throw new RequireContractIsNotPausedError();
-    }
     const payerPublicKey = new PublicKey(payer);
     const releaseArgs = {
       payer: payerPublicKey,

@@ -5,12 +5,10 @@ import { ChainName, ChainId } from '@wormhole-foundation/wormhole-connect-sdk';
 import { NttBase } from './nttBase';
 import { CHAINS, TOKENS } from 'config';
 import {
-  TransferDestInfo,
-  TransferDestInfoBaseParams,
   TransferDisplayData,
   TransferInfoBaseParams,
   UnsignedMessage,
-  isUnsignedNTTMessage,
+  isUnsignedNttMessage,
 } from 'routes/types';
 import {
   MAX_DECIMALS,
@@ -143,7 +141,7 @@ export class NttRelay extends NttBase {
   async getTransferSourceInfo<T extends TransferInfoBaseParams>(
     params: T,
   ): Promise<TransferDisplayData> {
-    if (!isUnsignedNTTMessage(params.txData)) {
+    if (!isUnsignedNttMessage(params.txData)) {
       return [];
     }
     const { tokenKey, amount, tokenDecimals, fromChain, gasFee, relayerFee } =
@@ -188,33 +186,8 @@ export class NttRelay extends NttBase {
     ];
   }
 
-  async getTransferDestInfo<T extends TransferDestInfoBaseParams>(
-    params: T,
-  ): Promise<TransferDestInfo> {
-    const {
-      txData: { tokenKey, amount, tokenDecimals },
-      tokenPrices,
-    } = params;
-    const token = TOKENS[tokenKey];
-    const formattedAmt = toNormalizedDecimals(
-      amount,
-      tokenDecimals,
-      MAX_DECIMALS,
-    );
-    return {
-      route: this.TYPE,
-      displayData: [
-        {
-          title: 'Amount',
-          value: `${formattedAmt} ${getDisplayName(token)}`,
-          valueUSD: calculateUSDPrice(formattedAmt, tokenPrices, token),
-        },
-      ],
-    };
-  }
-
   async tryFetchRedeemTx(txData: UnsignedMessage): Promise<string | undefined> {
-    if (!isUnsignedNTTMessage(txData)) {
+    if (!isUnsignedNttMessage(txData)) {
       throw new Error('invalid txData');
     }
     const { transceiverMessage, toChain, fromChain, recipientNttManager } =

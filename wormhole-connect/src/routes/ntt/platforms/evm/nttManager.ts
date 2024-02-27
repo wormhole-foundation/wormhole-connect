@@ -14,7 +14,7 @@ import {
   InboundQueuedTransferNotFoundError,
   InboundQueuedTransferStillQueuedError,
   NotEnoughCapacityError,
-  RequireContractIsNotPausedError,
+  ContractIsPausedError,
 } from '../../errors';
 import { RATE_LIMIT_DURATION } from 'routes/ntt/consts';
 import {
@@ -208,16 +208,16 @@ export class NttManagerEvm {
 
   throwParsedError(e: any): never {
     const message = tryParseErrorMessage(this.nttManager.interface, e);
-    if (message === InboundQueuedTransferNotFoundError.MESSAGE) {
+    if (message === 'InboundQueuedTransferNotFound') {
       throw new InboundQueuedTransferNotFoundError();
     }
-    if (message === InboundQueuedTransferStillQueuedError.MESSAGE) {
+    if (message === 'InboundQueuedTransferStillQueued') {
       throw new InboundQueuedTransferStillQueuedError();
     }
-    if (message === RequireContractIsNotPausedError.MESSAGE) {
-      throw new RequireContractIsNotPausedError();
+    if (message === 'RequireContractIsNotPaused') {
+      throw new ContractIsPausedError();
     }
-    if (message === NotEnoughCapacityError.MESSAGE) {
+    if (message === 'NotEnoughCapacity') {
       throw new NotEnoughCapacityError();
     }
     throw e;

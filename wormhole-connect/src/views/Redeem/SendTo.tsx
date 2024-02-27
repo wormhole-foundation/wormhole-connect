@@ -34,7 +34,8 @@ import { AssociatedTokenWarning } from '../Bridge/Inputs/TokenWarnings';
 import { Route } from 'config/types';
 import SwitchToManualClaim from './SwitchToManualClaim';
 import { isPorticoRoute } from 'routes/porticoBridge/utils';
-import { isNttRoute } from 'routes';
+import { isNttRoute, isSignedNttMessage } from 'routes';
+import { ContractIsPausedError, NttBase } from 'routes/ntt';
 
 function AssociatedTokenAlert() {
   const dispatch = useDispatch();
@@ -211,14 +212,18 @@ function SendTo() {
         wallet.address,
       );
       const route = RouteOperator.getRoute(routeName);
-      if (isNttRoute(route.TYPE)) {
+      if (isNttRoute(route.TYPE) && isSignedNttMessage(signedMessage)) {
         // The redeem may have resulted in the transfer being inbound queued
         // so we need to check that before we set the transfer as complete
-        const isTransferCompleted = await route.isTransferCompleted(
+        const inboundQueuedTransfer = await (
+          route as NttBase
+        ).getInboundQueuedTransfer(
           txData.toChain,
-          signedMessage,
+          signedMessage.recipientNttManager,
+          signedMessage.transceiverMessage,
+          txData.fromChain,
         );
-        if (isTransferCompleted) {
+        if (!inboundQueuedTransfer) {
           dispatch(setRedeemTx(txId));
           dispatch(setTransferComplete(true));
         }
@@ -228,7 +233,10 @@ function SendTo() {
       }
       setInProgress(false);
       setClaimError('');
-    } catch (e) {
+    } catch (e: any) {
+      if (e.message === ContractIsPausedError.MESSAGE) {
+        setClaimError('The contract is paused, please try again later');
+      }
       setInProgress(false);
       setClaimError('Your claim has failed, please try again');
       console.error(e);

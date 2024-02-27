@@ -10,26 +10,38 @@ import {
   UnsignedMessage,
   UnsignedNTTMessage,
   SignedNTTMessage,
-  isSignedNTTMessage,
+  TransferDestInfoBaseParams,
+  TransferDestInfo,
+  isSignedNttMessage,
 } from '../types';
 import { fetchVaa } from 'utils/vaa';
 import { hexlify, parseUnits } from 'ethers/lib/utils.js';
 import { BaseRoute } from '../bridge';
 import { isEvmChain, toChainName, wh } from 'utils/sdk';
-import { TOKENS } from 'config';
-import { getTokenById, getTokenDecimals, removeDust } from 'utils';
+import { CHAINS, TOKENS } from 'config';
+import {
+  MAX_DECIMALS,
+  calculateUSDPrice,
+  getDisplayName,
+  getTokenById,
+  getTokenDecimals,
+  removeDust,
+  toNormalizedDecimals,
+} from 'utils';
 import { getNativeVersionOfToken } from 'store/transferInput';
 import { getNttManager, getWormholeTransceiver } from './platforms';
 import { InboundQueuedTransfer } from './types';
 import {
-  DestContractIsPausedError,
-  RequireContractIsNotPausedError,
+  ContractIsPausedError,
+  DestinationContractIsPausedError,
 } from './errors';
 import { getMessageEvm } from './platforms/evm';
 import { getMessageSolana } from './platforms/solana';
 import { WormholeTransceiverMessage } from './payloads/wormhole';
 import { NttManagerMessage } from './payloads/common';
 import { NativeTokenTransfer } from './payloads/transfers';
+import { formatGasFee } from 'routes/utils';
+import { NO_INPUT } from 'utils/style';
 
 export abstract class NttBase extends BaseRoute {
   isSupportedChain(chain: ChainName): boolean {
@@ -186,11 +198,11 @@ export abstract class NttBase extends BaseRoute {
         destTokenConfig.ntt.nttManager,
       ).isPaused()
     ) {
-      throw new DestContractIsPausedError();
+      throw new DestinationContractIsPausedError();
     }
     const nttManager = getNttManager(sendingChain, tokenConfig.ntt.nttManager);
     if (await nttManager.isPaused()) {
-      throw new RequireContractIsNotPausedError();
+      throw new ContractIsPausedError();
     }
     const decimals = getTokenDecimals(
       wh.toChainId(sendingChain),
@@ -215,14 +227,18 @@ export abstract class NttBase extends BaseRoute {
     signedMessage: SignedMessage,
     payer: string,
   ): Promise<string> {
-    if (!isSignedNTTMessage(signedMessage)) {
-      throw new Error('Invalid message');
+    if (!isSignedNttMessage(signedMessage)) {
+      throw new Error('Not a signed NttMessage');
     }
-    const { receivedTokenKey, vaa } = signedMessage;
+    const { recipientNttManager, receivedTokenKey, vaa } = signedMessage;
+    const nttManager = getNttManager(chain, recipientNttManager);
+    if (await nttManager.isPaused()) {
+      throw new ContractIsPausedError();
+    }
     const wormholeTransceiver =
-      TOKENS[receivedTokenKey].ntt?.wormholeTransceiver;
+      TOKENS[receivedTokenKey]?.ntt?.wormholeTransceiver;
     if (!wormholeTransceiver) {
-      throw new Error('invalid token');
+      throw new Error('WormholeTransceiver not configured');
     }
     return await getWormholeTransceiver(
       chain,
@@ -287,10 +303,15 @@ export abstract class NttBase extends BaseRoute {
       Buffer.from(transceiverMessage.slice(2), 'hex'),
       (a) => NttManagerMessage.deserialize(a, NativeTokenTransfer.deserialize),
     ).ntt_managerPayload;
-    return await getNttManager(
-      chain,
-      nttManagerAddress,
-    ).completeInboundQueuedTransfer(fromChain, nttManagerMessage, payer);
+    const nttManager = getNttManager(chain, nttManagerAddress);
+    if (await nttManager.isPaused()) {
+      throw new ContractIsPausedError();
+    }
+    return await nttManager.completeInboundQueuedTransfer(
+      fromChain,
+      nttManagerMessage,
+      payer,
+    );
   }
 
   async getForeignAsset(
@@ -346,7 +367,7 @@ export abstract class NttBase extends BaseRoute {
     chain: ChainName | ChainId,
     signedMessage: SignedNTTMessage,
   ): Promise<boolean> {
-    if (!isSignedNTTMessage(signedMessage)) {
+    if (!isSignedNttMessage(signedMessage)) {
       throw new Error('Invalid signed message');
     }
     const { fromChain, recipientNttManager, transceiverMessage } =
@@ -368,5 +389,49 @@ export abstract class NttBase extends BaseRoute {
       return !queuedTransfer;
     }
     return false;
+  }
+
+  async getTransferDestInfo<T extends TransferDestInfoBaseParams>(
+    params: T,
+  ): Promise<TransferDestInfo> {
+    const {
+      txData: { receivedTokenKey, amount, tokenDecimals, toChain },
+      tokenPrices,
+      gasEstimate,
+      receiveTx,
+    } = params;
+    const token = TOKENS[receivedTokenKey];
+    const formattedAmt = toNormalizedDecimals(
+      amount,
+      tokenDecimals,
+      MAX_DECIMALS,
+    );
+    const result = {
+      route: this.TYPE,
+      displayData: [
+        {
+          title: 'Amount',
+          value: `${formattedAmt} ${getDisplayName(token)}`,
+          valueUSD: calculateUSDPrice(formattedAmt, tokenPrices, token),
+        },
+      ],
+    };
+    if (this.TYPE === Route.NttManual) {
+      const { gasToken } = CHAINS[toChain]!;
+      let gas = gasEstimate;
+      if (receiveTx) {
+        // TODO: this needs to call the manager?
+        const gasFee = await wh.getTxGasFee(toChain, receiveTx);
+        if (gasFee) {
+          gas = formatGasFee(toChain, gasFee);
+        }
+      }
+      result.displayData.push({
+        title: receiveTx ? 'Gas fee' : 'Gas estimate',
+        value: gas ? `${gas} ${getDisplayName(TOKENS[gasToken])}` : NO_INPUT,
+        valueUSD: calculateUSDPrice(gas, tokenPrices, TOKENS[gasToken]),
+      });
+    }
+    return result;
   }
 }

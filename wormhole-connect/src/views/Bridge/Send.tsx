@@ -40,9 +40,9 @@ import { useDebounce } from 'use-debounce';
 import { isPorticoRoute } from 'routes/porticoBridge/utils';
 import { SWAP_ERROR } from 'routes/porticoBridge/consts';
 import {
-  DestContractIsPausedError,
+  DestinationContractIsPausedError,
   NotEnoughCapacityError,
-  RequireContractIsNotPausedError,
+  ContractIsPausedError,
 } from 'routes/ntt/errors';
 
 const useStyles = makeStyles()((theme) => ({
@@ -168,11 +168,9 @@ function Send(props: { valid: boolean }) {
           ? `This transfer would be rate-limited due to high volume on ${
               CHAINS[transferInput.fromChain!]?.displayName
             }, please try again later`
-          : e?.message === RequireContractIsNotPausedError.MESSAGE ||
-            e?.message === DestContractIsPausedError.MESSAGE
-          ? `Transfers of ${
-              TOKENS[transferInput.token].displayName
-            } are currently paused`
+          : e?.message === ContractIsPausedError.MESSAGE ||
+            e?.message === DestinationContractIsPausedError.MESSAGE
+          ? e.message
           : 'Error with transfer, please try again',
       );
     }

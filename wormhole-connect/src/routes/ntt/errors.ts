@@ -1,34 +1,34 @@
 export class InboundQueuedTransferNotFoundError extends Error {
-  static MESSAGE = 'InboundQueuedTransferNotFound';
+  static MESSAGE = 'Inbound queued transfer not found';
   constructor() {
     super(InboundQueuedTransferNotFoundError.MESSAGE);
   }
 }
 
 export class InboundQueuedTransferStillQueuedError extends Error {
-  static MESSAGE = 'InboundQueuedTransferStillQueued';
+  static MESSAGE = 'Inbound queued transfer still queued';
   constructor() {
     super(InboundQueuedTransferStillQueuedError.MESSAGE);
   }
 }
 
 export class NotEnoughCapacityError extends Error {
-  static MESSAGE = 'NotEnoughCapacity';
+  static MESSAGE = 'Not enough capacity';
   constructor() {
     super(NotEnoughCapacityError.MESSAGE);
   }
 }
 
-export class RequireContractIsNotPausedError extends Error {
-  static MESSAGE = 'RequireContractIsNotPaused';
+export class ContractIsPausedError extends Error {
+  static MESSAGE = 'Contract is paused';
   constructor() {
-    super(RequireContractIsNotPausedError.MESSAGE);
+    super(ContractIsPausedError.MESSAGE);
   }
 }
 
-export class DestContractIsPausedError extends Error {
-  static MESSAGE = 'DestContractIsPaused';
+export class DestinationContractIsPausedError extends Error {
+  static MESSAGE = 'Destination contract is paused';
   constructor() {
-    super(DestContractIsPausedError.MESSAGE);
+    super(DestinationContractIsPausedError.MESSAGE);
   }
 }

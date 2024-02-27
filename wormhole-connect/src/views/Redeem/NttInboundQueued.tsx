@@ -2,7 +2,7 @@ import InputContainer from 'components/InputContainer';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from 'store';
-import { isSignedNTTMessage as isSignedNttMessage } from 'routes';
+import { isSignedNttMessage as isSignedNttMessage } from 'routes';
 import { NttManual, NttRelay } from 'routes/ntt';
 import Header from './Header';
 import { useDispatch } from 'react-redux';
@@ -23,7 +23,7 @@ import { Route } from 'config/types';
 import {
   InboundQueuedTransferNotFoundError,
   InboundQueuedTransferStillQueuedError,
-  RequireContractIsNotPausedError,
+  ContractIsPausedError,
 } from 'routes/ntt/errors';
 import { setRedeemTx } from 'store/redeem';
 import { OPACITY } from 'utils/style';
@@ -108,12 +108,12 @@ const NttInboundQueued = () => {
         dispatch(setRedeemTx(tx));
       }
     } catch (e: any) {
-      if (e.message === InboundQueuedTransferNotFoundError.MESSAGE) {
-        setSendError('Transfer not found');
-      } else if (e.message === InboundQueuedTransferStillQueuedError.MESSAGE) {
-        setSendError('Transfer still queued');
-      } else if (e.message === RequireContractIsNotPausedError.MESSAGE) {
-        setSendError('Contract is paused');
+      if (
+        e.message === InboundQueuedTransferNotFoundError.MESSAGE ||
+        e.message === InboundQueuedTransferStillQueuedError.MESSAGE ||
+        e.message === ContractIsPausedError.MESSAGE
+      ) {
+        setSendError(e.message);
       } else {
         setSendError('Error with transfer, please try again');
       }
