@@ -17,7 +17,7 @@ import {
 import { fetchVaa } from 'utils/vaa';
 import { hexlify, parseUnits } from 'ethers/lib/utils.js';
 import { BaseRoute } from '../bridge';
-import { isEvmChain, toChainName, wh } from 'utils/sdk';
+import { isEvmChain, solanaContext, toChainName, wh } from 'utils/sdk';
 import { CHAINS, TOKENS } from 'config';
 import {
   MAX_DECIMALS,
@@ -163,10 +163,12 @@ export abstract class NttBase extends BaseRoute {
     if (isEvmChain(sendingChain)) {
       const provider = wh.mustGetProvider(sendingChain);
       const gasPrice = await provider.getGasPrice();
-      return gasPrice.mul(200000);
-    } else {
-      return BigNumber.from(100000);
+      const estSendGas = 200000;
+      return gasPrice.mul(estSendGas);
+    } else if (wh.toChainName(sendingChain) === 'solana') {
+      return BigNumber.from(10000);
     }
+    throw new Error('Unsupported chain');
   }
 
   async estimateClaimGas(
@@ -180,10 +182,12 @@ export abstract class NttBase extends BaseRoute {
     if (isEvmChain(destChain)) {
       const provider = wh.mustGetProvider(destChain);
       const gasPrice = await provider.getGasPrice();
-      return gasPrice.mul(300000);
-    } else {
-      return BigNumber.from(100000);
+      const estClaimGas = 300000;
+      return gasPrice.mul(estClaimGas);
+    } else if (wh.toChainName(destChain) === 'solana') {
+      return BigNumber.from(65000);
     }
+    throw new Error('Unsupported chain');
   }
 
   async send(
@@ -434,10 +438,18 @@ export abstract class NttBase extends BaseRoute {
       const { gasToken } = CHAINS[toChain]!;
       let gas = gasEstimate;
       if (receiveTx) {
-        // TODO: this needs to call the manager?
-        const gasFee = await wh.getTxGasFee(toChain, receiveTx);
-        if (gasFee) {
-          gas = formatGasFee(toChain, gasFee);
+        if (isEvmChain(toChain)) {
+          const gasFee = await wh.getTxGasFee(toChain, receiveTx);
+          if (gasFee) {
+            gas = formatGasFee(toChain, gasFee);
+          }
+        } else if (wh.toChainName(toChain) === 'solana') {
+          const connection = solanaContext().connection;
+          if (!connection) throw new Error('Connection not found');
+          const tx = await connection.getParsedTransaction(receiveTx);
+          if (tx?.meta?.fee) {
+            gas = formatGasFee(toChain, BigNumber.from(tx.meta.fee));
+          }
         }
       }
       result.displayData.push({
