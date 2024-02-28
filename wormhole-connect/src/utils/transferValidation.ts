@@ -245,10 +245,10 @@ export const isCctp = (
   fromChain: ChainName | undefined,
 ): boolean => {
   const isUSDCToken =
-    TOKENS[token]?.symbol === 'USDC' &&
-    TOKENS[destToken]?.symbol === 'USDC' &&
-    TOKENS[token]?.nativeChain === fromChain &&
-    TOKENS[destToken]?.nativeChain === toChain;
+    config.tokens[token]?.symbol === 'USDC' &&
+    config.tokens[destToken]?.symbol === 'USDC' &&
+    config.tokens[token]?.nativeChain === fromChain &&
+    config.tokens[destToken]?.nativeChain === toChain;
   const bothChainsSupportCCTP =
     !!toChain &&
     CCTP_CHAINS.includes(toChain) &&
