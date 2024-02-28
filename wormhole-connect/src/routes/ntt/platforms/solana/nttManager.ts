@@ -14,12 +14,14 @@ import {
   createAssociatedTokenAccountInstruction,
 } from '@solana/spl-token';
 import { BN } from '@coral-xyz/anchor';
-import { RATE_LIMIT_DURATION } from 'routes/ntt/consts';
 import { parseVaa } from '@certusone/wormhole-sdk/lib/esm';
 import { utils } from 'ethers';
 import { WormholeTransceiverMessage } from '../../payloads/wormhole';
 import { NttManagerMessage } from '../../payloads/common';
 import { NativeTokenTransfer } from '../../payloads/transfers';
+
+// TODO: make sure this is in sync with the contract
+const RATE_LIMIT_DURATION = 24 * 60 * 60;
 
 export class NttManagerSolana {
   readonly ntt: NTT;
@@ -198,7 +200,11 @@ export class NttManagerSolana {
     const {
       rateLimit: { limit, capacityAtLastTx, lastTxTimestamp },
     } = await this.ntt.getOutboxRateLimit();
-    return this.getCurrentCapacity(limit, capacityAtLastTx, lastTxTimestamp);
+    return await this.getCurrentCapacity(
+      limit,
+      capacityAtLastTx,
+      lastTxTimestamp,
+    );
   }
 
   async getCurrentInboundCapacity(
@@ -207,20 +213,36 @@ export class NttManagerSolana {
     const {
       rateLimit: { limit, capacityAtLastTx, lastTxTimestamp },
     } = await this.ntt.getInboxRateLimit(fromChain);
-    return this.getCurrentCapacity(limit, capacityAtLastTx, lastTxTimestamp);
+    return await this.getCurrentCapacity(
+      limit,
+      capacityAtLastTx,
+      lastTxTimestamp,
+    );
   }
 
-  getCurrentCapacity(limit: BN, capacityAtLastTx: BN, lastTxTimestamp: BN) {
+  async getCurrentCapacity(
+    limit: BN,
+    capacityAtLastTx: BN,
+    lastTxTimestamp: BN,
+  ) {
     const timePassed = BN.max(
       new BN(Date.now() / 1000).sub(lastTxTimestamp),
       new BN(0),
     );
+    const duration = await this.getRateLimitDuration();
     const calculatedCapacity = capacityAtLastTx.add(
-      timePassed.mul(limit).div(new BN(RATE_LIMIT_DURATION)),
+      timePassed.mul(limit).div(new BN(duration)),
     );
     return calculatedCapacity.lt(limit)
       ? calculatedCapacity.toString()
       : limit.toString();
+  }
+
+  async getRateLimitDuration(): Promise<number> {
+    // TODO: how will solana implement this?
+    // const config = await this.ntt.getConfig();
+    // return config.rateLimitDuration.toNumber();
+    return RATE_LIMIT_DURATION;
   }
 
   async getInboundQueuedTransfer(

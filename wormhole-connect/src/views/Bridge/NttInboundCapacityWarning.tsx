@@ -23,26 +23,41 @@ const NttInboundCapacityWarning = ({
   fromChain,
 }: Props) => {
   const [capacity, setCapacity] = useState<BigNumber | undefined>(undefined);
-  const managerAddress = TOKENS[token]?.ntt?.nttManager;
+  const [duration, setDuration] = useState<number>(0);
+  const nttManagerAddress = TOKENS[token]?.ntt?.nttManager;
 
   useEffect(() => {
-    if (!chain || !managerAddress || !fromChain) return;
+    if (!chain || !nttManagerAddress || !fromChain) return;
     let active = true;
     const fetchCapacity = async () => {
       try {
         const ntt = new NttManual();
+        const duration = await ntt.getRateLimitDuration(
+          chain,
+          nttManagerAddress,
+        );
+        // if the rate limit duration 0, then rate limiting is disabled
+        if (duration === 0) {
+          if (active) {
+            setCapacity(undefined);
+            setDuration(0);
+          }
+          return;
+        }
         const capacity = await ntt.getCurrentInboundCapacity(
           chain,
-          managerAddress,
+          nttManagerAddress,
           fromChain,
         );
         if (active) {
           setCapacity(capacity ? BigNumber.from(capacity) : undefined);
+          setDuration(duration);
         }
       } catch (error) {
         console.error('Failed to fetch capacity:', error);
         if (active) {
           setCapacity(undefined);
+          setDuration(0);
         }
       }
     };
@@ -50,10 +65,10 @@ const NttInboundCapacityWarning = ({
     return () => {
       active = false;
     };
-  }, [chain, managerAddress, fromChain]);
+  }, [chain, nttManagerAddress, fromChain]);
 
   const showWarning = useMemo(() => {
-    if (!token || !amount || !chain || !capacity) return;
+    if (!token || !amount || !chain || !capacity || !duration) return;
     const destTokenKey = getNativeVersionOfToken(TOKENS[token].symbol, chain);
     const destToken = TOKENS[destTokenKey];
     if (!destToken) return;
@@ -68,6 +83,7 @@ const NttInboundCapacityWarning = ({
 
   if (!showWarning) return null;
 
+  // TODO: change 24 hours?
   const content = (
     <>
       {`Your transfer to ${

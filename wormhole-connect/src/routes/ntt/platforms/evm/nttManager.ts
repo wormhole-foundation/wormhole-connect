@@ -16,7 +16,6 @@ import {
   NotEnoughCapacityError,
   ContractIsPausedError,
 } from '../../errors';
-import { RATE_LIMIT_DURATION } from 'routes/ntt/consts';
 import {
   encodeTransceiverInstructions,
   encodeWormholeTransceiverInstruction,
@@ -137,6 +136,10 @@ export class NttManagerEvm {
     ).toString();
   }
 
+  async getRateLimitDuration(): Promise<number> {
+    return (await this.nttManager.rateLimitDuration()).toNumber();
+  }
+
   async getInboundQueuedTransfer(
     emitterChain: ChainName | ChainId,
     nttManagerMessage: NttManagerMessage<NativeTokenTransfer>,
@@ -147,12 +150,11 @@ export class NttManagerEvm {
     );
     if (queuedTransfer.txTimestamp.gt(0)) {
       const { recipient, amount, txTimestamp } = queuedTransfer;
+      const duration = await this.getRateLimitDuration();
       return {
         recipient: wh.parseAddress(recipient, this.chain),
         amount: amount.toString(),
-        rateLimitExpiryTimestamp: txTimestamp
-          .add(RATE_LIMIT_DURATION)
-          .toNumber(),
+        rateLimitExpiryTimestamp: txTimestamp.add(duration).toNumber(),
       };
     }
     return undefined;

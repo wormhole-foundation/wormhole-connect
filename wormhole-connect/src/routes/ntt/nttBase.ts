@@ -294,6 +294,13 @@ export abstract class NttBase extends BaseRoute {
     ).getCurrentInboundCapacity(fromChain);
   }
 
+  async getRateLimitDuration(
+    chain: ChainId | ChainName,
+    nttManagerAddress: string,
+  ): Promise<number> {
+    return await getNttManager(chain, nttManagerAddress).getRateLimitDuration();
+  }
+
   async getInboundQueuedTransfer(
     chain: ChainName | ChainId,
     nttManagerAddress: string,
