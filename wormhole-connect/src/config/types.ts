@@ -66,24 +66,36 @@ export interface BridgeDefaults {
   requiredNetwork?: ChainName;
 }
 
-// Keep this in sync with wormhole-connect-loader/src/types.ts!
-// TODO: move to a shared package
-export interface IntegrationConfig {
-  chains?: any;
-  showHamburgerMenu?: boolean;
+// This is the integrator-provided JSON config
+export interface WormholeConnectConfig {
   env?: Environment;
+
+  // External resources
   rpcs?: ChainResourceMap;
   rest?: ChainResourceMap;
   graphql?: ChainResourceMap;
+  coinGeckoApiKey?: string;
+
+  // White lists
+  chains?: any;
   networks?: ChainName[];
   tokens?: string[];
+
+  // Custom tokens
   tokensConfig?: TokensConfig;
-  mode?: 'dark' | 'light';
-  theme?: ExtendedTheme;
+
+  // Legacy support: allow theme to be in this config object
+  // This should be removed in a future version after people have switched
+  // to providing the theme as a separate prop
+  customTheme?: ExtendedTheme;
+  mode: 'dark' | 'light';
+
+  // UI details
   cta?: {
     text: string;
     link: string;
   };
+  showHamburgerMenu?: boolean;
   explorer?: ExplorerConfig;
   bridgeDefaults?: BridgeDefaults;
   routes?: string[];
@@ -98,13 +110,14 @@ export interface IntegrationConfig {
   moreNetworks?: MoreChainConfig;
   partnerLogo?: string;
   walletConnectProjectId?: string;
+
+  // Route settings
   ethBridgeMaxAmount?: number;
   wstETHBridgeMaxAmount?: number;
-  coinGeckoApiKey?: string;
 }
 
 // This is the exported config value used throughout the code base
-export interface WormholeConnectConfig {
+export interface InternalConfig {
   wh: WormholeContext;
   sdkConfig: WormholeConfig;
 

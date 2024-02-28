@@ -8,14 +8,14 @@ import AppRouter from './AppRouter';
 import { getDesignTokens, CustomTheme, dark } from './theme';
 import BackgroundImage from './components/Background/BackgroundImage';
 import ErrorBoundary from './components/ErrorBoundary';
-import { IntegrationConfig } from './config/types';
+import { WormholeConnectConfig } from './config/types';
 import { setConfig } from './config';
 
 export interface WormholeConnectProps {
   // theme can be updated at any time to change the colors of Connect
   theme?: CustomTheme;
   // config is only used once, when Connect first mounts, to initialize the global config
-  config?: IntegrationConfig;
+  config?: WormholeConnectConfig;
 }
 
 export default function WormholeConnect({
