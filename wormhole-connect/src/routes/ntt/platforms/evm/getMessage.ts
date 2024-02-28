@@ -39,6 +39,21 @@ export const getMessageEvm = async (
   const wormholeLog = await getWormholeLogEvm(fromChain, receipt);
   const parsedWormholeLog =
     Implementation__factory.createInterface().parseLog(wormholeLog);
+
+  //const relayingInfoEvent = receipt.logs.find((log) => log.topics[0] === '');
+  //if (!relayingInfoEvent) {
+  //  throw new Error('RelayingInfo event not found');
+  //}
+  //const relayingInfoIface = new ethers.utils.Interface([
+  //  'event RelayingInfo(uint8 relayingType, uint256 deliveryPayment)',
+  //]);
+  //const parsedRelayingInfo = relayingInfoIface.parseLog(relayingInfoEvent);
+  //const { relayingType, deliveryPayment } = parsedRelayingInfo.args;
+  //if (relayingType !== RelayingType.Standard {
+  //} else if (relayingType === relayingType.Manual || relayingType === relayingType.Special) {
+  //} else {
+  //  throw new Error(`Unexpected relaying type ${relayingType}`);
+  //}
   let payload: Buffer;
   let relayerFee = '';
   if (parsedWormholeLog.args.sender === token.ntt?.wormholeTransceiver) {

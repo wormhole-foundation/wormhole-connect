@@ -1,3 +1,5 @@
+// NOTE: The generics have been removed from the IDL to prevent
+// runtime errors when the IDL is used in the browser.
 export type ExampleNativeTokenTransfers = {
   version: '0.1.0';
   name: 'example_native_token_transfers';

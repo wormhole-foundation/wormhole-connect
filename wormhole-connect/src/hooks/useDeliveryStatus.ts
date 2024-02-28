@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from 'store';
 import { setRedeemTx, setDeliveryStatus } from 'store/redeem';
 import { sleep } from 'utils';
+import { isEvmChain } from 'utils/sdk';
 import { getEmitterAndSequence } from 'utils/vaa';
 
 const BASE_URL = `https://api.${
@@ -22,7 +23,12 @@ const useDeliveryStatus = () => {
     (state: RootState) => state.redeem.signedMessage,
   );
   useEffect(() => {
-    if (!signedMessage || route !== Route.NttRelay) return;
+    if (
+      !signedMessage ||
+      route !== Route.NttRelay ||
+      !isEvmChain(signedMessage.toChain) // Currently, only EVM chains support standard relayer
+    )
+      return;
     const { emitterChain, emitterAddress, sequence } =
       getEmitterAndSequence(signedMessage);
     let active = true;

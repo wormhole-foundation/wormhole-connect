@@ -142,9 +142,9 @@ export class NttManagerEvm {
 
   async getInboundQueuedTransfer(
     emitterChain: ChainName | ChainId,
-    nttManagerMessage: NttManagerMessage<NativeTokenTransfer>,
+    message: NttManagerMessage<NativeTokenTransfer>,
   ): Promise<InboundQueuedTransfer | undefined> {
-    const digest = getNttManagerMessageDigest(emitterChain, nttManagerMessage);
+    const digest = getNttManagerMessageDigest(emitterChain, message);
     const queuedTransfer = await this.nttManager.getInboundQueuedTransfer(
       digest,
     );
@@ -162,9 +162,9 @@ export class NttManagerEvm {
 
   async completeInboundQueuedTransfer(
     emitterChain: ChainName | ChainId,
-    nttManagerMessage: NttManagerMessage<NativeTokenTransfer>,
+    message: NttManagerMessage<NativeTokenTransfer>,
   ): Promise<string> {
-    const digest = getNttManagerMessageDigest(emitterChain, nttManagerMessage);
+    const digest = getNttManagerMessageDigest(emitterChain, message);
     try {
       const tx =
         await this.nttManager.populateTransaction.completeInboundQueuedTransfer(
@@ -178,9 +178,9 @@ export class NttManagerEvm {
 
   async isMessageExecuted(
     emitterChain: ChainName | ChainId,
-    nttManagerMessage: NttManagerMessage<NativeTokenTransfer>,
+    message: NttManagerMessage<NativeTokenTransfer>,
   ): Promise<boolean> {
-    const digest = getNttManagerMessageDigest(emitterChain, nttManagerMessage);
+    const digest = getNttManagerMessageDigest(emitterChain, message);
     return this.nttManager.isMessageExecuted(digest);
   }
 
@@ -190,15 +190,15 @@ export class NttManagerEvm {
 
   async fetchRedeemTx(
     emitterChain: ChainName | ChainId,
-    nttManagerMessage: NttManagerMessage<NativeTokenTransfer>,
+    message: NttManagerMessage<NativeTokenTransfer>,
   ): Promise<string | undefined> {
-    const digest = getNttManagerMessageDigest(emitterChain, nttManagerMessage);
+    const digest = getNttManagerMessageDigest(emitterChain, message);
     // @ts-ignore
     // TODO: why does the abi expect null for the digest?
     const eventFilter = this.nttManager.filters.TransferRedeemed(digest);
     const provider = wh.mustGetProvider(this.chain);
     const currentBlock = await provider.getBlockNumber();
-    const chainName = wh.toChainName(nttManagerMessage.payload.recipientChain);
+    const chainName = wh.toChainName(message.payload.recipientChain);
     const chainConfig = CHAINS[chainName]!;
     const events = await this.nttManager.queryFilter(
       eventFilter,

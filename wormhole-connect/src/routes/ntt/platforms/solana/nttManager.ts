@@ -4,39 +4,61 @@ import {
   TokenId,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { InboundQueuedTransfer } from '../../types';
-import { NTT } from './sdk';
 import { solanaContext, wh } from 'utils/sdk';
 import { TransferWallet, postVaa, signAndSendTransaction } from 'utils/wallet';
-import { Connection, Keypair, PublicKey, Transaction } from '@solana/web3.js';
+import {
+  Connection,
+  Keypair,
+  PublicKey,
+  Transaction,
+  TransactionInstruction,
+} from '@solana/web3.js';
 import {
   createApproveInstruction,
   getAssociatedTokenAddressSync,
   createAssociatedTokenAccountInstruction,
 } from '@solana/spl-token';
-import { BN } from '@coral-xyz/anchor';
-import { parseVaa } from '@certusone/wormhole-sdk/lib/esm';
+import { BN, IdlAccounts, Program } from '@coral-xyz/anchor';
+import { SignedVaa, parseVaa } from '@certusone/wormhole-sdk/lib/esm';
 import { utils } from 'ethers';
 import { NttManagerMessage } from '../../payloads/common';
 import { NativeTokenTransfer } from '../../payloads/transfers';
 import { parseWormholeTransceiverMessage } from 'routes/ntt/utils';
+import {
+  ExampleNativeTokenTransfers,
+  IDL,
+} from './abis/example_native_token_transfers';
+import { Keccak } from 'sha3';
+import {
+  derivePostedVaaKey,
+  getWormholeDerivedAccounts,
+} from '@certusone/wormhole-sdk/lib/esm/solana/wormhole';
+import { associatedAddress } from '@coral-xyz/anchor/dist/cjs/utils/token';
 
 // TODO: make sure this is in sync with the contract
+
 const RATE_LIMIT_DURATION = 24 * 60 * 60;
 
+type Config = IdlAccounts<ExampleNativeTokenTransfers>['config'];
+type InboxItem = IdlAccounts<ExampleNativeTokenTransfers>['inboxItem'];
+type OutboxRateLimit =
+  IdlAccounts<ExampleNativeTokenTransfers>['outboxRateLimit'];
+type InboxRateLimit =
+  IdlAccounts<ExampleNativeTokenTransfers>['inboxRateLimit'];
+
 export class NttManagerSolana {
-  readonly ntt: NTT;
   readonly connection: Connection;
+  readonly program: Program<ExampleNativeTokenTransfers>;
+  readonly wormholeId: string;
 
   constructor(readonly nttId: string) {
     const connection = solanaContext().connection;
     if (!connection) throw new Error('Connection not found');
     this.connection = connection;
+    this.program = new Program(IDL, nttId, { connection });
     const core = wh.mustGetContracts('solana').core;
     if (!core) throw new Error('Core not found');
-    this.ntt = new NTT(connection, {
-      nttId,
-      wormholeId: core,
-    });
+    this.wormholeId = core;
   }
 
   async isWormholeRelayingEnabled(
@@ -68,7 +90,7 @@ export class NttManagerSolana {
     toChain: ChainName | ChainId,
     shouldSkipRelayerSend: boolean,
   ): Promise<string> {
-    const config = await this.ntt.getConfig();
+    const config = await this.getConfig();
     const outboxItem = Keypair.generate();
     const destContext = wh.getContext(toChain);
     const payer = new PublicKey(sender);
@@ -89,20 +111,18 @@ export class NttManagerSolana {
     };
     let transferIx;
     if (config.mode.locking) {
-      transferIx = await this.ntt.createTransferLockInstruction(txArgs);
-    } else if (config.mode.burning) {
-      transferIx = await this.ntt.createTransferBurnInstruction(txArgs);
+      transferIx = await this.createTransferLockInstruction(txArgs);
     } else {
-      throw new Error('Invalid mode');
+      transferIx = await this.createTransferBurnInstruction(txArgs);
     }
-    const releaseIx = await this.ntt.createReleaseOutboundInstruction({
+    const releaseIx = await this.createReleaseOutboundInstruction({
       payer,
       outboxItem: outboxItem.publicKey,
       revertOnDelay: !txArgs.shouldQueue,
     });
     const approveIx = createApproveInstruction(
       tokenAccount,
-      this.ntt.tokenAuthorityAddress(),
+      this.tokenAuthorityAddress(),
       payer,
       BigInt(amount.toString()),
     );
@@ -116,7 +136,6 @@ export class NttManagerSolana {
       'solana',
       tx,
       TransferWallet.SENDING,
-      { commitment: 'finalized' },
     );
     return txId;
   }
@@ -124,7 +143,7 @@ export class NttManagerSolana {
   async receiveMessage(vaa: string, payer: string): Promise<string> {
     const core = wh.mustGetContracts('solana').core;
     if (!core) throw new Error('Core not found');
-    const config = await this.ntt.getConfig();
+    const config = await this.getConfig();
     const vaaArray = utils.arrayify(vaa, { allowMissingPrefix: true });
     const payerPublicKey = new PublicKey(payer);
     const redeemArgs = {
@@ -138,7 +157,7 @@ export class NttManagerSolana {
     await postVaa(this.connection, core, Buffer.from(vaaArray));
     const tx = new Transaction();
     // Create the ATA if it doesn't exist
-    const mint = await this.ntt.mintAccountAddress(config);
+    const mint = await this.mintAccountAddress(config);
     const ata = getAssociatedTokenAddressSync(mint, payerPublicKey);
     if (!(await this.connection.getAccountInfo(ata))) {
       const createAtaIx = createAssociatedTokenAccountInstruction(
@@ -163,22 +182,22 @@ export class NttManagerSolana {
     // be able to release the transfer yet.
     // To make sure the transaction still succeeds, we set revertOnDelay to false, which will
     // just make the second instruction a no-op in case the transfer is delayed.
-    tx.add(await this.ntt.createReceiveWormholeMessageInstruction(redeemArgs));
-    tx.add(await this.ntt.createRedeemInstruction(redeemArgs));
+    tx.add(await this.createReceiveWormholeMessageInstruction(redeemArgs));
+    tx.add(await this.createRedeemInstruction(redeemArgs));
     const { nttManagerPayload } = parseWormholeTransceiverMessage(
       parsedVaa.payload,
     );
     const releaseArgs = {
       ...redeemArgs,
-      ntt_managerMessage: nttManagerPayload,
+      message: nttManagerPayload,
       recipient: new PublicKey(nttManagerPayload.payload.recipientAddress),
       chain: chainId,
       revertOnDelay: false,
     };
-    if (config.mode.locking != null) {
-      tx.add(await this.ntt.createReleaseInboundUnlockInstruction(releaseArgs));
+    if (config.mode.locking) {
+      tx.add(await this.createReleaseInboundUnlockInstruction(releaseArgs));
     } else {
-      tx.add(await this.ntt.createReleaseInboundMintInstruction(releaseArgs));
+      tx.add(await this.createReleaseInboundMintInstruction(releaseArgs));
     }
     tx.feePayer = payerPublicKey;
     const { blockhash } = await this.connection.getLatestBlockhash('finalized');
@@ -187,7 +206,6 @@ export class NttManagerSolana {
       'solana',
       tx,
       TransferWallet.RECEIVING,
-      { commitment: 'finalized' },
     );
     return txId;
   }
@@ -195,7 +213,7 @@ export class NttManagerSolana {
   async getCurrentOutboundCapacity(): Promise<string> {
     const {
       rateLimit: { limit, capacityAtLastTx, lastTxTimestamp },
-    } = await this.ntt.getOutboxRateLimit();
+    } = await this.getOutboxRateLimit();
     return await this.getCurrentCapacity(
       limit,
       capacityAtLastTx,
@@ -208,7 +226,7 @@ export class NttManagerSolana {
   ): Promise<string> {
     const {
       rateLimit: { limit, capacityAtLastTx, lastTxTimestamp },
-    } = await this.ntt.getInboxRateLimit(fromChain);
+    } = await this.getInboxRateLimit(fromChain);
     return await this.getCurrentCapacity(
       limit,
       capacityAtLastTx,
@@ -236,7 +254,7 @@ export class NttManagerSolana {
 
   async getRateLimitDuration(): Promise<number> {
     // TODO: how will solana implement this?
-    // const config = await this.ntt.getConfig();
+    // const config = await this.getConfig();
     // return config.rateLimitDuration.toNumber();
     return RATE_LIMIT_DURATION;
   }
@@ -247,7 +265,7 @@ export class NttManagerSolana {
   ): Promise<InboundQueuedTransfer | undefined> {
     let inboxItem;
     try {
-      inboxItem = await this.ntt.getInboxItem(emitterChain, message);
+      inboxItem = await this.getInboxItem(emitterChain, message);
     } catch (e: any) {
       if (e.message?.includes('Account does not exist')) {
         return undefined;
@@ -273,15 +291,15 @@ export class NttManagerSolana {
     const payerPublicKey = new PublicKey(payer);
     const releaseArgs = {
       payer: payerPublicKey,
-      ntt_managerMessage: message,
+      message,
       recipient: new PublicKey(message.payload.recipientAddress),
       chain: emitterChain,
       revertOnDelay: false,
     };
-    const config = await this.ntt.getConfig();
+    const config = await this.getConfig();
     const tx = new Transaction();
     // Create the ATA if it doesn't exist
-    const mint = await this.ntt.mintAccountAddress(config);
+    const mint = await this.mintAccountAddress(config);
     const ata = getAssociatedTokenAddressSync(mint, payerPublicKey);
     if (!(await this.connection.getAccountInfo(ata))) {
       const createAtaIx = createAssociatedTokenAccountInstruction(
@@ -293,9 +311,9 @@ export class NttManagerSolana {
       tx.add(createAtaIx);
     }
     if (config.mode.locking) {
-      tx.add(await this.ntt.createReleaseInboundUnlockInstruction(releaseArgs));
+      tx.add(await this.createReleaseInboundUnlockInstruction(releaseArgs));
     } else {
-      tx.add(await this.ntt.createReleaseInboundMintInstruction(releaseArgs));
+      tx.add(await this.createReleaseInboundMintInstruction(releaseArgs));
     }
     tx.feePayer = payerPublicKey;
     const { blockhash } = await this.connection.getLatestBlockhash('finalized');
@@ -304,7 +322,6 @@ export class NttManagerSolana {
       'solana',
       tx,
       TransferWallet.RECEIVING,
-      { commitment: 'finalized' },
     );
     return txId;
   }
@@ -314,7 +331,7 @@ export class NttManagerSolana {
     message: NttManagerMessage<NativeTokenTransfer>,
   ): Promise<boolean> {
     try {
-      const inboxItem = await this.ntt.getInboxItem(emitterChain, message);
+      const inboxItem = await this.getInboxItem(emitterChain, message);
       return (
         inboxItem.releaseStatus.released !== null &&
         inboxItem.releaseStatus.released !== undefined
@@ -327,23 +344,431 @@ export class NttManagerSolana {
     }
   }
 
-  async isPaused(): Promise<boolean> {
-    return this.ntt.isPaused();
-  }
-
   async fetchRedeemTx(
     emitterChain: ChainName | ChainId,
     message: NttManagerMessage<NativeTokenTransfer>,
   ): Promise<string | undefined> {
-    const address = await this.ntt.inboxItemAccountAddress(
-      emitterChain,
-      message,
-    );
+    const address = await this.inboxItemAccountAddress(emitterChain, message);
     // fetch the most recent signature
     const signatures = await this.connection.getSignaturesForAddress(address, {
       limit: 1,
     });
     console.log(`fetchRedeemTx: ${signatures[0].signature}`);
     return signatures ? signatures[0].signature : undefined;
+  }
+
+  // Account addresses
+
+  derive_pda(seeds: Buffer | Array<Uint8Array | Buffer>): PublicKey {
+    const seedsArray = seeds instanceof Buffer ? [seeds] : seeds;
+    const [address] = PublicKey.findProgramAddressSync(
+      seedsArray,
+      this.program.programId,
+    );
+    return address;
+  }
+
+  configAccountAddress(): PublicKey {
+    return this.derive_pda(Buffer.from('config'));
+  }
+
+  sequenceTrackerAccountAddress(): PublicKey {
+    return this.derive_pda(Buffer.from('sequence'));
+  }
+
+  outboxRateLimitAccountAddress(): PublicKey {
+    return this.derive_pda(Buffer.from('outbox_rate_limit'));
+  }
+
+  inboxRateLimitAccountAddress(chain: ChainName | ChainId): PublicKey {
+    const chainId = wh.toChainId(chain);
+    return this.derive_pda([
+      Buffer.from('inbox_rate_limit'),
+      new BN(chainId).toBuffer('be', 2),
+    ]);
+  }
+
+  inboxItemAccountAddress(
+    chain: ChainName | ChainId,
+    message: NttManagerMessage<NativeTokenTransfer>,
+  ): PublicKey {
+    const chainId = wh.toChainId(chain);
+    const serialized = NttManagerMessage.serialize(
+      message,
+      NativeTokenTransfer.serialize,
+    );
+    const hasher = new Keccak(256);
+    hasher.update(new BN(chainId).toBuffer('be', 2));
+    hasher.update(serialized);
+    const hash = hasher.digest('hex');
+    return this.derive_pda([
+      Buffer.from('inbox_item'),
+      Buffer.from(hash, 'hex'),
+    ]);
+  }
+
+  tokenAuthorityAddress(): PublicKey {
+    return this.derive_pda([Buffer.from('token_authority')]);
+  }
+
+  emitterAccountAddress(): PublicKey {
+    return this.derive_pda([Buffer.from('emitter')]);
+  }
+
+  wormholeMessageAccountAddress(outboxItem: PublicKey): PublicKey {
+    return this.derive_pda([Buffer.from('message'), outboxItem.toBuffer()]);
+  }
+
+  peerAccountAddress(chain: ChainName | ChainId): PublicKey {
+    const chainId = wh.toChainId(chain);
+    return this.derive_pda([
+      Buffer.from('peer'),
+      new BN(chainId).toBuffer('be', 2),
+    ]);
+  }
+
+  transceiverPeerAccountAddress(chain: ChainName | ChainId): PublicKey {
+    const chainId = wh.toChainId(chain);
+    return this.derive_pda([
+      Buffer.from('transceiver_peer'),
+      new BN(chainId).toBuffer('be', 2),
+    ]);
+  }
+
+  transceiverMessageAccountAddress(
+    chain: ChainName | ChainId,
+    sequence: BN,
+  ): PublicKey {
+    const chainId = wh.toChainId(chain);
+    return this.derive_pda([
+      Buffer.from('transceiver_message'),
+      new BN(chainId).toBuffer('be', 2),
+      sequence.toBuffer('be', 8),
+    ]);
+  }
+
+  registeredTransceiverAddress(transceiver: PublicKey): PublicKey {
+    return this.derive_pda([
+      Buffer.from('registered_transceiver'),
+      transceiver.toBuffer(),
+    ]);
+  }
+
+  // Instructions
+
+  /**
+   * Creates a transfer_burn instruction. The `payer` and `fromAuthority`
+   * arguments must sign the transaction
+   */
+  async createTransferBurnInstruction(args: {
+    payer: PublicKey;
+    from: PublicKey;
+    fromAuthority: PublicKey;
+    amount: BN;
+    recipientChain: ChainName;
+    recipientAddress: ArrayLike<number>;
+    outboxItem: PublicKey;
+    shouldQueue: boolean;
+    config?: Config;
+  }): Promise<TransactionInstruction> {
+    const config = await this.getConfig(args.config);
+    const chainId = wh.toChainId(args.recipientChain);
+    const mint = await this.mintAccountAddress(config);
+    return await this.program.methods
+      .transferBurn({
+        amount: args.amount,
+        recipientChain: { id: chainId },
+        recipientAddress: Array.from(args.recipientAddress),
+        shouldQueue: args.shouldQueue,
+      })
+      .accounts({
+        common: {
+          payer: args.payer,
+          config: { config: this.configAccountAddress() },
+          mint,
+          from: args.from,
+          sender: args.fromAuthority,
+          seq: this.sequenceTrackerAccountAddress(),
+          outboxItem: args.outboxItem,
+          outboxRateLimit: this.outboxRateLimitAccountAddress(),
+          tokenAuthority: this.tokenAuthorityAddress(),
+        },
+        peer: this.peerAccountAddress(args.recipientChain),
+        inboxRateLimit: this.inboxRateLimitAccountAddress(args.recipientChain),
+      })
+      .instruction();
+  }
+
+  /**
+   * Creates a transfer_lock instruction. The `payer`, `fromAuthority`, and `outboxItem`
+   * arguments must sign the transaction
+   */
+  async createTransferLockInstruction(args: {
+    payer: PublicKey;
+    from: PublicKey;
+    fromAuthority: PublicKey;
+    amount: BN;
+    recipientChain: ChainName;
+    recipientAddress: ArrayLike<number>;
+    shouldQueue: boolean;
+    outboxItem: PublicKey;
+    config?: Config;
+  }): Promise<TransactionInstruction> {
+    const config = await this.getConfig(args.config);
+    const chainId = wh.toChainId(args.recipientChain);
+    const mint = await this.mintAccountAddress(config);
+    return await this.program.methods
+      .transferLock({
+        amount: args.amount,
+        recipientChain: { id: chainId },
+        recipientAddress: Array.from(args.recipientAddress),
+        shouldQueue: args.shouldQueue,
+      })
+      .accounts({
+        common: {
+          payer: args.payer,
+          config: { config: this.configAccountAddress() },
+          mint,
+          from: args.from,
+          sender: args.fromAuthority,
+          tokenProgram: await this.tokenProgram(config),
+          seq: this.sequenceTrackerAccountAddress(),
+          outboxItem: args.outboxItem,
+          outboxRateLimit: this.outboxRateLimitAccountAddress(),
+          tokenAuthority: this.tokenAuthorityAddress(),
+        },
+        peer: this.peerAccountAddress(args.recipientChain),
+        inboxRateLimit: this.inboxRateLimitAccountAddress(args.recipientChain),
+        custody: await this.custodyAccountAddress(config),
+      })
+      .instruction();
+  }
+
+  /**
+   * Creates a release_outbound instruction. The `payer` needs to sign the transaction.
+   */
+  async createReleaseOutboundInstruction(args: {
+    payer: PublicKey;
+    outboxItem: PublicKey;
+    revertOnDelay: boolean;
+  }): Promise<TransactionInstruction> {
+    const whAccs = getWormholeDerivedAccounts(
+      this.program.programId,
+      this.wormholeId,
+    );
+    return await this.program.methods
+      .releaseWormholeOutbound({
+        revertOnDelay: args.revertOnDelay,
+      })
+      .accounts({
+        payer: args.payer,
+        config: { config: this.configAccountAddress() },
+        outboxItem: args.outboxItem,
+        wormholeMessage: this.wormholeMessageAccountAddress(args.outboxItem),
+        emitter: whAccs.wormholeEmitter,
+        transceiver: this.registeredTransceiverAddress(this.program.programId),
+        wormholeBridge: whAccs.wormholeBridge,
+        wormholeFeeCollector: whAccs.wormholeFeeCollector,
+        wormholeSequence: whAccs.wormholeSequence,
+        wormholeProgram: this.wormholeId,
+        // TODO: uncomment when the program is updated
+        //wormhole: {
+        //  bridge: whAccs.wormholeBridge,
+        //  feeCollector: whAccs.wormholeFeeCollector,
+        //  sequence: whAccs.wormholeSequence,
+        //  program: this.wormholeId,
+        //},
+      })
+      .instruction();
+  }
+
+  async createReleaseInboundMintInstruction(args: {
+    payer: PublicKey;
+    chain: ChainName | ChainId;
+    message: NttManagerMessage<NativeTokenTransfer>;
+    revertOnDelay: boolean;
+    recipient?: PublicKey;
+    config?: Config;
+  }): Promise<TransactionInstruction> {
+    const config = await this.getConfig(args.config);
+    const recipientAddress =
+      args.recipient ??
+      (await this.getInboxItem(args.chain, args.message)).recipientAddress;
+    const mint = await this.mintAccountAddress(config);
+    return await this.program.methods
+      .releaseInboundMint({
+        revertOnDelay: args.revertOnDelay,
+      })
+      .accounts({
+        common: {
+          payer: args.payer,
+          config: { config: this.configAccountAddress() },
+          inboxItem: this.inboxItemAccountAddress(args.chain, args.message),
+          recipient: getAssociatedTokenAddressSync(mint, recipientAddress),
+          mint,
+          tokenAuthority: this.tokenAuthorityAddress(),
+        },
+      })
+      .instruction();
+  }
+
+  async createReleaseInboundUnlockInstruction(args: {
+    payer: PublicKey;
+    chain: ChainName | ChainId;
+    message: NttManagerMessage<NativeTokenTransfer>;
+    revertOnDelay: boolean;
+    recipient?: PublicKey;
+    config?: Config;
+  }): Promise<TransactionInstruction> {
+    const config = await this.getConfig(args.config);
+    const recipientAddress =
+      args.recipient ??
+      (await this.getInboxItem(args.chain, args.message)).recipientAddress;
+    const mint = await this.mintAccountAddress(config);
+    return await this.program.methods
+      .releaseInboundUnlock({
+        revertOnDelay: args.revertOnDelay,
+      })
+      .accounts({
+        common: {
+          payer: args.payer,
+          config: { config: this.configAccountAddress() },
+          inboxItem: this.inboxItemAccountAddress(args.chain, args.message),
+          recipient: getAssociatedTokenAddressSync(mint, recipientAddress),
+          mint,
+          tokenAuthority: this.tokenAuthorityAddress(),
+        },
+        custody: await this.custodyAccountAddress(config),
+      })
+      .instruction();
+  }
+
+  async createReceiveWormholeMessageInstruction(args: {
+    payer: PublicKey;
+    vaa: SignedVaa;
+    config?: Config;
+  }): Promise<TransactionInstruction> {
+    const parsedVaa = parseVaa(args.vaa);
+    const { nttManagerPayload } = parseWormholeTransceiverMessage(
+      parsedVaa.payload,
+    );
+    const chainId = wh.toChainId(parsedVaa.emitterChain);
+    const transceiverPeer = this.transceiverPeerAccountAddress(chainId);
+    return await this.program.methods
+      .receiveWormholeMessage()
+      .accounts({
+        payer: args.payer,
+        config: this.configAccountAddress(),
+        peer: transceiverPeer,
+        vaa: derivePostedVaaKey(this.wormholeId, parseVaa(args.vaa).hash),
+        transceiverMessage: this.transceiverMessageAccountAddress(
+          chainId,
+          new BN(nttManagerPayload.sequence.toString()),
+        ),
+      })
+      .instruction();
+  }
+
+  async createRedeemInstruction(args: {
+    payer: PublicKey;
+    vaa: SignedVaa;
+    config?: Config;
+  }): Promise<TransactionInstruction> {
+    const config = await this.getConfig(args.config);
+    const parsedVaa = parseVaa(args.vaa);
+    const { nttManagerPayload } = parseWormholeTransceiverMessage(
+      parsedVaa.payload,
+    );
+    const chainId = wh.toChainId(parsedVaa.emitterChain);
+    const nttManagerPeer = this.peerAccountAddress(chainId);
+    const inboxRateLimit = this.inboxRateLimitAccountAddress(chainId);
+    return await this.program.methods
+      .redeem({})
+      .accounts({
+        payer: args.payer,
+        config: this.configAccountAddress(),
+        peer: nttManagerPeer,
+        transceiverMessage: this.transceiverMessageAccountAddress(
+          chainId,
+          new BN(nttManagerPayload.sequence.toString()),
+        ),
+        transceiver: this.registeredTransceiverAddress(this.program.programId),
+        mint: await this.mintAccountAddress(config),
+        inboxItem: this.inboxItemAccountAddress(chainId, nttManagerPayload),
+        inboxRateLimit,
+        outboxRateLimit: this.outboxRateLimitAccountAddress(),
+      })
+      .instruction();
+  }
+
+  // Account access
+
+  /**
+   * Fetches the Config account from the contract.
+   *
+   * @param config If provided, the config is just returned without making a
+   *               network request. This is handy in case multiple config
+   *               accessor functions are used, the config can just be queried
+   *               once and passed around.
+   */
+  async getConfig(config?: Config): Promise<Config> {
+    return (
+      config ??
+      (await this.program.account.config.fetch(this.configAccountAddress()))
+    );
+  }
+
+  async isPaused(config?: Config): Promise<boolean> {
+    return (await this.getConfig(config)).paused;
+  }
+
+  async mintAccountAddress(config?: Config): Promise<PublicKey> {
+    return (await this.getConfig(config)).mint;
+  }
+
+  async tokenProgram(config?: Config): Promise<PublicKey> {
+    return (await this.getConfig(config)).tokenProgram;
+  }
+
+  async getInboxItem(
+    chain: ChainName | ChainId,
+    message: NttManagerMessage<NativeTokenTransfer>,
+  ): Promise<InboxItem> {
+    return await this.program.account.inboxItem.fetch(
+      this.inboxItemAccountAddress(chain, message),
+    );
+  }
+
+  async getOutboxRateLimit(): Promise<OutboxRateLimit> {
+    return await this.program.account.outboxRateLimit.fetch(
+      this.outboxRateLimitAccountAddress(),
+    );
+  }
+
+  async getInboxRateLimit(chain: ChainName | ChainId): Promise<InboxRateLimit> {
+    return await this.program.account.inboxRateLimit.fetch(
+      this.inboxRateLimitAccountAddress(chain),
+    );
+  }
+
+  /**
+   * Returns the address of the custody account. If the config is available
+   * (i.e. the program is initialized), the mint is derived from the config.
+   * Otherwise, the mint must be provided.
+   */
+  async custodyAccountAddress(
+    configOrMint: Config | PublicKey,
+  ): Promise<PublicKey> {
+    if (configOrMint instanceof PublicKey) {
+      return associatedAddress({
+        mint: configOrMint,
+        owner: this.tokenAuthorityAddress(),
+      });
+    } else {
+      return associatedAddress({
+        mint: await this.mintAccountAddress(configOrMint),
+        owner: this.tokenAuthorityAddress(),
+      });
+    }
   }
 }

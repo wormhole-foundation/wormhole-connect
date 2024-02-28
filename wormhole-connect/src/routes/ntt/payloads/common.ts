@@ -10,12 +10,12 @@ export class TransceiverMessage<A> {
   constructor(
     sourceNttManager: Buffer,
     recipientNttManager: Buffer,
-    ntt_managerPayload: NttManagerMessage<A>,
+    nttManagerPayload: NttManagerMessage<A>,
     transceiverPayload: Buffer,
   ) {
     this.sourceNttManager = sourceNttManager;
     this.recipientNttManager = recipientNttManager;
-    this.nttManagerPayload = ntt_managerPayload;
+    this.nttManagerPayload = nttManagerPayload;
     this.transceiverPayload = transceiverPayload;
   }
 
@@ -32,19 +32,19 @@ export class TransceiverMessage<A> {
     }
     const sourceNttManager = data.subarray(4, 36);
     const recipientNttManager = data.subarray(36, 68);
-    const ntt_managerPayloadLen = data.readUInt16BE(68);
-    const ntt_managerPayload = deserializer(
-      data.subarray(70, 70 + ntt_managerPayloadLen),
+    const nttManagerPayloadLen = data.readUInt16BE(68);
+    const nttManagerPayload = deserializer(
+      data.subarray(70, 70 + nttManagerPayloadLen),
     );
-    const transceiverPayloadLen = data.readUInt16BE(70 + ntt_managerPayloadLen);
+    const transceiverPayloadLen = data.readUInt16BE(70 + nttManagerPayloadLen);
     const transceiverPayload = data.subarray(
-      72 + ntt_managerPayloadLen,
-      72 + ntt_managerPayloadLen + transceiverPayloadLen,
+      72 + nttManagerPayloadLen,
+      72 + nttManagerPayloadLen + transceiverPayloadLen,
     );
     return new TransceiverMessage(
       sourceNttManager,
       recipientNttManager,
-      ntt_managerPayload,
+      nttManagerPayload,
       transceiverPayload,
     );
   }
