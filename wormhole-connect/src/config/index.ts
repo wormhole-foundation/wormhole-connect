@@ -10,9 +10,9 @@ import TESTNET from './testnet';
 import DEVNET from './devnet';
 import {
   Environment,
-  WormholeConnectConfig,
+  InternalConfig,
   Route,
-  IntegrationConfig,
+  WormholeConnectConfig,
   TokensConfig,
 } from './types';
 import { mergeCustomTokensConfig, validateDefaults } from './utils';
@@ -20,8 +20,8 @@ import { mergeCustomTokensConfig, validateDefaults } from './utils';
 type Network = 'MAINNET' | 'TESTNET' | 'DEVNET';
 
 export function buildConfig(
-  customConfig?: IntegrationConfig,
-): WormholeConnectConfig {
+  customConfig?: WormholeConnectConfig,
+): InternalConfig {
   const env = (customConfig?.env ||
     import.meta.env.REACT_APP_CONNECT_ENV?.toLowerCase() ||
     'testnet') as Environment;
@@ -170,8 +170,8 @@ function getWormholeContext(
 
 // setConfig can be called afterwards to override the default config with integrator-provided config
 
-export function setConfig(customConfig?: IntegrationConfig) {
-  const newConfig: WormholeConnectConfig = buildConfig(customConfig);
+export function setConfig(customConfig?: WormholeConnectConfig) {
+  const newConfig: InternalConfig = buildConfig(customConfig);
 
   // We overwrite keys in the existing object so the references to the config
   // imported elsewhere point to the new values
