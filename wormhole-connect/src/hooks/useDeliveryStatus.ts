@@ -16,7 +16,7 @@ const BASE_URL = `https://api.${
 const RETRY_DELAY = 15_000;
 
 // Polls for standard relayer delivery status
-const useDeliveryStatus = () => {
+const useDeliveryStatus = (): void => {
   const dispatch = useDispatch();
   const route = useSelector((state: RootState) => state.redeem.route);
   const signedMessage = useSelector(
@@ -48,8 +48,10 @@ const useDeliveryStatus = () => {
             }
             break;
           }
-        } catch (e: any) {
-          if (e.response?.status !== 404) {
+        } catch (e) {
+          if (axios.isAxiosError(e)) {
+            if (e.status !== 404) console.error(e);
+          } else {
             console.error(e);
           }
         }

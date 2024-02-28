@@ -14,7 +14,7 @@ import { parseWormholeTransceiverMessage } from 'routes/ntt';
 
 const RETRY_DELAY = 15_000;
 
-const useCheckInboundQueuedTransfer = () => {
+const useCheckInboundQueuedTransfer = (): void => {
   const dispatch = useDispatch();
   const route = useSelector((state: RootState) => state.redeem.route);
   const signedMessage = useSelector(
