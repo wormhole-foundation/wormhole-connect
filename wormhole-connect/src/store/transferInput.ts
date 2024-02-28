@@ -199,6 +199,8 @@ const performModificationsIfFromChainChanged = (state: TransferInputState) => {
       if (tokenConfig.nativeChain !== fromChain) {
         state.token = getNativeVersionOfToken(tokenConfig.symbol, fromChain!);
       }
+    } else if (tokenConfig.ntt && tokenConfig.nativeChain !== fromChain) {
+      state.token = getNativeVersionOfToken(tokenConfig.symbol, fromChain!);
     }
   }
 };
@@ -225,6 +227,8 @@ const performModificationsIfToChainChanged = (state: TransferInputState) => {
       if (tokenConfig.nativeChain !== toChain) {
         state.destToken = getNativeVersionOfToken(tokenConfig.symbol, toChain!);
       }
+    } else if (tokenConfig.ntt && tokenConfig.nativeChain !== toChain) {
+      state.destToken = getNativeVersionOfToken(tokenConfig.symbol, toChain!);
     }
   }
 };
