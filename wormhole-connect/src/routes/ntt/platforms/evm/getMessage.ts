@@ -14,9 +14,7 @@ import { getTokenById, getTokenDecimals } from 'utils';
 import { wh } from 'utils/sdk';
 import { getWormholeLogEvm } from 'utils/vaa';
 import { NttManager__factory } from './abis';
-import { NttManagerMessage } from '../../payloads/common';
-import { WormholeTransceiverMessage } from '../../payloads/wormhole';
-import { NativeTokenTransfer } from '../../payloads/transfers';
+import { parseWormholeTransceiverMessage } from 'routes/ntt/utils';
 
 export const getMessageEvm = async (
   tx: string,
@@ -72,11 +70,8 @@ export const getMessageEvm = async (
       relayerFee = parsed.args.deliveryQuote.toString();
     }
   }
-  const transceiverMessage = WormholeTransceiverMessage.deserialize(
-    payload,
-    (a) => NttManagerMessage.deserialize(a, NativeTokenTransfer.deserialize),
-  );
-  const nttManagerMessage = transceiverMessage.ntt_managerPayload;
+  const transceiverMessage = parseWormholeTransceiverMessage(payload);
+  const nttManagerMessage = transceiverMessage.nttManagerPayload;
   const toChain = wh.toChainName(nttManagerMessage.payload.recipientChain);
   const receivedTokenKey = getNativeVersionOfToken(token.symbol, toChain);
   const destToken = TOKENS[receivedTokenKey];
@@ -113,7 +108,7 @@ export const getMessageEvm = async (
       transceiverMessage.recipientNttManager,
       toChain,
     ),
-    transceiverMessage: hexlify(payload),
+    wormholeTransceiverMessage: hexlify(payload),
     relayerFee,
   };
 };

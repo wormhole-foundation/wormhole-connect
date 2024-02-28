@@ -636,7 +636,7 @@ export class NTT {
     const ntt_managerMessage = WormholeTransceiverMessage.deserialize(
       parsedVaa.payload,
       (a) => NttManagerMessage.deserialize(a, (a) => a),
-    ).ntt_managerPayload;
+    ).nttManagerPayload;
     // NOTE: we do an 'as ChainId' cast here, which is generally unsafe.
     // TODO: explain why this is fine here
     const chainId = parsedVaa.emitterChain as ChainId;
@@ -674,7 +674,7 @@ export class NTT {
       parsedVaa.payload,
       (a) => NttManagerMessage.deserialize(a, NativeTokenTransfer.deserialize),
     );
-    const ntt_managerMessage = transceiverMessage.ntt_managerPayload;
+    const ntt_managerMessage = transceiverMessage.nttManagerPayload;
     // NOTE: we do an 'as ChainId' cast here, which is generally unsafe.
     // TODO: explain why this is fine here
     const chainId = parsedVaa.emitterChain as ChainId;
@@ -726,7 +726,7 @@ export class NTT {
     const ntt_managerMessage = WormholeTransceiverMessage.deserialize(
       parsedVaa.payload,
       (a) => NttManagerMessage.deserialize(a, NativeTokenTransfer.deserialize),
-    ).ntt_managerPayload;
+    ).nttManagerPayload;
     // TODO: explain why this is fine here
     const chainId = parsedVaa.emitterChain as ChainId;
 

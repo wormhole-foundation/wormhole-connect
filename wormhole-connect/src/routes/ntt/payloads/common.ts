@@ -4,7 +4,7 @@ export class TransceiverMessage<A> {
   static prefix: Buffer;
   sourceNttManager: Buffer;
   recipientNttManager: Buffer;
-  ntt_managerPayload: NttManagerMessage<A>;
+  nttManagerPayload: NttManagerMessage<A>;
   transceiverPayload: Buffer;
 
   constructor(
@@ -15,7 +15,7 @@ export class TransceiverMessage<A> {
   ) {
     this.sourceNttManager = sourceNttManager;
     this.recipientNttManager = recipientNttManager;
-    this.ntt_managerPayload = ntt_managerPayload;
+    this.nttManagerPayload = ntt_managerPayload;
     this.transceiverPayload = transceiverPayload;
   }
 
@@ -53,7 +53,7 @@ export class TransceiverMessage<A> {
     msg: TransceiverMessage<A>,
     serializer: (payload: NttManagerMessage<A>) => Buffer,
   ): Buffer {
-    const payload = serializer(msg.ntt_managerPayload);
+    const payload = serializer(msg.nttManagerPayload);
     const payloadLen = new BN(payload.length).toBuffer('be', 2);
     const transceiverPayloadLen = new BN(
       msg.transceiverPayload.length,

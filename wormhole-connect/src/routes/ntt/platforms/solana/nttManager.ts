@@ -16,9 +16,9 @@ import {
 import { BN } from '@coral-xyz/anchor';
 import { parseVaa } from '@certusone/wormhole-sdk/lib/esm';
 import { utils } from 'ethers';
-import { WormholeTransceiverMessage } from '../../payloads/wormhole';
 import { NttManagerMessage } from '../../payloads/common';
 import { NativeTokenTransfer } from '../../payloads/transfers';
+import { parseWormholeTransceiverMessage } from 'routes/ntt/utils';
 
 // TODO: make sure this is in sync with the contract
 const RATE_LIMIT_DURATION = 24 * 60 * 60;
@@ -76,9 +76,6 @@ export class NttManagerSolana {
       new PublicKey(token.address),
       payer,
     );
-    // TODO: make sure limits change
-    const limit = await this.getCurrentOutboundCapacity();
-    console.log('limit', limit);
     const txArgs = {
       payer,
       from: tokenAccount,
@@ -168,14 +165,13 @@ export class NttManagerSolana {
     // just make the second instruction a no-op in case the transfer is delayed.
     tx.add(await this.ntt.createReceiveWormholeMessageInstruction(redeemArgs));
     tx.add(await this.ntt.createRedeemInstruction(redeemArgs));
-    const nttManagerMessage = WormholeTransceiverMessage.deserialize(
+    const { nttManagerPayload } = parseWormholeTransceiverMessage(
       parsedVaa.payload,
-      (a) => NttManagerMessage.deserialize(a, NativeTokenTransfer.deserialize),
-    ).ntt_managerPayload;
+    );
     const releaseArgs = {
       ...redeemArgs,
-      ntt_managerMessage: nttManagerMessage,
-      recipient: new PublicKey(nttManagerMessage.payload.recipientAddress),
+      ntt_managerMessage: nttManagerPayload,
+      recipient: new PublicKey(nttManagerPayload.payload.recipientAddress),
       chain: chainId,
       revertOnDelay: false,
     };
@@ -247,11 +243,11 @@ export class NttManagerSolana {
 
   async getInboundQueuedTransfer(
     emitterChain: ChainName | ChainId,
-    managerMessage: NttManagerMessage<NativeTokenTransfer>,
+    message: NttManagerMessage<NativeTokenTransfer>,
   ): Promise<InboundQueuedTransfer | undefined> {
     let inboxItem;
     try {
-      inboxItem = await this.ntt.getInboxItem(emitterChain, managerMessage);
+      inboxItem = await this.ntt.getInboxItem(emitterChain, message);
     } catch (e: any) {
       if (e.message?.includes('Account does not exist')) {
         return undefined;
@@ -271,14 +267,14 @@ export class NttManagerSolana {
 
   async completeInboundQueuedTransfer(
     emitterChain: ChainName | ChainId,
-    nttManagerMessage: NttManagerMessage<NativeTokenTransfer>,
+    message: NttManagerMessage<NativeTokenTransfer>,
     payer: string,
   ): Promise<string> {
     const payerPublicKey = new PublicKey(payer);
     const releaseArgs = {
       payer: payerPublicKey,
-      ntt_managerMessage: nttManagerMessage,
-      recipient: new PublicKey(nttManagerMessage.payload.recipientAddress),
+      ntt_managerMessage: message,
+      recipient: new PublicKey(message.payload.recipientAddress),
       chain: emitterChain,
       revertOnDelay: false,
     };
@@ -315,13 +311,10 @@ export class NttManagerSolana {
 
   async isMessageExecuted(
     emitterChain: ChainName | ChainId,
-    nttManagerMessage: NttManagerMessage<NativeTokenTransfer>,
+    message: NttManagerMessage<NativeTokenTransfer>,
   ): Promise<boolean> {
     try {
-      const inboxItem = await this.ntt.getInboxItem(
-        emitterChain,
-        nttManagerMessage,
-      );
+      const inboxItem = await this.ntt.getInboxItem(emitterChain, message);
       return (
         inboxItem.releaseStatus.released !== null &&
         inboxItem.releaseStatus.released !== undefined
@@ -340,11 +333,11 @@ export class NttManagerSolana {
 
   async fetchRedeemTx(
     emitterChain: ChainName | ChainId,
-    nttManagerMessage: NttManagerMessage<NativeTokenTransfer>,
+    message: NttManagerMessage<NativeTokenTransfer>,
   ): Promise<string | undefined> {
     const address = await this.ntt.inboxItemAccountAddress(
       emitterChain,
-      nttManagerMessage,
+      message,
     );
     // fetch the most recent signature
     const signatures = await this.connection.getSignaturesForAddress(address, {

@@ -35,7 +35,11 @@ import { Route } from 'config/types';
 import SwitchToManualClaim from './SwitchToManualClaim';
 import { isPorticoRoute } from 'routes/porticoBridge/utils';
 import { isNttRoute, isSignedNttMessage } from 'routes';
-import { ContractIsPausedError, NttBase } from 'routes/ntt';
+import {
+  ContractIsPausedError,
+  NttBase,
+  parseWormholeTransceiverMessage,
+} from 'routes/ntt';
 import { setInboundQueuedTransfer } from 'store/ntt';
 
 function AssociatedTokenAlert() {
@@ -216,12 +220,15 @@ function SendTo() {
       if (isNttRoute(route.TYPE) && isSignedNttMessage(signedMessage)) {
         // The redeem may have resulted in the transfer being inbound queued
         // so we need to check that before we set the transfer as complete
+        const { nttManagerPayload } = parseWormholeTransceiverMessage(
+          signedMessage.wormholeTransceiverMessage,
+        );
         const inboundQueuedTransfer = await (
           route as NttBase
         ).getInboundQueuedTransfer(
           txData.toChain,
           signedMessage.recipientNttManager,
-          signedMessage.transceiverMessage,
+          nttManagerPayload,
           txData.fromChain,
         );
         if (inboundQueuedTransfer) {

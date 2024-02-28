@@ -3,7 +3,11 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from 'store';
 import { isSignedNttMessage as isSignedNttMessage } from 'routes';
-import { NttManual, NttRelay } from 'routes/ntt';
+import {
+  NttManual,
+  NttRelay,
+  parseWormholeTransceiverMessage,
+} from 'routes/ntt';
 import Header from './Header';
 import { useDispatch } from 'react-redux';
 import Button from 'components/Button';
@@ -88,8 +92,15 @@ const NttInboundQueued = () => {
 
   const handleClick = useCallback(async () => {
     if (!isSignedNttMessage(signedMessage)) return;
-    const { toChain, fromChain, transceiverMessage, recipientNttManager } =
-      signedMessage;
+    const {
+      toChain,
+      fromChain,
+      wormholeTransceiverMessage,
+      recipientNttManager,
+    } = signedMessage;
+    const { nttManagerPayload } = parseWormholeTransceiverMessage(
+      wormholeTransceiverMessage,
+    );
     setInProgress(true);
     try {
       const toConfig = CHAINS[toChain];
@@ -102,7 +113,7 @@ const NttInboundQueued = () => {
       const tx = await nttRoute.completeInboundQueuedTransfer(
         toChain,
         recipientNttManager,
-        transceiverMessage,
+        nttManagerPayload,
         fromChain,
         wallet.address,
       );
@@ -112,7 +123,7 @@ const NttInboundQueued = () => {
         const inboundQueuedTransfer = await nttRoute.getInboundQueuedTransfer(
           toChain,
           recipientNttManager,
-          transceiverMessage,
+          nttManagerPayload,
           fromChain,
         );
         dispatch(setInboundQueuedTransfer(inboundQueuedTransfer));

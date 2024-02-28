@@ -37,11 +37,11 @@ import {
 } from './errors';
 import { getMessageEvm } from './platforms/evm';
 import { getMessageSolana } from './platforms/solana';
-import { WormholeTransceiverMessage } from './payloads/wormhole';
 import { NttManagerMessage } from './payloads/common';
 import { NativeTokenTransfer } from './payloads/transfers';
 import { formatGasFee } from 'routes/utils';
 import { NO_INPUT } from 'utils/style';
+import { parseWormholeTransceiverMessage } from './utils';
 
 export abstract class NttBase extends BaseRoute {
   isSupportedChain(chain: ChainName): boolean {
@@ -163,8 +163,7 @@ export abstract class NttBase extends BaseRoute {
     if (isEvmChain(sendingChain)) {
       const provider = wh.mustGetProvider(sendingChain);
       const gasPrice = await provider.getGasPrice();
-      const estSendGas = 200000;
-      return gasPrice.mul(estSendGas);
+      return gasPrice.mul(200000);
     } else if (wh.toChainName(sendingChain) === 'solana') {
       return BigNumber.from(10000);
     }
@@ -182,8 +181,7 @@ export abstract class NttBase extends BaseRoute {
     if (isEvmChain(destChain)) {
       const provider = wh.mustGetProvider(destChain);
       const gasPrice = await provider.getGasPrice();
-      const estClaimGas = 300000;
-      return gasPrice.mul(estClaimGas);
+      return gasPrice.mul(300000);
     } else if (wh.toChainName(destChain) === 'solana') {
       return BigNumber.from(65000);
     }
@@ -227,7 +225,6 @@ export abstract class NttBase extends BaseRoute {
       wh.toChainId(sendingChain),
       tokenConfig.tokenId,
     );
-    // remove any dust before sending
     const sendAmount = removeDust(parseUnits(amount, decimals), decimals);
     const shouldSkipRelayerSend = this.TYPE !== Route.NttRelay;
     return await nttManager.send(
@@ -304,37 +301,29 @@ export abstract class NttBase extends BaseRoute {
   async getInboundQueuedTransfer(
     chain: ChainName | ChainId,
     nttManagerAddress: string,
-    transceiverMessage: string,
+    message: NttManagerMessage<NativeTokenTransfer>,
     fromChain: ChainName | ChainId,
   ): Promise<InboundQueuedTransfer | undefined> {
-    const nttManagerMessage = WormholeTransceiverMessage.deserialize(
-      Buffer.from(transceiverMessage.slice(2), 'hex'),
-      (a) => NttManagerMessage.deserialize(a, NativeTokenTransfer.deserialize),
-    ).ntt_managerPayload;
     return await getNttManager(
       chain,
       nttManagerAddress,
-    ).getInboundQueuedTransfer(fromChain, nttManagerMessage);
+    ).getInboundQueuedTransfer(fromChain, message);
   }
 
   async completeInboundQueuedTransfer(
     chain: ChainName | ChainId,
     nttManagerAddress: string,
-    transceiverMessage: string,
+    message: NttManagerMessage<NativeTokenTransfer>,
     fromChain: ChainName | ChainId,
     payer: string,
   ): Promise<string> {
-    const nttManagerMessage = WormholeTransceiverMessage.deserialize(
-      Buffer.from(transceiverMessage.slice(2), 'hex'),
-      (a) => NttManagerMessage.deserialize(a, NativeTokenTransfer.deserialize),
-    ).ntt_managerPayload;
     const nttManager = getNttManager(chain, nttManagerAddress);
     if (await nttManager.isPaused()) {
       throw new ContractIsPausedError();
     }
     return await nttManager.completeInboundQueuedTransfer(
       fromChain,
-      nttManagerMessage,
+      message,
       payer,
     );
   }
@@ -395,21 +384,20 @@ export abstract class NttBase extends BaseRoute {
     if (!isSignedNttMessage(signedMessage)) {
       throw new Error('Invalid signed message');
     }
-    const { fromChain, recipientNttManager, transceiverMessage } =
+    const { fromChain, recipientNttManager, wormholeTransceiverMessage } =
       signedMessage;
-    const nttManagerMessage = WormholeTransceiverMessage.deserialize(
-      Buffer.from(transceiverMessage.slice(2), 'hex'),
-      (a) => NttManagerMessage.deserialize(a, NativeTokenTransfer.deserialize),
-    ).ntt_managerPayload;
+    const { nttManagerPayload } = parseWormholeTransceiverMessage(
+      wormholeTransceiverMessage,
+    );
     const nttManager = getNttManager(chain, recipientNttManager);
     const isMessageExecuted = await nttManager.isMessageExecuted(
       fromChain,
-      nttManagerMessage,
+      nttManagerPayload,
     );
     if (isMessageExecuted) {
       const queuedTransfer = await nttManager.getInboundQueuedTransfer(
         fromChain,
-        nttManagerMessage,
+        nttManagerPayload,
       );
       return !queuedTransfer;
     }

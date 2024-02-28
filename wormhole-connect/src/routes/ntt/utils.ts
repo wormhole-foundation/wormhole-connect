@@ -1,21 +1,33 @@
 import { wh } from 'utils/sdk';
 import { ChainId, ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { keccak256 } from 'ethers/lib/utils';
-import { NttManagerMessage } from './payloads/common';
+import { NttManagerMessage, TransceiverMessage } from './payloads/common';
 import { NativeTokenTransfer } from './payloads/transfers';
+import { WormholeTransceiverMessage } from './payloads/wormhole';
 
 export const getNttManagerMessageDigest = (
   emitterChain: ChainName | ChainId,
-  nttManagerMessage: NttManagerMessage<NativeTokenTransfer>,
+  message: NttManagerMessage<NativeTokenTransfer>,
 ): string => {
   const chainIdBuffer = Buffer.alloc(2);
   chainIdBuffer.writeUInt16BE(wh.toChainId(emitterChain));
   const serialized = NttManagerMessage.serialize(
-    nttManagerMessage,
+    message,
     NativeTokenTransfer.serialize,
   );
   const digest = keccak256(Buffer.concat([chainIdBuffer, serialized]));
   return digest;
+};
+
+export const parseWormholeTransceiverMessage = (
+  message: string | Buffer,
+): TransceiverMessage<NativeTokenTransfer> => {
+  const buffer = Buffer.isBuffer(message)
+    ? message
+    : Buffer.from(message.slice(2), 'hex');
+  return WormholeTransceiverMessage.deserialize(buffer, (a) =>
+    NttManagerMessage.deserialize(a, NativeTokenTransfer.deserialize),
+  );
 };
 
 export interface WormholeTransceiverInstruction {
