@@ -2,7 +2,6 @@
   "name": "@wormhole-foundation/wormhole-connect",
   "version": "0.0.1-beta.0",
   "main": "build/main.js",
-  "type": "module",
   "exports": {
     ".": "lib/index.js"
   },
