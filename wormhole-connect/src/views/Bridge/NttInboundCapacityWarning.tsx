@@ -16,6 +16,18 @@ type Props = {
   fromChain: ChainName;
 };
 
+function formatDuration(seconds: number) {
+  if (seconds < 60) {
+    return seconds === 1 ? `${seconds} second` : `${seconds} seconds`;
+  } else if (seconds < 3600) {
+    const minutes = Math.floor(seconds / 60);
+    return minutes === 1 ? `${minutes} minute` : `${minutes} minutes`;
+  } else {
+    const hours = Math.floor(seconds / 3600);
+    return hours === 1 ? `${hours} hour` : `${hours} hours`;
+  }
+}
+
 const NttInboundCapacityWarning = ({
   token,
   amount,
@@ -73,24 +85,23 @@ const NttInboundCapacityWarning = ({
     const destToken = TOKENS[destTokenKey];
     if (!destToken) return;
     // capacity is in destination token decimals, so we need to convert the amount to the same decimals
-    // TODO: test inbound capacity from solana
-    console.log('capacity', capacity.toString());
     const decimals = getTokenDecimals(wh.toChainId(chain), destToken.tokenId);
     const parsedAmount = parseUnits(Number(amount).toFixed(decimals), decimals);
-    const fivePercentOfCapacity = capacity.mul(5).div(100);
-    return parsedAmount.gt(capacity.add(fivePercentOfCapacity));
+    const threshold = capacity.mul(95).div(100); // 95% of capacity
+    return parsedAmount.gt(threshold);
   }, [token, amount, chain]);
 
   if (!showWarning) return null;
 
-  // TODO: change 24 hours?
   const content = (
     <>
       {`Your transfer to ${
         CHAINS[chain]?.displayName || 'UNKNOWN'
-      } may be delayed due to rate limits configured by ${
+      } may be delayed due to rate limits set by ${
         TOKENS[token]?.symbol || 'UNKNOWN'
-      }. If your transfer is delayed, you will need to return after 24 hours to complete the transfer. Please consider this before proceeding.`}
+      }. If your transfer is delayed, you will need to return after ${formatDuration(
+        duration,
+      )} to complete the transfer. Please consider this before proceeding.`}
     </>
   );
   return <AlertBanner show content={content} warning />;

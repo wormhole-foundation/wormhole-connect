@@ -88,5 +88,6 @@ export const getMessageSolana = async (
     ),
     messageDigest: getNttManagerMessageDigest(fromChain, nttManagerMessage),
     relayerFee: '',
+    relayingType: 0, // TODO: what to set to?
   };
 };

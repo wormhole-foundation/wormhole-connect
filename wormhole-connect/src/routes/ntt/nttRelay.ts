@@ -99,11 +99,19 @@ export class NttRelay extends NttBase {
     );
     let totalFeesText = '';
     let totalFeesPrice = '';
-    if (sendingGasEst && routeOptions.relayerFee !== undefined) {
+    if (
+      sendingGasEst &&
+      sourceGasToken &&
+      routeOptions.relayerFee !== undefined
+    ) {
       const feeValue =
         routeOptions.relayerFee + Number.parseFloat(sendingGasEst);
       totalFeesText = toFixedDecimals(feeValue.toString(), 6);
-      totalFeesPrice = calculateUSDPrice(feeValue, tokenPrices, token);
+      totalFeesPrice = calculateUSDPrice(
+        feeValue,
+        tokenPrices,
+        TOKENS[sourceGasToken],
+      );
     }
     return [
       {
@@ -194,5 +202,6 @@ export class NttRelay extends NttBase {
     } catch (e) {
       console.error(e);
     }
+    return undefined;
   }
 }

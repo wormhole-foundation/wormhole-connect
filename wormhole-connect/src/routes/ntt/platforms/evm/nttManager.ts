@@ -180,8 +180,8 @@ export class NttManagerEvm {
   }
 
   async fetchRedeemTx(messageDigest: string): Promise<string | undefined> {
-    // @ts-ignore
-    // TODO: why does the abi expect null for the digest?
+    // TODO: why is this throwing? digest is indexed in the contract
+    // Error: cannot filter non-indexed parameters; must be null (argument="contract.digest", value="0x0db6b068fa347e74cbb9faab02fc06623243fe2d9e52bb379e17cfa216d90d34", code=INVALID_ARGUMENT, version=abi/5.7.0)
     const eventFilter = this.nttManager.filters.TransferRedeemed(messageDigest);
     const provider = wh.mustGetProvider(this.chain);
     const currentBlock = await provider.getBlockNumber();

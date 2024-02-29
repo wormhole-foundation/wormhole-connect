@@ -25,7 +25,7 @@ import {
   InboundQueuedTransferStillQueuedError,
   ContractIsPausedError,
 } from 'routes/ntt/errors';
-import { setRedeemTx } from 'store/redeem';
+import { setRedeemTx, setTransferComplete } from 'store/redeem';
 import { OPACITY } from 'utils/style';
 import { useTheme } from '@mui/material';
 
@@ -91,39 +91,22 @@ const NttInboundQueued = () => {
     const { toChain, recipientNttManager, messageDigest, recipient } =
       signedMessage;
     setInProgress(true);
+    const nttRoute =
+      route === Route.NttManual ? new NttManual() : new NttRelay();
+    let tx: string | undefined;
     try {
       const toConfig = CHAINS[toChain];
       if (toConfig?.context === Context.ETH) {
         registerWalletSigner(toChain, TransferWallet.RECEIVING);
         await switchChain(toConfig.chainId, TransferWallet.RECEIVING);
       }
-      const nttRoute =
-        route === Route.NttManual ? new NttManual() : new NttRelay();
-      const tx = await nttRoute.completeInboundQueuedTransfer(
+      tx = await nttRoute.completeInboundQueuedTransfer(
         toChain,
         recipientNttManager,
         messageDigest,
         recipient,
         wallet.address,
       );
-      if (toChain === 'solana') {
-        // Solana will not throw an error if the transfer is still queued
-        // so we need to check if the transfer is still queued
-        const inboundQueuedTransfer = await nttRoute.getInboundQueuedTransfer(
-          toChain,
-          recipientNttManager,
-          messageDigest,
-        );
-        dispatch(setInboundQueuedTransfer(inboundQueuedTransfer));
-        if (inboundQueuedTransfer) {
-          setSendError('Transfer still queued');
-        } else {
-          dispatch(setRedeemTx(tx));
-        }
-      } else {
-        dispatch(setInboundQueuedTransfer(undefined));
-        dispatch(setRedeemTx(tx));
-      }
     } catch (e: any) {
       if (
         e.message === InboundQueuedTransferNotFoundError.MESSAGE ||
@@ -136,6 +119,35 @@ const NttInboundQueued = () => {
       }
       console.error(e);
     }
+    if (tx !== undefined) {
+      try {
+        if (toChain === 'solana') {
+          // Solana will not throw an error if the transfer is still queued
+          // so we need to check if the transfer is still queued
+          const inboundQueuedTransfer = await nttRoute.getInboundQueuedTransfer(
+            toChain,
+            recipientNttManager,
+            messageDigest,
+          );
+          dispatch(setInboundQueuedTransfer(inboundQueuedTransfer));
+          if (inboundQueuedTransfer) {
+            setSendError('Transfer still queued');
+          } else {
+            dispatch(setRedeemTx(tx));
+          }
+        } else {
+          dispatch(setInboundQueuedTransfer(undefined));
+          dispatch(setRedeemTx(tx));
+        }
+        const isTransferCompleted = await nttRoute.isTransferCompleted(
+          toChain,
+          signedMessage,
+        );
+        dispatch(setTransferComplete(isTransferCompleted));
+      } catch (e) {
+        console.error(e);
+      }
+    }
     setInProgress(false);
   }, [signedMessage, wallet, route]);
 
@@ -146,7 +158,6 @@ const NttInboundQueued = () => {
           <Header
             chain={signedMessage.toChain}
             address={signedMessage.recipient}
-            txHash={signedMessage.sendTx}
           />
           <div>
             {`Your transfer to ${

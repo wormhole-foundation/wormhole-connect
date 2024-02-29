@@ -22,6 +22,7 @@ import {
   TransferDisplayData,
   TransferInfoBaseParams,
   TransferDestInfo,
+  NttRelayingType,
 } from './types';
 import {
   CCTPManualRoute,
@@ -33,6 +34,7 @@ import { ETHBridge } from './porticoBridge/ethBridge';
 import { wstETHBridge } from './porticoBridge/wstETHBridge';
 import { TokenPrices } from 'store/tokenPrices';
 import { NttManual, NttRelay } from './ntt';
+import { getMessageEvm as getNttMessageEvm } from './ntt/platforms/evm';
 
 export class Operator {
   getRoute(route: Route): RouteAbstract {
@@ -102,7 +104,7 @@ export class Operator {
         else return Route.CCTPManual;
       }
 
-      // Check if is Native Token Transfer Route
+      // Check if is Ntt Route (NttRelay or NttManual)
       const evmNttManagers = TOKENS_ARR.reduce<string[]>((arr, t) => {
         if (t.ntt?.nttManager) {
           arr.push(t.ntt.nttManager);
@@ -110,11 +112,14 @@ export class Operator {
         return arr;
       }, []);
       if (evmNttManagers.includes(receipt.to)) {
-        return Route.NttManual;
+        const message = await getNttMessageEvm(txHash, chain);
+        return message.relayingType === NttRelayingType.Manual
+          ? Route.NttManual
+          : Route.NttRelay;
       }
     }
 
-    // Check if is Native Token Transfer Route
+    // Check if is Ntt Route (NttRelay or NttManual)
     if (chain === 'solana') {
       const connection = solanaContext().connection;
       if (!connection) throw new Error('Connection not found');

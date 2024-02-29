@@ -38,6 +38,8 @@ const useCheckInboundQueuedTransfer = (): void => {
     const ntt = RouteOperator.getRoute(route) as NttBase;
     let active = true;
     const fetchData = async () => {
+      // We continue polling for the inbound queued transfer even after fetching the data once,
+      // because the transfer could be released by anyone.
       while (active) {
         try {
           const queuedTransfer = await ntt.getInboundQueuedTransfer(

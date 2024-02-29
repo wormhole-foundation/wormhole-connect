@@ -2248,8 +2248,8 @@ export const TESTNET_TOKENS: TokensConfig = {
       default: 8,
     },
     ntt: {
-      nttManager: '0x826D756044c0b5Edd32eD33a2A4B2963d81D8F85',
-      wormholeTransceiver: '0x3a8233b3A9b968B3f3b0e77AeE2c820ee8821A49',
+      nttManager: '0x459B4d6df31c1c1f8b6fda0F8Ad77e1eFF832BCF',
+      wormholeTransceiver: '0x55aaF4D9399C472B252E7C0b49408B5BC7d7328e',
     },
   },
   TEST_NTTarbitrum_sepolia: {
@@ -2269,8 +2269,8 @@ export const TESTNET_TOKENS: TokensConfig = {
       default: 8,
     },
     ntt: {
-      nttManager: '0x85B0Ab2d14210c03F790d17a7e6C7829C05F2157',
-      wormholeTransceiver: '0x2ED826c72BAf816096bB48195220de42220D3750',
+      nttManager: '0xcC1EBD7A6661c0f6E19D2BbDB881b11F3b3f40ff',
+      wormholeTransceiver: '0x00AC6efc189140b50A043b5e43C108CF571586d1',
     },
   },
   TEST_NTTsolana: {
@@ -2290,11 +2290,11 @@ export const TESTNET_TOKENS: TokensConfig = {
       default: 8,
     },
     ntt: {
-      nttManager: 'nttiK1SepaQt6sZ4WGW5whvc9tEnGXGxuKeptcQPCcS',
+      nttManager: '',
       // wormhole endpoint is baked into the manager contract
       // if the endpoint is split into a separate contract, this should be updated
       // and code should be updated to support the new structure
-      wormholeTransceiver: 'nttiK1SepaQt6sZ4WGW5whvc9tEnGXGxuKeptcQPCcS',
+      wormholeTransceiver: '',
     },
   },
 };

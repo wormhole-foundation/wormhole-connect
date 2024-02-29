@@ -8,7 +8,7 @@ import {
 import { TOKENS } from 'config';
 import { ethers } from 'ethers';
 import { hexlify } from 'ethers/lib/utils';
-import { UnsignedNTTMessage } from 'routes/types';
+import { NttRelayingType, UnsignedNTTMessage } from 'routes/types';
 import { getNativeVersionOfToken } from 'store/transferInput';
 import { getTokenById, getTokenDecimals } from 'utils';
 import { wh } from 'utils/sdk';
@@ -43,50 +43,35 @@ export const getMessageEvm = async (
   const parsedWormholeLog =
     Implementation__factory.createInterface().parseLog(wormholeLog);
 
-  //const relayingInfoEvent = receipt.logs.find((log) => log.topics[0] === '');
-  //if (!relayingInfoEvent) {
-  //  throw new Error('RelayingInfo event not found');
-  //}
-  //const relayingInfoIface = new ethers.utils.Interface([
-  //  'event RelayingInfo(uint8 relayingType, uint256 deliveryPayment)',
-  //]);
-  //const parsedRelayingInfo = relayingInfoIface.parseLog(relayingInfoEvent);
-  //const { relayingType, deliveryPayment } = parsedRelayingInfo.args;
-  //if (relayingType !== RelayingType.Standard {
-  //} else if (relayingType === relayingType.Manual || relayingType === relayingType.Special) {
-  //} else {
-  //  throw new Error(`Unexpected relaying type ${relayingType}`);
-  //}
+  const relayingInfoEvent = receipt.logs.find(
+    (log) =>
+      log.topics[0] ===
+      '0x375a56c053c4d19a2e3445e97b7a28bf4e908617ce6d766e1e03a9d3f5276271',
+  );
+  if (!relayingInfoEvent) {
+    throw new Error('RelayingInfo event not found');
+  }
+  const relayingInfoIface = new ethers.utils.Interface([
+    'event RelayingInfo(uint8 relayingType, uint256 deliveryPayment)',
+  ]);
+  const parsedRelayingInfo = relayingInfoIface.parseLog(relayingInfoEvent);
+  const { relayingType, deliveryPayment } = parsedRelayingInfo.args;
   let payload: Buffer;
   let relayerFee = '';
-  if (parsedWormholeLog.args.sender === token.ntt?.wormholeTransceiver) {
-    // The wormhole transceiver emitted the message
-    // This is either a manual or relayer transfer depending on the destination chain
-    payload = Buffer.from(parsedWormholeLog.args.payload.slice(2), 'hex');
-  } else {
-    // The standard relayer emitted the message
-    // This is a standard relayer send
+  if (relayingType === NttRelayingType.Standard) {
     const { type, parsed } = parseWormholeLog(wormholeLog);
     if (type !== RelayerPayloadId.Delivery) {
       throw new Error(`Unexpected payload type ${type}`);
     }
     payload = (parsed as DeliveryInstruction).payload;
-    // TODO: msg.value should added to an event
-    // Find the SendEvent log to get the relayer fee
-    const RELAYER_SEND_EVENT_TOPIC =
-      '0xda8540426b64ece7b164a9dce95448765f0a7263ef3ff85091c9c7361e485364';
-    const sendEvent = receipt.logs.find(
-      (log) =>
-        log.address === parsedWormholeLog.args.sender &&
-        log.topics[0] === RELAYER_SEND_EVENT_TOPIC,
-    );
-    if (sendEvent) {
-      const sendEventIface = new ethers.utils.Interface([
-        'event SendEvent(uint64 indexed sequence, uint256 deliveryQuote, uint256 paymentForExtraReceiverValue)',
-      ]);
-      const parsed = sendEventIface.parseLog(sendEvent);
-      relayerFee = parsed.args.deliveryQuote.toString();
-    }
+    relayerFee = deliveryPayment.toString();
+  } else if (
+    relayingType === NttRelayingType.Manual ||
+    relayingType === NttRelayingType.Special
+  ) {
+    payload = Buffer.from(parsedWormholeLog.args.payload.slice(2), 'hex');
+  } else {
+    throw new Error(`Unexpected relaying type ${relayingType}`);
   }
   const transceiverMessage = parseWormholeTransceiverMessage(payload);
   const nttManagerMessage = transceiverMessage.nttManagerPayload;
@@ -128,5 +113,6 @@ export const getMessageEvm = async (
     ),
     messageDigest: getNttManagerMessageDigest(fromChain, nttManagerMessage),
     relayerFee,
+    relayingType,
   };
 };

@@ -195,6 +195,7 @@ function SendTo() {
       setClaimError('Your claim has failed, please try again');
       throw new Error('invalid destination chain');
     }
+    let txId: string | undefined;
     try {
       if (
         chainConfig!.context === Context.ETH &&
@@ -206,33 +207,12 @@ function SendTo() {
       if (!signedMessage) {
         throw new Error('failed to get vaa, cannot redeem');
       }
-      const txId = await RouteOperator.redeem(
+      txId = await RouteOperator.redeem(
         routeName,
         txData.toChain,
         signedMessage,
         wallet.address,
       );
-      const route = RouteOperator.getRoute(routeName);
-      if (isNttRoute(route.TYPE) && isSignedNttMessage(signedMessage)) {
-        // The redeem may have resulted in the transfer being inbound queued
-        // so we need to check that before we set the transfer as complete
-        const inboundQueuedTransfer = await (
-          route as NttBase
-        ).getInboundQueuedTransfer(
-          txData.toChain,
-          signedMessage.recipientNttManager,
-          signedMessage.messageDigest,
-        );
-        if (inboundQueuedTransfer) {
-          dispatch(setInboundQueuedTransfer(inboundQueuedTransfer));
-        } else {
-          dispatch(setRedeemTx(txId));
-          dispatch(setTransferComplete(true));
-        }
-      } else {
-        dispatch(setRedeemTx(txId));
-        dispatch(setTransferComplete(true));
-      }
       setInProgress(false);
       setClaimError('');
     } catch (e: any) {
@@ -242,6 +222,37 @@ function SendTo() {
       setInProgress(false);
       setClaimError('Your claim has failed, please try again');
       console.error(e);
+    }
+    if (txId !== undefined) {
+      try {
+        const route = RouteOperator.getRoute(routeName);
+        if (
+          isNttRoute(route.TYPE) &&
+          signedMessage &&
+          isSignedNttMessage(signedMessage)
+        ) {
+          // The redeem may have resulted in the transfer being inbound queued
+          // so we need to check that before we set the transfer as complete
+          const inboundQueuedTransfer = await (
+            route as NttBase
+          ).getInboundQueuedTransfer(
+            txData.toChain,
+            signedMessage.recipientNttManager,
+            signedMessage.messageDigest,
+          );
+          if (inboundQueuedTransfer) {
+            dispatch(setInboundQueuedTransfer(inboundQueuedTransfer));
+          } else {
+            dispatch(setRedeemTx(txId));
+            dispatch(setTransferComplete(true));
+          }
+        } else {
+          dispatch(setRedeemTx(txId));
+          dispatch(setTransferComplete(true));
+        }
+      } catch (e) {
+        console.error(e);
+      }
     }
   };
 

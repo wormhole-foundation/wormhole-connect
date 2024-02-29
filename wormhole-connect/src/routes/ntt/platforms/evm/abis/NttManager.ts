@@ -27,12 +27,12 @@ import type {
   OnEvent,
 } from './common';
 
-export type NormalizedAmountStruct = {
+export type TrimmedAmountStruct = {
   amount: BigNumberish;
   decimals: BigNumberish;
 };
 
-export type NormalizedAmountStructOutput = [BigNumber, number] & {
+export type TrimmedAmountStructOutput = [BigNumber, number] & {
   amount: BigNumber;
   decimals: number;
 };
@@ -63,24 +63,24 @@ export declare namespace TransceiverStructs {
 
 export declare namespace IRateLimiter {
   export type InboundQueuedTransferStruct = {
-    amount: NormalizedAmountStruct;
+    amount: TrimmedAmountStruct;
     txTimestamp: BigNumberish;
     recipient: string;
   };
 
   export type InboundQueuedTransferStructOutput = [
-    NormalizedAmountStructOutput,
+    TrimmedAmountStructOutput,
     BigNumber,
     string,
   ] & {
-    amount: NormalizedAmountStructOutput;
+    amount: TrimmedAmountStructOutput;
     txTimestamp: BigNumber;
     recipient: string;
   };
 
   export type OutboundQueuedTransferStruct = {
     recipient: BytesLike;
-    amount: NormalizedAmountStruct;
+    amount: TrimmedAmountStruct;
     txTimestamp: BigNumberish;
     recipientChain: BigNumberish;
     sender: string;
@@ -89,18 +89,30 @@ export declare namespace IRateLimiter {
 
   export type OutboundQueuedTransferStructOutput = [
     string,
-    NormalizedAmountStructOutput,
+    TrimmedAmountStructOutput,
     BigNumber,
     number,
     string,
     string,
   ] & {
     recipient: string;
-    amount: NormalizedAmountStructOutput;
+    amount: TrimmedAmountStructOutput;
     txTimestamp: BigNumber;
     recipientChain: number;
     sender: string;
     transceiverInstructions: string;
+  };
+}
+
+export declare namespace INttManagerState {
+  export type NttManagerPeerStruct = {
+    peerAddress: BytesLike;
+    tokenDecimals: BigNumberish;
+  };
+
+  export type NttManagerPeerStructOutput = [string, number] & {
+    peerAddress: string;
+    tokenDecimals: number;
   };
 }
 
@@ -136,11 +148,12 @@ export interface NttManagerInterface extends utils.Interface {
     'removeTransceiver(address)': FunctionFragment;
     'setInboundLimit(uint256,uint16)': FunctionFragment;
     'setOutboundLimit(uint256)': FunctionFragment;
-    'setPeer(uint16,bytes32)': FunctionFragment;
+    'setPeer(uint16,bytes32,uint8)': FunctionFragment;
     'setThreshold(uint8)': FunctionFragment;
     'setTransceiver(address)': FunctionFragment;
     'token()': FunctionFragment;
     'tokenDecimals()': FunctionFragment;
+    'tokenDecimals_()': FunctionFragment;
     'transceiverAttestedToMessage(bytes32,uint8)': FunctionFragment;
     'transfer(uint256,uint16,bytes32)': FunctionFragment;
     'transfer(uint256,uint16,bytes32,bool,bytes)': FunctionFragment;
@@ -186,6 +199,7 @@ export interface NttManagerInterface extends utils.Interface {
       | 'setTransceiver'
       | 'token'
       | 'tokenDecimals'
+      | 'tokenDecimals_'
       | 'transceiverAttestedToMessage'
       | 'transfer(uint256,uint16,bytes32)'
       | 'transfer(uint256,uint16,bytes32,bool,bytes)'
@@ -304,7 +318,7 @@ export interface NttManagerInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: 'setPeer',
-    values: [BigNumberish, BytesLike],
+    values: [BigNumberish, BytesLike, BigNumberish],
   ): string;
   encodeFunctionData(
     functionFragment: 'setThreshold',
@@ -317,6 +331,10 @@ export interface NttManagerInterface extends utils.Interface {
   encodeFunctionData(functionFragment: 'token', values?: undefined): string;
   encodeFunctionData(
     functionFragment: 'tokenDecimals',
+    values?: undefined,
+  ): string;
+  encodeFunctionData(
+    functionFragment: 'tokenDecimals_',
     values?: undefined,
   ): string;
   encodeFunctionData(
@@ -443,6 +461,10 @@ export interface NttManagerInterface extends utils.Interface {
     data: BytesLike,
   ): Result;
   decodeFunctionResult(
+    functionFragment: 'tokenDecimals_',
+    data: BytesLike,
+  ): Result;
+  decodeFunctionResult(
     functionFragment: 'transceiverAttestedToMessage',
     data: BytesLike,
   ): Result;
@@ -477,14 +499,12 @@ export interface NttManagerInterface extends utils.Interface {
     'OwnershipTransferred(address,address)': EventFragment;
     'Paused(bool)': EventFragment;
     'PauserTransferred(address,address)': EventFragment;
-    'PeerUpdated(uint16,bytes32,bytes32)': EventFragment;
+    'PeerUpdated(uint16,bytes32,uint8,bytes32,uint8)': EventFragment;
     'ThresholdChanged(uint8,uint8)': EventFragment;
-    'TransceiverAdded(address)': EventFragment;
     'TransceiverAdded(address,uint256,uint8)': EventFragment;
-    'TransceiverRemoved(address)': EventFragment;
     'TransceiverRemoved(address,uint8)': EventFragment;
     'TransferRedeemed(bytes32)': EventFragment;
-    'TransferSent(bytes32,uint256,uint16,uint64)': EventFragment;
+    'TransferSent(bytes32,uint256,uint256,uint16,uint64)': EventFragment;
     'Upgraded(address)': EventFragment;
   };
 
@@ -504,16 +524,8 @@ export interface NttManagerInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: 'PauserTransferred'): EventFragment;
   getEvent(nameOrSignatureOrTopic: 'PeerUpdated'): EventFragment;
   getEvent(nameOrSignatureOrTopic: 'ThresholdChanged'): EventFragment;
-  getEvent(nameOrSignatureOrTopic: 'TransceiverAdded(address)'): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: 'TransceiverAdded(address,uint256,uint8)',
-  ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: 'TransceiverRemoved(address)',
-  ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: 'TransceiverRemoved(address,uint8)',
-  ): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'TransceiverAdded'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'TransceiverRemoved'): EventFragment;
   getEvent(nameOrSignatureOrTopic: 'TransferRedeemed'): EventFragment;
   getEvent(nameOrSignatureOrTopic: 'TransferSent'): EventFragment;
   getEvent(nameOrSignatureOrTopic: 'Upgraded'): EventFragment;
@@ -649,10 +661,12 @@ export type PauserTransferredEventFilter =
 export interface PeerUpdatedEventObject {
   chainId_: number;
   oldPeerContract: string;
+  oldPeerDecimals: number;
   peerContract: string;
+  peerDecimals: number;
 }
 export type PeerUpdatedEvent = TypedEvent<
-  [number, string, string],
+  [number, string, number, string, number],
   PeerUpdatedEventObject
 >;
 
@@ -670,52 +684,30 @@ export type ThresholdChangedEvent = TypedEvent<
 export type ThresholdChangedEventFilter =
   TypedEventFilter<ThresholdChangedEvent>;
 
-export interface TransceiverAdded_address_EventObject {
-  transceiver: string;
-}
-export type TransceiverAdded_address_Event = TypedEvent<
-  [string],
-  TransceiverAdded_address_EventObject
->;
-
-export type TransceiverAdded_address_EventFilter =
-  TypedEventFilter<TransceiverAdded_address_Event>;
-
-export interface TransceiverAdded_address_uint256_uint8_EventObject {
+export interface TransceiverAddedEventObject {
   transceiver: string;
   transceiversNum: BigNumber;
   threshold: number;
 }
-export type TransceiverAdded_address_uint256_uint8_Event = TypedEvent<
+export type TransceiverAddedEvent = TypedEvent<
   [string, BigNumber, number],
-  TransceiverAdded_address_uint256_uint8_EventObject
+  TransceiverAddedEventObject
 >;
 
-export type TransceiverAdded_address_uint256_uint8_EventFilter =
-  TypedEventFilter<TransceiverAdded_address_uint256_uint8_Event>;
+export type TransceiverAddedEventFilter =
+  TypedEventFilter<TransceiverAddedEvent>;
 
-export interface TransceiverRemoved_address_EventObject {
-  transceiver: string;
-}
-export type TransceiverRemoved_address_Event = TypedEvent<
-  [string],
-  TransceiverRemoved_address_EventObject
->;
-
-export type TransceiverRemoved_address_EventFilter =
-  TypedEventFilter<TransceiverRemoved_address_Event>;
-
-export interface TransceiverRemoved_address_uint8_EventObject {
+export interface TransceiverRemovedEventObject {
   transceiver: string;
   threshold: number;
 }
-export type TransceiverRemoved_address_uint8_Event = TypedEvent<
+export type TransceiverRemovedEvent = TypedEvent<
   [string, number],
-  TransceiverRemoved_address_uint8_EventObject
+  TransceiverRemovedEventObject
 >;
 
-export type TransceiverRemoved_address_uint8_EventFilter =
-  TypedEventFilter<TransceiverRemoved_address_uint8_Event>;
+export type TransceiverRemovedEventFilter =
+  TypedEventFilter<TransceiverRemovedEvent>;
 
 export interface TransferRedeemedEventObject {
   digest: string;
@@ -731,11 +723,12 @@ export type TransferRedeemedEventFilter =
 export interface TransferSentEventObject {
   recipient: string;
   amount: BigNumber;
+  fee: BigNumber;
   recipientChain: number;
   msgSequence: BigNumber;
 }
 export type TransferSentEvent = TypedEvent<
-  [string, BigNumber, number, BigNumber],
+  [string, BigNumber, BigNumber, number, BigNumber],
   TransferSentEventObject
 >;
 
@@ -825,7 +818,7 @@ export interface NttManager extends BaseContract {
     getPeer(
       chainId_: BigNumberish,
       overrides?: CallOverrides,
-    ): Promise<[string]>;
+    ): Promise<[INttManagerState.NttManagerPeerStructOutput]>;
 
     getThreshold(overrides?: CallOverrides): Promise<[number]>;
 
@@ -898,6 +891,7 @@ export interface NttManager extends BaseContract {
     setPeer(
       peerChainId: BigNumberish,
       peerContract: BytesLike,
+      decimals: BigNumberish,
       overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
@@ -914,6 +908,8 @@ export interface NttManager extends BaseContract {
     token(overrides?: CallOverrides): Promise<[string]>;
 
     tokenDecimals(overrides?: CallOverrides): Promise<[number]>;
+
+    tokenDecimals_(overrides?: CallOverrides): Promise<[number]>;
 
     transceiverAttestedToMessage(
       digest: BytesLike,
@@ -1000,7 +996,10 @@ export interface NttManager extends BaseContract {
     overrides?: CallOverrides,
   ): Promise<IRateLimiter.OutboundQueuedTransferStructOutput>;
 
-  getPeer(chainId_: BigNumberish, overrides?: CallOverrides): Promise<string>;
+  getPeer(
+    chainId_: BigNumberish,
+    overrides?: CallOverrides,
+  ): Promise<INttManagerState.NttManagerPeerStructOutput>;
 
   getThreshold(overrides?: CallOverrides): Promise<number>;
 
@@ -1071,6 +1070,7 @@ export interface NttManager extends BaseContract {
   setPeer(
     peerChainId: BigNumberish,
     peerContract: BytesLike,
+    decimals: BigNumberish,
     overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
@@ -1087,6 +1087,8 @@ export interface NttManager extends BaseContract {
   token(overrides?: CallOverrides): Promise<string>;
 
   tokenDecimals(overrides?: CallOverrides): Promise<number>;
+
+  tokenDecimals_(overrides?: CallOverrides): Promise<number>;
 
   transceiverAttestedToMessage(
     digest: BytesLike,
@@ -1173,7 +1175,10 @@ export interface NttManager extends BaseContract {
       overrides?: CallOverrides,
     ): Promise<IRateLimiter.OutboundQueuedTransferStructOutput>;
 
-    getPeer(chainId_: BigNumberish, overrides?: CallOverrides): Promise<string>;
+    getPeer(
+      chainId_: BigNumberish,
+      overrides?: CallOverrides,
+    ): Promise<INttManagerState.NttManagerPeerStructOutput>;
 
     getThreshold(overrides?: CallOverrides): Promise<number>;
 
@@ -1238,6 +1243,7 @@ export interface NttManager extends BaseContract {
     setPeer(
       peerChainId: BigNumberish,
       peerContract: BytesLike,
+      decimals: BigNumberish,
       overrides?: CallOverrides,
     ): Promise<void>;
 
@@ -1254,6 +1260,8 @@ export interface NttManager extends BaseContract {
     token(overrides?: CallOverrides): Promise<string>;
 
     tokenDecimals(overrides?: CallOverrides): Promise<number>;
+
+    tokenDecimals_(overrides?: CallOverrides): Promise<number>;
 
     transceiverAttestedToMessage(
       digest: BytesLike,
@@ -1380,15 +1388,19 @@ export interface NttManager extends BaseContract {
       newPauser?: string | null,
     ): PauserTransferredEventFilter;
 
-    'PeerUpdated(uint16,bytes32,bytes32)'(
+    'PeerUpdated(uint16,bytes32,uint8,bytes32,uint8)'(
       chainId_?: BigNumberish | null,
       oldPeerContract?: null,
+      oldPeerDecimals?: null,
       peerContract?: null,
+      peerDecimals?: null,
     ): PeerUpdatedEventFilter;
     PeerUpdated(
       chainId_?: BigNumberish | null,
       oldPeerContract?: null,
+      oldPeerDecimals?: null,
       peerContract?: null,
+      peerDecimals?: null,
     ): PeerUpdatedEventFilter;
 
     'ThresholdChanged(uint8,uint8)'(
@@ -1400,34 +1412,42 @@ export interface NttManager extends BaseContract {
       threshold?: null,
     ): ThresholdChangedEventFilter;
 
-    'TransceiverAdded(address)'(
-      transceiver?: null,
-    ): TransceiverAdded_address_EventFilter;
     'TransceiverAdded(address,uint256,uint8)'(
       transceiver?: null,
       transceiversNum?: null,
       threshold?: null,
-    ): TransceiverAdded_address_uint256_uint8_EventFilter;
-    'TransceiverRemoved(address)'(
+    ): TransceiverAddedEventFilter;
+    TransceiverAdded(
       transceiver?: null,
-    ): TransceiverRemoved_address_EventFilter;
+      transceiversNum?: null,
+      threshold?: null,
+    ): TransceiverAddedEventFilter;
+
     'TransceiverRemoved(address,uint8)'(
       transceiver?: null,
       threshold?: null,
-    ): TransceiverRemoved_address_uint8_EventFilter;
+    ): TransceiverRemovedEventFilter;
+    TransceiverRemoved(
+      transceiver?: null,
+      threshold?: null,
+    ): TransceiverRemovedEventFilter;
 
-    'TransferRedeemed(bytes32)'(digest?: null): TransferRedeemedEventFilter;
-    TransferRedeemed(digest?: null): TransferRedeemedEventFilter;
+    'TransferRedeemed(bytes32)'(
+      digest?: BytesLike | null,
+    ): TransferRedeemedEventFilter;
+    TransferRedeemed(digest?: BytesLike | null): TransferRedeemedEventFilter;
 
-    'TransferSent(bytes32,uint256,uint16,uint64)'(
+    'TransferSent(bytes32,uint256,uint256,uint16,uint64)'(
       recipient?: null,
       amount?: null,
+      fee?: null,
       recipientChain?: null,
       msgSequence?: null,
     ): TransferSentEventFilter;
     TransferSent(
       recipient?: null,
       amount?: null,
+      fee?: null,
       recipientChain?: null,
       msgSequence?: null,
     ): TransferSentEventFilter;
@@ -1552,6 +1572,7 @@ export interface NttManager extends BaseContract {
     setPeer(
       peerChainId: BigNumberish,
       peerContract: BytesLike,
+      decimals: BigNumberish,
       overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
@@ -1568,6 +1589,8 @@ export interface NttManager extends BaseContract {
     token(overrides?: CallOverrides): Promise<BigNumber>;
 
     tokenDecimals(overrides?: CallOverrides): Promise<BigNumber>;
+
+    tokenDecimals_(overrides?: CallOverrides): Promise<BigNumber>;
 
     transceiverAttestedToMessage(
       digest: BytesLike,
@@ -1735,6 +1758,7 @@ export interface NttManager extends BaseContract {
     setPeer(
       peerChainId: BigNumberish,
       peerContract: BytesLike,
+      decimals: BigNumberish,
       overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
@@ -1751,6 +1775,8 @@ export interface NttManager extends BaseContract {
     token(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     tokenDecimals(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    tokenDecimals_(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     transceiverAttestedToMessage(
       digest: BytesLike,
