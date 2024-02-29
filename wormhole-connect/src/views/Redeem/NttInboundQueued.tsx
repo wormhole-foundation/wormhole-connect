@@ -151,11 +151,11 @@ const NttInboundQueued = () => {
           <div>
             {`Your transfer to ${
               CHAINS[signedMessage.toChain]?.displayName || 'UNKNOWN'
-            } is delayed due to rate limits that were configured by the ${
+            } is delayed due to rate limits configured by ${
               TOKENS[signedMessage.receivedTokenKey]?.symbol || 'UNKNOWN'
-            } token DAO. After the delay ends on ${
-              rateLimitExpiry || 'N/A'
-            }, you will need to return to submit another transaction to complete the transfer and receive your tokens.`}
+            }. After the delay ends on ${
+              rateLimitExpiry || 'UNKNOWN'
+            }, you will need to return to submit a new transaction to complete your transfer.`}
           </div>
         </>
       </InputContainer>
