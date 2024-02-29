@@ -319,7 +319,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
   injective: {
     key: 'injective',
     id: 19,
-    context: Context.INJECTIVE,
+    context: Context.COSMOS,
     contracts: {},
     finalityThreshold: 0,
     nativeTokenDecimals: 18,

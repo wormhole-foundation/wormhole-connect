@@ -2220,7 +2220,7 @@ export const TESTNET_TOKENS: TokensConfig = {
   INJ: {
     key: 'INJ',
     symbol: 'INJ',
-    nativeChain: 'inj',
+    nativeChain: 'injective',
     tokenId: {
       chain: 'injective',
       address: 'inj',

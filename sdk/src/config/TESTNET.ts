@@ -354,7 +354,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
   injective: {
     key: 'injective',
     id: 19,
-    context: Context.INJECTIVE,
+    context: Context.COSMOS,
     contracts: {},
     finalityThreshold: 0,
     nativeTokenDecimals: 6,

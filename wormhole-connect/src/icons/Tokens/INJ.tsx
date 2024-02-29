@@ -16,7 +16,7 @@ function INJ() {
     211.095C153.72 238.566 118.044 316.303 130.442 373.965C137.691 406.664
     147.353 430.499 185.663 463.241C178.559 459.049 171.66 454.294 164.968
     448.974C75.957 366.06 86.2838 237.859 148.497 169.135Z"
-        fill="`url(#paint0_linear-inj-1)`"
+        fill="url(#paint-inj-1)"
       />
       <path
         d="M451.503 430.865C449.019
@@ -32,30 +32,30 @@ function INJ() {
     481.956 283.697 469.558 226.035C462.309 193.336 452.647 169.501 414.337
     136.759C421.441 140.951 428.34 145.706 435.032 151.026C524.043 233.94
     513.716 362.141 451.503 430.865Z"
-        fill="`url(#paint1_linear-inj-2)`"
+        fill="url(#paint-inj-2)"
       />
       <defs>
         <linearGradient
-          id="`paint0_linear-inj-1`"
+          id="paint-inj-1"
           x1="100"
           y1="300"
           x2="500"
           y2="300"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#0082FA" />
-          <stop offset="1" stop-color="#00F2FE" />
+          <stop stopColor="#0082FA" />
+          <stop offset="1" stopColor="#00F2FE" />
         </linearGradient>
         <linearGradient
-          id="`paint1_linear-inj-2`"
+          id="paint-inj-2"
           x1="100"
           y1="300"
           x2="500"
           y2="300"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#0082FA" />
-          <stop offset="1" stop-color="#00F2FE" />
+          <stop stopColor="#0082FA" />
+          <stop offset="1" stopColor="#00F2FE" />
         </linearGradient>
       </defs>
     </svg>

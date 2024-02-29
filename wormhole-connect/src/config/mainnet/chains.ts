@@ -202,7 +202,7 @@ export const MAINNET_CHAINS: ChainsConfig = {
   injective: {
     ...chains.injective!,
     displayName: 'Injective',
-    explorerUrl: 'https://explorer.injective.network',
+    explorerUrl: 'https://explorer.injective.network/',
     explorerName: 'Injective Explorer',
     gasToken: 'INJ',
     chainId: 'injective-1',

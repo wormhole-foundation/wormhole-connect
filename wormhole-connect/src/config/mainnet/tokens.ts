@@ -1406,6 +1406,11 @@ export const MAINNET_TOKENS: TokensConfig = {
           'ibc/4443218F584A7AB2DFBCF93872D6E5B6967A11C53515DDF45A2CF387C54BD73A',
         decimals: 8,
       },
+      injective: {
+        address:
+          'ibc/A8B0B746B5AB736C2D8577259B510D56B8AF598008F68041E3D634BCDE72BE97',
+        decimals: 8,
+      },
     },
   },
   USDCsol: {
@@ -2685,7 +2690,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   INJ: {
     key: 'INJ',
     symbol: 'INJ',
-    nativeChain: 'inj',
+    nativeChain: 'injective',
     tokenId: {
       chain: 'injective',
       address: 'inj',

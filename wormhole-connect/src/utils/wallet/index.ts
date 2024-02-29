@@ -8,6 +8,7 @@ import {
 import {
   postVaaSolanaWithRetry,
   CHAIN_ID_EVMOS,
+  CHAIN_ID_INJECTIVE,
 } from '@certusone/wormhole-sdk';
 import { ContractReceipt } from 'ethers';
 import {
@@ -227,9 +228,12 @@ export const getWalletOptions = async (
     const {
       wallets: { cosmos, cosmosEvm },
     } = await import('utils/wallet/cosmos');
-
     if (config.id === CHAIN_ID_EVMOS) {
       return Object.values(mapWallets(cosmos, Context.COSMOS, ['OKX Wallet']));
+    } else if (config.id === CHAIN_ID_INJECTIVE) {
+      return Object.values(
+        mapWallets(cosmosEvm, Context.COSMOS, ['OKX Wallet']),
+      );
     } else {
       return Object.values(mapWallets(cosmosEvm, Context.COSMOS));
     }
