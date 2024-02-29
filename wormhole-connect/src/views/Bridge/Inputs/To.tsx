@@ -169,7 +169,9 @@ function ToInputs() {
       <ChainsModal
         open={showChainsModal}
         title="Sending to"
-        chains={CHAINS_ARR.filter((c) => c.key !== fromChain)}
+        chains={CHAINS_ARR.filter(
+          (c) => c.key !== fromChain && !c.disableAsDestination,
+        )}
         onSelect={selectChain}
         onClose={() => setShowChainsModal(false)}
         onMoreNetworkSelect={(href, chainName, target) =>
