@@ -28,7 +28,6 @@ export enum Icon {
   'SEI',
   'BASE',
   'OSMO',
-  'BONK',
   'TBTC',
   'WSTETH',
   'ARBITRUM',
@@ -38,6 +37,7 @@ export enum Icon {
   'KUJI',
   'PYTH',
   'INJ',
+  'KLAY',
 }
 
 export enum Route {
@@ -72,6 +72,7 @@ export interface WormholeConnectConfig {
   graphql?: ChainResourceMap;
   networks?: ChainName[];
   tokens?: string[];
+  tokensConfig?: TokensConfig;
   mode?: 'dark' | 'light';
   customTheme?: ExtendedTheme;
   cta?: {
@@ -94,6 +95,7 @@ export interface WormholeConnectConfig {
   walletConnectProjectId?: string;
   ethBridgeMaxAmount?: number;
   wstETHBridgeMaxAmount?: number;
+  coinGeckoApiKey?: string;
 }
 
 export type ExplorerConfig = {
@@ -109,7 +111,7 @@ export type PageHeader = {
 
 export type SearchTxConfig = {
   txHash?: string;
-  chainName?: ChainName;
+  chainName?: string;
 };
 
 export type MoreTokenConfig = {
@@ -143,10 +145,10 @@ export type TokenConfig = {
   key: string;
   symbol: string;
   nativeChain: ChainName;
-  icon: Icon;
+  icon: Icon | string;
   tokenId?: TokenId; // if no token id, it is the native token
   coinGeckoId: string;
-  color: string;
+  color?: string;
   decimals: DecimalsMap;
   wrappedAsset?: string;
   displayName?: string;

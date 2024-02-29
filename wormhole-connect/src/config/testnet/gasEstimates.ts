@@ -162,6 +162,13 @@ export const TESTNET_GAS_ESTIMATES: GasEstimates = {
       claim: 500000,
     },
   },
+  klaytn: {
+    [Route.Bridge]: {
+      sendNative: 2000000,
+      sendToken: 3000000,
+      claim: 4000000,
+    },
+  },
   wormchain: {
     [Route.Bridge]: {
       sendNative: 0,
@@ -229,6 +236,34 @@ export const TESTNET_GAS_ESTIMATES: GasEstimates = {
       sendNative: 0,
       sendToken: 0,
       claim: 0,
+    },
+  },
+  sepolia: {
+    [Route.Bridge]: {
+      sendNative: 100000,
+      sendToken: 150000,
+      claim: 200000,
+    },
+  },
+  arbitrum_sepolia: {
+    [Route.Bridge]: {
+      sendNative: 100000,
+      sendToken: 150000,
+      claim: 200000,
+    },
+  },
+  base_sepolia: {
+    [Route.Bridge]: {
+      sendNative: 100000,
+      sendToken: 150000,
+      claim: 200000,
+    },
+  },
+  optimism_sepolia: {
+    [Route.Bridge]: {
+      sendNative: 100000,
+      sendToken: 150000,
+      claim: 200000,
     },
   },
   injective: {

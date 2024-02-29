@@ -4,7 +4,7 @@ import { useDispatch } from 'react-redux';
 import { Select, MenuItem, CircularProgress } from '@mui/material';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 
-import { CHAINS_ARR, SEARCH_TX, showHamburgerMenu } from 'config';
+import { CHAINS_ARR, showHamburgerMenu } from 'config';
 import { isValidTxId } from 'utils';
 import RouteOperator from 'routes/operator';
 import { setTxDetails, setRoute as setRedeemRoute } from 'store/redeem';
@@ -16,6 +16,7 @@ import Spacer from 'components/Spacer';
 import AlertBanner from 'components/AlertBanner';
 import { setToChain } from 'store/transferInput';
 import FooterNavBar from 'components/FooterNavBar';
+import { useExternalSearch } from 'hooks/useExternalSearch';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -48,12 +49,15 @@ const useStyles = makeStyles()((theme) => ({
   },
 }));
 
+const EMPTY = '';
+
 function TxSearch() {
   const { classes } = useStyles();
   const dispatch = useDispatch();
   const [state, setState] = useState({
-    chain: '',
-    tx: '',
+    chain: EMPTY,
+    tx: EMPTY,
+    autoSearch: false,
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -99,17 +103,27 @@ function TxSearch() {
     }
   }
 
-  const doSearch = useCallback(search, [state.tx, state.chain, dispatch]);
+  const { hasExternalSearch, txHash, chainName, clear } = useExternalSearch();
 
+  // set the txHash and chainName from configs and reset it to undefined
   useEffect(() => {
-    if (SEARCH_TX?.chainName && SEARCH_TX?.txHash) {
-      setTx({ target: { value: SEARCH_TX?.txHash } });
-      setChain({ target: { value: SEARCH_TX?.chainName } });
-      doSearch();
-      SEARCH_TX!.txHash = undefined;
-      SEARCH_TX!.chainName = undefined;
+    const autoSearch = !!(hasExternalSearch && txHash && chainName);
+    if (autoSearch) {
+      setState({ chain: chainName, tx: txHash, autoSearch });
+      clear();
     }
-  }, [doSearch]);
+  }, [hasExternalSearch, txHash, chainName, clear]);
+
+  const doSearch = useCallback(() => search(), [state]);
+
+  // search on load if txHash and chainName are set
+  useEffect(() => {
+    const { chain, tx, autoSearch } = state;
+    if (autoSearch && chain !== EMPTY && tx !== EMPTY && !loading) {
+      setState((prev) => ({ ...prev, autoSearch: false }));
+      doSearch();
+    }
+  }, [doSearch, state, loading]);
 
   return (
     <div className={classes.container}>

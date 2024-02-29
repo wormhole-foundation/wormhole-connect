@@ -22,6 +22,8 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { isPorticoRoute } from 'routes/porticoBridge/utils';
 
+const defaultPrices = {};
+
 function Preview(props: { collapsed: boolean }) {
   const dispatch = useDispatch();
   const theme: any = useTheme();
@@ -40,7 +42,10 @@ function Preview(props: { collapsed: boolean }) {
     (state: RootState) => state.relay,
   );
   const portico = useSelector((state: RootState) => state.porticoBridge);
-
+  const {
+    usdPrices: { data },
+  } = useSelector((state: RootState) => state.tokenPrices);
+  const prices = data || defaultPrices;
   useEffect(() => {
     const buildPreview = async () => {
       if (!fromChain || !route) return;
@@ -68,6 +73,7 @@ function Preview(props: { collapsed: boolean }) {
         gasEst.send,
         gasEst.claim,
         receiveAmount.data || '',
+        prices,
         routeOptions,
       );
 
@@ -89,6 +95,7 @@ function Preview(props: { collapsed: boolean }) {
     gasEst,
     dispatch,
     relayerFee,
+    prices,
   ]);
 
   useEffect(() => {

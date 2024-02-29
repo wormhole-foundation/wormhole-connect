@@ -17,6 +17,7 @@ const {
   REACT_APP_WORMCHAIN_RPC,
   REACT_APP_EVMOS_RPC,
   REACT_APP_KUJIRA_RPC,
+  REACT_APP_KLAYTN_RPC,
   REACT_APP_SEI_REST,
   REACT_APP_EVMOS_REST,
   REACT_APP_ARBITRUM_RPC,
@@ -44,6 +45,7 @@ export const MAINNET_RPC_MAPPING = {
   ...populateRpcField('evmos', REACT_APP_EVMOS_RPC),
   ...populateRpcField('kujira', REACT_APP_KUJIRA_RPC),
   ...populateRpcField('injective', REACT_APP_INJECTIVE_RPC),
+  ...populateRpcField('klaytn', REACT_APP_KLAYTN_RPC),
 };
 
 export const MAINNET_REST_MAPPING = {

@@ -16,8 +16,8 @@ import RouteOperator from 'routes/operator';
 import {
   TransferWallet,
   registerWalletSigner,
-  signSolanaTransaction,
   switchChain,
+  signAndSendTransaction,
 } from 'utils/wallet';
 
 import AlertBanner from 'components/AlertBanner';
@@ -51,7 +51,7 @@ function AssociatedTokenAlert() {
     );
     // if `tx` is null it means the account already exists
     if (!tx) return;
-    await signSolanaTransaction(tx, TransferWallet.RECEIVING);
+    await signAndSendTransaction('solana', tx, TransferWallet.RECEIVING);
     dispatch(setTxDetails({ ...txData, recipient: wallet.address }));
   }, [txData, wallet.address, dispatch]);
 
@@ -77,6 +77,10 @@ function SendTo() {
   const transferDestInfo = useSelector(
     (state: RootState) => state.redeem.transferDestInfo,
   );
+  const {
+    usdPrices: { data },
+  } = useSelector((state: RootState) => state.tokenPrices);
+  const prices = data || {};
   const [claimError, setClaimError] = useState('');
   const [manualClaim, setManualClaim] = useState(false);
 
@@ -137,12 +141,15 @@ function SendTo() {
       try {
         const info = await RouteOperator.getTransferDestInfo(routeName, {
           txData,
+          tokenPrices: prices,
           receiveTx,
           transferComplete,
           gasEstimate,
         });
         dispatch(setTransferDestInfo(info));
-      } catch {}
+      } catch (e) {
+        console.error(e);
+      }
     };
     populate();
   }, [
@@ -152,6 +159,7 @@ function SendTo() {
     routeName,
     signedMessage,
     dispatch,
+    data,
   ]);
 
   useEffect(() => {

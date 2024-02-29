@@ -17,7 +17,7 @@ function ValidationError(props: Props) {
   );
   const validationErrors = props.validations.filter((v) => !!v) as string[];
   const showError = validationErrors.length > 0;
-  let content: React.ReactNode = validationErrors[0];
+  const content: React.ReactNode = validationErrors[0];
 
   const show = (props.forceShow || showErrors) && showError;
 

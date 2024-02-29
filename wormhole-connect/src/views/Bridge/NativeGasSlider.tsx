@@ -6,10 +6,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { useDebounce } from 'use-debounce';
 
-import { CHAINS, TOKENS } from 'config';
+import { CHAINS, TOKENS, THEME } from 'config';
 import { TokenConfig, Route } from 'config/types';
 import { RoutesConfig } from 'config/routes';
-import { getTokenDecimals, getDisplayName } from 'utils';
+import { getTokenDecimals, getDisplayName, calculateUSDPrice } from 'utils';
 import { wh } from 'utils/sdk';
 import { getConversion, toDecimals, toFixedDecimals } from 'utils/balance';
 import RouteOperator from 'routes/operator';
@@ -25,6 +25,7 @@ import InputContainer from 'components/InputContainer';
 import TokenIcon from 'icons/TokenIcons';
 import BridgeCollapse, { CollapseControlStyle } from './Collapse';
 import { Banner } from './RouteOptions';
+import Price from 'components/Price';
 
 const useStyles = makeStyles()(() => ({
   container: {
@@ -77,7 +78,7 @@ const PrettoSlider = styled(Slider)<SliderProps>(({ color1, color2 }) => ({
   },
 }));
 
-interface ThumbProps extends React.HTMLAttributes<unknown> {}
+type ThumbProps = React.HTMLAttributes<unknown>;
 
 function formatAmount(amount?: number): number {
   if (!amount) return 0;
@@ -91,7 +92,9 @@ const INITIAL_STATE = {
   min: 0,
   max: 0,
   nativeGas: 0,
+  nativeGasPrice: '',
   token: formatAmount(),
+  tokenPrice: '',
   swapAmt: 0,
   conversionRate: undefined as number | undefined,
 };
@@ -112,10 +115,14 @@ function GasSlider(props: { disabled: boolean }) {
   const { receiving: receivingWallet } = useSelector(
     (state: RootState) => state.wallet,
   );
+  const {
+    usdPrices: { data },
+  } = useSelector((state: RootState) => state.tokenPrices);
+  const prices = data || {};
   const destConfig = CHAINS[toChain!];
   const sendingToken = TOKENS[token];
   const receivingToken = TOKENS[destToken];
-  const nativeGasToken = TOKENS[destConfig?.gasToken!];
+  const nativeGasToken = TOKENS[destConfig!.gasToken];
 
   const [state, setState] = useState(INITIAL_STATE);
   const [debouncedSwapAmt] = useDebounce(state.swapAmt, 500);
@@ -168,9 +175,14 @@ function GasSlider(props: { disabled: boolean }) {
       ...prevState,
       disabled: amountNum <= 0 || actualMaxSwap === 0,
       token: formatAmount(newTokenAmount),
+      tokenPrice: calculateUSDPrice(
+        formatAmount(newTokenAmount),
+        prices,
+        TOKENS[token],
+      ),
       max: formatAmount(actualMaxSwap),
     }));
-  }, [relayerFee, maxSwapAmt, amountNum, route, state.swapAmt]);
+  }, [relayerFee, maxSwapAmt, amountNum, route, state.swapAmt, data, token]);
 
   useEffect(() => {
     if (
@@ -259,7 +271,7 @@ function GasSlider(props: { disabled: boolean }) {
     return (
       <SliderThumb {...other}>
         {children}
-        <TokenIcon name={nativeGasToken.icon} height={16} />
+        <TokenIcon icon={nativeGasToken.icon} height={16} />
       </SliderThumb>
     );
   }
@@ -272,7 +284,13 @@ function GasSlider(props: { disabled: boolean }) {
         ...prevState,
         swapAmt: 0,
         nativeGas: 0,
+        nativeGasPrice: '',
         token: formatAmount(amountNum),
+        tokenPrice: calculateUSDPrice(
+          formatAmount(amountNum),
+          prices,
+          TOKENS[token],
+        ),
       }));
       dispatch(setReceiveNativeAmt(0));
     }
@@ -287,7 +305,17 @@ function GasSlider(props: { disabled: boolean }) {
     const swapAmount = value;
     const conversion = {
       nativeGas: formatAmount(newGasAmount),
+      nativeGasPrice: calculateUSDPrice(
+        formatAmount(newGasAmount),
+        prices,
+        nativeGasToken,
+      ),
       token: formatAmount(newTokenAmount),
+      tokenPrice: calculateUSDPrice(
+        formatAmount(newTokenAmount),
+        prices,
+        TOKENS[token],
+      ),
       swapAmt: formatAmount(swapAmount),
     };
     setState((prevState) => ({ ...prevState, ...conversion }));
@@ -332,7 +360,17 @@ function GasSlider(props: { disabled: boolean }) {
       setState((prevState) => ({
         ...prevState,
         nativeGas: formattedNativeAmt,
+        nativeGasPrice: calculateUSDPrice(
+          formattedNativeAmt,
+          prices,
+          nativeGasToken,
+        ),
         token: formatAmount(amountNum - debouncedSwapAmt),
+        tokenPrice: calculateUSDPrice(
+          formatAmount(amountNum - debouncedSwapAmt),
+          prices,
+          TOKENS[token],
+        ),
       }));
     })();
     return () => {
@@ -348,7 +386,11 @@ function GasSlider(props: { disabled: boolean }) {
     toChain,
     route,
     amountNum,
+    data,
+    token,
   ]);
+
+  const defaultSliderColor = THEME.success[100];
 
   const banner = !props.disabled && !!route && (
     <Banner text="This feature provided by" route={RoutesConfig[route]} />
@@ -386,8 +428,8 @@ function GasSlider(props: { disabled: boolean }) {
                 aria-label="Native gas conversion amount"
                 defaultValue={0}
                 value={state.swapAmt}
-                color1={nativeGasToken.color}
-                color2={sendingToken.color}
+                color1={nativeGasToken.color ?? defaultSliderColor}
+                color2={sendingToken.color ?? defaultSliderColor}
                 step={0.000001}
                 min={0}
                 max={state.max}
@@ -406,16 +448,25 @@ function GasSlider(props: { disabled: boolean }) {
                 }
               />
               <div className={classes.amounts}>
-                <div className={classes.amountDisplay}>
-                  <TokenIcon name={nativeGasToken.icon} height={16} />
-                  {state.nativeGas} {getDisplayName(nativeGasToken)}
+                <div>
+                  <div className={classes.amountDisplay}>
+                    <TokenIcon icon={nativeGasToken.icon} height={16} />
+                    <div>
+                      {state.nativeGas} {getDisplayName(nativeGasToken)}
+                    </div>
+                  </div>
+                  <Price textAlign="right">{state.nativeGasPrice}</Price>
                 </div>
-                <div className={classes.amountDisplay}>
-                  <TokenIcon
-                    name={(sendingToken as TokenConfig)!.icon}
-                    height={16}
-                  />
-                  {state.token} {getDisplayName((sendingToken as TokenConfig)!)}
+                <div>
+                  <div className={classes.amountDisplay}>
+                    <TokenIcon
+                      icon={(sendingToken as TokenConfig)!.icon}
+                      height={16}
+                    />
+                    {state.token}{' '}
+                    {getDisplayName((sendingToken as TokenConfig)!)}
+                  </div>
+                  <Price textAlign="right">{state.tokenPrice}</Price>
                 </div>
               </div>
             </div>

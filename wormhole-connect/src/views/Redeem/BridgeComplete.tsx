@@ -51,7 +51,7 @@ function BridgeComplete() {
         </>
       </InputContainer>
       <Spacer />
-      {!!CTA ? (
+      {CTA ? (
         <Button onClick={toLink} action elevated>
           {CTA.text}
         </Button>

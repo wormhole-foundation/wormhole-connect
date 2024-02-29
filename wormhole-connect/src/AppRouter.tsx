@@ -13,9 +13,10 @@ import Redeem from './views/Redeem/Redeem';
 import Terms from './views/Terms';
 import TxSearch from './views/TxSearch';
 import WalletModal from './views/WalletModal';
-import { SEARCH_TX } from './config';
 import { setRoute } from './store/router';
+import { clearWallets } from './store/wallet';
 import { clearPorticoBridge } from 'store/porticoBridge';
+import { useExternalSearch } from 'hooks/useExternalSearch';
 
 const useStyles = makeStyles()((theme: any) => ({
   appContent: {
@@ -44,13 +45,14 @@ function AppRouter() {
 
   const route = useSelector((state: RootState) => state.router.route);
   const prevRoute = usePrevious(route);
-
+  const { hasExternalSearch } = useExternalSearch();
   useEffect(() => {
     const redeemRoute = 'redeem';
     const bridgeRoute = 'bridge';
     // reset redeem state on leave
     if (prevRoute === redeemRoute && route !== redeemRoute) {
       dispatch(clearRedeem());
+      dispatch(clearWallets());
     }
     // reset transfer state on leave
     if (prevRoute === bridgeRoute && route !== bridgeRoute) {
@@ -60,11 +62,11 @@ function AppRouter() {
   }, [route, prevRoute, dispatch]);
 
   useEffect(() => {
-    if (SEARCH_TX?.chainName && SEARCH_TX?.txHash) {
+    if (hasExternalSearch) {
       dispatch(clearRedeem());
       dispatch(setRoute('search'));
     }
-  }, [dispatch]);
+  }, [hasExternalSearch, dispatch]);
 
   return (
     <div className={classes.appContent}>

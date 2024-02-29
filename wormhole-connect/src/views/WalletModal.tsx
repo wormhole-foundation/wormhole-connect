@@ -1,25 +1,11 @@
 import React, { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import { makeStyles } from 'tss-react/mui';
 import { useTheme } from '@mui/material/styles';
+import CircularProgress from '@mui/material/CircularProgress';
 import { useDispatch, useSelector } from 'react-redux';
-import { Wallet, WalletState } from '@xlabs-libs/wallet-aggregator-core';
-import {
-  SuiWallet,
-  getWallets as getSuiWallets,
-} from '@xlabs-libs/wallet-aggregator-sui';
-import {
-  SeiChainId,
-  SeiWallet,
-  getSupportedWallets as getSeiWallets,
-} from '@xlabs-libs/wallet-aggregator-sei';
-import {
-  ChainConfig,
-  ChainName,
-  Context,
-} from '@wormhole-foundation/wormhole-connect-sdk';
-import { CHAIN_ID_EVMOS } from '@certusone/wormhole-sdk';
+import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 
-import { CHAINS, CHAINS_ARR, ENV, RPCS } from 'config';
+import { CHAINS, CHAINS_ARR } from 'config';
 import { RootState } from 'store';
 import { setWalletModal } from 'store/router';
 import {
@@ -27,9 +13,13 @@ import {
   connectReceivingWallet,
   connectWallet,
 } from 'store/wallet';
-import { TransferWallet, setWalletConnection, wallets } from 'utils/wallet';
+import {
+  TransferWallet,
+  WalletData,
+  getWalletOptions,
+  setWalletConnection,
+} from 'utils/wallet';
 import { CENTER } from 'utils/style';
-import { getSeiChainId } from 'utils/sei';
 
 import Header from 'components/Header';
 import Modal from 'components/Modal';
@@ -37,6 +27,7 @@ import Spacer from 'components/Spacer';
 import Scroll from 'components/Scroll';
 import WalletIcon from 'icons/WalletIcons';
 import Search from 'components/Search';
+import AlertBanner from 'components/AlertBanner';
 
 const useStyles = makeStyles()((theme: any) => ({
   walletRow: {
@@ -84,123 +75,41 @@ const useStyles = makeStyles()((theme: any) => ({
   },
 }));
 
-const getReady = (wallet: Wallet) => {
-  const ready = wallet.getWalletState();
-  return ready !== WalletState.Unsupported && ready !== WalletState.NotDetected;
-};
-
-type WalletData = {
-  name: string;
-  type: Context;
-  icon: string;
-  isReady: boolean;
-  wallet: Wallet;
-};
-
-const fetchSuiOptions = async () => {
-  const suiWallets = await getSuiWallets({ timeout: 0 });
-  return suiWallets.reduce((obj: { [key: string]: SuiWallet }, value) => {
-    obj[value.getName()] = value;
-    return obj;
-  }, {});
-};
-
-const fetchSeiOptions = async () => {
-  const seiWallets = await getSeiWallets({
-    chainId: getSeiChainId(ENV) as SeiChainId,
-    rpcUrl: RPCS.sei || '',
-  });
-
-  return seiWallets.reduce((obj: { [key: string]: SeiWallet }, value) => {
-    obj[value.getName()] = value;
-    return obj;
-  }, {});
-};
-
-const mapWallets = (
-  wallets: Record<string, Wallet>,
-  type: Context,
-  skip: string[] = [],
-): WalletData[] => {
-  return Object.values(wallets)
-    .filter((wallet) => !skip.includes(wallet.getName()))
-    .map((wallet) => ({
-      wallet,
-      type,
-      name: wallet.getName(),
-      icon: wallet.getIcon(),
-      isReady: getReady(wallet),
-    }));
-};
-
-const getWalletOptions = async (
-  config: ChainConfig | undefined,
-  chains: Set<Context>,
-): Promise<WalletData[]> => {
-  if (!config) {
-    const suiOptions = await fetchSuiOptions();
-    const seiOptions = await fetchSeiOptions();
-
-    const allWallets: Partial<Record<Context, Record<string, Wallet>>> = {
-      [Context.ETH]: wallets.evm,
-      [Context.SOLANA]: wallets.solana,
-      [Context.SUI]: suiOptions,
-      [Context.APTOS]: wallets.aptos,
-      [Context.SEI]: seiOptions,
-      [Context.COSMOS]: wallets.cosmos,
-    };
-
-    return Object.keys(allWallets)
-      .filter((value) => chains.has(value as Context))
-      .map((value: string) =>
-        mapWallets(allWallets[value as Context]!, value as Context),
-      )
-      .reduce((acc, arr) => acc.concat(arr), []);
-  }
-  if (config.context === Context.ETH) {
-    return Object.values(mapWallets(wallets.evm, Context.ETH));
-  } else if (config.context === Context.SOLANA) {
-    return Object.values(mapWallets(wallets.solana, Context.SOLANA));
-  } else if (config.context === Context.SUI) {
-    const suiOptions = await fetchSuiOptions();
-    return Object.values(mapWallets(suiOptions, Context.SUI));
-  } else if (config.context === Context.APTOS) {
-    return Object.values(mapWallets(wallets.aptos, Context.APTOS));
-  } else if (config.context === Context.SEI) {
-    const suiOptions = await fetchSeiOptions();
-    return Object.values(mapWallets(suiOptions, Context.SEI));
-  } else if (
-    config.context === Context.COSMOS &&
-    config.id !== CHAIN_ID_EVMOS
-  ) {
-    return Object.values(mapWallets(wallets.cosmos, Context.COSMOS));
-  } else if (
-    config.context === Context.COSMOS &&
-    config.id === CHAIN_ID_EVMOS
-  ) {
-    return Object.values(
-      mapWallets(wallets.cosmosEvm, Context.COSMOS, ['OKX Wallet']),
-    );
-  }
-  return [];
-};
-
 type Props = {
   type: TransferWallet;
   chain?: ChainName;
   onClose?: () => any;
 };
 
+const FAILED_TO_LOAD_ERR =
+  'Failed to load wallets. Please refresh and try again.';
+
+type GetWalletsLoading = {
+  state: 'loading';
+};
+type GetWalletsError = {
+  state: 'error';
+  error: string;
+};
+type GetWalletsResult = {
+  state: 'result';
+  options: WalletData[];
+};
+
+type GetWallets = GetWalletsLoading | GetWalletsError | GetWalletsResult;
+
 function WalletsModal(props: Props) {
-  const { classes } = useStyles();
   const theme: any = useTheme();
+  const { classes } = useStyles(theme);
   const { chain: chainProp, type } = props;
   const dispatch = useDispatch();
   const { fromChain, toChain } = useSelector(
     (state: RootState) => state.transferInput,
   );
 
-  const [walletOptions, setWalletOptions] = useState<WalletData[]>([]);
+  const [walletOptionsResult, setWalletOptionsResult] = useState<GetWallets>({
+    state: 'loading',
+  });
   const [search, setSearch] = useState('');
   const supportedChains = useMemo(() => {
     const networkContext = CHAINS_ARR.map((chain) => chain.context);
@@ -213,13 +122,25 @@ function WalletsModal(props: Props) {
       const chain =
         chainProp || (type === TransferWallet.SENDING ? fromChain : toChain);
 
-      const config = CHAINS[chain!];
-      return await getWalletOptions(config, supportedChains);
+      const config = CHAINS[chain!]!;
+
+      if (supportedChains.has(config.context)) {
+        return await getWalletOptions(config);
+      } else {
+        return [];
+      }
     }
     (async () => {
-      const options = await getAvailableWallets();
-      if (!cancelled && options) {
-        setWalletOptions(options);
+      try {
+        const options = await getAvailableWallets();
+        if (!cancelled && options) {
+          setWalletOptionsResult({
+            state: 'result',
+            options,
+          });
+        }
+      } catch (e) {
+        setWalletOptionsResult({ state: 'error', error: FAILED_TO_LOAD_ERR });
       }
     })();
     return () => {
@@ -286,9 +207,10 @@ function WalletsModal(props: Props) {
 
   const displayWalletOptions = (wallets: WalletData[]): JSX.Element[] => {
     const sorted = wallets.sort((w) => (w.isReady ? -1 : 1));
-    const filtered = !search
-      ? sorted
-      : sorted.filter((w) => w.name && w.name.toLowerCase().includes(search));
+    const predicate = ({ name, type }: WalletData) =>
+      name.toLowerCase().includes(search) ||
+      type.toLowerCase().includes(search);
+    const filtered = !search ? sorted : sorted.filter(predicate);
     return filtered.map((wallet, i) => {
       const ready = wallet.isReady;
       const select = ready
@@ -315,25 +237,44 @@ function WalletsModal(props: Props) {
     }
   };
 
+  const renderContent = (): JSX.Element => {
+    if (walletOptionsResult.state === 'loading') {
+      return <CircularProgress />;
+    } else if (walletOptionsResult.state === 'error') {
+      return (
+        <AlertBanner show={true} content={walletOptionsResult.error} error />
+      );
+    } else if (walletOptionsResult.state === 'result') {
+      const { options } = walletOptionsResult;
+      if (options.length > 0) {
+        return (
+          <>
+            <Search placeholder="Search" onChange={handleSearch} />
+            <Spacer height={16} />
+            <Scroll
+              height="calc(100vh - 250px)"
+              blendColor={theme.palette.modal.background}
+            >
+              <div>{displayWalletOptions(options)}</div>
+            </Scroll>
+          </>
+        );
+      }
+    }
+
+    return (
+      <div className={classes.noResults}>
+        <div className={classes.noResultsTitle}>No wallets detected</div>
+        <div>Install a wallet extension to continue</div>
+      </div>
+    );
+  };
+
   return (
     <Modal open={!!props.type} closable width={500} onClose={closeWalletModal}>
       <Header text="Connect wallet" size={28} />
       <Spacer height={16} />
-      <Search placeholder="Search" onChange={handleSearch} />
-      <Spacer height={16} />
-      <Scroll
-        height="calc(100vh - 250px)"
-        blendColor={theme.palette.modal.background}
-      >
-        {walletOptions.length > 0 ? (
-          <div>{displayWalletOptions(walletOptions)}</div>
-        ) : (
-          <div className={classes.noResults}>
-            <div className={classes.noResultsTitle}>No wallets detected</div>
-            <div>Install a wallet extension to continue</div>
-          </div>
-        )}
-      </Scroll>
+      {renderContent()}
     </Modal>
   );
 }

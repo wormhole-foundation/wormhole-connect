@@ -90,7 +90,7 @@ function AddToEVMWallet({ token, address }: AddTokenProps) {
   return (
     <Link onClick={addToWallet} href="#" className={classes.addTokenLink}>
       <Typography component={'span'} gap={1} className={classes.addToken}>
-        <TokenIcon height={20} name={token.icon} />
+        <TokenIcon height={20} icon={token.icon} />
         Add {getDisplayName(token)} to your wallet
       </Typography>
     </Link>
@@ -102,7 +102,7 @@ function AddToSolanaWallet({ token, address }: AddTokenProps) {
 
   return (
     <Typography component={'span'} className={classes.addToken}>
-      <TokenIcon height={20} name={token.icon} />
+      <TokenIcon height={20} icon={token.icon} />
       <span className={classes.addTokenText}>
         See {getDisplayName(token)} token on
       </span>
@@ -122,7 +122,7 @@ function AddToSuiWallet({ token, address }: AddTokenProps) {
   // display the token's metadata object ID for Sui
   return (
     <Typography component={'span'} className={classes.addToken}>
-      <TokenIcon height={20} name={token.icon} />
+      <TokenIcon height={20} icon={token.icon} />
       <span className={classes.addTokenText}>
         See {getDisplayName(token)} token on
       </span>
@@ -142,7 +142,7 @@ function AddToAptosWallet({ token, address }: AddTokenProps) {
   const tokenAccount = address.split('::')[0];
   return (
     <Typography component={'span'} className={classes.addToken}>
-      <TokenIcon height={20} name={token.icon} />
+      <TokenIcon height={20} icon={token.icon} />
       <span className={classes.addTokenText}>
         See {getDisplayName(token)} token on
       </span>
@@ -182,7 +182,9 @@ function AddToWallet() {
       if (!tokenInfo) return;
       try {
         if (getChainConfig(txData.toChain).gasToken === tokenInfo.key) return;
-      } catch {}
+      } catch (e) {
+        console.error(e);
+      }
       const wrapped = getWrappedToken(tokenInfo);
       if (!wrapped.tokenId) return;
       const address = await wh.getForeignAsset(wrapped.tokenId, txData.toChain);

@@ -16,7 +16,7 @@ import {
 import { CHAINS, CHAINS_ARR, TOKENS } from 'config';
 import { TransferWallet } from 'utils/wallet';
 import RouteOperator from 'routes/operator';
-import { hydrateHrefTemplate } from 'utils';
+import { getTokenPrice, hydrateHrefTemplate } from 'utils';
 import Inputs from './Inputs';
 import Select from './Select';
 import AmountInput from './AmountInput';
@@ -34,6 +34,10 @@ function FromInputs() {
   );
   const portico = useSelector((state: RootState) => state.porticoBridge);
   const wallet = useSelector((state: RootState) => state.wallet.sending);
+  const {
+    usdPrices: { data },
+  } = useSelector((state: RootState) => state.tokenPrices);
+  const prices = data || {};
   const {
     showValidationState: showErrors,
     validations,
@@ -149,7 +153,7 @@ function FromInputs() {
   const handleExtraNetwork = (
     href: string,
     chainName: string,
-    target: string = '_self',
+    target = '_self',
   ) => {
     const hydratedHref = hydrateHrefTemplate(href, chainName);
     if (hydratedHref) {
@@ -175,6 +179,7 @@ function FromInputs() {
         tokenInput={tokenInput}
         amountInput={amountInput}
         balance={balance}
+        tokenPrice={getTokenPrice(prices, TOKENS[token])}
       />
       <TokensModal
         open={showTokensModal}

@@ -17,15 +17,20 @@ function SendFrom() {
   const transferComplete = useSelector(
     (state: RootState) => state.redeem.transferComplete,
   );
-
+  const {
+    usdPrices: { data },
+  } = useSelector((state: RootState) => state.tokenPrices);
+  const prices = data || {};
   const [rows, setRows] = useState([] as TransferDisplayData);
 
   useEffect(() => {
     if (!txData || !route) return;
-    RouteOperator.getTransferSourceInfo(route, { txData }).then((rows) =>
-      setRows(rows),
-    );
-  }, [txData, route]);
+
+    RouteOperator.getTransferSourceInfo(route, {
+      txData,
+      tokenPrices: prices,
+    }).then((rows) => setRows(rows));
+  }, [txData, route, data]);
 
   return (
     <div>

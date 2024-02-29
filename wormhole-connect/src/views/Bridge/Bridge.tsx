@@ -24,6 +24,7 @@ import { wh, toChainId } from 'utils/sdk';
 import { joinClass } from 'utils/style';
 import { toDecimals } from 'utils/balance';
 import { isTransferValid, useValidate } from 'utils/transferValidation';
+import useConfirmBeforeLeaving from 'utils/confirmBeforeLeaving';
 import RouteOperator from 'routes/operator';
 
 import GasSlider from './NativeGasSlider';
@@ -44,8 +45,9 @@ import { ETHBridge } from 'routes/porticoBridge/ethBridge';
 import { wstETHBridge } from 'routes/porticoBridge/wstETHBridge';
 import { usePorticoSwapInfo } from 'hooks/usePorticoSwapInfo';
 import { usePorticoRelayerFee } from 'hooks/usePorticoRelayerFee';
+import { useFetchTokenPrices } from 'hooks/useFetchTokenPrices';
 
-const useStyles = makeStyles()((theme) => ({
+const useStyles = makeStyles()((_theme) => ({
   spacer: {
     display: 'flex',
     flexDirection: 'column',
@@ -104,6 +106,9 @@ function Bridge() {
   const portico = useSelector((state: RootState) => state.porticoBridge);
   const { receiving } = useSelector((state: RootState) => state.wallet);
 
+  // Warn user before closing tab if transaction has begun
+  useConfirmBeforeLeaving(isTransactionInProgress);
+
   // check destination native balance
   useEffect(() => {
     if (!fromChain || !toChain || !receiving.address) return;
@@ -138,7 +143,6 @@ function Bridge() {
     };
     computeSrcTokens();
     // IMPORTANT: do not include token in dependency array
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [route, fromChain, destToken, dispatch]);
 
   useEffect(() => {
@@ -205,7 +209,6 @@ function Bridge() {
     };
     computeDestTokens();
     // IMPORTANT: do not include destToken in dependency array
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [route, token, fromChain, toChain, dispatch]);
 
   useEffect(() => {
@@ -247,6 +250,7 @@ function Bridge() {
   // Route specific hooks
   usePorticoSwapInfo();
   usePorticoRelayerFee();
+  useFetchTokenPrices();
 
   // validate transfer inputs
   useValidate();

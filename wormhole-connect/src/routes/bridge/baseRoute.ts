@@ -2,6 +2,7 @@ import { ChainId, ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { TokenConfig } from 'config/types';
 import {
   MAX_DECIMALS,
+  calculateUSDPrice,
   getDisplayName,
   getTokenDecimals,
   getWrappedToken,
@@ -23,6 +24,7 @@ import { toDecimals } from 'utils/balance';
 import { NO_INPUT } from 'utils/style';
 import { hexlify } from 'ethers/lib/utils.js';
 import { isTBTCToken } from 'routes/tbtc/utils';
+import { TokenPrices } from 'store/tokenPrices';
 
 export abstract class BaseRoute extends RouteAbstract {
   async isSupportedSourceToken(
@@ -115,6 +117,7 @@ export abstract class BaseRoute extends RouteAbstract {
     sendingGasEst: string,
     claimingGasEst: string,
     receiveAmount: string,
+    tokenPrices: TokenPrices,
     routeOptions?: any,
   ): Promise<TransferDisplayData> {
     const sendingChainName = wh.toChainName(sendingChain);
@@ -127,10 +130,24 @@ export abstract class BaseRoute extends RouteAbstract {
     const destinationGasTokenSymbol = destinationGasToken
       ? getDisplayName(TOKENS[destinationGasToken])
       : '';
+
+    // Calculate the USD value of the gas
+    const sendingGasEstPrice = calculateUSDPrice(
+      sendingGasEst,
+      tokenPrices,
+      TOKENS[sourceGasToken || ''],
+    );
+    const claimingGasEstPrice = calculateUSDPrice(
+      claimingGasEst,
+      tokenPrices,
+      TOKENS[destinationGasToken || ''],
+    );
+
     return [
       {
         title: 'Amount',
-        value: `${amount} ${getDisplayName(destToken)}`,
+        value: `${!isNaN(amount) ? amount : '0'} ${getDisplayName(destToken)}`,
+        valueUSD: calculateUSDPrice(amount, tokenPrices, destToken),
       },
       {
         title: 'Total fee estimates',
@@ -138,18 +155,26 @@ export abstract class BaseRoute extends RouteAbstract {
           sendingGasEst && claimingGasEst
             ? `${sendingGasEst} ${sourceGasTokenSymbol} & ${claimingGasEst} ${destinationGasTokenSymbol}`
             : '',
+        valueUSD:
+          sendingGasEst && claimingGasEst
+            ? `${sendingGasEstPrice || NO_INPUT} & ${
+                claimingGasEstPrice || NO_INPUT
+              }`
+            : '',
         rows: [
           {
             title: 'Source chain gas estimate',
             value: sendingGasEst
               ? `~ ${sendingGasEst} ${sourceGasTokenSymbol}`
               : 'Not available',
+            valueUSD: sendingGasEstPrice,
           },
           {
             title: 'Destination chain gas estimate',
             value: claimingGasEst
               ? `~ ${claimingGasEst} ${destinationGasTokenSymbol}`
               : 'Not available',
+            valueUSD: claimingGasEstPrice,
           },
         ],
       },
@@ -161,6 +186,7 @@ export abstract class BaseRoute extends RouteAbstract {
   ): Promise<TransferDisplayData> {
     const { tokenKey, amount, tokenDecimals, fromChain, gasFee } =
       params.txData;
+    const tokenPrices = params.tokenPrices;
     const formattedAmt = toNormalizedDecimals(
       amount,
       tokenDecimals,
@@ -179,12 +205,14 @@ export abstract class BaseRoute extends RouteAbstract {
       {
         title: 'Amount',
         value: `${formattedAmt} ${getDisplayName(token)}`,
+        valueUSD: calculateUSDPrice(formattedAmt, tokenPrices, token),
       },
       {
         title: 'Gas fee',
         value: formattedGas
           ? `${formattedGas} ${getDisplayName(sourceGasToken)}`
           : NO_INPUT,
+        valueUSD: calculateUSDPrice(formattedGas, tokenPrices, sourceGasToken),
       },
     ];
   }
@@ -194,6 +222,7 @@ export abstract class BaseRoute extends RouteAbstract {
   ): Promise<TransferDestInfo> {
     const {
       txData: { tokenKey, amount, tokenDecimals, toChain },
+      tokenPrices,
       receiveTx,
       gasEstimate,
     } = params;
@@ -220,10 +249,12 @@ export abstract class BaseRoute extends RouteAbstract {
         {
           title: 'Amount',
           value: `${formattedAmt} ${getDisplayName(token)}`,
+          valueUSD: calculateUSDPrice(formattedAmt, tokenPrices, token),
         },
         {
           title: receiveTx ? 'Gas fee' : 'Gas estimate',
           value: gas ? `${gas} ${getDisplayName(TOKENS[gasToken])}` : NO_INPUT,
+          valueUSD: calculateUSDPrice(gas, tokenPrices, TOKENS[gasToken]),
         },
       ],
     };

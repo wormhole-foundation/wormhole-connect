@@ -13,7 +13,11 @@ import {
   Route,
 } from './types';
 import { dark, light } from '../theme';
-import { validateConfigs, validateDefaults } from './utils';
+import {
+  mergeCustomTokensConfig,
+  validateConfigs,
+  validateDefaults,
+} from './utils';
 import { Alignment } from 'components/Header';
 
 const el = document.getElementById('wormhole-connect');
@@ -59,32 +63,32 @@ export const WORMHOLE_API =
 
 export const EXPLORER = config.explorer;
 
-export const ATTEST_URL =
-  ENV === 'MAINNET'
-    ? 'https://www.portalbridge.com/#/register'
-    : ENV === 'DEVNET'
-    ? ''
-    : 'https://wormhole-foundation.github.io/example-token-bridge-ui/#/register';
+export const ATTEST_URL = {
+  MAINNET: 'https://portalbridge.com/advanced-tools/#/register',
+  DEVNET: '',
+  TESTNET:
+    'https://wormhole-foundation.github.io/example-token-bridge-ui/#/register',
+}[ENV];
 
 export const USDC_BRIDGE_URL = config.cctpWarning?.href || '';
 
-export const WORMHOLE_RPC_HOSTS =
-  ENV === 'MAINNET'
-    ? [
-        'https://wormhole-v2-mainnet-api.mcf.rocks',
-        'https://wormhole-v2-mainnet-api.chainlayer.network',
-        'https://wormhole-v2-mainnet-api.staking.fund',
-      ]
-    : ENV === 'TESTNET'
-    ? [
-        'https://guardian.testnet.xlabs.xyz',
-        'https://guardian-01.testnet.xlabs.xyz',
-        'https://guardian-02.testnet.xlabs.xyz',
-      ]
-    : ['http://localhost:7071'];
+export const COINGECKO_API_KEY = config.coinGeckoApiKey;
 
-export const NETWORK_DATA =
-  ENV === 'MAINNET' ? MAINNET : ENV === 'DEVNET' ? DEVNET : TESTNET;
+export const WORMHOLE_RPC_HOSTS = {
+  MAINNET: [
+    'https://wormhole-v2-mainnet-api.mcf.rocks',
+    'https://wormhole-v2-mainnet-api.chainlayer.network',
+    'https://wormhole-v2-mainnet-api.staking.fund',
+  ],
+  TESTNET: [
+    'https://guardian.testnet.xlabs.xyz',
+    'https://guardian-01.testnet.xlabs.xyz',
+    'https://guardian-02.testnet.xlabs.xyz',
+  ],
+  DEVNET: ['http://localhost:7071'],
+}[ENV];
+
+export const NETWORK_DATA = { MAINNET, DEVNET, TESTNET }[ENV];
 
 export const CHAINS = NETWORK_DATA.chains;
 export const CHAINS_ARR =
@@ -99,7 +103,10 @@ export const AVAILABLE_MARKETS_URL =
 
 export const MORE_NETWORKS = config && config.moreNetworks;
 export const MORE_TOKENS = config && config.moreTokens;
-export const TOKENS = NETWORK_DATA.tokens;
+export const TOKENS = mergeCustomTokensConfig(
+  NETWORK_DATA.tokens,
+  config.tokensConfig,
+);
 export const TOKENS_ARR =
   config && config.tokens
     ? Object.values(TOKENS).filter((c) => config.tokens!.includes(c.key))
@@ -169,6 +176,11 @@ export const TESTNET_TO_MAINNET_CHAIN_NAMES: {
   evmos: 'evmos',
   kujira: 'kujira',
   injective: 'injective',
+  klaytn: 'klaytn',
+  sepolia: 'ethereum',
+  arbitrum_sepolia: 'arbitrum',
+  base_sepolia: 'base',
+  optimism_sepolia: 'optimism',
 };
 
 validateConfigs();

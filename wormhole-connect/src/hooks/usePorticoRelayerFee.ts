@@ -13,7 +13,7 @@ import { sleep } from 'utils';
 
 const FETCH_FEE_INTERVAL = 60000;
 
-export const usePorticoRelayerFee = () => {
+export const usePorticoRelayerFee = (): void => {
   const dispatch = useDispatch();
   const {
     route,

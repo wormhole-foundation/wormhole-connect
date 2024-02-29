@@ -138,7 +138,9 @@ function Send(props: { valid: boolean }) {
             fromChain!,
             true, // don't need to get the signed attestation
           );
-        } catch (e) {}
+        } catch (e) {
+          console.error(e);
+        }
         if (message === undefined) {
           await sleep(3000);
         }

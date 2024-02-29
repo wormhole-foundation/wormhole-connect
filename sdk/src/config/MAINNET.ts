@@ -11,6 +11,7 @@ export const MAINNET_CHAINS = {
   polygon: 5,
   avalanche: 6,
   fantom: 10,
+  klaytn: 13,
   celo: 14,
   moonbeam: 16,
   injective: 19,
@@ -93,7 +94,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
       portico: '0x227bABe533fa9a1085f5261210E0B7137E44437B',
       uniswapQuoterV2: '0x61fFE014bA17989E743c5F6cB21bF9697530B21e',
     },
-    finalityThreshold: 512,
+    finalityThreshold: 42,
     nativeTokenDecimals: 18,
     cctpDomain: 7,
   },
@@ -107,7 +108,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
       portico: '0x05498574BD0Fa99eeCB01e1241661E7eE58F8a85',
       uniswapQuoterV2: '0x78D78E420Da98ad378D7799bE8f4AF69033EB077',
     },
-    finalityThreshold: 15,
+    finalityThreshold: 3,
     nativeTokenDecimals: 18,
   },
   avalanche: {
@@ -248,6 +249,16 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     nativeTokenDecimals: 18,
     cctpDomain: 6,
   },
+  klaytn: {
+    key: 'klaytn',
+    id: 13,
+    context: Context.ETH,
+    contracts: {
+      ...CONTRACTS.MAINNET.klaytn,
+    },
+    finalityThreshold: 0,
+    nativeTokenDecimals: 18,
+  },
   sei: {
     key: 'sei',
     id: 32,
@@ -342,6 +353,7 @@ const MAINNET_CONFIG: WormholeConfig = {
     evmos: 'https://evmos-rpc.polkachu.com',
     kujira: 'https://kujira-rpc.polkachu.com',
     injective: 'https://injective-rpc.polkachu.com',
+    klaytn: 'https://rpc.ankr.com/klaytn',
   },
   rest: {
     sei: '',

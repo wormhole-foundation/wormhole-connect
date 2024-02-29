@@ -22,7 +22,7 @@ const useStyles = makeStyles()((theme) => ({
 }));
 
 type Selected = {
-  icon: Icon;
+  icon: Icon | string;
   text: string;
   secondaryText?: string;
 };
@@ -50,11 +50,12 @@ function Select(props: Props) {
       label={props.label}
       error={props.error}
       editable={props.editable}
+      disabled={props.disabled}
       onClick={handleClick}
     >
       {selected ? (
         <div className={classes.select}>
-          <TokenIcon name={selected.icon} height={24} />
+          <TokenIcon icon={selected.icon} height={24} />
           {selected.text}
           {selected.secondaryText && (
             <div className={classes.secondaryText}>

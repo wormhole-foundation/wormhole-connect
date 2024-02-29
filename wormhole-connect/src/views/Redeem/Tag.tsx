@@ -69,12 +69,12 @@ function ChainsTag() {
       <InputContainer>
         <div className={classes.row}>
           <div className={classes.chain}>
-            <TokenIcon name={fromChainConfig.icon!} height={24} />
+            <TokenIcon icon={fromChainConfig.icon!} height={24} />
             <div>{fromChainConfig.displayName}</div>
           </div>
           <ArrowRight />
           <div className={classes.chain}>
-            <TokenIcon name={toChainConfig.icon!} height={24} />
+            <TokenIcon icon={toChainConfig.icon!} height={24} />
             <div>{toChainConfig.displayName}</div>
           </div>
         </div>

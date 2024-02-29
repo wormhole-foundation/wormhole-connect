@@ -11,6 +11,7 @@ export const TESTNET_CHAINS = {
   mumbai: 5,
   fuji: 6,
   fantom: 10,
+  klaytn: 13,
   alfajores: 14,
   moonbasealpha: 16,
   injective: 19,
@@ -25,6 +26,10 @@ export const TESTNET_CHAINS = {
   cosmoshub: 4000,
   evmos: 4001,
   kujira: 4002,
+  sepolia: 10002,
+  arbitrum_sepolia: 10003,
+  base_sepolia: 10004,
+  optimism_sepolia: 10005,
 } as const;
 
 /**
@@ -100,7 +105,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
       ...CONTRACTS.TESTNET.bsc,
       relayer: '0x9563a59c15842a6f322b10f69d1dd88b41f2e97b',
     },
-    finalityThreshold: 15,
+    finalityThreshold: 3,
     nativeTokenDecimals: 18,
   },
   fuji: {
@@ -235,6 +240,16 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     nativeTokenDecimals: 18,
     cctpDomain: 6,
   },
+  klaytn: {
+    key: 'klaytn',
+    id: 13,
+    context: Context.ETH,
+    contracts: {
+      ...CONTRACTS.TESTNET.klaytn,
+    },
+    finalityThreshold: 0,
+    nativeTokenDecimals: 18,
+  },
   sei: {
     key: 'sei',
     id: 32,
@@ -296,6 +311,46 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     finalityThreshold: 0,
     nativeTokenDecimals: 6,
   },
+  sepolia: {
+    key: 'sepolia',
+    id: 10002,
+    context: Context.ETH,
+    contracts: {
+      ...CONTRACTS.TESTNET.sepolia,
+    },
+    finalityThreshold: 0,
+    nativeTokenDecimals: 18,
+  },
+  arbitrum_sepolia: {
+    key: 'arbitrum_sepolia',
+    id: 10003,
+    context: Context.ETH,
+    contracts: {
+      ...CONTRACTS.TESTNET.arbitrum_sepolia,
+    },
+    finalityThreshold: 0,
+    nativeTokenDecimals: 18,
+  },
+  base_sepolia: {
+    key: 'base_sepolia',
+    id: 10004,
+    context: Context.ETH,
+    contracts: {
+      ...CONTRACTS.TESTNET.base_sepolia,
+    },
+    finalityThreshold: 0,
+    nativeTokenDecimals: 18,
+  },
+  optimism_sepolia: {
+    key: 'optimism_sepolia',
+    id: 10005,
+    context: Context.ETH,
+    contracts: {
+      ...CONTRACTS.TESTNET.optimism_sepolia,
+    },
+    finalityThreshold: 0,
+    nativeTokenDecimals: 18,
+  },
   injective: {
     key: 'injective',
     id: 19,
@@ -333,6 +388,11 @@ const TESTNET_CONFIG: WormholeConfig = {
     evmos: 'https://evmos-testnet-rpc.polkachu.com',
     kujira: 'https://kujira-testnet-rpc.polkachu.com',
     injective: 'https://injective-testnet-rpc.polkachu.com',
+    klaytn: 'https://rpc.ankr.com/klaytn_testnet',
+    sepolia: 'https://rpc.ankr.com/eth_sepolia',
+    arbitrum_sepolia: 'https://sepolia-rollup.arbitrum.io/rpc',
+    base_sepolia: 'https://sepolia.base.org',
+    optimism_sepolia: 'https://sepolia.optimism.io',
   },
   rest: {
     sei: 'https://rest.atlantic-2.seinetwork.io',

@@ -9,7 +9,7 @@ import {
 } from 'store/transferInput';
 import { ATTEST_URL, USDC_BRIDGE_URL, TOKENS } from 'config';
 import { getWrappedTokenId } from 'utils';
-import { TransferWallet, signSolanaTransaction } from 'utils/wallet';
+import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
 import { joinClass } from 'utils/style';
 import { solanaContext } from 'utils/sdk';
 
@@ -157,7 +157,7 @@ function TokenWarnings() {
         setShowErrors(false);
         return false;
       }
-      let tokenId = getWrappedTokenId(tokenConfig);
+      const tokenId = getWrappedTokenId(tokenConfig);
       const account = await solanaContext().getAssociatedTokenAccount(
         tokenId,
         receiving.address,
@@ -191,7 +191,7 @@ function TokenWarnings() {
     );
     // if `tx` is null it means the account already exists
     if (!tx) return;
-    await signSolanaTransaction(tx, TransferWallet.RECEIVING);
+    await signAndSendTransaction('solana', tx, TransferWallet.RECEIVING);
 
     let accountExists = false;
     let retries = 0;

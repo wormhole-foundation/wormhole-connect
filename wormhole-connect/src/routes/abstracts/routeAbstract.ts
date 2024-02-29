@@ -14,6 +14,7 @@ import {
   TransferDestInfo,
 } from '../types';
 import { ParsedRelayerMessage, ParsedMessage } from 'utils/sdk';
+import { TokenPrices } from 'store/tokenPrices';
 
 export abstract class RouteAbstract {
   abstract readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean;
@@ -156,6 +157,7 @@ export abstract class RouteAbstract {
     sendingGasEst: string,
     claimingGasEst: string,
     receiveAmount: string,
+    tokenPrices: TokenPrices,
     routeOptions?: any,
   ): Promise<TransferDisplayData>;
   public abstract getTransferSourceInfo<T extends TransferInfoBaseParams>(

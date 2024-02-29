@@ -169,7 +169,9 @@ function DisplayTokens(props: DisplayTokensProps) {
     selectToken,
     loading,
     search,
-    moreTokens = () => {},
+    moreTokens = () => {
+      /* noop */
+    },
   } = props;
 
   const showCircularProgress = (token: string): boolean => {
@@ -198,7 +200,7 @@ function DisplayTokens(props: DisplayTokensProps) {
                 onClick={() => selectToken(token.key)}
               >
                 <div className={classes.tokenRowLeft}>
-                  <TokenIcon name={token.icon} height={32} />
+                  <TokenIcon icon={token.icon} height={32} />
                   <div>
                     <div>{token.symbol}</div>
                     <div className={classes.nativeChain}>
@@ -334,7 +336,7 @@ function TokensModal(props: Props) {
     }
   };
 
-  const handleMoreTokens = (href: string, target: string = '_self') => {
+  const handleMoreTokens = (href: string, target = '_self') => {
     let hydratedHref = href;
     if (fromChain) {
       hydratedHref = hydratedHref.replace('{:sourceChain}', fromChain);

@@ -1962,7 +1962,7 @@ export const MAINNET_TOKENS: TokensConfig = {
   //     address: 'usei',
   //   },
   //   icon: Icon.SEI,
-  //   coinGeckoId: 'sei',
+  //   coinGeckoId: 'sei-network',
   //   color: '#FFFFFF',
   //   decimals: {
   //     default: 6,
@@ -2500,75 +2500,6 @@ export const MAINNET_TOKENS: TokensConfig = {
       Ethereum: 18,
     },
   },
-  BONK: {
-    key: 'BONK',
-    symbol: 'BONK',
-    nativeChain: 'solana',
-    tokenId: {
-      chain: 'solana',
-      address: 'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263',
-    },
-    icon: Icon.BONK,
-    coinGeckoId: 'bonk',
-    color: '#FC8E03',
-    decimals: {
-      default: 5,
-    },
-    foreignAssets: {
-      ethereum: {
-        address: '0x1151CB3d861920e07a38e03eEAd12C32178567F6',
-        decimals: 5,
-      },
-      bsc: {
-        address: '0xA697e272a73744b343528C3Bc4702F2565b2F422',
-        decimals: 5,
-      },
-      polygon: {
-        address: '0xe5B49820e5A1063F6F4DdF851327b5E8B2301048',
-        decimals: 5,
-      },
-      avalanche: {
-        address: '0xC07C98a93591504584738e4569928DDb3b9f12A7',
-        decimals: 5,
-      },
-      sui: {
-        address:
-          '0x6907963ca849faff0957b9a8269a7a07065e3def2eef49cc33b50ab946ea5a9f::coin::COIN',
-        decimals: 5,
-      },
-      aptos: {
-        address:
-          '0x2a90fae71afc7460ee42b20ee49a9c9b29272905ad71fef92fbd8b3905a24b56::coin::T',
-        decimals: 5,
-      },
-      arbitrum: {
-        address: '0x09199d9A5F4448D0848e4395D065e1ad9c4a1F74',
-        decimals: 5,
-      },
-      wormchain: {
-        address:
-          'wormhole10qt8wg0n7z740ssvf3urmvgtjhxpyp74hxqvqt7z226gykuus7eq9mpu8u',
-        decimals: 5,
-      },
-      osmosis: {
-        address:
-          'ibc/CA3733CB0071F480FAE8EF0D9C3D47A49C6589144620A642BBE0D59A293D110E',
-        decimals: 5,
-      },
-      fantom: {
-        address: '0x3fEcdF1248fe7642d29f879a75CFC0339659ab93',
-        decimals: 5,
-      },
-      base: {
-        address: '0xDF1Cf211D38E7762c9691Be4D779A441a17A6cFC',
-        decimals: 5,
-      },
-      celo: {
-        address: '0x3fc50bc066aE2ee280876EeefADfdAbF6cA02894',
-        decimals: 5,
-      },
-    },
-  },
   EVMOS: {
     key: 'EVMOS',
     symbol: 'EVMOS',
@@ -2599,6 +2530,93 @@ export const MAINNET_TOKENS: TokensConfig = {
     color: '#f51f1e',
     decimals: {
       default: 6,
+    },
+  },
+  KLAY: {
+    key: 'KLAY',
+    symbol: 'KLAY',
+    decimals: {
+      Ethereum: 18,
+      default: 8,
+    },
+    nativeChain: 'klaytn',
+    icon: Icon.KLAY,
+    coinGeckoId: 'klay-token',
+    color: '#fa4212',
+    wrappedAsset: 'WKLAY',
+  },
+  WKLAY: {
+    key: 'WKLAY',
+    symbol: 'WKLAY',
+    displayName: 'wKLAY',
+    nativeChain: 'klaytn',
+    icon: Icon.KLAY,
+    tokenId: {
+      chain: 'klaytn',
+      address: '0xe4f05A66Ec68B54A58B17c22107b02e0232cC817',
+    },
+    coinGeckoId: 'wrapped-klay',
+    color: '#fa4212',
+    decimals: {
+      Ethereum: 18,
+      default: 8,
+    },
+    foreignAssets: {
+      aptos: {
+        address:
+          '0x539b652f8230a0e42adaeda4706b5639893d22362eda6ea897493c210cb48219::coin::T',
+        decimals: 8,
+      },
+      ethereum: {
+        address: '0x9AEA32B459e96C8eF5010f69130bf95fd129ac05',
+        decimals: 18,
+      },
+      celo: {
+        address: '0xe304254de5c2048F9bFb042dDFB54f84d1d77730',
+        decimals: 18,
+      },
+      polygon: {
+        address: '0x415ce980fde17F1FF102e1c6e4ce860Acc615D74',
+        decimals: 18,
+      },
+      base: {
+        address: '0x41c433c146c47Dc53FC48cDc69e406e365e298E1',
+        decimals: 18,
+      },
+      arbitrum: {
+        address: '0xFA95f6c796E54F9C4a99392CAE84410a25794BB3',
+        decimals: 18,
+      },
+      moonbeam: {
+        address: '0xf0a9476E4712123A807859f9Fd25fe98213379BD',
+        decimals: 18,
+      },
+      fantom: {
+        address: '0x787e2F3509583C0F03A339Be0826463C839CBE5E',
+        decimals: 18,
+      },
+      sui: {
+        address:
+          '0xa5ec915864d7f37b25ca9144b2db6ebcf29e73603c2ccf9d0e765adcd9049a98::coin::COIN',
+        decimals: 8,
+      },
+      avalanche: {
+        address: '0x126C03982Ad6D7ef7E6aF020bF219e87185a6BC3',
+        decimals: 18,
+      },
+      bsc: {
+        address: '0xEA970e7b7D131Ea36c3051C9Ca11e785462fE00c',
+        decimals: 18,
+      },
+      optimism: {
+        address: '0xbbeF8233a0d10EEAb84E913FaDB337ab9b62F683',
+        decimals: 18,
+      },
+      wormchain: {
+        address:
+          'wormhole1kyy876kye7k79fuzat532yyqkrzhlr6l7hc7lfa2rk5tygzhy00qrhjgkc',
+        decimals: 8,
+      },
     },
   },
   PYTH: {

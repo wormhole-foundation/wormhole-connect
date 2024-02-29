@@ -91,16 +91,20 @@ export function getEmitterAndSequence(
 export async function fetchVaa(
   txData: ParsedMessage | ParsedRelayerMessage,
 ): Promise<ParsedVaa | undefined> {
-  let vaa = await fetchVaaWormscan(txData);
+  try {
+    const vaa = await fetchVaaWormscan(txData);
 
-  if (!vaa) {
-    console.warn(
-      'Failed to fetch VAA from wormscan. Falling back to guardian.',
+    if (vaa === undefined) {
+      console.warn('VAA not found in Wormscan');
+    }
+    return vaa;
+  } catch (e) {
+    console.error(
+      'Error fetching VAA from wormscan. Falling back to guardian.',
+      e,
     );
-    vaa = await fetchVaaGuardian(txData);
+    return await fetchVaaGuardian(txData);
   }
-
-  return vaa;
 }
 
 export async function fetchVaaWormscan(
@@ -148,7 +152,7 @@ export async function fetchVaaWormscan(
       return vaaData;
     })
     .catch(function (error) {
-      if (error.code === 'ERR_BAD_REQUEST') {
+      if (error.response?.status === 404) {
         return undefined;
       } else {
         throw error;

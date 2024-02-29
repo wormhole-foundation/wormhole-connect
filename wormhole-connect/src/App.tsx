@@ -15,7 +15,11 @@ import { THEME_MODE } from './config';
 import BackgroundImage from './components/Background/BackgroundImage';
 import ErrorBoundary from './components/ErrorBoundary';
 
-const ColorModeContext = React.createContext({ toggleColorMode: () => {} });
+const ColorModeContext = React.createContext({
+  toggleColorMode: () => {
+    /* noop TODO ??? what is this for */
+  },
+});
 
 function App() {
   const [mode, setMode] = React.useState<PaletteMode>(THEME_MODE);

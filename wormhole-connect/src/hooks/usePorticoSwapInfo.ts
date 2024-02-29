@@ -14,7 +14,7 @@ import { sleep } from 'utils';
 
 const FETCH_SWAP_INFO_INTERVAL = 60000;
 
-export const usePorticoSwapInfo = () => {
+export const usePorticoSwapInfo = (): void => {
   const dispatch = useDispatch();
   const {
     route,
