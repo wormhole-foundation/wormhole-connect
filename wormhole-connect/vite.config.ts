@@ -61,7 +61,11 @@ let external = [
 ];
 
 export default defineConfig(({ command, mode }) => {
-  if (command === 'serve') {
+  const env = loadEnv(mode, process.cwd(), '');
+  const isHosted = !!env.VITE_BUILD_HOSTED;
+  const isNetlify = !!env.VITE_BUILD_NETLIFY;
+
+  if (command === 'serve' || (command === 'build' && isNetlify)) {
     // Local development
     return {
       envPrefix,
@@ -91,9 +95,6 @@ export default defineConfig(({ command, mode }) => {
     //   bundled with a copy of React. This is "legacy mode" and useful only on web apps that don't
     //   use React.
     //
-
-    const env = loadEnv(mode, process.cwd(), '');
-    const isHosted = !!env.VITE_BUILD_HOSTED;
 
     if (isHosted) {
       return {
