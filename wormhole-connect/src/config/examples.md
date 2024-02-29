@@ -32,7 +32,7 @@ Thise example config limits Connect to the Solana and Ethereum networks,
 and a handful of tokens including `BSKT` which is not built in by default
 and provided under the `tokensConfig` key.
 
-See [src/config/types.ts](https://github.com/wormhole-foundation/wormhole-connect/blob/development/wormhole-connect-loader/src/config/types.ts)
+See [src/config/types.ts](https://github.com/wormhole-foundation/wormhole-connect/blob/development/wormhole-connect/src/config/types.ts)
 for the type definition of `TokensConfig`.
 
 ```json
