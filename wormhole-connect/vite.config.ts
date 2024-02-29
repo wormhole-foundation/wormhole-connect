@@ -49,9 +49,9 @@ const plugins = [
 ];
 
 let output = {
-  entryFileNames: '[name].js',
   assetFileNames: '[name]-[hash][extname]',
   inlineDynamicImports: false,
+  exports: 'named',
 };
 
 let external = [
@@ -120,7 +120,8 @@ export default defineConfig(({ command, mode }) => {
           outDir: './lib',
           lib: {
             entry: path.resolve(__dirname, 'src/index.tsx'),
-            formats: ['es'],
+            formats: ['es', 'cjs'],
+            fileName: 'index',
           },
           rollupOptions: {
             input: {

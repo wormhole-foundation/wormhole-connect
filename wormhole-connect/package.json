@@ -1,9 +1,13 @@
 {
   "name": "@wormhole-foundation/wormhole-connect",
   "version": "0.0.1-beta.0",
-  "main": "build/main.js",
+  "main": "lib/main.js",
+  "module": "lib/main.mjs",
   "exports": {
-    ".": "lib/index.js"
+    ".": {
+      "require": "lib/index.js",
+      "import": "lib/index.mjs"
+    }
   },
   "files": [
     "lib",
