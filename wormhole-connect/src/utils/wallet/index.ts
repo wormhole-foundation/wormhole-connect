@@ -107,6 +107,7 @@ export const signAndSendTransaction = async (
   chain: ChainName,
   transaction: SendResult,
   walletType: TransferWallet,
+  options: any = {},
 ): Promise<string> => {
   const chainConfig = config.chains[chain]!;
 
@@ -121,7 +122,7 @@ export const signAndSendTransaction = async (
     }
     case Context.SOLANA: {
       const { signAndSendTransaction } = await import('utils/wallet/solana');
-      const tx = await signAndSendTransaction(transaction, wallet);
+      const tx = await signAndSendTransaction(transaction, wallet, options);
       return tx.id;
     }
     case Context.SUI: {

@@ -14,7 +14,10 @@ import { getTokenById, getTokenDecimals } from 'utils';
 import { wh } from 'utils/sdk';
 import { getWormholeLogEvm } from 'utils/vaa';
 import { NttManager__factory } from './abis';
-import { parseWormholeTransceiverMessage } from 'routes/ntt/utils';
+import {
+  getNttManagerMessageDigest,
+  parseWormholeTransceiverMessage,
+} from 'routes/ntt/utils';
 
 export const getMessageEvm = async (
   tx: string,
@@ -123,7 +126,7 @@ export const getMessageEvm = async (
       transceiverMessage.recipientNttManager,
       toChain,
     ),
-    wormholeTransceiverMessage: hexlify(payload),
+    messageDigest: getNttManagerMessageDigest(fromChain, nttManagerMessage),
     relayerFee,
   };
 };

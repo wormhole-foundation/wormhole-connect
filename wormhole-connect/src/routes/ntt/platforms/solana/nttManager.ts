@@ -21,14 +21,14 @@ import {
 import { BN, IdlAccounts, Program } from '@coral-xyz/anchor';
 import { SignedVaa, parseVaa } from '@certusone/wormhole-sdk/lib/esm';
 import { utils } from 'ethers';
-import { NttManagerMessage } from '../../payloads/common';
-import { NativeTokenTransfer } from '../../payloads/transfers';
-import { parseWormholeTransceiverMessage } from 'routes/ntt/utils';
+import {
+  getNttManagerMessageDigest,
+  parseWormholeTransceiverMessage,
+} from 'routes/ntt/utils';
 import {
   ExampleNativeTokenTransfers,
   IDL,
 } from './abis/example_native_token_transfers';
-import { Keccak } from 'sha3';
 import {
   derivePostedVaaKey,
   getWormholeDerivedAccounts,
@@ -136,6 +136,7 @@ export class NttManagerSolana {
       'solana',
       tx,
       TransferWallet.SENDING,
+      { commitment: 'finalized' },
     );
     return txId;
   }
@@ -152,7 +153,7 @@ export class NttManagerSolana {
       config,
     };
     const parsedVaa = parseVaa(vaaArray);
-    const chainId = parsedVaa.emitterChain as ChainId;
+    const chainId = wh.toChainId(parsedVaa.emitterChain);
     // First post the VAA
     await postVaa(this.connection, core, Buffer.from(vaaArray));
     const tx = new Transaction();
@@ -187,9 +188,13 @@ export class NttManagerSolana {
     const { nttManagerPayload } = parseWormholeTransceiverMessage(
       parsedVaa.payload,
     );
+    const messageDigest = getNttManagerMessageDigest(
+      chainId,
+      nttManagerPayload,
+    );
     const releaseArgs = {
       ...redeemArgs,
-      message: nttManagerPayload,
+      messageDigest,
       recipient: new PublicKey(nttManagerPayload.payload.recipientAddress),
       chain: chainId,
       revertOnDelay: false,
@@ -206,6 +211,7 @@ export class NttManagerSolana {
       'solana',
       tx,
       TransferWallet.RECEIVING,
+      { commitment: 'finalized' },
     );
     return txId;
   }
@@ -260,12 +266,11 @@ export class NttManagerSolana {
   }
 
   async getInboundQueuedTransfer(
-    emitterChain: ChainName | ChainId,
-    message: NttManagerMessage<NativeTokenTransfer>,
+    messageDigest: string,
   ): Promise<InboundQueuedTransfer | undefined> {
     let inboxItem;
     try {
-      inboxItem = await this.getInboxItem(emitterChain, message);
+      inboxItem = await this.getInboxItem(messageDigest);
     } catch (e: any) {
       if (e.message?.includes('Account does not exist')) {
         return undefined;
@@ -284,16 +289,15 @@ export class NttManagerSolana {
   }
 
   async completeInboundQueuedTransfer(
-    emitterChain: ChainName | ChainId,
-    message: NttManagerMessage<NativeTokenTransfer>,
+    messageDigest: string,
+    recipientAddress: string,
     payer: string,
   ): Promise<string> {
     const payerPublicKey = new PublicKey(payer);
     const releaseArgs = {
       payer: payerPublicKey,
-      message,
-      recipient: new PublicKey(message.payload.recipientAddress),
-      chain: emitterChain,
+      messageDigest,
+      recipient: new PublicKey(recipientAddress),
       revertOnDelay: false,
     };
     const config = await this.getConfig();
@@ -322,16 +326,14 @@ export class NttManagerSolana {
       'solana',
       tx,
       TransferWallet.RECEIVING,
+      { commitment: 'finalized' },
     );
     return txId;
   }
 
-  async isMessageExecuted(
-    emitterChain: ChainName | ChainId,
-    message: NttManagerMessage<NativeTokenTransfer>,
-  ): Promise<boolean> {
+  async isMessageExecuted(messageDigest: string): Promise<boolean> {
     try {
-      const inboxItem = await this.getInboxItem(emitterChain, message);
+      const inboxItem = await this.getInboxItem(messageDigest);
       return (
         inboxItem.releaseStatus.released !== null &&
         inboxItem.releaseStatus.released !== undefined
@@ -344,11 +346,8 @@ export class NttManagerSolana {
     }
   }
 
-  async fetchRedeemTx(
-    emitterChain: ChainName | ChainId,
-    message: NttManagerMessage<NativeTokenTransfer>,
-  ): Promise<string | undefined> {
-    const address = await this.inboxItemAccountAddress(emitterChain, message);
+  async fetchRedeemTx(messageDigest: string): Promise<string | undefined> {
+    const address = await this.inboxItemAccountAddress(messageDigest);
     // fetch the most recent signature
     const signatures = await this.connection.getSignaturesForAddress(address, {
       limit: 1,
@@ -388,22 +387,10 @@ export class NttManagerSolana {
     ]);
   }
 
-  inboxItemAccountAddress(
-    chain: ChainName | ChainId,
-    message: NttManagerMessage<NativeTokenTransfer>,
-  ): PublicKey {
-    const chainId = wh.toChainId(chain);
-    const serialized = NttManagerMessage.serialize(
-      message,
-      NativeTokenTransfer.serialize,
-    );
-    const hasher = new Keccak(256);
-    hasher.update(new BN(chainId).toBuffer('be', 2));
-    hasher.update(serialized);
-    const hash = hasher.digest('hex');
+  inboxItemAccountAddress(messageDigest: string): PublicKey {
     return this.derive_pda([
       Buffer.from('inbox_item'),
-      Buffer.from(hash, 'hex'),
+      Buffer.from(messageDigest.slice(2), 'hex'),
     ]);
   }
 
@@ -584,16 +571,12 @@ export class NttManagerSolana {
 
   async createReleaseInboundMintInstruction(args: {
     payer: PublicKey;
-    chain: ChainName | ChainId;
-    message: NttManagerMessage<NativeTokenTransfer>;
+    messageDigest: string;
     revertOnDelay: boolean;
-    recipient?: PublicKey;
+    recipient: PublicKey;
     config?: Config;
   }): Promise<TransactionInstruction> {
     const config = await this.getConfig(args.config);
-    const recipientAddress =
-      args.recipient ??
-      (await this.getInboxItem(args.chain, args.message)).recipientAddress;
     const mint = await this.mintAccountAddress(config);
     return await this.program.methods
       .releaseInboundMint({
@@ -603,8 +586,8 @@ export class NttManagerSolana {
         common: {
           payer: args.payer,
           config: { config: this.configAccountAddress() },
-          inboxItem: this.inboxItemAccountAddress(args.chain, args.message),
-          recipient: getAssociatedTokenAddressSync(mint, recipientAddress),
+          inboxItem: this.inboxItemAccountAddress(args.messageDigest),
+          recipient: getAssociatedTokenAddressSync(mint, args.recipient),
           mint,
           tokenAuthority: this.tokenAuthorityAddress(),
         },
@@ -614,16 +597,12 @@ export class NttManagerSolana {
 
   async createReleaseInboundUnlockInstruction(args: {
     payer: PublicKey;
-    chain: ChainName | ChainId;
-    message: NttManagerMessage<NativeTokenTransfer>;
+    messageDigest: string;
     revertOnDelay: boolean;
-    recipient?: PublicKey;
+    recipient: PublicKey;
     config?: Config;
   }): Promise<TransactionInstruction> {
     const config = await this.getConfig(args.config);
-    const recipientAddress =
-      args.recipient ??
-      (await this.getInboxItem(args.chain, args.message)).recipientAddress;
     const mint = await this.mintAccountAddress(config);
     return await this.program.methods
       .releaseInboundUnlock({
@@ -633,8 +612,8 @@ export class NttManagerSolana {
         common: {
           payer: args.payer,
           config: { config: this.configAccountAddress() },
-          inboxItem: this.inboxItemAccountAddress(args.chain, args.message),
-          recipient: getAssociatedTokenAddressSync(mint, recipientAddress),
+          inboxItem: this.inboxItemAccountAddress(args.messageDigest),
+          recipient: getAssociatedTokenAddressSync(mint, args.recipient),
           mint,
           tokenAuthority: this.tokenAuthorityAddress(),
         },
@@ -680,6 +659,10 @@ export class NttManagerSolana {
       parsedVaa.payload,
     );
     const chainId = wh.toChainId(parsedVaa.emitterChain);
+    const messageDigest = getNttManagerMessageDigest(
+      chainId,
+      nttManagerPayload,
+    );
     const nttManagerPeer = this.peerAccountAddress(chainId);
     const inboxRateLimit = this.inboxRateLimitAccountAddress(chainId);
     return await this.program.methods
@@ -694,7 +677,7 @@ export class NttManagerSolana {
         ),
         transceiver: this.registeredTransceiverAddress(this.program.programId),
         mint: await this.mintAccountAddress(config),
-        inboxItem: this.inboxItemAccountAddress(chainId, nttManagerPayload),
+        inboxItem: this.inboxItemAccountAddress(messageDigest),
         inboxRateLimit,
         outboxRateLimit: this.outboxRateLimitAccountAddress(),
       })
@@ -730,12 +713,9 @@ export class NttManagerSolana {
     return (await this.getConfig(config)).tokenProgram;
   }
 
-  async getInboxItem(
-    chain: ChainName | ChainId,
-    message: NttManagerMessage<NativeTokenTransfer>,
-  ): Promise<InboxItem> {
+  async getInboxItem(messageDigest: string): Promise<InboxItem> {
     return await this.program.account.inboxItem.fetch(
-      this.inboxItemAccountAddress(chain, message),
+      this.inboxItemAccountAddress(messageDigest),
     );
   }
 

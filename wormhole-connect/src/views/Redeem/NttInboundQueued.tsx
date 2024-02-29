@@ -3,11 +3,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from 'store';
 import { isSignedNttMessage as isSignedNttMessage } from 'routes';
-import {
-  NttManual,
-  NttRelay,
-  parseWormholeTransceiverMessage,
-} from 'routes/ntt';
+import { NttManual, NttRelay } from 'routes/ntt';
 import Header from './Header';
 import { useDispatch } from 'react-redux';
 import Button from 'components/Button';
@@ -92,15 +88,8 @@ const NttInboundQueued = () => {
 
   const handleClick = useCallback(async () => {
     if (!isSignedNttMessage(signedMessage)) return;
-    const {
-      toChain,
-      fromChain,
-      wormholeTransceiverMessage,
-      recipientNttManager,
-    } = signedMessage;
-    const { nttManagerPayload } = parseWormholeTransceiverMessage(
-      wormholeTransceiverMessage,
-    );
+    const { toChain, recipientNttManager, messageDigest, recipient } =
+      signedMessage;
     setInProgress(true);
     try {
       const toConfig = CHAINS[toChain];
@@ -113,8 +102,8 @@ const NttInboundQueued = () => {
       const tx = await nttRoute.completeInboundQueuedTransfer(
         toChain,
         recipientNttManager,
-        nttManagerPayload,
-        fromChain,
+        messageDigest,
+        recipient,
         wallet.address,
       );
       if (toChain === 'solana') {
@@ -123,8 +112,7 @@ const NttInboundQueued = () => {
         const inboundQueuedTransfer = await nttRoute.getInboundQueuedTransfer(
           toChain,
           recipientNttManager,
-          nttManagerPayload,
-          fromChain,
+          messageDigest,
         );
         dispatch(setInboundQueuedTransfer(inboundQueuedTransfer));
         if (inboundQueuedTransfer) {
@@ -153,26 +141,22 @@ const NttInboundQueued = () => {
 
   return (
     <>
-      <InputContainer
-        bg={!expired ? theme.palette.warning[500] + OPACITY[25] : ''}
-      >
+      <InputContainer bg={theme.palette.warning[500] + OPACITY[25]}>
         <>
           <Header
             chain={signedMessage.toChain}
             address={signedMessage.recipient}
             txHash={signedMessage.sendTx}
           />
-          {!expired && (
-            <div>
-              {`Your transfer to ${
-                CHAINS[signedMessage.toChain]?.displayName || 'UNKNOWN'
-              } is delayed due to rate limits that were configured by the ${
-                TOKENS[signedMessage.receivedTokenKey]?.symbol || 'UNKNOWN'
-              } token DAO. After the delay ends on ${
-                rateLimitExpiry || 'N/A'
-              }, you will need to return to submit another transaction to complete the transfer and receive your tokens.`}
-            </div>
-          )}
+          <div>
+            {`Your transfer to ${
+              CHAINS[signedMessage.toChain]?.displayName || 'UNKNOWN'
+            } is delayed due to rate limits that were configured by the ${
+              TOKENS[signedMessage.receivedTokenKey]?.symbol || 'UNKNOWN'
+            } token DAO. After the delay ends on ${
+              rateLimitExpiry || 'N/A'
+            }, you will need to return to submit another transaction to complete the transfer and receive your tokens.`}
+          </div>
         </>
       </InputContainer>
       <Spacer height={8} />

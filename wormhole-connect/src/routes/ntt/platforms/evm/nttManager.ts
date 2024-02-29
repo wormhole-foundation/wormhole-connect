@@ -19,12 +19,9 @@ import {
 import {
   encodeTransceiverInstructions,
   encodeWormholeTransceiverInstruction,
-  getNttManagerMessageDigest,
 } from 'routes/ntt/utils';
 import { NttManager__factory } from './abis/NttManager__factory';
 import { NttManager as NttManagerAbi } from './abis/NttManager';
-import { NttManagerMessage } from '../../payloads/common';
-import { NativeTokenTransfer } from '../../payloads/transfers';
 import { CHAINS } from 'config';
 
 export class NttManagerEvm {
@@ -141,12 +138,10 @@ export class NttManagerEvm {
   }
 
   async getInboundQueuedTransfer(
-    emitterChain: ChainName | ChainId,
-    message: NttManagerMessage<NativeTokenTransfer>,
+    messageDigest: string,
   ): Promise<InboundQueuedTransfer | undefined> {
-    const digest = getNttManagerMessageDigest(emitterChain, message);
     const queuedTransfer = await this.nttManager.getInboundQueuedTransfer(
-      digest,
+      messageDigest,
     );
     if (queuedTransfer.txTimestamp.gt(0)) {
       const { recipient, amount, txTimestamp } = queuedTransfer;
@@ -161,14 +156,14 @@ export class NttManagerEvm {
   }
 
   async completeInboundQueuedTransfer(
-    emitterChain: ChainName | ChainId,
-    message: NttManagerMessage<NativeTokenTransfer>,
+    messageDigest: string,
+    recipient: string,
+    payer: string,
   ): Promise<string> {
-    const digest = getNttManagerMessageDigest(emitterChain, message);
     try {
       const tx =
         await this.nttManager.populateTransaction.completeInboundQueuedTransfer(
-          digest,
+          messageDigest,
         );
       return await this.signAndSendTransaction(tx, TransferWallet.RECEIVING);
     } catch (e) {
@@ -176,29 +171,21 @@ export class NttManagerEvm {
     }
   }
 
-  async isMessageExecuted(
-    emitterChain: ChainName | ChainId,
-    message: NttManagerMessage<NativeTokenTransfer>,
-  ): Promise<boolean> {
-    const digest = getNttManagerMessageDigest(emitterChain, message);
-    return this.nttManager.isMessageExecuted(digest);
+  async isMessageExecuted(messageDigest: string): Promise<boolean> {
+    return this.nttManager.isMessageExecuted(messageDigest);
   }
 
   async isPaused(): Promise<boolean> {
     return this.nttManager.isPaused();
   }
 
-  async fetchRedeemTx(
-    emitterChain: ChainName | ChainId,
-    message: NttManagerMessage<NativeTokenTransfer>,
-  ): Promise<string | undefined> {
-    const digest = getNttManagerMessageDigest(emitterChain, message);
+  async fetchRedeemTx(messageDigest: string): Promise<string | undefined> {
     // @ts-ignore
     // TODO: why does the abi expect null for the digest?
-    const eventFilter = this.nttManager.filters.TransferRedeemed(digest);
+    const eventFilter = this.nttManager.filters.TransferRedeemed(messageDigest);
     const provider = wh.mustGetProvider(this.chain);
     const currentBlock = await provider.getBlockNumber();
-    const chainName = wh.toChainName(message.payload.recipientChain);
+    const chainName = wh.toChainName(this.chain);
     const chainConfig = CHAINS[chainName]!;
     const events = await this.nttManager.queryFilter(
       eventFilter,

@@ -21,7 +21,6 @@ import { toChainId, wh } from 'utils/sdk';
 import { NO_INPUT } from 'utils/style';
 import { TokenPrices } from 'store/tokenPrices';
 import { toDecimals, toFixedDecimals } from 'utils/balance';
-import { parseWormholeTransceiverMessage } from './utils';
 
 export class NttRelay extends NttBase {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean = false;
@@ -188,18 +187,10 @@ export class NttRelay extends NttBase {
     if (!isUnsignedNttMessage(txData)) {
       throw new Error('invalid txData');
     }
-    const {
-      wormholeTransceiverMessage,
-      toChain,
-      fromChain,
-      recipientNttManager,
-    } = txData;
-    const { nttManagerPayload } = parseWormholeTransceiverMessage(
-      wormholeTransceiverMessage,
-    );
+    const { toChain, recipientNttManager, messageDigest } = txData;
     const nttManager = getNttManager(toChain, recipientNttManager);
     try {
-      return await nttManager.fetchRedeemTx(fromChain, nttManagerPayload);
+      return await nttManager.fetchRedeemTx(messageDigest);
     } catch (e) {
       console.error(e);
     }

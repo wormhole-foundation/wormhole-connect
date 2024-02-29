@@ -6,7 +6,10 @@ import { getNativeVersionOfToken } from 'store/transferInput';
 import { getTokenById, getTokenDecimals } from 'utils';
 import { wh } from 'utils/sdk';
 import { TokenId } from '@wormhole-foundation/wormhole-connect-sdk';
-import { parseWormholeTransceiverMessage } from 'routes/ntt/utils';
+import {
+  getNttManagerMessageDigest,
+  parseWormholeTransceiverMessage,
+} from 'routes/ntt/utils';
 
 export const getMessageSolana = async (
   tx: string,
@@ -83,7 +86,7 @@ export const getMessageSolana = async (
       hexlify(transceiverMessage.recipientNttManager),
       toChain,
     ),
-    wormholeTransceiverMessage: hexlify(messageData.message.payload),
+    messageDigest: getNttManagerMessageDigest(fromChain, nttManagerMessage),
     relayerFee: '',
   };
 };

@@ -10,7 +10,6 @@ import { isSignedNttMessage } from 'routes/types';
 import { isNttRoute } from 'routes';
 import RouteOperator from 'routes/operator';
 import { NttBase } from 'routes/ntt/nttBase';
-import { parseWormholeTransceiverMessage } from 'routes/ntt';
 
 const RETRY_DELAY = 15_000;
 
@@ -35,15 +34,7 @@ const useCheckInboundQueuedTransfer = (): void => {
     ) {
       return;
     }
-    const {
-      toChain,
-      recipientNttManager,
-      wormholeTransceiverMessage,
-      fromChain,
-    } = signedMessage;
-    const { nttManagerPayload } = parseWormholeTransceiverMessage(
-      wormholeTransceiverMessage,
-    );
+    const { toChain, recipientNttManager, messageDigest } = signedMessage;
     const ntt = RouteOperator.getRoute(route) as NttBase;
     let active = true;
     const fetchData = async () => {
@@ -52,8 +43,7 @@ const useCheckInboundQueuedTransfer = (): void => {
           const queuedTransfer = await ntt.getInboundQueuedTransfer(
             toChain,
             recipientNttManager,
-            nttManagerPayload,
-            fromChain,
+            messageDigest,
           );
           if (active) {
             dispatch(setInboundQueuedTransfer(queuedTransfer));
