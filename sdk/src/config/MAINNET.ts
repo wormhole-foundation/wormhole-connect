@@ -306,7 +306,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     contracts: {},
     finalityThreshold: 0,
     nativeTokenDecimals: 18,
-    disableAsDestination: true,
+    disabledAsDestination: true,
   },
   kujira: {
     key: 'kujira',

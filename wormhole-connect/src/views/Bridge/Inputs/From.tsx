@@ -193,7 +193,7 @@ function FromInputs() {
         open={showChainsModal}
         title="Sending from"
         chains={CHAINS_ARR.filter(
-          (c) => c.key !== toChain && !c.disableAsSource,
+          (c) => c.key !== toChain && !c.disabledAsSource,
         )}
         onSelect={selectChain}
         onClose={() => setShowChainsModal(false)}
