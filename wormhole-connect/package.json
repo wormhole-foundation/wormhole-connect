@@ -42,7 +42,8 @@
     "react-redux": "^8.0.5",
     "tss-react": "^4.5.2",
     "use-debounce": "^9.0.4",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "@wormhole-foundation/wormhole-connect-sdk": "0.1.0-beta.0"
   },
   "scripts": {
     "lint": "scripts/lint.sh",
