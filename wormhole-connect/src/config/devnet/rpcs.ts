@@ -2,6 +2,7 @@ import { populateRpcField } from '../utils';
 const {
   REACT_APP_ETHEREUM_DEVNET_RPC,
   REACT_APP_OSMOSIS_DEVNET_RPC,
+  REACT_APP_OSMOSIS_DEVNET_REST,
   REACT_APP_WORMCHAIN_DEVNET_RPC,
   REACT_APP_TERRA2_DEVNET_RPC,
   REACT_APP_SEI_REST,
@@ -17,6 +18,7 @@ export const DEVNET_RPC_MAPPING = {
 
 export const DEVNET_REST_MAPPING = {
   ...populateRpcField('sei', REACT_APP_SEI_REST),
+  ...populateRpcField('osmosis', REACT_APP_OSMOSIS_DEVNET_REST),
 };
 
 export const DEVNET_GRAPHQL_MAPPING = {

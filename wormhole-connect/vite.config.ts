@@ -56,4 +56,26 @@ export default defineConfig({
       },
     }),
   ],
+  // proxy rpcs to re write Origin header to by pass CORS/Auth checks
+  /*server: {
+    proxy: {
+      '/rpc/wormchain': {
+        target: 'https://wormchain-rpc.polkachu.com/',
+        changeOrigin: true,
+        headers: {
+          "Origin": "https://portalbridge.com",
+        },
+        rewrite: (path) => path.replace(/^\/rpc\/wormchain/, ''),
+      },
+      '/rpc/solana': {
+        target: 'https://api.mainnet-beta.solana.com',
+        changeOrigin: true,
+        headers: {
+          "origin": "https://portalbridge.com",
+          "content-type": "application/json",
+        },
+        rewrite: (path) => path.replace(/^\/rpc\/solana/, ''),
+      },
+    },
+  },*/
 });

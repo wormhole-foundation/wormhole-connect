@@ -13,6 +13,7 @@ const {
   REACT_APP_SEI_RPC,
   REACT_APP_BASE_RPC,
   REACT_APP_OSMOSIS_RPC,
+  REACT_APP_OSMOSIS_REST,
   REACT_APP_WORMCHAIN_RPC,
   REACT_APP_EVMOS_RPC,
   REACT_APP_KUJIRA_RPC,
@@ -49,6 +50,7 @@ export const MAINNET_RPC_MAPPING = {
 export const MAINNET_REST_MAPPING = {
   ...populateRpcField('sei', REACT_APP_SEI_REST),
   ...populateRpcField('evmos', REACT_APP_EVMOS_REST),
+  ...populateRpcField('osmosis', REACT_APP_OSMOSIS_REST),
 };
 
 export const MAINNET_GRAPHQL_MAPPING = {
