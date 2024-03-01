@@ -371,10 +371,6 @@ export class NttManagerSolana {
     return this.derive_pda(Buffer.from('config'));
   }
 
-  sequenceTrackerAccountAddress(): PublicKey {
-    return this.derive_pda(Buffer.from('sequence'));
-  }
-
   outboxRateLimitAccountAddress(): PublicKey {
     return this.derive_pda(Buffer.from('outbox_rate_limit'));
   }
@@ -424,13 +420,16 @@ export class NttManagerSolana {
 
   transceiverMessageAccountAddress(
     chain: ChainName | ChainId,
-    sequence: BN,
+    id: Buffer,
   ): PublicKey {
     const chainId = wh.toChainId(chain);
+    if (id.length !== 32) {
+      throw new Error('id must be 32 bytes');
+    }
     return this.derive_pda([
       Buffer.from('transceiver_message'),
       new BN(chainId).toBuffer('be', 2),
-      sequence.toBuffer('be', 8),
+      id,
     ]);
   }
 
@@ -475,7 +474,6 @@ export class NttManagerSolana {
           mint,
           from: args.from,
           sender: args.fromAuthority,
-          seq: this.sequenceTrackerAccountAddress(),
           outboxItem: args.outboxItem,
           outboxRateLimit: this.outboxRateLimitAccountAddress(),
           tokenAuthority: this.tokenAuthorityAddress(),
@@ -519,7 +517,6 @@ export class NttManagerSolana {
           from: args.from,
           sender: args.fromAuthority,
           tokenProgram: await this.tokenProgram(config),
-          seq: this.sequenceTrackerAccountAddress(),
           outboxItem: args.outboxItem,
           outboxRateLimit: this.outboxRateLimitAccountAddress(),
           tokenAuthority: this.tokenAuthorityAddress(),
@@ -554,17 +551,12 @@ export class NttManagerSolana {
         wormholeMessage: this.wormholeMessageAccountAddress(args.outboxItem),
         emitter: whAccs.wormholeEmitter,
         transceiver: this.registeredTransceiverAddress(this.program.programId),
-        wormholeBridge: whAccs.wormholeBridge,
-        wormholeFeeCollector: whAccs.wormholeFeeCollector,
-        wormholeSequence: whAccs.wormholeSequence,
-        wormholeProgram: this.wormholeId,
-        // TODO: uncomment when the program is updated
-        //wormhole: {
-        //  bridge: whAccs.wormholeBridge,
-        //  feeCollector: whAccs.wormholeFeeCollector,
-        //  sequence: whAccs.wormholeSequence,
-        //  program: this.wormholeId,
-        //},
+        wormhole: {
+          bridge: whAccs.wormholeBridge,
+          feeCollector: whAccs.wormholeFeeCollector,
+          sequence: whAccs.wormholeSequence,
+          program: this.wormholeId,
+        },
       })
       .instruction();
   }
@@ -642,7 +634,7 @@ export class NttManagerSolana {
         vaa: derivePostedVaaKey(this.wormholeId, parseVaa(args.vaa).hash),
         transceiverMessage: this.transceiverMessageAccountAddress(
           chainId,
-          new BN(nttManagerPayload.sequence.toString()),
+          nttManagerPayload.id,
         ),
       })
       .instruction();
@@ -673,7 +665,7 @@ export class NttManagerSolana {
         peer: nttManagerPeer,
         transceiverMessage: this.transceiverMessageAccountAddress(
           chainId,
-          new BN(nttManagerPayload.sequence.toString()),
+          nttManagerPayload.id,
         ),
         transceiver: this.registeredTransceiverAddress(this.program.programId),
         mint: await this.mintAccountAddress(config),

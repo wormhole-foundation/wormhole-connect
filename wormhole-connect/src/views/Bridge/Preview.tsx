@@ -116,9 +116,13 @@ function Preview(props: { collapsed: boolean }) {
           token,
           destToken,
         );
+        // Ntt route pays the relayer in native gas,
+        // while other routes pay in the token being transferred
+        const feeToken =
+          route === Route.NttRelay ? 'native' : tokenConfig.tokenId;
         const decimals = getTokenDecimals(
           toChainId(fromChain),
-          tokenConfig.tokenId || 'native',
+          feeToken || 'native',
         );
         const formattedFee = Number.parseFloat(toDecimals(fee, decimals, 6));
         dispatch(setRelayerFee(formattedFee));

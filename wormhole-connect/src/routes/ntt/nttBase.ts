@@ -380,7 +380,6 @@ export abstract class NttBase extends BaseRoute {
     if (!isSignedNttMessage(signedMessage)) {
       throw new Error('Invalid signed message');
     }
-    console.log(`messageDigest: ${signedMessage.messageDigest}`);
     const { recipientNttManager, messageDigest } = signedMessage;
     const nttManager = getNttManager(chain, recipientNttManager);
     const isMessageExecuted = await nttManager.isMessageExecuted(messageDigest);

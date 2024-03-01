@@ -7,13 +7,11 @@ import {
 import { InboundQueuedTransfer } from 'routes/ntt/types';
 
 export interface NTTState {
-  deliveryPrice: string;
   inboundQueuedTransfer: DataWrapper<InboundQueuedTransfer | undefined>;
 }
 
 const initialState: NTTState = {
   inboundQueuedTransfer: getEmptyDataWrapper(),
-  deliveryPrice: '',
 };
 
 export const nttSlice = createSlice({

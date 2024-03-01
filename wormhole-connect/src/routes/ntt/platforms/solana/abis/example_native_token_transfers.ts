@@ -1,5 +1,3 @@
-// NOTE: The generics have been removed from the IDL to prevent
-// runtime errors when the IDL is used in the browser.
 export type ExampleNativeTokenTransfers = {
   version: '0.1.0';
   name: 'example_native_token_transfers';
@@ -30,11 +28,6 @@ export type ExampleNativeTokenTransfers = {
         {
           name: 'mint';
           isMut: false;
-          isSigner: false;
-        },
-        {
-          name: 'seq';
-          isMut: true;
           isSigner: false;
         },
         {
@@ -131,11 +124,6 @@ export type ExampleNativeTokenTransfers = {
               isSigner: false;
             },
             {
-              name: 'seq';
-              isMut: true;
-              isSigner: false;
-            },
-            {
               name: 'outboxItem';
               isMut: true;
               isSigner: true;
@@ -220,11 +208,6 @@ export type ExampleNativeTokenTransfers = {
             {
               name: 'tokenProgram';
               isMut: false;
-              isSigner: false;
-            },
-            {
-              name: 'seq';
-              isMut: true;
               isSigner: false;
             },
             {
@@ -804,39 +787,44 @@ export type ExampleNativeTokenTransfers = {
           isSigner: false;
         },
         {
-          name: 'wormholeBridge';
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: 'wormholeFeeCollector';
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: 'wormholeSequence';
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: 'wormholeProgram';
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: 'systemProgram';
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: 'clock';
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: 'rent';
-          isMut: false;
-          isSigner: false;
+          name: 'wormhole';
+          accounts: [
+            {
+              name: 'bridge';
+              isMut: true;
+              isSigner: false;
+            },
+            {
+              name: 'feeCollector';
+              isMut: true;
+              isSigner: false;
+            },
+            {
+              name: 'sequence';
+              isMut: true;
+              isSigner: false;
+            },
+            {
+              name: 'program';
+              isMut: false;
+              isSigner: false;
+            },
+            {
+              name: 'systemProgram';
+              isMut: false;
+              isSigner: false;
+            },
+            {
+              name: 'clock';
+              isMut: false;
+              isSigner: false;
+            },
+            {
+              name: 'rent';
+              isMut: false;
+              isSigner: false;
+            },
+          ];
         },
       ];
       args: [
@@ -844,6 +832,155 @@ export type ExampleNativeTokenTransfers = {
           name: 'args';
           type: {
             defined: 'ReleaseOutboundArgs';
+          };
+        },
+      ];
+    },
+    {
+      name: 'broadcastWormholeId';
+      accounts: [
+        {
+          name: 'payer';
+          isMut: true;
+          isSigner: true;
+        },
+        {
+          name: 'config';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'mint';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'wormholeMessage';
+          isMut: true;
+          isSigner: true;
+        },
+        {
+          name: 'emitter';
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: 'wormhole';
+          accounts: [
+            {
+              name: 'bridge';
+              isMut: true;
+              isSigner: false;
+            },
+            {
+              name: 'feeCollector';
+              isMut: true;
+              isSigner: false;
+            },
+            {
+              name: 'sequence';
+              isMut: true;
+              isSigner: false;
+            },
+            {
+              name: 'program';
+              isMut: false;
+              isSigner: false;
+            },
+            {
+              name: 'systemProgram';
+              isMut: false;
+              isSigner: false;
+            },
+            {
+              name: 'clock';
+              isMut: false;
+              isSigner: false;
+            },
+            {
+              name: 'rent';
+              isMut: false;
+              isSigner: false;
+            },
+          ];
+        },
+      ];
+      args: [];
+    },
+    {
+      name: 'broadcastWormholePeer';
+      accounts: [
+        {
+          name: 'payer';
+          isMut: true;
+          isSigner: true;
+        },
+        {
+          name: 'config';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'peer';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'wormholeMessage';
+          isMut: true;
+          isSigner: true;
+        },
+        {
+          name: 'emitter';
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: 'wormhole';
+          accounts: [
+            {
+              name: 'bridge';
+              isMut: true;
+              isSigner: false;
+            },
+            {
+              name: 'feeCollector';
+              isMut: true;
+              isSigner: false;
+            },
+            {
+              name: 'sequence';
+              isMut: true;
+              isSigner: false;
+            },
+            {
+              name: 'program';
+              isMut: false;
+              isSigner: false;
+            },
+            {
+              name: 'systemProgram';
+              isMut: false;
+              isSigner: false;
+            },
+            {
+              name: 'clock';
+              isMut: false;
+              isSigner: false;
+            },
+            {
+              name: 'rent';
+              isMut: false;
+              isSigner: false;
+            },
+          ];
+        },
+      ];
+      args: [
+        {
+          name: 'args';
+          type: {
+            defined: 'BroadcastPeerArgs';
           };
         },
       ];
@@ -956,6 +1093,10 @@ export type ExampleNativeTokenTransfers = {
               array: ['u8', 32];
             };
           },
+          {
+            name: 'tokenDecimals';
+            type: 'u8';
+          },
         ];
       };
     },
@@ -1023,13 +1164,9 @@ export type ExampleNativeTokenTransfers = {
         kind: 'struct';
         fields: [
           {
-            name: 'sequence';
-            type: 'u64';
-          },
-          {
             name: 'amount';
             type: {
-              defined: 'NormalizedAmount';
+              defined: 'TrimmedAmount';
             };
           },
           {
@@ -1102,22 +1239,6 @@ export type ExampleNativeTokenTransfers = {
       };
     },
     {
-      name: 'sequence';
-      type: {
-        kind: 'struct';
-        fields: [
-          {
-            name: 'bump';
-            type: 'u8';
-          },
-          {
-            name: 'sequence';
-            type: 'u64';
-          },
-        ];
-      };
-    },
-    {
       name: 'transceiverPeer';
       docs: [
         'A peer on another chain. Stored in a PDA seeded by the chain id.',
@@ -1182,20 +1303,6 @@ export type ExampleNativeTokenTransfers = {
       };
     },
     {
-      name: 'Mode';
-      type: {
-        kind: 'enum';
-        variants: [
-          {
-            name: 'Burning';
-          },
-          {
-            name: 'Locking';
-          },
-        ];
-      };
-    },
-    {
       name: 'SetInboundLimitArgs';
       type: {
         kind: 'struct';
@@ -1245,6 +1352,11 @@ export type ExampleNativeTokenTransfers = {
           {
             name: 'limit';
             type: 'u64';
+          },
+          {
+            name: 'tokenDecimals';
+            docs: ['The token decimals on the peer chain.'];
+            type: 'u8';
           },
         ];
       };
@@ -1389,6 +1501,18 @@ export type ExampleNativeTokenTransfers = {
       };
     },
     {
+      name: 'BroadcastPeerArgs';
+      type: {
+        kind: 'struct';
+        fields: [
+          {
+            name: 'chainId';
+            type: 'u16';
+          },
+        ];
+      };
+    },
+    {
       name: 'ReleaseOutboundArgs';
       type: {
         kind: 'struct';
@@ -1413,7 +1537,21 @@ export type ExampleNativeTokenTransfers = {
       };
     },
     {
-      name: 'NormalizedAmount';
+      name: 'Mode';
+      type: {
+        kind: 'enum';
+        variants: [
+          {
+            name: 'Locking';
+          },
+          {
+            name: 'Burning';
+          },
+        ];
+      };
+    },
+    {
+      name: 'TrimmedAmount';
       type: {
         kind: 'struct';
         fields: [
@@ -1570,11 +1708,6 @@ export const IDL: ExampleNativeTokenTransfers = {
           isSigner: false,
         },
         {
-          name: 'seq',
-          isMut: true,
-          isSigner: false,
-        },
-        {
           name: 'rateLimit',
           isMut: true,
           isSigner: false,
@@ -1668,11 +1801,6 @@ export const IDL: ExampleNativeTokenTransfers = {
               isSigner: false,
             },
             {
-              name: 'seq',
-              isMut: true,
-              isSigner: false,
-            },
-            {
               name: 'outboxItem',
               isMut: true,
               isSigner: true,
@@ -1757,11 +1885,6 @@ export const IDL: ExampleNativeTokenTransfers = {
             {
               name: 'tokenProgram',
               isMut: false,
-              isSigner: false,
-            },
-            {
-              name: 'seq',
-              isMut: true,
               isSigner: false,
             },
             {
@@ -2341,39 +2464,44 @@ export const IDL: ExampleNativeTokenTransfers = {
           isSigner: false,
         },
         {
-          name: 'wormholeBridge',
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: 'wormholeFeeCollector',
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: 'wormholeSequence',
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: 'wormholeProgram',
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: 'systemProgram',
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: 'clock',
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: 'rent',
-          isMut: false,
-          isSigner: false,
+          name: 'wormhole',
+          accounts: [
+            {
+              name: 'bridge',
+              isMut: true,
+              isSigner: false,
+            },
+            {
+              name: 'feeCollector',
+              isMut: true,
+              isSigner: false,
+            },
+            {
+              name: 'sequence',
+              isMut: true,
+              isSigner: false,
+            },
+            {
+              name: 'program',
+              isMut: false,
+              isSigner: false,
+            },
+            {
+              name: 'systemProgram',
+              isMut: false,
+              isSigner: false,
+            },
+            {
+              name: 'clock',
+              isMut: false,
+              isSigner: false,
+            },
+            {
+              name: 'rent',
+              isMut: false,
+              isSigner: false,
+            },
+          ],
         },
       ],
       args: [
@@ -2381,6 +2509,155 @@ export const IDL: ExampleNativeTokenTransfers = {
           name: 'args',
           type: {
             defined: 'ReleaseOutboundArgs',
+          },
+        },
+      ],
+    },
+    {
+      name: 'broadcastWormholeId',
+      accounts: [
+        {
+          name: 'payer',
+          isMut: true,
+          isSigner: true,
+        },
+        {
+          name: 'config',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'mint',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'wormholeMessage',
+          isMut: true,
+          isSigner: true,
+        },
+        {
+          name: 'emitter',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'wormhole',
+          accounts: [
+            {
+              name: 'bridge',
+              isMut: true,
+              isSigner: false,
+            },
+            {
+              name: 'feeCollector',
+              isMut: true,
+              isSigner: false,
+            },
+            {
+              name: 'sequence',
+              isMut: true,
+              isSigner: false,
+            },
+            {
+              name: 'program',
+              isMut: false,
+              isSigner: false,
+            },
+            {
+              name: 'systemProgram',
+              isMut: false,
+              isSigner: false,
+            },
+            {
+              name: 'clock',
+              isMut: false,
+              isSigner: false,
+            },
+            {
+              name: 'rent',
+              isMut: false,
+              isSigner: false,
+            },
+          ],
+        },
+      ],
+      args: [],
+    },
+    {
+      name: 'broadcastWormholePeer',
+      accounts: [
+        {
+          name: 'payer',
+          isMut: true,
+          isSigner: true,
+        },
+        {
+          name: 'config',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'peer',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'wormholeMessage',
+          isMut: true,
+          isSigner: true,
+        },
+        {
+          name: 'emitter',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'wormhole',
+          accounts: [
+            {
+              name: 'bridge',
+              isMut: true,
+              isSigner: false,
+            },
+            {
+              name: 'feeCollector',
+              isMut: true,
+              isSigner: false,
+            },
+            {
+              name: 'sequence',
+              isMut: true,
+              isSigner: false,
+            },
+            {
+              name: 'program',
+              isMut: false,
+              isSigner: false,
+            },
+            {
+              name: 'systemProgram',
+              isMut: false,
+              isSigner: false,
+            },
+            {
+              name: 'clock',
+              isMut: false,
+              isSigner: false,
+            },
+            {
+              name: 'rent',
+              isMut: false,
+              isSigner: false,
+            },
+          ],
+        },
+      ],
+      args: [
+        {
+          name: 'args',
+          type: {
+            defined: 'BroadcastPeerArgs',
           },
         },
       ],
@@ -2493,6 +2770,10 @@ export const IDL: ExampleNativeTokenTransfers = {
               array: ['u8', 32],
             },
           },
+          {
+            name: 'tokenDecimals',
+            type: 'u8',
+          },
         ],
       },
     },
@@ -2560,13 +2841,9 @@ export const IDL: ExampleNativeTokenTransfers = {
         kind: 'struct',
         fields: [
           {
-            name: 'sequence',
-            type: 'u64',
-          },
-          {
             name: 'amount',
             type: {
-              defined: 'NormalizedAmount',
+              defined: 'TrimmedAmount',
             },
           },
           {
@@ -2639,22 +2916,6 @@ export const IDL: ExampleNativeTokenTransfers = {
       },
     },
     {
-      name: 'sequence',
-      type: {
-        kind: 'struct',
-        fields: [
-          {
-            name: 'bump',
-            type: 'u8',
-          },
-          {
-            name: 'sequence',
-            type: 'u64',
-          },
-        ],
-      },
-    },
-    {
       name: 'transceiverPeer',
       docs: [
         'A peer on another chain. Stored in a PDA seeded by the chain id.',
@@ -2719,20 +2980,6 @@ export const IDL: ExampleNativeTokenTransfers = {
       },
     },
     {
-      name: 'Mode',
-      type: {
-        kind: 'enum',
-        variants: [
-          {
-            name: 'Burning',
-          },
-          {
-            name: 'Locking',
-          },
-        ],
-      },
-    },
-    {
       name: 'SetInboundLimitArgs',
       type: {
         kind: 'struct',
@@ -2782,6 +3029,11 @@ export const IDL: ExampleNativeTokenTransfers = {
           {
             name: 'limit',
             type: 'u64',
+          },
+          {
+            name: 'tokenDecimals',
+            docs: ['The token decimals on the peer chain.'],
+            type: 'u8',
           },
         ],
       },
@@ -2926,6 +3178,18 @@ export const IDL: ExampleNativeTokenTransfers = {
       },
     },
     {
+      name: 'BroadcastPeerArgs',
+      type: {
+        kind: 'struct',
+        fields: [
+          {
+            name: 'chainId',
+            type: 'u16',
+          },
+        ],
+      },
+    },
+    {
       name: 'ReleaseOutboundArgs',
       type: {
         kind: 'struct',
@@ -2950,7 +3214,21 @@ export const IDL: ExampleNativeTokenTransfers = {
       },
     },
     {
-      name: 'NormalizedAmount',
+      name: 'Mode',
+      type: {
+        kind: 'enum',
+        variants: [
+          {
+            name: 'Locking',
+          },
+          {
+            name: 'Burning',
+          },
+        ],
+      },
+    },
+    {
+      name: 'TrimmedAmount',
       type: {
         kind: 'struct',
         fields: [

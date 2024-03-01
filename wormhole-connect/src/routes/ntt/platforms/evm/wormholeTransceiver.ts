@@ -1,6 +1,6 @@
 import { ChainId, ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { wh } from 'utils/sdk';
-import { WormholeTransceiver__factory } from './abis';
+import { WormholeTransceiver__factory } from './abis/WormholeTransceiver__factory';
 import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
 import { WormholeTransceiver } from './abis/WormholeTransceiver';
 

@@ -2290,11 +2290,51 @@ export const TESTNET_TOKENS: TokensConfig = {
       default: 8,
     },
     ntt: {
-      nttManager: '',
-      // wormhole endpoint is baked into the manager contract
-      // if the endpoint is split into a separate contract, this should be updated
-      // and code should be updated to support the new structure
-      wormholeTransceiver: '',
+      nttManager: '7nMTXqo19kzwyisGCdcRP5AErEBToYpVYg2C5PNrjsa2',
+      // The wormhole endpoint is baked into the manager on Solana.
+      // If the endpoint is split into a separate contract, this address
+      // and route code should be updated to support the new structure.
+      wormholeTransceiver: '7nMTXqo19kzwyisGCdcRP5AErEBToYpVYg2C5PNrjsa2',
     },
   },
+  //USDCsepolia: {
+  //  key: 'USDCsepolia',
+  //  symbol: 'USDC',
+  //  nativeChain: 'sepolia',
+  //  icon: Icon.USDC,
+  //  tokenId: {
+  //    chain: 'sepolia',
+  //    address: '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238',
+  //  },
+  //  coinGeckoId: 'usd-coin',
+  //  color: '#2774CA',
+  //  decimals: {
+  //    Ethereum: 6,
+  //    default: 6,
+  //  },
+  //  ntt: {
+  //    nttManager: '0x772172Da3ADeEBa32a2FfE5e773e176227526bf3',
+  //    wormholeTransceiver: '0x62852bdeB7F544940c30eb8bbe4972816d4D1b8C',
+  //  },
+  //},
+  //USDCmoonbeam: {
+  //  key: 'USDCmoonbeam',
+  //  symbol: 'USDC',
+  //  nativeChain: 'moonbasealpha',
+  //  icon: Icon.USDC,
+  //  tokenId: {
+  //    chain: 'moonbasealpha',
+  //    address: '0xe3516c9423f6acE9ad3a245099e0A9e579a794D5',
+  //  },
+  //  coinGeckoId: 'usd-coin',
+  //  color: '#2774CA',
+  //  decimals: {
+  //    Ethereum: 6,
+  //    default: 6,
+  //  },
+  //  ntt: {
+  //    nttManager: '0xEE568713F3f0bE29F4aA9E6DD655de14D8B2F577',
+  //    wormholeTransceiver: '0x22e720A1Cfa36167f27E33172316c7e785e8f2ce',
+  //  },
+  //},
 };
