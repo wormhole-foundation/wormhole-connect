@@ -224,14 +224,18 @@ export const getWalletOptions = async (
     const seiOptions = await seiWallet.fetchOptions();
     return Object.values(mapWallets(seiOptions, Context.SEI));
   } else if (config.context === Context.COSMOS) {
-    const {
-      wallets: { cosmos, cosmosEvm },
-    } = await import('utils/wallet/cosmos');
-
-    if (config.id === CHAIN_ID_EVMOS) {
-      return Object.values(mapWallets(cosmos, Context.COSMOS, ['OKX Wallet']));
+    if (config.id !== CHAIN_ID_EVMOS) {
+      const {
+        wallets: { cosmos },
+      } = await import('utils/wallet/cosmos');
+      return Object.values(mapWallets(cosmos, Context.COSMOS));
     } else {
-      return Object.values(mapWallets(cosmosEvm, Context.COSMOS));
+      const {
+        wallets: { cosmosEvm },
+      } = await import('utils/wallet/cosmos');
+      return Object.values(
+        mapWallets(cosmosEvm, Context.COSMOS, ['OKX Wallet']),
+      );
     }
   }
   return [];
