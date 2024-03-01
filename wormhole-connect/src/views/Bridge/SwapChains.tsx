@@ -1,12 +1,14 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
+import { CHAINS } from 'config';
 
 import { swapWallets } from 'store/wallet';
-import { TransferInputState, swapChains } from 'store/transferInput';
+import { swapChains } from 'store/transferInput';
 import { RootState } from '../../store';
 
-const useStyles = makeStyles()((theme: any) => ({
+type StyleProps = { disabled: boolean };
+const useStyles = makeStyles<StyleProps>()((theme: any, { disabled }) => ({
   button: {
     borderRadius: '50%',
     width: '42px',
@@ -16,7 +18,8 @@ const useStyles = makeStyles()((theme: any) => ({
     alignItems: 'center',
     backgroundColor: theme.palette.card.background,
     boxShadow: theme.palette.card.elevation,
-    cursor: 'pointer',
+    opacity: disabled ? 0.5 : 1.0,
+    cursor: disabled ? 'default' : 'pointer',
     [theme.breakpoints.up('md')]: {
       marginBottom: '-40px',
     },
@@ -25,18 +28,26 @@ const useStyles = makeStyles()((theme: any) => ({
 }));
 
 function SwapChains() {
-  const { classes } = useStyles();
   const dispatch = useDispatch();
 
-  const { isTransactionInProgress }: TransferInputState = useSelector(
+  const { isTransactionInProgress, fromChain, toChain } = useSelector(
     (state: RootState) => state.transferInput,
   );
 
+  const canSwap =
+    fromChain &&
+    !CHAINS[fromChain]?.disabledAsDestination &&
+    toChain &&
+    !CHAINS[toChain]?.disabledAsDestination;
+
   const swap = () => {
+    if (!canSwap) return;
     if (isTransactionInProgress) return;
     dispatch(swapChains());
     dispatch(swapWallets());
   };
+
+  const { classes } = useStyles({ disabled: !canSwap });
 
   return (
     <div className={classes.button} onClick={swap}>

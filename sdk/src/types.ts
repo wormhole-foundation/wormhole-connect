@@ -63,6 +63,8 @@ export type ChainConfig = {
   finalityThreshold: number;
   nativeTokenDecimals: number;
   cctpDomain?: number;
+  disabledAsSource?: boolean;
+  disabledAsDestination?: boolean;
 };
 
 export type WormholeConfig = {
