@@ -60,20 +60,13 @@ Contributions are welcome! To work on wormhole-connect locally you'll want to us
 
 ### Setup
 
-1) Link the sdk
-
-```bash
-cd ./sdk
-npm i
-npm run build
-npm link
-cd ../wormhole-connect
-npm link @wormhole-foundation/wormhole-connect-sdk
-```
-
-2) Install
+1) Install
 
 Run `npm i` at the root of the repo
+
+2) Build
+
+Run `npm run build` at the root fo the repo
 
 3) Start
 
