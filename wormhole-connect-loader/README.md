@@ -39,15 +39,12 @@ for working examples of different config values.
 | osmosis | osmosis |
 | evmos | evmos |
 | kujira | kujira |
-<<<<<<< HEAD
 | injective | injective |
-=======
 | klaytn | klaytn |
 | arbitrum | arbitrumgoerli, arbitrum_sepolia |
 | optimism | optimismgoerli, optimism_sepolia |
 
 > Osmosis support is in beta, reach out to a Wormhole contributor for early access.
->>>>>>> development
 
 <br>
 
