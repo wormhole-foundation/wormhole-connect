@@ -25,9 +25,9 @@ jobs:
       - run: npm run lint:ci
       - run: |
           IFS='@' read -a strarr <<< $(git describe --tags)
-          sed  -i "s/\"version\": .*/\"version\": \"${strarr[1]}$(echo $([ ${strarr[0]} == "production" ] && echo "" || echo "-${strarr[0]}"))\",/" wormhole-connect-loader/package.json
+          sed  -i "s/\"version\": .*/\"version\": \"${strarr[1]}$(echo $([ ${strarr[0]} == "production" ] && echo "" || echo "-${strarr[0]}"))\",/" wormhole-connect/package.json
           npm run build
-          cd wormhole-connect-loader
+          cd wormhole-connect
           npm publish --tag $(echo $([ ${strarr[0]} == "production" ] && echo "latest" || echo ${strarr[0]})) --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
