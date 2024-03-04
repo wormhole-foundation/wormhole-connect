@@ -44,12 +44,16 @@ import {
   ParsedRelayerPayload,
   TokenId,
 } from '../../types';
-import { ForeignAssetCache, waitFor } from '../../utils';
+import { ForeignAssetCache, Lock } from '../../utils';
 import { WormholeContext } from '../../wormhole';
 import { TokenBridgeAbstract } from '../abstracts/tokenBridge';
 import { CosmosContracts } from './contracts';
 import { getNativeDenom, getPrefix, isNativeDenom } from './denom';
-import { CosmosTransaction, WrappedRegistryResponse } from './types';
+import {
+  CosmosTransaction,
+  IBCConnection,
+  WrappedRegistryResponse,
+} from './types';
 import { isGatewayChain } from './utils';
 
 const MSG_EXECUTE_CONTRACT_TYPE_URL = '/cosmwasm.wasm.v1.MsgExecuteContract';
@@ -78,8 +82,10 @@ export class CosmosContext<
   readonly context: T;
   readonly chain: ChainName;
 
-  private static FETCHING_TM_CLIENT = false;
-  private static CLIENT_MAP: Record<string, TendermintClient> = {};
+  private static FETCH_CLIENT_LOCK = new Lock();
+  private static CLIENT_MAP: Partial<Record<string, TendermintClient>> = {};
+  private static FETCH_CONNECTION_LOCK = new Lock();
+  private static CHANNEL_MAP: Partial<Record<ChainName, IBCConnection>> = {};
   private foreignAssetCache: ForeignAssetCache;
 
   constructor(
@@ -249,20 +255,49 @@ export class CosmosContext<
     return `ibc/${hash.toUpperCase()}`;
   }
 
-  async getIbcDestinationChannel(chain: ChainId | ChainName): Promise<string> {
-    const sourceChannel = await this.getIbcSourceChannel(chain);
-    const queryClient = await this.getQueryClient(CHAIN_ID_WORMCHAIN);
-    const conn = await queryClient.ibc.channel.channel(IBC_PORT, sourceChannel);
+  async getConnection(chain: ChainId | ChainName): Promise<IBCConnection> {
+    await CosmosContext.FETCH_CONNECTION_LOCK.acquire();
 
-    const destChannel = conn.channel?.counterparty?.channelId;
-    if (!destChannel) {
-      throw new Error(`No destination channel found on chain ${chain}`);
+    try {
+      const chainName = this.context.toChainName(chain);
+      if (CosmosContext.CHANNEL_MAP[chainName]) {
+        return CosmosContext.CHANNEL_MAP[chainName]!;
+      }
+
+      const srcChannel = await this.queryIbcSourceChannel(chain);
+      const queryClient = await this.getQueryClient(CHAIN_ID_WORMCHAIN);
+      const conn = await queryClient.ibc.channel.channel(IBC_PORT, srcChannel);
+
+      const destChannel = conn.channel?.counterparty?.channelId;
+      if (!destChannel) {
+        throw new Error(`No destination channel found on chain ${chain}`);
+      }
+
+      const connection: IBCConnection = {
+        srcChannel: srcChannel,
+        destChannel: destChannel,
+      };
+      CosmosContext.CHANNEL_MAP[chainName] = connection;
+
+      return connection;
+    } finally {
+      await CosmosContext.FETCH_CONNECTION_LOCK.release();
     }
+  }
 
+  async getIbcDestinationChannel(chain: ChainId | ChainName): Promise<string> {
+    const { destChannel } = await this.getConnection(chain);
     return destChannel;
   }
 
   async getIbcSourceChannel(chain: ChainId | ChainName): Promise<string> {
+    const { srcChannel } = await this.getConnection(chain);
+    return srcChannel;
+  }
+
+  private async queryIbcSourceChannel(
+    chain: ChainId | ChainName,
+  ): Promise<string> {
     const id = this.context.toChainId(chain);
     if (!isGatewayChain(id))
       throw new Error(`Chain ${chain} is not a gateway chain`);
@@ -494,33 +529,34 @@ export class CosmosContext<
   private async getTmClient(
     chain: ChainId | ChainName,
   ): Promise<Tendermint34Client | Tendermint37Client> {
-    await waitFor(async () => CosmosContext.FETCHING_TM_CLIENT === false);
+    await CosmosContext.FETCH_CLIENT_LOCK.acquire();
 
-    const name = this.context.toChainName(chain);
-    if (CosmosContext.CLIENT_MAP[name]) {
-      return CosmosContext.CLIENT_MAP[name];
+    try {
+      const name = this.context.toChainName(chain);
+      if (CosmosContext.CLIENT_MAP[name]) {
+        return CosmosContext.CLIENT_MAP[name]!;
+      }
+
+      const rpc = this.context.conf.rpcs[name];
+      if (!rpc) throw new Error(`${chain} RPC not configured`);
+
+      // from cosmjs: https://github.com/cosmos/cosmjs/blob/358260bff71c9d3e7ad6644fcf64dc00325cdfb9/packages/stargate/src/stargateclient.ts#L218
+      let tmClient: TendermintClient;
+      const tm37Client = await Tendermint37Client.connect(rpc);
+      const version = (await tm37Client.status()).nodeInfo.version;
+      if (version.startsWith('0.37.')) {
+        tmClient = tm37Client;
+      } else {
+        tm37Client.disconnect();
+        tmClient = await Tendermint34Client.connect(rpc);
+      }
+
+      CosmosContext.CLIENT_MAP[name] = tmClient;
+
+      return tmClient;
+    } finally {
+      CosmosContext.FETCH_CLIENT_LOCK.release();
     }
-
-    const rpc = this.context.conf.rpcs[name];
-    if (!rpc) throw new Error(`${chain} RPC not configured`);
-
-    CosmosContext.FETCHING_TM_CLIENT = true;
-
-    // from cosmjs: https://github.com/cosmos/cosmjs/blob/358260bff71c9d3e7ad6644fcf64dc00325cdfb9/packages/stargate/src/stargateclient.ts#L218
-    let tmClient: TendermintClient;
-    const tm37Client = await Tendermint37Client.connect(rpc);
-    const version = (await tm37Client.status()).nodeInfo.version;
-    if (version.startsWith('0.37.')) {
-      tmClient = tm37Client;
-    } else {
-      tm37Client.disconnect();
-      tmClient = await Tendermint34Client.connect(rpc);
-    }
-
-    CosmosContext.CLIENT_MAP[name] = tmClient;
-    CosmosContext.FETCHING_TM_CLIENT = false;
-
-    return tmClient;
   }
 
   private async getCosmWasmClient(
