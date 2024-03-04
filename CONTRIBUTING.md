@@ -1,3 +1,31 @@
+## Contributing
+
+Contributions are welcome! To work on wormhole-connect locally you'll want to use `npm link` to make the changes to the SDK immediately available.
+
+### Setup
+
+1) Install
+
+Run `npm i` at the root of the repo
+
+2) Build
+
+Run `npm run build` at the root fo the repo
+
+3) Start
+
+Start wormhole-connect UI and view in browser at localhost:3000
+```bash
+# in /wormhole-connect
+npm run start # testnet
+```
+
+Start builder UI and view in browser at localhost:3000
+```bash
+# in /builder
+npm run start
+```
+
 ## Add a token
 
 ### Fill out token config
