@@ -276,7 +276,7 @@ export const DEFAULT_MAINNET_RPCS = {
   cosmoshub: "https://cosmos-rpc.polkachu.com",
   evmos: "https://evmos-rpc.polkachu.com",
   kujira: "https://kujira-rpc.polkachu.com",
-  // klaytn: "https://rpc.ankr.com/klaytn",
+  klaytn: "https://rpc.ankr.com/klaytn",
 };
 
 export const DEFAULT_TESTNET_RPCS = {
@@ -299,5 +299,9 @@ export const DEFAULT_TESTNET_RPCS = {
   cosmoshub: "https://rpc.sentry-02.theta-testnet.polypore.xyz",
   evmos: "https://evmos-testnet-rpc.polkachu.com",
   kujira: "https://kujira-testnet-rpc.polkachu.com",
-  // klaytn: "https://rpc.ankr.com/klaytn_testnet",
+  klaytn: "https://rpc.ankr.com/klaytn_testnet",
+  sepolia: "https://rpc.ankr.com/eth_sepolia",
+  arbitrum_sepolia: "https://sepolia-rollup.arbitrum.io/rpc",
+  base_sepolia: "https://sepolia.base.org",
+  optimism_sepolia: "https://sepolia.optimism.io",
 };
