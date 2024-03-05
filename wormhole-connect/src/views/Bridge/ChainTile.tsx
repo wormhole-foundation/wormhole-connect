@@ -55,7 +55,7 @@ function ChainTile(props: Props) {
       onClick={onClick}
     >
       {props.chain ? <div className={classes.chainHeader}>Network</div> : null}
-      <TokenIcon icon={props.chain?.icon!} height={56} />
+      <TokenIcon icon={props.chain?.icon} height={56} />
       <div className={classes.chainName}>
         {props.chain?.displayName || 'Select network'}
       </div>

@@ -302,6 +302,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     contracts: {},
     finalityThreshold: 0,
     nativeTokenDecimals: 18,
+    disabledAsDestination: true,
   },
   kujira: {
     key: 'kujira',
