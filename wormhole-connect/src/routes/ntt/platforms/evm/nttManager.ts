@@ -79,8 +79,9 @@ export class NttManagerEvm {
     shouldSkipRelayerSend: boolean,
   ): Promise<string> {
     const tokenConfig = getTokenById(token);
-    if (!tokenConfig?.ntt?.wormholeTransceiver)
-      throw new Error('invalid token');
+    if (!tokenConfig?.ntt?.wormholeTransceiver) {
+      throw new Error('no wormhole transceiver');
+    }
     const deliveryPrice = !shouldSkipRelayerSend
       ? BigNumber.from(
           await this.quoteDeliveryPrice(

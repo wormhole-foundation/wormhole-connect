@@ -1,7 +1,7 @@
 import { wh } from 'utils/sdk';
 import { ChainId, ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { keccak256 } from 'ethers/lib/utils';
-import { NttManagerMessage, TransceiverMessage } from './payloads/common';
+import { NttManagerMessage } from './payloads/common';
 import { NativeTokenTransfer } from './payloads/transfers';
 import { WormholeTransceiverMessage } from './payloads/wormhole';
 
@@ -21,7 +21,7 @@ export const getNttManagerMessageDigest = (
 
 export const parseWormholeTransceiverMessage = (
   message: string | Buffer,
-): TransceiverMessage<NativeTokenTransfer> => {
+): WormholeTransceiverMessage<NativeTokenTransfer> => {
   const buffer = Buffer.isBuffer(message)
     ? message
     : Buffer.from(message.slice(2), 'hex');

@@ -5,7 +5,6 @@ import {
   RelayerPayloadId,
   DeliveryInstruction,
 } from '@certusone/wormhole-sdk/lib/esm/relayer';
-import { TOKENS } from 'config';
 import { ethers } from 'ethers';
 import { hexlify } from 'ethers/lib/utils';
 import { NttRelayingType, UnsignedNTTMessage } from 'routes/types';
@@ -42,7 +41,6 @@ export const getMessageEvm = async (
   const wormholeLog = await getWormholeLogEvm(fromChain, receipt);
   const parsedWormholeLog =
     Implementation__factory.createInterface().parseLog(wormholeLog);
-
   const relayingInfoEvent = receipt.logs.find(
     (log) =>
       log.topics[0] ===
@@ -61,31 +59,26 @@ export const getMessageEvm = async (
   if (relayingType === NttRelayingType.Standard) {
     const { type, parsed } = parseWormholeLog(wormholeLog);
     if (type !== RelayerPayloadId.Delivery) {
-      throw new Error(`Unexpected payload type ${type}`);
+      throw new Error(`Unexpected standard relayer payload type ${type}`);
     }
     payload = (parsed as DeliveryInstruction).payload;
     relayerFee = deliveryPayment.toString();
-  } else if (
-    relayingType === NttRelayingType.Manual ||
-    relayingType === NttRelayingType.Special
-  ) {
+  } else if (relayingType === NttRelayingType.Manual) {
     payload = Buffer.from(parsedWormholeLog.args.payload.slice(2), 'hex');
+  } else if (relayingType === NttRelayingType.Special) {
+    // TODO: implement
+    throw new Error('special relaying not implemented');
   } else {
     throw new Error(`Unexpected relaying type ${relayingType}`);
   }
   const transceiverMessage = parseWormholeTransceiverMessage(payload);
   const nttManagerMessage = transceiverMessage.nttManagerPayload;
   const toChain = wh.toChainName(nttManagerMessage.payload.recipientChain);
-  const receivedTokenKey = getNativeVersionOfToken(token.symbol, toChain);
-  const destToken = TOKENS[receivedTokenKey];
-  if (!destToken) {
-    throw new Error(`Token ${receivedTokenKey} not found`);
-  }
   return {
     sendTx: receipt.transactionHash,
     sender: receipt.from,
     amount: nttManagerMessage.payload.trimmedAmount.amount.toString(),
-    payloadID: 1,
+    payloadID: 0,
     recipient: wh.parseAddress(
       nttManagerMessage.payload.recipientAddress,
       toChain,
@@ -93,14 +86,11 @@ export const getMessageEvm = async (
     toChain,
     fromChain,
     tokenAddress,
-    tokenChain: fromChain,
+    tokenChain: token.nativeChain,
     tokenId,
     tokenKey: token.key,
-    tokenDecimals: getTokenDecimals(
-      wh.toChainId(nttManagerMessage.payload.recipientChain),
-      tokenId,
-    ),
-    receivedTokenKey,
+    tokenDecimals: getTokenDecimals(wh.toChainId(fromChain), tokenId),
+    receivedTokenKey: getNativeVersionOfToken(token.symbol, toChain),
     emitterAddress: hexlify(
       wh.formatAddress(parsedWormholeLog.args.sender, fromChain),
     ),
@@ -108,7 +98,7 @@ export const getMessageEvm = async (
     block: receipt.blockNumber,
     gasFee: receipt.gasUsed.mul(receipt.effectiveGasPrice).toString(),
     recipientNttManager: wh.parseAddress(
-      transceiverMessage.recipientNttManager,
+      hexlify(transceiverMessage.recipientNttManager),
       toChain,
     ),
     messageDigest: getNttManagerMessageDigest(fromChain, nttManagerMessage),

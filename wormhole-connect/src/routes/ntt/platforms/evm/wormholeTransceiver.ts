@@ -17,13 +17,17 @@ export class WormholeTransceiverEvm {
   async isWormholeRelayingEnabled(
     destChain: ChainName | ChainId,
   ): Promise<boolean> {
-    return this.transceiver.isWormholeRelayingEnabled(wh.toChainId(destChain));
+    return await this.transceiver.isWormholeRelayingEnabled(
+      wh.toChainId(destChain),
+    );
   }
 
   async isSpecialRelayingEnabled(
     destChain: ChainName | ChainId,
   ): Promise<boolean> {
-    return this.transceiver.isSpecialRelayingEnabled(wh.toChainId(destChain));
+    return await this.transceiver.isSpecialRelayingEnabled(
+      wh.toChainId(destChain),
+    );
   }
 
   async receiveMessage(vaa: string, payer: string): Promise<string> {

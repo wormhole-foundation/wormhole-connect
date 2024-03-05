@@ -79,6 +79,7 @@ export class NttManagerSolana {
     destChain: ChainName | ChainId,
     wormholeTransceiver: string,
   ): Promise<string> {
+    // TODO: how to get special relayer fee?
     throw new Error('Not implemented');
   }
 

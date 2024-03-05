@@ -5,7 +5,6 @@ import { UnsignedNTTMessage } from 'routes/types';
 import { getNativeVersionOfToken } from 'store/transferInput';
 import { getTokenById, getTokenDecimals } from 'utils';
 import { wh } from 'utils/sdk';
-import { TokenId } from '@wormhole-foundation/wormhole-connect-sdk';
 import {
   getNttManagerMessageDigest,
   parseWormholeTransceiverMessage,
@@ -22,8 +21,8 @@ export const getMessageSolana = async (
   });
   if (!response) throw new Error('Transaction not found');
   const core = wh.mustGetContracts('solana').core;
-  const accounts = response?.transaction.message.getAccountKeys();
-  const wormholeIx = response?.meta?.innerInstructions
+  const accounts = response.transaction.message.getAccountKeys();
+  const wormholeIx = response.meta?.innerInstructions
     ?.flatMap((ix) => ix.instructions)
     .find((ix) => accounts?.get(ix.programIdIndex)?.toString() === core);
   if (!wormholeIx) throw new Error('Wormhole instruction not found');
@@ -48,7 +47,7 @@ export const getMessageSolana = async (
     hexlify(nttManagerMessage.payload.sourceToken),
     fromChain,
   );
-  const tokenId: TokenId = {
+  const tokenId = {
     chain: fromChain,
     address: tokenAddress,
   };
@@ -56,11 +55,12 @@ export const getMessageSolana = async (
   if (!token) {
     throw new Error(`Token ${tokenId} not found`);
   }
+  // TODO: special relayer support, relayer fee
   return {
     sendTx: tx,
     sender: wh.parseAddress(hexlify(nttManagerMessage.sender), fromChain),
     amount: nttManagerMessage.payload.trimmedAmount.amount.toString(),
-    payloadID: 1,
+    payloadID: 0,
     recipient: wh.parseAddress(
       hexlify(nttManagerMessage.payload.recipientAddress),
       toChain,

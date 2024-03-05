@@ -35,6 +35,7 @@ const useDeliveryStatus = (): void => {
     const fetchData = async () => {
       while (active) {
         try {
+          // TODO: the response data should be typed
           const response = await axios.get(
             `${BASE_URL}/${emitterChain}/${emitterAddress}/${sequence}`,
           );

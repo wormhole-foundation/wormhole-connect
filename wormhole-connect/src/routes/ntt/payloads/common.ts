@@ -23,7 +23,7 @@ export class TransceiverMessage<A> {
     data: Buffer,
     deserializer: (data: Buffer) => NttManagerMessage<A>,
   ): TransceiverMessage<A> {
-    if (this.prefix == undefined) {
+    if (this.prefix === undefined) {
       throw new Error('Unknown prefix.');
     }
     const prefix = data.subarray(0, 4);

@@ -159,6 +159,7 @@ export abstract class NttBase extends BaseRoute {
   ): Promise<BigNumber> {
     if (isEvmChain(sendingChain)) {
       const provider = wh.mustGetProvider(sendingChain);
+      // incorporate the current gas price
       const gasPrice = await provider.getGasPrice();
       return gasPrice.mul(200000);
     } else if (wh.toChainName(sendingChain) === 'solana') {
@@ -177,6 +178,7 @@ export abstract class NttBase extends BaseRoute {
     }
     if (isEvmChain(destChain)) {
       const provider = wh.mustGetProvider(destChain);
+      // incorporate the current gas price
       const gasPrice = await provider.getGasPrice();
       return gasPrice.mul(300000);
     } else if (wh.toChainName(destChain) === 'solana') {
