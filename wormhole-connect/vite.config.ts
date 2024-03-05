@@ -106,7 +106,10 @@ export default defineConfig(({ command, mode }) => {
             input: {
               main: 'src/main.tsx',
             },
-            output,
+            output: {
+              entryFileNames: '[name].js',
+              ...output,
+            },
             external,
           },
         },
