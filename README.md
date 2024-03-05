@@ -1,12 +1,10 @@
 # Wormhole Connect
 
-[![npm version](https://img.shields.io/npm/v/@wormhole-foundation/wormhole-connect.svg?style=flat-square)](https://www.npmjs.com/package/@wormhole-foundation/wormhole-connect)
-
-![CI build](https://github.com/wormhole-foundation/wormhole-connect/actions/workflows/lint.yml/badge.svg)
+[![npm version](https://img.shields.io/npm/v/@wormhole-foundation/wormhole-connect.svg)](https://www.npmjs.com/package/@wormhole-foundation/wormhole-connect) ![CI build](https://github.com/wormhole-foundation/wormhole-connect/actions/workflows/lint.yml/badge.svg)
 
 Wormhole Connect is a customizable React widget that can perform cross-chain bridging with Wormhole.
 
-[![wormhole connect](./wormhole-connect.png)](https://portalbridge.com/)
+[![Wormhole Connect running on Portal Bridge](https://i.imgur.com/sZJKw8e.png)](https://portalbridge.com/)
 
 ## Demo
 
