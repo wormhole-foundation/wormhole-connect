@@ -6,11 +6,11 @@ import {
 } from './helpers';
 import { InboundQueuedTransfer } from 'routes/ntt/types';
 
-export interface NTTState {
+export interface NttState {
   inboundQueuedTransfer: DataWrapper<InboundQueuedTransfer | undefined>;
 }
 
-const initialState: NTTState = {
+const initialState: NttState = {
   inboundQueuedTransfer: getEmptyDataWrapper(),
 };
 
@@ -19,22 +19,22 @@ export const nttSlice = createSlice({
   initialState,
   reducers: {
     setInboundQueuedTransfer: (
-      state: NTTState,
+      state: NttState,
       { payload }: PayloadAction<InboundQueuedTransfer | undefined>,
     ) => {
       state.inboundQueuedTransfer = receiveDataWrapper(payload);
     },
-    resetInboundQueuedTransfer: (state: NTTState) => {
+    resetInboundQueuedTransfer: (state: NttState) => {
       state.inboundQueuedTransfer = getEmptyDataWrapper();
     },
-    clearNTT: () => initialState,
+    clearNtt: () => initialState,
   },
 });
 
 export const {
   setInboundQueuedTransfer,
   resetInboundQueuedTransfer,
-  clearNTT,
+  clearNtt,
 } = nttSlice.actions;
 
 export default nttSlice.reducer;

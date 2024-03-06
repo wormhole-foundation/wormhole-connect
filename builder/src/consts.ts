@@ -253,6 +253,20 @@ export const ROUTE_INFOS: RouteInfo[] = [
     title: "wstETH Bridge",
     description: "Permissionlessly transfer wstETH cross-chain with Wormhole.",
   },
+  {
+    key: "nttManual",
+    title: "Native Token Transfer",
+    description:
+      "Permissionlessly transfer native tokens cross-chain with Wormhole.",
+    link: "https://github.com/wormhole-foundation/example-native-token-transfers/blob/main/README.md",
+  },
+  {
+    key: "nttRelay",
+    title: "Native Token Transfer Automatic Redeems",
+    description:
+      "Automatic redeems for Native Token Transfers powered by xLabs.",
+    link: "https://github.com/wormhole-foundation/example-native-token-transfers/blob/main/README.md",
+  },
 ];
 export const ROUTES = ROUTE_INFOS.map((r) => r.key);
 

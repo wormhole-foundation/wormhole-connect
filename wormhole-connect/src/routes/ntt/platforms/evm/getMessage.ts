@@ -7,7 +7,7 @@ import {
 } from '@certusone/wormhole-sdk/lib/esm/relayer';
 import { ethers } from 'ethers';
 import { hexlify } from 'ethers/lib/utils';
-import { NttRelayingType, UnsignedNTTMessage } from 'routes/types';
+import { NttRelayingType, UnsignedNttMessage } from 'routes/types';
 import { getNativeVersionOfToken } from 'store/transferInput';
 import { getTokenById, getTokenDecimals } from 'utils';
 import { wh } from 'utils/sdk';
@@ -21,7 +21,7 @@ import {
 export const getMessageEvm = async (
   tx: string,
   chain: ChainName | ChainId,
-): Promise<UnsignedNTTMessage> => {
+): Promise<UnsignedNttMessage> => {
   const provider = wh.mustGetProvider(chain);
   const receipt = await provider.getTransactionReceipt(tx);
   if (!receipt) {
@@ -63,11 +63,11 @@ export const getMessageEvm = async (
     }
     payload = (parsed as DeliveryInstruction).payload;
     relayerFee = deliveryPayment.toString();
-  } else if (relayingType === NttRelayingType.Manual) {
+  } else if (
+    relayingType === NttRelayingType.Manual ||
+    relayingType === NttRelayingType.Special
+  ) {
     payload = Buffer.from(parsedWormholeLog.args.payload.slice(2), 'hex');
-  } else if (relayingType === NttRelayingType.Special) {
-    // TODO: implement
-    throw new Error('special relaying not implemented');
   } else {
     throw new Error(`Unexpected relaying type ${relayingType}`);
   }

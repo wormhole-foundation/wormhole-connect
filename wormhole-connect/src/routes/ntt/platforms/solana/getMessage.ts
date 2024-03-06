@@ -1,7 +1,7 @@
 import { solanaContext } from 'utils/sdk';
 import { PostedMessageData } from '@certusone/wormhole-sdk/lib/esm/solana/wormhole';
 import { hexlify } from 'ethers/lib/utils';
-import { UnsignedNTTMessage } from 'routes/types';
+import { UnsignedNttMessage } from 'routes/types';
 import { getNativeVersionOfToken } from 'store/transferInput';
 import { getTokenById, getTokenDecimals } from 'utils';
 import { wh } from 'utils/sdk';
@@ -12,7 +12,7 @@ import {
 
 export const getMessageSolana = async (
   tx: string,
-): Promise<UnsignedNTTMessage> => {
+): Promise<UnsignedNttMessage> => {
   const context = solanaContext();
   const connection = context.connection;
   if (!connection) throw new Error('Connection not found');
@@ -55,7 +55,6 @@ export const getMessageSolana = async (
   if (!token) {
     throw new Error(`Token ${tokenId} not found`);
   }
-  // TODO: special relayer support, relayer fee
   return {
     sendTx: tx,
     sender: wh.parseAddress(hexlify(nttManagerMessage.sender), fromChain),
@@ -87,7 +86,7 @@ export const getMessageSolana = async (
       toChain,
     ),
     messageDigest: getNttManagerMessageDigest(fromChain, nttManagerMessage),
-    relayerFee: '',
+    relayerFee: '', // TODO: should be able to fet this from the logs
     relayingType: 0, // TODO: what to set to?
   };
 };

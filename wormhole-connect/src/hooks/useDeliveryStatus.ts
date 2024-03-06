@@ -1,3 +1,4 @@
+import { DeliveryStatus } from '@certusone/wormhole-sdk/lib/esm/relayer';
 import axios from 'axios';
 import { isMainnet } from 'config';
 import { Route } from 'config/types';
@@ -15,6 +16,17 @@ const BASE_URL = `https://api.${
 
 const RETRY_DELAY = 15_000;
 
+interface RelayResponse {
+  data?: {
+    delivery?: {
+      execution?: {
+        status: DeliveryStatus;
+      };
+    };
+    toTxHash?: string;
+  };
+}
+
 // Polls for standard relayer delivery status
 const useDeliveryStatus = (): void => {
   const dispatch = useDispatch();
@@ -27,16 +39,16 @@ const useDeliveryStatus = (): void => {
       !signedMessage ||
       route !== Route.NttRelay ||
       !isEvmChain(signedMessage.toChain) // Currently, only EVM chains support standard relayer
-    )
+    ) {
       return;
+    }
     const { emitterChain, emitterAddress, sequence } =
       getEmitterAndSequence(signedMessage);
     let active = true;
     const fetchData = async () => {
       while (active) {
         try {
-          // TODO: the response data should be typed
-          const response = await axios.get(
+          const response = await axios.get<RelayResponse>(
             `${BASE_URL}/${emitterChain}/${emitterAddress}/${sequence}`,
           );
           if (active) {
@@ -50,9 +62,7 @@ const useDeliveryStatus = (): void => {
             break;
           }
         } catch (e) {
-          if (axios.isAxiosError(e)) {
-            if (e.status !== 404) console.error(e);
-          } else {
+          if (!axios.isAxiosError(e) || e.status !== 404) {
             console.error(e);
           }
         }

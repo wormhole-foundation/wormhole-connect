@@ -8,8 +8,8 @@ import { Route, TokenConfig } from 'config/types';
 import {
   SignedMessage,
   UnsignedMessage,
-  UnsignedNTTMessage,
-  SignedNTTMessage,
+  UnsignedNttMessage,
+  SignedNttMessage,
   TransferDestInfoBaseParams,
   TransferDestInfo,
   isSignedNttMessage,
@@ -344,7 +344,7 @@ export abstract class NttBase extends BaseRoute {
   async getMessage(
     tx: string,
     chain: ChainName | ChainId,
-  ): Promise<UnsignedNTTMessage> {
+  ): Promise<UnsignedNttMessage> {
     if (isEvmChain(chain)) {
       return getMessageEvm(tx, chain);
     }
@@ -355,8 +355,8 @@ export abstract class NttBase extends BaseRoute {
   }
 
   async getSignedMessage(
-    unsigned: UnsignedNTTMessage,
-  ): Promise<SignedNTTMessage> {
+    unsigned: UnsignedNttMessage,
+  ): Promise<SignedNttMessage> {
     const vaa = await fetchVaa(unsigned, true);
 
     if (!vaa) {
@@ -377,7 +377,7 @@ export abstract class NttBase extends BaseRoute {
   // and not inbound queued
   async isTransferCompleted(
     chain: ChainName | ChainId,
-    signedMessage: SignedNTTMessage,
+    signedMessage: SignedNttMessage,
   ): Promise<boolean> {
     if (!isSignedNttMessage(signedMessage)) {
       throw new Error('Invalid signed message');

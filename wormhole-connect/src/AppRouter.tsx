@@ -19,7 +19,7 @@ import { setRoute } from './store/router';
 import { clearWallets } from './store/wallet';
 import { clearPorticoBridge } from 'store/porticoBridge';
 import { useExternalSearch } from 'hooks/useExternalSearch';
-import { clearNTT } from 'store/ntt';
+import { clearNtt } from 'store/ntt';
 
 const useStyles = makeStyles()((theme: any) => ({
   appContent: {
@@ -72,7 +72,7 @@ function AppRouter({ config }: Props) {
     if (prevRoute === redeemRoute && route !== redeemRoute) {
       dispatch(clearRedeem());
       dispatch(clearWallets());
-      dispatch(clearNTT());
+      dispatch(clearNtt());
     }
     // reset transfer state on leave
     if (prevRoute === bridgeRoute && route !== bridgeRoute) {

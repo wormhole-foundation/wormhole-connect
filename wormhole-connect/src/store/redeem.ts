@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { ParsedMessage, ParsedRelayerMessage } from 'utils/sdk';
-import { UnsignedNTTMessage, SignedMessage, TransferDestInfo } from 'routes';
+import { UnsignedNttMessage, SignedMessage, TransferDestInfo } from 'routes';
 import { Route } from 'config/types';
 import { DeliveryStatus } from '@certusone/wormhole-sdk/lib/esm/relayer';
 
@@ -10,7 +10,7 @@ export enum MessageType {
 }
 
 export interface RedeemState {
-  txData: ParsedMessage | ParsedRelayerMessage | UnsignedNTTMessage | undefined;
+  txData: ParsedMessage | ParsedRelayerMessage | UnsignedNttMessage | undefined;
   signedMessage: SignedMessage | undefined;
   sendTx: string;
   redeemTx: string;
@@ -42,7 +42,7 @@ export const redeemSlice = createSlice({
       {
         payload,
       }: PayloadAction<
-        ParsedMessage | ParsedRelayerMessage | UnsignedNTTMessage
+        ParsedMessage | ParsedRelayerMessage | UnsignedNttMessage
       >,
     ) => {
       state.txData = payload;

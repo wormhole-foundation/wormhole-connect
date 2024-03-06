@@ -6,7 +6,7 @@ import SendFrom from './SendFrom';
 import SendTo from './SendTo';
 import BridgeComplete from './BridgeComplete';
 import NttInboundQueued from './NttInboundQueued';
-import RelayFailed from './RelayFailed';
+import RelayerDeliveryFailed from './RelayerDeliveryFailed';
 import { DeliveryStatus } from '@certusone/wormhole-sdk/lib/esm/relayer';
 
 const SEND_FROM_STEP = 1;
@@ -46,7 +46,7 @@ export default function NttStepper() {
     {
       label: 'Send to',
       component: deliveryFailed ? (
-        <RelayFailed />
+        <RelayerDeliveryFailed />
       ) : isInboundQueued ? (
         <NttInboundQueued />
       ) : (

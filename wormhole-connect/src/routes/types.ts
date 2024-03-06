@@ -16,7 +16,7 @@ export enum NttRelayingType {
   Special,
   Manual,
 }
-export type UnsignedNTTMessage = ParsedMessage & {
+export type UnsignedNttMessage = ParsedMessage & {
   recipientNttManager: string;
   messageDigest: string;
   relayerFee: string;
@@ -27,11 +27,11 @@ export type UnsignedMessage =
   | RelayTransferMessage
   | UnsignedCCTPMessage
   | TBTCMessage
-  | UnsignedNTTMessage;
+  | UnsignedNttMessage;
 
 export const isUnsignedNttMessage = (
   message: UnsignedMessage,
-): message is UnsignedNTTMessage =>
+): message is UnsignedNttMessage =>
   typeof message === 'object' &&
   'recipientNttManager' in message &&
   'messageDigest' in message &&
@@ -40,13 +40,13 @@ export const isUnsignedNttMessage = (
 
 export type SignedTokenTransferMessage = TokenTransferMessage & { vaa: string }; // hex encoded vaa bytes
 export type SignedRelayTransferMessage = RelayTransferMessage & { vaa: string }; // hex encoded vaa bytes
-export type SignedNTTMessage = UnsignedNTTMessage & {
+export type SignedNttMessage = UnsignedNttMessage & {
   vaa: string;
 }; // hex encoded vaa bytes
 export type SignedWormholeMessage =
   | SignedTokenTransferMessage
   | SignedRelayTransferMessage
-  | SignedNTTMessage;
+  | SignedNttMessage;
 export type SignedManualCCTPMessage = ManualCCTPMessage & {
   attestation: string;
 };
@@ -68,16 +68,16 @@ export const isSignedCCTPMessage = (
   'attestation' in message;
 export const isSignedNttMessage = (
   message: SignedMessage,
-): message is SignedNTTMessage =>
+): message is SignedNttMessage =>
   isSignedWormholeMessage(message) && isUnsignedNttMessage(message);
 
 export interface TransferInfoBaseParams {
-  txData: ParsedMessage | ParsedRelayerMessage | UnsignedNTTMessage;
+  txData: ParsedMessage | ParsedRelayerMessage | UnsignedNttMessage;
   tokenPrices: TokenPrices;
 }
 
 export interface TransferDestInfoBaseParams {
-  txData: ParsedMessage | ParsedRelayerMessage | UnsignedNTTMessage;
+  txData: ParsedMessage | ParsedRelayerMessage | UnsignedNttMessage;
   tokenPrices: TokenPrices;
   receiveTx?: string;
   gasEstimate?: string;

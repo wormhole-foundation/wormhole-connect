@@ -224,15 +224,15 @@ function SendTo() {
       console.error(e);
     }
     if (txId !== undefined) {
-      try {
-        const route = RouteOperator.getRoute(routeName);
-        if (
-          isNttRoute(route.TYPE) &&
-          signedMessage &&
-          isSignedNttMessage(signedMessage)
-        ) {
-          // The redeem may have resulted in the transfer being inbound queued
-          // so we need to check that before we set the transfer as complete
+      const route = RouteOperator.getRoute(routeName);
+      if (
+        isNttRoute(route.TYPE) &&
+        signedMessage &&
+        isSignedNttMessage(signedMessage)
+      ) {
+        // The redeem may have resulted in the transfer being inbound queued
+        // so we need to check that before we set the transfer as complete
+        try {
           const inboundQueuedTransfer = await (
             route as NttBase
           ).getInboundQueuedTransfer(
@@ -246,12 +246,12 @@ function SendTo() {
             dispatch(setRedeemTx(txId));
             dispatch(setTransferComplete(true));
           }
-        } else {
-          dispatch(setRedeemTx(txId));
-          dispatch(setTransferComplete(true));
+        } catch (e) {
+          console.error(e);
         }
-      } catch (e) {
-        console.error(e);
+      } else {
+        dispatch(setRedeemTx(txId));
+        dispatch(setTransferComplete(true));
       }
     }
   };

@@ -25,7 +25,7 @@ const useStyles = makeStyles()((theme: any) => ({
   },
 }));
 
-const RelayFailed = () => {
+const RelayerDeliveryFailed = () => {
   const { classes } = useStyles();
   const theme: any = useTheme();
   const txData = useSelector((state: RootState) => state.redeem.txData)!;
@@ -40,7 +40,7 @@ const RelayFailed = () => {
       />
       <div className={classes.root}>
         <Typography>
-          {`The relayer failed to complete your transfer on ${chainDisplayName}.`}
+          {`Your transfer failed to be delivered on ${chainDisplayName}.`}
         </Typography>
         <Typography>
           Please reach out to the Wormhole community on{' '}
@@ -59,4 +59,4 @@ const RelayFailed = () => {
   );
 };
 
-export default RelayFailed;
+export default RelayerDeliveryFailed;
