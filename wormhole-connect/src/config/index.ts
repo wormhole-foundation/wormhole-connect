@@ -8,13 +8,8 @@ import {
 import MAINNET from './mainnet';
 import TESTNET from './testnet';
 import DEVNET from './devnet';
-import {
-  Environment,
-  InternalConfig,
-  Route,
-  WormholeConnectConfig,
-  TokensConfig,
-} from './types';
+import type { WormholeConnectConfig } from './types';
+import { Environment, InternalConfig, Route, TokensConfig } from './types';
 import { mergeCustomTokensConfig, validateDefaults } from './utils';
 
 type Network = 'MAINNET' | 'TESTNET' | 'DEVNET';
