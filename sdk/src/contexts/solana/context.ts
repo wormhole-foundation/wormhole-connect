@@ -23,6 +23,7 @@ import {
 import {
   clusterApiUrl,
   Commitment,
+  ComputeBudgetProgram,
   Connection,
   Keypair,
   PublicKey,
@@ -387,9 +388,12 @@ export class SolanaContext<
 
     const { blockhash } = await this.connection.getLatestBlockhash(commitment);
     const transaction = new Transaction();
+    const priorityIx = await this.getPriorityFeeIx(contracts.token_bridge);
+
     transaction.recentBlockhash = blockhash;
     transaction.feePayer = payerPublicKey;
     transaction.add(
+      priorityIx,
       createAncillaryAccountIx,
       initialBalanceTransferIx,
       initAccountIx,
@@ -517,7 +521,9 @@ export class SolanaContext<
           recipientAddress,
           recipientChainId,
         );
+    const priorityIx = await this.getPriorityFeeIx(contracts.token_bridge);
     const transaction = new Transaction().add(
+      priorityIx,
       approvalIx,
       tokenBridgeTransferIx,
     );
@@ -936,6 +942,8 @@ export class SolanaContext<
           parsed.tokenAddress,
         );
     const transaction = new Transaction();
+    const priorityIx = await this.getPriorityFeeIx(token_bridge);
+    transaction.add(priorityIx);
     const recipientTokenAccount = getAssociatedTokenAddressSync(
       mint,
       recipient,
@@ -1047,6 +1055,8 @@ export class SolanaContext<
     const recipientChainId = this.context.toChainId(recipientChain);
     const nonce = createNonce().readUint32LE();
     const transaction = new Transaction();
+    let priorityIx = await this.getPriorityFeeIx(token_bridge);
+    transaction.add(priorityIx);
     let transferIx: TransactionInstruction;
     if (token === NATIVE || token.chain === SOLANA_CHAIN_NAME) {
       const mint = token === NATIVE ? NATIVE_MINT : token.address;
@@ -1103,6 +1113,7 @@ export class SolanaContext<
         nonce,
       );
     }
+
     transaction.add(transferIx);
     const { blockhash } = await this.connection.getLatestBlockhash('finalized');
     transaction.recentBlockhash = blockhash;
@@ -1175,5 +1186,26 @@ export class SolanaContext<
       address: NATIVE_MINT.toString(),
       chain: 'solana',
     };
+  }
+
+  async getPriorityFeeIx(address: string) {
+    let unitPrice = 10_000; // use minimum of 10,000 microlmaports
+
+    const recentFees = await this.connection?.getRecentPrioritizationFees({
+      lockedWritableAccounts: [new PublicKey(address)],
+    });
+
+    if (recentFees) {
+      const maxFee = Math.max(
+        ...recentFees.map(({ prioritizationFee }) => prioritizationFee),
+      );
+      unitPrice = Math.max(unitPrice, maxFee * 10);
+    }
+
+    console.info(`Solana priorityFee: ${unitPrice} microLamports`);
+
+    return ComputeBudgetProgram.setComputeUnitPrice({
+      microLamports: unitPrice,
+    });
   }
 }
