@@ -58,9 +58,9 @@
   "scripts": {
     "start": "vite",
     "build": "npm run build:lib; npm run build:hosted; npm run build:netlify",
-    "build:lib": "NODE_ENV=production NODE_OPTIONS=--max-old-space-size=8144 vite build",
-    "build:hosted": "VITE_BUILD_HOSTED=1 NODE_ENV=production NODE_OPTIONS=--max-old-space-size=6144 vite build",
-    "build:netlify": "VITE_BUILD_NETLIFY=1 NODE_ENV=production NODE_OPTIONS=--max-old-space-size=6144 vite build",
+    "build:lib": "NODE_ENV=production NODE_OPTIONS=--max-old-space-size=8192 vite build",
+    "build:hosted": "VITE_BUILD_HOSTED=1 NODE_ENV=production NODE_OPTIONS=--max-old-space-size=8192 vite build",
+    "build:netlify": "VITE_BUILD_NETLIFY=1 NODE_ENV=production NODE_OPTIONS=--max-old-space-size=8192 vite build",
     "lint": "scripts/lint.sh",
     "lint:ci": "scripts/lint_ci.sh",
     "prettier": "prettier --write ./src",
