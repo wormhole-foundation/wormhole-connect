@@ -13,6 +13,7 @@ import {
   TransferDestInfoBaseParams,
   TransferDestInfo,
   isSignedNttMessage,
+  RelayerFee,
 } from '../types';
 import { fetchVaa } from 'utils/vaa';
 import { hexlify, parseUnits } from 'ethers/lib/utils.js';
@@ -29,14 +30,14 @@ import {
   toNormalizedDecimals,
 } from 'utils';
 import { getNativeVersionOfToken } from 'store/transferInput';
-import { getNttManager, getWormholeTransceiver } from './platforms';
+import { getNttManager } from './platforms';
 import { InboundQueuedTransfer } from './types';
 import {
   ContractIsPausedError,
   DestinationContractIsPausedError,
 } from './errors';
-import { getMessageEvm } from './platforms/evm';
-import { getMessageSolana } from './platforms/solana';
+import { WormholeTransceiver, getMessageEvm } from './platforms/evm';
+import { NttManagerSolana, getMessageSolana } from './platforms/solana';
 import { formatGasFee } from 'routes/utils';
 import { NO_INPUT } from 'utils/style';
 
@@ -98,7 +99,7 @@ export abstract class NttBase extends BaseRoute {
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
   ): Promise<boolean> {
-    return Promise.all([
+    return await Promise.all([
       this.isSupportedChain(wh.toChainName(sourceChain)),
       this.isSupportedChain(wh.toChainName(destChain)),
       this.isSupportedSourceToken(
@@ -249,15 +250,21 @@ export abstract class NttBase extends BaseRoute {
     if (await nttManager.isPaused()) {
       throw new ContractIsPausedError();
     }
-    const wormholeTransceiver =
-      TOKENS[receivedTokenKey]?.ntt?.wormholeTransceiver;
-    if (!wormholeTransceiver) {
-      throw new Error('WormholeTransceiver not configured');
+    const nttConfig = TOKENS[receivedTokenKey]?.ntt;
+    if (!nttConfig) {
+      throw new Error('ntt config not found');
     }
-    return await getWormholeTransceiver(
-      chain,
-      wormholeTransceiver,
-    ).receiveMessage(vaa, payer);
+    if (isEvmChain(chain)) {
+      const transceiver = new WormholeTransceiver(
+        chain,
+        nttConfig.wormholeTransceiver,
+      );
+      return await transceiver.receiveMessage(vaa, payer);
+    }
+    if (wh.toChainName(chain) === 'solana') {
+      return await (nttManager as NttManagerSolana).receiveMessage(vaa, payer);
+    }
+    throw new Error('Unsupported chain');
   }
 
   async getRelayerFee(
@@ -265,8 +272,8 @@ export abstract class NttBase extends BaseRoute {
     destChain: ChainName | ChainId,
     token: string,
     destToken: string,
-  ): Promise<BigNumber> {
-    return BigNumber.from(0);
+  ): Promise<RelayerFee | null> {
+    return null;
   }
 
   async getCurrentOutboundCapacity(

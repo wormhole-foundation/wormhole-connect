@@ -1,6 +1,8 @@
 import { Route } from 'config/types';
 import { ParsedMessage, ParsedRelayerMessage } from '../utils/sdk';
 import { TokenPrices } from 'store/tokenPrices';
+import { BigNumber } from 'ethers';
+import { TokenId } from '@wormhole-foundation/wormhole-connect-sdk';
 
 export type TokenTransferMessage = ParsedMessage;
 export type RelayTransferMessage = ParsedRelayerMessage;
@@ -99,3 +101,8 @@ export type TransferDestInfo = {
 };
 
 export type TransferDisplayData = NestedRow[];
+
+export interface RelayerFee {
+  fee: BigNumber;
+  feeToken: TokenId | 'native';
+}

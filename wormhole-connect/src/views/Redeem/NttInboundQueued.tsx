@@ -108,42 +108,35 @@ const NttInboundQueued = () => {
         wallet.address,
       );
     } catch (e: any) {
-      if (
-        e.message === InboundQueuedTransferNotFoundError.MESSAGE ||
-        e.message === InboundQueuedTransferStillQueuedError.MESSAGE ||
-        e.message === ContractIsPausedError.MESSAGE
-      ) {
-        setSendError(e.message);
-      } else {
-        setSendError('Error with transfer, please try again');
+      switch (e.message) {
+        case InboundQueuedTransferNotFoundError.MESSAGE:
+        case InboundQueuedTransferStillQueuedError.MESSAGE:
+        case ContractIsPausedError.MESSAGE:
+          setSendError(e.message);
+          break;
+        default:
+          setSendError('Error with transfer, please try again');
+          break;
       }
       console.error(e);
     }
     if (tx !== undefined) {
       try {
-        if (toChain === 'solana') {
-          // Solana will not throw an error if the transfer is still queued
-          // so we need to check if the transfer is still queued
-          const inboundQueuedTransfer = await nttRoute.getInboundQueuedTransfer(
-            toChain,
-            recipientNttManager,
-            messageDigest,
-          );
-          dispatch(setInboundQueuedTransfer(inboundQueuedTransfer));
-          if (inboundQueuedTransfer) {
-            setSendError('Transfer still queued');
-          } else {
-            dispatch(setRedeemTx(tx));
-          }
-        } else {
+        // Check that the transfer is not still queued
+        const inboundQueuedTransfer = await nttRoute.getInboundQueuedTransfer(
+          toChain,
+          recipientNttManager,
+          messageDigest,
+        );
+        if (!inboundQueuedTransfer) {
           dispatch(setInboundQueuedTransfer(undefined));
           dispatch(setRedeemTx(tx));
+          const isTransferCompleted = await nttRoute.isTransferCompleted(
+            toChain,
+            signedMessage,
+          );
+          dispatch(setTransferComplete(isTransferCompleted));
         }
-        const isTransferCompleted = await nttRoute.isTransferCompleted(
-          toChain,
-          signedMessage,
-        );
-        dispatch(setTransferComplete(isTransferCompleted));
       } catch (e) {
         console.error(e);
       }
@@ -159,15 +152,25 @@ const NttInboundQueued = () => {
             chain={signedMessage.toChain}
             address={signedMessage.recipient}
           />
-          <div>
-            {`Your transfer to ${
-              CHAINS[signedMessage.toChain]?.displayName || 'UNKNOWN'
-            } is delayed due to rate limits configured by ${
-              TOKENS[signedMessage.receivedTokenKey]?.symbol || 'UNKNOWN'
-            }. After the delay ends on ${
-              rateLimitExpiry || 'UNKNOWN'
-            }, you will need to return to submit a new transaction to complete your transfer.`}
-          </div>
+          {!expired ? (
+            <div>
+              {`Your transfer to ${
+                CHAINS[signedMessage.toChain]?.displayName || 'UNKNOWN'
+              } is delayed due to rate limits configured by ${
+                TOKENS[signedMessage.receivedTokenKey]?.symbol || 'UNKNOWN'
+              }. After the delay ends on ${
+                rateLimitExpiry || 'UNKNOWN'
+              }, you will need to return to submit a new transaction to complete your transfer.`}
+            </div>
+          ) : (
+            <div>
+              {`Your transfer to ${
+                CHAINS[signedMessage.toChain]?.displayName || 'UNKNOWN'
+              } was delayed due to rate limits configured by ${
+                TOKENS[signedMessage.receivedTokenKey]?.symbol || 'UNKNOWN'
+              }. You will need to submit a new transaction to complete your transfer.`}
+            </div>
+          )}
         </>
       </InputContainer>
       <Spacer height={8} />

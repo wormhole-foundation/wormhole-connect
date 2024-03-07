@@ -35,6 +35,7 @@ import {
   TransferDestInfoBaseParams,
   TransferInfoBaseParams,
   TransferDestInfo,
+  RelayerFee,
 } from '../types';
 import { BridgeRoute } from '../bridge/bridge';
 import { fetchVaa } from '../../utils/vaa';
@@ -283,8 +284,8 @@ export class CosmosGatewayRoute extends BaseRoute {
     destChain: ChainName | ChainId,
     token: string,
     destToken: string,
-  ): Promise<BigNumber> {
-    return BigNumber.from(0);
+  ): Promise<RelayerFee | null> {
+    return null;
   }
 
   async isTransferCompleted(

@@ -55,12 +55,10 @@ export const getMessageSolana = async (
   if (!token) {
     throw new Error(`Token ${tokenId} not found`);
   }
-  const logMessages = response.meta?.logMessages || [];
-  // TODO: fix this when the relayer contract is deployed
-  const relayerLog = logMessages.find((msg) => msg.startsWith('Relayer fee: '));
-  // TODO: is the relayer fee in lamports? Because on ETH it's in wei
-  // and we should be consistent
-  const relayerFee = relayerLog ? relayerLog.split('Relayer fee: ')[1] : '';
+  const logMsgs = response.meta?.logMessages || [];
+  const regex = /total fee in lamports: (\d+)/;
+  const relayerFeeMsg = logMsgs.find((msg) => regex.test(msg));
+  const relayerFee = relayerFeeMsg ? regex.exec(relayerFeeMsg)?.[1] : '';
   return {
     sendTx: tx,
     sender: wh.parseAddress(hexlify(nttManagerMessage.sender), fromChain),
@@ -92,7 +90,7 @@ export const getMessageSolana = async (
       toChain,
     ),
     messageDigest: getNttManagerMessageDigest(fromChain, nttManagerMessage),
-    relayerFee,
+    relayerFee: relayerFee || '',
     relayingType: relayerFee ? NttRelayingType.Special : NttRelayingType.Manual,
   };
 };

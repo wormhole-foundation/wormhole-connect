@@ -2,14 +2,14 @@ import { ChainId, ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { wh } from 'utils/sdk';
 import { WormholeTransceiver__factory } from './abis/WormholeTransceiver__factory';
 import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
-import { WormholeTransceiver } from './abis/WormholeTransceiver';
+import { WormholeTransceiver as WormholeTransceiverAbi } from './abis/WormholeTransceiver';
 
-export class WormholeTransceiverEvm {
-  readonly transceiver: WormholeTransceiver;
+export class WormholeTransceiver {
+  readonly transceiver: WormholeTransceiverAbi;
 
-  constructor(readonly chain: ChainName | ChainId, endpointAddress: string) {
+  constructor(readonly chain: ChainName | ChainId, address: string) {
     this.transceiver = WormholeTransceiver__factory.connect(
-      endpointAddress,
+      address,
       wh.mustGetProvider(chain),
     );
   }

@@ -32,6 +32,7 @@ import {
   TransferInfoBaseParams,
   TransferDestInfoBaseParams,
   TransferDestInfo,
+  RelayerFee,
 } from '../types';
 import { BaseRoute } from '../bridge/baseRoute';
 import { toDecimals } from '../../utils/balance';
@@ -436,8 +437,8 @@ export class CCTPManualRoute extends BaseRoute {
     destChain: ChainName | ChainId,
     token: string,
     destToken: string,
-  ): Promise<BigNumber> {
-    return BigNumber.from(0);
+  ): Promise<RelayerFee | null> {
+    return null;
   }
 
   async getForeignAsset(

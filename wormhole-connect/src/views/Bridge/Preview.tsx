@@ -109,21 +109,16 @@ function Preview(props: { collapsed: boolean }) {
         const tokenConfig = token && config.tokens[token];
         if (!tokenConfig) return;
 
-        const fee = await RouteOperator.getRelayerFee(
+        const result = await RouteOperator.getRelayerFee(
           route,
           fromChain,
           toChain,
           token,
           destToken,
         );
-        // Ntt route pays the relayer in native gas,
-        // while other routes pay in the token being transferred
-        const feeToken =
-          route === Route.NttRelay ? 'native' : tokenConfig.tokenId;
-        const decimals = getTokenDecimals(
-          toChainId(fromChain),
-          feeToken || 'native',
-        );
+        if (result === null) return;
+        const { fee, feeToken } = result;
+        const decimals = getTokenDecimals(toChainId(fromChain), feeToken);
         const formattedFee = Number.parseFloat(toDecimals(fee, decimals, 6));
         dispatch(setRelayerFee(formattedFee));
       } catch (e: any) {
@@ -136,6 +131,7 @@ function Preview(props: { collapsed: boolean }) {
           if (route === Route.CCTPRelay) {
             dispatch(setTransferRoute(Route.CCTPManual));
           } else {
+            // TODO: what happens if we're ntt relayer route?
             dispatch(setTransferRoute(Route.Bridge));
           }
         } else {

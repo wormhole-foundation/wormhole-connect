@@ -2,7 +2,8 @@ import { ChainName, ChainId } from '@wormhole-foundation/wormhole-connect-sdk';
 import { isEvmChain, wh } from 'utils/sdk';
 import { NttManagerEvm } from './evm';
 import { NttManagerSolana } from './solana';
-import { WormholeTransceiverEvm } from './evm';
+import { WormholeTransceiver } from './evm';
+// import { NttQuoter } from './solana/nttQuoter';
 
 export const getNttManager = (
   chain: ChainName | ChainId,
@@ -17,16 +18,21 @@ export const getNttManager = (
   throw new Error(`Unsupported chain: ${chain}`);
 };
 
-export const getWormholeTransceiver = (
+export const isRelayingEnabled = async (
   chain: ChainName | ChainId,
-  transceiverAddress: string,
+  address: string,
+  destChain: ChainName | ChainId,
 ) => {
   if (isEvmChain(chain)) {
-    return new WormholeTransceiverEvm(chain, transceiverAddress);
+    const transceiver = new WormholeTransceiver(chain, address);
+    return await Promise.all([
+      transceiver.isWormholeRelayingEnabled(destChain),
+      transceiver.isSpecialRelayingEnabled(destChain),
+    ]).then((results) => results.some((r) => r));
   }
   if (wh.toChainName(chain) === 'solana') {
-    // NOTE: The Solana contract *is* the WormholeTransceiver
-    return new NttManagerSolana(transceiverAddress);
+    // const quoter = new NttQuoter(address);
+    // return await quoter.isRelayingEnabled(destChain);
   }
   throw new Error(`Unsupported chain: ${chain}`);
 };

@@ -28,15 +28,16 @@ import {
 import {
   ExampleNativeTokenTransfers,
   IDL,
-} from './abis/example_native_token_transfers';
+} from './types/example_native_token_transfers';
 import {
   derivePostedVaaKey,
   getWormholeDerivedAccounts,
 } from '@certusone/wormhole-sdk/lib/esm/solana/wormhole';
 import { associatedAddress } from '@coral-xyz/anchor/dist/cjs/utils/token';
+import { NttQuoter } from './nttQuoter';
+import { getTokenById } from 'utils';
 
 // TODO: make sure this is in sync with the contract
-
 const RATE_LIMIT_DURATION = 24 * 60 * 60;
 
 type Config = IdlAccounts<ExampleNativeTokenTransfers>['config'];
@@ -59,28 +60,6 @@ export class NttManagerSolana {
     const core = wh.mustGetContracts('solana').core;
     if (!core) throw new Error('Core not found');
     this.wormholeId = core;
-  }
-
-  async isWormholeRelayingEnabled(
-    destChain: ChainName | ChainId,
-  ): Promise<boolean> {
-    // Solana does not support standard relaying yet
-    return false;
-  }
-
-  async isSpecialRelayingEnabled(
-    destChain: ChainName | ChainId,
-  ): Promise<boolean> {
-    // TODO: implement
-    return false;
-  }
-
-  async quoteDeliveryPrice(
-    destChain: ChainName | ChainId,
-    wormholeTransceiver: string,
-  ): Promise<string> {
-    // TODO: how to get special relayer fee?
-    throw new Error('Not implemented');
   }
 
   async send(
@@ -129,6 +108,21 @@ export class NttManagerSolana {
     );
     const tx = new Transaction();
     tx.add(approveIx, transferIx, releaseIx);
+    if (!shouldSkipRelayerSend) {
+      const { ntt } = getTokenById(token) || {};
+      if (!ntt?.solanaQuoter) {
+        throw new Error(`no solana quoter for token: ${token}`);
+      }
+      const quoter = new NttQuoter(ntt.solanaQuoter);
+      const fee = await quoter.calcRelayCost(toChain);
+      const relayIx = await quoter.createRequestRelayInstruction(
+        payer,
+        outboxItem.publicKey,
+        toChain,
+        fee,
+      );
+      tx.add(relayIx);
+    }
     tx.feePayer = payer;
     const { blockhash } = await this.connection.getLatestBlockhash('finalized');
     tx.recentBlockhash = blockhash;

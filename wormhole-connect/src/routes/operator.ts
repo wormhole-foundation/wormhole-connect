@@ -23,6 +23,7 @@ import {
   TransferInfoBaseParams,
   TransferDestInfo,
   NttRelayingType,
+  RelayerFee,
 } from './types';
 import {
   CCTPManualRoute,
@@ -542,7 +543,7 @@ export class Operator {
     destChain: ChainName | ChainId,
     token: string,
     destToken: string,
-  ): Promise<BigNumber> {
+  ): Promise<RelayerFee | null> {
     const r = this.getRoute(route);
     return r.getRelayerFee(sourceChain, destChain, token, destToken);
   }

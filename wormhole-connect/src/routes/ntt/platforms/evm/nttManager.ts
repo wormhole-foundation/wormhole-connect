@@ -27,9 +27,9 @@ import { CHAINS } from 'config';
 export class NttManagerEvm {
   readonly nttManager: NttManagerAbi;
 
-  constructor(readonly chain: ChainName | ChainId, nttManager: string) {
+  constructor(readonly chain: ChainName | ChainId, address: string) {
     this.nttManager = NttManager__factory.connect(
-      nttManager,
+      address,
       wh.mustGetProvider(chain),
     );
   }

@@ -15,6 +15,7 @@ import {
   isSignedWormholeMessage,
   TokenTransferMessage,
   SignedTokenTransferMessage,
+  RelayerFee,
 } from '../types';
 import { BaseRoute } from './baseRoute';
 import { adaptParsedMessage } from '../utils';
@@ -239,8 +240,8 @@ export class BridgeRoute extends BaseRoute {
     destChain: ChainName | ChainId,
     token: string,
     destToken: string,
-  ): Promise<BigNumber> {
-    return BigNumber.from(0);
+  ): Promise<RelayerFee | null> {
+    return null;
   }
 
   async getForeignAsset(

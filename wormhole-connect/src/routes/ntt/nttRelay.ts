@@ -1,10 +1,11 @@
 import { Route, TokenConfig } from 'config/types';
 import { BigNumber } from 'ethers';
-import { getNttManager, getWormholeTransceiver } from './platforms';
+import { getNttManager } from './platforms';
 import { ChainName, ChainId } from '@wormhole-foundation/wormhole-connect-sdk';
 import { NttBase } from './nttBase';
 import { CHAINS, TOKENS } from 'config';
 import {
+  RelayerFee,
   TransferDisplayData,
   TransferInfoBaseParams,
   UnsignedMessage,
@@ -17,10 +18,12 @@ import {
   getTokenDecimals,
   toNormalizedDecimals,
 } from 'utils';
-import { toChainId, wh } from 'utils/sdk';
+import { isEvmChain, toChainId, wh } from 'utils/sdk';
 import { NO_INPUT } from 'utils/style';
 import { TokenPrices } from 'store/tokenPrices';
 import { toDecimals, toFixedDecimals } from 'utils/balance';
+import { NttManagerEvm, WormholeTransceiver } from './platforms/evm';
+import { NttQuoter } from './platforms/solana/nttQuoter';
 
 export class NttRelay extends NttBase {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean = false;
@@ -34,22 +37,37 @@ export class NttRelay extends NttBase {
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
   ): Promise<boolean> {
-    const endpointAddress = TOKENS[sourceToken]?.ntt?.wormholeTransceiver;
-    if (!endpointAddress) {
+    const nttConfig = TOKENS[sourceToken]?.ntt;
+    if (!nttConfig) {
       return false;
     }
-    const endpoint = getWormholeTransceiver(sourceChain, endpointAddress);
-    return await Promise.all([
-      super.isRouteSupported(
+    if (
+      !(await super.isRouteSupported(
         sourceToken,
         destToken,
         amount,
         sourceChain,
         destChain,
-      ),
-      endpoint.isWormholeRelayingEnabled(destChain),
-      endpoint.isSpecialRelayingEnabled(destChain),
-    ]).then((results) => results[0] && (results[1] || results[2]));
+      ))
+    ) {
+      return false;
+    }
+    if (isEvmChain(sourceChain)) {
+      const transceiver = new WormholeTransceiver(
+        sourceChain,
+        nttConfig.wormholeTransceiver,
+      );
+      return await Promise.all([
+        transceiver.isWormholeRelayingEnabled(destChain),
+        transceiver.isSpecialRelayingEnabled(destChain),
+      ]).then((results) => results.some((r) => r));
+    }
+    if (wh.toChainName(sourceChain) === 'solana') {
+      if (!nttConfig.solanaQuoter) throw new Error('no solana quoter');
+      const quoter = new NttQuoter(nttConfig.solanaQuoter);
+      return await quoter.isRelayEnabled(destChain);
+    }
+    return false;
   }
 
   async getRelayerFee(
@@ -57,16 +75,26 @@ export class NttRelay extends NttBase {
     destChain: ChainName | ChainId,
     token: string,
     destToken: string,
-  ): Promise<BigNumber> {
-    const tokenConfig = TOKENS[token];
-    if (!tokenConfig.ntt?.wormholeTransceiver) {
+  ): Promise<RelayerFee | null> {
+    const nttConfig = TOKENS[token]?.ntt;
+    if (!nttConfig) {
       throw new Error('invalid token');
     }
-    const deliveryPrice = await getNttManager(
-      sourceChain,
-      tokenConfig.ntt.nttManager,
-    ).quoteDeliveryPrice(destChain, tokenConfig.ntt.wormholeTransceiver);
-    return BigNumber.from(deliveryPrice);
+    if (isEvmChain(sourceChain)) {
+      const nttManager = new NttManagerEvm(sourceChain, nttConfig.nttManager);
+      const deliveryPrice = await nttManager.quoteDeliveryPrice(
+        destChain,
+        nttConfig.wormholeTransceiver,
+      );
+      return { fee: BigNumber.from(deliveryPrice), feeToken: 'native' };
+    }
+    if (wh.toChainName(sourceChain) === 'solana') {
+      if (!nttConfig.solanaQuoter) throw new Error('no solana quoter');
+      const quoter = new NttQuoter(nttConfig.solanaQuoter);
+      const relayCost = await quoter.calcRelayCost(destChain);
+      return { fee: BigNumber.from(relayCost), feeToken: 'native' };
+    }
+    throw new Error('unsupported chain');
   }
 
   async getPreview(
