@@ -1,7 +1,7 @@
 import { solanaContext } from 'utils/sdk';
 import { PostedMessageData } from '@certusone/wormhole-sdk/lib/esm/solana/wormhole';
 import { hexlify } from 'ethers/lib/utils';
-import { UnsignedNttMessage } from 'routes/types';
+import { NttRelayingType, UnsignedNttMessage } from 'routes/types';
 import { getNativeVersionOfToken } from 'store/transferInput';
 import { getTokenById, getTokenDecimals } from 'utils';
 import { wh } from 'utils/sdk';
@@ -55,6 +55,12 @@ export const getMessageSolana = async (
   if (!token) {
     throw new Error(`Token ${tokenId} not found`);
   }
+  const logMessages = response.meta?.logMessages || [];
+  // TODO: fix this when the relayer contract is deployed
+  const relayerLog = logMessages.find((msg) => msg.startsWith('Relayer fee: '));
+  // TODO: is the relayer fee in lamports? Because on ETH it's in wei
+  // and we should be consistent
+  const relayerFee = relayerLog ? relayerLog.split('Relayer fee: ')[1] : '';
   return {
     sendTx: tx,
     sender: wh.parseAddress(hexlify(nttManagerMessage.sender), fromChain),
@@ -86,7 +92,7 @@ export const getMessageSolana = async (
       toChain,
     ),
     messageDigest: getNttManagerMessageDigest(fromChain, nttManagerMessage),
-    relayerFee: '', // TODO: should be able to fet this from the logs
-    relayingType: 0, // TODO: what to set to?
+    relayerFee,
+    relayingType: relayerFee ? NttRelayingType.Special : NttRelayingType.Manual,
   };
 };

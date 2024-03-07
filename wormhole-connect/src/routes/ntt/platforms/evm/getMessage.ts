@@ -55,14 +55,12 @@ export const getMessageEvm = async (
   const parsedRelayingInfo = relayingInfoIface.parseLog(relayingInfoEvent);
   const { relayingType, deliveryPayment } = parsedRelayingInfo.args;
   let payload: Buffer;
-  let relayerFee = '';
   if (relayingType === NttRelayingType.Standard) {
     const { type, parsed } = parseWormholeLog(wormholeLog);
     if (type !== RelayerPayloadId.Delivery) {
       throw new Error(`Unexpected standard relayer payload type ${type}`);
     }
     payload = (parsed as DeliveryInstruction).payload;
-    relayerFee = deliveryPayment.toString();
   } else if (
     relayingType === NttRelayingType.Manual ||
     relayingType === NttRelayingType.Special
@@ -102,7 +100,7 @@ export const getMessageEvm = async (
       toChain,
     ),
     messageDigest: getNttManagerMessageDigest(fromChain, nttManagerMessage),
-    relayerFee,
+    relayerFee: deliveryPayment.toString(),
     relayingType,
   };
 };

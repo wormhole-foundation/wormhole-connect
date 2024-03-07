@@ -94,7 +94,7 @@ export interface WormholeTransceiverInterface extends utils.Interface {
     'receiveWormholeMessages(bytes,bytes[],bytes32,uint16,bytes32)': FunctionFragment;
     'sendMessage(uint16,(uint8,bytes),bytes,bytes32)': FunctionFragment;
     'setIsSpecialRelayingEnabled(uint16,bool)': FunctionFragment;
-    'setIsWormholeEvmChain(uint16)': FunctionFragment;
+    'setIsWormholeEvmChain(uint16,bool)': FunctionFragment;
     'setIsWormholeRelayingEnabled(uint16,bool)': FunctionFragment;
     'setWormholePeer(uint16,bytes32)': FunctionFragment;
     'specialRelayer()': FunctionFragment;
@@ -232,7 +232,7 @@ export interface WormholeTransceiverInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: 'setIsWormholeEvmChain',
-    values: [BigNumberish],
+    values: [BigNumberish, boolean],
   ): string;
   encodeFunctionData(
     functionFragment: 'setIsWormholeRelayingEnabled',
@@ -388,7 +388,7 @@ export interface WormholeTransceiverInterface extends utils.Interface {
     'RelayingInfo(uint8,uint256)': EventFragment;
     'SendTransceiverMessage(uint16,(bytes32,bytes32,bytes,bytes))': EventFragment;
     'SetIsSpecialRelayingEnabled(uint16,bool)': EventFragment;
-    'SetIsWormholeEvmChain(uint16)': EventFragment;
+    'SetIsWormholeEvmChain(uint16,bool)': EventFragment;
     'SetIsWormholeRelayingEnabled(uint16,bool)': EventFragment;
     'SetWormholePeer(uint16,bytes32)': EventFragment;
     'Upgraded(address)': EventFragment;
@@ -545,9 +545,10 @@ export type SetIsSpecialRelayingEnabledEventFilter =
 
 export interface SetIsWormholeEvmChainEventObject {
   chainId: number;
+  isEvm: boolean;
 }
 export type SetIsWormholeEvmChainEvent = TypedEvent<
-  [number],
+  [number, boolean],
   SetIsWormholeEvmChainEventObject
 >;
 
@@ -714,6 +715,7 @@ export interface WormholeTransceiver extends BaseContract {
 
     setIsWormholeEvmChain(
       chainId: BigNumberish,
+      isEvm: boolean,
       overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
@@ -852,6 +854,7 @@ export interface WormholeTransceiver extends BaseContract {
 
   setIsWormholeEvmChain(
     chainId: BigNumberish,
+    isEvm: boolean,
     overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
@@ -986,6 +989,7 @@ export interface WormholeTransceiver extends BaseContract {
 
     setIsWormholeEvmChain(
       chainId: BigNumberish,
+      isEvm: boolean,
       overrides?: CallOverrides,
     ): Promise<void>;
 
@@ -1121,10 +1125,14 @@ export interface WormholeTransceiver extends BaseContract {
       isRelayingEnabled?: null,
     ): SetIsSpecialRelayingEnabledEventFilter;
 
-    'SetIsWormholeEvmChain(uint16)'(
+    'SetIsWormholeEvmChain(uint16,bool)'(
       chainId?: null,
+      isEvm?: null,
     ): SetIsWormholeEvmChainEventFilter;
-    SetIsWormholeEvmChain(chainId?: null): SetIsWormholeEvmChainEventFilter;
+    SetIsWormholeEvmChain(
+      chainId?: null,
+      isEvm?: null,
+    ): SetIsWormholeEvmChainEventFilter;
 
     'SetIsWormholeRelayingEnabled(uint16,bool)'(
       chainId?: null,
@@ -1244,6 +1252,7 @@ export interface WormholeTransceiver extends BaseContract {
 
     setIsWormholeEvmChain(
       chainId: BigNumberish,
+      isEvm: boolean,
       overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
@@ -1392,6 +1401,7 @@ export interface WormholeTransceiver extends BaseContract {
 
     setIsWormholeEvmChain(
       chainId: BigNumberish,
+      isEvm: boolean,
       overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 

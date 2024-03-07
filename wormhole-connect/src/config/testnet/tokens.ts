@@ -2234,12 +2234,11 @@ export const TESTNET_TOKENS: TokensConfig = {
   TEST_NTTsepolia: {
     key: 'TEST_NTTsepolia',
     symbol: 'TEST_NTT',
-    displayName: 'TEST_NTT (Sepolia)',
     nativeChain: 'sepolia',
     icon: Icon.ETH, // TODO: change icon
     tokenId: {
       chain: 'sepolia',
-      address: '0xcE0bD78B496bc8DDd25c8a192771e4537f0794c8',
+      address: '0x169D91C797edF56100F1B765268145660503a423',
     },
     coinGeckoId: '',
     color: '#2774CA',
@@ -2248,19 +2247,18 @@ export const TESTNET_TOKENS: TokensConfig = {
       default: 8,
     },
     ntt: {
-      nttManager: '0x459B4d6df31c1c1f8b6fda0F8Ad77e1eFF832BCF',
-      wormholeTransceiver: '0x55aaF4D9399C472B252E7C0b49408B5BC7d7328e',
+      nttManager: '0x24c7E23e3A97cD2F04c9EB9F354bb7f3B31d2d1A',
+      wormholeTransceiver: '0xC5bf11aB6aE525FFCA02e2af7F6704CDcECec2eA',
     },
   },
   TEST_NTTarbitrum_sepolia: {
     key: 'TEST_NTTarbitrum_sepolia',
     symbol: 'TEST_NTT',
-    displayName: 'TEST_NTT (Arbitrum Sepolia)',
     nativeChain: 'arbitrum_sepolia',
     icon: Icon.ETH, // TODO: change icon
     tokenId: {
       chain: 'arbitrum_sepolia',
-      address: '0xb12C77938c09d81F1e9797d48501b5c4E338B45B',
+      address: '0x169D91C797edF56100F1B765268145660503a423',
     },
     coinGeckoId: '',
     color: '#2774CA',
@@ -2269,72 +2267,72 @@ export const TESTNET_TOKENS: TokensConfig = {
       default: 8,
     },
     ntt: {
-      nttManager: '0xcC1EBD7A6661c0f6E19D2BbDB881b11F3b3f40ff',
-      wormholeTransceiver: '0x00AC6efc189140b50A043b5e43C108CF571586d1',
+      nttManager: '0xaBFa6Ab8dD4d4166b8fea7f84C1458BEf92F3a61',
+      wormholeTransceiver: '0xC9a478f97ad763052AD4F00c4d7fC5d187DFFb1B',
     },
   },
-  TEST_NTTsolana: {
-    key: 'TEST_NTTsolana',
+  TEST_NTTbase_sepolia: {
+    key: 'TEST_NTTbase_sepolia',
     symbol: 'TEST_NTT',
-    displayName: 'TEST_NTT (Solana)',
-    nativeChain: 'solana',
+    nativeChain: 'base_sepolia',
     icon: Icon.ETH, // TODO: change icon
     tokenId: {
-      chain: 'solana',
-      address: 'SCAmk7zfNKXemDjap14aGJJyQXZXXhq9X2Fs8oVSsdr',
+      chain: 'base_sepolia',
+      address: '0x169D91C797edF56100F1B765268145660503a423',
     },
     coinGeckoId: '',
     color: '#2774CA',
     decimals: {
-      Solana: 9,
+      Ethereum: 18,
       default: 8,
     },
     ntt: {
-      nttManager: '7nMTXqo19kzwyisGCdcRP5AErEBToYpVYg2C5PNrjsa2',
-      // The wormhole endpoint is baked into the manager on Solana.
-      // If the endpoint is split into a separate contract, this address
-      // and route code should be updated to support the new structure.
-      wormholeTransceiver: '7nMTXqo19kzwyisGCdcRP5AErEBToYpVYg2C5PNrjsa2',
+      nttManager: '0x838a95B6a3E06B6f11C437e22f3C7561a6ec40F1',
+      wormholeTransceiver: '0xc3a1248e9bdC1EEF81d16b2AD1594764cBd9307a',
     },
   },
-  //USDCsepolia: {
-  //  key: 'USDCsepolia',
-  //  symbol: 'USDC',
-  //  nativeChain: 'sepolia',
-  //  icon: Icon.USDC,
+  TEST_NTToptimism_sepolia: {
+    key: 'TEST_NTToptimism_sepolia',
+    symbol: 'TEST_NTT',
+    nativeChain: 'optimism_sepolia',
+    icon: Icon.ETH, // TODO: change icon
+    tokenId: {
+      chain: 'optimism_sepolia',
+      address: '0x169D91C797edF56100F1B765268145660503a423',
+    },
+    coinGeckoId: '',
+    color: '#2774CA',
+    decimals: {
+      Ethereum: 18,
+      default: 8,
+    },
+    ntt: {
+      nttManager: '0x605dE5E0880Cfd6Ffc61aF9585CBAB3946594A3D',
+      wormholeTransceiver: '0x5a76440b725909000697E0f72646adf1a492DF8B',
+    },
+  },
+  //TEST_NTTsolana: {
+  //  key: 'TEST_NTTsolana',
+  //  symbol: 'TEST_NTT',
+  //  displayName: 'TEST_NTT (Solana)',
+  //  nativeChain: 'solana',
+  //  icon: Icon.ETH, // TODO: change icon
   //  tokenId: {
-  //    chain: 'sepolia',
-  //    address: '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238',
+  //    chain: 'solana',
+  //    address: 'SCAmk7zfNKXemDjap14aGJJyQXZXXhq9X2Fs8oVSsdr',
   //  },
-  //  coinGeckoId: 'usd-coin',
+  //  coinGeckoId: '',
   //  color: '#2774CA',
   //  decimals: {
-  //    Ethereum: 6,
-  //    default: 6,
+  //    Solana: 9,
+  //    default: 8,
   //  },
   //  ntt: {
-  //    nttManager: '0x772172Da3ADeEBa32a2FfE5e773e176227526bf3',
-  //    wormholeTransceiver: '0x62852bdeB7F544940c30eb8bbe4972816d4D1b8C',
-  //  },
-  //},
-  //USDCmoonbeam: {
-  //  key: 'USDCmoonbeam',
-  //  symbol: 'USDC',
-  //  nativeChain: 'moonbasealpha',
-  //  icon: Icon.USDC,
-  //  tokenId: {
-  //    chain: 'moonbasealpha',
-  //    address: '0xe3516c9423f6acE9ad3a245099e0A9e579a794D5',
-  //  },
-  //  coinGeckoId: 'usd-coin',
-  //  color: '#2774CA',
-  //  decimals: {
-  //    Ethereum: 6,
-  //    default: 6,
-  //  },
-  //  ntt: {
-  //    nttManager: '0xEE568713F3f0bE29F4aA9E6DD655de14D8B2F577',
-  //    wormholeTransceiver: '0x22e720A1Cfa36167f27E33172316c7e785e8f2ce',
+  //    nttManager: '7nMTXqo19kzwyisGCdcRP5AErEBToYpVYg2C5PNrjsa2',
+  //    // The wormhole endpoint is baked into the manager on Solana.
+  //    // If the endpoint is split into a separate contract, this address
+  //    // and route code should be updated to support the new structure.
+  //    wormholeTransceiver: '7nMTXqo19kzwyisGCdcRP5AErEBToYpVYg2C5PNrjsa2',
   //  },
   //},
 };
