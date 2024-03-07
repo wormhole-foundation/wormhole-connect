@@ -1,7 +1,11 @@
 import { Route, TokenConfig } from 'config/types';
 import { BigNumber } from 'ethers';
 import { getNttManager } from './platforms';
-import { ChainName, ChainId } from '@wormhole-foundation/wormhole-connect-sdk';
+import {
+  ChainName,
+  ChainId,
+  TokenId,
+} from '@wormhole-foundation/wormhole-connect-sdk';
 import { NttBase } from './nttBase';
 import { CHAINS, TOKENS } from 'config';
 import {

@@ -160,11 +160,10 @@ export abstract class NttBase extends BaseRoute {
   ): Promise<BigNumber> {
     if (isEvmChain(sendingChain)) {
       const provider = wh.mustGetProvider(sendingChain);
-      // incorporate the current gas price
       const gasPrice = await provider.getGasPrice();
-      return gasPrice.mul(200000);
+      return gasPrice.mul(this.TYPE === Route.NttManual ? 200_000 : 250_000);
     } else if (wh.toChainName(sendingChain) === 'solana') {
-      return BigNumber.from(10000);
+      return BigNumber.from(10_000);
     }
     throw new Error('Unsupported chain');
   }
@@ -179,11 +178,10 @@ export abstract class NttBase extends BaseRoute {
     }
     if (isEvmChain(destChain)) {
       const provider = wh.mustGetProvider(destChain);
-      // incorporate the current gas price
       const gasPrice = await provider.getGasPrice();
-      return gasPrice.mul(300000);
+      return gasPrice.mul(300_000);
     } else if (wh.toChainName(destChain) === 'solana') {
-      return BigNumber.from(65000);
+      return BigNumber.from(65_000);
     }
     throw new Error('Unsupported chain');
   }

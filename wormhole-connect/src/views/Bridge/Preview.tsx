@@ -131,7 +131,6 @@ function Preview(props: { collapsed: boolean }) {
           if (route === Route.CCTPRelay) {
             dispatch(setTransferRoute(Route.CCTPManual));
           } else {
-            // TODO: what happens if we're ntt relayer route?
             dispatch(setTransferRoute(Route.Bridge));
           }
         } else {

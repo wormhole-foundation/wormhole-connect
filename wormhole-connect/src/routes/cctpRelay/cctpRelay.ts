@@ -18,6 +18,7 @@ import {
   getTokenById,
   getDisplayName,
   calculateUSDPrice,
+  getWrappedTokenId,
 } from 'utils';
 import {
   ParsedMessage,
@@ -492,7 +493,7 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
       chainContext.contracts.mustGetWormholeCircleRelayer(sourceChain);
     const destChainId = config.wh.toChainId(destChain);
     const fee = await circleRelayer.relayerFee(destChainId, tokenId?.address);
-    return { fee, feeToken: tokenId! };
+    return { fee, feeToken: tokenId || getWrappedTokenId(tokenConfig) };
   }
 
   async getMessage(

@@ -2311,29 +2311,29 @@ export const TESTNET_TOKENS: TokensConfig = {
       wormholeTransceiver: '0x5a76440b725909000697E0f72646adf1a492DF8B',
     },
   },
-  //TEST_NTTsolana: {
-  //  key: 'TEST_NTTsolana',
-  //  symbol: 'TEST_NTT',
-  //  displayName: 'TEST_NTT (Solana)',
-  //  nativeChain: 'solana',
-  //  icon: Icon.ETH, // TODO: change icon
-  //  tokenId: {
-  //    chain: 'solana',
-  //    address: 'SCAmk7zfNKXemDjap14aGJJyQXZXXhq9X2Fs8oVSsdr',
-  //  },
-  //  coinGeckoId: '',
-  //  color: '#2774CA',
-  //  decimals: {
-  //    Solana: 9,
-  //    default: 8,
-  //  },
-  //  ntt: {
-  //    nttManager: '7nMTXqo19kzwyisGCdcRP5AErEBToYpVYg2C5PNrjsa2',
-  //    // The wormhole endpoint is baked into the manager on Solana.
-  //    // If the endpoint is split into a separate contract, this address
-  //    // and route code should be updated to support the new structure.
-  //    wormholeTransceiver: '7nMTXqo19kzwyisGCdcRP5AErEBToYpVYg2C5PNrjsa2',
-  // solanaQuoter: '',
-  //  },
-  //},
+  TEST_NTTsolana: {
+    key: 'TEST_NTTsolana',
+    symbol: 'TEST_NTT',
+    displayName: 'TEST_NTT (Solana)',
+    nativeChain: 'solana',
+    icon: Icon.ETH, // TODO: change icon
+    tokenId: {
+      chain: 'solana',
+      address: 'SCAmk7zfNKXemDjap14aGJJyQXZXXhq9X2Fs8oVSsdr',
+    },
+    coinGeckoId: '',
+    color: '#2774CA',
+    decimals: {
+      Solana: 9,
+      default: 8,
+    },
+    ntt: {
+      nttManager: '7nMTXqo19kzwyisGCdcRP5AErEBToYpVYg2C5PNrjsa2',
+      // The wormhole endpoint is baked into the ntt contract on Solana.
+      // If the endpoint is split into a separate contract, this address
+      // and route code should be updated to support the new structure.
+      wormholeTransceiver: '7nMTXqo19kzwyisGCdcRP5AErEBToYpVYg2C5PNrjsa2',
+      solanaQuoter: '',
+    },
+  },
 };
