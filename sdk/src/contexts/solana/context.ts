@@ -274,7 +274,7 @@ export class SolanaContext<
       payerPublicKey,
       tokenPublicKey,
     );
-    const transaction = new Transaction().add(createAccountInst);
+    const transaction = this.newTransaction().add(createAccountInst);
     const { blockhash } = await this.connection.getLatestBlockhash(commitment);
     transaction.recentBlockhash = blockhash;
     transaction.feePayer = payerPublicKey;
@@ -387,13 +387,11 @@ export class SolanaContext<
     );
 
     const { blockhash } = await this.connection.getLatestBlockhash(commitment);
-    const transaction = new Transaction();
-    const priorityIx = await this.getPriorityFeeIx(contracts.token_bridge);
+    const transaction = this.newTransaction();
 
     transaction.recentBlockhash = blockhash;
     transaction.feePayer = payerPublicKey;
     transaction.add(
-      priorityIx,
       createAncillaryAccountIx,
       initialBalanceTransferIx,
       initAccountIx,
@@ -521,9 +519,7 @@ export class SolanaContext<
           recipientAddress,
           recipientChainId,
         );
-    const priorityIx = await this.getPriorityFeeIx(contracts.token_bridge);
-    const transaction = new Transaction().add(
-      priorityIx,
+    const transaction = this.newTransaction().add(
       approvalIx,
       tokenBridgeTransferIx,
     );
@@ -941,9 +937,7 @@ export class SolanaContext<
           parsed.tokenChain,
           parsed.tokenAddress,
         );
-    const transaction = new Transaction();
-    const priorityIx = await this.getPriorityFeeIx(token_bridge);
-    transaction.add(priorityIx);
+    const transaction = this.newTransaction();
     const recipientTokenAccount = getAssociatedTokenAddressSync(
       mint,
       recipient,
@@ -1054,9 +1048,7 @@ export class SolanaContext<
     );
     const recipientChainId = this.context.toChainId(recipientChain);
     const nonce = createNonce().readUint32LE();
-    const transaction = new Transaction();
-    let priorityIx = await this.getPriorityFeeIx(token_bridge);
-    transaction.add(priorityIx);
+    const transaction = this.newTransaction();
     let transferIx: TransactionInstruction;
     if (token === NATIVE || token.chain === SOLANA_CHAIN_NAME) {
       const mint = token === NATIVE ? NATIVE_MINT : token.address;
@@ -1188,24 +1180,20 @@ export class SolanaContext<
     };
   }
 
-  async getPriorityFeeIx(address: string) {
-    let unitPrice = 10_000; // use minimum of 10,000 microlmaports
+  newTransaction(): Transaction {
+    let tx = new Transaction();
 
-    const recentFees = await this.connection?.getRecentPrioritizationFees({
-      lockedWritableAccounts: [new PublicKey(address)],
-    });
+    tx.add(
+      ComputeBudgetProgram.setComputeUnitLimit({
+        units: 250_000,
+      }),
+    );
+    tx.add(
+      ComputeBudgetProgram.setComputeUnitPrice({
+        microLamports: 1_000_000,
+      }),
+    );
 
-    if (recentFees) {
-      const maxFee = Math.max(
-        ...recentFees.map(({ prioritizationFee }) => prioritizationFee),
-      );
-      unitPrice = Math.max(unitPrice, maxFee * 10);
-    }
-
-    console.info(`Solana priorityFee: ${unitPrice} microLamports`);
-
-    return ComputeBudgetProgram.setComputeUnitPrice({
-      microLamports: unitPrice,
-    });
+    return tx;
   }
 }
