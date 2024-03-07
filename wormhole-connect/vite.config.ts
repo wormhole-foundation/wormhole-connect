@@ -135,7 +135,7 @@ export default defineConfig(({ command, mode }) => {
               index: 'src/index.ts',
             },
             output,
-            external: ['react', ...external],
+            external: ['react', 'react-dom', ...external],
           },
         },
         plugins,
