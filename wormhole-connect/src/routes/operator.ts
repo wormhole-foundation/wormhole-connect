@@ -36,6 +36,7 @@ import { wstETHBridge } from './porticoBridge/wstETHBridge';
 import { TokenPrices } from 'store/tokenPrices';
 import { NttManual, NttRelay } from './ntt';
 import { getMessageEvm as getNttMessageEvm } from './ntt/platforms/evm';
+import { getMessageSolana as getNttMessageSolana } from './ntt/platforms/solana';
 
 export class Operator {
   getRoute(route: Route): RouteAbstract {
@@ -113,8 +114,8 @@ export class Operator {
         return arr;
       }, []);
       if (evmNttManagers.includes(receipt.to)) {
-        const message = await getNttMessageEvm(txHash, chain);
-        return message.relayingType === NttRelayingType.Manual
+        const { relayingType } = await getNttMessageEvm(txHash, chain, receipt);
+        return relayingType === NttRelayingType.Manual
           ? Route.NttManual
           : Route.NttRelay;
       }
@@ -134,8 +135,10 @@ export class Operator {
       }, []);
       for (const ix of tx.transaction.message.instructions) {
         if (solanaNttManagers.includes(ix.programId.toString())) {
-          // TODO: how to figure out if relay?
-          return Route.NttManual;
+          const { relayingType } = await getNttMessageSolana(txHash);
+          return relayingType === NttRelayingType.Manual
+            ? Route.NttManual
+            : Route.NttRelay;
         }
       }
     }

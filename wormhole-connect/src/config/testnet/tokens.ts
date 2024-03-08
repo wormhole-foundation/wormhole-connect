@@ -2235,7 +2235,7 @@ export const TESTNET_TOKENS: TokensConfig = {
     key: 'TEST_NTTsepolia',
     symbol: 'TEST_NTT',
     nativeChain: 'sepolia',
-    icon: Icon.ETH, // TODO: change icon
+    icon: Icon.NTT,
     tokenId: {
       chain: 'sepolia',
       address: '0x169D91C797edF56100F1B765268145660503a423',
@@ -2255,7 +2255,7 @@ export const TESTNET_TOKENS: TokensConfig = {
     key: 'TEST_NTTarbitrum_sepolia',
     symbol: 'TEST_NTT',
     nativeChain: 'arbitrum_sepolia',
-    icon: Icon.ETH, // TODO: change icon
+    icon: Icon.NTT,
     tokenId: {
       chain: 'arbitrum_sepolia',
       address: '0x169D91C797edF56100F1B765268145660503a423',
@@ -2275,7 +2275,7 @@ export const TESTNET_TOKENS: TokensConfig = {
     key: 'TEST_NTTbase_sepolia',
     symbol: 'TEST_NTT',
     nativeChain: 'base_sepolia',
-    icon: Icon.ETH, // TODO: change icon
+    icon: Icon.NTT,
     tokenId: {
       chain: 'base_sepolia',
       address: '0x169D91C797edF56100F1B765268145660503a423',
@@ -2295,7 +2295,7 @@ export const TESTNET_TOKENS: TokensConfig = {
     key: 'TEST_NTToptimism_sepolia',
     symbol: 'TEST_NTT',
     nativeChain: 'optimism_sepolia',
-    icon: Icon.ETH, // TODO: change icon
+    icon: Icon.NTT,
     tokenId: {
       chain: 'optimism_sepolia',
       address: '0x169D91C797edF56100F1B765268145660503a423',
@@ -2314,9 +2314,8 @@ export const TESTNET_TOKENS: TokensConfig = {
   TEST_NTTsolana: {
     key: 'TEST_NTTsolana',
     symbol: 'TEST_NTT',
-    displayName: 'TEST_NTT (Solana)',
     nativeChain: 'solana',
-    icon: Icon.ETH, // TODO: change icon
+    icon: Icon.NTT,
     tokenId: {
       chain: 'solana',
       address: 'SCAmk7zfNKXemDjap14aGJJyQXZXXhq9X2Fs8oVSsdr',

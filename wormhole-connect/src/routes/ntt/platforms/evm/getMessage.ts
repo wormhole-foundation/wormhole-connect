@@ -18,14 +18,20 @@ import {
   parseWormholeTransceiverMessage,
 } from 'routes/ntt/utils';
 
+const RELAYING_INFO_EVENT_TOPIC =
+  '0x375a56c053c4d19a2e3445e97b7a28bf4e908617ce6d766e1e03a9d3f5276271';
+
 export const getMessageEvm = async (
   tx: string,
   chain: ChainName | ChainId,
+  receipt?: ethers.providers.TransactionReceipt,
 ): Promise<UnsignedNttMessage> => {
   const provider = wh.mustGetProvider(chain);
-  const receipt = await provider.getTransactionReceipt(tx);
   if (!receipt) {
-    throw new Error(`No receipt for tx ${tx} on ${chain}`);
+    receipt = await provider.getTransactionReceipt(tx);
+    if (!receipt) {
+      throw new Error(`No receipt for tx ${tx} on ${chain}`);
+    }
   }
   const nttManager = NttManager__factory.connect(receipt.to, provider);
   const tokenAddress = await nttManager.token();
@@ -42,9 +48,7 @@ export const getMessageEvm = async (
   const parsedWormholeLog =
     Implementation__factory.createInterface().parseLog(wormholeLog);
   const relayingInfoEvent = receipt.logs.find(
-    (log) =>
-      log.topics[0] ===
-      '0x375a56c053c4d19a2e3445e97b7a28bf4e908617ce6d766e1e03a9d3f5276271',
+    (log) => log.topics[0] === RELAYING_INFO_EVENT_TOPIC,
   );
   if (!relayingInfoEvent) {
     throw new Error('RelayingInfo event not found');

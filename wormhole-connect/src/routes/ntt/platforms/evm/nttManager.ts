@@ -173,7 +173,12 @@ export class NttManagerEvm {
   }
 
   async isMessageExecuted(messageDigest: string): Promise<boolean> {
-    return this.nttManager.isMessageExecuted(messageDigest);
+    try {
+      return this.nttManager.isMessageExecuted(messageDigest);
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
   }
 
   async isPaused(): Promise<boolean> {

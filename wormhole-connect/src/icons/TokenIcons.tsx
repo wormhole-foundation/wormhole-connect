@@ -33,6 +33,7 @@ import KUJI from './Tokens/KUJI';
 import KLAY from './Tokens/KLAY';
 import PYTH from './Tokens/PYTH';
 import INJ from './Tokens/INJ';
+import NTT from './Tokens/NTT';
 
 const useStyles = makeStyles<{ size: number }>()((theme, { size }) => ({
   container: {
@@ -80,6 +81,7 @@ const iconMap: { [key in Icon]: React.JSX.Element } = {
   [Icon.PYTH]: PYTH(),
   [Icon.KLAY]: KLAY(),
   [Icon.INJ]: INJ(),
+  [Icon.NTT]: NTT(),
 };
 
 function isBuiltinIcon(icon?: Icon | string): icon is Icon {

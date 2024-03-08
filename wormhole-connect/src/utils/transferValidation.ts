@@ -317,7 +317,11 @@ export const validateAll = async (
     receiveAmount: '',
   };
 
-  if (isAutomatic && route !== Route.NttRelay) {
+  if (isAutomatic) {
+    if (route === Route.NttRelay) {
+      // Ntt does not support native gas drop-off
+      return baseValidations;
+    }
     return {
       ...baseValidations,
       toNativeToken: validateToNativeAmt(toNativeToken, maxSwapAmt),

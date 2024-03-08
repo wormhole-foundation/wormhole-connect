@@ -74,12 +74,12 @@ export const isSignedNttMessage = (
   isSignedWormholeMessage(message) && isUnsignedNttMessage(message);
 
 export interface TransferInfoBaseParams {
-  txData: ParsedMessage | ParsedRelayerMessage | UnsignedNttMessage;
+  txData: ParsedMessage | ParsedRelayerMessage;
   tokenPrices: TokenPrices;
 }
 
 export interface TransferDestInfoBaseParams {
-  txData: ParsedMessage | ParsedRelayerMessage | UnsignedNttMessage;
+  txData: ParsedMessage | ParsedRelayerMessage;
   tokenPrices: TokenPrices;
   receiveTx?: string;
   gasEstimate?: string;

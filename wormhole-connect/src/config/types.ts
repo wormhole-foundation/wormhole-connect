@@ -41,6 +41,7 @@ export enum Icon {
   'PYTH',
   'INJ',
   'KLAY',
+  'NTT',
 }
 
 export enum Route {

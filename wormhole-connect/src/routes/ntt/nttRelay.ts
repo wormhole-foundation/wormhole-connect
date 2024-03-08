@@ -1,11 +1,7 @@
 import { Route, TokenConfig } from 'config/types';
 import { BigNumber } from 'ethers';
 import { getNttManager } from './platforms';
-import {
-  ChainName,
-  ChainId,
-  TokenId,
-} from '@wormhole-foundation/wormhole-connect-sdk';
+import { ChainName, ChainId } from '@wormhole-foundation/wormhole-connect-sdk';
 import { NttBase } from './nttBase';
 import { CHAINS, TOKENS } from 'config';
 import {
@@ -22,7 +18,7 @@ import {
   getTokenDecimals,
   toNormalizedDecimals,
 } from 'utils';
-import { isEvmChain, toChainId, wh } from 'utils/sdk';
+import { ParsedRelayerMessage, isEvmChain, toChainId, wh } from 'utils/sdk';
 import { NO_INPUT } from 'utils/style';
 import { TokenPrices } from 'store/tokenPrices';
 import { toDecimals, toFixedDecimals } from 'utils/balance';
@@ -178,11 +174,9 @@ export class NttRelay extends NttBase {
   async getTransferSourceInfo<T extends TransferInfoBaseParams>(
     params: T,
   ): Promise<TransferDisplayData> {
-    if (!isUnsignedNttMessage(params.txData)) {
-      return [];
-    }
+    const txData = params.txData as ParsedRelayerMessage;
     const { tokenKey, amount, tokenDecimals, fromChain, gasFee, relayerFee } =
-      params.txData;
+      txData;
     const tokenPrices = params.tokenPrices;
     const formattedAmt = toNormalizedDecimals(
       amount,
