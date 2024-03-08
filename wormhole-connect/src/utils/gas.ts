@@ -1,4 +1,4 @@
-import { BigNumber, utils } from 'ethers';
+import { BigNumber, BigNumberish, utils } from 'ethers';
 import {
   ChainName,
   ChainId,
@@ -92,4 +92,14 @@ export const estimateClaimGas = async (
   }
   if (!gas) throw new Error('could not estimate send gas');
   return formatGasFee(destChain, gas);
+};
+
+export const estimateAverageGasFee = async (
+  chain: ChainName | ChainId,
+  gasLimit: BigNumberish,
+): Promise<BigNumber> => {
+  const provider = wh.mustGetProvider(chain);
+  const gasPrice = await provider.getGasPrice();
+  // This is a naive estimate 30% higher than what the oracle says
+  return gasPrice.mul(gasLimit).mul(130).div(100);
 };
