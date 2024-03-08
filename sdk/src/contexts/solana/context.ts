@@ -78,6 +78,9 @@ import {
 const SOLANA_SEQ_LOG = 'Program log: Sequence: ';
 const SOLANA_CHAIN_NAME = MAINNET_CONFIG.chains.solana!.key;
 
+// Add priority fee according to 75th percentile of recent fees paid
+const SOLANA_FEE_PERCENTILE = 0.75;
+
 const SOLANA_MAINNET_EMMITER_ID =
   'ec7372995d5cc8732397fb0ad35c0121e0eaa90d26f828a534cab54391b3a4f5';
 const SOLANA_TESTNET_EMITTER_ID =
@@ -274,7 +277,15 @@ export class SolanaContext<
       payerPublicKey,
       tokenPublicKey,
     );
-    const transaction = this.newTransaction().add(createAccountInst);
+    const transaction = new Transaction();
+    transaction.add(
+      ...(await this.determineComputeBudget([
+        tokenPublicKey,
+        associatedPublicKey,
+      ])),
+    );
+    transaction.add(createAccountInst);
+
     const { blockhash } = await this.connection.getLatestBlockhash(commitment);
     transaction.recentBlockhash = blockhash;
     transaction.feePayer = payerPublicKey;
@@ -387,7 +398,8 @@ export class SolanaContext<
     );
 
     const { blockhash } = await this.connection.getLatestBlockhash(commitment);
-    const transaction = this.newTransaction();
+    const transaction = new Transaction();
+    transaction.add(...(await this.determineComputeBudget([NATIVE_MINT])));
 
     transaction.recentBlockhash = blockhash;
     transaction.feePayer = payerPublicKey;
@@ -519,10 +531,11 @@ export class SolanaContext<
           recipientAddress,
           recipientChainId,
         );
-    const transaction = this.newTransaction().add(
-      approvalIx,
-      tokenBridgeTransferIx,
+    const transaction = new Transaction();
+    transaction.add(
+      ...(await this.determineComputeBudget([new PublicKey(fromAddress)])),
     );
+    transaction.add(approvalIx, tokenBridgeTransferIx);
     const { blockhash } = await this.connection.getLatestBlockhash(commitment);
     transaction.recentBlockhash = blockhash;
     transaction.feePayer = new PublicKey(senderAddress);
@@ -937,7 +950,8 @@ export class SolanaContext<
           parsed.tokenChain,
           parsed.tokenAddress,
         );
-    const transaction = this.newTransaction();
+    const transaction = new Transaction();
+    transaction.add(...(await this.determineComputeBudget([mint])));
     const recipientTokenAccount = getAssociatedTokenAddressSync(
       mint,
       recipient,
@@ -1048,16 +1062,22 @@ export class SolanaContext<
     );
     const recipientChainId = this.context.toChainId(recipientChain);
     const nonce = createNonce().readUint32LE();
-    const transaction = this.newTransaction();
-    let transferIx: TransactionInstruction;
+    const transaction = new Transaction();
+
     if (token === NATIVE || token.chain === SOLANA_CHAIN_NAME) {
       const mint = token === NATIVE ? NATIVE_MINT : token.address;
       const wrapToken = token === NATIVE;
+
+      let writableAddresses: PublicKey[] = [NATIVE_MINT];
+
       if (wrapToken) {
         const ata = getAssociatedTokenAddressSync(
           NATIVE_MINT,
           new PublicKey(senderAddress),
         );
+
+        writableAddresses.push(ata);
+
         try {
           await getAccount(this.connection, ata);
         } catch (e: any) {
@@ -1075,38 +1095,49 @@ export class SolanaContext<
           }
         }
       }
-      transferIx = await createTransferNativeTokensWithRelayInstruction(
-        this.connection,
-        relayer,
-        senderAddress,
-        token_bridge,
-        core,
-        mint,
-        BigInt(amount),
-        BigInt(toNativeToken),
-        formattedRecipient,
-        recipientChainId,
-        nonce,
-        wrapToken,
+
+      transaction.add(
+        ...(await this.determineComputeBudget(writableAddresses)),
+      );
+      transaction.add(
+        await createTransferNativeTokensWithRelayInstruction(
+          this.connection,
+          relayer,
+          senderAddress,
+          token_bridge,
+          core,
+          mint,
+          BigInt(amount),
+          BigInt(toNativeToken),
+          formattedRecipient,
+          recipientChainId,
+          nonce,
+          wrapToken,
+        ),
       );
     } else {
       const mint = await this.mustGetForeignAsset(token, sendingChain);
-      transferIx = await createTransferWrappedTokensWithRelayInstruction(
-        this.connection,
-        relayer,
-        senderAddress,
-        token_bridge,
-        core,
-        mint,
-        BigInt(amount),
-        BigInt(toNativeToken),
-        formattedRecipient,
-        recipientChainId,
-        nonce,
+
+      transaction.add(
+        ...(await this.determineComputeBudget([new PublicKey(mint)])),
+      );
+      transaction.add(
+        await createTransferWrappedTokensWithRelayInstruction(
+          this.connection,
+          relayer,
+          senderAddress,
+          token_bridge,
+          core,
+          mint,
+          BigInt(amount),
+          BigInt(toNativeToken),
+          formattedRecipient,
+          recipientChainId,
+          nonce,
+        ),
       );
     }
 
-    transaction.add(transferIx);
     const { blockhash } = await this.connection.getLatestBlockhash('finalized');
     transaction.recentBlockhash = blockhash;
     transaction.feePayer = new PublicKey(senderAddress);
@@ -1180,20 +1211,37 @@ export class SolanaContext<
     };
   }
 
-  newTransaction(): Transaction {
-    let tx = new Transaction();
+  async determineComputeBudget(
+    lockedWritableAccounts: PublicKey[] = [],
+  ): Promise<TransactionInstruction[]> {
+    let fee = 100_000; // Set fee to 100,000 microlamport by default
 
-    tx.add(
+    const recentFeesResponse =
+      await this.connection?.getRecentPrioritizationFees({
+        lockedWritableAccounts,
+      });
+
+    try {
+      if (recentFeesResponse) {
+        // Get 75th percentile fee paid in recent slots
+        const recentFees = recentFeesResponse
+          .map((dp) => dp.prioritizationFee)
+          .sort((a, b) => a - b);
+        fee = recentFees[Math.floor(recentFees.length * SOLANA_FEE_PERCENTILE)];
+      }
+    } catch (e) {
+      console.error('Error fetching Solana recent fees', e);
+    }
+
+    console.info(`Setting Solana compute unit price to ${fee} microLamports`);
+
+    return [
       ComputeBudgetProgram.setComputeUnitLimit({
         units: 250_000,
       }),
-    );
-    tx.add(
       ComputeBudgetProgram.setComputeUnitPrice({
-        microLamports: 1_000_000,
+        microLamports: fee,
       }),
-    );
-
-    return tx;
+    ];
   }
 }
