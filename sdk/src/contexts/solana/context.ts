@@ -1219,12 +1219,12 @@ export class SolanaContext<
   ): Promise<TransactionInstruction[]> {
     let fee = 100_000; // Set fee to 100,000 microlamport by default
 
-    const recentFeesResponse =
-      await this.connection?.getRecentPrioritizationFees({
-        lockedWritableAccounts,
-      });
-
     try {
+      const recentFeesResponse =
+        await this.connection?.getRecentPrioritizationFees({
+          lockedWritableAccounts,
+        });
+
       if (recentFeesResponse) {
         // Get 75th percentile fee paid in recent slots
         const recentFees = recentFeesResponse
