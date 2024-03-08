@@ -533,7 +533,10 @@ export class SolanaContext<
         );
     const transaction = new Transaction();
     transaction.add(
-      ...(await this.determineComputeBudget([new PublicKey(fromAddress)])),
+      ...(await this.determineComputeBudget([
+        new PublicKey(fromAddress),
+        new PublicKey(mintAddress),
+      ])),
     );
     transaction.add(approvalIx, tokenBridgeTransferIx);
     const { blockhash } = await this.connection.getLatestBlockhash(commitment);
