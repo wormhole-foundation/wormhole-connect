@@ -12,7 +12,6 @@ import {
   isEvmChain,
   wh,
 } from './sdk';
-import { hexlify } from 'ethers/lib/utils';
 
 export type ParsedVaa = {
   bytes: string;
@@ -252,7 +251,7 @@ export const fetchGlobalTx = async (
     .then(function (response: any) {
       const data = response.data;
       if (!data || !data.destinationTx?.txHash) return undefined;
-      return hexlify(data.destinationTx.txHash);
+      return data.destinationTx.txHash;
     })
     .catch(function (error) {
       throw error;
