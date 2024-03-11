@@ -64,6 +64,7 @@ import {
 } from './utils';
 import { PorticoBridgeState, PorticoSwapAmounts } from 'store/porticoBridge';
 import { TokenPrices } from 'store/tokenPrices';
+import { estimateAverageGasFee } from 'utils/gas';
 
 export abstract class PorticoBridge extends BaseRoute {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean = false;
@@ -355,14 +356,15 @@ export abstract class PorticoBridge extends BaseRoute {
     recipientAddress: string,
     routeOptions?: any,
   ): Promise<BigNumber> {
-    throw new Error('not implemented');
+    return await estimateAverageGasFee(sendingChain, 150_000);
   }
 
   async estimateClaimGas(
     destChain: ChainName | ChainId,
     signedMessage?: SignedMessage,
   ): Promise<BigNumber> {
-    throw new Error('not implemented');
+    // Relayer pays gas on the destination chain
+    return BigNumber.from(0);
   }
 
   getMinSendAmount(routeOptions: PorticoBridgeState): number {
