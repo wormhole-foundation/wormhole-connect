@@ -35,6 +35,8 @@ function ExplorerLink(props: ExplorerLinkProps) {
       explorerLink = `${chainConfig.explorerUrl}txn/${props.txHash}`;
     } else if (chainConfig.key === 'sei') {
       explorerLink = `${chainConfig.explorerUrl}transaction/${props.txHash}`;
+    } else if (chainConfig.key === 'injective') {
+      explorerLink = `${chainConfig.explorerUrl}transaction/${props.txHash}`;
     } else if (chainConfig.key === 'osmosis') {
       explorerLink =
         ENV === 'TESTNET'

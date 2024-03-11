@@ -2217,4 +2217,19 @@ export const TESTNET_TOKENS: TokensConfig = {
       default: 8,
     },
   },
+  INJ: {
+    key: 'INJ',
+    symbol: 'INJ',
+    nativeChain: 'injective',
+    tokenId: {
+      chain: 'injective',
+      address: 'inj',
+    },
+    icon: Icon.INJ,
+    coinGeckoId: 'injective-protocol',
+    color: '#24DAC6',
+    decimals: {
+      default: 18,
+    },
+  },
 };

@@ -14,6 +14,7 @@ export const TESTNET_CHAINS = {
   klaytn: 13,
   alfajores: 14,
   moonbasealpha: 16,
+  injective: 19,
   sui: 21,
   aptos: 22,
   arbitrumgoerli: 23,
@@ -351,6 +352,14 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     finalityThreshold: 0,
     nativeTokenDecimals: 18,
   },
+  injective: {
+    key: 'injective',
+    id: 19,
+    context: Context.COSMOS,
+    contracts: {},
+    finalityThreshold: 0,
+    nativeTokenDecimals: 6,
+  },
 };
 
 const env: Environment = 'TESTNET';
@@ -379,6 +388,7 @@ const TESTNET_CONFIG: WormholeConfig = {
     cosmoshub: 'https://rpc.sentry-02.theta-testnet.polypore.xyz',
     evmos: 'https://evmos-testnet-rpc.polkachu.com',
     kujira: 'https://kujira-testnet-rpc.polkachu.com',
+    injective: 'https://injective-testnet-rpc.polkachu.com',
     klaytn: 'https://rpc.ankr.com/klaytn_testnet',
     sepolia: 'https://rpc.ankr.com/eth_sepolia',
     arbitrum_sepolia: 'https://sepolia-rollup.arbitrum.io/rpc',
@@ -388,6 +398,7 @@ const TESTNET_CONFIG: WormholeConfig = {
   rest: {
     sei: 'https://rest.atlantic-2.seinetwork.io',
     evmos: 'https://evmos-testnet-api.polkachu.com',
+    injective: 'https://injective-testnet-api.polkachu.com',
   },
   graphql: {
     aptos: 'https://indexer-testnet.staging.gcp.aptosdev.com/v1/graphql',

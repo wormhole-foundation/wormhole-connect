@@ -36,6 +36,7 @@ export enum Icon {
   'EVMOS',
   'KUJI',
   'PYTH',
+  'INJ',
   'KLAY',
 }
 

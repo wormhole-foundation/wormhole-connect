@@ -13,6 +13,7 @@ const {
   REACT_APP_SEI_RPC,
   REACT_APP_BASE_RPC,
   REACT_APP_OSMOSIS_RPC,
+  REACT_APP_INJECTIVE_RPC,
   REACT_APP_WORMCHAIN_RPC,
   REACT_APP_EVMOS_RPC,
   REACT_APP_KUJIRA_RPC,
@@ -43,6 +44,7 @@ export const MAINNET_RPC_MAPPING = {
   ...populateRpcField('optimism', REACT_APP_OPTIMISM_RPC),
   ...populateRpcField('evmos', REACT_APP_EVMOS_RPC),
   ...populateRpcField('kujira', REACT_APP_KUJIRA_RPC),
+  ...populateRpcField('injective', REACT_APP_INJECTIVE_RPC),
   ...populateRpcField('klaytn', REACT_APP_KLAYTN_RPC),
 };
 

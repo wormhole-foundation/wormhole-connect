@@ -39,6 +39,7 @@ for working examples of different config values.
 | osmosis | osmosis |
 | evmos | evmos |
 | kujira | kujira |
+| injective | injective |
 | klaytn | klaytn |
 | arbitrum | arbitrumgoerli, arbitrum_sepolia |
 | optimism | optimismgoerli, optimism_sepolia |

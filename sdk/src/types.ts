@@ -19,7 +19,6 @@ export type ChainId = MainnetChainId | TestnetChainId | DevnetChainId;
 export enum Context {
   ETH = 'Ethereum',
   TERRA = 'Terra',
-  INJECTIVE = 'Injective',
   XPLA = 'XPLA',
   SOLANA = 'Solana',
   ALGORAND = 'Algorand',

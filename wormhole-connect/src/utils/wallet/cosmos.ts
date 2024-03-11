@@ -17,7 +17,7 @@ import {
   ChainResourceMap,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 
-const buildCosmosWallets = (evm?: boolean) => {
+const getCosmosWalletsEndpointsMap = () => {
   const prepareMap = (map: ChainResourceMap) =>
     Object.keys(map).reduce((acc, k) => {
       const conf = CHAINS[k as ChainName];
@@ -30,9 +30,22 @@ const buildCosmosWallets = (evm?: boolean) => {
   const rpcs = prepareMap(RPCS);
   const rests = prepareMap(REST);
 
-  const wallets: CosmosWallet[] | CosmosEvmWallet[] = evm
-    ? (getEvmWallets(rpcs, rests) as any[] as CosmosWallet[])
-    : getWallets(rpcs, rests);
+  return { rpcs, rests };
+};
+
+const buildCosmosEvmWallets = () => {
+  const { rests, rpcs } = getCosmosWalletsEndpointsMap();
+  const wallets: CosmosEvmWallet[] = getEvmWallets(rpcs, rests);
+
+  return wallets.reduce((acc, w: CosmosEvmWallet) => {
+    acc[w.getName()] = w;
+    return acc;
+  }, {} as Record<string, Wallet>);
+};
+
+const buildCosmosWallets = () => {
+  const { rests, rpcs } = getCosmosWalletsEndpointsMap();
+  const wallets: CosmosWallet[] = getWallets(rpcs, rests);
 
   return wallets.reduce((acc, w: CosmosWallet) => {
     acc[w.getName()] = w;
@@ -42,7 +55,7 @@ const buildCosmosWallets = (evm?: boolean) => {
 
 export const wallets = {
   cosmos: buildCosmosWallets(),
-  cosmosEvm: buildCosmosWallets(true),
+  cosmosEvm: buildCosmosEvmWallets(),
 };
 
 export async function signAndSendTransaction(
