@@ -8,17 +8,18 @@ const PRICES_FETCH_INTERVAL = 60000 * 5; // 5 mins
 const COINGECKO_URL = 'https://api.coingecko.com/';
 const COINGECKO_URL_PRO = 'https://pro-api.coingecko.com/';
 
-const COINGECKO_IDS = Object.values(config.tokens)
-  .filter((config) => !!config.coinGeckoId)
-  .map(({ coinGeckoId }) => coinGeckoId)
-  .join(',');
-
 export const useFetchTokenPrices = (): void => {
   const dispatch = useDispatch();
   useEffect(() => {
     let cancelled = false;
     const controller = new AbortController();
     const signal = controller.signal;
+
+    const coingeckoIds = Object.values(config.tokens)
+      .filter((config) => !!config.coinGeckoId)
+      .map(({ coinGeckoId }) => coinGeckoId)
+      .join(',');
+
     const headers = new Headers({
       'Content-Type': 'application/json',
       ...(config.coinGeckoApiKey
@@ -33,7 +34,7 @@ export const useFetchTokenPrices = (): void => {
           const res = await fetch(
             `${
               !config.coinGeckoApiKey ? COINGECKO_URL : COINGECKO_URL_PRO
-            }api/v3/simple/price?ids=${COINGECKO_IDS}&vs_currencies=usd${
+            }api/v3/simple/price?ids=${coingeckoIds}&vs_currencies=usd${
               !config.coinGeckoApiKey
                 ? ''
                 : `?x_cg_pro_api_key=${config.coinGeckoApiKey}`

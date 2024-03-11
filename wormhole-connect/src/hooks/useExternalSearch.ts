@@ -3,10 +3,6 @@ import { coalesceChainName } from '@certusone/wormhole-sdk';
 import config from 'config';
 import { useEffect, useState } from 'react';
 
-const VALID_CHAINS = config.chainsArr
-  .filter((chain) => chain.key !== 'wormchain')
-  .map((chain) => chain.key);
-
 type ExternalSearch = {
   hasExternalSearch: boolean;
   txHash?: string;
@@ -25,7 +21,12 @@ export function useExternalSearch(): ExternalSearch {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         config.searchTx.chainName as any,
       ) as ChainName;
-      if (VALID_CHAINS.includes(chainName)) {
+
+      const validChains = config.chainsArr
+        .filter((chain) => chain.key !== 'wormchain')
+        .map((chain) => chain.key);
+
+      if (validChains.includes(chainName)) {
         setHasExternalSearchtate(true);
         setTxHash(config.searchTx.txHash);
         setChainName(chainName);
