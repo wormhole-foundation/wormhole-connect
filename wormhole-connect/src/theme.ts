@@ -3,7 +3,7 @@ import grey from '@mui/material/colors/grey';
 import green from '@mui/material/colors/green';
 import orange from '@mui/material/colors/orange';
 import red from '@mui/material/colors/red';
-import { PaletteMode, ThemeOptions } from '@mui/material';
+import { PaletteMode } from '@mui/material';
 import { OPACITY } from './utils/style';
 
 export type PaletteColor = {
@@ -250,7 +250,7 @@ export const getDesignTokens = (customTheme: CustomTheme) => {
   const baseTheme = customTheme?.mode === 'light' ? light : dark;
   const theme = Object.assign(baseTheme, customTheme) as ExtendedTheme;
 
-  return createTheme(theme as ThemeOptions, {
+  return createTheme({
     components: {
       MuiPaper: {
         styleOverrides: {
