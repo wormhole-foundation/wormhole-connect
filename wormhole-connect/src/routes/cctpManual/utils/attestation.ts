@@ -3,10 +3,6 @@ import config from 'config';
 import { BytesLike } from 'ethers';
 import { sleep } from 'utils';
 
-const CIRCLE_ATTESTATION = config.isMainnet
-  ? 'https://iris-api.circle.com/attestations/'
-  : 'https://iris-api-sandbox.circle.com/attestations/';
-
 export async function getCircleAttestation(messageHash: BytesLike) {
   while (true) {
     // get the post
@@ -23,6 +19,10 @@ export async function getCircleAttestation(messageHash: BytesLike) {
 export async function tryGetCircleAttestation(
   messageHash: BytesLike,
 ): Promise<string | undefined> {
+  const CIRCLE_ATTESTATION = config.isMainnet
+    ? 'https://iris-api.circle.com/attestations/'
+    : 'https://iris-api-sandbox.circle.com/attestations/';
+
   return await axios
     .get(`${CIRCLE_ATTESTATION}${messageHash}`)
     .catch((reason) => {
