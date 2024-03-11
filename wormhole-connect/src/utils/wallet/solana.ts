@@ -26,42 +26,40 @@ import {
 
 import config from 'config';
 
-const tag = config.isMainnet ? 'mainnet-beta' : 'devnet';
-const connection = new Connection(config.rpcs.solana || clusterApiUrl(tag));
-
 const getWalletName = (wallet: Wallet) =>
   wallet.getName().toLowerCase().replaceAll('wallet', '').trim();
 
-const solanaWallets = {
-  ...getSolanaStandardWallets(connection).reduce((acc, w) => {
-    acc[getWalletName(w)] = w;
-    return acc;
-  }, {} as Record<string, Wallet>),
-  bitget: new SolanaWallet(new BitgetWalletAdapter(), connection),
-  clover: new SolanaWallet(new CloverWalletAdapter(), connection),
-  coin98: new SolanaWallet(new Coin98WalletAdapter(), connection),
-  solong: new SolanaWallet(new SolongWalletAdapter(), connection),
-  torus: new SolanaWallet(new TorusWalletAdapter(), connection),
-  nightly: new SolanaWallet(new NightlyWalletAdapter(), connection),
-  ...(config.walletConnectProjectId
-    ? {
-        walletConnect: new SolanaWallet(
-          new WalletConnectWalletAdapter({
-            network: config.isMainnet
-              ? SolanaNetwork.Mainnet
-              : SolanaNetwork.Devnet,
-            options: {
-              projectId: config.walletConnectProjectId,
-            },
-          }),
-          connection,
-        ),
-      }
-    : {}),
-};
-
 export function fetchOptions() {
-  return solanaWallets;
+  const tag = config.isMainnet ? 'mainnet-beta' : 'devnet';
+  const connection = new Connection(config.rpcs.solana || clusterApiUrl(tag));
+
+  return {
+    ...getSolanaStandardWallets(connection).reduce((acc, w) => {
+      acc[getWalletName(w)] = w;
+      return acc;
+    }, {} as Record<string, Wallet>),
+    bitget: new SolanaWallet(new BitgetWalletAdapter(), connection),
+    clover: new SolanaWallet(new CloverWalletAdapter(), connection),
+    coin98: new SolanaWallet(new Coin98WalletAdapter(), connection),
+    solong: new SolanaWallet(new SolongWalletAdapter(), connection),
+    torus: new SolanaWallet(new TorusWalletAdapter(), connection),
+    nightly: new SolanaWallet(new NightlyWalletAdapter(), connection),
+    ...(config.walletConnectProjectId
+      ? {
+          walletConnect: new SolanaWallet(
+            new WalletConnectWalletAdapter({
+              network: config.isMainnet
+                ? SolanaNetwork.Mainnet
+                : SolanaNetwork.Devnet,
+              options: {
+                projectId: config.walletConnectProjectId,
+              },
+            }),
+            connection,
+          ),
+        }
+      : {}),
+  };
 }
 
 export async function signAndSendTransaction(
