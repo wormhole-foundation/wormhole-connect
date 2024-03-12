@@ -187,6 +187,11 @@ export const MAINNET_TOKENS: TokensConfig = {
           'ibc/C5EADE2C526B9629D230AC02A97644984ACB7C2F9A6C85126D1025CB0DA42588',
         decimals: 6,
       },
+      injective: {
+        address:
+          'ibc/7BE71BB68C781453F6BB10114F8E2DF8DC37BA791C502F5389EA10E7BEA68323',
+        decimals: 6,
+      },
     },
   },
   WBTC: {
@@ -571,6 +576,11 @@ export const MAINNET_TOKENS: TokensConfig = {
       osmosis: {
         address:
           'ibc/03B6D1925A09B3033AA6FA8772202719ABDC51F8CC2A5C26D0A9B19832F2C023',
+        decimals: 8,
+      },
+      injective: {
+        address:
+          'ibc/4DEFEB42BAAB2788723759D95B7550BCE460855563ED977036248F5B94C842FC',
         decimals: 8,
       },
     },
@@ -2685,6 +2695,11 @@ export const MAINNET_TOKENS: TokensConfig = {
           '0x9c6d76eb273e6b5ba2ec8d708b7fa336a5531f6be59f326b5be8d4d8b12348a4::coin::COIN',
         decimals: 6,
       },
+      injective: {
+        address:
+          'ibc/F3330C1B8BD1886FE9509B94C7B5398B892EA41420D2BC0B7C6A53CB8ED761D6',
+        decimals: 6,
+      },
     },
   },
   INJ: {
@@ -2700,6 +2715,29 @@ export const MAINNET_TOKENS: TokensConfig = {
     color: '#24DAC6',
     decimals: {
       default: 18,
+    },
+  },
+  ARB: {
+    key: 'ARB',
+    symbol: 'ARB',
+    nativeChain: 'arbitrum',
+    icon: Icon.ARBITRUM,
+    tokenId: {
+      chain: 'arbitrum',
+      address: '0x912ce59144191c1204e64559fe8253a0e49e6548',
+    },
+    coinGeckoId: 'arbitrum',
+    color: '#37AAFF',
+    decimals: {
+      default: 8,
+      Ethereum: 18,
+    },
+    foreignAssets: {
+      injective: {
+        address:
+          'ibc/8CF0E4184CA3105798EDB18CAA3981ADB16A9951FE9B05C6D830C746202747E1',
+        decimals: 8,
+      },
     },
   },
 };
