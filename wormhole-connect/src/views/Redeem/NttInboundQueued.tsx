@@ -97,8 +97,8 @@ const NttInboundQueued = () => {
     try {
       const toConfig = CHAINS[toChain];
       if (toConfig?.context === Context.ETH) {
-        registerWalletSigner(toChain, TransferWallet.RECEIVING);
         await switchChain(toConfig.chainId, TransferWallet.RECEIVING);
+        registerWalletSigner(toChain, TransferWallet.RECEIVING);
       }
       tx = await nttRoute.completeInboundQueuedTransfer(
         toChain,

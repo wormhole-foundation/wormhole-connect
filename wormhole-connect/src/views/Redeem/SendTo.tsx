@@ -201,8 +201,8 @@ function SendTo() {
         chainConfig!.context === Context.ETH &&
         typeof chainConfig.chainId === 'number'
       ) {
-        registerWalletSigner(txData.toChain, TransferWallet.RECEIVING);
         await switchChain(chainConfig.chainId, TransferWallet.RECEIVING);
+        registerWalletSigner(txData.toChain, TransferWallet.RECEIVING);
       }
       if (!signedMessage) {
         throw new Error('failed to get vaa, cannot redeem');

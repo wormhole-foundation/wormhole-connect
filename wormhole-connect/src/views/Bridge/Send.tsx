@@ -107,12 +107,12 @@ function Send(props: { valid: boolean }) {
     try {
       const fromConfig = config.chains[fromChain!];
       if (fromConfig?.context === Context.ETH) {
-        registerWalletSigner(fromChain!, TransferWallet.SENDING);
         const chainId = fromConfig.chainId;
         if (typeof chainId !== 'number') {
           throw new Error('invalid evm chain ID');
         }
         await switchChain(chainId, TransferWallet.SENDING);
+        registerWalletSigner(fromChain!, TransferWallet.SENDING);
       }
       if (fromConfig?.context === Context.COSMOS) {
         await switchChain(fromConfig.chainId, TransferWallet.SENDING);
