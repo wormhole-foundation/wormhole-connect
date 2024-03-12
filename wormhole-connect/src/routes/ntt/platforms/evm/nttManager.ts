@@ -54,7 +54,17 @@ export class NttManagerEvm {
     destChain: ChainName | ChainId,
     wormholeTransceiver: string,
   ): Promise<string> {
-    const endpointIxs = [
+    // TODO: when this change is deployed, change to encodeTransceiverInstructions
+    // https://github.com/wormhole-foundation/example-native-token-transfers/pull/286
+    // const transceiverIxs = encodeTransceiverInstructions([
+    //   {
+    //     index: 0,
+    //     payload: encodeWormholeTransceiverInstruction({
+    //       shouldSkipRelayerSend,
+    //     }),
+    //   },
+    // ]);
+    const transceiverIxs = [
       {
         index: 0,
         payload: encodeWormholeTransceiverInstruction({
@@ -64,7 +74,7 @@ export class NttManagerEvm {
     ];
     const [, deliveryPrice] = await this.nttManager.quoteDeliveryPrice(
       wh.toChainId(destChain),
-      endpointIxs,
+      transceiverIxs,
       [wormholeTransceiver],
     );
     return deliveryPrice.toString();
@@ -90,7 +100,7 @@ export class NttManagerEvm {
           ),
         )
       : undefined;
-    const endpointIxs = encodeTransceiverInstructions([
+    const transceiverIxs = encodeTransceiverInstructions([
       {
         index: 0,
         payload: encodeWormholeTransceiverInstruction({
@@ -105,7 +115,7 @@ export class NttManagerEvm {
       wh.toChainId(toChain),
       wh.formatAddress(recipient, toChain),
       false, // revert instead of getting outbound queued
-      endpointIxs,
+      transceiverIxs,
       { value: deliveryPrice },
     );
     const context = wh.getContext(this.chain) as EthContext<WormholeContext>;
@@ -195,7 +205,7 @@ export class NttManagerEvm {
       eventFilter,
       currentBlock - chainConfig.maxBlockSearch,
     );
-    return events ? events[0].transactionHash : undefined;
+    return events?.[0]?.transactionHash || undefined;
   }
 
   throwParsedError(e: any): never {

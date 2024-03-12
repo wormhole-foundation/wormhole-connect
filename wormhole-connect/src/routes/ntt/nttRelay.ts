@@ -63,7 +63,7 @@ export class NttRelay extends NttBase {
       ]).then((results) => results.some((r) => r));
     }
     if (wh.toChainName(sourceChain) === 'solana') {
-      if (!nttConfig.solanaQuoter) throw new Error('no solana quoter');
+      if (!nttConfig.solanaQuoter) return false;
       const quoter = new NttQuoter(nttConfig.solanaQuoter);
       return await quoter.isRelayEnabled(destChain);
     }

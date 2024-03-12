@@ -3,7 +3,7 @@ import { isEvmChain, wh } from 'utils/sdk';
 import { NttManagerEvm } from './evm';
 import { NttManagerSolana } from './solana';
 import { WormholeTransceiver } from './evm';
-// import { NttQuoter } from './solana/nttQuoter';
+import { NttQuoter } from './solana/nttQuoter';
 
 export const getNttManager = (
   chain: ChainName | ChainId,
@@ -31,8 +31,8 @@ export const isRelayingEnabled = async (
     ]).then((results) => results.some((r) => r));
   }
   if (wh.toChainName(chain) === 'solana') {
-    // const quoter = new NttQuoter(address);
-    // return await quoter.isRelayingEnabled(destChain);
+    const quoter = new NttQuoter(address);
+    return await quoter.isRelayEnabled(destChain);
   }
   throw new Error(`Unsupported chain: ${chain}`);
 };
