@@ -1,7 +1,12 @@
 import {
-  MainnetChainName,
-  TestnetChainName,
+  MAINNET_CHAINS,
+  TESTNET_CHAINS,
 } from "@wormhole-foundation/wormhole-connect";
+
+import type ExtendedTheme from "@wormhole-foundation/wormhole-connect";
+
+export type MainnetChainName = keyof typeof MAINNET_CHAINS;
+export type TestnetChainName = keyof typeof TESTNET_CHAINS;
 
 export type Network = {
   name: string;

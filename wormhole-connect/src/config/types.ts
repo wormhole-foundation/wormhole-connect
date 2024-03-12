@@ -89,7 +89,7 @@ export interface WormholeConnectConfig {
   // This should be removed in a future version after people have switched
   // to providing the theme as a separate prop
   customTheme?: ExtendedTheme;
-  mode: 'dark' | 'light';
+  mode?: 'dark' | 'light';
 
   // UI details
   cta?: {

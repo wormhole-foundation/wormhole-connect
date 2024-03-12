@@ -36,25 +36,22 @@ import {
   Typography,
   useMediaQuery,
 } from "@mui/material";
-import WormholeBridge, {
+import WormholeConnect, {
   ChainName,
   MAINNET_CHAINS,
-  MainnetChainName,
-  Rpcs,
   TESTNET_CHAINS,
-  TestnetChainName,
-  Theme,
   WormholeConnectConfig,
-  defaultTheme,
+  dark,
+  CONFIG,
 } from "@wormhole-foundation/wormhole-connect";
+import type { CustomTheme } from "@wormhole-foundation/wormhole-connect";
+
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDebounce } from "use-debounce";
 import Background from "./Background";
 import ColorPicker from "./components/ColorPicker";
 import RouteCard from "./components/RouteCard";
 import {
-  DEFAULT_MAINNET_RPCS,
-  DEFAULT_TESTNET_RPCS,
   MAINNET_TOKEN_KEYS,
   NETWORKS,
   ROUTE_INFOS,
@@ -66,7 +63,13 @@ import {
   setObjectPathImmutable,
 } from "./utils";
 
-const version = "0.2.6";
+export type MainnetChainName = keyof typeof MAINNET_CHAINS;
+export type TestnetChainName = keyof typeof TESTNET_CHAINS;
+export type Rpcs = {
+  [chain in ChainName]?: string;
+};
+
+const version = "0.3.0";
 // generated with https://www.srihash.org/
 const versionScriptIntegrity =
   "sha384-QOTWWlgPEcpWnzakQRaUW71dYatQWsRJYtCjz+y94hwZxjxg9jU7X+sE6pDmo6Ao";
@@ -165,7 +168,7 @@ const ScreenButton = ({
   );
 };
 
-const customized = defaultTheme;
+const customized = dark;
 customized.background.default = "transparent";
 const defaultThemeJSON = JSON.stringify(customized, undefined, 2);
 
@@ -215,17 +218,16 @@ function App() {
       };
     }
   }, [debouncedFontHref]);
-  const [_customTheme, setCustomTheme] = useState<Theme | undefined>(undefined);
-  const [debouncedCustomTheme] = useDebounce(_customTheme, 1000);
-  const customTheme =
-    _customTheme === undefined ? undefined : debouncedCustomTheme;
+  const [customTheme, setCustomTheme] = useState<CustomTheme | undefined>(
+    undefined
+  );
   const [customThemeText, setCustomThemeText] = useState(defaultThemeJSON);
   // const [customThemeError, setCustomThemeError] = useState<boolean>(false);
   const handleModeChange = useCallback(
     (e: any, value: string) => {
       if (value === "dark" || value === "light") {
         setMode(value);
-        setCustomTheme(undefined);
+        setCustomTheme({ mode: value });
       } else {
         setMode(undefined);
         try {
@@ -458,7 +460,7 @@ function App() {
     },
     []
   );
-  // NOTE: the WormholeBridge component is keyed by the stringified version of config
+  // NOTE: the WormholeConnect component is keyed by the stringified version of config
   // because otherwise the component did not update on changes
   const config: WormholeConnectConfig = useMemo(
     () => ({
@@ -466,8 +468,6 @@ function App() {
       rpcs: testnetRpcs,
       networks: testnetNetworks, // always testnet for the builder
       tokens: testnetTokens, // always testnet for the builder
-      mode,
-      customTheme,
       cta:
         ctaText && ctaLink
           ? {
@@ -495,8 +495,6 @@ function App() {
       testnetRpcs,
       testnetNetworks,
       testnetTokens,
-      mode,
-      customTheme,
       ctaText,
       ctaLink,
       defaultFromNetwork,
@@ -516,7 +514,7 @@ function App() {
     const realConfig = { ...config, env, rpcs, networks, tokens };
     const realConfigString = JSON.stringify(realConfig);
     return [
-      `<div id="wormhole-connect" config='${realConfigString}' /></div>
+      `<div id="wormhole-connect" data-config='${realConfigString}' data-theme='${customTheme}' /></div>
 <script type="module" src="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@${versionOrTag}/dist/main.js"${
         versionOrTag === version
           ? ` integrity="${versionScriptIntegrity}" crossorigin="anonymous"`
@@ -527,10 +525,10 @@ function App() {
           ? ` integrity="${versionLinkIntegrity}" crossorigin="anonymous"`
           : ""
       }/>`,
-      `import WormholeBridge from '@wormhole-foundation/wormhole-connect';
+      `import WormholeConnect from '@wormhole-foundation/wormhole-connect';
 function App() {
   return (
-    <WormholeBridge config={${realConfigString}} ${
+    <WormholeConnect config={${realConfigString}} ${
         versionOrTag === version ? "" : ` versionOrTag="${versionOrTag}"`
       }/>
   );
@@ -706,7 +704,7 @@ function App() {
                         Widget
                       </Typography>
                       <ColorPicker
-                        customTheme={_customTheme}
+                        customTheme={customTheme}
                         setCustomTheme={setCustomTheme}
                         path="background.default"
                         defaultTheme={customized}
@@ -720,7 +718,7 @@ function App() {
                         Modal
                       </Typography>
                       <ColorPicker
-                        customTheme={_customTheme}
+                        customTheme={customTheme}
                         setCustomTheme={setCustomTheme}
                         path="modal.background"
                         defaultTheme={customized}
@@ -734,7 +732,7 @@ function App() {
                         Card
                       </Typography>
                       <ColorPicker
-                        customTheme={_customTheme}
+                        customTheme={customTheme}
                         setCustomTheme={setCustomTheme}
                         path="card.background"
                         defaultTheme={customized}
@@ -748,7 +746,7 @@ function App() {
                         Button
                       </Typography>
                       <ColorPicker
-                        customTheme={_customTheme}
+                        customTheme={customTheme}
                         setCustomTheme={setCustomTheme}
                         path="button.primary"
                         defaultTheme={customized}
@@ -762,7 +760,7 @@ function App() {
                         Action
                       </Typography>
                       <ColorPicker
-                        customTheme={_customTheme}
+                        customTheme={customTheme}
                         setCustomTheme={setCustomTheme}
                         path="button.action"
                         defaultTheme={customized}
@@ -779,7 +777,7 @@ function App() {
                         Primary
                       </Typography>
                       <ColorPicker
-                        customTheme={_customTheme}
+                        customTheme={customTheme}
                         setCustomTheme={setCustomTheme}
                         path="text.primary"
                         defaultTheme={customized}
@@ -793,7 +791,7 @@ function App() {
                         Secondary
                       </Typography>
                       <ColorPicker
-                        customTheme={_customTheme}
+                        customTheme={customTheme}
                         setCustomTheme={setCustomTheme}
                         path="text.secondary"
                         defaultTheme={customized}
@@ -805,7 +803,7 @@ function App() {
                         Button
                       </Typography>
                       <ColorPicker
-                        customTheme={_customTheme}
+                        customTheme={customTheme}
                         setCustomTheme={setCustomTheme}
                         path="button.primaryText"
                       />
@@ -818,7 +816,7 @@ function App() {
                         Action
                       </Typography>
                       <ColorPicker
-                        customTheme={_customTheme}
+                        customTheme={customTheme}
                         setCustomTheme={setCustomTheme}
                         path="button.actionText"
                         defaultTheme={customized}
@@ -840,7 +838,7 @@ function App() {
                       label="Primary"
                       name="primary"
                       fullWidth
-                      value={getObjectPath(_customTheme, "font.primary")}
+                      value={getObjectPath(customTheme, "font.primary")}
                       onChange={handleFontChange}
                       size="small"
                       sx={{ mt: 2 }}
@@ -849,7 +847,7 @@ function App() {
                       label="Header"
                       name="header"
                       fullWidth
-                      value={getObjectPath(_customTheme, "font.header")}
+                      value={getObjectPath(customTheme, "font.header")}
                       onChange={handleFontChange}
                       size="small"
                       sx={{ mt: 2 }}
@@ -985,8 +983,8 @@ function App() {
                             ? "Unknown RPC string scheme. Expected an http or websocket URI."
                             : `Default: ${
                                 (env === "mainnet"
-                                  ? DEFAULT_MAINNET_RPCS[n[env]]
-                                  : DEFAULT_TESTNET_RPCS[n[env]]) || "None"
+                                  ? CONFIG.MAINNET.rpcs[n[env]]
+                                  : CONFIG.TESTNET.rpcs[n[env]]) || "None"
                               }`
                         }
                       />
@@ -1438,7 +1436,11 @@ function App() {
           <Typography variant="h4" component="h2" gutterBottom>
             Preview
           </Typography>
-          <WormholeBridge config={config} key={JSON.stringify(config)} />
+          <WormholeConnect
+            config={config}
+            theme={customTheme}
+            key={JSON.stringify(config)}
+          />
         </Container>
       </Box>
     </Background>
