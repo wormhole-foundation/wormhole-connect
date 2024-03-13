@@ -269,10 +269,9 @@ function App() {
   // END ROUTES
   // BEGIN ENV
   const [env, setEnv] = useState<"testnet" | "mainnet">("testnet");
-  const [_networkIndexes, setNetworkIndexes] = useState<number[] | undefined>(
+  const [selectedChains, setSelectedChains] = useState<string[] | undefined>(
     undefined
   );
-  const [networkIndexes] = useDebounce(_networkIndexes, 1000);
   const [_tokens, setTokens] = useState<string[] | undefined>(undefined);
   const [tokens] = useDebounce(_tokens, 1000);
   const testnetTokens = useMemo(
@@ -313,21 +312,21 @@ function App() {
   }, []);
   // networks and tokens handlers come after defaults so they can appropriately reset them
   const handleClearNetworks = useCallback(() => {
-    setNetworkIndexes(undefined);
+    setSelectedChains(undefined);
   }, []);
   const handleNoneNetworks = useCallback(() => {
     // clear defaults to avoid bugs (could be smarter)
     setDefaultFromNetwork(undefined);
     setDefaultToNetwork(undefined);
     setRequiredNetwork(undefined);
-    setNetworkIndexes([]);
+    setSelectedChains([]);
   }, []);
   const handleNetworksChange = useCallback((e: any) => {
     // clear defaults to avoid bugs (could be smarter)
     setDefaultFromNetwork(undefined);
     setDefaultToNetwork(undefined);
     setRequiredNetwork(undefined);
-    setNetworkIndexes(
+    setSelectedChains(
       typeof e.target.value === "string"
         ? e.target.value
             .split(",")
@@ -407,19 +406,10 @@ function App() {
       setEnv(value);
     }
   }, []);
-  const [networks, testnetNetworks] = useMemo(() => {
-    return !networkIndexes
-      ? [undefined, undefined]
-      : NETWORKS.filter((v, i) => networkIndexes.indexOf(i) > -1).reduce<
-          [ChainName[], TestnetChainName[]]
-        >(
-          ([networks, testnetNetworks], v) => [
-            [...networks, v[env]],
-            [...testnetNetworks, v.testnet],
-          ],
-          [[], []]
-        );
-  }, [networkIndexes, env]);
+
+  const chains =
+    env === "mainnet" ? CONFIG.MAINNET.chains : CONFIG.TESTNET.chains;
+
   // END ENV
   // START BRIDGE COMPLETE
   const [_ctaText, setCtaText] = useState<string>("");
@@ -443,7 +433,7 @@ function App() {
     setDefaultToNetwork(undefined);
     setDefaultToken(undefined);
     setRequiredNetwork(undefined);
-    setNetworkIndexes(undefined);
+    setSelectedChains(undefined);
     setTokens(undefined);
     setRpcs(undefined);
     setEnv("testnet");
@@ -466,7 +456,6 @@ function App() {
     () => ({
       env: "testnet", // always testnet for the builder
       rpcs: testnetRpcs,
-      networks: testnetNetworks, // always testnet for the builder
       tokens: testnetTokens, // always testnet for the builder
       cta:
         ctaText && ctaLink
@@ -493,7 +482,6 @@ function App() {
     }),
     [
       testnetRpcs,
-      testnetNetworks,
       testnetTokens,
       ctaText,
       ctaLink,
@@ -511,7 +499,13 @@ function App() {
     setVersionOrTag(value);
   }, []);
   const [htmlCode, jsxCode] = useMemo(() => {
-    const realConfig = { ...config, env, rpcs, networks, tokens };
+    const realConfig = {
+      ...config,
+      env,
+      rpcs,
+      networks: selectedChains,
+      tokens,
+    };
     const realConfigString = JSON.stringify(realConfig);
     return [
       `<div id="wormhole-connect" data-config='${realConfigString}' data-theme='${customTheme}' /></div>
@@ -534,7 +528,7 @@ function App() {
   );
 }`,
     ];
-  }, [config, env, rpcs, networks, tokens, versionOrTag]);
+  }, [config, env, rpcs, selectedChains, tokens, versionOrTag]);
   const [openCopySnack, setOpenCopySnack] = useState<boolean>(false);
   const handleCopySnackClose = useCallback(() => {
     setOpenCopySnack(false);
@@ -1003,30 +997,24 @@ function App() {
                 <TextField
                   select
                   fullWidth
-                  value={
-                    _networkIndexes
-                      ? _networkIndexes
-                      : NETWORKS.map((_, i) => i)
-                  }
+                  value={selectedChains || Object.keys(chains)}
                   onChange={handleNetworksChange}
                   SelectProps={{
                     multiple: true,
                     renderValue: (selected: any) =>
-                      !_networkIndexes
+                      !selectedChains
                         ? "All Networks"
-                        : selected
-                            .map((i: number) => NETWORKS[i].name)
-                            .join(", "),
+                        : selectedChains.join(", "),
                   }}
                 >
-                  {NETWORKS.map((network, idx) => (
-                    <MenuItem key={idx} value={idx}>
+                  {Object.keys(chains).map((chain) => (
+                    <MenuItem key={chain} value={chain}>
                       <Checkbox
                         checked={
-                          !_networkIndexes || _networkIndexes.indexOf(idx) > -1
+                          !selectedChains || selectedChains.includes(chain)
                         }
                       />
-                      <ListItemText primary={network.name} />
+                      <ListItemText primary={chain} />
                     </MenuItem>
                   ))}
                 </TextField>
@@ -1112,15 +1100,15 @@ function App() {
                   <MenuItem value={""}>
                     <ListItemText primary="(None)" />
                   </MenuItem>
-                  {_networkIndexes
-                    ? _networkIndexes.map((nIdx) => (
-                        <MenuItem key={nIdx} value={NETWORKS[nIdx][env]}>
-                          <ListItemText primary={NETWORKS[nIdx].name} />
+                  {selectedChains
+                    ? selectedChains.map((chain) => (
+                        <MenuItem key={chain} value={chain}>
+                          <ListItemText primary={chain} />
                         </MenuItem>
                       ))
-                    : NETWORKS.map((n) => (
-                        <MenuItem key={n.name} value={n[env]}>
-                          <ListItemText primary={n.name} />
+                    : Object.keys(chains).map((chain) => (
+                        <MenuItem key={chain} value={chain}>
+                          <ListItemText primary={chain} />
                         </MenuItem>
                       ))}
                 </TextField>
@@ -1147,15 +1135,15 @@ function App() {
                   <MenuItem value={""}>
                     <ListItemText primary="(None)" />
                   </MenuItem>
-                  {_networkIndexes
-                    ? _networkIndexes.map((nIdx) => (
-                        <MenuItem key={nIdx} value={NETWORKS[nIdx][env]}>
-                          <ListItemText primary={NETWORKS[nIdx].name} />
+                  {selectedChains
+                    ? selectedChains.map((chain) => (
+                        <MenuItem key={chain} value={chain}>
+                          <ListItemText primary={chain} />
                         </MenuItem>
                       ))
-                    : NETWORKS.map((n) => (
-                        <MenuItem key={n.name} value={n[env]}>
-                          <ListItemText primary={n.name} />
+                    : Object.keys(chains).map((chain) => (
+                        <MenuItem key={chain} value={chain}>
+                          <ListItemText primary={chain} />
                         </MenuItem>
                       ))}
                 </TextField>
@@ -1206,15 +1194,15 @@ function App() {
                   <MenuItem value={""}>
                     <ListItemText primary="(None)" />
                   </MenuItem>
-                  {_networkIndexes
-                    ? _networkIndexes.map((nIdx) => (
-                        <MenuItem key={nIdx} value={NETWORKS[nIdx][env]}>
-                          <ListItemText primary={NETWORKS[nIdx].name} />
+                  {selectedChains
+                    ? selectedChains.map((chain) => (
+                        <MenuItem key={chain} value={chain}>
+                          <ListItemText primary={chain} />
                         </MenuItem>
                       ))
-                    : NETWORKS.map((n) => (
-                        <MenuItem key={n.name} value={n[env]}>
-                          <ListItemText primary={n.name} />
+                    : Object.keys(chains).map((chain) => (
+                        <MenuItem key={chain} value={chain}>
+                          <ListItemText primary={chain} />
                         </MenuItem>
                       ))}
                 </TextField>
