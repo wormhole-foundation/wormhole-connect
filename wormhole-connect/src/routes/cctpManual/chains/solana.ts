@@ -478,7 +478,7 @@ export class ManualCCTPSolanaImpl implements ManualCCTP<Transaction> {
     // usedNonces is an u64 100 elements array, where each bit acts a flag
     // to know whether a nonce has been used or not
     const { usedNonces } =
-      await messageTransmitterProgram.account.usedNonces.fetch(
+      await messageTransmitterProgram.account.UsedNonces.fetch(
         usedNoncesAddress,
       );
 

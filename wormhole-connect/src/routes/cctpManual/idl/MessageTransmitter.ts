@@ -1,9 +1,6 @@
 export type MessageTransmitter = {
-  version: string;
-  name: string;
-  metadata: {
-    address: string;
-  };
+  version: '0.1.0';
+  name: 'message_transmitter';
   instructions: [
     {
       name: 'initialize';
@@ -17,11 +14,6 @@ export type MessageTransmitter = {
           name: 'upgradeAuthority';
           isMut: false;
           isSigner: true;
-        },
-        {
-          name: 'authorityPda';
-          isMut: false;
-          isSigner: false;
         },
         {
           name: 'messageTransmitter';
@@ -40,6 +32,16 @@ export type MessageTransmitter = {
         },
         {
           name: 'systemProgram';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'eventAuthority';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'program';
           isMut: false;
           isSigner: false;
         },
@@ -66,6 +68,16 @@ export type MessageTransmitter = {
           isMut: true;
           isSigner: false;
         },
+        {
+          name: 'eventAuthority';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'program';
+          isMut: false;
+          isSigner: false;
+        },
       ];
       args: [
         {
@@ -87,6 +99,16 @@ export type MessageTransmitter = {
         {
           name: 'messageTransmitter';
           isMut: true;
+          isSigner: false;
+        },
+        {
+          name: 'eventAuthority';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'program';
+          isMut: false;
           isSigner: false;
         },
       ];
@@ -112,6 +134,16 @@ export type MessageTransmitter = {
           isMut: true;
           isSigner: false;
         },
+        {
+          name: 'eventAuthority';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'program';
+          isMut: false;
+          isSigner: false;
+        },
       ];
       args: [
         {
@@ -133,6 +165,16 @@ export type MessageTransmitter = {
         {
           name: 'messageTransmitter';
           isMut: true;
+          isSigner: false;
+        },
+        {
+          name: 'eventAuthority';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'program';
+          isMut: false;
           isSigner: false;
         },
       ];
@@ -158,6 +200,16 @@ export type MessageTransmitter = {
           isMut: true;
           isSigner: false;
         },
+        {
+          name: 'eventAuthority';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'program';
+          isMut: false;
+          isSigner: false;
+        },
       ];
       args: [
         {
@@ -181,6 +233,16 @@ export type MessageTransmitter = {
           isMut: true;
           isSigner: false;
         },
+        {
+          name: 'eventAuthority';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'program';
+          isMut: false;
+          isSigner: false;
+        },
       ];
       args: [
         {
@@ -202,6 +264,16 @@ export type MessageTransmitter = {
         {
           name: 'messageTransmitter';
           isMut: true;
+          isSigner: false;
+        },
+        {
+          name: 'eventAuthority';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'program';
+          isMut: false;
           isSigner: false;
         },
       ];
@@ -234,6 +306,16 @@ export type MessageTransmitter = {
         },
         {
           name: 'systemProgram';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'eventAuthority';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'program';
           isMut: false;
           isSigner: false;
         },
@@ -270,6 +352,16 @@ export type MessageTransmitter = {
           isMut: false;
           isSigner: false;
         },
+        {
+          name: 'eventAuthority';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'program';
+          isMut: false;
+          isSigner: false;
+        },
       ];
       args: [
         {
@@ -293,6 +385,16 @@ export type MessageTransmitter = {
           isMut: true;
           isSigner: false;
         },
+        {
+          name: 'eventAuthority';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'program';
+          isMut: false;
+          isSigner: false;
+        },
       ];
       args: [
         {
@@ -307,6 +409,11 @@ export type MessageTransmitter = {
       name: 'sendMessage';
       accounts: [
         {
+          name: 'eventRentPayer';
+          isMut: true;
+          isSigner: true;
+        },
+        {
           name: 'senderAuthorityPda';
           isMut: false;
           isSigner: true;
@@ -317,7 +424,17 @@ export type MessageTransmitter = {
           isSigner: false;
         },
         {
+          name: 'messageSentEventData';
+          isMut: true;
+          isSigner: true;
+        },
+        {
           name: 'senderProgram';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'systemProgram';
           isMut: false;
           isSigner: false;
         },
@@ -336,6 +453,11 @@ export type MessageTransmitter = {
       name: 'sendMessageWithCaller';
       accounts: [
         {
+          name: 'eventRentPayer';
+          isMut: true;
+          isSigner: true;
+        },
+        {
           name: 'senderAuthorityPda';
           isMut: false;
           isSigner: true;
@@ -346,7 +468,17 @@ export type MessageTransmitter = {
           isSigner: false;
         },
         {
+          name: 'messageSentEventData';
+          isMut: true;
+          isSigner: true;
+        },
+        {
           name: 'senderProgram';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'systemProgram';
           isMut: false;
           isSigner: false;
         },
@@ -365,6 +497,11 @@ export type MessageTransmitter = {
       name: 'replaceMessage';
       accounts: [
         {
+          name: 'eventRentPayer';
+          isMut: true;
+          isSigner: true;
+        },
+        {
           name: 'senderAuthorityPda';
           isMut: false;
           isSigner: true;
@@ -375,7 +512,17 @@ export type MessageTransmitter = {
           isSigner: false;
         },
         {
+          name: 'messageSentEventData';
+          isMut: true;
+          isSigner: true;
+        },
+        {
           name: 'senderProgram';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'systemProgram';
           isMut: false;
           isSigner: false;
         },
@@ -428,6 +575,16 @@ export type MessageTransmitter = {
           isMut: false;
           isSigner: false;
         },
+        {
+          name: 'eventAuthority';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'program';
+          isMut: false;
+          isSigner: false;
+        },
       ];
       args: [
         {
@@ -438,8 +595,94 @@ export type MessageTransmitter = {
         },
       ];
     },
+    {
+      name: 'reclaimEventAccount';
+      accounts: [
+        {
+          name: 'payee';
+          isMut: true;
+          isSigner: true;
+          docs: ['rent SOL receiver, should match original rent payer'];
+        },
+        {
+          name: 'messageTransmitter';
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: 'messageSentEventData';
+          isMut: true;
+          isSigner: false;
+        },
+      ];
+      args: [
+        {
+          name: 'params';
+          type: {
+            defined: 'ReclaimEventAccountParams';
+          };
+        },
+      ];
+    },
+    {
+      name: 'getNoncePda';
+      accounts: [
+        {
+          name: 'messageTransmitter';
+          isMut: false;
+          isSigner: false;
+        },
+      ];
+      args: [
+        {
+          name: 'params';
+          type: {
+            defined: 'GetNoncePDAParams';
+          };
+        },
+      ];
+      returns: 'publicKey';
+    },
+    {
+      name: 'isNonceUsed';
+      accounts: [
+        {
+          name: 'usedNonces';
+          isMut: false;
+          isSigner: false;
+          docs: [
+            "Account will be explicitly loaded to avoid error when it's not initialized",
+          ];
+        },
+      ];
+      args: [
+        {
+          name: 'params';
+          type: {
+            defined: 'IsNonceUsedParams';
+          };
+        },
+      ];
+      returns: 'bool';
+    },
   ];
   accounts: [
+    {
+      name: 'MessageSent';
+      type: {
+        kind: 'struct';
+        fields: [
+          {
+            name: 'rentPayer';
+            type: 'publicKey';
+          },
+          {
+            name: 'message';
+            type: 'bytes';
+          },
+        ];
+      };
+    },
     {
       name: 'MessageTransmitter';
       docs: ['Main state of the MessageTransmitter program'];
@@ -492,15 +735,11 @@ export type MessageTransmitter = {
             name: 'nextAvailableNonce';
             type: 'u64';
           },
-          {
-            name: 'authorityBump';
-            type: 'u8';
-          },
         ];
       };
     },
     {
-      name: 'usedNonces';
+      name: 'UsedNonces';
       docs: [
         'UsedNonces account holds an array of bits that indicate which nonces were already used',
         "so they can't be resused to receive new messages. Array starts with the first_nonce and",
@@ -560,6 +799,22 @@ export type MessageTransmitter = {
       };
     },
     {
+      name: 'GetNoncePDAParams';
+      type: {
+        kind: 'struct';
+        fields: [
+          {
+            name: 'nonce';
+            type: 'u64';
+          },
+          {
+            name: 'sourceDomain';
+            type: 'u32';
+          },
+        ];
+      };
+    },
+    {
       name: 'InitializeParams';
       type: {
         kind: 'struct';
@@ -579,6 +834,18 @@ export type MessageTransmitter = {
           {
             name: 'version';
             type: 'u32';
+          },
+        ];
+      };
+    },
+    {
+      name: 'IsNonceUsedParams';
+      type: {
+        kind: 'struct';
+        fields: [
+          {
+            name: 'nonce';
+            type: 'u64';
           },
         ];
       };
@@ -623,6 +890,22 @@ export type MessageTransmitter = {
             name: 'messageBody';
             type: 'bytes';
           },
+          {
+            name: 'authorityBump';
+            type: 'u8';
+          },
+        ];
+      };
+    },
+    {
+      name: 'ReclaimEventAccountParams';
+      type: {
+        kind: 'struct';
+        fields: [
+          {
+            name: 'attestation';
+            type: 'bytes';
+          },
         ];
       };
     },
@@ -664,12 +947,12 @@ export type MessageTransmitter = {
             type: 'publicKey';
           },
           {
-            name: 'destinationCaller';
-            type: 'publicKey';
-          },
-          {
             name: 'messageBody';
             type: 'bytes';
+          },
+          {
+            name: 'destinationCaller';
+            type: 'publicKey';
           },
         ];
       };
@@ -831,16 +1114,6 @@ export type MessageTransmitter = {
         {
           name: 'newAttesterManager';
           type: 'publicKey';
-          index: false;
-        },
-      ];
-    },
-    {
-      name: 'MessageSent';
-      fields: [
-        {
-          name: 'message';
-          type: 'bytes';
           index: false;
         },
       ];
@@ -1096,9 +1369,6 @@ export type MessageTransmitter = {
 export const MessageTransmitterIdl: MessageTransmitter = {
   version: '0.1.0',
   name: 'message_transmitter',
-  metadata: {
-    address: 'CCTPmbSD7gX1bxKPAmg77w8oFzNFpaQiQUWD43TKaecd',
-  },
   instructions: [
     {
       name: 'initialize',
@@ -1112,11 +1382,6 @@ export const MessageTransmitterIdl: MessageTransmitter = {
           name: 'upgradeAuthority',
           isMut: false,
           isSigner: true,
-        },
-        {
-          name: 'authorityPda',
-          isMut: false,
-          isSigner: false,
         },
         {
           name: 'messageTransmitter',
@@ -1135,6 +1400,16 @@ export const MessageTransmitterIdl: MessageTransmitter = {
         },
         {
           name: 'systemProgram',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'eventAuthority',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'program',
           isMut: false,
           isSigner: false,
         },
@@ -1161,6 +1436,16 @@ export const MessageTransmitterIdl: MessageTransmitter = {
           isMut: true,
           isSigner: false,
         },
+        {
+          name: 'eventAuthority',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'program',
+          isMut: false,
+          isSigner: false,
+        },
       ],
       args: [
         {
@@ -1182,6 +1467,16 @@ export const MessageTransmitterIdl: MessageTransmitter = {
         {
           name: 'messageTransmitter',
           isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'eventAuthority',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'program',
+          isMut: false,
           isSigner: false,
         },
       ],
@@ -1207,6 +1502,16 @@ export const MessageTransmitterIdl: MessageTransmitter = {
           isMut: true,
           isSigner: false,
         },
+        {
+          name: 'eventAuthority',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'program',
+          isMut: false,
+          isSigner: false,
+        },
       ],
       args: [
         {
@@ -1228,6 +1533,16 @@ export const MessageTransmitterIdl: MessageTransmitter = {
         {
           name: 'messageTransmitter',
           isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'eventAuthority',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'program',
+          isMut: false,
           isSigner: false,
         },
       ],
@@ -1253,6 +1568,16 @@ export const MessageTransmitterIdl: MessageTransmitter = {
           isMut: true,
           isSigner: false,
         },
+        {
+          name: 'eventAuthority',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'program',
+          isMut: false,
+          isSigner: false,
+        },
       ],
       args: [
         {
@@ -1276,6 +1601,16 @@ export const MessageTransmitterIdl: MessageTransmitter = {
           isMut: true,
           isSigner: false,
         },
+        {
+          name: 'eventAuthority',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'program',
+          isMut: false,
+          isSigner: false,
+        },
       ],
       args: [
         {
@@ -1297,6 +1632,16 @@ export const MessageTransmitterIdl: MessageTransmitter = {
         {
           name: 'messageTransmitter',
           isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'eventAuthority',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'program',
+          isMut: false,
           isSigner: false,
         },
       ],
@@ -1329,6 +1674,16 @@ export const MessageTransmitterIdl: MessageTransmitter = {
         },
         {
           name: 'systemProgram',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'eventAuthority',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'program',
           isMut: false,
           isSigner: false,
         },
@@ -1365,6 +1720,16 @@ export const MessageTransmitterIdl: MessageTransmitter = {
           isMut: false,
           isSigner: false,
         },
+        {
+          name: 'eventAuthority',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'program',
+          isMut: false,
+          isSigner: false,
+        },
       ],
       args: [
         {
@@ -1388,6 +1753,16 @@ export const MessageTransmitterIdl: MessageTransmitter = {
           isMut: true,
           isSigner: false,
         },
+        {
+          name: 'eventAuthority',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'program',
+          isMut: false,
+          isSigner: false,
+        },
       ],
       args: [
         {
@@ -1402,6 +1777,11 @@ export const MessageTransmitterIdl: MessageTransmitter = {
       name: 'sendMessage',
       accounts: [
         {
+          name: 'eventRentPayer',
+          isMut: true,
+          isSigner: true,
+        },
+        {
           name: 'senderAuthorityPda',
           isMut: false,
           isSigner: true,
@@ -1412,7 +1792,17 @@ export const MessageTransmitterIdl: MessageTransmitter = {
           isSigner: false,
         },
         {
+          name: 'messageSentEventData',
+          isMut: true,
+          isSigner: true,
+        },
+        {
           name: 'senderProgram',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'systemProgram',
           isMut: false,
           isSigner: false,
         },
@@ -1431,6 +1821,11 @@ export const MessageTransmitterIdl: MessageTransmitter = {
       name: 'sendMessageWithCaller',
       accounts: [
         {
+          name: 'eventRentPayer',
+          isMut: true,
+          isSigner: true,
+        },
+        {
           name: 'senderAuthorityPda',
           isMut: false,
           isSigner: true,
@@ -1441,7 +1836,17 @@ export const MessageTransmitterIdl: MessageTransmitter = {
           isSigner: false,
         },
         {
+          name: 'messageSentEventData',
+          isMut: true,
+          isSigner: true,
+        },
+        {
           name: 'senderProgram',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'systemProgram',
           isMut: false,
           isSigner: false,
         },
@@ -1460,6 +1865,11 @@ export const MessageTransmitterIdl: MessageTransmitter = {
       name: 'replaceMessage',
       accounts: [
         {
+          name: 'eventRentPayer',
+          isMut: true,
+          isSigner: true,
+        },
+        {
           name: 'senderAuthorityPda',
           isMut: false,
           isSigner: true,
@@ -1470,7 +1880,17 @@ export const MessageTransmitterIdl: MessageTransmitter = {
           isSigner: false,
         },
         {
+          name: 'messageSentEventData',
+          isMut: true,
+          isSigner: true,
+        },
+        {
           name: 'senderProgram',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'systemProgram',
           isMut: false,
           isSigner: false,
         },
@@ -1523,6 +1943,16 @@ export const MessageTransmitterIdl: MessageTransmitter = {
           isMut: false,
           isSigner: false,
         },
+        {
+          name: 'eventAuthority',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'program',
+          isMut: false,
+          isSigner: false,
+        },
       ],
       args: [
         {
@@ -1533,8 +1963,94 @@ export const MessageTransmitterIdl: MessageTransmitter = {
         },
       ],
     },
+    {
+      name: 'reclaimEventAccount',
+      accounts: [
+        {
+          name: 'payee',
+          isMut: true,
+          isSigner: true,
+          docs: ['rent SOL receiver, should match original rent payer'],
+        },
+        {
+          name: 'messageTransmitter',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'messageSentEventData',
+          isMut: true,
+          isSigner: false,
+        },
+      ],
+      args: [
+        {
+          name: 'params',
+          type: {
+            defined: 'ReclaimEventAccountParams',
+          },
+        },
+      ],
+    },
+    {
+      name: 'getNoncePda',
+      accounts: [
+        {
+          name: 'messageTransmitter',
+          isMut: false,
+          isSigner: false,
+        },
+      ],
+      args: [
+        {
+          name: 'params',
+          type: {
+            defined: 'GetNoncePDAParams',
+          },
+        },
+      ],
+      returns: 'publicKey',
+    },
+    {
+      name: 'isNonceUsed',
+      accounts: [
+        {
+          name: 'usedNonces',
+          isMut: false,
+          isSigner: false,
+          docs: [
+            "Account will be explicitly loaded to avoid error when it's not initialized",
+          ],
+        },
+      ],
+      args: [
+        {
+          name: 'params',
+          type: {
+            defined: 'IsNonceUsedParams',
+          },
+        },
+      ],
+      returns: 'bool',
+    },
   ],
   accounts: [
+    {
+      name: 'MessageSent',
+      type: {
+        kind: 'struct',
+        fields: [
+          {
+            name: 'rentPayer',
+            type: 'publicKey',
+          },
+          {
+            name: 'message',
+            type: 'bytes',
+          },
+        ],
+      },
+    },
     {
       name: 'MessageTransmitter',
       docs: ['Main state of the MessageTransmitter program'],
@@ -1587,15 +2103,11 @@ export const MessageTransmitterIdl: MessageTransmitter = {
             name: 'nextAvailableNonce',
             type: 'u64',
           },
-          {
-            name: 'authorityBump',
-            type: 'u8',
-          },
         ],
       },
     },
     {
-      name: 'usedNonces',
+      name: 'UsedNonces',
       docs: [
         'UsedNonces account holds an array of bits that indicate which nonces were already used',
         "so they can't be resused to receive new messages. Array starts with the first_nonce and",
@@ -1655,6 +2167,22 @@ export const MessageTransmitterIdl: MessageTransmitter = {
       },
     },
     {
+      name: 'GetNoncePDAParams',
+      type: {
+        kind: 'struct',
+        fields: [
+          {
+            name: 'nonce',
+            type: 'u64',
+          },
+          {
+            name: 'sourceDomain',
+            type: 'u32',
+          },
+        ],
+      },
+    },
+    {
       name: 'InitializeParams',
       type: {
         kind: 'struct',
@@ -1674,6 +2202,18 @@ export const MessageTransmitterIdl: MessageTransmitter = {
           {
             name: 'version',
             type: 'u32',
+          },
+        ],
+      },
+    },
+    {
+      name: 'IsNonceUsedParams',
+      type: {
+        kind: 'struct',
+        fields: [
+          {
+            name: 'nonce',
+            type: 'u64',
           },
         ],
       },
@@ -1718,6 +2258,22 @@ export const MessageTransmitterIdl: MessageTransmitter = {
             name: 'messageBody',
             type: 'bytes',
           },
+          {
+            name: 'authorityBump',
+            type: 'u8',
+          },
+        ],
+      },
+    },
+    {
+      name: 'ReclaimEventAccountParams',
+      type: {
+        kind: 'struct',
+        fields: [
+          {
+            name: 'attestation',
+            type: 'bytes',
+          },
         ],
       },
     },
@@ -1759,12 +2315,12 @@ export const MessageTransmitterIdl: MessageTransmitter = {
             type: 'publicKey',
           },
           {
-            name: 'destinationCaller',
-            type: 'publicKey',
-          },
-          {
             name: 'messageBody',
             type: 'bytes',
+          },
+          {
+            name: 'destinationCaller',
+            type: 'publicKey',
           },
         ],
       },
@@ -1926,16 +2482,6 @@ export const MessageTransmitterIdl: MessageTransmitter = {
         {
           name: 'newAttesterManager',
           type: 'publicKey',
-          index: false,
-        },
-      ],
-    },
-    {
-      name: 'MessageSent',
-      fields: [
-        {
-          name: 'message',
-          type: 'bytes',
           index: false,
         },
       ],

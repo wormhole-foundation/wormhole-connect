@@ -1,9 +1,6 @@
 export type TokenMessenger = {
-  version: string;
-  name: string;
-  metadata: {
-    address: string;
-  };
+  version: '0.1.0';
+  name: 'token_messenger_minter';
   instructions: [
     {
       name: 'initialize';
@@ -48,6 +45,16 @@ export type TokenMessenger = {
           isMut: false;
           isSigner: false;
         },
+        {
+          name: 'eventAuthority';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'program';
+          isMut: false;
+          isSigner: false;
+        },
       ];
       args: [
         {
@@ -71,6 +78,16 @@ export type TokenMessenger = {
           isMut: true;
           isSigner: false;
         },
+        {
+          name: 'eventAuthority';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'program';
+          isMut: false;
+          isSigner: false;
+        },
       ];
       args: [
         {
@@ -92,6 +109,16 @@ export type TokenMessenger = {
         {
           name: 'tokenMessenger';
           isMut: true;
+          isSigner: false;
+        },
+        {
+          name: 'eventAuthority';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'program';
+          isMut: false;
           isSigner: false;
         },
       ];
@@ -132,6 +159,16 @@ export type TokenMessenger = {
           isMut: false;
           isSigner: false;
         },
+        {
+          name: 'eventAuthority';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'program';
+          isMut: false;
+          isSigner: false;
+        },
       ];
       args: [
         {
@@ -165,6 +202,16 @@ export type TokenMessenger = {
           isMut: true;
           isSigner: false;
         },
+        {
+          name: 'eventAuthority';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'program';
+          isMut: false;
+          isSigner: false;
+        },
       ];
       args: [
         {
@@ -181,6 +228,11 @@ export type TokenMessenger = {
         {
           name: 'owner';
           isMut: false;
+          isSigner: true;
+        },
+        {
+          name: 'eventRentPayer';
+          isMut: true;
           isSigner: true;
         },
         {
@@ -224,6 +276,11 @@ export type TokenMessenger = {
           isSigner: false;
         },
         {
+          name: 'messageSentEventData';
+          isMut: true;
+          isSigner: true;
+        },
+        {
           name: 'messageTransmitterProgram';
           isMut: false;
           isSigner: false;
@@ -235,6 +292,21 @@ export type TokenMessenger = {
         },
         {
           name: 'tokenProgram';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'systemProgram';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'eventAuthority';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'program';
           isMut: false;
           isSigner: false;
         },
@@ -258,6 +330,11 @@ export type TokenMessenger = {
           isSigner: true;
         },
         {
+          name: 'eventRentPayer';
+          isMut: true;
+          isSigner: true;
+        },
+        {
           name: 'senderAuthorityPda';
           isMut: false;
           isSigner: false;
@@ -298,6 +375,11 @@ export type TokenMessenger = {
           isSigner: false;
         },
         {
+          name: 'messageSentEventData';
+          isMut: true;
+          isSigner: true;
+        },
+        {
           name: 'messageTransmitterProgram';
           isMut: false;
           isSigner: false;
@@ -309,6 +391,21 @@ export type TokenMessenger = {
         },
         {
           name: 'tokenProgram';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'systemProgram';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'eventAuthority';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'program';
           isMut: false;
           isSigner: false;
         },
@@ -332,6 +429,11 @@ export type TokenMessenger = {
           isSigner: true;
         },
         {
+          name: 'eventRentPayer';
+          isMut: true;
+          isSigner: true;
+        },
+        {
           name: 'senderAuthorityPda';
           isMut: false;
           isSigner: false;
@@ -347,12 +449,32 @@ export type TokenMessenger = {
           isSigner: false;
         },
         {
+          name: 'messageSentEventData';
+          isMut: true;
+          isSigner: true;
+        },
+        {
           name: 'messageTransmitterProgram';
           isMut: false;
           isSigner: false;
         },
         {
           name: 'tokenMessengerMinterProgram';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'systemProgram';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'eventAuthority';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'program';
           isMut: false;
           isSigner: false;
         },
@@ -374,11 +496,6 @@ export type TokenMessenger = {
           name: 'authorityPda';
           isMut: false;
           isSigner: true;
-        },
-        {
-          name: 'messageTransmitter';
-          isMut: false;
-          isSigner: false;
         },
         {
           name: 'tokenMessenger';
@@ -420,6 +537,16 @@ export type TokenMessenger = {
           isMut: false;
           isSigner: false;
         },
+        {
+          name: 'eventAuthority';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'program';
+          isMut: false;
+          isSigner: false;
+        },
       ];
       args: [
         {
@@ -448,6 +575,16 @@ export type TokenMessenger = {
           isMut: true;
           isSigner: false;
         },
+        {
+          name: 'eventAuthority';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'program';
+          isMut: false;
+          isSigner: false;
+        },
       ];
       args: [
         {
@@ -471,6 +608,16 @@ export type TokenMessenger = {
           isMut: true;
           isSigner: false;
         },
+        {
+          name: 'eventAuthority';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'program';
+          isMut: false;
+          isSigner: false;
+        },
       ];
       args: [
         {
@@ -492,6 +639,16 @@ export type TokenMessenger = {
         {
           name: 'tokenMinter';
           isMut: true;
+          isSigner: false;
+        },
+        {
+          name: 'eventAuthority';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'program';
+          isMut: false;
           isSigner: false;
         },
       ];
@@ -522,6 +679,16 @@ export type TokenMessenger = {
           isMut: true;
           isSigner: false;
         },
+        {
+          name: 'eventAuthority';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'program';
+          isMut: false;
+          isSigner: false;
+        },
       ];
       args: [
         {
@@ -548,6 +715,16 @@ export type TokenMessenger = {
         {
           name: 'localToken';
           isMut: true;
+          isSigner: false;
+        },
+        {
+          name: 'eventAuthority';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'program';
+          isMut: false;
           isSigner: false;
         },
       ];
@@ -603,6 +780,16 @@ export type TokenMessenger = {
           isMut: false;
           isSigner: false;
         },
+        {
+          name: 'eventAuthority';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'program';
+          isMut: false;
+          isSigner: false;
+        },
       ];
       args: [
         {
@@ -646,6 +833,16 @@ export type TokenMessenger = {
           isMut: false;
           isSigner: false;
         },
+        {
+          name: 'eventAuthority';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'program';
+          isMut: false;
+          isSigner: false;
+        },
       ];
       args: [
         {
@@ -684,6 +881,16 @@ export type TokenMessenger = {
           isMut: false;
           isSigner: false;
         },
+        {
+          name: 'eventAuthority';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'program';
+          isMut: false;
+          isSigner: false;
+        },
       ];
       args: [
         {
@@ -717,12 +924,80 @@ export type TokenMessenger = {
           isMut: true;
           isSigner: false;
         },
+        {
+          name: 'eventAuthority';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'program';
+          isMut: false;
+          isSigner: false;
+        },
       ];
       args: [
         {
           name: 'params';
           type: {
             defined: 'UninkTokenPairParams';
+          };
+        },
+      ];
+    },
+    {
+      name: 'burnTokenCustody';
+      accounts: [
+        {
+          name: 'payee';
+          isMut: true;
+          isSigner: true;
+        },
+        {
+          name: 'tokenController';
+          isMut: false;
+          isSigner: true;
+        },
+        {
+          name: 'tokenMinter';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'localToken';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'custodyTokenAccount';
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: 'custodyTokenMint';
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: 'tokenProgram';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'eventAuthority';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'program';
+          isMut: false;
+          isSigner: false;
+        },
+      ];
+      args: [
+        {
+          name: 'params';
+          type: {
+            defined: 'BurnTokenCustodyParams';
           };
         },
       ];
@@ -848,11 +1123,11 @@ export type TokenMessenger = {
           },
           {
             name: 'amountSent';
-            type: 'u64';
+            type: 'u128';
           },
           {
             name: 'amountReceived';
-            type: 'u64';
+            type: 'u128';
           },
           {
             name: 'bump';
@@ -951,6 +1226,10 @@ export type TokenMessenger = {
             name: 'messageBody';
             type: 'bytes';
           },
+          {
+            name: 'authorityBump';
+            type: 'u8';
+          },
         ];
       };
     },
@@ -1022,6 +1301,18 @@ export type TokenMessenger = {
       type: {
         kind: 'struct';
         fields: [];
+      };
+    },
+    {
+      name: 'BurnTokenCustodyParams';
+      type: {
+        kind: 'struct';
+        fields: [
+          {
+            name: 'amount';
+            type: 'u64';
+          },
+        ];
       };
     },
     {
@@ -1136,6 +1427,9 @@ export type TokenMessenger = {
           },
           {
             name: 'BurnAmountExceeded';
+          },
+          {
+            name: 'InvalidAmount';
           },
         ];
       };
@@ -1380,6 +1674,21 @@ export type TokenMessenger = {
       name: 'Unpause';
       fields: [];
     },
+    {
+      name: 'TokenCustodyBurned';
+      fields: [
+        {
+          name: 'custodyTokenAccount';
+          type: 'publicKey';
+          index: false;
+        },
+        {
+          name: 'amount';
+          type: 'u64';
+          index: false;
+        },
+      ];
+    },
   ];
   errors: [
     {
@@ -1453,9 +1762,6 @@ export type TokenMessenger = {
 export const TokenMessengerIdl: TokenMessenger = {
   version: '0.1.0',
   name: 'token_messenger_minter',
-  metadata: {
-    address: 'CCTPiPYPc6AsJuwueEnWgSgucamXDZwBd53dQ11YiKX3',
-  },
   instructions: [
     {
       name: 'initialize',
@@ -1500,6 +1806,16 @@ export const TokenMessengerIdl: TokenMessenger = {
           isMut: false,
           isSigner: false,
         },
+        {
+          name: 'eventAuthority',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'program',
+          isMut: false,
+          isSigner: false,
+        },
       ],
       args: [
         {
@@ -1523,6 +1839,16 @@ export const TokenMessengerIdl: TokenMessenger = {
           isMut: true,
           isSigner: false,
         },
+        {
+          name: 'eventAuthority',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'program',
+          isMut: false,
+          isSigner: false,
+        },
       ],
       args: [
         {
@@ -1544,6 +1870,16 @@ export const TokenMessengerIdl: TokenMessenger = {
         {
           name: 'tokenMessenger',
           isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'eventAuthority',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'program',
+          isMut: false,
           isSigner: false,
         },
       ],
@@ -1584,6 +1920,16 @@ export const TokenMessengerIdl: TokenMessenger = {
           isMut: false,
           isSigner: false,
         },
+        {
+          name: 'eventAuthority',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'program',
+          isMut: false,
+          isSigner: false,
+        },
       ],
       args: [
         {
@@ -1617,6 +1963,16 @@ export const TokenMessengerIdl: TokenMessenger = {
           isMut: true,
           isSigner: false,
         },
+        {
+          name: 'eventAuthority',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'program',
+          isMut: false,
+          isSigner: false,
+        },
       ],
       args: [
         {
@@ -1633,6 +1989,11 @@ export const TokenMessengerIdl: TokenMessenger = {
         {
           name: 'owner',
           isMut: false,
+          isSigner: true,
+        },
+        {
+          name: 'eventRentPayer',
+          isMut: true,
           isSigner: true,
         },
         {
@@ -1676,6 +2037,11 @@ export const TokenMessengerIdl: TokenMessenger = {
           isSigner: false,
         },
         {
+          name: 'messageSentEventData',
+          isMut: true,
+          isSigner: true,
+        },
+        {
           name: 'messageTransmitterProgram',
           isMut: false,
           isSigner: false,
@@ -1687,6 +2053,21 @@ export const TokenMessengerIdl: TokenMessenger = {
         },
         {
           name: 'tokenProgram',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'systemProgram',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'eventAuthority',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'program',
           isMut: false,
           isSigner: false,
         },
@@ -1710,6 +2091,11 @@ export const TokenMessengerIdl: TokenMessenger = {
           isSigner: true,
         },
         {
+          name: 'eventRentPayer',
+          isMut: true,
+          isSigner: true,
+        },
+        {
           name: 'senderAuthorityPda',
           isMut: false,
           isSigner: false,
@@ -1750,6 +2136,11 @@ export const TokenMessengerIdl: TokenMessenger = {
           isSigner: false,
         },
         {
+          name: 'messageSentEventData',
+          isMut: true,
+          isSigner: true,
+        },
+        {
           name: 'messageTransmitterProgram',
           isMut: false,
           isSigner: false,
@@ -1761,6 +2152,21 @@ export const TokenMessengerIdl: TokenMessenger = {
         },
         {
           name: 'tokenProgram',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'systemProgram',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'eventAuthority',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'program',
           isMut: false,
           isSigner: false,
         },
@@ -1784,6 +2190,11 @@ export const TokenMessengerIdl: TokenMessenger = {
           isSigner: true,
         },
         {
+          name: 'eventRentPayer',
+          isMut: true,
+          isSigner: true,
+        },
+        {
           name: 'senderAuthorityPda',
           isMut: false,
           isSigner: false,
@@ -1799,12 +2210,32 @@ export const TokenMessengerIdl: TokenMessenger = {
           isSigner: false,
         },
         {
+          name: 'messageSentEventData',
+          isMut: true,
+          isSigner: true,
+        },
+        {
           name: 'messageTransmitterProgram',
           isMut: false,
           isSigner: false,
         },
         {
           name: 'tokenMessengerMinterProgram',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'systemProgram',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'eventAuthority',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'program',
           isMut: false,
           isSigner: false,
         },
@@ -1826,11 +2257,6 @@ export const TokenMessengerIdl: TokenMessenger = {
           name: 'authorityPda',
           isMut: false,
           isSigner: true,
-        },
-        {
-          name: 'messageTransmitter',
-          isMut: false,
-          isSigner: false,
         },
         {
           name: 'tokenMessenger',
@@ -1872,6 +2298,16 @@ export const TokenMessengerIdl: TokenMessenger = {
           isMut: false,
           isSigner: false,
         },
+        {
+          name: 'eventAuthority',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'program',
+          isMut: false,
+          isSigner: false,
+        },
       ],
       args: [
         {
@@ -1900,6 +2336,16 @@ export const TokenMessengerIdl: TokenMessenger = {
           isMut: true,
           isSigner: false,
         },
+        {
+          name: 'eventAuthority',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'program',
+          isMut: false,
+          isSigner: false,
+        },
       ],
       args: [
         {
@@ -1923,6 +2369,16 @@ export const TokenMessengerIdl: TokenMessenger = {
           isMut: true,
           isSigner: false,
         },
+        {
+          name: 'eventAuthority',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'program',
+          isMut: false,
+          isSigner: false,
+        },
       ],
       args: [
         {
@@ -1944,6 +2400,16 @@ export const TokenMessengerIdl: TokenMessenger = {
         {
           name: 'tokenMinter',
           isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'eventAuthority',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'program',
+          isMut: false,
           isSigner: false,
         },
       ],
@@ -1974,6 +2440,16 @@ export const TokenMessengerIdl: TokenMessenger = {
           isMut: true,
           isSigner: false,
         },
+        {
+          name: 'eventAuthority',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'program',
+          isMut: false,
+          isSigner: false,
+        },
       ],
       args: [
         {
@@ -2000,6 +2476,16 @@ export const TokenMessengerIdl: TokenMessenger = {
         {
           name: 'localToken',
           isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'eventAuthority',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'program',
+          isMut: false,
           isSigner: false,
         },
       ],
@@ -2055,6 +2541,16 @@ export const TokenMessengerIdl: TokenMessenger = {
           isMut: false,
           isSigner: false,
         },
+        {
+          name: 'eventAuthority',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'program',
+          isMut: false,
+          isSigner: false,
+        },
       ],
       args: [
         {
@@ -2098,6 +2594,16 @@ export const TokenMessengerIdl: TokenMessenger = {
           isMut: false,
           isSigner: false,
         },
+        {
+          name: 'eventAuthority',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'program',
+          isMut: false,
+          isSigner: false,
+        },
       ],
       args: [
         {
@@ -2136,6 +2642,16 @@ export const TokenMessengerIdl: TokenMessenger = {
           isMut: false,
           isSigner: false,
         },
+        {
+          name: 'eventAuthority',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'program',
+          isMut: false,
+          isSigner: false,
+        },
       ],
       args: [
         {
@@ -2169,12 +2685,80 @@ export const TokenMessengerIdl: TokenMessenger = {
           isMut: true,
           isSigner: false,
         },
+        {
+          name: 'eventAuthority',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'program',
+          isMut: false,
+          isSigner: false,
+        },
       ],
       args: [
         {
           name: 'params',
           type: {
             defined: 'UninkTokenPairParams',
+          },
+        },
+      ],
+    },
+    {
+      name: 'burnTokenCustody',
+      accounts: [
+        {
+          name: 'payee',
+          isMut: true,
+          isSigner: true,
+        },
+        {
+          name: 'tokenController',
+          isMut: false,
+          isSigner: true,
+        },
+        {
+          name: 'tokenMinter',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'localToken',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'custodyTokenAccount',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'custodyTokenMint',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'tokenProgram',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'eventAuthority',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'program',
+          isMut: false,
+          isSigner: false,
+        },
+      ],
+      args: [
+        {
+          name: 'params',
+          type: {
+            defined: 'BurnTokenCustodyParams',
           },
         },
       ],
@@ -2300,11 +2884,11 @@ export const TokenMessengerIdl: TokenMessenger = {
           },
           {
             name: 'amountSent',
-            type: 'u64',
+            type: 'u128',
           },
           {
             name: 'amountReceived',
-            type: 'u64',
+            type: 'u128',
           },
           {
             name: 'bump',
@@ -2403,6 +2987,10 @@ export const TokenMessengerIdl: TokenMessenger = {
             name: 'messageBody',
             type: 'bytes',
           },
+          {
+            name: 'authorityBump',
+            type: 'u8',
+          },
         ],
       },
     },
@@ -2474,6 +3062,18 @@ export const TokenMessengerIdl: TokenMessenger = {
       type: {
         kind: 'struct',
         fields: [],
+      },
+    },
+    {
+      name: 'BurnTokenCustodyParams',
+      type: {
+        kind: 'struct',
+        fields: [
+          {
+            name: 'amount',
+            type: 'u64',
+          },
+        ],
       },
     },
     {
@@ -2588,6 +3188,9 @@ export const TokenMessengerIdl: TokenMessenger = {
           },
           {
             name: 'BurnAmountExceeded',
+          },
+          {
+            name: 'InvalidAmount',
           },
         ],
       },
@@ -2831,6 +3434,21 @@ export const TokenMessengerIdl: TokenMessenger = {
     {
       name: 'Unpause',
       fields: [],
+    },
+    {
+      name: 'TokenCustodyBurned',
+      fields: [
+        {
+          name: 'custodyTokenAccount',
+          type: 'publicKey',
+          index: false,
+        },
+        {
+          name: 'amount',
+          type: 'u64',
+          index: false,
+        },
+      ],
     },
   ],
   errors: [
