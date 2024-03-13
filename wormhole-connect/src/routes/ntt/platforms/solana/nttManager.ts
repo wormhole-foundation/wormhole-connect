@@ -36,6 +36,7 @@ import {
 import { associatedAddress } from '@coral-xyz/anchor/dist/cjs/utils/token';
 import { NttQuoter } from './nttQuoter';
 import { getTokenById } from 'utils';
+import { Keccak } from 'sha3';
 
 // TODO: make sure this is in sync with the contract
 const RATE_LIMIT_DURATION = 24 * 60 * 60;
@@ -46,6 +47,13 @@ type OutboxRateLimit =
   IdlAccounts<ExampleNativeTokenTransfers>['outboxRateLimit'];
 type InboxRateLimit =
   IdlAccounts<ExampleNativeTokenTransfers>['inboxRateLimit'];
+
+interface TransferArgs {
+  amount: BN;
+  recipientChain: { id: ChainId };
+  recipientAddress: number[];
+  shouldQueue: boolean;
+}
 
 export class NttManagerSolana {
   readonly connection: Connection;
@@ -100,9 +108,15 @@ export class NttManagerSolana {
       outboxItem: outboxItem.publicKey,
       revertOnDelay: !txArgs.shouldQueue,
     });
+    const transferArgs: TransferArgs = {
+      amount: txArgs.amount,
+      recipientChain: { id: wh.toChainId(txArgs.recipientChain) },
+      recipientAddress: Array.from(txArgs.recipientAddress),
+      shouldQueue: txArgs.shouldQueue,
+    };
     const approveIx = createApproveInstruction(
       tokenAccount,
-      this.tokenAuthorityAddress(),
+      this.sessionAuthorityAddress(txArgs.fromAuthority, transferArgs),
       payer,
       BigInt(amount.toString()),
     );
@@ -349,7 +363,7 @@ export class NttManagerSolana {
 
   // Account addresses
 
-  derive_pda(seeds: Buffer | Array<Uint8Array | Buffer>): PublicKey {
+  derivePda(seeds: Buffer | Array<Uint8Array | Buffer>): PublicKey {
     const seedsArray = seeds instanceof Buffer ? [seeds] : seeds;
     const [address] = PublicKey.findProgramAddressSync(
       seedsArray,
@@ -359,43 +373,60 @@ export class NttManagerSolana {
   }
 
   configAccountAddress(): PublicKey {
-    return this.derive_pda(Buffer.from('config'));
+    return this.derivePda(Buffer.from('config'));
   }
 
   outboxRateLimitAccountAddress(): PublicKey {
-    return this.derive_pda(Buffer.from('outbox_rate_limit'));
+    return this.derivePda(Buffer.from('outbox_rate_limit'));
   }
 
   inboxRateLimitAccountAddress(chain: ChainName | ChainId): PublicKey {
     const chainId = wh.toChainId(chain);
-    return this.derive_pda([
+    return this.derivePda([
       Buffer.from('inbox_rate_limit'),
       new BN(chainId).toBuffer('be', 2),
     ]);
   }
 
   inboxItemAccountAddress(messageDigest: string): PublicKey {
-    return this.derive_pda([
+    return this.derivePda([
       Buffer.from('inbox_item'),
       Buffer.from(messageDigest.slice(2), 'hex'),
     ]);
   }
 
+  sessionAuthorityAddress(sender: PublicKey, args: TransferArgs): PublicKey {
+    const { amount, recipientChain, recipientAddress, shouldQueue } = args;
+    const serialized = Buffer.concat([
+      amount.toArrayLike(Buffer, 'be', 8),
+      Buffer.from(new BN(recipientChain.id).toArrayLike(Buffer, 'be', 2)),
+      Buffer.from(new Uint8Array(recipientAddress)),
+      Buffer.from([shouldQueue ? 1 : 0]),
+    ]);
+    const hasher = new Keccak(256);
+    hasher.update(serialized);
+    return this.derivePda([
+      Buffer.from('session_authority'),
+      sender.toBytes(),
+      hasher.digest(),
+    ]);
+  }
+
   tokenAuthorityAddress(): PublicKey {
-    return this.derive_pda([Buffer.from('token_authority')]);
+    return this.derivePda([Buffer.from('token_authority')]);
   }
 
   emitterAccountAddress(): PublicKey {
-    return this.derive_pda([Buffer.from('emitter')]);
+    return this.derivePda([Buffer.from('emitter')]);
   }
 
   wormholeMessageAccountAddress(outboxItem: PublicKey): PublicKey {
-    return this.derive_pda([Buffer.from('message'), outboxItem.toBuffer()]);
+    return this.derivePda([Buffer.from('message'), outboxItem.toBuffer()]);
   }
 
   peerAccountAddress(chain: ChainName | ChainId): PublicKey {
     const chainId = wh.toChainId(chain);
-    return this.derive_pda([
+    return this.derivePda([
       Buffer.from('peer'),
       new BN(chainId).toBuffer('be', 2),
     ]);
@@ -403,7 +434,7 @@ export class NttManagerSolana {
 
   transceiverPeerAccountAddress(chain: ChainName | ChainId): PublicKey {
     const chainId = wh.toChainId(chain);
-    return this.derive_pda([
+    return this.derivePda([
       Buffer.from('transceiver_peer'),
       new BN(chainId).toBuffer('be', 2),
     ]);
@@ -417,7 +448,7 @@ export class NttManagerSolana {
     if (id.length !== 32) {
       throw new Error('id must be 32 bytes');
     }
-    return this.derive_pda([
+    return this.derivePda([
       Buffer.from('transceiver_message'),
       new BN(chainId).toBuffer('be', 2),
       id,
@@ -425,7 +456,7 @@ export class NttManagerSolana {
   }
 
   registeredTransceiverAddress(transceiver: PublicKey): PublicKey {
-    return this.derive_pda([
+    return this.derivePda([
       Buffer.from('registered_transceiver'),
       transceiver.toBuffer(),
     ]);
@@ -451,6 +482,12 @@ export class NttManagerSolana {
     const config = await this.getConfig(args.config);
     const chainId = wh.toChainId(args.recipientChain);
     const mint = await this.mintAccountAddress(config);
+    const transferArgs: TransferArgs = {
+      amount: args.amount,
+      recipientChain: { id: chainId },
+      recipientAddress: Array.from(args.recipientAddress),
+      shouldQueue: args.shouldQueue,
+    };
     return await this.program.methods
       .transferBurn({
         amount: args.amount,
@@ -464,13 +501,15 @@ export class NttManagerSolana {
           config: { config: this.configAccountAddress() },
           mint,
           from: args.from,
-          sender: args.fromAuthority,
           outboxItem: args.outboxItem,
           outboxRateLimit: this.outboxRateLimitAccountAddress(),
-          tokenAuthority: this.tokenAuthorityAddress(),
         },
         peer: this.peerAccountAddress(args.recipientChain),
         inboxRateLimit: this.inboxRateLimitAccountAddress(args.recipientChain),
+        sessionAuthority: this.sessionAuthorityAddress(
+          args.fromAuthority,
+          transferArgs,
+        ),
       })
       .instruction();
   }
@@ -493,6 +532,12 @@ export class NttManagerSolana {
     const config = await this.getConfig(args.config);
     const chainId = wh.toChainId(args.recipientChain);
     const mint = await this.mintAccountAddress(config);
+    const transferArgs: TransferArgs = {
+      amount: args.amount,
+      recipientChain: { id: chainId },
+      recipientAddress: Array.from(args.recipientAddress),
+      shouldQueue: args.shouldQueue,
+    };
     return await this.program.methods
       .transferLock({
         amount: args.amount,
@@ -506,15 +551,17 @@ export class NttManagerSolana {
           config: { config: this.configAccountAddress() },
           mint,
           from: args.from,
-          sender: args.fromAuthority,
           tokenProgram: await this.tokenProgram(config),
           outboxItem: args.outboxItem,
           outboxRateLimit: this.outboxRateLimitAccountAddress(),
-          tokenAuthority: this.tokenAuthorityAddress(),
         },
         peer: this.peerAccountAddress(args.recipientChain),
         inboxRateLimit: this.inboxRateLimitAccountAddress(args.recipientChain),
         custody: await this.custodyAccountAddress(config),
+        sessionAuthority: this.sessionAuthorityAddress(
+          args.fromAuthority,
+          transferArgs,
+        ),
       })
       .instruction();
   }

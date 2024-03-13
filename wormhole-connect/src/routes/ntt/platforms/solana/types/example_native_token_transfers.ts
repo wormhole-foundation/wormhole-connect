@@ -103,12 +103,6 @@ export type ExampleNativeTokenTransfers = {
               ];
             },
             {
-              name: 'sender';
-              isMut: false;
-              isSigner: true;
-              docs: ['This signer will be encoded in the outbox.'];
-            },
-            {
               name: 'mint';
               isMut: true;
               isSigner: false;
@@ -117,6 +111,7 @@ export type ExampleNativeTokenTransfers = {
               name: 'from';
               isMut: true;
               isSigner: false;
+              docs: ['account can spend these tokens.'];
             },
             {
               name: 'tokenProgram';
@@ -134,14 +129,6 @@ export type ExampleNativeTokenTransfers = {
               isSigner: false;
             },
             {
-              name: 'tokenAuthority';
-              isMut: false;
-              isSigner: false;
-              docs: [
-                'transfer or burn tokens in the [from](Self::from) account.',
-              ];
-            },
-            {
               name: 'systemProgram';
               isMut: false;
               isSigner: false;
@@ -155,6 +142,11 @@ export type ExampleNativeTokenTransfers = {
         },
         {
           name: 'peer';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'sessionAuthority';
           isMut: false;
           isSigner: false;
         },
@@ -190,12 +182,6 @@ export type ExampleNativeTokenTransfers = {
               ];
             },
             {
-              name: 'sender';
-              isMut: false;
-              isSigner: true;
-              docs: ['This signer will be encoded in the outbox.'];
-            },
-            {
               name: 'mint';
               isMut: true;
               isSigner: false;
@@ -204,6 +190,7 @@ export type ExampleNativeTokenTransfers = {
               name: 'from';
               isMut: true;
               isSigner: false;
+              docs: ['account can spend these tokens.'];
             },
             {
               name: 'tokenProgram';
@@ -221,14 +208,6 @@ export type ExampleNativeTokenTransfers = {
               isSigner: false;
             },
             {
-              name: 'tokenAuthority';
-              isMut: false;
-              isSigner: false;
-              docs: [
-                'transfer or burn tokens in the [from](Self::from) account.',
-              ];
-            },
-            {
               name: 'systemProgram';
               isMut: false;
               isSigner: false;
@@ -242,6 +221,11 @@ export type ExampleNativeTokenTransfers = {
         },
         {
           name: 'peer';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'sessionAuthority';
           isMut: false;
           isSigner: false;
         },
@@ -1072,6 +1056,11 @@ export type ExampleNativeTokenTransfers = {
             ];
             type: 'bool';
           },
+          {
+            name: 'custody';
+            docs: ['The custody account that holds tokens in locking mode.'];
+            type: 'publicKey';
+          },
         ];
       };
     },
@@ -1634,41 +1623,46 @@ export type ExampleNativeTokenTransfers = {
     },
     {
       code: 6008;
+      name: 'TransferCannotBeRedeemed';
+      msg: 'TransferCannotBeRedeemed';
+    },
+    {
+      code: 6009;
       name: 'TransferNotApproved';
       msg: 'TransferNotApproved';
     },
     {
-      code: 6009;
+      code: 6010;
       name: 'MessageAlreadySent';
       msg: 'MessageAlreadySent';
     },
     {
-      code: 6010;
+      code: 6011;
       name: 'InvalidMode';
       msg: 'InvalidMode';
     },
     {
-      code: 6011;
+      code: 6012;
       name: 'InvalidMintAuthority';
       msg: 'InvalidMintAuthority';
     },
     {
-      code: 6012;
+      code: 6013;
       name: 'TransferExceedsRateLimit';
       msg: 'TransferExceedsRateLimit';
     },
     {
-      code: 6013;
+      code: 6014;
       name: 'Paused';
       msg: 'Paused';
     },
     {
-      code: 6014;
+      code: 6015;
       name: 'DisabledTransceiver';
       msg: 'DisabledTransceiver';
     },
     {
-      code: 6015;
+      code: 6016;
       name: 'InvalidDeployer';
       msg: 'InvalidDeployer';
     },
@@ -1780,12 +1774,6 @@ export const IDL: ExampleNativeTokenTransfers = {
               ],
             },
             {
-              name: 'sender',
-              isMut: false,
-              isSigner: true,
-              docs: ['This signer will be encoded in the outbox.'],
-            },
-            {
               name: 'mint',
               isMut: true,
               isSigner: false,
@@ -1794,6 +1782,7 @@ export const IDL: ExampleNativeTokenTransfers = {
               name: 'from',
               isMut: true,
               isSigner: false,
+              docs: ['account can spend these tokens.'],
             },
             {
               name: 'tokenProgram',
@@ -1811,14 +1800,6 @@ export const IDL: ExampleNativeTokenTransfers = {
               isSigner: false,
             },
             {
-              name: 'tokenAuthority',
-              isMut: false,
-              isSigner: false,
-              docs: [
-                'transfer or burn tokens in the [from](Self::from) account.',
-              ],
-            },
-            {
               name: 'systemProgram',
               isMut: false,
               isSigner: false,
@@ -1832,6 +1813,11 @@ export const IDL: ExampleNativeTokenTransfers = {
         },
         {
           name: 'peer',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'sessionAuthority',
           isMut: false,
           isSigner: false,
         },
@@ -1867,12 +1853,6 @@ export const IDL: ExampleNativeTokenTransfers = {
               ],
             },
             {
-              name: 'sender',
-              isMut: false,
-              isSigner: true,
-              docs: ['This signer will be encoded in the outbox.'],
-            },
-            {
               name: 'mint',
               isMut: true,
               isSigner: false,
@@ -1881,6 +1861,7 @@ export const IDL: ExampleNativeTokenTransfers = {
               name: 'from',
               isMut: true,
               isSigner: false,
+              docs: ['account can spend these tokens.'],
             },
             {
               name: 'tokenProgram',
@@ -1898,14 +1879,6 @@ export const IDL: ExampleNativeTokenTransfers = {
               isSigner: false,
             },
             {
-              name: 'tokenAuthority',
-              isMut: false,
-              isSigner: false,
-              docs: [
-                'transfer or burn tokens in the [from](Self::from) account.',
-              ],
-            },
-            {
               name: 'systemProgram',
               isMut: false,
               isSigner: false,
@@ -1919,6 +1892,11 @@ export const IDL: ExampleNativeTokenTransfers = {
         },
         {
           name: 'peer',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'sessionAuthority',
           isMut: false,
           isSigner: false,
         },
@@ -2749,6 +2727,11 @@ export const IDL: ExampleNativeTokenTransfers = {
             ],
             type: 'bool',
           },
+          {
+            name: 'custody',
+            docs: ['The custody account that holds tokens in locking mode.'],
+            type: 'publicKey',
+          },
         ],
       },
     },
@@ -3311,41 +3294,46 @@ export const IDL: ExampleNativeTokenTransfers = {
     },
     {
       code: 6008,
+      name: 'TransferCannotBeRedeemed',
+      msg: 'TransferCannotBeRedeemed',
+    },
+    {
+      code: 6009,
       name: 'TransferNotApproved',
       msg: 'TransferNotApproved',
     },
     {
-      code: 6009,
+      code: 6010,
       name: 'MessageAlreadySent',
       msg: 'MessageAlreadySent',
     },
     {
-      code: 6010,
+      code: 6011,
       name: 'InvalidMode',
       msg: 'InvalidMode',
     },
     {
-      code: 6011,
+      code: 6012,
       name: 'InvalidMintAuthority',
       msg: 'InvalidMintAuthority',
     },
     {
-      code: 6012,
+      code: 6013,
       name: 'TransferExceedsRateLimit',
       msg: 'TransferExceedsRateLimit',
     },
     {
-      code: 6013,
+      code: 6014,
       name: 'Paused',
       msg: 'Paused',
     },
     {
-      code: 6014,
+      code: 6015,
       name: 'DisabledTransceiver',
       msg: 'DisabledTransceiver',
     },
     {
-      code: 6015,
+      code: 6016,
       name: 'InvalidDeployer',
       msg: 'InvalidDeployer',
     },
