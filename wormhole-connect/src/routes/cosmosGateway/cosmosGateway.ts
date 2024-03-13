@@ -207,7 +207,7 @@ export class CosmosGatewayRoute extends BaseRoute {
     };
 
     const destChainName = config.wh.toChainName(destChain);
-    const gasDenom = getNativeDenom(destChainName, config.network);
+    const gasDenom = getNativeDenom(destChainName, config.networkLegacy);
 
     const tx: CosmosTransaction = {
       fee: calculateFee(1000000, `1.0${gasDenom}`),

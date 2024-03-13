@@ -1,4 +1,4 @@
-import { Network } from '@certusone/wormhole-sdk';
+import { Network as NetworkLegacy } from '@certusone/wormhole-sdk';
 import {
   ChainConfig as BaseChainConfig,
   ChainName,
@@ -57,7 +57,7 @@ export enum Route {
 
 export type SupportedRoutes = keyof typeof Route;
 
-export type Environment = 'mainnet' | 'testnet' | 'devnet';
+export type Network = 'mainnet' | 'testnet' | 'devnet';
 
 // TODO: preference is fromChain/toChain, but want to keep backwards compatibility
 export interface BridgeDefaults {
@@ -69,7 +69,8 @@ export interface BridgeDefaults {
 
 // This is the integrator-provided JSON config
 export interface WormholeConnectConfig {
-  env?: Environment;
+  env?: Network; // TODO REMOVE; DEPRECATED
+  network?: Network; // New name for this, consistent with SDKv2
 
   // External resources
   rpcs?: ChainResourceMap;
@@ -78,7 +79,8 @@ export interface WormholeConnectConfig {
   coinGeckoApiKey?: string;
 
   // White lists
-  networks?: ChainName[];
+  networks?: ChainName[]; // TODO REMOVE; DEPRECATED
+  chains?: ChainName[]; // New name for this, consistent with SDKv2
   tokens?: string[];
 
   // Custom tokens
@@ -121,8 +123,9 @@ export interface InternalConfig {
   wh: WormholeContext;
   sdkConfig: WormholeConfig;
 
-  env: Environment;
-  network: Network; // TODO reduce these to just one...
+  network: Network;
+  networkLegacy: NetworkLegacy; // TODO remove...
+
   isMainnet: boolean;
 
   // External resources

@@ -39,7 +39,7 @@ function ExplorerLink(props: ExplorerLinkProps) {
       explorerLink = `${chainConfig.explorerUrl}transaction/${props.txHash}`;
     } else if (chainConfig.key === 'osmosis') {
       explorerLink =
-        config.network === 'TESTNET'
+        config.network === 'testnet'
           ? `${chainConfig.explorerUrl}txs/${props.txHash}`
           : `${chainConfig.explorerUrl}transactions/${props.txHash}`;
     } else {

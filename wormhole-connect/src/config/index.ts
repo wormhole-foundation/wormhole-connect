@@ -5,35 +5,42 @@ import {
   ForeignAssetCache,
   ChainResourceMap,
 } from '@wormhole-foundation/wormhole-connect-sdk';
+import { Network as NetworkLegacy } from '@certusone/wormhole-sdk'; // TODO remove
 import MAINNET from './mainnet';
 import TESTNET from './testnet';
 import DEVNET from './devnet';
 import type { WormholeConnectConfig } from './types';
-import { Environment, InternalConfig, Route, TokensConfig } from './types';
+import { Network, InternalConfig, Route, TokensConfig } from './types';
 import { mergeCustomTokensConfig, validateDefaults } from './utils';
-
-type Network = 'MAINNET' | 'TESTNET' | 'DEVNET';
 
 export function buildConfig(
   customConfig?: WormholeConnectConfig,
 ): InternalConfig {
-  const env = (customConfig?.env ||
+  const network = (
+    customConfig?.network ||
+    customConfig?.env || // TODO remove; deprecated
     import.meta.env.REACT_APP_CONNECT_ENV?.toLowerCase() ||
-    'testnet') as Environment;
+    'testnet'
+  ).toLowerCase() as Network;
 
-  if (!['mainnet', 'testnet', 'devnet'].includes(env))
-    throw new Error(`Invalid env "${env}"`);
+  if (!['mainnet', 'testnet', 'devnet'].includes(network))
+    throw new Error(`Invalid env "${network}"`);
 
-  const network: Network = env.toUpperCase() as Network;
+  // TODO remove
+  // SDKv1 uses ALLCAPS network consts like "MAINNET"
+  // Connect uses lowercase like "mainnet"
+  // SDKv2 uses capitalized like "Mainnet"
+  // It's a mess
+  const networkLegacy = network.toUpperCase() as NetworkLegacy;
 
-  const networkData = { MAINNET, DEVNET, TESTNET }[network];
+  const networkData = { MAINNET, DEVNET, TESTNET }[networkLegacy]!;
 
   const tokens = mergeCustomTokensConfig(
     networkData.tokens,
     customConfig?.tokensConfig,
   );
 
-  const sdkConfig = WormholeContext.getConfig(network);
+  const sdkConfig = WormholeContext.getConfig(networkLegacy);
 
   const rpcs = Object.assign(
     {},
@@ -42,7 +49,7 @@ export function buildConfig(
     customConfig?.rpcs,
   );
 
-  const wh = getWormholeContext(network, sdkConfig, tokens, rpcs);
+  const wh = getWormholeContext(networkLegacy, sdkConfig, tokens, rpcs);
 
   return {
     wh,
@@ -50,9 +57,9 @@ export function buildConfig(
 
     // TODO remove either env or network from this
     // some code uses lowercase, some uppercase... :(
-    env,
     network,
-    isMainnet: env === 'mainnet',
+    networkLegacy,
+    isMainnet: network === 'mainnet',
     // External resources
     rpcs,
     rest: Object.assign(
@@ -66,7 +73,7 @@ export function buildConfig(
       mainnet: 'https://api.wormholescan.io/',
       testnet: 'https://api.testnet.wormholescan.io/',
       devnet: '',
-    }[env],
+    }[network],
     wormholeRpcHosts: {
       mainnet: [
         'https://wormhole-v2-mainnet-api.mcf.rocks',
@@ -79,7 +86,7 @@ export function buildConfig(
         'https://guardian-02.testnet.xlabs.xyz',
       ],
       devnet: ['http://localhost:7071'],
-    }[env],
+    }[network],
     coinGeckoApiKey: customConfig?.coinGeckoApiKey,
 
     // White lists
@@ -106,7 +113,7 @@ export function buildConfig(
       devnet: '',
       testnet:
         'https://wormhole-foundation.github.io/example-token-bridge-ui/#/register',
-    }[env],
+    }[network],
     bridgeDefaults: validateDefaults(customConfig?.bridgeDefaults),
     cctpWarning: customConfig?.cctpWarning?.href || '',
     pageHeader: customConfig?.pageHeader,
@@ -132,7 +139,7 @@ const config = buildConfig();
 export default config;
 
 function getWormholeContext(
-  network: Network,
+  network: NetworkLegacy,
   sdkConfig: WormholeConfig,
   tokens: TokensConfig,
   rpcs: ChainResourceMap,
