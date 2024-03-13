@@ -233,9 +233,8 @@ function SendTo() {
         // The redeem may have resulted in the transfer being inbound queued
         // so we need to check that before we set the transfer as complete
         try {
-          const inboundQueuedTransfer = await (
-            route as NttBase
-          ).getInboundQueuedTransfer(
+          const nttRoute = route as NttBase;
+          const inboundQueuedTransfer = await nttRoute.getInboundQueuedTransfer(
             txData.toChain,
             signedMessage.recipientNttManager,
             signedMessage.messageDigest,
@@ -243,8 +242,14 @@ function SendTo() {
           if (inboundQueuedTransfer) {
             dispatch(setInboundQueuedTransfer(inboundQueuedTransfer));
           } else {
-            dispatch(setRedeemTx(txId));
-            dispatch(setTransferComplete(true));
+            const isTransferCompleted = await nttRoute.isTransferCompleted(
+              txData.toChain,
+              signedMessage,
+            );
+            if (isTransferCompleted) {
+              dispatch(setRedeemTx(txId));
+              dispatch(setTransferComplete(true));
+            }
           }
         } catch (e) {
           console.error(e);

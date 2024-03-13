@@ -74,7 +74,7 @@ function AppRouter({ config }: Props) {
       dispatch(clearRedeem());
       dispatch(clearWallets());
       dispatch(clearNtt());
-      wh.registerProviders(); // reset any providers that may have been set (e.g. signer.provider)
+      wh.registerProviders(); // reset providers that may have been set during transfer
     }
     // reset transfer state on leave
     if (prevRoute === bridgeRoute && route !== bridgeRoute) {

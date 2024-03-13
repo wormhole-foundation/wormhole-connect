@@ -2231,6 +2231,7 @@ export const TESTNET_TOKENS: TokensConfig = {
     decimals: {
       default: 18,
     },
+  },
   TEST_NTTsepolia: {
     key: 'TEST_NTTsepolia',
     symbol: 'TEST_NTT',
@@ -2238,7 +2239,7 @@ export const TESTNET_TOKENS: TokensConfig = {
     icon: Icon.NTT,
     tokenId: {
       chain: 'sepolia',
-      address: '0x169D91C797edF56100F1B765268145660503a423',
+      address: '0x1d30E78B7C7fbbcef87ae6e97B5389b2e470CA4a',
     },
     coinGeckoId: '',
     color: '#2774CA',
@@ -2247,8 +2248,8 @@ export const TESTNET_TOKENS: TokensConfig = {
       default: 8,
     },
     ntt: {
-      nttManager: '0x24c7E23e3A97cD2F04c9EB9F354bb7f3B31d2d1A',
-      wormholeTransceiver: '0xC5bf11aB6aE525FFCA02e2af7F6704CDcECec2eA',
+      nttManager: '0xB231aD95f2301bc82eA44c515001F0F746D637e0',
+      wormholeTransceiver: '0x1fDC902e30b188FD2BA976B421Cb179943F57896',
     },
   },
   TEST_NTTarbitrum_sepolia: {
@@ -2258,7 +2259,7 @@ export const TESTNET_TOKENS: TokensConfig = {
     icon: Icon.NTT,
     tokenId: {
       chain: 'arbitrum_sepolia',
-      address: '0x169D91C797edF56100F1B765268145660503a423',
+      address: '0x84A1Cb660B19eB0063EE5FD377eC14AAe3364d74',
     },
     coinGeckoId: '',
     color: '#2774CA',
@@ -2267,8 +2268,8 @@ export const TESTNET_TOKENS: TokensConfig = {
       default: 8,
     },
     ntt: {
-      nttManager: '0xaBFa6Ab8dD4d4166b8fea7f84C1458BEf92F3a61',
-      wormholeTransceiver: '0xC9a478f97ad763052AD4F00c4d7fC5d187DFFb1B',
+      nttManager: '0xEec94CD3083e067398256a79CcA7e740C5c8ef81',
+      wormholeTransceiver: '0x0E24D17D7467467b39Bf64A9DFf88776Bd6c74d7',
     },
   },
   TEST_NTTbase_sepolia: {
@@ -2278,7 +2279,7 @@ export const TESTNET_TOKENS: TokensConfig = {
     icon: Icon.NTT,
     tokenId: {
       chain: 'base_sepolia',
-      address: '0x169D91C797edF56100F1B765268145660503a423',
+      address: '0x7f430D4e7939D994C0955A01FC75D9DE33F12D11',
     },
     coinGeckoId: '',
     color: '#2774CA',
@@ -2287,8 +2288,8 @@ export const TESTNET_TOKENS: TokensConfig = {
       default: 8,
     },
     ntt: {
-      nttManager: '0x838a95B6a3E06B6f11C437e22f3C7561a6ec40F1',
-      wormholeTransceiver: '0xc3a1248e9bdC1EEF81d16b2AD1594764cBd9307a',
+      nttManager: '0xB03b030b2f5B40819Df76467d67eD1C85Ff66fAD',
+      wormholeTransceiver: '0x1e072169541f1171e427Aa44B5fd8924BEE71b0e',
     },
   },
   TEST_NTToptimism_sepolia: {
@@ -2298,7 +2299,7 @@ export const TESTNET_TOKENS: TokensConfig = {
     icon: Icon.NTT,
     tokenId: {
       chain: 'optimism_sepolia',
-      address: '0x169D91C797edF56100F1B765268145660503a423',
+      address: '0x0e15979a7a1eFAEf20312CA45A59eb141bF7E340',
     },
     coinGeckoId: '',
     color: '#2774CA',
@@ -2307,8 +2308,8 @@ export const TESTNET_TOKENS: TokensConfig = {
       default: 8,
     },
     ntt: {
-      nttManager: '0x605dE5E0880Cfd6Ffc61aF9585CBAB3946594A3D',
-      wormholeTransceiver: '0x5a76440b725909000697E0f72646adf1a492DF8B',
+      nttManager: '0x7f430D4e7939D994C0955A01FC75D9DE33F12D11',
+      wormholeTransceiver: '0x41265eb2863bf0238081F6AeefeF73549C82C3DD',
     },
   },
   TEST_NTTsolana: {
@@ -2318,7 +2319,7 @@ export const TESTNET_TOKENS: TokensConfig = {
     icon: Icon.NTT,
     tokenId: {
       chain: 'solana',
-      address: 'SCAmk7zfNKXemDjap14aGJJyQXZXXhq9X2Fs8oVSsdr',
+      address: '87r5ZS91Q2pQbFTvvneqs7y7mbtegtqMt4LDAS4g23Ax',
     },
     coinGeckoId: '',
     color: '#2774CA',
@@ -2327,11 +2328,11 @@ export const TESTNET_TOKENS: TokensConfig = {
       default: 8,
     },
     ntt: {
-      nttManager: '7nMTXqo19kzwyisGCdcRP5AErEBToYpVYg2C5PNrjsa2',
-      // The wormhole endpoint is baked into the ntt contract on Solana.
-      // If the endpoint is split into a separate contract, this address
+      nttManager: 'nTTh3bZ5Aer6xboWZe39RDEft4MeVxSQ8D1EYAVLZw9',
+      // The wormhole transceiver is baked into the Solana ntt contract.
+      // If the transceiver is split into a separate contract, this address
       // and route code should be updated to support the new structure.
-      wormholeTransceiver: '7nMTXqo19kzwyisGCdcRP5AErEBToYpVYg2C5PNrjsa2',
+      wormholeTransceiver: 'nTTh3bZ5Aer6xboWZe39RDEft4MeVxSQ8D1EYAVLZw9',
       solanaQuoter: '',
     },
   },

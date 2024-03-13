@@ -100,7 +100,6 @@ function Bridge() {
     route,
     isTransactionInProgress,
     amount,
-    receiveAmount,
   }: TransferInputState = useSelector(
     (state: RootState) => state.transferInput,
   );
@@ -318,14 +317,7 @@ function Bridge() {
           <Preview collapsed={!showValidationState ? true : !valid} />
 
           <TransferLimitedWarning fromChain={fromChain} token={token} />
-          {route && isNttRoute(route) && toChain && fromChain && (
-            <NttInboundCapacityWarning
-              token={destToken}
-              amount={receiveAmount.data || '0'}
-              chain={toChain}
-              fromChain={fromChain}
-            />
-          )}
+          {isNttRoute(route) && <NttInboundCapacityWarning />}
           <Send valid={!!valid} />
         </div>
       </Collapse>

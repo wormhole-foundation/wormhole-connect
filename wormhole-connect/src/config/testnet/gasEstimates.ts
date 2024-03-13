@@ -252,11 +252,11 @@ export const TESTNET_GAS_ESTIMATES: GasEstimates = {
       claim: 200000,
     },
     [Route.NttManual]: {
-      sendToken: 10000000,
-      claim: 15000000,
+      sendToken: 200000,
+      claim: 250000,
     },
     [Route.NttRelay]: {
-      sendToken: 15000000,
+      sendToken: 450000,
     },
   },
   arbitrum_sepolia: {

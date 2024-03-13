@@ -18,6 +18,7 @@ import AlertBanner from 'components/AlertBanner';
 import RouteOperator from 'routes/operator';
 import { Route } from '../../../config/types';
 import { CCTPManual_CHAINS as CCTP_CHAINS } from 'routes/cctpManual';
+import { isNttRoute } from 'routes';
 
 const useStyles = makeStyles()((theme: any) => ({
   associatedTokenWarning: {
@@ -245,8 +246,7 @@ function TokenWarnings() {
       toChain === 'solana' &&
       foreignAsset &&
       route !== Route.TBTC &&
-      route !== Route.NttManual &&
-      route !== Route.NttRelay
+      !isNttRoute(route)
     ) {
       checkSolanaAssociatedTokenAccount();
     }

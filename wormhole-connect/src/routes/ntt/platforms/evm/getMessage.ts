@@ -20,6 +20,9 @@ import {
 
 const RELAYING_INFO_EVENT_TOPIC =
   '0x375a56c053c4d19a2e3445e97b7a28bf4e908617ce6d766e1e03a9d3f5276271';
+const RELAYING_INFO_IFACE = new ethers.utils.Interface([
+  'event RelayingInfo(uint8 relayingType, uint256 deliveryPayment)',
+]);
 
 export const getMessageEvm = async (
   tx: string,
@@ -53,10 +56,7 @@ export const getMessageEvm = async (
   if (!relayingInfoEvent) {
     throw new Error('RelayingInfo event not found');
   }
-  const relayingInfoIface = new ethers.utils.Interface([
-    'event RelayingInfo(uint8 relayingType, uint256 deliveryPayment)',
-  ]);
-  const parsedRelayingInfo = relayingInfoIface.parseLog(relayingInfoEvent);
+  const parsedRelayingInfo = RELAYING_INFO_IFACE.parseLog(relayingInfoEvent);
   const { relayingType, deliveryPayment } = parsedRelayingInfo.args;
   let payload: Buffer;
   if (relayingType === NttRelayingType.Standard) {

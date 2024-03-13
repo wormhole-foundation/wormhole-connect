@@ -40,6 +40,7 @@ import { WormholeTransceiver, getMessageEvm } from './platforms/evm';
 import { NttManagerSolana, getMessageSolana } from './platforms/solana';
 import { formatGasFee } from 'routes/utils';
 import { NO_INPUT } from 'utils/style';
+import { estimateAverageGasFee } from 'utils/gas';
 
 export abstract class NttBase extends BaseRoute {
   isSupportedChain(chain: ChainName): boolean {
@@ -58,7 +59,8 @@ export abstract class NttBase extends BaseRoute {
     if (
       destChain &&
       destToken &&
-      !this.isSupportedToken(destToken, destChain)
+      !this.isSupportedToken(destToken, destChain) &&
+      token.symbol === destToken.symbol
     ) {
       return false;
     }
@@ -77,7 +79,8 @@ export abstract class NttBase extends BaseRoute {
     if (
       sourceChain &&
       sourceToken &&
-      !this.isSupportedToken(sourceToken, sourceChain)
+      !this.isSupportedToken(sourceToken, sourceChain) &&
+      token.symbol === sourceToken.symbol
     ) {
       return false;
     }
@@ -159,9 +162,8 @@ export abstract class NttBase extends BaseRoute {
     routeOptions?: any,
   ): Promise<BigNumber> {
     if (isEvmChain(sendingChain)) {
-      const provider = wh.mustGetProvider(sendingChain);
-      const gasPrice = await provider.getGasPrice();
-      return gasPrice.mul(this.TYPE === Route.NttManual ? 200_000 : 250_000);
+      const gasLimit = this.TYPE === Route.NttManual ? 200_000 : 250_000;
+      return await estimateAverageGasFee(sendingChain, gasLimit);
     } else if (wh.toChainName(sendingChain) === 'solana') {
       return BigNumber.from(10_000);
     }
@@ -177,11 +179,10 @@ export abstract class NttBase extends BaseRoute {
       return BigNumber.from(0);
     }
     if (isEvmChain(destChain)) {
-      const provider = wh.mustGetProvider(destChain);
-      const gasPrice = await provider.getGasPrice();
-      return gasPrice.mul(300_000);
+      const gasLimit = 300_000;
+      return await estimateAverageGasFee(destChain, gasLimit);
     } else if (wh.toChainName(destChain) === 'solana') {
-      return BigNumber.from(65_000);
+      return BigNumber.from(65_000); // TODO: check this
     }
     throw new Error('Unsupported chain');
   }
@@ -224,6 +225,9 @@ export abstract class NttBase extends BaseRoute {
       tokenConfig.tokenId,
     );
     const sendAmount = removeDust(parseUnits(amount, decimals), decimals);
+    if (sendAmount.isZero()) {
+      throw new Error('Amount too low');
+    }
     const shouldSkipRelayerSend = this.TYPE !== Route.NttRelay;
     return await nttManager.send(
       token,
@@ -351,10 +355,10 @@ export abstract class NttBase extends BaseRoute {
     chain: ChainName | ChainId,
   ): Promise<UnsignedNttMessage> {
     if (isEvmChain(chain)) {
-      return getMessageEvm(tx, chain);
+      return await getMessageEvm(tx, chain);
     }
     if (wh.toChainName(chain) === 'solana') {
-      return getMessageSolana(tx);
+      return await getMessageSolana(tx);
     }
     throw new Error('Unsupported chain');
   }
@@ -378,8 +382,6 @@ export abstract class NttBase extends BaseRoute {
     return undefined;
   }
 
-  // The transfer is considered completed when the message is executed
-  // and not inbound queued
   async isTransferCompleted(
     chain: ChainName | ChainId,
     signedMessage: SignedNttMessage,
@@ -389,14 +391,7 @@ export abstract class NttBase extends BaseRoute {
     }
     const { recipientNttManager, messageDigest } = signedMessage;
     const nttManager = getNttManager(chain, recipientNttManager);
-    const isMessageExecuted = await nttManager.isMessageExecuted(messageDigest);
-    if (isMessageExecuted) {
-      const queuedTransfer = await nttManager.getInboundQueuedTransfer(
-        messageDigest,
-      );
-      return !queuedTransfer;
-    }
-    return false;
+    return await nttManager.isTransferCompleted(messageDigest);
   }
 
   async getTransferDestInfo<T extends TransferDestInfoBaseParams>(

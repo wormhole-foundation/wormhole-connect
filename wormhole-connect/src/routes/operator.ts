@@ -107,13 +107,7 @@ export class Operator {
       }
 
       // Check if is Ntt Route (NttRelay or NttManual)
-      const evmNttManagers = TOKENS_ARR.reduce<string[]>((arr, t) => {
-        if (t.ntt?.nttManager) {
-          arr.push(t.ntt.nttManager);
-        }
-        return arr;
-      }, []);
-      if (evmNttManagers.includes(receipt.to)) {
+      if (TOKENS_ARR.some(({ ntt }) => ntt && ntt.nttManager === receipt.to)) {
         const { relayingType } = await getNttMessageEvm(txHash, chain, receipt);
         return relayingType === NttRelayingType.Manual
           ? Route.NttManual
@@ -121,25 +115,23 @@ export class Operator {
       }
     }
 
-    // Check if is Ntt Route (NttRelay or NttManual)
     if (chain === 'solana') {
+      // Check if is Ntt Route (NttRelay or NttManual)
       const connection = solanaContext().connection;
       if (!connection) throw new Error('Connection not found');
       const tx = await connection.getParsedTransaction(txHash);
       if (!tx) throw new Error('Transaction not found');
-      const solanaNttManagers = TOKENS_ARR.reduce<string[]>((arr, t) => {
-        if (t.ntt?.nttManager) {
-          arr.push(t.ntt.nttManager);
-        }
-        return arr;
-      }, []);
-      for (const ix of tx.transaction.message.instructions) {
-        if (solanaNttManagers.includes(ix.programId.toString())) {
-          const { relayingType } = await getNttMessageSolana(txHash);
-          return relayingType === NttRelayingType.Manual
-            ? Route.NttManual
-            : Route.NttRelay;
-        }
+      if (
+        tx.transaction.message.instructions.some((ix) =>
+          TOKENS_ARR.some(
+            ({ ntt }) => ntt && ntt.nttManager === ix.programId.toString(),
+          ),
+        )
+      ) {
+        const { relayingType } = await getNttMessageSolana(txHash);
+        return relayingType === NttRelayingType.Manual
+          ? Route.NttManual
+          : Route.NttRelay;
       }
     }
 

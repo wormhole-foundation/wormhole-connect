@@ -326,13 +326,10 @@ export class NttManagerSolana {
     return txId;
   }
 
-  async isMessageExecuted(messageDigest: string): Promise<boolean> {
+  async isTransferCompleted(messageDigest: string): Promise<boolean> {
     try {
       const inboxItem = await this.getInboxItem(messageDigest);
-      return (
-        inboxItem.releaseStatus.released !== null &&
-        inboxItem.releaseStatus.released !== undefined
-      );
+      return !!inboxItem.releaseStatus.released;
     } catch (e: any) {
       if (e.message?.includes('Account does not exist')) {
         return false;
@@ -347,7 +344,6 @@ export class NttManagerSolana {
     const signatures = await this.connection.getSignaturesForAddress(address, {
       limit: 1,
     });
-    console.log(`fetchRedeemTx: ${signatures[0].signature}`);
     return signatures ? signatures[0].signature : undefined;
   }
 

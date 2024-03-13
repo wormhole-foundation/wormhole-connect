@@ -24,6 +24,7 @@ import { PorticoBridgeState } from 'store/porticoBridge';
 import { DataWrapper } from 'store/helpers';
 import { CCTPManual_CHAINS as CCTP_CHAINS } from 'routes/cctpManual';
 import { CCTP_MAX_TRANSFER_LIMIT } from 'consts';
+import { isNttRoute } from 'routes';
 
 export const validateFromChain = (
   chain: ChainName | undefined,
@@ -180,12 +181,7 @@ export const validateSolanaTokenAccount = (
   route: Route | undefined,
 ): ValidationErr => {
   if (destChain !== 'solana') return '';
-  if (
-    route === Route.Relay ||
-    route === Route.TBTC ||
-    route === Route.NttManual ||
-    route === Route.NttRelay
-  )
+  if (route === Route.Relay || route === Route.TBTC || isNttRoute(route))
     return '';
   if (!destTokenAddr) return '';
   if (destTokenAddr && !solanaTokenAccount) {

@@ -1,4 +1,4 @@
-import { TrimmedAmount } from '../trimmedAmount';
+import { TrimmedAmount } from './trimmedAmount';
 
 export class NativeTokenTransfer {
   static prefix = Buffer.from([0x99, 0x4e, 0x54, 0x54]);

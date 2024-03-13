@@ -92,14 +92,14 @@ export class NttManagerEvm {
     if (!tokenConfig?.ntt?.wormholeTransceiver) {
       throw new Error('no wormhole transceiver');
     }
-    const deliveryPrice = !shouldSkipRelayerSend
-      ? BigNumber.from(
+    const deliveryPrice = shouldSkipRelayerSend
+      ? undefined
+      : BigNumber.from(
           await this.quoteDeliveryPrice(
             toChain,
             tokenConfig.ntt.wormholeTransceiver,
           ),
-        )
-      : undefined;
+        );
     const transceiverIxs = encodeTransceiverInstructions([
       {
         index: 0,
@@ -182,17 +182,20 @@ export class NttManagerEvm {
     }
   }
 
-  async isMessageExecuted(messageDigest: string): Promise<boolean> {
-    try {
-      return this.nttManager.isMessageExecuted(messageDigest);
-    } catch (e) {
-      console.error(e);
-      throw e;
+  // The transfer is "complete" when the message is executed and not inbound queued
+  async isTransferCompleted(messageDigest: string): Promise<boolean> {
+    const isMessageExecuted = await this.nttManager.isMessageExecuted(
+      messageDigest,
+    );
+    if (isMessageExecuted) {
+      const queuedTransfer = await this.getInboundQueuedTransfer(messageDigest);
+      return !queuedTransfer;
     }
+    return false;
   }
 
   async isPaused(): Promise<boolean> {
-    return this.nttManager.isPaused();
+    return await this.nttManager.isPaused();
   }
 
   async fetchRedeemTx(messageDigest: string): Promise<string | undefined> {

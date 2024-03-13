@@ -29,7 +29,6 @@ export const fetchRedeemTx = async (
       console.error(e);
     }
   }
-  console.log(`fetchGlobalTx: ${transactionHash}`);
 
   transactionHash = await RouteOperator.tryFetchRedeemTx(route, txData);
   if (transactionHash) {

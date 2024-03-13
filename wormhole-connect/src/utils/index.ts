@@ -325,13 +325,13 @@ export const calculateUSDPrice = (
 export const tryParseErrorMessage = (
   iface: ethers.utils.Interface,
   error: any,
-): string => {
+): string | undefined => {
   const errorData = error?.error?.data?.originalError?.data;
   if (!errorData) return '';
   try {
-    return iface.parseError(errorData)?.name || '';
+    return iface.parseError(errorData)?.name || undefined;
   } catch {
-    return '';
+    return undefined;
   }
 };
 

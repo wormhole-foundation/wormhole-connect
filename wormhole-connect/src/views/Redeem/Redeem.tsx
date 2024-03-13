@@ -54,7 +54,7 @@ function Redeem({
       !txData?.sendTx ||
       !txData.emitterAddress || // no VAA exists, e.g. CCTP route
       !!signedMessage || // if we have the VAA, then it's not enqueued
-      (route && isNttRoute(route)) // NTT route doesn't use token bridge / governor
+      isNttRoute(route) // NTT route doesn't use token bridge / governor
     ) {
       return;
     }
@@ -170,7 +170,7 @@ function Redeem({
         show={!signedMessage && isVaaEnqueued}
         chain={txData.fromChain}
       />
-      {route && isNttRoute(route) ? <NttStepper /> : <Stepper />}
+      {isNttRoute(route) ? <NttStepper /> : <Stepper />}
     </div>
   ) : (
     <></>
