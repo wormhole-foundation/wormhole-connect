@@ -78,7 +78,6 @@ export interface WormholeConnectConfig {
   coinGeckoApiKey?: string;
 
   // White lists
-  chains?: any;
   networks?: ChainName[];
   tokens?: string[];
 
