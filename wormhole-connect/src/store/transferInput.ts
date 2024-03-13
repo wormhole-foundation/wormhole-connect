@@ -127,43 +127,46 @@ export interface TransferInputState {
   supportedDestTokens: TokenConfig[];
 }
 
-const initialState: TransferInputState = {
-  showValidationState: false,
-  validations: {
-    fromChain: '',
-    toChain: '',
-    token: '',
+// This is a function because config might have changed since we last cleared this store
+function getInitialState(): TransferInputState {
+  return {
+    showValidationState: false,
+    validations: {
+      fromChain: '',
+      toChain: '',
+      token: '',
+      destToken: '',
+      amount: '',
+      route: '',
+      toNativeToken: '',
+      sendingWallet: '',
+      receivingWallet: '',
+      foreignAsset: '',
+      relayerFee: '',
+      receiveAmount: '',
+    },
+    routeStates: undefined,
+    fromChain: config.bridgeDefaults?.fromNetwork || undefined,
+    toChain: config.bridgeDefaults?.toNetwork || undefined,
+    token: config.bridgeDefaults?.token || '',
     destToken: '',
     amount: '',
-    route: '',
-    toNativeToken: '',
-    sendingWallet: '',
-    receivingWallet: '',
+    receiveAmount: getEmptyDataWrapper(),
+    route: undefined,
+    balances: {},
     foreignAsset: '',
-    relayerFee: '',
-    receiveAmount: '',
-  },
-  routeStates: undefined,
-  fromChain: config.bridgeDefaults?.fromNetwork || undefined,
-  toChain: config.bridgeDefaults?.toNetwork || undefined,
-  token: config.bridgeDefaults?.token || '',
-  destToken: '',
-  amount: '',
-  receiveAmount: getEmptyDataWrapper(),
-  route: undefined,
-  balances: {},
-  foreignAsset: '',
-  associatedTokenAddress: '',
-  gasEst: {
-    send: '',
-    claim: '',
-  },
-  isTransactionInProgress: false,
-  receiverNativeBalance: '',
-  supportedSourceTokens: [],
-  allSupportedDestTokens: [],
-  supportedDestTokens: [],
-};
+    associatedTokenAddress: '',
+    gasEst: {
+      send: '',
+      claim: '',
+    },
+    isTransactionInProgress: false,
+    receiverNativeBalance: '',
+    supportedSourceTokens: [],
+    allSupportedDestTokens: [],
+    supportedDestTokens: [],
+  };
+}
 
 const performModificationsIfFromChainChanged = (state: TransferInputState) => {
   const { fromChain, token, route } = state;
@@ -259,7 +262,7 @@ const establishRoute = (state: TransferInputState) => {
 
 export const transferInputSlice = createSlice({
   name: 'transfer',
-  initialState,
+  initialState: getInitialState(),
   reducers: {
     // validations
     setValidations: (
@@ -409,6 +412,7 @@ export const transferInputSlice = createSlice({
     },
     // clear inputs
     clearTransfer: (state: TransferInputState) => {
+      const initialState = getInitialState();
       Object.keys(state).forEach((key) => {
         // @ts-ignore
         state[key] = initialState[key];

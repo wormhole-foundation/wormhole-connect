@@ -6,6 +6,8 @@ import { RootState } from './store';
 import { clearRedeem } from './store/redeem';
 import { clearTransfer } from './store/transferInput';
 import { usePrevious } from './utils';
+import { WormholeConnectConfig } from './config/types';
+import { setConfig } from './config';
 
 import Bridge from './views/Bridge/Bridge';
 import FAQ from './views/FAQ';
@@ -34,10 +36,26 @@ const useStyles = makeStyles()((theme: any) => ({
   },
 }));
 
+interface Props {
+  config?: WormholeConnectConfig;
+}
+
 // since this will be embedded, we'll have to use pseudo routes instead of relying on the url
-function AppRouter() {
+function AppRouter({ config }: Props) {
   const { classes } = useStyles();
   const dispatch = useDispatch();
+
+  // We update the global config once when WormholeConnect is first mounted, if a custom
+  // config was provided.
+  //
+  // We don't allow config changes afterwards because they could lead to lots of
+  // broken and undesired behavior.
+  React.useEffect(() => {
+    if (config) {
+      setConfig(config);
+      dispatch(clearTransfer());
+    }
+  }, []);
 
   const showWalletModal = useSelector(
     (state: RootState) => state.router.showWalletModal,

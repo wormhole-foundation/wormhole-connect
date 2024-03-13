@@ -5,11 +5,11 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import './App.css';
 import { store } from './store';
 import AppRouter from './AppRouter';
-import { getDesignTokens, CustomTheme, dark } from './theme';
+import { getDesignTokens, dark } from './theme';
 import BackgroundImage from './components/Background/BackgroundImage';
 import ErrorBoundary from './components/ErrorBoundary';
 import { WormholeConnectConfig } from './config/types';
-import { setConfig } from './config';
+import { CustomTheme } from 'theme';
 
 export interface WormholeConnectProps {
   // theme can be updated at any time to change the colors of Connect
@@ -22,15 +22,6 @@ export default function WormholeConnect({
   config,
   theme,
 }: WormholeConnectProps) {
-  // We update the global config once when WormholeConnect is first mounted, if a custom
-  // config was provided.
-  //
-  // We don't allow config changes afterwards because they could lead to lots of
-  // broken and undesired behavior.
-  React.useEffect(() => {
-    if (config) setConfig(config);
-  }, []);
-
   // Handle theme changes at any time
   const muiTheme = React.useMemo(
     () => createTheme(getDesignTokens(theme ?? dark)),
@@ -43,7 +34,7 @@ export default function WormholeConnect({
         <ScopedCssBaseline enableColorScheme>
           <ErrorBoundary>
             <BackgroundImage>
-              <AppRouter />
+              <AppRouter config={config} />
             </BackgroundImage>
           </ErrorBoundary>
         </ScopedCssBaseline>
