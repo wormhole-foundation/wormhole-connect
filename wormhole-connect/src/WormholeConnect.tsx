@@ -6,7 +6,6 @@ import './App.css';
 import { store } from './store';
 import AppRouter from './AppRouter';
 import { getDesignTokens, dark } from './theme';
-import BackgroundImage from './components/Background/BackgroundImage';
 import ErrorBoundary from './components/ErrorBoundary';
 import { WormholeConnectConfig } from './config/types';
 import { CustomTheme } from 'theme';
@@ -33,9 +32,7 @@ export default function WormholeConnect({
       <ThemeProvider theme={muiTheme}>
         <ScopedCssBaseline enableColorScheme>
           <ErrorBoundary>
-            <BackgroundImage>
-              <AppRouter config={config} />
-            </BackgroundImage>
+            <AppRouter config={config} />
           </ErrorBoundary>
         </ScopedCssBaseline>
       </ThemeProvider>
