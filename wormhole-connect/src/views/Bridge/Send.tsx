@@ -194,6 +194,9 @@ function Send(props: { valid: boolean }) {
     route,
   ]);
 
+  const disabled =
+    isTransactionInProgress || !!solanaTokenAccountError || config.previewMode;
+
   const setDestGas = useCallback(async () => {
     if (!route || !toChain) return;
     // don't have vaa yet, so set that to undefined and it will get the fallback estimate
@@ -262,7 +265,7 @@ function Send(props: { valid: boolean }) {
           <Button
             onClick={send}
             action={props.valid}
-            disabled={isTransactionInProgress || !!solanaTokenAccountError}
+            disabled={disabled}
             elevated
           >
             {isTransactionInProgress ? (

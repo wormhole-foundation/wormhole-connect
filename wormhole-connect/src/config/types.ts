@@ -112,6 +112,7 @@ export interface WormholeConnectConfig {
   moreNetworks?: MoreChainConfig;
   partnerLogo?: string;
   walletConnectProjectId?: string;
+  previewMode?: boolean;
 
   // Route settings
   ethBridgeMaxAmount?: number;
@@ -162,6 +163,7 @@ export interface InternalConfig {
   partnerLogo?: string;
   walletConnectProjectId?: string;
   showHamburgerMenu: boolean;
+  previewMode?: boolean; // Disables making transfers
 
   // Route settings
   ethBridgeMaxAmount: number;

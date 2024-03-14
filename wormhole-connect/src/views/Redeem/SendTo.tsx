@@ -246,6 +246,9 @@ function SendTo() {
       manualClaimTitle += ' You will not receive any native gas.';
     }
   }
+
+  const { previewMode } = config;
+
   return (
     <div>
       <InputContainer>
@@ -288,16 +291,20 @@ function SendTo() {
           />
           {wallet.address ? (
             isConnected ? (
-              <Button onClick={claim} action disabled={inProgress}>
+              <Button
+                onClick={claim}
+                action
+                disabled={previewMode || inProgress}
+              >
                 {inProgress ? <CircularProgress size={22} /> : 'Claim'}
               </Button>
             ) : (
-              <Button onClick={connect} elevated>
+              <Button onClick={connect} disabled={previewMode} elevated>
                 Connect to {displayAddress(txData.toChain, txData.recipient)}
               </Button>
             )
           ) : (
-            <Button onClick={connect} action>
+            <Button onClick={connect} disabled={previewMode} action>
               Connect wallet
             </Button>
           )}
