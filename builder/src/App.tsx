@@ -51,6 +51,7 @@ import { useDebounce } from "use-debounce";
 import Background from "./Background";
 import ColorPicker from "./components/ColorPicker";
 import RouteCard from "./components/RouteCard";
+import ErrorBoundary from "./components/ErrorBoundary";
 import {
   MAINNET_TOKEN_KEYS,
   NETWORKS,
@@ -268,8 +269,8 @@ function App() {
   }, []);
   // END ROUTES
   // BEGIN ENV
-  const [env, setEnv] = useState<"testnet" | "mainnet">("testnet");
-  const [selectedChains, setSelectedChains] = useState<string[] | undefined>(
+  const [env, setEnv] = useState<"testnet" | "mainnet">("mainnet");
+  const [selectedChains, setSelectedChains] = useState<ChainName[] | undefined>(
     undefined
   );
   const [_tokens, setTokens] = useState<string[] | undefined>(undefined);
@@ -297,6 +298,7 @@ function App() {
   const [defaultToken, setDefaultToken] = useState<string | undefined>(
     undefined
   );
+  const [hideConnect, setHideConnect] = useState<boolean>(false);
   const handleDefaultTokenChange = useCallback((e: any) => {
     e.target.value
       ? setDefaultToken(e.target.value)
@@ -398,12 +400,18 @@ function App() {
       // TODO: keep tokens that exist in both envs, for now clear it before it doesn't match the options
       setTokens(undefined);
       // clear defaults to avoid bugs (could be smarter)
+      setSelectedChains(undefined);
       setDefaultFromNetwork(undefined);
       setDefaultToNetwork(undefined);
       setDefaultToken(undefined);
       setRequiredNetwork(undefined);
       // set env last
       setEnv(value);
+      setHideConnect(true);
+
+      setTimeout(() => {
+        setHideConnect(false);
+      }, 10);
     }
   }, []);
 
@@ -454,9 +462,9 @@ function App() {
   // because otherwise the component did not update on changes
   const config: WormholeConnectConfig = useMemo(
     () => ({
-      env: "testnet", // always testnet for the builder
-      rpcs: testnetRpcs,
-      tokens: testnetTokens, // always testnet for the builder
+      env,
+      rpcs,
+      tokens, // always testnet for the builder
       cta:
         ctaText && ctaLink
           ? {
@@ -478,9 +486,11 @@ function App() {
           : undefined,
       routes,
       pageHeader,
+      networks: selectedChains,
       showHamburgerMenu,
     }),
     [
+      env,
       testnetRpcs,
       testnetTokens,
       ctaText,
@@ -494,21 +504,15 @@ function App() {
       showHamburgerMenu,
     ]
   );
+
   const [versionOrTag, setVersionOrTag] = useState<string>(version);
   const handleVersionOrTagChange = useCallback((e: any, value: string) => {
     setVersionOrTag(value);
   }, []);
   const [htmlCode, jsxCode] = useMemo(() => {
-    const realConfig = {
-      ...config,
-      env,
-      rpcs,
-      networks: selectedChains,
-      tokens,
-    };
-    const realConfigString = JSON.stringify(realConfig);
+    const configString = JSON.stringify(config);
     return [
-      `<div id="wormhole-connect" data-config='${realConfigString}' data-theme='${customTheme}' /></div>
+      `<div id="wormhole-connect" data-config='${configString}' data-theme='${customTheme}' /></div>
 <script type="module" src="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@${versionOrTag}/dist/main.js"${
         versionOrTag === version
           ? ` integrity="${versionScriptIntegrity}" crossorigin="anonymous"`
@@ -522,7 +526,7 @@ function App() {
       `import WormholeConnect from '@wormhole-foundation/wormhole-connect';
 function App() {
   return (
-    <WormholeConnect config={${realConfigString}} ${
+    <WormholeConnect config={${configString}} ${
         versionOrTag === version ? "" : ` versionOrTag="${versionOrTag}"`
       }/>
   );
@@ -1011,7 +1015,8 @@ function App() {
                     <MenuItem key={chain} value={chain}>
                       <Checkbox
                         checked={
-                          !selectedChains || selectedChains.includes(chain)
+                          !selectedChains ||
+                          selectedChains.includes(chain as ChainName)
                         }
                       />
                       <ListItemText primary={chain} />
@@ -1424,11 +1429,14 @@ function App() {
           <Typography variant="h4" component="h2" gutterBottom>
             Preview
           </Typography>
-          <WormholeConnect
-            config={config}
-            theme={customTheme}
-            key={JSON.stringify(config)}
-          />
+
+          {!hideConnect ? (
+            <WormholeConnect
+              config={{ ...config, previewMode: true }}
+              theme={customTheme}
+              key={JSON.stringify(config)}
+            />
+          ) : null}
         </Container>
       </Box>
     </Background>
