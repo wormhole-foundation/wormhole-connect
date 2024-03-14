@@ -43,9 +43,7 @@ export async function postVaaWithRetry(
       commitment,
     );
   for (const unsignedTransaction of unsignedTransactions) {
-    unsignedTransaction.instructions.unshift(
-      ...(computeBudgetInstructions || []),
-    );
+    unsignedTransaction.add(...(computeBudgetInstructions || []));
   }
 
   const postVaaTransaction = unsignedTransactions.pop()!;
