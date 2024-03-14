@@ -1,5 +1,5 @@
 import { Box, Button, ClickAwayListener, Tooltip } from "@mui/material";
-import { CustomTheme } from "@wormhole-foundation/wormhole-connect";
+import { Theme } from "@wormhole-foundation/wormhole-connect";
 import { useCallback, useMemo, useState } from "react";
 import {
   Color,
@@ -37,10 +37,10 @@ export default function ColorPicker({
   path,
   defaultTheme,
 }: {
-  customTheme: CustomTheme | undefined;
-  setCustomTheme: React.Dispatch<React.SetStateAction<CustomTheme | undefined>>;
+  customTheme: Theme | undefined;
+  setCustomTheme: React.Dispatch<React.SetStateAction<Theme | undefined>>;
   path: string;
-  defaultTheme: CustomTheme;
+  defaultTheme: Theme;
 }) {
   const color = useMemo(
     () =>

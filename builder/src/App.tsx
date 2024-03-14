@@ -36,22 +36,25 @@ import {
   Typography,
   useMediaQuery,
 } from "@mui/material";
-import WormholeConnect, {
+import WormholeBridge, {
   ChainName,
   MAINNET_CHAINS,
+  MainnetChainName,
+  Rpcs,
   TESTNET_CHAINS,
+  TestnetChainName,
+  Theme,
   WormholeConnectConfig,
-  dark,
-  CONFIG,
+  defaultTheme,
 } from "@wormhole-foundation/wormhole-connect";
-import type { CustomTheme } from "@wormhole-foundation/wormhole-connect";
-
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDebounce } from "use-debounce";
 import Background from "./Background";
 import ColorPicker from "./components/ColorPicker";
 import RouteCard from "./components/RouteCard";
 import {
+  DEFAULT_MAINNET_RPCS,
+  DEFAULT_TESTNET_RPCS,
   MAINNET_TOKEN_KEYS,
   NETWORKS,
   ROUTE_INFOS,
@@ -63,18 +66,12 @@ import {
   setObjectPathImmutable,
 } from "./utils";
 
-export type MainnetChainName = keyof typeof MAINNET_CHAINS;
-export type TestnetChainName = keyof typeof TESTNET_CHAINS;
-export type Rpcs = {
-  [chain in ChainName]?: string;
-};
-
-const version = "0.3.0";
+const version = "0.1.4";
 // generated with https://www.srihash.org/
 const versionScriptIntegrity =
-  "sha384-QOTWWlgPEcpWnzakQRaUW71dYatQWsRJYtCjz+y94hwZxjxg9jU7X+sE6pDmo6Ao";
+  "sha384-NUeZzmcZSVf4i3sUHD1rhtihig08WkCKu42too+Na8ll/2Sxr8v8D1i9IuVrF70A";
 const versionLinkIntegrity =
-  "sha384-BTkX2AhTeIfxDRFsJbLtR26TQ9QKKpi7EMe807JdfQQBTAkUT9a2mSGwf/5CJ4bF";
+  "sha384-KGZI5sQxWDSIe8Xzhvu4eO0fi8KYtEmDnYS2Qn5xrtw667xfxFINL3uN48d/djuY";
 const nonBreakingTag = "latest-v0.1";
 const latestTag = "latest";
 
@@ -168,7 +165,7 @@ const ScreenButton = ({
   );
 };
 
-const customized = dark;
+const customized = defaultTheme;
 customized.background.default = "transparent";
 const defaultThemeJSON = JSON.stringify(customized, undefined, 2);
 
@@ -218,16 +215,17 @@ function App() {
       };
     }
   }, [debouncedFontHref]);
-  const [customTheme, setCustomTheme] = useState<CustomTheme | undefined>(
-    undefined
-  );
+  const [_customTheme, setCustomTheme] = useState<Theme | undefined>(undefined);
+  const [debouncedCustomTheme] = useDebounce(_customTheme, 1000);
+  const customTheme =
+    _customTheme === undefined ? undefined : debouncedCustomTheme;
   const [customThemeText, setCustomThemeText] = useState(defaultThemeJSON);
   // const [customThemeError, setCustomThemeError] = useState<boolean>(false);
   const handleModeChange = useCallback(
     (e: any, value: string) => {
       if (value === "dark" || value === "light") {
         setMode(value);
-        setCustomTheme({ mode: value });
+        setCustomTheme(undefined);
       } else {
         setMode(undefined);
         try {
@@ -269,9 +267,10 @@ function App() {
   // END ROUTES
   // BEGIN ENV
   const [env, setEnv] = useState<"testnet" | "mainnet">("testnet");
-  const [selectedChains, setSelectedChains] = useState<string[] | undefined>(
+  const [_networkIndexes, setNetworkIndexes] = useState<number[] | undefined>(
     undefined
   );
+  const [networkIndexes] = useDebounce(_networkIndexes, 1000);
   const [_tokens, setTokens] = useState<string[] | undefined>(undefined);
   const [tokens] = useDebounce(_tokens, 1000);
   const testnetTokens = useMemo(
@@ -312,21 +311,21 @@ function App() {
   }, []);
   // networks and tokens handlers come after defaults so they can appropriately reset them
   const handleClearNetworks = useCallback(() => {
-    setSelectedChains(undefined);
+    setNetworkIndexes(undefined);
   }, []);
   const handleNoneNetworks = useCallback(() => {
     // clear defaults to avoid bugs (could be smarter)
     setDefaultFromNetwork(undefined);
     setDefaultToNetwork(undefined);
     setRequiredNetwork(undefined);
-    setSelectedChains([]);
+    setNetworkIndexes([]);
   }, []);
   const handleNetworksChange = useCallback((e: any) => {
     // clear defaults to avoid bugs (could be smarter)
     setDefaultFromNetwork(undefined);
     setDefaultToNetwork(undefined);
     setRequiredNetwork(undefined);
-    setSelectedChains(
+    setNetworkIndexes(
       typeof e.target.value === "string"
         ? e.target.value
             .split(",")
@@ -406,10 +405,19 @@ function App() {
       setEnv(value);
     }
   }, []);
-
-  const chains =
-    env === "mainnet" ? CONFIG.MAINNET.chains : CONFIG.TESTNET.chains;
-
+  const [networks, testnetNetworks] = useMemo(() => {
+    return !networkIndexes
+      ? [undefined, undefined]
+      : NETWORKS.filter((v, i) => networkIndexes.indexOf(i) > -1).reduce<
+          [ChainName[], TestnetChainName[]]
+        >(
+          ([networks, testnetNetworks], v) => [
+            [...networks, v[env]],
+            [...testnetNetworks, v.testnet],
+          ],
+          [[], []]
+        );
+  }, [networkIndexes, env]);
   // END ENV
   // START BRIDGE COMPLETE
   const [_ctaText, setCtaText] = useState<string>("");
@@ -433,7 +441,7 @@ function App() {
     setDefaultToNetwork(undefined);
     setDefaultToken(undefined);
     setRequiredNetwork(undefined);
-    setSelectedChains(undefined);
+    setNetworkIndexes(undefined);
     setTokens(undefined);
     setRpcs(undefined);
     setEnv("testnet");
@@ -450,13 +458,16 @@ function App() {
     },
     []
   );
-  // NOTE: the WormholeConnect component is keyed by the stringified version of config
+  // NOTE: the WormholeBridge component is keyed by the stringified version of config
   // because otherwise the component did not update on changes
   const config: WormholeConnectConfig = useMemo(
     () => ({
       env: "testnet", // always testnet for the builder
       rpcs: testnetRpcs,
+      networks: testnetNetworks, // always testnet for the builder
       tokens: testnetTokens, // always testnet for the builder
+      mode,
+      customTheme,
       cta:
         ctaText && ctaLink
           ? {
@@ -482,7 +493,10 @@ function App() {
     }),
     [
       testnetRpcs,
+      testnetNetworks,
       testnetTokens,
+      mode,
+      customTheme,
       ctaText,
       ctaLink,
       defaultFromNetwork,
@@ -499,17 +513,11 @@ function App() {
     setVersionOrTag(value);
   }, []);
   const [htmlCode, jsxCode] = useMemo(() => {
-    const realConfig = {
-      ...config,
-      env,
-      rpcs,
-      networks: selectedChains,
-      tokens,
-    };
+    const realConfig = { ...config, env, rpcs, networks, tokens };
     const realConfigString = JSON.stringify(realConfig);
     return [
-      `<div id="wormhole-connect" data-config='${realConfigString}' data-theme='${customTheme}' /></div>
-<script type="module" src="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@${versionOrTag}/dist/main.js"${
+      `<div id="wormhole-connect" config='${realConfigString}' /></div>
+<script src="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@${versionOrTag}/dist/main.js"${
         versionOrTag === version
           ? ` integrity="${versionScriptIntegrity}" crossorigin="anonymous"`
           : ""
@@ -519,16 +527,16 @@ function App() {
           ? ` integrity="${versionLinkIntegrity}" crossorigin="anonymous"`
           : ""
       }/>`,
-      `import WormholeConnect from '@wormhole-foundation/wormhole-connect';
+      `import WormholeBridge from '@wormhole-foundation/wormhole-connect';
 function App() {
   return (
-    <WormholeConnect config={${realConfigString}} ${
+    <WormholeBridge config={${realConfigString}} ${
         versionOrTag === version ? "" : ` versionOrTag="${versionOrTag}"`
       }/>
   );
 }`,
     ];
-  }, [config, env, rpcs, selectedChains, tokens, versionOrTag]);
+  }, [config, env, rpcs, networks, tokens, versionOrTag]);
   const [openCopySnack, setOpenCopySnack] = useState<boolean>(false);
   const handleCopySnackClose = useCallback(() => {
     setOpenCopySnack(false);
@@ -698,7 +706,7 @@ function App() {
                         Widget
                       </Typography>
                       <ColorPicker
-                        customTheme={customTheme}
+                        customTheme={_customTheme}
                         setCustomTheme={setCustomTheme}
                         path="background.default"
                         defaultTheme={customized}
@@ -712,7 +720,7 @@ function App() {
                         Modal
                       </Typography>
                       <ColorPicker
-                        customTheme={customTheme}
+                        customTheme={_customTheme}
                         setCustomTheme={setCustomTheme}
                         path="modal.background"
                         defaultTheme={customized}
@@ -726,7 +734,7 @@ function App() {
                         Card
                       </Typography>
                       <ColorPicker
-                        customTheme={customTheme}
+                        customTheme={_customTheme}
                         setCustomTheme={setCustomTheme}
                         path="card.background"
                         defaultTheme={customized}
@@ -740,7 +748,7 @@ function App() {
                         Button
                       </Typography>
                       <ColorPicker
-                        customTheme={customTheme}
+                        customTheme={_customTheme}
                         setCustomTheme={setCustomTheme}
                         path="button.primary"
                         defaultTheme={customized}
@@ -754,7 +762,7 @@ function App() {
                         Action
                       </Typography>
                       <ColorPicker
-                        customTheme={customTheme}
+                        customTheme={_customTheme}
                         setCustomTheme={setCustomTheme}
                         path="button.action"
                         defaultTheme={customized}
@@ -771,7 +779,7 @@ function App() {
                         Primary
                       </Typography>
                       <ColorPicker
-                        customTheme={customTheme}
+                        customTheme={_customTheme}
                         setCustomTheme={setCustomTheme}
                         path="text.primary"
                         defaultTheme={customized}
@@ -785,7 +793,7 @@ function App() {
                         Secondary
                       </Typography>
                       <ColorPicker
-                        customTheme={customTheme}
+                        customTheme={_customTheme}
                         setCustomTheme={setCustomTheme}
                         path="text.secondary"
                         defaultTheme={customized}
@@ -797,7 +805,7 @@ function App() {
                         Button
                       </Typography>
                       <ColorPicker
-                        customTheme={customTheme}
+                        customTheme={_customTheme}
                         setCustomTheme={setCustomTheme}
                         path="button.primaryText"
                       />
@@ -810,7 +818,7 @@ function App() {
                         Action
                       </Typography>
                       <ColorPicker
-                        customTheme={customTheme}
+                        customTheme={_customTheme}
                         setCustomTheme={setCustomTheme}
                         path="button.actionText"
                         defaultTheme={customized}
@@ -832,7 +840,7 @@ function App() {
                       label="Primary"
                       name="primary"
                       fullWidth
-                      value={getObjectPath(customTheme, "font.primary")}
+                      value={getObjectPath(_customTheme, "font.primary")}
                       onChange={handleFontChange}
                       size="small"
                       sx={{ mt: 2 }}
@@ -841,7 +849,7 @@ function App() {
                       label="Header"
                       name="header"
                       fullWidth
-                      value={getObjectPath(customTheme, "font.header")}
+                      value={getObjectPath(_customTheme, "font.header")}
                       onChange={handleFontChange}
                       size="small"
                       sx={{ mt: 2 }}
@@ -977,8 +985,8 @@ function App() {
                             ? "Unknown RPC string scheme. Expected an http or websocket URI."
                             : `Default: ${
                                 (env === "mainnet"
-                                  ? CONFIG.MAINNET.rpcs[n[env]]
-                                  : CONFIG.TESTNET.rpcs[n[env]]) || "None"
+                                  ? DEFAULT_MAINNET_RPCS[n[env]]
+                                  : DEFAULT_TESTNET_RPCS[n[env]]) || "None"
                               }`
                         }
                       />
@@ -997,24 +1005,30 @@ function App() {
                 <TextField
                   select
                   fullWidth
-                  value={selectedChains || Object.keys(chains)}
+                  value={
+                    _networkIndexes
+                      ? _networkIndexes
+                      : NETWORKS.map((_, i) => i)
+                  }
                   onChange={handleNetworksChange}
                   SelectProps={{
                     multiple: true,
                     renderValue: (selected: any) =>
-                      !selectedChains
+                      !_networkIndexes
                         ? "All Networks"
-                        : selectedChains.join(", "),
+                        : selected
+                            .map((i: number) => NETWORKS[i].name)
+                            .join(", "),
                   }}
                 >
-                  {Object.keys(chains).map((chain) => (
-                    <MenuItem key={chain} value={chain}>
+                  {NETWORKS.map((network, idx) => (
+                    <MenuItem key={idx} value={idx}>
                       <Checkbox
                         checked={
-                          !selectedChains || selectedChains.includes(chain)
+                          !_networkIndexes || _networkIndexes.indexOf(idx) > -1
                         }
                       />
-                      <ListItemText primary={chain} />
+                      <ListItemText primary={network.name} />
                     </MenuItem>
                   ))}
                 </TextField>
@@ -1100,15 +1114,15 @@ function App() {
                   <MenuItem value={""}>
                     <ListItemText primary="(None)" />
                   </MenuItem>
-                  {selectedChains
-                    ? selectedChains.map((chain) => (
-                        <MenuItem key={chain} value={chain}>
-                          <ListItemText primary={chain} />
+                  {_networkIndexes
+                    ? _networkIndexes.map((nIdx) => (
+                        <MenuItem key={nIdx} value={NETWORKS[nIdx][env]}>
+                          <ListItemText primary={NETWORKS[nIdx].name} />
                         </MenuItem>
                       ))
-                    : Object.keys(chains).map((chain) => (
-                        <MenuItem key={chain} value={chain}>
-                          <ListItemText primary={chain} />
+                    : NETWORKS.map((n) => (
+                        <MenuItem key={n.name} value={n[env]}>
+                          <ListItemText primary={n.name} />
                         </MenuItem>
                       ))}
                 </TextField>
@@ -1135,15 +1149,15 @@ function App() {
                   <MenuItem value={""}>
                     <ListItemText primary="(None)" />
                   </MenuItem>
-                  {selectedChains
-                    ? selectedChains.map((chain) => (
-                        <MenuItem key={chain} value={chain}>
-                          <ListItemText primary={chain} />
+                  {_networkIndexes
+                    ? _networkIndexes.map((nIdx) => (
+                        <MenuItem key={nIdx} value={NETWORKS[nIdx][env]}>
+                          <ListItemText primary={NETWORKS[nIdx].name} />
                         </MenuItem>
                       ))
-                    : Object.keys(chains).map((chain) => (
-                        <MenuItem key={chain} value={chain}>
-                          <ListItemText primary={chain} />
+                    : NETWORKS.map((n) => (
+                        <MenuItem key={n.name} value={n[env]}>
+                          <ListItemText primary={n.name} />
                         </MenuItem>
                       ))}
                 </TextField>
@@ -1194,15 +1208,15 @@ function App() {
                   <MenuItem value={""}>
                     <ListItemText primary="(None)" />
                   </MenuItem>
-                  {selectedChains
-                    ? selectedChains.map((chain) => (
-                        <MenuItem key={chain} value={chain}>
-                          <ListItemText primary={chain} />
+                  {_networkIndexes
+                    ? _networkIndexes.map((nIdx) => (
+                        <MenuItem key={nIdx} value={NETWORKS[nIdx][env]}>
+                          <ListItemText primary={NETWORKS[nIdx].name} />
                         </MenuItem>
                       ))
-                    : Object.keys(chains).map((chain) => (
-                        <MenuItem key={chain} value={chain}>
-                          <ListItemText primary={chain} />
+                    : NETWORKS.map((n) => (
+                        <MenuItem key={n.name} value={n[env]}>
+                          <ListItemText primary={n.name} />
                         </MenuItem>
                       ))}
                 </TextField>
@@ -1424,11 +1438,7 @@ function App() {
           <Typography variant="h4" component="h2" gutterBottom>
             Preview
           </Typography>
-          <WormholeConnect
-            config={config}
-            theme={customTheme}
-            key={JSON.stringify(config)}
-          />
+          <WormholeBridge config={config} key={JSON.stringify(config)} />
         </Container>
       </Box>
     </Background>
