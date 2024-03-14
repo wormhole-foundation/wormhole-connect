@@ -901,26 +901,34 @@ export class SolanaContext<
     }
 
     const parsed = parseTokenTransferVaa(signedVAA);
+    const tokenKey = new PublicKey(parsed.tokenAddress);
     const isNativeSol =
       parsed.tokenChain === MAINNET_CHAINS.solana &&
-      new PublicKey(parsed.tokenAddress).equals(NATIVE_MINT);
+      tokenKey.equals(NATIVE_MINT);
+    const transaction = new Transaction();
+    transaction.add(...(await this.determineComputeBudget([tokenKey])));
     if (isNativeSol) {
-      return await redeemAndUnwrapOnSolana(
-        this.connection,
-        contracts.core,
-        contracts.token_bridge,
-        payerAddr,
-        signedVAA,
+      transaction.add(
+        await redeemAndUnwrapOnSolana(
+          this.connection,
+          contracts.core,
+          contracts.token_bridge,
+          payerAddr,
+          signedVAA,
+        ),
       );
     } else {
-      return await redeemOnSolana(
-        this.connection,
-        contracts.core,
-        contracts.token_bridge,
-        payerAddr,
-        signedVAA,
+      transaction.add(
+        await redeemOnSolana(
+          this.connection,
+          contracts.core,
+          contracts.token_bridge,
+          payerAddr,
+          signedVAA,
+        ),
       );
     }
+    return transaction;
   }
 
   async redeemRelay(
@@ -1230,7 +1238,10 @@ export class SolanaContext<
         const recentFees = recentFeesResponse
           .map((dp) => dp.prioritizationFee)
           .sort((a, b) => a - b);
-        fee = recentFees[Math.floor(recentFees.length * SOLANA_FEE_PERCENTILE)];
+        fee = Math.max(
+          recentFees[Math.floor(recentFees.length * SOLANA_FEE_PERCENTILE)],
+          fee,
+        );
       }
     } catch (e) {
       console.error('Error fetching Solana recent fees', e);
@@ -1239,9 +1250,6 @@ export class SolanaContext<
     console.info(`Setting Solana compute unit price to ${fee} microLamports`);
 
     return [
-      ComputeBudgetProgram.setComputeUnitLimit({
-        units: 250_000,
-      }),
       ComputeBudgetProgram.setComputeUnitPrice({
         microLamports: fee,
       }),

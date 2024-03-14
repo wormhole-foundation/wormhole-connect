@@ -4,12 +4,9 @@ import {
   Context,
   SendResult,
   ChainConfig,
-} from '@wormhole-foundation/wormhole-connect-sdk';
-import {
   postVaaSolanaWithRetry,
-  CHAIN_ID_EVMOS,
-  CHAIN_ID_INJECTIVE,
-} from '@certusone/wormhole-sdk';
+} from '@wormhole-foundation/wormhole-connect-sdk';
+import { CHAIN_ID_EVMOS, CHAIN_ID_INJECTIVE } from '@certusone/wormhole-sdk';
 import { ContractReceipt } from 'ethers';
 import {
   NotSupported,
@@ -18,6 +15,7 @@ import {
 } from '@xlabs-libs/wallet-aggregator-core';
 
 import config from 'config';
+import { solanaContext } from 'utils/sdk';
 import { getChainByChainId } from 'utils';
 
 import { AssetInfo } from './evm';
@@ -161,6 +159,8 @@ export const postVaa = async (
   if (!wallet) throw new Error('not connected');
   const pk = (wallet as any).adapter.publicKey;
   const MAX_VAA_UPLOAD_RETRIES_SOLANA = 5;
+  const computeBudgetInstructions =
+    await solanaContext().determineComputeBudget([]);
 
   await postVaaSolanaWithRetry(
     connection,
@@ -169,6 +169,8 @@ export const postVaa = async (
     pk.toString(),
     Buffer.from(signedVAA),
     MAX_VAA_UPLOAD_RETRIES_SOLANA,
+    undefined,
+    computeBudgetInstructions,
   );
 };
 

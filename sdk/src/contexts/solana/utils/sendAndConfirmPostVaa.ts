@@ -5,6 +5,7 @@ import {
   Keypair,
   PublicKeyInitData,
   Transaction,
+  TransactionInstruction,
 } from '@solana/web3.js';
 import {
   signSendAndConfirmTransaction,
@@ -31,6 +32,7 @@ export async function postVaaWithRetry(
   vaa: Buffer,
   maxRetries?: number,
   commitment?: Commitment,
+  computeBudgetInstructions?: TransactionInstruction[],
 ): Promise<TransactionSignatureAndResponse[]> {
   const { unsignedTransactions, signers } =
     await createPostSignedVaaTransactions(
@@ -40,6 +42,9 @@ export async function postVaaWithRetry(
       vaa,
       commitment,
     );
+  for (const unsignedTransaction of unsignedTransactions) {
+    unsignedTransaction.add(...(computeBudgetInstructions || []));
+  }
 
   const postVaaTransaction = unsignedTransactions.pop()!;
 
