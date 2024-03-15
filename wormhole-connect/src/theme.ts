@@ -158,7 +158,7 @@ export const dark: ExtendedTheme = {
   secondary: grey,
   divider: '#ffffff' + OPACITY[20],
   background: {
-    default: 'wormhole',
+    default: 'black',
   },
   text: {
     primary: '#ffffff',
