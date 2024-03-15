@@ -79,7 +79,7 @@ const SOLANA_SEQ_LOG = 'Program log: Sequence: ';
 const SOLANA_CHAIN_NAME = MAINNET_CONFIG.chains.solana!.key;
 
 // Add priority fee according to 75th percentile of recent fees paid
-const SOLANA_FEE_PERCENTILE = 0.75;
+const SOLANA_FEE_PERCENTILE = 0.5;
 
 const SOLANA_MAINNET_EMMITER_ID =
   'ec7372995d5cc8732397fb0ad35c0121e0eaa90d26f828a534cab54391b3a4f5';
@@ -1225,7 +1225,9 @@ export class SolanaContext<
   async determineComputeBudget(
     lockedWritableAccounts: PublicKey[] = [],
   ): Promise<TransactionInstruction[]> {
-    let fee = 100_000; // Set fee to 100,000 microlamport by default
+    // https://twitter.com/0xMert_/status/1768669928825962706
+
+    let fee = 1; // Set fee to 100,000 microlamport by default
 
     try {
       const recentFeesResponse =
@@ -1237,11 +1239,14 @@ export class SolanaContext<
         // Get 75th percentile fee paid in recent slots
         const recentFees = recentFeesResponse
           .map((dp) => dp.prioritizationFee)
+          .filter((dp) => dp > 0)
           .sort((a, b) => a - b);
-        fee = Math.max(
-          recentFees[Math.floor(recentFees.length * SOLANA_FEE_PERCENTILE)],
-          fee,
-        );
+
+        if (recentFees.length > 0) {
+          const medianFee =
+            recentFees[Math.floor(recentFees.length * SOLANA_FEE_PERCENTILE)];
+          fee = Math.max(fee, medianFee);
+        }
       }
     } catch (e) {
       console.error('Error fetching Solana recent fees', e);
