@@ -121,7 +121,9 @@ export const signAndSendTransaction = async (
     }
     case Context.SOLANA: {
       const { signAndSendTransaction } = await import('utils/wallet/solana');
-      const tx = await signAndSendTransaction(transaction, wallet);
+      const tx = await signAndSendTransaction(transaction, wallet, {
+        skipPreflight: true,
+      });
       return tx.id;
     }
     case Context.SUI: {

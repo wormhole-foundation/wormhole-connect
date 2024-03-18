@@ -14,11 +14,11 @@ import {
   getDisplayName,
   calculateUSDPrice,
 } from 'utils';
-import { isEvmChain, toChainId } from 'utils/sdk';
+import { isEvmChain, toChainId, toChainName } from 'utils/sdk';
 import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
 import { NO_INPUT } from 'utils/style';
 import { toDecimals } from '../../utils/balance';
-import { getSolanaAssociatedTokenAccount } from '../../utils/solana';
+import { getAssociatedTokenAddress } from '@solana/spl-token';
 import { BaseRoute } from '../bridge/baseRoute';
 import {
   ManualCCTPMessage,
@@ -40,6 +40,8 @@ import {
   tryGetCircleAttestation,
 } from './utils';
 import { TokenPrices } from 'store/tokenPrices';
+import { getNativeVersionOfToken } from 'store/transferInput';
+import { PublicKey } from '@solana/web3.js';
 
 export class CCTPManualRoute extends BaseRoute {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean = false;
@@ -248,15 +250,21 @@ export class CCTPManualRoute extends BaseRoute {
     destToken: string,
     routeOptions: any,
   ): Promise<string> {
-    const recipientAccount =
-      config.wh.toChainName(recipientChain) === 'solana'
-        ? await getSolanaAssociatedTokenAccount(
-            token,
-            sendingChain,
-            recipientAddress,
-          )
-        : recipientAddress;
-
+    // TODO: make sure sending to the ATA is right
+    let recipientAccount = recipientAddress;
+    if (toChainName(recipientChain) === 'solana') {
+      const tokenKey = getNativeVersionOfToken('USDC', 'solana');
+      const tokenConfig = config.tokens[tokenKey];
+      if (!tokenConfig || !tokenConfig.tokenId) {
+        throw new Error('Solana USDC not found');
+      }
+      recipientAccount = (
+        await getAssociatedTokenAddress(
+          new PublicKey(tokenConfig.tokenId.address),
+          new PublicKey(recipientAddress),
+        )
+      ).toString();
+    }
     const tx = await this.getImplementation(sendingChain).send(
       token,
       amount,

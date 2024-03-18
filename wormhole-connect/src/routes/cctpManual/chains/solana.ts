@@ -1,8 +1,9 @@
 import { CHAIN_ID_SOLANA } from '@certusone/wormhole-sdk';
-import { BN, EventParser, Program, utils } from '@project-serum/anchor';
+import { BN, Program, utils } from '@project-serum/anchor';
 import { TOKEN_PROGRAM_ID, getAssociatedTokenAddress } from '@solana/spl-token';
 import {
   AccountMeta,
+  Keypair,
   PublicKey,
   SystemProgram,
   Transaction,
@@ -31,24 +32,15 @@ import {
 import { TokenMessenger, TokenMessengerIdl } from '../idl/TokenMessenger';
 import ManualCCTP from './abstract';
 import { getChainNameCCTP, getDomainCCTP } from '../utils/chains';
+import { CircleBridge } from '@wormhole-foundation/sdk-definitions';
+import { hexlify } from 'ethers/lib/utils';
 
 const CCTP_NONCE_OFFSET = 12;
-const NONCES_PER_ACCOUNT = 6400;
+const MAX_NONCES_PER_ACCOUNT = 6400n;
 
 interface FindProgramAddressResponse {
   publicKey: PublicKey;
   bump: number;
-}
-
-interface DepositForBurnLogData {
-  nonce: BN;
-  burnToken: PublicKey;
-  amount: BN;
-  depositor: PublicKey;
-  mintRecipient: PublicKey;
-  destinationDomain: number;
-  destinationTokenMessenger: PublicKey;
-  destinationCaller: PublicKey;
 }
 
 const findProgramAddress = (
@@ -161,6 +153,10 @@ export class ManualCCTPSolanaImpl implements ManualCCTP<Transaction> {
       'sender_authority',
       tokenMessengerMinterProgram.programId,
     );
+    const eventAuthority = findProgramAddress(
+      '__event_authority',
+      tokenMessengerMinterProgram.programId,
+    );
 
     const associatedTokenAccount = await getAssociatedTokenAddress(
       tokenMint,
@@ -169,8 +165,9 @@ export class ManualCCTPSolanaImpl implements ManualCCTP<Transaction> {
 
     const destContext = wh.getContext(recipientChain);
     const recipient = destContext.formatAddress(recipientAddress);
+    const messageSentKeypair = Keypair.generate();
 
-    return tokenMessengerMinterProgram.methods
+    const tx = await tokenMessengerMinterProgram.methods
       .depositForBurn({
         amount: new BN(parsedAmt.toString()),
         destinationDomain,
@@ -178,6 +175,7 @@ export class ManualCCTPSolanaImpl implements ManualCCTP<Transaction> {
       })
       .accounts({
         owner: senderAddress,
+        eventRentPayer: senderAddress,
         senderAuthorityPda: authorityPda.publicKey,
         burnTokenAccount: associatedTokenAccount,
         messageTransmitter: messageTransmitterAccount.publicKey,
@@ -186,11 +184,22 @@ export class ManualCCTPSolanaImpl implements ManualCCTP<Transaction> {
         tokenMinter: tokenMinter.publicKey,
         localToken: localToken.publicKey,
         burnTokenMint: tokenMint,
+        messageSentEventData: messageSentKeypair.publicKey,
         messageTransmitterProgram: messageTransmitterProgram.programId,
         tokenMessengerMinterProgram: tokenMessengerMinterProgram.programId,
         tokenProgram: TOKEN_PROGRAM_ID,
+        systemProgram: SystemProgram.programId,
+        eventAuthority: eventAuthority.publicKey,
+        program: tokenMessengerMinterProgram.programId,
       })
       .transaction();
+
+    const { blockhash } =
+      await solanaContext().connection!.getLatestBlockhash();
+    tx.recentBlockhash = blockhash;
+    tx.feePayer = new PublicKey(senderAddress);
+    tx.partialSign(messageSentKeypair);
+    return tx;
   }
 
   async redeem(
@@ -265,13 +274,20 @@ export class ManualCCTPSolanaImpl implements ManualCCTP<Transaction> {
     const authorityPda = findProgramAddress(
       'message_transmitter_authority',
       messageTransmitterProgram.programId,
+      [tokenMessengerMinterProgram.programId],
     ).publicKey;
+    const eventAuthority = findProgramAddress(
+      '__event_authority',
+      messageTransmitterProgram.programId,
+    ).publicKey;
+    const tokenMessengerEventAuthority = findProgramAddress(
+      '__event_authority',
+      tokenMessengerMinterProgram.programId,
+    );
 
     // Calculate the nonce PDA.
     const firstNonce =
-      ((nonce - BigInt(1)) / BigInt(NONCES_PER_ACCOUNT)) *
-        BigInt(NONCES_PER_ACCOUNT) +
-      BigInt(1);
+      ((nonce - 1n) / MAX_NONCES_PER_ACCOUNT) * MAX_NONCES_PER_ACCOUNT + 1n;
     const usedNonces = findProgramAddress(
       'used_nonces',
       messageTransmitterProgram.programId,
@@ -320,6 +336,18 @@ export class ManualCCTPSolanaImpl implements ManualCCTP<Transaction> {
       isWritable: false,
       pubkey: TOKEN_PROGRAM_ID,
     });
+    accountMetas.push({
+      isSigner: false,
+      isWritable: false,
+      pubkey: tokenMessengerEventAuthority.publicKey,
+    });
+    accountMetas.push({
+      isSigner: false,
+      isWritable: false,
+      pubkey: tokenMessengerMinterProgram.programId,
+    });
+
+    console.log(userTokenAccount.toString());
 
     return (
       messageTransmitterProgram.methods
@@ -335,6 +363,8 @@ export class ManualCCTPSolanaImpl implements ManualCCTP<Transaction> {
           usedNonces,
           receiver: tokenMessengerMinterProgram.programId,
           systemProgram: SystemProgram.programId,
+          eventAuthority,
+          program: messageTransmitterProgram.programId,
         })
         // Add remainingAccounts needed for TokenMessengerMinter CPI
         .remainingAccounts(accountMetas)
@@ -346,58 +376,40 @@ export class ManualCCTPSolanaImpl implements ManualCCTP<Transaction> {
     id: string,
     chain: ChainName | ChainId,
   ): Promise<ManualCCTPMessage> {
-    const context = wh.getContext(
-      CHAIN_ID_SOLANA,
-    ) as SolanaContext<WormholeContext>;
+    const context = solanaContext();
     const connection = context.connection;
+    if (!connection) throw new Error('No connection');
 
-    const tx = await connection?.getTransaction(id);
-    if (!tx || !tx.meta) throw new Error('Transaction not found');
+    const tx = await connection.getParsedTransaction(id);
+    if (!tx) throw new Error('Transaction not found');
 
     const accounts = tx.transaction.message.accountKeys;
-
-    const messageTransmitter = getMessageTransmitter();
-    const tokenMessenger = getTokenMessenger();
-
-    // this log contains the cctp message information
-    const messageTransmitterParser = new EventParser(
-      messageTransmitter.programId,
-      messageTransmitter.coder,
+    const msgSentAccount = accounts[1]?.pubkey;
+    if (!msgSentAccount) throw new Error('No message sent account');
+    const data = await connection.getAccountInfo(msgSentAccount);
+    if (!data) throw new Error('No message sent data');
+    // TODO: why 44?
+    const circleMsgArray = new Uint8Array(data.data.slice(44));
+    const [circleMsg, hash] = CircleBridge.deserialize(circleMsgArray);
+    console.log(circleMsg, hash);
+    const tokenAddress = await context.parseAssetAddress(
+      circleMsg.payload.burnToken.toString(),
     );
-    const messageLogs = [
-      ...messageTransmitterParser.parseLogs(tx.meta.logMessages || []),
-    ];
-    const messageBytes = messageLogs[0].data.message as Buffer;
-    const message = ethUtils.hexlify(messageBytes);
-
-    // this log contains the transfer information
-    const tokenMessengerParser = new EventParser(
-      tokenMessenger.programId,
-      tokenMessenger.coder,
-    );
-    const tokenLogs = [
-      ...tokenMessengerParser.parseLogs(tx.meta.logMessages || []),
-    ];
-    const parsedCCTPLog = tokenLogs.find((l) => l.name === 'DepositForBurn');
-    if (!parsedCCTPLog) {
-      throw new Error('DepositForBurn log not found');
-    }
-    const data = parsedCCTPLog.data as any as DepositForBurnLogData;
-
-    const toChain: ChainName = getChainNameCCTP(data.destinationDomain);
-    const destContext = wh.getContext(toChain);
-    const recipient = destContext.parseAddress(
-      ethUtils.hexlify(data.mintRecipient.toBuffer()),
-    );
-    const tokenAddress = data.burnToken.toString();
     const tokenId: TokenId = { address: tokenAddress, chain: 'solana' };
     const token = getTokenById(tokenId);
     const decimals = await wh.fetchTokenDecimals(tokenId, 'solana');
+    const toChain = getChainNameCCTP(circleMsg.destinationDomain);
+    const destContext = wh.getContext(toChain);
+    const recipient = destContext.parseAddress(
+      circleMsg.payload.mintRecipient.toString(),
+    );
 
     return {
       sendTx: id,
-      sender: accounts[0].toString(),
-      amount: data.amount.toString(),
+      sender: await context.parseAddress(
+        circleMsg.payload.messageSender.toString(),
+      ),
+      amount: circleMsg.payload.amount.toString(),
       payloadID: PayloadType.Manual,
       recipient,
       toChain,
@@ -408,9 +420,9 @@ export class ManualCCTPSolanaImpl implements ManualCCTP<Transaction> {
       tokenDecimals: decimals,
       tokenKey: token?.key || '',
       receivedTokenKey: getNativeVersionOfToken('USDC', toChain),
-      gasFee: tx.meta.fee.toString(),
+      gasFee: tx.meta?.fee.toString(),
       block: tx.slot,
-      message,
+      message: hexlify(circleMsgArray),
 
       // manual CCTP does not use wormhole
       emitterAddress: '',
@@ -466,9 +478,7 @@ export class ManualCCTPSolanaImpl implements ManualCCTP<Transaction> {
 
     // Calculate the nonce PDA.
     const firstNonce =
-      ((nonce - BigInt(1)) / BigInt(NONCES_PER_ACCOUNT)) *
-        BigInt(NONCES_PER_ACCOUNT) +
-      BigInt(1);
+      ((nonce - 1n) / MAX_NONCES_PER_ACCOUNT) * MAX_NONCES_PER_ACCOUNT + 1n;
     const usedNoncesAddress = findProgramAddress(
       'used_nonces',
       messageTransmitterProgram.programId,
@@ -478,7 +488,8 @@ export class ManualCCTPSolanaImpl implements ManualCCTP<Transaction> {
     // usedNonces is an u64 100 elements array, where each bit acts a flag
     // to know whether a nonce has been used or not
     const { usedNonces } =
-      await messageTransmitterProgram.account.UsedNonces.fetch(
+      // @ts-ignore
+      await messageTransmitterProgram.account.usedNonces.fetch(
         usedNoncesAddress,
       );
 
