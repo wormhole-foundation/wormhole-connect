@@ -6,7 +6,7 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { makeStyles } from 'tss-react/mui';
 
-import { CHAINS, TOKENS } from 'config';
+import config from 'config';
 import { RootState } from 'store';
 import { setRoute as setAppRoute } from 'store/router';
 import {
@@ -100,7 +100,7 @@ function Send(props: { valid: boolean }) {
     dispatch(setIsTransactionInProgress(true));
 
     try {
-      const fromConfig = CHAINS[fromChain!];
+      const fromConfig = config.chains[fromChain!];
       if (fromConfig?.context === Context.ETH) {
         registerWalletSigner(fromChain!, TransferWallet.SENDING);
         const chainId = fromConfig.chainId;
@@ -113,7 +113,7 @@ function Send(props: { valid: boolean }) {
         await switchChain(fromConfig.chainId, TransferWallet.SENDING);
       }
 
-      const tokenConfig = TOKENS[token]!;
+      const tokenConfig = config.tokens[token]!;
       const sendToken = tokenConfig.tokenId;
       const routeOptions = isPorticoRoute(route) ? portico : { toNativeToken };
 
@@ -166,7 +166,7 @@ function Send(props: { valid: boolean }) {
 
   const setSendingGas = useCallback(async () => {
     // this gas calculation uses the debounced amount to avoid spamming the rpc
-    const tokenConfig = TOKENS[token]!;
+    const tokenConfig = config.tokens[token]!;
     if (!route || !tokenConfig) return;
     const sendToken = tokenConfig.tokenId;
 
@@ -193,6 +193,9 @@ function Send(props: { valid: boolean }) {
     dispatch,
     route,
   ]);
+
+  const disabled =
+    isTransactionInProgress || !!solanaTokenAccountError || config.previewMode;
 
   const setDestGas = useCallback(async () => {
     if (!route || !toChain) return;
@@ -262,7 +265,7 @@ function Send(props: { valid: boolean }) {
           <Button
             onClick={send}
             action={props.valid}
-            disabled={isTransactionInProgress || !!solanaTokenAccountError}
+            disabled={disabled}
             elevated
           >
             {isTransactionInProgress ? (

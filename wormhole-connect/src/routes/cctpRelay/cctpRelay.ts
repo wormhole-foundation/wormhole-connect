@@ -8,7 +8,7 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { BigNumber, utils } from 'ethers';
 
-import { CHAINS, ROUTES, TOKENS, sdkConfig } from 'config';
+import config from 'config';
 import { TokenConfig, Route } from 'config/types';
 import {
   MAX_DECIMALS,
@@ -24,7 +24,6 @@ import {
   ParsedRelayerMessage,
   PayloadType,
   toChainId,
-  wh,
 } from 'utils/sdk';
 import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
 import { NO_INPUT } from 'utils/style';
@@ -59,7 +58,7 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
   readonly TYPE: Route = Route.CCTPRelay;
 
   isSupportedChain(chain: ChainName): boolean {
-    return !!sdkConfig.chains[chain]?.contracts.cctpContracts
+    return !!config.chains[chain]?.contracts.cctpContracts
       ?.wormholeCircleRelayer;
   }
 
@@ -73,13 +72,13 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
     const sourceChainName = token.nativeChain;
     const sourceChainCCTP =
       CCTPRelay_CHAINS.includes(sourceChainName) &&
-      (!sourceChain || wh.toChainName(sourceChain) === sourceChainName);
+      (!sourceChain || config.wh.toChainName(sourceChain) === sourceChainName);
 
     if (destToken) {
       const destChainName = destToken.nativeChain;
       const destChainCCTP =
         CCTPRelay_CHAINS.includes(destChainName) &&
-        (!destChain || wh.toChainName(destChain) === destChainName);
+        (!destChain || config.wh.toChainName(destChain) === destChainName);
 
       return (
         destToken.symbol === CCTPTokenSymbol &&
@@ -101,12 +100,13 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
     const destChainName = token.nativeChain;
     const destChainCCTP =
       CCTPRelay_CHAINS.includes(destChainName) &&
-      (!destChain || wh.toChainName(destChain) === destChainName);
+      (!destChain || config.wh.toChainName(destChain) === destChainName);
     if (sourceToken) {
       const sourceChainName = sourceToken.nativeChain;
       const sourceChainCCTP =
         CCTPRelay_CHAINS.includes(sourceChainName) &&
-        (!sourceChain || wh.toChainName(sourceChain) === sourceChainName);
+        (!sourceChain ||
+          config.wh.toChainName(sourceChain) === sourceChainName);
 
       return (
         sourceToken.symbol === CCTPTokenSymbol &&
@@ -161,18 +161,18 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
   ): Promise<boolean> {
-    if (!ROUTES.includes(Route.CCTPRelay)) {
+    if (!config.routes.includes(Route.CCTPRelay)) {
       return false;
     }
 
-    const sourceTokenConfig = TOKENS[sourceToken];
-    const destTokenConfig = TOKENS[destToken];
+    const sourceTokenConfig = config.tokens[sourceToken];
+    const destTokenConfig = config.tokens[destToken];
 
     if (!sourceChain || !destChain || !sourceTokenConfig || !destTokenConfig)
       return false;
 
-    const sourceChainName = wh.toChainName(sourceChain);
-    const destChainName = wh.toChainName(destChain);
+    const sourceChainName = config.wh.toChainName(sourceChain);
+    const destChainName = config.wh.toChainName(destChain);
 
     if (sourceChainName === destChainName) return false;
 
@@ -188,8 +188,10 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
     if (!chainsAreValid) return false;
 
     const bothHaveRelayer =
-      CHAINS[sourceChainName]?.contracts.cctpContracts?.wormholeCircleRelayer &&
-      CHAINS[destChainName]?.contracts.cctpContracts?.wormholeCircleRelayer;
+      config.chains[sourceChainName]?.contracts.cctpContracts
+        ?.wormholeCircleRelayer &&
+      config.chains[destChainName]?.contracts.cctpContracts
+        ?.wormholeCircleRelayer;
 
     return !!bothHaveRelayer;
   }
@@ -260,22 +262,22 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
     recipientAddress: string,
     routeOptions: any,
   ): Promise<BigNumber> {
-    const provider = wh.mustGetProvider(sendingChain);
+    const provider = config.wh.mustGetProvider(sendingChain);
     const { gasPrice } = await provider.getFeeData();
     if (!gasPrice)
       throw new Error('gas price not available, cannot estimate fees');
 
     // only works on EVM
-    const chainContext = wh.getContext(
+    const chainContext = config.wh.getContext(
       sendingChain,
     ) as EthContext<WormholeContext>;
     const circleRelayer =
       chainContext.contracts.mustGetWormholeCircleRelayer(sendingChain);
-    const tokenAddr = await wh.mustGetForeignAsset(
+    const tokenAddr = await config.wh.mustGetForeignAsset(
       token as TokenId,
       sendingChain,
     );
-    const fromChainId = wh.toChainId(sendingChain);
+    const fromChainId = config.wh.toChainId(sendingChain);
     const decimals = getTokenDecimals(fromChainId, token);
     const parsedAmt = utils.parseUnits(`${amount}`, decimals);
 
@@ -283,7 +285,7 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
       chainContext.context.parseAddress(tokenAddr, sendingChain),
       parsedAmt,
       BigNumber.from(routeOptions.toNativeToken),
-      wh.toChainId(recipientChain),
+      config.wh.toChainId(recipientChain),
       chainContext.context.formatAddress(recipientAddress, recipientChain),
     );
     const est = await provider.estimateGas(tx);
@@ -318,15 +320,15 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
     destToken: string,
     routeOptions: any,
   ): Promise<string> {
-    const fromChainId = wh.toChainId(sendingChain);
-    const fromChainName = wh.toChainName(sendingChain);
+    const fromChainId = config.wh.toChainId(sendingChain);
+    const fromChainName = config.wh.toChainName(sendingChain);
     const decimals = getTokenDecimals(fromChainId, token);
     const parsedAmt = utils.parseUnits(amount, decimals);
     const parsedNativeAmt = routeOptions.toNativeToken
       ? utils.parseUnits(routeOptions.toNativeToken.toString(), decimals)
       : BigNumber.from(0);
     // only works on EVM
-    const chainContext = wh.getContext(
+    const chainContext = config.wh.getContext(
       sendingChain,
     ) as EthContext<WormholeContext>;
     const circleRelayer =
@@ -344,10 +346,12 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
       chainContext.context.parseAddress(tokenAddr, sendingChain),
       parsedAmt,
       parsedNativeAmt,
-      wh.toChainId(recipientChain),
+      config.wh.toChainId(recipientChain),
       chainContext.context.formatAddress(recipientAddress, recipientChain),
     );
-    const sentTx = await wh.getSigner(fromChainName)?.sendTransaction(tx);
+    const sentTx = await config.wh
+      .getSigner(fromChainName)
+      ?.sendTransaction(tx);
     const rx = await sentTx?.wait();
     if (!rx) throw new Error("Transaction didn't go through");
     const txId = await signAndSendTransaction(
@@ -355,7 +359,7 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
       rx,
       TransferWallet.SENDING,
     );
-    wh.registerProviders();
+    config.wh.registerProviders();
     return txId;
   }
 
@@ -380,22 +384,22 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
     tokenPrices: TokenPrices,
     routeOptions?: any,
   ): Promise<TransferDisplayData> {
-    const sendingChainName = wh.toChainName(sendingChain);
-    const receipientChainName = wh.toChainName(receipientChain);
-    const sourceGasToken = CHAINS[sendingChainName]?.gasToken;
-    const destinationGasToken = CHAINS[receipientChainName]?.gasToken;
+    const sendingChainName = config.wh.toChainName(sendingChain);
+    const receipientChainName = config.wh.toChainName(receipientChain);
+    const sourceGasToken = config.chains[sendingChainName]?.gasToken;
+    const destinationGasToken = config.chains[receipientChainName]?.gasToken;
     const destinationGasTokenSymbol = destinationGasToken
-      ? getDisplayName(TOKENS[destinationGasToken])
+      ? getDisplayName(config.tokens[destinationGasToken])
       : '';
     const { relayerFee, receiveNativeAmt } = routeOptions;
     const sourceGasTokenSymbol = sourceGasToken
-      ? getDisplayName(TOKENS[sourceGasToken])
+      ? getDisplayName(config.tokens[sourceGasToken])
       : '';
 
     const sendingGasEstPrice = calculateUSDPrice(
       sendingGasEst,
       tokenPrices,
-      TOKENS[sourceGasToken || ''],
+      config.tokens[sourceGasToken || ''],
     );
 
     let totalFeesText = '';
@@ -428,7 +432,7 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
               valueUSD: calculateUSDPrice(
                 receiveNativeAmt,
                 tokenPrices,
-                TOKENS[destinationGasToken || ''],
+                config.tokens[destinationGasToken || ''],
               ),
             },
           ]
@@ -474,17 +478,17 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
     token: string,
     destToken: string,
   ): Promise<BigNumber> {
-    const tokenConfig = TOKENS[token];
+    const tokenConfig = config.tokens[token];
     if (!tokenConfig) throw new Error('could not get token config');
     const tokenId = tokenConfig.tokenId;
 
     // only works on EVM
-    const chainContext = wh.getContext(
+    const chainContext = config.wh.getContext(
       sourceChain,
     ) as EthContext<WormholeContext>;
     const circleRelayer =
       chainContext.contracts.mustGetWormholeCircleRelayer(sourceChain);
-    const destChainId = wh.toChainId(destChain);
+    const destChainId = config.wh.toChainId(destChain);
     const fee = await circleRelayer.relayerFee(destChainId, tokenId?.address);
     return fee;
   }
@@ -496,7 +500,7 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
     // only EVM
     // use this as reference
     // https://goerli.etherscan.io/tx/0xe4984775c76b8fe7c2b09cd56fb26830f6e5c5c6b540eb97d37d41f47f33faca#eventlog
-    const provider = wh.mustGetProvider(chain);
+    const provider = config.wh.mustGetProvider(chain);
     const receipt = await provider.getTransactionReceipt(tx);
     if (!receipt) throw new Error(`No receipt for ${tx} on ${chain}`);
 
@@ -522,13 +526,13 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
     const recipient = utils.getAddress(
       '0x' + vaaInfo.payload.substring(298 + 64 + 64 + 24, 298 + 64 + 64 + 64),
     );
-    const fromChain = wh.toChainName(chain);
+    const fromChain = config.wh.toChainName(chain);
     const tokenId: TokenId = {
       chain: fromChain,
       address: parsedCCTPLog.args.burnToken,
     };
     const token = getTokenById(tokenId);
-    const decimals = await wh.fetchTokenDecimals(tokenId, fromChain);
+    const decimals = await config.wh.fetchTokenDecimals(tokenId, fromChain);
     const toChain = getChainNameCCTP(parsedCCTPLog.args.destinationDomain);
     return {
       sendTx: receipt.transactionHash,
@@ -571,15 +575,15 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
       txData.tokenDecimals,
       MAX_DECIMALS,
     );
-    const { gasToken: sourceGasTokenKey } = CHAINS[txData.fromChain]!;
-    const sourceGasToken = TOKENS[sourceGasTokenKey];
+    const { gasToken: sourceGasTokenKey } = config.chains[txData.fromChain]!;
+    const sourceGasToken = config.tokens[sourceGasTokenKey];
     const decimals = getTokenDecimals(
       toChainId(sourceGasToken.nativeChain),
       'native',
     );
     const formattedGas =
       txData.gasFee && toDecimals(txData.gasFee, decimals, MAX_DECIMALS);
-    const token = TOKENS[txData.tokenKey];
+    const token = config.tokens[txData.tokenKey];
 
     // automatic transfers
     const formattedFee = toNormalizedDecimals(
@@ -592,7 +596,7 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
       txData.tokenDecimals,
       MAX_DECIMALS,
     );
-    const { gasToken } = CHAINS[txData.toChain]!;
+    const { gasToken } = config.chains[txData.toChain]!;
     const rows = [
       {
         title: 'Amount',
@@ -618,7 +622,7 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
         title: 'Convert to native gas token',
         value: `≈ ${formattedToNative} ${getDisplayName(
           token,
-        )} \u2192 ${getDisplayName(TOKENS[gasToken])}`,
+        )} \u2192 ${getDisplayName(config.tokens[gasToken])}`,
         valueUSD: calculateUSDPrice(formattedToNative, tokenPrices, token),
       });
     }
@@ -633,8 +637,8 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
   }: TransferDestInfoBaseParams): Promise<TransferDestInfo> {
     const txData: ParsedRelayerMessage = data as ParsedRelayerMessage;
 
-    const token = TOKENS[txData.tokenKey];
-    const { gasToken } = CHAINS[txData.toChain]!;
+    const token = config.tokens[txData.tokenKey];
+    const { gasToken } = config.chains[txData.toChain]!;
 
     // calculate the amount of native gas received
     let nativeGasAmt: string | undefined;
@@ -647,7 +651,7 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
       }
       if (nativeSwapAmount) {
         const decimals = getTokenDecimals(
-          wh.toChainId(txData.toChain),
+          config.wh.toChainId(txData.toChain),
           'native',
         );
         nativeGasAmt = toDecimals(nativeSwapAmount, decimals, MAX_DECIMALS);
@@ -656,7 +660,7 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
     if (!nativeGasAmt) {
       // get the decimals on the target chain
       const destinationTokenDecimals = getTokenDecimals(
-        wh.toChainId(txData.toChain),
+        config.wh.toChainId(txData.toChain),
         txData.tokenId,
       ); // should be 6
 
@@ -672,7 +676,7 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
 
       // get the decimals on the target chain
       const nativeGasTokenDecimals = getTokenDecimals(
-        wh.toChainId(txData.toChain),
+        config.wh.toChainId(txData.toChain),
         'native',
       );
       nativeGasAmt = toDecimals(
@@ -703,12 +707,12 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
         {
           title: 'Native gas token',
           value: nativeGasAmt
-            ? `${nativeGasAmt} ${getDisplayName(TOKENS[gasToken])}`
+            ? `${nativeGasAmt} ${getDisplayName(config.tokens[gasToken])}`
             : NO_INPUT,
           valueUSD: calculateUSDPrice(
             nativeGasAmt,
             tokenPrices,
-            TOKENS[gasToken],
+            config.tokens[gasToken],
           ),
         },
       ],
@@ -721,7 +725,7 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
     amount: BigNumber,
     walletAddress: string,
   ): Promise<BigNumber> {
-    const context: any = wh.getContext(destChain);
+    const context: any = config.wh.getContext(destChain);
     const relayer = context.contracts.mustGetWormholeCircleRelayer(destChain);
     const tokenAddress = getForeignUSDCAddress(destChain);
 
@@ -733,7 +737,7 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
     token: TokenId,
     walletAddress: string,
   ): Promise<BigNumber> {
-    const context: any = wh.getContext(destChain);
+    const context: any = config.wh.getContext(destChain);
     const relayer = context.contracts.mustGetWormholeCircleRelayer(destChain);
     const tokenAddress = getForeignUSDCAddress(destChain);
     return relayer.calculateMaxSwapAmountIn(tokenAddress);
@@ -756,10 +760,10 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
 async function fetchRedeemedEvent(
   txData: RelayCCTPMessage,
 ): Promise<string | undefined> {
-  const provider = wh.mustGetProvider(txData.toChain);
-  const context: any = wh.getContext(txData.toChain);
-  const chainName = wh.toChainName(txData.toChain) as ChainName;
-  const chainConfig = CHAINS[chainName]!;
+  const provider = config.wh.mustGetProvider(txData.toChain);
+  const context: any = config.wh.getContext(txData.toChain);
+  const chainName = config.wh.toChainName(txData.toChain) as ChainName;
+  const chainConfig = config.chains[chainName]!;
   const circleMessageTransmitter = context.contracts.mustGetContracts(
     txData.toChain,
   ).cctpContracts?.cctpMessageTransmitter;
@@ -782,10 +786,10 @@ async function fetchRedeemedEvent(
 
 async function fetchSwapEvent(txData: ParsedMessage | ParsedRelayerMessage) {
   const { recipient, amount, tokenDecimals } = txData;
-  const provider = wh.mustGetProvider(txData.toChain);
-  const context: any = wh.getContext(txData.toChain);
-  const chainName = wh.toChainName(txData.toChain) as ChainName;
-  const chainConfig = CHAINS[chainName]!;
+  const provider = config.wh.mustGetProvider(txData.toChain);
+  const context: any = config.wh.getContext(txData.toChain);
+  const chainName = config.wh.toChainName(txData.toChain) as ChainName;
+  const chainConfig = config.chains[chainName]!;
   const relayerContract = context.contracts.mustGetWormholeCircleRelayer(
     txData.toChain,
   );

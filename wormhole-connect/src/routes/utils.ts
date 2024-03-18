@@ -6,14 +6,13 @@ import {
   ParsedRelayerMessage as SdkParsedRelayerMessage,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { BigNumber, utils } from 'ethers';
-import { CHAINS } from 'config';
+import config from 'config';
 import { toFixedDecimals } from 'utils/balance';
 import {
   ParsedMessage,
   ParsedRelayerMessage,
   PayloadType,
   solanaContext,
-  wh,
 } from 'utils/sdk';
 import { getTokenById } from 'utils';
 import { CHAIN_ID_ETH } from '@certusone/wormhole-sdk/lib/esm/utils';
@@ -28,7 +27,10 @@ export const adaptParsedMessage = async (
     address: parsed.tokenAddress,
     chain: parsed.tokenChain,
   };
-  const decimals = await wh.fetchTokenDecimals(tokenId, parsed.fromChain);
+  const decimals = await config.wh.fetchTokenDecimals(
+    tokenId,
+    parsed.fromChain,
+  );
   const token = getTokenById(tokenId);
 
   const base: ParsedMessage = {
@@ -42,7 +44,7 @@ export const adaptParsedMessage = async (
   };
   // get wallet address of associated token account for Solana
   // the recipient is the wallet address for the automatic payload type
-  const toChainId = wh.toChainId(parsed.toChain);
+  const toChainId = config.wh.toChainId(parsed.toChain);
   if (
     toChainId === MAINNET_CHAINS.solana &&
     parsed.payloadID === PayloadType.Manual
@@ -65,8 +67,8 @@ export const adaptParsedMessage = async (
 };
 
 export const formatGasFee = (chain: ChainName | ChainId, gasFee: BigNumber) => {
-  const chainName = wh.toChainName(chain);
-  const chainConfig = CHAINS[chainName]!;
+  const chainName = config.wh.toChainName(chain);
+  const chainConfig = config.chains[chainName]!;
   const nativeDecimals = chainConfig.nativeTokenDecimals;
   return toFixedDecimals(utils.formatUnits(gasFee, nativeDecimals), 6);
 };
@@ -79,8 +81,8 @@ export const isIlliquidDestToken = (
   // which may lack liquid markets and cause confusion for users
   if (['WETH', 'wstETH'].includes(symbol)) {
     if (
-      nativeChain !== wh.toChainName(destChain) &&
-      wh.toChainId(nativeChain) !== CHAIN_ID_ETH
+      nativeChain !== config.wh.toChainName(destChain) &&
+      config.wh.toChainId(nativeChain) !== CHAIN_ID_ETH
     ) {
       return true;
     }

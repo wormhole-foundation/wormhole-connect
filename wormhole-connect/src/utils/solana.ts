@@ -4,7 +4,8 @@ import {
   NATIVE,
   TokenId,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { solanaContext, wh } from './sdk';
+import config from 'config';
+import { solanaContext } from './sdk';
 
 export const getSolanaAssociatedTokenAccount = async (
   token: TokenId | typeof NATIVE,
@@ -13,7 +14,7 @@ export const getSolanaAssociatedTokenAccount = async (
 ): Promise<string> => {
   let tokenId = token;
   if (token === NATIVE) {
-    const context = wh.getContext(sendingChain);
+    const context = config.wh.getContext(sendingChain);
     tokenId = await context.getWrappedNativeTokenId(sendingChain);
   }
   const context = solanaContext();

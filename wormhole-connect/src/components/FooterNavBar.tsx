@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { ICON } from 'utils/style';
 import { Route, setRoute } from 'store/router';
-import { MENU_ENTRIES } from 'config';
+import config from 'config';
 import { MenuEntry } from 'config/types';
 
 const useStyles = makeStyles()((theme) => ({
@@ -61,7 +61,7 @@ export default function FooterNavBar() {
   );
 
   const entries = useMemo(
-    () => MENU_ENTRIES.reduce(itemAppender, defaultMenuItems(navigate)),
+    () => config.menu.reduce(itemAppender, defaultMenuItems(navigate)),
     [navigate],
   );
 

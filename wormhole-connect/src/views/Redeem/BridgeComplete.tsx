@@ -1,7 +1,7 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { CTA } from 'config';
+import config from 'config';
 import { setRoute } from 'store/router';
 
 import Button from 'components/Button';
@@ -22,7 +22,7 @@ function BridgeComplete() {
   const theme: any = useTheme();
   const toLink = () => {
     if (typeof window !== 'undefined') {
-      window.location.href = CTA!.link;
+      window.location.href = config.cta!.link;
     }
   };
   const toBridge = () => {
@@ -44,16 +44,16 @@ function BridgeComplete() {
       <InputContainer bg={containerBg}>
         <>
           {component}
-          {!!CTA && (
+          {!!config.cta && (
             <div>Click the button below to begin using your new assets.</div>
           )}
           <AddToWallet />
         </>
       </InputContainer>
       <Spacer />
-      {CTA ? (
+      {config.cta ? (
         <Button onClick={toLink} action elevated>
-          {CTA.text}
+          {config.cta.text}
         </Button>
       ) : (
         <Button onClick={toBridge} action elevated>

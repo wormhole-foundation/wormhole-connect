@@ -17,8 +17,7 @@ import {
   WalletState,
 } from '@xlabs-libs/wallet-aggregator-core';
 
-import { wh } from 'utils/sdk';
-import { CHAINS, CHAINS_ARR } from 'config';
+import config from 'config';
 import { getChainByChainId } from 'utils';
 
 import { AssetInfo } from './evm';
@@ -37,9 +36,11 @@ export const walletAcceptedChains = (
   context: Context | undefined,
 ): ChainName[] => {
   if (!context) {
-    return CHAINS_ARR.map((c) => c.key);
+    return config.chainsArr.map((c) => c.key);
   }
-  return CHAINS_ARR.filter((c) => c.context === context).map((c) => c.key);
+  return config.chainsArr
+    .filter((c) => c.context === context)
+    .map((c) => c.key);
 };
 
 export const setWalletConnection = (type: TransferWallet, wallet: Wallet) => {
@@ -63,7 +64,7 @@ export const registerWalletSigner = (
   const w = walletConnection[type]! as any;
   if (!w) throw new Error('must connect wallet');
   const signer = w.getSigner();
-  wh.registerSigner(chain, signer);
+  config.wh.registerSigner(chain, signer);
 };
 
 export const switchChain = async (
@@ -110,7 +111,7 @@ export const signAndSendTransaction = async (
   transaction: SendResult,
   walletType: TransferWallet,
 ): Promise<string> => {
-  const chainConfig = CHAINS[chain]!;
+  const chainConfig = config.chains[chain]!;
 
   const wallet = walletConnection[walletType];
   if (!wallet) {

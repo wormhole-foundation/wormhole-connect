@@ -1,4 +1,3 @@
-import { wh } from 'utils/sdk';
 import {
   AptosContext,
   SendResult,
@@ -21,7 +20,7 @@ import { AptosWallet } from '@xlabs-libs/wallet-aggregator-aptos';
 
 import { Types } from 'aptos';
 
-import { isMainnet } from 'config';
+import config from 'config';
 
 const aptosWallets = {
   aptos: new AptosWallet(new AptosWalletAdapter()),
@@ -33,7 +32,7 @@ const aptosWallets = {
   spika: new AptosWallet(new SpikaWalletAdapter()),
   snap: new AptosWallet(
     new AptosSnapAdapter({
-      network: isMainnet
+      network: config.isMainnet
         ? WalletAdapterNetwork.Mainnet
         : WalletAdapterNetwork.Testnet,
     }),
@@ -60,8 +59,9 @@ export async function signAndSendTransaction(
   const tx = await (wallet as AptosWallet).signAndSendTransaction(
     payload as Types.TransactionPayload,
   );
-  const aptosClient = (wh.getContext('aptos') as AptosContext<WormholeContext>)
-    .aptosClient;
+  const aptosClient = (
+    config.wh.getContext('aptos') as AptosContext<WormholeContext>
+  ).aptosClient;
   await aptosClient.waitForTransaction(tx.id);
 
   return tx;

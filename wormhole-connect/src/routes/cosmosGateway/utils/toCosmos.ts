@@ -1,9 +1,9 @@
 import { CHAIN_ID_WORMCHAIN } from '@certusone/wormhole-sdk';
 import { ChainId, TokenId } from '@wormhole-foundation/wormhole-connect-sdk';
-import { wh } from 'utils/sdk';
 import { TransferWallet, signAndSendTransaction } from '../../../utils/wallet';
 import { GatewayTransferMsg } from '../types';
 import { getTranslatorAddress } from './contracts';
+import config from 'config';
 
 export function buildToCosmosPayload(
   recipientChainId: ChainId,
@@ -35,7 +35,7 @@ export async function toCosmos(
 ): Promise<any> {
   const payload = buildToCosmosPayload(recipientChainId, recipientAddress);
 
-  const tx = await wh.send(
+  const tx = await config.wh.send(
     token,
     amount,
     sendingChainId,
@@ -47,7 +47,7 @@ export async function toCosmos(
   );
 
   return signAndSendTransaction(
-    wh.toChainName(sendingChainId),
+    config.wh.toChainName(sendingChainId),
     tx,
     TransferWallet.SENDING,
   );

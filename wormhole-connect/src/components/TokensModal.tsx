@@ -5,7 +5,8 @@ import IconButton from '@mui/material/IconButton';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { useTheme } from '@mui/material/styles';
 import { ChainName, TokenId } from '@wormhole-foundation/wormhole-connect-sdk';
-import { AVAILABLE_MARKETS_URL, CHAINS, MORE_TOKENS } from 'config';
+import { AVAILABLE_MARKETS_URL } from 'config/constants';
+import config from 'config';
 import { TokenConfig } from 'config/types';
 import { BigNumber } from 'ethers';
 import TokenIcon from 'icons/TokenIcons';
@@ -28,7 +29,6 @@ import {
 import { makeStyles } from 'tss-react/mui';
 import { displayAddress, sortTokens } from 'utils';
 import { isGatewayChain } from 'utils/cosmos';
-import { wh } from 'utils/sdk';
 import { CENTER, NO_INPUT } from 'utils/style';
 import Header from './Header';
 import Modal from './Modal';
@@ -142,7 +142,7 @@ const useStyles = makeStyles()((theme: any) => ({
 }));
 
 const displayNativeChain = (token: TokenConfig): string => {
-  const chainConfig = CHAINS[token.nativeChain];
+  const chainConfig = config.chains[token.nativeChain];
   if (!chainConfig) return '';
   return chainConfig.displayName;
 };
@@ -239,19 +239,22 @@ function DisplayTokens(props: DisplayTokensProps) {
                 </div>
               </div>
             ))}
-            {MORE_TOKENS ? (
+            {config.moreTokens ? (
               <>
                 <div>
                   <Button
                     disableRipple
                     className={classes.moreTokens}
                     onClick={() =>
-                      MORE_TOKENS &&
-                      moreTokens(MORE_TOKENS.href, MORE_TOKENS.target)
+                      config.moreTokens &&
+                      moreTokens(
+                        config.moreTokens.href,
+                        config.moreTokens.target,
+                      )
                     }
                   >
                     <span className={classes.moreTokensLabel}>
-                      {MORE_TOKENS.label}
+                      {config.moreTokens.label}
                     </span>
                     <IconButton className={classes.iconButton}>
                       <OpenInNewIcon className={classes.iconOpenInNew} />
@@ -403,7 +406,7 @@ function TokensModal(props: Props) {
     if (nativeQueryToken) {
       let nativeBalance: BigNumber | null = null;
       try {
-        nativeBalance = await wh.getNativeBalance(walletAddress, chain);
+        nativeBalance = await config.wh.getNativeBalance(walletAddress, chain);
         balances = {
           ...balances,
           ...formatBalance(chain, nativeQueryToken, nativeBalance),
@@ -413,7 +416,7 @@ function TokensModal(props: Props) {
       }
     }
     try {
-      const tokenBalances = await wh.getTokenBalances(
+      const tokenBalances = await config.wh.getTokenBalances(
         walletAddress,
         tokenIds,
         chain,
@@ -496,7 +499,7 @@ function TokensModal(props: Props) {
         } else {
           // if the chain is not canonical then only show the ethereum tBTC token
           // which is considered the canonical tBTC token
-          if (wh.toChainId(t.nativeChain) !== CHAIN_ID_ETH) {
+          if (config.wh.toChainId(t.nativeChain) !== CHAIN_ID_ETH) {
             return false;
           }
         }

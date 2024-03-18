@@ -10,10 +10,9 @@ import { toFixedDecimals } from 'utils/balance';
 import { millisToMinutesAndSeconds } from 'utils/transferValidation';
 import RouteOperator from 'routes/operator';
 import { calculateUSDPrice, getDisplayName } from 'utils';
-import { TOKENS, ROUTES } from 'config';
+import config from 'config';
 import { Route } from 'config/types';
 import { RoutesConfig, RouteData } from 'config/routes';
-import { wh } from 'utils/sdk';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 
 import BridgeCollapse, { CollapseControlStyle } from './Collapse';
@@ -177,7 +176,7 @@ function Tag(props: TagProps) {
 
 const getEstimatedTime = (chain?: ChainName) => {
   if (!chain) return undefined;
-  const chainName = chainIdToChain(wh.toChainId(chain));
+  const chainName = chainIdToChain(config.wh.toChainId(chain));
   const chainFinality = finality.finalityThreshold.get(chainName);
   if (typeof chainFinality === 'undefined') return undefined;
   return chainFinality === 0
@@ -228,7 +227,7 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
         if (!cancelled) {
           setReceiveAmt(Number.parseFloat(toFixedDecimals(`${receiveAmt}`, 6)));
           setReceiveAmtUSD(
-            calculateUSDPrice(receiveAmt, prices, TOKENS[destToken]),
+            calculateUSDPrice(receiveAmt, prices, config.tokens[destToken]),
           );
           setEstimatedTime(getEstimatedTime(fromChain));
         }
@@ -256,11 +255,11 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
     portico,
     data,
   ]);
-  const fromTokenConfig = TOKENS[token];
+  const fromTokenConfig = config.tokens[token];
   const fromTokenIcon = fromTokenConfig && (
     <TokenIcon icon={fromTokenConfig.icon} height={20} />
   );
-  const toTokenConfig = TOKENS[destToken];
+  const toTokenConfig = config.tokens[destToken];
   const toTokenIcon = toTokenConfig && (
     <TokenIcon icon={toTokenConfig.icon} height={20} />
   );
@@ -342,7 +341,7 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
             ) : (
               <>
                 <div>
-                  {receiveAmt} {getDisplayName(TOKENS[destToken])}
+                  {receiveAmt} {getDisplayName(config.tokens[destToken])}
                   <Price textAlign="right">{receiveAmtUSD}</Price>
                 </div>
                 <div className={classes.routeAmt}>after fees</div>
@@ -389,7 +388,7 @@ function RouteOptions() {
     if (!fromChain || !toChain || !token || !destToken) return;
     const getAvailable = async () => {
       const routes: RouteState[] = [];
-      for (const value of ROUTES) {
+      for (const value of config.routes) {
         const r = value as Route;
         const available = await RouteOperator.isRouteAvailable(
           r,

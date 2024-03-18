@@ -2,10 +2,10 @@ import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useTheme } from '@mui/material/styles';
 
+import config from 'config';
 import { RootState } from 'store';
 import { setTransferRoute } from 'store/transferInput';
 import { setRelayerFee } from 'store/relay';
-import { CHAINS, TOKENS } from 'config';
 import { Route } from 'config/types';
 import { getTokenDecimals } from 'utils';
 import { toDecimals } from 'utils/balance';
@@ -49,10 +49,10 @@ function Preview(props: { collapsed: boolean }) {
   useEffect(() => {
     const buildPreview = async () => {
       if (!fromChain || !route) return;
-      const sourceConfig = toChain && CHAINS[fromChain];
-      const destConfig = toChain && CHAINS[toChain];
-      const tokenConfig = token && TOKENS[token];
-      const destTokenConfig = destToken && TOKENS[destToken];
+      const sourceConfig = toChain && config.chains[fromChain];
+      const destConfig = toChain && config.chains[toChain];
+      const tokenConfig = token && config.tokens[token];
+      const destTokenConfig = destToken && config.tokens[destToken];
       if (!tokenConfig || !destTokenConfig || !sourceConfig || !destConfig)
         return;
 
@@ -106,7 +106,7 @@ function Preview(props: { collapsed: boolean }) {
       if (!r.AUTOMATIC_DEPOSIT) return;
 
       try {
-        const tokenConfig = token && TOKENS[token];
+        const tokenConfig = token && config.tokens[token];
         if (!tokenConfig) return;
 
         const fee = await RouteOperator.getRelayerFee(

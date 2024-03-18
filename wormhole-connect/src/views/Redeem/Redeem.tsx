@@ -19,7 +19,7 @@ import Spacer from 'components/Spacer';
 import ChainsTag from './Tag';
 import Stepper from './Stepper';
 import GovernorEnqueuedWarning from './GovernorEnqueuedWarning';
-import { showHamburgerMenu } from 'config';
+import config from 'config';
 
 import useConfirmBeforeLeaving from 'utils/confirmBeforeLeaving';
 
@@ -150,7 +150,11 @@ function Redeem({
         alignItems: 'center',
       }}
     >
-      <PageHeader title="Bridge" back showHamburgerMenu={showHamburgerMenu} />
+      <PageHeader
+        title="Bridge"
+        back
+        showHamburgerMenu={config.showHamburgerMenu}
+      />
 
       <ChainsTag />
       <Spacer />

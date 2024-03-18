@@ -5,7 +5,6 @@ import orange from '@mui/material/colors/orange';
 import red from '@mui/material/colors/red';
 import { PaletteMode } from '@mui/material';
 import { OPACITY } from './utils/style';
-import { THEME } from './config';
 
 export type PaletteColor = {
   50: string;
@@ -24,22 +23,23 @@ export type PaletteColor = {
   A700: string;
 };
 
-export type ExtendedTheme = {
-  primary: PaletteColor;
-  secondary: PaletteColor;
-  divider: string;
-  background: {
+export type CustomTheme = {
+  mode?: PaletteMode;
+  primary?: PaletteColor;
+  secondary?: PaletteColor;
+  divider?: string;
+  background?: {
     default: string;
   };
-  text: {
+  text?: {
     primary: string;
     secondary: string;
   };
-  error: PaletteColor;
-  info: PaletteColor;
-  success: PaletteColor;
-  warning: PaletteColor;
-  button: {
+  error?: PaletteColor;
+  info?: PaletteColor;
+  success?: PaletteColor;
+  warning?: PaletteColor;
+  button?: {
     primary: string;
     primaryText: string;
     disabled: string;
@@ -48,30 +48,33 @@ export type ExtendedTheme = {
     actionText: string;
     hover: string;
   };
-  options: {
+  options?: {
     hover: string;
     select: string;
   };
-  card: {
+  card?: {
     background: string;
     elevation: string;
     secondary: string;
   };
-  popover: {
+  popover?: {
     background: string;
     elevation: string;
     secondary: string;
   };
-  modal: {
+  modal?: {
     background: string;
   };
-  font: {
+  font?: {
     primary: string;
     header: string;
   };
 };
 
+export type ExtendedTheme = Required<CustomTheme>;
+
 export const light: ExtendedTheme = {
+  mode: 'light',
   primary: {
     50: '#161718',
     100: '#2d2e30',
@@ -148,57 +151,14 @@ export const light: ExtendedTheme = {
   },
 };
 
-// // generic dark theme
-// export const dark = {
-//   primary: grey,
-//   secondary: grey,
-//   divider: '#ffffff' + OPACITY[20],
-//   background: {
-//     default: '#232323',
-//   },
-//   text: {
-//     primary: '#ffffff',
-//     secondary: grey[500],
-//   },
-//   error: red,
-//   info: lightblue,
-//   success: green,
-//   warning: orange,
-//   button: {
-//     primary: '#ffffff' + OPACITY[20],
-//     primaryText: '#ffffff',
-//     disabled: '#ffffff' + OPACITY[10],
-//     disabledText: '#ffffff' + OPACITY[40],
-//     action: orange[300],
-//     actionText: '#000000',
-//     hover: '#ffffff' + OPACITY[7],
-//   },
-//   options: {
-//     hover: '#474747',
-//     select: '#5b5b5b',
-//   },
-//   card: {
-//     background: '#333333',
-//     secondary: '#474747',
-//     elevation: 'none',
-//   },
-//   popover: {
-//     background: '#1b2033',
-//     secondary: '#ffffff' + OPACITY[5],
-//     elevation: 'none',
-//   },
-//   modal: {
-//     background: '#474747',
-//   },
-// };
-
 // wormhole styled theme
 export const dark: ExtendedTheme = {
+  mode: 'dark',
   primary: grey,
   secondary: grey,
   divider: '#ffffff' + OPACITY[20],
   background: {
-    default: 'wormhole',
+    default: 'black',
   },
   text: {
     primary: '#ffffff',
@@ -286,13 +246,16 @@ export const dark: ExtendedTheme = {
   },
 };
 
-export const getDesignTokens = (mode: PaletteMode) =>
-  createTheme({
+export const getDesignTokens = (customTheme: CustomTheme) => {
+  const baseTheme = customTheme?.mode === 'light' ? light : dark;
+  const theme = Object.assign(baseTheme, customTheme) as ExtendedTheme;
+
+  return createTheme({
     components: {
       MuiPaper: {
         styleOverrides: {
           root: {
-            background: THEME.modal.background + ' !important',
+            background: theme.modal.background + ' !important',
           },
         },
       },
@@ -314,7 +277,7 @@ export const getDesignTokens = (mode: PaletteMode) =>
       },
     },
     palette: {
-      mode,
-      ...THEME,
+      ...theme,
     },
   });
+};

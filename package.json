@@ -4,7 +4,6 @@
   "workspaces": [
     "sdk",
     "wormhole-connect",
-    "wormhole-connect-loader",
     "builder"
   ],
   "scripts": {

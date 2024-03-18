@@ -1,15 +1,14 @@
 import { ChainName, ChainId } from '@wormhole-foundation/wormhole-connect-sdk';
-import { TOKENS_ARR } from 'config';
-import { wh } from 'utils/sdk';
+import config from 'config';
 
 export const CCTPTokenSymbol = 'USDC';
 
 export function getForeignUSDCAddress(chain: ChainName | ChainId) {
-  const usdcToken = TOKENS_ARR.find(
+  const usdcToken = config.tokensArr.find(
     (t) =>
       t.symbol === CCTPTokenSymbol &&
-      t.nativeChain === wh.toChainName(chain) &&
-      t.tokenId?.chain === wh.toChainName(chain),
+      t.nativeChain === config.wh.toChainName(chain) &&
+      t.tokenId?.chain === config.wh.toChainName(chain),
   );
   if (!usdcToken) {
     throw new Error('No foreign native USDC address');

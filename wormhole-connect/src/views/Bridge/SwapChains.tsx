@@ -1,7 +1,7 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
-import { CHAINS } from 'config';
+import config from 'config';
 
 import { swapWallets } from 'store/wallet';
 import { swapChains } from 'store/transferInput';
@@ -36,9 +36,9 @@ function SwapChains() {
 
   const canSwap =
     fromChain &&
-    !CHAINS[fromChain]?.disabledAsDestination &&
+    !config.chains[fromChain]?.disabledAsDestination &&
     toChain &&
-    !CHAINS[toChain]?.disabledAsDestination;
+    !config.chains[toChain]?.disabledAsDestination;
 
   const swap = () => {
     if (!canSwap) return;

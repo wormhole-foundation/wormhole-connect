@@ -9,9 +9,9 @@ import {
   Context,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 
-import { CHAINS, CHAINS_ARR, TOKENS, TOKENS_ARR } from 'config';
+import config from 'config';
 import { ChainConfig, TokenConfig } from 'config/types';
-import { isEvmChain, wh } from 'utils/sdk';
+import { isEvmChain } from 'utils/sdk';
 import { toDecimals } from './balance';
 import { isGatewayChain } from './cosmos';
 import { TokenPrices } from 'store/tokenPrices';
@@ -63,11 +63,11 @@ export function displayWalletAddress(
 export function getChainByChainId(
   chainId: number | string,
 ): ChainConfig | undefined {
-  return CHAINS_ARR.filter((c) => chainId === c.chainId)[0];
+  return config.chainsArr.filter((c) => chainId === c.chainId)[0];
 }
 
 export function getChainConfig(chain: ChainName | ChainId): ChainConfig {
-  const chainConfig = CHAINS[wh.toChainName(chain)];
+  const chainConfig = config.chains[config.wh.toChainName(chain)];
   if (!chainConfig) throw new Error(`chain config for ${chain} not found`);
   return chainConfig;
 }
@@ -82,7 +82,7 @@ export function getWrappedToken(token: TokenConfig): TokenConfig {
   if (!token.tokenId && !token.wrappedAsset)
     throw new Error(`token details misconfigured for ${token.key}`);
   if (!token.tokenId && token.wrappedAsset) {
-    const wrapped = TOKENS[token.wrappedAsset];
+    const wrapped = config.tokens[token.wrappedAsset];
     if (!wrapped) throw new Error('wrapped token not found');
     return wrapped;
   }
@@ -95,7 +95,7 @@ export function getWrappedTokenId(token: TokenConfig): TokenId {
 }
 
 export function getTokenById(tokenId: TokenId): TokenConfig | undefined {
-  return TOKENS_ARR.find(
+  return config.tokensArr.find(
     (t) =>
       t.tokenId &&
       tokenId.chain === t.tokenId.chain &&
@@ -108,7 +108,7 @@ export function getDisplayName(token: TokenConfig) {
 }
 
 export function getGasToken(chain: ChainName | ChainId): TokenConfig {
-  const gasToken = TOKENS[getChainConfig(chain).gasToken];
+  const gasToken = config.tokens[getChainConfig(chain).gasToken];
   if (!gasToken) throw new Error(`gas token not found for ${chain}`);
   return gasToken;
 }
@@ -117,8 +117,8 @@ export function getTokenDecimals(
   chain: ChainId,
   tokenId: TokenId | 'native' = 'native',
 ): number {
-  const chainName = wh.toChainName(chain);
-  const chainConfig = CHAINS[chainName];
+  const chainName = config.wh.toChainName(chain);
+  const chainConfig = config.chains[chainName];
   if (!chainConfig) throw new Error(`chain config for ${chainName} not found`);
 
   if (tokenId === 'native') {
