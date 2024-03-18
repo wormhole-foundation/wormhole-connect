@@ -34,6 +34,12 @@ export async function determineComputeBudget(
   try {
     const simulateResponse = await connection.simulateTransaction(transaction);
 
+    if (simulateResponse.value.err) {
+      console.error(
+        `Error simulating Solana transaction: ${simulateResponse.value.err}`,
+      );
+    }
+
     if (simulateResponse?.value?.unitsConsumed) {
       // Set compute budget to 120% of the units used in the simulated transaction
       computeBudget = Math.round(simulateResponse.value.unitsConsumed * 1.2);
