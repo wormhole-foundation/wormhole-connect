@@ -23,7 +23,6 @@ import {
 import {
   clusterApiUrl,
   Commitment,
-  ComputeBudgetProgram,
   Connection,
   Keypair,
   PublicKey,
@@ -66,6 +65,7 @@ import {
   getClaim,
   getPostedMessage,
 } from './utils/wormhole';
+import { addComputeBudget } from './utils/computeBudget';
 import { ForeignAssetCache } from '../../utils';
 import { RelayerAbstract } from '../abstracts/relayer';
 import {
@@ -77,9 +77,6 @@ import {
 
 const SOLANA_SEQ_LOG = 'Program log: Sequence: ';
 const SOLANA_CHAIN_NAME = MAINNET_CONFIG.chains.solana!.key;
-
-// Add priority fee according to 75th percentile of recent fees paid
-const SOLANA_FEE_PERCENTILE = 0.5;
 
 const SOLANA_MAINNET_EMMITER_ID =
   'ec7372995d5cc8732397fb0ad35c0121e0eaa90d26f828a534cab54391b3a4f5';
@@ -277,18 +274,15 @@ export class SolanaContext<
       payerPublicKey,
       tokenPublicKey,
     );
-    const transaction = new Transaction();
-    transaction.add(
-      ...(await this.determineComputeBudget([
-        tokenPublicKey,
-        associatedPublicKey,
-      ])),
+    const transaction = new Transaction(
+      await this.connection?.getLatestBlockhash(commitment),
     );
     transaction.add(createAccountInst);
-
-    const { blockhash } = await this.connection.getLatestBlockhash(commitment);
-    transaction.recentBlockhash = blockhash;
     transaction.feePayer = payerPublicKey;
+    await addComputeBudget(this.connection!, transaction, [
+      tokenPublicKey,
+      associatedPublicKey,
+    ]);
     return transaction;
   }
 
@@ -397,12 +391,9 @@ export class SolanaContext<
       payerPublicKey, //authority
     );
 
-    const { blockhash } = await this.connection.getLatestBlockhash(commitment);
-    const transaction = new Transaction();
-    transaction.add(...(await this.determineComputeBudget([NATIVE_MINT])));
-
-    transaction.recentBlockhash = blockhash;
-    transaction.feePayer = payerPublicKey;
+    const transaction = new Transaction(
+      await this.connection?.getLatestBlockhash(commitment),
+    );
     transaction.add(
       createAncillaryAccountIx,
       initialBalanceTransferIx,
@@ -411,6 +402,9 @@ export class SolanaContext<
       tokenBridgeTransferIx,
       closeAccountIx,
     );
+
+    transaction.feePayer = payerPublicKey;
+    await addComputeBudget(this.connection!, transaction, [NATIVE_MINT]);
     transaction.partialSign(message, ancillaryKeypair);
     return transaction;
   }
@@ -531,17 +525,16 @@ export class SolanaContext<
           recipientAddress,
           recipientChainId,
         );
-    const transaction = new Transaction();
-    transaction.add(
-      ...(await this.determineComputeBudget([
-        new PublicKey(fromAddress),
-        new PublicKey(mintAddress),
-      ])),
+
+    const transaction = new Transaction(
+      await this.connection?.getLatestBlockhash(commitment),
     );
     transaction.add(approvalIx, tokenBridgeTransferIx);
-    const { blockhash } = await this.connection.getLatestBlockhash(commitment);
-    transaction.recentBlockhash = blockhash;
     transaction.feePayer = new PublicKey(senderAddress);
+    await addComputeBudget(this.connection!, transaction, [
+      new PublicKey(fromAddress),
+      new PublicKey(mintAddress),
+    ]);
     transaction.partialSign(message);
     return transaction;
   }
@@ -905,29 +898,25 @@ export class SolanaContext<
     const isNativeSol =
       parsed.tokenChain === MAINNET_CHAINS.solana &&
       tokenKey.equals(NATIVE_MINT);
-    const transaction = new Transaction();
-    transaction.add(...(await this.determineComputeBudget([tokenKey])));
-    if (isNativeSol) {
-      transaction.add(
-        await redeemAndUnwrapOnSolana(
+
+    const transaction = isNativeSol
+      ? await redeemAndUnwrapOnSolana(
           this.connection,
           contracts.core,
           contracts.token_bridge,
           payerAddr,
           signedVAA,
-        ),
-      );
-    } else {
-      transaction.add(
-        await redeemOnSolana(
+        )
+      : await redeemOnSolana(
           this.connection,
           contracts.core,
           contracts.token_bridge,
           payerAddr,
           signedVAA,
-        ),
-      );
-    }
+        );
+
+    await addComputeBudget(this.connection!, transaction, [tokenKey]);
+
     return transaction;
   }
 
@@ -961,8 +950,10 @@ export class SolanaContext<
           parsed.tokenChain,
           parsed.tokenAddress,
         );
-    const transaction = new Transaction();
-    transaction.add(...(await this.determineComputeBudget([mint])));
+
+    const transaction = new Transaction(
+      await this.connection?.getLatestBlockhash('finalized'),
+    );
     const recipientTokenAccount = getAssociatedTokenAddressSync(
       mint,
       recipient,
@@ -1004,9 +995,8 @@ export class SolanaContext<
       );
     }
     transaction.add(redeemIx);
-    const { blockhash } = await this.connection.getLatestBlockhash('finalized');
-    transaction.recentBlockhash = blockhash;
     transaction.feePayer = new PublicKey(recipient);
+    await addComputeBudget(this.connection!, transaction, [mint]);
     return transaction;
   }
 
@@ -1073,7 +1063,10 @@ export class SolanaContext<
     );
     const recipientChainId = this.context.toChainId(recipientChain);
     const nonce = createNonce().readUint32LE();
-    const transaction = new Transaction();
+    const transaction = new Transaction(
+      await this.connection?.getLatestBlockhash('finalized'),
+    );
+    transaction.feePayer = new PublicKey(senderAddress);
 
     if (token === NATIVE || token.chain === SOLANA_CHAIN_NAME) {
       const mint = token === NATIVE ? NATIVE_MINT : token.address;
@@ -1108,9 +1101,6 @@ export class SolanaContext<
       }
 
       transaction.add(
-        ...(await this.determineComputeBudget(writableAddresses)),
-      );
-      transaction.add(
         await createTransferNativeTokensWithRelayInstruction(
           this.connection,
           relayer,
@@ -1126,12 +1116,11 @@ export class SolanaContext<
           wrapToken,
         ),
       );
+
+      await addComputeBudget(this.connection!, transaction, writableAddresses);
     } else {
       const mint = await this.mustGetForeignAsset(token, sendingChain);
 
-      transaction.add(
-        ...(await this.determineComputeBudget([new PublicKey(mint)])),
-      );
       transaction.add(
         await createTransferWrappedTokensWithRelayInstruction(
           this.connection,
@@ -1147,11 +1136,11 @@ export class SolanaContext<
           nonce,
         ),
       );
-    }
 
-    const { blockhash } = await this.connection.getLatestBlockhash('finalized');
-    transaction.recentBlockhash = blockhash;
-    transaction.feePayer = new PublicKey(senderAddress);
+      await addComputeBudget(this.connection!, transaction, [
+        new PublicKey(mint),
+      ]);
+    }
     return transaction;
   }
 
@@ -1220,44 +1209,5 @@ export class SolanaContext<
       address: NATIVE_MINT.toString(),
       chain: 'solana',
     };
-  }
-
-  async determineComputeBudget(
-    lockedWritableAccounts: PublicKey[] = [],
-  ): Promise<TransactionInstruction[]> {
-    // https://twitter.com/0xMert_/status/1768669928825962706
-
-    let fee = 1; // Set fee to 100,000 microlamport by default
-
-    try {
-      const recentFeesResponse =
-        await this.connection?.getRecentPrioritizationFees({
-          lockedWritableAccounts,
-        });
-
-      if (recentFeesResponse) {
-        // Get 75th percentile fee paid in recent slots
-        const recentFees = recentFeesResponse
-          .map((dp) => dp.prioritizationFee)
-          .filter((dp) => dp > 0)
-          .sort((a, b) => a - b);
-
-        if (recentFees.length > 0) {
-          const medianFee =
-            recentFees[Math.floor(recentFees.length * SOLANA_FEE_PERCENTILE)];
-          fee = Math.max(fee, medianFee);
-        }
-      }
-    } catch (e) {
-      console.error('Error fetching Solana recent fees', e);
-    }
-
-    console.info(`Setting Solana compute unit price to ${fee} microLamports`);
-
-    return [
-      ComputeBudgetProgram.setComputeUnitPrice({
-        microLamports: fee,
-      }),
-    ];
   }
 }

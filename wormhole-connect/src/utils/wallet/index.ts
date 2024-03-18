@@ -15,7 +15,6 @@ import {
 } from '@xlabs-libs/wallet-aggregator-core';
 
 import config from 'config';
-import { solanaContext } from 'utils/sdk';
 import { getChainByChainId } from 'utils';
 
 import { AssetInfo } from './evm';
@@ -159,8 +158,6 @@ export const postVaa = async (
   if (!wallet) throw new Error('not connected');
   const pk = (wallet as any).adapter.publicKey;
   const MAX_VAA_UPLOAD_RETRIES_SOLANA = 5;
-  const computeBudgetInstructions =
-    await solanaContext().determineComputeBudget([]);
 
   await postVaaSolanaWithRetry(
     connection,
@@ -170,7 +167,6 @@ export const postVaa = async (
     Buffer.from(signedVAA),
     MAX_VAA_UPLOAD_RETRIES_SOLANA,
     undefined,
-    computeBudgetInstructions,
   );
 };
 
