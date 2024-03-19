@@ -347,8 +347,6 @@ export class ManualCCTPSolanaImpl implements ManualCCTP<Transaction> {
       pubkey: tokenMessengerMinterProgram.programId,
     });
 
-    console.log(userTokenAccount.toString());
-
     return (
       messageTransmitterProgram.methods
         .receiveMessage({
@@ -388,7 +386,6 @@ export class ManualCCTPSolanaImpl implements ManualCCTP<Transaction> {
     if (!msgSentAccount) throw new Error('No message sent account');
     const data = await connection.getAccountInfo(msgSentAccount);
     if (!data) throw new Error('No message sent data');
-    // TODO: why 44?
     const circleMsgArray = new Uint8Array(data.data.slice(44));
     const [circleMsg] = CircleBridge.deserialize(circleMsgArray);
     const tokenAddress = await context.parseAssetAddress(
