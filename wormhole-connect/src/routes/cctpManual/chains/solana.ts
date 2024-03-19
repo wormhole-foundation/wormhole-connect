@@ -16,8 +16,7 @@ import {
   WormholeContext,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { BigNumber, utils as ethUtils } from 'ethers';
-import { PayloadType, solanaContext, wh } from 'utils/sdk';
-import { TOKENS } from '../../../config';
+import { PayloadType, solanaContext, toChainId, toChainName } from 'utils/sdk';
 import { getNativeVersionOfToken } from '../../../store/transferInput';
 import { getTokenById, getTokenDecimals } from '../../../utils';
 import {
@@ -34,6 +33,7 @@ import ManualCCTP from './abstract';
 import { getChainNameCCTP, getDomainCCTP } from '../utils/chains';
 import { CircleBridge } from '@wormhole-foundation/sdk-definitions';
 import { hexlify } from 'ethers/lib/utils';
+import config from 'config';
 
 const CCTP_NONCE_OFFSET = 12;
 const MAX_NONCES_PER_ACCOUNT = 6400n;
@@ -67,7 +67,7 @@ const findProgramAddress = (
 };
 
 function getMessageTransmitter(): Program<MessageTransmitter> {
-  const context = wh.getContext(
+  const context = config.wh.getContext(
     CHAIN_ID_SOLANA,
   ) as SolanaContext<WormholeContext>;
   const connection = context.connection;
@@ -84,7 +84,7 @@ function getMessageTransmitter(): Program<MessageTransmitter> {
 }
 
 function getTokenMessenger(): Program<TokenMessenger> {
-  const context = wh.getContext(
+  const context = config.wh.getContext(
     CHAIN_ID_SOLANA,
   ) as SolanaContext<WormholeContext>;
   const connection = context.connection;
@@ -109,15 +109,15 @@ export class ManualCCTPSolanaImpl implements ManualCCTP<Transaction> {
     recipientChain: ChainName | ChainId,
     recipientAddress: string,
   ): Promise<Transaction> {
-    const fromChainId = wh.toChainId(sendingChain);
+    const fromChainId = toChainId(sendingChain);
     const decimals = getTokenDecimals(fromChainId, token);
     const parsedAmt = ethUtils.parseUnits(amount, decimals);
 
     if (token === 'native')
       throw new Error('Native not supported by cctp routes');
 
-    const recipientChainName = wh.toChainName(recipientChain);
-    const destinationDomain = wh.conf.chains[recipientChainName]?.cctpDomain;
+    const recipientChainName = toChainName(recipientChain);
+    const destinationDomain = config.chains[recipientChainName]?.cctpDomain;
     if (destinationDomain === undefined)
       throw new Error(`No CCTP on ${recipientChainName}`);
 
@@ -163,7 +163,7 @@ export class ManualCCTPSolanaImpl implements ManualCCTP<Transaction> {
       new PublicKey(senderAddress),
     );
 
-    const destContext = wh.getContext(recipientChain);
+    const destContext = config.wh.getContext(recipientChain);
     const recipient = destContext.formatAddress(recipientAddress);
     const messageSentKeypair = Keypair.generate();
 
@@ -213,7 +213,7 @@ export class ManualCCTPSolanaImpl implements ManualCCTP<Transaction> {
     const messageTransmitterProgram = getMessageTransmitter();
     const tokenMessengerMinterProgram = getTokenMessenger();
 
-    const fromContext = wh.getContext(message.fromChain);
+    const fromContext = config.wh.getContext(message.fromChain);
 
     const messageBytes = Buffer.from(message.message.replace('0x', ''), 'hex');
     const attestationBytes = Buffer.from(
@@ -224,7 +224,7 @@ export class ManualCCTPSolanaImpl implements ManualCCTP<Transaction> {
 
     const remoteDomain = getDomainCCTP(message.fromChain);
     const tokenKey = getNativeVersionOfToken('USDC', 'solana');
-    const tokenConfig = TOKENS[tokenKey];
+    const tokenConfig = config.tokens[tokenKey];
     if (!tokenConfig || !tokenConfig.tokenId)
       throw new Error('Invalid USDC token');
     const solanaUsdcAddress = new PublicKey(tokenConfig.tokenId.address);
@@ -390,16 +390,15 @@ export class ManualCCTPSolanaImpl implements ManualCCTP<Transaction> {
     if (!data) throw new Error('No message sent data');
     // TODO: why 44?
     const circleMsgArray = new Uint8Array(data.data.slice(44));
-    const [circleMsg, hash] = CircleBridge.deserialize(circleMsgArray);
-    console.log(circleMsg, hash);
+    const [circleMsg] = CircleBridge.deserialize(circleMsgArray);
     const tokenAddress = await context.parseAssetAddress(
       circleMsg.payload.burnToken.toString(),
     );
     const tokenId: TokenId = { address: tokenAddress, chain: 'solana' };
     const token = getTokenById(tokenId);
-    const decimals = await wh.fetchTokenDecimals(tokenId, 'solana');
+    const decimals = await config.wh.fetchTokenDecimals(tokenId, 'solana');
     const toChain = getChainNameCCTP(circleMsg.destinationDomain);
-    const destContext = wh.getContext(toChain);
+    const destContext = config.wh.getContext(toChain);
     const recipient = destContext.parseAddress(
       circleMsg.payload.mintRecipient.toString(),
     );

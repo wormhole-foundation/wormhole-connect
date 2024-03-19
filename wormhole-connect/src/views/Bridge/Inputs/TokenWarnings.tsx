@@ -8,7 +8,7 @@ import {
   setForeignAsset,
 } from 'store/transferInput';
 import config from 'config';
-import { getWrappedTokenId } from 'utils';
+import { getTokenById, getWrappedTokenId } from 'utils';
 import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
 import { joinClass } from 'utils/style';
 import { solanaContext } from 'utils/sdk';
@@ -157,7 +157,9 @@ function TokenWarnings() {
         setShowErrors(false);
         return false;
       }
-      const tokenId = getWrappedTokenId(tokenConfig);
+      const tokenId =
+        getTokenById({ chain: 'solana', address: foreignAsset })?.tokenId ||
+        getWrappedTokenId(tokenConfig);
       const account = await solanaContext().getAssociatedTokenAccount(
         tokenId,
         receiving.address,
@@ -183,7 +185,9 @@ function TokenWarnings() {
       throw new Error(
         'The token must be registered on Solana before an associated token account can be created',
       );
-    const tokenId = getWrappedTokenId(tokenConfig);
+    const tokenId =
+      getTokenById({ chain: 'solana', address: foreignAsset })?.tokenId ||
+      getWrappedTokenId(tokenConfig);
     const tx = await solanaContext().createAssociatedTokenAccount(
       tokenId,
       receiving.address,

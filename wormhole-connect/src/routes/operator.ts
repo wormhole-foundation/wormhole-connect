@@ -99,7 +99,7 @@ export class Operator {
     }
 
     if (chain === 'solana') {
-      const { connection, contracts } = wh.getContext(
+      const { connection, contracts } = config.wh.getContext(
         chain,
       ) as SolanaContext<WormholeContext>;
       if (!connection) throw new Error('No connection for Solana');

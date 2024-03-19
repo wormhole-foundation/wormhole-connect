@@ -10,7 +10,13 @@ import {
 import { BigNumber, ethers, providers, utils } from 'ethers';
 import { getNativeVersionOfToken } from 'store/transferInput';
 import { getTokenById, getTokenDecimals } from 'utils';
-import { PayloadType, isEvmChain, solanaContext, wh } from 'utils/sdk';
+import {
+  PayloadType,
+  isEvmChain,
+  solanaContext,
+  toChainId,
+  toChainName,
+} from 'utils/sdk';
 import {
   ManualCCTPMessage,
   SignedMessage,
@@ -23,6 +29,7 @@ import {
   getNonce,
 } from '../utils';
 import ManualCCTP from './abstract';
+import config from 'config';
 
 export default class ManualCCTPEvmImpl
   implements ManualCCTP<providers.TransactionReceipt>
@@ -35,8 +42,8 @@ export default class ManualCCTPEvmImpl
     recipientChain: ChainName | ChainId,
     recipientAddress: string,
   ): Promise<providers.TransactionReceipt> {
-    const fromChainId = wh.toChainId(sendingChain);
-    const fromChainName = wh.toChainName(sendingChain);
+    const fromChainId = toChainId(sendingChain);
+    const fromChainName = toChainName(sendingChain);
     const decimals = getTokenDecimals(fromChainId, token);
     const parsedAmt = utils.parseUnits(amount, decimals);
 
@@ -44,14 +51,15 @@ export default class ManualCCTPEvmImpl
     if (!isEvmChain(sendingChain)) {
       throw new Error('No support for non EVM cctp currently');
     }
-    const chainContext = wh.getContext(
+    const chainContext = config.wh.getContext(
       sendingChain,
     ) as EthContext<WormholeContext>;
     const tokenMessenger =
-      wh.mustGetContracts(sendingChain).cctpContracts?.cctpTokenMessenger;
+      config.wh.mustGetContracts(sendingChain).cctpContracts
+        ?.cctpTokenMessenger;
     const circleTokenMessenger = await TokenMessenger__factory.connect(
       tokenMessenger!,
-      wh.getSigner(fromChainId)!,
+      config.wh.getSigner(fromChainId)!,
     );
     const tokenAddr = (token as TokenId).address;
     // approve
@@ -61,8 +69,8 @@ export default class ManualCCTPEvmImpl
       tokenAddr,
       parsedAmt,
     );
-    const recipientChainName = wh.toChainName(recipientChain);
-    const destinationDomain = wh.conf.chains[recipientChainName]?.cctpDomain;
+    const recipientChainName = toChainName(recipientChain);
+    const destinationDomain = config.chains[recipientChainName]?.cctpDomain;
     if (destinationDomain === undefined)
       throw new Error(`No CCTP on ${recipientChainName}`);
     const tx = await circleTokenMessenger.populateTransaction.depositForBurn(
@@ -72,7 +80,9 @@ export default class ManualCCTPEvmImpl
       chainContext.context.parseAddress(tokenAddr, sendingChain),
     );
 
-    const sentTx = await wh.getSigner(fromChainName)?.sendTransaction(tx);
+    const sentTx = await config.wh
+      .getSigner(fromChainName)
+      ?.sendTransaction(tx);
     const rx = await sentTx?.wait();
     if (!rx) throw new Error("Transaction didn't go through");
     return rx;
@@ -85,11 +95,11 @@ export default class ManualCCTPEvmImpl
   ): Promise<providers.TransactionReceipt> {
     if (!isSignedCCTPMessage(message))
       throw new Error('Signed message is not for CCTP');
-    const context: any = wh.getContext(destChain);
+    const context: any = config.wh.getContext(destChain);
     const circleMessageTransmitter =
       context.contracts.mustGetContracts(destChain).cctpContracts
         ?.cctpMessageTransmitter;
-    const connection = wh.mustGetSigner(destChain);
+    const connection = config.wh.mustGetSigner(destChain);
     const contract = MessageTransmitter__factory.connect(
       circleMessageTransmitter,
       connection,
@@ -110,21 +120,21 @@ export default class ManualCCTPEvmImpl
   ): Promise<ManualCCTPMessage> {
     // use this as reference
     // https://goerli.etherscan.io/tx/0xe4984775c76b8fe7c2b09cd56fb26830f6e5c5c6b540eb97d37d41f47f33faca#eventlog
-    const provider = wh.mustGetProvider(chain);
+    const provider = config.wh.mustGetProvider(chain);
 
     const receipt = await provider.getTransactionReceipt(tx);
     if (!receipt) throw new Error(`No receipt for ${tx} on ${chain}`);
 
     // Get the CCTP log
     const cctpLog = receipt.logs.filter(
-      (log) => log.topics[0] === CCTP_LOG_TokenMessenger_DepositForBurn,
+      (log: any) => log.topics[0] === CCTP_LOG_TokenMessenger_DepositForBurn,
     )[0];
 
     const parsedCCTPLog =
       TokenMessenger__factory.createInterface().parseLog(cctpLog);
 
     const messageLog = receipt.logs.filter(
-      (log) => log.topics[0] === CCTP_LOG_MessageSent,
+      (log: any) => log.topics[0] === CCTP_LOG_MessageSent,
     )[0];
 
     const message =
@@ -132,18 +142,18 @@ export default class ManualCCTPEvmImpl
         .message;
 
     const toChain = getChainNameCCTP(parsedCCTPLog.args.destinationDomain);
-    const destContext = wh.getContext(toChain);
+    const destContext = config.wh.getContext(toChain);
     let recipient = destContext.parseAddress(parsedCCTPLog.args.mintRecipient);
     if (toChain === 'solana') {
       recipient = await solanaContext().getTokenAccountOwner(recipient);
     }
-    const fromChain = wh.toChainName(chain);
+    const fromChain = toChainName(chain);
     const tokenId: TokenId = {
       chain: fromChain,
       address: parsedCCTPLog.args.burnToken,
     };
     const token = getTokenById(tokenId);
-    const decimals = await wh.fetchTokenDecimals(tokenId, fromChain);
+    const decimals = await config.wh.fetchTokenDecimals(tokenId, fromChain);
     return {
       sendTx: receipt.transactionHash,
       sender: receipt.from,
@@ -177,7 +187,7 @@ export default class ManualCCTPEvmImpl
     recipientAddress: string,
     routeOptions?: any,
   ): Promise<BigNumber> {
-    const provider = wh.mustGetProvider(sendingChain);
+    const provider = config.wh.mustGetProvider(sendingChain);
     const { gasPrice } = await provider.getFeeData();
     if (!gasPrice)
       throw new Error('gas price not available, cannot estimate fees');
@@ -186,22 +196,23 @@ export default class ManualCCTPEvmImpl
     if (!isEvmChain(sendingChain)) {
       throw new Error('No support for non EVM cctp currently');
     }
-    const chainContext = wh.getContext(
+    const chainContext = config.wh.getContext(
       sendingChain,
     ) as EthContext<WormholeContext>;
     const tokenMessenger =
-      wh.mustGetContracts(sendingChain).cctpContracts?.cctpTokenMessenger;
+      config.wh.mustGetContracts(sendingChain).cctpContracts
+        ?.cctpTokenMessenger;
     const circleSender = TokenMessenger__factory.connect(
       tokenMessenger!,
-      wh.getSigner(sendingChain)!,
+      config.wh.getSigner(sendingChain)!,
     );
     const tokenAddr = (token as TokenId).address;
-    const toChainName = wh.toChainName(recipientChain)!;
-    const decimals = getTokenDecimals(wh.toChainId(sendingChain), token);
+    const toChain = toChainName(recipientChain)!;
+    const decimals = getTokenDecimals(toChainId(sendingChain), token);
     const parsedAmt = utils.parseUnits(`${amount}`, decimals);
-    const destinationDomain = wh.conf.chains[toChainName]?.cctpDomain;
+    const destinationDomain = config.chains[toChain]?.cctpDomain;
     if (destinationDomain === undefined)
-      throw new Error(`CCTP not supported on ${toChainName}`);
+      throw new Error(`CCTP not supported on ${toChain}`);
     const tx = await circleSender.populateTransaction.depositForBurn(
       parsedAmt,
       destinationDomain,
@@ -221,11 +232,11 @@ export default class ManualCCTPEvmImpl
     if (!isSignedCCTPMessage(messageInfo))
       throw new Error('Signed message is not for CCTP');
     const nonce = getNonce(messageInfo.message);
-    const context: any = wh.getContext(destChain);
+    const context: any = config.wh.getContext(destChain);
     const circleMessageTransmitter =
       context.contracts.mustGetContracts(destChain).cctpContracts
         ?.cctpMessageTransmitter;
-    const connection = wh.mustGetProvider(destChain);
+    const connection = config.wh.mustGetProvider(destChain);
     const iface = new utils.Interface([
       'function usedNonces(bytes32 domainNonceHash) view returns (uint256)',
     ]);
@@ -235,7 +246,7 @@ export default class ManualCCTPEvmImpl
       connection,
     );
 
-    const cctpDomain = wh.conf.chains[messageInfo.fromChain]?.cctpDomain;
+    const cctpDomain = config.chains[messageInfo.fromChain]?.cctpDomain;
     if (cctpDomain === undefined)
       throw new Error(`CCTP not supported on ${messageInfo.fromChain}`);
 

@@ -29,6 +29,8 @@ export const CCTPDomains: Partial<Record<ChainName, number>> = {
   arbitrumgoerli: 3,
   basegoerli: 6,
   solana: 5,
+  polygon: 7,
+  mumbai: 7,
 };
 
 export function getChainNameCCTP(domain: number): ChainName {
