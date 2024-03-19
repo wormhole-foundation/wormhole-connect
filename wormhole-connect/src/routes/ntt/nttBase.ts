@@ -18,8 +18,7 @@ import {
 import { fetchVaa } from 'utils/vaa';
 import { hexlify, parseUnits } from 'ethers/lib/utils.js';
 import { BaseRoute } from '../bridge';
-import { isEvmChain, solanaContext, toChainName, wh } from 'utils/sdk';
-import { CHAINS, TOKENS } from 'config';
+import { isEvmChain, solanaContext, toChainId, toChainName } from 'utils/sdk';
 import {
   MAX_DECIMALS,
   calculateUSDPrice,
@@ -41,6 +40,7 @@ import { NttManagerSolana, getMessageSolana } from './platforms/solana';
 import { formatGasFee } from 'routes/utils';
 import { NO_INPUT } from 'utils/style';
 import { estimateAverageGasFee } from 'utils/gas';
+import config from 'config';
 
 export abstract class NttBase extends BaseRoute {
   isSupportedChain(chain: ChainName): boolean {
@@ -103,17 +103,17 @@ export abstract class NttBase extends BaseRoute {
     destChain: ChainName | ChainId,
   ): Promise<boolean> {
     return await Promise.all([
-      this.isSupportedChain(wh.toChainName(sourceChain)),
-      this.isSupportedChain(wh.toChainName(destChain)),
+      this.isSupportedChain(toChainName(sourceChain)),
+      this.isSupportedChain(toChainName(destChain)),
       this.isSupportedSourceToken(
-        TOKENS[sourceToken],
-        TOKENS[destToken],
+        config.tokens[sourceToken],
+        config.tokens[destToken],
         sourceChain,
         destChain,
       ),
       this.isSupportedDestToken(
-        TOKENS[destToken],
-        TOKENS[sourceToken],
+        config.tokens[destToken],
+        config.tokens[sourceToken],
         sourceChain,
         destChain,
       ),
@@ -164,7 +164,7 @@ export abstract class NttBase extends BaseRoute {
     if (isEvmChain(sendingChain)) {
       const gasLimit = this.TYPE === Route.NttManual ? 200_000 : 250_000;
       return await estimateAverageGasFee(sendingChain, gasLimit);
-    } else if (wh.toChainName(sendingChain) === 'solana') {
+    } else if (toChainName(sendingChain) === 'solana') {
       return BigNumber.from(10_000);
     }
     throw new Error('Unsupported chain');
@@ -181,7 +181,7 @@ export abstract class NttBase extends BaseRoute {
     if (isEvmChain(destChain)) {
       const gasLimit = 300_000;
       return await estimateAverageGasFee(destChain, gasLimit);
-    } else if (wh.toChainName(destChain) === 'solana') {
+    } else if (toChainName(destChain) === 'solana') {
       return BigNumber.from(65_000); // TODO: check this
     }
     throw new Error('Unsupported chain');
@@ -204,7 +204,7 @@ export abstract class NttBase extends BaseRoute {
     if (!tokenConfig?.ntt) {
       throw new Error('invalid token');
     }
-    const destTokenConfig = TOKENS[destToken];
+    const destTokenConfig = config.tokens[destToken];
     if (!destTokenConfig?.ntt) {
       throw new Error('invalid dest token');
     }
@@ -221,7 +221,7 @@ export abstract class NttBase extends BaseRoute {
       throw new ContractIsPausedError();
     }
     const decimals = getTokenDecimals(
-      wh.toChainId(sendingChain),
+      toChainId(sendingChain),
       tokenConfig.tokenId,
     );
     const sendAmount = removeDust(parseUnits(amount, decimals), decimals);
@@ -252,7 +252,7 @@ export abstract class NttBase extends BaseRoute {
     if (await nttManager.isPaused()) {
       throw new ContractIsPausedError();
     }
-    const nttConfig = TOKENS[receivedTokenKey]?.ntt;
+    const nttConfig = config.tokens[receivedTokenKey]?.ntt;
     if (!nttConfig) {
       throw new Error('ntt config not found');
     }
@@ -263,7 +263,7 @@ export abstract class NttBase extends BaseRoute {
       );
       return await transceiver.receiveMessage(vaa, payer);
     }
-    if (wh.toChainName(chain) === 'solana') {
+    if (toChainName(chain) === 'solana') {
       return await (nttManager as NttManagerSolana).receiveMessage(vaa, payer);
     }
     throw new Error('Unsupported chain');
@@ -343,11 +343,8 @@ export abstract class NttBase extends BaseRoute {
     if (!tokenConfig) {
       throw new Error('invalid token');
     }
-    const key = getNativeVersionOfToken(
-      tokenConfig.symbol,
-      wh.toChainName(chain),
-    );
-    return TOKENS[key]?.tokenId?.address || null;
+    const key = getNativeVersionOfToken(tokenConfig.symbol, toChainName(chain));
+    return config.tokens[key]?.tokenId?.address || null;
   }
 
   async getMessage(
@@ -357,7 +354,7 @@ export abstract class NttBase extends BaseRoute {
     if (isEvmChain(chain)) {
       return await getMessageEvm(tx, chain);
     }
-    if (wh.toChainName(chain) === 'solana') {
+    if (toChainName(chain) === 'solana') {
       return await getMessageSolana(tx);
     }
     throw new Error('Unsupported chain');
@@ -403,7 +400,7 @@ export abstract class NttBase extends BaseRoute {
       gasEstimate,
       receiveTx,
     } = params;
-    const token = TOKENS[receivedTokenKey];
+    const token = config.tokens[receivedTokenKey];
     const formattedAmt = toNormalizedDecimals(
       amount,
       tokenDecimals,
@@ -420,15 +417,15 @@ export abstract class NttBase extends BaseRoute {
       ],
     };
     if (this.TYPE === Route.NttManual) {
-      const { gasToken } = CHAINS[toChain]!;
+      const { gasToken } = config.chains[toChain]!;
       let gas = gasEstimate;
       if (receiveTx) {
         if (isEvmChain(toChain)) {
-          const gasFee = await wh.getTxGasFee(toChain, receiveTx);
+          const gasFee = await config.wh.getTxGasFee(toChain, receiveTx);
           if (gasFee) {
             gas = formatGasFee(toChain, gasFee);
           }
-        } else if (wh.toChainName(toChain) === 'solana') {
+        } else if (toChainName(toChain) === 'solana') {
           const connection = solanaContext().connection;
           if (!connection) throw new Error('Connection not found');
           const tx = await connection.getParsedTransaction(receiveTx);
@@ -439,8 +436,10 @@ export abstract class NttBase extends BaseRoute {
       }
       result.displayData.push({
         title: receiveTx ? 'Gas fee' : 'Gas estimate',
-        value: gas ? `${gas} ${getDisplayName(TOKENS[gasToken])}` : NO_INPUT,
-        valueUSD: calculateUSDPrice(gas, tokenPrices, TOKENS[gasToken]),
+        value: gas
+          ? `${gas} ${getDisplayName(config.tokens[gasToken])}`
+          : NO_INPUT,
+        valueUSD: calculateUSDPrice(gas, tokenPrices, config.tokens[gasToken]),
       });
     }
     return result;

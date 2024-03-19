@@ -4,7 +4,7 @@ import {
   TokenId,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { InboundQueuedTransfer } from '../../types';
-import { solanaContext, wh } from 'utils/sdk';
+import { solanaContext, toChainId } from 'utils/sdk';
 import { TransferWallet, postVaa, signAndSendTransaction } from 'utils/wallet';
 import {
   Connection,
@@ -37,6 +37,7 @@ import { associatedAddress } from '@coral-xyz/anchor/dist/cjs/utils/token';
 import { NttQuoter } from './nttQuoter';
 import { getTokenById } from 'utils';
 import { Keccak } from 'sha3';
+import CONFIG from 'config';
 
 // TODO: make sure this is in sync with the contract
 const RATE_LIMIT_DURATION = 24 * 60 * 60;
@@ -65,7 +66,7 @@ export class NttManagerSolana {
     if (!connection) throw new Error('Connection not found');
     this.connection = connection;
     this.program = new Program(IDL, nttId, { connection });
-    const core = wh.mustGetContracts('solana').core;
+    const core = CONFIG.wh.mustGetContracts('solana').core;
     if (!core) throw new Error('Core not found');
     this.wormholeId = core;
   }
@@ -80,7 +81,7 @@ export class NttManagerSolana {
   ): Promise<string> {
     const config = await this.getConfig();
     const outboxItem = Keypair.generate();
-    const destContext = wh.getContext(toChain);
+    const destContext = CONFIG.wh.getContext(toChain);
     const payer = new PublicKey(sender);
     const tokenAccount = getAssociatedTokenAddressSync(
       new PublicKey(token.address),
@@ -90,7 +91,7 @@ export class NttManagerSolana {
       payer,
       from: tokenAccount,
       amount: new BN(amount.toString()),
-      recipientChain: wh.toChainName(toChain),
+      recipientChain: CONFIG.wh.toChainName(toChain),
       recipientAddress: destContext.formatAddress(recipient),
       fromAuthority: payer,
       outboxItem: outboxItem.publicKey,
@@ -110,7 +111,7 @@ export class NttManagerSolana {
     });
     const transferArgs: TransferArgs = {
       amount: txArgs.amount,
-      recipientChain: { id: wh.toChainId(txArgs.recipientChain) },
+      recipientChain: { id: toChainId(txArgs.recipientChain) },
       recipientAddress: Array.from(txArgs.recipientAddress),
       shouldQueue: txArgs.shouldQueue,
     };
@@ -151,7 +152,7 @@ export class NttManagerSolana {
   }
 
   async receiveMessage(vaa: string, payer: string): Promise<string> {
-    const core = wh.mustGetContracts('solana').core;
+    const core = CONFIG.wh.mustGetContracts('solana').core;
     if (!core) throw new Error('Core not found');
     const config = await this.getConfig();
     const vaaArray = utils.arrayify(vaa, { allowMissingPrefix: true });
@@ -162,7 +163,7 @@ export class NttManagerSolana {
       config,
     };
     const parsedVaa = parseVaa(vaaArray);
-    const chainId = wh.toChainId(parsedVaa.emitterChain);
+    const chainId = toChainId(parsedVaa.emitterChain as ChainId);
     // First post the VAA
     await postVaa(this.connection, core, Buffer.from(vaaArray));
     const tx = new Transaction();
@@ -381,7 +382,7 @@ export class NttManagerSolana {
   }
 
   inboxRateLimitAccountAddress(chain: ChainName | ChainId): PublicKey {
-    const chainId = wh.toChainId(chain);
+    const chainId = toChainId(chain);
     return this.derivePda([
       Buffer.from('inbox_rate_limit'),
       new BN(chainId).toBuffer('be', 2),
@@ -425,7 +426,7 @@ export class NttManagerSolana {
   }
 
   peerAccountAddress(chain: ChainName | ChainId): PublicKey {
-    const chainId = wh.toChainId(chain);
+    const chainId = toChainId(chain);
     return this.derivePda([
       Buffer.from('peer'),
       new BN(chainId).toBuffer('be', 2),
@@ -433,7 +434,7 @@ export class NttManagerSolana {
   }
 
   transceiverPeerAccountAddress(chain: ChainName | ChainId): PublicKey {
-    const chainId = wh.toChainId(chain);
+    const chainId = CONFIG.wh.toChainId(chain);
     return this.derivePda([
       Buffer.from('transceiver_peer'),
       new BN(chainId).toBuffer('be', 2),
@@ -444,7 +445,7 @@ export class NttManagerSolana {
     chain: ChainName | ChainId,
     id: Buffer,
   ): PublicKey {
-    const chainId = wh.toChainId(chain);
+    const chainId = toChainId(chain);
     if (id.length !== 32) {
       throw new Error('id must be 32 bytes');
     }
@@ -480,7 +481,7 @@ export class NttManagerSolana {
     config?: Config;
   }): Promise<TransactionInstruction> {
     const config = await this.getConfig(args.config);
-    const chainId = wh.toChainId(args.recipientChain);
+    const chainId = toChainId(args.recipientChain);
     const mint = await this.mintAccountAddress(config);
     const transferArgs: TransferArgs = {
       amount: args.amount,
@@ -527,11 +528,10 @@ export class NttManagerSolana {
     recipientAddress: ArrayLike<number>;
     shouldQueue: boolean;
     outboxItem: PublicKey;
-    config?: Config;
+    config: Config;
   }): Promise<TransactionInstruction> {
-    const config = await this.getConfig(args.config);
-    const chainId = wh.toChainId(args.recipientChain);
-    const mint = await this.mintAccountAddress(config);
+    const chainId = toChainId(args.recipientChain);
+    const mint = await this.mintAccountAddress(args.config);
     const transferArgs: TransferArgs = {
       amount: args.amount,
       recipientChain: { id: chainId },
@@ -551,13 +551,13 @@ export class NttManagerSolana {
           config: { config: this.configAccountAddress() },
           mint,
           from: args.from,
-          tokenProgram: await this.tokenProgram(config),
+          tokenProgram: await this.tokenProgram(args.config),
           outboxItem: args.outboxItem,
           outboxRateLimit: this.outboxRateLimitAccountAddress(),
         },
         peer: this.peerAccountAddress(args.recipientChain),
         inboxRateLimit: this.inboxRateLimitAccountAddress(args.recipientChain),
-        custody: await this.custodyAccountAddress(config),
+        custody: await this.custodyAccountAddress(args.config),
         sessionAuthority: this.sessionAuthorityAddress(
           args.fromAuthority,
           transferArgs,
@@ -661,7 +661,7 @@ export class NttManagerSolana {
     const { nttManagerPayload } = parseWormholeTransceiverMessage(
       parsedVaa.payload,
     );
-    const chainId = wh.toChainId(parsedVaa.emitterChain);
+    const chainId = toChainId(parsedVaa.emitterChain as ChainId);
     const transceiverPeer = this.transceiverPeerAccountAddress(chainId);
     return await this.program.methods
       .receiveWormholeMessage()
@@ -688,7 +688,7 @@ export class NttManagerSolana {
     const { nttManagerPayload } = parseWormholeTransceiverMessage(
       parsedVaa.payload,
     );
-    const chainId = wh.toChainId(parsedVaa.emitterChain);
+    const chainId = toChainId(parsedVaa.emitterChain as ChainId);
     const messageDigest = getNttManagerMessageDigest(
       chainId,
       nttManagerPayload,

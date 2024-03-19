@@ -107,7 +107,9 @@ export class Operator {
       }
 
       // Check if is Ntt Route (NttRelay or NttManual)
-      if (TOKENS_ARR.some(({ ntt }) => ntt && ntt.nttManager === receipt.to)) {
+      if (
+        config.tokensArr.some(({ ntt }) => ntt && ntt.nttManager === receipt.to)
+      ) {
         const { relayingType } = await getNttMessageEvm(txHash, chain, receipt);
         return relayingType === NttRelayingType.Manual
           ? Route.NttManual
@@ -123,7 +125,7 @@ export class Operator {
       if (!tx) throw new Error('Transaction not found');
       if (
         tx.transaction.message.instructions.some((ix) =>
-          TOKENS_ARR.some(
+          config.tokensArr.some(
             ({ ntt }) => ntt && ntt.nttManager === ix.programId.toString(),
           ),
         )

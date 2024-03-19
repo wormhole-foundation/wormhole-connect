@@ -6,7 +6,6 @@ import {
   WormholeContext,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { getTokenById, tryParseErrorMessage } from 'utils';
-import { wh } from 'utils/sdk';
 import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
 import { BigNumber, PopulatedTransaction } from 'ethers';
 import { InboundQueuedTransfer } from '../../types';
@@ -22,7 +21,8 @@ import {
 } from 'routes/ntt/utils';
 import { NttManager__factory } from './abis/NttManager__factory';
 import { NttManager as NttManagerAbi } from './abis/NttManager';
-import { CHAINS } from 'config';
+import config from 'config';
+import { toChainId, toChainName } from 'utils/sdk';
 
 export class NttManagerEvm {
   readonly nttManager: NttManagerAbi;
@@ -30,7 +30,7 @@ export class NttManagerEvm {
   constructor(readonly chain: ChainName | ChainId, address: string) {
     this.nttManager = NttManager__factory.connect(
       address,
-      wh.mustGetProvider(chain),
+      config.wh.mustGetProvider(chain),
     );
   }
 
@@ -38,11 +38,11 @@ export class NttManagerEvm {
     tx: PopulatedTransaction,
     walletType: TransferWallet,
   ): Promise<string> {
-    const signer = await wh.mustGetSigner(this.chain);
+    const signer = await config.wh.mustGetSigner(this.chain);
     const response = await signer.sendTransaction(tx);
     const receipt = await response.wait();
     const txId = await signAndSendTransaction(
-      wh.toChainName(this.chain),
+      toChainName(this.chain),
       receipt,
       walletType,
     );
@@ -73,7 +73,7 @@ export class NttManagerEvm {
       },
     ];
     const [, deliveryPrice] = await this.nttManager.quoteDeliveryPrice(
-      wh.toChainId(destChain),
+      toChainId(destChain),
       transceiverIxs,
       [wormholeTransceiver],
     );
@@ -112,13 +112,15 @@ export class NttManagerEvm {
       'transfer(uint256,uint16,bytes32,bool,bytes)'
     ](
       amount,
-      wh.toChainId(toChain),
-      wh.formatAddress(recipient, toChain),
+      toChainId(toChain),
+      config.wh.formatAddress(recipient, toChain),
       false, // revert instead of getting outbound queued
       transceiverIxs,
       { value: deliveryPrice },
     );
-    const context = wh.getContext(this.chain) as EthContext<WormholeContext>;
+    const context = config.wh.getContext(
+      this.chain,
+    ) as EthContext<WormholeContext>;
     await context.approve(
       this.chain,
       this.nttManager.address,
@@ -140,7 +142,7 @@ export class NttManagerEvm {
     fromChain: ChainName | ChainId,
   ): Promise<string> {
     return (
-      await this.nttManager.getCurrentInboundCapacity(wh.toChainId(fromChain))
+      await this.nttManager.getCurrentInboundCapacity(toChainId(fromChain))
     ).toString();
   }
 
@@ -158,7 +160,7 @@ export class NttManagerEvm {
       const { recipient, amount, txTimestamp } = queuedTransfer;
       const duration = await this.getRateLimitDuration();
       return {
-        recipient: wh.parseAddress(recipient, this.chain),
+        recipient: config.wh.parseAddress(recipient, this.chain),
         amount: amount.toString(),
         rateLimitExpiryTimestamp: txTimestamp.add(duration).toNumber(),
       };
@@ -200,10 +202,10 @@ export class NttManagerEvm {
 
   async fetchRedeemTx(messageDigest: string): Promise<string | undefined> {
     const eventFilter = this.nttManager.filters.TransferRedeemed(messageDigest);
-    const provider = wh.mustGetProvider(this.chain);
+    const provider = config.wh.mustGetProvider(this.chain);
     const currentBlock = await provider.getBlockNumber();
-    const chainName = wh.toChainName(this.chain);
-    const chainConfig = CHAINS[chainName]!;
+    const chainName = toChainName(this.chain);
+    const chainConfig = config.chains[chainName]!;
     const events = await this.nttManager.queryFilter(
       eventFilter,
       currentBlock - chainConfig.maxBlockSearch,

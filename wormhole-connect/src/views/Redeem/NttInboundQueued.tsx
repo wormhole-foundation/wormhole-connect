@@ -14,7 +14,6 @@ import {
   registerWalletSigner,
   switchChain,
 } from 'utils/wallet';
-import { CHAINS, TOKENS } from 'config';
 import { Context } from '@wormhole-foundation/wormhole-connect-sdk';
 import WalletsModal from '../WalletModal';
 import AlertBanner from 'components/AlertBanner';
@@ -28,6 +27,7 @@ import {
 import { setRedeemTx, setTransferComplete } from 'store/redeem';
 import { OPACITY } from 'utils/style';
 import { useTheme } from '@mui/material';
+import config from 'config';
 
 const NttInboundQueued = () => {
   const dispatch = useDispatch();
@@ -95,7 +95,7 @@ const NttInboundQueued = () => {
       route === Route.NttManual ? new NttManual() : new NttRelay();
     let tx: string | undefined;
     try {
-      const toConfig = CHAINS[toChain];
+      const toConfig = config.chains[toChain]!;
       if (toConfig?.context === Context.ETH) {
         await switchChain(toConfig.chainId, TransferWallet.RECEIVING);
         registerWalletSigner(toChain, TransferWallet.RECEIVING);
@@ -155,9 +155,10 @@ const NttInboundQueued = () => {
           {!expired ? (
             <div>
               {`Your transfer to ${
-                CHAINS[signedMessage.toChain]?.displayName || 'UNKNOWN'
+                config.chains[signedMessage.toChain]?.displayName || 'UNKNOWN'
               } is delayed due to rate limits configured by ${
-                TOKENS[signedMessage.receivedTokenKey]?.symbol || 'UNKNOWN'
+                config.tokens[signedMessage.receivedTokenKey]?.symbol ||
+                'UNKNOWN'
               }. After the delay ends on ${
                 rateLimitExpiry || 'UNKNOWN'
               }, you will need to return to submit a new transaction to complete your transfer.`}
@@ -165,9 +166,10 @@ const NttInboundQueued = () => {
           ) : (
             <div>
               {`Your transfer to ${
-                CHAINS[signedMessage.toChain]?.displayName || 'UNKNOWN'
+                config.chains[signedMessage.toChain]?.displayName || 'UNKNOWN'
               } was delayed due to rate limits configured by ${
-                TOKENS[signedMessage.receivedTokenKey]?.symbol || 'UNKNOWN'
+                config.tokens[signedMessage.receivedTokenKey]?.symbol ||
+                'UNKNOWN'
               }. You will need to submit a new transaction to complete your transfer.`}
             </div>
           )}

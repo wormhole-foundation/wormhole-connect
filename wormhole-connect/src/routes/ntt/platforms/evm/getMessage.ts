@@ -10,13 +10,14 @@ import { hexlify } from 'ethers/lib/utils';
 import { NttRelayingType, UnsignedNttMessage } from 'routes/types';
 import { getNativeVersionOfToken } from 'store/transferInput';
 import { getTokenById, getTokenDecimals } from 'utils';
-import { wh } from 'utils/sdk';
 import { getWormholeLogEvm } from 'utils/vaa';
 import { NttManager__factory } from './abis';
 import {
   getNttManagerMessageDigest,
   parseWormholeTransceiverMessage,
 } from 'routes/ntt/utils';
+import config from 'config';
+import { toChainId, toChainName } from 'utils/sdk';
 
 const RELAYING_INFO_EVENT_TOPIC =
   '0x375a56c053c4d19a2e3445e97b7a28bf4e908617ce6d766e1e03a9d3f5276271';
@@ -29,7 +30,7 @@ export const getMessageEvm = async (
   chain: ChainName | ChainId,
   receipt?: ethers.providers.TransactionReceipt,
 ): Promise<UnsignedNttMessage> => {
-  const provider = wh.mustGetProvider(chain);
+  const provider = config.wh.mustGetProvider(chain);
   if (!receipt) {
     receipt = await provider.getTransactionReceipt(tx);
     if (!receipt) {
@@ -38,7 +39,7 @@ export const getMessageEvm = async (
   }
   const nttManager = NttManager__factory.connect(receipt.to, provider);
   const tokenAddress = await nttManager.token();
-  const fromChain = wh.toChainName(chain);
+  const fromChain = toChainName(chain);
   const tokenId = {
     chain: fromChain,
     address: tokenAddress,
@@ -75,13 +76,15 @@ export const getMessageEvm = async (
   }
   const transceiverMessage = parseWormholeTransceiverMessage(payload);
   const nttManagerMessage = transceiverMessage.nttManagerPayload;
-  const toChain = wh.toChainName(nttManagerMessage.payload.recipientChain);
+  const toChain = toChainName(
+    nttManagerMessage.payload.recipientChain as ChainId,
+  );
   return {
     sendTx: receipt.transactionHash,
     sender: receipt.from,
     amount: nttManagerMessage.payload.trimmedAmount.amount.toString(),
     payloadID: 0,
-    recipient: wh.parseAddress(
+    recipient: config.wh.parseAddress(
       nttManagerMessage.payload.recipientAddress,
       toChain,
     ),
@@ -91,15 +94,15 @@ export const getMessageEvm = async (
     tokenChain: token.nativeChain,
     tokenId,
     tokenKey: token.key,
-    tokenDecimals: getTokenDecimals(wh.toChainId(fromChain), tokenId),
+    tokenDecimals: getTokenDecimals(toChainId(fromChain), tokenId),
     receivedTokenKey: getNativeVersionOfToken(token.symbol, toChain),
     emitterAddress: hexlify(
-      wh.formatAddress(parsedWormholeLog.args.sender, fromChain),
+      config.wh.formatAddress(parsedWormholeLog.args.sender, fromChain),
     ),
     sequence: parsedWormholeLog.args.sequence.toString(),
     block: receipt.blockNumber,
     gasFee: receipt.gasUsed.mul(receipt.effectiveGasPrice).toString(),
-    recipientNttManager: wh.parseAddress(
+    recipientNttManager: config.wh.parseAddress(
       hexlify(transceiverMessage.recipientNttManager),
       toChain,
     ),

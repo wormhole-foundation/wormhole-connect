@@ -4,11 +4,11 @@ import { hexlify } from 'ethers/lib/utils';
 import { NttRelayingType, UnsignedNttMessage } from 'routes/types';
 import { getNativeVersionOfToken } from 'store/transferInput';
 import { getTokenById, getTokenDecimals } from 'utils';
-import { wh } from 'utils/sdk';
 import {
   getNttManagerMessageDigest,
   parseWormholeTransceiverMessage,
 } from 'routes/ntt/utils';
+import config from 'config';
 
 export const getMessageSolana = async (
   tx: string,
@@ -20,7 +20,7 @@ export const getMessageSolana = async (
     maxSupportedTransactionVersion: 0,
   });
   if (!response) throw new Error('Transaction not found');
-  const core = wh.mustGetContracts('solana').core;
+  const core = config.wh.mustGetContracts('solana').core;
   const accounts = response.transaction.message.getAccountKeys();
   const wormholeIx = response.meta?.innerInstructions
     ?.flatMap((ix) => ix.instructions)
@@ -41,9 +41,11 @@ export const getMessageSolana = async (
     messageData.message.payload,
   );
   const nttManagerMessage = transceiverMessage.nttManagerPayload;
-  const fromChain = wh.toChainName('solana');
-  const toChain = wh.toChainName(nttManagerMessage.payload.recipientChain);
-  const tokenAddress = wh.parseAddress(
+  const fromChain = config.wh.toChainName('solana');
+  const toChain = config.wh.toChainName(
+    nttManagerMessage.payload.recipientChain,
+  );
+  const tokenAddress = config.wh.parseAddress(
     hexlify(nttManagerMessage.payload.sourceToken),
     fromChain,
   );
@@ -61,23 +63,26 @@ export const getMessageSolana = async (
   const relayerFee = relayerFeeMsg ? regex.exec(relayerFeeMsg)?.[1] : '';
   return {
     sendTx: tx,
-    sender: wh.parseAddress(hexlify(nttManagerMessage.sender), fromChain),
+    sender: config.wh.parseAddress(
+      hexlify(nttManagerMessage.sender),
+      fromChain,
+    ),
     amount: nttManagerMessage.payload.trimmedAmount.amount.toString(),
     payloadID: 0,
-    recipient: wh.parseAddress(
+    recipient: config.wh.parseAddress(
       hexlify(nttManagerMessage.payload.recipientAddress),
       toChain,
     ),
     toChain,
     fromChain,
-    tokenAddress: wh.parseAddress(
+    tokenAddress: config.wh.parseAddress(
       hexlify(nttManagerMessage.payload.sourceToken),
       fromChain,
     ),
     tokenChain: token.nativeChain,
     tokenId,
     tokenKey: token.key,
-    tokenDecimals: getTokenDecimals(wh.toChainId(fromChain), tokenId),
+    tokenDecimals: getTokenDecimals(config.wh.toChainId(fromChain), tokenId),
     receivedTokenKey: getNativeVersionOfToken(token.symbol, toChain),
     emitterAddress: hexlify(
       context.formatAddress(messageData.message.emitterAddress),
@@ -85,7 +90,7 @@ export const getMessageSolana = async (
     sequence: messageData.message.sequence.toString(),
     block: response.slot,
     gasFee: response.meta?.fee.toString(),
-    recipientNttManager: wh.parseAddress(
+    recipientNttManager: config.wh.parseAddress(
       hexlify(transceiverMessage.recipientNttManager),
       toChain,
     ),

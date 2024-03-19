@@ -1,14 +1,13 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { CHAINS, TOKENS } from 'config';
 import AlertBanner from 'components/AlertBanner';
 import { NttManual } from 'routes/ntt';
 import { parseUnits } from 'ethers/lib/utils';
 import { getTokenDecimals } from 'utils';
-import { wh } from 'utils/sdk';
 import { BigNumber } from 'ethers';
 import { getNativeVersionOfToken } from 'store/transferInput';
 import { useSelector } from 'react-redux';
 import { RootState } from 'store';
+import config from 'config';
 
 function formatDuration(seconds: number) {
   if (seconds < 60) {
@@ -29,7 +28,7 @@ const NttInboundCapacityWarning = () => {
   const amount = receiveAmount.data || '0';
   const [capacity, setCapacity] = useState<BigNumber | undefined>(undefined);
   const [duration, setDuration] = useState<number>(0);
-  const nttManagerAddress = TOKENS[destToken]?.ntt?.nttManager;
+  const nttManagerAddress = config.tokens[destToken]?.ntt?.nttManager;
 
   useEffect(() => {
     if (!toChain || !nttManagerAddress || !fromChain) return;
@@ -83,14 +82,14 @@ const NttInboundCapacityWarning = () => {
     )
       return false;
     const destTokenKey = getNativeVersionOfToken(
-      TOKENS[destToken].symbol,
+      config.tokens[destToken].symbol,
       toChain,
     );
-    const destTokenConfig = TOKENS[destTokenKey];
+    const destTokenConfig = config.tokens[destTokenKey];
     if (!destTokenConfig) return false;
     // capacity is in destination token decimals, so we need to convert the amount to the same decimals
     const decimals = getTokenDecimals(
-      wh.toChainId(toChain),
+      config.wh.toChainId(toChain),
       destTokenConfig.tokenId,
     );
     const parsedAmount = parseUnits(Number(amount).toFixed(decimals), decimals);
@@ -103,9 +102,9 @@ const NttInboundCapacityWarning = () => {
   const content = (
     <>
       {`Your transfer to ${
-        CHAINS[toChain]?.displayName || 'UNKNOWN'
+        config.chains[toChain]?.displayName || 'UNKNOWN'
       } may be delayed due to rate limits set by ${
-        TOKENS[destToken]?.symbol || 'UNKNOWN'
+        config.tokens[destToken]?.symbol || 'UNKNOWN'
       }. If your transfer is delayed, you will need to return after ${formatDuration(
         duration,
       )} to complete the transfer. Please consider this before proceeding.`}

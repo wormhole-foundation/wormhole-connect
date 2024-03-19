@@ -20,7 +20,7 @@ import { clearWallets } from './store/wallet';
 import { clearPorticoBridge } from 'store/porticoBridge';
 import { useExternalSearch } from 'hooks/useExternalSearch';
 import { clearNtt } from 'store/ntt';
-import { wh } from 'utils/sdk';
+import internalConfig from 'config';
 
 const useStyles = makeStyles()((theme: any) => ({
   appContent: {
@@ -74,7 +74,7 @@ function AppRouter({ config }: Props) {
       dispatch(clearRedeem());
       dispatch(clearWallets());
       dispatch(clearNtt());
-      wh.registerProviders(); // reset providers that may have been set during transfer
+      internalConfig.wh.registerProviders(); // reset providers that may have been set during transfer
     }
     // reset transfer state on leave
     if (prevRoute === bridgeRoute && route !== bridgeRoute) {

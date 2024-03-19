@@ -1,9 +1,9 @@
 import { ChainId, ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
-import { wh } from 'utils/sdk';
 import { WormholeTransceiver__factory } from './abis/WormholeTransceiver__factory';
 import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
 import { WormholeTransceiver as WormholeTransceiverAbi } from './abis/WormholeTransceiver';
-import { BigNumber } from 'ethers';
+import config from 'config';
+import { toChainId, toChainName } from 'utils/sdk';
 
 export class WormholeTransceiver {
   readonly transceiver: WormholeTransceiverAbi;
@@ -11,7 +11,7 @@ export class WormholeTransceiver {
   constructor(readonly chain: ChainName | ChainId, address: string) {
     this.transceiver = WormholeTransceiver__factory.connect(
       address,
-      wh.mustGetProvider(chain),
+      config.wh.mustGetProvider(chain),
     );
   }
 
@@ -19,7 +19,7 @@ export class WormholeTransceiver {
     destChain: ChainName | ChainId,
   ): Promise<boolean> {
     return await this.transceiver.isWormholeRelayingEnabled(
-      wh.toChainId(destChain),
+      toChainId(destChain),
     );
   }
 
@@ -27,18 +27,17 @@ export class WormholeTransceiver {
     destChain: ChainName | ChainId,
   ): Promise<boolean> {
     return await this.transceiver.isSpecialRelayingEnabled(
-      wh.toChainId(destChain),
+      toChainId(destChain),
     );
   }
 
   async receiveMessage(vaa: string, payer: string): Promise<string> {
     const tx = await this.transceiver.populateTransaction.receiveMessage(vaa);
-    tx.gasLimit = BigNumber.from(500000);
-    const signer = await wh.mustGetSigner(this.chain);
+    const signer = await config.wh.mustGetSigner(this.chain);
     const response = await signer.sendTransaction(tx);
     const receipt = await response.wait();
     const txId = await signAndSendTransaction(
-      wh.toChainName(this.chain),
+      toChainName(this.chain),
       receipt,
       TransferWallet.RECEIVING,
     );

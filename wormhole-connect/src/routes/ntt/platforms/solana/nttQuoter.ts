@@ -8,7 +8,8 @@ import {
 } from '@solana/web3.js';
 import { BN, Program } from '@coral-xyz/anchor';
 import { NttQuoter as NttQuoterType, IDL } from './types/ntt_quoter';
-import { solanaContext, wh } from 'utils/sdk';
+import { solanaContext } from 'utils/sdk';
+import config from 'config';
 
 //constants that must match ntt-quoter lib.rs / implementation:
 const EVM_GAS_COST = 250_000; // TODO: make sure this is right
@@ -99,7 +100,7 @@ export class NttQuoter {
         payer,
         instance: this.instance,
         feeRecipient: (await this.getInstance()).feeRecipient,
-        registeredChain: this.registeredChainPda(wh.toChainId(chain)),
+        registeredChain: this.registeredChainPda(config.wh.toChainId(chain)),
         outboxItem,
         relayRequest: this.relayRequestPda(outboxItem),
         systemProgram: SystemProgram.programId,
@@ -119,7 +120,7 @@ export class NttQuoter {
 
   async getRegisteredChain(chain: ChainName | ChainId) {
     const data = await this.program.account.registeredChain.fetch(
-      this.registeredChainPda(wh.toChainId(chain)),
+      this.registeredChainPda(config.wh.toChainId(chain)),
     );
 
     return {

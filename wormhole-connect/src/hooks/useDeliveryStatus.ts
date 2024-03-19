@@ -1,6 +1,5 @@
 import { DeliveryStatus } from '@certusone/wormhole-sdk/lib/esm/relayer';
 import axios from 'axios';
-import { isMainnet } from 'config';
 import { Route } from 'config/types';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -9,10 +8,7 @@ import { setRedeemTx, setDeliveryStatus } from 'store/redeem';
 import { sleep } from 'utils';
 import { isEvmChain } from 'utils/sdk';
 import { getEmitterAndSequence } from 'utils/vaa';
-
-const BASE_URL = `https://api.${
-  isMainnet ? '' : 'testnet.'
-}wormholescan.io/api/v1/relays`;
+import config from 'config';
 
 const RETRY_DELAY = 15_000;
 
@@ -44,12 +40,15 @@ const useDeliveryStatus = (): void => {
     }
     const { emitterChain, emitterAddress, sequence } =
       getEmitterAndSequence(signedMessage);
+    const baseUrl = `https://api.${
+      config.isMainnet ? '' : 'testnet.'
+    }wormholescan.io/api/v1/relays`;
     let active = true;
     const fetchData = async () => {
       while (active) {
         try {
           const response = await axios.get<RelayResponse>(
-            `${BASE_URL}/${emitterChain}/${emitterAddress}/${sequence}`,
+            `${baseUrl}/${emitterChain}/${emitterAddress}/${sequence}`,
           );
           if (active) {
             const { delivery, toTxHash } = response.data?.data || {};

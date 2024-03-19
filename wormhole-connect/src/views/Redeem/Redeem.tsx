@@ -21,7 +21,7 @@ import Stepper from './Stepper';
 import NttStepper from './NttStepper';
 import GovernorEnqueuedWarning from './GovernorEnqueuedWarning';
 import config from 'config';
-import useDeliveryStatus from 'hooks/useRelayStatus';
+import useDeliveryStatus from 'hooks/useDeliveryStatus';
 import useCheckInboundQueuedTransfer from 'hooks/useCheckInboundQueuedTransfer';
 
 import useConfirmBeforeLeaving from 'utils/confirmBeforeLeaving';

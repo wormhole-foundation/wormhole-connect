@@ -166,7 +166,7 @@ function Send(props: { valid: boolean }) {
           ? SWAP_ERROR
           : e?.message === NotEnoughCapacityError.MESSAGE
           ? `This transfer would be rate-limited due to high volume on ${
-              CHAINS[transferInput.fromChain!]?.displayName
+              config.chains[transferInput.fromChain!]?.displayName
             }, please try again later`
           : e?.message === ContractIsPausedError.MESSAGE ||
             e?.message === DestinationContractIsPausedError.MESSAGE

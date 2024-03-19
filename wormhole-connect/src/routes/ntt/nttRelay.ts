@@ -3,7 +3,6 @@ import { BigNumber } from 'ethers';
 import { getNttManager } from './platforms';
 import { ChainName, ChainId } from '@wormhole-foundation/wormhole-connect-sdk';
 import { NttBase } from './nttBase';
-import { CHAINS, TOKENS } from 'config';
 import {
   RelayerFee,
   TransferDisplayData,
@@ -18,12 +17,18 @@ import {
   getTokenDecimals,
   toNormalizedDecimals,
 } from 'utils';
-import { ParsedRelayerMessage, isEvmChain, toChainId, wh } from 'utils/sdk';
+import {
+  ParsedRelayerMessage,
+  isEvmChain,
+  toChainId,
+  toChainName,
+} from 'utils/sdk';
 import { NO_INPUT } from 'utils/style';
 import { TokenPrices } from 'store/tokenPrices';
 import { toDecimals, toFixedDecimals } from 'utils/balance';
 import { NttManagerEvm, WormholeTransceiver } from './platforms/evm';
 import { NttQuoter } from './platforms/solana/nttQuoter';
+import config from 'config';
 
 export class NttRelay extends NttBase {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean = false;
@@ -37,7 +42,7 @@ export class NttRelay extends NttBase {
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
   ): Promise<boolean> {
-    const nttConfig = TOKENS[sourceToken]?.ntt;
+    const nttConfig = config.tokens[sourceToken]?.ntt;
     if (!nttConfig) {
       return false;
     }
@@ -62,7 +67,7 @@ export class NttRelay extends NttBase {
         transceiver.isSpecialRelayingEnabled(destChain),
       ]).then((results) => results.some((r) => r));
     }
-    if (wh.toChainName(sourceChain) === 'solana') {
+    if (toChainName(sourceChain) === 'solana') {
       if (!nttConfig.solanaQuoter) return false;
       const quoter = new NttQuoter(nttConfig.solanaQuoter);
       return await quoter.isRelayEnabled(destChain);
@@ -76,7 +81,7 @@ export class NttRelay extends NttBase {
     token: string,
     destToken: string,
   ): Promise<RelayerFee | null> {
-    const nttConfig = TOKENS[token]?.ntt;
+    const nttConfig = config.tokens[token]?.ntt;
     if (!nttConfig) {
       throw new Error('invalid token');
     }
@@ -88,7 +93,7 @@ export class NttRelay extends NttBase {
       );
       return { fee: BigNumber.from(deliveryPrice), feeToken: 'native' };
     }
-    if (wh.toChainName(sourceChain) === 'solana') {
+    if (toChainName(sourceChain) === 'solana') {
       if (!nttConfig.solanaQuoter) throw new Error('no solana quoter');
       const quoter = new NttQuoter(nttConfig.solanaQuoter);
       const relayCost = await quoter.calcRelayCost(destChain);
@@ -109,21 +114,21 @@ export class NttRelay extends NttBase {
     tokenPrices: TokenPrices,
     routeOptions: { relayerFee: number },
   ): Promise<TransferDisplayData> {
-    const sendingChainName = wh.toChainName(sendingChain);
-    const sourceGasToken = CHAINS[sendingChainName]?.gasToken;
+    const sendingChainName = toChainName(sendingChain);
+    const sourceGasToken = config.chains[sendingChainName]?.gasToken;
     const sourceGasTokenSymbol = sourceGasToken
-      ? getDisplayName(TOKENS[sourceGasToken])
+      ? getDisplayName(config.tokens[sourceGasToken])
       : '';
     // Calculate the USD value of the gas
     const sendingGasEstPrice = calculateUSDPrice(
       sendingGasEst,
       tokenPrices,
-      TOKENS[sourceGasToken || ''],
+      config.tokens[sourceGasToken || ''],
     );
     const relayerFeePrice = calculateUSDPrice(
       routeOptions.relayerFee,
       tokenPrices,
-      TOKENS[sourceGasToken || ''],
+      config.tokens[sourceGasToken || ''],
     );
     let totalFeesText = '';
     let totalFeesPrice = '';
@@ -138,7 +143,7 @@ export class NttRelay extends NttBase {
       totalFeesPrice = calculateUSDPrice(
         feeValue,
         tokenPrices,
-        TOKENS[sourceGasToken],
+        config.tokens[sourceGasToken],
       );
     }
     return [
@@ -183,8 +188,8 @@ export class NttRelay extends NttBase {
       tokenDecimals,
       MAX_DECIMALS,
     );
-    const { gasToken: sourceGasTokenKey } = CHAINS[fromChain]!;
-    const sourceGasToken = TOKENS[sourceGasTokenKey];
+    const { gasToken: sourceGasTokenKey } = config.chains[fromChain]!;
+    const sourceGasToken = config.tokens[sourceGasTokenKey];
     const decimals = getTokenDecimals(
       toChainId(sourceGasToken.nativeChain),
       'native',
@@ -192,7 +197,7 @@ export class NttRelay extends NttBase {
     const formattedGas = gasFee && toDecimals(gasFee, decimals, MAX_DECIMALS);
     const formattedFee =
       relayerFee && toDecimals(relayerFee, decimals, MAX_DECIMALS);
-    const token = TOKENS[tokenKey];
+    const token = config.tokens[tokenKey];
 
     return [
       {
