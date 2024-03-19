@@ -76,7 +76,7 @@ async function determinePriorityFee(
 ): Promise<number> {
   // https://twitter.com/0xMert_/status/1768669928825962706
 
-  let fee = 1; // Set fee to 100,000 microlamport by default
+  let fee = 1; // Set fee to 1 microlamport by default
 
   try {
     const recentFeesResponse = await connection.getRecentPrioritizationFees({

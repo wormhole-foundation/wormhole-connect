@@ -166,7 +166,6 @@ export const postVaa = async (
     pk.toString(),
     Buffer.from(signedVAA),
     MAX_VAA_UPLOAD_RETRIES_SOLANA,
-    undefined,
   );
 };
 
