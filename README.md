@@ -183,19 +183,22 @@ See the "Arbitrary Token" example in [src/config/examples.md](../wormhole-connec
 
 <br>
 
-### Theme (`customTheme`)
+## Custom Theme
 
-See [theme.ts](../wormhole-connect/src/theme.ts) for examples
+You can also customize Connect's color scheme by providing a `WormholeConnectTheme` as the `theme` prop.
+By default, Connect renders using the `dark` theme.
 
+See the definitions of `WormholeConnectTheme` and `dark` in [theme.ts](https://github.com/wormhole-foundation/wormhole-connect/blob/development/wormhole-connect/src/theme.ts) for type definitions.
 
 ### Examples
 
 (Optional) Specify supported networks/tokens and custom RPC endpoints. Your users may encounter rate limits using public RPC endpoints if you do not provide your own
 
 ```jsx
-import WormholeBridge, {
+import WormholeConnect, {
   WormholeConnectConfig,
 } from "@wormhole-foundation/wormhole-connect";
+
 const config: WormholeConnectConfig = {
   env: "mainnet",
   networks: ["ethereum", "polygon", "solana"],
@@ -207,54 +210,51 @@ const config: WormholeConnectConfig = {
 };
 
 function App() {
-  return <WormholeBridge config={config} />;
+  return <WormholeConnect config={config} />;
 }
 ```
 
-(Optional) Customize theme
+Customize theme
 
 ```jsx
-import WormholeBridge, {
-  light,
-  Theme,
-  WormholeConnectConfig,
+import './App.css'
+
+import WormholeConnect, {
+  dark,
+  WormholeConnectTheme,
 } from "@wormhole-foundation/wormhole-connect";
+
 import lightblue from "@mui/material/colors/lightBlue";
 
 // alters the `light` theme
-const customized: Theme = light;
+const customized: WormholeConnectTheme = dark;
 customized.success = lightblue;
-customized.background.default = "transparent";
+customized.background.default = "navy";
 customized.button.action = "#81c784";
 customized.button.actionText = "#000000";
 
-const config: WormholeConnectConfig = {
-  mode: "light",
-  customTheme: customized,
-};
-
-function App() {
-  return <WormholeBridge config={config} />;
+export default function App() {
+  return <WormholeConnect theme={customized} />;
 }
 ```
 
-(Optional) Create fully customized theme
+Create fully customized theme
 
 ```jsx
-import WormholeBridge, {
-  Theme,
-  OPACITY,
-  WormholeConnectConfig,
+import WormholeConnect, {
+  WormholeConnectTheme,
 } from "@wormhole-foundation/wormhole-connect";
+import red from "@mui/material/colors/red";
 import lightblue from "@mui/material/colors/lightBlue";
 import grey from "@mui/material/colors/grey";
 import green from "@mui/material/colors/green";
 import orange from "@mui/material/colors/orange";
 
-const customized: Theme = {
+const customTheme: WormholeConnectTheme = {
+  mode: 'dark',
   primary: grey,
   secondary: grey,
-  divider: "#ffffff" + OPACITY[20],
+  divider: 'rgba(255, 255, 255, 0.2)',
   background: {
     default: "#232323",
   },
@@ -267,13 +267,13 @@ const customized: Theme = {
   success: green,
   warning: orange,
   button: {
-    primary: "#ffffff" + OPACITY[20],
+    primary: 'rgba(255, 255, 255, 0.2)',
     primaryText: "#ffffff",
-    disabled: "#ffffff" + OPACITY[10],
-    disabledText: "#ffffff" + OPACITY[40],
+    disabled: 'rgba(255, 255, 255, 0.1)',
+    disabledText: 'rgba(255, 255, 255, 0.4)',
     action: orange[300],
     actionText: "#000000",
-    hover: "#ffffff" + OPACITY[7],
+    hover: 'rgba(255, 255, 255, 0.7)',
   },
   options: {
     hover: "#474747",
@@ -286,20 +286,20 @@ const customized: Theme = {
   },
   popover: {
     background: "#1b2033",
-    secondary: "#ffffff" + OPACITY[5],
+    secondary: 'rgba(255, 255, 255, 0.5)',
     elevation: "none",
   },
   modal: {
     background: "#474747",
   },
-};
-const config: WormholeConnectConfig = {
-  mode: "dark",
-  customTheme: customized,
+  font: {
+    primary: 'Impact',
+    header: 'Impact',
+  }
 };
 
-function App() {
-  return <WormholeBridge config={config} />;
+export default function App() {
+  return <WormholeConnect theme={customTheme} />;
 }
 ```
 
