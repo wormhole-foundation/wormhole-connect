@@ -14,13 +14,13 @@ Run `npm run build` at the root fo the repo
 
 3) Start
 
-Start wormhole-connect UI and view in browser at localhost:3000
+Start wormhole-connect UI:
 ```bash
 # in /wormhole-connect
 npm run start # testnet
 ```
 
-Start builder UI and view in browser at localhost:3000
+Start builder UI:
 ```bash
 # in /builder
 npm run start
