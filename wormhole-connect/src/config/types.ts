@@ -9,7 +9,7 @@ import {
   WormholeConfig,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { Alignment } from 'components/Header';
-import { ExtendedTheme } from 'theme';
+import { WormholeConnectPartialTheme } from 'theme';
 
 export enum Icon {
   'AVAX' = 1,
@@ -89,7 +89,7 @@ export interface WormholeConnectConfig {
   // Legacy support: allow theme to be in this config object
   // This should be removed in a future version after people have switched
   // to providing the theme as a separate prop
-  customTheme?: ExtendedTheme;
+  customTheme?: WormholeConnectPartialTheme;
   mode?: 'dark' | 'light';
 
   // UI details
