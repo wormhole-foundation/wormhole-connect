@@ -14,6 +14,7 @@ import {
   TransactionSignatureAndResponse,
   PreparedTransactions,
 } from './utils';
+import { addComputeBudget } from './computeBudget';
 import {
   createPostVaaInstruction,
   createVerifySignaturesInstructions,
@@ -40,9 +41,11 @@ export async function postVaaWithRetry(
       vaa,
       commitment,
     );
-
   const postVaaTransaction = unsignedTransactions.pop()!;
 
+  for (const unsignedTransaction of unsignedTransactions) {
+    await addComputeBudget(connection, unsignedTransaction);
+  }
   const responses = await sendAndConfirmTransactionsWithRetry(
     connection,
     modifySignTransaction(signTransaction, ...signers),
@@ -51,6 +54,7 @@ export async function postVaaWithRetry(
     maxRetries,
   );
   //While the signature_set is used to create the final instruction, it doesn't need to sign it.
+  await addComputeBudget(connection, postVaaTransaction);
   responses.push(
     ...(await sendAndConfirmTransactionsWithRetry(
       connection,

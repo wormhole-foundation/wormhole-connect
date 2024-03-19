@@ -4,12 +4,9 @@ import {
   Context,
   SendResult,
   ChainConfig,
-} from '@wormhole-foundation/wormhole-connect-sdk';
-import {
   postVaaSolanaWithRetry,
-  CHAIN_ID_EVMOS,
-  CHAIN_ID_INJECTIVE,
-} from '@certusone/wormhole-sdk';
+} from '@wormhole-foundation/wormhole-connect-sdk';
+import { CHAIN_ID_EVMOS, CHAIN_ID_INJECTIVE } from '@certusone/wormhole-sdk';
 import { ContractReceipt } from 'ethers';
 import {
   NotSupported,
