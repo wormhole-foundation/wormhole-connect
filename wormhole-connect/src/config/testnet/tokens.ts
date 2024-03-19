@@ -2329,7 +2329,7 @@ export const TESTNET_TOKENS: TokensConfig = {
     },
     ntt: {
       nttManager: 'nTTh3bZ5Aer6xboWZe39RDEft4MeVxSQ8D1EYAVLZw9',
-      // The wormhole transceiver is baked into the Solana ntt contract.
+      // The wormhole transceiver is baked into the Solana NTT contract.
       // If the transceiver is split into a separate contract, this address
       // and route code should be updated to support the new structure.
       wormholeTransceiver: 'nTTh3bZ5Aer6xboWZe39RDEft4MeVxSQ8D1EYAVLZw9',
