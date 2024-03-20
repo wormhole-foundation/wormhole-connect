@@ -1,4 +1,4 @@
-export type TokenMessenger = {
+export type TokenMessengerMinter = {
   version: '0.1.0';
   name: 'token_messenger_minter';
   instructions: [
@@ -1005,7 +1005,7 @@ export type TokenMessenger = {
   ];
   accounts: [
     {
-      name: 'TokenMessenger';
+      name: 'tokenMessenger';
       type: {
         kind: 'struct';
         fields: [
@@ -1033,7 +1033,7 @@ export type TokenMessenger = {
       };
     },
     {
-      name: 'RemoteTokenMessenger';
+      name: 'remoteTokenMessenger';
       type: {
         kind: 'struct';
         fields: [
@@ -1049,7 +1049,7 @@ export type TokenMessenger = {
       };
     },
     {
-      name: 'TokenMinter';
+      name: 'tokenMinter';
       type: {
         kind: 'struct';
         fields: [
@@ -1073,7 +1073,7 @@ export type TokenMessenger = {
       };
     },
     {
-      name: 'TokenPair';
+      name: 'tokenPair';
       type: {
         kind: 'struct';
         fields: [
@@ -1097,7 +1097,7 @@ export type TokenMessenger = {
       };
     },
     {
-      name: 'LocalToken';
+      name: 'localToken';
       type: {
         kind: 'struct';
         fields: [
@@ -1759,7 +1759,7 @@ export type TokenMessenger = {
   ];
 };
 
-export const TokenMessengerIdl: TokenMessenger = {
+export const IDL: TokenMessengerMinter = {
   version: '0.1.0',
   name: 'token_messenger_minter',
   instructions: [
@@ -2766,7 +2766,7 @@ export const TokenMessengerIdl: TokenMessenger = {
   ],
   accounts: [
     {
-      name: 'TokenMessenger',
+      name: 'tokenMessenger',
       type: {
         kind: 'struct',
         fields: [
@@ -2794,7 +2794,7 @@ export const TokenMessengerIdl: TokenMessenger = {
       },
     },
     {
-      name: 'RemoteTokenMessenger',
+      name: 'remoteTokenMessenger',
       type: {
         kind: 'struct',
         fields: [
@@ -2810,7 +2810,7 @@ export const TokenMessengerIdl: TokenMessenger = {
       },
     },
     {
-      name: 'TokenMinter',
+      name: 'tokenMinter',
       type: {
         kind: 'struct',
         fields: [
@@ -2834,7 +2834,7 @@ export const TokenMessengerIdl: TokenMessenger = {
       },
     },
     {
-      name: 'TokenPair',
+      name: 'tokenPair',
       type: {
         kind: 'struct',
         fields: [
@@ -2858,7 +2858,7 @@ export const TokenMessengerIdl: TokenMessenger = {
       },
     },
     {
-      name: 'LocalToken',
+      name: 'localToken',
       type: {
         kind: 'struct',
         fields: [

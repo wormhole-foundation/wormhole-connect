@@ -27,9 +27,12 @@ import {
 } from '../../types';
 import {
   MessageTransmitter,
-  MessageTransmitterIdl,
+  IDL as MessageTransmitterIdl,
 } from '../idl/MessageTransmitter';
-import { TokenMessenger, TokenMessengerIdl } from '../idl/TokenMessenger';
+import {
+  TokenMessengerMinter as TokenMessenger,
+  IDL as TokenMessengerIdl,
+} from '../idl/TokenMessenger';
 import ManualCCTP from './abstract';
 import { getChainNameCCTP, getDomainCCTP } from '../utils/chains';
 import { CircleBridge } from '@wormhole-foundation/sdk-definitions';
@@ -487,7 +490,6 @@ export class ManualCCTPSolanaImpl implements ManualCCTP<Transaction> {
     // usedNonces is an u64 100 elements array, where each bit acts a flag
     // to know whether a nonce has been used or not
     const { usedNonces } =
-      // @ts-ignore
       await messageTransmitterProgram.account.usedNonces.fetch(
         usedNoncesAddress,
       );

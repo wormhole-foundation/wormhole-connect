@@ -668,7 +668,7 @@ export type MessageTransmitter = {
   ];
   accounts: [
     {
-      name: 'MessageSent';
+      name: 'messageSent';
       type: {
         kind: 'struct';
         fields: [
@@ -684,7 +684,7 @@ export type MessageTransmitter = {
       };
     },
     {
-      name: 'MessageTransmitter';
+      name: 'messageTransmitter';
       docs: ['Main state of the MessageTransmitter program'];
       type: {
         kind: 'struct';
@@ -739,7 +739,7 @@ export type MessageTransmitter = {
       };
     },
     {
-      name: 'UsedNonces';
+      name: 'usedNonces';
       docs: [
         'UsedNonces account holds an array of bits that indicate which nonces were already used',
         "so they can't be resused to receive new messages. Array starts with the first_nonce and",
@@ -1366,7 +1366,7 @@ export type MessageTransmitter = {
   ];
 };
 
-export const MessageTransmitterIdl: MessageTransmitter = {
+export const IDL: MessageTransmitter = {
   version: '0.1.0',
   name: 'message_transmitter',
   instructions: [
@@ -2036,7 +2036,7 @@ export const MessageTransmitterIdl: MessageTransmitter = {
   ],
   accounts: [
     {
-      name: 'MessageSent',
+      name: 'messageSent',
       type: {
         kind: 'struct',
         fields: [
@@ -2052,7 +2052,7 @@ export const MessageTransmitterIdl: MessageTransmitter = {
       },
     },
     {
-      name: 'MessageTransmitter',
+      name: 'messageTransmitter',
       docs: ['Main state of the MessageTransmitter program'],
       type: {
         kind: 'struct',
@@ -2107,7 +2107,7 @@ export const MessageTransmitterIdl: MessageTransmitter = {
       },
     },
     {
-      name: 'UsedNonces',
+      name: 'usedNonces',
       docs: [
         'UsedNonces account holds an array of bits that indicate which nonces were already used',
         "so they can't be resused to receive new messages. Array starts with the first_nonce and",
