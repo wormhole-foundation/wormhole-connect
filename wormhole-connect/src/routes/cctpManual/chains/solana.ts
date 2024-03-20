@@ -9,6 +9,7 @@ import {
   Transaction,
 } from '@solana/web3.js';
 import {
+  addComputeBudget,
   ChainId,
   ChainName,
   SolanaContext,
@@ -194,10 +195,11 @@ export class ManualCCTPSolanaImpl implements ManualCCTP<Transaction> {
       })
       .transaction();
 
-    const { blockhash } =
-      await solanaContext().connection!.getLatestBlockhash();
+    const connection = solanaContext().connection!;
+    const { blockhash } = await connection.getLatestBlockhash();
     tx.recentBlockhash = blockhash;
     tx.feePayer = new PublicKey(senderAddress);
+    await addComputeBudget(connection, tx);
     tx.partialSign(messageSentKeypair);
     return tx;
   }
@@ -347,27 +349,28 @@ export class ManualCCTPSolanaImpl implements ManualCCTP<Transaction> {
       pubkey: tokenMessengerMinterProgram.programId,
     });
 
-    return (
-      messageTransmitterProgram.methods
-        .receiveMessage({
-          message: messageBytes,
-          attestation: attestationBytes,
-        })
-        .accounts({
-          payer: payerPubkey,
-          caller: payerPubkey,
-          authorityPda,
-          messageTransmitter: messageTransmitterAccount.publicKey,
-          usedNonces,
-          receiver: tokenMessengerMinterProgram.programId,
-          systemProgram: SystemProgram.programId,
-          eventAuthority,
-          program: messageTransmitterProgram.programId,
-        })
-        // Add remainingAccounts needed for TokenMessengerMinter CPI
-        .remainingAccounts(accountMetas)
-        .transaction()
-    );
+    const tx = await messageTransmitterProgram.methods
+      .receiveMessage({
+        message: messageBytes,
+        attestation: attestationBytes,
+      })
+      .accounts({
+        payer: payerPubkey,
+        caller: payerPubkey,
+        authorityPda,
+        messageTransmitter: messageTransmitterAccount.publicKey,
+        usedNonces,
+        receiver: tokenMessengerMinterProgram.programId,
+        systemProgram: SystemProgram.programId,
+        eventAuthority,
+        program: messageTransmitterProgram.programId,
+      })
+      // Add remainingAccounts needed for TokenMessengerMinter CPI
+      .remainingAccounts(accountMetas)
+      .transaction();
+    tx.feePayer = payerPubkey;
+    await addComputeBudget(solanaContext().connection!, tx);
+    return tx;
   }
 
   async getMessage(

@@ -73,9 +73,14 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
       ...CONTRACTS.MAINNET.solana,
       relayer: '3vxKRPwUTiEkeUVyoZ9MXFe1V71sRLbLqu1gRYaWmehQ',
       tbtcGateway: '87MEvHZCXE3ML5rrmh5uX1FbShHmRXXS32xJDGbQ7h5t',
+      cctpContracts: {
+        cctpTokenMessenger: 'CCTPiPYPc6AsJuwueEnWgSgucamXDZwBd53dQ11YiKX3',
+        cctpMessageTransmitter: 'CCTPmbSD7gX1bxKPAmg77w8oFzNFpaQiQUWD43TKaecd',
+      },
     },
     finalityThreshold: 32,
     nativeTokenDecimals: 9,
+    cctpDomain: 5,
   },
   polygon: {
     key: 'polygon',

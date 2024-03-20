@@ -14,6 +14,12 @@ export async function addComputeBudget(
   transaction: Transaction,
   lockedWritableAccounts: PublicKey[] = [],
 ): Promise<void> {
+  if (lockedWritableAccounts.length === 0) {
+    lockedWritableAccounts = transaction.instructions
+      .flatMap((ix) => ix.keys)
+      .map((k) => (k.isWritable ? k.pubkey : null))
+      .filter((k) => k !== null) as PublicKey[];
+  }
   const ixs = await determineComputeBudget(
     connection,
     transaction,
