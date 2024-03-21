@@ -1,48 +1,33 @@
 ## Contributing
 
-Contributions are welcome! To work on wormhole-connect locally you'll want to use `npm link` to make the changes to the SDK immediately available.
+Bug fixes and enhancements are welcome!
+
+*Please don't open pull requests to add tokens to Connect.* Instead, use the `tokensConfig` parameter in `config` to add tokens into your deployment of Connect.
 
 ### Setup
 
 1) Install
 
-Run `npm i` at the root of the repo
 
-2) Build
-
-Run `npm run build` at the root fo the repo
-
-3) Start
-
-Start wormhole-connect UI:
-```bash
-# in /wormhole-connect
-npm run start # testnet
+```
+npm i
 ```
 
-Start builder UI:
-```bash
-# in /builder
+2) Build SDK
+
+```
+cd sdk
+npm run build
+```
+
+3) Start demo app with Vite
+
+```
+cd ../wormhole-connect
 npm run start
 ```
 
-## Add a token
-
-### Fill out token config
-
-1. Create an entry for the token in `wormhole-connect/config/<mainnet/testnet>.ts`.
-2. Ensure the `key` value is equal to the object key for easy lookup.
-3. Add decimal values for default, Ethereum, Solana and Sui if applicable (i.e. if they vary from the default value)
-4. If it's a native gas token, ensure that the wrapped version is also present and linked under `wrappedAsset`
-
-### Add a token icon
-
-1. Create a file under `icons/Tokens` labeled `<symbol>.tsx`.
-2. Create a React component and paste the svg in the return.
-3. Modify the svg to comply with react (mostly this is renaming attribute names with hyphens e.g. `view-box` to `viewBox`)
-4. Ensure the width and height attributes are present on the root `<svg>` element and max height and width are set (`style={{ maxHeight: '100%', maxWidth: '100%' }}`)
-
-## Setup
+This should start a local server at localhost:5173.
 
 ### Pre-commit hooks
 
