@@ -3,6 +3,7 @@ import {
   ConfirmOptions,
   Connection,
   Keypair,
+  PublicKey,
   PublicKeyInitData,
   Transaction,
 } from '@solana/web3.js';
@@ -42,8 +43,10 @@ export async function postVaaWithRetry(
       commitment,
     );
   const postVaaTransaction = unsignedTransactions.pop()!;
+  postVaaTransaction.feePayer = new PublicKey(payer);
 
   for (const unsignedTransaction of unsignedTransactions) {
+    unsignedTransaction.feePayer = new PublicKey(payer);
     await addComputeBudget(connection, unsignedTransaction);
   }
   const responses = await sendAndConfirmTransactionsWithRetry(

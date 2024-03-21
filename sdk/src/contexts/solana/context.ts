@@ -404,7 +404,7 @@ export class SolanaContext<
     );
 
     transaction.feePayer = payerPublicKey;
-    await addComputeBudget(this.connection!, transaction, [NATIVE_MINT]);
+    await addComputeBudget(this.connection!, transaction);
     transaction.partialSign(message, ancillaryKeypair);
     return transaction;
   }
@@ -531,10 +531,7 @@ export class SolanaContext<
     );
     transaction.add(approvalIx, tokenBridgeTransferIx);
     transaction.feePayer = new PublicKey(senderAddress);
-    await addComputeBudget(this.connection!, transaction, [
-      new PublicKey(fromAddress),
-      new PublicKey(mintAddress),
-    ]);
+    await addComputeBudget(this.connection!, transaction);
     transaction.partialSign(message);
     return transaction;
   }
@@ -915,7 +912,8 @@ export class SolanaContext<
           signedVAA,
         );
 
-    await addComputeBudget(this.connection!, transaction, [tokenKey]);
+    transaction.feePayer = new PublicKey(payerAddr);
+    await addComputeBudget(this.connection!, transaction);
 
     return transaction;
   }
@@ -996,7 +994,7 @@ export class SolanaContext<
     }
     transaction.add(redeemIx);
     transaction.feePayer = new PublicKey(recipient);
-    await addComputeBudget(this.connection!, transaction, [mint]);
+    await addComputeBudget(this.connection!, transaction);
     return transaction;
   }
 
@@ -1072,15 +1070,11 @@ export class SolanaContext<
       const mint = token === NATIVE ? NATIVE_MINT : token.address;
       const wrapToken = token === NATIVE;
 
-      let writableAddresses: PublicKey[] = [NATIVE_MINT];
-
       if (wrapToken) {
         const ata = getAssociatedTokenAddressSync(
           NATIVE_MINT,
           new PublicKey(senderAddress),
         );
-
-        writableAddresses.push(ata);
 
         try {
           await getAccount(this.connection, ata);
@@ -1117,7 +1111,7 @@ export class SolanaContext<
         ),
       );
 
-      await addComputeBudget(this.connection!, transaction, writableAddresses);
+      await addComputeBudget(this.connection!, transaction);
     } else {
       const mint = await this.mustGetForeignAsset(token, sendingChain);
 
@@ -1137,9 +1131,7 @@ export class SolanaContext<
         ),
       );
 
-      await addComputeBudget(this.connection!, transaction, [
-        new PublicKey(mint),
-      ]);
+      await addComputeBudget(this.connection!, transaction);
     }
     return transaction;
   }

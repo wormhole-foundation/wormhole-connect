@@ -144,10 +144,9 @@ export const MAINNET_GAS_ESTIMATES: GasEstimates = {
       sendToken: 150000,
       claim: 300000,
     },
-    // TODO: make sure right
     [Route.CCTPManual]: {
-      sendToken: 5000,
-      claim: 5000,
+      sendToken: 100000,
+      claim: 100000,
     },
   },
   sui: {
