@@ -250,7 +250,6 @@ export class CCTPManualRoute extends BaseRoute {
     destToken: string,
     routeOptions: any,
   ): Promise<string> {
-    // TODO: make sure sending to the ATA is right
     let recipientAccount = recipientAddress;
     if (toChainName(recipientChain) === 'solana') {
       const tokenKey = getNativeVersionOfToken('USDC', 'solana');
