@@ -34,7 +34,9 @@ const useDeliveryStatus = (): void => {
     if (
       !signedMessage ||
       route !== Route.NttRelay ||
-      !isEvmChain(signedMessage.toChain) // Currently, only EVM chains support standard relayer
+      // Currently, only EVM chains support standard relayer
+      !isEvmChain(signedMessage.toChain) ||
+      !isEvmChain(signedMessage.fromChain)
     ) {
       return;
     }
