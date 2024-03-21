@@ -2333,7 +2333,7 @@ export const TESTNET_TOKENS: TokensConfig = {
       // If the transceiver is split into a separate contract, this address
       // and route code should be updated to support the new structure.
       wormholeTransceiver: 'nTTh3bZ5Aer6xboWZe39RDEft4MeVxSQ8D1EYAVLZw9',
-      solanaQuoter: '',
+      solanaQuoter: 'NqTdGLLL6b6bFo7YESNEezocgF8onH5cst5EdH791en',
     },
   },
 };

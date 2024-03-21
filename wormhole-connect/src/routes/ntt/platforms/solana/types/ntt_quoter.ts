@@ -16,11 +16,6 @@ export type NttQuoter = {
           isSigner: false;
         },
         {
-          name: 'feeRecipient';
-          isMut: true;
-          isSigner: false;
-        },
-        {
           name: 'registeredChain';
           isMut: false;
           isSigner: false;
@@ -461,11 +456,6 @@ export const IDL: NttQuoter = {
         {
           name: 'instance',
           isMut: false,
-          isSigner: false,
-        },
-        {
-          name: 'feeRecipient',
-          isMut: true,
           isSigner: false,
         },
         {

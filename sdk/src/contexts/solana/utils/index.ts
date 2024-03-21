@@ -25,3 +25,4 @@ export * from './wormhole/cpi';
  * @category Solana
  */
 export * from './tokenBridge/cpi';
+export * from './computeBudget';

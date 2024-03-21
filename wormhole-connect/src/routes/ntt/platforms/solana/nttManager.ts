@@ -1,10 +1,11 @@
 import {
+  addComputeBudget,
   ChainId,
   ChainName,
   TokenId,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { InboundQueuedTransfer } from '../../types';
-import { solanaContext, toChainId } from 'utils/sdk';
+import { solanaContext, toChainId, toChainName } from 'utils/sdk';
 import { TransferWallet, postVaa, signAndSendTransaction } from 'utils/wallet';
 import {
   Connection,
@@ -62,7 +63,7 @@ export class NttManagerSolana {
   readonly wormholeId: string;
 
   constructor(readonly nttId: string) {
-    const connection = solanaContext().connection;
+    const { connection } = solanaContext();
     if (!connection) throw new Error('Connection not found');
     this.connection = connection;
     this.program = new Program(IDL, nttId, { connection });
@@ -91,7 +92,7 @@ export class NttManagerSolana {
       payer,
       from: tokenAccount,
       amount: new BN(amount.toString()),
-      recipientChain: CONFIG.wh.toChainName(toChain),
+      recipientChain: toChainName(toChain),
       recipientAddress: destContext.formatAddress(recipient),
       fromAuthority: payer,
       outboxItem: outboxItem.publicKey,
@@ -141,6 +142,7 @@ export class NttManagerSolana {
     tx.feePayer = payer;
     const { blockhash } = await this.connection.getLatestBlockhash('finalized');
     tx.recentBlockhash = blockhash;
+    await addComputeBudget(this.connection, tx);
     tx.partialSign(outboxItem);
     const txId = await signAndSendTransaction(
       'solana',
@@ -217,6 +219,7 @@ export class NttManagerSolana {
     tx.feePayer = payerPublicKey;
     const { blockhash } = await this.connection.getLatestBlockhash('finalized');
     tx.recentBlockhash = blockhash;
+    await addComputeBudget(this.connection, tx);
     const txId = await signAndSendTransaction(
       'solana',
       tx,
@@ -332,6 +335,7 @@ export class NttManagerSolana {
     tx.feePayer = payerPublicKey;
     const { blockhash } = await this.connection.getLatestBlockhash('finalized');
     tx.recentBlockhash = blockhash;
+    await addComputeBudget(this.connection, tx);
     const txId = await signAndSendTransaction(
       'solana',
       tx,
@@ -434,7 +438,7 @@ export class NttManagerSolana {
   }
 
   transceiverPeerAccountAddress(chain: ChainName | ChainId): PublicKey {
-    const chainId = CONFIG.wh.toChainId(chain);
+    const chainId = toChainId(chain);
     return this.derivePda([
       Buffer.from('transceiver_peer'),
       new BN(chainId).toBuffer('be', 2),

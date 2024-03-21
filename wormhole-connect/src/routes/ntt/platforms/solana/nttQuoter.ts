@@ -8,8 +8,7 @@ import {
 } from '@solana/web3.js';
 import { BN, Program } from '@coral-xyz/anchor';
 import { NttQuoter as NttQuoterType, IDL } from './types/ntt_quoter';
-import { solanaContext } from 'utils/sdk';
-import config from 'config';
+import { solanaContext, toChainId } from 'utils/sdk';
 
 //constants that must match ntt-quoter lib.rs / implementation:
 const EVM_GAS_COST = 250_000; // TODO: make sure this is right
@@ -40,7 +39,7 @@ export class NttQuoter {
   readonly instance: PublicKey;
 
   constructor(programId: PublicKeyInitData) {
-    const connection = solanaContext().connection;
+    const { connection } = solanaContext();
     if (!connection) throw new Error('Connection not found');
     this.connection = connection;
     this.program = new Program<NttQuoterType>(IDL, new PublicKey(programId), {
@@ -72,17 +71,16 @@ export class NttQuoter {
 
     const totalNativeGasCostUsd =
       chainData.nativePriceUsd *
-      chainData.gasPriceGwei *
-      EVM_GAS_COST *
-      GWEI_PER_ETH;
+      ((chainData.gasPriceGwei * EVM_GAS_COST) / GWEI_PER_ETH);
 
     const totalCostSol =
-      rentCost +
+      rentCost / LAMPORTS_PER_SOL +
       (chainData.basePriceUsd + totalNativeGasCostUsd) /
         instanceData.solPriceUsd;
 
     // Add 5% to account for possible price updates while the tx is in flight
-    return U64.to(totalCostSol * 1.05, LAMPORTS_PER_SOL);
+    const cost = U64.to(totalCostSol * 1.05, LAMPORTS_PER_SOL);
+    return cost;
   }
 
   async createRequestRelayInstruction(
@@ -99,8 +97,7 @@ export class NttQuoter {
       .accounts({
         payer,
         instance: this.instance,
-        feeRecipient: (await this.getInstance()).feeRecipient,
-        registeredChain: this.registeredChainPda(config.wh.toChainId(chain)),
+        registeredChain: this.registeredChainPda(toChainId(chain)),
         outboxItem,
         relayRequest: this.relayRequestPda(outboxItem),
         systemProgram: SystemProgram.programId,
@@ -120,7 +117,7 @@ export class NttQuoter {
 
   async getRegisteredChain(chain: ChainName | ChainId) {
     const data = await this.program.account.registeredChain.fetch(
-      this.registeredChainPda(config.wh.toChainId(chain)),
+      this.registeredChainPda(toChainId(chain)),
     );
 
     return {
