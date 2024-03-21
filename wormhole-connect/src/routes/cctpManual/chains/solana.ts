@@ -12,9 +12,7 @@ import {
   addComputeBudget,
   ChainId,
   ChainName,
-  SolanaContext,
   TokenId,
-  WormholeContext,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { BigNumber, utils as ethUtils } from 'ethers';
 import { PayloadType, solanaContext, toChainId, toChainName } from 'utils/sdk';
@@ -71,9 +69,7 @@ const findProgramAddress = (
 };
 
 function getMessageTransmitter(): Program<MessageTransmitter> {
-  const context = config.wh.getContext(
-    CHAIN_ID_SOLANA,
-  ) as SolanaContext<WormholeContext>;
+  const context = solanaContext();
   const connection = context.connection;
   const contracts =
     context.contracts.mustGetContracts(CHAIN_ID_SOLANA).cctpContracts;
@@ -88,9 +84,7 @@ function getMessageTransmitter(): Program<MessageTransmitter> {
 }
 
 function getTokenMessenger(): Program<TokenMessenger> {
-  const context = config.wh.getContext(
-    CHAIN_ID_SOLANA,
-  ) as SolanaContext<WormholeContext>;
+  const context = solanaContext();
   const connection = context.connection;
   const contracts =
     context.contracts.mustGetContracts(CHAIN_ID_SOLANA).cctpContracts;
@@ -502,7 +496,7 @@ export class ManualCCTPSolanaImpl implements ManualCCTP<Transaction> {
 
     // get the nonce flag index and build a bitmask
     const nonceBitIndex = nonceIndex % 64;
-    const mask = new BN(1 << nonceBitIndex);
+    const mask = new BN((BigInt(1) << BigInt(nonceBitIndex)).toString());
 
     const nonceByte = usedNonces[nonceElementIndex];
     if (!nonceByte) throw new Error('Invalid nonce byte index');

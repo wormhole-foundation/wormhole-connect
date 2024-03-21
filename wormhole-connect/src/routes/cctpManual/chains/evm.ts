@@ -145,7 +145,16 @@ export default class ManualCCTPEvmImpl
     const destContext = config.wh.getContext(toChain);
     let recipient = destContext.parseAddress(parsedCCTPLog.args.mintRecipient);
     if (toChain === 'solana') {
-      recipient = await solanaContext().getTokenAccountOwner(recipient);
+      try {
+        recipient = await solanaContext().getTokenAccountOwner(recipient);
+      } catch (e: any) {
+        // we'll promp them to create it before claiming it
+        if (e.name === 'TokenAccountNotFoundError') {
+          recipient = '';
+        } else {
+          throw e;
+        }
+      }
     }
     const fromChain = toChainName(chain);
     const tokenId: TokenId = {
