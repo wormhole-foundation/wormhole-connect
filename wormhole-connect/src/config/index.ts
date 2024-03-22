@@ -20,7 +20,7 @@ export function buildConfig(
     customConfig?.network ||
     customConfig?.env || // TODO remove; deprecated
     import.meta.env.REACT_APP_CONNECT_ENV?.toLowerCase() ||
-    'testnet'
+    'mainnet'
   ).toLowerCase() as Network;
 
   if (!['mainnet', 'testnet', 'devnet'].includes(network))

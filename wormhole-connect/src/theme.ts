@@ -23,7 +23,7 @@ export type PaletteColor = {
   A700: string;
 };
 
-export type CustomTheme = {
+export type WormholeConnectPartialTheme = {
   mode?: PaletteMode;
   primary?: PaletteColor;
   secondary?: PaletteColor;
@@ -71,9 +71,9 @@ export type CustomTheme = {
   };
 };
 
-export type ExtendedTheme = Required<CustomTheme>;
+export type WormholeConnectTheme = Required<WormholeConnectPartialTheme>;
 
-export const light: ExtendedTheme = {
+export const light: WormholeConnectTheme = {
   mode: 'light',
   primary: {
     50: '#161718',
@@ -152,7 +152,7 @@ export const light: ExtendedTheme = {
 };
 
 // wormhole styled theme
-export const dark: ExtendedTheme = {
+export const dark: WormholeConnectTheme = {
   mode: 'dark',
   primary: grey,
   secondary: grey,
@@ -246,9 +246,9 @@ export const dark: ExtendedTheme = {
   },
 };
 
-export const getDesignTokens = (customTheme: CustomTheme) => {
+export const getDesignTokens = (customTheme: WormholeConnectPartialTheme) => {
   const baseTheme = customTheme?.mode === 'light' ? light : dark;
-  const theme = Object.assign(baseTheme, customTheme) as ExtendedTheme;
+  const theme = Object.assign(baseTheme, customTheme) as WormholeConnectTheme;
 
   return createTheme({
     components: {

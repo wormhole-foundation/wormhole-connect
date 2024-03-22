@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client';
 import WormholeConnect from './WormholeConnect';
 import ErrorBoundary from './components/ErrorBoundary';
 import { WormholeConnectConfig } from 'config/types';
-import { ExtendedTheme } from './theme';
+import { WormholeConnectPartialTheme } from './theme';
 export * from './theme';
 
 // This is the entry point that runs when integrators add the Connect widget
@@ -26,7 +26,7 @@ if (!container) {
 }
 
 let config: WormholeConnectConfig | undefined = undefined;
-let theme: ExtendedTheme | undefined = undefined;
+let theme: WormholeConnectPartialTheme | undefined = undefined;
 
 try {
   let configAttr = container.getAttribute('data-config');
