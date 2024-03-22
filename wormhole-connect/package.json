@@ -56,7 +56,7 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "vite",
+    "start": "REACT_APP_CONNECT_ENV=testnet vite",
     "build": "npm run build:lib; npm run build:hosted; npm run build:netlify",
     "build:lib": "NODE_ENV=production NODE_OPTIONS=--max-old-space-size=8192 vite build",
     "build:hosted": "VITE_BUILD_HOSTED=1 NODE_ENV=production NODE_OPTIONS=--max-old-space-size=8192 vite build",

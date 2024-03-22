@@ -7,7 +7,7 @@ export * from './theme';
 // This is the demo app used for local development
 
 function DemoApp() {
-  return <WormholeConnect config={{ env: 'testnet' }} />;
+  return <WormholeConnect />;
 }
 
 const root = ReactDOM.createRoot(document.querySelector('main') as HTMLElement);
