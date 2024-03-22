@@ -18,6 +18,7 @@ import {
   getTokenById,
   getDisplayName,
   calculateUSDPrice,
+  getWrappedTokenId,
 } from 'utils';
 import {
   ParsedMessage,
@@ -34,6 +35,7 @@ import {
   RelayCCTPMessage,
   TransferDestInfoBaseParams,
   TransferDestInfo,
+  RelayerFee,
 } from '../types';
 import { toDecimals, toFixedDecimals } from '../../utils/balance';
 import { RelayOptions } from '../relay';
@@ -205,12 +207,13 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
   ): Promise<boolean> {
     let relayerFee;
     try {
-      relayerFee = await this.getRelayerFee(
+      const result = await this.getRelayerFee(
         sourceChain,
         destChain,
         sourceToken,
         destToken,
       );
+      relayerFee = result?.fee;
     } catch (e) {
       console.error(e);
     }
@@ -477,7 +480,7 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
     destChain: ChainName | ChainId,
     token: string,
     destToken: string,
-  ): Promise<BigNumber> {
+  ): Promise<RelayerFee | null> {
     const tokenConfig = config.tokens[token];
     if (!tokenConfig) throw new Error('could not get token config');
     const tokenId = tokenConfig.tokenId;
@@ -490,7 +493,7 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
       chainContext.contracts.mustGetWormholeCircleRelayer(sourceChain);
     const destChainId = config.wh.toChainId(destChain);
     const fee = await circleRelayer.relayerFee(destChainId, tokenId?.address);
-    return fee;
+    return { fee, feeToken: tokenId || getWrappedTokenId(tokenConfig) };
   }
 
   async getMessage(

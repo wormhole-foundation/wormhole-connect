@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { BigNumber, BigNumberish, utils } from 'ethers';
+import { BigNumber, BigNumberish, ethers, utils } from 'ethers';
 import { isHexString } from 'ethers/lib/utils.js';
 import { isValidTransactionDigest, SUI_TYPE_ARG } from '@mysten/sui.js';
 import {
@@ -320,4 +320,21 @@ export const calculateUSDPrice = (
     return getUSDFormat(price);
   }
   return '';
+};
+
+export const tryParseErrorMessage = (
+  iface: ethers.utils.Interface,
+  error: any,
+): string | undefined => {
+  const errorData = error?.error?.data?.originalError?.data;
+  if (!errorData) return '';
+  try {
+    return iface.parseError(errorData)?.name || undefined;
+  } catch {
+    return undefined;
+  }
+};
+
+export const removeDust = (amount: BigNumber, decimals: number): BigNumber => {
+  return deNormalizeAmount(normalizeAmount(amount, decimals), decimals);
 };

@@ -109,17 +109,16 @@ function Preview(props: { collapsed: boolean }) {
         const tokenConfig = token && config.tokens[token];
         if (!tokenConfig) return;
 
-        const fee = await RouteOperator.getRelayerFee(
+        const result = await RouteOperator.getRelayerFee(
           route,
           fromChain,
           toChain,
           token,
           destToken,
         );
-        const decimals = getTokenDecimals(
-          toChainId(fromChain),
-          tokenConfig.tokenId || 'native',
-        );
+        if (result === null) return;
+        const { fee, feeToken } = result;
+        const decimals = getTokenDecimals(toChainId(fromChain), feeToken);
         const formattedFee = Number.parseFloat(toDecimals(fee, decimals, 6));
         dispatch(setRelayerFee(formattedFee));
       } catch (e: any) {

@@ -114,6 +114,13 @@ export const TESTNET_GAS_ESTIMATES: GasEstimates = {
       sendToken: 15000,
       claim: 25000,
     },
+    [Route.NttManual]: {
+      sendToken: 15000,
+      claim: 25000,
+    },
+    [Route.NttRelay]: {
+      sendToken: 15000,
+    },
   },
   sui: {
     [Route.Bridge]: {
@@ -244,12 +251,26 @@ export const TESTNET_GAS_ESTIMATES: GasEstimates = {
       sendToken: 150000,
       claim: 200000,
     },
+    [Route.NttManual]: {
+      sendToken: 200000,
+      claim: 250000,
+    },
+    [Route.NttRelay]: {
+      sendToken: 450000,
+    },
   },
   arbitrum_sepolia: {
     [Route.Bridge]: {
       sendNative: 100000,
       sendToken: 150000,
       claim: 200000,
+    },
+    [Route.NttManual]: {
+      sendToken: 200000,
+      claim: 250000,
+    },
+    [Route.NttRelay]: {
+      sendToken: 450000,
     },
   },
   base_sepolia: {
@@ -258,12 +279,26 @@ export const TESTNET_GAS_ESTIMATES: GasEstimates = {
       sendToken: 150000,
       claim: 200000,
     },
+    [Route.NttManual]: {
+      sendToken: 200000,
+      claim: 250000,
+    },
+    [Route.NttRelay]: {
+      sendToken: 450000,
+    },
   },
   optimism_sepolia: {
     [Route.Bridge]: {
       sendNative: 100000,
       sendToken: 150000,
       claim: 200000,
+    },
+    [Route.NttManual]: {
+      sendToken: 200000,
+      claim: 250000,
+    },
+    [Route.NttRelay]: {
+      sendToken: 450000,
     },
   },
   injective: {

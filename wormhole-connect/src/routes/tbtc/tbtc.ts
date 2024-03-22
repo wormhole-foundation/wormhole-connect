@@ -22,6 +22,7 @@ import {
   TokenTransferMessage,
   SignedTokenTransferMessage,
   TBTCMessage,
+  RelayerFee,
 } from '../types';
 import { adaptParsedMessage } from '../utils';
 import {
@@ -160,10 +161,6 @@ export class TBTCRoute extends BaseRoute {
     signedMessage?: SignedMessage,
   ): Promise<BigNumber> {
     throw new Error('not implemented');
-  }
-
-  getMinSendAmount(routeOptions: any): number {
-    return 0;
   }
 
   async send(
@@ -417,8 +414,8 @@ export class TBTCRoute extends BaseRoute {
     destChain: ChainName | ChainId,
     token: string,
     destToken: string,
-  ): Promise<BigNumber> {
-    return BigNumber.from(0);
+  ): Promise<RelayerFee | null> {
+    return null;
   }
 
   async getForeignAsset(
