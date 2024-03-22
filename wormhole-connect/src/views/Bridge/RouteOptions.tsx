@@ -22,7 +22,7 @@ import Options from 'components/Options';
 import { isGatewayChain } from 'utils/cosmos';
 import { isPorticoRoute } from 'routes/porticoBridge/utils';
 import Price from 'components/Price';
-import { finality, chainIdToChain } from '@wormhole-foundation/connect-sdk';
+import { finality, chainIdToChain } from '@wormhole-foundation/sdk-base';
 
 const useStyles = makeStyles()((theme: any) => ({
   link: {

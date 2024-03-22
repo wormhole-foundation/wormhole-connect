@@ -3,6 +3,8 @@ import {
   ChainId,
   ChainName,
   TokenId,
+  SolanaContext,
+  WormholeContext,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { BigNumber } from 'ethers';
 
@@ -94,6 +96,26 @@ export class Operator {
           return Route.CCTPRelay;
         else return Route.CCTPManual;
       }
+    }
+
+    if (chain === 'solana') {
+      const { connection, contracts } = config.wh.getContext(
+        chain,
+      ) as SolanaContext<WormholeContext>;
+      if (!connection) throw new Error('No connection for Solana');
+      const { cctpTokenMessenger } =
+        contracts.getContracts(chain)?.cctpContracts || {};
+      if (!cctpTokenMessenger) {
+        throw new Error('No CCTP contracts on Solana');
+      }
+      const tx = await connection.getTransaction(txHash);
+      const isCctp = tx?.transaction.message.instructions.some((ix) => {
+        return tx.transaction.message.accountKeys[ix.programIdIndex].equals(
+          new PublicKey(cctpTokenMessenger),
+        );
+      });
+      // TODO: change when cctp relayer for solana is up
+      if (isCctp) return Route.CCTPManual;
     }
 
     const message = await getMessage(txHash, chain);

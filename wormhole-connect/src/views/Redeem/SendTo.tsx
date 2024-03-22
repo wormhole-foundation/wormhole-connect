@@ -41,7 +41,11 @@ function AssociatedTokenAlert() {
   const wallet = useSelector((state: RootState) => state.wallet.receiving);
 
   const createAssociatedTokenAccount = useCallback(async () => {
-    const token = getTokenById(txData.tokenId);
+    const receivedToken = config.tokens[txData.receivedTokenKey];
+    const token =
+      receivedToken?.nativeChain === 'solana'
+        ? receivedToken
+        : getTokenById(txData.tokenId);
     if (!token) return;
     const tokenId = getWrappedTokenId(token);
     const tx = await solanaContext().createAssociatedTokenAccount(

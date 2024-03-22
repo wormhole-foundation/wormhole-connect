@@ -1,52 +1,47 @@
-import { BigNumber, utils, ethers } from 'ethers';
 import {
   ChainId,
   ChainName,
   TokenId,
-  EthContext,
-  WormholeContext,
-  TokenMessenger__factory,
-  MessageTransmitter__factory,
 } from '@wormhole-foundation/wormhole-connect-sdk';
+import { BigNumber, utils } from 'ethers';
 
 import config from 'config';
 import { TokenConfig, Route } from 'config/types';
 import {
   MAX_DECIMALS,
-  getTokenById,
   getTokenDecimals,
   toNormalizedDecimals,
   getDisplayName,
   calculateUSDPrice,
 } from 'utils';
-import { isEvmChain, toChainId, PayloadType } from 'utils/sdk';
+import { isEvmChain, toChainId, toChainName } from 'utils/sdk';
 import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
 import { NO_INPUT } from 'utils/style';
-import {
-  SignedMessage,
-  TransferDisplayData,
-  isSignedCCTPMessage,
-  SignedCCTPMessage,
-  ManualCCTPMessage,
-  UnsignedCCTPMessage,
-  TransferInfoBaseParams,
-  TransferDestInfoBaseParams,
-  TransferDestInfo,
-} from '../types';
-import { BaseRoute } from '../bridge/baseRoute';
 import { toDecimals } from '../../utils/balance';
+import { getAssociatedTokenAddress } from '@solana/spl-token';
+import { BaseRoute } from '../bridge/baseRoute';
+import {
+  ManualCCTPMessage,
+  SignedCCTPMessage,
+  SignedMessage,
+  TransferDestInfo,
+  TransferDestInfoBaseParams,
+  TransferDisplayData,
+  TransferInfoBaseParams,
+  UnsignedCCTPMessage,
+} from '../types';
 import { formatGasFee } from '../utils';
-import { getNativeVersionOfToken } from 'store/transferInput';
+import ManualCCTP from './chains/abstract';
+import ManualCCTPEvmImpl from './chains/evm';
+import { ManualCCTPSolanaImpl } from './chains/solana';
 import {
   CCTPManual_CHAINS,
   CCTPTokenSymbol,
-  CCTP_LOG_MessageSent,
-  CCTP_LOG_TokenMessenger_DepositForBurn,
-  getChainNameCCTP,
-  getNonce,
   tryGetCircleAttestation,
 } from './utils';
 import { TokenPrices } from 'store/tokenPrices';
+import { getNativeVersionOfToken } from 'store/transferInput';
+import { PublicKey } from '@solana/web3.js';
 
 export class CCTPManualRoute extends BaseRoute {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean = false;
@@ -220,42 +215,15 @@ export class CCTPManualRoute extends BaseRoute {
     recipientAddress: string,
     routeOptions?: any,
   ): Promise<BigNumber> {
-    const provider = config.wh.mustGetProvider(sendingChain);
-    const { gasPrice } = await provider.getFeeData();
-    if (!gasPrice)
-      throw new Error('gas price not available, cannot estimate fees');
-
-    // only works on EVM
-    if (!isEvmChain(sendingChain)) {
-      throw new Error('No support for non EVM cctp currently');
-    }
-    const chainContext = config.wh.getContext(
+    return this.getImplementation(sendingChain).estimateSendGas(
+      token,
+      amount,
       sendingChain,
-    ) as EthContext<WormholeContext>;
-    const tokenMessenger =
-      config.wh.mustGetContracts(sendingChain).cctpContracts
-        ?.cctpTokenMessenger;
-    const circleSender = TokenMessenger__factory.connect(
-      tokenMessenger!,
-      config.wh.getSigner(sendingChain)!,
+      senderAddress,
+      recipientChain,
+      recipientAddress,
+      routeOptions,
     );
-    const tokenAddr = (token as TokenId).address;
-    const toChainName = config.wh.toChainName(recipientChain)!;
-    const decimals = getTokenDecimals(config.wh.toChainId(sendingChain), token);
-    const parsedAmt = utils.parseUnits(`${amount}`, decimals);
-    const destinationDomain = config.wh.conf.chains[toChainName]?.cctpDomain;
-    if (destinationDomain === undefined)
-      throw new Error(`CCTP not supported on ${toChainName}`);
-    const tx = await circleSender.populateTransaction.depositForBurn(
-      parsedAmt,
-      destinationDomain,
-      chainContext.context.formatAddress(recipientAddress, recipientChain),
-      chainContext.context.parseAddress(tokenAddr, sendingChain),
-    );
-    const est = await provider.estimateGas(tx);
-    return est.mul(gasPrice);
-
-    // maybe put this in a try catch and add fallback!
   }
 
   async estimateClaimGas(
@@ -271,6 +239,7 @@ export class CCTPManualRoute extends BaseRoute {
   getMinSendAmount(routeOptions: any): number {
     return 0;
   }
+
   async send(
     token: TokenId | 'native',
     amount: string,
@@ -281,53 +250,31 @@ export class CCTPManualRoute extends BaseRoute {
     destToken: string,
     routeOptions: any,
   ): Promise<string> {
-    const fromChainId = config.wh.toChainId(sendingChain);
-    const fromChainName = config.wh.toChainName(sendingChain);
-    const decimals = getTokenDecimals(fromChainId, token);
-    const parsedAmt = utils.parseUnits(amount, decimals);
-
-    // only works on EVM
-    if (!isEvmChain(sendingChain)) {
-      throw new Error('No support for non EVM cctp currently');
+    let recipientAccount = recipientAddress;
+    if (toChainName(recipientChain) === 'solana') {
+      const tokenKey = getNativeVersionOfToken('USDC', 'solana');
+      const tokenConfig = config.tokens[tokenKey];
+      if (!tokenConfig || !tokenConfig.tokenId) {
+        throw new Error('Solana USDC not found');
+      }
+      recipientAccount = (
+        await getAssociatedTokenAddress(
+          new PublicKey(tokenConfig.tokenId.address),
+          new PublicKey(recipientAddress),
+        )
+      ).toString();
     }
-    const chainContext = config.wh.getContext(
+    const tx = await this.getImplementation(sendingChain).send(
+      token,
+      amount,
       sendingChain,
-    ) as EthContext<WormholeContext>;
-    const tokenMessenger =
-      config.wh.mustGetContracts(sendingChain).cctpContracts
-        ?.cctpTokenMessenger;
-    const circleTokenMessenger = await TokenMessenger__factory.connect(
-      tokenMessenger!,
-      config.wh.getSigner(fromChainId)!,
+      senderAddress,
+      recipientChain,
+      recipientAccount,
     );
-    const tokenAddr = (token as TokenId).address;
-    // approve
-    await chainContext.approve(
-      sendingChain,
-      circleTokenMessenger.address,
-      tokenAddr,
-      parsedAmt,
-    );
-    const recipientChainName = config.wh.toChainName(recipientChain);
-    const destinationDomain =
-      config.wh.conf.chains[recipientChainName]?.cctpDomain;
-    if (destinationDomain === undefined)
-      throw new Error(`No CCTP on ${recipientChainName}`);
-    const tx = await circleTokenMessenger.populateTransaction.depositForBurn(
-      parsedAmt,
-      destinationDomain,
-      chainContext.context.formatAddress(recipientAddress, recipientChain),
-      chainContext.context.parseAddress(tokenAddr, sendingChain),
-    );
-
-    const sentTx = await config.wh
-      .getSigner(fromChainName)
-      ?.sendTransaction(tx);
-    const rx = await sentTx?.wait();
-    if (!rx) throw new Error("Transaction didn't go through");
     const txId = await signAndSendTransaction(
-      fromChainName,
-      rx,
+      config.wh.toChainName(sendingChain),
+      tx,
       TransferWallet.SENDING,
     );
     config.wh.registerProviders();
@@ -339,26 +286,18 @@ export class CCTPManualRoute extends BaseRoute {
     message: SignedMessage,
     payer: string,
   ): Promise<string> {
-    if (!isSignedCCTPMessage(message))
-      throw new Error('Signed message is not for CCTP');
-    const context: any = config.wh.getContext(destChain);
-    const circleMessageTransmitter =
-      context.contracts.mustGetContracts(destChain).cctpContracts
-        ?.cctpMessageTransmitter;
-    const connection = config.wh.mustGetSigner(destChain);
-    const contract = MessageTransmitter__factory.connect(
-      circleMessageTransmitter,
-      connection,
+    const tx = await this.getImplementation(destChain).redeem(
+      destChain,
+      message,
+      payer,
     );
-    if (!message.attestation) {
-      throw new Error('No signed attestation');
-    }
-    const tx = await contract.receiveMessage(
-      message.message,
-      message.attestation,
+    const txId = await signAndSendTransaction(
+      config.wh.toChainName(destChain),
+      tx,
+      TransferWallet.RECEIVING,
     );
-    await tx.wait();
-    return tx.hash;
+    config.wh.registerProviders();
+    return txId;
   }
 
   public async getPreview(
@@ -461,61 +400,7 @@ export class CCTPManualRoute extends BaseRoute {
     tx: string,
     chain: ChainName | ChainId,
   ): Promise<ManualCCTPMessage> {
-    // only EVM
-    // use this as reference
-    // https://goerli.etherscan.io/tx/0xe4984775c76b8fe7c2b09cd56fb26830f6e5c5c6b540eb97d37d41f47f33faca#eventlog
-    const provider = config.wh.mustGetProvider(chain);
-
-    const receipt = await provider.getTransactionReceipt(tx);
-    if (!receipt) throw new Error(`No receipt for ${tx} on ${chain}`);
-
-    // Get the CCTP log
-    const cctpLog = receipt.logs.filter(
-      (log) => log.topics[0] === CCTP_LOG_TokenMessenger_DepositForBurn,
-    )[0];
-
-    const parsedCCTPLog =
-      TokenMessenger__factory.createInterface().parseLog(cctpLog);
-
-    const messageLog = receipt.logs.filter(
-      (log) => log.topics[0] === CCTP_LOG_MessageSent,
-    )[0];
-
-    const message =
-      MessageTransmitter__factory.createInterface().parseLog(messageLog).args
-        .message;
-
-    const recipient = '0x' + parsedCCTPLog.args.mintRecipient.substring(26);
-    const fromChain = config.wh.toChainName(chain);
-    const tokenId: TokenId = {
-      chain: fromChain,
-      address: parsedCCTPLog.args.burnToken,
-    };
-    const token = getTokenById(tokenId);
-    const decimals = await config.wh.fetchTokenDecimals(tokenId, fromChain);
-    const toChain = getChainNameCCTP(parsedCCTPLog.args.destinationDomain);
-    return {
-      sendTx: receipt.transactionHash,
-      sender: receipt.from,
-      amount: parsedCCTPLog.args.amount.toString(),
-      payloadID: PayloadType.Manual,
-      recipient: recipient,
-      toChain,
-      fromChain: fromChain,
-      tokenAddress: parsedCCTPLog.args.burnToken,
-      tokenChain: fromChain,
-      tokenId: tokenId,
-      tokenDecimals: decimals,
-      tokenKey: token?.key || '',
-      receivedTokenKey: getNativeVersionOfToken('USDC', toChain),
-      gasFee: receipt.gasUsed.mul(receipt.effectiveGasPrice).toString(),
-      block: receipt.blockNumber,
-      message,
-
-      // manual CCTP does not use wormhole
-      emitterAddress: '',
-      sequence: '',
-    };
+    return this.getImplementation(chain).getMessage(tx, chain);
   }
 
   async getSignedMessage(
@@ -617,37 +502,24 @@ export class CCTPManualRoute extends BaseRoute {
     destChain: ChainName | ChainId,
     messageInfo: SignedCCTPMessage,
   ): Promise<boolean> {
-    if (!isSignedCCTPMessage(messageInfo))
-      throw new Error('Signed message is not for CCTP');
-    const nonce = getNonce(messageInfo.message);
-    const context: any = config.wh.getContext(destChain);
-    const circleMessageTransmitter =
-      context.contracts.mustGetContracts(destChain).cctpContracts
-        ?.cctpMessageTransmitter;
-    const connection = config.wh.mustGetProvider(destChain);
-    const iface = new utils.Interface([
-      'function usedNonces(bytes32 domainNonceHash) view returns (uint256)',
-    ]);
-    const contract = new ethers.Contract(
-      circleMessageTransmitter,
-      iface,
-      connection,
+    return this.getImplementation(destChain).isTransferCompleted(
+      destChain,
+      messageInfo,
     );
-
-    const cctpDomain = config.wh.conf.chains[messageInfo.fromChain]?.cctpDomain;
-    if (cctpDomain === undefined)
-      throw new Error(`CCTP not supported on ${messageInfo.fromChain}`);
-
-    const hash = ethers.utils.keccak256(
-      ethers.utils.solidityPack(['uint32', 'uint64'], [cctpDomain, nonce]),
-    );
-    const result = await contract.usedNonces(hash);
-    return result.toString() === '1';
   }
 
   async tryFetchRedeemTx(
     txData: UnsignedCCTPMessage,
   ): Promise<string | undefined> {
     return undefined; // only for automatic routes
+  }
+
+  private getImplementation(chain: ChainId | ChainName): ManualCCTP {
+    if (isEvmChain(chain)) {
+      return new ManualCCTPEvmImpl();
+    } else if (config.wh.toChainName(chain) === 'solana') {
+      return new ManualCCTPSolanaImpl();
+    }
+    throw new Error(`No CCTP implementation for chain ${chain}`);
   }
 }
