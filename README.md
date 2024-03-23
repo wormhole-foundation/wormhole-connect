@@ -129,6 +129,7 @@ const config: WormholeConnectConfig = {
 
 See the "Arbitrary Token" example in [the config docs](https://docs.wormhole.com/wormhole/wormhole-connect/configuration#arbitrary-token).
 
+
 Please note you have to [register a token](https://portalbridge.com/advanced-tools/#/register) with the token bridge before you can use it in Connect.
 
 ### Custom Theme
