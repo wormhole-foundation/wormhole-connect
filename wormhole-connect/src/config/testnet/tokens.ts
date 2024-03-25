@@ -2248,6 +2248,7 @@ export const TESTNET_TOKENS: TokensConfig = {
       default: 8,
     },
     ntt: {
+      groupId: 'test_ntt',
       nttManager: '0xB231aD95f2301bc82eA44c515001F0F746D637e0',
       wormholeTransceiver: '0x1fDC902e30b188FD2BA976B421Cb179943F57896',
     },
@@ -2268,6 +2269,7 @@ export const TESTNET_TOKENS: TokensConfig = {
       default: 8,
     },
     ntt: {
+      groupId: 'test_ntt',
       nttManager: '0xEec94CD3083e067398256a79CcA7e740C5c8ef81',
       wormholeTransceiver: '0x0E24D17D7467467b39Bf64A9DFf88776Bd6c74d7',
     },
@@ -2288,6 +2290,7 @@ export const TESTNET_TOKENS: TokensConfig = {
       default: 8,
     },
     ntt: {
+      groupId: 'test_ntt',
       nttManager: '0xB03b030b2f5B40819Df76467d67eD1C85Ff66fAD',
       wormholeTransceiver: '0x1e072169541f1171e427Aa44B5fd8924BEE71b0e',
     },
@@ -2308,6 +2311,7 @@ export const TESTNET_TOKENS: TokensConfig = {
       default: 8,
     },
     ntt: {
+      groupId: 'test_ntt',
       nttManager: '0x7f430D4e7939D994C0955A01FC75D9DE33F12D11',
       wormholeTransceiver: '0x41265eb2863bf0238081F6AeefeF73549C82C3DD',
     },
@@ -2328,6 +2332,7 @@ export const TESTNET_TOKENS: TokensConfig = {
       default: 8,
     },
     ntt: {
+      groupId: 'test_ntt',
       nttManager: 'nTTh3bZ5Aer6xboWZe39RDEft4MeVxSQ8D1EYAVLZw9',
       // The wormhole transceiver is baked into the Solana NTT contract.
       // If the transceiver is split into a separate contract, this address

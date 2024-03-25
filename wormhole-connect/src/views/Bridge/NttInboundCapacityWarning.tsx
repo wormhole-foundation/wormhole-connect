@@ -4,7 +4,7 @@ import { NttManual } from 'routes/ntt';
 import { parseUnits } from 'ethers/lib/utils';
 import { getTokenDecimals } from 'utils';
 import { BigNumber } from 'ethers';
-import { getNativeVersionOfToken } from 'store/transferInput';
+import { getNttToken } from 'store/transferInput';
 import { useSelector } from 'react-redux';
 import { RootState } from 'store';
 import config from 'config';
@@ -81,10 +81,9 @@ const NttInboundCapacityWarning = () => {
       !fromChain
     )
       return false;
-    const destTokenKey = getNativeVersionOfToken(
-      config.tokens[destToken].symbol,
-      toChain,
-    );
+    const groupId = config.tokens[destToken]?.ntt?.groupId;
+    if (!groupId) return false;
+    const destTokenKey = getNttToken(groupId, toChain);
     const destTokenConfig = config.tokens[destTokenKey];
     if (!destTokenConfig) return false;
     // capacity is in destination token decimals, so we need to convert the amount to the same decimals

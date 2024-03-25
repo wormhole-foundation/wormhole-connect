@@ -28,7 +28,7 @@ import {
   removeDust,
   toNormalizedDecimals,
 } from 'utils';
-import { getNativeVersionOfToken } from 'store/transferInput';
+import { getNttToken } from 'store/transferInput';
 import { getNttManager } from './platforms';
 import { InboundQueuedTransfer } from './types';
 import {
@@ -340,10 +340,10 @@ export abstract class NttBase extends BaseRoute {
     chain: ChainName | ChainId,
   ): Promise<string | null> {
     const tokenConfig = getTokenById(token);
-    if (!tokenConfig) {
+    if (!tokenConfig?.ntt) {
       throw new Error('invalid token');
     }
-    const key = getNativeVersionOfToken(tokenConfig.symbol, toChainName(chain));
+    const key = getNttToken(tokenConfig.ntt.groupId, chain);
     return config.tokens[key]?.tokenId?.address || null;
   }
 

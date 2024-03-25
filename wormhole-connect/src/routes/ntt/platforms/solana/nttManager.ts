@@ -363,7 +363,7 @@ export class NttManagerSolana {
     const signatures = await this.connection.getSignaturesForAddress(address, {
       limit: 1,
     });
-    return signatures ? signatures[0].signature : undefined;
+    return signatures?.[0]?.signature;
   }
 
   // Account addresses

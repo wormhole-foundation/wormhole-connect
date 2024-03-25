@@ -8,7 +8,7 @@ import {
 import { ethers } from 'ethers';
 import { hexlify } from 'ethers/lib/utils';
 import { NttRelayingType, UnsignedNttMessage } from 'routes/types';
-import { getNativeVersionOfToken } from 'store/transferInput';
+import { getNttToken } from 'store/transferInput';
 import { getTokenById, getTokenDecimals } from 'utils';
 import { getWormholeLogEvm } from 'utils/vaa';
 import { NttManager__factory } from './abis';
@@ -45,7 +45,7 @@ export const getMessageEvm = async (
     address: tokenAddress,
   };
   const token = getTokenById(tokenId);
-  if (!token) {
+  if (!token?.ntt) {
     throw new Error(`Token ${tokenId} not found`);
   }
   const wormholeLog = await getWormholeLogEvm(fromChain, receipt);
@@ -79,6 +79,10 @@ export const getMessageEvm = async (
   const toChain = toChainName(
     nttManagerMessage.payload.recipientChain as ChainId,
   );
+  const receivedTokenKey = getNttToken(token.ntt.groupId, toChain);
+  if (!receivedTokenKey) {
+    throw new Error(`Received token key not found for ${tokenId}`);
+  }
   return {
     sendTx: receipt.transactionHash,
     sender: receipt.from,
@@ -95,7 +99,7 @@ export const getMessageEvm = async (
     tokenId,
     tokenKey: token.key,
     tokenDecimals: getTokenDecimals(toChainId(fromChain), tokenId),
-    receivedTokenKey: getNativeVersionOfToken(token.symbol, toChain),
+    receivedTokenKey,
     emitterAddress: hexlify(
       config.wh.formatAddress(parsedWormholeLog.args.sender, fromChain),
     ),

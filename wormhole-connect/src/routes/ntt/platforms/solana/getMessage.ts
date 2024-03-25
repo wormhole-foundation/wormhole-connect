@@ -2,7 +2,7 @@ import { solanaContext } from 'utils/sdk';
 import { PostedMessageData } from '@certusone/wormhole-sdk/lib/esm/solana/wormhole';
 import { hexlify } from 'ethers/lib/utils';
 import { NttRelayingType, UnsignedNttMessage } from 'routes/types';
-import { getNativeVersionOfToken } from 'store/transferInput';
+import { getNttToken } from 'store/transferInput';
 import { getTokenById, getTokenDecimals } from 'utils';
 import {
   getNttManagerMessageDigest,
@@ -54,8 +54,12 @@ export const getMessageSolana = async (
     address: tokenAddress,
   };
   const token = getTokenById(tokenId);
-  if (!token) {
+  if (!token?.ntt) {
     throw new Error(`Token ${tokenId} not found`);
+  }
+  const receivedTokenKey = getNttToken(token.ntt.groupId, toChain);
+  if (!receivedTokenKey) {
+    throw new Error(`Received token key not found for ${tokenId}`);
   }
   const logMsgs = response.meta?.logMessages || [];
   const regex = /total fee in lamports: (\d+)/;
@@ -83,7 +87,7 @@ export const getMessageSolana = async (
     tokenId,
     tokenKey: token.key,
     tokenDecimals: getTokenDecimals(config.wh.toChainId(fromChain), tokenId),
-    receivedTokenKey: getNativeVersionOfToken(token.symbol, toChain),
+    receivedTokenKey,
     emitterAddress: hexlify(
       context.formatAddress(messageData.message.emitterAddress),
     ),

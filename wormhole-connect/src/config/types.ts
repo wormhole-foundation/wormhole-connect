@@ -234,6 +234,7 @@ export type TokenConfig = {
     };
   };
   ntt?: {
+    groupId: string;
     nttManager: string;
     wormholeTransceiver: string;
     solanaQuoter?: string;
