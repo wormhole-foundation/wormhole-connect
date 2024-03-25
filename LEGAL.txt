@@ -1,5 +1,5 @@
 The information and materials available through this repo (collectively, “Materials”)
-are available on an “AI IS” basis without warranties of any kind, either express or
+are available on an “AS IS” basis without warranties of any kind, either express or
 implied, including, but not limited to, warranties of merchantability, title, fitness
 for a particular purpose and non-infringement. You assume all risks associated with
 using the Materials, and digital assets and decentralized systems generally, including
