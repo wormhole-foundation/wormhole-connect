@@ -1,5 +1,5 @@
 import { makeStyles } from 'tss-react/mui';
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { Dialog, ScopedCssBaseline } from '@mui/material';
 // import { useTheme } from '@mui/material/styles';
 // import useMediaQuery from '@mui/material/useMediaQuery';
@@ -61,6 +61,18 @@ function Modal({ open, width, closable, children, onClose }: Props) {
   // TODO: have user pass in full-screen param?
   const handleClickInModal = useCallback((event: any) => {
     event.stopPropagation();
+  }, []);
+
+  useEffect(() => {
+    const callback = (e: any) => {
+      if (e.keyCode === 27 || e.which === 27) onClose();
+    };
+
+    document.addEventListener('keyup', callback);
+
+    return () => {
+      document.removeEventListener('keyup', callback);
+    };
   }, []);
 
   return (
