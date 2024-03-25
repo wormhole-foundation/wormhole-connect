@@ -245,7 +245,7 @@ function Send(props: { valid: boolean }) {
         content={sendError}
         error
         margin="0 0 16px 0"
-        testId="approve-error-message"
+        testId="send-error-message"
       />
       {props.valid && !isConnected ? (
         <Button disabled elevated>

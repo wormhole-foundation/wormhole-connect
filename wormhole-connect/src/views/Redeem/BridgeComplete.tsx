@@ -30,7 +30,11 @@ function BridgeComplete() {
   };
 
   let containerBg: string | undefined = undefined;
-  let component: React.JSX.Element = <div>The bridge is now complete.</div>;
+  let component: React.JSX.Element = (
+    <div data-testid="transaction-complete-message">
+      The bridge is now complete.
+    </div>
+  );
   if (
     isPorticoTransferDestInfo(transferDestInfo) &&
     transferDestInfo.destTxInfo.swapFailed
