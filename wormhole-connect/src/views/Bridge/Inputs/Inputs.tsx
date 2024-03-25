@@ -6,6 +6,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 
 import config from 'config';
+import { TransferSide } from 'config/types';
 import { RootState } from 'store';
 import { ValidationErr } from 'store/transferInput';
 import { NO_INPUT } from 'utils/style';
@@ -107,7 +108,7 @@ const useStyles = makeStyles()((theme) => ({
 }));
 
 type Props = {
-  title: string;
+  side: TransferSide;
   wallet: TransferWallet;
   walletError: string;
   walletValidations: string[];
@@ -145,13 +146,21 @@ function Inputs(props: Props) {
     return '';
   }, [props.tokenPrice, props.balance]);
 
+  const title = {
+    source: 'From',
+    destination: 'To',
+  }[props.side];
+
+  const chainTestId = props.side + '-section-select-network-button';
+
   return (
     <div className={classes.container}>
       <div className={classes.errorContainer}>
         <div className={classes.header}>
-          <div className={classes.headerTitle}>{props.title}</div>
+          <div className={classes.headerTitle}>{title}</div>
           {/* connect wallet button */}
           <ConnectWallet
+            side={props.side}
             type={props.wallet}
             disabled={isTransactionInProgress || !selectedChain}
           />
@@ -178,7 +187,7 @@ function Inputs(props: Props) {
           <div className={classes.content}>
             {/* chain tile */}
             {!mobile && (
-              <div className={classes.chain}>
+              <div className={classes.chain} data-testid={chainTestId}>
                 <ChainTile
                   chain={chainConfig}
                   error={!!(showErrors && props.chainValidation)}

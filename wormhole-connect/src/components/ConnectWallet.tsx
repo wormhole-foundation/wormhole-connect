@@ -16,6 +16,7 @@ import WalletIcons from 'icons/WalletIcons';
 import PopupState, { bindTrigger, bindPopover } from 'material-ui-popup-state';
 import Popover from '@mui/material/Popover';
 import config from 'config';
+import { TransferSide } from 'config/types';
 import { ExplorerConfig } from 'config/types';
 
 type StyleProps = { disabled?: boolean };
@@ -57,6 +58,7 @@ const useStyles = makeStyles<StyleProps>()((theme: any, { disabled }) => ({
 }));
 
 type Props = {
+  side: TransferSide;
   type: TransferWallet;
   disabled?: boolean;
 };
@@ -181,7 +183,11 @@ function ConnectWallet(props: Props) {
     );
   } else {
     const button = (
-      <div className={classes.connectWallet} onClick={() => connect()}>
+      <div
+        className={classes.connectWallet}
+        onClick={() => connect()}
+        data-testid={props.side + '-section-connect-wallet-button'}
+      >
         <WalletIcon />
         <div>{mobile ? 'Connect' : 'Connect wallet'}</div>
       </div>
