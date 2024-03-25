@@ -39,6 +39,7 @@ type Props = {
   onEnter?: React.KeyboardEventHandler;
   disabled?: boolean;
   value?: string | number;
+  testId?: string;
 };
 
 const NUMBER_FORMAT_REGEX = /^\d*\.?\d*$/;
@@ -76,6 +77,7 @@ function InputTransparent(props: Props) {
       onKeyDown={handleKeyDown}
       readOnly={props.disabled}
       value={props.value}
+      data-testid={props.testId}
     />
   );
 }

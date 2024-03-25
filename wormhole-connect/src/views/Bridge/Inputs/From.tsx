@@ -149,7 +149,11 @@ function FromInputs() {
     computeReceiveAmount(amount);
   }, [route, amount, computeReceiveAmount]);
   const amountInput = (
-    <AmountInput handleAmountChange={handleAmountChange} value={amount} />
+    <AmountInput
+      handleAmountChange={handleAmountChange}
+      value={amount}
+      side="source"
+    />
   );
 
   const handleExtraNetwork = (

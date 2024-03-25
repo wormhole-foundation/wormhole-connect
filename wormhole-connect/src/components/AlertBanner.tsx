@@ -29,6 +29,7 @@ type Props = {
   warning?: boolean;
   error?: boolean;
   margin?: string;
+  testId?: string;
 };
 
 function AlertBanner(props: Props) {
@@ -43,6 +44,7 @@ function AlertBanner(props: Props) {
           !!props.error && classes.error,
         ])}
         style={{ margin: props.margin || 0 }}
+        data-testid={props.testId}
       >
         <AlertIcon />
         {props.content}

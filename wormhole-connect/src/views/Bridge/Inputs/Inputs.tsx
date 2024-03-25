@@ -221,7 +221,10 @@ function Inputs(props: Props) {
                 <div className={classes.amount}>{props.amountInput}</div>
 
                 {/* balance */}
-                <div className={classes.balance}>
+                <div
+                  className={classes.balance}
+                  data-testid={`${props.side}-section-balance-text`}
+                >
                   <Input label="Balance" disabled>
                     <div>
                       {props.balance ? (

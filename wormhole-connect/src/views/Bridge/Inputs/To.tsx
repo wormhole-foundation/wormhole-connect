@@ -123,6 +123,7 @@ function ToInputs() {
       value={receiveAmount.data || ''}
       disabled
       label={label}
+      side="destination"
     />
   );
 

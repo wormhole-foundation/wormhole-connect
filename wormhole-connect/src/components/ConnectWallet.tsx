@@ -186,7 +186,7 @@ function ConnectWallet(props: Props) {
       <div
         className={classes.connectWallet}
         onClick={() => connect()}
-        data-testid={props.side + '-section-connect-wallet-button'}
+        data-testid={`${props.side}-section-connect-wallet-button`}
       >
         <WalletIcon />
         <div>{mobile ? 'Connect' : 'Connect wallet'}</div>

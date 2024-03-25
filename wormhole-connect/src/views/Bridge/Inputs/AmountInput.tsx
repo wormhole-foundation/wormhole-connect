@@ -10,12 +10,14 @@ import Input from './Input';
 import config from 'config';
 import Price from 'components/Price';
 import { getTokenPrice, getUSDFormat } from 'utils';
+import { TransferSide } from 'config/types';
 
 type Props = {
   handleAmountChange: (value: number | string) => void;
   value: string;
   disabled?: boolean;
   label?: string;
+  side: TransferSide;
 };
 function AmountInput(props: Props) {
   const amountEl = useRef(null);
@@ -77,6 +79,7 @@ function AmountInput(props: Props) {
             onChange={handleAmountChange}
             disabled={isTransactionInProgress || props.disabled}
             value={props.value}
+            testId={props.side + '-section-amount-input'}
           />
           {price && <Price>{price}</Price>}
         </>
