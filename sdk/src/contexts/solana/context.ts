@@ -912,8 +912,8 @@ export class SolanaContext<
           signedVAA,
         );
 
-    transaction.feePayer = new PublicKey(payerAddr);
-    await addComputeBudget(this.connection!, transaction);
+    // TODO: adding a compute budget causes the redeem to fail for WSOL, unsure of why
+    // await addComputeBudget(this.connection!, transaction);
 
     return transaction;
   }
