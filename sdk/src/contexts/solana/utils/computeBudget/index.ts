@@ -13,6 +13,8 @@ export async function addComputeBudget(
   connection: Connection,
   transaction: Transaction,
   lockedWritableAccounts: PublicKey[] = [],
+  feePercentile: number = DEFAULT_FEE_PERCENTILE,
+  minPriorityFee: number = 0,
 ): Promise<void> {
   if (lockedWritableAccounts.length === 0) {
     lockedWritableAccounts = transaction.instructions
@@ -24,6 +26,8 @@ export async function addComputeBudget(
     connection,
     transaction,
     lockedWritableAccounts,
+    DEFAULT_FEE_PERCENTILE,
+    minPriorityFee,
   );
   transaction.add(...ixs);
 }
@@ -33,6 +37,7 @@ export async function determineComputeBudget(
   transaction: Transaction,
   lockedWritableAccounts: PublicKey[] = [],
   feePercentile: number = DEFAULT_FEE_PERCENTILE,
+  minPriorityFee: number = 0,
 ): Promise<TransactionInstruction[]> {
   let computeBudget = 250_000;
   let priorityFee = 1;
@@ -50,15 +55,24 @@ export async function determineComputeBudget(
       // Set compute budget to 120% of the units used in the simulated transaction
       computeBudget = Math.round(simulateResponse.value.unitsConsumed * 1.2);
     }
+  } catch (e) {
+    console.error(
+      `Failed to calculate compute unit limit for Solana transaction: ${e}`,
+    );
+  }
 
+  try {
     priorityFee = await determinePriorityFee(
       connection,
       lockedWritableAccounts,
       feePercentile,
     );
   } catch (e) {
-    console.error(`Failed to get compute budget for Solana transaction: ${e}`);
+    console.error(
+      `Failed to calculate compute unit price for Solana transaction: ${e}`,
+    );
   }
+  priorityFee = Math.max(priorityFee, minPriorityFee);
 
   console.info(`Setting Solana compute unit budget to ${computeBudget} units`);
   console.info(

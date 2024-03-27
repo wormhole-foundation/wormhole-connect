@@ -2,7 +2,6 @@ import {
   CHAIN_ID_SOLANA,
   createNonce,
   getForeignAssetSolana,
-  redeemAndUnwrapOnSolana,
   redeemOnSolana,
 } from '@certusone/wormhole-sdk';
 import {
@@ -58,6 +57,7 @@ import {
   createApproveAuthoritySignerInstruction,
   createTransferWrappedWithPayloadInstruction,
   deriveWrappedMintKey,
+  redeemAndUnwrapOnSolana,
 } from './utils/tokenBridge';
 import {
   deriveClaimKey,
@@ -896,24 +896,28 @@ export class SolanaContext<
       parsed.tokenChain === MAINNET_CHAINS.solana &&
       tokenKey.equals(NATIVE_MINT);
 
-    const transaction = isNativeSol
-      ? await redeemAndUnwrapOnSolana(
-          this.connection,
-          contracts.core,
-          contracts.token_bridge,
-          payerAddr,
-          signedVAA,
-        )
-      : await redeemOnSolana(
-          this.connection,
-          contracts.core,
-          contracts.token_bridge,
-          payerAddr,
-          signedVAA,
-        );
-
-    // TODO: adding a compute budget causes the redeem to fail for WSOL, unsure of why
-    // await addComputeBudget(this.connection!, transaction);
+    let transaction;
+    if (isNativeSol) {
+      transaction = await redeemAndUnwrapOnSolana(
+        this.connection,
+        contracts.core,
+        contracts.token_bridge,
+        payerAddr,
+        signedVAA,
+        'finalized',
+      );
+    } else {
+      transaction = await redeemOnSolana(
+        this.connection,
+        contracts.core,
+        contracts.token_bridge,
+        payerAddr,
+        signedVAA,
+        undefined,
+        'finalized',
+      );
+      await addComputeBudget(this.connection!, transaction);
+    }
 
     return transaction;
   }
