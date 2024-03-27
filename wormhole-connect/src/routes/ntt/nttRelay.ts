@@ -1,6 +1,6 @@
 import { Route, TokenConfig } from 'config/types';
 import { BigNumber } from 'ethers';
-import { getNttManager } from './platforms';
+import { getNttManager } from './chains';
 import { ChainName, ChainId } from '@wormhole-foundation/wormhole-connect-sdk';
 import { NttBase } from './nttBase';
 import {
@@ -26,8 +26,8 @@ import {
 import { NO_INPUT } from 'utils/style';
 import { TokenPrices } from 'store/tokenPrices';
 import { toDecimals, toFixedDecimals } from 'utils/balance';
-import { NttManagerEvm, WormholeTransceiver } from './platforms/evm';
-import { NttQuoter } from './platforms/solana/nttQuoter';
+import { NttManagerEvm, WormholeTransceiver } from './chains/evm';
+import { NttQuoter } from './chains/solana/nttQuoter';
 import config from 'config';
 
 export class NttRelay extends NttBase {

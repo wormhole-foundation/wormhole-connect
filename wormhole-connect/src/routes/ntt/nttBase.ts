@@ -29,14 +29,14 @@ import {
   toNormalizedDecimals,
 } from 'utils';
 import { getNttToken } from 'store/transferInput';
-import { getNttManager } from './platforms';
+import { getNttManager } from './chains';
 import { InboundQueuedTransfer } from './types';
 import {
   ContractIsPausedError,
   DestinationContractIsPausedError,
 } from './errors';
-import { WormholeTransceiver, getMessageEvm } from './platforms/evm';
-import { NttManagerSolana, getMessageSolana } from './platforms/solana';
+import { WormholeTransceiver, getMessageEvm } from './chains/evm';
+import { NttManagerSolana, getMessageSolana } from './chains/solana';
 import { formatGasFee } from 'routes/utils';
 import { NO_INPUT } from 'utils/style';
 import { estimateAverageGasFee } from 'utils/gas';
@@ -102,6 +102,7 @@ export abstract class NttBase extends BaseRoute {
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
   ): Promise<boolean> {
+    console.log('isRouteSupported');
     return await Promise.all([
       this.isSupportedChain(toChainName(sourceChain)),
       this.isSupportedChain(toChainName(destChain)),
@@ -229,6 +230,7 @@ export abstract class NttBase extends BaseRoute {
       throw new Error('Amount too low');
     }
     const shouldSkipRelayerSend = this.TYPE !== Route.NttRelay;
+    // TODO: will change with https://github.com/wormhole-foundation/example-native-token-transfers/pull/326 refund address
     return await nttManager.send(
       token,
       senderAddress,
