@@ -12,12 +12,10 @@ import { getNttToken } from 'store/transferInput';
 import { getTokenById, getTokenDecimals } from 'utils';
 import { getWormholeLogEvm } from 'utils/vaa';
 import { NttManager__factory } from './abis';
-import {
-  getNttManagerMessageDigest,
-  parseWormholeTransceiverMessage,
-} from 'routes/ntt/utils';
 import config from 'config';
-import { toChainId, toChainName } from 'utils/sdk';
+import { toChainName } from 'utils/sdk';
+import { deserializePayload, Ntt } from '@wormhole-foundation/sdk-definitions';
+import { toChain, toChainId } from '@wormhole-foundation/sdk-base';
 
 const RELAYING_INFO_EVENT_TOPIC =
   '0x375a56c053c4d19a2e3445e97b7a28bf4e908617ce6d766e1e03a9d3f5276271';
@@ -74,12 +72,15 @@ export const getMessageEvm = async (
   } else {
     throw new Error(`Unexpected relaying type ${relayingType}`);
   }
-  const transceiverMessage = parseWormholeTransceiverMessage(payload);
-  const nttManagerMessage = transceiverMessage.nttManagerPayload;
-  const toChain = toChainName(
-    nttManagerMessage.payload.recipientChain as ChainId,
+  const transceiverMessage = deserializePayload(
+    'Ntt:WormholeTransfer',
+    payload,
   );
-  const receivedTokenKey = getNttToken(token.ntt.groupId, toChain);
+  const nttManagerMessage = transceiverMessage.nttManagerPayload;
+  const recipientChain = toChainName(
+    toChainId(nttManagerMessage.payload.recipientChain) as ChainId,
+  );
+  const receivedTokenKey = getNttToken(token.ntt.groupId, recipientChain);
   if (!receivedTokenKey) {
     throw new Error(`Received token key not found for ${tokenId}`);
   }
@@ -89,16 +90,16 @@ export const getMessageEvm = async (
     amount: nttManagerMessage.payload.trimmedAmount.amount.toString(),
     payloadID: 0,
     recipient: config.wh.parseAddress(
-      nttManagerMessage.payload.recipientAddress,
-      toChain,
+      nttManagerMessage.payload.recipientAddress.toString(),
+      recipientChain,
     ),
-    toChain,
+    toChain: recipientChain,
     fromChain,
     tokenAddress,
     tokenChain: token.nativeChain,
     tokenId,
     tokenKey: token.key,
-    tokenDecimals: getTokenDecimals(toChainId(fromChain), tokenId),
+    tokenDecimals: getTokenDecimals(config.wh.toChainId(fromChain), tokenId),
     receivedTokenKey,
     emitterAddress: hexlify(
       config.wh.formatAddress(parsedWormholeLog.args.sender, fromChain),
@@ -107,10 +108,15 @@ export const getMessageEvm = async (
     block: receipt.blockNumber,
     gasFee: receipt.gasUsed.mul(receipt.effectiveGasPrice).toString(),
     recipientNttManager: config.wh.parseAddress(
-      hexlify(transceiverMessage.recipientNttManager),
-      toChain,
+      hexlify(transceiverMessage.recipientNttManager.toString()),
+      recipientChain,
     ),
-    messageDigest: getNttManagerMessageDigest(fromChain, nttManagerMessage),
+    messageDigest: hexlify(
+      Ntt.messageDigest(
+        toChain(config.wh.toChainId(fromChain) as number),
+        nttManagerMessage,
+      ),
+    ),
     relayerFee: deliveryPayment.toString(),
     relayingType,
   };
