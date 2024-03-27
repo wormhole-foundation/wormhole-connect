@@ -39,6 +39,7 @@ function SendFrom() {
           chain={txData!.fromChain}
           address={txData!.sender}
           txHash={txData!.sendTx}
+          side="source"
         />
         <RenderRows rows={rows} />
       </InputContainer>

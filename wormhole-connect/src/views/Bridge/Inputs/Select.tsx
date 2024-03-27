@@ -29,6 +29,7 @@ type Selected = {
 
 type Props = {
   label: string;
+  testId?: string;
   selected: Selected | undefined;
   error?: boolean;
   editable?: boolean;
@@ -54,7 +55,7 @@ function Select(props: Props) {
       onClick={handleClick}
     >
       {selected ? (
-        <div className={classes.select}>
+        <div className={classes.select} data-testid={props.testId}>
           <TokenIcon icon={selected.icon} height={24} />
           {selected.text}
           {selected.secondaryText && (
@@ -66,7 +67,7 @@ function Select(props: Props) {
       ) : props.disabled ? (
         NO_INPUT
       ) : (
-        <div className={classes.select}>
+        <div className={classes.select} data-testid={props.testId}>
           <TokenIcon height={24} />
           Select
         </div>

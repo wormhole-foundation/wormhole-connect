@@ -81,6 +81,7 @@ function FromInputs() {
   const tokenInput = (
     <Select
       label="Asset"
+      testId="source-section-select-asset-button"
       selected={selectedToken}
       error={!!(showErrors && validations.token)}
       onClick={() => setShowTokensModal(true)}
@@ -148,7 +149,11 @@ function FromInputs() {
     computeReceiveAmount(amount);
   }, [route, amount, computeReceiveAmount]);
   const amountInput = (
-    <AmountInput handleAmountChange={handleAmountChange} value={amount} />
+    <AmountInput
+      handleAmountChange={handleAmountChange}
+      value={amount}
+      side="source"
+    />
   );
 
   const handleExtraNetwork = (
@@ -165,7 +170,7 @@ function FromInputs() {
   return (
     <>
       <Inputs
-        title="From"
+        side="source"
         wallet={TransferWallet.SENDING}
         walletValidations={[validations.sendingWallet]}
         walletError={wallet.error}
@@ -193,7 +198,9 @@ function FromInputs() {
       <ChainsModal
         open={showChainsModal}
         title="Sending from"
-        chains={config.chainsArr.filter((c) => c.key !== toChain && !c.disabledAsSource)}
+        chains={config.chainsArr.filter(
+          (c) => c.key !== toChain && !c.disabledAsSource,
+        )}
         onSelect={selectChain}
         onClose={() => setShowChainsModal(false)}
         onMoreNetworkSelect={(href, chainName, target) =>

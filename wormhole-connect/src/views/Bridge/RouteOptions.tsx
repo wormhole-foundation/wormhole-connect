@@ -291,6 +291,7 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
           className={`${classes.route} ${
             props.disabled ? classes.disabled : ''
           }`}
+          data-testid={`route-option-${props.route.route}`}
         >
           <div className={classes.routeLeft}>
             <div className={classes.routeTitle}>

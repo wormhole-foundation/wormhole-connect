@@ -154,6 +154,7 @@ function Redeem({
         title="Bridge"
         back
         showHamburgerMenu={config.showHamburgerMenu}
+        testId="redeem-screen-header"
       />
 
       <ChainsTag />

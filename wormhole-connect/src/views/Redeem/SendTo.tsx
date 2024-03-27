@@ -262,6 +262,7 @@ function SendTo() {
           loading={loading}
           txHash={redeemTx}
           text={manualClaimText}
+          side="destination"
         />
         <>
           {showSwitchToManualClaim && (
@@ -292,6 +293,7 @@ function SendTo() {
             content={claimError}
             error
             margin="0 0 12px 0"
+            testId="claim-error-message"
           />
           {wallet.address ? (
             isConnected ? (

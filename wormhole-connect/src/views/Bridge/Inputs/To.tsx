@@ -74,6 +74,7 @@ function ToInputs() {
   const tokenInput = (
     <Select
       label="Asset"
+      testId="destination-section-select-asset-button"
       selected={selectedToken}
       error={!!(showErrors && validations.token)}
       onClick={() => setShowTokensModal(true)}
@@ -122,6 +123,7 @@ function ToInputs() {
       value={receiveAmount.data || ''}
       disabled
       label={label}
+      side="destination"
     />
   );
 
@@ -139,7 +141,7 @@ function ToInputs() {
   return (
     <>
       <Inputs
-        title="To"
+        side="destination"
         wallet={TransferWallet.RECEIVING}
         walletValidations={[validations.receivingWallet]}
         walletError={receiving.error}
@@ -169,7 +171,9 @@ function ToInputs() {
       <ChainsModal
         open={showChainsModal}
         title="Sending to"
-        chains={config.chainsArr.filter((c) => c.key !== fromChain && !c.disabledAsDestination)}
+        chains={config.chainsArr.filter(
+          (c) => c.key !== fromChain && !c.disabledAsDestination,
+        )}
         onSelect={selectChain}
         onClose={() => setShowChainsModal(false)}
         onMoreNetworkSelect={(href, chainName, target) =>

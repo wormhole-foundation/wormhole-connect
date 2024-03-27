@@ -9,6 +9,7 @@ import WalletIcon from 'icons/Wallet';
 import TokenIcon from 'icons/TokenIcons';
 import CircularProgress from '@mui/material/CircularProgress';
 import ExplorerLink from './ExplorerLink';
+import { TransferSide } from 'config/types';
 
 const useStyles = makeStyles()((theme) => ({
   header: {
@@ -39,6 +40,7 @@ type Props = {
   txHash?: string;
   loading?: boolean;
   text?: string;
+  side: TransferSide;
 };
 
 function Header(props: Props) {
@@ -54,10 +56,17 @@ function Header(props: Props) {
       {props.loading ? (
         <CircularProgress size={26} />
       ) : props.text ? (
-        <div>{props.text}</div>
+        <div data-testid={`${props.side}-section-scan-link-error-message`}>
+          {props.text}
+        </div>
       ) : (
         props.txHash && (
-          <ExplorerLink chain={props.chain} type={'tx'} txHash={props.txHash} />
+          <ExplorerLink
+            chain={props.chain}
+            type={'tx'}
+            txHash={props.txHash}
+            side={props.side}
+          />
         )
       )}
     </div>

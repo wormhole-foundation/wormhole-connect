@@ -55,6 +55,9 @@ export enum Route {
   wstETHBridge = 'wstETHBridge',
 }
 
+// Used in bridging components
+export type TransferSide = 'source' | 'destination';
+
 export type SupportedRoutes = keyof typeof Route;
 
 export type Network = 'mainnet' | 'testnet' | 'devnet';

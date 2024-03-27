@@ -110,6 +110,7 @@ function AddToSolanaWallet({ token, address }: AddTokenProps) {
         chain={'solana'}
         type={'address'}
         address={address}
+        side="destination"
       />
     </Typography>
   );
@@ -130,6 +131,7 @@ function AddToSuiWallet({ token, address }: AddTokenProps) {
         chain={'sui'}
         type={'object'}
         object={address}
+        side="destination"
       />
     </Typography>
   );
@@ -150,6 +152,7 @@ function AddToAptosWallet({ token, address }: AddTokenProps) {
         chain={'aptos'}
         type={'address'}
         address={tokenAccount}
+        side="destination"
       />
     </Typography>
   );

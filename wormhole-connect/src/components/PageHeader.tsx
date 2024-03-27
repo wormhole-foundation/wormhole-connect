@@ -52,6 +52,7 @@ type PageHeaderProps = {
   description?: string;
   back?: boolean;
   showHamburgerMenu?: boolean;
+  testId?: string;
 };
 
 function PageHeader({
@@ -60,6 +61,7 @@ function PageHeader({
   align = 'left',
   description,
   showHamburgerMenu = true,
+  testId,
 }: PageHeaderProps) {
   const { classes } = useStyles({ showHamburgerMenu, align });
   const dispatch = useDispatch();
@@ -78,7 +80,7 @@ function PageHeader({
               onClick={goBack}
             />
           )}
-          <Header text={title} align={align} />
+          <Header text={title} align={align} testId={testId} />
         </div>
         {showHamburgerMenu ? <MenuFull /> : null}
       </div>

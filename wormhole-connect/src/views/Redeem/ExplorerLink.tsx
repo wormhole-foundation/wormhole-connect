@@ -4,6 +4,7 @@ import { makeStyles } from 'tss-react/mui';
 import { LINK } from 'utils/style';
 import config from 'config';
 import LaunchIcon from '@mui/icons-material/Launch';
+import { TransferSide } from 'config/types';
 
 const useStyles = makeStyles()((theme) => ({
   link: {
@@ -14,6 +15,7 @@ const useStyles = makeStyles()((theme) => ({
 
 type ExplorerLinkProps = {
   chain: ChainName;
+  side: TransferSide;
   styles?: React.CSSProperties;
 } & (
   | { type: 'tx'; txHash: string }
@@ -76,6 +78,7 @@ function ExplorerLink(props: ExplorerLinkProps) {
       href={explorerLink}
       target="_blank"
       rel="noreferrer"
+      data-testid={`${props.side}-section-explorer-link`}
     >
       <div>{chainConfig.explorerName}</div>
       <LaunchIcon />
