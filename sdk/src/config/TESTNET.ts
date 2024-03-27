@@ -6,7 +6,6 @@ import { WormholeConfig, Context, ChainConfig, Contracts } from '../types';
  */
 export const TESTNET_CHAINS = {
   solana: 1,
-  goerli: 2,
   bsc: 4,
   mumbai: 5,
   fuji: 6,
@@ -48,24 +47,6 @@ export type ChainContracts = {
 };
 
 const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
-  goerli: {
-    key: 'goerli',
-    id: 2,
-    context: Context.ETH,
-    contracts: {
-      ...CONTRACTS.TESTNET.ethereum,
-      relayer: '0x9563a59c15842a6f322b10f69d1dd88b41f2e97b',
-      cctpContracts: {
-        cctpTokenMessenger: '0xd0c3da58f55358142b8d3e06c1c30c5c6114efe8',
-        cctpMessageTransmitter: '0x26413e8157cd32011e726065a5462e97dd4d03d9',
-        wormholeCircleRelayer: '0x17da1ff5386d044c63f00747b5b8ad1e3806448d',
-        wormholeCCTP: '0x0a69146716b3a21622287efa1607424c663069a4',
-      },
-    },
-    finalityThreshold: 64,
-    nativeTokenDecimals: 18,
-    cctpDomain: 0,
-  },
   solana: {
     key: 'solana',
     id: 1,
@@ -323,9 +304,14 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     context: Context.ETH,
     contracts: {
       ...CONTRACTS.TESTNET.sepolia,
+      cctpContracts: {
+        cctpTokenMessenger: '0x9f3b8679c73c2fef8b59b4f3444d4e156fb70aa5',
+        cctpMessageTransmitter: '0x7865fafc2db2093669d92c0f33aeef291086befd',
+      },
     },
     finalityThreshold: 0,
     nativeTokenDecimals: 18,
+    cctpDomain: 0,
   },
   arbitrum_sepolia: {
     key: 'arbitrum_sepolia',
@@ -374,7 +360,6 @@ const env: Environment = 'TESTNET';
 const TESTNET_CONFIG: WormholeConfig = {
   env,
   rpcs: {
-    goerli: 'https://rpc.ankr.com/eth_goerli',
     mumbai: 'https://rpc.ankr.com/polygon_mumbai',
     bsc: 'https://data-seed-prebsc-1-s3.binance.org:8545',
     fuji: 'https://api.avax-test.network/ext/bc/C/rpc',
