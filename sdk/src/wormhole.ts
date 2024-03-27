@@ -1,5 +1,5 @@
 import { Network as Environment } from '@certusone/wormhole-sdk';
-import { Domain, MultiProvider } from '@nomad-xyz/multi-provider';
+import { Domain, MultiProvider } from './multi-provider';
 import { BigNumber } from 'ethers';
 
 import MAINNET_CONFIG, { MAINNET_CHAINS } from './config/MAINNET';
