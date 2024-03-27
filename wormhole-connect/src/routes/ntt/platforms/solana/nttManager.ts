@@ -22,10 +22,7 @@ import {
 import { BN, IdlAccounts, Program } from '@coral-xyz/anchor';
 import { SignedVaa, parseVaa } from '@certusone/wormhole-sdk/lib/esm';
 import { utils } from 'ethers';
-import {
-  getNttManagerMessageDigest,
-  parseWormholeTransceiverMessage,
-} from 'routes/ntt/utils';
+import { deserializePayload, Ntt } from '@wormhole-foundation/sdk-definitions';
 import {
   ExampleNativeTokenTransfers,
   IDL,
@@ -39,6 +36,8 @@ import { NttQuoter } from './nttQuoter';
 import { getTokenById } from 'utils';
 import { Keccak } from 'sha3';
 import CONFIG from 'config';
+import { toChain as SDKv2toChain } from '@wormhole-foundation/sdk-base';
+import { hexlify } from 'ethers/lib/utils';
 
 // TODO: make sure this is in sync with the contract
 const RATE_LIMIT_DURATION = 24 * 60 * 60;
@@ -197,16 +196,17 @@ export class NttManagerSolana {
     // just make the second instruction a no-op in case the transfer is delayed.
     tx.add(await this.createReceiveWormholeMessageInstruction(redeemArgs));
     tx.add(await this.createRedeemInstruction(redeemArgs));
-    const { nttManagerPayload } = parseWormholeTransceiverMessage(
+    const { nttManagerPayload } = deserializePayload(
+      'Ntt:WormholeTransfer',
       parsedVaa.payload,
     );
-    const messageDigest = getNttManagerMessageDigest(
-      chainId,
+    const messageDigest = Ntt.messageDigest(
+      SDKv2toChain(chainId),
       nttManagerPayload,
     );
     const releaseArgs = {
       ...redeemArgs,
-      messageDigest,
+      messageDigest: hexlify(messageDigest),
       recipient: new PublicKey(nttManagerPayload.payload.recipientAddress),
       chain: chainId,
       revertOnDelay: false,
@@ -662,7 +662,8 @@ export class NttManagerSolana {
     config?: Config;
   }): Promise<TransactionInstruction> {
     const parsedVaa = parseVaa(args.vaa);
-    const { nttManagerPayload } = parseWormholeTransceiverMessage(
+    const { nttManagerPayload } = deserializePayload(
+      'Ntt:WormholeTransfer',
       parsedVaa.payload,
     );
     const chainId = toChainId(parsedVaa.emitterChain as ChainId);
@@ -676,7 +677,7 @@ export class NttManagerSolana {
         vaa: derivePostedVaaKey(this.wormholeId, parseVaa(args.vaa).hash),
         transceiverMessage: this.transceiverMessageAccountAddress(
           chainId,
-          nttManagerPayload.id,
+          Buffer.from(nttManagerPayload.id),
         ),
       })
       .instruction();
@@ -689,12 +690,13 @@ export class NttManagerSolana {
   }): Promise<TransactionInstruction> {
     const config = await this.getConfig(args.config);
     const parsedVaa = parseVaa(args.vaa);
-    const { nttManagerPayload } = parseWormholeTransceiverMessage(
+    const { nttManagerPayload } = deserializePayload(
+      'Ntt:WormholeTransfer',
       parsedVaa.payload,
     );
     const chainId = toChainId(parsedVaa.emitterChain as ChainId);
-    const messageDigest = getNttManagerMessageDigest(
-      chainId,
+    const messageDigest = Ntt.messageDigest(
+      SDKv2toChain(chainId),
       nttManagerPayload,
     );
     const nttManagerPeer = this.peerAccountAddress(chainId);
@@ -707,11 +709,11 @@ export class NttManagerSolana {
         peer: nttManagerPeer,
         transceiverMessage: this.transceiverMessageAccountAddress(
           chainId,
-          nttManagerPayload.id,
+          Buffer.from(nttManagerPayload.id),
         ),
         transceiver: this.registeredTransceiverAddress(this.program.programId),
         mint: await this.mintAccountAddress(config),
-        inboxItem: this.inboxItemAccountAddress(messageDigest),
+        inboxItem: this.inboxItemAccountAddress(hexlify(messageDigest)),
         inboxRateLimit,
         outboxRateLimit: this.outboxRateLimitAccountAddress(),
       })
