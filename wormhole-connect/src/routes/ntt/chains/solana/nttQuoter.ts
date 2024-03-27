@@ -60,6 +60,7 @@ export class NttQuoter {
     }
   }
 
+  // TODO: will change with https://github.dev/wormhole-foundation/example-native-token-transfers/pull/319
   async calcRelayCost(chain: ChainName | ChainId) {
     const [chainData, instanceData, rentCost] = await Promise.all([
       this.getRegisteredChain(chain),
@@ -68,6 +69,13 @@ export class NttQuoter {
         this.program.account.relayRequest.size,
       ),
     ]);
+
+    if (chainData.nativePriceUsd === 0) {
+      throw new Error('Native price is 0');
+    }
+    if (instanceData.solPriceUsd === 0) {
+      throw new Error('SOL price is 0');
+    }
 
     const totalNativeGasCostUsd =
       chainData.nativePriceUsd *
