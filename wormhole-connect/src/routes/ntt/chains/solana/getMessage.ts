@@ -98,7 +98,6 @@ export const getMessageSolana = async (
       hexlify(transceiverMessage.recipientNttManager.toString()),
       recipientChain,
     ),
-    // messageDigest: getNttManagerMessageDigest(fromChain, nttManagerMessage),
     messageDigest: hexlify(Ntt.messageDigest('Solana', nttManagerMessage)),
     relayerFee: relayerFee || '',
     relayingType: relayerFee ? NttRelayingType.Special : NttRelayingType.Manual,

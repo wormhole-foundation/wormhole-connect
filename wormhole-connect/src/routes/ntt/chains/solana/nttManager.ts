@@ -31,7 +31,7 @@ import {
   derivePostedVaaKey,
   getWormholeDerivedAccounts,
 } from '@certusone/wormhole-sdk/lib/esm/solana/wormhole';
-import { associatedAddress } from '@coral-xyz/anchor/dist/cjs/utils/token';
+import { associatedAddress } from '@coral-xyz/anchor/dist/esm/utils/token';
 import { NttQuoter } from './nttQuoter';
 import { getTokenById } from 'utils';
 import { Keccak } from 'sha3';

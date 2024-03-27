@@ -37,8 +37,8 @@ import { ETHBridge } from './porticoBridge/ethBridge';
 import { wstETHBridge } from './porticoBridge/wstETHBridge';
 import { TokenPrices } from 'store/tokenPrices';
 import { NttManual, NttRelay } from './ntt';
-import { getMessageEvm as getNttMessageEvm } from './ntt/platforms/evm';
-import { getMessageSolana as getNttMessageSolana } from './ntt/platforms/solana';
+import { getMessageEvm } from './ntt/chains/evm';
+import { getMessageSolana } from './ntt/chains/solana';
 
 export class Operator {
   getRoute(route: Route): RouteAbstract {
@@ -112,7 +112,7 @@ export class Operator {
       if (
         config.tokensArr.some(({ ntt }) => ntt && ntt.nttManager === receipt.to)
       ) {
-        const { relayingType } = await getNttMessageEvm(txHash, chain, receipt);
+        const { relayingType } = await getMessageEvm(txHash, chain, receipt);
         return relayingType === NttRelayingType.Manual
           ? Route.NttManual
           : Route.NttRelay;
@@ -132,7 +132,7 @@ export class Operator {
           ),
         )
       ) {
-        const { relayingType } = await getNttMessageSolana(txHash);
+        const { relayingType } = await getMessageSolana(txHash);
         return relayingType === NttRelayingType.Manual
           ? Route.NttManual
           : Route.NttRelay;
