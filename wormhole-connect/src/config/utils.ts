@@ -87,60 +87,63 @@ export const mergeCustomTokensConfig = (
 
 export const validateDefaults = (defaults: BridgeDefaults | undefined) => {
   if (!defaults) return;
-  const {
-    fromNetwork: fromChain,
-    toNetwork: toChain,
-    token,
-    requiredNetwork,
-  } = defaults;
-  if (fromChain) {
-    const chain = config.chains[fromChain];
+
+  if (defaults.fromNetwork) {
+    const chain = config.chains[defaults.fromNetwork];
     if (!chain) {
       error(
-        `Invalid chain name "${fromChain}" specified for bridgeDefaults.fromNetwork`,
+        `Invalid chain name "${defaults.fromNetwork}" specified for bridgeDefaults.fromNetwork`,
       );
+      delete defaults.fromNetwork;
     }
   }
-  if (toChain) {
-    const chain = config.chains[toChain];
+  if (defaults.toNetwork) {
+    const chain = config.chains[defaults.toNetwork];
     if (!chain) {
       error(
-        `Invalid chain name "${toChain}" specified for bridgeDefaults.toNetwork`,
+        `Invalid chain name "${defaults.toNetwork}" specified for bridgeDefaults.toNetwork`,
       );
+      delete defaults.fromNetwork;
     }
   }
-  if (toChain && fromChain) {
-    if (toChain === fromChain) {
+  if (defaults.fromNetwork && defaults.toNetwork) {
+    if (defaults.fromNetwork === defaults.toNetwork) {
       error(
         `Source and destination chain cannot be the same, check the bridgeDefaults configuration`,
       );
     }
   }
-  if (toChain && fromChain && requiredNetwork) {
-    const requiredConfig = config.chains[requiredNetwork];
+  if (defaults.fromNetwork && defaults.toNetwork && defaults.requiredNetwork) {
+    const requiredConfig = config.chains[defaults.requiredNetwork];
     if (!requiredConfig) {
       error(
-        `Invalid network value "${requiredNetwork}" specified for bridgeDefaults.requiredNetwork`,
+        `Invalid network value "${defaults.requiredNetwork}" specified for bridgeDefaults.requiredNetwork`,
       );
     }
-    if (toChain !== requiredNetwork && fromChain !== requiredNetwork) {
+    if (
+      defaults.toNetwork !== defaults.requiredNetwork &&
+      defaults.fromNetwork !== defaults.requiredNetwork
+    ) {
       error(
         `Source chain or destination chain must equal the required network`,
       );
     }
   }
-  if (token) {
-    const tokenConfig = config.tokens[token];
+  if (defaults.token) {
+    const tokenConfig = config.tokens[defaults.token];
     if (!tokenConfig) {
-      error(`Invalid token "${token}" specified for bridgeDefaults.token`);
+      error(
+        `Invalid token "${defaults.token}" specified for bridgeDefaults.token`,
+      );
+      delete defaults.token;
     }
   }
-  if (fromChain && token) {
-    const chain = config.chains[fromChain]!;
-    const { tokenId, nativeChain } = config.tokens[token]!;
+  if (defaults.fromNetwork && defaults.token) {
+    const chain = config.chains[defaults.fromNetwork]!;
+    const { tokenId, nativeChain } = config.tokens[defaults.token]!;
     if (!tokenId && nativeChain !== chain.key) {
       error(
-        `Invalid token "${token}" specified for bridgeDefaults.token. It does not exist on "${fromChain}"`,
+        `Invalid token "${defaults.token}" specified for bridgeDefaults.token. It does not exist on "${defaults.fromNetwork}"`,
       );
     }
   }
