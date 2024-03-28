@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { ICON } from 'utils/style';
@@ -60,10 +60,7 @@ export default function FooterNavBar() {
     [dispatch],
   );
 
-  const entries = useMemo(
-    () => config.menu.reduce(itemAppender, defaultMenuItems(navigate)),
-    [navigate],
-  );
+  const entries = config.menu.reduce(itemAppender, defaultMenuItems(navigate));
 
   return (
     <div className={classes.menu}>
