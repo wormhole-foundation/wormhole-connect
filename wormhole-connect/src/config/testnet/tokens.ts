@@ -902,7 +902,7 @@ export const TESTNET_TOKENS: TokensConfig = {
   },
   USDCalfajores: {
     key: 'USDCalfajores',
-    symbol: 'USDC',
+    symbol: 'USDC.e',
     nativeChain: 'alfajores',
     icon: Icon.USDC,
     tokenId: {
