@@ -174,6 +174,9 @@ export interface InternalConfig {
   // Route settings
   ethBridgeMaxAmount: number;
   wstETHBridgeMaxAmount: number;
+
+  // NTT config
+  nttGroups: NttGroups;
 }
 
 export type ExplorerConfig = {
@@ -236,12 +239,6 @@ export type TokenConfig = {
       decimals: number;
     };
   };
-  ntt?: {
-    groupId: string;
-    nttManager: string;
-    wormholeTransceiver: string;
-    solanaQuoter?: string;
-  };
 };
 
 export type TokensConfig = { [key: string]: TokenConfig };
@@ -284,6 +281,7 @@ export type NetworkData = {
   rpcs: RpcMapping;
   rest: RpcMapping;
   graphql: RpcMapping;
+  nttGroups: NttGroups;
 };
 
 export interface MenuEntry {
@@ -292,3 +290,22 @@ export interface MenuEntry {
   target?: string;
   order?: number;
 }
+
+export type NttTransceiverConfig = {
+  address: string;
+  type: 'wormhole'; // only wormhole is supported for now
+};
+
+export type NttManagerConfig = {
+  chainName: ChainName;
+  address: string;
+  tokenKey: string; // token key for the token this NTT manager has configured
+  transceivers: NttTransceiverConfig[];
+  solanaQuoter?: string;
+};
+
+export type NttGroup = {
+  nttManagers: NttManagerConfig[];
+};
+
+export type NttGroups = { [key: string]: NttGroup };

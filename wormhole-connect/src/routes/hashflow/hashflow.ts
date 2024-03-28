@@ -144,6 +144,7 @@ export class HashflowRoute extends RouteAbstract {
   getForeignAsset(
     token: TokenId,
     chain: ChainName | ChainId,
+    destToken?: TokenConfig,
   ): Promise<string | null> {
     throw new Error('Method not implemented.');
   }

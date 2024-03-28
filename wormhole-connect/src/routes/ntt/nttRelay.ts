@@ -29,6 +29,12 @@ import { toDecimals, toFixedDecimals } from 'utils/balance';
 import { NttManagerEvm, WormholeTransceiver } from './chains/evm';
 import { NttQuoter } from './chains/solana/nttQuoter';
 import config from 'config';
+import {
+  getNttGroupKey,
+  getNttManagerAddress,
+  getNttManagerConfig,
+  getNttManagerConfigByAddress,
+} from 'utils/ntt';
 
 export class NttRelay extends NttBase {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean = false;
@@ -42,10 +48,13 @@ export class NttRelay extends NttBase {
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
   ): Promise<boolean> {
-    const nttConfig = config.tokens[sourceToken]?.ntt;
-    if (!nttConfig) {
-      return false;
-    }
+    const groupKey = getNttGroupKey(
+      config.tokens[sourceToken],
+      config.tokens[destToken],
+    );
+    if (!groupKey) return false;
+    const nttConfig = getNttManagerConfig(config.tokens[sourceToken], groupKey);
+    if (!nttConfig) return false;
     if (
       !(await super.isRouteSupported(
         sourceToken,
@@ -58,9 +67,10 @@ export class NttRelay extends NttBase {
       return false;
     }
     if (isEvmChain(sourceChain)) {
+      if (nttConfig.transceivers[0].type !== 'wormhole') return false;
       const transceiver = new WormholeTransceiver(
         sourceChain,
-        nttConfig.wormholeTransceiver,
+        nttConfig.transceivers[0].address,
       );
       return await Promise.all([
         transceiver.isWormholeRelayingEnabled(destChain),
@@ -81,15 +91,28 @@ export class NttRelay extends NttBase {
     token: string,
     destToken: string,
   ): Promise<RelayerFee | null> {
-    const nttConfig = config.tokens[token]?.ntt;
-    if (!nttConfig) {
-      throw new Error('invalid token');
-    }
+    const groupKey = getNttGroupKey(
+      config.tokens[token],
+      config.tokens[destToken],
+    );
+    if (!groupKey) throw new Error('no ntt group');
+    const nttManagerAddress = getNttManagerAddress(
+      config.tokens[token],
+      groupKey,
+    );
+    if (!nttManagerAddress) throw new Error('no ntt manager address');
+    const nttConfig = getNttManagerConfigByAddress(
+      nttManagerAddress,
+      toChainName(sourceChain),
+    );
+    if (!nttConfig) throw new Error('no ntt config');
     if (isEvmChain(sourceChain)) {
-      const nttManager = new NttManagerEvm(sourceChain, nttConfig.nttManager);
+      const nttManager = new NttManagerEvm(sourceChain, nttManagerAddress);
+      if (nttConfig.transceivers[0].type !== 'wormhole')
+        throw new Error('no wormhole transceiver');
       const deliveryPrice = await nttManager.quoteDeliveryPrice(
         destChain,
-        nttConfig.wormholeTransceiver,
+        nttConfig.transceivers[0].address,
       );
       return { fee: BigNumber.from(deliveryPrice), feeToken: 'native' };
     }

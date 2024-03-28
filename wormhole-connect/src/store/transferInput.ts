@@ -1,9 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import {
-  ChainName,
-  ChainId,
-  Context,
-} from '@wormhole-foundation/wormhole-connect-sdk';
+import { ChainName, Context } from '@wormhole-foundation/wormhole-connect-sdk';
 import { BigNumber } from 'ethers';
 import config from 'config';
 import { Route, TokenConfig } from 'config/types';
@@ -24,6 +20,8 @@ import {
   receiveDataWrapper,
 } from './helpers';
 import { isPorticoRoute } from 'routes/porticoBridge/utils';
+import { isNttRoute } from 'routes';
+import { getNttGroupKey, getNttTokenByGroupKey } from 'utils/ntt';
 
 export type Balances = { [key: string]: string | null };
 export type ChainBalances = {
@@ -56,19 +54,6 @@ export const getNativeVersionOfToken = (
       .map(([key, t]) => t)
       .find((t) => t.symbol === tokenSymbol && t.nativeChain === chain)?.key ||
     ''
-  );
-};
-
-// get the token key for the NTT token for a given group and chain
-export const getNttToken = (
-  groupId: string,
-  chain: ChainName | ChainId,
-): string => {
-  return (
-    Object.entries(config.tokens)
-      .map(([key, t]) => t)
-      .find((t) => t.ntt?.groupId === groupId && t.nativeChain === chain)
-      ?.key || ''
   );
 };
 
@@ -186,7 +171,7 @@ function getInitialState(): TransferInputState {
 }
 
 const performModificationsIfFromChainChanged = (state: TransferInputState) => {
-  const { fromChain, token, route } = state;
+  const { fromChain, token, route, destToken } = state;
   if (token) {
     const tokenConfig = config.tokens[token];
     // clear token and amount if not supported on the selected network
@@ -216,14 +201,19 @@ const performModificationsIfFromChainChanged = (state: TransferInputState) => {
       if (tokenConfig.nativeChain !== fromChain) {
         state.token = getNativeVersionOfToken(tokenConfig.symbol, fromChain!);
       }
-    } else if (tokenConfig.ntt && tokenConfig.nativeChain !== fromChain) {
-      state.token = getNttToken(tokenConfig.ntt.groupId, fromChain!);
+    } else if (isNttRoute(route) && destToken) {
+      const groupKey = getNttGroupKey(tokenConfig, config.tokens[destToken]);
+      if (groupKey) {
+        state.token = getNttTokenByGroupKey(groupKey, fromChain!)?.key || '';
+      } else {
+        state.token = '';
+      }
     }
   }
 };
 
 const performModificationsIfToChainChanged = (state: TransferInputState) => {
-  const { toChain, destToken, route } = state;
+  const { toChain, destToken, route, token } = state;
 
   if (destToken) {
     const tokenConfig = config.tokens[destToken];
@@ -244,8 +234,13 @@ const performModificationsIfToChainChanged = (state: TransferInputState) => {
       if (tokenConfig.nativeChain !== toChain) {
         state.destToken = getNativeVersionOfToken(tokenConfig.symbol, toChain!);
       }
-    } else if (tokenConfig.ntt && tokenConfig.nativeChain !== toChain) {
-      state.destToken = getNttToken(tokenConfig.ntt.groupId, toChain!);
+    } else if (isNttRoute(route) && token) {
+      const groupKey = getNttGroupKey(tokenConfig, config.tokens[token]);
+      if (groupKey) {
+        state.destToken = getNttTokenByGroupKey(groupKey, toChain!)?.key || '';
+      } else {
+        state.destToken = '';
+      }
     }
   }
 };

@@ -132,6 +132,10 @@ export function buildConfig(
     // Route options
     ethBridgeMaxAmount: customConfig?.ethBridgeMaxAmount ?? 5,
     wstETHBridgeMaxAmount: customConfig?.wstETHBridgeMaxAmount ?? 5,
+
+    // NTT config
+    // TODO: allow custom NTT config. validate similar to custom tokens
+    nttGroups: networkData.nttGroups,
   };
 }
 

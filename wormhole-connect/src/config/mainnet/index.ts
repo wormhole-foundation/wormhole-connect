@@ -7,6 +7,7 @@ import {
   MAINNET_RPC_MAPPING,
 } from './rpcs';
 import { MAINNET_TOKENS } from './tokens';
+import { MAINNET_NTT_GROUPS } from './nttGroups';
 
 export * from './chains';
 export * from './gasEstimates';
@@ -20,6 +21,7 @@ const MAINNET: NetworkData = {
   rpcs: MAINNET_RPC_MAPPING,
   rest: MAINNET_REST_MAPPING,
   graphql: MAINNET_GRAPHQL_MAPPING,
+  nttGroups: MAINNET_NTT_GROUPS,
 };
 
 export default MAINNET;
