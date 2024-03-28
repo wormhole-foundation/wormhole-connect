@@ -1,7 +1,7 @@
 # Wormhole Connect
 [![Documentation](https://img.shields.io/badge/Documentation-2a67c9)](https://docs.wormhole.com/wormhole/wormhole-connect/overview) [![npm version](https://img.shields.io/npm/v/@wormhole-foundation/wormhole-connect.svg)](https://www.npmjs.com/package/@wormhole-foundation/wormhole-connect) ![CI build](https://github.com/wormhole-foundation/wormhole-connect/actions/workflows/build.yml/badge.svg)
 
-Wormhole Connect is a customizable React widget that can perform cross-chain bridging with Wormhole.
+Wormhole Connect is a customizable React widget for cross-chain asset transfers powered by Wormhole.
 
 [![Wormhole Connect running on Portal Bridge](https://i.imgur.com/sZJKw8e.png)](https://portalbridge.com/)
 
@@ -11,7 +11,7 @@ Wormhole Connect is deployed live in several production apps. Here are a few:
 
 - [Portal Bridge](https://portalbridge.com/)
 - [Jupiter](https://jup.ag/bridge/wormhole)
-- [Pancake Swap](https://bridge.pancakeswap.finance/wormhole)
+- [PancakeSwap](https://bridge.pancakeswap.finance/wormhole)
 
 
 ## Getting Started 
