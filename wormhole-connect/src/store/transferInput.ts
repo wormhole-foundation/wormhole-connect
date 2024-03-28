@@ -184,7 +184,14 @@ const performModificationsIfFromChainChanged = (state: TransferInputState) => {
         state.amount = '';
       }
     }
-    if (
+    if (isNttRoute(route) && destToken) {
+      const groupKey = getNttGroupKey(tokenConfig, config.tokens[destToken]);
+      if (groupKey) {
+        state.token = getNttTokenByGroupKey(groupKey, fromChain!)?.key || '';
+      } else {
+        state.token = '';
+      }
+    } else if (
       tokenConfig.symbol === 'USDC' &&
       tokenConfig.nativeChain !== fromChain
     ) {
@@ -201,13 +208,6 @@ const performModificationsIfFromChainChanged = (state: TransferInputState) => {
       if (tokenConfig.nativeChain !== fromChain) {
         state.token = getNativeVersionOfToken(tokenConfig.symbol, fromChain!);
       }
-    } else if (isNttRoute(route) && destToken) {
-      const groupKey = getNttGroupKey(tokenConfig, config.tokens[destToken]);
-      if (groupKey) {
-        state.token = getNttTokenByGroupKey(groupKey, fromChain!)?.key || '';
-      } else {
-        state.token = '';
-      }
     }
   }
 };
@@ -220,7 +220,17 @@ const performModificationsIfToChainChanged = (state: TransferInputState) => {
     if (!toChain) {
       state.destToken = '';
     }
-    if (tokenConfig.symbol === 'USDC' && tokenConfig.nativeChain !== toChain) {
+    if (isNttRoute(route) && token) {
+      const groupKey = getNttGroupKey(tokenConfig, config.tokens[token]);
+      if (groupKey) {
+        state.destToken = getNttTokenByGroupKey(groupKey, toChain!)?.key || '';
+      } else {
+        state.destToken = '';
+      }
+    } else if (
+      tokenConfig.symbol === 'USDC' &&
+      tokenConfig.nativeChain !== toChain
+    ) {
       state.destToken = getNativeVersionOfToken('USDC', toChain!);
     } else if (
       tokenConfig.symbol === 'tBTC' &&
@@ -233,13 +243,6 @@ const performModificationsIfToChainChanged = (state: TransferInputState) => {
     } else if (route && isPorticoRoute(route)) {
       if (tokenConfig.nativeChain !== toChain) {
         state.destToken = getNativeVersionOfToken(tokenConfig.symbol, toChain!);
-      }
-    } else if (isNttRoute(route) && token) {
-      const groupKey = getNttGroupKey(tokenConfig, config.tokens[token]);
-      if (groupKey) {
-        state.destToken = getNttTokenByGroupKey(groupKey, toChain!)?.key || '';
-      } else {
-        state.destToken = '';
       }
     }
   }

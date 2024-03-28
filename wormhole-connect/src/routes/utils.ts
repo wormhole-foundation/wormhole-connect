@@ -94,6 +94,9 @@ export const isIlliquidDestToken = (
   ) {
     return true;
   }
+  if (symbol === 'USDC.e' && nativeChain === 'alfajores') {
+    return true;
+  }
   if (['TEST_NTT', 'USDCalfaljores'].includes(symbol)) {
     return true;
   }
