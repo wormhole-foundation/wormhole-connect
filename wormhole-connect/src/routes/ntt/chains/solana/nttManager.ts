@@ -33,11 +33,11 @@ import {
 } from '@certusone/wormhole-sdk/lib/esm/solana/wormhole';
 import { associatedAddress } from '@coral-xyz/anchor/dist/esm/utils/token';
 import { NttQuoter } from './nttQuoter';
-import { getTokenById } from 'utils';
 import { Keccak } from 'sha3';
 import CONFIG from 'config';
 import { toChain as SDKv2toChain } from '@wormhole-foundation/sdk-base';
 import { hexlify } from 'ethers/lib/utils';
+import { getNttManagerConfigByAddress } from 'utils/ntt';
 
 // TODO: make sure this is in sync with the contract
 const RATE_LIMIT_DURATION = 24 * 60 * 60;
@@ -124,11 +124,12 @@ export class NttManagerSolana {
     const tx = new Transaction();
     tx.add(approveIx, transferIx, releaseIx);
     if (!shouldSkipRelayerSend) {
-      const { ntt } = getTokenById(token) || {};
-      if (!ntt?.solanaQuoter) {
-        throw new Error(`no solana quoter for token: ${token}`);
-      }
-      const quoter = new NttQuoter(ntt.solanaQuoter);
+      const nttConfig = getNttManagerConfigByAddress(
+        this.program.programId.toString(),
+        'solana',
+      );
+      if (!nttConfig || !nttConfig.solanaQuoter) throw new Error('no quoter');
+      const quoter = new NttQuoter(nttConfig.solanaQuoter);
       const fee = await quoter.calcRelayCost(toChain);
       const relayIx = await quoter.createRequestRelayInstruction(
         payer,
@@ -207,7 +208,9 @@ export class NttManagerSolana {
     const releaseArgs = {
       ...redeemArgs,
       messageDigest: hexlify(messageDigest),
-      recipient: new PublicKey(nttManagerPayload.payload.recipientAddress),
+      recipient: new PublicKey(
+        nttManagerPayload.payload.recipientAddress.toUint8Array(),
+      ),
       chain: chainId,
       revertOnDelay: false,
     };

@@ -87,6 +87,16 @@ export const isIlliquidDestToken = (
       return true;
     }
   }
+  if (
+    symbol === 'USDC' &&
+    nativeChain === 'sepolia' &&
+    destChain === 'alfajores'
+  ) {
+    return true;
+  }
+  if (['TEST_NTT', 'USDCalfaljores'].includes(symbol)) {
+    return true;
+  }
   return false;
 };
 

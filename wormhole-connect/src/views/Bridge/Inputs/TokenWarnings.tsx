@@ -133,6 +133,7 @@ function TokenWarnings() {
         route,
         tokenId,
         toChain,
+        destTokenConfig,
       );
 
       if (!active) return;
@@ -148,7 +149,7 @@ function TokenWarnings() {
     return () => {
       active = false;
     };
-  }, [toChain, tokenConfig, route, dispatch]);
+  }, [toChain, tokenConfig, route, destTokenConfig, dispatch]);
 
   // the associated token account address is deterministic, so we still
   // need to check if there is an account created for that address

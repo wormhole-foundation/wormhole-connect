@@ -28,7 +28,6 @@ import {
   removeDust,
   toNormalizedDecimals,
 } from 'utils';
-import { getNttToken } from 'store/transferInput';
 import { getNttManager } from './chains';
 import { InboundQueuedTransfer } from './types';
 import {
@@ -41,6 +40,13 @@ import { formatGasFee } from 'routes/utils';
 import { NO_INPUT } from 'utils/style';
 import { estimateAverageGasFee } from 'utils/gas';
 import config from 'config';
+import {
+  getNttGroupKey,
+  getNttManagerAddress,
+  getNttManagerConfigByAddress,
+  isNttToken,
+  isNttTokenPair,
+} from 'utils/ntt';
 
 export abstract class NttBase extends BaseRoute {
   isSupportedChain(chain: ChainName): boolean {
@@ -53,14 +59,18 @@ export abstract class NttBase extends BaseRoute {
     sourceChain?: ChainName | ChainId,
     destChain?: ChainName | ChainId,
   ): Promise<boolean> {
-    if (!token || !sourceChain || !this.isSupportedToken(token, sourceChain)) {
+    if (
+      !token ||
+      !isNttToken(token) ||
+      !sourceChain ||
+      !this.isSupportedToken(token, sourceChain)
+    ) {
       return false;
     }
     if (
-      destChain &&
       destToken &&
-      !this.isSupportedToken(destToken, destChain) &&
-      token.symbol === destToken.symbol
+      ((destChain && !this.isSupportedToken(destToken, destChain)) ||
+        !isNttTokenPair(destToken, token))
     ) {
       return false;
     }
@@ -73,14 +83,18 @@ export abstract class NttBase extends BaseRoute {
     sourceChain?: ChainName | ChainId,
     destChain?: ChainName | ChainId,
   ): Promise<boolean> {
-    if (!token || !destChain || !this.isSupportedToken(token, destChain)) {
+    if (
+      !token ||
+      !isNttToken(token) ||
+      !destChain ||
+      !this.isSupportedToken(token, destChain)
+    ) {
       return false;
     }
     if (
-      sourceChain &&
       sourceToken &&
-      !this.isSupportedToken(sourceToken, sourceChain) &&
-      token.symbol === sourceToken.symbol
+      ((sourceChain && !this.isSupportedToken(sourceToken, sourceChain)) ||
+        !isNttTokenPair(sourceToken, token))
     ) {
       return false;
     }
@@ -90,7 +104,7 @@ export abstract class NttBase extends BaseRoute {
   isSupportedToken(token: TokenConfig, chain: ChainName | ChainId): boolean {
     return (
       this.isSupportedChain(token.nativeChain) &&
-      !!token.ntt &&
+      isNttToken(token) &&
       toChainName(chain) === token.nativeChain
     );
   }
@@ -102,7 +116,6 @@ export abstract class NttBase extends BaseRoute {
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
   ): Promise<boolean> {
-    console.log('isRouteSupported');
     return await Promise.all([
       this.isSupportedChain(toChainName(sourceChain)),
       this.isSupportedChain(toChainName(destChain)),
@@ -198,26 +211,28 @@ export abstract class NttBase extends BaseRoute {
     destToken: string,
     routeOptions: any,
   ): Promise<string> {
-    if (token === 'native') {
-      throw new Error('invalid token');
-    }
+    if (token === 'native') throw new Error('invalid token');
     const tokenConfig = getTokenById(token);
-    if (!tokenConfig?.ntt) {
+    if (!tokenConfig || !isNttToken(tokenConfig))
       throw new Error('invalid token');
-    }
     const destTokenConfig = config.tokens[destToken];
-    if (!destTokenConfig?.ntt) {
-      throw new Error('invalid dest token');
-    }
+    if (!isNttToken(destTokenConfig)) throw new Error('invalid dest token');
+    const nttGroupKey = getNttGroupKey(tokenConfig, destTokenConfig);
+    if (!nttGroupKey) throw new Error('invalid token pair');
+    const recipientNttManagerAddress = getNttManagerAddress(
+      destTokenConfig,
+      nttGroupKey,
+    );
+    if (!recipientNttManagerAddress)
+      throw new Error('recipient ntt manager not found');
     if (
-      await getNttManager(
-        recipientChain,
-        destTokenConfig.ntt.nttManager,
-      ).isPaused()
+      await getNttManager(recipientChain, recipientNttManagerAddress).isPaused()
     ) {
       throw new DestinationContractIsPausedError();
     }
-    const nttManager = getNttManager(sendingChain, tokenConfig.ntt.nttManager);
+    const nttManagerAddress = getNttManagerAddress(tokenConfig, nttGroupKey);
+    if (!nttManagerAddress) throw new Error('ntt manager not found');
+    const nttManager = getNttManager(sendingChain, nttManagerAddress);
     if (await nttManager.isPaused()) {
       throw new ContractIsPausedError();
     }
@@ -246,28 +261,26 @@ export abstract class NttBase extends BaseRoute {
     signedMessage: SignedMessage,
     payer: string,
   ): Promise<string> {
-    if (!isSignedNttMessage(signedMessage)) {
+    if (!isSignedNttMessage(signedMessage))
       throw new Error('Not a signed NttMessage');
-    }
-    const { recipientNttManager, receivedTokenKey, vaa } = signedMessage;
+    const { recipientNttManager, vaa } = signedMessage;
     const nttManager = getNttManager(chain, recipientNttManager);
-    if (await nttManager.isPaused()) {
-      throw new ContractIsPausedError();
-    }
-    const nttConfig = config.tokens[receivedTokenKey]?.ntt;
-    if (!nttConfig) {
-      throw new Error('ntt config not found');
-    }
+    if (await nttManager.isPaused()) throw new ContractIsPausedError();
+    const nttConfig = getNttManagerConfigByAddress(
+      recipientNttManager,
+      toChainName(chain),
+    );
+    if (!nttConfig) throw new Error('ntt config not found');
     if (isEvmChain(chain)) {
+      if (nttConfig.transceivers[0].type !== 'wormhole')
+        throw new Error('Unsupported transceiver type');
       const transceiver = new WormholeTransceiver(
         chain,
-        nttConfig.wormholeTransceiver,
+        nttConfig.transceivers[0].address,
       );
       return await transceiver.receiveMessage(vaa, payer);
-    }
-    if (toChainName(chain) === 'solana') {
+    } else if (toChainName(chain) === 'solana')
       return await (nttManager as NttManagerSolana).receiveMessage(vaa, payer);
-    }
     throw new Error('Unsupported chain');
   }
 
@@ -340,13 +353,9 @@ export abstract class NttBase extends BaseRoute {
   async getForeignAsset(
     token: TokenId,
     chain: ChainName | ChainId,
+    destToken?: TokenConfig,
   ): Promise<string | null> {
-    const tokenConfig = getTokenById(token);
-    if (!tokenConfig?.ntt) {
-      throw new Error('invalid token');
-    }
-    const key = getNttToken(tokenConfig.ntt.groupId, chain);
-    return config.tokens[key]?.tokenId?.address || null;
+    return destToken?.tokenId?.address || null;
   }
 
   async getMessage(

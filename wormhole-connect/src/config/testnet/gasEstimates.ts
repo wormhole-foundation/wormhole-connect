@@ -255,6 +255,10 @@ export const TESTNET_GAS_ESTIMATES: GasEstimates = {
       sendToken: 150000,
       claim: 200000,
     },
+    [Route.CCTPManual]: {
+      sendToken: 150000,
+      claim: 300000,
+    },
     [Route.NttManual]: {
       sendToken: 200000,
       claim: 250000,

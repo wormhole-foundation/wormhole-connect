@@ -5,7 +5,7 @@ export const CCTPManual_CHAINS: ChainName[] = [
   'ethereum',
   'avalanche',
   'fuji',
-  'goerli',
+  'sepolia',
   'base',
   'optimism',
   'arbitrum',
@@ -21,7 +21,7 @@ export const CCTPDomains: Partial<Record<ChainName, number>> = {
   ethereum: 0,
   avalanche: 1,
   fuji: 1,
-  goerli: 0,
+  sepolia: 0,
   base: 6,
   optimism: 2,
   arbitrum: 3,
@@ -36,7 +36,7 @@ export const CCTPDomains: Partial<Record<ChainName, number>> = {
 export function getChainNameCCTP(domain: number): ChainName {
   switch (domain) {
     case 0:
-      return config.isMainnet ? 'ethereum' : 'goerli';
+      return config.isMainnet ? 'ethereum' : 'sepolia';
     case 1:
       return config.isMainnet ? 'avalanche' : 'fuji';
     case 2:

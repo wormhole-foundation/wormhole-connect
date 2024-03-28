@@ -599,6 +599,7 @@ export abstract class PorticoBridge extends BaseRoute {
   async getForeignAsset(
     token: TokenId,
     chain: ChainName | ChainId,
+    destToken?: TokenConfig,
   ): Promise<string | null> {
     return await config.wh.getForeignAsset(token, chain);
   }

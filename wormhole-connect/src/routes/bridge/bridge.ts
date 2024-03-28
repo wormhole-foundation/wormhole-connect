@@ -7,7 +7,7 @@ import {
 import { BigNumber } from 'ethers';
 import { hexlify, parseUnits, arrayify } from 'ethers/lib/utils.js';
 import config from 'config';
-import { Route } from 'config/types';
+import { Route, TokenConfig } from 'config/types';
 import { getTokenDecimals } from 'utils';
 import { TransferWallet, postVaa, signAndSendTransaction } from 'utils/wallet';
 import {
@@ -60,8 +60,6 @@ export class BridgeRoute extends BaseRoute {
       (sourceChain === 'arbitrum' || sourceChain === 'arbitrumgoerli')
     )
       return false;
-
-    if (sourceTokenConfig.ntt) return false;
 
     if (!!sourceTokenConfig.tokenId && sourceToken === destToken) return true;
     if (
@@ -247,6 +245,7 @@ export class BridgeRoute extends BaseRoute {
   async getForeignAsset(
     token: TokenId,
     chain: ChainName | ChainId,
+    destToken?: TokenConfig,
   ): Promise<string | null> {
     return config.wh.getForeignAsset(token, chain);
   }

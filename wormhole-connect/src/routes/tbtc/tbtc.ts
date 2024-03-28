@@ -421,6 +421,7 @@ export class TBTCRoute extends BaseRoute {
   async getForeignAsset(
     token: TokenId,
     chain: ChainName | ChainId,
+    destToken?: TokenConfig,
   ): Promise<string | null> {
     const chainId = config.wh.toChainId(chain);
     if (isTBTCCanonicalChain(chainId)) {

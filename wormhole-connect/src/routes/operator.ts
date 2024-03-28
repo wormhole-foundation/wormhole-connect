@@ -39,6 +39,7 @@ import { TokenPrices } from 'store/tokenPrices';
 import { NttManual, NttRelay } from './ntt';
 import { getMessageEvm } from './ntt/chains/evm';
 import { getMessageSolana } from './ntt/chains/solana';
+import { getNttManagerConfigByAddress } from 'utils/ntt';
 
 export class Operator {
   getRoute(route: Route): RouteAbstract {
@@ -110,7 +111,7 @@ export class Operator {
 
       // Check if is Ntt Route (NttRelay or NttManual)
       if (
-        config.tokensArr.some(({ ntt }) => ntt && ntt.nttManager === receipt.to)
+        getNttManagerConfigByAddress(receipt.to, config.wh.toChainName(chain))
       ) {
         const { relayingType } = await getMessageEvm(txHash, chain, receipt);
         return relayingType === NttRelayingType.Manual
@@ -127,9 +128,7 @@ export class Operator {
       if (!tx) throw new Error('Transaction not found');
       if (
         tx.transaction.message.instructions.some((ix) =>
-          config.tokensArr.some(
-            ({ ntt }) => ntt && ntt.nttManager === ix.programId.toString(),
-          ),
+          getNttManagerConfigByAddress(ix.programId.toString(), chain),
         )
       ) {
         const { relayingType } = await getMessageSolana(txHash);
@@ -571,9 +570,10 @@ export class Operator {
     route: Route,
     tokenId: TokenId,
     chain: ChainName | ChainId,
+    destToken?: TokenConfig,
   ): Promise<string | null> {
     const r = this.getRoute(route);
-    return r.getForeignAsset(tokenId, chain);
+    return r.getForeignAsset(tokenId, chain, destToken);
   }
 
   async isTransferCompleted(

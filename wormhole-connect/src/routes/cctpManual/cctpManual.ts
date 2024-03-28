@@ -382,6 +382,7 @@ export class CCTPManualRoute extends BaseRoute {
   async getForeignAsset(
     token: TokenId,
     chain: ChainName | ChainId,
+    destToken?: TokenConfig,
   ): Promise<string | null> {
     // assumes USDC
     const addr = config.tokensArr.find(

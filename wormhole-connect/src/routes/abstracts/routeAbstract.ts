@@ -179,6 +179,7 @@ export abstract class RouteAbstract {
   abstract getForeignAsset(
     token: TokenId,
     chain: ChainName | ChainId,
+    destToken?: TokenConfig,
   ): Promise<string | null>;
 
   abstract getMessage(

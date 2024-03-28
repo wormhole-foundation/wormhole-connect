@@ -2,12 +2,17 @@ import { solanaContext } from 'utils/sdk';
 import { PostedMessageData } from '@certusone/wormhole-sdk/lib/esm/solana/wormhole';
 import { hexlify } from 'ethers/lib/utils';
 import { NttRelayingType, UnsignedNttMessage } from 'routes/types';
-import { getNttToken } from 'store/transferInput';
 import { getTokenById, getTokenDecimals } from 'utils';
 import config from 'config';
 import { deserializePayload, Ntt } from '@wormhole-foundation/sdk-definitions';
 import { toChainId } from '@wormhole-foundation/sdk-base';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+import {
+  getNttGroupKeyByAddress,
+  getNttManagerConfigByGroupKey,
+  isNttToken,
+} from 'utils/ntt';
+import { PublicKey } from '@solana/web3.js';
 
 export const getMessageSolana = async (
   tx: string,
@@ -31,9 +36,8 @@ export const getMessageSolana = async (
   const wormholeMessageAccount = await connection.getAccountInfo(
     wormholeMessageAccountKey,
   );
-  if (wormholeMessageAccount === null) {
+  if (wormholeMessageAccount === null)
     throw new Error('wormhole message account not found');
-  }
   const messageData = PostedMessageData.deserialize(
     wormholeMessageAccount.data,
   );
@@ -54,13 +58,24 @@ export const getMessageSolana = async (
     address: tokenAddress,
   };
   const token = getTokenById(tokenId);
-  if (!token?.ntt) {
-    throw new Error(`Token ${tokenId} not found`);
-  }
-  const receivedTokenKey = getNttToken(token.ntt.groupId, recipientChain);
-  if (!receivedTokenKey) {
+  if (!token || !isNttToken(token))
+    throw new Error(`Token ${tokenId} is not an NTT token`);
+  const groupKey = getNttGroupKeyByAddress(
+    new PublicKey(
+      transceiverMessage.sourceNttManager.toUint8Array(),
+    ).toString(),
+    fromChain,
+  );
+  if (!groupKey) throw new Error('Group key not found');
+  const recipientNttManagerConfig = getNttManagerConfigByGroupKey(
+    groupKey,
+    recipientChain,
+  );
+  if (!recipientNttManagerConfig)
+    throw new Error('Recipient NTT manager not found');
+  const receivedTokenKey = recipientNttManagerConfig.tokenKey;
+  if (!receivedTokenKey)
     throw new Error(`Received token key not found for ${tokenId}`);
-  }
   const logMsgs = response.meta?.logMessages || [];
   const regex = /total fee in lamports: (\d+)/;
   const relayerFeeMsg = logMsgs.find((msg) => regex.test(msg));

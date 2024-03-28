@@ -4,10 +4,10 @@ import { NttManual } from 'routes/ntt';
 import { parseUnits } from 'ethers/lib/utils';
 import { getTokenDecimals } from 'utils';
 import { BigNumber } from 'ethers';
-import { getNttToken } from 'store/transferInput';
 import { useSelector } from 'react-redux';
 import { RootState } from 'store';
 import config from 'config';
+import { getNttGroupKey, getNttManagerAddress, isNttToken } from 'utils/ntt';
 
 function formatDuration(seconds: number) {
   if (seconds < 60) {
@@ -22,13 +22,18 @@ function formatDuration(seconds: number) {
 }
 
 const NttInboundCapacityWarning = () => {
-  const { fromChain, toChain, destToken, receiveAmount } = useSelector(
+  const { fromChain, toChain, token, destToken, receiveAmount } = useSelector(
     (state: RootState) => state.transferInput,
   );
   const amount = receiveAmount.data || '0';
   const [capacity, setCapacity] = useState<BigNumber | undefined>(undefined);
   const [duration, setDuration] = useState<number>(0);
-  const nttManagerAddress = config.tokens[destToken]?.ntt?.nttManager;
+  const groupKey = getNttGroupKey(
+    config.tokens[token],
+    config.tokens[destToken],
+  );
+  const nttManagerAddress =
+    groupKey && getNttManagerAddress(config.tokens[destToken], groupKey);
 
   useEffect(() => {
     if (!toChain || !nttManagerAddress || !fromChain) return;
@@ -78,14 +83,12 @@ const NttInboundCapacityWarning = () => {
       !toChain ||
       !capacity ||
       !duration ||
-      !fromChain
+      !fromChain ||
+      !groupKey
     )
       return false;
-    const groupId = config.tokens[destToken]?.ntt?.groupId;
-    if (!groupId) return false;
-    const destTokenKey = getNttToken(groupId, toChain);
-    const destTokenConfig = config.tokens[destTokenKey];
-    if (!destTokenConfig) return false;
+    const destTokenConfig = config.tokens[destToken];
+    if (!destTokenConfig || !isNttToken(destTokenConfig)) return false;
     // capacity is in destination token decimals, so we need to convert the amount to the same decimals
     const decimals = getTokenDecimals(
       config.wh.toChainId(toChain),
@@ -94,7 +97,7 @@ const NttInboundCapacityWarning = () => {
     const parsedAmount = parseUnits(Number(amount).toFixed(decimals), decimals);
     const threshold = capacity.mul(95).div(100); // 95% of capacity
     return parsedAmount.gt(threshold);
-  }, [destToken, amount, toChain]);
+  }, [destToken, amount, toChain, groupKey]);
 
   if (!showWarning || !toChain) return null;
 

@@ -7,6 +7,7 @@ import {
   DEVNET_RPC_MAPPING,
 } from './rpcs';
 import { DEVNET_TOKENS } from './tokens';
+import { DEVNET_NTT_GROUPS } from './nttGroups';
 
 export * from './chains';
 export * from './gasEstimates';
@@ -20,6 +21,7 @@ const DEVNET: NetworkData = {
   rpcs: DEVNET_RPC_MAPPING,
   rest: DEVNET_REST_MAPPING,
   graphql: DEVNET_GRAPHQL_MAPPING,
+  nttGroups: DEVNET_NTT_GROUPS,
 };
 
 export default DEVNET;
