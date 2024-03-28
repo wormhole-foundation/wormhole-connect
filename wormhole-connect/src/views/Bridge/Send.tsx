@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import {
   Context,
+  TokenId,
   INSUFFICIENT_ALLOWANCE,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { makeStyles } from 'tss-react/mui';
@@ -99,6 +100,17 @@ function Send(props: { valid: boolean }) {
     if (!valid || !route) return;
     dispatch(setIsTransactionInProgress(true));
 
+    const tokenConfig = config.tokens[token]!;
+    const sendToken: TokenId | 'native' = tokenConfig.tokenId ?? 'native';
+
+    // Details for config.dispatchEvent events
+    const transferDetails = {
+      route,
+      token: sendToken || 'native',
+      fromChain: fromChain!,
+      toChain: toChain!,
+    };
+
     try {
       const fromConfig = config.chains[fromChain!];
       if (fromConfig?.context === Context.ETH) {
@@ -113,9 +125,12 @@ function Send(props: { valid: boolean }) {
         await switchChain(fromConfig.chainId, TransferWallet.SENDING);
       }
 
-      const tokenConfig = config.tokens[token]!;
-      const sendToken = tokenConfig.tokenId;
       const routeOptions = isPorticoRoute(route) ? portico : { toNativeToken };
+
+      config.dispatchEvent({
+        event: 'transferStart',
+        details: transferDetails,
+      });
 
       const txId = await RouteOperator.send(
         route,
