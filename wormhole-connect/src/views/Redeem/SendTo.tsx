@@ -35,8 +35,10 @@ import { Route } from 'config/types';
 import SwitchToManualClaim from './SwitchToManualClaim';
 import { isPorticoRoute } from 'routes/porticoBridge/utils';
 import { isNttRoute, isSignedNttMessage } from 'routes';
-import { ContractIsPausedError, NttBase } from 'routes/ntt';
+import { NttBase } from 'routes/ntt';
 import { setInboundQueuedTransfer } from 'store/ntt';
+import { getTokenDetails } from 'telemetry';
+import { interpretTransferError } from 'utils/errors';
 
 function AssociatedTokenAlert() {
   const dispatch = useDispatch();
@@ -81,6 +83,8 @@ function SendTo() {
   } = useSelector((state: RootState) => state.redeem);
   const txData = useSelector((state: RootState) => state.redeem.txData)!;
   const wallet = useSelector((state: RootState) => state.wallet.receiving);
+  const transferInput = useSelector((state: RootState) => state.transferInput);
+
   const transferDestInfo = useSelector(
     (state: RootState) => state.redeem.transferDestInfo,
   );
@@ -190,6 +194,20 @@ function SendTo() {
     if (!routeName) {
       throw new Error('Unknown route, cannot claim');
     }
+
+    const transferDetails = {
+      route: routeName,
+      fromToken: getTokenDetails(transferInput.token),
+      toToken: getTokenDetails(transferInput.destToken),
+      fromChain: transferInput.fromChain!,
+      toChain: transferInput.toChain!,
+    };
+
+    config.triggerEvent({
+      type: 'transfer.redeem.initiate',
+      details: transferDetails,
+    });
+
     if (!wallet || !isConnected) {
       setClaimError('Connect to receiving wallet');
       throw new Error('Connect to receiving wallet');
@@ -211,20 +229,32 @@ function SendTo() {
       if (!signedMessage) {
         throw new Error('failed to get vaa, cannot redeem');
       }
+
       txId = await RouteOperator.redeem(
         routeName,
         txData.toChain,
         signedMessage,
         wallet.address,
       );
+
+      config.triggerEvent({
+        type: 'transfer.redeem.start',
+        details: transferDetails,
+      });
+
       setInProgress(false);
       setClaimError('');
     } catch (e: any) {
-      if (e.message === ContractIsPausedError.MESSAGE) {
-        setClaimError('The contract is paused, please try again later');
-      } else {
-        setClaimError('Your claim has failed, please try again');
-      }
+      const [uiError, transferError] = interpretTransferError(e, transferInput);
+
+      setClaimError(uiError);
+
+      config.triggerEvent({
+        type: 'transfer.error',
+        details: transferDetails,
+        error: transferError,
+      });
+
       setInProgress(false);
       console.error(e);
     }
@@ -254,6 +284,11 @@ function SendTo() {
             if (isTransferCompleted) {
               dispatch(setRedeemTx(txId));
               dispatch(setTransferComplete(true));
+
+              config.triggerEvent({
+                type: 'transfer.redeem.success',
+                details: transferDetails,
+              });
             }
           }
         } catch (e) {
@@ -262,6 +297,11 @@ function SendTo() {
       } else {
         dispatch(setRedeemTx(txId));
         dispatch(setTransferComplete(true));
+
+        config.triggerEvent({
+          type: 'transfer.redeem.success',
+          details: transferDetails,
+        });
       }
     }
   };

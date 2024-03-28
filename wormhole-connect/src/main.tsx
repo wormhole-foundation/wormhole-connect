@@ -4,6 +4,7 @@ import WormholeConnect from './WormholeConnect';
 import ErrorBoundary from './components/ErrorBoundary';
 import { WormholeConnectConfig } from 'config/types';
 import { WormholeConnectPartialTheme } from './theme';
+import { WormholeConnectEvent } from 'telemetry/types';
 export * from './theme';
 
 // This is the entry point that runs when integrators add the Connect widget
@@ -25,7 +26,13 @@ if (!container) {
   );
 }
 
-let config: WormholeConnectConfig | undefined = undefined;
+let config: WormholeConnectConfig = {
+  eventHandler: (event: WormholeConnectEvent) => {
+    container.dispatchEvent(
+      new CustomEvent('wormholeConnectEvent', { detail: event }),
+    );
+  },
+};
 let theme: WormholeConnectPartialTheme | undefined = undefined;
 
 try {

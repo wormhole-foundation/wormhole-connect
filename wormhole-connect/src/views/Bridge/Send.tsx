@@ -1,10 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import {
-  Context,
-  INSUFFICIENT_ALLOWANCE,
-  InsufficientFundsForGasError,
-} from '@wormhole-foundation/wormhole-connect-sdk';
+import { Context, TokenId } from '@wormhole-foundation/wormhole-connect-sdk';
 import { makeStyles } from 'tss-react/mui';
 
 import config from 'config';
@@ -39,13 +35,8 @@ import { estimateClaimGas, estimateSendGas } from 'utils/gas';
 import { validateSolanaTokenAccount } from '../../utils/transferValidation';
 import { useDebounce } from 'use-debounce';
 import { isPorticoRoute } from 'routes/porticoBridge/utils';
-import { SWAP_ERROR } from 'routes/porticoBridge/consts';
-import {
-  DestinationContractIsPausedError,
-  NotEnoughCapacityError,
-  ContractIsPausedError,
-  UnsupportedContractAbiVersion,
-} from 'routes/ntt/errors';
+import { interpretTransferError } from 'utils/errors';
+import { getTokenDetails } from 'telemetry';
 
 const useStyles = makeStyles()((theme) => ({
   body: {
@@ -101,10 +92,26 @@ function Send(props: { valid: boolean }) {
 
   async function send() {
     setSendError('');
-    await validate({ transferInput, relay, wallet, portico }, dispatch);
+    await validate(
+      { transferInput, relay, wallet, portico },
+      dispatch,
+      () => false,
+    );
     const valid = isTransferValid(validations);
     if (!valid || !route) return;
     dispatch(setIsTransactionInProgress(true));
+
+    // Details for config.dispatchEvent events
+    const transferDetails = {
+      route,
+      fromToken: getTokenDetails(token),
+      toToken: getTokenDetails(destToken),
+      fromChain: fromChain!,
+      toChain: toChain!,
+    };
+
+    const tokenConfig = config.tokens[token]!;
+    const sendToken: TokenId | 'native' = tokenConfig.tokenId ?? 'native';
 
     try {
       const fromConfig = config.chains[fromChain!];
@@ -120,9 +127,12 @@ function Send(props: { valid: boolean }) {
         await switchChain(fromConfig.chainId, TransferWallet.SENDING);
       }
 
-      const tokenConfig = config.tokens[token]!;
-      const sendToken = tokenConfig.tokenId;
       const routeOptions = isPorticoRoute(route) ? portico : { toNativeToken };
+
+      config.triggerEvent({
+        type: 'transfer.initiate',
+        details: transferDetails,
+      });
 
       const txId = await RouteOperator.send(
         route,
@@ -135,6 +145,11 @@ function Send(props: { valid: boolean }) {
         destToken,
         routeOptions,
       );
+
+      config.triggerEvent({
+        type: 'transfer.start',
+        details: transferDetails,
+      });
 
       let message: UnsignedMessage | undefined;
       while (message === undefined) {
@@ -159,26 +174,19 @@ function Send(props: { valid: boolean }) {
       dispatch(setAppRoute('redeem'));
       setSendError('');
     } catch (e: any) {
-      console.error(e);
+      console.error('Wormhole Connect: error completing transfer', e);
       dispatch(setIsTransactionInProgress(false));
-      setSendError(
-        e?.message === INSUFFICIENT_ALLOWANCE
-          ? 'Error due to insufficient token allowance, please try again'
-          : e?.message === SWAP_ERROR
-          ? SWAP_ERROR
-          : e?.message === NotEnoughCapacityError.MESSAGE
-          ? `This transfer would be rate-limited due to high volume on ${
-              config.chains[transferInput.fromChain!]?.displayName
-            }, please try again later`
-          : e?.message === ContractIsPausedError.MESSAGE ||
-            e?.message === DestinationContractIsPausedError.MESSAGE
-          ? e.message
-          : e?.message === UnsupportedContractAbiVersion.MESSAGE
-          ? 'Unsupported contract ABI version'
-          : e?.message === InsufficientFundsForGasError.MESSAGE
-          ? InsufficientFundsForGasError.MESSAGE
-          : 'Error with transfer, please try again',
-      );
+      const [uiError, transferError] = interpretTransferError(e, transferInput);
+
+      // Show error in UI
+      setSendError(uiError);
+
+      // Trigger transfer error event to integrator
+      config.triggerEvent({
+        type: 'transfer.error',
+        error: transferError,
+        details: transferDetails,
+      });
     }
   }
 

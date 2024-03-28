@@ -346,6 +346,7 @@ export const validate = async (
     portico: PorticoBridgeState;
   },
   dispatch: Dispatch<AnyAction>,
+  isCanceled: () => boolean,
 ) => {
   const validations = await validateAll(transferInput, relay, wallet, portico);
 
@@ -362,7 +363,10 @@ export const validate = async (
     transferInput.routeStates?.some((rs) => rs.supported) !== undefined
       ? true
       : false;
-  dispatch(setValidations({ validations, showValidationState }));
+
+  if (!isCanceled()) {
+    dispatch(setValidations({ validations, showValidationState }));
+  }
 };
 
 const VALIDATION_DELAY_MS = 250;
@@ -382,7 +386,11 @@ export const useValidate = () => {
     VALIDATION_DELAY_MS,
   );
   useEffect(() => {
-    validate(debouncedStateForValidation, dispatch);
+    let canceled = false;
+    validate(debouncedStateForValidation, dispatch, () => canceled);
+    return () => {
+      canceled = true;
+    };
   }, [debouncedStateForValidation, dispatch]);
 };
 

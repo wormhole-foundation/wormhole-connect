@@ -16,6 +16,7 @@ import {
   mergeNttGroups,
   validateDefaults,
 } from './utils';
+import { wrapEventHandler } from './events';
 
 export function buildConfig(
   customConfig?: WormholeConnectConfig,
@@ -92,6 +93,9 @@ export function buildConfig(
       devnet: ['http://localhost:7071'],
     }[network],
     coinGeckoApiKey: customConfig?.coinGeckoApiKey,
+
+    // Callbacks
+    triggerEvent: wrapEventHandler(customConfig?.eventHandler),
 
     // White lists
     chains: networkData.chains,
