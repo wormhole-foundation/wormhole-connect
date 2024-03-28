@@ -1,7 +1,7 @@
 import {
   WormholeConnectEvent,
   WormholeConnectEventHandler,
-} from 'events/types';
+} from 'telemetry/types';
 
 export function wrapEventHandler(
   integrationHandler?: WormholeConnectEventHandler,

@@ -18,7 +18,9 @@ const resolve = {
     utils: path.resolve(__dirname, './src/utils'),
     config: path.resolve(__dirname, './src/config'),
     components: path.resolve(__dirname, './src/components'),
-    events: path.resolve(__dirname, './src/events'),
+    // This was originally called "events" and that breaks some NPM dependency
+    // so do not rename it "events":
+    telemetry: path.resolve(__dirname, './src/telemetry'),
     store: path.resolve(__dirname, './src/store'),
     routes: path.resolve(__dirname, './src/routes'),
     icons: path.resolve(__dirname, './src/icons'),

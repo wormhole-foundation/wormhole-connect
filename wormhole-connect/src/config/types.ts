@@ -10,7 +10,7 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { Alignment } from 'components/Header';
 import { WormholeConnectPartialTheme } from 'theme';
-import { WormholeConnectEventHandler } from 'events/types';
+import { WormholeConnectEventHandler } from 'telemetry/types';
 
 export enum Icon {
   'AVAX' = 1,
