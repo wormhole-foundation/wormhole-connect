@@ -7,6 +7,7 @@ import {
   TESTNET_RPC_MAPPING,
 } from './rpcs';
 import { TESTNET_TOKENS } from './tokens';
+import { TESTNET_NTT_GROUPS } from './nttGroups';
 
 export * from './chains';
 export * from './gasEstimates';
@@ -20,6 +21,7 @@ const TESTNET: NetworkData = {
   rpcs: TESTNET_RPC_MAPPING,
   rest: TESTNET_REST_MAPPING,
   graphql: TESTNET_GRAPHQL_MAPPING,
+  nttGroups: TESTNET_NTT_GROUPS,
 };
 
 export default TESTNET;

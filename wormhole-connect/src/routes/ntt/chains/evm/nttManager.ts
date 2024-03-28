@@ -23,6 +23,7 @@ import { NttManager__factory } from './abis/NttManager__factory';
 import { NttManager as NttManagerAbi } from './abis/NttManager';
 import config from 'config';
 import { toChainId, toChainName } from 'utils/sdk';
+import { getNttManagerConfigByAddress } from 'utils/ntt';
 
 export class NttManagerEvm {
   readonly nttManager: NttManagerAbi;
@@ -89,16 +90,18 @@ export class NttManagerEvm {
     shouldSkipRelayerSend: boolean,
   ): Promise<string> {
     const tokenConfig = getTokenById(token);
-    if (!tokenConfig?.ntt?.wormholeTransceiver) {
+    if (!tokenConfig) throw new Error('token not found');
+    const nttConfig = getNttManagerConfigByAddress(
+      this.nttManager.address,
+      toChainName(this.chain),
+    );
+    if (!nttConfig || nttConfig.transceivers[0].type !== 'wormhole')
       throw new Error('no wormhole transceiver');
-    }
+    const wormholeTransceiver = nttConfig.transceivers[0].address;
     const deliveryPrice = shouldSkipRelayerSend
       ? undefined
       : BigNumber.from(
-          await this.quoteDeliveryPrice(
-            toChain,
-            tokenConfig.ntt.wormholeTransceiver,
-          ),
+          await this.quoteDeliveryPrice(toChain, wormholeTransceiver),
         );
     const transceiverIxs = encodeTransceiverInstructions([
       {

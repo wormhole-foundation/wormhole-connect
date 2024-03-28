@@ -6,6 +6,7 @@ import { WormholeConfig, Context, ChainConfig, Contracts } from '../types';
  */
 export const TESTNET_CHAINS = {
   solana: 1,
+  goerli: 2,
   bsc: 4,
   mumbai: 5,
   fuji: 6,
@@ -47,6 +48,18 @@ export type ChainContracts = {
 };
 
 const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
+  goerli: {
+    key: 'goerli',
+    id: 2,
+    context: Context.ETH,
+    contracts: {
+      ...CONTRACTS.TESTNET.ethereum,
+      relayer: '0x9563a59c15842a6f322b10f69d1dd88b41f2e97b',
+    },
+    finalityThreshold: 64,
+    nativeTokenDecimals: 18,
+    cctpDomain: 0,
+  },
   solana: {
     key: 'solana',
     id: 1,
@@ -360,6 +373,7 @@ const env: Environment = 'TESTNET';
 const TESTNET_CONFIG: WormholeConfig = {
   env,
   rpcs: {
+    goerli: 'https://rpc.ankr.com/eth_goerli',
     mumbai: 'https://rpc.ankr.com/polygon_mumbai',
     bsc: 'https://data-seed-prebsc-1-s3.binance.org:8545',
     fuji: 'https://api.avax-test.network/ext/bc/C/rpc',

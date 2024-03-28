@@ -143,6 +143,7 @@ export class CosmosGatewayRoute extends BaseRoute {
   getForeignAsset(
     token: TokenId,
     chain: ChainId | ChainName,
+    destToken?: TokenConfig,
   ): Promise<string | null> {
     return config.wh.getForeignAsset(token, chain);
   }
