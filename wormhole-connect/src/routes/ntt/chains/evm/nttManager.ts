@@ -20,7 +20,6 @@ import {
   encodeTransceiverInstructions,
   encodeWormholeTransceiverInstruction,
 } from 'routes/ntt/utils';
-import { NttManager__factory as NttManager__factory_testnet } from './abis/testnet/NttManager__factory';
 import { NttManager as NttManager_testnet } from './abis/testnet/NttManager';
 import { NttManager__factory as NttManager__factory_0_1_0 } from './abis/0.1.0/NttManager__factory';
 import { NttManager as NttManager_0_1_0 } from './abis/0.1.0/NttManager';
@@ -62,7 +61,7 @@ export class NttManagerEvm {
     destChain: ChainName | ChainId,
     wormholeTransceiver: string,
   ): Promise<string> {
-    const { abi, version } = await this.getManagerAbi();
+    const { abi, version } = await this.getAbi();
     if (isAbiVersion_0_1_0(version, abi)) {
       const transceiverIxs = encodeTransceiverInstructions([
         {
@@ -105,7 +104,7 @@ export class NttManagerEvm {
   ): Promise<string> {
     const tokenConfig = getTokenById(token);
     if (!tokenConfig) throw new Error('token not found');
-    const { abi } = await this.getManagerAbi();
+    const { abi } = await this.getAbi();
     const nttConfig = getNttManagerConfigByAddress(
       this.address,
       toChainName(this.chain),
@@ -148,28 +147,28 @@ export class NttManagerEvm {
   }
 
   async getCurrentOutboundCapacity(): Promise<string> {
-    const { abi } = await this.getManagerAbi();
+    const { abi } = await this.getAbi();
     return (await abi.getCurrentOutboundCapacity()).toString();
   }
 
   async getCurrentInboundCapacity(
     fromChain: ChainName | ChainId,
   ): Promise<string> {
-    const { abi } = await this.getManagerAbi();
+    const { abi } = await this.getAbi();
     return (
       await abi.getCurrentInboundCapacity(toChainId(fromChain))
     ).toString();
   }
 
   async getRateLimitDuration(): Promise<number> {
-    const { abi } = await this.getManagerAbi();
+    const { abi } = await this.getAbi();
     return (await abi.rateLimitDuration()).toNumber();
   }
 
   async getInboundQueuedTransfer(
     messageDigest: string,
   ): Promise<InboundQueuedTransfer | undefined> {
-    const { abi } = await this.getManagerAbi();
+    const { abi } = await this.getAbi();
     const queuedTransfer = await abi.getInboundQueuedTransfer(messageDigest);
     if (queuedTransfer.txTimestamp.gt(0)) {
       const { recipient, amount, txTimestamp } = queuedTransfer;
@@ -188,7 +187,7 @@ export class NttManagerEvm {
     recipient: string,
     payer: string,
   ): Promise<string> {
-    const { abi } = await this.getManagerAbi();
+    const { abi } = await this.getAbi();
     try {
       const tx = await abi.populateTransaction.completeInboundQueuedTransfer(
         messageDigest,
@@ -201,7 +200,7 @@ export class NttManagerEvm {
 
   // The transfer is "complete" when the message is executed and not inbound queued
   async isTransferCompleted(messageDigest: string): Promise<boolean> {
-    const { abi } = await this.getManagerAbi();
+    const { abi } = await this.getAbi();
     const isMessageExecuted = await abi.isMessageExecuted(messageDigest);
     if (isMessageExecuted) {
       const queuedTransfer = await this.getInboundQueuedTransfer(messageDigest);
@@ -211,12 +210,12 @@ export class NttManagerEvm {
   }
 
   async isPaused(): Promise<boolean> {
-    const { abi } = await this.getManagerAbi();
+    const { abi } = await this.getAbi();
     return await abi.isPaused();
   }
 
   async fetchRedeemTx(messageDigest: string): Promise<string | undefined> {
-    const { abi } = await this.getManagerAbi();
+    const { abi } = await this.getAbi();
     const eventFilter = abi.filters.TransferRedeemed(messageDigest);
     const provider = config.wh.mustGetProvider(this.chain);
     const currentBlock = await provider.getBlockNumber();
@@ -246,18 +245,18 @@ export class NttManagerEvm {
     throw e;
   }
 
-  async getManagerAbi(): Promise<{
+  async getAbi(): Promise<{
     abi: NttManager_0_1_0 | NttManager_testnet;
     version: string;
   }> {
     const provider = config.wh.mustGetProvider(this.chain);
     // Note: Special case for testnet
-    if (!config.isMainnet) {
-      return {
-        abi: NttManager__factory_testnet.connect(this.address, provider),
-        version: 'testnet',
-      };
-    }
+    //if (!config.isMainnet) {
+    //  return {
+    //    abi: NttManager__factory_testnet.connect(this.address, provider),
+    //    version: 'testnet',
+    //  };
+    //}
     const abiVersionKey = `${this.address}-${toChainName(this.chain)}`;
     let abiVersion = NttManagerEvm.abiVersionCache.get(abiVersionKey);
     if (!abiVersion) {
