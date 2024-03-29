@@ -65,22 +65,22 @@ export const TESTNET_NTT_GROUPS: NttGroups = {
     nttManagers: [
       {
         chainName: 'sepolia',
-        address: '0xFCD6994bC89FCB5891404Eb6268cFB3701F1C198',
+        address: '0x0e313085aa613df7594a524f5ea2e3f196f27e92',
         tokenKey: 'USDCsepolia',
         transceivers: [
           {
-            address: '0xE18EF44f81fcF4ba3eD765F0B360B68f823Fac33',
+            address: '0x166F93EdAFCc5a183910658A9A31CE50e86E6007',
             type: 'wormhole',
           },
         ],
       },
       {
         chainName: 'alfajores',
-        address: '0x12594D5EBF88Deb5b02a6B7d265B421f6EE2CbA6',
+        address: '0x262C73a06A8C71dc0e53233F66329101a672C716',
         tokenKey: 'USDCalfajores',
         transceivers: [
           {
-            address: '0x328f1fa5f84f62177d1e04976FdC49aB07578cf0',
+            address: '0x5D701Aa5320EC86D13C4Bcc93BC2296b6557AeAF',
             type: 'wormhole',
           },
         ],
