@@ -10,7 +10,6 @@ import { hexlify } from 'ethers/lib/utils';
 import { NttRelayingType, UnsignedNttMessage } from 'routes/types';
 import { getTokenById, getTokenDecimals } from 'utils';
 import { getWormholeLogEvm } from 'utils/vaa';
-import { NttManager__factory } from './abis';
 import config from 'config';
 import { toChainName } from 'utils/sdk';
 import { deserializePayload, Ntt } from '@wormhole-foundation/sdk-definitions';
@@ -37,8 +36,13 @@ export const getMessageEvm = async (
     receipt = await provider.getTransactionReceipt(tx);
     if (!receipt) throw new Error(`No receipt for tx ${tx} on ${chain}`);
   }
-  const nttManager = NttManager__factory.connect(receipt.to, provider);
-  const tokenAddress = await nttManager.token();
+  const contract = new ethers.Contract(
+    receipt.to,
+    ['function token() public view returns (address)'],
+    provider,
+  );
+  const tokenAddress = await contract.token();
+  if (!tokenAddress) throw new Error('No token address');
   const fromChain = toChainName(chain);
   const tokenId = {
     chain: fromChain,

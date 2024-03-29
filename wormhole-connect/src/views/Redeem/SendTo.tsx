@@ -222,9 +222,10 @@ function SendTo() {
     } catch (e: any) {
       if (e.message === ContractIsPausedError.MESSAGE) {
         setClaimError('The contract is paused, please try again later');
+      } else {
+        setClaimError('Your claim has failed, please try again');
       }
       setInProgress(false);
-      setClaimError('Your claim has failed, please try again');
       console.error(e);
     }
     if (txId !== undefined) {

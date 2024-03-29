@@ -32,3 +32,10 @@ export class DestinationContractIsPausedError extends Error {
     super(DestinationContractIsPausedError.MESSAGE);
   }
 }
+
+export class UnsupportedContractAbiVersion extends Error {
+  static MESSAGE = 'Unsupported contract ABI version';
+  constructor() {
+    super(UnsupportedContractAbiVersion.MESSAGE);
+  }
+}
