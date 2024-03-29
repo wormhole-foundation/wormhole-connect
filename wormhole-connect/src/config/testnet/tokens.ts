@@ -907,7 +907,7 @@ export const TESTNET_TOKENS: TokensConfig = {
     icon: Icon.USDC,
     tokenId: {
       chain: 'alfajores',
-      address: '0x4004d1EB4b65A38c65dc9575bEe3DfCb026Cb538',
+      address: '0xe00b745b5e71337507d43a8584320c4192CA7994',
     },
     coinGeckoId: 'usd-coin',
     color: '#2774CA',
