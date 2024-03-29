@@ -43,6 +43,7 @@ import {
   DestinationContractIsPausedError,
   NotEnoughCapacityError,
   ContractIsPausedError,
+  UnsupportedContractAbiVersion,
 } from 'routes/ntt/errors';
 
 const useStyles = makeStyles()((theme) => ({
@@ -171,6 +172,8 @@ function Send(props: { valid: boolean }) {
           : e?.message === ContractIsPausedError.MESSAGE ||
             e?.message === DestinationContractIsPausedError.MESSAGE
           ? e.message
+          : e?.message === UnsupportedContractAbiVersion.MESSAGE
+          ? 'Unsupported contract ABI version'
           : 'Error with transfer, please try again',
       );
     }
