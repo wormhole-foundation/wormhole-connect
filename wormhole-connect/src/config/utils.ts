@@ -92,7 +92,6 @@ export const mergeNttGroups = (
   custom?: NttGroups,
 ) => {
   if (!custom) return builtin;
-  console.log(custom);
 
   for (const key in custom) {
     if (key in builtin) {
