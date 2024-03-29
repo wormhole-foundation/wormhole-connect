@@ -123,6 +123,9 @@ export interface WormholeConnectConfig {
   // Route settings
   ethBridgeMaxAmount?: number;
   wstETHBridgeMaxAmount?: number;
+
+  // NTT config
+  nttGroups?: NttGroups;
 }
 
 // This is the exported config value used throughout the code base
