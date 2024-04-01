@@ -72,6 +72,7 @@ export declare namespace IRateLimiter {
 
   export type OutboundQueuedTransferStruct = {
     recipient: BytesLike;
+    refundAddress: BytesLike;
     amount: BigNumberish;
     txTimestamp: BigNumberish;
     recipientChain: BigNumberish;
@@ -81,6 +82,7 @@ export declare namespace IRateLimiter {
 
   export type OutboundQueuedTransferStructOutput = [
     string,
+    string,
     BigNumber,
     BigNumber,
     number,
@@ -88,6 +90,7 @@ export declare namespace IRateLimiter {
     string,
   ] & {
     recipient: string;
+    refundAddress: string;
     amount: BigNumber;
     txTimestamp: BigNumber;
     recipientChain: number;
@@ -112,6 +115,7 @@ export interface NttManagerInterface extends utils.Interface {
   functions: {
     'NTT_MANAGER_VERSION()': FunctionFragment;
     'attestationReceived(uint16,bytes32,(bytes32,bytes32,bytes))': FunctionFragment;
+    'cancelOutboundQueuedTransfer(uint64)': FunctionFragment;
     'chainId()': FunctionFragment;
     'completeInboundQueuedTransfer(bytes32)': FunctionFragment;
     'completeOutboundQueuedTransfer(uint64)': FunctionFragment;
@@ -150,7 +154,7 @@ export interface NttManagerInterface extends utils.Interface {
     'tokenDecimals()': FunctionFragment;
     'transceiverAttestedToMessage(bytes32,uint8)': FunctionFragment;
     'transfer(uint256,uint16,bytes32)': FunctionFragment;
-    'transfer(uint256,uint16,bytes32,bool,bytes)': FunctionFragment;
+    'transfer(uint256,uint16,bytes32,bytes32,bool,bytes)': FunctionFragment;
     'transferOwnership(address)': FunctionFragment;
     'transferPauserCapability(address)': FunctionFragment;
     'unpause()': FunctionFragment;
@@ -161,6 +165,7 @@ export interface NttManagerInterface extends utils.Interface {
     nameOrSignatureOrTopic:
       | 'NTT_MANAGER_VERSION'
       | 'attestationReceived'
+      | 'cancelOutboundQueuedTransfer'
       | 'chainId'
       | 'completeInboundQueuedTransfer'
       | 'completeOutboundQueuedTransfer'
@@ -199,7 +204,7 @@ export interface NttManagerInterface extends utils.Interface {
       | 'tokenDecimals'
       | 'transceiverAttestedToMessage'
       | 'transfer(uint256,uint16,bytes32)'
-      | 'transfer(uint256,uint16,bytes32,bool,bytes)'
+      | 'transfer(uint256,uint16,bytes32,bytes32,bool,bytes)'
       | 'transferOwnership'
       | 'transferPauserCapability'
       | 'unpause'
@@ -217,6 +222,10 @@ export interface NttManagerInterface extends utils.Interface {
       BytesLike,
       TransceiverStructs.NttManagerMessageStruct,
     ],
+  ): string;
+  encodeFunctionData(
+    functionFragment: 'cancelOutboundQueuedTransfer',
+    values: [BigNumberish],
   ): string;
   encodeFunctionData(functionFragment: 'chainId', values?: undefined): string;
   encodeFunctionData(
@@ -348,8 +357,15 @@ export interface NttManagerInterface extends utils.Interface {
     values: [BigNumberish, BigNumberish, BytesLike],
   ): string;
   encodeFunctionData(
-    functionFragment: 'transfer(uint256,uint16,bytes32,bool,bytes)',
-    values: [BigNumberish, BigNumberish, BytesLike, boolean, BytesLike],
+    functionFragment: 'transfer(uint256,uint16,bytes32,bytes32,bool,bytes)',
+    values: [
+      BigNumberish,
+      BigNumberish,
+      BytesLike,
+      BytesLike,
+      boolean,
+      BytesLike,
+    ],
   ): string;
   encodeFunctionData(
     functionFragment: 'transferOwnership',
@@ -368,6 +384,10 @@ export interface NttManagerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: 'attestationReceived',
+    data: BytesLike,
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: 'cancelOutboundQueuedTransfer',
     data: BytesLike,
   ): Result;
   decodeFunctionResult(functionFragment: 'chainId', data: BytesLike): Result;
@@ -484,7 +504,7 @@ export interface NttManagerInterface extends utils.Interface {
     data: BytesLike,
   ): Result;
   decodeFunctionResult(
-    functionFragment: 'transfer(uint256,uint16,bytes32,bool,bytes)',
+    functionFragment: 'transfer(uint256,uint16,bytes32,bytes32,bool,bytes)',
     data: BytesLike,
   ): Result;
   decodeFunctionResult(
@@ -506,6 +526,7 @@ export interface NttManagerInterface extends utils.Interface {
     'MessageAlreadyExecuted(bytes32,bytes32)': EventFragment;
     'MessageAttestedTo(bytes32,address,uint8)': EventFragment;
     'NotPaused(bool)': EventFragment;
+    'OutboundTransferCancelled(uint256,address,uint256)': EventFragment;
     'OutboundTransferQueued(uint64)': EventFragment;
     'OutboundTransferRateLimited(address,uint64,uint256,uint256)': EventFragment;
     'OwnershipTransferred(address,address)': EventFragment;
@@ -516,7 +537,7 @@ export interface NttManagerInterface extends utils.Interface {
     'TransceiverAdded(address,uint256,uint8)': EventFragment;
     'TransceiverRemoved(address,uint8)': EventFragment;
     'TransferRedeemed(bytes32)': EventFragment;
-    'TransferSent(bytes32,uint256,uint256,uint16,uint64)': EventFragment;
+    'TransferSent(bytes32,bytes32,uint256,uint256,uint16,uint64)': EventFragment;
     'Upgraded(address)': EventFragment;
   };
 
@@ -527,6 +548,7 @@ export interface NttManagerInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: 'MessageAlreadyExecuted'): EventFragment;
   getEvent(nameOrSignatureOrTopic: 'MessageAttestedTo'): EventFragment;
   getEvent(nameOrSignatureOrTopic: 'NotPaused'): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'OutboundTransferCancelled'): EventFragment;
   getEvent(nameOrSignatureOrTopic: 'OutboundTransferQueued'): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: 'OutboundTransferRateLimited',
@@ -613,6 +635,19 @@ export interface NotPausedEventObject {
 export type NotPausedEvent = TypedEvent<[boolean], NotPausedEventObject>;
 
 export type NotPausedEventFilter = TypedEventFilter<NotPausedEvent>;
+
+export interface OutboundTransferCancelledEventObject {
+  sequence: BigNumber;
+  recipient: string;
+  amount: BigNumber;
+}
+export type OutboundTransferCancelledEvent = TypedEvent<
+  [BigNumber, string, BigNumber],
+  OutboundTransferCancelledEventObject
+>;
+
+export type OutboundTransferCancelledEventFilter =
+  TypedEventFilter<OutboundTransferCancelledEvent>;
 
 export interface OutboundTransferQueuedEventObject {
   queueSequence: BigNumber;
@@ -734,13 +769,14 @@ export type TransferRedeemedEventFilter =
 
 export interface TransferSentEventObject {
   recipient: string;
+  refundAddress: string;
   amount: BigNumber;
   fee: BigNumber;
   recipientChain: number;
   msgSequence: BigNumber;
 }
 export type TransferSentEvent = TypedEvent<
-  [string, BigNumber, BigNumber, number, BigNumber],
+  [string, string, BigNumber, BigNumber, number, BigNumber],
   TransferSentEventObject
 >;
 
@@ -786,6 +822,11 @@ export interface NttManager extends BaseContract {
       sourceChainId: BigNumberish,
       sourceNttManagerAddress: BytesLike,
       payload: TransceiverStructs.NttManagerMessageStruct,
+      overrides?: Overrides & { from?: string },
+    ): Promise<ContractTransaction>;
+
+    cancelOutboundQueuedTransfer(
+      messageSequence: BigNumberish,
       overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
@@ -945,10 +986,11 @@ export interface NttManager extends BaseContract {
       overrides?: PayableOverrides & { from?: string },
     ): Promise<ContractTransaction>;
 
-    'transfer(uint256,uint16,bytes32,bool,bytes)'(
+    'transfer(uint256,uint16,bytes32,bytes32,bool,bytes)'(
       amount: BigNumberish,
       recipientChain: BigNumberish,
       recipient: BytesLike,
+      refundAddress: BytesLike,
       shouldQueue: boolean,
       transceiverInstructions: BytesLike,
       overrides?: PayableOverrides & { from?: string },
@@ -980,6 +1022,11 @@ export interface NttManager extends BaseContract {
     sourceChainId: BigNumberish,
     sourceNttManagerAddress: BytesLike,
     payload: TransceiverStructs.NttManagerMessageStruct,
+    overrides?: Overrides & { from?: string },
+  ): Promise<ContractTransaction>;
+
+  cancelOutboundQueuedTransfer(
+    messageSequence: BigNumberish,
     overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
@@ -1137,10 +1184,11 @@ export interface NttManager extends BaseContract {
     overrides?: PayableOverrides & { from?: string },
   ): Promise<ContractTransaction>;
 
-  'transfer(uint256,uint16,bytes32,bool,bytes)'(
+  'transfer(uint256,uint16,bytes32,bytes32,bool,bytes)'(
     amount: BigNumberish,
     recipientChain: BigNumberish,
     recipient: BytesLike,
+    refundAddress: BytesLike,
     shouldQueue: boolean,
     transceiverInstructions: BytesLike,
     overrides?: PayableOverrides & { from?: string },
@@ -1172,6 +1220,11 @@ export interface NttManager extends BaseContract {
       sourceChainId: BigNumberish,
       sourceNttManagerAddress: BytesLike,
       payload: TransceiverStructs.NttManagerMessageStruct,
+      overrides?: CallOverrides,
+    ): Promise<void>;
+
+    cancelOutboundQueuedTransfer(
+      messageSequence: BigNumberish,
       overrides?: CallOverrides,
     ): Promise<void>;
 
@@ -1323,10 +1376,11 @@ export interface NttManager extends BaseContract {
       overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
-    'transfer(uint256,uint16,bytes32,bool,bytes)'(
+    'transfer(uint256,uint16,bytes32,bytes32,bool,bytes)'(
       amount: BigNumberish,
       recipientChain: BigNumberish,
       recipient: BytesLike,
+      refundAddress: BytesLike,
       shouldQueue: boolean,
       transceiverInstructions: BytesLike,
       overrides?: CallOverrides,
@@ -1395,6 +1449,17 @@ export interface NttManager extends BaseContract {
 
     'NotPaused(bool)'(notPaused?: null): NotPausedEventFilter;
     NotPaused(notPaused?: null): NotPausedEventFilter;
+
+    'OutboundTransferCancelled(uint256,address,uint256)'(
+      sequence?: null,
+      recipient?: null,
+      amount?: null,
+    ): OutboundTransferCancelledEventFilter;
+    OutboundTransferCancelled(
+      sequence?: null,
+      recipient?: null,
+      amount?: null,
+    ): OutboundTransferCancelledEventFilter;
 
     'OutboundTransferQueued(uint64)'(
       queueSequence?: null,
@@ -1486,8 +1551,9 @@ export interface NttManager extends BaseContract {
     ): TransferRedeemedEventFilter;
     TransferRedeemed(digest?: BytesLike | null): TransferRedeemedEventFilter;
 
-    'TransferSent(bytes32,uint256,uint256,uint16,uint64)'(
+    'TransferSent(bytes32,bytes32,uint256,uint256,uint16,uint64)'(
       recipient?: null,
+      refundAddress?: null,
       amount?: null,
       fee?: null,
       recipientChain?: null,
@@ -1495,6 +1561,7 @@ export interface NttManager extends BaseContract {
     ): TransferSentEventFilter;
     TransferSent(
       recipient?: null,
+      refundAddress?: null,
       amount?: null,
       fee?: null,
       recipientChain?: null,
@@ -1512,6 +1579,11 @@ export interface NttManager extends BaseContract {
       sourceChainId: BigNumberish,
       sourceNttManagerAddress: BytesLike,
       payload: TransceiverStructs.NttManagerMessageStruct,
+      overrides?: Overrides & { from?: string },
+    ): Promise<BigNumber>;
+
+    cancelOutboundQueuedTransfer(
+      messageSequence: BigNumberish,
       overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
@@ -1661,10 +1733,11 @@ export interface NttManager extends BaseContract {
       overrides?: PayableOverrides & { from?: string },
     ): Promise<BigNumber>;
 
-    'transfer(uint256,uint16,bytes32,bool,bytes)'(
+    'transfer(uint256,uint16,bytes32,bytes32,bool,bytes)'(
       amount: BigNumberish,
       recipientChain: BigNumberish,
       recipient: BytesLike,
+      refundAddress: BytesLike,
       shouldQueue: boolean,
       transceiverInstructions: BytesLike,
       overrides?: PayableOverrides & { from?: string },
@@ -1697,6 +1770,11 @@ export interface NttManager extends BaseContract {
       sourceChainId: BigNumberish,
       sourceNttManagerAddress: BytesLike,
       payload: TransceiverStructs.NttManagerMessageStruct,
+      overrides?: Overrides & { from?: string },
+    ): Promise<PopulatedTransaction>;
+
+    cancelOutboundQueuedTransfer(
+      messageSequence: BigNumberish,
       overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
@@ -1860,10 +1938,11 @@ export interface NttManager extends BaseContract {
       overrides?: PayableOverrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
-    'transfer(uint256,uint16,bytes32,bool,bytes)'(
+    'transfer(uint256,uint16,bytes32,bytes32,bool,bytes)'(
       amount: BigNumberish,
       recipientChain: BigNumberish,
       recipient: BytesLike,
+      refundAddress: BytesLike,
       shouldQueue: boolean,
       transceiverInstructions: BytesLike,
       overrides?: PayableOverrides & { from?: string },

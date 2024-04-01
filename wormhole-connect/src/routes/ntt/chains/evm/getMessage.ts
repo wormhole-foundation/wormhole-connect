@@ -21,9 +21,9 @@ import {
 } from 'utils/ntt';
 
 const RELAYING_INFO_EVENT_TOPIC =
-  '0x375a56c053c4d19a2e3445e97b7a28bf4e908617ce6d766e1e03a9d3f5276271';
+  '0xc3192e083c87c556db539f071d8a298869f487e951327b5616a6f85ae3da958e';
 const RELAYING_INFO_IFACE = new ethers.utils.Interface([
-  'event RelayingInfo(uint8 relayingType, uint256 deliveryPayment)',
+  'event RelayingInfo(uint8 relayingType, bytes32 refundAddress, uint256 deliveryPayment)',
 ]);
 
 export const getMessageEvm = async (
