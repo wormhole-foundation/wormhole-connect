@@ -1,7 +1,6 @@
 import React from "react";
 import { makeStyles } from "tss-react/mui";
 import bg from "./bg.svg";
-import { OPACITY } from "./theme";
 
 const colors = {
   bg: "#030712",
@@ -65,7 +64,7 @@ const useStyles = makeStyles()((theme) => ({
     width: "1379px",
     height: "1378px",
     position: "absolute",
-    background: `radial-gradient(closest-side at 50% 50%, ${colors.pink}${OPACITY[60]} 0%, ${colors.pink}00 100%)`,
+    background: `radial-gradient(closest-side at 50% 50%, ${colors.pink}99 0%, ${colors.pink}00 100%)`,
     opacity: "0.5",
     zIndex: "-1",
     pointerEvent: "none",

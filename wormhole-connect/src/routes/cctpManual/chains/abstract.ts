@@ -41,4 +41,5 @@ export default interface ManualCCTP<T = any> {
     destChain: ChainName | ChainId,
     messageInfo: SignedMessage,
   ): Promise<boolean>;
+  // eslint-disable-next-line semi
 }

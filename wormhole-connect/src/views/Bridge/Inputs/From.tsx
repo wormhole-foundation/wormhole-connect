@@ -187,14 +187,16 @@ function FromInputs() {
         balance={balance}
         tokenPrice={getTokenPrice(prices, config.tokens[token])}
       />
-      <TokensModal
-        open={showTokensModal}
-        chain={fromChain}
-        walletAddress={wallet.address}
-        type="source"
-        onSelect={selectToken}
-        onClose={() => setShowTokensModal(false)}
-      />
+      {showTokensModal && (
+        <TokensModal
+          open={showTokensModal}
+          chain={fromChain}
+          walletAddress={wallet.address}
+          type="source"
+          onSelect={selectToken}
+          onClose={() => setShowTokensModal(false)}
+        />
+      )}
       <ChainsModal
         open={showChainsModal}
         title="Sending from"
