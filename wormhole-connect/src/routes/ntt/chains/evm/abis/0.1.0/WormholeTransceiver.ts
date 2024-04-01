@@ -93,7 +93,7 @@ export interface WormholeTransceiverInterface extends utils.Interface {
     'quoteDeliveryPrice(uint16,(uint8,bytes))': FunctionFragment;
     'receiveMessage(bytes)': FunctionFragment;
     'receiveWormholeMessages(bytes,bytes[],bytes32,uint16,bytes32)': FunctionFragment;
-    'sendMessage(uint16,(uint8,bytes),bytes,bytes32)': FunctionFragment;
+    'sendMessage(uint16,(uint8,bytes),bytes,bytes32,bytes32)': FunctionFragment;
     'setIsSpecialRelayingEnabled(uint16,bool)': FunctionFragment;
     'setIsWormholeEvmChain(uint16,bool)': FunctionFragment;
     'setIsWormholeRelayingEnabled(uint16,bool)': FunctionFragment;
@@ -228,6 +228,7 @@ export interface WormholeTransceiverInterface extends utils.Interface {
     values: [
       BigNumberish,
       TransceiverStructs.TransceiverInstructionStruct,
+      BytesLike,
       BytesLike,
       BytesLike,
     ],
@@ -395,7 +396,7 @@ export interface WormholeTransceiverInterface extends utils.Interface {
     'PauserTransferred(address,address)': EventFragment;
     'ReceivedMessage(bytes32,uint16,bytes32,uint64)': EventFragment;
     'ReceivedRelayedMessage(bytes32,uint16,bytes32)': EventFragment;
-    'RelayingInfo(uint8,uint256)': EventFragment;
+    'RelayingInfo(uint8,bytes32,uint256)': EventFragment;
     'SendTransceiverMessage(uint16,(bytes32,bytes32,bytes,bytes))': EventFragment;
     'SetIsSpecialRelayingEnabled(uint16,bool)': EventFragment;
     'SetIsWormholeEvmChain(uint16,bool)': EventFragment;
@@ -520,10 +521,11 @@ export type ReceivedRelayedMessageEventFilter =
 
 export interface RelayingInfoEventObject {
   relayingType: number;
+  refundAddress: string;
   deliveryPayment: BigNumber;
 }
 export type RelayingInfoEvent = TypedEvent<
-  [number, BigNumber],
+  [number, string, BigNumber],
   RelayingInfoEventObject
 >;
 
@@ -716,6 +718,7 @@ export interface WormholeTransceiver extends BaseContract {
       instruction: TransceiverStructs.TransceiverInstructionStruct,
       nttManagerMessage: BytesLike,
       recipientNttManagerAddress: BytesLike,
+      refundAddress: BytesLike,
       overrides?: PayableOverrides & { from?: string },
     ): Promise<ContractTransaction>;
 
@@ -857,6 +860,7 @@ export interface WormholeTransceiver extends BaseContract {
     instruction: TransceiverStructs.TransceiverInstructionStruct,
     nttManagerMessage: BytesLike,
     recipientNttManagerAddress: BytesLike,
+    refundAddress: BytesLike,
     overrides?: PayableOverrides & { from?: string },
   ): Promise<ContractTransaction>;
 
@@ -994,6 +998,7 @@ export interface WormholeTransceiver extends BaseContract {
       instruction: TransceiverStructs.TransceiverInstructionStruct,
       nttManagerMessage: BytesLike,
       recipientNttManagerAddress: BytesLike,
+      refundAddress: BytesLike,
       overrides?: CallOverrides,
     ): Promise<void>;
 
@@ -1114,12 +1119,14 @@ export interface WormholeTransceiver extends BaseContract {
       emitterAddress?: null,
     ): ReceivedRelayedMessageEventFilter;
 
-    'RelayingInfo(uint8,uint256)'(
+    'RelayingInfo(uint8,bytes32,uint256)'(
       relayingType?: null,
+      refundAddress?: null,
       deliveryPayment?: null,
     ): RelayingInfoEventFilter;
     RelayingInfo(
       relayingType?: null,
+      refundAddress?: null,
       deliveryPayment?: null,
     ): RelayingInfoEventFilter;
 
@@ -1259,6 +1266,7 @@ export interface WormholeTransceiver extends BaseContract {
       instruction: TransceiverStructs.TransceiverInstructionStruct,
       nttManagerMessage: BytesLike,
       recipientNttManagerAddress: BytesLike,
+      refundAddress: BytesLike,
       overrides?: PayableOverrides & { from?: string },
     ): Promise<BigNumber>;
 
@@ -1412,6 +1420,7 @@ export interface WormholeTransceiver extends BaseContract {
       instruction: TransceiverStructs.TransceiverInstructionStruct,
       nttManagerMessage: BytesLike,
       recipientNttManagerAddress: BytesLike,
+      refundAddress: BytesLike,
       overrides?: PayableOverrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 

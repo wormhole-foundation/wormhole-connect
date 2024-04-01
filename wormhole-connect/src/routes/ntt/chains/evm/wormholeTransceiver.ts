@@ -47,13 +47,6 @@ export class WormholeTransceiver {
     version: string;
   }> {
     const provider = config.wh.mustGetProvider(this.chain);
-    // Note: Special case for testnet
-    if (!config.isMainnet) {
-      return {
-        abi: WormholeTransceiver__factory_0_1_0.connect(this.address, provider),
-        version: ABI_VERSION_0_1_0,
-      };
-    }
     const abiVersionKey = `${this.address}-${toChainName(this.chain)}`;
     let abiVersion = WormholeTransceiver.abiVersionCache.get(abiVersionKey);
     if (!abiVersion) {

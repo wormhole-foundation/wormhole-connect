@@ -7,7 +7,7 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { getTokenById, tryParseErrorMessage } from 'utils';
 import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
-import { BaseContract, BigNumber, ethers, PopulatedTransaction } from 'ethers';
+import { BigNumber, ethers, PopulatedTransaction } from 'ethers';
 import { InboundQueuedTransfer } from '../../types';
 import {
   InboundQueuedTransferNotFoundError,
@@ -20,21 +20,12 @@ import {
   encodeTransceiverInstructions,
   encodeWormholeTransceiverInstruction,
 } from 'routes/ntt/utils';
-import { NttManager as NttManager_testnet } from './abis/testnet/NttManager';
 import { NttManager__factory as NttManager__factory_0_1_0 } from './abis/0.1.0/NttManager__factory';
 import { NttManager as NttManager_0_1_0 } from './abis/0.1.0/NttManager';
 import config from 'config';
 import { toChainId, toChainName } from 'utils/sdk';
-import { getNttManagerConfigByAddress } from 'utils/ntt';
 
 const ABI_VERSION_0_1_0 = '0.1.0';
-
-function isAbiVersion_0_1_0(
-  version: string,
-  abi: BaseContract,
-): abi is NttManager_0_1_0 {
-  return version === ABI_VERSION_0_1_0;
-}
 
 export class NttManagerEvm {
   static readonly abiVersionCache = new Map<string, string>();
@@ -56,42 +47,21 @@ export class NttManagerEvm {
     return txId;
   }
 
-  // Quotes the delivery price using the wormhole transceiver
-  async quoteDeliveryPrice(
-    destChain: ChainName | ChainId,
-    wormholeTransceiver: string,
-  ): Promise<string> {
-    const { abi, version } = await this.getAbi();
-    if (isAbiVersion_0_1_0(version, abi)) {
-      const transceiverIxs = encodeTransceiverInstructions([
-        {
-          index: 0,
-          payload: encodeWormholeTransceiverInstruction({
-            shouldSkipRelayerSend: false,
-          }),
-        },
-      ]);
-      const [, deliveryPrice] = await abi.quoteDeliveryPrice(
-        toChainId(destChain),
-        transceiverIxs,
-      );
-      return deliveryPrice.toString();
-    } else {
-      const transceiverIxs = [
-        {
-          index: 0,
-          payload: encodeWormholeTransceiverInstruction({
-            shouldSkipRelayerSend: false,
-          }),
-        },
-      ];
-      const [, deliveryPrice] = await (
-        abi as NttManager_testnet
-      ).quoteDeliveryPrice(toChainId(destChain), transceiverIxs, [
-        wormholeTransceiver,
-      ]);
-      return deliveryPrice.toString();
-    }
+  async quoteDeliveryPrice(destChain: ChainName | ChainId): Promise<string> {
+    const { abi } = await this.getAbi();
+    const transceiverIxs = encodeTransceiverInstructions([
+      {
+        index: 0,
+        payload: encodeWormholeTransceiverInstruction({
+          shouldSkipRelayerSend: false,
+        }),
+      },
+    ]);
+    const [, deliveryPrice] = await abi.quoteDeliveryPrice(
+      toChainId(destChain),
+      transceiverIxs,
+    );
+    return deliveryPrice.toString();
   }
 
   async send(
@@ -105,18 +75,9 @@ export class NttManagerEvm {
     const tokenConfig = getTokenById(token);
     if (!tokenConfig) throw new Error('token not found');
     const { abi } = await this.getAbi();
-    const nttConfig = getNttManagerConfigByAddress(
-      this.address,
-      toChainName(this.chain),
-    );
-    if (!nttConfig || nttConfig.transceivers[0].type !== 'wormhole')
-      throw new Error('no wormhole transceiver');
-    const wormholeTransceiver = nttConfig.transceivers[0].address;
     const deliveryPrice = shouldSkipRelayerSend
       ? undefined
-      : BigNumber.from(
-          await this.quoteDeliveryPrice(toChain, wormholeTransceiver),
-        );
+      : BigNumber.from(await this.quoteDeliveryPrice(toChain));
     const transceiverIxs = encodeTransceiverInstructions([
       {
         index: 0,
@@ -125,12 +86,14 @@ export class NttManagerEvm {
         }),
       },
     ]);
+    const formattedRecipient = config.wh.formatAddress(recipient, toChain);
     const tx = await abi.populateTransaction[
-      'transfer(uint256,uint16,bytes32,bool,bytes)'
+      'transfer(uint256,uint16,bytes32,bytes32,bool,bytes)'
     ](
       amount,
       toChainId(toChain),
-      config.wh.formatAddress(recipient, toChain),
+      formattedRecipient,
+      formattedRecipient, // SR gas refund goes to recipient
       false, // revert instead of getting outbound queued
       transceiverIxs,
       { value: deliveryPrice },
@@ -246,17 +209,10 @@ export class NttManagerEvm {
   }
 
   async getAbi(): Promise<{
-    abi: NttManager_0_1_0 | NttManager_testnet;
+    abi: NttManager_0_1_0;
     version: string;
   }> {
     const provider = config.wh.mustGetProvider(this.chain);
-    // Note: Special case for testnet
-    //if (!config.isMainnet) {
-    //  return {
-    //    abi: NttManager__factory_testnet.connect(this.address, provider),
-    //    version: 'testnet',
-    //  };
-    //}
     const abiVersionKey = `${this.address}-${toChainName(this.chain)}`;
     let abiVersion = NttManagerEvm.abiVersionCache.get(abiVersionKey);
     if (!abiVersion) {

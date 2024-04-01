@@ -110,10 +110,7 @@ export class NttRelay extends NttBase {
       const nttManager = new NttManagerEvm(sourceChain, nttManagerAddress);
       if (nttConfig.transceivers[0].type !== 'wormhole')
         throw new Error('no wormhole transceiver');
-      const deliveryPrice = await nttManager.quoteDeliveryPrice(
-        destChain,
-        nttConfig.transceivers[0].address,
-      );
+      const deliveryPrice = await nttManager.quoteDeliveryPrice(destChain);
       return { fee: BigNumber.from(deliveryPrice), feeToken: 'native' };
     }
     if (toChainName(sourceChain) === 'solana') {

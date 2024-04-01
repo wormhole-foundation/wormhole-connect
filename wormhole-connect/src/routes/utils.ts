@@ -89,7 +89,7 @@ export const isIlliquidDestToken = (
   }
   if (
     symbol === 'USDC' &&
-    nativeChain === 'sepolia' &&
+    nativeChain === 'fuji' &&
     destChain === 'alfajores'
   ) {
     return true;
