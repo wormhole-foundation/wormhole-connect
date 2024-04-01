@@ -22,6 +22,7 @@ type Props = {
   text: string;
   align?: Alignment;
   size?: number;
+  testId?: string;
 };
 
 function Header(props: Props) {
@@ -30,7 +31,11 @@ function Header(props: Props) {
     fontSize: props.size || 42,
   };
   const { classes } = useStyles(styleProps);
-  return <div className={classes.title}>{props.text}</div>;
+  return (
+    <div className={classes.title} data-test-id={props.testId}>
+      {props.text}
+    </div>
+  );
 }
 
 export default Header;

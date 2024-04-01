@@ -40,6 +40,7 @@ type Props = {
   disabled?: boolean;
   children: React.ReactNode;
   onClick?: MouseEventHandler<HTMLDivElement>;
+  testId?: string;
 };
 
 function Button(props: Props) {
@@ -59,6 +60,7 @@ function Button(props: Props) {
         !!props.disabled && classes.disabled,
       ])}
       onClick={click}
+      data-testid={props.testId}
     >
       {props.children}
     </div>
