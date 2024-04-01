@@ -186,8 +186,8 @@ const performModificationsIfFromChainChanged = (state: TransferInputState) => {
     }
     if (isNttRoute(route) && destToken) {
       const groupKey = getNttGroupKey(tokenConfig, config.tokens[destToken]);
-      if (groupKey) {
-        state.token = getNttTokenByGroupKey(groupKey, fromChain!)?.key || '';
+      if (groupKey && fromChain) {
+        state.token = getNttTokenByGroupKey(groupKey, fromChain)?.key || '';
       } else {
         state.token = '';
       }
@@ -222,8 +222,8 @@ const performModificationsIfToChainChanged = (state: TransferInputState) => {
     }
     if (isNttRoute(route) && token) {
       const groupKey = getNttGroupKey(tokenConfig, config.tokens[token]);
-      if (groupKey) {
-        state.destToken = getNttTokenByGroupKey(groupKey, toChain!)?.key || '';
+      if (groupKey && toChain) {
+        state.destToken = getNttTokenByGroupKey(groupKey, toChain)?.key || '';
       } else {
         state.destToken = '';
       }

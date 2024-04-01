@@ -126,6 +126,17 @@ export const mergeNttGroups = (
       continue;
     }
 
+    // if any of the chain names in the custom group are duplicated, skip
+    if (
+      new Set(customGroup.nttManagers.map((manager) => manager.chainName))
+        .size !== customGroup.nttManagers.length
+    ) {
+      console.warn(
+        `Skipping custom NTT group config for "${key}" because it contains duplicate chain names`,
+      );
+      continue;
+    }
+
     console.info(`Accepted custom NTT group config for "${key}"`);
     builtin[key] = custom[key];
   }
