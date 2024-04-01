@@ -102,14 +102,14 @@ export const getNttManagerConfigByAddress = (
         isEqualCaseInsensitive(manager.address, managerAddress) &&
         manager.chainName === chainName,
     ),
-  )[0];
+  )?.[0];
 };
 
 export const getNttManagerConfigByGroupKey = (
   groupKey: string,
   chainName: ChainName,
 ): NttManagerConfig | undefined => {
-  return config.nttGroups[groupKey].nttManagers.find(
+  return config.nttGroups[groupKey]?.nttManagers.find(
     (manager) => manager.chainName === chainName,
   );
 };

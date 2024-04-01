@@ -51,12 +51,7 @@ export const TESTNET_NTT_GROUPS: NttGroups = {
         chainName: 'solana',
         address: 'nTTh3bZ5Aer6xboWZe39RDEft4MeVxSQ8D1EYAVLZw9',
         tokenKey: 'TEST_NTTsolana',
-        transceivers: [
-          {
-            address: 'nTTh3bZ5Aer6xboWZe39RDEft4MeVxSQ8D1EYAVLZw9',
-            type: 'wormhole',
-          },
-        ],
+        transceivers: [],
         solanaQuoter: 'NqTdGLLL6b6bFo7YESNEezocgF8onH5cst5EdH791en',
       },
     ],
