@@ -151,6 +151,7 @@ const NttInboundQueued = () => {
           <Header
             chain={signedMessage.toChain}
             address={signedMessage.recipient}
+            side="destination"
           />
           {!expired ? (
             <div>

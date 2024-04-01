@@ -90,9 +90,8 @@ function Redeem({
       while (signed === undefined && !cancelled) {
         try {
           signed = await RouteOperator.getSignedMessage(route, txData);
-        } catch (e) {
+        } catch {
           signed = undefined;
-          console.log(e);
         }
         if (cancelled) {
           return;

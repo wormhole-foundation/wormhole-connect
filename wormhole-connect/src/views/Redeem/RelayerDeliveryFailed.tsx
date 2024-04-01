@@ -37,6 +37,7 @@ const RelayerDeliveryFailed = () => {
         chain={txData.toChain}
         address={txData.recipient}
         txHash={redeemTx}
+        side="destination"
       />
       <div className={classes.root}>
         <Typography>
