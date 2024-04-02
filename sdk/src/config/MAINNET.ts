@@ -358,7 +358,7 @@ const MAINNET_CONFIG: WormholeConfig = {
     cosmoshub: 'https://cosmos-rpc.polkachu.com',
     evmos: 'https://evmos-rpc.polkachu.com',
     kujira: 'https://kujira-rpc.polkachu.com',
-    injective: 'https://injective-rpc.polkachu.com',
+    injective: 'https://injective-rpc.publicnode.com/', // TODO: use the library to get the correct rpc https://docs.ts.injective.network/querying/querying-api/querying-indexer-explorer#fetch-transaction-using-transaction-hash
     klaytn: 'https://rpc.ankr.com/klaytn',
   },
   rest: {
