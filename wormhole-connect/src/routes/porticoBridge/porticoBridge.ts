@@ -368,6 +368,14 @@ export abstract class PorticoBridge extends BaseRoute {
     return BigNumber.from(0);
   }
 
+  getMinSendAmount(
+    token: TokenId | 'native',
+    recipientChain: ChainName | ChainId,
+    routeOptions: PorticoBridgeState,
+  ): number {
+    return 0;
+  }
+
   getMaxSendAmount(): number {
     return this.maxAmount;
   }

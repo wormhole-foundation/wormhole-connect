@@ -219,15 +219,6 @@ export const validateReceiveAmount = (
   return '';
 };
 
-export const getMinAmt = (
-  route: Route | undefined,
-  routeOptions: any,
-): number => {
-  if (!route) return 0;
-  const r = RouteOperator.getRoute(route);
-  return r.getMinSendAmount(routeOptions);
-};
-
 export const getMaxAmt = (route: Route | undefined): number => {
   if (!route) return Infinity;
   const r = RouteOperator.getRoute(route);
