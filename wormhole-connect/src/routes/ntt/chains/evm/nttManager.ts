@@ -47,13 +47,16 @@ export class NttManagerEvm {
     return txId;
   }
 
-  async quoteDeliveryPrice(destChain: ChainName | ChainId): Promise<string> {
+  async quoteDeliveryPrice(
+    destChain: ChainName | ChainId,
+    shouldSkipRelayerSend: boolean,
+  ): Promise<BigNumber> {
     const { abi } = await this.getAbi();
     const transceiverIxs = encodeTransceiverInstructions([
       {
         index: 0,
         payload: encodeWormholeTransceiverInstruction({
-          shouldSkipRelayerSend: false,
+          shouldSkipRelayerSend,
         }),
       },
     ]);
@@ -61,7 +64,7 @@ export class NttManagerEvm {
       toChainId(destChain),
       transceiverIxs,
     );
-    return deliveryPrice.toString();
+    return deliveryPrice;
   }
 
   async send(
@@ -75,9 +78,10 @@ export class NttManagerEvm {
     const tokenConfig = getTokenById(token);
     if (!tokenConfig) throw new Error('token not found');
     const { abi } = await this.getAbi();
-    const deliveryPrice = shouldSkipRelayerSend
-      ? undefined
-      : BigNumber.from(await this.quoteDeliveryPrice(toChain));
+    const deliveryPrice = await this.quoteDeliveryPrice(
+      toChain,
+      shouldSkipRelayerSend,
+    );
     const transceiverIxs = encodeTransceiverInstructions([
       {
         index: 0,
