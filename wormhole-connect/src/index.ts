@@ -3,9 +3,9 @@ import WormholeConnect from './WormholeConnect';
 import type {
   WormholeConnectPartialTheme,
   WormholeConnectTheme,
-  dark,
-  light,
 } from './theme';
+
+import { dark, light } from './theme';
 
 import MAINNET from './config/mainnet';
 import TESTNET from './config/testnet';
