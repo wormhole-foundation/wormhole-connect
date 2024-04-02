@@ -253,7 +253,6 @@ export abstract class NttBase extends BaseRoute {
       throw new Error('Amount too low');
     }
     const shouldSkipRelayerSend = this.TYPE !== Route.NttRelay;
-    // TODO: will change with https://github.com/wormhole-foundation/example-native-token-transfers/pull/326 refund address
     return await nttManager.send(
       token,
       senderAddress,
