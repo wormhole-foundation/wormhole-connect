@@ -1,23 +1,27 @@
 import WormholeConnect from './WormholeConnect';
-export default WormholeConnect;
 
-export { dark, light } from './theme';
 import type {
   WormholeConnectPartialTheme,
   WormholeConnectTheme,
+  dark,
+  light,
 } from './theme';
+
+import MAINNET from './config/mainnet';
+import TESTNET from './config/testnet';
 
 import type { WormholeConnectConfig } from './config/types';
 import type { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+
+export default WormholeConnect;
+
 export {
+  MAINNET,
+  TESTNET,
   WormholeConnectConfig,
   ChainName,
+  dark,
+  light,
   WormholeConnectPartialTheme,
   WormholeConnectTheme,
 };
-
-export {
-  MAINNET_CHAINS,
-  TESTNET_CHAINS,
-  CONFIG,
-} from '@wormhole-foundation/wormhole-connect-sdk';
