@@ -129,22 +129,28 @@ function Bridge() {
   }, [fromChain, toChain, receiving.address, dispatch]);
 
   useEffect(() => {
+    let active = true;
     const computeSrcTokens = async () => {
       const supported = await RouteOperator.allSupportedSourceTokens(
         config.tokens[destToken],
         fromChain,
         toChain,
       );
-      dispatch(setSupportedSourceTokens(supported));
-      const selectedIsSupported = isSupportedToken(token, supported);
-      if (!selectedIsSupported) {
-        dispatch(setToken(''));
-      }
-      if (supported.length === 1 && token === '') {
-        dispatch(setToken(supported[0].key));
+      if (active) {
+        dispatch(setSupportedSourceTokens(supported));
+        const selectedIsSupported = isSupportedToken(token, supported);
+        if (!selectedIsSupported) {
+          dispatch(setToken(''));
+        }
+        if (supported.length === 1 && token === '') {
+          dispatch(setToken(supported[0].key));
+        }
       }
     };
     computeSrcTokens();
+    return () => {
+      active = false;
+    };
     // IMPORTANT: do not include token in dependency array
   }, [route, fromChain, destToken, dispatch]);
 
