@@ -184,7 +184,7 @@ export abstract class NttBase extends BaseRoute {
     routeOptions?: any,
   ): Promise<BigNumber> {
     if (isEvmChain(sendingChain)) {
-      const gasLimit = this.TYPE === Route.NttManual ? 200_000 : 250_000;
+      const gasLimit = this.TYPE === Route.NttManual ? 250_000 : 300_000;
       return await estimateAverageGasFee(sendingChain, gasLimit);
     } else if (toChainName(sendingChain) === 'solana') {
       return BigNumber.from(10_000);

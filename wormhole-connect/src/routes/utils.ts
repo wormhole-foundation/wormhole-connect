@@ -87,6 +87,14 @@ export const isIlliquidDestToken = (
       return true;
     }
   }
+  // Users should send USDC to Fantom via NTT instead of the token bridge
+  if (
+    symbol === 'USDC' &&
+    nativeChain === 'ethereum' &&
+    destChain === 'fantom'
+  ) {
+    return true;
+  }
   if (
     symbol === 'USDC' &&
     nativeChain === 'fuji' &&
@@ -94,10 +102,10 @@ export const isIlliquidDestToken = (
   ) {
     return true;
   }
-  if (symbol === 'USDC.e' && nativeChain === 'alfajores') {
-    return true;
-  }
-  if (['TEST_NTT', 'USDCalfaljores'].includes(symbol)) {
+  if (
+    symbol === 'USDC.e' &&
+    (nativeChain === 'fantom' || nativeChain === 'alfajores')
+  ) {
     return true;
   }
   return false;

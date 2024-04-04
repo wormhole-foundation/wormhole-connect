@@ -32,6 +32,13 @@ export const MAINNET_GAS_ESTIMATES: GasEstimates = {
       sendToken: 300000,
       claim: 450000,
     },
+    [Route.NttManual]: {
+      sendToken: 10000000,
+      claim: 10000000,
+    },
+    [Route.NttRelay]: {
+      sendToken: 10000000,
+    },
   },
   polygon: {
     [Route.Bridge]: {
@@ -106,6 +113,13 @@ export const MAINNET_GAS_ESTIMATES: GasEstimates = {
     [Route.Relay]: {
       sendNative: 250000,
       sendToken: 300000,
+    },
+    [Route.NttManual]: {
+      sendToken: 10000000,
+      claim: 10000000,
+    },
+    [Route.NttRelay]: {
+      sendToken: 10000000,
     },
   },
   celo: {
