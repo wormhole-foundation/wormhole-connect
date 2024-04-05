@@ -7,7 +7,7 @@ import {
 import { BigNumber } from 'ethers';
 import { hexlify, parseUnits, arrayify } from 'ethers/lib/utils.js';
 import config from 'config';
-import { Route } from 'config/types';
+import { Route, TokenConfig } from 'config/types';
 import { getTokenDecimals } from 'utils';
 import { TransferWallet, postVaa, signAndSendTransaction } from 'utils/wallet';
 import {
@@ -15,6 +15,7 @@ import {
   isSignedWormholeMessage,
   TokenTransferMessage,
   SignedTokenTransferMessage,
+  RelayerFee,
 } from '../types';
 import { BaseRoute } from './baseRoute';
 import { adaptParsedMessage } from '../utils';
@@ -150,9 +151,6 @@ export class BridgeRoute extends BaseRoute {
   /**
    * These operations have to be implemented in subclasses.
    */
-  getMinSendAmount(routeOptions: any): number {
-    return 0;
-  }
 
   async send(
     token: TokenId | 'native',
@@ -240,13 +238,14 @@ export class BridgeRoute extends BaseRoute {
     destChain: ChainName | ChainId,
     token: string,
     destToken: string,
-  ): Promise<BigNumber> {
-    return BigNumber.from(0);
+  ): Promise<RelayerFee | null> {
+    return null;
   }
 
   async getForeignAsset(
     token: TokenId,
     chain: ChainName | ChainId,
+    destToken?: TokenConfig,
   ): Promise<string | null> {
     return config.wh.getForeignAsset(token, chain);
   }

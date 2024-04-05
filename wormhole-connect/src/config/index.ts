@@ -11,7 +11,11 @@ import TESTNET from './testnet';
 import DEVNET from './devnet';
 import type { WormholeConnectConfig } from './types';
 import { Network, InternalConfig, Route, TokensConfig } from './types';
-import { mergeCustomTokensConfig, validateDefaults } from './utils';
+import {
+  mergeCustomTokensConfig,
+  mergeNttGroups,
+  validateDefaults,
+} from './utils';
 
 export function buildConfig(
   customConfig?: WormholeConnectConfig,
@@ -132,6 +136,13 @@ export function buildConfig(
     // Route options
     ethBridgeMaxAmount: customConfig?.ethBridgeMaxAmount ?? 5,
     wstETHBridgeMaxAmount: customConfig?.wstETHBridgeMaxAmount ?? 5,
+
+    // NTT config
+    nttGroups: mergeNttGroups(
+      tokens,
+      networkData.nttGroups,
+      customConfig?.nttGroups,
+    ),
   };
 }
 

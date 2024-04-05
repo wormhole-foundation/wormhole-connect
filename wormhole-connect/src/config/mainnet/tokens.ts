@@ -1126,6 +1126,21 @@ export const MAINNET_TOKENS: TokensConfig = {
       },
     },
   },
+  USDCfantom: {
+    key: 'USDCfantom',
+    symbol: 'USDC.e',
+    nativeChain: 'fantom',
+    icon: Icon.USDC,
+    tokenId: {
+      chain: 'fantom',
+      address: '0x2F733095B80A04b38b0D10cC884524a3d09b836a',
+    },
+    coinGeckoId: 'usd-coin',
+    color: '#2774CA',
+    decimals: {
+      default: 6,
+    },
+  },
   CELO: {
     key: 'CELO',
     symbol: 'CELO',

@@ -297,4 +297,8 @@ export abstract class BaseRoute extends RouteAbstract {
   getMaxSendAmount(): number {
     return Infinity;
   }
+
+  getMinSendAmount(routeOptions: any): number {
+    return 0;
+  }
 }

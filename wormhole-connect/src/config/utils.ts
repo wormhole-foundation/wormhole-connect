@@ -1,5 +1,6 @@
+import { isEqualCaseInsensitive } from 'utils';
 import config from '.';
-import { BridgeDefaults, TokensConfig } from './types';
+import { BridgeDefaults, NttGroups, TokensConfig } from './types';
 
 const error = (msg: string) => {
   console.error(`Wormhole Connect: ${msg}`);
@@ -80,6 +81,64 @@ export const mergeCustomTokensConfig = (
     // Accept custom token config
     console.info(`Accepted custom token config for "${key}"`);
     builtin[key] = customToken;
+  }
+
+  return builtin;
+};
+
+export const mergeNttGroups = (
+  tokens: TokensConfig,
+  builtin: NttGroups,
+  custom?: NttGroups,
+) => {
+  if (!custom) return builtin;
+
+  for (const key in custom) {
+    if (key in builtin) {
+      console.warn(
+        `Skipping custom NTT group config for "${key}" because it conflicts with a built-in`,
+      );
+      continue;
+    }
+
+    const customGroup = custom[key];
+    // if any of the managers in the custom group exist in the built-in groups, skip
+    if (
+      customGroup.nttManagers.some((manager) =>
+        Object.values(builtin).some((group) =>
+          group.nttManagers.some((builtinManager) =>
+            isEqualCaseInsensitive(builtinManager.address, manager.address),
+          ),
+        ),
+      )
+    ) {
+      console.warn(
+        `Skipping custom NTT group config for "${key}" because it conflicts with a built-in`,
+      );
+      continue;
+    }
+
+    // if any of the token keys in the custom group don't exist in the tokens config, skip
+    if (customGroup.nttManagers.some((manager) => !tokens[manager.tokenKey])) {
+      console.warn(
+        `Skipping custom NTT group config for "${key}" because it references a token that does not exist`,
+      );
+      continue;
+    }
+
+    // if any of the chain names in the custom group are duplicated, skip
+    if (
+      new Set(customGroup.nttManagers.map((manager) => manager.chainName))
+        .size !== customGroup.nttManagers.length
+    ) {
+      console.warn(
+        `Skipping custom NTT group config for "${key}" because it contains duplicate chain names`,
+      );
+      continue;
+    }
+
+    console.info(`Accepted custom NTT group config for "${key}"`);
+    builtin[key] = custom[key];
   }
 
   return builtin;

@@ -20,6 +20,8 @@ import {
   receiveDataWrapper,
 } from './helpers';
 import { isPorticoRoute } from 'routes/porticoBridge/utils';
+import { isNttRoute } from 'routes';
+import { getNttGroupKey, getNttTokenByGroupKey } from 'utils/ntt';
 
 export type Balances = { [key: string]: string | null };
 export type ChainBalances = {
@@ -169,7 +171,7 @@ function getInitialState(): TransferInputState {
 }
 
 const performModificationsIfFromChainChanged = (state: TransferInputState) => {
-  const { fromChain, token, route } = state;
+  const { fromChain, token, route, destToken } = state;
   if (token) {
     const tokenConfig = config.tokens[token];
     // clear token and amount if not supported on the selected network
@@ -182,7 +184,14 @@ const performModificationsIfFromChainChanged = (state: TransferInputState) => {
         state.amount = '';
       }
     }
-    if (
+    if (isNttRoute(route) && destToken) {
+      const groupKey = getNttGroupKey(tokenConfig, config.tokens[destToken]);
+      if (groupKey && fromChain) {
+        state.token = getNttTokenByGroupKey(groupKey, fromChain)?.key || '';
+      } else {
+        state.token = '';
+      }
+    } else if (
       tokenConfig.symbol === 'USDC' &&
       tokenConfig.nativeChain !== fromChain
     ) {
@@ -204,14 +213,24 @@ const performModificationsIfFromChainChanged = (state: TransferInputState) => {
 };
 
 const performModificationsIfToChainChanged = (state: TransferInputState) => {
-  const { toChain, destToken, route } = state;
+  const { toChain, destToken, route, token } = state;
 
   if (destToken) {
     const tokenConfig = config.tokens[destToken];
     if (!toChain) {
       state.destToken = '';
     }
-    if (tokenConfig.symbol === 'USDC' && tokenConfig.nativeChain !== toChain) {
+    if (isNttRoute(route) && token) {
+      const groupKey = getNttGroupKey(tokenConfig, config.tokens[token]);
+      if (groupKey && toChain) {
+        state.destToken = getNttTokenByGroupKey(groupKey, toChain)?.key || '';
+      } else {
+        state.destToken = '';
+      }
+    } else if (
+      tokenConfig.symbol === 'USDC' &&
+      tokenConfig.nativeChain !== toChain
+    ) {
       state.destToken = getNativeVersionOfToken('USDC', toChain!);
     } else if (
       tokenConfig.symbol === 'tBTC' &&
@@ -247,6 +266,8 @@ const establishRoute = (state: TransferInputState) => {
     Route.TBTC,
     Route.ETHBridge,
     Route.wstETHBridge,
+    Route.NttRelay,
+    Route.NttManual,
     Route.Relay,
     Route.Bridge,
   ];

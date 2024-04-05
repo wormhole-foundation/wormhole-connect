@@ -45,6 +45,19 @@ export async function getUnsignedVaaEvm(
   sequence: BigNumberish;
   payload: string;
 }> {
+  const bridgeLog = await getWormholeLogEvm(chain, receipt);
+  const parsed = Implementation__factory.createInterface().parseLog(bridgeLog);
+  return {
+    emitterAddress: parsed.args.sender,
+    sequence: parsed.args.sequence,
+    payload: parsed.args.payload.toString('hex'),
+  };
+}
+
+export async function getWormholeLogEvm(
+  chain: ChainId | ChainName,
+  receipt: providers.TransactionReceipt,
+): Promise<providers.Log> {
   if (!isEvmChain(chain)) {
     throw new Error('Not an evm chain');
   }
@@ -52,20 +65,10 @@ export async function getUnsignedVaaEvm(
   const bridgeLogs = receipt.logs.filter((l: any) => {
     return l.address === core;
   });
-
   if (bridgeLogs.length === 0) {
     throw new Error(NO_VAA_FOUND);
   }
-
-  const parsed = Implementation__factory.createInterface().parseLog(
-    bridgeLogs[0],
-  );
-
-  return {
-    emitterAddress: parsed.args.sender,
-    sequence: parsed.args.sequence,
-    payload: parsed.args.payload.toString('hex'),
-  };
+  return bridgeLogs[0];
 }
 
 export function getEmitterAndSequence(
@@ -89,9 +92,20 @@ export function getEmitterAndSequence(
 
 export async function fetchVaa(
   txData: ParsedMessage | ParsedRelayerMessage,
-): Promise<ParsedVaa | undefined> {
+  bytesOnly: true,
+): Promise<Uint8Array | undefined>;
+
+export async function fetchVaa(
+  txData: ParsedMessage | ParsedRelayerMessage,
+  bytesOnly?: false,
+): Promise<ParsedVaa | undefined>;
+
+export async function fetchVaa(
+  txData: ParsedMessage | ParsedRelayerMessage,
+  bytesOnly = false,
+): Promise<ParsedVaa | Uint8Array | undefined> {
   try {
-    const vaa = await fetchVaaWormscan(txData);
+    const vaa = await fetchVaaWormscan(txData, bytesOnly);
 
     if (vaa === undefined) {
       console.warn('VAA not found in Wormscan');
@@ -102,13 +116,14 @@ export async function fetchVaa(
       'Error fetching VAA from wormscan. Falling back to guardian.',
       e,
     );
-    return await fetchVaaGuardian(txData);
+    return await fetchVaaGuardian(txData, bytesOnly);
   }
 }
 
 export async function fetchVaaWormscan(
   txData: ParsedMessage | ParsedRelayerMessage,
-): Promise<ParsedVaa | undefined> {
+  bytesOnly: boolean,
+): Promise<ParsedVaa | Uint8Array | undefined> {
   // return if the number of block confirmations hasn't been met
   const chainName = config.wh.toChainName(txData.fromChain);
   const { finalityThreshold } = config.chains[chainName]! as any;
@@ -127,6 +142,7 @@ export async function fetchVaaWormscan(
       if (!response.data.data) return;
       const data = response.data.data;
       const vaa = utils.base64.decode(data.vaa);
+      if (bytesOnly) return vaa;
       const parsed = parseTokenTransferVaa(vaa);
 
       const vaaData: ParsedVaa = {
@@ -161,7 +177,8 @@ export async function fetchVaaWormscan(
 
 export async function fetchVaaGuardian(
   txData: ParsedMessage | ParsedRelayerMessage,
-): Promise<ParsedVaa | undefined> {
+  bytesOnly: boolean,
+): Promise<ParsedVaa | Uint8Array | undefined> {
   // return if the number of block confirmations hasn't been met
   const chainName = config.wh.toChainName(txData.fromChain);
   const { finalityThreshold } = config.chains[chainName]! as any;
@@ -191,6 +208,9 @@ export async function fetchVaaGuardian(
   }
   if (!vaa) {
     throw new Error('Failed to fetch VAA from all hosts');
+  }
+  if (bytesOnly) {
+    return vaa;
   }
 
   const parsed = parseTokenTransferVaa(vaa);

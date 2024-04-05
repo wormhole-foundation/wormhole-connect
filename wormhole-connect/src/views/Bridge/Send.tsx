@@ -39,6 +39,12 @@ import { validateSolanaTokenAccount } from '../../utils/transferValidation';
 import { useDebounce } from 'use-debounce';
 import { isPorticoRoute } from 'routes/porticoBridge/utils';
 import { SWAP_ERROR } from 'routes/porticoBridge/consts';
+import {
+  DestinationContractIsPausedError,
+  NotEnoughCapacityError,
+  ContractIsPausedError,
+  UnsupportedContractAbiVersion,
+} from 'routes/ntt/errors';
 
 const useStyles = makeStyles()((theme) => ({
   body: {
@@ -102,12 +108,12 @@ function Send(props: { valid: boolean }) {
     try {
       const fromConfig = config.chains[fromChain!];
       if (fromConfig?.context === Context.ETH) {
-        registerWalletSigner(fromChain!, TransferWallet.SENDING);
         const chainId = fromConfig.chainId;
         if (typeof chainId !== 'number') {
           throw new Error('invalid evm chain ID');
         }
         await switchChain(chainId, TransferWallet.SENDING);
+        registerWalletSigner(fromChain!, TransferWallet.SENDING);
       }
       if (fromConfig?.context === Context.COSMOS) {
         await switchChain(fromConfig.chainId, TransferWallet.SENDING);
@@ -159,6 +165,15 @@ function Send(props: { valid: boolean }) {
           ? 'Error due to insufficient token allowance, please try again'
           : e?.message === SWAP_ERROR
           ? SWAP_ERROR
+          : e?.message === NotEnoughCapacityError.MESSAGE
+          ? `This transfer would be rate-limited due to high volume on ${
+              config.chains[transferInput.fromChain!]?.displayName
+            }, please try again later`
+          : e?.message === ContractIsPausedError.MESSAGE ||
+            e?.message === DestinationContractIsPausedError.MESSAGE
+          ? e.message
+          : e?.message === UnsupportedContractAbiVersion.MESSAGE
+          ? 'Unsupported contract ABI version'
           : 'Error with transfer, please try again',
       );
     }

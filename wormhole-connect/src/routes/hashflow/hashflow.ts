@@ -11,6 +11,7 @@ import {
   UnsignedMessage,
   SignedMessage,
   TransferDestInfo,
+  RelayerFee,
 } from '../types';
 import { TransferDisplayData } from '../types';
 import { RouteAbstract } from 'routes/abstracts';
@@ -137,12 +138,13 @@ export class HashflowRoute extends RouteAbstract {
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
     token: string,
-  ): Promise<BigNumber> {
+  ): Promise<RelayerFee> {
     throw new Error('Method not implemented.');
   }
   getForeignAsset(
     token: TokenId,
     chain: ChainName | ChainId,
+    destToken?: TokenConfig,
   ): Promise<string | null> {
     throw new Error('Method not implemented.');
   }

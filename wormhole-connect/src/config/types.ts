@@ -41,6 +41,7 @@ export enum Icon {
   'PYTH',
   'INJ',
   'KLAY',
+  'NTT',
 }
 
 export enum Route {
@@ -53,6 +54,8 @@ export enum Route {
   TBTC = 'tbtc',
   ETHBridge = 'ethBridge',
   wstETHBridge = 'wstETHBridge',
+  NttManual = 'nttManual',
+  NttRelay = 'nttRelay',
 }
 
 // Used in bridging components
@@ -120,6 +123,9 @@ export interface WormholeConnectConfig {
   // Route settings
   ethBridgeMaxAmount?: number;
   wstETHBridgeMaxAmount?: number;
+
+  // NTT config
+  nttGroups?: NttGroups;
 }
 
 // This is the exported config value used throughout the code base
@@ -171,6 +177,9 @@ export interface InternalConfig {
   // Route settings
   ethBridgeMaxAmount: number;
   wstETHBridgeMaxAmount: number;
+
+  // NTT config
+  nttGroups: NttGroups;
 }
 
 export type ExplorerConfig = {
@@ -275,6 +284,7 @@ export type NetworkData = {
   rpcs: RpcMapping;
   rest: RpcMapping;
   graphql: RpcMapping;
+  nttGroups: NttGroups;
 };
 
 export interface MenuEntry {
@@ -283,3 +293,22 @@ export interface MenuEntry {
   target?: string;
   order?: number;
 }
+
+export type NttTransceiverConfig = {
+  address: string;
+  type: 'wormhole'; // only wormhole is supported for now
+};
+
+export type NttManagerConfig = {
+  chainName: ChainName;
+  address: string;
+  tokenKey: string; // token key for the token this NTT manager has configured
+  transceivers: NttTransceiverConfig[];
+  solanaQuoter?: string;
+};
+
+export type NttGroup = {
+  nttManagers: NttManagerConfig[];
+};
+
+export type NttGroups = { [key: string]: NttGroup };

@@ -900,6 +900,21 @@ export const TESTNET_TOKENS: TokensConfig = {
       },
     },
   },
+  USDCalfajores: {
+    key: 'USDCalfajores',
+    symbol: 'USDC.e',
+    nativeChain: 'alfajores',
+    icon: Icon.USDC,
+    tokenId: {
+      chain: 'alfajores',
+      address: '0x72CAaa7e9889E0a63e016748179b43911A3ec9e5',
+    },
+    coinGeckoId: 'usd-coin',
+    color: '#2774CA',
+    decimals: {
+      default: 6,
+    },
+  },
   GLMR: {
     key: 'GLMR',
     symbol: 'GLMR',
@@ -2122,6 +2137,21 @@ export const TESTNET_TOKENS: TokensConfig = {
     decimals: {
       Ethereum: 18,
       default: 8,
+    },
+  },
+  USDCsepolia: {
+    key: 'USDCsepolia',
+    symbol: 'USDC',
+    nativeChain: 'sepolia',
+    icon: Icon.USDC,
+    tokenId: {
+      chain: 'sepolia',
+      address: '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238',
+    },
+    coinGeckoId: 'usd-coin',
+    color: '#2774CA',
+    decimals: {
+      default: 6,
     },
   },
   ETHarbitrum_sepolia: {

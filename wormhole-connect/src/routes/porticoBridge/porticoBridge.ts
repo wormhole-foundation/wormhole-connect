@@ -14,6 +14,7 @@ import {
   SignedTokenTransferMessage,
   TransferDisplayData,
   TransferInfoBaseParams,
+  RelayerFee,
 } from '../types';
 import { fetchGlobalTx, fetchVaa, getEmitterAndSequence } from 'utils/vaa';
 import { hexZeroPad, hexlify, parseUnits } from 'ethers/lib/utils.js';
@@ -367,10 +368,6 @@ export abstract class PorticoBridge extends BaseRoute {
     return BigNumber.from(0);
   }
 
-  getMinSendAmount(routeOptions: PorticoBridgeState): number {
-    return 0;
-  }
-
   getMaxSendAmount(): number {
     return this.maxAmount;
   }
@@ -566,7 +563,7 @@ export abstract class PorticoBridge extends BaseRoute {
     destChain: ChainName | ChainId,
     token: string,
     destToken: string,
-  ): Promise<BigNumber> {
+  ): Promise<RelayerFee> {
     if (!destToken) {
       throw new Error('destToken is required');
     }
@@ -593,12 +590,16 @@ export abstract class PorticoBridge extends BaseRoute {
     if (response.status !== 200) {
       throw new Error(`Error getting relayer fee: ${response.statusText}`);
     }
-    return BigNumber.from(response.data.fee);
+    return {
+      fee: BigNumber.from(response.data.fee),
+      feeToken: finalToken.tokenId,
+    };
   }
 
   async getForeignAsset(
     token: TokenId,
     chain: ChainName | ChainId,
+    destToken?: TokenConfig,
   ): Promise<string | null> {
     return await config.wh.getForeignAsset(token, chain);
   }
