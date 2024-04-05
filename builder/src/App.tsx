@@ -60,8 +60,6 @@ export type Rpcs = {
   [chain in ChainName]?: string;
 };
 
-// test
-
 const MAINNET_TOKENS = Object.keys(MAINNET.tokens);
 const TESTNET_TOKENS = Object.keys(TESTNET.tokens);
 const VERSION = "0.3.3";
