@@ -45,7 +45,7 @@ jobs:
       - run: npm ci
       - run: npm run build -w sdk
       - run: cd wormhole-connect && npx tsx scripts/checkForeignAssetsConfig.ts
-  build hosted:
+  build-hosted:
     runs-on: ubuntu-latest
 
     steps:
@@ -56,7 +56,7 @@ jobs:
           cache: "npm"
       - run: npm ci
       - run: npm run build:hosted
-  build library:
+  build-library:
     runs-on: ubuntu-latest
 
     steps:
