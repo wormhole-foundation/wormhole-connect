@@ -118,6 +118,7 @@ You can provide a whitelist of tokens under `tokens`. By default, Connect will o
 | WAVAX | WAVAX |
 | USDCavax | USDCavax |
 | FTM | FTM |
+| USDCfantom | USDCfantom |
 | WFTM | WFTM |
 | CELO | CELO |
 | GLMR | GLMR |
@@ -160,6 +161,8 @@ You can provide a whietlist of routes under `routes`. By default, Connect will o
 | cctpManual | cctpManual |
 | cctpRelay | cctpRelay |
 | cosmosGateway | cosmosGateway |
+| nttManual | nttManual |
+| nttRelay | nttRelay |
 | tbtc | tbtc |
 | ethBridge | |
 | wstETHBridge | |
