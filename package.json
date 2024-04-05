@@ -7,8 +7,9 @@
     "builder"
   ],
   "scripts": {
-    "build": "npm run build --workspaces --if-present",
+    "build:lib": "npm run build --workspace=sdk; npm run build:lib --workspace=wormhole-connect --if-present",
     "build:netlify": "npm run build --workspace=sdk; npm run build:netlify --workspace=wormhole-connect --if-present",
+    "build:hosted": "npm run build --workspace=sdk; npm run build:hosted --workspace=wormhole-connect --if-present",
     "build:builder": "npm run build --workspace=builder --if-present",
     "compile": "npm run compile --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",
