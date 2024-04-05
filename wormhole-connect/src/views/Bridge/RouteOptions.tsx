@@ -424,7 +424,12 @@ function RouteOptions() {
 
   const allRoutes = useMemo(() => {
     if (!routeStates) return [];
-    const routes = routeStates.filter((rs) => rs.supported);
+    let routes = routeStates.filter((rs) => rs.supported);
+    // nttRelay route should be first
+    const nttRelay = routes.find((r) => r.name === Route.NttRelay);
+    if (nttRelay) {
+      routes = [nttRelay, ...routes.filter((r) => r !== nttRelay)];
+    }
     return routes;
   }, [routeStates]);
 
