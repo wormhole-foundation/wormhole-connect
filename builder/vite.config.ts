@@ -1,17 +1,8 @@
-import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import checker from "vite-plugin-checker";
 import { nodePolyfills } from "vite-plugin-node-polyfills";
 import dts from "vite-plugin-dts";
 import path from "path";
-
-// There are three configs this file can return.
-// 1. local dev server
-// 2. production build, for direct import
-// 3. production build, hosted by unpkg.com (includes React, auto-binds to DOM)
-
-// TODO: consider using the "VITE_APP_" prefix which is the default for Vite
-const envPrefix = "REACT_APP_";
 
 const resolve = {
   alias: {
@@ -56,21 +47,18 @@ let external = [
   "@particle-network/auth",
 ];
 
-export default defineConfig(({ command, mode }) => {
-  return {
-    envPrefix,
-    resolve,
-    build: {
-      outDir: "./build",
-      rollupOptions: {
-        input: {
-          main: "src/index.tsx",
-          index: "index.html",
-        },
-        output,
-        external,
+export default {
+  resolve,
+  build: {
+    outDir: "./build",
+    rollupOptions: {
+      input: {
+        main: "src/index.tsx",
+        index: "index.html",
       },
+      output,
+      external,
     },
-    plugins,
-  };
-});
+  },
+  plugins,
+};
