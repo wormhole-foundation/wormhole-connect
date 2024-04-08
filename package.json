@@ -7,10 +7,10 @@
     "builder"
   ],
   "scripts": {
-    "build:lib": "npm run build -w=sdk; npm run build:lib -w=wormhole-connect --if-present",
-    "build:netlify": "npm run build -w=sdk; npm run build:netlify -w=wormhole-connect --if-present",
-    "build:hosted": "npm run build -w=sdk; npm run build:hosted -w=wormhole-connect --if-present",
-    "build:builder": "npm run build -w=builder --if-present",
+    "build:lib": "npm run build -w=sdk; npm run build:lib -w=wormhole-connect",
+    "build:netlify": "npm run build -w=sdk; npm run build:netlify -w=wormhole-connect",
+    "build:hosted": "npm run build -w=sdk; npm run build:hosted -w=wormhole-connect",
+    "build:builder": "npm run build -w=builder",
     "compile": "npm run compile --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",
     "lint:ci": "npm run lint:ci --workspaces --if-present",

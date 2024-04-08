@@ -1,4 +1,4 @@
 [context.mainnet]
-  command = "npm run build"
+  command = "npm run build:netlify; npm run build:builder"
 [context.production]
-  command = "npm run build"
+  command = "npm run build:netlify; npm run build:builder"
