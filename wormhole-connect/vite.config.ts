@@ -52,8 +52,18 @@ const plugins = [
   }),
 ];
 
+interface AssetInfo {
+  name: string;
+}
+
 let output = {
-  assetFileNames: '[name]-[hash][extname]',
+  assetFileNames: (assetInfo: AssetInfo) => {
+    if (assetInfo.name === 'main.css') {
+      return '[name][extname]';
+    }
+
+    return '[name]-[hash][extname]';
+  },
   inlineDynamicImports: false,
   exports: 'named',
 };

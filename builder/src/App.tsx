@@ -20,9 +20,7 @@ import {
   DialogTitle,
   Divider,
   Drawer,
-  FormControl,
   FormControlLabel,
-  FormLabel,
   Grid,
   IconButton,
   ListItemText,
@@ -36,44 +34,40 @@ import {
   Typography,
   useMediaQuery,
 } from "@mui/material";
-import WormholeBridge, {
+import WormholeConnect, {
   ChainName,
-  MAINNET_CHAINS,
-  MainnetChainName,
-  Rpcs,
-  TESTNET_CHAINS,
-  TestnetChainName,
-  Theme,
   WormholeConnectConfig,
-  defaultTheme,
+  dark,
+  MAINNET,
+  TESTNET,
 } from "@wormhole-foundation/wormhole-connect";
+import type { WormholeConnectPartialTheme } from "@wormhole-foundation/wormhole-connect";
+
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDebounce } from "use-debounce";
 import Background from "./Background";
 import ColorPicker from "./components/ColorPicker";
 import RouteCard from "./components/RouteCard";
-import {
-  DEFAULT_MAINNET_RPCS,
-  DEFAULT_TESTNET_RPCS,
-  MAINNET_TOKEN_KEYS,
-  NETWORKS,
-  ROUTE_INFOS,
-  TESTNET_TOKEN_KEYS,
-} from "./consts";
+import ErrorBoundary from "./components/ErrorBoundary";
+import { ROUTE_INFOS } from "./consts";
 import {
   copyTextToClipboard,
   getObjectPath,
   setObjectPathImmutable,
 } from "./utils";
 
-const version = "0.1.4";
+export type Rpcs = {
+  [chain in ChainName]?: string;
+};
+
+const MAINNET_TOKENS = Object.keys(MAINNET.tokens);
+const TESTNET_TOKENS = Object.keys(TESTNET.tokens);
+const VERSION = "0.3.3";
 // generated with https://www.srihash.org/
-const versionScriptIntegrity =
-  "sha384-NUeZzmcZSVf4i3sUHD1rhtihig08WkCKu42too+Na8ll/2Sxr8v8D1i9IuVrF70A";
-const versionLinkIntegrity =
-  "sha384-KGZI5sQxWDSIe8Xzhvu4eO0fi8KYtEmDnYS2Qn5xrtw667xfxFINL3uN48d/djuY";
-const nonBreakingTag = "latest-v0.1";
-const latestTag = "latest";
+const SCRIPT_INTEGRITY_HASH =
+  "sha384-be7tSjGKf3akqV+FFKLt4241MoVYmg6rZKe9k3uQLePzk4lEY0t9VZvLjduwsVgG";
+const STYLESHEET_INTEGRITY_HASH =
+  "sha384-BTkX2AhTeIfxDRFsJbLtR26TQ9QKKpi7EMe807JdfQQBTAkUT9a2mSGwf/5CJ4bF";
 
 // registerRpcProvider throws on invalid RPCs
 const isValidRpc = (rpc?: string) =>
@@ -165,7 +159,7 @@ const ScreenButton = ({
   );
 };
 
-const customized = defaultTheme;
+const customized = dark;
 customized.background.default = "transparent";
 const defaultThemeJSON = JSON.stringify(customized, undefined, 2);
 
@@ -215,17 +209,16 @@ function App() {
       };
     }
   }, [debouncedFontHref]);
-  const [_customTheme, setCustomTheme] = useState<Theme | undefined>(undefined);
-  const [debouncedCustomTheme] = useDebounce(_customTheme, 1000);
-  const customTheme =
-    _customTheme === undefined ? undefined : debouncedCustomTheme;
+  const [customTheme, setCustomTheme] = useState<
+    WormholeConnectPartialTheme | undefined
+  >(undefined);
   const [customThemeText, setCustomThemeText] = useState(defaultThemeJSON);
   // const [customThemeError, setCustomThemeError] = useState<boolean>(false);
   const handleModeChange = useCallback(
     (e: any, value: string) => {
       if (value === "dark" || value === "light") {
         setMode(value);
-        setCustomTheme(undefined);
+        setCustomTheme({ mode: value });
       } else {
         setMode(undefined);
         try {
@@ -266,17 +259,12 @@ function App() {
   }, []);
   // END ROUTES
   // BEGIN ENV
-  const [env, setEnv] = useState<"testnet" | "mainnet">("testnet");
-  const [_networkIndexes, setNetworkIndexes] = useState<number[] | undefined>(
+  const [env, setEnv] = useState<"testnet" | "mainnet">("mainnet");
+  const [selectedChains, setSelectedChains] = useState<ChainName[] | undefined>(
     undefined
   );
-  const [networkIndexes] = useDebounce(_networkIndexes, 1000);
   const [_tokens, setTokens] = useState<string[] | undefined>(undefined);
   const [tokens] = useDebounce(_tokens, 1000);
-  const testnetTokens = useMemo(
-    () => tokens && TESTNET_TOKEN_KEYS.filter((t) => tokens?.includes(t)),
-    [tokens]
-  );
   const [defaultFromNetwork, setDefaultFromNetwork] = useState<
     ChainName | undefined
   >(undefined);
@@ -296,6 +284,7 @@ function App() {
   const [defaultToken, setDefaultToken] = useState<string | undefined>(
     undefined
   );
+  const [hideConnect, setHideConnect] = useState<boolean>(false);
   const handleDefaultTokenChange = useCallback((e: any) => {
     e.target.value
       ? setDefaultToken(e.target.value)
@@ -311,21 +300,21 @@ function App() {
   }, []);
   // networks and tokens handlers come after defaults so they can appropriately reset them
   const handleClearNetworks = useCallback(() => {
-    setNetworkIndexes(undefined);
+    setSelectedChains(undefined);
   }, []);
   const handleNoneNetworks = useCallback(() => {
     // clear defaults to avoid bugs (could be smarter)
     setDefaultFromNetwork(undefined);
     setDefaultToNetwork(undefined);
     setRequiredNetwork(undefined);
-    setNetworkIndexes([]);
+    setSelectedChains([]);
   }, []);
   const handleNetworksChange = useCallback((e: any) => {
     // clear defaults to avoid bugs (could be smarter)
     setDefaultFromNetwork(undefined);
     setDefaultToNetwork(undefined);
     setRequiredNetwork(undefined);
-    setNetworkIndexes(
+    setSelectedChains(
       typeof e.target.value === "string"
         ? e.target.value
             .split(",")
@@ -352,7 +341,18 @@ function App() {
     );
   }, []);
   const [_rpcs, setRpcs] = useState<Rpcs | undefined>(undefined);
-  const [deRpcs] = useDebounce(_rpcs, 1000);
+  const rpcs = useMemo(() => {
+    let valid: Rpcs = {};
+    for (let key in _rpcs) {
+      let cn = key as ChainName;
+      if (isValidRpc(_rpcs[cn])) {
+        valid[cn] = _rpcs[cn];
+      }
+    }
+    if (Object.keys(valid).length === 0) return undefined;
+    return valid;
+  }, [_rpcs]);
+
   const handleRpcChange = useCallback((e: any) => {
     setRpcs((prevState) => ({
       ...prevState,
@@ -366,58 +366,35 @@ function App() {
   const handleRpcsClose = useCallback(() => {
     setRpcsOpen(false);
   }, []);
-  const [rpcs, testnetRpcs] = useMemo(() => {
-    // Connect doesn't like if you specify an rpc for a chain name that isn't in the env
-    // For now, filter the config so it doesn't cause an error
-    // TODO: change Connect so that the chain names are the same for testnet and mainnet
-    return !deRpcs
-      ? [undefined, undefined]
-      : Object.entries(deRpcs).reduce<
-          [
-            { [chain in ChainName]?: string } | undefined,
-            { [chain in TestnetChainName]?: string } | undefined
-          ]
-        >(
-          ([rpcs, testnetRpcs], [n, rpc]) => [
-            isValidRpc(rpc) &&
-            (env === "mainnet"
-              ? MAINNET_CHAINS[n as MainnetChainName]
-              : TESTNET_CHAINS[n as TestnetChainName])
-              ? { ...rpcs, [n]: rpc }
-              : rpcs,
-            isValidRpc(rpc) && TESTNET_CHAINS[n as TestnetChainName]
-              ? { ...testnetRpcs, [n]: rpc }
-              : testnetRpcs,
-          ],
-          [undefined, undefined]
-        );
-  }, [deRpcs, env]);
   const handleEnvChange = useCallback((e: any, value: string) => {
     if (value === "testnet" || value === "mainnet") {
-      // TODO: keep tokens that exist in both envs, for now clear it before it doesn't match the options
       setTokens(undefined);
-      // clear defaults to avoid bugs (could be smarter)
+      setSelectedChains(undefined);
       setDefaultFromNetwork(undefined);
       setDefaultToNetwork(undefined);
       setDefaultToken(undefined);
       setRequiredNetwork(undefined);
-      // set env last
-      setEnv(value);
+
+      // These timeouts are necessary because the config
+      // is used to reset the transferInput redux store
+      // and if we change the network before that can happen
+      // we get all kinds of fun errors
+      setTimeout(() => {
+        setHideConnect(true);
+
+        setTimeout(() => {
+          setEnv(value);
+
+          setTimeout(() => {
+            setHideConnect(false);
+          }, 50);
+        }, 50);
+      }, 50);
     }
   }, []);
-  const [networks, testnetNetworks] = useMemo(() => {
-    return !networkIndexes
-      ? [undefined, undefined]
-      : NETWORKS.filter((v, i) => networkIndexes.indexOf(i) > -1).reduce<
-          [ChainName[], TestnetChainName[]]
-        >(
-          ([networks, testnetNetworks], v) => [
-            [...networks, v[env]],
-            [...testnetNetworks, v.testnet],
-          ],
-          [[], []]
-        );
-  }, [networkIndexes, env]);
+
+  const chains = env === "mainnet" ? MAINNET.chains : TESTNET.chains;
+
   // END ENV
   // START BRIDGE COMPLETE
   const [_ctaText, setCtaText] = useState<string>("");
@@ -441,7 +418,7 @@ function App() {
     setDefaultToNetwork(undefined);
     setDefaultToken(undefined);
     setRequiredNetwork(undefined);
-    setNetworkIndexes(undefined);
+    setSelectedChains(undefined);
     setTokens(undefined);
     setRpcs(undefined);
     setEnv("testnet");
@@ -458,16 +435,13 @@ function App() {
     },
     []
   );
-  // NOTE: the WormholeBridge component is keyed by the stringified version of config
+  // NOTE: the WormholeConnect component is keyed by the stringified version of config
   // because otherwise the component did not update on changes
   const config: WormholeConnectConfig = useMemo(
     () => ({
-      env: "testnet", // always testnet for the builder
-      rpcs: testnetRpcs,
-      networks: testnetNetworks, // always testnet for the builder
-      tokens: testnetTokens, // always testnet for the builder
-      mode,
-      customTheme,
+      env,
+      rpcs,
+      tokens, // always testnet for the builder
       cta:
         ctaText && ctaLink
           ? {
@@ -489,14 +463,14 @@ function App() {
           : undefined,
       routes,
       pageHeader,
+      networks: selectedChains,
       showHamburgerMenu,
     }),
     [
-      testnetRpcs,
-      testnetNetworks,
-      testnetTokens,
-      mode,
-      customTheme,
+      env,
+      rpcs,
+      tokens,
+      selectedChains,
       ctaText,
       ctaLink,
       defaultFromNetwork,
@@ -508,35 +482,31 @@ function App() {
       showHamburgerMenu,
     ]
   );
-  const [versionOrTag, setVersionOrTag] = useState<string>(version);
-  const handleVersionOrTagChange = useCallback((e: any, value: string) => {
-    setVersionOrTag(value);
-  }, []);
+
   const [htmlCode, jsxCode] = useMemo(() => {
-    const realConfig = { ...config, env, rpcs, networks, tokens };
-    const realConfigString = JSON.stringify(realConfig);
+    const configString = JSON.stringify(config);
+    const themeStringHTML = customTheme
+      ? ` data-theme='${JSON.stringify(customTheme)}'`
+      : "";
+    const themeStringJSX = customTheme
+      ? ` theme={${JSON.stringify(customTheme)}}`
+      : "";
+
     return [
-      `<div id="wormhole-connect" config='${realConfigString}' /></div>
-<script src="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@${versionOrTag}/dist/main.js"${
-        versionOrTag === version
-          ? ` integrity="${versionScriptIntegrity}" crossorigin="anonymous"`
-          : ""
-      }></script>
-<link rel="stylesheet" href="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@${versionOrTag}/dist/main.css"${
-        versionOrTag === version
-          ? ` integrity="${versionLinkIntegrity}" crossorigin="anonymous"`
-          : ""
-      }/>`,
-      `import WormholeBridge from '@wormhole-foundation/wormhole-connect';
+      // Hosted version (CDN)
+      `<div id="wormhole-connect" data-config='${configString}'${themeStringHTML} /></div>
+<script type="module" src="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@${VERSION}/dist/main.js" integrity="${SCRIPT_INTEGRITY_HASH}"></script>
+<link rel="stylesheet" href="https://www.unpkg.com/@wormhole-foundation/wormhole-connect@${VERSION}/dist/main.css" integrity="${STYLESHEET_INTEGRITY_HASH}"/>`,
+
+      // React version
+      `import WormholeConnect from '@wormhole-foundation/wormhole-connect';
 function App() {
   return (
-    <WormholeBridge config={${realConfigString}} ${
-        versionOrTag === version ? "" : ` versionOrTag="${versionOrTag}"`
-      }/>
+    <WormholeConnect config={${configString}}${themeStringJSX} />
   );
 }`,
     ];
-  }, [config, env, rpcs, networks, tokens, versionOrTag]);
+  }, [config, customTheme]);
   const [openCopySnack, setOpenCopySnack] = useState<boolean>(false);
   const handleCopySnackClose = useCallback(() => {
     setOpenCopySnack(false);
@@ -706,7 +676,7 @@ function App() {
                         Widget
                       </Typography>
                       <ColorPicker
-                        customTheme={_customTheme}
+                        customTheme={customTheme}
                         setCustomTheme={setCustomTheme}
                         path="background.default"
                         defaultTheme={customized}
@@ -720,7 +690,7 @@ function App() {
                         Modal
                       </Typography>
                       <ColorPicker
-                        customTheme={_customTheme}
+                        customTheme={customTheme}
                         setCustomTheme={setCustomTheme}
                         path="modal.background"
                         defaultTheme={customized}
@@ -734,7 +704,7 @@ function App() {
                         Card
                       </Typography>
                       <ColorPicker
-                        customTheme={_customTheme}
+                        customTheme={customTheme}
                         setCustomTheme={setCustomTheme}
                         path="card.background"
                         defaultTheme={customized}
@@ -748,7 +718,7 @@ function App() {
                         Button
                       </Typography>
                       <ColorPicker
-                        customTheme={_customTheme}
+                        customTheme={customTheme}
                         setCustomTheme={setCustomTheme}
                         path="button.primary"
                         defaultTheme={customized}
@@ -762,7 +732,7 @@ function App() {
                         Action
                       </Typography>
                       <ColorPicker
-                        customTheme={_customTheme}
+                        customTheme={customTheme}
                         setCustomTheme={setCustomTheme}
                         path="button.action"
                         defaultTheme={customized}
@@ -779,7 +749,7 @@ function App() {
                         Primary
                       </Typography>
                       <ColorPicker
-                        customTheme={_customTheme}
+                        customTheme={customTheme}
                         setCustomTheme={setCustomTheme}
                         path="text.primary"
                         defaultTheme={customized}
@@ -793,7 +763,7 @@ function App() {
                         Secondary
                       </Typography>
                       <ColorPicker
-                        customTheme={_customTheme}
+                        customTheme={customTheme}
                         setCustomTheme={setCustomTheme}
                         path="text.secondary"
                         defaultTheme={customized}
@@ -805,7 +775,7 @@ function App() {
                         Button
                       </Typography>
                       <ColorPicker
-                        customTheme={_customTheme}
+                        customTheme={customTheme}
                         setCustomTheme={setCustomTheme}
                         path="button.primaryText"
                       />
@@ -818,7 +788,7 @@ function App() {
                         Action
                       </Typography>
                       <ColorPicker
-                        customTheme={_customTheme}
+                        customTheme={customTheme}
                         setCustomTheme={setCustomTheme}
                         path="button.actionText"
                         defaultTheme={customized}
@@ -840,7 +810,7 @@ function App() {
                       label="Primary"
                       name="primary"
                       fullWidth
-                      value={getObjectPath(_customTheme, "font.primary")}
+                      value={getObjectPath(customTheme, "font.primary")}
                       onChange={handleFontChange}
                       size="small"
                       sx={{ mt: 2 }}
@@ -849,7 +819,7 @@ function App() {
                       label="Header"
                       name="header"
                       fullWidth
-                      value={getObjectPath(_customTheme, "font.header")}
+                      value={getObjectPath(customTheme, "font.header")}
                       onChange={handleFontChange}
                       size="small"
                       sx={{ mt: 2 }}
@@ -966,31 +936,39 @@ function App() {
                 >
                   <DialogTitle>Configure RPCs</DialogTitle>
                   <DialogContent>
-                    {NETWORKS.map((n) => (
-                      <TextField
-                        key={n[env]}
-                        label={n[env]}
-                        name={n[env]}
-                        value={_rpcs?.[n[env]] || ""}
-                        onChange={handleRpcChange}
-                        error={
-                          _rpcs?.[n[env]] && !isValidRpc(_rpcs[n[env]])
-                            ? true
-                            : false
-                        }
-                        fullWidth
-                        sx={{ mb: 2 }}
-                        helperText={
-                          _rpcs?.[n[env]] && !isValidRpc(_rpcs[n[env]])
-                            ? "Unknown RPC string scheme. Expected an http or websocket URI."
-                            : `Default: ${
-                                (env === "mainnet"
-                                  ? DEFAULT_MAINNET_RPCS[n[env]]
-                                  : DEFAULT_TESTNET_RPCS[n[env]]) || "None"
-                              }`
-                        }
-                      />
-                    ))}
+                    {Object.keys(
+                      env === "testnet" ? TESTNET.chains : MAINNET.chains
+                    ).map((cn) => {
+                      const chain = cn as ChainName;
+                      return (
+                        <TextField
+                          key={chain}
+                          label={chain}
+                          name={chain}
+                          value={_rpcs?.[chain] || ""}
+                          onChange={handleRpcChange}
+                          error={
+                            _rpcs?.[chain] &&
+                            !isValidRpc(_rpcs[chain as ChainName])
+                              ? true
+                              : false
+                          }
+                          fullWidth
+                          sx={{ mb: 2 }}
+                          helperText={
+                            _rpcs?.[chain as ChainName] &&
+                            !isValidRpc(_rpcs[chain as ChainName])
+                              ? "Unknown RPC string scheme. Expected an http or websocket URI."
+                              : `Default: ${
+                                  (env === "mainnet"
+                                    ? MAINNET.rpcs[chain as ChainName]
+                                    : TESTNET.rpcs[chain as ChainName]) ||
+                                  "None"
+                                }`
+                          }
+                        />
+                      );
+                    })}
                   </DialogContent>
                   <DialogActions>
                     <Button variant="contained" onClick={handleRpcsClose}>
@@ -1005,30 +983,25 @@ function App() {
                 <TextField
                   select
                   fullWidth
-                  value={
-                    _networkIndexes
-                      ? _networkIndexes
-                      : NETWORKS.map((_, i) => i)
-                  }
+                  value={selectedChains || Object.keys(chains)}
                   onChange={handleNetworksChange}
                   SelectProps={{
                     multiple: true,
                     renderValue: (selected: any) =>
-                      !_networkIndexes
+                      !selectedChains
                         ? "All Networks"
-                        : selected
-                            .map((i: number) => NETWORKS[i].name)
-                            .join(", "),
+                        : selectedChains.join(", "),
                   }}
                 >
-                  {NETWORKS.map((network, idx) => (
-                    <MenuItem key={idx} value={idx}>
+                  {Object.keys(chains).map((chain) => (
+                    <MenuItem key={chain} value={chain}>
                       <Checkbox
                         checked={
-                          !_networkIndexes || _networkIndexes.indexOf(idx) > -1
+                          !selectedChains ||
+                          selectedChains.includes(chain as ChainName)
                         }
                       />
-                      <ListItemText primary={network.name} />
+                      <ListItemText primary={chain} />
                     </MenuItem>
                   ))}
                 </TextField>
@@ -1061,8 +1034,8 @@ function App() {
                     _tokens
                       ? _tokens
                       : env === "mainnet"
-                      ? MAINNET_TOKEN_KEYS
-                      : TESTNET_TOKEN_KEYS
+                      ? MAINNET_TOKENS
+                      : TESTNET_TOKENS
                   }
                   onChange={handleTokensChange}
                   SelectProps={{
@@ -1071,15 +1044,14 @@ function App() {
                       !_tokens ? "All Tokens" : selected.join(", "),
                   }}
                 >
-                  {(env === "mainnet"
-                    ? MAINNET_TOKEN_KEYS
-                    : TESTNET_TOKEN_KEYS
-                  ).map((t) => (
-                    <MenuItem key={t} value={t}>
-                      <Checkbox checked={!_tokens || _tokens.includes(t)} />
-                      <ListItemText primary={t} />
-                    </MenuItem>
-                  ))}
+                  {(env === "mainnet" ? MAINNET_TOKENS : TESTNET_TOKENS).map(
+                    (t) => (
+                      <MenuItem key={t} value={t}>
+                        <Checkbox checked={!_tokens || _tokens.includes(t)} />
+                        <ListItemText primary={t} />
+                      </MenuItem>
+                    )
+                  )}
                 </TextField>
                 <Button
                   onClick={handleClearTokens}
@@ -1114,15 +1086,15 @@ function App() {
                   <MenuItem value={""}>
                     <ListItemText primary="(None)" />
                   </MenuItem>
-                  {_networkIndexes
-                    ? _networkIndexes.map((nIdx) => (
-                        <MenuItem key={nIdx} value={NETWORKS[nIdx][env]}>
-                          <ListItemText primary={NETWORKS[nIdx].name} />
+                  {selectedChains
+                    ? selectedChains.map((chain) => (
+                        <MenuItem key={chain} value={chain}>
+                          <ListItemText primary={chain} />
                         </MenuItem>
                       ))
-                    : NETWORKS.map((n) => (
-                        <MenuItem key={n.name} value={n[env]}>
-                          <ListItemText primary={n.name} />
+                    : Object.keys(chains).map((chain) => (
+                        <MenuItem key={chain} value={chain}>
+                          <ListItemText primary={chain} />
                         </MenuItem>
                       ))}
                 </TextField>
@@ -1149,15 +1121,15 @@ function App() {
                   <MenuItem value={""}>
                     <ListItemText primary="(None)" />
                   </MenuItem>
-                  {_networkIndexes
-                    ? _networkIndexes.map((nIdx) => (
-                        <MenuItem key={nIdx} value={NETWORKS[nIdx][env]}>
-                          <ListItemText primary={NETWORKS[nIdx].name} />
+                  {selectedChains
+                    ? selectedChains.map((chain) => (
+                        <MenuItem key={chain} value={chain}>
+                          <ListItemText primary={chain} />
                         </MenuItem>
                       ))
-                    : NETWORKS.map((n) => (
-                        <MenuItem key={n.name} value={n[env]}>
-                          <ListItemText primary={n.name} />
+                    : Object.keys(chains).map((chain) => (
+                        <MenuItem key={chain} value={chain}>
+                          <ListItemText primary={chain} />
                         </MenuItem>
                       ))}
                 </TextField>
@@ -1172,14 +1144,13 @@ function App() {
                   <MenuItem value={""}>
                     <ListItemText primary="(None)" />
                   </MenuItem>
-                  {(env === "mainnet"
-                    ? MAINNET_TOKEN_KEYS
-                    : TESTNET_TOKEN_KEYS
-                  ).map((t) => (
-                    <MenuItem key={t} value={t}>
-                      <ListItemText primary={t} />
-                    </MenuItem>
-                  ))}
+                  {(env === "mainnet" ? MAINNET_TOKENS : TESTNET_TOKENS).map(
+                    (t) => (
+                      <MenuItem key={t} value={t}>
+                        <ListItemText primary={t} />
+                      </MenuItem>
+                    )
+                  )}
                 </TextField>
                 <TextField
                   label="Required Network"
@@ -1208,15 +1179,15 @@ function App() {
                   <MenuItem value={""}>
                     <ListItemText primary="(None)" />
                   </MenuItem>
-                  {_networkIndexes
-                    ? _networkIndexes.map((nIdx) => (
-                        <MenuItem key={nIdx} value={NETWORKS[nIdx][env]}>
-                          <ListItemText primary={NETWORKS[nIdx].name} />
+                  {selectedChains
+                    ? selectedChains.map((chain) => (
+                        <MenuItem key={chain} value={chain}>
+                          <ListItemText primary={chain} />
                         </MenuItem>
                       ))
-                    : NETWORKS.map((n) => (
-                        <MenuItem key={n.name} value={n[env]}>
-                          <ListItemText primary={n.name} />
+                    : Object.keys(chains).map((chain) => (
+                        <MenuItem key={chain} value={chain}>
+                          <ListItemText primary={chain} />
                         </MenuItem>
                       ))}
                 </TextField>
@@ -1279,30 +1250,6 @@ function App() {
                 Get Code
               </Button>
               <Box mx={2}>
-                <FormControl sx={{ mt: 1.5, mb: 2 }}>
-                  <FormLabel>Automatic Updates</FormLabel>
-                  <RadioGroup
-                    value={versionOrTag}
-                    onChange={handleVersionOrTagChange}
-                    sx={{ mb: 0.5 }}
-                  >
-                    <FormControlLabel
-                      value={version}
-                      control={<Radio />}
-                      label="Disabled (Pinned)"
-                    />
-                    <FormControlLabel
-                      value={nonBreakingTag}
-                      control={<Radio />}
-                      label="Non-Breaking"
-                    />
-                    <FormControlLabel
-                      value={latestTag}
-                      control={<Radio />}
-                      label="Latest"
-                    />
-                  </RadioGroup>
-                </FormControl>
                 <Tabs
                   value={codeType}
                   onChange={handleCodeTypeChange}
@@ -1438,7 +1385,18 @@ function App() {
           <Typography variant="h4" component="h2" gutterBottom>
             Preview
           </Typography>
-          <WormholeBridge config={config} key={JSON.stringify(config)} />
+
+          <ErrorBoundary>
+            {!hideConnect ? (
+              <WormholeConnect
+                config={{ ...config, previewMode: true }}
+                theme={customTheme}
+                key={JSON.stringify(config)}
+              />
+            ) : (
+              <></>
+            )}
+          </ErrorBoundary>
         </Container>
       </Box>
     </Background>

@@ -160,14 +160,16 @@ function ToInputs() {
         warning={<TokenWarnings />}
         tokenPrice={getTokenPrice(prices, config.tokens[destToken])}
       />
-      <TokensModal
-        open={showTokensModal}
-        chain={toChain}
-        walletAddress={receiving.address}
-        type="dest"
-        onSelect={selectToken}
-        onClose={() => setShowTokensModal(false)}
-      />
+      {showTokensModal && (
+        <TokensModal
+          open={showTokensModal}
+          chain={toChain}
+          walletAddress={receiving.address}
+          type="dest"
+          onSelect={selectToken}
+          onClose={() => setShowTokensModal(false)}
+        />
+      )}
       <ChainsModal
         open={showChainsModal}
         title="Sending to"
