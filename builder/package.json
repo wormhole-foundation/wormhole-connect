@@ -26,10 +26,8 @@
   },
   "scripts": {
     "lint:ci": "prettier -c ./src && eslint --max-warnings=0 ./src",
-    "start": "react-scripts start",
-    "build": "NODE_OPTIONS=--max-old-space-size=8192 react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "start": "vite",
+    "build": "NODE_OPTIONS=--max-old-space-size=8192 vite build"
   },
   "eslintConfig": {
     "extends": [
@@ -50,6 +48,12 @@
     ]
   },
   "devDependencies": {
-    "@types/react-color": "^3.0.7"
+    "@types/react-color": "^3.0.7",
+    "vite": "^5.0.8",
+    "vite-bundle-visualizer": "^0.11.0",
+    "vite-plugin-checker": "^0.6.2",
+    "vite-plugin-dts": "^3.7.3",
+    "vite-plugin-node-polyfills": "^0.17.0",
+    "@vitejs/plugin-react-swc": "^3.5.0"
   }
 }
