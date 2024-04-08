@@ -65,7 +65,7 @@ const TESTNET_TOKENS = Object.keys(TESTNET.tokens);
 const VERSION = "0.3.3";
 // generated with https://www.srihash.org/
 const SCRIPT_INTEGRITY_HASH =
-  "sha384-QOTWWlgPEcpWnzakQRaUW71dYatQWsRJYtCjz+y94hwZxjxg9jU7X+sE6pDmo6Ao";
+  "sha384-be7tSjGKf3akqV+FFKLt4241MoVYmg6rZKe9k3uQLePzk4lEY0t9VZvLjduwsVgG";
 const STYLESHEET_INTEGRITY_HASH =
   "sha384-BTkX2AhTeIfxDRFsJbLtR26TQ9QKKpi7EMe807JdfQQBTAkUT9a2mSGwf/5CJ4bF";
 
