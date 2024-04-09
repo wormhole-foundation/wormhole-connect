@@ -910,9 +910,6 @@ function App() {
                     label="Mainnet"
                   />
                 </RadioGroup>
-                <Alert severity="info">
-                  Note: The preview always displays Testnet.
-                </Alert>
                 <Divider sx={{ mt: 2 }} />
                 <Typography variant="h5" component="h2" mt={4} mb={1}>
                   RPCs
