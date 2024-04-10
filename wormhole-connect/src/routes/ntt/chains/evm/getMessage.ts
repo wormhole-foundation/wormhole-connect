@@ -1,24 +1,28 @@
-import { ChainName, ChainId } from '@wormhole-foundation/wormhole-connect-sdk';
 import { Implementation__factory } from '@certusone/wormhole-sdk/lib/esm/ethers-contracts';
 import {
-  parseWormholeLog,
-  RelayerPayloadId,
   DeliveryInstruction,
+  RelayerPayloadId,
+  parseWormholeLog,
 } from '@certusone/wormhole-sdk/lib/esm/relayer';
+import {
+  deserializePayload,
+  toChain,
+  toChainId,
+} from '@wormhole-foundation/sdk';
+import { Ntt } from '@wormhole-foundation/sdk-definitions-ntt';
+import { ChainId, ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+import config from 'config';
 import { ethers } from 'ethers';
 import { hexlify } from 'ethers/lib/utils';
 import { NttRelayingType, UnsignedNttMessage } from 'routes/types';
 import { getTokenById, getTokenDecimals } from 'utils';
-import { getWormholeLogEvm } from 'utils/vaa';
-import config from 'config';
-import { toChainName } from 'utils/sdk';
-import { deserializePayload, Ntt } from '@wormhole-foundation/sdk-definitions';
-import { toChain, toChainId } from '@wormhole-foundation/sdk-base';
 import {
   getNttGroupKeyByAddress,
   getNttManagerConfigByGroupKey,
   isNttToken,
 } from 'utils/ntt';
+import { toChainName } from 'utils/sdk';
+import { getWormholeLogEvm } from 'utils/vaa';
 
 const RELAYING_INFO_EVENT_TOPIC =
   '0xc3192e083c87c556db539f071d8a298869f487e951327b5616a6f85ae3da958e';
