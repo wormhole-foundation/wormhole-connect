@@ -56,6 +56,8 @@ export enum Route {
   wstETHBridge = 'wstETHBridge',
   NttManual = 'nttManual',
   NttRelay = 'nttRelay',
+  ///////
+  Sdkv2TokenBridge = 'TokenBridge',
 }
 
 // Used in bridging components

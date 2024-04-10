@@ -29,8 +29,9 @@ async function toRequest<N extends Network>(
     dstChain: ChainName | ChainId;
     dstAddress: string;
     dstToken: TokenId | string;
-    options: any;
-    amount?: string;
+    options: {
+      amount?: string;
+    };
   },
 ): Promise<routes.RouteTransferRequest<N>> {
   const srcChain = converters.toChain(req.srcChain);
@@ -86,7 +87,9 @@ export class SDKV2Route extends RouteAbstract {
       dstChain: destChain,
       dstAddress: '',
       dstToken: destToken,
-      options: undefined,
+      options: {
+        amount,
+      },
     });
 
     console.log(req);
@@ -268,12 +271,10 @@ export class SDKV2Route extends RouteAbstract {
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
   ): Promise<boolean> {
-    // TODO this doesnt currently listen to the config.routes whitelist
     return false;
   }
 
   isSupportedChain(chain: ChainName): boolean {
-    // TODO
     return false;
   }
 }

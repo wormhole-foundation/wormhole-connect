@@ -41,7 +41,32 @@ import { getMessageEvm } from './ntt/chains/evm';
 import { getMessageSolana } from './ntt/chains/solana';
 import { getNttManagerConfigByAddress } from 'utils/ntt';
 
+import { Wormhole, Network } from '@wormhole-foundation/sdk';
+import evm from '@wormhole-foundation/sdk/platforms/evm';
+import solana from '@wormhole-foundation/sdk/platforms/solana';
+import aptos from '@wormhole-foundation/sdk/platforms/aptos';
+import sui from '@wormhole-foundation/sdk/platforms/sui';
+import cosmwasm from '@wormhole-foundation/sdk/platforms/cosmwasm';
+import algorand from '@wormhole-foundation/sdk/platforms/algorand';
+
+function getNetwork(): Network {
+  // TODO
+  return 'Testnet';
+}
+
 export class Operator {
+  wh: Wormhole<Network>;
+  constructor() {
+    this.wh = new Wormhole(getNetwork(), [
+      evm.Platform,
+      solana.Platform,
+      aptos.Platform,
+      cosmwasm.Platform,
+      sui.Platform,
+      algorand.Platform,
+    ]);
+  }
+
   getRoute(route: Route): RouteAbstract {
     switch (route) {
       case Route.Bridge: {
