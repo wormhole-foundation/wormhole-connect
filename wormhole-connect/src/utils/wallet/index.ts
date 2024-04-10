@@ -22,8 +22,11 @@ import {
 import config from 'config';
 import { getChainByChainId } from 'utils';
 
+import { RootState } from 'store';
 import { AssetInfo } from './evm';
 import { Dispatch } from 'redux';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
 export enum TransferWallet {
   SENDING = 'sending',
@@ -120,6 +123,20 @@ export const connectLastUsedWallet = async (
       await connectWallet(type, chain, wallet, dispatch);
     }
   }
+};
+
+export const useConnectToLastUsedWallet = (): void => {
+  const dispatch = useDispatch();
+  const { toChain, fromChain } = useSelector(
+    (state: RootState) => state.transferInput,
+  );
+
+  useEffect(() => {
+    if (fromChain)
+      connectLastUsedWallet(TransferWallet.SENDING, fromChain, dispatch);
+    if (toChain)
+      connectLastUsedWallet(TransferWallet.RECEIVING, toChain, dispatch);
+  }, [fromChain, toChain]);
 };
 
 export const getWalletConnection = (type: TransferWallet) => {

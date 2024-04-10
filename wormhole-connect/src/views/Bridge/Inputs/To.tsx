@@ -9,7 +9,7 @@ import {
   selectToChain,
   setDestToken,
 } from 'store/transferInput';
-import { TransferWallet, connectLastUsedWallet } from 'utils/wallet';
+import { TransferWallet } from 'utils/wallet';
 import { getTokenPrice, hydrateHrefTemplate } from 'utils';
 import config from 'config';
 
@@ -58,7 +58,6 @@ function ToInputs() {
 
   const selectChain = async (chain: ChainName) => {
     await selectToChain(dispatch, chain, receiving);
-    await connectLastUsedWallet(TransferWallet.RECEIVING, chain, dispatch);
   };
 
   // token display jsx
