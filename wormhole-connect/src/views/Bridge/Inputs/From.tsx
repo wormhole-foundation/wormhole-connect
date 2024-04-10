@@ -14,7 +14,7 @@ import {
   isDisabledChain,
 } from 'store/transferInput';
 import config from 'config';
-import { TransferWallet } from 'utils/wallet';
+import { TransferWallet, connectLastUsedWallet } from 'utils/wallet';
 import RouteOperator from 'routes/operator';
 import { getTokenPrice, hydrateHrefTemplate } from 'utils';
 import Inputs from './Inputs';
@@ -60,7 +60,8 @@ function FromInputs() {
   );
 
   const selectChain = async (chain: ChainName) => {
-    selectFromChain(dispatch, chain, wallet);
+    await selectFromChain(dispatch, chain, wallet);
+    await connectLastUsedWallet(TransferWallet.SENDING, chain, dispatch);
   };
 
   const selectToken = (token: string) => {

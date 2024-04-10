@@ -9,15 +9,10 @@ import config from 'config';
 import { RootState } from 'store';
 import { setWalletModal } from 'store/router';
 import {
-  clearWallet,
-  connectReceivingWallet,
-  connectWallet,
-} from 'store/wallet';
-import {
   TransferWallet,
   WalletData,
   getWalletOptions,
-  setWalletConnection,
+  connectWallet,
 } from 'utils/wallet';
 import { CENTER } from 'utils/style';
 
@@ -160,49 +155,10 @@ function WalletsModal(props: Props) {
   };
 
   const connect = async (walletInfo: WalletData) => {
-    const { wallet } = walletInfo;
-
     const chain = type === TransferWallet.SENDING ? fromChain : toChain;
-    const chainId = chain ? config.chains[chain]?.chainId : undefined;
-    await wallet.connect({ chainId });
-
-    setWalletConnection(props.type, wallet);
-
-    const address = wallet.getAddress();
-
-    // clear wallet when the user manually disconnects from outside the app
-    wallet.on('disconnect', () => {
-      wallet.removeAllListeners();
-      dispatch(clearWallet(props.type));
-    });
-
-    // when the user has multiple wallets connected and either changes
-    // or disconnects the current wallet, clear the wallet
-    wallet.on('accountsChanged', (accs: string[]) => {
-      // disconnect only if there are no accounts, or if the new account is different from the current
-      const shouldDisconnect =
-        accs.length === 0 || (accs.length && address && accs[0] !== address);
-
-      if (shouldDisconnect) {
-        wallet.disconnect();
-      }
-    });
-
-    if (address) {
-      const payload = {
-        address,
-        type: walletInfo.type,
-        icon: wallet.getIcon(),
-        name: wallet.getName(),
-      };
-      if (props.type === TransferWallet.SENDING) {
-        dispatch(connectWallet(payload));
-      } else {
-        dispatch(connectReceivingWallet(payload));
-      }
-      dispatch(setWalletModal(false));
-      if (props.onClose) props.onClose();
-    }
+    dispatch(setWalletModal(false));
+    if (props.onClose) props.onClose();
+    await connectWallet(props.type, chain!, walletInfo, dispatch);
   };
 
   const displayWalletOptions = (wallets: WalletData[]): JSX.Element[] => {
