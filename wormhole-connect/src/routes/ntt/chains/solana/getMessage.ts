@@ -1,18 +1,18 @@
-import { solanaContext } from 'utils/sdk';
 import { PostedMessageData } from '@certusone/wormhole-sdk/lib/esm/solana/wormhole';
+import { PublicKey } from '@solana/web3.js';
+import { deserializePayload, toChainId } from '@wormhole-foundation/sdk';
+import { Ntt } from '@wormhole-foundation/sdk-definitions-ntt';
+import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+import config from 'config';
 import { hexlify } from 'ethers/lib/utils';
 import { NttRelayingType, UnsignedNttMessage } from 'routes/types';
 import { getTokenById, getTokenDecimals } from 'utils';
-import config from 'config';
-import { deserializePayload, Ntt } from '@wormhole-foundation/sdk-definitions';
-import { toChainId } from '@wormhole-foundation/sdk-base';
-import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import {
   getNttGroupKeyByAddress,
   getNttManagerConfigByGroupKey,
   isNttToken,
 } from 'utils/ntt';
-import { PublicKey } from '@solana/web3.js';
+import { solanaContext } from 'utils/sdk';
 
 export const getMessageSolana = async (
   tx: string,
