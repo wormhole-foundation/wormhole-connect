@@ -20,11 +20,17 @@ import {
   isNttToken,
 } from 'utils/ntt';
 
-const RELAYING_INFO_EVENT_TOPIC =
-  '0xc3192e083c87c556db539f071d8a298869f487e951327b5616a6f85ae3da958e';
 const RELAYING_INFO_IFACE = new ethers.utils.Interface([
   'event RelayingInfo(uint8 relayingType, bytes32 refundAddress, uint256 deliveryPayment)',
 ]);
+const RELAYING_INFO_EVENT_TOPIC =
+  RELAYING_INFO_IFACE.getEventTopic('RelayingInfo');
+
+const TRANSFER_SENT_IFACE = new ethers.utils.Interface([
+  'event TransferSent(bytes32 recipient, bytes32 refundAddress, uint256 amount, uint256 fee, uint16 recipientChain, uint64 msgSequence)',
+]);
+export const TRANSFER_SENT_EVENT_TOPIC =
+  TRANSFER_SENT_IFACE.getEventTopic('TransferSent');
 
 export const getMessageEvm = async (
   tx: string,
@@ -36,8 +42,13 @@ export const getMessageEvm = async (
     receipt = await provider.getTransactionReceipt(tx);
     if (!receipt) throw new Error(`No receipt for tx ${tx} on ${chain}`);
   }
+  const transferSentEvent = receipt.logs.find(
+    (log) => log.topics[0] === TRANSFER_SENT_EVENT_TOPIC,
+  );
+  if (!transferSentEvent) throw new Error('TransferSent event not found');
+  const nttManagerAddress = transferSentEvent.address;
   const contract = new ethers.Contract(
-    receipt.to,
+    nttManagerAddress,
     ['function token() public view returns (address)'],
     provider,
   );
@@ -83,7 +94,7 @@ export const getMessageEvm = async (
   const recipientChain = toChainName(
     toChainId(nttManagerMessage.payload.recipientChain) as ChainId,
   );
-  const groupKey = getNttGroupKeyByAddress(receipt.to, fromChain);
+  const groupKey = getNttGroupKeyByAddress(nttManagerAddress, fromChain);
   if (!groupKey) throw new Error(`No NTT group key for ${receipt.to}`);
   const recipientNttManagerConfig = getNttManagerConfigByGroupKey(
     groupKey,
