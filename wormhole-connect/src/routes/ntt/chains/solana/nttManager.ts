@@ -13,6 +13,8 @@ import {
   PublicKey,
   Transaction,
   TransactionInstruction,
+  TransactionMessage,
+  VersionedTransaction,
 } from '@solana/web3.js';
 import {
   createApproveInstruction,
@@ -26,7 +28,7 @@ import { deserializePayload, Ntt } from '@wormhole-foundation/sdk-definitions';
 import {
   ExampleNativeTokenTransfers,
   IDL,
-} from './types/example_native_token_transfers';
+} from './types/1.0.0/example_native_token_transfers';
 import {
   derivePostedVaaKey,
   getWormholeDerivedAccounts,
@@ -38,6 +40,7 @@ import CONFIG from 'config';
 import { toChain as SDKv2toChain } from '@wormhole-foundation/sdk-base';
 import { hexlify } from 'ethers/lib/utils';
 import { getNttManagerConfigByAddress } from 'utils/ntt';
+import { UnsupportedContractAbiVersion } from 'routes/ntt/errors';
 
 // TODO: make sure this is in sync with the contract
 const RATE_LIMIT_DURATION = 24 * 60 * 60;
@@ -57,6 +60,8 @@ interface TransferArgs {
 }
 
 export class NttManagerSolana {
+  static readonly abiVersionCache = new Map<string, string>();
+
   readonly connection: Connection;
   readonly program: Program<ExampleNativeTokenTransfers>;
   readonly wormholeId: string;
@@ -79,6 +84,7 @@ export class NttManagerSolana {
     toChain: ChainName | ChainId,
     shouldSkipRelayerSend: boolean,
   ): Promise<string> {
+    await this.checkAbi();
     const config = await this.getConfig();
     const outboxItem = Keypair.generate();
     const destContext = CONFIG.wh.getContext(toChain);
@@ -154,6 +160,7 @@ export class NttManagerSolana {
   }
 
   async receiveMessage(vaa: string, payer: string): Promise<string> {
+    await this.checkAbi();
     const core = CONFIG.wh.mustGetContracts('solana').core;
     if (!core) throw new Error('Core not found');
     const config = await this.getConfig();
@@ -213,6 +220,7 @@ export class NttManagerSolana {
       ),
       chain: chainId,
       revertOnDelay: false,
+      config,
     };
     if (config.mode.locking) {
       tx.add(await this.createReleaseInboundUnlockInstruction(releaseArgs));
@@ -309,6 +317,7 @@ export class NttManagerSolana {
     recipientAddress: string,
     payer: string,
   ): Promise<string> {
+    await this.checkAbi();
     const payerPublicKey = new PublicKey(payer);
     const releaseArgs = {
       payer: payerPublicKey,
@@ -675,7 +684,7 @@ export class NttManagerSolana {
       .receiveWormholeMessage()
       .accounts({
         payer: args.payer,
-        config: this.configAccountAddress(),
+        config: { config: this.configAccountAddress() },
         peer: transceiverPeer,
         vaa: derivePostedVaaKey(this.wormholeId, parseVaa(args.vaa).hash),
         transceiverMessage: this.transceiverMessageAccountAddress(
@@ -770,6 +779,46 @@ export class NttManagerSolana {
     );
   }
 
+  // View functions
+
+  async version(pubkey: PublicKey): Promise<string> {
+    // the anchor library has a built-in method to read view functions. However,
+    // it requires a signer, which would trigger a wallet prompt on the frontend.
+    // Instead, we manually construct a versioned transaction and call the
+    // simulate function with sigVerify: false below.
+    //
+    // This way, the simulation won't require a signer, but it still requires
+    // the pubkey of an account that has some lamports in it (since the
+    // simulation checks if the account has enough money to pay for the transaction).
+    //
+    // It's a little unfortunate but it's the best we can do.
+    const ix = await this.program.methods
+      .version()
+      .accountsStrict({})
+      .instruction();
+    const latestBlockHash = await this.connection.getLatestBlockhash();
+
+    const msg = new TransactionMessage({
+      payerKey: pubkey,
+      recentBlockhash: latestBlockHash.blockhash,
+      instructions: [ix],
+    }).compileToV0Message();
+
+    const tx = new VersionedTransaction(msg);
+
+    const txSimulation = await this.connection.simulateTransaction(tx, {
+      sigVerify: false,
+    });
+
+    // the return buffer is in base64 and it encodes the string with a 32 bit
+    // little endian length prefix.
+    const data = txSimulation.value.returnData?.data[0];
+    if (!data) throw new Error('No version() return data');
+    const buffer = Buffer.from(data, 'base64');
+    const len = buffer.readUInt32LE(0);
+    return buffer.slice(4, len + 4).toString();
+  }
+
   /**
    * Returns the address of the custody account. If the config is available
    * (i.e. the program is initialized), the mint is derived from the config.
@@ -788,6 +837,18 @@ export class NttManagerSolana {
         mint: await this.mintAccountAddress(configOrMint),
         owner: this.tokenAuthorityAddress(),
       });
+    }
+  }
+
+  async checkAbi(): Promise<void> {
+    let abiVersion = NttManagerSolana.abiVersionCache.get(this.nttId);
+    if (!abiVersion) {
+      abiVersion = await this.version(new PublicKey(this.nttId));
+      NttManagerSolana.abiVersionCache.set(this.nttId, abiVersion);
+    }
+    if (abiVersion !== '1.0.0') {
+      console.error(`Unsupported NttManager version ${abiVersion} for solana`);
+      throw new UnsupportedContractAbiVersion();
     }
   }
 }
