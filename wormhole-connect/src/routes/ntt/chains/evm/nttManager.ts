@@ -22,10 +22,13 @@ import {
 } from 'routes/ntt/utils';
 import { NttManager__factory as NttManager__factory_0_1_0 } from './abis/0.1.0/NttManager__factory';
 import { NttManager as NttManager_0_1_0 } from './abis/0.1.0/NttManager';
+import { NttManager__factory as NttManager__factory_1_0_0 } from './abis/1.0.0/NttManager__factory';
+import { NttManager as NttManager_1_0_0 } from './abis/1.0.0/NttManager';
 import config from 'config';
 import { toChainId, toChainName } from 'utils/sdk';
 
 const ABI_VERSION_0_1_0 = '0.1.0';
+const ABI_VERSION_1_0_0 = '1.0.0';
 
 export class NttManagerEvm {
   static readonly abiVersionCache = new Map<string, string>();
@@ -213,7 +216,7 @@ export class NttManagerEvm {
   }
 
   async getAbi(): Promise<{
-    abi: NttManager_0_1_0;
+    abi: NttManager_0_1_0 | NttManager_1_0_0;
     version: string;
   }> {
     const provider = config.wh.mustGetProvider(this.chain);
@@ -243,6 +246,12 @@ export class NttManagerEvm {
     if (abiVersion === ABI_VERSION_0_1_0) {
       return {
         abi: NttManager__factory_0_1_0.connect(this.address, provider),
+        version: abiVersion,
+      };
+    }
+    if (abiVersion === ABI_VERSION_1_0_0) {
+      return {
+        abi: NttManager__factory_1_0_0.connect(this.address, provider),
         version: abiVersion,
       };
     }

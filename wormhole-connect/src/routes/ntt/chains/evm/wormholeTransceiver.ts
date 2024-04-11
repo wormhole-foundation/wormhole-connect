@@ -1,6 +1,8 @@
 import { ChainId, ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { WormholeTransceiver__factory as WormholeTransceiver__factory_0_1_0 } from './abis/0.1.0/WormholeTransceiver__factory';
 import { WormholeTransceiver as WormholeTransceiver_0_1_0 } from './abis/0.1.0/WormholeTransceiver';
+import { WormholeTransceiver__factory as WormholeTransceiver__factory_1_0_0 } from './abis/1.0.0/WormholeTransceiver__factory';
+import { WormholeTransceiver as WormholeTransceiver_1_0_0 } from './abis/1.0.0/WormholeTransceiver';
 import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
 import config from 'config';
 import { toChainId, toChainName } from 'utils/sdk';
@@ -8,6 +10,7 @@ import { ethers } from 'ethers';
 import { UnsupportedContractAbiVersion } from 'routes/ntt/errors';
 
 const ABI_VERSION_0_1_0 = '0.1.0';
+const ABI_VERSION_1_0_0 = '1.0.0';
 
 export class WormholeTransceiver {
   static readonly abiVersionCache = new Map<string, string>();
@@ -43,7 +46,7 @@ export class WormholeTransceiver {
   }
 
   async getAbi(): Promise<{
-    abi: WormholeTransceiver_0_1_0;
+    abi: WormholeTransceiver_0_1_0 | WormholeTransceiver_1_0_0;
     version: string;
   }> {
     const provider = config.wh.mustGetProvider(this.chain);
@@ -75,6 +78,12 @@ export class WormholeTransceiver {
     if (abiVersion === ABI_VERSION_0_1_0) {
       return {
         abi: WormholeTransceiver__factory_0_1_0.connect(this.address, provider),
+        version: abiVersion,
+      };
+    }
+    if (abiVersion === ABI_VERSION_1_0_0) {
+      return {
+        abi: WormholeTransceiver__factory_1_0_0.connect(this.address, provider),
         version: abiVersion,
       };
     }
