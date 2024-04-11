@@ -205,6 +205,8 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
   ): Promise<boolean> {
+    const tokenConfig = config.tokens[sourceToken]!;
+    const tokenId = getWrappedTokenId(tokenConfig);
     let relayerFee;
     try {
       const result = await this.getRelayerFee(
@@ -220,7 +222,7 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
     return !(
       relayerFee === undefined ||
       parseFloat(amount) <
-        this.getMinSendAmount({
+        this.getMinSendAmount(tokenId, destChain, {
           relayerFee: toDecimals(relayerFee, 6),
           toNativeToken: 0,
         })
@@ -305,7 +307,11 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
   /**
    * These operations have to be implemented in subclasses.
    */
-  getMinSendAmount(routeOptions: any): number {
+  getMinSendAmount(
+    token: TokenId | 'native',
+    recipientChain: ChainName | ChainId,
+    routeOptions: any,
+  ): number {
     const { relayerFee, toNativeToken } = routeOptions;
     // has to be slightly higher than the minimum or else tx will revert
     const fees = parseFloat(relayerFee) + parseFloat(toNativeToken);

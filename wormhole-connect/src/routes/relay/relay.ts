@@ -16,6 +16,7 @@ import {
   toNormalizedDecimals,
   getDisplayName,
   calculateUSDPrice,
+  getTokenById,
 } from 'utils';
 import {
   fetchRedeemedEvent,
@@ -28,6 +29,7 @@ import {
   calculateNativeTokenAmt,
   calculateMaxSwapAmount,
   PayloadType,
+  toChainName,
 } from 'utils/sdk';
 import { NO_INPUT } from 'utils/style';
 import { TransferWallet, postVaa, signAndSendTransaction } from 'utils/wallet';
@@ -120,7 +122,7 @@ export class RelayRoute extends BridgeRoute implements RelayAbstract {
     return !(
       relayerFee === undefined ||
       parseFloat(amount) <
-        this.getMinSendAmount({
+        this.getMinSendAmount(tokenId, destChain, {
           relayerFee: toDecimals(relayerFee, decimals),
           toNativeToken: 0,
         })
@@ -286,13 +288,28 @@ export class RelayRoute extends BridgeRoute implements RelayAbstract {
   /**
    * These operations have to be implemented in subclasses.
    */
-  getMinSendAmount(routeOptions: any): number {
+  getMinSendAmount(
+    token: TokenId | 'native',
+    recipientChain: ChainName | ChainId,
+    routeOptions: any,
+  ): number {
     const { relayerFee, toNativeToken } = routeOptions;
 
     // has to be slightly higher than the minimum or else tx will revert
     const fees = parseFloat(relayerFee) + parseFloat(toNativeToken);
-    const min = (fees * 1.05).toFixed(6);
-    return Number.parseFloat(min);
+    let min = fees * 1.05;
+
+    if (
+      toChainName(recipientChain) === 'solana' &&
+      token !== 'native' &&
+      getTokenById(token)?.key === 'WSOL'
+    ) {
+      // the minimum rent-exempt balance required for a solana wallet is 0.00089088 SOL
+      // the transfer tx on solana will fail if the resulting balance is below this amount
+      min += 0.00089088;
+    }
+
+    return Number.parseFloat(min.toFixed(6));
   }
   async send(
     token: TokenId | 'native',

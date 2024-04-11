@@ -9,7 +9,12 @@ import { useDebounce } from 'use-debounce';
 import config from 'config';
 import { TokenConfig, Route } from 'config/types';
 import { RoutesConfig } from 'config/routes';
-import { getTokenDecimals, getDisplayName, calculateUSDPrice } from 'utils';
+import {
+  getTokenDecimals,
+  getDisplayName,
+  calculateUSDPrice,
+  getWrappedTokenId,
+} from 'utils';
 import { getConversion, toDecimals, toFixedDecimals } from 'utils/balance';
 import RouteOperator from 'routes/operator';
 import { RootState } from 'store';
@@ -135,7 +140,9 @@ function GasSlider(props: { disabled: boolean }) {
       amountNum === 0 ||
       !maxSwapAmt ||
       !route ||
-      !RouteOperator.getRoute(route).NATIVE_GAS_DROPOFF_SUPPORTED
+      !RouteOperator.getRoute(route).NATIVE_GAS_DROPOFF_SUPPORTED ||
+      !toChain ||
+      !sendingToken
     )
       return;
 
@@ -157,7 +164,7 @@ function GasSlider(props: { disabled: boolean }) {
       // actualMaxSwap (i.e. bringing it from 0.1 to 0.045)
       const theoreticalMinSendAmount = RouteOperator.getRoute(
         route,
-      ).getMinSendAmount({
+      ).getMinSendAmount(getWrappedTokenId(sendingToken), toChain, {
         toNativeToken: actualMaxSwap,
         relayerFee,
       });
@@ -181,7 +188,16 @@ function GasSlider(props: { disabled: boolean }) {
       ),
       max: formatAmount(actualMaxSwap),
     }));
-  }, [relayerFee, maxSwapAmt, amountNum, route, state.swapAmt, data, token]);
+  }, [
+    relayerFee,
+    maxSwapAmt,
+    amountNum,
+    route,
+    state.swapAmt,
+    data,
+    token,
+    toChain,
+  ]);
 
   useEffect(() => {
     if (

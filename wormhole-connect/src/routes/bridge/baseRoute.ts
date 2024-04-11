@@ -1,4 +1,8 @@
-import { ChainId, ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+import {
+  ChainId,
+  ChainName,
+  TokenId,
+} from '@wormhole-foundation/wormhole-connect-sdk';
 import { TokenConfig } from 'config/types';
 import {
   MAX_DECIMALS,
@@ -298,7 +302,11 @@ export abstract class BaseRoute extends RouteAbstract {
     return Infinity;
   }
 
-  getMinSendAmount(routeOptions: any): number {
+  getMinSendAmount(
+    token: TokenId | 'native',
+    recipientChain: ChainName | ChainId,
+    routeOptions: any,
+  ): number {
     return 0;
   }
 }

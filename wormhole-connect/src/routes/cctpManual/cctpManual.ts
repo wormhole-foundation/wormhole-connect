@@ -237,6 +237,13 @@ export class CCTPManualRoute extends BaseRoute {
   /**
    * These operations have to be implemented in subclasses.
    */
+  getMinSendAmount(
+    token: TokenId | 'native',
+    recipientChain: ChainName | ChainId,
+    routeOptions: any,
+  ): number {
+    return 0;
+  }
 
   async send(
     token: TokenId | 'native',

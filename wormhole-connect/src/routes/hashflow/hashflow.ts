@@ -107,7 +107,11 @@ export class HashflowRoute extends RouteAbstract {
   ): Promise<BigNumber> {
     throw new Error('Method not implemented.');
   }
-  getMinSendAmount(routeOptions: any): number {
+  getMinSendAmount(
+    token: TokenId | 'native',
+    recipientChain: ChainName | ChainId,
+    routeOptions: any,
+  ): number {
     return 0;
   }
   getMaxSendAmount(): number {

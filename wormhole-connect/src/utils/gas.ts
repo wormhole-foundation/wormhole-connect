@@ -11,20 +11,6 @@ import { GasEstimateOptions, Route } from 'config/types';
 import RouteOperator from '../routes/operator';
 import { SignedMessage, formatGasFee } from '../routes';
 
-export const simulateRelayAmount = (
-  route: Route,
-  amount: number,
-  relayerFee: number,
-  toNativeToken: number,
-  tokenDecimals: number,
-): BigNumber => {
-  const r = RouteOperator.getRoute(route);
-  const min = r.getMinSendAmount({ relayerFee, toNativeToken });
-  if (min === 0) return BigNumber.from(0);
-  const amountOrMin = Math.max(amount, min);
-  return utils.parseUnits(`${amountOrMin}`, tokenDecimals);
-};
-
 export const getGasFallback = (
   chain: ChainName | ChainId,
   route: Route,
