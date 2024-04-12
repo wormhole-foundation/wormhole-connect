@@ -116,14 +116,6 @@ export abstract class NttBase extends BaseRoute {
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
   ): Promise<boolean> {
-    // Note: Solana is currently disabled in mainnet
-    if (
-      config.isMainnet &&
-      (toChainName(sourceChain) === 'solana' ||
-        toChainName(destChain) === 'solana')
-    ) {
-      return false;
-    }
     return await Promise.all([
       this.isSupportedChain(toChainName(sourceChain)),
       this.isSupportedChain(toChainName(destChain)),
