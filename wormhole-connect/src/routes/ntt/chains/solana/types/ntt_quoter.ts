@@ -1,5 +1,5 @@
 export type NttQuoter = {
-  version: '0.1.0';
+  version: '1.0.0';
   name: 'ntt_quoter';
   instructions: [
     {
@@ -21,9 +21,15 @@ export type NttQuoter = {
           isSigner: false;
         },
         {
+          name: 'registeredNtt';
+          isMut: false;
+          isSigner: false;
+        },
+        {
           name: 'outboxItem';
           isMut: false;
           isSigner: false;
+          docs: ['and checking the release constraint into a single function'];
         },
         {
           name: 'relayRequest';
@@ -188,6 +194,72 @@ export type NttQuoter = {
       ];
     },
     {
+      name: 'registerNtt';
+      accounts: [
+        {
+          name: 'authority';
+          isMut: true;
+          isSigner: true;
+        },
+        {
+          name: 'instance';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'registeredNtt';
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: 'systemProgram';
+          isMut: false;
+          isSigner: false;
+        },
+      ];
+      args: [
+        {
+          name: 'args';
+          type: {
+            defined: 'RegisterNttArgs';
+          };
+        },
+      ];
+    },
+    {
+      name: 'deregisterNtt';
+      accounts: [
+        {
+          name: 'authority';
+          isMut: true;
+          isSigner: true;
+        },
+        {
+          name: 'instance';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'registeredNtt';
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: 'systemProgram';
+          isMut: false;
+          isSigner: false;
+        },
+      ];
+      args: [
+        {
+          name: 'args';
+          type: {
+            defined: 'DeregisterNttArgs';
+          };
+        },
+      ];
+    },
+    {
       name: 'updateSolPrice';
       accounts: [
         {
@@ -197,7 +269,7 @@ export type NttQuoter = {
         },
         {
           name: 'instance';
-          isMut: false;
+          isMut: true;
           isSigner: false;
         },
       ];
@@ -321,6 +393,26 @@ export type NttQuoter = {
       };
     },
     {
+      name: 'registeredNtt';
+      type: {
+        kind: 'struct';
+        fields: [
+          {
+            name: 'bump';
+            type: 'u8';
+          },
+          {
+            name: 'wormholeTransceiverIndex';
+            type: 'u8';
+          },
+          {
+            name: 'gasCost';
+            type: 'u32';
+          },
+        ];
+      };
+    },
+    {
       name: 'relayRequest';
       type: {
         kind: 'struct';
@@ -342,6 +434,38 @@ export type NttQuoter = {
           {
             name: 'chainId';
             type: 'u16';
+          },
+        ];
+      };
+    },
+    {
+      name: 'RegisterNttArgs';
+      type: {
+        kind: 'struct';
+        fields: [
+          {
+            name: 'nttProgramId';
+            type: 'publicKey';
+          },
+          {
+            name: 'wormholeTransceiverIndex';
+            type: 'u8';
+          },
+          {
+            name: 'gasCost';
+            type: 'u32';
+          },
+        ];
+      };
+    },
+    {
+      name: 'DeregisterNttArgs';
+      type: {
+        kind: 'struct';
+        fields: [
+          {
+            name: 'nttProgramId';
+            type: 'publicKey';
           },
         ];
       };
@@ -429,6 +553,21 @@ export type NttQuoter = {
       msg: 'Relaying to the specified chain is disabled';
     },
     {
+      code: 6005;
+      name: 'OutboxItemNotReleased';
+      msg: 'Relaying to the specified chain is disabled';
+    },
+    {
+      code: 6006;
+      name: 'ScalingOverflow';
+      msg: 'Scaled value exceeds u64::MAX';
+    },
+    {
+      code: 6007;
+      name: 'DivByZero';
+      msg: 'Cannot divide by zero';
+    },
+    {
       code: 6257;
       name: 'FeeRecipientCannotBeDefault';
       msg: 'The fee recipient cannot be the default address (0x0)';
@@ -438,11 +577,16 @@ export type NttQuoter = {
       name: 'NotAuthorized';
       msg: 'Must be owner or assistant';
     },
+    {
+      code: 6259;
+      name: 'PriceCannotBeZero';
+      msg: 'The price cannot be zero';
+    },
   ];
 };
 
 export const IDL: NttQuoter = {
-  version: '0.1.0',
+  version: '1.0.0',
   name: 'ntt_quoter',
   instructions: [
     {
@@ -464,9 +608,15 @@ export const IDL: NttQuoter = {
           isSigner: false,
         },
         {
+          name: 'registeredNtt',
+          isMut: false,
+          isSigner: false,
+        },
+        {
           name: 'outboxItem',
           isMut: false,
           isSigner: false,
+          docs: ['and checking the release constraint into a single function'],
         },
         {
           name: 'relayRequest',
@@ -631,6 +781,72 @@ export const IDL: NttQuoter = {
       ],
     },
     {
+      name: 'registerNtt',
+      accounts: [
+        {
+          name: 'authority',
+          isMut: true,
+          isSigner: true,
+        },
+        {
+          name: 'instance',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'registeredNtt',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'systemProgram',
+          isMut: false,
+          isSigner: false,
+        },
+      ],
+      args: [
+        {
+          name: 'args',
+          type: {
+            defined: 'RegisterNttArgs',
+          },
+        },
+      ],
+    },
+    {
+      name: 'deregisterNtt',
+      accounts: [
+        {
+          name: 'authority',
+          isMut: true,
+          isSigner: true,
+        },
+        {
+          name: 'instance',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'registeredNtt',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'systemProgram',
+          isMut: false,
+          isSigner: false,
+        },
+      ],
+      args: [
+        {
+          name: 'args',
+          type: {
+            defined: 'DeregisterNttArgs',
+          },
+        },
+      ],
+    },
+    {
       name: 'updateSolPrice',
       accounts: [
         {
@@ -640,7 +856,7 @@ export const IDL: NttQuoter = {
         },
         {
           name: 'instance',
-          isMut: false,
+          isMut: true,
           isSigner: false,
         },
       ],
@@ -764,6 +980,26 @@ export const IDL: NttQuoter = {
       },
     },
     {
+      name: 'registeredNtt',
+      type: {
+        kind: 'struct',
+        fields: [
+          {
+            name: 'bump',
+            type: 'u8',
+          },
+          {
+            name: 'wormholeTransceiverIndex',
+            type: 'u8',
+          },
+          {
+            name: 'gasCost',
+            type: 'u32',
+          },
+        ],
+      },
+    },
+    {
       name: 'relayRequest',
       type: {
         kind: 'struct',
@@ -785,6 +1021,38 @@ export const IDL: NttQuoter = {
           {
             name: 'chainId',
             type: 'u16',
+          },
+        ],
+      },
+    },
+    {
+      name: 'RegisterNttArgs',
+      type: {
+        kind: 'struct',
+        fields: [
+          {
+            name: 'nttProgramId',
+            type: 'publicKey',
+          },
+          {
+            name: 'wormholeTransceiverIndex',
+            type: 'u8',
+          },
+          {
+            name: 'gasCost',
+            type: 'u32',
+          },
+        ],
+      },
+    },
+    {
+      name: 'DeregisterNttArgs',
+      type: {
+        kind: 'struct',
+        fields: [
+          {
+            name: 'nttProgramId',
+            type: 'publicKey',
           },
         ],
       },
@@ -872,6 +1140,21 @@ export const IDL: NttQuoter = {
       msg: 'Relaying to the specified chain is disabled',
     },
     {
+      code: 6005,
+      name: 'OutboxItemNotReleased',
+      msg: 'Relaying to the specified chain is disabled',
+    },
+    {
+      code: 6006,
+      name: 'ScalingOverflow',
+      msg: 'Scaled value exceeds u64::MAX',
+    },
+    {
+      code: 6007,
+      name: 'DivByZero',
+      msg: 'Cannot divide by zero',
+    },
+    {
       code: 6257,
       name: 'FeeRecipientCannotBeDefault',
       msg: 'The fee recipient cannot be the default address (0x0)',
@@ -880,6 +1163,11 @@ export const IDL: NttQuoter = {
       code: 6258,
       name: 'NotAuthorized',
       msg: 'Must be owner or assistant',
+    },
+    {
+      code: 6259,
+      name: 'PriceCannotBeZero',
+      msg: 'The price cannot be zero',
     },
   ],
 };
