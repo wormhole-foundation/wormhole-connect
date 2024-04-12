@@ -84,7 +84,7 @@ export class NttManagerSolana {
     toChain: ChainName | ChainId,
     shouldSkipRelayerSend: boolean,
   ): Promise<string> {
-    await this.checkAbi();
+    await this.checkAbi(sender);
     const config = await this.getConfig();
     const outboxItem = Keypair.generate();
     const destContext = CONFIG.wh.getContext(toChain);
@@ -160,7 +160,6 @@ export class NttManagerSolana {
   }
 
   async receiveMessage(vaa: string, payer: string): Promise<string> {
-    await this.checkAbi();
     const core = CONFIG.wh.mustGetContracts('solana').core;
     if (!core) throw new Error('Core not found');
     const config = await this.getConfig();
@@ -317,7 +316,6 @@ export class NttManagerSolana {
     recipientAddress: string,
     payer: string,
   ): Promise<string> {
-    await this.checkAbi();
     const payerPublicKey = new PublicKey(payer);
     const releaseArgs = {
       payer: payerPublicKey,
@@ -840,10 +838,10 @@ export class NttManagerSolana {
     }
   }
 
-  async checkAbi(): Promise<void> {
+  async checkAbi(pubkey: string): Promise<void> {
     let abiVersion = NttManagerSolana.abiVersionCache.get(this.nttId);
     if (!abiVersion) {
-      abiVersion = await this.version(new PublicKey(this.nttId));
+      abiVersion = await this.version(new PublicKey(pubkey));
       NttManagerSolana.abiVersionCache.set(this.nttId, abiVersion);
     }
     if (abiVersion !== '1.0.0') {
