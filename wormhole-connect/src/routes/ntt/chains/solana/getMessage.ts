@@ -2,7 +2,7 @@ import { solanaContext } from 'utils/sdk';
 import { PostedMessageData } from '@certusone/wormhole-sdk/lib/esm/solana/wormhole';
 import { hexlify } from 'ethers/lib/utils';
 import { NttRelayingType, UnsignedNttMessage } from 'routes/types';
-import { getTokenById, getTokenDecimals } from 'utils';
+import { getTokenById } from 'utils';
 import config from 'config';
 import { deserializePayload, Ntt } from '@wormhole-foundation/sdk-definitions';
 import { toChainId } from '@wormhole-foundation/sdk-base';
@@ -101,7 +101,7 @@ export const getMessageSolana = async (
     tokenChain: token.nativeChain,
     tokenId,
     tokenKey: token.key,
-    tokenDecimals: getTokenDecimals(config.wh.toChainId(fromChain), tokenId),
+    tokenDecimals: nttManagerMessage.payload.trimmedAmount.decimals,
     receivedTokenKey,
     emitterAddress: hexlify(
       context.formatAddress(messageData.message.emitterAddress),

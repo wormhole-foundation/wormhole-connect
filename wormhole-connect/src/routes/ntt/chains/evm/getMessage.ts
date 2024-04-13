@@ -8,7 +8,7 @@ import {
 import { ethers } from 'ethers';
 import { hexlify } from 'ethers/lib/utils';
 import { NttRelayingType, UnsignedNttMessage } from 'routes/types';
-import { getTokenById, getTokenDecimals } from 'utils';
+import { getTokenById } from 'utils';
 import { getWormholeLogEvm } from 'utils/vaa';
 import config from 'config';
 import { toChainName } from 'utils/sdk';
@@ -109,7 +109,7 @@ export const getMessageEvm = async (
     tokenChain: token.nativeChain,
     tokenId,
     tokenKey: token.key,
-    tokenDecimals: getTokenDecimals(config.wh.toChainId(fromChain), tokenId),
+    tokenDecimals: nttManagerMessage.payload.trimmedAmount.decimals,
     receivedTokenKey,
     emitterAddress: hexlify(
       config.wh.formatAddress(parsedWormholeLog.args.sender, fromChain),
