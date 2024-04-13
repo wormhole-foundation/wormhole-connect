@@ -3,6 +3,7 @@ import {
   ChainId,
   ChainName,
   TokenId,
+  InsufficientFundsForGasError,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { InboundQueuedTransfer } from '../../types';
 import { solanaContext, toChainId, toChainName } from 'utils/sdk';
@@ -42,7 +43,6 @@ import { hexlify } from 'ethers/lib/utils';
 import { getNttManagerConfigByAddress } from 'utils/ntt';
 import { UnsupportedContractAbiVersion } from 'routes/ntt/errors';
 
-// TODO: make sure this is in sync with the contract
 const RATE_LIMIT_DURATION = 24 * 60 * 60;
 
 type Config = IdlAccounts<ExampleNativeTokenTransfers>['config'];
@@ -282,9 +282,6 @@ export class NttManagerSolana {
   }
 
   async getRateLimitDuration(): Promise<number> {
-    // TODO: how will solana implement this?
-    // const config = await this.getConfig();
-    // return config.rateLimitDuration.toNumber();
     return RATE_LIMIT_DURATION;
   }
 
@@ -790,6 +787,10 @@ export class NttManagerSolana {
     // simulation checks if the account has enough money to pay for the transaction).
     //
     // It's a little unfortunate but it's the best we can do.
+    const balance = await this.connection.getBalance(pubkey);
+    if (balance === 0) {
+      throw new InsufficientFundsForGasError();
+    }
     const ix = await this.program.methods
       .version()
       .accountsStrict({})

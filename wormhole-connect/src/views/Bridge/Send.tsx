@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import {
   Context,
   INSUFFICIENT_ALLOWANCE,
+  InsufficientFundsForGasError,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { makeStyles } from 'tss-react/mui';
 
@@ -174,6 +175,8 @@ function Send(props: { valid: boolean }) {
           ? e.message
           : e?.message === UnsupportedContractAbiVersion.MESSAGE
           ? 'Unsupported contract ABI version'
+          : e?.message === InsufficientFundsForGasError.MESSAGE
+          ? InsufficientFundsForGasError.MESSAGE
           : 'Error with transfer, please try again',
       );
     }
