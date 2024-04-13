@@ -11,3 +11,10 @@ export class TokenNotRegisteredError extends Error {
     super(TokenNotRegisteredError.MESSAGE);
   }
 }
+
+export class InsufficientFundsForGasError extends Error {
+  static MESSAGE = 'Insufficient funds for gas';
+  constructor() {
+    super(InsufficientFundsForGasError.MESSAGE);
+  }
+}
