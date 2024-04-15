@@ -37,7 +37,7 @@ import { ETHBridge } from './porticoBridge/ethBridge';
 import { wstETHBridge } from './porticoBridge/wstETHBridge';
 import { TokenPrices } from 'store/tokenPrices';
 import { NttManual, NttRelay } from './ntt';
-import { getMessageEvm } from './ntt/chains/evm';
+import { getMessageEvm, TRANSFER_SENT_EVENT_TOPIC } from './ntt/chains/evm';
 import { getMessageSolana } from './ntt/chains/solana';
 import { getNttManagerConfigByAddress } from 'utils/ntt';
 
@@ -111,7 +111,7 @@ export class Operator {
 
       // Check if is Ntt Route (NttRelay or NttManual)
       if (
-        getNttManagerConfigByAddress(receipt.to, config.wh.toChainName(chain))
+        receipt.logs.some((log) => log.topics[0] === TRANSFER_SENT_EVENT_TOPIC)
       ) {
         const { relayingType } = await getMessageEvm(txHash, chain, receipt);
         return relayingType === NttRelayingType.Manual
