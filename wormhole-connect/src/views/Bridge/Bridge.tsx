@@ -163,11 +163,13 @@ function Bridge() {
         fromChain,
         toChain,
       );
-      // If any of the tokens are native to the chain, only select those.
-      // This is to avoid users inadvertently receiving wrapped versions of the token.
-      const nativeTokens = supported.filter((t) => t.nativeChain === toChain);
-      if (nativeTokens.length > 0) {
-        supported = nativeTokens;
+      if (token) {
+        // If any of the tokens are native to the chain, only select those.
+        // This is to avoid users inadvertently receiving wrapped versions of the token.
+        const nativeTokens = supported.filter((t) => t.nativeChain === toChain);
+        if (nativeTokens.length > 0) {
+          supported = nativeTokens;
+        }
       }
       dispatch(setSupportedDestTokens(supported));
       const allSupported = await RouteOperator.allSupportedDestTokens(
