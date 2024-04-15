@@ -136,12 +136,13 @@ export class NttManagerSolana {
       );
       if (!nttConfig || !nttConfig.solanaQuoter) throw new Error('no quoter');
       const quoter = new NttQuoter(nttConfig.solanaQuoter);
-      const fee = await quoter.calcRelayCost(toChain);
+      const fee = await quoter.calcRelayCost(toChain, nttConfig.address);
       const relayIx = await quoter.createRequestRelayInstruction(
         payer,
         outboxItem.publicKey,
         toChain,
         fee,
+        nttConfig.address,
       );
       tx.add(relayIx);
     }
@@ -160,6 +161,7 @@ export class NttManagerSolana {
   }
 
   async receiveMessage(vaa: string, payer: string): Promise<string> {
+    await this.checkAbi(payer);
     const core = CONFIG.wh.mustGetContracts('solana').core;
     if (!core) throw new Error('Core not found');
     const config = await this.getConfig();
@@ -313,6 +315,7 @@ export class NttManagerSolana {
     recipientAddress: string,
     payer: string,
   ): Promise<string> {
+    await this.checkAbi(payer);
     const payerPublicKey = new PublicKey(payer);
     const releaseArgs = {
       payer: payerPublicKey,
