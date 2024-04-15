@@ -61,10 +61,14 @@ export class NttQuoter {
   }
 
   // calculates the relay cost in lamports
-  async calcRelayCost(chain: ChainName | ChainId, requestedGasDropoffEth = 0) {
+  async calcRelayCost(
+    chain: ChainName | ChainId,
+    nttProgramId: string,
+    requestedGasDropoffEth = 0,
+  ) {
     const [chainData, nttData, instanceData, rentCost] = await Promise.all([
       this.getRegisteredChain(chain),
-      this.getRegisteredNtt(this.program.programId),
+      this.getRegisteredNtt(new PublicKey(nttProgramId)),
       this.getInstance(),
       this.program.provider.connection.getMinimumBalanceForRentExemption(
         this.program.account.relayRequest.size,
@@ -96,6 +100,7 @@ export class NttQuoter {
     outboxItem: PublicKey,
     chain: ChainName | ChainId,
     maxFee: BN,
+    nttProgramId: string,
   ) {
     return this.program.methods
       .requestRelay({
@@ -106,6 +111,7 @@ export class NttQuoter {
         payer,
         instance: this.instance,
         registeredChain: this.registeredChainPda(toChainId(chain)),
+        registeredNtt: this.registeredNttPda(new PublicKey(nttProgramId)),
         outboxItem,
         relayRequest: this.relayRequestPda(outboxItem),
         systemProgram: SystemProgram.programId,
