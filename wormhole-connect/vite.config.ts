@@ -1,7 +1,7 @@
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react-swc';
 import checker from 'vite-plugin-checker';
-import { nodePolyfills } from 'vite-plugin-node-polyfills';
+import { nodePolyfills } from '@artursapek/vite-plugin-node-polyfills';
 import dts from 'vite-plugin-dts';
 import path from 'path';
 
@@ -37,6 +37,8 @@ const resolve = {
     hooks: path.resolve(__dirname, './src/hooks'),
     consts: path.resolve(__dirname, './src/consts'),
     public: path.resolve(__dirname, './public'),
+    'process/': 'process',
+    'buffer/': 'buffer',
   },
 };
 
@@ -60,6 +62,7 @@ const plugins = [
       'zlib',
     ],
     globals: {
+      global: true,
       Buffer: true,
     },
   }),
