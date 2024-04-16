@@ -36,7 +36,7 @@
     "@xlabs-libs/wallet-aggregator-core": "^0.0.1-alpha.18",
     "@xlabs-libs/wallet-aggregator-cosmos": "^0.0.1-alpha.14",
     "@xlabs-libs/wallet-aggregator-cosmos-evm": "^0.0.1-alpha.6",
-    "@xlabs-libs/wallet-aggregator-evm": "^0.0.1-alpha.37",
+    "@xlabs-libs/wallet-aggregator-evm": "^0.0.1-alpha.38",
     "@xlabs-libs/wallet-aggregator-sei": "^0.0.1-alpha.14",
     "@xlabs-libs/wallet-aggregator-solana": "^0.0.1-alpha.15",
     "@xlabs-libs/wallet-aggregator-sui": "^0.0.1-alpha.10",
