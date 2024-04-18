@@ -7,13 +7,24 @@ interface Props {
   onCustomConfigChange: (config: WormholeConnectConfig | undefined) => void;
 }
 
+const loadInitialConfig = (): string => {
+  const params = new URLSearchParams(window.location.search);
+  const configQuery = params.get('config');
+  const configCached = localStorage.getItem(LOCAL_STORAGE_KEY);
+  return configQuery || configCached || '';
+};
+
+const setUrlQueryParam = (configInput: string) => {
+  const url = new URL(window.location.toString());
+  url.searchParams.set('config', configInput);
+  history.replaceState({}, '', url.toString());
+};
+
 const LOCAL_STORAGE_KEY = 'wormhole-connect:demo:custom-config';
 
 export default function DemoAppHeader(props: Props) {
   let [customConfigOpen, setCustomConfigOpen] = useState(false);
-  let [customConfigInput, setCustomConfigInput] = useState(
-    localStorage.getItem(LOCAL_STORAGE_KEY) ?? '',
-  );
+  let [customConfigInput, setCustomConfigInput] = useState(loadInitialConfig());
 
   const updateCustomConfig = (e: any) => {
     const input = e.target.value;
@@ -22,6 +33,8 @@ export default function DemoAppHeader(props: Props) {
 
   const emitCustomConfig = () => {
     localStorage.setItem(LOCAL_STORAGE_KEY, customConfigInput);
+    setUrlQueryParam(customConfigInput);
+
     try {
       const parsed = eval(`(function() {
         return ${customConfigInput};
