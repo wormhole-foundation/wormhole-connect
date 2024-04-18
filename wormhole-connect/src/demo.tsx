@@ -10,7 +10,6 @@ export * from './theme';
 // This is the demo app used for local development
 
 function DemoApp() {
-  const [showConnect, setShowConnect] = useState<boolean>(true);
   const [customConfig, setCustomConfig] = useState<
     WormholeConnectConfig | undefined
   >(undefined);
@@ -19,10 +18,8 @@ function DemoApp() {
   const updateCustomConfig = async (
     config: WormholeConnectConfig | undefined,
   ) => {
-    setShowConnect(false);
     setCustomConfig(config);
     setCustomConfigNonce(customConfigNonce + 1);
-    setShowConnect(true);
   };
 
   return (
@@ -32,9 +29,7 @@ function DemoApp() {
           updateCustomConfig(config);
         }}
       />
-      {showConnect ? (
-        <WormholeConnect key={customConfigNonce} config={customConfig ?? {}} />
-      ) : null}
+      <WormholeConnect key={customConfigNonce} config={customConfig ?? {}} />
     </>
   );
 }
