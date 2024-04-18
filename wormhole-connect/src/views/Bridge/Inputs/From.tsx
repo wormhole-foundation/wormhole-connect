@@ -60,7 +60,7 @@ function FromInputs() {
   );
 
   const selectChain = async (chain: ChainName) => {
-    selectFromChain(dispatch, chain, wallet);
+    await selectFromChain(dispatch, chain, wallet);
   };
 
   const selectToken = (token: string) => {

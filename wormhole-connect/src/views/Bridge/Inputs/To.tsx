@@ -57,7 +57,7 @@ function ToInputs() {
   );
 
   const selectChain = async (chain: ChainName) => {
-    selectToChain(dispatch, chain, receiving);
+    await selectToChain(dispatch, chain, receiving);
   };
 
   // token display jsx

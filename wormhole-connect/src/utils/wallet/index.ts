@@ -13,11 +13,20 @@ import {
   Wallet,
   WalletState,
 } from '@xlabs-libs/wallet-aggregator-core';
+import {
+  connectReceivingWallet,
+  connectWallet as connectSourceWallet,
+  clearWallet,
+} from 'store/wallet';
 
 import config from 'config';
 import { getChainByChainId } from 'utils';
 
+import { RootState } from 'store';
 import { AssetInfo } from './evm';
+import { Dispatch } from 'redux';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
 export enum TransferWallet {
   SENDING = 'sending',
@@ -42,6 +51,92 @@ export const walletAcceptedChains = (
 
 export const setWalletConnection = (type: TransferWallet, wallet: Wallet) => {
   walletConnection[type] = wallet;
+};
+
+export const connectWallet = async (
+  type: TransferWallet,
+  chain: ChainName,
+  walletInfo: WalletData,
+  dispatch: Dispatch<any>,
+) => {
+  const { wallet, name } = walletInfo;
+
+  setWalletConnection(type, wallet);
+
+  const chainConfig = config.chains[chain];
+  if (!chainConfig) {
+    throw new Error(`Unable to find wallets for chain ${chain}`);
+  }
+
+  const { chainId, context } = chainConfig;
+  await wallet.connect({ chainId });
+  const address = wallet.getAddress()!;
+  const payload = {
+    address,
+    type: walletInfo.type,
+    icon: wallet.getIcon(),
+    name: wallet.getName(),
+  };
+
+  if (type === TransferWallet.SENDING) {
+    dispatch(connectSourceWallet(payload));
+  } else {
+    dispatch(connectReceivingWallet(payload));
+  }
+
+  // clear wallet when the user manually disconnects from outside the app
+  wallet.on('disconnect', () => {
+    wallet.removeAllListeners();
+    dispatch(clearWallet(type));
+  });
+
+  // when the user has multiple wallets connected and either changes
+  // or disconnects the current wallet, clear the wallet
+  wallet.on('accountsChanged', (accs: string[]) => {
+    // disconnect only if there are no accounts, or if the new account is different from the current
+    const shouldDisconnect =
+      accs.length === 0 || (accs.length && address && accs[0] !== address);
+
+    if (shouldDisconnect) {
+      wallet.disconnect();
+    }
+  });
+
+  localStorage.setItem(`wormhole-connect:wallet:${context}`, name);
+};
+
+// Checks localStorage for previously used wallet for this chain
+// and connects to it automatically if it exists.
+export const connectLastUsedWallet = async (
+  type: TransferWallet,
+  chain: ChainName,
+  dispatch: Dispatch<any>,
+) => {
+  const chainConfig = config.chains[chain!]!;
+  const lastUsedWallet = localStorage.getItem(
+    `wormhole-connect:wallet:${chainConfig.context}`,
+  );
+  if (lastUsedWallet) {
+    const options = await getWalletOptions(chainConfig);
+    const wallet = options.find((w) => w.name === lastUsedWallet);
+    if (wallet) {
+      await connectWallet(type, chain, wallet, dispatch);
+    }
+  }
+};
+
+export const useConnectToLastUsedWallet = (): void => {
+  const dispatch = useDispatch();
+  const { toChain, fromChain } = useSelector(
+    (state: RootState) => state.transferInput,
+  );
+
+  useEffect(() => {
+    if (fromChain)
+      connectLastUsedWallet(TransferWallet.SENDING, fromChain, dispatch);
+    if (toChain)
+      connectLastUsedWallet(TransferWallet.RECEIVING, toChain, dispatch);
+  }, [fromChain, toChain]);
 };
 
 export const getWalletConnection = (type: TransferWallet) => {

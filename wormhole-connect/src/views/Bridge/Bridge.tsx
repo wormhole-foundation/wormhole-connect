@@ -49,6 +49,7 @@ import { usePorticoRelayerFee } from 'hooks/usePorticoRelayerFee';
 import { useFetchTokenPrices } from 'hooks/useFetchTokenPrices';
 import NttInboundCapacityWarning from './NttInboundCapacityWarning';
 import { isNttRoute } from 'routes/utils';
+import { useConnectToLastUsedWallet } from 'utils/wallet';
 
 const useStyles = makeStyles()((_theme) => ({
   spacer: {
@@ -270,6 +271,7 @@ function Bridge() {
   usePorticoSwapInfo();
   usePorticoRelayerFee();
   useFetchTokenPrices();
+  useConnectToLastUsedWallet();
 
   // validate transfer inputs
   useValidate();
