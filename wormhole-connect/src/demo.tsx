@@ -10,11 +10,11 @@ export * from './theme';
 // This is the demo app used for local development
 
 function DemoApp() {
-  let [showConnect, setShowConnect] = useState<boolean>(true);
-  let [customConfig, setCustomConfig] = useState<
+  const [showConnect, setShowConnect] = useState<boolean>(true);
+  const [customConfig, setCustomConfig] = useState<
     WormholeConnectConfig | undefined
   >(undefined);
-  let [customConfigNonce, setCustomConfigNonce] = useState(1);
+  const [customConfigNonce, setCustomConfigNonce] = useState(1);
 
   const updateCustomConfig = async (
     config: WormholeConnectConfig | undefined,
