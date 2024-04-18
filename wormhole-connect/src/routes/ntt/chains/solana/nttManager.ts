@@ -809,7 +809,7 @@ export class NttManagerSolana {
     // The default pubkey is a mainnet and devnet funded account
     // that can be used when simulating transactions
     const pubkey = new PublicKey(
-      'CHaW6yNSbYdAvxhRiEy7Wa6g7JLJQBYZxudadXTNqWX8',
+      'Hk3SdYTJFpawrvRz4qRztuEt2SqoCG7BGj2yJfDJSFbJ',
     );
     const msg = new TransactionMessage({
       payerKey: pubkey,
