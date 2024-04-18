@@ -1,0 +1,43 @@
+header {
+  font-family: sans-serif;
+  border-bottom: 1px solid #444;
+}
+
+header > div {
+  padding: 5px;
+  display: flex;
+}
+
+header h1 {
+  font-size: 18px;
+  flex-grow: 1;
+  margin: 0;
+  font-weight: normal;
+}
+
+#custom-config-toggle {
+  color: white;
+  align-self: end;
+  text-decoration: none;
+}
+
+#custom-config-toggle:hover {
+  text-decoration: underline;
+}
+
+#custom-config {
+  margin-top: 20px;
+  flex-direction: column;
+  padding: 5px;
+}
+
+#custom-config textarea {
+  background: black;
+  border: 1px solid #444;
+  min-height: 200px;
+  color: white;
+}
+
+.custom-config-bubble {
+  color: #1f75fe;
+}
