@@ -5,7 +5,6 @@ import WormholeConnect from './WormholeConnect';
 import ErrorBoundary from './components/ErrorBoundary';
 import DemoAppHeader from './components/DemoAppHeader';
 import { WormholeConnectConfig } from 'config/types';
-import { sleep } from 'utils';
 export * from './theme';
 
 // This is the demo app used for local development
@@ -21,10 +20,8 @@ function DemoApp() {
     config: WormholeConnectConfig | undefined,
   ) => {
     setShowConnect(false);
-    await sleep(10);
     setCustomConfig(config);
     setCustomConfigNonce(customConfigNonce + 1);
-    await sleep(10);
     setShowConnect(true);
   };
 
