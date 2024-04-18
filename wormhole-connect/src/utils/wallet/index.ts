@@ -63,9 +63,9 @@ export const connectWallet = async (
 
   setWalletConnection(type, wallet);
 
-  const chainConfig = config.chains[chain]!;
+  const chainConfig = config.chains[chain];
   if (!chainConfig) {
-    throw new Error('');
+    throw new Error(`Unable to find wallets for chain ${chain}`);
   }
 
   const { chainId, context } = chainConfig;
