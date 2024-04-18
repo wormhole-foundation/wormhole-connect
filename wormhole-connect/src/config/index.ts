@@ -56,6 +56,10 @@ export function buildConfig(
 
   const wh = getWormholeContext(networkLegacy, sdkConfig, tokens, rpcs);
 
+  if (customConfig?.bridgeDefaults) {
+    validateDefaults(customConfig.bridgeDefaults, networkData.chains, tokens);
+  }
+
   return {
     wh,
     sdkConfig,
@@ -122,7 +126,7 @@ export function buildConfig(
       testnet:
         'https://wormhole-foundation.github.io/example-token-bridge-ui/#/register',
     }[network],
-    bridgeDefaults: validateDefaults(customConfig?.bridgeDefaults),
+    bridgeDefaults: customConfig?.bridgeDefaults,
     cctpWarning: customConfig?.cctpWarning?.href || '',
     pageHeader: customConfig?.pageHeader,
     pageSubHeader: customConfig?.pageSubHeader,
