@@ -158,7 +158,6 @@ export const validateDefaults = (
   if (fromChain) {
     const chain = chains[fromChain];
     if (!chain) {
-      debugger;
       error(
         `Invalid chain name "${fromChain}" specified for bridgeDefaults.fromNetwork`,
       );
@@ -167,7 +166,6 @@ export const validateDefaults = (
   if (toChain) {
     const chain = chains[toChain];
     if (!chain) {
-      debugger;
       error(
         `Invalid chain name "${toChain}" specified for bridgeDefaults.toNetwork`,
       );
