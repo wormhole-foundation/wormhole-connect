@@ -383,6 +383,26 @@ export const transferInputSlice = createSlice({
         chainBalances,
       );
     },
+    setBalance: (
+      state: TransferInputState,
+      {
+        payload,
+      }: PayloadAction<{
+        address: WalletAddress;
+        chain: ChainName;
+        token: string;
+        balance: string | null;
+      }>,
+    ) => {
+      const { chain, token, balance, address } = payload;
+      if (!address || !token) return;
+      state.balances[address] = state.balances[address] || {};
+      state.balances[address][chain] = state.balances[address][chain] || {
+        lastUpdated: undefined, // this only gets set in setBalances when all balances are updated
+        balances: {},
+      };
+      state.balances[address][chain]!.balances[token] = balance;
+    },
     setReceiverNativeBalance: (
       state: TransferInputState,
       { payload }: PayloadAction<string>,
@@ -547,6 +567,7 @@ export const {
   setSendingGasEst,
   setClaimGasEst,
   setBalances,
+  setBalance,
   clearTransfer,
   setIsTransactionInProgress,
   setReceiverNativeBalance,

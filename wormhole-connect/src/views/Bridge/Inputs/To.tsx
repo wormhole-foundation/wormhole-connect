@@ -4,7 +4,6 @@ import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 
 import { RootState } from 'store';
 import {
-  accessBalance,
   isDisabledChain,
   selectToChain,
   setDestToken,
@@ -20,6 +19,7 @@ import TokenWarnings from './TokenWarnings';
 import TokensModal from 'components/TokensModal';
 import ChainsModal from 'components/ChainsModal';
 import { isPorticoRoute } from 'routes/porticoBridge/utils';
+import useGetTokenBalance from 'hooks/useGetTokenBalance';
 
 function ToInputs() {
   const dispatch = useDispatch();
@@ -31,7 +31,6 @@ function ToInputs() {
     validations,
     fromChain,
     toChain,
-    balances,
     destToken,
     receiveAmount,
     route,
@@ -42,8 +41,7 @@ function ToInputs() {
     usdPrices: { data },
   } = useSelector((state: RootState) => state.tokenPrices);
   const prices = data || {};
-  const balance =
-    accessBalance(balances, receiving.address, toChain, destToken) || undefined;
+  const balance = useGetTokenBalance(receiving.address, toChain, destToken);
 
   const tokenConfig = config.tokens[destToken];
 
