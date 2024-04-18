@@ -22,14 +22,11 @@ function DemoApp() {
   ) => {
     setShowConnect(false);
     await sleep(10);
-    console.log(config);
     setCustomConfig(config);
     setCustomConfigNonce(customConfigNonce + 1);
     await sleep(10);
     setShowConnect(true);
   };
-
-  console.log(customConfig);
 
   return (
     <>
