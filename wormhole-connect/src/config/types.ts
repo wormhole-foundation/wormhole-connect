@@ -180,6 +180,7 @@ export interface InternalConfig {
 
   // NTT config
   nttGroups: NttGroups;
+  guardianSet: GuardianSetData;
 }
 
 export type ExplorerConfig = {
@@ -277,6 +278,11 @@ export type GasEstimates = {
 
 export type RpcMapping = { [chain in ChainName]?: string };
 
+export type GuardianSetData = {
+  index: number;
+  keys: string[];
+};
+
 export type NetworkData = {
   chains: ChainsConfig;
   tokens: TokensConfig;
@@ -285,6 +291,7 @@ export type NetworkData = {
   rest: RpcMapping;
   graphql: RpcMapping;
   nttGroups: NttGroups;
+  guardianSet: GuardianSetData;
 };
 
 export interface MenuEntry {

@@ -1,16 +1,11 @@
 import {
   parseVaa,
-  GuardianSignature,
   keccak256,
   type ParsedVaa,
+  type GuardianSignature,
 } from '@certusone/wormhole-sdk';
+import type { GuardianSetData } from 'config/types';
 import { ethers } from 'ethers';
-
-interface GuardianSetData {
-  index: number;
-  keys: string[];
-  expiry: number;
-}
 
 export const INVALID_VAA_MESSAGE = `There are not enough valid signatures to repair.`;
 

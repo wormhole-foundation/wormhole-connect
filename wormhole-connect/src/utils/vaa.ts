@@ -16,14 +16,13 @@ import {
   isEvmChain,
 } from './sdk';
 import { repairVaa } from './repairVaa';
-import { GUARDIAN_SET } from 'consts/guardianSet';
 
 function getOrRepairVaa(vaa: Uint8Array | string): Uint8Array {
   const vaaBytes = typeof vaa === 'string' ? utils.base64.decode(vaa) : vaa;
   const parsedVaa = parseVaa(vaaBytes);
-  if (parsedVaa.guardianSetIndex !== GUARDIAN_SET.index) {
+  if (parsedVaa.guardianSetIndex !== config.guardianSet.index) {
     console.debug('Guardian Set mismatch, repairing VAA');
-    const repairedVaaBytes = repairVaa(vaaBytes, GUARDIAN_SET, parsedVaa);
+    const repairedVaaBytes = repairVaa(vaaBytes, config.guardianSet, parsedVaa);
     return repairedVaaBytes;
   }
   return vaaBytes;
