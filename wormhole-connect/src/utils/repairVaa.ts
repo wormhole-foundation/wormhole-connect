@@ -2,13 +2,9 @@ import {
   parseVaa,
   GuardianSignature,
   keccak256,
-  hexToUint8Array,
+  type ParsedVaa,
 } from '@certusone/wormhole-sdk';
 import { ethers } from 'ethers';
-
-function hex(x: string): string {
-  return ethers.utils.hexlify(x, { allowMissingPrefix: true });
-}
 
 interface GuardianSetData {
   index: number;
@@ -17,6 +13,26 @@ interface GuardianSetData {
 }
 
 export const INVALID_VAA_MESSAGE = `There are not enough valid signatures to repair.`;
+
+/* self explained I hope, see https://docs.wormhole.com/wormhole/explore-wormhole/vaa#vaa-format */
+const SIGNATURE_SIZE_IN_BYTES = 66;
+
+const hex = (x: string): string =>
+  ethers.utils.hexlify(x, { allowMissingPrefix: true });
+
+/* self explained I hope */
+const compareIgoneCase = (a: string, b: string) =>
+  a.toLowerCase() === b.toLowerCase();
+
+/**
+ * Convert an given number to a Uint8Array representation
+ *
+ * @param num number to convert to bytes
+ * @param size Uint8Array size
+ * @returns an Uint8Array representation of the number with the specified size
+ */
+const numToBytes = (num: number, size: number): Uint8Array =>
+  Buffer.from(num.toString(16).padStart(2 * size, '0'), 'hex');
 
 /**
  *
@@ -29,64 +45,66 @@ export const INVALID_VAA_MESSAGE = `There are not enough valid signatures to rep
  * NOTE: copied since original function does not normalize the public keys
  **/
 export function repairVaa(
-  vaaHex: string,
+  vaaBytes: Uint8Array,
   guardianSetData: GuardianSetData,
-): string {
-  const guardianSetIndex = guardianSetData.index;
-  const currentGuardianSet = guardianSetData.keys;
+  parsedVaa: ParsedVaa = parseVaa(vaaBytes),
+): Uint8Array {
+  const { index: guardianSetIndex, keys: currentGuardianSet } = guardianSetData;
   const minNumSignatures =
     Math.floor((2.0 * currentGuardianSet.length) / 3.0) + 1;
-  const version = vaaHex.slice(0, 2);
-  const parsedVaa = parseVaa(hexToUint8Array(vaaHex));
-  const numSignatures = parsedVaa.guardianSignatures.length;
-  const digest = keccak256(parsedVaa.hash).toString('hex');
-
-  const validSignatures: GuardianSignature[] = [];
+  const {
+    guardianSignatures: currentGuardianSignatures,
+    hash: vaaHash,
+    version,
+  } = parsedVaa;
+  const digest = keccak256(vaaHash).toString('hex');
 
   // take each signature, check if valid against hash & current guardian set
-  parsedVaa.guardianSignatures.forEach((signature) => {
-    try {
-      const vaaGuardianPublicKey = ethers.utils.recoverAddress(
-        hex(digest),
-        hex(signature.signature.toString('hex')),
-      );
-      const currentIndex = signature.index;
-      const currentGuardianPublicKey = currentGuardianSet[currentIndex];
-
-      if (
-        currentGuardianPublicKey.toLowerCase() ===
-        vaaGuardianPublicKey.toLowerCase()
-      ) {
-        validSignatures.push(signature);
+  const validSignatures: GuardianSignature[] = currentGuardianSignatures.filter(
+    ({ index, signature }) => {
+      try {
+        const vaaGuardianPublicKey = ethers.utils.recoverAddress(
+          hex(digest),
+          hex(signature.toString('hex')),
+        );
+        return compareIgoneCase(
+          currentGuardianSet[index],
+          vaaGuardianPublicKey,
+        );
+      } catch (_) {
+        /* empty */
       }
-    } catch (_) {
-      /* empty */
-    }
-  });
+    },
+  );
 
   // re-construct vaa with signatures that remain
   const numRepairedSignatures = validSignatures.length;
   if (numRepairedSignatures < minNumSignatures) {
     throw new Error(INVALID_VAA_MESSAGE);
   }
-  const repairedSignatures = validSignatures
-    .sort(function (a, b) {
-      return a.index - b.index;
-    })
-    .map((signature) => {
-      return `${signature.index
-        .toString(16)
-        .padStart(2, '0')}${signature.signature.toString('hex')}`;
-    })
-    .join('');
-  const newSignatureBody = `${version}${guardianSetIndex
-    .toString(16)
-    .padStart(8, '0')}${numRepairedSignatures
-    .toString(16)
-    .padStart(2, '0')}${repairedSignatures}`;
 
-  const repairedVaa = `${newSignatureBody}${vaaHex.slice(
-    12 + numSignatures * 132,
-  )}`;
-  return repairedVaa;
+  const repairedSignatures: Uint8Array = validSignatures
+    // sort sinatures by ascending index
+    .sort((a, b) => a.index - b.index)
+    .map(({ signature, index }) =>
+      Buffer.concat([numToBytes(index, 1), signature]),
+    )
+    .reduce((acc, curr) => Buffer.concat([acc, curr]), new Uint8Array());
+
+  const versionBytes = numToBytes(version, 1);
+  const guardianSetIndexBytes = numToBytes(guardianSetIndex, 4);
+  const numRepairedSignaturesBytes = numToBytes(numRepairedSignatures, 1);
+  const vaaHeader = [
+    versionBytes,
+    guardianSetIndexBytes,
+    numRepairedSignaturesBytes,
+    repairedSignatures,
+  ].reduce((acc, curr) => Buffer.concat([acc, curr]), new Uint8Array());
+  const offset =
+    versionBytes.length + // 1 byte, using length to avoid magic numbers
+    guardianSetIndexBytes.length + // 4 byte, using length to avoid magic numbers
+    numRepairedSignaturesBytes.length + // 1 byte, using length to avoid magic numbers
+    currentGuardianSignatures.length * SIGNATURE_SIZE_IN_BYTES;
+  const vaaBody = vaaBytes.subarray(offset);
+  return Buffer.concat([vaaHeader, vaaBody]);
 }

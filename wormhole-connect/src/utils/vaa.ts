@@ -19,17 +19,14 @@ import { repairVaa } from './repairVaa';
 import { GUARDIAN_SET } from 'consts/guardianSet';
 
 function getOrRepairVaa(vaa: Uint8Array | string): Uint8Array {
-  const bytesVaa = typeof vaa === 'string' ? utils.base64.decode(vaa) : vaa;
-  const parsedVaa = parseVaa(bytesVaa);
+  const vaaBytes = typeof vaa === 'string' ? utils.base64.decode(vaa) : vaa;
+  const parsedVaa = parseVaa(vaaBytes);
   if (parsedVaa.guardianSetIndex !== GUARDIAN_SET.index) {
     console.debug('Guardian Set mismatch, repairing VAA');
-    const hexVaa = repairVaa(
-      Buffer.from(bytesVaa).toString('hex'),
-      GUARDIAN_SET,
-    );
-    return Buffer.from(hexVaa, 'hex');
+    const repairedVaaBytes = repairVaa(vaaBytes, GUARDIAN_SET, parsedVaa);
+    return repairedVaaBytes;
   }
-  return bytesVaa;
+  return vaaBytes;
 }
 
 export type ParsedVaa = {
