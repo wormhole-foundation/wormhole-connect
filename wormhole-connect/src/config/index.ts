@@ -143,6 +143,9 @@ export function buildConfig(
       networkData.nttGroups,
       customConfig?.nttGroups,
     ),
+
+    // Guardian Set
+    guardianSet: networkData.guardianSet,
   };
 }
 

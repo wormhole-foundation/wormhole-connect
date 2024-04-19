@@ -16,6 +16,7 @@ export interface RedeemState {
   redeemTx: string;
   transferComplete: boolean;
   isVaaEnqueued: boolean;
+  isInvalidVaa: boolean;
   route: Route | undefined;
   transferDestInfo: TransferDestInfo | undefined;
   deliveryStatus: DeliveryStatus | undefined;
@@ -28,6 +29,7 @@ const initialState: RedeemState = {
   redeemTx: '',
   transferComplete: false,
   isVaaEnqueued: false,
+  isInvalidVaa: false,
   route: undefined,
   transferDestInfo: undefined,
   deliveryStatus: undefined,
@@ -92,6 +94,12 @@ export const redeemSlice = createSlice({
     ) => {
       state.deliveryStatus = payload;
     },
+    setInvalidVaa: (
+      state: RedeemState,
+      { payload }: PayloadAction<boolean>,
+    ) => {
+      state.isInvalidVaa = payload;
+    },
   },
 });
 
@@ -101,6 +109,7 @@ export const {
   setRedeemTx,
   setTransferComplete,
   setIsVaaEnqueued,
+  setInvalidVaa,
   setTransferDestInfo,
   clearRedeem,
   setRoute,

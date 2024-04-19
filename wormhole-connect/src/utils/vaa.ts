@@ -1,4 +1,8 @@
-import { getSignedVAA, parseTokenTransferVaa } from '@certusone/wormhole-sdk';
+import {
+  getSignedVAA,
+  parseTokenTransferVaa,
+  parseVaa,
+} from '@certusone/wormhole-sdk';
 import { Implementation__factory } from '@certusone/wormhole-sdk/lib/esm/ethers-contracts';
 import { utils, providers, BigNumberish } from 'ethers';
 import axios from 'axios';
@@ -11,6 +15,18 @@ import {
   getCurrentBlock,
   isEvmChain,
 } from './sdk';
+import { repairVaa } from './repairVaa';
+
+function getOrRepairVaa(vaa: Uint8Array | string): Uint8Array {
+  const vaaBytes = typeof vaa === 'string' ? utils.base64.decode(vaa) : vaa;
+  const parsedVaa = parseVaa(vaaBytes);
+  if (parsedVaa.guardianSetIndex !== config.guardianSet.index) {
+    console.debug('Guardian Set mismatch, repairing VAA');
+    const repairedVaaBytes = repairVaa(vaaBytes, config.guardianSet, parsedVaa);
+    return repairedVaaBytes;
+  }
+  return vaaBytes;
+}
 
 export type ParsedVaa = {
   bytes: string;
@@ -141,7 +157,7 @@ export async function fetchVaaWormscan(
     .then(function (response: any) {
       if (!response.data.data) return;
       const data = response.data.data;
-      const vaa = utils.base64.decode(data.vaa);
+      const vaa = getOrRepairVaa(data.vaa);
       if (bytesOnly) return vaa;
       const parsed = parseTokenTransferVaa(vaa);
 
@@ -200,7 +216,7 @@ export async function fetchVaaGuardian(
         emitterAddress,
         sequence,
       );
-      vaa = vaaBytes;
+      vaa = getOrRepairVaa(vaaBytes);
       break;
     } catch (e) {
       console.warn(`Failed to fetch VAA from ${host}: ${e}`);

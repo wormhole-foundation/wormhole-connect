@@ -46,7 +46,9 @@ function Confirmations(props: Props) {
   const requiredHeight = blockHeight + chainConfig.finalityThreshold;
   const [currentBlock, setCurrentBlock] = useState(0);
 
-  const { route } = useSelector((state: RootState) => state.redeem);
+  const { route, isInvalidVaa } = useSelector(
+    (state: RootState) => state.redeem,
+  );
 
   useEffect(() => {
     if (chainConfig.finalityThreshold === 0) {
@@ -89,7 +91,21 @@ function Confirmations(props: Props) {
             {confirmations} / {chainConfig.finalityThreshold} Confirmations
           </>
         ) : route ? (
-          RoutesConfig[route].pendingMessage
+          isInvalidVaa ? (
+            <>
+              There are not enough valid signatures to repair the VAA <br />{' '}
+              Please reach out to Wormhole support on{' '}
+              <a
+                href="https://discord.com/invite/wormholecrypto"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Discord
+              </a>
+            </>
+          ) : (
+            RoutesConfig[route].pendingMessage
+          )
         ) : (
           ''
         )}

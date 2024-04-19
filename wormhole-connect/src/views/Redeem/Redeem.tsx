@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import { Route } from 'config/types';
 import { RootState } from 'store';
 import {
+  setInvalidVaa,
   setIsVaaEnqueued,
   setSignedMessage,
   setTransferComplete,
@@ -25,10 +26,12 @@ import useDeliveryStatus from 'hooks/useDeliveryStatus';
 import useCheckInboundQueuedTransfer from 'hooks/useCheckInboundQueuedTransfer';
 
 import useConfirmBeforeLeaving from 'utils/confirmBeforeLeaving';
+import { INVALID_VAA_MESSAGE } from 'utils/repairVaa';
 
 function Redeem({
   setSignedMessage,
   setIsVaaEnqueued,
+  setInvalidVaa,
   setTransferComplete,
   txData,
   transferComplete,
@@ -38,6 +41,7 @@ function Redeem({
 }: {
   setSignedMessage: (signed: SignedMessage) => any;
   setIsVaaEnqueued: (isVaaEnqueued: boolean) => any;
+  setInvalidVaa: (invalidVaa: boolean) => void;
   setTransferComplete: any;
   txData: ParsedMessage | ParsedRelayerMessage | undefined;
   transferComplete: boolean;
@@ -90,7 +94,12 @@ function Redeem({
       while (signed === undefined && !cancelled) {
         try {
           signed = await RouteOperator.getSignedMessage(route, txData);
-        } catch {
+        } catch (e: any) {
+          if (e?.message === INVALID_VAA_MESSAGE) {
+            console.error(e);
+            setInvalidVaa(true);
+            cancelled = true;
+          }
           signed = undefined;
         }
         if (cancelled) {
@@ -178,10 +187,23 @@ function Redeem({
 }
 
 function mapStateToProps(state: RootState) {
-  const { txData, transferComplete, isVaaEnqueued, route, signedMessage } =
-    state.redeem;
+  const {
+    txData,
+    transferComplete,
+    isVaaEnqueued,
+    isInvalidVaa,
+    route,
+    signedMessage,
+  } = state.redeem;
 
-  return { txData, transferComplete, isVaaEnqueued, route, signedMessage };
+  return {
+    txData,
+    transferComplete,
+    isVaaEnqueued,
+    isInvalidVaa,
+    route,
+    signedMessage,
+  };
 }
 
 const mapDispatchToProps = (dispatch: any) => {
@@ -190,6 +212,8 @@ const mapDispatchToProps = (dispatch: any) => {
       dispatch(setSignedMessage(signed)),
     setIsVaaEnqueued: (isVaaEnqueued: boolean) =>
       dispatch(setIsVaaEnqueued(isVaaEnqueued)),
+    setInvalidVaa: (isInvalidVaa: boolean) =>
+      dispatch(setInvalidVaa(isInvalidVaa)),
     setTransferComplete: () => dispatch(setTransferComplete(true)),
   };
 };

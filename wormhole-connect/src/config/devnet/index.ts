@@ -22,6 +22,10 @@ const DEVNET: NetworkData = {
   rest: DEVNET_REST_MAPPING,
   graphql: DEVNET_GRAPHQL_MAPPING,
   nttGroups: DEVNET_NTT_GROUPS,
+  guardianSet: {
+    index: 0,
+    keys: ['0x13947Bd48b18E53fdAeEe77F3473391aC727C638'],
+  },
 };
 
 export default DEVNET;
