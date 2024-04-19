@@ -1,8 +1,8 @@
-import { logs as cosmosLogs, IndexedTx } from '@cosmjs/stargate';
+import { IndexedTx, Event } from '@cosmjs/stargate';
 import {
   ChainId,
   ChainName,
-  searchCosmosLogs,
+  searchCosmosEvents,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { getCosmWasmClient } from '../utils';
 import { IBCTransferInfo } from '../types';
@@ -15,34 +15,33 @@ export function getTransactionIBCTransferInfo(
   tx: IndexedTx,
   event: 'send_packet' | 'write_acknowledgement' | 'acknowledge_packet',
 ): IBCTransferInfo {
-  const logs = cosmosLogs.parseRawLog(tx.rawLog);
-  return getIBCTransferInfoFromLogs(logs, event);
+  return getIBCTransferInfoFromEvents(tx.events, event);
 }
 
 /**
- * Search the ibc transfer info (sequence, timeout, src channel, dst channel, data) from an event
- * in the transaction logs
+ * Search the ibc transfer info (sequence, timeout, src channel, dst channel, data) in
+ * the transaction events array
  */
-export function getIBCTransferInfoFromLogs(
-  logs: readonly cosmosLogs.Log[],
+export function getIBCTransferInfoFromEvents(
+  events: readonly Event[],
   event: 'send_packet' | 'write_acknowledgement' | 'acknowledge_packet',
 ): IBCTransferInfo {
-  const packetSeq = searchCosmosLogs(`${event}.packet_sequence`, logs);
-  const packetTimeout = searchCosmosLogs(
+  const packetSeq = searchCosmosEvents(`${event}.packet_sequence`, events);
+  const packetTimeout = searchCosmosEvents(
     `${event}.packet_timeout_timestamp`,
-    logs,
+    events,
   );
-  const packetSrcChannel = searchCosmosLogs(
+  const packetSrcChannel = searchCosmosEvents(
     `${event}.packet_src_channel`,
-    logs,
+    events,
   );
-  const packetDstChannel = searchCosmosLogs(
+  const packetDstChannel = searchCosmosEvents(
     `${event}.packet_dst_channel`,
-    logs,
+    events,
   );
-  const packetData = searchCosmosLogs(`${event}.packet_data`, logs);
+  const packetData = searchCosmosEvents(`${event}.packet_data`, events);
   if (!packetSeq || !packetTimeout || !packetSrcChannel || !packetDstChannel) {
-    throw new Error('Missing packet information in transaction logs');
+    throw new Error('Missing packet information in transaction events');
   }
   return {
     sequence: packetSeq,

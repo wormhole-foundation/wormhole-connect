@@ -4,13 +4,13 @@ import {
   parseTokenTransferPayload,
 } from '@certusone/wormhole-sdk';
 import { decodeTxRaw } from '@cosmjs/proto-signing';
-import { logs as cosmosLogs } from '@cosmjs/stargate';
+import { Event } from '@cosmjs/stargate';
 import {
   ChainId,
   ChainName,
   CosmosContext,
   WormholeContext,
-  searchCosmosLogs,
+  searchCosmosEvents,
   ParsedMessage as SdkParsedMessage,
   ParsedRelayerMessage as SdkParsedRelayerMessage,
 } from '@wormhole-foundation/wormhole-connect-sdk';
@@ -30,7 +30,7 @@ import {
 import { getCosmWasmClient } from '../utils';
 import {
   findDestinationIBCTransferTx,
-  getIBCTransferInfoFromLogs,
+  getIBCTransferInfoFromEvents,
   getTransactionIBCTransferInfo,
 } from './transaction';
 import { MsgExecuteContract } from 'cosmjs-types/cosmwasm/wasm/v1/tx';
@@ -54,9 +54,8 @@ export async function getUnsignedMessageFromCosmos(
     throw new Error(`Transaction ${hash} not found on chain ${chain}`);
   }
 
-  const logs = cosmosLogs.parseRawLog(tx.rawLog);
-  const sender = searchCosmosLogs('sender', logs);
-  if (!sender) throw new Error('Missing sender in transaction logs');
+  const sender = searchCosmosEvents('transfer.sender', tx.events);
+  if (!sender) throw new Error('Missing sender in transaction events');
 
   // get the information of the ibc transfer started by the source chain
   const ibcPacketInfo = getTransactionIBCTransferInfo(tx, 'send_packet');
@@ -201,9 +200,8 @@ export async function getMessageFromWormchain(
     throw new Error(`Transaction ${hash} not found on chain ${chain}`);
   }
 
-  const logs = cosmosLogs.parseRawLog(tx.rawLog);
-  const sender = searchCosmosLogs('sender', logs);
-  if (!sender) throw new Error('Missing sender in transaction logs');
+  const sender = searchCosmosEvents('transfer.sender', tx.events);
+  if (!sender) throw new Error('Missing sender in transaction events');
 
   // Extract IBC transfer info initiated on the source chain
   const ibcInfo = getTransactionIBCTransferInfo(tx, 'send_packet');
@@ -250,20 +248,18 @@ async function getWormchainEmittedMessage(
   const tx = await client.getTx(id);
   if (!tx) throw new Error('tx not found');
 
-  // parse logs emitted for the tx execution
-  // and find the log for the specific ibc transfer
-  const logs = cosmosLogs.parseRawLog(tx.rawLog);
-  const msgLog = getIbcTransferLog(logs, sourceTxIbcInfo);
+  // and find the vaa emit event for the specific ibc transfer
+  const wasmEvent = getWasmEventForTransfer(tx.events, sourceTxIbcInfo);
 
-  // now look for the vaa information in the message logs
-  const tokenTransferPayload = searchCosmosLogs('wasm.message.message', [
-    msgLog,
+  // now look for the vaa information in the event attributes
+  const tokenTransferPayload = searchCosmosEvents('wasm.message.message', [
+    wasmEvent,
   ]);
   if (!tokenTransferPayload)
     throw new Error('message/transfer payload not found');
-  const sequence = searchCosmosLogs('wasm.message.sequence', [msgLog]);
+  const sequence = searchCosmosEvents('wasm.message.sequence', [wasmEvent]);
   if (!sequence) throw new Error('sequence not found');
-  const emitterAddress = searchCosmosLogs('wasm.message.sender', [msgLog]);
+  const emitterAddress = searchCosmosEvents('wasm.message.sender', [wasmEvent]);
   if (!emitterAddress) throw new Error('emitter not found');
 
   const parsed = parseTokenTransferPayload(
@@ -306,40 +302,49 @@ async function getWormchainEmittedMessage(
 }
 
 /**
- * Find the log entry in the transaction logs for a given IBC transfer
- * (sometimes an ibc relayer can deliver multiple ibc packets
- * in the same transaction, so we need to find the one that matches)
+ * Find the wasm event for a given ibc transfer information
+ * in the transaction events array (sometimes an ibc relayer can
+ * deliver multiple ibc packets in the same transaction,
+ * so we need to find the one that matches, usually the last wasm event before
+ * the write_acknowledgement event)
  *
- * @param logs The transaction logs
+ * @param events The transaction events
  * @param ibcTransfer The IBC transfer to look a receive message for
- * @returns The Log entry for the IBC transfer receive message
+ * @returns The last wasm event found before the write_acknowledgement event
  */
-function getIbcTransferLog(
-  logs: readonly cosmosLogs.Log[],
+function getWasmEventForTransfer(
+  events: readonly Event[],
   ibcTransfer: IBCTransferInfo,
-): cosmosLogs.Log {
+): Event {
   // the log list consists in one per msg, which contains multiple events
   // we're interested in a single ibc acknolwedgement/receive msg
-  for (const log of logs) {
-    for (const ev of log.events) {
-      // find an ibc received packet event
-      if (ev.type !== 'write_acknowledgement') continue;
 
-      // check that this packet is the one that matches the source ibc transfer
-      // if not, skip this msg log entirely and proceed to the next one
-      const logIbcInfo = getIBCTransferInfoFromLogs(
-        [log],
-        'write_acknowledgement',
-      );
+  let lastWasmEventFound = null;
 
-      if (
-        logIbcInfo.sequence !== ibcTransfer.sequence ||
-        logIbcInfo.srcChannel !== ibcTransfer.srcChannel ||
-        logIbcInfo.dstChannel !== ibcTransfer.dstChannel
-      )
-        break;
+  for (const ev of events) {
+    if (ev.type === 'wasm') {
+      lastWasmEventFound = ev;
+    }
 
-      return log;
+    // find an ibc received packet event
+    if (ev.type !== 'write_acknowledgement') continue;
+
+    // check that this packet is the one that matches the source ibc transfer
+    // if not, skip this msg log entirely and proceed to the next one
+    const logIbcInfo = getIBCTransferInfoFromEvents(
+      [ev],
+      'write_acknowledgement',
+    );
+
+    if (
+      logIbcInfo.sequence !== ibcTransfer.sequence ||
+      logIbcInfo.srcChannel !== ibcTransfer.srcChannel ||
+      logIbcInfo.dstChannel !== ibcTransfer.dstChannel
+    )
+      break;
+
+    if (lastWasmEventFound) {
+      return lastWasmEventFound;
     }
   }
   throw new Error(

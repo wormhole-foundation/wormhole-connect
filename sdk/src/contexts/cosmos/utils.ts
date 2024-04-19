@@ -1,12 +1,12 @@
 import {
+  CHAIN_ID_COSMOSHUB,
   CHAIN_ID_EVMOS,
+  CHAIN_ID_INJECTIVE,
   CHAIN_ID_KUJIRA,
   CHAIN_ID_OSMOSIS,
-  CHAIN_ID_INJECTIVE,
   CHAIN_ID_WORMCHAIN,
-  CHAIN_ID_COSMOSHUB,
 } from '@certusone/wormhole-sdk';
-import { logs as cosmosLogs } from '@cosmjs/stargate';
+import { Event } from '@cosmjs/stargate';
 import { ChainId } from '../../types';
 
 /**
@@ -14,9 +14,9 @@ import { ChainId } from '../../types';
  * For example: to retrieve the bridge transfer recipient, we would have to look
  * for the "transfer.recipient" under the "wasm" event
  */
-export const searchCosmosLogs = (
+export const searchCosmosEvents = (
   key: string,
-  logs: readonly cosmosLogs.Log[],
+  events: readonly Event[],
 ): string | null => {
   const parts = key.split('.');
 
@@ -26,16 +26,15 @@ export const searchCosmosLogs = (
       ? [parts[0], parts.slice(1).join('.')]
       : [undefined, parts[0]];
 
-  for (const log of logs) {
-    for (const ev of log.events) {
-      if (event && ev.type !== event) continue;
-      for (const attr of ev.attributes) {
-        if (attr.key === attribute) {
-          return attr.value;
-        }
+  for (const ev of events) {
+    if (event && ev.type !== event) continue;
+    for (const attr of ev.attributes) {
+      if (attr.key === attribute) {
+        return attr.value;
       }
     }
   }
+
   return null;
 };
 
