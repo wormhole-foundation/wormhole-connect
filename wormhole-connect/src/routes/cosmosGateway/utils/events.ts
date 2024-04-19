@@ -38,7 +38,7 @@ export async function fetchRedeemedEventNonCosmosSource(
     throw new Error('Multiple transactions found');
   }
 
-  // extract the ibc transfer info from the transaction logs
+  // extract the ibc transfer info from the transaction events
   const ibcInfo = getTransactionIBCTransferInfo(txs[0], 'send_packet');
 
   // find the transaction on the target chain based on the ibc transfer info
