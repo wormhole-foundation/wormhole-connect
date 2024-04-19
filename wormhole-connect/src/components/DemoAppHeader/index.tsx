@@ -7,16 +7,37 @@ interface Props {
   onCustomConfigChange: (config: WormholeConnectConfig | undefined) => void;
 }
 
+const MAX_URL_SIZE = 30_000; // 30kb (HTTP header limit is set to 32kb)
+
 const loadInitialConfig = (): string => {
   const params = new URLSearchParams(window.location.search);
   const configQuery = params.get('config');
   const configCached = localStorage.getItem(LOCAL_STORAGE_KEY);
-  return configQuery || configCached || '';
+
+  const config = configQuery || configCached;
+
+  if (config) {
+    return JSON.stringify(JSON.parse(config), null, 2);
+  } else {
+    return '';
+  }
 };
 
 const setUrlQueryParam = (configInput: string) => {
   const url = new URL(window.location.toString());
-  url.searchParams.set('config', configInput);
+
+  let stringConfig = '';
+
+  try {
+    stringConfig = JSON.stringify(JSON.parse(configInput));
+  } catch (e) {
+    // Error parsing JSON, set URL to nothing
+  }
+  if (stringConfig === '' || stringConfig.length > MAX_URL_SIZE) {
+    url.searchParams.delete('config');
+  } else {
+    url.searchParams.set('config', stringConfig);
+  }
   history.replaceState({}, '', url.toString());
 };
 
@@ -38,10 +59,7 @@ export default function DemoAppHeader(props: Props) {
     setUrlQueryParam(customConfigInput);
 
     try {
-      const parsed = eval(`(function() {
-        return ${customConfigInput};
-      })()`);
-
+      const parsed = JSON.parse(customConfigInput);
       props.onCustomConfigChange(parsed);
     } catch (e) {
       console.error(e);
@@ -57,7 +75,8 @@ export default function DemoAppHeader(props: Props) {
         <a
           href="#"
           id="custom-config-toggle"
-          onClick={() => {
+          onClick={(e) => {
+            e.preventDefault();
             setCustomConfigOpen(!customConfigOpen);
           }}
         >
