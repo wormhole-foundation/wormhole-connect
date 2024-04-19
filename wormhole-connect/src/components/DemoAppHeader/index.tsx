@@ -54,6 +54,15 @@ export default function DemoAppHeader(props: Props) {
     setCustomConfigInput(input);
   };
 
+  const prettifyInput = () => {
+    try {
+      const pretty = JSON.stringify(JSON.parse(customConfigInput), null, 2);
+      setCustomConfigInput(pretty);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const emitCustomConfig = () => {
     localStorage.setItem(LOCAL_STORAGE_KEY, customConfigInput);
     setUrlQueryParam(customConfigInput);
@@ -91,7 +100,10 @@ export default function DemoAppHeader(props: Props) {
           Paste in a custom config here (supports JS code)
           <textarea
             onChange={updateCustomConfig}
-            onBlur={emitCustomConfig}
+            onBlur={() => {
+              emitCustomConfig();
+              prettifyInput();
+            }}
             value={customConfigInput}
           />
         </div>
