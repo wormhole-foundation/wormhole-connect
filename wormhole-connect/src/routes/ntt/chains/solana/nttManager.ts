@@ -40,7 +40,11 @@ import CONFIG from 'config';
 import { toChain as SDKv2toChain } from '@wormhole-foundation/sdk-base';
 import { hexlify } from 'ethers/lib/utils';
 import { getNttManagerConfigByAddress } from 'utils/ntt';
-import { UnsupportedContractAbiVersion } from 'routes/ntt/errors';
+import {
+  ContractIsPausedError,
+  NotEnoughCapacityError,
+  UnsupportedContractAbiVersion,
+} from 'routes/ntt/errors';
 
 const RATE_LIMIT_DURATION = 24 * 60 * 60;
 
@@ -149,6 +153,7 @@ export class NttManagerSolana {
     tx.feePayer = payer;
     const { blockhash } = await this.connection.getLatestBlockhash('finalized');
     tx.recentBlockhash = blockhash;
+    await this.simulate(tx);
     await addComputeBudget(this.connection, tx);
     tx.partialSign(outboxItem);
     const txId = await signAndSendTransaction(
@@ -230,6 +235,7 @@ export class NttManagerSolana {
     tx.feePayer = payerPublicKey;
     const { blockhash } = await this.connection.getLatestBlockhash('finalized');
     tx.recentBlockhash = blockhash;
+    await this.simulate(tx);
     await addComputeBudget(this.connection, tx);
     const txId = await signAndSendTransaction(
       'solana',
@@ -343,6 +349,7 @@ export class NttManagerSolana {
     tx.feePayer = payerPublicKey;
     const { blockhash } = await this.connection.getLatestBlockhash('finalized');
     tx.recentBlockhash = blockhash;
+    await this.simulate(tx);
     await addComputeBudget(this.connection, tx);
     const txId = await signAndSendTransaction(
       'solana',
@@ -867,5 +874,28 @@ export class NttManagerSolana {
       NttManagerSolana.abiVersionCache.set(this.nttId, program);
     }
     return program;
+  }
+
+  // Simulate transaction to catch and translate errors before sending
+  async simulate(tx: Transaction): Promise<void> {
+    const response = await this.connection.simulateTransaction(tx);
+    if (response.value.err) {
+      const errorLog = response.value.logs?.find((log) =>
+        log.startsWith('Program log: AnchorError occurred.'),
+      );
+      if (errorLog) {
+        const errorCode = errorLog.match(/Error Code: ([^\\.]+)/)?.[1];
+        if (errorCode) {
+          if (errorCode === 'TransferExceedsRateLimit') {
+            throw new NotEnoughCapacityError();
+          }
+          if (errorCode === 'Paused') {
+            throw new ContractIsPausedError();
+          }
+          throw new Error(errorCode);
+        }
+      }
+      throw new Error(`Simulation error: ${JSON.stringify(response)}`);
+    }
   }
 }
