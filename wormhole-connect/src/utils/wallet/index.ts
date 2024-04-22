@@ -88,6 +88,7 @@ export const connectWallet = async (
   wallet.on('disconnect', () => {
     wallet.removeAllListeners();
     dispatch(clearWallet(type));
+    localStorage.removeItem(`wormhole-connect:wallet:${context}`);
   });
 
   // when the user has multiple wallets connected and either changes
