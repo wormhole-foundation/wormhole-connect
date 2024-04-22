@@ -1,5 +1,5 @@
 export type ExampleNativeTokenTransfers = {
-  version: '0.1.0';
+  version: '1.0.0';
   name: 'example_native_token_transfers';
   instructions: [
     {
@@ -48,6 +48,7 @@ export type ExampleNativeTokenTransfers = {
             'The custody account that holds tokens in locking mode.',
             'NOTE: the account is unconditionally initialized, but not used in',
             'burning mode.',
+            'function if  the token account has already been created.',
           ];
         },
         {
@@ -80,6 +81,12 @@ export type ExampleNativeTokenTransfers = {
           };
         },
       ];
+    },
+    {
+      name: 'version';
+      accounts: [];
+      args: [];
+      returns: 'string';
     },
     {
       name: 'transferBurn';
@@ -287,6 +294,12 @@ export type ExampleNativeTokenTransfers = {
             'transceivers "vote" on messages (by delivering them). By making the inbox',
             "items content-addressed, we can ensure that disagreeing votes don't",
             'interfere with each other.',
+            'On the first call to [`redeem()`], [`InboxItem`] will be allocated and initialized with',
+            'default values.',
+            'On subsequent calls, we want to modify the `InboxItem` by "voting" on it. Therefore the',
+            'program should not fail which would occur when using the `init` constraint.',
+            'The [`InboxItem::init`] field is used to guard against malicious or accidental modification',
+            'InboxItem fields that should remain constant.',
           ];
         },
         {
@@ -706,8 +719,13 @@ export type ExampleNativeTokenTransfers = {
         },
         {
           name: 'config';
-          isMut: false;
-          isSigner: false;
+          accounts: [
+            {
+              name: 'config';
+              isMut: false;
+              isSigner: false;
+            },
+          ];
         },
         {
           name: 'peer';
@@ -767,7 +785,7 @@ export type ExampleNativeTokenTransfers = {
         },
         {
           name: 'emitter';
-          isMut: true;
+          isMut: false;
           isSigner: false;
         },
         {
@@ -845,7 +863,7 @@ export type ExampleNativeTokenTransfers = {
         },
         {
           name: 'emitter';
-          isMut: true;
+          isMut: false;
           isSigner: false;
         },
         {
@@ -916,7 +934,7 @@ export type ExampleNativeTokenTransfers = {
         },
         {
           name: 'emitter';
-          isMut: true;
+          isMut: false;
           isSigner: false;
         },
         {
@@ -1044,7 +1062,10 @@ export type ExampleNativeTokenTransfers = {
           },
           {
             name: 'enabledTransceivers';
-            docs: ['Bitmap of enabled transceivers'];
+            docs: [
+              'Bitmap of enabled transceivers.',
+              'The maximum number of transceivers is equal to [`Bitmap::BITS`].',
+            ];
             type: {
               defined: 'Bitmap';
             };
@@ -1421,6 +1442,12 @@ export type ExampleNativeTokenTransfers = {
     },
     {
       name: 'ReleaseStatus';
+      docs: [
+        'The status of an InboxItem. This determines whether the tokens are minted/unlocked to the recipient. As',
+        'such, this must be used as a state machine that moves forward in a linear manner. A state',
+        'should never "move backward" to a previous state (e.g. should never move from `Released` to',
+        '`ReleaseAfter`).',
+      ];
       type: {
         kind: 'enum';
         variants: [
@@ -1666,11 +1693,41 @@ export type ExampleNativeTokenTransfers = {
       name: 'InvalidDeployer';
       msg: 'InvalidDeployer';
     },
+    {
+      code: 6017;
+      name: 'BadAmountAfterTransfer';
+      msg: 'BadAmountAfterTransfer';
+    },
+    {
+      code: 6018;
+      name: 'BadAmountAfterBurn';
+      msg: 'BadAmountAfterBurn';
+    },
+    {
+      code: 6019;
+      name: 'ZeroThreshold';
+      msg: 'ZeroThreshold';
+    },
+    {
+      code: 6020;
+      name: 'OverflowExponent';
+      msg: 'OverflowExponent';
+    },
+    {
+      code: 6021;
+      name: 'OverflowScaledAmount';
+      msg: 'OverflowScaledAmount';
+    },
+    {
+      code: 6022;
+      name: 'BitmapIndexOutOfBounds';
+      msg: 'BitmapIndexOutOfBounds';
+    },
   ];
 };
 
 export const IDL: ExampleNativeTokenTransfers = {
-  version: '0.1.0',
+  version: '1.0.0',
   name: 'example_native_token_transfers',
   instructions: [
     {
@@ -1719,6 +1776,7 @@ export const IDL: ExampleNativeTokenTransfers = {
             'The custody account that holds tokens in locking mode.',
             'NOTE: the account is unconditionally initialized, but not used in',
             'burning mode.',
+            'function if  the token account has already been created.',
           ],
         },
         {
@@ -1751,6 +1809,12 @@ export const IDL: ExampleNativeTokenTransfers = {
           },
         },
       ],
+    },
+    {
+      name: 'version',
+      accounts: [],
+      args: [],
+      returns: 'string',
     },
     {
       name: 'transferBurn',
@@ -1958,6 +2022,12 @@ export const IDL: ExampleNativeTokenTransfers = {
             'transceivers "vote" on messages (by delivering them). By making the inbox',
             "items content-addressed, we can ensure that disagreeing votes don't",
             'interfere with each other.',
+            'On the first call to [`redeem()`], [`InboxItem`] will be allocated and initialized with',
+            'default values.',
+            'On subsequent calls, we want to modify the `InboxItem` by "voting" on it. Therefore the',
+            'program should not fail which would occur when using the `init` constraint.',
+            'The [`InboxItem::init`] field is used to guard against malicious or accidental modification',
+            'InboxItem fields that should remain constant.',
           ],
         },
         {
@@ -2377,8 +2447,13 @@ export const IDL: ExampleNativeTokenTransfers = {
         },
         {
           name: 'config',
-          isMut: false,
-          isSigner: false,
+          accounts: [
+            {
+              name: 'config',
+              isMut: false,
+              isSigner: false,
+            },
+          ],
         },
         {
           name: 'peer',
@@ -2438,7 +2513,7 @@ export const IDL: ExampleNativeTokenTransfers = {
         },
         {
           name: 'emitter',
-          isMut: true,
+          isMut: false,
           isSigner: false,
         },
         {
@@ -2516,7 +2591,7 @@ export const IDL: ExampleNativeTokenTransfers = {
         },
         {
           name: 'emitter',
-          isMut: true,
+          isMut: false,
           isSigner: false,
         },
         {
@@ -2587,7 +2662,7 @@ export const IDL: ExampleNativeTokenTransfers = {
         },
         {
           name: 'emitter',
-          isMut: true,
+          isMut: false,
           isSigner: false,
         },
         {
@@ -2715,7 +2790,10 @@ export const IDL: ExampleNativeTokenTransfers = {
           },
           {
             name: 'enabledTransceivers',
-            docs: ['Bitmap of enabled transceivers'],
+            docs: [
+              'Bitmap of enabled transceivers.',
+              'The maximum number of transceivers is equal to [`Bitmap::BITS`].',
+            ],
             type: {
               defined: 'Bitmap',
             },
@@ -3092,6 +3170,12 @@ export const IDL: ExampleNativeTokenTransfers = {
     },
     {
       name: 'ReleaseStatus',
+      docs: [
+        'The status of an InboxItem. This determines whether the tokens are minted/unlocked to the recipient. As',
+        'such, this must be used as a state machine that moves forward in a linear manner. A state',
+        'should never "move backward" to a previous state (e.g. should never move from `Released` to',
+        '`ReleaseAfter`).',
+      ],
       type: {
         kind: 'enum',
         variants: [
@@ -3336,6 +3420,36 @@ export const IDL: ExampleNativeTokenTransfers = {
       code: 6016,
       name: 'InvalidDeployer',
       msg: 'InvalidDeployer',
+    },
+    {
+      code: 6017,
+      name: 'BadAmountAfterTransfer',
+      msg: 'BadAmountAfterTransfer',
+    },
+    {
+      code: 6018,
+      name: 'BadAmountAfterBurn',
+      msg: 'BadAmountAfterBurn',
+    },
+    {
+      code: 6019,
+      name: 'ZeroThreshold',
+      msg: 'ZeroThreshold',
+    },
+    {
+      code: 6020,
+      name: 'OverflowExponent',
+      msg: 'OverflowExponent',
+    },
+    {
+      code: 6021,
+      name: 'OverflowScaledAmount',
+      msg: 'OverflowScaledAmount',
+    },
+    {
+      code: 6022,
+      name: 'BitmapIndexOutOfBounds',
+      msg: 'BitmapIndexOutOfBounds',
     },
   ],
 };

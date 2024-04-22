@@ -11,12 +11,12 @@ import { NttQuoter as NttQuoterType, IDL } from './types/ntt_quoter';
 import { solanaContext, toChainId } from 'utils/sdk';
 
 //constants that must match ntt-quoter lib.rs / implementation:
-const EVM_GAS_COST = 250_000; // TODO: make sure this is right
 const USD_UNIT = 1e6;
 const WEI_PER_GWEI = 1e9;
 const GWEI_PER_ETH = 1e9;
 const SEED_PREFIX_INSTANCE = 'instance';
 const SEED_PREFIX_REGISTERED_CHAIN = 'registered_chain';
+const SEED_PREFIX_REGISTERED_NTT = 'registered_ntt';
 const SEED_PREFIX_RELAY_REQUEST = 'relay_request';
 
 const U64 = {
@@ -60,26 +60,30 @@ export class NttQuoter {
     }
   }
 
-  // TODO: will change with https://github.dev/wormhole-foundation/example-native-token-transfers/pull/319
-  async calcRelayCost(chain: ChainName | ChainId) {
-    const [chainData, instanceData, rentCost] = await Promise.all([
+  // calculates the relay cost in lamports
+  async calcRelayCost(
+    chain: ChainName | ChainId,
+    nttProgramId: string,
+    requestedGasDropoffEth = 0,
+  ) {
+    const [chainData, nttData, instanceData, rentCost] = await Promise.all([
       this.getRegisteredChain(chain),
+      this.getRegisteredNtt(new PublicKey(nttProgramId)),
       this.getInstance(),
       this.program.provider.connection.getMinimumBalanceForRentExemption(
         this.program.account.relayRequest.size,
       ),
     ]);
 
-    if (chainData.nativePriceUsd === 0) {
-      throw new Error('Native price is 0');
-    }
-    if (instanceData.solPriceUsd === 0) {
-      throw new Error('SOL price is 0');
-    }
+    if (chainData.nativePriceUsd === 0) throw new Error('Native price is 0');
+    if (instanceData.solPriceUsd === 0) throw new Error('SOL price is 0');
+    if (requestedGasDropoffEth > chainData.maxGasDropoffEth)
+      throw new Error('Requested gas dropoff exceeds allowed maximum');
 
     const totalNativeGasCostUsd =
       chainData.nativePriceUsd *
-      ((chainData.gasPriceGwei * EVM_GAS_COST) / GWEI_PER_ETH);
+      (requestedGasDropoffEth +
+        (chainData.gasPriceGwei * nttData.gasCost) / GWEI_PER_ETH);
 
     const totalCostSol =
       rentCost / LAMPORTS_PER_SOL +
@@ -96,6 +100,7 @@ export class NttQuoter {
     outboxItem: PublicKey,
     chain: ChainName | ChainId,
     maxFee: BN,
+    nttProgramId: string,
   ) {
     return this.program.methods
       .requestRelay({
@@ -106,6 +111,7 @@ export class NttQuoter {
         payer,
         instance: this.instance,
         registeredChain: this.registeredChainPda(toChainId(chain)),
+        registeredNtt: this.registeredNttPda(new PublicKey(nttProgramId)),
         outboxItem,
         relayRequest: this.relayRequestPda(outboxItem),
         systemProgram: SystemProgram.programId,
@@ -120,6 +126,17 @@ export class NttQuoter {
       assistant: data.assistant,
       feeRecipient: data.feeRecipient,
       solPriceUsd: U64.from(data.solPrice, USD_UNIT),
+    };
+  }
+
+  async getRegisteredNtt(nttProgramId: PublicKey) {
+    const data = await this.program.account.registeredNtt.fetch(
+      this.registeredNttPda(nttProgramId),
+    );
+
+    return {
+      gasCost: data.gasCost,
+      wormholeTransceiverIndex: data.wormholeTransceiverIndex,
     };
   }
 
@@ -141,6 +158,13 @@ export class NttQuoter {
     return this.derivePda([
       Buffer.from(SEED_PREFIX_REGISTERED_CHAIN),
       new BN(chainId).toBuffer('be', 2),
+    ]);
+  }
+
+  private registeredNttPda(nttProgramId: PublicKey) {
+    return this.derivePda([
+      Buffer.from(SEED_PREFIX_REGISTERED_NTT),
+      nttProgramId.toBytes(),
     ]);
   }
 

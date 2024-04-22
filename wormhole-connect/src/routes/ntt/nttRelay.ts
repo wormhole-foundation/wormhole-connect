@@ -119,7 +119,10 @@ export class NttRelay extends NttBase {
     if (toChainName(sourceChain) === 'solana') {
       if (!nttConfig.solanaQuoter) throw new Error('no solana quoter');
       const quoter = new NttQuoter(nttConfig.solanaQuoter);
-      const relayCost = await quoter.calcRelayCost(destChain);
+      const relayCost = await quoter.calcRelayCost(
+        destChain,
+        nttConfig.address,
+      );
       return { fee: BigNumber.from(relayCost.toString()), feeToken: 'native' };
     }
     throw new Error('unsupported chain');

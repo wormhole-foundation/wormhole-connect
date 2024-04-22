@@ -13,6 +13,8 @@ import {
   PublicKey,
   Transaction,
   TransactionInstruction,
+  TransactionMessage,
+  VersionedTransaction,
 } from '@solana/web3.js';
 import {
   createApproveInstruction,
@@ -26,7 +28,7 @@ import { deserializePayload, Ntt } from '@wormhole-foundation/sdk-definitions';
 import {
   ExampleNativeTokenTransfers,
   IDL,
-} from './types/example_native_token_transfers';
+} from './types/1.0.0/example_native_token_transfers';
 import {
   derivePostedVaaKey,
   getWormholeDerivedAccounts,
@@ -38,8 +40,12 @@ import CONFIG from 'config';
 import { toChain as SDKv2toChain } from '@wormhole-foundation/sdk-base';
 import { hexlify } from 'ethers/lib/utils';
 import { getNttManagerConfigByAddress } from 'utils/ntt';
+import {
+  ContractIsPausedError,
+  NotEnoughCapacityError,
+  UnsupportedContractAbiVersion,
+} from 'routes/ntt/errors';
 
-// TODO: make sure this is in sync with the contract
 const RATE_LIMIT_DURATION = 24 * 60 * 60;
 
 type Config = IdlAccounts<ExampleNativeTokenTransfers>['config'];
@@ -57,15 +63,18 @@ interface TransferArgs {
 }
 
 export class NttManagerSolana {
+  static readonly abiVersionCache = new Map<
+    string,
+    Program<ExampleNativeTokenTransfers>
+  >();
+
   readonly connection: Connection;
-  readonly program: Program<ExampleNativeTokenTransfers>;
   readonly wormholeId: string;
 
   constructor(readonly nttId: string) {
     const { connection } = solanaContext();
     if (!connection) throw new Error('Connection not found');
     this.connection = connection;
-    this.program = new Program(IDL, nttId, { connection });
     const core = CONFIG.wh.mustGetContracts('solana').core;
     if (!core) throw new Error('Core not found');
     this.wormholeId = core;
@@ -79,6 +88,7 @@ export class NttManagerSolana {
     toChain: ChainName | ChainId,
     shouldSkipRelayerSend: boolean,
   ): Promise<string> {
+    const program = await this.getProgram();
     const config = await this.getConfig();
     const outboxItem = Keypair.generate();
     const destContext = CONFIG.wh.getContext(toChain);
@@ -125,23 +135,25 @@ export class NttManagerSolana {
     tx.add(approveIx, transferIx, releaseIx);
     if (!shouldSkipRelayerSend) {
       const nttConfig = getNttManagerConfigByAddress(
-        this.program.programId.toString(),
+        program.programId.toString(),
         'solana',
       );
       if (!nttConfig || !nttConfig.solanaQuoter) throw new Error('no quoter');
       const quoter = new NttQuoter(nttConfig.solanaQuoter);
-      const fee = await quoter.calcRelayCost(toChain);
+      const fee = await quoter.calcRelayCost(toChain, nttConfig.address);
       const relayIx = await quoter.createRequestRelayInstruction(
         payer,
         outboxItem.publicKey,
         toChain,
         fee,
+        nttConfig.address,
       );
       tx.add(relayIx);
     }
     tx.feePayer = payer;
     const { blockhash } = await this.connection.getLatestBlockhash('finalized');
     tx.recentBlockhash = blockhash;
+    await this.simulate(tx);
     await addComputeBudget(this.connection, tx);
     tx.partialSign(outboxItem);
     const txId = await signAndSendTransaction(
@@ -213,6 +225,7 @@ export class NttManagerSolana {
       ),
       chain: chainId,
       revertOnDelay: false,
+      config,
     };
     if (config.mode.locking) {
       tx.add(await this.createReleaseInboundUnlockInstruction(releaseArgs));
@@ -222,6 +235,7 @@ export class NttManagerSolana {
     tx.feePayer = payerPublicKey;
     const { blockhash } = await this.connection.getLatestBlockhash('finalized');
     tx.recentBlockhash = blockhash;
+    await this.simulate(tx);
     await addComputeBudget(this.connection, tx);
     const txId = await signAndSendTransaction(
       'solana',
@@ -275,9 +289,6 @@ export class NttManagerSolana {
   }
 
   async getRateLimitDuration(): Promise<number> {
-    // TODO: how will solana implement this?
-    // const config = await this.getConfig();
-    // return config.rateLimitDuration.toNumber();
     return RATE_LIMIT_DURATION;
   }
 
@@ -338,6 +349,7 @@ export class NttManagerSolana {
     tx.feePayer = payerPublicKey;
     const { blockhash } = await this.connection.getLatestBlockhash('finalized');
     tx.recentBlockhash = blockhash;
+    await this.simulate(tx);
     await addComputeBudget(this.connection, tx);
     const txId = await signAndSendTransaction(
       'solana',
@@ -375,7 +387,7 @@ export class NttManagerSolana {
     const seedsArray = seeds instanceof Buffer ? [seeds] : seeds;
     const [address] = PublicKey.findProgramAddressSync(
       seedsArray,
-      this.program.programId,
+      new PublicKey(this.nttId),
     );
     return address;
   }
@@ -496,7 +508,8 @@ export class NttManagerSolana {
       recipientAddress: Array.from(args.recipientAddress),
       shouldQueue: args.shouldQueue,
     };
-    return await this.program.methods
+    const program = await this.getProgram();
+    return await program.methods
       .transferBurn({
         amount: args.amount,
         recipientChain: { id: chainId },
@@ -545,7 +558,8 @@ export class NttManagerSolana {
       recipientAddress: Array.from(args.recipientAddress),
       shouldQueue: args.shouldQueue,
     };
-    return await this.program.methods
+    const program = await this.getProgram();
+    return await program.methods
       .transferLock({
         amount: args.amount,
         recipientChain: { id: chainId },
@@ -581,11 +595,12 @@ export class NttManagerSolana {
     outboxItem: PublicKey;
     revertOnDelay: boolean;
   }): Promise<TransactionInstruction> {
+    const program = await this.getProgram();
     const whAccs = getWormholeDerivedAccounts(
-      this.program.programId,
+      program.programId,
       this.wormholeId,
     );
-    return await this.program.methods
+    return await program.methods
       .releaseWormholeOutbound({
         revertOnDelay: args.revertOnDelay,
       })
@@ -595,7 +610,7 @@ export class NttManagerSolana {
         outboxItem: args.outboxItem,
         wormholeMessage: this.wormholeMessageAccountAddress(args.outboxItem),
         emitter: whAccs.wormholeEmitter,
-        transceiver: this.registeredTransceiverAddress(this.program.programId),
+        transceiver: this.registeredTransceiverAddress(program.programId),
         wormhole: {
           bridge: whAccs.wormholeBridge,
           feeCollector: whAccs.wormholeFeeCollector,
@@ -613,9 +628,10 @@ export class NttManagerSolana {
     recipient: PublicKey;
     config?: Config;
   }): Promise<TransactionInstruction> {
+    const program = await this.getProgram();
     const config = await this.getConfig(args.config);
     const mint = await this.mintAccountAddress(config);
-    return await this.program.methods
+    return await program.methods
       .releaseInboundMint({
         revertOnDelay: args.revertOnDelay,
       })
@@ -639,9 +655,10 @@ export class NttManagerSolana {
     recipient: PublicKey;
     config?: Config;
   }): Promise<TransactionInstruction> {
+    const program = await this.getProgram();
     const config = await this.getConfig(args.config);
     const mint = await this.mintAccountAddress(config);
-    return await this.program.methods
+    return await program.methods
       .releaseInboundUnlock({
         revertOnDelay: args.revertOnDelay,
       })
@@ -671,11 +688,12 @@ export class NttManagerSolana {
     );
     const chainId = toChainId(parsedVaa.emitterChain as ChainId);
     const transceiverPeer = this.transceiverPeerAccountAddress(chainId);
-    return await this.program.methods
+    const program = await this.getProgram();
+    return await program.methods
       .receiveWormholeMessage()
       .accounts({
         payer: args.payer,
-        config: this.configAccountAddress(),
+        config: { config: this.configAccountAddress() },
         peer: transceiverPeer,
         vaa: derivePostedVaaKey(this.wormholeId, parseVaa(args.vaa).hash),
         transceiverMessage: this.transceiverMessageAccountAddress(
@@ -704,7 +722,8 @@ export class NttManagerSolana {
     );
     const nttManagerPeer = this.peerAccountAddress(chainId);
     const inboxRateLimit = this.inboxRateLimitAccountAddress(chainId);
-    return await this.program.methods
+    const program = await this.getProgram();
+    return await program.methods
       .redeem({})
       .accounts({
         payer: args.payer,
@@ -714,7 +733,7 @@ export class NttManagerSolana {
           chainId,
           Buffer.from(nttManagerPayload.id),
         ),
-        transceiver: this.registeredTransceiverAddress(this.program.programId),
+        transceiver: this.registeredTransceiverAddress(program.programId),
         mint: await this.mintAccountAddress(config),
         inboxItem: this.inboxItemAccountAddress(hexlify(messageDigest)),
         inboxRateLimit,
@@ -736,7 +755,9 @@ export class NttManagerSolana {
   async getConfig(config?: Config): Promise<Config> {
     return (
       config ??
-      (await this.program.account.config.fetch(this.configAccountAddress()))
+      (await (
+        await this.getProgram()
+      ).account.config.fetch(this.configAccountAddress()))
     );
   }
 
@@ -753,21 +774,72 @@ export class NttManagerSolana {
   }
 
   async getInboxItem(messageDigest: string): Promise<InboxItem> {
-    return await this.program.account.inboxItem.fetch(
+    const program = await this.getProgram();
+    return await program.account.inboxItem.fetch(
       this.inboxItemAccountAddress(messageDigest),
     );
   }
 
   async getOutboxRateLimit(): Promise<OutboxRateLimit> {
-    return await this.program.account.outboxRateLimit.fetch(
+    const program = await this.getProgram();
+    return await program.account.outboxRateLimit.fetch(
       this.outboxRateLimitAccountAddress(),
     );
   }
 
   async getInboxRateLimit(chain: ChainName | ChainId): Promise<InboxRateLimit> {
-    return await this.program.account.inboxRateLimit.fetch(
+    const program = await this.getProgram();
+    return await program.account.inboxRateLimit.fetch(
       this.inboxRateLimitAccountAddress(chain),
     );
+  }
+
+  // View functions
+
+  async getVersion(): Promise<string> {
+    // the anchor library has a built-in method to read view functions. However,
+    // it requires a signer, which would trigger a wallet prompt on the frontend.
+    // Instead, we manually construct a versioned transaction and call the
+    // simulate function with sigVerify: false below.
+    //
+    // This way, the simulation won't require a signer, but it still requires
+    // the pubkey of an account that has some lamports in it (since the
+    // simulation checks if the account has enough money to pay for the transaction).
+    //
+    // It's a little unfortunate but it's the best we can do.
+    const program = new Program(IDL, this.nttId, {
+      connection: this.connection,
+    });
+    const ix = await program.methods.version().accountsStrict({}).instruction();
+    const latestBlockHash = await this.connection.getLatestBlockhash();
+
+    // The default pubkey is a mainnet and devnet funded account
+    // that can be used when simulating transactions
+    const pubkey = new PublicKey(
+      'Hk3SdYTJFpawrvRz4qRztuEt2SqoCG7BGj2yJfDJSFbJ',
+    );
+    const msg = new TransactionMessage({
+      payerKey: pubkey,
+      recentBlockhash: latestBlockHash.blockhash,
+      instructions: [ix],
+    }).compileToV0Message();
+
+    try {
+      const tx = new VersionedTransaction(msg);
+      const txSimulation = await this.connection.simulateTransaction(tx, {
+        sigVerify: false,
+      });
+      // the return buffer is in base64 and it encodes the string with a 32 bit
+      // little endian length prefix.
+      const data = txSimulation.value.returnData?.data[0];
+      if (!data) throw new Error('No version() return data');
+      const buffer = Buffer.from(data, 'base64');
+      const len = buffer.readUInt32LE(0);
+      return buffer.slice(4, len + 4).toString();
+    } catch (e) {
+      console.error(`Unable to fetch solana contract version: ${e}`);
+      throw e;
+    }
   }
 
   /**
@@ -788,6 +860,42 @@ export class NttManagerSolana {
         mint: await this.mintAccountAddress(configOrMint),
         owner: this.tokenAuthorityAddress(),
       });
+    }
+  }
+
+  async getProgram(): Promise<Program<ExampleNativeTokenTransfers>> {
+    let program = NttManagerSolana.abiVersionCache.get(this.nttId);
+    if (!program) {
+      const abiVersion = await this.getVersion();
+      if (abiVersion !== '1.0.0') {
+        throw new UnsupportedContractAbiVersion();
+      }
+      program = new Program(IDL, this.nttId, { connection: this.connection });
+      NttManagerSolana.abiVersionCache.set(this.nttId, program);
+    }
+    return program;
+  }
+
+  // Simulate transaction to catch and translate errors before sending
+  async simulate(tx: Transaction): Promise<void> {
+    const response = await this.connection.simulateTransaction(tx);
+    if (response.value.err) {
+      const errorLog = response.value.logs?.find((log) =>
+        log.startsWith('Program log: AnchorError occurred.'),
+      );
+      if (errorLog) {
+        const errorCode = errorLog.match(/Error Code: ([^\\.]+)/)?.[1];
+        if (errorCode) {
+          if (errorCode === 'TransferExceedsRateLimit') {
+            throw new NotEnoughCapacityError();
+          }
+          if (errorCode === 'Paused') {
+            throw new ContractIsPausedError();
+          }
+          throw new Error(errorCode);
+        }
+      }
+      throw new Error(`Simulation error: ${JSON.stringify(response)}`);
     }
   }
 }
