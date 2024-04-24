@@ -10,6 +10,7 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { Alignment } from 'components/Header';
 import { WormholeConnectPartialTheme } from 'theme';
+import { WormholeConnectEventHandler } from 'telemetry/types';
 
 export enum Icon {
   'AVAX' = 1,
@@ -98,6 +99,9 @@ export interface WormholeConnectConfig {
   customTheme?: WormholeConnectPartialTheme;
   mode?: 'dark' | 'light';
 
+  // Callbacks
+  eventHandler?: WormholeConnectEventHandler;
+
   // UI details
   cta?: {
     text: string;
@@ -153,6 +157,9 @@ export interface InternalConfig {
   tokensArr: TokenConfig[];
   gasEstimates: GasEstimates;
   routes: string[];
+
+  // Callbacks
+  triggerEvent: WormholeConnectEventHandler;
 
   // UI details
   cta?: {

@@ -299,10 +299,7 @@ export const transferInputSlice = createSlice({
         // @ts-ignore
         state.validations[key] = validations[key];
       });
-      // this one-time sets the errors to show, only after the form has been filled out (see `validate`)
-      if (!state.showValidationState && showValidationState) {
-        state.showValidationState = showValidationState;
-      }
+      state.showValidationState = showValidationState;
     },
     setRoutes: (
       state: TransferInputState,

@@ -70,6 +70,16 @@ export const connectWallet = async (
 
   const { chainId, context } = chainConfig;
   await wallet.connect({ chainId });
+
+  config.triggerEvent({
+    type: 'wallet.connect',
+    details: {
+      side: type,
+      chain: chain,
+      wallet: walletInfo.name.toLowerCase(),
+    },
+  });
+
   const address = wallet.getAddress()!;
   const payload = {
     address,

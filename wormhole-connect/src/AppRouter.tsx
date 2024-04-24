@@ -8,6 +8,7 @@ import { clearTransfer } from './store/transferInput';
 import { usePrevious } from './utils';
 import { WormholeConnectConfig } from './config/types';
 import { setConfig } from './config';
+import config from './config';
 
 import Bridge from './views/Bridge/Bridge';
 import FAQ from './views/FAQ';
@@ -43,7 +44,7 @@ interface Props {
 }
 
 // since this will be embedded, we'll have to use pseudo routes instead of relying on the url
-function AppRouter({ config }: Props) {
+function AppRouter(props: Props) {
   const { classes } = useStyles();
   const dispatch = useDispatch();
 
@@ -53,10 +54,14 @@ function AppRouter({ config }: Props) {
   // We don't allow config changes afterwards because they could lead to lots of
   // broken and undesired behavior.
   React.useEffect(() => {
-    if (config) {
-      setConfig(config);
+    if (props.config) {
+      setConfig(props.config);
       dispatch(clearTransfer());
     }
+
+    config.triggerEvent({
+      type: 'load',
+    });
   }, []);
 
   const showWalletModal = useSelector(
@@ -77,7 +82,7 @@ function AppRouter({ config }: Props) {
       internalConfig.wh.registerProviders(); // reset providers that may have been set during transfer
     }
     // reset transfer state on leave
-    if (prevRoute === bridgeRoute && route !== bridgeRoute) {
+    if (route === bridgeRoute && prevRoute !== bridgeRoute) {
       dispatch(clearTransfer());
       dispatch(clearPorticoBridge());
     }

@@ -158,6 +158,8 @@ function Bridge() {
   }, [route, fromChain, destToken, dispatch]);
 
   useEffect(() => {
+    let canceled = false;
+
     const computeDestTokens = async () => {
       let supported = await RouteOperator.allSupportedDestTokens(
         config.tokens[token],
@@ -180,7 +182,9 @@ function Bridge() {
       );
       dispatch(setAllSupportedDestTokens(allSupported));
       if (toChain && supported.length === 1) {
-        dispatch(setDestToken(supported[0].key));
+        if (!canceled) {
+          dispatch(setDestToken(supported[0].key));
+        }
       }
 
       // If all the supported tokens are the same token
@@ -197,7 +201,7 @@ function Bridge() {
             t.nativeChain === t.tokenId?.chain &&
             t.nativeChain === toChain,
         )?.key;
-        if (key) {
+        if (!canceled && key) {
           dispatch(setDestToken(key));
         }
       }
@@ -221,13 +225,16 @@ function Bridge() {
             const wrapped = getWrappedToken(config.tokens[token]);
             key = getNativeVersionOfToken(wrapped.symbol, toChain);
           }
-          if (key && isSupportedToken(key, supported)) {
+          if (!canceled && key && isSupportedToken(key, supported)) {
             dispatch(setDestToken(key));
           }
         }
       }
     };
     computeDestTokens();
+    return () => {
+      canceled = true;
+    };
     // IMPORTANT: do not include destToken in dependency array
   }, [route, token, fromChain, toChain, dispatch]);
 

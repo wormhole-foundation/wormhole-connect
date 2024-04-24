@@ -5,6 +5,11 @@ import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import dts from 'vite-plugin-dts';
 import path from 'path';
 
+const packagePath = __dirname.endsWith('wormhole-connect')
+  ? './package.json'
+  : './wormhole-connect/package.json';
+const { version } = require(packagePath);
+
 // There are three configs this file can return.
 // 1. local dev server
 // 2. production build, for direct import
@@ -13,11 +18,19 @@ import path from 'path';
 // TODO: consider using the "VITE_APP_" prefix which is the default for Vite
 const envPrefix = 'REACT_APP_';
 
+const define = {
+  'import.meta.env.REACT_APP_CONNECT_VERSION':
+    process.env.CONNECT_VERSION ?? JSON.stringify(version),
+};
+
 const resolve = {
   alias: {
     utils: path.resolve(__dirname, './src/utils'),
     config: path.resolve(__dirname, './src/config'),
     components: path.resolve(__dirname, './src/components'),
+    // This was originally called "events" and that breaks some NPM dependency
+    // so do not rename it "events":
+    telemetry: path.resolve(__dirname, './src/telemetry'),
     store: path.resolve(__dirname, './src/store'),
     routes: path.resolve(__dirname, './src/routes'),
     icons: path.resolve(__dirname, './src/icons'),
@@ -82,6 +95,7 @@ export default defineConfig(({ command, mode }) => {
   if (command === 'serve' || (command === 'build' && isNetlify)) {
     // Local development
     return {
+      define,
       envPrefix,
       resolve,
       build: {
@@ -112,6 +126,7 @@ export default defineConfig(({ command, mode }) => {
 
     if (isHosted) {
       return {
+        define,
         envPrefix,
         resolve,
         build: {
@@ -131,6 +146,7 @@ export default defineConfig(({ command, mode }) => {
       };
     } else {
       return {
+        define,
         envPrefix,
         resolve,
         build: {
