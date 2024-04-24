@@ -4,28 +4,14 @@ import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { useTheme } from '@mui/material/styles';
-import { ChainName, TokenId } from '@wormhole-foundation/wormhole-connect-sdk';
+import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { AVAILABLE_MARKETS_URL } from 'config/constants';
 import config from 'config';
 import { TokenConfig } from 'config/types';
-import { BigNumber } from 'ethers';
 import TokenIcon from 'icons/TokenIcons';
-import React, {
-  ChangeEvent,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { ChangeEvent, useEffect, useMemo, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { RootState } from 'store';
-import {
-  Balances,
-  ChainBalances,
-  accessChainBalances,
-  formatBalance,
-  setBalances,
-} from 'store/transferInput';
 import { makeStyles } from 'tss-react/mui';
 import { displayAddress, sortTokens } from 'utils';
 import { isGatewayChain } from 'utils/cosmos';
@@ -39,6 +25,8 @@ import Tabs from './Tabs';
 import { CCTPManual_CHAINS } from '../routes/cctpManual';
 import { isTBTCCanonicalChain } from 'routes/tbtc';
 import { CHAIN_ID_ETH } from '@certusone/wormhole-sdk/lib/esm/utils';
+import useGetTokenBalances from 'hooks/useGetTokenBalances';
+import { Balances } from 'store/transferInput';
 
 const useStyles = makeStyles()((theme: any) => ({
   tokensContainer: {
@@ -149,7 +137,7 @@ const displayNativeChain = (token: TokenConfig): string => {
 
 type DisplayTokensProps = {
   tokens: TokenConfig[];
-  balances: any;
+  balances: Balances;
   walletAddress: string | undefined;
   chain: any;
   selectToken: (tokenKey: string) => void;
@@ -176,8 +164,7 @@ function DisplayTokens(props: DisplayTokensProps) {
 
   const showCircularProgress = (token: string): boolean => {
     if (!chain || !walletAddress) return false;
-    if (!balances) return true;
-    if (balances && balances[token] !== null) return true;
+    if (balances[token]?.balance !== null) return true;
     return false;
   };
 
@@ -211,8 +198,8 @@ function DisplayTokens(props: DisplayTokensProps) {
                 <div className={classes.tokenRowRight}>
                   <div className={classes.tokenRowBalanceText}>Balance</div>
                   <div className={classes.tokenRowBalance}>
-                    {balances && balances[token.key] && walletAddress ? (
-                      <div>{balances[token.key]}</div>
+                    {balances[token.key]?.balance && walletAddress ? (
+                      <div>{balances[token.key].balance}</div>
                     ) : showCircularProgress(token.key) ? (
                       <CircularProgress size={14} />
                     ) : (
@@ -293,16 +280,12 @@ function isGatewayNativeToken(token: TokenConfig) {
 
 function TokensModal(props: Props) {
   const theme = useTheme();
-  const dispatch = useDispatch();
   const { open, chain, walletAddress, type } = props;
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const [loading, setLoading] = useState(false);
-  const [balancesLoaded, setBalancesLoaded] = useState(false);
   const [tokens, setTokens] = useState<TokenConfig[]>([]);
   const [search, setSearch] = useState('');
 
   const {
-    balances,
     supportedSourceTokens,
     supportedDestTokens,
     allSupportedDestTokens: allSupportedDestTokensBase,
@@ -320,9 +303,14 @@ function TokensModal(props: Props) {
     return supported.filter((t) => !isGatewayNativeToken(t));
   }, [type, supportedSourceTokens, supportedDestTokens]);
 
-  const chainBalancesCache: ChainBalances | undefined = useMemo(() => {
-    return accessChainBalances(balances, walletAddress, chain);
-  }, [chain, balances, walletAddress]);
+  const queryTokens =
+    type === 'dest' ? allSupportedDestTokens : supportedTokens;
+
+  const { isFetching, balances } = useGetTokenBalances(
+    walletAddress || '',
+    chain,
+    queryTokens,
+  );
 
   // search tokens
   const handleSearch = (
@@ -377,110 +365,6 @@ function TokensModal(props: Props) {
   };
 
   useEffect(() => {
-    setBalancesLoaded(false);
-  }, [chain, walletAddress]);
-
-  const getBalances = useCallback(async () => {
-    if (!walletAddress || !chain) return;
-    const fiveMinutesAgo = Date.now() - 60 * 1000 * 5;
-    if (
-      chainBalancesCache &&
-      chainBalancesCache.balances &&
-      chainBalancesCache.lastUpdated! > fiveMinutesAgo
-    ) {
-      setBalancesLoaded(true);
-      return;
-    }
-
-    const queryTokens =
-      type === 'dest' ? allSupportedDestTokens : supportedTokens;
-    const nativeQueryToken = queryTokens.find(
-      (t) => !t.tokenId && t.nativeChain === chain,
-    );
-    const queryTokensWithIds = queryTokens.filter((t) => !!t.tokenId); // pre-filter so indexes line up
-    const tokenIds = queryTokensWithIds.reduce<TokenId[]>(
-      (tIds, t) => (t.tokenId ? [...tIds, t.tokenId] : tIds),
-      [],
-    );
-    let balances: Balances = {};
-    if (nativeQueryToken) {
-      let nativeBalance: BigNumber | null = null;
-      try {
-        nativeBalance = await config.wh.getNativeBalance(walletAddress, chain);
-        balances = {
-          ...balances,
-          ...formatBalance(chain, nativeQueryToken, nativeBalance),
-        };
-      } catch (e) {
-        console.warn('Failed to fetch native balance', e);
-      }
-    }
-    try {
-      const tokenBalances = await config.wh.getTokenBalances(
-        walletAddress,
-        tokenIds,
-        chain,
-      );
-      balances = tokenIds.reduce<Balances>(
-        (balances, tId, idx) => ({
-          ...balances,
-          ...formatBalance(chain, queryTokensWithIds[idx], tokenBalances[idx]),
-        }),
-        balances,
-      );
-    } catch (e) {
-      console.warn('Failed to fetch balances', e);
-    }
-
-    dispatch(
-      setBalances({
-        address: walletAddress,
-        chain,
-        balances,
-      }),
-    );
-  }, [
-    walletAddress,
-    chain,
-    dispatch,
-    type,
-    supportedTokens,
-    chainBalancesCache,
-    allSupportedDestTokens,
-  ]);
-
-  // fetch token balances and set in store
-  useEffect(() => {
-    let active = true;
-    if (!walletAddress || !chain) {
-      setTokens(supportedTokens);
-      return;
-    }
-
-    if (!balancesLoaded) {
-      setLoading(true);
-      getBalances().finally(() => {
-        if (active) {
-          setLoading(false);
-          setBalancesLoaded(true);
-        }
-      });
-    }
-    return () => {
-      active = false;
-    };
-  }, [
-    walletAddress,
-    supportedTokens,
-    chain,
-    dispatch,
-    getBalances,
-    type,
-    open,
-    balancesLoaded,
-  ]);
-
-  useEffect(() => {
     // get tokens that exist on the chain and have a balance greater than 0
     const filtered = supportedTokens.filter((t) => {
       if (!t.tokenId && t.nativeChain !== chain) return false;
@@ -506,13 +390,13 @@ function TokensModal(props: Props) {
       }
 
       if (type === 'dest') return true;
-      if (!chainBalancesCache) return true;
-      const b = chainBalancesCache.balances[t.key];
-      const isNonzeroBalance = b !== null && b !== '0';
+      if (!balances[t.key]) return true;
+      const { balance } = balances[t.key];
+      const isNonzeroBalance = balance !== null && balance !== '0';
       return isNonzeroBalance;
     });
     setTokens(filtered);
-  }, [chainBalancesCache, chain, supportedTokens, type]);
+  }, [balances, chain, supportedTokens, type]);
 
   const tabs = [
     {
@@ -520,12 +404,12 @@ function TokensModal(props: Props) {
       panel: (
         <DisplayTokens
           tokens={displayedTokens}
-          balances={chainBalancesCache?.balances}
+          balances={balances}
           walletAddress={walletAddress}
           chain={chain}
           selectToken={selectToken}
           moreTokens={handleMoreTokens}
-          loading={loading}
+          loading={isFetching}
           search={search}
         />
       ),
@@ -535,12 +419,12 @@ function TokensModal(props: Props) {
       panel: (
         <DisplayTokens
           tokens={type === 'dest' ? allSupportedDestTokens : supportedTokens}
-          balances={chainBalancesCache?.balances}
+          balances={balances}
           walletAddress={walletAddress}
           chain={chain}
           selectToken={selectToken}
           moreTokens={handleMoreTokens}
-          loading={loading}
+          loading={isFetching}
           search={search}
         />
       ),

@@ -22,7 +22,7 @@ import AmountInput from './AmountInput';
 import TokensModal from 'components/TokensModal';
 import ChainsModal from 'components/ChainsModal';
 import { isPorticoRoute } from 'routes/porticoBridge/utils';
-import useGetTokenBalance from 'hooks/useGetTokenBalance';
+import useGetTokenBalances from 'hooks/useGetTokenBalances';
 
 function FromInputs() {
   const dispatch = useDispatch();
@@ -50,7 +50,15 @@ function FromInputs() {
     destToken,
   } = useSelector((state: RootState) => state.transferInput);
   const tokenConfig = token && config.tokens[token];
-  const balance = useGetTokenBalance(wallet.address, fromChain, token);
+  const tokenConfigArr = useMemo(
+    () => (tokenConfig ? [tokenConfig] : []),
+    [tokenConfig],
+  );
+  const { balances } = useGetTokenBalances(
+    wallet.address,
+    fromChain,
+    tokenConfigArr,
+  );
 
   const isDisabled = useCallback(
     (chain: ChainName) => isDisabledChain(chain, wallet),
@@ -182,7 +190,7 @@ function FromInputs() {
         onChainClick={() => setShowChainsModal(true)}
         tokenInput={tokenInput}
         amountInput={amountInput}
-        balance={balance}
+        balance={balances[token]?.balance || undefined}
         tokenPrice={getTokenPrice(prices, config.tokens[token])}
       />
       {showTokensModal && (
