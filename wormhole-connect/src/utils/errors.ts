@@ -12,7 +12,10 @@ import {
   ERR_UNKNOWN,
   ERR_USER_REJECTED,
 } from 'telemetry/types';
-import { INSUFFICIENT_ALLOWANCE } from '@wormhole-foundation/wormhole-connect-sdk';
+import {
+  INSUFFICIENT_ALLOWANCE,
+  InsufficientFundsForGasError,
+} from '@wormhole-foundation/wormhole-connect-sdk';
 import {
   DestinationContractIsPausedError,
   NotEnoughCapacityError,
