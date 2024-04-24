@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { WormholeConnectConfig } from 'config/types';
 
 interface Props {
+  children: React.ReactElement;
   onCustomConfigChange: (config: WormholeConnectConfig | undefined) => void;
 }
 
@@ -78,36 +79,43 @@ export default function DemoAppHeader(props: Props) {
   useEffect(emitCustomConfig, []);
 
   return (
-    <header>
-      <div>
-        <h1>Wormhole Connect - demo app</h1>
-        <a
-          href="#"
-          id="custom-config-toggle"
-          onClick={(e) => {
-            e.preventDefault();
-            setCustomConfigOpen(!customConfigOpen);
-          }}
-        >
-          {customConfigOpen ? '▾' : '▸'} Custom config{' '}
-          {customConfigInput ? (
-            <span className="custom-config-bubble">●</span>
-          ) : null}
-        </a>
-      </div>
-      {customConfigOpen ? (
-        <div id="custom-config">
-          Paste in a custom config here (supports JS code)
-          <textarea
-            onChange={updateCustomConfig}
-            onBlur={() => {
-              emitCustomConfig();
-              prettifyInput();
+    <>
+      <header>
+        <div>
+          <h1>Wormhole Connect - demo app</h1>
+          <a
+            href="#"
+            id="custom-config-toggle"
+            onClick={(e) => {
+              e.preventDefault();
+              setCustomConfigOpen(!customConfigOpen);
             }}
-            value={customConfigInput}
-          />
+          >
+            {customConfigOpen ? '▾' : '▸'} Custom config{' '}
+            {customConfigInput ? (
+              <span className="custom-config-bubble">●</span>
+            ) : null}
+          </a>
         </div>
-      ) : undefined}
-    </header>
+      </header>
+
+      <article>
+        <div id="demo-contents">{props.children}</div>
+
+        {customConfigOpen ? (
+          <div id="custom-config">
+            <textarea
+              onChange={updateCustomConfig}
+              placeholder={'{\n  "env": "mainnet"\n}'}
+              onBlur={() => {
+                emitCustomConfig();
+                prettifyInput();
+              }}
+              value={customConfigInput}
+            />
+          </div>
+        ) : undefined}
+      </article>
+    </>
   );
 }

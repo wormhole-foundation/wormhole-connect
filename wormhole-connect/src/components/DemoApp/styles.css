@@ -1,3 +1,11 @@
+article {
+  display: flex;
+}
+
+#demo-contents {
+  flex-grow: 2;
+}
+
 header {
   font-family: sans-serif;
   border-bottom: 1px solid #444;
@@ -26,16 +34,19 @@ header h1 {
 }
 
 #custom-config {
-  margin-top: 20px;
+  flex-grow: 1;
   flex-direction: column;
   padding: 5px;
+  height: 100%;
 }
 
 #custom-config textarea {
   background: black;
   border: 1px solid #444;
-  min-height: 200px;
+  min-height: 400px;
   color: white;
+  width: calc(100% - 10px);
+  resize: vertical;
 }
 
 .custom-config-bubble {
