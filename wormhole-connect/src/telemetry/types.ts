@@ -68,6 +68,7 @@ export type TransferErrorType =
   | typeof ERR_SOURCE_CONTRACT_PAUSED
   | typeof ERR_DESTINATION_CONTRACT_PAUSED
   | typeof ERR_UNSUPPORTED_ABI_VERSION
+  | typeof ERR_INSUFFICIENT_GAS
   | typeof ERR_USER_REJECTED
   | typeof ERR_TIMEOUT
   | typeof ERR_UNKNOWN;
