@@ -1,13 +1,9 @@
 import './styles.css';
 import React, { useEffect } from 'react';
 import { useState } from 'react';
+import WormholeConnect from '../../WormholeConnect';
 import { WormholeConnectConfig } from 'config/types';
 import { compressToBase64, decompressFromBase64 } from 'lz-string';
-
-interface Props {
-  children: React.ReactElement;
-  onCustomConfigChange: (config: WormholeConnectConfig | undefined) => void;
-}
 
 const MAX_URL_SIZE = 30_000; // 30kb (HTTP header limit is set to 32kb)
 
@@ -54,11 +50,13 @@ const setUrlQueryParam = (configInput: string) => {
 
 const LOCAL_STORAGE_KEY = 'wormhole-connect:demo:custom-config';
 
-function DemoApp(props: Props) {
+function DemoApp() {
+  const [customConfig, setCustomConfig] = useState<WormholeConnectConfig>({});
   const [customConfigOpen, setCustomConfigOpen] = useState(false);
   const [customConfigInput, setCustomConfigInput] = useState(
     loadInitialConfig(),
   );
+  const [customConfigNonce, setCustomConfigNonce] = useState(1);
 
   const updateCustomConfig = (e: any) => {
     const input = e.target.value;
@@ -71,7 +69,8 @@ function DemoApp(props: Props) {
 
     try {
       const parsed = parseConfig(customConfigInput);
-      props.onCustomConfigChange(parsed);
+      setCustomConfig(parsed);
+      setCustomConfigNonce(customConfigNonce + 1);
     } catch (e) {
       console.error(e);
     }
@@ -101,7 +100,12 @@ function DemoApp(props: Props) {
       </header>
 
       <article>
-        <div id="demo-contents">{props.children}</div>
+        <div id="demo-contents">
+          <WormholeConnect
+            key={customConfigNonce}
+            config={customConfig ?? {}}
+          />
+        </div>
 
         {customConfigOpen ? (
           <div id="custom-config">
