@@ -10,6 +10,20 @@ interface Props {
 
 const MAX_URL_SIZE = 30_000; // 30kb (HTTP header limit is set to 32kb)
 
+const parseConfig = (config: string): WormholeConnectConfig => {
+  if (config) {
+    try {
+      return eval(
+        `(function() { return ${config} })()`,
+      ) as WormholeConnectConfig;
+    } catch (e) {
+      console.log('Failed to parse custom config: ', e, config);
+    }
+  }
+
+  return {};
+};
+
 const loadInitialConfig = (): string => {
   const params = new URLSearchParams(window.location.search);
   const configQuery = params.get('config');
@@ -17,34 +31,23 @@ const loadInitialConfig = (): string => {
 
   const config = configQuery || configCached;
 
-  if (config) {
-    return JSON.stringify(JSON.parse(config), null, 2);
-  } else {
-    return '';
-  }
+  return config ?? '';
 };
 
 const setUrlQueryParam = (configInput: string) => {
   const url = new URL(window.location.toString());
 
-  let stringConfig = '';
-
-  try {
-    stringConfig = JSON.stringify(JSON.parse(configInput));
-  } catch (e) {
-    // Error parsing JSON, set URL to nothing
-  }
-  if (stringConfig === '' || stringConfig.length > MAX_URL_SIZE) {
+  if (configInput === '' || configInput.length > MAX_URL_SIZE) {
     url.searchParams.delete('config');
   } else {
-    url.searchParams.set('config', stringConfig);
+    url.searchParams.set('config', configInput);
   }
   history.replaceState({}, '', url.toString());
 };
 
 const LOCAL_STORAGE_KEY = 'wormhole-connect:demo:custom-config';
 
-export default function DemoAppHeader(props: Props) {
+function DemoApp(props: Props) {
   const [customConfigOpen, setCustomConfigOpen] = useState(false);
   const [customConfigInput, setCustomConfigInput] = useState(
     loadInitialConfig(),
@@ -55,21 +58,12 @@ export default function DemoAppHeader(props: Props) {
     setCustomConfigInput(input);
   };
 
-  const prettifyInput = () => {
-    try {
-      const pretty = JSON.stringify(JSON.parse(customConfigInput), null, 2);
-      setCustomConfigInput(pretty);
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
   const emitCustomConfig = () => {
     localStorage.setItem(LOCAL_STORAGE_KEY, customConfigInput);
     setUrlQueryParam(customConfigInput);
 
     try {
-      const parsed = JSON.parse(customConfigInput);
+      const parsed = parseConfig(customConfigInput);
       props.onCustomConfigChange(parsed);
     } catch (e) {
       console.error(e);
@@ -109,7 +103,6 @@ export default function DemoAppHeader(props: Props) {
               placeholder={'{\n  "env": "mainnet"\n}'}
               onBlur={() => {
                 emitCustomConfig();
-                prettifyInput();
               }}
               value={customConfigInput}
             />
@@ -119,3 +112,5 @@ export default function DemoAppHeader(props: Props) {
     </>
   );
 }
+
+export default DemoApp;
