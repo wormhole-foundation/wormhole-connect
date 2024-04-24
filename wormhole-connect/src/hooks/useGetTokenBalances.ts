@@ -88,9 +88,9 @@ const useGetTokenBalances = (
             chain,
           );
           result.forEach((balance, i) => {
-            const { key } = needsUpdate[i];
-            balances[key] = {
-              balance: formatBalance(chain, needsUpdate[i], balance),
+            const token = needsUpdate[i];
+            balances[token.key] = {
+              balance: formatBalance(chain, token, balance),
               lastUpdated: now,
             };
           });
