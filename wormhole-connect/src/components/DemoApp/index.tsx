@@ -2,6 +2,7 @@ import './styles.css';
 import React, { useEffect } from 'react';
 import { useState } from 'react';
 import { WormholeConnectConfig } from 'config/types';
+import { compressToBase64, decompressFromBase64 } from 'lz-string';
 
 interface Props {
   children: React.ReactElement;
@@ -29,18 +30,24 @@ const loadInitialConfig = (): string => {
   const configQuery = params.get('config');
   const configCached = localStorage.getItem(LOCAL_STORAGE_KEY);
 
-  const config = configQuery || configCached;
-
-  return config ?? '';
+  if (configQuery) {
+    return decompressFromBase64(configQuery);
+  } else if (configCached) {
+    return configCached;
+  } else {
+    return '';
+  }
 };
 
 const setUrlQueryParam = (configInput: string) => {
   const url = new URL(window.location.toString());
 
+  const compressedQuery = compressToBase64(configInput);
+
   if (configInput === '' || configInput.length > MAX_URL_SIZE) {
     url.searchParams.delete('config');
   } else {
-    url.searchParams.set('config', configInput);
+    url.searchParams.set('config', compressedQuery);
   }
   history.replaceState({}, '', url.toString());
 };
