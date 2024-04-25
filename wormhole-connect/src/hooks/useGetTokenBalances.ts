@@ -6,7 +6,7 @@ import {
   accessBalance,
   Balances,
   formatBalance,
-  setBalances as setBalancesCache,
+  updateBalances,
 } from 'store/transferInput';
 import config from 'config';
 import { TokenConfig } from 'config/types';
@@ -104,7 +104,7 @@ const useGetTokenBalances = (
         setBalances(balances);
         if (updateCache) {
           dispatch(
-            setBalancesCache({
+            updateBalances({
               address: walletAddress,
               chain,
               balances,

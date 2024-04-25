@@ -362,7 +362,7 @@ export const transferInputSlice = createSlice({
     ) => {
       state.receiveAmount = errorDataWrapper(payload);
     },
-    setBalances: (
+    updateBalances: (
       state: TransferInputState,
       {
         payload,
@@ -374,8 +374,8 @@ export const transferInputSlice = createSlice({
     ) => {
       const { chain, balances, address } = payload;
       if (!address) return;
-      state.balances[address] = state.balances[address] ?? {};
-      state.balances[address][chain] = state.balances[address][chain] ?? {
+      state.balances[address] ??= {};
+      state.balances[address][chain] ??= {
         balances: {},
       };
       state.balances[address][chain]!.balances = {
@@ -546,7 +546,7 @@ export const {
   setTransferRoute,
   setSendingGasEst,
   setClaimGasEst,
-  setBalances,
+  updateBalances,
   clearTransfer,
   setIsTransactionInProgress,
   setReceiverNativeBalance,
