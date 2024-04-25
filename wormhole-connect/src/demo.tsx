@@ -1,14 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import WormholeConnect from './WormholeConnect';
 import ErrorBoundary from './components/ErrorBoundary';
+import DemoApp from './components/DemoApp';
 export * from './theme';
 
 // This is the demo app used for local development
-
-function DemoApp() {
-  return <WormholeConnect />;
-}
 
 const root = ReactDOM.createRoot(document.querySelector('main') as HTMLElement);
 

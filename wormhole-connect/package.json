@@ -44,6 +44,7 @@
     "axios": "^1.2.4",
     "cosmjs-types": "^0.9.0",
     "ethers": "^5.7.2",
+    "lz-string": "^1.5.0",
     "material-ui-popup-state": "^5.0.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -53,8 +54,8 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "REACT_APP_CONNECT_ENV=testnet vite",
-    "start:mainnet": "REACT_APP_CONNECT_ENV=mainnet vite",
+    "start": "NODE_OPTIONS=--max-http-header-size=32000 REACT_APP_CONNECT_ENV=testnet vite",
+    "start:mainnet": "NODE_OPTIONS=--max-http-header-size=32000 REACT_APP_CONNECT_ENV=mainnet vite",
     "build": "npm run build:lib; npm run build:hosted; npm run build:netlify",
     "build:lib": "NODE_ENV=production NODE_OPTIONS=--max-old-space-size=8192 vite build",
     "build:hosted": "VITE_BUILD_HOSTED=1 NODE_ENV=production NODE_OPTIONS=--max-old-space-size=8192 vite build",

@@ -1,6 +1,5 @@
 import { isEqualCaseInsensitive } from 'utils';
-import config from '.';
-import { BridgeDefaults, NttGroups, TokensConfig } from './types';
+import { BridgeDefaults, NttGroups, TokensConfig, ChainsConfig } from './types';
 
 const error = (msg: string) => {
   console.error(`Wormhole Connect: ${msg}`);
@@ -144,7 +143,11 @@ export const mergeNttGroups = (
   return builtin;
 };
 
-export const validateDefaults = (defaults: BridgeDefaults | undefined) => {
+export const validateDefaults = (
+  defaults: BridgeDefaults,
+  chains: ChainsConfig,
+  tokens: TokensConfig,
+) => {
   if (!defaults) return;
   const {
     fromNetwork: fromChain,
@@ -153,7 +156,7 @@ export const validateDefaults = (defaults: BridgeDefaults | undefined) => {
     requiredNetwork,
   } = defaults;
   if (fromChain) {
-    const chain = config.chains[fromChain];
+    const chain = chains[fromChain];
     if (!chain) {
       error(
         `Invalid chain name "${fromChain}" specified for bridgeDefaults.fromNetwork`,
@@ -161,7 +164,7 @@ export const validateDefaults = (defaults: BridgeDefaults | undefined) => {
     }
   }
   if (toChain) {
-    const chain = config.chains[toChain];
+    const chain = chains[toChain];
     if (!chain) {
       error(
         `Invalid chain name "${toChain}" specified for bridgeDefaults.toNetwork`,
@@ -176,7 +179,7 @@ export const validateDefaults = (defaults: BridgeDefaults | undefined) => {
     }
   }
   if (toChain && fromChain && requiredNetwork) {
-    const requiredConfig = config.chains[requiredNetwork];
+    const requiredConfig = chains[requiredNetwork];
     if (!requiredConfig) {
       error(
         `Invalid network value "${requiredNetwork}" specified for bridgeDefaults.requiredNetwork`,
@@ -189,14 +192,14 @@ export const validateDefaults = (defaults: BridgeDefaults | undefined) => {
     }
   }
   if (token) {
-    const tokenConfig = config.tokens[token];
+    const tokenConfig = tokens[token];
     if (!tokenConfig) {
       error(`Invalid token "${token}" specified for bridgeDefaults.token`);
     }
   }
   if (fromChain && token) {
-    const chain = config.chains[fromChain]!;
-    const { tokenId, nativeChain } = config.tokens[token]!;
+    const chain = chains[fromChain]!;
+    const { tokenId, nativeChain } = tokens[token]!;
     if (!tokenId && nativeChain !== chain.key) {
       error(
         `Invalid token "${token}" specified for bridgeDefaults.token. It does not exist on "${fromChain}"`,
