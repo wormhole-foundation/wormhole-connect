@@ -293,7 +293,7 @@ export const validateAll = async (
     destToken: validateDestToken(destToken, toChain, supportedDestTokens),
     amount: validateAmount(
       amount,
-      sendingTokenBalance,
+      sendingTokenBalance?.balance || null,
       maxSendAmount,
       isCctpTx,
     ),

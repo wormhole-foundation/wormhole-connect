@@ -23,9 +23,12 @@ import { isPorticoRoute } from 'routes/porticoBridge/utils';
 import { isNttRoute } from 'routes';
 import { getNttGroupKey, getNttTokenByGroupKey } from 'utils/ntt';
 
-export type Balances = { [key: string]: string | null };
+export type Balance = {
+  lastUpdated: number;
+  balance: string | null;
+};
+export type Balances = { [key: string]: Balance };
 export type ChainBalances = {
-  lastUpdated: number | undefined;
   balances: Balances;
 };
 export type BalancesCache = { [key in ChainName]?: ChainBalances };
@@ -40,7 +43,7 @@ export const formatBalance = (
   const decimals = getTokenDecimals(toChainId(chain), token.tokenId);
   const formattedBalance =
     balance !== null ? toDecimals(balance, decimals, 6) : null;
-  return { [token.key]: formattedBalance };
+  return formattedBalance;
 };
 
 // for use in USDC or other tokens that have versions on many chains
@@ -75,9 +78,9 @@ export const accessBalance = (
   walletAddress: WalletAddress | undefined,
   chain: ChainName | undefined,
   token: string,
-): string | null => {
+): Balance | undefined => {
   const chainBalances = accessChainBalances(balances, walletAddress, chain);
-  if (!chainBalances) return null;
+  if (!chainBalances) return undefined;
   return chainBalances.balances[token];
 };
 
@@ -356,7 +359,7 @@ export const transferInputSlice = createSlice({
     ) => {
       state.receiveAmount = errorDataWrapper(payload);
     },
-    setBalances: (
+    updateBalances: (
       state: TransferInputState,
       {
         payload,
@@ -368,17 +371,14 @@ export const transferInputSlice = createSlice({
     ) => {
       const { chain, balances, address } = payload;
       if (!address) return;
-      const chainBalances = {
-        [chain]: {
-          lastUpdated: Date.now(),
-          balances,
-        },
+      state.balances[address] ??= {};
+      state.balances[address][chain] ??= {
+        balances: {},
       };
-      const currentWalletBallances = state.balances[address] || {};
-      state.balances[address] = Object.assign(
-        currentWalletBallances,
-        chainBalances,
-      );
+      state.balances[address][chain]!.balances = {
+        ...state.balances[address][chain]!.balances,
+        ...balances,
+      };
     },
     setReceiverNativeBalance: (
       state: TransferInputState,
@@ -543,7 +543,7 @@ export const {
   setTransferRoute,
   setSendingGasEst,
   setClaimGasEst,
-  setBalances,
+  updateBalances,
   clearTransfer,
   setIsTransactionInProgress,
   setReceiverNativeBalance,
