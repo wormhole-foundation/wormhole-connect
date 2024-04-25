@@ -789,7 +789,9 @@ export abstract class PorticoBridge extends BaseRoute {
       };
     }
     const provider = config.wh.mustGetProvider(txData.toChain);
-    const receipt = await provider.getTransactionReceipt(receiveTx);
+    const receipt = await provider.getTransactionReceipt(
+      hexlify(receiveTx, { allowMissingPrefix: true }),
+    );
     const payloadBuffer = Buffer.from(txData.payload!.slice(2), 'hex');
     const {
       finalTokenAddress,
