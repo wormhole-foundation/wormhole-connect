@@ -4,7 +4,6 @@ import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 
 import { RootState } from 'store';
 import {
-  accessBalance,
   isDisabledChain,
   selectToChain,
   setDestToken,
@@ -20,6 +19,7 @@ import TokenWarnings from './TokenWarnings';
 import TokensModal from 'components/TokensModal';
 import ChainsModal from 'components/ChainsModal';
 import { isPorticoRoute } from 'routes/porticoBridge/utils';
+import useGetTokenBalances from 'hooks/useGetTokenBalances';
 
 function ToInputs() {
   const dispatch = useDispatch();
@@ -31,7 +31,6 @@ function ToInputs() {
     validations,
     fromChain,
     toChain,
-    balances,
     destToken,
     receiveAmount,
     route,
@@ -42,10 +41,16 @@ function ToInputs() {
     usdPrices: { data },
   } = useSelector((state: RootState) => state.tokenPrices);
   const prices = data || {};
-  const balance =
-    accessBalance(balances, receiving.address, toChain, destToken) || undefined;
-
   const tokenConfig = config.tokens[destToken];
+  const tokenConfigArr = useMemo(
+    () => (tokenConfig ? [tokenConfig] : []),
+    [tokenConfig],
+  );
+  const { balances } = useGetTokenBalances(
+    receiving.address,
+    toChain,
+    tokenConfigArr,
+  );
 
   const selectToken = (token: string) => {
     dispatch(setDestToken(token));
@@ -156,7 +161,7 @@ function ToInputs() {
         onChainClick={() => setShowChainsModal(true)}
         tokenInput={tokenInput}
         amountInput={amountInput}
-        balance={balance}
+        balance={balances[destToken]?.balance || undefined}
         warning={<TokenWarnings />}
         tokenPrice={getTokenPrice(prices, config.tokens[destToken])}
       />
