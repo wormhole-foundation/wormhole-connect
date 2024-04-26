@@ -27,7 +27,7 @@ export const getMessageSolana = async (
   if (!response) throw new Error('Transaction not found');
   const fromChain: ChainName = 'solana';
   const core = config.wh.mustGetContracts(fromChain).core;
-  const accounts = response.transaction.message.getAccountKeys();
+  const accounts = await context.getMessageAccountKeys(response);
   const wormholeIx = response.meta?.innerInstructions
     ?.flatMap((ix) => ix.instructions)
     .find((ix) => accounts?.get(ix.programIdIndex)?.toString() === core);

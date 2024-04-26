@@ -36,6 +36,7 @@
     "@mui/material": "^5.11.4",
     "@mysten/sui.js": "^0.32.2",
     "@reduxjs/toolkit": "^1.9.1",
+    "@solana/spl-token": "^0.4.6",
     "@solana/wallet-adapter-wallets": "^0.19.25",
     "@solana/web3.js": "^1.73.0",
     "@wormhole-foundation/sdk": "^0.7.0-beta.3",

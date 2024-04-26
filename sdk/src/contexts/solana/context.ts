@@ -18,17 +18,21 @@ import {
   Account,
   getAssociatedTokenAddressSync,
   TokenAccountNotFoundError,
+  TOKEN_2022_PROGRAM_ID,
 } from '@solana/spl-token';
 import {
   clusterApiUrl,
   Commitment,
   Connection,
   Keypair,
+  MessageAccountKeys,
   PublicKey,
   PublicKeyInitData,
   SystemProgram,
   Transaction,
   TransactionInstruction,
+  VersionedTransaction,
+  VersionedTransactionResponse,
 } from '@solana/web3.js';
 import { BigNumber, BigNumberish } from 'ethers';
 import { arrayify, zeroPad, hexlify } from 'ethers/lib/utils';
@@ -86,9 +90,9 @@ const SOLANA_TESTNET_EMITTER_ID =
 /**
  * @category Solana
  */
-export class SolanaContext<
-  T extends WormholeContext,
-> extends RelayerAbstract<Transaction> {
+export class SolanaContext<T extends WormholeContext> extends RelayerAbstract<
+  Transaction | VersionedTransaction
+> {
   readonly type = Context.SOLANA;
   readonly contracts: SolContracts<T>;
   readonly context: T;
@@ -196,16 +200,27 @@ export class SolanaContext<
     const addresses = await Promise.all(
       tokenIds.map((tokenId) => this.getForeignAsset(tokenId, chain)),
     );
-    const splParsedTokenAccounts =
-      await this.connection.getParsedTokenAccountsByOwner(
+    const [tokenAccounts, token2022Accounts] = await Promise.all([
+      this.connection.getParsedTokenAccountsByOwner(
         new PublicKey(walletAddress),
         {
           programId: new PublicKey(TOKEN_PROGRAM_ID),
         },
-      );
+      ),
+      this.connection.getParsedTokenAccountsByOwner(
+        new PublicKey(walletAddress),
+        {
+          programId: new PublicKey(TOKEN_2022_PROGRAM_ID),
+        },
+      ),
+    ]);
+    const splParsedTokenAccounts = [
+      ...tokenAccounts.value,
+      ...token2022Accounts.value,
+    ];
     return addresses.map((address) => {
       if (!address) return null;
-      const amount = splParsedTokenAccounts.value.find(
+      const amount = splParsedTokenAccounts.find(
         (v) => v?.account.data.parsed?.info?.mint === address,
       )?.account.data.parsed?.info?.tokenAmount?.amount;
       if (!amount) return null;
@@ -545,7 +560,7 @@ export class SolanaContext<
     recipientAddress: string,
     relayerFee?: string,
     commitment?: Commitment,
-  ): Promise<Transaction> {
+  ): Promise<Transaction | VersionedTransaction> {
     if (!this.connection) throw new Error('no connection');
     const destContext = this.context.getContext(recipientChain);
     const formattedRecipient = arrayify(
@@ -1205,5 +1220,41 @@ export class SolanaContext<
       address: NATIVE_MINT.toString(),
       chain: 'solana',
     };
+  }
+
+  async getMessageAccountKeys(
+    response: VersionedTransactionResponse,
+  ): Promise<MessageAccountKeys> {
+    // Resolve any LUT accounts if necessary
+    let accounts: MessageAccountKeys;
+    // a string type is indicative of a 'legacy' transaction
+    if (typeof response.transaction.message.version !== 'string') {
+      if (response.meta!.loadedAddresses) {
+        accounts = response.transaction.message.getAccountKeys({
+          accountKeysFromLookups: response.meta!.loadedAddresses,
+        });
+      } else {
+        const atls = await Promise.all(
+          response.transaction.message.addressTableLookups.map(async (atl) => {
+            const lut = await this.connection!.getAddressLookupTable(
+              atl.accountKey,
+            );
+
+            if (!lut || !lut.value)
+              throw new Error(
+                'Could not resolve lookup table: ' + atl.accountKey.toBase58(),
+              );
+
+            return lut.value;
+          }),
+        );
+        accounts = response.transaction.message.getAccountKeys({
+          addressLookupTableAccounts: atls,
+        });
+      }
+    } else {
+      accounts = response.transaction.message.getAccountKeys();
+    }
+    return accounts;
   }
 }

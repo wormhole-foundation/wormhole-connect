@@ -35,7 +35,7 @@ import {
   DestinationContractIsPausedError,
 } from './errors';
 import { WormholeTransceiver, getMessageEvm } from './chains/evm';
-import { NttManagerSolana, getMessageSolana } from './chains/solana';
+import { getMessageSolana } from './chains/solana';
 import { formatGasFee } from 'routes/utils';
 import { NO_INPUT } from 'utils/style';
 import { estimateAverageGasFee } from 'utils/gas';
@@ -226,13 +226,15 @@ export abstract class NttBase extends BaseRoute {
     if (!recipientNttManagerAddress)
       throw new Error('recipient ntt manager not found');
     if (
-      await getNttManager(recipientChain, recipientNttManagerAddress).isPaused()
+      await (
+        await getNttManager(recipientChain, recipientNttManagerAddress)
+      ).isPaused()
     ) {
       throw new DestinationContractIsPausedError();
     }
     const nttManagerAddress = getNttManagerAddress(tokenConfig, nttGroupKey);
     if (!nttManagerAddress) throw new Error('ntt manager not found');
-    const nttManager = getNttManager(sendingChain, nttManagerAddress);
+    const nttManager = await getNttManager(sendingChain, nttManagerAddress);
     if (await nttManager.isPaused()) {
       throw new ContractIsPausedError();
     }
@@ -263,7 +265,7 @@ export abstract class NttBase extends BaseRoute {
     if (!isSignedNttMessage(signedMessage))
       throw new Error('Not a signed NttMessage');
     const { recipientNttManager, vaa } = signedMessage;
-    const nttManager = getNttManager(chain, recipientNttManager);
+    const nttManager = await getNttManager(chain, recipientNttManager);
     if (await nttManager.isPaused()) throw new ContractIsPausedError();
     const nttConfig = getNttManagerConfigByAddress(
       recipientNttManager,
@@ -278,8 +280,12 @@ export abstract class NttBase extends BaseRoute {
         nttConfig.transceivers[0].address,
       );
       return await transceiver.receiveMessage(vaa, payer);
-    } else if (toChainName(chain) === 'solana')
-      return await (nttManager as NttManagerSolana).receiveMessage(vaa, payer);
+    } else if (toChainName(chain) === 'solana') {
+      if ('receiveMessage' in nttManager) {
+        return await nttManager.receiveMessage(vaa, payer);
+      }
+      throw new Error("Method 'receiveMessage' not found");
+    }
     throw new Error('Unsupported chain');
   }
 
@@ -296,9 +302,8 @@ export abstract class NttBase extends BaseRoute {
     chain: ChainId | ChainName,
     nttManagerAddress: string,
   ): Promise<string> {
-    return await getNttManager(
-      chain,
-      nttManagerAddress,
+    return await (
+      await getNttManager(chain, nttManagerAddress)
     ).getCurrentOutboundCapacity();
   }
 
@@ -307,9 +312,8 @@ export abstract class NttBase extends BaseRoute {
     nttManagerAddress: string,
     fromChain: ChainId | ChainName,
   ): Promise<string> {
-    return await getNttManager(
-      chain,
-      nttManagerAddress,
+    return await (
+      await getNttManager(chain, nttManagerAddress)
     ).getCurrentInboundCapacity(fromChain);
   }
 
@@ -317,7 +321,9 @@ export abstract class NttBase extends BaseRoute {
     chain: ChainId | ChainName,
     nttManagerAddress: string,
   ): Promise<number> {
-    return await getNttManager(chain, nttManagerAddress).getRateLimitDuration();
+    return await (
+      await getNttManager(chain, nttManagerAddress)
+    ).getRateLimitDuration();
   }
 
   async getInboundQueuedTransfer(
@@ -325,9 +331,8 @@ export abstract class NttBase extends BaseRoute {
     nttManagerAddress: string,
     messageDigest: string,
   ): Promise<InboundQueuedTransfer | undefined> {
-    return await getNttManager(
-      chain,
-      nttManagerAddress,
+    return await (
+      await getNttManager(chain, nttManagerAddress)
     ).getInboundQueuedTransfer(messageDigest);
   }
 
@@ -338,7 +343,7 @@ export abstract class NttBase extends BaseRoute {
     recipientAddress: string,
     payer: string,
   ): Promise<string> {
-    const nttManager = getNttManager(chain, nttManagerAddress);
+    const nttManager = await getNttManager(chain, nttManagerAddress);
     if (await nttManager.isPaused()) {
       throw new ContractIsPausedError();
     }
@@ -397,7 +402,7 @@ export abstract class NttBase extends BaseRoute {
       throw new Error('Invalid signed message');
     }
     const { recipientNttManager, messageDigest } = signedMessage;
-    const nttManager = getNttManager(chain, recipientNttManager);
+    const nttManager = await getNttManager(chain, recipientNttManager);
     return await nttManager.isTransferCompleted(messageDigest);
   }
 
@@ -438,7 +443,9 @@ export abstract class NttBase extends BaseRoute {
         } else if (toChainName(toChain) === 'solana') {
           const connection = solanaContext().connection;
           if (!connection) throw new Error('Connection not found');
-          const tx = await connection.getParsedTransaction(receiveTx);
+          const tx = await connection.getParsedTransaction(receiveTx, {
+            maxSupportedTransactionVersion: 0,
+          });
           if (tx?.meta?.fee) {
             gas = formatGasFee(toChain, BigNumber.from(tx.meta.fee));
           }

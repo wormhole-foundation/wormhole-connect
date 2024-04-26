@@ -19,7 +19,7 @@
     "@cosmjs/tendermint-rpc": "^0.31.3",
     "@mysten/sui.js": "^0.32.2",
     "@nomad-xyz/multi-provider": "^1.1.0",
-    "@solana/spl-token": "^0.3.7",
+    "@solana/spl-token": "^0.4.6",
     "@solana/web3.js": "^1.73.0",
     "aptos": "1.5.0",
     "axios": "^0.27.2",

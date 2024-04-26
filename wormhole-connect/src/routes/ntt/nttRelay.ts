@@ -26,7 +26,7 @@ import {
 import { NO_INPUT } from 'utils/style';
 import { TokenPrices } from 'store/tokenPrices';
 import { toDecimals, toFixedDecimals } from 'utils/balance';
-import { NttManagerEvm, WormholeTransceiver } from './chains/evm';
+import { WormholeTransceiver } from './chains/evm';
 import { NttQuoter } from './chains/solana/nttQuoter';
 import config from 'config';
 import {
@@ -35,6 +35,7 @@ import {
   getNttManagerConfig,
   getNttManagerConfigByAddress,
 } from 'utils/ntt';
+import { getManagerEvm } from './chains/evm/cache';
 
 export class NttRelay extends NttBase {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean = false;
@@ -107,7 +108,7 @@ export class NttRelay extends NttBase {
     );
     if (!nttConfig) throw new Error('no ntt config');
     if (isEvmChain(sourceChain)) {
-      const nttManager = new NttManagerEvm(sourceChain, nttManagerAddress);
+      const nttManager = await getManagerEvm(sourceChain, nttManagerAddress);
       if (nttConfig.transceivers[0].type !== 'wormhole')
         throw new Error('no wormhole transceiver');
       const deliveryPrice = await nttManager.quoteDeliveryPrice(
@@ -253,7 +254,7 @@ export class NttRelay extends NttBase {
       throw new Error('invalid txData');
     }
     const { toChain, recipientNttManager, messageDigest } = txData;
-    const nttManager = getNttManager(toChain, recipientNttManager);
+    const nttManager = await getNttManager(toChain, recipientNttManager);
     try {
       return await nttManager.fetchRedeemTx(messageDigest);
     } catch (e) {
