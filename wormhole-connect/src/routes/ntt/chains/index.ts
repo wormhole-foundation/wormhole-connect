@@ -1,17 +1,17 @@
 import { ChainName, ChainId } from '@wormhole-foundation/wormhole-connect-sdk';
 import { isEvmChain, toChainName } from 'utils/sdk';
-import { NttManagerEvm } from './evm';
-import { NttManagerSolana } from './solana';
+import { getManagerSolana } from './solana/cache';
+import { getManagerEvm } from './evm/cache';
 
-export const getNttManager = (
+export const getNttManager = async (
   chain: ChainName | ChainId,
   nttManagerAddress: string,
 ) => {
   if (isEvmChain(chain)) {
-    return new NttManagerEvm(chain, nttManagerAddress);
+    return await getManagerEvm(chain, nttManagerAddress);
   }
   if (toChainName(chain) === 'solana') {
-    return new NttManagerSolana(nttManagerAddress);
+    return await getManagerSolana(nttManagerAddress);
   }
   throw new Error(`Unsupported chain: ${chain}`);
 };

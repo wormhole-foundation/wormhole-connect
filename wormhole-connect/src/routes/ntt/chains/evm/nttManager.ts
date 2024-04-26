@@ -27,13 +27,23 @@ import { NttManager as NttManager_1_0_0 } from './abis/1.0.0/NttManager';
 import config from 'config';
 import { toChainId, toChainName } from 'utils/sdk';
 
-const ABI_VERSION_0_1_0 = '0.1.0';
-const ABI_VERSION_1_0_0 = '1.0.0';
-
 export class NttManagerEvm {
-  static readonly abiVersionCache = new Map<string, string>();
+  readonly abi: NttManager_0_1_0 | NttManager_1_0_0;
 
-  constructor(readonly chain: ChainName | ChainId, readonly address: string) {}
+  constructor(
+    readonly chain: ChainName | ChainId,
+    readonly address: string,
+    version: string,
+  ) {
+    const provider = config.wh.mustGetProvider(chain);
+    if (version === '0.1.0') {
+      this.abi = NttManager__factory_0_1_0.connect(address, provider);
+    } else if (version === '1.0.0') {
+      this.abi = NttManager__factory_1_0_0.connect(address, provider);
+    } else {
+      throw new UnsupportedContractAbiVersion();
+    }
+  }
 
   async signAndSendTransaction(
     tx: PopulatedTransaction,
@@ -54,7 +64,6 @@ export class NttManagerEvm {
     destChain: ChainName | ChainId,
     shouldSkipRelayerSend: boolean,
   ): Promise<BigNumber> {
-    const { abi } = await this.getAbi();
     const transceiverIxs = encodeTransceiverInstructions([
       {
         index: 0,
@@ -63,7 +72,7 @@ export class NttManagerEvm {
         }),
       },
     ]);
-    const [, deliveryPrice] = await abi.quoteDeliveryPrice(
+    const [, deliveryPrice] = await this.abi.quoteDeliveryPrice(
       toChainId(destChain),
       transceiverIxs,
     );
@@ -80,7 +89,6 @@ export class NttManagerEvm {
   ): Promise<string> {
     const tokenConfig = getTokenById(token);
     if (!tokenConfig) throw new Error('token not found');
-    const { abi } = await this.getAbi();
     const deliveryPrice = await this.quoteDeliveryPrice(
       toChain,
       shouldSkipRelayerSend,
@@ -94,7 +102,7 @@ export class NttManagerEvm {
       },
     ]);
     const formattedRecipient = config.wh.formatAddress(recipient, toChain);
-    const tx = await abi.populateTransaction[
+    const tx = await this.abi.populateTransaction[
       'transfer(uint256,uint16,bytes32,bytes32,bool,bytes)'
     ](
       amount,
@@ -112,34 +120,32 @@ export class NttManagerEvm {
     try {
       return await this.signAndSendTransaction(tx, TransferWallet.SENDING);
     } catch (e: any) {
-      this.throwParsedError(abi.interface, e);
+      this.throwParsedError(this.abi.interface, e);
     }
   }
 
   async getCurrentOutboundCapacity(): Promise<string> {
-    const { abi } = await this.getAbi();
-    return (await abi.getCurrentOutboundCapacity()).toString();
+    return (await this.abi.getCurrentOutboundCapacity()).toString();
   }
 
   async getCurrentInboundCapacity(
     fromChain: ChainName | ChainId,
   ): Promise<string> {
-    const { abi } = await this.getAbi();
     return (
-      await abi.getCurrentInboundCapacity(toChainId(fromChain))
+      await this.abi.getCurrentInboundCapacity(toChainId(fromChain))
     ).toString();
   }
 
   async getRateLimitDuration(): Promise<number> {
-    const { abi } = await this.getAbi();
-    return (await abi.rateLimitDuration()).toNumber();
+    return (await this.abi.rateLimitDuration()).toNumber();
   }
 
   async getInboundQueuedTransfer(
     messageDigest: string,
   ): Promise<InboundQueuedTransfer | undefined> {
-    const { abi } = await this.getAbi();
-    const queuedTransfer = await abi.getInboundQueuedTransfer(messageDigest);
+    const queuedTransfer = await this.abi.getInboundQueuedTransfer(
+      messageDigest,
+    );
     if (queuedTransfer.txTimestamp.gt(0)) {
       const { recipient, amount, txTimestamp } = queuedTransfer;
       const duration = await this.getRateLimitDuration();
@@ -157,21 +163,20 @@ export class NttManagerEvm {
     recipient: string,
     payer: string,
   ): Promise<string> {
-    const { abi } = await this.getAbi();
     try {
-      const tx = await abi.populateTransaction.completeInboundQueuedTransfer(
-        messageDigest,
-      );
+      const tx =
+        await this.abi.populateTransaction.completeInboundQueuedTransfer(
+          messageDigest,
+        );
       return await this.signAndSendTransaction(tx, TransferWallet.RECEIVING);
     } catch (e) {
-      this.throwParsedError(abi.interface, e);
+      this.throwParsedError(this.abi.interface, e);
     }
   }
 
   // The transfer is "complete" when the message is executed and not inbound queued
   async isTransferCompleted(messageDigest: string): Promise<boolean> {
-    const { abi } = await this.getAbi();
-    const isMessageExecuted = await abi.isMessageExecuted(messageDigest);
+    const isMessageExecuted = await this.abi.isMessageExecuted(messageDigest);
     if (isMessageExecuted) {
       const queuedTransfer = await this.getInboundQueuedTransfer(messageDigest);
       return !queuedTransfer;
@@ -180,18 +185,16 @@ export class NttManagerEvm {
   }
 
   async isPaused(): Promise<boolean> {
-    const { abi } = await this.getAbi();
-    return await abi.isPaused();
+    return await this.abi.isPaused();
   }
 
   async fetchRedeemTx(messageDigest: string): Promise<string | undefined> {
-    const { abi } = await this.getAbi();
-    const eventFilter = abi.filters.TransferRedeemed(messageDigest);
+    const eventFilter = this.abi.filters.TransferRedeemed(messageDigest);
     const provider = config.wh.mustGetProvider(this.chain);
     const currentBlock = await provider.getBlockNumber();
     const chainName = toChainName(this.chain);
     const chainConfig = config.chains[chainName]!;
-    const events = await abi.queryFilter(
+    const events = await this.abi.queryFilter(
       eventFilter,
       currentBlock - chainConfig.maxBlockSearch,
     );
@@ -213,53 +216,5 @@ export class NttManagerEvm {
       throw new NotEnoughCapacityError();
     }
     throw e;
-  }
-
-  async getAbi(): Promise<{
-    abi: NttManager_0_1_0 | NttManager_1_0_0;
-    version: string;
-  }> {
-    const provider = config.wh.mustGetProvider(this.chain);
-    const abiVersionKey = `${this.address}-${toChainName(this.chain)}`;
-    let abiVersion = NttManagerEvm.abiVersionCache.get(abiVersionKey);
-    if (!abiVersion) {
-      const contract = new ethers.Contract(
-        this.address,
-        ['function NTT_MANAGER_VERSION() public view returns (string)'],
-        provider,
-      );
-      try {
-        abiVersion = await contract.NTT_MANAGER_VERSION();
-      } catch (e) {
-        console.error(
-          `Failed to get NTT_MANAGER_VERSION from contract ${
-            this.address
-          } on chain ${toChainName(this.chain)}`,
-        );
-        throw e;
-      }
-      if (!abiVersion) {
-        throw new Error('NTT_MANAGER_VERSION not found');
-      }
-      NttManagerEvm.abiVersionCache.set(abiVersionKey, abiVersion);
-    }
-    if (abiVersion === ABI_VERSION_0_1_0) {
-      return {
-        abi: NttManager__factory_0_1_0.connect(this.address, provider),
-        version: abiVersion,
-      };
-    }
-    if (abiVersion === ABI_VERSION_1_0_0) {
-      return {
-        abi: NttManager__factory_1_0_0.connect(this.address, provider),
-        version: abiVersion,
-      };
-    }
-    console.error(
-      `Unsupported NttManager version ${abiVersion} for chain ${toChainName(
-        this.chain,
-      )}`,
-    );
-    throw new UnsupportedContractAbiVersion();
   }
 }
