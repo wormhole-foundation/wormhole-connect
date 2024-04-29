@@ -18,6 +18,7 @@
     "prepare": "husky install"
   },
   "dependencies": {
+    "@solana/spl-token": "^0.4.6",
     "tss-react": "^4.7.7"
   },
   "devDependencies": {
