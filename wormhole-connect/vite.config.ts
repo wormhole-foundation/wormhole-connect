@@ -1,9 +1,12 @@
+import path from 'path';
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react-swc';
 import checker from 'vite-plugin-checker';
+// Until this is merged or that issue is fixed some other way, we have to use
+// this fork of vite-plugin-node-polyfills.
+// https://github.com/davidmyersdev/vite-plugin-node-polyfills/pull/89
 import { nodePolyfills } from '@artursapek/vite-plugin-node-polyfills';
 import dts from 'vite-plugin-dts';
-import path from 'path';
 
 const packagePath = __dirname.endsWith('wormhole-connect')
   ? './package.json'
