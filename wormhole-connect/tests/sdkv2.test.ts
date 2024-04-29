@@ -56,6 +56,9 @@ describe('chain', () => {
 
   const casesTestnet: testCase[] = [
     { v1: 10002, v1Name: 'sepolia', v2: 'Sepolia' },
+    { v1: 10, v1Name: 'fantom', v2: 'Fantom' },
+    { v1: 4, v1Name: 'bsc', v2: 'Bsc' },
+    { v1: 1, v1Name: 'solana', v2: 'Solana' },
   ];
 
   for (let c of casesTestnet) {
