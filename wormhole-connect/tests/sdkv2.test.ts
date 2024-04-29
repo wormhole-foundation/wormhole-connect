@@ -87,12 +87,18 @@ describe('token', () => {
 
   const cases: testCase[] = [
     {
-      // ETH TokenConfig
       v1: MAINNET.tokens.ETH,
       v2: {
         chain: 'Ethereum',
         address: 'native',
       },
+    },
+    {
+      v1: MAINNET.tokens.USDCeth,
+      v2: v2.Wormhole.tokenId(
+        'Ethereum',
+        '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+      ),
     },
   ];
 
