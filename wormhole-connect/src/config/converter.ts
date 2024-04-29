@@ -26,7 +26,6 @@ export class SDKConverter {
   }
 
   toChainNameV1(chain: v2.Chain) {
-    console.log('chain', chain);
     return this.wh.toChainName(this.toChainIdV1(chain));
   }
 
