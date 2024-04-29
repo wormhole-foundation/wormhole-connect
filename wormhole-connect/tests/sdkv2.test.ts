@@ -1,5 +1,8 @@
 import * as legacy from '@wormhole-foundation/wormhole-connect-sdk';
-import { Network as NetworkV1 } from 'config/types';
+import {
+  Network as NetworkV1,
+  TokenConfig as TokenConfigConnect,
+} from 'config/types';
 import { getDefaultWormholeContext } from 'config';
 
 import * as v2 from '@wormhole-foundation/sdk';
@@ -8,7 +11,9 @@ import { SDKConverter } from '../src/config/converter';
 
 import { describe, expect, test } from 'vitest';
 
-function getConverter(network: NetworkConnect): SDKConverter {
+import MAINNET from 'config/mainnet';
+
+function getConverter(network: NetworkV1): SDKConverter {
   const wh = getDefaultWormholeContext(network);
   return new SDKConverter(wh);
 }
@@ -70,6 +75,33 @@ describe('network', () => {
     test(`${c.v1} <-> ${c.v2}`, () => {
       expect(converter.toNetworkV2(c.v1)).toEqual(c.v2);
       expect(converter.toNetworkV1(c.v2)).toEqual(c.v1);
+    });
+  }
+});
+
+describe('token', () => {
+  interface testCase {
+    v1: TokenConfigConnect;
+    v2: v2.TokenId;
+  }
+
+  const cases: testCase[] = [
+    {
+      // ETH TokenConfig
+      v1: MAINNET.tokens.ETH,
+      v2: {
+        chain: 'Ethereum',
+        address: 'native',
+      },
+    },
+  ];
+
+  const converter = getConverter('mainnet');
+
+  for (let c of cases) {
+    test(`${c.v1} <-> ${c.v2}`, () => {
+      expect(converter.toTokenIdV2(c.v1)).toEqual(c.v2);
+      expect(converter.findTokenConfigV1(c.v2)).toEqual(c.v1);
     });
   }
 });
