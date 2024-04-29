@@ -83,7 +83,6 @@ function SendTo() {
   } = useSelector((state: RootState) => state.redeem);
   const txData = useSelector((state: RootState) => state.redeem.txData)!;
   const wallet = useSelector((state: RootState) => state.wallet.receiving);
-  const transferInput = useSelector((state: RootState) => state.transferInput);
 
   const transferDestInfo = useSelector(
     (state: RootState) => state.redeem.transferDestInfo,
@@ -197,10 +196,10 @@ function SendTo() {
 
     const transferDetails = {
       route: routeName,
-      fromToken: getTokenDetails(transferInput.token),
-      toToken: getTokenDetails(transferInput.destToken),
-      fromChain: transferInput.fromChain!,
-      toChain: transferInput.toChain!,
+      fromToken: getTokenDetails(txData.tokenKey),
+      toToken: getTokenDetails(txData.receivedTokenKey),
+      fromChain: txData.fromChain,
+      toChain: txData.toChain,
     };
 
     config.triggerEvent({
@@ -245,7 +244,10 @@ function SendTo() {
       setInProgress(false);
       setClaimError('');
     } catch (e: any) {
-      const [uiError, transferError] = interpretTransferError(e, transferInput);
+      const [uiError, transferError] = interpretTransferError(
+        e,
+        txData.toChain,
+      );
 
       setClaimError(uiError);
 

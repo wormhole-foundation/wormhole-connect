@@ -28,7 +28,6 @@ import useCheckInboundQueuedTransfer from 'hooks/useCheckInboundQueuedTransfer';
 import useConfirmBeforeLeaving from 'utils/confirmBeforeLeaving';
 import { INVALID_VAA_MESSAGE } from 'utils/repairVaa';
 
-import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { getTokenDetails } from 'telemetry';
 
 function Redeem({
@@ -41,10 +40,6 @@ function Redeem({
   isVaaEnqueued,
   route,
   signedMessage,
-  fromChain,
-  toChain,
-  token,
-  destToken,
 }: {
   setSignedMessage: (signed: SignedMessage) => any;
   setIsVaaEnqueued: (isVaaEnqueued: boolean) => any;
@@ -55,10 +50,6 @@ function Redeem({
   isVaaEnqueued: boolean;
   route: Route | undefined;
   signedMessage: SignedMessage | undefined;
-  fromChain: ChainName;
-  toChain: ChainName;
-  token: string;
-  destToken: string;
 }) {
   // Warn user before closing tab if transaction is unredeemed
   useConfirmBeforeLeaving(!transferComplete);
@@ -158,10 +149,10 @@ function Redeem({
             type: 'transfer.success',
             details: {
               route,
-              fromToken: getTokenDetails(token),
-              toToken: getTokenDetails(destToken),
-              fromChain,
-              toChain,
+              fromToken: getTokenDetails(txData.tokenKey),
+              toToken: getTokenDetails(txData.receivedTokenKey),
+              fromChain: txData.fromChain,
+              toChain: txData.toChain,
             },
           });
         } else {
@@ -218,8 +209,6 @@ function mapStateToProps(state: RootState) {
     signedMessage,
   } = state.redeem;
 
-  const { fromChain, toChain, token, destToken } = state.transferInput;
-
   return {
     txData,
     transferComplete,
@@ -227,10 +216,6 @@ function mapStateToProps(state: RootState) {
     isInvalidVaa,
     route,
     signedMessage,
-    fromChain: fromChain!,
-    toChain: toChain!,
-    token,
-    destToken,
   };
 }
 

@@ -176,7 +176,7 @@ function Send(props: { valid: boolean }) {
     } catch (e: any) {
       console.error('Wormhole Connect: error completing transfer', e);
       dispatch(setIsTransactionInProgress(false));
-      const [uiError, transferError] = interpretTransferError(e, transferInput);
+      const [uiError, transferError] = interpretTransferError(e, fromChain!);
 
       // Show error in UI
       setSendError(uiError);
