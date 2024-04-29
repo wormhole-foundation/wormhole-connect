@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { describe, expect, test } from 'vitest';
 
 import { MAINNET_CHAINS } from '../src/config/mainnet/chains';
 import { MAINNET_TOKENS } from '../src/config/mainnet/tokens';
@@ -20,30 +20,32 @@ export const envTests = [
 
 envTests.forEach((env) => {
   const { title, CHAINS, TOKENS } = env;
-  test('chain gas tokens', () => {
-    Object.entries(CHAINS)
-      .filter(([id]) => id !== 'wormchain')
-      .forEach(([_, { gasToken }]) => {
-        const tokenConfig = TOKENS[gasToken];
-        expect(tokenConfig).toBeTruthy();
-      });
-  });
-
-  test('native tokens have valid wrapped token', () => {
-    Object.values(TOKENS).forEach((token) => {
-      if (!token.tokenId) {
-        expect(token.wrappedAsset).toBeTruthy();
-        const wrappedToken = TOKENS[token.wrappedAsset!];
-        expect(wrappedToken).toBeTruthy();
-      }
+  describe(title, () => {
+    test('chain gas tokens', () => {
+      Object.entries(CHAINS)
+        .filter(([id]) => id !== 'wormchain')
+        .forEach(([_, { gasToken }]) => {
+          const tokenConfig = TOKENS[gasToken];
+          expect(tokenConfig).toBeTruthy();
+        });
     });
-  });
 
-  test('tokens with tokenIds match nativeChain', () => {
-    Object.values(TOKENS).forEach((token) => {
-      if (token.tokenId) {
-        expect(token.tokenId.chain).toBe(token.nativeChain);
-      }
+    test('native tokens have valid wrapped token', () => {
+      Object.values(TOKENS).forEach((token) => {
+        if (!token.tokenId) {
+          expect(token.wrappedAsset).toBeTruthy();
+          const wrappedToken = TOKENS[token.wrappedAsset!];
+          expect(wrappedToken).toBeTruthy();
+        }
+      });
+    });
+
+    test('tokens with tokenIds match nativeChain', () => {
+      Object.values(TOKENS).forEach((token) => {
+        if (token.tokenId) {
+          expect(token.tokenId.chain).toBe(token.nativeChain);
+        }
+      });
     });
   });
 });
