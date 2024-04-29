@@ -250,7 +250,7 @@ function SendTo() {
       setClaimError(uiError);
 
       config.triggerEvent({
-        type: 'transfer.error',
+        type: 'transfer.redeem.error',
         details: transferDetails,
         error: transferError,
       });

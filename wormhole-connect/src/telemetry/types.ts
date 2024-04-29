@@ -28,7 +28,7 @@ export interface TransferEvent {
 }
 
 export interface TransferErrorEvent {
-  type: 'transfer.error';
+  type: 'transfer.error' | 'transfer.redeem.error';
   details: TransferDetails;
   error: TransferError;
 }
