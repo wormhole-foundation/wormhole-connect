@@ -18,6 +18,12 @@ export function wrapEventHandler(
     };
 
     console.info('Wormhole Connect event:', eventWithMeta);
-    if (integrationHandler) integrationHandler(eventWithMeta);
+    if (integrationHandler) {
+      try {
+        integrationHandler(eventWithMeta);
+      } catch (e) {
+        console.error('Error handling event:', e);
+      }
+    }
   };
 }

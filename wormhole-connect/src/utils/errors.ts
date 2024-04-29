@@ -13,6 +13,7 @@ import {
   ERR_USER_REJECTED,
 } from 'telemetry/types';
 import {
+  ChainName,
   INSUFFICIENT_ALLOWANCE,
   InsufficientFundsForGasError,
 } from '@wormhole-foundation/wormhole-connect-sdk';
@@ -23,11 +24,10 @@ import {
   UnsupportedContractAbiVersion,
 } from 'routes/ntt/errors';
 import { SWAP_ERROR } from 'routes/porticoBridge/consts';
-import { TransferInputState } from 'store/transferInput';
 
 export function interpretTransferError(
   e: any,
-  transferInput: TransferInputState,
+  chain: ChainName,
 ): [string, TransferError] {
   // Fall-back values
   let uiErrorMessage = 'Error with transfer, please try again';
@@ -42,9 +42,7 @@ export function interpretTransferError(
       uiErrorMessage = 'Transfer timed out, please try again';
       internalErrorCode = ERR_TIMEOUT;
     } else if (e?.message === NotEnoughCapacityError.MESSAGE) {
-      uiErrorMessage = `This transfer would be rate-limited due to high volume on ${
-        config.chains[transferInput.fromChain!]?.displayName
-      }, please try again later`;
+      uiErrorMessage = `This transfer would be rate-limited due to high volume on ${config.chains[chain]?.displayName}, please try again later`;
       internalErrorCode = ERR_NOT_ENOUGH_CAPACITY;
     } else if (e?.message === ContractIsPausedError.MESSAGE) {
       uiErrorMessage = e.message;
