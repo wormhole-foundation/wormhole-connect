@@ -76,7 +76,7 @@ export class SDKConverter {
   }
 
   isTokenConfigV1(v: v1.TokenId | TokenConfigV1): v is TokenConfigV1 {
-    return v.hasOwnProperty('key');
+    return 'key' in v;
   }
 
   // Attempts to find the Connect TokenConfig, which is comomnly used in Connect code base,
