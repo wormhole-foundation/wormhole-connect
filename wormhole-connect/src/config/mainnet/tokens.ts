@@ -21,7 +21,7 @@ export const MAINNET_TOKENS: TokensConfig = {
     icon: Icon.ETH,
     tokenId: {
       chain: 'ethereum',
-      address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
     },
     coinGeckoId: 'ethereum',
     color: '#62688F',
@@ -109,7 +109,7 @@ export const MAINNET_TOKENS: TokensConfig = {
     icon: Icon.USDC,
     tokenId: {
       chain: 'ethereum',
-      address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+      address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
     },
     coinGeckoId: 'usd-coin',
     color: '#ffffff',
@@ -196,7 +196,7 @@ export const MAINNET_TOKENS: TokensConfig = {
     icon: Icon.WBTC,
     tokenId: {
       chain: 'ethereum',
-      address: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
+      address: '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
     },
     coinGeckoId: 'wrapped-bitcoin',
     color: '#ffffff',
@@ -283,7 +283,7 @@ export const MAINNET_TOKENS: TokensConfig = {
     icon: Icon.USDT,
     tokenId: {
       chain: 'ethereum',
-      address: '0xdac17f958d2ee523a2206206994597c13d831ec7',
+      address: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
     },
     coinGeckoId: 'tether',
     color: '#ffffff',
@@ -365,7 +365,7 @@ export const MAINNET_TOKENS: TokensConfig = {
     icon: Icon.DAI,
     tokenId: {
       chain: 'ethereum',
-      address: '0x6b175474e89094c44da98b954eedeac495271d0f',
+      address: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
     },
     coinGeckoId: 'dai',
     color: '#FEFEFD',
@@ -443,7 +443,7 @@ export const MAINNET_TOKENS: TokensConfig = {
     icon: Icon.BUSD,
     tokenId: {
       chain: 'ethereum',
-      address: '0x4fabb145d64652a948d72533023f6e7a623c7c53',
+      address: '0x4Fabb145d64652a948d72533023f6E7A623C7C53',
     },
     coinGeckoId: 'binance-usd',
     color: '#F0B90B',
@@ -504,7 +504,7 @@ export const MAINNET_TOKENS: TokensConfig = {
     icon: Icon.POLYGON,
     tokenId: {
       chain: 'polygon',
-      address: '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270',
+      address: '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270',
     },
     coinGeckoId: 'matic-network',
     color: '#8247E5',
@@ -599,7 +599,7 @@ export const MAINNET_TOKENS: TokensConfig = {
     icon: Icon.USDC,
     tokenId: {
       chain: 'polygon',
-      address: '0x3c499c542cef5e3811e1192ce70d8cc03d5c3359',
+      address: '0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359',
     },
     coinGeckoId: 'usd-coin',
     color: '#2774CA',
@@ -671,7 +671,7 @@ export const MAINNET_TOKENS: TokensConfig = {
     icon: Icon.BNB,
     tokenId: {
       chain: 'bsc',
-      address: '0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c',
+      address: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
     },
     coinGeckoId: 'binancecoin',
     color: '#F3BA30',
@@ -845,7 +845,7 @@ export const MAINNET_TOKENS: TokensConfig = {
     icon: Icon.AVAX,
     tokenId: {
       chain: 'avalanche',
-      address: '0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7',
+      address: '0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7',
     },
     coinGeckoId: 'avalanche-2',
     color: '#E84141',
@@ -1021,7 +1021,7 @@ export const MAINNET_TOKENS: TokensConfig = {
     icon: Icon.ETH,
     tokenId: {
       chain: 'avalanche',
-      address: '0x49d5c2bdffac6ce2bfdb6640f4f80f226bc10bab',
+      address: '0x49D5c2BdFfac6CE2BFdB6640F4F80f226bc10bAB',
     },
     coinGeckoId: 'ethereum',
     color: '#62688F',
@@ -1050,7 +1050,7 @@ export const MAINNET_TOKENS: TokensConfig = {
     icon: Icon.FANTOM,
     tokenId: {
       chain: 'fantom',
-      address: '0x21be370d5312f44cb42ce377bc9b8a0cef1a4c83',
+      address: '0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83',
     },
     coinGeckoId: 'fantom',
     color: '#12B4EC',
@@ -1148,7 +1148,7 @@ export const MAINNET_TOKENS: TokensConfig = {
     icon: Icon.CELO,
     tokenId: {
       chain: 'celo',
-      address: '0x471ece3750da237f93b8e339c536989b8978a438',
+      address: '0x471EcE3750Da237f93B8E339c536989b8978a438',
     },
     coinGeckoId: 'celo',
     color: '#35D07E',
@@ -1687,7 +1687,7 @@ export const MAINNET_TOKENS: TokensConfig = {
     icon: Icon.ETH,
     tokenId: {
       chain: 'arbitrum',
-      address: '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
+      address: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
     },
     coinGeckoId: 'ethereum',
     color: '#5794EC',
@@ -1916,7 +1916,7 @@ export const MAINNET_TOKENS: TokensConfig = {
     icon: Icon.USDC,
     tokenId: {
       chain: 'optimism',
-      address: '0x0b2c639c533813f4aa9d7837caf62653d097ff85',
+      address: '0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85',
     },
     coinGeckoId: 'usd-coin',
     color: '#2774CA',

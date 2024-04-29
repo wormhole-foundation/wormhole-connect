@@ -109,7 +109,7 @@ export const TESTNET_TOKENS: TokensConfig = {
     icon: Icon.USDC,
     tokenId: {
       chain: 'goerli',
-      address: '0x07865c6e87b9f70255377e024ace6630c1eaa37f',
+      address: '0x07865c6E87B9F70255377e024ace6630C1Eaa37F',
     },
     coinGeckoId: 'usd-coin',
     color: '#2774CA',
@@ -429,7 +429,7 @@ export const TESTNET_TOKENS: TokensConfig = {
     icon: Icon.USDC,
     tokenId: {
       chain: 'mumbai',
-      address: '0x9999f7fea5938fd3b1e26a12c3f2fb024e194f97',
+      address: '0x9999f7Fea5938fD3b1E26A12c3f2fb024e194f97',
     },
     coinGeckoId: 'usd-coin',
     color: '#2774CA',
@@ -1336,7 +1336,7 @@ export const TESTNET_TOKENS: TokensConfig = {
     icon: Icon.ETH,
     tokenId: {
       chain: 'arbitrumgoerli',
-      address: '0xee01c0cd76354c383b8c7b4e65ea88d00b06f36f',
+      address: '0xEe01c0CD76354C383B8c7B4e65EA88D00B06f36f',
     },
     coinGeckoId: 'ethereum',
     color: '#5794EC',
@@ -1656,7 +1656,7 @@ export const TESTNET_TOKENS: TokensConfig = {
     icon: Icon.USDC,
     tokenId: {
       chain: 'basegoerli',
-      address: '0xf175520c52418dfe19c8098071a252da48cd1c19',
+      address: '0xF175520C52418dfE19C8098071a252da48Cd1C19',
     },
     coinGeckoId: 'usd-coin',
     color: '#2774CA',
