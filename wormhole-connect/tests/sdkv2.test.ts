@@ -111,6 +111,8 @@ describe('token', () => {
     v2: v2.TokenId;
   }
 
+  // Mainnet
+
   const cases: testCase[] = [
     {
       v1: MAINNET.tokens.ETH,
@@ -139,9 +141,45 @@ describe('token', () => {
   const converter = getConverter('mainnet');
 
   for (let c of cases) {
-    test(`${c.v1} <-> ${c.v2}`, () => {
+    test(`${c.v1} <-> ${c.v2} (mainnet)`, () => {
       expect(converter.toTokenIdV2(c.v1)).toEqual(c.v2);
       expect(converter.findTokenConfigV1(c.v2)).toEqual(c.v1);
+    });
+  }
+
+  // Testnet
+
+  const casesTestnet: testCase[] = [
+    {
+      v1: TESTNET.tokens.ETH,
+      v2: {
+        chain: 'Ethereum',
+        address: 'native',
+      },
+    },
+    {
+      v1: TESTNET.tokens.USDCeth,
+      v2: v2.Wormhole.tokenId(
+        'Ethereum',
+        '0x07865c6E87B9F70255377e024ace6630C1Eaa37F',
+      ),
+    },
+    {
+      v1: TESTNET.tokens.SOL,
+      v2: v2.Wormhole.tokenId('Solana', 'native'),
+    },
+    {
+      v1: TESTNET.tokens.INJ,
+      v2: v2.Wormhole.tokenId('Injective', 'inj'),
+    },
+  ];
+
+  const converterTestnet = getConverter('testnet');
+
+  for (let c of casesTestnet) {
+    test(`${c.v1} <-> ${c.v2} (testnet)`, () => {
+      expect(converterTestnet.toTokenIdV2(c.v1)).toEqual(c.v2);
+      expect(converterTestnet.findTokenConfigV1(c.v2)).toEqual(c.v1);
     });
   }
 });
