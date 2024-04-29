@@ -39,9 +39,11 @@ describe('chain', () => {
 
   for (let c of cases) {
     test(`${c.v1} <-> ${c.v2}`, () => {
+      // Ensure we can convert both chain names and IDs into v2 chains
       expect(converter.toChainV2(c.v1)).toEqual(c.v2);
       expect(converter.toChainV2(c.v1Name)).toEqual(c.v2);
 
+      // Ensure we can convert v2 chains into both v1 chain names and IDs
       expect(converter.toChainIdV1(c.v2)).toEqual(c.v1);
       expect(converter.toChainNameV1(c.v2)).toEqual(c.v1Name);
     });
