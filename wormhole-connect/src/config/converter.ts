@@ -2,21 +2,27 @@ import * as v1 from '@wormhole-foundation/wormhole-connect-sdk';
 import {
   Network as NetworkConnect,
   TokenConfig as TokenConfigV1,
+  TokensConfig as TokensConfigV1,
+  ChainsConfig as ChainsConfigV1,
 } from 'config/types';
 
-import config from 'config';
-
 import * as v2 from '@wormhole-foundation/sdk';
-
-import * as utils from 'utils/sdk';
 
 // SDKConverter provides utility functions for converting core types between SDKv1 and SDKv2
 // This is only meant to be used while we transition to SDKv2
 export class SDKConverter {
   wh: v1.WormholeContext;
+  chains: ChainsConfigV1;
+  tokens: TokensConfigV1;
 
-  constructor(wh: v1.WormholeContext) {
+  constructor(
+    wh: v1.WormholeContext,
+    chains: ChainsConfigV1,
+    tokens: TokensConfigV1,
+  ) {
     this.wh = wh;
+    this.chains = chains;
+    this.tokens = tokens;
   }
 
   // Chain conversion
@@ -30,7 +36,7 @@ export class SDKConverter {
   }
 
   toChainV2(chain: v1.ChainName | v1.ChainId): v2.Chain {
-    return v2.toChain(utils.toChainId(chain));
+    return v2.toChain(this.wh.toChainId(chain));
   }
 
   // Network conversion
@@ -85,7 +91,8 @@ export class SDKConverter {
     const isNative = tokenId.address === 'native';
     const chain = this.toChainNameV1(tokenId.chain);
 
-    for (const token of config.tokensArr) {
+    for (const key in this.tokens) {
+      const token = this.tokens[key];
       if (token.nativeChain === chain) {
         if (isNative && token.tokenId === undefined) {
           // Connect's TokenConfig lacks a tokenId field when it's the native gas token

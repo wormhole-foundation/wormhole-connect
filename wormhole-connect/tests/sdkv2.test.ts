@@ -3,6 +3,7 @@ import {
   Network as NetworkV1,
   TokenConfig as TokenConfigConnect,
 } from 'config/types';
+
 import { getDefaultWormholeContext } from 'config';
 
 import * as v2 from '@wormhole-foundation/sdk';
@@ -12,10 +13,12 @@ import { SDKConverter } from '../src/config/converter';
 import { describe, expect, test } from 'vitest';
 
 import MAINNET from 'config/mainnet';
+import TESTNET from 'config/testnet';
 
 function getConverter(network: NetworkV1): SDKConverter {
   const wh = getDefaultWormholeContext(network);
-  return new SDKConverter(wh);
+  const networkData = { MAINNET, TESTNET }[network.toUpperCase()]!;
+  return new SDKConverter(wh, networkData.chains, networkData.tokens);
 }
 
 describe('chain', () => {
@@ -27,7 +30,7 @@ describe('chain', () => {
 
   const converter = getConverter('mainnet');
 
-  const cases: testCase[] = [
+  const casesMainnet: testCase[] = [
     // Mainnet
     { v1: 2, v1Name: 'ethereum', v2: 'Ethereum' },
     { v1: 5, v1Name: 'polygon', v2: 'Polygon' },
@@ -37,8 +40,8 @@ describe('chain', () => {
     //{ v1: 10002, v1Name: 'sepolia', v2: 'Sepolia' },
   ];
 
-  for (let c of cases) {
-    test(`${c.v1} <-> ${c.v2}`, () => {
+  for (let c of casesMainnet) {
+    test(`${c.v1} <-> ${c.v2} (mainnet)`, () => {
       // Ensure we can convert both chain names and IDs into v2 chains
       expect(converter.toChainV2(c.v1)).toEqual(c.v2);
       expect(converter.toChainV2(c.v1Name)).toEqual(c.v2);
@@ -46,6 +49,24 @@ describe('chain', () => {
       // Ensure we can convert v2 chains into both v1 chain names and IDs
       expect(converter.toChainIdV1(c.v2)).toEqual(c.v1);
       expect(converter.toChainNameV1(c.v2)).toEqual(c.v1Name);
+    });
+  }
+
+  const converterTestnet = getConverter('testnet');
+
+  const casesTestnet: testCase[] = [
+    { v1: 10002, v1Name: 'sepolia', v2: 'Sepolia' },
+  ];
+
+  for (let c of casesTestnet) {
+    test(`${c.v1} <-> ${c.v2} (testnet)`, () => {
+      // Ensure we can convert both chain names and IDs into v2 chains
+      expect(converterTestnet.toChainV2(c.v1)).toEqual(c.v2);
+      expect(converterTestnet.toChainV2(c.v1Name)).toEqual(c.v2);
+
+      // Ensure we can convert v2 chains into both v1 chain names and IDs
+      expect(converterTestnet.toChainIdV1(c.v2)).toEqual(c.v1);
+      expect(converterTestnet.toChainNameV1(c.v2)).toEqual(c.v1Name);
     });
   }
 });
