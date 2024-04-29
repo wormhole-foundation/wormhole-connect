@@ -17,7 +17,6 @@ import { RelayRoute } from './relay';
 // import { HashflowRoute } from './hashflow';
 import { CCTPRelayRoute } from './cctpRelay';
 import { CosmosGatewayRoute } from './cosmosGateway';
-import { SDKV2Route } from './sdkv2';
 import { RouteAbstract } from './abstracts/routeAbstract';
 import {
   UnsignedMessage,
@@ -42,20 +41,11 @@ import { getMessageEvm, TRANSFER_SENT_EVENT_TOPIC } from './ntt/chains/evm';
 import { getMessageSolana } from './ntt/chains/solana';
 import { getNttManagerConfigByAddress } from 'utils/ntt';
 
-import { routes } from '@wormhole-foundation/sdk';
-
 export class Operator {
   getRoute(route: Route): RouteAbstract {
     switch (route) {
       case Route.Bridge: {
-        if (localStorage.getItem('CONNECT_SDKV2')) {
-          return new SDKV2Route(
-            config.sdkConverter.toNetworkV2(config.network),
-            routes.TokenBridgeRoute,
-          );
-        } else {
-          return new BridgeRoute();
-        }
+        return new BridgeRoute();
       }
       case Route.Relay: {
         return new RelayRoute();
