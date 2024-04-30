@@ -97,7 +97,10 @@ export class SDKConverter {
         if (isNative && token.tokenId === undefined) {
           // Connect's TokenConfig lacks a tokenId field when it's the native gas token
           return token;
-        } else if (token.tokenId?.address === tokenId.address.toString()) {
+        } else if (
+          token.tokenId?.address.toLowerCase() ===
+          tokenId.address.toString().toLowerCase()
+        ) {
           return token;
         }
       }
