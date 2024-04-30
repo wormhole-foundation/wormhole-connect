@@ -41,11 +41,22 @@ import { getMessageEvm, TRANSFER_SENT_EVENT_TOPIC } from './ntt/chains/evm';
 import { getMessageSolana } from './ntt/chains/solana';
 import { getNttManagerConfigByAddress } from 'utils/ntt';
 
+import { SDKv2Route } from './sdkv2/route';
+import { routes } from '@wormhole-foundation/sdk';
+
 export class Operator {
   getRoute(route: Route): RouteAbstract {
     switch (route) {
       case Route.Bridge: {
-        return new BridgeRoute();
+        if (localStorage.getItem('CONNECT_SDKV2')) {
+          return new SDKv2Route(
+            config.network,
+            routes.AutomaticTokenBridgeRoute,
+            Route.Relay,
+          );
+        } else {
+          return new BridgeRoute();
+        }
       }
       case Route.Relay: {
         return new RelayRoute();

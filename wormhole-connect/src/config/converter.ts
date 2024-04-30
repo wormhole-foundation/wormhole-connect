@@ -81,6 +81,10 @@ export class SDKConverter {
     }
   }
 
+  tokenIdV2(chain: v1.ChainName | v1.ChainId, address: string) {
+    return v2.Wormhole.tokenId(this.toChainV2(chain), address);
+  }
+
   isTokenConfigV1(v: v1.TokenId | TokenConfigV1): v is TokenConfigV1 {
     return 'key' in v;
   }
