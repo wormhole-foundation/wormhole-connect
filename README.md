@@ -206,6 +206,7 @@ By default, it offers its full built-in list for both `mainnet` and `testnet`:
 | klaytn | klaytn |
 | arbitrum | arbitrumgoerli, arbitrum_sepolia |
 | optimism | optimismgoerli, optimism_sepolia |
+| scroll | scroll |
 
 > Osmosis support is in beta, reach out to a Wormhole contributor for early access.
 

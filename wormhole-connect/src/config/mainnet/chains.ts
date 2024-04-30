@@ -210,4 +210,15 @@ export const MAINNET_CHAINS: ChainsConfig = {
     automaticRelayer: false,
     maxBlockSearch: 0,
   },
+  scroll: {
+    ...chains.scroll!,
+    displayName: 'Scroll',
+    explorerUrl: 'https://https://scrollscan.com//',
+    explorerName: 'Scrollscan',
+    gasToken: 'ETHscroll',
+    chainId: 534352,
+    icon: Icon.SCROLL,
+    automaticRelayer: false,
+    maxBlockSearch: 2000,
+  },
 };
