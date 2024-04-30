@@ -22,6 +22,7 @@ export const TESTNET_CHAINS = {
   basegoerli: 30,
   sei: 32,
   scroll: 34,
+  blast: 36,
   wormchain: 3104,
   osmosis: 20,
   cosmoshub: 4000,
@@ -272,6 +273,16 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     finalityThreshold: 0,
     nativeTokenDecimals: 18,
   },
+  blast: {
+    key: 'blast',
+    id: 36,
+    context: Context.ETH,
+    contracts: {
+      ...CONTRACTS.TESTNET.blast,
+    },
+    finalityThreshold: 0,
+    nativeTokenDecimals: 18,
+  },
   wormchain: {
     context: Context.COSMOS,
     key: 'wormchain',
@@ -410,6 +421,7 @@ const TESTNET_CONFIG: WormholeConfig = {
     base_sepolia: 'https://base-sepolia-rpc.publicnode.com',
     optimism_sepolia: 'https://sepolia.optimism.io',
     scroll: 'https://rpc.ankr.com/scroll_sepolia_testnet',
+    blast: 'https://rpc.ankr.com/blast_testnet_sepolia',
   },
   rest: {
     sei: 'https://rest.atlantic-2.seinetwork.io',

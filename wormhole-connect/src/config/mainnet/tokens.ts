@@ -2746,4 +2746,33 @@ export const MAINNET_TOKENS: TokensConfig = {
       default: 8,
     },
   },
+  ETHblast: {
+    key: 'ETHblast',
+    symbol: 'ETH',
+    displayName: 'ETH (Blast)',
+    nativeChain: 'blast',
+    icon: Icon.BLAST,
+    coinGeckoId: 'ethereum',
+    decimals: {
+      Ethereum: 18,
+      default: 8,
+    },
+    wrappedAsset: 'WETHblast',
+  },
+  WETHblast: {
+    key: 'WETHblast',
+    symbol: 'WETH',
+    displayName: 'WETH (Blast)',
+    nativeChain: 'blast',
+    icon: Icon.ETH,
+    tokenId: {
+      chain: 'blast',
+      address: '0x9D020B1697035d9d54f115194c9e04a1e4Eb9aF7', // non-rebasing
+    },
+    coinGeckoId: 'ethereum',
+    decimals: {
+      Ethereum: 18,
+      default: 8,
+    },
+  },
 };

@@ -22,6 +22,7 @@ export const MAINNET_CHAINS = {
   base: 30,
   sei: 32,
   scroll: 34,
+  blast: 36,
   wormchain: 3104,
   osmosis: 20,
   cosmoshub: 4000,
@@ -286,6 +287,16 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     finalityThreshold: 0,
     nativeTokenDecimals: 18,
   },
+  blast: {
+    key: 'blast',
+    id: 36,
+    context: Context.ETH,
+    contracts: {
+      ...CONTRACTS.MAINNET.blast,
+    },
+    finalityThreshold: 0,
+    nativeTokenDecimals: 18,
+  },
   wormchain: {
     context: Context.COSMOS,
     key: 'wormchain',
@@ -372,6 +383,7 @@ const MAINNET_CONFIG: WormholeConfig = {
     injective: 'https://injective-rpc.publicnode.com/', // TODO: use the library to get the correct rpc https://docs.ts.injective.network/querying/querying-api/querying-indexer-explorer#fetch-transaction-using-transaction-hash
     klaytn: 'https://rpc.ankr.com/klaytn',
     scroll: 'https://rpc.ankr.com/scroll',
+    blast: 'https://rpc.ankr.com/blast',
   },
   rest: {
     sei: '',

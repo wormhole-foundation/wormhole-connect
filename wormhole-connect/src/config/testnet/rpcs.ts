@@ -29,6 +29,7 @@ const {
   REACT_APP_OPTIMISM_SEPOLIA_RPC,
   REACT_APP_APTOS_TESTNET_GRAPHQL,
   REACT_APP_SCROLL_TESTNET_RPC,
+  REACT_APP_BLAST_TESTNET_RPC,
 } = import.meta.env;
 
 export const TESTNET_RPC_MAPPING = {
@@ -58,6 +59,7 @@ export const TESTNET_RPC_MAPPING = {
   ...populateRpcField('injective', REACT_APP_INJECTIVE_TESTNET_RPC),
   ...populateRpcField('klaytn', REACT_APP_KLAYTN_TESTNET_RPC),
   ...populateRpcField('scroll', REACT_APP_SCROLL_TESTNET_RPC),
+  ...populateRpcField('blast', REACT_APP_BLAST_TESTNET_RPC),
 };
 
 export const TESTNET_REST_MAPPING = {

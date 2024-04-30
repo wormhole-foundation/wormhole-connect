@@ -45,6 +45,7 @@ export enum Icon {
   'KLAY',
   'NTT',
   'SCROLL',
+  'BLAST',
 }
 
 export enum Route {
