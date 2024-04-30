@@ -26,7 +26,6 @@ jobs:
       - run: |
           IFS='@' read -a strarr <<< $(git describe --tags)
           sed  -i "s/\"version\": .*/\"version\": \"${strarr[1]}$(echo $([ ${strarr[0]} == "production" ] && echo "" || echo "-${strarr[0]}"))\",/" wormhole-connect/package.json
-          export CONNECT_VERSION="${strarr[1]}"
           npm run build:lib
           npm run build:hosted
           cp README.md wormhole-connect/
