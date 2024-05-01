@@ -213,7 +213,7 @@ export const MAINNET_CHAINS: ChainsConfig = {
   scroll: {
     ...chains.scroll!,
     displayName: 'Scroll',
-    explorerUrl: 'https://https://scrollscan.com//',
+    explorerUrl: 'https://scrollscan.com/',
     explorerName: 'Scrollscan',
     gasToken: 'ETHscroll',
     chainId: 534352,
