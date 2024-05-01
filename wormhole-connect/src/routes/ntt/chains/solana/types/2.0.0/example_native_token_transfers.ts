@@ -1,5 +1,5 @@
 export type ExampleNativeTokenTransfers = {
-  version: '1.0.0';
+  version: '2.0.0';
   name: 'example_native_token_transfers';
   instructions: [
     {
@@ -1217,7 +1217,7 @@ export type ExampleNativeTokenTransfers = {
       };
     },
     {
-      name: 'lut';
+      name: 'LUT';
       type: {
         kind: 'struct';
         fields: [
@@ -1874,7 +1874,7 @@ export type ExampleNativeTokenTransfers = {
 };
 
 export const IDL: ExampleNativeTokenTransfers = {
-  version: '1.0.0',
+  version: '2.0.0',
   name: 'example_native_token_transfers',
   instructions: [
     {
@@ -3092,7 +3092,7 @@ export const IDL: ExampleNativeTokenTransfers = {
       },
     },
     {
-      name: 'lut',
+      name: 'LUT',
       type: {
         kind: 'struct',
         fields: [

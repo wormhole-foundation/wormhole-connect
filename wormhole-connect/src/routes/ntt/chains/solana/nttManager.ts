@@ -4,20 +4,28 @@ import {
   ChainName,
   TokenId,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { InboundQueuedTransfer } from '../../../../types';
+import { InboundQueuedTransfer } from '../../types';
 import { solanaContext, toChainId, toChainName } from 'utils/sdk';
 import { TransferWallet, postVaa, signAndSendTransaction } from 'utils/wallet';
 import {
+  AddressLookupTableAccount,
   Connection,
   Keypair,
   PublicKey,
+  SystemProgram,
   Transaction,
   TransactionInstruction,
+  TransactionMessage,
+  VersionedTransaction,
 } from '@solana/web3.js';
 import {
   createApproveInstruction,
   getAssociatedTokenAddressSync,
   createAssociatedTokenAccountInstruction,
+  getTransferHook,
+  getMint,
+  addExtraAccountMetasForExecute,
+  getAssociatedTokenAddress,
 } from '@solana/spl-token';
 import { BN, IdlAccounts, Program } from '@coral-xyz/anchor';
 import { SignedVaa, parseVaa } from '@certusone/wormhole-sdk/lib/esm';
@@ -25,15 +33,18 @@ import { utils } from 'ethers';
 import { deserializePayload } from '@wormhole-foundation/sdk-definitions';
 import { Ntt } from '@wormhole-foundation/sdk-definitions-ntt';
 import {
-  ExampleNativeTokenTransfers,
-  IDL,
-} from './example_native_token_transfers';
+  ExampleNativeTokenTransfers as ExampleNativeTokenTransfers_1_0_0,
+  IDL as IDL_1_0_0,
+} from './types/1.0.0/example_native_token_transfers';
+import {
+  ExampleNativeTokenTransfers as ExampleNativeTokenTransfers_2_0_0,
+  IDL as IDL_2_0_0,
+} from './types/2.0.0/example_native_token_transfers';
 import {
   derivePostedVaaKey,
   getWormholeDerivedAccounts,
 } from '@certusone/wormhole-sdk/lib/esm/solana/wormhole';
-import { associatedAddress } from '@coral-xyz/anchor/dist/esm/utils/token';
-import { NttQuoter } from '../../nttQuoter';
+import { NttQuoter } from './nttQuoter';
 import { Keccak } from 'sha3';
 import CONFIG from 'config';
 import { toChain as SDKv2toChain } from '@wormhole-foundation/sdk-base';
@@ -42,16 +53,29 @@ import { getNttManagerConfigByAddress } from 'utils/ntt';
 import {
   ContractIsPausedError,
   NotEnoughCapacityError,
+  UnsupportedContractAbiVersion,
 } from 'routes/ntt/errors';
 
 const RATE_LIMIT_DURATION = 24 * 60 * 60;
 
-type Config = IdlAccounts<ExampleNativeTokenTransfers>['config'];
-type InboxItem = IdlAccounts<ExampleNativeTokenTransfers>['inboxItem'];
+type ExampleNativeTokenTransfersIdl =
+  | ExampleNativeTokenTransfers_1_0_0
+  | ExampleNativeTokenTransfers_2_0_0;
+
+type Config = IdlAccounts<ExampleNativeTokenTransfersIdl>['config'];
+type InboxItem = IdlAccounts<ExampleNativeTokenTransfersIdl>['inboxItem'];
 type OutboxRateLimit =
-  IdlAccounts<ExampleNativeTokenTransfers>['outboxRateLimit'];
+  IdlAccounts<ExampleNativeTokenTransfersIdl>['outboxRateLimit'];
 type InboxRateLimit =
-  IdlAccounts<ExampleNativeTokenTransfers>['inboxRateLimit'];
+  IdlAccounts<ExampleNativeTokenTransfersIdl>['inboxRateLimit'];
+
+type ProgramType =
+  | Program<ExampleNativeTokenTransfers_1_0_0>
+  | Program<ExampleNativeTokenTransfers_2_0_0>;
+
+type VersionedProgram<T extends '1.0.0' | '2.0.0'> = T extends '1.0.0'
+  ? Program<ExampleNativeTokenTransfers_1_0_0>
+  : Program<ExampleNativeTokenTransfers_2_0_0>;
 
 interface TransferArgs {
   amount: BN;
@@ -60,21 +84,37 @@ interface TransferArgs {
   shouldQueue: boolean;
 }
 
-export class NttManager_1_0_0 {
+export class NttManager {
   readonly connection: Connection;
   readonly wormholeId: string;
-  readonly program: Program<ExampleNativeTokenTransfers>;
+  readonly program: ProgramType;
+  addressLookupTable: AddressLookupTableAccount | null = null;
 
-  constructor(readonly nttId: string) {
+  constructor(readonly nttId: string, readonly version: string) {
     const { connection } = solanaContext();
     if (!connection) throw new Error('Connection not found');
     this.connection = connection;
     const core = CONFIG.wh.mustGetContracts('solana').core;
     if (!core) throw new Error('Core not found');
     this.wormholeId = core;
-    this.program = new Program(IDL, this.nttId, {
-      connection: this.connection,
-    });
+    if (version === '1.0.0') {
+      this.program = new Program(IDL_1_0_0, this.nttId, {
+        connection: this.connection,
+      });
+    } else if (version === '2.0.0') {
+      this.program = new Program(IDL_2_0_0, this.nttId, {
+        connection: this.connection,
+      });
+    } else {
+      throw new UnsupportedContractAbiVersion();
+    }
+  }
+
+  isVersion<T extends '1.0.0' | '2.0.0'>(
+    version: T,
+    program: ProgramType,
+  ): program is VersionedProgram<T> {
+    return this.version === version;
   }
 
   async send(
@@ -92,6 +132,8 @@ export class NttManager_1_0_0 {
     const tokenAccount = getAssociatedTokenAddressSync(
       new PublicKey(token.address),
       payer,
+      true,
+      config.tokenProgram,
     );
     const txArgs = {
       payer,
@@ -126,6 +168,8 @@ export class NttManager_1_0_0 {
       this.sessionAuthorityAddress(txArgs.fromAuthority, transferArgs),
       payer,
       BigInt(amount.toString()),
+      undefined,
+      config.tokenProgram,
     );
     const tx = new Transaction();
     tx.add(approveIx, transferIx, releaseIx);
@@ -147,16 +191,12 @@ export class NttManager_1_0_0 {
       tx.add(relayIx);
     }
     tx.feePayer = payer;
-    const { blockhash } = await this.connection.getLatestBlockhash('finalized');
-    tx.recentBlockhash = blockhash;
-    await this.simulate(tx);
     await addComputeBudget(this.connection, tx);
-    tx.partialSign(outboxItem);
-    const txId = await signAndSendTransaction(
-      'solana',
+    const txId = await this.signAndSendTransaction(
       tx,
+      payer,
       TransferWallet.SENDING,
-      { commitment: 'finalized' },
+      [outboxItem],
     );
     return txId;
   }
@@ -179,15 +219,41 @@ export class NttManager_1_0_0 {
     const tx = new Transaction();
     // Create the ATA if it doesn't exist
     const mint = await this.mintAccountAddress(config);
-    const ata = getAssociatedTokenAddressSync(mint, payerPublicKey);
+    const ata = getAssociatedTokenAddressSync(
+      mint,
+      payerPublicKey,
+      true,
+      config.tokenProgram,
+    );
     if (!(await this.connection.getAccountInfo(ata))) {
       const createAtaIx = createAssociatedTokenAccountInstruction(
         payerPublicKey,
         ata,
         payerPublicKey,
         mint,
+        config.tokenProgram,
       );
-      tx.add(createAtaIx);
+      if (this.isVersion('1.0.0', this.program)) {
+        // Version 1.0.0 doesn't use transfer hooks, so we can create the ATA
+        // in the same transaction
+        tx.add(createAtaIx);
+      } else {
+        // Version 2.0.0 uses transfer hooks, so we need to create the ATA
+        // in a separate transaction, because it must exist in order to populate
+        // the extra accounts needed by the transfer hook
+        const createAtaTx = new Transaction().add(createAtaIx);
+        createAtaTx.feePayer = payerPublicKey;
+        const { blockhash } = await this.connection.getLatestBlockhash(
+          'finalized',
+        );
+        createAtaTx.recentBlockhash = blockhash;
+        await signAndSendTransaction(
+          'solana',
+          createAtaTx,
+          TransferWallet.RECEIVING,
+          { commitment: 'finalized' },
+        );
+      }
     }
     // Here we create a transaction with three instructions:
     // 1. receive wormhole message (vaa)
@@ -229,15 +295,11 @@ export class NttManager_1_0_0 {
       tx.add(await this.createReleaseInboundMintInstruction(releaseArgs));
     }
     tx.feePayer = payerPublicKey;
-    const { blockhash } = await this.connection.getLatestBlockhash('finalized');
-    tx.recentBlockhash = blockhash;
-    await this.simulate(tx);
     await addComputeBudget(this.connection, tx);
-    const txId = await signAndSendTransaction(
-      'solana',
+    const txId = await this.signAndSendTransaction(
       tx,
+      payerPublicKey,
       TransferWallet.RECEIVING,
-      { commitment: 'finalized' },
     );
     return txId;
   }
@@ -327,15 +389,41 @@ export class NttManager_1_0_0 {
     const tx = new Transaction();
     // Create the ATA if it doesn't exist
     const mint = await this.mintAccountAddress(config);
-    const ata = getAssociatedTokenAddressSync(mint, payerPublicKey);
+    const ata = getAssociatedTokenAddressSync(
+      mint,
+      payerPublicKey,
+      true,
+      config.tokenProgram,
+    );
     if (!(await this.connection.getAccountInfo(ata))) {
       const createAtaIx = createAssociatedTokenAccountInstruction(
         payerPublicKey,
         ata,
         payerPublicKey,
         mint,
+        config.tokenProgram,
       );
-      tx.add(createAtaIx);
+      if (this.isVersion('1.0.0', this.program)) {
+        // Version 1.0.0 doesn't use transfer hooks, so we can create the ATA
+        // in the same transaction
+        tx.add(createAtaIx);
+      } else {
+        // Version 2.0.0 uses transfer hooks, so we need to create the ATA
+        // in a separate transaction, because it must exist in order to populate
+        // the extra accounts needed by the transfer hook
+        const createAtaTx = new Transaction().add(createAtaIx);
+        createAtaTx.feePayer = payerPublicKey;
+        const { blockhash } = await this.connection.getLatestBlockhash(
+          'finalized',
+        );
+        createAtaTx.recentBlockhash = blockhash;
+        await signAndSendTransaction(
+          'solana',
+          createAtaTx,
+          TransferWallet.RECEIVING,
+          { commitment: 'finalized' },
+        );
+      }
     }
     if (config.mode.locking) {
       tx.add(await this.createReleaseInboundUnlockInstruction(releaseArgs));
@@ -343,15 +431,11 @@ export class NttManager_1_0_0 {
       tx.add(await this.createReleaseInboundMintInstruction(releaseArgs));
     }
     tx.feePayer = payerPublicKey;
-    const { blockhash } = await this.connection.getLatestBlockhash('finalized');
-    tx.recentBlockhash = blockhash;
-    await this.simulate(tx);
     await addComputeBudget(this.connection, tx);
-    const txId = await signAndSendTransaction(
-      'solana',
+    const txId = await this.signAndSendTransaction(
       tx,
+      payerPublicKey,
       TransferWallet.RECEIVING,
-      { commitment: 'finalized' },
     );
     return txId;
   }
@@ -390,6 +474,14 @@ export class NttManager_1_0_0 {
 
   configAccountAddress(): PublicKey {
     return this.derivePda(Buffer.from('config'));
+  }
+
+  lutAccountAddress(): PublicKey {
+    return this.derivePda(Buffer.from('lut'));
+  }
+
+  lutAuthorityAddress(): PublicKey {
+    return this.derivePda(Buffer.from('lut_authority'));
   }
 
   outboxRateLimitAccountAddress(): PublicKey {
@@ -504,30 +596,80 @@ export class NttManager_1_0_0 {
       recipientAddress: Array.from(args.recipientAddress),
       shouldQueue: args.shouldQueue,
     };
-    return await this.program.methods
-      .transferBurn({
-        amount: args.amount,
-        recipientChain: { id: chainId },
-        recipientAddress: Array.from(args.recipientAddress),
-        shouldQueue: args.shouldQueue,
-      })
-      .accounts({
-        common: {
-          payer: args.payer,
-          config: { config: this.configAccountAddress() },
-          mint,
-          from: args.from,
-          outboxItem: args.outboxItem,
-          outboxRateLimit: this.outboxRateLimitAccountAddress(),
-        },
-        peer: this.peerAccountAddress(args.recipientChain),
-        inboxRateLimit: this.inboxRateLimitAccountAddress(args.recipientChain),
-        sessionAuthority: this.sessionAuthorityAddress(
-          args.fromAuthority,
-          transferArgs,
-        ),
-      })
-      .instruction();
+    if (this.isVersion('1.0.0', this.program)) {
+      const transferIx = await this.program.methods
+        .transferBurn({
+          amount: args.amount,
+          recipientChain: { id: chainId },
+          recipientAddress: Array.from(args.recipientAddress),
+          shouldQueue: args.shouldQueue,
+        })
+        .accounts({
+          common: {
+            payer: args.payer,
+            config: { config: this.configAccountAddress() },
+            mint,
+            from: args.from,
+            outboxItem: args.outboxItem,
+            outboxRateLimit: this.outboxRateLimitAccountAddress(),
+          },
+          peer: this.peerAccountAddress(args.recipientChain),
+          inboxRateLimit: this.inboxRateLimitAccountAddress(
+            args.recipientChain,
+          ),
+          sessionAuthority: this.sessionAuthorityAddress(
+            args.fromAuthority,
+            transferArgs,
+          ),
+        })
+        .instruction();
+      return transferIx;
+    } else {
+      const transferIx = await this.program.methods
+        .transferBurn({
+          amount: args.amount,
+          recipientChain: { id: chainId },
+          recipientAddress: Array.from(args.recipientAddress),
+          shouldQueue: args.shouldQueue,
+        })
+        .accountsStrict({
+          common: {
+            payer: args.payer,
+            config: { config: this.configAccountAddress() },
+            mint,
+            from: args.from,
+            tokenProgram: await this.tokenProgram(config),
+            outboxItem: args.outboxItem,
+            outboxRateLimit: this.outboxRateLimitAccountAddress(),
+            custody: await this.custodyAccountAddress(config),
+            systemProgram: SystemProgram.programId,
+          },
+          peer: this.peerAccountAddress(args.recipientChain),
+          inboxRateLimit: this.inboxRateLimitAccountAddress(
+            args.recipientChain,
+          ),
+          sessionAuthority: this.sessionAuthorityAddress(
+            args.fromAuthority,
+            transferArgs,
+          ),
+          tokenAuthority: this.tokenAuthorityAddress(),
+        })
+        .instruction();
+      const source = args.from;
+      const destination = await this.custodyAccountAddress(config);
+      const owner = this.sessionAuthorityAddress(
+        args.fromAuthority,
+        transferArgs,
+      );
+      await this.maybeAddExtraTransferHookAccounts(
+        config,
+        source,
+        destination,
+        owner,
+        transferIx,
+      );
+      return transferIx;
+    }
   }
 
   /**
@@ -553,32 +695,80 @@ export class NttManager_1_0_0 {
       recipientAddress: Array.from(args.recipientAddress),
       shouldQueue: args.shouldQueue,
     };
-    return await this.program.methods
-      .transferLock({
-        amount: args.amount,
-        recipientChain: { id: chainId },
-        recipientAddress: Array.from(args.recipientAddress),
-        shouldQueue: args.shouldQueue,
-      })
-      .accounts({
-        common: {
-          payer: args.payer,
-          config: { config: this.configAccountAddress() },
-          mint,
-          from: args.from,
-          tokenProgram: await this.tokenProgram(args.config),
-          outboxItem: args.outboxItem,
-          outboxRateLimit: this.outboxRateLimitAccountAddress(),
-        },
-        peer: this.peerAccountAddress(args.recipientChain),
-        inboxRateLimit: this.inboxRateLimitAccountAddress(args.recipientChain),
-        custody: await this.custodyAccountAddress(args.config),
-        sessionAuthority: this.sessionAuthorityAddress(
-          args.fromAuthority,
-          transferArgs,
-        ),
-      })
-      .instruction();
+    if (this.isVersion('1.0.0', this.program)) {
+      return await this.program.methods
+        .transferLock({
+          amount: args.amount,
+          recipientChain: { id: chainId },
+          recipientAddress: Array.from(args.recipientAddress),
+          shouldQueue: args.shouldQueue,
+        })
+        .accounts({
+          common: {
+            payer: args.payer,
+            config: { config: this.configAccountAddress() },
+            mint,
+            from: args.from,
+            tokenProgram: await this.tokenProgram(args.config),
+            outboxItem: args.outboxItem,
+            outboxRateLimit: this.outboxRateLimitAccountAddress(),
+          },
+          peer: this.peerAccountAddress(args.recipientChain),
+          inboxRateLimit: this.inboxRateLimitAccountAddress(
+            args.recipientChain,
+          ),
+          custody: await this.custodyAccountAddress(args.config),
+          sessionAuthority: this.sessionAuthorityAddress(
+            args.fromAuthority,
+            transferArgs,
+          ),
+        })
+        .instruction();
+    } else {
+      const transferIx = await this.program.methods
+        .transferLock({
+          amount: args.amount,
+          recipientChain: { id: chainId },
+          recipientAddress: Array.from(args.recipientAddress),
+          shouldQueue: args.shouldQueue,
+        })
+        .accountsStrict({
+          common: {
+            payer: args.payer,
+            config: { config: this.configAccountAddress() },
+            mint,
+            from: args.from,
+            tokenProgram: await this.tokenProgram(args.config),
+            outboxItem: args.outboxItem,
+            outboxRateLimit: this.outboxRateLimitAccountAddress(),
+            custody: await this.custodyAccountAddress(args.config),
+            systemProgram: SystemProgram.programId,
+          },
+          peer: this.peerAccountAddress(args.recipientChain),
+          inboxRateLimit: this.inboxRateLimitAccountAddress(
+            args.recipientChain,
+          ),
+          sessionAuthority: this.sessionAuthorityAddress(
+            args.fromAuthority,
+            transferArgs,
+          ),
+        })
+        .instruction();
+      const source = args.from;
+      const destination = await this.custodyAccountAddress(args.config);
+      const owner = this.sessionAuthorityAddress(
+        args.fromAuthority,
+        transferArgs,
+      );
+      await this.maybeAddExtraTransferHookAccounts(
+        args.config,
+        source,
+        destination,
+        owner,
+        transferIx,
+      );
+      return transferIx;
+    }
   }
 
   /**
@@ -623,21 +813,62 @@ export class NttManager_1_0_0 {
   }): Promise<TransactionInstruction> {
     const config = await this.getConfig(args.config);
     const mint = await this.mintAccountAddress(config);
-    return await this.program.methods
-      .releaseInboundMint({
-        revertOnDelay: args.revertOnDelay,
-      })
-      .accounts({
-        common: {
-          payer: args.payer,
-          config: { config: this.configAccountAddress() },
-          inboxItem: this.inboxItemAccountAddress(args.messageDigest),
-          recipient: getAssociatedTokenAddressSync(mint, args.recipient),
-          mint,
-          tokenAuthority: this.tokenAuthorityAddress(),
-        },
-      })
-      .instruction();
+    if (this.isVersion('1.0.0', this.program)) {
+      return await this.program.methods
+        .releaseInboundMint({
+          revertOnDelay: args.revertOnDelay,
+        })
+        .accounts({
+          common: {
+            payer: args.payer,
+            config: { config: this.configAccountAddress() },
+            inboxItem: this.inboxItemAccountAddress(args.messageDigest),
+            recipient: getAssociatedTokenAddressSync(mint, args.recipient),
+            mint,
+            tokenAuthority: this.tokenAuthorityAddress(),
+          },
+        })
+        .instruction();
+    } else {
+      const transferIx = await this.program.methods
+        .releaseInboundMint({
+          revertOnDelay: args.revertOnDelay,
+        })
+        .accountsStrict({
+          common: {
+            payer: args.payer,
+            config: { config: this.configAccountAddress() },
+            inboxItem: this.inboxItemAccountAddress(args.messageDigest),
+            recipient: getAssociatedTokenAddressSync(
+              mint,
+              args.recipient,
+              true,
+              config.tokenProgram,
+            ),
+            mint,
+            tokenAuthority: this.tokenAuthorityAddress(),
+            tokenProgram: config.tokenProgram,
+            custody: await this.custodyAccountAddress(config),
+          },
+        })
+        .instruction();
+      const source = await this.custodyAccountAddress(config);
+      const destination = getAssociatedTokenAddressSync(
+        mint,
+        args.recipient,
+        true,
+        config.tokenProgram,
+      );
+      const owner = this.tokenAuthorityAddress();
+      await this.maybeAddExtraTransferHookAccounts(
+        config,
+        source,
+        destination,
+        owner,
+        transferIx,
+      );
+      return transferIx;
+    }
   }
 
   async createReleaseInboundUnlockInstruction(args: {
@@ -649,22 +880,64 @@ export class NttManager_1_0_0 {
   }): Promise<TransactionInstruction> {
     const config = await this.getConfig(args.config);
     const mint = await this.mintAccountAddress(config);
-    return await this.program.methods
-      .releaseInboundUnlock({
-        revertOnDelay: args.revertOnDelay,
-      })
-      .accounts({
-        common: {
-          payer: args.payer,
-          config: { config: this.configAccountAddress() },
-          inboxItem: this.inboxItemAccountAddress(args.messageDigest),
-          recipient: getAssociatedTokenAddressSync(mint, args.recipient),
-          mint,
-          tokenAuthority: this.tokenAuthorityAddress(),
-        },
-        custody: await this.custodyAccountAddress(config),
-      })
-      .instruction();
+    if (this.isVersion('1.0.0', this.program)) {
+      return await this.program.methods
+        .releaseInboundUnlock({
+          revertOnDelay: args.revertOnDelay,
+        })
+        .accounts({
+          common: {
+            payer: args.payer,
+            config: { config: this.configAccountAddress() },
+            inboxItem: this.inboxItemAccountAddress(args.messageDigest),
+            recipient: getAssociatedTokenAddressSync(mint, args.recipient),
+            mint,
+            tokenAuthority: this.tokenAuthorityAddress(),
+          },
+          custody: await this.custodyAccountAddress(config),
+        })
+        .instruction();
+    } else {
+      const transferIx = await this.program.methods
+        .releaseInboundUnlock({
+          revertOnDelay: args.revertOnDelay,
+        })
+        .accounts({
+          common: {
+            payer: args.payer,
+            config: { config: this.configAccountAddress() },
+            inboxItem: this.inboxItemAccountAddress(args.messageDigest),
+            recipient: getAssociatedTokenAddressSync(
+              mint,
+              args.recipient,
+              true,
+              config.tokenProgram,
+            ),
+            mint,
+            tokenAuthority: this.tokenAuthorityAddress(),
+            tokenProgram: config.tokenProgram,
+            custody: await this.custodyAccountAddress(config),
+          },
+        })
+        .instruction();
+
+      const source = await this.custodyAccountAddress(config);
+      const destination = getAssociatedTokenAddressSync(
+        mint,
+        args.recipient,
+        true,
+        config.tokenProgram,
+      );
+      const owner = this.tokenAuthorityAddress();
+      await this.maybeAddExtraTransferHookAccounts(
+        config,
+        source,
+        destination,
+        owner,
+        transferIx,
+      );
+      return transferIx;
+    }
   }
 
   async createReceiveWormholeMessageInstruction(args: {
@@ -685,7 +958,7 @@ export class NttManager_1_0_0 {
         payer: args.payer,
         config: { config: this.configAccountAddress() },
         peer: transceiverPeer,
-        vaa: derivePostedVaaKey(this.wormholeId, parseVaa(args.vaa).hash),
+        vaa: derivePostedVaaKey(this.wormholeId, parsedVaa.hash),
         transceiverMessage: this.transceiverMessageAccountAddress(
           chainId,
           Buffer.from(nttManagerPayload.id),
@@ -778,29 +1051,51 @@ export class NttManager_1_0_0 {
     );
   }
 
-  /**
-   * Returns the address of the custody account. If the config is available
-   * (i.e. the program is initialized), the mint is derived from the config.
-   * Otherwise, the mint must be provided.
-   */
-  async custodyAccountAddress(
-    configOrMint: Config | PublicKey,
-  ): Promise<PublicKey> {
-    if (configOrMint instanceof PublicKey) {
-      return associatedAddress({
-        mint: configOrMint,
-        owner: this.tokenAuthorityAddress(),
-      });
-    } else {
-      return associatedAddress({
-        mint: await this.mintAccountAddress(configOrMint),
-        owner: this.tokenAuthorityAddress(),
-      });
+  async getAddressLookupTable(): Promise<AddressLookupTableAccount | null> {
+    if (this.isVersion('1.0.0', this.program)) {
+      return null;
     }
+    if (!this.addressLookupTable) {
+      // @ts-ignore
+      // Note: lut is 'LUT' in the IDL, but 'lut' in the generated code
+      // It needs to be upper-cased in the IDL to compute the anchor
+      // account discriminator correctly
+      const lut = await this.program.account.lut.fetchNullable(
+        this.lutAccountAddress(),
+      );
+      if (!lut) {
+        throw new Error(
+          'Address lookup table not found. Did you forget to initialize it?',
+        );
+      }
+      const response = await this.connection.getAddressLookupTable(lut.address);
+      if (!response.value) {
+        throw new Error('Address lookup table not found');
+      }
+      this.addressLookupTable = response.value;
+    }
+    if (!this.addressLookupTable) {
+      throw new Error(
+        'Address lookup table not found. Did you forget to call initialize it?',
+      );
+    }
+    return this.addressLookupTable;
+  }
+
+  /**
+   * Returns the address of the custody account.
+   */
+  async custodyAccountAddress(config: Config): Promise<PublicKey> {
+    return getAssociatedTokenAddress(
+      config.mint,
+      this.tokenAuthorityAddress(),
+      true,
+      config.tokenProgram,
+    );
   }
 
   // Simulate transaction to catch and translate errors before sending
-  async simulate(tx: Transaction): Promise<void> {
+  async simulate(tx: VersionedTransaction): Promise<void> {
     const response = await this.connection.simulateTransaction(tx);
     if (response.value.err) {
       const errorLog = response.value.logs?.find((log) =>
@@ -820,5 +1115,64 @@ export class NttManager_1_0_0 {
       }
       throw new Error(`Simulation error: ${JSON.stringify(response)}`);
     }
+  }
+
+  async maybeAddExtraTransferHookAccounts(
+    config: Config,
+    source: PublicKey,
+    destination: PublicKey,
+    owner: PublicKey,
+    transferIx: TransactionInstruction,
+  ) {
+    const mintInfo = await getMint(
+      this.program.provider.connection,
+      config.mint,
+      undefined,
+      config.tokenProgram,
+    );
+    const transferHook = getTransferHook(mintInfo);
+    if (transferHook) {
+      await addExtraAccountMetasForExecute(
+        this.program.provider.connection,
+        transferIx,
+        transferHook.programId,
+        source,
+        config.mint,
+        destination,
+        owner,
+        // TODO(csonger): compute the amount that's passed into transfer.
+        // Leaving this 0 is fine unless the transfer hook accounts addresses
+        // depend on the amount (which is unlikely).
+        // If this turns out to be the case, the amount to put here is the
+        // untrimmed amount after removing dust.
+        0,
+      );
+    }
+  }
+
+  async signAndSendTransaction(
+    tx: Transaction,
+    payerKey: PublicKey,
+    transferWallet: TransferWallet,
+    signers?: Keypair[],
+  ) {
+    const lut = await this.getAddressLookupTable();
+    const { blockhash } = await this.connection.getLatestBlockhash('finalized');
+    const messageV0 = new TransactionMessage({
+      payerKey,
+      recentBlockhash: blockhash,
+      instructions: tx.instructions,
+    }).compileToV0Message(lut ? [lut] : undefined);
+    const transactionV0 = new VersionedTransaction(messageV0);
+    await this.simulate(transactionV0);
+    if (signers && signers.length > 0) {
+      transactionV0.sign(signers);
+    }
+    return await signAndSendTransaction(
+      'solana',
+      transactionV0,
+      transferWallet,
+      { commitment: 'finalized' },
+    );
   }
 }

@@ -21,6 +21,7 @@ import {
   createVerifySignaturesInstructions,
 } from './wormhole';
 import { isBytes, ParsedVaa, parseVaa, SignedVaa } from '../../../vaa/wormhole';
+import { derivePostedVaaKey } from '@certusone/wormhole-sdk/lib/esm/solana/wormhole';
 
 /**
  * @category Solana
@@ -34,6 +35,16 @@ export async function postVaaWithRetry(
   maxRetries?: number,
   commitment?: Commitment,
 ): Promise<TransactionSignatureAndResponse[]> {
+  // Check if the VAA has already been posted
+  const parsedVaa = parseVaa(vaa);
+  const postedVaaAddress = derivePostedVaaKey(
+    wormholeProgramId,
+    parsedVaa.hash,
+  );
+  const isPosted = (await connection.getAccountInfo(postedVaaAddress)) !== null;
+  if (isPosted) {
+    return [];
+  }
   const { unsignedTransactions, signers } =
     await createPostSignedVaaTransactions(
       connection,

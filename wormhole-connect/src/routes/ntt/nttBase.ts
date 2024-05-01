@@ -443,7 +443,9 @@ export abstract class NttBase extends BaseRoute {
         } else if (toChainName(toChain) === 'solana') {
           const connection = solanaContext().connection;
           if (!connection) throw new Error('Connection not found');
-          const tx = await connection.getParsedTransaction(receiveTx);
+          const tx = await connection.getParsedTransaction(receiveTx, {
+            maxSupportedTransactionVersion: 0,
+          });
           if (tx?.meta?.fee) {
             gas = formatGasFee(toChain, BigNumber.from(tx.meta.fee));
           }

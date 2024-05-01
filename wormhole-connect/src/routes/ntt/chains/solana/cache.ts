@@ -1,6 +1,5 @@
-import { UnsupportedContractAbiVersion } from 'routes/ntt/errors';
 import { IDL } from './types/1.0.0/example_native_token_transfers';
-import { NttManager_1_0_0 } from './types/1.0.0/nttManager';
+import { NttManager } from './nttManager';
 import { Program } from '@coral-xyz/anchor';
 import { solanaContext } from 'utils/sdk';
 import {
@@ -9,19 +8,13 @@ import {
   VersionedTransaction,
 } from '@solana/web3.js';
 
-const cache = new Map<string, NttManager_1_0_0>();
+const cache = new Map<string, NttManager>();
 
-export const getManagerSolana = async (
-  nttId: string,
-): Promise<NttManager_1_0_0> => {
+export const getManagerSolana = async (nttId: string): Promise<NttManager> => {
   let manager = cache.get(nttId);
   if (!manager) {
     const version = await getVersion(nttId);
-    if (version === '1.0.0') {
-      manager = new NttManager_1_0_0(nttId);
-    } else {
-      throw new UnsupportedContractAbiVersion();
-    }
+    manager = new NttManager(nttId, version);
     cache.set(nttId, manager);
   }
   return manager;
