@@ -45,7 +45,7 @@
   },
   "scripts": {
     "lint": "npm run prettier && eslint --fix ./src",
-    "lint:ci": "npm run prettier && eslint --max-warnings=0 ./src/",
+    "lint:ci": "npm run prettier && eslint --max-warnings=0",
     "prettier": "prettier --write ./src",
     "build": "tsc -p tsconfig.cjs.json && tsc -p tsconfig.esm.json",
     "check": "tsc --noEmit",
