@@ -99,7 +99,6 @@ function Send(props: { valid: boolean }) {
     );
     const valid = isTransferValid(validations);
     if (!valid || !route) return;
-    dispatch(setIsTransactionInProgress(true));
 
     // Details for config.dispatchEvent events
     const transferDetails = {
@@ -109,6 +108,26 @@ function Send(props: { valid: boolean }) {
       fromChain: fromChain!,
       toChain: toChain!,
     };
+
+    // Handle custom transfer validation (if provided by integrator)
+    if (config.validateTransfer) {
+      try {
+        const { isValid, error } = await config.validateTransfer({
+          ...transferDetails,
+          fromWalletAddress: sending.address,
+          toWalletAddress: receiving.address,
+        });
+        if (!isValid) {
+          setSendError(error ?? 'Transfer validation failed');
+          return;
+        }
+      } catch (e) {
+        setSendError('Error validating transfer');
+        console.error(e);
+        return;
+      }
+    }
+    dispatch(setIsTransactionInProgress(true));
 
     const tokenConfig = config.tokens[token]!;
     const sendToken: TokenId | 'native' = tokenConfig.tokenId ?? 'native';

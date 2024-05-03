@@ -10,7 +10,7 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { Alignment } from 'components/Header';
 import { WormholeConnectPartialTheme } from 'theme';
-import { WormholeConnectEventHandler } from 'telemetry/types';
+import { TransferDetails, WormholeConnectEventHandler } from 'telemetry/types';
 import { SDKConverter } from './converter';
 
 export enum Icon {
@@ -75,6 +75,20 @@ export interface BridgeDefaults {
   requiredNetwork?: ChainName;
 }
 
+export interface ExtendedTransferDetails extends TransferDetails {
+  fromWalletAddress: string;
+  toWalletAddress: string;
+}
+
+export interface ValidateTransferResult {
+  isValid: boolean;
+  error?: string;
+}
+
+export type ValidateTransferHandler = (
+  transferDetails: ExtendedTransferDetails,
+) => Promise<ValidateTransferResult>;
+
 // This is the integrator-provided JSON config
 export interface WormholeConnectConfig {
   env?: Network; // TODO REMOVE; DEPRECATED
@@ -102,6 +116,7 @@ export interface WormholeConnectConfig {
 
   // Callbacks
   eventHandler?: WormholeConnectEventHandler;
+  validateTransferHandler?: ValidateTransferHandler;
 
   // UI details
   cta?: {
@@ -162,6 +177,7 @@ export interface InternalConfig {
 
   // Callbacks
   triggerEvent: WormholeConnectEventHandler;
+  validateTransfer?: ValidateTransferHandler;
 
   // UI details
   cta?: {
