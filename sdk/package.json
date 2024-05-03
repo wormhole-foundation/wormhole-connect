@@ -45,17 +45,13 @@
   },
   "scripts": {
     "lint": "npm run prettier && eslint --fix ./src",
-    "lint:ci": "prettier -c ./src && eslint --max-warnings=0 ./src",
+    "lint:ci": "npm run prettier && eslint --max-warnings=0 ./src/",
     "prettier": "prettier --write ./src",
     "build": "tsc -p tsconfig.cjs.json && tsc -p tsconfig.esm.json",
     "check": "tsc --noEmit",
     "doc": "typedoc src/index.ts --out ../docs"
   },
   "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ],
     "rules": {
       "eqeqeq": "off",
       "no-empty-pattern": "off",
