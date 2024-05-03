@@ -3,20 +3,17 @@
   "private": true,
   "workspaces": [
     "sdk",
-    "wormhole-connect",
-    "builder"
+    "wormhole-connect"
   ],
   "scripts": {
     "build:lib": "npm run build -w=sdk; npm run build:lib -w=wormhole-connect",
     "build:netlify": "npm run build -w=sdk; npm run build:netlify -w=wormhole-connect",
     "build:hosted": "npm run build -w=sdk; npm run build:hosted -w=wormhole-connect",
-    "build:builder": "npm run build -w=builder",
     "compile": "npm run compile --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",
     "lint:ci": "npm run lint:ci --workspaces --if-present",
     "wormhole-connect": "npm run workspace @wormhole-foundation/wormhole-connect",
     "sdk": "npm run workspace @wormhole-foundation/wormhole-connect-sdk",
-    "builder": "npm run workspace wormhole-connect-builder",
     "prettier": "npm run prettier --workspaces --if-present",
     "prepare": "husky install"
   },
