@@ -1,3 +1,5 @@
+import { describe, expect, test } from 'vitest';
+
 import { MAINNET_CHAINS } from '../src/config/mainnet/chains';
 import { MAINNET_TOKENS } from '../src/config/mainnet/tokens';
 import { TESTNET_CHAINS } from '../src/config/testnet/chains';

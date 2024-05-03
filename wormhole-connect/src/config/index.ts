@@ -18,6 +18,8 @@ import {
 } from './utils';
 import { wrapEventHandler } from './events';
 
+import { SDKConverter } from './converter';
+
 export function buildConfig(
   customConfig?: WormholeConnectConfig,
 ): InternalConfig {
@@ -60,9 +62,12 @@ export function buildConfig(
     validateDefaults(customConfig.bridgeDefaults, networkData.chains, tokens);
   }
 
+  const sdkConverter = new SDKConverter(wh, networkData.chains, tokens);
+
   return {
     wh,
     sdkConfig,
+    sdkConverter,
 
     // TODO remove either env or network from this
     // some code uses lowercase, some uppercase... :(
@@ -161,7 +166,7 @@ export function buildConfig(
 const config = buildConfig();
 export default config;
 
-function getWormholeContext(
+export function getWormholeContext(
   network: NetworkLegacy,
   sdkConfig: WormholeConfig,
   tokens: TokensConfig,
@@ -191,6 +196,17 @@ function getWormholeContext(
   );
 
   return wh;
+}
+
+export function getDefaultWormholeContext(network: Network): WormholeContext {
+  const networkLegacy: NetworkLegacy = network.toUpperCase() as NetworkLegacy;
+  const sdkConfig = WormholeContext.getConfig(networkLegacy);
+  const networkData = { MAINNET, DEVNET, TESTNET }[networkLegacy]!;
+
+  const { tokens } = networkData;
+  const rpcs = Object.assign({}, sdkConfig.rpcs, networkData.rpcs);
+
+  return getWormholeContext(networkLegacy, sdkConfig, tokens, rpcs);
 }
 
 // setConfig can be called afterwards to override the default config with integrator-provided config

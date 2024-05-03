@@ -11,6 +11,7 @@ import {
 import { Alignment } from 'components/Header';
 import { WormholeConnectPartialTheme } from 'theme';
 import { WormholeConnectEventHandler } from 'telemetry/types';
+import { SDKConverter } from './converter';
 
 export enum Icon {
   'AVAX' = 1,
@@ -136,6 +137,7 @@ export interface WormholeConnectConfig {
 export interface InternalConfig {
   wh: WormholeContext;
   sdkConfig: WormholeConfig;
+  sdkConverter: SDKConverter;
 
   network: Network;
   networkLegacy: NetworkLegacy; // TODO remove...
