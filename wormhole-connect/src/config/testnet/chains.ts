@@ -275,4 +275,15 @@ export const TESTNET_CHAINS: ChainsConfig = {
     automaticRelayer: false,
     maxBlockSearch: 0,
   },
+  scroll: {
+    ...chains.scroll!,
+    displayName: 'Scroll',
+    explorerUrl: 'https://sepolia.scrollscan.dev/',
+    explorerName: 'Scrollscan',
+    gasToken: 'ETHscroll',
+    chainId: 534351,
+    icon: Icon.SCROLL,
+    automaticRelayer: false,
+    maxBlockSearch: 2000,
+  },
 };

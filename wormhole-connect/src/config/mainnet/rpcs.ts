@@ -23,6 +23,7 @@ const {
   REACT_APP_ARBITRUM_RPC,
   REACT_APP_OPTIMISM_RPC,
   REACT_APP_APTOS_GRAPHQL,
+  REACT_APP_SCROLL_RPC,
 } = import.meta.env;
 
 export const MAINNET_RPC_MAPPING = {
@@ -46,6 +47,7 @@ export const MAINNET_RPC_MAPPING = {
   ...populateRpcField('kujira', REACT_APP_KUJIRA_RPC),
   ...populateRpcField('injective', REACT_APP_INJECTIVE_RPC),
   ...populateRpcField('klaytn', REACT_APP_KLAYTN_RPC),
+  ...populateRpcField('scroll', REACT_APP_SCROLL_RPC),
 };
 
 export const MAINNET_REST_MAPPING = {

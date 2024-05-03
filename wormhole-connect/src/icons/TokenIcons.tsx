@@ -34,6 +34,7 @@ import KLAY from './Tokens/KLAY';
 import PYTH from './Tokens/PYTH';
 import INJ from './Tokens/INJ';
 import NTT from './Tokens/NTT';
+import SCROLL from './Tokens/SCROLL';
 
 const useStyles = makeStyles<{ size: number }>()((theme, { size }) => ({
   container: {
@@ -82,6 +83,7 @@ const iconMap: { [key in Icon]: React.JSX.Element } = {
   [Icon.KLAY]: KLAY(),
   [Icon.INJ]: INJ(),
   [Icon.NTT]: NTT(),
+  [Icon.SCROLL]: SCROLL(),
 };
 
 function isBuiltinIcon(icon?: Icon | string): icon is Icon {
