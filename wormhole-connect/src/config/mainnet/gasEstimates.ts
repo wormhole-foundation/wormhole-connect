@@ -318,4 +318,11 @@ export const MAINNET_GAS_ESTIMATES: GasEstimates = {
       claim: 0,
     },
   },
+  scroll: {
+    [Route.Bridge]: {
+      sendNative: 100000,
+      sendToken: 100000,
+      claim: 300000,
+    },
+  },
 };

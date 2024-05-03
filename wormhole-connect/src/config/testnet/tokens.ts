@@ -2262,4 +2262,33 @@ export const TESTNET_TOKENS: TokensConfig = {
       default: 18,
     },
   },
+  ETHscroll: {
+    key: 'ETHscroll',
+    symbol: 'ETH',
+    displayName: 'ETH (Scroll)',
+    nativeChain: 'scroll',
+    icon: Icon.SCROLL,
+    coinGeckoId: 'ethereum',
+    decimals: {
+      Ethereum: 18,
+      default: 8,
+    },
+    wrappedAsset: 'WETHscroll',
+  },
+  WETHscroll: {
+    key: 'WETHscroll',
+    symbol: 'WETH',
+    displayName: 'WETH (Scroll)',
+    nativeChain: 'scroll',
+    icon: Icon.ETH,
+    tokenId: {
+      chain: 'scroll',
+      address: '0x5300000000000000000000000000000000000004',
+    },
+    coinGeckoId: 'ethereum',
+    decimals: {
+      Ethereum: 18,
+      default: 8,
+    },
+  },
 };
