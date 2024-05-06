@@ -20,6 +20,7 @@ export interface RedeemState {
   route: Route | undefined;
   transferDestInfo: TransferDestInfo | undefined;
   deliveryStatus: DeliveryStatus | undefined;
+  isResumeTx: boolean;
 }
 
 const initialState: RedeemState = {
@@ -33,6 +34,7 @@ const initialState: RedeemState = {
   route: undefined,
   transferDestInfo: undefined,
   deliveryStatus: undefined,
+  isResumeTx: false,
 };
 
 export const redeemSlice = createSlice({
@@ -100,6 +102,12 @@ export const redeemSlice = createSlice({
     ) => {
       state.isInvalidVaa = payload;
     },
+    setIsResumeTx: (
+      state: RedeemState,
+      { payload }: PayloadAction<boolean>,
+    ) => {
+      state.isResumeTx = payload;
+    },
   },
 });
 
@@ -115,6 +123,7 @@ export const {
   setRoute,
   setSignedMessage,
   setDeliveryStatus,
+  setIsResumeTx,
 } = redeemSlice.actions;
 
 export default redeemSlice.reducer;

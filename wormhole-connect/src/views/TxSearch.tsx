@@ -7,7 +7,11 @@ import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import config from 'config';
 import { isValidTxId } from 'utils';
 import RouteOperator from 'routes/operator';
-import { setTxDetails, setRoute as setRedeemRoute } from 'store/redeem';
+import {
+  setTxDetails,
+  setRoute as setRedeemRoute,
+  setIsResumeTx,
+} from 'store/redeem';
 import { setRoute as setAppRoute } from 'store/router';
 import PageHeader from 'components/PageHeader';
 import Search from 'components/Search';
@@ -90,6 +94,7 @@ function TxSearch() {
       );
       setError('');
       dispatch(setTxDetails(message));
+      dispatch(setIsResumeTx(true)); // To avoid send transfer.success event in Resume Transaction case
       dispatch(setRedeemRoute(route));
       dispatch(setAppRoute('redeem'));
       dispatch(setToChain(message.toChain));
