@@ -286,4 +286,15 @@ export const TESTNET_CHAINS: ChainsConfig = {
     automaticRelayer: false,
     maxBlockSearch: 2000,
   },
+  blast: {
+    ...chains.blast!,
+    displayName: 'Blast',
+    explorerUrl: 'https://testnet.blastscan.io/',
+    explorerName: 'Blastscan',
+    gasToken: 'ETHblast',
+    chainId: 168587773,
+    icon: Icon.BLAST,
+    automaticRelayer: false,
+    maxBlockSearch: 2000,
+  },
 };

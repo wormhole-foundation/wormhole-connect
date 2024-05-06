@@ -12,7 +12,8 @@ import { getTokenById } from 'utils';
 import { getWormholeLogEvm } from 'utils/vaa';
 import config from 'config';
 import { toChainName } from 'utils/sdk';
-import { deserializePayload, Ntt } from '@wormhole-foundation/sdk-definitions';
+import { deserializePayload } from '@wormhole-foundation/sdk-definitions';
+import { Ntt } from '@wormhole-foundation/sdk-definitions-ntt';
 import { toChain, toChainId } from '@wormhole-foundation/sdk-base';
 import {
   getNttGroupKeyByAddress,

@@ -221,4 +221,15 @@ export const MAINNET_CHAINS: ChainsConfig = {
     automaticRelayer: false,
     maxBlockSearch: 2000,
   },
+  blast: {
+    ...chains.blast!,
+    displayName: 'Blast',
+    explorerUrl: 'https://blastscan.io/',
+    explorerName: 'Blastscan',
+    gasToken: 'ETHblast',
+    chainId: 81457,
+    icon: Icon.BLAST,
+    automaticRelayer: false,
+    maxBlockSearch: 2000,
+  },
 };

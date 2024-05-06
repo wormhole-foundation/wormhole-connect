@@ -4,7 +4,8 @@ import { hexlify } from 'ethers/lib/utils';
 import { NttRelayingType, UnsignedNttMessage } from 'routes/types';
 import { getTokenById } from 'utils';
 import config from 'config';
-import { deserializePayload, Ntt } from '@wormhole-foundation/sdk-definitions';
+import { deserializePayload } from '@wormhole-foundation/sdk-definitions';
+import { Ntt } from '@wormhole-foundation/sdk-definitions-ntt';
 import { toChainId } from '@wormhole-foundation/sdk-base';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import {

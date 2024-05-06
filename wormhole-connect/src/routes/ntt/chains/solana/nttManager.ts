@@ -24,7 +24,8 @@ import {
 import { BN, IdlAccounts, Program } from '@coral-xyz/anchor';
 import { SignedVaa, parseVaa } from '@certusone/wormhole-sdk/lib/esm';
 import { utils } from 'ethers';
-import { deserializePayload, Ntt } from '@wormhole-foundation/sdk-definitions';
+import { deserializePayload } from '@wormhole-foundation/sdk-definitions';
+import { Ntt } from '@wormhole-foundation/sdk-definitions-ntt';
 import {
   ExampleNativeTokenTransfers,
   IDL,

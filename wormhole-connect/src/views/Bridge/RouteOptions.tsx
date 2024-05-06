@@ -179,9 +179,11 @@ const getEstimatedTime = (chain?: ChainName) => {
   const chainName = chainIdToChain(config.wh.toChainId(chain));
   const chainFinality = finality.finalityThreshold.get(chainName);
   if (typeof chainFinality === 'undefined') return undefined;
+  const blockTime = finality.blockTime.get(chainName);
+  if (blockTime === undefined) return undefined;
   return chainFinality === 0
     ? 'Instantly'
-    : millisToMinutesAndSeconds(finality.blockTime(chainName) * chainFinality);
+    : millisToMinutesAndSeconds(blockTime * chainFinality);
 };
 
 function RouteOption(props: { route: RouteData; disabled: boolean }) {
