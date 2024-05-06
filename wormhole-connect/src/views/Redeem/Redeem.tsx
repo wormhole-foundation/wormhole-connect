@@ -38,6 +38,7 @@ function Redeem({
   txData,
   transferComplete,
   isVaaEnqueued,
+  isResumeTx,
   route,
   signedMessage,
 }: {
@@ -48,6 +49,7 @@ function Redeem({
   txData: ParsedMessage | ParsedRelayerMessage | undefined;
   transferComplete: boolean;
   isVaaEnqueued: boolean;
+  isResumeTx: boolean;
   route: Route | undefined;
   signedMessage: SignedMessage | undefined;
 }) {
@@ -144,17 +146,18 @@ function Redeem({
         }
         if (isComplete) {
           setTransferComplete();
-
-          config.triggerEvent({
-            type: 'transfer.success',
-            details: {
-              route,
-              fromToken: getTokenDetails(txData.tokenKey),
-              toToken: getTokenDetails(txData.receivedTokenKey),
-              fromChain: txData.fromChain,
-              toChain: txData.toChain,
-            },
-          });
+          if (!isResumeTx) {
+            config.triggerEvent({
+              type: 'transfer.success',
+              details: {
+                route,
+                fromToken: getTokenDetails(txData.tokenKey),
+                toToken: getTokenDetails(txData.receivedTokenKey),
+                fromChain: txData.fromChain,
+                toChain: txData.toChain,
+              },
+            });
+          }
         } else {
           await sleep(i < 10 ? 3000 : 30000);
         }
@@ -204,6 +207,7 @@ function mapStateToProps(state: RootState) {
     txData,
     transferComplete,
     isVaaEnqueued,
+    isResumeTx,
     isInvalidVaa,
     route,
     signedMessage,
@@ -213,6 +217,7 @@ function mapStateToProps(state: RootState) {
     txData,
     transferComplete,
     isVaaEnqueued,
+    isResumeTx,
     isInvalidVaa,
     route,
     signedMessage,
