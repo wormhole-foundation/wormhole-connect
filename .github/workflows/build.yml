@@ -33,6 +33,16 @@ jobs:
       - run: npm ci
       - run: npm run build -w sdk
       - run: npm test -w wormhole-connect
+
+  check-sdn-list:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Run script
+        run: cd wormhole-connect && npm i prettier && npm run checksdn
+
   check-token-list:
     runs-on: ubuntu-latest
 
