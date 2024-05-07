@@ -1,5 +1,6 @@
 import { SANCTIONED_WALLETS } from '../../src/consts/wallet';
 import { getSanctionedAddresses } from './utils';
+/* @ts-ignore */
 import * as prettier from 'prettier';
 import fs from 'fs';
 
