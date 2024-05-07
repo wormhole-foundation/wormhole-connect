@@ -2280,7 +2280,7 @@ export const TESTNET_TOKENS: TokensConfig = {
     symbol: 'WETH',
     displayName: 'WETH (Scroll)',
     nativeChain: 'scroll',
-    icon: Icon.ETH,
+    icon: Icon.SCROLL,
     tokenId: {
       chain: 'scroll',
       address: '0x5300000000000000000000000000000000000004',
@@ -2309,7 +2309,7 @@ export const TESTNET_TOKENS: TokensConfig = {
     symbol: 'WETH',
     displayName: 'WETH (Blast)',
     nativeChain: 'blast',
-    icon: Icon.ETH,
+    icon: Icon.BLAST,
     tokenId: {
       chain: 'blast',
       address: '0x9D020B1697035d9d54f115194c9e04a1e4Eb9aF7', // non-rebasing
