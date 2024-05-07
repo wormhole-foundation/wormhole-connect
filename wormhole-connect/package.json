@@ -85,7 +85,7 @@
     ]
   },
   "devDependencies": {
-    "@artursapek/vite-plugin-node-polyfills": "0.21.1",
+    "@artursapek/vite-plugin-node-polyfills": "0.17.3",
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@babel/preset-env": "^7.24.4",
     "@types/node": "^20",
