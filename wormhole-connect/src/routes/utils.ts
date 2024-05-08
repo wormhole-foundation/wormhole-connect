@@ -108,6 +108,13 @@ export const isIlliquidDestToken = (
   ) {
     return true;
   }
+  if (
+    ['ETH', 'WETH'].includes(symbol) &&
+    nativeChain === 'ethereum' &&
+    destChain === 'scroll'
+  ) {
+    return true;
+  }
   return false;
 };
 
