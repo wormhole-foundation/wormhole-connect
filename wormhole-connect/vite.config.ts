@@ -5,7 +5,7 @@ import checker from 'vite-plugin-checker';
 // Until this is merged or that issue is fixed some other way, we have to use
 // this fork of vite-plugin-node-polyfills.
 // https://github.com/davidmyersdev/vite-plugin-node-polyfills/pull/89
-import { nodePolyfills } from '@artursapek/vite-plugin-node-polyfills';
+import { nodePolyfills } from '@kev1n-peters/vite-plugin-node-polyfills';
 import dts from 'vite-plugin-dts';
 
 const packagePath = __dirname.endsWith('wormhole-connect')
