@@ -2735,7 +2735,7 @@ export const MAINNET_TOKENS: TokensConfig = {
     symbol: 'WETH',
     displayName: 'WETH (Scroll)',
     nativeChain: 'scroll',
-    icon: Icon.ETH,
+    icon: Icon.SCROLL,
     tokenId: {
       chain: 'scroll',
       address: '0x5300000000000000000000000000000000000004',
