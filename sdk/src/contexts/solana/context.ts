@@ -1222,7 +1222,6 @@ export class SolanaContext<T extends WormholeContext> extends RelayerAbstract<
     };
   }
 
-  // TODO: take from SDKv2
   async getMessageAccountKeys(
     response: VersionedTransactionResponse,
   ): Promise<MessageAccountKeys> {

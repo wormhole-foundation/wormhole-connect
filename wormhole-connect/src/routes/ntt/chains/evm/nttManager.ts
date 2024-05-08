@@ -36,9 +36,10 @@ export class NttManagerEvm {
     version: string,
   ) {
     const provider = config.wh.mustGetProvider(chain);
-    if (version === '0.1.0') {
+    const majorVersion = parseInt(version.split('.')[0]);
+    if (majorVersion === 0) {
       this.abi = NttManager__factory_0_1_0.connect(address, provider);
-    } else if (version === '1.0.0') {
+    } else if (majorVersion === 1) {
       this.abi = NttManager__factory_1_0_0.connect(address, provider);
     } else {
       throw new UnsupportedContractAbiVersion();

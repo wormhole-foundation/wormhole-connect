@@ -73,7 +73,7 @@ type ProgramType =
   | Program<ExampleNativeTokenTransfers_1_0_0>
   | Program<ExampleNativeTokenTransfers_2_0_0>;
 
-type VersionedProgram<T extends '1.0.0' | '2.0.0'> = T extends '1.0.0'
+type VersionedProgram<T extends 1 | 2> = T extends 1
   ? Program<ExampleNativeTokenTransfers_1_0_0>
   : Program<ExampleNativeTokenTransfers_2_0_0>;
 
@@ -89,19 +89,21 @@ export class NttManager {
   readonly wormholeId: string;
   readonly program: ProgramType;
   addressLookupTable: AddressLookupTableAccount | null = null;
+  readonly version: number;
 
-  constructor(readonly nttId: string, readonly version: string) {
+  constructor(readonly nttId: string, version: string) {
     const { connection } = solanaContext();
     if (!connection) throw new Error('Connection not found');
     this.connection = connection;
     const core = CONFIG.wh.mustGetContracts('solana').core;
     if (!core) throw new Error('Core not found');
     this.wormholeId = core;
-    if (version === '1.0.0') {
+    this.version = parseInt(version.split('.')[0]);
+    if (this.version === 1) {
       this.program = new Program(IDL_1_0_0, this.nttId, {
         connection: this.connection,
       });
-    } else if (version === '2.0.0') {
+    } else if (this.version === 2) {
       this.program = new Program(IDL_2_0_0, this.nttId, {
         connection: this.connection,
       });
@@ -110,7 +112,7 @@ export class NttManager {
     }
   }
 
-  isVersion<T extends '1.0.0' | '2.0.0'>(
+  isVersion<T extends 1 | 2>(
     version: T,
     program: ProgramType,
   ): program is VersionedProgram<T> {
@@ -233,14 +235,13 @@ export class NttManager {
         mint,
         config.tokenProgram,
       );
-      if (this.isVersion('1.0.0', this.program)) {
-        // Version 1.0.0 doesn't use transfer hooks, so we can create the ATA
+      if (this.isVersion(1, this.program)) {
+        // Version 1 doesn't use transfer hooks, so we can create the ATA
         // in the same transaction
         tx.add(createAtaIx);
       } else {
-        // Version 2.0.0 uses transfer hooks, so we need to create the ATA
-        // in a separate transaction, because it must exist in order to populate
-        // the extra accounts needed by the transfer hook
+        // We need to create the ATA in a separate transaction,
+        // because it must exist for the transfer hook
         const createAtaTx = new Transaction().add(createAtaIx);
         createAtaTx.feePayer = payerPublicKey;
         const { blockhash } = await this.connection.getLatestBlockhash(
@@ -403,14 +404,13 @@ export class NttManager {
         mint,
         config.tokenProgram,
       );
-      if (this.isVersion('1.0.0', this.program)) {
+      if (this.isVersion(1, this.program)) {
         // Version 1.0.0 doesn't use transfer hooks, so we can create the ATA
         // in the same transaction
         tx.add(createAtaIx);
       } else {
-        // Version 2.0.0 uses transfer hooks, so we need to create the ATA
-        // in a separate transaction, because it must exist in order to populate
-        // the extra accounts needed by the transfer hook
+        // We need to create the ATA in a separate transaction,
+        // because it must exist for the transfer hook
         const createAtaTx = new Transaction().add(createAtaIx);
         createAtaTx.feePayer = payerPublicKey;
         const { blockhash } = await this.connection.getLatestBlockhash(
@@ -596,7 +596,7 @@ export class NttManager {
       recipientAddress: Array.from(args.recipientAddress),
       shouldQueue: args.shouldQueue,
     };
-    if (this.isVersion('1.0.0', this.program)) {
+    if (this.isVersion(1, this.program)) {
       const transferIx = await this.program.methods
         .transferBurn({
           amount: args.amount,
@@ -695,7 +695,7 @@ export class NttManager {
       recipientAddress: Array.from(args.recipientAddress),
       shouldQueue: args.shouldQueue,
     };
-    if (this.isVersion('1.0.0', this.program)) {
+    if (this.isVersion(1, this.program)) {
       return await this.program.methods
         .transferLock({
           amount: args.amount,
@@ -813,7 +813,7 @@ export class NttManager {
   }): Promise<TransactionInstruction> {
     const config = await this.getConfig(args.config);
     const mint = await this.mintAccountAddress(config);
-    if (this.isVersion('1.0.0', this.program)) {
+    if (this.isVersion(1, this.program)) {
       return await this.program.methods
         .releaseInboundMint({
           revertOnDelay: args.revertOnDelay,
@@ -880,7 +880,7 @@ export class NttManager {
   }): Promise<TransactionInstruction> {
     const config = await this.getConfig(args.config);
     const mint = await this.mintAccountAddress(config);
-    if (this.isVersion('1.0.0', this.program)) {
+    if (this.isVersion(1, this.program)) {
       return await this.program.methods
         .releaseInboundUnlock({
           revertOnDelay: args.revertOnDelay,
@@ -1052,7 +1052,7 @@ export class NttManager {
   }
 
   async getAddressLookupTable(): Promise<AddressLookupTableAccount | null> {
-    if (this.isVersion('1.0.0', this.program)) {
+    if (this.isVersion(1, this.program)) {
       return null;
     }
     if (!this.addressLookupTable) {

@@ -1,6 +1,5 @@
 import { toChainName } from 'utils/sdk';
 import { ChainId, ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
-import { UnsupportedContractAbiVersion } from 'routes/ntt/errors';
 import { ethers } from 'ethers';
 import config from 'config';
 import { NttManagerEvm } from './nttManager';
@@ -15,11 +14,7 @@ export const getManagerEvm = async (
   let manager = cache.get(key);
   if (!manager) {
     const version = await getVersion(chain, address);
-    if (version === '0.1.0' || version === '1.0.0') {
-      manager = new NttManagerEvm(chain, address, version);
-    } else {
-      throw new UnsupportedContractAbiVersion();
-    }
+    manager = new NttManagerEvm(chain, address, version);
     cache.set(key, manager);
   }
   return manager;
