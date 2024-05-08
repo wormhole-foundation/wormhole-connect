@@ -101,7 +101,7 @@ export class SDKv2Route extends RouteAbstract {
 
   async getV2ChainContext(chainV1: ChainName | ChainId) {
     const wh = await getWh(this.network);
-    const chain: Chain = config.sdkConverter.toChainV2(chain);
+    const chain: Chain = config.sdkConverter.toChainV2(chainV1);
     const context = wh.getPlatform(chainToPlatform(chain)).getChain(chain);
     return {
       chain,
