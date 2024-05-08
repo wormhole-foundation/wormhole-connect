@@ -86,9 +86,9 @@
     ]
   },
   "devDependencies": {
-    "@artursapek/vite-plugin-node-polyfills": "0.17.3",
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@babel/preset-env": "^7.24.4",
+    "@kev1n-peters/vite-plugin-node-polyfills": "^0.17.4",
     "@types/node": "^20",
     "@types/node-fetch": "^2.6.3",
     "@types/react": "^18.0.26",
