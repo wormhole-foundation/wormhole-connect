@@ -17,6 +17,7 @@ import TESTNET from 'config/testnet';
 
 import RouteAbstract from 'routes/abstracts/routeAbstract';
 import { BridgeRoute } from 'routes/bridge';
+import { RelayRoute } from 'routes/relay';
 import { CCTPRelayRoute } from 'routes/cctpRelay';
 import { CCTPManualRoute } from 'routes/cctpManual';
 
@@ -29,8 +30,9 @@ function getConverter(network: NetworkV1): SDKConverter {
   return new SDKConverter(wh, networkData.chains, networkData.tokens);
 }
 
-const routeMappings: [routes.RouteConstructor, RouteAbstract][] = [
+const routeMappings: [RouteAbstract, routes.RouteConstructor][] = [
   [BridgeRoute, routes.TokenBridgeRoute],
+  [RelayRoute, routes.AutomaticTokenBridgeRoute],
   [CCTPRelayRoute, routes.AutomaticCCTPRoute],
   [CCTPManualRoute, routes.CCTPRoute],
 ];
@@ -217,6 +219,8 @@ describe('compare isRouteSupported between v1 and v2 routes', () => {
     ['mainnet', 'BNB', 'WBNB', 'bsc', 'polygon'],
     ['mainnet', 'FTM', 'WFTM', 'fantom', 'polygon'],
     ['mainnet', 'CELO', 'CELO', 'celo', 'polygon'],
+    // CCTP
+    ['mainnet', 'USDCeth', 'USDCsol', 'ethereum', 'solana'],
   ];
 
   for (let [
