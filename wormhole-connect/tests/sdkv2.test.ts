@@ -15,9 +15,9 @@ import { describe, expect, test } from 'vitest';
 import MAINNET from 'config/mainnet';
 import TESTNET from 'config/testnet';
 
+import RouteAbstract from 'routes/abstracts/routeAbstract';
 import { BridgeRoute } from 'routes/bridge';
 import { CCTPManualRoute } from 'routes/cctpManual';
-import RouteAbstract from 'routes/abstracts/routeAbstract';
 
 import SDKv2Route from 'routes/sdkv2';
 import { routes } from '@wormhole-foundation/sdk';
@@ -30,7 +30,7 @@ function getConverter(network: NetworkV1): SDKConverter {
 
 const routeMappings: [routes.RouteConstructor, RouteAbstract][] = [
   [BridgeRoute, routes.TokenBridgeRoute],
-  [routes.CCTPRoute, CCTPManualRoute],
+  [CCTPManualRoute, routes.CCTPRoute],
 ];
 
 describe('chain', () => {
@@ -195,8 +195,6 @@ describe('token', () => {
     });
   }
 });
-
-describe('compare isSupportedChain between v1 and v2 routes', () => {});
 
 describe('compare isRouteSupported between v1 and v2 routes', () => {
   type testCase = [
