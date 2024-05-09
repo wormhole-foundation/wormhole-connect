@@ -15,9 +15,11 @@ import { describe, expect, test } from 'vitest';
 import MAINNET from 'config/mainnet';
 import TESTNET from 'config/testnet';
 
-import SDKv2Route from 'routes/sdkv2';
 import { BridgeRoute } from 'routes/bridge';
+import { CCTPManualRoute } from 'routes/cctpManual';
 import RouteAbstract from 'routes/abstracts/routeAbstract';
+
+import SDKv2Route from 'routes/sdkv2';
 import { routes } from '@wormhole-foundation/sdk';
 
 function getConverter(network: NetworkV1): SDKConverter {
@@ -25,6 +27,11 @@ function getConverter(network: NetworkV1): SDKConverter {
   const networkData = { MAINNET, TESTNET }[network.toUpperCase()]!;
   return new SDKConverter(wh, networkData.chains, networkData.tokens);
 }
+
+const routeMappings: [routes.RouteConstructor, RouteAbstract][] = [
+  [BridgeRoute, routes.TokenBridgeRoute],
+  [routes.CCTPRoute, CCTPManualRoute],
+];
 
 describe('chain', () => {
   interface testCase {
@@ -189,12 +196,9 @@ describe('token', () => {
   }
 });
 
-describe('compare isRouteSupported between v1 and v2 routes', () => {
-  const routeMappings: [routes.RouteConstructor, RouteAbstract][] = [
-    [BridgeRoute, routes.TokenBridgeRoute],
-    //[routes.CCTPRoute, CCTPManualRoute],
-  ];
+describe('compare isSupportedChain between v1 and v2 routes', () => {});
 
+describe('compare isRouteSupported between v1 and v2 routes', () => {
   type testCase = [
     network: NetworkV1,
     sourceToken: string,
