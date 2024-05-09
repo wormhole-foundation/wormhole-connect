@@ -29,5 +29,10 @@
   },
   "lint-staged": {
     "**/*": "prettier --workspaces --if-present --write --ignore-unknown"
+  },
+  "overrides": {
+    "@injectivelabs/sdk-ts@1.10.72": {
+      "@injectivelabs/token-metadata": "1.10.42"
+    }
   }
 }
