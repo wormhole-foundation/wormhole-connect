@@ -91,7 +91,7 @@ export class RelayRoute extends BridgeRoute implements RelayAbstract {
     }
     const tokenConfig = config.tokens[sourceToken]!;
     const tokenId = getWrappedTokenId(tokenConfig);
-    return isAcceptedToken(tokenId);
+    return await isAcceptedToken(tokenId);
   }
 
   async isRouteAvailable(
