@@ -17,6 +17,7 @@ import TESTNET from 'config/testnet';
 
 import RouteAbstract from 'routes/abstracts/routeAbstract';
 import { BridgeRoute } from 'routes/bridge';
+import { CCTPRelayRoute } from 'routes/cctpRelay';
 import { CCTPManualRoute } from 'routes/cctpManual';
 
 import SDKv2Route from 'routes/sdkv2';
@@ -30,6 +31,7 @@ function getConverter(network: NetworkV1): SDKConverter {
 
 const routeMappings: [routes.RouteConstructor, RouteAbstract][] = [
   [BridgeRoute, routes.TokenBridgeRoute],
+  [CCTPRelayRoute, routes.AutomaticCCTPRoute],
   [CCTPManualRoute, routes.CCTPRoute],
 ];
 
