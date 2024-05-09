@@ -200,6 +200,32 @@ describe('token', () => {
   }
 });
 
+describe('compare isSupportedChain between v1 and v2 routes', () => {
+  const compareChains = (network: NetworkV1) => {
+    const chains = Object.keys(
+      {
+        mainnet: MAINNET.chains,
+        testnet: TESTNET.chains,
+      }[network],
+    );
+
+    for (const chain of chains) {
+      for (let [RouteV1, RouteV2] of routeMappings) {
+        test(`${RouteV1.name} (v1) vs. ${RouteV2.meta.name} (v2) - isSupportedChain(${chain})`, () => {
+          const v1Route = new RouteV1();
+          const v2Route = new SDKv2Route(network, RouteV2);
+          const isSupportedV1 = v1Route.isSupportedChain(chain);
+          const isSupportedV2 = v2Route.isSupportedChain(chain);
+          expect(isSupportedV1).toEqual(isSupportedV2);
+        });
+      }
+    }
+  };
+
+  compareChains('mainnet');
+  //compareChains('testnet');
+});
+
 describe('compare isRouteSupported between v1 and v2 routes', () => {
   type testCase = [
     network: NetworkV1,

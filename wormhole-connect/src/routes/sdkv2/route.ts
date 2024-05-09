@@ -187,8 +187,9 @@ export class SDKv2Route extends RouteAbstract {
     return isSupported;
   }
 
-  isSupportedChain(chain: ChainName): boolean {
-    return false;
+  isSupportedChain(chainV1: ChainName): boolean {
+    const chain = config.sdkConverter.toChainV2(chainV1);
+    return this.rc.supportedChains(this.network).includes(chain);
   }
 
   public isRouteAvailable(
