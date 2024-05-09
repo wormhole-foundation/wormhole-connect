@@ -33,6 +33,16 @@
   "overrides": {
     "@injectivelabs/sdk-ts@1.10.72": {
       "@injectivelabs/token-metadata": "1.10.42"
+    },
+    "@ledgerhq/hw-transport@6.27.1": {
+      "@ledgerhq/errors": "6.10.2",
+      "@ledgerhq/logs": "6.12.0",
+      "@ledgerhq/devices": "6.27.1"
+    },
+    "@ledgerhq/hw-transport-webhhid@6.27.1": {
+      "@ledgerhq/errors": "6.10.2",
+      "@ledgerhq/logs": "6.12.0",
+      "@ledgerhq/devices": "6.27.1"
     }
   }
 }
