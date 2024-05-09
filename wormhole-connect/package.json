@@ -18,6 +18,8 @@
   ],
   "dependencies": {
     "@certusone/wormhole-sdk": "^0.10.10",
+    "@injectivelabs/sdk-ts": "1.10.72",
+    "@injectivelabs/token-metadata": "1.10.42",
     "@coral-xyz/anchor": "^0.29.0",
     "@cosmjs/cosmwasm-stargate": "^0.31.3",
     "@cosmjs/stargate": "^0.31.3",
@@ -110,10 +112,5 @@
   "peerDependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
-  },
-  "overrides": {
-    "@certusone/wormhole-sdk": {
-      "@injectivelabs/token-metadata": "1.10.42"
-    }
   }
 }
