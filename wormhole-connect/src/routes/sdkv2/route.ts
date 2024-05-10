@@ -213,8 +213,6 @@ export class SDKv2Route extends RouteAbstract {
       },
     });
 
-    console.log(req);
-
     throw new Error('Method not implemented.');
   }
 

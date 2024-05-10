@@ -251,8 +251,6 @@ describe('compare isSupportedSourceToken between v1 and v2 routes', () => {
         chainsToTest = chainsToTest.concat(Object.keys(token.foreignAssets));
       }
 
-      console.log(chainsToTest);
-
       // For isSupportedSourceToken, SDKv2 doesn't even consider the destination chain or token
       // so we only iterate over every combination of (source chain, source token)
       for (let chain of chainsToTest) {
