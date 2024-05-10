@@ -175,6 +175,7 @@ export class SDKv2Route extends RouteAbstract {
       fromTokenSupported &&
       toTokenSupported;
 
+    /*
     if (!isSupported) {
       console.log(`isSupported false for ${this.rc.meta.name}:
         fromChain=${fromChain} ${fromChainSupported}
@@ -183,6 +184,7 @@ export class SDKv2Route extends RouteAbstract {
         toToken=${destToken} ${toTokenSupported}
       `);
     }
+    */
 
     return isSupported;
   }

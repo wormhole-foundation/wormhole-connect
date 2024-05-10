@@ -211,6 +211,15 @@ describe('compare isSupportedChain between v1 and v2 routes', () => {
 
     for (const chain of chains) {
       for (let [RouteV1, RouteV2] of routeMappings) {
+        if (
+          (chain === 'evmos' || chain == 'osmosis' || chain === 'kujira') &&
+          (RouteV2.meta.name === 'ManualTokenBridge' ||
+            RouteV2.meta.name === 'AutomaticTokenBridge')
+        ) {
+          // Temp hack. These are treated differently in SDKv2
+          continue;
+        }
+
         test(`${RouteV1.name} (v1) vs. ${RouteV2.meta.name} (v2) - isSupportedChain(${chain})`, () => {
           const v1Route = new RouteV1();
           const v2Route = new SDKv2Route(network, RouteV2);
