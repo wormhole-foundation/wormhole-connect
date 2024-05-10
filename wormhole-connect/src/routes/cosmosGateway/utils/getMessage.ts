@@ -341,7 +341,7 @@ function getWasmEventForTransfer(
       logIbcInfo.srcChannel !== ibcTransfer.srcChannel ||
       logIbcInfo.dstChannel !== ibcTransfer.dstChannel
     )
-      break;
+      continue;
 
     if (lastWasmEventFound) {
       return lastWasmEventFound;
