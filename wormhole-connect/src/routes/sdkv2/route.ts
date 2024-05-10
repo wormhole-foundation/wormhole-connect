@@ -194,13 +194,16 @@ export class SDKv2Route extends RouteAbstract {
     return this.rc.supportedChains(this.network).includes(chain);
   }
 
-  public isRouteAvailable(
+  async isRouteAvailable(
     sourceToken: string,
     destToken: string,
     amount: string,
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
   ): Promise<boolean> {
+    return true;
+
+    /* @ts-ignore */
     const req = toRequest(this.network, {
       srcToken: sourceToken,
       srcChain: sourceChain,
@@ -251,33 +254,60 @@ export class SDKv2Route extends RouteAbstract {
     const destTokenV2 = config.sdkConverter.toTokenIdV2(destToken);
     const sourceTokenV2 = config.sdkConverter.toTokenIdV2(sourceToken);
 
-    return !!(
+    try {
+      return !!(
+        await this.rc.supportedDestinationTokens(
+          sourceTokenV2,
+          fromChain.context,
+          toChain.context,
+        )
+      ).find((tokenId) => {
+        return isSameToken(tokenId, destTokenV2);
+      });
+    } catch (e) {
+      console.error(e);
+      return false;
+    }
+  }
+
+  // NOTE this method ignores the given TokenConfig array
+  async supportedSourceTokens(
+    tokens: TokenConfig[],
+    _destToken?: TokenConfig | undefined,
+    fromChainV1?: ChainName | ChainId | undefined,
+    _destChain?: ChainName | ChainId | undefined,
+  ): Promise<TokenConfig[]> {
+    if (!fromChainV1) return [];
+
+    const fromChain = await this.getV2ChainContext(fromChainV1);
+    return (await this.rc.supportedSourceTokens(fromChain.context))
+      .map((t: TokenIdV2) => config.sdkConverter.findTokenConfigV1(t, tokens))
+      .filter((tc) => tc != undefined) as TokenConfig[];
+  }
+
+  async supportedDestTokens(
+    tokens: TokenConfig[],
+    sourceToken: TokenConfig | undefined,
+    fromChainV1?: ChainName | ChainId | undefined,
+    toChainV1?: ChainName | ChainId | undefined,
+  ): Promise<TokenConfig[]> {
+    if (!fromChainV1 || !toChainV1 || !sourceToken) return [];
+
+    const fromChain = await this.getV2ChainContext(fromChainV1);
+    const toChain = await this.getV2ChainContext(toChainV1);
+    const sourceTokenV2 = config.sdkConverter.toTokenIdV2(sourceToken);
+
+    return (
       await this.rc.supportedDestinationTokens(
         sourceTokenV2,
         fromChain.context,
         toChain.context,
       )
-    ).find((tokenId) => {
-      return isSameToken(tokenId, destTokenV2);
-    });
+    )
+      .map((t: TokenIdV2) => config.sdkConverter.findTokenConfigV1(t, tokens))
+      .filter((tc) => tc != undefined) as TokenConfig[];
   }
 
-  public supportedSourceTokens(
-    tokens: TokenConfig[],
-    destToken?: TokenConfig | undefined,
-    sourceChain?: ChainName | ChainId | undefined,
-    destChain?: ChainName | ChainId | undefined,
-  ): Promise<TokenConfig[]> {
-    throw new Error('Method not implemented.');
-  }
-  public supportedDestTokens(
-    tokens: TokenConfig[],
-    sourceToken?: TokenConfig | undefined,
-    sourceChain?: ChainName | ChainId | undefined,
-    destChain?: ChainName | ChainId | undefined,
-  ): Promise<TokenConfig[]> {
-    throw new Error('Method not implemented.');
-  }
   public computeReceiveAmount(
     sendAmount: number,
     token: string,

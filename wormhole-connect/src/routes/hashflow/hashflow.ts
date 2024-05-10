@@ -62,12 +62,6 @@ export class HashflowRoute extends RouteAbstract {
   ): Promise<boolean> {
     throw new Error('Method not implemented.');
   }
-  supportedSourceTokens(tokens: TokenConfig[]): Promise<TokenConfig[]> {
-    throw new Error('Method not implemented.');
-  }
-  supportedDestTokens(tokens: TokenConfig[]): Promise<TokenConfig[]> {
-    throw new Error('Method not implemented.');
-  }
   computeReceiveAmount(sendAmount: number | undefined): Promise<number> {
     throw new Error('Method not implemented');
   }

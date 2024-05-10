@@ -25,9 +25,7 @@ import SDKv2Route from 'routes/sdkv2';
 import { routes } from '@wormhole-foundation/sdk';
 
 function getConverter(network: NetworkV1): SDKConverter {
-  const wh = getDefaultWormholeContext(network);
-  const networkData = { MAINNET, TESTNET }[network.toUpperCase()]!;
-  return new SDKConverter(wh, networkData.chains, networkData.tokens);
+  return new SDKConverter(getDefaultWormholeContext(network));
 }
 
 const routeMappings: [RouteAbstract, routes.RouteConstructor][] = [
@@ -36,6 +34,16 @@ const routeMappings: [RouteAbstract, routes.RouteConstructor][] = [
   [CCTPRelayRoute, routes.AutomaticCCTPRoute],
   [CCTPManualRoute, routes.CCTPRoute],
 ];
+
+const tokenLists = {
+  mainnet: Object.values(MAINNET.tokens),
+  testnet: Object.values(TESTNET.tokens),
+};
+
+const chainLists = {
+  mainnet: Object.keys(MAINNET.chains),
+  testnet: Object.keys(TESTNET.chains),
+};
 
 describe('chain', () => {
   interface testCase {
@@ -155,11 +163,12 @@ describe('token', () => {
   ];
 
   const converter = getConverter('mainnet');
+  const mainnetTokens = Object.values(MAINNET.tokens);
 
   for (let c of cases) {
     test(`${c.v1} <-> ${c.v2} (mainnet)`, () => {
       expect(converter.toTokenIdV2(c.v1)).toEqual(c.v2);
-      expect(converter.findTokenConfigV1(c.v2)).toEqual(c.v1);
+      expect(converter.findTokenConfigV1(c.v2, mainnetTokens)).toEqual(c.v1);
     });
   }
 
@@ -192,22 +201,21 @@ describe('token', () => {
 
   const converterTestnet = getConverter('testnet');
 
+  const testnetTokens = Object.values(TESTNET.tokens);
+
   for (let c of casesTestnet) {
     test(`${c.v1} <-> ${c.v2} (testnet)`, () => {
       expect(converterTestnet.toTokenIdV2(c.v1)).toEqual(c.v2);
-      expect(converterTestnet.findTokenConfigV1(c.v2)).toEqual(c.v1);
+      expect(converterTestnet.findTokenConfigV1(c.v2, testnetTokens)).toEqual(
+        c.v1,
+      );
     });
   }
 });
 
 describe('compare isSupportedChain between v1 and v2 routes', () => {
   const compareChains = (network: NetworkV1) => {
-    const chains = Object.keys(
-      {
-        mainnet: MAINNET.chains,
-        testnet: TESTNET.chains,
-      }[network],
-    );
+    const chains = chainLists[network];
 
     for (const chain of chains) {
       for (let [RouteV1, RouteV2] of routeMappings) {
@@ -237,12 +245,7 @@ describe('compare isSupportedChain between v1 and v2 routes', () => {
 
 describe('compare isSupportedSourceToken between v1 and v2 routes', () => {
   const compareTokens = (network: NetworkV1) => {
-    const tokens: TokenConfigConnect[] = Object.values(
-      {
-        mainnet: MAINNET.tokens,
-        testnet: TESTNET.tokens,
-      }[network],
-    );
+    const tokens = tokenLists[network];
 
     for (const token of tokens) {
       // Get all the chains this token is known to be deployed on

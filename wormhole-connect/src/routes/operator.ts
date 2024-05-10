@@ -360,46 +360,6 @@ export class Operator {
     );
   }
 
-  async supportedSourceTokens(
-    route: Route,
-    tokens: TokenConfig[],
-    destToken?: TokenConfig,
-    sourceChain?: ChainName | ChainId,
-    destChain?: ChainName | ChainId,
-  ): Promise<TokenConfig[]> {
-    if (!config.routes.includes(route)) {
-      return [];
-    }
-
-    const r = this.getRoute(route);
-    return await r.supportedSourceTokens(
-      tokens,
-      destToken,
-      sourceChain,
-      destChain,
-    );
-  }
-
-  async supportedDestTokens(
-    route: Route,
-    tokens: TokenConfig[],
-    sourceToken?: TokenConfig,
-    sourceChain?: ChainName | ChainId,
-    destChain?: ChainName | ChainId,
-  ): Promise<TokenConfig[]> {
-    if (!config.routes.includes(route)) {
-      return [];
-    }
-
-    const r = this.getRoute(route);
-    return await r.supportedDestTokens(
-      tokens,
-      sourceToken,
-      sourceChain,
-      destChain,
-    );
-  }
-
   async computeReceiveAmount(
     route: Route,
     sendAmount: number,

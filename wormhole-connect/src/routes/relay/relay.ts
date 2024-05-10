@@ -163,35 +163,6 @@ export class RelayRoute extends BridgeRoute implements RelayAbstract {
     return await isAcceptedToken(tokenId);
   }
 
-  async supportedSourceTokens(
-    tokens: TokenConfig[],
-    destToken?: TokenConfig,
-    sourceChain?: ChainName | ChainId,
-  ): Promise<TokenConfig[]> {
-    const shouldAdd = await Promise.allSettled(
-      tokens.map((token) =>
-        this.isSupportedSourceToken(token, destToken, sourceChain),
-      ),
-    );
-    return tokens.filter((_token, i) => {
-      const res = shouldAdd[i];
-      return res.status === 'fulfilled' && res.value;
-    });
-  }
-
-  async supportedDestTokens(
-    tokens: TokenConfig[],
-    sourceToken?: TokenConfig,
-  ): Promise<TokenConfig[]> {
-    const shouldAdd = await Promise.allSettled(
-      tokens.map((token) => this.isSupportedDestToken(token, sourceToken)),
-    );
-    return tokens.filter((_token, i) => {
-      const res = shouldAdd[i];
-      return res.status === 'fulfilled' && res.value;
-    });
-  }
-
   async computeReceiveAmount(
     sendAmount: number,
     token: string,
