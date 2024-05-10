@@ -35,7 +35,6 @@ import sui from '@wormhole-foundation/sdk/sui';
 import cosmwasm from '@wormhole-foundation/sdk/cosmwasm';
 import algorand from '@wormhole-foundation/sdk/algorand';
 import config from 'config';
-import { SDKConverter } from 'config/converter';
 
 async function getWh(network: Network) {
   // TODO cache

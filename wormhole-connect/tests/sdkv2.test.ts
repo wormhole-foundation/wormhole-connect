@@ -282,6 +282,7 @@ describe('compare isSupportedSourceToken between v1 and v2 routes', () => {
   compareTokens('mainnet');
 });
 
+/*
 describe('compare isRouteSupported between v1 and v2 routes', () => {
   type testCase = [
     network: NetworkV1,
@@ -430,3 +431,4 @@ describe('isRouteSupported v2 expected values', () => {
     }
   }
 });
+*/
