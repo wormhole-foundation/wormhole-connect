@@ -210,6 +210,12 @@ export function getDefaultWormholeContext(network: Network): WormholeContext {
   return getWormholeContext(networkLegacy, sdkConfig, tokens, rpcs);
 }
 
+export function getSdkConverter(network: Network): SDKConverter {
+  const wh = getDefaultWormholeContext(network);
+  const networkData = { MAINNET, TESTNET }[network.toUpperCase()]!;
+  return new SDKConverter(wh, networkData.chains, networkData.tokens);
+}
+
 // setConfig can be called afterwards to override the default config with integrator-provided config
 
 export function setConfig(customConfig?: WormholeConnectConfig) {

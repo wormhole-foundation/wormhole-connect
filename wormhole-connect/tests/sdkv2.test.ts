@@ -4,11 +4,9 @@ import {
   TokenConfig as TokenConfigConnect,
 } from 'config/types';
 
-import { getDefaultWormholeContext } from 'config';
+import { getSdkConverter } from 'config';
 
 import * as v2 from '@wormhole-foundation/sdk';
-
-import { SDKConverter } from '../src/config/converter';
 
 import { describe, expect, test } from 'vitest';
 
@@ -23,12 +21,7 @@ import { CCTPManualRoute } from 'routes/cctpManual';
 
 import SDKv2Route from 'routes/sdkv2';
 import { routes } from '@wormhole-foundation/sdk';
-
-function getConverter(network: NetworkV1): SDKConverter {
-  const wh = getDefaultWormholeContext(network);
-  const networkData = { MAINNET, TESTNET }[network.toUpperCase()]!;
-  return new SDKConverter(wh, networkData.chains, networkData.tokens);
-}
+import { ChainGrpcStakingTransformer } from '@injectivelabs/sdk-ts';
 
 const routeMappings: [RouteAbstract, routes.RouteConstructor][] = [
   [BridgeRoute, routes.TokenBridgeRoute],
@@ -37,6 +30,11 @@ const routeMappings: [RouteAbstract, routes.RouteConstructor][] = [
   [CCTPManualRoute, routes.CCTPRoute],
 ];
 
+const allChains = {
+  mainnet: Object.keys(MAINNET.chains),
+  testnet: Object.keys(TESTNET.chains),
+};
+
 describe('chain', () => {
   interface testCase {
     v1: legacy.ChainId;
@@ -44,7 +42,7 @@ describe('chain', () => {
     v2: v2.Chain;
   }
 
-  const converter = getConverter('mainnet');
+  const converter = getSdkConverter('mainnet');
 
   const casesMainnet: testCase[] = [
     // Mainnet
@@ -68,7 +66,7 @@ describe('chain', () => {
     });
   }
 
-  const converterTestnet = getConverter('testnet');
+  const converterTestnet = getSdkConverter('testnet');
 
   const casesTestnet: testCase[] = [
     { v1: 10002, v1Name: 'sepolia', v2: 'Sepolia' },
@@ -111,7 +109,7 @@ describe('network', () => {
     },
   ];
 
-  const converter = getConverter('mainnet');
+  const converter = getSdkConverter('mainnet');
 
   for (let c of cases) {
     test(`${c.v1} <-> ${c.v2}`, () => {
@@ -154,7 +152,7 @@ describe('token', () => {
     },
   ];
 
-  const converter = getConverter('mainnet');
+  const converter = getSdkConverter('mainnet');
 
   for (let c of cases) {
     test(`${c.v1} <-> ${c.v2} (mainnet)`, () => {
@@ -190,7 +188,7 @@ describe('token', () => {
     },
   ];
 
-  const converterTestnet = getConverter('testnet');
+  const converterTestnet = getSdkConverter('testnet');
 
   for (let c of casesTestnet) {
     test(`${c.v1} <-> ${c.v2} (testnet)`, () => {
@@ -233,6 +231,49 @@ describe('compare isSupportedChain between v1 and v2 routes', () => {
 
   compareChains('mainnet');
   //compareChains('testnet');
+});
+
+describe('compare isSupportedSourceToken between v1 and v2 routes', () => {
+  const compareTokens = (network: NetworkV1) => {
+    const tokens: TokenConfigConnect[] = Object.values(
+      {
+        mainnet: MAINNET.tokens,
+        testnet: TESTNET.tokens,
+      }[network],
+    );
+
+    for (const token of tokens) {
+      // Get all the chains this token is known to be deployed on
+      let chainsToTest = [token.nativeChain];
+      if (token.foreignAssets) {
+        chainsToTest = chainsToTest.concat(Object.keys(token.foreignAssets));
+      }
+
+      // For isSupportedSourceToken, SDKv2 doesn't even consider the destination chain or token
+      // so we only iterate over every combination of (source chain, source token)
+      for (let chain of chainsToTest) {
+        for (let [RouteV1, RouteV2] of routeMappings) {
+          test(`Compare isSupportedSourceToken(${chain} ${token.symbol}): ${RouteV1.name} (v1) vs. ${RouteV2.meta.name} (v2)`, () => {
+            const v1Route = new RouteV1();
+            const v2Route = new SDKv2Route(network, RouteV2);
+            const isSupportedV1 = v1Route.isSupportedSourceToken(
+              chain,
+              undefined,
+              token,
+            );
+            const isSupportedV2 = v2Route.isSupportedSourceToken(
+              chain,
+              undefined,
+              token,
+            );
+            expect(isSupportedV1).toEqual(isSupportedV2);
+          });
+        }
+      }
+    }
+  };
+
+  compareTokens('mainnet');
 });
 
 describe('compare isRouteSupported between v1 and v2 routes', () => {
