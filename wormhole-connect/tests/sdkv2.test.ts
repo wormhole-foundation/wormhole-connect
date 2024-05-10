@@ -235,6 +235,53 @@ describe('compare isSupportedChain between v1 and v2 routes', () => {
   //compareChains('testnet');
 });
 
+describe('compare isSupportedSourceToken between v1 and v2 routes', () => {
+  const compareTokens = (network: NetworkV1) => {
+    const tokens: TokenConfigConnect[] = Object.values(
+      {
+        mainnet: MAINNET.tokens,
+        testnet: TESTNET.tokens,
+      }[network],
+    );
+
+    for (const token of tokens) {
+      // Get all the chains this token is known to be deployed on
+      let chainsToTest = [token.nativeChain];
+      if (token.foreignAssets) {
+        chainsToTest = chainsToTest.concat(Object.keys(token.foreignAssets));
+      }
+
+      console.log(chainsToTest);
+
+      // For isSupportedSourceToken, SDKv2 doesn't even consider the destination chain or token
+      // so we only iterate over every combination of (source chain, source token)
+      for (let chain of chainsToTest) {
+        for (let [RouteV1, RouteV2] of routeMappings) {
+          test(`Compare isSupportedSourceToken(${chain} ${token.symbol}): ${RouteV1.name} (v1) vs. ${RouteV2.meta.name} (v2)`, () => {
+            const v1Route = new RouteV1();
+            const v2Route = new SDKv2Route(network, RouteV2);
+            const isSupportedV1 = v1Route.isSupportedSourceToken(
+              token,
+              undefined,
+              chain,
+              undefined,
+            );
+            const isSupportedV2 = v2Route.isSupportedSourceToken(
+              token,
+              undefined,
+              chain,
+              undefined,
+            );
+            expect(isSupportedV1).toEqual(isSupportedV2);
+          });
+        }
+      }
+    }
+  };
+
+  compareTokens('mainnet');
+});
+
 describe('compare isRouteSupported between v1 and v2 routes', () => {
   type testCase = [
     network: NetworkV1,

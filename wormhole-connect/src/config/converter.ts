@@ -36,6 +36,9 @@ export class SDKConverter {
   }
 
   toChainV2(chain: v1.ChainName | v1.ChainId): v2.Chain {
+    if (typeof chain !== 'number' && typeof chain !== 'string') {
+      throw new Error(JSON.stringify(chain));
+    }
     return v2.toChain(this.wh.toChainId(chain));
   }
 

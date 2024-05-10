@@ -35,6 +35,7 @@ import sui from '@wormhole-foundation/sdk/sui';
 import cosmwasm from '@wormhole-foundation/sdk/cosmwasm';
 import algorand from '@wormhole-foundation/sdk/algorand';
 import config from 'config';
+import { SDKConverter } from 'config/converter';
 
 async function getWh(network: Network) {
   // TODO cache
@@ -218,23 +219,52 @@ export class SDKv2Route extends RouteAbstract {
     throw new Error('Method not implemented.');
   }
 
-  public isSupportedSourceToken(
-    token?: TokenConfig | undefined,
-    destToken?: TokenConfig | undefined,
-    sourceChain?: ChainName | ChainId | undefined,
-    destChain?: ChainName | ChainId | undefined,
+  async isSupportedSourceToken(
+    sourceToken?: TokenConfig | undefined,
+    _destToken?: TokenConfig | undefined,
+    fromChainV1?: ChainName | ChainId | undefined,
+    _destChain?: ChainName | ChainId | undefined,
   ): Promise<boolean> {
-    throw new Error('Method not implemented.');
+    if (!fromChainV1) return false;
+    if (!sourceToken) return false;
+
+    const fromChain = await this.getV2ChainContext(fromChainV1);
+    const tokenV2 = config.sdkConverter.toTokenIdV2(sourceToken);
+
+    return !!(await this.rc.supportedSourceTokens(fromChain.context)).find(
+      (tokenId) => {
+        return isSameToken(tokenId, tokenV2);
+      },
+    );
   }
 
-  public isSupportedDestToken(
-    token?: TokenConfig | undefined,
+  async isSupportedDestToken(
     sourceToken?: TokenConfig | undefined,
-    sourceChain?: ChainName | ChainId | undefined,
-    destChain?: ChainName | ChainId | undefined,
+    destToken?: TokenConfig | undefined,
+    fromChainV1?: ChainName | ChainId | undefined,
+    toChainV1?: ChainName | ChainId | undefined,
   ): Promise<boolean> {
-    throw new Error('Method not implemented.');
+    if (!fromChainV1) return false;
+    if (!toChainV1) return false;
+    if (!sourceToken) return false;
+    if (!destToken) return false;
+
+    const fromChain = await this.getV2ChainContext(fromChainV1);
+    const toChain = await this.getV2ChainContext(toChainV1);
+    const destTokenV2 = config.sdkConverter.toTokenIdV2(destToken);
+    const sourceTokenV2 = config.sdkConverter.toTokenIdV2(sourceToken);
+
+    return !!(
+      await this.rc.supportedDestinationTokens(
+        sourceTokenV2,
+        fromChain.context,
+        toChain.context,
+      )
+    ).find((tokenId) => {
+      return isSameToken(tokenId, destTokenV2);
+    });
   }
+
   public supportedSourceTokens(
     tokens: TokenConfig[],
     destToken?: TokenConfig | undefined,
