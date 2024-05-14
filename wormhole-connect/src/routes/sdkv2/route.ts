@@ -60,24 +60,22 @@ async function toRequest<N extends Network>(
     req.srcChain,
     config.tokens,
   );
-  const dstTokenV2 = config.sdkConverter!!!!.getTokenIdV2ForSymbol(
+  const dstTokenV2 = config.sdkConverter.getTokenIdV2ForSymbol(
     req.dstToken,
     req.dstChain,
     config.tokens,
   );
 
-  const from = Wormhole.chainAddress(
+  return routes.RouteTransferRequest.create(
+    wh,
+    {
+      source: srcTokenV2,
+      destination: dstTokenV2,
+      /* @ts-ignore */
+    },
     srcChain,
-    srcTokenV2!.address.toString(),
-  )!!!!!;
-  const to = Wormhole.chainAddress(dstChain, dstTokenV2!.address.toString());
-
-  return routes.RouteTransferRequest.create(wh, {
-    from,
-    to,
-    source: srcTokenV2!!!,
-    destination: dstTokenV2!!!!!,
-  });
+    dstChain,
+  );
 }
 
 export class SDKv2Route extends RouteAbstract {

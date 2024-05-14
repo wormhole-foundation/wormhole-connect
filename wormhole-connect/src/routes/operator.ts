@@ -316,6 +316,7 @@ export class Operator {
 
       // This is ugly hack TODO clean up with proper types
       try {
+        /* @ts-ignore */
         const destTokens = await r.supportedDestTokens(
           config.tokensArr,
           sourceToken,
