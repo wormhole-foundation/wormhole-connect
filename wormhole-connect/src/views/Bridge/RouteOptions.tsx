@@ -233,7 +233,8 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
           );
           setEstimatedTime(getEstimatedTime(fromChain));
         }
-      } catch {
+      } catch (e) {
+        console.error(e);
         if (!cancelled) {
           setReceiveAmt(0);
           setReceiveAmtUSD('');

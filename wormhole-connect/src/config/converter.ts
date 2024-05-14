@@ -2,6 +2,7 @@ import * as v1 from '@wormhole-foundation/wormhole-connect-sdk';
 import {
   Network as NetworkConnect,
   TokenConfig as TokenConfigV1,
+  TokensConfig as TokensConfigV1,
 } from 'config/types';
 
 import * as v2 from '@wormhole-foundation/sdk';
@@ -103,6 +104,30 @@ export class SDKConverter {
         ) {
           return token;
         }
+      }
+    }
+  }
+
+  getTokenIdV2ForSymbol(
+    symbol: string,
+    chain: v1.ChainName | v1.ChainId,
+    tokenConfigs: TokensConfigV1,
+  ): v2.TokenId | undefined {
+    const tokenConfig = tokenConfigs[symbol];
+    if (!tokenConfig) return undefined;
+
+    const chainName = this.wh.toChainName(chain);
+
+    if (tokenConfig.nativeChain === chainName) {
+      if (tokenConfig.tokenId) {
+        return this.tokenIdV2(chainName, tokenConfig.tokenId.address);
+      }
+    } else {
+      if (tokenConfig.foreignAssets && tokenConfig.foreignAssets[chainName]) {
+        return this.tokenIdV2(
+          chainName,
+          tokenConfig.foreignAssets[chainName]!.address,
+        );
       }
     }
   }

@@ -44,22 +44,32 @@ import { getNttManagerConfigByAddress } from 'utils/ntt';
 import { SDKv2Route } from './sdkv2/route';
 import { routes } from '@wormhole-foundation/sdk';
 
+const USE_SDK_V2 = !!localStorage.getItem('CONNECT_SDKV2');
+
 export class Operator {
   getRoute(route: Route): RouteAbstract {
     switch (route) {
       case Route.Bridge: {
-        if (localStorage.getItem('CONNECT_SDKV2')) {
+        if (USE_SDK_V2) {
           return new SDKv2Route(
             config.network,
-            routes.AutomaticTokenBridgeRoute,
-            Route.Relay,
+            routes.TokenBridgeRoute,
+            Route.Bridge,
           );
         } else {
           return new BridgeRoute();
         }
       }
       case Route.Relay: {
-        return new RelayRoute();
+        if (USE_SDK_V2) {
+          return new SDKv2Route(
+            config.network,
+            routes.AutomaticTokenBridgeRoute,
+            Route.Relay,
+          );
+        } else {
+          return new RelayRoute();
+        }
       }
       case Route.CCTPManual: {
         return new CCTPManualRoute();
@@ -295,19 +305,43 @@ export class Operator {
   ): Promise<TokenConfig[]> {
     const supported: { [key: string]: TokenConfig } = {};
     for (const route of config.routes) {
-      for (const token of config.tokensArr) {
-        const { key } = token;
-        const alreadySupported = supported[key];
-        if (!alreadySupported) {
-          const isSupported = await this.isSupportedDestToken(
-            route as Route,
-            config.tokens[key],
-            sourceToken,
-            sourceChain,
-            destChain,
-          );
-          if (isSupported) {
-            supported[key] = config.tokens[key];
+      if (!config.routes.includes(route)) {
+        continue;
+      }
+
+      // Some routes support the much more efficient supportedDestTokens method
+      // Use it when it's available
+
+      const r = this.getRoute(route as Route);
+
+      // This is ugly hack TODO clean up with proper types
+      try {
+        const destTokens = await r.supportedDestTokens(
+          config.tokensArr,
+          sourceToken,
+          sourceChain,
+          destChain,
+        );
+
+        for (const token of destTokens) {
+          supported[token.key] = token;
+        }
+      } catch (e) {
+        // Fall back to less efficient method
+        for (const token of config.tokensArr) {
+          const { key } = token;
+          const alreadySupported = supported[key];
+          if (!alreadySupported) {
+            const isSupported = await r.isSupportedDestToken(
+              token,
+              sourceToken,
+              sourceChain,
+              destChain,
+            );
+
+            if (isSupported) {
+              supported[key] = config.tokens[key];
+            }
           }
         }
       }
@@ -335,26 +369,6 @@ export class Operator {
     return await r.isSupportedSourceToken(
       token,
       destToken,
-      sourceChain,
-      destChain,
-    );
-  }
-
-  async isSupportedDestToken(
-    route: Route,
-    token?: TokenConfig,
-    sourceToken?: TokenConfig,
-    sourceChain?: ChainName | ChainId,
-    destChain?: ChainName | ChainId,
-  ): Promise<boolean> {
-    if (!config.routes.includes(route)) {
-      return false;
-    }
-
-    const r = this.getRoute(route);
-    return await r.isSupportedDestToken(
-      token,
-      sourceToken,
       sourceChain,
       destChain,
     );

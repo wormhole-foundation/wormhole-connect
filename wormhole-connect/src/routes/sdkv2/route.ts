@@ -27,7 +27,7 @@ import {
 import { TokenPrices } from 'store/tokenPrices';
 import { ParsedMessage, ParsedRelayerMessage } from 'utils/sdk';
 
-import { wormhole } from '@wormhole-foundation/sdk';
+import { wormhole, amount } from '@wormhole-foundation/sdk';
 import evm from '@wormhole-foundation/sdk/evm';
 import solana from '@wormhole-foundation/sdk/solana';
 import aptos from '@wormhole-foundation/sdk/aptos';
@@ -41,43 +41,42 @@ async function getWh(network: Network) {
   return await wormhole(network, [evm, solana, aptos, cosmwasm, sui, algorand]);
 }
 
-async function toRequest(
-  network: Network,
+async function toRequest<N extends Network>(
+  wh: Wormhole<N>,
   req: {
-    srcToken: TokenIdV1 | string;
+    srcToken: string;
     srcChain: ChainName | ChainId;
     srcAddress: string;
     dstChain: ChainName | ChainId;
     dstAddress: string;
-    dstToken: TokenIdV1 | string;
-    options: {
-      amount?: string;
-    };
+    dstToken: string;
   },
-): Promise<routes.RouteTransferRequest<Network>> {
-  const wh = await getWh(network);
-
+): Promise<routes.RouteTransferRequest<N>> {
   const srcChain = config.sdkConverter.toChainV2(req.srcChain);
   const dstChain = config.sdkConverter.toChainV2(req.dstChain);
 
-  const from = Wormhole.chainAddress(srcChain, req.srcAddress);
-  const to = Wormhole.chainAddress(dstChain, req.dstAddress);
+  const srcTokenV2 = config.sdkConverter.getTokenIdV2ForSymbol(
+    req.srcToken,
+    req.srcChain,
+    config.tokens,
+  );
+  const dstTokenV2 = config.sdkConverter!!!!.getTokenIdV2ForSymbol(
+    req.dstToken,
+    req.dstChain,
+    config.tokens,
+  );
 
-  const srcToken = Wormhole.tokenId(
+  const from = Wormhole.chainAddress(
     srcChain,
-    typeof req.srcToken === 'string' ? req.srcToken : req.srcToken.address,
-  );
-
-  const dstToken = Wormhole.tokenId(
-    dstChain,
-    typeof req.dstToken === 'string' ? req.dstToken : req.dstToken.address,
-  );
+    srcTokenV2!.address.toString(),
+  )!!!!!;
+  const to = Wormhole.chainAddress(dstChain, dstTokenV2!.address.toString());
 
   return routes.RouteTransferRequest.create(wh, {
     from,
     to,
-    source: srcToken,
-    destination: dstToken,
+    source: srcTokenV2!!!,
+    destination: dstTokenV2!!!!!,
   });
 }
 
@@ -201,22 +200,8 @@ export class SDKv2Route extends RouteAbstract {
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
   ): Promise<boolean> {
+    // TODO
     return true;
-
-    /* @ts-ignore */
-    const req = toRequest(this.network, {
-      srcToken: sourceToken,
-      srcChain: sourceChain,
-      srcAddress: '',
-      dstChain: destChain,
-      dstAddress: '',
-      dstToken: destToken,
-      options: {
-        amount,
-      },
-    });
-
-    throw new Error('Method not implemented.');
   }
 
   async isSupportedSourceToken(
@@ -265,7 +250,6 @@ export class SDKv2Route extends RouteAbstract {
         return isSameToken(tokenId, destTokenV2);
       });
     } catch (e) {
-      console.error(e);
       return false;
     }
   }
@@ -308,32 +292,82 @@ export class SDKv2Route extends RouteAbstract {
       .filter((tc) => tc != undefined) as TokenConfig[];
   }
 
-  public computeReceiveAmount(
-    sendAmount: number,
-    token: string,
+  async computeReceiveAmount(
+    amountIn: number,
+    sourceToken: string,
     destToken: string,
-    sendingChain: ChainName | undefined,
-    recipientChain: ChainName | undefined,
+    fromChainV1: ChainName | undefined,
+    toChainV1: ChainName | undefined,
+    options: any,
+  ): Promise<number> {
+    if (!fromChainV1 || !toChainV1)
+      throw new Error('source and destination chains are required');
+
+    console.log('hi');
+    console.trace();
+
+    const wh = await getWh(this.network);
+
+    const req = await toRequest(wh, {
+      srcToken: sourceToken,
+      srcChain: fromChainV1,
+      srcAddress: '',
+      dstChain: toChainV1,
+      dstAddress: '',
+      dstToken: destToken,
+    });
+
+    console.log(req);
+
+    const route = new this.rc(wh, req);
+
+    const validationResult = await route.validate({
+      amount: amountIn.toString(),
+    });
+
+    console.log(validationResult);
+
+    if (!validationResult.valid) {
+      throw validationResult.error;
+    }
+
+    const quote = await route.quote(validationResult.params);
+
+    console.log(quote);
+
+    if (quote.success) {
+      return amount.whole(quote.destinationToken.amount);
+    } else {
+      throw quote.error;
+    }
+  }
+
+  async computeReceiveAmountWithFees(
+    amount: number,
+    sourceToken: string,
+    destToken: string,
+    fromChainV1: ChainName | undefined,
+    toChainV1: ChainName | undefined,
     routeOptions: any,
   ): Promise<number> {
-    throw new Error('Method not implemented.');
+    return this.computeReceiveAmount(
+      amount,
+      sourceToken,
+      destToken,
+      fromChainV1,
+      toChainV1,
+      routeOptions,
+    );
   }
-  public computeReceiveAmountWithFees(
-    sendAmount: number,
-    token: string,
-    destToken: string,
-    sendingChain: ChainName | undefined,
-    recipientChain: ChainName | undefined,
-    routeOptions: any,
-  ): Promise<number> {
-    throw new Error('Method not implemented.');
-  }
+
+  // Unused method, don't bother implementing
   public computeSendAmount(
     receiveAmount: number | undefined,
     routeOptions: any,
   ): Promise<number> {
     throw new Error('Method not implemented.');
   }
+
   public validate(
     token: TokenIdV1 | 'native',
     amount: string,
@@ -345,6 +379,7 @@ export class SDKv2Route extends RouteAbstract {
   ): Promise<boolean> {
     throw new Error('Method not implemented.');
   }
+
   public estimateSendGas(
     token: TokenIdV1 | 'native',
     amount: string,
@@ -356,18 +391,22 @@ export class SDKv2Route extends RouteAbstract {
   ): Promise<BigNumber> {
     throw new Error('Method not implemented.');
   }
+
   public estimateClaimGas(
     destChain: ChainName | ChainId,
     signedMessage?: SignedMessage | undefined,
   ): Promise<BigNumber> {
     throw new Error('Method not implemented.');
   }
+
   public getMinSendAmount(routeOptions: any): number {
-    throw new Error('Method not implemented.');
+    return 0;
   }
+
   public getMaxSendAmount(): number {
-    throw new Error('Method not implemented.');
+    return Infinity;
   }
+
   public send(
     token: TokenIdV1 | 'native',
     amount: string,
@@ -380,6 +419,7 @@ export class SDKv2Route extends RouteAbstract {
   ): Promise<any> {
     throw new Error('Method not implemented.');
   }
+
   public redeem(
     destChain: ChainName | ChainId,
     messageInfo: SignedMessage,
@@ -387,7 +427,8 @@ export class SDKv2Route extends RouteAbstract {
   ): Promise<string> {
     throw new Error('Method not implemented.');
   }
-  public getPreview(
+
+  async getPreview(
     token: TokenConfig,
     destToken: TokenConfig,
     amount: number,
@@ -399,18 +440,27 @@ export class SDKv2Route extends RouteAbstract {
     tokenPrices: TokenPrices,
     routeOptions?: any,
   ): Promise<TransferDisplayData> {
-    throw new Error('Method not implemented.');
+    return [
+      {
+        title: 'test',
+        value: 'testvalue',
+        valueUSD: '23',
+      },
+    ];
   }
+
   public getTransferSourceInfo<T extends TransferInfoBaseParams>(
     params: T,
   ): Promise<TransferDisplayData> {
     throw new Error('Method not implemented.');
   }
+
   public getTransferDestInfo<T extends TransferDestInfoBaseParams>(
     params: T,
   ): Promise<TransferDestInfo> {
     throw new Error('Method not implemented.');
   }
+
   getRelayerFee(
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
@@ -419,6 +469,7 @@ export class SDKv2Route extends RouteAbstract {
   ): Promise<RelayerFee | null> {
     throw new Error('Method not implemented.');
   }
+
   getForeignAsset(
     token: TokenIdV1,
     chain: ChainName | ChainId,
@@ -426,18 +477,22 @@ export class SDKv2Route extends RouteAbstract {
   ): Promise<string | null> {
     throw new Error('Method not implemented.');
   }
+
   getMessage(tx: string, chain: ChainName | ChainId): Promise<UnsignedMessage> {
     throw new Error('Method not implemented.');
   }
+
   getSignedMessage(message: UnsignedMessage): Promise<SignedMessage> {
     throw new Error('Method not implemented.');
   }
+
   isTransferCompleted(
     destChain: ChainName | ChainId,
     messageInfo: SignedMessage,
   ): Promise<boolean> {
     throw new Error('Method not implemented.');
   }
+
   tryFetchRedeemTx(
     txData: ParsedMessage | ParsedRelayerMessage,
   ): Promise<string | undefined> {
