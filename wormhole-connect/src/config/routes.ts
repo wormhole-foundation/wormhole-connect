@@ -106,4 +106,13 @@ export const RoutesConfig: {
     icon: WormholeIcon,
     pendingMessage: 'Waiting for Wormhole network consensus . . .',
   },
+  [Route.USDTBridge]: {
+    route: Route.USDTBridge,
+    name: 'USDT Bridge',
+    providedBy: 'xLabs',
+    routePath: 'Wormhole',
+    link: 'https://xlabs.xyz',
+    icon: WormholeIcon,
+    pendingMessage: 'Waiting for Wormhole network consensus . . .',
+  },
 };

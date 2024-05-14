@@ -50,6 +50,7 @@ import { useFetchTokenPrices } from 'hooks/useFetchTokenPrices';
 import NttInboundCapacityWarning from './NttInboundCapacityWarning';
 import { isNttRoute } from 'routes/utils';
 import { useConnectToLastUsedWallet } from 'utils/wallet';
+import { USDTBridge } from 'routes/porticoBridge/usdtBridge';
 
 const useStyles = makeStyles()((_theme) => ({
   spacer: {
@@ -233,6 +234,7 @@ function Bridge() {
         const porticoTokens = [
           ...ETHBridge.SUPPORTED_TOKENS,
           ...wstETHBridge.SUPPORTED_TOKENS,
+          ...USDTBridge.SUPPORTED_TOKENS,
         ];
         if (porticoTokens.includes(token)) {
           let key = getNativeVersionOfToken(tokenSymbol, toChain);

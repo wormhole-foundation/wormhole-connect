@@ -144,17 +144,27 @@ export class Operator {
       return Route.TBTC;
     }
 
-    const portico = config.wh.getContracts(chain)?.portico;
-    if (portico && message.fromAddress) {
-      if (isEqualCaseInsensitive(message.fromAddress, portico)) {
-        if (tokenSymbol === 'ETH' || tokenSymbol === 'WETH') {
-          return Route.ETHBridge;
-        }
-        if (tokenSymbol === 'wstETH') {
-          return Route.wstETHBridge;
-        }
-        throw new Error(`Unsupported Portico bridge token ${tokenSymbol}`);
+    const { porticoUniswap, porticoPancakeSwap } =
+      config.wh.getContracts(chain) || {};
+    const portico =
+      tokenSymbol === 'USDT'
+        ? porticoPancakeSwap || porticoUniswap // PancakeSwap is preferred over Uniswap for USDT
+        : porticoUniswap;
+    if (
+      portico &&
+      message.fromAddress &&
+      isEqualCaseInsensitive(message.fromAddress, portico)
+    ) {
+      if (tokenSymbol === 'ETH' || tokenSymbol === 'WETH') {
+        return Route.ETHBridge;
       }
+      if (tokenSymbol === 'wstETH') {
+        return Route.wstETHBridge;
+      }
+      if (tokenSymbol === 'USDT') {
+        return Route.USDTBridge;
+      }
+      throw new Error(`Unsupported Portico bridge token ${tokenSymbol}`);
     }
 
     return message.payloadID === PayloadType.Automatic

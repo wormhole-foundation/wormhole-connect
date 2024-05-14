@@ -62,6 +62,7 @@ export enum Route {
   wstETHBridge = 'wstETHBridge',
   NttManual = 'nttManual',
   NttRelay = 'nttRelay',
+  USDTBridge = 'usdtBridge',
 }
 
 // Used in bridging components
@@ -152,6 +153,7 @@ export interface WormholeConnectConfig {
   // Route settings
   ethBridgeMaxAmount?: number;
   wstETHBridgeMaxAmount?: number;
+  usdtBridgeMaxAmount?: number;
 
   // NTT config
   nttGroups?: NttGroups;
@@ -212,6 +214,7 @@ export interface InternalConfig {
   // Route settings
   ethBridgeMaxAmount: number;
   wstETHBridgeMaxAmount: number;
+  usdtBridgeMaxAmount: number;
 
   // NTT config
   nttGroups: NttGroups;

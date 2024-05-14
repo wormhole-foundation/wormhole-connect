@@ -651,6 +651,21 @@ export const MAINNET_TOKENS: TokensConfig = {
       },
     },
   },
+  USDTpolygon: {
+    key: 'USDTpolygon',
+    symbol: 'USDT',
+    nativeChain: 'polygon',
+    icon: Icon.USDT,
+    tokenId: {
+      chain: 'polygon',
+      address: '0xc2132D05D31c914a87C6611C10748AEb04B58e8F',
+    },
+    coinGeckoId: 'tether',
+    color: '#ffffff',
+    decimals: {
+      default: 6,
+    },
+  },
   BNB: {
     key: 'BNB',
     symbol: 'BNB',
@@ -1011,6 +1026,21 @@ export const MAINNET_TOKENS: TokensConfig = {
         address: '0xD83385fE100E20c269a5975D4Bf92525BcE09F87',
         decimals: 6,
       },
+    },
+  },
+  USDTavax: {
+    key: 'USDTavax',
+    symbol: 'USDT',
+    nativeChain: 'avalanche',
+    icon: Icon.USDT,
+    tokenId: {
+      chain: 'avalanche',
+      address: '0x9702230a8ea53601f5cd2dc00fdbc13d4df4a8c7',
+    },
+    coinGeckoId: 'tether',
+    color: '#ffffff',
+    decimals: {
+      default: 6,
     },
   },
   WETHavax: {
@@ -1821,6 +1851,21 @@ export const MAINNET_TOKENS: TokensConfig = {
       },
     },
   },
+  USDTarbitrum: {
+    key: 'USDTarbitrum',
+    symbol: 'USDT',
+    nativeChain: 'arbitrum',
+    icon: Icon.USDT,
+    tokenId: {
+      chain: 'arbitrum',
+      address: '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
+    },
+    coinGeckoId: 'tether',
+    color: '#ffffff',
+    decimals: {
+      default: 6,
+    },
+  },
   ETHoptimism: {
     key: 'ETHoptimism',
     symbol: 'ETH',
@@ -1973,6 +2018,21 @@ export const MAINNET_TOKENS: TokensConfig = {
       },
     },
   },
+  USDToptimism: {
+    key: 'USDToptimism',
+    symbol: 'USDT',
+    nativeChain: 'optimism',
+    icon: Icon.USDT,
+    tokenId: {
+      chain: 'optimism',
+      address: '0x94b008aA00579c1307B0EF2c499aD98a8ce58e58',
+    },
+    coinGeckoId: 'tether',
+    color: '#ffffff',
+    decimals: {
+      default: 6,
+    },
+  },
   // SEI: {
   //   key: 'SEI',
   //   symbol: 'SEI',
@@ -2003,6 +2063,21 @@ export const MAINNET_TOKENS: TokensConfig = {
     decimals: {
       Ethereum: 18,
       default: 8,
+    },
+  },
+  USDTbsc: {
+    key: 'USDTbsc',
+    symbol: 'USDT',
+    nativeChain: 'bsc',
+    icon: Icon.USDT,
+    tokenId: {
+      chain: 'bsc',
+      address: '0x55d398326f99059fF775485246999027B3197955',
+    },
+    coinGeckoId: 'tether',
+    color: '#ffffff',
+    decimals: {
+      default: 6,
     },
   },
   ETHbase: {
@@ -2159,6 +2234,21 @@ export const MAINNET_TOKENS: TokensConfig = {
           '0xfcc4fcd734d5b8578fb629d238d15264a49eca6165c7444c21feec3b4962eb88::coin::T',
         decimals: 6,
       },
+    },
+  },
+  USDTbase: {
+    key: 'USDTbase',
+    symbol: 'USDT',
+    nativeChain: 'base',
+    icon: Icon.USDT,
+    tokenId: {
+      chain: 'base',
+      address: '0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2',
+    },
+    coinGeckoId: 'tether',
+    color: '#ffffff',
+    decimals: {
+      default: 6,
     },
   },
   wstETHbase: {

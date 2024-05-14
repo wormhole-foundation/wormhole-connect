@@ -44,7 +44,7 @@ import {
 import axios from 'axios';
 import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
 import { porticoSwapFinishedEvent } from './abis';
-import { getQuote } from './uniswapQuoter';
+import { getQuote } from './quoter';
 import { toDecimals } from 'utils/balance';
 import {
   BPS_PER_HUNDRED_PERCENT,
@@ -79,8 +79,9 @@ export abstract class PorticoBridge extends BaseRoute {
   }
 
   isSupportedChain(chain: ChainName): boolean {
-    const { portico, uniswapQuoterV2 } = config.wh.getContracts(chain) || {};
-    return !!(portico && uniswapQuoterV2);
+    const { porticoUniswap, uniswapQuoterV2 } =
+      config.wh.getContracts(chain) || {};
+    return !!(porticoUniswap && uniswapQuoterV2);
   }
 
   async isSupportedSourceToken(
@@ -186,7 +187,7 @@ export abstract class PorticoBridge extends BaseRoute {
       sendAmount.toString(),
       startTokenDecimals,
     );
-    const startQuote = await getQuote(
+    const startQuote = await this.getQuote(
       sendingChain,
       startToken.tokenId.address,
       startCanonicalToken,
@@ -200,7 +201,7 @@ export abstract class PorticoBridge extends BaseRoute {
       throw new Error('Start slippage too high');
     }
     const minAmountStart = startQuote.amountOut.sub(startSlippage);
-    const finishQuote = await getQuote(
+    const finishQuote = await this.getQuote(
       recipientChain,
       finishCanonicalToken,
       finishToken.tokenId.address,
@@ -214,7 +215,7 @@ export abstract class PorticoBridge extends BaseRoute {
       throw new Error('Finish slippage too high');
     }
     const minAmountFinish = finishQuote.amountOut.sub(finishSlippage);
-    const amountFinishQuote = await getQuote(
+    const amountFinishQuote = await this.getQuote(
       recipientChain,
       finishCanonicalToken,
       finishToken.tokenId.address,
@@ -294,7 +295,7 @@ export abstract class PorticoBridge extends BaseRoute {
     // to pay it out
     const relayerFee = BigNumber.from(routeOptions.relayerFee.data);
     if (minAmountFinish.lte(relayerFee)) {
-      throw new Error(`Min amount too low, try increasing the send amount`);
+      throw new Error(`Amount too low, try increasing the send amount`);
     }
     const finishTokenDecimals = getTokenDecimals(
       toChainId(recipientChain),
@@ -430,15 +431,8 @@ export abstract class PorticoBridge extends BaseRoute {
     if (!finalToken?.tokenId) {
       throw new Error('Unsupported dest token');
     }
-    const porticoAddress = config.wh.mustGetContracts(sendingChain).portico;
-    if (!porticoAddress) {
-      throw new Error('Portico address not found');
-    }
-    const destinationPorticoAddress =
-      config.wh.mustGetContracts(recipientChain).portico;
-    if (!destinationPorticoAddress) {
-      throw new Error('Destination portico address not found');
-    }
+    const porticoAddress = this.getPorticoAddress(sendingChain);
+    const destinationPorticoAddress = this.getPorticoAddress(recipientChain);
     const decimals = getTokenDecimals(toChainId(sendingChain), token);
     const parsedAmount = parseUnits(amount, decimals);
 
@@ -545,10 +539,7 @@ export abstract class PorticoBridge extends BaseRoute {
   ): Promise<string> {
     // allow manual redeems in case it wasn't relayed
     const signer = config.wh.mustGetSigner(destChain);
-    const { portico } = config.wh.mustGetContracts(destChain);
-    if (!portico) {
-      throw new Error('Portico address not found');
-    }
+    const portico = this.getPorticoAddress(destChain);
     const contract = new ethers.Contract(
       portico,
       ['function receiveMessageAndSwap(bytes)'],
@@ -609,7 +600,9 @@ export abstract class PorticoBridge extends BaseRoute {
     chain: ChainName | ChainId,
     destToken?: TokenConfig,
   ): Promise<string | null> {
-    return await config.wh.getForeignAsset(token, chain);
+    if (!destToken) return null;
+    const { tokenId: destTokenId } = getWrappedToken(destToken);
+    return destTokenId?.address || null;
   }
 
   async getMessage(
@@ -995,5 +988,34 @@ export abstract class PorticoBridge extends BaseRoute {
         ],
       },
     ];
+  }
+
+  async getQuote(
+    chain: ChainName | ChainId,
+    tokenIn: string,
+    tokenOut: string,
+    amountIn: BigNumber,
+    fee: number,
+  ): Promise<{ amountOut: BigNumber }> {
+    const { uniswapQuoterV2 } = config.wh.mustGetContracts(chain);
+    if (!uniswapQuoterV2) {
+      throw new Error('Uniswap quoter address not found');
+    }
+    return await getQuote(
+      chain,
+      uniswapQuoterV2,
+      tokenIn,
+      tokenOut,
+      amountIn,
+      fee,
+    );
+  }
+
+  getPorticoAddress(chain: ChainName | ChainId): string {
+    const { porticoUniswap } = config.wh.mustGetContracts(chain);
+    if (!porticoUniswap) {
+      throw new Error('Portico address not found');
+    }
+    return porticoUniswap;
   }
 }
