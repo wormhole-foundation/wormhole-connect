@@ -9,6 +9,7 @@ export interface Quote {
 
 export async function getQuote(
   chain: ChainName | ChainId,
+  quoterAddress: string,
   tokenIn: string,
   tokenOut: string,
   amountIn: BigNumber,
@@ -17,12 +18,12 @@ export async function getQuote(
   if (tokenIn === tokenOut) {
     return { amountOut: amountIn };
   }
-  const address = config.wh.mustGetContracts(chain).uniswapQuoterV2;
-  if (!address) {
-    throw new Error('Uniswap quoter address not found');
-  }
   const provider = config.wh.mustGetProvider(chain);
-  const contract = new ethers.Contract(address, uniswapQuoterV2Abi, provider);
+  const contract = new ethers.Contract(
+    quoterAddress,
+    uniswapQuoterV2Abi,
+    provider,
+  );
   const result = await contract.functions.quoteExactInputSingle([
     tokenIn,
     tokenOut,

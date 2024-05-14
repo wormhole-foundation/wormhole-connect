@@ -201,6 +201,7 @@ export const isPorticoRoute = (route: Route): boolean => {
   switch (route) {
     case Route.ETHBridge:
     case Route.wstETHBridge:
+    case Route.USDTBridge:
       return true;
     default:
       return false;

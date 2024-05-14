@@ -151,6 +151,7 @@ export function buildConfig(
     // Route options
     ethBridgeMaxAmount: customConfig?.ethBridgeMaxAmount ?? 5,
     wstETHBridgeMaxAmount: customConfig?.wstETHBridgeMaxAmount ?? 5,
+    usdtBridgeMaxAmount: customConfig?.usdtBridgeMaxAmount ?? 10_000,
 
     // NTT config
     nttGroups: mergeNttGroups(

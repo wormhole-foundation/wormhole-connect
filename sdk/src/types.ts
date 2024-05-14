@@ -50,8 +50,10 @@ export type Contracts = {
   seiTokenTranslator?: string;
   ibcShimContract?: string;
   tbtcGateway?: string;
-  portico?: string;
+  porticoUniswap?: string;
+  porticoPancakeSwap?: string;
   uniswapQuoterV2?: string;
+  pancakeSwapQuoterV2?: string;
 };
 
 export type ChainConfig = {

@@ -81,3 +81,7 @@ export interface PorticoDestTxInfo {
     finalTokenAddress: string;
   };
 }
+
+export interface Quote {
+  amountOut: BigNumber;
+}
