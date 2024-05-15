@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useTheme } from '@mui/material/styles';
 import { makeStyles } from 'tss-react/mui';
@@ -91,6 +91,8 @@ function ConnectWallet(props: Props) {
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
   const wallet = useSelector((state: RootState) => state.wallet[type]);
 
+  const [copied, setCopied] = useState(false);
+
   const connect = async (popupState?: any) => {
     if (disabled) return;
     if (popupState) popupState.close();
@@ -99,6 +101,10 @@ function ConnectWallet(props: Props) {
 
   const copy = async (popupState: any) => {
     await copyTextToClipboard(wallet.address);
+    setCopied(true);
+    setTimeout(() => {
+      setCopied(false);
+    }, 10000);
     popupState.close();
   };
 
@@ -152,6 +158,11 @@ function ConnectWallet(props: Props) {
                       onClick={() => copy(popupState)}
                     >
                       Copy address
+                      {copied && (
+                        <span style={{ marginLeft: '8px', color: 'green' }}>
+                          Copied!
+                        </span>
+                      )}
                     </div>
                     {config.explorer ? (
                       <ExplorerLink
