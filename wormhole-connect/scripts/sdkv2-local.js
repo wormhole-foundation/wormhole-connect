@@ -1,0 +1,91 @@
+const fs = require('fs');
+const path = require('path');
+
+const args = process.argv.slice(2);
+const command = args[0];
+
+const sdkv2Path = process.env['SDK_PATH'];
+
+const { execSync } = require('child_process');
+
+// This script builds, packs, and installs sdkv2 from a local directory
+
+const packageJsonPath = path.join(__dirname, '../package.json');
+const sdkPackageJsonPath = path.join(sdkv2Path, './package.json');
+
+// Get SDKv2 version
+const { version, workspaces } = JSON.parse(
+  fs.readFileSync(sdkPackageJsonPath, 'utf8'),
+);
+
+let sdkPackages = [];
+let sdkPackagesWithDiff = [];
+
+for (const workspace of workspaces) {
+  if (workspace.includes('examples')) continue;
+  const workspacePackageJson = path.join(sdkv2Path, workspace, 'package.json');
+  const { name } = JSON.parse(fs.readFileSync(workspacePackageJson));
+  sdkPackages.push(name);
+
+  const diff = execSync(`git diff ${workspace}`, { cwd: path.join(sdkv2Path) });
+  if (diff.length > 0) {
+    sdkPackagesWithDiff.push(name);
+  }
+}
+
+if (command === 'install') {
+  console.log(
+    `Building and installing sdkv2 version ${version}\nPackages:\n  ${sdkPackages.join(
+      '\n  ',
+    )}`,
+  );
+
+  // Build SDKv2
+  console.log('Building SDK...');
+  execSync('npm run build', { cwd: sdkv2Path, encoding: 'utf-8' });
+
+  // Pack SDKv2
+  console.log('Packing SDK...');
+  execSync('npm pack --workspaces', { cwd: sdkv2Path, encoding: 'utf-8' });
+
+  // Get freshly made archives
+  const packageValues = {};
+  for (let pkg of sdkPackages) {
+    packageValues[pkg] = path.join(
+      sdkv2Path,
+      `wormhole-foundation-${pkg.split('/')[1]}-${version}.tgz`,
+    );
+  }
+
+  const packageJson = JSON.parse(fs.readFileSync(packageJsonPath));
+
+  for (let pkg in packageValues) {
+    packageJson.dependencies[pkg] = packageValues[pkg];
+    packageJson.overrides[pkg] = packageValues[pkg];
+  }
+
+  fs.writeFileSync(
+    packageJsonPath,
+    JSON.stringify(packageJson, undefined, 2),
+    'utf-8',
+  );
+
+  let toInstall;
+
+  if (sdkPackagesWithDiff.length > 0) {
+    // Detected local changes; install only these
+    console.log('Installing packages with local diff');
+    toInstall = sdkPackagesWithDiff;
+  } else {
+    // Did not detect local changes; install all packages
+    console.log('Installing all packages');
+    toInstall = sdkPackages;
+  }
+
+  for (let pkg of toInstall) {
+    console.log(pkg);
+    execSync(`npm install ${pkg}`, { cwd: path.join(__dirname, '..') });
+  }
+} else if (command === 'remove') {
+  // TODO?
+}
