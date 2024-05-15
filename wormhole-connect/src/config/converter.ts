@@ -75,8 +75,12 @@ export class SDKConverter {
     }
   }
 
-  tokenIdV2(chain: v1.ChainName | v1.ChainId, address: string) {
-    return v2.Wormhole.tokenId(this.toChainV2(chain), address);
+  tokenIdV2<C extends v2.Chain>(
+    chain: v1.ChainName | v1.ChainId,
+    address: string,
+  ): v2.TokenId<C> {
+    const chainv2 = this.toChainV2(chain) as C;
+    return v2.Wormhole.tokenId(chainv2, address);
   }
 
   isTokenConfigV1(v: v1.TokenId | TokenConfigV1): v is TokenConfigV1 {
@@ -108,11 +112,11 @@ export class SDKConverter {
     }
   }
 
-  getTokenIdV2ForSymbol(
+  getTokenIdV2ForSymbol<C extends v2.Chain>(
     symbol: string,
     chain: v1.ChainName | v1.ChainId,
     tokenConfigs: TokensConfigV1,
-  ): v2.TokenId | undefined {
+  ): v2.TokenId<C> | undefined {
     const tokenConfig = tokenConfigs[symbol];
     if (!tokenConfig) return undefined;
 

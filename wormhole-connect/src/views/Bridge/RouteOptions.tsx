@@ -217,6 +217,7 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
         const routeOptions = isPorticoRoute(props.route.route)
           ? portico
           : { toNativeToken, relayerFee };
+
         const receiveAmt = await RouteOperator.computeReceiveAmountWithFees(
           props.route.route,
           Number.parseFloat(amount),
@@ -413,6 +414,7 @@ function RouteOptions() {
           fromChain,
           toChain,
         );
+
         routes.push({ name: r, supported, available });
       }
 

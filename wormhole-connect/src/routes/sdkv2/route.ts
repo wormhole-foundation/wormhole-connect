@@ -1,5 +1,6 @@
 import {
   Chain,
+  ChainContext,
   Network,
   Wormhole,
   routes,
@@ -36,54 +37,12 @@ import cosmwasm from '@wormhole-foundation/sdk/cosmwasm';
 import algorand from '@wormhole-foundation/sdk/algorand';
 import config from 'config';
 
-async function getWh(network: Network) {
-  // TODO cache
-  return await wormhole(network, [evm, solana, aptos, cosmwasm, sui, algorand]);
-}
-
-async function toRequest<N extends Network>(
-  wh: Wormhole<N>,
-  req: {
-    srcToken: string;
-    srcChain: ChainName | ChainId;
-    srcAddress: string;
-    dstChain: ChainName | ChainId;
-    dstAddress: string;
-    dstToken: string;
-  },
-): Promise<routes.RouteTransferRequest<N>> {
-  const srcChain = config.sdkConverter.toChainV2(req.srcChain);
-  const dstChain = config.sdkConverter.toChainV2(req.dstChain);
-
-  const srcTokenV2 = config.sdkConverter.getTokenIdV2ForSymbol(
-    req.srcToken,
-    req.srcChain,
-    config.tokens,
-  );
-  const dstTokenV2 = config.sdkConverter.getTokenIdV2ForSymbol(
-    req.dstToken,
-    req.dstChain,
-    config.tokens,
-  );
-
-  return routes.RouteTransferRequest.create(
-    wh,
-    {
-      source: srcTokenV2,
-      destination: dstTokenV2,
-      /* @ts-ignore */
-    },
-    srcChain,
-    dstChain,
-  );
-}
-
-export class SDKv2Route extends RouteAbstract {
+export class SDKv2Route<N extends Network> extends RouteAbstract {
   TYPE: Route;
   NATIVE_GAS_DROPOFF_SUPPORTED = false;
   AUTOMATIC_DEPOSIT = false;
 
-  network: Network;
+  network: N;
   route?: routes.Route<Network>;
 
   constructor(
@@ -92,14 +51,74 @@ export class SDKv2Route extends RouteAbstract {
     routeType: Route,
   ) {
     super();
-    this.network = config.sdkConverter.toNetworkV2(network);
+    this.network = config.sdkConverter.toNetworkV2(network) as N;
     this.TYPE = routeType;
   }
 
-  async getV2ChainContext(chainV1: ChainName | ChainId) {
-    const wh = await getWh(this.network);
-    const chain: Chain = config.sdkConverter.toChainV2(chainV1);
-    const context = wh.getPlatform(chainToPlatform(chain)).getChain(chain);
+  async getWh(network: N): Promise<Wormhole<N>> {
+    // TODO cache
+    return await wormhole(network, [
+      evm,
+      solana,
+      aptos,
+      cosmwasm,
+      sui,
+      algorand,
+    ]);
+  }
+
+  async toRequest<FC extends Chain, TC extends Chain>(
+    wh: Wormhole<N>,
+    req: {
+      srcChain: ChainName | ChainId;
+      srcToken: string;
+      dstChain: ChainName | ChainId;
+      dstToken: string;
+    },
+  ): Promise<routes.RouteTransferRequest<N>> {
+    const srcChain = (await this.getV2ChainContext(req.srcChain)).context;
+    const dstChain = (await this.getV2ChainContext(req.dstChain)).context;
+
+    const srcTokenV2: TokenIdV2<FC> | undefined =
+      config.sdkConverter.getTokenIdV2ForSymbol(
+        req.srcToken,
+        req.srcChain,
+        config.tokens,
+      );
+    const dstTokenV2: TokenIdV2<TC> | undefined =
+      config.sdkConverter.getTokenIdV2ForSymbol(
+        req.dstToken,
+        req.dstChain,
+        config.tokens,
+      );
+
+    if (srcTokenV2 === undefined) {
+      throw new Error(`Failed to find TokenId for ${req.srcToken}`);
+    }
+    if (dstTokenV2 === undefined) {
+      throw new Error(`Failed to find TokenId for ${req.dstToken}`);
+    }
+
+    return routes.RouteTransferRequest.create(
+      wh,
+      {
+        source: srcTokenV2,
+        destination: dstTokenV2,
+        /* @ts-ignore */
+      },
+      srcChain,
+      dstChain,
+    );
+  }
+
+  async getV2ChainContext<C extends Chain>(
+    chainV1: ChainName | ChainId,
+  ): Promise<{ chain: C; context: ChainContext<N, C> }> {
+    const wh = await this.getWh(this.network);
+    const chain = config.sdkConverter.toChainV2(chainV1) as C;
+    const context = wh
+      .getPlatform(chainToPlatform(chain))
+      .getChain(chain) as ChainContext<N, C>;
     return {
       chain,
       context,
@@ -301,17 +320,15 @@ export class SDKv2Route extends RouteAbstract {
     if (!fromChainV1 || !toChainV1)
       throw new Error('source and destination chains are required');
 
-    console.log('hi');
+    console.log('getting quote', this);
     console.trace();
 
-    const wh = await getWh(this.network);
+    const wh = await this.getWh(this.network);
 
-    const req = await toRequest(wh, {
+    const req = await this.toRequest(wh, {
       srcToken: sourceToken,
       srcChain: fromChainV1,
-      srcAddress: '',
       dstChain: toChainV1,
-      dstAddress: '',
       dstToken: destToken,
     });
 
@@ -330,8 +347,6 @@ export class SDKv2Route extends RouteAbstract {
     }
 
     const quote = await route.quote(validationResult.params);
-
-    console.log(quote);
 
     if (quote.success) {
       return amount.whole(quote.destinationToken.amount);
