@@ -33,14 +33,14 @@ import { getNttManagerConfigByAddress } from 'utils/ntt';
 
 import { SDKv2Route } from './sdkv2/route';
 
-import { ROUTE_MAPPINGS } from './mappings';
+import { getRouteImpls } from './mappings';
 
 // Temporary flag
 const USE_SDK_V2 = !!localStorage.getItem('CONNECT_SDKV2');
 
 export class Operator {
   getRoute(route: Route): RouteAbstract {
-    const impls = ROUTE_MAPPINGS[route];
+    const impls = getRouteImpls(route);
 
     if (!impls) {
       throw new Error(`${route} is not a valid route`);
