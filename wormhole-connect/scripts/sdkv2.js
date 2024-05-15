@@ -59,6 +59,10 @@ if (command === 'install') {
 
   const packageJson = JSON.parse(fs.readFileSync(packageJsonPath));
 
+  let alreadyHasLocalInstalled =
+    packageJson.overrides &&
+    packageJson.overrides.hasOwnProperty('@wormhole-foundation/sdk');
+
   for (let pkg in packageValues) {
     packageJson.dependencies[pkg] = packageValues[pkg];
     packageJson.overrides = packageJson.overrides || {};
@@ -73,7 +77,7 @@ if (command === 'install') {
 
   let toInstall;
 
-  if (sdkPackagesWithDiff.length > 0) {
+  if (alreadyHasLocalInstalled && sdkPackagesWithDiff.length > 0) {
     // Detected local changes; install only these
     console.log('Installing packages with local diff');
     toInstall = sdkPackagesWithDiff;
