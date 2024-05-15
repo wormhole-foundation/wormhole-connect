@@ -30,9 +30,11 @@ export const ROUTE_MAPPINGS: Record<Route, RouteImpls> = {
   },
   [Route.CCTPManual]: {
     v1: new CCTPManualRoute(),
+    v2: routes.CCTPRoute,
   },
   [Route.CCTPRelay]: {
     v1: new CCTPRelayRoute(),
+    v2: routes.AutomaticCCTPRoute,
   },
   [Route.CosmosGateway]: {
     v1: new CosmosGatewayRoute(),
@@ -42,9 +44,11 @@ export const ROUTE_MAPPINGS: Record<Route, RouteImpls> = {
   },
   [Route.ETHBridge]: {
     v1: new ETHBridge(),
+    v2: routes.AutomaticPorticoRoute,
   },
   [Route.wstETHBridge]: {
     v1: new wstETHBridge(),
+    v2: routes.AutomaticPorticoRoute,
   },
   [Route.NttManual]: {
     v1: new NttManual(),
