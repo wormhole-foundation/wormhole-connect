@@ -59,14 +59,12 @@ if (command === 'install') {
 
   const packageJson = JSON.parse(fs.readFileSync(packageJsonPath));
 
-  let alreadyHasLocalInstalled =
-    packageJson.overrides &&
-    packageJson.overrides.hasOwnProperty('@wormhole-foundation/sdk');
+  let alreadyHasLocalInstalled = packageJson.dependencies.hasOwnProperty(
+    '@wormhole-foundation/sdk-connect',
+  );
 
   for (let pkg in packageValues) {
     packageJson.dependencies[pkg] = packageValues[pkg];
-    packageJson.overrides = packageJson.overrides || {};
-    packageJson.overrides[pkg] = packageValues[pkg];
   }
 
   fs.writeFileSync(
