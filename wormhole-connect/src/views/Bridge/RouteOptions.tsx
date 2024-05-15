@@ -404,8 +404,6 @@ function RouteOptions() {
           toChain,
         );
 
-        console.log(token, destToken, fromChain, toChain);
-
         const supported = await RouteOperator.isRouteSupported(
           r,
           token,

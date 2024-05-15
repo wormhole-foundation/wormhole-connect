@@ -12,11 +12,8 @@ import config from 'config';
 import { TokenConfig, Route } from 'config/types';
 import { PayloadType, getMessage, isEvmChain, solanaContext } from 'utils/sdk';
 import { isGatewayChain } from 'utils/cosmos';
-import { BridgeRoute } from './bridge';
 import { RelayRoute } from './relay';
 // import { HashflowRoute } from './hashflow';
-import { CCTPRelayRoute } from './cctpRelay';
-import { CosmosGatewayRoute } from './cosmosGateway';
 import { RouteAbstract } from './abstracts/routeAbstract';
 import {
   UnsignedMessage,
@@ -27,80 +24,32 @@ import {
   NttRelayingType,
   RelayerFee,
 } from './types';
-import {
-  CCTPManualRoute,
-  CCTP_LOG_TokenMessenger_DepositForBurn,
-} from './cctpManual';
-import { TBTCRoute } from './tbtc';
+import { CCTP_LOG_TokenMessenger_DepositForBurn } from './cctpManual';
 import { getTokenById, isEqualCaseInsensitive } from 'utils';
-import { ETHBridge } from './porticoBridge/ethBridge';
-import { wstETHBridge } from './porticoBridge/wstETHBridge';
 import { TokenPrices } from 'store/tokenPrices';
-import { NttManual, NttRelay } from './ntt';
 import { getMessageEvm, TRANSFER_SENT_EVENT_TOPIC } from './ntt/chains/evm';
 import { getMessageSolana } from './ntt/chains/solana';
 import { getNttManagerConfigByAddress } from 'utils/ntt';
 
 import { SDKv2Route } from './sdkv2/route';
-import { routes } from '@wormhole-foundation/sdk';
 
+import { ROUTE_MAPPINGS } from './mappings';
+
+// Temporary flag
 const USE_SDK_V2 = !!localStorage.getItem('CONNECT_SDKV2');
 
 export class Operator {
   getRoute(route: Route): RouteAbstract {
-    switch (route) {
-      case Route.Bridge: {
-        if (USE_SDK_V2) {
-          return new SDKv2Route(
-            config.network,
-            routes.TokenBridgeRoute,
-            Route.Bridge,
-          );
-        } else {
-          return new BridgeRoute();
-        }
-      }
-      case Route.Relay: {
-        if (USE_SDK_V2) {
-          return new SDKv2Route(
-            config.network,
-            routes.AutomaticTokenBridgeRoute,
-            Route.Relay,
-          );
-        } else {
-          return new RelayRoute();
-        }
-      }
-      case Route.CCTPManual: {
-        return new CCTPManualRoute();
-      }
-      case Route.CCTPRelay: {
-        return new CCTPRelayRoute();
-      }
-      // case Route.Hashflow: {
-      //   return new HashflowRoute();
-      // }
-      case Route.CosmosGateway: {
-        return new CosmosGatewayRoute();
-      }
-      case Route.TBTC: {
-        return new TBTCRoute();
-      }
-      case Route.ETHBridge: {
-        return new ETHBridge();
-      }
-      case Route.wstETHBridge: {
-        return new wstETHBridge();
-      }
-      case Route.NttManual: {
-        return new NttManual();
-      }
-      case Route.NttRelay: {
-        return new NttRelay();
-      }
-      default: {
-        throw new Error(`${route} is not a valid route`);
-      }
+    const impls = ROUTE_MAPPINGS[route];
+
+    if (!impls) {
+      throw new Error(`${route} is not a valid route`);
+    }
+
+    if (USE_SDK_V2 && impls.v2) {
+      return new SDKv2Route(config.network, impls.v2, route);
+    } else {
+      return impls.v1;
     }
   }
 
