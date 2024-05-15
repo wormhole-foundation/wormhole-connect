@@ -4,14 +4,16 @@ const path = require('path');
 const args = process.argv.slice(2);
 const command = args[0];
 
-const sdkv2Path = process.env['SDK_PATH'];
+const SDK_PATH = process.env['SDK_PATH'];
+
+if (!SDK_PATH) throw new Error('Please set SDK_PATH in your environment');
 
 const { execSync } = require('child_process');
 
 // This script builds, packs, and installs sdkv2 from a local directory
 
 const packageJsonPath = path.join(__dirname, '../package.json');
-const sdkPackageJsonPath = path.join(sdkv2Path, './package.json');
+const sdkPackageJsonPath = path.join(SDK_PATH, './package.json');
 
 // Get SDKv2 version
 const { version, workspaces } = JSON.parse(
@@ -23,11 +25,11 @@ let sdkPackagesWithDiff = [];
 
 for (const workspace of workspaces) {
   if (workspace.includes('examples')) continue;
-  const workspacePackageJson = path.join(sdkv2Path, workspace, 'package.json');
+  const workspacePackageJson = path.join(SDK_PATH, workspace, 'package.json');
   const { name } = JSON.parse(fs.readFileSync(workspacePackageJson));
   sdkPackages.push(name);
 
-  const diff = execSync(`git diff ${workspace}`, { cwd: path.join(sdkv2Path) });
+  const diff = execSync(`git diff ${workspace}`, { cwd: path.join(SDK_PATH) });
   if (diff.length > 0) {
     sdkPackagesWithDiff.push(name);
   }
@@ -42,17 +44,17 @@ if (command === 'install') {
 
   // Build SDKv2
   console.log('Building SDK...');
-  execSync('npm run build', { cwd: sdkv2Path, encoding: 'utf-8' });
+  execSync('npm run build', { cwd: SDK_PATH, encoding: 'utf-8' });
 
   // Pack SDKv2
   console.log('Packing SDK...');
-  execSync('npm pack --workspaces', { cwd: sdkv2Path, encoding: 'utf-8' });
+  execSync('npm pack --workspaces', { cwd: SDK_PATH, encoding: 'utf-8' });
 
   // Get freshly made archives
   const packageValues = {};
   for (let pkg of sdkPackages) {
     packageValues[pkg] = path.join(
-      sdkv2Path,
+      SDK_PATH,
       `wormhole-foundation-${pkg.split('/')[1]}-${version}.tgz`,
     );
   }
