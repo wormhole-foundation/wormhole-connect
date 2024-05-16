@@ -57,6 +57,19 @@ export abstract class RouteAbstract {
     destChain?: ChainName | ChainId,
   ): Promise<boolean>;
 
+  public abstract supportedSourceTokens(
+    tokens: TokenConfig[],
+    destToken?: TokenConfig,
+    sourceChain?: ChainName | ChainId,
+    destChain?: ChainName | ChainId,
+  ): Promise<TokenConfig[]>;
+  public abstract supportedDestTokens(
+    tokens: TokenConfig[],
+    sourceToken?: TokenConfig,
+    sourceChain?: ChainName | ChainId,
+    destChain?: ChainName | ChainId,
+  ): Promise<TokenConfig[]>;
+
   // Calculate the amount a user would expect to receive if sending a certain amount
   // This may or may not include fees depending on the route
   public abstract computeReceiveAmount(
