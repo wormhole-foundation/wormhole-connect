@@ -18,8 +18,6 @@
     "prepare": "husky install"
   },
   "dependencies": {
-    "@wormhole-foundation/connect-sdk-examples": "file:../sdk/wormhole-foundation-connect-sdk-examples-0.6.9.tgz",
-    "@wormhole-foundation/sdk-connect": "file:../sdk/wormhole-foundation-sdk-connect-0.6.9.tgz",
     "tss-react": "^4.7.7"
   },
   "devDependencies": {
