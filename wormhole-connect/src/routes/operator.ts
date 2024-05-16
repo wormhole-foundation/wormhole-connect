@@ -183,7 +183,6 @@ export class Operator {
         sourceChain,
         destChain,
       );
-      return s;
     } catch (e) {
       // TODO is this the right place to try/catch these?
       // or deeper inside SDKv2Route?
