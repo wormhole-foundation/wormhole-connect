@@ -170,18 +170,25 @@ export class Operator {
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
   ): Promise<boolean> {
-    if (!config.routes.includes(route)) {
+    try {
+      if (!config.routes.includes(route)) {
+        return false;
+      }
+
+      const r = this.getRoute(route);
+      return await r.isRouteSupported(
+        sourceToken,
+        destToken,
+        amount,
+        sourceChain,
+        destChain,
+      );
+      return s;
+    } catch (e) {
+      // TODO is this the right place to try/catch these?
+      // or deeper inside SDKv2Route?
       return false;
     }
-
-    const r = this.getRoute(route);
-    return await r.isRouteSupported(
-      sourceToken,
-      destToken,
-      amount,
-      sourceChain,
-      destChain,
-    );
   }
   async isRouteAvailable(
     route: Route,
