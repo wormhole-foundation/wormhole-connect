@@ -73,7 +73,7 @@
     "lint:ci": "scripts/lint_ci.sh",
     "prettier": "prettier --write ./src",
     "analyze": "NODE_ENV=production NODE_OPTIONS=--max-old-space-size=6144 vite-bundle-visualizer",
-    "test": "vitest run",
+    "test": "vitest run tests/ci",
     "test:dev": "vitest",
     "checksdn": "npx tsx scripts/ofac/checkSdnListForUpdates.ts",
     "preview": "vite preview"
