@@ -18,10 +18,7 @@
     "prepare": "husky install"
   },
   "dependencies": {
-    "tss-react": "^4.7.7",
-    "@wormhole-foundation/sdk": "^0.7.0-beta.3",
-    "@wormhole-foundation/sdk-definitions": "^0.7.0-beta.3",
-    "@wormhole-foundation/sdk-definitions-ntt": "^0.0.1-beta.5"
+    "tss-react": "^4.7.7"
   },
   "devDependencies": {
     "husky": "^8.0.3",
@@ -50,6 +47,9 @@
     "@wormhole-foundation/sdk-definitions-ntt": {
       "@wormhole-foundation/sdk-definitions": "^0.7.0-beta.1",
       "@wormhole-foundation/sdk-base": "^0.7.0-beta.1"
+    },
+    "@wormhole-foundation/wormhole-connect": {
+      "aptos": "1.5.0"
     }
   }
 }
