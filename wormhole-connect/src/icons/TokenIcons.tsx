@@ -1,6 +1,8 @@
 import React from 'react';
 import { makeStyles } from 'tss-react/mui';
 
+import { chainToIcon } from '@wormhole-foundation/sdk-icons';
+
 import { CENTER } from 'utils/style';
 import { Icon } from 'config/types';
 import WBTC from './Tokens/WBTC';
@@ -86,6 +88,7 @@ const iconMap: { [key in Icon]: React.JSX.Element } = {
   [Icon.NTT]: NTT(),
   [Icon.SCROLL]: SCROLL(),
   [Icon.BLAST]: BLAST(),
+  [Icon.XLAYER]: <img src={chainToIcon('Xlayer')} />,
 };
 
 function isBuiltinIcon(icon?: Icon | string): icon is Icon {

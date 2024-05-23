@@ -208,6 +208,7 @@ By default, it offers its full built-in list for both `mainnet` and `testnet`:
 | optimism | optimismgoerli, optimism_sepolia |
 | scroll | scroll |
 | blast | blast |
+| xlayer | xlayer |
 
 > Osmosis support is in beta, reach out to a Wormhole contributor for early access.
 
