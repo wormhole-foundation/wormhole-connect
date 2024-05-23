@@ -19,6 +19,7 @@ import { addComputeBudget } from './computeBudget';
 import {
   createPostVaaInstruction,
   createVerifySignaturesInstructions,
+  derivePostedVaaKey,
 } from './wormhole';
 import { isBytes, ParsedVaa, parseVaa, SignedVaa } from '../../../vaa/wormhole';
 
@@ -34,6 +35,20 @@ export async function postVaaWithRetry(
   maxRetries?: number,
   commitment?: Commitment,
 ): Promise<TransactionSignatureAndResponse[]> {
+  try {
+    // Check if the VAA has already been posted
+    const parsedVaa = parseVaa(vaa);
+    const postedVaaAddress = derivePostedVaaKey(
+      wormholeProgramId,
+      parsedVaa.hash,
+    );
+    const postedVaa = await connection.getAccountInfo(postedVaaAddress);
+    if (postedVaa !== null) {
+      return [];
+    }
+  } catch (e) {
+    console.error('Failed to check if VAA has already been posted:', e);
+  }
   const { unsignedTransactions, signers } =
     await createPostSignedVaaTransactions(
       connection,
