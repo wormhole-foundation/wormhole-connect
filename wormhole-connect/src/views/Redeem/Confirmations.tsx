@@ -1,7 +1,7 @@
 import { LinearProgress, linearProgressClasses } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 
@@ -55,12 +55,15 @@ function Confirmations(props: Props) {
       return;
     }
     let cancelled = false;
+
+    // Loop until we have reached the latest block or cancelled
+    // This will update the progress bar as the next block is fetched
     (async () => {
-      const currentBlock = 0;
-      while (currentBlock < requiredHeight && !cancelled) {
-        const currentBlock = await getCurrentBlock(props.chain);
+      let block = 0;
+      while (block < requiredHeight && !cancelled) {
+        block = await getCurrentBlock(props.chain);
         if (!cancelled) {
-          setCurrentBlock(currentBlock);
+          setCurrentBlock(block);
           await new Promise((resolve) => setTimeout(resolve, 1000));
         }
       }
@@ -70,13 +73,27 @@ function Confirmations(props: Props) {
     };
   }, [requiredHeight, props.chain, chainConfig.finalityThreshold]);
 
-  const blockDiff =
-    currentBlock > requiredHeight ? 0 : requiredHeight - currentBlock;
-  const confirmations = chainConfig.finalityThreshold - blockDiff;
-  const percentage =
-    chainConfig.finalityThreshold === 0
-      ? 100
-      : Math.floor((confirmations / chainConfig.finalityThreshold) * 100);
+  const confirmations = useMemo(() => {
+    if (currentBlock === 0) {
+      // Current block is zero during initial state
+      // We should not calculate confirmations until it's fetched
+      return 0;
+    }
+
+    // Precaution to prevent a negative block difference
+    const blockDiff = Math.max(requiredHeight - currentBlock, 0);
+
+    return chainConfig.finalityThreshold - blockDiff;
+  }, [chainConfig.finalityThreshold, currentBlock, requiredHeight]);
+
+  // Percentage of the confirmations completed
+  const percentage = useMemo(
+    () =>
+      chainConfig.finalityThreshold === 0
+        ? 100
+        : Math.floor((confirmations / chainConfig.finalityThreshold) * 100),
+    [chainConfig.finalityThreshold, confirmations],
+  );
 
   return (
     <div className={classes.confirmations}>
