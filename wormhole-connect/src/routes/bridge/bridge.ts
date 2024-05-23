@@ -61,6 +61,13 @@ export class BridgeRoute extends BaseRoute {
     )
       return false;
 
+    // Special case: OKB cannot be sent on xlayer
+    if (
+      (sourceToken === 'OKB' || sourceToken === 'native') &&
+      sourceChain === 'xlayer'
+    )
+      return false;
+
     if (!!sourceTokenConfig.tokenId && sourceToken === destToken) return true;
     if (
       !sourceTokenConfig.tokenId &&

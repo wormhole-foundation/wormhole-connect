@@ -297,4 +297,15 @@ export const TESTNET_CHAINS: ChainsConfig = {
     automaticRelayer: false,
     maxBlockSearch: 2000,
   },
+  xlayer: {
+    ...chains.xlayer!,
+    displayName: 'X Layer',
+    explorerUrl: 'https://www.okx.com/web3/explorer/xlayer-test/',
+    explorerName: 'OKX Explorer',
+    gasToken: 'OKB',
+    chainId: 195,
+    icon: Icon.XLAYER,
+    automaticRelayer: false,
+    maxBlockSearch: 2000,
+  },
 };

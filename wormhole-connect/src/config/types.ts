@@ -46,6 +46,7 @@ export enum Icon {
   'NTT',
   'SCROLL',
   'BLAST',
+  'XLAYER',
 }
 
 export enum Route {

@@ -2320,4 +2320,31 @@ export const TESTNET_TOKENS: TokensConfig = {
       default: 8,
     },
   },
+  OKB: {
+    key: 'OKB',
+    symbol: 'OKB',
+    nativeChain: 'xlayer',
+    icon: Icon.XLAYER,
+    coinGeckoId: 'okb',
+    decimals: {
+      Ethereum: 18,
+      default: 8,
+    },
+    wrappedAsset: 'WOKB',
+  },
+  WOKB: {
+    key: 'WOKB',
+    symbol: 'WOKB',
+    nativeChain: 'xlayer',
+    icon: Icon.XLAYER,
+    tokenId: {
+      chain: 'xlayer',
+      address: '0xa2aFfd8301BfB3c5b815829f2F509f053556D21B',
+    },
+    coinGeckoId: 'okb',
+    decimals: {
+      Ethereum: 18,
+      default: 8,
+    },
+  },
 };
