@@ -23,6 +23,7 @@ export const MAINNET_CHAINS = {
   sei: 32,
   scroll: 34,
   blast: 36,
+  xlayer: 37,
   wormchain: 3104,
   osmosis: 20,
   cosmoshub: 4000,
@@ -297,6 +298,16 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     finalityThreshold: 0,
     nativeTokenDecimals: 18,
   },
+  xlayer: {
+    key: 'xlayer',
+    id: 37,
+    context: Context.ETH,
+    contracts: {
+      ...CONTRACTS.MAINNET.xlayer,
+    },
+    finalityThreshold: 0,
+    nativeTokenDecimals: 18,
+  },
   wormchain: {
     context: Context.COSMOS,
     key: 'wormchain',
@@ -384,6 +395,7 @@ const MAINNET_CONFIG: WormholeConfig = {
     klaytn: 'https://rpc.ankr.com/klaytn',
     scroll: 'https://rpc.ankr.com/scroll',
     blast: 'https://rpc.ankr.com/blast',
+    xlayer: 'https://rpc.xlayer.tech',
   },
   rest: {
     sei: '',

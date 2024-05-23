@@ -2775,4 +2775,31 @@ export const MAINNET_TOKENS: TokensConfig = {
       default: 8,
     },
   },
+  OKB: {
+    key: 'OKB',
+    symbol: 'OKB',
+    nativeChain: 'xlayer',
+    icon: Icon.XLAYER,
+    coinGeckoId: 'okb',
+    decimals: {
+      Ethereum: 18,
+      default: 8,
+    },
+    wrappedAsset: 'WOKB',
+  },
+  WOKB: {
+    key: 'WOKB',
+    symbol: 'WOKB',
+    nativeChain: 'xlayer',
+    icon: Icon.XLAYER,
+    tokenId: {
+      chain: 'xlayer',
+      address: '0xe538905cf8410324e03A5A23C1c177a474D59b2b',
+    },
+    coinGeckoId: 'okb',
+    decimals: {
+      Ethereum: 18,
+      default: 8,
+    },
+  },
 };
