@@ -259,10 +259,6 @@ export class Operator {
   ): Promise<TokenConfig[]> {
     const supported: { [key: string]: TokenConfig } = {};
     for (const route of config.routes) {
-      if (!config.routes.includes(route)) {
-        continue;
-      }
-
       // Some routes support the much more efficient supportedDestTokens method
       // Use it when it's available
 
