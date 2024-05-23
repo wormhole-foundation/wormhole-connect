@@ -106,6 +106,8 @@ export function buildConfig(
     // Callbacks
     triggerEvent: wrapEventHandler(customConfig?.eventHandler),
     validateTransfer: customConfig?.validateTransferHandler,
+    computeSolanaPriorityFee: customConfig?.computeSolanaPriorityFee,
+    priorityFeePercentile: customConfig?.priorityFeePercentile,
 
     // White lists
     chains: networkData.chains,
@@ -192,6 +194,10 @@ export function getWormholeContext(
     {
       ...sdkConfig,
       ...{ rpcs },
+      solana: {
+        computePriorityFee: config.computeSolanaPriorityFee,
+        priorityFeePercentile: config.priorityFeePercentile,
+      },
     },
     foreignAssetCache,
   );

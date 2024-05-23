@@ -12,6 +12,7 @@ import { Alignment } from 'components/Header';
 import { WormholeConnectPartialTheme } from 'theme';
 import { TransferDetails, WormholeConnectEventHandler } from 'telemetry/types';
 import { SDKConverter } from './converter';
+import { PublicKey } from '@solana/web3.js';
 
 export enum Icon {
   'AVAX' = 1,
@@ -120,6 +121,12 @@ export interface WormholeConnectConfig {
   eventHandler?: WormholeConnectEventHandler;
   validateTransferHandler?: ValidateTransferHandler;
 
+  // Priority Fees for Solana
+  computeSolanaPriorityFee?: (
+    lockedWritableAccounts: PublicKey[],
+  ) => Promise<number>;
+  priorityFeePercentile?: number;
+
   // UI details
   cta?: {
     text: string;
@@ -180,6 +187,11 @@ export interface InternalConfig {
   // Callbacks
   triggerEvent: WormholeConnectEventHandler;
   validateTransfer?: ValidateTransferHandler;
+  // Priority Fees for Solana
+  computeSolanaPriorityFee?: (
+    lockedWritableAccounts: PublicKey[],
+  ) => Promise<number>;
+  priorityFeePercentile?: number;
 
   // UI details
   cta?: {

@@ -7,7 +7,7 @@ import {
 } from '@solana/web3.js';
 
 // Add priority fee according to 50th percentile of recent fees paid
-const DEFAULT_FEE_PERCENTILE = 0.5;
+export const DEFAULT_FEE_PERCENTILE = 0.5;
 
 export async function addComputeBudget(
   connection: Connection,
@@ -15,6 +15,9 @@ export async function addComputeBudget(
   lockedWritableAccounts: PublicKey[] = [],
   feePercentile: number = DEFAULT_FEE_PERCENTILE,
   minPriorityFee: number = 0,
+  customDeterminePriorityFee?: (
+    lockedWritableAccounts: PublicKey[],
+  ) => Promise<number>,
 ): Promise<void> {
   if (lockedWritableAccounts.length === 0) {
     lockedWritableAccounts = transaction.instructions
@@ -26,8 +29,9 @@ export async function addComputeBudget(
     connection,
     transaction,
     lockedWritableAccounts,
-    DEFAULT_FEE_PERCENTILE,
+    feePercentile,
     minPriorityFee,
+    customDeterminePriorityFee,
   );
   transaction.add(...ixs);
 }
@@ -38,6 +42,9 @@ export async function determineComputeBudget(
   lockedWritableAccounts: PublicKey[] = [],
   feePercentile: number = DEFAULT_FEE_PERCENTILE,
   minPriorityFee: number = 0,
+  customDeterminePriorityFee?: (
+    lockedWritableAccounts: PublicKey[],
+  ) => Promise<number>,
 ): Promise<TransactionInstruction[]> {
   let computeBudget = 250_000;
   let priorityFee = 1;
@@ -66,6 +73,7 @@ export async function determineComputeBudget(
       connection,
       lockedWritableAccounts,
       feePercentile,
+      customDeterminePriorityFee,
     );
   } catch (e) {
     console.error(
@@ -89,14 +97,20 @@ export async function determineComputeBudget(
   ];
 }
 
+const DEFAULT_PRIORITY_FEE = (_: PublicKey[]) => Promise.resolve(1); // Set fee to 1 microlamport by default
+
 async function determinePriorityFee(
   connection: Connection,
   lockedWritableAccounts: PublicKey[] = [],
   percentile: number,
+  customDeterminePriorityFee: (
+    lockedWritableAccounts: PublicKey[],
+  ) => Promise<number> = DEFAULT_PRIORITY_FEE,
 ): Promise<number> {
   // https://twitter.com/0xMert_/status/1768669928825962706
 
-  let fee = 1; // Set fee to 1 microlamport by default
+  // Compute custom priority fee if provided or use the default fee
+  let fee = await customDeterminePriorityFee(lockedWritableAccounts);
 
   try {
     const recentFeesResponse = await connection.getRecentPrioritizationFees({

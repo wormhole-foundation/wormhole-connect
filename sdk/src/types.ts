@@ -11,6 +11,7 @@ import { WormholeContext } from './wormhole';
 import { DevnetChainId, DevnetChainName } from './config/DEVNET';
 import { CosmosContext } from './contexts/cosmos';
 import { CosmosContracts } from './contexts/cosmos/contracts';
+import { PublicKey } from '@solana/web3.js';
 
 export const NATIVE = 'native';
 // TODO: conditionally set these types
@@ -74,6 +75,13 @@ export type WormholeConfig = {
   wormholeHosts: string[];
   chains: {
     [chain in ChainName]?: ChainConfig;
+  };
+  // Priority Fees for Solana
+  solana?: {
+    computePriorityFee?: (
+      lockedWritableAccounts: PublicKey[],
+    ) => Promise<number>;
+    priorityFeePercentile?: number;
   };
 };
 
