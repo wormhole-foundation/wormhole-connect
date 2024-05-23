@@ -80,13 +80,13 @@ export class SDKv2Route<N extends Network> extends RouteAbstract {
     const dstChain = (await this.getV2ChainContext(req.dstChain)).context;
 
     const srcTokenV2: TokenIdV2<FC> | undefined =
-      config.sdkConverter.getTokenIdV2ForSymbol(
+      config.sdkConverter.getTokenIdV2ForKey(
         req.srcToken,
         req.srcChain,
         config.tokens,
       );
     const dstTokenV2: TokenIdV2<TC> | undefined =
-      config.sdkConverter.getTokenIdV2ForSymbol(
+      config.sdkConverter.getTokenIdV2ForKey(
         req.dstToken,
         req.dstChain,
         config.tokens,

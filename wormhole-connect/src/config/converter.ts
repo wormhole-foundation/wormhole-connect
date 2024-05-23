@@ -112,12 +112,12 @@ export class SDKConverter {
     }
   }
 
-  getTokenIdV2ForSymbol<C extends v2.Chain>(
-    symbol: string,
+  getTokenIdV2ForKey<C extends v2.Chain>(
+    key: string,
     chain: v1.ChainName | v1.ChainId,
     tokenConfigs: TokensConfigV1,
   ): v2.TokenId<C> | undefined {
-    const tokenConfig = tokenConfigs[symbol];
+    const tokenConfig = tokenConfigs[key];
     if (!tokenConfig) return undefined;
 
     const chainName = this.wh.toChainName(chain);
