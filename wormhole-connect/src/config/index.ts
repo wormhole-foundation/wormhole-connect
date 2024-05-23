@@ -56,7 +56,13 @@ export function buildConfig(
     customConfig?.rpcs,
   );
 
-  const wh = getWormholeContext(networkLegacy, sdkConfig, tokens, rpcs);
+  const wh = getWormholeContext(
+    networkLegacy,
+    sdkConfig,
+    tokens,
+    rpcs,
+    customConfig,
+  );
 
   if (customConfig?.bridgeDefaults) {
     validateDefaults(customConfig.bridgeDefaults, networkData.chains, tokens);
@@ -106,8 +112,6 @@ export function buildConfig(
     // Callbacks
     triggerEvent: wrapEventHandler(customConfig?.eventHandler),
     validateTransfer: customConfig?.validateTransferHandler,
-    computeSolanaPriorityFee: customConfig?.computeSolanaPriorityFee,
-    priorityFeePercentile: customConfig?.priorityFeePercentile,
 
     // White lists
     chains: networkData.chains,
@@ -174,6 +178,7 @@ export function getWormholeContext(
   sdkConfig: WormholeConfig,
   tokens: TokensConfig,
   rpcs: ChainResourceMap,
+  config?: WormholeConnectConfig,
 ): WormholeContext {
   const foreignAssetCache = new ForeignAssetCache();
   for (const { tokenId, foreignAssets } of Object.values(tokens)) {
@@ -195,8 +200,8 @@ export function getWormholeContext(
       ...sdkConfig,
       ...{ rpcs },
       solana: {
-        computePriorityFee: config.computeSolanaPriorityFee,
-        priorityFeePercentile: config.priorityFeePercentile,
+        computePriorityFee: config?.computeSolanaPriorityFee,
+        priorityFeePercentile: config?.priorityFeePercentile,
       },
     },
     foreignAssetCache,

@@ -187,11 +187,6 @@ export interface InternalConfig {
   // Callbacks
   triggerEvent: WormholeConnectEventHandler;
   validateTransfer?: ValidateTransferHandler;
-  // Priority Fees for Solana
-  computeSolanaPriorityFee?: (
-    lockedWritableAccounts: PublicKey[],
-  ) => Promise<number>;
-  priorityFeePercentile?: number;
 
   // UI details
   cta?: {
