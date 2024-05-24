@@ -12,11 +12,8 @@ import config from 'config';
 import { TokenConfig, Route } from 'config/types';
 import { PayloadType, getMessage, isEvmChain, solanaContext } from 'utils/sdk';
 import { isGatewayChain } from 'utils/cosmos';
-import { BridgeRoute } from './bridge';
 import { RelayRoute } from './relay';
 // import { HashflowRoute } from './hashflow';
-import { CCTPRelayRoute } from './cctpRelay';
-import { CosmosGatewayRoute } from './cosmosGateway';
 import { RouteAbstract } from './abstracts/routeAbstract';
 import {
   UnsignedMessage,
@@ -27,59 +24,31 @@ import {
   NttRelayingType,
   RelayerFee,
 } from './types';
-import {
-  CCTPManualRoute,
-  CCTP_LOG_TokenMessenger_DepositForBurn,
-} from './cctpManual';
-import { TBTCRoute } from './tbtc';
+import { CCTP_LOG_TokenMessenger_DepositForBurn } from './cctpManual';
 import { getTokenById, isEqualCaseInsensitive } from 'utils';
-import { ETHBridge } from './porticoBridge/ethBridge';
-import { wstETHBridge } from './porticoBridge/wstETHBridge';
 import { TokenPrices } from 'store/tokenPrices';
-import { NttManual, NttRelay } from './ntt';
 import { getMessageEvm, TRANSFER_SENT_EVENT_TOPIC } from './ntt/chains/evm';
 import { getMessageSolana } from './ntt/chains/solana';
 import { getNttManagerConfigByAddress } from 'utils/ntt';
 
+import { SDKv2Route } from './sdkv2/route';
+
+import { getRouteImpls } from './mappings';
+
 export class Operator {
   getRoute(route: Route): RouteAbstract {
-    switch (route) {
-      case Route.Bridge: {
-        return new BridgeRoute();
-      }
-      case Route.Relay: {
-        return new RelayRoute();
-      }
-      case Route.CCTPManual: {
-        return new CCTPManualRoute();
-      }
-      case Route.CCTPRelay: {
-        return new CCTPRelayRoute();
-      }
-      // case Route.Hashflow: {
-      //   return new HashflowRoute();
-      // }
-      case Route.CosmosGateway: {
-        return new CosmosGatewayRoute();
-      }
-      case Route.TBTC: {
-        return new TBTCRoute();
-      }
-      case Route.ETHBridge: {
-        return new ETHBridge();
-      }
-      case Route.wstETHBridge: {
-        return new wstETHBridge();
-      }
-      case Route.NttManual: {
-        return new NttManual();
-      }
-      case Route.NttRelay: {
-        return new NttRelay();
-      }
-      default: {
-        throw new Error(`${route} is not a valid route`);
-      }
+    const impls = getRouteImpls(route);
+
+    if (!impls) {
+      throw new Error(`${route} is not a valid route`);
+    }
+
+    const useSdkV2 = !!localStorage.getItem('CONNECT_SDKV2');
+
+    if (useSdkV2 && impls.v2) {
+      return new SDKv2Route(config.network, impls.v2, route);
+    } else {
+      return impls.v1;
     }
   }
 
@@ -200,18 +169,24 @@ export class Operator {
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
   ): Promise<boolean> {
-    if (!config.routes.includes(route)) {
+    try {
+      if (!config.routes.includes(route)) {
+        return false;
+      }
+
+      const r = this.getRoute(route);
+      return await r.isRouteSupported(
+        sourceToken,
+        destToken,
+        amount,
+        sourceChain,
+        destChain,
+      );
+    } catch (e) {
+      // TODO is this the right place to try/catch these?
+      // or deeper inside SDKv2Route?
       return false;
     }
-
-    const r = this.getRoute(route);
-    return await r.isRouteSupported(
-      sourceToken,
-      destToken,
-      amount,
-      sourceChain,
-      destChain,
-    );
   }
   async isRouteAvailable(
     route: Route,
@@ -284,19 +259,40 @@ export class Operator {
   ): Promise<TokenConfig[]> {
     const supported: { [key: string]: TokenConfig } = {};
     for (const route of config.routes) {
-      for (const token of config.tokensArr) {
-        const { key } = token;
-        const alreadySupported = supported[key];
-        if (!alreadySupported) {
-          const isSupported = await this.isSupportedDestToken(
-            route as Route,
-            config.tokens[key],
-            sourceToken,
-            sourceChain,
-            destChain,
-          );
-          if (isSupported) {
-            supported[key] = config.tokens[key];
+      // Some routes support the much more efficient supportedDestTokens method
+      // Use it when it's available
+
+      const r = this.getRoute(route as Route);
+
+      // This is ugly hack TODO clean up with proper types
+      try {
+        /* @ts-ignore */
+        const destTokens = await r.supportedDestTokens(
+          config.tokensArr,
+          sourceToken,
+          sourceChain,
+          destChain,
+        );
+
+        for (const token of destTokens) {
+          supported[token.key] = token;
+        }
+      } catch (e) {
+        // Fall back to less efficient method
+        for (const token of config.tokensArr) {
+          const { key } = token;
+          const alreadySupported = supported[key];
+          if (!alreadySupported) {
+            const isSupported = await r.isSupportedDestToken(
+              token,
+              sourceToken,
+              sourceChain,
+              destChain,
+            );
+
+            if (isSupported) {
+              supported[key] = config.tokens[key];
+            }
           }
         }
       }
@@ -324,66 +320,6 @@ export class Operator {
     return await r.isSupportedSourceToken(
       token,
       destToken,
-      sourceChain,
-      destChain,
-    );
-  }
-
-  async isSupportedDestToken(
-    route: Route,
-    token?: TokenConfig,
-    sourceToken?: TokenConfig,
-    sourceChain?: ChainName | ChainId,
-    destChain?: ChainName | ChainId,
-  ): Promise<boolean> {
-    if (!config.routes.includes(route)) {
-      return false;
-    }
-
-    const r = this.getRoute(route);
-    return await r.isSupportedDestToken(
-      token,
-      sourceToken,
-      sourceChain,
-      destChain,
-    );
-  }
-
-  async supportedSourceTokens(
-    route: Route,
-    tokens: TokenConfig[],
-    destToken?: TokenConfig,
-    sourceChain?: ChainName | ChainId,
-    destChain?: ChainName | ChainId,
-  ): Promise<TokenConfig[]> {
-    if (!config.routes.includes(route)) {
-      return [];
-    }
-
-    const r = this.getRoute(route);
-    return await r.supportedSourceTokens(
-      tokens,
-      destToken,
-      sourceChain,
-      destChain,
-    );
-  }
-
-  async supportedDestTokens(
-    route: Route,
-    tokens: TokenConfig[],
-    sourceToken?: TokenConfig,
-    sourceChain?: ChainName | ChainId,
-    destChain?: ChainName | ChainId,
-  ): Promise<TokenConfig[]> {
-    if (!config.routes.includes(route)) {
-      return [];
-    }
-
-    const r = this.getRoute(route);
-    return await r.supportedDestTokens(
-      tokens,
-      sourceToken,
       sourceChain,
       destChain,
     );

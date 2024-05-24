@@ -8,18 +8,42 @@ import { getDefaultWormholeContext } from 'config';
 
 import * as v2 from '@wormhole-foundation/sdk';
 
-import { SDKConverter } from '../src/config/converter';
+import { SDKConverter } from 'config/converter';
 
 import { describe, expect, test } from 'vitest';
 
 import MAINNET from 'config/mainnet';
 import TESTNET from 'config/testnet';
 
+import RouteAbstract from 'routes/abstracts/routeAbstract';
+import { BridgeRoute } from 'routes/bridge';
+import { RelayRoute } from 'routes/relay';
+import { CCTPRelayRoute } from 'routes/cctpRelay';
+import { CCTPManualRoute } from 'routes/cctpManual';
+
+import SDKv2Route from 'routes/sdkv2';
+import { routes } from '@wormhole-foundation/sdk';
+
 function getConverter(network: NetworkV1): SDKConverter {
-  const wh = getDefaultWormholeContext(network);
-  const networkData = { MAINNET, TESTNET }[network.toUpperCase()]!;
-  return new SDKConverter(wh, networkData.chains, networkData.tokens);
+  return new SDKConverter(getDefaultWormholeContext(network));
 }
+
+const routeMappings: [RouteAbstract, routes.RouteConstructor][] = [
+  [BridgeRoute, routes.TokenBridgeRoute],
+  [RelayRoute, routes.AutomaticTokenBridgeRoute],
+  [CCTPRelayRoute, routes.AutomaticCCTPRoute],
+  [CCTPManualRoute, routes.CCTPRoute],
+];
+
+const tokenLists = {
+  mainnet: Object.values(MAINNET.tokens),
+  testnet: Object.values(TESTNET.tokens),
+};
+
+const chainLists = {
+  mainnet: Object.keys(MAINNET.chains),
+  testnet: Object.keys(TESTNET.chains),
+};
 
 describe('chain', () => {
   interface testCase {
@@ -139,11 +163,12 @@ describe('token', () => {
   ];
 
   const converter = getConverter('mainnet');
+  const mainnetTokens = Object.values(MAINNET.tokens);
 
   for (let c of cases) {
     test(`${c.v1} <-> ${c.v2} (mainnet)`, () => {
       expect(converter.toTokenIdV2(c.v1)).toEqual(c.v2);
-      expect(converter.findTokenConfigV1(c.v2)).toEqual(c.v1);
+      expect(converter.findTokenConfigV1(c.v2, mainnetTokens)).toEqual(c.v1);
     });
   }
 
@@ -176,10 +201,84 @@ describe('token', () => {
 
   const converterTestnet = getConverter('testnet');
 
+  const testnetTokens = Object.values(TESTNET.tokens);
+
   for (let c of casesTestnet) {
     test(`${c.v1} <-> ${c.v2} (testnet)`, () => {
       expect(converterTestnet.toTokenIdV2(c.v1)).toEqual(c.v2);
-      expect(converterTestnet.findTokenConfigV1(c.v2)).toEqual(c.v1);
+      expect(converterTestnet.findTokenConfigV1(c.v2, testnetTokens)).toEqual(
+        c.v1,
+      );
     });
   }
+});
+
+describe('compare isSupportedChain between v1 and v2 routes', () => {
+  const compareChains = (network: NetworkV1) => {
+    const chains = chainLists[network];
+
+    for (const chain of chains) {
+      for (let [RouteV1, RouteV2] of routeMappings) {
+        if (
+          (chain === 'evmos' || chain == 'osmosis' || chain === 'kujira') &&
+          (RouteV2.meta.name === 'ManualTokenBridge' ||
+            RouteV2.meta.name === 'AutomaticTokenBridge')
+        ) {
+          // Temp hack. These are treated differently in SDKv2
+          continue;
+        }
+
+        test(`${RouteV1.name} (v1) vs. ${RouteV2.meta.name} (v2) - isSupportedChain(${chain})`, () => {
+          const v1Route = new RouteV1();
+          const v2Route = new SDKv2Route(network, RouteV2);
+          const isSupportedV1 = v1Route.isSupportedChain(chain);
+          const isSupportedV2 = v2Route.isSupportedChain(chain);
+          expect(isSupportedV1).toEqual(isSupportedV2);
+        });
+      }
+    }
+  };
+
+  compareChains('mainnet');
+  //compareChains('testnet');
+});
+
+describe('compare isSupportedSourceToken between v1 and v2 routes', () => {
+  const compareTokens = (network: NetworkV1) => {
+    const tokens = tokenLists[network];
+
+    for (const token of tokens) {
+      // Get all the chains this token is known to be deployed on
+      let chainsToTest = [token.nativeChain];
+      if (token.foreignAssets) {
+        chainsToTest = chainsToTest.concat(Object.keys(token.foreignAssets));
+      }
+
+      // For isSupportedSourceToken, SDKv2 doesn't even consider the destination chain or token
+      // so we only iterate over every combination of (source chain, source token)
+      for (let chain of chainsToTest) {
+        for (let [RouteV1, RouteV2] of routeMappings) {
+          test(`Compare isSupportedSourceToken(${chain} ${token.symbol}): ${RouteV1.name} (v1) vs. ${RouteV2.meta.name} (v2)`, () => {
+            const v1Route = new RouteV1();
+            const v2Route = new SDKv2Route(network, RouteV2);
+            const isSupportedV1 = v1Route.isSupportedSourceToken(
+              token,
+              undefined,
+              chain,
+              undefined,
+            );
+            const isSupportedV2 = v2Route.isSupportedSourceToken(
+              token,
+              undefined,
+              chain,
+              undefined,
+            );
+            expect(isSupportedV1).toEqual(isSupportedV2);
+          });
+        }
+      }
+    }
+  };
+
+  compareTokens('mainnet');
 });

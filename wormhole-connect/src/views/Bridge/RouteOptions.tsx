@@ -217,6 +217,7 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
         const routeOptions = isPorticoRoute(props.route.route)
           ? portico
           : { toNativeToken, relayerFee };
+
         const receiveAmt = await RouteOperator.computeReceiveAmountWithFees(
           props.route.route,
           Number.parseFloat(amount),
@@ -233,7 +234,8 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
           );
           setEstimatedTime(getEstimatedTime(fromChain));
         }
-      } catch {
+      } catch (e) {
+        console.error(e);
         if (!cancelled) {
           setReceiveAmt(0);
           setReceiveAmtUSD('');
@@ -410,6 +412,7 @@ function RouteOptions() {
           fromChain,
           toChain,
         );
+
         routes.push({ name: r, supported, available });
       }
 

@@ -62,7 +62,7 @@ export function buildConfig(
     validateDefaults(customConfig.bridgeDefaults, networkData.chains, tokens);
   }
 
-  const sdkConverter = new SDKConverter(wh, networkData.chains, tokens);
+  const sdkConverter = new SDKConverter(wh);
 
   return {
     wh,
