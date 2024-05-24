@@ -40,7 +40,7 @@
     "eslint": "^8.31.0",
     "eslint-config-prettier": "^8.6.0",
     "ethers": "^5.7.2",
-    "typedoc": "^0.24.8",
+    "typedoc": "^0.25.0",
     "typescript": "^5.3.3"
   },
   "scripts": {

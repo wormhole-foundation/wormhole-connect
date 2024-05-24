@@ -29,5 +29,27 @@
   },
   "lint-staged": {
     "**/*": "prettier --workspaces --if-present --write --ignore-unknown"
+  },
+  "overrides": {
+    "@injectivelabs/sdk-ts@1.10.72": {
+      "@injectivelabs/token-metadata": "1.10.42"
+    },
+    "@ledgerhq/hw-transport@6.27.1": {
+      "@ledgerhq/errors": "6.10.2",
+      "@ledgerhq/logs": "6.12.0",
+      "@ledgerhq/devices": "6.27.1"
+    },
+    "@ledgerhq/hw-transport-webhhid@6.27.1": {
+      "@ledgerhq/errors": "6.10.2",
+      "@ledgerhq/logs": "6.12.0",
+      "@ledgerhq/devices": "6.27.1"
+    },
+    "@wormhole-foundation/sdk-definitions-ntt": {
+      "@wormhole-foundation/sdk-definitions": "^0.7.0-beta.1",
+      "@wormhole-foundation/sdk-base": "^0.7.0-beta.1"
+    },
+    "@wormhole-foundation/wormhole-connect": {
+      "aptos": "1.5.0"
+    }
   }
 }

@@ -3,7 +3,6 @@ import {
   Network as NetworkConnect,
   TokenConfig as TokenConfigV1,
   TokensConfig as TokensConfigV1,
-  ChainsConfig as ChainsConfigV1,
 } from 'config/types';
 
 import * as v2 from '@wormhole-foundation/sdk';
@@ -12,17 +11,9 @@ import * as v2 from '@wormhole-foundation/sdk';
 // This is only meant to be used while we transition to SDKv2
 export class SDKConverter {
   wh: v1.WormholeContext;
-  chains: ChainsConfigV1;
-  tokens: TokensConfigV1;
 
-  constructor(
-    wh: v1.WormholeContext,
-    chains: ChainsConfigV1,
-    tokens: TokensConfigV1,
-  ) {
+  constructor(wh: v1.WormholeContext) {
     this.wh = wh;
-    this.chains = chains;
-    this.tokens = tokens;
   }
 
   // Chain conversion
@@ -36,6 +27,9 @@ export class SDKConverter {
   }
 
   toChainV2(chain: v1.ChainName | v1.ChainId): v2.Chain {
+    if (typeof chain !== 'number' && typeof chain !== 'string') {
+      throw new Error(JSON.stringify(chain));
+    }
     return v2.toChain(this.wh.toChainId(chain));
   }
 
@@ -81,18 +75,29 @@ export class SDKConverter {
     }
   }
 
+  tokenIdV2<C extends v2.Chain>(
+    chain: v1.ChainName | v1.ChainId,
+    address: string,
+  ): v2.TokenId<C> {
+    const chainv2 = this.toChainV2(chain) as C;
+    return v2.Wormhole.tokenId(chainv2, address);
+  }
+
   isTokenConfigV1(v: v1.TokenId | TokenConfigV1): v is TokenConfigV1 {
     return 'key' in v;
   }
 
   // Attempts to find the Connect TokenConfig, which is comomnly used in Connect code base,
   // given a v2.TokenId
-  findTokenConfigV1(tokenId: v2.TokenId): TokenConfigV1 | undefined {
+  findTokenConfigV1(
+    tokenId: v2.TokenId,
+    tokenConfigs: TokenConfigV1[],
+  ): TokenConfigV1 | undefined {
     const isNative = tokenId.address === 'native';
     const chain = this.toChainNameV1(tokenId.chain);
 
-    for (const key in this.tokens) {
-      const token = this.tokens[key];
+    for (const key in tokenConfigs) {
+      const token = tokenConfigs[key];
       if (token.nativeChain === chain) {
         if (isNative && token.tokenId === undefined) {
           // Connect's TokenConfig lacks a tokenId field when it's the native gas token
@@ -103,6 +108,30 @@ export class SDKConverter {
         ) {
           return token;
         }
+      }
+    }
+  }
+
+  getTokenIdV2ForKey<C extends v2.Chain>(
+    key: string,
+    chain: v1.ChainName | v1.ChainId,
+    tokenConfigs: TokensConfigV1,
+  ): v2.TokenId<C> | undefined {
+    const tokenConfig = tokenConfigs[key];
+    if (!tokenConfig) return undefined;
+
+    const chainName = this.wh.toChainName(chain);
+
+    if (tokenConfig.nativeChain === chainName) {
+      if (tokenConfig.tokenId) {
+        return this.tokenIdV2(chainName, tokenConfig.tokenId.address);
+      }
+    } else {
+      if (tokenConfig.foreignAssets && tokenConfig.foreignAssets[chainName]) {
+        return this.tokenIdV2(
+          chainName,
+          tokenConfig.foreignAssets[chainName]!.address,
+        );
       }
     }
   }

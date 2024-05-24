@@ -1,9 +1,9 @@
 import { describe, expect, test } from 'vitest';
 
-import { MAINNET_CHAINS } from '../src/config/mainnet/chains';
-import { MAINNET_TOKENS } from '../src/config/mainnet/tokens';
-import { TESTNET_CHAINS } from '../src/config/testnet/chains';
-import { TESTNET_TOKENS } from '../src/config/testnet/tokens';
+import { MAINNET_CHAINS } from 'config/mainnet/chains';
+import { MAINNET_TOKENS } from 'config/mainnet/tokens';
+import { TESTNET_CHAINS } from 'config/testnet/chains';
+import { TESTNET_TOKENS } from 'config/testnet/tokens';
 
 export const envTests = [
   {

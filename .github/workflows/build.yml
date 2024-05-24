@@ -33,6 +33,8 @@ jobs:
       - run: npm ci
       - run: npm run build -w sdk
       - run: npm test -w wormhole-connect
+        env:
+          REACT_APP_SOLANA_RPC: ${{ vars.REACT_APP_SOLANA_RPC }}
 
   check-sdn-list:
     runs-on: ubuntu-latest
