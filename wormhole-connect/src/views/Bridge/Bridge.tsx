@@ -115,8 +115,12 @@ function Bridge() {
 
   // check destination native balance
   useEffect(() => {
-    if (!fromChain || !toChain || !receiving.address) return;
+    if (!fromChain || !toChain || !receiving.address) {
+      return;
+    }
+
     const chainConfig = config.chains[toChain]!;
+
     config.wh
       .getNativeBalance(receiving.address, toChain)
       .then((res: BigNumber) => {
@@ -132,7 +136,12 @@ function Bridge() {
   }, [fromChain, toChain, receiving.address, dispatch]);
 
   useEffect(() => {
+    if (!fromChain) {
+      return;
+    }
+
     let active = true;
+
     const computeSrcTokens = async () => {
       const supported = await RouteOperator.allSupportedSourceTokens(
         config.tokens[destToken],
@@ -150,7 +159,9 @@ function Bridge() {
         }
       }
     };
+
     computeSrcTokens();
+
     return () => {
       active = false;
     };
@@ -158,6 +169,10 @@ function Bridge() {
   }, [route, fromChain, destToken, dispatch]);
 
   useEffect(() => {
+    if (!toChain) {
+      return;
+    }
+
     let canceled = false;
 
     const computeDestTokens = async () => {
@@ -231,7 +246,9 @@ function Bridge() {
         }
       }
     };
+
     computeDestTokens();
+
     return () => {
       canceled = true;
     };
@@ -239,13 +256,18 @@ function Bridge() {
   }, [route, token, fromChain, toChain, dispatch]);
 
   useEffect(() => {
+    if (!route || !amount || !token || !destToken || !fromChain || !toChain) {
+      return;
+    }
+
     const recomputeReceive = async () => {
-      if (!route) return;
       try {
         const routeOptions = isPorticoRoute(route)
           ? portico
           : { toNativeToken, relayerFee };
+
         dispatch(setFetchingReceiveAmount());
+
         const newReceiveAmount = await RouteOperator.computeReceiveAmount(
           route,
           Number.parseFloat(amount),
