@@ -101,10 +101,10 @@ export class SDKv2Route<N extends Network> extends RouteAbstract {
 
     return routes.RouteTransferRequest.create(
       wh,
+      /* @ts-ignore */
       {
         source: srcTokenV2,
         destination: dstTokenV2,
-        /* @ts-ignore */
       },
       srcChain,
       dstChain,
