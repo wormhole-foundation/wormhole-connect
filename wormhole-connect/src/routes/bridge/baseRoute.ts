@@ -75,11 +75,11 @@ export abstract class BaseRoute extends RouteAbstract {
     tokens: TokenConfig[],
     destToken?: TokenConfig,
     sourceChain?: ChainName | ChainId,
+    destChain?: ChainName | ChainId,
   ): Promise<TokenConfig[]> {
-    if (!destToken) return tokens;
     const shouldAdd = await Promise.allSettled(
       tokens.map((token) =>
-        this.isSupportedSourceToken(token, destToken, sourceChain),
+        this.isSupportedSourceToken(token, destToken, sourceChain, destChain),
       ),
     );
     return tokens.filter((_token, i) => {
@@ -91,10 +91,14 @@ export abstract class BaseRoute extends RouteAbstract {
   async supportedDestTokens(
     tokens: TokenConfig[],
     sourceToken?: TokenConfig,
+    sourceChain?: ChainName | ChainId,
+    destChain?: ChainName | ChainId,
   ): Promise<TokenConfig[]> {
-    if (!sourceToken) return tokens;
+    console.trace();
     const shouldAdd = await Promise.allSettled(
-      tokens.map((token) => this.isSupportedDestToken(token, sourceToken)),
+      tokens.map((token) =>
+        this.isSupportedDestToken(token, sourceToken, sourceChain, destChain),
+      ),
     );
     return tokens.filter((_token, i) => {
       const res = shouldAdd[i];
