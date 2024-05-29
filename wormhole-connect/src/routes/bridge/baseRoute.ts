@@ -94,7 +94,6 @@ export abstract class BaseRoute extends RouteAbstract {
     sourceChain?: ChainName | ChainId,
     destChain?: ChainName | ChainId,
   ): Promise<TokenConfig[]> {
-    console.trace();
     const shouldAdd = await Promise.allSettled(
       tokens.map((token) =>
         this.isSupportedDestToken(token, sourceToken, sourceChain, destChain),
