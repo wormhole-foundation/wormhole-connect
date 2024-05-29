@@ -129,6 +129,40 @@ export abstract class PorticoBridge extends BaseRoute {
     );
   }
 
+  async supportedSourceTokens(
+    tokens: TokenConfig[],
+    destToken?: TokenConfig,
+    sourceChain?: ChainName | ChainId,
+    destChain?: ChainName | ChainId,
+  ): Promise<TokenConfig[]> {
+    const shouldAdd = await Promise.allSettled(
+      tokens.map((token) =>
+        this.isSupportedSourceToken(token, destToken, sourceChain, destChain),
+      ),
+    );
+    return tokens.filter((_token, i) => {
+      const res = shouldAdd[i];
+      return res.status === 'fulfilled' && res.value;
+    });
+  }
+
+  async supportedDestTokens(
+    tokens: TokenConfig[],
+    sourceToken?: TokenConfig,
+    sourceChain?: ChainName | ChainId,
+    destChain?: ChainName | ChainId,
+  ): Promise<TokenConfig[]> {
+    const shouldAdd = await Promise.allSettled(
+      tokens.map((token) =>
+        this.isSupportedDestToken(token, sourceToken, sourceChain, destChain),
+      ),
+    );
+    return tokens.filter((_token, i) => {
+      const res = shouldAdd[i];
+      return res.status === 'fulfilled' && res.value;
+    });
+  }
+
   async isRouteSupported(
     sourceToken: string,
     destToken: string,
