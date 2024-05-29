@@ -101,6 +101,7 @@ function DemoApp() {
 
       <article>
         <div id="demo-contents">
+          hi
           <WormholeConnect
             key={customConfigNonce}
             config={customConfig ?? {}}
