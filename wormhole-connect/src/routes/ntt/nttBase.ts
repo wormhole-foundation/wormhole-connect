@@ -38,7 +38,7 @@ import { WormholeTransceiver, getMessageEvm } from './chains/evm';
 import { NttManagerSolana, getMessageSolana } from './chains/solana';
 import { formatGasFee } from 'routes/utils';
 import { NO_INPUT } from 'utils/style';
-import { estimateAverageGasFee } from 'utils/gas';
+import { estimateAverageGasFee } from '../utils';
 import config from 'config';
 import {
   getNttGroupKey,

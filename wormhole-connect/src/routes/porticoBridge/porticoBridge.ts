@@ -65,7 +65,7 @@ import {
 } from './utils';
 import { PorticoBridgeState, PorticoSwapAmounts } from 'store/porticoBridge';
 import { TokenPrices } from 'store/tokenPrices';
-import { estimateAverageGasFee } from 'utils/gas';
+import { estimateAverageGasFee } from '../utils';
 
 export abstract class PorticoBridge extends BaseRoute {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean = false;
