@@ -1,6 +1,8 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
+import isEmpty from 'lodash/isEmpty';
+
 import './App.css';
 import { RootState } from './store';
 import { clearRedeem } from './store/redeem';
@@ -54,7 +56,7 @@ function AppRouter(props: Props) {
   // We don't allow config changes afterwards because they could lead to lots of
   // broken and undesired behavior.
   React.useEffect(() => {
-    if (props.config) {
+    if (!isEmpty(props.config)) {
       setConfig(props.config);
       dispatch(clearTransfer());
     }
