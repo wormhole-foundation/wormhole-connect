@@ -69,6 +69,7 @@ export type WormholeConnectPartialTheme = {
     primary: string;
     header: string;
   };
+  logo?: string;
 };
 
 export type WormholeConnectTheme = Required<WormholeConnectPartialTheme>;
@@ -149,6 +150,7 @@ export const light: WormholeConnectTheme = {
     primary: '"Inter", sans-serif',
     header: '"IBM Plex Mono", monospace',
   },
+  logo: '#000000',
 };
 
 // wormhole styled theme
@@ -244,6 +246,7 @@ export const dark: WormholeConnectTheme = {
     primary: '"Inter", sans-serif',
     header: '"IBM Plex Mono", monospace',
   },
+  logo: '#ffffff',
 };
 
 export const getDesignTokens = (customTheme: WormholeConnectPartialTheme) => {
