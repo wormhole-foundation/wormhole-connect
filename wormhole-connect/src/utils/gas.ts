@@ -1,4 +1,4 @@
-import { BigNumber, BigNumberish, utils } from 'ethers';
+import { BigNumber, utils } from 'ethers';
 import {
   ChainName,
   ChainId,

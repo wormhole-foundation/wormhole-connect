@@ -5,7 +5,7 @@ import {
   ParsedMessage as SdkParsedMessage,
   ParsedRelayerMessage as SdkParsedRelayerMessage,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { BigNumber, utils } from 'ethers';
+import { BigNumber, BigNumberish, utils } from 'ethers';
 import config from 'config';
 import { toFixedDecimals } from 'utils/balance';
 import {
