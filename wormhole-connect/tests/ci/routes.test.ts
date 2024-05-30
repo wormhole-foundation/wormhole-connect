@@ -19,7 +19,7 @@ describe('supported routes', () => {
     // Token bridge
     ['ETH', 'WETH', 'ethereum', 'bsc', [Route.Bridge, Route.Relay]],
     ['DAI', 'DAI', 'ethereum', 'polygon', [Route.Bridge, Route.Relay]],
-    ['SOL', 'WSOL', 'solana', 'ethereum', [Route.Bridge, Route.Relay]],
+    ['WSOL', 'WSOL', 'solana', 'ethereum', [Route.Bridge, Route.Relay]],
     ['WSOL', 'WSOL', 'ethereum', 'solana', [Route.Bridge, Route.Relay]],
     ['ETH', 'WETH', 'ethereum', 'avalanche', [Route.Bridge, Route.Relay]],
     ['BNB', 'WBNB', 'bsc', 'polygon', [Route.Bridge, Route.Relay]],
