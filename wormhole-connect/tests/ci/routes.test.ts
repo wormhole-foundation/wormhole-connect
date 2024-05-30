@@ -28,6 +28,8 @@ describe('supported routes', () => {
     // ETH bridge
     ['ETH', 'WETHbsc', 'ethereum', 'bsc', [Route.ETHBridge]],
     ['ETH', 'WETHpolygon', 'ethereum', 'polygon', [Route.ETHBridge]],
+    ['WETHarbitrum', 'WETHpolygon', 'arbitrum', 'polygon', [Route.ETHBridge]],
+    ['WETHpolygon', 'WETHarbitrum', 'polygon', 'arbitrum', [Route.ETHBridge]],
     // wstETHBridge
     ['wstETH', 'wstETHpolygon', 'ethereum', 'polygon', [Route.wstETHBridge]],
     ['wstETH', 'wstETHarbitrum', 'ethereum', 'arbitrum', [Route.wstETHBridge]],
@@ -54,9 +56,13 @@ describe('supported routes', () => {
       'polygon',
       [Route.CCTPManual, Route.CCTPRelay],
     ],
+    ['USDCeth', 'USDCsol', 'ethereum', 'solana', [Route.CCTPManual]],
+    ['USDCavax', 'USDCsol', 'avalanche', 'solana', [Route.CCTPManual]],
     // TBTC
     ['tBTC', 'tBTCpolygon', 'ethereum', 'polygon', [Route.TBTC]],
     ['tBTCoptimism', 'tBTC', 'optimism', 'ethereum', [Route.TBTC]],
+    ['tBTCpolygon', 'tBTCoptimism', 'polygon', 'optimism', [Route.TBTC]],
+    ['tBTCarbitrum', 'tBTCoptimism', 'arbitrum', 'optimism', [Route.TBTC]],
     // Cosmos Gateway
     ['CELO', 'CELO', 'osmosis', 'celo', [Route.CosmosGateway]],
     ['CELO', 'CELO', 'osmosis', 'moonbeam', [Route.CosmosGateway]],
@@ -71,7 +77,7 @@ describe('supported routes', () => {
     routes,
   ] of testCases) {
     for (let route of routes) {
-      test(`${route} ${sourceChain}:${sourceToken} -> ${destChain}${destToken}`, async () => {
+      test(`${route} ${sourceChain}:${sourceToken} -> ${destChain}:${destToken}`, async () => {
         const r = getRouteImpls(route).v1;
 
         const isSupported = await r.isRouteSupported(
