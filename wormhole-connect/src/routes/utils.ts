@@ -5,7 +5,7 @@ import {
   ParsedMessage as SdkParsedMessage,
   ParsedRelayerMessage as SdkParsedRelayerMessage,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { BigNumber, utils } from 'ethers';
+import { BigNumber, BigNumberish, utils } from 'ethers';
 import config from 'config';
 import { toFixedDecimals } from 'utils/balance';
 import {
@@ -121,4 +121,14 @@ export const isIlliquidDestToken = (
 
 export const isNttRoute = (route?: Route) => {
   return route === Route.NttManual || route === Route.NttRelay;
+};
+
+export const estimateAverageGasFee = async (
+  chain: ChainName | ChainId,
+  gasLimit: BigNumberish,
+): Promise<BigNumber> => {
+  const provider = config.wh.mustGetProvider(chain);
+  const gasPrice = await provider.getGasPrice();
+  // This is a naive estimate 30% higher than what the oracle says
+  return gasPrice.mul(gasLimit).mul(130).div(100);
 };
