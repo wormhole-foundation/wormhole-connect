@@ -4,8 +4,13 @@ import {
   PublicKey,
   PublicKeyInitData,
 } from '@solana/web3.js';
-import { deriveAddress, getAccountData } from '../../utils';
+import {
+  TransactionWithIndex,
+  deriveAddress,
+  getAccountData,
+} from '../../utils';
 import { MessageData } from '../message';
+import { getSignatureSetData } from './signatureSet';
 
 export class PostedMessageData {
   message: MessageData;
@@ -47,4 +52,49 @@ export async function getPostedMessage(
   return connection
     .getAccountInfo(new PublicKey(messageKey), commitment)
     .then((info) => PostedMessageData.deserialize(getAccountData(info)));
+}
+
+export async function verifiedSignatures(
+  transaction: TransactionWithIndex,
+  connection: Connection,
+  wormholeProgramId: PublicKeyInitData,
+  commitment?: Commitment,
+): Promise<boolean> {
+  if (transaction.signatureIndexes.length === 0) {
+    return false;
+  }
+  const signatureSetData = await getSignatureSetData(
+    connection,
+    wormholeProgramId,
+    commitment,
+  );
+
+  const firstRelatedSignature =
+    signatureSetData?.signatures[transaction.signatureIndexes[0]];
+
+  return firstRelatedSignature !== undefined && firstRelatedSignature;
+}
+
+export async function pendingSignatureVerificationTxs(
+  transaction: TransactionWithIndex[],
+  connection: Connection,
+  wormholeProgramId: PublicKeyInitData,
+  commitment?: Commitment,
+): Promise<TransactionWithIndex[]> {
+  const txs: TransactionWithIndex[] = [];
+  for (const tx of transaction) {
+    const isPresent = await verifiedSignatures(
+      tx,
+      connection,
+      wormholeProgramId,
+      commitment,
+    );
+    if (!isPresent) {
+      console.info(
+        `Transaction ${tx.signatureIndexes.length} not present on blockchain`,
+      );
+      txs.push(tx);
+    }
+  }
+  return txs;
 }

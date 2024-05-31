@@ -12,12 +12,14 @@ import {
   modifySignTransaction,
   TransactionSignatureAndResponse,
   PreparedTransactions,
+  TransactionWithIndex,
 } from './utils';
 import { addComputeBudget } from './computeBudget';
 import {
   createPostVaaInstruction,
   createVerifySignaturesInstructions,
   derivePostedVaaKey,
+  pendingSignatureVerificationTxs,
 } from './wormhole';
 import { isBytes, ParsedVaa, parseVaa, SignedVaa } from '../../../vaa/wormhole';
 
@@ -67,7 +69,7 @@ export async function postVaaWithRetry(
     connection,
     modifySignTransaction(signTransaction, ...signers),
     payer.toString(),
-    unsignedTransactions,
+    transactionsNotPresent.map((tx: TransactionWithIndex) => tx.transaction),
     maxRetries,
     commitment,
   );
@@ -78,7 +80,7 @@ export async function postVaaWithRetry(
       connection,
       signTransaction,
       payer.toString(),
-      [postVaaTransaction],
+      [postVaaTransaction.transaction],
       maxRetries,
       commitment,
     )),
@@ -121,25 +123,34 @@ export async function createPostSignedVaaTransactions(
     commitment,
   );
 
-  const unsignedTransactions: Transaction[] = [];
-  for (let i = 0; i < verifySignaturesInstructions.length; i += 2) {
-    unsignedTransactions.push(
-      new Transaction().add(...verifySignaturesInstructions.slice(i, i + 2)),
-    );
+  const unsignedTransactions: TransactionWithIndex[] = [];
+  for (let i = 0; i < verifySignaturesInstructions.length; i++) {
+    const tx = new Transaction();
+    tx.add(...verifySignaturesInstructions[i].instructions);
+
+    unsignedTransactions.push({
+      transaction: tx,
+      index: i,
+      signatureIndexes: verifySignaturesInstructions[i].signatureIndexes,
+    });
   }
 
-  unsignedTransactions.push(
-    new Transaction().add(
-      createPostVaaInstruction(
-        connection,
-        wormholeProgramId,
-        payer,
-        parsed,
-        signatureSet.publicKey,
-      ),
+  const postVaaTx = new Transaction();
+  postVaaTx.add(
+    createPostVaaInstruction(
+      connection,
+      wormholeProgramId,
+      payer,
+      parsed,
+      signatureSet.publicKey,
     ),
   );
 
+  unsignedTransactions.push({
+    transaction: postVaaTx,
+    index: verifySignaturesInstructions.length,
+    signatureIndexes: [],
+  });
   return {
     unsignedTransactions,
     signers: [signatureSet],

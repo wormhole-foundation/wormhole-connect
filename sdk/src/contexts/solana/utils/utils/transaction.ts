@@ -16,8 +16,14 @@ import {
  * required to sign for each transaction.
  */
 export interface PreparedTransactions {
-  unsignedTransactions: Transaction[];
+  unsignedTransactions: TransactionWithIndex[];
   signers: Signer[];
+}
+
+export interface TransactionWithIndex {
+  transaction: Transaction;
+  signatureIndexes: number[];
+  index: number;
 }
 
 export interface TransactionSignatureAndResponse {
