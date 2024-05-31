@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Context, TokenId } from '@wormhole-foundation/wormhole-connect-sdk';
+import { Context } from '@wormhole-foundation/wormhole-connect-sdk';
+import type { TokenId } from '@wormhole-foundation/wormhole-connect-sdk';
 import { makeStyles } from 'tss-react/mui';
 
 import config from 'config';
