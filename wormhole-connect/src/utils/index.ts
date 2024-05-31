@@ -338,3 +338,33 @@ export const tryParseErrorMessage = (
 export const removeDust = (amount: BigNumber, decimals: number): BigNumber => {
   return deNormalizeAmount(normalizeAmount(amount, decimals), decimals);
 };
+
+/**
+ * Checks whether an object is empty.
+ *
+ * isEmptyObject(null)
+ * // => true
+ *
+ * isEmptyObject(undefined)
+ * // => true
+ *
+ * isEmptyObject({})
+ * // => true
+ *
+ * isEmptyObject({ 'a': 1 })
+ * // => false
+ */
+export const isEmptyObject = (value: Object | null | undefined) => {
+  if (value === null || value === undefined) {
+    return true;
+  }
+
+  // Check all property keys for any own prop
+  for (const key in value) {
+    if (value.hasOwnProperty.call(value, key)) {
+      return false;
+    }
+  }
+
+  return true;
+};

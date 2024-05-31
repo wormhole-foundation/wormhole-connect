@@ -1,13 +1,12 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
-import isEmpty from 'lodash/isEmpty';
 
 import './App.css';
 import { RootState } from './store';
 import { clearRedeem } from './store/redeem';
 import { clearTransfer } from './store/transferInput';
-import { usePrevious } from './utils';
+import { isEmptyObject, usePrevious } from './utils';
 import { WormholeConnectConfig } from './config/types';
 import { setConfig } from './config';
 import config from './config';
@@ -56,7 +55,7 @@ function AppRouter(props: Props) {
   // We don't allow config changes afterwards because they could lead to lots of
   // broken and undesired behavior.
   React.useEffect(() => {
-    if (!isEmpty(props.config)) {
+    if (!isEmptyObject(props.config)) {
       setConfig(props.config);
       dispatch(clearTransfer());
     }

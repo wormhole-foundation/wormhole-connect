@@ -51,7 +51,7 @@ const setUrlQueryParam = (configInput: string) => {
 const LOCAL_STORAGE_KEY = 'wormhole-connect:demo:custom-config';
 
 function DemoApp() {
-  const [customConfig, setCustomConfig] = useState<WormholeConnectConfig>({});
+  const [customConfig, setCustomConfig] = useState<WormholeConnectConfig>();
   const [customConfigOpen, setCustomConfigOpen] = useState(false);
   const [customConfigInput, setCustomConfigInput] = useState(
     loadInitialConfig(),
