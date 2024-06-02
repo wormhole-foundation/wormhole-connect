@@ -65,7 +65,10 @@ import {
   getClaim,
   getPostedMessage,
 } from './utils/wormhole';
-import { addComputeBudget } from './utils/computeBudget';
+import {
+  DEFAULT_FEE_PERCENTILE,
+  addComputeBudget,
+} from './utils/computeBudget';
 import { ForeignAssetCache } from '../../utils';
 import { RelayerAbstract } from '../abstracts/relayer';
 import {
@@ -279,10 +282,14 @@ export class SolanaContext<
     );
     transaction.add(createAccountInst);
     transaction.feePayer = payerPublicKey;
-    await addComputeBudget(this.connection!, transaction, [
-      tokenPublicKey,
-      associatedPublicKey,
-    ]);
+    await addComputeBudget(
+      this.connection!,
+      transaction,
+      [tokenPublicKey, associatedPublicKey],
+      DEFAULT_FEE_PERCENTILE,
+      this.context.conf.solana?.priorityFeePercentile,
+      this.context.conf.solana?.computePriorityFee,
+    );
     return transaction;
   }
 
@@ -404,7 +411,14 @@ export class SolanaContext<
     );
 
     transaction.feePayer = payerPublicKey;
-    await addComputeBudget(this.connection!, transaction);
+    await addComputeBudget(
+      this.connection!,
+      transaction,
+      [],
+      DEFAULT_FEE_PERCENTILE,
+      this.context.conf.solana?.priorityFeePercentile,
+      this.context.conf.solana?.computePriorityFee,
+    );
     transaction.partialSign(message, ancillaryKeypair);
     return transaction;
   }
@@ -531,7 +545,14 @@ export class SolanaContext<
     );
     transaction.add(approvalIx, tokenBridgeTransferIx);
     transaction.feePayer = new PublicKey(senderAddress);
-    await addComputeBudget(this.connection!, transaction);
+    await addComputeBudget(
+      this.connection!,
+      transaction,
+      [],
+      DEFAULT_FEE_PERCENTILE,
+      this.context.conf.solana?.priorityFeePercentile,
+      this.context.conf.solana?.computePriorityFee,
+    );
     transaction.partialSign(message);
     return transaction;
   }
@@ -916,7 +937,14 @@ export class SolanaContext<
         undefined,
         'finalized',
       );
-      await addComputeBudget(this.connection!, transaction);
+      await addComputeBudget(
+        this.connection!,
+        transaction,
+        [],
+        DEFAULT_FEE_PERCENTILE,
+        this.context.conf.solana?.priorityFeePercentile,
+        this.context.conf.solana?.computePriorityFee,
+      );
     }
 
     return transaction;
@@ -998,7 +1026,14 @@ export class SolanaContext<
     }
     transaction.add(redeemIx);
     transaction.feePayer = new PublicKey(recipient);
-    await addComputeBudget(this.connection!, transaction);
+    await addComputeBudget(
+      this.connection!,
+      transaction,
+      [],
+      DEFAULT_FEE_PERCENTILE,
+      this.context.conf.solana?.priorityFeePercentile,
+      this.context.conf.solana?.computePriorityFee,
+    );
     return transaction;
   }
 
@@ -1115,7 +1150,14 @@ export class SolanaContext<
         ),
       );
 
-      await addComputeBudget(this.connection!, transaction);
+      await addComputeBudget(
+        this.connection!,
+        transaction,
+        [],
+        DEFAULT_FEE_PERCENTILE,
+        this.context.conf.solana?.priorityFeePercentile,
+        this.context.conf.solana?.computePriorityFee,
+      );
     } else {
       const mint = await this.mustGetForeignAsset(token, sendingChain);
 
@@ -1135,7 +1177,14 @@ export class SolanaContext<
         ),
       );
 
-      await addComputeBudget(this.connection!, transaction);
+      await addComputeBudget(
+        this.connection!,
+        transaction,
+        [],
+        DEFAULT_FEE_PERCENTILE,
+        this.context.conf.solana?.priorityFeePercentile,
+        this.context.conf.solana?.computePriorityFee,
+      );
     }
     return transaction;
   }
