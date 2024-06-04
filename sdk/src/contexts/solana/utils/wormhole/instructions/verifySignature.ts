@@ -65,6 +65,9 @@ export async function createVerifySignaturesInstructions(
     guardianSetIndex,
     commitment,
   );
+  if (guardianSetData === null) {
+    throw new Error('Guardian set account is empty');
+  }
 
   const guardianSignatures = parsed.guardianSignatures;
   const guardianKeys = guardianSetData.keys;
@@ -114,8 +117,6 @@ export async function createVerifySignaturesInstructions(
  * Make {@link TransactionInstruction} for `verify_signatures` instruction.
  *
  * This is used in {@link createVerifySignaturesInstructions} for each batch of signatures being verified.
- * `signatureSet` is a {@link web3.Keypair} generated outside of this method, used
- * for writing signatures and the message hash to.
  *
  * https://github.com/certusone/wormhole/blob/main/solana/bridge/program/src/api/verify_signature.rs
  *
