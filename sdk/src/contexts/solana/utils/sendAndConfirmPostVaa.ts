@@ -8,11 +8,11 @@ import {
 } from '@solana/web3.js';
 import {
   SignTransaction,
-  sendAndConfirmTransactionsWithRetry,
   modifySignTransaction,
   TransactionSignatureAndResponse,
   PreparedTransactions,
   TransactionWithIndex,
+  sendAndConfirmTransactions,
 } from './utils';
 import { addComputeBudget } from './computeBudget';
 import {
@@ -65,15 +65,23 @@ export async function postVaaWithRetry(
     unsignedTransaction.feePayer = new PublicKey(payer);
     await addComputeBudget(connection, unsignedTransaction, [], 0.75, 1, true);
   }
-  const responses = await sendAndConfirmTransactionsWithRetry(
+  const responses = await sendAndConfirmTransactions(
     connection,
     modifySignTransaction(signTransaction, ...signers),
     payer.toString(),
     transactionsNotPresent.map((tx: TransactionWithIndex) => tx.transaction),
+<<<<<<< HEAD
     maxRetries,
     commitment,
+=======
+    { maxRetries, commitment },
+>>>>>>> 5ba3050 (Update sendAndConfirm function)
   );
+  if (responses.errors && responses.errors?.length > 0)
+    printError(responses.errors);
+
   //While the signature_set is used to create the final instruction, it doesn't need to sign it.
+<<<<<<< HEAD
   await addComputeBudget(connection, postVaaTransaction, [], 0.75, 1, true);
   responses.push(
     ...(await sendAndConfirmTransactionsWithRetry(
@@ -84,8 +92,21 @@ export async function postVaaWithRetry(
       maxRetries,
       commitment,
     )),
+=======
+  await addComputeBudget(connection, postVaaTransaction.transaction);
+  const postVaaResponse = await sendAndConfirmTransactions(
+    connection,
+    signTransaction,
+    payer.toString(),
+    [postVaaTransaction.transaction],
+    { maxRetries, commitment },
+>>>>>>> 5ba3050 (Update sendAndConfirm function)
   );
-  return responses;
+  responses.result.push(postVaaResponse.result[0]);
+  if (postVaaResponse.errors && postVaaResponse.errors?.length > 0)
+    printError(postVaaResponse.errors);
+
+  return responses.result;
 }
 
 /**
@@ -155,4 +176,11 @@ export async function createPostSignedVaaTransactions(
     unsignedTransactions,
     signers: [signatureSet],
   };
+}
+
+function printError(errors: Error[]) {
+  throw new Error(
+    'Error posting VAA to Solana \n' +
+      errors.map((error) => error.toString()).join('\n'),
+  );
 }
