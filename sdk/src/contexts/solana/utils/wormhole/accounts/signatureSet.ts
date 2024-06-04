@@ -11,14 +11,9 @@ export async function getSignatureSetData(
   signatureSet: PublicKeyInitData,
   commitment?: Commitment,
 ): Promise<SignatureSetData | null> {
-  const signatureSetAccount = await connection.getAccountInfo(
-    new PublicKey(signatureSet),
-    commitment,
-  );
-  return (
-    signatureSetAccount &&
-    SignatureSetData.deserialize(signatureSetAccount.data)
-  );
+  return connection
+    .getAccountInfo(new PublicKey(signatureSet), commitment)
+    .then((info) => SignatureSetData.deserialize(getAccountData(info)));
 }
 
 export class SignatureSetData {
