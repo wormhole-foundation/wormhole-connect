@@ -49,6 +49,7 @@ const checkEnvConfig = async (
       Object.keys(chainsConfig).map((unTypedChain) => {
         return (async () => {
           const chain = unTypedChain as ChainName;
+
           const configForeignAddress = tokenConfig.foreignAssets?.[chain];
           if (chain === tokenConfig.nativeChain) {
             if (configForeignAddress) {
@@ -64,7 +65,10 @@ const checkEnvConfig = async (
                 chain,
               );
             } catch (e: any) {
-              if (WORMCHAIN_ERROR_MESSAGES.includes(e?.message)) {
+              if (
+                WORMCHAIN_ERROR_MESSAGES.includes(e?.message) ||
+                e?.message.includes('NETWORK_ERROR')
+              ) {
                 // do not throw on wormchain errors
               } else {
                 console.error(
@@ -82,6 +86,7 @@ const checkEnvConfig = async (
               } catch (e: any) {
                 if (
                   /denom trace for ibc\/\w+ not found/gi.test(e?.message) ||
+                  e?.message.includes("Can't fetch decimals") ||
                   e?.message.includes('Bad status on response: 429')
                 ) {
                   // denom trace not found means the asset has not yet been bridged to the target chain
