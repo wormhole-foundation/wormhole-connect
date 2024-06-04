@@ -178,7 +178,7 @@ export async function createPostSignedVaaTransactions(
   };
 }
 
-function printError(errors: Error[]) {
+function printError(errors: any[]) {
   throw new Error(
     'Error posting VAA to Solana \n' +
       errors.map((error) => error.toString()).join('\n'),

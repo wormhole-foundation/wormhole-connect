@@ -33,7 +33,7 @@ export interface TransactionSignatureAndResponse {
 
 interface SignSendAndConfirmTransactionResponse {
   result: TransactionSignatureAndResponse[];
-  errors?: Error[];
+  errors?: any[];
 }
 
 /**
@@ -175,7 +175,7 @@ export async function sendAndConfirmTransactions(
   const commitment = options?.commitment;
 
   const output: TransactionSignatureAndResponse[] = [];
-  const errors: Error[] = [];
+  const errors: any[] = [];
   for (const transaction of unsignedTransactions) {
     try {
       const latest = await connection.getLatestBlockhash(commitment);
