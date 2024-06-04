@@ -40,6 +40,7 @@ const resolve = {
     hooks: path.resolve(__dirname, './src/hooks'),
     consts: path.resolve(__dirname, './src/consts'),
     public: path.resolve(__dirname, './public'),
+    views: path.resolve(__dirname, './src/views'),
     'process/': 'process',
     'buffer/': 'buffer',
   },

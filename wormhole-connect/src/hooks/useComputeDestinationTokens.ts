@@ -23,12 +23,11 @@ type Props = {
   sourceChain: ChainName | undefined;
   sourceToken: string;
   destChain: ChainName | undefined;
-  destToken: string;
   route: Route | undefined;
 };
 
 export const useComputeDestinationTokens = (props: Props): void => {
-  const { sourceChain, destChain, sourceToken, destToken, route } = props;
+  const { sourceChain, destChain, sourceToken, route } = props;
 
   const dispatch = useDispatch();
 
@@ -89,12 +88,7 @@ export const useComputeDestinationTokens = (props: Props): void => {
 
       // If the source token is supported by a Portico bridge route,
       // then select the native version on the dest chain
-      if (
-        sourceToken &&
-        destToken === '' &&
-        destChain &&
-        (!route || isPorticoRoute(route))
-      ) {
+      if (sourceToken && destChain && (!route || isPorticoRoute(route))) {
         const tokenSymbol = config.tokens[sourceToken]?.symbol;
         const porticoTokens = [
           ...ETHBridge.SUPPORTED_TOKENS,
@@ -120,6 +114,5 @@ export const useComputeDestinationTokens = (props: Props): void => {
     return () => {
       canceled = true;
     };
-    // IMPORTANT: do not include destToken in dependency array
   }, [route, sourceToken, sourceChain, destChain, dispatch]);
 };

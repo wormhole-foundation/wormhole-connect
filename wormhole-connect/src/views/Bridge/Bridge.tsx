@@ -109,7 +109,6 @@ function Bridge() {
     sourceChain: fromChain,
     destChain: toChain,
     sourceToken: token,
-    destToken,
     route,
   });
 

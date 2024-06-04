@@ -160,6 +160,9 @@ export function buildConfig(
 
     // Guardian Set
     guardianSet: networkData.guardianSet,
+
+    // Render Redesign views
+    useRedesign: customConfig?.useRedesign,
   };
 }
 
