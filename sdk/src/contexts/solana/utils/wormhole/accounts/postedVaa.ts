@@ -63,6 +63,13 @@ export async function verifiedSignatures(
   if (transaction.signatureIndexes.length === 0) {
     return false;
   }
+  console.log(
+    'verifiedSignatures',
+    transaction,
+    connection,
+    wormholeProgramId,
+    commitment,
+  );
   const signatureSetData = await getSignatureSetData(
     connection,
     wormholeProgramId,
@@ -76,13 +83,13 @@ export async function verifiedSignatures(
 }
 
 export async function pendingSignatureVerificationTxs(
-  transaction: TransactionWithIndex[],
+  transactions: TransactionWithIndex[],
   connection: Connection,
   wormholeProgramId: PublicKeyInitData,
   commitment?: Commitment,
 ): Promise<TransactionWithIndex[]> {
   const txs: TransactionWithIndex[] = [];
-  for (const tx of transaction) {
+  for (const tx of transactions) {
     const isPresent = await verifiedSignatures(
       tx,
       connection,

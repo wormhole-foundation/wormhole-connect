@@ -31,6 +31,7 @@ export class SignatureSetData {
   }
 
   static deserialize(data: Buffer): SignatureSetData {
+    console.log('data', data);
     let offset = 0;
     if (SignatureSetData.typeDiscriminator.compare(data, 0, 8) === 0) {
       offset += 8;
@@ -42,6 +43,7 @@ export class SignatureSetData {
     );
     const hashIndex = 4 + numSignatures;
     const hash = data.subarray(hashIndex, hashIndex + 32);
+    console.log('hashIndex', hashIndex);
     const guardianSetIndex = data.readUInt32LE(hashIndex + 32);
     return new SignatureSetData(signatures, hash, guardianSetIndex);
   }
