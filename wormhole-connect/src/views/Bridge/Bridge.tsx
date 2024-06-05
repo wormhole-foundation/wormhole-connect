@@ -1,31 +1,13 @@
-import React, { useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import React from 'react';
+import { useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
-import { BigNumber } from 'ethers';
 
 import { RootState } from 'store';
-import {
-  setReceiverNativeBalance,
-  setReceiveAmount,
-  setDestToken,
-  setToken,
-  setSupportedSourceTokens,
-  setSupportedDestTokens,
-  setAllSupportedDestTokens,
-  TransferInputState,
-  getNativeVersionOfToken,
-  setFetchingReceiveAmount,
-  setReceiveAmountError,
-} from 'store/transferInput';
+import { TransferInputState } from 'store/transferInput';
 import config from 'config';
-import { TokenConfig } from 'config/types';
-import { getTokenDecimals, getWrappedToken } from 'utils';
-import { toChainId } from 'utils/sdk';
 import { joinClass } from 'utils/style';
-import { toDecimals } from 'utils/balance';
 import { isTransferValid, useValidate } from 'utils/transferValidation';
 import useConfirmBeforeLeaving from 'utils/confirmBeforeLeaving';
-import RouteOperator from 'routes/operator';
 
 import GasSlider from './NativeGasSlider';
 import Preview from './Preview';
@@ -41,15 +23,17 @@ import ValidationError from './ValidationError';
 import PoweredByIcon from 'icons/PoweredBy';
 import { Alignment } from 'components/Header';
 import FooterNavBar from 'components/FooterNavBar';
-import { isPorticoRoute } from 'routes/porticoBridge/utils';
-import { ETHBridge } from 'routes/porticoBridge/ethBridge';
-import { wstETHBridge } from 'routes/porticoBridge/wstETHBridge';
+import { useComputeDestinationTokens } from 'hooks/useComputeDestinationTokens';
+import { useComputeReceiveAmount } from 'hooks/useComputeReceiveAmount';
+import { useComputeSourceTokens } from 'hooks/useComputeSourceTokens';
 import { usePorticoSwapInfo } from 'hooks/usePorticoSwapInfo';
 import { usePorticoRelayerFee } from 'hooks/usePorticoRelayerFee';
 import { useFetchTokenPrices } from 'hooks/useFetchTokenPrices';
+import { useGasSlider } from 'hooks/useGasSlider';
 import NttInboundCapacityWarning from './NttInboundCapacityWarning';
 import { isNttRoute } from 'routes/utils';
 import { useConnectToLastUsedWallet } from 'utils/wallet';
+import { useComputeReceiverNativeBalance } from 'hooks/useComputeReceiverNativeBalance';
 
 const useStyles = makeStyles()((_theme) => ({
   spacer: {
@@ -79,18 +63,9 @@ const useStyles = makeStyles()((_theme) => ({
   },
 }));
 
-function isSupportedToken(
-  token: string,
-  supportedTokens: TokenConfig[],
-): boolean {
-  if (!token) return true;
-  return supportedTokens.some((t) => t.key === token);
-}
-
 function Bridge() {
   const { classes } = useStyles();
   const theme = useTheme();
-  const dispatch = useDispatch();
   const {
     showValidationState,
     validations,
@@ -108,193 +83,48 @@ function Bridge() {
     (state: RootState) => state.relay,
   );
   const portico = useSelector((state: RootState) => state.porticoBridge);
-  const { receiving } = useSelector((state: RootState) => state.wallet);
+  const receiving = useSelector((state: RootState) => state.wallet.receiving);
 
   // Warn user before closing tab if transaction has begun
   useConfirmBeforeLeaving(isTransactionInProgress);
 
-  // check destination native balance
-  useEffect(() => {
-    if (!fromChain || !toChain || !receiving.address) {
-      return;
-    }
+  // Compute and set destination native balance
+  useComputeReceiverNativeBalance({
+    sourceChain: fromChain,
+    destChain: toChain,
+    receiving,
+  });
 
-    const chainConfig = config.chains[toChain]!;
+  // Compute and set source tokens
+  useComputeSourceTokens({
+    sourceChain: fromChain,
+    destChain: toChain,
+    sourceToken: token,
+    destToken,
+    route,
+  });
 
-    config.wh
-      .getNativeBalance(receiving.address, toChain)
-      .then((res: BigNumber) => {
-        const tokenConfig = config.tokens[chainConfig.gasToken];
-        if (!tokenConfig)
-          throw new Error('Could not get native gas token config');
-        const decimals = getTokenDecimals(
-          toChainId(tokenConfig.nativeChain),
-          'native',
-        );
-        dispatch(setReceiverNativeBalance(toDecimals(res, decimals, 6)));
-      });
-  }, [fromChain, toChain, receiving.address, dispatch]);
+  // Compute and set destination tokens
+  useComputeDestinationTokens({
+    sourceChain: fromChain,
+    destChain: toChain,
+    sourceToken: token,
+    destToken,
+    route,
+  });
 
-  useEffect(() => {
-    if (!fromChain) {
-      return;
-    }
-
-    let active = true;
-
-    const computeSrcTokens = async () => {
-      const supported = await RouteOperator.allSupportedSourceTokens(
-        config.tokens[destToken],
-        fromChain,
-        toChain,
-      );
-      if (active) {
-        dispatch(setSupportedSourceTokens(supported));
-        const selectedIsSupported = isSupportedToken(token, supported);
-        if (!selectedIsSupported) {
-          dispatch(setToken(''));
-        }
-        if (supported.length === 1 && token === '') {
-          dispatch(setToken(supported[0].key));
-        }
-      }
-    };
-
-    computeSrcTokens();
-
-    return () => {
-      active = false;
-    };
-    // IMPORTANT: do not include token in dependency array
-  }, [route, fromChain, destToken, dispatch]);
-
-  useEffect(() => {
-    if (!toChain) {
-      return;
-    }
-
-    let canceled = false;
-
-    const computeDestTokens = async () => {
-      let supported = await RouteOperator.allSupportedDestTokens(
-        config.tokens[token],
-        fromChain,
-        toChain,
-      );
-      if (token) {
-        // If any of the tokens are native to the chain, only select those.
-        // This is to avoid users inadvertently receiving wrapped versions of the token.
-        const nativeTokens = supported.filter((t) => t.nativeChain === toChain);
-        if (nativeTokens.length > 0) {
-          supported = nativeTokens;
-        }
-      }
-      dispatch(setSupportedDestTokens(supported));
-      const allSupported = await RouteOperator.allSupportedDestTokens(
-        undefined,
-        fromChain,
-        toChain,
-      );
-      dispatch(setAllSupportedDestTokens(allSupported));
-      if (toChain && supported.length === 1) {
-        if (!canceled) {
-          dispatch(setDestToken(supported[0].key));
-        }
-      }
-
-      // If all the supported tokens are the same token
-      // select the native version for applicable tokens
-      const symbols = supported.map((t) => t.symbol);
-      if (
-        toChain &&
-        symbols.every((s) => s === symbols[0]) &&
-        ['USDC', 'tBTC'].includes(symbols[0])
-      ) {
-        const key = supported.find(
-          (t) =>
-            t.symbol === symbols[0] &&
-            t.nativeChain === t.tokenId?.chain &&
-            t.nativeChain === toChain,
-        )?.key;
-        if (!canceled && key) {
-          dispatch(setDestToken(key));
-        }
-      }
-
-      // If the source token is supported by a Portico bridge route,
-      // then select the native version on the dest chain
-      if (
-        token &&
-        destToken === '' &&
-        toChain &&
-        (!route || isPorticoRoute(route))
-      ) {
-        const tokenSymbol = config.tokens[token]?.symbol;
-        const porticoTokens = [
-          ...ETHBridge.SUPPORTED_TOKENS,
-          ...wstETHBridge.SUPPORTED_TOKENS,
-        ];
-        if (porticoTokens.includes(tokenSymbol)) {
-          let key = getNativeVersionOfToken(tokenSymbol, toChain);
-          if (!key) {
-            const wrapped = getWrappedToken(config.tokens[token]);
-            key = getNativeVersionOfToken(wrapped.symbol, toChain);
-          }
-          if (!canceled && key && isSupportedToken(key, supported)) {
-            dispatch(setDestToken(key));
-          }
-        }
-      }
-    };
-
-    computeDestTokens();
-
-    return () => {
-      canceled = true;
-    };
-    // IMPORTANT: do not include destToken in dependency array
-  }, [route, token, fromChain, toChain, dispatch]);
-
-  useEffect(() => {
-    if (!route || !amount || !token || !destToken || !fromChain || !toChain) {
-      return;
-    }
-
-    const recomputeReceive = async () => {
-      try {
-        const routeOptions = isPorticoRoute(route)
-          ? portico
-          : { toNativeToken, relayerFee };
-
-        dispatch(setFetchingReceiveAmount());
-
-        const newReceiveAmount = await RouteOperator.computeReceiveAmount(
-          route,
-          Number.parseFloat(amount),
-          token,
-          destToken,
-          fromChain,
-          toChain,
-          routeOptions,
-        );
-        dispatch(setReceiveAmount(newReceiveAmount.toString()));
-      } catch (e: any) {
-        dispatch(setReceiveAmountError(e.message));
-      }
-    };
-    recomputeReceive();
-  }, [
+  // Compute and set receive amount
+  useComputeReceiveAmount({
+    sourceChain: fromChain,
+    destChain: toChain,
+    sourceToken: token,
+    destToken,
     amount,
+    portico,
+    route,
     toNativeToken,
     relayerFee,
-    route,
-    token,
-    destToken,
-    toChain,
-    fromChain,
-    portico,
-    dispatch,
-  ]);
+  });
 
   // Route specific hooks
   usePorticoSwapInfo();
@@ -305,26 +135,15 @@ function Bridge() {
   // validate transfer inputs
   useValidate();
   const valid = isTransferValid(validations);
-  const disabled = !valid || isTransactionInProgress;
-  // if the dest token is the wrapped gas token, then disable the gas slider,
-  // because it will be unwrapped by the relayer contract
-  const toChainConfig = toChain ? config.chains[toChain] : undefined;
-  const gasTokenConfig = toChainConfig
-    ? config.tokens[toChainConfig.gasToken]
-    : undefined;
-  const wrappedGasTokenConfig = gasTokenConfig
-    ? getWrappedToken(gasTokenConfig)
-    : undefined;
-  const willReceiveGasToken =
-    wrappedGasTokenConfig && destToken === wrappedGasTokenConfig.key;
 
-  const showGasSlider =
-    route &&
-    RouteOperator.getRoute(route).NATIVE_GAS_DROPOFF_SUPPORTED &&
-    !willReceiveGasToken;
-
-  const showRouteValidation =
-    !!fromChain && !!toChain && !!token && !!destToken && !!amount;
+  // Get Gas Slider props
+  const { disabled, showGasSlider } = useGasSlider({
+    destChain: toChain,
+    destToken: destToken,
+    route,
+    valid,
+    isTransactionInProgress,
+  });
 
   const pageHeader = getPageHeader();
 
@@ -340,7 +159,9 @@ function Bridge() {
       <ToInputs />
 
       <ValidationError
-        forceShow={showRouteValidation}
+        forceShow={
+          !!fromChain && !!toChain && !!token && !!destToken && !!amount
+        } // show route validation
         validations={[validations.route]}
         margin="12px 0 0 0"
       />

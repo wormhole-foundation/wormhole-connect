@@ -1,9 +1,8 @@
 import { Link, Typography } from '@mui/material';
-import { isEVMChain } from '@certusone/wormhole-sdk';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
-import {
+import type {
   ChainName,
   SuiContext,
   WormholeContext,
@@ -20,6 +19,7 @@ import {
   getDisplayName,
   getChainConfig,
 } from 'utils';
+import { isEvmChain } from 'utils/sdk';
 import { TransferWallet, switchChain, watchAsset } from 'utils/wallet';
 
 import TokenIcon from 'icons/TokenIcons';
@@ -219,7 +219,7 @@ function AddToWallet() {
 
   if (!targetToken || !targetAddress) return <></>;
 
-  if (isEVMChain(chainId)) {
+  if (isEvmChain(chainId)) {
     return <AddToEVMWallet address={targetAddress} token={targetToken} />;
   } else if (
     chainId === MAINNET_CHAINS.solana?.id &&

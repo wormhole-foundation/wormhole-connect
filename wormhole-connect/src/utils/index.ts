@@ -354,7 +354,7 @@ export const removeDust = (amount: BigNumber, decimals: number): BigNumber => {
  * isEmptyObject({ 'a': 1 })
  * // => false
  */
-export const isEmptyObject = (value: Object | null | undefined) => {
+export const isEmptyObject = (value: object | null | undefined) => {
   if (value === null || value === undefined) {
     return true;
   }

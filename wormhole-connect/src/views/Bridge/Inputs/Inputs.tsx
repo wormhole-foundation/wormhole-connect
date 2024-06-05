@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+import type { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 
 import config from 'config';
 import { TransferSide } from 'config/types';
