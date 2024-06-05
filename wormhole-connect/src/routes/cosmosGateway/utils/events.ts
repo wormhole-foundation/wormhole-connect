@@ -10,7 +10,7 @@ import {
   findDestinationIBCTransferTx,
   getTransactionIBCTransferInfo,
 } from './transaction';
-import { BridgeRoute } from '../../bridge';
+//import { BridgeRoute } from '../../bridge';
 import { isGatewayChain } from '../../../utils/cosmos';
 
 export async function fetchRedeemedEventNonCosmosSource(
@@ -56,7 +56,8 @@ export async function fetchRedeemedEventCosmosSource(
   message: SignedTokenTransferMessage | SignedRelayTransferMessage,
 ): Promise<string | null> {
   if (!isGatewayChain(message.toChain)) {
-    return (await new BridgeRoute().tryFetchRedeemTx(message)) || null;
+    //return (await new BridgeRoute().tryFetchRedeemTx(message)) || null;
+    throw new Error('TODO ??');
   }
 
   /**

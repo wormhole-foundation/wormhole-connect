@@ -7,8 +7,6 @@ import { SDKv2Route } from './sdkv2/route';
 
 // Legacy routes
 import { RouteAbstract } from './abstracts/routeAbstract';
-//import { BridgeRoute } from './bridge';
-import { RelayRoute } from './relay';
 import { CCTPRelayRoute } from './cctpRelay';
 import { CCTPManualRoute } from './cctpManual';
 import { TBTCRoute } from './tbtc';
@@ -23,13 +21,17 @@ export function getRoute(route: Route): RouteAbstract {
     case Route.Bridge:
       return new SDKv2Route(
         config.network,
+        routes.TokenBridgeRoute,
+        Route.Bridge,
+      );
+    case Route.Relay:
+      return new SDKv2Route(
+        config.network,
         routes.AutomaticTokenBridgeRoute,
         Route.Bridge,
       );
 
     // Legacy routes:
-    case Route.Relay:
-      return new RelayRoute();
     case Route.CCTPManual:
       return new CCTPManualRoute();
     case Route.CCTPRelay:

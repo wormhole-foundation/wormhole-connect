@@ -12,7 +12,6 @@ import config from 'config';
 import { TokenConfig, Route } from 'config/types';
 import { PayloadType, getMessage, isEvmChain, solanaContext } from 'utils/sdk';
 import { isGatewayChain } from 'utils/cosmos';
-import { RelayRoute } from './relay';
 // import { HashflowRoute } from './hashflow';
 import { RouteAbstract } from './abstracts/routeAbstract';
 import {
@@ -549,6 +548,8 @@ export class Operator {
     amount: BigNumber,
     walletAddress: string,
   ): Promise<BigNumber> {
+    throw new Error('TODO SDKv2');
+    /*
     const r = this.getRoute(route);
     if (r.AUTOMATIC_DEPOSIT) {
       return (r as RelayRoute).nativeTokenAmount(
@@ -560,6 +561,7 @@ export class Operator {
     } else {
       throw new Error('route does not support native gas dropoff');
     }
+    */
   }
 
   maxSwapAmount(
@@ -568,12 +570,15 @@ export class Operator {
     token: TokenId,
     walletAddress: string,
   ): Promise<BigNumber> {
+    throw new Error('TODO SDKv2');
+    /*
     const r = this.getRoute(route);
     if (r.AUTOMATIC_DEPOSIT) {
       return (r as RelayRoute).maxSwapAmount(destChain, token, walletAddress);
     } else {
       throw new Error('route does not support swap for native gas dropoff');
     }
+    */
   }
 
   async minSwapAmountNative(

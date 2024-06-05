@@ -38,7 +38,6 @@ import {
   RelayerFee,
 } from '../types';
 import { toDecimals, toFixedDecimals } from '../../utils/balance';
-import { RelayOptions } from '../relay';
 import {
   CCTPTokenSymbol,
   CCTPManual_CHAINS as CCTPRelay_CHAINS,
@@ -53,6 +52,12 @@ import { getUnsignedVaaEvm } from 'utils/vaa';
 import { getNativeVersionOfToken } from 'store/transferInput';
 import { RelayAbstract } from 'routes/abstracts';
 import { TokenPrices } from 'store/tokenPrices';
+
+type RelayOptions = {
+  relayerFee?: number;
+  toNativeToken?: number;
+  receiveNativeAmt: number;
+};
 
 export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED = true;

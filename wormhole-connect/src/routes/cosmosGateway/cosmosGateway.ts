@@ -37,7 +37,7 @@ import {
   TransferDestInfo,
   RelayerFee,
 } from '../types';
-import { BridgeRoute } from '../bridge/bridge';
+//import { BridgeRoute } from '../bridge/bridge';
 import { fetchVaa } from '../../utils/vaa';
 import { formatGasFee } from '../utils';
 import {
@@ -236,7 +236,8 @@ export class CosmosGatewayRoute extends BaseRoute {
     }
 
     // for non-cosmos chains, the redeem behavior is the same as the bridge route (manual)
-    return new BridgeRoute().redeem(destChain, messageInfo, recipient);
+    //return new BridgeRoute().redeem(destChain, messageInfo, recipient);
+    throw new Error('TODO HANDLE?????');
   }
 
   async getPreview(
@@ -305,7 +306,8 @@ export class CosmosGatewayRoute extends BaseRoute {
       throw new Error('Signed message is not for gateway');
 
     if (!isGatewayChain(destChain)) {
-      return new BridgeRoute().isTransferCompleted(destChain, message);
+      //return new BridgeRoute().isTransferCompleted(destChain, message);
+      throw new Error('TODO HANDLE?????');
     }
 
     const destTx = await this.fetchRedeemTx(message);

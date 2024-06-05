@@ -55,7 +55,6 @@ import {
   SWAP_ERROR,
 } from './consts';
 import { adaptParsedMessage } from 'routes/utils';
-import { TransferDestInfoParams } from 'routes/relay';
 import { NO_INPUT } from 'utils/style';
 import {
   getCanonicalTokenAddress,
@@ -66,6 +65,15 @@ import {
 import { PorticoBridgeState, PorticoSwapAmounts } from 'store/porticoBridge';
 import { TokenPrices } from 'store/tokenPrices';
 import { estimateAverageGasFee } from '../utils';
+
+import { ParsedMessage, ParsedRelayerMessage } from 'utils/sdk';
+
+interface TransferDestInfoParams {
+  txData: ParsedMessage | ParsedRelayerMessage;
+  tokenPrices: TokenPrices;
+  receiveTx?: string;
+  transferComplete?: boolean;
+}
 
 export abstract class PorticoBridge extends BaseRoute {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean = false;
