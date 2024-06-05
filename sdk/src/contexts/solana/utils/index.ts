@@ -3,10 +3,7 @@ export * from './utils';
 /**
  * @category Solana
  */
-export {
-  postVaa as postVaaSolana,
-  postVaaWithRetry as postVaaSolanaWithRetry,
-} from './sendAndConfirmPostVaa';
+export { postVaaWithRetry as postVaaSolanaWithRetry } from './sendAndConfirmPostVaa';
 /**
  * @category Solana
  */

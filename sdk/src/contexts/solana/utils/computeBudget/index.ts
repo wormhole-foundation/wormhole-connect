@@ -13,8 +13,9 @@ export async function addComputeBudget(
   connection: Connection,
   transaction: Transaction,
   lockedWritableAccounts: PublicKey[] = [],
-  feePercentile: number = DEFAULT_FEE_PERCENTILE,
-  minPriorityFee: number = 0,
+  feePercentile = DEFAULT_FEE_PERCENTILE,
+  minPriorityFee = 0,
+  throwOnSimulateError = false,
 ): Promise<void> {
   if (lockedWritableAccounts.length === 0) {
     lockedWritableAccounts = transaction.instructions
@@ -26,8 +27,9 @@ export async function addComputeBudget(
     connection,
     transaction,
     lockedWritableAccounts,
-    DEFAULT_FEE_PERCENTILE,
+    feePercentile,
     minPriorityFee,
+    throwOnSimulateError,
   );
   transaction.add(...ixs);
 }
@@ -36,19 +38,26 @@ export async function determineComputeBudget(
   connection: Connection,
   transaction: Transaction,
   lockedWritableAccounts: PublicKey[] = [],
-  feePercentile: number = DEFAULT_FEE_PERCENTILE,
-  minPriorityFee: number = 0,
+  feePercentile = DEFAULT_FEE_PERCENTILE,
+  minPriorityFee = 0,
+  throwOnSimulateError = false,
 ): Promise<TransactionInstruction[]> {
   let computeBudget = 250_000;
   let priorityFee = 1;
 
   try {
+    // TODO: Use non-deprecated method and pass a commitment level
     const simulateResponse = await connection.simulateTransaction(transaction);
 
     if (simulateResponse.value.err) {
       console.error(
         `Error simulating Solana transaction: ${simulateResponse.value.err}`,
       );
+      if (throwOnSimulateError) {
+        throw new Error(
+          `Error simulating Solana transaction: ${simulateResponse.value.err}`,
+        );
+      }
     }
 
     if (simulateResponse?.value?.unitsConsumed) {

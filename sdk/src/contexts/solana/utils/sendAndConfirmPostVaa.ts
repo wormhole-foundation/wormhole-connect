@@ -1,6 +1,5 @@
 import {
   Commitment,
-  ConfirmOptions,
   Connection,
   Keypair,
   PublicKey,
@@ -8,7 +7,6 @@ import {
   Transaction,
 } from '@solana/web3.js';
 import {
-  signSendAndConfirmTransaction,
   SignTransaction,
   sendAndConfirmTransactionsWithRetry,
   modifySignTransaction,
@@ -57,12 +55,13 @@ export async function postVaaWithRetry(
       vaa,
       commitment,
     );
-  const postVaaTransaction = unsignedTransactions.pop()!;
+  const postVaaTransaction = unsignedTransactions.pop();
+  if (!postVaaTransaction) throw new Error('No postVaaTransaction');
   postVaaTransaction.feePayer = new PublicKey(payer);
 
   for (const unsignedTransaction of unsignedTransactions) {
     unsignedTransaction.feePayer = new PublicKey(payer);
-    await addComputeBudget(connection, unsignedTransaction);
+    await addComputeBudget(connection, unsignedTransaction, [], 0.75, 1, true);
   }
   const responses = await sendAndConfirmTransactionsWithRetry(
     connection,
@@ -70,9 +69,10 @@ export async function postVaaWithRetry(
     payer.toString(),
     unsignedTransactions,
     maxRetries,
+    commitment,
   );
   //While the signature_set is used to create the final instruction, it doesn't need to sign it.
-  await addComputeBudget(connection, postVaaTransaction);
+  await addComputeBudget(connection, postVaaTransaction, [], 0.75, 1, true);
   responses.push(
     ...(await sendAndConfirmTransactionsWithRetry(
       connection,
@@ -80,66 +80,10 @@ export async function postVaaWithRetry(
       payer.toString(),
       [postVaaTransaction],
       maxRetries,
+      commitment,
     )),
   );
   return responses;
-}
-
-/**
- * @category Solana
- */
-export async function postVaa(
-  connection: Connection,
-  signTransaction: SignTransaction,
-  wormholeProgramId: PublicKeyInitData,
-  payer: PublicKeyInitData,
-  vaa: Buffer,
-  options?: ConfirmOptions,
-  asyncVerifySignatures: boolean = true,
-): Promise<TransactionSignatureAndResponse[]> {
-  const { unsignedTransactions, signers } =
-    await createPostSignedVaaTransactions(
-      connection,
-      wormholeProgramId,
-      payer,
-      vaa,
-      options?.commitment,
-    );
-
-  const postVaaTransaction = unsignedTransactions.pop()!;
-
-  const verifySignatures = async (transaction: Transaction) =>
-    signSendAndConfirmTransaction(
-      connection,
-      payer,
-      modifySignTransaction(signTransaction, ...signers),
-      transaction,
-      options,
-    );
-
-  const output: TransactionSignatureAndResponse[] = [];
-  if (asyncVerifySignatures) {
-    const verified = await Promise.all(
-      unsignedTransactions.map(async (transaction) =>
-        verifySignatures(transaction),
-      ),
-    );
-    output.push(...verified);
-  } else {
-    for (const transaction of unsignedTransactions) {
-      output.push(await verifySignatures(transaction));
-    }
-  }
-  output.push(
-    await signSendAndConfirmTransaction(
-      connection,
-      payer,
-      signTransaction,
-      postVaaTransaction,
-      options,
-    ),
-  );
-  return output;
 }
 
 /**
