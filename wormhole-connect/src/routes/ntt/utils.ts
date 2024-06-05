@@ -43,3 +43,19 @@ export const encodeTransceiverInstructions = (
 
   return Buffer.concat([instructionsLength, encoded]);
 };
+
+// Checks for compatibility between the NTT Manager version in use on chain,
+// and the ABI version Connect has. Major version must match, minor version on chain
+// should be gte Connect's ABI version.
+//
+// For example, if the contract is using 1.1.0, we would use 1.0.0 but not 1.2.0.
+export const abiVersionMatches = (
+  targetVersion: string,
+  abiVersion: string,
+): boolean => {
+  let [majorTarget, minorTarget] = targetVersion
+    .split('.')
+    .map((n) => parseInt(n, 10));
+  let [majorAbi, minorAbi] = abiVersion.split('.').map((n) => parseInt(n, 10));
+  return majorTarget == majorAbi && minorTarget >= minorAbi;
+};
