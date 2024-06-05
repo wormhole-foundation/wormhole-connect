@@ -1,10 +1,13 @@
+import config from 'config';
 import { Route } from 'config/types';
 
+// SDKv2
 import { routes } from '@wormhole-foundation/sdk';
-import { RouteAbstract } from './abstracts/routeAbstract';
+import { SDKv2Route } from './sdkv2/route';
 
 // Legacy routes
-import { BridgeRoute } from './bridge';
+import { RouteAbstract } from './abstracts/routeAbstract';
+//import { BridgeRoute } from './bridge';
 import { RelayRoute } from './relay';
 import { CCTPRelayRoute } from './cctpRelay';
 import { CCTPManualRoute } from './cctpManual';
@@ -14,48 +17,34 @@ import { wstETHBridge } from './porticoBridge/wstETHBridge';
 import { CosmosGatewayRoute } from './cosmosGateway';
 import { NttManual, NttRelay } from './ntt';
 
-export interface RouteImpls {
-  v1: RouteAbstract;
-  v2?: routes.RouteConstructor;
-}
+export function getRoute(route: Route): RouteAbstract {
+  switch (route) {
+    // Migrated routes:
+    case Route.Bridge:
+      return new SDKv2Route(
+        config.network,
+        routes.AutomaticTokenBridgeRoute,
+        Route.Bridge,
+      );
 
-export function getRouteImpls(route: Route): RouteImpls {
-  return {
-    [Route.Bridge]: {
-      v1: new BridgeRoute(),
-      v2: routes.TokenBridgeRoute,
-    },
-    [Route.Relay]: {
-      v1: new RelayRoute(),
-      v2: routes.AutomaticTokenBridgeRoute,
-    },
-    [Route.CCTPManual]: {
-      v1: new CCTPManualRoute(),
-      v2: routes.CCTPRoute,
-    },
-    [Route.CCTPRelay]: {
-      v1: new CCTPRelayRoute(),
-      v2: routes.AutomaticCCTPRoute,
-    },
-    [Route.CosmosGateway]: {
-      v1: new CosmosGatewayRoute(),
-    },
-    [Route.TBTC]: {
-      v1: new TBTCRoute(),
-    },
-    [Route.ETHBridge]: {
-      v1: new ETHBridge(),
-      v2: routes.AutomaticPorticoRoute,
-    },
-    [Route.wstETHBridge]: {
-      v1: new wstETHBridge(),
-      v2: routes.AutomaticPorticoRoute,
-    },
-    [Route.NttManual]: {
-      v1: new NttManual(),
-    },
-    [Route.NttRelay]: {
-      v1: new NttRelay(),
-    },
-  }[route];
+    // Legacy routes:
+    case Route.Relay:
+      return new RelayRoute();
+    case Route.CCTPManual:
+      return new CCTPManualRoute();
+    case Route.CCTPRelay:
+      return new CCTPRelayRoute();
+    case Route.CosmosGateway:
+      return new CosmosGatewayRoute();
+    case Route.TBTC:
+      return new TBTCRoute();
+    case Route.ETHBridge:
+      return new ETHBridge();
+    case Route.wstETHBridge:
+      return new wstETHBridge();
+    case Route.NttManual:
+      return new NttManual();
+    case Route.NttRelay:
+      return new NttRelay();
+  }
 }

@@ -31,25 +31,11 @@ import { getMessageEvm, TRANSFER_SENT_EVENT_TOPIC } from './ntt/chains/evm';
 import { getMessageSolana } from './ntt/chains/solana';
 import { getNttManagerConfigByAddress } from 'utils/ntt';
 
-import { SDKv2Route } from './sdkv2/route';
-
-import { getRouteImpls } from './mappings';
+import { getRoute } from './mappings';
 
 export class Operator {
   getRoute(route: Route): RouteAbstract {
-    const impls = getRouteImpls(route);
-
-    if (!impls) {
-      throw new Error(`${route} is not a valid route`);
-    }
-
-    const useSdkV2 = !!localStorage.getItem('CONNECT_SDKV2');
-
-    if (useSdkV2 && impls.v2) {
-      return new SDKv2Route(config.network, impls.v2, route);
-    } else {
-      return impls.v1;
-    }
+    return getRoute(route);
   }
 
   async getRouteFromTx(txHash: string, chain: ChainName): Promise<Route> {
