@@ -20,9 +20,23 @@ import { wrapEventHandler } from './events';
 
 import { SDKConverter } from './converter';
 
+import {
+  wormhole as getWormholeV2,
+  Wormhole as WormholeV2,
+  Network as NetworkV2,
+  Chain as ChainV2,
+  WormholeConfigOverrides as WormholeConfigOverridesV2,
+} from '@wormhole-foundation/sdk';
+import evm from '@wormhole-foundation/sdk/evm';
+import solana from '@wormhole-foundation/sdk/solana';
+import aptos from '@wormhole-foundation/sdk/aptos';
+import sui from '@wormhole-foundation/sdk/sui';
+import cosmwasm from '@wormhole-foundation/sdk/cosmwasm';
+import algorand from '@wormhole-foundation/sdk/algorand';
+
 export function buildConfig(
   customConfig?: WormholeConnectConfig,
-): InternalConfig {
+): InternalConfig<NetworkV2> {
   const network = (
     customConfig?.network ||
     customConfig?.env || // TODO remove; deprecated
@@ -68,6 +82,8 @@ export function buildConfig(
     wh,
     sdkConfig,
     sdkConverter,
+
+    v2Network: sdkConverter.toNetworkV2(network),
 
     // TODO remove either env or network from this
     // some code uses lowercase, some uppercase... :(
@@ -210,10 +226,37 @@ export function getDefaultWormholeContext(network: Network): WormholeContext {
   return getWormholeContext(networkLegacy, sdkConfig, tokens, rpcs);
 }
 
+export async function getWormholeContextV2(): Promise<WormholeV2<NetworkV2>> {
+  if (config.v2Wormhole) {
+    return config.v2Wormhole;
+  }
+
+  let v2Config: WormholeConfigOverridesV2<NetworkV2> = { chains: {} };
+
+  for (let key in config.rpcs) {
+    let chainV1 = key as ChainName;
+    let chainV2 = config.sdkConverter.toChainV2(
+      chainV1 as ChainName,
+    ) as ChainV2;
+    let rpc = config.rpcs[chainV1];
+    if (typeof rpc === 'string') {
+      v2Config.chains![chainV2] = { rpc };
+    }
+  }
+
+  config.v2Wormhole = await getWormholeV2(
+    config.v2Network,
+    [evm, solana, aptos, cosmwasm, sui, algorand],
+    v2Config,
+  );
+
+  return config.v2Wormhole;
+}
+
 // setConfig can be called afterwards to override the default config with integrator-provided config
 
 export function setConfig(customConfig?: WormholeConnectConfig) {
-  const newConfig: InternalConfig = buildConfig(customConfig);
+  const newConfig: InternalConfig<NetworkV2> = buildConfig(customConfig);
 
   // We overwrite keys in the existing object so the references to the config
   // imported elsewhere point to the new values

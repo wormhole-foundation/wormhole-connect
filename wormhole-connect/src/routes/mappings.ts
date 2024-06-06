@@ -1,4 +1,3 @@
-import config from 'config';
 import { Route } from 'config/types';
 
 // SDKv2
@@ -19,17 +18,9 @@ export function getRoute(route: Route): RouteAbstract {
   switch (route) {
     // Migrated routes:
     case Route.Bridge:
-      return new SDKv2Route(
-        config.network,
-        routes.TokenBridgeRoute,
-        Route.Bridge,
-      );
+      return new SDKv2Route(routes.TokenBridgeRoute, Route.Bridge);
     case Route.Relay:
-      return new SDKv2Route(
-        config.network,
-        routes.AutomaticTokenBridgeRoute,
-        Route.Bridge,
-      );
+      return new SDKv2Route(routes.AutomaticTokenBridgeRoute, Route.Bridge);
 
     // Legacy routes:
     case Route.CCTPManual:

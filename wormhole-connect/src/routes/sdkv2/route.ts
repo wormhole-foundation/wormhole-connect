@@ -13,7 +13,7 @@ import {
   ChainName,
   TokenId as TokenIdV1,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { Route, TokenConfig, Network as NetworkV1 } from 'config/types';
+import { Route, TokenConfig } from 'config/types';
 import { BigNumber } from 'ethers';
 import { RouteAbstract } from 'routes/abstracts';
 import {
@@ -28,47 +28,23 @@ import {
 import { TokenPrices } from 'store/tokenPrices';
 import { ParsedMessage, ParsedRelayerMessage } from 'utils/sdk';
 
-import { wormhole, amount } from '@wormhole-foundation/sdk';
-import evm from '@wormhole-foundation/sdk/evm';
-import solana from '@wormhole-foundation/sdk/solana';
-import aptos from '@wormhole-foundation/sdk/aptos';
-import sui from '@wormhole-foundation/sdk/sui';
-import cosmwasm from '@wormhole-foundation/sdk/cosmwasm';
-import algorand from '@wormhole-foundation/sdk/algorand';
-import config from 'config';
+import { amount } from '@wormhole-foundation/sdk';
+import config, { getWormholeContextV2 } from 'config';
 
 export class SDKv2Route<N extends Network> extends RouteAbstract {
   TYPE: Route;
   NATIVE_GAS_DROPOFF_SUPPORTED = false;
   AUTOMATIC_DEPOSIT = false;
 
-  network: N;
   route?: routes.Route<Network>;
 
-  constructor(
-    network: NetworkV1,
-    readonly rc: routes.RouteConstructor,
-    routeType: Route,
-  ) {
+  constructor(readonly rc: routes.RouteConstructor, routeType: Route) {
     super();
-    this.network = config.sdkConverter.toNetworkV2(network) as N;
     this.TYPE = routeType;
   }
 
-  async getWh(network: N): Promise<Wormhole<N>> {
-    // TODO cache
-    return await wormhole(network, [
-      evm,
-      solana,
-      aptos,
-      cosmwasm,
-      sui,
-      algorand,
-    ]);
-  }
-
   async toRequest<FC extends Chain, TC extends Chain>(
-    wh: Wormhole<N>,
+    wh: Wormhole<Network>,
     req: {
       srcChain: ChainName | ChainId;
       srcToken: string;
@@ -114,7 +90,7 @@ export class SDKv2Route<N extends Network> extends RouteAbstract {
   async getV2ChainContext<C extends Chain>(
     chainV1: ChainName | ChainId,
   ): Promise<{ chain: C; context: ChainContext<N, C> }> {
-    const wh = await this.getWh(this.network);
+    const wh = await getWormholeContextV2();
     const chain = config.sdkConverter.toChainV2(chainV1) as C;
     const context = wh
       .getPlatform(chainToPlatform(chain))
@@ -135,7 +111,7 @@ export class SDKv2Route<N extends Network> extends RouteAbstract {
     const fromChain = await this.getV2ChainContext(fromChainV1);
     const toChain = await this.getV2ChainContext(toChainV1);
 
-    const supportedChains = this.rc.supportedChains(this.network);
+    const supportedChains = this.rc.supportedChains(config.v2Network);
 
     const fromChainSupported = supportedChains.includes(fromChain.chain);
     const toChainSupported = supportedChains.includes(toChain.chain);
@@ -207,7 +183,7 @@ export class SDKv2Route<N extends Network> extends RouteAbstract {
 
   isSupportedChain(chainV1: ChainName): boolean {
     const chain = config.sdkConverter.toChainV2(chainV1);
-    return this.rc.supportedChains(this.network).includes(chain);
+    return this.rc.supportedChains(config.v2Network).includes(chain);
   }
 
   async isRouteAvailable(
@@ -323,7 +299,7 @@ export class SDKv2Route<N extends Network> extends RouteAbstract {
     console.log('getting quote', this);
     console.trace();
 
-    const wh = await this.getWh(this.network);
+    const wh = await getWormholeContextV2();
 
     const req = await this.toRequest(wh, {
       srcToken: sourceToken,

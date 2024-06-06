@@ -35,6 +35,9 @@ export const useComputeSourceTokens = (props: Props): void => {
         sourceChain,
         destChain,
       );
+
+      console.log(supported);
+
       if (active) {
         dispatch(setSupportedSourceTokens(supported));
         const isTokenSupported =

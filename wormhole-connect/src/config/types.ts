@@ -1,3 +1,4 @@
+// Legacy SDK
 import { Network as NetworkLegacy } from '@certusone/wormhole-sdk';
 import {
   ChainConfig as BaseChainConfig,
@@ -8,6 +9,13 @@ import {
   WormholeContext,
   WormholeConfig,
 } from '@wormhole-foundation/wormhole-connect-sdk';
+
+// SDKv2
+import {
+  Network as NetworkV2,
+  Wormhole as WormholeV2,
+} from '@wormhole-foundation/sdk';
+
 import { Alignment } from 'components/Header';
 import { WormholeConnectPartialTheme } from 'theme';
 import { TransferDetails, WormholeConnectEventHandler } from 'telemetry/types';
@@ -152,13 +160,18 @@ export interface WormholeConnectConfig {
 }
 
 // This is the exported config value used throughout the code base
-export interface InternalConfig {
+export interface InternalConfig<N extends NetworkV2> {
   wh: WormholeContext;
+
   sdkConfig: WormholeConfig;
   sdkConverter: SDKConverter;
 
   network: Network;
   networkLegacy: NetworkLegacy; // TODO remove...
+
+  // SDkv2
+  v2Network: N;
+  v2Wormhole?: WormholeV2<N>; // cache
 
   isMainnet: boolean;
 

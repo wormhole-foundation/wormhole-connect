@@ -28,6 +28,8 @@ const {
   REACT_APP_XLAYER_RPC,
 } = import.meta.env;
 
+console.log(REACT_APP_ETHEREUM_RPC);
+
 export const MAINNET_RPC_MAPPING = {
   ...populateRpcField('ethereum', REACT_APP_ETHEREUM_RPC),
   ...populateRpcField('solana', REACT_APP_SOLANA_RPC),
