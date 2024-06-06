@@ -43,18 +43,22 @@ export async function postVaaWithRetry(
       parsedVaa.hash,
     );
     const postedVaa = await connection.getAccountInfo(postedVaaAddress);
+    console.log('postedVaaAddress', postedVaaAddress, postedVaa);
     if (postedVaa !== null) {
       return [];
     }
   } catch (e) {
     console.error('Failed to check if VAA has already been posted:', e);
   }
+  const signatureSet = Keypair.generate();
+
   const { unsignedTransactions, signers } =
     await createPostSignedVaaTransactions(
       connection,
       wormholeProgramId,
       payer,
       vaa,
+      signatureSet,
       commitment,
     );
   const postVaaTransaction = unsignedTransactions.pop();
@@ -63,13 +67,14 @@ export async function postVaaWithRetry(
   console.log(
     'unsignedTransactions & postVaaTransaction',
     unsignedTransactions,
-    postVaaTransaction,
+    //postVaaTransaction,
   );
   // Returns the txs that are NOT present on the blockchain
   const transactionsNotPresent = await pendingSignatureVerificationTxs(
     unsignedTransactions,
     connection,
     wormholeProgramId,
+    signatureSet,
     commitment,
   );
 
@@ -78,7 +83,7 @@ export async function postVaaWithRetry(
     await addComputeBudget(connection, unsignedTransaction, [], 0.75, 1, true);
   }
   console.log(
-    'txs',
+    'txssss',
     transactionsNotPresent,
     unsignedTransactions,
     postVaaTransaction,
@@ -87,7 +92,7 @@ export async function postVaaWithRetry(
     connection,
     modifySignTransaction(signTransaction, ...signers),
     payer.toString(),
-    transactionsNotPresent.map((tx: TransactionWithIndex) => tx.transaction),
+    unsignedTransactions.map((tx) => tx.transaction),
     { maxRetries, commitment },
   );
   if (responses.errors && responses.errors?.length > 0)
@@ -133,10 +138,10 @@ export async function createPostSignedVaaTransactions(
   wormholeProgramId: PublicKeyInitData,
   payer: PublicKeyInitData,
   vaa: SignedVaa | ParsedVaa,
+  signatureSet: Keypair,
   commitment?: Commitment,
 ): Promise<PreparedTransactions> {
   const parsed = isBytes(vaa) ? parseVaa(vaa) : vaa;
-  const signatureSet = Keypair.generate();
 
   const verifySignaturesInstructions = await createVerifySignaturesInstructions(
     connection,

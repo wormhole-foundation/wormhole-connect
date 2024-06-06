@@ -1,6 +1,7 @@
 import {
   Commitment,
   Connection,
+  Keypair,
   PublicKey,
   PublicKeyInitData,
 } from '@solana/web3.js';
@@ -57,7 +58,7 @@ export async function getPostedMessage(
 export async function verifiedSignatures(
   transaction: TransactionWithIndex,
   connection: Connection,
-  wormholeProgramId: PublicKeyInitData,
+  signatureSet: Keypair,
   commitment?: Commitment,
 ): Promise<boolean> {
   if (transaction.signatureIndexes.length === 0) {
@@ -67,12 +68,12 @@ export async function verifiedSignatures(
     'verifiedSignatures',
     transaction,
     connection,
-    wormholeProgramId,
+    signatureSet,
     commitment,
   );
   const signatureSetData = await getSignatureSetData(
     connection,
-    wormholeProgramId,
+    signatureSet?.publicKey,
     commitment,
   );
 
@@ -86,6 +87,7 @@ export async function pendingSignatureVerificationTxs(
   transactions: TransactionWithIndex[],
   connection: Connection,
   wormholeProgramId: PublicKeyInitData,
+  signatureSet: Keypair,
   commitment?: Commitment,
 ): Promise<TransactionWithIndex[]> {
   const txs: TransactionWithIndex[] = [];
@@ -93,7 +95,7 @@ export async function pendingSignatureVerificationTxs(
     const isPresent = await verifiedSignatures(
       tx,
       connection,
-      wormholeProgramId,
+      signatureSet,
       commitment,
     );
     if (!isPresent) {
