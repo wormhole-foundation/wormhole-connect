@@ -8,6 +8,7 @@ import { InboundQueuedTransfer } from '../../types';
 import { solanaContext, toChainId, toChainName } from 'utils/sdk';
 import { TransferWallet, postVaa, signAndSendTransaction } from 'utils/wallet';
 import {
+  AddressLookupTableProgram,
   Connection,
   Keypair,
   PublicKey,
@@ -72,7 +73,10 @@ export class NttManagerSolana {
   readonly connection: Connection;
   readonly wormholeId: string;
 
-  constructor(readonly nttId: string) {
+  constructor(
+    readonly nttId: string,
+    private readonly isMultiSignWallet = false,
+  ) {
     const { connection } = solanaContext();
     if (!connection) throw new Error('Connection not found');
     this.connection = connection;
@@ -97,6 +101,7 @@ export class NttManagerSolana {
     const tokenAccount = getAssociatedTokenAddressSync(
       new PublicKey(token.address),
       payer,
+      this.isMultiSignWallet,
     );
     const txArgs = {
       payer,
@@ -156,14 +161,70 @@ export class NttManagerSolana {
     tx.recentBlockhash = blockhash;
     await this.simulate(tx);
     await addComputeBudget(this.connection, tx);
-    tx.partialSign(outboxItem);
-    const txId = await signAndSendTransaction(
-      'solana',
-      tx,
-      TransferWallet.SENDING,
-      { commitment: 'finalized' },
-    );
-    return txId;
+
+    /*
+    if is multisign wallet, we need to extend the lookup table
+    with all the addresses that are used in the transaction
+    in order to reduce his size
+    */
+    if (this.isMultiSignWallet) {
+      const accounts = tx.instructions.flatMap((instruction) =>
+        instruction.keys.map((key) => key.pubkey),
+      );
+      const slot = await this.connection.getSlot();
+      const [lookupTableInst, lookupTableAddress] =
+        AddressLookupTableProgram.createLookupTable({
+          authority: payer,
+          payer: payer,
+          recentSlot: slot,
+        });
+      const lookupTableCreationTx = new TransactionMessage({
+        payerKey: payer,
+        recentBlockhash: tx.recentBlockhash,
+        instructions: [lookupTableInst],
+      }).compileToV0Message();
+      const lookupTableCreationVersionedTx = new VersionedTransaction(
+        lookupTableCreationTx,
+      );
+      await signAndSendTransaction(
+        'solana',
+        lookupTableCreationVersionedTx as any,
+        TransferWallet.SENDING,
+        { commitment: 'confirmed' },
+      );
+      const extendInstruction = AddressLookupTableProgram.extendLookupTable({
+        payer: payer,
+        authority: payer,
+        lookupTable: lookupTableAddress,
+        addresses: [...accounts],
+      });
+      const lookupTableAccount = await this.connection.getAddressLookupTable(
+        lookupTableAddress,
+      );
+      const lookupTableAccountValue = lookupTableAccount.value!;
+      const messageV0 = new TransactionMessage({
+        payerKey: payer,
+        recentBlockhash: tx.recentBlockhash,
+        instructions: [extendInstruction, ...tx.instructions],
+      }).compileToV0Message([lookupTableAccountValue]);
+      const versionedTx = new VersionedTransaction(messageV0);
+      const txId = await signAndSendTransaction(
+        'solana',
+        versionedTx as any,
+        TransferWallet.SENDING,
+        { commitment: 'confirmed' },
+      );
+      return txId;
+    } else {
+      tx.partialSign(outboxItem);
+      const txId = await signAndSendTransaction(
+        'solana',
+        tx,
+        TransferWallet.SENDING,
+        { commitment: 'confirmed' },
+      );
+      return txId;
+    }
   }
 
   async receiveMessage(vaa: string, payer: string): Promise<string> {

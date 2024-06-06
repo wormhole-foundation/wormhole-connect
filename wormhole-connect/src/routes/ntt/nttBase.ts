@@ -47,6 +47,11 @@ import {
   isNttToken,
   isNttTokenPair,
 } from 'utils/ntt';
+import {
+  TransferWallet,
+  getWalletConnection,
+  isMultiSignWallet,
+} from 'utils/wallet';
 
 export abstract class NttBase extends BaseRoute {
   isSupportedChain(chain: ChainName): boolean {
@@ -232,7 +237,12 @@ export abstract class NttBase extends BaseRoute {
     }
     const nttManagerAddress = getNttManagerAddress(tokenConfig, nttGroupKey);
     if (!nttManagerAddress) throw new Error('ntt manager not found');
-    const nttManager = getNttManager(sendingChain, nttManagerAddress);
+    const multiSignWallet = isMultiSignWallet(
+      getWalletConnection(TransferWallet.SENDING),
+    );
+    const nttManager = getNttManager(sendingChain, nttManagerAddress, {
+      multiSignWallet,
+    });
     if (await nttManager.isPaused()) {
       throw new ContractIsPausedError();
     }

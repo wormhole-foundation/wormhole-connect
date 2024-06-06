@@ -154,6 +154,9 @@ export const getWalletConnection = (type: TransferWallet) => {
   return walletConnection[type];
 };
 
+export const isMultiSignWallet = (wallet?: Wallet): boolean =>
+  !!(wallet && ['SquadsX'].includes(wallet.getName()));
+
 export const swapWalletConnections = () => {
   const temp = walletConnection.sending;
   walletConnection.sending = walletConnection.receiving;
