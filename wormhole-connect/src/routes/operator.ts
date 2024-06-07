@@ -217,19 +217,34 @@ export class Operator {
   ): Promise<TokenConfig[]> {
     const supported: { [key: string]: TokenConfig } = {};
     for (const route of config.routes) {
-      for (const token of config.tokensArr) {
-        const { key } = token;
-        const alreadySupported = supported[key];
-        if (!alreadySupported) {
-          const isSupported = await this.isSupportedSourceToken(
-            route as Route,
-            config.tokens[key],
-            destToken,
-            sourceChain,
-            destChain,
-          );
-          if (isSupported) {
-            supported[key] = config.tokens[key];
+      const r = this.getRoute(route as Route);
+
+      try {
+        const sourceTokens = await r.supportedSourceTokens(
+          config.tokensArr,
+          destToken,
+          sourceChain,
+          destChain,
+        );
+
+        for (const token of sourceTokens) {
+          supported[token.key] = token;
+        }
+      } catch (e) {
+        for (const token of config.tokensArr) {
+          const { key } = token;
+          const alreadySupported = supported[key];
+          if (!alreadySupported) {
+            const isSupported = await this.isSupportedSourceToken(
+              route as Route,
+              config.tokens[key],
+              destToken,
+              sourceChain,
+              destChain,
+            );
+            if (isSupported) {
+              supported[key] = config.tokens[key];
+            }
           }
         }
       }
