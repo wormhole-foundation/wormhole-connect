@@ -53,9 +53,11 @@ export const abiVersionMatches = (
   targetVersion: string,
   abiVersion: string,
 ): boolean => {
-  let [majorTarget, minorTarget] = targetVersion
+  const [majorTarget, minorTarget] = targetVersion
     .split('.')
     .map((n) => parseInt(n, 10));
-  let [majorAbi, minorAbi] = abiVersion.split('.').map((n) => parseInt(n, 10));
+  const [majorAbi, minorAbi] = abiVersion
+    .split('.')
+    .map((n) => parseInt(n, 10));
   return majorTarget == majorAbi && minorTarget >= minorAbi;
 };

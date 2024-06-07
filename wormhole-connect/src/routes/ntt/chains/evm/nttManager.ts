@@ -254,7 +254,7 @@ export class NttManagerEvm {
       NttManagerEvm.abiVersionCache.set(abiVersionKey, abiVersion);
     }
 
-    for (let [version, factory] of KNOWN_ABI_VERSIONS) {
+    for (const [version, factory] of KNOWN_ABI_VERSIONS) {
       if (abiVersionMatches(abiVersion, version)) {
         return {
           abi: factory.connect(this.address, provider),
