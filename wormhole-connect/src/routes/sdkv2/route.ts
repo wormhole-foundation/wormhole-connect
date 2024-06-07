@@ -31,7 +31,7 @@ import { ParsedMessage, ParsedRelayerMessage } from 'utils/sdk';
 import { amount } from '@wormhole-foundation/sdk';
 import config, { getWormholeContextV2 } from 'config';
 
-export class SDKv2Route<N extends Network> extends RouteAbstract {
+export class SDKv2Route extends RouteAbstract {
   TYPE: Route;
   NATIVE_GAS_DROPOFF_SUPPORTED = false;
   AUTOMATIC_DEPOSIT = false;
@@ -51,7 +51,7 @@ export class SDKv2Route<N extends Network> extends RouteAbstract {
       dstChain: ChainName | ChainId;
       dstToken: string;
     },
-  ): Promise<routes.RouteTransferRequest<N>> {
+  ): Promise<routes.RouteTransferRequest<Network>> {
     const srcChain = (await this.getV2ChainContext(req.srcChain)).context;
     const dstChain = (await this.getV2ChainContext(req.dstChain)).context;
 
@@ -89,12 +89,12 @@ export class SDKv2Route<N extends Network> extends RouteAbstract {
 
   async getV2ChainContext<C extends Chain>(
     chainV1: ChainName | ChainId,
-  ): Promise<{ chain: C; context: ChainContext<N, C> }> {
+  ): Promise<{ chain: C; context: ChainContext<Network, C> }> {
     const wh = await getWormholeContextV2();
     const chain = config.sdkConverter.toChainV2(chainV1) as C;
     const context = wh
       .getPlatform(chainToPlatform(chain))
-      .getChain(chain) as ChainContext<N, C>;
+      .getChain(chain) as ChainContext<Network, C>;
     return {
       chain,
       context,
