@@ -7,8 +7,6 @@ import {
   chainToPlatform,
   isSameToken,
   TokenId as TokenIdV2,
-  UnsignedTransaction,
-  TxHash,
 } from '@wormhole-foundation/sdk';
 import {
   ChainId,
@@ -29,7 +27,8 @@ import {
 } from 'routes/types';
 import { TokenPrices } from 'store/tokenPrices';
 import { ParsedMessage, ParsedRelayerMessage } from 'utils/sdk';
-import { signAndSendTransaction, TransferWallet } from 'utils/wallet';
+
+import { SDKv2Signer } from './signer';
 
 import { amount } from '@wormhole-foundation/sdk';
 import config, { getWormholeContextV2 } from 'config';
@@ -436,24 +435,11 @@ export class SDKv2Route extends RouteAbstract {
       throw quote.error;
     }
 
-    const fromChainNameV1 = config.wh.toChainName(fromChainV1);
-
-    const signer = {
-      signAndSend: async function (
-        tx: UnsignedTransaction<Network, typeof fromChainV2.chain>[],
-      ): Promise<TxHash[]> {
-        console.log(tx);
-        signAndSendTransaction(
-          fromChainNameV1,
-          tx[0],
-          TransferWallet.SENDING,
-          options,
-        );
-        return [];
-      },
-      chain: () => fromChainV2.chain,
-      address: () => senderAddress,
-    };
+    const signer = await SDKv2Signer.fromChainV1(
+      fromChainV1,
+      senderAddress,
+      options,
+    );
 
     route.initiate(
       signer,
