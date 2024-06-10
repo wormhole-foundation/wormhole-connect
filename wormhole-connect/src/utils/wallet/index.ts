@@ -7,7 +7,6 @@ import {
   postVaaSolanaWithRetry,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { CHAIN_ID_EVMOS, CHAIN_ID_INJECTIVE } from '@certusone/wormhole-sdk';
-import { ContractReceipt } from 'ethers';
 import {
   NotSupported,
   Wallet,
@@ -224,7 +223,14 @@ export const signAndSendTransaction = async (
 
   switch (chainConfig.context) {
     case Context.ETH: {
-      return (transaction as ContractReceipt).transactionHash;
+      const { signAndSendTransaction } = await import('utils/wallet/evm');
+      const tx = await signAndSendTransaction(
+        transaction,
+        wallet,
+        chain,
+        options,
+      );
+      return tx.id;
     }
     case Context.SOLANA: {
       const { signAndSendTransaction } = await import('utils/wallet/solana');

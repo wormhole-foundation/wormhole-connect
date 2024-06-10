@@ -7,6 +7,8 @@ import {
   chainToPlatform,
   isSameToken,
   TokenId as TokenIdV2,
+  UnsignedTransaction,
+  TxHash,
 } from '@wormhole-foundation/sdk';
 import {
   ChainId,
@@ -27,6 +29,7 @@ import {
 } from 'routes/types';
 import { TokenPrices } from 'store/tokenPrices';
 import { ParsedMessage, ParsedRelayerMessage } from 'utils/sdk';
+import { signAndSendTransaction, TransferWallet } from 'utils/wallet';
 
 import { amount } from '@wormhole-foundation/sdk';
 import config, { getWormholeContextV2 } from 'config';
@@ -36,55 +39,9 @@ export class SDKv2Route extends RouteAbstract {
   NATIVE_GAS_DROPOFF_SUPPORTED = false;
   AUTOMATIC_DEPOSIT = false;
 
-  route?: routes.Route<Network>;
-
   constructor(readonly rc: routes.RouteConstructor, routeType: Route) {
     super();
     this.TYPE = routeType;
-  }
-
-  async toRequest<FC extends Chain, TC extends Chain>(
-    wh: Wormhole<Network>,
-    req: {
-      srcChain: ChainName | ChainId;
-      srcToken: string;
-      dstChain: ChainName | ChainId;
-      dstToken: string;
-    },
-  ): Promise<routes.RouteTransferRequest<Network>> {
-    const srcChain = (await this.getV2ChainContext(req.srcChain)).context;
-    const dstChain = (await this.getV2ChainContext(req.dstChain)).context;
-
-    const srcTokenV2: TokenIdV2<FC> | undefined =
-      config.sdkConverter.getTokenIdV2ForKey(
-        req.srcToken,
-        req.srcChain,
-        config.tokens,
-      );
-    const dstTokenV2: TokenIdV2<TC> | undefined =
-      config.sdkConverter.getTokenIdV2ForKey(
-        req.dstToken,
-        req.dstChain,
-        config.tokens,
-      );
-
-    if (srcTokenV2 === undefined) {
-      throw new Error(`Failed to find TokenId for ${req.srcToken}`);
-    }
-    if (dstTokenV2 === undefined) {
-      throw new Error(`Failed to find TokenId for ${req.dstToken}`);
-    }
-
-    return routes.RouteTransferRequest.create(
-      wh,
-      /* @ts-ignore */
-      {
-        source: srcTokenV2,
-        destination: dstTokenV2,
-      },
-      srcChain,
-      dstChain,
-    );
   }
 
   async getV2ChainContext<C extends Chain>(
@@ -285,6 +242,40 @@ export class SDKv2Route extends RouteAbstract {
       .filter((tc) => tc != undefined) as TokenConfig[];
   }
 
+  private async getQuote<FC extends Chain, TC extends Chain>(
+    amount: string,
+    sourceToken: TokenIdV2<FC>,
+    destToken: TokenIdV2<TC>,
+    sourceChain: ChainContext<Network, FC>,
+    destChain: ChainContext<Network, TC>,
+    options: any,
+  ): Promise<[routes.Route<Network>, routes.QuoteResult<any>]> {
+    const wh = await getWormholeContextV2();
+    const req = await routes.RouteTransferRequest.create(
+      wh,
+      /* @ts-ignore */
+      {
+        source: sourceToken,
+        destination: destToken,
+      },
+      sourceChain,
+      destChain,
+    );
+
+    const route = new this.rc(wh, req);
+
+    const validationResult = await route.validate({
+      amount,
+      options,
+    });
+
+    if (!validationResult.valid) {
+      throw validationResult.error;
+    }
+
+    return [route, await route.quote(validationResult.params)];
+  }
+
   async computeReceiveAmount(
     amountIn: number,
     sourceToken: string,
@@ -294,35 +285,40 @@ export class SDKv2Route extends RouteAbstract {
     options: any,
   ): Promise<number> {
     if (!fromChainV1 || !toChainV1)
-      throw new Error('source and destination chains are required');
+      throw new Error('Need both chains to get a quote from SDKv2');
 
-    console.log('getting quote', this);
-    console.trace();
+    const srcTokenV2: TokenIdV2 | undefined =
+      config.sdkConverter.getTokenIdV2ForKey(
+        sourceToken,
+        fromChainV1,
+        config.tokens,
+      );
 
-    const wh = await getWormholeContextV2();
+    const dstTokenV2: TokenIdV2 | undefined =
+      config.sdkConverter.getTokenIdV2ForKey(
+        destToken,
+        toChainV1,
+        config.tokens,
+      );
 
-    const req = await this.toRequest(wh, {
-      srcToken: sourceToken,
-      srcChain: fromChainV1,
-      dstChain: toChainV1,
-      dstToken: destToken,
-    });
-
-    console.log(req);
-
-    const route = new this.rc(wh, req);
-
-    const validationResult = await route.validate({
-      amount: amountIn.toString(),
-    });
-
-    console.log(validationResult);
-
-    if (!validationResult.valid) {
-      throw validationResult.error;
+    if (srcTokenV2 === undefined) {
+      throw new Error(`Failed to find TokenId for ${sourceToken}`);
+    }
+    if (dstTokenV2 === undefined) {
+      throw new Error(`Failed to find TokenId for ${destToken}`);
     }
 
-    const quote = await route.quote(validationResult.params);
+    const srcChain = (await this.getV2ChainContext(fromChainV1)).context;
+    const dstChain = (await this.getV2ChainContext(toChainV1)).context;
+
+    const [_route, quote] = await this.getQuote(
+      amountIn.toString(),
+      srcTokenV2,
+      dstTokenV2,
+      srcChain,
+      dstChain,
+      options,
+    );
 
     if (quote.success) {
       return amount.whole(quote.destinationToken.amount);
@@ -339,6 +335,10 @@ export class SDKv2Route extends RouteAbstract {
     toChainV1: ChainName | undefined,
     routeOptions: any,
   ): Promise<number> {
+    if (!fromChainV1 || !toChainV1)
+      throw new Error('Need both chains to get a quote from SDKv2');
+
+    // TODO handle fees?
     return this.computeReceiveAmount(
       amount,
       sourceToken,
@@ -350,6 +350,7 @@ export class SDKv2Route extends RouteAbstract {
   }
 
   // Unused method, don't bother implementing
+  // TODO Get rid of this
   public computeSendAmount(
     receiveAmount: number | undefined,
     routeOptions: any,
@@ -396,16 +397,79 @@ export class SDKv2Route extends RouteAbstract {
     return Infinity;
   }
 
-  public send(
-    token: TokenIdV1 | 'native',
+  async send(
+    sourceToken: TokenIdV1 | 'native',
     amount: string,
-    sendingChain: ChainName | ChainId,
+    fromChainV1: ChainName | ChainId,
     senderAddress: string,
-    recipientChain: ChainName | ChainId,
+    toChainV1: ChainName | ChainId,
     recipientAddress: string,
     destToken: string,
-    routeOptions: any,
+    options: any,
   ): Promise<any> {
+    const fromChainV2 = await this.getV2ChainContext(fromChainV1);
+    const toChainV2 = await this.getV2ChainContext(toChainV1);
+
+    const sourceTokenV2 =
+      sourceToken === 'native'
+        ? Wormhole.tokenId(config.sdkConverter.toChainV2(fromChainV1), 'native')
+        : config.sdkConverter.toTokenIdV2(sourceToken);
+
+    const destTokenV2 = config.sdkConverter.getTokenIdV2ForKey(
+      destToken,
+      toChainV1,
+      config.tokens,
+    );
+
+    if (!destTokenV2) throw new Error(`Couldn't find destToken`);
+
+    const [route, quote] = await this.getQuote(
+      amount.toString(),
+      sourceTokenV2,
+      destTokenV2,
+      fromChainV2.context,
+      toChainV2.context,
+      options,
+    );
+
+    if (!quote.success) {
+      throw quote.error;
+    }
+
+    const fromChainNameV1 = config.wh.toChainName(fromChainV1);
+
+    const signer = {
+      signAndSend: async function (
+        tx: UnsignedTransaction<Network, typeof fromChainV2.chain>[],
+      ): Promise<TxHash[]> {
+        console.log(tx);
+        signAndSendTransaction(
+          fromChainNameV1,
+          tx[0],
+          TransferWallet.SENDING,
+          options,
+        );
+        return [];
+      },
+      chain: () => fromChainV2.chain,
+      address: () => senderAddress,
+    };
+
+    route.initiate(
+      signer,
+      quote,
+      Wormhole.chainAddress(
+        config.sdkConverter.toChainV2(toChainV1),
+        recipientAddress,
+      ),
+    );
+
+    /*
+    const txId = await signAndSendTransaction(
+      fromChainV1,
+    );
+    */
+
     throw new Error('Method not implemented.');
   }
 
@@ -450,21 +514,21 @@ export class SDKv2Route extends RouteAbstract {
     throw new Error('Method not implemented.');
   }
 
-  getRelayerFee(
+  async getRelayerFee(
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
     token: string,
     destToken: string,
   ): Promise<RelayerFee | null> {
-    throw new Error('Method not implemented.');
+    return null;
   }
 
-  getForeignAsset(
+  async getForeignAsset(
     token: TokenIdV1,
     chain: ChainName | ChainId,
     destToken?: TokenConfig | undefined,
   ): Promise<string | null> {
-    throw new Error('Method not implemented.');
+    return 'test';
   }
 
   getMessage(tx: string, chain: ChainName | ChainId): Promise<UnsignedMessage> {
