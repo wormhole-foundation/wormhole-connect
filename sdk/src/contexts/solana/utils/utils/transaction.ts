@@ -31,7 +31,7 @@ export interface TransactionSignatureAndResponse {
   response: RpcResponseAndContext<SignatureResult>;
 }
 
-interface SignSendAndConfirmTransactionResponse {
+export interface SignSendAndConfirmTransactionResponse {
   result: TransactionSignatureAndResponse[];
   errors?: any[];
 }
