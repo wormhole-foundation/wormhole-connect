@@ -230,7 +230,7 @@ export const signAndSendTransaction = async (
         chain,
         options,
       );
-      return tx.id;
+      return tx.transactionHash;
     }
     case Context.SOLANA: {
       const { signAndSendTransaction } = await import('utils/wallet/solana');

@@ -7,6 +7,7 @@ import {
   chainToPlatform,
   isSameToken,
   TokenId as TokenIdV2,
+  TransferState,
 } from '@wormhole-foundation/sdk';
 import {
   ChainId,
@@ -405,7 +406,7 @@ export class SDKv2Route extends RouteAbstract {
     recipientAddress: string,
     destToken: string,
     options: any,
-  ): Promise<any> {
+  ): Promise<string> {
     const fromChainV2 = await this.getV2ChainContext(fromChainV1);
     const toChainV2 = await this.getV2ChainContext(toChainV1);
 
@@ -441,7 +442,7 @@ export class SDKv2Route extends RouteAbstract {
       options,
     );
 
-    route.initiate(
+    let receipt = await route.initiate(
       signer,
       quote,
       Wormhole.chainAddress(
@@ -450,13 +451,12 @@ export class SDKv2Route extends RouteAbstract {
       ),
     );
 
-    /*
-    const txId = await signAndSendTransaction(
-      fromChainV1,
-    );
-    */
-
-    throw new Error('Method not implemented.');
+    if (receipt.state === TransferState.SourceInitiated) {
+      return receipt.originTxs[receipt.originTxs.length - 1].txid.blockhash;
+    } else {
+      console.error(`Don't know how to handle receipt`, receipt);
+      return null;
+    }
   }
 
   public redeem(
