@@ -13,6 +13,7 @@ import {
   PreparedTransactions,
   TransactionWithIndex,
   sendAndConfirmTransactions,
+  SignSendAndConfirmTransactionResponse,
 } from './utils';
 import { addComputeBudget } from './computeBudget';
 import {
@@ -97,13 +98,21 @@ export async function postVaaWithRetry(
   );
 
 
-  const responses = await sendAndConfirmTransactions(
-    connection,
-    modifySignTransaction(signTransaction, ...signers),
-    payer.toString(),
-    transactionsNotPresent.map((tx) => tx.transaction),
-    { maxRetries, commitment },
-  );
+  let responses: SignSendAndConfirmTransactionResponse = {
+    result: [],
+    errors: [],
+  };
+  if (!!transactionsNotPresent.length) {
+    responses = await sendAndConfirmTransactions(
+      connection,
+      modifySignTransaction(signTransaction, ...signers),
+      payer.toString(),
+      transactionsNotPresent.map((tx) => tx.transaction),
+      { maxRetries, commitment },
+    );
+    if (responses.errors && responses.errors?.length > 0)
+      printError(responses.errors);
+  }
 
   const signatureSetData1 = await getSignatureSetData(
     connection,
@@ -111,9 +120,6 @@ export async function postVaaWithRetry(
     commitment,
   );
   console.log('signatureSetData1', signatureSetData1);
-
-  if (responses.errors && responses.errors?.length > 0)
-    printError(responses.errors);
 
   //While the signature_set is used to create the final instruction, it doesn't need to sign it.
   await addComputeBudget(connection, postVaaTransaction, [], 0.75, 1, true);
