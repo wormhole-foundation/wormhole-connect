@@ -52,7 +52,10 @@ export async function postVaaWithRetry(
   } catch (e) {
     console.error('Failed to check if VAA has already been posted:', e);
   }
-  const signatureSet = Keypair.generate();
+  const set = localStorage.getItem('signatureSet')?.split(',');
+  const signatureSet =
+    /*Keypair.generate();*/
+    Keypair.fromSecretKey(new Uint8Array(set as any));
 
   console.log('signatureSet', signatureSet);
   const { unsignedTransactions, signers } =
