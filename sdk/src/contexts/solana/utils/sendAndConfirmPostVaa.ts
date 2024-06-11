@@ -19,6 +19,7 @@ import {
   createPostVaaInstruction,
   createVerifySignaturesInstructions,
   derivePostedVaaKey,
+  getSignatureSetData,
   pendingSignatureVerificationTxs,
 } from './wormhole';
 import { isBytes, ParsedVaa, parseVaa, SignedVaa } from '../../../vaa/wormhole';
@@ -35,9 +36,10 @@ export async function postVaaWithRetry(
   maxRetries?: number,
   commitment?: Commitment,
 ): Promise<TransactionSignatureAndResponse[]> {
+  let parsedVaa: ParsedVaa;
   try {
     // Check if the VAA has already been posted
-    const parsedVaa = parseVaa(vaa);
+    parsedVaa = parseVaa(vaa);
     const postedVaaAddress = derivePostedVaaKey(
       wormholeProgramId,
       parsedVaa.hash,
@@ -52,6 +54,7 @@ export async function postVaaWithRetry(
   }
   const signatureSet = Keypair.generate();
 
+  console.log('signatureSet', signatureSet);
   const { unsignedTransactions, signers } =
     await createPostSignedVaaTransactions(
       connection,
@@ -95,6 +98,14 @@ export async function postVaaWithRetry(
     unsignedTransactions.map((tx) => tx.transaction),
     { maxRetries, commitment },
   );
+
+  const signatureSetData1 = await getSignatureSetData(
+    connection,
+    signatureSet?.publicKey,
+    commitment,
+  );
+  console.log('signatureSetData1', signatureSetData1);
+
   if (responses.errors && responses.errors?.length > 0)
     printError(responses.errors);
 
@@ -111,6 +122,14 @@ export async function postVaaWithRetry(
     )),
   );
   responses.result.push(postVaaResponse.result[0]);
+
+  const signatureSetData = await getSignatureSetData(
+    connection,
+    signatureSet?.publicKey,
+    commitment,
+  );
+  console.log('signatureSetData', signatureSetData);
+
   if (postVaaResponse.errors && postVaaResponse.errors?.length > 0)
     printError(postVaaResponse.errors);
 

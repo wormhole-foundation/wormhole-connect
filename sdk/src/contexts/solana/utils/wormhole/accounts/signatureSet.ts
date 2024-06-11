@@ -15,8 +15,12 @@ export async function getSignatureSetData(
     new PublicKey(signatureSet),
     commitment,
   );
-  const accountData = getAccountData(account);
-  return SignatureSetData.deserialize(accountData);
+  try {
+    const accountData = getAccountData(account);
+    return SignatureSetData.deserialize(accountData);
+  } catch (e) {
+    return null;
+  }
 }
 
 export class SignatureSetData {
