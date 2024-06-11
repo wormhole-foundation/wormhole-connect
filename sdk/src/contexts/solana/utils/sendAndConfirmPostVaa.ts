@@ -84,21 +84,24 @@ export async function postVaaWithRetry(
     commitment,
   );
 
-  for (const unsignedTransaction of unsignedTransactions) {
+  for (const unsignedTransaction of transactionsNotPresent) {
     unsignedTransaction.feePayer = new PublicKey(payer);
     await addComputeBudget(connection, unsignedTransaction, [], 0.75, 1, true);
   }
+
   console.log(
-    'txssss',
+    'transactions',
     transactionsNotPresent,
     unsignedTransactions,
     postVaaTransaction,
   );
+
+
   const responses = await sendAndConfirmTransactions(
     connection,
     modifySignTransaction(signTransaction, ...signers),
     payer.toString(),
-    unsignedTransactions.map((tx) => tx.transaction),
+    transactionsNotPresent.map((tx) => tx.transaction),
     { maxRetries, commitment },
   );
 
