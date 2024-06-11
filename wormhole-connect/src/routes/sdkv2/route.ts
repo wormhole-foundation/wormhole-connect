@@ -452,10 +452,9 @@ export class SDKv2Route extends RouteAbstract {
     );
 
     if (receipt.state === TransferState.SourceInitiated) {
-      return receipt.originTxs[receipt.originTxs.length - 1].txid.blockhash;
+      return receipt.originTxs[receipt.originTxs.length - 1].txid;
     } else {
-      console.error(`Don't know how to handle receipt`, receipt);
-      return null;
+      throw new Error(`Don't know how to handle receipt`);
     }
   }
 

@@ -7,6 +7,7 @@ import {
 import config from 'config';
 import { TransactionRequest } from '@ethersproject/abstract-provider';
 import { Deferrable } from '@ethersproject/properties';
+import { SendResult } from '@wormhole-foundation/wormhole-connect-sdk';
 
 export const wallets = {
   injected: new InjectedWallet(),
@@ -43,7 +44,7 @@ export async function switchChain(w: Wallet, chainId: number | string) {
 }
 
 export async function signAndSendTransaction(
-  transaction: Deferrable<TransactionRequest>,
+  transaction: SendResult,
   w: Wallet,
   chainName: string,
   options: any, // TODO ?!?!!?!?
@@ -51,6 +52,8 @@ export async function signAndSendTransaction(
   // TODO remove reliance on SDkv1 here (multi-provider)
   const signer = config.wh.getSigner(chainName);
   if (!signer) throw new Error('No signer found for chain' + chainName);
-  const tx = await signer.sendTransaction(transaction);
-  return await tx.wait();
+  const tx = await signer.sendTransaction(
+    transaction as Deferrable<TransactionRequest>,
+  );
+  return (await tx.wait()).transactionHash;
 }

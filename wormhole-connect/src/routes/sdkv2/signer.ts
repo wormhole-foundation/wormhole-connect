@@ -7,7 +7,7 @@ import {
   SignAndSendSigner,
   TxHash,
 } from '@wormhole-foundation/sdk';
-import { EvmUnsignedTransaction } from '@wormhole-foundation/sdk-evm';
+//import { EvmUnsignedTransaction } from '@wormhole-foundation/sdk-evm';
 import {
   ChainId,
   ChainName,
@@ -17,6 +17,9 @@ import config, { getWormholeContextV2 } from 'config';
 import { signAndSendTransaction, TransferWallet } from 'utils/wallet';
 import * as ethers5 from 'ethers';
 import * as ethers6 from 'ethers6';
+
+import { TransactionRequest } from '@ethersproject/abstract-provider';
+import { Deferrable } from '@ethersproject/properties';
 
 // Utility class that bridges between legacy Connect signer interface and SDKv2 signer interface
 export class SDKv2Signer<N extends Network, C extends Chain>
@@ -78,12 +81,13 @@ export class SDKv2Signer<N extends Network, C extends Chain>
       data: tx.transaction.data,
     }).unsignedSerialized;
     let tx5: ethers5.Transaction = ethers5.utils.parseTransaction(serialized);
-    tx5.gasLimit = null;
-    tx5.gasPrice = null;
-    tx5.maxFeePerGas = null;
-    tx5.maxPriorityFeePerGas = null;
-    tx5.nonce = null;
-    return tx5;
+    let unsignedTx: Deferrable<TransactionRequest> = {
+      to: tx5.to,
+      type: tx5.type as number,
+      chainId: tx5.chainId,
+      data: tx5.data,
+    };
+    return unsignedTx as SendResult;
   }
 
   chain() {
