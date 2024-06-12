@@ -288,6 +288,10 @@ export class SDKv2Route extends RouteAbstract {
     toChainV1: ChainName | undefined,
     options: any,
   ): Promise<number> {
+    if (isNaN(amountIn)) {
+      return 0;
+    }
+
     if (!fromChainV1 || !toChainV1)
       throw new Error('Need both chains to get a quote from SDKv2');
 
