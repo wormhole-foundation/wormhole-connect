@@ -2,6 +2,9 @@ import React, { useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { useTheme } from '@mui/material';
+import IconButton from '@mui/material/IconButton';
+
+import SettingsIcon from '@mui/icons-material/Settings';
 
 import type { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import type { RootState } from 'store';
@@ -27,17 +30,14 @@ import WalletConnector from './WalletConnector';
 import AssetPicker from './AssetPicker';
 
 const useStyles = makeStyles()((_theme) => ({
-  spacer: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '16px',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '100%',
-  },
   bridgeContent: {
     margin: 'auto',
     maxWidth: '420px',
+  },
+  bridgeHeader: {
+    width: '100%',
+    display: 'flex',
+    justifyContent: 'space-between',
   },
   header: {
     display: 'flex',
@@ -52,8 +52,20 @@ const useStyles = makeStyles()((_theme) => ({
     gap: '8px',
     marginTop: '24px',
   },
+  spacer: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '16px',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+  },
 }));
 
+/**
+ * Bridge is the main component for Bridge view
+ *
+ */
 const Bridge = () => {
   const { classes } = useStyles();
   const theme = useTheme();
@@ -62,6 +74,7 @@ const Bridge = () => {
   const receivingWallet = useSelector(
     (state: RootState) => state.wallet.receiving,
   );
+
   const sendingWallet = useSelector((state: RootState) => state.wallet.sending);
 
   const {
@@ -91,11 +104,13 @@ const Bridge = () => {
     route,
   });
 
+  // All supported chains from the given configuration and any custom override
   const supportedChains = useMemo(
     () => RouteOperator.allSupportedChains(),
     [config.chainsArr],
   );
 
+  // Supported chains for the source network
   const supportedSourceChains = useMemo(() => {
     return config.chainsArr.filter((chain) => {
       return (
@@ -106,6 +121,7 @@ const Bridge = () => {
     });
   }, [config.chainsArr, destChain, supportedChains]);
 
+  // Supported chains for the destination network
   const supportedDestChains = useMemo(() => {
     return config.chainsArr.filter(
       (chain) =>
@@ -115,6 +131,7 @@ const Bridge = () => {
     );
   }, [config.chainsArr, sourceChain, supportedChains]);
 
+  // Connect bridge header, which renders any custom overrides for the header
   const header = useMemo(() => {
     const defaults: { text: string; align: Alignment } = {
       text: '',
@@ -138,6 +155,7 @@ const Bridge = () => {
     );
   }, []);
 
+  // Asset picker for the source network and token
   const sourceAssetPicker = useMemo(() => {
     return (
       <AssetPicker
@@ -162,6 +180,7 @@ const Bridge = () => {
     sendingWallet,
   ]);
 
+  // Asset picker for the destination network and token
   const destAssetPicker = useMemo(() => {
     return (
       <AssetPicker
@@ -186,10 +205,14 @@ const Bridge = () => {
     receivingWallet,
   ]);
 
+  // Header for Bridge view, which includes the title and settings icon.
   const bridgeHeader = useMemo(() => {
     return (
-      <div>
+      <div className={classes.bridgeHeader}>
         <Header align="left" text="Bridge assets" size={16} />
+        <IconButton>
+          <SettingsIcon />
+        </IconButton>
       </div>
     );
   }, []);
