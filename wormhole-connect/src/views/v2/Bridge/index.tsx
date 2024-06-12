@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
-import { useTheme } from '@mui/material';
+import { Typography, useTheme } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 
 import HistoryIcon from '@mui/icons-material/History';
@@ -30,7 +30,13 @@ import {
 import WalletConnector from './WalletConnector';
 import AssetPicker from './AssetPicker';
 
-const useStyles = makeStyles()((_theme) => ({
+const useStyles = makeStyles()((theme) => ({
+  assetPickerContainer: {
+    width: '100%',
+  },
+  assetPickerTitle: {
+    color: theme.palette.text.secondary,
+  },
   bridgeContent: {
     margin: 'auto',
     maxWidth: '420px',
@@ -159,19 +165,24 @@ const Bridge = () => {
   // Asset picker for the source network and token
   const sourceAssetPicker = useMemo(() => {
     return (
-      <AssetPicker
-        chain={sourceChain}
-        chainList={supportedSourceChains}
-        token={sourceToken}
-        tokenList={supportedSourceTokens}
-        setChain={(value: ChainName) => {
-          selectFromChain(dispatch, value, sendingWallet);
-        }}
-        setToken={(value: string) => {
-          dispatch(setToken(value));
-        }}
-        wallet={sendingWallet}
-      />
+      <div className={classes.assetPickerContainer}>
+        <Typography className={classes.assetPickerTitle} variant="body2">
+          From:
+        </Typography>
+        <AssetPicker
+          chain={sourceChain}
+          chainList={supportedSourceChains}
+          token={sourceToken}
+          tokenList={supportedSourceTokens}
+          setChain={(value: ChainName) => {
+            selectFromChain(dispatch, value, sendingWallet);
+          }}
+          setToken={(value: string) => {
+            dispatch(setToken(value));
+          }}
+          wallet={sendingWallet}
+        />
+      </div>
     );
   }, [
     sourceChain,
@@ -184,19 +195,24 @@ const Bridge = () => {
   // Asset picker for the destination network and token
   const destAssetPicker = useMemo(() => {
     return (
-      <AssetPicker
-        chain={destChain}
-        chainList={supportedDestChains}
-        token={destToken}
-        tokenList={supportedDestTokens}
-        setChain={(value: ChainName) => {
-          selectToChain(dispatch, value, receivingWallet);
-        }}
-        setToken={(value: string) => {
-          dispatch(setDestToken(value));
-        }}
-        wallet={receivingWallet}
-      />
+      <div className={classes.assetPickerContainer}>
+        <Typography className={classes.assetPickerTitle} variant="body2">
+          To:
+        </Typography>
+        <AssetPicker
+          chain={destChain}
+          chainList={supportedDestChains}
+          token={destToken}
+          tokenList={supportedDestTokens}
+          setChain={(value: ChainName) => {
+            selectToChain(dispatch, value, receivingWallet);
+          }}
+          setToken={(value: string) => {
+            dispatch(setDestToken(value));
+          }}
+          wallet={receivingWallet}
+        />
+      </div>
     );
   }, [
     destChain,
