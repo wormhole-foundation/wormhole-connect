@@ -8,9 +8,19 @@ import config from 'config';
 import { toChainId, toChainName } from 'utils/sdk';
 import { ethers } from 'ethers';
 import { UnsupportedContractAbiVersion } from 'routes/ntt/errors';
+import { abiVersionMatches } from 'routes/ntt/utils';
 
-const ABI_VERSION_0_1_0 = '0.1.0';
-const ABI_VERSION_1_0_0 = '1.0.0';
+type WormholeTransceiverFactory =
+  | typeof WormholeTransceiver__factory_1_0_0
+  | typeof WormholeTransceiver__factory_0_1_0;
+
+// This is a descending list of all ABI versions Connect is aware of.
+// We check for the first match in descending order, allowing for higher minor and patch versions
+// being used by the live contract (these are supposed to still be compatible with older ABIs).
+const KNOWN_ABI_VERSIONS: [string, WormholeTransceiverFactory][] = [
+  ['1.0.0', WormholeTransceiver__factory_1_0_0],
+  ['0.1.0', WormholeTransceiver__factory_0_1_0],
+];
 
 export class WormholeTransceiver {
   static readonly abiVersionCache = new Map<string, string>();
@@ -75,17 +85,13 @@ export class WormholeTransceiver {
       }
       WormholeTransceiver.abiVersionCache.set(abiVersionKey, abiVersion);
     }
-    if (abiVersion === ABI_VERSION_0_1_0) {
-      return {
-        abi: WormholeTransceiver__factory_0_1_0.connect(this.address, provider),
-        version: abiVersion,
-      };
-    }
-    if (abiVersion === ABI_VERSION_1_0_0) {
-      return {
-        abi: WormholeTransceiver__factory_1_0_0.connect(this.address, provider),
-        version: abiVersion,
-      };
+    for (const [version, factory] of KNOWN_ABI_VERSIONS) {
+      if (abiVersionMatches(abiVersion, version)) {
+        return {
+          abi: factory.connect(this.address, provider),
+          version: abiVersion,
+        };
+      }
     }
     console.error(
       `Unsupported WormholeTransceiver version ${abiVersion} for chain ${toChainName(
