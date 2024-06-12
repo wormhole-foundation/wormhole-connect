@@ -69,29 +69,27 @@ const AssetPicker = (props: Props) => {
   const { classes } = useStyles();
 
   const chainConfig: ChainConfig | undefined = useMemo(() => {
-    return props.chain && config.chains[props.chain];
+    return props.chain ? config.chains[props.chain] : undefined;
   }, [props.chain]);
 
+  const tokenConfig: TokenConfig | undefined = useMemo(() => {
+    return props.token ? config.tokens[props.token] : undefined;
+  }, [props.token]);
+
   const selection = useMemo(() => {
-    const { chain, token } = props;
-
-    const tokenConfig = token && config.tokens[token];
-
-    if (!chain) {
-      return 'Select chain and token';
-    }
-
-    if (!token) {
-      <Typography component={'div'}>{chain}</Typography>;
+    if (!chainConfig && !tokenConfig) {
+      return <Typography component={'div'}>Select chain and token</Typography>;
     }
 
     return (
-      <React.Fragment>
-        <Typography component={'div'}>
-          {tokenConfig && tokenConfig.symbol}
+      <div>
+        <Typography component={'div'} fontSize={16}>
+          {tokenConfig?.displayName || 'Select token'}
         </Typography>
-        <Typography component={'div'}>{chain}</Typography>
-      </React.Fragment>
+        <Typography component={'div'} fontSize={12}>
+          {chainConfig?.displayName}
+        </Typography>
+      </div>
     );
   }, [props.chain, props.token]);
 
@@ -110,7 +108,8 @@ const AssetPicker = (props: Props) => {
                 component={'div'}
                 gap={1}
               >
-                <TokenIcon icon={chainConfig?.icon} height={36} />
+                <TokenIcon icon={tokenConfig?.icon} height={48} />
+                <TokenIcon icon={chainConfig?.icon} height={24} />
                 {selection}
               </Typography>
               {popupState.isOpen ? <UpIcon /> : <DownIcon />}
