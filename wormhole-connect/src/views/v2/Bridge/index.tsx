@@ -4,6 +4,7 @@ import { makeStyles } from 'tss-react/mui';
 import { useTheme } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 
+import HistoryIcon from '@mui/icons-material/History';
 import SettingsIcon from '@mui/icons-material/Settings';
 
 import type { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
@@ -37,7 +38,7 @@ const useStyles = makeStyles()((_theme) => ({
   bridgeHeader: {
     width: '100%',
     display: 'flex',
-    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   header: {
     display: 'flex',
@@ -210,6 +211,9 @@ const Bridge = () => {
     return (
       <div className={classes.bridgeHeader}>
         <Header align="left" text="Bridge assets" size={16} />
+        <IconButton>
+          <HistoryIcon />
+        </IconButton>
         <IconButton>
           <SettingsIcon />
         </IconButton>
