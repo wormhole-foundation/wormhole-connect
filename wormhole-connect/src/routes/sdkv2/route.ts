@@ -31,7 +31,11 @@ import { ParsedMessage, ParsedRelayerMessage } from 'utils/sdk';
 
 import { SDKv2Signer } from './signer';
 
-import { amount } from '@wormhole-foundation/sdk';
+import {
+  amount,
+  SourceInitiatedTransferReceipt,
+  SourceFinalizedTransferReceipt,
+} from '@wormhole-foundation/sdk';
 import config, { getWormholeContextV2 } from 'config';
 
 export class SDKv2Route extends RouteAbstract {
@@ -406,7 +410,9 @@ export class SDKv2Route extends RouteAbstract {
     recipientAddress: string,
     destToken: string,
     options: any,
-  ): Promise<string> {
+  ): Promise<
+    SourceInitiatedTransferReceipt | SourceFinalizedTransferReceipt<any>
+  > {
     const fromChainV2 = await this.getV2ChainContext(fromChainV1);
     const toChainV2 = await this.getV2ChainContext(toChainV1);
 
@@ -451,11 +457,18 @@ export class SDKv2Route extends RouteAbstract {
       ),
     );
 
-    if (receipt.state === TransferState.SourceInitiated) {
-      return receipt.originTxs[receipt.originTxs.length - 1].txid;
-    } else {
-      throw new Error(`Don't know how to handle receipt`);
+    // Wait for transfer to finish =^o^=
+    for await (receipt of route.track(receipt, 120 * 1000)) {
+      console.log('Current Transfer State: ', TransferState[receipt.state]);
+      if (
+        receipt.state == TransferState.SourceInitiated ||
+        receipt.state == TransferState.SourceFinalized
+      ) {
+        return receipt;
+      }
     }
+
+    throw new Error('Never got a SourceInitiate state in receipt');
   }
 
   public redeem(
@@ -516,8 +529,25 @@ export class SDKv2Route extends RouteAbstract {
     return 'test';
   }
 
-  getMessage(tx: string, chain: ChainName | ChainId): Promise<UnsignedMessage> {
-    throw new Error('Method not implemented.');
+  async getMessage(
+    tx: string,
+    chain: ChainName | ChainId,
+  ): Promise<UnsignedMessage> {
+    /*
+    let { context } = await this.getV2ChainContext(chain);
+    switch (this.TYPE) {
+      case 'bridge':
+      case 'relay':
+        let vaa = (await context.getProtocol('TokenBridge')
+
+
+    }
+
+    let vaas = await (await context.getProtocol('WormholeCore')).parseMessages(tx);
+    console.log(vaas);
+    debugger;
+    */
+    throw new Error('Method not implemented');
   }
 
   getSignedMessage(message: UnsignedMessage): Promise<SignedMessage> {

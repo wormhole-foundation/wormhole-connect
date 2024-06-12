@@ -30,6 +30,8 @@ import { getMessageEvm, TRANSFER_SENT_EVENT_TOPIC } from './ntt/chains/evm';
 import { getMessageSolana } from './ntt/chains/solana';
 import { getNttManagerConfigByAddress } from 'utils/ntt';
 
+import { routes } from '@wormhole-foundation/sdk';
+
 import { getRoute } from './mappings';
 
 export class Operator {
@@ -439,7 +441,7 @@ export class Operator {
     recipientAddress: string,
     destToken: string,
     routeOptions: any,
-  ): Promise<string> {
+  ): Promise<string | routes.Receipt> {
     const r = this.getRoute(route);
     return await r.send(
       token,
