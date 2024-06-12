@@ -125,6 +125,8 @@ export class SDKConverter {
     if (tokenConfig.nativeChain === chainName) {
       if (tokenConfig.tokenId) {
         return this.tokenIdV2(chainName, tokenConfig.tokenId.address);
+      } else {
+        return this.tokenIdV2(chainName, 'native');
       }
     } else {
       if (tokenConfig.foreignAssets && tokenConfig.foreignAssets[chainName]) {
