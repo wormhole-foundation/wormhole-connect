@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { makeStyles } from 'tss-react/mui';
+import Badge from '@mui/material/Badge';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Popover from '@mui/material/Popover';
@@ -76,6 +77,23 @@ const AssetPicker = (props: Props) => {
     return props.token ? config.tokens[props.token] : undefined;
   }, [props.token]);
 
+  const badges = useMemo(() => {
+    return (
+      <Badge
+        badgeContent={<TokenIcon icon={chainConfig?.icon} height={24} />}
+        sx={{
+          marginRight: '8px',
+          '& .MuiBadge-badge': {
+            right: 4,
+            top: 32,
+          },
+        }}
+      >
+        <TokenIcon icon={tokenConfig?.icon} height={48} />
+      </Badge>
+    );
+  }, [chainConfig, tokenConfig]);
+
   const selection = useMemo(() => {
     if (!chainConfig && !tokenConfig) {
       return <Typography component={'div'}>Select chain and token</Typography>;
@@ -108,8 +126,7 @@ const AssetPicker = (props: Props) => {
                 component={'div'}
                 gap={1}
               >
-                <TokenIcon icon={tokenConfig?.icon} height={48} />
-                <TokenIcon icon={chainConfig?.icon} height={24} />
+                {badges}
                 {selection}
               </Typography>
               {popupState.isOpen ? <UpIcon /> : <DownIcon />}
