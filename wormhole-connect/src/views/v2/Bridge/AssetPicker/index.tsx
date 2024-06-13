@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { makeStyles } from 'tss-react/mui';
 import Badge from '@mui/material/Badge';
 import Card from '@mui/material/Card';
@@ -17,6 +17,7 @@ import type { ChainConfig, TokenConfig } from 'config/types';
 import type { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import type { WalletData } from 'store/wallet';
 import ChainList from './ChainList';
+import TokenList from './TokenList';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -25,24 +26,13 @@ const useStyles = makeStyles()((theme) => ({
   card: {
     width: '100%',
     cursor: 'pointer',
-    maxHeight: '72px',
+    maxHeight: '80px',
     maxWidth: '420px',
   },
   cardContent: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-  },
-  chainTile: {
-    width: '50px',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    textAlign: 'center',
-    margin: '4px',
-    padding: '4px',
-    transition: 'background-color 0.4s',
-    cursor: 'pointer',
   },
   chainSelector: {
     display: 'flex',
@@ -67,6 +57,7 @@ type Props = {
 };
 
 const AssetPicker = (props: Props) => {
+  const [showChainSearch, setShowChainSearch] = useState(false);
   const { classes } = useStyles();
 
   const chainConfig: ChainConfig | undefined = useMemo(() => {
@@ -84,8 +75,8 @@ const AssetPicker = (props: Props) => {
         sx={{
           marginRight: '8px',
           '& .MuiBadge-badge': {
-            right: 4,
-            top: 32,
+            right: 2,
+            top: 36,
           },
         }}
       >
@@ -96,13 +87,17 @@ const AssetPicker = (props: Props) => {
 
   const selection = useMemo(() => {
     if (!chainConfig && !tokenConfig) {
-      return <Typography component={'div'}>Select chain and token</Typography>;
+      return (
+        <Typography component={'div'} fontSize={16}>
+          Select chain and token
+        </Typography>
+      );
     }
 
     return (
       <div>
         <Typography component={'div'} fontSize={16}>
-          {tokenConfig?.displayName || 'Select token'}
+          {tokenConfig?.symbol || 'Select token'}
         </Typography>
         <Typography component={'div'} fontSize={12}>
           {chainConfig?.displayName}
@@ -147,12 +142,24 @@ const AssetPicker = (props: Props) => {
             <ChainList
               chainList={props.chainList}
               selectedChain={props.chain}
+              showSearch={showChainSearch}
               wallet={props.wallet}
+              onShowSearch={setShowChainSearch}
               onClick={(key: string) => {
                 props.setChain(key);
-                popupState.close();
               }}
             />
+            {!showChainSearch && (
+              <TokenList
+                tokenList={props.tokenList}
+                selectedToken={props.token}
+                wallet={props.wallet}
+                onClick={(key: string) => {
+                  props.setToken(key);
+                  popupState.close();
+                }}
+              />
+            )}
           </Popover>
         </React.Fragment>
       )}

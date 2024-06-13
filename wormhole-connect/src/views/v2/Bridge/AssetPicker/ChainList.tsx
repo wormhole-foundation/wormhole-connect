@@ -19,7 +19,7 @@ import config from 'config';
 
 import { makeStyles } from 'tss-react/mui';
 
-import { isDisabledChain } from 'store/transferInput';
+import { isDisabledChain, selectChain } from 'store/transferInput';
 
 import type { ChainConfig } from 'config/types';
 import type { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
@@ -29,27 +29,8 @@ const useStyles = makeStyles()((theme) => ({
   card: {
     width: '420px',
   },
-  chainItem: {
-    display: 'flex',
-    alignItems: 'center',
-    width: '100%',
-    transition: 'background-color 0.4s',
-    cursor: 'pointer',
-    marginTop: '4px',
-  },
-  chainTile: {
-    width: '32px',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    textAlign: 'center',
-    transition: 'background-color 0.4s',
-    cursor: 'pointer',
-  },
-  disabled: {
-    opacity: '40%',
-    cursor: 'not-allowed',
-    clickEvent: 'none',
+  cardContent: {
+    paddingBottom: 0,
   },
   title: {
     fontSize: 14,
@@ -60,31 +41,35 @@ const useStyles = makeStyles()((theme) => ({
 type Props = {
   chainList?: Array<ChainConfig> | undefined;
   selectedChain?: ChainName | undefined;
+  showSearch: boolean;
+  onShowSearch: any;
   wallet: WalletData;
   onClick?: any;
 };
 
 const ChainList = (props: Props) => {
-  const [showSearch, setShowSearch] = useState(false);
   const [chainSearchQuery, setChainSearchQuery] = useState('');
 
   const { classes } = useStyles();
 
+  // Gets the config for the currently selected chain
+  const selectedChainConfig = useMemo(() => {
+    return props.selectedChain ? config.chains[props.selectedChain] : undefined;
+  }, [props.selectedChain]);
+
   const topChains = useMemo(() => {
-    const { selectedChain } = props;
-    const selectedChainConfig = selectedChain
-      ? config.chains[selectedChain]
-      : undefined;
+    // Put the selected chain at the top of the list
     const chains: Array<ChainConfig> = selectedChainConfig
       ? [selectedChainConfig]
       : [];
+
     props.chainList?.forEach((c) => {
       if (chains.length < 6 && c.key !== selectedChainConfig?.key) {
         chains.push(c);
       }
     });
     return chains;
-  }, [props.chainList]);
+  }, [props.chainList, selectedChainConfig]);
 
   const shortList = useMemo(() => {
     return (
@@ -108,7 +93,7 @@ const ChainList = (props: Props) => {
               onClick={() => props.onClick?.(chain.key)}
             >
               <TokenIcon icon={chain.icon} height={32} />
-              <Typography fontSize={12}>{chain.displayName}</Typography>
+              <Typography fontSize={14}>{chain.displayName}</Typography>
             </ListItemButton>
           );
         })}
@@ -118,7 +103,7 @@ const ChainList = (props: Props) => {
             flexDirection: 'column',
           }}
           onClick={() => {
-            setShowSearch(true);
+            props.onShowSearch(true);
           }}
         >
           <IconButton
@@ -134,7 +119,7 @@ const ChainList = (props: Props) => {
         </ListItemButton>
       </List>
     );
-  }, [topChains]);
+  }, [topChains, selectChain]);
 
   const searchList = useMemo(() => {
     const chains = chainSearchQuery
@@ -180,13 +165,13 @@ const ChainList = (props: Props) => {
               }}
               onClick={() => {
                 props.onClick?.(chain.key);
-                setShowSearch(false);
+                props.onShowSearch?.(false);
               }}
             >
               <ListItemIcon>
                 <TokenIcon icon={chain.icon} height={32} />
               </ListItemIcon>
-              <Typography fontSize={12}>{chain.displayName}</Typography>
+              <Typography fontSize={14}>{chain.displayName}</Typography>
             </ListItemButton>
           );
         })}
@@ -196,9 +181,9 @@ const ChainList = (props: Props) => {
 
   return (
     <Card className={classes.card} variant="elevation">
-      <CardContent>
+      <CardContent className={classes.cardContent}>
         <Typography className={classes.title}>Select a network</Typography>
-        {showSearch ? searchList : shortList}
+        {props.showSearch ? searchList : shortList}
       </CardContent>
     </Card>
   );
