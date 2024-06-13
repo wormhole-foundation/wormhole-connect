@@ -112,7 +112,7 @@ export const isIlliquidDestToken = (
     ['ETH', 'WETH'].includes(symbol) &&
     nativeChain === 'ethereum' &&
     // These are L2 chains that have a native bridge
-    (destChain === 'scroll' || destChain === 'blast')
+    (destChain === 'scroll' || destChain === 'blast' || destChain === 'mantle')
   ) {
     return true;
   }

@@ -47,6 +47,7 @@ export enum Icon {
   'SCROLL',
   'BLAST',
   'XLAYER',
+  'MANTLE',
 }
 
 export enum Route {

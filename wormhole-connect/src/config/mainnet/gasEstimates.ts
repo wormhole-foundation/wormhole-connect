@@ -339,4 +339,11 @@ export const MAINNET_GAS_ESTIMATES: GasEstimates = {
       claim: 300000,
     },
   },
+  mantle: {
+    [Route.Bridge]: {
+      sendNative: 100000,
+      sendToken: 100000,
+      claim: 300000,
+    },
+  },
 };
