@@ -19,6 +19,7 @@ import {
 import {
   encodeTransceiverInstructions,
   encodeWormholeTransceiverInstruction,
+  abiVersionMatches,
 } from 'routes/ntt/utils';
 import { NttManager__factory as NttManager__factory_0_1_0 } from './abis/0.1.0/NttManager__factory';
 import { NttManager as NttManager_0_1_0 } from './abis/0.1.0/NttManager';
@@ -27,8 +28,17 @@ import { NttManager as NttManager_1_0_0 } from './abis/1.0.0/NttManager';
 import config from 'config';
 import { toChainId, toChainName } from 'utils/sdk';
 
-const ABI_VERSION_0_1_0 = '0.1.0';
-const ABI_VERSION_1_0_0 = '1.0.0';
+type NttManagerFactory =
+  | typeof NttManager__factory_1_0_0
+  | typeof NttManager__factory_0_1_0;
+
+// This is a descending list of all ABI versions Connect is aware of.
+// We check for the first match in descending order, allowing for higher minor and patch versions
+// being used by the live contract (these are supposed to still be compatible with older ABIs).
+const KNOWN_ABI_VERSIONS: [string, NttManagerFactory][] = [
+  ['1.0.0', NttManager__factory_1_0_0],
+  ['0.1.0', NttManager__factory_0_1_0],
+];
 
 export class NttManagerEvm {
   static readonly abiVersionCache = new Map<string, string>();
@@ -243,18 +253,16 @@ export class NttManagerEvm {
       }
       NttManagerEvm.abiVersionCache.set(abiVersionKey, abiVersion);
     }
-    if (abiVersion === ABI_VERSION_0_1_0) {
-      return {
-        abi: NttManager__factory_0_1_0.connect(this.address, provider),
-        version: abiVersion,
-      };
+
+    for (const [version, factory] of KNOWN_ABI_VERSIONS) {
+      if (abiVersionMatches(abiVersion, version)) {
+        return {
+          abi: factory.connect(this.address, provider),
+          version: abiVersion,
+        };
+      }
     }
-    if (abiVersion === ABI_VERSION_1_0_0) {
-      return {
-        abi: NttManager__factory_1_0_0.connect(this.address, provider),
-        version: abiVersion,
-      };
-    }
+
     console.error(
       `Unsupported NttManager version ${abiVersion} for chain ${toChainName(
         this.chain,
