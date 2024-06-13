@@ -46,6 +46,7 @@ import {
   NotEnoughCapacityError,
   UnsupportedContractAbiVersion,
 } from 'routes/ntt/errors';
+import { abiVersionMatches } from 'routes/ntt/utils';
 
 const RATE_LIMIT_DURATION = 24 * 60 * 60;
 
@@ -868,7 +869,8 @@ export class NttManagerSolana {
     let program = NttManagerSolana.abiVersionCache.get(this.nttId);
     if (!program) {
       const abiVersion = await this.getVersion();
-      if (abiVersion !== '1.0.0') {
+      // For now we only have a single interface version for Solana
+      if (!abiVersionMatches(abiVersion, '1.0.0')) {
         throw new UnsupportedContractAbiVersion();
       }
       program = new Program(IDL, this.nttId, { connection: this.connection });
