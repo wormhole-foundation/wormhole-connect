@@ -12,8 +12,7 @@ import {
   TransactionSignatureAndResponse,
   PreparedTransactions,
   TransactionWithIndex,
-  sendAndConfirmTransactions,
-  SignSendAndConfirmTransactionResponse,
+  sendAndConfirmTransactionsWithRetry,
 } from './utils';
 import { addComputeBudget } from './computeBudget';
 import {
@@ -70,12 +69,8 @@ export async function postVaaWithRetry(
     );
   const postVaaTransaction = unsignedTransactions.pop();
   if (!postVaaTransaction) throw new Error('No postVaaTransaction');
-  postVaaTransaction.feePayer = new PublicKey(payer);
-  console.log(
-    'unsignedTransactions & postVaaTransaction',
-    unsignedTransactions,
-    //postVaaTransaction,
-  );
+  postVaaTransaction.transaction.feePayer = new PublicKey(payer);
+
   // Returns the txs that are NOT present on the blockchain
   const transactionsNotPresent = await pendingSignatureVerificationTxs(
     unsignedTransactions,
@@ -85,33 +80,36 @@ export async function postVaaWithRetry(
     commitment,
   );
 
-  for (const unsignedTransaction of transactionsNotPresent) {
-    unsignedTransaction.feePayer = new PublicKey(payer);
-    await addComputeBudget(connection, unsignedTransaction, [], 0.75, 1, true);
-  }
-
   console.log(
-    'transactions',
-    transactionsNotPresent,
+    'unsignedTransactions & transactionsNotPresent & postVaaTransaction',
     unsignedTransactions,
+    transactionsNotPresent,
     postVaaTransaction,
   );
 
+  for (const unsignedTransaction of transactionsNotPresent) {
+    unsignedTransaction.transaction.feePayer = new PublicKey(payer);
+    await addComputeBudget(
+      connection,
+      unsignedTransaction.transaction,
+      [],
+      0.75,
+      1,
+      true,
+    );
+  }
 
-  let responses: SignSendAndConfirmTransactionResponse = {
-    result: [],
-    errors: [],
-  };
+  let responses: TransactionSignatureAndResponse[] = [];
   if (!!transactionsNotPresent.length) {
-    responses = await sendAndConfirmTransactions(
+    responses = await sendAndConfirmTransactionsWithRetry(
       connection,
       modifySignTransaction(signTransaction, ...signers),
       payer.toString(),
       transactionsNotPresent.map((tx) => tx.transaction),
       { maxRetries, commitment },
     );
-    if (responses.errors && responses.errors?.length > 0)
-      printError(responses.errors);
+    // if (responses.errors && responses.errors?.length > 0)
+    //   printError(responses.errors);
   }
 
   const signatureSetData1 = await getSignatureSetData(
@@ -122,18 +120,23 @@ export async function postVaaWithRetry(
   console.log('signatureSetData1', signatureSetData1);
 
   //While the signature_set is used to create the final instruction, it doesn't need to sign it.
-  await addComputeBudget(connection, postVaaTransaction, [], 0.75, 1, true);
+  await addComputeBudget(
+    connection,
+    postVaaTransaction.transaction,
+    [],
+    0.75,
+    1,
+    true,
+  );
   responses.push(
     ...(await sendAndConfirmTransactionsWithRetry(
       connection,
       signTransaction,
       payer.toString(),
       [postVaaTransaction.transaction],
-      maxRetries,
-      commitment,
+      { maxRetries, commitment },
     )),
   );
-  responses.result.push(postVaaResponse.result[0]);
 
   const signatureSetData = await getSignatureSetData(
     connection,
@@ -142,10 +145,10 @@ export async function postVaaWithRetry(
   );
   console.log('signatureSetData', signatureSetData);
 
-  if (postVaaResponse.errors && postVaaResponse.errors?.length > 0)
-    printError(postVaaResponse.errors);
+  // if (postVaaResponse.errors && postVaaResponse.errors?.length > 0)
+  //   printError(postVaaResponse.errors);
 
-  return responses.result;
+  return responses;
 }
 
 /**
@@ -217,9 +220,9 @@ export async function createPostSignedVaaTransactions(
   };
 }
 
-function printError(errors: any[]) {
-  throw new Error(
-    'Error posting VAA to Solana \n' +
-      errors.map((error) => error.toString()).join('\n'),
-  );
-}
+// function printError(errors: any[]) {
+//   throw new Error(
+//     'Error posting VAA to Solana \n' +
+//       errors.map((error) => error.toString()).join('\n'),
+//   );
+// }

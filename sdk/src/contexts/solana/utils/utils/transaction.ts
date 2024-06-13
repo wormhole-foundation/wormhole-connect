@@ -9,6 +9,7 @@ import {
   TransactionSignature,
   Signer,
   Commitment,
+  ConfirmOptions,
 } from '@solana/web3.js';
 
 /**
@@ -123,90 +124,42 @@ export class NodeWallet {
  * 3. Send raw transaction.
  * 4. Confirm transaction.
  */
-export async function signSendAndConfirmTransaction(
-  connection: Connection,
-  payer: PublicKeyInitData,
-  signTransaction: SignTransaction,
-  unsignedTransaction: Transaction,
-  options?: ConfirmOptions,
-): Promise<TransactionSignatureAndResponse> {
-  const commitment = options?.commitment;
-  const { blockhash, lastValidBlockHeight } =
-    await connection.getLatestBlockhash(commitment);
-  unsignedTransaction.recentBlockhash = blockhash;
-  unsignedTransaction.feePayer = new PublicKey(payer);
-
-  // Sign transaction, broadcast, and confirm
-  const signed = await signTransaction(unsignedTransaction);
-  const signature = await connection.sendRawTransaction(
-    signed.serialize(),
-    options,
-  );
-  const response = await connection.confirmTransaction(
-    {
-      blockhash,
-      lastValidBlockHeight,
-      signature,
-    },
-    commitment,
-  );
-  return { signature, response };
-}
-
-/**
- * The transactions provided to this function should be ready to send.
- * This function will do the following:
- * 1. Add the {@param payer} as the feePayer and latest blockhash to the {@link Transaction}.
- * 2. Sign using {@param signTransaction}.
- * 3. Send raw transaction.
- * 4. Confirm transaction.
- */
-export async function sendAndConfirmTransactions(
+export async function sendAndConfirmTransactionsWithRetry(
   connection: Connection,
   signTransaction: SignTransaction,
   payer: string,
   unsignedTransactions: Transaction[],
   options?: ConfirmOptions,
-): Promise<SignSendAndConfirmTransactionResponse> {
+): Promise<TransactionSignatureAndResponse[]> {
   if (unsignedTransactions.length == 0) {
     return Promise.reject('No transactions provided to send.');
   }
 
-  const commitment = options?.commitment;
-
+  let currentRetries = 0;
   const output: TransactionSignatureAndResponse[] = [];
-  const errors: any[] = [];
+  const maxRetries = options?.maxRetries || 0;
   for (const transaction of unsignedTransactions) {
-    try {
-      const latest = await connection.getLatestBlockhash(commitment);
-      transaction.recentBlockhash = latest.blockhash;
-      transaction.feePayer = new PublicKey(payer);
-
-      const signed = await signTransaction(transaction).catch((e) => null);
-      if (signed === null) {
-        return Promise.reject('Failed to sign transaction.');
+    while (currentRetries <= maxRetries) {
+      try {
+        const result = await signSendAndConfirmTransaction(
+          connection,
+          signTransaction,
+          payer,
+          transaction,
+          options?.commitment,
+        );
+        output.push(result);
+        break;
+      } catch (e) {
+        console.error(e);
+        ++currentRetries;
       }
-
-      const signature = await connection.sendRawTransaction(
-        signed.serialize(),
-        options,
-      );
-      const response = await connection.confirmTransaction(
-        {
-          signature,
-          ...latest,
-        },
-        commitment,
-      );
-      output.push({ signature, response });
-      break;
-    } catch (e) {
-      console.error(e);
-      errors.push(e);
+    }
+    if (currentRetries > maxRetries) {
+      return Promise.reject('Reached the maximum number of retries.');
     }
   }
-
-  return { result: await Promise.resolve(output), errors };
+  return Promise.resolve(output);
 }
 
 // This function signs and sends the transaction while constantly checking for confirmation
