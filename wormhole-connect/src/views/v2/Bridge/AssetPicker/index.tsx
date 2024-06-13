@@ -144,7 +144,7 @@ const AssetPicker = (props: Props) => {
       <Popover
         {...bindPopover(popupState)}
         anchorOrigin={{
-          vertical: 'bottom',
+          vertical: 'top',
           horizontal: 'center',
         }}
         className={classes.container}
@@ -155,7 +155,7 @@ const AssetPicker = (props: Props) => {
       >
         <ChainList
           chainList={props.chainList}
-          selectedChain={props.chain}
+          selectedChainConfig={chainConfig}
           showSearch={showChainSearch}
           setShowSearch={setShowChainSearch}
           wallet={props.wallet}
@@ -166,6 +166,7 @@ const AssetPicker = (props: Props) => {
         {!showChainSearch && (
           <TokenList
             tokenList={props.tokenList}
+            selectedChainConfig={chainConfig}
             selectedToken={props.token}
             wallet={props.wallet}
             onClick={(key: string) => {

@@ -15,14 +15,11 @@ import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
 import TokenIcon from 'icons/TokenIcons';
 
-import config from 'config';
-
 import { makeStyles } from 'tss-react/mui';
 
 import { isDisabledChain, selectChain } from 'store/transferInput';
 
 import type { ChainConfig } from 'config/types';
-import type { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import type { WalletData } from 'store/wallet';
 
 const useStyles = makeStyles()((theme) => ({
@@ -40,7 +37,7 @@ const useStyles = makeStyles()((theme) => ({
 
 type Props = {
   chainList?: Array<ChainConfig> | undefined;
-  selectedChain?: ChainName | undefined;
+  selectedChainConfig?: ChainConfig | undefined;
   showSearch: boolean;
   setShowSearch: any;
   wallet: WalletData;
@@ -54,27 +51,22 @@ const ChainList = (props: Props) => {
 
   const { classes } = useStyles();
 
-  // Gets the config for the currently selected chain
-  const selectedChainConfig = useMemo(() => {
-    return props.selectedChain ? config.chains[props.selectedChain] : undefined;
-  }, [props.selectedChain]);
-
   const topChains = useMemo(() => {
     // Put the selected chain at the top of the list
-    const chains: Array<ChainConfig> = selectedChainConfig
-      ? [selectedChainConfig]
+    const chains: Array<ChainConfig> = props.selectedChainConfig
+      ? [props.selectedChainConfig]
       : [];
 
     props.chainList?.forEach((c) => {
       if (
         chains.length < SHORT_LIST_SIZE &&
-        c.key !== selectedChainConfig?.key
+        c.key !== props.selectedChainConfig?.key
       ) {
         chains.push(c);
       }
     });
     return chains;
-  }, [props.chainList, selectedChainConfig]);
+  }, [props.chainList, props.selectedChainConfig]);
 
   const shortList = useMemo(() => {
     return (
@@ -90,7 +82,7 @@ const ChainList = (props: Props) => {
             <ListItemButton
               key={i}
               disabled={disabled}
-              selected={props.selectedChain === chain.key}
+              selected={props.selectedChainConfig?.key === chain.key}
               sx={{
                 display: 'flex',
                 flexDirection: 'column',
@@ -187,7 +179,9 @@ const ChainList = (props: Props) => {
   return (
     <Card className={classes.card} variant="elevation">
       <CardContent className={classes.cardContent}>
-        <Typography className={classes.title}>Select a network</Typography>
+        <Typography className={classes.title} fontSize={14}>
+          Select a network
+        </Typography>
         {props.showSearch ? searchList : shortList}
       </CardContent>
     </Card>

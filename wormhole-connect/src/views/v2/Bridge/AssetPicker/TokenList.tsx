@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { useTheme } from '@mui/material';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import InputAdornment from '@mui/material/InputAdornment';
@@ -16,7 +17,7 @@ import config from 'config';
 
 import { makeStyles } from 'tss-react/mui';
 
-import type { TokenConfig } from 'config/types';
+import type { ChainConfig, TokenConfig } from 'config/types';
 import type { WalletData } from 'store/wallet';
 
 const useStyles = makeStyles()((theme) => ({
@@ -34,6 +35,7 @@ const useStyles = makeStyles()((theme) => ({
 
 type Props = {
   tokenList?: Array<TokenConfig> | undefined;
+  selectedChainConfig?: ChainConfig | undefined;
   selectedToken?: string | undefined;
   wallet: WalletData;
   onClick?: any;
@@ -43,6 +45,8 @@ const TokenList = (props: Props) => {
   const [tokenSearchQuery, setTokenSearchQuery] = useState('');
 
   const { classes } = useStyles();
+
+  const theme = useTheme();
 
   const topTokens = useMemo(() => {
     const { selectedToken } = props;
@@ -94,6 +98,14 @@ const TokenList = (props: Props) => {
             }}
           />
         </ListItem>
+        {props.selectedChainConfig && (
+          <ListItem>
+            <Typography
+              fontSize={14}
+              color={theme.palette.text.secondary}
+            >{`Tokens on ${props.selectedChainConfig.displayName}`}</Typography>
+          </ListItem>
+        )}
         {tokens?.map((token: TokenConfig, i: number) => {
           const nativeChainConfig = config.chains[token.nativeChain];
           const nativeChain = nativeChainConfig?.displayName || '';
