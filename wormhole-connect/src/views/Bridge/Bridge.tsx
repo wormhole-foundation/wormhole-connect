@@ -234,7 +234,7 @@ function Bridge() {
           ...ETHBridge.SUPPORTED_TOKENS,
           ...wstETHBridge.SUPPORTED_TOKENS,
         ];
-        if (porticoTokens.includes(tokenSymbol)) {
+        if (porticoTokens.includes(token)) {
           let key = getNativeVersionOfToken(tokenSymbol, toChain);
           if (!key) {
             const wrapped = getWrappedToken(config.tokens[token]);

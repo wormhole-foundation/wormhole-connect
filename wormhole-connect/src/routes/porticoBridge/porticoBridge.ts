@@ -124,7 +124,7 @@ export abstract class PorticoBridge extends BaseRoute {
   isSupportedToken(token: TokenConfig, chain: ChainName | ChainId): boolean {
     return (
       this.isSupportedChain(token.nativeChain) &&
-      this.supportedTokenSymbols.includes(token.symbol) &&
+      this.supportedTokenSymbols.includes(token.key) &&
       toChainName(chain) === token.nativeChain
     );
   }
