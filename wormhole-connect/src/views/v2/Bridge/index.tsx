@@ -225,7 +225,7 @@ const Bridge = () => {
   const bridgeHeader = useMemo(() => {
     return (
       <div className={classes.bridgeHeader}>
-        <Header align="left" text="Bridge assets" size={16} />
+        <Header align="left" text="Bridge assets" size={20} />
         <IconButton>
           <HistoryIcon />
         </IconButton>
