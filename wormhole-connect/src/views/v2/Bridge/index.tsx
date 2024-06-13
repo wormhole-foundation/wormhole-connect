@@ -78,11 +78,10 @@ const Bridge = () => {
   const theme = useTheme();
   const dispatch = useDispatch();
 
-  const receivingWallet = useSelector(
-    (state: RootState) => state.wallet.receiving,
+  // Connected wallets, if any
+  const { sending: sendingWallet, receiving: receivingWallet } = useSelector(
+    (state: RootState) => state.wallet,
   );
-
-  const sendingWallet = useSelector((state: RootState) => state.wallet.sending);
 
   const {
     supportedSourceTokens,
