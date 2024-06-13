@@ -42,10 +42,12 @@ type Props = {
   chainList?: Array<ChainConfig> | undefined;
   selectedChain?: ChainName | undefined;
   showSearch: boolean;
-  onShowSearch: any;
+  setShowSearch: any;
   wallet: WalletData;
   onClick?: any;
 };
+
+const SHORT_LIST_SIZE = 5;
 
 const ChainList = (props: Props) => {
   const [chainSearchQuery, setChainSearchQuery] = useState('');
@@ -64,7 +66,10 @@ const ChainList = (props: Props) => {
       : [];
 
     props.chainList?.forEach((c) => {
-      if (chains.length < 6 && c.key !== selectedChainConfig?.key) {
+      if (
+        chains.length < SHORT_LIST_SIZE &&
+        c.key !== selectedChainConfig?.key
+      ) {
         chains.push(c);
       }
     });
@@ -103,7 +108,7 @@ const ChainList = (props: Props) => {
             flexDirection: 'column',
           }}
           onClick={() => {
-            props.onShowSearch(true);
+            props.setShowSearch?.(true);
           }}
         >
           <IconButton
@@ -165,7 +170,7 @@ const ChainList = (props: Props) => {
               }}
               onClick={() => {
                 props.onClick?.(chain.key);
-                props.onShowSearch?.(false);
+                props.setShowSearch?.(false);
               }}
             >
               <ListItemIcon>

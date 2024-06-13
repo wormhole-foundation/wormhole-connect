@@ -1,10 +1,14 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { makeStyles } from 'tss-react/mui';
 import Badge from '@mui/material/Badge';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Popover from '@mui/material/Popover';
-import PopupState, { bindTrigger, bindPopover } from 'material-ui-popup-state';
+import {
+  usePopupState,
+  bindTrigger,
+  bindPopover,
+} from 'material-ui-popup-state/hooks';
 import Typography from '@mui/material/Typography';
 
 import DownIcon from '@mui/icons-material/ExpandMore';
@@ -60,6 +64,18 @@ const AssetPicker = (props: Props) => {
   const [showChainSearch, setShowChainSearch] = useState(false);
   const { classes } = useStyles();
 
+  const popupState = usePopupState({
+    variant: 'popover',
+    popupId: 'asset-picker',
+  });
+
+  // Side-effect to reset chain search visibility
+  useEffect(() => {
+    if (!popupState.isOpen) {
+      setShowChainSearch(false);
+    }
+  }, [popupState.isOpen]);
+
   const chainConfig: ChainConfig | undefined = useMemo(() => {
     return props.chain ? config.chains[props.chain] : undefined;
   }, [props.chain]);
@@ -107,63 +123,59 @@ const AssetPicker = (props: Props) => {
   }, [props.chain, props.token]);
 
   return (
-    <PopupState variant="popover" popupId="demo-popup-menu">
-      {(popupState: any) => (
-        <React.Fragment>
-          <Card
-            className={classes.card}
-            variant="elevation"
-            {...bindTrigger(popupState)}
+    <React.Fragment>
+      <Card
+        className={classes.card}
+        variant="elevation"
+        {...bindTrigger(popupState)}
+      >
+        <CardContent className={classes.cardContent}>
+          <Typography
+            className={classes.chainSelector}
+            component={'div'}
+            gap={1}
           >
-            <CardContent className={classes.cardContent}>
-              <Typography
-                className={classes.chainSelector}
-                component={'div'}
-                gap={1}
-              >
-                {badges}
-                {selection}
-              </Typography>
-              {popupState.isOpen ? <UpIcon /> : <DownIcon />}
-            </CardContent>
-          </Card>
-          <Popover
-            {...bindPopover(popupState)}
-            anchorOrigin={{
-              vertical: 'bottom',
-              horizontal: 'center',
+            {badges}
+            {selection}
+          </Typography>
+          {popupState.isOpen ? <UpIcon /> : <DownIcon />}
+        </CardContent>
+      </Card>
+      <Popover
+        {...bindPopover(popupState)}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'center',
+        }}
+        className={classes.container}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'center',
+        }}
+      >
+        <ChainList
+          chainList={props.chainList}
+          selectedChain={props.chain}
+          showSearch={showChainSearch}
+          setShowSearch={setShowChainSearch}
+          wallet={props.wallet}
+          onClick={(key: string) => {
+            props.setChain(key);
+          }}
+        />
+        {!showChainSearch && (
+          <TokenList
+            tokenList={props.tokenList}
+            selectedToken={props.token}
+            wallet={props.wallet}
+            onClick={(key: string) => {
+              props.setToken(key);
+              popupState.close();
             }}
-            className={classes.container}
-            transformOrigin={{
-              vertical: 'top',
-              horizontal: 'center',
-            }}
-          >
-            <ChainList
-              chainList={props.chainList}
-              selectedChain={props.chain}
-              showSearch={showChainSearch}
-              wallet={props.wallet}
-              onShowSearch={setShowChainSearch}
-              onClick={(key: string) => {
-                props.setChain(key);
-              }}
-            />
-            {!showChainSearch && (
-              <TokenList
-                tokenList={props.tokenList}
-                selectedToken={props.token}
-                wallet={props.wallet}
-                onClick={(key: string) => {
-                  props.setToken(key);
-                  popupState.close();
-                }}
-              />
-            )}
-          </Popover>
-        </React.Fragment>
-      )}
-    </PopupState>
+          />
+        )}
+      </Popover>
+    </React.Fragment>
   );
 };
 
