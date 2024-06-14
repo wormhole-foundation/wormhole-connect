@@ -115,7 +115,10 @@ const ChainList = (props: Props) => {
             sx={{
               width: 32,
               height: 32,
-              backgroundColor: 'transparent',
+              '&:hover': {
+                // removing the hover effect, which the parent ListItemButton already has
+                backgroundColor: 'unset',
+              },
             }}
           >
             <AddIcon />
