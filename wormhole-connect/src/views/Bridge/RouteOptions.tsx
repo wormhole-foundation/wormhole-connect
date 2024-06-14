@@ -23,6 +23,8 @@ import { isGatewayChain } from 'utils/cosmos';
 import { isPorticoRoute } from 'routes/porticoBridge/utils';
 import Price from 'components/Price';
 import { finality, chainIdToChain } from '@wormhole-foundation/sdk-base';
+import { isNttRoute } from 'routes';
+import { getNttDisplayName, getNttGroupKey } from 'utils/ntt';
 
 const useStyles = makeStyles()((theme: any) => ({
   link: {
@@ -281,6 +283,11 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
     [route, toChain],
   );
 
+  const displayName = isNttRoute(routeName)
+    ? getNttDisplayName(fromTokenConfig, toTokenConfig) || props.route.name
+    : props.route.name;
+  console.log(getNttGroupKey(fromTokenConfig, toTokenConfig));
+
   return (
     fromTokenConfig &&
     toTokenConfig && (
@@ -299,7 +306,7 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
         >
           <div className={classes.routeLeft}>
             <div className={classes.routeTitle}>
-              {props.route.name}
+              {displayName}
               {/* TODO: isAutomatic to route and use transfer parameters to decide */}
               {isAutomatic ? (
                 <Chip
@@ -437,7 +444,6 @@ function RouteOptions() {
     <BridgeCollapse
       title="Route"
       disabled={isTransactionInProgress}
-      banner={<Banner />}
       disableCollapse
       startClosed={false}
       onCollapseChange={() => {

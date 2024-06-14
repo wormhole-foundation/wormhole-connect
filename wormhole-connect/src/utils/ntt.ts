@@ -37,6 +37,14 @@ export const isNttTokenPair = (
   );
 };
 
+export const getNttDisplayName = (
+  token1: TokenConfig,
+  token2: TokenConfig,
+): string | undefined => {
+  const groupKey = getNttGroupKey(token1, token2);
+  return groupKey ? config.nttGroups[groupKey]?.displayName : undefined;
+};
+
 export const getNttManagerConfig = (
   token: TokenConfig,
   groupKey: string,
