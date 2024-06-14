@@ -41,6 +41,8 @@ type Props = {
   onClick?: any;
 };
 
+const SHORT_LIST_SIZE = 5;
+
 const TokenList = (props: Props) => {
   const [tokenSearchQuery, setTokenSearchQuery] = useState('');
 
@@ -57,7 +59,10 @@ const TokenList = (props: Props) => {
       ? [selectedTokenConfig]
       : [];
     props.tokenList?.forEach((t) => {
-      if (tokens.length < 6 && t.key !== selectedTokenConfig?.key) {
+      if (
+        tokens.length < SHORT_LIST_SIZE &&
+        t.key !== selectedTokenConfig?.key
+      ) {
         tokens.push(t);
       }
     });
