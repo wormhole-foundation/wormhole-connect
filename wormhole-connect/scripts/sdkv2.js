@@ -20,77 +20,44 @@ const { version, workspaces } = JSON.parse(
   fs.readFileSync(sdkPackageJsonPath, 'utf8'),
 );
 
-let sdkPackages = [];
+let sdkPackages = {};
 let sdkPackagesWithDiff = [];
 
 for (const workspace of workspaces) {
   if (workspace.includes('examples')) continue;
   const workspacePackageJson = path.join(SDK_PATH, workspace, 'package.json');
   const { name } = JSON.parse(fs.readFileSync(workspacePackageJson));
-  sdkPackages.push(name);
+  sdkPackages[name] = path.join(SDK_PATH, workspace);
 
-  const diff = execSync(`git diff ${workspace}`, { cwd: path.join(SDK_PATH) });
-  if (diff.length > 0) {
-    sdkPackagesWithDiff.push(name);
-  }
+  console.log(`linking ${name}`);
+  execSync('npm link', { cwd: sdkPackages[name] });
 }
 
-if (command === 'install') {
-  console.log(
-    `Building and installing sdkv2 version ${version}\nPackages:\n  ${sdkPackages.join(
-      '\n  ',
-    )}`,
-  );
+console.log(Object.keys(sdkPackages).join(' '));
+throw 1;
 
-  // Build SDKv2
-  console.log('Building SDK...');
-  execSync('npm run build', { cwd: SDK_PATH, encoding: 'utf-8' });
+execSync(`npm link ${Object.keys(sdkPackages).join(' ')}`, {
+  cwd: path.join(__dirname, '../../'),
+});
 
-  // Pack SDKv2
-  console.log('Packing SDK...');
-  execSync('npm pack --workspaces', { cwd: SDK_PATH, encoding: 'utf-8' });
+for (const name in sdkPackages) {
+  if (name.includes('examples')) {
+    continue;
+  }
+  linkLocalSdkPackages(sdkPackages[name]);
+}
 
-  // Get freshly made archives
-  const packageValues = {};
-  for (let pkg of sdkPackages) {
-    packageValues[pkg] = path.join(
-      SDK_PATH,
-      `wormhole-foundation-${pkg.split('/')[1]}-${version}.tgz`,
-    );
+function linkLocalSdkPackages(dir) {
+  let packageJson = JSON.parse(fs.readFileSync(path.join(dir, 'package.json')));
+  packageJson.overrides = packageJson.overrides || {};
+
+  let keys = [];
+
+  for (let key in packageJson.dependencies) {
+    if (sdkPackages[key] !== undefined) {
+      keys.push(key);
+    }
   }
 
-  const packageJson = JSON.parse(fs.readFileSync(packageJsonPath));
-
-  let alreadyHasLocalInstalled = packageJson.dependencies.hasOwnProperty(
-    '@wormhole-foundation/sdk-connect',
-  );
-
-  for (let pkg in packageValues) {
-    packageJson.dependencies[pkg] = packageValues[pkg];
-  }
-
-  fs.writeFileSync(
-    packageJsonPath,
-    JSON.stringify(packageJson, undefined, 2),
-    'utf-8',
-  );
-
-  let toInstall;
-
-  if (alreadyHasLocalInstalled && sdkPackagesWithDiff.length > 0) {
-    // Detected local changes; install only these
-    console.log('Installing packages with local diff');
-    toInstall = sdkPackagesWithDiff;
-  } else {
-    // Did not detect local changes; install all packages
-    console.log('Installing all packages');
-    toInstall = sdkPackages;
-  }
-
-  for (let pkg of toInstall) {
-    console.log(pkg);
-    execSync(`npm install ${pkg}`, { cwd: path.join(__dirname, '..') });
-  }
-} else if (command === 'remove') {
-  // TODO?
+  execSync(`npm link ${keys.join(' ')}`, { cwd: dir });
 }
