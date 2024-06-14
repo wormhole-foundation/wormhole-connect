@@ -52,20 +52,28 @@ const ChainList = (props: Props) => {
   const { classes } = useStyles();
 
   const topChains = useMemo(() => {
-    // Put the selected chain at the top of the list
-    const chains: Array<ChainConfig> = props.selectedChainConfig
-      ? [props.selectedChainConfig]
-      : [];
+    const chains: Array<ChainConfig> = [];
+    const { chainList = [] } = props;
 
-    props.chainList?.forEach((c) => {
-      if (
-        chains.length < SHORT_LIST_SIZE &&
-        c.key !== props.selectedChainConfig?.key
-      ) {
-        chains.push(c);
-      }
+    // Find the selected chain in supported chains
+    const selectedChainIndex = props.chainList?.findIndex((c) => {
+      return c.key === props.selectedChainConfig?.key;
     });
-    return chains;
+
+    // If the selected chain is outside the top list, we add it to the top;
+    // otherwise we do not change its index in the top list
+    if (
+      props.selectedChainConfig &&
+      selectedChainIndex &&
+      selectedChainIndex >= SHORT_LIST_SIZE
+    ) {
+      return chains.concat(
+        [props.selectedChainConfig],
+        chainList.slice(0, SHORT_LIST_SIZE - 1),
+      );
+    }
+
+    return chains.concat(chainList.slice(0, SHORT_LIST_SIZE));
   }, [props.chainList, props.selectedChainConfig]);
 
   const shortList = useMemo(() => {
