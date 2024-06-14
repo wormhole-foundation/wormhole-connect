@@ -8,6 +8,7 @@ on:
       - staging
       - production
       - mainnet
+      - release
 
 jobs:
   lint:
