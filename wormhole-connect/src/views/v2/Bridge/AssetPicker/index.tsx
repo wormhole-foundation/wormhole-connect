@@ -69,10 +69,16 @@ const AssetPicker = (props: Props) => {
     popupId: 'asset-picker',
   });
 
-  // Side-effect to reset chain search visibility
+  // Side-effect to reset chain search visibility.
+  // Popover close has an animation, which requires to wait
+  // a tiny bit before reseting showChainSearch.
+  // 300 ms is the reference wait time in a double-click, that's why
+  // we can use it as the min wait before user re-opens the popover.
   useEffect(() => {
     if (!popupState.isOpen) {
-      setShowChainSearch(false);
+      setTimeout(() => {
+        setShowChainSearch(false);
+      }, 300);
     }
   }, [popupState.isOpen]);
 
