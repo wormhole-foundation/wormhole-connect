@@ -23,34 +23,6 @@ import {
   SignedVaa,
 } from '../../../../../vaa';
 import { BpfLoaderUpgradeable, deriveUpgradeableProgramKey } from '../../utils';
-
-export function createRegisterChainInstruction(
-  connection: Connection,
-  nftBridgeProgramId: PublicKeyInitData,
-  wormholeProgramId: PublicKeyInitData,
-  payer: PublicKeyInitData,
-  vaa: SignedVaa | ParsedNftBridgeRegisterChainVaa,
-): TransactionInstruction {
-  const methods = createReadOnlyNftBridgeProgramInterface(
-    nftBridgeProgramId,
-    connection,
-  ).methods.registerChain();
-
-  // @ts-ignore
-  return methods._ixFn(...methods._args, {
-    accounts: getRegisterChainAccounts(
-      nftBridgeProgramId,
-      wormholeProgramId,
-      payer,
-      vaa,
-    ) as any,
-    signers: undefined,
-    remainingAccounts: undefined,
-    preInstructions: undefined,
-    postInstructions: undefined,
-  });
-}
-
 export interface RegisterChainAccounts {
   payer: PublicKey;
   config: PublicKey;
@@ -61,7 +33,6 @@ export interface RegisterChainAccounts {
   systemProgram: PublicKey;
   wormholeProgram: PublicKey;
 }
-
 export function getRegisterChainAccounts(
   nftBridgeProgramId: PublicKeyInitData,
   wormholeProgramId: PublicKeyInitData,
@@ -89,36 +60,6 @@ export function getRegisterChainAccounts(
     wormholeProgram: new PublicKey(wormholeProgramId),
   };
 }
-
-export function createUpgradeContractInstruction(
-  connection: Connection,
-  nftBridgeProgramId: PublicKeyInitData,
-  wormholeProgramId: PublicKeyInitData,
-  payer: PublicKeyInitData,
-  vaa: SignedVaa | ParsedNftBridgeUpgradeContractVaa,
-  spill?: PublicKeyInitData,
-): TransactionInstruction {
-  const methods = createReadOnlyNftBridgeProgramInterface(
-    nftBridgeProgramId,
-    connection,
-  ).methods.upgradeContract();
-
-  // @ts-ignore
-  return methods._ixFn(...methods._args, {
-    accounts: getUpgradeContractAccounts(
-      nftBridgeProgramId,
-      wormholeProgramId,
-      payer,
-      vaa,
-      spill,
-    ) as any,
-    signers: undefined,
-    remainingAccounts: undefined,
-    preInstructions: undefined,
-    postInstructions: undefined,
-  });
-}
-
 export interface UpgradeContractAccounts {
   payer: PublicKey;
   vaa: PublicKey;
@@ -133,7 +74,6 @@ export interface UpgradeContractAccounts {
   bpfLoaderUpgradeable: PublicKey;
   systemProgram: PublicKey;
 }
-
 export function getUpgradeContractAccounts(
   nftBridgeProgramId: PublicKeyInitData,
   wormholeProgramId: PublicKeyInitData,

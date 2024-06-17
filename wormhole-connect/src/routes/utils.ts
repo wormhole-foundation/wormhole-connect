@@ -15,7 +15,6 @@ import {
   solanaContext,
 } from 'utils/sdk';
 import { getTokenById } from 'utils';
-import { CHAIN_ID_ETH } from '@certusone/wormhole-sdk/lib/esm/utils';
 import { Route, TokenConfig } from 'config/types';
 
 // adapts the sdk returned parsed message to the type that
@@ -82,7 +81,7 @@ export const isIlliquidDestToken = (
   if (['WETH', 'wstETH'].includes(symbol)) {
     if (
       nativeChain !== config.wh.toChainName(destChain) &&
-      config.wh.toChainId(nativeChain) !== CHAIN_ID_ETH
+      nativeChain !== 'ethereum'
     ) {
       return true;
     }

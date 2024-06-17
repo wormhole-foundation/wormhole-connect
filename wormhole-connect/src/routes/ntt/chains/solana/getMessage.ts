@@ -1,5 +1,5 @@
 import { solanaContext } from 'utils/sdk';
-import { PostedMessageData } from '@certusone/wormhole-sdk/lib/esm/solana/wormhole';
+// import { PostedMessageData } from '@certusone/wormhole-sdk/lib/esm/solana/wormhole';
 import { hexlify } from 'ethers/lib/utils';
 import { NttRelayingType, UnsignedNttMessage } from 'routes/types';
 import { getTokenById } from 'utils';
@@ -39,6 +39,8 @@ export const getMessageSolana = async (
   );
   if (wormholeMessageAccount === null)
     throw new Error('wormhole message account not found');
+  // TODO: SDKV2
+  // @ts-ignore
   const messageData = PostedMessageData.deserialize(
     wormholeMessageAccount.data,
   );

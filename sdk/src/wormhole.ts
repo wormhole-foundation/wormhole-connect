@@ -1,4 +1,4 @@
-import { Network as Environment } from '@certusone/wormhole-sdk';
+import { Network } from './types';
 import { Domain, MultiProvider } from '@nomad-xyz/multi-provider';
 import { BigNumber } from 'ethers';
 
@@ -60,7 +60,7 @@ export class WormholeContext extends MultiProvider<Domain> {
   readonly conf: WormholeConfig;
 
   constructor(
-    env: Environment,
+    env: Network,
     conf?: WormholeConfig,
     foreignAssetCache?: ForeignAssetCache,
   ) {
@@ -281,66 +281,6 @@ export class WormholeContext extends MultiProvider<Domain> {
     return await context.getTokenBalances(walletAddress, tokenIds, chain);
   }
 
-  /**
-   * Send a Token Bridge transfer
-   *
-   * @dev This _must_ be claimed on the destination chain, see {@link WormholeContext#redeem | redeem}
-   *
-   * @param token The Token Identifier (chain/address) or `'native'` if sending the native token
-   * @param amount The token amount to be sent, as a string
-   * @param sendingChain The source chain name or id
-   * @param senderAddress The address that is dispatching the transfer
-   * @param recipientChain The destination chain name or id
-   * @param recipientAddress The wallet address where funds will be sent (On solana, this is the associated token account)
-   * @param relayerFee A fee that would go to a relayer, if any
-   * @param payload Extra bytes that can be passed along with the transfer
-   * @returns The transaction receipt
-   * @throws If unable to get the signer or contracts, or if there is a problem executing the transaction
-   */
-  async send(
-    token: TokenId | 'native',
-    amount: string,
-    sendingChain: ChainName | ChainId,
-    senderAddress: string,
-    recipientChain: ChainName | ChainId,
-    recipientAddress: string,
-    relayerFee?: string,
-    payload?: Uint8Array,
-  ): Promise<SendResult> {
-    const context = this.getContext(sendingChain);
-
-    if (recipientChain === 'sei') {
-      if (payload) throw new Error('Custom payload is not supported for Sei');
-
-      const { payload: seiPayload, receiver } = await (
-        this.getContext('sei') as SeiContext<WormholeContext>
-      ).buildSendPayload(token, recipientAddress);
-      recipientAddress = receiver || recipientAddress;
-      payload = seiPayload || payload;
-    }
-
-    if (payload) {
-      return context.sendWithPayload(
-        token,
-        amount,
-        sendingChain,
-        senderAddress,
-        recipientChain,
-        recipientAddress,
-        payload,
-      );
-    }
-    return context.send(
-      token,
-      amount,
-      sendingChain,
-      senderAddress,
-      recipientChain,
-      recipientAddress,
-      relayerFee,
-    );
-  }
-
   async getTxGasFee(
     chain: ChainName | ChainId,
     txId: string,
@@ -557,10 +497,10 @@ export class WormholeContext extends MultiProvider<Domain> {
    * @param environment 'MAINNET' or 'TESTNET'
    * @returns A Wormhole Config
    */
-  static getConfig(env: Environment): WormholeConfig {
-    return env === 'MAINNET'
+  static getConfig(env: Network): WormholeConfig {
+    return env === 'mainnet'
       ? MAINNET_CONFIG
-      : env === 'DEVNET'
+      : env === 'devnet'
       ? DEVNET_CONFIG
       : TESTNET_CONFIG;
   }

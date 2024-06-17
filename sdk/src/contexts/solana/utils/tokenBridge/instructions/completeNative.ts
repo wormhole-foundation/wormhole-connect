@@ -21,36 +21,6 @@ import {
   parseTokenTransferVaa,
   SignedVaa,
 } from '../../../../../vaa';
-
-export function createCompleteTransferNativeInstruction(
-  connection: Connection,
-  tokenBridgeProgramId: PublicKeyInitData,
-  wormholeProgramId: PublicKeyInitData,
-  payer: PublicKeyInitData,
-  vaa: SignedVaa | ParsedTokenTransferVaa,
-  feeRecipient?: PublicKeyInitData,
-): TransactionInstruction {
-  const methods = createReadOnlyTokenBridgeProgramInterface(
-    tokenBridgeProgramId,
-    connection,
-  ).methods.completeNative();
-
-  // @ts-ignore
-  return methods._ixFn(...methods._args, {
-    accounts: getCompleteTransferNativeAccounts(
-      tokenBridgeProgramId,
-      wormholeProgramId,
-      payer,
-      vaa,
-      feeRecipient,
-    ) as any,
-    signers: undefined,
-    remainingAccounts: undefined,
-    preInstructions: undefined,
-    postInstructions: undefined,
-  });
-}
-
 export interface CompleteTransferNativeAccounts {
   payer: PublicKey;
   config: PublicKey;
@@ -67,7 +37,6 @@ export interface CompleteTransferNativeAccounts {
   tokenProgram: PublicKey;
   wormholeProgram: PublicKey;
 }
-
 export function getCompleteTransferNativeAccounts(
   tokenBridgeProgramId: PublicKeyInitData,
   wormholeProgramId: PublicKeyInitData,

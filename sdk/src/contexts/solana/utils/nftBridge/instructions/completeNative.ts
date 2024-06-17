@@ -24,36 +24,6 @@ import {
   parseNftTransferVaa,
   SignedVaa,
 } from '../../../../../vaa';
-
-export function createCompleteTransferNativeInstruction(
-  connection: Connection,
-  nftBridgeProgramId: PublicKeyInitData,
-  wormholeProgramId: PublicKeyInitData,
-  payer: PublicKeyInitData,
-  vaa: SignedVaa | ParsedNftTransferVaa,
-  toAuthority?: PublicKeyInitData,
-): TransactionInstruction {
-  const methods = createReadOnlyNftBridgeProgramInterface(
-    nftBridgeProgramId,
-    connection,
-  ).methods.completeNative();
-
-  // @ts-ignore
-  return methods._ixFn(...methods._args, {
-    accounts: getCompleteTransferNativeAccounts(
-      nftBridgeProgramId,
-      wormholeProgramId,
-      payer,
-      vaa,
-      toAuthority,
-    ) as any,
-    signers: undefined,
-    remainingAccounts: undefined,
-    preInstructions: undefined,
-    postInstructions: undefined,
-  });
-}
-
 export interface CompleteTransferNativeAccounts {
   payer: PublicKey;
   config: PublicKey;
@@ -70,7 +40,6 @@ export interface CompleteTransferNativeAccounts {
   tokenProgram: PublicKey;
   wormholeProgram: PublicKey;
 }
-
 export function getCompleteTransferNativeAccounts(
   nftBridgeProgramId: PublicKeyInitData,
   wormholeProgramId: PublicKeyInitData,

@@ -1,4 +1,3 @@
-import { CHAIN_ID_SOLANA } from '@certusone/wormhole-sdk';
 import { BN, Program, utils } from '@project-serum/anchor';
 import { TOKEN_PROGRAM_ID, getAssociatedTokenAddress } from '@solana/spl-token';
 import {
@@ -71,8 +70,7 @@ const findProgramAddress = (
 function getMessageTransmitter(): Program<MessageTransmitter> {
   const context = solanaContext();
   const connection = context.connection;
-  const contracts =
-    context.contracts.mustGetContracts(CHAIN_ID_SOLANA).cctpContracts;
+  const contracts = context.contracts.mustGetContracts('solana').cctpContracts;
   if (!contracts?.cctpMessageTransmitter || !contracts?.cctpTokenMessenger) {
     throw new Error('No CCTP on Solana');
   }
@@ -86,8 +84,7 @@ function getMessageTransmitter(): Program<MessageTransmitter> {
 function getTokenMessenger(): Program<TokenMessenger> {
   const context = solanaContext();
   const connection = context.connection;
-  const contracts =
-    context.contracts.mustGetContracts(CHAIN_ID_SOLANA).cctpContracts;
+  const contracts = context.contracts.mustGetContracts('solana').cctpContracts;
   if (!contracts?.cctpMessageTransmitter || !contracts?.cctpTokenMessenger) {
     throw new Error('No CCTP on Solana');
   }

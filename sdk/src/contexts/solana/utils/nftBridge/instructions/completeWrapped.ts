@@ -26,36 +26,6 @@ import {
   SignedVaa,
 } from '../../../../../vaa';
 import { SplTokenMetadataProgram } from '../../utils';
-
-export function createCompleteTransferWrappedInstruction(
-  connection: Connection,
-  nftBridgeProgramId: PublicKeyInitData,
-  wormholeProgramId: PublicKeyInitData,
-  payer: PublicKeyInitData,
-  vaa: SignedVaa | ParsedNftTransferVaa,
-  toAuthority?: PublicKeyInitData,
-): TransactionInstruction {
-  const methods =
-    createReadOnlyNftBridgeProgramInterface(
-      nftBridgeProgramId,
-    ).methods.completeWrapped();
-
-  // @ts-ignore
-  return methods._ixFn(...methods._args, {
-    accounts: getCompleteTransferWrappedAccounts(
-      nftBridgeProgramId,
-      wormholeProgramId,
-      payer,
-      vaa,
-      toAuthority,
-    ) as any,
-    signers: undefined,
-    remainingAccounts: undefined,
-    preInstructions: undefined,
-    postInstructions: undefined,
-  });
-}
-
 export interface CompleteTransferWrappedAccounts {
   payer: PublicKey;
   config: PublicKey;
@@ -74,7 +44,6 @@ export interface CompleteTransferWrappedAccounts {
   associatedTokenProgram: PublicKey;
   wormholeProgram: PublicKey;
 }
-
 export function getCompleteTransferWrappedAccounts(
   nftBridgeProgramId: PublicKeyInitData,
   wormholeProgramId: PublicKeyInitData,

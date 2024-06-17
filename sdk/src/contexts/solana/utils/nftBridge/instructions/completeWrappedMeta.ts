@@ -26,34 +26,6 @@ import {
   deriveSplTokenMetadataKey,
   SplTokenMetadataProgram,
 } from '../../utils';
-
-export function createCompleteWrappedMetaInstruction(
-  connection: Connection,
-  nftBridgeProgramId: PublicKeyInitData,
-  wormholeProgramId: PublicKeyInitData,
-  payer: PublicKeyInitData,
-  vaa: SignedVaa | ParsedNftTransferVaa,
-): TransactionInstruction {
-  const methods =
-    createReadOnlyNftBridgeProgramInterface(
-      nftBridgeProgramId,
-    ).methods.completeWrappedMeta();
-
-  // @ts-ignore
-  return methods._ixFn(...methods._args, {
-    accounts: getCompleteWrappedMetaAccounts(
-      nftBridgeProgramId,
-      wormholeProgramId,
-      payer,
-      vaa,
-    ) as any,
-    signers: undefined,
-    remainingAccounts: undefined,
-    preInstructions: undefined,
-    postInstructions: undefined,
-  });
-}
-
 export interface CompleteWrappedMetaAccounts {
   payer: PublicKey;
   config: PublicKey;
@@ -69,7 +41,6 @@ export interface CompleteWrappedMetaAccounts {
   splMetadataProgram: PublicKey;
   wormholeProgram: PublicKey;
 }
-
 export function getCompleteWrappedMetaAccounts(
   nftBridgeProgramId: PublicKeyInitData,
   wormholeProgramId: PublicKeyInitData,

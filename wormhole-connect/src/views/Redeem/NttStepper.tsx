@@ -7,7 +7,7 @@ import SendTo from './SendTo';
 import BridgeComplete from './BridgeComplete';
 import NttInboundQueued from './NttInboundQueued';
 import RelayerDeliveryFailed from './RelayerDeliveryFailed';
-import { DeliveryStatus } from '@certusone/wormhole-sdk/lib/esm/relayer';
+import { DeliveryStatus } from 'utils/sdk';
 
 const SEND_FROM_STEP = 1;
 const SEND_TO_STEP = 2;

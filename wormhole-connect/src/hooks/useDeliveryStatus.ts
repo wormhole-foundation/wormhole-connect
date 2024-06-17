@@ -1,4 +1,4 @@
-import { DeliveryStatus } from '@certusone/wormhole-sdk/lib/esm/relayer';
+import { DeliveryStatus } from 'utils/sdk';
 import axios from 'axios';
 import { Route } from 'config/types';
 import { useEffect } from 'react';

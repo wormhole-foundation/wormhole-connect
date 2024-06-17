@@ -17,7 +17,6 @@
     "dist"
   ],
   "dependencies": {
-    "@certusone/wormhole-sdk": "^0.10.10",
     "@coral-xyz/anchor": "^0.29.0",
     "@cosmjs/cosmwasm-stargate": "^0.31.3",
     "@cosmjs/stargate": "^0.31.3",

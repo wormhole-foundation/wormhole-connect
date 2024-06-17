@@ -24,7 +24,6 @@ import Spacer from './Spacer';
 import Tabs from './Tabs';
 import { CCTPManual_CHAINS } from '../routes/cctpManual';
 import { isTBTCCanonicalChain } from 'routes/tbtc';
-import { CHAIN_ID_ETH } from '@certusone/wormhole-sdk/lib/esm/utils';
 import useGetTokenBalances from 'hooks/useGetTokenBalances';
 import { Balances } from 'store/transferInput';
 
@@ -383,7 +382,7 @@ function TokensModal(props: Props) {
         } else {
           // if the chain is not canonical then only show the ethereum tBTC token
           // which is considered the canonical tBTC token
-          if (config.wh.toChainId(t.nativeChain) !== CHAIN_ID_ETH) {
+          if (t.nativeChain !== 'ethereum') {
             return false;
           }
         }

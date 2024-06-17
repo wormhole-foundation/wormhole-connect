@@ -1,6 +1,6 @@
 // This module is only to be included in other modules using import()
 // so that it loads dynamically as a separate bundle
-import { Network, CHAIN_ID_SEI } from '@certusone/wormhole-sdk';
+import { Network } from 'config/types';
 import config from 'config';
 import { SendResult } from '@wormhole-foundation/wormhole-connect-sdk';
 import {
@@ -12,11 +12,11 @@ import {
 import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
 
 export const getSeiChainId = (env: Network) =>
-  env === 'MAINNET' ? 'pacific-1' : 'atlantic-2';
+  env === 'mainnet' ? 'pacific-1' : 'atlantic-2';
 
 export async function fetchOptions() {
   const seiWallets = getSupportedWallets({
-    chainId: getSeiChainId(config.networkLegacy) as SeiChainId,
+    chainId: getSeiChainId(config.network) as SeiChainId,
     rpcUrl: config.rpcs.sei || '',
   });
 
@@ -47,13 +47,3 @@ export async function signAndSendTransaction(
 
   return result;
 }
-
-// TODO is this used anywhere?
-export const simulateSeiTransaction = async (
-  transaction: SeiTransaction,
-  wallet: SeiWallet,
-) => {
-  if (wallet?.getChainId() !== CHAIN_ID_SEI)
-    throw new Error('Wallet is not for Sei chain');
-  return wallet.calculateFee(transaction);
-};

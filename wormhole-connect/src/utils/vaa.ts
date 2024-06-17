@@ -1,50 +1,16 @@
-import {
-  getSignedVAA,
-  parseTokenTransferVaa,
-  parseVaa,
-} from '@certusone/wormhole-sdk';
-import { Implementation__factory } from '@certusone/wormhole-sdk/lib/esm/ethers-contracts';
-import { utils, providers, BigNumberish } from 'ethers';
+import { ethers_contracts } from '@wormhole-foundation/sdk-evm-core';
+import { providers, BigNumberish } from 'ethers';
 import axios from 'axios';
 import { ChainId, ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
-
-import config from 'config';
+import config, { newWormholeContextV2 } from 'config';
 import {
   ParsedMessage,
   ParsedRelayerMessage,
   getCurrentBlock,
   isEvmChain,
 } from './sdk';
-import { repairVaa } from './repairVaa';
-
-function getOrRepairVaa(vaa: Uint8Array | string): Uint8Array {
-  const vaaBytes = typeof vaa === 'string' ? utils.base64.decode(vaa) : vaa;
-  const parsedVaa = parseVaa(vaaBytes);
-  if (parsedVaa.guardianSetIndex !== config.guardianSet.index) {
-    console.debug('Guardian Set mismatch, repairing VAA');
-    const repairedVaaBytes = repairVaa(vaaBytes, config.guardianSet, parsedVaa);
-    return repairedVaaBytes;
-  }
-  return vaaBytes;
-}
-
-export type ParsedVaa = {
-  bytes: string;
-  hash: string;
-  amount: string;
-  emitterAddress: string;
-  emitterChain: ChainId;
-  fee: string | null;
-  fromAddress: string | undefined;
-  guardianSignatures: number;
-  sequence: string;
-  timestamp: number;
-  toAddress: string;
-  toChain: ChainId;
-  tokenAddress: string;
-  tokenChain: ChainId;
-  txHash: string;
-};
+import { repairVaaIfNeeded } from './repairVaa';
+import { VAA, Wormhole, deserialize } from '@wormhole-foundation/sdk';
 
 export type MessageIdentifier = {
   emitterChain: ChainId;
@@ -62,12 +28,19 @@ export async function getUnsignedVaaEvm(
   payload: string;
 }> {
   const bridgeLog = await getWormholeLogEvm(chain, receipt);
-  const parsed = Implementation__factory.createInterface().parseLog(bridgeLog);
-  return {
-    emitterAddress: parsed.args.sender,
-    sequence: parsed.args.sequence,
-    payload: parsed.args.payload.toString('hex'),
-  };
+  const parsed =
+    ethers_contracts.Implementation__factory.createInterface().parseLog(
+      bridgeLog,
+    );
+  if (parsed) {
+    return {
+      emitterAddress: parsed.args.sender,
+      sequence: parsed.args.sequence,
+      payload: parsed.args.payload.toString('hex'),
+    };
+  } else {
+    throw new Error('Failed to parse logs in getUnsignedVaaEvm');
+  }
 }
 
 export async function getWormholeLogEvm(
@@ -121,7 +94,7 @@ export async function fetchVaa(
   bytesOnly = false,
 ): Promise<ParsedVaa | Uint8Array | undefined> {
   try {
-    const vaa = await fetchVaaWormscan(txData, bytesOnly);
+    const vaa = await fetchVaaWormscan(txData);
 
     if (vaa === undefined) {
       console.warn('VAA not found in Wormscan');
@@ -132,13 +105,12 @@ export async function fetchVaa(
       'Error fetching VAA from wormscan. Falling back to guardian.',
       e,
     );
-    return await fetchVaaGuardian(txData, bytesOnly);
+    return await fetchVaaGuardian(txData);
   }
 }
 
 export async function fetchVaaWormscan(
   txData: ParsedMessage | ParsedRelayerMessage,
-  bytesOnly: boolean,
 ): Promise<ParsedVaa | Uint8Array | undefined> {
   // return if the number of block confirmations hasn't been met
   const chainName = config.wh.toChainName(txData.fromChain);
@@ -150,50 +122,45 @@ export async function fetchVaaWormscan(
 
   const messageId = getEmitterAndSequence(txData);
   const { emitterChain, emitterAddress, sequence } = messageId;
-  const url = `${config.wormholeApi}api/v1/vaas/${emitterChain}/${emitterAddress}/${sequence}`;
 
-  return axios
-    .get(url)
-    .then(function (response: any) {
-      if (!response.data.data) return;
-      const data = response.data.data;
-      const vaa = getOrRepairVaa(data.vaa);
-      if (bytesOnly) return vaa;
-      const parsed = parseTokenTransferVaa(vaa);
+  const wh = await newWormholeContextV2();
+  const chain = config.sdkConverter.toChainV2(emitterChain);
+  const emitter = Wormhole.parseAddress(
+    chain,
+    emitterAddress,
+  ).toUniversalAddress();
 
-      const vaaData: ParsedVaa = {
-        bytes: utils.hexlify(vaa),
-        hash: utils.hexlify(parsed.hash),
-        amount: parsed.amount.toString(),
-        emitterAddress: utils.hexlify(parsed.emitterAddress),
-        emitterChain: parsed.emitterChain as ChainId,
-        fee: parsed.fee ? parsed.fee.toString() : null,
-        fromAddress: parsed.fromAddress
-          ? utils.hexlify(parsed.fromAddress)
-          : undefined,
-        guardianSignatures: parsed.guardianSignatures.length,
-        sequence: parsed.sequence.toString(),
-        timestamp: parsed.timestamp,
-        toAddress: utils.hexlify(parsed.to),
-        toChain: parsed.toChain as ChainId,
-        tokenAddress: utils.hexlify(parsed.tokenAddress),
-        tokenChain: parsed.tokenChain as ChainId,
-        txHash: `0x${data.txHash}`,
-      };
-      return vaaData;
-    })
-    .catch(function (error) {
-      if (error.response?.status === 404) {
-        return undefined;
-      } else {
-        throw error;
-      }
+  try {
+    let vaa =
+      (await wh.getVaaBytes({
+        chain,
+        emitter,
+        sequence: BigInt(sequence),
+      })) || undefined;
+
+    if (vaa == undefined) {
+      return undefined;
+    }
+
+    const vaaDeserialized: VAA<'Uint8Array'> = deserialize('Uint8Array', vaa);
+    vaa = repairVaaIfNeeded(vaaDeserialized, {
+      ...config.guardianSet,
+      expiry: BigInt(0),
     });
+
+    return vaa;
+  } catch (error) {
+    /* @ts-ignore */
+    if (error.response?.status === 404) {
+      return undefined;
+    } else {
+      throw error;
+    }
+  }
 }
 
 export async function fetchVaaGuardian(
   txData: ParsedMessage | ParsedRelayerMessage,
-  bytesOnly: boolean,
 ): Promise<ParsedVaa | Uint8Array | undefined> {
   // return if the number of block confirmations hasn't been met
   const chainName = config.wh.toChainName(txData.fromChain);
@@ -210,13 +177,21 @@ export async function fetchVaaGuardian(
   let vaa: Uint8Array | undefined;
   for (const host of config.wormholeRpcHosts) {
     try {
-      const { vaaBytes } = await getSignedVAA(
-        host,
-        emitterChain,
+      const wh = await newWormholeContextV2();
+      wh.config.api = host;
+      const chain = config.sdkConverter.toChainV2(emitterChain);
+      const emitter = Wormhole.parseAddress(
+        chain,
         emitterAddress,
-        sequence,
-      );
-      vaa = getOrRepairVaa(vaaBytes);
+      ).toUniversalAddress();
+
+      vaa =
+        (await wh.getVaaBytes({
+          chain,
+          emitter,
+          sequence: BigInt(sequence),
+        })) || undefined;
+
       break;
     } catch (e) {
       console.warn(`Failed to fetch VAA from ${host}: ${e}`);
@@ -225,33 +200,8 @@ export async function fetchVaaGuardian(
   if (!vaa) {
     throw new Error('Failed to fetch VAA from all hosts');
   }
-  if (bytesOnly) {
-    return vaa;
-  }
 
-  const parsed = parseTokenTransferVaa(vaa);
-
-  const vaaData: ParsedVaa = {
-    bytes: utils.hexlify(vaa),
-    hash: utils.hexlify(parsed.hash),
-    amount: parsed.amount.toString(),
-    emitterAddress: utils.hexlify(parsed.emitterAddress),
-    emitterChain: parsed.emitterChain as ChainId,
-    fee: parsed.fee ? parsed.fee.toString() : null,
-    fromAddress: parsed.fromAddress
-      ? utils.hexlify(parsed.fromAddress)
-      : undefined,
-    guardianSignatures: parsed.guardianSignatures.length,
-    sequence: parsed.sequence.toString(),
-    timestamp: parsed.timestamp,
-    toAddress: utils.hexlify(parsed.to),
-    toChain: parsed.toChain as ChainId,
-    tokenAddress: utils.hexlify(parsed.tokenAddress),
-    tokenChain: parsed.tokenChain as ChainId,
-    txHash: txData.sendTx,
-  };
-
-  return vaaData;
+  return vaa;
 }
 
 export const fetchIsVAAEnqueued = async (

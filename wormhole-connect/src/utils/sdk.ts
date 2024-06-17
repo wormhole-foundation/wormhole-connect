@@ -1,4 +1,3 @@
-import { isEVMChain } from '@certusone/wormhole-sdk';
 import { BigNumber } from 'ethers';
 import {
   ChainId,
@@ -125,8 +124,44 @@ export const isAcceptedToken = async (tokenId: TokenId): Promise<boolean> => {
   return accepted;
 };
 
+// copied from @certusone/wormhole-sdk
+// TODO SDKV2
+export const EVMChainNames = [
+  'ethereum',
+  'bsc',
+  'polygon',
+  'avalanche',
+  'oasis',
+  'aurora',
+  'fantom',
+  'karura',
+  'acala',
+  'klaytn',
+  'celo',
+  'moonbeam',
+  'neon',
+  'arbitrum',
+  'optimism',
+  'gnosis',
+  'base',
+  'rootstock',
+  'scroll',
+  'mantle',
+  'blast',
+  'xlayer',
+  'linea',
+  'berachain',
+  'seievm',
+  'sepolia',
+  'arbitrum_sepolia',
+  'base_sepolia',
+  'optimism_sepolia',
+  'holesky',
+  'polygon_sepolia',
+];
+
 export const isEvmChain = (chain: ChainName | ChainId) => {
-  return isEVMChain(config.wh.toChainId(chain));
+  return EVMChainNames.includes(config.wh.toChainName(chain));
 };
 
 export const toChainId = (chain: ChainName | ChainId) => {
@@ -141,3 +176,11 @@ export const getMessage = (tx: string, chain: ChainName | ChainId) => {
   const context = config.wh.getContext(chain);
   return context.getMessage(tx, chain, false);
 };
+
+export enum DeliveryStatus {
+  WaitingForVAA = 'Waiting for VAA',
+  PendingDelivery = 'Pending Delivery',
+  DeliverySuccess = 'Delivery Success',
+  ReceiverFailure = 'Receiver Failure',
+  ThisShouldNeverHappen = 'This should never happen. Contact Support.',
+}

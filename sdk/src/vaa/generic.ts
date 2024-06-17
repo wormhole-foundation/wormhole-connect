@@ -2,12 +2,10 @@ import { Parser } from 'binary-parser';
 import { BigNumber, ethers } from 'ethers';
 import { solidityKeccak256 } from 'ethers/lib/utils';
 import * as elliptic from 'elliptic';
-
 export interface Signature {
   guardianSetIndex: number;
   signature: string;
 }
-
 export interface VAA<T> {
   version: number;
   guardianSetIndex: number;
@@ -20,13 +18,11 @@ export interface VAA<T> {
   consistencyLevel: number;
   payload: T;
 }
-
 class P<T> {
   private parser: Parser;
   constructor(parser: Parser) {
     this.parser = parser;
   }
-
   // Try to parse a buffer with a parser, and return null if it failed due to an
   // assertion error.
   parse(buffer: Buffer): T | null {
@@ -42,7 +38,6 @@ class P<T> {
       }
     }
   }
-
   or<U>(other: P<U>): P<T | U> {
     let p = new P<T | U>(other.parser);
     p.parse = (buffer: Buffer): T | U | null => {
@@ -51,13 +46,11 @@ class P<T> {
     return p;
   }
 }
-
 export interface Other {
   type: 'Other';
   hex: string;
   ascii?: string;
 }
-
 // All the different types of payloads
 export type Payload =
   | GuardianSetUpgrade
@@ -70,12 +63,10 @@ export type Payload =
   | TokenBridgeTransferWithPayload
   | TokenBridgeAttestMeta
   | NFTBridgeTransfer;
-
 export type ContractUpgrade =
   | CoreContractUpgrade
   | PortalContractUpgrade<'TokenBridge'>
   | PortalContractUpgrade<'NFTBridge'>;
-
 export function parse(buffer: Buffer): VAA<Payload | Other> {
   const vaa = parseEnvelope(buffer);
   const parser = guardianSetUpgradeParser
@@ -100,18 +91,8 @@ export function parse(buffer: Buffer): VAA<Payload | Other> {
     delete payload['tokenURILength'];
   }
   var myVAA = { ...vaa, payload };
-
   return myVAA;
 }
-
-export function assertKnownPayload(
-  vaa: VAA<Payload | Other>,
-): asserts vaa is VAA<Payload> {
-  if (vaa.payload.type === 'Other') {
-    throw Error(`Couldn't parse VAA payload: ${vaa.payload.hex}`);
-  }
-}
-
 // Parse the VAA envelope without looking into the payload.
 // If you want to parse the payload as well, use 'parse'.
 export function parseEnvelope(buffer: Buffer): VAA<Buffer> {
@@ -121,7 +102,6 @@ export function parseEnvelope(buffer: Buffer): VAA<Buffer> {
   vaa.payload = Buffer.from(vaa.payload);
   return vaa;
 }
-
 // Parse a signature
 const signatureParser = new Parser()
   .endianess('big')
@@ -131,12 +111,10 @@ const signatureParser = new Parser()
     lengthInBytes: 65,
     formatter: (arr) => Buffer.from(arr).toString('hex'),
   });
-
 function serialiseSignature(sig: Signature): string {
   const body = [encode('uint8', sig.guardianSetIndex), sig.signature];
   return body.join('');
 }
-
 // Parse a vaa envelope. The payload is returned as a byte array.
 const vaaParser = new Parser()
   .endianess('big')
@@ -165,25 +143,12 @@ const vaaParser = new Parser()
     greedy: true,
     assert: (str) => str === '',
   });
-
-export function serialiseVAA(vaa: VAA<Payload>) {
-  const body = [
-    encode('uint8', vaa.version),
-    encode('uint32', vaa.guardianSetIndex),
-    encode('uint8', vaa.signatures.length),
-    ...vaa.signatures.map((sig) => serialiseSignature(sig)),
-    vaaBody(vaa),
-  ];
-  return body.join('');
-}
-
 export function vaaDigest(vaa: VAA<Payload | Other>) {
   return solidityKeccak256(
     ['bytes'],
     [solidityKeccak256(['bytes'], ['0x' + vaaBody(vaa)])],
   );
 }
-
 function vaaBody(vaa: VAA<Payload | Other>) {
   let payload_str: string;
   if (vaa.payload.type === 'Other') {
@@ -254,12 +219,10 @@ function vaaBody(vaa: VAA<Payload | Other>) {
   ];
   return body.join('');
 }
-
 /** @category VAA */
 export function sign(signers: string[], vaa: VAA<Payload>): Signature[] {
   const hash = vaaDigest(vaa);
   const ec = new elliptic.ec('secp256k1');
-
   return signers.map((signer, i) => {
     const key = ec.keyFromPrivate(signer);
     const signature = key.sign(Buffer.from(hash.substr(2), 'hex'), {
@@ -276,7 +239,6 @@ export function sign(signers: string[], vaa: VAA<Payload>): Signature[] {
     };
   });
 }
-
 // Parse an address of given length, and render it as hex
 const addressParser = (length: number) =>
   new Parser().endianess('big').array('address', {
@@ -284,10 +246,8 @@ const addressParser = (length: number) =>
     lengthInBytes: length,
     formatter: (arr) => Buffer.from(arr).toString('hex'),
   });
-
 ////////////////////////////////////////////////////////////////////////////////
 // Guardian set upgrade
-
 export interface GuardianSetUpgrade {
   module: 'Core';
   type: 'GuardianSetUpgrade';
@@ -296,7 +256,6 @@ export interface GuardianSetUpgrade {
   newGuardianSetLength: number;
   newGuardianSet: string[];
 }
-
 // Parse a guardian set upgrade payload
 const guardianSetUpgradeParser: P<GuardianSetUpgrade> = new P(
   new Parser()
@@ -317,15 +276,19 @@ const guardianSetUpgradeParser: P<GuardianSetUpgrade> = new P(
     .array('newGuardianSet', {
       type: addressParser(20),
       length: 'newGuardianSetLength',
-      formatter: (arr: [{ address: string }]) =>
-        arr.map((addr) => addr.address),
+      formatter: (
+        arr: [
+          {
+            address: string;
+          },
+        ],
+      ) => arr.map((addr) => addr.address),
     })
     .string('end', {
       greedy: true,
       assert: (str) => str === '',
     }),
 );
-
 function serialiseGuardianSetUpgrade(payload: GuardianSetUpgrade): string {
   const body = [
     encode('bytes32', encodeString(payload.module)),
@@ -337,17 +300,14 @@ function serialiseGuardianSetUpgrade(payload: GuardianSetUpgrade): string {
   ];
   return body.join('');
 }
-
 ////////////////////////////////////////////////////////////////////////////////
 // Contract upgrades
-
 export interface CoreContractUpgrade {
   module: 'Core';
   type: 'ContractUpgrade';
   chain: number;
   address: string;
 }
-
 // Parse a core contract upgrade payload
 const coreContractUpgradeParser: P<CoreContractUpgrade> = new P(
   new Parser()
@@ -373,7 +333,6 @@ const coreContractUpgradeParser: P<CoreContractUpgrade> = new P(
       assert: (str) => str === '',
     }),
 );
-
 function serialiseCoreContractUpgrade(payload: CoreContractUpgrade): string {
   const body = [
     encode('bytes32', encodeString(payload.module)),
@@ -383,7 +342,6 @@ function serialiseCoreContractUpgrade(payload: CoreContractUpgrade): string {
   ];
   return body.join('');
 }
-
 export interface PortalContractUpgrade<
   Module extends 'NFTBridge' | 'TokenBridge',
 > {
@@ -392,7 +350,6 @@ export interface PortalContractUpgrade<
   chain: number;
   address: string;
 }
-
 // Parse a portal contract upgrade payload
 function portalContractUpgradeParser<
   Module extends 'NFTBridge' | 'TokenBridge',
@@ -422,7 +379,6 @@ function portalContractUpgradeParser<
       }),
   );
 }
-
 function serialisePortalContractUpgrade<
   Module extends 'NFTBridge' | 'TokenBridge',
 >(payload: PortalContractUpgrade<Module>): string {
@@ -434,10 +390,8 @@ function serialisePortalContractUpgrade<
   ];
   return body.join('');
 }
-
 ////////////////////////////////////////////////////////////////////////////////
 // Registrations
-
 export interface PortalRegisterChain<
   Module extends 'NFTBridge' | 'TokenBridge',
 > {
@@ -447,7 +401,6 @@ export interface PortalRegisterChain<
   emitterChain: number;
   emitterAddress: string;
 }
-
 // Parse a portal chain registration payload
 function portalRegisterChainParser<Module extends 'NFTBridge' | 'TokenBridge'>(
   module: Module,
@@ -478,7 +431,6 @@ function portalRegisterChainParser<Module extends 'NFTBridge' | 'TokenBridge'>(
       }),
   );
 }
-
 function serialisePortalRegisterChain<
   Module extends 'NFTBridge' | 'TokenBridge',
 >(payload: PortalRegisterChain<Module>): string {
@@ -491,10 +443,8 @@ function serialisePortalRegisterChain<
   ];
   return body.join('');
 }
-
 ////////////////////////////////////////////////////////////////////////////////
 // Token bridge
-
 // payload 1
 export interface TokenBridgeTransfer {
   module: 'TokenBridge';
@@ -506,7 +456,6 @@ export interface TokenBridgeTransfer {
   chain: number;
   fee: bigint;
 }
-
 function tokenBridgeTransferParser(): P<TokenBridgeTransfer> {
   return new P(
     new Parser()
@@ -547,7 +496,6 @@ function tokenBridgeTransferParser(): P<TokenBridgeTransfer> {
       }),
   );
 }
-
 function serialiseTokenBridgeTransfer(payload: TokenBridgeTransfer): string {
   const body = [
     encode('uint8', 1),
@@ -560,7 +508,6 @@ function serialiseTokenBridgeTransfer(payload: TokenBridgeTransfer): string {
   ];
   return body.join('');
 }
-
 // payload 2
 export interface TokenBridgeAttestMeta {
   module: 'TokenBridge';
@@ -572,7 +519,6 @@ export interface TokenBridgeAttestMeta {
   symbol: string;
   name: string;
 }
-
 function tokenBridgeAttestMetaParser(): P<TokenBridgeAttestMeta> {
   return new P(
     new Parser()
@@ -620,7 +566,6 @@ function tokenBridgeAttestMetaParser(): P<TokenBridgeAttestMeta> {
       }),
   );
 }
-
 function serialiseTokenBridgeAttestMeta(
   payload: TokenBridgeAttestMeta,
 ): string {
@@ -634,7 +579,6 @@ function serialiseTokenBridgeAttestMeta(
   ];
   return body.join('');
 }
-
 // payload 3
 export interface TokenBridgeTransferWithPayload {
   module: 'TokenBridge';
@@ -647,7 +591,6 @@ export interface TokenBridgeTransferWithPayload {
   fromAddress: string;
   payload: string;
 }
-
 function tokenBridgeTransferWithPayloadParser(): P<TokenBridgeTransferWithPayload> {
   return new P(
     new Parser()
@@ -690,7 +633,6 @@ function tokenBridgeTransferWithPayloadParser(): P<TokenBridgeTransferWithPayloa
       }),
   );
 }
-
 function serialiseTokenBridgeTransferWithPayload(
   payload: TokenBridgeTransferWithPayload,
 ): string {
@@ -706,10 +648,8 @@ function serialiseTokenBridgeTransferWithPayload(
   ];
   return body.join('');
 }
-
 ////////////////////////////////////////////////////////////////////////////////
 // NFT bridge
-
 export interface NFTBridgeTransfer {
   module: 'NFTBridge';
   type: 'Transfer';
@@ -722,7 +662,6 @@ export interface NFTBridgeTransfer {
   toAddress: string;
   chain: number;
 }
-
 function nftBridgeTransferParser(): P<NFTBridgeTransfer> {
   return new P(
     new Parser()
@@ -785,7 +724,6 @@ function nftBridgeTransferParser(): P<NFTBridgeTransfer> {
       }),
   );
 }
-
 function serialiseNFTBridgeTransfer(payload: NFTBridgeTransfer): string {
   const body = [
     encode('uint8', 1),
@@ -801,7 +739,6 @@ function serialiseNFTBridgeTransfer(payload: NFTBridgeTransfer): string {
   ];
   return body.join('');
 }
-
 // This function should be called after pattern matching on all possible options
 // of an enum (union) type, so that typescript can derive that no other options
 // are possible.  If (from JavaScript land) an unsupported argument is passed
@@ -811,10 +748,8 @@ function serialiseNFTBridgeTransfer(payload: NFTBridgeTransfer): string {
 export function impossible(a: never): any {
   throw new Error(`Impossible: ${a}`);
 }
-
 ////////////////////////////////////////////////////////////////////////////////
 // Encoder utils
-
 export type Encoding =
   | 'uint8'
   | 'uint16'
@@ -824,7 +759,6 @@ export type Encoding =
   | 'uint256'
   | 'bytes32'
   | 'address';
-
 export function typeWidth(type: Encoding): number {
   switch (type) {
     case 'uint8':
@@ -845,7 +779,6 @@ export function typeWidth(type: Encoding): number {
       return 20;
   }
 }
-
 // Couldn't find a satisfactory binary serialisation solution, so we just use
 // the ethers library's encoding logic
 export function encode(type: Encoding, val: any): string {
@@ -857,13 +790,11 @@ export function encode(type: Encoding, val: any): string {
     .encode([type], [val])
     .substr(-2 * typeWidth(type));
 }
-
 // Encode a string as binary left-padded to 32 bytes, represented as a hex
 // string (64 chars long)
 export function encodeString(str: string): Buffer {
   return Buffer.from(Buffer.from(str).toString('hex').padStart(64, '0'), 'hex');
 }
-
 // Turn hex string with potentially missing 0x prefix into Buffer
 function hex(x: string): Buffer {
   return Buffer.from(

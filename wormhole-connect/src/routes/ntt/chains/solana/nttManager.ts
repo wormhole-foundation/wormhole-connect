@@ -22,7 +22,7 @@ import {
   createAssociatedTokenAccountInstruction,
 } from '@solana/spl-token';
 import { BN, IdlAccounts, Program } from '@coral-xyz/anchor';
-import { SignedVaa, parseVaa } from '@certusone/wormhole-sdk/lib/esm';
+// import { SignedVaa, parseVaa } from '@certusone/wormhole-sdk/lib/esm';
 import { utils } from 'ethers';
 import { deserializePayload } from '@wormhole-foundation/sdk-definitions';
 import { Ntt } from '@wormhole-foundation/sdk-definitions-ntt';
@@ -30,10 +30,10 @@ import {
   ExampleNativeTokenTransfers,
   IDL,
 } from './types/1.0.0/example_native_token_transfers';
-import {
-  derivePostedVaaKey,
-  getWormholeDerivedAccounts,
-} from '@certusone/wormhole-sdk/lib/esm/solana/wormhole';
+//import {
+//  derivePostedVaaKey,
+//  getWormholeDerivedAccounts,
+//} from '@certusone/wormhole-sdk/lib/esm/solana/wormhole';
 import { associatedAddress } from '@coral-xyz/anchor/dist/esm/utils/token';
 import { NttQuoter } from './nttQuoter';
 import { Keccak } from 'sha3';
@@ -56,6 +56,9 @@ type OutboxRateLimit =
   IdlAccounts<ExampleNativeTokenTransfers>['outboxRateLimit'];
 type InboxRateLimit =
   IdlAccounts<ExampleNativeTokenTransfers>['inboxRateLimit'];
+
+// TODO: SDKV2
+type SignedVaa = Uint8Array | Buffer;
 
 interface TransferArgs {
   amount: BN;
@@ -178,6 +181,7 @@ export class NttManagerSolana {
       vaa: vaaArray,
       config,
     };
+    // @ts-ignore TODO: SDKV2
     const parsedVaa = parseVaa(vaaArray);
     const chainId = toChainId(parsedVaa.emitterChain as ChainId);
     // First post the VAA
@@ -598,6 +602,7 @@ export class NttManagerSolana {
     revertOnDelay: boolean;
   }): Promise<TransactionInstruction> {
     const program = await this.getProgram();
+    // @ts-ignore TODO: SDKV2
     const whAccs = getWormholeDerivedAccounts(
       program.programId,
       this.wormholeId,
@@ -683,6 +688,7 @@ export class NttManagerSolana {
     vaa: SignedVaa;
     config?: Config;
   }): Promise<TransactionInstruction> {
+    // @ts-ignore TODO: SDKV2
     const parsedVaa = parseVaa(args.vaa);
     const { nttManagerPayload } = deserializePayload(
       'Ntt:WormholeTransfer',
@@ -697,6 +703,7 @@ export class NttManagerSolana {
         payer: args.payer,
         config: { config: this.configAccountAddress() },
         peer: transceiverPeer,
+        // @ts-ignore TODO: SDKV2
         vaa: derivePostedVaaKey(this.wormholeId, parseVaa(args.vaa).hash),
         transceiverMessage: this.transceiverMessageAccountAddress(
           chainId,
@@ -712,6 +719,7 @@ export class NttManagerSolana {
     config?: Config;
   }): Promise<TransactionInstruction> {
     const config = await this.getConfig(args.config);
+    // @ts-ignore TODO: SDKV2
     const parsedVaa = parseVaa(args.vaa);
     const { nttManagerPayload } = deserializePayload(
       'Ntt:WormholeTransfer',

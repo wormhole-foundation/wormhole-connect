@@ -14,32 +14,6 @@ import {
   deriveWormholeBridgeDataKey,
 } from '../accounts';
 import BN from 'bn.js';
-
-export function createInitializeInstruction(
-  connection: Connection,
-  wormholeProgramId: PublicKeyInitData,
-  payer: PublicKeyInitData,
-  guardianSetExpirationTime: number,
-  fee: bigint,
-  initialGuardians: Buffer[],
-): TransactionInstruction {
-  const methods = createReadOnlyWormholeProgramInterface(
-    wormholeProgramId,
-    connection,
-  ).methods.initialize(guardianSetExpirationTime, new BN(fee.toString()), [
-    ...initialGuardians,
-  ]);
-
-  // @ts-ignore
-  return methods._ixFn(...methods._args, {
-    accounts: getInitializeAccounts(wormholeProgramId, payer) as any,
-    signers: undefined,
-    remainingAccounts: undefined,
-    preInstructions: undefined,
-    postInstructions: undefined,
-  });
-}
-
 export interface InitializeAccounts {
   bridge: PublicKey;
   guardianSet: PublicKey;
@@ -49,7 +23,6 @@ export interface InitializeAccounts {
   rent: PublicKey;
   systemProgram: PublicKey;
 }
-
 export function getInitializeAccounts(
   wormholeProgramId: PublicKeyInitData,
   payer: PublicKeyInitData,

@@ -4,15 +4,5 @@ import {
   getTokenBridgeConfig,
   TokenBridgeConfig,
 } from '../../tokenBridge';
-
 export const deriveNftBridgeConfigKey = deriveTokenBridgeConfigKey;
-
-export async function getNftBridgeConfig(
-  connection: Connection,
-  nftBridgeProgramId: PublicKeyInitData,
-  commitment?: Commitment,
-): Promise<NftBridgeConfig> {
-  return getTokenBridgeConfig(connection, nftBridgeProgramId, commitment);
-}
-
 export class NftBridgeConfig extends TokenBridgeConfig {}

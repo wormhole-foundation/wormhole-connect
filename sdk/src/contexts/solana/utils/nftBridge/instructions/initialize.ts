@@ -8,34 +8,12 @@ import {
 } from '@solana/web3.js';
 import { createReadOnlyNftBridgeProgramInterface } from '../program';
 import { deriveNftBridgeConfigKey } from '../accounts';
-
-export function createInitializeInstruction(
-  connection: Connection,
-  nftBridgeProgramId: PublicKeyInitData,
-  payer: PublicKeyInitData,
-  wormholeProgramId: PublicKeyInitData,
-): TransactionInstruction {
-  const methods = createReadOnlyNftBridgeProgramInterface(
-    nftBridgeProgramId,
-  ).methods.initialize(wormholeProgramId as any);
-
-  // @ts-ignore
-  return methods._ixFn(...methods._args, {
-    accounts: getInitializeAccounts(nftBridgeProgramId, payer) as any,
-    signers: undefined,
-    remainingAccounts: undefined,
-    preInstructions: undefined,
-    postInstructions: undefined,
-  });
-}
-
 export interface InitializeAccounts {
   payer: PublicKey;
   config: PublicKey;
   rent: PublicKey;
   systemProgram: PublicKey;
 }
-
 export function getInitializeAccounts(
   nftBridgeProgramId: PublicKeyInitData,
   payer: PublicKeyInitData,

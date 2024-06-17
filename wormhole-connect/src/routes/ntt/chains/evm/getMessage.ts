@@ -1,13 +1,14 @@
 import { ChainName, ChainId } from '@wormhole-foundation/wormhole-connect-sdk';
-import { Implementation__factory } from '@certusone/wormhole-sdk/lib/esm/ethers-contracts';
-import {
-  parseWormholeLog,
-  RelayerPayloadId,
-  DeliveryInstruction,
-} from '@certusone/wormhole-sdk/lib/esm/relayer';
+import { ethers_contracts } from '@wormhole-foundation/sdk-evm-core';
+// TODO: SDKV2
+//import {
+//  parseWormholeLog,
+//  RelayerPayloadId,
+//  DeliveryInstruction,
+//} from '@certusone/wormhole-sdk/lib/esm/relayer';
 import { ethers } from 'ethers';
 import { hexlify } from 'ethers/lib/utils';
-import { NttRelayingType, UnsignedNttMessage } from 'routes/types';
+import { /*NttRelayingType,*/ UnsignedNttMessage } from 'routes/types';
 import { getTokenById } from 'utils';
 import { getWormholeLogEvm } from 'utils/vaa';
 import config from 'config';
@@ -65,7 +66,9 @@ export const getMessageEvm = async (
     throw new Error(`Token ${tokenId} is not an NTT token`);
   const wormholeLog = await getWormholeLogEvm(fromChain, receipt);
   const parsedWormholeLog =
-    Implementation__factory.createInterface().parseLog(wormholeLog);
+    ethers_contracts.Implementation__factory.createInterface().parseLog(
+      wormholeLog,
+    );
   const relayingInfoEvent = receipt.logs.find(
     (log) => log.topics[0] === RELAYING_INFO_EVENT_TOPIC,
   );
@@ -73,22 +76,24 @@ export const getMessageEvm = async (
   const parsedRelayingInfo = RELAYING_INFO_IFACE.parseLog(relayingInfoEvent);
   const { relayingType, deliveryPayment } = parsedRelayingInfo.args;
   let payload: Buffer;
-  if (relayingType === NttRelayingType.Standard) {
-    const { type, parsed } = parseWormholeLog(wormholeLog);
-    if (type !== RelayerPayloadId.Delivery) {
-      throw new Error(`Unexpected standard relayer payload type ${type}`);
-    }
-    payload = (parsed as DeliveryInstruction).payload;
-  } else if (
-    relayingType === NttRelayingType.Manual ||
-    relayingType === NttRelayingType.Special
-  ) {
-    payload = Buffer.from(parsedWormholeLog.args.payload.slice(2), 'hex');
-  } else {
-    throw new Error(`Unexpected relaying type ${relayingType}`);
-  }
+  // TODO: SDKV2
+  //if (relayingType === NttRelayingType.Standard) {
+  //  const { type, parsed } = parseWormholeLog(wormholeLog);
+  //  if (type !== RelayerPayloadId.Delivery) {
+  //    throw new Error(`Unexpected standard relayer payload type ${type}`);
+  //  }
+  //  payload = (parsed as DeliveryInstruction).payload;
+  //} else if (
+  //  relayingType === NttRelayingType.Manual ||
+  //  relayingType === NttRelayingType.Special
+  //) {
+  //  payload = Buffer.from(parsedWormholeLog.args.payload.slice(2), 'hex');
+  //} else {
+  //  throw new Error(`Unexpected relaying type ${relayingType}`);
+  //}
   const transceiverMessage = deserializePayload(
     'Ntt:WormholeTransfer',
+    //@ts-ignore
     payload,
   );
   const nttManagerMessage = transceiverMessage.nttManagerPayload;

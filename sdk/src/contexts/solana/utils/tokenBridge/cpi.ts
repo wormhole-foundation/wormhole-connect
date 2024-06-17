@@ -32,14 +32,12 @@ import {
   getTransferNativeWithPayloadAccounts,
   getTransferWrappedWithPayloadAccounts,
 } from './instructions';
-
 export interface TokenBridgeBaseDerivedAccounts {
   /**
    * seeds = ["config"], seeds::program = tokenBridgeProgram
    */
   tokenBridgeConfig: PublicKey;
 }
-
 export interface TokenBridgeBaseNativeDerivedAccounts
   extends TokenBridgeBaseDerivedAccounts {
   /**
@@ -47,7 +45,6 @@ export interface TokenBridgeBaseNativeDerivedAccounts
    */
   tokenBridgeCustodySigner: PublicKey;
 }
-
 export interface TokenBridgeBaseSenderDerivedAccounts
   extends TokenBridgeBaseDerivedAccounts {
   /**
@@ -75,14 +72,11 @@ export interface TokenBridgeBaseSenderDerivedAccounts
    */
   wormholeFeeCollector: PublicKey;
 }
-
 export interface TokenBridgeNativeSenderDerivedAccounts
   extends TokenBridgeBaseNativeDerivedAccounts,
     TokenBridgeBaseSenderDerivedAccounts {}
-
 export interface TokenBridgeWrappedSenderDerivedAccounts
   extends TokenBridgeBaseSenderDerivedAccounts {}
-
 export interface TokenBridgeBaseRedeemerDerivedAccounts
   extends TokenBridgeBaseDerivedAccounts {
   /**
@@ -90,11 +84,9 @@ export interface TokenBridgeBaseRedeemerDerivedAccounts
    */
   tokenBridgeRedeemer: PublicKey;
 }
-
 export interface TokenBridgeNativeRedeemerDerivedAccounts
   extends TokenBridgeBaseNativeDerivedAccounts,
     TokenBridgeBaseRedeemerDerivedAccounts {}
-
 export interface TokenBridgeWrappedRedeemerDerivedAccounts
   extends TokenBridgeBaseRedeemerDerivedAccounts {
   /**
@@ -102,46 +94,11 @@ export interface TokenBridgeWrappedRedeemerDerivedAccounts
    */
   tokenBridgeMintAuthority: PublicKey;
 }
-
 export interface TokenBridgeDerivedAccounts
   extends TokenBridgeNativeSenderDerivedAccounts,
     TokenBridgeWrappedSenderDerivedAccounts,
     TokenBridgeNativeRedeemerDerivedAccounts,
     TokenBridgeWrappedRedeemerDerivedAccounts {}
-
-/**
- * Generate Token Bridge PDAs.
- *
- * @param cpiProgramId
- * @param tokenBridgeProgramId
- * @param wormholeProgramId
- * @returns
- */
-export function getTokenBridgeDerivedAccounts(
-  cpiProgramId: PublicKeyInitData,
-  tokenBridgeProgramId: PublicKeyInitData,
-  wormholeProgramId: PublicKeyInitData,
-): TokenBridgeDerivedAccounts {
-  const {
-    wormholeEmitter: tokenBridgeEmitter,
-    wormholeBridge,
-    wormholeFeeCollector,
-    wormholeSequence: tokenBridgeSequence,
-  } = getWormholeDerivedAccounts(tokenBridgeProgramId, wormholeProgramId);
-  return {
-    tokenBridgeConfig: deriveTokenBridgeConfigKey(tokenBridgeProgramId),
-    tokenBridgeAuthoritySigner: deriveAuthoritySignerKey(tokenBridgeProgramId),
-    tokenBridgeCustodySigner: deriveCustodySignerKey(tokenBridgeProgramId),
-    tokenBridgeMintAuthority: deriveMintAuthorityKey(tokenBridgeProgramId),
-    tokenBridgeSender: deriveSenderAccountKey(cpiProgramId),
-    tokenBridgeRedeemer: deriveRedeemerAccountKey(cpiProgramId),
-    wormholeBridge,
-    tokenBridgeEmitter,
-    wormholeFeeCollector,
-    tokenBridgeSequence,
-  };
-}
-
 export interface TransferNativeWithPayloadCpiAccounts
   extends TokenBridgeNativeSenderDerivedAccounts {
   payer: PublicKey;
@@ -161,7 +118,6 @@ export interface TransferNativeWithPayloadCpiAccounts
   tokenProgram: PublicKey;
   wormholeProgram: PublicKey;
 }
-
 /**
  * Generate accounts needed to perform `transfer_wrapped_with_payload` instruction
  * as cross-program invocation.
@@ -214,7 +170,6 @@ export function getTransferNativeWithPayloadCpiAccounts(
     wormholeProgram: accounts.wormholeProgram,
   };
 }
-
 export interface TransferWrappedWithPayloadCpiAccounts
   extends TokenBridgeWrappedSenderDerivedAccounts {
   payer: PublicKey;
@@ -241,7 +196,6 @@ export interface TransferWrappedWithPayloadCpiAccounts
   tokenProgram: PublicKey;
   wormholeProgram: PublicKey;
 }
-
 /**
  * Generate accounts needed to perform `transfer_wrapped_with_payload` instruction
  * as cross-program invocation.
@@ -300,7 +254,6 @@ export function getTransferWrappedWithPayloadCpiAccounts(
     wormholeProgram: accounts.wormholeProgram,
   };
 }
-
 export interface CompleteTransferNativeWithPayloadCpiAccounts
   extends TokenBridgeNativeRedeemerDerivedAccounts {
   payer: PublicKey;
@@ -331,7 +284,6 @@ export interface CompleteTransferNativeWithPayloadCpiAccounts
   tokenProgram: PublicKey;
   wormholeProgram: PublicKey;
 }
-
 /**
  * Generate accounts needed to perform `complete_native_with_payload` instruction
  * as cross-program invocation.
@@ -357,7 +309,6 @@ export function getCompleteTransferNativeWithPayloadCpiAccounts(
   const parsed = isBytes(vaa) ? parseTokenTransferVaa(vaa) : vaa;
   const mint = new PublicKey(parsed.tokenAddress);
   const cpiProgramId = new PublicKey(parsed.to);
-
   return {
     payer: new PublicKey(payer),
     tokenBridgeConfig: deriveTokenBridgeConfigKey(tokenBridgeProgramId),
@@ -385,7 +336,6 @@ export function getCompleteTransferNativeWithPayloadCpiAccounts(
     wormholeProgram: new PublicKey(wormholeProgramId),
   };
 }
-
 export interface CompleteTransferWrappedWithPayloadCpiAccounts
   extends TokenBridgeWrappedRedeemerDerivedAccounts {
   payer: PublicKey;
@@ -419,7 +369,6 @@ export interface CompleteTransferWrappedWithPayloadCpiAccounts
   tokenProgram: PublicKey;
   wormholeProgram: PublicKey;
 }
-
 /**
  * Generate accounts needed to perform `complete_wrapped_with_payload` instruction
  * as cross-program invocation.

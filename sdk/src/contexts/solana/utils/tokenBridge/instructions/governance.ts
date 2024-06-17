@@ -22,33 +22,6 @@ import {
   SignedVaa,
 } from '../../../../../vaa';
 import { BpfLoaderUpgradeable, deriveUpgradeableProgramKey } from '../../utils';
-
-export function createRegisterChainInstruction(
-  tokenBridgeProgramId: PublicKeyInitData,
-  wormholeProgramId: PublicKeyInitData,
-  payer: PublicKeyInitData,
-  vaa: SignedVaa | ParsedTokenBridgeRegisterChainVaa,
-): TransactionInstruction {
-  const methods =
-    createReadOnlyTokenBridgeProgramInterface(
-      tokenBridgeProgramId,
-    ).methods.registerChain();
-
-  // @ts-ignore
-  return methods._ixFn(...methods._args, {
-    accounts: getRegisterChainAccounts(
-      tokenBridgeProgramId,
-      wormholeProgramId,
-      payer,
-      vaa,
-    ) as any,
-    signers: undefined,
-    remainingAccounts: undefined,
-    preInstructions: undefined,
-    postInstructions: undefined,
-  });
-}
-
 export interface RegisterChainAccounts {
   payer: PublicKey;
   config: PublicKey;
@@ -59,7 +32,6 @@ export interface RegisterChainAccounts {
   systemProgram: PublicKey;
   wormholeProgram: PublicKey;
 }
-
 export function getRegisterChainAccounts(
   tokenBridgeProgramId: PublicKeyInitData,
   wormholeProgramId: PublicKeyInitData,
@@ -87,35 +59,6 @@ export function getRegisterChainAccounts(
     wormholeProgram: new PublicKey(wormholeProgramId),
   };
 }
-
-export function createUpgradeContractInstruction(
-  tokenBridgeProgramId: PublicKeyInitData,
-  wormholeProgramId: PublicKeyInitData,
-  payer: PublicKeyInitData,
-  vaa: SignedVaa | ParsedTokenBridgeUpgradeContractVaa,
-  spill?: PublicKeyInitData,
-): TransactionInstruction {
-  const methods =
-    createReadOnlyTokenBridgeProgramInterface(
-      tokenBridgeProgramId,
-    ).methods.upgradeContract();
-
-  // @ts-ignore
-  return methods._ixFn(...methods._args, {
-    accounts: getUpgradeContractAccounts(
-      tokenBridgeProgramId,
-      wormholeProgramId,
-      payer,
-      vaa,
-      spill,
-    ) as any,
-    signers: undefined,
-    remainingAccounts: undefined,
-    preInstructions: undefined,
-    postInstructions: undefined,
-  });
-}
-
 export interface UpgradeContractAccounts {
   payer: PublicKey;
   vaa: PublicKey;
@@ -130,7 +73,6 @@ export interface UpgradeContractAccounts {
   bpfLoaderUpgradeable: PublicKey;
   systemProgram: PublicKey;
 }
-
 export function getUpgradeContractAccounts(
   tokenBridgeProgramId: PublicKeyInitData,
   wormholeProgramId: PublicKeyInitData,

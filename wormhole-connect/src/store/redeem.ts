@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { ParsedMessage, ParsedRelayerMessage } from 'utils/sdk';
 import { UnsignedNttMessage, SignedMessage, TransferDestInfo } from 'routes';
 import { Route } from 'config/types';
-import { DeliveryStatus } from '@certusone/wormhole-sdk/lib/esm/relayer';
+import { DeliveryStatus } from 'utils/sdk';
 
 export enum MessageType {
   BRIDGE = 1,

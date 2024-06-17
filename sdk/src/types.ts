@@ -12,6 +12,8 @@ import { DevnetChainId, DevnetChainName } from './config/DEVNET';
 import { CosmosContext } from './contexts/cosmos';
 import { CosmosContracts } from './contexts/cosmos/contracts';
 
+export type Network = 'mainnet' | 'testnet' | 'devnet';
+
 export const NATIVE = 'native';
 // TODO: conditionally set these types
 export type ChainName = MainnetChainName | TestnetChainName | DevnetChainName;

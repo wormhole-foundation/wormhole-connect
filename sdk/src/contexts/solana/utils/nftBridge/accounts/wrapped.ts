@@ -10,9 +10,7 @@ import { deriveAddress, getAccountData } from '../../utils';
 import { deriveWrappedMetaKey } from '../../tokenBridge';
 import { ChainId } from '../../../../../types';
 import { MAINNET_CHAINS } from '../../../../../config/MAINNET';
-
 export { deriveWrappedMetaKey } from '../../tokenBridge';
-
 export function deriveWrappedMintKey(
   tokenBridgeProgramId: PublicKeyInitData,
   tokenChain: number | ChainId,
@@ -41,32 +39,15 @@ export function deriveWrappedMintKey(
     tokenBridgeProgramId,
   );
 }
-
-export async function getWrappedMeta(
-  connection: Connection,
-  tokenBridgeProgramId: PublicKeyInitData,
-  mint: PublicKeyInitData,
-  commitment?: Commitment,
-): Promise<WrappedMeta> {
-  return connection
-    .getAccountInfo(
-      deriveWrappedMetaKey(tokenBridgeProgramId, mint),
-      commitment,
-    )
-    .then((info) => WrappedMeta.deserialize(getAccountData(info)));
-}
-
 export class WrappedMeta {
   chain: number;
   tokenAddress: Buffer;
   tokenId: bigint;
-
   constructor(chain: number, tokenAddress: Buffer, tokenId: bigint) {
     this.chain = chain;
     this.tokenAddress = tokenAddress;
     this.tokenId = tokenId;
   }
-
   static deserialize(data: Buffer): WrappedMeta {
     if (data.length != 66) {
       throw new Error('data.length != 66');

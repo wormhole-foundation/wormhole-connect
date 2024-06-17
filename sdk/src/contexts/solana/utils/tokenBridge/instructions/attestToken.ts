@@ -11,37 +11,6 @@ import {
   deriveTokenBridgeConfigKey,
   deriveWrappedMetaKey,
 } from '../accounts';
-
-export function createAttestTokenInstruction(
-  connection: Connection,
-  tokenBridgeProgramId: PublicKeyInitData,
-  wormholeProgramId: PublicKeyInitData,
-  payer: PublicKeyInitData,
-  mint: PublicKeyInitData,
-  message: PublicKeyInitData,
-  nonce: number,
-): TransactionInstruction {
-  const methods = createReadOnlyTokenBridgeProgramInterface(
-    tokenBridgeProgramId,
-    connection,
-  ).methods.attestToken(nonce);
-
-  // @ts-ignore
-  return methods._ixFn(...methods._args, {
-    accounts: getAttestTokenAccounts(
-      tokenBridgeProgramId,
-      wormholeProgramId,
-      payer,
-      mint,
-      message,
-    ) as any,
-    signers: undefined,
-    remainingAccounts: undefined,
-    preInstructions: undefined,
-    postInstructions: undefined,
-  });
-}
-
 export interface AttestTokenAccounts {
   payer: PublicKey;
   config: PublicKey;
@@ -58,7 +27,6 @@ export interface AttestTokenAccounts {
   systemProgram: PublicKey;
   wormholeProgram: PublicKey;
 }
-
 export function getAttestTokenAccounts(
   tokenBridgeProgramId: PublicKeyInitData,
   wormholeProgramId: PublicKeyInitData,

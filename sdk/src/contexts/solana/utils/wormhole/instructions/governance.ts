@@ -23,28 +23,6 @@ import {
   deriveUpgradeAuthorityKey,
 } from '../accounts';
 import { BpfLoaderUpgradeable, deriveUpgradeableProgramKey } from '../../utils';
-
-export function createSetFeesInstruction(
-  connection: Connection,
-  wormholeProgramId: PublicKeyInitData,
-  payer: PublicKeyInitData,
-  vaa: SignedVaa | ParsedGovernanceVaa,
-): TransactionInstruction {
-  const methods = createReadOnlyWormholeProgramInterface(
-    wormholeProgramId,
-    connection,
-  ).methods.setFees();
-
-  // @ts-ignore
-  return methods._ixFn(...methods._args, {
-    accounts: getSetFeesAccounts(wormholeProgramId, payer, vaa) as any,
-    signers: undefined,
-    remainingAccounts: undefined,
-    preInstructions: undefined,
-    postInstructions: undefined,
-  });
-}
-
 export interface SetFeesAccounts {
   payer: PublicKey;
   bridge: PublicKey;
@@ -52,7 +30,6 @@ export interface SetFeesAccounts {
   claim: PublicKey;
   systemProgram: PublicKey;
 }
-
 export function getSetFeesAccounts(
   wormholeProgramId: PublicKeyInitData,
   payer: PublicKeyInitData,
@@ -72,34 +49,6 @@ export function getSetFeesAccounts(
     systemProgram: SystemProgram.programId,
   };
 }
-
-export function createTransferFeesInstruction(
-  connection: Connection,
-  wormholeProgramId: PublicKeyInitData,
-  payer: PublicKeyInitData,
-  recipient: PublicKeyInitData,
-  vaa: SignedVaa | ParsedGovernanceVaa,
-): TransactionInstruction {
-  const methods = createReadOnlyWormholeProgramInterface(
-    wormholeProgramId,
-    connection,
-  ).methods.transferFees();
-
-  // @ts-ignore
-  return methods._ixFn(...methods._args, {
-    accounts: getTransferFeesAccounts(
-      wormholeProgramId,
-      payer,
-      recipient,
-      vaa,
-    ) as any,
-    signers: undefined,
-    remainingAccounts: undefined,
-    preInstructions: undefined,
-    postInstructions: undefined,
-  });
-}
-
 export interface TransferFeesAccounts {
   payer: PublicKey;
   bridge: PublicKey;
@@ -110,7 +59,6 @@ export interface TransferFeesAccounts {
   rent: PublicKey;
   systemProgram: PublicKey;
 }
-
 export function getTransferFeesAccounts(
   wormholeProgramId: PublicKeyInitData,
   payer: PublicKeyInitData,
@@ -134,32 +82,6 @@ export function getTransferFeesAccounts(
     systemProgram: SystemProgram.programId,
   };
 }
-
-export function createUpgradeGuardianSetInstruction(
-  connection: Connection,
-  wormholeProgramId: PublicKeyInitData,
-  payer: PublicKeyInitData,
-  vaa: SignedVaa | ParsedGovernanceVaa,
-): TransactionInstruction {
-  const methods = createReadOnlyWormholeProgramInterface(
-    wormholeProgramId,
-    connection,
-  ).methods.upgradeGuardianSet();
-
-  // @ts-ignore
-  return methods._ixFn(...methods._args, {
-    accounts: getUpgradeGuardianSetAccounts(
-      wormholeProgramId,
-      payer,
-      vaa,
-    ) as any,
-    signers: undefined,
-    remainingAccounts: undefined,
-    preInstructions: undefined,
-    postInstructions: undefined,
-  });
-}
-
 export interface UpgradeGuardianSetAccounts {
   payer: PublicKey;
   bridge: PublicKey;
@@ -169,7 +91,6 @@ export interface UpgradeGuardianSetAccounts {
   guardianSetNew: PublicKey;
   systemProgram: PublicKey;
 }
-
 export function getUpgradeGuardianSetAccounts(
   wormholeProgramId: PublicKeyInitData,
   payer: PublicKeyInitData,
@@ -197,28 +118,6 @@ export function getUpgradeGuardianSetAccounts(
     systemProgram: SystemProgram.programId,
   };
 }
-
-export function createUpgradeContractInstruction(
-  connection: Connection,
-  wormholeProgramId: PublicKeyInitData,
-  payer: PublicKeyInitData,
-  vaa: SignedVaa | ParsedGovernanceVaa,
-): TransactionInstruction {
-  const methods = createReadOnlyWormholeProgramInterface(
-    wormholeProgramId,
-    connection,
-  ).methods.upgradeContract();
-
-  // @ts-ignore
-  return methods._ixFn(...methods._args, {
-    accounts: getUpgradeContractAccounts(wormholeProgramId, payer, vaa) as any,
-    signers: undefined,
-    remainingAccounts: undefined,
-    preInstructions: undefined,
-    postInstructions: undefined,
-  });
-}
-
 export interface UpgradeContractAccounts {
   payer: PublicKey;
   bridge: PublicKey;
@@ -234,7 +133,6 @@ export interface UpgradeContractAccounts {
   bpfLoaderUpgradeable: PublicKey;
   systemProgram: PublicKey;
 }
-
 export function getUpgradeContractAccounts(
   wormholeProgramId: PublicKeyInitData,
   payer: PublicKeyInitData,

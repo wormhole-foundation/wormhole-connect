@@ -14,20 +14,16 @@ import {
   newAccountMeta,
   newReadOnlyAccountMeta,
 } from './account';
-
 export class Creator {
   address: PublicKey;
   verified: boolean;
   share: number;
-
   constructor(address: PublicKeyInitData, verified: boolean, share: number) {
     this.address = new PublicKey(address);
     this.verified = verified;
     this.share = share;
   }
-
   static size: number = 34;
-
   serialize() {
     const serialized = Buffer.alloc(Creator.size);
     serialized.write(this.address.toBuffer().toString('hex'), 0, 'hex');
@@ -37,7 +33,6 @@ export class Creator {
     serialized.writeUInt8(this.share, 33);
     return serialized;
   }
-
   static deserialize(data: Buffer): Creator {
     const address = data.subarray(0, 32);
     const verified = data.readUInt8(32) > 0;
@@ -45,14 +40,12 @@ export class Creator {
     return new Creator(address, verified, share);
   }
 }
-
 export class Data {
   name: string;
   symbol: string;
   uri: string;
   sellerFeeBasisPoints: number;
   creators: Creator[] | null;
-
   constructor(
     name: string,
     symbol: string,
@@ -66,7 +59,6 @@ export class Data {
     this.sellerFeeBasisPoints = sellerFeeBasisPoints;
     this.creators = creators;
   }
-
   serialize() {
     const nameLen = this.name.length;
     const symbolLen = this.symbol.length;
@@ -76,7 +68,6 @@ export class Data {
       if (creators === null) {
         return [0, 0];
       }
-
       const creatorsLen = creators.length;
       return [creatorsLen, 4 + creatorsLen * Creator.size];
     })();
@@ -106,7 +97,6 @@ export class Data {
     }
     return serialized;
   }
-
   static deserialize(data: Buffer): Data {
     const nameLen = data.readUInt32LE(0);
     const name = data.subarray(4, 4 + nameLen).toString();
@@ -126,7 +116,6 @@ export class Data {
       if (optionCreators == 0) {
         return null;
       }
-
       const creators: Creator[] = [];
       const creatorsLen = data.readUInt32LE(15 + nameLen + symbolLen + uriLen);
       for (let i = 0; i < creatorsLen; ++i) {
@@ -140,10 +129,8 @@ export class Data {
     return new Data(name, symbol, uri, sellerFeeBasisPoints, creators);
   }
 }
-
 export class CreateMetadataAccountArgs extends Data {
   isMutable: boolean;
-
   constructor(
     name: string,
     symbol: string,
@@ -155,7 +142,6 @@ export class CreateMetadataAccountArgs extends Data {
     super(name, symbol, uri, sellerFeeBasisPoints, creators);
     this.isMutable = isMutable;
   }
-
   static serialize(
     name: string,
     symbol: string,
@@ -173,7 +159,6 @@ export class CreateMetadataAccountArgs extends Data {
       isMutable,
     ).serialize();
   }
-
   static serializeInstructionData(
     name: string,
     symbol: string,
@@ -194,7 +179,6 @@ export class CreateMetadataAccountArgs extends Data {
       ),
     ]);
   }
-
   serialize() {
     return Buffer.concat([
       super.serialize(),
@@ -202,20 +186,17 @@ export class CreateMetadataAccountArgs extends Data {
     ]);
   }
 }
-
 export class SplTokenMetadataProgram {
   /**
    * @internal
    */
   constructor() {}
-
   /**
    * Public key that identifies the SPL Token Metadata program
    */
   static programId: PublicKey = new PublicKey(
     'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s',
   );
-
   static createMetadataAccounts(
     payer: PublicKey,
     mint: PublicKey,
@@ -254,7 +235,6 @@ export class SplTokenMetadataProgram {
     };
   }
 }
-
 export function deriveSplTokenMetadataKey(mint: PublicKeyInitData): PublicKey {
   return deriveAddress(
     [
@@ -265,7 +245,6 @@ export function deriveSplTokenMetadataKey(mint: PublicKeyInitData): PublicKey {
     SplTokenMetadataProgram.programId,
   );
 }
-
 export enum Key {
   Uninitialized,
   EditionV1,
@@ -276,7 +255,6 @@ export enum Key {
   MasterEditionV2,
   EditionMarker,
 }
-
 export class Metadata {
   key: Key;
   updateAuthority: PublicKey;
@@ -284,7 +262,6 @@ export class Metadata {
   data: Data;
   primarySaleHappened: boolean;
   isMutable: boolean;
-
   constructor(
     key: number,
     updateAuthority: PublicKeyInitData,
@@ -300,7 +277,6 @@ export class Metadata {
     this.primarySaleHappened = primarySaleHappened;
     this.isMutable = isMutable;
   }
-
   static deserialize(data: Buffer): Metadata {
     const key = data.readUInt8(0);
     const updateAuthority = data.subarray(1, 33);
@@ -318,14 +294,4 @@ export class Metadata {
       isMutable,
     );
   }
-}
-
-export async function getMetadata(
-  connection: Connection,
-  mint: PublicKeyInitData,
-  commitment?: Commitment,
-): Promise<Metadata> {
-  return connection
-    .getAccountInfo(deriveSplTokenMetadataKey(mint), commitment)
-    .then((info) => Metadata.deserialize(getAccountData(info)));
 }

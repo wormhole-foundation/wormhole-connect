@@ -16,7 +16,6 @@ import {
   isEqualCaseInsensitive,
 } from 'utils';
 import config from 'config';
-import { CHAIN_ID_ETH } from '@certusone/wormhole-sdk/lib/esm/utils/consts';
 import { toChainId } from 'utils/sdk';
 import { TransferDestInfo } from 'routes/types';
 
@@ -184,8 +183,7 @@ export const getCanonicalTokenAddress = async (
   token: TokenConfig,
 ): Promise<string> => {
   const tokenOnEthereum = Object.values(config.tokens).find(
-    (t) =>
-      t.symbol === token.symbol && toChainId(t.nativeChain) === CHAIN_ID_ETH,
+    (t) => t.symbol === token.symbol && t.nativeChain === 'ethereum',
   );
   if (!tokenOnEthereum) {
     throw new Error(`${token.symbol} not found on Ethereum`);

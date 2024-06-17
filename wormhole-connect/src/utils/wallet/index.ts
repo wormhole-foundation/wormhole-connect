@@ -6,7 +6,6 @@ import {
   ChainConfig,
   postVaaSolanaWithRetry,
 } from '@wormhole-foundation/wormhole-connect-sdk';
-import { CHAIN_ID_EVMOS, CHAIN_ID_INJECTIVE } from '@certusone/wormhole-sdk';
 import { ContractReceipt } from 'ethers';
 import {
   NotSupported,
@@ -330,7 +329,7 @@ export const getWalletOptions = async (
     const seiOptions = await seiWallet.fetchOptions();
     return Object.values(mapWallets(seiOptions, Context.SEI));
   } else if (config.context === Context.COSMOS) {
-    if (config.id === CHAIN_ID_EVMOS) {
+    if (config.key === 'evmos') {
       const {
         wallets: { cosmosEvm },
       } = await import('utils/wallet/cosmos');
@@ -338,7 +337,7 @@ export const getWalletOptions = async (
       return Object.values(
         mapWallets(cosmosEvm, Context.COSMOS, ['OKX Wallet']),
       );
-    } else if (config.id === CHAIN_ID_INJECTIVE) {
+    } else if (config.key === 'injective') {
       const {
         wallets: { cosmosEvm },
       } = await import('utils/wallet/cosmos');

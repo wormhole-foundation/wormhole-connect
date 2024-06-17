@@ -24,34 +24,6 @@ import {
   SignedVaa,
 } from '../../../../../vaa';
 import { SplTokenMetadataProgram } from '../../utils';
-
-export function createCreateWrappedInstruction(
-  connection: Connection,
-  tokenBridgeProgramId: PublicKeyInitData,
-  wormholeProgramId: PublicKeyInitData,
-  payer: PublicKeyInitData,
-  vaa: SignedVaa | ParsedAttestMetaVaa,
-): TransactionInstruction {
-  const methods = createReadOnlyTokenBridgeProgramInterface(
-    tokenBridgeProgramId,
-    connection,
-  ).methods.createWrapped();
-
-  // @ts-ignore
-  return methods._ixFn(...methods._args, {
-    accounts: getCreateWrappedAccounts(
-      tokenBridgeProgramId,
-      wormholeProgramId,
-      payer,
-      vaa,
-    ) as any,
-    signers: undefined,
-    remainingAccounts: undefined,
-    preInstructions: undefined,
-    postInstructions: undefined,
-  });
-}
-
 export interface CreateWrappedAccounts {
   payer: PublicKey;
   config: PublicKey;
@@ -68,7 +40,6 @@ export interface CreateWrappedAccounts {
   splMetadataProgram: PublicKey;
   wormholeProgram: PublicKey;
 }
-
 export function getCreateWrappedAccounts(
   tokenBridgeProgramId: PublicKeyInitData,
   wormholeProgramId: PublicKeyInitData,

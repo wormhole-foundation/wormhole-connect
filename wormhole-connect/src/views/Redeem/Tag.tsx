@@ -1,4 +1,4 @@
-import { CHAIN_ID_WORMCHAIN } from '@certusone/wormhole-sdk';
+import { toChainId } from '@wormhole-foundation/sdk';
 import { stripHexPrefix } from '@wormhole-foundation/wormhole-connect-sdk';
 import LaunchIcon from '@mui/icons-material/Launch';
 import InputContainer from 'components/InputContainer';
@@ -61,7 +61,7 @@ function ChainsTag() {
     if (!emitter || !sequence) return;
 
     const chainId = isGatewayChain(fromChainConfig.id)
-      ? CHAIN_ID_WORMCHAIN
+      ? toChainId('wormchain')
       : fromChainConfig.id;
     return `${WORMSCAN}tx/${chainId}/${emitter}/${sequence}${
       config.isMainnet ? '' : '?network=TESTNET'
