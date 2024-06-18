@@ -22,6 +22,7 @@ export const MAINNET_CHAINS = {
   base: 30,
   sei: 32,
   scroll: 34,
+  mantle: 35,
   blast: 36,
   xlayer: 37,
   wormchain: 3104,
@@ -288,6 +289,16 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     finalityThreshold: 0,
     nativeTokenDecimals: 18,
   },
+  mantle: {
+    key: 'mantle',
+    id: 35,
+    context: Context.ETH,
+    contracts: {
+      ...CONTRACTS.MAINNET.mantle,
+    },
+    finalityThreshold: 0,
+    nativeTokenDecimals: 18,
+  },
   blast: {
     key: 'blast',
     id: 36,
@@ -396,6 +407,7 @@ const MAINNET_CONFIG: WormholeConfig = {
     scroll: 'https://rpc.ankr.com/scroll',
     blast: 'https://rpc.ankr.com/blast',
     xlayer: 'https://rpc.xlayer.tech',
+    mantle: 'https://rpc.mantle.xyz',
   },
   rest: {
     sei: '',

@@ -2347,4 +2347,31 @@ export const TESTNET_TOKENS: TokensConfig = {
       default: 8,
     },
   },
+  MNT: {
+    key: 'MNT',
+    symbol: 'MNT',
+    nativeChain: 'mantle',
+    icon: Icon.MANTLE,
+    coinGeckoId: 'mantle',
+    decimals: {
+      Ethereum: 18,
+      default: 8,
+    },
+    wrappedAsset: 'WMNT',
+  },
+  WMNT: {
+    key: 'WMNT',
+    symbol: 'WMNT',
+    nativeChain: 'mantle',
+    icon: Icon.MANTLE,
+    tokenId: {
+      chain: 'mantle',
+      address: '0xa4c4cb2A072eE99f77212Fa18c2B7Ca26DA23905',
+    },
+    coinGeckoId: 'mantle',
+    decimals: {
+      Ethereum: 18,
+      default: 8,
+    },
+  },
 };

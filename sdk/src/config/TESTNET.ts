@@ -22,6 +22,7 @@ export const TESTNET_CHAINS = {
   basegoerli: 30,
   sei: 32,
   scroll: 34,
+  mantle: 35,
   blast: 36,
   xlayer: 37,
   wormchain: 3104,
@@ -274,6 +275,16 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     finalityThreshold: 0,
     nativeTokenDecimals: 18,
   },
+  mantle: {
+    key: 'mantle',
+    id: 35,
+    context: Context.ETH,
+    contracts: {
+      ...CONTRACTS.TESTNET.mantle,
+    },
+    finalityThreshold: 0,
+    nativeTokenDecimals: 18,
+  },
   blast: {
     key: 'blast',
     id: 36,
@@ -434,6 +445,7 @@ const TESTNET_CONFIG: WormholeConfig = {
     scroll: 'https://rpc.ankr.com/scroll_sepolia_testnet',
     blast: 'https://rpc.ankr.com/blast_testnet_sepolia',
     xlayer: 'https://testrpc.xlayer.tech',
+    mantle: 'https://rpc.testnet.mantle.xyz',
   },
   rest: {
     sei: 'https://rest.atlantic-2.seinetwork.io',
