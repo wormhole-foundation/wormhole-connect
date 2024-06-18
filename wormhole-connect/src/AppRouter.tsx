@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 
@@ -23,6 +23,8 @@ import { clearPorticoBridge } from 'store/porticoBridge';
 import { useExternalSearch } from 'hooks/useExternalSearch';
 import { clearNtt } from 'store/ntt';
 import internalConfig from 'config';
+
+import BridgeV2 from 'views/v2/Bridge';
 
 const useStyles = makeStyles()((theme: any) => ({
   appContent: {
@@ -96,10 +98,14 @@ function AppRouter(props: Props) {
     }
   }, [hasExternalSearch, dispatch]);
 
+  const bridge = useMemo(() => {
+    return props.config?.useRedesign ? <BridgeV2 /> : <Bridge />;
+  }, [props.config?.useRedesign]);
+
   return (
     <div className={classes.appContent}>
       {showWalletModal && <WalletModal type={showWalletModal} />}
-      {route === 'bridge' && <Bridge />}
+      {route === 'bridge' && bridge}
       {route === 'redeem' && <Redeem />}
       {route === 'search' && <TxSearch />}
       {route === 'terms' && <Terms />}

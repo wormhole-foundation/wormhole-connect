@@ -149,6 +149,9 @@ export interface WormholeConnectConfig {
 
   // NTT config
   nttGroups?: NttGroups;
+
+  // Override to load Redesign
+  useRedesign?: boolean;
 }
 
 // This is the exported config value used throughout the code base
@@ -209,6 +212,9 @@ export interface InternalConfig {
   // NTT config
   nttGroups: NttGroups;
   guardianSet: GuardianSetData;
+
+  // Redesign flag
+  useRedesign?: boolean;
 }
 
 export type ExplorerConfig = {
