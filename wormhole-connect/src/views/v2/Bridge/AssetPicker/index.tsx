@@ -129,7 +129,7 @@ const AssetPicker = (props: Props) => {
   }, [props.chain, props.token]);
 
   return (
-    <React.Fragment>
+    <>
       <Card
         className={classes.card}
         variant="elevation"
@@ -182,7 +182,7 @@ const AssetPicker = (props: Props) => {
           />
         )}
       </Popover>
-    </React.Fragment>
+    </>
   );
 };
 

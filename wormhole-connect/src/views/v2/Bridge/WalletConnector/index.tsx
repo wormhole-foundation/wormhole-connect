@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useTheme } from '@mui/material/styles';
 import { makeStyles } from 'tss-react/mui';
@@ -16,9 +16,11 @@ import PopupState, { bindTrigger, bindPopover } from 'material-ui-popup-state';
 import Popover from '@mui/material/Popover';
 import config from 'config';
 import { TransferSide } from 'config/types';
-import { ExplorerConfig } from 'config/types';
+import ExplorerLink from './ExplorerLink';
+import WalletSidebar from './Sidebar';
 
 type StyleProps = { disabled?: boolean };
+
 const useStyles = makeStyles<StyleProps>()((theme: any, { disabled }) => ({
   connectWallet: {
     display: 'flex',
@@ -64,50 +66,47 @@ type Props = {
   disabled?: boolean;
 };
 
-type ExplorerLinkProps = {
-  address: string;
-} & ExplorerConfig;
-
-function ExplorerLink({
-  address,
-  href,
-  target = '_blank',
-  label = 'Transactions',
-}: ExplorerLinkProps) {
-  const { classes } = useStyles({ disabled: false });
-  const handleOpenExplorer = () =>
-    window.open(href.replace('{:address}', address), target);
-  return (
-    <div className={classes.dropdownItem} onClick={handleOpenExplorer}>
-      {label}
-    </div>
-  );
-}
-
-function WalletConnector(props: Props) {
+const WalletConnector = (props: Props) => {
   const { disabled = false, type } = props;
-  const { classes } = useStyles({ disabled });
+
   const theme = useTheme();
   const dispatch = useDispatch();
+
+  const { classes } = useStyles({ disabled });
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
   const wallet = useSelector((state: RootState) => state.wallet[type]);
 
-  const connectWallet = async (popupState?: any) => {
-    if (disabled) return;
-    if (popupState) popupState.close();
-    dispatch(setWalletModal(type));
-  };
+  const [isOpen, setIsOpen] = useState(false);
 
-  const copy = async (popupState: any) => {
-    await copyTextToClipboard(wallet.address);
-    popupState.close();
-  };
+  const connectWallet = useCallback(
+    async (popupState?: any) => {
+      if (disabled) {
+        return;
+      }
 
-  const disconnectWallet = async () => {
+      if (popupState) {
+        popupState.close();
+      }
+
+      setIsOpen(true);
+      dispatch(setWalletModal(type));
+    },
+    [disabled, type],
+  );
+
+  const copy = useCallback(
+    (popupState: any) => {
+      copyTextToClipboard(wallet.address);
+      popupState.close();
+    },
+    [wallet.address],
+  );
+
+  const disconnectWallet = useCallback(async () => {
     dispatch(disconnectFromStore(type));
-  };
+  }, [type]);
 
-  if (wallet && wallet.address) {
+  const connected = useMemo(() => {
     return (
       <PopupState variant="popover" popupId="demo-popup-popover">
         {(popupState) => {
@@ -120,7 +119,7 @@ function WalletConnector(props: Props) {
           };
 
           return (
-            <div>
+            <>
               <div
                 className={classes.connectWallet}
                 onClick={onClick}
@@ -177,12 +176,14 @@ function WalletConnector(props: Props) {
                   </div>
                 </ScopedCssBaseline>
               </Popover>
-            </div>
+            </>
           );
         }}
       </PopupState>
     );
-  } else {
+  }, [disabled, wallet]);
+
+  const disconnected = useMemo(() => {
     const button = (
       <div
         className={classes.connectWallet}
@@ -198,9 +199,26 @@ function WalletConnector(props: Props) {
         <Tooltip title={'Please select a network first'}>{button}</Tooltip>
       );
     } else {
-      return button;
+      return (
+        <>
+          {button}
+          <WalletSidebar
+            open={isOpen}
+            type={props.type}
+            onClose={() => {
+              setIsOpen(false);
+            }}
+          />
+        </>
+      );
     }
+  }, [disabled]);
+
+  if (wallet && wallet.address) {
+    return connected;
   }
-}
+
+  return disconnected;
+};
 
 export default WalletConnector;
