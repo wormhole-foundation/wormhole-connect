@@ -142,6 +142,7 @@ const ChainList = (props: Props) => {
       <List>
         <ListItem>
           <TextField
+            autoFocus
             fullWidth
             inputProps={{
               style: {

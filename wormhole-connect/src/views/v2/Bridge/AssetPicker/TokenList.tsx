@@ -84,6 +84,7 @@ const TokenList = (props: Props) => {
       <List>
         <ListItem>
           <TextField
+            autoFocus
             fullWidth
             inputProps={{
               style: {
