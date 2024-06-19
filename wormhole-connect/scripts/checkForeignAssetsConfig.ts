@@ -26,8 +26,7 @@ import { MAINNET_CHAINS } from '../src/config/mainnet/chains';
 import { MAINNET_TOKENS } from '../src/config/mainnet/tokens';
 import { TESTNET_CHAINS } from '../src/config/testnet/chains';
 import { TESTNET_TOKENS } from '../src/config/testnet/tokens';
-import { ChainsConfig, TokensConfig } from '../src/config/types';
-import { Network } from '@certusone/wormhole-sdk';
+import { ChainsConfig, TokensConfig, Network } from '../src/config/types';
 
 const WORMCHAIN_ERROR_MESSAGES = [
   '3104 RPC not configured',
@@ -152,6 +151,6 @@ const checkEnvConfig = async (
 };
 
 (async () => {
-  await checkEnvConfig('TESTNET', TESTNET_TOKENS, TESTNET_CHAINS);
-  await checkEnvConfig('MAINNET', MAINNET_TOKENS, MAINNET_CHAINS);
+  await checkEnvConfig('testnet', TESTNET_TOKENS, TESTNET_CHAINS);
+  await checkEnvConfig('mainnet', MAINNET_TOKENS, MAINNET_CHAINS);
 })();

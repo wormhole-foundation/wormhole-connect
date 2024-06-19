@@ -53,7 +53,7 @@ export function buildConfig(
     customConfig?.tokensConfig,
   );
 
-  const sdkConfig = WormholeContext.getConfig(network.toUpperCase());
+  const sdkConfig = WormholeContext.getConfig(network);
 
   const rpcs = Object.assign(
     {},
@@ -62,7 +62,7 @@ export function buildConfig(
     customConfig?.rpcs,
   );
 
-  const wh = getWormholeContext(network.toUpperCase(), sdkConfig, tokens, rpcs);
+  const wh = getWormholeContext(network, sdkConfig, tokens, rpcs);
 
   if (customConfig?.bridgeDefaults) {
     validateDefaults(customConfig.bridgeDefaults, networkData.chains, tokens);
