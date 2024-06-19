@@ -29,6 +29,7 @@ import {
 } from 'store/transferInput';
 import WalletConnector from './WalletConnector';
 import AssetPicker from './AssetPicker';
+import WalletController from './WalletConnector/Controller';
 
 const useStyles = makeStyles()((theme) => ({
   assetPickerContainer: {
@@ -36,6 +37,10 @@ const useStyles = makeStyles()((theme) => ({
   },
   assetPickerTitle: {
     color: theme.palette.text.secondary,
+    display: 'flex',
+    minHeight: '40px',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   bridgeContent: {
     margin: 'auto',
@@ -165,9 +170,10 @@ const Bridge = () => {
   const sourceAssetPicker = useMemo(() => {
     return (
       <div className={classes.assetPickerContainer}>
-        <Typography className={classes.assetPickerTitle} variant="body2">
-          From:
-        </Typography>
+        <div className={classes.assetPickerTitle}>
+          <Typography variant="body2">From:</Typography>
+          <WalletController side="source" type={TransferWallet.SENDING} />
+        </div>
         <AssetPicker
           chain={sourceChain}
           chainList={supportedSourceChains}
@@ -195,9 +201,13 @@ const Bridge = () => {
   const destAssetPicker = useMemo(() => {
     return (
       <div className={classes.assetPickerContainer}>
-        <Typography className={classes.assetPickerTitle} variant="body2">
-          To:
-        </Typography>
+        <div className={classes.assetPickerTitle}>
+          <Typography variant="body2">To:</Typography>
+          <WalletController
+            side="destination"
+            type={TransferWallet.RECEIVING}
+          />
+        </div>
         <AssetPicker
           chain={destChain}
           chainList={supportedDestChains}
@@ -236,17 +246,35 @@ const Bridge = () => {
     );
   }, []);
 
+  const walletConnector = useMemo(() => {
+    if (sendingWallet?.address && receivingWallet?.address) {
+      return null;
+    } else if (sendingWallet?.address && !receivingWallet?.address) {
+      return (
+        <WalletConnector
+          disabled={!destChain}
+          side="destination"
+          type={TransferWallet.RECEIVING}
+        />
+      );
+    }
+
+    return (
+      <WalletConnector
+        disabled={!sourceChain}
+        side="source"
+        type={TransferWallet.SENDING}
+      />
+    );
+  }, [sourceChain, destChain, sendingWallet, receivingWallet]);
+
   return (
     <div className={joinClass([classes.bridgeContent, classes.spacer])}>
       {header}
       {bridgeHeader}
       {sourceAssetPicker}
       {destAssetPicker}
-      <WalletConnector
-        disabled={!sourceChain}
-        side="source"
-        type={TransferWallet.SENDING}
-      />
+      {walletConnector}
       {config.showHamburgerMenu ? null : <FooterNavBar />}
       <div className={classes.poweredBy}>
         <PoweredByIcon color={theme.palette.text.primary} />

@@ -67,13 +67,14 @@ const WalletSidebar = (props: Props) => {
     supportedChains,
   });
 
-  const connect = useCallback(async (walletInfo: WalletData) => {
-    if (props.onClose) {
-      props.onClose();
-    }
+  const connect = useCallback(
+    async (walletInfo: WalletData) => {
+      props.onClose?.();
 
-    await connectWallet(props.type, selectedChain!, walletInfo, dispatch);
-  }, []);
+      await connectWallet(props.type, selectedChain!, walletInfo, dispatch);
+    },
+    [props.type, props.onClose, selectedChain],
+  );
 
   const renderWalletOptions = useCallback(
     (wallets: WalletData[]): JSX.Element[] => {
@@ -85,11 +86,9 @@ const WalletSidebar = (props: Props) => {
 
       const filtered = !search ? sorted : sorted.filter(predicate);
 
-      return filtered.map((wallet, i) => {
+      return filtered.map((wallet) => {
         const ready = wallet.isReady;
-        const select = ready
-          ? () => connect(wallet)
-          : () => window.open(wallet.wallet.getUrl());
+
         return (
           <ListItemButton
             key={wallet.name}
@@ -98,7 +97,13 @@ const WalletSidebar = (props: Props) => {
               display: 'flex',
               flexDirection: 'row',
             }}
-            onClick={select}
+            onClick={() => {
+              if (ready) {
+                connect(wallet);
+              } else {
+                window.open(wallet.wallet.getUrl());
+              }
+            }}
           >
             <ListItemIcon>
               <WalletIcon name={wallet.name} icon={wallet.icon} height={32} />
@@ -113,14 +118,8 @@ const WalletSidebar = (props: Props) => {
         );
       });
     },
-    [],
+    [connect, search],
   );
-
-  const closeSidebar = useCallback(() => {
-    if (props.onClose) {
-      props.onClose();
-    }
-  }, [props.onClose]);
 
   const sidebarContent = useMemo((): JSX.Element => {
     switch (walletOptionsResult.state) {
@@ -179,7 +178,9 @@ const WalletSidebar = (props: Props) => {
     <Drawer
       anchor="right"
       open={props.type && props.open}
-      onClose={closeSidebar}
+      onClose={() => {
+        props.onClose?.();
+      }}
     >
       <div className={classes.drawer}>{sidebarContent}</div>
     </Drawer>
