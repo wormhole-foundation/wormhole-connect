@@ -4,7 +4,6 @@ import { useTheme } from '@mui/material/styles';
 import CircularProgress from '@mui/material/CircularProgress';
 import Drawer from '@mui/material/Drawer';
 import { useDispatch, useSelector } from 'react-redux';
-import type { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 
 import InputAdornment from '@mui/material/InputAdornment';
 import List from '@mui/material/List';
@@ -18,7 +17,6 @@ import SearchIcon from '@mui/icons-material/Search';
 
 import config from 'config';
 import { RootState } from 'store';
-import { setWalletModal } from 'store/router';
 import { TransferWallet, WalletData, connectWallet } from 'utils/wallet';
 
 import WalletIcon from 'icons/WalletIcons';
@@ -39,7 +37,6 @@ const useStyles = makeStyles()((theme: any) => ({
 
 type Props = {
   type: TransferWallet;
-  chain?: ChainName;
   open: boolean;
   onClose?: () => any;
 };
@@ -60,26 +57,22 @@ const WalletSidebar = (props: Props) => {
     return new Set(networkContext);
   }, []);
 
-  const chain = useMemo(
-    () =>
-      props.chain ||
-      (props.type === TransferWallet.SENDING ? sourceChain : destChain),
-    [props.chain, props.type],
+  const selectedChain = useMemo(
+    () => (props.type === TransferWallet.SENDING ? sourceChain : destChain),
+    [props.type, sourceChain, destChain],
   );
 
   const { walletOptionsResult } = useAvailableWallets({
-    chain,
+    chain: selectedChain,
     supportedChains,
   });
 
   const connect = useCallback(async (walletInfo: WalletData) => {
-    dispatch(setWalletModal(false));
-
     if (props.onClose) {
       props.onClose();
     }
 
-    await connectWallet(props.type, chain!, walletInfo, dispatch);
+    await connectWallet(props.type, selectedChain!, walletInfo, dispatch);
   }, []);
 
   const renderWalletOptions = useCallback(
@@ -126,8 +119,6 @@ const WalletSidebar = (props: Props) => {
   const closeSidebar = useCallback(() => {
     if (props.onClose) {
       props.onClose();
-    } else {
-      dispatch(setWalletModal(false));
     }
   }, [props.onClose]);
 

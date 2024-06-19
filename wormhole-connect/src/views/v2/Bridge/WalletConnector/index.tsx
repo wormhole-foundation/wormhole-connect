@@ -5,7 +5,6 @@ import { makeStyles } from 'tss-react/mui';
 import { ScopedCssBaseline, Tooltip, useMediaQuery } from '@mui/material';
 
 import { RootState } from 'store';
-import { setWalletModal } from 'store/router';
 import { disconnectWallet as disconnectFromStore } from 'store/wallet';
 import { TransferWallet } from 'utils/wallet';
 import { copyTextToClipboard, displayWalletAddress } from 'utils';
@@ -89,7 +88,6 @@ const WalletConnector = (props: Props) => {
       }
 
       setIsOpen(true);
-      dispatch(setWalletModal(type));
     },
     [disabled, type],
   );
