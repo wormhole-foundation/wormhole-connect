@@ -2,6 +2,18 @@ import React, { useCallback, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
+import Popover from '@mui/material/Popover';
+import Typography from '@mui/material/Typography';
+
+import {
+  usePopupState,
+  bindTrigger,
+  bindPopover,
+} from 'material-ui-popup-state/hooks';
+
 import { RootState } from 'store';
 import { disconnectWallet as disconnectFromStore } from 'store/wallet';
 import { TransferWallet } from 'utils/wallet';
@@ -9,13 +21,10 @@ import { copyTextToClipboard, displayWalletAddress } from 'utils';
 
 import DownIcon from 'icons/Down';
 import WalletIcons from 'icons/WalletIcons';
-import PopupState, { bindTrigger, bindPopover } from 'material-ui-popup-state';
-import Popover from '@mui/material/Popover';
 import config from 'config';
 import { TransferSide } from 'config/types';
 import ExplorerLink from './ExplorerLink';
 import WalletSidebar from './Sidebar';
-import { Typography } from '@mui/material';
 
 type StyleProps = { disabled?: boolean };
 
@@ -60,38 +69,33 @@ type Props = {
 };
 
 const ConnectedWallet = (props: Props) => {
-  const { type } = props;
-
   const dispatch = useDispatch();
 
   const { classes } = useStyles({});
-  const wallet = useSelector((state: RootState) => state.wallet[type]);
+
+  const wallet = useSelector((state: RootState) => state.wallet[props.type]);
 
   const [isOpen, setIsOpen] = useState(false);
 
-  const connectWallet = useCallback(async (popupState?: any) => {
-    if (popupState) {
-      popupState.close();
-    }
+  const popupState = usePopupState({
+    variant: 'popover',
+    popupId: `connected-wallet-popover-${props.side}`,
+  });
 
+  const connectWallet = useCallback(() => {
+    popupState?.close();
     setIsOpen(true);
   }, []);
 
-  const copyAddress = useCallback(
-    (popupState: any) => {
-      copyTextToClipboard(wallet.address);
-      popupState.close();
-    },
-    [wallet.address],
-  );
+  const copyAddress = useCallback(() => {
+    copyTextToClipboard(wallet.address);
+    popupState?.close();
+  }, [wallet.address]);
 
-  const disconnectWallet = useCallback(
-    async (popupState: any) => {
-      dispatch(disconnectFromStore(type));
-      popupState.close();
-    },
-    [type],
-  );
+  const disconnectWallet = useCallback(() => {
+    dispatch(disconnectFromStore(props.type));
+    popupState?.close();
+  }, [props.type]);
 
   if (!wallet?.address) {
     return <></>;
@@ -99,80 +103,46 @@ const ConnectedWallet = (props: Props) => {
 
   return (
     <>
-      <PopupState
-        variant="popover"
-        popupId={`connected-wallet-popover-${props.side}`}
-      >
-        {(popupState) => {
-          const { onClick: triggerPopup, ...boundProps } =
-            bindTrigger(popupState);
-
-          const onClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-            triggerPopup(e);
-          };
-
-          return (
-            <>
-              <div
-                className={classes.connectWallet}
-                onClick={onClick}
-                {...boundProps}
-              >
-                <WalletIcons
-                  name={wallet.name}
-                  icon={wallet.icon}
-                  height={24}
-                />
-                <Typography fontSize={14}>
-                  {displayWalletAddress(wallet.type, wallet.address)}
-                </Typography>
-                <DownIcon className={classes.down} />
-              </div>
-              <Popover
-                {...bindPopover(popupState)}
-                sx={{ marginTop: 1 }}
-                anchorOrigin={{
-                  vertical: 'bottom',
-                  horizontal: 'right',
-                }}
-                transformOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right',
-                }}
-              >
-                <div className={classes.dropdown}>
-                  <div
-                    className={classes.dropdownItem}
-                    onClick={() => copyAddress(popupState)}
-                  >
-                    Copy address
-                  </div>
-                  {config.explorer ? (
-                    <ExplorerLink
-                      address={wallet.address}
-                      href={config.explorer.href}
-                      target={config.explorer.target}
-                      label={config.explorer.label}
-                    />
-                  ) : null}
-                  <div
-                    className={classes.dropdownItem}
-                    onClick={() => connectWallet(popupState)}
-                  >
-                    Change wallet
-                  </div>
-                  <div
-                    className={classes.dropdownItem}
-                    onClick={() => disconnectWallet(popupState)}
-                  >
-                    Disconnect
-                  </div>
-                </div>
-              </Popover>
-            </>
-          );
+      <div className={classes.connectWallet} {...bindTrigger(popupState)}>
+        <WalletIcons name={wallet.name} icon={wallet.icon} height={24} />
+        <Typography fontSize={14}>
+          {displayWalletAddress(wallet.type, wallet.address)}
+        </Typography>
+        <DownIcon className={classes.down} />
+      </div>
+      <Popover
+        {...bindPopover(popupState)}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'right',
         }}
-      </PopupState>
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
+      >
+        <List>
+          <ListItemButton onClick={copyAddress}>
+            <Typography fontSize={14}>Copy address</Typography>
+          </ListItemButton>
+          {config.explorer ? (
+            <ListItem>
+              <ExplorerLink
+                address={wallet.address}
+                href={config.explorer.href}
+                target={config.explorer.target}
+                label={config.explorer.label}
+              />
+            </ListItem>
+          ) : null}
+          <ListItemButton onClick={connectWallet}>
+            <Typography fontSize={14}>Change wallet</Typography>
+          </ListItemButton>
+          <ListItemButton onClick={disconnectWallet}>
+            <Typography fontSize={14}>Disconnect</Typography>
+          </ListItemButton>
+        </List>
+      </Popover>
       <WalletSidebar
         open={isOpen}
         type={props.type}
