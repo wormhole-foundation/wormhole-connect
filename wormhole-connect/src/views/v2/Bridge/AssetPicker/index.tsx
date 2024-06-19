@@ -169,7 +169,7 @@ const AssetPicker = (props: Props) => {
             props.setChain(key);
           }}
         />
-        {!showChainSearch && (
+        {!showChainSearch && chainConfig && (
           <TokenList
             tokenList={props.tokenList}
             selectedChainConfig={chainConfig}

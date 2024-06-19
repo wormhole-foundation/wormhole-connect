@@ -212,7 +212,7 @@ const WalletConnector = (props: Props) => {
         </>
       );
     }
-  }, [disabled]);
+  }, [disabled, isOpen, mobile, props.side, props.type]);
 
   if (wallet && wallet.address) {
     return connected;

@@ -161,10 +161,11 @@ const ChainList = (props: Props) => {
             }}
           />
         </ListItem>
-        {chains?.map((chain: any, i: number) => {
+        {chains?.map((chain: ChainConfig, i: number) => {
           const disabled = isDisabledChain(chain.key, props.wallet);
           return (
             <ListItemButton
+              key={chain.key}
               dense
               disabled={disabled}
               sx={{

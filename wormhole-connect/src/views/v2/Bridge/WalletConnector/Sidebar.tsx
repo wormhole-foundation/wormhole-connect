@@ -20,9 +20,7 @@ import config from 'config';
 import { RootState } from 'store';
 import { setWalletModal } from 'store/router';
 import { TransferWallet, WalletData, connectWallet } from 'utils/wallet';
-import { CENTER } from 'utils/style';
 
-import Header from 'components/Header';
 import WalletIcon from 'icons/WalletIcons';
 import AlertBanner from 'components/AlertBanner';
 import { useAvailableWallets } from 'hooks/useAvailableWallets';
@@ -36,19 +34,6 @@ const useStyles = makeStyles()((theme: any) => ({
   },
   notInstalled: {
     opacity: '60%',
-  },
-  noResults: {
-    ...CENTER,
-    minHeight: '72px',
-    maxWidth: '350px',
-    margin: 'auto',
-    flexDirection: 'column',
-    marginBottom: '10px',
-    gap: '8px',
-  },
-  noResultsTitle: {
-    fontSize: '20px',
-    fontWeight: '600',
   },
 }));
 
@@ -114,6 +99,7 @@ const WalletSidebar = (props: Props) => {
           : () => window.open(wallet.wallet.getUrl());
         return (
           <ListItemButton
+            key={wallet.name}
             dense
             sx={{
               display: 'flex',
@@ -159,40 +145,39 @@ const WalletSidebar = (props: Props) => {
         }
         return (
           <>
-            <ListItem>
-              <TextField
-                fullWidth
-                inputProps={{
-                  style: {
-                    fontSize: 12,
-                  },
-                }}
-                placeholder="Search for a network"
-                size="small"
-                variant="outlined"
-                onChange={(e) => {
-                  const lowercase = e.target.value.toLowerCase();
-                  setSearch(lowercase);
-                }}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon />
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            </ListItem>
             <List>
-              <div>{renderWalletOptions(walletOptionsResult.options)}</div>
+              <ListItem>
+                <Typography component={'div'} fontSize={16}>
+                  Connect a wallet
+                </Typography>
+              </ListItem>
+              <ListItem>
+                <TextField
+                  fullWidth
+                  placeholder="Search for a network"
+                  size="small"
+                  variant="outlined"
+                  onChange={(e) => {
+                    setSearch(e.target.value?.toLowerCase());
+                  }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SearchIcon />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </ListItem>
+              {renderWalletOptions(walletOptionsResult.options)}
             </List>
           </>
         );
 
       default:
         return (
-          <div className={classes.noResults}>
-            <div className={classes.noResultsTitle}>No wallets detected</div>
+          <div>
+            <div>No wallets detected</div>
             <div>Install a wallet extension to continue</div>
           </div>
         );
@@ -205,10 +190,7 @@ const WalletSidebar = (props: Props) => {
       open={props.type && props.open}
       onClose={closeSidebar}
     >
-      <div className={classes.drawer}>
-        <Header text="Connect a wallet" size={16} />
-        {sidebarContent}
-      </div>
+      <div className={classes.drawer}>{sidebarContent}</div>
     </Drawer>
   );
 };

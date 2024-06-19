@@ -116,6 +116,7 @@ const TokenList = (props: Props) => {
           const nativeChain = nativeChainConfig?.displayName || '';
           return (
             <ListItemButton
+              key={token.key}
               dense
               sx={{
                 display: 'flex',
