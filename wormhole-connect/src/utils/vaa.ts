@@ -81,18 +81,7 @@ export function getEmitterAndSequence(
 
 export async function fetchVaa(
   txData: ParsedMessage | ParsedRelayerMessage,
-  bytesOnly: true,
-): Promise<Uint8Array | undefined>;
-
-export async function fetchVaa(
-  txData: ParsedMessage | ParsedRelayerMessage,
-  bytesOnly?: false,
-): Promise<ParsedVaa | undefined>;
-
-export async function fetchVaa(
-  txData: ParsedMessage | ParsedRelayerMessage,
-  bytesOnly = false,
-): Promise<ParsedVaa | Uint8Array | undefined> {
+): Promise<Uint8Array | undefined> {
   try {
     const vaa = await fetchVaaWormscan(txData);
 
@@ -111,7 +100,7 @@ export async function fetchVaa(
 
 export async function fetchVaaWormscan(
   txData: ParsedMessage | ParsedRelayerMessage,
-): Promise<ParsedVaa | Uint8Array | undefined> {
+): Promise<Uint8Array | undefined> {
   // return if the number of block confirmations hasn't been met
   const chainName = config.wh.toChainName(txData.fromChain);
   const { finalityThreshold } = config.chains[chainName]! as any;
@@ -161,7 +150,7 @@ export async function fetchVaaWormscan(
 
 export async function fetchVaaGuardian(
   txData: ParsedMessage | ParsedRelayerMessage,
-): Promise<ParsedVaa | Uint8Array | undefined> {
+): Promise<Uint8Array | undefined> {
   // return if the number of block confirmations hasn't been met
   const chainName = config.wh.toChainName(txData.fromChain);
   const { finalityThreshold } = config.chains[chainName]! as any;

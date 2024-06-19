@@ -842,7 +842,7 @@ export class SolanaContext<
       },
       sequence: BigNumber.from(sequence),
       emitterAddress:
-        this.context.conf.env === 'MAINNET'
+        this.context.conf.env === 'mainnet'
           ? SOLANA_MAINNET_EMMITER_ID
           : SOLANA_TESTNET_EMITTER_ID,
       gasFee: BigNumber.from(gasFee),

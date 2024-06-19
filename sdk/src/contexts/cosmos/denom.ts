@@ -1,5 +1,4 @@
-import { Network } from '@certusone/wormhole-sdk';
-import { ChainName } from '../../types';
+import { ChainName, Network } from '../../types';
 
 const MAINNET_NATIVE_DENOMS: Record<string, string> = {
   osmosis: 'uosmo',
@@ -28,10 +27,10 @@ const PREFIXES: Record<string, string> = {
 
 export function getNativeDenom(
   chain: ChainName,
-  env: Network = 'MAINNET',
+  env: Network = 'mainnet',
 ): string {
   const denom =
-    env === 'TESTNET'
+    env === 'testnet'
       ? TESTNET_NATIVE_DENOMS[chain]
       : MAINNET_NATIVE_DENOMS[chain];
   if (!denom)

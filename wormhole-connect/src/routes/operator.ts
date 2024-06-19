@@ -12,7 +12,6 @@ import config from 'config';
 import { TokenConfig, Route } from 'config/types';
 import { PayloadType, getMessage, isEvmChain, solanaContext } from 'utils/sdk';
 import { isGatewayChain } from 'utils/cosmos';
-import { RelayRoute } from './relay';
 // import { HashflowRoute } from './hashflow';
 import { RouteAbstract } from './abstracts/routeAbstract';
 import {
@@ -31,25 +30,13 @@ import { getMessageEvm, TRANSFER_SENT_EVENT_TOPIC } from './ntt/chains/evm';
 import { getMessageSolana } from './ntt/chains/solana';
 import { getNttManagerConfigByAddress } from 'utils/ntt';
 
-import { SDKv2Route } from './sdkv2/route';
+import { routes } from '@wormhole-foundation/sdk';
 
-import { getRouteImpls } from './mappings';
+import { getRoute } from './mappings';
 
 export class Operator {
   getRoute(route: Route): RouteAbstract {
-    const impls = getRouteImpls(route);
-
-    if (!impls) {
-      throw new Error(`${route} is not a valid route`);
-    }
-
-    const useSdkV2 = !!localStorage.getItem('CONNECT_SDKV2');
-
-    if (useSdkV2 && impls.v2) {
-      return new SDKv2Route(config.network, impls.v2, route);
-    } else {
-      return impls.v1;
-    }
+    return getRoute(route);
   }
 
   async getRouteFromTx(txHash: string, chain: ChainName): Promise<Route> {
@@ -232,19 +219,34 @@ export class Operator {
   ): Promise<TokenConfig[]> {
     const supported: { [key: string]: TokenConfig } = {};
     for (const route of config.routes) {
-      for (const token of config.tokensArr) {
-        const { key } = token;
-        const alreadySupported = supported[key];
-        if (!alreadySupported) {
-          const isSupported = await this.isSupportedSourceToken(
-            route as Route,
-            config.tokens[key],
-            destToken,
-            sourceChain,
-            destChain,
-          );
-          if (isSupported) {
-            supported[key] = config.tokens[key];
+      const r = this.getRoute(route as Route);
+
+      try {
+        const sourceTokens = await r.supportedSourceTokens(
+          config.tokensArr,
+          destToken,
+          sourceChain,
+          destChain,
+        );
+
+        for (const token of sourceTokens) {
+          supported[token.key] = token;
+        }
+      } catch (e) {
+        for (const token of config.tokensArr) {
+          const { key } = token;
+          const alreadySupported = supported[key];
+          if (!alreadySupported) {
+            const isSupported = await this.isSupportedSourceToken(
+              route as Route,
+              config.tokens[key],
+              destToken,
+              sourceChain,
+              destChain,
+            );
+            if (isSupported) {
+              supported[key] = config.tokens[key];
+            }
           }
         }
       }
@@ -439,7 +441,7 @@ export class Operator {
     recipientAddress: string,
     destToken: string,
     routeOptions: any,
-  ): Promise<string> {
+  ): Promise<string | routes.Receipt> {
     const r = this.getRoute(route);
     return await r.send(
       token,
@@ -563,6 +565,8 @@ export class Operator {
     amount: BigNumber,
     walletAddress: string,
   ): Promise<BigNumber> {
+    throw new Error('TODO SDKv2');
+    /*
     const r = this.getRoute(route);
     if (r.AUTOMATIC_DEPOSIT) {
       return (r as RelayRoute).nativeTokenAmount(
@@ -574,6 +578,7 @@ export class Operator {
     } else {
       throw new Error('route does not support native gas dropoff');
     }
+    */
   }
 
   maxSwapAmount(
@@ -582,12 +587,15 @@ export class Operator {
     token: TokenId,
     walletAddress: string,
   ): Promise<BigNumber> {
+    throw new Error('TODO SDKv2');
+    /*
     const r = this.getRoute(route);
     if (r.AUTOMATIC_DEPOSIT) {
       return (r as RelayRoute).maxSwapAmount(destChain, token, walletAddress);
     } else {
       throw new Error('route does not support swap for native gas dropoff');
     }
+    */
   }
 
   async minSwapAmountNative(

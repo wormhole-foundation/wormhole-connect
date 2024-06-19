@@ -23,7 +23,6 @@ import Search from './Search';
 import Spacer from './Spacer';
 import Tabs from './Tabs';
 import { CCTPManual_CHAINS } from '../routes/cctpManual';
-import { isTBTCCanonicalChain } from 'routes/tbtc';
 import useGetTokenBalances from 'hooks/useGetTokenBalances';
 import { Balances } from 'store/transferInput';
 
@@ -375,7 +374,7 @@ function TokensModal(props: Props) {
 
       if (t.symbol === 'tBTC' && chain) {
         // if the chain is canonical then only show the native tBTC token
-        if (isTBTCCanonicalChain(chain)) {
+        if (false /* TODO SDKV2 isTBTCCanonicalChain(chain)*/) {
           if (t.nativeChain !== chain) {
             return false;
           }

@@ -1,4 +1,4 @@
-import { Network as Environment, CONTRACTS } from '@certusone/wormhole-sdk';
+import { CONTRACTS } from '@certusone/wormhole-sdk';
 import { WormholeConfig, Context, ChainConfig, Contracts } from '../types';
 
 /**
@@ -365,12 +365,11 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
   },
 };
 
-const env: Environment = 'MAINNET';
 /**
  * default mainnet chain config
  */
 const MAINNET_CONFIG: WormholeConfig = {
-  env,
+  env: 'mainnet',
   rpcs: {
     ethereum: 'https://rpc.ankr.com/eth',
     solana: 'https://solana-mainnet.rpc.extrnode.com',

@@ -50,19 +50,6 @@ export abstract class ContractsAbstract<T extends WormholeContext> {
    */
   protected abstract mustGetBridge(chain: ChainName | ChainId): any;
   /**
-   * Get the NFT Bridge contract interface
-   * @param chain The name or ID of a supported chain
-   * @returns The NFT bridge contract interface or undefined
-   */
-  protected abstract getNftBridge(chain: ChainName | ChainId): any | undefined;
-  /**
-   * Get the NFT Bridge contract interface
-   * @param chain The name or ID of a supported chain
-   * @throws Errors if the contract doesn't exist
-   * @returns The NFT Bridge contract interface
-   */
-  protected abstract mustGetNftBridge(chain: ChainName | ChainId): any;
-  /**
    * Get the Token Bridge Relayer contract interface
    * @param chain The name or ID of a supported chain
    * @returns The Token Bridge Relayer contract interface or undefined

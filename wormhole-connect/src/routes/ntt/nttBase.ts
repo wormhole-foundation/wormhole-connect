@@ -373,7 +373,7 @@ export abstract class NttBase extends BaseRoute {
   async getSignedMessage(
     unsigned: UnsignedNttMessage,
   ): Promise<SignedNttMessage> {
-    const vaa = await fetchVaa(unsigned, true);
+    const vaa = await fetchVaa(unsigned);
 
     if (!vaa) {
       throw new Error('VAA not found');

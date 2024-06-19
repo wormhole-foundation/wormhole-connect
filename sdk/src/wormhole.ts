@@ -88,9 +88,9 @@ export class WormholeContext extends MultiProvider<Domain> {
     for (const network of Object.keys(this.conf.rpcs)) {
       const n = network as ChainName;
       const chains =
-        this.conf.env === 'MAINNET'
+        this.conf.env === 'mainnet'
           ? MAINNET_CHAINS
-          : this.conf.env === 'DEVNET'
+          : this.conf.env === 'devnet'
           ? DEVNET_CHAINS
           : TESTNET_CHAINS;
       const chainConfig = (chains as any)[n];

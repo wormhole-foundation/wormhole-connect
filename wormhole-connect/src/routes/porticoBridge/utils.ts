@@ -16,7 +16,6 @@ import {
   isEqualCaseInsensitive,
 } from 'utils';
 import config from 'config';
-import { toChainId } from 'utils/sdk';
 import { TransferDestInfo } from 'routes/types';
 
 export const parseAddress = (buffer: Buffer): string => {

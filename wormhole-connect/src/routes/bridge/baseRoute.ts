@@ -27,7 +27,6 @@ import { formatGasFee, isIlliquidDestToken } from 'routes/utils';
 import { toDecimals } from 'utils/balance';
 import { NO_INPUT } from 'utils/style';
 import { hexlify } from 'ethers/lib/utils.js';
-import { isTBTCToken } from 'routes/tbtc/utils';
 import { TokenPrices } from 'store/tokenPrices';
 
 export abstract class BaseRoute extends RouteAbstract {
@@ -48,9 +47,11 @@ export abstract class BaseRoute extends RouteAbstract {
     if (!token.tokenId && token.nativeChain !== chainName) {
       return false;
     }
+    /* TODO SDKV2
     if (isTBTCToken(token) && token.nativeChain !== chainName) {
       return false;
     }
+    */
     return true;
   }
 
@@ -63,7 +64,9 @@ export abstract class BaseRoute extends RouteAbstract {
     if (!token) return false;
     if (!token.tokenId) return false;
     if (destChain && isIlliquidDestToken(token, destChain)) return false;
+    /* TODO SDKV2
     if (isTBTCToken(token)) return false;
+    */
     if (sourceToken) {
       const wrapped = getWrappedToken(sourceToken);
       return wrapped.key === token.key;

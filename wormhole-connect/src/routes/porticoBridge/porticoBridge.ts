@@ -641,7 +641,7 @@ export abstract class PorticoBridge extends BaseRoute {
 
     return {
       ...message,
-      vaa: hexlify(vaa.bytes),
+      vaa: hexlify(vaa),
     };
   }
 

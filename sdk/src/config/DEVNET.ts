@@ -1,4 +1,4 @@
-import { CONTRACTS, Network as Environment } from '@certusone/wormhole-sdk';
+import { CONTRACTS } from '@certusone/wormhole-sdk';
 import { ChainConfig, Context, Contracts, WormholeConfig } from '../types';
 
 /**
@@ -75,12 +75,11 @@ const DEVNET: { [chain in DevnetChainName]: ChainConfig } = {
   },
 };
 
-const env: Environment = 'DEVNET';
 /**
  * default devnet chain config
  */
 const DEVNET_CONFIG: WormholeConfig = {
-  env,
+  env: 'devnet',
   rpcs: {
     ethereum: 'http://localhost:8545',
     wormchain: 'http://localhost:26659',

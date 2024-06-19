@@ -129,9 +129,9 @@ export const getMessageEvm = async (
     tokenDecimals: nttManagerMessage.payload.trimmedAmount.decimals,
     receivedTokenKey,
     emitterAddress: hexlify(
-      config.wh.formatAddress(parsedWormholeLog.args.sender, fromChain),
+      config.wh.formatAddress(parsedWormholeLog!.args.sender, fromChain),
     ),
-    sequence: parsedWormholeLog.args.sequence.toString(),
+    sequence: parsedWormholeLog!.args.sequence.toString(),
     block: receipt.blockNumber,
     gasFee: receipt.gasUsed.mul(receipt.effectiveGasPrice).toString(),
     recipientNttManager: config.wh.parseAddress(

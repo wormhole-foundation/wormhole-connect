@@ -1,4 +1,4 @@
-import { Network as Environment, CONTRACTS } from '@certusone/wormhole-sdk';
+import { CONTRACTS } from '@certusone/wormhole-sdk';
 import { WormholeConfig, Context, ChainConfig, Contracts } from '../types';
 
 /**
@@ -399,12 +399,11 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
   },
 };
 
-const env: Environment = 'TESTNET';
 /**
  * default testnet chain config
  */
 const TESTNET_CONFIG: WormholeConfig = {
-  env,
+  env: 'testnet',
   rpcs: {
     goerli: 'https://rpc.ankr.com/eth_goerli',
     mumbai: 'https://rpc.ankr.com/polygon_mumbai',

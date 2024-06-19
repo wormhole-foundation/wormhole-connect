@@ -1,7 +1,6 @@
 import { Connection, clusterApiUrl } from '@solana/web3.js';
 import { Program } from '@project-serum/anchor';
 import { TokenBridge } from '@certusone/wormhole-sdk/lib/esm/solana/types/tokenBridge';
-import { NftBridge } from '@certusone/wormhole-sdk/lib/esm/solana/types/nftBridge';
 import { Wormhole } from '@certusone/wormhole-sdk/lib/esm/solana/types/wormhole';
 
 import { ChainName, ChainId, Contracts, Context } from '../../types';
@@ -11,7 +10,6 @@ import { filterByContext } from '../../utils';
 import { SolanaContext } from './context';
 import { createReadOnlyWormholeProgramInterface } from './utils/wormhole';
 import { createReadOnlyTokenBridgeProgramInterface } from './utils/tokenBridge';
-import { createReadOnlyNftBridgeProgramInterface } from './utils/nftBridge';
 import { SolanaRelayer } from './relayer';
 
 /**
@@ -111,39 +109,6 @@ export class SolContracts<
     if (!bridge)
       throw new Error(`Bridge contract for domain ${chain} not found`);
     return bridge;
-  }
-
-  /**
-   * Returns wormhole NFT bridge contract for the chain
-   *
-   * @returns An interface for the NFT bridge contract, undefined if not found
-   */
-  getNftBridge(chain?: ChainName | ChainId): Program<NftBridge> | undefined {
-    const context = this.context.getContext(
-      'solana',
-    ) as SolanaContext<WormholeContext>;
-    const connection = context.connection;
-    if (!connection) throw new Error('no connection');
-
-    const contracts = this.context.mustGetContracts('solana');
-    if (!contracts.nft_bridge) return;
-
-    return createReadOnlyNftBridgeProgramInterface(
-      contracts.nft_bridge,
-      connection,
-    );
-  }
-
-  /**
-   * Returns wormhole NFT bridge contract for the chain
-   *
-   * @returns An interface for the NFT bridge contract, errors if not found
-   */
-  mustGetNftBridge(chain: ChainName | ChainId): Program<NftBridge> {
-    const nftBridge = this.getNftBridge(chain);
-    if (!nftBridge)
-      throw new Error(`NFT Bridge contract for domain ${chain} not found`);
-    return nftBridge;
   }
 
   /**

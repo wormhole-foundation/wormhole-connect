@@ -1,4 +1,3 @@
-import { Network as Environment } from '@certusone/wormhole-sdk';
 import { BigNumber } from 'ethers';
 import { MainnetChainId, MainnetChainName } from './config/MAINNET';
 import { TestnetChainId, TestnetChainName } from './config/TESTNET';
@@ -69,7 +68,7 @@ export type ChainConfig = {
 };
 
 export type WormholeConfig = {
-  env: Environment;
+  env: Network;
   rpcs: ChainResourceMap;
   rest: ChainResourceMap;
   graphql: ChainResourceMap;
