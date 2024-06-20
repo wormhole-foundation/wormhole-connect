@@ -138,10 +138,6 @@ export type IdlErrorCode = {
   name: string;
   msg?: string;
 };
-// Seed for generating the idlAddress.
-export function seed(): string {
-  return 'anchor:idl';
-}
 // The on-chain account of the IDL.
 export interface IdlProgramAccount {
   authority: PublicKey;

@@ -23,17 +23,3 @@ export interface InitializeAccounts {
   rent: PublicKey;
   systemProgram: PublicKey;
 }
-export function getInitializeAccounts(
-  wormholeProgramId: PublicKeyInitData,
-  payer: PublicKeyInitData,
-): InitializeAccounts {
-  return {
-    bridge: deriveWormholeBridgeDataKey(wormholeProgramId),
-    guardianSet: deriveGuardianSetKey(wormholeProgramId, 0),
-    feeCollector: deriveFeeCollectorKey(wormholeProgramId),
-    payer: new PublicKey(payer),
-    clock: SYSVAR_CLOCK_PUBKEY,
-    rent: SYSVAR_RENT_PUBKEY,
-    systemProgram: SystemProgram.programId,
-  };
-}

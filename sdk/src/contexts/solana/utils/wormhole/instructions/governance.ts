@@ -30,25 +30,6 @@ export interface SetFeesAccounts {
   claim: PublicKey;
   systemProgram: PublicKey;
 }
-export function getSetFeesAccounts(
-  wormholeProgramId: PublicKeyInitData,
-  payer: PublicKeyInitData,
-  vaa: SignedVaa | ParsedGovernanceVaa,
-): SetFeesAccounts {
-  const parsed = isBytes(vaa) ? parseGovernanceVaa(vaa) : vaa;
-  return {
-    payer: new PublicKey(payer),
-    bridge: deriveWormholeBridgeDataKey(wormholeProgramId),
-    vaa: derivePostedVaaKey(wormholeProgramId, parsed.hash),
-    claim: deriveClaimKey(
-      wormholeProgramId,
-      parsed.emitterAddress,
-      parsed.emitterChain,
-      parsed.sequence,
-    ),
-    systemProgram: SystemProgram.programId,
-  };
-}
 export interface TransferFeesAccounts {
   payer: PublicKey;
   bridge: PublicKey;
@@ -59,29 +40,6 @@ export interface TransferFeesAccounts {
   rent: PublicKey;
   systemProgram: PublicKey;
 }
-export function getTransferFeesAccounts(
-  wormholeProgramId: PublicKeyInitData,
-  payer: PublicKeyInitData,
-  recipient: PublicKeyInitData,
-  vaa: SignedVaa | ParsedGovernanceVaa,
-): TransferFeesAccounts {
-  const parsed = isBytes(vaa) ? parseGovernanceVaa(vaa) : vaa;
-  return {
-    payer: new PublicKey(payer),
-    bridge: deriveWormholeBridgeDataKey(wormholeProgramId),
-    vaa: derivePostedVaaKey(wormholeProgramId, parsed.hash),
-    claim: deriveClaimKey(
-      wormholeProgramId,
-      parsed.emitterAddress,
-      parsed.emitterChain,
-      parsed.sequence,
-    ),
-    feeCollector: deriveFeeCollectorKey(wormholeProgramId),
-    recipient: new PublicKey(recipient),
-    rent: SYSVAR_RENT_PUBKEY,
-    systemProgram: SystemProgram.programId,
-  };
-}
 export interface UpgradeGuardianSetAccounts {
   payer: PublicKey;
   bridge: PublicKey;
@@ -90,33 +48,6 @@ export interface UpgradeGuardianSetAccounts {
   guardianSetOld: PublicKey;
   guardianSetNew: PublicKey;
   systemProgram: PublicKey;
-}
-export function getUpgradeGuardianSetAccounts(
-  wormholeProgramId: PublicKeyInitData,
-  payer: PublicKeyInitData,
-  vaa: SignedVaa | ParsedGovernanceVaa,
-): UpgradeGuardianSetAccounts {
-  const parsed = isBytes(vaa) ? parseGovernanceVaa(vaa) : vaa;
-  return {
-    payer: new PublicKey(payer),
-    bridge: deriveWormholeBridgeDataKey(wormholeProgramId),
-    vaa: derivePostedVaaKey(wormholeProgramId, parsed.hash),
-    claim: deriveClaimKey(
-      wormholeProgramId,
-      parsed.emitterAddress,
-      parsed.emitterChain,
-      parsed.sequence,
-    ),
-    guardianSetOld: deriveGuardianSetKey(
-      wormholeProgramId,
-      parsed.guardianSetIndex,
-    ),
-    guardianSetNew: deriveGuardianSetKey(
-      wormholeProgramId,
-      parsed.guardianSetIndex + 1,
-    ),
-    systemProgram: SystemProgram.programId,
-  };
 }
 export interface UpgradeContractAccounts {
   payer: PublicKey;
@@ -132,36 +63,4 @@ export interface UpgradeContractAccounts {
   clock: PublicKey;
   bpfLoaderUpgradeable: PublicKey;
   systemProgram: PublicKey;
-}
-export function getUpgradeContractAccounts(
-  wormholeProgramId: PublicKeyInitData,
-  payer: PublicKeyInitData,
-  vaa: SignedVaa | ParsedGovernanceVaa,
-  spill?: PublicKeyInitData,
-): UpgradeContractAccounts {
-  const parsed = isBytes(vaa) ? parseGovernanceVaa(vaa) : vaa;
-  const implementation = parsed.orderPayload;
-  if (implementation.length != 32) {
-    throw new Error('implementation.length != 32');
-  }
-  return {
-    payer: new PublicKey(payer),
-    bridge: deriveWormholeBridgeDataKey(wormholeProgramId),
-    vaa: derivePostedVaaKey(wormholeProgramId, parsed.hash),
-    claim: deriveClaimKey(
-      wormholeProgramId,
-      parsed.emitterAddress,
-      parsed.emitterChain,
-      parsed.sequence,
-    ),
-    upgradeAuthority: deriveUpgradeAuthorityKey(wormholeProgramId),
-    spill: new PublicKey(spill === undefined ? payer : spill),
-    implementation: new PublicKey(implementation),
-    programData: deriveUpgradeableProgramKey(wormholeProgramId),
-    wormholeProgram: new PublicKey(wormholeProgramId),
-    rent: SYSVAR_RENT_PUBKEY,
-    clock: SYSVAR_CLOCK_PUBKEY,
-    bpfLoaderUpgradeable: BpfLoaderUpgradeable.programId,
-    systemProgram: SystemProgram.programId,
-  };
 }

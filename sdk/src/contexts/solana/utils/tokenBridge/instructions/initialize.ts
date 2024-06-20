@@ -13,14 +13,3 @@ export interface InitializeAccounts {
   rent: PublicKey;
   systemProgram: PublicKey;
 }
-export function getInitializeAccounts(
-  tokenBridgeProgramId: PublicKeyInitData,
-  payer: PublicKeyInitData,
-): InitializeAccounts {
-  return {
-    payer: new PublicKey(payer),
-    config: deriveTokenBridgeConfigKey(tokenBridgeProgramId),
-    rent: SYSVAR_RENT_PUBKEY,
-    systemProgram: SystemProgram.programId,
-  };
-}

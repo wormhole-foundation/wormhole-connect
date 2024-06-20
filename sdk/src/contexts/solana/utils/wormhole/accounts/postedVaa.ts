@@ -15,7 +15,6 @@ export class PostedMessageData {
     return new PostedMessageData(MessageData.deserialize(data.subarray(3)));
   }
 }
-export class PostedVaaData extends PostedMessageData {}
 export function derivePostedVaaKey(
   wormholeProgramId: PublicKeyInitData,
   hash: Buffer,
