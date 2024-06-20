@@ -151,7 +151,7 @@ const WalletSidebar = (props: Props) => {
               <ListItem>
                 <TextField
                   fullWidth
-                  placeholder="Search for a network"
+                  placeholder="Search for a wallet"
                   size="small"
                   variant="outlined"
                   onChange={(e) => {
