@@ -170,14 +170,9 @@ const WalletSidebar = (props: Props) => {
             </List>
           </>
         );
-
       default:
-        return (
-          <div>
-            <div>No wallets detected</div>
-            <div>Install a wallet extension to continue</div>
-          </div>
-        );
+        // TODO: Do we ever get to this case? If so, what should be the UI?
+        return <></>;
     }
   }, [walletOptionsResult]);
 
