@@ -44,9 +44,13 @@ export const useAvailableWallets = (props: Props): ReturnProps => {
   useEffect(() => {
     let cancelled = false;
     async function getAvailableWallets() {
-      const chainConfig = config.chains[chain!]!;
+      if (!chain) {
+        return [];
+      }
 
-      if (supportedChains.has(chainConfig.context)) {
+      const chainConfig = config.chains[chain];
+
+      if (chainConfig && supportedChains.has(chainConfig.context)) {
         return await getWalletOptions(chainConfig);
       } else {
         return [];

@@ -55,8 +55,8 @@ type Props = {
   chainList?: Array<ChainConfig> | undefined;
   token?: string;
   tokenList?: Array<TokenConfig> | undefined;
-  setToken: Function;
-  setChain: Function;
+  setToken: (value: string) => void;
+  setChain: (value: ChainName) => void;
   wallet: WalletData;
 };
 
@@ -166,7 +166,7 @@ const AssetPicker = (props: Props) => {
           setShowSearch={setShowChainSearch}
           wallet={props.wallet}
           onClick={(key: string) => {
-            props.setChain(key);
+            props.setChain(key as ChainName);
           }}
         />
         {!showChainSearch && chainConfig && (
