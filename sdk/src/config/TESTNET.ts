@@ -376,6 +376,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     context: Context.ETH,
     contracts: {
       ...CONTRACTS.TESTNET.arbitrum_sepolia,
+      relayer: '0xae8dc4a7438801ec4edc0b035eccccf3807f4cc1'
     },
     finalityThreshold: 0,
     nativeTokenDecimals: 18,
@@ -396,6 +397,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     context: Context.ETH,
     contracts: {
       ...CONTRACTS.TESTNET.optimism_sepolia,
+      relayer: '0xae8dc4a7438801ec4edc0b035eccccf3807f4cc1'
     },
     finalityThreshold: 0,
     nativeTokenDecimals: 18,

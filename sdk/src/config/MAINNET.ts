@@ -203,6 +203,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     context: Context.ETH,
     contracts: {
       ...CONTRACTS.MAINNET.arbitrum,
+      relayer: '0xae8dc4a7438801ec4edc0b035eccccf3807f4cc1',
       cctpContracts: {
         cctpTokenMessenger: '0x19330d10D9Cc8751218eaf51E8885D058642E08A',
         cctpMessageTransmitter: '0xC30362313FBBA5cf9163F0bb16a0e01f01A896ca',
@@ -223,6 +224,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     context: Context.ETH,
     contracts: {
       ...CONTRACTS.MAINNET.optimism,
+      relayer: '0xae8dc4a7438801ec4edc0b035eccccf3807f4cc1',
       cctpContracts: {
         cctpTokenMessenger: '0x2B4069517957735bE00ceE0fadAE88a26365528f',
         cctpMessageTransmitter: '0x4d41f22c5a0e5c74090899e5a8fb597a8842b3e8',
