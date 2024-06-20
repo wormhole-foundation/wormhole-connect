@@ -20,6 +20,7 @@ type ExplorerLinkProps = {
   address: string;
 } & ExplorerConfig;
 
+// Renders the link of a chain explorer
 const ExplorerLink = (props: ExplorerLinkProps) => {
   const { address, href, target = '_blank', label = 'Transactions' } = props;
 

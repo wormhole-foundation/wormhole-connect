@@ -22,7 +22,6 @@ import { copyTextToClipboard, displayWalletAddress } from 'utils';
 import DownIcon from 'icons/Down';
 import WalletIcons from 'icons/WalletIcons';
 import config from 'config';
-import { TransferSide } from 'config/types';
 import ExplorerLink from './ExplorerLink';
 import WalletSidebar from './Sidebar';
 
@@ -64,10 +63,10 @@ const useStyles = makeStyles<StyleProps>()((theme: any) => ({
 }));
 
 type Props = {
-  side: TransferSide;
   type: TransferWallet;
 };
 
+// Renders the connected state for a wallet given the type (sending | receiving)
 const ConnectedWallet = (props: Props) => {
   const dispatch = useDispatch();
 
@@ -79,7 +78,7 @@ const ConnectedWallet = (props: Props) => {
 
   const popupState = usePopupState({
     variant: 'popover',
-    popupId: `connected-wallet-popover-${props.side}`,
+    popupId: `connected-wallet-popover-${props.type}`,
   });
 
   const connectWallet = useCallback(() => {

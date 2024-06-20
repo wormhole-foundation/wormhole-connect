@@ -41,6 +41,8 @@ type Props = {
   onClose?: () => any;
 };
 
+// Renders the sidebar on the right-side to display the list of available wallets
+// for the selected source or destination chain.
 const WalletSidebar = (props: Props) => {
   const dispatch = useDispatch();
   const theme: any = useTheme();
@@ -69,25 +71,30 @@ const WalletSidebar = (props: Props) => {
 
   const connect = useCallback(
     async (walletInfo: WalletData) => {
-      props.onClose?.();
+      if (!selectedChain) {
+        return;
+      }
 
-      await connectWallet(props.type, selectedChain!, walletInfo, dispatch);
+      props.onClose?.();
+      await connectWallet(props.type, selectedChain, walletInfo, dispatch);
     },
     [props.type, props.onClose, selectedChain],
   );
 
   const renderWalletOptions = useCallback(
     (wallets: WalletData[]): JSX.Element[] => {
-      const sorted = wallets.sort((w) => (w.isReady ? -1 : 1));
+      const walletsSorted = wallets.sort((w) => (w.isReady ? -1 : 1));
 
-      const predicate = ({ name, type }: WalletData) =>
-        name.toLowerCase().includes(search) ||
-        type.toLowerCase().includes(search);
+      const walletsFiltered = !search
+        ? walletsSorted
+        : walletsSorted.filter(
+            ({ name, type }: WalletData) =>
+              name.toLowerCase().includes(search) ||
+              type.toLowerCase().includes(search),
+          );
 
-      const filtered = !search ? sorted : sorted.filter(predicate);
-
-      return filtered.map((wallet) => {
-        const ready = wallet.isReady;
+      return walletsFiltered.map((wallet) => {
+        const isWalletReady = wallet.isReady;
 
         return (
           <ListItemButton
@@ -98,7 +105,7 @@ const WalletSidebar = (props: Props) => {
               flexDirection: 'row',
             }}
             onClick={() => {
-              if (ready) {
+              if (isWalletReady) {
                 connect(wallet);
               } else {
                 window.open(wallet.wallet.getUrl());
@@ -109,8 +116,8 @@ const WalletSidebar = (props: Props) => {
               <WalletIcon name={wallet.name} icon={wallet.icon} height={32} />
             </ListItemIcon>
             <Typography fontSize={14}>
-              <div className={`${!ready && classes.notInstalled}`}>
-                {!ready && 'Install'} {wallet.name}
+              <div className={`${!isWalletReady && classes.notInstalled}`}>
+                {!isWalletReady && 'Install'} {wallet.name}
               </div>
               <div className={classes.context}>{wallet.type.toUpperCase()}</div>
             </Typography>
@@ -130,7 +137,7 @@ const WalletSidebar = (props: Props) => {
           <AlertBanner show={true} content={walletOptionsResult.error} error />
         );
       case 'result':
-        if (walletOptionsResult.options.length === 0) {
+        if (walletOptionsResult.options?.length === 0) {
           return <></>;
         }
         return (

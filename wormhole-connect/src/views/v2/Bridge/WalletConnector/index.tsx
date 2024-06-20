@@ -41,28 +41,6 @@ const useStyles = makeStyles<StyleProps>()((theme: any, { disabled }) => ({
     maxWidth: '420px',
     width: '100%',
   },
-  walletIcon: {
-    width: '24px',
-    height: '24px',
-  },
-  down: {
-    marginRight: '-8px',
-  },
-  dropdown: {
-    backgroundColor: theme.palette.popover.background,
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '8px',
-    padding: '8px',
-  },
-  dropdownItem: {
-    borderRadius: '8px',
-    padding: '16px',
-    cursor: 'pointer',
-    '&:hover': {
-      backgroundColor: theme.palette.popover.secondary,
-    },
-  },
 }));
 
 type Props = {
@@ -71,6 +49,8 @@ type Props = {
   disabled?: boolean;
 };
 
+// Parent component to display Connect Wallet CTA
+// and the sidebar for the lsit of available wallets.
 const WalletConnector = (props: Props) => {
   const { disabled = false, type } = props;
 
@@ -88,14 +68,25 @@ const WalletConnector = (props: Props) => {
         return;
       }
 
-      if (popupState) {
-        popupState.close();
-      }
-
+      popupState?.close();
       setIsOpen(true);
     },
     [disabled],
   );
+
+  const connected = useMemo(() => {
+    return (
+      <Tooltip
+        title={
+          'Please enter amount and select a route to initiate the transaction'
+        }
+      >
+        <div className={classes.connected}>
+          <div>Connected</div>
+        </div>
+      </Tooltip>
+    );
+  }, []);
 
   const disconnected = useMemo(() => {
     const button = (
@@ -129,17 +120,7 @@ const WalletConnector = (props: Props) => {
   }, [disabled, isOpen, mobile, props.side, props.type]);
 
   if (wallet && wallet.address) {
-    return (
-      <Tooltip
-        title={
-          'Please enter amount and select a route to initiate the transaction'
-        }
-      >
-        <div className={classes.connected}>
-          <div>Connected</div>
-        </div>
-      </Tooltip>
-    );
+    return connected;
   }
 
   return disconnected;
