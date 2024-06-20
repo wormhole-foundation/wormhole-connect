@@ -281,66 +281,6 @@ export class WormholeContext extends MultiProvider<Domain> {
     return await context.getTokenBalances(walletAddress, tokenIds, chain);
   }
 
-  async getTxGasFee(
-    chain: ChainName | ChainId,
-    txId: string,
-  ): Promise<BigNumber | undefined> {
-    const context: any = this.getContext(chain);
-    return await context.getTxGasFee(txId, chain);
-  }
-
-  async estimateSendGas(
-    token: TokenId | typeof NATIVE,
-    amount: string,
-    sendingChain: ChainName | ChainId,
-    senderAddress: string,
-    recipientChain: ChainName | ChainId,
-    recipientAddress: string,
-  ): Promise<BigNumber> {
-    const context = this.getContext(sendingChain);
-    const gas = await context.estimateSendGas(
-      token,
-      amount,
-      sendingChain,
-      senderAddress,
-      recipientChain,
-      recipientAddress,
-    );
-    return gas;
-  }
-
-  async estimateSendWithRelayGas(
-    token: TokenId | typeof NATIVE,
-    amount: string,
-    sendingChain: ChainName | ChainId,
-    senderAddress: string,
-    recipientChain: ChainName | ChainId,
-    recipientAddress: string,
-    relayerFee: any,
-    toNativeToken: string,
-  ): Promise<BigNumber> {
-    const context: any = this.getContext(sendingChain);
-    const gas = await context.estimateSendWithRelayGas(
-      token,
-      amount,
-      sendingChain,
-      senderAddress,
-      recipientChain,
-      recipientAddress,
-    );
-    return gas;
-  }
-
-  async estimateClaimGas(
-    destChain: ChainName | ChainId,
-    VAA?: Uint8Array,
-  ): Promise<BigNumber> {
-    if (!VAA) throw new Error('Cannot estimate claim without signed VAA');
-    const context = this.getContext(destChain);
-    const gas = await context.estimateClaimGas(destChain, VAA);
-    return gas;
-  }
-
   /**
    * Check whether a chain supports automatic relaying
    * @param chain the chain name or chain id
@@ -413,25 +353,6 @@ export class WormholeContext extends MultiProvider<Domain> {
       overrides,
       receivingAddr,
     );
-  }
-
-  /**
-   * Redeems funds for a token bridge transfer on the destination chain
-   *
-   * @param destChain The destination chain name or id
-   * @param signedVAA The Signed VAA bytes
-   * @param overrides Optional overrides, varies between chains
-   * @param payerAddr Optional. The address that pays for the redeem transaction, defaults to the sender address if not specified
-   * @returns The transaction receipt
-   */
-  async redeem(
-    destChain: ChainName | ChainId,
-    signedVAA: Uint8Array,
-    overrides: any,
-    receivingAddr?: string,
-  ): Promise<RedeemResult> {
-    const context = this.getContext(destChain);
-    return await context.redeem(destChain, signedVAA, overrides, receivingAddr);
   }
 
   /**

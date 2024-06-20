@@ -2,9 +2,7 @@ import { BigNumber } from 'ethers';
 import { arrayify } from 'ethers/lib/utils.js';
 import {
   ChainName,
-  EthContext,
   SuiContext,
-  SeiContext,
   SolanaContext,
   WormholeContext,
 } from '@wormhole-foundation/wormhole-connect-sdk';
@@ -34,124 +32,6 @@ export const fetchRedeemTx = async (
   if (transactionHash) {
     return { transactionHash };
   }
-  return null;
-};
-
-export const fetchRedeemedEvent = async (
-  txData: SignedMessage,
-): Promise<{ transactionHash: string } | null> => {
-  const messageId = getEmitterAndSequence(txData);
-  const { emitterChain, emitterAddress, sequence } = messageId;
-  const emitter = `0x${emitterAddress}`;
-
-  if (txData.toChain === 'solana') {
-    const context = config.wh.getContext(
-      txData.toChain,
-    ) as SolanaContext<WormholeContext>;
-    const signature = await context.fetchRedeemedSignature(
-      emitterChain,
-      emitterAddress,
-      sequence,
-    );
-    return signature ? { transactionHash: signature } : null;
-  } else if (txData.toChain === 'sui') {
-    const context = config.wh.getContext(
-      txData.toChain,
-    ) as SuiContext<WormholeContext>;
-    const { suiOriginalTokenBridgePackageId } =
-      context.context.mustGetContracts('sui');
-    if (!suiOriginalTokenBridgePackageId)
-      throw new Error('suiOriginalTokenBridgePackageId not set');
-    const provider = context.provider;
-    // full nodes don't let us filter by `MoveEventField`
-    const events = await provider.queryEvents({
-      query: {
-        MoveEventType: `${suiOriginalTokenBridgePackageId}::complete_transfer::TransferRedeemed`,
-      },
-      order: 'descending',
-    });
-    for (const event of events.data) {
-      if (
-        `0x${Buffer.from(event.parsedJson?.emitter_address.value.data).toString(
-          'hex',
-        )}` === emitter &&
-        Number(event.parsedJson?.emitter_chain) === emitterChain &&
-        event.parsedJson?.sequence === sequence
-      ) {
-        return { transactionHash: event.id.txDigest };
-      }
-    }
-    return null;
-  } else if (txData.toChain === 'sei') {
-    const context = config.wh.getContext(
-      txData.toChain,
-    ) as SeiContext<WormholeContext>;
-    const transactionHash = await context.fetchRedeemedEvent(
-      emitterChain,
-      emitter,
-      sequence,
-    );
-    return transactionHash ? { transactionHash } : null;
-  } else {
-    const provider = config.wh.mustGetProvider(txData.toChain);
-    const context: any = config.wh.getContext(
-      txData.toChain,
-    ) as EthContext<WormholeContext>;
-    const chainName = config.wh.toChainName(txData.toChain) as ChainName;
-    const chainConfig = config.chains[chainName]!;
-    const relayer = context.contracts.mustGetTokenBridgeRelayer(txData.toChain);
-    const eventFilter = relayer.filters.TransferRedeemed(
-      emitterChain,
-      emitter,
-      sequence,
-    );
-    const currentBlock = await provider.getBlockNumber();
-    const events = await relayer.queryFilter(
-      eventFilter,
-      currentBlock - chainConfig.maxBlockSearch,
-    );
-    return events ? events[0] : null;
-  }
-};
-
-export const fetchRedeemedEventSender = async (
-  txData: SignedMessage,
-): Promise<string | null> => {
-  const redeemedEvent = await fetchRedeemedEvent(txData);
-  if (!redeemedEvent) {
-    return null;
-  }
-  if (txData.toChain === 'solana') {
-    const context = config.wh.getContext(
-      txData.toChain,
-    ) as SolanaContext<WormholeContext>;
-    const tx = await context.connection?.getParsedTransaction(
-      redeemedEvent.transactionHash,
-      {
-        maxSupportedTransactionVersion: 0,
-      },
-    );
-    const accounts = tx?.transaction.message.accountKeys;
-    return accounts ? accounts[0].pubkey.toBase58() : null;
-  } else if (txData.toChain === 'sui') {
-    const context = config.wh.getContext(
-      txData.toChain,
-    ) as SuiContext<WormholeContext>;
-    const tx = await context.provider.getTransactionBlock({
-      digest: redeemedEvent.transactionHash,
-    });
-    return tx.transaction?.data.sender || null;
-  } else if (isEvmChain(config.wh.toChainId(txData.toChain))) {
-    const context = config.wh.getContext(
-      txData.toChain,
-    ) as EthContext<WormholeContext>;
-    const tx = await context.getReceipt(
-      redeemedEvent.transactionHash,
-      txData.toChain,
-    );
-    return tx.from;
-  }
-
   return null;
 };
 

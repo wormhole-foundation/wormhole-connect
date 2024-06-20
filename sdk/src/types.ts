@@ -136,5 +136,6 @@ export type TokenDetails = {
   decimals: number;
 };
 
-export type SendResult = Awaited<ReturnType<AnyContext['send']>>;
-export type RedeemResult = Awaited<ReturnType<AnyContext['redeem']>>;
+// TODO SDKV2
+export type SendResult = any;
+export type RedeemResult = any;

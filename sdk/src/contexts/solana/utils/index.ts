@@ -2,7 +2,7 @@ export * from './utils';
 /**
  * @category Solana
  */
-export { postVaaWithRetry as postVaaSolanaWithRetry } from './sendAndConfirmPostVaa';
+export { postVaaSolanaWithRetry } from './sendAndConfirmPostVaa';
 /**
  * @category Solana
  */

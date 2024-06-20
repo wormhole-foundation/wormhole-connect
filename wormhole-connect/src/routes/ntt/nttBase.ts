@@ -18,7 +18,7 @@ import {
 import { fetchVaa } from 'utils/vaa';
 import { hexlify, parseUnits } from 'ethers/lib/utils.js';
 import { BaseRoute } from '../bridge';
-import { isEvmChain, solanaContext, toChainId, toChainName } from 'utils/sdk';
+import { isEvmChain, toChainId, toChainName } from 'utils/sdk';
 import {
   MAX_DECIMALS,
   calculateUSDPrice,
@@ -36,7 +36,6 @@ import {
 } from './errors';
 import { WormholeTransceiver, getMessageEvm } from './chains/evm';
 import { NttManagerSolana, getMessageSolana } from './chains/solana';
-import { formatGasFee } from 'routes/utils';
 import { NO_INPUT } from 'utils/style';
 import { estimateAverageGasFee } from '../utils';
 import config from 'config';
@@ -429,6 +428,8 @@ export abstract class NttBase extends BaseRoute {
     if (this.TYPE === Route.NttManual) {
       const { gasToken } = config.chains[toChain]!;
       let gas = gasEstimate;
+      /*
+       TODO SDKV2
       if (receiveTx) {
         if (isEvmChain(toChain)) {
           const gasFee = await config.wh.getTxGasFee(toChain, receiveTx);
@@ -444,6 +445,7 @@ export abstract class NttBase extends BaseRoute {
           }
         }
       }
+      */
       result.displayData.push({
         title: receiveTx ? 'Gas fee' : 'Gas estimate',
         value: gas

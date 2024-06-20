@@ -23,7 +23,7 @@ import {
   isSignedWormholeMessage,
   TransferDestInfo,
 } from 'routes/types';
-import { formatGasFee, isIlliquidDestToken } from 'routes/utils';
+import { isIlliquidDestToken } from 'routes/utils';
 import { toDecimals } from 'utils/balance';
 import { NO_INPUT } from 'utils/style';
 import { hexlify } from 'ethers/lib/utils.js';
@@ -240,12 +240,15 @@ export abstract class BaseRoute extends RouteAbstract {
     const { gasToken } = config.chains[toChain]!;
 
     let gas = gasEstimate;
+    /*
+     TODO SDKV2
     if (receiveTx) {
       const gasFee = await config.wh.getTxGasFee(toChain, receiveTx);
       if (gasFee) {
         gas = formatGasFee(toChain, gasFee);
       }
     }
+    */
 
     const formattedAmt = toNormalizedDecimals(
       amount,

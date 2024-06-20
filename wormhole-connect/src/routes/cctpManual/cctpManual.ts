@@ -31,7 +31,6 @@ import {
   TransferInfoBaseParams,
   UnsignedCCTPMessage,
 } from '../types';
-import { formatGasFee } from '../utils';
 import ManualCCTP from './chains/abstract';
 import ManualCCTPEvmImpl from './chains/evm';
 import { ManualCCTPSolanaImpl } from './chains/solana';
@@ -469,12 +468,15 @@ export class CCTPManualRoute extends BaseRoute {
     const { gasToken } = config.chains[txData.toChain]!;
 
     let gas = gasEstimate;
+    /*
+     * TODO SDKV2
     if (receiveTx) {
       const gasFee = await config.wh.getTxGasFee(txData.toChain, receiveTx);
       if (gasFee) {
         gas = formatGasFee(txData.toChain, gasFee);
       }
     }
+    */
 
     const formattedAmt = toNormalizedDecimals(
       txData.amount,

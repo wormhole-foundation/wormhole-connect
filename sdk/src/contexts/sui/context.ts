@@ -16,8 +16,6 @@ import {
   getForeignAssetSui,
   getIsTransferCompletedSui,
   getOriginalAssetSui,
-  redeemOnSui,
-  transferFromSui,
 } from '@certusone/wormhole-sdk';
 import {
   getFieldsFromObjectResponse,
@@ -38,7 +36,7 @@ import {
   ParsedRelayerMessage,
   TokenId,
 } from '../../types';
-import { parseTokenTransferPayload, parseTokenTransferVaa } from '../../vaa';
+import { parseTokenTransferPayload } from '../../vaa';
 import { WormholeContext } from '../../wormhole';
 import { RelayerAbstract } from '../abstracts/relayer';
 import { SuiContracts } from './contracts';
@@ -90,162 +88,6 @@ export class SuiContext<
       cursor = result.hasNextPage ? result.nextCursor : null;
     } while (cursor);
     return coins;
-  }
-
-  async innerSend(
-    token: TokenId | typeof NATIVE,
-    amount: string,
-    sendingChain: ChainName | ChainId,
-    senderAddress: string,
-    recipientChain: ChainName | ChainId,
-    recipientAddress: string,
-    relayerFee: any,
-    payload?: Uint8Array | undefined,
-  ): Promise<TransactionBlock> {
-    const destContext = this.context.getContext(recipientChain);
-    const recipientChainId = this.context.toChainId(recipientChain);
-    const relayerFeeBigInt = relayerFee ? BigInt(relayerFee) : undefined;
-    const amountBigInt = BigNumber.from(amount).toBigInt();
-
-    const formattedRecipientAccount = arrayify(
-      destContext.formatAddress(recipientAddress),
-    );
-
-    let coinType;
-    if (token === NATIVE) {
-      coinType = SUI_TYPE_ARG;
-    } else {
-      coinType = await this.mustGetForeignAsset(token, sendingChain);
-    }
-    const coins = await this.getCoins(coinType, senderAddress);
-
-    const { core, token_bridge } = this.context.mustGetContracts('sui');
-    if (!core || !token_bridge) throw new Error('contracts not found');
-
-    const tx = await transferFromSui(
-      this.provider,
-      core,
-      token_bridge,
-      coins,
-      coinType,
-      amountBigInt,
-      recipientChainId,
-      formattedRecipientAccount,
-      BigInt(0), // TODO: wormhole fee
-      relayerFeeBigInt,
-      payload,
-      undefined,
-      undefined,
-      payload ? senderAddress : undefined,
-    );
-    return tx;
-  }
-
-  async send(
-    token: TokenId | typeof NATIVE,
-    amount: string,
-    sendingChain: ChainName | ChainId,
-    senderAddress: string,
-    recipientChain: ChainName | ChainId,
-    recipientAddress: string,
-    relayerFee: any,
-  ): Promise<TransactionBlock> {
-    return this.innerSend(
-      token,
-      amount,
-      sendingChain,
-      senderAddress,
-      recipientChain,
-      recipientAddress,
-      relayerFee,
-    );
-  }
-
-  async sendWithPayload(
-    token: TokenId | typeof NATIVE,
-    amount: string,
-    sendingChain: ChainName | ChainId,
-    senderAddress: string,
-    recipientChain: ChainName | ChainId,
-    recipientAddress: string,
-    payload: Uint8Array | undefined,
-  ): Promise<TransactionBlock> {
-    return this.innerSend(
-      token,
-      amount,
-      sendingChain,
-      senderAddress,
-      recipientChain,
-      recipientAddress,
-      undefined,
-      payload,
-    );
-  }
-
-  async estimateSendGas(
-    token: TokenId | typeof NATIVE,
-    amount: string,
-    sendingChain: ChainName | ChainId,
-    senderAddress: string,
-    recipientChain: ChainName | ChainId,
-    recipientAddress: string,
-  ): Promise<BigNumber> {
-    const provider = this.provider as JsonRpcProvider;
-    if (!provider) throw new Error('no provider');
-    const tx = await this.send(
-      token,
-      amount,
-      sendingChain,
-      senderAddress,
-      recipientChain,
-      recipientAddress,
-      undefined,
-    );
-    tx.setSenderIfNotSet(senderAddress);
-    const dryRunTxBytes = await tx.build({
-      provider,
-    });
-    const response = await provider.dryRunTransactionBlock({
-      transactionBlock: dryRunTxBytes,
-    });
-    const gasFee = getTotalGasUsed(response.effects);
-    if (!gasFee) throw new Error('cannot estimate gas fee');
-    return BigNumber.from(gasFee);
-  }
-  async estimateClaimGas(destChain: ChainName | ChainId): Promise<BigNumber> {
-    throw new Error('not implemented');
-  }
-  async estimateSendWithRelayGas(
-    token: TokenId | typeof NATIVE,
-    amount: string,
-    sendingChain: ChainName | ChainId,
-    senderAddress: string,
-    recipientChain: ChainName | ChainId,
-    recipientAddress: string,
-    relayerFee: any,
-    toNativeToken: string,
-  ): Promise<BigNumber> {
-    const provider = this.provider as JsonRpcProvider;
-    if (!provider) throw new Error('no provider');
-    const tx = await this.sendWithRelay(
-      token,
-      amount.toString(), // must be > min amount to succeed
-      toNativeToken,
-      sendingChain,
-      senderAddress,
-      recipientChain,
-      recipientAddress,
-    );
-    tx.setSenderIfNotSet(senderAddress);
-    const dryRunTxBytes = await tx.build({
-      provider,
-    });
-    const response = await provider.dryRunTransactionBlock({
-      transactionBlock: dryRunTxBytes,
-    });
-    const gasFee = getTotalGasUsed(response.effects);
-    if (!gasFee) throw new Error('cannot estimate gas fee');
-    return BigNumber.from(gasFee);
   }
 
   formatAddress(address: string): Uint8Array {
@@ -494,73 +336,6 @@ export class SuiContext<
     );
   }
 
-  async redeem(
-    destChain: ChainName | ChainId,
-    signedVAA: Uint8Array,
-    overrides: any,
-    payerAddr?: any,
-  ): Promise<TransactionBlock> {
-    const { core, token_bridge } = this.contracts.mustGetContracts('sui');
-    if (!core || !token_bridge) throw new Error('contracts not found');
-    const tx = await redeemOnSui(this.provider, core, token_bridge, signedVAA);
-    return tx;
-  }
-
-  async redeemRelay(
-    destChain: ChainName | ChainId,
-    signedVAA: Uint8Array,
-    overrides: any,
-    payerAddr?: string,
-  ) {
-    const { core, token_bridge, relayer, suiRelayerPackageId } =
-      this.context.mustGetContracts('sui');
-    if (!core || !token_bridge || !relayer || !suiRelayerPackageId)
-      throw new Error('contracts not found');
-    const coreBridgePackageId = await getPackageId(this.provider, core);
-    if (!coreBridgePackageId)
-      throw new Error('unable to get core bridge package id');
-    const tokenBridgePackageId = await getPackageId(
-      this.provider,
-      token_bridge,
-    );
-    if (!tokenBridgePackageId)
-      throw new Error('unable to get token bridge package id');
-    const { tokenAddress, tokenChain } = parseTokenTransferVaa(signedVAA);
-    const coinType = await getTokenCoinType(
-      this.provider,
-      token_bridge,
-      tokenAddress,
-      tokenChain,
-    );
-    if (!coinType) {
-      throw new Error('Unable to fetch token coinType');
-    }
-    const tx = new TransactionBlock();
-    const [verifiedVAA] = tx.moveCall({
-      target: `${coreBridgePackageId}::vaa::parse_and_verify`,
-      arguments: [
-        tx.object(core),
-        tx.pure(uint8ArrayToBCS(signedVAA)),
-        tx.object(SUI_CLOCK_OBJECT_ID),
-      ],
-    });
-    const [tokenBridgeMessage] = tx.moveCall({
-      target: `${tokenBridgePackageId}::vaa::verify_only_once`,
-      arguments: [tx.object(token_bridge), verifiedVAA],
-    });
-    const [redeemerReceipt] = tx.moveCall({
-      target: `${tokenBridgePackageId}::complete_transfer_with_payload::authorize_transfer`,
-      arguments: [tx.object(token_bridge), tokenBridgeMessage],
-      typeArguments: [coinType],
-    });
-    tx.moveCall({
-      target: `${suiRelayerPackageId}::redeem::complete_transfer`,
-      arguments: [tx.object(relayer), redeemerReceipt],
-      typeArguments: [coinType],
-    });
-    return tx;
-  }
-
   async isTransferCompleted(
     destChain: ChainName | ChainId,
     signedVaa: string,
@@ -672,24 +447,6 @@ export class SuiContext<
       ],
     });
     return tx;
-  }
-
-  async calculateNativeTokenAmt(
-    destChain: ChainName | ChainId,
-    tokenId: TokenId,
-    amount: BigNumberish,
-    walletAddress: string,
-  ): Promise<BigNumber> {
-    const relayer = this.contracts.mustGetTokenBridgeRelayer(
-      'sui',
-    ) as SuiRelayer;
-    const coinType = await this.mustGetForeignAsset(tokenId, destChain);
-    const nativeTokenAmount = await relayer.calculateNativeSwapAmountOut(
-      walletAddress,
-      coinType,
-      amount,
-    );
-    return nativeTokenAmount;
   }
 
   async calculateMaxSwapAmount(

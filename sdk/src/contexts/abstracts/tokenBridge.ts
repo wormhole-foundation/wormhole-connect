@@ -20,67 +20,6 @@ export abstract class TokenBridgeAbstract<TransactionResult> {
   protected abstract context: WormholeContext;
 
   /**
-   * Send a Token Bridge transfer
-   *
-   * @dev This _must_ be claimed on the destination chain, see {@link WormholeContext#redeem | redeem}
-   *
-   * @param token The Token Identifier (chain/address) or `'native'` if sending the native token
-   * @param amount The token amount to be sent, as a string
-   * @param sendingChain The source chain name or id
-   * @param senderAddress The address that is dispatching the transfer
-   * @param recipientChain The destination chain name or id
-   * @param recipientAddress The wallet address where funds will be sent (On solana, this is the associated token account)
-   * @param relayerFee A fee that would go to a relayer, if any
-   * @returns The transaction receipt
-   */
-  protected abstract send(
-    token: TokenId | 'native',
-    amount: string,
-    sendingChain: ChainName | ChainId,
-    senderAddress: string,
-    recipientChain: ChainName | ChainId,
-    recipientAddress: string,
-    relayerFee: any,
-  ): Promise<TransactionResult>;
-
-  /**
-   * Send a Token Bridge transfer with a payload.  The payload is used to convey extra information about a transfer to be utilized in an application
-   *
-   * @dev This _must_ be claimed on the destination chain, see {@link WormholeContext#redeem | redeem}
-   *
-   * @param token The Token Identifier (chain/address) or `'native'` if sending the native token
-   * @param amount The token amount to be sent, as a string
-   * @param sendingChain The source chain name or id
-   * @param senderAddress The address that is dispatching the transfer
-   * @param recipientChain The destination chain name or id
-   * @param recipientAddress The wallet address where funds will be sent (On solana, this is the associated token account)
-   * @param payload Arbitrary bytes that can contain any addition information about a given transfer
-   * @returns The transaction receipt
-   */
-  protected abstract sendWithPayload(
-    token: TokenId | 'native',
-    amount: string,
-    sendingChain: ChainName | ChainId,
-    senderAddress: string,
-    recipientChain: ChainName | ChainId,
-    recipientAddress: string,
-    payload: any,
-  ): Promise<TransactionResult>;
-
-  protected abstract estimateSendGas(
-    token: TokenId | typeof NATIVE,
-    amount: string,
-    sendingChain: ChainName | ChainId,
-    senderAddress: string,
-    recipientChain: ChainName | ChainId,
-    recipientAddress: string,
-  ): Promise<BigNumber>;
-  protected abstract estimateClaimGas(
-    destChain: ChainName | ChainId,
-    VAA: Uint8Array,
-  ): Promise<BigNumber>;
-
-  /**
    * Format an address to a 32-byte universal address, which can be utilized by the Wormhole contracts
    *
    * @param address The address as a string
@@ -181,27 +120,6 @@ export abstract class TokenBridgeAbstract<TransactionResult> {
     tokenIds: TokenId[],
     chain: ChainName | ChainId,
   ): Promise<(BigNumber | null)[]>;
-
-  protected abstract getTxGasFee(
-    txId: string,
-    chain: ChainName | ChainId,
-  ): Promise<BigNumber | undefined>;
-
-  /**
-   * Redeems funds for a token bridge transfer on the destination chain
-   *
-   * @param destChain The destination chain name or id
-   * @param signedVAA The Signed VAA bytes
-   * @param overrides Optional overrides, varies between chains
-   * @param payerAddr Optional. The address that pays for the redeem transaction, defaults to the sender address if not specified
-   * @returns The transaction receipt
-   */
-  protected abstract redeem(
-    destChain: ChainName | ChainId,
-    signedVAA: Uint8Array,
-    overrides: any,
-    payerAddr?: any,
-  ): Promise<TransactionResult>;
 
   /**
    * Checks if a transfer has been completed or not
