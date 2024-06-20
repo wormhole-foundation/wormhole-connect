@@ -25,6 +25,8 @@ function walkDirectory(dir, fileList = []) {
 }
 
 function collectImports(filePath) {
+  if (filePath.includes("node_modules")) return [];
+
   const fileContent = fs.readFileSync(filePath, "utf8");
 
   // Create a SourceFile object representing the file
