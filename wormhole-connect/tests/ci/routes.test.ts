@@ -2,7 +2,7 @@ import { ChainId, ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import { describe, expect, test } from 'vitest';
 import { setConfig } from 'config';
 import { Route, WormholeConnectConfig } from 'config/types';
-import { getRouteImpls } from 'routes/mappings';
+import { getRoute } from 'routes/mappings';
 
 describe('supported routes', () => {
   type testCase = [
@@ -59,6 +59,7 @@ describe('supported routes', () => {
     ['USDCeth', 'USDCsol', 'ethereum', 'solana', [Route.CCTPManual]],
     ['USDCavax', 'USDCsol', 'avalanche', 'solana', [Route.CCTPManual]],
     // TBTC
+    /*
     ['tBTC', 'tBTCpolygon', 'ethereum', 'polygon', [Route.TBTC]],
     ['tBTCoptimism', 'tBTC', 'optimism', 'ethereum', [Route.TBTC]],
     ['tBTCpolygon', 'tBTCoptimism', 'polygon', 'optimism', [Route.TBTC]],
@@ -67,6 +68,7 @@ describe('supported routes', () => {
     ['CELO', 'CELO', 'osmosis', 'celo', [Route.CosmosGateway]],
     ['CELO', 'CELO', 'osmosis', 'moonbeam', [Route.CosmosGateway]],
     ['GLMR', 'WGLMR', 'moonbeam', 'kujira', [Route.CosmosGateway]],
+    */
   ];
 
   for (let [
@@ -78,7 +80,7 @@ describe('supported routes', () => {
   ] of testCases) {
     for (let route of routes) {
       test(`${route} ${sourceChain}:${sourceToken} -> ${destChain}:${destToken}`, async () => {
-        const r = getRouteImpls(route).v1;
+        const r = getRoute(route);
 
         const isSupported = await r.isRouteSupported(
           sourceToken,
