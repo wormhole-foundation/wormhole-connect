@@ -17,6 +17,7 @@ import {
 } from 'utils';
 import config from 'config';
 import { TransferDestInfo } from 'routes/types';
+import { getForeignTokenAddress } from 'utils/sdkv2';
 
 export const parseAddress = (buffer: Buffer): string => {
   return hexZeroPad(hexStripZeros(buffer), 20);
@@ -191,7 +192,12 @@ export const getCanonicalTokenAddress = async (
   if (!tokenId) {
     throw new Error('Canonical token not found');
   }
-  return await config.wh.mustGetForeignAsset(tokenId, token.nativeChain);
+  const tokenAddr = await getForeignTokenAddress(
+    config.sdkConverter.toTokenIdV2(tokenId),
+    config.sdkConverter.toChainV2(token.nativeChain),
+  );
+
+  return tokenAddr.toString();
 };
 
 export const isPorticoRoute = (route: Route): boolean => {

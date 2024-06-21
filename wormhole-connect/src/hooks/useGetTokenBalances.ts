@@ -2,14 +2,17 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from 'store';
 import { ChainName, TokenId } from '@wormhole-foundation/wormhole-connect-sdk';
 import { useEffect, useState } from 'react';
+import { BigNumber } from 'ethers';
 import {
   accessBalance,
   Balances,
   formatBalance,
   updateBalances,
 } from 'store/transferInput';
-import config from 'config';
+import config, { getWormholeContextV2 } from 'config';
 import { TokenConfig } from 'config/types';
+import { chainToPlatform } from '@wormhole-foundation/sdk-base';
+import { getForeignTokenAddress } from 'utils/sdkv2';
 
 const useGetTokenBalances = (
   walletAddress: string,
@@ -25,6 +28,7 @@ const useGetTokenBalances = (
 
   useEffect(() => {
     setIsFetching(true);
+    console.log('setting to empty again');
     setBalances({});
     if (
       !walletAddress ||
@@ -44,13 +48,18 @@ const useGetTokenBalances = (
     let isActive = true;
 
     const getBalances = async () => {
-      const balances: Balances = {};
+      const updatedBalances: Balances = {};
       type TokenConfigWithId = TokenConfig & { tokenId: TokenId };
       const needsUpdate: TokenConfigWithId[] = [];
       const now = Date.now();
       const fiveMinutesAgo = now - 5 * 60 * 1000;
       let updateCache = false;
       for (const token of tokens) {
+        updatedBalances[token.key] = {
+          balance: '0',
+          lastUpdated: now,
+        };
+
         const cachedBalance = accessBalance(
           cachedBalances,
           walletAddress,
@@ -58,7 +67,7 @@ const useGetTokenBalances = (
           token.key,
         );
         if (cachedBalance && cachedBalance.lastUpdated > fiveMinutesAgo) {
-          balances[token.key] = cachedBalance;
+          updatedBalances[token.key] = cachedBalance;
         } else {
           if (token.key === chainConfig.gasToken) {
             try {
@@ -67,7 +76,7 @@ const useGetTokenBalances = (
                 chain,
                 token.key,
               );
-              balances[token.key] = {
+              updatedBalances[token.key] = {
                 balance: formatBalance(chain, token, balance),
                 lastUpdated: now,
               };
@@ -82,18 +91,52 @@ const useGetTokenBalances = (
       }
       if (needsUpdate.length > 0) {
         try {
-          const result = await config.wh.getTokenBalances(
-            walletAddress,
-            needsUpdate.map((t) => t.tokenId),
-            chain,
-          );
-          result.forEach((balance, i) => {
-            const token = needsUpdate[i];
-            balances[token.key] = {
-              balance: formatBalance(chain, token, balance),
+          const wh = await getWormholeContextV2();
+          const chainV2 = config.sdkConverter.toChainV2(chain);
+          const platform = wh.getPlatform(chainToPlatform(chainV2));
+          const rpc = platform.getRpc(chainV2);
+          const tokenIdMapping: Record<string, TokenConfig> = {};
+          const tokenAddresses = [];
+          for (let tokenConfig of needsUpdate) {
+            try {
+              let address: string | null = tokenConfig.tokenId.address;
+              if (tokenConfig.tokenId.chain !== chain) {
+                address = await getForeignTokenAddress(tokenConfig, chainV2);
+              }
+              if (!address) continue;
+              tokenIdMapping[address] = tokenConfig;
+              tokenAddresses.push(address);
+            } catch (e) {
+              // TODO SDKV2 SUI ISNT WORKING
+              console.error(e);
+            }
+          }
+
+          if (tokenAddresses.length === 0) {
+            return;
+          }
+
+          const result = await platform
+            .utils()
+            .getBalances(chainV2, rpc, walletAddress, tokenAddresses);
+
+          for (let tokenAddress in result) {
+            let tokenConfig = tokenIdMapping[tokenAddress];
+            const balance = result[tokenAddress];
+            let formatted: string | null = null;
+            if (balance !== null) {
+              formatted = formatBalance(
+                chain,
+                tokenConfig,
+                BigNumber.from(balance),
+              );
+            }
+            updatedBalances[tokenConfig.key] = {
+              balance: formatted,
               lastUpdated: now,
             };
-          });
+          }
+
           updateCache = true;
         } catch (e) {
           console.error('Failed to get token balances', e);
@@ -101,13 +144,14 @@ const useGetTokenBalances = (
       }
       if (isActive) {
         setIsFetching(false);
-        setBalances(balances);
+
+        setBalances(updatedBalances);
         if (updateCache) {
           dispatch(
             updateBalances({
               address: walletAddress,
               chain,
-              balances,
+              balances: updatedBalances,
             }),
           );
         }

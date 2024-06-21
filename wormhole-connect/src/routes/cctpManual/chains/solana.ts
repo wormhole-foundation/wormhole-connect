@@ -35,6 +35,7 @@ import { getChainNameCCTP, getDomainCCTP } from '../utils/chains';
 import { CircleBridge } from '@wormhole-foundation/sdk-definitions';
 import { hexlify } from 'ethers/lib/utils';
 import config from 'config';
+import { getDecimals } from 'utils/sdkv2';
 
 const CCTP_NONCE_OFFSET = 12;
 const MAX_NONCES_PER_ACCOUNT = 6400n;
@@ -390,7 +391,10 @@ export class ManualCCTPSolanaImpl implements ManualCCTP<Transaction> {
     );
     const tokenId: TokenId = { address: tokenAddress, chain: 'solana' };
     const token = getTokenById(tokenId);
-    const decimals = await config.wh.fetchTokenDecimals(tokenId, 'solana');
+    const decimals = await getDecimals(
+      config.sdkConverter.toTokenIdV2(tokenId),
+      config.sdkConverter.toChainV2('solana'),
+    );
     const toChain = getChainNameCCTP(circleMsg.destinationDomain);
     const destContext = config.wh.getContext(toChain);
     const recipient = destContext.parseAddress(

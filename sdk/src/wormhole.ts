@@ -185,53 +185,6 @@ export class WormholeContext extends MultiProvider<Domain> {
   }
 
   /**
-   * Fetches the address for a token representation on any chain (These are the Wormhole token addresses, not necessarily the canonical version of that token)
-   *
-   * @param tokenId The Token ID (chain/address)
-   * @param chain The chain name or id
-   * @returns The Wormhole address on the given chain, null if it does not exist
-   */
-  async getForeignAsset(
-    tokenId: TokenId,
-    chain: ChainName | ChainId,
-  ): Promise<string | null> {
-    const context = this.getContext(chain);
-    return await context.getForeignAsset(tokenId, chain);
-  }
-
-  /**
-   * Fetches the address for a token representation on any chain (These are the Wormhole token addresses, not necessarily the canonical version of that token)
-   *
-   * @param tokenId The Token ID (chain/address)
-   * @param chain The chain name or id
-   * @returns The Wormhole address on the given chain
-   * @throws Throws if the token does not exist
-   */
-  async mustGetForeignAsset(
-    tokenId: TokenId,
-    chain: ChainName | ChainId,
-  ): Promise<string> {
-    const context = this.getContext(chain);
-    return await context.mustGetForeignAsset(tokenId, chain);
-  }
-
-  /**
-   * Fetches the number of decimals for a token on a given chain
-   *
-   * @param tokenId The Token ID (home chain/address)
-   * @param chain The chain name or id of the token/representation
-   * @returns The number of decimals
-   */
-  async fetchTokenDecimals(
-    tokenId: TokenId,
-    chain: ChainName | ChainId,
-  ): Promise<number> {
-    const context = this.getContext(chain);
-    const repr = await context.mustGetForeignAsset(tokenId, chain);
-    return await context.fetchTokenDecimals(repr, chain);
-  }
-
-  /**
    * Fetches the native token balance for a wallet
    *
    * @param walletAddress The wallet address

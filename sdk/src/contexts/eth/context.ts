@@ -114,19 +114,6 @@ export class EthContext<
     return typeof result === 'function' ? await result() : result;
   }
 
-  async fetchTokenDecimals(
-    tokenAddr: string,
-    chain: ChainName | ChainId,
-  ): Promise<number> {
-    const provider = this.context.mustGetProvider(chain);
-    const tokenContract = TokenImplementation__factory.connect(
-      tokenAddr,
-      provider,
-    );
-    const decimals = await tokenContract.decimals();
-    return decimals;
-  }
-
   async getNativeBalance(
     walletAddr: string,
     chain: ChainName | ChainId,

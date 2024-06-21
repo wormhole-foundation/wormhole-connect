@@ -16,6 +16,7 @@ import {
 } from 'utils/sdk';
 import { getTokenById } from 'utils';
 import { Route, TokenConfig } from 'config/types';
+import { getDecimals } from 'utils/sdkv2';
 
 // adapts the sdk returned parsed message to the type that
 // wh connect uses
@@ -26,9 +27,9 @@ export const adaptParsedMessage = async (
     address: parsed.tokenAddress,
     chain: parsed.tokenChain,
   };
-  const decimals = await config.wh.fetchTokenDecimals(
-    tokenId,
-    parsed.fromChain,
+  const decimals = await getDecimals(
+    config.sdkConverter.toTokenIdV2(tokenId),
+    config.sdkConverter.toChainV2(parsed.fromChain),
   );
   const token = getTokenById(tokenId);
 

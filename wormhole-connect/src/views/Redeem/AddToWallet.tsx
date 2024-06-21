@@ -29,6 +29,7 @@ import {
   isPorticoRoute,
   isPorticoTransferDestInfo,
 } from 'routes/porticoBridge/utils';
+import { getForeignTokenAddress } from 'utils/sdkv2';
 
 const useStyles = makeStyles()((theme) => ({
   addToken: {
@@ -189,10 +190,13 @@ function AddToWallet() {
       }
       const wrapped = getWrappedToken(tokenInfo);
       if (!wrapped.tokenId) return;
-      const address = await config.wh.getForeignAsset(
-        wrapped.tokenId,
-        txData.toChain,
-      );
+
+      const address = (
+        await getForeignTokenAddress(
+          config.sdkConverter.toTokenIdV2(wrapped.tokenId),
+          config.sdkConverter.toChainV2(txData.toChain),
+        )
+      ).toString();
 
       if (txData.toChain === 'sui' && address) {
         const context = config.wh.getContext(

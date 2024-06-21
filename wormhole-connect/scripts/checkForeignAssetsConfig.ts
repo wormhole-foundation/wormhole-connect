@@ -20,7 +20,10 @@ console.warn = function (x: any, ...rest: any) {
 
 import {
   ChainName,
+  /*
+   * TODO SDKV2
   WormholeContext,
+  */
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { MAINNET_CHAINS } from '../src/config/mainnet/chains';
 import { MAINNET_TOKENS } from '../src/config/mainnet/tokens';
@@ -42,7 +45,8 @@ const checkEnvConfig = async (
   chainsConfig: ChainsConfig,
 ) => {
   let recommendedUpdates: TokensConfig = {};
-  const wh = new WormholeContext(env);
+  // TODO SDKV2
+  //const wh = new WormholeContext(env);
   for (const [tokenKey, tokenConfig] of Object.entries(tokensConfig)) {
     await Promise.all(
       Object.keys(chainsConfig).map((unTypedChain) => {
@@ -59,10 +63,13 @@ const checkEnvConfig = async (
           } else if (tokenConfig.tokenId) {
             let foreignAddress: string | null = null;
             try {
+              /*
+               * TODO SDKV2
               foreignAddress = await wh.getForeignAsset(
                 tokenConfig.tokenId,
                 chain,
               );
+              */
             } catch (e: any) {
               if (
                 WORMCHAIN_ERROR_MESSAGES.includes(e?.message) ||
@@ -78,10 +85,13 @@ const checkEnvConfig = async (
             if (foreignAddress) {
               let foreignDecimals: number | undefined;
               try {
+                /*
+                 * TODO SDKV2
                 foreignDecimals = await wh.fetchTokenDecimals(
                   tokenConfig.tokenId,
                   chain,
                 );
+                */
               } catch (e: any) {
                 if (
                   /denom trace for ibc\/\w+ not found/gi.test(e?.message) ||

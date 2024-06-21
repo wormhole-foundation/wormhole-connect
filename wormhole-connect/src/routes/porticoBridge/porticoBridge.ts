@@ -46,6 +46,7 @@ import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
 import { porticoSwapFinishedEvent } from './abis';
 import { getQuote } from './uniswapQuoter';
 import { toDecimals } from 'utils/balance';
+import { getForeignTokenAddress } from 'utils/sdkv2';
 import {
   BPS_PER_HUNDRED_PERCENT,
   CREATE_ORDER_API_URL,
@@ -607,9 +608,13 @@ export abstract class PorticoBridge extends BaseRoute {
   async getForeignAsset(
     token: TokenId,
     chain: ChainName | ChainId,
-    destToken?: TokenConfig,
   ): Promise<string | null> {
-    return await config.wh.getForeignAsset(token, chain);
+    return (
+      await getForeignTokenAddress(
+        config.sdkConverter.toTokenIdV2(token),
+        config.sdkConverter.toChainV2(chain),
+      )
+    ).toString();
   }
 
   async getMessage(
@@ -821,17 +826,19 @@ export abstract class PorticoBridge extends BaseRoute {
       const receivedTokenDisplayName = getDisplayName(
         config.tokens[txData.receivedTokenKey],
       );
-      const canonicalTokenAddress = await config.wh.getForeignAsset(
-        txData.tokenId,
-        txData.toChain,
+
+      const canonicalTokenAddress = await getForeignTokenAddress(
+        config.sdkConverter.toTokenIdV2(txData.tokenId),
+        config.sdkConverter.toChainV2(txData.toChain),
       );
+
       if (!canonicalTokenAddress) {
         throw new Error('Canonical token address not found');
       }
       const destTxInfo: PorticoDestTxInfo = {
         receivedTokenKey: txData.receivedTokenKey,
         swapFailed: {
-          canonicalTokenAddress,
+          canonicalTokenAddress: canonicalTokenAddress.toString(),
           finalTokenAddress,
         },
       };

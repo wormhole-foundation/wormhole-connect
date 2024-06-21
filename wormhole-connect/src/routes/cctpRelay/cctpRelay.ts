@@ -26,6 +26,7 @@ import {
   PayloadType,
   toChainId,
 } from 'utils/sdk';
+import { getDecimals } from 'utils/sdkv2';
 import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
 import { NO_INPUT } from 'utils/style';
 import {
@@ -38,6 +39,7 @@ import {
   RelayerFee,
 } from '../types';
 import { toDecimals, toFixedDecimals } from '../../utils/balance';
+import { getForeignTokenAddress } from 'utils/sdkv2';
 import { RelayOptions } from '../relay';
 import {
   CCTPTokenSymbol,
@@ -278,9 +280,9 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
     ) as EthContext<WormholeContext>;
     const circleRelayer =
       chainContext.contracts.mustGetWormholeCircleRelayer(sendingChain);
-    const tokenAddr = await config.wh.mustGetForeignAsset(
-      token as TokenId,
-      sendingChain,
+    const tokenAddr = await getForeignTokenAddress(
+      config.sdkConverter.toTokenIdV2(token as TokenId),
+      config.sdkConverter.toChainV2(sendingChain),
     );
     const fromChainId = config.wh.toChainId(sendingChain);
     const decimals = getTokenDecimals(fromChainId, token);
@@ -541,7 +543,10 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
       address: parsedCCTPLog.args.burnToken,
     };
     const token = getTokenById(tokenId);
-    const decimals = await config.wh.fetchTokenDecimals(tokenId, fromChain);
+    const decimals = await getDecimals(
+      config.sdkConverter.toTokenIdV2(tokenId),
+      config.sdkConverter.toChainV2(fromChain),
+    );
     const toChain = getChainNameCCTP(parsedCCTPLog.args.destinationDomain);
     return {
       sendTx: receipt.transactionHash,

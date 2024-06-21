@@ -23,7 +23,9 @@ import {
   wormhole as getWormholeV2,
   Wormhole as WormholeV2,
   Network as NetworkV2,
+  Token as TokenV2,
   Chain as ChainV2,
+  ChainTokens as ChainTokensV2,
   WormholeConfigOverrides as WormholeConfigOverridesV2,
 } from '@wormhole-foundation/sdk';
 import evm from '@wormhole-foundation/sdk/evm';
@@ -230,15 +232,59 @@ export async function getWormholeContextV2(): Promise<WormholeV2<NetworkV2>> {
 export async function newWormholeContextV2(): Promise<WormholeV2<NetworkV2>> {
   let v2Config: WormholeConfigOverridesV2<NetworkV2> = { chains: {} };
 
-  for (let key in config.rpcs) {
+  for (let key in config.chains) {
     let chainV1 = key as ChainName;
+    let chainConfigV1 = config.chains[chainV1]!;
+
+    let chainContextV1 = chainConfigV1.context;
+
     let chainV2 = config.sdkConverter.toChainV2(
       chainV1 as ChainName,
     ) as ChainV2;
+
     let rpc = config.rpcs[chainV1];
-    if (typeof rpc === 'string') {
-      v2Config.chains![chainV2] = { rpc };
+    let tokenMap: ChainTokensV2 = {};
+
+    for (let token of config.tokensArr) {
+      const nativeChainV2 = config.sdkConverter.toChainV2(token.nativeChain);
+
+      let tokenV2: Partial<TokenV2> = {
+        key: token.key,
+        chain: chainV2,
+        symbol: token.symbol,
+      };
+
+      if (nativeChainV2 == chainV2) {
+        const decimals =
+          token.decimals[chainContextV1] ?? token.decimals.default;
+        if (!decimals) {
+          debugger;
+          continue;
+        } else {
+          tokenV2.decimals = decimals;
+        }
+
+        tokenV2.address = token.tokenId?.address ?? 'native';
+      } else {
+        tokenV2.original = nativeChainV2;
+        if (token.foreignAssets) {
+          const fa = token.foreignAssets[chainV1]!;
+
+          if (!fa) {
+            continue;
+          } else {
+            tokenV2.address = fa.address;
+            tokenV2.decimals = fa.decimals;
+          }
+        } else {
+          continue;
+        }
+      }
+
+      tokenMap[token.key] = tokenV2 as TokenV2;
     }
+
+    v2Config.chains![chainV2] = { rpc, tokenMap };
   }
 
   return await getWormholeV2(

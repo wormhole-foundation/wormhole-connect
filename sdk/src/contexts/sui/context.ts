@@ -150,67 +150,6 @@ export class SuiContext<
     }
   }
 
-  async getForeignAsset(
-    tokenId: TokenId,
-    chain: ChainName | ChainId,
-    tokenBridgeStateFields?: Record<string, any> | null,
-  ): Promise<string | null> {
-    const chainName = this.context.toChainName(chain);
-    if (this.foreignAssetCache.get(tokenId.chain, tokenId.address, chainName)) {
-      return this.foreignAssetCache.get(
-        tokenId.chain,
-        tokenId.address,
-        chainName,
-      )!;
-    }
-
-    try {
-      const chainId = this.context.toChainId(tokenId.chain);
-      const toChainId = this.context.toChainId(chain);
-      if (toChainId === chainId) return tokenId.address;
-      const { token_bridge } = this.contracts.mustGetContracts('sui');
-      if (!token_bridge) throw new Error('token bridge contract not found');
-
-      const tokenContext = this.context.getContext(tokenId.chain);
-      const formattedAddr = await tokenContext.formatAssetAddress(
-        tokenId.address,
-      );
-      const coinType = await this.getForeignAssetSui(
-        this.provider,
-        token_bridge,
-        chainId,
-        arrayify(formattedAddr),
-        tokenBridgeStateFields,
-      );
-
-      if (!coinType) return null;
-
-      this.foreignAssetCache.set(
-        tokenId.chain,
-        tokenId.address,
-        chainName,
-        coinType,
-      );
-      return coinType;
-    } catch (e) {
-      console.log(`getForeignAsset - error: ${e}`);
-      throw e;
-    }
-  }
-
-  async fetchTokenDecimals(
-    tokenAddr: string,
-    chain: ChainName | ChainId,
-  ): Promise<number> {
-    const metadata = await this.provider.getCoinMetadata({
-      coinType: tokenAddr,
-    });
-    if (metadata === null) {
-      throw new Error(`Can't fetch decimals for token ${tokenAddr}`);
-    }
-    return metadata.decimals;
-  }
-
   async getMessage(
     tx: string,
     chain: ChainName | ChainId,

@@ -30,6 +30,7 @@ import {
 } from '../utils';
 import ManualCCTP from './abstract';
 import config from 'config';
+import { getDecimals } from 'utils/sdkv2';
 
 export default class ManualCCTPEvmImpl
   implements ManualCCTP<providers.TransactionReceipt>
@@ -162,7 +163,10 @@ export default class ManualCCTPEvmImpl
       address: parsedCCTPLog.args.burnToken,
     };
     const token = getTokenById(tokenId);
-    const decimals = await config.wh.fetchTokenDecimals(tokenId, fromChain);
+    const decimals = await getDecimals(
+      config.sdkConverter.toTokenIdV2(tokenId),
+      config.sdkConverter.toChainV2(fromChain),
+    );
     return {
       sendTx: receipt.transactionHash,
       sender: receipt.from,
