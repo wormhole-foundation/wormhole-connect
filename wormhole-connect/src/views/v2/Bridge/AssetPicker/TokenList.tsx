@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { useTheme } from '@mui/material';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
+import CircularProgress from '@mui/material/CircularProgress';
 import InputAdornment from '@mui/material/InputAdornment';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
@@ -9,13 +10,12 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
-
 import SearchIcon from '@mui/icons-material/Search';
-import TokenIcon from 'icons/TokenIcons';
+import { makeStyles } from 'tss-react/mui';
 
 import config from 'config';
-
-import { makeStyles } from 'tss-react/mui';
+import useGetTokenBalances from 'hooks/useGetTokenBalances';
+import TokenIcon from 'icons/TokenIcons';
 
 import type { ChainConfig, TokenConfig } from 'config/types';
 import type { WalletData } from 'store/wallet';
@@ -30,6 +30,15 @@ const useStyles = makeStyles()((theme) => ({
   title: {
     fontSize: 14,
     marginBottom: '8px',
+  },
+  tokenListItem: {
+    display: 'flex',
+    justifyContent: 'space-between',
+  },
+  tokenDetails: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 }));
 
@@ -49,6 +58,12 @@ const TokenList = (props: Props) => {
   const { classes } = useStyles();
 
   const theme = useTheme();
+
+  const { isFetching, balances } = useGetTokenBalances(
+    props.wallet?.address || '',
+    props.selectedChainConfig?.key,
+    props.tokenList || [],
+  );
 
   const topTokens = useMemo(() => {
     const { selectedToken } = props;
@@ -118,28 +133,39 @@ const TokenList = (props: Props) => {
           return (
             <ListItemButton
               key={token.key}
+              className={classes.tokenListItem}
               dense
-              sx={{
-                display: 'flex',
-                flexDirection: 'row',
-              }}
               onClick={() => {
                 props.onClick?.(token.key);
               }}
             >
-              <ListItemIcon>
-                <TokenIcon icon={token.icon} height={32} />
-              </ListItemIcon>
-              <div>
-                <Typography fontSize={16}>{token.symbol}</Typography>
-                <Typography fontSize={10}>{nativeChain}</Typography>
+              <div className={classes.tokenDetails}>
+                <ListItemIcon>
+                  <TokenIcon icon={token.icon} height={32} />
+                </ListItemIcon>
+                <div>
+                  <Typography fontSize={16}>{token.symbol}</Typography>
+                  <Typography
+                    fontSize={10}
+                    color={theme.palette.text.secondary}
+                  >
+                    {nativeChain}
+                  </Typography>
+                </div>
               </div>
+              <Typography fontSize={14}>
+                {isFetching ? (
+                  <CircularProgress size={24} />
+                ) : (
+                  balances?.[token.key]?.balance
+                )}
+              </Typography>
             </ListItemButton>
           );
         })}
       </List>
     );
-  }, [tokenSearchQuery, topTokens]);
+  }, [isFetching, tokenSearchQuery, topTokens]);
 
   return (
     <Card className={classes.card} variant="elevation">
