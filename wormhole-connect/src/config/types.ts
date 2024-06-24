@@ -93,6 +93,10 @@ export type ValidateTransferHandler = (
   transferDetails: ExtendedTransferDetails,
 ) => Promise<ValidateTransferResult>;
 
+export type IsRouteSupportedHandler = (
+  transferDetails: TransferDetails,
+) => Promise<boolean>;
+
 // This is the integrator-provided JSON config
 export interface WormholeConnectConfig {
   env?: Network; // TODO REMOVE; DEPRECATED
@@ -121,6 +125,7 @@ export interface WormholeConnectConfig {
   // Callbacks
   eventHandler?: WormholeConnectEventHandler;
   validateTransferHandler?: ValidateTransferHandler;
+  isRouteSupportedHandler?: IsRouteSupportedHandler;
 
   // UI details
   cta?: {
@@ -182,6 +187,7 @@ export interface InternalConfig {
   // Callbacks
   triggerEvent: WormholeConnectEventHandler;
   validateTransfer?: ValidateTransferHandler;
+  isRouteSupportedHandler?: IsRouteSupportedHandler;
 
   // UI details
   cta?: {

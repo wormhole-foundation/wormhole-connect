@@ -24,7 +24,7 @@ import { isPorticoRoute } from 'routes/porticoBridge/utils';
 import Price from 'components/Price';
 import { finality, chainIdToChain } from '@wormhole-foundation/sdk-base';
 import { isNttRoute } from 'routes';
-import { getNttDisplayName, getNttGroupKey } from 'utils/ntt';
+import { getNttDisplayName } from 'utils/ntt';
 
 const useStyles = makeStyles()((theme: any) => ({
   link: {
@@ -286,7 +286,6 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
   const displayName = isNttRoute(routeName)
     ? getNttDisplayName(fromTokenConfig, toTokenConfig) || props.route.name
     : props.route.name;
-  console.log(getNttGroupKey(fromTokenConfig, toTokenConfig));
 
   return (
     fromTokenConfig &&
