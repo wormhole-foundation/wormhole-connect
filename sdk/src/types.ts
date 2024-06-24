@@ -1,15 +1,8 @@
 import { BigNumber } from 'ethers';
 import { MainnetChainId, MainnetChainName } from './config/MAINNET';
 import { TestnetChainId, TestnetChainName } from './config/TESTNET';
-import { AptosContext, AptosContracts } from './contexts/aptos';
-import { EthContext, EthContracts } from './contexts/eth';
-import { SolanaContext, SolContracts } from './contexts/solana';
-import { SuiContext, SuiContracts } from './contexts/sui';
-import { SeiContext, SeiContracts } from './contexts/sei';
 import { WormholeContext } from './wormhole';
 import { DevnetChainId, DevnetChainName } from './config/DEVNET';
-import { CosmosContext } from './contexts/cosmos';
-import { CosmosContracts } from './contexts/cosmos/contracts';
 
 export type Network = 'mainnet' | 'testnet' | 'devnet';
 
@@ -85,21 +78,9 @@ export type TokenId = {
   address: string;
 };
 
-export type AnyContext =
-  | EthContext<WormholeContext>
-  | SolanaContext<WormholeContext>
-  | SuiContext<WormholeContext>
-  | AptosContext<WormholeContext>
-  | SeiContext<WormholeContext>
-  | CosmosContext<WormholeContext>;
+export type AnyContext = any;
 
-export type AnyContracts =
-  | EthContracts<WormholeContext>
-  | SolContracts<WormholeContext>
-  | SuiContracts<WormholeContext>
-  | AptosContracts<WormholeContext>
-  | SeiContracts<WormholeContext>
-  | CosmosContracts<WormholeContext>;
+export type AnyContracts = any;
 
 export interface ParsedMessage {
   sendTx: string;
