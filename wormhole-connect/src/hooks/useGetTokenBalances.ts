@@ -13,6 +13,7 @@ import config, { getWormholeContextV2 } from 'config';
 import { TokenConfig } from 'config/types';
 import { chainToPlatform } from '@wormhole-foundation/sdk-base';
 import { getForeignTokenAddress } from 'utils/sdkv2';
+import { TokenAddress } from '@wormhole-foundation/sdk';
 
 const useGetTokenBalances = (
   walletAddress: string,
@@ -28,7 +29,6 @@ const useGetTokenBalances = (
 
   useEffect(() => {
     setIsFetching(true);
-    console.log('setting to empty again');
     setBalances({});
     if (
       !walletAddress ||
@@ -55,38 +55,17 @@ const useGetTokenBalances = (
       const fiveMinutesAgo = now - 5 * 60 * 1000;
       let updateCache = false;
       for (const token of tokens) {
-        updatedBalances[token.key] = {
-          balance: '0',
-          lastUpdated: now,
-        };
-
         const cachedBalance = accessBalance(
           cachedBalances,
           walletAddress,
           chain,
           token.key,
         );
+
         if (cachedBalance && cachedBalance.lastUpdated > fiveMinutesAgo) {
           updatedBalances[token.key] = cachedBalance;
         } else {
-          if (token.key === chainConfig.gasToken) {
-            try {
-              const balance = await config.wh.getNativeBalance(
-                walletAddress,
-                chain,
-                token.key,
-              );
-              updatedBalances[token.key] = {
-                balance: formatBalance(chain, token, balance),
-                lastUpdated: now,
-              };
-              updateCache = true;
-            } catch (e) {
-              console.error('Failed to get native balance', e);
-            }
-          } else if (token.tokenId) {
-            needsUpdate.push(token as TokenConfigWithId);
-          }
+          needsUpdate.push(token as TokenConfigWithId);
         }
       }
       if (needsUpdate.length > 0) {
@@ -98,12 +77,25 @@ const useGetTokenBalances = (
           const tokenIdMapping: Record<string, TokenConfig> = {};
           const tokenAddresses = [];
           for (let tokenConfig of needsUpdate) {
+            updatedBalances[tokenConfig.key] = {
+              balance: '0',
+              lastUpdated: now,
+            };
+
             try {
-              let address: string | null = tokenConfig.tokenId.address;
-              if (tokenConfig.tokenId.chain !== chain) {
-                address = await getForeignTokenAddress(tokenConfig, chainV2);
+              let address: string | null = null;
+
+              let foreignAddress = await getForeignTokenAddress(
+                config.sdkConverter.toTokenIdV2(tokenConfig),
+                chainV2,
+              );
+
+              if (foreignAddress) {
+                address = foreignAddress.toString();
+              } else {
+                console.error('no fa', tokenConfig);
+                continue;
               }
-              if (!address) continue;
               tokenIdMapping[address] = tokenConfig;
               tokenAddresses.push(address);
             } catch (e) {
@@ -118,7 +110,12 @@ const useGetTokenBalances = (
 
           const result = await platform
             .utils()
-            .getBalances(chainV2, rpc, walletAddress, tokenAddresses);
+            .getBalances(
+              chainV2,
+              rpc,
+              walletAddress,
+              tokenAddresses as TokenAddress<typeof chainV2>[],
+            );
 
           for (let tokenAddress in result) {
             let tokenConfig = tokenIdMapping[tokenAddress];

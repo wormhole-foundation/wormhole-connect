@@ -39,7 +39,6 @@ import {
   RelayerFee,
 } from '../types';
 import { toDecimals, toFixedDecimals } from '../../utils/balance';
-import { getForeignTokenAddress } from 'utils/sdkv2';
 import { RelayOptions } from '../relay';
 import {
   CCTPTokenSymbol,
@@ -260,6 +259,7 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
     return receiveAmount + (toNativeToken || 0) + (relayerFee || 0);
   }
 
+  /*
   async estimateSendGas(
     token: TokenId | 'native',
     amount: string,
@@ -305,6 +305,7 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
   ): Promise<BigNumber> {
     throw new Error('No claiming for this route!');
   }
+  */
 
   /**
    * These operations have to be implemented in subclasses.

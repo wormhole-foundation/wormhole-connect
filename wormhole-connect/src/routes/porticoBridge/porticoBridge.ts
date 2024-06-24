@@ -179,6 +179,12 @@ export abstract class PorticoBridge extends BaseRoute {
       getCanonicalTokenAddress(startToken),
       getCanonicalTokenAddress(finishToken),
     ]);
+
+    if (!startCanonicalToken)
+      throw new Error('Portico: Couldnt resolve start canonical token');
+    if (!finishCanonicalToken)
+      throw new Error('Portico: Couldnt resolve finish canonical token');
+
     const startTokenDecimals = getTokenDecimals(
       toChainId(sendingChain),
       startToken.tokenId,
@@ -587,6 +593,10 @@ export abstract class PorticoBridge extends BaseRoute {
     const destCanonicalTokenAddress = await getCanonicalTokenAddress(
       finalToken,
     );
+
+    if (!destCanonicalTokenAddress)
+      throw new Error('Couldnt resolve destCanonicalTokenAddress');
+
     const request: RelayerQuoteRequest = {
       targetChain: toChainId(destChain),
       sourceToken: hexZeroPad(destCanonicalTokenAddress, 32).slice(2),
@@ -609,12 +619,12 @@ export abstract class PorticoBridge extends BaseRoute {
     token: TokenId,
     chain: ChainName | ChainId,
   ): Promise<string | null> {
-    return (
-      await getForeignTokenAddress(
-        config.sdkConverter.toTokenIdV2(token),
-        config.sdkConverter.toChainV2(chain),
-      )
-    ).toString();
+    let addr = await getForeignTokenAddress(
+      config.sdkConverter.toTokenIdV2(token),
+      config.sdkConverter.toChainV2(chain),
+    );
+    if (!addr) return null;
+    return addr.toString();
   }
 
   async getMessage(

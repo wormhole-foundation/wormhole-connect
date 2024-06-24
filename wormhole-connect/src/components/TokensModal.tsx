@@ -161,7 +161,6 @@ function DisplayTokens(props: DisplayTokensProps) {
   } = props;
 
   const showCircularProgress = (token: string): boolean => {
-    console.log(balances, token);
     if (!chain || !walletAddress) return false;
     if (balances[token]?.balance !== null) return true;
     return false;

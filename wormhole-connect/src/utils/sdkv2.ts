@@ -2,30 +2,48 @@ import { getWormholeContextV2 } from 'config';
 import {
   Wormhole,
   TokenId,
+  TokenKey,
   Chain,
   NativeAddress,
 } from '@wormhole-foundation/sdk';
-import { TokenConfig } from 'config/types';
 //import config from 'config';
 
 export async function getForeignTokenAddress<C extends Chain>(
-  token: TokenConfig,
+  token: TokenId,
   chain: C,
-): Promise<NativeAddress<C> | undefined> {
+): Promise<NativeAddress<C> | null> {
   const wh = await getWormholeContextV2();
+  const originChainContext = wh.getChain(token.chain);
   const chainContext = wh.getChain(chain);
 
-  let foreignToken = chainContext.config.tokenMap?.[token.key];
-  if (foreignToken) {
-    // Use cached value
-    //console.log('returning cached fa');
-    return Wormhole.parseAddress(chain, foreignToken.address);
+  // TODO  SDKV2
+  // tokenMap in SDKv2 is keyed by token key, but all Connect code wants to pass in a TokenId
+  // which doesn't have the token key. So to avoid changing too much Connect code right now
+  // we're just iterating over all values in tokenMap to find the token.
+
+  // First, get token key from origin chain
+  let tokenKey: TokenKey | null = null;
+  for (let tc of Object.values(originChainContext.config.tokenMap || {})) {
+    if (tc.address === token.address.toString()) {
+      tokenKey = tc.key;
+    }
   }
 
-  return undefined;
+  if (tokenKey) {
+    let chainToken = chainContext.config.tokenMap?.[tokenKey];
+    if (chainToken) {
+      // Use cached value
+      //console.log('returning cached fa');
+      return Wormhole.parseAddress(chain, chainToken.address);
+    }
+  } else {
+    console.error(`Couldn't find token key for ${token}`);
+  }
+
+  return null;
 
   /*
-  // TODO SDKV2 fetch dynamically and save in a to cache
+  // TODO SDKV2 fetch dynamically and save in cache
 
   const tb = await chainContext.getTokenBridge();
   const wrapped = await tb.getWrappedAsset(config.sdkConverter.toTokenIdV2(token));

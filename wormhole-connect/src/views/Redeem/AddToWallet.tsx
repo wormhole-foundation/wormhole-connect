@@ -191,26 +191,26 @@ function AddToWallet() {
       const wrapped = getWrappedToken(tokenInfo);
       if (!wrapped.tokenId) return;
 
-      const address = (
-        await getForeignTokenAddress(
-          config.sdkConverter.toTokenIdV2(wrapped.tokenId),
-          config.sdkConverter.toChainV2(txData.toChain),
-        )
-      ).toString();
+      const address = await getForeignTokenAddress(
+        config.sdkConverter.toTokenIdV2(wrapped.tokenId),
+        config.sdkConverter.toChainV2(txData.toChain),
+      );
+
+      if (!address) throw new Error('Failed to get foreign token address');
 
       if (txData.toChain === 'sui' && address) {
         const context = config.wh.getContext(
           'sui',
         ) as SuiContext<WormholeContext>;
         const metadata = await context.provider.getCoinMetadata({
-          coinType: address,
+          coinType: address.toString(),
         });
         setTargetAddress(metadata?.id);
         setTargetToken(wrapped);
         return;
       }
 
-      setTargetAddress(address);
+      setTargetAddress(address.toString());
       setTargetToken(wrapped);
     };
 

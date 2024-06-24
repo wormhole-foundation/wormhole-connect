@@ -129,7 +129,7 @@ export const validateCreateOrderResponse = async (
   if (
     !isEqualCaseInsensitive(
       canonicalTokenAddress,
-      await getCanonicalTokenAddress(startToken),
+      (await getCanonicalTokenAddress(startToken)) || '', // TODO SDKV2 this can be null
     )
   ) {
     throw new Error('canonical token address mismatch');
@@ -181,7 +181,7 @@ export const validateCreateOrderResponse = async (
  */
 export const getCanonicalTokenAddress = async (
   token: TokenConfig,
-): Promise<string> => {
+): Promise<string | null> => {
   const tokenOnEthereum = Object.values(config.tokens).find(
     (t) => t.symbol === token.symbol && t.nativeChain === 'ethereum',
   );
@@ -196,6 +196,8 @@ export const getCanonicalTokenAddress = async (
     config.sdkConverter.toTokenIdV2(tokenId),
     config.sdkConverter.toChainV2(token.nativeChain),
   );
+
+  if (!tokenAddr) return null;
 
   return tokenAddr.toString();
 };

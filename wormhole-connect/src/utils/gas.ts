@@ -8,8 +8,8 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import config from 'config';
 import { GasEstimateOptions, Route } from 'config/types';
-import RouteOperator from '../routes/operator';
-import { SignedMessage, formatGasFee } from '../routes';
+//import RouteOperator from '../routes/operator';
+import { SignedMessage } from '../routes';
 
 export const getGasFallback = (
   chain: ChainName | ChainId,
@@ -40,6 +40,9 @@ export const estimateSendGas = async (
   recipientAddress: string,
   routeOptions?: any,
 ): Promise<string> => {
+  return '-';
+  /*
+   * TODO SDKV2
   let gas: BigNumber;
   try {
     const r = RouteOperator.getRoute(route);
@@ -61,6 +64,7 @@ export const estimateSendGas = async (
   }
   if (!gas) throw new Error('could not estimate send gas');
   return formatGasFee(sendingChain, gas);
+  */
 };
 
 export const estimateClaimGas = async (
@@ -68,6 +72,9 @@ export const estimateClaimGas = async (
   destChain: ChainName | ChainId,
   signedMessage?: SignedMessage,
 ): Promise<string> => {
+  return '-';
+  /* 
+   * TODO SDKV2
   let gas: BigNumber;
   try {
     const r = RouteOperator.getRoute(route);
@@ -77,4 +84,5 @@ export const estimateClaimGas = async (
   }
   if (!gas) throw new Error('could not estimate send gas');
   return formatGasFee(destChain, gas);
+  */
 };

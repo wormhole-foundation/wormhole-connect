@@ -398,6 +398,8 @@ export class Operator {
     );
   }
 
+  /*
+   * TODO SDKV2
   async estimateSendGas(
     route: Route,
     token: TokenId | 'native',
@@ -430,6 +432,7 @@ export class Operator {
     const r = this.getRoute(route);
     return await r.estimateClaimGas(destChain, signedMessage);
   }
+  */
 
   async send(
     route: Route,
