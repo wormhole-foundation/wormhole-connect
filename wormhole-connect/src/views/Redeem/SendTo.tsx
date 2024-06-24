@@ -11,13 +11,13 @@ import {
   setTransferComplete,
   setTxDetails,
 } from 'store/redeem';
-import { displayAddress, getTokenById, getWrappedTokenId } from 'utils';
+import { displayAddress, getTokenById /*getWrappedTokenId*/ } from 'utils';
 import RouteOperator from 'routes/operator';
 import {
   TransferWallet,
   registerWalletSigner,
   switchChain,
-  signAndSendTransaction,
+  //signAndSendTransaction,
 } from 'utils/wallet';
 
 import AlertBanner from 'components/AlertBanner';
@@ -29,7 +29,7 @@ import WalletsModal from '../WalletModal';
 import Header from './Header';
 import { estimateClaimGas } from 'utils/gas';
 import { isGatewayChain } from '../../utils/cosmos';
-import { PayloadType, solanaContext } from '../../utils/sdk';
+import { PayloadType /*solanaContext*/ } from '../../utils/sdk';
 import { AssociatedTokenWarning } from '../Bridge/Inputs/TokenWarnings';
 import { Route } from 'config/types';
 import SwitchToManualClaim from './SwitchToManualClaim';
@@ -52,6 +52,8 @@ function AssociatedTokenAlert() {
         ? receivedToken
         : getTokenById(txData.tokenId);
     if (!token) return;
+    /*
+     * TODO SDKV2
     const tokenId = getWrappedTokenId(token);
     const tx = await solanaContext().createAssociatedTokenAccount(
       tokenId,
@@ -61,6 +63,7 @@ function AssociatedTokenAlert() {
     // if `tx` is null it means the account already exists
     if (!tx) return;
     await signAndSendTransaction('solana', tx, TransferWallet.RECEIVING);
+     */
     dispatch(setTxDetails({ ...txData, recipient: wallet.address }));
   }, [txData, wallet.address, dispatch]);
 

@@ -1,15 +1,19 @@
+/* TODO SDKV2
 import config from 'config';
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { BigNumber } from 'ethers';
 import { setReceiverNativeBalance } from 'store/transferInput';
+*/
 
 import type { WalletData } from 'store/wallet';
 import type { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 
+/* TODO SDKV2
 import { getTokenDecimals } from 'utils';
 import { toChainId } from 'utils/sdk';
 import { toDecimals } from 'utils/balance';
+*/
 
 type Props = {
   sourceChain: ChainName | undefined;
@@ -18,6 +22,8 @@ type Props = {
 };
 
 export const useComputeReceiverNativeBalance = (props: Props): void => {
+  /*
+   * TODO SDKV2
   const { sourceChain, destChain, receiving } = props;
   const dispatch = useDispatch();
   // check destination native balance
@@ -43,4 +49,5 @@ export const useComputeReceiverNativeBalance = (props: Props): void => {
         dispatch(setReceiverNativeBalance(toDecimals(res, decimals, 6)));
       });
   }, [sourceChain, destChain, receiving.address, dispatch]);
+  */
 };

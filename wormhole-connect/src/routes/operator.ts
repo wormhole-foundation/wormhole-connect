@@ -3,15 +3,12 @@ import {
   ChainId,
   ChainName,
   TokenId,
-  SolanaContext,
-  WormholeContext,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { BigNumber } from 'ethers';
 
 import config from 'config';
 import { TokenConfig, Route } from 'config/types';
-import { PayloadType, getMessage, isEvmChain, solanaContext } from 'utils/sdk';
-import { isGatewayChain } from 'utils/cosmos';
+import { solanaContext } from 'utils/sdk';
 // import { HashflowRoute } from './hashflow';
 import { RouteAbstract } from './abstracts/routeAbstract';
 import {
@@ -20,15 +17,9 @@ import {
   TransferDisplayData,
   TransferInfoBaseParams,
   TransferDestInfo,
-  NttRelayingType,
   RelayerFee,
 } from './types';
-import { CCTP_LOG_TokenMessenger_DepositForBurn } from './cctpManual';
-import { getTokenById, isEqualCaseInsensitive } from 'utils';
 import { TokenPrices } from 'store/tokenPrices';
-import { getMessageEvm, TRANSFER_SENT_EVENT_TOPIC } from './ntt/chains/evm';
-import { getMessageSolana } from './ntt/chains/solana';
-import { getNttManagerConfigByAddress } from 'utils/ntt';
 
 import { routes } from '@wormhole-foundation/sdk';
 
@@ -40,6 +31,7 @@ export class Operator {
   }
 
   async getRouteFromTx(txHash: string, chain: ChainName): Promise<Route> {
+    /*
     if (isGatewayChain(chain)) {
       return Route.CosmosGateway;
     }
@@ -146,6 +138,11 @@ export class Operator {
     return message.payloadID === PayloadType.Automatic
       ? Route.Relay
       : Route.Bridge;
+      */
+
+    // TODO SDKV2
+    // relied on getMessage
+    return Route.Bridge;
   }
 
   async isRouteSupported(

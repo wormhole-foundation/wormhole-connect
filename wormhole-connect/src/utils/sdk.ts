@@ -173,8 +173,11 @@ export const toChainName = (chain: ChainName | ChainId) => {
 };
 
 export const getMessage = (tx: string, chain: ChainName | ChainId) => {
+  /* 
+   * TODO SDKV2
   const context = config.wh.getContext(chain);
   return context.getMessage(tx, chain, false);
+  */
 };
 
 export enum DeliveryStatus {
