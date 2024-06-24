@@ -1,5 +1,4 @@
 import WormholeIcon from '../icons/Routes/Wormhole';
-import XLabsIcon from '../icons/Routes/XLabs';
 // import HashflowIcon from '../icons/Routes/Hashflow';
 import CCTPIcon from '../icons/Routes/CCTP';
 import { Route } from './types';
@@ -30,7 +29,7 @@ export const RoutesConfig: {
     name: 'Automatic Bridge',
     providedBy: 'xLabs',
     link: 'https://xlabs.xyz',
-    icon: XLabsIcon,
+    icon: WormholeIcon,
     pendingMessage: 'Waiting for Wormhole network consensus . . .',
   },
   // [Route.Hashflow]: {
@@ -104,7 +103,7 @@ export const RoutesConfig: {
     name: 'Native Token Transfers (NTT)',
     providedBy: 'xLabs',
     link: 'https://xlabs.xyz',
-    icon: XLabsIcon,
+    icon: WormholeIcon,
     pendingMessage: 'Waiting for Wormhole network consensus . . .',
   },
 };
