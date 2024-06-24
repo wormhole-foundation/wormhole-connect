@@ -93,7 +93,7 @@ export const RoutesConfig: {
   },
   [Route.NttManual]: {
     route: Route.NttManual,
-    name: 'Native Token Transfer',
+    name: 'Native Token Transfers (NTT)',
     providedBy: 'Wormhole',
     link: 'https://wormhole.com/',
     icon: WormholeIcon,
@@ -101,7 +101,7 @@ export const RoutesConfig: {
   },
   [Route.NttRelay]: {
     route: Route.NttRelay,
-    name: 'Native Token Transfer',
+    name: 'Native Token Transfers (NTT)',
     providedBy: 'xLabs',
     link: 'https://xlabs.xyz',
     icon: XLabsIcon,

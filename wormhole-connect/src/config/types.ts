@@ -345,6 +345,7 @@ export type NttManagerConfig = {
 
 export type NttGroup = {
   nttManagers: NttManagerConfig[];
+  displayName?: string;
 };
 
 export type NttGroups = { [key: string]: NttGroup };
