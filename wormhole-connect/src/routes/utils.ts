@@ -8,12 +8,7 @@ import {
 import { BigNumber, BigNumberish, utils } from 'ethers';
 import config from 'config';
 import { toFixedDecimals } from 'utils/balance';
-import {
-  ParsedMessage,
-  ParsedRelayerMessage,
-  PayloadType,
-  solanaContext,
-} from 'utils/sdk';
+import { ParsedMessage, ParsedRelayerMessage, PayloadType } from 'utils/sdk';
 import { getTokenById } from 'utils';
 import { Route, TokenConfig } from 'config/types';
 import { getDecimals } from 'utils/sdkv2';
@@ -50,10 +45,14 @@ export const adaptParsedMessage = async (
     parsed.payloadID === PayloadType.Manual
   ) {
     try {
+      throw 1;
+      /*
+       * TODO SDKV2
       const accountOwner = await solanaContext().getTokenAccountOwner(
         parsed.recipient,
       );
       base.recipient = accountOwner;
+      */
     } catch (e: any) {
       if (e.name === 'TokenAccountNotFoundError') {
         // we'll promp them to create it before claiming it

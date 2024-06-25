@@ -4,8 +4,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import type {
   ChainName,
-  SuiContext,
-  WormholeContext,
+  //SuiContext,
+  //WormholeContext,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 
 import config from 'config';
@@ -199,6 +199,8 @@ function AddToWallet() {
       if (!address) throw new Error('Failed to get foreign token address');
 
       if (txData.toChain === 'sui' && address) {
+        /*
+         * TODO SDKV2
         const context = config.wh.getContext(
           'sui',
         ) as SuiContext<WormholeContext>;
@@ -208,6 +210,7 @@ function AddToWallet() {
         setTargetAddress(metadata?.id);
         setTargetToken(wrapped);
         return;
+         */
       }
 
       setTargetAddress(address.toString());

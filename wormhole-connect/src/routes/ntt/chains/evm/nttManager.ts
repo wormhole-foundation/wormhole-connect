@@ -1,7 +1,6 @@
 import {
   ChainId,
   ChainName,
-  EthContext,
   TokenId,
   WormholeContext,
 } from '@wormhole-foundation/wormhole-connect-sdk';
@@ -115,9 +114,7 @@ export class NttManagerEvm {
       transceiverIxs,
       { value: deliveryPrice },
     );
-    const context = config.wh.getContext(
-      this.chain,
-    ) as EthContext<WormholeContext>;
+    const context = config.wh.getContext(this.chain) as WormholeContext;
     await context.approve(this.chain, this.address, token.address, amount);
     try {
       return await this.signAndSendTransaction(tx, TransferWallet.SENDING);

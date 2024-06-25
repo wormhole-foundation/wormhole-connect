@@ -14,7 +14,6 @@ import {
 } from 'telemetry/types';
 import {
   ChainName,
-  INSUFFICIENT_ALLOWANCE,
   InsufficientFundsForGasError,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import {
@@ -24,6 +23,10 @@ import {
   UnsupportedContractAbiVersion,
 } from 'routes/ntt/errors';
 import { SWAP_ERROR } from 'routes/porticoBridge/consts';
+
+// TODO SDKV2
+// copied from sdk subpackage
+export const INSUFFICIENT_ALLOWANCE = 'Insufficient token allowance';
 
 export function interpretTransferError(
   e: any,

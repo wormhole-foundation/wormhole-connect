@@ -2,10 +2,7 @@ import { BigNumber } from 'ethers';
 import {
   ChainId,
   ChainName,
-  MAINNET_CHAINS,
-  SolanaContext,
   TokenId,
-  WormholeContext,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { getWrappedTokenId } from '.';
 import config from 'config';
@@ -43,12 +40,6 @@ export interface ParsedRelayerMessage extends ParsedMessage {
   relayerFee: string;
   toNativeTokenAmount: string;
 }
-
-export const solanaContext = (): SolanaContext<WormholeContext> => {
-  return config.wh.getContext(
-    MAINNET_CHAINS.solana,
-  ) as SolanaContext<WormholeContext>;
-};
 
 export const formatAddress = (chain: ChainName | ChainId, address: string) => {
   const context = config.wh.getContext(chain);

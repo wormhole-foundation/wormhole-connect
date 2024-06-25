@@ -7,14 +7,16 @@ import {
   Connection,
 } from '@solana/web3.js';
 import { BN, Program } from '@coral-xyz/anchor';
-import { NttQuoter as NttQuoterType, IDL } from './types/ntt_quoter';
-import { solanaContext, toChainId } from 'utils/sdk';
+import { NttQuoter as NttQuoterType /*, IDL*/ } from './types/ntt_quoter';
+import { /*solanaContext,*/ toChainId } from 'utils/sdk';
 
 //constants that must match ntt-quoter lib.rs / implementation:
 const USD_UNIT = 1e6;
 const WEI_PER_GWEI = 1e9;
 const GWEI_PER_ETH = 1e9;
+/* TODO SDKV2
 const SEED_PREFIX_INSTANCE = 'instance';
+*/
 const SEED_PREFIX_REGISTERED_CHAIN = 'registered_chain';
 const SEED_PREFIX_REGISTERED_NTT = 'registered_ntt';
 const SEED_PREFIX_RELAY_REQUEST = 'relay_request';
@@ -35,10 +37,14 @@ const U64 = {
 
 export class NttQuoter {
   readonly connection: Connection;
+  /* @ts-ignore */
   readonly program: Program<NttQuoterType>;
+  /* @ts-ignore */
   readonly instance: PublicKey;
 
   constructor(programId: PublicKeyInitData) {
+    /*
+     * TODO SDKV2
     const { connection } = solanaContext();
     if (!connection) throw new Error('Connection not found');
     this.connection = connection;
@@ -46,6 +52,8 @@ export class NttQuoter {
       connection,
     });
     this.instance = this.derivePda(Buffer.from(SEED_PREFIX_INSTANCE));
+    */
+    this.connection = new Connection('');
   }
 
   async isRelayEnabled(destChain: ChainName | ChainId) {

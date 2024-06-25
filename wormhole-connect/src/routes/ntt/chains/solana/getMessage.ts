@@ -1,3 +1,4 @@
+/*
 import { solanaContext } from 'utils/sdk';
 // import { PostedMessageData } from '@certusone/wormhole-sdk/lib/esm/solana/wormhole';
 import { hexlify } from 'ethers/lib/utils';
@@ -15,6 +16,7 @@ import {
 } from 'utils/ntt';
 import { PublicKey } from '@solana/web3.js';
 
+ * TODO SDKV2
 export const getMessageSolana = async (
   tx: string,
 ): Promise<UnsignedNttMessage> => {
@@ -121,3 +123,4 @@ export const getMessageSolana = async (
     relayingType: relayerFee ? NttRelayingType.Special : NttRelayingType.Manual,
   };
 };
+*/

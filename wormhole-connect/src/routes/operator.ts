@@ -1,4 +1,4 @@
-import { PublicKey } from '@solana/web3.js';
+/*import { PublicKey } from '@solana/web3.js';*/
 import {
   ChainId,
   ChainName,
@@ -8,7 +8,6 @@ import { BigNumber } from 'ethers';
 
 import config from 'config';
 import { TokenConfig, Route } from 'config/types';
-import { solanaContext } from 'utils/sdk';
 // import { HashflowRoute } from './hashflow';
 import { RouteAbstract } from './abstracts/routeAbstract';
 import {
@@ -604,6 +603,8 @@ export class Operator {
     token: TokenId,
     walletAddress: string,
   ): Promise<BigNumber> {
+    /*
+     * TODO SDKV2
     const chainName = config.wh.toChainName(destChain);
     if (chainName === 'solana') {
       const context = solanaContext();
@@ -618,6 +619,7 @@ export class Operator {
         await context.connection!.getMinimumBalanceForRentExemption(0);
       return BigNumber.from(minBalance);
     }
+    */
     return BigNumber.from(0);
   }
 

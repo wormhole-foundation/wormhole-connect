@@ -152,7 +152,7 @@ export class WormholeContext extends MultiProvider<Domain> {
    */
   getContext(chain: ChainName | ChainId): AnyContext {
     // TODO SDKV2 REMOVE
-    return {};
+    return this;
   }
 
   /**
@@ -225,5 +225,25 @@ export class WormholeContext extends MultiProvider<Domain> {
       : env === 'devnet'
       ? DEVNET_CONFIG
       : TESTNET_CONFIG;
+  }
+
+  // BEGIN stubbed methods for SDKV2 migration
+  // TODO SDKV2
+
+  sign() {}
+
+  async approve(a: any, b: any, c: any, d: any): Promise<boolean> {
+    return true;
+  }
+
+  getCurrentBlock() {
+    return 0;
+  }
+
+  get contracts() {
+    return {
+      mustGetCore(a: any) {},
+      mustGetBridge(a: any) {},
+    };
   }
 }

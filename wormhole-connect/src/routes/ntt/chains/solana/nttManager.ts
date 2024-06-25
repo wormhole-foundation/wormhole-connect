@@ -1,11 +1,10 @@
 import {
-  addComputeBudget,
   ChainId,
   ChainName,
   TokenId,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { InboundQueuedTransfer } from '../../types';
-import { solanaContext, toChainId, toChainName } from 'utils/sdk';
+import { /*solanaContext,*/ toChainId, toChainName } from 'utils/sdk';
 import { TransferWallet, postVaa, signAndSendTransaction } from 'utils/wallet';
 import {
   Connection,
@@ -48,6 +47,8 @@ import {
 } from 'routes/ntt/errors';
 import { abiVersionMatches } from 'routes/ntt/utils';
 
+import config from 'config';
+
 const RATE_LIMIT_DURATION = 24 * 60 * 60;
 
 type Config = IdlAccounts<ExampleNativeTokenTransfers>['config'];
@@ -77,12 +78,17 @@ export class NttManagerSolana {
   readonly wormholeId: string;
 
   constructor(readonly nttId: string) {
+    /*
+     * TODO SDKV2
     const { connection } = solanaContext();
     if (!connection) throw new Error('Connection not found');
     this.connection = connection;
     const core = CONFIG.wh.mustGetContracts('solana').core;
     if (!core) throw new Error('Core not found');
     this.wormholeId = core;
+    */
+    this.connection = new Connection(config.rpcs.solana || '');
+    this.wormholeId = 'hey Kevin please port this to SDKV2 <3';
   }
 
   async send(
@@ -159,7 +165,8 @@ export class NttManagerSolana {
     const { blockhash } = await this.connection.getLatestBlockhash('finalized');
     tx.recentBlockhash = blockhash;
     await this.simulate(tx);
-    await addComputeBudget(this.connection, tx);
+    // TODO SDKV2
+    //await addComputeBudget(this.connection, tx);
     tx.partialSign(outboxItem);
     const txId = await signAndSendTransaction(
       'solana',
@@ -242,7 +249,8 @@ export class NttManagerSolana {
     const { blockhash } = await this.connection.getLatestBlockhash('finalized');
     tx.recentBlockhash = blockhash;
     await this.simulate(tx);
-    await addComputeBudget(this.connection, tx);
+    // TODO SDKV2
+    //await addComputeBudget(this.connection, tx);
     const txId = await signAndSendTransaction(
       'solana',
       tx,
@@ -356,7 +364,8 @@ export class NttManagerSolana {
     const { blockhash } = await this.connection.getLatestBlockhash('finalized');
     tx.recentBlockhash = blockhash;
     await this.simulate(tx);
-    await addComputeBudget(this.connection, tx);
+    // TODO SDKV2
+    //await addComputeBudget(this.connection, tx);
     const txId = await signAndSendTransaction(
       'solana',
       tx,

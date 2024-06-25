@@ -4,7 +4,6 @@ import {
   Context,
   SendResult,
   ChainConfig,
-  postVaaSolanaWithRetry,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { ContractReceipt } from 'ethers';
 import {
@@ -259,7 +258,11 @@ export const postVaa = async (
   connection: any,
   coreContract: string,
   signedVAA: Buffer,
-) => {
+) => {};
+
+/*
+   * TODO SDKV2
+   * replace with SDKV2 signer
   const wallet = walletConnection.receiving;
   if (!wallet) throw new Error('not connected');
   const pk = (wallet as any).adapter.publicKey;
@@ -273,7 +276,7 @@ export const postVaa = async (
     Buffer.from(signedVAA),
     MAX_VAA_UPLOAD_RETRIES_SOLANA,
   );
-};
+  */
 
 const getReady = (wallet: Wallet) => {
   const ready = wallet.getWalletState();

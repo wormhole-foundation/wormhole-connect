@@ -35,7 +35,7 @@ import {
   DestinationContractIsPausedError,
 } from './errors';
 import { WormholeTransceiver, getMessageEvm } from './chains/evm';
-import { NttManagerSolana, getMessageSolana } from './chains/solana';
+import { NttManagerSolana /*, getMessageSolana*/ } from './chains/solana';
 import { NO_INPUT } from 'utils/style';
 import { estimateAverageGasFee } from '../utils';
 import config from 'config';
@@ -364,7 +364,9 @@ export abstract class NttBase extends BaseRoute {
       return await getMessageEvm(tx, chain);
     }
     if (toChainName(chain) === 'solana') {
-      return await getMessageSolana(tx);
+      // TODO SDKV2
+      throw new Error('Unimplemented (SDKV2)');
+      //return await getMessageSolana(tx);
     }
     throw new Error('Unsupported chain');
   }

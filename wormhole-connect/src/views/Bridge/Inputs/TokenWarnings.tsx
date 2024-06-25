@@ -17,7 +17,6 @@ import { CircularProgress, Link, Typography } from '@mui/material';
 import AlertBanner from 'components/AlertBanner';
 import RouteOperator from 'routes/operator';
 import { Route } from '../../../config/types';
-import { CCTPManual_CHAINS as CCTP_CHAINS } from 'routes/cctpManual';
 import { isNttRoute } from 'routes';
 
 const useStyles = makeStyles()((theme: any) => ({
@@ -238,9 +237,9 @@ function TokenWarnings() {
     // check if the chains support CCTP
     const bothChainsSupportCCTP =
       toChain &&
-      CCTP_CHAINS.includes(toChain) &&
-      fromChain &&
-      CCTP_CHAINS.includes(fromChain);
+      //CCTP_CHAINS.includes(toChain) && TODO SDKV2
+      fromChain; //&&
+    //CCTP_CHAINS.includes(fromChain); TODO SDKV2
     // check if the result is wrapped USDC and the chains involved support CCTP
     // rationale:
     // - transferring wrapped USDC back home (unwrapping) shouldn't be a warning

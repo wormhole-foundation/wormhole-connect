@@ -22,7 +22,6 @@ import Scroll from './Scroll';
 import Search from './Search';
 import Spacer from './Spacer';
 import Tabs from './Tabs';
-import { CCTPManual_CHAINS } from '../routes/cctpManual';
 import useGetTokenBalances from 'hooks/useGetTokenBalances';
 import { Balances } from 'store/transferInput';
 
@@ -367,10 +366,12 @@ function TokensModal(props: Props) {
     const filtered = supportedTokens.filter((t) => {
       if (!t.tokenId && t.nativeChain !== chain) return false;
 
+      /* TODO SDKV2
       // if token is USDC and the chain is cctp enabled, only show native ones
       const isCctpChain = chain && CCTPManual_CHAINS.includes(chain);
       if (t.symbol === 'USDC' && t.nativeChain !== chain && isCctpChain)
         return false;
+     */
 
       if (t.symbol === 'tBTC' && chain) {
         // if the chain is canonical then only show the native tBTC token

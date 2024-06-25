@@ -2,7 +2,7 @@ import { BigNumber, ethers } from 'ethers';
 import {
   ChainId,
   ChainName,
-  EthContext,
+  /*EthContext,*/
   TokenId,
   WormholeContext,
 } from '@wormhole-foundation/wormhole-connect-sdk';
@@ -16,7 +16,9 @@ import {
   TransferInfoBaseParams,
   RelayerFee,
 } from '../types';
-import { fetchGlobalTx, fetchVaa, getEmitterAndSequence } from 'utils/vaa';
+import {
+  /*fetchGlobalTx,*/ fetchVaa /*getEmitterAndSequence*/,
+} from 'utils/vaa';
 import { hexZeroPad, hexlify, parseUnits } from 'ethers/lib/utils.js';
 import { BaseRoute } from '../bridge';
 import { PayloadType, isEvmChain, toChainId, toChainName } from 'utils/sdk';
@@ -53,7 +55,7 @@ import {
   FEE_TIER,
   RELAYER_FEE_API_URL,
   SLIPPAGE_BPS,
-  SWAP_ERROR,
+  //SWAP_ERROR,
 } from './consts';
 import { adaptParsedMessage } from 'routes/utils';
 import { TransferDestInfoParams } from 'routes/relay';
@@ -461,11 +463,14 @@ export abstract class PorticoBridge extends BaseRoute {
       throw new Error('Output amount too low, please try again later.');
     }
 
+    /*
+     * TODO SDKV2
     const context = config.wh.getContext(
       sendingChain,
-    ) as EthContext<WormholeContext>;
+    ) as WormholeContext;
     const core = context.contracts.mustGetCore(sendingChain);
     const messageFee = await core.messageFee();
+    */
 
     // Create the order
     const request: CreateOrderRequest = {
@@ -501,7 +506,7 @@ export abstract class PorticoBridge extends BaseRoute {
     if (!isStartTokenNative) {
       const sendingContext = config.wh.getContext(
         sendingChain,
-      ) as EthContext<WormholeContext>;
+      ) as WormholeContext;
       await sendingContext.approve(
         sendingChain,
         porticoAddress,
@@ -510,6 +515,10 @@ export abstract class PorticoBridge extends BaseRoute {
       );
     }
 
+    return 'TODO SDKV2';
+
+    /*
+     * TODO SDKV2
     // Sign and send the transaction
     const signer = config.wh.mustGetSigner(sendingChain);
     const transaction = {
@@ -543,6 +552,7 @@ export abstract class PorticoBridge extends BaseRoute {
       }
       throw e;
     }
+    */
   }
 
   async redeem(
@@ -678,6 +688,9 @@ export abstract class PorticoBridge extends BaseRoute {
   }
 
   async tryFetchRedeemTx(txData: UnsignedMessage): Promise<string | undefined> {
+    return undefined;
+    /*
+     * TODO SDKV2
     const redeemTx = await fetchGlobalTx(txData);
     if (redeemTx) {
       return redeemTx;
@@ -686,7 +699,7 @@ export abstract class PorticoBridge extends BaseRoute {
       getEmitterAndSequence(txData);
     const context = config.wh.getContext(
       txData.toChain,
-    ) as EthContext<WormholeContext>;
+    ) as WormholeContext;
     const tokenBridge = context.contracts.mustGetBridge(txData.toChain);
     const { maxBlockSearch } = config.chains[txData.toChain]!;
     const filter = tokenBridge.filters.TransferRedeemed(
@@ -707,6 +720,7 @@ export abstract class PorticoBridge extends BaseRoute {
       console.error(e);
     }
     return undefined;
+    */
   }
 
   async getTransferSourceInfo({

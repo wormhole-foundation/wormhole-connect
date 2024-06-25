@@ -6,8 +6,6 @@ import { SDKv2Route } from './sdkv2/route';
 
 // Legacy routes
 import { RouteAbstract } from './abstracts/routeAbstract';
-import { CCTPRelayRoute } from './cctpRelay';
-import { CCTPManualRoute } from './cctpManual';
 import { ETHBridge } from './porticoBridge/ethBridge';
 import { wstETHBridge } from './porticoBridge/wstETHBridge';
 import { NttManual, NttRelay } from './ntt';
@@ -31,10 +29,6 @@ export function getRoute(route: Route): RouteAbstract {
       );
 
     // Legacy routes:
-    case Route.CCTPManual:
-      return new CCTPManualRoute();
-    case Route.CCTPRelay:
-      return new CCTPRelayRoute();
     case Route.ETHBridge:
       return new ETHBridge();
     case Route.wstETHBridge:
