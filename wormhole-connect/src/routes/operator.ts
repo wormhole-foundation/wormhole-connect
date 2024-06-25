@@ -34,6 +34,7 @@ import { getNttManagerConfigByAddress } from 'utils/ntt';
 import { SDKv2Route } from './sdkv2/route';
 
 import { getRouteImpls } from './mappings';
+import { getTokenDetails } from 'telemetry';
 
 export class Operator {
   getRoute(route: Route): RouteAbstract {
@@ -175,13 +176,26 @@ export class Operator {
       }
 
       const r = this.getRoute(route);
-      return await r.isRouteSupported(
+      let isSupported = await r.isRouteSupported(
         sourceToken,
         destToken,
         amount,
         sourceChain,
         destChain,
       );
+      if (!isSupported) {
+        return false;
+      }
+      if (config.isRouteSupportedHandler) {
+        isSupported = await config.isRouteSupportedHandler({
+          route,
+          fromChain: sourceChain,
+          toChain: destChain,
+          fromToken: getTokenDetails(sourceToken),
+          toToken: getTokenDetails(destToken),
+        });
+      }
+      return isSupported;
     } catch (e) {
       // TODO is this the right place to try/catch these?
       // or deeper inside SDKv2Route?
