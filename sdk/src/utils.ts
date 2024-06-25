@@ -50,8 +50,8 @@ export class ForeignAssetCache {
 
 export const waitFor = (
   condition: () => Promise<boolean>,
-  ms: number = 1000,
-  tries: number = 100,
+  ms = 1000,
+  tries = 100,
 ): Promise<void> => {
   let count = 0;
   return new Promise((resolve) => {

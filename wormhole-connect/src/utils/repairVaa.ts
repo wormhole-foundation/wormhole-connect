@@ -28,7 +28,9 @@ export function repairVaaIfNeeded(
         currentGuardianSet[signature.guardianIndex]!,
         SignatureUtils.recover(signature.signature, digest),
       );
-    } catch (_) {}
+    } catch (e) {
+      console.error(e);
+    }
     return false;
   });
   console.log(vaa.guardianSet, guardianSetData.index);

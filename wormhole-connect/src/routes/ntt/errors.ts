@@ -13,21 +13,24 @@ export class InboundQueuedTransferStillQueuedError extends Error {
 }
 
 export class NotEnoughCapacityError extends Error {
-  static MESSAGE = 'The transfer limit is currently exceeded for this token. Please try again later.';
+  static MESSAGE =
+    'The transfer limit is currently exceeded for this token. Please try again later.';
   constructor() {
     super(NotEnoughCapacityError.MESSAGE);
   }
 }
 
 export class ContractIsPausedError extends Error {
-  static MESSAGE = 'NTT for this token is currently paused on the source chain.';
+  static MESSAGE =
+    'NTT for this token is currently paused on the source chain.';
   constructor() {
     super(ContractIsPausedError.MESSAGE);
   }
 }
 
 export class DestinationContractIsPausedError extends Error {
-  static MESSAGE = 'NTT for this token is currently paused on the destination chain.';
+  static MESSAGE =
+    'NTT for this token is currently paused on the destination chain.';
   constructor() {
     super(DestinationContractIsPausedError.MESSAGE);
   }

@@ -76,10 +76,13 @@ export const calculateMaxSwapAmount = async (
   token: TokenId,
   walletAddress: string,
 ) => {
+  return 0;
+  /*
   const contracts = config.wh.getContracts(destChain);
   if (!contracts?.relayer) return;
   const context: any = config.wh.getContext(destChain);
   return await context.calculateMaxSwapAmount(destChain, token, walletAddress);
+  */
 };
 
 export const calculateNativeTokenAmt = async (

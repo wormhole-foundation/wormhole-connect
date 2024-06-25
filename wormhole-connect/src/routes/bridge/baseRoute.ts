@@ -239,7 +239,7 @@ export abstract class BaseRoute extends RouteAbstract {
     const token = config.tokens[tokenKey];
     const { gasToken } = config.chains[toChain]!;
 
-    let gas = gasEstimate;
+    const gas = gasEstimate;
     /*
      TODO SDKV2
     if (receiveTx) {

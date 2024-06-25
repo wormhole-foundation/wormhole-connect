@@ -9,7 +9,6 @@ import {
   ChainId,
   ChainName,
   Context,
-  Contracts,
   NATIVE,
   ParsedMessage,
   ParsedRelayerMessage,
@@ -123,28 +122,6 @@ export class WormholeContext extends MultiProvider<Domain> {
   }
 
   /**
-   * Gets the contract addresses for a given chain
-   * @param chain the chain name or chain id
-   * @returns the contract addresses
-   */
-  getContracts(chain: ChainName | ChainId): Contracts | undefined {
-    const chainName = this.toChainName(chain);
-    return this.conf.chains[chainName]?.contracts;
-  }
-
-  /**
-   * Gets the contract addresses for a given chain
-   * @param chain the chain name or chain id
-   * @returns the contract addresses
-   * @throws Errors if contracts are not found
-   */
-  mustGetContracts(chain: ChainName | ChainId): Contracts {
-    const contracts = this.getContracts(chain);
-    if (!contracts) throw new Error(`no contracts found for ${chain}`);
-    return contracts;
-  }
-
-  /**
    * Returns the chain "context", i.e. the class with chain-specific logic and methods
    * @param chain the chain name or chain id
    * @returns the chain context class
@@ -195,7 +172,7 @@ export class WormholeContext extends MultiProvider<Domain> {
   async getMessage(
     tx: string,
     chain: ChainName | ChainId,
-    parseRelayerPayload: boolean = true,
+    parseRelayerPayload = true,
   ): Promise<ParsedMessage | ParsedRelayerMessage> {
     const context = this.getContext(chain);
     /* @ts-ignore TODO SDKV2 */

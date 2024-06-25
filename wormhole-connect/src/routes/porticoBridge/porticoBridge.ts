@@ -1,10 +1,10 @@
-import { BigNumber, ethers } from 'ethers';
+import { BigNumber } from 'ethers';
 import {
   ChainId,
   ChainName,
   /*EthContext,*/
   TokenId,
-  WormholeContext,
+  //WormholeContext,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { TokenConfig } from 'config/types';
 import {
@@ -21,7 +21,7 @@ import {
 } from 'utils/vaa';
 import { hexZeroPad, hexlify, parseUnits } from 'ethers/lib/utils.js';
 import { BaseRoute } from '../bridge';
-import { PayloadType, isEvmChain, toChainId, toChainName } from 'utils/sdk';
+import { PayloadType, /*isEvmChain,*/ toChainId, toChainName } from 'utils/sdk';
 import config from 'config';
 import {
   MAX_DECIMALS,
@@ -36,22 +36,22 @@ import {
   toNormalizedDecimals,
 } from 'utils';
 import {
-  CreateOrderRequest,
-  CreateOrderResponse,
+  //CreateOrderRequest,
+  //CreateOrderResponse,
   PorticoTransferDestInfo,
   PorticoDestTxInfo,
   RelayerQuoteRequest,
   RelayerQuoteResponse,
 } from './types';
 import axios from 'axios';
-import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
+//import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
 import { porticoSwapFinishedEvent } from './abis';
 import { getQuote } from './uniswapQuoter';
 import { toDecimals } from 'utils/balance';
 import { getForeignTokenAddress } from 'utils/sdkv2';
 import {
   BPS_PER_HUNDRED_PERCENT,
-  CREATE_ORDER_API_URL,
+  //CREATE_ORDER_API_URL,
   FEE_TIER,
   RELAYER_FEE_API_URL,
   SLIPPAGE_BPS,
@@ -64,7 +64,7 @@ import {
   getCanonicalTokenAddress,
   parsePorticoPayload,
   parseTradeParameters,
-  validateCreateOrderResponse,
+  //validateCreateOrderResponse,
 } from './utils';
 import { PorticoBridgeState, PorticoSwapAmounts } from 'store/porticoBridge';
 import { TokenPrices } from 'store/tokenPrices';
@@ -82,8 +82,12 @@ export abstract class PorticoBridge extends BaseRoute {
   }
 
   isSupportedChain(chain: ChainName): boolean {
+    return false;
+    /*
+     * TODO SDKV2
     const { portico, uniswapQuoterV2 } = config.wh.getContracts(chain) || {};
     return !!(portico && uniswapQuoterV2);
+    */
   }
 
   async isSupportedSourceToken(
@@ -399,6 +403,8 @@ export abstract class PorticoBridge extends BaseRoute {
     destToken: string,
     routeOptions: PorticoBridgeState,
   ): Promise<string> {
+    /*
+     * TODO SDKV2
     if (!isEvmChain(sendingChain) || !isEvmChain(recipientChain)) {
       throw new Error('Only EVM chains are supported');
     }
@@ -463,14 +469,11 @@ export abstract class PorticoBridge extends BaseRoute {
       throw new Error('Output amount too low, please try again later.');
     }
 
-    /*
-     * TODO SDKV2
     const context = config.wh.getContext(
       sendingChain,
     ) as WormholeContext;
     const core = context.contracts.mustGetCore(sendingChain);
     const messageFee = await core.messageFee();
-    */
 
     // Create the order
     const request: CreateOrderRequest = {
@@ -514,6 +517,7 @@ export abstract class PorticoBridge extends BaseRoute {
         parsedAmount,
       );
     }
+    */
 
     return 'TODO SDKV2';
 
@@ -560,6 +564,8 @@ export abstract class PorticoBridge extends BaseRoute {
     message: SignedTokenTransferMessage,
     payer: string,
   ): Promise<string> {
+    /*
+     * TODO SDKV2
     // allow manual redeems in case it wasn't relayed
     const signer = config.wh.mustGetSigner(destChain);
     const { portico } = config.wh.mustGetContracts(destChain);
@@ -581,6 +587,8 @@ export abstract class PorticoBridge extends BaseRoute {
       TransferWallet.RECEIVING,
     );
     return txId;
+    */
+    return 'TODO SDKV2';
   }
 
   async getRelayerFee(
@@ -629,7 +637,7 @@ export abstract class PorticoBridge extends BaseRoute {
     token: TokenId,
     chain: ChainName | ChainId,
   ): Promise<string | null> {
-    let addr = await getForeignTokenAddress(
+    const addr = await getForeignTokenAddress(
       config.sdkConverter.toTokenIdV2(token),
       config.sdkConverter.toChainV2(chain),
     );

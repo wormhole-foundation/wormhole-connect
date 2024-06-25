@@ -173,7 +173,7 @@ function Send(props: { valid: boolean }) {
         details: transferDetails,
       });
 
-      let txId: string = '';
+      let txId = '';
 
       // TODO SDKv2 HACK
       // Legacy routes return a mere string (tx id)
@@ -208,10 +208,9 @@ function Send(props: { valid: boolean }) {
       } else if (typeof sendResult.state === 'number') {
         // SDKv2 Receipt
         // SDKv2Route handles waiting for completion internally so there's nothing else to do here
-        let receipt = sendResult;
+        const receipt = sendResult;
         if ('originTxs' in receipt) {
           txId = receipt.originTxs[receipt.originTxs.length - 1].txid;
-          debugger;
         }
       }
 

@@ -1,5 +1,4 @@
-import { CONTRACTS } from '@certusone/wormhole-sdk';
-import { WormholeConfig, Context, ChainConfig, Contracts } from '../types';
+import { WormholeConfig, Context, ChainConfig } from '../types';
 
 /**
  * Mainnet chain name to chain id mapping
@@ -43,15 +42,14 @@ export type MainnetChainId = (typeof MAINNET_CHAINS)[MainnetChainName];
 /**
  * chain name to contracts mapping
  */
-export type ChainContracts = {
-  [chain in MainnetChainName]: Contracts;
-};
 
 const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
   ethereum: {
     key: 'ethereum',
     id: 2,
     context: Context.ETH,
+    /*
+     * TODO SDKV2
     contracts: {
       ...CONTRACTS.MAINNET.ethereum,
       relayer: '0xcafd2f0a35a4459fa40c0517e17e6fa2939441ca',
@@ -64,6 +62,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
       portico: '0x48b6101128C0ed1E208b7C910e60542A2ee6f476',
       uniswapQuoterV2: '0x61fFE014bA17989E743c5F6cB21bF9697530B21e',
     },
+    */
     finalityThreshold: 64,
     nativeTokenDecimals: 18,
     cctpDomain: 0,
@@ -72,6 +71,8 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     key: 'solana',
     id: 1,
     context: Context.SOLANA,
+    /*
+     * TODO SDKV2
     contracts: {
       ...CONTRACTS.MAINNET.solana,
       relayer: '3vxKRPwUTiEkeUVyoZ9MXFe1V71sRLbLqu1gRYaWmehQ',
@@ -81,6 +82,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
         cctpMessageTransmitter: 'CCTPmbSD7gX1bxKPAmg77w8oFzNFpaQiQUWD43TKaecd',
       },
     },
+    */
     finalityThreshold: 32,
     nativeTokenDecimals: 9,
     cctpDomain: 5,
@@ -89,6 +91,8 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     key: 'polygon',
     id: 5,
     context: Context.ETH,
+    /*
+     * TODO SDKV2
     contracts: {
       ...CONTRACTS.MAINNET.polygon,
       relayer: '0xcafd2f0a35a4459fa40c0517e17e6fa2939441ca',
@@ -102,6 +106,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
       portico: '0x227bABe533fa9a1085f5261210E0B7137E44437B',
       uniswapQuoterV2: '0x61fFE014bA17989E743c5F6cB21bF9697530B21e',
     },
+    */
     finalityThreshold: 42,
     nativeTokenDecimals: 18,
     cctpDomain: 7,
@@ -110,12 +115,15 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     key: 'bsc',
     id: 4,
     context: Context.ETH,
+    /*
+     * TODO SDKV2
     contracts: {
       ...CONTRACTS.MAINNET.bsc,
       relayer: '0xcafd2f0a35a4459fa40c0517e17e6fa2939441ca',
       portico: '0x05498574BD0Fa99eeCB01e1241661E7eE58F8a85',
       uniswapQuoterV2: '0x78D78E420Da98ad378D7799bE8f4AF69033EB077',
     },
+    */
     finalityThreshold: 3,
     nativeTokenDecimals: 18,
   },
@@ -123,6 +131,8 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     key: 'avalanche',
     id: 6,
     context: Context.ETH,
+    /*
+     * TODO SDKV2
     contracts: {
       ...CONTRACTS.MAINNET.avalanche,
       relayer: '0xcafd2f0a35a4459fa40c0517e17e6fa2939441ca',
@@ -135,6 +145,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
       portico: '0xE565E118e75304dD3cF83dff409c90034b7EA18a',
       uniswapQuoterV2: '0xbe0F5544EC67e9B3b2D979aaA43f18Fd87E6257F',
     },
+    */
     finalityThreshold: 1,
     nativeTokenDecimals: 18,
     cctpDomain: 1,
@@ -143,10 +154,13 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     key: 'fantom',
     id: 10,
     context: Context.ETH,
+    /*
+     * TODO SDKV2
     contracts: {
       ...CONTRACTS.MAINNET.fantom,
       relayer: '0xcafd2f0a35a4459fa40c0517e17e6fa2939441ca',
     },
+    */
     finalityThreshold: 1,
     nativeTokenDecimals: 18,
   },
@@ -154,10 +168,13 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     key: 'celo',
     id: 14,
     context: Context.ETH,
+    /*
+     * TODO SDKV2
     contracts: {
       ...CONTRACTS.MAINNET.celo,
       relayer: '0xcafd2f0a35a4459fa40c0517e17e6fa2939441ca',
     },
+    */
     finalityThreshold: 1,
     nativeTokenDecimals: 18,
   },
@@ -165,10 +182,13 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     key: 'moonbeam',
     id: 16,
     context: Context.ETH,
+    /*
+     * TODO SDKV2
     contracts: {
       ...CONTRACTS.MAINNET.moonbeam,
       relayer: '0xcafd2f0a35a4459fa40c0517e17e6fa2939441ca',
     },
+    */
     finalityThreshold: 1,
     nativeTokenDecimals: 18,
   },
@@ -176,6 +196,8 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     key: 'sui',
     id: 21,
     context: Context.SUI,
+    /*
+     * TODO SDKV2
     contracts: {
       ...CONTRACTS.MAINNET.sui,
       relayer:
@@ -185,6 +207,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
       suiOriginalTokenBridgePackageId:
         '0x26efee2b51c911237888e5dc6702868abca3c7ac12c53f76ef8eba0697695e3d',
     },
+    */
     finalityThreshold: 0,
     nativeTokenDecimals: 9,
   },
@@ -192,7 +215,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     key: 'aptos',
     id: 22,
     context: Context.APTOS,
-    contracts: CONTRACTS.MAINNET.aptos,
+    //contracts: CONTRACTS.MAINNET.aptos,
     finalityThreshold: 0,
     nativeTokenDecimals: 8,
   },
@@ -200,6 +223,8 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     key: 'arbitrum',
     id: 23,
     context: Context.ETH,
+    /*
+     * TODO SDKV2
     contracts: {
       ...CONTRACTS.MAINNET.arbitrum,
       cctpContracts: {
@@ -212,6 +237,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
       portico: '0x48fa7528bFD6164DdF09dF0Ed22451cF59c84130',
       uniswapQuoterV2: '0x61fFE014bA17989E743c5F6cB21bF9697530B21e',
     },
+    */
     finalityThreshold: 0,
     nativeTokenDecimals: 18,
     cctpDomain: 3,
@@ -220,6 +246,8 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     key: 'optimism',
     id: 24,
     context: Context.ETH,
+    /*
+     * TODO SDKV2
     contracts: {
       ...CONTRACTS.MAINNET.optimism,
       cctpContracts: {
@@ -232,6 +260,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
       portico: '0x9ae506cDDd27DEe1275fd1fe6627E5dc65257061',
       uniswapQuoterV2: '0x61fFE014bA17989E743c5F6cB21bF9697530B21e',
     },
+    */
     finalityThreshold: 0,
     nativeTokenDecimals: 18,
     cctpDomain: 2,
@@ -240,6 +269,8 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     key: 'base',
     id: 30,
     context: Context.ETH,
+    /*
+     * TODO SDKV2
     contracts: {
       ...CONTRACTS.MAINNET.base,
       relayer: '0xaE8dc4a7438801Ec4edC0B035EcCCcF3807F4CC1',
@@ -253,6 +284,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
       portico: '0x610d4DFAC3EC32e0be98D18DDb280DACD76A1889',
       uniswapQuoterV2: '0x3d4e44Eb1374240CE5F1B871ab261CD16335B76a',
     },
+    */
     finalityThreshold: 0,
     nativeTokenDecimals: 18,
     cctpDomain: 6,
@@ -261,9 +293,12 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     key: 'klaytn',
     id: 13,
     context: Context.ETH,
+    /*
+     * TODO SDKV2
     contracts: {
       ...CONTRACTS.MAINNET.klaytn,
     },
+    */
     finalityThreshold: 0,
     nativeTokenDecimals: 18,
   },
@@ -271,10 +306,13 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     key: 'sei',
     id: 32,
     context: Context.SEI,
+    /*
+     * TODO SDKV2
     contracts: {
       ...CONTRACTS.MAINNET.sei,
       seiTokenTranslator: '',
     },
+    */
     finalityThreshold: 0,
     nativeTokenDecimals: 6,
   },
@@ -282,9 +320,12 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     key: 'scroll',
     id: 34,
     context: Context.ETH,
+    /*
+     * TODO SDKV2
     contracts: {
       ...CONTRACTS.MAINNET.scroll,
     },
+    */
     finalityThreshold: 0,
     nativeTokenDecimals: 18,
   },
@@ -292,9 +333,12 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     key: 'blast',
     id: 36,
     context: Context.ETH,
+    /*
+     * TODO SDKV2
     contracts: {
       ...CONTRACTS.MAINNET.blast,
     },
+    */
     finalityThreshold: 0,
     nativeTokenDecimals: 18,
   },
@@ -302,9 +346,12 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     key: 'xlayer',
     id: 37,
     context: Context.ETH,
+    /*
+     * TODO SDKV2
     contracts: {
       ...CONTRACTS.MAINNET.xlayer,
     },
+    */
     finalityThreshold: 0,
     nativeTokenDecimals: 18,
   },
@@ -312,6 +359,8 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     context: Context.COSMOS,
     key: 'wormchain',
     id: 3104,
+    /*
+     * TODO SDKV2
     contracts: {
       core: 'wormhole1ufs3tlq4umljk0qfe8k5ya0x6hpavn897u2cnf9k0en9jr7qarqqaqfk2j',
       token_bridge:
@@ -319,6 +368,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
       ibcShimContract:
         'wormhole14ejqjyq8um4p3xfqj74yld5waqljf88fz25yxnma0cngspxe3les00fpjx',
     },
+    */
     finalityThreshold: 0,
     nativeTokenDecimals: 6,
   },
@@ -326,7 +376,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     key: 'osmosis',
     id: 20,
     context: Context.COSMOS,
-    contracts: {},
+    //contracts: {},
     finalityThreshold: 0,
     nativeTokenDecimals: 6,
   },
@@ -334,7 +384,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     key: 'cosmoshub',
     id: 4000,
     context: Context.COSMOS,
-    contracts: {},
+    //contracts: {},
     finalityThreshold: 0,
     nativeTokenDecimals: 6,
   },
@@ -342,7 +392,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     key: 'evmos',
     id: 4001,
     context: Context.COSMOS,
-    contracts: {},
+    //contracts: {},
     finalityThreshold: 0,
     nativeTokenDecimals: 18,
     disabledAsDestination: true,
@@ -351,7 +401,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     key: 'kujira',
     id: 4002,
     context: Context.COSMOS,
-    contracts: {},
+    //contracts: {},
     finalityThreshold: 0,
     nativeTokenDecimals: 6,
   },
@@ -359,7 +409,7 @@ const MAINNET: { [chain in MainnetChainName]: ChainConfig } = {
     key: 'injective',
     id: 19,
     context: Context.COSMOS,
-    contracts: {},
+    //contracts: {},
     finalityThreshold: 0,
     nativeTokenDecimals: 18,
   },

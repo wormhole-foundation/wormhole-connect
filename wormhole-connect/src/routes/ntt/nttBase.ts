@@ -429,7 +429,7 @@ export abstract class NttBase extends BaseRoute {
     };
     if (this.TYPE === Route.NttManual) {
       const { gasToken } = config.chains[toChain]!;
-      let gas = gasEstimate;
+      const gas = gasEstimate;
       /*
        TODO SDKV2
       if (receiveTx) {

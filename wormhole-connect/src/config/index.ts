@@ -230,25 +230,25 @@ export async function getWormholeContextV2(): Promise<WormholeV2<NetworkV2>> {
 }
 
 export async function newWormholeContextV2(): Promise<WormholeV2<NetworkV2>> {
-  let v2Config: WormholeConfigOverridesV2<NetworkV2> = { chains: {} };
+  const v2Config: WormholeConfigOverridesV2<NetworkV2> = { chains: {} };
 
-  for (let key in config.chains) {
-    let chainV1 = key as ChainName;
-    let chainConfigV1 = config.chains[chainV1]!;
+  for (const key in config.chains) {
+    const chainV1 = key as ChainName;
+    const chainConfigV1 = config.chains[chainV1]!;
 
-    let chainContextV1 = chainConfigV1.context;
+    const chainContextV1 = chainConfigV1.context;
 
-    let chainV2 = config.sdkConverter.toChainV2(
+    const chainV2 = config.sdkConverter.toChainV2(
       chainV1 as ChainName,
     ) as ChainV2;
 
-    let rpc = config.rpcs[chainV1];
-    let tokenMap: ChainTokensV2 = {};
+    const rpc = config.rpcs[chainV1];
+    const tokenMap: ChainTokensV2 = {};
 
-    for (let token of config.tokensArr) {
+    for (const token of config.tokensArr) {
       const nativeChainV2 = config.sdkConverter.toChainV2(token.nativeChain);
 
-      let tokenV2: Partial<TokenV2> = {
+      const tokenV2: Partial<TokenV2> = {
         key: token.key,
         chain: chainV2,
         symbol: token.symbol,
@@ -258,7 +258,6 @@ export async function newWormholeContextV2(): Promise<WormholeV2<NetworkV2>> {
         const decimals =
           token.decimals[chainContextV1] ?? token.decimals.default;
         if (!decimals) {
-          debugger;
           continue;
         } else {
           tokenV2.decimals = decimals;

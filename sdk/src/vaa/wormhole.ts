@@ -1,4 +1,4 @@
-import { keccak256 } from '@certusone/wormhole-sdk';
+import { keccak256 } from '@wormhole-foundation/sdk';
 
 export { isBytes } from 'ethers/lib/utils';
 
@@ -18,7 +18,7 @@ export interface ParsedVaa {
   sequence: bigint;
   consistencyLevel: number;
   payload: Buffer;
-  hash: Buffer;
+  hash: Uint8Array;
 }
 
 export type SignedVaa = Uint8Array | Buffer;

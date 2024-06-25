@@ -1,5 +1,4 @@
-import { CONTRACTS } from '@certusone/wormhole-sdk';
-import { WormholeConfig, Context, ChainConfig, Contracts } from '../types';
+import { WormholeConfig, Context, ChainConfig } from '../types';
 
 /**
  * Testnet chain name to chain id mapping
@@ -46,19 +45,19 @@ export type TestnetChainId = (typeof TESTNET_CHAINS)[TestnetChainName];
 /**
  * chain name to contracts mapping
  */
-export type ChainContracts = {
-  [chain in TestnetChainName]: Contracts;
-};
 
 const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
   goerli: {
     key: 'goerli',
     id: 2,
     context: Context.ETH,
+    /*
+     * TODO SDKV2
     contracts: {
       ...CONTRACTS.TESTNET.ethereum,
       relayer: '0x9563a59c15842a6f322b10f69d1dd88b41f2e97b',
     },
+    */
     finalityThreshold: 64,
     nativeTokenDecimals: 18,
     cctpDomain: 0,
@@ -67,6 +66,8 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     key: 'solana',
     id: 1,
     context: Context.SOLANA,
+    /*
+     * TODO SDKV2
     contracts: {
       ...CONTRACTS.TESTNET.solana,
       relayer: '3bPRWXqtSfUaCw3S4wdgvypQtsSzcmvDeaqSqPDkncrg',
@@ -76,6 +77,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
         cctpMessageTransmitter: 'CCTPmbSD7gX1bxKPAmg77w8oFzNFpaQiQUWD43TKaecd',
       },
     },
+    */
     finalityThreshold: 32,
     nativeTokenDecimals: 9,
     cctpDomain: 5,
@@ -84,6 +86,8 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     key: 'mumbai',
     id: 5,
     context: Context.ETH,
+    /*
+     * TODO SDKV2
     contracts: {
       ...CONTRACTS.TESTNET.polygon,
       relayer: '0x9563a59c15842a6f322b10f69d1dd88b41f2e97b',
@@ -95,6 +99,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
         wormholeCircleRelayer: '0x4cb69FaE7e7Af841e44E1A1c30Af640739378bb2',
       },
     },
+    */
     finalityThreshold: 64,
     nativeTokenDecimals: 18,
     cctpDomain: 7,
@@ -103,10 +108,13 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     key: 'bsc',
     id: 4,
     context: Context.ETH,
+    /*
+     * TODO SDKV2
     contracts: {
       ...CONTRACTS.TESTNET.bsc,
       relayer: '0x9563a59c15842a6f322b10f69d1dd88b41f2e97b',
     },
+    */
     finalityThreshold: 3,
     nativeTokenDecimals: 18,
   },
@@ -114,6 +122,8 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     key: 'fuji',
     id: 6,
     context: Context.ETH,
+    /*
+     * TODO SDKV2
     contracts: {
       ...CONTRACTS.TESTNET.avalanche,
       relayer: '0x9563a59c15842a6f322b10f69d1dd88b41f2e97b',
@@ -124,6 +134,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
         wormholeCCTP: '0x58f4c17449c90665891c42e14d34aae7a26a472e',
       },
     },
+    */
     finalityThreshold: 1,
     nativeTokenDecimals: 18,
     cctpDomain: 1,
@@ -132,10 +143,13 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     key: 'fantom',
     id: 10,
     context: Context.ETH,
+    /*
+     * TODO SDKV2
     contracts: {
       ...CONTRACTS.TESTNET.fantom,
       relayer: '0x9563a59c15842a6f322b10f69d1dd88b41f2e97b',
     },
+    */
     finalityThreshold: 1,
     nativeTokenDecimals: 18,
   },
@@ -143,10 +157,13 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     key: 'alfajores',
     id: 14,
     context: Context.ETH,
+    /*
+     * TODO SDKV2
     contracts: {
       ...CONTRACTS.TESTNET.celo,
       relayer: '0x9563a59c15842a6f322b10f69d1dd88b41f2e97b',
     },
+    */
     finalityThreshold: 1,
     nativeTokenDecimals: 18,
   },
@@ -154,10 +171,13 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     key: 'moonbasealpha',
     id: 16,
     context: Context.ETH,
+    /*
+     * TODO SDKV2
     contracts: {
       ...CONTRACTS.TESTNET.moonbeam,
       relayer: '0x9563a59c15842a6f322b10f69d1dd88b41f2e97b',
     },
+    */
     finalityThreshold: 1,
     nativeTokenDecimals: 18,
   },
@@ -165,6 +185,8 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     key: 'sui',
     id: 21,
     context: Context.SUI,
+    /*
+     * TODO SDKV2
     contracts: {
       ...CONTRACTS.TESTNET.sui,
       relayer:
@@ -174,6 +196,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
       suiOriginalTokenBridgePackageId:
         '0x562760fc51d90d4ae1835bac3e91e0e6987d3497b06f066941d3e51f6e8d76d0',
     },
+    */
     finalityThreshold: 0,
     nativeTokenDecimals: 9,
   },
@@ -181,9 +204,12 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     key: 'aptos',
     id: 22,
     context: Context.APTOS,
+    /*
+     * TODO SDKV2
     contracts: {
       ...CONTRACTS.TESTNET.aptos,
     },
+    */
     finalityThreshold: 0,
     nativeTokenDecimals: 8,
   },
@@ -191,6 +217,8 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     key: 'arbitrumgoerli',
     id: 23,
     context: Context.ETH,
+    /*
+     * TODO SDKV2
     contracts: {
       ...CONTRACTS.TESTNET.arbitrum,
       cctpContracts: {
@@ -201,6 +229,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
       },
       tbtcGateway: '0x31A15e213B59E230b45e8c5c99dAFAc3d1236Ee2',
     },
+    */
     finalityThreshold: 0,
     nativeTokenDecimals: 18,
     cctpDomain: 3,
@@ -209,6 +238,8 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     key: 'optimismgoerli',
     id: 24,
     context: Context.ETH,
+    /*
+     * TODO SDKV2
     contracts: {
       ...CONTRACTS.TESTNET.optimism,
       cctpContracts: {
@@ -219,6 +250,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
       },
       tbtcGateway: '0x6449F4381f3d63bDfb36B3bDc375724aD3cD4621',
     },
+    */
     finalityThreshold: 0,
     nativeTokenDecimals: 18,
     cctpDomain: 2,
@@ -227,6 +259,8 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     key: 'basegoerli',
     id: 30,
     context: Context.ETH,
+    /*
+     * TODO SDKV2
     contracts: {
       ...CONTRACTS.TESTNET.base,
       relayer: '0xae8dc4a7438801ec4edc0b035eccccf3807f4cc1',
@@ -238,6 +272,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
       },
       tbtcGateway: '0xe3e0511EEbD87F08FbaE4486419cb5dFB06e1343',
     },
+    */
     finalityThreshold: 0,
     nativeTokenDecimals: 18,
     cctpDomain: 6,
@@ -246,9 +281,12 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     key: 'klaytn',
     id: 13,
     context: Context.ETH,
+    /*
+     * TODO SDKV2
     contracts: {
       ...CONTRACTS.TESTNET.klaytn,
     },
+    */
     finalityThreshold: 0,
     nativeTokenDecimals: 18,
   },
@@ -256,11 +294,14 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     key: 'sei',
     id: 32,
     context: Context.SEI,
+    /*
+     * TODO SDKV2
     contracts: {
       ...CONTRACTS.TESTNET.sei,
       seiTokenTranslator:
         'sei1dkdwdvknx0qav5cp5kw68mkn3r99m3svkyjfvkztwh97dv2lm0ksj6xrak',
     },
+    */
     finalityThreshold: 0,
     nativeTokenDecimals: 6,
   },
@@ -268,9 +309,12 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     key: 'scroll',
     id: 34,
     context: Context.ETH,
+    /*
+     * TODO SDKV2
     contracts: {
       ...CONTRACTS.TESTNET.scroll,
     },
+    */
     finalityThreshold: 0,
     nativeTokenDecimals: 18,
   },
@@ -278,9 +322,12 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     key: 'blast',
     id: 36,
     context: Context.ETH,
+    /*
+     * TODO SDKV2
     contracts: {
       ...CONTRACTS.TESTNET.blast,
     },
+    */
     finalityThreshold: 0,
     nativeTokenDecimals: 18,
   },
@@ -288,9 +335,12 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     key: 'xlayer',
     id: 37,
     context: Context.ETH,
+    /*
+     * TODO SDKV2
     contracts: {
       ...CONTRACTS.TESTNET.xlayer,
     },
+    */
     finalityThreshold: 0,
     nativeTokenDecimals: 18,
   },
@@ -298,6 +348,8 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     context: Context.COSMOS,
     key: 'wormchain',
     id: 3104,
+    /*
+     * TODO SDKV2
     contracts: {
       core: 'wormhole16jzpxp0e8550c9aht6q9svcux30vtyyyyxv5w2l2djjra46580wsazcjwp',
       token_bridge:
@@ -305,6 +357,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
       ibcShimContract:
         'wormhole1ctnjk7an90lz5wjfvr3cf6x984a8cjnv8dpmztmlpcq4xteaa2xs9pwmzk',
     },
+    */
     finalityThreshold: 0,
     nativeTokenDecimals: 6,
   },
@@ -312,10 +365,13 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     key: 'osmosis',
     id: 20,
     context: Context.COSMOS,
+    /*
+     * TODO SDKV2
     contracts: {
       core: '',
       token_bridge: '',
     },
+    */
     finalityThreshold: 0,
     nativeTokenDecimals: 6,
   },
@@ -323,7 +379,10 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     key: 'cosmoshub',
     id: 4000,
     context: Context.COSMOS,
+    /*
+     * TODO SDKV2
     contracts: {},
+    */
     finalityThreshold: 0,
     nativeTokenDecimals: 6,
   },
@@ -331,7 +390,10 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     key: 'evmos',
     id: 4001,
     context: Context.COSMOS,
+    /*
+     * TODO SDKV2
     contracts: {},
+    */
     finalityThreshold: 0,
     nativeTokenDecimals: 18,
     disabledAsDestination: true,
@@ -340,7 +402,10 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     key: 'kujira',
     id: 4002,
     context: Context.COSMOS,
+    /*
+     * TODO SDKV2
     contracts: {},
+    */
     finalityThreshold: 0,
     nativeTokenDecimals: 6,
   },
@@ -348,6 +413,8 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     key: 'sepolia',
     id: 10002,
     context: Context.ETH,
+    /*
+     * TODO SDKV2
     contracts: {
       ...CONTRACTS.TESTNET.sepolia,
       cctpContracts: {
@@ -355,6 +422,7 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
         cctpMessageTransmitter: '0x7865fafc2db2093669d92c0f33aeef291086befd',
       },
     },
+    */
     finalityThreshold: 0,
     nativeTokenDecimals: 18,
     cctpDomain: 0,
@@ -363,9 +431,12 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     key: 'arbitrum_sepolia',
     id: 10003,
     context: Context.ETH,
+    /*
+     * TODO SDKV2
     contracts: {
       ...CONTRACTS.TESTNET.arbitrum_sepolia,
     },
+    */
     finalityThreshold: 0,
     nativeTokenDecimals: 18,
   },
@@ -373,9 +444,12 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     key: 'base_sepolia',
     id: 10004,
     context: Context.ETH,
+    /*
+     * TODO SDKV2
     contracts: {
       ...CONTRACTS.TESTNET.base_sepolia,
     },
+    */
     finalityThreshold: 0,
     nativeTokenDecimals: 18,
   },
@@ -383,9 +457,12 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     key: 'optimism_sepolia',
     id: 10005,
     context: Context.ETH,
+    /*
+     * TODO SDKV2
     contracts: {
       ...CONTRACTS.TESTNET.optimism_sepolia,
     },
+    */
     finalityThreshold: 0,
     nativeTokenDecimals: 18,
   },
@@ -393,7 +470,10 @@ const TESTNET: { [chain in TestnetChainName]: ChainConfig } = {
     key: 'injective',
     id: 19,
     context: Context.COSMOS,
+    /*
+     * TODO SDKV2
     contracts: {},
+    */
     finalityThreshold: 0,
     nativeTokenDecimals: 6,
   },

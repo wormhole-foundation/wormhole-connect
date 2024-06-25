@@ -27,7 +27,7 @@ class P<T> {
   // assertion error.
   parse(buffer: Buffer): T | null {
     try {
-      let result = this.parser.parse(buffer);
+      const result = this.parser.parse(buffer);
       delete result['end'];
       return result;
     } catch (e: any) {
@@ -39,7 +39,7 @@ class P<T> {
     }
   }
   or<U>(other: P<U>): P<T | U> {
-    let p = new P<T | U>(other.parser);
+    const p = new P<T | U>(other.parser);
     p.parse = (buffer: Buffer): T | U | null => {
       return this.parse(buffer) ?? other.parse(buffer);
     };
@@ -90,13 +90,13 @@ export function parse(buffer: Buffer): VAA<Payload | Other> {
     // @ts-ignore
     delete payload['tokenURILength'];
   }
-  var myVAA = { ...vaa, payload };
+  const myVAA = { ...vaa, payload };
   return myVAA;
 }
 // Parse the VAA envelope without looking into the payload.
 // If you want to parse the payload as well, use 'parse'.
 export function parseEnvelope(buffer: Buffer): VAA<Buffer> {
-  var vaa = vaaParser.parse(buffer);
+  const vaa = vaaParser.parse(buffer);
   delete vaa['end'];
   delete vaa['signatureCount'];
   vaa.payload = Buffer.from(vaa.payload);
@@ -154,7 +154,7 @@ function vaaBody(vaa: VAA<Payload | Other>) {
   if (vaa.payload.type === 'Other') {
     payload_str = vaa.payload.hex;
   } else {
-    let payload = vaa.payload;
+    const payload = vaa.payload;
     switch (payload.module) {
       case 'Core':
         switch (payload.type) {

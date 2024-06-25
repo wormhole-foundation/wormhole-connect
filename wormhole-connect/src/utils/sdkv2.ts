@@ -23,14 +23,14 @@ export async function getForeignTokenAddress<C extends Chain>(
 
   // First, get token key from origin chain
   let tokenKey: TokenKey | null = null;
-  for (let tc of Object.values(originChainContext.config.tokenMap || {})) {
+  for (const tc of Object.values(originChainContext.config.tokenMap || {})) {
     if (tc.address === token.address.toString()) {
       tokenKey = tc.key;
     }
   }
 
   if (tokenKey) {
-    let chainToken = chainContext.config.tokenMap?.[tokenKey];
+    const chainToken = chainContext.config.tokenMap?.[tokenKey];
     if (chainToken) {
       // Use cached value
       //console.log('returning cached fa');

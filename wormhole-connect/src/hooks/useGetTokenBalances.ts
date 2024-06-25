@@ -76,7 +76,7 @@ const useGetTokenBalances = (
           const rpc = platform.getRpc(chainV2);
           const tokenIdMapping: Record<string, TokenConfig> = {};
           const tokenAddresses = [];
-          for (let tokenConfig of needsUpdate) {
+          for (const tokenConfig of needsUpdate) {
             updatedBalances[tokenConfig.key] = {
               balance: '0',
               lastUpdated: now,
@@ -85,7 +85,7 @@ const useGetTokenBalances = (
             try {
               let address: string | null = null;
 
-              let foreignAddress = await getForeignTokenAddress(
+              const foreignAddress = await getForeignTokenAddress(
                 config.sdkConverter.toTokenIdV2(tokenConfig),
                 chainV2,
               );
@@ -117,8 +117,8 @@ const useGetTokenBalances = (
               tokenAddresses as TokenAddress<typeof chainV2>[],
             );
 
-          for (let tokenAddress in result) {
-            let tokenConfig = tokenIdMapping[tokenAddress];
+          for (const tokenAddress in result) {
+            const tokenConfig = tokenIdMapping[tokenAddress];
             const balance = result[tokenAddress];
             let formatted: string | null = null;
             if (balance !== null) {

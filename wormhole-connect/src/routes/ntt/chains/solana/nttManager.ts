@@ -5,7 +5,10 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { InboundQueuedTransfer } from '../../types';
 import { /*solanaContext,*/ toChainId, toChainName } from 'utils/sdk';
-import { TransferWallet, postVaa, signAndSendTransaction } from 'utils/wallet';
+import {
+  TransferWallet,
+  /*postVaa,*/ signAndSendTransaction,
+} from 'utils/wallet';
 import {
   Connection,
   Keypair,
@@ -22,7 +25,7 @@ import {
 } from '@solana/spl-token';
 import { BN, IdlAccounts, Program } from '@coral-xyz/anchor';
 // import { SignedVaa, parseVaa } from '@certusone/wormhole-sdk/lib/esm';
-import { utils } from 'ethers';
+//import { utils } from 'ethers';
 import { deserializePayload } from '@wormhole-foundation/sdk-definitions';
 import { Ntt } from '@wormhole-foundation/sdk-definitions-ntt';
 import {
@@ -178,6 +181,7 @@ export class NttManagerSolana {
   }
 
   async receiveMessage(vaa: string, payer: string): Promise<string> {
+    /*
     const core = CONFIG.wh.mustGetContracts('solana').core;
     if (!core) throw new Error('Core not found');
     const config = await this.getConfig();
@@ -258,6 +262,8 @@ export class NttManagerSolana {
       { commitment: 'finalized' },
     );
     return txId;
+    */
+    return 'TODO SDKV2';
   }
 
   async getCurrentOutboundCapacity(): Promise<string> {

@@ -26,11 +26,11 @@ export interface NftTransfer {
   toChain: number;
 }
 export interface ParsedNftTransferVaa extends ParsedVaa, NftTransfer {}
-export interface NftRegisterChain extends TokenBridgeRegisterChain {}
+export type NftRegisterChain = TokenBridgeRegisterChain;
 export interface ParsedNftBridgeRegisterChainVaa
   extends ParsedGovernanceVaa,
     NftRegisterChain {}
-export interface NftBridgeUpgradeContract extends TokenBridgeUpgradeContract {}
+export type NftBridgeUpgradeContract = TokenBridgeUpgradeContract;
 export interface ParsedNftBridgeUpgradeContractVaa
   extends ParsedGovernanceVaa,
     NftBridgeUpgradeContract {}

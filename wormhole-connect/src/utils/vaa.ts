@@ -7,7 +7,7 @@ import {
   ParsedMessage,
   ParsedRelayerMessage,
   getCurrentBlock,
-  isEvmChain,
+  //isEvmChain,
 } from './sdk';
 import { repairVaaIfNeeded } from './repairVaa';
 import { VAA, Wormhole, deserialize } from '@wormhole-foundation/sdk';
@@ -47,6 +47,8 @@ export async function getWormholeLogEvm(
   chain: ChainId | ChainName,
   receipt: providers.TransactionReceipt,
 ): Promise<providers.Log> {
+  throw new Error('Unimplemented');
+  /*
   if (!isEvmChain(chain)) {
     throw new Error('Not an evm chain');
   }
@@ -58,6 +60,7 @@ export async function getWormholeLogEvm(
     throw new Error(NO_VAA_FOUND);
   }
   return bridgeLogs[0];
+  */
 }
 
 export function getEmitterAndSequence(

@@ -28,6 +28,8 @@ export type ChainResourceMap = {
   [chain in ChainName]?: string;
 };
 
+/*
+ * TODO SDKV2
 export type Contracts = {
   core?: string;
   token_bridge?: string;
@@ -47,12 +49,13 @@ export type Contracts = {
   portico?: string;
   uniswapQuoterV2?: string;
 };
+*/
 
 export type ChainConfig = {
   key: ChainName;
   id: ChainId;
   context: Context;
-  contracts: Contracts;
+  //contracts: Contracts;
   finalityThreshold: number;
   nativeTokenDecimals: number;
   cctpDomain?: number;

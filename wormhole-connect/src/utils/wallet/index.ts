@@ -258,7 +258,9 @@ export const postVaa = async (
   connection: any,
   coreContract: string,
   signedVAA: Buffer,
-) => {};
+) => {
+  return 'lol';
+};
 
 /*
    * TODO SDKV2
