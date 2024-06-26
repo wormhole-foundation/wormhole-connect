@@ -72,8 +72,8 @@ export class WormholeContext extends MultiProvider<Domain> {
         this.conf.env === 'mainnet'
           ? MAINNET_CHAINS
           : this.conf.env === 'devnet'
-          ? DEVNET_CHAINS
-          : TESTNET_CHAINS;
+            ? DEVNET_CHAINS
+            : TESTNET_CHAINS;
       const chainConfig = (chains as any)[n];
       if (!chainConfig) throw new Error(`invalid network name ${n}`);
       // register domain
@@ -188,8 +188,8 @@ export class WormholeContext extends MultiProvider<Domain> {
     return env === 'mainnet'
       ? MAINNET_CONFIG
       : env === 'devnet'
-      ? DEVNET_CONFIG
-      : TESTNET_CONFIG;
+        ? DEVNET_CONFIG
+        : TESTNET_CONFIG;
   }
 
   // BEGIN stubbed methods for SDKV2 migration
@@ -204,6 +204,9 @@ export class WormholeContext extends MultiProvider<Domain> {
   getCurrentBlock() {
     return 0;
   }
+
+  /* @ts-ignore */
+  mustGetProvider(a: any) {}
 
   get contracts() {
     return {

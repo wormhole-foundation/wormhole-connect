@@ -75,7 +75,7 @@ const useGetTokenBalances = (
           const platform = wh.getPlatform(chainToPlatform(chainV2));
           const rpc = platform.getRpc(chainV2);
           const tokenIdMapping: Record<string, TokenConfig> = {};
-          const tokenAddresses = [];
+          const tokenAddresses: string[] = [];
           for (const tokenConfig of needsUpdate) {
             updatedBalances[tokenConfig.key] = {
               balance: '0',
@@ -108,6 +108,7 @@ const useGetTokenBalances = (
             return;
           }
 
+          debugger;
           const result = await platform
             .utils()
             .getBalances(

@@ -127,6 +127,7 @@ export const estimateAverageGasFee = async (
   gasLimit: BigNumberish,
 ): Promise<BigNumber> => {
   const provider = config.wh.mustGetProvider(chain);
+  /* @ts-ignore */
   const gasPrice = await provider.getGasPrice();
   // This is a naive estimate 30% higher than what the oracle says
   return gasPrice.mul(gasLimit).mul(130).div(100);

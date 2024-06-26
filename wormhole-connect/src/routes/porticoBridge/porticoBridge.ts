@@ -608,9 +608,8 @@ export abstract class PorticoBridge extends BaseRoute {
     if (!finalToken.tokenId) {
       throw new Error('Unable to get final token');
     }
-    const destCanonicalTokenAddress = await getCanonicalTokenAddress(
-      finalToken,
-    );
+    const destCanonicalTokenAddress =
+      await getCanonicalTokenAddress(finalToken);
 
     if (!destCanonicalTokenAddress)
       throw new Error('Couldnt resolve destCanonicalTokenAddress');
@@ -658,6 +657,7 @@ export abstract class PorticoBridge extends BaseRoute {
     const { recipientAddress } = parsePorticoPayload(payloadBuffer);
     adaptedMessage.recipient = recipientAddress;
     const provider = config.wh.mustGetProvider(chain);
+    /* @ts-ignore */
     const { data } = await provider.getTransaction(tx);
     adaptedMessage.inputData = data;
     return adaptedMessage;
@@ -826,6 +826,7 @@ export abstract class PorticoBridge extends BaseRoute {
       };
     }
     const provider = config.wh.mustGetProvider(txData.toChain);
+    /* @ts-ignore */
     const receipt = await provider.getTransactionReceipt(
       hexlify(receiveTx, { allowMissingPrefix: true }),
     );

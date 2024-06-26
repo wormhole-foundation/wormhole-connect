@@ -245,7 +245,7 @@ export function hydrateHrefTemplate(
   const targetTemplate = templateParts?.find((p) =>
     p.includes('{:targetChain}'),
   );
-  const hydratedParts = [];
+  const hydratedParts: string[] = [];
   if (fromChain && sourceTemplate) {
     const source = sourceTemplate.replace('{:sourceChain}', fromChain);
     hydratedParts.push(source);
