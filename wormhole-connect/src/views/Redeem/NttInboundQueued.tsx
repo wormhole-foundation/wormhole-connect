@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from 'store';
 import { isSignedNttMessage as isSignedNttMessage } from 'routes';
-import { NttManual, NttRelay } from 'routes/ntt';
+//import { NttManual, NttRelay } from 'routes/ntt';
 import Header from './Header';
 import { useDispatch } from 'react-redux';
 import Button from 'components/Button';
@@ -18,12 +18,14 @@ import { Context } from '@wormhole-foundation/wormhole-connect-sdk';
 import WalletsModal from '../WalletModal';
 import AlertBanner from 'components/AlertBanner';
 import Spacer from 'components/Spacer';
-import { Route } from 'config/types';
+//import { Route } from 'config/types';
+/*
 import {
   InboundQueuedTransferNotFoundError,
   InboundQueuedTransferStillQueuedError,
   ContractIsPausedError,
 } from 'routes/ntt/errors';
+*/
 import { setRedeemTx, setTransferComplete } from 'store/redeem';
 import { OPACITY } from 'utils/style';
 import { useTheme } from '@mui/material';
@@ -91,8 +93,8 @@ const NttInboundQueued = () => {
     const { toChain, recipientNttManager, messageDigest, recipient } =
       signedMessage;
     setInProgress(true);
-    const nttRoute =
-      route === Route.NttManual ? new NttManual() : new NttRelay();
+    const nttRoute = false;
+    //route === Route.NttManual ? new NttManual() : new NttRelay();
     let tx: string | undefined;
     try {
       const toConfig = config.chains[toChain]!;

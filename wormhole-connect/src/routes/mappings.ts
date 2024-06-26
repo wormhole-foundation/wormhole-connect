@@ -8,7 +8,6 @@ import { SDKv2Route } from './sdkv2/route';
 import { RouteAbstract } from './abstracts/routeAbstract';
 import { ETHBridge } from './porticoBridge/ethBridge';
 import { wstETHBridge } from './porticoBridge/wstETHBridge';
-import { NttManual, NttRelay } from './ntt';
 
 import config from 'config';
 
@@ -33,10 +32,6 @@ export function getRoute(route: Route): RouteAbstract {
       return new ETHBridge();
     case Route.wstETHBridge:
       return new wstETHBridge();
-    case Route.NttManual:
-      return new NttManual();
-    case Route.NttRelay:
-      return new NttRelay();
     // TODO SDKV2
     default:
       return new SDKv2Route(
