@@ -2,7 +2,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from 'store';
 import { ChainName, TokenId } from 'sdklegacy';
 import { useEffect, useState } from 'react';
-import { BigNumber } from 'ethers';
+import { BigNumber } from 'ethers5';
 import {
   accessBalance,
   Balances,

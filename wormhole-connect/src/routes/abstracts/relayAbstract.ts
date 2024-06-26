@@ -1,5 +1,5 @@
 import { ChainId, ChainName, TokenId } from 'sdklegacy';
-import { BigNumber } from 'ethers';
+import { BigNumber } from 'ethers5';
 
 export abstract class RelayAbstract {
   // swap information (native gas slider)

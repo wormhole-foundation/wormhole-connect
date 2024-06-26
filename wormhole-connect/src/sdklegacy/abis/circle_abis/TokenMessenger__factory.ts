@@ -2,7 +2,7 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer, utils } from 'ethers';
+import { Contract, Signer, utils } from 'ethers5';
 import type { Provider } from '@ethersproject/providers';
 import type { TokenMessenger, TokenMessengerInterface } from './TokenMessenger';
 

@@ -1,4 +1,4 @@
-import { BigNumber, utils } from 'ethers';
+import { BigNumber, utils } from 'ethers5';
 import { ChainName, ChainId, Context, TokenId, NATIVE } from 'sdklegacy';
 import config from 'config';
 import { GasEstimateOptions, Route } from 'config/types';

@@ -1,4 +1,4 @@
-import { ethers } from 'ethers';
+import { ethers } from 'ethers5';
 import { ChainName, Context, WormholeConfig } from './types';
 
 export function filterByContext(config: WormholeConfig, context: Context) {

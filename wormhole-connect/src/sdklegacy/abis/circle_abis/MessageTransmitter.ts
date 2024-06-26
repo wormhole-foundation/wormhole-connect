@@ -12,7 +12,7 @@ import type {
   PopulatedTransaction,
   Signer,
   utils,
-} from 'ethers';
+} from 'ethers5';
 import type {
   FunctionFragment,
   Result,

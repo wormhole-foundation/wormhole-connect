@@ -1,6 +1,6 @@
 import { keccak256 } from '@wormhole-foundation/sdk';
 
-export { isBytes } from 'ethers/lib/utils';
+export { isBytes } from 'ethers5/lib/utils';
 
 export interface GuardianSignature {
   index: number;

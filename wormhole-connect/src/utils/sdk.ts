@@ -1,4 +1,4 @@
-import { BigNumber } from 'ethers';
+import { BigNumber } from 'ethers5';
 import { ChainId, ChainName, TokenId } from 'sdklegacy';
 import { getWrappedTokenId } from '.';
 import config from 'config';

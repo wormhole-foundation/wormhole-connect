@@ -2,7 +2,7 @@
 import config from 'config';
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { BigNumber } from 'ethers';
+import { BigNumber } from 'ethers5';
 import { setReceiverNativeBalance } from 'store/transferInput';
 */
 

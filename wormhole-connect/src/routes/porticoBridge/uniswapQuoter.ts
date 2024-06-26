@@ -1,5 +1,5 @@
 import { ChainId, ChainName } from 'sdklegacy';
-import { BigNumber /*ethers*/ } from 'ethers';
+import { BigNumber /*ethers*/ } from 'ethers5';
 //import { uniswapQuoterV2Abi } from './abis';
 //import config from 'config';
 

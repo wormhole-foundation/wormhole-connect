@@ -55,13 +55,14 @@
     "axios": "^1.2.4",
     "binary-parser": "^2.2.1",
     "cosmjs-types": "^0.9.0",
-    "ethers": "^5.7.2",
-    "ethers6": "npm:ethers@^6.4.2",
+    "ethers": "^6.4.2",
+    "ethers5": "npm:ethers@^5.7.2",
     "lz-string": "^1.5.0",
     "material-ui-popup-state": "^5.0.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-redux": "^8.0.5",
+    "rpc-websockets": "^7.11.0",
     "sha3": "^2.1.4",
     "tss-react": "^4.7.7",
     "use-debounce": "^9.0.4",
@@ -133,6 +134,9 @@
   "overrides": {
     "@injectivelabs/sdk-ts@1.10.72": {
       "@injectivelabs/token-metadata": "1.10.42"
+    },
+    "@injectivelabs/sdk-ts@1.14.11": {
+      "ethers": "5.7.2"
     },
     "@ledgerhq/hw-transport@6.27.1": {
       "@ledgerhq/errors": "6.10.2",

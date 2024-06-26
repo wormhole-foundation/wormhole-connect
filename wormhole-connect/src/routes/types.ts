@@ -1,7 +1,7 @@
 import { Route } from 'config/types';
 import { ParsedMessage, ParsedRelayerMessage } from '../utils/sdk';
 import { TokenPrices } from 'store/tokenPrices';
-import { BigNumber } from 'ethers';
+import { BigNumber } from 'ethers5';
 import { TokenId } from 'sdklegacy';
 
 export type TokenTransferMessage = ParsedMessage;

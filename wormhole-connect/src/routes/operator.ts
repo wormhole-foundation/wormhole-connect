@@ -1,6 +1,6 @@
 /*import { PublicKey } from '@solana/web3.js';*/
 import { ChainId, ChainName, TokenId } from 'sdklegacy';
-import { BigNumber } from 'ethers';
+import { BigNumber } from 'ethers5';
 
 import config from 'config';
 import { TokenConfig, Route } from 'config/types';

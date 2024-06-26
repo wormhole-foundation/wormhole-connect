@@ -5,7 +5,7 @@ import {
   ParsedMessage as SdkParsedMessage,
   ParsedRelayerMessage as SdkParsedRelayerMessage,
 } from 'sdklegacy';
-import { BigNumber, BigNumberish, utils } from 'ethers';
+import { BigNumber, BigNumberish, utils } from 'ethers5';
 import config from 'config';
 import { toFixedDecimals } from 'utils/balance';
 import { ParsedMessage, ParsedRelayerMessage, PayloadType } from 'utils/sdk';

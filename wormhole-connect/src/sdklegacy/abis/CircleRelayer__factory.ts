@@ -8,7 +8,7 @@ import {
   ContractFactory,
   BigNumberish,
   Overrides,
-} from 'ethers';
+} from 'ethers5';
 import type { Provider, TransactionRequest } from '@ethersproject/providers';
 import type { PromiseOrValue } from './common';
 import type { CircleRelayer, CircleRelayerInterface } from './CircleRelayer';

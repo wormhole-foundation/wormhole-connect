@@ -2,7 +2,7 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { Listener } from '@ethersproject/providers';
-import type { Event, EventFilter } from 'ethers';
+import type { Event, EventFilter } from 'ethers5';
 
 export interface TypedEvent<
   TArgsArray extends Array<any> = any,
@@ -32,15 +32,10 @@ export type MinEthersFactory<C, ARGS> = {
   deploy(...a: ARGS[]): Promise<C>;
 };
 
-export type GetContractTypeFromFactory<F> = F extends MinEthersFactory<
-  infer C,
-  any
->
-  ? C
-  : never;
+export type GetContractTypeFromFactory<F> =
+  F extends MinEthersFactory<infer C, any> ? C : never;
 
-export type GetARGsTypeFromFactory<F> = F extends MinEthersFactory<any, any>
-  ? Parameters<F['deploy']>
-  : never;
+export type GetARGsTypeFromFactory<F> =
+  F extends MinEthersFactory<any, any> ? Parameters<F['deploy']> : never;
 
 export type PromiseOrValue<T> = T | Promise<T>;

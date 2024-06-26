@@ -5,7 +5,7 @@ import {
   SendResult,
   ChainConfig,
 } from 'sdklegacy';
-import { ContractReceipt } from 'ethers';
+import { ContractReceipt } from 'ethers5';
 import {
   NotSupported,
   Wallet,

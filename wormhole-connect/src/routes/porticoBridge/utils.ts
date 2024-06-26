@@ -1,4 +1,4 @@
-import { hexStripZeros, hexZeroPad } from 'ethers/lib/utils.js';
+import { hexStripZeros, hexZeroPad } from 'ethers5/lib/utils.js';
 import {
   CreateOrderRequest,
   CreateOrderResponse,
@@ -7,7 +7,7 @@ import {
   PorticoTradeParameters,
   PorticoTransferDestInfo,
 } from './types';
-import { BigNumber } from 'ethers';
+import { BigNumber } from 'ethers5';
 import { Route, TokenConfig } from 'config/types';
 import { porticoAbi } from './abis';
 import {

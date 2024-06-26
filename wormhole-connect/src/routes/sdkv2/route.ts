@@ -10,7 +10,7 @@ import {
 } from '@wormhole-foundation/sdk';
 import { ChainId, ChainName, TokenId as TokenIdV1 } from 'sdklegacy';
 import { Route, TokenConfig, Network as NetworkV1 } from 'config/types';
-import { BigNumber } from 'ethers';
+import { BigNumber } from 'ethers5';
 import { RouteAbstract } from 'routes/abstracts';
 import {
   RelayerFee,

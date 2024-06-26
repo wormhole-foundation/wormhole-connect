@@ -1,4 +1,4 @@
-import { BigNumberish, utils } from 'ethers';
+import { BigNumberish, utils } from 'ethers5';
 import config from 'config';
 
 /**

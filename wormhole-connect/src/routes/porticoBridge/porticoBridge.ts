@@ -1,4 +1,4 @@
-import { BigNumber } from 'ethers';
+import { BigNumber } from 'ethers5';
 import {
   ChainId,
   ChainName,
@@ -19,7 +19,7 @@ import {
 import {
   /*fetchGlobalTx,*/ fetchVaa /*getEmitterAndSequence*/,
 } from 'utils/vaa';
-import { hexZeroPad, hexlify, parseUnits } from 'ethers/lib/utils.js';
+import { hexZeroPad, hexlify, parseUnits } from 'ethers5/lib/utils.js';
 import { BaseRoute } from '../bridge';
 import { PayloadType, /*isEvmChain,*/ toChainId, toChainName } from 'utils/sdk';
 import config from 'config';

@@ -22,7 +22,7 @@ import {
 import { isIlliquidDestToken } from 'routes/utils';
 import { toDecimals } from 'utils/balance';
 import { NO_INPUT } from 'utils/style';
-import { hexlify } from 'ethers/lib/utils.js';
+import { hexlify } from 'ethers5/lib/utils.js';
 import { TokenPrices } from 'store/tokenPrices';
 
 export abstract class BaseRoute extends RouteAbstract {

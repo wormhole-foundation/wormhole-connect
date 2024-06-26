@@ -1,6 +1,6 @@
 import { Parser } from 'binary-parser';
-import { BigNumber, ethers } from 'ethers';
-import { solidityKeccak256 } from 'ethers/lib/utils';
+import { BigNumber, ethers } from 'ethers5';
+import { solidityKeccak256 } from 'ethers5/lib/utils';
 import * as elliptic from 'elliptic';
 export interface Signature {
   guardianSetIndex: number;

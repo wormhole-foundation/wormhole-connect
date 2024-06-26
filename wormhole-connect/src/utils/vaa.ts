@@ -1,4 +1,4 @@
-import { providers } from 'ethers';
+import { providers } from 'ethers5';
 import axios from 'axios';
 import { ChainId, ChainName } from 'sdklegacy';
 import config, { newWormholeContextV2 } from 'config';
