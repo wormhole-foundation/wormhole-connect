@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from 'store';
-import { ChainName, TokenId } from '@wormhole-foundation/wormhole-connect-sdk';
+import { ChainName, TokenId } from 'sdklegacy';
 import { useEffect, useState } from 'react';
 import { BigNumber } from 'ethers';
 import {

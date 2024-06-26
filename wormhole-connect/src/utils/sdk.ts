@@ -1,9 +1,5 @@
 import { BigNumber } from 'ethers';
-import {
-  ChainId,
-  ChainName,
-  TokenId,
-} from '@wormhole-foundation/wormhole-connect-sdk';
+import { ChainId, ChainName, TokenId } from 'sdklegacy';
 import { getWrappedTokenId } from '.';
 import config from 'config';
 

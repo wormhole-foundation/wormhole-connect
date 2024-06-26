@@ -7,10 +7,7 @@ import {
   ERR_UNKNOWN,
   ERR_USER_REJECTED,
 } from 'telemetry/types';
-import {
-  ChainName,
-  InsufficientFundsForGasError,
-} from '@wormhole-foundation/wormhole-connect-sdk';
+import { ChainName, InsufficientFundsForGasError } from 'sdklegacy';
 import { SWAP_ERROR } from 'routes/porticoBridge/consts';
 
 // TODO SDKV2

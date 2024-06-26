@@ -1,6 +1,6 @@
 import { LinearProgress, linearProgressClasses } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import type { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+import type { ChainName } from 'sdklegacy';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';

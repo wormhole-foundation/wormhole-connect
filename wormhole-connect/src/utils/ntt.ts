@@ -1,6 +1,6 @@
 import config from 'config';
 import { NttManagerConfig, TokenConfig } from 'config/types';
-import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+import { ChainName } from 'sdklegacy';
 import { isEqualCaseInsensitive } from 'utils';
 
 export const isNttToken = (token: TokenConfig): boolean => {

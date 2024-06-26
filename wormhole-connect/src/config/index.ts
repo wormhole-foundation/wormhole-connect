@@ -2,9 +2,8 @@ import {
   ChainName,
   WormholeContext,
   WormholeConfig,
-  ForeignAssetCache,
   ChainResourceMap,
-} from '@wormhole-foundation/wormhole-connect-sdk';
+} from 'sdklegacy';
 import MAINNET from './mainnet';
 import TESTNET from './testnet';
 import DEVNET from './devnet';
@@ -179,12 +178,14 @@ export function buildConfig(
 const config = buildConfig();
 export default config;
 
+// TODO SDKV2: REMOVE
 export function getWormholeContext(
   network: Network,
   sdkConfig: WormholeConfig,
   tokens: TokensConfig,
   rpcs: ChainResourceMap,
 ): WormholeContext {
+  /*
   const foreignAssetCache = new ForeignAssetCache();
   for (const { tokenId, foreignAssets } of Object.values(tokens)) {
     if (tokenId && foreignAssets) {
@@ -198,15 +199,12 @@ export function getWormholeContext(
       }
     }
   }
+  */
 
-  const wh: WormholeContext = new WormholeContext(
-    network,
-    {
-      ...sdkConfig,
-      ...{ rpcs },
-    },
-    foreignAssetCache,
-  );
+  const wh: WormholeContext = new WormholeContext(network, {
+    ...sdkConfig,
+    ...{ rpcs },
+  });
 
   return wh;
 }

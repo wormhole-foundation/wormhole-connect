@@ -6,7 +6,7 @@ import type {
   ChainName,
   //SuiContext,
   //WormholeContext,
-} from '@wormhole-foundation/wormhole-connect-sdk';
+} from 'sdklegacy';
 
 import config from 'config';
 import { MAINNET_CHAINS } from 'config/mainnet';

@@ -1,7 +1,6 @@
 import { BigNumber } from 'ethers';
 import { MainnetChainId, MainnetChainName } from './config/MAINNET';
 import { TestnetChainId, TestnetChainName } from './config/TESTNET';
-import { WormholeContext } from './wormhole';
 import { DevnetChainId, DevnetChainName } from './config/DEVNET';
 
 export type Network = 'mainnet' | 'testnet' | 'devnet';

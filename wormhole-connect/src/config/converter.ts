@@ -1,4 +1,4 @@
-import * as v1 from '@wormhole-foundation/wormhole-connect-sdk';
+import * as v1 from 'sdklegacy';
 import {
   Network as NetworkConnect,
   TokenConfig as TokenConfigV1,

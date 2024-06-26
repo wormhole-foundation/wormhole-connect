@@ -1,5 +1,5 @@
 import { TransactionBlock } from '@mysten/sui.js';
-import { SendResult } from '@wormhole-foundation/wormhole-connect-sdk';
+import { SendResult } from 'sdklegacy';
 import { SuiWallet, getWallets } from '@xlabs-libs/wallet-aggregator-sui';
 import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
 

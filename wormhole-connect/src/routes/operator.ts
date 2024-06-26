@@ -1,9 +1,5 @@
 /*import { PublicKey } from '@solana/web3.js';*/
-import {
-  ChainId,
-  ChainName,
-  TokenId,
-} from '@wormhole-foundation/wormhole-connect-sdk';
+import { ChainId, ChainName, TokenId } from 'sdklegacy';
 import { BigNumber } from 'ethers';
 
 import config from 'config';

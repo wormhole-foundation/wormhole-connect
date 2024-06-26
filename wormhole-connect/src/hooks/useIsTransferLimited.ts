@@ -1,4 +1,4 @@
-import { ChainId } from '@wormhole-foundation/wormhole-connect-sdk';
+import { ChainId } from 'sdklegacy';
 import axios from 'axios';
 import config from 'config';
 import { hexlify } from 'ethers/lib/utils.js';

@@ -5,7 +5,7 @@ import {
   /*EthContext,*/
   TokenId,
   //WormholeContext,
-} from '@wormhole-foundation/wormhole-connect-sdk';
+} from 'sdklegacy';
 import { TokenConfig } from 'config/types';
 import {
   SignedMessage,

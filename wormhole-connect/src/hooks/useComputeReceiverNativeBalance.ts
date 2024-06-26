@@ -7,7 +7,7 @@ import { setReceiverNativeBalance } from 'store/transferInput';
 */
 
 import type { WalletData } from 'store/wallet';
-import type { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+import type { ChainName } from 'sdklegacy';
 
 /* TODO SDKV2
 import { getTokenDecimals } from 'utils';

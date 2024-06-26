@@ -24,7 +24,7 @@ import {
    * TODO SDKV2
   WormholeContext,
   */
-} from '@wormhole-foundation/wormhole-connect-sdk';
+} from '../src/sdklegacy';
 import { MAINNET_CHAINS } from '../src/config/mainnet/chains';
 import { MAINNET_TOKENS } from '../src/config/mainnet/tokens';
 import { TESTNET_CHAINS } from '../src/config/testnet/chains';

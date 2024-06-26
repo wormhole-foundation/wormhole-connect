@@ -19,7 +19,7 @@ import InputContainer from 'components/InputContainer';
 import {
   TokenNotSupportedForRelayError,
   TokenNotRegisteredError,
-} from '@wormhole-foundation/wormhole-connect-sdk';
+} from 'sdklegacy';
 import { isPorticoRoute } from 'routes/porticoBridge/utils';
 
 const defaultPrices = {};

@@ -111,10 +111,6 @@ const signatureParser = new Parser()
     lengthInBytes: 65,
     formatter: (arr) => Buffer.from(arr).toString('hex'),
   });
-function serialiseSignature(sig: Signature): string {
-  const body = [encode('uint8', sig.guardianSetIndex), sig.signature];
-  return body.join('');
-}
 // Parse a vaa envelope. The payload is returned as a byte array.
 const vaaParser = new Parser()
   .endianess('big')

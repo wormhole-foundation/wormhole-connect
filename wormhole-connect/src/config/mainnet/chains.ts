@@ -1,4 +1,4 @@
-import { CONFIG } from '@wormhole-foundation/wormhole-connect-sdk';
+import { CONFIG } from 'sdklegacy';
 import { ChainsConfig, Icon } from '../types';
 
 const { chains } = CONFIG.MAINNET;

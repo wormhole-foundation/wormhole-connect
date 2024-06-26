@@ -1,4 +1,4 @@
-import { ChainId, ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+import { ChainId, ChainName } from 'sdklegacy';
 import { BigNumber /*ethers*/ } from 'ethers';
 //import { uniswapQuoterV2Abi } from './abis';
 //import config from 'config';

@@ -1,11 +1,5 @@
 import { BigNumber, utils } from 'ethers';
-import {
-  ChainName,
-  ChainId,
-  Context,
-  TokenId,
-  NATIVE,
-} from '@wormhole-foundation/wormhole-connect-sdk';
+import { ChainName, ChainId, Context, TokenId, NATIVE } from 'sdklegacy';
 import config from 'config';
 import { GasEstimateOptions, Route } from 'config/types';
 //import RouteOperator from '../routes/operator';

@@ -2,7 +2,7 @@ import {
   //AptosContext,
   SendResult,
   //WormholeContext,
-} from '@wormhole-foundation/wormhole-connect-sdk';
+} from 'sdklegacy';
 import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
 import {
   AptosSnapAdapter,

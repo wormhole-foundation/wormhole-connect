@@ -1,6 +1,5 @@
 import { Network } from './types';
 import { Domain, MultiProvider } from '@nomad-xyz/multi-provider';
-import { BigNumber } from 'ethers';
 
 import MAINNET_CONFIG, { MAINNET_CHAINS } from './config/MAINNET';
 import TESTNET_CONFIG, { TESTNET_CHAINS } from './config/TESTNET';
@@ -9,16 +8,12 @@ import {
   ChainId,
   ChainName,
   Context,
-  NATIVE,
   ParsedMessage,
   ParsedRelayerMessage,
-  RedeemResult,
-  SendResult,
   TokenId,
   WormholeConfig,
 } from './types';
 import DEVNET_CONFIG, { DEVNET_CHAINS } from './config/DEVNET';
-import { ForeignAssetCache } from './utils';
 
 /**
  * The WormholeContext manages connections to Wormhole Core, Bridge and NFT Bridge contracts.
@@ -49,14 +44,9 @@ import { ForeignAssetCache } from './utils';
  * )
  */
 export class WormholeContext extends MultiProvider<Domain> {
-  private foreignAssetCache: ForeignAssetCache;
   readonly conf: WormholeConfig;
 
-  constructor(
-    env: Network,
-    conf?: WormholeConfig,
-    foreignAssetCache?: ForeignAssetCache,
-  ) {
+  constructor(env: Network, conf?: WormholeConfig) {
     super();
 
     if (conf) {
@@ -64,8 +54,6 @@ export class WormholeContext extends MultiProvider<Domain> {
     } else {
       this.conf = WormholeContext.getConfig(env);
     }
-
-    this.foreignAssetCache = foreignAssetCache || new ForeignAssetCache();
 
     this.registerProviders();
   }

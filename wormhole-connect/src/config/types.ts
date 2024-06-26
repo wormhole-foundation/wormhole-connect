@@ -7,7 +7,7 @@ import {
   Context,
   WormholeContext,
   WormholeConfig,
-} from '@wormhole-foundation/wormhole-connect-sdk';
+} from 'sdklegacy';
 
 // SDKv2
 import {

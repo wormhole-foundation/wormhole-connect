@@ -1,6 +1,6 @@
 import { Dispatch, useEffect, useMemo } from 'react';
 import { AnyAction } from '@reduxjs/toolkit';
-import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+import { ChainName } from 'sdklegacy';
 
 import config from 'config';
 import { Route, TokenConfig } from 'config/types';

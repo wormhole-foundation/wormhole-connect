@@ -1,5 +1,5 @@
 import React from 'react';
-import type { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+import type { ChainName } from 'sdklegacy';
 import { makeStyles } from 'tss-react/mui';
 import { LINK } from 'utils/style';
 import config from 'config';

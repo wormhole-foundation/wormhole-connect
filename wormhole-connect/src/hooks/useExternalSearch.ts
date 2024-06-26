@@ -1,4 +1,4 @@
-import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+import { ChainName } from 'sdklegacy';
 import config from 'config';
 import { useEffect, useState } from 'react';
 

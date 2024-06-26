@@ -1,8 +1,4 @@
-import {
-  ChainId,
-  ChainName,
-  TokenId,
-} from '@wormhole-foundation/wormhole-connect-sdk';
+import { ChainId, ChainName, TokenId } from 'sdklegacy';
 import { Route, TokenConfig } from 'config/types';
 import {
   UnsignedMessage,

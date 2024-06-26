@@ -8,11 +8,7 @@ import {
   isSameToken,
   TokenId as TokenIdV2,
 } from '@wormhole-foundation/sdk';
-import {
-  ChainId,
-  ChainName,
-  TokenId as TokenIdV1,
-} from '@wormhole-foundation/wormhole-connect-sdk';
+import { ChainId, ChainName, TokenId as TokenIdV1 } from 'sdklegacy';
 import { Route, TokenConfig, Network as NetworkV1 } from 'config/types';
 import { BigNumber } from 'ethers';
 import { RouteAbstract } from 'routes/abstracts';

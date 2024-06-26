@@ -4,7 +4,7 @@ import {
   Context,
   SendResult,
   ChainConfig,
-} from '@wormhole-foundation/wormhole-connect-sdk';
+} from 'sdklegacy';
 import { ContractReceipt } from 'ethers';
 import {
   NotSupported,

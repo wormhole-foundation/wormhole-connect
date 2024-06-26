@@ -1,6 +1,6 @@
 import { providers } from 'ethers';
 import axios from 'axios';
-import { ChainId, ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+import { ChainId, ChainName } from 'sdklegacy';
 import config, { newWormholeContextV2 } from 'config';
 import {
   ParsedMessage,

@@ -1,6 +1,6 @@
 import React from 'react';
 import { makeStyles } from 'tss-react/mui';
-import type { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+import type { ChainName } from 'sdklegacy';
 
 import config from 'config';
 import { displayAddress } from 'utils';

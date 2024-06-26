@@ -1,5 +1,5 @@
 import { toChainId } from '@wormhole-foundation/sdk';
-import { stripHexPrefix } from '@wormhole-foundation/wormhole-connect-sdk';
+import { stripHexPrefix } from 'sdklegacy';
 import LaunchIcon from '@mui/icons-material/Launch';
 import InputContainer from 'components/InputContainer';
 import config from 'config';

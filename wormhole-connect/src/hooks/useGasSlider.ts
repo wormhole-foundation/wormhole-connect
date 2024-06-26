@@ -2,7 +2,7 @@ import config from 'config';
 import RouteOperator from 'routes/operator';
 import { getWrappedToken } from 'utils';
 
-import type { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+import type { ChainName } from 'sdklegacy';
 import type { Route } from 'config/types';
 
 type Props = {

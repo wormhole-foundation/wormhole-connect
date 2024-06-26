@@ -5,7 +5,7 @@ import { useDispatch } from 'react-redux';
 import { setToken, setSupportedSourceTokens } from 'store/transferInput';
 
 import type { Route } from 'config/types';
-import type { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+import type { ChainName } from 'sdklegacy';
 
 import RouteOperator from 'routes/operator';
 

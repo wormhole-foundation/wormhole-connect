@@ -2,7 +2,7 @@
 // so that it loads dynamically as a separate bundle
 import { Network } from 'config/types';
 import config from 'config';
-import { SendResult } from '@wormhole-foundation/wormhole-connect-sdk';
+import { SendResult } from 'sdklegacy';
 import {
   SeiChainId,
   SeiWallet,
