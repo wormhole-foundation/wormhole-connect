@@ -34,9 +34,6 @@ import { AssociatedTokenWarning } from '../Bridge/Inputs/TokenWarnings';
 import { Route } from 'config/types';
 import SwitchToManualClaim from './SwitchToManualClaim';
 import { isPorticoRoute } from 'routes/porticoBridge/utils';
-import { isNttRoute, isSignedNttMessage } from 'routes';
-import { NttBase } from 'routes/ntt';
-import { setInboundQueuedTransfer } from 'store/ntt';
 import { getTokenDetails } from 'telemetry';
 import { interpretTransferError } from 'utils/errors';
 
@@ -264,50 +261,13 @@ function SendTo() {
       console.error(e);
     }
     if (txId !== undefined) {
-      const route = RouteOperator.getRoute(routeName);
-      if (
-        isNttRoute(route.TYPE) &&
-        signedMessage &&
-        isSignedNttMessage(signedMessage)
-      ) {
-        // The redeem may have resulted in the transfer being inbound queued
-        // so we need to check that before we set the transfer as complete
-        try {
-          const nttRoute = route as NttBase;
-          const inboundQueuedTransfer = await nttRoute.getInboundQueuedTransfer(
-            txData.toChain,
-            signedMessage.recipientNttManager,
-            signedMessage.messageDigest,
-          );
-          if (inboundQueuedTransfer) {
-            dispatch(setInboundQueuedTransfer(inboundQueuedTransfer));
-          } else {
-            const isTransferCompleted = await nttRoute.isTransferCompleted(
-              txData.toChain,
-              signedMessage,
-            );
-            if (isTransferCompleted) {
-              dispatch(setRedeemTx(txId));
-              dispatch(setTransferComplete(true));
+      dispatch(setRedeemTx(txId));
+      dispatch(setTransferComplete(true));
 
-              config.triggerEvent({
-                type: 'transfer.redeem.success',
-                details: transferDetails,
-              });
-            }
-          }
-        } catch (e) {
-          console.error(e);
-        }
-      } else {
-        dispatch(setRedeemTx(txId));
-        dispatch(setTransferComplete(true));
-
-        config.triggerEvent({
-          type: 'transfer.redeem.success',
-          details: transferDetails,
-        });
-      }
+      config.triggerEvent({
+        type: 'transfer.redeem.success',
+        details: transferDetails,
+      });
     }
   };
 

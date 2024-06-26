@@ -21,7 +21,6 @@ import { setRoute } from './store/router';
 import { clearWallets } from './store/wallet';
 import { clearPorticoBridge } from 'store/porticoBridge';
 import { useExternalSearch } from 'hooks/useExternalSearch';
-import { clearNtt } from 'store/ntt';
 import internalConfig from 'config';
 
 import BridgeV2 from 'views/v2/Bridge';
@@ -81,7 +80,6 @@ function AppRouter(props: Props) {
     if (prevRoute === redeemRoute && route !== redeemRoute) {
       dispatch(clearRedeem());
       dispatch(clearWallets());
-      dispatch(clearNtt());
       internalConfig.wh.registerProviders(); // reset providers that may have been set during transfer
     }
     // reset transfer state on leave
