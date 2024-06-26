@@ -3,7 +3,7 @@ import {
   EVMWallet,
   InjectedWallet,
   WalletConnectWallet,
-} from '@xlabs-libs/wallet-aggregator-evm';
+} from '@kev1n-peters/wallet-aggregator-evm';
 import config from 'config';
 
 export const wallets = {
