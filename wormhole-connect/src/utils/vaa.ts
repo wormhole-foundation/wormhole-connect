@@ -1,5 +1,4 @@
-import { ethers_contracts } from '@wormhole-foundation/sdk-evm-core';
-import { providers, BigNumberish } from 'ethers';
+import { providers } from 'ethers';
 import axios from 'axios';
 import { ChainId, ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
 import config, { newWormholeContextV2 } from 'config';
@@ -18,6 +17,7 @@ export type MessageIdentifier = {
   sequence: string;
 };
 
+/*
 export const NO_VAA_FOUND = 'No message publish found in logs';
 export async function getUnsignedVaaEvm(
   chain: ChainId | ChainName,
@@ -42,6 +42,7 @@ export async function getUnsignedVaaEvm(
     throw new Error('Failed to parse logs in getUnsignedVaaEvm');
   }
 }
+*/
 
 export async function getWormholeLogEvm(
   chain: ChainId | ChainName,
