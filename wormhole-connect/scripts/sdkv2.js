@@ -44,7 +44,7 @@ for (const workspace of workspaces) {
 //sdkPackages['@wormhole-foundation/sdk-definitions-ntt'] = NTT_SDK_PATH;
 
 execSync(`npm link ${Object.keys(sdkPackages).join(' ')}`, {
-  cwd: path.join(__dirname, '../../'),
+  cwd: path.join(__dirname, '../'),
 });
 
 for (const name in sdkPackages) {
