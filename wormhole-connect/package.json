@@ -110,10 +110,10 @@
     "eslint": "^8.31.0",
     "eslint-config-prettier": "^8.6.0",
     "typescript": "^5.3.3",
-    "vite": "^5.0.8",
-    "vite-bundle-visualizer": "^0.11.0",
-    "vite-plugin-checker": "^0.6.2",
-    "vite-plugin-dts": "^3.7.3",
+    "vite": "^5.3.1",
+    "vite-bundle-visualizer": "^1.2.1",
+    "vite-plugin-checker": "^0.6.4",
+    "vite-plugin-dts": "^3.9.1",
     "vitest": "^1.5.0"
   },
   "peerDependencies": {
