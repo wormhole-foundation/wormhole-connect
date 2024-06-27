@@ -108,7 +108,6 @@ const useGetTokenBalances = (
             return;
           }
 
-          debugger;
           const result = await platform
             .utils()
             .getBalances(
