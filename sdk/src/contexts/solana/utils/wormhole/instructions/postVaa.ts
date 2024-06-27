@@ -20,8 +20,6 @@ import BN from 'bn.js';
  * Make {@link TransactionInstruction} for `post_vaa` instruction.
  *
  * This is used in {@link createPostSignedVaaTransactions}'s last transaction.
- * `signatureSet` is a {@link web3.Keypair} generated outside of this method, which was used
- * to write signatures and the message hash to.
  *
  * https://github.com/certusone/wormhole/blob/main/solana/bridge/program/src/api/post_vaa.rs
  *

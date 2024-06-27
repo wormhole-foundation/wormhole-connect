@@ -9,6 +9,7 @@ import {
   TransactionSignature,
   Signer,
   Commitment,
+  ConfirmOptions,
 } from '@solana/web3.js';
 
 /**
@@ -16,13 +17,24 @@ import {
  * required to sign for each transaction.
  */
 export interface PreparedTransactions {
-  unsignedTransactions: Transaction[];
+  unsignedTransactions: TransactionWithIndex[];
   signers: Signer[];
+}
+
+export interface TransactionWithIndex {
+  transaction: Transaction;
+  signatureIndexes: number[];
+  index: number;
 }
 
 export interface TransactionSignatureAndResponse {
   signature: TransactionSignature;
   response: RpcResponseAndContext<SignatureResult>;
+}
+
+export interface SignSendAndConfirmTransactionResponse {
+  result: TransactionSignatureAndResponse[];
+  errors?: any[];
 }
 
 /**
@@ -104,13 +116,20 @@ export class NodeWallet {
   }
 }
 
+/**
+ * The transactions provided to this function should be ready to send.
+ * This function will do the following:
+ * 1. Add the {@param payer} as the feePayer and latest blockhash to the {@link Transaction}.
+ * 2. Sign using {@param signTransaction}.
+ * 3. Send raw transaction.
+ * 4. Confirm transaction.
+ */
 export async function sendAndConfirmTransactionsWithRetry(
   connection: Connection,
   signTransaction: SignTransaction,
   payer: string,
   unsignedTransactions: Transaction[],
-  maxRetries = 0,
-  commitment: Commitment = 'finalized',
+  options?: ConfirmOptions,
 ): Promise<TransactionSignatureAndResponse[]> {
   if (unsignedTransactions.length == 0) {
     return Promise.reject('No transactions provided to send.');
@@ -118,6 +137,7 @@ export async function sendAndConfirmTransactionsWithRetry(
 
   let currentRetries = 0;
   const output: TransactionSignatureAndResponse[] = [];
+  const maxRetries = options?.maxRetries || 0;
   for (const transaction of unsignedTransactions) {
     while (currentRetries <= maxRetries) {
       try {
@@ -126,7 +146,7 @@ export async function sendAndConfirmTransactionsWithRetry(
           signTransaction,
           payer,
           transaction,
-          commitment,
+          options?.commitment,
         );
         output.push(result);
         break;
@@ -139,7 +159,6 @@ export async function sendAndConfirmTransactionsWithRetry(
       return Promise.reject('Reached the maximum number of retries.');
     }
   }
-
   return Promise.resolve(output);
 }
 

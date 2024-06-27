@@ -19,6 +19,10 @@ import { createReadOnlyWormholeProgramInterface } from '../program';
 
 const MAX_LEN_GUARDIAN_KEYS = 19;
 
+export interface TransactionInstructionsWithSignatureIndexes {
+  instructions: TransactionInstruction[];
+  signatureIndexes: number[];
+}
 /**
  * This is used in {@link createPostSignedVaaTransactions}'s initial transactions.
  *
@@ -47,7 +51,7 @@ export async function createVerifySignaturesInstructions(
   vaa: SignedVaa | ParsedVaa,
   signatureSet: PublicKeyInitData,
   commitment?: Commitment,
-): Promise<TransactionInstruction[]> {
+): Promise<TransactionInstructionsWithSignatureIndexes[]> {
   const parsed = isBytes(vaa) ? parseVaa(vaa) : vaa;
   const guardianSetIndex = parsed.guardianSetIndex;
   const info = await getWormholeBridgeData(connection, wormholeProgramId);
@@ -61,12 +65,16 @@ export async function createVerifySignaturesInstructions(
     guardianSetIndex,
     commitment,
   );
+  if (guardianSetData === null) {
+    throw new Error('Guardian set account is empty');
+  }
 
   const guardianSignatures = parsed.guardianSignatures;
   const guardianKeys = guardianSetData.keys;
 
   const batchSize = 7;
-  const instructions: TransactionInstruction[] = [];
+  const instructions: TransactionInstructionsWithSignatureIndexes[] = [];
+  const signatureIndexes: number[] = [];
   for (let i = 0; i < Math.ceil(guardianSignatures.length / batchSize); ++i) {
     const start = i * batchSize;
     const end = Math.min(guardianSignatures.length, (i + 1) * batchSize);
@@ -81,22 +89,26 @@ export async function createVerifySignaturesInstructions(
       const key = guardianKeys.at(item.index)!;
       keys.push(key);
 
+      signatureIndexes.push(item.index);
+
       signatureStatus[item.index] = j;
     }
-
-    instructions.push(
-      createSecp256k1Instruction(signatures, keys, parsed.hash),
-    );
-    instructions.push(
-      createVerifySignaturesInstruction(
-        connection,
-        wormholeProgramId,
-        payer,
-        parsed,
-        signatureSet,
-        signatureStatus,
-      ),
-    );
+    const transactionInstructions: TransactionInstructionsWithSignatureIndexes =
+      {
+        instructions: [
+          createSecp256k1Instruction(signatures, keys, parsed.hash),
+          createVerifySignaturesInstruction(
+            connection,
+            wormholeProgramId,
+            payer,
+            parsed,
+            signatureSet,
+            signatureStatus,
+          ),
+        ],
+        signatureIndexes,
+      };
+    instructions.push(transactionInstructions);
   }
   return instructions;
 }
@@ -105,8 +117,6 @@ export async function createVerifySignaturesInstructions(
  * Make {@link TransactionInstruction} for `verify_signatures` instruction.
  *
  * This is used in {@link createVerifySignaturesInstructions} for each batch of signatures being verified.
- * `signatureSet` is a {@link web3.Keypair} generated outside of this method, used
- * for writing signatures and the message hash to.
  *
  * https://github.com/certusone/wormhole/blob/main/solana/bridge/program/src/api/verify_signature.rs
  *

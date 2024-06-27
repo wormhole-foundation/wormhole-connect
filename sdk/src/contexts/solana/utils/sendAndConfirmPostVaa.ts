@@ -8,16 +8,19 @@ import {
 } from '@solana/web3.js';
 import {
   SignTransaction,
-  sendAndConfirmTransactionsWithRetry,
   modifySignTransaction,
   TransactionSignatureAndResponse,
   PreparedTransactions,
+  TransactionWithIndex,
+  sendAndConfirmTransactionsWithRetry,
 } from './utils';
 import { addComputeBudget } from './computeBudget';
 import {
   createPostVaaInstruction,
   createVerifySignaturesInstructions,
   derivePostedVaaKey,
+  getSignatureSetData,
+  pendingSignatureVerificationTxs,
 } from './wormhole';
 import { isBytes, ParsedVaa, parseVaa, SignedVaa } from '../../../vaa/wormhole';
 
@@ -33,56 +36,118 @@ export async function postVaaWithRetry(
   maxRetries?: number,
   commitment?: Commitment,
 ): Promise<TransactionSignatureAndResponse[]> {
+  let parsedVaa: ParsedVaa;
   try {
     // Check if the VAA has already been posted
-    const parsedVaa = parseVaa(vaa);
+    parsedVaa = parseVaa(vaa);
     const postedVaaAddress = derivePostedVaaKey(
       wormholeProgramId,
       parsedVaa.hash,
     );
     const postedVaa = await connection.getAccountInfo(postedVaaAddress);
+    console.log('postedVaaAddress', postedVaaAddress, postedVaa);
     if (postedVaa !== null) {
       return [];
     }
   } catch (e) {
     console.error('Failed to check if VAA has already been posted:', e);
   }
+  const set = localStorage.getItem('signatureSet')?.split(',');
+  const signatureSet =
+    /*Keypair.generate();*/
+    Keypair.fromSecretKey(new Uint8Array(set as any));
+
+  console.log('signatureSet', signatureSet);
   const { unsignedTransactions, signers } =
     await createPostSignedVaaTransactions(
       connection,
       wormholeProgramId,
       payer,
       vaa,
+      signatureSet,
       commitment,
     );
   const postVaaTransaction = unsignedTransactions.pop();
   if (!postVaaTransaction) throw new Error('No postVaaTransaction');
-  postVaaTransaction.feePayer = new PublicKey(payer);
+  postVaaTransaction.transaction.feePayer = new PublicKey(payer);
 
-  for (const unsignedTransaction of unsignedTransactions) {
-    unsignedTransaction.feePayer = new PublicKey(payer);
-    await addComputeBudget(connection, unsignedTransaction, [], 0.75, 1, true);
-  }
-  const responses = await sendAndConfirmTransactionsWithRetry(
-    connection,
-    modifySignTransaction(signTransaction, ...signers),
-    payer.toString(),
+  // Returns the txs that are NOT present on the blockchain
+  const transactionsNotPresent = await pendingSignatureVerificationTxs(
     unsignedTransactions,
-    maxRetries,
+    connection,
+    wormholeProgramId,
+    signatureSet,
     commitment,
   );
+
+  console.log(
+    'unsignedTransactions & transactionsNotPresent & postVaaTransaction',
+    unsignedTransactions,
+    transactionsNotPresent,
+    postVaaTransaction,
+  );
+
+  for (const unsignedTransaction of transactionsNotPresent) {
+    unsignedTransaction.transaction.feePayer = new PublicKey(payer);
+    await addComputeBudget(
+      connection,
+      unsignedTransaction.transaction,
+      [],
+      0.75,
+      1,
+      true,
+    );
+  }
+
+  let responses: TransactionSignatureAndResponse[] = [];
+  if (!!transactionsNotPresent.length) {
+    responses = await sendAndConfirmTransactionsWithRetry(
+      connection,
+      modifySignTransaction(signTransaction, ...signers),
+      payer.toString(),
+      transactionsNotPresent.map((tx) => tx.transaction),
+      { maxRetries, commitment },
+    );
+    // if (responses.errors && responses.errors?.length > 0)
+    //   printError(responses.errors);
+  }
+
+  const signatureSetData1 = await getSignatureSetData(
+    connection,
+    signatureSet?.publicKey,
+    commitment,
+  );
+  console.log('signatureSetData1', signatureSetData1);
+
   //While the signature_set is used to create the final instruction, it doesn't need to sign it.
-  await addComputeBudget(connection, postVaaTransaction, [], 0.75, 1, true);
+  await addComputeBudget(
+    connection,
+    postVaaTransaction.transaction,
+    [],
+    0.75,
+    1,
+    true,
+  );
   responses.push(
     ...(await sendAndConfirmTransactionsWithRetry(
       connection,
       signTransaction,
       payer.toString(),
-      [postVaaTransaction],
-      maxRetries,
-      commitment,
+      [postVaaTransaction.transaction],
+      { maxRetries, commitment },
     )),
   );
+
+  const signatureSetData = await getSignatureSetData(
+    connection,
+    signatureSet?.publicKey,
+    commitment,
+  );
+  console.log('signatureSetData', signatureSetData);
+
+  // if (postVaaResponse.errors && postVaaResponse.errors?.length > 0)
+  //   printError(postVaaResponse.errors);
+
   return responses;
 }
 
@@ -107,10 +172,10 @@ export async function createPostSignedVaaTransactions(
   wormholeProgramId: PublicKeyInitData,
   payer: PublicKeyInitData,
   vaa: SignedVaa | ParsedVaa,
+  signatureSet: Keypair,
   commitment?: Commitment,
 ): Promise<PreparedTransactions> {
   const parsed = isBytes(vaa) ? parseVaa(vaa) : vaa;
-  const signatureSet = Keypair.generate();
 
   const verifySignaturesInstructions = await createVerifySignaturesInstructions(
     connection,
@@ -121,27 +186,43 @@ export async function createPostSignedVaaTransactions(
     commitment,
   );
 
-  const unsignedTransactions: Transaction[] = [];
-  for (let i = 0; i < verifySignaturesInstructions.length; i += 2) {
-    unsignedTransactions.push(
-      new Transaction().add(...verifySignaturesInstructions.slice(i, i + 2)),
-    );
+  const unsignedTransactions: TransactionWithIndex[] = [];
+  for (let i = 0; i < verifySignaturesInstructions.length; i++) {
+    const tx = new Transaction();
+    tx.add(...verifySignaturesInstructions[i].instructions);
+
+    unsignedTransactions.push({
+      transaction: tx,
+      index: i,
+      signatureIndexes: verifySignaturesInstructions[i].signatureIndexes,
+    });
   }
 
-  unsignedTransactions.push(
-    new Transaction().add(
-      createPostVaaInstruction(
-        connection,
-        wormholeProgramId,
-        payer,
-        parsed,
-        signatureSet.publicKey,
-      ),
+  const postVaaTx = new Transaction();
+  postVaaTx.add(
+    createPostVaaInstruction(
+      connection,
+      wormholeProgramId,
+      payer,
+      parsed,
+      signatureSet.publicKey,
     ),
   );
 
+  unsignedTransactions.push({
+    transaction: postVaaTx,
+    index: verifySignaturesInstructions.length,
+    signatureIndexes: [],
+  });
   return {
     unsignedTransactions,
     signers: [signatureSet],
   };
 }
+
+// function printError(errors: any[]) {
+//   throw new Error(
+//     'Error posting VAA to Solana \n' +
+//       errors.map((error) => error.toString()).join('\n'),
+//   );
+// }
