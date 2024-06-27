@@ -60,6 +60,7 @@ jobs:
           cache: "npm"
           cache-dependency-path: "wormhole-connect/package-lock.json"
       - run: cd wormhole-connect
+      - run: npm ci
       - run: npx tsx scripts/checkForeignAssetsConfig.ts
   build-hosted:
     runs-on: ubuntu-latest
