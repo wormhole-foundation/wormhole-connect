@@ -9,23 +9,13 @@ import { RouteAbstract } from './abstracts/routeAbstract';
 import { ETHBridge } from './porticoBridge/ethBridge';
 import { wstETHBridge } from './porticoBridge/wstETHBridge';
 
-import config from 'config';
-
 export function getRoute(route: Route): RouteAbstract {
   switch (route) {
     // Migrated routes:
     case Route.Bridge:
-      return new SDKv2Route(
-        config.network,
-        routes.TokenBridgeRoute,
-        Route.Bridge,
-      );
+      return new SDKv2Route(routes.TokenBridgeRoute, Route.Bridge);
     case Route.Relay:
-      return new SDKv2Route(
-        config.network,
-        routes.AutomaticTokenBridgeRoute,
-        Route.Bridge,
-      );
+      return new SDKv2Route(routes.AutomaticTokenBridgeRoute, Route.Bridge);
 
     // Legacy routes:
     case Route.ETHBridge:
@@ -34,10 +24,6 @@ export function getRoute(route: Route): RouteAbstract {
       return new wstETHBridge();
     // TODO SDKV2
     default:
-      return new SDKv2Route(
-        config.network,
-        routes.TokenBridgeRoute,
-        Route.Bridge,
-      );
+      return new SDKv2Route(routes.TokenBridgeRoute, Route.Bridge);
   }
 }
