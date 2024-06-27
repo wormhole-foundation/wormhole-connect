@@ -27,7 +27,7 @@ export const RoutesConfig: {
   [Route.Relay]: {
     route: Route.Relay,
     name: 'Automatic Bridge',
-    providedBy: 'xLabs',
+    providedBy: 'Wormhole',
     link: 'https://xlabs.xyz',
     icon: WormholeIcon,
     pendingMessage: 'Waiting for Wormhole network consensus . . .',
@@ -59,7 +59,7 @@ export const RoutesConfig: {
   [Route.TBTC]: {
     route: Route.TBTC,
     name: 'tBTC',
-    providedBy: 'Threshold',
+    providedBy: 'Wormhole',
     link: 'https://threshold.network/earn/btc',
     icon: WormholeIcon,
     pendingMessage: 'Waiting for Wormhole network consensus . . .',
@@ -75,7 +75,7 @@ export const RoutesConfig: {
   [Route.ETHBridge]: {
     route: Route.ETHBridge,
     name: 'ETH Bridge',
-    providedBy: 'xLabs',
+    providedBy: 'Wormhole',
     routePath: 'Wormhole',
     link: 'https://xlabs.xyz',
     icon: WormholeIcon,
@@ -84,7 +84,7 @@ export const RoutesConfig: {
   [Route.wstETHBridge]: {
     route: Route.wstETHBridge,
     name: 'wstETH Bridge',
-    providedBy: 'xLabs',
+    providedBy: 'Wormhole',
     routePath: 'Wormhole',
     link: 'https://xlabs.xyz',
     icon: WormholeIcon,
@@ -101,7 +101,7 @@ export const RoutesConfig: {
   [Route.NttRelay]: {
     route: Route.NttRelay,
     name: 'Native Token Transfers (NTT)',
-    providedBy: 'xLabs',
+    providedBy: 'Wormhole',
     link: 'https://xlabs.xyz',
     icon: WormholeIcon,
     pendingMessage: 'Waiting for Wormhole network consensus . . .',
