@@ -19,6 +19,7 @@ jobs:
         with:
           node-version: 20
           cache: "npm"
+          cache-dependency-path: "wormhole-connect/package-lock.json"
       - run: cd wormhole-connect
       - run: npm ci
       - run: npm run lint:ci
@@ -31,6 +32,7 @@ jobs:
         with:
           node-version: 20
           cache: "npm"
+          cache-dependency-path: "wormhole-connect/package-lock.json"
       - run: cd wormhole-connect
       - run: npm ci
       - run: npm test
@@ -55,6 +57,7 @@ jobs:
         with:
           node-version: 20
           cache: "npm"
+          cache-dependency-path: "wormhole-connect/package-lock.json"
       - run: cd wormhole-connect
       - run: npx tsx scripts/checkForeignAssetsConfig.ts
   build-hosted:
@@ -66,6 +69,7 @@ jobs:
         with:
           node-version: 20
           cache: "npm"
+          cache-dependency-path: "wormhole-connect/package-lock.json"
       - run: cd wormhole-connect
       - run: npm ci
       - run: npm run build:hosted
@@ -78,6 +82,7 @@ jobs:
         with:
           node-version: 20
           cache: "npm"
+          cache-dependency-path: "wormhole-connect/package-lock.json"
       - run: cd wormhole-connect
       - run: npm ci
       - run: npm run build:lib
