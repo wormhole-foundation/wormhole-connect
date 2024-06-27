@@ -21,6 +21,7 @@ jobs:
           cache: "npm"
           cache-dependency-path: "wormhole-connect/package-lock.json"
       - run: cd wormhole-connect
+      - run: pwd; ls;
       - run: npm ci
       - run: npm run lint:ci
   test:
