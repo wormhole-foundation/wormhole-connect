@@ -108,6 +108,12 @@ export class SDKConverter {
         ) {
           return token;
         }
+      } else {
+        // Check foreign assets
+        let fa = token.foreignAssets?.[chain];
+        if (fa && fa.address === tokenId.address.toString()) {
+          return token;
+        }
       }
     }
   }

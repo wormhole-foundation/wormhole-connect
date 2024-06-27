@@ -240,7 +240,9 @@ export class SDKv2Route extends RouteAbstract {
         toChain.context,
       )
     )
-      .map((t: TokenIdV2) => config.sdkConverter.findTokenConfigV1(t, tokens))
+      .map((t: TokenIdV2): TokenConfig | undefined =>
+        config.sdkConverter.findTokenConfigV1(t, tokens),
+      )
       .filter((tc) => tc != undefined) as TokenConfig[];
   }
 
