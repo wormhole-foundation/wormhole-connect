@@ -18,7 +18,7 @@ import config from 'config';
 import TokenIcon from 'icons/TokenIcons';
 
 import type { ChainConfig, TokenConfig } from 'config/types';
-import type { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+import type { ChainName } from 'sdklegacy';
 import type { WalletData } from 'store/wallet';
 import ChainList from './ChainList';
 import TokenList from './TokenList';
