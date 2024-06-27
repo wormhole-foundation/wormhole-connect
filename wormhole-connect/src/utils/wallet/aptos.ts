@@ -1,8 +1,8 @@
 import {
-  AptosContext,
+  //AptosContext,
   SendResult,
-  WormholeContext,
-} from '@wormhole-foundation/wormhole-connect-sdk';
+  //WormholeContext,
+} from 'sdklegacy';
 import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
 import {
   AptosSnapAdapter,
@@ -59,10 +59,13 @@ export async function signAndSendTransaction(
   const tx = await (wallet as AptosWallet).signAndSendTransaction(
     payload as Types.TransactionPayload,
   );
+  /*
+   * TODO SDKV2
   const aptosClient = (
     config.wh.getContext('aptos') as AptosContext<WormholeContext>
   ).aptosClient;
   await aptosClient.waitForTransaction(tx.id);
+  */
 
   return tx;
 }

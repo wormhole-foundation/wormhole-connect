@@ -10,12 +10,7 @@ import {
 } from '@xlabs-libs/wallet-aggregator-cosmos-evm';
 import config from 'config';
 
-import {
-  ChainName,
-  Context,
-  SendResult,
-  ChainResourceMap,
-} from '@wormhole-foundation/wormhole-connect-sdk';
+import { ChainName, Context, SendResult, ChainResourceMap } from 'sdklegacy';
 
 const getCosmosWalletsEndpointsMap = () => {
   const prepareMap = (map: ChainResourceMap) =>

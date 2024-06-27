@@ -1,13 +1,8 @@
 import { useEffect, useRef } from 'react';
-import { BigNumber, BigNumberish, ethers, utils } from 'ethers';
-import { isHexString } from 'ethers/lib/utils.js';
+import { BigNumber, BigNumberish, ethers, utils } from 'ethers5';
+import { isHexString } from 'ethers5/lib/utils.js';
 import { isValidTransactionDigest, SUI_TYPE_ARG } from '@mysten/sui.js';
-import {
-  TokenId,
-  ChainName,
-  ChainId,
-  Context,
-} from '@wormhole-foundation/wormhole-connect-sdk';
+import { TokenId, ChainName, ChainId, Context } from 'sdklegacy';
 
 import config from 'config';
 import { ChainConfig, TokenConfig } from 'config/types';
@@ -250,7 +245,7 @@ export function hydrateHrefTemplate(
   const targetTemplate = templateParts?.find((p) =>
     p.includes('{:targetChain}'),
   );
-  const hydratedParts = [];
+  const hydratedParts: string[] = [];
   if (fromChain && sourceTemplate) {
     const source = sourceTemplate.replace('{:sourceChain}', fromChain);
     hydratedParts.push(source);

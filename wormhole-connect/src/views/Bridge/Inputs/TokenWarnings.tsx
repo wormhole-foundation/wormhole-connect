@@ -4,20 +4,19 @@ import { makeStyles } from 'tss-react/mui';
 
 import { RootState } from 'store';
 import {
-  setAssociatedTokenAddress,
+  //setAssociatedTokenAddress,
   setForeignAsset,
 } from 'store/transferInput';
 import config from 'config';
-import { getTokenById, getWrappedTokenId } from 'utils';
-import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
+import { /*getTokenById,*/ getWrappedTokenId } from 'utils';
+//import { TransferWallet, signAndSendTransaction } from 'utils/wallet';
 import { joinClass } from 'utils/style';
-import { solanaContext } from 'utils/sdk';
+//import { solanaContext } from 'utils/sdk';
 
 import { CircularProgress, Link, Typography } from '@mui/material';
 import AlertBanner from 'components/AlertBanner';
 import RouteOperator from 'routes/operator';
 import { Route } from '../../../config/types';
-import { CCTPManual_CHAINS as CCTP_CHAINS } from 'routes/cctpManual';
 import { isNttRoute } from 'routes';
 
 const useStyles = makeStyles()((theme: any) => ({
@@ -155,6 +154,9 @@ function TokenWarnings() {
   // need to check if there is an account created for that address
   const checkSolanaAssociatedTokenAccount =
     useCallback(async (): Promise<boolean> => {
+      return true;
+
+      /* TODO SDKV2
       if (!foreignAsset || !tokenConfig) {
         setShowErrors(false);
         return false;
@@ -176,9 +178,12 @@ function TokenWarnings() {
         setShowErrors(true);
         return false;
       }
+       */
     }, [foreignAsset, tokenConfig, receiving, dispatch]);
 
   const createAssociatedTokenAccount = useCallback(async () => {
+    /*
+     * TODO SDKV2
     if (!receiving.address || !token)
       throw new Error(
         'Must fill in all fields before you can create a token account',
@@ -212,6 +217,7 @@ function TokenWarnings() {
         }
       }, 1000);
     });
+     */
   }, [
     token,
     receiving,
@@ -231,9 +237,9 @@ function TokenWarnings() {
     // check if the chains support CCTP
     const bothChainsSupportCCTP =
       toChain &&
-      CCTP_CHAINS.includes(toChain) &&
-      fromChain &&
-      CCTP_CHAINS.includes(fromChain);
+      //CCTP_CHAINS.includes(toChain) && TODO SDKV2
+      fromChain; //&&
+    //CCTP_CHAINS.includes(fromChain); TODO SDKV2
     // check if the result is wrapped USDC and the chains involved support CCTP
     // rationale:
     // - transferring wrapped USDC back home (unwrapping) shouldn't be a warning

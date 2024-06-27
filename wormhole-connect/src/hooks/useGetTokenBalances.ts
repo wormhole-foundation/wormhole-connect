@@ -1,15 +1,19 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from 'store';
-import { ChainName, TokenId } from '@wormhole-foundation/wormhole-connect-sdk';
+import { ChainName, TokenId } from 'sdklegacy';
 import { useEffect, useState } from 'react';
+import { BigNumber } from 'ethers5';
 import {
   accessBalance,
   Balances,
   formatBalance,
   updateBalances,
 } from 'store/transferInput';
-import config from 'config';
+import config, { getWormholeContextV2 } from 'config';
 import { TokenConfig } from 'config/types';
+import { chainToPlatform } from '@wormhole-foundation/sdk-base';
+import { getForeignTokenAddress } from 'utils/sdkv2';
+import { TokenAddress } from '@wormhole-foundation/sdk';
 
 const useGetTokenBalances = (
   walletAddress: string,
@@ -44,7 +48,7 @@ const useGetTokenBalances = (
     let isActive = true;
 
     const getBalances = async () => {
-      const balances: Balances = {};
+      const updatedBalances: Balances = {};
       type TokenConfigWithId = TokenConfig & { tokenId: TokenId };
       const needsUpdate: TokenConfigWithId[] = [];
       const now = Date.now();
@@ -57,43 +61,79 @@ const useGetTokenBalances = (
           chain,
           token.key,
         );
+
         if (cachedBalance && cachedBalance.lastUpdated > fiveMinutesAgo) {
-          balances[token.key] = cachedBalance;
+          updatedBalances[token.key] = cachedBalance;
         } else {
-          if (token.key === chainConfig.gasToken) {
-            try {
-              const balance = await config.wh.getNativeBalance(
-                walletAddress,
-                chain,
-                token.key,
-              );
-              balances[token.key] = {
-                balance: formatBalance(chain, token, balance),
-                lastUpdated: now,
-              };
-              updateCache = true;
-            } catch (e) {
-              console.error('Failed to get native balance', e);
-            }
-          } else if (token.tokenId) {
-            needsUpdate.push(token as TokenConfigWithId);
-          }
+          needsUpdate.push(token as TokenConfigWithId);
         }
       }
       if (needsUpdate.length > 0) {
         try {
-          const result = await config.wh.getTokenBalances(
-            walletAddress,
-            needsUpdate.map((t) => t.tokenId),
-            chain,
-          );
-          result.forEach((balance, i) => {
-            const token = needsUpdate[i];
-            balances[token.key] = {
-              balance: formatBalance(chain, token, balance),
+          const wh = await getWormholeContextV2();
+          const chainV2 = config.sdkConverter.toChainV2(chain);
+          const platform = wh.getPlatform(chainToPlatform(chainV2));
+          const rpc = platform.getRpc(chainV2);
+          const tokenIdMapping: Record<string, TokenConfig> = {};
+          const tokenAddresses: string[] = [];
+          for (const tokenConfig of needsUpdate) {
+            updatedBalances[tokenConfig.key] = {
+              balance: '0',
               lastUpdated: now,
             };
-          });
+
+            try {
+              let address: string | null = null;
+
+              const foreignAddress = await getForeignTokenAddress(
+                config.sdkConverter.toTokenIdV2(tokenConfig),
+                chainV2,
+              );
+
+              if (foreignAddress) {
+                address = foreignAddress.toString();
+              } else {
+                console.error('no fa', tokenConfig);
+                continue;
+              }
+              tokenIdMapping[address] = tokenConfig;
+              tokenAddresses.push(address);
+            } catch (e) {
+              // TODO SDKV2 SUI ISNT WORKING
+              console.error(e);
+            }
+          }
+
+          if (tokenAddresses.length === 0) {
+            return;
+          }
+
+          const result = await platform
+            .utils()
+            .getBalances(
+              chainV2,
+              rpc,
+              walletAddress,
+              tokenAddresses as TokenAddress<typeof chainV2>[],
+            );
+
+          for (const tokenAddress in result) {
+            const tokenConfig = tokenIdMapping[tokenAddress];
+            const balance = result[tokenAddress];
+            let formatted: string | null = null;
+            if (balance !== null) {
+              formatted = formatBalance(
+                chain,
+                tokenConfig,
+                BigNumber.from(balance),
+              );
+            }
+            updatedBalances[tokenConfig.key] = {
+              balance: formatted,
+              lastUpdated: now,
+            };
+          }
+
           updateCache = true;
         } catch (e) {
           console.error('Failed to get token balances', e);
@@ -101,13 +141,14 @@ const useGetTokenBalances = (
       }
       if (isActive) {
         setIsFetching(false);
-        setBalances(balances);
+
+        setBalances(updatedBalances);
         if (updateCache) {
           dispatch(
             updateBalances({
               address: walletAddress,
               chain,
-              balances,
+              balances: updatedBalances,
             }),
           );
         }

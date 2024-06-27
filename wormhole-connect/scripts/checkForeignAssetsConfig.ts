@@ -20,14 +20,16 @@ console.warn = function (x: any, ...rest: any) {
 
 import {
   ChainName,
+  /*
+   * TODO SDKV2
   WormholeContext,
-} from '@wormhole-foundation/wormhole-connect-sdk';
+  */
+} from '../src/sdklegacy';
 import { MAINNET_CHAINS } from '../src/config/mainnet/chains';
 import { MAINNET_TOKENS } from '../src/config/mainnet/tokens';
 import { TESTNET_CHAINS } from '../src/config/testnet/chains';
 import { TESTNET_TOKENS } from '../src/config/testnet/tokens';
-import { ChainsConfig, TokensConfig } from '../src/config/types';
-import { Network } from '@certusone/wormhole-sdk';
+import { ChainsConfig, TokensConfig, Network } from '../src/config/types';
 
 const WORMCHAIN_ERROR_MESSAGES = [
   '3104 RPC not configured',
@@ -43,7 +45,8 @@ const checkEnvConfig = async (
   chainsConfig: ChainsConfig,
 ) => {
   let recommendedUpdates: TokensConfig = {};
-  const wh = new WormholeContext(env);
+  // TODO SDKV2
+  //const wh = new WormholeContext(env);
   for (const [tokenKey, tokenConfig] of Object.entries(tokensConfig)) {
     await Promise.all(
       Object.keys(chainsConfig).map((unTypedChain) => {
@@ -60,10 +63,13 @@ const checkEnvConfig = async (
           } else if (tokenConfig.tokenId) {
             let foreignAddress: string | null = null;
             try {
+              /*
+               * TODO SDKV2
               foreignAddress = await wh.getForeignAsset(
                 tokenConfig.tokenId,
                 chain,
               );
+              */
             } catch (e: any) {
               if (
                 WORMCHAIN_ERROR_MESSAGES.includes(e?.message) ||
@@ -79,10 +85,13 @@ const checkEnvConfig = async (
             if (foreignAddress) {
               let foreignDecimals: number | undefined;
               try {
+                /*
+                 * TODO SDKV2
                 foreignDecimals = await wh.fetchTokenDecimals(
                   tokenConfig.tokenId,
                   chain,
                 );
+                */
               } catch (e: any) {
                 if (
                   /denom trace for ibc\/\w+ not found/gi.test(e?.message) ||
@@ -152,6 +161,6 @@ const checkEnvConfig = async (
 };
 
 (async () => {
-  await checkEnvConfig('TESTNET', TESTNET_TOKENS, TESTNET_CHAINS);
-  await checkEnvConfig('MAINNET', MAINNET_TOKENS, MAINNET_CHAINS);
+  await checkEnvConfig('testnet', TESTNET_TOKENS, TESTNET_CHAINS);
+  await checkEnvConfig('mainnet', MAINNET_TOKENS, MAINNET_CHAINS);
 })();

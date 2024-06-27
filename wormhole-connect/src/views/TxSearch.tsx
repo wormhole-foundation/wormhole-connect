@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { makeStyles } from 'tss-react/mui';
 import { useDispatch } from 'react-redux';
 import { Select, MenuItem, CircularProgress } from '@mui/material';
-import type { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+import type { ChainName } from 'sdklegacy';
 
 import config from 'config';
 import { isValidTxId } from 'utils';

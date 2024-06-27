@@ -1,17 +1,12 @@
-import {
-  ChainId,
-  ChainName,
-  NATIVE,
-  TokenId,
-} from '@wormhole-foundation/wormhole-connect-sdk';
-import config from 'config';
-import { solanaContext } from './sdk';
+import { ChainId, ChainName, NATIVE, TokenId } from 'sdklegacy';
 
 export const getSolanaAssociatedTokenAccount = async (
   token: TokenId | typeof NATIVE,
   sendingChain: ChainName | ChainId,
   recipientAddress: string,
 ): Promise<string> => {
+  return 'TODO SDKV2';
+  /*
   let tokenId = token;
   if (token === NATIVE) {
     const context = config.wh.getContext(sendingChain);
@@ -23,4 +18,5 @@ export const getSolanaAssociatedTokenAccount = async (
     recipientAddress,
   );
   return account.toString();
+  */
 };

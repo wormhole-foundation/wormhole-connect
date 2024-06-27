@@ -13,7 +13,7 @@ import { calculateUSDPrice, getDisplayName } from 'utils';
 import config from 'config';
 import { Route } from 'config/types';
 import { RoutesConfig, RouteData } from 'config/routes';
-import type { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+import type { ChainName } from 'sdklegacy';
 
 import BridgeCollapse, { CollapseControlStyle } from './Collapse';
 import TokenIcon from 'icons/TokenIcons';

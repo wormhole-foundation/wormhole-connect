@@ -1,4 +1,4 @@
-import { ChainId, ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+import { ChainId, ChainName } from 'sdklegacy';
 import { Route } from 'config/types';
 import { TransferWallet } from 'utils/wallet';
 

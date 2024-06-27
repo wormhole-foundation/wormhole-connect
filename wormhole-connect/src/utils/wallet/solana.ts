@@ -1,4 +1,4 @@
-import { SendResult } from '@wormhole-foundation/wormhole-connect-sdk';
+import { SendResult } from 'sdklegacy';
 import { WalletAdapterNetwork as SolanaNetwork } from '@solana/wallet-adapter-base';
 
 import { Wallet } from '@xlabs-libs/wallet-aggregator-core';

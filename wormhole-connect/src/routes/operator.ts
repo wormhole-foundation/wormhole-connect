@@ -1,18 +1,9 @@
-import { PublicKey } from '@solana/web3.js';
-import {
-  ChainId,
-  ChainName,
-  TokenId,
-  SolanaContext,
-  WormholeContext,
-} from '@wormhole-foundation/wormhole-connect-sdk';
-import { BigNumber } from 'ethers';
+/*import { PublicKey } from '@solana/web3.js';*/
+import { ChainId, ChainName, TokenId } from 'sdklegacy';
+import { BigNumber } from 'ethers5';
 
 import config from 'config';
 import { TokenConfig, Route } from 'config/types';
-import { PayloadType, getMessage, isEvmChain, solanaContext } from 'utils/sdk';
-import { isGatewayChain } from 'utils/cosmos';
-import { RelayRoute } from './relay';
 // import { HashflowRoute } from './hashflow';
 import { RouteAbstract } from './abstracts/routeAbstract';
 import {
@@ -21,38 +12,21 @@ import {
   TransferDisplayData,
   TransferInfoBaseParams,
   TransferDestInfo,
-  NttRelayingType,
   RelayerFee,
 } from './types';
-import { CCTP_LOG_TokenMessenger_DepositForBurn } from './cctpManual';
-import { getTokenById, isEqualCaseInsensitive } from 'utils';
 import { TokenPrices } from 'store/tokenPrices';
-import { getMessageEvm, TRANSFER_SENT_EVENT_TOPIC } from './ntt/chains/evm';
-import { getMessageSolana } from './ntt/chains/solana';
-import { getNttManagerConfigByAddress } from 'utils/ntt';
 
-import { SDKv2Route } from './sdkv2/route';
+import { routes } from '@wormhole-foundation/sdk';
 
-import { getRouteImpls } from './mappings';
+import { getRoute } from './mappings';
 
 export class Operator {
   getRoute(route: Route): RouteAbstract {
-    const impls = getRouteImpls(route);
-
-    if (!impls) {
-      throw new Error(`${route} is not a valid route`);
-    }
-
-    const useSdkV2 = !!localStorage.getItem('CONNECT_SDKV2');
-
-    if (useSdkV2 && impls.v2) {
-      return new SDKv2Route(config.network, impls.v2, route);
-    } else {
-      return impls.v1;
-    }
+    return getRoute(route);
   }
 
   async getRouteFromTx(txHash: string, chain: ChainName): Promise<Route> {
+    /*
     if (isGatewayChain(chain)) {
       return Route.CosmosGateway;
     }
@@ -159,6 +133,11 @@ export class Operator {
     return message.payloadID === PayloadType.Automatic
       ? Route.Relay
       : Route.Bridge;
+      */
+
+    // TODO SDKV2
+    // relied on getMessage
+    return Route.Bridge;
   }
 
   async isRouteSupported(
@@ -232,19 +211,34 @@ export class Operator {
   ): Promise<TokenConfig[]> {
     const supported: { [key: string]: TokenConfig } = {};
     for (const route of config.routes) {
-      for (const token of config.tokensArr) {
-        const { key } = token;
-        const alreadySupported = supported[key];
-        if (!alreadySupported) {
-          const isSupported = await this.isSupportedSourceToken(
-            route as Route,
-            config.tokens[key],
-            destToken,
-            sourceChain,
-            destChain,
-          );
-          if (isSupported) {
-            supported[key] = config.tokens[key];
+      const r = this.getRoute(route as Route);
+
+      try {
+        const sourceTokens = await r.supportedSourceTokens(
+          config.tokensArr,
+          destToken,
+          sourceChain,
+          destChain,
+        );
+
+        for (const token of sourceTokens) {
+          supported[token.key] = token;
+        }
+      } catch (e) {
+        for (const token of config.tokensArr) {
+          const { key } = token;
+          const alreadySupported = supported[key];
+          if (!alreadySupported) {
+            const isSupported = await this.isSupportedSourceToken(
+              route as Route,
+              config.tokens[key],
+              destToken,
+              sourceChain,
+              destChain,
+            );
+            if (isSupported) {
+              supported[key] = config.tokens[key];
+            }
           }
         }
       }
@@ -396,6 +390,8 @@ export class Operator {
     );
   }
 
+  /*
+   * TODO SDKV2
   async estimateSendGas(
     route: Route,
     token: TokenId | 'native',
@@ -428,6 +424,7 @@ export class Operator {
     const r = this.getRoute(route);
     return await r.estimateClaimGas(destChain, signedMessage);
   }
+  */
 
   async send(
     route: Route,
@@ -439,7 +436,7 @@ export class Operator {
     recipientAddress: string,
     destToken: string,
     routeOptions: any,
-  ): Promise<string> {
+  ): Promise<string | routes.Receipt> {
     const r = this.getRoute(route);
     return await r.send(
       token,
@@ -563,6 +560,8 @@ export class Operator {
     amount: BigNumber,
     walletAddress: string,
   ): Promise<BigNumber> {
+    throw new Error('TODO SDKv2');
+    /*
     const r = this.getRoute(route);
     if (r.AUTOMATIC_DEPOSIT) {
       return (r as RelayRoute).nativeTokenAmount(
@@ -574,6 +573,7 @@ export class Operator {
     } else {
       throw new Error('route does not support native gas dropoff');
     }
+    */
   }
 
   maxSwapAmount(
@@ -582,12 +582,15 @@ export class Operator {
     token: TokenId,
     walletAddress: string,
   ): Promise<BigNumber> {
+    throw new Error('TODO SDKv2');
+    /*
     const r = this.getRoute(route);
     if (r.AUTOMATIC_DEPOSIT) {
       return (r as RelayRoute).maxSwapAmount(destChain, token, walletAddress);
     } else {
       throw new Error('route does not support swap for native gas dropoff');
     }
+    */
   }
 
   async minSwapAmountNative(
@@ -596,6 +599,8 @@ export class Operator {
     token: TokenId,
     walletAddress: string,
   ): Promise<BigNumber> {
+    /*
+     * TODO SDKV2
     const chainName = config.wh.toChainName(destChain);
     if (chainName === 'solana') {
       const context = solanaContext();
@@ -610,6 +615,7 @@ export class Operator {
         await context.connection!.getMinimumBalanceForRentExemption(0);
       return BigNumber.from(minBalance);
     }
+    */
     return BigNumber.from(0);
   }
 

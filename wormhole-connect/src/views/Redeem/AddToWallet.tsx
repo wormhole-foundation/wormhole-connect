@@ -4,9 +4,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import type {
   ChainName,
-  SuiContext,
-  WormholeContext,
-} from '@wormhole-foundation/wormhole-connect-sdk';
+  //SuiContext,
+  //WormholeContext,
+} from 'sdklegacy';
 
 import config from 'config';
 import { MAINNET_CHAINS } from 'config/mainnet';
@@ -29,6 +29,7 @@ import {
   isPorticoRoute,
   isPorticoTransferDestInfo,
 } from 'routes/porticoBridge/utils';
+import { getForeignTokenAddress } from 'utils/sdkv2';
 
 const useStyles = makeStyles()((theme) => ({
   addToken: {
@@ -189,24 +190,30 @@ function AddToWallet() {
       }
       const wrapped = getWrappedToken(tokenInfo);
       if (!wrapped.tokenId) return;
-      const address = await config.wh.getForeignAsset(
-        wrapped.tokenId,
-        txData.toChain,
+
+      const address = await getForeignTokenAddress(
+        config.sdkConverter.toTokenIdV2(wrapped.tokenId),
+        config.sdkConverter.toChainV2(txData.toChain),
       );
 
+      if (!address) throw new Error('Failed to get foreign token address');
+
       if (txData.toChain === 'sui' && address) {
+        /*
+         * TODO SDKV2
         const context = config.wh.getContext(
           'sui',
         ) as SuiContext<WormholeContext>;
         const metadata = await context.provider.getCoinMetadata({
-          coinType: address,
+          coinType: address.toString(),
         });
         setTargetAddress(metadata?.id);
         setTargetToken(wrapped);
         return;
+         */
       }
 
-      setTargetAddress(address);
+      setTargetAddress(address.toString());
       setTargetToken(wrapped);
     };
 

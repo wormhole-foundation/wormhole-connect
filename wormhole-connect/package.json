@@ -17,7 +17,6 @@
     "dist"
   ],
   "dependencies": {
-    "@certusone/wormhole-sdk": "^0.10.10",
     "@coral-xyz/anchor": "^0.29.0",
     "@cosmjs/cosmwasm-stargate": "^0.31.3",
     "@cosmjs/stargate": "^0.31.3",
@@ -26,6 +25,7 @@
     "@emotion/styled": "^11.10.5",
     "@injectivelabs/sdk-ts": "1.10.72",
     "@injectivelabs/token-metadata": "1.10.42",
+    "@kev1n-peters/wallet-aggregator-evm": "^0.0.1-beta.1",
     "@ledgerhq/devices": "6.27.1",
     "@ledgerhq/errors": "6.10.2",
     "@ledgerhq/hw-transport": "6.27.1",
@@ -35,6 +35,8 @@
     "@mui/icons-material": "^5.11.0",
     "@mui/material": "^5.11.4",
     "@mysten/sui.js": "^0.32.2",
+    "@nomad-xyz/multi-provider": "^1.1.0",
+    "@project-serum/anchor": "^0.26.0",
     "@reduxjs/toolkit": "^1.9.1",
     "@solana/wallet-adapter-wallets": "^0.19.25",
     "@solana/web3.js": "^1.73.0",
@@ -46,20 +48,23 @@
     "@xlabs-libs/wallet-aggregator-core": "^0.0.1-alpha.18",
     "@xlabs-libs/wallet-aggregator-cosmos": "^0.0.1-alpha.14",
     "@xlabs-libs/wallet-aggregator-cosmos-evm": "^0.0.1-alpha.6",
-    "@xlabs-libs/wallet-aggregator-evm": "^0.0.1-alpha.42",
     "@xlabs-libs/wallet-aggregator-sei": "^0.0.1-alpha.14",
     "@xlabs-libs/wallet-aggregator-solana": "^0.0.1-alpha.15",
     "@xlabs-libs/wallet-aggregator-sui": "^0.0.1-alpha.10",
     "aptos": "1.5.0",
     "axios": "^1.2.4",
+    "binary-parser": "^2.2.1",
     "cosmjs-types": "^0.9.0",
-    "ethers": "^5.7.2",
+    "ethers": "^6.4.2",
+    "ethers5": "npm:ethers@^5.7.2",
     "lz-string": "^1.5.0",
     "material-ui-popup-state": "^5.0.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-redux": "^8.0.5",
-    "tss-react": "^4.5.2",
+    "rpc-websockets": "^7.11.0",
+    "sha3": "^2.1.4",
+    "tss-react": "^4.7.7",
     "use-debounce": "^9.0.4",
     "web-vitals": "^2.1.4"
   },
@@ -108,15 +113,47 @@
     "env-cmd": "^10.1.0",
     "eslint": "^8.31.0",
     "eslint-config-prettier": "^8.6.0",
+    "husky": "^8.0.3",
+    "lint-staged": "^13.2.3",
+    "prettier": "^2.8.8",
     "typescript": "^5.3.3",
-    "vite": "^5.0.8",
-    "vite-bundle-visualizer": "^0.11.0",
-    "vite-plugin-checker": "^0.6.2",
-    "vite-plugin-dts": "^3.7.3",
-    "vitest": "^1.5.0"
+    "vite": "^5.3.1",
+    "vite-bundle-visualizer": "^1.2.1",
+    "vite-plugin-checker": "^0.6.4",
+    "vite-plugin-dts": "^3.9.1",
+    "vitest": "^1.5.0",
+    "webpack-bundle-analyzer": "^4.9.1"
   },
   "peerDependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
+  },
+  "lint-staged": {
+    "**/*": "prettier --workspaces --if-present --write --ignore-unknown"
+  },
+  "overrides": {
+    "@injectivelabs/sdk-ts@1.10.72": {
+      "@injectivelabs/token-metadata": "1.10.42"
+    },
+    "@injectivelabs/sdk-ts@1.14.11": {
+      "ethers": "5.7.2"
+    },
+    "@ledgerhq/hw-transport@6.27.1": {
+      "@ledgerhq/errors": "6.10.2",
+      "@ledgerhq/logs": "6.12.0",
+      "@ledgerhq/devices": "6.27.1"
+    },
+    "@ledgerhq/hw-transport-webhhid@6.27.1": {
+      "@ledgerhq/errors": "6.10.2",
+      "@ledgerhq/logs": "6.12.0",
+      "@ledgerhq/devices": "6.27.1"
+    },
+    "@wormhole-foundation/sdk-definitions-ntt": {
+      "@wormhole-foundation/sdk-definitions": "^0.7.0-beta.1",
+      "@wormhole-foundation/sdk-base": "^0.7.0-beta.1"
+    },
+    "@wormhole-foundation/wormhole-connect": {
+      "aptos": "1.5.0"
+    }
   }
 }

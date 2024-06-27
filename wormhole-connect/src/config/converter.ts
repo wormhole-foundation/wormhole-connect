@@ -1,4 +1,4 @@
-import * as v1 from '@wormhole-foundation/wormhole-connect-sdk';
+import * as v1 from 'sdklegacy';
 import {
   Network as NetworkConnect,
   TokenConfig as TokenConfigV1,
@@ -125,6 +125,8 @@ export class SDKConverter {
     if (tokenConfig.nativeChain === chainName) {
       if (tokenConfig.tokenId) {
         return this.tokenIdV2(chainName, tokenConfig.tokenId.address);
+      } else {
+        return this.tokenIdV2(chainName, 'native');
       }
     } else {
       if (tokenConfig.foreignAssets && tokenConfig.foreignAssets[chainName]) {

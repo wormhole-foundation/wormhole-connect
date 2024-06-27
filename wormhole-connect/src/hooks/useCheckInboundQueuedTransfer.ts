@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { /*useDispatch,*/ useSelector } from 'react-redux';
 import { RootState } from 'store';
+/*
 import { sleep } from 'utils';
 import {
   resetInboundQueuedTransfer,
@@ -10,11 +11,12 @@ import { isSignedNttMessage } from 'routes/types';
 import { isNttRoute } from 'routes';
 import RouteOperator from 'routes/operator';
 import { NttBase } from 'routes/ntt/nttBase';
+*/
 
-const RETRY_DELAY = 15_000;
+//const RETRY_DELAY = 15_000;
 
 const useCheckInboundQueuedTransfer = (): void => {
-  const dispatch = useDispatch();
+  //const dispatch = useDispatch();
   const route = useSelector((state: RootState) => state.redeem.route);
   const signedMessage = useSelector(
     (state: RootState) => state.redeem.signedMessage,
@@ -24,6 +26,8 @@ const useCheckInboundQueuedTransfer = (): void => {
   );
 
   useEffect(() => {
+    /*
+     * TODO SDKV2
     dispatch(resetInboundQueuedTransfer());
     if (
       !route ||
@@ -58,9 +62,10 @@ const useCheckInboundQueuedTransfer = (): void => {
         }
       }
     };
-    fetchData();
+    */
+    //fetchData();
     return () => {
-      active = false;
+      //active = false;
     };
   }, [route, transferComplete, signedMessage]);
 };

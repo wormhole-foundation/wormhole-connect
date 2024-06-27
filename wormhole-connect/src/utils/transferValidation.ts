@@ -1,6 +1,6 @@
 import { Dispatch, useEffect, useMemo } from 'react';
 import { AnyAction } from '@reduxjs/toolkit';
-import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+import { ChainName } from 'sdklegacy';
 
 import config from 'config';
 import { Route, TokenConfig } from 'config/types';
@@ -22,7 +22,6 @@ import { useDebounce } from 'use-debounce';
 import { isPorticoRoute } from 'routes/porticoBridge/utils';
 import { PorticoBridgeState } from 'store/porticoBridge';
 import { DataWrapper } from 'store/helpers';
-import { CCTPManual_CHAINS as CCTP_CHAINS } from 'routes/cctpManual';
 import { CCTP_MAX_TRANSFER_LIMIT } from 'consts';
 import { isNttRoute } from 'routes';
 
@@ -244,9 +243,9 @@ export const isCctp = (
     config.tokens[destToken]?.nativeChain === toChain;
   const bothChainsSupportCCTP =
     !!toChain &&
-    CCTP_CHAINS.includes(toChain) &&
-    !!fromChain &&
-    CCTP_CHAINS.includes(fromChain);
+    //CCTP_CHAINS.includes(toChain) && TODO SDKV2
+    !!fromChain; //&&
+  //CCTP_CHAINS.includes(fromChain); TODO SDKV2
 
   return isUSDCToken && bothChainsSupportCCTP;
 };

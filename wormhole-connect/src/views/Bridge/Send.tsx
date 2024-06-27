@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Context } from '@wormhole-foundation/wormhole-connect-sdk';
-import type { TokenId } from '@wormhole-foundation/wormhole-connect-sdk';
+import { Context } from 'sdklegacy';
+import type { TokenId } from 'sdklegacy';
 import { makeStyles } from 'tss-react/mui';
 
 import config from 'config';
@@ -154,7 +154,8 @@ function Send(props: { valid: boolean }) {
         details: transferDetails,
       });
 
-      const txId = await RouteOperator.send(
+      console.log('sending');
+      const sendResult = await RouteOperator.send(
         route,
         sendToken || 'native',
         `${amount}`,
@@ -165,31 +166,56 @@ function Send(props: { valid: boolean }) {
         destToken,
         routeOptions,
       );
+      console.log('send done', sendResult);
 
       config.triggerEvent({
         type: 'transfer.start',
         details: transferDetails,
       });
 
-      let message: UnsignedMessage | undefined;
-      while (message === undefined) {
-        try {
-          message = await RouteOperator.getMessage(
-            route,
-            txId,
-            fromChain!,
-            true, // don't need to get the signed attestation
-          );
-        } catch (e) {
-          console.error(e);
+      let txId = '';
+
+      // TODO SDKv2 HACK
+      // Legacy routes return a mere string (tx id)
+      // SDKv2 routes return a Receipt, which has its own nice way of
+      // awaiting for the transaction to complete.
+      //
+      // This means we don't need to use getMessage() on the SDKv2Route class
+      if (typeof sendResult === 'string') {
+        // Legacy route
+        // Wait for the VAA to be available
+        // In this case, sendResult is a txId
+        txId = sendResult;
+        let message: UnsignedMessage | undefined;
+        while (message === undefined) {
+          try {
+            message = await RouteOperator.getMessage(
+              route,
+              sendResult,
+              fromChain!,
+              true, // don't need to get the signed attestation
+            );
+          } catch (e) {
+            console.error(e);
+          }
+          if (message === undefined) {
+            await sleep(3000);
+          }
         }
-        if (message === undefined) {
-          await sleep(3000);
+
+        // TODO THERE IS NO ANALOGUE OF THIS FOR SDKv2 AHHHH
+        dispatch(setTxDetails(message));
+      } else if (typeof sendResult.state === 'number') {
+        // SDKv2 Receipt
+        // SDKv2Route handles waiting for completion internally so there's nothing else to do here
+        const receipt = sendResult;
+        if ('originTxs' in receipt) {
+          txId = receipt.originTxs[receipt.originTxs.length - 1].txid;
         }
       }
+
       dispatch(setIsTransactionInProgress(false));
       dispatch(setSendTx(txId));
-      dispatch(setTxDetails(message));
       dispatch(setRedeemRoute(route));
       dispatch(setAppRoute('redeem'));
       setSendError('');

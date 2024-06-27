@@ -1,8 +1,4 @@
-import {
-  ChainId,
-  ChainName,
-  TokenId,
-} from '@wormhole-foundation/wormhole-connect-sdk';
+import { ChainId, ChainName, TokenId } from 'sdklegacy';
 import { TokenConfig } from 'config/types';
 import {
   MAX_DECIMALS,
@@ -23,11 +19,10 @@ import {
   isSignedWormholeMessage,
   TransferDestInfo,
 } from 'routes/types';
-import { formatGasFee, isIlliquidDestToken } from 'routes/utils';
+import { isIlliquidDestToken } from 'routes/utils';
 import { toDecimals } from 'utils/balance';
 import { NO_INPUT } from 'utils/style';
-import { hexlify } from 'ethers/lib/utils.js';
-import { isTBTCToken } from 'routes/tbtc/utils';
+import { hexlify } from 'ethers5/lib/utils.js';
 import { TokenPrices } from 'store/tokenPrices';
 
 export abstract class BaseRoute extends RouteAbstract {
@@ -48,9 +43,11 @@ export abstract class BaseRoute extends RouteAbstract {
     if (!token.tokenId && token.nativeChain !== chainName) {
       return false;
     }
+    /* TODO SDKV2
     if (isTBTCToken(token) && token.nativeChain !== chainName) {
       return false;
     }
+    */
     return true;
   }
 
@@ -63,7 +60,9 @@ export abstract class BaseRoute extends RouteAbstract {
     if (!token) return false;
     if (!token.tokenId) return false;
     if (destChain && isIlliquidDestToken(token, destChain)) return false;
+    /* TODO SDKV2
     if (isTBTCToken(token)) return false;
+    */
     if (sourceToken) {
       const wrapped = getWrappedToken(sourceToken);
       return wrapped.key === token.key;
@@ -236,13 +235,16 @@ export abstract class BaseRoute extends RouteAbstract {
     const token = config.tokens[tokenKey];
     const { gasToken } = config.chains[toChain]!;
 
-    let gas = gasEstimate;
+    const gas = gasEstimate;
+    /*
+     TODO SDKV2
     if (receiveTx) {
       const gasFee = await config.wh.getTxGasFee(toChain, receiveTx);
       if (gasFee) {
         gas = formatGasFee(toChain, gasFee);
       }
     }
+    */
 
     const formattedAmt = toNormalizedDecimals(
       amount,

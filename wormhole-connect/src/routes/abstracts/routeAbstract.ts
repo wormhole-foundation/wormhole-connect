@@ -1,10 +1,5 @@
-import {
-  ChainId,
-  ChainName,
-  TokenId,
-} from '@wormhole-foundation/wormhole-connect-sdk';
+import { ChainId, ChainName, TokenId } from 'sdklegacy';
 import { Route, TokenConfig } from 'config/types';
-import { BigNumber } from 'ethers';
 import {
   UnsignedMessage,
   SignedMessage,
@@ -109,6 +104,8 @@ export abstract class RouteAbstract {
     routeOptions: any,
   ): Promise<boolean>;
 
+  /*
+   * TODO SDKV2
   // estimate send gas fees
   public abstract estimateSendGas(
     token: TokenId | 'native',
@@ -125,6 +122,7 @@ export abstract class RouteAbstract {
     destChain: ChainName | ChainId,
     signedMessage?: SignedMessage,
   ): Promise<BigNumber>;
+  */
 
   /**
    * These operations have to be implemented in subclasses.

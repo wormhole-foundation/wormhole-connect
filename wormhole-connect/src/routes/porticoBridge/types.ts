@@ -1,4 +1,4 @@
-import { BigNumber } from 'ethers';
+import { BigNumber } from 'ethers5';
 import { TransferDestInfo } from 'routes/types';
 
 export interface CreateOrderRequest {

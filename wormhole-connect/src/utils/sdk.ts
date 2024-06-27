@@ -1,13 +1,5 @@
-import { isEVMChain } from '@certusone/wormhole-sdk';
-import { BigNumber } from 'ethers';
-import {
-  ChainId,
-  ChainName,
-  MAINNET_CHAINS,
-  SolanaContext,
-  TokenId,
-  WormholeContext,
-} from '@wormhole-foundation/wormhole-connect-sdk';
+import { BigNumber } from 'ethers5';
+import { ChainId, ChainName, TokenId } from 'sdklegacy';
 import { getWrappedTokenId } from '.';
 import config from 'config';
 
@@ -45,12 +37,6 @@ export interface ParsedRelayerMessage extends ParsedMessage {
   toNativeTokenAmount: string;
 }
 
-export const solanaContext = (): SolanaContext<WormholeContext> => {
-  return config.wh.getContext(
-    MAINNET_CHAINS.solana,
-  ) as SolanaContext<WormholeContext>;
-};
-
 export const formatAddress = (chain: ChainName | ChainId, address: string) => {
   const context = config.wh.getContext(chain);
   return context.formatAddress(address);
@@ -86,10 +72,13 @@ export const calculateMaxSwapAmount = async (
   token: TokenId,
   walletAddress: string,
 ) => {
+  return 0;
+  /*
   const contracts = config.wh.getContracts(destChain);
   if (!contracts?.relayer) return;
   const context: any = config.wh.getContext(destChain);
   return await context.calculateMaxSwapAmount(destChain, token, walletAddress);
+  */
 };
 
 export const calculateNativeTokenAmt = async (
@@ -125,8 +114,44 @@ export const isAcceptedToken = async (tokenId: TokenId): Promise<boolean> => {
   return accepted;
 };
 
+// copied from @certusone/wormhole-sdk
+// TODO SDKV2
+export const EVMChainNames = [
+  'ethereum',
+  'bsc',
+  'polygon',
+  'avalanche',
+  'oasis',
+  'aurora',
+  'fantom',
+  'karura',
+  'acala',
+  'klaytn',
+  'celo',
+  'moonbeam',
+  'neon',
+  'arbitrum',
+  'optimism',
+  'gnosis',
+  'base',
+  'rootstock',
+  'scroll',
+  'mantle',
+  'blast',
+  'xlayer',
+  'linea',
+  'berachain',
+  'seievm',
+  'sepolia',
+  'arbitrum_sepolia',
+  'base_sepolia',
+  'optimism_sepolia',
+  'holesky',
+  'polygon_sepolia',
+];
+
 export const isEvmChain = (chain: ChainName | ChainId) => {
-  return isEVMChain(config.wh.toChainId(chain));
+  return EVMChainNames.includes(config.wh.toChainName(chain));
 };
 
 export const toChainId = (chain: ChainName | ChainId) => {
@@ -138,6 +163,17 @@ export const toChainName = (chain: ChainName | ChainId) => {
 };
 
 export const getMessage = (tx: string, chain: ChainName | ChainId) => {
+  /* 
+   * TODO SDKV2
   const context = config.wh.getContext(chain);
   return context.getMessage(tx, chain, false);
+  */
 };
+
+export enum DeliveryStatus {
+  WaitingForVAA = 'Waiting for VAA',
+  PendingDelivery = 'Pending Delivery',
+  DeliverySuccess = 'Delivery Success',
+  ReceiverFailure = 'Receiver Failure',
+  ThisShouldNeverHappen = 'This should never happen. Contact Support.',
+}

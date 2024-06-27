@@ -1,5 +1,5 @@
 import CircularProgress from '@mui/material/CircularProgress';
-import { Context } from '@wormhole-foundation/wormhole-connect-sdk';
+import { Context } from 'sdklegacy';
 import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -11,13 +11,13 @@ import {
   setTransferComplete,
   setTxDetails,
 } from 'store/redeem';
-import { displayAddress, getTokenById, getWrappedTokenId } from 'utils';
+import { displayAddress, getTokenById /*getWrappedTokenId*/ } from 'utils';
 import RouteOperator from 'routes/operator';
 import {
   TransferWallet,
   registerWalletSigner,
   switchChain,
-  signAndSendTransaction,
+  //signAndSendTransaction,
 } from 'utils/wallet';
 
 import AlertBanner from 'components/AlertBanner';
@@ -29,14 +29,11 @@ import WalletsModal from '../WalletModal';
 import Header from './Header';
 import { estimateClaimGas } from 'utils/gas';
 import { isGatewayChain } from '../../utils/cosmos';
-import { PayloadType, solanaContext } from '../../utils/sdk';
+import { PayloadType /*solanaContext*/ } from '../../utils/sdk';
 import { AssociatedTokenWarning } from '../Bridge/Inputs/TokenWarnings';
 import { Route } from 'config/types';
 import SwitchToManualClaim from './SwitchToManualClaim';
 import { isPorticoRoute } from 'routes/porticoBridge/utils';
-import { isNttRoute, isSignedNttMessage } from 'routes';
-import { NttBase } from 'routes/ntt';
-import { setInboundQueuedTransfer } from 'store/ntt';
 import { getTokenDetails } from 'telemetry';
 import { interpretTransferError } from 'utils/errors';
 
@@ -52,6 +49,8 @@ function AssociatedTokenAlert() {
         ? receivedToken
         : getTokenById(txData.tokenId);
     if (!token) return;
+    /*
+     * TODO SDKV2
     const tokenId = getWrappedTokenId(token);
     const tx = await solanaContext().createAssociatedTokenAccount(
       tokenId,
@@ -61,6 +60,7 @@ function AssociatedTokenAlert() {
     // if `tx` is null it means the account already exists
     if (!tx) return;
     await signAndSendTransaction('solana', tx, TransferWallet.RECEIVING);
+     */
     dispatch(setTxDetails({ ...txData, recipient: wallet.address }));
   }, [txData, wallet.address, dispatch]);
 
@@ -261,50 +261,13 @@ function SendTo() {
       console.error(e);
     }
     if (txId !== undefined) {
-      const route = RouteOperator.getRoute(routeName);
-      if (
-        isNttRoute(route.TYPE) &&
-        signedMessage &&
-        isSignedNttMessage(signedMessage)
-      ) {
-        // The redeem may have resulted in the transfer being inbound queued
-        // so we need to check that before we set the transfer as complete
-        try {
-          const nttRoute = route as NttBase;
-          const inboundQueuedTransfer = await nttRoute.getInboundQueuedTransfer(
-            txData.toChain,
-            signedMessage.recipientNttManager,
-            signedMessage.messageDigest,
-          );
-          if (inboundQueuedTransfer) {
-            dispatch(setInboundQueuedTransfer(inboundQueuedTransfer));
-          } else {
-            const isTransferCompleted = await nttRoute.isTransferCompleted(
-              txData.toChain,
-              signedMessage,
-            );
-            if (isTransferCompleted) {
-              dispatch(setRedeemTx(txId));
-              dispatch(setTransferComplete(true));
+      dispatch(setRedeemTx(txId));
+      dispatch(setTransferComplete(true));
 
-              config.triggerEvent({
-                type: 'transfer.redeem.success',
-                details: transferDetails,
-              });
-            }
-          }
-        } catch (e) {
-          console.error(e);
-        }
-      } else {
-        dispatch(setRedeemTx(txId));
-        dispatch(setTransferComplete(true));
-
-        config.triggerEvent({
-          type: 'transfer.redeem.success',
-          details: transferDetails,
-        });
-      }
+      config.triggerEvent({
+        type: 'transfer.redeem.success',
+        details: transferDetails,
+      });
     }
   };
 

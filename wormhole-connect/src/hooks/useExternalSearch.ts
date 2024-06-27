@@ -1,5 +1,4 @@
-import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
-import { coalesceChainName } from '@certusone/wormhole-sdk';
+import { ChainName } from 'sdklegacy';
 import config from 'config';
 import { useEffect, useState } from 'react';
 
@@ -17,10 +16,7 @@ export function useExternalSearch(): ExternalSearch {
   const [chainName, setChainName] = useState<ChainName>();
   useEffect(() => {
     if (config.searchTx?.chainName && config.searchTx?.txHash) {
-      const chainName = coalesceChainName(
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        config.searchTx.chainName as any,
-      ) as ChainName;
+      const chainName = config.searchTx.chainName.toLowerCase() as ChainName;
 
       const validChains = config.chainsArr
         .filter((chain) => chain.key !== 'wormchain')

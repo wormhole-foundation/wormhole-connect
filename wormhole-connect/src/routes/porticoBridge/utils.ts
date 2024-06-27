@@ -1,4 +1,4 @@
-import { hexStripZeros, hexZeroPad } from 'ethers/lib/utils.js';
+import { hexStripZeros, hexZeroPad } from 'ethers5/lib/utils.js';
 import {
   CreateOrderRequest,
   CreateOrderResponse,
@@ -7,7 +7,7 @@ import {
   PorticoTradeParameters,
   PorticoTransferDestInfo,
 } from './types';
-import { BigNumber } from 'ethers';
+import { BigNumber } from 'ethers5';
 import { Route, TokenConfig } from 'config/types';
 import { porticoAbi } from './abis';
 import {
@@ -16,9 +16,8 @@ import {
   isEqualCaseInsensitive,
 } from 'utils';
 import config from 'config';
-import { CHAIN_ID_ETH } from '@certusone/wormhole-sdk/lib/esm/utils/consts';
-import { toChainId } from 'utils/sdk';
 import { TransferDestInfo } from 'routes/types';
+import { getForeignTokenAddress } from 'utils/sdkv2';
 
 export const parseAddress = (buffer: Buffer): string => {
   return hexZeroPad(hexStripZeros(buffer), 20);
@@ -130,7 +129,7 @@ export const validateCreateOrderResponse = async (
   if (
     !isEqualCaseInsensitive(
       canonicalTokenAddress,
-      await getCanonicalTokenAddress(startToken),
+      (await getCanonicalTokenAddress(startToken)) || '', // TODO SDKV2 this can be null
     )
   ) {
     throw new Error('canonical token address mismatch');
@@ -182,10 +181,9 @@ export const validateCreateOrderResponse = async (
  */
 export const getCanonicalTokenAddress = async (
   token: TokenConfig,
-): Promise<string> => {
+): Promise<string | null> => {
   const tokenOnEthereum = Object.values(config.tokens).find(
-    (t) =>
-      t.symbol === token.symbol && toChainId(t.nativeChain) === CHAIN_ID_ETH,
+    (t) => t.symbol === token.symbol && t.nativeChain === 'ethereum',
   );
   if (!tokenOnEthereum) {
     throw new Error(`${token.symbol} not found on Ethereum`);
@@ -194,7 +192,14 @@ export const getCanonicalTokenAddress = async (
   if (!tokenId) {
     throw new Error('Canonical token not found');
   }
-  return await config.wh.mustGetForeignAsset(tokenId, token.nativeChain);
+  const tokenAddr = await getForeignTokenAddress(
+    config.sdkConverter.toTokenIdV2(tokenId),
+    config.sdkConverter.toChainV2(token.nativeChain),
+  );
+
+  if (!tokenAddr) return null;
+
+  return tokenAddr.toString();
 };
 
 export const isPorticoRoute = (route: Route): boolean => {

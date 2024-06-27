@@ -19,7 +19,6 @@ import PageHeader from 'components/PageHeader';
 import Spacer from 'components/Spacer';
 import ChainsTag from './Tag';
 import Stepper from './Stepper';
-import NttStepper from './NttStepper';
 import GovernorEnqueuedWarning from './GovernorEnqueuedWarning';
 import config from 'config';
 import useDeliveryStatus from 'hooks/useDeliveryStatus';
@@ -195,7 +194,7 @@ function Redeem({
         show={!signedMessage && isVaaEnqueued}
         chain={txData.fromChain}
       />
-      {isNttRoute(route) ? <NttStepper /> : <Stepper />}
+      <Stepper />
     </div>
   ) : (
     <></>

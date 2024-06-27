@@ -4,19 +4,14 @@ import {
   MAINNET_CHAINS,
   ParsedMessage as SdkParsedMessage,
   ParsedRelayerMessage as SdkParsedRelayerMessage,
-} from '@wormhole-foundation/wormhole-connect-sdk';
-import { BigNumber, BigNumberish, utils } from 'ethers';
+} from 'sdklegacy';
+import { BigNumber, BigNumberish, utils } from 'ethers5';
 import config from 'config';
 import { toFixedDecimals } from 'utils/balance';
-import {
-  ParsedMessage,
-  ParsedRelayerMessage,
-  PayloadType,
-  solanaContext,
-} from 'utils/sdk';
+import { ParsedMessage, ParsedRelayerMessage, PayloadType } from 'utils/sdk';
 import { getTokenById } from 'utils';
-import { CHAIN_ID_ETH } from '@certusone/wormhole-sdk/lib/esm/utils';
 import { Route, TokenConfig } from 'config/types';
+import { getDecimals } from 'utils/sdkv2';
 
 // adapts the sdk returned parsed message to the type that
 // wh connect uses
@@ -27,9 +22,9 @@ export const adaptParsedMessage = async (
     address: parsed.tokenAddress,
     chain: parsed.tokenChain,
   };
-  const decimals = await config.wh.fetchTokenDecimals(
-    tokenId,
-    parsed.fromChain,
+  const decimals = await getDecimals(
+    config.sdkConverter.toTokenIdV2(tokenId),
+    config.sdkConverter.toChainV2(parsed.fromChain),
   );
   const token = getTokenById(tokenId);
 
@@ -50,10 +45,14 @@ export const adaptParsedMessage = async (
     parsed.payloadID === PayloadType.Manual
   ) {
     try {
+      throw 1;
+      /*
+       * TODO SDKV2
       const accountOwner = await solanaContext().getTokenAccountOwner(
         parsed.recipient,
       );
       base.recipient = accountOwner;
+      */
     } catch (e: any) {
       if (e.name === 'TokenAccountNotFoundError') {
         // we'll promp them to create it before claiming it
@@ -82,7 +81,7 @@ export const isIlliquidDestToken = (
   if (['WETH', 'wstETH'].includes(symbol)) {
     if (
       nativeChain !== config.wh.toChainName(destChain) &&
-      config.wh.toChainId(nativeChain) !== CHAIN_ID_ETH
+      nativeChain !== 'ethereum'
     ) {
       return true;
     }
@@ -128,6 +127,7 @@ export const estimateAverageGasFee = async (
   gasLimit: BigNumberish,
 ): Promise<BigNumber> => {
   const provider = config.wh.mustGetProvider(chain);
+  /* @ts-ignore */
   const gasPrice = await provider.getGasPrice();
   // This is a naive estimate 30% higher than what the oracle says
   return gasPrice.mul(gasLimit).mul(130).div(100);

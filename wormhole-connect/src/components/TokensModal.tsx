@@ -4,7 +4,7 @@ import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { useTheme } from '@mui/material/styles';
-import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+import { ChainName } from 'sdklegacy';
 import { AVAILABLE_MARKETS_URL } from 'config/constants';
 import config from 'config';
 import { TokenConfig } from 'config/types';
@@ -22,9 +22,6 @@ import Scroll from './Scroll';
 import Search from './Search';
 import Spacer from './Spacer';
 import Tabs from './Tabs';
-import { CCTPManual_CHAINS } from '../routes/cctpManual';
-import { isTBTCCanonicalChain } from 'routes/tbtc';
-import { CHAIN_ID_ETH } from '@certusone/wormhole-sdk/lib/esm/utils';
 import useGetTokenBalances from 'hooks/useGetTokenBalances';
 import { Balances } from 'store/transferInput';
 
@@ -369,21 +366,23 @@ function TokensModal(props: Props) {
     const filtered = supportedTokens.filter((t) => {
       if (!t.tokenId && t.nativeChain !== chain) return false;
 
+      /* TODO SDKV2
       // if token is USDC and the chain is cctp enabled, only show native ones
       const isCctpChain = chain && CCTPManual_CHAINS.includes(chain);
       if (t.symbol === 'USDC' && t.nativeChain !== chain && isCctpChain)
         return false;
+     */
 
       if (t.symbol === 'tBTC' && chain) {
         // if the chain is canonical then only show the native tBTC token
-        if (isTBTCCanonicalChain(chain)) {
+        if (false /* TODO SDKV2 isTBTCCanonicalChain(chain)*/) {
           if (t.nativeChain !== chain) {
             return false;
           }
         } else {
           // if the chain is not canonical then only show the ethereum tBTC token
           // which is considered the canonical tBTC token
-          if (config.wh.toChainId(t.nativeChain) !== CHAIN_ID_ETH) {
+          if (t.nativeChain !== 'ethereum') {
             return false;
           }
         }

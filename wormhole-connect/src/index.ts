@@ -11,7 +11,7 @@ import MAINNET from './config/mainnet';
 import TESTNET from './config/testnet';
 
 import type { WormholeConnectConfig } from './config/types';
-import type { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+import type { ChainName } from 'sdklegacy';
 
 export default WormholeConnect;
 

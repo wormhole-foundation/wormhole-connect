@@ -39,6 +39,7 @@ const resolve = {
     icons: path.resolve(__dirname, './src/icons'),
     hooks: path.resolve(__dirname, './src/hooks'),
     consts: path.resolve(__dirname, './src/consts'),
+    sdklegacy: path.resolve(__dirname, './src/sdklegacy'),
     public: path.resolve(__dirname, './public'),
     views: path.resolve(__dirname, './src/views'),
     'process/': 'process',

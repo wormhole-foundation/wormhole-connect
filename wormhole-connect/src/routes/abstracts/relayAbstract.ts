@@ -1,9 +1,5 @@
-import {
-  ChainId,
-  ChainName,
-  TokenId,
-} from '@wormhole-foundation/wormhole-connect-sdk';
-import { BigNumber } from 'ethers';
+import { ChainId, ChainName, TokenId } from 'sdklegacy';
+import { BigNumber } from 'ethers5';
 
 export abstract class RelayAbstract {
   // swap information (native gas slider)

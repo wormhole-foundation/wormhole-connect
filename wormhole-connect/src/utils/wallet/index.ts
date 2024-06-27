@@ -4,10 +4,8 @@ import {
   Context,
   SendResult,
   ChainConfig,
-  postVaaSolanaWithRetry,
-} from '@wormhole-foundation/wormhole-connect-sdk';
-import { CHAIN_ID_EVMOS, CHAIN_ID_INJECTIVE } from '@certusone/wormhole-sdk';
-import { ContractReceipt } from 'ethers';
+} from 'sdklegacy';
+import { ContractReceipt } from 'ethers5';
 import {
   NotSupported,
   Wallet,
@@ -261,6 +259,12 @@ export const postVaa = async (
   coreContract: string,
   signedVAA: Buffer,
 ) => {
+  return 'lol';
+};
+
+/*
+   * TODO SDKV2
+   * replace with SDKV2 signer
   const wallet = walletConnection.receiving;
   if (!wallet) throw new Error('not connected');
   const pk = (wallet as any).adapter.publicKey;
@@ -274,7 +278,7 @@ export const postVaa = async (
     Buffer.from(signedVAA),
     MAX_VAA_UPLOAD_RETRIES_SOLANA,
   );
-};
+  */
 
 const getReady = (wallet: Wallet) => {
   const ready = wallet.getWalletState();
@@ -330,7 +334,7 @@ export const getWalletOptions = async (
     const seiOptions = await seiWallet.fetchOptions();
     return Object.values(mapWallets(seiOptions, Context.SEI));
   } else if (config.context === Context.COSMOS) {
-    if (config.id === CHAIN_ID_EVMOS) {
+    if (config.key === 'evmos') {
       const {
         wallets: { cosmosEvm },
       } = await import('utils/wallet/cosmos');
@@ -338,7 +342,7 @@ export const getWalletOptions = async (
       return Object.values(
         mapWallets(cosmosEvm, Context.COSMOS, ['OKX Wallet']),
       );
-    } else if (config.id === CHAIN_ID_INJECTIVE) {
+    } else if (config.key === 'injective') {
       const {
         wallets: { cosmosEvm },
       } = await import('utils/wallet/cosmos');

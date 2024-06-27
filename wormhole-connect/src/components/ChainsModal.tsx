@@ -1,10 +1,7 @@
 import React, { ChangeEvent, useMemo, useState } from 'react';
 import { useTheme } from '@mui/material/styles';
 import { makeStyles } from 'tss-react/mui';
-import {
-  ChainConfig,
-  ChainName,
-} from '@wormhole-foundation/wormhole-connect-sdk';
+import { ChainConfig, ChainName } from 'sdklegacy';
 import config from 'config';
 import { CENTER, joinClass } from 'utils/style';
 

@@ -10,7 +10,7 @@ import {
 } from 'store/transferInput';
 
 import type { Route } from 'config/types';
-import type { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
+import type { ChainName } from 'sdklegacy';
 
 import { isPorticoRoute } from 'routes/porticoBridge/utils';
 import { ETHBridge } from 'routes/porticoBridge/ethBridge';
