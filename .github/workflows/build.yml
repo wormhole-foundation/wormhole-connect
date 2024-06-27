@@ -20,11 +20,10 @@ jobs:
           node-version: 20
           cache: "npm"
           cache-dependency-path: "wormhole-connect/package-lock.json"
-      - run: cd wormhole-connect
-      - run: cd wormhole-connect
-      - run: pwd; ls;
       - run: npm ci
+        working-directory: wormhole-connect
       - run: npm run lint:ci
+        working-directory: wormhole-connect
   test:
     runs-on: ubuntu-latest
 
@@ -35,10 +34,10 @@ jobs:
           node-version: 20
           cache: "npm"
           cache-dependency-path: "wormhole-connect/package-lock.json"
-      - run: cd wormhole-connect
-      - run: cd wormhole-connect
       - run: npm ci
+        working-directory: wormhole-connect
       - run: npm test
+        working-directory: wormhole-connect
         env:
           REACT_APP_SOLANA_RPC: ${{ vars.REACT_APP_SOLANA_RPC }}
 
@@ -49,7 +48,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Run script
-        run: cd wormhole-connect #&& npm i prettier && npm run checksdn
+        run: echo hi #npm i prettier && npm run checksdn
+        working-directory: wormhole-connect
 
   check-token-list:
     runs-on: ubuntu-latest
@@ -61,10 +61,10 @@ jobs:
           node-version: 20
           cache: "npm"
           cache-dependency-path: "wormhole-connect/package-lock.json"
-      - run: cd wormhole-connect
-      - run: cd wormhole-connect
       - run: npm ci
+        working-directory: wormhole-connect
       - run: npx tsx scripts/checkForeignAssetsConfig.ts
+        working-directory: wormhole-connect
   build-hosted:
     runs-on: ubuntu-latest
 
@@ -75,10 +75,10 @@ jobs:
           node-version: 20
           cache: "npm"
           cache-dependency-path: "wormhole-connect/package-lock.json"
-      - run: cd wormhole-connect
-      - run: cd wormhole-connect
       - run: npm ci
+        working-directory: wormhole-connect
       - run: npm run build:hosted
+        working-directory: wormhole-connect
   build-library:
     runs-on: ubuntu-latest
 
@@ -89,7 +89,7 @@ jobs:
           node-version: 20
           cache: "npm"
           cache-dependency-path: "wormhole-connect/package-lock.json"
-      - run: cd wormhole-connect
-      - run: cd wormhole-connect
       - run: npm ci
+        working-directory: wormhole-connect
       - run: npm run build:lib
+        working-directory: wormhole-connect
