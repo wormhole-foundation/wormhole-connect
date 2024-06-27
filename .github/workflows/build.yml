@@ -19,6 +19,7 @@ jobs:
         with:
           node-version: 20
           cache: "npm"
+      - run: cd wormhole-connect
       - run: npm ci
       - run: npm run lint:ci
   test:
@@ -30,9 +31,9 @@ jobs:
         with:
           node-version: 20
           cache: "npm"
+      - run: cd wormhole-connect
       - run: npm ci
-      - run: npm run build -w sdk
-      - run: npm test -w wormhole-connect
+      - run: npm test
         env:
           REACT_APP_SOLANA_RPC: ${{ vars.REACT_APP_SOLANA_RPC }}
 
@@ -54,9 +55,8 @@ jobs:
         with:
           node-version: 20
           cache: "npm"
-      - run: npm ci
-      - run: npm run build -w sdk
-      - run: cd wormhole-connect && npx tsx scripts/checkForeignAssetsConfig.ts
+      - run: cd wormhole-connect
+      - run: npx tsx scripts/checkForeignAssetsConfig.ts
   build-hosted:
     runs-on: ubuntu-latest
 
@@ -66,6 +66,7 @@ jobs:
         with:
           node-version: 20
           cache: "npm"
+      - run: cd wormhole-connect
       - run: npm ci
       - run: npm run build:hosted
   build-library:
@@ -77,5 +78,6 @@ jobs:
         with:
           node-version: 20
           cache: "npm"
+      - run: cd wormhole-connect
       - run: npm ci
       - run: npm run build:lib
