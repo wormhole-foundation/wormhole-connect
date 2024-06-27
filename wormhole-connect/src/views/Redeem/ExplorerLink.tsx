@@ -64,7 +64,7 @@ function ExplorerLink(props: ExplorerLinkProps) {
       explorerLink += '?cluster=devnet';
     }
     if (chainConfig.key === 'sui') {
-      explorerLink += '?network=testnet';
+      explorerLink = explorerLink.replace('https://', 'https://testnet.');
     }
     if (chainConfig.key === 'aptos') {
       explorerLink += '?network=testnet';
