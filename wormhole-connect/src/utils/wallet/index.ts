@@ -5,7 +5,6 @@ import {
   SendResult,
   ChainConfig,
 } from 'sdklegacy';
-import { ContractReceipt } from 'ethers5';
 import {
   NotSupported,
   Wallet,
@@ -222,7 +221,14 @@ export const signAndSendTransaction = async (
 
   switch (chainConfig.context) {
     case Context.ETH: {
-      return (transaction as ContractReceipt).transactionHash;
+      const { signAndSendTransaction } = await import('utils/wallet/evm');
+      const tx = await signAndSendTransaction(
+        transaction,
+        wallet,
+        chain,
+        options,
+      );
+      return tx;
     }
     case Context.SOLANA: {
       const { signAndSendTransaction } = await import('utils/wallet/solana');

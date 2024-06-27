@@ -1,4 +1,7 @@
 import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
+import { SendResult } from 'sdklegacy';
+import { TransactionRequest } from '@ethersproject/abstract-provider';
+import { Deferrable } from '@ethersproject/properties';
 import {
   EVMWallet,
   InjectedWallet,
@@ -38,4 +41,19 @@ export const watchAsset = async (asset: AssetInfo, wallet: Wallet) => {
 
 export async function switchChain(w: Wallet, chainId: number | string) {
   await (w as EVMWallet).switchChain(chainId as number);
+}
+
+export async function signAndSendTransaction(
+  transaction: SendResult,
+  w: Wallet,
+  chainName: string,
+  options: any, // TODO ?!?!!?!?
+): Promise<string> {
+  // TODO remove reliance on SDkv1 here (multi-provider)
+  const signer = config.wh.getSigner(chainName);
+  if (!signer) throw new Error('No signer found for chain' + chainName);
+  const tx = await signer.sendTransaction(
+    transaction as Deferrable<TransactionRequest>,
+  );
+  return (await tx.wait()).transactionHash;
 }
