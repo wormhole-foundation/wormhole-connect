@@ -423,6 +423,8 @@ export class SDKv2Route extends RouteAbstract {
       options,
     );
 
+    console.log(quote);
+
     if (!quote.success) {
       throw quote.error;
     }
@@ -432,6 +434,8 @@ export class SDKv2Route extends RouteAbstract {
       senderAddress,
       options,
     );
+
+    console.log(signer);
 
     let receipt = await route.initiate(
       signer,

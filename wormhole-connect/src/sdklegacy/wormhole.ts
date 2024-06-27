@@ -1,5 +1,5 @@
 import { Network } from './types';
-import { Domain, MultiProvider } from '@nomad-xyz/multi-provider';
+import { Domain, MultiProvider } from './multi-provider';
 
 import MAINNET_CONFIG, { MAINNET_CHAINS } from './config/MAINNET';
 import TESTNET_CONFIG, { TESTNET_CHAINS } from './config/TESTNET';
