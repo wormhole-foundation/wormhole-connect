@@ -82,22 +82,32 @@ const useGetTokenBalances = (
               lastUpdated: now,
             };
 
+            console.log(tokenConfig);
+
             try {
               let address: string | null = null;
 
-              const foreignAddress = await getForeignTokenAddress(
-                config.sdkConverter.toTokenIdV2(tokenConfig),
-                chainV2,
-              );
-
-              if (foreignAddress) {
-                address = foreignAddress.toString();
+              if (
+                tokenConfig.nativeChain === chain &&
+                tokenConfig.tokenId === undefined
+              ) {
+                tokenAddresses.push('native');
+                tokenIdMapping['native'] = tokenConfig;
               } else {
-                console.error('no fa', tokenConfig);
-                continue;
+                const foreignAddress = await getForeignTokenAddress(
+                  config.sdkConverter.toTokenIdV2(tokenConfig),
+                  chainV2,
+                );
+
+                if (foreignAddress) {
+                  address = foreignAddress.toString();
+                } else {
+                  console.error('no fa', tokenConfig);
+                  continue;
+                }
+                tokenIdMapping[address] = tokenConfig;
+                tokenAddresses.push(address);
               }
-              tokenIdMapping[address] = tokenConfig;
-              tokenAddresses.push(address);
             } catch (e) {
               // TODO SDKV2 SUI ISNT WORKING
               console.error(e);
