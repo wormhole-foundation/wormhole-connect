@@ -72,18 +72,28 @@ export class SDKv2Signer<N extends Network, C extends Chain>
   }
 
   private toSendResult(tx: UnsignedTransaction<N, C>): SendResult {
-    let serialized = ethers6.Transaction.from({
-      to: tx.transaction.to,
-      data: tx.transaction.data,
-    }).unsignedSerialized;
-    let tx5: ethers5.Transaction = ethers5.utils.parseTransaction(serialized);
-    let unsignedTx: Deferrable<TransactionRequest> = {
-      to: tx5.to,
-      type: tx5.type as number,
-      chainId: tx5.chainId,
-      data: tx5.data,
-    };
-    return unsignedTx as SendResult;
+    const platform = chainToPlatform(tx.chain);
+
+    switch (platform) {
+      case 'Evm':
+        // TODO switch multi-provider to ethers 6
+        let serialized = ethers6.Transaction.from({
+          to: tx.transaction.to,
+          data: tx.transaction.data,
+        }).unsignedSerialized;
+        let tx5: ethers5.Transaction =
+          ethers5.utils.parseTransaction(serialized);
+        let unsignedTx: Deferrable<TransactionRequest> = {
+          to: tx5.to,
+          type: tx5.type as number,
+          chainId: tx5.chainId,
+          data: tx5.data,
+        };
+        return unsignedTx as SendResult;
+      default:
+        console.warn(`toSendResult is unimplemented for platform ${platform}`);
+        return tx as SendResult;
+    }
   }
 
   chain() {
