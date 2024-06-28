@@ -52,8 +52,13 @@ export async function signAndSendTransaction(
   // TODO remove reliance on SDkv1 here (multi-provider)
   const signer = config.wh.getSigner(chainName);
   if (!signer) throw new Error('No signer found for chain' + chainName);
+
   const tx = await signer.sendTransaction(
     transaction as Deferrable<TransactionRequest>,
   );
-  return (await tx.wait()).transactionHash;
+  let result = await tx.wait();
+
+  // TODO move all this to ethers 6
+  /* @ts-ignore */
+  return result.hash;
 }
