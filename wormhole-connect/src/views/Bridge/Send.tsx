@@ -141,7 +141,7 @@ function Send(props: { valid: boolean }) {
           throw new Error('invalid evm chain ID');
         }
         await switchChain(chainId, TransferWallet.SENDING);
-        registerWalletSigner(fromChain!, TransferWallet.SENDING);
+        await registerWalletSigner(fromChain!, TransferWallet.SENDING);
       }
       if (fromConfig?.context === Context.COSMOS) {
         await switchChain(fromConfig.chainId, TransferWallet.SENDING);

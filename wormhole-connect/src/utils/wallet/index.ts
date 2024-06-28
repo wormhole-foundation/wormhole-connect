@@ -157,13 +157,13 @@ export const swapWalletConnections = () => {
   walletConnection.receiving = temp;
 };
 
-export const registerWalletSigner = (
+export const registerWalletSigner = async (
   chain: ChainName | ChainId,
   type: TransferWallet,
 ) => {
   const w = walletConnection[type]! as any;
   if (!w) throw new Error('must connect wallet');
-  const signer = w.getSigner();
+  const signer = await w.getSigner();
   config.wh.registerSigner(chain, signer);
 };
 
