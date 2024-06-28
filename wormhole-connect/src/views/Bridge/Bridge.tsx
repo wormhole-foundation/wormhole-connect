@@ -26,7 +26,7 @@ import FooterNavBar from 'components/FooterNavBar';
 import { useComputeDestinationTokens } from 'hooks/useComputeDestinationTokens';
 import { useComputeReceiveAmount } from 'hooks/useComputeReceiveAmount';
 import { useComputeSourceTokens } from 'hooks/useComputeSourceTokens';
-import { usePorticoSwapInfo } from 'hooks/usePorticoSwapInfo';
+//import { usePorticoSwapInfo } from 'hooks/usePorticoSwapInfo';
 import { usePorticoRelayerFee } from 'hooks/usePorticoRelayerFee';
 import { useFetchTokenPrices } from 'hooks/useFetchTokenPrices';
 import { useGasSlider } from 'hooks/useGasSlider';
@@ -124,7 +124,7 @@ function Bridge() {
   });
 
   // Route specific hooks
-  usePorticoSwapInfo();
+  //usePorticoSwapInfo();
   usePorticoRelayerFee();
   useFetchTokenPrices();
   useConnectToLastUsedWallet();

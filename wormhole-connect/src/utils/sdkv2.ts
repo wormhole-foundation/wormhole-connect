@@ -37,7 +37,7 @@ export async function getForeignTokenAddress<C extends Chain>(
       return Wormhole.parseAddress(chain, chainToken.address);
     }
   } else {
-    console.error(`Couldn't find token key for ${token}`);
+    console.error(`Couldn't find token key for`, token);
   }
 
   return null;

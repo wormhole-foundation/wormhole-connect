@@ -27,7 +27,7 @@ import ExplorerLink from './ExplorerLink';
 import { isGatewayChain } from 'utils/cosmos';
 import {
   isPorticoRoute,
-  isPorticoTransferDestInfo,
+  //isPorticoTransferDestInfo,
 } from 'routes/porticoBridge/utils';
 import { getForeignTokenAddress } from 'utils/sdkv2';
 
@@ -175,12 +175,14 @@ function AddToWallet() {
   useEffect(() => {
     const fetchTokenInfo = async () => {
       if (isGatewayChain(txData.toChain)) return;
-      const isPorticoTransfer = isPorticoTransferDestInfo(transferDestInfo);
+      const isPorticoTransfer = false; //isPorticoTransferDestInfo(transferDestInfo);
       // we need the transfer dest info to get the received token key for portico
       if (route && isPorticoRoute(route) && !isPorticoTransfer) return;
       const receivedTokenKey = isPorticoTransfer
-        ? transferDestInfo.destTxInfo.receivedTokenKey
-        : txData.receivedTokenKey;
+        ? /* @ts-ignore */
+          transferDestInfo.destTxInfo.receivedTokenKey
+        : /* @ts-ignore */
+          txData.receivedTokenKey;
       const tokenInfo = config.tokens[receivedTokenKey];
       if (!tokenInfo) return;
       try {
@@ -200,7 +202,6 @@ function AddToWallet() {
 
       if (txData.toChain === 'sui' && address) {
         /*
-         * TODO SDKV2
         const context = config.wh.getContext(
           'sui',
         ) as SuiContext<WormholeContext>;
@@ -212,7 +213,6 @@ function AddToWallet() {
         return;
          */
       }
-
       setTargetAddress(address.toString());
       setTargetToken(wrapped);
     };

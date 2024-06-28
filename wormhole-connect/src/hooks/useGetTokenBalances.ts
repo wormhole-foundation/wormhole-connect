@@ -68,6 +68,7 @@ const useGetTokenBalances = (
           needsUpdate.push(token as TokenConfigWithId);
         }
       }
+
       if (needsUpdate.length > 0) {
         try {
           const wh = await getWormholeContextV2();
@@ -81,8 +82,6 @@ const useGetTokenBalances = (
               balance: '0',
               lastUpdated: now,
             };
-
-            console.log(tokenConfig);
 
             try {
               let address: string | null = null;

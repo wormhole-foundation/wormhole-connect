@@ -255,6 +255,7 @@ export class SDKv2Route extends RouteAbstract {
     options: any,
   ): Promise<[routes.Route<Network>, routes.QuoteResult<any>]> {
     const wh = await getWormholeContextV2();
+    console.log(sourceToken, destToken, sourceChain, destChain);
     const req = await routes.RouteTransferRequest.create(
       wh,
       /* @ts-ignore */
@@ -265,6 +266,8 @@ export class SDKv2Route extends RouteAbstract {
       sourceChain,
       destChain,
     );
+
+    console.log(req);
 
     const route = new this.rc(wh, req);
 
@@ -288,6 +291,8 @@ export class SDKv2Route extends RouteAbstract {
     toChainV1: ChainName | undefined,
     options: any,
   ): Promise<number> {
+    console.log(sourceToken, fromChainV1, destToken, toChainV1);
+
     if (isNaN(amountIn)) {
       return 0;
     }
@@ -387,7 +392,7 @@ export class SDKv2Route extends RouteAbstract {
   }
 
   async send(
-    sourceToken: TokenIdV1 | 'native',
+    sourceToken: TokenConfig,
     amount: string,
     fromChainV1: ChainName | ChainId,
     senderAddress: string,
@@ -401,16 +406,15 @@ export class SDKv2Route extends RouteAbstract {
     const fromChainV2 = await this.getV2ChainContext(fromChainV1);
     const toChainV2 = await this.getV2ChainContext(toChainV1);
 
-    const sourceTokenV2 =
-      sourceToken === 'native'
-        ? Wormhole.tokenId(config.sdkConverter.toChainV2(fromChainV1), 'native')
-        : config.sdkConverter.toTokenIdV2(sourceToken);
+    const sourceTokenV2 = config.sdkConverter.toTokenIdV2(sourceToken);
 
     const destTokenV2 = config.sdkConverter.getTokenIdV2ForKey(
       destToken,
       toChainV1,
       config.tokens,
     );
+
+    console.log(sourceTokenV2, destTokenV2);
 
     if (!destTokenV2) throw new Error(`Couldn't find destToken`);
 

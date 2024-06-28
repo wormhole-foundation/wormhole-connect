@@ -428,7 +428,7 @@ export class Operator {
 
   async send(
     route: Route,
-    token: TokenId | 'native',
+    token: TokenConfig,
     amount: string,
     sendingChain: ChainName | ChainId,
     senderAddress: string,

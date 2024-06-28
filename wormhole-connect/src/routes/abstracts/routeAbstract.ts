@@ -135,7 +135,7 @@ export abstract class RouteAbstract {
   public abstract getMaxSendAmount(): number;
 
   public abstract send(
-    token: TokenId | 'native',
+    token: TokenConfig,
     amount: string,
     sendingChain: ChainName | ChainId,
     senderAddress: string,

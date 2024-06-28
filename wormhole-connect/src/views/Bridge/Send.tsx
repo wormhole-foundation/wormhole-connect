@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Context } from 'sdklegacy';
-import type { TokenId } from 'sdklegacy';
+//import type { TokenId } from 'sdklegacy';
 import { makeStyles } from 'tss-react/mui';
 
 import config from 'config';
@@ -130,8 +130,7 @@ function Send(props: { valid: boolean }) {
     }
     dispatch(setIsTransactionInProgress(true));
 
-    const tokenConfig = config.tokens[token]!;
-    const sendToken: TokenId | 'native' = tokenConfig.tokenId ?? 'native';
+    const sendToken = config.tokens[token]!;
 
     try {
       const fromConfig = config.chains[fromChain!];
@@ -157,7 +156,7 @@ function Send(props: { valid: boolean }) {
       console.log('sending');
       const sendResult = await RouteOperator.send(
         route,
-        sendToken || 'native',
+        sendToken,
         `${amount}`,
         fromChain!,
         sending.address,
