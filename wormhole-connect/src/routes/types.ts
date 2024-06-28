@@ -1,17 +1,15 @@
 import { Route } from 'config/types';
-import { ParsedMessage, ParsedRelayerMessage } from '../utils/sdk';
+import { ParsedMessage } from '../utils/sdk';
 import { TokenPrices } from 'store/tokenPrices';
 import { BigNumber } from 'ethers5';
 import { TokenId } from 'sdklegacy';
 
+/*
 export type TokenTransferMessage = ParsedMessage;
-export type RelayTransferMessage = ParsedRelayerMessage;
 export interface CCTPMessage {
   message: string;
 }
 export type ManualCCTPMessage = CCTPMessage & ParsedMessage;
-export type RelayCCTPMessage = CCTPMessage & ParsedRelayerMessage;
-export type UnsignedCCTPMessage = ManualCCTPMessage | RelayCCTPMessage;
 export type TBTCMessage = TokenTransferMessage & { to: string };
 export enum NttRelayingType {
   Standard,
@@ -26,7 +24,6 @@ export type UnsignedNttMessage = ParsedMessage & {
 };
 export type UnsignedMessage =
   | TokenTransferMessage
-  | RelayTransferMessage
   | UnsignedCCTPMessage
   | TBTCMessage
   | UnsignedNttMessage;
@@ -72,14 +69,15 @@ export const isSignedNttMessage = (
   message: SignedMessage,
 ): message is SignedNttMessage =>
   isSignedWormholeMessage(message) && isUnsignedNttMessage(message);
+  */
 
 export interface TransferInfoBaseParams {
-  txData: ParsedMessage | ParsedRelayerMessage;
+  txData: ParsedMessage;
   tokenPrices: TokenPrices;
 }
 
 export interface TransferDestInfoBaseParams {
-  txData: ParsedMessage | ParsedRelayerMessage;
+  txData: ParsedMessage;
   tokenPrices: TokenPrices;
   receiveTx?: string;
   gasEstimate?: string;

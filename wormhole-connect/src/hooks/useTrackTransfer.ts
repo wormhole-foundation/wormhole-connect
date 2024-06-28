@@ -2,7 +2,7 @@ import { isCompleted } from '@wormhole-foundation/sdk';
 import { RouteContext } from 'contexts/RouteContext';
 import { useContext, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { setTransferComplete } from 'store/redeem';
+import { setRedeemTx, setTransferComplete } from 'store/redeem';
 import { sleep } from 'utils';
 
 const TRACK_TIMEOUT = 120 * 1000;
@@ -21,21 +21,37 @@ const useTrackTransfer = (): void => {
       if (!route || !receipt) {
         return;
       }
-      while (isActive && !isCompleted(receipt)) {
+      let stateChanged = false;
+      while (isActive && !isCompleted(receipt) && !stateChanged) {
         try {
-          // TODO: the timeout may be longer for chains with slower finality times
-          // but we will retry so maybe it doesn't matter
-          const result = await route.track(receipt, TRACK_TIMEOUT).next();
-          if (result.done || !isActive) {
-            break;
-          }
-          const currentReceipt = result.value;
-          if (currentReceipt.state !== receipt.state) {
-            routeContext.setReceipt(currentReceipt);
-            if (isCompleted(currentReceipt)) {
-              dispatch(setTransferComplete(true));
+          // We need to consume all of the values the track generator yields in case any of them
+          // update the receipt state.
+          // When the receipt state is updated, we set the new receipt in the route context
+          // and break out of the loop.
+          // The hook will then be re-run and the new receipt will be used to continue tracking
+          // unless the transfer is completed.
+          console.log(`Current state: ${receipt.state}`);
+          console.log(receipt);
+          for await (const currentReceipt of route.track(
+            receipt,
+            TRACK_TIMEOUT,
+          )) {
+            if (!isActive) {
+              break;
             }
-            break;
+            if (currentReceipt.state !== receipt.state) {
+              routeContext.setReceipt(currentReceipt);
+              console.log('Updated receipt:', currentReceipt.state);
+              if (isCompleted(currentReceipt)) {
+                dispatch(setTransferComplete(true));
+                const lastTx = currentReceipt.destinationTxs?.slice(-1)[0];
+                if (lastTx) {
+                  dispatch(setRedeemTx(lastTx.txid));
+                }
+              }
+              stateChanged = true;
+              break;
+            }
           }
         } catch (e) {
           console.error('Error tracking transfer:', e);

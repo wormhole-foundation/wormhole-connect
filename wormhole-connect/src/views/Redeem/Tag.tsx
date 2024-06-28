@@ -38,21 +38,20 @@ const useStyles = makeStyles()((theme) => ({
 function ChainsTag() {
   const { classes } = useStyles();
   const txData = useSelector((state: RootState) => state.redeem.txData)!;
-  const signedMessage = useSelector(
-    (state: RootState) => state.redeem.signedMessage,
-  );
   const fromChainConfig = config.chains[txData.fromChain]!;
   const toChainConfig = config.chains[txData.toChain]!;
 
-  const sendTx = txData.sendTx || signedMessage?.sendTx;
-  const sequence = txData.sequence || signedMessage?.sequence;
-  const baseEmitter = txData.emitterAddress || signedMessage?.emitterAddress;
+  const sendTx = txData.sendTx;
+  const sequence = txData.sequence;
+  const baseEmitter = txData.emitterAddress;
 
   const emitter = baseEmitter ? stripHexPrefix(baseEmitter) : undefined;
 
   const link = useMemo(() => {
+    console.log(txData, sendTx);
     if (!txData) return;
     // As of 2023-10-12, wormscan only supports tx lookup on EVM chains (before a VAA is generated)
+    console.log(fromChainConfig.id);
     if (isEvmChain(fromChainConfig.id) && sendTx) {
       return `${WORMSCAN}tx/${sendTx}${
         config.isMainnet ? '' : '?network=TESTNET'

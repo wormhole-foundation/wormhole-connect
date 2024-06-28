@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { ChainName } from 'sdklegacy';
 
@@ -7,21 +7,16 @@ import {
   setToken,
   selectFromChain,
   setAmount,
-  setReceiveAmount,
-  setFetchingReceiveAmount,
-  setReceiveAmountError,
   isDisabledChain,
 } from 'store/transferInput';
 import config from 'config';
 import { TransferWallet } from 'utils/wallet';
-import RouteOperator from 'routes/operator';
 import { getTokenPrice, hydrateHrefTemplate } from 'utils';
 import Inputs from './Inputs';
 import Select from './Select';
 import AmountInput from './AmountInput';
 import TokensModal from 'components/TokensModal';
 import ChainsModal from 'components/ChainsModal';
-import { isPorticoRoute } from 'routes/porticoBridge/utils';
 import useGetTokenBalances from 'hooks/useGetTokenBalances';
 
 function FromInputs() {
@@ -29,10 +24,6 @@ function FromInputs() {
   const [showTokensModal, setShowTokensModal] = useState(false);
   const [showChainsModal, setShowChainsModal] = useState(false);
 
-  const { toNativeToken, relayerFee } = useSelector(
-    (state: RootState) => state.relay,
-  );
-  const portico = useSelector((state: RootState) => state.porticoBridge);
   const wallet = useSelector((state: RootState) => state.wallet.sending);
   const {
     usdPrices: { data },
@@ -41,13 +32,11 @@ function FromInputs() {
   const {
     showValidationState: showErrors,
     validations,
-    route,
     fromChain,
     toChain,
     token,
     amount,
     isTransactionInProgress,
-    destToken,
   } = useSelector((state: RootState) => state.transferInput);
   const tokenConfig = token && config.tokens[token];
   const tokenConfigArr = useMemo(
@@ -96,67 +85,9 @@ function FromInputs() {
     />
   );
 
-  const computeReceiveAmount = useCallback(
-    async (value: number | string) => {
-      if (typeof value === 'number') {
-        dispatch(setAmount(`${value}`));
-      } else {
-        dispatch(setAmount(value));
-      }
-      const number =
-        typeof value === 'number' ? value : Number.parseFloat(value);
-      if (!route) {
-        dispatch(setReceiveAmount(`${value}`));
-        return;
-      }
-      try {
-        const routeOptions = isPorticoRoute(route)
-          ? portico
-          : { toNativeToken, relayerFee };
-        dispatch(setFetchingReceiveAmount());
-        const receiveAmount = await RouteOperator.computeReceiveAmount(
-          route,
-          number,
-          token,
-          destToken,
-          fromChain,
-          toChain,
-          routeOptions,
-        );
-        dispatch(setReceiveAmount(`${receiveAmount}`));
-      } catch {
-        dispatch(setReceiveAmountError('Error computing receive amount'));
-      }
-    },
-    [
-      dispatch,
-      toNativeToken,
-      relayerFee,
-      route,
-      token,
-      destToken,
-      toChain,
-      fromChain,
-      portico,
-    ],
-  );
-
-  // TODO: clean up the send/receive amount set logic
-  const handleAmountChange = useCallback(computeReceiveAmount, [
-    route,
-    toNativeToken,
-    relayerFee,
-    dispatch,
-    computeReceiveAmount,
-  ]);
-  // if route changes, re-calculate the amount
-  useEffect(() => {
-    if (!route) return;
-    computeReceiveAmount(amount);
-  }, [route, amount, computeReceiveAmount]);
   const amountInput = (
     <AmountInput
-      handleAmountChange={handleAmountChange}
+      handleAmountChange={(amount) => dispatch(setAmount(amount))}
       value={amount}
       side="source"
     />

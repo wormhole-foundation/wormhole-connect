@@ -129,7 +129,10 @@ export function buildConfig(
         : true;
     }),
     gasEstimates: networkData.gasEstimates,
-    routes: customConfig?.routes ?? Object.values(Route),
+    // TODO: disabling all routes except Bridge and Relay until they are fully implemented
+    routes: (customConfig?.routes ?? Object.values(Route)).filter((r) =>
+      [Route.Bridge, Route.Relay].includes(r as Route),
+    ),
 
     // UI details
     cta: customConfig?.cta,

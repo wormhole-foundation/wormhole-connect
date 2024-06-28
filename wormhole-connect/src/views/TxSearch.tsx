@@ -1,17 +1,13 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { makeStyles } from 'tss-react/mui';
 import { useDispatch } from 'react-redux';
 import { Select, MenuItem, CircularProgress } from '@mui/material';
 import type { ChainName } from 'sdklegacy';
 
-import config from 'config';
+import config, { getWormholeContextV2 } from 'config';
 import { isValidTxId } from 'utils';
 import RouteOperator from 'routes/operator';
-import {
-  setTxDetails,
-  setRoute as setRedeemRoute,
-  setIsResumeTx,
-} from 'store/redeem';
+import { setRoute as setRedeemRoute, setIsResumeTx } from 'store/redeem';
 import { setRoute as setAppRoute } from 'store/router';
 import PageHeader from 'components/PageHeader';
 import Search from 'components/Search';
@@ -21,6 +17,8 @@ import AlertBanner from 'components/AlertBanner';
 import { setToChain } from 'store/transferInput';
 import FooterNavBar from 'components/FooterNavBar';
 import { useExternalSearch } from 'hooks/useExternalSearch';
+import { getRoute } from 'routes/mappings';
+import { RouteContext } from 'contexts/RouteContext';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -66,6 +64,8 @@ function TxSearch() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const routeContext = useContext(RouteContext);
+
   function setChain(e: any) {
     setState((prevState) => ({ ...prevState, chain: e.target.value }));
   }
@@ -83,21 +83,52 @@ function TxSearch() {
     }
     try {
       setLoading(true);
-      const route = await RouteOperator.getRouteFromTx(
+      const { route, receipt } = await RouteOperator.getRouteFromTx(
         state.tx,
-        state.chain as ChainName,
+        config.sdkConverter.toChainV2(state.chain as ChainName),
       );
-      const message = await RouteOperator.getMessage(
-        route,
-        state.tx,
-        state.chain as ChainName,
-      );
+      const wh = await getWormholeContextV2();
+      const sdkRoute = new (getRoute(route).rc)(wh);
       setError('');
-      dispatch(setTxDetails(message));
+      // TODO: these details are a placeholder
+      // dispatch(setTxDetails(message));
+      //dispatch(
+      //  setTxDetails({
+      //    sendTx: txId,
+      //    sender: sending.address,
+      //    amount,
+      //    payloadID: sdkRoute.IS_AUTOMATIC ? 1 : 3, // TODO: don't need this
+      //    recipient: receiving.address,
+      //    toChain: config.sdkConverter.toChainNameV1(receipt.to),
+      //    fromChain: config.sdkConverter.toChainNameV1(receipt.from),
+      //    tokenAddress: getWrappedToken(sendToken).tokenId!.address,
+      //    tokenChain: config.sdkConverter.toChainNameV1(receipt.from),
+      //    tokenId: getWrappedTokenId(sendToken),
+      //    tokenKey: sendToken.key,
+      //    tokenDecimals: getTokenDecimals(
+      //      config.wh.toChainId(fromChain!),
+      //      getWrappedTokenId(sendToken),
+      //    ),
+      //    receivedTokenKey: config.tokens[destToken].key!, // TODO: wrong
+      //    emitterAddress: undefined,
+      //    sequence: undefined,
+      //    block: 0,
+      //    gasFee: undefined,
+      //    payload: undefined,
+      //    inputData: undefined,
+      //    relayerPayloadId: undefined,
+      //    to: undefined,
+      //    relayerFee: undefined,
+      //    toNativeTokenAmount: undefined,
+      //  }),
+      //),
       dispatch(setIsResumeTx(true)); // To avoid send transfer.success event in Resume Transaction case
       dispatch(setRedeemRoute(route));
       dispatch(setAppRoute('redeem'));
-      dispatch(setToChain(message.toChain));
+      dispatch(setToChain(config.sdkConverter.toChainNameV1(receipt.to)));
+
+      routeContext.setRoute(sdkRoute);
+      routeContext.setReceipt(receipt);
     } catch (e) {
       console.error(e);
       setError(

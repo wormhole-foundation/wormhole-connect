@@ -9,7 +9,7 @@ import { joinClass } from 'utils/style';
 import { isTransferValid, useValidate } from 'utils/transferValidation';
 import useConfirmBeforeLeaving from 'utils/confirmBeforeLeaving';
 
-import GasSlider from './NativeGasSlider';
+import NativeGasSlider from './NativeGasSlider';
 import Preview from './Preview';
 import Send from './Send';
 import { Collapse, useTheme } from '@mui/material';
@@ -24,10 +24,8 @@ import PoweredByIcon from 'icons/PoweredBy';
 import { Alignment } from 'components/Header';
 import FooterNavBar from 'components/FooterNavBar';
 import { useComputeDestinationTokens } from 'hooks/useComputeDestinationTokens';
-import { useComputeReceiveAmount } from 'hooks/useComputeReceiveAmount';
+import { useComputeQuote } from 'hooks/useComputeQuote';
 import { useComputeSourceTokens } from 'hooks/useComputeSourceTokens';
-//import { usePorticoSwapInfo } from 'hooks/usePorticoSwapInfo';
-import { usePorticoRelayerFee } from 'hooks/usePorticoRelayerFee';
 import { useFetchTokenPrices } from 'hooks/useFetchTokenPrices';
 import { useGasSlider } from 'hooks/useGasSlider';
 import { useConnectToLastUsedWallet } from 'utils/wallet';
@@ -110,8 +108,8 @@ function Bridge() {
     route,
   });
 
-  // Compute and set receive amount
-  useComputeReceiveAmount({
+  // Compute and set quote
+  useComputeQuote({
     sourceChain: fromChain,
     destChain: toChain,
     sourceToken: token,
@@ -125,7 +123,7 @@ function Bridge() {
 
   // Route specific hooks
   //usePorticoSwapInfo();
-  usePorticoRelayerFee();
+  //usePorticoRelayerFee();
   useFetchTokenPrices();
   useConnectToLastUsedWallet();
 
@@ -174,7 +172,7 @@ function Bridge() {
                 : {}
             }
           >
-            {showGasSlider && <GasSlider disabled={disabled} />}
+            {showGasSlider && <NativeGasSlider disabled={disabled} />}
           </Collapse>
 
           <Preview collapsed={!showValidationState ? true : !valid} />

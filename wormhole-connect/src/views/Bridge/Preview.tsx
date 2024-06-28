@@ -4,23 +4,12 @@ import { useTheme } from '@mui/material/styles';
 
 import config from 'config';
 import { RootState } from 'store';
-import { setTransferRoute } from 'store/transferInput';
-import { setRelayerFee } from 'store/relay';
-import { Route } from 'config/types';
-import { getTokenDecimals } from 'utils';
-import { toDecimals } from 'utils/balance';
-import { toChainId } from 'utils/sdk';
 import { TransferDisplayData } from 'routes';
 import RouteOperator from 'routes/operator';
 
 import { RenderRows } from 'components/RenderRows';
 import BridgeCollapse, { CollapseControlStyle } from './Collapse';
 import InputContainer from 'components/InputContainer';
-import {
-  TokenNotSupportedForRelayError,
-  TokenNotRegisteredError,
-} from 'sdklegacy';
-import { isPorticoRoute } from 'routes/porticoBridge/utils';
 
 const defaultPrices = {};
 
@@ -47,8 +36,9 @@ function Preview(props: { collapsed: boolean }) {
   } = useSelector((state: RootState) => state.tokenPrices);
   const prices = data || defaultPrices;
   useEffect(() => {
+    let isActive = true;
     const buildPreview = async () => {
-      if (!fromChain || !route) return;
+      if (!fromChain || !route || !isActive) return;
       const sourceConfig = toChain && config.chains[fromChain];
       const destConfig = toChain && config.chains[toChain];
       const tokenConfig = token && config.tokens[token];
@@ -56,13 +46,6 @@ function Preview(props: { collapsed: boolean }) {
       if (!tokenConfig || !destTokenConfig || !sourceConfig || !destConfig)
         return;
 
-      const routeOptions = isPorticoRoute(route)
-        ? portico
-        : {
-            toNativeToken,
-            receiveNativeAmt,
-            relayerFee,
-          };
       const rows = await RouteOperator.getPreview(
         route,
         tokenConfig,
@@ -74,13 +57,18 @@ function Preview(props: { collapsed: boolean }) {
         gasEst.claim,
         receiveAmount.data || '',
         prices,
-        routeOptions,
+        relayerFee,
+        receiveNativeAmt,
       );
 
-      setState({ rows });
+      if (isActive) {
+        setState({ rows });
+      }
     };
-
     buildPreview();
+    return () => {
+      isActive = false;
+    };
   }, [
     token,
     destToken,
@@ -98,9 +86,11 @@ function Preview(props: { collapsed: boolean }) {
     prices,
   ]);
 
+  /*
   useEffect(() => {
+    let isActive = true;
     const computeRelayerFee = async () => {
-      if (!token || !fromChain || !toChain || !route) return;
+      if (!token || !fromChain || !toChain || !route || !isActive) return;
       // don't bother if it's not an automatic route
       const r = RouteOperator.getRoute(route);
       if (!r.AUTOMATIC_DEPOSIT) return;
@@ -115,12 +105,16 @@ function Preview(props: { collapsed: boolean }) {
           toChain,
           token,
           destToken,
+          amount,
         );
         if (result === null) return;
         const { fee, feeToken } = result;
         const decimals = getTokenDecimals(toChainId(fromChain), feeToken);
         const formattedFee = Number.parseFloat(toDecimals(fee, decimals, 6));
-        dispatch(setRelayerFee(formattedFee));
+        if (isActive) {
+          dispatch(setRelayerFee(formattedFee));
+          console.log('setting relayer fee', formattedFee);
+        }
       } catch (e: any) {
         // change to manual if the token is not available either on the relayer
         // or the wormhole bridge
@@ -128,18 +122,25 @@ function Preview(props: { collapsed: boolean }) {
           e.message === TokenNotSupportedForRelayError.MESSAGE ||
           e.message === TokenNotRegisteredError.MESSAGE
         ) {
-          if (route === Route.CCTPRelay) {
-            dispatch(setTransferRoute(Route.CCTPManual));
-          } else {
-            dispatch(setTransferRoute(Route.Bridge));
+          if (isActive) {
+            if (route === Route.CCTPRelay) {
+              dispatch(setTransferRoute(Route.CCTPManual));
+            } else {
+              dispatch(setTransferRoute(Route.Bridge));
+            }
           }
         } else {
+          console.error('Failed to get relayer fee', e);
           throw e;
         }
       }
     };
     computeRelayerFee();
-  }, [route, token, destToken, toChain, fromChain, dispatch]);
+    return () => {
+      isActive = false;
+    };
+  }, [route, token, destToken, toChain, fromChain, amount, dispatch]);
+  */
 
   return (
     <BridgeCollapse

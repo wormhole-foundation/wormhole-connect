@@ -86,14 +86,16 @@ function Confirmations(props: Props) {
     return chainConfig.finalityThreshold - blockDiff;
   }, [chainConfig.finalityThreshold, currentBlock, requiredHeight]);
 
-  // Percentage of the confirmations completed
-  const percentage = useMemo(
-    () =>
-      chainConfig.finalityThreshold === 0
-        ? 100
-        : Math.floor((confirmations / chainConfig.finalityThreshold) * 100),
-    [chainConfig.finalityThreshold, confirmations],
-  );
+  //// Percentage of the confirmations completed
+  //const percentage = useMemo(
+  //  () =>
+  //    chainConfig.finalityThreshold === 0
+  //      ? 100
+  //      : Math.floor((confirmations / chainConfig.finalityThreshold) * 100),
+  //  [chainConfig.finalityThreshold, confirmations],
+  //);
+
+  const percentage = 100;
 
   return (
     <div className={classes.confirmations}>
