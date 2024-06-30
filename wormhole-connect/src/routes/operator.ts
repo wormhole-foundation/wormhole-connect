@@ -16,7 +16,7 @@ import {
 } from './types';
 import { TokenPrices } from 'store/tokenPrices';
 
-import { routes } from '@wormhole-foundation/sdk';
+import { Network, routes } from '@wormhole-foundation/sdk';
 
 import { getRoute } from './mappings';
 
@@ -436,7 +436,7 @@ export class Operator {
     recipientAddress: string,
     destToken: string,
     routeOptions: any,
-  ): Promise<string | routes.Receipt> {
+  ): Promise<[routes.Route<Network>, routes.Receipt]> {
     const r = this.getRoute(route);
     return await r.send(
       token,

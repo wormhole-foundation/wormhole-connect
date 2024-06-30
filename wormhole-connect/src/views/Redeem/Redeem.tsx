@@ -12,7 +12,6 @@ import {
 import { sleep } from 'utils';
 import { fetchIsVAAEnqueued } from 'utils/vaa';
 import { SignedMessage, isNttRoute } from 'routes';
-import RouteOperator from 'routes/operator';
 import { ParsedMessage, ParsedRelayerMessage } from 'utils/sdk';
 
 import PageHeader from 'components/PageHeader';
@@ -25,9 +24,8 @@ import useDeliveryStatus from 'hooks/useDeliveryStatus';
 import useCheckInboundQueuedTransfer from 'hooks/useCheckInboundQueuedTransfer';
 
 import useConfirmBeforeLeaving from 'utils/confirmBeforeLeaving';
-import { INVALID_VAA_MESSAGE } from 'utils/repairVaa';
 
-import { getTokenDetails } from 'telemetry';
+import useTrackTransfer from 'hooks/useTrackTransfer';
 
 function Redeem({
   setSignedMessage,
@@ -85,91 +83,92 @@ function Redeem({
     };
   }, [txData, signedMessage, route, setIsVaaEnqueued]);
 
-  // fetch the VAA
-  useEffect(() => {
-    if (!route || !txData?.sendTx || transferComplete) {
-      return;
-    }
-    let cancelled = false;
-    (async () => {
-      let i = 0;
-      let signed: SignedMessage | undefined;
-      while (signed === undefined && !cancelled) {
-        try {
-          signed = await RouteOperator.getSignedMessage(route, txData);
-        } catch (e: any) {
-          if (e?.message === INVALID_VAA_MESSAGE) {
-            console.error(e);
-            setInvalidVaa(true);
-            cancelled = true;
-          }
-          signed = undefined;
-        }
-        if (cancelled) {
-          return;
-        }
-        if (signed !== undefined) {
-          setSignedMessage(signed);
-        } else {
-          await sleep(i < 10 ? 3000 : 30000);
-        }
-        i++;
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [txData, route, setSignedMessage, transferComplete]);
+  //// fetch the VAA
+  //useEffect(() => {
+  //  if (!route || !txData?.sendTx || transferComplete) {
+  //    return;
+  //  }
+  //  let cancelled = false;
+  //  (async () => {
+  //    let i = 0;
+  //    let signed: SignedMessage | undefined;
+  //    while (signed === undefined && !cancelled) {
+  //      try {
+  //        signed = await RouteOperator.getSignedMessage(route, txData);
+  //      } catch (e: any) {
+  //        if (e?.message === INVALID_VAA_MESSAGE) {
+  //          console.error(e);
+  //          setInvalidVaa(true);
+  //          cancelled = true;
+  //        }
+  //        signed = undefined;
+  //      }
+  //      if (cancelled) {
+  //        return;
+  //      }
+  //      if (signed !== undefined) {
+  //        setSignedMessage(signed);
+  //      } else {
+  //        await sleep(i < 10 ? 3000 : 30000);
+  //      }
+  //      i++;
+  //    }
+  //  })();
+  //  return () => {
+  //    cancelled = true;
+  //  };
+  //}, [txData, route, setSignedMessage, transferComplete]);
 
-  // check if VAA has been redeemed
-  useEffect(() => {
-    if (!route || !txData?.toChain || !signedMessage || transferComplete) {
-      return;
-    }
-    let cancelled = false;
-    (async () => {
-      let i = 0;
-      let isComplete = false;
-      while (!isComplete && !cancelled) {
-        try {
-          isComplete = await RouteOperator.isTransferCompleted(
-            route,
-            txData.toChain,
-            signedMessage,
-          );
-        } catch (e) {
-          console.error(e);
-        }
-        if (cancelled) {
-          return;
-        }
-        if (isComplete) {
-          setTransferComplete();
-          if (!isResumeTx) {
-            config.triggerEvent({
-              type: 'transfer.success',
-              details: {
-                route,
-                fromToken: getTokenDetails(txData.tokenKey),
-                toToken: getTokenDetails(txData.receivedTokenKey),
-                fromChain: txData.fromChain,
-                toChain: txData.toChain,
-              },
-            });
-          }
-        } else {
-          await sleep(i < 10 ? 3000 : 30000);
-        }
-        i++;
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [route, txData, transferComplete, setTransferComplete, signedMessage]);
+  //// check if VAA has been redeemed
+  //useEffect(() => {
+  //  if (!route || !txData?.toChain || !signedMessage || transferComplete) {
+  //    return;
+  //  }
+  //  let cancelled = false;
+  //  (async () => {
+  //    let i = 0;
+  //    let isComplete = false;
+  //    while (!isComplete && !cancelled) {
+  //      try {
+  //        isComplete = await RouteOperator.isTransferCompleted(
+  //          route,
+  //          txData.toChain,
+  //          signedMessage,
+  //        );
+  //      } catch (e) {
+  //        console.error(e);
+  //      }
+  //      if (cancelled) {
+  //        return;
+  //      }
+  //      if (isComplete) {
+  //        setTransferComplete();
+  //        if (!isResumeTx) {
+  //          config.triggerEvent({
+  //            type: 'transfer.success',
+  //            details: {
+  //              route,
+  //              fromToken: getTokenDetails(txData.tokenKey),
+  //              toToken: getTokenDetails(txData.receivedTokenKey),
+  //              fromChain: txData.fromChain,
+  //              toChain: txData.toChain,
+  //            },
+  //          });
+  //        }
+  //      } else {
+  //        await sleep(i < 10 ? 3000 : 30000);
+  //      }
+  //      i++;
+  //    }
+  //  })();
+  //  return () => {
+  //    cancelled = true;
+  //  };
+  //}, [route, txData, transferComplete, setTransferComplete, signedMessage]);
 
   useCheckInboundQueuedTransfer();
   useDeliveryStatus();
+  useTrackTransfer();
 
   return txData?.fromChain ? (
     <div

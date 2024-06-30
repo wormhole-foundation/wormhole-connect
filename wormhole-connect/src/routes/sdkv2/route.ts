@@ -38,10 +38,7 @@ export class SDKv2Route extends RouteAbstract {
   NATIVE_GAS_DROPOFF_SUPPORTED = false;
   AUTOMATIC_DEPOSIT = false;
 
-  constructor(
-    readonly rc: routes.RouteConstructor,
-    routeType: Route,
-  ) {
+  constructor(readonly rc: routes.RouteConstructor, routeType: Route) {
     super();
     this.TYPE = routeType;
   }
@@ -401,7 +398,10 @@ export class SDKv2Route extends RouteAbstract {
     destToken: string,
     options: any,
   ): Promise<
-    SourceInitiatedTransferReceipt | SourceFinalizedTransferReceipt<any>
+    [
+      routes.Route<Network>,
+      SourceInitiatedTransferReceipt | SourceFinalizedTransferReceipt<any>,
+    ]
   > {
     const fromChainV2 = await this.getV2ChainContext(fromChainV1);
     const toChainV2 = await this.getV2ChainContext(toChainV1);
@@ -460,14 +460,14 @@ export class SDKv2Route extends RouteAbstract {
         receipt.state == TransferState.SourceInitiated ||
         receipt.state == TransferState.SourceFinalized
       ) {
-        return receipt;
+        return [route, receipt];
       }
     }
 
     throw new Error('Never got a SourceInitiate state in receipt');
   }
 
-  public redeem(
+  public async redeem(
     destChain: ChainName | ChainId,
     messageInfo: SignedMessage,
     recipient: string,
@@ -496,16 +496,29 @@ export class SDKv2Route extends RouteAbstract {
     ];
   }
 
-  public getTransferSourceInfo<T extends TransferInfoBaseParams>(
+  async getTransferSourceInfo<T extends TransferInfoBaseParams>(
     params: T,
   ): Promise<TransferDisplayData> {
-    throw new Error('Method not implemented.');
+    return [
+      {
+        title: 'test',
+        value: 'testvalue',
+      },
+    ];
   }
 
-  public getTransferDestInfo<T extends TransferDestInfoBaseParams>(
+  async getTransferDestInfo<T extends TransferDestInfoBaseParams>(
     params: T,
   ): Promise<TransferDestInfo> {
-    throw new Error('Method not implemented.');
+    return {
+      route: this.TYPE,
+      displayData: [
+        {
+          title: 'test',
+          value: 'testvalue',
+        },
+      ],
+    };
   }
 
   async getRelayerFee(

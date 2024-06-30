@@ -1,6 +1,12 @@
 import CircularProgress from '@mui/material/CircularProgress';
 import { Context } from 'sdklegacy';
-import React, { useCallback, useEffect, useState, useMemo } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useState,
+  useMemo,
+  useContext,
+} from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import config from 'config';
@@ -36,6 +42,9 @@ import SwitchToManualClaim from './SwitchToManualClaim';
 import { isPorticoRoute } from 'routes/porticoBridge/utils';
 import { getTokenDetails } from 'telemetry';
 import { interpretTransferError } from 'utils/errors';
+import { RouteContext } from 'contexts/RouteContext';
+import { isRedeemed, routes } from '@wormhole-foundation/sdk';
+import { SDKv2Signer } from 'routes/sdkv2/signer';
 
 function AssociatedTokenAlert() {
   const dispatch = useDispatch();
@@ -93,6 +102,8 @@ function SendTo() {
   const prices = data || {};
   const [claimError, setClaimError] = useState('');
   const [manualClaim, setManualClaim] = useState(false);
+
+  const routeContext = useContext(RouteContext);
 
   const connect = () => {
     setWalletModal(true);
@@ -225,16 +236,28 @@ function SendTo() {
         await switchChain(chainConfig.chainId, TransferWallet.RECEIVING);
         registerWalletSigner(txData.toChain, TransferWallet.RECEIVING);
       }
-      if (!signedMessage) {
-        throw new Error('failed to get vaa, cannot redeem');
-      }
 
-      txId = await RouteOperator.redeem(
-        routeName,
+      //txId = await RouteOperator.redeem(
+      //  routeName,
+      //  txData.toChain,
+      //  receipt,
+      //  wallet.address,
+      //);
+
+      const route = routeContext.route!;
+      if (!routes.isManual(route)) {
+        throw new Error('Route is not manual');
+      }
+      const signer = await SDKv2Signer.fromChainV1(
         txData.toChain,
-        signedMessage,
         wallet.address,
+        {},
       );
+      const result = await route.complete(signer, routeContext.receipt!);
+      if (!isRedeemed(result)) {
+        throw new Error('Transfer not redeemed');
+      }
+      txId = result.destinationTxs?.[0]?.txid || '';
 
       config.triggerEvent({
         type: 'transfer.redeem.start',

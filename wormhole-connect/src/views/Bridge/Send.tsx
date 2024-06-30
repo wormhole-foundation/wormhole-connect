@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Context } from 'sdklegacy';
 //import type { TokenId } from 'sdklegacy';
@@ -12,7 +18,13 @@ import {
   setSendTx,
   setRoute as setRedeemRoute,
 } from 'store/redeem';
-import { displayWalletAddress, sleep } from 'utils';
+import {
+  displayWalletAddress,
+  getTokenDecimals,
+  getWrappedToken,
+  getWrappedTokenId,
+  sleep,
+} from 'utils';
 import { LINK } from 'utils/style';
 import {
   registerWalletSigner,
@@ -38,6 +50,7 @@ import { useDebounce } from 'use-debounce';
 import { isPorticoRoute } from 'routes/porticoBridge/utils';
 import { interpretTransferError } from 'utils/errors';
 import { getTokenDetails } from 'telemetry';
+import { RouteContext } from 'contexts/RouteContext';
 
 const useStyles = makeStyles()((theme) => ({
   body: {
@@ -90,6 +103,8 @@ function Send(props: { valid: boolean }) {
     associatedTokenAddress,
     route,
   );
+
+  const routeContext = useContext(RouteContext);
 
   async function send() {
     setSendError('');
@@ -204,13 +219,48 @@ function Send(props: { valid: boolean }) {
 
         // TODO THERE IS NO ANALOGUE OF THIS FOR SDKv2 AHHHH
         dispatch(setTxDetails(message));
-      } else if (typeof sendResult.state === 'number') {
+      } else {
         // SDKv2 Receipt
         // SDKv2Route handles waiting for completion internally so there's nothing else to do here
-        const receipt = sendResult;
+        const [sdkRoute, receipt] = sendResult;
         if ('originTxs' in receipt) {
           txId = receipt.originTxs[receipt.originTxs.length - 1].txid;
         }
+        // TODO: SDKV2 set the tx details using on-chain data
+        // because they might be different than what we have in memory (relayer fee)
+        // or we may not have all the data (e.g. block)
+        dispatch(
+          setTxDetails({
+            sendTx: txId,
+            sender: sending.address,
+            amount,
+            payloadID: sdkRoute.IS_AUTOMATIC ? 1 : 3, // TODO: don't need this
+            recipient: receiving.address,
+            toChain: config.sdkConverter.toChainNameV1(receipt.to),
+            fromChain: config.sdkConverter.toChainNameV1(receipt.from),
+            tokenAddress: getWrappedToken(sendToken).tokenId!.address,
+            tokenChain: config.sdkConverter.toChainNameV1(receipt.from),
+            tokenId: getWrappedTokenId(sendToken),
+            tokenKey: sendToken.key,
+            tokenDecimals: getTokenDecimals(
+              config.wh.toChainId(fromChain!),
+              getWrappedTokenId(sendToken),
+            ),
+            receivedTokenKey: config.tokens[destToken].key!, // TODO: wrong
+            emitterAddress: undefined,
+            sequence: undefined,
+            block: 0,
+            gasFee: undefined,
+            payload: undefined,
+            inputData: undefined,
+            relayerPayloadId: undefined,
+            to: undefined,
+            relayerFee: undefined,
+            toNativeTokenAmount: undefined,
+          }),
+        );
+        routeContext.setRoute(sdkRoute);
+        routeContext.setReceipt(receipt);
       }
 
       dispatch(setIsTransactionInProgress(false));
