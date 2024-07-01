@@ -189,7 +189,7 @@ By default, it offers its full built-in list for both `mainnet` and `testnet`:
 
 | `mainnet` | `testnet` |
 | ---------- | ------------- |
-| ethereum | goerli, sepolia |
+| ethereum | sepolia |
 | polygon | mumbai |
 | bsc | bsc |
 | avalanche | fuji |
@@ -198,14 +198,14 @@ By default, it offers its full built-in list for both `mainnet` and `testnet`:
 | solana | solana |
 | sui | sui |
 | aptos | aptos |
-| base | basegoerli, base_sepolia |
+| base | base_sepolia |
 | osmosis | osmosis |
 | evmos | evmos |
 | kujira | kujira |
 | injective | injective |
 | klaytn | klaytn |
-| arbitrum | arbitrumgoerli, arbitrum_sepolia |
-| optimism | optimismgoerli, optimism_sepolia |
+| arbitrum | arbitrum_sepolia |
+| optimism | optimism_sepolia |
 | scroll | scroll |
 | blast | blast |
 | xlayer | xlayer |

@@ -9,9 +9,9 @@ export const CCTPManual_CHAINS: ChainName[] = [
   'base',
   'optimism',
   'arbitrum',
-  'optimismgoerli',
-  'arbitrumgoerli',
-  'basegoerli',
+  'optimism_sepolia',
+  'arbitrum_sepolia',
+  'base_sepolia',
   'polygon',
   'mumbai',
   'solana',
@@ -25,9 +25,9 @@ export const CCTPDomains: Partial<Record<ChainName, number>> = {
   base: 6,
   optimism: 2,
   arbitrum: 3,
-  optimismgoerli: 2,
-  arbitrumgoerli: 3,
-  basegoerli: 6,
+  optimism_sepolia: 2,
+  arbitrum_sepolia: 3,
+  base_sepolia: 6,
   solana: 5,
   polygon: 7,
   mumbai: 7,
@@ -40,13 +40,13 @@ export function getChainNameCCTP(domain: number): ChainName {
     case 1:
       return config.isMainnet ? 'avalanche' : 'fuji';
     case 2:
-      return config.isMainnet ? 'optimism' : 'optimismgoerli';
+      return config.isMainnet ? 'optimism' : 'optimism_sepolia';
     case 3:
-      return config.isMainnet ? 'arbitrum' : 'arbitrumgoerli';
+      return config.isMainnet ? 'arbitrum' : 'arbitrum_sepolia';
     case 5:
       return 'solana';
     case 6:
-      return config.isMainnet ? 'base' : 'basegoerli';
+      return config.isMainnet ? 'base' : 'base_sepolia';
     case 7:
       return config.isMainnet ? 'polygon' : 'mumbai';
   }
