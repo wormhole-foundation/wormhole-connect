@@ -30,7 +30,6 @@ const useStyles = makeStyles()((theme) => ({
   card: {
     width: '100%',
     cursor: 'pointer',
-    maxHeight: '80px',
     maxWidth: '420px',
   },
   cardContent: {

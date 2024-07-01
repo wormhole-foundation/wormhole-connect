@@ -1,8 +1,9 @@
 import React, { useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
-import { Typography, useTheme } from '@mui/material';
+import { useTheme } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
 
 import HistoryIcon from '@mui/icons-material/History';
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -30,6 +31,7 @@ import {
 import WalletConnector from './WalletConnector';
 import AssetPicker from './AssetPicker';
 import WalletController from './WalletConnector/Controller';
+import AmountInput from './AmountInput';
 
 const useStyles = makeStyles()((theme) => ({
   assetPickerContainer: {
@@ -271,6 +273,7 @@ const Bridge = () => {
       {bridgeHeader}
       {sourceAssetPicker}
       {destAssetPicker}
+      <AmountInput />
       {walletConnector}
       {config.showHamburgerMenu ? null : <FooterNavBar />}
       <div className={classes.poweredBy}>
