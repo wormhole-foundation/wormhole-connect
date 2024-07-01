@@ -47,7 +47,7 @@ type Props = {
   selectedChainConfig?: ChainConfig | undefined;
   selectedToken?: string | undefined;
   wallet: WalletData;
-  onClick?: any;
+  onClick?: (key: string) => void;
 };
 
 const SHORT_LIST_SIZE = 5;
@@ -165,7 +165,7 @@ const TokenList = (props: Props) => {
         })}
       </List>
     );
-  }, [isFetching, tokenSearchQuery, topTokens]);
+  }, [isFetching, balances, tokenSearchQuery, topTokens]);
 
   return (
     <Card className={classes.card} variant="elevation">
