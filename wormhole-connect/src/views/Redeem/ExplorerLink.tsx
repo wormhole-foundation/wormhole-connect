@@ -28,7 +28,7 @@ function ExplorerLink(props: ExplorerLinkProps) {
 
   const chainConfig = config.chains[props.chain]!;
 
-  let explorerLink;
+  let explorerLink = '';
   if (props.type === 'tx') {
     // TODO: refactor and use a map instead
     if (chainConfig.key === 'sui') {
@@ -64,11 +64,16 @@ function ExplorerLink(props: ExplorerLinkProps) {
       explorerLink += '?cluster=devnet';
     }
     if (chainConfig.key === 'sui') {
-      explorerLink += '?network=testnet';
+      explorerLink = explorerLink.replace('https://', 'https://testnet.');
     }
     if (chainConfig.key === 'aptos') {
       explorerLink += '?network=testnet';
     }
+  }
+
+  // ensure explorerLink is defined before returning the JSX
+  if (!explorerLink) {
+    return null;
   }
 
   return (
