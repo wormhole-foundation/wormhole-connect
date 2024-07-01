@@ -394,7 +394,7 @@ export class SDKv2Route extends RouteAbstract {
   async send(
     sourceToken: TokenConfig,
     amount: string,
-    fromChainV1: ChainName | ChainId,
+    fromChainV1: ChainName,
     senderAddress: string,
     toChainV1: ChainName | ChainId,
     recipientAddress: string,
@@ -406,7 +406,10 @@ export class SDKv2Route extends RouteAbstract {
     const fromChainV2 = await this.getV2ChainContext(fromChainV1);
     const toChainV2 = await this.getV2ChainContext(toChainV1);
 
-    const sourceTokenV2 = config.sdkConverter.toTokenIdV2(sourceToken);
+    const sourceTokenV2 = config.sdkConverter.toTokenIdV2(
+      sourceToken,
+      fromChainV1,
+    );
 
     const destTokenV2 = config.sdkConverter.getTokenIdV2ForKey(
       destToken,
@@ -414,7 +417,7 @@ export class SDKv2Route extends RouteAbstract {
       config.tokens,
     );
 
-    console.log(sourceTokenV2, destTokenV2);
+    console.log(sourceToken, sourceTokenV2, destTokenV2);
 
     if (!destTokenV2) throw new Error(`Couldn't find destToken`);
 

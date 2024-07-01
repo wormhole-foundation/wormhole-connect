@@ -1,12 +1,12 @@
 import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
-import { SendResult } from 'sdklegacy';
-import { TransactionRequest } from '@ethersproject/abstract-provider';
-import { Deferrable } from '@ethersproject/properties';
 import {
   EVMWallet,
   InjectedWallet,
   WalletConnectWallet,
 } from '@kev1n-peters/wallet-aggregator-evm';
+
+import { SignRequestEvm } from 'utils/wallet/types';
+
 import config from 'config';
 
 export const wallets = {
@@ -44,7 +44,7 @@ export async function switchChain(w: Wallet, chainId: number | string) {
 }
 
 export async function signAndSendTransaction(
-  transaction: SendResult,
+  request: SignRequestEvm,
   w: Wallet,
   chainName: string,
   options: any, // TODO ?!?!!?!?
@@ -53,9 +53,7 @@ export async function signAndSendTransaction(
   const signer = config.wh.getSigner(chainName);
   if (!signer) throw new Error('No signer found for chain' + chainName);
 
-  const tx = await signer.sendTransaction(
-    transaction as Deferrable<TransactionRequest>,
-  );
+  const tx = await signer.sendTransaction(request.transaction);
   let result = await tx.wait();
 
   // TODO move all this to ethers 6

@@ -1,4 +1,3 @@
-import { SendResult } from 'sdklegacy';
 import { WalletAdapterNetwork as SolanaNetwork } from '@solana/wallet-adapter-base';
 
 import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
@@ -12,12 +11,9 @@ import {
   WalletConnectWalletAdapter,
 } from '@solana/wallet-adapter-wallets';
 
-import {
-  clusterApiUrl,
-  ConfirmOptions,
-  Connection,
-  Transaction,
-} from '@solana/web3.js';
+import { clusterApiUrl, ConfirmOptions, Connection } from '@solana/web3.js';
+
+import { SignRequestSolana } from 'utils/wallet/types';
 
 import {
   SolanaWallet,
@@ -34,10 +30,13 @@ export function fetchOptions() {
   const connection = new Connection(config.rpcs.solana || clusterApiUrl(tag));
 
   return {
-    ...getSolanaStandardWallets(connection).reduce((acc, w) => {
-      acc[getWalletName(w)] = w;
-      return acc;
-    }, {} as Record<string, Wallet>),
+    ...getSolanaStandardWallets(connection).reduce(
+      (acc, w) => {
+        acc[getWalletName(w)] = w;
+        return acc;
+      },
+      {} as Record<string, Wallet>,
+    ),
     bitget: new SolanaWallet(new BitgetWalletAdapter(), connection),
     clover: new SolanaWallet(new CloverWalletAdapter(), connection),
     coin98: new SolanaWallet(new Coin98WalletAdapter(), connection),
@@ -63,7 +62,7 @@ export function fetchOptions() {
 }
 
 export async function signAndSendTransaction(
-  transaction: SendResult,
+  request: SignRequestSolana,
   wallet: Wallet | undefined,
   options?: ConfirmOptions,
 ) {
@@ -72,7 +71,7 @@ export async function signAndSendTransaction(
   }
 
   return await (wallet as SolanaWallet).signAndSendTransaction({
-    transaction: transaction as Transaction,
+    transaction: request.transaction,
     options,
   });
 }

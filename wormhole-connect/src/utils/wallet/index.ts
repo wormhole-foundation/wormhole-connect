@@ -1,10 +1,4 @@
-import {
-  ChainId,
-  ChainName,
-  Context,
-  SendResult,
-  ChainConfig,
-} from 'sdklegacy';
+import { ChainId, ChainName, Context, ChainConfig } from 'sdklegacy';
 import {
   NotSupported,
   Wallet,
@@ -24,6 +18,8 @@ import { AssetInfo } from './evm';
 import { Dispatch } from 'redux';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+
+import { SignRequest } from './types';
 
 export enum TransferWallet {
   SENDING = 'sending',
@@ -208,7 +204,7 @@ export const watchAsset = async (asset: AssetInfo, type: TransferWallet) => {
 
 export const signAndSendTransaction = async (
   chain: ChainName,
-  transaction: SendResult,
+  request: SignRequest,
   walletType: TransferWallet,
   options: any = {},
 ): Promise<string> => {
@@ -219,45 +215,51 @@ export const signAndSendTransaction = async (
     throw new Error('wallet is undefined');
   }
 
+  if (chainConfig.context === Context.ETH && request.platform === 'Evm') {
+    const { signAndSendTransaction } = await import('utils/wallet/evm');
+    const tx = await signAndSendTransaction(request, wallet, chain, options);
+    return tx;
+  } else if (
+    chainConfig.context === Context.SOLANA &&
+    request.platform === 'Solana'
+  ) {
+    const { signAndSendTransaction } = await import('utils/wallet/solana');
+    const tx = await signAndSendTransaction(request, wallet, options);
+    return tx.id;
+  } else {
+    throw new Error('unimplemented');
+  }
+
+  /*
   switch (chainConfig.context) {
     case Context.ETH: {
-      const { signAndSendTransaction } = await import('utils/wallet/evm');
-      const tx = await signAndSendTransaction(
-        transaction,
-        wallet,
-        chain,
-        options,
-      );
-      return tx;
     }
     case Context.SOLANA: {
-      const { signAndSendTransaction } = await import('utils/wallet/solana');
-      const tx = await signAndSendTransaction(transaction, wallet, options);
-      return tx.id;
     }
     case Context.SUI: {
       const { signAndSendTransaction } = await import('utils/wallet/sui');
-      const tx = await signAndSendTransaction(transaction, wallet);
+      const tx = await signAndSendTransaction(request, wallet);
       return tx.id;
     }
     case Context.APTOS: {
       const { signAndSendTransaction } = await import('utils/wallet/aptos');
-      const tx = await signAndSendTransaction(transaction, wallet);
+      const tx = await signAndSendTransaction(request, wallet);
       return tx.id;
     }
     case Context.SEI: {
       const { signAndSendTransaction } = await import('utils/wallet/sei');
-      const tx = await signAndSendTransaction(transaction, wallet);
+      const tx = await signAndSendTransaction(request, wallet);
       return tx.id;
     }
     case Context.COSMOS: {
       const { signAndSendTransaction } = await import('utils/wallet/cosmos');
-      const tx = await signAndSendTransaction(transaction, wallet);
+      const tx = await signAndSendTransaction(request, wallet);
       return tx.id;
     }
     default:
       throw new Error(`Invalid context ${chainConfig.context}`);
   }
+    */
 };
 
 export const postVaa = async (

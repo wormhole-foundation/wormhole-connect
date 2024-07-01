@@ -77,6 +77,7 @@ export class SDKv2Signer<N extends Network, C extends Chain>
     switch (platform) {
       case 'Evm':
         // TODO switch multi-provider to ethers 6
+        // and remove this ethers5-to-6 conversion
         let serialized = ethers6.Transaction.from({
           to: tx.transaction.to,
           data: tx.transaction.data,
@@ -90,6 +91,8 @@ export class SDKv2Signer<N extends Network, C extends Chain>
           data: tx5.data,
         };
         return unsignedTx as SendResult;
+      case 'Solana':
+        return tx.transaction.transaction;
       default:
         console.warn(`toSendResult is unimplemented for platform ${platform}`);
         return tx as SendResult;
