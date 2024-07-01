@@ -9,7 +9,7 @@ import {
   getNativeVersionOfToken,
 } from 'store/transferInput';
 
-import type { Route } from 'config/types';
+import type { Route, TokenConfig } from 'config/types';
 import type { ChainName } from 'sdklegacy';
 
 import { isPorticoRoute } from 'routes/porticoBridge/utils';
@@ -39,11 +39,18 @@ export const useComputeDestinationTokens = (props: Props): void => {
     let canceled = false;
 
     const computeDestTokens = async () => {
-      let supported = await RouteOperator.allSupportedDestTokens(
-        config.tokens[sourceToken],
-        sourceChain,
-        destChain,
-      );
+      let supported: Array<TokenConfig> = [];
+
+      try {
+        supported = await RouteOperator.allSupportedDestTokens(
+          config.tokens[sourceToken],
+          sourceChain,
+          destChain,
+        );
+      } catch (e) {
+        console.error(e);
+      }
+
       if (sourceToken) {
         // If any of the tokens are native to the chain, only select those.
         // This is to avoid users inadvertently receiving wrapped versions of the token.
