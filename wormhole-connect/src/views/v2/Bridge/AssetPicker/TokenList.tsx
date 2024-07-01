@@ -167,7 +167,7 @@ const TokenList = (props: Props) => {
               key={token.key}
               className={classes.tokenListItem}
               dense
-              disabled={!balance}
+              disabled={!!props.wallet?.address && !!balances && !balance}
               onClick={() => {
                 props.onClick?.(token.key);
               }}
