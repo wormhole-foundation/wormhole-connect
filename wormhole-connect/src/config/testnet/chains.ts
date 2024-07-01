@@ -95,7 +95,7 @@ export const TESTNET_CHAINS: ChainsConfig = {
   sui: {
     ...chains.sui!,
     displayName: 'Sui',
-    explorerUrl: 'https://explorer.sui.io/',
+    explorerUrl: 'https://suivision.xyz/',
     explorerName: 'Sui Explorer',
     gasToken: 'SUI',
     chainId: 0,
