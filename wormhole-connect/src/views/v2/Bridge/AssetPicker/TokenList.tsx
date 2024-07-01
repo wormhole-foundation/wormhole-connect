@@ -66,23 +66,53 @@ const TokenList = (props: Props) => {
   );
 
   const topTokens = useMemo(() => {
-    const { selectedToken } = props;
+    const { selectedToken, selectedChainConfig } = props;
+
     const selectedTokenConfig = selectedToken
       ? config.tokens[selectedToken]
       : undefined;
+
+    const nativeTokenConfig = props.tokenList?.find(
+      (t) => t.key === selectedChainConfig?.gasToken,
+    );
+
+    // First: Add previously selected token at the top of the list
     const tokens: Array<TokenConfig> = selectedTokenConfig
       ? [selectedTokenConfig]
       : [];
+
+    // Second: Add the native token
+    if (nativeTokenConfig) {
+      tokens.push(nativeTokenConfig);
+    }
+
+    // Third: Add tokens with a balances in the connected wallet
+    Object.entries(balances).forEach(([key, val]) => {
+      if (Number(val?.balance) > 0) {
+        const tokenConfig = props.tokenList?.find((t) => t.key === key);
+        const tokenNotAdded = !tokens.find(
+          (addedToken) => addedToken.key === key,
+        );
+
+        if (tokenConfig && tokenNotAdded && tokens.length < SHORT_LIST_SIZE) {
+          tokens.push(tokenConfig);
+        }
+      }
+    });
+
+    // Fourth: Fill up any remaining space from supported tokens
     props.tokenList?.forEach((t) => {
-      if (
-        tokens.length < SHORT_LIST_SIZE &&
-        t.key !== selectedTokenConfig?.key
-      ) {
+      const tokenNotAdded = !tokens.find(
+        (addedToken) => addedToken.key === t.key,
+      );
+
+      if (tokens.length < SHORT_LIST_SIZE && tokenNotAdded) {
         tokens.push(t);
       }
     });
+
     return tokens;
-  }, [props.tokenList]);
+  }, [balances, props.tokenList]);
 
   const searchList = useMemo(() => {
     const tokens = tokenSearchQuery
@@ -130,11 +160,14 @@ const TokenList = (props: Props) => {
         {tokens?.map((token: TokenConfig, i: number) => {
           const nativeChainConfig = config.chains[token.nativeChain];
           const nativeChain = nativeChainConfig?.displayName || '';
+          const balance = balances?.[token.key]?.balance;
+
           return (
             <ListItemButton
               key={token.key}
               className={classes.tokenListItem}
               dense
+              disabled={!balance}
               onClick={() => {
                 props.onClick?.(token.key);
               }}
@@ -154,11 +187,7 @@ const TokenList = (props: Props) => {
                 </div>
               </div>
               <Typography fontSize={14}>
-                {isFetching ? (
-                  <CircularProgress size={24} />
-                ) : (
-                  balances?.[token.key]?.balance
-                )}
+                {isFetching ? <CircularProgress size={24} /> : balance}
               </Typography>
             </ListItemButton>
           );
