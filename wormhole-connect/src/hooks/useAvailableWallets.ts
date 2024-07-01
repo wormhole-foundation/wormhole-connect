@@ -1,9 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import type {
-  ChainName,
-  Context,
-} from '@wormhole-foundation/wormhole-connect-sdk';
+import type { ChainName, Context } from 'sdklegacy';
 
 import config from 'config';
 import { WalletData, getWalletOptions } from 'utils/wallet';
