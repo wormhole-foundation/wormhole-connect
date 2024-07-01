@@ -81,8 +81,11 @@ const TokenList = (props: Props) => {
       ? [selectedTokenConfig]
       : [];
 
-    // Second: Add the native token
-    if (nativeTokenConfig) {
+    // Second: Add the native token, if not previously selected
+    if (
+      nativeTokenConfig &&
+      nativeTokenConfig.key !== selectedTokenConfig?.key
+    ) {
       tokens.push(nativeTokenConfig);
     }
 
