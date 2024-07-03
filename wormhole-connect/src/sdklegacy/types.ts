@@ -118,7 +118,3 @@ export type TokenDetails = {
   symbol: string;
   decimals: number;
 };
-
-// TODO SDKV2
-export type SendResult = any;
-export type RedeemResult = any;

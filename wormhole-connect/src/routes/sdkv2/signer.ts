@@ -118,8 +118,9 @@ export class SDKv2Signer<N extends Network, C extends Chain>
         transaction: tx.transaction,
       };
     } else {
-      throw new Error(`toSendResult is unimplemented for platform ${platform}`);
-      //return tx as SendResult;
+      throw new Error(
+        `createSignRequest is unimplemented for platform ${platform}`,
+      );
     }
   }
 

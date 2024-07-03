@@ -2,7 +2,6 @@
 // so that it loads dynamically as a separate bundle
 import { Network } from 'config/types';
 import config from 'config';
-import { SendResult } from 'sdklegacy';
 import {
   SeiChainId,
   SeiWallet,
@@ -10,6 +9,7 @@ import {
   getSupportedWallets,
 } from '@xlabs-libs/wallet-aggregator-sei';
 import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
+import { SignRequestSei } from './types';
 
 export const getSeiChainId = (env: Network) =>
   env === 'mainnet' ? 'pacific-1' : 'atlantic-2';
@@ -27,7 +27,7 @@ export async function fetchOptions() {
 }
 
 export async function signAndSendTransaction(
-  transaction: SendResult,
+  request: SignRequestSei,
   wallet: Wallet,
 ) {
   if (!wallet || !wallet.signAndSendTransaction) {
@@ -36,7 +36,7 @@ export async function signAndSendTransaction(
 
   const seiWallet = wallet as SeiWallet;
   const result = await seiWallet.signAndSendTransaction(
-    transaction as SeiTransaction,
+    request.transaction as SeiTransaction,
   );
 
   if (result.data?.code) {

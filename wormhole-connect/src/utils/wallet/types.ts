@@ -30,6 +30,12 @@ export interface SignRequestSui {
   transaction: any;
 }
 
+export interface SignRequestSei {
+  platform: 'Sei';
+  // TODO
+  transaction: any;
+}
+
 export interface SignRequestAptos {
   platform: 'Aptos';
   // TODO
