@@ -85,13 +85,17 @@ const WalletSidebar = (props: Props) => {
     (wallets: WalletData[]): JSX.Element[] => {
       const walletsSorted = wallets.sort((w) => (w.isReady ? -1 : 1));
 
-      const walletsFiltered = !search
-        ? walletsSorted
-        : walletsSorted.filter(
-            ({ name, type }: WalletData) =>
-              name.toLowerCase().includes(search) ||
-              type.toLowerCase().includes(search),
-          );
+      let walletsFiltered = walletsSorted;
+
+      if (search) {
+        const searchTerm = search.toLowerCase();
+
+        walletsFiltered = walletsSorted.filter(
+          ({ name, type }: WalletData) =>
+            name.toLowerCase().includes(searchTerm) ||
+            type.toLowerCase().includes(searchTerm),
+        );
+      }
 
       return walletsFiltered.map((wallet) => {
         const isWalletReady = wallet.isReady;

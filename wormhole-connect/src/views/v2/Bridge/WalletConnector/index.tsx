@@ -81,9 +81,7 @@ const WalletConnector = (props: Props) => {
           'Please enter amount and select a route to initiate the transaction'
         }
       >
-        <div className={classes.connected}>
-          <div>Connected</div>
-        </div>
+        <div className={classes.connected}>Connected</div>
       </Tooltip>
     );
   }, []);
