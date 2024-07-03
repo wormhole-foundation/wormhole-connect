@@ -1,14 +1,13 @@
 import { Transaction as SolanaTransaction } from '@solana/web3.js';
 
-import { TransactionRequest as EvmTransactionRequest } from '@ethersproject/abstract-provider';
-import { Deferrable } from '@ethersproject/properties';
+import { TransactionRequest as EvmTransactionRequest } from 'ethers';
 
 import { Types as AptosTypes } from 'aptos';
 
 // These types use sdkv2's Platform type for platform
 export interface SignRequestEvm {
   platform: 'Evm';
-  transaction: Deferrable<EvmTransactionRequest>;
+  transaction: EvmTransactionRequest;
 }
 
 export interface SignRequestSolana {

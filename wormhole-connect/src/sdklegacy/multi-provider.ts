@@ -21,9 +21,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-import { ethers as ethers5 } from 'ethers5';
+import * as ethers from 'ethers';
 
-type Provider = ethers5.providers.Provider;
+type Provider = ethers.Provider;
 
 /**
  * The MultiProvider manages a collection of [Domains]{@link Domain} and allows
@@ -58,7 +58,7 @@ type Provider = ethers5.providers.Provider;
 export class MultiProvider<T extends Domain> {
   protected domains: Map<string, T>;
   protected providers: Map<string, Provider>;
-  protected signers: Map<string, ethers5.Signer>;
+  protected signers: Map<string, ethers.Signer>;
 
   constructor() {
     this.domains = new Map();
@@ -210,10 +210,10 @@ export class MultiProvider<T extends Domain> {
     const domain = this.resolveDomain(nameOrDomain);
 
     if (rpc.startsWith('http://') || rpc.startsWith('https://')) {
-      const provider = new ethers5.providers.StaticJsonRpcProvider(rpc);
+      const provider = new ethers.JsonRpcProvider(rpc);
       this.registerProvider(domain, provider);
     } else if (rpc.startsWith('ws://') || rpc.startsWith('wss://')) {
-      const provider = new ethers5.providers.WebSocketProvider(rpc);
+      const provider = new ethers.WebSocketProvider(rpc);
       this.registerProvider(domain, provider);
     } else {
       throw new Error(
@@ -254,7 +254,7 @@ export class MultiProvider<T extends Domain> {
    * @param nameOrDomain A domain name or number.
    * @param signer An ethers Signer to be used by requests to that domain.
    */
-  registerSigner(nameOrDomain: string | number, signer: ethers5.Signer): void {
+  registerSigner(nameOrDomain: string | number, signer: ethers.Signer): void {
     const domain = this.resolveDomainName(nameOrDomain);
     const provider = this.providers.get(domain);
     if (!provider && !signer.provider)
@@ -316,12 +316,12 @@ export class MultiProvider<T extends Domain> {
    * A shortcut for registering a basic local privkey signer on a domain.
    *
    * @param nameOrDomain A domain name or number.
-   * @param privkey A private key string passed to `ethers5.Wallet`
+   * @param privkey A private key string passed to `ethers.Wallet`
    */
   registerWalletSigner(nameOrDomain: string | number, privkey: string): void {
     const domain = this.resolveDomain(nameOrDomain);
 
-    const wallet = new ethers5.Wallet(privkey);
+    const wallet = new ethers.Wallet(privkey);
     this.registerSigner(domain, wallet);
   }
 
@@ -331,7 +331,7 @@ export class MultiProvider<T extends Domain> {
    * @param nameOrDomain A domain name or number.
    * @returns The registered signer (or undefined)
    */
-  getSigner(nameOrDomain: string | number): ethers5.Signer | undefined {
+  getSigner(nameOrDomain: string | number): ethers.Signer | undefined {
     const domain = this.resolveDomainName(nameOrDomain);
     return this.signers.get(domain);
   }
@@ -343,7 +343,7 @@ export class MultiProvider<T extends Domain> {
    * @returns A Signer
    * @throws If no provider has been registered for the specified domain
    */
-  mustGetSigner(nameOrDomain: string | number): ethers5.Signer {
+  mustGetSigner(nameOrDomain: string | number): ethers.Signer {
     const signer = this.getSigner(nameOrDomain);
     if (!signer) {
       throw new UnknownDomainError(this, nameOrDomain);
@@ -363,7 +363,7 @@ export class MultiProvider<T extends Domain> {
    */
   getConnection(
     nameOrDomain: string | number,
-  ): ethers5.Signer | ethers5.providers.Provider | undefined {
+  ): ethers.Signer | ethers.Provider | undefined {
     return this.getSigner(nameOrDomain) ?? this.getProvider(nameOrDomain);
   }
 
@@ -376,7 +376,7 @@ export class MultiProvider<T extends Domain> {
    */
   mustGetConnection(
     nameOrDomain: string | number,
-  ): ethers5.Signer | ethers5.providers.Provider {
+  ): ethers.Signer | ethers.Provider {
     const connection = this.getConnection(nameOrDomain);
     if (!connection) {
       throw new NoProviderError(this, nameOrDomain);

@@ -11,11 +11,6 @@ import {
 import { ChainId, ChainName } from 'sdklegacy';
 import config, { getWormholeContextV2 } from 'config';
 import { signAndSendTransaction, TransferWallet } from 'utils/wallet';
-import * as ethers5 from 'ethers5';
-import * as ethers6 from 'ethers';
-
-import { TransactionRequest } from '@ethersproject/abstract-provider';
-import { Deferrable } from '@ethersproject/properties';
 
 import { SignRequest } from 'utils/wallet/types';
 
@@ -78,23 +73,9 @@ export class SDKv2Signer<N extends Network, C extends Chain>
     const platform = chainToPlatform(tx.chain);
 
     if (platform === 'Evm') {
-      // TODO switch multi-provider to ethers 6
-      // and remove this ethers5-to-6 conversion
-      const serialized = ethers6.Transaction.from({
-        to: tx.transaction.to,
-        data: tx.transaction.data,
-      }).unsignedSerialized;
-      const tx5: ethers5.Transaction =
-        ethers5.utils.parseTransaction(serialized);
-      const unsignedTx: Deferrable<TransactionRequest> = {
-        to: tx5.to,
-        type: tx5.type as number,
-        chainId: tx5.chainId,
-        data: tx5.data,
-      };
       return {
         platform,
-        transaction: unsignedTx,
+        transaction: tx.transaction,
       };
     } else if (platform === 'Solana') {
       return {
