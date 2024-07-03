@@ -8,7 +8,7 @@ import {
   TxHash,
 } from '@wormhole-foundation/sdk';
 //import { EvmUnsignedTransaction } from '@wormhole-foundation/sdk-evm';
-import { ChainId, ChainName, SendResult } from 'sdklegacy';
+import { ChainId, ChainName } from 'sdklegacy';
 import config, { getWormholeContextV2 } from 'config';
 import { signAndSendTransaction, TransferWallet } from 'utils/wallet';
 import * as ethers5 from 'ethers5';
@@ -16,6 +16,8 @@ import * as ethers6 from 'ethers';
 
 import { TransactionRequest } from '@ethersproject/abstract-provider';
 import { Deferrable } from '@ethersproject/properties';
+
+import { SignRequest } from 'utils/wallet/types';
 
 // Utility class that bridges between legacy Connect signer interface and SDKv2 signer interface
 export class SDKv2Signer<N extends Network, C extends Chain>
@@ -57,11 +59,11 @@ export class SDKv2Signer<N extends Network, C extends Chain>
     let txHashes: TxHash[] = [];
 
     for (let tx of txs) {
-      let sendResult: SendResult = this.toSendResult(tx);
+      let request: SignRequest = this.createSignRequest(tx);
 
       let txId = await signAndSendTransaction(
         this._chainNameV1,
-        sendResult,
+        request,
         TransferWallet.SENDING,
         this._options,
       );
@@ -71,7 +73,8 @@ export class SDKv2Signer<N extends Network, C extends Chain>
     return txHashes;
   }
 
-  private toSendResult(tx: UnsignedTransaction<N, C>): SendResult {
+  // This takes an SDKv2 UnsignedTransaction and prepares it for use by xlabs-wallet-adapter
+  private createSignRequest(tx: UnsignedTransaction<N, C>): SignRequest {
     const platform = chainToPlatform(tx.chain);
 
     switch (platform) {
@@ -90,12 +93,36 @@ export class SDKv2Signer<N extends Network, C extends Chain>
           chainId: tx5.chainId,
           data: tx5.data,
         };
-        return unsignedTx as SendResult;
+        return {
+          platform,
+          transaction: unsignedTx,
+        };
       case 'Solana':
-        return tx.transaction.transaction;
+        return {
+          platform,
+          transaction: tx.transaction.transaction,
+        };
+      case 'Cosmwasm':
+        debugger;
+        return {
+          platform,
+          transaction: tx,
+        };
+      case 'Sui':
+        return {
+          platform,
+          transaction: tx,
+        };
+      case 'Aptos':
+        return {
+          platform,
+          transaction: tx.transaction,
+        };
       default:
-        console.warn(`toSendResult is unimplemented for platform ${platform}`);
-        return tx as SendResult;
+        throw new Error(
+          `toSendResult is unimplemented for platform ${platform}`,
+        );
+      //return tx as SendResult;
     }
   }
 

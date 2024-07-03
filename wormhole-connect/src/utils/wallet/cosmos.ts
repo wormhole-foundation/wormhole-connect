@@ -1,26 +1,26 @@
 import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
-import {
-  CosmosTransaction,
-  CosmosWallet,
-  getWallets,
-} from '@xlabs-libs/wallet-aggregator-cosmos';
+import { CosmosWallet, getWallets } from '@xlabs-libs/wallet-aggregator-cosmos';
 import {
   CosmosEvmWallet,
   getWallets as getEvmWallets,
 } from '@xlabs-libs/wallet-aggregator-cosmos-evm';
 import config from 'config';
 
-import { ChainName, Context, SendResult, ChainResourceMap } from 'sdklegacy';
+import { ChainName, Context, ChainResourceMap } from 'sdklegacy';
+import { SignRequestCosmos } from './types';
 
 const getCosmosWalletsEndpointsMap = () => {
   const prepareMap = (map: ChainResourceMap) =>
-    Object.keys(map).reduce((acc, k) => {
-      const conf = config.chains[k as ChainName];
-      if (conf?.chainId && conf?.context === Context.COSMOS) {
-        acc[conf.chainId] = map[k as ChainName]!;
-      }
-      return acc;
-    }, {} as Record<string, string>);
+    Object.keys(map).reduce(
+      (acc, k) => {
+        const conf = config.chains[k as ChainName];
+        if (conf?.chainId && conf?.context === Context.COSMOS) {
+          acc[conf.chainId] = map[k as ChainName]!;
+        }
+        return acc;
+      },
+      {} as Record<string, string>,
+    );
 
   const rpcs = prepareMap(config.rpcs);
   const rests = prepareMap(config.rest);
@@ -32,20 +32,26 @@ const buildCosmosEvmWallets = () => {
   const { rests, rpcs } = getCosmosWalletsEndpointsMap();
   const wallets: CosmosEvmWallet[] = getEvmWallets(rpcs, rests);
 
-  return wallets.reduce((acc, w: CosmosEvmWallet) => {
-    acc[w.getName()] = w;
-    return acc;
-  }, {} as Record<string, Wallet>);
+  return wallets.reduce(
+    (acc, w: CosmosEvmWallet) => {
+      acc[w.getName()] = w;
+      return acc;
+    },
+    {} as Record<string, Wallet>,
+  );
 };
 
 const buildCosmosWallets = () => {
   const { rests, rpcs } = getCosmosWalletsEndpointsMap();
   const wallets: CosmosWallet[] = getWallets(rpcs, rests);
 
-  return wallets.reduce((acc, w: CosmosWallet) => {
-    acc[w.getName()] = w;
-    return acc;
-  }, {} as Record<string, Wallet>);
+  return wallets.reduce(
+    (acc, w: CosmosWallet) => {
+      acc[w.getName()] = w;
+      return acc;
+    },
+    {} as Record<string, Wallet>,
+  );
 };
 
 export const wallets = {
@@ -54,13 +60,11 @@ export const wallets = {
 };
 
 export async function signAndSendTransaction(
-  transaction: SendResult,
+  request: SignRequestCosmos,
   wallet: Wallet | undefined,
 ) {
   const cosmosWallet = wallet as CosmosWallet;
-  const result = await cosmosWallet.signAndSendTransaction(
-    transaction as CosmosTransaction,
-  );
+  const result = await cosmosWallet.signAndSendTransaction(request.transaction);
 
   if (result.data?.code) {
     throw new Error(
