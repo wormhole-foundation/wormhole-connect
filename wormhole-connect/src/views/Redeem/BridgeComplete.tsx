@@ -31,8 +31,8 @@ function BridgeComplete() {
     dispatch(setRoute('bridge'));
   };
 
-  let containerBg: string | undefined = undefined;
-  let component: React.JSX.Element = (
+  const containerBg: string | undefined = undefined;
+  const component: React.JSX.Element = (
     <div data-testid="transaction-complete-message">
       The bridge is now complete.
     </div>

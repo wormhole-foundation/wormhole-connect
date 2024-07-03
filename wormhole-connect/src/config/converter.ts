@@ -71,7 +71,7 @@ export class SDKConverter {
     if (this.isTokenConfigV1(token)) {
       if (chain && chain != token.nativeChain) {
         // Getting foreign address
-        let foreignAsset = token.foreignAssets?.[chain];
+        const foreignAsset = token.foreignAssets?.[chain];
         if (foreignAsset) {
           return v2.Wormhole.tokenId(
             this.toChainV2(chain),

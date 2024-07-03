@@ -195,7 +195,9 @@ export class WormholeContext extends MultiProvider<Domain> {
   // BEGIN stubbed methods for SDKV2 migration
   // TODO SDKV2
 
-  sign() {}
+  sign() {
+    console.log('TODO remove');
+  }
 
   async approve(a: any, b: any, c: any, d: any): Promise<boolean> {
     return true;
@@ -206,12 +208,18 @@ export class WormholeContext extends MultiProvider<Domain> {
   }
 
   /* @ts-ignore */
-  mustGetProvider(a: any) {}
+  mustGetProvider(a: any) {
+    console.log('TODO remove');
+  }
 
   get contracts() {
     return {
-      mustGetCore(a: any) {},
-      mustGetBridge(a: any) {},
+      mustGetCore(a: any) {
+        console.log('TODO remove');
+      },
+      mustGetBridge(a: any) {
+        console.log('TODO remove');
+      },
     };
   }
 }

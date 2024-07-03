@@ -56,12 +56,12 @@ export class SDKv2Signer<N extends Network, C extends Chain>
   }
 
   async signAndSend(txs: UnsignedTransaction<N, C>[]): Promise<TxHash[]> {
-    let txHashes: TxHash[] = [];
+    const txHashes: TxHash[] = [];
 
-    for (let tx of txs) {
-      let request: SignRequest = this.createSignRequest(tx);
+    for (const tx of txs) {
+      const request: SignRequest = this.createSignRequest(tx);
 
-      let txId = await signAndSendTransaction(
+      const txId = await signAndSendTransaction(
         this._chainNameV1,
         request,
         TransferWallet.SENDING,
@@ -77,51 +77,48 @@ export class SDKv2Signer<N extends Network, C extends Chain>
   private createSignRequest(tx: UnsignedTransaction<N, C>): SignRequest {
     const platform = chainToPlatform(tx.chain);
 
-    switch (platform) {
-      case 'Evm':
-        // TODO switch multi-provider to ethers 6
-        // and remove this ethers5-to-6 conversion
-        let serialized = ethers6.Transaction.from({
-          to: tx.transaction.to,
-          data: tx.transaction.data,
-        }).unsignedSerialized;
-        let tx5: ethers5.Transaction =
-          ethers5.utils.parseTransaction(serialized);
-        let unsignedTx: Deferrable<TransactionRequest> = {
-          to: tx5.to,
-          type: tx5.type as number,
-          chainId: tx5.chainId,
-          data: tx5.data,
-        };
-        return {
-          platform,
-          transaction: unsignedTx,
-        };
-      case 'Solana':
-        return {
-          platform,
-          transaction: tx.transaction.transaction,
-        };
-      case 'Cosmwasm':
-        debugger;
-        return {
-          platform,
-          transaction: tx,
-        };
-      case 'Sui':
-        return {
-          platform,
-          transaction: tx,
-        };
-      case 'Aptos':
-        return {
-          platform,
-          transaction: tx.transaction,
-        };
-      default:
-        throw new Error(
-          `toSendResult is unimplemented for platform ${platform}`,
-        );
+    if (platform === 'Evm') {
+      // TODO switch multi-provider to ethers 6
+      // and remove this ethers5-to-6 conversion
+      const serialized = ethers6.Transaction.from({
+        to: tx.transaction.to,
+        data: tx.transaction.data,
+      }).unsignedSerialized;
+      const tx5: ethers5.Transaction =
+        ethers5.utils.parseTransaction(serialized);
+      const unsignedTx: Deferrable<TransactionRequest> = {
+        to: tx5.to,
+        type: tx5.type as number,
+        chainId: tx5.chainId,
+        data: tx5.data,
+      };
+      return {
+        platform,
+        transaction: unsignedTx,
+      };
+    } else if (platform === 'Solana') {
+      return {
+        platform,
+        transaction: tx.transaction.transaction,
+      };
+    } else if (platform === 'Cosmwasm') {
+      //debugger;
+      return {
+        platform,
+        transaction: tx,
+      };
+    } else if (platform === 'Sui') {
+      return {
+        platform,
+        transaction: tx,
+      };
+    } else if (platform === 'Aptos') {
+      return {
+        platform,
+        transaction: tx.transaction,
+      };
+    } else {
+      throw new Error(`toSendResult is unimplemented for platform ${platform}`);
       //return tx as SendResult;
     }
   }

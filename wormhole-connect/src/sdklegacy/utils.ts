@@ -61,7 +61,9 @@ export const waitFor = (
           clearInterval(interval);
           resolve();
         }
-      } catch (e) {}
+      } catch (e) {
+        console.error(e);
+      }
 
       count++;
     }, ms);

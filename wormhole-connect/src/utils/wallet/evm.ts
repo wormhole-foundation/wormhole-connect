@@ -54,7 +54,7 @@ export async function signAndSendTransaction(
   if (!signer) throw new Error('No signer found for chain' + chainName);
 
   const tx = await signer.sendTransaction(request.transaction);
-  let result = await tx.wait();
+  const result = await tx.wait();
 
   // TODO move all this to ethers 6
   /* @ts-ignore */
