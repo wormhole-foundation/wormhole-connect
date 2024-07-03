@@ -1,4 +1,3 @@
-import { BigNumber } from 'ethers5';
 import { MainnetChainId, MainnetChainName } from './config/MAINNET';
 import { TestnetChainId, TestnetChainName } from './config/TESTNET';
 import { DevnetChainId, DevnetChainName } from './config/DEVNET';
@@ -87,7 +86,7 @@ export type AnyContracts = any;
 export interface ParsedMessage {
   sendTx: string;
   sender: string;
-  amount: BigNumber;
+  amount: BigInt;
   payloadID: number;
   recipient: string;
   toChain: ChainName;
@@ -95,10 +94,10 @@ export interface ParsedMessage {
   tokenAddress: string;
   tokenChain: ChainName;
   tokenId: TokenId;
-  sequence?: BigNumber;
+  sequence?: BigInt;
   emitterAddress?: string;
   block: number;
-  gasFee?: BigNumber;
+  gasFee?: BigInt;
   payload?: string;
   fromAddress?: string;
 }
@@ -106,8 +105,8 @@ export interface ParsedMessage {
 export interface ParsedRelayerPayload {
   relayerPayloadId: number;
   to: string;
-  relayerFee: BigNumber;
-  toNativeTokenAmount: BigNumber;
+  relayerFee: BigInt;
+  toNativeTokenAmount: BigInt;
 }
 
 export type ParsedRelayerMessage = ParsedMessage & ParsedRelayerPayload;
