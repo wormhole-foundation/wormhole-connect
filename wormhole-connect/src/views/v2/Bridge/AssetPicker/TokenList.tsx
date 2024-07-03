@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { useTheme } from '@mui/material';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
+import CircularProgress from '@mui/material/CircularProgress';
 import InputAdornment from '@mui/material/InputAdornment';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
@@ -9,13 +10,12 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
-
 import SearchIcon from '@mui/icons-material/Search';
-import TokenIcon from 'icons/TokenIcons';
+import { makeStyles } from 'tss-react/mui';
 
 import config from 'config';
-
-import { makeStyles } from 'tss-react/mui';
+import useGetTokenBalances from 'hooks/useGetTokenBalances';
+import TokenIcon from 'icons/TokenIcons';
 
 import type { ChainConfig, TokenConfig } from 'config/types';
 import type { WalletData } from 'store/wallet';
@@ -31,6 +31,15 @@ const useStyles = makeStyles()((theme) => ({
     fontSize: 14,
     marginBottom: '8px',
   },
+  tokenListItem: {
+    display: 'flex',
+    justifyContent: 'space-between',
+  },
+  tokenDetails: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
 }));
 
 type Props = {
@@ -38,7 +47,7 @@ type Props = {
   selectedChainConfig?: ChainConfig | undefined;
   selectedToken?: string | undefined;
   wallet: WalletData;
-  onClick?: any;
+  onClick?: (key: string) => void;
 };
 
 const SHORT_LIST_SIZE = 5;
@@ -50,24 +59,63 @@ const TokenList = (props: Props) => {
 
   const theme = useTheme();
 
+  const { isFetching, balances } = useGetTokenBalances(
+    props.wallet?.address || '',
+    props.selectedChainConfig?.key,
+    props.tokenList || [],
+  );
+
   const topTokens = useMemo(() => {
-    const { selectedToken } = props;
+    const { selectedToken, selectedChainConfig } = props;
+
     const selectedTokenConfig = selectedToken
       ? config.tokens[selectedToken]
       : undefined;
+
+    const nativeTokenConfig = props.tokenList?.find(
+      (t) => t.key === selectedChainConfig?.gasToken,
+    );
+
+    // First: Add previously selected token at the top of the list
     const tokens: Array<TokenConfig> = selectedTokenConfig
       ? [selectedTokenConfig]
       : [];
+
+    // Second: Add the native token, if not previously selected
+    if (
+      nativeTokenConfig &&
+      nativeTokenConfig.key !== selectedTokenConfig?.key
+    ) {
+      tokens.push(nativeTokenConfig);
+    }
+
+    // Third: Add tokens with a balances in the connected wallet
+    Object.entries(balances).forEach(([key, val]) => {
+      if (Number(val?.balance) > 0) {
+        const tokenConfig = props.tokenList?.find((t) => t.key === key);
+        const tokenNotAdded = !tokens.find(
+          (addedToken) => addedToken.key === key,
+        );
+
+        if (tokenConfig && tokenNotAdded && tokens.length < SHORT_LIST_SIZE) {
+          tokens.push(tokenConfig);
+        }
+      }
+    });
+
+    // Fourth: Fill up any remaining space from supported tokens
     props.tokenList?.forEach((t) => {
-      if (
-        tokens.length < SHORT_LIST_SIZE &&
-        t.key !== selectedTokenConfig?.key
-      ) {
+      const tokenNotAdded = !tokens.find(
+        (addedToken) => addedToken.key === t.key,
+      );
+
+      if (tokens.length < SHORT_LIST_SIZE && tokenNotAdded) {
         tokens.push(t);
       }
     });
+
     return tokens;
-  }, [props.tokenList]);
+  }, [balances, props.tokenList]);
 
   const searchList = useMemo(() => {
     const tokens = tokenSearchQuery
@@ -84,6 +132,7 @@ const TokenList = (props: Props) => {
       <List>
         <ListItem>
           <TextField
+            autoFocus
             fullWidth
             inputProps={{
               style: {
@@ -114,30 +163,41 @@ const TokenList = (props: Props) => {
         {tokens?.map((token: TokenConfig, i: number) => {
           const nativeChainConfig = config.chains[token.nativeChain];
           const nativeChain = nativeChainConfig?.displayName || '';
+          const balance = balances?.[token.key]?.balance;
+
           return (
             <ListItemButton
+              key={token.key}
+              className={classes.tokenListItem}
               dense
-              sx={{
-                display: 'flex',
-                flexDirection: 'row',
-              }}
+              disabled={!!props.wallet?.address && !!balances && !balance}
               onClick={() => {
                 props.onClick?.(token.key);
               }}
             >
-              <ListItemIcon>
-                <TokenIcon icon={token.icon} height={32} />
-              </ListItemIcon>
-              <div>
-                <Typography fontSize={16}>{token.symbol}</Typography>
-                <Typography fontSize={10}>{nativeChain}</Typography>
+              <div className={classes.tokenDetails}>
+                <ListItemIcon>
+                  <TokenIcon icon={token.icon} height={32} />
+                </ListItemIcon>
+                <div>
+                  <Typography fontSize={16}>{token.symbol}</Typography>
+                  <Typography
+                    fontSize={10}
+                    color={theme.palette.text.secondary}
+                  >
+                    {nativeChain}
+                  </Typography>
+                </div>
               </div>
+              <Typography fontSize={14}>
+                {isFetching ? <CircularProgress size={24} /> : balance}
+              </Typography>
             </ListItemButton>
           );
         })}
       </List>
     );
-  }, [tokenSearchQuery, topTokens]);
+  }, [isFetching, balances, tokenSearchQuery, topTokens]);
 
   return (
     <Card className={classes.card} variant="elevation">

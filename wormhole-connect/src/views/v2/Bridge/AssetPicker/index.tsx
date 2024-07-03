@@ -30,7 +30,6 @@ const useStyles = makeStyles()((theme) => ({
   card: {
     width: '100%',
     cursor: 'pointer',
-    maxHeight: '80px',
     maxWidth: '420px',
   },
   cardContent: {
@@ -55,8 +54,8 @@ type Props = {
   chainList?: Array<ChainConfig> | undefined;
   token?: string;
   tokenList?: Array<TokenConfig> | undefined;
-  setToken: Function;
-  setChain: Function;
+  setToken: (value: string) => void;
+  setChain: (value: ChainName) => void;
   wallet: WalletData;
 };
 
@@ -69,10 +68,16 @@ const AssetPicker = (props: Props) => {
     popupId: 'asset-picker',
   });
 
-  // Side-effect to reset chain search visibility
+  // Side-effect to reset chain search visibility.
+  // Popover close has an animation, which requires to wait
+  // a tiny bit before reseting showChainSearch.
+  // 300 ms is the reference wait time in a double-click, that's why
+  // we can use it as the min wait before user re-opens the popover.
   useEffect(() => {
     if (!popupState.isOpen) {
-      setShowChainSearch(false);
+      setTimeout(() => {
+        setShowChainSearch(false);
+      }, 300);
     }
   }, [popupState.isOpen]);
 
@@ -123,7 +128,7 @@ const AssetPicker = (props: Props) => {
   }, [props.chain, props.token]);
 
   return (
-    <React.Fragment>
+    <>
       <Card
         className={classes.card}
         variant="elevation"
@@ -160,10 +165,10 @@ const AssetPicker = (props: Props) => {
           setShowSearch={setShowChainSearch}
           wallet={props.wallet}
           onClick={(key: string) => {
-            props.setChain(key);
+            props.setChain(key as ChainName);
           }}
         />
-        {!showChainSearch && (
+        {!showChainSearch && chainConfig && (
           <TokenList
             tokenList={props.tokenList}
             selectedChainConfig={chainConfig}
@@ -176,7 +181,7 @@ const AssetPicker = (props: Props) => {
           />
         )}
       </Popover>
-    </React.Fragment>
+    </>
   );
 };
 

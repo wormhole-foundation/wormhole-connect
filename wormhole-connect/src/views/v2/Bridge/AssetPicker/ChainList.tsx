@@ -17,7 +17,7 @@ import TokenIcon from 'icons/TokenIcons';
 
 import { makeStyles } from 'tss-react/mui';
 
-import { isDisabledChain, selectChain } from 'store/transferInput';
+import { isDisabledChain } from 'store/transferInput';
 
 import type { ChainConfig } from 'config/types';
 import type { WalletData } from 'store/wallet';
@@ -115,7 +115,10 @@ const ChainList = (props: Props) => {
             sx={{
               width: 32,
               height: 32,
-              backgroundColor: 'transparent',
+              '&:hover': {
+                // removing the hover effect, which the parent ListItemButton already has
+                backgroundColor: 'unset',
+              },
             }}
           >
             <AddIcon />
@@ -124,7 +127,7 @@ const ChainList = (props: Props) => {
         </ListItemButton>
       </List>
     );
-  }, [topChains, selectChain]);
+  }, [topChains]);
 
   const searchList = useMemo(() => {
     const chains = chainSearchQuery
@@ -139,6 +142,7 @@ const ChainList = (props: Props) => {
       <List>
         <ListItem>
           <TextField
+            autoFocus
             fullWidth
             inputProps={{
               style: {
@@ -158,10 +162,11 @@ const ChainList = (props: Props) => {
             }}
           />
         </ListItem>
-        {chains?.map((chain: any, i: number) => {
+        {chains?.map((chain: ChainConfig, i: number) => {
           const disabled = isDisabledChain(chain.key, props.wallet);
           return (
             <ListItemButton
+              key={chain.key}
               dense
               disabled={disabled}
               sx={{

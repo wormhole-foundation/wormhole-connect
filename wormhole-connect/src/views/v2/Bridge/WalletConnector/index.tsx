@@ -1,24 +1,17 @@
-import React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import React, { useCallback, useMemo, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { useTheme } from '@mui/material/styles';
 import { makeStyles } from 'tss-react/mui';
-import { ScopedCssBaseline, Tooltip, useMediaQuery } from '@mui/material';
+import { Tooltip, useMediaQuery } from '@mui/material';
 
 import { RootState } from 'store';
-import { setWalletModal } from 'store/router';
-import { disconnectWallet as disconnectFromStore } from 'store/wallet';
 import { TransferWallet } from 'utils/wallet';
-import { copyTextToClipboard, displayWalletAddress } from 'utils';
 
-import DownIcon from 'icons/Down';
-import WalletIcons from 'icons/WalletIcons';
-import PopupState, { bindTrigger, bindPopover } from 'material-ui-popup-state';
-import Popover from '@mui/material/Popover';
-import config from 'config';
 import { TransferSide } from 'config/types';
-import { ExplorerConfig } from 'config/types';
+import WalletSidebar from './Sidebar';
 
 type StyleProps = { disabled?: boolean };
+
 const useStyles = makeStyles<StyleProps>()((theme: any, { disabled }) => ({
   connectWallet: {
     display: 'flex',
@@ -34,27 +27,19 @@ const useStyles = makeStyles<StyleProps>()((theme: any, { disabled }) => ({
     maxWidth: '420px',
     width: '100%',
   },
-  walletIcon: {
-    width: '24px',
-    height: '24px',
-  },
-  down: {
-    marginRight: '-8px',
-  },
-  dropdown: {
-    backgroundColor: theme.palette.popover.background,
+  connected: {
     display: 'flex',
-    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
     gap: '8px',
-    padding: '8px',
-  },
-  dropdownItem: {
+    padding: '8px 16px',
     borderRadius: '8px',
-    padding: '16px',
-    cursor: 'pointer',
-    '&:hover': {
-      backgroundColor: theme.palette.popover.secondary,
-    },
+    backgroundColor: theme.palette.button.primary,
+    cursor: 'not-allowed',
+    opacity: 0.7,
+    margin: 'auto',
+    maxWidth: '420px',
+    width: '100%',
   },
 }));
 
@@ -64,132 +49,51 @@ type Props = {
   disabled?: boolean;
 };
 
-type ExplorerLinkProps = {
-  address: string;
-} & ExplorerConfig;
-
-function ExplorerLink({
-  address,
-  href,
-  target = '_blank',
-  label = 'Transactions',
-}: ExplorerLinkProps) {
-  const { classes } = useStyles({ disabled: false });
-  const handleOpenExplorer = () =>
-    window.open(href.replace('{:address}', address), target);
-  return (
-    <div className={classes.dropdownItem} onClick={handleOpenExplorer}>
-      {label}
-    </div>
-  );
-}
-
-function WalletConnector(props: Props) {
+// Parent component to display Connect Wallet CTA
+// and the sidebar for the lsit of available wallets.
+const WalletConnector = (props: Props) => {
   const { disabled = false, type } = props;
-  const { classes } = useStyles({ disabled });
+
   const theme = useTheme();
-  const dispatch = useDispatch();
+
+  const { classes } = useStyles({ disabled });
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
   const wallet = useSelector((state: RootState) => state.wallet[type]);
 
-  const connectWallet = async (popupState?: any) => {
-    if (disabled) return;
-    if (popupState) popupState.close();
-    dispatch(setWalletModal(type));
-  };
+  const [isOpen, setIsOpen] = useState(false);
 
-  const copy = async (popupState: any) => {
-    await copyTextToClipboard(wallet.address);
-    popupState.close();
-  };
+  const connectWallet = useCallback(
+    async (popupState?: any) => {
+      if (disabled) {
+        return;
+      }
 
-  const disconnectWallet = async () => {
-    dispatch(disconnectFromStore(type));
-  };
+      popupState?.close();
+      setIsOpen(true);
+    },
+    [disabled],
+  );
 
-  if (wallet && wallet.address) {
+  const connected = useMemo(() => {
     return (
-      <PopupState variant="popover" popupId="demo-popup-popover">
-        {(popupState) => {
-          const { onClick: triggerPopup, ...boundProps } =
-            bindTrigger(popupState);
-
-          const onClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-            if (disabled) return;
-            triggerPopup(e);
-          };
-
-          return (
-            <div>
-              <div
-                className={classes.connectWallet}
-                onClick={onClick}
-                {...boundProps}
-              >
-                <WalletIcons
-                  name={wallet.name}
-                  icon={wallet.icon}
-                  height={24}
-                />
-                {displayWalletAddress(wallet.type, wallet.address)}
-                {!disabled && <DownIcon className={classes.down} />}
-              </div>
-              <Popover
-                {...bindPopover(popupState)}
-                sx={{ marginTop: 1 }}
-                anchorOrigin={{
-                  vertical: 'bottom',
-                  horizontal: 'right',
-                }}
-                transformOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right',
-                }}
-              >
-                <ScopedCssBaseline enableColorScheme>
-                  <div className={classes.dropdown}>
-                    <div
-                      className={classes.dropdownItem}
-                      onClick={() => copy(popupState)}
-                    >
-                      Copy address
-                    </div>
-                    {config.explorer ? (
-                      <ExplorerLink
-                        address={wallet.address}
-                        href={config.explorer.href}
-                        target={config.explorer.target}
-                        label={config.explorer.label}
-                      />
-                    ) : null}
-                    <div
-                      className={classes.dropdownItem}
-                      onClick={() => connectWallet(popupState)}
-                    >
-                      Change wallet
-                    </div>
-                    <div
-                      className={classes.dropdownItem}
-                      onClick={disconnectWallet}
-                    >
-                      Disconnect
-                    </div>
-                  </div>
-                </ScopedCssBaseline>
-              </Popover>
-            </div>
-          );
-        }}
-      </PopupState>
+      <Tooltip
+        title={
+          'Please enter amount and select a route to initiate the transaction'
+        }
+      >
+        <div className={classes.connected}>Connected</div>
+      </Tooltip>
     );
-  } else {
+  }, []);
+
+  const disconnected = useMemo(() => {
     const button = (
       <div
         className={classes.connectWallet}
         onClick={() => connectWallet()}
         data-testid={`${props.side}-section-connect-wallet-button`}
       >
-        <div>{mobile ? 'Connect' : 'Connect wallet'}</div>
+        <div>{mobile ? 'Connect' : `Connect ${props.side} wallet`}</div>
       </div>
     );
 
@@ -198,9 +102,26 @@ function WalletConnector(props: Props) {
         <Tooltip title={'Please select a network first'}>{button}</Tooltip>
       );
     } else {
-      return button;
+      return (
+        <>
+          {button}
+          <WalletSidebar
+            open={isOpen}
+            type={props.type}
+            onClose={() => {
+              setIsOpen(false);
+            }}
+          />
+        </>
+      );
     }
+  }, [disabled, isOpen, mobile, props.side, props.type]);
+
+  if (wallet && wallet.address) {
+    return connected;
   }
-}
+
+  return disconnected;
+};
 
 export default WalletConnector;

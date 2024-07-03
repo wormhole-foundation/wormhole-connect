@@ -100,9 +100,15 @@ function AppRouter(props: Props) {
     return props.config?.useRedesign ? <BridgeV2 /> : <Bridge />;
   }, [props.config?.useRedesign]);
 
+  const walletSelector = useMemo(() => {
+    return props.config?.useRedesign || !showWalletModal ? null : (
+      <WalletModal type={showWalletModal} />
+    );
+  }, [showWalletModal, props.config?.useRedesign]);
+
   return (
     <div className={classes.appContent}>
-      {showWalletModal && <WalletModal type={showWalletModal} />}
+      {walletSelector}
       {route === 'bridge' && bridge}
       {route === 'redeem' && <Redeem />}
       {route === 'search' && <TxSearch />}

@@ -4,7 +4,7 @@ import { useDispatch } from 'react-redux';
 
 import { setToken, setSupportedSourceTokens } from 'store/transferInput';
 
-import type { Route } from 'config/types';
+import type { Route, TokenConfig } from 'config/types';
 import type { ChainName } from 'sdklegacy';
 
 import RouteOperator from 'routes/operator';
@@ -30,11 +30,18 @@ export const useComputeSourceTokens = (props: Props): void => {
     let active = true;
 
     const computeSrcTokens = async () => {
-      const supported = await RouteOperator.allSupportedSourceTokens(
-        config.tokens[destToken],
-        sourceChain,
-        destChain,
-      );
+      let supported: Array<TokenConfig> = [];
+
+      try {
+        supported = await RouteOperator.allSupportedSourceTokens(
+          config.tokens[destToken],
+          sourceChain,
+          destChain,
+        );
+      } catch (e) {
+        console.error(e);
+      }
+
       if (active) {
         dispatch(setSupportedSourceTokens(supported));
         const isTokenSupported =
