@@ -129,7 +129,7 @@
     "react-dom": "^18.2.0"
   },
   "lint-staged": {
-    "**/*": "prettier --workspaces --if-present --write --ignore-unknown"
+    "*": "prettier --write --ignore-unknown"
   },
   "overrides": {
     "@injectivelabs/sdk-ts@1.10.72": {
