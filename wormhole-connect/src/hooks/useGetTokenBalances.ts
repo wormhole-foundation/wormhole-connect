@@ -54,6 +54,7 @@ const useGetTokenBalances = (
       const now = Date.now();
       const fiveMinutesAgo = now - 5 * 60 * 1000;
       let updateCache = false;
+
       for (const token of tokens) {
         const cachedBalance = accessBalance(
           cachedBalances,

@@ -38,7 +38,10 @@ export class SDKv2Route extends RouteAbstract {
   NATIVE_GAS_DROPOFF_SUPPORTED = false;
   AUTOMATIC_DEPOSIT = false;
 
-  constructor(readonly rc: routes.RouteConstructor, routeType: Route) {
+  constructor(
+    readonly rc: routes.RouteConstructor,
+    routeType: Route,
+  ) {
     super();
     this.TYPE = routeType;
   }
@@ -165,11 +168,22 @@ export class SDKv2Route extends RouteAbstract {
     const fromChain = await this.getV2ChainContext(fromChainV1);
     const tokenV2 = config.sdkConverter.toTokenIdV2(sourceToken);
 
-    return !!(await this.rc.supportedSourceTokens(fromChain.context)).find(
-      (tokenId) => {
+    try {
+      const supportedTokens = await this.rc.supportedSourceTokens(
+        fromChain.context,
+      );
+
+      return !!supportedTokens.find((tokenId) => {
         return isSameToken(tokenId, tokenV2);
-      },
-    );
+      });
+    } catch (e: any) {
+      // Route not supported for this chain
+      if (e.message.includes('No protocols registered')) {
+        return false;
+      } else {
+        throw e;
+      }
+    }
   }
 
   async isSupportedDestToken(
