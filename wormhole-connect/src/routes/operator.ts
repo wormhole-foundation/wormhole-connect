@@ -272,23 +272,7 @@ export class Operator {
           supported[token.key] = token;
         }
       } catch (e) {
-        // Fall back to less efficient method
-        for (const token of config.tokensArr) {
-          const { key } = token;
-          const alreadySupported = supported[key];
-          if (!alreadySupported) {
-            const isSupported = await r.isSupportedDestToken(
-              token,
-              sourceToken,
-              sourceChain,
-              destChain,
-            );
-
-            if (isSupported) {
-              supported[key] = config.tokens[key];
-            }
-          }
-        }
+        console.error(e);
       }
     }
     return Object.values(supported);
