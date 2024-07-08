@@ -5,7 +5,11 @@ import {
   WalletConnectWallet,
 } from '@kev1n-peters/wallet-aggregator-evm';
 
-import { SignRequestEvm } from 'utils/wallet/types';
+import {
+  EvmUnsignedTransaction,
+  EvmChains,
+} from '@wormhole-foundation/sdk-evm';
+import { Network } from '@wormhole-foundation/sdk';
 
 import config from 'config';
 
@@ -44,7 +48,7 @@ export async function switchChain(w: Wallet, chainId: number | string) {
 }
 
 export async function signAndSendTransaction(
-  request: SignRequestEvm,
+  request: EvmUnsignedTransaction<Network, EvmChains>,
   w: Wallet,
   chainName: string,
   options: any, // TODO ?!?!!?!?

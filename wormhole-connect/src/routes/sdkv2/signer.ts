@@ -12,8 +12,6 @@ import { ChainId, ChainName } from 'sdklegacy';
 import config, { getWormholeContextV2 } from 'config';
 import { signAndSendTransaction, TransferWallet } from 'utils/wallet';
 
-import { SignRequest } from 'utils/wallet/types';
-
 // Utility class that bridges between legacy Connect signer interface and SDKv2 signer interface
 export class SDKv2Signer<N extends Network, C extends Chain>
   implements SignAndSendSigner<N, C>
@@ -54,11 +52,9 @@ export class SDKv2Signer<N extends Network, C extends Chain>
     const txHashes: TxHash[] = [];
 
     for (const tx of txs) {
-      const request: SignRequest = this.createSignRequest(tx);
-
       const txId = await signAndSendTransaction(
         this._chainNameV1,
-        request,
+        tx,
         TransferWallet.SENDING,
         this._options,
       );
@@ -66,44 +62,6 @@ export class SDKv2Signer<N extends Network, C extends Chain>
     }
     console.log(txHashes);
     return txHashes;
-  }
-
-  // This takes an SDKv2 UnsignedTransaction and prepares it for use by xlabs-wallet-adapter
-  private createSignRequest(tx: UnsignedTransaction<N, C>): SignRequest {
-    const platform = chainToPlatform(tx.chain);
-
-    if (platform === 'Evm') {
-      return {
-        platform,
-        transaction: tx.transaction,
-      };
-    } else if (platform === 'Solana') {
-      return {
-        platform,
-        transaction: tx.transaction.transaction,
-        signers: tx.transaction.signers,
-      };
-    } else if (platform === 'Cosmwasm') {
-      //debugger;
-      return {
-        platform,
-        transaction: tx,
-      };
-    } else if (platform === 'Sui') {
-      return {
-        platform,
-        transaction: tx.transaction,
-      };
-    } else if (platform === 'Aptos') {
-      return {
-        platform,
-        transaction: tx.transaction,
-      };
-    } else {
-      throw new Error(
-        `createSignRequest is unimplemented for platform ${platform}`,
-      );
-    }
   }
 
   chain() {

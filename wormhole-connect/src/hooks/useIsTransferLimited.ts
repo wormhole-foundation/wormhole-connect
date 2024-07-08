@@ -159,13 +159,12 @@ const useIsTransferLimited = (): IsTransferLimitedResult => {
             transferNotional > chain.notionalLimit
               ? 'EXCEEDS_MAX_NOTIONAL'
               : transferNotional >
-                  chain.bigTransactionSize * REMAINING_NOTIONAL_TOLERANCE
-                ? 'EXCEEDS_LARGE_TRANSFER_LIMIT'
-                : transferNotional >
-                    chain.remainingAvailableNotional *
-                      REMAINING_NOTIONAL_TOLERANCE
-                  ? 'EXCEEDS_REMAINING_NOTIONAL'
-                  : undefined;
+                chain.bigTransactionSize * REMAINING_NOTIONAL_TOLERANCE
+              ? 'EXCEEDS_LARGE_TRANSFER_LIMIT'
+              : transferNotional >
+                chain.remainingAvailableNotional * REMAINING_NOTIONAL_TOLERANCE
+              ? 'EXCEEDS_REMAINING_NOTIONAL'
+              : undefined;
           return {
             isLimited: !!isLimitedReason,
             reason: isLimitedReason,

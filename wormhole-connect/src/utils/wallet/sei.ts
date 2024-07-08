@@ -5,11 +5,10 @@ import config from 'config';
 import {
   SeiChainId,
   SeiWallet,
-  SeiTransaction,
+  //SeiTransaction,
   getSupportedWallets,
 } from '@xlabs-libs/wallet-aggregator-sei';
 import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
-import { SignRequestSei } from './types';
 
 export const getSeiChainId = (env: Network) =>
   env === 'mainnet' ? 'pacific-1' : 'atlantic-2';
@@ -26,10 +25,10 @@ export async function fetchOptions() {
   }, {});
 }
 
-export async function signAndSendTransaction(
-  request: SignRequestSei,
-  wallet: Wallet,
-) {
+export async function signAndSendTransaction(request: any, wallet: Wallet) {
+  throw new Error('Unimplemented');
+  // TODO SDKV2
+  /*
   if (!wallet || !wallet.signAndSendTransaction) {
     throw new Error('wallet.signAndSendTransaction is undefined');
   }
@@ -46,4 +45,5 @@ export async function signAndSendTransaction(
   }
 
   return result;
+  */
 }

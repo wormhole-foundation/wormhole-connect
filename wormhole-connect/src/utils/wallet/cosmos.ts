@@ -7,20 +7,21 @@ import {
 import config from 'config';
 
 import { ChainName, Context, ChainResourceMap } from 'sdklegacy';
-import { SignRequestCosmos } from './types';
+import { Network } from '@wormhole-foundation/sdk';
+import {
+  CosmwasmUnsignedTransaction,
+  CosmwasmChains,
+} from '@wormhole-foundation/sdk-cosmwasm';
 
 const getCosmosWalletsEndpointsMap = () => {
   const prepareMap = (map: ChainResourceMap) =>
-    Object.keys(map).reduce(
-      (acc, k) => {
-        const conf = config.chains[k as ChainName];
-        if (conf?.chainId && conf?.context === Context.COSMOS) {
-          acc[conf.chainId] = map[k as ChainName]!;
-        }
-        return acc;
-      },
-      {} as Record<string, string>,
-    );
+    Object.keys(map).reduce((acc, k) => {
+      const conf = config.chains[k as ChainName];
+      if (conf?.chainId && conf?.context === Context.COSMOS) {
+        acc[conf.chainId] = map[k as ChainName]!;
+      }
+      return acc;
+    }, {} as Record<string, string>);
 
   const rpcs = prepareMap(config.rpcs);
   const rests = prepareMap(config.rest);
@@ -32,26 +33,20 @@ const buildCosmosEvmWallets = () => {
   const { rests, rpcs } = getCosmosWalletsEndpointsMap();
   const wallets: CosmosEvmWallet[] = getEvmWallets(rpcs, rests);
 
-  return wallets.reduce(
-    (acc, w: CosmosEvmWallet) => {
-      acc[w.getName()] = w;
-      return acc;
-    },
-    {} as Record<string, Wallet>,
-  );
+  return wallets.reduce((acc, w: CosmosEvmWallet) => {
+    acc[w.getName()] = w;
+    return acc;
+  }, {} as Record<string, Wallet>);
 };
 
 const buildCosmosWallets = () => {
   const { rests, rpcs } = getCosmosWalletsEndpointsMap();
   const wallets: CosmosWallet[] = getWallets(rpcs, rests);
 
-  return wallets.reduce(
-    (acc, w: CosmosWallet) => {
-      acc[w.getName()] = w;
-      return acc;
-    },
-    {} as Record<string, Wallet>,
-  );
+  return wallets.reduce((acc, w: CosmosWallet) => {
+    acc[w.getName()] = w;
+    return acc;
+  }, {} as Record<string, Wallet>);
 };
 
 export const wallets = {
@@ -60,7 +55,7 @@ export const wallets = {
 };
 
 export async function signAndSendTransaction(
-  request: SignRequestCosmos,
+  request: CosmwasmUnsignedTransaction<Network, CosmwasmChains>,
   wallet: Wallet | undefined,
 ) {
   const cosmosWallet = wallet as CosmosWallet;

@@ -19,7 +19,21 @@ import { Dispatch } from 'redux';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { SignRequest } from './types';
+import { Network, Chain, UnsignedTransaction } from '@wormhole-foundation/sdk';
+
+import {
+  EvmUnsignedTransaction,
+  EvmChains,
+} from '@wormhole-foundation/sdk-evm';
+import {
+  SuiUnsignedTransaction,
+  SuiChains,
+} from '@wormhole-foundation/sdk-sui';
+import {
+  AptosUnsignedTransaction,
+  AptosChains,
+} from '@wormhole-foundation/sdk-aptos';
+import { SolanaUnsignedTransaction } from '@wormhole-foundation/sdk-solana';
 
 export enum TransferWallet {
   SENDING = 'sending',
@@ -204,7 +218,7 @@ export const watchAsset = async (asset: AssetInfo, type: TransferWallet) => {
 
 export const signAndSendTransaction = async (
   chain: ChainName,
-  request: SignRequest,
+  request: UnsignedTransaction<Network, Chain>,
   walletType: TransferWallet,
   options: any = {},
 ): Promise<string> => {
@@ -215,30 +229,36 @@ export const signAndSendTransaction = async (
     throw new Error('wallet is undefined');
   }
 
-  if (chainConfig.context === Context.ETH && request.platform === 'Evm') {
+  if (chainConfig.context === Context.ETH) {
     const { signAndSendTransaction } = await import('utils/wallet/evm');
-    const tx = await signAndSendTransaction(request, wallet, chain, options);
+    const tx = await signAndSendTransaction(
+      request as EvmUnsignedTransaction<Network, EvmChains>,
+      wallet,
+      chain,
+      options,
+    );
     return tx;
-  } else if (
-    chainConfig.context === Context.SOLANA &&
-    request.platform === 'Solana'
-  ) {
+  } else if (chainConfig.context === Context.SOLANA) {
     const { signAndSendTransaction } = await import('utils/wallet/solana');
-    const tx = await signAndSendTransaction(request, wallet, options);
+    const tx = await signAndSendTransaction(
+      request as SolanaUnsignedTransaction<Network>,
+      wallet,
+      options,
+    );
     return tx.id;
-  } else if (
-    chainConfig.context === Context.SUI &&
-    request.platform === 'Sui'
-  ) {
+  } else if (chainConfig.context === Context.SUI) {
     const { signAndSendTransaction } = await import('utils/wallet/sui');
-    const tx = await signAndSendTransaction(request, wallet);
+    const tx = await signAndSendTransaction(
+      request as SuiUnsignedTransaction<Network, SuiChains>,
+      wallet,
+    );
     return tx.id;
-  } else if (
-    chainConfig.context === Context.APTOS &&
-    request.platform === 'Aptos'
-  ) {
+  } else if (chainConfig.context === Context.APTOS) {
     const { signAndSendTransaction } = await import('utils/wallet/aptos');
-    const tx = await signAndSendTransaction(request, wallet);
+    const tx = await signAndSendTransaction(
+      request as AptosUnsignedTransaction<Network, AptosChains>,
+      wallet,
+    );
     return tx.id;
   } else {
     throw new Error('unimplemented');
