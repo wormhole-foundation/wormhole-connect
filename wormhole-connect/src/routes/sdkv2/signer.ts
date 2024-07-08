@@ -92,7 +92,7 @@ export class SDKv2Signer<N extends Network, C extends Chain>
     } else if (platform === 'Sui') {
       return {
         platform,
-        transaction: tx,
+        transaction: tx.transaction,
       };
     } else if (platform === 'Aptos') {
       return {

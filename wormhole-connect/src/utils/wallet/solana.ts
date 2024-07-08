@@ -85,7 +85,9 @@ export async function signAndSendTransaction(
     );
     request.transaction.add(...computeBudgetIx);
 
-    request.transaction.partialSign(...request.signers);
+    if (request.signers) {
+      request.transaction.partialSign(...request.signers);
+    }
   } else {
     throw new Error('Need Solana RPC');
   }

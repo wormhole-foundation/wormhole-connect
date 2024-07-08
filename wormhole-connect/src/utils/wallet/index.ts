@@ -226,6 +226,20 @@ export const signAndSendTransaction = async (
     const { signAndSendTransaction } = await import('utils/wallet/solana');
     const tx = await signAndSendTransaction(request, wallet, options);
     return tx.id;
+  } else if (
+    chainConfig.context === Context.SUI &&
+    request.platform === 'Sui'
+  ) {
+    const { signAndSendTransaction } = await import('utils/wallet/sui');
+    const tx = await signAndSendTransaction(request, wallet);
+    return tx.id;
+  } else if (
+    chainConfig.context === Context.APTOS &&
+    request.platform === 'Aptos'
+  ) {
+    const { signAndSendTransaction } = await import('utils/wallet/aptos');
+    const tx = await signAndSendTransaction(request, wallet);
+    return tx.id;
   } else {
     throw new Error('unimplemented');
   }
