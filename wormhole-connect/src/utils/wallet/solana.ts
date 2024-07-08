@@ -22,6 +22,8 @@ import {
 
 import config from 'config';
 
+import { createPriorityFeeInstructions } from '@wormhole-foundation/sdk-solana';
+
 const getWalletName = (wallet: Wallet) =>
   wallet.getName().toLowerCase().replaceAll('wallet', '').trim();
 
@@ -75,6 +77,14 @@ export async function signAndSendTransaction(
     const bh = await conn.getLatestBlockhash();
     request.transaction.recentBlockhash = bh.blockhash;
     request.transaction.lastValidBlockHeight = bh.lastValidBlockHeight;
+
+    let computeBudgetIx = await createPriorityFeeInstructions(
+      conn,
+      request.transaction,
+      0.75,
+    );
+    request.transaction.add(...computeBudgetIx);
+
     request.transaction.partialSign(...request.signers);
   } else {
     throw new Error('Need Solana RPC');
