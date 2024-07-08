@@ -38,10 +38,7 @@ export class SDKv2Route extends RouteAbstract {
   NATIVE_GAS_DROPOFF_SUPPORTED = false;
   AUTOMATIC_DEPOSIT = false;
 
-  constructor(
-    readonly rc: routes.RouteConstructor,
-    routeType: Route,
-  ) {
+  constructor(readonly rc: routes.RouteConstructor, routeType: Route) {
     super();
     this.TYPE = routeType;
   }

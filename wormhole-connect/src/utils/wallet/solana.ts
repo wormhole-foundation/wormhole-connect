@@ -39,13 +39,10 @@ export function fetchOptions() {
   const connection = new Connection(config.rpcs.solana || clusterApiUrl(tag));
 
   return {
-    ...getSolanaStandardWallets(connection).reduce(
-      (acc, w) => {
-        acc[getWalletName(w)] = w;
-        return acc;
-      },
-      {} as Record<string, Wallet>,
-    ),
+    ...getSolanaStandardWallets(connection).reduce((acc, w) => {
+      acc[getWalletName(w)] = w;
+      return acc;
+    }, {} as Record<string, Wallet>),
     bitget: new SolanaWallet(new BitgetWalletAdapter(), connection),
     clover: new SolanaWallet(new CloverWalletAdapter(), connection),
     coin98: new SolanaWallet(new Coin98WalletAdapter(), connection),
@@ -87,7 +84,7 @@ export async function signAndSendTransaction(
     tx.recentBlockhash = bh.blockhash;
     tx.lastValidBlockHeight = bh.lastValidBlockHeight;
 
-    let computeBudgetIx = await createPriorityFeeInstructions(conn, tx, 0.75);
+    const computeBudgetIx = await createPriorityFeeInstructions(conn, tx, 0.75);
     tx.add(...computeBudgetIx);
 
     if (request.transaction.signers) {
