@@ -25,6 +25,7 @@ export const signAndSendTransaction = async (
   }
 
   return await wallet.signAndSendTransaction({
+    /* @ts-ignore */
     transactionBlock: request.transaction as TransactionBlock,
   });
 };
