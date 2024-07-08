@@ -1,3 +1,4 @@
+/*
 import { DeliveryStatus } from 'utils/sdk';
 import axios from 'axios';
 import { Route } from 'config/types';
@@ -80,3 +81,4 @@ const useDeliveryStatus = (): void => {
 };
 
 export default useDeliveryStatus;
+*/

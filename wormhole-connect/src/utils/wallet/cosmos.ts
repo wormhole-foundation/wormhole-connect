@@ -1,16 +1,17 @@
 import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
-import {
-  CosmosTransaction,
-  CosmosWallet,
-  getWallets,
-} from '@xlabs-libs/wallet-aggregator-cosmos';
+import { CosmosWallet, getWallets } from '@xlabs-libs/wallet-aggregator-cosmos';
 import {
   CosmosEvmWallet,
   getWallets as getEvmWallets,
 } from '@xlabs-libs/wallet-aggregator-cosmos-evm';
 import config from 'config';
 
-import { ChainName, Context, SendResult, ChainResourceMap } from 'sdklegacy';
+import { ChainName, Context, ChainResourceMap } from 'sdklegacy';
+import { Network } from '@wormhole-foundation/sdk';
+import {
+  CosmwasmUnsignedTransaction,
+  CosmwasmChains,
+} from '@wormhole-foundation/sdk-cosmwasm';
 
 const getCosmosWalletsEndpointsMap = () => {
   const prepareMap = (map: ChainResourceMap) =>
@@ -54,13 +55,11 @@ export const wallets = {
 };
 
 export async function signAndSendTransaction(
-  transaction: SendResult,
+  request: CosmwasmUnsignedTransaction<Network, CosmwasmChains>,
   wallet: Wallet | undefined,
 ) {
   const cosmosWallet = wallet as CosmosWallet;
-  const result = await cosmosWallet.signAndSendTransaction(
-    transaction as CosmosTransaction,
-  );
+  const result = await cosmosWallet.signAndSendTransaction(request.transaction);
 
   if (result.data?.code) {
     throw new Error(

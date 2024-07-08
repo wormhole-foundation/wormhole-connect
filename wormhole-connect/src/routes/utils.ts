@@ -1,69 +1,8 @@
-import {
-  ChainName,
-  ChainId,
-  MAINNET_CHAINS,
-  ParsedMessage as SdkParsedMessage,
-  ParsedRelayerMessage as SdkParsedRelayerMessage,
-} from 'sdklegacy';
+import { ChainName, ChainId } from 'sdklegacy';
 import { BigNumber, BigNumberish, utils } from 'ethers5';
 import config from 'config';
 import { toFixedDecimals } from 'utils/balance';
-import { ParsedMessage, ParsedRelayerMessage, PayloadType } from 'utils/sdk';
-import { getTokenById } from 'utils';
 import { Route, TokenConfig } from 'config/types';
-import { getDecimals } from 'utils/sdkv2';
-
-// adapts the sdk returned parsed message to the type that
-// wh connect uses
-export const adaptParsedMessage = async (
-  parsed: SdkParsedMessage | SdkParsedRelayerMessage,
-): Promise<ParsedMessage | ParsedRelayerMessage> => {
-  const tokenId = {
-    address: parsed.tokenAddress,
-    chain: parsed.tokenChain,
-  };
-  const decimals = await getDecimals(
-    config.sdkConverter.toTokenIdV2(tokenId),
-    config.sdkConverter.toChainV2(parsed.fromChain),
-  );
-  const token = getTokenById(tokenId);
-
-  const base: ParsedMessage = {
-    ...parsed,
-    amount: parsed.amount.toString(),
-    tokenKey: token?.key || '',
-    tokenDecimals: decimals,
-    receivedTokenKey: token?.key || '',
-    sequence: parsed.sequence?.toString(),
-    gasFee: parsed.gasFee ? parsed.gasFee.toString() : undefined,
-  };
-  // get wallet address of associated token account for Solana
-  // the recipient is the wallet address for the automatic payload type
-  const toChainId = config.wh.toChainId(parsed.toChain);
-  if (
-    toChainId === MAINNET_CHAINS.solana &&
-    parsed.payloadID === PayloadType.Manual
-  ) {
-    try {
-      throw 1;
-      /*
-       * TODO SDKV2
-      const accountOwner = await solanaContext().getTokenAccountOwner(
-        parsed.recipient,
-      );
-      base.recipient = accountOwner;
-      */
-    } catch (e: any) {
-      if (e.name === 'TokenAccountNotFoundError') {
-        // we'll promp them to create it before claiming it
-        base.recipient = '';
-      } else {
-        throw e;
-      }
-    }
-  }
-  return base;
-};
 
 export const formatGasFee = (chain: ChainName | ChainId, gasFee: BigNumber) => {
   const chainName = config.wh.toChainName(chain);

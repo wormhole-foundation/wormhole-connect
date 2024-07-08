@@ -2,11 +2,10 @@
 // so that it loads dynamically as a separate bundle
 import { Network } from 'config/types';
 import config from 'config';
-import { SendResult } from 'sdklegacy';
 import {
   SeiChainId,
   SeiWallet,
-  SeiTransaction,
+  //SeiTransaction,
   getSupportedWallets,
 } from '@xlabs-libs/wallet-aggregator-sei';
 import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
@@ -26,17 +25,17 @@ export async function fetchOptions() {
   }, {});
 }
 
-export async function signAndSendTransaction(
-  transaction: SendResult,
-  wallet: Wallet,
-) {
+export async function signAndSendTransaction(request: any, wallet: Wallet) {
+  throw new Error('Unimplemented');
+  // TODO SDKV2
+  /*
   if (!wallet || !wallet.signAndSendTransaction) {
     throw new Error('wallet.signAndSendTransaction is undefined');
   }
 
   const seiWallet = wallet as SeiWallet;
   const result = await seiWallet.signAndSendTransaction(
-    transaction as SeiTransaction,
+    request.transaction as SeiTransaction,
   );
 
   if (result.data?.code) {
@@ -46,4 +45,5 @@ export async function signAndSendTransaction(
   }
 
   return result;
+  */
 }

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+/*import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import RouteOperator from 'routes/operator';
 import { PorticoBridge } from 'routes/porticoBridge';
@@ -88,3 +88,4 @@ export const usePorticoSwapInfo = (): void => {
     dispatch,
   ]);
 };
+*/

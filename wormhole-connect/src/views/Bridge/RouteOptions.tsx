@@ -214,9 +214,7 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
     let cancelled = false;
     async function load() {
       try {
-        const routeOptions = isPorticoRoute(props.route.route)
-          ? portico
-          : { toNativeToken, relayerFee };
+        const routeOptions = { nativeGas: toNativeToken };
 
         const receiveAmt = await RouteOperator.computeReceiveAmountWithFees(
           props.route.route,
@@ -376,6 +374,7 @@ function RouteOptions() {
     toChain,
     amount,
   } = useSelector((state: RootState) => state.transferInput);
+  const { toNativeToken } = useSelector((state: RootState) => state.relay);
   const onSelect = useCallback(
     (value: Route) => {
       if (routeStates && routeStates.some((rs) => rs.name === value)) {
@@ -402,6 +401,7 @@ function RouteOptions() {
           debouncedAmount,
           fromChain,
           toChain,
+          { nativeGas: toNativeToken },
         );
 
         const supported = await RouteOperator.isRouteSupported(
@@ -425,7 +425,15 @@ function RouteOptions() {
     return () => {
       isActive = false;
     };
-  }, [dispatch, token, destToken, debouncedAmount, fromChain, toChain]);
+  }, [
+    dispatch,
+    token,
+    destToken,
+    debouncedAmount,
+    fromChain,
+    toChain,
+    toNativeToken,
+  ]);
 
   const allRoutes = useMemo(() => {
     if (!routeStates) return [];

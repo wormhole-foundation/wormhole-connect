@@ -64,12 +64,29 @@ export class SDKConverter {
     }
   }
 
-  toTokenIdV2(token: v1.TokenId | TokenConfigV1): v2.TokenId {
+  toTokenIdV2(
+    token: v1.TokenId | TokenConfigV1,
+    chain?: v1.ChainName,
+  ): v2.TokenId {
     if (this.isTokenConfigV1(token)) {
-      return v2.Wormhole.tokenId(
-        this.toChainV2(token.nativeChain),
-        token.tokenId?.address ?? 'native',
-      );
+      if (chain && chain != token.nativeChain) {
+        // Getting foreign address
+        const foreignAsset = token.foreignAssets?.[chain];
+        if (foreignAsset) {
+          return v2.Wormhole.tokenId(
+            this.toChainV2(chain),
+            foreignAsset.address,
+          );
+        } else {
+          throw new Error('no foreign asset');
+        }
+      } else {
+        // Getting native address
+        return v2.Wormhole.tokenId(
+          this.toChainV2(token.nativeChain),
+          token.tokenId?.address ?? 'native',
+        );
+      }
     } else {
       return v2.Wormhole.tokenId(this.toChainV2(token.chain), token.address);
     }
@@ -106,6 +123,12 @@ export class SDKConverter {
           token.tokenId?.address.toLowerCase() ===
           tokenId.address.toString().toLowerCase()
         ) {
+          return token;
+        }
+      } else {
+        // Check foreign assets
+        const fa = token.foreignAssets?.[chain];
+        if (fa && fa.address === tokenId.address.toString()) {
           return token;
         }
       }

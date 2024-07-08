@@ -1,3 +1,4 @@
+/*
 import React from 'react';
 import { OKU_TRADE_BASE_URL } from 'routes/porticoBridge/consts';
 import { PorticoDestTxInfo } from 'routes/porticoBridge/types';
@@ -55,3 +56,4 @@ const PorticoSwapFailed = ({
 };
 
 export default PorticoSwapFailed;
+*/

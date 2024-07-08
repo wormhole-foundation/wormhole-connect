@@ -1,5 +1,5 @@
 import { Network } from './types';
-import { Domain, MultiProvider } from '@nomad-xyz/multi-provider';
+import { Domain, MultiProvider } from './multi-provider';
 
 import MAINNET_CONFIG, { MAINNET_CHAINS } from './config/MAINNET';
 import TESTNET_CONFIG, { TESTNET_CHAINS } from './config/TESTNET';
@@ -72,8 +72,8 @@ export class WormholeContext extends MultiProvider<Domain> {
         this.conf.env === 'mainnet'
           ? MAINNET_CHAINS
           : this.conf.env === 'devnet'
-            ? DEVNET_CHAINS
-            : TESTNET_CHAINS;
+          ? DEVNET_CHAINS
+          : TESTNET_CHAINS;
       const chainConfig = (chains as any)[n];
       if (!chainConfig) throw new Error(`invalid network name ${n}`);
       // register domain
@@ -188,14 +188,16 @@ export class WormholeContext extends MultiProvider<Domain> {
     return env === 'mainnet'
       ? MAINNET_CONFIG
       : env === 'devnet'
-        ? DEVNET_CONFIG
-        : TESTNET_CONFIG;
+      ? DEVNET_CONFIG
+      : TESTNET_CONFIG;
   }
 
   // BEGIN stubbed methods for SDKV2 migration
   // TODO SDKV2
 
-  sign() {}
+  sign() {
+    console.log('TODO remove');
+  }
 
   async approve(a: any, b: any, c: any, d: any): Promise<boolean> {
     return true;
@@ -206,12 +208,18 @@ export class WormholeContext extends MultiProvider<Domain> {
   }
 
   /* @ts-ignore */
-  mustGetProvider(a: any) {}
+  mustGetProvider(a: any) {
+    console.log('TODO remove');
+  }
 
   get contracts() {
     return {
-      mustGetCore(a: any) {},
-      mustGetBridge(a: any) {},
+      mustGetCore(a: any) {
+        console.log('TODO remove');
+      },
+      mustGetBridge(a: any) {
+        console.log('TODO remove');
+      },
     };
   }
 }

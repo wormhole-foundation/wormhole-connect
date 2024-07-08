@@ -4,7 +4,6 @@ import { ChainId, ChainName } from 'sdklegacy';
 import config, { newWormholeContextV2 } from 'config';
 import {
   ParsedMessage,
-  ParsedRelayerMessage,
   getCurrentBlock,
   //isEvmChain,
 } from './sdk';
@@ -65,7 +64,7 @@ export async function getWormholeLogEvm(
 }
 
 export function getEmitterAndSequence(
-  txData: ParsedMessage | ParsedRelayerMessage,
+  txData: ParsedMessage,
 ): MessageIdentifier {
   const emitterChain = config.chains[txData.fromChain];
   if (!emitterChain || !emitterChain.id) {
@@ -84,7 +83,7 @@ export function getEmitterAndSequence(
 }
 
 export async function fetchVaa(
-  txData: ParsedMessage | ParsedRelayerMessage,
+  txData: ParsedMessage,
 ): Promise<Uint8Array | undefined> {
   try {
     const vaa = await fetchVaaWormscan(txData);
@@ -103,7 +102,7 @@ export async function fetchVaa(
 }
 
 export async function fetchVaaWormscan(
-  txData: ParsedMessage | ParsedRelayerMessage,
+  txData: ParsedMessage,
 ): Promise<Uint8Array | undefined> {
   // return if the number of block confirmations hasn't been met
   const chainName = config.wh.toChainName(txData.fromChain);
@@ -153,7 +152,7 @@ export async function fetchVaaWormscan(
 }
 
 export async function fetchVaaGuardian(
-  txData: ParsedMessage | ParsedRelayerMessage,
+  txData: ParsedMessage,
 ): Promise<Uint8Array | undefined> {
   // return if the number of block confirmations hasn't been met
   const chainName = config.wh.toChainName(txData.fromChain);
@@ -198,7 +197,7 @@ export async function fetchVaaGuardian(
 }
 
 export const fetchIsVAAEnqueued = async (
-  txData: ParsedMessage | ParsedRelayerMessage,
+  txData: ParsedMessage,
 ): Promise<boolean> => {
   const messageId = getEmitterAndSequence(txData);
   const { emitterChain, emitterAddress, sequence } = messageId;
@@ -218,7 +217,7 @@ export const fetchIsVAAEnqueued = async (
 };
 
 export const fetchGlobalTx = async (
-  txData: ParsedMessage | ParsedRelayerMessage,
+  txData: ParsedMessage,
 ): Promise<string | undefined> => {
   const messageId = getEmitterAndSequence(txData);
   const { emitterChain, emitterAddress, sequence } = messageId;

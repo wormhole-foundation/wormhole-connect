@@ -1,14 +1,10 @@
 /*import { PublicKey } from '@solana/web3.js';*/
 import { ChainId, ChainName, TokenId } from 'sdklegacy';
-import { BigNumber } from 'ethers5';
+import { ParsedMessage } from 'utils/sdk';
 
 import config from 'config';
 import { TokenConfig, Route } from 'config/types';
-// import { HashflowRoute } from './hashflow';
-import { RouteAbstract } from './abstracts/routeAbstract';
 import {
-  UnsignedMessage,
-  SignedMessage,
   TransferDisplayData,
   TransferInfoBaseParams,
   TransferDestInfo,
@@ -16,16 +12,172 @@ import {
 } from './types';
 import { TokenPrices } from 'store/tokenPrices';
 
-import { routes } from '@wormhole-foundation/sdk';
+import {
+  Chain,
+  Network,
+  routes,
+  SourceInitiatedTransferReceipt,
+  TransferState,
+} from '@wormhole-foundation/sdk';
 
 import { getRoute } from './mappings';
+import axios from 'axios';
+import SDKv2Route from './sdkv2';
+
+export interface TxInfo {
+  route: Route;
+  tokenChain: Chain;
+  tokenAddress: string;
+  amount: string;
+  receipt: SourceInitiatedTransferReceipt;
+}
 
 export class Operator {
-  getRoute(route: Route): RouteAbstract {
+  getRoute(route: Route): SDKv2Route {
     return getRoute(route);
   }
 
-  async getRouteFromTx(txHash: string, chain: ChainName): Promise<Route> {
+  async getRouteFromTx(txHash: string, chain: Chain): Promise<TxInfo> {
+    const url = `https://api.${
+      config.isMainnet ? '' : 'testnet.'
+    }wormholescan.io/api/v1/operations?page=0&pageSize=1&sortOrder=DESC&txHash=${txHash}`;
+
+    interface Operations {
+      operations: Operation[];
+    }
+
+    interface Operation {
+      id: string;
+      emitterChain: number;
+      emitterAddress: {
+        hex: string;
+        native: string;
+      };
+      sequence: string;
+      //vaa: {
+      //  raw: string;
+      //  guardianSetIndex: number;
+      //  isDuplicated: boolean;
+      //};
+      content: {
+        //payload: {
+        //  amount: string;
+        //  fee: string;
+        //  fromAddress: null;
+        //  parsedPayload: null;
+        //  payload: string;
+        //  payloadType: number;
+        //  toAddress: string;
+        //  toChain: number;
+        //  tokenAddress: string;
+        //  tokenChain: number;
+        //};
+        standarizedProperties: {
+          appIds: string[];
+          fromChain: number;
+          fromAddress: string;
+          toChain: number;
+          toAddress: string;
+          tokenChain: number;
+          tokenAddress: string;
+          amount: string;
+          feeAddress: string;
+          feeChain: number;
+          fee: string;
+        };
+      };
+      sourceChain: {
+        chainId: number;
+        timestamp: string;
+        transaction: {
+          txHash: string;
+        };
+        from: string;
+        status: string;
+      };
+      data: {
+        symbol: string;
+        tokenAmount: string;
+        usdAmount: string;
+      };
+    }
+
+    //https://github.com/XLabs/wormscan-ui/blob/b96ad4c44d367cbf7c7e1c39d655e9fda3e0c3d9/src/consts.ts#L173-L185
+    //export const UNKNOWN_APP_ID = 'UNKNOWN';
+    //export const CCTP_APP_ID = 'CCTP_WORMHOLE_INTEGRATION';
+    //export const CCTP_MANUAL_APP_ID = 'CCTP_MANUAL';
+    const CONNECT_APP_ID = 'CONNECT';
+    //export const GATEWAY_APP_ID = 'WORMCHAIN_GATEWAY_TRANSFER';
+    const PORTAL_APP_ID = 'PORTAL_TOKEN_BRIDGE';
+    //export const PORTAL_NFT_APP_ID = 'PORTAL_NFT_BRIDGE';
+    //export const ETH_BRIDGE_APP_ID = 'ETH_BRIDGE';
+    //export const USDT_TRANSFER_APP_ID = 'USDT_TRANSFER';
+    //export const NTT_APP_ID = 'NATIVE_TOKEN_TRANSFER';
+    //export const GR_APP_ID = 'GENERIC_RELAYER';
+    //export const MAYAN_APP_ID = 'MAYAN';
+    //export const TBTC_APP_ID = 'TBTC';
+
+    const { data } = await axios.get<Operations>(url);
+    if (data.operations.length === 0)
+      throw new Error('No route found for txHash');
+    const operation = data.operations[0];
+    const { appIds, tokenChain, tokenAddress, toChain, amount, fromChain } =
+      operation.content.standarizedProperties;
+    if (config.sdkConverter.toChainV2(fromChain as ChainId) !== chain) {
+      // TODO: wormholescan can return transactions from other chains
+      // with the same txHash
+      throw new Error('Chain mismatch');
+    }
+    const details = {
+      tokenChain: config.sdkConverter.toChainV2(tokenChain as ChainId),
+      tokenAddress, // TODO: convert to SDK address (non-serializable in redux)?
+      amount, // TODO: is amount expressed in source chain decimals?
+      receipt: {
+        from: chain,
+        to: config.sdkConverter.toChainV2(toChain as ChainId),
+        state: TransferState.SourceInitiated,
+        originTxs: [
+          {
+            chain,
+            // TODO: right format for all chains?
+            txid: operation.sourceChain.transaction.txHash,
+          },
+        ],
+      } satisfies SourceInitiatedTransferReceipt,
+    };
+    if (appIds.length === 1) {
+      switch (appIds[0]) {
+        case PORTAL_APP_ID:
+          return {
+            ...details,
+            route: Route.Bridge,
+          };
+        // case ETH_BRIDGE_APP_ID:
+        // return Route.ETHBridge;
+        //case USDT_TRANSFER_APP_ID:
+        //  return Route.CCTPManual;
+        //case NTT_APP_ID:
+        //  return Route.NttManual;
+        //case GR_APP_ID:
+        //  return Route.GenericRelayer;
+        //case MAYAN_APP_ID:
+        //  return Route.Mayan;
+        //case TBTC_APP_ID:
+        // return Route.TBTC;
+        //case GATEWAY_APP_ID:
+        //  return Route.CosmosGateway;
+        //case CCTP_APP_ID:
+        //  return Route.CCTPRelay;
+      }
+    }
+    if (appIds.length === 2) {
+      if (appIds.includes(PORTAL_APP_ID) && appIds.includes(CONNECT_APP_ID)) {
+        return {
+          ...details,
+          route: Route.Relay,
+        };
+      }
+    }
     /*
     if (isGatewayChain(chain)) {
       return Route.CosmosGateway;
@@ -137,7 +289,8 @@ export class Operator {
 
     // TODO SDKV2
     // relied on getMessage
-    return Route.Bridge;
+    // return Route.Bridge;
+    throw new Error('No route found for txHash');
   }
 
   async isRouteSupported(
@@ -174,6 +327,7 @@ export class Operator {
     amount: string,
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
+    options?: routes.AutomaticTokenBridgeRoute.Options,
   ): Promise<boolean> {
     if (!config.routes.includes(route)) {
       return false;
@@ -186,8 +340,10 @@ export class Operator {
       amount,
       sourceChain,
       destChain,
+      options,
     );
   }
+
   allSupportedChains(): ChainName[] {
     const supported = new Set<ChainName>();
     for (const key in config.chains) {
@@ -272,23 +428,7 @@ export class Operator {
           supported[token.key] = token;
         }
       } catch (e) {
-        // Fall back to less efficient method
-        for (const token of config.tokensArr) {
-          const { key } = token;
-          const alreadySupported = supported[key];
-          if (!alreadySupported) {
-            const isSupported = await r.isSupportedDestToken(
-              token,
-              sourceToken,
-              sourceChain,
-              destChain,
-            );
-
-            if (isSupported) {
-              supported[key] = config.tokens[key];
-            }
-          }
-        }
+        console.error(e);
       }
     }
     return Object.values(supported);
@@ -326,7 +466,7 @@ export class Operator {
     destToken: string,
     sendingChain: ChainName | undefined,
     recipientChain: ChainName | undefined,
-    routeOptions: any,
+    options?: routes.AutomaticTokenBridgeRoute.Options,
   ): Promise<number> {
     const r = this.getRoute(route);
     return await r.computeReceiveAmount(
@@ -335,7 +475,7 @@ export class Operator {
       destToken,
       sendingChain,
       recipientChain,
-      routeOptions,
+      options,
     );
   }
 
@@ -346,7 +486,7 @@ export class Operator {
     destToken: string,
     sendingChain: ChainName | undefined,
     recipientChain: ChainName | undefined,
-    routeOptions: any,
+    options?: routes.AutomaticTokenBridgeRoute.Options,
   ): Promise<number> {
     const r = this.getRoute(route);
     return await r.computeReceiveAmountWithFees(
@@ -355,17 +495,17 @@ export class Operator {
       destToken,
       sendingChain,
       recipientChain,
-      routeOptions,
+      options,
     );
   }
 
   async computeSendAmount(
     route: Route,
     receiveAmount: number | undefined,
-    routeOptions: any,
+    options?: routes.AutomaticTokenBridgeRoute.Options,
   ): Promise<number> {
     const r = this.getRoute(route);
-    return await r.computeSendAmount(receiveAmount, routeOptions);
+    return await r.computeSendAmount(receiveAmount, options);
   }
 
   async validate(
@@ -376,7 +516,7 @@ export class Operator {
     senderAddress: string,
     recipientChain: ChainName | ChainId,
     recipientAddress: string,
-    routeOptions: any,
+    options: routes.AutomaticTokenBridgeRoute.Options,
   ): Promise<boolean> {
     const r = this.getRoute(route);
     return await r.validate(
@@ -386,7 +526,7 @@ export class Operator {
       senderAddress,
       recipientChain,
       recipientAddress,
-      routeOptions,
+      options,
     );
   }
 
@@ -428,15 +568,15 @@ export class Operator {
 
   async send(
     route: Route,
-    token: TokenId | 'native',
+    token: TokenConfig,
     amount: string,
     sendingChain: ChainName | ChainId,
     senderAddress: string,
     recipientChain: ChainName | ChainId,
     recipientAddress: string,
     destToken: string,
-    routeOptions: any,
-  ): Promise<string | routes.Receipt> {
+    options?: routes.AutomaticTokenBridgeRoute.Options,
+  ): Promise<[routes.Route<Network>, routes.Receipt]> {
     const r = this.getRoute(route);
     return await r.send(
       token,
@@ -446,18 +586,8 @@ export class Operator {
       recipientChain,
       recipientAddress,
       destToken,
-      routeOptions,
+      options,
     );
-  }
-
-  async redeem(
-    route: Route,
-    destChain: ChainName | ChainId,
-    signed: SignedMessage,
-    payer: string,
-  ): Promise<string> {
-    const r = this.getRoute(route);
-    return await r.redeem(destChain, signed, payer);
   }
 
   async getPreview(
@@ -466,12 +596,13 @@ export class Operator {
     destToken: TokenConfig,
     amount: number,
     sendingChain: ChainName | ChainId,
-    receipientChain: ChainName | ChainId,
+    recipientChain: ChainName | ChainId,
     sendingGasEst: string,
     claimingGasEst: string,
     receiveAmount: string,
     tokenPrices: TokenPrices,
-    routeOptions?: any,
+    relayerFee?: number,
+    receiveNativeAmt?: number,
   ): Promise<TransferDisplayData> {
     const r = this.getRoute(route);
     return await r.getPreview(
@@ -479,12 +610,13 @@ export class Operator {
       destToken,
       amount,
       sendingChain,
-      receipientChain,
+      recipientChain,
       sendingGasEst,
       claimingGasEst,
       receiveAmount,
       tokenPrices,
-      routeOptions,
+      relayerFee,
+      receiveNativeAmt,
     );
   }
 
@@ -494,9 +626,10 @@ export class Operator {
     destChain: ChainName | ChainId,
     token: string,
     destToken: string,
+    amount: string,
   ): Promise<RelayerFee | null> {
     const r = this.getRoute(route);
-    return r.getRelayerFee(sourceChain, destChain, token, destToken);
+    return r.getRelayerFee(sourceChain, destChain, token, destToken, amount);
   }
 
   async getForeignAsset(
@@ -507,33 +640,6 @@ export class Operator {
   ): Promise<string | null> {
     const r = this.getRoute(route);
     return r.getForeignAsset(tokenId, chain, destToken);
-  }
-
-  async isTransferCompleted(
-    route: Route,
-    destChain: ChainName | ChainId,
-    message: SignedMessage,
-  ): Promise<boolean> {
-    const r = this.getRoute(route);
-    return r.isTransferCompleted(destChain, message);
-  }
-
-  async getMessage(
-    route: Route,
-    tx: string,
-    chain: ChainName | ChainId,
-    unsigned?: boolean,
-  ): Promise<UnsignedMessage> {
-    const r = this.getRoute(route);
-    return r.getMessage(tx, chain);
-  }
-
-  async getSignedMessage(
-    route: Route,
-    message: UnsignedMessage,
-  ): Promise<SignedMessage> {
-    const r = this.getRoute(route);
-    return r.getSignedMessage(message);
   }
 
   getTransferSourceInfo<T extends TransferInfoBaseParams>(
@@ -552,76 +658,9 @@ export class Operator {
     return r.getTransferDestInfo(params);
   }
 
-  // swap information (native gas slider)
-  nativeTokenAmount(
-    route: Route,
-    destChain: ChainName | ChainId,
-    token: TokenId,
-    amount: BigNumber,
-    walletAddress: string,
-  ): Promise<BigNumber> {
-    throw new Error('TODO SDKv2');
-    /*
-    const r = this.getRoute(route);
-    if (r.AUTOMATIC_DEPOSIT) {
-      return (r as RelayRoute).nativeTokenAmount(
-        destChain,
-        token,
-        amount,
-        walletAddress,
-      );
-    } else {
-      throw new Error('route does not support native gas dropoff');
-    }
-    */
-  }
-
-  maxSwapAmount(
-    route: Route,
-    destChain: ChainName | ChainId,
-    token: TokenId,
-    walletAddress: string,
-  ): Promise<BigNumber> {
-    throw new Error('TODO SDKv2');
-    /*
-    const r = this.getRoute(route);
-    if (r.AUTOMATIC_DEPOSIT) {
-      return (r as RelayRoute).maxSwapAmount(destChain, token, walletAddress);
-    } else {
-      throw new Error('route does not support swap for native gas dropoff');
-    }
-    */
-  }
-
-  async minSwapAmountNative(
-    route: Route,
-    destChain: ChainName | ChainId,
-    token: TokenId,
-    walletAddress: string,
-  ): Promise<BigNumber> {
-    /*
-     * TODO SDKV2
-    const chainName = config.wh.toChainName(destChain);
-    if (chainName === 'solana') {
-      const context = solanaContext();
-      // an non-existent account cannot be sent less than the rent exempt amount
-      // in order to create the wallet, it must be sent at least the rent exemption minimum
-      const acctExists =
-        (await context.connection!.getAccountInfo(
-          new PublicKey(walletAddress),
-        )) !== null;
-      if (acctExists) return BigNumber.from(0);
-      const minBalance =
-        await context.connection!.getMinimumBalanceForRentExemption(0);
-      return BigNumber.from(minBalance);
-    }
-    */
-    return BigNumber.from(0);
-  }
-
   tryFetchRedeemTx(
     route: Route,
-    txData: UnsignedMessage,
+    txData: ParsedMessage,
   ): Promise<string | undefined> {
     const r = this.getRoute(route);
     return r.tryFetchRedeemTx(txData);

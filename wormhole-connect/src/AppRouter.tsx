@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useContext, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 
@@ -24,6 +24,7 @@ import { useExternalSearch } from 'hooks/useExternalSearch';
 import internalConfig from 'config';
 
 import BridgeV2 from 'views/v2/Bridge';
+import { RouteContext } from 'contexts/RouteContext';
 
 const useStyles = makeStyles()((theme: any) => ({
   appContent: {
@@ -49,6 +50,7 @@ interface Props {
 function AppRouter(props: Props) {
   const { classes } = useStyles();
   const dispatch = useDispatch();
+  const routeContext = useContext(RouteContext);
 
   // We update the global config once when WormholeConnect is first mounted, if a custom
   // config was provided.
@@ -80,6 +82,7 @@ function AppRouter(props: Props) {
     if (prevRoute === redeemRoute && route !== redeemRoute) {
       dispatch(clearRedeem());
       dispatch(clearWallets());
+      routeContext.clear();
       internalConfig.wh.registerProviders(); // reset providers that may have been set during transfer
     }
     // reset transfer state on leave

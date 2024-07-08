@@ -1,14 +1,14 @@
 import type { TransferErrorType, TransferError } from 'telemetry/types';
 import {
   ERR_INSUFFICIENT_ALLOWANCE,
-  ERR_SWAP_FAILED,
+  //ERR_SWAP_FAILED,
   ERR_INSUFFICIENT_GAS,
   ERR_TIMEOUT,
   ERR_UNKNOWN,
   ERR_USER_REJECTED,
 } from 'telemetry/types';
 import { ChainName, InsufficientFundsForGasError } from 'sdklegacy';
-import { SWAP_ERROR } from 'routes/porticoBridge/consts';
+//import { SWAP_ERROR } from 'routes/porticoBridge/consts';
 
 // TODO SDKV2
 // copied from sdk subpackage
@@ -36,9 +36,11 @@ export function interpretTransferError(
     } else if (e.message.includes('rejected the request')) {
       uiErrorMessage = 'Transfer rejected in wallet, please try again';
       internalErrorCode = ERR_USER_REJECTED;
+      /* TODO SDKV2
     } else if (e.message === SWAP_ERROR) {
       uiErrorMessage = SWAP_ERROR;
       internalErrorCode = ERR_SWAP_FAILED;
+      */
     }
   }
 

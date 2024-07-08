@@ -13,7 +13,7 @@ import { getTokenPrice, getUSDFormat } from 'utils';
 import { TransferSide } from 'config/types';
 
 type Props = {
-  handleAmountChange: (value: number | string) => void;
+  handleAmountChange: (value: string) => void;
   value: string;
   disabled?: boolean;
   label?: string;

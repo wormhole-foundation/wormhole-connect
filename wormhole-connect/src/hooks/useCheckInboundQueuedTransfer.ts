@@ -18,9 +18,6 @@ import { NttBase } from 'routes/ntt/nttBase';
 const useCheckInboundQueuedTransfer = (): void => {
   //const dispatch = useDispatch();
   const route = useSelector((state: RootState) => state.redeem.route);
-  const signedMessage = useSelector(
-    (state: RootState) => state.redeem.signedMessage,
-  );
   const transferComplete = useSelector(
     (state: RootState) => state.redeem.transferComplete,
   );
@@ -67,7 +64,7 @@ const useCheckInboundQueuedTransfer = (): void => {
     return () => {
       //active = false;
     };
-  }, [route, transferComplete, signedMessage]);
+  }, [route, transferComplete]);
 };
 
 export default useCheckInboundQueuedTransfer;

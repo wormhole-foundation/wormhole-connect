@@ -31,6 +31,7 @@ const resolve = {
     utils: path.resolve(__dirname, './src/utils'),
     config: path.resolve(__dirname, './src/config'),
     components: path.resolve(__dirname, './src/components'),
+    contexts: path.resolve(__dirname, './src/contexts'),
     // This was originally called "events" and that breaks some NPM dependency
     // so do not rename it "events":
     telemetry: path.resolve(__dirname, './src/telemetry'),

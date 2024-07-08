@@ -54,6 +54,7 @@ const useGetTokenBalances = (
       const now = Date.now();
       const fiveMinutesAgo = now - 5 * 60 * 1000;
       let updateCache = false;
+
       for (const token of tokens) {
         const cachedBalance = accessBalance(
           cachedBalances,
@@ -68,6 +69,7 @@ const useGetTokenBalances = (
           needsUpdate.push(token as TokenConfigWithId);
         }
       }
+
       if (needsUpdate.length > 0) {
         try {
           const wh = await getWormholeContextV2();
@@ -85,19 +87,27 @@ const useGetTokenBalances = (
             try {
               let address: string | null = null;
 
-              const foreignAddress = await getForeignTokenAddress(
-                config.sdkConverter.toTokenIdV2(tokenConfig),
-                chainV2,
-              );
-
-              if (foreignAddress) {
-                address = foreignAddress.toString();
+              if (
+                tokenConfig.nativeChain === chain &&
+                tokenConfig.tokenId === undefined
+              ) {
+                tokenAddresses.push('native');
+                tokenIdMapping['native'] = tokenConfig;
               } else {
-                console.error('no fa', tokenConfig);
-                continue;
+                const foreignAddress = await getForeignTokenAddress(
+                  config.sdkConverter.toTokenIdV2(tokenConfig),
+                  chainV2,
+                );
+
+                if (foreignAddress) {
+                  address = foreignAddress.toString();
+                } else {
+                  console.error('no fa', tokenConfig);
+                  continue;
+                }
+                tokenIdMapping[address] = tokenConfig;
+                tokenAddresses.push(address);
               }
-              tokenIdMapping[address] = tokenConfig;
-              tokenAddresses.push(address);
             } catch (e) {
               // TODO SDKV2 SUI ISNT WORKING
               console.error(e);

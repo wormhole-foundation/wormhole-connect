@@ -4,6 +4,13 @@ import {
   InjectedWallet,
   WalletConnectWallet,
 } from '@kev1n-peters/wallet-aggregator-evm';
+
+import {
+  EvmUnsignedTransaction,
+  EvmChains,
+} from '@wormhole-foundation/sdk-evm';
+import { Network } from '@wormhole-foundation/sdk';
+
 import config from 'config';
 
 export const wallets = {
@@ -38,4 +45,22 @@ export const watchAsset = async (asset: AssetInfo, wallet: Wallet) => {
 
 export async function switchChain(w: Wallet, chainId: number | string) {
   await (w as EVMWallet).switchChain(chainId as number);
+}
+
+export async function signAndSendTransaction(
+  request: EvmUnsignedTransaction<Network, EvmChains>,
+  w: Wallet,
+  chainName: string,
+  options: any, // TODO ?!?!!?!?
+): Promise<string> {
+  // TODO remove reliance on SDkv1 here (multi-provider)
+  const signer = config.wh.getSigner(chainName);
+  if (!signer) throw new Error('No signer found for chain' + chainName);
+
+  const tx = await signer.sendTransaction(request.transaction);
+  const result = await tx.wait();
+
+  // TODO move all this to ethers 6
+  /* @ts-ignore */
+  return result.hash;
 }

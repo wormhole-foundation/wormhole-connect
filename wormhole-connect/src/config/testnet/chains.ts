@@ -4,28 +4,6 @@ import { ChainsConfig, Icon } from '../types';
 const { chains } = CONFIG.TESTNET;
 
 export const TESTNET_CHAINS: ChainsConfig = {
-  goerli: {
-    ...chains.goerli!,
-    displayName: 'Goerli',
-    explorerUrl: 'https://goerli.etherscan.io/',
-    explorerName: 'Etherscan',
-    gasToken: 'ETH',
-    chainId: 5,
-    icon: Icon.ETH,
-    automaticRelayer: true,
-    maxBlockSearch: 2000,
-  },
-  mumbai: {
-    ...chains.mumbai!,
-    displayName: 'Mumbai',
-    explorerUrl: 'https://mumbai.polygonscan.com/',
-    explorerName: 'Polygonscan',
-    gasToken: 'MATIC',
-    chainId: 80001,
-    icon: Icon.POLYGON,
-    automaticRelayer: true,
-    maxBlockSearch: 1000,
-  },
   bsc: {
     ...chains.bsc!,
     displayName: 'BSC',
@@ -113,17 +91,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
     icon: Icon.APT,
     maxBlockSearch: 0,
   },
-  basegoerli: {
-    ...chains.basegoerli!,
-    displayName: 'Base Goerli',
-    explorerUrl: 'https://goerli.basescan.org/',
-    explorerName: 'BaseScan',
-    gasToken: 'ETHbase',
-    chainId: 84531,
-    icon: Icon.BASE,
-    automaticRelayer: true,
-    maxBlockSearch: 2000,
-  },
   klaytn: {
     ...chains.klaytn!,
     displayName: 'Klaytn',
@@ -166,26 +133,6 @@ export const TESTNET_CHAINS: ChainsConfig = {
     icon: Icon.OSMO,
     automaticRelayer: false,
     maxBlockSearch: 0,
-  },
-  arbitrumgoerli: {
-    ...chains.arbitrumgoerli!,
-    displayName: 'Arbitrum Goerli',
-    explorerUrl: 'https://testnet.arbiscan.io/',
-    explorerName: 'Arbitrum Goerli Explorer',
-    gasToken: 'ETHarbitrum',
-    chainId: 421613,
-    icon: Icon.ARBITRUM,
-    maxBlockSearch: 2000,
-  },
-  optimismgoerli: {
-    ...chains.optimismgoerli!,
-    displayName: 'Optimism Goerli',
-    explorerUrl: 'https://goerli-optimism.etherscan.io/',
-    explorerName: 'Optimistic Goerli Explorer',
-    gasToken: 'ETHoptimism',
-    chainId: 420,
-    icon: Icon.OPTIMISM,
-    maxBlockSearch: 2000,
   },
   cosmoshub: {
     ...chains.cosmoshub!,

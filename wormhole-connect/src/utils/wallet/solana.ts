@@ -1,4 +1,3 @@
-import { SendResult } from 'sdklegacy';
 import { WalletAdapterNetwork as SolanaNetwork } from '@solana/wallet-adapter-base';
 
 import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
@@ -25,6 +24,12 @@ import {
 } from '@xlabs-libs/wallet-aggregator-solana';
 
 import config from 'config';
+
+import {
+  createPriorityFeeInstructions,
+  SolanaUnsignedTransaction,
+} from '@wormhole-foundation/sdk-solana';
+import { Network } from '@wormhole-foundation/sdk';
 
 const getWalletName = (wallet: Wallet) =>
   wallet.getName().toLowerCase().replaceAll('wallet', '').trim();
@@ -63,7 +68,7 @@ export function fetchOptions() {
 }
 
 export async function signAndSendTransaction(
-  transaction: SendResult,
+  request: SolanaUnsignedTransaction<Network>,
   wallet: Wallet | undefined,
   options?: ConfirmOptions,
 ) {
@@ -71,8 +76,26 @@ export async function signAndSendTransaction(
     throw new Error('wallet.signAndSendTransaction is undefined');
   }
 
+  const tx = request.transaction.transaction as Transaction;
+
+  if (config.rpcs.solana) {
+    const conn = new Connection(config.rpcs.solana);
+    const bh = await conn.getLatestBlockhash();
+    tx.recentBlockhash = bh.blockhash;
+    tx.lastValidBlockHeight = bh.lastValidBlockHeight;
+
+    const computeBudgetIx = await createPriorityFeeInstructions(conn, tx, 0.75);
+    tx.add(...computeBudgetIx);
+
+    if (request.transaction.signers) {
+      tx.partialSign(...request.transaction.signers);
+    }
+  } else {
+    throw new Error('Need Solana RPC');
+  }
+
   return await (wallet as SolanaWallet).signAndSendTransaction({
-    transaction: transaction as Transaction,
+    transaction: tx,
     options,
   });
 }

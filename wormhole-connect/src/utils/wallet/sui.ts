@@ -1,7 +1,12 @@
 import { TransactionBlock } from '@mysten/sui.js';
-import { SendResult } from 'sdklegacy';
 import { SuiWallet, getWallets } from '@xlabs-libs/wallet-aggregator-sui';
 import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
+
+import { Network } from '@wormhole-foundation/sdk';
+import {
+  SuiUnsignedTransaction,
+  SuiChains,
+} from '@wormhole-foundation/sdk-sui';
 
 export async function fetchOptions() {
   const suiWallets = await getWallets({ timeout: 0 });
@@ -12,7 +17,7 @@ export async function fetchOptions() {
 }
 
 export const signAndSendTransaction = async (
-  transaction: SendResult,
+  request: SuiUnsignedTransaction<Network, SuiChains>,
   wallet: Wallet,
 ) => {
   if (!wallet || !wallet.signAndSendTransaction) {
@@ -20,6 +25,7 @@ export const signAndSendTransaction = async (
   }
 
   return await wallet.signAndSendTransaction({
-    transactionBlock: transaction as TransactionBlock,
+    /* @ts-ignore */
+    transactionBlock: request.transaction as TransactionBlock,
   });
 };

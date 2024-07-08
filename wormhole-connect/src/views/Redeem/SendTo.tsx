@@ -1,6 +1,12 @@
 import CircularProgress from '@mui/material/CircularProgress';
 import { Context } from 'sdklegacy';
-import React, { useCallback, useEffect, useState, useMemo } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useState,
+  useMemo,
+  useContext,
+} from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import config from 'config';
@@ -9,9 +15,8 @@ import {
   setTransferDestInfo,
   setRedeemTx,
   setTransferComplete,
-  setTxDetails,
 } from 'store/redeem';
-import { displayAddress, getTokenById /*getWrappedTokenId*/ } from 'utils';
+import { displayAddress /*getWrappedTokenId*/ } from 'utils';
 import RouteOperator from 'routes/operator';
 import {
   TransferWallet,
@@ -27,51 +32,14 @@ import { RenderRows } from 'components/RenderRows';
 import Spacer from 'components/Spacer';
 import WalletsModal from '../WalletModal';
 import Header from './Header';
-import { estimateClaimGas } from 'utils/gas';
 import { isGatewayChain } from '../../utils/cosmos';
-import { PayloadType /*solanaContext*/ } from '../../utils/sdk';
-import { AssociatedTokenWarning } from '../Bridge/Inputs/TokenWarnings';
-import { Route } from 'config/types';
 import SwitchToManualClaim from './SwitchToManualClaim';
 import { isPorticoRoute } from 'routes/porticoBridge/utils';
 import { getTokenDetails } from 'telemetry';
 import { interpretTransferError } from 'utils/errors';
-
-function AssociatedTokenAlert() {
-  const dispatch = useDispatch();
-  const txData = useSelector((state: RootState) => state.redeem.txData)!;
-  const wallet = useSelector((state: RootState) => state.wallet.receiving);
-
-  const createAssociatedTokenAccount = useCallback(async () => {
-    const receivedToken = config.tokens[txData.receivedTokenKey];
-    const token =
-      receivedToken?.nativeChain === 'solana'
-        ? receivedToken
-        : getTokenById(txData.tokenId);
-    if (!token) return;
-    /*
-     * TODO SDKV2
-    const tokenId = getWrappedTokenId(token);
-    const tx = await solanaContext().createAssociatedTokenAccount(
-      tokenId,
-      wallet.address,
-      'finalized',
-    );
-    // if `tx` is null it means the account already exists
-    if (!tx) return;
-    await signAndSendTransaction('solana', tx, TransferWallet.RECEIVING);
-     */
-    dispatch(setTxDetails({ ...txData, recipient: wallet.address }));
-  }, [txData, wallet.address, dispatch]);
-
-  const content = (
-    <AssociatedTokenWarning
-      createAssociatedTokenAccount={createAssociatedTokenAccount}
-    />
-  );
-
-  return <AlertBanner warning show={!!wallet.address} content={content} />;
-}
+import { RouteContext } from 'contexts/RouteContext';
+import { isRedeemed, routes } from '@wormhole-foundation/sdk';
+import { SDKv2Signer } from 'routes/sdkv2/signer';
 
 function SendTo() {
   const dispatch = useDispatch();
@@ -79,7 +47,6 @@ function SendTo() {
     redeemTx,
     transferComplete,
     route: routeName,
-    signedMessage,
   } = useSelector((state: RootState) => state.redeem);
   const txData = useSelector((state: RootState) => state.redeem.txData)!;
   const wallet = useSelector((state: RootState) => state.wallet.receiving);
@@ -93,6 +60,8 @@ function SendTo() {
   const prices = data || {};
   const [claimError, setClaimError] = useState('');
   const [manualClaim, setManualClaim] = useState(false);
+
+  const routeContext = useContext(RouteContext);
 
   const connect = () => {
     setWalletModal(true);
@@ -116,9 +85,11 @@ function SendTo() {
 
   // get the redeem tx, for automatic transfers only
   const getRedeemTx = useCallback(async () => {
+    // TODO: fetch redeem tx from wormholescan or sdk
+    /*
     if (!routeName) return;
     if (redeemTx) return redeemTx;
-    if (signedMessage && routeName) {
+    if (routeName) {
       const redeemedTransactionHash = await RouteOperator.tryFetchRedeemTx(
         routeName,
         signedMessage,
@@ -128,7 +99,9 @@ function SendTo() {
         return redeemedTransactionHash;
       }
     }
-  }, [redeemTx, routeName, signedMessage, dispatch]);
+    */
+    return undefined;
+  }, [redeemTx, routeName, dispatch]);
 
   useEffect(() => {
     if (!txData || !routeName) return;
@@ -139,14 +112,6 @@ function SendTo() {
       } catch (e) {
         console.error(`could not fetch redeem event:\n${e}`);
       }
-      let gasEstimate;
-      if (!receiveTx) {
-        gasEstimate = await estimateClaimGas(
-          routeName,
-          txData.toChain,
-          signedMessage,
-        );
-      }
       dispatch(setTransferDestInfo(undefined));
       try {
         const info = await RouteOperator.getTransferDestInfo(routeName, {
@@ -154,7 +119,6 @@ function SendTo() {
           tokenPrices: prices,
           receiveTx,
           transferComplete,
-          gasEstimate,
         });
         dispatch(setTransferDestInfo(info));
       } catch (e) {
@@ -162,15 +126,7 @@ function SendTo() {
       }
     };
     populate();
-  }, [
-    transferComplete,
-    getRedeemTx,
-    txData,
-    routeName,
-    signedMessage,
-    dispatch,
-    data,
-  ]);
+  }, [transferComplete, getRedeemTx, txData, routeName, dispatch, data]);
 
   useEffect(() => {
     setIsConnected(checkConnection());
@@ -225,16 +181,29 @@ function SendTo() {
         await switchChain(chainConfig.chainId, TransferWallet.RECEIVING);
         registerWalletSigner(txData.toChain, TransferWallet.RECEIVING);
       }
-      if (!signedMessage) {
-        throw new Error('failed to get vaa, cannot redeem');
-      }
 
-      txId = await RouteOperator.redeem(
-        routeName,
+      //txId = await RouteOperator.redeem(
+      //  routeName,
+      //  txData.toChain,
+      //  receipt,
+      //  wallet.address,
+      //);
+
+      const route = routeContext.route!;
+      if (!routes.isManual(route)) {
+        throw new Error('Route is not manual');
+      }
+      const signer = await SDKv2Signer.fromChainV1(
         txData.toChain,
-        signedMessage,
         wallet.address,
+        {},
+        TransferWallet.RECEIVING,
       );
+      const result = await route.complete(signer, routeContext.receipt!);
+      if (!isRedeemed(result)) {
+        throw new Error('Transfer not redeemed');
+      }
+      txId = result.destinationTxs?.[0]?.txid || '';
 
       config.triggerEvent({
         type: 'transfer.redeem.start',
@@ -271,12 +240,6 @@ function SendTo() {
     }
   };
 
-  // sometimes the ATA might be closed even after the transfer began
-  const missingATA =
-    txData.recipient === '' &&
-    txData.toChain === 'solana' &&
-    txData.payloadID === PayloadType.Manual;
-
   const loading = !AUTOMATIC_DEPOSIT
     ? inProgress && !transferComplete
     : !transferComplete && !manualClaim;
@@ -286,17 +249,20 @@ function SendTo() {
       : claimError
       ? 'Error please retry . . .'
       : 'Claim below';
-  const showSwitchToManualClaim =
-    !transferComplete &&
-    (routeName === Route.Relay || isPorticoRoute(routeName as Route));
-  let manualClaimTitle = '';
-  if (showSwitchToManualClaim) {
-    manualClaimTitle =
-      'This option avoids the relayer fee but requires you to pay the gas fee on the destination chain.';
-    if (routeName === Route.Relay) {
-      manualClaimTitle += ' You will not receive any native gas.';
-    }
-  }
+  // TODO: add manual claim to automatic route in SDK
+  const showSwitchToManualClaim = false;
+  const manualClaimTitle = '';
+  //const showSwitchToManualClaim =
+  //  !transferComplete &&
+  //  (routeName === Route.Relay || isPorticoRoute(routeName as Route));
+  //let manualClaimTitle = '';
+  //if (showSwitchToManualClaim) {
+  //  manualClaimTitle =
+  //    'This option avoids the relayer fee but requires you to pay the gas fee on the destination chain.';
+  //  if (routeName === Route.Relay) {
+  //    manualClaimTitle += ' You will not receive any native gas.';
+  //  }
+  //}
 
   const { previewMode } = config;
 
@@ -323,13 +289,6 @@ function SendTo() {
         </>
         <RenderRows rows={transferDestInfo?.displayData || []} />
       </InputContainer>
-
-      {missingATA && (
-        <>
-          <Spacer height={8} />
-          <AssociatedTokenAlert />
-        </>
-      )}
 
       {/* Claim button for manual transfers */}
       {!transferComplete && (!AUTOMATIC_DEPOSIT || manualClaim) && (

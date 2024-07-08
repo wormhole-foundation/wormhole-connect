@@ -1,4 +1,3 @@
-import { ethers } from 'ethers5';
 import { ChainName, Context, WormholeConfig } from './types';
 
 export function filterByContext(config: WormholeConfig, context: Context) {
@@ -61,13 +60,11 @@ export const waitFor = (
           clearInterval(interval);
           resolve();
         }
-      } catch (e) {}
+      } catch (e) {
+        console.error(e);
+      }
 
       count++;
     }, ms);
   });
 };
-
-export function keccak256(data: ethers.BytesLike): Buffer {
-  return Buffer.from(ethers.utils.arrayify(ethers.utils.keccak256(data)));
-}

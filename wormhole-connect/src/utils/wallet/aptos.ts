@@ -1,8 +1,3 @@
-import {
-  //AptosContext,
-  SendResult,
-  //WormholeContext,
-} from 'sdklegacy';
 import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
 import {
   AptosSnapAdapter,
@@ -19,6 +14,12 @@ import {
 import { AptosWallet } from '@xlabs-libs/wallet-aggregator-aptos';
 
 import { Types } from 'aptos';
+
+import { Network } from '@wormhole-foundation/sdk';
+import {
+  AptosUnsignedTransaction,
+  AptosChains,
+} from '@wormhole-foundation/sdk-aptos';
 
 import config from 'config';
 
@@ -45,11 +46,11 @@ export function fetchOptions() {
 }
 
 export async function signAndSendTransaction(
-  transaction: SendResult,
+  request: AptosUnsignedTransaction<Network, AptosChains>,
   wallet: Wallet | undefined,
 ) {
   // The wallets do not handle Uint8Array serialization
-  const payload = transaction as Types.EntryFunctionPayload;
+  const payload = request.transaction as Types.EntryFunctionPayload;
   if (payload.arguments) {
     payload.arguments = payload.arguments.map((a: any) =>
       a instanceof Uint8Array ? Array.from(a) : a,
