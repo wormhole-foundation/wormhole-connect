@@ -81,6 +81,7 @@ export class SDKv2Signer<N extends Network, C extends Chain>
       return {
         platform,
         transaction: tx.transaction.transaction,
+        signers: tx.transaction.signers,
       };
     } else if (platform === 'Cosmwasm') {
       //debugger;

@@ -70,6 +70,16 @@ export async function signAndSendTransaction(
     throw new Error('wallet.signAndSendTransaction is undefined');
   }
 
+  if (config.rpcs.solana) {
+    const conn = new Connection(config.rpcs.solana);
+    const bh = await conn.getLatestBlockhash();
+    request.transaction.recentBlockhash = bh.blockhash;
+    request.transaction.lastValidBlockHeight = bh.lastValidBlockHeight;
+    request.transaction.partialSign(...request.signers);
+  } else {
+    throw new Error('Need Solana RPC');
+  }
+
   return await (wallet as SolanaWallet).signAndSendTransaction({
     transaction: request.transaction,
     options,

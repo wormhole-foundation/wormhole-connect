@@ -1,4 +1,7 @@
-import { Transaction as SolanaTransaction } from '@solana/web3.js';
+import {
+  Transaction as SolanaTransaction,
+  Keypair as SolanaKeypair,
+} from '@solana/web3.js';
 
 import { TransactionRequest as EvmTransactionRequest } from 'ethers';
 
@@ -13,6 +16,7 @@ export interface SignRequestEvm {
 export interface SignRequestSolana {
   platform: 'Solana';
   transaction: SolanaTransaction;
+  signers: SolanaKeypair[];
 }
 
 export interface SignRequestCosmos {
