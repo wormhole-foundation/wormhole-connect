@@ -8,7 +8,7 @@ import { sleep } from 'utils';
 const TRACK_TIMEOUT = 120 * 1000;
 
 // TODO: document this hook, especially since it sets and depends on the receipt state
-const useTrackTransfer = () => {
+const useTrackTransfer = (): void => {
   const dispatch = useDispatch();
 
   const routeContext = useContext(RouteContext);
