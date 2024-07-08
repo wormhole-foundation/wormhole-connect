@@ -3,7 +3,6 @@ import { ChainName, ChainId, Context, TokenId, NATIVE } from 'sdklegacy';
 import config from 'config';
 import { GasEstimateOptions, Route } from 'config/types';
 //import RouteOperator from '../routes/operator';
-import { SignedMessage } from '../routes';
 
 export const getGasFallback = (
   chain: ChainName | ChainId,
@@ -64,7 +63,7 @@ export const estimateSendGas = async (
 export const estimateClaimGas = async (
   route: Route,
   destChain: ChainName | ChainId,
-  signedMessage?: SignedMessage,
+  signedMessage?: any,
 ): Promise<string> => {
   return '-';
   /* 

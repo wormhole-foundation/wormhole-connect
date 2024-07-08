@@ -120,6 +120,7 @@ export function getTokenDecimals(
     return chainConfig.nativeTokenDecimals;
   }
 
+  console.log(tokenId);
   const tokenConfig = getTokenById(tokenId);
   if (!tokenConfig) {
     throw new Error('token config not found');

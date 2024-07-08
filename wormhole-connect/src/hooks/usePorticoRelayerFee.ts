@@ -62,6 +62,7 @@ export const usePorticoRelayerFee = (): void => {
             toChain,
             token,
             destToken,
+            '0',
           );
           if (!cancelled && result) {
             dispatch(setRelayerFee(result.fee.toString()));
