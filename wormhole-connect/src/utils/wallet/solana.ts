@@ -11,9 +11,12 @@ import {
   WalletConnectWalletAdapter,
 } from '@solana/wallet-adapter-wallets';
 
-import { clusterApiUrl, ConfirmOptions, Connection } from '@solana/web3.js';
-
-import { SignRequestSolana } from 'utils/wallet/types';
+import {
+  clusterApiUrl,
+  ConfirmOptions,
+  Connection,
+  Transaction,
+} from '@solana/web3.js';
 
 import {
   SolanaWallet,
@@ -22,7 +25,11 @@ import {
 
 import config from 'config';
 
-import { createPriorityFeeInstructions } from '@wormhole-foundation/sdk-solana';
+import {
+  createPriorityFeeInstructions,
+  SolanaUnsignedTransaction,
+} from '@wormhole-foundation/sdk-solana';
+import { Network } from '@wormhole-foundation/sdk';
 
 const getWalletName = (wallet: Wallet) =>
   wallet.getName().toLowerCase().replaceAll('wallet', '').trim();
@@ -64,7 +71,7 @@ export function fetchOptions() {
 }
 
 export async function signAndSendTransaction(
-  request: SignRequestSolana,
+  request: SolanaUnsignedTransaction<Network>,
   wallet: Wallet | undefined,
   options?: ConfirmOptions,
 ) {
@@ -72,28 +79,26 @@ export async function signAndSendTransaction(
     throw new Error('wallet.signAndSendTransaction is undefined');
   }
 
+  const tx = request.transaction.transaction as Transaction;
+
   if (config.rpcs.solana) {
     const conn = new Connection(config.rpcs.solana);
     const bh = await conn.getLatestBlockhash();
-    request.transaction.recentBlockhash = bh.blockhash;
-    request.transaction.lastValidBlockHeight = bh.lastValidBlockHeight;
+    tx.recentBlockhash = bh.blockhash;
+    tx.lastValidBlockHeight = bh.lastValidBlockHeight;
 
-    let computeBudgetIx = await createPriorityFeeInstructions(
-      conn,
-      request.transaction,
-      0.75,
-    );
-    request.transaction.add(...computeBudgetIx);
+    let computeBudgetIx = await createPriorityFeeInstructions(conn, tx, 0.75);
+    tx.add(...computeBudgetIx);
 
-    if (request.signers) {
-      request.transaction.partialSign(...request.signers);
+    if (request.transaction.signers) {
+      tx.partialSign(...request.transaction.signers);
     }
   } else {
     throw new Error('Need Solana RPC');
   }
 
   return await (wallet as SolanaWallet).signAndSendTransaction({
-    transaction: request.transaction,
+    transaction: tx,
     options,
   });
 }

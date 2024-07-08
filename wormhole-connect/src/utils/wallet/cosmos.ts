@@ -7,7 +7,11 @@ import {
 import config from 'config';
 
 import { ChainName, Context, ChainResourceMap } from 'sdklegacy';
-import { SignRequestCosmos } from './types';
+import { Network } from '@wormhole-foundation/sdk';
+import {
+  CosmwasmUnsignedTransaction,
+  CosmwasmChains,
+} from '@wormhole-foundation/sdk-cosmwasm';
 
 const getCosmosWalletsEndpointsMap = () => {
   const prepareMap = (map: ChainResourceMap) =>
@@ -60,7 +64,7 @@ export const wallets = {
 };
 
 export async function signAndSendTransaction(
-  request: SignRequestCosmos,
+  request: CosmwasmUnsignedTransaction<Network, CosmwasmChains>,
   wallet: Wallet | undefined,
 ) {
   const cosmosWallet = wallet as CosmosWallet;
