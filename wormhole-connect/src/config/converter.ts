@@ -6,7 +6,7 @@ import {
 } from 'config/types';
 
 import * as v2 from '@wormhole-foundation/sdk';
-import { getForeignTokenAddress } from 'utils/sdkv2';
+import { getTokenBridgeWrappedTokenAddress } from 'utils/sdkv2';
 
 // SDKConverter provides utility functions for converting core types between SDKv1 and SDKv2
 // This is only meant to be used while we transition to SDKv2
@@ -158,7 +158,7 @@ export class SDKConverter {
       console.info(
         `Resolving foreign address for token ${key} on chain ${chain}`,
       );
-      let foreignAddress = await getForeignTokenAddress(
+      let foreignAddress = await getTokenBridgeWrappedTokenAddress(
         tokenConfigs[key],
         this.toChainV2(chain),
       );

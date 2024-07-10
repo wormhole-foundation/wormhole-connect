@@ -9,12 +9,12 @@ import config from 'config';
 // 1. Check built-in config
 // 2. Check cache
 // 3. Fetch the address on chain using RPC (& cache this for next time)
-export async function getForeignTokenAddress<C extends Chain>(
+export async function getTokenBridgeWrappedTokenAddress<C extends Chain>(
   token: TokenConfig,
   chain: C,
 ): Promise<TokenAddress<C> | null> {
   // Try cache first
-  let cached = config.foreignAssetCache.get(token.key, chain);
+  let cached = config.wrappedTokenAddressCache.get(token.key, chain);
   if (cached) {
     console.log('cache hit', token.key, chain);
     return cached;
@@ -32,7 +32,7 @@ export async function getForeignTokenAddress<C extends Chain>(
   const wrapped = await tb.getWrappedAsset(tokenId);
 
   if (wrapped) {
-    config.foreignAssetCache.set(token.key, chain, wrapped);
+    config.wrappedTokenAddressCache.set(token.key, chain, wrapped);
   }
 
   return wrapped;

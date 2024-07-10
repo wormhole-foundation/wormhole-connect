@@ -12,8 +12,7 @@ import {
   Network,
   InternalConfig,
   Route,
-  TokensConfig,
-  ForeignAssetCache,
+  WrappedTokenAddressCache,
 } from './types';
 import {
   mergeCustomTokensConfig,
@@ -69,7 +68,7 @@ export function buildConfig(
     customConfig?.rpcs,
   );
 
-  const wh = getWormholeContext(network, sdkConfig, tokens, rpcs);
+  const wh = getWormholeContext(network, sdkConfig, rpcs);
 
   if (customConfig?.bridgeDefaults) {
     validateDefaults(customConfig.bridgeDefaults, networkData.chains, tokens);
@@ -133,7 +132,11 @@ export function buildConfig(
         : true;
     }),
 
-    foreignAssetCache: new ForeignAssetCache(tokens, sdkConverter),
+    // For token bridge ^_^
+    wrappedTokenAddressCache: new WrappedTokenAddressCache(
+      tokens,
+      sdkConverter,
+    ),
 
     gasEstimates: networkData.gasEstimates,
     // TODO: disabling all routes except Bridge and Relay until they are fully implemented
@@ -192,25 +195,8 @@ export default config;
 export function getWormholeContext(
   network: Network,
   sdkConfig: WormholeConfig,
-  tokens: TokensConfig,
   rpcs: ChainResourceMap,
 ): WormholeContext {
-  /*
-  const foreignAssetCache = new ForeignAssetCache();
-  for (const { tokenId, foreignAssets } of Object.values(tokens)) {
-    if (tokenId && foreignAssets) {
-      for (const [foreignChain, { address }] of Object.entries(foreignAssets)) {
-        foreignAssetCache.set(
-          tokenId.chain,
-          tokenId.address,
-          foreignChain as ChainName,
-          address,
-        );
-      }
-    }
-  }
-  */
-
   const wh: WormholeContext = new WormholeContext(network, {
     ...sdkConfig,
     ...{ rpcs },
@@ -225,10 +211,9 @@ export function getDefaultWormholeContext(network: Network): WormholeContext {
     network
   ]!;
 
-  const { tokens } = networkData;
   const rpcs = Object.assign({}, sdkConfig.rpcs, networkData.rpcs);
 
-  return getWormholeContext(network, sdkConfig, tokens, rpcs);
+  return getWormholeContext(network, sdkConfig, rpcs);
 }
 
 export async function getWormholeContextV2(): Promise<WormholeV2<NetworkV2>> {

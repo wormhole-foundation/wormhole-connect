@@ -190,7 +190,7 @@ export interface InternalConfig<N extends NetworkV2> {
   chainsArr: ChainConfig[];
   tokens: TokensConfig;
   tokensArr: TokenConfig[];
-  foreignAssetCache: ForeignAssetCache;
+  wrappedTokenAddressCache: WrappedTokenAddressCache;
 
   gasEstimates: GasEstimates;
   routes: string[];
@@ -373,7 +373,7 @@ export type NttGroups = { [key: string]: NttGroup };
 
 type ForeignAssets<C extends ChainV2> = Record<string, TokenAddressV2<C>>;
 
-export class ForeignAssetCache {
+export class WrappedTokenAddressCache {
   caches: Partial<Record<ChainV2, ForeignAssets<ChainV2>>>;
 
   constructor(tokens: TokensConfig, converter: SDKConverter) {
