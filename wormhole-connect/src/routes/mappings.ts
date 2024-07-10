@@ -13,6 +13,7 @@ import { ETHBridge } from './porticoBridge/ethBridge';
 import { wstETHBridge } from './porticoBridge/wstETHBridge';
 import { CosmosGatewayRoute } from './cosmosGateway';
 import { NttManual, NttRelay } from './ntt';
+import { USDTBridge } from './porticoBridge/usdtBridge';
 
 export interface RouteImpls {
   v1: RouteAbstract;
@@ -50,6 +51,9 @@ export function getRouteImpls(route: Route): RouteImpls {
     [Route.wstETHBridge]: {
       v1: new wstETHBridge(),
       v2: routes.AutomaticPorticoRoute,
+    },
+    [Route.USDTBridge]: {
+      v1: new USDTBridge(),
     },
     [Route.NttManual]: {
       v1: new NttManual(),

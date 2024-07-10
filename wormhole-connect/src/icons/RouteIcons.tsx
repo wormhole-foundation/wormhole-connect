@@ -54,6 +54,9 @@ export const getIcon = (route: Route) => {
     case Route.NttRelay: {
       return WormholeIcon;
     }
+    case Route.USDTBridge: {
+      return WormholeIcon;
+    }
     default: {
       return noIcon;
     }
