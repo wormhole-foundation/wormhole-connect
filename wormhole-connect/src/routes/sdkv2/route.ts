@@ -212,6 +212,20 @@ export class SDKv2Route {
       toChain.context,
     );
 
+    // TODO SDKV2 hack
+    //
+    // SDKv2 only returns token addresses, not metadata like names and logos.
+    //
+    // For custom tokens with no built-in foreign asset addresses, this means
+    // we can't match the result of supportedDestinationTokens back up to a TokenConfig
+    // to get its name and logo.
+    //
+    // Since token bridge only outputs the same token as you put in, we're just
+    // returning sourceToken here as a hack so that we can maintain the name and logo.
+    //
+    // A longer term solution to this might be to add methods to SDKv2 for fetching token
+    // metadata like name/logo and not relying on configuration for this at all. At that
+    // point all that would be required would be an address.
     if (this.TYPE === 'bridge' || this.TYPE === 'relay') {
       if (destTokenIds.length > 0) {
         return [sourceToken];
