@@ -6,6 +6,7 @@ import {
 } from 'config/types';
 
 import * as v2 from '@wormhole-foundation/sdk';
+import { getForeignTokenAddress } from 'utils/sdkv2';
 
 // SDKConverter provides utility functions for converting core types between SDKv1 and SDKv2
 // This is only meant to be used while we transition to SDKv2
@@ -135,11 +136,11 @@ export class SDKConverter {
     }
   }
 
-  getTokenIdV2ForKey<C extends v2.Chain>(
+  async getTokenIdV2ForKey<C extends v2.Chain>(
     key: string,
     chain: v1.ChainName | v1.ChainId,
     tokenConfigs: TokensConfigV1,
-  ): v2.TokenId<C> | undefined {
+  ): Promise<v2.TokenId<C> | undefined> {
     const tokenConfig = tokenConfigs[key];
     if (!tokenConfig) return undefined;
 
@@ -152,12 +153,17 @@ export class SDKConverter {
         return this.tokenIdV2(chainName, 'native');
       }
     } else {
-      if (tokenConfig.foreignAssets && tokenConfig.foreignAssets[chainName]) {
-        return this.tokenIdV2(
-          chainName,
-          tokenConfig.foreignAssets[chainName]!.address,
-        );
-      }
+      // For token bridge route, we might be trying to fetch a token's address on its
+      // non-native chain.
+      console.info(
+        `Resolving foreign address for token ${key} on chain ${chain}`,
+      );
+      let foreignAddress = await getForeignTokenAddress(
+        tokenConfigs[key],
+        this.toChainV2(chain),
+      );
+      if (!foreignAddress) return undefined;
+      return this.tokenIdV2(chainName, foreignAddress?.toString());
     }
   }
 }

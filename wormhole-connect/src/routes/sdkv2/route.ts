@@ -77,29 +77,16 @@ export class SDKv2Route {
     const fromChainSupported = supportedChains.includes(fromChain.chain);
     const toChainSupported = supportedChains.includes(toChain.chain);
 
-    // Connect's old interface just accepts basic strings for tokens, eg 'WETH'.
-    // We need to identifying which token address this is actually referring to
-    // on the given chain by checking 'foreignAssets' key in token configs
-    const getTokenIdV2 = (
-      tokenKey: string,
-      chain: ChainName | ChainId,
-    ): TokenIdV2 | undefined => {
-      const tc = config.tokens[tokenKey];
-      const chainName = config.wh.toChainName(chain);
-      if (tc.nativeChain === chainName) {
-        return config.sdkConverter.toTokenIdV2(tc);
-      } else {
-        const foreignAddress = tc?.foreignAssets?.[chainName]?.address;
-        if (foreignAddress) {
-          return config.sdkConverter.tokenIdV2(chainName, foreignAddress);
-        } else {
-          return undefined;
-        }
-      }
-    };
-
-    const fromTokenIdV2 = getTokenIdV2(sourceToken, fromChainV1);
-    const toTokenIdV2 = getTokenIdV2(destToken, toChainV1);
+    const fromTokenIdV2 = await config.sdkConverter.getTokenIdV2ForKey(
+      sourceToken,
+      fromChainV1,
+      config.tokens,
+    );
+    const toTokenIdV2 = await config.sdkConverter.getTokenIdV2ForKey(
+      destToken,
+      toChainV1,
+      config.tokens,
+    );
 
     if (!fromTokenIdV2 || !toTokenIdV2) return false;
 
@@ -192,64 +179,6 @@ export class SDKv2Route {
     return true;
   }
 
-  async isSupportedSourceToken(
-    sourceToken?: TokenConfig | undefined,
-    _destToken?: TokenConfig | undefined,
-    fromChainV1?: ChainName | ChainId | undefined,
-    _destChain?: ChainName | ChainId | undefined,
-  ): Promise<boolean> {
-    if (!fromChainV1) return false;
-    if (!sourceToken) return false;
-
-    const fromChain = await this.getV2ChainContext(fromChainV1);
-    const tokenV2 = config.sdkConverter.toTokenIdV2(sourceToken);
-
-    try {
-      const supportedTokens = await this.rc.supportedSourceTokens(
-        fromChain.context,
-      );
-
-      return !!supportedTokens.find((tokenId) => {
-        return isSameToken(tokenId, tokenV2);
-      });
-    } catch (e) {
-      console.error(e);
-      return false;
-    }
-  }
-
-  async isSupportedDestToken(
-    sourceToken?: TokenConfig | undefined,
-    destToken?: TokenConfig | undefined,
-    fromChainV1?: ChainName | ChainId | undefined,
-    toChainV1?: ChainName | ChainId | undefined,
-  ): Promise<boolean> {
-    if (!fromChainV1) return false;
-    if (!toChainV1) return false;
-    if (!sourceToken) return false;
-    if (!destToken) return false;
-
-    const fromChain = await this.getV2ChainContext(fromChainV1);
-    const toChain = await this.getV2ChainContext(toChainV1);
-    const destTokenV2 = config.sdkConverter.toTokenIdV2(destToken);
-    const sourceTokenV2 = config.sdkConverter.toTokenIdV2(sourceToken);
-
-    try {
-      return !!(
-        await this.rc.supportedDestinationTokens(
-          sourceTokenV2,
-          fromChain.context,
-          toChain.context,
-        )
-      ).find((tokenId) => {
-        return isSameToken(tokenId, destTokenV2);
-      });
-    } catch (e) {
-      console.error(e);
-      return false;
-    }
-  }
-
   // NOTE this method ignores the given TokenConfig array
   async supportedSourceTokens(
     tokens: TokenConfig[],
@@ -277,13 +206,19 @@ export class SDKv2Route {
     const toChain = await this.getV2ChainContext(toChainV1);
     const sourceTokenV2 = config.sdkConverter.toTokenIdV2(sourceToken);
 
-    return (
-      await this.rc.supportedDestinationTokens(
-        sourceTokenV2,
-        fromChain.context,
-        toChain.context,
-      )
-    )
+    let destTokenIds = await this.rc.supportedDestinationTokens(
+      sourceTokenV2,
+      fromChain.context,
+      toChain.context,
+    );
+
+    if (this.TYPE === 'bridge' || this.TYPE === 'relay') {
+      if (destTokenIds.length > 0) {
+        return [sourceToken];
+      }
+    }
+
+    return destTokenIds
       .map((t: TokenIdV2): TokenConfig | undefined =>
         config.sdkConverter.findTokenConfigV1(t, tokens),
       )
@@ -336,14 +271,14 @@ export class SDKv2Route {
     destChainV1: ChainName | ChainId,
   ): Promise<routes.RouteTransferRequest<Network>> {
     const sourceTokenV2: TokenIdV2 | undefined =
-      config.sdkConverter.getTokenIdV2ForKey(
+      await config.sdkConverter.getTokenIdV2ForKey(
         sourceTokenV1,
         sourceChainV1,
         config.tokens,
       );
 
     const destTokenV2: TokenIdV2 | undefined =
-      config.sdkConverter.getTokenIdV2ForKey(
+      await config.sdkConverter.getTokenIdV2ForKey(
         destTokenV1,
         destChainV1,
         config.tokens,

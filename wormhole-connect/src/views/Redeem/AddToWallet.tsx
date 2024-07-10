@@ -194,7 +194,7 @@ function AddToWallet() {
       if (!wrapped.tokenId) return;
 
       const address = await getForeignTokenAddress(
-        config.sdkConverter.toTokenIdV2(wrapped.tokenId),
+        wrapped,
         config.sdkConverter.toChainV2(txData.toChain),
       );
 

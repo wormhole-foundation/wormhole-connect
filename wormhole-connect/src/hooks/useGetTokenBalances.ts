@@ -95,7 +95,7 @@ const useGetTokenBalances = (
                 tokenIdMapping['native'] = tokenConfig;
               } else {
                 const foreignAddress = await getForeignTokenAddress(
-                  config.sdkConverter.toTokenIdV2(tokenConfig),
+                  tokenConfig,
                   chainV2,
                 );
 

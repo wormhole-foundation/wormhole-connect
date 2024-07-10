@@ -1,54 +1,41 @@
 import { getWormholeContextV2 } from 'config';
-import {
-  Wormhole,
-  TokenId,
-  TokenKey,
-  Chain,
-  NativeAddress,
-} from '@wormhole-foundation/sdk';
-//import config from 'config';
+import { TokenConfig } from 'config/types';
+import { TokenId, Chain, TokenAddress } from '@wormhole-foundation/sdk';
+import config from 'config';
 
+// This function has three levels of priority when fetching a token bridge
+// foreign asset address.
+//
+// 1. Check built-in config
+// 2. Check cache
+// 3. Fetch the address on chain using RPC (& cache this for next time)
 export async function getForeignTokenAddress<C extends Chain>(
-  token: TokenId,
+  token: TokenConfig,
   chain: C,
-): Promise<NativeAddress<C> | null> {
+): Promise<TokenAddress<C> | null> {
+  // Try cache first
+  let cached = config.foreignAssetCache.get(token.key, chain);
+  if (cached) {
+    console.log('cache hit', token.key, chain);
+    return cached;
+  }
+
+  // Fetch live and cache
   const wh = await getWormholeContextV2();
-  const originChainContext = wh.getChain(token.chain);
   const chainContext = wh.getChain(chain);
-
-  // TODO  SDKV2
-  // tokenMap in SDKv2 is keyed by token key, but all Connect code wants to pass in a TokenId
-  // which doesn't have the token key. So to avoid changing too much Connect code right now
-  // we're just iterating over all values in tokenMap to find the token.
-
-  // First, get token key from origin chain
-  let tokenKey: TokenKey | null = null;
-  for (const tc of Object.values(originChainContext.config.tokenMap || {})) {
-    if (tc.address === token.address.toString()) {
-      tokenKey = tc.key;
-    }
-  }
-
-  if (tokenKey) {
-    const chainToken = chainContext.config.tokenMap?.[tokenKey];
-    if (chainToken) {
-      // Use cached value
-      //console.log('returning cached fa');
-      return Wormhole.parseAddress(chain, chainToken.address);
-    }
-  } else {
-    console.error(`Couldn't find token key for`, token);
-  }
-
-  return null;
-
-  /*
-  // TODO SDKV2 fetch dynamically and save in cache
-
   const tb = await chainContext.getTokenBridge();
-  const wrapped = await tb.getWrappedAsset(config.sdkConverter.toTokenIdV2(token));
+
+  const tokenId = config.sdkConverter.toTokenIdV2(token);
+
+  console.log('fetching', tokenId, token);
+
+  const wrapped = await tb.getWrappedAsset(tokenId);
+
+  if (wrapped) {
+    config.foreignAssetCache.set(token.key, chain, wrapped);
+  }
+
   return wrapped;
-  */
 }
 
 export async function getDecimals(

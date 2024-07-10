@@ -8,7 +8,13 @@ import MAINNET from './mainnet';
 import TESTNET from './testnet';
 import DEVNET from './devnet';
 import type { WormholeConnectConfig } from './types';
-import { Network, InternalConfig, Route, TokensConfig } from './types';
+import {
+  Network,
+  InternalConfig,
+  Route,
+  TokensConfig,
+  ForeignAssetCache,
+} from './types';
 import {
   mergeCustomTokensConfig,
   mergeNttGroups,
@@ -78,8 +84,6 @@ export function buildConfig(
 
     v2Network: sdkConverter.toNetworkV2(network),
 
-    // TODO remove either env or network from this
-    // some code uses lowercase, some uppercase... :(
     network,
     isMainnet: network === 'mainnet',
     // External resources
@@ -128,6 +132,9 @@ export function buildConfig(
         ? customConfig.tokens!.includes(token.key)
         : true;
     }),
+
+    foreignAssetCache: new ForeignAssetCache(tokens, sdkConverter),
+
     gasEstimates: networkData.gasEstimates,
     // TODO: disabling all routes except Bridge and Relay until they are fully implemented
     routes: (customConfig?.routes ?? Object.values(Route)).filter((r) =>
