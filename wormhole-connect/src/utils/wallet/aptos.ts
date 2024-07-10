@@ -52,9 +52,15 @@ export async function signAndSendTransaction(
   // The wallets do not handle Uint8Array serialization
   const payload = request.transaction as Types.EntryFunctionPayload;
   if (payload.arguments) {
-    payload.arguments = payload.arguments.map((a: any) =>
-      a instanceof Uint8Array ? Array.from(a) : a,
-    );
+    payload.arguments = payload.arguments.map((a: any) => {
+      if (a instanceof Uint8Array) {
+        return Array.from(a);
+      } else if (typeof a === 'bigint') {
+        return a.toString();
+      } else {
+        return a;
+      }
+    });
   }
 
   const tx = await (wallet as AptosWallet).signAndSendTransaction(
