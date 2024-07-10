@@ -158,7 +158,7 @@ export class SDKConverter {
       console.info(
         `Resolving foreign address for token ${key} on chain ${chain}`,
       );
-      let foreignAddress = await getTokenBridgeWrappedTokenAddress(
+      const foreignAddress = await getTokenBridgeWrappedTokenAddress(
         tokenConfigs[key],
         this.toChainV2(chain),
       );

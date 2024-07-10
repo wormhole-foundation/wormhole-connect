@@ -16,7 +16,6 @@ export async function getTokenBridgeWrappedTokenAddress<C extends Chain>(
   // Try cache first
   let cached = config.wrappedTokenAddressCache.get(token.key, chain);
   if (cached) {
-    console.log('cache hit', token.key, chain);
     return cached;
   }
 
@@ -25,10 +24,11 @@ export async function getTokenBridgeWrappedTokenAddress<C extends Chain>(
   const chainContext = wh.getChain(chain);
   const tb = await chainContext.getTokenBridge();
 
+  console.info(
+    `Resolving foreign address for token ${token.key} on chain ${chain}`,
+  );
+
   const tokenId = config.sdkConverter.toTokenIdV2(token);
-
-  console.log('fetching', tokenId, token);
-
   const wrapped = await tb.getWrappedAsset(tokenId);
 
   if (wrapped) {
