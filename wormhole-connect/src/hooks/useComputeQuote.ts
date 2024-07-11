@@ -9,11 +9,11 @@ import {
 
 import type { Route } from 'config/types';
 import type { ChainName } from 'sdklegacy';
-import type { PorticoBridgeState } from 'store/porticoBridge';
 import { getRoute } from 'routes/mappings';
 import { setReceiveNativeAmt, setRelayerFee } from 'store/relay';
 import { amount as sdkAmount } from '@wormhole-foundation/sdk';
 import { toDecimals } from 'utils/balance';
+import config from 'config';
 
 type Props = {
   sourceChain: ChainName | undefined;
@@ -22,9 +22,7 @@ type Props = {
   destToken: string;
   route: Route | undefined;
   amount: string;
-  portico: PorticoBridgeState;
   toNativeToken: number;
-  relayerFee: number | undefined;
 };
 
 export const useComputeQuote = (props: Props): void => {
@@ -34,7 +32,6 @@ export const useComputeQuote = (props: Props): void => {
     sourceToken,
     destToken,
     amount,
-    portico,
     route,
     toNativeToken,
   } = props;
@@ -62,7 +59,7 @@ export const useComputeQuote = (props: Props): void => {
         if (Number.isNaN(parsedAmount)) {
           dispatch(setReceiveAmount('0'));
           dispatch(setReceiveNativeAmt(0));
-          dispatch(setRelayerFee(0));
+          dispatch(setRelayerFee(undefined));
           return;
         }
 
@@ -80,7 +77,7 @@ export const useComputeQuote = (props: Props): void => {
           if (isActive) {
             dispatch(setReceiveAmountError(quote.error.message));
             dispatch(setReceiveNativeAmt(0));
-            dispatch(setRelayerFee(0));
+            dispatch(setRelayerFee(undefined));
           }
           return;
         }
@@ -99,13 +96,25 @@ export const useComputeQuote = (props: Props): void => {
             dispatch(setReceiveNativeAmt(0));
           }
           if (quote.relayFee) {
-            const { amount } = quote.relayFee;
+            const { token, amount } = quote.relayFee;
+            const feeToken = config.sdkConverter.findTokenConfigV1(
+              token,
+              Object.values(config.tokens),
+            );
+            if (!feeToken) {
+              console.error('Could not find relayer fee token', token);
+            }
             const formattedFee = Number.parseFloat(
               toDecimals(amount.amount, amount.decimals, 6),
             );
-            dispatch(setRelayerFee(formattedFee));
+            dispatch(
+              setRelayerFee({
+                fee: formattedFee,
+                tokenKey: feeToken?.key || '',
+              }),
+            );
           } else {
-            dispatch(setRelayerFee(0));
+            dispatch(setRelayerFee(undefined));
           }
         }
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -113,7 +122,7 @@ export const useComputeQuote = (props: Props): void => {
         if (isActive) {
           dispatch(setReceiveAmountError(e.message));
           dispatch(setReceiveNativeAmt(0));
-          dispatch(setRelayerFee(0));
+          dispatch(setRelayerFee(undefined));
         }
       }
     };
@@ -131,7 +140,6 @@ export const useComputeQuote = (props: Props): void => {
     destToken,
     destChain,
     sourceChain,
-    portico,
     dispatch,
   ]);
 };

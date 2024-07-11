@@ -2,6 +2,7 @@ import { ChainId, ChainName, TokenId } from 'sdklegacy';
 import { getWrappedTokenId } from '.';
 import config from 'config';
 import { chainToPlatform } from '@wormhole-foundation/sdk';
+import { RelayerFee } from 'store/relay';
 
 export enum PayloadType {
   Manual = 1,
@@ -28,7 +29,7 @@ export interface ParsedMessage {
   payload?: string;
   inputData?: string;
   receiveAmount?: string;
-  relayerFee?: string;
+  relayerFee?: RelayerFee;
   receiveNativeAmount?: number;
 }
 

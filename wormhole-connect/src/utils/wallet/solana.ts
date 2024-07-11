@@ -27,9 +27,11 @@ import config from 'config';
 
 import {
   createPriorityFeeInstructions,
+  isVersionedTransaction,
   SolanaUnsignedTransaction,
 } from '@wormhole-foundation/sdk-solana';
 import { Network } from '@wormhole-foundation/sdk';
+import { TransactionMessage } from '@solana/web3.js';
 
 const getWalletName = (wallet: Wallet) =>
   wallet.getName().toLowerCase().replaceAll('wallet', '').trim();
@@ -76,26 +78,43 @@ export async function signAndSendTransaction(
     throw new Error('wallet.signAndSendTransaction is undefined');
   }
 
-  const tx = request.transaction.transaction as Transaction;
-
+  const tx = request.transaction.transaction;
   if (config.rpcs.solana) {
     const conn = new Connection(config.rpcs.solana);
-    const bh = await conn.getLatestBlockhash();
-    tx.recentBlockhash = bh.blockhash;
-    tx.lastValidBlockHeight = bh.lastValidBlockHeight;
-
-    const computeBudgetIx = await createPriorityFeeInstructions(conn, tx, 0.75);
-    tx.add(...computeBudgetIx);
-
-    if (request.transaction.signers) {
-      tx.partialSign(...request.transaction.signers);
+    if (isVersionedTransaction(tx)) {
+      const msg = TransactionMessage.decompile(tx.message);
+      const { blockhash } = await conn.getLatestBlockhash();
+      msg.recentBlockhash = blockhash;
+      const computeBudgetIx = await createPriorityFeeInstructions(
+        conn,
+        tx,
+        0.75,
+      );
+      msg.instructions.push(...computeBudgetIx);
+      tx.message = msg.compileToV0Message();
+      tx.sign(request.transaction.signers ?? []);
+    } else {
+      const { blockhash, lastValidBlockHeight } =
+        await conn.getLatestBlockhash();
+      tx.recentBlockhash = blockhash;
+      tx.lastValidBlockHeight = lastValidBlockHeight;
+      const computeBudgetIx = await createPriorityFeeInstructions(
+        conn,
+        tx,
+        0.75,
+      );
+      tx.add(...computeBudgetIx);
+      if (request.transaction.signers) {
+        tx.partialSign(...request.transaction.signers);
+      }
     }
   } else {
     throw new Error('Need Solana RPC');
   }
 
   return await (wallet as SolanaWallet).signAndSendTransaction({
-    transaction: tx,
+    // TODO: VersionedTransaction is supported, but the interface needs to be updated
+    transaction: tx as Transaction,
     options,
   });
 }

@@ -87,7 +87,6 @@ function Send(props: { valid: boolean }) {
   const { sending, receiving } = wallet;
   const relay = useSelector((state: RootState) => state.relay);
   const { toNativeToken, relayerFee, receiveNativeAmt } = relay;
-  const portico = useSelector((state: RootState) => state.porticoBridge);
   const [isConnected, setIsConnected] = useState(
     sending.currentAddress.toLowerCase() === sending.address.toLowerCase(),
   );
@@ -97,11 +96,7 @@ function Send(props: { valid: boolean }) {
 
   async function send() {
     setSendError('');
-    await validate(
-      { transferInput, relay, wallet, portico },
-      dispatch,
-      () => false,
-    );
+    await validate({ transferInput, relay, wallet }, dispatch, () => false);
     const valid = isTransferValid(validations);
     if (!valid || !route) return;
 
@@ -209,7 +204,7 @@ function Send(props: { valid: boolean }) {
           gasFee: undefined,
           payload: undefined,
           inputData: undefined,
-          relayerFee: relayerFee?.toString() || '',
+          relayerFee,
           receiveAmount: receiveAmount.data || '',
           receiveNativeAmount: receiveNativeAmt,
         }),

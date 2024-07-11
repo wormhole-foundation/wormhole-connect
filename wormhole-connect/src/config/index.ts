@@ -141,9 +141,11 @@ export function buildConfig(
     ),
 
     gasEstimates: networkData.gasEstimates,
-    // TODO: disabling all routes except Bridge and Relay until they are fully implemented
+    // TODO: routes that aren't supported yet are disabled
     routes: (customConfig?.routes ?? Object.values(Route)).filter((r) =>
-      [Route.Bridge, Route.Relay].includes(r as Route),
+      [Route.Bridge, Route.Relay, Route.NttManual, Route.NttRelay].includes(
+        r as Route,
+      ),
     ),
 
     // UI details

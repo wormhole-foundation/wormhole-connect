@@ -74,10 +74,7 @@ function Bridge() {
   }: TransferInputState = useSelector(
     (state: RootState) => state.transferInput,
   );
-  const { toNativeToken, relayerFee } = useSelector(
-    (state: RootState) => state.relay,
-  );
-  const portico = useSelector((state: RootState) => state.porticoBridge);
+  const { toNativeToken } = useSelector((state: RootState) => state.relay);
   const receiving = useSelector((state: RootState) => state.wallet.receiving);
 
   // Warn user before closing tab if transaction has begun
@@ -114,15 +111,10 @@ function Bridge() {
     sourceToken: token,
     destToken,
     amount,
-    portico,
     route,
     toNativeToken,
-    relayerFee,
   });
 
-  // Route specific hooks
-  //usePorticoSwapInfo();
-  //usePorticoRelayerFee();
   useFetchTokenPrices();
   useConnectToLastUsedWallet();
 

@@ -39,10 +39,13 @@
     "@reduxjs/toolkit": "^1.9.1",
     "@solana/wallet-adapter-wallets": "^0.19.25",
     "@solana/web3.js": "^1.73.0",
-    "@wormhole-foundation/sdk": "^0.8.0-beta.4",
-    "@wormhole-foundation/sdk-definitions": "^0.8.0-beta.4",
-    "@wormhole-foundation/sdk-definitions-ntt": "^0.0.1-beta.5",
+    "@wormhole-foundation/sdk": "^0.8",
+    "@wormhole-foundation/sdk-definitions": "^0.8",
+    "@wormhole-foundation/sdk-definitions-ntt": "^0.2.0-beta.0",
+    "@wormhole-foundation/sdk-evm-ntt": "^0.2.0-beta.0",
     "@wormhole-foundation/sdk-icons": "^0.6.8",
+    "@wormhole-foundation/sdk-route-ntt": "^0.2.0-beta.0",
+    "@wormhole-foundation/sdk-solana-ntt": "^0.2.0-beta.0",
     "@xlabs-libs/wallet-aggregator-aptos": "^0.0.1-alpha.14",
     "@xlabs-libs/wallet-aggregator-core": "^0.0.1-alpha.18",
     "@xlabs-libs/wallet-aggregator-cosmos": "^0.0.1-alpha.14",
@@ -145,10 +148,6 @@
       "@ledgerhq/errors": "6.10.2",
       "@ledgerhq/logs": "6.12.0",
       "@ledgerhq/devices": "6.27.1"
-    },
-    "@wormhole-foundation/sdk-definitions-ntt": {
-      "@wormhole-foundation/sdk-definitions": "^0.7.0-beta.1",
-      "@wormhole-foundation/sdk-base": "^0.7.0-beta.1"
     },
     "@wormhole-foundation/wormhole-connect": {
       "aptos": "1.5.0"

@@ -12,7 +12,6 @@ import {
 import { ChainId, ChainName, TokenId as TokenIdV1 } from 'sdklegacy';
 import { Route, TokenConfig } from 'config/types';
 import {
-  RelayerFee,
   TransferDestInfo,
   TransferDestInfoBaseParams,
   TransferDisplayData,
@@ -30,8 +29,9 @@ import {
 } from '@wormhole-foundation/sdk';
 import config, { getWormholeContextV2 } from 'config';
 import { calculateUSDPrice, getDisplayName, getWrappedToken } from 'utils';
-import { toFixedDecimals } from 'utils/balance';
 import { TransferWallet } from 'utils/wallet';
+import { RelayerFee } from 'store/relay';
+import { toFixedDecimals } from 'utils/balance';
 
 export class SDKv2Route {
   TYPE: Route;
@@ -43,6 +43,8 @@ export class SDKv2Route {
     // TODO: get this info from the SDK
     if (routeType === Route.Relay) {
       this.NATIVE_GAS_DROPOFF_SUPPORTED = true;
+      this.AUTOMATIC_DEPOSIT = true;
+    } else if (routeType === Route.NttRelay) {
       this.AUTOMATIC_DEPOSIT = true;
     }
   }
@@ -143,7 +145,6 @@ export class SDKv2Route {
       if (!amount) return true;
       const wh = await getWormholeContextV2();
       const route = new this.rc(wh);
-      console.log(options);
       if (routes.isAutomatic(route)) {
         const req = await this.createRequest(
           amount,
@@ -469,7 +470,7 @@ export class SDKv2Route {
     const signer = await SDKv2Signer.fromChainV1(
       fromChainV1,
       senderAddress,
-      options,
+      {},
       TransferWallet.SENDING,
     );
 
@@ -485,9 +486,17 @@ export class SDKv2Route {
       ),
     );
 
-    // Wait for transfer to finish =^o^=
+    // Don't call track if the transfer is already in a final state
+    // since track can update the receipt to a different state
+    if (
+      receipt.state == TransferState.SourceInitiated ||
+      receipt.state == TransferState.SourceFinalized
+    ) {
+      return [route, receipt];
+    }
+
+    // Otherwise track the transfer until it reaches a final state
     for await (receipt of route.track(receipt, 120 * 1000)) {
-      console.log('Current Transfer State: ', TransferState[receipt.state]);
       if (
         receipt.state == TransferState.SourceInitiated ||
         receipt.state == TransferState.SourceFinalized
@@ -497,14 +506,6 @@ export class SDKv2Route {
     }
 
     throw new Error('Never got a SourceInitiate state in receipt');
-  }
-
-  public async redeem(
-    destChain: ChainName | ChainId,
-    messageInfo: any,
-    recipient: string,
-  ): Promise<string> {
-    throw new Error('Method not implemented.');
   }
 
   async getPreview(
@@ -517,7 +518,7 @@ export class SDKv2Route {
     claimingGasEst: string,
     receiveAmount: string,
     tokenPrices: TokenPrices,
-    relayerFee?: number,
+    relayerFee?: RelayerFee,
     receiveNativeAmt?: number,
   ): Promise<TransferDisplayData> {
     const displayData = [
@@ -525,8 +526,14 @@ export class SDKv2Route {
     ];
 
     if (relayerFee) {
+      const { fee, tokenKey } = relayerFee;
       displayData.push(
-        this.createDisplayItem('Relayer fee', relayerFee, token, tokenPrices),
+        this.createDisplayItem(
+          'Relayer fee',
+          fee,
+          config.tokens[tokenKey],
+          tokenPrices,
+        ),
       );
     }
 
@@ -537,7 +544,7 @@ export class SDKv2Route {
       displayData.push(
         this.createDisplayItem(
           'Native gas on destination',
-          Number(toFixedDecimals(receiveNativeAmt.toString(), 6)),
+          receiveNativeAmt,
           destGasToken,
           tokenPrices,
         ),
@@ -555,7 +562,9 @@ export class SDKv2Route {
   ) {
     return {
       title,
-      value: `${!isNaN(amount) ? amount : '0'} ${getDisplayName(token)}`,
+      value: `${
+        !isNaN(amount) ? Number(toFixedDecimals(amount.toString(), 6)) : '0'
+      } ${getDisplayName(token)}`,
       valueUSD: calculateUSDPrice(amount, tokenPrices, token),
     };
   }
@@ -573,13 +582,13 @@ export class SDKv2Route {
         params.tokenPrices,
       ),
     ];
-    const relayerFee = Number.parseFloat(txData.relayerFee || '0');
-    if (relayerFee > 0) {
+    const { relayerFee } = txData;
+    if (relayerFee) {
       displayData.push(
         this.createDisplayItem(
           'Relayer fee',
-          relayerFee,
-          token,
+          relayerFee.fee,
+          config.tokens[relayerFee.tokenKey],
           params.tokenPrices,
         ),
       );
@@ -617,36 +626,6 @@ export class SDKv2Route {
       );
     }
     return info;
-  }
-
-  async getRelayerFee(
-    sourceChain: ChainName | ChainId,
-    destChain: ChainName | ChainId,
-    token: string,
-    destToken: string,
-    amount: string,
-  ): Promise<RelayerFee | null> {
-    const [, quote] = await this.getQuote(
-      amount,
-      token,
-      destToken,
-      sourceChain,
-      destChain,
-    );
-    if (!quote.success) {
-      throw quote.error;
-    }
-    if (!quote.relayFee) {
-      return null;
-    }
-    const { token: feeTokenV2, amount: feeAmount } = quote.relayFee;
-    const feeToken = config.sdkConverter.toTokenIdV1(feeTokenV2);
-    if (!feeToken) throw new Error('Failed to convert fee token');
-    const relayerFee = {
-      feeToken,
-      fee: BigInt(feeAmount.amount),
-    };
-    return relayerFee;
   }
 
   async getForeignAsset(

@@ -19,7 +19,6 @@ import Stepper from './Stepper';
 import GovernorEnqueuedWarning from './GovernorEnqueuedWarning';
 import config from 'config';
 // import useDeliveryStatus from 'hooks/useDeliveryStatus';
-import useCheckInboundQueuedTransfer from 'hooks/useCheckInboundQueuedTransfer';
 
 import useConfirmBeforeLeaving from 'utils/confirmBeforeLeaving';
 
@@ -151,7 +150,6 @@ function Redeem({
   //  };
   //}, [route, txData, transferComplete, setTransferComplete, signedMessage]);
 
-  useCheckInboundQueuedTransfer();
   // useDeliveryStatus();
   useTrackTransfer();
 
