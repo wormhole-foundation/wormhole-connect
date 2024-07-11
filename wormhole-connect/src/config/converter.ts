@@ -155,9 +155,6 @@ export class SDKConverter {
     } else {
       // For token bridge route, we might be trying to fetch a token's address on its
       // non-native chain.
-      console.info(
-        `Resolving foreign address for token ${key} on chain ${chain}`,
-      );
       const foreignAddress = await getTokenBridgeWrappedTokenAddress(
         tokenConfigs[key],
         this.toChainV2(chain),
