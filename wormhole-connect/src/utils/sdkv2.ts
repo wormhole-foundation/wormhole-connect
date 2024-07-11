@@ -14,7 +14,7 @@ export async function getTokenBridgeWrappedTokenAddress<C extends Chain>(
   chain: C,
 ): Promise<TokenAddress<C> | null> {
   // Try cache first
-  let cached = config.wrappedTokenAddressCache.get(token.key, chain);
+  const cached = config.wrappedTokenAddressCache.get(token.key, chain);
   if (cached) {
     return cached;
   }

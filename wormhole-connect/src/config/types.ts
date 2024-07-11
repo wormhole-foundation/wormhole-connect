@@ -380,19 +380,19 @@ export class WrappedTokenAddressCache {
     this.caches = {};
 
     // Pre-populate cache with values from built-in config
-    for (let key in tokens) {
-      let token = tokens[key];
+    for (const key in tokens) {
+      const token = tokens[key];
 
-      for (let chain in token.foreignAssets) {
-        let foreignAsset = tokens[key].foreignAssets![chain];
-        let chainV2 = converter.toChainV2(chain as ChainName);
-        let addr = WormholeV2.parseAddress(chainV2, foreignAsset.address);
+      for (const chain in token.foreignAssets) {
+        const foreignAsset = tokens[key].foreignAssets![chain];
+        const chainV2 = converter.toChainV2(chain as ChainName);
+        const addr = WormholeV2.parseAddress(chainV2, foreignAsset.address);
         this.set(key, chainV2, addr);
       }
 
       // Cache it on its native chain too
       if (token.tokenId) {
-        let nativeChainV2 = converter.toChainV2(token.nativeChain);
+        const nativeChainV2 = converter.toChainV2(token.nativeChain);
         this.set(
           key,
           nativeChainV2,
@@ -403,7 +403,7 @@ export class WrappedTokenAddressCache {
   }
 
   get<C extends ChainV2>(tokenKey: string, chain: C): TokenAddressV2<C> | null {
-    let chainCache = this.caches[chain] as ForeignAssets<C>;
+    const chainCache = this.caches[chain] as ForeignAssets<C>;
     if (!chainCache) return null;
     return chainCache[tokenKey] || null;
   }
@@ -414,7 +414,7 @@ export class WrappedTokenAddressCache {
     foreignAsset: TokenAddressV2<C>,
   ) {
     if (!this.caches[chain]) this.caches[chain] = {};
-    let chainCache = this.caches[chain]!;
+    const chainCache = this.caches[chain]!;
     chainCache[tokenKey] = foreignAsset;
   }
 }

@@ -206,7 +206,7 @@ export class SDKv2Route {
     const toChain = await this.getV2ChainContext(toChainV1);
     const sourceTokenV2 = config.sdkConverter.toTokenIdV2(sourceToken);
 
-    let destTokenIds = await this.rc.supportedDestinationTokens(
+    const destTokenIds = await this.rc.supportedDestinationTokens(
       sourceTokenV2,
       fromChain.context,
       toChain.context,
