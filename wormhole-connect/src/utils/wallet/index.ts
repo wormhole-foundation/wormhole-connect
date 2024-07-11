@@ -128,6 +128,10 @@ export const connectLastUsedWallet = async (
     `wormhole-connect:wallet:${chainConfig.context}`,
   );
   if (lastUsedWallet) {
+    // If the source wallet was connected with Wallet Connect, disable logic that auto-connects
+    if (lastUsedWallet === 'WalletConnect' && type === TransferWallet.RECEIVING)
+      return;
+
     const options = await getWalletOptions(chainConfig);
     const wallet = options.find((w) => w.name === lastUsedWallet);
     if (wallet) {
