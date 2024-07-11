@@ -1,6 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { ChainName, Context } from 'sdklegacy';
-import { BigNumber } from 'ethers5';
 import config from 'config';
 import { Route, TokenConfig } from 'config/types';
 import { getTokenDecimals } from 'utils';
@@ -38,7 +37,7 @@ export type WalletBalances = { [key: WalletAddress]: BalancesCache };
 export const formatBalance = (
   chain: ChainName,
   token: TokenConfig,
-  balance: BigNumber | null,
+  balance: bigint | null,
 ) => {
   const decimals = getTokenDecimals(toChainId(chain), token.tokenId);
   const formattedBalance =

@@ -2,7 +2,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from 'store';
 import { ChainName, TokenId } from 'sdklegacy';
 import { useEffect, useState } from 'react';
-import { BigNumber } from 'ethers5';
 import {
   accessBalance,
   Balances,
@@ -132,11 +131,7 @@ const useGetTokenBalances = (
             const balance = result[tokenAddress];
             let formatted: string | null = null;
             if (balance !== null) {
-              formatted = formatBalance(
-                chain,
-                tokenConfig,
-                BigNumber.from(balance),
-              );
+              formatted = formatBalance(chain, tokenConfig, BigInt(balance));
             }
             updatedBalances[tokenConfig.key] = {
               balance: formatted,

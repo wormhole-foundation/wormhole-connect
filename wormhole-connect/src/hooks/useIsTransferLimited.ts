@@ -1,12 +1,12 @@
 import { ChainId } from 'sdklegacy';
 import axios from 'axios';
 import config from 'config';
-import { hexlify } from 'ethers5/lib/utils.js';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { formatAssetAddress } from 'utils/sdk';
 import { RootState } from 'store';
 import { getWrappedTokenId } from 'utils';
+import { encoding } from '@wormhole-foundation/sdk';
 
 const REMAINING_NOTIONAL_TOLERANCE = 0.98;
 
@@ -80,7 +80,7 @@ const useIsTransferLimited = (): IsTransferLimitedResult => {
         const tokenConfig = config.tokens[token];
         const tokenId = getWrappedTokenId(tokenConfig);
         const tokenChain = config.wh.toChainId(tokenId.chain);
-        const formatted = hexlify(
+        const formatted = encoding.hex.encode(
           await formatAssetAddress(tokenChain, tokenId.address),
         );
         if (!cancelled) {

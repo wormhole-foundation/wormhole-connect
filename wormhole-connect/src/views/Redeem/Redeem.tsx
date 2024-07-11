@@ -9,7 +9,6 @@ import {
   setTransferComplete,
 } from 'store/redeem';
 import { sleep } from 'utils';
-import { fetchIsVAAEnqueued } from 'utils/vaa';
 import { isNttRoute } from 'routes';
 import { ParsedMessage } from 'utils/sdk';
 
@@ -28,12 +27,9 @@ import useTrackTransfer from 'hooks/useTrackTransfer';
 
 function Redeem({
   setIsVaaEnqueued,
-  setInvalidVaa,
-  setTransferComplete,
   txData,
   transferComplete,
   isVaaEnqueued,
-  isResumeTx,
   route,
 }: {
   setIsVaaEnqueued: (isVaaEnqueued: boolean) => any;
@@ -60,14 +56,9 @@ function Redeem({
     let cancelled = false;
     (async () => {
       while (!cancelled) {
-        let isVaaEnqueued = false;
-        try {
-          isVaaEnqueued = await fetchIsVAAEnqueued(txData);
-        } catch (e) {
-          console.error(e);
-        }
         if (!cancelled) {
-          setIsVaaEnqueued(isVaaEnqueued);
+          // TODO SDKV2 proper NTT queue handling
+          setIsVaaEnqueued(false);
           await sleep(30000);
         }
       }

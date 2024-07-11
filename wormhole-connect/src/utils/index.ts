@@ -1,13 +1,11 @@
 import { useEffect, useRef } from 'react';
-import { BigNumber, BigNumberish, ethers, utils } from 'ethers5';
-import { isHexString } from 'ethers5/lib/utils.js';
+import { isHexString } from 'ethers';
 import { isValidTransactionDigest, SUI_TYPE_ARG } from '@mysten/sui.js';
 import { TokenId, ChainName, ChainId, Context } from 'sdklegacy';
 
 import config from 'config';
 import { ChainConfig, TokenConfig } from 'config/types';
 import { isEvmChain } from 'utils/sdk';
-import { toDecimals } from './balance';
 import { isGatewayChain } from './cosmos';
 import { TokenPrices } from 'store/tokenPrices';
 
@@ -190,45 +188,6 @@ export function usePrevious(value: any) {
   return ref.current;
 }
 
-export function fromNormalizedDecimals(
-  amount: BigNumber,
-  decimals: number,
-): BigNumber {
-  return decimals > NORMALIZED_DECIMALS
-    ? utils.parseUnits(amount.toString(), decimals - NORMALIZED_DECIMALS)
-    : amount;
-}
-
-export function toNormalizedDecimals(
-  amount: BigNumberish,
-  decimals: number,
-  numDecimals?: number,
-): string {
-  const normalizedDecimals =
-    decimals > NORMALIZED_DECIMALS ? NORMALIZED_DECIMALS : decimals;
-  return toDecimals(amount, normalizedDecimals, numDecimals);
-}
-
-export function normalizeAmount(
-  amount: BigNumber,
-  decimals: number,
-): BigNumber {
-  if (decimals > NORMALIZED_DECIMALS) {
-    return amount.div(BigNumber.from(10).pow(decimals - NORMALIZED_DECIMALS));
-  }
-  return amount;
-}
-
-export function deNormalizeAmount(
-  amount: BigNumber,
-  decimals: number,
-): BigNumber {
-  if (decimals > NORMALIZED_DECIMALS) {
-    return amount.mul(BigNumber.from(10).pow(decimals - NORMALIZED_DECIMALS));
-  }
-  return amount;
-}
-
 export async function sleep(timeout: number) {
   return new Promise((resolve) => setTimeout(resolve, timeout));
 }
@@ -316,23 +275,6 @@ export const calculateUSDPrice = (
     return getUSDFormat(price);
   }
   return '';
-};
-
-export const tryParseErrorMessage = (
-  iface: ethers.utils.Interface,
-  error: any,
-): string | undefined => {
-  const errorData = error?.error?.data?.originalError?.data;
-  if (!errorData) return '';
-  try {
-    return iface.parseError(errorData)?.name || undefined;
-  } catch {
-    return undefined;
-  }
-};
-
-export const removeDust = (amount: BigNumber, decimals: number): BigNumber => {
-  return deNormalizeAmount(normalizeAmount(amount, decimals), decimals);
 };
 
 /**

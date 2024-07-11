@@ -30,7 +30,6 @@ import {
 } from '@wormhole-foundation/sdk';
 import config, { getWormholeContextV2 } from 'config';
 import { calculateUSDPrice, getDisplayName } from 'utils';
-import { BigNumber } from 'ethers5';
 import { toFixedDecimals } from 'utils/balance';
 import { TransferWallet } from 'utils/wallet';
 
@@ -696,7 +695,7 @@ export class SDKv2Route {
     if (!feeToken) throw new Error('Failed to convert fee token');
     const relayerFee = {
       feeToken,
-      fee: BigNumber.from(feeAmount.amount),
+      fee: BigInt(feeAmount.amount),
     };
     return relayerFee;
   }
