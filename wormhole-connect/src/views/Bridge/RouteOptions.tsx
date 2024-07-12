@@ -2,9 +2,8 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { Chip, Tooltip, useMediaQuery, useTheme } from '@mui/material';
-import { useDebounce } from 'use-debounce';
 import { RootState } from 'store';
-import { RouteState, setRoutes, setTransferRoute } from 'store/transferInput';
+import { setTransferRoute } from 'store/transferInput';
 import { LINK, joinClass } from 'utils/style';
 import { toFixedDecimals } from 'utils/balance';
 import { millisToMinutesAndSeconds } from 'utils/transferValidation';
@@ -23,6 +22,7 @@ import { isGatewayChain } from 'utils/cosmos';
 import { isPorticoRoute } from 'routes/porticoBridge/utils';
 import Price from 'components/Price';
 import { finality, chainIdToChain } from '@wormhole-foundation/sdk';
+import useAvailableRoutes from 'hooks/useAvailableRoutes';
 
 const useStyles = makeStyles()((theme: any) => ({
   link: {
@@ -364,17 +364,12 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
 
 function RouteOptions() {
   const dispatch = useDispatch();
-  const {
-    isTransactionInProgress,
-    route,
-    routeStates,
-    token,
-    destToken,
-    fromChain,
-    toChain,
-    amount,
-  } = useSelector((state: RootState) => state.transferInput);
-  const { toNativeToken } = useSelector((state: RootState) => state.relay);
+  const { isTransactionInProgress, route, routeStates } = useSelector(
+    (state: RootState) => state.transferInput,
+  );
+
+  useAvailableRoutes();
+
   const onSelect = useCallback(
     (value: Route) => {
       if (routeStates && routeStates.some((rs) => rs.name === value)) {
@@ -384,56 +379,6 @@ function RouteOptions() {
     },
     [routeStates, dispatch],
   );
-  const [debouncedAmount] = useDebounce(amount, 500);
-
-  useEffect(() => {
-    let isActive = true;
-
-    if (!fromChain || !toChain || !token || !destToken) return;
-    const getAvailable = async () => {
-      const routes: RouteState[] = [];
-      for (const value of config.routes) {
-        const r = value as Route;
-        const available = await RouteOperator.isRouteAvailable(
-          r,
-          token,
-          destToken,
-          debouncedAmount,
-          fromChain,
-          toChain,
-          { nativeGas: toNativeToken },
-        );
-
-        const supported = await RouteOperator.isRouteSupported(
-          r,
-          token,
-          destToken,
-          debouncedAmount,
-          fromChain,
-          toChain,
-        );
-
-        routes.push({ name: r, supported, available });
-      }
-
-      if (isActive) {
-        dispatch(setRoutes(routes));
-      }
-    };
-    getAvailable();
-
-    return () => {
-      isActive = false;
-    };
-  }, [
-    dispatch,
-    token,
-    destToken,
-    debouncedAmount,
-    fromChain,
-    toChain,
-    toNativeToken,
-  ]);
 
   const allRoutes = useMemo(() => {
     if (!routeStates) return [];

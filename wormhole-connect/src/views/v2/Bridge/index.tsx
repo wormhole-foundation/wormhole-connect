@@ -22,6 +22,7 @@ import FooterNavBar from 'components/FooterNavBar';
 import { TransferWallet } from 'utils/wallet';
 import { useComputeDestinationTokens } from 'hooks/useComputeDestinationTokens';
 import { useComputeSourceTokens } from 'hooks/useComputeSourceTokens';
+import { useComputeQuote } from 'hooks/useComputeQuote';
 import {
   selectFromChain,
   selectToChain,
@@ -32,6 +33,7 @@ import WalletConnector from './WalletConnector';
 import AssetPicker from './AssetPicker';
 import WalletController from './WalletConnector/Controller';
 import AmountInput from './AmountInput';
+import Routes from './Routes';
 
 const useStyles = makeStyles()((theme) => ({
   assetPickerContainer: {
@@ -90,6 +92,12 @@ const Bridge = () => {
     (state: RootState) => state.wallet,
   );
 
+  const portico = useSelector((state: RootState) => state.porticoBridge);
+
+  const { toNativeToken, relayerFee } = useSelector(
+    (state: RootState) => state.relay,
+  );
+
   const {
     supportedSourceTokens,
     supportedDestTokens,
@@ -98,6 +106,7 @@ const Bridge = () => {
     token: sourceToken,
     destToken,
     route,
+    amount,
   } = useSelector((state: RootState) => state.transferInput);
 
   // Compute and set source tokens
@@ -115,6 +124,19 @@ const Bridge = () => {
     destChain,
     sourceToken,
     route,
+  });
+
+  // Compute and set quote
+  useComputeQuote({
+    sourceChain,
+    destChain,
+    sourceToken,
+    destToken,
+    amount,
+    portico,
+    route,
+    toNativeToken,
+    relayerFee,
   });
 
   // All supported chains from the given configuration and any custom override
@@ -274,6 +296,7 @@ const Bridge = () => {
       {sourceAssetPicker}
       {destAssetPicker}
       <AmountInput />
+      <Routes />
       {walletConnector}
       {config.showHamburgerMenu ? null : <FooterNavBar />}
       <div className={classes.poweredBy}>

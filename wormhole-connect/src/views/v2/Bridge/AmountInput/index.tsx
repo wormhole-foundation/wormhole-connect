@@ -96,6 +96,7 @@ const AmountInput = () => {
         onClick={() => {
           if (tokenBalance) {
             setAmountValue(tokenBalance);
+            dispatch(setAmount(tokenBalance));
           }
         }}
       >
