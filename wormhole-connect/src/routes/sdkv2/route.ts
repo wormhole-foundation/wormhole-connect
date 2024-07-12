@@ -226,7 +226,7 @@ export class SDKv2Route {
     // A longer term solution to this might be to add methods to SDKv2 for fetching token
     // metadata like name/logo and not relying on configuration for this at all. At that
     // point all that would be required would be an address.
-    if (this.TYPE === 'bridge' || this.TYPE === 'relay') {
+    if (['bridge', 'relay', 'cosmosGateway'].includes(this.TYPE)) {
       if (destTokenIds.length > 0) {
         return [sourceToken];
       }
