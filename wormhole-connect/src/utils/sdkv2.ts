@@ -29,13 +29,18 @@ export async function getTokenBridgeWrappedTokenAddress<C extends Chain>(
   );
 
   const tokenId = config.sdkConverter.toTokenIdV2(token);
-  const wrapped = await tb.getWrappedAsset(tokenId);
 
-  if (wrapped) {
-    config.wrappedTokenAddressCache.set(token.key, chain, wrapped);
+  try {
+    const wrapped = await tb.getWrappedAsset(tokenId);
+
+    if (wrapped) {
+      config.wrappedTokenAddressCache.set(token.key, chain, wrapped);
+    }
+
+    return wrapped;
+  } catch (_e) {
+    return null;
   }
-
-  return wrapped;
 }
 
 export async function getDecimals(

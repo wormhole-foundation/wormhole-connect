@@ -392,12 +392,16 @@ export class WrappedTokenAddressCache {
 
       // Cache it on its native chain too
       if (token.tokenId) {
-        const nativeChainV2 = converter.toChainV2(token.nativeChain);
-        this.set(
-          key,
-          nativeChainV2,
-          WormholeV2.parseAddress(nativeChainV2, token.tokenId!.address),
-        );
+        try {
+          const nativeChainV2 = converter.toChainV2(token.nativeChain);
+          this.set(
+            key,
+            nativeChainV2,
+            WormholeV2.parseAddress(nativeChainV2, token.tokenId.address),
+          );
+        } catch (e) {
+          console.error(`Error caching foreign asset`, token.tokenId, e);
+        }
       }
     }
   }
