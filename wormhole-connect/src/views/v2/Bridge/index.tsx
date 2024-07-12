@@ -1,7 +1,8 @@
 import React, { useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
-import { useTheme } from '@mui/material';
+import { useMediaQuery, useTheme } from '@mui/material';
+import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 
@@ -68,6 +69,13 @@ const useStyles = makeStyles()((theme) => ({
     gap: '8px',
     marginTop: '24px',
   },
+  reviewTransaction: {
+    padding: '8px 16px',
+    borderRadius: '8px',
+    margin: 'auto',
+    maxWidth: '420px',
+    width: '100%',
+  },
   spacer: {
     display: 'flex',
     flexDirection: 'column',
@@ -86,6 +94,8 @@ const Bridge = () => {
   const { classes } = useStyles();
   const theme = useTheme();
   const dispatch = useDispatch();
+
+  const mobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   // Connected wallets, if any
   const { sending: sendingWallet, receiving: receivingWallet } = useSelector(
@@ -289,6 +299,25 @@ const Bridge = () => {
     );
   }, [sourceChain, destChain, sendingWallet, receivingWallet]);
 
+  const reviewTransactionButton = useMemo(() => {
+    if (!sourceChain || !sourceToken || !destChain || !destToken || !route) {
+      return null;
+    }
+
+    return (
+      <Button
+        variant="contained"
+        color="primary"
+        className={classes.reviewTransaction}
+        onClick={() => {}}
+      >
+        <Typography textTransform="none">
+          {mobile ? 'Review' : 'Review transaction'}
+        </Typography>
+      </Button>
+    );
+  }, [sourceChain, sourceToken, destChain, destToken, route]);
+
   return (
     <div className={joinClass([classes.bridgeContent, classes.spacer])}>
       {header}
@@ -298,6 +327,7 @@ const Bridge = () => {
       <AmountInput />
       <Routes />
       {walletConnector}
+      {reviewTransactionButton}
       {config.showHamburgerMenu ? null : <FooterNavBar />}
       <div className={classes.poweredBy}>
         <PoweredByIcon color={theme.palette.text.primary} />
