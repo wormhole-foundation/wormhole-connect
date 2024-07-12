@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import Tooltip from '@mui/material/Tooltip';
 import { makeStyles } from 'tss-react/mui';
@@ -38,12 +38,24 @@ const Routes = () => {
     (state: RootState) => state.wallet,
   );
 
+  const [selectedRoute, setSelectedRoute] = useState<Route>();
+
   useAvailableRoutes();
 
+  // Set selectedRoute if the route is auto-selected
+  // After the auto-selection, we set selectedRoute when user clicks on a route in the list
+  useEffect(() => {
+    if (route && !selectedRoute) {
+      setSelectedRoute(route);
+    }
+  }, [route, selectedRoute]);
+
   const supportedRoutes = useMemo(() => {
-    if (!routeStates) return [];
-    const routes = routeStates.filter((rs) => rs.supported);
-    return routes;
+    if (!routeStates) {
+      return [];
+    }
+
+    return routeStates.filter((rs) => rs.supported);
   }, [routeStates]);
 
   const walletsConnected = useMemo(
@@ -69,12 +81,13 @@ const Routes = () => {
     <>
       {supportedRoutes.map(({ name, available }) => {
         const routeConfig = RoutesConfig[name as Route];
-        const isSelected = routeConfig.route === route;
+        const isSelected = routeConfig.route === selectedRoute;
         return (
           <SingleRoute
             config={routeConfig}
             available={available}
             isSelected={isSelected}
+            onSelect={setSelectedRoute}
           />
         );
       })}

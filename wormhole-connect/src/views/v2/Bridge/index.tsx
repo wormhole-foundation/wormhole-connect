@@ -299,8 +299,16 @@ const Bridge = () => {
     );
   }, [sourceChain, destChain, sendingWallet, receivingWallet]);
 
+  // Review transaction button is shown only when everything is ready
   const reviewTransactionButton = useMemo(() => {
-    if (!sourceChain || !sourceToken || !destChain || !destToken || !route) {
+    if (
+      !sourceChain ||
+      !sourceToken ||
+      !destChain ||
+      !destToken ||
+      !route ||
+      !(Number(amount) > 0)
+    ) {
       return null;
     }
 
@@ -316,7 +324,7 @@ const Bridge = () => {
         </Typography>
       </Button>
     );
-  }, [sourceChain, sourceToken, destChain, destToken, route]);
+  }, [sourceChain, sourceToken, destChain, destToken, route, amount]);
 
   return (
     <div className={joinClass([classes.bridgeContent, classes.spacer])}>

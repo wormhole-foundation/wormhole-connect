@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { CircularProgress, useTheme } from '@mui/material';
 import Avatar from '@mui/material/Avatar';
 import Card from '@mui/material/Card';
@@ -21,7 +21,6 @@ import config from 'config';
 import useAvailableRoutes from 'hooks/useAvailableRoutes';
 import RouteOperator from 'routes/operator';
 import { isPorticoRoute } from 'routes/porticoBridge/utils';
-import { setTransferRoute } from 'store/transferInput';
 import { calculateUSDPrice, isEmptyObject } from 'utils';
 import { toFixedDecimals } from 'utils/balance';
 import { isGatewayChain } from 'utils/cosmos';
@@ -48,10 +47,10 @@ type Props = {
   config: RouteData;
   available: boolean;
   isSelected: boolean;
+  onSelect: (route: Route) => void;
 };
 
 const SingleRoute = (props: Props) => {
-  const dispatch = useDispatch();
   const { classes } = useStyles();
   const theme = useTheme();
 
@@ -61,7 +60,6 @@ const SingleRoute = (props: Props) => {
     fromChain: sourceChain,
     toChain: destChain,
     amount,
-    routeStates,
   } = useSelector((state: RootState) => state.transferInput);
 
   const { toNativeToken, relayerFee } = useSelector(
@@ -142,16 +140,6 @@ const SingleRoute = (props: Props) => {
     destChain,
     tokenPrices,
   ]);
-
-  const onSelect = useCallback(
-    (value: Route) => {
-      if (routeStates && routeStates.some((rs) => rs.name === value)) {
-        const route = routeStates.find((rs) => rs.name === value);
-        if (route?.available) dispatch(setTransferRoute(value));
-      }
-    },
-    [routeStates, dispatch],
-  );
 
   const getEstimatedTime = useCallback((chain?: ChainName) => {
     if (!chain) {
@@ -288,7 +276,7 @@ const SingleRoute = (props: Props) => {
         <CardActionArea
           disabled={!props.available}
           disableTouchRipple
-          onClick={() => onSelect(route)}
+          onClick={() => props.onSelect(route)}
         >
           <CardHeader
             avatar={<Avatar>{props.config.icon()}</Avatar>}
