@@ -5,6 +5,7 @@ import { makeStyles } from 'tss-react/mui';
 import { Button, Tooltip, Typography, useMediaQuery } from '@mui/material';
 
 import { RootState } from 'store';
+import { displayWalletAddress } from 'utils';
 import { TransferWallet } from 'utils/wallet';
 
 import { TransferSide } from 'config/types';
@@ -67,13 +68,10 @@ const WalletConnector = (props: Props) => {
 
   const connected = useMemo(() => {
     return (
-      <Tooltip
-        title={
-          'Please enter amount and select a route to initiate the transaction'
-        }
-      >
-        <div className={classes.connected}>Connected</div>
-      </Tooltip>
+      <div className={classes.connected}>{`Connected to ${displayWalletAddress(
+        wallet.type,
+        wallet.address,
+      )}`}</div>
     );
   }, []);
 
