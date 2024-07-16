@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import Button from '@mui/material/Button';
@@ -39,7 +39,6 @@ const useStyles = makeStyles()((theme) => ({
 const AmountInput = () => {
   const { classes } = useStyles();
   const dispatch = useDispatch();
-  const [amountValue, setAmountValue] = useState('');
 
   const { sending: sendingWallet } = useSelector(
     (state: RootState) => state.wallet,
@@ -49,6 +48,7 @@ const AmountInput = () => {
     supportedSourceTokens,
     fromChain: sourceChain,
     token: sourceToken,
+    amount,
   } = useSelector((state: RootState) => state.transferInput);
 
   const { balances, isFetching } = useGetTokenBalances(
@@ -95,7 +95,6 @@ const AmountInput = () => {
         disabled={isInputDisabled || !tokenBalance}
         onClick={() => {
           if (tokenBalance) {
-            setAmountValue(tokenBalance);
             dispatch(setAmount(tokenBalance));
           }
         }}
@@ -126,9 +125,8 @@ const AmountInput = () => {
             }}
             placeholder="0"
             variant="standard"
-            value={amountValue}
+            value={amount}
             onChange={(e) => {
-              setAmountValue(e.target.value);
               dispatch(setAmount(e.target.value));
             }}
             InputProps={{

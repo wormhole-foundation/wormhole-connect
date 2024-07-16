@@ -18,7 +18,7 @@ import { makeStyles } from 'tss-react/mui';
 import { finality, chainIdToChain } from '@wormhole-foundation/sdk-base';
 
 import config from 'config';
-import useAvailableRoutes from 'hooks/useAvailableRoutes';
+import useComputeQuoteV2 from 'hooks/useComputeQuoteV2';
 import RouteOperator from 'routes/operator';
 import { isPorticoRoute } from 'routes/porticoBridge/utils';
 import { calculateUSDPrice, isEmptyObject } from 'utils';
@@ -47,6 +47,8 @@ type Props = {
   config: RouteData;
   available: boolean;
   isSelected: boolean;
+  showDestinationGasFee?: boolean;
+  title?: string;
   onSelect: (route: Route) => void;
 };
 
@@ -55,16 +57,14 @@ const SingleRoute = (props: Props) => {
   const theme = useTheme();
 
   const {
-    token: sourceToken,
-    destToken,
     fromChain: sourceChain,
+    token: sourceToken,
     toChain: destChain,
+    destToken,
     amount,
   } = useSelector((state: RootState) => state.transferInput);
 
-  const { toNativeToken, relayerFee } = useSelector(
-    (state: RootState) => state.relay,
-  );
+  const { toNativeToken } = useSelector((state: RootState) => state.relay);
 
   const {
     usdPrices: { data: tokenPrices },
@@ -82,7 +82,22 @@ const SingleRoute = (props: Props) => {
 
   const [isFeesBreakdownOpen, setIsFeesBreakdownOpen] = useState(false);
 
-  useAvailableRoutes();
+  const { name, route, providedBy } = props.config;
+
+  // Compute the quotes for this route
+  const {
+    receiveNativeAmt,
+    relayerFee,
+    isFetching: isFetchingQuote,
+  } = useComputeQuoteV2({
+    sourceChain,
+    destChain,
+    sourceToken,
+    destToken,
+    amount,
+    route,
+    toNativeToken,
+  });
 
   useEffect(() => {
     let cancelled = false;
@@ -92,7 +107,7 @@ const SingleRoute = (props: Props) => {
         const routeOptions = { nativeGas: toNativeToken };
 
         const receiveAmount = await RouteOperator.computeReceiveAmountWithFees(
-          props.config.route,
+          route,
           Number.parseFloat(amount),
           sourceToken,
           destToken,
@@ -130,10 +145,9 @@ const SingleRoute = (props: Props) => {
       cancelled = true;
     };
   }, [
-    props.config,
+    route,
     amount,
     toNativeToken,
-    relayerFee,
     sourceToken,
     destToken,
     sourceChain,
@@ -165,23 +179,40 @@ const SingleRoute = (props: Props) => {
   }, []);
 
   const totalFees = useMemo(() => {
+    let total = 0;
+
+    if (relayerFee) {
+      total += relayerFee || 0;
+    }
+
+    if (props.showDestinationGasFee && receiveNativeAmt) {
+      total += receiveNativeAmt || 0;
+    }
+
     return (
       <>
         <Typography color={theme.palette.text.secondary} fontSize={14}>
           Total fees
         </Typography>
-        {relayerFee ? (
-          <Typography fontSize={14}>{relayerFee}</Typography>
-        ) : (
+        {isFetchingQuote ? (
           <CircularProgress size={14} />
+        ) : (
+          <Typography fontSize={14}>
+            {Number.parseFloat(toFixedDecimals(`${total}`, 6))}
+          </Typography>
         )}
       </>
     );
-  }, [relayerFee]);
+  }, [
+    isFetchingQuote,
+    props.showDestinationGasFee,
+    relayerFee,
+    receiveNativeAmt,
+  ]);
 
-  const feesBreakdown = useMemo(() => {
+  const bridgeFee = useMemo(() => {
     return (
-      <>
+      <Stack direction="row" justifyContent="space-between">
         <Typography
           color={theme.palette.text.secondary}
           fontSize={14}
@@ -189,15 +220,48 @@ const SingleRoute = (props: Props) => {
         >
           Bridge fee
         </Typography>
-
-        {relayerFee ? (
-          <Typography fontSize={14}>{relayerFee}</Typography>
-        ) : (
+        {isFetchingQuote ? (
           <CircularProgress size={14} />
+        ) : (
+          <Typography fontSize={14}>{relayerFee}</Typography>
         )}
+      </Stack>
+    );
+  }, [isFetchingQuote, relayerFee]);
+
+  const destinationGasFee = useMemo(() => {
+    if (!receiveNativeAmt) {
+      return null;
+    }
+
+    return (
+      <Stack direction="row" justifyContent="space-between">
+        <Typography
+          color={theme.palette.text.secondary}
+          fontSize={14}
+          paddingLeft="8px"
+        >
+          Destination gas fee
+        </Typography>
+        {isFetchingQuote ? (
+          <CircularProgress size={14} />
+        ) : (
+          <Typography fontSize={14}>
+            {Number.parseFloat(toFixedDecimals(`${receiveNativeAmt}`, 6))}
+          </Typography>
+        )}
+      </Stack>
+    );
+  }, [isFetchingQuote, receiveNativeAmt]);
+
+  const feesBreakdown = useMemo(() => {
+    return (
+      <>
+        {bridgeFee}
+        {props.showDestinationGasFee && destinationGasFee}
       </>
     );
-  }, [isFeesBreakdownOpen, relayerFee]);
+  }, [bridgeFee, destinationGasFee, props.showDestinationGasFee]);
 
   const timeToDestination = useMemo(() => {
     return (
@@ -253,20 +317,38 @@ const SingleRoute = (props: Props) => {
     );
   }, [showWarning]);
 
+  const routeTitle = useMemo(() => {
+    return typeof receiveAmount === 'undefined' ? (
+      <CircularProgress size={18} />
+    ) : (
+      <Typography>
+        {receiveAmount} {destToken}
+      </Typography>
+    );
+  }, [receiveAmount, destToken]);
+
+  const routeSubHeader = useMemo(() => {
+    return typeof receiveAmountUSD === 'undefined' ? (
+      <CircularProgress size={18} />
+    ) : (
+      <Typography>
+        {receiveAmountUSD} via {providedBy}
+      </Typography>
+    );
+  }, [receiveAmountUSD, providedBy]);
+
   if (isEmptyObject(props.config)) {
     return <></>;
   }
 
-  const { name, route, providedBy } = props.config;
-
   return (
     <div className={classes.container}>
       <Typography fontSize={16} paddingBottom={0} width="100%" textAlign="left">
-        {name}
+        {props.title || name}
       </Typography>
       <Card
         key={name}
-        className={`${classes.card}`}
+        className={classes.card}
         sx={{
           border: props.isSelected
             ? '1px solid #C1BBF6'
@@ -290,17 +372,15 @@ const SingleRoute = (props: Props) => {
                 {isFeesBreakdownOpen ? <UpIcon /> : <DownIcon />}
               </IconButton>
             }
-            title={`${receiveAmount} ${destToken}`}
-            subheader={`${receiveAmountUSD} via ${providedBy}`}
+            title={routeTitle}
+            subheader={routeSubHeader}
           />
           <CardContent>
             <Stack direction="row" justifyContent="space-between">
               {totalFees}
             </Stack>
             <Collapse in={isFeesBreakdownOpen}>
-              <Stack direction="row" justifyContent="space-between">
-                {feesBreakdown}
-              </Stack>
+              <Stack justifyContent="space-between">{feesBreakdown}</Stack>
             </Collapse>
             <Stack direction="row" justifyContent="space-between">
               {timeToDestination}

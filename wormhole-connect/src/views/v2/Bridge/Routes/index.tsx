@@ -1,11 +1,11 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import Tooltip from '@mui/material/Tooltip';
 import { makeStyles } from 'tss-react/mui';
 
 import { RoutesConfig } from 'config/routes';
 import useAvailableRoutes from 'hooks/useAvailableRoutes';
-import SingleRoute from './SingleRoute';
+import SingleRoute from 'views/v2/Bridge/Routes/SingleRoute';
 
 import type { Route } from 'config/types';
 import type { RootState } from 'store';
@@ -27,10 +27,15 @@ const useStyles = makeStyles()((theme: any) => ({
   },
 }));
 
-const Routes = () => {
+type Props = {
+  selectedRoute: Route | undefined;
+  onRouteChange: (route: Route) => void;
+};
+
+const Routes = (props: Props) => {
   const { classes } = useStyles();
 
-  const { amount, route, routeStates } = useSelector(
+  const { amount, routeStates } = useSelector(
     (state: RootState) => state.transferInput,
   );
 
@@ -38,17 +43,7 @@ const Routes = () => {
     (state: RootState) => state.wallet,
   );
 
-  const [selectedRoute, setSelectedRoute] = useState<Route>();
-
   useAvailableRoutes();
-
-  // Set selectedRoute if the route is auto-selected
-  // After the auto-selection, we set selectedRoute when user clicks on a route in the list
-  useEffect(() => {
-    if (route && !selectedRoute) {
-      setSelectedRoute(route);
-    }
-  }, [route, selectedRoute]);
 
   const supportedRoutes = useMemo(() => {
     if (!routeStates) {
@@ -81,13 +76,13 @@ const Routes = () => {
     <>
       {supportedRoutes.map(({ name, available }) => {
         const routeConfig = RoutesConfig[name as Route];
-        const isSelected = routeConfig.route === selectedRoute;
+        const isSelected = routeConfig.route === props.selectedRoute;
         return (
           <SingleRoute
             config={routeConfig}
             available={available}
             isSelected={isSelected}
-            onSelect={setSelectedRoute}
+            onSelect={props.onRouteChange}
           />
         );
       })}
