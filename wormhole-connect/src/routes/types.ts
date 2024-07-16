@@ -1,7 +1,6 @@
 import { Route } from 'config/types';
 import { ParsedMessage } from '../utils/sdk';
 import { TokenPrices } from 'store/tokenPrices';
-import { BigNumber } from 'ethers5';
 import { TokenId } from 'sdklegacy';
 
 /*
@@ -101,6 +100,6 @@ export type TransferDestInfo = {
 export type TransferDisplayData = NestedRow[];
 
 export interface RelayerFee {
-  fee: BigNumber;
+  fee: bigint;
   feeToken: TokenId | 'native';
 }

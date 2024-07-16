@@ -16,7 +16,6 @@ import { Collapse, useTheme } from '@mui/material';
 import PageHeader from 'components/PageHeader';
 import FromInputs from './Inputs/From';
 import ToInputs from './Inputs/To';
-import TransferLimitedWarning from './TransferLimitedWarning';
 import SwapChains from './SwapChains';
 import RouteOptions from './RouteOptions';
 import ValidationError from './ValidationError';
@@ -177,7 +176,6 @@ function Bridge() {
 
           <Preview collapsed={!showValidationState ? true : !valid} />
 
-          <TransferLimitedWarning fromChain={fromChain} token={token} />
           <Send valid={!!valid} />
         </div>
       </Collapse>

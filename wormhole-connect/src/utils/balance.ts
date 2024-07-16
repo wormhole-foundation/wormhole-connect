@@ -1,16 +1,21 @@
-import { BigNumberish, utils } from 'ethers5';
 import config from 'config';
+import { amount } from '@wormhole-foundation/sdk-base';
 
 /**
  * Makes a BigNumber have # of decimals
  */
 export function toDecimals(
-  amnt: BigNumberish,
-  tokenDecimals: number,
-  numDecimals?: number,
+  amt: bigint | string,
+  decimals: number,
+  precision?: number,
 ): string {
-  const decimal = utils.formatUnits(amnt, tokenDecimals);
-  return toFixedDecimals(decimal, numDecimals || 18);
+  return amount.display(
+    {
+      amount: amt.toString(),
+      decimals,
+    },
+    precision,
+  );
 }
 
 export function toFixedDecimals(number: string, numDecimals: number) {

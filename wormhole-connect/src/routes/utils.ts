@@ -1,15 +1,6 @@
 import { ChainName, ChainId } from 'sdklegacy';
-import { BigNumber, BigNumberish, utils } from 'ethers5';
 import config from 'config';
-import { toFixedDecimals } from 'utils/balance';
 import { Route, TokenConfig } from 'config/types';
-
-export const formatGasFee = (chain: ChainName | ChainId, gasFee: BigNumber) => {
-  const chainName = config.wh.toChainName(chain);
-  const chainConfig = config.chains[chainName]!;
-  const nativeDecimals = chainConfig.nativeTokenDecimals;
-  return toFixedDecimals(utils.formatUnits(gasFee, nativeDecimals), 6);
-};
 
 export const isIlliquidDestToken = (
   { symbol, nativeChain }: TokenConfig,
@@ -59,15 +50,4 @@ export const isIlliquidDestToken = (
 
 export const isNttRoute = (route?: Route) => {
   return route === Route.NttManual || route === Route.NttRelay;
-};
-
-export const estimateAverageGasFee = async (
-  chain: ChainName | ChainId,
-  gasLimit: BigNumberish,
-): Promise<BigNumber> => {
-  const provider = config.wh.mustGetProvider(chain);
-  /* @ts-ignore */
-  const gasPrice = await provider.getGasPrice();
-  // This is a naive estimate 30% higher than what the oracle says
-  return gasPrice.mul(gasLimit).mul(130).div(100);
 };

@@ -42,7 +42,6 @@ import Button from 'components/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 import AlertBanner from 'components/AlertBanner';
 import { isGatewayChain } from 'utils/cosmos';
-import { estimateClaimGas, estimateSendGas } from 'utils/gas';
 import { useDebounce } from 'use-debounce';
 import { isPorticoRoute } from 'routes/porticoBridge/utils';
 import { interpretTransferError } from 'utils/errors';
@@ -244,18 +243,7 @@ function Send(props: { valid: boolean }) {
     // this gas calculation uses the debounced amount to avoid spamming the rpc
     const tokenConfig = config.tokens[token]!;
     if (!route || !tokenConfig) return;
-    const sendToken = tokenConfig.tokenId;
-
-    const gasFee = await estimateSendGas(
-      route,
-      sendToken || 'native',
-      (debouncedAmount || 0).toString(),
-      fromChain!,
-      sending.address,
-      toChain!,
-      receiving.address,
-      { relayerFee, toNativeToken },
-    );
+    const gasFee = '-';
     dispatch(setSendingGasEst(gasFee));
   }, [
     token,
@@ -275,7 +263,7 @@ function Send(props: { valid: boolean }) {
   const setDestGas = useCallback(async () => {
     if (!route || !toChain) return;
     // don't have vaa yet, so set that to undefined and it will get the fallback estimate
-    const gasFee = await estimateClaimGas(route, toChain, undefined);
+    const gasFee = '-';
     dispatch(setClaimGasEst(gasFee));
   }, [toChain, route, dispatch]);
 

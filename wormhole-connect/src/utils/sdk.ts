@@ -1,4 +1,3 @@
-import { BigNumber } from 'ethers5';
 import { ChainId, ChainName, TokenId } from 'sdklegacy';
 import { getWrappedTokenId } from '.';
 import config from 'config';
@@ -75,21 +74,6 @@ export const calculateMaxSwapAmount = async (
   const context: any = config.wh.getContext(destChain);
   return await context.calculateMaxSwapAmount(destChain, token, walletAddress);
   */
-};
-
-export const calculateNativeTokenAmt = async (
-  destChain: ChainName | ChainId,
-  token: TokenId,
-  amount: BigNumber,
-  walletAddress: string,
-) => {
-  const context: any = config.wh.getContext(destChain);
-  return await context.calculateNativeTokenAmt(
-    destChain,
-    token,
-    amount,
-    walletAddress,
-  );
 };
 
 export const getCurrentBlock = async (
