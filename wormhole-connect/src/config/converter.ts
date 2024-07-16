@@ -160,7 +160,7 @@ export class SDKConverter {
         this.toChainV2(chain),
       );
       if (!foreignAddress) return undefined;
-      return this.tokenIdV2(chainName, foreignAddress?.toString());
+      return this.tokenIdV2(chainName, foreignAddress.toString());
     }
   }
 }
