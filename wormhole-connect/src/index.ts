@@ -10,7 +10,10 @@ import { dark, light } from './theme';
 import MAINNET from './config/mainnet';
 import TESTNET from './config/testnet';
 
-import type { WormholeConnectConfig } from './config/types';
+import type {
+  WormholeConnectConfig,
+  WormholeConnectEvent,
+} from './config/types';
 import type { ChainName } from 'sdklegacy';
 
 export default WormholeConnect;
@@ -24,4 +27,5 @@ export {
   light,
   WormholeConnectPartialTheme,
   WormholeConnectTheme,
+  WormholeConnectEvent,
 };

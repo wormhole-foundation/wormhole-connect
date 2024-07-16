@@ -76,6 +76,8 @@ export type SupportedRoutes = keyof typeof Route;
 
 export type Network = 'mainnet' | 'testnet' | 'devnet';
 
+export { WormholeConnectEvent } from 'telemetry/types';
+
 // TODO: preference is fromChain/toChain, but want to keep backwards compatibility
 export interface BridgeDefaults {
   fromNetwork?: ChainName;
