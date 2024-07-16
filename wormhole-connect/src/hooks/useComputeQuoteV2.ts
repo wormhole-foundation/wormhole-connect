@@ -58,20 +58,23 @@ const useComputeQuoteV2 = (props: Props): returnProps => {
       return;
     }
 
-    let isActive = true;
+    const parsedAmount = Number.parseFloat(amount);
+
+    if (Number.isNaN(parsedAmount)) {
+      setReceiveAmount('0');
+      setReceiveNativeAmt(0);
+      setRelayerFee(0);
+      return;
+    }
+
+    let cancelled = false;
+
     const computeQuote = async () => {
       try {
-        const parsedAmount = Number.parseFloat(amount);
-        if (Number.isNaN(parsedAmount)) {
-          setReceiveAmount('0');
-          setReceiveNativeAmt(0);
-          setRelayerFee(0);
-          return;
-        }
-
         setIsFetching(true);
 
         const r = getRoute(route);
+
         const quote = await r.computeQuote(
           parsedAmount,
           sourceToken,
@@ -84,38 +87,40 @@ const useComputeQuoteV2 = (props: Props): returnProps => {
         setIsFetching(false);
 
         if (!quote.success) {
-          if (isActive) {
+          if (!cancelled) {
             setReceiveAmountError(quote.error.message);
             setReceiveNativeAmt(0);
             setRelayerFee(0);
           }
+
           return;
         }
 
-        if (isActive) {
+        if (!cancelled) {
           setReceiveAmount(
             sdkAmount.whole(quote.destinationToken.amount).toString(),
           );
+
           if (quote.destinationNativeGas) {
             setReceiveNativeAmt(sdkAmount.whole(quote.destinationNativeGas));
           } else {
             setReceiveNativeAmt(0);
           }
+
           if (quote.relayFee) {
             const { token, amount } = quote.relayFee;
             const feeToken = config.sdkConverter.toTokenIdV1(token);
             const decimals = getTokenDecimals(toChainId(sourceChain), feeToken);
-            const formattedFee = Number.parseFloat(
-              toDecimals(amount.amount, decimals, 6),
+
+            setRelayerFee(
+              Number.parseFloat(toDecimals(amount.amount, decimals, 6)),
             );
-            setRelayerFee(formattedFee);
           } else {
             setRelayerFee(0);
           }
         }
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (e: any) {
-        if (isActive) {
+        if (!cancelled) {
           setReceiveAmountError(e.message);
           setReceiveNativeAmt(0);
           setRelayerFee(0);
@@ -128,7 +133,7 @@ const useComputeQuoteV2 = (props: Props): returnProps => {
     computeQuote();
 
     return () => {
-      isActive = false;
+      cancelled = true;
     };
   }, [
     sourceChain,

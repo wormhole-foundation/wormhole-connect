@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { CircularProgress, useTheme } from '@mui/material';
 import Avatar from '@mui/material/Avatar';
@@ -15,18 +15,15 @@ import DownIcon from '@mui/icons-material/ExpandMore';
 import UpIcon from '@mui/icons-material/ExpandLess';
 import WarningIcon from '@mui/icons-material/Report';
 import { makeStyles } from 'tss-react/mui';
-import { finality, chainIdToChain } from '@wormhole-foundation/sdk-base';
 
-import config from 'config';
+import useComputeFees from 'hooks/useComputeFees';
 import useComputeQuoteV2 from 'hooks/useComputeQuoteV2';
 import RouteOperator from 'routes/operator';
 import { isPorticoRoute } from 'routes/porticoBridge/utils';
-import { calculateUSDPrice, isEmptyObject } from 'utils';
+import { isEmptyObject } from 'utils';
 import { toFixedDecimals } from 'utils/balance';
 import { isGatewayChain } from 'utils/cosmos';
-import { millisToMinutesAndSeconds } from 'utils/transferValidation';
 
-import type { ChainName } from 'sdklegacy';
 import type { Route } from 'config/types';
 import type { RouteData } from 'config/routes';
 import type { RootState } from 'store';
@@ -66,23 +63,25 @@ const SingleRoute = (props: Props) => {
 
   const { toNativeToken } = useSelector((state: RootState) => state.relay);
 
-  const {
-    usdPrices: { data: tokenPrices },
-  } = useSelector((state: RootState) => state.tokenPrices);
-
-  const [receiveAmount, setReceiveAmount] = useState<number | undefined>(
-    undefined,
-  );
-  const [receiveAmountUSD, setReceiveAmountUSD] = useState<string | undefined>(
-    undefined,
-  );
-  const [estimatedTime, setEstimatedTime] = useState<string | undefined>(
-    undefined,
-  );
-
   const [isFeesBreakdownOpen, setIsFeesBreakdownOpen] = useState(false);
 
   const { name, route, providedBy } = props.config;
+
+  // Compute the fees for this route
+  const {
+    receiveAmount,
+    receiveAmountUSD,
+    estimatedTime,
+    isFetching: isFetchingFees,
+  } = useComputeFees({
+    sourceChain,
+    destChain,
+    sourceToken,
+    destToken,
+    amount,
+    route,
+    toNativeToken,
+  });
 
   // Compute the quotes for this route
   const {
@@ -98,85 +97,6 @@ const SingleRoute = (props: Props) => {
     route,
     toNativeToken,
   });
-
-  useEffect(() => {
-    let cancelled = false;
-
-    async function computeFees() {
-      try {
-        const routeOptions = { nativeGas: toNativeToken };
-
-        const receiveAmount = await RouteOperator.computeReceiveAmountWithFees(
-          route,
-          Number.parseFloat(amount),
-          sourceToken,
-          destToken,
-          sourceChain,
-          destChain,
-          routeOptions,
-        );
-
-        if (!cancelled) {
-          setReceiveAmount(
-            Number.parseFloat(toFixedDecimals(`${receiveAmount}`, 6)),
-          );
-          setReceiveAmountUSD(
-            calculateUSDPrice(
-              receiveAmount,
-              tokenPrices || {},
-              config.tokens[destToken],
-            ),
-          );
-          setEstimatedTime(getEstimatedTime(sourceChain));
-        }
-      } catch (e) {
-        console.error(e);
-        if (!cancelled) {
-          setReceiveAmount(0);
-          setReceiveAmountUSD('');
-          setEstimatedTime(getEstimatedTime(sourceChain));
-        }
-      }
-    }
-
-    computeFees();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [
-    route,
-    amount,
-    toNativeToken,
-    sourceToken,
-    destToken,
-    sourceChain,
-    destChain,
-    tokenPrices,
-  ]);
-
-  const getEstimatedTime = useCallback((chain?: ChainName) => {
-    if (!chain) {
-      return undefined;
-    }
-
-    const chainName = chainIdToChain(config.wh.toChainId(chain));
-    const chainFinality = finality.finalityThreshold.get(chainName);
-
-    if (typeof chainFinality === 'undefined') {
-      return undefined;
-    }
-
-    const blockTime = finality.blockTime.get(chainName);
-
-    if (typeof blockTime === 'undefined') {
-      return undefined;
-    }
-
-    return chainFinality === 0
-      ? 'Instantly'
-      : millisToMinutesAndSeconds(blockTime * chainFinality);
-  }, []);
 
   const totalFees = useMemo(() => {
     let total = 0;
@@ -194,7 +114,7 @@ const SingleRoute = (props: Props) => {
         <Typography color={theme.palette.text.secondary} fontSize={14}>
           Total fees
         </Typography>
-        {isFetchingQuote ? (
+        {isFetchingFees || isFetchingQuote ? (
           <CircularProgress size={14} />
         ) : (
           <Typography fontSize={14}>
@@ -204,14 +124,15 @@ const SingleRoute = (props: Props) => {
       </>
     );
   }, [
+    isFetchingFees,
     isFetchingQuote,
     props.showDestinationGasFee,
     relayerFee,
     receiveNativeAmt,
   ]);
 
-  const bridgeFee = useMemo(() => {
-    return (
+  const bridgeFee = useMemo(
+    () => (
       <Stack direction="row" justifyContent="space-between">
         <Typography
           color={theme.palette.text.secondary}
@@ -226,8 +147,9 @@ const SingleRoute = (props: Props) => {
           <Typography fontSize={14}>{relayerFee}</Typography>
         )}
       </Stack>
-    );
-  }, [isFetchingQuote, relayerFee]);
+    ),
+    [isFetchingQuote, relayerFee],
+  );
 
   const destinationGasFee = useMemo(() => {
     if (!receiveNativeAmt) {

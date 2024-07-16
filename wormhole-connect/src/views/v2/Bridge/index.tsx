@@ -301,6 +301,8 @@ const Bridge = () => {
       !sourceToken ||
       !destChain ||
       !destToken ||
+      !sendingWallet.address ||
+      !receivingWallet.address ||
       !selectedRoute ||
       !(Number(amount) > 0)
     ) {
