@@ -383,11 +383,13 @@ export class WrappedTokenAddressCache {
     for (const key in tokens) {
       const token = tokens[key];
 
-      for (const chain in token.foreignAssets) {
-        const foreignAsset = tokens[key].foreignAssets![chain];
-        const chainV2 = converter.toChainV2(chain as ChainName);
-        const addr = WormholeV2.parseAddress(chainV2, foreignAsset.address);
-        this.set(key, chainV2, addr);
+      if (token.foreignAssets) {
+        for (const chain in token.foreignAssets) {
+          const foreignAsset = tokens[key].foreignAssets![chain];
+          const chainV2 = converter.toChainV2(chain as ChainName);
+          const addr = WormholeV2.parseAddress(chainV2, foreignAsset.address);
+          this.set(key, chainV2, addr);
+        }
       }
 
       // Cache it on its native chain too
