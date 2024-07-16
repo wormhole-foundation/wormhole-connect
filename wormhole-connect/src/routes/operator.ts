@@ -369,34 +369,15 @@ export class Operator {
     for (const route of config.routes) {
       const r = this.getRoute(route as Route);
 
-      try {
-        const sourceTokens = await r.supportedSourceTokens(
-          config.tokensArr,
-          destToken,
-          sourceChain,
-          destChain,
-        );
+      const sourceTokens = await r.supportedSourceTokens(
+        config.tokensArr,
+        destToken,
+        sourceChain,
+        destChain,
+      );
 
-        for (const token of sourceTokens) {
-          supported[token.key] = token;
-        }
-      } catch (e) {
-        for (const token of config.tokensArr) {
-          const { key } = token;
-          const alreadySupported = supported[key];
-          if (!alreadySupported) {
-            const isSupported = await this.isSupportedSourceToken(
-              route as Route,
-              config.tokens[key],
-              destToken,
-              sourceChain,
-              destChain,
-            );
-            if (isSupported) {
-              supported[key] = config.tokens[key];
-            }
-          }
-        }
+      for (const token of sourceTokens) {
+        supported[token.key] = token;
       }
     }
     return Object.values(supported);
@@ -409,9 +390,6 @@ export class Operator {
   ): Promise<TokenConfig[]> {
     const supported: { [key: string]: TokenConfig } = {};
     for (const route of config.routes) {
-      // Some routes support the much more efficient supportedDestTokens method
-      // Use it when it's available
-
       const r = this.getRoute(route as Route);
 
       // This is ugly hack TODO clean up with proper types
@@ -437,26 +415,6 @@ export class Operator {
   isSupportedChain(route: Route, chain: ChainName): boolean {
     const r = this.getRoute(route);
     return r.isSupportedChain(chain);
-  }
-
-  async isSupportedSourceToken(
-    route: Route,
-    token?: TokenConfig,
-    destToken?: TokenConfig,
-    sourceChain?: ChainName | ChainId,
-    destChain?: ChainName | ChainId,
-  ): Promise<boolean> {
-    if (!config.routes.includes(route)) {
-      return false;
-    }
-
-    const r = this.getRoute(route);
-    return await r.isSupportedSourceToken(
-      token,
-      destToken,
-      sourceChain,
-      destChain,
-    );
   }
 
   async computeReceiveAmount(

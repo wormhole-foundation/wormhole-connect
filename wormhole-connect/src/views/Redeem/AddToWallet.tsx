@@ -29,7 +29,7 @@ import {
   isPorticoRoute,
   //isPorticoTransferDestInfo,
 } from 'routes/porticoBridge/utils';
-import { getForeignTokenAddress } from 'utils/sdkv2';
+import { getTokenBridgeWrappedTokenAddress } from 'utils/sdkv2';
 
 const useStyles = makeStyles()((theme) => ({
   addToken: {
@@ -193,8 +193,8 @@ function AddToWallet() {
       const wrapped = getWrappedToken(tokenInfo);
       if (!wrapped.tokenId) return;
 
-      const address = await getForeignTokenAddress(
-        config.sdkConverter.toTokenIdV2(wrapped.tokenId),
+      const address = await getTokenBridgeWrappedTokenAddress(
+        wrapped,
         config.sdkConverter.toChainV2(txData.toChain),
       );
 

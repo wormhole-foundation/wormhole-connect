@@ -11,7 +11,7 @@ import {
 import config, { getWormholeContextV2 } from 'config';
 import { TokenConfig } from 'config/types';
 import { chainToPlatform } from '@wormhole-foundation/sdk-base';
-import { getForeignTokenAddress } from 'utils/sdkv2';
+import { getTokenBridgeWrappedTokenAddress } from 'utils/sdkv2';
 import { TokenAddress } from '@wormhole-foundation/sdk';
 
 const useGetTokenBalances = (
@@ -93,8 +93,8 @@ const useGetTokenBalances = (
                 tokenAddresses.push('native');
                 tokenIdMapping['native'] = tokenConfig;
               } else {
-                const foreignAddress = await getForeignTokenAddress(
-                  config.sdkConverter.toTokenIdV2(tokenConfig),
+                const foreignAddress = await getTokenBridgeWrappedTokenAddress(
+                  tokenConfig,
                   chainV2,
                 );
 

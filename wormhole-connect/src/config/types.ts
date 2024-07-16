@@ -13,6 +13,8 @@ import {
 import {
   Network as NetworkV2,
   Wormhole as WormholeV2,
+  Chain as ChainV2,
+  TokenAddress as TokenAddressV2,
 } from '@wormhole-foundation/sdk';
 
 import { Alignment } from 'components/Header';
@@ -188,6 +190,8 @@ export interface InternalConfig<N extends NetworkV2> {
   chainsArr: ChainConfig[];
   tokens: TokensConfig;
   tokensArr: TokenConfig[];
+  wrappedTokenAddressCache: WrappedTokenAddressCache;
+
   gasEstimates: GasEstimates;
   routes: string[];
 
@@ -363,3 +367,60 @@ export type NttGroup = {
 };
 
 export type NttGroups = { [key: string]: NttGroup };
+
+// Token bridge foreign asset cache
+// Used in utils/sdkv2.ts
+
+type ForeignAssets<C extends ChainV2> = Record<string, TokenAddressV2<C>>;
+
+export class WrappedTokenAddressCache {
+  caches: Partial<Record<ChainV2, ForeignAssets<ChainV2>>>;
+
+  constructor(tokens: TokensConfig, converter: SDKConverter) {
+    this.caches = {};
+
+    // Pre-populate cache with values from built-in config
+    for (const key in tokens) {
+      const token = tokens[key];
+
+      if (token.foreignAssets) {
+        for (const chain in token.foreignAssets) {
+          const foreignAsset = tokens[key].foreignAssets![chain];
+          const chainV2 = converter.toChainV2(chain as ChainName);
+          const addr = WormholeV2.parseAddress(chainV2, foreignAsset.address);
+          this.set(key, chainV2, addr);
+        }
+      }
+
+      // Cache it on its native chain too
+      if (token.tokenId) {
+        try {
+          const nativeChainV2 = converter.toChainV2(token.nativeChain);
+          this.set(
+            key,
+            nativeChainV2,
+            WormholeV2.parseAddress(nativeChainV2, token.tokenId.address),
+          );
+        } catch (e) {
+          console.error(`Error caching foreign asset`, token.tokenId, e);
+        }
+      }
+    }
+  }
+
+  get<C extends ChainV2>(tokenKey: string, chain: C): TokenAddressV2<C> | null {
+    const chainCache = this.caches[chain] as ForeignAssets<C>;
+    if (!chainCache) return null;
+    return chainCache[tokenKey] || null;
+  }
+
+  set<C extends ChainV2>(
+    tokenKey: string,
+    chain: C,
+    foreignAsset: TokenAddressV2<C>,
+  ) {
+    if (!this.caches[chain]) this.caches[chain] = {};
+    const chainCache = this.caches[chain]!;
+    chainCache[tokenKey] = foreignAsset;
+  }
+}
