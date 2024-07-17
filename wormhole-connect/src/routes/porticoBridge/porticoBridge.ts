@@ -7,7 +7,7 @@ import {
   WormholeContext,
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { PorticoBridge as PB } from '@wormhole-foundation/sdk-definitions';
-import { TokenConfig } from 'config/types';
+import { Route, TokenConfig } from 'config/types';
 import {
   SignedMessage,
   UnsignedMessage,
@@ -432,8 +432,9 @@ export abstract class PorticoBridge extends BaseRoute {
     const parsedAmount = parseUnits(amount, decimals);
 
     // Prevent user from transferring if the output amount is too low
+    const maxSlippage = this.TYPE === Route.USDTBridge ? 100 : 50;
     const minThresholdAmountOutSlippage = parsedAmount
-      .mul(50)
+      .mul(maxSlippage)
       .div(BPS_PER_HUNDRED_PERCENT);
     if (
       BigNumber.from(minAmountFinish).lt(
