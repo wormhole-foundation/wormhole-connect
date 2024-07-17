@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
-import { useMediaQuery, useTheme } from '@mui/material';
+import { CircularProgress, useMediaQuery, useTheme } from '@mui/material';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
@@ -24,6 +24,8 @@ import FooterNavBar from 'components/FooterNavBar';
 import { TransferWallet } from 'utils/wallet';
 import useAvailableRoutes from 'hooks/useAvailableRoutes';
 import { useComputeDestinationTokens } from 'hooks/useComputeDestinationTokens';
+import useComputeFees from 'hooks/useComputeFees';
+import useComputeQuoteV2 from 'hooks/useComputeQuoteV2';
 import { useFetchTokenPrices } from 'hooks/useFetchTokenPrices';
 import { useComputeSourceTokens } from 'hooks/useComputeSourceTokens';
 import {
@@ -109,6 +111,8 @@ const Bridge = () => {
   const [selectedRoute, setSelectedRoute] = useState<Route>();
   const [willReviewTransaction, setWillReviewTransaction] = useState(false);
 
+  const { toNativeToken } = useSelector((state: RootState) => state.relay);
+
   const {
     supportedSourceTokens,
     supportedDestTokens,
@@ -121,26 +125,6 @@ const Bridge = () => {
     amount,
   } = useSelector((state: RootState) => state.transferInput);
 
-  // Compute and set source tokens
-  useComputeSourceTokens({
-    sourceChain,
-    destChain,
-    sourceToken,
-    destToken,
-    route,
-  });
-
-  // Compute and set destination tokens
-  useComputeDestinationTokens({
-    sourceChain,
-    destChain,
-    sourceToken,
-    route,
-  });
-
-  useAvailableRoutes();
-  useFetchTokenPrices();
-
   // Set selectedRoute if the route is auto-selected
   // After the auto-selection, we set selectedRoute when user clicks on a route in the list
   useEffect(() => {
@@ -148,6 +132,48 @@ const Bridge = () => {
       setSelectedRoute(route);
     }
   }, [route, selectedRoute]);
+
+  // Compute and set source tokens
+  useComputeSourceTokens({
+    sourceChain,
+    destChain,
+    sourceToken,
+    destToken,
+    route: selectedRoute,
+  });
+
+  // Compute and set destination tokens
+  useComputeDestinationTokens({
+    sourceChain,
+    destChain,
+    sourceToken,
+    route: selectedRoute,
+  });
+
+  // Compute the fees for this route
+  const { isFetching: isFetchingFees } = useComputeFees({
+    sourceChain,
+    destChain,
+    sourceToken,
+    destToken,
+    amount,
+    route: selectedRoute,
+    toNativeToken,
+  });
+
+  // Compute the quotes for this route
+  const { isFetching: isFetchingQuote } = useComputeQuoteV2({
+    sourceChain,
+    destChain,
+    sourceToken,
+    destToken,
+    amount,
+    route: selectedRoute,
+    toNativeToken,
+  });
+
+  useAvailableRoutes();
+  useFetchTokenPrices();
 
   // All supported chains from the given configuration and any custom override
   const supportedChains = useMemo(
@@ -308,18 +334,20 @@ const Bridge = () => {
       !destToken ||
       !sendingWallet.address ||
       !receivingWallet.address ||
-      !selectedRoute ||
       routeStates?.length === 0 ||
       !(Number(amount) > 0)
     ) {
       return null;
     }
 
+    const isFetching = isFetchingFees || isFetchingQuote;
+
     return (
       <Button
         variant="contained"
         color="primary"
         className={classes.reviewTransaction}
+        disabled={isFetching}
         onClick={() => {
           if (
             routeStates &&
@@ -334,9 +362,13 @@ const Bridge = () => {
           }
         }}
       >
-        <Typography textTransform="none">
-          {mobile ? 'Review' : 'Review transaction'}
-        </Typography>
+        {isFetching ? (
+          <CircularProgress size={24} />
+        ) : (
+          <Typography textTransform="none">
+            {mobile ? 'Review' : 'Review transaction'}
+          </Typography>
+        )}
       </Button>
     );
   }, [
@@ -347,6 +379,8 @@ const Bridge = () => {
     selectedRoute,
     amount,
     routeStates,
+    isFetchingFees,
+    isFetchingQuote,
   ]);
 
   if (willReviewTransaction) {

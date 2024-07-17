@@ -17,7 +17,7 @@ type Props = {
   sourceToken: string;
   destChain: ChainName | undefined;
   destToken: string;
-  route: Route;
+  route: Route | undefined;
   amount: string;
   toNativeToken: number;
 };
@@ -84,6 +84,10 @@ const useComputeFees = (props: Props): returnProps => {
 
     async function computeFees() {
       try {
+        if (!route) {
+          return;
+        }
+
         setIsFetching(true);
 
         const routeOptions = { nativeGas: toNativeToken };
@@ -97,6 +101,8 @@ const useComputeFees = (props: Props): returnProps => {
           destChain,
           routeOptions,
         );
+
+        setIsFetching(false);
 
         if (!cancelled) {
           setReceiveAmount(
