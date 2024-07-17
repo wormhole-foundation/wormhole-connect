@@ -1,3 +1,11 @@
+import '@wormhole-foundation/sdk/addresses';
+import '@wormhole-foundation/sdk/platforms/evm';
+import '@wormhole-foundation/sdk/platforms/solana';
+import '@wormhole-foundation/sdk/platforms/aptos';
+import '@wormhole-foundation/sdk/platforms/sui';
+import '@wormhole-foundation/sdk/platforms/cosmwasm';
+import '@wormhole-foundation/sdk/platforms/algorand';
+
 import WormholeConnect from './WormholeConnect';
 
 import type {
