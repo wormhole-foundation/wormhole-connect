@@ -309,6 +309,7 @@ const Bridge = () => {
       !sendingWallet.address ||
       !receivingWallet.address ||
       !selectedRoute ||
+      routeStates?.length === 0 ||
       !(Number(amount) > 0)
     ) {
       return null;
@@ -338,7 +339,15 @@ const Bridge = () => {
         </Typography>
       </Button>
     );
-  }, [sourceChain, sourceToken, destChain, destToken, selectedRoute, amount]);
+  }, [
+    sourceChain,
+    sourceToken,
+    destChain,
+    destToken,
+    selectedRoute,
+    amount,
+    routeStates,
+  ]);
 
   if (willReviewTransaction) {
     return (

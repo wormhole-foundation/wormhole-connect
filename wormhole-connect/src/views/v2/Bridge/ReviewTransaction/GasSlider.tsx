@@ -8,20 +8,19 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Collapse from '@mui/material/Collapse';
 import Slider, { SliderThumb } from '@mui/material/Slider';
+import Stack from '@mui/material/Stack';
 import Switch from '@mui/material/Switch';
 import { styled } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
 
 import config from 'config';
+import TokenIcon from 'icons/TokenIcons';
 import { getDisplayName, calculateUSDPrice } from 'utils';
 import { RootState } from 'store';
 import { setToNativeToken } from 'store/relay';
 
-import TokenIcon from 'icons/TokenIcons';
-import Price from 'components/Price';
 import { toFixedDecimals } from 'utils/balance';
 import { TokenConfig } from 'config/types';
-import { Stack } from '@mui/material';
 
 const useStyles = makeStyles()(() => ({
   card: {
@@ -86,22 +85,13 @@ const StyledSwitch = styled(Switch)((props) => ({
   },
 }));
 
-type ThumbProps = React.HTMLAttributes<unknown>;
-
-function NativeGasSlider(props: {
-  destinationGasFee: number;
-  disabled: boolean;
-}) {
+const GasSlider = (props: { destinationGasFee: number; disabled: boolean }) => {
   const { classes } = useStyles();
   const dispatch = useDispatch();
   const theme = useTheme();
 
-  const { token, toChain, receiveAmount } = useSelector(
+  const { token, toChain } = useSelector(
     (state: RootState) => state.transferInput,
-  );
-
-  const receiveNativeAmt = useSelector(
-    (state: RootState) => state.relay.receiveNativeAmt,
   );
 
   const {
@@ -117,7 +107,7 @@ function NativeGasSlider(props: {
 
   const [isGasSliderOpen, setIsGasSliderOpen] = useState(!props.disabled);
 
-  function ThumbWithTokenIcon(props: ThumbProps) {
+  function ThumbWithTokenIcon(props: React.HTMLAttributes<unknown>) {
     const { children, ...other } = props;
     return (
       <SliderThumb {...other}>
@@ -126,8 +116,6 @@ function NativeGasSlider(props: {
       </SliderThumb>
     );
   }
-
-  const defaultSliderColor = 'white'; // TODO connect to theme
 
   useEffect(() => {
     dispatch(setToNativeToken(debouncedPercentage / 100));
@@ -139,15 +127,7 @@ function NativeGasSlider(props: {
       prices,
       nativeGasToken,
     );
-  }, [receiveNativeAmt, nativeGasToken, prices]);
-
-  const tokenPrice = useMemo(() => {
-    return calculateUSDPrice(
-      toFixedDecimals(receiveAmount?.data || '0', 6),
-      prices,
-      config.tokens[token],
-    );
-  }, [receiveAmount, token, prices]);
+  }, [props.destinationGasFee, nativeGasToken, prices]);
 
   return (
     <>
@@ -186,8 +166,12 @@ function NativeGasSlider(props: {
                     aria-label="Native gas conversion amount"
                     defaultValue={0}
                     value={percentage}
-                    baseColor={nativeGasToken.color ?? defaultSliderColor}
-                    railColor={sendingToken.color ?? defaultSliderColor}
+                    baseColor={
+                      nativeGasToken.color ?? theme.palette.background.default
+                    }
+                    railColor={
+                      sendingToken.color ?? theme.palette.background.default
+                    }
                     step={1}
                     min={0}
                     max={100}
@@ -202,13 +186,13 @@ function NativeGasSlider(props: {
                     >
                       Gas price
                     </Typography>
-                    <div>
-                      <div className={classes.amountDisplay}>
-                        {nativeGasPrice}
-                        {getDisplayName((sendingToken as TokenConfig)!)}
-                      </div>
-                      <Price textAlign="right">{tokenPrice}</Price>
-                    </div>
+                    <Typography fontSize={14}>
+                      {`${toFixedDecimals(
+                        props.destinationGasFee?.toString() || '0',
+                        6,
+                      )} ${getDisplayName(sendingToken as TokenConfig)}`}
+                      {` ${nativeGasPrice}`}
+                    </Typography>
                   </div>
                 </div>
               </div>
@@ -220,6 +204,6 @@ function NativeGasSlider(props: {
       )}
     </>
   );
-}
+};
 
-export default NativeGasSlider;
+export default GasSlider;
