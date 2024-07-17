@@ -44,12 +44,12 @@ function FAQ() {
       title: 'What types of assets does Connect support?',
       content: (
         <>
-          Initially, Connect will only support bridging wrapped assets. This
-          means that any native token bridged through Connect and the underlying
-          Wormhole Token Bridge will be received as a Wormhole-wrapped token on
-          the destination chain. In some cases, Wormhole minted tokens are the
-          canonical representation on the chain (e.g. WETH on Solana is a
-          Wormhole minted token, see
+          Wormhole Connect supports bridging native USDC, native tokens using
+          the Native Token Transfers framework, and wrapped assets. Tokens
+          bridged using the Wormhole Token Bridge will be received as a
+          Wormhole-wrapped token on the destination chain. In many cases,
+          Wormhole-wrapped tokens are the canonical representation on the chain
+          (e.g. WETH on Solana is a Wormhole minted token, see
           <a
             href="https://github.com/wormhole-foundation/wormhole-token-list"
             target="_blank"
@@ -66,34 +66,11 @@ function FAQ() {
       ),
     },
     {
-      title: 'Will Connect support native asset bridging?',
-      content: (
-        <>
-          Yes, Connect will soon surface multiple Wormhole-powered services
-          (e.g. cross chain asset swaps) that enable other forms of bridging
-          more suitable for certain use cases. Check{' '}
-          <a
-            href="https://wormhole.com/connect"
-            target="_blank"
-            rel="noreferrer"
-            className={classes.link}
-          >
-            https://wormhole.com/connect
-          </a>{' '}
-          for updates on Connect support.
-        </>
-      ),
-    },
-    {
       title: 'What chains and assets does Connect support?',
       content: (
         <>
-          Initially, Connect supports wrapped asset bridging of ETH, WETH, USDC,
-          MATIC, WMATIC, BNB, WBNB, AVAX, WAVAX, FTM, WFTM, CELO, GLMR, WGLMR,
-          AND SOL across Ethereum, Polygon, BSC, Avalanche, Celo, Moonbeam,
-          Base, Solana and Sui. Connect will support other Wormhole-connected
-          chains and assets in the future, see the full list of Connect
-          supported chains on the{' '}
+          Connect can be configured to support any asset. See the full list of
+          Connect supported chains in the{' '}
           <a
             href="https://github.com/wormhole-foundation/wormhole-connect/blob/development/wormhole-connect/src/config/mainnet/chains.ts"
             target="_blank"
@@ -101,17 +78,18 @@ function FAQ() {
             className={classes.link}
           >
             GitHub repository
-          </a>{' '}
-          and Wormhole supported chains at{' '}
-          <a
-            href="https://wormhole.com/network"
-            target="_blank"
-            rel="noreferrer"
-            className={classes.link}
-          >
-            https://wormhole.com/network
           </a>
           .
+        </>
+      ),
+    },
+    {
+      title: 'How do I resume a transaction?',
+      content: (
+        <>
+          You can resume or view the status of a transaction by selecting
+          "Resume Transaction" in the footer and providing the network and
+          transaction hash from the source (sending) chain.
         </>
       ),
     },
