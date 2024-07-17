@@ -2077,7 +2077,8 @@ export const MAINNET_TOKENS: TokensConfig = {
     coinGeckoId: 'tether',
     color: '#ffffff',
     decimals: {
-      default: 6,
+      Ethereum: 18,
+      default: 8,
     },
   },
   ETHbase: {
