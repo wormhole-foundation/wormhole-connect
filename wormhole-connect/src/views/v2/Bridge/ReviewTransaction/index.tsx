@@ -10,8 +10,9 @@ import ChevronLeft from '@mui/icons-material/ChevronLeft';
 import IconButton from '@mui/material/IconButton';
 
 import { RoutesConfig } from 'config/routes';
+import useComputeQuoteV2 from 'hooks/useComputeQuoteV2';
 import { useGasSlider } from 'hooks/useGasSlider';
-import NativeGasSlider from 'views/v2/Bridge/ReviewTransaction/NativeGasSlider';
+import GasSlider from 'views/v2/Bridge/ReviewTransaction/GasSlider';
 import SingleRoute from 'views/v2/Bridge/Routes/SingleRoute';
 
 import type { RootState } from 'store';
@@ -55,12 +56,25 @@ const ReviewTransaction = (props: Props) => {
     (state: RootState) => state.wallet,
   );
 
-  const { disabled, showGasSlider } = useGasSlider({
+  const { toNativeToken } = useSelector((state: RootState) => state.relay);
+
+  const { disabled: isGasSliderDisabled, showGasSlider } = useGasSlider({
     destChain,
     destToken,
     route,
     valid: true,
     isTransactionInProgress,
+  });
+
+  // Compute the quotes for this route
+  const { receiveNativeAmt } = useComputeQuoteV2({
+    sourceChain,
+    destChain,
+    sourceToken,
+    destToken,
+    amount,
+    route,
+    toNativeToken,
   });
 
   const walletsConnected = useMemo(
@@ -115,7 +129,10 @@ const ReviewTransaction = (props: Props) => {
         onSelect={() => {}}
       />
       <Collapse in={showGasSlider}>
-        <NativeGasSlider disabled={disabled} />
+        <GasSlider
+          destinationGasFee={receiveNativeAmt}
+          disabled={isGasSliderDisabled}
+        />
       </Collapse>
       {confirmTransactionButton}
     </Stack>

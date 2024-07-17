@@ -31,24 +31,36 @@ const useAvailableRoutes = () => {
       const routes: RouteState[] = [];
       for (const value of config.routes) {
         const r = value as Route;
-        const available = await RouteOperator.isRouteAvailable(
-          r,
-          token,
-          destToken,
-          debouncedAmount,
-          fromChain,
-          toChain,
-          { nativeGas: toNativeToken },
-        );
 
-        const supported = await RouteOperator.isRouteSupported(
-          r,
-          token,
-          destToken,
-          debouncedAmount,
-          fromChain,
-          toChain,
-        );
+        let available = false;
+        let supported = false;
+
+        try {
+          available = await RouteOperator.isRouteAvailable(
+            r,
+            token,
+            destToken,
+            debouncedAmount,
+            fromChain,
+            toChain,
+            { nativeGas: toNativeToken },
+          );
+        } catch (e) {
+          console.log('Error when checking route is available:', e, r);
+        }
+
+        try {
+          supported = await RouteOperator.isRouteSupported(
+            r,
+            token,
+            destToken,
+            debouncedAmount,
+            fromChain,
+            toChain,
+          );
+        } catch (e) {
+          console.log('Error when checking route is supported:', e, r);
+        }
 
         routes.push({ name: r, supported, available });
       }

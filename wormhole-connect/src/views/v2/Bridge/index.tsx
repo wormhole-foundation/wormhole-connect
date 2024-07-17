@@ -22,7 +22,9 @@ import PageHeader from 'components/PageHeader';
 import Header, { Alignment } from 'components/Header';
 import FooterNavBar from 'components/FooterNavBar';
 import { TransferWallet } from 'utils/wallet';
+import useAvailableRoutes from 'hooks/useAvailableRoutes';
 import { useComputeDestinationTokens } from 'hooks/useComputeDestinationTokens';
+import { useFetchTokenPrices } from 'hooks/useFetchTokenPrices';
 import { useComputeSourceTokens } from 'hooks/useComputeSourceTokens';
 import {
   selectFromChain,
@@ -135,6 +137,9 @@ const Bridge = () => {
     sourceToken,
     route,
   });
+
+  useAvailableRoutes();
+  useFetchTokenPrices();
 
   // Set selectedRoute if the route is auto-selected
   // After the auto-selection, we set selectedRoute when user clicks on a route in the list

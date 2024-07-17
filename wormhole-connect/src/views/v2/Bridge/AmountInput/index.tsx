@@ -12,6 +12,7 @@ import Typography from '@mui/material/Typography';
 
 import useGetTokenBalances from 'hooks/useGetTokenBalances';
 import { setAmount } from 'store/transferInput';
+import { toFixedDecimals } from 'utils/balance';
 
 import type { RootState } from 'store';
 
@@ -81,7 +82,7 @@ const AmountInput = () => {
           <CircularProgress size={14} />
         ) : (
           <Typography fontSize={14} textAlign="right">
-            {tokenBalance}
+            {Number.parseFloat(toFixedDecimals(`${tokenBalance}`, 6))}
           </Typography>
         )}
       </Stack>
