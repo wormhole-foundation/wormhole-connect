@@ -32,6 +32,8 @@ import {
   ChainTokens as ChainTokensV2,
   WormholeConfigOverrides as WormholeConfigOverridesV2,
 } from '@wormhole-foundation/sdk';
+
+import '@wormhole-foundation/sdk/addresses';
 import evm from '@wormhole-foundation/sdk/evm';
 import solana from '@wormhole-foundation/sdk/solana';
 import aptos from '@wormhole-foundation/sdk/aptos';
