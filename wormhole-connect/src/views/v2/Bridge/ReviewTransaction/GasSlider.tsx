@@ -27,6 +27,8 @@ const useStyles = makeStyles()(() => ({
     width: '100%',
     cursor: 'pointer',
     maxWidth: '420px',
+    overflow: 'visible',
+    padding: '0 4px',
   },
   container: {
     display: 'flex',
@@ -67,12 +69,17 @@ const StyledSlider = styled(Slider)<SliderProps>(
 );
 
 const StyledSwitch = styled(Switch)((props) => ({
-  right: `-${props.style?.paddingRight}`, // reposition towards right to negate switch padding
+  padding: '9px 12px',
+  right: `-12px`, // reposition towards right to negate switch padding
   '& .MuiSwitch-switchBase.Mui-checked': {
     color: '#C1BBF6',
   },
   '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
     backgroundColor: '#C1BBF6',
+  },
+  '& .MuiSwitch-track': {
+    height: '20px',
+    borderRadius: '9px',
   },
 }));
 

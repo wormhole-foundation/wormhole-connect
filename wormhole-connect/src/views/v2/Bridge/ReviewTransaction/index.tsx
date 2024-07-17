@@ -66,7 +66,7 @@ const ReviewTransaction = (props: Props) => {
     isTransactionInProgress,
   });
 
-  // Compute the quotes for this route
+  // Compute the native gas to receive
   const { receiveNativeAmt } = useComputeQuoteV2({
     sourceChain,
     destChain,
