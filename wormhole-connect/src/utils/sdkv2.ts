@@ -1,7 +1,47 @@
 import { getWormholeContextV2 } from 'config';
+import { RelayerFee } from 'store/relay';
 import { TokenConfig } from 'config/types';
-import { TokenId, Chain, TokenAddress } from '@wormhole-foundation/sdk';
+import {
+  TokenId,
+  Chain,
+  TokenAddress,
+  Wormhole,
+  AttestedTransferReceipt,
+  TokenBridge,
+  amount,
+} from '@wormhole-foundation/sdk';
 import config from 'config';
+import { Route } from 'config/types';
+import { ChainName } from 'sdklegacy/types';
+
+// Used to represent an initiated transfer. Primarily for the Redeem view.
+export interface TransferInfo {
+  // Transaction hash
+  sendTx: string;
+
+  // Stringified addresses
+  sender?: string;
+  recipient: string;
+
+  amount: string;
+
+  toChain: ChainName;
+  fromChain: ChainName;
+
+  // Source token address
+  tokenAddress: string;
+  tokenKey: string;
+  tokenDecimals: number;
+
+  // Destination token
+  receivedTokenKey: string;
+  receiveAmount?: string;
+  relayerFee?: RelayerFee;
+
+  // Amount of native gas being received, in destination gas token units
+  // For example 1.0 is 1.0 ETH, not 1 wei
+  receiveNativeAmount?: number;
+}
 
 // This function has three levels of priority when fetching a token bridge
 // foreign asset address.
@@ -50,3 +90,132 @@ export async function getDecimals(
   const wh = await getWormholeContextV2();
   return await wh.getDecimals(chain, token.address);
 }
+
+// for setTxDetails :>
+export function parseReceipt(
+  route: Route,
+  receipt: AttestedTransferReceipt<any>,
+): TransferInfo | null {
+  switch (route) {
+    case Route.Bridge:
+      return parseTokenBridgeReceipt(
+        receipt as AttestedTransferReceipt<TokenBridge.TransferVAA>,
+      );
+    case Route.CCTPManual:
+      return parseCCTPReceipt(
+        receipt as AttestedTransferReceipt<'CircleBridge'>,
+      );
+    default:
+      throw new Error(`Unknown route type ${route}`);
+  }
+}
+
+const parseTokenBridgeReceipt = (
+  receipt: AttestedTransferReceipt<TokenBridge.TransferVAA>,
+): TransferInfo => {
+  let txData: Partial<TransferInfo> = {
+    toChain: config.sdkConverter.toChainNameV1(receipt.to),
+    fromChain: config.sdkConverter.toChainNameV1(receipt.from),
+  };
+
+  if ('originTxs' in receipt && receipt.originTxs.length > 0) {
+    txData.sendTx = receipt.originTxs[receipt.originTxs.length - 1].txid;
+  } else {
+    throw new Error("Can't find txid in receipt");
+  }
+
+  /* @ts-ignore */
+  // TODO typescript is complaining about the second attestation property not existing when it does
+  const { payload } = receipt.attestation.attestation;
+
+  if (!payload.token) {
+    throw new Error(`Attestation is missing token.`);
+  }
+
+  if (payload.token) {
+    let tokenIdV2 = Wormhole.tokenId(
+      payload.token.chain,
+      payload.token.address,
+    );
+    let tokenV1 = config.sdkConverter.findTokenConfigV1(
+      tokenIdV2,
+      config.tokensArr,
+    );
+
+    if (!tokenV1) {
+      // This is a token Connect is not aware of
+      throw new Error('Unknown token');
+    }
+
+    const fromChain = config.sdkConverter.toChainNameV1(receipt.from);
+    const fromChainConfig = config.chains[fromChain];
+    const decimals =
+      tokenV1!.decimals[fromChainConfig!.context] || tokenV1!.decimals.default;
+
+    txData.tokenDecimals = decimals;
+    txData.amount = amount.display({
+      amount: payload.token.amount.toString(),
+      decimals,
+    });
+    txData.tokenAddress = payload.token.address.toString();
+    txData.tokenKey = tokenV1.key;
+    txData.receivedTokenKey = tokenV1.key;
+  }
+
+  if (payload.to) {
+    txData.recipient = payload.to.address.toString();
+  }
+
+  return txData as TransferInfo;
+};
+
+const parseCCTPReceipt = (
+  receipt: AttestedTransferReceipt<'CircleBridge'>,
+): TransferInfo => {
+  let txData: Partial<TransferInfo> = {
+    toChain: config.sdkConverter.toChainNameV1(receipt.to),
+    fromChain: config.sdkConverter.toChainNameV1(receipt.from),
+  };
+
+  const { payload } = receipt.attestation.attestation.message;
+
+  const sourceTokenNativeAddress = payload.burnToken.toNative(receipt.from);
+  const sourceTokenId = Wormhole.tokenId(
+    receipt.from,
+    sourceTokenNativeAddress,
+  );
+  const usdcLegacy = config.sdkConverter.findTokenConfigV1(
+    sourceTokenId,
+    config.tokensArr,
+  );
+  if (!usdcLegacy) {
+    throw new Error(`Couldn't find USDC for source chain`);
+  }
+
+  txData.tokenAddress = sourceTokenNativeAddress.toString();
+  txData.tokenKey = usdcLegacy.key;
+
+  const decimals = usdcLegacy.decimals.default;
+
+  txData.tokenDecimals = decimals;
+  txData.amount = amount.display({
+    amount: payload.amount.toString(),
+    decimals,
+  });
+
+  txData.sender = payload.messageSender.toNative(receipt.from).toString();
+  txData.recipient = payload.mintRecipient.toNative(receipt.to).toString();
+
+  // The attestation doesn't have the destination token address, but we can deduce which it is
+  // just based off the destination chain
+  const destinationUsdcLegacy = config.tokensArr.find((token) => {
+    return token.symbol === 'USDC' && token.nativeChain === txData.toChain;
+  });
+  if (!usdcLegacy) {
+    throw new Error(`Couldn't find USDC for destination chain`);
+  }
+
+  txData.receivedTokenKey = destinationUsdcLegacy.key;
+
+  return txData;
+};

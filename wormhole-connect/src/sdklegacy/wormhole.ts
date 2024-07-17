@@ -8,8 +8,6 @@ import {
   ChainId,
   ChainName,
   Context,
-  ParsedMessage,
-  ParsedRelayerMessage,
   TokenId,
   WormholeConfig,
 } from './types';
@@ -155,16 +153,6 @@ export class WormholeContext extends MultiProvider<Domain> {
   parseAddress(address: any, chain: ChainName | ChainId): string {
     const context = this.getContext(chain);
     return context.parseAddress(address);
-  }
-
-  async getMessage(
-    tx: string,
-    chain: ChainName | ChainId,
-    parseRelayerPayload = true,
-  ): Promise<ParsedMessage | ParsedRelayerMessage> {
-    const context = this.getContext(chain);
-    /* @ts-ignore TODO SDKV2 */
-    return await context.getMessage(tx, chain, parseRelayerPayload);
   }
 
   /**

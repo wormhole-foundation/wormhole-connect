@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 
 import { Route } from 'config/types';
@@ -8,15 +8,12 @@ import {
   setIsVaaEnqueued,
   setTransferComplete,
 } from 'store/redeem';
-import { sleep } from 'utils';
-import { isNttRoute } from 'routes';
-import { ParsedMessage } from 'utils/sdk';
+import { TransferInfo } from 'utils/sdkv2';
 
 import PageHeader from 'components/PageHeader';
 import Spacer from 'components/Spacer';
 import ChainsTag from './Tag';
 import Stepper from './Stepper';
-import GovernorEnqueuedWarning from './GovernorEnqueuedWarning';
 import config from 'config';
 // import useDeliveryStatus from 'hooks/useDeliveryStatus';
 
@@ -25,16 +22,14 @@ import useConfirmBeforeLeaving from 'utils/confirmBeforeLeaving';
 import useTrackTransfer from 'hooks/useTrackTransfer';
 
 function Redeem({
-  setIsVaaEnqueued,
   txData,
   transferComplete,
   isVaaEnqueued,
-  route,
 }: {
   setIsVaaEnqueued: (isVaaEnqueued: boolean) => any;
   setInvalidVaa: (invalidVaa: boolean) => void;
   setTransferComplete: any;
-  txData: ParsedMessage | undefined;
+  txData: TransferInfo | undefined;
   transferComplete: boolean;
   isVaaEnqueued: boolean;
   isResumeTx: boolean;
@@ -42,6 +37,7 @@ function Redeem({
 }) {
   // Warn user before closing tab if transaction is unredeemed
   useConfirmBeforeLeaving(!transferComplete);
+  /*
 
   // check if VAA is enqueued
   useEffect(() => {
@@ -67,6 +63,7 @@ function Redeem({
     };
   }, [txData, route, setIsVaaEnqueued]);
 
+   */
   //// fetch the VAA
   //useEffect(() => {
   //  if (!route || !txData?.sendTx || transferComplete) {
@@ -172,7 +169,6 @@ function Redeem({
 
       <ChainsTag />
       <Spacer />
-      <GovernorEnqueuedWarning show={isVaaEnqueued} chain={txData.fromChain} />
       <Stepper />
     </div>
   ) : (

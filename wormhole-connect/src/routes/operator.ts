@@ -1,6 +1,6 @@
 /*import { PublicKey } from '@solana/web3.js';*/
 import { ChainId, ChainName, TokenId } from 'sdklegacy';
-import { ParsedMessage } from 'utils/sdk';
+import { TransferInfo } from 'utils/sdkv2';
 
 import config from 'config';
 import { TokenConfig, Route } from 'config/types';
@@ -11,25 +11,18 @@ import {
 } from './types';
 import { TokenPrices } from 'store/tokenPrices';
 
-import {
-  Chain,
-  Network,
-  routes,
-  SourceInitiatedTransferReceipt,
-  TransferState,
-} from '@wormhole-foundation/sdk';
+import { Network, routes, TransactionId } from '@wormhole-foundation/sdk';
 
 import { getRoute } from './mappings';
-import axios from 'axios';
 import SDKv2Route from './sdkv2';
 import { RelayerFee } from 'store/relay';
 
 export interface TxInfo {
   route: Route;
-  tokenChain: Chain;
-  tokenAddress: string;
-  amount: string;
-  receipt: SourceInitiatedTransferReceipt;
+  //tokenChain: Chain;
+  //tokenAddress: string;
+  //amount: string;
+  receipt: routes.Receipt;
 }
 
 export class Operator {
@@ -37,260 +30,63 @@ export class Operator {
     return getRoute(route);
   }
 
-  async getRouteFromTx(txHash: string, chain: Chain): Promise<TxInfo> {
-    const url = `https://api.${
-      config.isMainnet ? '' : 'testnet.'
-    }wormholescan.io/api/v1/operations?page=0&pageSize=1&sortOrder=DESC&txHash=${txHash}`;
+  async resumeFromTx(tx: TransactionId): Promise<TxInfo | null> {
+    // This function identifies which route a transaction corresponds using brute force.
+    // It tries to call resume() on every manual route until one of them succeeds.
+    //
+    // This was just the simpler approach. In the future we can possibly optimize this by
+    // trying some tricks to identify which route the transaction is for, but this would
+    // come at the cost of added code, complexity, and potential bugs.
+    //
+    // That trade-off might not be worth it though
 
-    interface Operations {
-      operations: Operation[];
-    }
+    return new Promise((resolve, reject) => {
+      // This promise runs resumeIfManual on each route in parallel and resolves as soon
+      // as it finds a receipt from any of the available routes. This is different from just using
+      // Promise.race, because we only want to resolve under specific conditions.
+      //
+      // The assumption is that at most one route will produce a receipt.
+      let totalAttemptsToMake = config.routes.length;
+      let failedAttempts = 0;
 
-    interface Operation {
-      id: string;
-      emitterChain: number;
-      emitterAddress: {
-        hex: string;
-        native: string;
-      };
-      sequence: string;
-      //vaa: {
-      //  raw: string;
-      //  guardianSetIndex: number;
-      //  isDuplicated: boolean;
-      //};
-      content: {
-        //payload: {
-        //  amount: string;
-        //  fee: string;
-        //  fromAddress: null;
-        //  parsedPayload: null;
-        //  payload: string;
-        //  payloadType: number;
-        //  toAddress: string;
-        //  toChain: number;
-        //  tokenAddress: string;
-        //  tokenChain: number;
-        //};
-        standarizedProperties: {
-          appIds: string[];
-          fromChain: number;
-          fromAddress: string;
-          toChain: number;
-          toAddress: string;
-          tokenChain: number;
-          tokenAddress: string;
-          amount: string;
-          feeAddress: string;
-          feeChain: number;
-          fee: string;
-        };
-      };
-      sourceChain: {
-        chainId: number;
-        timestamp: string;
-        transaction: {
-          txHash: string;
-        };
-        from: string;
-        status: string;
-      };
-      data: {
-        symbol: string;
-        tokenAmount: string;
-        usdAmount: string;
-      };
-    }
+      for (let route of config.routes) {
+        const r = this.getRoute(route as Route);
 
-    //https://github.com/XLabs/wormscan-ui/blob/b96ad4c44d367cbf7c7e1c39d655e9fda3e0c3d9/src/consts.ts#L173-L185
-    //export const UNKNOWN_APP_ID = 'UNKNOWN';
-    //export const CCTP_APP_ID = 'CCTP_WORMHOLE_INTEGRATION';
-    //export const CCTP_MANUAL_APP_ID = 'CCTP_MANUAL';
-    const CONNECT_APP_ID = 'CONNECT';
-    //export const GATEWAY_APP_ID = 'WORMCHAIN_GATEWAY_TRANSFER';
-    const PORTAL_APP_ID = 'PORTAL_TOKEN_BRIDGE';
-    //export const PORTAL_NFT_APP_ID = 'PORTAL_NFT_BRIDGE';
-    //export const ETH_BRIDGE_APP_ID = 'ETH_BRIDGE';
-    //export const USDT_TRANSFER_APP_ID = 'USDT_TRANSFER';
-    //export const NTT_APP_ID = 'NATIVE_TOKEN_TRANSFER';
-    //export const GR_APP_ID = 'GENERIC_RELAYER';
-    //export const MAYAN_APP_ID = 'MAYAN';
-    //export const TBTC_APP_ID = 'TBTC';
-
-    const { data } = await axios.get<Operations>(url);
-    if (data.operations.length === 0)
-      throw new Error('No route found for txHash');
-    const operation = data.operations[0];
-    const { appIds, tokenChain, tokenAddress, toChain, amount, fromChain } =
-      operation.content.standarizedProperties;
-    if (config.sdkConverter.toChainV2(fromChain as ChainId) !== chain) {
-      // TODO: wormholescan can return transactions from other chains
-      // with the same txHash
-      throw new Error('Chain mismatch');
-    }
-    const details = {
-      tokenChain: config.sdkConverter.toChainV2(tokenChain as ChainId),
-      tokenAddress, // TODO: convert to SDK address (non-serializable in redux)?
-      amount, // TODO: is amount expressed in source chain decimals?
-      receipt: {
-        from: chain,
-        to: config.sdkConverter.toChainV2(toChain as ChainId),
-        state: TransferState.SourceInitiated,
-        originTxs: [
-          {
-            chain,
-            // TODO: right format for all chains?
-            txid: operation.sourceChain.transaction.txHash,
-          },
-        ],
-      } satisfies SourceInitiatedTransferReceipt,
-    };
-    if (appIds.length === 1) {
-      switch (appIds[0]) {
-        case PORTAL_APP_ID:
-          return {
-            ...details,
-            route: Route.Bridge,
-          };
-        // case ETH_BRIDGE_APP_ID:
-        // return Route.ETHBridge;
-        //case USDT_TRANSFER_APP_ID:
-        //  return Route.CCTPManual;
-        //case NTT_APP_ID:
-        //  return Route.NttManual;
-        //case GR_APP_ID:
-        //  return Route.GenericRelayer;
-        //case MAYAN_APP_ID:
-        //  return Route.Mayan;
-        //case TBTC_APP_ID:
-        // return Route.TBTC;
-        //case GATEWAY_APP_ID:
-        //  return Route.CosmosGateway;
-        //case CCTP_APP_ID:
-        //  return Route.CCTPRelay;
+        r.resumeIfManual(tx)
+          .then((receipt) => {
+            if (receipt !== null) {
+              resolve({ route: route as Route, receipt });
+            } else {
+              failedAttempts += 1;
+            }
+          })
+          .catch((e) => {
+            failedAttempts += 1;
+            // Possible reasons for error here:
+            //
+            // - Given transaction does not correspond to this route.
+            //   We expect this case to happen because it's how we narrow down
+            //   which route this transaction corresponds to. It's not a problem.
+            //
+            // - Otherwise, perhaps this is corresponding route but some other error
+            //   happened when fetching the metadata required to construct a receipt.
+            //
+            // We handle both of these the same way for now - by continuing.
+            //
+            // If we add logic to identify the route in a different way in the future,
+            // we can possibly handle these two error cases differently.
+            //
+            // If we reach the end of the for-loop without a successful result from resume()
+            // then we tell the user that the transaction can't be resumed.
+          })
+          .finally(() => {
+            // If we failed to get a receipt from all routes, resolve to null
+            if (failedAttempts === totalAttemptsToMake) {
+              resolve(null);
+            }
+          });
       }
-    }
-    if (appIds.length === 2) {
-      if (appIds.includes(PORTAL_APP_ID) && appIds.includes(CONNECT_APP_ID)) {
-        return {
-          ...details,
-          route: Route.Relay,
-        };
-      }
-    }
-    /*
-    if (isGatewayChain(chain)) {
-      return Route.CosmosGateway;
-    }
-
-    if (isEvmChain(chain)) {
-      const provider = config.wh.mustGetProvider(chain);
-      const receipt = await provider.getTransactionReceipt(txHash);
-      if (!receipt) throw new Error(`No receipt for ${txHash} on ${chain}`);
-
-      // Check if is CCTP Route (CCTPRelay or CCTPManual)
-      const cctpDepositForBurnLog = receipt.logs.find(
-        (log) => log.topics[0] === CCTP_LOG_TokenMessenger_DepositForBurn,
-      );
-      if (cctpDepositForBurnLog) {
-        if (
-          cctpDepositForBurnLog.topics[3].substring(26).toLowerCase() ===
-          config.wh
-            .getContracts(chain)
-            ?.cctpContracts?.wormholeCCTP?.substring(2)
-            .toLowerCase()
-        )
-          return Route.CCTPRelay;
-        else return Route.CCTPManual;
-      }
-
-      // Check if is Ntt Route (NttRelay or NttManual)
-      if (
-        receipt.logs.some((log) => log.topics[0] === TRANSFER_SENT_EVENT_TOPIC)
-      ) {
-        const { relayingType } = await getMessageEvm(txHash, chain, receipt);
-        return relayingType === NttRelayingType.Manual
-          ? Route.NttManual
-          : Route.NttRelay;
-      }
-    }
-
-    if (chain === 'solana') {
-      // Check if is Ntt Route (NttRelay or NttManual)
-      const connection = solanaContext().connection;
-      if (!connection) throw new Error('Connection not found');
-      const tx = await connection.getParsedTransaction(txHash);
-      if (!tx) throw new Error('Transaction not found');
-      if (
-        tx.transaction.message.instructions.some((ix) =>
-          getNttManagerConfigByAddress(ix.programId.toString(), chain),
-        )
-      ) {
-        const { relayingType } = await getMessageSolana(txHash);
-        return relayingType === NttRelayingType.Manual
-          ? Route.NttManual
-          : Route.NttRelay;
-      }
-    }
-
-    if (chain === 'solana') {
-      const { connection, contracts } = config.wh.getContext(
-        chain,
-      ) as SolanaContext<WormholeContext>;
-      if (!connection) throw new Error('No connection for Solana');
-      const { cctpTokenMessenger } =
-        contracts.getContracts(chain)?.cctpContracts || {};
-      if (!cctpTokenMessenger) {
-        throw new Error('No CCTP contracts on Solana');
-      }
-      const tx = await connection.getTransaction(txHash);
-      const isCctp = tx?.transaction.message.instructions.some((ix) => {
-        return tx.transaction.message.accountKeys[ix.programIdIndex].equals(
-          new PublicKey(cctpTokenMessenger),
-        );
-      });
-      // TODO: change when cctp relayer for solana is up
-      if (isCctp) return Route.CCTPManual;
-    }
-
-    const message = await getMessage(txHash, chain);
-
-    if (message.toChain === 'sei') {
-      return Route.Relay;
-    }
-
-    if (isGatewayChain(message.fromChain) || isGatewayChain(message.toChain)) {
-      return Route.CosmosGateway;
-    }
-
-    const token = getTokenById(message.tokenId);
-    const tokenSymbol = token?.symbol;
-    if (tokenSymbol === 'tBTC') {
-      return Route.TBTC;
-    }
-
-    const portico = config.wh.getContracts(chain)?.portico;
-    if (portico && message.fromAddress) {
-      if (isEqualCaseInsensitive(message.fromAddress, portico)) {
-        if (tokenSymbol === 'ETH' || tokenSymbol === 'WETH') {
-          return Route.ETHBridge;
-        }
-        if (tokenSymbol === 'wstETH') {
-          return Route.wstETHBridge;
-        }
-        throw new Error(`Unsupported Portico bridge token ${tokenSymbol}`);
-      }
-    }
-
-    return message.payloadID === PayloadType.Automatic
-      ? Route.Relay
-      : Route.Bridge;
-      */
-
-    // TODO SDKV2
-    // relied on getMessage
-    // return Route.Bridge;
-    throw new Error('No route found for txHash');
+    });
   }
 
   async isRouteSupported(
@@ -608,7 +404,7 @@ export class Operator {
 
   tryFetchRedeemTx(
     route: Route,
-    txData: ParsedMessage,
+    txData: TransferInfo,
   ): Promise<string | undefined> {
     const r = this.getRoute(route);
     return r.tryFetchRedeemTx(txData);
