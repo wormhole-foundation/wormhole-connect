@@ -33,13 +33,15 @@ import {
   WormholeConfigOverrides as WormholeConfigOverridesV2,
 } from '@wormhole-foundation/sdk';
 
-import '@wormhole-foundation/sdk/addresses';
+import * as _addresses from '@wormhole-foundation/sdk/addresses';
 import evm from '@wormhole-foundation/sdk/evm';
 import solana from '@wormhole-foundation/sdk/solana';
 import aptos from '@wormhole-foundation/sdk/aptos';
 import sui from '@wormhole-foundation/sdk/sui';
 import cosmwasm from '@wormhole-foundation/sdk/cosmwasm';
 import algorand from '@wormhole-foundation/sdk/algorand';
+
+console.log(_addresses);
 
 export function buildConfig(
   customConfig?: WormholeConnectConfig,
