@@ -41,8 +41,6 @@ import sui from '@wormhole-foundation/sdk/sui';
 import cosmwasm from '@wormhole-foundation/sdk/cosmwasm';
 import algorand from '@wormhole-foundation/sdk/algorand';
 
-console.log(_addresses);
-
 export function buildConfig(
   customConfig?: WormholeConnectConfig,
 ): InternalConfig<NetworkV2> {
