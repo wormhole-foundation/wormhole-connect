@@ -92,30 +92,6 @@ export const useComputeDestinationTokens = (props: Props): void => {
           dispatch(setDestToken(key));
         }
       }
-
-      /*
-      // If the source token is supported by a Portico bridge route,
-      // then select the native version on the dest chain
-      if (sourceToken && destChain && (!route || isPorticoRoute(route))) {
-        const tokenSymbol = config.tokens[sourceToken]?.symbol;
-        const porticoTokens = [
-          ...ETHBridge.SUPPORTED_TOKENS,
-          ...wstETHBridge.SUPPORTED_TOKENS,
-        ];
-        if (porticoTokens.includes(tokenSymbol)) {
-          const isTokenSupported =
-            sourceToken && supported.some((t) => t.key === sourceToken);
-          let key = getNativeVersionOfToken(tokenSymbol, destChain);
-          if (!key) {
-            const wrapped = getWrappedToken(config.tokens[sourceToken]);
-            key = getNativeVersionOfToken(wrapped.symbol, destChain);
-          }
-          if (!canceled && key && isTokenSupported) {
-            dispatch(setDestToken(key));
-          }
-        }
-      }
-      */
     };
 
     computeDestTokens();
