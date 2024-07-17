@@ -167,7 +167,7 @@ function Send(props: { valid: boolean }) {
 
       config.triggerEvent({
         type: 'transfer.start',
-        details: transferDetails,
+        details: { ...transferDetails, txId },
       });
 
       let message: UnsignedMessage | undefined;
