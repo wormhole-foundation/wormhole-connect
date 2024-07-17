@@ -28,11 +28,6 @@ const useStyles = makeStyles()(() => ({
     cursor: 'pointer',
     maxWidth: '420px',
   },
-  cardContent: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
   container: {
     display: 'flex',
     flexDirection: 'column',
@@ -43,11 +38,6 @@ const useStyles = makeStyles()(() => ({
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-  },
-  amountDisplay: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
   },
 }));
 
@@ -125,12 +115,24 @@ const GasSlider = (props: { destinationGasFee: number; disabled: boolean }) => {
   }, [debouncedPercentage]);
 
   const nativeGasPrice = useMemo(() => {
-    return calculateUSDPrice(
+    const tokenAmount = toFixedDecimals(
+      props.destinationGasFee?.toString() || '0',
+      6,
+    );
+    const tokenPrice = calculateUSDPrice(
       toFixedDecimals(props.destinationGasFee?.toString() || '0', 6),
       prices,
       nativeGasToken,
     );
-  }, [props.destinationGasFee, nativeGasToken, prices]);
+
+    return (
+      <Typography fontSize={14}>
+        {`${tokenAmount} ${getDisplayName(
+          sourceTokenConfig as TokenConfig,
+        )} ${tokenPrice}`}
+      </Typography>
+    );
+  }, [nativeGasToken, prices, props.destinationGasFee, sourceTokenConfig]);
 
   // Checking required values
   if (!sourceTokenConfig || !destChainConfig || !nativeGasToken) {
@@ -188,13 +190,7 @@ const GasSlider = (props: { destinationGasFee: number; disabled: boolean }) => {
                 <Typography color={theme.palette.text.secondary} fontSize={14}>
                   Gas price
                 </Typography>
-                <Typography fontSize={14}>
-                  {`${toFixedDecimals(
-                    props.destinationGasFee?.toString() || '0',
-                    6,
-                  )} ${getDisplayName(sourceTokenConfig as TokenConfig)}`}
-                  {` ${nativeGasPrice}`}
-                </Typography>
+                {nativeGasPrice}
               </div>
             </div>
           </div>
