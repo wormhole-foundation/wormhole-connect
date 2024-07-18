@@ -23,11 +23,11 @@ import Header, { Alignment } from 'components/Header';
 import FooterNavBar from 'components/FooterNavBar';
 import { TransferWallet } from 'utils/wallet';
 import useAvailableRoutes from 'hooks/useAvailableRoutes';
-import { useComputeDestinationTokens } from 'hooks/useComputeDestinationTokens';
+import useComputeDestinationTokensV2 from 'hooks/useComputeDestinationTokensV2';
 import useComputeFees from 'hooks/useComputeFees';
 import useComputeQuoteV2 from 'hooks/useComputeQuoteV2';
 import { useFetchTokenPrices } from 'hooks/useFetchTokenPrices';
-import { useComputeSourceTokens } from 'hooks/useComputeSourceTokens';
+import useComputeSourceTokensV2 from 'hooks/useComputeSourceTokensV2';
 import {
   selectFromChain,
   selectToChain,
@@ -114,8 +114,6 @@ const Bridge = () => {
   const { toNativeToken } = useSelector((state: RootState) => state.relay);
 
   const {
-    supportedSourceTokens,
-    supportedDestTokens,
     fromChain: sourceChain,
     toChain: destChain,
     token: sourceToken,
@@ -134,7 +132,10 @@ const Bridge = () => {
   }, [route, selectedRoute]);
 
   // Compute and set source tokens
-  useComputeSourceTokens({
+  const {
+    supportedTokens: supportedSourceTokens,
+    isFetching: isFetchingSupportedSourceTokens,
+  } = useComputeSourceTokensV2({
     sourceChain,
     destChain,
     sourceToken,
@@ -143,7 +144,10 @@ const Bridge = () => {
   });
 
   // Compute and set destination tokens
-  useComputeDestinationTokens({
+  const {
+    supportedTokens: supportedDestTokens,
+    isFetching: isFetchingSupportedDestTokens,
+  } = useComputeDestinationTokensV2({
     sourceChain,
     destChain,
     sourceToken,
@@ -239,6 +243,7 @@ const Bridge = () => {
           chainList={supportedSourceChains}
           token={sourceToken}
           tokenList={supportedSourceTokens}
+          isFetching={isFetchingSupportedSourceTokens}
           setChain={(value: ChainName) => {
             selectFromChain(dispatch, value, sendingWallet);
           }}
@@ -255,6 +260,7 @@ const Bridge = () => {
     sourceToken,
     supportedSourceTokens,
     sendingWallet,
+    isFetchingSupportedSourceTokens,
   ]);
 
   // Asset picker for the destination network and token
@@ -270,6 +276,7 @@ const Bridge = () => {
           chainList={supportedDestChains}
           token={destToken}
           tokenList={supportedDestTokens}
+          isFetching={isFetchingSupportedDestTokens}
           setChain={(value: ChainName) => {
             selectToChain(dispatch, value, receivingWallet);
           }}
@@ -286,6 +293,7 @@ const Bridge = () => {
     destToken,
     supportedDestTokens,
     receivingWallet,
+    isFetchingSupportedDestTokens,
   ]);
 
   // Header for Bridge view, which includes the title and settings icon.
@@ -395,7 +403,7 @@ const Bridge = () => {
       {bridgeHeader}
       {sourceAssetPicker}
       {destAssetPicker}
-      <AmountInput />
+      <AmountInput supportedSourceTokens={supportedSourceTokens} />
       <Routes selectedRoute={selectedRoute} onRouteChange={setSelectedRoute} />
       {walletConnector}
       {reviewTransactionButton}

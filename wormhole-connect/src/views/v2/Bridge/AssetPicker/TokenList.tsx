@@ -44,6 +44,7 @@ const useStyles = makeStyles()((theme) => ({
 
 type Props = {
   tokenList?: Array<TokenConfig> | undefined;
+  isFetching?: boolean;
   selectedChainConfig?: ChainConfig | undefined;
   selectedToken?: string | undefined;
   wallet: WalletData;
@@ -59,7 +60,7 @@ const TokenList = (props: Props) => {
 
   const theme = useTheme();
 
-  const { isFetching, balances } = useGetTokenBalances(
+  const { isFetching: isFetchingTokenBalances, balances } = useGetTokenBalances(
     props.wallet?.address || '',
     props.selectedChainConfig?.key,
     props.tokenList || [],
@@ -160,44 +161,60 @@ const TokenList = (props: Props) => {
             >{`Tokens on ${props.selectedChainConfig.displayName}`}</Typography>
           </ListItem>
         )}
-        {tokens?.map((token: TokenConfig, i: number) => {
-          const nativeChainConfig = config.chains[token.nativeChain];
-          const nativeChain = nativeChainConfig?.displayName || '';
-          const balance = balances?.[token.key]?.balance;
+        {props.isFetching ? (
+          <ListItemButton className={classes.tokenListItem} dense>
+            <CircularProgress />
+          </ListItemButton>
+        ) : (
+          tokens?.map((token: TokenConfig, i: number) => {
+            const nativeChainConfig = config.chains[token.nativeChain];
+            const nativeChain = nativeChainConfig?.displayName || '';
+            const balance = balances?.[token.key]?.balance;
 
-          return (
-            <ListItemButton
-              key={token.key}
-              className={classes.tokenListItem}
-              dense
-              disabled={!!props.wallet?.address && !!balances && !balance}
-              onClick={() => {
-                props.onClick?.(token.key);
-              }}
-            >
-              <div className={classes.tokenDetails}>
-                <ListItemIcon>
-                  <TokenIcon icon={token.icon} height={32} />
-                </ListItemIcon>
-                <div>
-                  <Typography fontSize={16}>{token.symbol}</Typography>
-                  <Typography
-                    fontSize={10}
-                    color={theme.palette.text.secondary}
-                  >
-                    {nativeChain}
-                  </Typography>
+            return (
+              <ListItemButton
+                key={token.key}
+                className={classes.tokenListItem}
+                dense
+                disabled={!!props.wallet?.address && !!balances && !balance}
+                onClick={() => {
+                  props.onClick?.(token.key);
+                }}
+              >
+                <div className={classes.tokenDetails}>
+                  <ListItemIcon>
+                    <TokenIcon icon={token.icon} height={32} />
+                  </ListItemIcon>
+                  <div>
+                    <Typography fontSize={16}>{token.symbol}</Typography>
+                    <Typography
+                      fontSize={10}
+                      color={theme.palette.text.secondary}
+                    >
+                      {nativeChain}
+                    </Typography>
+                  </div>
                 </div>
-              </div>
-              <Typography fontSize={14}>
-                {isFetching ? <CircularProgress size={24} /> : balance}
-              </Typography>
-            </ListItemButton>
-          );
-        })}
+                <Typography fontSize={14}>
+                  {isFetchingTokenBalances ? (
+                    <CircularProgress size={24} />
+                  ) : (
+                    balance
+                  )}
+                </Typography>
+              </ListItemButton>
+            );
+          })
+        )}
       </List>
     );
-  }, [isFetching, balances, tokenSearchQuery, topTokens]);
+  }, [
+    isFetchingTokenBalances,
+    balances,
+    props.isFetching,
+    tokenSearchQuery,
+    topTokens,
+  ]);
 
   return (
     <Card className={classes.card} variant="elevation">

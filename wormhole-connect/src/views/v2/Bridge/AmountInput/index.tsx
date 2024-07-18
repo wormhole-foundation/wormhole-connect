@@ -14,6 +14,7 @@ import useGetTokenBalances from 'hooks/useGetTokenBalances';
 import { setAmount } from 'store/transferInput';
 import { toFixedDecimals } from 'utils/balance';
 
+import type { TokenConfig } from 'config/types';
 import type { RootState } from 'store';
 
 const useStyles = makeStyles()((theme) => ({
@@ -34,10 +35,14 @@ const useStyles = makeStyles()((theme) => ({
   },
 }));
 
+type Props = {
+  supportedSourceTokens: Array<TokenConfig>;
+};
+
 /**
  * Renders the input control to set the transaction amount
  */
-const AmountInput = () => {
+const AmountInput = (props: Props) => {
   const { classes } = useStyles();
   const dispatch = useDispatch();
 
@@ -46,7 +51,6 @@ const AmountInput = () => {
   );
 
   const {
-    supportedSourceTokens,
     fromChain: sourceChain,
     token: sourceToken,
     amount,
@@ -55,7 +59,7 @@ const AmountInput = () => {
   const { balances, isFetching } = useGetTokenBalances(
     sendingWallet?.address || '',
     sourceChain,
-    supportedSourceTokens || [],
+    props.supportedSourceTokens || [],
   );
 
   const tokenBalance = useMemo(
