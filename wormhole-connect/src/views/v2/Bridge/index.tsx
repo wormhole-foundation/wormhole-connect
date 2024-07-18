@@ -1,8 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
-import { CircularProgress, useMediaQuery, useTheme } from '@mui/material';
-import Button from '@mui/material/Button';
+import { styled, useMediaQuery, useTheme } from '@mui/material';
+import Button, { ButtonProps } from '@mui/material/Button';
+import { deepPurple } from '@mui/material/colors';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 
@@ -77,6 +78,7 @@ const useStyles = makeStyles()((theme) => ({
   },
   reviewTransaction: {
     padding: '8px 16px',
+    backgroundColor: '#C1BBF6',
     borderRadius: '8px',
     margin: 'auto',
     maxWidth: '420px',
@@ -89,6 +91,17 @@ const useStyles = makeStyles()((theme) => ({
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
+  },
+}));
+
+const StyledButton = styled(Button)<ButtonProps>(({ theme }) => ({
+  color: theme.palette.getContrastText(deepPurple[200]),
+  backgroundColor: deepPurple[200],
+  '&:hover': {
+    backgroundColor: deepPurple[300],
+  },
+  '&:disabled': {
+    backgroundColor: deepPurple[100],
   },
 }));
 
@@ -351,9 +364,8 @@ const Bridge = () => {
     const isFetching = isFetchingFees || isFetchingQuote;
 
     return (
-      <Button
+      <StyledButton
         variant="contained"
-        color="primary"
         className={classes.reviewTransaction}
         disabled={isFetching}
         onClick={() => {
@@ -370,14 +382,10 @@ const Bridge = () => {
           }
         }}
       >
-        {isFetching ? (
-          <CircularProgress size={24} />
-        ) : (
-          <Typography textTransform="none">
-            {mobile ? 'Review' : 'Review transaction'}
-          </Typography>
-        )}
-      </Button>
+        <Typography textTransform="none">
+          {mobile ? 'Review' : 'Review transaction'}
+        </Typography>
+      </StyledButton>
     );
   }, [
     sourceChain,
