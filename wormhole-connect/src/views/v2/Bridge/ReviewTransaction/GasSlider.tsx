@@ -180,12 +180,8 @@ const GasSlider = (props: { destinationGasFee: number; disabled: boolean }) => {
                 aria-label="Native gas conversion amount"
                 defaultValue={0}
                 value={percentage}
-                baseColor={
-                  nativeGasToken.color ?? theme.palette.background.default
-                }
-                railColor={
-                  sourceTokenConfig.color ?? theme.palette.background.default
-                }
+                baseColor="#C1BBF6"
+                railColor={theme.palette.background.default}
                 step={1}
                 min={0}
                 max={100}
