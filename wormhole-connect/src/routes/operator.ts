@@ -369,15 +369,19 @@ export class Operator {
     for (const route of config.routes) {
       const r = this.getRoute(route as Route);
 
-      const sourceTokens = await r.supportedSourceTokens(
-        config.tokensArr,
-        destToken,
-        sourceChain,
-        destChain,
-      );
+      try {
+        const sourceTokens = await r.supportedSourceTokens(
+          config.tokensArr,
+          destToken,
+          sourceChain,
+          destChain,
+        );
 
-      for (const token of sourceTokens) {
-        supported[token.key] = token;
+        for (const token of sourceTokens) {
+          supported[token.key] = token;
+        }
+      } catch (e) {
+        console.error(e);
       }
     }
     return Object.values(supported);
@@ -392,9 +396,7 @@ export class Operator {
     for (const route of config.routes) {
       const r = this.getRoute(route as Route);
 
-      // This is ugly hack TODO clean up with proper types
       try {
-        /* @ts-ignore */
         const destTokens = await r.supportedDestTokens(
           config.tokensArr,
           sourceToken,

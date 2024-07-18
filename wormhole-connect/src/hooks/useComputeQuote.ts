@@ -13,9 +13,6 @@ import type { PorticoBridgeState } from 'store/porticoBridge';
 import { getRoute } from 'routes/mappings';
 import { setReceiveNativeAmt, setRelayerFee } from 'store/relay';
 import { amount as sdkAmount } from '@wormhole-foundation/sdk';
-import { getTokenDecimals } from 'utils';
-import config from 'config';
-import { toChainId } from 'utils/sdk';
 import { toDecimals } from 'utils/balance';
 
 type Props = {
@@ -102,11 +99,9 @@ export const useComputeQuote = (props: Props): void => {
             dispatch(setReceiveNativeAmt(0));
           }
           if (quote.relayFee) {
-            const { token, amount } = quote.relayFee;
-            const feeToken = config.sdkConverter.toTokenIdV1(token);
-            const decimals = getTokenDecimals(toChainId(sourceChain), feeToken);
+            const { amount } = quote.relayFee;
             const formattedFee = Number.parseFloat(
-              toDecimals(amount.amount, decimals, 6),
+              toDecimals(amount.amount, amount.decimals, 6),
             );
             dispatch(setRelayerFee(formattedFee));
           } else {

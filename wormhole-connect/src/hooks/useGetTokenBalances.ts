@@ -101,7 +101,9 @@ const useGetTokenBalances = (
                 if (foreignAddress) {
                   address = foreignAddress.toString();
                 } else {
-                  console.error('no fa', tokenConfig);
+                  console.warn(
+                    `No foreign address for ${tokenConfig.key} on chain ${chainV2}`,
+                  );
                   continue;
                 }
                 tokenIdMapping[address] = tokenConfig;

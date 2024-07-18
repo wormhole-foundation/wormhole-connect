@@ -29,7 +29,7 @@ import {
   SourceFinalizedTransferReceipt,
 } from '@wormhole-foundation/sdk';
 import config, { getWormholeContextV2 } from 'config';
-import { calculateUSDPrice, getDisplayName } from 'utils';
+import { calculateUSDPrice, getDisplayName, getWrappedToken } from 'utils';
 import { toFixedDecimals } from 'utils/balance';
 import { TransferWallet } from 'utils/wallet';
 
@@ -227,7 +227,7 @@ export class SDKv2Route {
     // point all that would be required would be an address.
     if (['bridge', 'relay', 'cosmosGateway'].includes(this.TYPE)) {
       if (destTokenIds.length > 0) {
-        return [sourceToken];
+        return [getWrappedToken(sourceToken)];
       }
     }
 
