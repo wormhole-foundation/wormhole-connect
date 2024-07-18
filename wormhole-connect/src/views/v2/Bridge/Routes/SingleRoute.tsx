@@ -46,7 +46,7 @@ type Props = {
   isSelected: boolean;
   showDestinationGasFee?: boolean;
   title?: string;
-  onSelect: (route: Route) => void;
+  onSelect?: (route: Route) => void;
 };
 
 const SingleRoute = (props: Props) => {
@@ -280,7 +280,7 @@ const SingleRoute = (props: Props) => {
         <CardActionArea
           disabled={!props.available}
           disableTouchRipple
-          onClick={() => props.onSelect(route)}
+          onClick={() => props.onSelect?.(route)}
         >
           <CardHeader
             avatar={<Avatar>{props.config.icon()}</Avatar>}

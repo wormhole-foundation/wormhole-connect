@@ -119,8 +119,8 @@ const useComputeQuoteV2 = (props: Props): returnProps => {
             setRelayerFee(0);
           }
         }
-      } catch (e: any) {
-        if (!cancelled) {
+      } catch (e: unknown) {
+        if (!cancelled && e instanceof Error) {
           setReceiveAmountError(e.message);
           setReceiveNativeAmt(0);
           setRelayerFee(0);

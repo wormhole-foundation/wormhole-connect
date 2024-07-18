@@ -9,7 +9,7 @@ import config from 'config';
 import type { Route } from 'config/types';
 import type { RootState } from 'store';
 
-const useAvailableRoutes = () => {
+const useAvailableRoutes = (): void => {
   const dispatch = useDispatch();
 
   const { token, destToken, fromChain, toChain, amount } = useSelector(

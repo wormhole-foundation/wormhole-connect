@@ -100,7 +100,7 @@ const ReviewTransaction = (props: Props) => {
         variant="contained"
         color="primary"
         className={classes.confirmTransaction}
-        onClick={() => {}}
+        onClick={() => undefined}
       >
         <Typography textTransform="none">
           {mobile ? 'Confirm' : 'Confirm transaction'}
@@ -126,7 +126,6 @@ const ReviewTransaction = (props: Props) => {
         isSelected={false}
         showDestinationGasFee
         title="You will receive"
-        onSelect={() => {}}
       />
       <Collapse in={showGasSlider}>
         <GasSlider
