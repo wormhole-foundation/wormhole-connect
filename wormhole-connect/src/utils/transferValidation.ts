@@ -122,8 +122,20 @@ export const validateAmount = (
   return '';
 };
 
-const checkAddressIsSanctioned = (address: string): boolean =>
-  SANCTIONED_WALLETS.has(address) || SANCTIONED_WALLETS.has('0x' + address);
+/** if the address starts with 0x, consider it as case insentive */
+const checkAddressIsSanctioned = (address: string): boolean => {
+  for (const sanctionedAddress of SANCTIONED_WALLETS) {
+    if (
+      sanctionedAddress.startsWith('0x') &&
+      sanctionedAddress.toLowerCase() === address.toLowerCase()
+    ) {
+      return true;
+    } else if (sanctionedAddress === address) {
+      return true;
+    }
+  }
+  return false;
+};
 
 export const validateWallet = async (
   wallet: WalletData,
