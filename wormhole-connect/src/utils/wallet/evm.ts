@@ -3,14 +3,37 @@ import {
   EVMWallet,
   InjectedWallet,
   WalletConnectWallet,
+  Chain,
+  DEFAULT_CHAINS,
 } from '@xlabs-libs/wallet-aggregator-evm';
 import config from 'config';
 
+const buildChains = (): Chain[] => {
+  const ethConfig = DEFAULT_CHAINS.find((c) => c.id === 1);
+  return ethConfig
+    ? [
+        ...DEFAULT_CHAINS,
+        {
+          ...ethConfig,
+          rpcUrls: {
+            bsc: { http: [config.rpcs.bsc!] },
+            ethereum: { http: [config.rpcs.ethereum!] },
+            default: { http: [config.rpcs.ethereum!] },
+            public: { http: [config.rpcs.ethereum!] },
+          },
+        },
+      ]
+    : DEFAULT_CHAINS;
+};
+
 export const wallets = {
-  injected: new InjectedWallet(),
+  injected: new InjectedWallet({
+    chains: buildChains(),
+  }),
   ...(config.walletConnectProjectId
     ? {
         walletConnect: new WalletConnectWallet({
+          chains: buildChains(),
           connectorOptions: {
             projectId: config.walletConnectProjectId,
           },
