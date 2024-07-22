@@ -1,10 +1,15 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
+export interface RelayerFee {
+  fee: number;
+  tokenKey: string; // key of the token that the fee is paid in
+}
+
 export interface RelayState {
   maxSwapAmt: number | undefined;
   toNativeToken: number;
   receiveNativeAmt: number | undefined;
-  relayerFee: number | undefined;
+  relayerFee: RelayerFee | undefined;
   receiverNativeBalance: string | undefined;
 }
 
@@ -20,19 +25,11 @@ export const relaySlice = createSlice({
   name: 'transfer',
   initialState,
   reducers: {
-    // validations
     setToNativeToken: (
       state: RelayState,
       { payload }: PayloadAction<number>,
     ) => {
       state.toNativeToken = payload;
-    },
-    // transfer calculations
-    setMaxSwapAmt: (
-      state: RelayState,
-      { payload }: PayloadAction<number | undefined>,
-    ) => {
-      state.maxSwapAmt = payload;
     },
     setReceiveNativeAmt: (
       state: RelayState,
@@ -40,7 +37,10 @@ export const relaySlice = createSlice({
     ) => {
       state.receiveNativeAmt = payload;
     },
-    setRelayerFee: (state: RelayState, { payload }: PayloadAction<number>) => {
+    setRelayerFee: (
+      state: RelayState,
+      { payload }: PayloadAction<RelayerFee | undefined>,
+    ) => {
       state.relayerFee = payload;
     },
     setReceiverNativeBalance: (
@@ -61,7 +61,6 @@ export const relaySlice = createSlice({
 
 export const {
   setToNativeToken,
-  setMaxSwapAmt,
   setReceiveNativeAmt,
   setRelayerFee,
   setReceiverNativeBalance,

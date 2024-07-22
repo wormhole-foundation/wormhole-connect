@@ -172,6 +172,7 @@ function SendTo() {
       setClaimError('Your claim has failed, please try again');
       throw new Error('invalid destination chain');
     }
+    const route = routeContext.route!;
     let txId: string | undefined;
     try {
       if (
@@ -189,7 +190,6 @@ function SendTo() {
       //  wallet.address,
       //);
 
-      const route = routeContext.route!;
       if (!routes.isManual(route)) {
         throw new Error('Route is not manual');
       }
@@ -199,11 +199,12 @@ function SendTo() {
         {},
         TransferWallet.RECEIVING,
       );
-      const result = await route.complete(signer, routeContext.receipt!);
-      if (!isRedeemed(result)) {
+      let receipt = routeContext.receipt;
+      receipt = await route.complete(signer, receipt!);
+      if (!isRedeemed(receipt)) {
         throw new Error('Transfer not redeemed');
       }
-      txId = result.destinationTxs?.[0]?.txid || '';
+      txId = receipt.destinationTxs?.[0]?.txid || '';
 
       config.triggerEvent({
         type: 'transfer.redeem.start',
@@ -231,7 +232,10 @@ function SendTo() {
     }
     if (txId !== undefined) {
       dispatch(setRedeemTx(txId));
-      dispatch(setTransferComplete(true));
+      // transfer may require an additional step if this is a finalizable route
+      if (!routes.isFinalizable(route)) {
+        dispatch(setTransferComplete(true));
+      }
 
       config.triggerEvent({
         type: 'transfer.redeem.success',

@@ -51,7 +51,6 @@ function ChainsTag() {
     console.log(txData, sendTx);
     if (!txData) return;
     // As of 2023-10-12, wormscan only supports tx lookup on EVM chains (before a VAA is generated)
-    console.log(fromChainConfig.id);
     if (isEvmChain(fromChainConfig.id) && sendTx) {
       return `${WORMSCAN}tx/${sendTx}${
         config.isMainnet ? '' : '?network=TESTNET'

@@ -83,7 +83,7 @@ function NativeGasSlider(props: { disabled: boolean }) {
   const [debouncedPercentage] = useDebounce(percentage, 500);
   const [debouncedAmount] = useDebounce(amount, 500);
   const amountNum = useMemo(() => {
-    return Number.parseFloat(debouncedAmount) - (relayerFee || 0);
+    return Number.parseFloat(debouncedAmount) - (relayerFee?.fee || 0);
   }, [debouncedAmount, relayerFee]);
 
   const [gasSliderCollapsed, setGasSliderCollapsed] = useState(props.disabled);

@@ -8,7 +8,6 @@ import {
   TransferDisplayData,
   TransferInfoBaseParams,
   TransferDestInfo,
-  RelayerFee,
 } from './types';
 import { TokenPrices } from 'store/tokenPrices';
 
@@ -23,6 +22,7 @@ import {
 import { getRoute } from './mappings';
 import axios from 'axios';
 import SDKv2Route from './sdkv2';
+import { RelayerFee } from 'store/relay';
 
 export interface TxInfo {
   route: Route;
@@ -561,7 +561,7 @@ export class Operator {
     claimingGasEst: string,
     receiveAmount: string,
     tokenPrices: TokenPrices,
-    relayerFee?: number,
+    relayerFee?: RelayerFee,
     receiveNativeAmt?: number,
   ): Promise<TransferDisplayData> {
     const r = this.getRoute(route);
@@ -578,18 +578,6 @@ export class Operator {
       relayerFee,
       receiveNativeAmt,
     );
-  }
-
-  async getRelayerFee(
-    route: Route,
-    sourceChain: ChainName | ChainId,
-    destChain: ChainName | ChainId,
-    token: string,
-    destToken: string,
-    amount: string,
-  ): Promise<RelayerFee | null> {
-    const r = this.getRoute(route);
-    return r.getRelayerFee(sourceChain, destChain, token, destToken, amount);
   }
 
   async getForeignAsset(

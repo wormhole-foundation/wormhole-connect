@@ -1,3 +1,4 @@
+import { NttRoute } from '@wormhole-foundation/sdk-route-ntt';
 import config from 'config';
 import { NttManagerConfig, TokenConfig } from 'config/types';
 import { ChainName } from 'sdklegacy';
@@ -122,3 +123,31 @@ export const getNttTokenByGroupKey = (
   if (!manager) return;
   return config.tokens[manager.tokenKey];
 };
+
+// Get the NTT config for the SDK routes
+export function getNttConfig(): NttRoute.Config {
+  const result: NttRoute.Config = { tokens: {} };
+
+  Object.entries(config.nttGroups).forEach(([name, group]) => {
+    const tokens: NttRoute.TokenConfig[] = group.nttManagers
+      .map((manager) => {
+        const tokenAddress = config.tokens[manager.tokenKey]?.tokenId?.address;
+        return tokenAddress
+          ? {
+              chain: config.sdkConverter.toChainV2(manager.chainName),
+              token: tokenAddress,
+              manager: manager.address,
+              transceiver: manager.transceivers,
+              quoter: manager.solanaQuoter,
+            }
+          : null;
+      })
+      .filter((token) => token !== null);
+
+    if (tokens.length > 0) {
+      result.tokens[name] = tokens;
+    }
+  });
+
+  return result;
+}
