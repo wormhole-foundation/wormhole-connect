@@ -19,7 +19,7 @@ import {
   TransferInfoBaseParams,
 } from 'routes/types';
 import { TokenPrices } from 'store/tokenPrices';
-import { ParsedMessage } from 'utils/sdk';
+import { ParsedMessage, toChainName } from 'utils/sdk';
 
 import { SDKv2Signer } from './signer';
 
@@ -37,6 +37,8 @@ export class SDKv2Route {
   TYPE: Route;
   NATIVE_GAS_DROPOFF_SUPPORTED = false;
   AUTOMATIC_DEPOSIT = false;
+  // TODO: remove this
+  IS_TOKEN_BRIDGE_ROUTE = false;
 
   constructor(readonly rc: routes.RouteConstructor, routeType: Route) {
     this.TYPE = routeType;
@@ -45,6 +47,10 @@ export class SDKv2Route {
       this.NATIVE_GAS_DROPOFF_SUPPORTED = true;
       this.AUTOMATIC_DEPOSIT = true;
     }
+    this.IS_TOKEN_BRIDGE_ROUTE =
+      this.TYPE === Route.Bridge ||
+      this.TYPE === Route.Relay ||
+      this.TYPE === Route.CosmosGateway;
   }
 
   async getV2ChainContext<C extends Chain>(
@@ -95,13 +101,29 @@ export class SDKv2Route {
       return isSameToken(tokenId, fromTokenIdV2);
     });
 
-    const toTokenSupported = !!(
-      await this.rc.supportedDestinationTokens(
-        fromTokenIdV2,
-        fromChain.context,
-        toChain.context,
-      )
-    ).find((tokenId) => {
+    const supportedDestinationTokens = await this.rc.supportedDestinationTokens(
+      fromTokenIdV2,
+      fromChain.context,
+      toChain.context,
+    );
+
+    const toTokenSupported = !!supportedDestinationTokens.find((tokenId) => {
+      // TODO: SDKV2
+      // `tokenId.address` is a `UniversalAddress`, while `toTokenIdV2.address` is a `NativeAddress<C>`.
+      // To compare these two, we must convert the `UniversalAddress` to a `NativeAddress<C>` (or vice versa).
+      // In the case of Sui, this conversion requires looking up the address from the token bridge contract,
+      // which stores them in a map. Ideally, the SDK should provide a generic method for this conversion
+      // applicable to all chains.
+      if (
+        this.IS_TOKEN_BRIDGE_ROUTE &&
+        sourceToken === 'SUI' &&
+        destToken === 'SUI' &&
+        supportedDestinationTokens.length === 1 &&
+        toChain.chain === 'Sui' &&
+        toTokenIdV2.chain === 'Sui'
+      ) {
+        return true;
+      }
       return isSameToken(tokenId, toTokenIdV2);
     });
 
@@ -110,17 +132,6 @@ export class SDKv2Route {
       toChainSupported &&
       fromTokenSupported &&
       toTokenSupported;
-
-    /*
-    if (!isSupported) {
-      console.log(`isSupported false for ${this.rc.meta.name}:
-        fromChain=${fromChain} ${fromChainSupported}
-        toChain=${toChain} ${toChainSupported}
-        fromToken=${sourceToken} ${fromTokenSupported}
-        toToken=${destToken} ${toTokenSupported}
-      `);
-    }
-    */
 
     return isSupported;
   }
@@ -178,7 +189,6 @@ export class SDKv2Route {
     return true;
   }
 
-  // NOTE this method ignores the given TokenConfig array
   async supportedSourceTokens(
     tokens: TokenConfig[],
     _destToken?: TokenConfig | undefined,
@@ -203,7 +213,10 @@ export class SDKv2Route {
 
     const fromChain = await this.getV2ChainContext(fromChainV1);
     const toChain = await this.getV2ChainContext(toChainV1);
-    const sourceTokenV2 = config.sdkConverter.toTokenIdV2(sourceToken);
+    const sourceTokenV2 = config.sdkConverter.toTokenIdV2(
+      sourceToken,
+      toChainName(fromChainV1),
+    );
 
     const destTokenIds = await this.rc.supportedDestinationTokens(
       sourceTokenV2,
@@ -225,7 +238,7 @@ export class SDKv2Route {
     // A longer term solution to this might be to add methods to SDKv2 for fetching token
     // metadata like name/logo and not relying on configuration for this at all. At that
     // point all that would be required would be an address.
-    if (['bridge', 'relay', 'cosmosGateway'].includes(this.TYPE)) {
+    if (this.IS_TOKEN_BRIDGE_ROUTE) {
       if (destTokenIds.length > 0) {
         return [getWrappedToken(sourceToken)];
       }

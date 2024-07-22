@@ -7,6 +7,7 @@ import {
 
 import * as v2 from '@wormhole-foundation/sdk';
 import { getTokenBridgeWrappedTokenAddress } from 'utils/sdkv2';
+import { getGasToken } from 'utils';
 
 // SDKConverter provides utility functions for converting core types between SDKv1 and SDKv2
 // This is only meant to be used while we transition to SDKv2
@@ -83,10 +84,12 @@ export class SDKConverter {
         }
       } else {
         // Getting native address
-        return v2.Wormhole.tokenId(
-          this.toChainV2(token.nativeChain),
-          token.tokenId?.address ?? 'native',
-        );
+        const address =
+          getGasToken(token.nativeChain).key === token.key
+            ? 'native'
+            : token.tokenId?.address;
+        if (!address) throw new Error('no address');
+        return v2.Wormhole.tokenId(this.toChainV2(token.nativeChain), address);
       }
     } else {
       return v2.Wormhole.tokenId(this.toChainV2(token.chain), token.address);
@@ -105,7 +108,7 @@ export class SDKConverter {
     return 'key' in v;
   }
 
-  // Attempts to find the Connect TokenConfig, which is comomnly used in Connect code base,
+  // Attempts to find the Connect TokenConfig, which is commonly used in Connect code base,
   // given a v2.TokenId
   findTokenConfigV1(
     tokenId: v2.TokenId,
@@ -117,8 +120,7 @@ export class SDKConverter {
     for (const key in tokenConfigs) {
       const token = tokenConfigs[key];
       if (token.nativeChain === chain) {
-        if (isNative && token.tokenId === undefined) {
-          // Connect's TokenConfig lacks a tokenId field when it's the native gas token
+        if (isNative && token.key === getGasToken(chain).key) {
           return token;
         } else if (
           token.tokenId?.address.toLowerCase() ===
@@ -147,10 +149,12 @@ export class SDKConverter {
     const chainName = this.wh.toChainName(chain);
 
     if (tokenConfig.nativeChain === chainName) {
-      if (tokenConfig.tokenId) {
+      if (getGasToken(chainName).key === key) {
+        return this.tokenIdV2(chainName, 'native');
+      } else if (tokenConfig.tokenId) {
         return this.tokenIdV2(chainName, tokenConfig.tokenId.address);
       } else {
-        return this.tokenIdV2(chainName, 'native');
+        throw new Error('Token must have tokenId');
       }
     } else {
       // For token bridge route, we might be trying to fetch a token's address on its
