@@ -19,9 +19,6 @@ import { RelayerFee } from 'store/relay';
 
 export interface TxInfo {
   route: Route;
-  //tokenChain: Chain;
-  //tokenAddress: string;
-  //amount: string;
   receipt: routes.Receipt;
 }
 
