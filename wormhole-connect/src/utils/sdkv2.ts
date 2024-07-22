@@ -102,9 +102,7 @@ export function parseReceipt(
         receipt as AttestedTransferReceipt<TokenBridge.TransferVAA>,
       );
     case Route.CCTPManual:
-      return parseCCTPReceipt(
-        receipt as AttestedTransferReceipt<'CircleBridge'>,
-      );
+      return parseCCTPReceipt(receipt);
     default:
       throw new Error(`Unknown route type ${route}`);
   }
@@ -170,12 +168,18 @@ const parseTokenBridgeReceipt = (
 };
 
 const parseCCTPReceipt = (
-  receipt: AttestedTransferReceipt<'CircleBridge'>,
+  receipt: AttestedTransferReceipt<any>,
 ): TransferInfo => {
   let txData: Partial<TransferInfo> = {
     toChain: config.sdkConverter.toChainNameV1(receipt.to),
     fromChain: config.sdkConverter.toChainNameV1(receipt.from),
   };
+
+  if ('originTxs' in receipt && receipt.originTxs.length > 0) {
+    txData.sendTx = receipt.originTxs[receipt.originTxs.length - 1].txid;
+  } else {
+    throw new Error("Can't find txid in receipt");
+  }
 
   const { payload } = receipt.attestation.attestation.message;
 
@@ -211,11 +215,11 @@ const parseCCTPReceipt = (
   const destinationUsdcLegacy = config.tokensArr.find((token) => {
     return token.symbol === 'USDC' && token.nativeChain === txData.toChain;
   });
-  if (!usdcLegacy) {
+  if (!destinationUsdcLegacy) {
     throw new Error(`Couldn't find USDC for destination chain`);
   }
 
   txData.receivedTokenKey = destinationUsdcLegacy.key;
 
-  return txData;
+  return txData as TransferInfo;
 };
