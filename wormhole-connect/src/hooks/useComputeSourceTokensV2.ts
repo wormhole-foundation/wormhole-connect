@@ -74,7 +74,7 @@ const useComputeSourceTokensV2 = (props: Props): returnProps => {
     return () => {
       active = false;
     };
-    // IMPORTANT: do not include token in dependency array
+    // IMPORTANT: do not include sourceToken in dependency array
   }, [route, sourceChain, destToken, dispatch]);
 
   return {

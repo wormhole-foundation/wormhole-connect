@@ -44,7 +44,9 @@ const useComputeDestinationTokensV2 = (props: Props): returnProps => {
 
     const computeDestTokens = async () => {
       let supported: Array<TokenConfig> = [];
+      let allSupported: Array<TokenConfig> = [];
 
+      // Start fetching scoped-down and all supported tokens
       setIsFetching(true);
 
       try {
@@ -53,10 +55,14 @@ const useComputeDestinationTokensV2 = (props: Props): returnProps => {
           sourceChain,
           destChain,
         );
+
+        allSupported = await RouteOperator.allSupportedDestTokens(
+          undefined,
+          sourceChain,
+          destChain,
+        );
       } catch (e) {
         console.error(e);
-      } finally {
-        setIsFetching(false);
       }
 
       if (sourceToken) {
@@ -69,13 +75,13 @@ const useComputeDestinationTokensV2 = (props: Props): returnProps => {
           supported = nativeTokens;
         }
       }
+
       setSupportedTokens(supported);
-      const allSupported = await RouteOperator.allSupportedDestTokens(
-        undefined,
-        sourceChain,
-        destChain,
-      );
       setAllSupportedTokens(allSupported);
+
+      // Done fetching scoped-down and all supported tokens
+      setIsFetching(false);
+
       if (destChain && supported.length === 1) {
         if (!canceled) {
           dispatch(setDestToken(supported[0].key));
