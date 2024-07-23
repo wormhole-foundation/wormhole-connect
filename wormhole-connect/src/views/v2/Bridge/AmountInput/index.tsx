@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import Button from '@mui/material/Button';
@@ -56,6 +56,8 @@ const AmountInput = (props: Props) => {
     amount,
   } = useSelector((state: RootState) => state.transferInput);
 
+  const [tokenAmount, setTokenAmount] = useState(amount);
+
   const { balances, isFetching } = useGetTokenBalances(
     sendingWallet?.address || '',
     sourceChain,
@@ -111,6 +113,20 @@ const AmountInput = (props: Props) => {
     );
   }, [isInputDisabled, tokenBalance]);
 
+  const onAmountChange = useCallback(
+    (e: any) => {
+      setTokenAmount(e.target.value);
+
+      // Only dispatch the new amount value when there is sufficient balance
+      if (Number(e.target.value) > Number(tokenBalance)) {
+        dispatch(setAmount(''));
+      } else {
+        dispatch(setAmount(e.target.value));
+      }
+    },
+    [tokenBalance],
+  );
+
   return (
     <div className={classes.amountContainer}>
       <div className={classes.amountTitle}>
@@ -130,10 +146,8 @@ const AmountInput = (props: Props) => {
             }}
             placeholder="0"
             variant="standard"
-            value={amount}
-            onChange={(e) => {
-              dispatch(setAmount(e.target.value));
-            }}
+            value={tokenAmount}
+            onChange={onAmountChange}
             InputProps={{
               disableUnderline: true,
               endAdornment: (

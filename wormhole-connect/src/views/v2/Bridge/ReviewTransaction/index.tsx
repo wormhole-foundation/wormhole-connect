@@ -88,8 +88,6 @@ const ReviewTransaction = (props: Props) => {
   const relay = useSelector((state: RootState) => state.relay);
   const { relayerFee, toNativeToken } = relay;
 
-  const portico = useSelector((state: RootState) => state.porticoBridge);
-
   const { disabled: isGasSliderDisabled, showGasSlider } = useGasSlider({
     destChain,
     destToken,
@@ -124,11 +122,7 @@ const ReviewTransaction = (props: Props) => {
       return;
     }
 
-    await validate(
-      { transferInput, relay, wallet, portico },
-      dispatch,
-      () => false,
-    );
+    await validate({ transferInput, relay, wallet }, dispatch, () => false);
 
     const valid = isTransferValid(validations);
 
@@ -243,7 +237,7 @@ const ReviewTransaction = (props: Props) => {
           gasFee: undefined,
           payload: undefined,
           inputData: undefined,
-          relayerFee: relayerFee?.toString() || '',
+          relayerFee,
           receiveAmount: receiveAmount.data || '',
           receiveNativeAmount: receiveNativeAmt,
         }),
