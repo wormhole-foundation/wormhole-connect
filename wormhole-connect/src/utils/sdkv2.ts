@@ -101,7 +101,9 @@ type ReceiptWithAttestation<AT> =
   | DestinationQueuedTransferReceipt<AT>
   | CompletedTransferReceipt<AT>;
 
-// for setTxDetails :>
+// `parseReceipt` is used when we resume a transaction to get the transaction details
+// from the VAA. Each protocol has different data in its VAAs and this parses them
+// into the common internal format used by Connect: `TransferInfo`
 export function parseReceipt(
   route: Route,
   receipt: ReceiptWithAttestation<any>,
