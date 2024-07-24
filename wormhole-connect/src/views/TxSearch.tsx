@@ -115,15 +115,16 @@ function TxSearch() {
     // Track until we have an attestation
     if (receipt.state < TransferState.Attested) {
       for await (receipt of sdkRoute.track(receipt)) {
-        if (receipt.state === TransferState.Attested) {
+        if (receipt.state >= TransferState.Attested) {
           break;
         }
       }
     }
 
-    const attestedReceipt = receipt as AttestedTransferReceipt<any>;
-
-    const txDetails = parseReceipt(route, attestedReceipt);
+    const txDetails = parseReceipt(
+      route,
+      receipt as AttestedTransferReceipt<any>,
+    );
 
     if (txDetails) {
       dispatch(setTxDetails(txDetails));

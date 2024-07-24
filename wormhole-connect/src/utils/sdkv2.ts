@@ -7,8 +7,12 @@ import {
   TokenAddress,
   Wormhole,
   AttestedTransferReceipt,
+  RedeemedTransferReceipt,
+  DestinationQueuedTransferReceipt,
+  CompletedTransferReceipt,
   TokenBridge,
   amount,
+  CircleTransfer,
 } from '@wormhole-foundation/sdk';
 import config from 'config';
 import { Route } from 'config/types';
@@ -91,25 +95,33 @@ export async function getDecimals(
   return await wh.getDecimals(chain, token.address);
 }
 
+type ReceiptWithAttestation<AT> =
+  | AttestedTransferReceipt<AT>
+  | RedeemedTransferReceipt<AT>
+  | DestinationQueuedTransferReceipt<AT>
+  | CompletedTransferReceipt<AT>;
+
 // for setTxDetails :>
 export function parseReceipt(
   route: Route,
-  receipt: AttestedTransferReceipt<any>,
+  receipt: ReceiptWithAttestation<any>,
 ): TransferInfo | null {
   switch (route) {
     case Route.Bridge:
       return parseTokenBridgeReceipt(
-        receipt as AttestedTransferReceipt<TokenBridge.TransferVAA>,
+        receipt as ReceiptWithAttestation<TokenBridge.TransferVAA>,
       );
     case Route.CCTPManual:
-      return parseCCTPReceipt(receipt);
+      return parseCCTPReceipt(
+        receipt as ReceiptWithAttestation<CircleTransfer.CircleAttestationReceipt>,
+      );
     default:
       throw new Error(`Unknown route type ${route}`);
   }
 }
 
 const parseTokenBridgeReceipt = (
-  receipt: AttestedTransferReceipt<TokenBridge.TransferVAA>,
+  receipt: ReceiptWithAttestation<TokenBridge.TransferVAA>,
 ): TransferInfo => {
   let txData: Partial<TransferInfo> = {
     toChain: config.sdkConverter.toChainNameV1(receipt.to),
@@ -168,7 +180,7 @@ const parseTokenBridgeReceipt = (
 };
 
 const parseCCTPReceipt = (
-  receipt: AttestedTransferReceipt<any>,
+  receipt: ReceiptWithAttestation<CircleTransfer.CircleAttestationReceipt>,
 ): TransferInfo => {
   let txData: Partial<TransferInfo> = {
     toChain: config.sdkConverter.toChainNameV1(receipt.to),
@@ -181,12 +193,15 @@ const parseCCTPReceipt = (
     throw new Error("Can't find txid in receipt");
   }
 
+  if (!receipt.attestation.attestation) {
+    throw new Error(`Missing Circle attestation`);
+  }
+
   const { payload } = receipt.attestation.attestation.message;
 
-  const sourceTokenNativeAddress = payload.burnToken.toNative(receipt.from);
   const sourceTokenId = Wormhole.tokenId(
     receipt.from,
-    sourceTokenNativeAddress,
+    payload.burnToken.toNative(receipt.from).toString(),
   );
   const usdcLegacy = config.sdkConverter.findTokenConfigV1(
     sourceTokenId,
@@ -196,7 +211,7 @@ const parseCCTPReceipt = (
     throw new Error(`Couldn't find USDC for source chain`);
   }
 
-  txData.tokenAddress = sourceTokenNativeAddress.toString();
+  txData.tokenAddress = sourceTokenId.address.toString();
   txData.tokenKey = usdcLegacy.key;
 
   const decimals = usdcLegacy.decimals.default;
