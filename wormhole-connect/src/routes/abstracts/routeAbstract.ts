@@ -17,6 +17,16 @@ import {
 import { ParsedRelayerMessage, ParsedMessage } from 'utils/sdk';
 import { TokenPrices } from 'store/tokenPrices';
 
+export const REASON_AMOUNT_TOO_LOW = 'Transfer amount too low';
+export const REASON_MANUAL_ADDRESS_NOT_SUPPORTED =
+  'Manual address not supported';
+export interface AvailableReason {
+  isAvailable: boolean;
+  reason?:
+    | typeof REASON_AMOUNT_TOO_LOW
+    | typeof REASON_MANUAL_ADDRESS_NOT_SUPPORTED;
+}
+
 export abstract class RouteAbstract {
   abstract readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean;
   abstract readonly AUTOMATIC_DEPOSIT: boolean;
@@ -40,7 +50,8 @@ export abstract class RouteAbstract {
     amount: string,
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
-  ): Promise<boolean>;
+    manualAddress?: boolean,
+  ): Promise<AvailableReason>;
 
   public abstract isSupportedChain(chain: ChainName): boolean;
 

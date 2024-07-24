@@ -18,6 +18,7 @@ import Popover from '@mui/material/Popover';
 import config from 'config';
 import { TransferSide } from 'config/types';
 import { ExplorerConfig } from 'config/types';
+import { setManualAddressTarget } from 'store/transferInput';
 
 type StyleProps = { disabled?: boolean };
 const useStyles = makeStyles<StyleProps>()((theme: any, { disabled }) => ({
@@ -104,6 +105,7 @@ function ConnectWallet(props: Props) {
 
   const disconnectWallet = async () => {
     dispatch(disconnectFromStore(type));
+    dispatch(setManualAddressTarget(false));
   };
 
   if (wallet && wallet.address) {

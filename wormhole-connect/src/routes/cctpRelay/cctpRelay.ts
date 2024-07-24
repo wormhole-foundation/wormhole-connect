@@ -51,7 +51,11 @@ import {
 } from '../cctpManual';
 import { getUnsignedVaaEvm } from 'utils/vaa';
 import { getNativeVersionOfToken } from 'store/transferInput';
-import { RelayAbstract } from 'routes/abstracts';
+import {
+  AvailableReason,
+  REASON_AMOUNT_TOO_LOW,
+  RelayAbstract,
+} from 'routes/abstracts';
 import { TokenPrices } from 'store/tokenPrices';
 
 export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
@@ -204,7 +208,7 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
     amount: string,
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
-  ): Promise<boolean> {
+  ): Promise<AvailableReason> {
     const tokenConfig = config.tokens[sourceToken]!;
     const tokenId = getWrappedTokenId(tokenConfig);
     let relayerFee;
@@ -219,7 +223,7 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
     } catch (e) {
       console.error(e);
     }
-    return !(
+    const available = !(
       relayerFee === undefined ||
       parseFloat(amount) <
         this.getMinSendAmount(tokenId, destChain, {
@@ -227,6 +231,10 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
           toNativeToken: 0,
         })
     );
+    return {
+      isAvailable: available,
+      ...(!available && { reason: REASON_AMOUNT_TOO_LOW }),
+    };
   }
 
   async computeReceiveAmount(

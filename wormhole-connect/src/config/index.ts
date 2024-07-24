@@ -147,6 +147,7 @@ export function buildConfig(
       import.meta.env.REACT_APP_WALLET_CONNECT_PROJECT_ID,
     showHamburgerMenu: customConfig?.showHamburgerMenu ?? false,
     previewMode: !!customConfig?.previewMode,
+    manualTargetAddress: !!customConfig?.manualTargetAddress,
 
     // Route options
     ethBridgeMaxAmount: customConfig?.ethBridgeMaxAmount ?? 5,
