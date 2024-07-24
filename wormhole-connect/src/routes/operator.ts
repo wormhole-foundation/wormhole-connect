@@ -43,10 +43,10 @@ export class Operator {
       // Promise.race, because we only want to resolve under specific conditions.
       //
       // The assumption is that at most one route will produce a receipt.
-      let totalAttemptsToMake = config.routes.length;
+      const totalAttemptsToMake = config.routes.length;
       let failedAttempts = 0;
 
-      for (let route of config.routes) {
+      for (const route of config.routes) {
         const r = this.getRoute(route as Route);
 
         r.resumeIfManual(tx)

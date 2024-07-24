@@ -125,7 +125,7 @@ export function parseReceipt(
 const parseTokenBridgeReceipt = (
   receipt: ReceiptWithAttestation<TokenBridge.TransferVAA>,
 ): TransferInfo => {
-  let txData: Partial<TransferInfo> = {
+  const txData: Partial<TransferInfo> = {
     toChain: config.sdkConverter.toChainNameV1(receipt.to),
     fromChain: config.sdkConverter.toChainNameV1(receipt.from),
   };
@@ -145,11 +145,11 @@ const parseTokenBridgeReceipt = (
   }
 
   if (payload.token) {
-    let tokenIdV2 = Wormhole.tokenId(
+    const tokenIdV2 = Wormhole.tokenId(
       payload.token.chain,
       payload.token.address,
     );
-    let tokenV1 = config.sdkConverter.findTokenConfigV1(
+    const tokenV1 = config.sdkConverter.findTokenConfigV1(
       tokenIdV2,
       config.tokensArr,
     );
@@ -184,7 +184,7 @@ const parseTokenBridgeReceipt = (
 const parseCCTPReceipt = (
   receipt: ReceiptWithAttestation<CircleTransfer.CircleAttestationReceipt>,
 ): TransferInfo => {
-  let txData: Partial<TransferInfo> = {
+  const txData: Partial<TransferInfo> = {
     toChain: config.sdkConverter.toChainNameV1(receipt.to),
     fromChain: config.sdkConverter.toChainNameV1(receipt.from),
   };
