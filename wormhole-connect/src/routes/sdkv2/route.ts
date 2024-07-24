@@ -126,6 +126,17 @@ export class SDKv2Route {
       ) {
         return true;
       }
+      // TODO: same issue as above for Aptos
+      if (
+        this.IS_TOKEN_BRIDGE_ROUTE &&
+        sourceToken === 'APT' &&
+        destToken === 'APT' &&
+        supportedDestinationTokens.length === 1 &&
+        toChain.chain === 'Aptos' &&
+        toTokenIdV2.chain === 'Aptos'
+      ) {
+        return true;
+      }
       return isSameToken(tokenId, toTokenIdV2);
     });
 
