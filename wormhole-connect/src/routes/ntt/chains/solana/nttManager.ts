@@ -6,7 +6,12 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { InboundQueuedTransfer } from '../../types';
 import { solanaContext, toChainId, toChainName } from 'utils/sdk';
-import { TransferWallet, postVaa, signAndSendTransaction } from 'utils/wallet';
+import {
+  TransferWallet,
+  getWalletConnection,
+  postVaa,
+  signAndSendTransaction,
+} from 'utils/wallet';
 import {
   Connection,
   Keypair,
@@ -72,6 +77,7 @@ export class NttManagerSolana {
 
   readonly connection: Connection;
   readonly wormholeId: string;
+  readonly isMultisignWallet: boolean;
 
   constructor(readonly nttId: string) {
     const { connection } = solanaContext();
@@ -80,6 +86,8 @@ export class NttManagerSolana {
     const core = CONFIG.wh.mustGetContracts('solana').core;
     if (!core) throw new Error('Core not found');
     this.wormholeId = core;
+    this.isMultisignWallet =
+      getWalletConnection(TransferWallet.SENDING)?.getName() === 'SquadsX';
   }
 
   async send(
@@ -98,6 +106,7 @@ export class NttManagerSolana {
     const tokenAccount = getAssociatedTokenAddressSync(
       new PublicKey(token.address),
       payer,
+      this.isMultisignWallet,
     );
     const txArgs = {
       payer,
@@ -155,6 +164,27 @@ export class NttManagerSolana {
     tx.feePayer = payer;
     const { blockhash } = await this.connection.getLatestBlockhash('finalized');
     tx.recentBlockhash = blockhash;
+
+    /*if (this.isMultisignWallet) {
+      const { value: lookupTableAccount } = await this.connection.getAddressLookupTable(new PublicKey(''));
+      if (lookupTableAccount) {
+        const message = new TransactionMessage({
+          payerKey: payer,
+          recentBlockhash: blockhash,
+          instructions: tx.instructions,
+        }).compileToV0Message([lookupTableAccount]);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const transactionV0 = new VersionedTransaction(message);
+        const txId = await signAndSendTransaction(
+          'solana',
+          tx,
+          TransferWallet.SENDING,
+          { commitment: 'finalized' },
+        );
+        return txId;
+      }
+      return '';
+    } else {*/
     await this.simulate(tx);
     await addComputeBudget(this.connection, tx);
     tx.partialSign(outboxItem);
@@ -165,6 +195,7 @@ export class NttManagerSolana {
       { commitment: 'finalized' },
     );
     return txId;
+    //}
   }
 
   async receiveMessage(vaa: string, payer: string): Promise<string> {

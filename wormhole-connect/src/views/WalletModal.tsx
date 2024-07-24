@@ -15,14 +15,30 @@ import {
   connectWallet,
 } from 'utils/wallet';
 import { CENTER } from 'utils/style';
-
+import { Context } from '@wormhole-foundation/wormhole-connect-sdk';
 import Header from 'components/Header';
 import Modal from 'components/Modal';
 import Spacer from 'components/Spacer';
 import Scroll from 'components/Scroll';
-import WalletIcon from 'icons/WalletIcons';
+import WalletIcons from 'icons/WalletIcons';
+import WalletIcon from 'icons/Wallet';
 import Search from 'components/Search';
 import AlertBanner from 'components/AlertBanner';
+import {
+  Box,
+  Button,
+  FormControlLabel,
+  FormGroup,
+  IconButton,
+  InputLabel,
+  OutlinedInput,
+  Switch,
+  FormControl,
+  InputAdornment,
+} from '@mui/material';
+
+import ContentPaste from '@mui/icons-material/ContentPaste';
+import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
 
 const useStyles = makeStyles()((theme: any) => ({
   walletRow: {
@@ -175,7 +191,7 @@ function WalletsModal(props: Props) {
       return (
         <div className={classes.walletRow} key={i} onClick={select}>
           <div className={classes.walletRowLeft}>
-            <WalletIcon name={wallet.name} icon={wallet.icon} height={32} />
+            <WalletIcons name={wallet.name} icon={wallet.icon} height={32} />
             <div className={`${!ready && classes.notInstalled}`}>
               {!ready && 'Install'} {wallet.name}
             </div>
@@ -226,11 +242,95 @@ function WalletsModal(props: Props) {
     );
   };
 
+  const [address, setAddress] = useState('');
+
+  const handlePaste = async () =>
+    setAddress(await navigator.clipboard.readText());
+
+  const handleSetAddress = (event: React.ChangeEvent<HTMLInputElement>) =>
+    setAddress(event.target.value);
+
+  const handleManualConnect = () => {
+    connect({
+      name: 'Manual Wallet',
+      type: Context.ETH,
+      icon: '',
+      isReady: true,
+      wallet: {
+        connect: async () => ['connected'],
+        getIcon: () => WalletIcon,
+        getUrls: async () => '',
+        getName: () => 'Manual Wallet',
+        disconnect: async () => true,
+        getAddress: () => address,
+        getAddresses: () => [address],
+        getBalance: async () => '0',
+        isConnected: () => true,
+        setMainAddress: (addr: string) => setAddress(addr),
+        on: () => {
+          /* noop */
+        },
+      } as any as Wallet,
+    } as WalletData);
+  };
+  const renderManual = () => {
+    return (
+      <FormGroup>
+        <Box display="flex" flexDirection="column" gap={1}>
+          <FormControl variant="outlined">
+            <InputLabel htmlFor="outlined-adornment-password">
+              Wallet Address
+            </InputLabel>
+            <OutlinedInput
+              id="outlined-adornment-password"
+              fullWidth
+              placeholder="0x..."
+              onChange={handleSetAddress}
+              value={address}
+              endAdornment={
+                <InputAdornment position="end">
+                  <IconButton>
+                    <ContentPaste onClick={handlePaste} />
+                  </IconButton>
+                </InputAdornment>
+              }
+              label="Wallet Address"
+            />
+          </FormControl>
+          <Button variant="contained" fullWidth onClick={handleManualConnect}>
+            Connect
+          </Button>
+        </Box>
+      </FormGroup>
+    );
+  };
+
+  const [isManual, toggleManual] = useState(false);
+
   return (
     <Modal open={!!props.type} closable width={500} onClose={closeWalletModal}>
-      <Header text="Connect wallet" size={28} />
+      <Header text={isManual ? 'Manual Input' : 'Connect wallet'} size={28} />
       <Spacer height={16} />
-      {renderContent()}
+      {props.type === TransferWallet.RECEIVING ? (
+        <>
+          <FormGroup>
+            <FormControlLabel
+              control={
+                <Switch
+                  value={isManual}
+                  onChange={() => toggleManual((val) => !val)}
+                />
+              }
+              label={
+                isManual ? 'Switch to Connect Wallet' : 'Switch to Manual Input'
+              }
+            />
+          </FormGroup>
+        </>
+      ) : (
+        <></>
+      )}
+      {isManual ? renderManual() : renderContent()}
     </Modal>
   );
 }
