@@ -107,7 +107,8 @@ function TxSearch() {
       return;
     }
 
-    let { route, receipt } = resumeResult;
+    const { route } = resumeResult;
+    let { receipt } = resumeResult;
     const wh = await getWormholeContextV2();
     const sdkRoute = new (getRoute(route).rc)(wh);
     setError('');
