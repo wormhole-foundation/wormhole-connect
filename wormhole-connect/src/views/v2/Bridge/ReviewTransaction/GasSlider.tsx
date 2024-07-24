@@ -83,7 +83,10 @@ const StyledSwitch = styled(Switch)((props) => ({
   },
 }));
 
-const GasSlider = (props: { destinationGasFee: number; disabled: boolean }) => {
+const GasSlider = (props: {
+  destinationGasDrop: number;
+  disabled: boolean;
+}) => {
   const { classes } = useStyles();
   const dispatch = useDispatch();
   const theme = useTheme();
@@ -123,11 +126,11 @@ const GasSlider = (props: { destinationGasFee: number; disabled: boolean }) => {
 
   const nativeGasPrice = useMemo(() => {
     const tokenAmount = toFixedDecimals(
-      props.destinationGasFee?.toString() || '0',
+      props.destinationGasDrop?.toString() || '0',
       6,
     );
     const tokenPrice = calculateUSDPrice(
-      toFixedDecimals(props.destinationGasFee?.toString() || '0', 6),
+      props.destinationGasDrop,
       prices,
       nativeGasToken,
     );
@@ -139,7 +142,7 @@ const GasSlider = (props: { destinationGasFee: number; disabled: boolean }) => {
         )} ${tokenPrice}`}
       </Typography>
     );
-  }, [nativeGasToken, prices, props.destinationGasFee, sourceTokenConfig]);
+  }, [nativeGasToken, prices, props.destinationGasDrop, sourceTokenConfig]);
 
   // Checking required values
   if (!sourceTokenConfig || !destChainConfig || !nativeGasToken) {

@@ -317,12 +317,12 @@ const ReviewTransaction = (props: Props) => {
         config={RoutesConfig[route]}
         available={true}
         isSelected={false}
-        showDestinationGasFee
+        destinationGasDrop={receiveNativeAmt}
         title="You will receive"
       />
       <Collapse in={showGasSlider}>
         <GasSlider
-          destinationGasFee={receiveNativeAmt}
+          destinationGasDrop={receiveNativeAmt}
           disabled={isGasSliderDisabled}
         />
       </Collapse>

@@ -139,10 +139,16 @@ const Bridge = () => {
   // Set selectedRoute if the route is auto-selected
   // After the auto-selection, we set selectedRoute when user clicks on a route in the list
   useEffect(() => {
-    if (route && !selectedRoute) {
+    if (!route) {
+      return;
+    }
+
+    const routeState = routeStates?.find((rs) => rs.name === route);
+
+    if (routeState?.available && routeState?.supported && !selectedRoute) {
       setSelectedRoute(route);
     }
-  }, [route, selectedRoute]);
+  }, [route, routeStates, selectedRoute]);
 
   // Compute and set source tokens
   const {
