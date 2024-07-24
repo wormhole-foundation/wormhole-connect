@@ -40,7 +40,6 @@ import aptos from '@wormhole-foundation/sdk/aptos';
 import sui from '@wormhole-foundation/sdk/sui';
 import cosmwasm from '@wormhole-foundation/sdk/cosmwasm';
 import algorand from '@wormhole-foundation/sdk/algorand';
-import { getGasToken } from 'utils';
 
 export function buildConfig(
   customConfig?: WormholeConnectConfig,
@@ -260,14 +259,9 @@ export async function newWormholeContextV2(): Promise<WormholeV2<NetworkV2>> {
         } else {
           tokenV2.decimals = decimals;
         }
-
-        if (token.key === getGasToken(chainV1).key) {
-          tokenV2.address = 'native';
-        } else if (token.tokenId) {
-          tokenV2.address = token.tokenId.address;
-        } else {
-          throw new Error('Token must have tokenId');
-        }
+        const address = config.sdkConverter.getNativeTokenAddressV2(token);
+        if (!address) throw new Error('Token must have address');
+        tokenV2.address = address;
       } else {
         tokenV2.original = nativeChainV2;
         if (token.foreignAssets) {

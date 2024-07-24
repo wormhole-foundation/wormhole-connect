@@ -84,10 +84,7 @@ export class SDKConverter {
         }
       } else {
         // Getting native address
-        const address =
-          getGasToken(token.nativeChain).key === token.key
-            ? 'native'
-            : token.tokenId?.address;
+        const address = this.getNativeTokenAddressV2(token);
         if (!address) throw new Error('no address');
         return v2.Wormhole.tokenId(this.toChainV2(token.nativeChain), address);
       }
@@ -149,13 +146,9 @@ export class SDKConverter {
     const chainName = this.wh.toChainName(chain);
 
     if (tokenConfig.nativeChain === chainName) {
-      if (getGasToken(chainName).key === key) {
-        return this.tokenIdV2(chainName, 'native');
-      } else if (tokenConfig.tokenId) {
-        return this.tokenIdV2(chainName, tokenConfig.tokenId.address);
-      } else {
-        throw new Error('Token must have tokenId');
-      }
+      const address = this.getNativeTokenAddressV2(tokenConfig);
+      if (!address) return undefined;
+      return this.tokenIdV2(chainName, address);
     } else {
       // For token bridge route, we might be trying to fetch a token's address on its
       // non-native chain.
@@ -166,5 +159,16 @@ export class SDKConverter {
       if (!foreignAddress) return undefined;
       return this.tokenIdV2(chainName, foreignAddress.toString());
     }
+  }
+
+  getNativeTokenAddressV2(token: TokenConfigV1): string | undefined {
+    const address =
+      // If the token is the native gas token, return 'native'
+      // Note: We don't set the address to 'native' for CELO because the Celo token bridge
+      // doesn't have WETH set. Celo also has multiple native gas tokens.
+      getGasToken(token.nativeChain).key === token.key && token.key !== 'CELO'
+        ? 'native'
+        : token.tokenId?.address;
+    return address;
   }
 }
