@@ -161,10 +161,21 @@ const parseTokenBridgeReceipt = (
 
     const fromChain = config.sdkConverter.toChainNameV1(receipt.from);
     const fromChainConfig = config.chains[fromChain];
-    const decimals =
-      tokenV1!.decimals[fromChainConfig!.context] || tokenV1!.decimals.default;
+
+    let decimals = tokenV1!.decimals.default;
+
+    if (tokenV1.nativeChain !== fromChain) {
+      // If we're dealing with the token's native chain, just use token.decimals.default
+      // Otherwise, prefer the decimals[platform] value (aka context)
+      // For example context of Ethereum means EVM platform
+      // TODO sdkv2 this config interface could be improved... it's confusing
+      decimals =
+        tokenV1!.decimals[fromChainConfig!.context] ||
+        tokenV1!.decimals.default;
+    }
 
     txData.tokenDecimals = decimals;
+
     txData.amount = amount.display({
       amount: payload.token.amount.toString(),
       decimals,
