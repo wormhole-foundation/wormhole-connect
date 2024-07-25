@@ -5,7 +5,7 @@ const COINGECKO_URL = 'https://api.coingecko.com/';
 const COINGECKO_URL_PRO = 'https://pro-api.coingecko.com/';
 
 const useFetchTokenPricesV2 = (): {
-  prices: any;
+  prices: object;
   error: string;
 } => {
   const [prices, setPrices] = useState({});
