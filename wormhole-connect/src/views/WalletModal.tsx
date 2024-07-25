@@ -4,7 +4,6 @@ import { useTheme } from '@mui/material/styles';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useDispatch, useSelector } from 'react-redux';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
-import { Context } from '@wormhole-foundation/wormhole-connect-sdk';
 import config from 'config';
 import { RootState } from 'store';
 import { setWalletModal } from 'store/router';
@@ -38,7 +37,6 @@ import {
 import ContentPaste from '@mui/icons-material/ContentPaste';
 import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
 import Button from 'components/Button';
-import WalletIcon from 'icons/Wallet';
 import WalletImg from '../wallet.svg';
 import { setManualAddressTarget } from 'store/transferInput';
 
@@ -251,11 +249,11 @@ function WalletsModal(props: Props) {
   const handleSetAddress = (event: React.ChangeEvent<HTMLInputElement>) => {
     setAddress(event.target.value);
   };
-  console.log('WalletIcon', WalletIcon);
+
   const handleManualConnect = () => {
     connect({
       name: 'Manual Wallet',
-      type: Context.ETH,
+      type: config.chains[toChain!]!.context,
       icon: '',
       isReady: true,
       wallet: {
