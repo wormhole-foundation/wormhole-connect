@@ -102,7 +102,9 @@ const AmountInput = (props: Props) => {
         disabled={isInputDisabled || !tokenBalance}
         onClick={() => {
           if (tokenBalance) {
-            dispatch(setAmount(tokenBalance));
+            const trimmedTokenBalance = toFixedDecimals(`${tokenBalance}`, 6);
+            setTokenAmount(trimmedTokenBalance);
+            dispatch(setAmount(trimmedTokenBalance));
           }
         }}
       >
@@ -148,6 +150,14 @@ const AmountInput = (props: Props) => {
             variant="standard"
             value={tokenAmount}
             onChange={onAmountChange}
+            onWheel={(e) => {
+              // IMPORTANT: We need to prevent the scroll behavior on number inputs.
+              // Otherwise it'll increase/decrease the value when user scrolls on the input control.
+              // See for details: https://github.com/mui/material-ui/issues/7960
+              if (e.target instanceof HTMLElement) {
+                e.target.blur();
+              }
+            }}
             InputProps={{
               disableUnderline: true,
               endAdornment: (

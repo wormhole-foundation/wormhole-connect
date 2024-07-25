@@ -221,20 +221,14 @@ const SingleRoute = (props: Props) => {
       return <></>;
     }
 
-    const destChainConfig = config.chains[destChain];
-
-    if (!destChainConfig) {
-      return <></>;
-    }
-
     const receiveAmountPrice = calculateUSDPrice(
       receiveAmount,
       tokenPrices,
-      config.tokens[destChainConfig.gasToken],
+      config.tokens[destToken],
     );
 
     return <Typography>{receiveAmountPrice}</Typography>;
-  }, [destChain, receiveAmount, tokenPrices]);
+  }, [destToken, receiveAmount, tokenPrices]);
 
   if (isEmptyObject(props.config)) {
     return <></>;
