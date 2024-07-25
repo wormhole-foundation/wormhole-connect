@@ -253,12 +253,17 @@ export const getTokenPrice = (
   return undefined;
 };
 
-export const getUSDFormat = (price: number | undefined): string => {
+export const getUSDFormat = (
+  price: number | undefined,
+  noParanthesis?: boolean | undefined,
+): string => {
   if (typeof price !== 'undefined') {
-    return `(${price > 0 ? '~' : ''}${Intl.NumberFormat('en-EN', {
+    return `${noParanthesis ? '' : '('}${
+      price > 0 ? '~' : ''
+    }${Intl.NumberFormat('en-EN', {
       style: 'currency',
       currency: 'USD',
-    }).format(price)})`;
+    }).format(price)}${noParanthesis ? '' : ')'}`;
   }
   return '';
 };
@@ -267,12 +272,21 @@ export const calculateUSDPrice = (
   amount?: number | string,
   tokenPrices?: TokenPrices,
   token?: TokenConfig,
+  noParanthesis?: boolean | undefined,
 ): string => {
-  if (!amount || !tokenPrices || !token) return '';
+  if (
+    typeof amount === 'undefined' ||
+    amount === '' ||
+    !tokenPrices ||
+    !token
+  ) {
+    return '';
+  }
+
   const usdPrice = getTokenPrice(tokenPrices || {}, token) || 0;
   if (usdPrice > 0) {
     const price = Number.parseFloat(`${amount}`) * usdPrice;
-    return getUSDFormat(price);
+    return getUSDFormat(price, noParanthesis);
   }
   return '';
 };

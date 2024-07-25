@@ -1,6 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { makeStyles } from 'tss-react/mui';
-import { useTheme } from '@mui/material/styles';
 import CircularProgress from '@mui/material/CircularProgress';
 import Drawer from '@mui/material/Drawer';
 import { useDispatch, useSelector } from 'react-redux';
@@ -23,7 +22,7 @@ import WalletIcon from 'icons/WalletIcons';
 import AlertBanner from 'components/AlertBanner';
 import { useAvailableWallets } from 'hooks/useAvailableWallets';
 
-const useStyles = makeStyles()((theme: any) => ({
+const useStyles = makeStyles()(() => ({
   drawer: {
     width: '360px',
   },
@@ -45,8 +44,7 @@ type Props = {
 // for the selected source or destination chain.
 const WalletSidebar = (props: Props) => {
   const dispatch = useDispatch();
-  const theme: any = useTheme();
-  const { classes } = useStyles(theme);
+  const { classes } = useStyles();
 
   const { fromChain: sourceChain, toChain: destChain } = useSelector(
     (state: RootState) => state.transferInput,

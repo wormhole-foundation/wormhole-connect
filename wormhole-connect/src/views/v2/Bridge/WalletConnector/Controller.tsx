@@ -25,9 +25,7 @@ import config from 'config';
 import ExplorerLink from './ExplorerLink';
 import WalletSidebar from './Sidebar';
 
-type StyleProps = { disabled?: boolean };
-
-const useStyles = makeStyles<StyleProps>()((theme: any) => ({
+const useStyles = makeStyles()((theme: any) => ({
   connectWallet: {
     display: 'flex',
     alignItems: 'center',
@@ -70,7 +68,7 @@ type Props = {
 const ConnectedWallet = (props: Props) => {
   const dispatch = useDispatch();
 
-  const { classes } = useStyles({});
+  const { classes } = useStyles();
 
   const wallet = useSelector((state: RootState) => state.wallet[props.type]);
 
