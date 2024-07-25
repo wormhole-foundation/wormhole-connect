@@ -17,9 +17,7 @@ import useComputeFees from 'hooks/useComputeFees';
 import useComputeQuoteV2 from 'hooks/useComputeQuoteV2';
 import useFetchTokenPricesV2 from 'hooks/useFetchTokenPricesV2';
 import RouteOperator from 'routes/operator';
-import { isPorticoRoute } from 'routes/porticoBridge/utils';
 import { isEmptyObject, calculateUSDPrice } from 'utils';
-import { isGatewayChain } from 'utils/cosmos';
 
 import type { Route } from 'config/types';
 import type { RouteData } from 'config/routes';
@@ -173,12 +171,7 @@ const SingleRoute = (props: Props) => {
 
     const routeConfig = RouteOperator.getRoute(props.config.route);
 
-    return !(
-      routeConfig.AUTOMATIC_DEPOSIT ||
-      (destChain && isGatewayChain(destChain)) ||
-      destChain === 'sei' ||
-      isPorticoRoute(routeConfig.TYPE)
-    );
+    return !routeConfig.AUTOMATIC_DEPOSIT;
   }, [props.config.route, destChain]);
 
   const warningMessage = useMemo(() => {

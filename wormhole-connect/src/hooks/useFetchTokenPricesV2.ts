@@ -1,11 +1,13 @@
 import config from 'config';
 import { useEffect, useState } from 'react';
 
+import type { TokenPrices } from 'store/tokenPrices';
+
 const COINGECKO_URL = 'https://api.coingecko.com/';
 const COINGECKO_URL_PRO = 'https://pro-api.coingecko.com/';
 
 const useFetchTokenPricesV2 = (): {
-  prices: object;
+  prices: TokenPrices;
   error: string;
 } => {
   const [prices, setPrices] = useState({});
