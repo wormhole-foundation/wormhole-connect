@@ -27,7 +27,6 @@ import useAvailableRoutes from 'hooks/useAvailableRoutes';
 import useComputeDestinationTokensV2 from 'hooks/useComputeDestinationTokensV2';
 import useComputeFees from 'hooks/useComputeFees';
 import useComputeQuoteV2 from 'hooks/useComputeQuoteV2';
-import { useFetchTokenPrices } from 'hooks/useFetchTokenPrices';
 import useComputeSourceTokensV2 from 'hooks/useComputeSourceTokensV2';
 import {
   selectFromChain,
@@ -196,7 +195,6 @@ const Bridge = () => {
   });
 
   useAvailableRoutes();
-  useFetchTokenPrices();
 
   // All supported chains from the given configuration and any custom override
   const supportedChains = useMemo(

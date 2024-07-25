@@ -32,22 +32,8 @@ const useAvailableRoutes = (): void => {
       for (const value of config.routes) {
         const r = value as Route;
 
-        let available = false;
         let supported = false;
-
-        try {
-          available = await RouteOperator.isRouteAvailable(
-            r,
-            token,
-            destToken,
-            debouncedAmount,
-            fromChain,
-            toChain,
-            { nativeGas: toNativeToken },
-          );
-        } catch (e) {
-          console.log('Error when checking route is available:', e, r);
-        }
+        let available = false;
 
         try {
           supported = await RouteOperator.isRouteSupported(
@@ -60,6 +46,24 @@ const useAvailableRoutes = (): void => {
           );
         } catch (e) {
           console.log('Error when checking route is supported:', e, r);
+        }
+
+        // Check availability of a route only when it is supported
+        // Primary goal here is to prevent any unnecessary RPC calls
+        if (supported) {
+          try {
+            available = await RouteOperator.isRouteAvailable(
+              r,
+              token,
+              destToken,
+              debouncedAmount,
+              fromChain,
+              toChain,
+              { nativeGas: toNativeToken },
+            );
+          } catch (e) {
+            console.log('Error when checking route is available:', e, r);
+          }
         }
 
         routes.push({ name: r, supported, available });

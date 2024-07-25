@@ -270,7 +270,7 @@ const ReviewTransaction = (props: Props) => {
   };
 
   const walletsConnected = useMemo(
-    () => Boolean(sendingWallet.address) && Boolean(receivingWallet.address),
+    () => !!sendingWallet.address && !!receivingWallet.address,
     [sendingWallet.address, receivingWallet.address],
   );
 

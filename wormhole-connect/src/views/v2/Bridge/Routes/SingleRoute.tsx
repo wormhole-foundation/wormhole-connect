@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { CircularProgress, useTheme } from '@mui/material';
 import Avatar from '@mui/material/Avatar';
@@ -6,19 +6,16 @@ import Card from '@mui/material/Card';
 import CardActionArea from '@mui/material/CardActionArea';
 import CardContent from '@mui/material/CardContent';
 import CardHeader from '@mui/material/CardHeader';
-import Collapse from '@mui/material/Collapse';
 import Divider from '@mui/material/Divider';
-import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
-import DownIcon from '@mui/icons-material/ExpandMore';
-import UpIcon from '@mui/icons-material/ExpandLess';
 import WarningIcon from '@mui/icons-material/Report';
 import { makeStyles } from 'tss-react/mui';
 
 import config from 'config';
 import useComputeFees from 'hooks/useComputeFees';
 import useComputeQuoteV2 from 'hooks/useComputeQuoteV2';
+import useFetchTokenPricesV2 from 'hooks/useFetchTokenPricesV2';
 import RouteOperator from 'routes/operator';
 import { isPorticoRoute } from 'routes/porticoBridge/utils';
 import { isEmptyObject, calculateUSDPrice } from 'utils';
@@ -63,19 +60,13 @@ const SingleRoute = (props: Props) => {
 
   const { toNativeToken } = useSelector((state: RootState) => state.relay);
 
-  const {
-    usdPrices: { data },
-  } = useSelector((state: RootState) => state.tokenPrices);
-  const tokenPrices = data || {};
+  const { prices: tokenPrices } = useFetchTokenPricesV2();
 
-  const [isFeesBreakdownOpen, setIsFeesBreakdownOpen] = useState(false);
-
-  const { name, route, providedBy } = props.config;
+  const { name, route } = props.config;
 
   // Compute the fees for this route
   const {
     receiveAmount,
-    receiveAmountUSD,
     estimatedTime,
     isFetching: isFetchingFees,
   } = useComputeFees({
@@ -99,48 +90,6 @@ const SingleRoute = (props: Props) => {
     toNativeToken,
   });
 
-  const totalFees = useMemo(() => {
-    let total = 0;
-
-    if (relayerFee) {
-      total += relayerFee || 0;
-    }
-
-    if (props.destinationGasDrop) {
-      total += props.destinationGasDrop;
-    }
-
-    const totalPrice = calculateUSDPrice(
-      total,
-      tokenPrices,
-      config.tokens[destToken],
-      true,
-    );
-
-    if (!totalPrice) {
-      return <></>;
-    }
-
-    return (
-      <>
-        <Typography color={theme.palette.text.secondary} fontSize={14}>
-          Total fees
-        </Typography>
-        {isFetchingFees || isFetchingQuote ? (
-          <CircularProgress size={14} />
-        ) : (
-          <Typography fontSize={14}>{totalPrice}</Typography>
-        )}
-      </>
-    );
-  }, [
-    destToken,
-    isFetchingFees,
-    isFetchingQuote,
-    props.destinationGasDrop,
-    relayerFee,
-  ]);
-
   const bridgeFee = useMemo(() => {
     const bridgePrice = calculateUSDPrice(
       relayerFee,
@@ -155,11 +104,7 @@ const SingleRoute = (props: Props) => {
 
     return (
       <Stack direction="row" justifyContent="space-between">
-        <Typography
-          color={theme.palette.text.secondary}
-          fontSize={14}
-          paddingLeft="8px"
-        >
+        <Typography color={theme.palette.text.secondary} fontSize={14}>
           Bridge fee
         </Typography>
         {isFetchingQuote ? (
@@ -171,7 +116,7 @@ const SingleRoute = (props: Props) => {
     );
   }, [destToken, isFetchingQuote, relayerFee, tokenPrices]);
 
-  const destinationGasFee = useMemo(() => {
+  const destinationGas = useMemo(() => {
     if (!destChain || !props.destinationGasDrop) {
       return <></>;
     }
@@ -191,12 +136,8 @@ const SingleRoute = (props: Props) => {
 
     return (
       <Stack direction="row" justifyContent="space-between">
-        <Typography
-          color={theme.palette.text.secondary}
-          fontSize={14}
-          paddingLeft="8px"
-        >
-          Destination gas fee
+        <Typography color={theme.palette.text.secondary} fontSize={14}>
+          Gas top up
         </Typography>
         {isFetchingQuote ? (
           <CircularProgress size={14} />
@@ -207,15 +148,6 @@ const SingleRoute = (props: Props) => {
     );
   }, [destChain, isFetchingQuote, props.destinationGasDrop]);
 
-  const feesBreakdown = useMemo(() => {
-    return (
-      <>
-        {bridgeFee}
-        {destinationGasFee}
-      </>
-    );
-  }, [bridgeFee, destinationGasFee]);
-
   const timeToDestination = useMemo(() => {
     return (
       <>
@@ -223,14 +155,14 @@ const SingleRoute = (props: Props) => {
           Time to destination
         </Typography>
 
-        {estimatedTime ? (
-          <Typography fontSize={14}>{estimatedTime}</Typography>
-        ) : (
+        {isFetchingFees ? (
           <CircularProgress size={14} />
+        ) : (
+          <Typography fontSize={14}>{estimatedTime}</Typography>
         )}
       </>
     );
-  }, [estimatedTime]);
+  }, [estimatedTime, isFetchingFees]);
 
   const showWarning = useMemo(() => {
     if (!props.config.route) {
@@ -281,14 +213,28 @@ const SingleRoute = (props: Props) => {
   }, [receiveAmount, destToken]);
 
   const routeSubHeader = useMemo(() => {
-    return typeof receiveAmountUSD === 'undefined' ? (
-      <CircularProgress size={18} />
-    ) : (
-      <Typography>
-        {receiveAmountUSD} via {providedBy}
-      </Typography>
+    if (typeof receiveAmount === 'undefined') {
+      return <CircularProgress size={18} />;
+    }
+
+    if (!destChain) {
+      return <></>;
+    }
+
+    const destChainConfig = config.chains[destChain];
+
+    if (!destChainConfig) {
+      return <></>;
+    }
+
+    const receiveAmountPrice = calculateUSDPrice(
+      receiveAmount,
+      tokenPrices,
+      config.tokens[destChainConfig.gasToken],
     );
-  }, [receiveAmountUSD, providedBy]);
+
+    return <Typography>{receiveAmountPrice}</Typography>;
+  }, [destChain, receiveAmount, tokenPrices]);
 
   if (isEmptyObject(props.config)) {
     return <></>;
@@ -316,26 +262,14 @@ const SingleRoute = (props: Props) => {
         >
           <CardHeader
             avatar={<Avatar>{props.config.icon()}</Avatar>}
-            action={
-              <IconButton
-                onClick={(e) => {
-                  setIsFeesBreakdownOpen(!isFeesBreakdownOpen);
-                  e.stopPropagation();
-                }}
-              >
-                {isFeesBreakdownOpen ? <UpIcon /> : <DownIcon />}
-              </IconButton>
-            }
             title={routeTitle}
             subheader={routeSubHeader}
           />
           <CardContent>
-            <Stack direction="row" justifyContent="space-between">
-              {totalFees}
+            <Stack justifyContent="space-between">
+              {bridgeFee}
+              {destinationGas}
             </Stack>
-            <Collapse in={isFeesBreakdownOpen}>
-              <Stack justifyContent="space-between">{feesBreakdown}</Stack>
-            </Collapse>
             <Stack direction="row" justifyContent="space-between">
               {timeToDestination}
             </Stack>

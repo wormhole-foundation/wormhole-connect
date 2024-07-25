@@ -1,6 +1,7 @@
 import './styles.css';
 import React, { useEffect } from 'react';
 import { useState } from 'react';
+
 import WormholeConnect from '../../WormholeConnect';
 import { WormholeConnectConfig } from 'config/types';
 import { compressToBase64, decompressFromBase64 } from 'lz-string';
@@ -57,6 +58,7 @@ function DemoApp() {
     loadInitialConfig(),
   );
   const [customConfigNonce, setCustomConfigNonce] = useState(1);
+  const [isLoadingCustomConfig, setIsLoadingCustomConfig] = useState(true);
 
   const updateCustomConfig = (e: any) => {
     const input = e.target.value;
@@ -73,6 +75,10 @@ function DemoApp() {
       setCustomConfigNonce(customConfigNonce + 1);
     } catch (e) {
       console.error(e);
+    }
+
+    if (isLoadingCustomConfig) {
+      setIsLoadingCustomConfig(false);
     }
   };
 
@@ -101,10 +107,9 @@ function DemoApp() {
 
       <article>
         <div id="demo-contents">
-          <WormholeConnect
-            key={customConfigNonce}
-            config={customConfig ?? {}}
-          />
+          {!isLoadingCustomConfig && (
+            <WormholeConnect key={customConfigNonce} config={customConfig} />
+          )}
         </div>
 
         {customConfigOpen ? (
