@@ -13,6 +13,7 @@ export interface TransferDetails {
   fromChain: ChainName | ChainId;
   toChain: ChainName | ChainId;
   txId?: string;
+  USDAmount?: number;
 }
 
 export type TransferEventType =
