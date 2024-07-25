@@ -64,23 +64,25 @@ const SingleRoute = (props: Props) => {
 
   const { name, route } = props.config;
 
-  // Compute the fees for this route
-  const {
-    receiveAmount,
-    estimatedTime,
-    isFetching: isFetchingFees,
-  } = useComputeFees({
-    sourceChain,
-    destChain,
-    sourceToken,
-    destToken,
-    amount,
-    route,
-    toNativeToken,
-  });
+  // Compute the estiamted time for this route
+  const { estimatedTime, isFetching: isFetchingEstimatedTime } = useComputeFees(
+    {
+      sourceChain,
+      destChain,
+      sourceToken,
+      destToken,
+      amount,
+      route,
+      toNativeToken,
+    },
+  );
 
   // Compute the quotes for this route
-  const { relayerFee, isFetching: isFetchingQuote } = useComputeQuoteV2({
+  const {
+    receiveAmount,
+    relayerFee,
+    isFetching: isFetchingQuote,
+  } = useComputeQuoteV2({
     sourceChain,
     destChain,
     sourceToken,
@@ -155,14 +157,14 @@ const SingleRoute = (props: Props) => {
           Time to destination
         </Typography>
 
-        {isFetchingFees ? (
+        {isFetchingEstimatedTime ? (
           <CircularProgress size={14} />
         ) : (
           <Typography fontSize={14}>{estimatedTime}</Typography>
         )}
       </>
     );
-  }, [estimatedTime, isFetchingFees]);
+  }, [estimatedTime, isFetchingEstimatedTime]);
 
   const showWarning = useMemo(() => {
     if (!props.config.route) {
