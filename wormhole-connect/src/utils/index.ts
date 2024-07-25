@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { BigNumber, BigNumberish, ethers, utils } from 'ethers';
 import { isHexString } from 'ethers/lib/utils.js';
 import { isValidTransactionDigest, SUI_TYPE_ARG } from '@mysten/sui.js';
@@ -15,6 +15,8 @@ import { isEvmChain } from 'utils/sdk';
 import { toDecimals } from './balance';
 import { isGatewayChain } from './cosmos';
 import { TokenPrices } from 'store/tokenPrices';
+import { useSelector } from 'react-redux';
+import { RootState } from 'store';
 
 export const MAX_DECIMALS = 6;
 export const NORMALIZED_DECIMALS = 8;
@@ -337,4 +339,28 @@ export const tryParseErrorMessage = (
 
 export const removeDust = (amount: BigNumber, decimals: number): BigNumber => {
   return deNormalizeAmount(normalizeAmount(amount, decimals), decimals);
+};
+
+export const useUSDamountGetter = () => {
+  const {
+    usdPrices: { data },
+  } = useSelector((state: RootState) => state.tokenPrices);
+
+  return useCallback(
+    ({
+      token,
+      amount,
+    }: {
+      token: string;
+      amount: string;
+    }): number | undefined => {
+      const prices = data || {};
+      const numericAmount = Number(amount);
+      const tokenPrice = Number(getTokenPrice(prices, config.tokens[token]));
+      const USDAmount = tokenPrice * numericAmount;
+
+      return isNaN(USDAmount) ? undefined : USDAmount;
+    },
+    [data],
+  );
 };

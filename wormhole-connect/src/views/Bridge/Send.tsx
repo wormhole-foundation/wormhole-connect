@@ -11,7 +11,7 @@ import {
   setSendTx,
   setRoute as setRedeemRoute,
 } from 'store/redeem';
-import { displayWalletAddress, sleep } from 'utils';
+import { displayWalletAddress, sleep, useUSDamountGetter } from 'utils';
 import { LINK } from 'utils/style';
 import {
   registerWalletSigner,
@@ -89,6 +89,7 @@ function Send(props: { valid: boolean }) {
     associatedTokenAddress,
     route,
   );
+  const getUSDAmount = useUSDamountGetter();
 
   async function send() {
     setSendError('');
@@ -107,6 +108,7 @@ function Send(props: { valid: boolean }) {
       toToken: getTokenDetails(destToken),
       fromChain: fromChain!,
       toChain: toChain!,
+      USDAmount: getUSDAmount({ token, amount }),
     };
 
     // Handle custom transfer validation (if provided by integrator)
