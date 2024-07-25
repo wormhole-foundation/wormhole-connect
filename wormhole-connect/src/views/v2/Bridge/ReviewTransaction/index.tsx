@@ -1,9 +1,11 @@
 import React, { useContext, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
-import { useMediaQuery, useTheme } from '@mui/material';
-import Button from '@mui/material/Button';
+import { styled, useMediaQuery, useTheme } from '@mui/material';
+import Button, { ButtonProps } from '@mui/material/Button';
+import CircularProgress from '@mui/material/CircularProgress';
 import Collapse from '@mui/material/Collapse';
+import { deepPurple } from '@mui/material/colors';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import ChevronLeft from '@mui/icons-material/ChevronLeft';
@@ -50,6 +52,17 @@ const useStyles = makeStyles()((theme) => ({
     margin: 'auto',
     maxWidth: '420px',
     width: '100%',
+  },
+}));
+
+const StyledButton = styled(Button)<ButtonProps>(({ theme }) => ({
+  color: theme.palette.getContrastText(deepPurple[200]),
+  backgroundColor: deepPurple[200],
+  '&:hover': {
+    backgroundColor: deepPurple[300],
+  },
+  '&:disabled': {
+    backgroundColor: deepPurple[100],
   },
 }));
 
@@ -288,19 +301,31 @@ const ReviewTransaction = (props: Props) => {
     }
 
     return (
-      <Button
+      <StyledButton
         disabled={isTransactionInProgress}
         variant="contained"
         color="primary"
         className={classes.confirmTransaction}
         onClick={() => send()}
       >
-        <Typography textTransform="none">
-          {mobile ? 'Confirm' : 'Confirm transaction'}
-        </Typography>
-      </Button>
+        {isTransactionInProgress ? (
+          <CircularProgress size={24} />
+        ) : (
+          <Typography textTransform="none">
+            {mobile ? 'Confirm' : 'Confirm transaction'}
+          </Typography>
+        )}
+      </StyledButton>
     );
-  }, [sourceChain, sourceToken, destChain, destToken, route, amount]);
+  }, [
+    isTransactionInProgress,
+    sourceChain,
+    sourceToken,
+    destChain,
+    destToken,
+    route,
+    amount,
+  ]);
 
   if (!route || !walletsConnected) {
     return <></>;
