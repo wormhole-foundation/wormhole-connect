@@ -4,7 +4,6 @@ import { useTheme } from '@mui/material/styles';
 import { makeStyles } from 'tss-react/mui';
 import { styled, useMediaQuery } from '@mui/material';
 import Button, { ButtonProps } from '@mui/material/Button';
-import { deepPurple } from '@mui/material/colors';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
@@ -40,13 +39,15 @@ const useStyles = makeStyles()((theme: any) => ({
 }));
 
 const StyledButton = styled(Button)<ButtonProps>(({ theme }) => ({
-  color: theme.palette.getContrastText(deepPurple[200]),
-  backgroundColor: deepPurple[200],
+  color: theme.palette.getContrastText('#C1BBF6'),
+  backgroundColor: '#C1BBF6',
   '&:hover': {
-    backgroundColor: deepPurple[300],
+    backgroundColor: '#C1BBF6',
   },
   '&:disabled': {
-    backgroundColor: deepPurple[100],
+    backgroundColor: '#C1BBF6',
+    color: '#1F2935',
+    opacity: '40%',
   },
 }));
 

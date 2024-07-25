@@ -5,7 +5,6 @@ import { styled, useMediaQuery, useTheme } from '@mui/material';
 import Button, { ButtonProps } from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 import Collapse from '@mui/material/Collapse';
-import { deepPurple } from '@mui/material/colors';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import ChevronLeft from '@mui/icons-material/ChevronLeft';
@@ -56,13 +55,15 @@ const useStyles = makeStyles()((theme) => ({
 }));
 
 const StyledButton = styled(Button)<ButtonProps>(({ theme }) => ({
-  color: theme.palette.getContrastText(deepPurple[200]),
-  backgroundColor: deepPurple[200],
+  color: theme.palette.getContrastText('#C1BBF6'),
+  backgroundColor: '#C1BBF6',
   '&:hover': {
-    backgroundColor: deepPurple[300],
+    backgroundColor: '#C1BBF6',
   },
   '&:disabled': {
-    backgroundColor: deepPurple[100],
+    backgroundColor: '#C1BBF6',
+    color: '#1F2935',
+    opacity: '40%',
   },
 }));
 

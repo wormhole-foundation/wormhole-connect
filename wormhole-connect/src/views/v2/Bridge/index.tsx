@@ -3,7 +3,6 @@ import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { styled, useMediaQuery, useTheme } from '@mui/material';
 import Button, { ButtonProps } from '@mui/material/Button';
-import { deepPurple } from '@mui/material/colors';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 
@@ -95,13 +94,15 @@ const useStyles = makeStyles()((theme) => ({
 }));
 
 const StyledButton = styled(Button)<ButtonProps>(({ theme }) => ({
-  color: theme.palette.getContrastText(deepPurple[200]),
-  backgroundColor: deepPurple[200],
+  color: theme.palette.getContrastText('#C1BBF6'),
+  backgroundColor: '#C1BBF6',
   '&:hover': {
-    backgroundColor: deepPurple[300],
+    backgroundColor: '#C1BBF6',
   },
   '&:disabled': {
-    backgroundColor: deepPurple[100],
+    backgroundColor: '#C1BBF6',
+    color: '#1F2935',
+    opacity: '40%',
   },
 }));
 
