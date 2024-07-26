@@ -50,6 +50,7 @@
     "@xlabs-libs/wallet-aggregator-sei": "^0.0.1-alpha.14",
     "@xlabs-libs/wallet-aggregator-solana": "^0.0.1-alpha.15",
     "@xlabs-libs/wallet-aggregator-sui": "^0.0.1-alpha.10",
+    "@yudiel/react-qr-scanner": "^2.0.4",
     "aptos": "1.5.0",
     "axios": "^1.2.4",
     "cosmjs-types": "^0.9.0",

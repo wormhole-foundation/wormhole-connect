@@ -39,6 +39,7 @@ import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
 import Button from 'components/Button';
 import WalletImg from '../wallet.svg';
 import { setManualAddressTarget } from 'store/transferInput';
+import QRScanner from 'components/QRScanner';
 
 const useStyles = makeStyles()((theme: any) => ({
   walletRow: {
@@ -279,7 +280,7 @@ function WalletsModal(props: Props) {
         <Box display="flex" flexDirection="column" gap={1}>
           <FormControl variant="outlined">
             <InputLabel htmlFor="outlined-adornment-password">
-              Wallet Addresss
+              Wallet Address
             </InputLabel>
             <OutlinedInput
               id="outlined-adornment-password"
@@ -289,6 +290,7 @@ function WalletsModal(props: Props) {
               value={address}
               endAdornment={
                 <InputAdornment position="end">
+                  <QRScanner onScan={setAddress} />
                   <IconButton>
                     <ContentPaste onClick={handlePaste} />
                   </IconButton>
