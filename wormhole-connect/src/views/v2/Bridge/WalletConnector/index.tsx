@@ -2,8 +2,11 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useTheme } from '@mui/material/styles';
 import { makeStyles } from 'tss-react/mui';
-import { Button, Tooltip, Typography, useMediaQuery } from '@mui/material';
+import { useMediaQuery } from '@mui/material';
+import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
 
+import Button from 'components/v2/Button';
 import { RootState } from 'store';
 import { displayWalletAddress } from 'utils';
 import { TransferWallet } from 'utils/wallet';
@@ -78,8 +81,7 @@ const WalletConnector = (props: Props) => {
   const disconnected = useMemo(() => {
     const button = (
       <Button
-        variant="contained"
-        color="primary"
+        variant="primary"
         className={classes.connectWallet}
         data-testid={`${props.side}-section-connect-wallet-button`}
         disabled={disabled}

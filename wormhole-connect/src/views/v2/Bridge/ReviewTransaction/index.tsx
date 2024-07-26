@@ -2,7 +2,7 @@ import React, { useContext, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 import { useMediaQuery, useTheme } from '@mui/material';
-import Button from '@mui/material/Button';
+import CircularProgress from '@mui/material/CircularProgress';
 import Collapse from '@mui/material/Collapse';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
@@ -12,6 +12,7 @@ import { getTokenDetails } from 'telemetry';
 import { Context } from 'sdklegacy';
 
 import AlertBanner from 'components/AlertBanner';
+import Button from 'components/v2/Button';
 import config from 'config';
 import { RoutesConfig } from 'config/routes';
 import { RouteContext } from 'contexts/RouteContext';
@@ -24,7 +25,7 @@ import {
   setRoute as setRedeemRoute,
 } from 'store/redeem';
 import { setRoute as setAppRoute } from 'store/router';
-import { setIsTransactionInProgress } from 'store/transferInput';
+import { setAmount, setIsTransactionInProgress } from 'store/transferInput';
 import { getTokenDecimals, getWrappedToken, getWrappedTokenId } from 'utils';
 import { interpretTransferError } from 'utils/errors';
 import { validate, isTransferValid } from 'utils/transferValidation';
@@ -97,7 +98,7 @@ const ReviewTransaction = (props: Props) => {
   });
 
   // Compute the native gas to receive
-  const { receiveNativeAmt } = useComputeQuoteV2({
+  const { receiveNativeAmt, isFetching: isFetchingQuote } = useComputeQuoteV2({
     sourceChain,
     destChain,
     sourceToken,
@@ -243,6 +244,9 @@ const ReviewTransaction = (props: Props) => {
         }),
       );
 
+      // Reset the amount for a successful transaction
+      dispatch(setAmount(''));
+
       routeContext.setRoute(sdkRoute);
       routeContext.setReceipt(receipt);
 
@@ -289,18 +293,30 @@ const ReviewTransaction = (props: Props) => {
 
     return (
       <Button
-        disabled={isTransactionInProgress}
-        variant="contained"
-        color="primary"
+        disabled={isFetchingQuote || isTransactionInProgress}
+        variant="primary"
         className={classes.confirmTransaction}
         onClick={() => send()}
       >
-        <Typography textTransform="none">
-          {mobile ? 'Confirm' : 'Confirm transaction'}
-        </Typography>
+        {isTransactionInProgress ? (
+          <CircularProgress size={24} />
+        ) : (
+          <Typography textTransform="none">
+            {mobile ? 'Confirm' : 'Confirm transaction'}
+          </Typography>
+        )}
       </Button>
     );
-  }, [sourceChain, sourceToken, destChain, destToken, route, amount]);
+  }, [
+    isFetchingQuote,
+    isTransactionInProgress,
+    sourceChain,
+    sourceToken,
+    destChain,
+    destToken,
+    route,
+    amount,
+  ]);
 
   if (!route || !walletsConnected) {
     return <></>;

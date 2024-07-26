@@ -1,9 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
-import { styled, useMediaQuery, useTheme } from '@mui/material';
-import Button, { ButtonProps } from '@mui/material/Button';
-import { deepPurple } from '@mui/material/colors';
+import { useMediaQuery, useTheme } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 
@@ -16,6 +14,7 @@ import type { RootState } from 'store';
 
 import RouteOperator from 'routes/operator';
 
+import Button from 'components/v2/Button';
 import config from 'config';
 import { joinClass } from 'utils/style';
 import PoweredByIcon from 'icons/PoweredBy';
@@ -35,6 +34,7 @@ import {
   setTransferRoute,
   setDestToken,
 } from 'store/transferInput';
+import { useConnectToLastUsedWallet } from 'utils/wallet';
 import WalletConnector from 'views/v2/Bridge/WalletConnector';
 import AssetPicker from 'views/v2/Bridge/AssetPicker';
 import WalletController from 'views/v2/Bridge/WalletConnector/Controller';
@@ -90,17 +90,6 @@ const useStyles = makeStyles()((theme) => ({
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
-  },
-}));
-
-const StyledButton = styled(Button)<ButtonProps>(({ theme }) => ({
-  color: theme.palette.getContrastText(deepPurple[200]),
-  backgroundColor: deepPurple[200],
-  '&:hover': {
-    backgroundColor: deepPurple[300],
-  },
-  '&:disabled': {
-    backgroundColor: deepPurple[100],
   },
 }));
 
@@ -194,7 +183,11 @@ const Bridge = () => {
     toNativeToken,
   });
 
+  // Pre-fetch available routes
   useAvailableRoutes();
+
+  // Connect to any previously used wallets for the selected networks
+  useConnectToLastUsedWallet();
 
   // All supported chains from the given configuration and any custom override
   const supportedChains = useMemo(
@@ -368,8 +361,8 @@ const Bridge = () => {
     const isFetching = isFetchingFees || isFetchingQuote;
 
     return (
-      <StyledButton
-        variant="contained"
+      <Button
+        variant="primary"
         className={classes.reviewTransaction}
         disabled={isFetching}
         onClick={() => {
@@ -389,7 +382,7 @@ const Bridge = () => {
         <Typography textTransform="none">
           {mobile ? 'Review' : 'Review transaction'}
         </Typography>
-      </StyledButton>
+      </Button>
     );
   }, [
     sourceChain,
