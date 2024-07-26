@@ -57,6 +57,7 @@ function QRScanner({ onScan }: QRScannerProps) {
               onScan={handleScan}
               allowMultiple={false}
               formats={formats}
+              components={{ audio: false }}
             />
           </div>
         </Modal>

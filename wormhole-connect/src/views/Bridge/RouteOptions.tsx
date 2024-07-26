@@ -108,6 +108,7 @@ const useStyles = makeStyles()((theme: any) => ({
     flexDirection: 'column',
     justifyContent: 'space-around',
     alignItems: 'flex-end',
+    textAlign: 'right',
     padding: '4px 0',
     height: '100%',
   },

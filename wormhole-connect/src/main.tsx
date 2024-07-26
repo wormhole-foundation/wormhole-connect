@@ -27,7 +27,6 @@ if (!container) {
 }
 
 let config: WormholeConnectConfig = {
-  // manualTargetAddress: true, // TODO: Remove before merge
   eventHandler: (event: WormholeConnectEvent) => {
     container.dispatchEvent(
       new CustomEvent('wormholeConnectEvent', { detail: event }),

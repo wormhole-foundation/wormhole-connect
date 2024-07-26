@@ -316,7 +316,8 @@ function WalletsModal(props: Props) {
       <Header text={isManual ? 'Manual Input' : 'Connect wallet'} size={28} />
 
       <Spacer height={16} />
-      {props.type === TransferWallet.RECEIVING ? (
+      {props.type === TransferWallet.RECEIVING &&
+      config?.manualTargetAddress ? (
         <>
           <FormGroup>
             <FormControlLabel
