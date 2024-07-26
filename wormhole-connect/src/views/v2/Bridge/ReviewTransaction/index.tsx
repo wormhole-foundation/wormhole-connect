@@ -1,8 +1,7 @@
 import React, { useContext, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
-import { styled, useMediaQuery, useTheme } from '@mui/material';
-import Button, { ButtonProps } from '@mui/material/Button';
+import { useMediaQuery, useTheme } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
 import Collapse from '@mui/material/Collapse';
 import Stack from '@mui/material/Stack';
@@ -13,6 +12,7 @@ import { getTokenDetails } from 'telemetry';
 import { Context } from 'sdklegacy';
 
 import AlertBanner from 'components/AlertBanner';
+import Button from 'components/v2/Button';
 import config from 'config';
 import { RoutesConfig } from 'config/routes';
 import { RouteContext } from 'contexts/RouteContext';
@@ -25,7 +25,7 @@ import {
   setRoute as setRedeemRoute,
 } from 'store/redeem';
 import { setRoute as setAppRoute } from 'store/router';
-import { setIsTransactionInProgress } from 'store/transferInput';
+import { setAmount, setIsTransactionInProgress } from 'store/transferInput';
 import { getTokenDecimals, getWrappedToken, getWrappedTokenId } from 'utils';
 import { interpretTransferError } from 'utils/errors';
 import { validate, isTransferValid } from 'utils/transferValidation';
@@ -51,19 +51,6 @@ const useStyles = makeStyles()((theme) => ({
     margin: 'auto',
     maxWidth: '420px',
     width: '100%',
-  },
-}));
-
-const StyledButton = styled(Button)<ButtonProps>(({ theme }) => ({
-  color: theme.palette.getContrastText('#C1BBF6'),
-  backgroundColor: '#C1BBF6',
-  '&:hover': {
-    backgroundColor: '#C1BBF6',
-  },
-  '&:disabled': {
-    backgroundColor: '#C1BBF6',
-    color: '#1F2935',
-    opacity: '40%',
   },
 }));
 
@@ -257,6 +244,9 @@ const ReviewTransaction = (props: Props) => {
         }),
       );
 
+      // Reset the amount for a successful transaction
+      dispatch(setAmount(''));
+
       routeContext.setRoute(sdkRoute);
       routeContext.setReceipt(receipt);
 
@@ -302,10 +292,9 @@ const ReviewTransaction = (props: Props) => {
     }
 
     return (
-      <StyledButton
+      <Button
         disabled={isTransactionInProgress}
-        variant="contained"
-        color="primary"
+        variant="primary"
         className={classes.confirmTransaction}
         onClick={() => send()}
       >
@@ -316,7 +305,7 @@ const ReviewTransaction = (props: Props) => {
             {mobile ? 'Confirm' : 'Confirm transaction'}
           </Typography>
         )}
-      </StyledButton>
+      </Button>
     );
   }, [
     isTransactionInProgress,

@@ -1,8 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
-import { styled, useMediaQuery, useTheme } from '@mui/material';
-import Button, { ButtonProps } from '@mui/material/Button';
+import { useMediaQuery, useTheme } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 
@@ -15,6 +14,7 @@ import type { RootState } from 'store';
 
 import RouteOperator from 'routes/operator';
 
+import Button from 'components/v2/Button';
 import config from 'config';
 import { joinClass } from 'utils/style';
 import PoweredByIcon from 'icons/PoweredBy';
@@ -90,19 +90,6 @@ const useStyles = makeStyles()((theme) => ({
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
-  },
-}));
-
-const StyledButton = styled(Button)<ButtonProps>(({ theme }) => ({
-  color: theme.palette.getContrastText('#C1BBF6'),
-  backgroundColor: '#C1BBF6',
-  '&:hover': {
-    backgroundColor: '#C1BBF6',
-  },
-  '&:disabled': {
-    backgroundColor: '#C1BBF6',
-    color: '#1F2935',
-    opacity: '40%',
   },
 }));
 
@@ -374,8 +361,8 @@ const Bridge = () => {
     const isFetching = isFetchingFees || isFetchingQuote;
 
     return (
-      <StyledButton
-        variant="contained"
+      <Button
+        variant="primary"
         className={classes.reviewTransaction}
         disabled={isFetching}
         onClick={() => {
@@ -395,7 +382,7 @@ const Bridge = () => {
         <Typography textTransform="none">
           {mobile ? 'Review' : 'Review transaction'}
         </Typography>
-      </StyledButton>
+      </Button>
     );
   }, [
     sourceChain,

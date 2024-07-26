@@ -2,11 +2,11 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useTheme } from '@mui/material/styles';
 import { makeStyles } from 'tss-react/mui';
-import { styled, useMediaQuery } from '@mui/material';
-import Button, { ButtonProps } from '@mui/material/Button';
+import { useMediaQuery } from '@mui/material';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
+import Button from 'components/v2/Button';
 import { RootState } from 'store';
 import { displayWalletAddress } from 'utils';
 import { TransferWallet } from 'utils/wallet';
@@ -35,19 +35,6 @@ const useStyles = makeStyles()((theme: any) => ({
     margin: 'auto',
     maxWidth: '420px',
     width: '100%',
-  },
-}));
-
-const StyledButton = styled(Button)<ButtonProps>(({ theme }) => ({
-  color: theme.palette.getContrastText('#C1BBF6'),
-  backgroundColor: '#C1BBF6',
-  '&:hover': {
-    backgroundColor: '#C1BBF6',
-  },
-  '&:disabled': {
-    backgroundColor: '#C1BBF6',
-    color: '#1F2935',
-    opacity: '40%',
   },
 }));
 
@@ -93,9 +80,8 @@ const WalletConnector = (props: Props) => {
 
   const disconnected = useMemo(() => {
     const button = (
-      <StyledButton
-        variant="contained"
-        color="primary"
+      <Button
+        variant="primary"
         className={classes.connectWallet}
         data-testid={`${props.side}-section-connect-wallet-button`}
         disabled={disabled}
@@ -110,7 +96,7 @@ const WalletConnector = (props: Props) => {
         <Typography textTransform="none">
           {mobile ? 'Connect' : `Connect ${props.side} wallet`}
         </Typography>
-      </StyledButton>
+      </Button>
     );
 
     if (disabled) {
