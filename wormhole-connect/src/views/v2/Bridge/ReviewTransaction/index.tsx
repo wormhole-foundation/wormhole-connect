@@ -98,7 +98,7 @@ const ReviewTransaction = (props: Props) => {
   });
 
   // Compute the native gas to receive
-  const { receiveNativeAmt } = useComputeQuoteV2({
+  const { receiveNativeAmt, isFetching: isFetchingQuote } = useComputeQuoteV2({
     sourceChain,
     destChain,
     sourceToken,
@@ -293,7 +293,7 @@ const ReviewTransaction = (props: Props) => {
 
     return (
       <Button
-        disabled={isTransactionInProgress}
+        disabled={isFetchingQuote || isTransactionInProgress}
         variant="primary"
         className={classes.confirmTransaction}
         onClick={() => send()}
@@ -308,6 +308,7 @@ const ReviewTransaction = (props: Props) => {
       </Button>
     );
   }, [
+    isFetchingQuote,
     isTransactionInProgress,
     sourceChain,
     sourceToken,
