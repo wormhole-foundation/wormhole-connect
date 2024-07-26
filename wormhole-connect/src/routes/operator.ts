@@ -283,42 +283,6 @@ export class Operator {
     );
   }
 
-  /*
-   * TODO SDKV2
-  async estimateSendGas(
-    route: Route,
-    token: TokenId | 'native',
-    amount: string,
-    sendingChain: ChainName | ChainId,
-    senderAddress: string,
-    recipientChain: ChainName | ChainId,
-    recipientAddress: string,
-    routeOptions: any,
-  ): Promise<BigNumber> {
-    const r = this.getRoute(route);
-    return await r.estimateSendGas(
-      token,
-      amount,
-      sendingChain,
-      senderAddress,
-      recipientChain,
-      recipientAddress,
-      routeOptions,
-    );
-  }
-
-  async estimateClaimGas(
-    route: Route,
-    destChain: ChainName | ChainId,
-    signedMessage?: SignedMessage,
-  ): Promise<BigNumber> {
-    if (!signedMessage)
-      throw new Error('Cannot estimate gas without a signed message');
-    const r = this.getRoute(route);
-    return await r.estimateClaimGas(destChain, signedMessage);
-  }
-  */
-
   async send(
     route: Route,
     token: TokenConfig,

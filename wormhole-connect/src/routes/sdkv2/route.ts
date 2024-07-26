@@ -618,7 +618,7 @@ export class SDKv2Route {
       displayData: [],
     };
     const txData = params.txData as TransferInfo;
-    const token = config.tokens[txData.tokenKey];
+    const token = config.tokens[txData.receivedTokenKey];
     if (txData.receiveAmount) {
       info.displayData.push(
         this.createDisplayItem(
@@ -657,7 +657,9 @@ export class SDKv2Route {
   async resumeIfManual(tx: TransactionId): Promise<routes.Receipt | null> {
     const wh = await getWormholeContextV2();
     const route = new this.rc(wh);
-    if (routes.isManual(route)) {
+    // TODO SDK: the NttRelay check is a hack until `FinalizableRoute` has the `resume` method
+    if (routes.isManual(route) || this.TYPE === Route.NttRelay) {
+      // @ts-ignore
       return route.resume(tx);
     } else {
       return null;

@@ -17,6 +17,7 @@ import {
 import config from 'config';
 import { Route } from 'config/types';
 import { ChainName } from 'sdklegacy/types';
+import { NttRoute } from '@wormhole-foundation/sdk-route-ntt';
 
 // Used to represent an initiated transfer. Primarily for the Redeem view.
 export interface TransferInfo {
@@ -116,6 +117,18 @@ export function parseReceipt(
     case Route.CCTPManual:
       return parseCCTPReceipt(
         receipt as ReceiptWithAttestation<CircleTransfer.CircleAttestationReceipt>,
+      );
+    case Route.NttManual:
+      return parseNttReceipt(
+        receipt as ReceiptWithAttestation<NttRoute.ManualAttestationReceipt> & {
+          params: NttRoute.ValidatedParams;
+        },
+      );
+    case Route.NttRelay:
+      return parseNttReceipt(
+        receipt as ReceiptWithAttestation<NttRoute.AutomaticAttestationReceipt> & {
+          params: NttRoute.ValidatedParams;
+        },
       );
     default:
       throw new Error(`Unknown route type ${route}`);
@@ -243,4 +256,72 @@ const parseCCTPReceipt = (
   txData.receivedTokenKey = destinationUsdcLegacy.key;
 
   return txData as TransferInfo;
+};
+
+const parseNttReceipt = (
+  receipt: ReceiptWithAttestation<
+    NttRoute.ManualAttestationReceipt | NttRoute.AutomaticAttestationReceipt
+  > & {
+    params: NttRoute.ValidatedParams;
+  },
+): TransferInfo => {
+  let sendTx = '';
+  if ('originTxs' in receipt && receipt.originTxs.length > 0) {
+    sendTx = receipt.originTxs[receipt.originTxs.length - 1].txid;
+  } else {
+    throw new Error("Can't find txid in receipt");
+  }
+
+  const srcTokenIdV2 = Wormhole.tokenId(
+    receipt.from,
+    receipt.params.normalizedParams.sourceContracts.token,
+  );
+  const srcTokenV1 = config.sdkConverter.findTokenConfigV1(
+    srcTokenIdV2,
+    config.tokensArr,
+  );
+  if (!srcTokenV1) {
+    // This is a token Connect is not aware of
+    throw new Error('Unknown src token');
+  }
+
+  const dstTokenIdV2 = Wormhole.tokenId(
+    receipt.to,
+    receipt.params.normalizedParams.destinationContracts.token,
+  );
+  const dstTokenV1 = config.sdkConverter.findTokenConfigV1(
+    dstTokenIdV2,
+    config.tokensArr,
+  );
+  if (!dstTokenV1) {
+    // This is a token Connect is not aware of
+    throw new Error('Unknown dst token');
+  }
+
+  const { attestation } = receipt.attestation;
+  const { payload } =
+    attestation.payloadName === 'WormholeTransfer'
+      ? attestation
+      : attestation.payload;
+  const { trimmedAmount } = payload.nttManagerPayload.payload;
+  const amt = amount.display({
+    amount: trimmedAmount.amount.toString(),
+    decimals: trimmedAmount.decimals,
+  });
+  return {
+    toChain: config.sdkConverter.toChainNameV1(receipt.to),
+    fromChain: config.sdkConverter.toChainNameV1(receipt.from),
+    sendTx,
+    sender: payload.nttManagerPayload.sender.toNative(receipt.from).toString(),
+    recipient: payload.nttManagerPayload.payload.recipientAddress
+      .toNative(receipt.to)
+      .toString(),
+    amount: amt,
+    tokenAddress: srcTokenV1.tokenId!.address.toString(),
+    tokenKey: srcTokenV1.key,
+    tokenDecimals: trimmedAmount.decimals,
+    receivedTokenKey: dstTokenV1.key,
+    receiveAmount: amt,
+    relayerFee: undefined, // TODO: how to get?
+  };
 };
