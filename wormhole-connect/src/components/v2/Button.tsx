@@ -26,7 +26,7 @@ type Props = Omit<ButtonProps, 'variant'> & { variant?: string };
 const Button = (props: Props) => {
   const { variant, ...rest } = props;
 
-  if (props?.variant === 'primary') {
+  if (variant === 'primary') {
     return <PrimaryButton variant="contained" {...rest} />;
   }
 
