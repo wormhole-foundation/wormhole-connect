@@ -18,6 +18,9 @@ import config from 'config';
 import { Route } from 'config/types';
 import { ChainName } from 'sdklegacy/types';
 import { NttRoute } from '@wormhole-foundation/sdk-route-ntt';
+import { Connection } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
+import * as splToken from '@solana/spl-token';
 
 // Used to represent an initiated transfer. Primarily for the Redeem view.
 export interface TransferInfo {
@@ -105,17 +108,17 @@ type ReceiptWithAttestation<AT> =
 // `parseReceipt` is used when we resume a transaction to get the transaction details
 // from the VAA. Each protocol has different data in its VAAs and this parses them
 // into the common internal format used by Connect: `TransferInfo`
-export function parseReceipt(
+export async function parseReceipt(
   route: Route,
   receipt: ReceiptWithAttestation<any>,
-): TransferInfo | null {
+): Promise<TransferInfo | null> {
   switch (route) {
     case Route.Bridge:
-      return parseTokenBridgeReceipt(
+      return await parseTokenBridgeReceipt(
         receipt as ReceiptWithAttestation<TokenBridge.TransferVAA>,
       );
     case Route.CCTPManual:
-      return parseCCTPReceipt(
+      return await parseCCTPReceipt(
         receipt as ReceiptWithAttestation<CircleTransfer.CircleAttestationReceipt>,
       );
     case Route.NttManual:
@@ -135,9 +138,9 @@ export function parseReceipt(
   }
 }
 
-const parseTokenBridgeReceipt = (
+const parseTokenBridgeReceipt = async (
   receipt: ReceiptWithAttestation<TokenBridge.TransferVAA>,
-): TransferInfo => {
+): Promise<TransferInfo> => {
   const txData: Partial<TransferInfo> = {
     toChain: config.sdkConverter.toChainNameV1(receipt.to),
     fromChain: config.sdkConverter.toChainNameV1(receipt.from),
@@ -175,32 +178,50 @@ const parseTokenBridgeReceipt = (
     const fromChain = config.sdkConverter.toChainNameV1(receipt.from);
     const fromChainConfig = config.chains[fromChain];
 
-    let decimals =
+    const decimals =
       tokenV1!.decimals[fromChainConfig!.context] || tokenV1!.decimals.default;
-    // VAAs are truncated to a max of 8 decimal places
-    decimals = Math.min(8, decimals);
 
     txData.tokenDecimals = decimals;
 
     txData.amount = amount.display({
       amount: payload.token.amount.toString(),
-      decimals,
+      // VAAs are truncated to a max of 8 decimal places
+      decimals: Math.min(8, decimals),
     });
-    txData.tokenAddress = payload.token.address.toString();
+    txData.tokenAddress = payload.token.address.toNative(receipt.to).toString();
     txData.tokenKey = tokenV1.key;
     txData.receivedTokenKey = tokenV1.key;
+    txData.receiveAmount = txData.amount;
   }
 
   if (payload.to) {
-    txData.recipient = payload.to.address.toString();
+    if (receipt.to === 'Solana') {
+      if (!config.rpcs.solana) {
+        throw new Error('Missing Solana RPC');
+      }
+      // the recipient on the VAA is the ATA
+      const ata = payload.to.address.toNative(receipt.to).toString();
+      const connection = new Connection(config.rpcs.solana);
+      try {
+        const account = await splToken.getAccount(
+          connection,
+          new PublicKey(ata),
+        );
+        txData.recipient = account.owner.toBase58();
+      } catch (e) {
+        console.error(e);
+      }
+    } else {
+      txData.recipient = payload.to.address.toNative(receipt.to).toString();
+    }
   }
 
   return txData as TransferInfo;
 };
 
-const parseCCTPReceipt = (
+const parseCCTPReceipt = async (
   receipt: ReceiptWithAttestation<CircleTransfer.CircleAttestationReceipt>,
-): TransferInfo => {
+): Promise<TransferInfo> => {
   const txData: Partial<TransferInfo> = {
     toChain: config.sdkConverter.toChainNameV1(receipt.to),
     fromChain: config.sdkConverter.toChainNameV1(receipt.from),
@@ -240,9 +261,25 @@ const parseCCTPReceipt = (
     amount: payload.amount.toString(),
     decimals,
   });
+  txData.receiveAmount = txData.amount;
 
   txData.sender = payload.messageSender.toNative(receipt.from).toString();
-  txData.recipient = payload.mintRecipient.toNative(receipt.to).toString();
+  if (receipt.to === 'Solana') {
+    if (!config.rpcs.solana) {
+      throw new Error('Missing Solana RPC');
+    }
+    // the recipient on the VAA is the ATA
+    const ata = payload.mintRecipient.toNative(receipt.to).toString();
+    const connection = new Connection(config.rpcs.solana);
+    try {
+      const account = await splToken.getAccount(connection, new PublicKey(ata));
+      txData.recipient = account.owner.toBase58();
+    } catch (e) {
+      console.error(e);
+    }
+  } else {
+    txData.recipient = payload.mintRecipient.toNative(receipt.to).toString();
+  }
 
   // The attestation doesn't have the destination token address, but we can deduce which it is
   // just based off the destination chain

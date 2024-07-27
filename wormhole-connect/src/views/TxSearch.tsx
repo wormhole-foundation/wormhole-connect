@@ -122,7 +122,7 @@ function TxSearch() {
       }
     }
 
-    const txDetails = parseReceipt(
+    const txDetails = await parseReceipt(
       route,
       receipt as AttestedTransferReceipt<any>,
     );

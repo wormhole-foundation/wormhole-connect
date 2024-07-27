@@ -46,6 +46,9 @@ export class SDKv2Route {
       this.AUTOMATIC_DEPOSIT = true;
     } else if (routeType === Route.NttRelay) {
       this.AUTOMATIC_DEPOSIT = true;
+    } else if (routeType === Route.CCTPRelay) {
+      this.NATIVE_GAS_DROPOFF_SUPPORTED = true;
+      this.AUTOMATIC_DEPOSIT = true;
     }
     this.IS_TOKEN_BRIDGE_ROUTE =
       this.TYPE === Route.Bridge ||
