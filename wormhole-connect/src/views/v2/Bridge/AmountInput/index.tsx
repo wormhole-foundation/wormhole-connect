@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
+import { useTheme } from '@mui/material';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -9,11 +10,12 @@ import InputAdornment from '@mui/material/InputAdornment';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
+import WarningIcon from '@mui/icons-material/ReportOutlined';
 
 import useGetTokenBalances from 'hooks/useGetTokenBalances';
 import { setAmount } from 'store/transferInput';
 import { toFixedDecimals } from 'utils/balance';
-
+import { getMaxAmt, isCctp, validateAmount } from 'utils/transferValidation';
 import type { TokenConfig } from 'config/types';
 import type { RootState } from 'store';
 
@@ -33,6 +35,11 @@ const useStyles = makeStyles()((theme) => ({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
+  errorContainer: {
+    display: 'flex',
+    alignContent: 'center',
+    marginTop: '8px',
+  },
 }));
 
 type Props = {
@@ -45,6 +52,7 @@ type Props = {
 const AmountInput = (props: Props) => {
   const { classes } = useStyles();
   const dispatch = useDispatch();
+  const theme = useTheme();
 
   const { sending: sendingWallet } = useSelector(
     (state: RootState) => state.wallet,
@@ -53,7 +61,10 @@ const AmountInput = (props: Props) => {
   const {
     fromChain: sourceChain,
     token: sourceToken,
+    toChain: destChain,
+    destToken,
     amount,
+    route,
   } = useSelector((state: RootState) => state.transferInput);
 
   const [tokenAmount, setTokenAmount] = useState(amount);
@@ -115,19 +126,21 @@ const AmountInput = (props: Props) => {
     );
   }, [isInputDisabled, tokenBalance]);
 
-  const onAmountChange = useCallback(
-    (e: any) => {
-      setTokenAmount(e.target.value);
-
-      // Only dispatch the new amount value when there is sufficient balance
-      if (Number(e.target.value) > Number(tokenBalance)) {
-        dispatch(setAmount(''));
-      } else {
-        dispatch(setAmount(e.target.value));
-      }
-    },
-    [tokenBalance],
+  const validationResult = useMemo(
+    () =>
+      validateAmount(
+        amount,
+        tokenBalance,
+        getMaxAmt(route),
+        isCctp(sourceToken, destToken, sourceChain, destChain),
+      ),
+    [sourceToken, destToken, sourceChain, destChain, amount, tokenBalance],
   );
+
+  const onAmountChange = useCallback((e: any) => {
+    setTokenAmount(e.target.value);
+    dispatch(setAmount(e.target.value));
+  }, []);
 
   return (
     <div className={classes.amountContainer}>
@@ -141,6 +154,9 @@ const AmountInput = (props: Props) => {
             disabled={isInputDisabled}
             inputProps={{
               style: {
+                color: validationResult
+                  ? theme.palette.error.main
+                  : theme.palette.text.primary,
                 fontSize: 24,
                 height: '40px',
                 padding: '4px',
@@ -173,6 +189,20 @@ const AmountInput = (props: Props) => {
           />
         </CardContent>
       </Card>
+      {validationResult ? (
+        <div className={classes.errorContainer}>
+          <WarningIcon
+            fontSize="small"
+            htmlColor={theme.palette.error.main}
+            sx={{ marginRight: '4px' }}
+          />
+          <Typography color={theme.palette.error.main} fontSize={14}>
+            {validationResult}
+          </Typography>
+        </div>
+      ) : (
+        <></>
+      )}
     </div>
   );
 };

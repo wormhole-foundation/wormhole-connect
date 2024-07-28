@@ -34,9 +34,11 @@ import {
   setTransferRoute,
   setDestToken,
 } from 'store/transferInput';
+import { isTransferValid, useValidate } from 'utils/transferValidation';
 import { useConnectToLastUsedWallet } from 'utils/wallet';
 import WalletConnector from 'views/v2/Bridge/WalletConnector';
 import AssetPicker from 'views/v2/Bridge/AssetPicker';
+import TokenWarnings from 'views/v2/Bridge/AssetPicker/TokenWarnings';
 import WalletController from 'views/v2/Bridge/WalletConnector/Controller';
 import AmountInput from 'views/v2/Bridge/AmountInput';
 import Routes from 'views/v2/Bridge/Routes';
@@ -122,6 +124,7 @@ const Bridge = () => {
     route,
     routeStates,
     amount,
+    validations,
   } = useSelector((state: RootState) => state.transferInput);
 
   // Set selectedRoute if the route is auto-selected
@@ -188,6 +191,12 @@ const Bridge = () => {
 
   // Connect to any previously used wallets for the selected networks
   useConnectToLastUsedWallet();
+
+  // Call to initiate transfer inputs validations
+  useValidate();
+
+  // Get input validation result
+  const isValid = useMemo(() => isTransferValid(validations), [validations]);
 
   // All supported chains from the given configuration and any custom override
   const supportedChains = useMemo(
@@ -364,7 +373,7 @@ const Bridge = () => {
       <Button
         variant="primary"
         className={classes.reviewTransaction}
-        disabled={isFetching}
+        disabled={!isValid || isFetching}
         onClick={() => {
           if (
             routeStates &&
@@ -408,6 +417,7 @@ const Bridge = () => {
       {bridgeHeader}
       {sourceAssetPicker}
       {destAssetPicker}
+      <TokenWarnings />
       <AmountInput supportedSourceTokens={supportedSourceTokens} />
       <Routes selectedRoute={selectedRoute} onRouteChange={setSelectedRoute} />
       {walletConnector}

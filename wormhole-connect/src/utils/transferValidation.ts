@@ -202,8 +202,8 @@ export const getIsAutomatic = (route: Route | undefined): boolean => {
 export const isCctp = (
   token: string,
   destToken: string,
-  toChain: ChainName | undefined,
   fromChain: ChainName | undefined,
+  toChain: ChainName | undefined,
 ): boolean => {
   const isUSDCToken =
     config.tokens[token]?.symbol === 'USDC' &&
@@ -249,7 +249,7 @@ export const validateAll = async (
   const availableRoutes = routeStates
     ?.filter((rs) => rs.supported)
     .map((val) => val.name);
-  const isCctpTx = isCctp(token, destToken, toChain, fromChain);
+  const isCctpTx = isCctp(token, destToken, fromChain, toChain);
   const baseValidations = {
     sendingWallet: await validateWallet(sending, fromChain),
     receivingWallet: await validateWallet(receiving, toChain),
