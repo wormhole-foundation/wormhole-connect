@@ -330,6 +330,16 @@ const Bridge = () => {
     );
   }, []);
 
+  const routeList = useMemo(() => {
+    if (!isValid) {
+      return <></>;
+    }
+
+    return (
+      <Routes selectedRoute={selectedRoute} onRouteChange={setSelectedRoute} />
+    );
+  }, [isValid, selectedRoute]);
+
   const walletConnector = useMemo(() => {
     if (sendingWallet?.address && receivingWallet?.address) {
       return null;
@@ -419,7 +429,7 @@ const Bridge = () => {
       {destAssetPicker}
       <TokenWarnings />
       <AmountInput supportedSourceTokens={supportedSourceTokens} />
-      <Routes selectedRoute={selectedRoute} onRouteChange={setSelectedRoute} />
+      {routeList}
       {walletConnector}
       {reviewTransactionButton}
       {config.showHamburgerMenu ? null : <FooterNavBar />}

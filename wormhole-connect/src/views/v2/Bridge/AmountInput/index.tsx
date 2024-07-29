@@ -10,8 +10,8 @@ import InputAdornment from '@mui/material/InputAdornment';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import WarningIcon from '@mui/icons-material/ReportOutlined';
 
+import AlertBannerV2 from 'components/v2/AlertBanner';
 import useGetTokenBalances from 'hooks/useGetTokenBalances';
 import { setAmount } from 'store/transferInput';
 import { toFixedDecimals } from 'utils/balance';
@@ -189,20 +189,11 @@ const AmountInput = (props: Props) => {
           />
         </CardContent>
       </Card>
-      {validationResult ? (
-        <div className={classes.errorContainer}>
-          <WarningIcon
-            fontSize="small"
-            htmlColor={theme.palette.error.main}
-            sx={{ marginRight: '4px' }}
-          />
-          <Typography color={theme.palette.error.main} fontSize={14}>
-            {validationResult}
-          </Typography>
-        </div>
-      ) : (
-        <></>
-      )}
+      <AlertBannerV2
+        error
+        content={validationResult}
+        show={!!validationResult}
+      />
     </div>
   );
 };

@@ -19,7 +19,7 @@ import { RootState } from 'store';
 import { TransferWallet, WalletData, connectWallet } from 'utils/wallet';
 
 import WalletIcon from 'icons/WalletIcons';
-import AlertBanner from 'components/AlertBanner';
+import AlertBannerV2 from 'components/v2/AlertBanner';
 import { useAvailableWallets } from 'hooks/useAvailableWallets';
 
 const useStyles = makeStyles()(() => ({
@@ -135,9 +135,7 @@ const WalletSidebar = (props: Props) => {
       case 'loading':
         return <CircularProgress />;
       case 'error':
-        return (
-          <AlertBanner show={true} content={walletOptionsResult.error} error />
-        );
+        return <AlertBannerV2 error show content={walletOptionsResult.error} />;
       case 'result':
         if (walletOptionsResult.options?.length === 0) {
           return <></>;

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'tss-react/mui';
 
@@ -14,7 +14,7 @@ import { joinClass } from 'utils/style';
 //import { solanaContext } from 'utils/sdk';
 
 import { CircularProgress, Link, Typography } from '@mui/material';
-import AlertBanner from 'components/AlertBanner';
+import AlertBannerV2 from 'components/v2/AlertBanner';
 import RouteOperator from 'routes/operator';
 import { Route } from 'config/types';
 import { isNttRoute } from 'routes';
@@ -50,11 +50,9 @@ const useStyles = makeStyles()((theme: any) => ({
   },
 }));
 
-type Props = {
+const AssociatedTokenWarning = (props: {
   createAssociatedTokenAccount: any;
-};
-
-const AssociatedTokenWarning = (props: Props) => {
+}) => {
   const { classes } = useStyles();
   const [inProgress, setInProgress] = useState(false);
   const [error, setError] = useState('');
@@ -112,7 +110,7 @@ const TokenWarnings = () => {
 
   const { receiving } = useSelector((state: RootState) => state.wallet);
 
-  const [showErrors, setShowErrors] = useState(false);
+  const [showWarning, setShowWarning] = useState(false);
   const [usdcAndNoCCTP, setUsdcAndNoCCTP] = useState(false);
 
   const sourceTokenConfig = config.tokens[sourceToken];
@@ -126,7 +124,7 @@ const TokenWarnings = () => {
     const checkWrappedTokenExists = async () => {
       if (!destChain || !sourceTokenConfig || !route) {
         dispatch(setForeignAsset(''));
-        setShowErrors(false);
+        setShowWarning(false);
         return;
       }
 
@@ -149,10 +147,10 @@ const TokenWarnings = () => {
 
       if (address) {
         dispatch(setForeignAsset(address));
-        setShowErrors(false);
+        setShowWarning(false);
       } else {
         dispatch(setForeignAsset(''));
-        setShowErrors(true);
+        setShowWarning(true);
       }
     };
 
@@ -275,10 +273,10 @@ const TokenWarnings = () => {
       checkSolanaAssociatedTokenAccount();
     }
     if (usdcAndNoCCTP) {
-      setShowErrors(true);
+      setShowWarning(true);
       setUsdcAndNoCCTP(true);
     } else {
-      setShowErrors(false);
+      setShowWarning(false);
       setUsdcAndNoCCTP(false);
     }
   }, [
@@ -296,34 +294,43 @@ const TokenWarnings = () => {
     sourceChain,
   ]);
 
-  const noForeignAssetWarning = (
-    <Typography>
-      This token is not registered, you must{' '}
-      <Link target={'_blank'} variant="inherit" href={config.attestUrl}>
-        register
-      </Link>{' '}
-      it before you continue. Newly registered tokens will not have liquid
-      markets.
-    </Typography>
+  const noForeignAssetWarning = useMemo(
+    () => (
+      <Typography>
+        This token is not registered, you must{' '}
+        <Link target={'_blank'} variant="inherit" href={config.attestUrl}>
+          register
+        </Link>{' '}
+        it before you continue. Newly registered tokens will not have liquid
+        markets.
+      </Typography>
+    ),
+    [],
   );
 
-  const noAssociatedTokenAccount = (
-    <AssociatedTokenWarning
-      createAssociatedTokenAccount={createAssociatedTokenAccount}
-    />
+  const noAssociatedTokenAccount = useMemo(
+    () => (
+      <AssociatedTokenWarning
+        createAssociatedTokenAccount={createAssociatedTokenAccount}
+      />
+    ),
+    [],
   );
 
   // warning message for users that attempt to transfer USDC using a different corridor than CCTP
-  const warningNoCCTPOption = (
-    <Typography>
-      This transaction will transfer wrapped USDC (wUSDC) to the destination
-      chain. If you want to transfer native USDC on chains supported by Circle's
-      CCTP, use the{' '}
-      <Link target={'_blank'} variant="inherit" href={config.cctpWarning}>
-        USDC Bridge
-      </Link>
-      .
-    </Typography>
+  const warningNoCCTPOption = useMemo(
+    () => (
+      <Typography>
+        This transaction will transfer wrapped USDC (wUSDC) to the destination
+        chain. If you want to transfer native USDC on chains supported by
+        Circle's CCTP, use the{' '}
+        <Link target={'_blank'} variant="inherit" href={config.cctpWarning}>
+          USDC Bridge
+        </Link>
+        .
+      </Typography>
+    ),
+    [],
   );
 
   let content;
@@ -335,14 +342,7 @@ const TokenWarnings = () => {
     content = warningNoCCTPOption;
   }
 
-  return (
-    <AlertBanner
-      show={showErrors}
-      content={content}
-      warning
-      margin="12px 0 0 0"
-    />
-  );
+  return <AlertBannerV2 warning content={content} show={showWarning} />;
 };
 
 export default TokenWarnings;
