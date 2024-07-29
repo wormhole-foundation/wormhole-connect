@@ -11,7 +11,7 @@ import IconButton from '@mui/material/IconButton';
 import { getTokenDetails } from 'telemetry';
 import { Context } from 'sdklegacy';
 
-import AlertBanner from 'components/AlertBanner';
+import AlertBannerV2 from 'components/v2/AlertBanner';
 import Button from 'components/v2/Button';
 import config from 'config';
 import { RoutesConfig } from 'config/routes';
@@ -334,11 +334,10 @@ const ReviewTransaction = (props: Props) => {
           disabled={isGasSliderDisabled}
         />
       </Collapse>
-      <AlertBanner
-        show={!!sendError}
-        content={sendError}
+      <AlertBannerV2
         error
-        margin="0 0 16px 0"
+        content={sendError}
+        show={!!sendError}
         testId="send-error-message"
       />
       {confirmTransactionButton}
