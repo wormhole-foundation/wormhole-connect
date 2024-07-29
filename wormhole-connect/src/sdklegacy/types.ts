@@ -83,35 +83,12 @@ export type AnyContext = any;
 
 export type AnyContracts = any;
 
-export interface ParsedMessage {
-  sendTx: string;
-  sender: string;
-  amount: bigint;
-  payloadID: number;
-  recipient: string;
-  toChain: ChainName;
-  fromChain: ChainName;
-  tokenAddress: string;
-  tokenChain: ChainName;
-  tokenId: TokenId;
-  sequence?: bigint;
-  emitterAddress?: string;
-  block: number;
-  gasFee?: bigint;
-  payload?: string;
-  fromAddress?: string;
-}
-
 export interface ParsedRelayerPayload {
   relayerPayloadId: number;
   to: string;
   relayerFee: bigint;
   toNativeTokenAmount: bigint;
 }
-
-export type ParsedRelayerMessage = ParsedMessage & ParsedRelayerPayload;
-
-export type AnyMessage = ParsedMessage | ParsedRelayerMessage;
 
 export type TokenDetails = {
   symbol: string;

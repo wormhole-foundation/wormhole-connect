@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { ParsedMessage } from 'utils/sdk';
+import { TransferInfo } from 'utils/sdkv2';
 import { TransferDestInfo } from 'routes';
 import { Route } from 'config/types';
 import { DeliveryStatus } from 'utils/sdk';
@@ -10,7 +10,7 @@ export enum MessageType {
 }
 
 export interface RedeemState {
-  txData?: ParsedMessage;
+  txData?: TransferInfo;
   sendTx: string;
   redeemTx: string;
   transferComplete: boolean;
@@ -41,7 +41,7 @@ export const redeemSlice = createSlice({
   reducers: {
     setTxDetails: (
       state: RedeemState,
-      { payload }: PayloadAction<ParsedMessage>,
+      { payload }: PayloadAction<TransferInfo>,
     ) => {
       state.txData = payload;
     },

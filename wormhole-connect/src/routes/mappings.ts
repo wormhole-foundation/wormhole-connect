@@ -18,13 +18,17 @@ export function getRoute(route: Route): SDKv2Route {
   switch (route) {
     // Migrated routes:
     case Route.Bridge:
-      return new SDKv2Route(routes.TokenBridgeRoute, Route.Bridge);
+      return new SDKv2Route(routes.TokenBridgeRoute, route);
     case Route.Relay:
-      return new SDKv2Route(routes.AutomaticTokenBridgeRoute, Route.Relay);
+      return new SDKv2Route(routes.AutomaticTokenBridgeRoute, route);
+    case Route.CCTPManual:
+      return new SDKv2Route(routes.CCTPRoute, route);
+    case Route.CCTPRelay:
+      return new SDKv2Route(routes.AutomaticCCTPRoute, route);
     case Route.NttManual:
-      return new SDKv2Route(nttManualRoute(getNttConfig()), Route.NttManual);
+      return new SDKv2Route(nttManualRoute(getNttConfig()), route);
     case Route.NttRelay:
-      return new SDKv2Route(nttAutomaticRoute(getNttConfig()), Route.NttRelay);
+      return new SDKv2Route(nttAutomaticRoute(getNttConfig()), route);
     default:
       throw new Error(`Unsupported route: ${route}`);
   }

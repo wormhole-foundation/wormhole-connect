@@ -45,7 +45,7 @@ function SendFrom() {
         <RenderRows rows={rows} />
       </InputContainer>
       {!isAttested && (
-        <Confirmations chain={txData!.fromChain} blockHeight={txData!.block} />
+        <Confirmations chain={txData!.fromChain} blockHeight={0} />
       )}
     </div>
   );

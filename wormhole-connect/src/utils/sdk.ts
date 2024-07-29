@@ -2,35 +2,10 @@ import { ChainId, ChainName, TokenId } from 'sdklegacy';
 import { getWrappedTokenId } from '.';
 import config from 'config';
 import { chainToPlatform } from '@wormhole-foundation/sdk';
-import { RelayerFee } from 'store/relay';
 
 export enum PayloadType {
   Manual = 1,
   Automatic = 3,
-}
-
-export interface ParsedMessage {
-  sendTx: string;
-  sender: string;
-  amount: string;
-  recipient: string;
-  toChain: ChainName;
-  fromChain: ChainName;
-  tokenAddress: string;
-  tokenChain: ChainName;
-  tokenId: TokenId;
-  tokenKey: string;
-  tokenDecimals: number;
-  receivedTokenKey: string;
-  emitterAddress?: string;
-  sequence?: string;
-  block: number;
-  gasFee?: string;
-  payload?: string;
-  inputData?: string;
-  receiveAmount?: string;
-  relayerFee?: RelayerFee;
-  receiveNativeAmount?: number;
 }
 
 export const formatAddress = (chain: ChainName | ChainId, address: string) => {
@@ -106,14 +81,6 @@ export const toChainId = (chain: ChainName | ChainId) => {
 
 export const toChainName = (chain: ChainName | ChainId) => {
   return config.wh.toChainName(chain);
-};
-
-export const getMessage = (tx: string, chain: ChainName | ChainId) => {
-  /* 
-   * TODO SDKV2
-  const context = config.wh.getContext(chain);
-  return context.getMessage(tx, chain, false);
-  */
 };
 
 export enum DeliveryStatus {

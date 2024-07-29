@@ -36,7 +36,7 @@ const useStyles = makeStyles()((theme) => ({
 
 type Props = {
   chain: ChainName;
-  address: string;
+  address?: string;
   txHash?: string;
   loading?: boolean;
   text?: string;
@@ -50,8 +50,12 @@ function Header(props: Props) {
     <div className={classes.header}>
       <div className={classes.left}>
         <TokenIcon icon={chainConfig.icon!} height={32} />
-        <div>{displayAddress(props.chain, props.address)}</div>
-        <WalletIcon />
+        {props.address && (
+          <>
+            <div>{displayAddress(props.chain, props.address)}</div>
+            <WalletIcon />
+          </>
+        )}
       </div>
       {props.loading ? (
         <CircularProgress size={26} />

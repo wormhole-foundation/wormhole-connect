@@ -143,9 +143,14 @@ export function buildConfig(
     gasEstimates: networkData.gasEstimates,
     // TODO: routes that aren't supported yet are disabled
     routes: (customConfig?.routes ?? Object.values(Route)).filter((r) =>
-      [Route.Bridge, Route.Relay, Route.NttManual, Route.NttRelay].includes(
-        r as Route,
-      ),
+      [
+        Route.Bridge,
+        Route.Relay,
+        Route.NttManual,
+        Route.NttRelay,
+        Route.CCTPManual,
+        Route.CCTPRelay,
+      ].includes(r as Route),
     ),
 
     // UI details
