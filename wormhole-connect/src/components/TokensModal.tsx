@@ -139,7 +139,7 @@ type DisplayTokensProps = {
   tokens: TokenConfig[];
   balances: Balances;
   walletAddress: string | undefined;
-  chain: any;
+  chain: ChainName | undefined;
   selectToken: (tokenKey: string) => void;
   loading: boolean;
   search: string;
@@ -169,7 +169,7 @@ function DisplayTokens(props: DisplayTokensProps) {
   };
 
   const sortedTokens = useMemo(() => {
-    return sortTokens(tokens, chain);
+    return sortTokens(tokens, chain!);
   }, [tokens, chain]);
 
   return (
@@ -180,52 +180,51 @@ function DisplayTokens(props: DisplayTokensProps) {
       <div className={classes.tokensContainer}>
         {sortedTokens.length > 0 ? (
           <>
-            {sortedTokens.map((token) => (
-              <div
-                className={classes.tokenRow}
-                key={token.key}
-                onClick={() => selectToken(token.key)}
-              >
-                <div className={classes.tokenRowLeft}>
-                  <TokenIcon icon={token.icon} height={32} />
-                  <div>
-                    <div>{token.symbol}</div>
-                    <div className={classes.nativeChain}>
-                      {displayNativeChain(token)}
-                    </div>
-                  </div>
-                </div>
-                <div className={classes.tokenRowRight}>
-                  <div className={classes.tokenRowBalanceText}>Balance</div>
-                  <div className={classes.tokenRowBalance}>
-                    {balances[token.key]?.balance && walletAddress ? (
-                      <div>{balances[token.key].balance}</div>
-                    ) : showCircularProgress(token.key) ? (
-                      <CircularProgress size={14} />
-                    ) : (
-                      <div>{NO_INPUT}</div>
-                    )}
-                  </div>
-                </div>
-                <div className={classes.tokenRowAddressContainer}>
-                  <div className={classes.tokenRowAddress}>
-                    <div className={classes.noWrap}>
-                      {token.nativeChain === chain
-                        ? 'Native'
-                        : 'Wormhole Wrapped'}
-                    </div>
-                    {token.tokenId && (
-                      <div>
-                        {displayAddress(
-                          token.tokenId.chain,
-                          token.tokenId.address,
-                        )}
+            {sortedTokens.map((token) => {
+              const isNativeToken = token.nativeChain === chain;
+              const tokenAddress = isNativeToken
+                ? token.tokenId?.address
+                : token.foreignAssets?.[chain!]?.address;
+              return (
+                <div
+                  className={classes.tokenRow}
+                  key={token.key}
+                  onClick={() => selectToken(token.key)}
+                >
+                  <div className={classes.tokenRowLeft}>
+                    <TokenIcon icon={token.icon} height={32} />
+                    <div>
+                      <div>{token.symbol}</div>
+                      <div className={classes.nativeChain}>
+                        {displayNativeChain(token)}
                       </div>
-                    )}
+                    </div>
+                  </div>
+                  <div className={classes.tokenRowRight}>
+                    <div className={classes.tokenRowBalanceText}>Balance</div>
+                    <div className={classes.tokenRowBalance}>
+                      {balances[token.key]?.balance && walletAddress ? (
+                        <div>{balances[token.key].balance}</div>
+                      ) : showCircularProgress(token.key) ? (
+                        <CircularProgress size={14} />
+                      ) : (
+                        <div>{NO_INPUT}</div>
+                      )}
+                    </div>
+                  </div>
+                  <div className={classes.tokenRowAddressContainer}>
+                    <div className={classes.tokenRowAddress}>
+                      <div className={classes.noWrap}>
+                        {isNativeToken ? 'Native' : 'Wormhole Wrapped'}
+                      </div>
+                      {!!tokenAddress && (
+                        <div>{displayAddress(chain!, tokenAddress)}</div>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
             {config.moreTokens ? (
               <>
                 <div>
