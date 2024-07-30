@@ -14,7 +14,7 @@ import { PayloadType, getMessage, isEvmChain, solanaContext } from 'utils/sdk';
 import { isGatewayChain } from 'utils/cosmos';
 import { RelayRoute } from './relay';
 // import { HashflowRoute } from './hashflow';
-import { AvailableReason, RouteAbstract } from './abstracts/routeAbstract';
+import { RouteAvailability, RouteAbstract } from './abstracts/routeAbstract';
 import {
   UnsignedMessage,
   SignedMessage,
@@ -220,7 +220,7 @@ export class Operator {
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
     manualAddress?: boolean,
-  ): Promise<AvailableReason> {
+  ): Promise<RouteAvailability> {
     if (!config.routes.includes(route)) {
       return { isAvailable: false };
     }

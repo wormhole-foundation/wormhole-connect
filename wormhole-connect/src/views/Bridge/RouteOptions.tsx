@@ -402,7 +402,7 @@ function RouteOptions() {
     (value: Route) => {
       if (routeStates && routeStates.some((rs) => rs.name === value)) {
         const route = routeStates.find((rs) => rs.name === value);
-        if (route?.validation.isAvailable) dispatch(setTransferRoute(value));
+        if (route?.availability.isAvailable) dispatch(setTransferRoute(value));
       }
     },
     [routeStates, dispatch],
@@ -436,7 +436,7 @@ function RouteOptions() {
           toChain,
         );
 
-        routes.push({ name: r, supported, validation: available });
+        routes.push({ name: r, supported, availability: available });
       }
 
       if (isActive) {
@@ -476,14 +476,14 @@ function RouteOptions() {
       controlStyle={CollapseControlStyle.None}
     >
       <Options active={route} onSelect={onSelect} collapsable collapsed={false}>
-        {allRoutes.map(({ name, validation }) => {
+        {allRoutes.map(({ name, availability }) => {
           return {
             key: name,
-            disabled: !validation.isAvailable,
+            disabled: !availability.isAvailable,
             child: (
               <RouteOption
-                disabled={!validation.isAvailable}
-                reason={validation?.reason || ''}
+                disabled={!availability.isAvailable}
+                reason={availability?.reason || ''}
                 route={RoutesConfig[name as Route]}
               />
             ),

@@ -15,7 +15,7 @@ import {
 } from '@wormhole-foundation/wormhole-connect-sdk';
 import { Route, TokenConfig, Network as NetworkV1 } from 'config/types';
 import { BigNumber } from 'ethers';
-import { AvailableReason, RouteAbstract } from 'routes/abstracts';
+import { RouteAvailability, RouteAbstract } from 'routes/abstracts';
 import {
   RelayerFee,
   SignedMessage,
@@ -216,7 +216,7 @@ export class SDKv2Route<N extends Network> extends RouteAbstract {
     amount: string,
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
-  ): Promise<AvailableReason> {
+  ): Promise<RouteAvailability> {
     // TODO
     return { isAvailable: true };
   }

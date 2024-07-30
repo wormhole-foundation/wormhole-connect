@@ -20,7 +20,7 @@ import { TokenPrices } from 'store/tokenPrices';
 export const REASON_AMOUNT_TOO_LOW = 'Transfer amount too low';
 export const REASON_MANUAL_ADDRESS_NOT_SUPPORTED =
   'Manual address not supported';
-export interface AvailableReason {
+export interface RouteAvailability {
   isAvailable: boolean;
   reason?:
     | typeof REASON_AMOUNT_TOO_LOW
@@ -51,7 +51,7 @@ export abstract class RouteAbstract {
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
     manualAddress?: boolean,
-  ): Promise<AvailableReason>;
+  ): Promise<RouteAvailability>;
 
   public abstract isSupportedChain(chain: ChainName): boolean;
 

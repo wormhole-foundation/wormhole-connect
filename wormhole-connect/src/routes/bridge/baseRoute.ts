@@ -12,7 +12,7 @@ import {
   getWrappedToken,
   toNormalizedDecimals,
 } from 'utils';
-import { AvailableReason, RouteAbstract } from '../abstracts';
+import { RouteAvailability, RouteAbstract } from '../abstracts';
 import { toChainId } from 'utils/sdk';
 import config from 'config';
 import {
@@ -111,7 +111,7 @@ export abstract class BaseRoute extends RouteAbstract {
     amount: string,
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
-  ): Promise<AvailableReason> {
+  ): Promise<RouteAvailability> {
     return { isAvailable: true };
   }
 

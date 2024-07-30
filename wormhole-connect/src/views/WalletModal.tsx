@@ -22,24 +22,12 @@ import Scroll from 'components/Scroll';
 import WalletIcons from 'icons/WalletIcons';
 import Search from 'components/Search';
 import AlertBanner from 'components/AlertBanner';
-import {
-  Box,
-  FormControlLabel,
-  FormGroup,
-  IconButton,
-  InputLabel,
-  OutlinedInput,
-  Switch,
-  FormControl,
-  InputAdornment,
-} from '@mui/material';
+import { FormControlLabel, FormGroup, Switch } from '@mui/material';
 
-import ContentPaste from '@mui/icons-material/ContentPaste';
 import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
-import Button from 'components/Button';
 import WalletImg from '../wallet.svg';
 import { setManualAddressTarget } from 'store/transferInput';
-import QRScanner from 'components/QRScanner';
+import { ManualAddressInput } from 'components/ManualAddressInput';
 
 const useStyles = makeStyles()((theme: any) => ({
   walletRow: {
@@ -243,15 +231,7 @@ function WalletsModal(props: Props) {
     );
   };
 
-  const [address, setAddress] = useState('');
-  const handlePaste = async () =>
-    setAddress(await navigator.clipboard.readText());
-
-  const handleSetAddress = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setAddress(event.target.value);
-  };
-
-  const handleManualConnect = () => {
+  const handleManualConnect = (address: string) => {
     connect({
       name: 'Manual Wallet',
       type: config.chains[toChain!]!.context,
@@ -267,42 +247,12 @@ function WalletsModal(props: Props) {
         getAddresses: () => [address],
         getBalance: async () => '0',
         isConnected: () => true,
-        setMainAddress: (addr: string) => setAddress(addr),
+        setMainAddress: (addr: string) => '',
         on: () => {
           /* noop */
         },
       } as any as Wallet,
     } as WalletData);
-  };
-  const renderManual = () => {
-    return (
-      <FormGroup>
-        <Box display="flex" flexDirection="column" gap={1}>
-          <FormControl variant="outlined">
-            <InputLabel htmlFor="outlined-adornment-password">
-              Wallet Address
-            </InputLabel>
-            <OutlinedInput
-              id="outlined-adornment-password"
-              fullWidth
-              placeholder="0x..."
-              onChange={handleSetAddress}
-              value={address}
-              endAdornment={
-                <InputAdornment position="end">
-                  <QRScanner onScan={setAddress} />
-                  <IconButton>
-                    <ContentPaste onClick={handlePaste} />
-                  </IconButton>
-                </InputAdornment>
-              }
-              label="Wallet Address"
-            />
-          </FormControl>
-          <Button onClick={handleManualConnect}>CONNECT</Button>
-        </Box>
-      </FormGroup>
-    );
   };
 
   const [isManual, setIsManual] = useState(false);
@@ -333,7 +283,11 @@ function WalletsModal(props: Props) {
       ) : (
         <></>
       )}
-      {isManual ? renderManual() : renderContent()}
+      {isManual ? (
+        <ManualAddressInput handleManualConnect={handleManualConnect} />
+      ) : (
+        renderContent()
+      )}
     </Modal>
   );
 }

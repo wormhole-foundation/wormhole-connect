@@ -52,7 +52,7 @@ import {
 import { getUnsignedVaaEvm } from 'utils/vaa';
 import { getNativeVersionOfToken } from 'store/transferInput';
 import {
-  AvailableReason,
+  RouteAvailability,
   REASON_AMOUNT_TOO_LOW,
   RelayAbstract,
 } from 'routes/abstracts';
@@ -208,7 +208,7 @@ export class CCTPRelayRoute extends CCTPManualRoute implements RelayAbstract {
     amount: string,
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
-  ): Promise<AvailableReason> {
+  ): Promise<RouteAvailability> {
     const tokenConfig = config.tokens[sourceToken]!;
     const tokenId = getWrappedTokenId(tokenConfig);
     let relayerFee;

@@ -14,7 +14,7 @@ import {
   RelayerFee,
 } from '../types';
 import { TransferDisplayData } from '../types';
-import { AvailableReason, RouteAbstract } from 'routes/abstracts';
+import { RouteAvailability, RouteAbstract } from 'routes/abstracts';
 
 export class HashflowRoute extends RouteAbstract {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED = false;
@@ -47,7 +47,7 @@ export class HashflowRoute extends RouteAbstract {
     amount: string,
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
-  ): Promise<AvailableReason> {
+  ): Promise<RouteAvailability> {
     throw new Error('Method not implemented.');
   }
   isSupportedSourceToken(

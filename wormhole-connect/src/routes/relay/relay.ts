@@ -53,7 +53,7 @@ import {
 import { fetchVaa } from '../../utils/vaa';
 import { RelayOptions, TransferDestInfoParams } from './types';
 import {
-  AvailableReason,
+  RouteAvailability,
   REASON_AMOUNT_TOO_LOW,
   RelayAbstract,
 } from 'routes/abstracts';
@@ -104,7 +104,7 @@ export class RelayRoute extends BridgeRoute implements RelayAbstract {
     amount: string,
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
-  ): Promise<AvailableReason> {
+  ): Promise<RouteAvailability> {
     const tokenConfig = config.tokens[sourceToken]!;
     const tokenId = getWrappedTokenId(tokenConfig);
     let relayerFee;

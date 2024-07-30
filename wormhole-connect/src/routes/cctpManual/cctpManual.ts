@@ -43,6 +43,10 @@ import {
 import { TokenPrices } from 'store/tokenPrices';
 import { getNativeVersionOfToken } from 'store/transferInput';
 import { PublicKey } from '@solana/web3.js';
+import {
+  REASON_MANUAL_ADDRESS_NOT_SUPPORTED,
+  RouteAvailability,
+} from 'routes/abstracts';
 
 export class CCTPManualRoute extends BaseRoute {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean = false;
@@ -174,6 +178,23 @@ export class CCTPManualRoute extends BaseRoute {
       CCTPManual_CHAINS.includes(sourceChainName) &&
       CCTPManual_CHAINS.includes(destChainName)
     );
+  }
+
+  async isRouteAvailable(
+    sourceToken: string,
+    destToken: string,
+    amount: string,
+    sourceChain: ChainName | ChainId,
+    destChain: ChainName | ChainId,
+    manualAddress?: boolean,
+  ): Promise<RouteAvailability> {
+    // this route is not available if the target addres is manual
+    if (manualAddress)
+      return {
+        isAvailable: false,
+        reason: REASON_MANUAL_ADDRESS_NOT_SUPPORTED,
+      };
+    return { isAvailable: true };
   }
 
   async computeReceiveAmount(

@@ -24,7 +24,7 @@ import { isGatewayChain } from '../../utils/cosmos';
 import { fetchVaa } from '../../utils/vaa';
 import { getSolanaAssociatedTokenAccount } from 'utils/solana';
 import {
-  AvailableReason,
+  RouteAvailability,
   REASON_MANUAL_ADDRESS_NOT_SUPPORTED,
 } from 'routes/abstracts';
 
@@ -80,6 +80,7 @@ export class BridgeRoute extends BaseRoute {
       return true;
     return false;
   }
+
   async isRouteAvailable(
     sourceToken: string,
     destToken: string,
@@ -87,7 +88,7 @@ export class BridgeRoute extends BaseRoute {
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
     manualAddress?: boolean,
-  ): Promise<AvailableReason> {
+  ): Promise<RouteAvailability> {
     // this route is not available if the target addres is manual
     if (manualAddress)
       return {

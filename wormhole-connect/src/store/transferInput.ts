@@ -20,7 +20,7 @@ import {
   receiveDataWrapper,
 } from './helpers';
 import { isPorticoRoute } from 'routes/porticoBridge/utils';
-import { AvailableReason, isNttRoute } from 'routes';
+import { RouteAvailability, isNttRoute } from 'routes';
 import { getNttGroupKey, getNttTokenByGroupKey } from 'utils/ntt';
 
 export type Balance = {
@@ -104,7 +104,7 @@ export type TransferValidations = {
 export type RouteState = {
   name: string;
   supported: boolean;
-  validation: AvailableReason;
+  availability: RouteAvailability;
 };
 
 export interface TransferInputState {
@@ -282,7 +282,7 @@ const establishRoute = (state: TransferInputState) => {
     if (
       routeState &&
       routeState.supported &&
-      routeState.validation.isAvailable
+      routeState.availability.isAvailable
     ) {
       state.route = r;
       return;
