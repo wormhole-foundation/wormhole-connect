@@ -52,6 +52,7 @@ import {
   UnsupportedContractAbiVersion,
 } from 'routes/ntt/errors';
 import { abiVersionMatches } from 'routes/ntt/utils';
+import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
 
 const RATE_LIMIT_DURATION = 24 * 60 * 60;
 
@@ -67,6 +68,32 @@ interface TransferArgs {
   recipientChain: { id: ChainId };
   recipientAddress: number[];
   shouldQueue: boolean;
+}
+
+const isSquads = (wallet: { getName: () => string }) =>
+  wallet?.getName() === 'SquadsX';
+
+const hasEphemeralSigners = (wallet: Wallet) =>
+  'adapter' in wallet &&
+  //@ts-ignore
+  'standard' in wallet.adapter &&
+  //@ts-ignore
+  'fuse:getEphemeralSigners' in wallet.adapter.wallet.features;
+
+async function getEphemeralSigner(
+  wallet: Wallet | undefined,
+): Promise<Keypair> {
+  if (wallet && isSquads(wallet) && hasEphemeralSigners(wallet)) {
+    // @ts-ignore
+    const signers =
+      await wallet.adapter.wallet.features[
+        'fuse:getEphemeralSigners'
+      ].getEphemeralSigners(1);
+    return {
+      publicKey: new PublicKey(signers[0]),
+    } as Keypair;
+  }
+  return Keypair.generate();
 }
 
 export class NttManagerSolana {
@@ -100,7 +127,8 @@ export class NttManagerSolana {
   ): Promise<string> {
     const program = await this.getProgram();
     const config = await this.getConfig();
-    const outboxItem = Keypair.generate();
+    const wallet = getWalletConnection(TransferWallet.SENDING);
+    const outboxItem = await getEphemeralSigner(wallet);
     const destContext = CONFIG.wh.getContext(toChain);
     const payer = new PublicKey(sender);
     const tokenAccount = getAssociatedTokenAddressSync(
@@ -164,30 +192,11 @@ export class NttManagerSolana {
     tx.feePayer = payer;
     const { blockhash } = await this.connection.getLatestBlockhash('finalized');
     tx.recentBlockhash = blockhash;
-
-    /*if (this.isMultisignWallet) {
-      const { value: lookupTableAccount } = await this.connection.getAddressLookupTable(new PublicKey(''));
-      if (lookupTableAccount) {
-        const message = new TransactionMessage({
-          payerKey: payer,
-          recentBlockhash: blockhash,
-          instructions: tx.instructions,
-        }).compileToV0Message([lookupTableAccount]);
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const transactionV0 = new VersionedTransaction(message);
-        const txId = await signAndSendTransaction(
-          'solana',
-          tx,
-          TransferWallet.SENDING,
-          { commitment: 'finalized' },
-        );
-        return txId;
-      }
-      return '';
-    } else {*/
     await this.simulate(tx);
     await addComputeBudget(this.connection, tx);
-    tx.partialSign(outboxItem);
+    if (wallet && !isSquads(wallet)) {
+      tx.partialSign(outboxItem);
+    }
     const txId = await signAndSendTransaction(
       'solana',
       tx,
@@ -195,7 +204,6 @@ export class NttManagerSolana {
       { commitment: 'finalized' },
     );
     return txId;
-    //}
   }
 
   async receiveMessage(vaa: string, payer: string): Promise<string> {
