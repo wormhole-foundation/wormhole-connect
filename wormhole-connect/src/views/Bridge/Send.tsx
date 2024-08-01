@@ -37,6 +37,8 @@ import { useDebounce } from 'use-debounce';
 import { isPorticoRoute } from 'routes/porticoBridge/utils';
 import { interpretTransferError } from 'utils/errors';
 import { getTokenDetails } from 'telemetry';
+import { Box, Link, Typography } from '@mui/material';
+import { WalletData } from 'store/wallet';
 
 const useStyles = makeStyles()((theme) => ({
   body: {
@@ -54,6 +56,26 @@ const useStyles = makeStyles()((theme) => ({
     margin: '0 0 0 4px',
   },
 }));
+
+const SquadAlert = ({ wallet }: { wallet: WalletData }) => (
+  <Box display="flex" flexDirection="column">
+    <Typography variant="body1">
+      Please note that this transaction will require approval to procced, goto{' '}
+      <Link
+        href={`https://app.squads.so/squads/${wallet.currentAddress}/transactions`}
+        target="_blank"
+        color="inherit"
+      >
+        SquadX
+      </Link>{' '}
+      app to continue.
+    </Typography>
+    <Typography variant="body1">
+      Once your transaction is approved you could track the tx status at{' '}
+      <Link href="https://wormholescan.io">Wormholescan</Link>
+    </Typography>
+  </Box>
+);
 
 function Send(props: { valid: boolean }) {
   const { classes } = useStyles();
@@ -321,6 +343,12 @@ function Send(props: { valid: boolean }) {
               'Approve and proceed with transaction'
             )}
           </Button>
+          <AlertBanner
+            show={wallet.sending.name === 'SquadsX'}
+            content={<SquadAlert wallet={wallet.sending} />}
+            error
+            margin="16px 0 0 0"
+          />
         </>
       )}
     </div>

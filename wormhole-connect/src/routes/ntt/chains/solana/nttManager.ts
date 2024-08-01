@@ -86,6 +86,7 @@ async function getEphemeralSigner(
   if (wallet && isSquads(wallet) && hasEphemeralSigners(wallet)) {
     // @ts-ignore
     const signers =
+      // @ts-ignore
       await wallet.adapter.wallet.features[
         'fuse:getEphemeralSigners'
       ].getEphemeralSigners(1);
