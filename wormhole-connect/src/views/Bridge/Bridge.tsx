@@ -363,7 +363,9 @@ function Bridge() {
 
           <Preview collapsed={!showValidationState ? true : !valid} />
 
-          <TransferLimitedWarning fromChain={fromChain} token={token} />
+          {!isNttRoute(route) && (
+            <TransferLimitedWarning fromChain={fromChain} token={token} />
+          )}
           {isNttRoute(route) && <NttInboundCapacityWarning />}
           <Send valid={!!valid} />
         </div>

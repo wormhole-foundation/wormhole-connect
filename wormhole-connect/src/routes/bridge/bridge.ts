@@ -23,6 +23,10 @@ import { SignedMessage } from '../types';
 import { isGatewayChain } from '../../utils/cosmos';
 import { fetchVaa } from '../../utils/vaa';
 import { getSolanaAssociatedTokenAccount } from 'utils/solana';
+import {
+  RouteAvailability,
+  REASON_MANUAL_ADDRESS_NOT_SUPPORTED,
+} from 'routes/abstracts';
 
 export class BridgeRoute extends BaseRoute {
   readonly NATIVE_GAS_DROPOFF_SUPPORTED: boolean = false;
@@ -75,6 +79,23 @@ export class BridgeRoute extends BaseRoute {
     )
       return true;
     return false;
+  }
+
+  async isRouteAvailable(
+    sourceToken: string,
+    destToken: string,
+    amount: string,
+    sourceChain: ChainName | ChainId,
+    destChain: ChainName | ChainId,
+    manualAddress?: boolean,
+  ): Promise<RouteAvailability> {
+    // this route is not available if the target addres is manual
+    if (manualAddress)
+      return {
+        isAvailable: false,
+        reason: REASON_MANUAL_ADDRESS_NOT_SUPPORTED,
+      };
+    return { isAvailable: true };
   }
 
   isSupportedChain(chain: ChainName): boolean {

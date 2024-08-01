@@ -23,7 +23,11 @@ import { isGatewayChain } from 'utils/cosmos';
 import { isPorticoRoute } from 'routes/porticoBridge/utils';
 import Price from 'components/Price';
 import { finality, chainIdToChain } from '@wormhole-foundation/sdk-base';
-import { isNttRoute } from 'routes';
+import {
+  REASON_AMOUNT_TOO_LOW,
+  REASON_MANUAL_ADDRESS_NOT_SUPPORTED,
+  isNttRoute,
+} from 'routes';
 import { getNttDisplayName } from 'utils/ntt';
 
 const useStyles = makeStyles()((theme: any) => ({
@@ -104,6 +108,7 @@ const useStyles = makeStyles()((theme: any) => ({
     flexDirection: 'column',
     justifyContent: 'space-around',
     alignItems: 'flex-end',
+    textAlign: 'right',
     padding: '4px 0',
     height: '100%',
   },
@@ -188,7 +193,11 @@ const getEstimatedTime = (chain?: ChainName) => {
     : millisToMinutesAndSeconds(blockTime * chainFinality);
 };
 
-function RouteOption(props: { route: RouteData; disabled: boolean }) {
+function RouteOption(props: {
+  route: RouteData;
+  disabled: boolean;
+  reason?: string;
+}) {
   const { classes } = useStyles();
   const theme = useTheme();
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -286,17 +295,23 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
   const displayName = isNttRoute(routeName)
     ? getNttDisplayName(fromTokenConfig, toTokenConfig) || props.route.name
     : props.route.name;
-
+  let tooltipText = '';
+  switch (props.reason) {
+    case REASON_MANUAL_ADDRESS_NOT_SUPPORTED:
+      tooltipText =
+        'This route is not available when sending to a manual address';
+      break;
+    case REASON_AMOUNT_TOO_LOW:
+      tooltipText =
+        'Not enough funds on the source chain for automatic redemption';
+      break;
+    default:
+      break;
+  }
   return (
     fromTokenConfig &&
     toTokenConfig && (
-      <Tooltip
-        title={
-          props.disabled
-            ? 'Not enough funds on the source chain for automatic redemption'
-            : ''
-        }
-      >
+      <Tooltip title={tooltipText}>
         <div
           className={`${classes.route} ${
             props.disabled ? classes.disabled : ''
@@ -347,7 +362,7 @@ function RouteOption(props: { route: RouteData; disabled: boolean }) {
           <div className={classes.routeRight}>
             {props.disabled ? (
               <>
-                <div>Transfer amount too low</div>
+                <div>{props.reason}</div>
               </>
             ) : (
               <>
@@ -381,12 +396,13 @@ function RouteOptions() {
     fromChain,
     toChain,
     amount,
+    manualAddressTarget,
   } = useSelector((state: RootState) => state.transferInput);
   const onSelect = useCallback(
     (value: Route) => {
       if (routeStates && routeStates.some((rs) => rs.name === value)) {
         const route = routeStates.find((rs) => rs.name === value);
-        if (route?.available) dispatch(setTransferRoute(value));
+        if (route?.availability.isAvailable) dispatch(setTransferRoute(value));
       }
     },
     [routeStates, dispatch],
@@ -408,6 +424,7 @@ function RouteOptions() {
           debouncedAmount,
           fromChain,
           toChain,
+          manualAddressTarget,
         );
 
         const supported = await RouteOperator.isRouteSupported(
@@ -419,7 +436,7 @@ function RouteOptions() {
           toChain,
         );
 
-        routes.push({ name: r, supported, available });
+        routes.push({ name: r, supported, availability: available });
       }
 
       if (isActive) {
@@ -431,7 +448,15 @@ function RouteOptions() {
     return () => {
       isActive = false;
     };
-  }, [dispatch, token, destToken, debouncedAmount, fromChain, toChain]);
+  }, [
+    dispatch,
+    token,
+    destToken,
+    debouncedAmount,
+    fromChain,
+    toChain,
+    manualAddressTarget,
+  ]);
 
   const allRoutes = useMemo(() => {
     if (!routeStates) return [];
@@ -451,13 +476,14 @@ function RouteOptions() {
       controlStyle={CollapseControlStyle.None}
     >
       <Options active={route} onSelect={onSelect} collapsable collapsed={false}>
-        {allRoutes.map(({ name, available }) => {
+        {allRoutes.map(({ name, availability }) => {
           return {
             key: name,
-            disabled: !available,
+            disabled: !availability.isAvailable,
             child: (
               <RouteOption
-                disabled={!available}
+                disabled={!availability.isAvailable}
+                reason={availability?.reason || ''}
                 route={RoutesConfig[name as Route]}
               />
             ),

@@ -20,7 +20,7 @@ import {
   receiveDataWrapper,
 } from './helpers';
 import { isPorticoRoute } from 'routes/porticoBridge/utils';
-import { isNttRoute } from 'routes';
+import { RouteAvailability, isNttRoute } from 'routes';
 import { getNttGroupKey, getNttTokenByGroupKey } from 'utils/ntt';
 
 export type Balance = {
@@ -104,7 +104,7 @@ export type TransferValidations = {
 export type RouteState = {
   name: string;
   supported: boolean;
-  available: boolean;
+  availability: RouteAvailability;
 };
 
 export interface TransferInputState {
@@ -130,6 +130,7 @@ export interface TransferInputState {
   supportedSourceTokens: TokenConfig[];
   allSupportedDestTokens: TokenConfig[];
   supportedDestTokens: TokenConfig[];
+  manualAddressTarget: boolean;
 }
 
 // This is a function because config might have changed since we last cleared this store
@@ -170,6 +171,7 @@ function getInitialState(): TransferInputState {
     supportedSourceTokens: [],
     allSupportedDestTokens: [],
     supportedDestTokens: [],
+    manualAddressTarget: false,
   };
 }
 
@@ -277,7 +279,11 @@ const establishRoute = (state: TransferInputState) => {
   ];
   for (const r of routeOrderOfPreference) {
     const routeState = routeStates.find((rs) => rs.name === r);
-    if (routeState && routeState.supported && routeState.available) {
+    if (
+      routeState &&
+      routeState.supported &&
+      routeState.availability.isAvailable
+    ) {
       state.route = r;
       return;
     }
@@ -468,6 +474,12 @@ export const transferInputSlice = createSlice({
       performModificationsIfFromChainChanged(state);
       performModificationsIfToChainChanged(state);
     },
+    setManualAddressTarget: (
+      state: TransferInputState,
+      { payload }: PayloadAction<boolean>,
+    ) => {
+      state.manualAddressTarget = payload;
+    },
   },
 });
 
@@ -552,6 +564,7 @@ export const {
   setAllSupportedDestTokens,
   setSupportedSourceTokens,
   swapChains,
+  setManualAddressTarget,
 } = transferInputSlice.actions;
 
 export default transferInputSlice.reducer;

@@ -52,7 +52,11 @@ import {
 } from '../types';
 import { fetchVaa } from '../../utils/vaa';
 import { RelayOptions, TransferDestInfoParams } from './types';
-import { RelayAbstract } from 'routes/abstracts';
+import {
+  RouteAvailability,
+  REASON_AMOUNT_TOO_LOW,
+  RelayAbstract,
+} from 'routes/abstracts';
 import { arrayify } from 'ethers/lib/utils.js';
 import { TokenPrices } from 'store/tokenPrices';
 
@@ -100,7 +104,7 @@ export class RelayRoute extends BridgeRoute implements RelayAbstract {
     amount: string,
     sourceChain: ChainName | ChainId,
     destChain: ChainName | ChainId,
-  ): Promise<boolean> {
+  ): Promise<RouteAvailability> {
     const tokenConfig = config.tokens[sourceToken]!;
     const tokenId = getWrappedTokenId(tokenConfig);
     let relayerFee;
@@ -119,7 +123,7 @@ export class RelayRoute extends BridgeRoute implements RelayAbstract {
       config.wh.toChainId(sourceChain),
       tokenId,
     );
-    return !(
+    const available = !(
       relayerFee === undefined ||
       parseFloat(amount) <
         this.getMinSendAmount(tokenId, destChain, {
@@ -127,6 +131,10 @@ export class RelayRoute extends BridgeRoute implements RelayAbstract {
           toNativeToken: 0,
         })
     );
+    return {
+      isAvailable: available,
+      ...(!available && { reason: REASON_AMOUNT_TOO_LOW }),
+    };
   }
 
   async isSupportedSourceToken(

@@ -4,7 +4,6 @@ import { useTheme } from '@mui/material/styles';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useDispatch, useSelector } from 'react-redux';
 import { ChainName } from '@wormhole-foundation/wormhole-connect-sdk';
-
 import config from 'config';
 import { RootState } from 'store';
 import { setWalletModal } from 'store/router';
@@ -20,9 +19,15 @@ import Header from 'components/Header';
 import Modal from 'components/Modal';
 import Spacer from 'components/Spacer';
 import Scroll from 'components/Scroll';
-import WalletIcon from 'icons/WalletIcons';
+import WalletIcons from 'icons/WalletIcons';
 import Search from 'components/Search';
 import AlertBanner from 'components/AlertBanner';
+import { FormControlLabel, FormGroup, Switch } from '@mui/material';
+
+import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
+import WalletImg from '../wallet.svg';
+import { setManualAddressTarget } from 'store/transferInput';
+import { ManualAddressInput } from 'components/ManualAddressInput';
 
 const useStyles = makeStyles()((theme: any) => ({
   walletRow: {
@@ -168,14 +173,14 @@ function WalletsModal(props: Props) {
       type.toLowerCase().includes(search);
     const filtered = !search ? sorted : sorted.filter(predicate);
     return filtered.map((wallet, i) => {
-      const ready = wallet.isReady;
+      const ready = wallet.isReady || wallet.name === 'Safe{Wallet}';
       const select = ready
         ? () => connect(wallet)
         : () => window.open(wallet.wallet.getUrl());
       return (
         <div className={classes.walletRow} key={i} onClick={select}>
           <div className={classes.walletRowLeft}>
-            <WalletIcon name={wallet.name} icon={wallet.icon} height={32} />
+            <WalletIcons name={wallet.name} icon={wallet.icon} height={32} />
             <div className={`${!ready && classes.notInstalled}`}>
               {!ready && 'Install'} {wallet.name}
             </div>
@@ -226,11 +231,63 @@ function WalletsModal(props: Props) {
     );
   };
 
+  const handleManualConnect = (address: string) => {
+    connect({
+      name: 'Manual Wallet',
+      type: config.chains[toChain!]!.context,
+      icon: '',
+      isReady: true,
+      wallet: {
+        connect: async () => ['connected'],
+        getIcon: () => WalletImg,
+        getUrls: async () => '',
+        getName: () => 'Manual Wallet',
+        disconnect: async () => true,
+        getAddress: () => address,
+        getAddresses: () => [address],
+        getBalance: async () => '0',
+        isConnected: () => true,
+        setMainAddress: (addr: string) => '',
+        on: () => {
+          /* noop */
+        },
+      } as any as Wallet,
+    } as WalletData);
+  };
+
+  const [isManual, setIsManual] = useState(false);
+  const toggleManual = () => {
+    dispatch(setManualAddressTarget(!isManual));
+    setIsManual(!isManual);
+  };
+
   return (
     <Modal open={!!props.type} closable width={500} onClose={closeWalletModal}>
-      <Header text="Connect wallet" size={28} />
+      <Header text={isManual ? 'Manual Input' : 'Connect wallet'} size={28} />
+
       <Spacer height={16} />
-      {renderContent()}
+      {props.type === TransferWallet.RECEIVING &&
+      config?.manualTargetAddress ? (
+        <>
+          <FormGroup>
+            <FormControlLabel
+              control={
+                <Switch value={isManual} onChange={() => toggleManual()} />
+              }
+              label={
+                isManual ? 'Switch to Connect Wallet' : 'Switch to Manual Input'
+              }
+            />
+          </FormGroup>
+        </>
+      ) : (
+        <></>
+      )}
+      {isManual ? (
+        <ManualAddressInput handleManualConnect={handleManualConnect} />
+      ) : (
+        renderContent()
+      )}
     </Modal>
   );
 }
