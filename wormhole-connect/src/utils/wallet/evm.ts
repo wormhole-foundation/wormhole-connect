@@ -1,39 +1,50 @@
+import { type ChainResourceMap } from '@wormhole-foundation/wormhole-connect-sdk';
 import { Wallet } from '@xlabs-libs/wallet-aggregator-core';
 import {
   EVMWallet,
   InjectedWallet,
   WalletConnectWallet,
-  Chain,
   DEFAULT_CHAINS,
 } from '@xlabs-libs/wallet-aggregator-evm';
 import config from 'config';
 
-const buildChains = (): Chain[] => {
-  const ethConfig = DEFAULT_CHAINS.find((c) => c.id === 1);
-  return ethConfig
-    ? [
-        ...DEFAULT_CHAINS,
-        {
-          ...ethConfig,
+const isChainResourceKey = (key: string): key is keyof ChainResourceMap =>
+  Object.keys(config.rpcs).includes(key);
+
+const CHAINS_CONFIG = Object.entries(DEFAULT_CHAINS).map(
+  ([wagmiChainName, wagmiConfig]) => {
+    if (isChainResourceKey(wagmiChainName)) {
+      const rpc = config.rpcs[wagmiChainName];
+      if (rpc) {
+        return {
+          ...wagmiConfig,
           rpcUrls: {
-            bsc: { http: [config.rpcs.bsc!] },
-            ethereum: { http: [config.rpcs.ethereum!] },
-            default: { http: [config.rpcs.ethereum!] },
-            public: { http: [config.rpcs.ethereum!] },
+            ...wagmiConfig.rpcUrls,
+            [wagmiChainName]: {
+              http: [rpc],
+            },
+            default: {
+              http: [rpc],
+            },
+            public: {
+              http: [rpc],
+            },
           },
-        },
-      ]
-    : DEFAULT_CHAINS;
-};
+        };
+      }
+    }
+    return wagmiConfig;
+  },
+);
 
 export const wallets = {
   injected: new InjectedWallet({
-    chains: buildChains(),
+    chains: CHAINS_CONFIG,
   }),
   ...(config.walletConnectProjectId
     ? {
         walletConnect: new WalletConnectWallet({
-          chains: buildChains(),
+          chains: CHAINS_CONFIG,
           connectorOptions: {
             projectId: config.walletConnectProjectId,
           },
